@@ -12217,7 +12217,7 @@ public void IllegalFallThroughToPattern(Statement statement) {
 	}
 public void switchPatternOnlyOnePatternCaseLabelAllowed(Expression element) {
 	this.handle(
-			IProblem.SwitchPatternOnlyOnePatternCaseLabelAllowed,
+			IProblem.OnlyOnePatternCaseLabelAllowed,
 			NoArgument,
 			NoArgument,
 			element.sourceStart,
@@ -12225,7 +12225,7 @@ public void switchPatternOnlyOnePatternCaseLabelAllowed(Expression element) {
 }
 public void switchPatternBothPatternAndDefaultCaseLabelsNotAllowed(Expression element) {
 	this.handle(
-			IProblem.SwitchPatternBothPatternAndDefaultCaseLabelsNotAllowed,
+			IProblem.CannotMixPatternAndDefault,
 			NoArgument,
 			NoArgument,
 			element.sourceStart,
@@ -12233,7 +12233,7 @@ public void switchPatternBothPatternAndDefaultCaseLabelsNotAllowed(Expression el
 }
 public void switchPatternBothNullAndNonTypePatternNotAllowed(Expression element) {
 	this.handle(
-			IProblem.SwitchPatternBothNullAndNonTypePatternNotAllowed,
+			IProblem.CannotMixNullAndNonTypePattern,
 			NoArgument,
 			NoArgument,
 			element.sourceStart,
@@ -12257,7 +12257,7 @@ public void illegalTotalPatternWithDefault(Statement element) {
 }
 public void enhancedSwitchMissingDefaultCase(ASTNode element) {
 	this.handle(
-			IProblem.EnhancedSwitchMissingDefaultCase,
+			IProblem.EnhancedSwitchMissingDefault,
 			NoArgument,
 			NoArgument,
 			element.sourceStart,

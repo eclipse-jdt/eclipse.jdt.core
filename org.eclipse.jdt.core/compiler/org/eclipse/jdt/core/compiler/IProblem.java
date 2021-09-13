@@ -2473,7 +2473,7 @@ void setSourceStart(int sourceStart);
 	int LocalReferencedInGuardMustBeEffectivelyFinal = PreviewRelated + 1900;
 	/** @since 3.27 BETA_JAVA17
 	 * @noreference preview feature error */
-	int SwitchPatternConstantWithPatternIncompatible = PreviewRelated + 1901;
+	int ConstantWithPatternIncompatible = PreviewRelated + 1901;
 	/**
 	 * @since 3.27 BETA_JAVA17
 	 * @noreference preview feature error
@@ -2482,13 +2482,13 @@ void setSourceStart(int sourceStart);
 
 	/** @since 3.27 BETA_JAVA17
 	 * @noreference preview feature error */
-	int SwitchPatternOnlyOnePatternCaseLabelAllowed = PreviewRelated + 1903;
+	int OnlyOnePatternCaseLabelAllowed = PreviewRelated + 1903;
 	/** @since 3.27 BETA_JAVA17
 	 * @noreference preview feature error */
-	int SwitchPatternBothPatternAndDefaultCaseLabelsNotAllowed = PreviewRelated + 1904;
+	int CannotMixPatternAndDefault = PreviewRelated + 1904;
 	/** @since 3.27 BETA_JAVA17
 	 * @noreference preview feature error */
-	int SwitchPatternBothNullAndNonTypePatternNotAllowed = PreviewRelated + 1905;
+	int CannotMixNullAndNonTypePattern = PreviewRelated + 1905;
 	/** @since 3.27 BETA_JAVA17
 	 * @noreference preview feature error */
 	int PatternDominated = PreviewRelated + 1906;
@@ -2497,7 +2497,7 @@ void setSourceStart(int sourceStart);
 	int IllegalTotalPatternWithDefault = PreviewRelated + 1907;
 	/** @since 3.27 BETA_JAVA17
 	 * @noreference preview feature error */
-	int EnhancedSwitchMissingDefaultCase = PreviewRelated + 1908;
+	int EnhancedSwitchMissingDefault = PreviewRelated + 1908;
 	/** @since 3.27 BETA_JAVA17
 	 * @noreference preview feature error */
 	int DuplicateTotalPattern = PreviewRelated + 1909;

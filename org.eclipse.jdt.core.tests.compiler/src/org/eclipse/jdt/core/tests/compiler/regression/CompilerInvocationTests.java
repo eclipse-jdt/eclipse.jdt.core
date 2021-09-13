@@ -1298,14 +1298,14 @@ public void test011_problem_categories() {
 	    expectedProblemAttributes.put("SealedSuperTypeDisallowed", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("SafeVarargsOnSyntheticRecordAccessor", new ProblemAttributes(true));
 	    expectedProblemAttributes.put("DiscouragedValueBasedTypeSynchronization", new ProblemAttributes(true));
-	    expectedProblemAttributes.put("SwitchPatternConstantWithPatternIncompatible", new ProblemAttributes(true));
+	    expectedProblemAttributes.put("ConstantWithPatternIncompatible", new ProblemAttributes(true));
 	    expectedProblemAttributes.put("IllegalFallthroughToPattern", new ProblemAttributes(true));
-	    expectedProblemAttributes.put("SwitchPatternOnlyOnePatternCaseLabelAllowed", new ProblemAttributes(true));
-	    expectedProblemAttributes.put("SwitchPatternBothPatternAndDefaultCaseLabelsNotAllowed", new ProblemAttributes(true));
-	    expectedProblemAttributes.put("SwitchPatternBothNullAndNonTypePatternNotAllowed", new ProblemAttributes(true));
+	    expectedProblemAttributes.put("OnlyOnePatternCaseLabelAllowed", new ProblemAttributes(true));
+	    expectedProblemAttributes.put("CannotMixPatternAndDefault", new ProblemAttributes(true));
+	    expectedProblemAttributes.put("CannotMixNullAndNonTypePattern", new ProblemAttributes(true));
 	    expectedProblemAttributes.put("PatternDominated", new ProblemAttributes(true));
 	    expectedProblemAttributes.put("IllegalTotalPatternWithDefault", new ProblemAttributes(true));
-	    expectedProblemAttributes.put("EnhancedSwitchMissingDefaultCase", new ProblemAttributes(true));
+	    expectedProblemAttributes.put("EnhancedSwitchMissingDefault", new ProblemAttributes(true));
 	    expectedProblemAttributes.put("DuplicateTotalPattern", new ProblemAttributes(true));
 	    expectedProblemAttributes.put("UnexpectedTypeinSwitchPattern", new ProblemAttributes(true));
 
@@ -2376,14 +2376,14 @@ public void test012_compiler_problems_tuning() {
 	    expectedProblemAttributes.put("LocalReferencedInGuardMustBeEffectivelyFinal", SKIP);
 	    expectedProblemAttributes.put("SafeVarargsOnSyntheticRecordAccessor", SKIP);
 	    expectedProblemAttributes.put("DiscouragedValueBasedTypeSynchronization", SKIP);
-	    expectedProblemAttributes.put("SwitchPatternConstantWithPatternIncompatible", SKIP);
+	    expectedProblemAttributes.put("ConstantWithPatternIncompatible", SKIP);
 	    expectedProblemAttributes.put("IllegalFallthroughToPattern", SKIP);
-	    expectedProblemAttributes.put("SwitchPatternOnlyOnePatternCaseLabelAllowed", SKIP);
-	    expectedProblemAttributes.put("SwitchPatternBothPatternAndDefaultCaseLabelsNotAllowed", SKIP);
-	    expectedProblemAttributes.put("SwitchPatternBothNullAndNonTypePatternNotAllowed", SKIP);
+	    expectedProblemAttributes.put("OnlyOnePatternCaseLabelAllowed", SKIP);
+	    expectedProblemAttributes.put("CannotMixPatternAndDefault", SKIP);
+	    expectedProblemAttributes.put("CannotMixNullAndNonTypePattern", SKIP);
 	    expectedProblemAttributes.put("PatternDominated", SKIP);
 	    expectedProblemAttributes.put("IllegalTotalPatternWithDefault", SKIP);
-	    expectedProblemAttributes.put("EnhancedSwitchMissingDefaultCase", SKIP);
+	    expectedProblemAttributes.put("EnhancedSwitchMissingDefault", SKIP);
 	    expectedProblemAttributes.put("DuplicateTotalPattern", SKIP);
 	    expectedProblemAttributes.put("UnexpectedTypeinSwitchPattern", SKIP);
 
