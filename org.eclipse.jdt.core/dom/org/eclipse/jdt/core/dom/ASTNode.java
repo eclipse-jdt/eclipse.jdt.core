@@ -1007,7 +1007,7 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type
 	 * <code>TypePattern</code>.
 	 * @see TypePattern
-	 * @since 3.27
+	 * @since 3.28
 	 */
 	public static final int TYPE_PATTERN = 106;
 
@@ -1015,7 +1015,7 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type
 	 * <code>GuardedPattern</code>.
 	 * @see GuardedPattern
-	 * @since 3.27
+	 * @since 3.28
 	 */
 	public static final int GUARDED_PATTERN = 107;
 
@@ -1023,7 +1023,7 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type
 	 * <code>NullPattern</code>.
 	 * @see NullPattern
-	 * @since 3.27
+	 * @since 3.28
 	 */
 	public static final int NULL_PATTERN = 108;
 
@@ -1031,7 +1031,7 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type
 	 * <code>CaseDefaultExpression</code>.
 	 * @see CaseDefaultExpression
-	 * @since 3.27
+	 * @since 3.28
 	 */
 	public static final int CASE_DEFAULT_EXPRESSION = 109;
 

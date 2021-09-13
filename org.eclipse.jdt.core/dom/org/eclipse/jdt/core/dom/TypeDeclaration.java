@@ -863,7 +863,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	/**
 	 * A character index into the original restricted identifier source string, or <code>-1</code> if no restricted
 	 * identifier source position information is available for this node; <code>-1</code> by default.
-	 * @since 3.27
+	 * @since 3.28
 	 */
 	public void setRestrictedIdentifierStartPosition(int restrictedIdentifierStartPosition) {
 		if (restrictedIdentifierStartPosition < 0) {
@@ -878,7 +878,7 @@ public class TypeDeclaration extends AbstractTypeDeclaration {
 	/**
 	 * A character index into the original restricted identifier source string, or <code>-1</code> if no restricted
 	 * identifier source position information is available for this node; <code>-1</code> by default.
-	 * @since 3.27
+	 * @since 3.28
 	 */
 	public int getRestrictedIdentifierStartPosition() {
 		return this.restrictedIdentifierStartPosition;

@@ -1581,7 +1581,7 @@ void setSourceStart(int sourceStart);
 
 	/**
 	 * Modifiers
-	 * @since 3.27
+	 * @since 3.28
 	 */
 	int StrictfpNotRequired = Syntax + Internal + 741;
 
@@ -2376,12 +2376,10 @@ void setSourceStart(int sourceStart);
 
 	/* records - end */
 	/* Local and Nested Static Declarations - Begin */
-	/** @since 3.24
-	 * @noreference preview feature error */
-	int LocalStaticsIllegalVisibilityModifierForInterfaceLocalType = PreviewRelated + 1765;
-	/** @since 3.24
-	 * @noreference preview feature error */
-	int IllegalModifierForLocalEnumDeclaration = PreviewRelated + 1766;
+	/** @since 3.28 */
+	int LocalStaticsIllegalVisibilityModifierForInterfaceLocalType = TypeRelated + 1765;
+	/** @since 3.28 */
+	int IllegalModifierForLocalEnumDeclaration = TypeRelated + 1766;
 	/* records - end */
 
 
@@ -2402,106 +2400,88 @@ void setSourceStart(int sourceStart);
 	 */
 	int PatternVariableRedeclared = Internal + 1784;
 
-	/** @since 3.26
-	 * @noreference */
+	/** @since 3.28
+	 */
 	int DiscouragedValueBasedTypeSynchronization = Internal + 1820;
 
-	/** @since 3.24
-	 * @noreference preview feature error */
-	int SealedMissingClassModifier = PreviewRelated + 1850;
-	/** @since 3.24
-	 * @noreference preview feature error */
-	int SealedDisAllowedNonSealedModifierInClass = PreviewRelated + 1851;
-	/** @since 3.24
-	 * @noreference preview feature error */
-	int SealedSuperClassDoesNotPermit = PreviewRelated + 1852;
-	/** @since 3.24
-	 * @noreference preview feature error */
-	int SealedSuperInterfaceDoesNotPermit = PreviewRelated + 1853;
-	/** @since 3.24
-	 * @noreference preview feature error */
-	int SealedMissingSealedModifier = PreviewRelated + 1854;
-	/** @since 3.24
-	 * @noreference preview feature error */
-	int SealedMissingInterfaceModifier = PreviewRelated + 1855;
-	/** @since 3.24
-	 * @noreference preview feature error */
-	int SealedDuplicateTypeInPermits = PreviewRelated + 1856;
-	/** @since 3.24
-	 * @noreference preview feature error */
-	int SealedNotDirectSuperClass = PreviewRelated + 1857;
-	/** @since 3.24
-	 * @noreference preview feature error */
-	int SealedPermittedTypeOutsideOfModule = PreviewRelated + 1858;
-	/** @since 3.24
-	 * @noreference preview feature error */
-	int SealedPermittedTypeOutsideOfPackage = PreviewRelated + 1859;
-	/** @since 3.24
-	 * @noreference preview feature error */
-	int SealedSealedTypeMissingPermits = PreviewRelated + 1860;
-	/** @since 3.24
-	 * @noreference preview feature error */
-	int SealedInterfaceIsSealedAndNonSealed = PreviewRelated + 1861;
-	/** @since 3.24
-	 * @noreference preview feature error */
-	int SealedDisAllowedNonSealedModifierInInterface = PreviewRelated + 1862;
-	/** @since 3.24
-	 * @noreference preview feature error */
-	int SealedNotDirectSuperInterface = PreviewRelated + 1863;
-	/** @since 3.24
-	 * @noreference preview feature error */
-	int SealedLocalDirectSuperTypeSealed = PreviewRelated + 1864;
-	/** @since 3.24
-	 * @noreference preview feature error */
-	int SealedAnonymousClassCannotExtendSealedType = PreviewRelated + 1865;
-	/** @since 3.27
-	 * @noreference preview feature error */
-	int SealedSuperTypeInDifferentPackage = PreviewRelated + 1866;
-	/** @since 3.27
-	 * @noreference preview feature error */
-	int SealedSuperTypeDisallowed = PreviewRelated + 1867;
+	/** @since 3.28 */
+	int SealedMissingClassModifier = TypeRelated + 1850;
+	/** @since 3.28 */
+	int SealedDisAllowedNonSealedModifierInClass = TypeRelated + 1851;
+	/** @since 3.28 */
+	int SealedSuperClassDoesNotPermit = TypeRelated + 1852;
+	/** @since 3.28 */
+	int SealedSuperInterfaceDoesNotPermit = TypeRelated + 1853;
+	/** @since 3.28 */
+	int SealedMissingSealedModifier = TypeRelated + 1854;
+	/** @since 3.28 */
+	int SealedMissingInterfaceModifier = TypeRelated + 1855;
+	/** @since 3.28 */
+	int SealedDuplicateTypeInPermits = TypeRelated + 1856;
+	/** @since 3.28 */
+	int SealedNotDirectSuperClass = TypeRelated + 1857;
+	/** @since 3.28 */
+	int SealedPermittedTypeOutsideOfModule = TypeRelated + 1858;
+	/** @since 3.28 */
+	int SealedPermittedTypeOutsideOfPackage = TypeRelated + 1859;
+	/** @since 3.28 */
+	int SealedSealedTypeMissingPermits = TypeRelated + 1860;
+	/** @since 3.28 */
+	int SealedInterfaceIsSealedAndNonSealed = TypeRelated + 1861;
+	/** @since 3.28 */
+	int SealedDisAllowedNonSealedModifierInInterface = TypeRelated + 1862;
+	/** @since 3.28 */
+	int SealedNotDirectSuperInterface = TypeRelated + 1863;
+	/** @since 3.28 */
+	int SealedLocalDirectSuperTypeSealed = TypeRelated + 1864;
+	/** @since 3.28 */
+	int SealedAnonymousClassCannotExtendSealedType = TypeRelated + 1865;
+	/** @since 3.28 */
+	int SealedSuperTypeInDifferentPackage = TypeRelated + 1866;
+	/** @since 3.28 */
+	int SealedSuperTypeDisallowed = TypeRelated + 1867;
 	/* Java15 errors - end */
 
 	/**
-	 * @since 3.27
+	 * @since 3.28
 	 * @noreference preview feature error
 	 */
 	int LocalReferencedInGuardMustBeEffectivelyFinal = PreviewRelated + 1900;
-	/** @since 3.27
+	/** @since 3.28
 	 * @noreference preview feature error */
 	int ConstantWithPatternIncompatible = PreviewRelated + 1901;
 	/**
-	 * @since 3.27
+	 * @since 3.28
 	 * @noreference preview feature error
 	 */
 	int IllegalFallthroughToPattern = PreviewRelated + 1902;
 
-	/** @since 3.27
+	/** @since 3.28
 	 * @noreference preview feature error */
 	int OnlyOnePatternCaseLabelAllowed = PreviewRelated + 1903;
-	/** @since 3.27
+	/** @since 3.28
 	 * @noreference preview feature error */
 	int CannotMixPatternAndDefault = PreviewRelated + 1904;
-	/** @since 3.27
+	/** @since 3.28
 	 * @noreference preview feature error */
 	int CannotMixNullAndNonTypePattern = PreviewRelated + 1905;
-	/** @since 3.27
+	/** @since 3.28
 	 * @noreference preview feature error */
 	int PatternDominated = PreviewRelated + 1906;
-	/** @since 3.27
+	/** @since 3.28
 	 * @noreference preview feature error */
 	int IllegalTotalPatternWithDefault = PreviewRelated + 1907;
-	/** @since 3.27
+	/** @since 3.28
 	 * @noreference preview feature error */
 	int EnhancedSwitchMissingDefault = PreviewRelated + 1908;
-	/** @since 3.27
+	/** @since 3.28
 	 * @noreference preview feature error */
 	int DuplicateTotalPattern = PreviewRelated + 1909;
 
-	/** @since 3.27
+	/** @since 3.28
 	 * @noreference preview feature error */
 	int UnnecessaryNullCaseInSwitchOverNonNull = PreviewRelated + 1910;
-	/** @since 3.27
+	/** @since 3.28
 	 * @noreference preview feature error */
 	int UnexpectedTypeinSwitchPattern = PreviewRelated + 1911;
 }

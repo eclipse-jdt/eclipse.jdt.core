@@ -387,7 +387,7 @@ public final class AST {
 	 * up to and including Java SE 17(aka JDK 17).
 	 * </p>
 	 *
-	 * @since 3.27
+	 * @since 3.28
 	 */
 	public static final int JLS17 = 17;
 
@@ -1678,7 +1678,7 @@ public final class AST {
 	 * Creates and returns a new unparented default case expression node.
 	 *
 	 * @return a new unparented default case expression node
-	 * @since 3.27
+	 * @since 3.28
 	 */
 	public CaseDefaultExpression newCaseDefaultExpression() {
 		CaseDefaultExpression result = new CaseDefaultExpression(this);
@@ -1993,7 +1993,7 @@ public final class AST {
 	 * unspecified pattern variable name and a null expression.
 	 *
 	 * @return a new unparented guarded pattern node
-	 * @since 3.27
+	 * @since 3.28
 	 */
 	public GuardedPattern newGuardedPattern() {
 		GuardedPattern result = new GuardedPattern(this);
@@ -2484,7 +2484,7 @@ public final class AST {
 	 * Creates and returns a new unparented null pattern node .
 	 *
 	 * @return a new unparented null pattern node
-	 * @since 3.27
+	 * @since 3.28
 	 */
 	public NullPattern newNullPattern() {
 		NullPattern result = new NullPattern(this);
@@ -3097,7 +3097,7 @@ public final class AST {
 	 * unspecified pattern variable.
 	 *
 	 * @return a new unparented type pattern node
-	 * @since 3.27
+	 * @since 3.28
 	 */
 	public TypePattern newTypePattern() {
 		TypePattern result = new TypePattern(this);

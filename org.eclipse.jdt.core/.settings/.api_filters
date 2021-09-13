@@ -1,18 +1,152 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component id="org.eclipse.jdt.core" version="2">
-    <resource path="META-INF/MANIFEST.MF">
-        <filter id="931135546">
-            <message_arguments>
-                <message_argument value="3.27.50"/>
-                <message_argument value="3.26.0"/>
-            </message_arguments>
-        </filter>
-    </resource>
     <resource path="compiler/org/eclipse/jdt/core/compiler/CategorizedProblem.java" type="org.eclipse.jdt.core.compiler.CategorizedProblem">
         <filter comment="Java 14" id="576725006">
             <message_arguments>
                 <message_argument value="IProblem"/>
                 <message_argument value="CategorizedProblem"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="compiler/org/eclipse/jdt/core/compiler/IProblem.java" type="org.eclipse.jdt.core.compiler.IProblem">
+        <filter id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="IllegalModifierForLocalEnumDeclaration"/>
+                <message_argument value="2098918"/>
+            </message_arguments>
+        </filter>
+        <filter id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="LocalStaticsIllegalVisibilityModifierForInterfaceLocalType"/>
+                <message_argument value="2098917"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Update the errors that are no longer preview" id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="SealedAnonymousClassCannotExtendSealedType"/>
+                <message_argument value="2099017"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Update the errors that are no longer preview" id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="SealedDisAllowedNonSealedModifierInClass"/>
+                <message_argument value="2099003"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Update the errors that are no longer preview" id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="SealedDisAllowedNonSealedModifierInInterface"/>
+                <message_argument value="2099014"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Update the errors that are no longer preview" id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="SealedDuplicateTypeInPermits"/>
+                <message_argument value="2099008"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Update the errors that are no longer preview" id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="SealedInterfaceIsSealedAndNonSealed"/>
+                <message_argument value="2099013"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Update the errors that are no longer preview" id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="SealedLocalDirectSuperTypeSealed"/>
+                <message_argument value="2099016"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Update the errors that are no longer preview" id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="SealedMissingClassModifier"/>
+                <message_argument value="2099002"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Update the errors that are no longer preview" id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="SealedMissingInterfaceModifier"/>
+                <message_argument value="2099007"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Update the errors that are no longer preview" id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="SealedMissingSealedModifier"/>
+                <message_argument value="2099006"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Update the errors that are no longer preview" id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="SealedNotDirectSuperClass"/>
+                <message_argument value="2099009"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Update the errors that are no longer preview" id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="SealedNotDirectSuperInterface"/>
+                <message_argument value="2099015"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Update the errors that are no longer preview" id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="SealedPermittedTypeOutsideOfModule"/>
+                <message_argument value="2099010"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Update the errors that are no longer preview" id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="SealedPermittedTypeOutsideOfPackage"/>
+                <message_argument value="2099011"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Update the errors that are no longer preview" id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="SealedSealedTypeMissingPermits"/>
+                <message_argument value="2099012"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Update the errors that are no longer preview" id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="SealedSuperClassDoesNotPermit"/>
+                <message_argument value="2099004"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Update the errors that are no longer preview" id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="SealedSuperInterfaceDoesNotPermit"/>
+                <message_argument value="2099005"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Update the errors that are no longer preview" id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="SealedSuperTypeDisallowed"/>
+                <message_argument value="2099019"/>
+            </message_arguments>
+        </filter>
+        <filter comment="Update the errors that are no longer preview" id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="SealedSuperTypeInDifferentPackage"/>
+                <message_argument value="2099018"/>
             </message_arguments>
         </filter>
     </resource>
@@ -22,15 +156,6 @@
                 <message_argument value="org.eclipse.jdt.core.dom.AST"/>
                 <message_argument value="JLS_Latest"/>
                 <message_argument value="16"/>
-            </message_arguments>
-        </filter>
-    </resource>
-    <resource path="dom/org/eclipse/jdt/core/dom/ASTNode.java" type="org.eclipse.jdt.core.dom.ASTNode">
-        <filter comment="To fix the mistake" id="388194388">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.dom.ASTNode"/>
-                <message_argument value="MODULE_QUALIFIED_NAME"/>
-                <message_argument value="103"/>
             </message_arguments>
         </filter>
     </resource>
