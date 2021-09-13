@@ -8,10 +8,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -137,7 +133,7 @@ public class DOMASTUtil {
 	 * @return <code>true</code> if the given <code>AST</code> supports the provided <code>nodeType</code> else
 	 *         <code>false</code>
 	 * @see ASTNode#getNodeType()
-	 * @since 3.27 BETA_JAVA17
+	 * @since 3.27
 	 */
 	public static boolean isFeatureSupportedinAST(int apiLevel, int featureName) {
 		switch (featureName) {
