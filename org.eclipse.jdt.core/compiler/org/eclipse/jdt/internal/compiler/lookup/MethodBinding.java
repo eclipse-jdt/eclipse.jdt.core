@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1081,7 +1081,7 @@ public final char[] signature() /* (ILjava/lang/Thread;)Ljava/lang/Object; */ {
 			}
 		}
 
-		if (this instanceof SyntheticMethodBinding) {
+		if ((this instanceof SyntheticMethodBinding) && (!this.declaringClass.isRecord())) {
 			targetParameters = ((SyntheticMethodBinding)this).targetMethod.parameters;
 		}
 	}
