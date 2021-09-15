@@ -1382,7 +1382,8 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 		 			getJavaSearchScope(),
 		 			this.resultCollector);
 		 		assertSearchResults(
-		 			"lib/record_reference_in_nonsource_jar.jar pack.rr [No source] EXACT_MATCH",
+		 			"lib/record_reference_in_nonsource_jar.jar pack.c1.ob [No source] EXACT_MATCH\n"
+		 			+ "lib/record_reference_in_nonsource_jar.jar pack.rr [No source] EXACT_MATCH",
 		 			this.resultCollector);
 		 		// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=565180 ( reason for 1 result instead of 3)
 		}

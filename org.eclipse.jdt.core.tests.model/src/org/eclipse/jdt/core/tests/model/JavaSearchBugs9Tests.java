@@ -1475,7 +1475,8 @@ public void testBug501162_029() throws Exception {
 		assertSearchResults(
 				"src/pack1/X.java [ITwo] EXACT_MATCH\n" +
 				"src/pack1/X.java pack1.X.i2 [ITwo] EXACT_MATCH\n" +
-				"lib/bzero501162.jar zero [No source] EXACT_MATCH",
+				"lib/bzero501162.jar zero [No source] EXACT_MATCH\n"
+				+ "lib/bzero501162.jar pack.one.XOne.itwo [No source] EXACT_MATCH",
 			this.resultCollector);
 	}
 	finally {

@@ -636,6 +636,12 @@ public int resolveLevel(ASTNode node) {
 @Override
 public int resolveLevel(Binding binding) {
 	if (binding == null) return INACCURATE_MATCH;
+
+	if(binding instanceof MethodBinding)
+		return resolveLevel((MethodBinding) binding);
+	if(binding instanceof VariableBinding)
+		return resolveLevel((VariableBinding) binding);
+
 	if (!(binding instanceof TypeBinding)) return IMPOSSIBLE_MATCH;
 
 	TypeBinding typeBinding = (TypeBinding) binding;
@@ -645,6 +651,51 @@ public int resolveLevel(Binding binding) {
 		typeBinding = ((ProblemReferenceBinding) typeBinding).closestMatch();
 
 	return resolveLevelForTypeOrEnclosingTypes(this.pattern.simpleName, this.pattern.qualification, typeBinding);
+}
+private int resolveLevel(MethodBinding binding) {
+	int level = resolveLevelForTypes(binding.parameters);
+	if(level != IMPOSSIBLE_MATCH) {
+		return level;
+	}
+
+	if(binding.typeVariables != null) {
+		for (TypeVariableBinding tv : binding.typeVariables) {
+			if(tv.superclass != null) {
+				level = resolveLevelForType(tv.superclass);
+				if(level != IMPOSSIBLE_MATCH) {
+					return level;
+				}
+			}
+
+			level = resolveLevelForTypes(tv.superInterfaces);
+			if(level != IMPOSSIBLE_MATCH) {
+				return level;
+			}
+		}
+	}
+
+	if(!binding.isVoidMethod() && binding.returnType != null) {
+		return resolveLevelForType(binding.returnType);
+	}
+
+	return IMPOSSIBLE_MATCH;
+}
+private int resolveLevel(VariableBinding binding) {
+	if(binding.type != null) {
+		return resolveLevelForType(binding.type);
+	}
+	return IMPOSSIBLE_MATCH;
+}
+private int resolveLevelForTypes(TypeBinding[] types) {
+	if(types != null) {
+		for (TypeBinding t : types) {
+			int levelForType = resolveLevelForType(t);
+			if(levelForType != IMPOSSIBLE_MATCH) {
+				return levelForType;
+			}
+		}
+	}
+	return IMPOSSIBLE_MATCH;
 }
 protected int resolveLevel(NameReference nameRef) {
 	Binding binding = nameRef.binding;
