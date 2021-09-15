@@ -62,6 +62,7 @@ import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.NullAnnotationMatching;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
@@ -489,7 +490,8 @@ public void computeId() {
 				case 3: // only one type in this group, yet:
 					if (CharOperation.equals(TypeConstants.ORG_JUNIT_ASSERT, this.compoundName))
 						this.id = TypeIds.T_OrgJunitAssert;
-					else if (CharOperation.equals(TypeConstants.JDK_INTERNAL_PREVIEW_FEATURE, this.compoundName))
+					else if (CharOperation.equals(TypeConstants.JDK_INTERNAL_PREVIEW_FEATURE, this.compoundName)
+							|| CharOperation.equals(TypeConstants.JDK_INTERNAL_JAVAC_PREVIEW_FEATURE, this.compoundName))
 						this.id = TypeIds.T_JdkInternalPreviewFeature;
 					return;
 				case 4:
@@ -2285,9 +2287,7 @@ public MethodBinding getSingleAbstractMethod(Scope scope, boolean replaceWildcar
 	} else {
 		this.singleAbstractMethod = new MethodBinding[2];
 		// Sec 9.8 of sealed preview - A functional interface is an interface that is not declared sealed...
-		CompilerOptions options = scope.compilerOptions();
-		if (options.complianceLevel == ClassFileConstants.JDK16
-				&& options.enablePreviewFeatures
+		if (JavaFeature.SEALED_CLASSES.isSupported(scope.compilerOptions())
 				&& this.isSealed())
 			return this.singleAbstractMethod[index] = samProblemBinding;
 	}

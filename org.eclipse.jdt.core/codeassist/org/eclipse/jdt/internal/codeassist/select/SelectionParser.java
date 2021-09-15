@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -40,6 +40,7 @@ import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.FieldReference;
+import org.eclipse.jdt.internal.compiler.ast.GuardedPattern;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.ast.InstanceOfExpression;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
@@ -51,6 +52,7 @@ import org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ModuleReference;
 import org.eclipse.jdt.internal.compiler.ast.NameReference;
 import org.eclipse.jdt.internal.compiler.ast.NormalAnnotation;
+import org.eclipse.jdt.internal.compiler.ast.Pattern;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.Reference;
 import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
@@ -62,6 +64,7 @@ import org.eclipse.jdt.internal.compiler.ast.SuperReference;
 import org.eclipse.jdt.internal.compiler.ast.SwitchStatement;
 import org.eclipse.jdt.internal.compiler.ast.ThisReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.TypePattern;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
@@ -112,7 +115,6 @@ protected void attachOrphanCompletionNode(){
 		ASTNode orphan = this.assistNode;
 		this.isOrphanCompletionNode = false;
 
-
 		/* if in context of a type, then persists the identifier into a fake field return type */
 		if (this.currentElement instanceof RecoveredType){
 			RecoveredType recoveredType = (RecoveredType)this.currentElement;
@@ -143,6 +145,35 @@ protected void attachOrphanCompletionNode(){
 			this.currentToken = 0; // given we are not on an eof, we do not want side effects caused by looked-ahead token
 		}
 	}
+	// if casestatement and not orphan, then add switch statement as assist node parent
+	if (this.expressionPtr > 0 && this.assistNodeParent == null) {
+		if (this.astPtr >= 0) {
+			if (this.astStack[this.astPtr] instanceof CaseStatement) {
+				// add switch statement as assistNodeParent
+				Expression expression = this.expressionStack[this.expressionPtr];
+				SwitchStatement switchStatement = new SwitchStatement();
+				switchStatement.expression = this.expressionStack[this.expressionPtr - 1];
+				if (this.astLengthPtr > -1 && this.astPtr > -1) {
+					int length = this.astLengthStack[this.astLengthPtr];
+					int newAstPtr = this.astPtr - length;
+					ASTNode firstNode = this.astStack[newAstPtr + 1];
+					if (length != 0 && firstNode.sourceStart > switchStatement.expression.sourceEnd) {
+						switchStatement.statements = new Statement[length + 1];
+						System.arraycopy(this.astStack, newAstPtr + 1, switchStatement.statements, 0, length);
+					}
+
+				}
+				CaseStatement caseStatement = new CaseStatement(expression, expression.sourceStart,
+						expression.sourceEnd);
+				if (switchStatement.statements == null) {
+					switchStatement.statements = new Statement[] { caseStatement };
+				} else {
+					switchStatement.statements[switchStatement.statements.length - 1] = caseStatement;
+				}
+				this.assistNodeParent = switchStatement;
+			}
+		}
+	}
 }
 private void buildMoreCompletionContext(Expression expression) {
 	ASTNode parentNode = null;
@@ -169,6 +200,12 @@ private void buildMoreCompletionContext(Expression expression) {
 								length);
 						}
 					}
+					if(this.astPtr >=0) {
+						if( this.astStack[this.astPtr] instanceof TypePattern && expression instanceof NameReference) {
+							expression = new GuardedPattern((Pattern)this.astStack[this.astPtr], expression);
+						}
+					}
+
 					CaseStatement caseStatement = new CaseStatement(expression, expression.sourceStart, expression.sourceEnd);
 					if(switchStatement.statements == null) {
 						switchStatement.statements = new Statement[]{caseStatement};
@@ -804,14 +841,21 @@ protected void consumeInstanceOfExpressionWithName() {
 	int length = this.patternLengthPtr >= 0 ?
 			this.patternLengthStack[this.patternLengthPtr--] : 0;
 	if (length > 0) {
-		LocalDeclaration typeDecl = (LocalDeclaration) this.patternStack[this.patternPtr--];
+		Pattern pattern = (Pattern) this.patternStack[this.patternPtr--];
 		pushOnExpressionStack(getUnspecifiedReferenceOptimized());
-		if (this.assistNode == null || this.expressionStack[this.expressionPtr] != this.assistNode) {
+		if (this.expressionStack[this.expressionPtr] != this.assistNode) {
 			// Push only when the selection node is not the expression of this
 			// pattern matching instanceof expression
-			pushOnAstStack(typeDecl);
-			if ((this.selectionStart >= typeDecl.sourceStart)
-					&&  (this.selectionEnd <= typeDecl.sourceEnd)) {
+			LocalDeclaration patternVariableIntroduced = pattern.getPatternVariableIntroduced();
+			if (patternVariableIntroduced != null) {
+				// filter out patternVariableIntroduced based on current selection if there is an assist node
+				if (this.assistNode == null || (this.selectionStart <= patternVariableIntroduced.sourceStart
+						&& this.selectionEnd >= patternVariableIntroduced.sourceEnd)) {
+					pushOnAstStack(patternVariableIntroduced);
+				}
+			}
+			if ((this.selectionStart >= pattern.sourceStart)
+					&&  (this.selectionEnd <= pattern.sourceEnd)) {
 				this.restartRecovery	= true;
 				this.lastIgnoredToken = -1;
 			}

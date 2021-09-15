@@ -106,12 +106,12 @@ public class AnnotationTest extends AbstractComparableTest {
 		return options;
 	}
 	@Override
-	protected INameEnvironment getNameEnvironment(String[] testFiles, String[] classPaths) {
+	protected INameEnvironment getNameEnvironment(String[] testFiles, String[] classPaths, Map<String, String> options) {
 		if (this.javaClassLib != null) {
 			this.classpaths = classPaths == null ? getDefaultClassPaths() : classPaths;
 			return new InMemoryNameEnvironment(testFiles, new INameEnvironment[] {this.javaClassLib });
 		}
-		return super.getNameEnvironment(testFiles, classPaths);
+		return super.getNameEnvironment(testFiles, classPaths, options);
 	}
 
 	/* (non-Javadoc)
@@ -1077,6 +1077,13 @@ public class AnnotationTest extends AbstractComparableTest {
 	// check annotation member modifiers (validity unchanged despite grammar change from JSR 335 - default methods)
 	// and https://bugs.eclipse.org/bugs/show_bug.cgi?id=3383968
 	public void test039a() {
+		String extra = this.complianceLevel < ClassFileConstants.JDK17 ? "" :
+				"----------\n" +
+				"1. WARNING in X.java (at line 2)\n" +
+				"	strictfp double val() default 0.1;\n" +
+				"	^^^^^^^^\n" +
+				"Floating-point expressions are always strictly evaluated from source level 17. Keyword \'strictfp\' is not required.\n";
+		int offset = this.complianceLevel < ClassFileConstants.JDK17 ? 0 : 1;
 		this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -1085,13 +1092,14 @@ public class AnnotationTest extends AbstractComparableTest {
 				"	synchronized String id() default \"zero\";\n" +
 				"}"
 			},
+			extra +
 			"----------\n" +
-			"1. ERROR in X.java (at line 2)\n" +
+			(1 + offset) + ". ERROR in X.java (at line 2)\n" +
 			"	strictfp double val() default 0.1;\n" +
 			"	                ^^^^^\n" +
 			"Illegal modifier for the annotation attribute X.val; only public & abstract are permitted\n" +
 			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
+			(2 + offset) + ". ERROR in X.java (at line 3)\n" +
 			"	synchronized String id() default \"zero\";\n" +
 			"	                    ^^^^\n" +
 			"Illegal modifier for the annotation attribute X.id; only public & abstract are permitted\n" +

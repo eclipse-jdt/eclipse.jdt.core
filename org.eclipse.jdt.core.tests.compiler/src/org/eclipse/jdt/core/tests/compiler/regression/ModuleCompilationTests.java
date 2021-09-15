@@ -846,7 +846,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				"p/X.java",
 				"package p;\n" +
 				"public class X {\n" +
-				"   java.lang.SecurityManager man = null;\n" +
+				"   java.lang.SecurityException ex = null;\n" +
 				"}",
 				"module-info.java",
 				"module mod.one { \n" +

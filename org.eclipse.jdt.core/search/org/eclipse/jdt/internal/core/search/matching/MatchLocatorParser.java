@@ -842,6 +842,17 @@ protected void consumeTypeParameterWithExtends() {
 }
 
 @Override
+protected void consumeTypePattern() {
+	super.consumeTypePattern();
+	if (this.patternFineGrain == 0) {
+		TypePattern td = (TypePattern) this.astStack[this.astPtr];
+		if (td.local != null) {
+			this.patternLocator.match(td.local, this.nodeSet);
+		}
+	}
+}
+
+@Override
 protected void consumeTypeParameterWithExtendsAndBounds() {
 	super.consumeTypeParameterWithExtendsAndBounds();
 	if ((this.patternFineGrain & IJavaSearchConstants.TYPE_VARIABLE_BOUND_TYPE_REFERENCE) != 0) {

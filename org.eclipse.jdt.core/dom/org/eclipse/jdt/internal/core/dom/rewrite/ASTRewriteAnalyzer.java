@@ -2659,6 +2659,18 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	}
 
 	@Override
+	public boolean visit(CaseDefaultExpression node) {
+		if (!DOMASTUtil.isPatternSupported(node.getAST())) {
+			return false;
+		}
+		if (!hasChildrenChanges(node)) {
+			return doVisitUnchangedChildren(node);
+		}
+		changeNotSupported(node); // no modification possible
+		return false;
+	}
+
+	@Override
 	public boolean visit(CastExpression node) {
 		if (!hasChildrenChanges(node)) {
 			return doVisitUnchangedChildren(node);
@@ -2934,6 +2946,21 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			handleException(e);
 		}
 
+
+		return false;
+	}
+
+	@Override
+	public boolean visit(GuardedPattern node) {
+		if (!DOMASTUtil.isPatternSupported(node.getAST())) {
+			return false;
+		}
+		if (!hasChildrenChanges(node)) {
+			return doVisitUnchangedChildren(node);
+		}
+
+		rewriteRequiredNode(node, GuardedPattern.PATTERN_PROPERTY);
+		rewriteRequiredNode(node, GuardedPattern.EXPRESSION_PROPERTY);
 
 		return false;
 	}
@@ -3314,6 +3341,19 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 
 	@Override
 	public boolean visit(NullLiteral node) {
+		if (!hasChildrenChanges(node)) {
+			return doVisitUnchangedChildren(node);
+		}
+
+		changeNotSupported(node); // no modification possible
+		return false;
+	}
+
+	@Override
+	public boolean visit(NullPattern node) {
+		if (!DOMASTUtil.isPatternSupported(node.getAST())) {
+			return false;
+		}
 		if (!hasChildrenChanges(node)) {
 			return doVisitUnchangedChildren(node);
 		}
@@ -4531,6 +4571,19 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 		pos= rewriteRequiredNode(node, TypeParameter.NAME_PROPERTY);
 		rewriteNodeList(node, TypeParameter.TYPE_BOUNDS_PROPERTY, pos, " extends ", " & "); //$NON-NLS-1$ //$NON-NLS-2$
+		return false;
+	}
+
+	@Override
+	public boolean visit(TypePattern node) {
+		if (!DOMASTUtil.isPatternSupported(node.getAST())) {
+			return false;
+		}
+		if (!hasChildrenChanges(node)) {
+			return doVisitUnchangedChildren(node);
+		}
+
+		rewriteRequiredNode(node, TypePattern.PATTERN_VARIABLE_PROPERTY);
 		return false;
 	}
 

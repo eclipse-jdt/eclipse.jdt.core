@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2019 GK Software AG, IBM Corporation and others.
+ * Copyright (c) 2013, 2021 GK Software AG, IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -81,6 +81,54 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	// default methods with various modifiers, negative cases
 	public void testModifiers1a() {
 		String infMod = this.complianceLevel >= ClassFileConstants.JDK9 ? " private," : "";
+		String op = this.complianceLevel < ClassFileConstants.JDK17 ?
+		"----------\n" +
+		"1. ERROR in I.java (at line 5)\n" +
+		"	public default synchronized void foo2() { System.exit(0); }\n" +
+		"	                                 ^^^^^^\n" +
+		"Illegal modifier for the interface method foo2; only public,"+ infMod +" abstract, default, static and strictfp are permitted\n" +
+		"----------\n" +
+		"2. ERROR in I.java (at line 7)\n" +
+		"	public default strictfp synchronized void foo4() {}\n" +
+		"	                                          ^^^^^^\n" +
+		"Illegal modifier for the interface method foo4; only public,"+ infMod +" abstract, default, static and strictfp are permitted\n" +
+		"----------\n" +
+		"3. ERROR in I.java (at line 8)\n" +
+		"	public default strictfp synchronized @Annot void foo5() {}\n" +
+		"	                                                 ^^^^^^\n" +
+		"Illegal modifier for the interface method foo5; only public,"+ infMod +" abstract, default, static and strictfp are permitted\n" +
+		"----------\n" :
+			"----------\n" +
+			"1. ERROR in I.java (at line 5)\n" +
+			"	public default synchronized void foo2() { System.exit(0); }\n" +
+			"	                                 ^^^^^^\n" +
+			"Illegal modifier for the interface method foo2; only public, private, abstract, default, static and strictfp are permitted\n" +
+			"----------\n" +
+			"2. WARNING in I.java (at line 6)\n" +
+			"	strictfp default void foo3() {}\n" +
+			"	^^^^^^^^\n" +
+			"Floating-point expressions are always strictly evaluated from source level 17. Keyword \'strictfp\' is not required.\n" +
+			"----------\n" +
+			"3. WARNING in I.java (at line 7)\n" +
+			"	public default strictfp synchronized void foo4() {}\n" +
+			"	               ^^^^^^^^\n" +
+			"Floating-point expressions are always strictly evaluated from source level 17. Keyword \'strictfp\' is not required.\n" +
+			"----------\n" +
+			"4. ERROR in I.java (at line 7)\n" +
+			"	public default strictfp synchronized void foo4() {}\n" +
+			"	                                          ^^^^^^\n" +
+			"Illegal modifier for the interface method foo4; only public, private, abstract, default, static and strictfp are permitted\n" +
+			"----------\n" +
+			"5. WARNING in I.java (at line 8)\n" +
+			"	public default strictfp synchronized @Annot void foo5() {}\n" +
+			"	               ^^^^^^^^\n" +
+			"Floating-point expressions are always strictly evaluated from source level 17. Keyword \'strictfp\' is not required.\n" +
+			"----------\n" +
+			"6. ERROR in I.java (at line 8)\n" +
+			"	public default strictfp synchronized @Annot void foo5() {}\n" +
+			"	                                                 ^^^^^^\n" +
+			"Illegal modifier for the interface method foo5; only public, private, abstract, default, static and strictfp are permitted\n" +
+			"----------\n";
 		runNegativeTest(
 		new String[] {
 			"I.java",
@@ -93,22 +141,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"    public default strictfp synchronized void foo4() {}\n" +
 			"    public default strictfp synchronized @Annot void foo5() {}\n" +
 			"}\n"},
-			"----------\n" +
-			"1. ERROR in I.java (at line 5)\n" +
-			"	public default synchronized void foo2() { System.exit(0); }\n" +
-			"	                                 ^^^^^^\n" +
-			"Illegal modifier for the interface method foo2; only public,"+ infMod +" abstract, default, static and strictfp are permitted\n" +
-			"----------\n" +
-			"2. ERROR in I.java (at line 7)\n" +
-			"	public default strictfp synchronized void foo4() {}\n" +
-			"	                                          ^^^^^^\n" +
-			"Illegal modifier for the interface method foo4; only public,"+ infMod +" abstract, default, static and strictfp are permitted\n" +
-			"----------\n" +
-			"3. ERROR in I.java (at line 8)\n" +
-			"	public default strictfp synchronized @Annot void foo5() {}\n" +
-			"	                                                 ^^^^^^\n" +
-			"Illegal modifier for the interface method foo5; only public,"+ infMod +" abstract, default, static and strictfp are permitted\n" +
-			"----------\n");
+			op);
 	}
 
 	// default methods with various modifiers, simple syntax error blows the parser
@@ -141,12 +174,102 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"	stritfp default void foo3() {}\n" +
 			"	^^^^^^^\n" +
 			"Syntax error, insert \";\" to complete MethodDeclaration\n" +
-			"----------\n");
+			"----------\n" +
+			(this.complianceLevel >= ClassFileConstants.JDK17 ?
+					"4. WARNING in I.java (at line 7)\n" +
+					"	default public strictfp void foo4() {}\n" +
+					"	               ^^^^^^^^\n" +
+					"Floating-point expressions are always strictly evaluated from source level 17. Keyword \'strictfp\' is not required.\n" +
+					"----------\n" +
+					"5. WARNING in I.java (at line 8)\n" +
+					"	public strictfp  default @Annot void foo5() {}\n" +
+					"	       ^^^^^^^^\n" +
+					"Floating-point expressions are always strictly evaluated from source level 17. Keyword \'strictfp\' is not required.\n" +
+					"----------\n" : "")
+			);
 	}
 
 	// regular interface with illegal modifiers
 	public void testModifiers2() {
 		String infMod = this.complianceLevel >= ClassFileConstants.JDK9 ? " private," : "";
+		String op = this.complianceLevel < ClassFileConstants.JDK17 ?
+		"----------\n" +
+		"1. ERROR in I.java (at line 5)\n" +
+		"	public synchronized void foo2();\n" +
+		"	                         ^^^^^^\n" +
+		"Illegal modifier for the interface method foo2; only public,"+ infMod +" abstract, default, static and strictfp are permitted\n" +
+		"----------\n" +
+		"2. ERROR in I.java (at line 6)\n" +
+		"	strictfp void foo3();\n" +
+		"	              ^^^^^^\n" +
+		"strictfp is not permitted for abstract interface method foo3\n" +
+		"----------\n" +
+		"3. ERROR in I.java (at line 7)\n" +
+		"	public strictfp synchronized void foo4();\n" +
+		"	                                  ^^^^^^\n" +
+		"strictfp is not permitted for abstract interface method foo4\n" +
+		"----------\n" +
+		"4. ERROR in I.java (at line 7)\n" +
+		"	public strictfp synchronized void foo4();\n" +
+		"	                                  ^^^^^^\n" +
+		"Illegal modifier for the interface method foo4; only public,"+ infMod +" abstract, default, static and strictfp are permitted\n" +
+		"----------\n" +
+		"5. ERROR in I.java (at line 8)\n" +
+		"	public strictfp synchronized @Annot void foo5();\n" +
+		"	                                         ^^^^^^\n" +
+		"strictfp is not permitted for abstract interface method foo5\n" +
+		"----------\n" +
+		"6. ERROR in I.java (at line 8)\n" +
+		"	public strictfp synchronized @Annot void foo5();\n" +
+		"	                                         ^^^^^^\n" +
+		"Illegal modifier for the interface method foo5; only public,"+ infMod +" abstract, default, static and strictfp are permitted\n" +
+		"----------\n" :
+			"----------\n" +
+			"1. ERROR in I.java (at line 5)\n" +
+			"	public synchronized void foo2();\n" +
+			"	                         ^^^^^^\n" +
+			"Illegal modifier for the interface method foo2; only public, private, abstract, default, static and strictfp are permitted\n" +
+			"----------\n" +
+			"2. WARNING in I.java (at line 6)\n" +
+			"	strictfp void foo3();\n" +
+			"	^^^^^^^^\n" +
+			"Floating-point expressions are always strictly evaluated from source level 17. Keyword \'strictfp\' is not required.\n" +
+			"----------\n" +
+			"3. ERROR in I.java (at line 6)\n" +
+			"	strictfp void foo3();\n" +
+			"	              ^^^^^^\n" +
+			"strictfp is not permitted for abstract interface method foo3\n" +
+			"----------\n" +
+			"4. WARNING in I.java (at line 7)\n" +
+			"	public strictfp synchronized void foo4();\n" +
+			"	       ^^^^^^^^\n" +
+			"Floating-point expressions are always strictly evaluated from source level 17. Keyword \'strictfp\' is not required.\n" +
+			"----------\n" +
+			"5. ERROR in I.java (at line 7)\n" +
+			"	public strictfp synchronized void foo4();\n" +
+			"	                                  ^^^^^^\n" +
+			"strictfp is not permitted for abstract interface method foo4\n" +
+			"----------\n" +
+			"6. ERROR in I.java (at line 7)\n" +
+			"	public strictfp synchronized void foo4();\n" +
+			"	                                  ^^^^^^\n" +
+			"Illegal modifier for the interface method foo4; only public, private, abstract, default, static and strictfp are permitted\n" +
+			"----------\n" +
+			"7. WARNING in I.java (at line 8)\n" +
+			"	public strictfp synchronized @Annot void foo5();\n" +
+			"	       ^^^^^^^^\n" +
+			"Floating-point expressions are always strictly evaluated from source level 17. Keyword \'strictfp\' is not required.\n" +
+			"----------\n" +
+			"8. ERROR in I.java (at line 8)\n" +
+			"	public strictfp synchronized @Annot void foo5();\n" +
+			"	                                         ^^^^^^\n" +
+			"strictfp is not permitted for abstract interface method foo5\n" +
+			"----------\n" +
+			"9. ERROR in I.java (at line 8)\n" +
+			"	public strictfp synchronized @Annot void foo5();\n" +
+			"	                                         ^^^^^^\n" +
+			"Illegal modifier for the interface method foo5; only public, private, abstract, default, static and strictfp are permitted\n" +
+			"----------\n";
 		runNegativeTest(
 		new String[] {
 			"I.java",
@@ -159,37 +282,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"    public strictfp synchronized void foo4();\n" +
 			"    public strictfp synchronized @Annot void foo5();\n" +
 			"}\n"},
-			"----------\n" +
-			"1. ERROR in I.java (at line 5)\n" +
-			"	public synchronized void foo2();\n" +
-			"	                         ^^^^^^\n" +
-			"Illegal modifier for the interface method foo2; only public,"+ infMod +" abstract, default, static and strictfp are permitted\n" +
-			"----------\n" +
-			"2. ERROR in I.java (at line 6)\n" +
-			"	strictfp void foo3();\n" +
-			"	              ^^^^^^\n" +
-			"strictfp is not permitted for abstract interface method foo3\n" +
-			"----------\n" +
-			"3. ERROR in I.java (at line 7)\n" +
-			"	public strictfp synchronized void foo4();\n" +
-			"	                                  ^^^^^^\n" +
-			"strictfp is not permitted for abstract interface method foo4\n" +
-			"----------\n" +
-			"4. ERROR in I.java (at line 7)\n" +
-			"	public strictfp synchronized void foo4();\n" +
-			"	                                  ^^^^^^\n" +
-			"Illegal modifier for the interface method foo4; only public,"+ infMod +" abstract, default, static and strictfp are permitted\n" +
-			"----------\n" +
-			"5. ERROR in I.java (at line 8)\n" +
-			"	public strictfp synchronized @Annot void foo5();\n" +
-			"	                                         ^^^^^^\n" +
-			"strictfp is not permitted for abstract interface method foo5\n" +
-			"----------\n" +
-			"6. ERROR in I.java (at line 8)\n" +
-			"	public strictfp synchronized @Annot void foo5();\n" +
-			"	                                         ^^^^^^\n" +
-			"Illegal modifier for the interface method foo5; only public,"+ infMod +" abstract, default, static and strictfp are permitted\n" +
-			"----------\n");
+			op);
 	}
 
 	// default & regular methods with modifiers that are illegal even for default methods
@@ -2140,6 +2233,13 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
     // test for different error messages in modifiers.
 	public void test400977() {
 		String infMod = this.complianceLevel >= ClassFileConstants.JDK9 ? " private," : "";
+		String extra = this.complianceLevel >= ClassFileConstants.JDK17 ?
+				"----------\n" +
+				"2. WARNING in I.java (at line 3)\n" +
+				"	public abstract default strictfp final void bar();}\n" +
+				"	                        ^^^^^^^^\n" +
+				"Floating-point expressions are always strictly evaluated from source level 17. Keyword \'strictfp\' is not required.\n" : "";
+		int offset = this.complianceLevel >= ClassFileConstants.JDK17 ? 1 : 0;
 		runNegativeTest(
 		new String[] {
 			"I.java",
@@ -2152,18 +2252,19 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 			"	default abstract void foo();\n" +
 			"	                      ^^^^^\n" +
 			"Illegal combination of modifiers for the interface method foo; only one of abstract, default, or static permitted\n" +
+			extra +
 			"----------\n" +
-			"2. ERROR in I.java (at line 3)\n" +
+			(2 + offset) + ". ERROR in I.java (at line 3)\n" +
 			"	public abstract default strictfp final void bar();}\n" +
 			"	                                            ^^^^^\n" +
 			"strictfp is not permitted for abstract interface method bar\n" +
 			"----------\n" +
-			"3. ERROR in I.java (at line 3)\n" +
+			(3 + offset) + ". ERROR in I.java (at line 3)\n" +
 			"	public abstract default strictfp final void bar();}\n" +
 			"	                                            ^^^^^\n" +
 			"Illegal combination of modifiers for the interface method bar; only one of abstract, default, or static permitted\n" +
 			"----------\n" +
-			"4. ERROR in I.java (at line 3)\n" +
+			(3 + offset) + ". ERROR in I.java (at line 3)\n" +
 			"	public abstract default strictfp final void bar();}\n" +
 			"	                                            ^^^^^\n" +
 			"Illegal modifier for the interface method bar; only public,"+ infMod +" abstract, default, static and strictfp are permitted\n" +

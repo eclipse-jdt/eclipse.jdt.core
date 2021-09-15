@@ -7,8 +7,6 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- *
- * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.rewrite.describing;
@@ -43,6 +41,7 @@ public class ASTRewritingInstanceOfPatternExpressionTest extends ASTRewritingTes
 		return createSuite(ASTRewritingInstanceOfPatternExpressionTest.class, 16);
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();

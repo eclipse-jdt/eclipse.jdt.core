@@ -8,7 +8,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
@@ -57,6 +56,7 @@ public static Class[] getAllTestClasses() {
 		ASTConverter14Test.class,
 		ASTConverter_15Test.class,
 		ASTConverter_16Test.class,
+		ASTConverter_PreviewTest.class,
 	};
 }
 public static Test suite() {

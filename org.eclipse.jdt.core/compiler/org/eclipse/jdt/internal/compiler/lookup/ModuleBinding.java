@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2019 IBM Corporation and others.
+ * Copyright (c) 2016, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -832,6 +832,9 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 	}
 	public boolean isUnnamed() {
 		return false;
+	}
+	public boolean isAutomatic() {
+		return this.isAuto;
 	}
 	public boolean isOpen() {
 		return (this.modifiers & ClassFileConstants.ACC_OPEN) != 0;

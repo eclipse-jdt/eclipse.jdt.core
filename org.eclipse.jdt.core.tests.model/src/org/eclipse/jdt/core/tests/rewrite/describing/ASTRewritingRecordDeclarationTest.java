@@ -63,6 +63,7 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 	protected void setUp() throws Exception {
 		super.setUp();
 		setUpProjectAbove16();
+		setUpProjectAbove17();
 	}
 
 	@SuppressWarnings("deprecation")

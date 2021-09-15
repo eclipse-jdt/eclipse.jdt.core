@@ -5403,7 +5403,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 			customOptions);
 	}
 	public void test0178a() {
-		if (this.complianceLevel < ClassFileConstants.JDK16)
+		if (this.complianceLevel < ClassFileConstants.JDK17)
 			return;
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);

@@ -7,7 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- *
+ * 
  * Contributors:
  *    tyeung@bea.com - initial API and implementation
  *******************************************************************************/
@@ -85,7 +85,7 @@ import com.sun.mirror.util.Types;
  */
 public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 {
-	private static final int JLS_LATEST = AST.JLS16;
+	private static final int JLS_LATEST = AST.getJLSLatest();
 	static{
 		final AST ast = AST.newAST(JLS_LATEST, true);
 		EMPTY_AST_UNIT = ast.newCompilationUnit();

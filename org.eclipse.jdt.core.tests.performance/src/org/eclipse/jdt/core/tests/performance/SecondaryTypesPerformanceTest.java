@@ -78,6 +78,7 @@ public class SecondaryTypesPerformanceTest extends PerformanceTestCase {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	public void test01() {
 		List<String> classpathList = new ArrayList<>();
 		classpathList.addAll(createClasspathStrings());

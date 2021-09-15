@@ -338,7 +338,7 @@ public class UnaryExpression extends OperatorExpression {
 		return this.expression.containsPatternVariable();
 	}
 	@Override
-	protected LocalDeclaration getPatternVariableIntroduced() {
+	public LocalDeclaration getPatternVariableIntroduced() {
 		return this.expression.getPatternVariableIntroduced();
 	}
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -18,6 +18,8 @@
  *							bug 382721 - [1.8][compiler] Effectively final variables needs special treatment
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
+
+import java.util.function.Predicate;
 
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
@@ -105,14 +107,26 @@ public abstract char[][] getName();
 /* Called during code generation to ensure that outer locals's effectively finality is guaranteed.
    Aborts if constraints are violated. Due to various complexities, this check is not conveniently
    implementable in resolve/analyze phases.
+   Another quirk here is this method tells the clients whether the below condition is true
+     (this.bits & ASTNode.IsCapturedOuterLocal) != 0
 */
-public void checkEffectiveFinality(VariableBinding localBinding, Scope scope) {
+public boolean checkEffectiveFinality(VariableBinding localBinding, Scope scope) {
+	Predicate<VariableBinding> test = (local) -> {
+		return (!localBinding.isFinal() && !localBinding.isEffectivelyFinal());
+	};
 	if ((this.bits & ASTNode.IsCapturedOuterLocal) != 0) {
-		if (!localBinding.isFinal() && !localBinding.isEffectivelyFinal()) {
+		if (test.test(localBinding)) {
 			scope.problemReporter().cannotReferToNonEffectivelyFinalOuterLocal(localBinding, this);
 			throw new AbortMethod(scope.referenceCompilationUnit().compilationResult, null);
 		}
+		return true;
+	} else if ((this.bits & ASTNode.IsUsedInPatternGuard) != 0) {
+		if (test.test(localBinding)) {
+			scope.problemReporter().cannotReferToNonFinalLocalInGuard(localBinding, this);
+			throw new AbortMethod(scope.referenceCompilationUnit().compilationResult, null);
+		}
 	}
+	return false;
 }
 
 @Override

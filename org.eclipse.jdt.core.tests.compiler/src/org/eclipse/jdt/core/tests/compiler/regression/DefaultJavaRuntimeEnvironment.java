@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 IBM Corporation and others.
+ * Copyright (c) 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13,25 +13,49 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.io.File;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
+import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 
 public class DefaultJavaRuntimeEnvironment extends FileSystem {
 
-	private DefaultJavaRuntimeEnvironment(String[] jreClasspaths) {
-		super(jreClasspaths, new String[] {} /* ignore initial file names */, null);
+	private DefaultJavaRuntimeEnvironment(String[] jreClasspaths, String release) {
+		super(jreClasspaths, new String[] {} /* ignore initial file names */, null, release);
+	}
+	private DefaultJavaRuntimeEnvironment(Classpath[] jreClasspaths) {
+		super(jreClasspaths, new String[] {} /* ignore initial file names */, false);
 	}
 
 	private static INameEnvironment[] defaultJreClassLibs;
 
 	public static INameEnvironment[] create(String[] jreClasspaths) {
+		return create(jreClasspaths, null);
+	}
+	public static INameEnvironment[] create(String[] jreClasspaths, String release) {
+		if (defaultJreClassLibs == null) {
+			if (release != null && !release.equals("")) {
+				defaultJreClassLibs = new INameEnvironment[1];
+				Classpath[] classpath = new Classpath[jreClasspaths.length];
+				for(int i = 0; i < classpath.length; i++) {
+					if (jreClasspaths[i].endsWith(JRTUtil.JRT_FS_JAR)) {
+						File file = new File(jreClasspaths[0]);
+						classpath[i] = FileSystem.getOlderSystemRelease(file.getParentFile().getParent(), release, null);
+
+					} else {
+						classpath[i] = FileSystem.getClasspath(jreClasspaths[i], null, null);
+					}
+				}
+				defaultJreClassLibs[0] = new DefaultJavaRuntimeEnvironment(classpath);
+			}
+		}
 		if (defaultJreClassLibs == null) {
 			defaultJreClassLibs = new INameEnvironment[1];
-			defaultJreClassLibs[0] = new DefaultJavaRuntimeEnvironment(jreClasspaths);
+			defaultJreClassLibs[0] = new DefaultJavaRuntimeEnvironment(jreClasspaths, release);
 		}
 		return defaultJreClassLibs;
 	}

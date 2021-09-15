@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -230,6 +230,7 @@ public class Scanner implements TerminalTokens {
 	private VanguardParser vanguardParser;
 	ConflictedParser activeParser = null;
 	private boolean consumingEllipsisAnnotations = false;
+	protected boolean multiCaseLabelComma = false;
 
 	public static final int RoundBracket = 0;
 	public static final int SquareBracket = 1;
@@ -273,6 +274,7 @@ public Scanner(
 	this.checkNonExternalizedStringLiterals = checkNonExternalizedStringLiterals;
 	this.previewEnabled = isPreviewEnabled;
 	this.caseStartPosition = -1;
+	this.multiCaseLabelComma = false;
 	if (taskTags != null) {
 		int taskTagsLength = taskTags.length;
 		int length = taskTagsLength;
@@ -1469,12 +1471,15 @@ public int getNextToken() throws InvalidInputException {
 		return token;
 	}
 	if (token == TokenNameLPAREN || token == TokenNameLESS || token == TokenNameAT || token == TokenNameARROW) {
-		token = disambiguatedToken(token);
+		token = disambiguatedToken(token, this);
 	} else if (token == TokenNameELLIPSIS) {
 		this.consumingEllipsisAnnotations = false;
+	} else if (mayBeAtCasePattern(token)) {
+		token = disambiguateCasePattern(token, this);
 	}
 	this.lookBack[0] = this.lookBack[1];
 	this.lookBack[1] = token;
+	this.multiCaseLabelComma = false;
 	updateCase(token);
 	return token;
 }
@@ -3283,6 +3288,7 @@ public void resetTo(int begin, int end, boolean isModuleInfo, ScanContext contex
 	this.consumingEllipsisAnnotations = false;
 	this.insideModuleInfo = isModuleInfo;
 	this.scanContext = context == null ? getScanContext(begin) : context;
+	this.multiCaseLabelComma = false;
 }
 
 private ScanContext getScanContext(int begin) {
@@ -4962,10 +4968,12 @@ private static final class VanguardScanner extends Scanner {
 			if (isRestrictedKeyword(token))
 				token = disambiguatedRestrictedKeyword(token);
 			updateScanContext(token);
-		}
+		} else if (mayBeAtCasePattern(token)) {
+			token = disambiguateCasePattern(token, this);
+		} else
 		if (token == TokenNameAT && atTypeAnnotation()) {
 			if (((VanguardParser) this.activeParser).currentGoal == Goal.LambdaParameterListGoal) {
-				token = disambiguatedToken(token);
+				token = disambiguatedToken(token, this);
 			} else {
 				token = TokenNameAT308;
 			}
@@ -4989,6 +4997,7 @@ private static class Goal {
 	static int SwitchLabelCaseLhsRule = 0;
 	static int[] RestrictedIdentifierSealedRule;
 	static int[] RestrictedIdentifierPermitsRule;
+	static int[] PatternRules;
 
 	static Goal LambdaParameterListGoal;
 	static Goal IntersectionCastGoal;
@@ -4999,16 +5008,20 @@ private static class Goal {
 	static Goal SwitchLabelCaseLhsGoal;
 	static Goal RestrictedIdentifierSealedGoal;
 	static Goal RestrictedIdentifierPermitsGoal;
+	static Goal PatternGoal;
 
 	static int[] RestrictedIdentifierSealedFollow =  { TokenNameclass, TokenNameinterface,
 			TokenNameenum, TokenNameRestrictedIdentifierrecord };// Note: enum/record allowed as error flagging rules.
 	static int[] RestrictedIdentifierPermitsFollow =  { TokenNameLBRACE };
+	static int[] PatternCaseLabelFollow = {TokenNameCOLON, TokenNameARROW, TokenNameCOMMA};
 
 	static {
 
 		List<Integer> ridSealed = new ArrayList<>(2);
 		List<Integer> ridPermits = new ArrayList<>();
+		List<Integer> patternStates = new ArrayList<>();
 		for (int i = 1; i <= ParserBasicInformation.NUM_RULES; i++) {  // 0 == $acc
+			// TODO: Change to switch
 			if ("ParenthesizedLambdaParameterList".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
 				LambdaParameterListRule = i;
 			else
@@ -5035,10 +5048,25 @@ private static class Goal {
 			else
 			if ("SwitchLabelCaseLhs".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
 				SwitchLabelCaseLhsRule = i;
-
+			else
+			if ("TypePattern".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
+				patternStates.add(i);
+			else
+			if ("PrimaryPattern".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
+				patternStates.add(i);
+			else
+			if ("GuardedPattern".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
+				patternStates.add(i);
+			else
+			if ("Pattern".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
+				patternStates.add(i);
+			else
+			if ("ParenthesizedPattern".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
+				patternStates.add(i);
 		}
 		RestrictedIdentifierSealedRule = ridSealed.stream().mapToInt(Integer :: intValue).toArray(); // overkill but future-proof
 		RestrictedIdentifierPermitsRule = ridPermits.stream().mapToInt(Integer :: intValue).toArray();
+		PatternRules = patternStates.stream().mapToInt(Integer :: intValue).toArray();
 
 		LambdaParameterListGoal =  new Goal(TokenNameARROW, new int[] { TokenNameARROW }, LambdaParameterListRule);
 		IntersectionCastGoal =     new Goal(TokenNameLPAREN, followSetOfCast(), IntersectionCastRule);
@@ -5049,6 +5077,7 @@ private static class Goal {
 		SwitchLabelCaseLhsGoal =   new Goal(TokenNameARROW, new int [0], SwitchLabelCaseLhsRule);
 		RestrictedIdentifierSealedGoal = new Goal(TokenNameRestrictedIdentifiersealed, RestrictedIdentifierSealedFollow, RestrictedIdentifierSealedRule);
 		RestrictedIdentifierPermitsGoal = new Goal(TokenNameRestrictedIdentifierpermits, RestrictedIdentifierPermitsFollow, RestrictedIdentifierPermitsRule);
+		PatternGoal = new Goal(TokenNameBeginCaseElement, PatternCaseLabelFollow, PatternRules);
 	}
 
 
@@ -5250,6 +5279,10 @@ private VanguardScanner getNewVanguardScanner() {
 	vs.resetTo(this.startPosition, this.eofPosition - 1, isInModuleDeclaration(), this.scanContext);
 	return vs;
 }
+protected final boolean mayBeAtCasePattern(int token) {
+	return (this.complianceLevel == ClassFileConstants.JDK17 && this.previewEnabled)
+			&& (token == TokenNamecase || this.multiCaseLabelComma);
+}
 protected final boolean mayBeAtBreakPreview() {
 	return this.breakPreviewAllowed && this.lookBack[1] != TokenNameARROW;
 }
@@ -5347,6 +5380,7 @@ public void setActiveParser(ConflictedParser parser) {
 	if (parser != null) {
 		this.insideModuleInfo = parser.isParsingModuleDeclaration();
 	}
+	this.multiCaseLabelComma = false;
 }
 public static boolean isRestrictedKeyword(int token) {
 	switch(token) {
@@ -5614,52 +5648,76 @@ private VanguardParser getNewVanguardParser(char[] src) {
 	vs.setActiveParser(vp);
 	return vp;
 }
-int disambiguatedToken(int token) {
+int disambiguatedToken(int token, Scanner scanner) {
 	final VanguardParser parser = getVanguardParser();
-	if (token == TokenNameARROW  &&  mayBeAtCaseLabelExpr() &&  this.caseStartPosition < this.startPosition) {
+	if (token == TokenNameARROW  &&  mayBeAtCaseLabelExpr() &&  scanner.caseStartPosition < scanner.startPosition) {
 		// this.caseStartPosition > this.startPositionpossible on recovery - bother only about correct ones.
-		int nSz = this.startPosition - this.caseStartPosition;
+		int nSz = scanner.startPosition - scanner.caseStartPosition;
 		// add fake token of TokenNameCOLON, call vanguard on this modified source
 		// TODO: Inefficient method due to redoing of the same source, investigate alternate
 		// Can we do a dup of parsing/check the transition of the state?
-		String s = new String(this.source, this.caseStartPosition, nSz);
+		String s = new String(scanner.source, scanner.caseStartPosition, nSz);
 		String modSource = s.concat(new String(new char[] {':'}));
 		char[] nSource = modSource.toCharArray();
 		VanguardParser vp = getNewVanguardParser(nSource);
 		if (vp.parse(Goal.SwitchLabelCaseLhsGoal) == VanguardParser.SUCCESS) {
-			this.nextToken = TokenNameARROW;
+			scanner.nextToken = TokenNameARROW;
 			return TokenNameBeginCaseExpr;
 		}
 	} else	if (token == TokenNameLPAREN  && maybeAtLambdaOrCast()) {
 		if (parser.parse(Goal.LambdaParameterListGoal) == VanguardParser.SUCCESS) {
-			this.nextToken = TokenNameLPAREN;
+			scanner.nextToken = TokenNameLPAREN;
 			return TokenNameBeginLambda;
 		}
-		this.vanguardScanner.resetTo(this.startPosition, this.eofPosition - 1);
+		scanner.vanguardScanner.resetTo(scanner.startPosition, scanner.eofPosition - 1);
 		if (parser.parse(Goal.IntersectionCastGoal) == VanguardParser.SUCCESS) {
-			this.nextToken = TokenNameLPAREN;
+			scanner.nextToken = TokenNameLPAREN;
 			return TokenNameBeginIntersectionCast;
 		}
 	} else if (token == TokenNameLESS && maybeAtReferenceExpression()) {
 		if (parser.parse(Goal.ReferenceExpressionGoal) == VanguardParser.SUCCESS) {
-			this.nextToken = TokenNameLESS;
+			scanner.nextToken = TokenNameLESS;
 			return TokenNameBeginTypeArguments;
 		}
 	} else if (token == TokenNameAT && atTypeAnnotation()) {
 		token = TokenNameAT308;
 		if (maybeAtEllipsisAnnotationsStart()) {
 			if (parser.parse(Goal.VarargTypeAnnotationGoal) == VanguardParser.SUCCESS) {
-				this.consumingEllipsisAnnotations = true;
-				this.nextToken = TokenNameAT308;
+				scanner.consumingEllipsisAnnotations = true;
+				scanner.nextToken = TokenNameAT308;
 				return TokenNameAT308DOTDOTDOT;
 			}
 		}
 	}
 	return token;
 }
+/*
+ * Assumption: mayBeAtCasePattern(token) is true before calling this method.
+ */
+int disambiguateCasePattern(int token, Scanner scanner) {
+	assert mayBeAtCasePattern(token);
+	int delta = token == TokenNamecase ? 4 : 0; // 4 for case.
+	final VanguardParser parser = getNewVanguardParser();
+	parser.scanner.resetTo(parser.scanner.currentPosition + delta, parser.scanner.eofPosition);
+	if (parser.parse(Goal.PatternGoal) == VanguardParser.SUCCESS) {
+		if (token == TokenNamecase) {
+			scanner.nextToken = TokenNameBeginCaseElement;
+		} else {
+			scanner.nextToken = token;
+			token = TokenNameBeginCaseElement;
+		}
+	}
+	return token;
+}
+
 private boolean mayBeAtCaseLabelExpr() {
-	if (this.lookBack[1] == TokenNamedefault || this.caseStartPosition <= 0)
+	if (this.caseStartPosition <= 0)
 		return false;
+	if (this.lookBack[1] == TokenNamedefault) {
+		return this.complianceLevel == ClassFileConstants.JDK17 && this.previewEnabled ?
+				(this.lookBack[0] == TerminalTokens.TokenNamecase || this.lookBack[0] == TerminalTokens.TokenNameCOMMA)
+				: false;
+	}
 	return true;
 }
 

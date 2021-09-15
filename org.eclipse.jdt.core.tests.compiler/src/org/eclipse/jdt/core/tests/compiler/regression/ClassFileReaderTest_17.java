@@ -1,16 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2020 GoPivotal, Inc and others
- *
- * This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License 2.0
+ * Copyright (c) 2020, 2021 IBM Corporation and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
- *		Andy Clement (GoPivotal, Inc) aclement@gopivotal.com - Contributions for
- *			Bug 407191 - [1.8] Binary access support for type annotations
+ *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
@@ -18,21 +16,22 @@ import junit.framework.Test;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 
 @SuppressWarnings({ "rawtypes" })
-public class ClassFileReaderTest_15 extends AbstractRegressionTest {
+public class ClassFileReaderTest_17 extends AbstractRegressionTest {
 	static {
 	}
 
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_15);
+		return buildMinimalComplianceTestSuite(testClass(), F_17);
 	}
 	public static Class testClass() {
-		return ClassFileReaderTest_15.class;
+		return ClassFileReaderTest_17.class;
 	}
 
-	public ClassFileReaderTest_15(String name) {
+	public ClassFileReaderTest_17(String name) {
 		super(name);
 	}
 
@@ -40,8 +39,7 @@ public class ClassFileReaderTest_15 extends AbstractRegressionTest {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		this.complianceLevel = ClassFileConstants.JDK16;
-		this.enablePreview = true;
+		this.complianceLevel = ClassFileConstants.JDK17;
 	}
 
 	public void testBug564227_001() throws Exception {
@@ -106,5 +104,39 @@ public class ClassFileReaderTest_15 extends AbstractRegressionTest {
 
 		int modifiers = classFileReader.getModifiers();
 		assertTrue("sealed modifier expected", (modifiers & ExtraCompilerModifiers.AccSealed) != 0);
+	}
+	public void testBug545510_1() throws Exception {
+		String source =
+				"strictfp class X {\n"+
+				"}";
+
+		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = getInternalClassFile("", "X", "X", source);
+
+		int modifiers = classFileReader.getModifiers();
+		assertTrue("strictfp modifier not expected", (modifiers & ClassFileConstants.AccStrictfp) == 0);
+	}
+	public void testBug545510_2() throws Exception {
+		String source =
+				"class X {\n"+
+				"  strictfp void foo() {}\n"+
+				"}";
+
+		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = getInternalClassFile("", "X", "X", source);
+		IBinaryMethod[] methods = classFileReader.getMethods();
+		IBinaryMethod method = methods[1];
+		int modifiers = method.getModifiers();
+		assertTrue("strictfp modifier not expected", (modifiers & ClassFileConstants.AccStrictfp) == 0);
+	}
+	public void testBug545510_3() throws Exception {
+		String source =
+				"strictfp class X {\n"+
+				"  void foo() {}\n"+
+				"}";
+
+		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = getInternalClassFile("", "X", "X", source);
+		IBinaryMethod[] methods = classFileReader.getMethods();
+		IBinaryMethod method = methods[1];
+		int modifiers = method.getModifiers();
+		assertTrue("strictfp modifier not expected", (modifiers & ClassFileConstants.AccStrictfp) == 0);
 	}
 }

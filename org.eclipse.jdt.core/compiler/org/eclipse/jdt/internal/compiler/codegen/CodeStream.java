@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -5255,6 +5255,18 @@ public void invokeJavaUtilIteratorNext() {
 			ConstantPool.Next,
 			ConstantPool.NextSignature,
 			getPopularBinding(ConstantPool.JavaLangObjectSignature));
+}
+
+public void invokeJavaUtilObjectsrequireNonNull() {
+	// invokestatic: java.util.Objects.requireNonNull(Ljava.lang.Object;)Ljava.lang.Object;
+	invoke(
+		Opcodes.OPC_invokestatic,
+		1, // receiverAndArgsSize
+		1, // return type size
+		ConstantPool.JavaUtilObjectsConstantPoolName,
+		ConstantPool.RequireNonNull,
+		ConstantPool.RequireNonNullSignature,
+		getPopularBinding(ConstantPool.JavaLangObjectSignature));
 }
 
 public void invokeNoClassDefFoundErrorStringConstructor() {

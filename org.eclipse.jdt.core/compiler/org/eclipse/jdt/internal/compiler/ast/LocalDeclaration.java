@@ -265,7 +265,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		TypeBinding variableType = null;
 		boolean variableTypeInferenceError = false;
 		boolean isTypeNameVar = isTypeNameVar(scope);
-		if (isTypeNameVar) {
+		if (isTypeNameVar && !isPatternVariable) {
 			if ((this.bits & ASTNode.IsForeachElementVariable) == 0) {
 				// infer a type from the initializer
 				if (this.initialization != null) {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -183,6 +183,7 @@ public void test0002() {
 		expected15ProblemLog
 	);
 }
+// TODO: Fix this and Enable
 public void test0003() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -195,7 +196,7 @@ public void test0003() {
 		"1. ERROR in X.java (at line 1)\n" +
 		"	public enum X {\n" +
 		"	       ^^^^\n" +
-		"Syntax error on token \"enum\", interface expected\n" +
+		"Syntax error on token \"enum\", class expected\n" +
 		"----------\n";
 	String expected14ProblemLog =
 		expected13ProblemLog;

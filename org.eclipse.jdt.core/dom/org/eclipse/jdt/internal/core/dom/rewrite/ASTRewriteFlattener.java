@@ -7,7 +7,6 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -375,6 +374,14 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	}
 
 	@Override
+	public boolean visit(CaseDefaultExpression node) {
+		if (DOMASTUtil.isPatternSupported(node.getAST())) {
+			this.result.append("default");//$NON-NLS-1$}
+		}
+		return false;
+	}
+
+	@Override
 	public boolean visit(CastExpression node) {
 		this.result.append('(');
 		getChildNode(node, CastExpression.TYPE_PROPERTY).accept(this);
@@ -565,6 +572,16 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		visitList(node, ForStatement.UPDATERS_PROPERTY, String.valueOf(','));
 		this.result.append(')');
 		getChildNode(node, ForStatement.BODY_PROPERTY).accept(this);
+		return false;
+	}
+
+	@Override
+	public boolean visit(GuardedPattern node) {
+		if (DOMASTUtil.isPatternSupported(node.getAST())) {
+			node.getPattern().accept(this);
+			this.result.append(" && ");//$NON-NLS-1$
+			node.getExpression().accept(this);
+		}
 		return false;
 	}
 
@@ -792,6 +809,12 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	@Override
 	public boolean visit(NullLiteral node) {
 		this.result.append("null"); //$NON-NLS-1$
+		return false;
+	}
+
+	@Override
+	public boolean visit(NullPattern node) {
+		this.result.append("null");//$NON-NLS-1$
 		return false;
 	}
 
@@ -1525,6 +1548,14 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		}
 		getChildNode(node, TypeParameter.NAME_PROPERTY).accept(this);
 		visitList(node, TypeParameter.TYPE_BOUNDS_PROPERTY, " & ", " extends ", Util.EMPTY_STRING); //$NON-NLS-1$ //$NON-NLS-2$
+		return false;
+	}
+
+	@Override
+	public boolean visit(TypePattern node) {
+		if (DOMASTUtil.isPatternSupported(node.getAST())) {
+			node.getPatternVariable().accept(this);
+		}
 		return false;
 	}
 

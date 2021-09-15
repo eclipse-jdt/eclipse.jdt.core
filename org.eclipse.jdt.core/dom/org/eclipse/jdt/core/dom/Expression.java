@@ -7,7 +7,6 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -25,6 +24,7 @@ package org.eclipse.jdt.core.dom;
  *    {@link ArrayInitializer},
  *    {@link Assignment},
  *    {@link BooleanLiteral},
+ *    {@link CaseDefaultExpression},
  *    {@link CastExpression},
  *    {@link CharacterLiteral},
  *    {@link ClassInstanceCreation},
@@ -40,6 +40,7 @@ package org.eclipse.jdt.core.dom;
  *    {@link Name},
  *    {@link NullLiteral},
  *    {@link NumberLiteral},
+ *    {@link Pattern},
  *    {@link ParenthesizedExpression},
  *    {@link PostfixExpression},
  *    {@link PrefixExpression},

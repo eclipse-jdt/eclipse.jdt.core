@@ -9491,8 +9491,11 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			ASTNode.TEXT_BLOCK,
 			ASTNode.RECORD_DECLARATION,
 			ASTNode.PATTERN_INSTANCEOF_EXPRESSION,
-			ASTNode.MODULE_QUALIFIED_NAME
-
+			ASTNode.MODULE_QUALIFIED_NAME,
+			ASTNode.TYPE_PATTERN,
+			ASTNode.GUARDED_PATTERN,
+			ASTNode.NULL_PATTERN,
+			ASTNode.CASE_DEFAULT_EXPRESSION
 		};
 
 		// assert that nodeType values are correct:
@@ -9544,7 +9547,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 
 	@SuppressWarnings("deprecation")
 	public void testASTLevels() throws Exception {
-		int[] apilLevels = {AST.JLS2, AST.JLS3, AST.JLS4, AST.JLS8, AST.JLS9, AST.JLS10, AST.JLS11, AST.JLS12, AST.JLS13, AST.JLS14, AST.JLS15, AST.JLS16};
+		int[] apilLevels = {AST.JLS2, AST.JLS3, AST.JLS4, AST.JLS8, AST.JLS9, AST.JLS10, AST.JLS11, AST.JLS12, AST.JLS13, AST.JLS14, AST.JLS15, AST.JLS16, AST.JLS17};
 		for (int level : apilLevels) {
 			try {
 				DOMASTUtil.checkASTLevel(level);

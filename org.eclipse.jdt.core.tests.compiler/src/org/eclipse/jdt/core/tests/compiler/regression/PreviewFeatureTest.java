@@ -14,7 +14,9 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.Map;
 
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 
 import junit.framework.Test;
 
@@ -35,23 +37,21 @@ public class PreviewFeatureTest extends AbstractRegressionTest9 {
 	public PreviewFeatureTest(String testName){
 		super(testName);
 	}
-
-	// Enables the tests to run individually
+	@Override
 	protected Map<String, String> getCompilerOptions() {
-		Map<String, String> defaultOptions = super.getCompilerOptions();
-		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_16);
-		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_16);
-		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_16);
-		defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-		defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
-		defaultOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
-		return defaultOptions;
+		Map<String, String> options = super.getCompilerOptions();
+		if (isJRE17Plus) {
+			options.put(CompilerOptions.OPTION_Release, CompilerOptions.ENABLED);
+		}
+		return options;
 	}
-
 	/*
 	 * Preview API, --enable-preview=false, SuppressWarning=No
 	 */
 	public void test001() {
+		if (this.complianceLevel >= ClassFileConstants.JDK17) {
+			return;
+		}
 		Map<String, String> options = getCompilerOptions();
 		String old = options.get(CompilerOptions.OPTION_EnablePreviews);
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
@@ -97,6 +97,9 @@ public class PreviewFeatureTest extends AbstractRegressionTest9 {
 	 * Preview API, --enable-preview=false, SuppressWarning=yes
 	 */
 	public void test002() {
+		if (this.complianceLevel >= ClassFileConstants.JDK17) {
+			return;
+		}
 		Map<String, String> options = getCompilerOptions();
 		String old = options.get(CompilerOptions.OPTION_EnablePreviews);
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
@@ -133,6 +136,8 @@ public class PreviewFeatureTest extends AbstractRegressionTest9 {
 	 * Preview API, --enable-preview=true, SuppressWarning=No
 	 */
 	public void test003() {
+		if (this.complianceLevel < ClassFileConstants.getLatestJDKLevel())
+			return;
 		Map<String, String> options = getCompilerOptions();
 		String old = options.get(CompilerOptions.OPTION_EnablePreviews);
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
@@ -168,6 +173,8 @@ public class PreviewFeatureTest extends AbstractRegressionTest9 {
 	 * Preview API, --enable-preview=true, SuppressWarning=Yes
 	 */
 	public void test004() {
+		if (this.complianceLevel < ClassFileConstants.getLatestJDKLevel())
+			return;
 		Map<String, String> options = getCompilerOptions();
 		String old = options.get(CompilerOptions.OPTION_EnablePreviews);
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
@@ -196,6 +203,22 @@ public class PreviewFeatureTest extends AbstractRegressionTest9 {
 					null,
 					true,
 					options);
+		} finally {
+			options.put(CompilerOptions.OPTION_EnablePreviews, old);
+		}
+	}
+	public void test005() {
+		if (this.complianceLevel < ClassFileConstants.JDK16)
+			return;
+		Map<String, String> options = getCompilerOptions();
+		String old = options.get(CompilerOptions.OPTION_EnablePreviews);
+		if (this.complianceLevel == ClassFileConstants.getLatestJDKLevel())
+			options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		try {
+			if (this.complianceLevel < ClassFileConstants.getLatestJDKLevel())
+				assertFalse(JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(new CompilerOptions(options)));
+			else
+				assertTrue(JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(new CompilerOptions(options)));
 		} finally {
 			options.put(CompilerOptions.OPTION_EnablePreviews, old);
 		}

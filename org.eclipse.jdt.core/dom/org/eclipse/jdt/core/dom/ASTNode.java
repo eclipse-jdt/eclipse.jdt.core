@@ -8,7 +8,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -1003,6 +1002,40 @@ public abstract class ASTNode {
 	 */
 	public static final int MODULE_QUALIFIED_NAME = 105;
 
+
+	/**
+	 * Node type constant indicating a node of type
+	 * <code>TypePattern</code>.
+	 * @see TypePattern
+	 * @since 3.27
+	 */
+	public static final int TYPE_PATTERN = 106;
+
+	/**
+	 * Node type constant indicating a node of type
+	 * <code>GuardedPattern</code>.
+	 * @see GuardedPattern
+	 * @since 3.27
+	 */
+	public static final int GUARDED_PATTERN = 107;
+
+	/**
+	 * Node type constant indicating a node of type
+	 * <code>NullPattern</code>.
+	 * @see NullPattern
+	 * @since 3.27
+	 */
+	public static final int NULL_PATTERN = 108;
+
+	/**
+	 * Node type constant indicating a node of type
+	 * <code>CaseDefaultExpression</code>.
+	 * @see CaseDefaultExpression
+	 * @since 3.27
+	 */
+	public static final int CASE_DEFAULT_EXPRESSION = 109;
+
+
 	/**
 	 * Returns the node class for the corresponding node type.
 	 *
@@ -1041,6 +1074,8 @@ public abstract class ASTNode {
 				return BooleanLiteral.class;
 			case BREAK_STATEMENT :
 				return BreakStatement.class;
+			case CASE_DEFAULT_EXPRESSION :
+				return CaseDefaultExpression.class;
 			case CAST_EXPRESSION :
 				return CastExpression.class;
 			case CATCH_CLAUSE :
@@ -1083,6 +1118,8 @@ public abstract class ASTNode {
 				return FieldDeclaration.class;
 			case FOR_STATEMENT :
 				return ForStatement.class;
+			case GUARDED_PATTERN :
+				return GuardedPattern.class;
 			case IF_STATEMENT :
 				return IfStatement.class;
 			case IMPORT_DECLARATION :
@@ -1131,6 +1168,8 @@ public abstract class ASTNode {
 				return NormalAnnotation.class;
 			case NULL_LITERAL :
 				return NullLiteral.class;
+			case NULL_PATTERN :
+				return NullPattern.class;
 			case NUMBER_LITERAL :
 				return NumberLiteral.class;
 			case OPENS_DIRECTIVE :
@@ -1209,6 +1248,8 @@ public abstract class ASTNode {
 				return TypeLiteral.class;
 			case TYPE_PARAMETER :
 				return TypeParameter.class;
+			case TYPE_PATTERN :
+				return TypePattern.class;
 			case UNION_TYPE :
 				return UnionType.class;
 			case USES_DIRECTIVE :
@@ -2216,6 +2257,22 @@ public abstract class ASTNode {
 		}
 	}
 
+	/**
+     * Checks that this AST operation is not used when
+     * building JLS2, JLS3, JLS4, JLS8, JLS9, JLS10, JLS11, JLS12, JLS13, JSL14, JSL15 or JLS16 level ASTs.
+     * <p>
+     * Use this method to prevent access to new properties that have been added in JLS17
+     * </p>
+     *
+	 * @exception UnsupportedOperationException if this operation is used below JLS17
+	 * @since 3.27
+	 */
+	final void unsupportedBelow17() {
+		if (this.ast.apiLevel < AST.JLS17_INTERNAL) {
+			throw new UnsupportedOperationException("Operation only supported in ASTs with level JLS17 and above"); //$NON-NLS-1$
+		}
+	}
+
 
 	/**
      * Checks that this AST operation is not used when
@@ -2345,6 +2402,22 @@ public abstract class ASTNode {
 	final void supportedOnlyIn16() {
 		if (this.ast.apiLevel != AST.JLS16_INTERNAL) {
 			throw new UnsupportedOperationException("Operation only supported in JLS16 AST"); //$NON-NLS-1$
+		}
+	}
+
+	/**
+ 	 * Checks that this AST operation is only used when
+     * building JLS17 level ASTs.
+     * <p>
+     * Use this method to prevent access to new properties available only in JLS17.
+     * </p>
+     *
+	 * @exception UnsupportedOperationException if this operation is not used in JLS17
+	 * @since 3.27
+	 */
+	final void supportedOnlyIn17() {
+		if (this.ast.apiLevel != AST.JLS17_INTERNAL) {
+			throw new UnsupportedOperationException("Operation only supported in JLS17 AST"); //$NON-NLS-1$
 		}
 	}
 

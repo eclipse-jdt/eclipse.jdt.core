@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2014 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1735,7 +1735,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 	 * Bug 86769: [javadoc] Warn/Error for 'Missing javadoc comments' doesn't recognize private inner classes
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=86769"
 	 */
-	public void testBug86769() {
+	public void _testBug86769() {
 		this.reportMissingJavadocComments = CompilerOptions.ERROR;
 		runNegativeTest(
 			new String[] {

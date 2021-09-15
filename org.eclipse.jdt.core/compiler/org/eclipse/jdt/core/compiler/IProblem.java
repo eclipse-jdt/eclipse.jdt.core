@@ -1580,6 +1580,12 @@ void setSourceStart(int sourceStart);
 	int UnboxingConversion = Internal + 721;
 
 	/**
+	 * Modifiers
+	 * @since 3.27
+	 */
+	int StrictfpNotRequired = Syntax + Internal + 741;
+
+	/**
 	 * Enum
 	 */
 	/** @since 3.1 */
@@ -2456,4 +2462,46 @@ void setSourceStart(int sourceStart);
 	int SealedSuperTypeDisallowed = PreviewRelated + 1867;
 	/* Java15 errors - end */
 
-	}
+	/**
+	 * @since 3.27
+	 * @noreference preview feature error
+	 */
+	int LocalReferencedInGuardMustBeEffectivelyFinal = PreviewRelated + 1900;
+	/** @since 3.27
+	 * @noreference preview feature error */
+	int ConstantWithPatternIncompatible = PreviewRelated + 1901;
+	/**
+	 * @since 3.27
+	 * @noreference preview feature error
+	 */
+	int IllegalFallthroughToPattern = PreviewRelated + 1902;
+
+	/** @since 3.27
+	 * @noreference preview feature error */
+	int OnlyOnePatternCaseLabelAllowed = PreviewRelated + 1903;
+	/** @since 3.27
+	 * @noreference preview feature error */
+	int CannotMixPatternAndDefault = PreviewRelated + 1904;
+	/** @since 3.27
+	 * @noreference preview feature error */
+	int CannotMixNullAndNonTypePattern = PreviewRelated + 1905;
+	/** @since 3.27
+	 * @noreference preview feature error */
+	int PatternDominated = PreviewRelated + 1906;
+	/** @since 3.27
+	 * @noreference preview feature error */
+	int IllegalTotalPatternWithDefault = PreviewRelated + 1907;
+	/** @since 3.27
+	 * @noreference preview feature error */
+	int EnhancedSwitchMissingDefault = PreviewRelated + 1908;
+	/** @since 3.27
+	 * @noreference preview feature error */
+	int DuplicateTotalPattern = PreviewRelated + 1909;
+
+	/** @since 3.27
+	 * @noreference preview feature error */
+	int UnnecessaryNullCaseInSwitchOverNonNull = PreviewRelated + 1910;
+	/** @since 3.27
+	 * @noreference preview feature error */
+	int UnexpectedTypeinSwitchPattern = PreviewRelated + 1911;
+}

@@ -32,6 +32,7 @@ import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
+import javax.lang.model.SourceVersion;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.ElementKind;
@@ -140,6 +141,8 @@ public class RecordElementProcessor extends BaseElementProcessor {
 			boolean preview = ((BaseProcessingEnvImpl) this.processingEnv).isPreviewEnabled();
 			assertTrue("Preview flag not seen as enabled", preview);
 		}
+		SourceVersion sourceVersion = this.processingEnv.getSourceVersion();
+		assertNotSame("Should support the latest compliance", sourceVersion, SourceVersion.RELEASE_6);
 	}
 	/*
 	 * Basic test for record element and kind

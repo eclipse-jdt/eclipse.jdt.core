@@ -65,6 +65,8 @@ public class DOMASTUtil {
 			case ASTNode.RECORD_DECLARATION:
 			case ASTNode.PATTERN_INSTANCEOF_EXPRESSION:
 				return apiLevel >= AST.JLS16;
+			case ASTNode.TYPE_PATTERN:
+				return apiLevel == AST.getJLSLatest() && previewEnabled;
 		}
 		return false;
 	}
@@ -86,9 +88,9 @@ public class DOMASTUtil {
 	public static boolean isFeatureSupportedinAST(AST ast, int featureName) {
 		switch (featureName) {
 			case Modifier.SEALED:
-				return isPreviewEnabled(ast.apiLevel(), ast.isPreviewEnabledSet());
+				return ast.apiLevel() >= AST.JLS17;
 			case Modifier.NON_SEALED:
-				return isPreviewEnabled(ast.apiLevel(), ast.isPreviewEnabledSet());
+				return ast.apiLevel() >= AST.JLS17;
 		}
 		return false;
 	}
@@ -112,15 +114,39 @@ public class DOMASTUtil {
 	public static boolean isFeatureSupportedinAST(int apiLevel, boolean previewEnabled, int featureName) {
 		switch (featureName) {
 			case Modifier.SEALED:
-				return isPreviewEnabled(apiLevel, previewEnabled);
+				return apiLevel >= AST.JLS17;
 			case Modifier.NON_SEALED:
-				return isPreviewEnabled(apiLevel, previewEnabled);
+				return apiLevel >= AST.JLS17;
 		}
 		return false;
 	}
 
-	private static boolean isPreviewEnabled(int apiLevel, boolean previewEnabled) {
-		return (apiLevel == AST.JLS16 && previewEnabled);
+	/**
+	 * Validates if the given <code>apiLevel</code> and <code>previewEnabled</code> supports the provided
+	 * <code>nodeType</code>. This API checks for node types supported from JLS 14 onwards and will return
+	 * <code>true></code> for nodes added before JLS14.
+	 *
+	 * @param apiLevel
+	 *            the level to be checked
+	 * @param featureName
+	 *            the feature name constant indicating the feature to be evaluated
+	 * @return <code>true</code> if the given <code>AST</code> supports the provided <code>nodeType</code> else
+	 *         <code>false</code>
+	 * @see ASTNode#getNodeType()
+	 * @since 3.27
+	 */
+	public static boolean isFeatureSupportedinAST(int apiLevel, int featureName) {
+		switch (featureName) {
+			case Modifier.SEALED:
+				return apiLevel >= AST.JLS17;
+			case Modifier.NON_SEALED:
+				return apiLevel >= AST.JLS17;
+		}
+		return false;
+	}
+
+	public static boolean isPreviewEnabled(int apiLevel, boolean previewEnabled) {
+		return (apiLevel == AST.JLS17 && previewEnabled);
 	}
 
 	public static boolean isSwitchExpressionSupported(AST ast) {
@@ -147,6 +173,14 @@ public class DOMASTUtil {
 		return isNodeTypeSupportedinAST(ast, ASTNode.PATTERN_INSTANCEOF_EXPRESSION);
 	}
 
+	public static boolean isPatternSupported(AST ast) {
+		return isNodeTypeSupportedinAST(ast, ASTNode.TYPE_PATTERN);
+	}
+
+	public static boolean isPatternSupported(int apiLevel, boolean previewEnabled) {
+		return isNodeTypeSupportedinAST(apiLevel, previewEnabled, ASTNode.TYPE_PATTERN);
+	}
+
 	@SuppressWarnings("deprecation")
 	public static void checkASTLevel(int level) {
 		// Clients can use AST.getJLSLatest()
@@ -163,7 +197,7 @@ public class DOMASTUtil {
 
 	private static final String[] AST_COMPLIANCE_MAP = {"-1","-1",JavaCore.VERSION_1_2, JavaCore.VERSION_1_3, JavaCore.VERSION_1_7, //$NON-NLS-1$ //$NON-NLS-2$
 			JavaCore.VERSION_1_7, JavaCore.VERSION_1_7, JavaCore.VERSION_1_7, JavaCore.VERSION_1_8, JavaCore.VERSION_9, JavaCore.VERSION_10,
-			JavaCore.VERSION_11, JavaCore.VERSION_12, JavaCore.VERSION_13, JavaCore.VERSION_14, JavaCore.VERSION_15, JavaCore.VERSION_16};
+			JavaCore.VERSION_11, JavaCore.VERSION_12, JavaCore.VERSION_13, JavaCore.VERSION_14, JavaCore.VERSION_15, JavaCore.VERSION_16, JavaCore.VERSION_17};
 
 	/**
 	 * Calculates the JavaCore Option value string corresponding to the input ast level.

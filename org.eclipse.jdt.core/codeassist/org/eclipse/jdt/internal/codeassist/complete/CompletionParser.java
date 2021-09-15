@@ -2265,7 +2265,7 @@ private void classHeaderExtendsOrImplements(boolean isInterface, boolean isRecor
 						}
 						keywords[count++] = Keywords.IMPLEMENTS;
 					}
-					if (this.options.enablePreviewFeatures) {
+					if (JavaFeature.SEALED_CLASSES.isSupported(this.options)) {
 						boolean sealed = (type.modifiers & ExtraCompilerModifiers.AccSealed) != 0;
 						if (sealed)
 							keywords[count++] = RestrictedIdentifiers.PERMITS;
@@ -2606,7 +2606,7 @@ protected void consumeClassHeaderExtends() {
 				if(type.superInterfaces == null) {
 					keywords[count++] = Keywords.IMPLEMENTS;
 				}
-				if (this.options.enablePreviewFeatures) {
+				if (JavaFeature.SEALED_CLASSES.isSupported(this.options)) {
 					boolean sealed = (type.modifiers & ExtraCompilerModifiers.AccSealed) != 0;
 					if (sealed)
 						keywords[count++] = RestrictedIdentifiers.PERMITS;

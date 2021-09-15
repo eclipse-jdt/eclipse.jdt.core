@@ -7,7 +7,6 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -53,6 +52,7 @@ public class ASTConverter_16Test extends ConverterTestSetup {
 
 	ICompilationUnit workingCopy;
 
+	@SuppressWarnings("deprecation")
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		this.ast = AST.newAST(getAST16(), false);
@@ -73,6 +73,7 @@ public class ASTConverter_16Test extends ConverterTestSetup {
 		return buildModelTestSuite(ASTConverter_16Test.class);
 	}
 
+	@SuppressWarnings("deprecation")
 	static int getAST16() {
 		return AST.JLS16;
 	}

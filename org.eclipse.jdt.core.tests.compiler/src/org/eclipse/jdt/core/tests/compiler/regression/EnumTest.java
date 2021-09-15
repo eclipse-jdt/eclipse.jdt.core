@@ -2466,6 +2466,25 @@ public void test078() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=85397
 public void test079() throws Exception {
+	String op =
+			this.complianceLevel < ClassFileConstants.JDK17 ?
+					"----------\n" +
+					"1. ERROR in X.java (at line 3)\n" +
+					"	private strictfp X() {}\n" +
+					"	                 ^^^\n" +
+					"Illegal modifier for the constructor in type X; only public, protected & private are permitted\n" +
+					"----------\n" :
+					"----------\n" +
+					"1. WARNING in X.java (at line 3)\n" +
+					"	private strictfp X() {}\n" +
+					"	        ^^^^^^^^\n" +
+					"Floating-point expressions are always strictly evaluated from source level 17. Keyword \'strictfp\' is not required.\n" +
+					"----------\n" +
+					"2. ERROR in X.java (at line 3)\n" +
+					"	private strictfp X() {}\n" +
+					"	                 ^^^\n" +
+					"Illegal modifier for the constructor in type X; only public, protected & private are permitted\n" +
+					"----------\n";
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -2474,12 +2493,7 @@ public void test079() throws Exception {
 			"	private strictfp X() {}\n" +
 			"}\n"
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 3)\n" +
-		"	private strictfp X() {}\n" +
-		"	                 ^^^\n" +
-		"Illegal modifier for the constructor in type X; only public, protected & private are permitted\n" +
-		"----------\n"
+		op
 	);
 	this.runConformTest(
 		new String[] {
@@ -2492,10 +2506,17 @@ public void test079() throws Exception {
 		""
 	);
 
-	String[] expectedOutputs = new String[] {
-		"  private strictfp X(java.lang.String arg0, int arg1);\n",
-		"  public static strictfp X[] values();\n",
-		"  public static strictfp X valueOf(java.lang.String arg0);\n"
+	String[] expectedOutputs =
+			this.complianceLevel < ClassFileConstants.JDK17 ?
+					new String[] {
+							"  private strictfp X(java.lang.String arg0, int arg1);\n",
+							"  public static strictfp X[] values();\n",
+							"  public static strictfp X valueOf(java.lang.String arg0);\n"
+						} :
+			new String[] {
+		"  private X(java.lang.String arg0, int arg1);\n",
+		"  public static X[] values();\n",
+		"  public static X valueOf(java.lang.String arg0);\n"
 	};
 
 	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();

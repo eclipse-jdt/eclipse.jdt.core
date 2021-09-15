@@ -245,7 +245,6 @@ public class SwitchCase extends Statement {
 	/**
 	 * Returns the list of expressions of this switch case, or
 	 * <code>empty</code> if there is none (the "default:" case).
-	 * With previewEnabled flag as false it will have only one element.
 	 *
 	 *  @return the list of expression nodes
 	 *    (element type: {@link Expression})

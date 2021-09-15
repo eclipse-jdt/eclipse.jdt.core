@@ -51,15 +51,15 @@ public InstanceOfExpression(Expression expression, TypeReference type) {
 	this.sourceStart = expression.sourceStart;
 	this.sourceEnd = type.sourceEnd;
 }
-public InstanceOfExpression(Expression expression, LocalDeclaration local) {
+public InstanceOfExpression(Expression expression, Pattern pattern) {
 	this.expression = expression;
-	this.elementVariable = local;
+	// As of now, instanceof can only have a type pattern variable.
+	// So, extract the local variable definition and ignore the pattern
+	this.elementVariable = pattern.getPatternVariableIntroduced();
 	this.type = this.elementVariable.type;
 	this.bits |= INSTANCEOF << OperatorSHIFT;
-	this.elementVariable.sourceStart = local.sourceStart;
-	this.elementVariable.sourceEnd = local.sourceEnd;
 	this.sourceStart = expression.sourceStart;
-	this.sourceEnd = local.declarationSourceEnd;
+	this.sourceEnd = this.elementVariable.declarationSourceEnd;
 }
 
 @Override
@@ -293,7 +293,7 @@ public boolean containsPatternVariable() {
 	return this.elementVariable != null;
 }
 @Override
-protected LocalDeclaration getPatternVariableIntroduced() {
+public LocalDeclaration getPatternVariableIntroduced() {
 	return this.elementVariable;
 }
 private void addSecretInstanceOfPatternExpressionValue(BlockScope scope1) {

@@ -29,6 +29,7 @@ import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.Block;
+import org.eclipse.jdt.internal.compiler.ast.CaseStatement;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall;
@@ -353,9 +354,14 @@ public RecoveredElement buildInitialRecoveryState(){
 					element = element.add(stmt, 0);
 					this.lastCheckPoint = stmt.sourceEnd + 1;
 				} else if (stmt.containsPatternVariable()) {
+					LocalDeclaration localDeclaration = null;
+					if(stmt instanceof CaseStatement) {
+						localDeclaration = ((CaseStatement)stmt).getLocalDeclaration();
+						if(localDeclaration !=null)
+							element.add(localDeclaration, 0);
+					}
 					element.add(stmt, 0);
 					this.lastCheckPoint = stmt.sourceEnd + 1;
-					this.isOrphanCompletionNode = false;
 				}
 			}
 			continue;

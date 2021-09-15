@@ -55,6 +55,7 @@ import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.AnnotationMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.ArrayInitializer;
+import org.eclipse.jdt.internal.compiler.ast.CaseStatement;
 import org.eclipse.jdt.internal.compiler.ast.ClassLiteralAccess;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ExportsStatement;
@@ -75,6 +76,7 @@ import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
 import org.eclipse.jdt.internal.compiler.ast.RequiresStatement;
 import org.eclipse.jdt.internal.compiler.ast.SingleMemberAnnotation;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
+import org.eclipse.jdt.internal.compiler.ast.StringLiteral;
 import org.eclipse.jdt.internal.compiler.ast.SwitchStatement;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
@@ -189,7 +191,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 	public static final String ALTMETAFACTORY_STRING = new String(ConstantPool.ALTMETAFACTORY);
 	public static final String METAFACTORY_STRING = new String(ConstantPool.METAFACTORY);
 	public static final String BOOTSTRAP_STRING = new String(ConstantPool.BOOTSTRAP);
-	public static final String[] BOOTSTRAP_METHODS = {ALTMETAFACTORY_STRING, METAFACTORY_STRING, BOOTSTRAP_STRING};
+	public static final String TYPESWITCH_STRING = new String(ConstantPool.TYPESWITCH);
+	public static final String[] BOOTSTRAP_METHODS = {ALTMETAFACTORY_STRING, METAFACTORY_STRING, BOOTSTRAP_STRING, TYPESWITCH_STRING};
 
 	/**
 	 * INTERNAL USE-ONLY
@@ -435,7 +438,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		if (this.bootstrapMethods != null && !this.bootstrapMethods.isEmpty()) {
 			attributesNumber += generateBootstrapMethods(this.bootstrapMethods);
 		}
-		if (this.targetJDK >= ClassFileConstants.JDK16) {
+		if (this.targetJDK >= ClassFileConstants.JDK17) {
 			// add record attributes
 			attributesNumber += generatePermittedTypeAttributes();
 		}
@@ -3645,6 +3648,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 				localContentsOffset = addBootStrapLambdaEntry(localContentsOffset, (FunctionalExpression) o, fPtr);
 			} else if (o instanceof TypeDeclaration) {
 				localContentsOffset = addBootStrapRecordEntry(localContentsOffset, (TypeDeclaration) o, fPtr);
+			} else if (o instanceof SwitchStatement) {
+				localContentsOffset = addBootStrapTypeSwitchEntry(localContentsOffset, (SwitchStatement) o, fPtr);
 			}
 		}
 
@@ -3833,6 +3838,51 @@ public class ClassFile implements TypeConstants, TypeIds {
 		}
 		return localContentsOffset;
 	}
+	private int addBootStrapTypeSwitchEntry(int localContentsOffset, SwitchStatement switchStatement, Map<String, Integer> fPtr) {
+		final int contentsEntries = 10;
+		int indexFortypeSwitch = fPtr.get(ClassFile.TYPESWITCH_STRING);
+		if (contentsEntries + localContentsOffset >= this.contents.length) {
+			resizeContents(contentsEntries);
+		}
+		if (indexFortypeSwitch == 0) {
+			ReferenceBinding javaLangRuntimeSwitchBootstraps = this.referenceBinding.scope.getJavaLangRuntimeSwitchBootstraps();
+			indexFortypeSwitch = this.constantPool.literalIndexForMethodHandle(ClassFileConstants.MethodHandleRefKindInvokeStatic, javaLangRuntimeSwitchBootstraps,
+					ConstantPool.TYPESWITCH, ConstantPool.JAVA_LANG_RUNTIME_SWITCHBOOTSTRAPS_TYPESWITCH_SIGNATURE, false);
+			fPtr.put(ClassFile.BOOTSTRAP_STRING, indexFortypeSwitch);
+		}
+		this.contents[localContentsOffset++] = (byte) (indexFortypeSwitch >> 8);
+		this.contents[localContentsOffset++] = (byte) indexFortypeSwitch;
+
+		// u2 num_bootstrap_arguments
+		int numArgsLocation = localContentsOffset;
+		CaseStatement.ResolvedCase[] constants = switchStatement.otherConstants;
+		int numArgs = constants.length;
+		this.contents[numArgsLocation++] = (byte) (numArgs >> 8);
+		this.contents[numArgsLocation] = (byte) numArgs;
+		localContentsOffset += 2;
+
+		for (CaseStatement.ResolvedCase c : constants) {
+			if (c.isPattern()) {
+				char[] typeName = c.t.constantPoolName();
+				int typeIndex = this.constantPool.literalIndexForType(typeName);
+				this.contents[localContentsOffset++] = (byte) (typeIndex >> 8);
+				this.contents[localContentsOffset++] = (byte) typeIndex;
+			} else if (c.e instanceof StringLiteral) {
+				int intValIdx =
+						this.constantPool.literalIndex(c.c.stringValue());
+				this.contents[localContentsOffset++] = (byte) (intValIdx >> 8);
+				this.contents[localContentsOffset++] = (byte) intValIdx;
+			} else {
+				int intValIdx =
+						this.constantPool.literalIndex(c.intValue());
+				this.contents[localContentsOffset++] = (byte) (intValIdx >> 8);
+				this.contents[localContentsOffset++] = (byte) intValIdx;
+			}
+		}
+
+		return localContentsOffset;
+	}
+
 	private int generateLineNumberAttribute() {
 		int localContentsOffset = this.contentsOffset;
 		int attributesNumber = 0;
@@ -4304,6 +4354,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 		}
 		if ((methodBinding.tagBits & TagBits.ClearPrivateModifier) != 0) {
 			accessFlags &= ~ClassFileConstants.AccPrivate;
+		}
+		if (this.targetJDK >= ClassFileConstants.JDK17) {
+			accessFlags &= ~(ClassFileConstants.AccStrictfp);
 		}
 		this.contents[this.contentsOffset++] = (byte) (accessFlags >> 8);
 		this.contents[this.contentsOffset++] = (byte) accessFlags;
@@ -6107,6 +6160,14 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.bootstrapMethods.add(expression);
 		// Record which bootstrap method was assigned to the expression
 		return expression.bootstrapMethodNumber = this.bootstrapMethods.size() - 1;
+	}
+
+	public int recordBootstrapMethod(SwitchStatement switchStatement) {
+		if (this.bootstrapMethods == null) {
+			this.bootstrapMethods = new ArrayList<>();
+		}
+		this.bootstrapMethods.add(switchStatement);
+		return this.bootstrapMethods.size() - 1;
 	}
 
 	public void reset(/*@Nullable*/SourceTypeBinding typeBinding, CompilerOptions options) {

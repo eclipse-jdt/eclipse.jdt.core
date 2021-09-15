@@ -7,7 +7,6 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
@@ -61,9 +60,9 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 		this.ast = AST.newAST(getAST15(), false);
 		this.currentProject = getJavaProject("Converter_15");
 		if (this.ast.apiLevel() == AST.JLS15 ) {
-			this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_16);
-			this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_16);
-			this.currentProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_16);
+			this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_17);
+			this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_17);
+			this.currentProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_17);
 
 		}
 	}
@@ -940,7 +939,8 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 			}
 	}
 
-	public void testSealed001() throws CoreException {
+	// Move sealed test to AST 17 converter class
+	public void _testSealed001() throws CoreException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
@@ -986,7 +986,8 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 		}
 	}
 
-	public void testSealed002() throws CoreException {
+	// Move sealed test to AST 17 converter class
+	public void _testSealed002() throws CoreException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
@@ -1022,7 +1023,8 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 		}
 	}
 
-	public void testSealed003() throws CoreException {
+	// Move sealed test to AST 17 converter class
+	public void _testSealed003() throws CoreException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;
@@ -1067,7 +1069,8 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 		}
 	}
 
-	public void testSealed004() throws CoreException {
+	// Move sealed test to AST 17 converter class
+	public void _testSealed004() throws CoreException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
 			return;

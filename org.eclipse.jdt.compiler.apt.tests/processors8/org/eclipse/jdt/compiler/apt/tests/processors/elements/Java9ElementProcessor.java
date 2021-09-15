@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017, 2020 IBM Corporation.
+ * Copyright (c) 2017, 2021 IBM Corporation.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -52,6 +52,7 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.NoType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.ElementFilter;
 import javax.tools.JavaFileObject;
 
 import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
@@ -70,15 +71,20 @@ public class Java9ElementProcessor extends BaseProcessor {
 	boolean reportSuccessAlready = true;
 	RoundEnvironment roundEnv = null;
 	Messager _messager = null;
+	boolean isJre17;
 	boolean isJre12;
 	boolean isJre11;
 	boolean isJre10;
 	int roundNo = 0;
+	boolean isJavac;
 	@Override
 	public synchronized void init(ProcessingEnvironment processingEnv) {
 		super.init(processingEnv);
 		_typeUtils = processingEnv.getTypeUtils();
 		_messager = processingEnv.getMessager();
+		if (!(processingEnv.getClass().getSimpleName().equals("BatchProcessingEnvImpl"))) {
+			this.isJavac = true;
+		}
 		String property = System.getProperty("java.specification.version");
 		if (property.equals(CompilerOptions.VERSION_10)) {
 			this.isJre10 = true;
@@ -89,7 +95,14 @@ public class Java9ElementProcessor extends BaseProcessor {
 			if (property.indexOf(c) == -1) {
 				int ver12 = Integer.parseInt(CompilerOptions.VERSION_12);
 				int current = Integer.parseInt(property);
-				if (current >= ver12) this.isJre12 = true;
+				if (current >= ver12) {
+					int ver17 = Integer.parseInt(CompilerOptions.VERSION_17);
+					if (current >= ver17) {
+						this.isJre17 = true;
+					} else {
+						this.isJre12 = true;
+					}
+				}
 			}
 		}
 	}
@@ -501,7 +514,7 @@ public class Java9ElementProcessor extends BaseProcessor {
 		assertNotNull("java.base module null", base);
 		List<? extends Directive> directives = base.getDirectives();
 		List<Directive> filterDirective = filterDirective(directives, DirectiveKind.PROVIDES);
-		assertEquals("incorrect no of provides", 1 , filterDirective.size());
+		assertEquals("incorrect no of provides", (isJre17 ? (this.isJavac ? 4 : 2) : 1), filterDirective.size());
 		ProvidesDirective provides = (ProvidesDirective) filterDirective.get(0);
 		assertEquals("incorrect service name", "java.nio.file.spi.FileSystemProvider", provides.getService().getQualifiedName().toString());
 		List<? extends TypeElement> implementations = provides.getImplementations();
@@ -539,7 +552,7 @@ public class Java9ElementProcessor extends BaseProcessor {
 		assertNotNull("java.sql module null", base);
 		List<? extends Directive> directives = base.getDirectives();
 		List<Directive> filterDirective = filterDirective(directives, DirectiveKind.REQUIRES);
-		assertEquals("Incorrect no of requires", (this.isJre11 || this.isJre12) ? 4 : 3, filterDirective.size());
+		assertEquals("Incorrect no of requires", (this.isJre11 || this.isJre12 || this.isJre17) ? 4 : 3, filterDirective.size());
 		RequiresDirective req = null;
 		for (Directive directive : filterDirective) {
 			if (((RequiresDirective) directive).getDependency().getQualifiedName().toString().equals("java.logging")) {
@@ -879,6 +892,30 @@ public class Java9ElementProcessor extends BaseProcessor {
 			this.reportSuccessAlready = true;
 		}
 		return false;
+	}
+	public void testBug572673() {
+		Set<? extends Element> rootElements = roundEnv.getRootElements();
+		Set<ModuleElement> modulesIn = ElementFilter.modulesIn(rootElements);
+		assertEquals("incorrect modules" , 1, modulesIn.size());
+		boolean found = false;
+		for (ModuleElement moduleElement : modulesIn) {
+			if (moduleElement.getQualifiedName().toString().equals("mod.one")) {
+				found = true;
+				List<? extends Directive> directives = moduleElement.getDirectives();
+				List<Directive> requires = filterDirective(directives, DirectiveKind.REQUIRES);
+				assertEquals("incorrect requires" , 2, requires.size());
+				for (Directive r : requires) {
+					RequiresDirective req = (RequiresDirective) r;
+					ModuleElement depModule = req.getDependency();
+					if (_elementUtils.isAutomaticModule(depModule)) {
+						assertEquals("incorrect auto-module", "lib.x", depModule.getQualifiedName().toString());
+					} else {
+						assertEquals("incorrect non auto-module", "java.base", depModule.getQualifiedName().toString());
+					}
+				}
+			}
+		}
+		assertTrue("module not found", found);
 	}
 	private void validateModifiers(ExecutableElement method, Modifier[] expected) {
 		Set<Modifier> modifiers = method.getModifiers();

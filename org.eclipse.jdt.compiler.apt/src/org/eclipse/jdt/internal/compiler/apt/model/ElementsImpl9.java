@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2017 BEA Systems, Inc. and others
+ * Copyright (c) 2006, 2021 BEA Systems, Inc. and others
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -182,4 +182,8 @@ public class ElementsImpl9 extends ElementsImpl {
 			return null;
 		return (PackageElement) _env.getFactory().newElement(p);
 	}
+	public boolean isAutomaticModule(ModuleElement module) {
+		ModuleBinding mBinding = ((ModuleElementImpl) module).binding;
+        return mBinding.isAutomatic();
+    }
 }
