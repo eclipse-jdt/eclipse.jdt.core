@@ -16,6 +16,7 @@ package org.eclipse.jdt.compiler.tool.tests;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -84,6 +85,14 @@ public class InMemoryCompilationTest extends TestCase {
 		Supplier<String> instance = (Supplier<String>) compiledClass.getDeclaredConstructor().newInstance();
 		String actual = instance.get();
 		assertEquals("Hello world", actual);
+	}
+
+	@Test
+	public void testBug574449()
+			throws ReflectiveOperationException, IllegalArgumentException, SecurityException {
+		testInMemoryCompilationStaticMethod();
+		File file = new File("/my/pkg/");
+		assertEquals(false, file.isDirectory());
 	}
 
 	private Class<?> compile(String absClassName, String sourceCode) throws ClassNotFoundException {

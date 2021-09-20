@@ -13,6 +13,7 @@
  *    IBM Corporation - fix for 342936
  *    Kenneth Olson - Contribution for bug 188796 - [jsr199] Using JSR199 to extend ECJ
  *    Dennis Hendriks - Contribution for bug 188796 - [jsr199] Using JSR199 to extend ECJ
+ *    Dennis Hendriks - fix for bug 574449.
  *    Frits Jalvingh  - fix for bug 533830.
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.tool;
@@ -22,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -451,13 +453,16 @@ public class EclipseCompilerImpl extends Main {
 								currentFolder.mkdirs();
 							}
 						} else {
-							// create the subfolfers is necessary
+							// create the subfolders if necessary
 							// need a way to retrieve the folders to create
-							String path = javaFileForOutput.toUri().getPath();
-							int index = path.lastIndexOf('/');
-							if (index != -1) {
-								File file = new File(path.substring(0, index));
-								file.mkdirs();
+							URI uri = javaFileForOutput.toUri();
+							if (uri.getScheme() == null || uri.getScheme().equals("file")) { //$NON-NLS-1$
+								String path = uri.getPath();
+								int index = path.lastIndexOf('/');
+								if (index != -1) {
+									File file = new File(path.substring(0, index));
+									file.mkdirs();
+								}
 							}
 						}
 					}
