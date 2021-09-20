@@ -12,8 +12,14 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 
+import org.eclipse.jdt.core.ToolFactory;
+import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
@@ -105,6 +111,21 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runner.runWarningTest();
 	}
 
+	private static void verifyClassFile(String expectedOutput, String classFileName, int mode)
+			throws IOException, ClassFormatException {
+		File f = new File(OUTPUT_DIR + File.separator + classFileName);
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		String result = disassembler.disassemble(classFileBytes, "\n", mode);
+		int index = result.indexOf(expectedOutput);
+		if (index == -1 || expectedOutput.length() == 0) {
+			System.out.println(Util.displayString(result, 3));
+			System.out.println("...");
+		}
+		if (index == -1) {
+			assertEquals("Wrong contents", expectedOutput, result);
+		}
+	}
 	public void testBug573516_001() {
 		runConformTest(
 			new String[] {
@@ -4039,4 +4060,44 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Type mismatch: cannot convert from int to Integer\n" +
 				"----------\n");
 	}
+
+	public void testBug576075_001() throws Exception {
+		runConformTest(
+			new String[] {
+				"p/Rec.java",
+				"package p;\n"+
+				"import p.Rec.MyInterface.MyClass1;\n"+
+				"import p.Rec.MyInterface.MyClass2;\n"+
+				"public record Rec(MyInterface c) {\n"+
+				"	public static sealed interface MyInterface permits MyClass1, MyClass2 {\n"+
+				"		public static final class MyClass1 implements MyInterface { }\n"+
+				"        public static final class MyClass2 implements MyInterface { }\n"+
+				"    }\n"+
+				"    public boolean bla() {\n"+
+				"        return switch (c) {\n"+
+				"            case MyClass1 mc1 -> true;\n"+
+				"            case MyClass2 mc2 -> false;\n"+
+				"        };\n"+
+				"    }\n"+
+				"    public static void main(String[] args) {\n"+
+				"        new Rec(new MyClass1()).hashCode();\n"+
+				"        System.out.println(\"works\");\n"+
+				"    }\n"+
+				"}\n"
+			},
+		 "works");
+		String expectedOutput =
+				"Bootstrap methods:\n" +
+				"  0 : # 93 invokestatic java/lang/runtime/SwitchBootstraps.typeSwitch:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;\n" +
+				"	Method arguments:\n" +
+				"		#32 p/Rec$MyInterface$MyClass1\n" +
+				"		#34 p/Rec$MyInterface$MyClass2,\n" +
+				"  1 : # 100 invokestatic java/lang/runtime/ObjectMethods.bootstrap:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/TypeDescriptor;Ljava/lang/Class;Ljava/lang/String;[Ljava/lang/invoke/MethodHandle;)Ljava/lang/Object;\n" +
+				"	Method arguments:\n" +
+				"		#1 p/Rec\n" +
+				"		#101 c\n" +
+				"		#102 REF_getField c:Lp/Rec$MyInterface;";
+		SwitchPatternTest.verifyClassFile(expectedOutput, "p/Rec.class", ClassFileBytesDisassembler.SYSTEM);
+	}
+
 }

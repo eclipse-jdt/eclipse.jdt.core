@@ -3848,7 +3848,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 			ReferenceBinding javaLangRuntimeSwitchBootstraps = this.referenceBinding.scope.getJavaLangRuntimeSwitchBootstraps();
 			indexFortypeSwitch = this.constantPool.literalIndexForMethodHandle(ClassFileConstants.MethodHandleRefKindInvokeStatic, javaLangRuntimeSwitchBootstraps,
 					ConstantPool.TYPESWITCH, ConstantPool.JAVA_LANG_RUNTIME_SWITCHBOOTSTRAPS_TYPESWITCH_SIGNATURE, false);
-			fPtr.put(ClassFile.BOOTSTRAP_STRING, indexFortypeSwitch);
+			fPtr.put(ClassFile.TYPESWITCH_STRING, indexFortypeSwitch);
 		}
 		this.contents[localContentsOffset++] = (byte) (indexFortypeSwitch >> 8);
 		this.contents[localContentsOffset++] = (byte) indexFortypeSwitch;
