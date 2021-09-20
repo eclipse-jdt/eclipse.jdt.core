@@ -3584,6 +3584,7 @@ protected void consumeEnterAnonymousClassBody(boolean qualified) {
 		}
 		this.lastIgnoredToken = -1;
 	}
+	checkForDiamond(typeReference);
 }
 protected void consumeEnterCompilationUnit() {
 	// EnterCompilationUnit ::= $empty

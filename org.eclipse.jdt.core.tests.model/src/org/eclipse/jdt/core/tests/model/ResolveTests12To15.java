@@ -775,4 +775,32 @@ public void testBug574697() throws JavaModelException {
 			"getGreeting() [in Test2 [in [Working copy] Test2.java [in <default> [in src [in Resolve]]]]]",
 			elements);
 }
+public void testBugDiamond() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Resolve/src/Test2.java",
+			"import java.util.List;\n" +
+			"public class Test2 {\n" +
+			"    public static void test() {\n" +
+			"        List<Integer> foo = new List<>() {"
+			+ "          String s2;\n" +
+			"            private void test() {\n" +
+			"                System.out.println(s2);\n" +
+			"            }\n" +
+			"        };\n" +
+			"    }\n" +
+			"}\n");
+
+	String str = this.workingCopies[0].getSource();
+	String selectAt = "s2";
+	String selection = "s2";
+	int start = str.lastIndexOf(selectAt);
+	int length = selection.length();
+	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length, this.wcOwner);
+
+	assertElementsEqual(
+			"Unexpected elements",
+			"s2 [in <anonymous #1> [in test() [in Test2 [in [Working copy] Test2.java [in <default> [in src [in Resolve]]]]]]]",
+			elements);
+}
 }
