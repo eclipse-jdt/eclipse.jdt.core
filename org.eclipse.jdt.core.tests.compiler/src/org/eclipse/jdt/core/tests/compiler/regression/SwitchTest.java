@@ -3130,6 +3130,62 @@ public void testBug545518() {
 		},
 		message);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=576093
+public void testBug576093a() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
+		return;
+	}
+	this.runConformTest(
+			new String[] {
+					"X.java",
+					"import java.util.HashMap;\n"
+					+ "import java.util.Map;\n"
+					+ "import java.util.Map.Entry;\n"
+					+ "\n"
+					+ "public class X {\n"
+					+ "	public static void main(String[] args) {\n"
+					+ "		Map<Z, Object> map = new HashMap<>();\n"
+					+ "		for (Entry<Z, Object> entry : map.entrySet()) {\n"
+					+ "			switch (entry.getKey()) {\n"
+					+ "			default:\n"
+					+ "				break;\n"
+					+ "			}\n"
+					+ "		}\n"
+					+ "		System.out.println(\"Success\");\n"
+					+ "	}\n"
+					+ "	enum Z {\n"
+					+ "		A\n"
+					+ "	}\n"
+					+ "}",
+			},
+			"Success");
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=576093
+public void testBug576093b() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
+		return;
+	}
+	this.runConformTest(
+			new String[] {
+				"X2.java",
+				"import java.util.Optional;\n"
+				+ "\n"
+				+ "public class X2 {\n"
+				+ "	public static void main(String[] args) {\n"
+				+ "		Optional<Z> o = Optional.of(Z.A);\n"
+				+ "		switch (o.get()) {\n"
+				+ "		default:\n"
+				+ "			break;\n"
+				+ "		}\n"
+				+ "		System.out.println(\"Success\");\n"
+				+ "	}\n"
+				+ "	enum Z {\n"
+				+ "		A\n"
+				+ "	}\n"
+				+ "}",
+			},
+			"Success");
+}
 public static Class testClass() {
 	return SwitchTest.class;
 }
