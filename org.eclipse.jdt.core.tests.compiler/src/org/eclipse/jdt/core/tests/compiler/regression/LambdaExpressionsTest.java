@@ -7276,6 +7276,42 @@ public void testBug562324b() {
 		},
 		"it runs");
 }
+public void testBug576152() {
+	runConformTest(
+			new String[] {
+					"Example.java",
+					"\n"
+					+ "import java.util.function.Supplier;\n"
+					+ "\n"
+					+ "public class Example {\n"
+					+ "    Example() {\n"
+					+ "        inspect(this::singleMethod);\n"
+					+ "        inspect(this::overloadedMethod);\n"
+					+ "    }\n"
+					+ "    void inspect(Inspector... inspectors) { }\n"
+					+ "    void singleMethod(byte[] input, int offset, int len) { }\n"
+					+ "    void overloadedMethod() { }\n"
+					+ "    void overloadedMethod(byte[] input, int offset, int len) { }\n"
+					+ "\n"
+					+ "    public static void main(String[] args) {\n"
+					+ "    	String s1 = hoge1(String::new);\n"
+					+ "    	String s2 = hoge2(String::new);	// Error. See the attached file.\n"
+					+ "    }\n"
+					+ "    static <T> T hoge1(Supplier<T> sup) {\n"
+					+ "    	return null;\n"
+					+ "    }\n"
+					+ "    static <T> T hoge2(Supplier<T>... sup) {\n"
+					+ "    	return null;\n"
+					+ "    }\n"
+					+ "}\n"
+					+ "\n"
+					+ "@FunctionalInterface\n"
+					+ "interface Inspector {\n"
+					+ "    void update(byte[] input, int offset, int len);\n"
+					+ "}"
+			}
+			);
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

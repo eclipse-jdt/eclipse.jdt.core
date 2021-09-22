@@ -1258,7 +1258,8 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 		} else if (copy.resolvedType != null && copy.resolvedType.isValidBinding() && copy.binding != null && copy.binding.isValidBinding()) {
 			return true;
 		} else {
-			return !isPertinentToApplicability(targetType, null); // not mentioned in JLS (see prior art in LE.internalIsCompatibleWith()
+			boolean notPertinentToApplicability = targetType instanceof ParameterizedTypeBinding && !isPertinentToApplicability(targetType, null); // not mentioned in JLS (see prior art in LE.internalIsCompatibleWith()
+			return notPertinentToApplicability;
 		}
 	}
 
