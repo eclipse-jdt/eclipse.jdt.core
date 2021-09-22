@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -2081,7 +2081,7 @@ public final void jumpOverMethodBody() {
 										pushLineSeparator();
 										//$FALL-THROUGH$
 									default:
-										if (this.currentCharacter == '\\' && this.source[this.currentPosition++] == '"') {
+										if (this.currentCharacter == '\\' && this.source[this.currentPosition] == '"') {
 											this.currentPosition++;
 										}
 										this.currentCharacter = this.source[this.currentPosition++];

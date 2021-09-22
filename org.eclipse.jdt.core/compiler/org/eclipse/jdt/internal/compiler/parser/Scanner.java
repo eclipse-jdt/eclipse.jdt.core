@@ -768,6 +768,9 @@ private boolean getLineContent(StringBuilder result, char[] line, int start, int
 				case 's' :
 					result.append(' ');
 					break;
+				case '"':
+					result.append('"');
+					break;
 				case 'b' :
 					result.append('\b');
 					break;
@@ -2202,12 +2205,17 @@ protected int scanForTextBlock() throws InvalidInputException {
 					case 'n' :
 					case 'r' :
 					case 'f' :
+					case 's' :
 						break outer;
 					case '\n' :
 					case '\r' :
 						this.currentCharacter = '\\';
 						this.currentPosition++;
 						break;
+					case '\"' :
+						this.currentPosition++;
+						this.currentCharacter = this.source[this.currentPosition++];
+						continue;
 					case '\\' :
 						this.currentPosition++;
 						break;
@@ -2458,7 +2466,7 @@ public final void jumpOverMethodBody() {
 										pushLineSeparator();
 										//$FALL-THROUGH$
 									default:
-										if (this.currentCharacter == '\\' && this.source[this.currentPosition++] == '"') {
+										if (this.currentCharacter == '\\' && this.source[this.currentPosition] == '"') {
 											this.currentPosition++;
 										}
 										this.currentCharacter = this.source[this.currentPosition++];
