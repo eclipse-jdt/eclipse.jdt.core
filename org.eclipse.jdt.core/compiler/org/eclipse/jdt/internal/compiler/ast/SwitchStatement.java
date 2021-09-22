@@ -787,6 +787,7 @@ public class SwitchStatement extends Expression {
 			CompilerOptions compilerOptions = upperScope.compilerOptions();
 			boolean isEnhanced = checkAndSetEnhanced(upperScope, expressionType);
 			if (expressionType != null) {
+				this.expression.computeConversion(upperScope, expressionType, expressionType);
 				checkType: {
 					if (!expressionType.isValidBinding()) {
 						expressionType = null; // fault-tolerance: ignore type mismatch from constants from hereon
