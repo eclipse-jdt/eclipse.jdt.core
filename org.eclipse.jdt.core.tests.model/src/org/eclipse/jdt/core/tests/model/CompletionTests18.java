@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.eval.IEvaluationContext;
 import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
 
@@ -5948,8 +5949,8 @@ public void testBug574912_comment6() throws JavaModelException {
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	String result = requestor.getResults();
-	assertResults("getMinimum[METHOD_REF]{, Ljava.util.Calendar;, (I)I, getMinimum, (arg0), 86}",
-			result);
+	assertResults("num[FIELD_REF]{num, LLambdaFreeze2;, I, num, null, 52}\n"
+			+ "getMinimum[METHOD_REF]{, Ljava.util.Calendar;, (I)I, getMinimum, (arg0), 86}", result);
 }
 public void testBug574912_comment6b() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -6023,5 +6024,102 @@ public void testBug574882() throws Exception {
 			"expectedTypesKeys=null\n" +
 			"completion token location={STATEMENT_START}", // this is required for sysout template proposal
 			requestor.getContext());
+}
+public void testBug575149_expectOverloadedMethodsAndVariablesRankedWithExpectedType() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"Completion/src/Bug443091.java",
+			"import java.util.function.Consumer;\n" +
+			"import java.util.function.Function;\n" +
+			"\n" +
+			"public class Bug443091 {\n" +
+			"	private void foo() {\n" +
+			" 		Consumer<Integer> capture = null;\n" +
+			"		forEach()" +
+			"	}\n" +
+			"	private void forEach(Consumer<Integer> in) {}\n" +
+			"	private void forEach(Function<Integer, String> in) {}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "forEach(";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	String result = requestor.getResults();
+	assertResults(
+			"capture[LOCAL_VARIABLE_REF]{capture, null, Ljava.util.function.Consumer<Ljava.lang.Integer;>;, capture, null, 52}\n"
+					+ "forEach[METHOD_REF]{, LBug443091;, (Ljava.util.function.Consumer<Ljava.lang.Integer;>;)V, forEach, (in), 56}\n"
+					+ "forEach[METHOD_REF]{, LBug443091;, (Ljava.util.function.Function<Ljava.lang.Integer;Ljava.lang.String;>;)V, forEach, (in), 56}",
+			result);
+	assertTrue("expected type signatures don't match", CharOperation.equals(requestor.getExpectedTypesSignatures(),
+			new char[][] {"Ljava.util.function.Function<Ljava.lang.Integer;Ljava.lang.String;>;".toCharArray(),
+			"Ljava.util.function.Consumer<Ljava.lang.Integer;>;".toCharArray()}, true));
+}
+public void testBug575149_expectRemainingOverloadedMethodsMatchingFilledArguments() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"Completion/src/Bug443091.java",
+			"import java.util.function.Consumer;\n" +
+			"import java.util.function.Function;\n" +
+			"\n" +
+			"public class Bug443091 {\n" +
+			"	private void foo() {\n" +
+			" 		Consumer<Integer> capture = null;\n" +
+			"		forEach(capture, )" +
+			"	}\n" +
+			"	private void forEach(Consumer<Integer> in) {}\n" +
+			"	private void forEach(Consumer<Integer> in, Integer limit) {}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "forEach(capture,";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	String result = requestor.getResults();
+	assertResults("hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 52}\n"
+			+ "forEach[METHOD_REF]{, LBug443091;, (Ljava.util.function.Consumer<Ljava.lang.Integer;>;)V, forEach, (in), 56}\n"
+			+ "forEach[METHOD_REF]{, LBug443091;, (Ljava.util.function.Consumer<Ljava.lang.Integer;>;Ljava.lang.Integer;)V, forEach, (in, limit), 56}",
+			result);
+	assertTrue("expected type signatures don't match", CharOperation.equals(requestor.getExpectedTypesSignatures(), new char[][] {"Ljava.lang.Integer;".toCharArray()}, true));
+}
+public void testBug575149_expectOverloadsOverEnumLiterals() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"Completion/src/Bug443091.java",
+			"import java.util.function.Consumer;\n" +
+			"import java.util.function.Function;\n" +
+			"\n" +
+			"public class Bug443091 {\n" +
+			"	private void foo() {\n" +
+			" 		Consumer<Integer> capture = null;\n" +
+			"		forEach(capture, )" +
+			"	}\n" +
+			"	private Thread.State defaultState() { return null;} \n" +
+			"	private void forEach(Consumer<Integer> in, Thread.State state) {}\n" +
+			"	private void forEach(Consumer<Integer> in, Thread.State state, Integer limit) {}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "forEach(capture,";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	String result = requestor.getResults();
+	assertResults("BLOCKED[FIELD_REF]{State.BLOCKED, Ljava.lang.Thread$State;, Ljava.lang.Thread$State;, BLOCKED, null, 49}\n" +
+			"NEW[FIELD_REF]{State.NEW, Ljava.lang.Thread$State;, Ljava.lang.Thread$State;, NEW, null, 49}\n" +
+			"RUNNABLE[FIELD_REF]{State.RUNNABLE, Ljava.lang.Thread$State;, Ljava.lang.Thread$State;, RUNNABLE, null, 49}\n" +
+			"TERMINATED[FIELD_REF]{State.TERMINATED, Ljava.lang.Thread$State;, Ljava.lang.Thread$State;, TERMINATED, null, 49}\n" +
+			"TIMED_WAITING[FIELD_REF]{State.TIMED_WAITING, Ljava.lang.Thread$State;, Ljava.lang.Thread$State;, TIMED_WAITING, null, 49}\n" +
+			"WAITING[FIELD_REF]{State.WAITING, Ljava.lang.Thread$State;, Ljava.lang.Thread$State;, WAITING, null, 49}\n" +
+			"defaultState[METHOD_REF]{defaultState(), LBug443091;, ()Ljava.lang.Thread$State;, defaultState, null, 52}\n" +
+			"forEach[METHOD_REF]{, LBug443091;, (Ljava.util.function.Consumer<Ljava.lang.Integer;>;Ljava.lang.Thread$State;)V, forEach, (in, state), 56}\n" +
+			"forEach[METHOD_REF]{, LBug443091;, (Ljava.util.function.Consumer<Ljava.lang.Integer;>;Ljava.lang.Thread$State;Ljava.lang.Integer;)V, forEach, (in, state, limit), 56}",
+			result);
+	assertTrue("expected type signatures don't match", CharOperation.equals(requestor.getExpectedTypesSignatures(), new char[][] {"Ljava.lang.Thread$State;".toCharArray()}, true));
 }
 }

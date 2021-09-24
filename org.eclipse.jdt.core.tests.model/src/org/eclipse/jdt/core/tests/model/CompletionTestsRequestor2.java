@@ -709,4 +709,8 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 		}
 		return null;
 	}
+
+	public char[][] getExpectedTypesSignatures() {
+		return this.context.getExpectedTypesSignatures();
+	}
 }

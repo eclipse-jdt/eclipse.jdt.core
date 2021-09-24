@@ -13324,6 +13324,7 @@ public void testCompletionPrefixMethodName3() throws JavaModelException {
 	int tEnd = tStart;
 
 	assertResults(
+		"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, replace["+tStart+", "+tEnd+"], token["+tStart+", "+tEnd+"], 52}\n" +
 		"xBar[METHOD_REF]{CompletionPrefixMethodName3.this.xBar(1,, LCompletionPrefixMethodName3;, (II)I, xBar, (a, b), replace["+rStart1+", "+rEnd1+"], token["+tStart+", "+tEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME+ R_NON_RESTRICTED)+"}\n"+
 		"xBar[METHOD_REF]{, LCompletionPrefixMethodName3$classFoo;, (II)I, xBar, (a, b), replace["+rStart2+", "+rEnd2+"], token["+tStart+", "+tEnd+"], "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED)+"}",
 		requestor.getResults());

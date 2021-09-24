@@ -897,6 +897,7 @@ public void testDontPreventInsertionOfExactMatch() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	assertResults(
+			"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED ) +  "}\n" +
 			"put[METHOD_REF]{, Ljava.util.Map<Ljava.lang.String;Ljava.lang.String;>;, (Ljava.lang.String;Ljava.lang.String;)Ljava.lang.String;, put, (key, value), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXACT_NAME + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED ) + "}",
 			requestor.getResults());
 }

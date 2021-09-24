@@ -844,6 +844,15 @@ public final class CompletionEngine
 
 	private int foundConstructorsCount;
 	private ObjectVector acceptedConstructors;
+	/**
+	 * The strictMatchForExtepectedType used to skip all elements found at <code>findVariablesAndMethods</code>
+	 * which doesn't match the current expected types in the engine in <code>expectedTypes</code>. Since in this mode
+	 * all elements found matches the expected type, the completion proposals will not contains the calculated expected type
+	 * relevance. This is done to keep the overloaded method suggestions always on top in this mode as a fix for
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=575149
+	 *
+	 */
+	private boolean strictMatchForExtepectedType = false;
 
 	/**
 	 * The CompletionEngine is responsible for computing source completions.
@@ -1995,6 +2004,10 @@ public final class CompletionEngine
 			completionOnMemberAccess(astNode, enclosingNode, qualifiedBinding, scope, insideTypeAnnotation);
 		} else if (astNode instanceof CompletionOnMessageSend) {
 			completionOnMessageSend(astNode, qualifiedBinding, scope);
+			// rebuild the context with newly found expected types so other completion computers can benifit from it.
+			if(this.expectedTypesPtr > -1) {
+				buildContext(astNode, astNodeParent, compilationUnitDeclaration, qualifiedBinding, scope);
+			}
 		} else if (astNode instanceof CompletionOnExplicitConstructorCall) {
 			completionOnExplicitConstructorCall(astNode, qualifiedBinding, scope);
 		} else if (astNode instanceof CompletionOnQualifiedAllocationExpression) {
@@ -3185,9 +3198,9 @@ public final class CompletionEngine
 		CompletionOnMessageSend messageSend = (CompletionOnMessageSend) astNode;
 		TypeBinding[] argTypes = computeTypes(messageSend.arguments);
 		this.completionToken = messageSend.selector;
+		ObjectVector methodsFound = new ObjectVector();
 		if (qualifiedBinding == null) {
 			if (!this.requestor.isIgnored(CompletionProposal.METHOD_REF)) {
-				ObjectVector methodsFound = new ObjectVector();
 
 				findImplicitMessageSends(this.completionToken, argTypes, scope, messageSend, scope, methodsFound);
 
@@ -3209,7 +3222,7 @@ public final class CompletionEngine
 				argTypes,
 				(ReferenceBinding)((ReferenceBinding) qualifiedBinding).capture(scope, messageSend.receiver.sourceStart, messageSend.receiver.sourceEnd),
 				scope,
-				new ObjectVector(),
+				methodsFound,
 				false,
 				true,
 				messageSend,
@@ -3224,6 +3237,40 @@ public final class CompletionEngine
 				null,
 				-1,
 				-1);
+		}
+
+		findCompletionsForArgumentPosition(methodsFound, argTypes != null ? argTypes.length : 0, scope);
+	}
+
+	private void findCompletionsForArgumentPosition(ObjectVector methodsFound, int completedArgumentLength, Scope scope) {
+		if(methodsFound.size == 0) {
+			return;
+		}
+
+		for(int i = 0; i < methodsFound.size; i++) {
+			MethodBinding method = (MethodBinding) ((Object[])methodsFound.elementAt(i))[0];
+			if(method.parameters.length <= completedArgumentLength) {
+				continue;
+			}
+
+			TypeBinding paramType = method.parameters[completedArgumentLength];
+			addExpectedType(paramType, scope);
+		}
+		this.strictMatchForExtepectedType = true;
+		int filter = this.expectedTypesFilter;
+		this.expectedTypesFilter = SUBTYPE;
+		int start = this.startPosition, end = this.endPosition;
+		int tStart = this.tokenStart, tEnd = this.tokenEnd;
+		try {
+			this.startPosition = this.endPosition = this.tokenStart = this.tokenEnd = this.actualCompletionPosition + 1;
+			findVariablesAndMethods(CharOperation.NO_CHAR, scope, FakeInvocationSite, scope, false, false, false, methodsFound);
+		} finally {
+			this.startPosition = start;
+			this.endPosition = end;
+			this.tokenStart = tStart;
+			this.tokenEnd = tEnd;
+			this.strictMatchForExtepectedType = false;
+			this.expectedTypesFilter = filter;
 		}
 	}
 
@@ -6414,7 +6461,13 @@ public final class CompletionEngine
 			relevance += computeRelevanceForResolution();
 			relevance += computeRelevanceForInterestingProposal(field);
 			relevance += computeRelevanceForCaseMatching(enumConstantName, field.name);
-			relevance += computeRelevanceForExpectingType(field.type);
+			int computeRelevanceForExpectingType = computeRelevanceForExpectingType(field.type);
+			if(this.strictMatchForExtepectedType && computeRelevanceForExpectingType <= 0) {
+				continue;
+			} else if (!this.strictMatchForExtepectedType) {
+				relevance += computeRelevanceForExpectingType;
+			}
+
 			relevance += computeRelevanceForEnumConstant(field.type);
 			relevance += computeRelevanceForQualification(needQualification);
 			relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
@@ -7039,7 +7092,13 @@ public final class CompletionEngine
 			relevance += computeRelevanceForResolution();
 			relevance += computeRelevanceForInterestingProposal(field);
 			relevance += computeRelevanceForCaseMatching(fieldName, field.name);
-			relevance += computeRelevanceForExpectingType(field.type);
+			int computeRelevanceForExpectingType = computeRelevanceForExpectingType(field.type);
+			if(this.strictMatchForExtepectedType && computeRelevanceForExpectingType <= 0) {
+				continue;
+			} else if(!this.strictMatchForExtepectedType) {
+				relevance += computeRelevanceForExpectingType;
+			}
+
 			relevance += computeRelevanceForEnumConstant(field.type);
 			relevance += computeRelevanceForStatic(onlyStaticFields, field.isStatic());
 			relevance += computeRelevanceForFinal(this.assistNodeIsInsideCase, field.isFinal());
@@ -9387,7 +9446,12 @@ public final class CompletionEngine
 			relevance += computeRelevanceForResolution();
 			relevance += computeRelevanceForInterestingProposal();
 			relevance += computeRelevanceForCaseMatching(methodName, method.selector);
-			relevance += computeRelevanceForExpectingType(method.returnType);
+			int computeRelevanceForExpectingType = computeRelevanceForExpectingType(method.returnType);
+			if(this.strictMatchForExtepectedType && computeRelevanceForExpectingType <= 0) {
+				continue;
+			} else if(!this.strictMatchForExtepectedType) {
+				relevance += computeRelevanceForExpectingType;
+			}
 			relevance += computeRelevanceForEnumConstant(method.returnType);
 			relevance += computeRelevanceForStatic(onlyStaticMethods, method.isStatic());
 			relevance += computeRelevanceForQualification(prefixRequired);
@@ -9648,7 +9712,13 @@ public final class CompletionEngine
 				relevance += computeRelevanceForResolution();
 				relevance += computeRelevanceForInterestingProposal();
 				relevance += computeRelevanceForCaseMatching(methodName, method.selector);
-				relevance += computeRelevanceForExpectingType(method.returnType);
+				int computeRelevanceForExpectingType = computeRelevanceForExpectingType(method.returnType);
+				if(this.strictMatchForExtepectedType && computeRelevanceForExpectingType <= 0) {
+					continue;
+				} else if(!this.strictMatchForExtepectedType) {
+					relevance += computeRelevanceForExpectingType;
+				}
+
 				relevance += computeRelevanceForEnumConstant(method.returnType);
 				relevance += computeRelevanceForStatic(true, method.isStatic());
 				relevance += computeRelevanceForQualification(true);
@@ -9888,8 +9958,20 @@ public final class CompletionEngine
 			relevance += computeRelevanceForResolution();
 			relevance += computeRelevanceForInterestingProposal();
 			relevance += computeRelevanceForCaseMatching(methodName, method.selector);
-			relevance += computeRelevanceForExpectingType(method.returnType);
-			relevance += computeRelevanceForEnumConstant(method.returnType);
+			int computeRelevanceForExpectingType = computeRelevanceForExpectingType(method.returnType);
+			if(this.strictMatchForExtepectedType && computeRelevanceForExpectingType <= 0) {
+				continue;
+			} else if(!this.strictMatchForExtepectedType) {
+				relevance += computeRelevanceForExpectingType;
+			}
+
+			int computeRelevanceForEnumConstant = computeRelevanceForEnumConstant(method.returnType);
+			if(this.strictMatchForExtepectedType && computeRelevanceForEnumConstant <= 0) {
+				continue;
+			} else if(!this.strictMatchForExtepectedType) {
+				relevance += computeRelevanceForEnumConstant;
+			}
+
 			relevance += computeRelevanceForStatic(true, method.isStatic());
 			relevance += computeRelevanceForQualification(false);
 			relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
@@ -12652,6 +12734,17 @@ public final class CompletionEngine
 		Scope invocationScope,
 		boolean insideTypeAnnotation,
 		boolean insideAnnotationAttribute) {
+		findVariablesAndMethods(token, scope, invocationSite, invocationScope, insideTypeAnnotation, insideAnnotationAttribute, true, new ObjectVector());
+	}
+	private void findVariablesAndMethods(
+		char[] token,
+		Scope scope,
+		InvocationSite invocationSite,
+		Scope invocationScope,
+		boolean insideTypeAnnotation,
+		boolean insideAnnotationAttribute,
+		boolean canBePrefixed,
+		ObjectVector methodsFound) {
 
 		if (token == null)
 			return;
@@ -12665,7 +12758,6 @@ public final class CompletionEngine
 
 		ObjectVector localsFound = new ObjectVector();
 		ObjectVector fieldsFound = new ObjectVector();
-		ObjectVector methodsFound = new ObjectVector();
 
 		Scope currentScope = scope;
 
@@ -12741,7 +12833,13 @@ public final class CompletionEngine
 							relevance += computeRelevanceForResolution();
 							relevance += computeRelevanceForInterestingProposal(local);
 							relevance += computeRelevanceForCaseMatching(token, local.name);
-							relevance += computeRelevanceForExpectingType(local.type);
+							int computeRelevanceForExpectingType = computeRelevanceForExpectingType(local.type);
+							if(this.strictMatchForExtepectedType && computeRelevanceForExpectingType <= 0) {
+								continue;
+							} else if(!this.strictMatchForExtepectedType) {
+								relevance += computeRelevanceForExpectingType;
+							}
+
 							relevance += computeRelevanceForEnumConstant(local.type);
 							relevance += computeRelevanceForQualification(false);
 							relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for local variable
@@ -12820,7 +12918,7 @@ public final class CompletionEngine
 									invocationSite,
 									invocationScope,
 									true,
-									true,
+									canBePrefixed,
 									null,
 									null,
 									null,
@@ -12843,7 +12941,7 @@ public final class CompletionEngine
 									invocationScope,
 									true,
 									false,
-									true,
+									canBePrefixed,
 									null,
 									null,
 									null,
