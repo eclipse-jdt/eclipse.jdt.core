@@ -6093,4 +6093,26 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				);
 
 	}
+	public void testBug576026() {
+		this.runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"
+						+ "	enum E { A }\n"
+						+ "	static class C {\n"
+						+ "		E e = E.A;\n"
+						+ "	}\n"
+						+ "	public static void main(String[] args) {\n"
+						+ "		C c = new C();\n"
+						+ "		switch (c.e) {\n"
+						+ "		case A -> {\n"
+						+ "			System.out.println(\"Success\");\n"
+						+ "		}\n"
+						+ "		default -> System.out.println(\"Wrong\");\n"
+						+ "		}\n"
+						+ "	}\n"
+						+ "}",
+				},
+				"Success");
+	}
 }
