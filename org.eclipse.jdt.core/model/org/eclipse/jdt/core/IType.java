@@ -770,7 +770,7 @@ public interface IType extends IMember, IAnnotatable {
 	 * @exception JavaModelException if this element does not exist or if an
 	 *		exception occurs while accessing its corresponding resource.
 	 * @return names of types that this type permits to be its sub types
-	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
+	 * @since 3.28
 	 */
 	String[] getPermittedSubtypeNames() throws JavaModelException;
 
@@ -936,7 +936,7 @@ public interface IType extends IMember, IAnnotatable {
 	 * @exception JavaModelException if this element does not exist or if an
 	 *		exception occurs while accessing its corresponding resource.
 	 * @return true if this type this type is a sealed type, false otherwise
-	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
+	 * @since 3.28
 	 */
 	boolean isSealed() throws JavaModelException;
 
