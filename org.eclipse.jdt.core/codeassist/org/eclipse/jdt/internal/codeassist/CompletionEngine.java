@@ -679,6 +679,7 @@ public final class CompletionEngine
 	private final static char[] STATIC = "static".toCharArray();  //$NON-NLS-1$
 	private final static char[] ON_DEMAND = ".*".toCharArray();  //$NON-NLS-1$
 	private final static char[] IMPORT_END = ";\n".toCharArray();  //$NON-NLS-1$
+	private final static char[] LAMBDA = "->".toCharArray(); //$NON-NLS-1$
 
 	private final static char[] JAVA_LANG_OBJECT_SIGNATURE =
 		createTypeSignature(CharOperation.concatWith(JAVA_LANG, '.'), OBJECT);
@@ -12998,6 +12999,8 @@ public final class CompletionEngine
 					token,
 					invocationScope,
 					fieldsFound);
+
+			findLambdaExpressions(currentScope);
 		}
 	}
 
@@ -13516,6 +13519,9 @@ public final class CompletionEngine
 				break;
 			case CompletionProposal.ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION :
 				buffer.append("ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION"); //$NON-NLS-1$
+				break;
+			case CompletionProposal.LAMBDA_EXPRESSION :
+				buffer.append("LAMBDA_EXPRESSION"); //$NON-NLS-1$
 				break;
 			default :
 				buffer.append("PROPOSAL"); //$NON-NLS-1$
@@ -14130,4 +14136,66 @@ public final class CompletionEngine
 		if(foundConflicts) return substituedParameterNames;
 		return null;
 	}
+
+	private void findLambdaExpressions(Scope scope) {
+		if (this.requestor.isIgnored(CompletionProposal.LAMBDA_EXPRESSION) ||
+				this.compilerOptions.sourceLevel < ClassFileConstants.JDK1_8) {
+			return;
+		}
+
+		if (this.expectedTypesPtr > -1) {
+			for (int i = 0; i <= this.expectedTypesPtr; i++) {
+				TypeBinding type = this.expectedTypes[i];
+
+				if (type.isFunctionalInterface(scope)) {
+					int relevance = computeBaseRelevance();
+					relevance += R_EXACT_EXPECTED_TYPE;
+					relevance += R_ABSTRACT_METHOD;
+					relevance += computeRelevanceForResolution();
+					relevance += computeRelevanceForInterestingProposal();
+					relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
+
+					// we are sure this is not null since we already check for eligibility
+					MethodBinding method = type.getSingleAbstractMethod(scope, true);
+					int length = method.parameters.length;
+					char[][] parameterTypeNames = new char[length][];
+
+					for (int j = 0; j < length; j++) {
+						TypeBinding p = method.parameters[j];
+						parameterTypeNames[j] = p.qualifiedSourceName();
+					}
+					char[][] parameterNames = findMethodParameterNames(method, parameterTypeNames);
+
+					InternalCompletionProposal proposal = createProposal(CompletionProposal.LAMBDA_EXPRESSION,
+							this.actualCompletionPosition);
+					proposal.setBinding(method);
+					proposal.setDeclarationSignature(getSignature(method.declaringClass));
+					proposal.setSignature(getSignature(method));
+					MethodBinding original = method.original();
+					if(original != method) {
+						proposal.setOriginalSignature(getSignature(original));
+					}
+					proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+					proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
+					proposal.setRelevance(relevance);
+					proposal.setCompletion(LAMBDA);
+					proposal.setParameterTypeNames(parameterTypeNames);
+					proposal.setFlags(method.modifiers);
+					proposal.setDeclarationPackageName(method.declaringClass.qualifiedPackageName());
+					proposal.setDeclarationTypeName(method.declaringClass.qualifiedSourceName());
+					proposal.setName(method.selector);
+					proposal.setTypeName(method.returnType.qualifiedSourceName());
+					if (parameterNames != null) {
+						proposal.setParameterNames(parameterNames);
+					}
+
+					this.requestor.accept(proposal);
+					if (DEBUG) {
+						this.printDebug(proposal);
+					}
+				}
+			}
+		}
+	}
+
 }

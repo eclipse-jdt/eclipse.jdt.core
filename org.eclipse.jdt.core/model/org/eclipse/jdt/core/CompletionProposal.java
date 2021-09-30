@@ -872,6 +872,20 @@ public class CompletionProposal {
 	 * @since 3.14
 	 */
 	public static final int MODULE_REF = 29;
+
+	/**
+	/**
+	 * Completion is a lambda expression.
+	 * This kind of completion might occur in a context like
+	 * <code>Consumer consumer = ^</code> and complete it to
+	 * <code>"Consumer consumer = c ->"</code> or in
+	 * <code> "to Consumer consumer = c -> {}"</code>
+	 *
+	 * @see #getKind()
+	 * @since 3.28
+	 */
+	public static final int LAMBDA_EXPRESSION = 30;
+
 	/**
 	 * First valid completion kind.
 	 *
@@ -884,7 +898,7 @@ public class CompletionProposal {
 	 *
 	 * @since 3.1
 	 */
-	protected static final int LAST_KIND = MODULE_REF;
+	protected static final int LAST_KIND = LAMBDA_EXPRESSION;
 
 	/**
 	 * Creates a basic completion proposal. All instance
