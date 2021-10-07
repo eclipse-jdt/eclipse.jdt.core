@@ -148,12 +148,11 @@ import org.eclipse.jdt.internal.core.search.JavaWorkspaceScope;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.processing.IJob;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
+import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
 import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
 import org.eclipse.jdt.internal.core.util.LRUCache;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
-import org.eclipse.jdt.internal.core.util.WeakHashSet;
-import org.eclipse.jdt.internal.core.util.WeakHashSetOfCharArray;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
 import org.eclipse.osgi.service.debug.DebugOptions;
 import org.eclipse.osgi.service.debug.DebugOptionsListener;
@@ -278,13 +277,6 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 * The unique workspace scope
 	 */
 	public JavaWorkspaceScope workspaceScope;
-
-	/*
-	 * Pools of symbols used in the Java model.
-	 * Used as a replacement for String#intern() that could prevent garbage collection of strings on some VMs.
-	 */
-	private WeakHashSet stringSymbols = new WeakHashSet(5);
-	private WeakHashSetOfCharArray charArraySymbols = new WeakHashSetOfCharArray(5);
 
 	/*
 	 * Extension used to construct Java 6 annotation processor managers
@@ -3316,25 +3308,12 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		((IEclipsePreferences) this.preferencesLookup[PREF_DEFAULT].parent()).addNodeChangeListener(this.defaultNodeListener);
 	}
 
-	public synchronized char[] intern(char[] array) {
-		return this.charArraySymbols.add(array);
+	public char[] intern(char[] array) {
+		return DeduplicationUtil.intern(array);
 	}
 
-	public synchronized String intern(String s) {
-		return (String) this.stringSymbols.add(s);
-
-		// Note1: String#intern() cannot be used as on some VMs this prevents the string from being garbage collected
-		// Note 2: Instead of using a WeakHashset, one could use a WeakHashMap with the following implementation
-		// 			   This would costs more per entry (one Entry object and one WeakReference more))
-
-		/*
-		WeakReference reference = (WeakReference) this.symbols.get(s);
-		String existing;
-		if (reference != null && (existing = (String) reference.get()) != null)
-			return existing;
-		this.symbols.put(s, new WeakReference(s));
-		return s;
-		*/
+	public String intern(String s) {
+		return DeduplicationUtil.intern(s);
 	}
 
 	void touchProjects(final IProject[] projectsToTouch, IProgressMonitor progressMonitor) throws JavaModelException {
@@ -5596,11 +5575,6 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	}
 
 	private ClasspathAccessRule getFromCache(ClasspathAccessRule rule) {
-		ClasspathAccessRule cachedRule = this.cache.accessRuleCache.get(rule);
-		if (cachedRule != null) {
-			return cachedRule;
-		}
-		this.cache.accessRuleCache.put(rule, rule);
-		return rule;
+		return DeduplicationUtil.internObject(rule);
 	}
 }
