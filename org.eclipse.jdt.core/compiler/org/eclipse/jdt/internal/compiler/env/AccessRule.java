@@ -28,7 +28,7 @@ public class AccessRule {
 	}
 
 	public AccessRule(char[] pattern, int problemId, boolean keepLooking) {
-		this.pattern = org.eclipse.jdt.internal.core.JavaModelManager.getJavaModelManager().intern(pattern);
+		this.pattern = pattern;
 		this.problemId = keepLooking ? problemId | IgnoreIfBetter : problemId;
 	}
 
