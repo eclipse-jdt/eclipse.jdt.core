@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -12820,6 +12820,66 @@ public void test408038e() {
 	        "----------\n" +
 	        "1 problem (1 warning)\n",
 			true);
+}
+public void testBug574425() {
+	String path = LIB_DIR;
+	String libPath = null;
+	if (path.endsWith(File.separator)) {
+		libPath = path + "lib.jar";
+	} else {
+		libPath = path + File.separator + "lib.jar";
+	}
+	try {
+		Util.createJar(
+				new String[] {
+						"org/apache/accumulo/core/conf/Property.java",
+						"package org.apache.accumulo.core.conf;\n"
+						+ "import java.lang.annotation.Inherited;\n"
+						+ "import java.lang.annotation.Retention;\n"
+						+ "import java.lang.annotation.RetentionPolicy;\n"
+						+ "public enum Property {\n"
+						+ "	@Deprecated(since = \"2.1.0\")\n"
+						+ "	TSERV_WAL_SORT_MAX_CONCURRENT(\"tserver.wal.sort.concurrent.max\", \"2\", \"2\",\n"
+						+ "			\"The maximum number of threads to use to sort logs during recovery\", \"2.1.0\"),\n"
+						+ "	@Deprecated(since = \"2.1.0\")\n"
+						+ "	@ReplacedBy(property = Property.TSERV_WAL_SORT_MAX_CONCURRENT) \n"
+						+ "	TSERV_RECOVERY_MAX_CONCURRENT(\"tserver.recovery.concurrent.max\", \"2\", \"2\",\n"
+						+ "			\"The maximum number of threads to use to sort logs during recovery\", \"1.5.0\"),\n"
+						+ "	RPC_SSL_KEYSTORE_PASSWORD(\"rpc.javax.net.ssl.keyStorePassword\", \"\", \"2\",\n"
+						+ "			\"Password used to encrypt the SSL private keystore. \" + \"Leave blank to use the Accumulo instance secret\",\n"
+						+ "			\"1.6.0\"); \n"
+						+ "  Property(String name, String defaultValue, String type, String description,\n"
+						+ "      String availableSince) {\n"
+						+ "  }\n"
+						+ "}\n"
+						+ "@Inherited\n"
+						+ "@Retention(RetentionPolicy.RUNTIME)\n"
+						+ "@interface ReplacedBy { \n"
+						+ "  Property property();\n"
+						+ "}\n"
+				},
+				null,
+				libPath,
+				JavaCore.VERSION_1_8);
+		this.runConformTest(
+				new String[] {
+						"src/org/apache/accumulo/test/fate/zookeeper/X.java",
+						"package org.apache.accumulo.test.fate.zookeeper;\n"
+						+ "import org.apache.accumulo.core.conf.Property;\n"
+						+ "public class X {\n"
+						+ "}\n",
+				},
+				"\"" + OUTPUT_DIR +  File.separator + "src/org/apache/accumulo/test/fate/zookeeper/X.java\""
+				+ " -classpath \"" + libPath + "\""
+				+ " -1.8 -nowarn"
+				+ " -d \"" + OUTPUT_DIR + File.separator + "bin\" ",
+				"",
+				"",
+		        true);
+	} catch (IOException e) {
+	} finally {
+		Util.delete(libPath);
+	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=419351
 public void testBug419351() {

@@ -145,7 +145,7 @@ static Object convertMemberValue(Object binaryValue, LookupEnvironment env, char
 	if (binaryValue instanceof EnumConstantSignature) {
 		EnumConstantSignature ref = (EnumConstantSignature) binaryValue;
 		ReferenceBinding enumType = (ReferenceBinding) env.getTypeFromSignature(ref.getTypeName(), 0, -1, false, null, missingTypeNames, ITypeAnnotationWalker.EMPTY_ANNOTATION_WALKER);
-		if (enumType.isUnresolvedType() && !resolveEnumConstants)
+		if ((enumType.isUnresolvedType() || !enumType.isFieldInitializationFinished()) && !resolveEnumConstants)
 			return new ElementValuePair.UnresolvedEnumConstant(enumType, env, ref.getEnumConstantName());
 		enumType = (ReferenceBinding) resolveType(enumType, env, false /* no raw conversion */);
 		return enumType.getField(ref.getEnumConstantName(), false);
@@ -603,13 +603,11 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 			if (binaryType.isRecord()) {
 				iComponents = binaryType.getRecordComponents();
 				if (iComponents != null) {
-					VariableBinding[] createFields = createFields(iComponents, binaryType, sourceLevel, missingTypeNames, true);
-					this.components = (RecordComponentBinding[]) createFields;
+					createFields(iComponents, binaryType, sourceLevel, missingTypeNames, RECORD_INITIALIZATION);
 				}
 			}
 			IBinaryField[] iFields = binaryType.getFields();
-			VariableBinding[] createdFields = createFields(iFields, binaryType, sourceLevel, missingTypeNames, false);
-			this.fields = (FieldBinding[]) createdFields;
+			createFields(iFields, binaryType, sourceLevel, missingTypeNames, FIELD_INITIALIZATION);
 			IBinaryMethod[] iMethods = createMethods(binaryType.getMethods(), binaryType, sourceLevel, missingTypeNames);
 			boolean isViewedAsDeprecated = isViewedAsDeprecated();
 			if (isViewedAsDeprecated) {
@@ -774,16 +772,78 @@ private int getNullDefaultFrom(IBinaryAnnotation[] declAnnotations) {
 	return result;
 }
 
-private VariableBinding[] createFields(IBinaryField[] iFields, IBinaryType binaryType, long sourceLevel, char[][][] missingTypeNames, boolean isComponent) {
+private abstract static class VariableBindingInitialization<X extends VariableBinding> {
+	abstract void setEmptyResult(BinaryTypeBinding self);
+	abstract X createBinding(BinaryTypeBinding self, IBinaryField binaryField, TypeBinding type);
+	abstract X[] createResultArray(int size);
+	abstract void set(BinaryTypeBinding self, X[] result);
+}
+
+private final static VariableBindingInitialization<FieldBinding> FIELD_INITIALIZATION = new VariableBindingInitialization<FieldBinding>() {
+
+	@Override
+	void setEmptyResult(BinaryTypeBinding self) {
+		set(self, Binding.NO_FIELDS);
+	}
+
+	@Override
+	FieldBinding createBinding(BinaryTypeBinding self, IBinaryField binaryField, TypeBinding type) {
+		return new FieldBinding(
+				binaryField.getName(),
+				type,
+				binaryField.getModifiers() | ExtraCompilerModifiers.AccUnresolved,
+				self,
+				binaryField.getConstant());
+	}
+
+	@Override
+	FieldBinding[] createResultArray(int size) {
+		return new FieldBinding[size];
+	}
+
+	@Override
+	void set(BinaryTypeBinding self, FieldBinding[] result) {
+		self.fields = result;
+	}
+};
+
+private final static VariableBindingInitialization<RecordComponentBinding> RECORD_INITIALIZATION = new VariableBindingInitialization<RecordComponentBinding>() {
+
+	@Override
+	void setEmptyResult(BinaryTypeBinding self) {
+		set(self, Binding.NO_COMPONENTS);
+	}
+
+	@Override
+	RecordComponentBinding createBinding(BinaryTypeBinding self, IBinaryField binaryField, TypeBinding type) {
+		return new RecordComponentBinding(
+				binaryField.getName(),
+				type,
+				binaryField.getModifiers() | ExtraCompilerModifiers.AccUnresolved,
+				self);
+	}
+
+	@Override
+	RecordComponentBinding[] createResultArray(int size) {
+		return new RecordComponentBinding[size];
+	}
+
+	@Override
+	void set(BinaryTypeBinding self, RecordComponentBinding[] result) {
+		self.components = result;
+	}
+};
+
+private void createFields(IBinaryField[] iFields, IBinaryType binaryType, long sourceLevel, char[][][] missingTypeNames, VariableBindingInitialization initialization) {
 	if (!isPrototype()) throw new IllegalStateException();
 	boolean save = this.environment.mayTolerateMissingType;
 	this.environment.mayTolerateMissingType = true;
-	VariableBinding[] tFields = isComponent ? Binding.NO_COMPONENTS : Binding.NO_FIELDS;
+	boolean inited = false;
 	try {
 		if (iFields != null) {
 			int size = iFields.length;
 			if (size > 0) {
-				VariableBinding[] fields1 = isComponent ? new RecordComponentBinding[size] : new FieldBinding[size];
+				VariableBinding[] fields1 = initialization.createResultArray(size);
 				boolean use15specifics = sourceLevel >= ClassFileConstants.JDK1_5;
 				boolean hasRestrictedAccess = hasRestrictedAccess();
 				int firstAnnotatedFieldIndex = -1;
@@ -799,19 +859,7 @@ private VariableBinding[] createFields(IBinaryField[] iFields, IBinaryType binar
 					TypeBinding type = fieldSignature == null
 						? this.environment.getTypeFromSignature(binaryField.getTypeName(), 0, -1, false, this, missingTypeNames, walker)
 						: this.environment.getTypeFromTypeSignature(new SignatureWrapper(fieldSignature), Binding.NO_TYPE_VARIABLES, this, missingTypeNames, walker);
-					VariableBinding field =
-							isComponent ?
-									new RecordComponentBinding(
-										binaryField.getName(),
-										type,
-										binaryField.getModifiers() | ExtraCompilerModifiers.AccUnresolved,
-										this) :
-									new FieldBinding(
-										binaryField.getName(),
-										type,
-										binaryField.getModifiers() | ExtraCompilerModifiers.AccUnresolved,
-										this,
-										binaryField.getConstant());
+					VariableBinding field = initialization.createBinding(this, binaryField, type);
 					if (declAnnotations != null) {
 						for (IBinaryAnnotation annotation : declAnnotations) {
 							char[] typeName = annotation.getTypeName();
@@ -841,20 +889,23 @@ private VariableBinding[] createFields(IBinaryField[] iFields, IBinaryType binar
 						field.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
 					fields1[i] = field;
 				}
-				tFields = fields1;
+				initialization.set(this, fields1);
+				inited = true;
 				// second pass for reifying annotations, since may refer to fields being constructed (147875)
 				if (firstAnnotatedFieldIndex >= 0) {
 					for (int i = firstAnnotatedFieldIndex; i <size; i++) {
 						IBinaryField binaryField = iFields[i];
-						tFields[i].setAnnotations(createAnnotations(binaryField.getAnnotations(), this.environment, missingTypeNames), false);
+						fields1[i].setAnnotations(createAnnotations(binaryField.getAnnotations(), this.environment, missingTypeNames), false);
 					}
 				}
 			}
 		}
 	} finally {
 		this.environment.mayTolerateMissingType = save;
+		if (!inited) {
+			initialization.setEmptyResult(this);
+		}
 	}
-	return tFields;
 }
 
 private boolean isPreviewFeature(char[] typeName) {
@@ -1433,6 +1484,15 @@ public FieldBinding getField(char[] fieldName, boolean needResolve) {
 	FieldBinding field = ReferenceBinding.binarySearch(fieldName, this.fields);
 	return needResolve && field != null ? resolveTypeFor(field) : field;
 }
+
+/**
+ * @return true, when the fields (or in the case of record, the record components) are fully initialized.
+ */
+@Override
+protected boolean isFieldInitializationFinished() {
+	return this.fields != null || this.components != null;
+}
+
 /**
  *  Rewrite of default memberTypes() to avoid resolving eagerly all member types when one is requested
  */
