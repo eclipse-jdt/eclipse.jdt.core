@@ -1178,7 +1178,11 @@ public class ClassScope extends Scope {
 			if (!superclass.isClass() && (superclass.tagBits & TagBits.HasMissingType) == 0) {
 				problemReporter().superclassMustBeAClass(sourceType, superclassRef, superclass);
 			} else if (superclass.isFinal()) {
-				problemReporter().classExtendFinalClass(sourceType, superclassRef, superclass);
+				if (superclass.isRecord()) {
+					problemReporter().classExtendFinalRecord(sourceType, superclassRef, superclass);
+				} else {
+					problemReporter().classExtendFinalClass(sourceType, superclassRef, superclass);
+				}
 			} else if ((superclass.tagBits & TagBits.HasDirectWildcard) != 0) {
 				problemReporter().superTypeCannotUseWildcard(sourceType, superclassRef, superclass);
 			} else if (superclass.erasure().id == TypeIds.T_JavaLangEnum) {
