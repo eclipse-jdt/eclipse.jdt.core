@@ -48,6 +48,8 @@ public abstract class JobManager implements Runnable {
 
 	private int awaitingClients = 0;
 
+	private final Object idleMonitor = new Object();
+
 	/**
 	 * Invoked exactly once, in background, before starting processing any job
 	 */
@@ -251,6 +253,11 @@ public abstract class JobManager implements Runnable {
 									throw new OperationCanceledException();
 								IJob currentJob = currentJob();
 								// currentJob can be null when jobs have been added to the queue but job manager is not enabled
+								if (currentJob != null ) {
+									synchronized (idleMonitor) {
+										idleMonitor.notifyAll(); // wake up idle sleepers
+									}
+								}
 								if (currentJob != null && currentJob != previousJob) {
 									if (VERBOSE)
 										Util.verbose("-> NOT READY - waiting until ready - " + searchJob);//$NON-NLS-1$
@@ -414,7 +421,9 @@ public abstract class JobManager implements Runnable {
 					if (job == null) {
 						notifyIdle(System.currentTimeMillis() - idlingStart);
 						// just woke up, delay before processing any new jobs, allow some time for the active thread to finish
-						Thread.sleep(500);
+						synchronized (idleMonitor) {
+							idleMonitor.wait(500); // avoid sleep fixed time
+						}
 						continue;
 					}
 					if (VERBOSE) {
@@ -440,7 +449,9 @@ public abstract class JobManager implements Runnable {
 							if (VERBOSE) {
 								Util.verbose("WAITING after job - " + job); //$NON-NLS-1$
 							}
-							Thread.sleep(5);
+							synchronized (idleMonitor) {
+								idleMonitor.wait(5); // avoid sleep fixed time
+							}
 						}
 					}
 				} catch (InterruptedException e) { // background indexing was interrupted
