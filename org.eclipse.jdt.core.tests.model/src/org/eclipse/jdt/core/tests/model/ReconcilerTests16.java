@@ -193,4 +193,62 @@ public void _testBug570399_002() throws Exception {
 		deleteProject(p);
 	}
 }
+public void testBug576448_001() throws Exception {
+	if (!isJRE16)
+		return;
+	IJavaProject p = createJava16Project("p");
+	createFolder("/p/src/a");
+	try {
+		createFile("p/src/a/X.java",
+				"package a;\n"+
+				"import a.Interface.NestedInterface;\n"+
+				"import a.Interface.NestedInterface2;\n"+
+				"\n"+
+				"public record X(String someString, NestedInterface someInterface) implements NestedInterface2 {\n"+
+				" public X(NestedInterface someInterface) {\n"+
+				"   this(null, someInterface); // <- error here\n"+
+				" }\n"+
+				" public X(String someString, NestedInterface someInterface) {\n"+
+				"   this.someString = someString;\n"+
+				"   this.someInterface = someInterface;\n"+
+				" }\n"+
+				" public static void main(String[] args) {\n"+
+				"   System.out.println(\"hello\");\n"+
+				" }\n"+
+				"}");
+		createFile("p/src/a/Interface.java",
+				"package a;\n"+
+				"public interface Interface {\n"+
+				" interface NestedInterface {\n"+
+				" }\n"+
+				" interface NestedInterface2 {\n"+
+				"   String someString();\n"+
+				"   NestedInterface someInterface();\n"+
+				"   static NestedInterface2 create(String s, NestedInterface n) {\n"+
+				"     return new X(s, n);\n"+
+				"   }\n"+
+				"   static NestedInterface2 create(NestedInterface n) {\n"+
+				"     return new X(n);\n"+
+				"   }\n"+
+				" }\n"+
+				"}");
+
+		p.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+		IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+		assertMarkers("markers in p",
+				"",
+				markers);
+
+		this.workingCopy = getCompilationUnit("p/src/X.java").getWorkingCopy(this.wcOwner, null);
+		this.problemRequestor.initialize(this.workingCopy.getSource().toCharArray());
+		this.workingCopy.reconcile(JLS_LATEST, true, this.wcOwner, null);
+		assertProblems("Expecting no problems",
+				"----------\n" +
+				"----------\n",
+				this.problemRequestor);
+		this.workingCopy.discardWorkingCopy();
+	} finally {
+		deleteProject(p);
+	}
+}
 }

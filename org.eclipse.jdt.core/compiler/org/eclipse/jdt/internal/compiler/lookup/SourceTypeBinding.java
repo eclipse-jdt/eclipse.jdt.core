@@ -881,8 +881,7 @@ public List<MethodBinding> checkAndAddSyntheticRecordOverrideMethods(MethodBindi
 	if (this.isRecordDeclaration &&  getImplicitCanonicalConstructor() == -1) {
 		MethodBinding explicitCanon = null;
 		for (MethodBinding m : methodBindings) {
-			if (m.isCompactConstructor()
-					|| (m.tagBits & TagBits.IsCanonicalConstructor) != 0) {
+			if (m.isCompactConstructor() || m.isCanonicalConstructor()) {
 				explicitCanon = m;
 				break;
 			}
@@ -2184,7 +2183,7 @@ private int getImplicitCanonicalConstructor() {
 	if (this.methods != null && this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK14) {
 		for (int i = 0, l = this.methods.length; i < l; ++i) {
 			MethodBinding method = this.methods[i];
-			if ((method.tagBits & TagBits.IsCanonicalConstructor ) != 0 && (method.tagBits & TagBits.isImplicit) != 0)
+			if (method.isCanonicalConstructor() && method.isImplicit())
 				return i;
 		}
 	}
@@ -2197,7 +2196,7 @@ private MethodBinding checkAndGetExplicitCanonicalConstructors() {
 	for (MethodBinding method : this.methods) {
 		if (!method.isConstructor())
 			continue;
-		if ((method.tagBits & TagBits.isImplicit) != 0) {
+		if (method.isImplicit()) {
 			continue;
 		}
 		if (method.parameters.length != nRecordComponents)
@@ -2226,7 +2225,7 @@ private int getImplicitMethod(MethodBinding[] resolvedMethods, char[] name) {
 			MethodBinding method = resolvedMethods[i];
 			if (method == null || !CharOperation.equals(method.selector, name))
 				continue;
-			if ((method.tagBits & TagBits.isImplicit) != 0 || method instanceof SyntheticMethodBinding)
+			if (method.isImplicit() || method instanceof SyntheticMethodBinding)
 				return i;
 		}
 	}
@@ -2548,7 +2547,7 @@ private MethodBinding checkRecordCanonicalConstructor(MethodBinding explicitCano
 	if (explicitCanonicalConstructor.thrownExceptions != null && explicitCanonicalConstructor.thrownExceptions.length > 0)
 		this.scope.problemReporter().recordCanonicalConstructorHasThrowsClause(methodDecl);
 	checkCanonicalConstructorParameterNames(explicitCanonicalConstructor, methodDecl);
-	explicitCanonicalConstructor.tagBits |= TagBits.IsCanonicalConstructor;
+	explicitCanonicalConstructor.extendedTagBits |= ExtendedTagBits.IsCanonicalConstructor;
 //	checkAndFlagExplicitConstructorCallInCanonicalConstructor(methodDecl);
 	return explicitCanonicalConstructor;
 }

@@ -482,7 +482,7 @@ public class ClassScope extends Scope {
 						hasAbstractMethods = hasAbstractMethods || methodBinding.isAbstract();
 						hasNativeMethods = hasNativeMethods || methodBinding.isNative();
 						if (methods[i].isCanonicalConstructor()) {
-							methodBinding.tagBits |= TagBits.IsCanonicalConstructor;
+							methodBinding.extendedTagBits |= ExtendedTagBits.IsCanonicalConstructor;
 						}
 					}
 				}
