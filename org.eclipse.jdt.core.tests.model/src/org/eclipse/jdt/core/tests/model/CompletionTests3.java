@@ -1190,6 +1190,7 @@ public void testBug575397a() throws Exception {
 		int cursorLocation = str.indexOf(completeAfter) + completeAfter.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
+			"class[FIELD_REF]{class, null, Ljava.lang.Class<LThread;>;, class, null, 51}\n" +
 			"sleep[METHOD_REF]{sleep(), LThread;, (I)V, sleep, (millis), 51}",
 			requestor.getResults());
 	} finally {
@@ -1255,8 +1256,264 @@ public void testBug575397c() throws Exception {
 			"serialVersionUID[FIELD_REF]{serialVersionUID, Ljava.lang.Enum<LThread$State;>;, J, serialVersionUID, null, 49}\n" +
 			"BLOCKED[FIELD_REF]{BLOCKED, LThread$State;, LThread$State;, BLOCKED, null, 51}\n" +
 			"NEW[FIELD_REF]{NEW, LThread$State;, LThread$State;, NEW, null, 51}\n" +
+			"class[FIELD_REF]{class, null, Ljava.lang.Class<LThread$State;>;, class, null, 51}\n" +
 			"valueOf[METHOD_REF]{valueOf(), LThread$State;, (Ljava.lang.String;)LThread$State;, valueOf, (arg0), 51}\n" +
 			"values[METHOD_REF]{values(), LThread$State;, ()[LThread$State;, values, null, 51}",
+			requestor.getResults());
+	} finally {
+		deleteProject("P");
+	}
+}
+public void testBug575631_comment0() throws Exception {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL11_LIB"}, "bin", "11");
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/P/src/ContentAssist.java",
+			"import java.util.Calendar;\n" +
+			"class ZoneId {}\n" +
+			"class LocalDateTime {\n" +
+			"	static LocalDateTime now() { return null; }\n" +
+			"	static LocalDateTime now(ZoneId id) { return null; }\n" +
+			"}\n" +
+			"public class ContentAssist {\n" +
+			"	public static void staticMethod() {\n" +
+			"		if (true) {\n" +
+			"			LocalDateTime.now\n" +
+			"			Calendar calendar = Calendar.getInstance();\n" +
+			"		}\n" +
+			"	}\n" +
+			"}\n");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeAfter = "LocalDateTime.now";
+		int cursorLocation = str.indexOf(completeAfter) + completeAfter.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+			"now[METHOD_REF]{now(), LLocalDateTime;, ()LLocalDateTime;, now, null, 55}\n" +
+			"now[METHOD_REF]{now(), LLocalDateTime;, (LZoneId;)LLocalDateTime;, now, (id), 55}",
+			requestor.getResults());
+	} finally {
+		deleteProject("P");
+	}
+}
+public void testBug575631_comment1a() throws Exception {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL11_LIB"}, "bin", "11");
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/P/src/missing_proposals_for_static_fields_and_methods.java",
+			"\n" +
+			"class System {\n" +
+			"	static Object out;\n" +
+			"	static Object getEnv() { return null; }\n" +
+			"}\n" +
+			"class missing_proposals_for_static_fields_and_methods {\n" +
+			"	void sample(String foo) {\n" +
+			"		if (foo == null) {\n" +
+			"			System. // <- missing: \"out\", \"getenv()\", etc. (similar to bug 574267)\n" +
+			"			System.out.println();\n" +
+			"		}\n" +
+			"		System. // <- here content assist works fine\n" +
+			"	}\n" +
+			"}\n");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeAfter = "System.";
+		int cursorLocation = str.indexOf(completeAfter) + completeAfter.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+			"class[FIELD_REF]{class, null, Ljava.lang.Class<LSystem;>;, class, null, 51}\n" +
+			"getEnv[METHOD_REF]{getEnv(), LSystem;, ()Ljava.lang.Object;, getEnv, null, 51}\n" +
+			"out[FIELD_REF]{out, LSystem;, Ljava.lang.Object;, out, null, 51}",
+			requestor.getResults());
+	} finally {
+		deleteProject("P");
+	}
+}
+public void testBug575631_comment1b() throws Exception {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL11_LIB"}, "bin", "11");
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/P/src/missing_proposals_for_static_fields_and_methods.java",
+			"\n" +
+			"class System {\n" +
+			"	static Object out;\n" +
+			"	static Object getEnv() { return null; }\n" +
+			"}\n" +
+			"class missing_proposals_for_static_fields_and_methods {\n" +
+			"	void sample(String foo) {\n" +
+			"		if (foo == null) {\n" +
+			"			sample(\"\");\n" +
+			"		} else {\n" +
+			"			System. // <- missing: \"out\", \"getenv()\", etc. (similar to bug 574215)\n" +
+			"			System.out.println();\n" +
+			"		}\n" +
+			"		System. // <- here content assist works fine\n" +
+			"	}\n" +
+			"}\n");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeAfter = "System.";
+		int cursorLocation = str.indexOf(completeAfter) + completeAfter.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+			"class[FIELD_REF]{class, null, Ljava.lang.Class<LSystem;>;, class, null, 51}\n" +
+			"getEnv[METHOD_REF]{getEnv(), LSystem;, ()Ljava.lang.Object;, getEnv, null, 51}\n" +
+			"out[FIELD_REF]{out, LSystem;, Ljava.lang.Object;, out, null, 51}",
+			requestor.getResults());
+	} finally {
+		deleteProject("P");
+	}
+}
+public void testBug575631_comment3() throws Exception {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL11_LIB"}, "bin", "11");
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/P/src/X.java",
+			"class OutputStream {\n" +
+			"	void println() {}\n" +
+			"}\n" +
+			"interface Runnable { void run(); }\n" +
+			"class System {\n" +
+			"	static OutputStream out;\n" +
+			"	static Object getEnv() { return null; }\n" +
+			"}\n" +
+			"class X {\n" +
+			"	void foo() {\n" +
+			"		Runnable r = () -> {\n" +
+			"			System.out.\n" +
+			"			System.out.println();\n" +
+			"		};\n" +
+			"	}\n" +
+			"}\n");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeAfter = "System.out.";
+		int cursorLocation = str.indexOf(completeAfter) + completeAfter.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+			"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}\n" +
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 60}\n" +
+			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 60}\n" +
+			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, 60}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 60}\n" +
+			"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 60}\n" +
+			"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 60}\n" +
+			"println[METHOD_REF]{println(), LOutputStream;, ()V, println, null, 60}\n" +
+			"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 60}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 60}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 60}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 60}",
+			requestor.getResults());
+	} finally {
+		deleteProject("P");
+	}
+}
+public void testBug575631_comment3b() throws Exception {
+	// method invocation inside lambda in field initializer
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL11_LIB"}, "bin", "11");
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/P/src/X.java",
+			"class OutputStream {\n" +
+			"	void println() {}\n" +
+			"}\n" +
+			"interface Runnable { void run(); }\n" +
+			"class System {\n" +
+			"	static OutputStream out;\n" +
+			"	static Object getEnv() { return null; }\n" +
+			"}\n" +
+			"class X {\n" +
+			"	Runnable r = () -> {\n" +
+			"		System.out.\n" +
+			"		System.out.println();\n" +
+			"	};\n" +
+			"}\n");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeAfter = "System.out.";
+		int cursorLocation = str.indexOf(completeAfter) + completeAfter.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+			"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}\n" +
+			"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 60}\n" +
+			"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 60}\n" +
+			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, 60}\n" +
+			"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 60}\n" +
+			"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 60}\n" +
+			"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 60}\n" +
+			"println[METHOD_REF]{println(), LOutputStream;, ()V, println, null, 60}\n" +
+			"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 60}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 60}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 60}\n" +
+			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 60}",
+			requestor.getResults());
+	} finally {
+		deleteProject("P");
+	}
+}
+public void testBug575631_comment3c() throws Exception {
+	// variable declaration in lambda in field initializer
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL11_LIB"}, "bin", "11");
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/P/src/X.java",
+			"class OutputStream {\n" +
+			"	void println() {}\n" +
+			"}\n" +
+			"interface Consumer { void consume(int); }\n" +
+			"class Number{}\n" +
+			"class System {\n" +
+			"	static OutputStream out;\n" +
+			"	static Object getEnv() { return null; }\n" +
+			"}\n" +
+			"class X {\n" +
+			"	Consumer r = (int number) -> {\n" +
+			"		Number \n" +
+			"		System.out.println();\n" +
+			"	};\n" +
+			"}\n");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeAfter = "Number ";
+		int cursorLocation = str.indexOf(completeAfter) + completeAfter.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+			"number[VARIABLE_DECLARATION]{number, null, LNumber;, number, null, 48}", // FIXME: should be number2 => https://bugs.eclipse.org/576781
+			requestor.getResults());
+	} finally {
+		deleteProject("P");
+	}
+}
+public void testBug575631_comment3d() throws Exception {
+	// first of two arguments in method invocation in lambda in field initializer
+	// overloads should be selected by the existing second argument
+	// no separating ',' yet.
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL11_LIB"}, "bin", "11");
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+			"/P/src/X.java",
+			"interface BiConsumer { void consume(int,boolean); }\n" +
+			"class X {\n" +
+			"	BiConsumer r = (int number, boolean bool) -> {\n" +
+			"		bar( number);\n" +
+			"	};\n" +
+			"	void bar(int i, String s) {}\n" +
+			"	void bar(boolean b, int j) {}\n" +
+			"}\n");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeAfter = "bar(";
+		int cursorLocation = str.indexOf(completeAfter) + completeAfter.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+			"bar[METHOD_REF]{, LX;, (ZI)V, bar, (b, j), 56}", // select overload with int as 2nd arg
 			requestor.getResults());
 	} finally {
 		deleteProject("P");

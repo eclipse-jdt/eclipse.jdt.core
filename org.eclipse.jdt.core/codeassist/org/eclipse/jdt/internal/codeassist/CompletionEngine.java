@@ -2000,7 +2000,7 @@ public final class CompletionEngine
 		} else if (astNode instanceof CompletionOnQualifiedNameReference) {
 			completionOnQualifiedNameReference(astNode, enclosingNode, qualifiedBinding, scope, insideTypeAnnotation);
 		} else if (astNode instanceof CompletionOnQualifiedTypeReference) {
-			completionOnQualifiedTypeReference(astNode, astNodeParent, qualifiedBinding, scope);
+			completionOnQualifiedTypeReference(astNode, astNodeParent, enclosingNode, qualifiedBinding, scope);
 		} else if (astNode instanceof CompletionOnMemberAccess) {
 			completionOnMemberAccess(astNode, enclosingNode, qualifiedBinding, scope, insideTypeAnnotation);
 		} else if (astNode instanceof CompletionOnMessageSend) {
@@ -3581,8 +3581,15 @@ public final class CompletionEngine
 		CompletionOnQualifiedNameReference ref =
 			(CompletionOnQualifiedNameReference) astNode;
 		this.completionToken = ref.completionIdentifier;
-		long completionPosition = ref.sourcePositions[ref.sourcePositions.length - 1];
+		internalCompletionOnQualifiedReference(astNode, enclosingNode, qualifiedBinding, scope, insideTypeAnnotation,
+				ref.isInsideAnnotationAttribute, ref, ref.tokens, ref.sourcePositions);
+	}
 
+	/** Unified handling for true QualifiedNameReference and misclassified QualifiedTypeReference. */
+	private void internalCompletionOnQualifiedReference(ASTNode ref, ASTNode enclosingNode, Binding qualifiedBinding, Scope scope,
+			boolean insideTypeAnnotation, boolean isInsideAnnotationAttribute, InvocationSite site, char[][] tokens, long[] sourcePositions)
+	{
+		long completionPosition = sourcePositions[sourcePositions.length - 1];
 		if (qualifiedBinding.problemId() == ProblemReasons.NotFound) {
 			setSourceAndTokenRange((int) (completionPosition >>> 32), (int) completionPosition);
 			// complete field members with missing fields type
@@ -3596,20 +3603,20 @@ public final class CompletionEngine
 					(this.requestor.isAllowingRequiredProposals(CompletionProposal.FIELD_REF, CompletionProposal.TYPE_REF) ||
 							this.requestor.isAllowingRequiredProposals(CompletionProposal.METHOD_REF, CompletionProposal.TYPE_REF) ||
 							this.requestor.isAllowingRequiredProposals(CompletionProposal.TYPE_REF, CompletionProposal.TYPE_REF))) {
-				if(ref.tokens.length == 1) {
-					boolean foundSomeFields = findFieldsAndMethodsFromMissingFieldType(ref.tokens[0], scope, ref, insideTypeAnnotation);
+				if(tokens.length == 1) {
+					boolean foundSomeFields = findFieldsAndMethodsFromMissingFieldType(tokens[0], scope, site, insideTypeAnnotation);
 
 					if (!foundSomeFields) {
 
 						checkCancel();
 
 						findMembersFromMissingType(
-								ref.tokens[0],
-								ref.sourcePositions[0],
+								tokens[0],
+								sourcePositions[0],
 								null,
 								scope,
-								ref,
-								ref.isInsideAnnotationAttribute);
+								site,
+								isInsideAnnotationAttribute);
 					}
 				}
 			}
@@ -3626,7 +3633,7 @@ public final class CompletionEngine
 						scope,
 						fieldsFound,
 						methodsFound,
-						ref,
+						site,
 						scope,
 						false,
 						false,
@@ -3640,15 +3647,17 @@ public final class CompletionEngine
 
 				checkCancel();
 
-				findFieldsAndMethodsFromCastedReceiver(
+				if (ref instanceof Expression) {
+					findFieldsAndMethodsFromCastedReceiver(
 						enclosingNode,
 						qualifiedBinding,
 						scope,
 						fieldsFound,
 						methodsFound,
-						ref,
+						site,
 						scope,
-						ref);
+						(Expression) ref);
+				}
 
 			} else if (this.assistNodeInJavadoc == 0 &&
 					(this.requestor.isAllowingRequiredProposals(CompletionProposal.FIELD_REF, CompletionProposal.TYPE_REF) ||
@@ -3656,7 +3665,7 @@ public final class CompletionEngine
 				boolean proposeField = !this.requestor.isIgnored(CompletionProposal.FIELD_REF);
 				boolean proposeMethod = !this.requestor.isIgnored(CompletionProposal.METHOD_REF);
 				if (proposeField || proposeMethod) {
-					if(ref.tokens.length == 1) {
+					if(tokens.length == 1) {
 						if (qualifiedBinding instanceof LocalVariableBinding) {
 							// complete local variable members with missing variables type
 							// class X {
@@ -3669,7 +3678,7 @@ public final class CompletionEngine
 							findFieldsAndMethodsFromMissingType(
 									localVariableBinding.declaration.type,
 									localVariableBinding.declaringScope,
-									ref,
+									site,
 									scope);
 						} else {
 							// complete field members with missing fields type
@@ -3679,7 +3688,7 @@ public final class CompletionEngine
 							//     f.|
 							//   }
 							// }
-							findFieldsAndMethodsFromMissingFieldType(ref.tokens[0], scope, ref, insideTypeAnnotation);
+							findFieldsAndMethodsFromMissingFieldType(tokens[0], scope, site, insideTypeAnnotation);
 						}
 
 					}
@@ -3687,7 +3696,6 @@ public final class CompletionEngine
 			}
 
 		} else if (qualifiedBinding instanceof ReferenceBinding && !(qualifiedBinding instanceof TypeVariableBinding)) {
-			boolean isInsideAnnotationAttribute = ref.isInsideAnnotationAttribute;
 			ReferenceBinding receiverType = (ReferenceBinding) qualifiedBinding;
 			setSourceAndTokenRange((int) (completionPosition >>> 32), (int) completionPosition);
 
@@ -3695,7 +3703,7 @@ public final class CompletionEngine
 					this.completionToken,
 					receiverType,
 					scope,
-					ref,
+					site,
 					isInsideAnnotationAttribute,
 					null,
 					null,
@@ -3704,7 +3712,7 @@ public final class CompletionEngine
 
 		} else if (qualifiedBinding instanceof PackageBinding) {
 
-			setSourceRange(astNode.sourceStart, (int) completionPosition);
+			setSourceRange(ref.sourceStart, (int) completionPosition);
 			setTokenRange((int) (completionPosition >>> 32), (int) completionPosition);
 
 			// replace to the end of the completion identifier
@@ -3712,7 +3720,7 @@ public final class CompletionEngine
 		}
 	}
 
-	private void completionOnQualifiedTypeReference(ASTNode astNode, ASTNode astNodeParent, Binding qualifiedBinding,
+	private void completionOnQualifiedTypeReference(ASTNode astNode, ASTNode astNodeParent, ASTNode enclosingNode, Binding qualifiedBinding,
 			Scope scope) {
 		this.insideQualifiedReference = true;
 
@@ -3730,6 +3738,8 @@ public final class CompletionEngine
 		this.completionToken = ref.completionIdentifier;
 		long completionPosition = ref.sourcePositions[ref.tokens.length];
 
+		boolean haveTypeProposals = false;
+
 		// get the source positions of the completion identifier
 		if (qualifiedBinding.problemId() == ProblemReasons.NotFound) {
 			setSourceAndTokenRange((int) (completionPosition >>> 32), (int) completionPosition);
@@ -3744,16 +3754,6 @@ public final class CompletionEngine
 			}
 		} else if (qualifiedBinding instanceof ReferenceBinding && !(qualifiedBinding instanceof TypeVariableBinding)) {
 			ReferenceBinding receiverType = (ReferenceBinding) qualifiedBinding;
-			if (astNodeParent instanceof LocalDeclaration && ref.nextToken == TerminalTokens.TokenNameLPAREN && !this.assistNodeIsConstructor) {
-				// the subsequent '(' makes the interpretation as LocalDeclaration illegal (unless it's "new prefix.token()").
-				// therefore we assume that "name(" (where name is LocalDeclaration.name) is the start of a new statement,
-				// and propose *everything* that can be referenced via the receiverType:
-				findMethods(this.completionToken, null, null, receiverType, scope, new ObjectVector(), true/*onlyStatic*/, false,
-						FakeInvocationSite, scope, false, false, false, null, null, null, false, null, -1, -1);
-				findFields(this.completionToken, receiverType, scope, new ObjectVector(), new ObjectVector(), true/*onlyStatic*/,
-						FakeInvocationSite, scope, false, false, null, null, null, false, null, -1, -1);
-				// fall through to propose member types
-			}
 			if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
 				setSourceAndTokenRange((int) (completionPosition >>> 32), (int) completionPosition);
 
@@ -3782,6 +3782,7 @@ public final class CompletionEngine
 					null,
 					null,
 					false);
+				haveTypeProposals = typesFound.size() > 0;
 			}
 		} else if (qualifiedBinding instanceof PackageBinding) {
 
@@ -3790,24 +3791,17 @@ public final class CompletionEngine
 			// replace to the end of the completion identifier
 			findTypesAndSubpackages(this.completionToken, (PackageBinding) qualifiedBinding, scope);
 		}
-		ASTNode parentNode = this.parser.assistNodeParent;
-		if (ref.tokens.length > 0 && parentNode instanceof LocalDeclaration && ((LocalDeclaration) parentNode).type == ref) {
-			// additionally check if 'prefix.' should be interpreted as a variable receiver rather then part of a type reference:
-			Binding variable = scope.getBinding(ref.tokens[0], Binding.VARIABLE, FakeInvocationSite, true);
-			lookupViaVariable: if (variable instanceof VariableBinding) {
-				TypeBinding receiverType = ((VariableBinding) variable).type;
-				int len = ref.tokens.length;
-				for (int i=1; i<len; i++) {
-					// lookup subsequent fields in 'prefix.q.r.'
-					if (!(receiverType instanceof ReferenceBinding && receiverType.isValidBinding()))
-						break lookupViaVariable;
-					FieldBinding field = scope.getField(receiverType, ref.tokens[i], FakeInvocationSite);
-					if (!field.isValidBinding())
-						break lookupViaVariable;
-					receiverType = field.type;
-				}
-				if (receiverType instanceof ReferenceBinding && receiverType.isValidBinding()) {
-					findFieldsAndMethods(this.completionToken, receiverType, scope, new ObjectVector(), new ObjectVector(), FakeInvocationSite, scope, false, false, null, null, null, false, null, ref.sourceStart, (int)ref.sourcePositions[0]);
+		// alternatively interpret tokens in a misclassified LocalDeclaration like a QualifiedNameReference:
+		if (astNodeParent instanceof LocalDeclaration && enclosingNode != null) { // enclosingNode == null when called from completionOnProvidesInterfacesQualifiedTypeReference
+			if (scope instanceof BlockScope) {
+				// resolve tokens like it's done in CompletionOnQualifiedNameReference:
+				qualifiedBinding = ((BlockScope) scope).getBinding(ref.tokens, FakeInvocationSite);
+				boolean ignoreType = this.requestor.isIgnored(CompletionProposal.TYPE_REF);
+				try {
+					this.requestor.setIgnored(CompletionProposal.TYPE_REF, haveTypeProposals); // temp ignore types if already proposed above
+					internalCompletionOnQualifiedReference(ref, enclosingNode, qualifiedBinding, scope, false, false, FakeInvocationSite, ref.tokens, ref.sourcePositions);
+				} finally {
+					this.requestor.setIgnored(CompletionProposal.TYPE_REF, ignoreType);
 				}
 			}
 		}
@@ -3815,7 +3809,7 @@ public final class CompletionEngine
 
 	private void completionOnProvidesInterfacesQualifiedTypeReference(ASTNode astNode, ASTNode astNodeParent, Binding qualifiedBinding, Scope scope) {
 		// TODO: Filter the results wrt accessibility and add relevance to the results.
-		completionOnQualifiedTypeReference(astNode, astNodeParent, qualifiedBinding, scope);
+		completionOnQualifiedTypeReference(astNode, astNodeParent, null, qualifiedBinding, scope);
 	}
 
 	private void completionOnProvidesImplementationsQualifiedTypeReference(ASTNode astNode, ASTNode astNodeParent, Binding qualifiedBinding, Scope scope) {
@@ -7260,7 +7254,7 @@ public final class CompletionEngine
 		int nextPosition = 0;
 		do {
 			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
-			if (notInJavadoc && itsInterfaces != Binding.NO_SUPERINTERFACES) {
+			if (notInJavadoc && itsInterfaces != null && itsInterfaces != Binding.NO_SUPERINTERFACES) {
 				if (interfacesToVisit == null) {
 					interfacesToVisit = itsInterfaces;
 					nextPosition = interfacesToVisit.length;
@@ -10080,7 +10074,9 @@ public final class CompletionEngine
 					isInterface = receiverType.isInterface();
 				}
 				if (!isInterface) {
-					findKeywords(token, new char[][] { Keywords.THIS, Keywords.SUPER }, true, false);
+					if (hasCompatibleEnclosing(scope, receiverType)) {
+						findKeywords(token, new char[][] { Keywords.THIS, Keywords.SUPER }, true, false);
+					}
 				} else {
 					boolean isEqual = false;
 					char[] enclosingSourceName = null;
@@ -10159,6 +10155,16 @@ public final class CompletionEngine
 				-1,
 				-1);
 		}
+	}
+
+	private boolean hasCompatibleEnclosing(Scope scope, ReferenceBinding receiverType) {
+		ReferenceBinding enclosing = scope.enclosingSourceType();
+		while (enclosing != null) {
+			if (enclosing.isCompatibleWith(receiverType, scope))
+				return true;
+			enclosing = enclosing.enclosingType();
+		}
+		return false;
 	}
 
 	private void findMembersFromMissingType(

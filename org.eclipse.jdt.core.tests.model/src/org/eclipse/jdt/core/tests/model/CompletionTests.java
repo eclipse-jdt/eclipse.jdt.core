@@ -19295,9 +19295,7 @@ public void testStaticMembers1() throws JavaModelException {
 			"StaticMembers.StaticClazz[TYPE_REF]{StaticClazz, test, Ltest.StaticMembers$StaticClazz;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_INHERITED + R_NON_RESTRICTED) + "}\n" +
 			"class[FIELD_REF]{class, null, Ljava.lang.Class;, class, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_INHERITED + R_NON_RESTRICTED) + "}\n" +
 			"staticField[FIELD_REF]{staticField, Ltest.StaticMembers;, I, staticField, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_INHERITED + R_NON_RESTRICTED) + "}\n" +
-			"staticMethod[METHOD_REF]{staticMethod(), Ltest.StaticMembers;, ()I, staticMethod, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_INHERITED + R_NON_RESTRICTED) + "}\n" +
-			"super[KEYWORD]{super, null, null, super, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_INHERITED + R_NON_RESTRICTED) + "}\n" +
-			"this[KEYWORD]{this, null, null, this, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_INHERITED + R_NON_RESTRICTED) + "}",
+			"staticMethod[METHOD_REF]{staticMethod(), Ltest.StaticMembers;, ()I, staticMethod, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_INHERITED + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99631
