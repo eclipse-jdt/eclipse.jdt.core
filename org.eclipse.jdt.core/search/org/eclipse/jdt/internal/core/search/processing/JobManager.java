@@ -254,8 +254,8 @@ public abstract class JobManager implements Runnable {
 								IJob currentJob = currentJob();
 								// currentJob can be null when jobs have been added to the queue but job manager is not enabled
 								if (currentJob != null ) {
-									synchronized (idleMonitor) {
-										idleMonitor.notifyAll(); // wake up idle sleepers
+									synchronized (this.idleMonitor) {
+										this.idleMonitor.notifyAll(); // wake up idle sleepers
 									}
 								}
 								if (currentJob != null && currentJob != previousJob) {
@@ -421,8 +421,8 @@ public abstract class JobManager implements Runnable {
 					if (job == null) {
 						notifyIdle(System.currentTimeMillis() - idlingStart);
 						// just woke up, delay before processing any new jobs, allow some time for the active thread to finish
-						synchronized (idleMonitor) {
-							idleMonitor.wait(500); // avoid sleep fixed time
+						synchronized (this.idleMonitor) {
+							this.idleMonitor.wait(500); // avoid sleep fixed time
 						}
 						continue;
 					}
@@ -449,8 +449,8 @@ public abstract class JobManager implements Runnable {
 							if (VERBOSE) {
 								Util.verbose("WAITING after job - " + job); //$NON-NLS-1$
 							}
-							synchronized (idleMonitor) {
-								idleMonitor.wait(5); // avoid sleep fixed time
+							synchronized (this.idleMonitor) {
+								this.idleMonitor.wait(5); // avoid sleep fixed time
 							}
 						}
 					}
