@@ -17,8 +17,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import junit.framework.Test;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.Flags;
@@ -45,6 +43,8 @@ import org.eclipse.jdt.internal.core.LocalVariable;
 import org.eclipse.jdt.internal.core.NameLookup;
 import org.eclipse.jdt.internal.core.NameLookup.Answer;
 import org.eclipse.jdt.internal.core.SourceType;
+
+import junit.framework.Test;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class TypeResolveTests extends ModifyingResourceTests {
@@ -1666,6 +1666,33 @@ public void testBug575503() throws Exception{
 		IType type = (IType) elements[0];
 		String signature= Signature.createTypeSignature(type.getFullyQualifiedName(), true);
 		assertEquals("incorrect type", "Lp.Ssss$Entry;", signature);
+	} finally {
+		deleteProject("P");
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=576778
+public void testBug576778() throws Exception {
+	try {
+		createJava11Project("P", new String[] {"src"});
+		String source =    "package p;\n\n"
+				+"public class X {\n"
+				+ "  public static void main(String[] args) {\n"
+				+ "   var runnable = new Runnable() {\n"
+				+ "     public void run() {}\n"
+				+ "   };\n"
+				+ "   runnable.run();\n"
+				+ "  }\n"
+				+ "}\n";
+		createFolder("/P/src/p");
+		createFile("/P/src/p/X.java", source);
+		waitForAutoBuild();
+		ICompilationUnit unit = getCompilationUnit("/P/src/p/X.java");
+		String select = "runnable";
+		IJavaElement[] elements = unit.codeSelect(source.indexOf(select), select.length());
+		assertEquals("should not be empty", 1, elements.length);
+		ILocalVariable variable = (ILocalVariable) elements[0];
+		String signature= variable.getTypeSignature();
+		assertEquals("incorrect type", "Qvar;", signature);
 	} finally {
 		deleteProject("P");
 	}
