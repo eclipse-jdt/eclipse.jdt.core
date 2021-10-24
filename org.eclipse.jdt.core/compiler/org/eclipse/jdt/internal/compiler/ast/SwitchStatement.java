@@ -186,14 +186,19 @@ public class SwitchStatement extends Expression {
 							this.scope.problemReporter().possibleFallThroughCase(this.scope.enclosingCase);
 						}
 						caseInits = caseInits.mergedWith(flowInfo.unconditionalInits());
-						if ((this.switchBits & LabeledRules) != 0 && this.expression instanceof NameReference) {
-							// default case does not apply to null => mark the variable being switched over as nonnull:
-							NameReference reference = (NameReference) this.expression;
-							if (reference.localVariableBinding() != null) {
-								caseInits.markAsDefinitelyNonNull(reference.localVariableBinding());
-							} else if (reference.lastFieldBinding() != null) {
+						if ((this.switchBits & LabeledRules) != 0 && this.expression.resolvedType instanceof ReferenceBinding) {
+							if (this.expression instanceof NameReference) {
+								// default case does not apply to null => mark the variable being switched over as nonnull:
+								NameReference reference = (NameReference) this.expression;
+								if (reference.localVariableBinding() != null) {
+									caseInits.markAsDefinitelyNonNull(reference.localVariableBinding());
+								} else if (reference.lastFieldBinding() != null) {
+									if (this.scope.compilerOptions().enableSyntacticNullAnalysisForFields)
+										switchContext.recordNullCheckedFieldReference(reference, 2); // survive this case statement and into the next
+								}
+							} else if (this.expression instanceof FieldReference) {
 								if (this.scope.compilerOptions().enableSyntacticNullAnalysisForFields)
-									switchContext.recordNullCheckedFieldReference(reference, 2); // survive this case statement and into the next
+									switchContext.recordNullCheckedFieldReference((FieldReference) this.expression, 2); // survive this case statement and into the next
 							}
 						}
 						complaintLevel = initialComplaintLevel; // reset complaint
