@@ -9749,6 +9749,7 @@ private SwitchStatement createSwitchStatementOrExpression(boolean isStmt) {
 	if (length == 0 && !containsComment(switchStatement.blockStart, switchStatement.sourceEnd)) {
 		switchStatement.bits |= ASTNode.UndocumentedEmptyBlock;
 	}
+	this.scanner.caseStartPosition = -1; // safety: at the end of a switch we definitely leave the scope of this value
 	return switchStatement;
 }
 protected void consumeStatementSwitch() {
@@ -9992,6 +9993,7 @@ protected void consumeSwitchLabels() {
 protected void consumeSwitchLabelCaseLhs() {
 	if (this.scanner.lookBack[1] == TerminalTokens.TokenNameCOLON) // kludge for yield :(
 		this.scanner.yieldColons = 1;
+	this.scanner.caseStartPosition = -1; // value has expired
 }
 protected void consumeCaseLabelExpr() {
 //	SwitchLabelExpr ::= SwitchLabelCaseLhs BeginCaseExpr '->'
@@ -14432,6 +14434,8 @@ protected int resumeOnSyntaxError() {
 	if (this.lastPosistion < this.scanner.currentPosition) {
 		this.lastPosistion = this.scanner.currentPosition;
 		this.scanner.lastPosition = this.scanner.currentPosition;
+		if (this.scanner.startPosition <= this.scanner.caseStartPosition)
+			this.scanner.caseStartPosition = -1;
 	}
 
 	/* attempt to reset state in order to resume to parse loop */
