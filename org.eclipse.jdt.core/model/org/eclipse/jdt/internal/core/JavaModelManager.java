@@ -3400,17 +3400,18 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		long now = System.currentTimeMillis();
 
 		// If the TTL for this cache entry has expired, directly check whether the archive is still invalid.
-		// If it transitioned to being valid, remove it from the cache and force an update to project caches.
 		if (now > invalidArchiveInfo.evictionTimestamp) {
 			try {
 				ZipFile zipFile = getZipFile(path, false);
 				closeZipFile(zipFile);
 				removeFromInvalidArchiveCache(path);
+				addInvalidArchive(path, ArchiveValidity.VALID); // update TTL
+				return ArchiveValidity.VALID;
 			} catch (CoreException e) {
 				// Archive is still invalid, fall through to reporting it is invalid.
 			}
-			// Retry the test from the start, now that we have an up-to-date result
-			return getArchiveValidity(path);
+			addInvalidArchive(path, ArchiveValidity.INVALID); // update TTL
+			return ArchiveValidity.INVALID;
 		}
 		if (DEBUG_INVALID_ARCHIVES) {
 			System.out.println("JAR cache: " + invalidArchiveInfo.reason + " " + path);  //$NON-NLS-1$ //$NON-NLS-2$
@@ -3427,6 +3428,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				}
 				return; // do not remove the VALID information
 			}
+			// If it transitioned to being valid then force an update to project caches.
 			if (this.invalidArchives.remove(path) != null) {
 				if (DEBUG_INVALID_ARCHIVES) {
 					System.out.println("JAR cache: removed INVALID " + path);  //$NON-NLS-1$
