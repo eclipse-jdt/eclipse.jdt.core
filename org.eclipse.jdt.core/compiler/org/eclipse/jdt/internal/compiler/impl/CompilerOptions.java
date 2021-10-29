@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Benjamin Muskalla - Contribution for bug 239066
@@ -237,6 +241,7 @@ public class CompilerOptions {
 	public static final String VERSION_15 = "15"; //$NON-NLS-1$
 	public static final String VERSION_16 = "16"; //$NON-NLS-1$
 	public static final String VERSION_17 = "17"; //$NON-NLS-1$
+	public static final String VERSION_18 = "18"; //$NON-NLS-1$
 	/*
 	 * Note: Whenever a new version is added, make sure getLatestVersion()
 	 * is updated with it.
@@ -607,7 +612,7 @@ public class CompilerOptions {
 	 * Return the latest Java language version supported by the Eclipse compiler
 	 */
 	public static String getLatestVersion() {
-		return VERSION_17;
+		return VERSION_18;
 	}
 	/**
 	 * Return the most specific option key controlling this irritant. Note that in some case, some irritant is controlled by

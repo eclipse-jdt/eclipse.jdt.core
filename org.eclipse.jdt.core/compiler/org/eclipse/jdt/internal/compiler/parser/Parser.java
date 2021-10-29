@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Tom Tromey - patch for readTable(String) as described in http://bugs.eclipse.org/bugs/show_bug.cgi?id=32196
@@ -245,6 +249,8 @@ public class Parser implements TerminalTokens, ParserBasicInformation, Conflicte
 						compliance = ClassFileConstants.JDK16;
 					}  else if("17".equals(token)) { //$NON-NLS-1$
 						compliance = ClassFileConstants.JDK17;
+					}  else if("18".equals(token)) { //$NON-NLS-1$
+						compliance = ClassFileConstants.JDK18;
 					} else if("recovery".equals(token)) { //$NON-NLS-1$
 						compliance = ClassFileConstants.JDK_DEFERRED;
 					}
@@ -984,6 +990,7 @@ protected boolean parsingJava9Plus;
 protected boolean parsingJava14Plus;
 protected boolean parsingJava15Plus;
 protected boolean parsingJava17Plus;
+protected boolean parsingJava18Plus;
 protected boolean previewEnabled;
 protected boolean parsingJava11Plus;
 protected int unstackedAct = ERROR_ACTION;
@@ -1012,6 +1019,7 @@ public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals) {
 	this.parsingJava14Plus = this.options.sourceLevel >= ClassFileConstants.JDK14;
 	this.parsingJava15Plus = this.options.sourceLevel >= ClassFileConstants.JDK15;
 	this.parsingJava17Plus = this.options.sourceLevel >= ClassFileConstants.JDK17;
+	this.parsingJava18Plus = this.options.sourceLevel >= ClassFileConstants.JDK18;
 	this.previewEnabled = this.options.sourceLevel == ClassFileConstants.getLatestJDKLevel() && this.options.enablePreviewFeatures;
 	this.astLengthStack = new int[50];
 	this.patternLengthStack = new int[20];

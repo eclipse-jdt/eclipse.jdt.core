@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Brock Janiczak - Contribution for bug 150741
@@ -15946,7 +15950,7 @@ public void testBug567016() {
  * https://bugs.eclipse.org/573949 - [17][switch pattern][formatter] JEP 406 changes
  */
 public void testBug573949() {
-	setComplianceLevel(CompilerOptions.VERSION_17);
+	setComplianceLevel(CompilerOptions.VERSION_18);
 	String source =
 		"public class X {\n" +
 		" private static void foo(Object o) {\n" +

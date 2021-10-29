@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -2417,6 +2421,21 @@ public abstract class ASTNode {
 	 */
 	final void supportedOnlyIn17() {
 		if (this.ast.apiLevel != AST.JLS17_INTERNAL) {
+			throw new UnsupportedOperationException("Operation only supported in JLS17 AST"); //$NON-NLS-1$
+		}
+	}
+	/**
+ 	 * Checks that this AST operation is only used when
+     * building JLS18 level ASTs.
+     * <p>
+     * Use this method to prevent access to new properties available only in JLS18.
+     * </p>
+     *
+	 * @exception UnsupportedOperationException if this operation is not used in JLS18
+	 * @since 3.28 BETA_JAVA 18
+	 */
+	final void supportedOnlyIn18() {
+		if (this.ast.apiLevel != AST.JLS18_INTERNAL) {
 			throw new UnsupportedOperationException("Operation only supported in JLS17 AST"); //$NON-NLS-1$
 		}
 	}

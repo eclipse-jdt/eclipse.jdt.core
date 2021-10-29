@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Jesper S Moller - Contributions for
@@ -134,9 +138,10 @@ public interface ClassFileConstants {
 	int MAJOR_VERSION_15 = 59;
 	int MAJOR_VERSION_16 = 60;
 	int MAJOR_VERSION_17 = 61;
+	int MAJOR_VERSION_18 = 62;
 
 	int MAJOR_VERSION_0 = 44;
-	int MAJOR_LATEST_VERSION = MAJOR_VERSION_17;
+	int MAJOR_LATEST_VERSION = MAJOR_VERSION_18;
 
 	int MINOR_VERSION_0 = 0;
 	int MINOR_VERSION_1 = 1;
@@ -164,6 +169,7 @@ public interface ClassFileConstants {
 	long JDK15 = ((long)ClassFileConstants.MAJOR_VERSION_15 << 16) + ClassFileConstants.MINOR_VERSION_0;
 	long JDK16 = ((long)ClassFileConstants.MAJOR_VERSION_16 << 16) + ClassFileConstants.MINOR_VERSION_0;
 	long JDK17 = ((long)ClassFileConstants.MAJOR_VERSION_17 << 16) + ClassFileConstants.MINOR_VERSION_0;
+	long JDK18 = ((long)ClassFileConstants.MAJOR_VERSION_18 << 16) + ClassFileConstants.MINOR_VERSION_0;
 
 	public static long getLatestJDKLevel() {
 		return ((long)ClassFileConstants.MAJOR_LATEST_VERSION << 16) + ClassFileConstants.MINOR_VERSION_0;

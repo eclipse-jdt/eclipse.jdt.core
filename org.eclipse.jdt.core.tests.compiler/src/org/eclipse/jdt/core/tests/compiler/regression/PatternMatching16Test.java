@@ -7,6 +7,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -120,7 +124,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"1. ERROR in X1.java (at line 0)\n" +
 				"	public class X1 {\n" +
 				"	^\n" +
-				"Preview features enabled at an invalid source release level 14, preview can be enabled only at source level 17\n" +
+				"Preview features enabled at an invalid source release level 14, preview can be enabled only at source level "+PREVIEW_ALLOWED_LEVEL+"\n" +
 				"----------\n",
 				null,
 				true,

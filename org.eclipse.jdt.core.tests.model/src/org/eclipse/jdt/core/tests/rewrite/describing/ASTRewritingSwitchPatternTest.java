@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.rewrite.describing;
@@ -53,23 +57,23 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 	}
 
 	public static Test suite() {
-		return createSuite(ASTRewritingSwitchPatternTest.class, 17);
+		return createSuite(ASTRewritingSwitchPatternTest.class, 18);
 	}
 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		if (this.apiLevel == AST.JLS17 ) { // Remove this after it is a standard feature
-			this.project1.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_17);
-			this.project1.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_17);
-			this.project1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_17);
+		if (this.apiLevel == AST.JLS18 ) { // Remove this after it is a standard feature
+			this.project1.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_18);
+			this.project1.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_18);
+			this.project1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_18);
 			this.project1.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 		}
 	}
 
 	private boolean checkAPILevel() {
-		if (this.apiLevel < 17) {
-			System.err.println("Test "+getName()+" requires a JRE 17");
+		if (this.apiLevel < 18) {
+			System.err.println("Test "+getName()+" requires a JRE 18");
 			return true;
 		}
 		return false;

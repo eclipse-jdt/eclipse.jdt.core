@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -36,7 +40,7 @@ public class GuardedPattern extends Pattern{
 
 	GuardedPattern(AST ast) {
 		super(ast);
-		supportedOnlyIn17();
+		supportedOnlyIn18();
 		unsupportedWithoutPreviewError();
 	}
 
@@ -198,7 +202,7 @@ public class GuardedPattern extends Pattern{
 	 * @return the expression node, or <code>null</code> if there is none
 	 */
 	public Expression getExpression() {
-		supportedOnlyIn17();
+		supportedOnlyIn18();
 		unsupportedWithoutPreviewError();
 		return this.conditonalExpression;
 	}
@@ -213,7 +217,7 @@ public class GuardedPattern extends Pattern{
 	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
 	 */
 	public Pattern getPattern() {
-		supportedOnlyIn17();
+		supportedOnlyIn18();
 		unsupportedWithoutPreviewError();
 		return this.pattern;
 	}
@@ -232,7 +236,7 @@ public class GuardedPattern extends Pattern{
 	 * </ul>
 	 */
 	public void setExpression(Expression expression) {
-		supportedOnlyIn17();
+		supportedOnlyIn18();
 		unsupportedWithoutPreviewError();
 		ASTNode oldChild = this.conditonalExpression;
 		preReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
@@ -248,7 +252,7 @@ public class GuardedPattern extends Pattern{
 	 * @exception UnsupportedOperationException if this operation is used without previewEnabled
 	 */
 	public void setPattern(Pattern pattern) {
-		supportedOnlyIn17();
+		supportedOnlyIn18();
 		unsupportedWithoutPreviewError();
 		ASTNode oldChild = this.pattern;
 		preReplaceChild(oldChild, pattern, PATTERN_PROPERTY);

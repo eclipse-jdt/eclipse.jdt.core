@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -142,7 +146,7 @@ public class RecordElementProcessor extends BaseElementProcessor {
 			assertTrue("Preview flag not seen as enabled", preview);
 		}
 		SourceVersion sourceVersion = this.processingEnv.getSourceVersion();
-		assertNotSame("Should support the latest compliance", sourceVersion, SourceVersion.RELEASE_6);
+		assertEquals("Should support the latest compliance", sourceVersion, SourceVersion.RELEASE_6);
 	}
 	/*
 	 * Basic test for record element and kind

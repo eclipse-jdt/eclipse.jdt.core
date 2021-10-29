@@ -7,6 +7,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -54,14 +58,14 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 		return defaultOptions;
 	}
 	// Enables the tests to run individually
-	protected Map<String, String> getCompilerOptionsWithPreview() {
+	protected Map<String, String> getCompilerOptionsWithPreviewIfApplicable() {
 		Map<String, String> defaultOptions = super.getCompilerOptions();
 		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_17);
 		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_17);
 		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_17);
 		defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		defaultOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
-		defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		return defaultOptions;
 	}
 
@@ -7266,7 +7270,7 @@ public void testBug564672b_049() {
 }
 public void testBug565388_001() {
 	if (this.complianceLevel < ClassFileConstants.JDK17) return;
-	Map<String, String> options = getCompilerOptionsWithPreview();
+	Map<String, String> options = getCompilerOptionsWithPreviewIfApplicable();
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -7286,7 +7290,7 @@ public void testBug565388_001() {
 }
 public void testBug565388_002() {
 	if (this.complianceLevel < ClassFileConstants.JDK17) return;
-	Map<String, String> options = getCompilerOptionsWithPreview();
+	Map<String, String> options = getCompilerOptionsWithPreviewIfApplicable();
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -7748,7 +7752,7 @@ public void testBug563182_07() {
 	}
 public void testBug566063_001() {
 	if (this.complianceLevel < ClassFileConstants.JDK17) return;
-	Map<String, String> options = getCompilerOptionsWithPreview();
+	Map<String, String> options = getCompilerOptionsWithPreviewIfApplicable();
 	runConformTest(
 			new String[] {
 				"X.java",
@@ -7775,7 +7779,7 @@ public void testBug566063_001() {
 }
 public void testBug566063_002() {
 	if (this.complianceLevel < ClassFileConstants.JDK17) return;
-	Map<String, String> options = getCompilerOptionsWithPreview();
+	Map<String, String> options = getCompilerOptionsWithPreviewIfApplicable();
 	runNegativeTest(
 			new String[] {
 				"X.java",
@@ -7809,7 +7813,7 @@ public void testBug566063_002() {
 }
 public void testBug566063_003() {
 	if (this.complianceLevel < ClassFileConstants.JDK17) return;
-	Map<String, String> options = getCompilerOptionsWithPreview();
+	Map<String, String> options = getCompilerOptionsWithPreviewIfApplicable();
 	runNegativeTest(
 			new String[] {
 				"X.java",
@@ -8031,7 +8035,7 @@ public void testBug566554_04() {
 }
 public void testBug567731_001() {
 	if (this.complianceLevel < ClassFileConstants.JDK17) return;
-	Map<String, String> options = getCompilerOptionsWithPreview();
+	Map<String, String> options = getCompilerOptionsWithPreviewIfApplicable();
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -8061,7 +8065,7 @@ public void testBug567731_001() {
 }
 public void testBug567731_002() {
 	if (this.complianceLevel < ClassFileConstants.JDK17) return;
-	Map<String, String> options = getCompilerOptionsWithPreview();
+	Map<String, String> options = getCompilerOptionsWithPreviewIfApplicable();
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
