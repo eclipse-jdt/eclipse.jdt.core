@@ -393,4 +393,44 @@ public class CompletionTests16_2 extends AbstractJavaModelCompletionTests {
 				requestor.getResults());
 
 	}
+
+	public void bug575599() throws Exception {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/Bug_575599.java",
+				"class Bug_575599 {\n" +
+				"	void sample(CharSequence param1, CharSequence param2) {\n" +
+				"		if (param1 instanceof String s1 && param2 instanceof String s2) {\n" +
+				"			// s1.| completion doesn't work here: `No Default Proposals`\n" +
+				"			// ; <- adding `;` here makes completion above work (similar to bug 574267)\n" +
+				"			s1.toUpperCase();\n" +
+				"			// s1.| completion works here, showing expected options\n" +
+				"			if (s1.strip().equals(\"FOO\")) {\n" +
+				"				s1.\n" +
+				"			}\n" +
+				"		}\n" +
+				"	}\n" +
+				"}");
+		this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "s1.";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults("clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 60}\n" +
+				"codePointAt[METHOD_REF]{codePointAt(), Ljava.lang.String;, (I)I, codePointAt, (index), 60}\n" +
+				"equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 60}\n" +
+				"finalize[METHOD_REF]{finalize(), Ljava.lang.Object;, ()V, finalize, null, 60}\n" +
+				"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, 60}\n" +
+				"hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 60}\n" +
+				"length[METHOD_REF]{length(), Ljava.lang.String;, ()I, length, null, 60}\n" +
+				"notify[METHOD_REF]{notify(), Ljava.lang.Object;, ()V, notify, null, 60}\n" +
+				"notifyAll[METHOD_REF]{notifyAll(), Ljava.lang.Object;, ()V, notifyAll, null, 60}\n" +
+				"toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 60}\n" +
+				"wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 60}\n" +
+				"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 60}\n" +
+				"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 60}",
+				requestor.getResults());
+	}
 }
