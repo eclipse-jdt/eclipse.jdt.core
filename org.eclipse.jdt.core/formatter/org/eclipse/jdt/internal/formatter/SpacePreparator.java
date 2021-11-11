@@ -192,6 +192,8 @@ public class SpacePreparator extends ASTVisitor {
 				this.options.insert_space_before_opening_brace_in_type_declaration, false);
 		handleCommas(node.superInterfaceTypes(), this.options.insert_space_before_comma_in_superinterfaces,
 				this.options.insert_space_after_comma_in_superinterfaces);
+		handleCommas(node.permittedTypes(), this.options.insert_space_before_comma_in_permitted_types,
+				this.options.insert_space_after_comma_in_permitted_types);
 		return true;
 	}
 
