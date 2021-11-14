@@ -1133,6 +1133,7 @@ public class WrapPreparator extends ASTVisitor {
 		int lParen = this.tm.firstIndexIn(node, TokenNameLPAREN);
 		int rParen = this.tm.firstIndexAfter(node.getExpression(), TokenNameRPAREN);
 		handleParenthesesPositions(lParen, rParen, this.options.parenthesis_positions_in_switch_statement);
+		forceContinuousWrapping(node, this.tm.firstIndexIn(node, TokenNameLPAREN));
 		return true;
 	}
 
@@ -1306,7 +1307,7 @@ public class WrapPreparator extends ASTVisitor {
 			policy = getWrapPolicy(optionNoAlignment, 1, false, parentNode);
 			for (int index : this.secondaryWrapIndexes) {
 				Token token = this.tm.get(index);
-				if (token.getWrapPolicy() == null)
+				if (token.getWrapPolicy() == null || token.getWrapPolicy().wrapMode == WrapMode.BLOCK_INDENT)
 					token.setWrapPolicy(policy);
 			}
 		}

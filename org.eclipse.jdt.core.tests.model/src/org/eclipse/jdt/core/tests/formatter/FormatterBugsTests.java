@@ -13285,12 +13285,33 @@ public void _testBug562818() {
 		"}",
 		CodeFormatter.K_CLASS_BODY_DECLARATIONS);
 }
+/**
+ * https://bugs.eclipse.org/574437 - Incorrect formatting in pattern instanceof
+ */
 public void testBug574437() {
 	formatSource(
 		"class C {\n" +
 		"	void foo(Object o) {\n" +
 		"		if ((o) instanceof String s)\n" +
 		"			bar(s);\n" +
+		"	}\n" +
+		"}");
+}
+/**
+ * https://bugs.eclipse.org/576954 - [formatter] Switch expression formatting broken in a method chain with lambdas
+ */
+public void testBug576954() {
+	this.formatterPrefs.join_wrapped_lines = false;
+	this.formatterPrefs.indent_switchstatements_compare_to_switch = true;
+	formatSource(
+		"public class C {\n" +
+		"	void f() {\n" +
+		"		Stream.of(1, 2)\n" +
+		"				.map(it -> switch (it) {\n" +
+		"					case 1 -> \"one\";\n" +
+		"					case 2 -> \"two\";\n" +
+		"					default -> \"many\";\n" +
+		"				}).forEach(System.out::println);\n" +
 		"	}\n" +
 		"}");
 }
