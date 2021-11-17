@@ -1064,7 +1064,7 @@ public final int getAccessFlags() {
  */
 @Override
 public AnnotationBinding[] getAnnotations() {
-	return retrieveAnnotations(this);
+	return retrieveAnnotations(prototype());
 }
 
 /**

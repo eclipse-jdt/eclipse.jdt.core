@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2017 IBM Corporation.
+ * Copyright (c) 2013, 2021 IBM Corporation.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -78,7 +78,8 @@ import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
 	                       "org.eclipse.jdt.compiler.apt.tests.annotations.Foo", "org.eclipse.jdt.compiler.apt.tests.annotations.FooContainer",
 	                       "org.eclipse.jdt.compiler.apt.tests.annotations.IFoo", "org.eclipse.jdt.compiler.apt.tests.annotations.IFooContainer",
 	                       "org.eclipse.jdt.compiler.apt.tests.annotations.Goo", "org.eclipse.jdt.compiler.apt.tests.annotations.GooNonContainer",
-	                       "org.eclipse.jdt.compiler.apt.tests.annotations.FooNonContainer", "targets.filer8.PackageAnnot"})
+	                       "org.eclipse.jdt.compiler.apt.tests.annotations.FooNonContainer", "targets.filer8.PackageAnnot",
+	                       "java.lang.Deprecated"})
 
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class Java8ElementProcessor extends BaseProcessor {
@@ -180,6 +181,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 		testBug520540();
 		testBug526288();
 		testEnumConstArguments();
+		testBug544288();
 	}
 
 	public void testLambdaSpecifics() {
@@ -1074,6 +1076,20 @@ public class Java8ElementProcessor extends BaseProcessor {
 		}
 		assertNotNull("Method should not be null", method);
 		verifyAnnotations(method, new String[]{"@Deprecated()"});
+	}
+	public void testBug544288() {
+		TypeElement type = _elementUtils.getTypeElement("targets.bug544288.TestEntity");
+		List<? extends Element> members = _elementUtils.getAllMembers(type);
+		VariableElement field = null;
+		for (Element member : members) {
+			if ("fieldWithTypeUse".equals(member.getSimpleName().toString())) {
+				field = (VariableElement) member;
+			}
+		}
+		assertNotNull("Should not be null", field);
+		TypeMirror asType = field.asType();
+		Element asElement = _typeUtils.asElement(asType);
+		verifyAnnotations(asElement, new String[]{"@Deprecated()"});
 	}
 	private void createPackageBinary() throws IOException {
 		String path = packageName.replace('.', '/');
