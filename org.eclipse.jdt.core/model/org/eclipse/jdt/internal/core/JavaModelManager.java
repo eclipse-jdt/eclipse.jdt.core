@@ -3400,17 +3400,18 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		long now = System.currentTimeMillis();
 
 		// If the TTL for this cache entry has expired, directly check whether the archive is still invalid.
-		// If it transitioned to being valid, remove it from the cache and force an update to project caches.
 		if (now > invalidArchiveInfo.evictionTimestamp) {
 			try {
 				ZipFile zipFile = getZipFile(path, false);
 				closeZipFile(zipFile);
 				removeFromInvalidArchiveCache(path);
+				addInvalidArchive(path, ArchiveValidity.VALID); // update TTL
+				return ArchiveValidity.VALID;
 			} catch (CoreException e) {
 				// Archive is still invalid, fall through to reporting it is invalid.
 			}
-			// Retry the test from the start, now that we have an up-to-date result
-			return getArchiveValidity(path);
+			addInvalidArchive(path, ArchiveValidity.INVALID); // update TTL
+			return ArchiveValidity.INVALID;
 		}
 		if (DEBUG_INVALID_ARCHIVES) {
 			System.out.println("JAR cache: " + invalidArchiveInfo.reason + " " + path);  //$NON-NLS-1$ //$NON-NLS-2$
@@ -3427,6 +3428,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				}
 				return; // do not remove the VALID information
 			}
+			// If it transitioned to being valid then force an update to project caches.
 			if (this.invalidArchives.remove(path) != null) {
 				if (DEBUG_INVALID_ARCHIVES) {
 					System.out.println("JAR cache: removed INVALID " + path);  //$NON-NLS-1$
@@ -4359,9 +4361,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 	private void saveClasspathListCache(String cacheName) throws CoreException {
 		File file = getClasspathListFile(cacheName);
-		DataOutputStream out = null;
-		try {
-			out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
+		try (DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)))){
 			Set<IPath> pathCache = getClasspathListCache(cacheName);
 			synchronized (pathCache) {
 				out.writeInt(pathCache.size());
@@ -4374,35 +4374,17 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		} catch (IOException e) {
 			IStatus status = new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, IStatus.ERROR, "Problems while saving non-chaining jar cache", e); //$NON-NLS-1$
 			throw new CoreException(status);
-		} finally {
-			if (out != null) {
-				try {
-					out.close();
-				} catch (IOException e) {
-					// nothing we can do: ignore
-				}
-			}
 		}
 	}
 
 	private void saveVariablesAndContainers(ISaveContext context) throws CoreException {
 		File file = getVariableAndContainersFile();
-		DataOutputStream out = null;
-		try {
-			out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
+		try (DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)))) {
 			out.writeInt(VARIABLES_AND_CONTAINERS_FILE_VERSION);
 			new VariablesAndContainersSaveHelper(out).save(context);
 		} catch (IOException e) {
 			IStatus status = new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, IStatus.ERROR, "Problems while saving variables and containers", e); //$NON-NLS-1$
 			throw new CoreException(status);
-		} finally {
-			if (out != null) {
-				try {
-					out.close();
-				} catch (IOException e) {
-					// nothing we can do: ignore
-				}
-			}
 		}
 	}
 

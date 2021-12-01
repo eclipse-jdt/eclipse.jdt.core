@@ -6185,4 +6185,51 @@ public void testBug443091_expectLambdaCompletions_forFunctionalInterfaceVariable
 			+ "[LAMBDA_EXPRESSION]{->, Ljava.util.function.Consumer<Ljava.lang.Integer;>;, (Ljava.lang.Integer;)V, accept, (t), 89}",
 			result);
 }
+public void testBug576068() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"Completion/src/Bug576068.java",
+			"public class Bug576068 {\n" +
+			"\n" +
+			"	// Type a new member here and content assist won't find anything.\n" +
+			"\n" +
+			"	public void methodA(){\n" +
+			"		switch( 1 ){\n" +
+			"			case 0:\n" +
+			"		}\n" +
+			"	}\n" +
+			"	public void methodB(){\n" +
+			"		Runnable r = ()->{};\n" +
+			"	}\n" +
+			"}");
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBefore = "// Type";
+	int cursorLocation = str.indexOf(completeBefore);
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	String result = requestor.getResults();
+	assertResults("[POTENTIAL_METHOD_DECLARATION]{, LBug576068;, ()V, , null, 39}\n" +
+			"abstract[KEYWORD]{abstract, null, null, abstract, null, 49}\n" +
+			"class[KEYWORD]{class, null, null, class, null, 49}\n" +
+			"enum[KEYWORD]{enum, null, null, enum, null, 49}\n" +
+			"final[KEYWORD]{final, null, null, final, null, 49}\n" +
+			"interface[KEYWORD]{interface, null, null, interface, null, 49}\n" +
+			"native[KEYWORD]{native, null, null, native, null, 49}\n" +
+			"private[KEYWORD]{private, null, null, private, null, 49}\n" +
+			"protected[KEYWORD]{protected, null, null, protected, null, 49}\n" +
+			"public[KEYWORD]{public, null, null, public, null, 49}\n" +
+			"static[KEYWORD]{static, null, null, static, null, 49}\n" +
+			"strictfp[KEYWORD]{strictfp, null, null, strictfp, null, 49}\n" +
+			"synchronized[KEYWORD]{synchronized, null, null, synchronized, null, 49}\n" +
+			"transient[KEYWORD]{transient, null, null, transient, null, 49}\n" +
+			"volatile[KEYWORD]{volatile, null, null, volatile, null, 49}\n" +
+			"Bug576068[TYPE_REF]{Bug576068, , LBug576068;, null, null, 52}\n" +
+			"clone[METHOD_DECLARATION]{protected Object clone() throws CloneNotSupportedException, Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 52}\n" +
+			"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 52}\n" +
+			"finalize[METHOD_DECLARATION]{protected void finalize() throws Throwable, Ljava.lang.Object;, ()V, finalize, null, 52}\n" +
+			"hashCode[METHOD_DECLARATION]{public int hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 52}\n" +
+			"toString[METHOD_DECLARATION]{public String toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 52}",
+			result);
+}
 }
