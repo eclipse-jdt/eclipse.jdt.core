@@ -100,7 +100,9 @@ public class EclipseCompilerImpl extends Main {
 				performCompilation();
 			}
 		} catch(IllegalArgumentException e) {
-			this.diagnosticListener.report(new ExceptionDiagnostic(e));
+			if (this.diagnosticListener != null) {
+				this.diagnosticListener.report(new ExceptionDiagnostic(e));
+			}
 			this.logger.logException(e);
 			if (this.systemExitWhenFinished) {
 				cleanup();
@@ -108,7 +110,9 @@ public class EclipseCompilerImpl extends Main {
 			}
 			return false;
 		} catch (RuntimeException e) { // internal compiler failure
-			this.diagnosticListener.report(new ExceptionDiagnostic(e));
+			if (this.diagnosticListener != null) {
+				this.diagnosticListener.report(new ExceptionDiagnostic(e));
+			}
 			this.logger.logException(e);
 			return false;
 		} finally {

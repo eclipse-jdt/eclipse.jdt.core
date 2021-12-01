@@ -1058,4 +1058,37 @@ public void _test023_output_streams() throws IOException {
 		true /* shouldFlushOutputDirectory */,
 		null /* classFileNames */);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=577550
+// check that an empty iterable for the 'classes' argument doesn't result in an exception
+public void test024_bug577550_test_empty_classes_argument() {
+	// create a source file to compile
+	StandardJavaFileManager javacJavaFileManager = JAVAC_COMPILER.getStandardFileManager(null, null, null);
+	runTest(
+			true /* shouldCompileOK */,
+			new String [] { /* sourceFiles */
+				"X.java",
+				"public class X {}",
+			},
+			javacJavaFileManager /* standardJavaFileManager */,
+			Arrays.asList("-d", OUTPUT_DIR) /* options */,
+			new String[] { /* compileFileNames */
+				"X.java"
+			},
+			"" /* expectedOutOutputString */,
+			"" /* expectedErrOutputString */,
+			true /* shouldFlushOutputDirectory */,
+			new String[] { /* classFileNames */
+				"X.class"
+			});
+	
+	// Bug 577550: supply intentionally empty (and not null) classes iterable
+	Iterable<String> classes = new ArrayList<>();
+	StandardJavaFileManager ecjStandardJavaFileManager = COMPILER.getStandardFileManager(null /* diagnosticListener */,
+			null /* locale */, null /* charset */);
+	assertTrue("Expected compile with empty 'classes' argument to succeed", COMPILER.getTask(null,
+			ecjStandardJavaFileManager, null, Arrays.asList("-d", OUTPUT_DIR), classes,
+			ecjStandardJavaFileManager
+					.getJavaFileObjectsFromFiles(Arrays.asList(new File(OUTPUT_DIR + File.separator + "X.java"))))
+			.call());
+}
 }
