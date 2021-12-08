@@ -511,6 +511,17 @@ public void acceptLocalVariable(LocalVariableBinding binding, org.eclipse.jdt.in
 		}
 	}
 }
+
+public void acceptLambdaMethod(MethodBinding binding, org.eclipse.jdt.internal.compiler.env.ICompilationUnit unit) {
+	if(binding.sourceLambda() != null) {
+		HashSet existingElements = new HashSet();
+		HashMap knownScopes = new HashMap();
+		LambdaExpression lambdaExpression = binding.sourceLambda();
+		IJavaElement sourceMethod = this.handleFactory.createElement(lambdaExpression.getScope(), lambdaExpression.sourceStart, (ICompilationUnit) unit, existingElements, knownScopes);
+		addElement(sourceMethod);
+	}
+}
+
 /**
  * Resolve the method
  */
@@ -638,6 +649,11 @@ protected void acceptSourceMethod(
 				}
 				addElement(method);
 			}
+		}
+
+		// if we are working with a lambda method
+		if(CharOperation.prefixEquals("lambda$".toCharArray(), selector)) { //$NON-NLS-1$
+			addElement(type.getMethod(name, parameterSignatures));
 		}
 	} catch (JavaModelException e) {
 		return;

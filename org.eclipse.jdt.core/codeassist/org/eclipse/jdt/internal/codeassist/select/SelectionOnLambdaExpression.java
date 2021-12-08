@@ -40,4 +40,12 @@ public class SelectionOnLambdaExpression extends LambdaExpression {
 		}
 		return resolveType;
 	}
+
+	@Override
+	public StringBuffer printExpression(int indent, StringBuffer output) {
+		output.append("<SelectOnLambdaExpression:"); //$NON-NLS-1$
+		super.printExpression(indent, output);
+		return output.append(")>"); //$NON-NLS-1$
+	}
+
 }
