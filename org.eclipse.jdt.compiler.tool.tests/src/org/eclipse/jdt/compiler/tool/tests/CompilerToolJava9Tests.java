@@ -899,6 +899,15 @@ public class CompilerToolJava9Tests extends TestCase {
  	 		assertTrue("Compilation did not fail as expected ", false);
  		}
 	}
+	public void testBug569833() throws IOException {
+		if (this.isJREBelow9) return;
+		// Class before module descriptor in the source list
+		CompilerBuilder b = new CompilerBuilder()
+				.file(new File(modules_directory, "source/SimpleModules/module.one/pkg1/Cls1.java"))
+				.file(new File(modules_directory, "source/SimpleModules/module.one/module-info.java"));
+		b.compile();
+		assertFalse(b.listener().hasDiagnostic());
+	}
 	public void testGetJavaFileObjects() {
 		if (this.isJREBelow9) return;
 	}
@@ -982,7 +991,7 @@ public class CompilerToolJava9Tests extends TestCase {
 			listener = new DiagListener(errWriter);
 
 			ForwardingJavaFileManager<StandardJavaFileManager> forwardingManager = createFileManager(manager);
-			compiler.getTask(errWriter, forwardingManager, listener, options, null, units);
+			compiler.getTask(errWriter, forwardingManager, listener, options, null, units).call();
 		}
 
 		public CompilerBuilder option(String... s) {
@@ -1050,6 +1059,10 @@ public class CompilerToolJava9Tests extends TestCase {
 		public void report(Diagnostic<? extends JavaFileObject> diagnostic) {
 			errorList.add(diagnostic);
 			super.report(diagnostic);
+		}
+
+		public boolean hasDiagnostic() {
+			return !errorList.isEmpty();
 		}
 
 		public boolean hasDiagnostic(String match) {
