@@ -4104,6 +4104,16 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 * Reads the build state for the relevant project.
 	 */
 	protected Object readState(IProject project) throws CoreException {
+		long startTime = System.currentTimeMillis();
+		Object result = readStateTimed(project);
+		if (JavaBuilder.DEBUG) {
+			long stopTime = System.currentTimeMillis();
+			System.out.println("readState took " + (stopTime - startTime) + "ms:" + project.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		return result;
+	}
+
+	private Object readStateTimed(IProject project) throws CoreException {
 		File file = getSerializationFile(project);
 		if (file != null && file.exists()) {
 			try (DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(file)))) {
@@ -4320,7 +4330,14 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		if (context.getKind() == ISaveContext.SNAPSHOT) return;
 
 		// save built state
-		if (info.triedRead) saveBuiltState(info);
+		if (info.triedRead) {
+			long startTime = System.currentTimeMillis();
+			saveBuiltState(info);
+			if (JavaBuilder.DEBUG) {
+				long stopTime = System.currentTimeMillis();
+				System.out.println("saveState took " + (stopTime - startTime) + "ms:" + info.project.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+		}
 	}
 
 	/**
@@ -4599,6 +4616,15 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 */
 	@Override
 	public void saving(ISaveContext context) throws CoreException {
+		long startTime = System.currentTimeMillis();
+		savingTimed(context);
+		if (JavaBuilder.DEBUG) {
+			long stopTime = System.currentTimeMillis();
+			System.out.println("saving took " + (stopTime - startTime) + "ms:" + this.perProjectInfos.values().size()); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+	}
+
+	private void savingTimed(ISaveContext context) throws CoreException {
 
 	    long start = -1;
 		if (VERBOSE)
