@@ -2382,6 +2382,8 @@ void setSourceStart(int sourceStart);
 	int IllegalModifierForLocalEnumDeclaration = TypeRelated + 1766;
 	/** @since 3.28 */
 	int ClassExtendFinalRecord = TypeRelated + 1767;
+	/** @since 3.29 */
+	int RecordErasureIncompatibilityInCanonicalConstructor = TypeRelated + 1768;
 	/* records - end */
 
 

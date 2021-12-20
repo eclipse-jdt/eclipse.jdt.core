@@ -2202,14 +2202,21 @@ private MethodBinding checkAndGetExplicitCanonicalConstructors() {
 		if (method.parameters.length != nRecordComponents)
 			continue;
 		boolean isEC = true;
+		int firstErasureOnlyEqualsPosition = -1;
 		for (int j = 0; j < nRecordComponents; ++j) {
-			if (TypeBinding.notEquals(method.parameters[j], recComps[j].type)) {
-				isEC = false;
-				break;
+			TypeBinding methodParam = method.parameters[j];
+			TypeBinding recComp = recComps[j].type;
+			if (TypeBinding.notEquals(methodParam, recComp)) {
+				if (TypeBinding.notEquals(methodParam.erasure(), recComp.erasure())) {
+					isEC = false;
+					break;
+				} else {
+					firstErasureOnlyEqualsPosition = firstErasureOnlyEqualsPosition < 0 ? j : firstErasureOnlyEqualsPosition;
+				}
 			}
 		}
 		if (isEC) {
-			explictCanConstr = checkRecordCanonicalConstructor(method);
+			explictCanConstr = checkRecordCanonicalConstructor(method, firstErasureOnlyEqualsPosition);
 			// Just exit after sighting the first explicit canonical constructor,
 			// because there can only be one.
 			if (explictCanConstr != null)
@@ -2534,11 +2541,13 @@ private void checkCanonicalConstructorParameterNames(MethodBinding explicitCanon
 	}
 }
 
-private MethodBinding checkRecordCanonicalConstructor(MethodBinding explicitCanonicalConstructor) {
+private MethodBinding checkRecordCanonicalConstructor(MethodBinding explicitCanonicalConstructor, int firstErasureOnlyEqualsPosition) {
 
 	AbstractMethodDeclaration methodDecl = explicitCanonicalConstructor.sourceMethod();
 	if (methodDecl == null)
 		return null;
+	if (firstErasureOnlyEqualsPosition >= 0)
+		this.scope.problemReporter().recordErasureIncompatibilityInCanonicalConstructor(methodDecl.arguments[firstErasureOnlyEqualsPosition].type);
 	if (!SourceTypeBinding.isAtleastAsAccessibleAsRecord(explicitCanonicalConstructor))
 		this.scope.problemReporter().recordCanonicalConstructorVisibilityReduced(methodDecl);
 	TypeParameter[] typeParameters = methodDecl.typeParameters();
