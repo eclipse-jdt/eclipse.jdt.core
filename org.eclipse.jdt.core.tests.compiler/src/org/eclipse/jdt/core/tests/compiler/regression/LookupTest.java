@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -3630,6 +3630,75 @@ public void testBug537828() {
 			"}",
 		},
 		"A.obj");
+}
+public void testBug577350_001() {
+	Map options = getCompilerOptions();
+	CompilerOptions compOptions = new CompilerOptions(options);
+	if (compOptions.complianceLevel < ClassFileConstants.JDK10) return;
+	this.runConformTest(
+		new String[] {
+			"X.java",//------------------------------
+			"import java.lang.invoke.MethodHandles;\n"+
+			"import java.lang.invoke.VarHandle;\n"+
+			"\n"+
+			"public class X {\n"+
+			" private static final VarHandle VH;\n"+
+			" static {\n"+
+			"   var lookup = MethodHandles.lookup();\n"+
+			"   try {\n"+
+			"     VH = lookup.findVarHandle(X.class, \"value\", int.class);\n"+
+			"   } catch (NoSuchFieldException | IllegalAccessException e) {\n"+
+			"     throw new AssertionError(e);\n"+
+			"   }\n"+
+			" }\n"+
+			"\n"+
+			" private volatile int value;\n"+
+			"\n"+
+			" public void test() {\n"+
+			"   VH.compareAndSet(this, 2, 3); // <--- HERE\n"+
+			" }\n"+
+			"\n"+
+			" public static void main(String[] args) {\n"+
+			"   new X().test();\n"+
+			" }\n"+
+			"}",
+		},
+		"");
+}
+public void testBug577350_002() {
+	Map options = getCompilerOptions();
+	CompilerOptions compOptions = new CompilerOptions(options);
+	if (compOptions.complianceLevel < ClassFileConstants.JDK9) return;
+	this.runConformTest(
+		new String[] {
+			"X.java",//------------------------------
+			"import java.lang.invoke.MethodHandles;\n"+
+			"import java.lang.invoke.MethodHandles.Lookup;\n"+
+			"import java.lang.invoke.VarHandle;\n" +
+			"\n"+
+			"public class X {\n"+
+			" private static final VarHandle VH;\n"+
+			" static {\n"+
+			"   Lookup lookup = MethodHandles.lookup();\n"+
+			"   try {\n"+
+			"     VH = lookup.findVarHandle(X.class, \"value\", int.class);\n"+
+			"   } catch (NoSuchFieldException | IllegalAccessException e) {\n"+
+			"     throw new AssertionError(e);\n"+
+			"   }\n"+
+			" }\n"+
+			"\n"+
+			" private volatile int value;\n"+
+			"\n"+
+			" public void test() {\n"+
+			"   VH.compareAndSet(this, 2, 3); // <--- HERE\n"+
+			" }\n"+
+			"\n"+
+			" public static void main(String[] args) {\n"+
+			"   new X().test();\n"+
+			" }\n"+
+			"}",
+		},
+		"");
 }
 public static Class testClass() {	return LookupTest.class;
 }
