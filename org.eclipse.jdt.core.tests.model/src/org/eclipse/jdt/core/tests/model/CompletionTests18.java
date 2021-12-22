@@ -6390,4 +6390,27 @@ public void testBug577883_expectCompletions_onOuterLambdaVars_inNestedLambdas() 
 			+ "equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 90}",
 			result);
 }
+public void testBug577885_expectCompletions_onMethodArguments_followingMethodInvocationWithMethodRefArguments() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"Completion/src/Bug443091.java",
+			"import java.util.stream.Stream;\n" +
+			"\n" +
+			"public class Bug443091 {\n" +
+			"	private void foo() {\n" +
+			" 		Stream.of(\"1\").map(Long::valueOf).filter()\n" +
+			"	}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "filter(";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	String result = requestor.getResults();
+	assertResults("filter[METHOD_REF]{, Ljava.util.stream.Stream<Ljava.lang.Long;>;, (Ljava.util.function.Predicate<-Ljava.lang.Long;>;)Ljava.util.stream.Stream<Ljava.lang.Long;>;, filter, (arg0), 56}\n"
+			+ "[LAMBDA_EXPRESSION]{->, Ljava.util.function.Predicate<Ljava.lang.Long;>;, (Ljava.lang.Long;)Z, test, (arg0), 89}",
+			result);
+}
 }
