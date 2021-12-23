@@ -1139,10 +1139,24 @@ public int getNextToken() throws InvalidInputException {
 				unicodePtr = this.withoutUnicodePtr;
 				offset = this.currentPosition;
 				this.startPosition = this.currentPosition;
-				try {
-					checkIfUnicode = ((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
-						&& (this.source[this.currentPosition] == 'u');
-				} catch(IndexOutOfBoundsException e) {
+				boolean repositionNeeded = false;
+				if(this.currentPosition < this.source.length){
+					this.currentCharacter = this.source[this.currentPosition];
+					this.currentPosition++;
+					if(this.currentCharacter == '\\') {
+						if (this.currentPosition < this.source.length) {
+							checkIfUnicode = this.source[this.currentPosition] == 'u';
+						} else {
+							repositionNeeded = true;
+						}
+					} else {
+						checkIfUnicode = false;
+					}
+				} else {
+					this.currentPosition++;
+					repositionNeeded = true;
+				}
+				if(repositionNeeded){
 					if (this.tokenizeWhiteSpace && (whiteStart != this.currentPosition - 1)) {
 						// reposition scanner in case we are interested by spaces as tokens
 						this.currentPosition--;

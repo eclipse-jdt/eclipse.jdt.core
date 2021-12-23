@@ -20,7 +20,7 @@ import junit.framework.Test;
 public class SelectionParserTest18 extends AbstractSelectionTest {
 static {
 //		TESTS_NUMBERS = new int[] { 53 };
-//		TESTS_NAMES = new String[] { "test495912" };
+		TESTS_NAMES = new String[] { "testBug486264_selectionOnLambda_expectLambdaMethod" };
 }
 public static Test suite() {
 	return buildMinimalComplianceTestSuite(SelectionParserTest18.class, F_1_8);
@@ -457,6 +457,47 @@ public void test495912b() {
 			expectedSelectionNodeToString,
 			expectedUnitDisplayString,
 			selectionIdentifier,
+			expectedReplacedSource,
+			testName);
+}
+public void testBug486264_selectionOnLambda_expectLambdaMethod() {
+	String string =
+			"package xy;\n" +
+			"import java.util.stream.*;\n" +
+			"public class Lambda {\n" +
+			"	public static void foo() {\n" +
+			"		Stream.of(\"1\").filter(t -> t.length() > 1).collect(Collectors.toList());\n" +
+			"	}\n" +
+			"	\n" +
+			"}\n";
+
+	String expectedSelectionNodeToString = "<SelectOnLambdaExpression:(<no type> t) -> (t.length() > 1))>";
+
+	String selectionIdentifier = "t -> t.length() > 1";
+	String expectedUnitDisplayString =
+			"package xy;\n"
+			+ "import java.util.stream.*;\n"
+			+ "public class Lambda {\n"
+			+ "  public Lambda() {\n"
+			+ "  }\n"
+			+ "  public static void foo() {\n"
+			+ "    Stream.of(\"1\").filter(<SelectOnLambdaExpression:(<no type> t) -> (t.length() > 1))>).collect(Collectors.toList());\n"
+			+ "  }\n"
+			+ "}\n"
+			+ "";
+	String expectedReplacedSource = "t -> t.length() > 1";
+	String testName = "<select>";
+
+	int selectionStart = string.indexOf("t -> t.length() > 1");
+	int selectionEnd = selectionStart + selectionIdentifier.length() - 1;
+
+	this.checkMethodParse(
+			string.toCharArray(),
+			selectionStart,
+			selectionEnd,
+			expectedSelectionNodeToString,
+			expectedUnitDisplayString,
+			"<NONE>",
 			expectedReplacedSource,
 			testName);
 }

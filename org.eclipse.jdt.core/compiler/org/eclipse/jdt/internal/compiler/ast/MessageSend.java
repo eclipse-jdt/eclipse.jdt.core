@@ -909,10 +909,16 @@ public TypeBinding resolveType(BlockScope scope) {
 		}
 	}
 
-	if (((this.bits & ASTNode.InsideExpressionStatement) != 0)
-			&& this.binding.isPolymorphic()) {
-		// we only set the return type to be void if this method invocation is used inside an expression statement
-		this.binding = scope.environment().updatePolymorphicMethodReturnType((PolymorphicMethodBinding) this.binding, TypeBinding.VOID);
+	if (this.binding.isPolymorphic()) {
+
+		boolean resultDetermined = compilerOptions.sourceLevel >= ClassFileConstants.JDK9
+			 && (this.binding.returnType == TypeBinding.VOID
+					|| this.binding.returnType.id !=  TypeIds.T_JavaLangObject);
+
+		if (!resultDetermined && ((this.bits & ASTNode.InsideExpressionStatement) != 0)) {
+			// we only set the return type to be void if this method invocation is used inside an expression statement
+			this.binding = scope.environment().updatePolymorphicMethodReturnType((PolymorphicMethodBinding) this.binding, TypeBinding.VOID);
+		}
 	}
 	if ((this.binding.tagBits & TagBits.HasMissingType) != 0) {
 		scope.problemReporter().missingTypeInMethod(this, this.binding);

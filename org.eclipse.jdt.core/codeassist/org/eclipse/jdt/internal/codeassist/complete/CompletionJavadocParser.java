@@ -253,6 +253,78 @@ public class CompletionJavadocParser extends JavadocParser {
 		return this.completionNode;
 	}
 
+	@Override
+	protected Object createModuleTypeReference(int primitiveToken, int moduleRefTokenCount) {
+
+		// Need to create type ref in case it was needed by members
+		int nbIdentifiers = this.identifierLengthStack[this.identifierLengthPtr];
+		int startPtr = this.identifierPtr - (nbIdentifiers-1);
+		int refStart = (int) (this.identifierPositionStack[startPtr] >>> 32);
+		int refEnd = (int) this.identifierPositionStack[this.identifierPtr];
+		boolean inCompletion = (refStart <= (this.cursorLocation+1) && this.cursorLocation <= refEnd) // completion cursor is between first and last stacked identifiers
+			|| ((refStart == (refEnd+1) && refEnd == this.cursorLocation)); // or it's a completion on empty token
+		if (!inCompletion) {
+			return super.createModuleTypeReference(primitiveToken, moduleRefTokenCount);
+		}
+
+		JavadocModuleReference moduleRef= createModuleReference(moduleRefTokenCount);
+
+		TypeReference typeRef = null;
+		int size = this.identifierLengthStack[this.identifierLengthPtr];
+		int newSize= size-moduleRefTokenCount;
+		if (newSize == 1) { // Single Type ref
+			typeRef = new CompletionOnJavadocSingleTypeReference(
+					this.identifierStack[moduleRefTokenCount],
+					this.identifierPositionStack[moduleRefTokenCount],
+					this.tagSourceStart,
+					this.tagSourceEnd);
+		} else if (newSize > 1) { // Qualified Type ref
+			for (int i=moduleRefTokenCount+1; i<this.identifierPtr; i++) {
+				int start = (int) (this.identifierPositionStack[i] >>> 32);
+				int end = (int) this.identifierPositionStack[i];
+				if (start <= this.cursorLocation && this.cursorLocation <= end) {
+					if (i == moduleRefTokenCount) {
+						this.completionNode = new CompletionOnJavadocSingleTypeReference(
+									this.identifierStack[moduleRefTokenCount+1],
+									this.identifierPositionStack[moduleRefTokenCount+1],
+									this.tagSourceStart,
+									this.tagSourceEnd);
+					} else {
+						char[][] tokens = new char[i][];
+						System.arraycopy(this.identifierStack, moduleRefTokenCount, tokens, 0, i);
+						long[] positions = new long[i+1];
+						System.arraycopy(this.identifierPositionStack, moduleRefTokenCount, positions, 0, i+1);
+						typeRef = new CompletionOnJavadocQualifiedTypeReference(tokens, this.identifierStack[i], positions, this.tagSourceStart, this.tagSourceEnd);
+					}
+					break;
+				}
+			}
+			if (this.completionNode == null) {
+				char[][] tokens = new char[newSize-1][];
+				System.arraycopy(this.identifierStack, moduleRefTokenCount, tokens, 0, newSize-1);
+				long[] positions = new long[newSize];
+				System.arraycopy(this.identifierPositionStack, moduleRefTokenCount, positions, 0, newSize);
+				typeRef = new CompletionOnJavadocQualifiedTypeReference(tokens, this.identifierStack[this.identifierPtr], positions, this.tagSourceStart, this.tagSourceEnd);
+			}
+
+		}
+
+		moduleRef.setTypeReference(typeRef);
+		this.completionNode = (CompletionOnJavadocModuleReference)moduleRef;
+		return moduleRef;
+	}
+
+	@Override
+	protected JavadocModuleReference createModuleReference(int moduleRefTokenCount) {
+		JavadocModuleReference moduleRef = null;
+		char[][] tokens = new char[moduleRefTokenCount][];
+		System.arraycopy(this.identifierStack, 0, tokens, 0, moduleRefTokenCount);
+		long[] positions = new long[moduleRefTokenCount+1];
+		System.arraycopy(this.identifierPositionStack, 0, positions, 0, moduleRefTokenCount+1);
+		moduleRef = new CompletionOnJavadocModuleReference(tokens, this.identifierStack[this.identifierPtr], positions, this.tagSourceStart, this.tagSourceEnd);
+		return moduleRef;
+	}
+
 	/*
 	 * Get possible tags for a given prefix.
 	 */

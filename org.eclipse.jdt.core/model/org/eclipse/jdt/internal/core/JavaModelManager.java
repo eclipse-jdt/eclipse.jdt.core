@@ -148,12 +148,11 @@ import org.eclipse.jdt.internal.core.search.JavaWorkspaceScope;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.processing.IJob;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
+import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
 import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
 import org.eclipse.jdt.internal.core.util.LRUCache;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
-import org.eclipse.jdt.internal.core.util.WeakHashSet;
-import org.eclipse.jdt.internal.core.util.WeakHashSetOfCharArray;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
 import org.eclipse.osgi.service.debug.DebugOptions;
 import org.eclipse.osgi.service.debug.DebugOptionsListener;
@@ -278,13 +277,6 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 * The unique workspace scope
 	 */
 	public JavaWorkspaceScope workspaceScope;
-
-	/*
-	 * Pools of symbols used in the Java model.
-	 * Used as a replacement for String#intern() that could prevent garbage collection of strings on some VMs.
-	 */
-	private WeakHashSet stringSymbols = new WeakHashSet(5);
-	private WeakHashSetOfCharArray charArraySymbols = new WeakHashSetOfCharArray(5);
 
 	/*
 	 * Extension used to construct Java 6 annotation processor managers
@@ -3316,25 +3308,12 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		((IEclipsePreferences) this.preferencesLookup[PREF_DEFAULT].parent()).addNodeChangeListener(this.defaultNodeListener);
 	}
 
-	public synchronized char[] intern(char[] array) {
-		return this.charArraySymbols.add(array);
+	public char[] intern(char[] array) {
+		return DeduplicationUtil.intern(array);
 	}
 
-	public synchronized String intern(String s) {
-		return (String) this.stringSymbols.add(s);
-
-		// Note1: String#intern() cannot be used as on some VMs this prevents the string from being garbage collected
-		// Note 2: Instead of using a WeakHashset, one could use a WeakHashMap with the following implementation
-		// 			   This would costs more per entry (one Entry object and one WeakReference more))
-
-		/*
-		WeakReference reference = (WeakReference) this.symbols.get(s);
-		String existing;
-		if (reference != null && (existing = (String) reference.get()) != null)
-			return existing;
-		this.symbols.put(s, new WeakReference(s));
-		return s;
-		*/
+	public String intern(String s) {
+		return DeduplicationUtil.intern(s);
 	}
 
 	void touchProjects(final IProject[] projectsToTouch, IProgressMonitor progressMonitor) throws JavaModelException {
@@ -4104,6 +4083,16 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 * Reads the build state for the relevant project.
 	 */
 	protected Object readState(IProject project) throws CoreException {
+		long startTime = System.currentTimeMillis();
+		Object result = readStateTimed(project);
+		if (JavaBuilder.DEBUG) {
+			long stopTime = System.currentTimeMillis();
+			System.out.println("readState took " + (stopTime - startTime) + "ms:" + project.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		return result;
+	}
+
+	private Object readStateTimed(IProject project) throws CoreException {
 		File file = getSerializationFile(project);
 		if (file != null && file.exists()) {
 			try (DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(file)))) {
@@ -4320,7 +4309,14 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		if (context.getKind() == ISaveContext.SNAPSHOT) return;
 
 		// save built state
-		if (info.triedRead) saveBuiltState(info);
+		if (info.triedRead) {
+			long startTime = System.currentTimeMillis();
+			saveBuiltState(info);
+			if (JavaBuilder.DEBUG) {
+				long stopTime = System.currentTimeMillis();
+				System.out.println("saveState took " + (stopTime - startTime) + "ms:" + info.project.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+		}
 	}
 
 	/**
@@ -4599,6 +4595,15 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 */
 	@Override
 	public void saving(ISaveContext context) throws CoreException {
+		long startTime = System.currentTimeMillis();
+		savingTimed(context);
+		if (JavaBuilder.DEBUG) {
+			long stopTime = System.currentTimeMillis();
+			System.out.println("saving took " + (stopTime - startTime) + "ms:" + this.perProjectInfos.values().size()); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+	}
+
+	private void savingTimed(ISaveContext context) throws CoreException {
 
 	    long start = -1;
 		if (VERBOSE)
@@ -5570,11 +5575,6 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	}
 
 	private ClasspathAccessRule getFromCache(ClasspathAccessRule rule) {
-		ClasspathAccessRule cachedRule = this.cache.accessRuleCache.get(rule);
-		if (cachedRule != null) {
-			return cachedRule;
-		}
-		this.cache.accessRuleCache.put(rule, rule);
-		return rule;
+		return DeduplicationUtil.internObject(rule);
 	}
 }

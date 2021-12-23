@@ -78,6 +78,7 @@ import org.eclipse.jdt.internal.codeassist.complete.CompletionOnJavadoc;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnJavadocAllocationExpression;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnJavadocFieldReference;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnJavadocMessageSend;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionOnJavadocModuleReference;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnJavadocParamNameReference;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnJavadocQualifiedTypeReference;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnJavadocSingleTypeReference;
@@ -151,6 +152,7 @@ import org.eclipse.jdt.internal.compiler.ast.Initializer;
 import org.eclipse.jdt.internal.compiler.ast.InstanceOfExpression;
 import org.eclipse.jdt.internal.compiler.ast.Javadoc;
 import org.eclipse.jdt.internal.compiler.ast.JavadocImplicitTypeReference;
+import org.eclipse.jdt.internal.compiler.ast.JavadocModuleReference;
 import org.eclipse.jdt.internal.compiler.ast.JavadocQualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.JavadocSingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
@@ -210,6 +212,7 @@ import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
+import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
@@ -1338,7 +1341,7 @@ public final class CompletionEngine
 	@Override
 	public void acceptModule(char[] moduleName) {
 		if (this.knownModules.containsKey(moduleName)) return;
-		if (CharOperation.equals(moduleName, this.moduleDeclaration.moduleName)) return;
+		if (this.assistNodeInJavadoc == 0 && this.moduleDeclaration != null && CharOperation.equals(moduleName, this.moduleDeclaration.moduleName)) return;
 		if (CharOperation.equals(moduleName, CharOperation.NO_CHAR)) return;
 		this.knownModules.put(moduleName, this);
 		char[] completion = moduleName;
@@ -1351,6 +1354,11 @@ public final class CompletionEngine
 		this.noProposal = false;
 		if(!this.requestor.isIgnored(CompletionProposal.MODULE_REF)) {
 			InternalCompletionProposal proposal = createProposal(CompletionProposal.MODULE_REF, this.actualCompletionPosition);
+			if (this.assistNodeInJavadoc != 0) {
+				completion = new char[moduleName.length + 1];
+				System.arraycopy(moduleName, 0, completion, 0, moduleName.length);
+				completion[moduleName.length] = '/';
+			}
 			proposal.setModuleName(moduleName);
 			proposal.setDeclarationSignature(moduleName);
 			proposal.setCompletion(completion);
@@ -1367,6 +1375,10 @@ public final class CompletionEngine
 
 	@Override
 	public void acceptPackage(char[] packageName) {
+		acceptPackage(packageName, null);
+	}
+
+	private void acceptPackage(char[] packageName, char[] moduleName) {
 
 		if (this.knownPkgs.containsKey(packageName)) return;
 
@@ -1401,7 +1413,15 @@ public final class CompletionEngine
 		this.noProposal = false;
 		if(!this.requestor.isIgnored(CompletionProposal.PACKAGE_REF)) {
 			InternalCompletionProposal proposal = createProposal(CompletionProposal.PACKAGE_REF, this.actualCompletionPosition);
-			proposal.setDeclarationSignature(packageName);
+			char[] signature = packageName;
+			if (moduleName != null) {
+				signature = CharOperation.append(packageName, " - ".toCharArray()); //$NON-NLS-1$
+				signature = CharOperation.append(signature, moduleName);
+				signature = CharOperation.append(signature, '/');
+				completion = CharOperation.append(moduleName, '/');
+				completion = CharOperation.append(completion, packageName);
+			}
+			proposal.setDeclarationSignature(signature);
 			proposal.setPackageName(packageName);
 			proposal.setCompletion(completion);
 			proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
@@ -2045,6 +2065,8 @@ public final class CompletionEngine
 				completionOnJavadocSingleTypeReference(astNode, scope);
 			} else if (astNode instanceof CompletionOnJavadocQualifiedTypeReference) {
 				completionOnJavadocQualifiedTypeReference(astNode, qualifiedBinding, scope);
+			} else if (astNode instanceof CompletionOnJavadocModuleReference) {
+				completionOnJavadocModuleReference(astNode, qualifiedBinding, scope);
 			} else if (astNode instanceof CompletionOnJavadocFieldReference) {
 				completionOnJavadocFieldReference(astNode, scope);
 			} else if (astNode instanceof CompletionOnJavadocMessageSend) {
@@ -2871,8 +2893,11 @@ public final class CompletionEngine
 			findJavadocParamNames(paramRef.token, paramRef.missingTypeParams, true);
 		}
 	}
-	//TODO
 	private void completionOnJavadocQualifiedTypeReference(ASTNode astNode, Binding qualifiedBinding, Scope scope) {
+		completionOnJavadocQualifiedTypeReference(astNode, qualifiedBinding, scope, true);
+	}
+	//TODO
+	private void completionOnJavadocQualifiedTypeReference(ASTNode astNode, Binding qualifiedBinding, Scope scope, boolean findModules) {
 		this.insideQualifiedReference = true;
 
 		CompletionOnJavadocQualifiedTypeReference typeRef = (CompletionOnJavadocQualifiedTypeReference) astNode;
@@ -2907,6 +2932,9 @@ public final class CompletionEngine
 			// replace to the end of the completion identifier
 			findTypesAndSubpackages(this.completionToken, (PackageBinding) qualifiedBinding, scope);
 		}
+		if (findModules) {
+			findModules(typeRef, false);
+		}
 	}
 	//TODO
 	private void completionOnJavadocSingleTypeReference(ASTNode astNode, Scope scope) {
@@ -2920,6 +2948,42 @@ public final class CompletionEngine
 				(this.assistNodeInJavadoc & CompletionOnJavadoc.BASE_TYPES) != 0,
 				false,
 				new ObjectVector());
+		findModules(typeRef, false);
+	}
+	//TODO
+	private void completionOnJavadocModuleReference(ASTNode astNode,  Binding qualifiedBinding, Scope scope) {
+		CompletionOnJavadocModuleReference modRef = (CompletionOnJavadocModuleReference) astNode;
+		this.completionToken = modRef.completionIdentifier;
+		this.javadocTagPosition = modRef.tagSourceStart;
+		setSourceAndTokenRange(modRef.sourceStart, modRef.sourceEnd);
+		char[] completionName=  CharOperation.NO_CHAR;
+		TypeReference tRef= modRef.getTypeReference();
+		if (tRef instanceof CompletionOnJavadocSingleTypeReference) {
+			CompletionOnJavadocSingleTypeReference typeRef = (CompletionOnJavadocSingleTypeReference) tRef;
+			this.completionToken = typeRef.token;
+			this.javadocTagPosition = typeRef.tagSourceStart;
+			setSourceAndTokenRange(typeRef.sourceStart, typeRef.sourceEnd);
+			completionName= this.completionToken;
+			if (completionName.length == 1 && completionName[0] == '/') {
+				completionName=  CharOperation.NO_CHAR;
+			}
+		} else if (tRef instanceof CompletionOnJavadocQualifiedTypeReference){
+			completionOnJavadocQualifiedTypeReference(tRef, qualifiedBinding, scope, false);
+			return;
+		}
+		boolean setIgnorePackageRef= true;
+		try {
+			if (this.requestor.isIgnored(CompletionProposal.PACKAGE_REF)) {
+				setIgnorePackageRef = false;
+				this.requestor.setIgnored(CompletionProposal.PACKAGE_REF, setIgnorePackageRef);
+			}
+			setSourceAndTokenRange(modRef.moduleReference.sourceStart, modRef.moduleReference.sourceEnd);
+			findPackagesInModule(CharOperation.toLowerCase(completionName), modRef.moduleReference.binding, scope);
+		} finally {
+			if (!setIgnorePackageRef) {
+				this.requestor.setIgnored(CompletionProposal.PACKAGE_REF, !setIgnorePackageRef);
+			}
+		}
 	}
 	//TODO
 	private void completionOnJavadocTag(ASTNode astNode) {
@@ -6072,6 +6136,10 @@ public final class CompletionEngine
 							} else if (invocationSite instanceof CompletionOnJavadocFieldReference) {
 								CompletionOnJavadocFieldReference fieldRef = (CompletionOnJavadocFieldReference) invocationSite;
 								receiver = fieldRef.receiver;
+							}
+							if (receiver instanceof JavadocModuleReference) {
+								JavadocModuleReference modRef = (JavadocModuleReference) receiver;
+								receiver = modRef.typeReference;
 							}
 							if (receiver != null) {
 								StringBuffer javadocCompletion = new StringBuffer();
@@ -11097,6 +11165,10 @@ public final class CompletionEngine
 		setCompletionToken(moduleReference.tokens, moduleReference.sourceStart, moduleReference.sourceEnd, moduleReference.sourcePositions);
 		findTargettedModules(CharOperation.toLowerCase(this.completionToken), skipSet);
 	}
+	private void findTargettedModules(CompletionOnJavadocQualifiedTypeReference typeReference, HashSet<String> skipSet) {
+		setCompletionToken(typeReference.tokens, typeReference.sourceStart, typeReference.sourceEnd, typeReference.sourcePositions);
+		findTargettedModules(CharOperation.toLowerCase(this.completionToken), skipSet);
+	}
 
 	private void setCompletionToken(char[][] tokens, int sourceStart, int sourceEnd, long[] sourcePositions, boolean without) {
 		this.completionToken = without ? CharOperation.concatWith(tokens, '.') : CharOperation.concatWithAll(tokens, '.');
@@ -11113,6 +11185,36 @@ public final class CompletionEngine
 		setCompletionToken(moduleReference.tokens, moduleReference.sourceStart, moduleReference.sourceEnd, moduleReference.sourcePositions);
 		findTargettedModules(moduleReference, new HashSet<>()); // empty skipSet passed
 		this.nameEnvironment.findModules(CharOperation.toLowerCase(this.completionToken), this, targetted ? this.javaProject : null);
+	}
+	private void findModules(CompletionOnJavadocQualifiedTypeReference typeReference, boolean targetted) {
+		if (JavaCore.compareJavaVersions(this.sourceLevel, JavaCore.VERSION_15) >= 0 ) {
+			boolean isIgnoredModuleRef = false;
+			try {
+				if (isIgnored(CompletionProposal.MODULE_REF)) {
+					this.requestor.setIgnored(CompletionProposal.MODULE_REF, false);
+					isIgnoredModuleRef = true;
+				}
+				setCompletionToken(typeReference.tokens, typeReference.sourceStart, typeReference.sourceEnd, typeReference.sourcePositions);
+				findTargettedModules(typeReference, new HashSet<>()); // empty skipSet passed
+				this.nameEnvironment.findModules(CharOperation.toLowerCase(this.completionToken), this, targetted ? this.javaProject : null);
+			} finally {
+				this.requestor.setIgnored(CompletionProposal.MODULE_REF, isIgnoredModuleRef);
+			}
+		}
+	}
+	private void findModules(CompletionOnJavadocSingleTypeReference typeReference, boolean targetted) {
+		if (JavaCore.compareJavaVersions(this.sourceLevel, JavaCore.VERSION_15) >= 0 ) {
+			boolean isIgnoredModuleRef = false;
+			try {
+				if (isIgnored(CompletionProposal.MODULE_REF)) {
+					this.requestor.setIgnored(CompletionProposal.MODULE_REF, false);
+					isIgnoredModuleRef = true;
+				}
+				this.nameEnvironment.findModules(CharOperation.toLowerCase(typeReference.token), this, targetted ? this.javaProject : null);
+			} finally {
+				this.requestor.setIgnored(CompletionProposal.MODULE_REF, isIgnoredModuleRef);
+			}
+		}
 	}
 	private void findPackages(CompletionOnPackageVisibilityReference reference) {
 		setCompletionToken(reference.tokens, reference.sourceStart, reference.sourceEnd, reference.sourcePositions, false);
@@ -14199,6 +14301,22 @@ public final class CompletionEngine
 					if (DEBUG) {
 						this.printDebug(proposal);
 					}
+				}
+			}
+		}
+	}
+
+	public void findPackagesInModule(char[] prefix,  ModuleBinding module, Scope scope) {
+		if (module != null ) {
+			String name= new String(prefix);
+			String[] splittedName = Util.splitOn('.', new String(name), 0, name.length());
+			PackageBinding[] pkgBindings = module.getExports();
+			for (PackageBinding pkgBinding : pkgBindings) {
+				String[] pkgName = CharOperation.toStrings(pkgBinding.compoundName);
+				if (pkgName != null &&
+						( name.isEmpty() ||
+								Util.startsWithIgnoreCase(pkgName, splittedName, true))) {
+					acceptPackage(CharOperation.toString(pkgBinding.compoundName).toCharArray(), module.moduleName);
 				}
 			}
 		}

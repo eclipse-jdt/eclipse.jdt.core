@@ -534,8 +534,16 @@ protected boolean triggerRecoveryUponLambdaClosure(Statement statement, boolean 
 		if (this.elementKindStack[i] != K_LAMBDA_EXPRESSION_DELIMITER)
 			continue;
 		LambdaExpression expression = (LambdaExpression) this.elementObjectInfoStack[i];
-		if (expression == null)
+
+		if (expression == null) {
 			return false;
+		} else if (lambdaClosed == true) {
+			// if we already have found the correct lambda and we still reach here, means we have another outer
+			// lambda, so try to push current statement into the ASTStack by trying to simulate a block
+			// statement processing.
+			shouldCommit = true;
+		}
+
 		if (expression.sourceStart >= statementStart && expression.sourceEnd <= statementEnd) {
 			this.elementPtr = i - 1;
 			lambdaClosed = true;

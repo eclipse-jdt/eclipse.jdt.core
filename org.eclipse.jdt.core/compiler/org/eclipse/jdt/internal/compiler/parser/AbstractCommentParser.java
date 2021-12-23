@@ -1115,7 +1115,9 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 				prevToken = curToken;
 			}
 			if (stop) {
-				break;
+				if (parserKind != COMPLETION_PARSER) {
+					break;
+				}
 			}
 			int token = readTokenSafely();
 			curToken= token;

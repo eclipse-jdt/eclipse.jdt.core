@@ -37,6 +37,16 @@ public class JavadocModuleReference extends Expression implements IJavadocTypeRe
 		this.bits |= ASTNode.InsideJavadoc;
 	}
 
+	public JavadocModuleReference(ModuleReference moduleRef, int tagStart, int tagEnd) {
+		super();
+		this.moduleReference = moduleRef;
+		this.tagSourceStart = tagStart;
+		this.tagSourceEnd = tagEnd;
+		this.sourceStart = this.moduleReference.sourceStart;
+		this.sourceEnd = this.moduleReference.sourceEnd;
+		this.bits |= ASTNode.InsideJavadoc;
+	}
+
 	/* (non-Javadoc)
 	 * Redefine to capture javadoc specific signatures
 	 * @see org.eclipse.jdt.internal.compiler.ast.ASTNode#traverse(org.eclipse.jdt.internal.compiler.ASTVisitor, org.eclipse.jdt.internal.compiler.lookup.BlockScope)

@@ -883,6 +883,11 @@ protected void consumeLambdaExpression() {
 		if (this.selectionEnd == arrowStart || this.selectionEnd == arrowEnd) {
 			this.expressionStack[this.expressionPtr] = new SelectionOnLambdaExpression(expression);
 		}
+	} else if (this.selectionStart == expression.sourceStart && this.selectionEnd == expression.sourceEnd) {
+		SelectionOnLambdaExpression lambdaExpression = new SelectionOnLambdaExpression(expression);
+		this.expressionStack[this.expressionPtr] = lambdaExpression;
+		this.assistNode = lambdaExpression;
+		this.lastCheckPoint = lambdaExpression.sourceEnd + 1;
 	}
 	if (!(this.selectionStart >= expression.sourceStart && this.selectionEnd <= expression.sourceEnd))
 		popElement(K_LAMBDA_EXPRESSION_DELIMITER);

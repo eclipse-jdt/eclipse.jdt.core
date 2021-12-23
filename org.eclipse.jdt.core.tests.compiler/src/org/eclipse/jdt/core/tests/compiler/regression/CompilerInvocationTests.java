@@ -1305,7 +1305,7 @@ public void test011_problem_categories() {
 	    expectedProblemAttributes.put("DuplicateTotalPattern", new ProblemAttributes(true));
 	    expectedProblemAttributes.put("UnexpectedTypeinSwitchPattern", new ProblemAttributes(true));
 	    expectedProblemAttributes.put("ClassExtendFinalRecord", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
-
+	    expectedProblemAttributes.put("RecordErasureIncompatibilityInCanonicalConstructor", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 	    StringBuffer failures = new StringBuffer();
 		StringBuffer correctResult = new StringBuffer(70000);
 		Field[] fields = (iProblemClass = IProblem.class).getFields();
@@ -2384,6 +2384,7 @@ public void test012_compiler_problems_tuning() {
 	    expectedProblemAttributes.put("DuplicateTotalPattern", SKIP);
 	    expectedProblemAttributes.put("UnexpectedTypeinSwitchPattern", SKIP);
 	    expectedProblemAttributes.put("ClassExtendFinalRecord", SKIP);
+	    expectedProblemAttributes.put("RecordErasureIncompatibilityInCanonicalConstructor", SKIP);
 
 	    Map constantNamesIndex = new HashMap();
 		Field[] fields = JavaCore.class.getFields();

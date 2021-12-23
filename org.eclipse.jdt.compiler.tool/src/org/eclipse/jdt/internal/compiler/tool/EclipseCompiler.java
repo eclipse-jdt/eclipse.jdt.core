@@ -152,7 +152,7 @@ public class EclipseCompiler implements JavaCompiler {
 			}
 		}
 
-		if (classes != null) {
+		if (classes != null && classes.iterator().hasNext()) {
 			allOptions.add("-classNames"); //$NON-NLS-1$
 			StringBuilder builder = new StringBuilder();
 			int i = 0;

@@ -64,6 +64,7 @@ import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
+import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
@@ -756,13 +757,13 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 							return false;
 						break;
 					case TerminalTokens.TokenNameARROW:
-						if (selectionStart >= scanner.startPosition && selectionEnd < scanner.currentPosition) {
-							this.actualSelectionStart = selectionStart;
-							this.actualSelectionEnd = selectionEnd;
-							this.selectedIdentifier = CharOperation.NO_CHAR;
-							return true;
-						}
-						return false;
+						this.actualSelectionStart = selectionStart;
+						this.actualSelectionEnd = selectionEnd;
+						this.selectedIdentifier = CharOperation.NO_CHAR;
+						return true;
+					case TerminalTokens.TokenNameLPAREN:
+					case TerminalTokens.TokenNameRPAREN:
+						break;
 					default :
 						return false;
 				}
@@ -1278,8 +1279,22 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			}
 			this.acceptedAnswer = true;
 		} else if (binding instanceof MethodBinding) {
-			MethodBinding methodBinding = getCorrectMethodBinding((MethodBinding) binding);
 			this.noProposal = false;
+
+			// when a full lambda expression is selected we will find the paser.assistedNode to represent that
+			// lambda expression. So we use that state to differentiate hover over "->" vs full lambda expression selection.
+			if(this.parser.assistNode instanceof LambdaExpression) {
+				LambdaExpression lambdaExpr = (LambdaExpression) this.parser.assistNode;
+				SyntheticMethodBinding methodBinding = new SyntheticMethodBinding(lambdaExpr,
+						CharOperation.concat(TypeConstants.ANONYMOUS_METHOD, Integer.toString(lambdaExpr.ordinal).toCharArray()), (SourceTypeBinding)lambdaExpr.binding.declaringClass);
+				if(this.requestor instanceof SelectionRequestor) {
+					((SelectionRequestor)this.requestor).acceptLambdaMethod(methodBinding, unit);
+					this.acceptedAnswer = true;
+					return;
+				}
+			}
+
+			MethodBinding methodBinding = getCorrectMethodBinding((MethodBinding) binding);
 
 			boolean isValuesOrValueOf = false;
 			if(binding instanceof SyntheticMethodBinding) {

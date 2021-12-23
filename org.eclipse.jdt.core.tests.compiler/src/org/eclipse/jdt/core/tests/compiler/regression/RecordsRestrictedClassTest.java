@@ -34,7 +34,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug574284"};
+//		TESTS_NAMES = new String[] { "testBug577251_001"};
 	}
 
 	public static Class<?> testClass() {
@@ -9110,6 +9110,29 @@ public void testBug576519_001() {
 		"	class X extends Point{\n" +
 		"	                ^^^^^\n" +
 		"The record Point cannot be the superclass of X; a record is final and cannot be extended\n" +
+		"----------\n");
+}
+public void testBug577251_001() {
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"class X {\n"+
+			"  record Entry<T> (int value, Entry<T> entry) {\n"+
+			"     Entry(int value, Entry entry) { // Entry is a raw type here\n" +
+			"  }\n"+
+			"}\n"+
+		"}",
+		},
+		"----------\n" +
+		"1. WARNING in X.java (at line 3)\n" +
+		"	Entry(int value, Entry entry) { // Entry is a raw type here\n" +
+		"	                 ^^^^^\n" +
+		"X.Entry is a raw type. References to generic type X.Entry<T> should be parameterized\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 3)\n" +
+		"	Entry(int value, Entry entry) { // Entry is a raw type here\n" +
+		"	                 ^^^^^\n" +
+		"Erasure incompatibility in argument X.Entry of canonical constructor in record\n" +
 		"----------\n");
 }
 

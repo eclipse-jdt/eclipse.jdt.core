@@ -1638,6 +1638,15 @@ public void classExtendFinalRecord(SourceTypeBinding type, TypeReference supercl
 		superclass.sourceStart,
 		superclass.sourceEnd);
 }
+public void recordErasureIncompatibilityInCanonicalConstructor(TypeReference type) {
+	String[] arguments = new String[] { new String(type.resolvedType.readableName()) };
+	this.handle(
+		IProblem.RecordErasureIncompatibilityInCanonicalConstructor,
+		arguments,
+		arguments,
+		type.sourceStart,
+		type.sourceEnd);
+}
 public void codeSnippetMissingClass(String missing, int start, int end) {
 	String[] arguments = new String[]{missing};
 	this.handle(

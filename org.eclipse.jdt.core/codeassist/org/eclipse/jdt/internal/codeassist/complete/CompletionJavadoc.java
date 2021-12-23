@@ -75,12 +75,22 @@ public class CompletionJavadoc extends Javadoc {
 				}
 			}
 			Binding qualifiedBinding = null;
+			CompletionOnJavadocQualifiedTypeReference completionOnJavadocQualifiedTypeReference = null;
+			if (this.completionNode instanceof CompletionOnJavadocModuleReference) {
+				CompletionOnJavadocModuleReference modRef = (CompletionOnJavadocModuleReference) this.completionNode;
+				TypeReference tRef= modRef.getTypeReference();
+				if (tRef instanceof CompletionOnJavadocQualifiedTypeReference) {
+					completionOnJavadocQualifiedTypeReference = (CompletionOnJavadocQualifiedTypeReference) tRef;
+				}
+			}
 			if (this.completionNode instanceof CompletionOnJavadocQualifiedTypeReference) {
-				CompletionOnJavadocQualifiedTypeReference typeRef = (CompletionOnJavadocQualifiedTypeReference) this.completionNode;
-				if (typeRef.packageBinding == null) {
-					qualifiedBinding = typeRef.resolvedType;
+				completionOnJavadocQualifiedTypeReference = (CompletionOnJavadocQualifiedTypeReference) this.completionNode;
+			}
+			if (completionOnJavadocQualifiedTypeReference != null) {
+				if (completionOnJavadocQualifiedTypeReference.packageBinding == null) {
+					qualifiedBinding = completionOnJavadocQualifiedTypeReference.resolvedType;
 				} else {
-					qualifiedBinding = typeRef.packageBinding;
+					qualifiedBinding = completionOnJavadocQualifiedTypeReference.packageBinding;
 				}
 			} else if (this.completionNode instanceof CompletionOnJavadocMessageSend) {
 				CompletionOnJavadocMessageSend msg = (CompletionOnJavadocMessageSend) this.completionNode;
