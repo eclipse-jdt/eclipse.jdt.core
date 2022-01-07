@@ -33,7 +33,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug576785"};
+//		TESTS_NAMES = new String[] { "testBug576830_001"};
 	}
 
 	private static String previewLevel = "18";
@@ -4163,6 +4163,27 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"	^^^^\n" +
 				"The method Zork() is undefined for the type X\n" +
 				"----------\n");
+	}
+	public void testBug576830_001() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" static void foo(Object o) {\n"+
+				"   switch (o) {\n"+
+				"   };\n"+
+				" }\n"+
+				" public static void main(String[] args) {\n"+
+				"   foo(\"Hello\");\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	switch (o) {\n" +
+			"	        ^\n" +
+			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"----------\n");
 	}
 
 }
