@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -2920,6 +2920,18 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_PARAMETERIZED_TYPE_REFERENCE = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_comma_in_parameterized_type_reference"; //$NON-NLS-1$
 	/**
 	 * <pre>
+	 * FORMATTER / Option to insert a space after comma in the permitted types list in a type header
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_after_comma_in_permitted_types"
+	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - default:           INSERT
+	 * </pre>
+	 * @see JavaCore#INSERT
+	 * @see JavaCore#DO_NOT_INSERT
+	 * @since 3.29
+	 */
+	public static final String FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_PERMITTED_TYPES = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_comma_in_permitted_types";	//$NON-NLS-1$
+	/**
+	 * <pre>
 	 * FORMATTER / Option to insert a space after comma in record components list
 	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_after_comma_in_record_components"
 	 *     - possible values:   { INSERT, DO_NOT_INSERT }
@@ -4027,6 +4039,18 @@ public class DefaultCodeFormatterConstants {
 	 * @since 3.1
 	 */
 	public static final String FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_PARAMETERIZED_TYPE_REFERENCE = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_comma_in_parameterized_type_reference";	//$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option to insert a space before comma in the permitted types list in a type header
+	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_before_comma_in_permitted_types"
+	 *     - possible values:   { INSERT, DO_NOT_INSERT }
+	 *     - default:           DO_NOT_INSERT
+	 * </pre>
+	 * @see JavaCore#INSERT
+	 * @see JavaCore#DO_NOT_INSERT
+	 * @since 3.29
+	 */
+	public static final String FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_PERMITTED_TYPES = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_comma_in_permitted_types";	//$NON-NLS-1$
 	/**
 	 * <pre>
 	 * FORMATTER / Option to insert a space before comma in record components list

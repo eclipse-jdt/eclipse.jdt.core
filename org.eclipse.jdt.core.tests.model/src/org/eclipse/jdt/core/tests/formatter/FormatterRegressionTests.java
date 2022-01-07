@@ -15989,4 +15989,15 @@ public void testBug573949() {
 		"}"
 	);
 }
+
+/**
+ * https://bugs.eclipse.org/576373 - [formatting] Add formatting setting for whitespace in permits clause
+ */
+public void testBug576373() {
+	setComplianceLevel(CompilerOptions.VERSION_17);
+	String source =
+		"public sealed class X permits Y, Z {\n" +
+		"}";
+	formatSource(source);
+}
 }

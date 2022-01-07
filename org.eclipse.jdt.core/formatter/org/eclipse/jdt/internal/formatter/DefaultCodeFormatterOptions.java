@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -338,6 +338,7 @@ public class DefaultCodeFormatterOptions {
 	public boolean insert_space_after_comma_in_multiple_field_declarations;
 	public boolean insert_space_after_comma_in_multiple_local_declarations;
 	public boolean insert_space_after_comma_in_parameterized_type_reference;
+	public boolean insert_space_after_comma_in_permitted_types;
 	public boolean insert_space_after_comma_in_record_components;
 	public boolean insert_space_after_comma_in_superinterfaces;
 	public boolean insert_space_after_comma_in_switch_case_expressions;
@@ -429,6 +430,7 @@ public class DefaultCodeFormatterOptions {
 	public boolean insert_space_before_comma_in_multiple_field_declarations;
 	public boolean insert_space_before_comma_in_multiple_local_declarations;
 	public boolean insert_space_before_comma_in_parameterized_type_reference;
+	public boolean insert_space_before_comma_in_permitted_types;
 	public boolean insert_space_before_comma_in_record_components;
 	public boolean insert_space_before_comma_in_superinterfaces;
 	public boolean insert_space_before_comma_in_switch_case_expressions;
@@ -761,6 +763,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_MULTIPLE_FIELD_DECLARATIONS, this.insert_space_after_comma_in_multiple_field_declarations? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_MULTIPLE_LOCAL_DECLARATIONS, this.insert_space_after_comma_in_multiple_local_declarations? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_PARAMETERIZED_TYPE_REFERENCE, this.insert_space_after_comma_in_parameterized_type_reference? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_PERMITTED_TYPES, this.insert_space_after_comma_in_permitted_types? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_RECORD_COMPONENTS, this.insert_space_after_comma_in_record_components? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_SUPERINTERFACES, this.insert_space_after_comma_in_superinterfaces? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_SWITCH_CASE_EXPRESSIONS, this.insert_space_after_comma_in_switch_case_expressions ? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
@@ -851,6 +854,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_METHOD_DECLARATION_THROWS, this.insert_space_before_comma_in_method_declaration_throws? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_MULTIPLE_FIELD_DECLARATIONS, this.insert_space_before_comma_in_multiple_field_declarations? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_MULTIPLE_LOCAL_DECLARATIONS, this.insert_space_before_comma_in_multiple_local_declarations? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_PERMITTED_TYPES, this.insert_space_before_comma_in_permitted_types? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_RECORD_COMPONENTS, this.insert_space_before_comma_in_record_components? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_SUPERINTERFACES, this.insert_space_before_comma_in_superinterfaces? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_SWITCH_CASE_EXPRESSIONS, this.insert_space_before_comma_in_switch_case_expressions? JavaCore.INSERT : JavaCore.DO_NOT_INSERT);
@@ -1856,6 +1860,8 @@ public class DefaultCodeFormatterOptions {
 		if (insertSpaceAfterCommaInParameterizedTypeReferenceOption != null) {
 			this.insert_space_after_comma_in_parameterized_type_reference = JavaCore.INSERT.equals(insertSpaceAfterCommaInParameterizedTypeReferenceOption);
 		}
+		setBoolean(settings, DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_PERMITTED_TYPES, JavaCore.INSERT,
+				v -> this.insert_space_after_comma_in_permitted_types = v);
 		setBoolean(settings, DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_RECORD_COMPONENTS, JavaCore.INSERT,
 				v -> this.insert_space_after_comma_in_record_components = v);
 		final Object insertSpaceAfterCommaInSuperinterfacesOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_AFTER_COMMA_IN_SUPERINTERFACES);
@@ -2192,6 +2198,8 @@ public class DefaultCodeFormatterOptions {
 		if (insertSpaceBeforeCommaInParameterizedTypeReferenceOption != null) {
 			this.insert_space_before_comma_in_parameterized_type_reference = JavaCore.INSERT.equals(insertSpaceBeforeCommaInParameterizedTypeReferenceOption);
 		}
+		setBoolean(settings, DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_PERMITTED_TYPES, JavaCore.INSERT,
+				v -> this.insert_space_before_comma_in_permitted_types = v);
 		final Object insertSpaceBeforeCommaInSuperinterfacesOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_SUPERINTERFACES);
 		setBoolean(settings, DefaultCodeFormatterConstants.FORMATTER_INSERT_SPACE_BEFORE_COMMA_IN_RECORD_COMPONENTS, JavaCore.INSERT,
 				v -> this.insert_space_before_comma_in_record_components = v);
@@ -3125,6 +3133,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_after_comma_in_multiple_field_declarations = true;
 		this.insert_space_after_comma_in_multiple_local_declarations = true;
 		this.insert_space_after_comma_in_parameterized_type_reference = true;
+		this.insert_space_after_comma_in_permitted_types = true;
 		this.insert_space_after_comma_in_record_components = true;
 		this.insert_space_after_comma_in_superinterfaces = true;
 		this.insert_space_after_comma_in_switch_case_expressions = true;
@@ -3215,6 +3224,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_before_comma_in_multiple_field_declarations = false;
 		this.insert_space_before_comma_in_multiple_local_declarations = false;
 		this.insert_space_before_comma_in_parameterized_type_reference = false;
+		this.insert_space_before_comma_in_permitted_types = false;
 		this.insert_space_before_comma_in_record_components = false;
 		this.insert_space_before_comma_in_superinterfaces = false;
 		this.insert_space_before_comma_in_switch_case_expressions = false;
@@ -3517,6 +3527,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_after_comma_in_multiple_field_declarations = true;
 		this.insert_space_after_comma_in_multiple_local_declarations = true;
 		this.insert_space_after_comma_in_parameterized_type_reference = true;
+		this.insert_space_after_comma_in_permitted_types = true;
 		this.insert_space_after_comma_in_record_components = true;
 		this.insert_space_after_comma_in_superinterfaces = true;
 		this.insert_space_after_comma_in_switch_case_expressions = true;
@@ -3607,6 +3618,7 @@ public class DefaultCodeFormatterOptions {
 		this.insert_space_before_comma_in_multiple_field_declarations = false;
 		this.insert_space_before_comma_in_multiple_local_declarations = false;
 		this.insert_space_before_comma_in_parameterized_type_reference = false;
+		this.insert_space_before_comma_in_permitted_types = false;
 		this.insert_space_before_comma_in_record_components = false;
 		this.insert_space_before_comma_in_superinterfaces = false;
 		this.insert_space_before_comma_in_switch_case_expressions = false;
