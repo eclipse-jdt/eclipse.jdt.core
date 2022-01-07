@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021 IBM Corporation and others.
+ * Copyright (c) 2021, 2022 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,7 +33,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug575737"};
+//		TESTS_NAMES = new String[] { "testBug576785"};
 	}
 
 	private static String previewLevel = "18";
@@ -4104,6 +4104,65 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"		#101 c\n" +
 				"		#102 REF_getField c:Lp/Rec$MyInterface;";
 		SwitchPatternTest.verifyClassFile(expectedOutput, "p/Rec.class", ClassFileBytesDisassembler.SYSTEM);
+	}
+
+	public void testBug576785_001() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"sealed interface J<X> permits D, E {}\n"+
+				"final class D implements J<String> {}\n"+
+				"final class E<X> implements J<X> {}\n"+
+				"\n"+
+				"public class X {\n"+
+				"       static int testExhaustive2(J<Integer> ji) {\n"+
+				"               return switch (ji) { // Exhaustive!\n"+
+				"               case E<Integer> e -> 42;\n"+
+				"               };\n"+
+				"       }\n"+
+				"       public static void main(String[] args) {\n"+
+				"               J<Integer> ji = new E<>();\n"+
+				"               System.out.println(X.testExhaustive2(ji));\n"+
+				"       }\n"+
+				"}",
+			},
+			"42");
+	}
+	public void testBug576785_002() {
+		runNegativeTest(
+				new String[] {
+				"X.java",
+				"@SuppressWarnings(\"rawtypes\")\n" +
+				"sealed interface J<T> permits D, E, F {}\n"+
+				"final class D implements J<String> {}\n"+
+				"final class E<T> implements J<T> {}\n"+
+				"final class F<T> implements J<T> {}\n"+
+				"\n"+
+				"public class X {\n"+
+				"@SuppressWarnings(\"preview\")\n" +
+				" static int testExhaustive2(J<Integer> ji) {\n"+
+				"   return switch (ji) { // Exhaustive!\n"+
+				"   case E<Integer> e -> 42;\n"+
+				"   };\n"+
+				" }\n"+
+				" public static void main(String[] args) {\n"+
+				"   J<Integer> ji = new E<>();\n"+
+				"   System.out.println(X.testExhaustive2(ji));\n"+
+				"   Zork();\n"+
+				" }\n"+
+				"}"
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 10)\n" +
+				"	return switch (ji) { // Exhaustive!\n" +
+				"	               ^^\n" +
+				"A switch expression should have a default case\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 17)\n" +
+				"	Zork();\n" +
+				"	^^^^\n" +
+				"The method Zork() is undefined for the type X\n" +
+				"----------\n");
 	}
 
 }

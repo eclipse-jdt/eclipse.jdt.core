@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -937,8 +941,8 @@ public class SwitchStatement extends Expression {
 			reportMixingCaseTypes();
 
 			// check default case for all kinds of switch:
-			checkAndFlagDefaultSealed(upperScope, compilerOptions);
-			if (this.defaultCase == null) {
+			boolean flagged = checkAndFlagDefaultSealed(upperScope, compilerOptions);
+			if (!flagged && this.defaultCase == null) {
 				if (ignoreMissingDefaultCase(compilerOptions, isEnumSwitch) && isEnumSwitch) {
 						upperScope.methodScope().hasMissingSwitchDefault = true;
 				} else {
@@ -1015,27 +1019,35 @@ public class SwitchStatement extends Expression {
 		}
 		return false;
 	}
-	private void checkAndFlagDefaultSealed(BlockScope skope, CompilerOptions compilerOptions) {
+	private boolean checkAndFlagDefaultSealed(BlockScope skope, CompilerOptions compilerOptions) {
 		if (this.defaultCase != null) { // mark covered as a side effect (since covers is intro in 406)
 			this.switchBits |= SwitchStatement.Exhaustive;
-			return;
+			return false;
 		}
 		boolean checkSealed = this.containsPatterns
 				&& JavaFeature.SEALED_CLASSES.isSupported(compilerOptions)
 				&& JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(compilerOptions)
 				&& this.expression.resolvedType instanceof ReferenceBinding
 				&& ((ReferenceBinding) this.expression.resolvedType).isSealed();
-		if (!checkSealed) return;
+		if (!checkSealed) return false;
 		ReferenceBinding ref = (ReferenceBinding) this.expression.resolvedType;
-		if (!ref.isSealed()) return;
+		if (!ref.isSealed()) return false;
 		List<TypeBinding> permittedTypes = Arrays.asList(ref.permittedTypes());
+		int pendingPermittedTypes = permittedTypes.size();
 		for (TypeBinding pt : permittedTypes) {
-			if (!this.caseLabelElementTypes.contains(pt)) {
-				skope.problemReporter().missingDefaultCase(this, false, ref);
-				return;
+			for (TypeBinding type : this.caseLabelElementTypes) {
+				if (type.isCompatibleWith(pt)) {
+					--pendingPermittedTypes;
+					break;
+				}
 			}
 		}
+		if (pendingPermittedTypes > 0) {
+			skope.problemReporter().missingDefaultCase(this, false, ref);
+			return true;
+		}
 		this.switchBits |= SwitchStatement.Exhaustive;
+		return false;
 	}
 	private void addSecretPatternSwitchVariables(BlockScope upperScope) {
 		if (this.containsPatterns) {
