@@ -1,13 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component id="org.eclipse.jdt.core" version="2">
-    <resource path="META-INF/MANIFEST.MF">
-        <filter comment="For new Java version" id="924844039">
-            <message_arguments>
-                <message_argument value="3.29.0"/>
-                <message_argument value="3.29.0"/>
-            </message_arguments>
-        </filter>
-    </resource>
     <resource path="compiler/org/eclipse/jdt/core/compiler/CategorizedProblem.java" type="org.eclipse.jdt.core.compiler.CategorizedProblem">
         <filter comment="Java 14" id="576725006">
             <message_arguments>
@@ -22,13 +14,6 @@
                 <message_argument value="org.eclipse.jdt.core.dom.AST"/>
                 <message_argument value="JLS_Latest"/>
                 <message_argument value="17"/>
-            </message_arguments>
-        </filter>
-        <filter comment="For Java 18" id="1141899266">
-            <message_arguments>
-                <message_argument value="3.28 BETA_JAVA 18"/>
-                <message_argument value="3.29 BETA_JAVA 18"/>
-                <message_argument value="JLS18"/>
             </message_arguments>
         </filter>
     </resource>
@@ -233,15 +218,6 @@
             <message_arguments>
                 <message_argument value="ASTNode"/>
                 <message_argument value="VariableDeclaration"/>
-            </message_arguments>
-        </filter>
-    </resource>
-    <resource path="model/org/eclipse/jdt/core/JavaCore.java" type="org.eclipse.jdt.core.JavaCore">
-        <filter comment="For new Java version" id="1141899266">
-            <message_arguments>
-                <message_argument value="3.28 BETA_JAVA 18"/>
-                <message_argument value="3.29 BETA_JAVA 18"/>
-                <message_argument value="VERSION_18"/>
             </message_arguments>
         </filter>
     </resource>
