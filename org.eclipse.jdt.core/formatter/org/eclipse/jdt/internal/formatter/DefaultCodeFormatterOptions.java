@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -168,6 +168,7 @@ public class DefaultCodeFormatterOptions {
 	public int alignment_for_type_parameters;
 	public int alignment_for_resources_in_try;
 	public int alignment_for_union_type_in_multicatch;
+	public boolean align_selector_in_method_invocation_on_expression_first_line;
 
 	public boolean align_type_members_on_columns;
 	public boolean align_variable_declarations_on_columns;
@@ -610,6 +611,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_TYPE_ARGUMENTS, getAlignment(this.alignment_for_type_arguments));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_TYPE_PARAMETERS, getAlignment(this.alignment_for_type_parameters));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_UNION_TYPE_IN_MULTICATCH, getAlignment(this.alignment_for_union_type_in_multicatch));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGN_SELECTOR_IN_METHOD_INVOCATION_ON_EXPRESSION_FIRST_LINE, this.align_selector_in_method_invocation_on_expression_first_line ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGN_TYPE_MEMBERS_ON_COLUMNS, this.align_type_members_on_columns ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGN_VARIABLE_DECLARATIONS_ON_COLUMNS, this.align_variable_declarations_on_columns ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGN_ASSIGNMENT_STATEMENTS_ON_COLUMNS, this.align_assignment_statements_on_columns ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
@@ -1228,6 +1230,8 @@ public class DefaultCodeFormatterOptions {
 				this.alignment_for_union_type_in_multicatch = Alignment.M_COMPACT_SPLIT;
 			}
 		}
+		setBoolean(settings, DefaultCodeFormatterConstants.FORMATTER_ALIGN_SELECTOR_IN_METHOD_INVOCATION_ON_EXPRESSION_FIRST_LINE, DefaultCodeFormatterConstants.TRUE,
+				v -> this.align_selector_in_method_invocation_on_expression_first_line = v);
 		final Object alignTypeMembersOnColumnsOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGN_TYPE_MEMBERS_ON_COLUMNS);
 		if (alignTypeMembersOnColumnsOption != null) {
 			this.align_type_members_on_columns = DefaultCodeFormatterConstants.TRUE.equals(alignTypeMembersOnColumnsOption);
@@ -2981,6 +2985,7 @@ public class DefaultCodeFormatterOptions {
 		this.alignment_for_type_arguments = Alignment.M_NO_ALIGNMENT;
 		this.alignment_for_type_parameters = Alignment.M_NO_ALIGNMENT;
 		this.alignment_for_union_type_in_multicatch = Alignment.M_COMPACT_SPLIT;
+		this.align_selector_in_method_invocation_on_expression_first_line = true;
 		this.align_type_members_on_columns = false;
 		this.align_variable_declarations_on_columns = false;
 		this.align_assignment_statements_on_columns = false;
@@ -3375,6 +3380,7 @@ public class DefaultCodeFormatterOptions {
 		this.alignment_for_type_arguments = Alignment.M_NO_ALIGNMENT;
 		this.alignment_for_type_parameters = Alignment.M_NO_ALIGNMENT;
 		this.alignment_for_union_type_in_multicatch = Alignment.M_COMPACT_SPLIT;
+		this.align_selector_in_method_invocation_on_expression_first_line = true;
 		this.align_type_members_on_columns = false;
 		this.align_variable_declarations_on_columns = false;
 		this.align_assignment_statements_on_columns = false;

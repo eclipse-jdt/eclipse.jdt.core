@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2020 Mateusz Matela and others.
+ * Copyright (c) 2014, 2022 Mateusz Matela and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -528,8 +528,13 @@ public class WrapPreparator extends ASTVisitor {
 				}
 			}
 			Collections.reverse(this.wrapIndexes);
-			this.wrapParentIndex = (expression != null) ? this.tm.lastIndexIn(expression, -1)
-					: this.tm.lastIndexIn(invocation, -1);
+			if (expression == null)
+				expression = invocation;
+			this.wrapParentIndex = this.tm.lastIndexIn(expression, -1);
+			if (this.options.align_selector_in_method_invocation_on_expression_first_line
+					&& (this.options.alignment_for_selector_in_method_invocation & Alignment.M_INDENT_ON_COLUMN) == 0) {
+				this.wrapParentIndex = this.tm.firstIndexIn(expression, -1);
+			}
 			this.wrapGroupEnd = this.tm.lastIndexIn(node, -1);
 			handleWrap(this.options.alignment_for_selector_in_method_invocation);
 		}

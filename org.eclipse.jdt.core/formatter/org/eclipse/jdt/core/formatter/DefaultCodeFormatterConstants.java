@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -125,6 +125,20 @@ public class DefaultCodeFormatterConstants {
 	 * @since 3.12
 	 */
 	public static final String FORMATTER_ALIGN_FIELDS_GROUPING_BLANK_LINES = JavaCore.PLUGIN_ID + ".formatter.align_fields_grouping_blank_lines";	 //$NON-NLS-1$
+
+	/**
+	 * <pre>
+	 * FORMATTER / Option to indent method invocation chains based on the first line of the base
+	 * expression rather than the last line.
+	 *     - option id:         "org.eclipse.jdt.core.formatter.align_selector_in_method_invocation_on_expression_first_line"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           TRUE
+	 * </pre>
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.29
+	 */
+	public static final String FORMATTER_ALIGN_SELECTOR_IN_METHOD_INVOCATION_ON_EXPRESSION_FIRST_LINE = JavaCore.PLUGIN_ID + ".formatter.align_selector_in_method_invocation_on_expression_first_line"; //$NON-NLS-1$
 
 	/**
 	 * <pre>

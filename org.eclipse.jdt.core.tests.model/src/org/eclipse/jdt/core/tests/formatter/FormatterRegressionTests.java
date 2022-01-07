@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -2141,6 +2141,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public void test189() {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getEclipse21Settings());
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
+		preferences.align_selector_in_method_invocation_on_expression_first_line = false;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test189", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}
@@ -6716,6 +6717,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		preferences.keep_simple_if_on_one_line = true;
 		preferences.keep_guardian_clause_on_one_line = true;
         preferences.tab_size = 4;
+		preferences.align_selector_in_method_invocation_on_expression_first_line = false;
 		setPageWidth80(preferences);
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test498", "A.java", CodeFormatter.K_COMPILATION_UNIT, true);//$NON-NLS-1$ //$NON-NLS-2$
@@ -15995,5 +15997,53 @@ public void testBug576373() {
 		"public sealed class X permits Y, Z {\n" +
 		"}";
 	formatSource(source);
+}
+
+/**
+ * https://bugs.eclipse.org/577117 - [formatter] Wrong indentation for method invocation on multi-line expression
+ */
+public void testBug577117a() {
+	this.formatterPrefs.page_width = 55;
+	this.formatterPrefs.align_selector_in_method_invocation_on_expression_first_line = false;
+	String source =
+		"class Example {\n" +
+		"	String foo() {\n" +
+		"		return new StringBuilder(Arrays.asList(11111111, 22222222, 3333333, 44444444)).append(\"TextTextText\").append(11111111 + 2222222 + 33333333).toStrinig();\n" +
+		"	}\n" +
+		"}";
+	formatSource(source,
+		"class Example {\n" +
+		"	String foo() {\n" +
+		"		return new StringBuilder(Arrays.asList(\n" +
+		"				11111111, 22222222, 3333333, 44444444))\n" +
+		"						.append(\"TextTextText\")\n" +
+		"						.append(11111111 + 2222222\n" +
+		"								+ 33333333)\n" +
+		"						.toStrinig();\n" +
+		"	}\n" +
+		"}");
+}
+/**
+ * https://bugs.eclipse.org/577117 - [formatter] Wrong indentation for method invocation on multi-line expression
+ */
+public void testBug577117b() {
+	this.formatterPrefs.page_width = 53;
+	String source =
+		"class Example {\n" +
+		"	String foo() {\n" +
+		"		return new StringBuilder(Arrays.asList(11111111, 22222222, 3333333, 444444)).append(\"TextTextText\").append(11111111 + 2222222 + 33333333).toStrinig();\n" +
+		"	}\n" +
+		"}";
+	formatSource(source,
+		"class Example {\n" +
+		"	String foo() {\n" +
+		"		return new StringBuilder(Arrays.asList(\n" +
+		"				11111111, 22222222, 3333333, 444444))\n" +
+		"				.append(\"TextTextText\")\n" +
+		"				.append(11111111 + 2222222\n" +
+		"						+ 33333333)\n" +
+		"				.toStrinig();\n" +
+		"	}\n" +
+		"}");
 }
 }
