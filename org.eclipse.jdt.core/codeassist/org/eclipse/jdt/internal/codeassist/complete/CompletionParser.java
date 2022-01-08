@@ -2775,8 +2775,10 @@ protected void consumeDimWithOrWithOutExpr() {
 }
 @Override
 protected void consumeEmptyStatement() {
-	ASTNode nodeToAttach = (this.assistNodeParent instanceof MessageSend) || (this.assistNodeParent instanceof ParameterizedSingleTypeReference)
-								? this.assistNodeParent : this.assistNode;
+	boolean shouldAttachParent = (this.assistNodeParent instanceof MessageSend) ||
+			(this.assistNodeParent instanceof ParameterizedSingleTypeReference) ||
+			(this.assistNodeParent instanceof LocalDeclaration);
+	ASTNode nodeToAttach = shouldAttachParent ? this.assistNodeParent : this.assistNode;
 	if (this.shouldStackAssistNode && nodeToAttach != null) {
 		for (int ptr = this.astPtr; ptr >= 0; ptr--) {
 			if (new CompletionNodeDetector(nodeToAttach, this.astStack[ptr]).containsCompletionNode()) {

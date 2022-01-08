@@ -6413,4 +6413,29 @@ public void testBug577885_expectCompletions_onMethodArguments_followingMethodInv
 			+ "[LAMBDA_EXPRESSION]{->, Ljava.util.function.Predicate<Ljava.lang.Long;>;, (Ljava.lang.Long;)Z, test, (arg0), 89}",
 			result);
 }
+public void testBug578116_expectCompletions_forConstructorsInsideLamndaBlock() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"Completion/src/Bug578116.java",
+			"import java.util.ArrayList;\n" +
+			"\n" +
+			"public class Bug578116 {\n" +
+			"	private void foo() {\n" +
+			"		Runnable run = () -> {\n" +
+			"			ArrayList<String> list = new \n"+
+			"		};\n" +
+			"	}\n" +
+			"}\n");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "= new ";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	String result = requestor.getResults();
+	assertResults("Bug578116[TYPE_REF]{Bug578116, , LBug578116;, null, null, 52}\n"
+			+ "ArrayList<java.lang.String>[TYPE_REF]{ArrayList, java.util, Ljava.util.ArrayList<Ljava.lang.String;>;, null, null, 82}",
+			result);
+}
 }
