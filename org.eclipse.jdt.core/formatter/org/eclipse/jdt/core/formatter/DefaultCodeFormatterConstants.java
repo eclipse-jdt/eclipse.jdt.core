@@ -498,6 +498,28 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_ALIGNMENT_FOR_EXPRESSIONS_IN_FOR_LOOP_HEADER = JavaCore.PLUGIN_ID + ".formatter.alignment_for_expressions_in_for_loop_header";	 //$NON-NLS-1$
 	/**
 	 * <pre>
+	 * FORMATTER / Option for alignment of expressions in switch case with arrow
+	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_expressions_in_switch_case_with_arrow"
+	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int, int)</code> call
+	 *     - default:           createAlignmentValue(false, WRAP_COMPACT, INDENT_DEFAULT)
+	 * </pre>
+	 * @see #createAlignmentValue(boolean, int, int)
+	 * @since 3.29
+	 */
+	public static final String FORMATTER_ALIGNMENT_FOR_EXPRESSIONS_IN_SWITCH_CASE_WITH_ARROW = JavaCore.PLUGIN_ID + ".formatter.alignment_for_expressions_in_switch_case_with_arrow"; //$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option for alignment of expressions in switch case with colon
+	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_expressions_in_switch_case_with_colon"
+	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int, int)</code> call
+	 *     - default:           createAlignmentValue(false, WRAP_COMPACT, INDENT_DEFAULT)
+	 * </pre>
+	 * @see #createAlignmentValue(boolean, int, int)
+	 * @since 3.29
+	 */
+	public static final String FORMATTER_ALIGNMENT_FOR_EXPRESSIONS_IN_SWITCH_CASE_WITH_COLON = JavaCore.PLUGIN_ID + ".formatter.alignment_for_expressions_in_switch_case_with_colon"; //$NON-NLS-1$
+	/**
+	 * <pre>
 	 * FORMATTER / Option for alignment of method declaration
 	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_method_declaration"
 	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int, int)</code> call
@@ -640,6 +662,17 @@ public class DefaultCodeFormatterConstants {
 	 * @since 3.0
 	 */
 	public static final String FORMATTER_ALIGNMENT_FOR_SUPERINTERFACES_IN_TYPE_DECLARATION = JavaCore.PLUGIN_ID + ".formatter.alignment_for_superinterfaces_in_type_declaration";	 //$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option for alignment of arrow in switch case (->)
+	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_switch_case_with_arrow"
+	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int, int)</code> call
+	 *     - default:           createAlignmentValue(false, WRAP_COMPACT, INDENT_BY_ONE)
+	 * </pre>
+	 * @see #createAlignmentValue(boolean, int, int)
+	 * @since 3.29
+	 */
+	public static final String FORMATTER_ALIGNMENT_FOR_SWITCH_CASE_WITH_ARROW = JavaCore.PLUGIN_ID + ".formatter.alignment_for_switch_case_with_arrow"; //$NON-NLS-1$
 	/**
 	 * <pre>
 	 * FORMATTER / Option for alignment of throws clause in constructor declaration
@@ -5373,6 +5406,19 @@ public class DefaultCodeFormatterConstants {
 	 * @since 3.12
 	 */
 	public static final String FORMATTER_WRAP_BEFORE_CONDITIONAL_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.wrap_before_conditional_operator"; //$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option to wrap before the arrow operator (->) in switch case
+	 *     - option id:         "org.eclipse.jdt.core.formatter.wrap_before_switch_case_arrow_operator"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           FALSE
+	 * </pre>
+	 * This option is used only if the option {@link #FORMATTER_ALIGNMENT_FOR_SWITCH_CASE_WITH_ARROW} is set.
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.29
+	 */
+	public static final String FORMATTER_WRAP_BEFORE_SWITCH_CASE_ARROW_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.wrap_before_switch_case_arrow_operator"; //$NON-NLS-1$
 	/**
 	 * <pre>
 	 * FORMATTER / Option to wrap before the assignment operator

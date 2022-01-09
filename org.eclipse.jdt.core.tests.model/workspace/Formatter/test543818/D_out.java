@@ -10,7 +10,7 @@ public class C {
 			break;
 		case 999, 998, 997:
 		case 996, 995, //
-		994:
+				994:
 			method2();
 		default:
 			method3();
@@ -20,8 +20,10 @@ public class C {
 				+ something)
 		{
 		case "abc1" ->System.out.println("1");
-		case "abc2",
-		/* ??? */ "abc3", "abc4" ->System.out.println("234");
+		case "abc2", /* ??? */ "abc3", "abc4" ->System.out.println("234");
+		case "def2", /* ??? */
+				"def3", "def4" ->
+			System.out.println("def");
 		case "abc5", "abc6" ->{
 		}
 		case "abc7" ->{

@@ -14,6 +14,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter.linewrap;
 
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameARROW;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOLON;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMA;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_BLOCK;
@@ -31,6 +32,7 @@ import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameR
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameRPAREN;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameSEMICOLON;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameStringLiteral;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNamecase;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameenum;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameextends;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameimplements;
@@ -99,6 +101,7 @@ import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
 import org.eclipse.jdt.core.dom.SuperFieldAccess;
 import org.eclipse.jdt.core.dom.SuperMethodInvocation;
 import org.eclipse.jdt.core.dom.SuperMethodReference;
+import org.eclipse.jdt.core.dom.SwitchCase;
 import org.eclipse.jdt.core.dom.SwitchExpression;
 import org.eclipse.jdt.core.dom.SwitchStatement;
 import org.eclipse.jdt.core.dom.ThisExpression;
@@ -1143,6 +1146,31 @@ public class WrapPreparator extends ASTVisitor {
 	}
 
 	@Override
+	public boolean visit(SwitchCase node) {
+		if (node.isSwitchLabeledRule()) {
+			List<Statement> siblings = node.getParent() instanceof SwitchStatement
+					? ((SwitchStatement) node.getParent()).statements()
+					: ((SwitchExpression) node.getParent()).statements();
+			Statement nextStatement = siblings.get(siblings.indexOf(node) + 1);
+			if (!(nextStatement instanceof Block)) {
+				int atArrow = this.tm.lastIndexIn(node, TokenNameARROW);
+				int afterArrow = this.tm.firstIndexIn(nextStatement, -1);
+				boolean wrapBefore = this.options.wrap_before_switch_case_arrow_operator;
+				this.wrapIndexes.add(wrapBefore? atArrow : afterArrow);
+				this.secondaryWrapIndexes.add(wrapBefore ? afterArrow : atArrow);
+				this.wrapParentIndex = this.tm.firstIndexIn(node,  -1);
+				this.wrapGroupEnd = this.tm.lastIndexIn(nextStatement, -1);
+				handleWrap(this.options.alignment_for_switch_case_with_arrow);
+			}
+		}
+
+		prepareElementsList(node.expressions(), TokenNameCOMMA, TokenNamecase);
+		handleWrap(node.isSwitchLabeledRule() ? this.options.alignment_for_expressions_in_switch_case_with_arrow
+				: this.options.alignment_for_expressions_in_switch_case_with_colon);
+		return true;
+	}
+
+	@Override
 	public boolean visit(DoStatement node) {
 		int lParen = this.tm.firstIndexBefore(node.getExpression(), TokenNameLPAREN);
 		int rParen = this.tm.firstIndexAfter(node.getExpression(), TokenNameRPAREN);
@@ -1156,13 +1184,9 @@ public class WrapPreparator extends ASTVisitor {
 		if (message != null) {
 			int atColon = this.tm.firstIndexBefore(message, TokenNameCOLON);
 			int afterColon = this.tm.firstIndexIn(message, -1);
-			if (this.options.wrap_before_assertion_message_operator) {
-				this.wrapIndexes.add(atColon);
-				this.secondaryWrapIndexes.add(afterColon);
-			} else {
-				this.wrapIndexes.add(afterColon);
-				this.secondaryWrapIndexes.add(atColon);
-			}
+			boolean wrapBefore = this.options.wrap_before_assertion_message_operator;
+			this.wrapIndexes.add(wrapBefore? atColon : afterColon);
+			this.secondaryWrapIndexes.add(wrapBefore ? afterColon : atColon);
 			this.wrapParentIndex = this.tm.firstIndexIn(node,  -1);
 			this.wrapGroupEnd = this.tm.lastIndexIn(node, -1);
 			handleWrap(this.options.alignment_for_assertion_message);

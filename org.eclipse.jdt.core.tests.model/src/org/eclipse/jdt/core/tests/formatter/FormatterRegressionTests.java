@@ -16046,4 +16046,56 @@ public void testBug577117b() {
 		"	}\n" +
 		"}");
 }
+
+/**
+ * https://bugs.eclipse.org/578044 - [Formatter] Case statement in switch expression is not line wrapped
+ */
+public void testBug578044a() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_14);
+	this.formatterPrefs.page_width = 60;
+	String input = getCompilationUnit("Formatter", "", "test578044", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test578044", "A_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/578044 - [Formatter] Case statement in switch expression is not line wrapped
+ */
+public void testBug578044b() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_14);
+	this.formatterPrefs.page_width = 60;
+	this.formatterPrefs.alignment_for_switch_case_with_arrow = Alignment.M_COMPACT_SPLIT + Alignment.M_INDENT_DEFAULT;
+	String input = getCompilationUnit("Formatter", "", "test578044", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test578044", "B_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/578044 - [Formatter] Case statement in switch expression is not line wrapped
+ */
+public void testBug578044c() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_14);
+	this.formatterPrefs.page_width = 60;
+	this.formatterPrefs.alignment_for_switch_case_with_arrow = Alignment.M_COMPACT_SPLIT + Alignment.M_INDENT_DEFAULT
+			+ Alignment.M_FORCE;
+	this.formatterPrefs.wrap_before_switch_case_arrow_operator = true;
+	String input = getCompilationUnit("Formatter", "", "test578044", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test578044", "C_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/578044 - [Formatter] Case statement in switch expression is not line wrapped
+ */
+public void testBug578044d() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_14);
+	this.formatterPrefs.page_width = 60;
+	this.formatterPrefs.alignment_for_expressions_in_switch_case_with_arrow = Alignment.M_NEXT_PER_LINE_SPLIT + Alignment.M_INDENT_BY_ONE;
+	String input = getCompilationUnit("Formatter", "", "test578044", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test578044", "D_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/578044 - [Formatter] Case statement in switch expression is not line wrapped
+ */
+public void testBug578044e() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_14);
+	this.formatterPrefs.page_width = 60;
+	this.formatterPrefs.alignment_for_expressions_in_switch_case_with_colon = Alignment.M_ONE_PER_LINE_SPLIT + Alignment.M_INDENT_ON_COLUMN;
+	String input = getCompilationUnit("Formatter", "", "test578044", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test578044", "E_out.java").getSource());
+}
 }
