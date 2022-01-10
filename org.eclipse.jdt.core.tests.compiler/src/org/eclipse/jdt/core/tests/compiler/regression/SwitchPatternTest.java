@@ -33,7 +33,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug576830_001"};
+//		TESTS_NAMES = new String[] { "testBug578107"};
 	}
 
 	private static String previewLevel = "18";
@@ -4183,6 +4183,141 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"	switch (o) {\n" +
 			"	        ^\n" +
 			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"----------\n");
+	}
+	public void testBug578107_001() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"sealed class C permits D {}\n"+
+				"final class D extends C {}\n"+
+				"public class X {\n"+
+				"       @SuppressWarnings(\"preview\")\n"+
+				"       static  void foo(C ji) {\n"+
+				"                switch (ji) { // non-exhaustive\n"+
+				"                  case D d : System.out.println(\"D\"); break;\n"+
+				"               }; \n"+
+				"       } \n"+
+				"       public static void main(String[] args) {\n"+
+				"               X.foo(new D());\n"+
+				"               Zork();\n"+
+				"       }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 6)\n" +
+			"	switch (ji) { // non-exhaustive\n" +
+			"	        ^^\n" +
+			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 12)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n");
+	}
+	public void testBug578107_002() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"abstract sealed class C permits D {}\n"+
+				"final class D extends C {}\n"+
+				"public class X {\n"+
+				"       @SuppressWarnings(\"preview\")\n"+
+				"       static  void foo(C ji) {\n"+
+				"                switch (ji) { // non-exhaustive\n"+
+				"                  case D d : System.out.println(\"D\"); break;\n"+
+				"               }; \n"+
+				"       } \n"+
+				"       public static void main(String[] args) {\n"+
+				"               X.foo(new D());\n"+
+				"               Zork();\n"+
+				"       }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 12)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n");
+	}
+	public void testBug578107_003() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"sealed interface C permits D {}\n"+
+				"final class D implements C {}\n"+
+				"public class X {\n"+
+				"       @SuppressWarnings(\"preview\")\n"+
+				"       static  void foo(C ji) {\n"+
+				"                switch (ji) { // non-exhaustive\n"+
+				"                  case D d : System.out.println(\"D\"); break;\n"+
+				"               }; \n"+
+				"       } \n"+
+				"       public static void main(String[] args) {\n"+
+				"               X.foo(new D());\n"+
+				"               Zork();\n"+
+				"       }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 12)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n");
+	}
+	public void testBug578108_001() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"sealed abstract class C permits D {}\n"+
+				"final class D extends C {}\n"+
+				"public class X {\n"+
+				" @SuppressWarnings(\"preview\")\n"+
+				" static <T extends C> void foo(T  ji) {\n"+
+				"    switch (ji) { // exhaustive because C is sealed and abstract\n"+
+				"      case D d : System.out.println(\"D\"); break;\n"+
+				"   }; \n"+
+				" } \n"+
+				" public static void main(String[] args) {\n"+
+				"   X.foo(new D());\n"+
+				"   Zork();\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 12)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n");
+	}
+	public void testBug578108_002() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"sealed interface C permits D {}\n"+
+				"final class D implements C {}\n"+
+				"public class X {\n"+
+				" @SuppressWarnings(\"preview\")\n"+
+				" static <T extends C> void foo(T  ji) {\n"+
+				"    switch (ji) { // exhaustive because C is sealed and abstract\n"+
+				"      case D d : System.out.println(\"D\"); break;\n"+
+				"   }; \n"+
+				" } \n"+
+				" public static void main(String[] args) {\n"+
+				"   X.foo(new D());\n"+
+				"   Zork();\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 12)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
 

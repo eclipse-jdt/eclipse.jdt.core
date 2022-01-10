@@ -50,6 +50,7 @@ import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SyntheticMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
+import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
 @SuppressWarnings("rawtypes")
@@ -1027,23 +1028,35 @@ public class SwitchStatement extends Expression {
 		boolean checkSealed = this.containsPatterns
 				&& JavaFeature.SEALED_CLASSES.isSupported(compilerOptions)
 				&& JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(compilerOptions)
-				&& this.expression.resolvedType instanceof ReferenceBinding
-				&& ((ReferenceBinding) this.expression.resolvedType).isSealed();
+				&& this.expression.resolvedType instanceof ReferenceBinding;
 		if (!checkSealed) return false;
 		ReferenceBinding ref = (ReferenceBinding) this.expression.resolvedType;
+		if (!(ref.isClass() || ref.isInterface() || ref.isTypeVariable() || ref.isIntersectionType()))
+			return false;
+		if (ref instanceof TypeVariableBinding) {
+			TypeVariableBinding tvb = (TypeVariableBinding) ref;
+			ref = tvb.firstBound instanceof ReferenceBinding ? (ReferenceBinding) tvb.firstBound : ref;
+		}
 		if (!ref.isSealed()) return false;
-		List<TypeBinding> permittedTypes = Arrays.asList(ref.permittedTypes());
-		int pendingPermittedTypes = permittedTypes.size();
-		for (TypeBinding pt : permittedTypes) {
+		List<TypeBinding> allallowedTypes = new ArrayList<>();
+		if (ref.isClass() && !ref.isAbstract())
+			allallowedTypes.add(ref);
+
+		List<TypeBinding> permittedTypes = new ArrayList<>(Arrays.asList(ref.permittedTypes()));
+		allallowedTypes.addAll(permittedTypes);
+		int pendingTypes = allallowedTypes.size();
+		for (TypeBinding pt : allallowedTypes) {
 			for (TypeBinding type : this.caseLabelElementTypes) {
-				if (type.isCompatibleWith(pt)) {
-					--pendingPermittedTypes;
+				if (pt.isCompatibleWith(type)) {
+					--pendingTypes;
 					break;
 				}
 			}
 		}
-		if (pendingPermittedTypes > 0) {
-			skope.problemReporter().missingDefaultCase(this, false, ref);
+		if (pendingTypes > 0) {
+			if (this instanceof SwitchExpression) // non-exhaustive switch expressions will be flagged later.
+				return false;
+			skope.problemReporter().enhancedSwitchMissingDefaultCase(this.expression);
 			return true;
 		}
 		this.switchBits |= SwitchStatement.Exhaustive;
