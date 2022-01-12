@@ -57,6 +57,7 @@ public interface JavadocTagConstants {
 	public static final char[] TAG_API_NOTE = "apiNote".toCharArray(); //$NON-NLS-1$
 	public static final char[] TAG_IMPL_SPEC = "implSpec".toCharArray(); //$NON-NLS-1$
 	public static final char[] TAG_IMPL_NOTE = "implNote".toCharArray(); //$NON-NLS-1$
+	public static final char[] TAG_SNIPPET = "snippet".toCharArray(); //$NON-NLS-1$
 
 	// tags lengthes
 	public static final int TAG_DEPRECATED_LENGTH = TAG_DEPRECATED.length;
@@ -88,6 +89,7 @@ public interface JavadocTagConstants {
 	public static final int TAG_API_NOTE_LENGTH = TAG_API_NOTE.length;
 	public static final int TAG_IMPL_SPEC_LENGTH = TAG_IMPL_SPEC.length;
 	public static final int TAG_IMPL_NOTE_LENGTH = TAG_IMPL_NOTE.length;
+	public static final int TAG_SNIPPET_LENGTH = TAG_SNIPPET.length;
 
 	// tags value
 	public static final int NO_TAG_VALUE = 0;
@@ -120,6 +122,7 @@ public interface JavadocTagConstants {
 	public static final int TAG_API_NOTE_VALUE = 27;
 	public static final int TAG_IMPL_SPEC_VALUE = 28;
 	public static final int TAG_IMPL_NOTE_VALUE = 29;
+	public static final int TAG_SNIPPET_VALUE = 30;
 	public static final int TAG_OTHERS_VALUE = 100;
 	// Tag names array
 	public static final char[][] TAG_NAMES = {
@@ -153,6 +156,7 @@ public interface JavadocTagConstants {
 		TAG_API_NOTE,			/* 27 */
 		TAG_IMPL_SPEC,			/* 28 */
 		TAG_IMPL_NOTE,			/* 29 */
+		TAG_SNIPPET,			/* 30 */
 	};
 
 	// tags expected positions
@@ -250,7 +254,7 @@ public interface JavadocTagConstants {
 		//since 17
 		{},
 		//since 18
-		{}
+		{ TAG_SNIPPET }
 	};
 	public final static int INLINE_TAGS_LENGTH = INLINE_TAGS.length;
 	public final static int BLOCK_TAGS_LENGTH = BLOCK_TAGS.length;
@@ -290,6 +294,7 @@ public interface JavadocTagConstants {
 		TAG_TYPE_BLOCK,		// TAG_API_NOTE = 27;
 		TAG_TYPE_BLOCK,		// TAG_IMPL_SPEC = 28;
 		TAG_TYPE_BLOCK,		// TAG_IMPL_NOTE = 29;
+		TAG_TYPE_INLINE,	// TAG_SNIPPET_VALUE = 30;
 	};
 	/*
 	 * Tags usage
@@ -312,6 +317,7 @@ public interface JavadocTagConstants {
 		TAG_API_NOTE,
 		TAG_IMPL_SPEC,
 		TAG_IMPL_NOTE,
+		TAG_SNIPPET,
 	};
 	public static final char[][] COMPILATION_UNIT_TAGS = {};
 	public static final char[][] CLASS_TAGS = {
@@ -336,6 +342,7 @@ public interface JavadocTagConstants {
 		TAG_API_NOTE,
 		TAG_IMPL_SPEC,
 		TAG_IMPL_NOTE,
+		TAG_SNIPPET,
 	};
 	public static final char[][] FIELD_TAGS = {
 		TAG_SEE,
@@ -357,6 +364,7 @@ public interface JavadocTagConstants {
 		TAG_API_NOTE,
 		TAG_IMPL_SPEC,
 		TAG_IMPL_NOTE,
+		TAG_SNIPPET,
 	};
 	public static final char[][] METHOD_TAGS = {
 		TAG_SEE,
@@ -382,6 +390,7 @@ public interface JavadocTagConstants {
 		TAG_API_NOTE,
 		TAG_IMPL_SPEC,
 		TAG_IMPL_NOTE,
+		TAG_SNIPPET,
 	};
 	public static final char[][] MODULE_TAGS = {
 			TAG_SEE,
@@ -405,5 +414,6 @@ public interface JavadocTagConstants {
 			TAG_API_NOTE,
 			TAG_IMPL_SPEC,
 			TAG_IMPL_NOTE,
+			TAG_SNIPPET,
 		};
 }

@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -567,6 +571,15 @@ class DocCommentParser extends AbstractCommentParser {
 							} else {
 								valid = parseReference(true);
 							}
+						} else if (length == TAG_SNIPPET_LENGTH && CharOperation.equals(TAG_SNIPPET, tagName)) {
+							this.tagValue = TAG_SNIPPET_LENGTH;
+							if (!this.inlineTagStarted) {
+								// @snippet is an inline comment
+								valid = false;
+							} else {
+								this.tagValue = TAG_SNIPPET_VALUE;
+								parseSnippet();
+							}
 						} else {
 							this.tagValue = TAG_OTHERS_VALUE;
 							createTag();
@@ -798,6 +811,54 @@ class DocCommentParser extends AbstractCommentParser {
 		previousTag.setSourceRange(previousStart, end-previousStart);
 		this.textStart = -1;
 	}
+
+	@Override
+	protected void pushSnippetText(int start, int end) {
+
+		// Create text element
+		TextElement text = this.ast.newTextElement();
+		String textToBeAdded= new String( this.source, start, end-start);
+		int iindex = textToBeAdded.indexOf('*');
+		if (iindex > -1 && textToBeAdded.substring(0, iindex+1).trim().equals("*")) { //$NON-NLS-1$
+			textToBeAdded = textToBeAdded.substring(iindex+1)+ System.lineSeparator();
+		}
+		text.setText(textToBeAdded);
+		text.setSourceRange(start, end-start);
+
+		// Search previous tag on which to add the text element
+		TagElement previousTag = null;
+		int previousStart = start;
+		if (this.astPtr == -1) {
+			previousTag = this.ast.newTagElement();
+			previousTag.setSourceRange(start, end-start);
+			pushOnAstStack(previousTag, true);
+		} else {
+			previousTag = (TagElement) this.astStack[this.astPtr];
+			previousStart = previousTag.getStartPosition();
+		}
+
+		// If we're in a inline tag, then retrieve previous tag in its fragments
+		List fragments = previousTag.fragments();
+		if (this.inlineTagStarted) {
+			int size = fragments.size();
+			if (size == 0) {
+				//do nothing
+			} else {
+				// If last fragment is a tag, then use it as previous tag
+				ASTNode lastFragment = (ASTNode) fragments.get(size-1);
+				if (lastFragment.getNodeType() == ASTNode.TAG_ELEMENT) {
+					previousTag = (TagElement) lastFragment;
+					previousStart = previousTag.getStartPosition();
+				}
+			}
+		}
+
+		// Add the text
+		previousTag.fragments().add(text);
+		previousTag.setSourceRange(previousStart, end-previousStart);
+		this.textStart = -1;
+	}
+
 
 	@Override
 	protected boolean pushThrowName(Object typeRef) {

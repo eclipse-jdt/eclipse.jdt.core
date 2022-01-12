@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -1453,6 +1457,129 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		return false;
 	}
 
+	protected boolean parseSnippet() throws InvalidInputException {
+		int currentPosition = this.scanner.currentPosition;
+		boolean tokenWhiteSpace = this.scanner.tokenizeWhiteSpace;
+		this.scanner.tokenizeWhiteSpace = false;
+		int previousPosition = -1;
+		int openBraces = 1;
+		try {
+			createTag();
+			//pushSnippetTag();
+			int token = readTokenSafely();
+			if (token != TerminalTokens.TokenNameCOLON) {
+				throw new InvalidInputException();
+			}
+			consumeToken();
+			if (!isNextNonSpaceCharNewLine()) {
+				throw new InvalidInputException();
+			}
+			consumeNewLine();
+			// Get reference tokens
+			char nextCharacter = readChar();
+			char previousChar = 0;
+			int textEndPosition = this.index;
+			this.textStart = this.index;
+			boolean isFormatterParser = (this.kind & FORMATTER_COMMENT_PARSER) != 0;
+			while (!this.abort && this.index < this.javadocEnd) {
+				// Consume rules depending on the read character
+				switch (nextCharacter) {
+					case '\r':
+					case '\n':
+						if (this.lineStarted) {
+							if (isFormatterParser && !ScannerHelper.isWhitespace(previousChar)) {
+								textEndPosition = previousPosition;
+							}
+							if (this.textStart != -1 && this.textStart < textEndPosition) {
+								pushSnippetText(this.textStart, textEndPosition);
+							}
+						}
+						this.lineStarted = false;
+						// Fix bug 51650
+						this.textStart = -1;
+						break;
+					case '{':
+						openBraces++;
+						textEndPosition = this.index;
+						break;
+					case '}':
+						openBraces--;
+						if (openBraces == 0) {
+							if (this.lineStarted) {
+								if (this.textStart == -1) {
+									this.textStart = previousPosition;
+								}
+								if (isFormatterParser && !ScannerHelper.isWhitespace(previousChar)) {
+									textEndPosition = previousPosition;
+								}
+								if (this.textStart != -1 && this.textStart < this.index) {
+									String textToBeAdded= new String( this.source, this.textStart, this.index-this.textStart);
+									int iindex = textToBeAdded.indexOf('*');
+									if (iindex > -1 && textToBeAdded.substring(0, iindex+1).trim().equals("*")) { //$NON-NLS-1$
+										textToBeAdded = textToBeAdded.substring(iindex+1);
+									}
+									if (!textToBeAdded.isBlank()) {
+										pushSnippetText(this.textStart, this.index-1);
+									}
+								}
+							}
+						}
+						textEndPosition = this.index;
+						break;
+					default :
+						if (!this.lineStarted || this.textStart == -1) {
+							this.textStart = previousPosition;
+						}
+						this.lineStarted = true;
+						textEndPosition = this.index;
+						break;
+				}
+				previousPosition = this.index;
+				if (openBraces == 0) {
+					break;
+				}
+				nextCharacter = readChar();
+			}
+		}
+		catch (InvalidInputException ex) {
+			if (this.reportProblems) this.sourceParser.problemReporter().javadocInvalidReference(currentPosition, getTokenEndPosition());
+		}
+		finally {
+			// we have to make sure that this is reset to the previous value even if an exception occurs
+			this.scanner.tokenizeWhiteSpace = tokenWhiteSpace;
+		}
+		setInlineTagStarted(false);
+		if (openBraces == 0) {
+			return true;
+		}
+		return false;
+	}
+
+	private boolean isNextNonSpaceCharNewLine() {
+		boolean consider = false;
+		char ch = getChar();
+		while (ch == ' ') {
+			readChar();
+			ch = getChar();
+		}
+		if ((System.lineSeparator().indexOf(ch) == 0)) {
+			consider = true;
+		}
+		return consider;
+	}
+
+	private void consumeNewLine() {
+		int lineSeperatorLength = System.lineSeparator().length();
+		for (int i=0; i< lineSeperatorLength; i++) {
+			char ch = getChar();
+			if ((System.lineSeparator().charAt(i) == ch)) {
+				readChar();
+			} else {
+				break;
+			}
+		}
+	}
+
 	/*
 	 * Parse tag declaration
 	 */
@@ -1594,6 +1721,10 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	 * Push a text element in ast node stack
 	 */
 	protected void pushText(int start, int end) {
+		// do not store text by default
+	}
+
+	protected void pushSnippetText(int start, int end) {
 		// do not store text by default
 	}
 

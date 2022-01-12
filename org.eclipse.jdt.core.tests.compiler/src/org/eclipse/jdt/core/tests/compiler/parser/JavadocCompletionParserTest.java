@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -212,10 +216,16 @@ protected void verifyAllTagsCompletion() {
 			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE,
 			TAG_CODE, TAG_LITERAL, TAG_INDEX, TAG_SUMMARY
 		};
-	} else if(this.complianceLevel >= ClassFileConstants.JDK12) {
+	} else if(this.complianceLevel >= ClassFileConstants.JDK12
+			&& this.complianceLevel < ClassFileConstants.JDK18) {
 		additionalTags = new char[][] {
 			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE,
 			TAG_CODE, TAG_LITERAL, TAG_INDEX, TAG_SUMMARY, TAG_SYSTEM_PROPERTY
+		};
+	} else if(this.complianceLevel >= ClassFileConstants.JDK18) {
+		additionalTags = new char[][] {
+			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE,
+			TAG_CODE, TAG_LITERAL, TAG_INDEX, TAG_SUMMARY, TAG_SYSTEM_PROPERTY, TAG_SNIPPET
 		};
 	}
 	allTagsFinal = this.complianceLevel > ClassFileConstants.JDK1_8 ? allTagsJava9Plus  :  this.complianceLevel == ClassFileConstants.JDK1_8 ? allTagsJava8 : allTags  ;
@@ -327,10 +337,16 @@ public void test006() {
 			TAG_CODE, TAG_LITERAL,
 			TAG_INDEX, TAG_SUMMARY
 		};
-	} else if(this.complianceLevel >= ClassFileConstants.JDK12) {
+	} else if(this.complianceLevel >= ClassFileConstants.JDK12
+			&& this.complianceLevel < ClassFileConstants.JDK18) {
 		additionalTags = new char[][] {
 			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE,
 			TAG_CODE, TAG_LITERAL, TAG_INDEX, TAG_SUMMARY, TAG_SYSTEM_PROPERTY
+		};
+	} else if(this.complianceLevel >= ClassFileConstants.JDK18) {
+		additionalTags = new char[][] {
+			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE,
+			TAG_CODE, TAG_LITERAL, TAG_INDEX, TAG_SUMMARY, TAG_SYSTEM_PROPERTY, TAG_SNIPPET
 		};
 	}
 	if (additionalTags != null) {
@@ -478,9 +494,14 @@ public void test020() {
 		expectedTags = new char[][] {
 			TAG_SEE, TAG_SINCE, TAG_SERIAL, TAG_SERIAL_DATA, TAG_SERIAL_FIELD, TAG_SUMMARY
 		};
-	} else if (this.complianceLevel >= ClassFileConstants.JDK12) {
+	} else if (this.complianceLevel >= ClassFileConstants.JDK12
+			&& this.complianceLevel < ClassFileConstants.JDK18) {
 		expectedTags = new char[][] {
 			TAG_SEE, TAG_SINCE, TAG_SERIAL, TAG_SERIAL_DATA, TAG_SERIAL_FIELD, TAG_SUMMARY, TAG_SYSTEM_PROPERTY
+		};
+	} else if (this.complianceLevel >= ClassFileConstants.JDK18) {
+		expectedTags = new char[][] {
+			TAG_SEE, TAG_SINCE, TAG_SERIAL, TAG_SERIAL_DATA, TAG_SERIAL_FIELD, TAG_SUMMARY, TAG_SYSTEM_PROPERTY, TAG_SNIPPET
 		};
 	}
 	verifyCompletionOnJavadocTag("s".toCharArray(), expectedTags, false);
@@ -580,11 +601,18 @@ public void test025() {
 			TAG_CODE, TAG_LITERAL,
 			TAG_INDEX, TAG_SUMMARY
 		};
-	} else if (this.complianceLevel >= ClassFileConstants.JDK12) {
+	} else if(this.complianceLevel >= ClassFileConstants.JDK12
+			&& this.complianceLevel < ClassFileConstants.JDK18) {
 		additionalTags = new char[][] {
 			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE,
 			TAG_CODE, TAG_LITERAL,
 			TAG_INDEX, TAG_SUMMARY, TAG_SYSTEM_PROPERTY
+		};
+	} else if (this.complianceLevel >= ClassFileConstants.JDK18) {
+		additionalTags = new char[][] {
+			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE,
+			TAG_CODE, TAG_LITERAL,
+			TAG_INDEX, TAG_SUMMARY, TAG_SYSTEM_PROPERTY, TAG_SNIPPET
 		};
 	}
 	if (additionalTags != null) {
@@ -673,11 +701,19 @@ public void test028() {
 			TAG_CODE, TAG_LITERAL,
 			TAG_INDEX, TAG_SUMMARY
 		};
-	} else if(this.complianceLevel >= ClassFileConstants.JDK12) {
+	} else if(this.complianceLevel >= ClassFileConstants.JDK12
+			&& this.complianceLevel < ClassFileConstants.JDK18) {
 		additionalTags = new char[][] {
 			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE,
 			TAG_CODE, TAG_LITERAL,
 			TAG_INDEX, TAG_SUMMARY, TAG_SYSTEM_PROPERTY
+		};
+	} else if(this.complianceLevel >= ClassFileConstants.JDK18) {
+		additionalTags = new char[][] {
+			TAG_INHERITDOC, TAG_LINKPLAIN, TAG_VALUE,
+			TAG_CODE, TAG_LITERAL,
+			TAG_INDEX, TAG_SUMMARY, TAG_SYSTEM_PROPERTY,
+			TAG_SNIPPET
 		};
 	}
 	if (additionalTags != null) {
@@ -768,4 +804,24 @@ public void test032() {
 	assertEquals("Invalid tag end position", end, completionTag.tagSourceEnd);
 }
 
+public void test033() {
+	String source = "package javadoc;\n" +
+		"/**\n" +
+		" * {@s+\n" +
+		" */\n" +
+		"public class Test {}\n";
+	verifyCompletionInJavadoc(source, "@s");
+
+	char[][] allTags = this.complianceLevel == ClassFileConstants.JDK1_3
+			? null : (this.complianceLevel < ClassFileConstants.JDK10
+			? null : (this.complianceLevel < ClassFileConstants.JDK12 ? new char[][] { TAG_SUMMARY }
+			: (this.complianceLevel < ClassFileConstants.JDK18 ? new char[][] { TAG_SUMMARY , TAG_SYSTEM_PROPERTY }
+			: new char[][] { TAG_SUMMARY,  TAG_SYSTEM_PROPERTY, TAG_SNIPPET  })));
+	verifyCompletionOnJavadocTag("s".toCharArray(), allTags, false);
+	CompletionOnJavadocTag completionTag = (CompletionOnJavadocTag) this.javadoc.getCompletionNode();
+	int start = source.indexOf("{@");
+	assertEquals("Invalid tag start position", start, completionTag.tagSourceStart);
+	int end = source.indexOf('+');
+	assertEquals("Invalid tag end position", end, completionTag.tagSourceEnd);
+}
 }

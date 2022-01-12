@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -739,6 +743,12 @@ public class JavadocParser extends AbstractCommentParser {
 				} else if (length == TAG_SUMMARY_LENGTH && CharOperation.equals(TAG_SUMMARY, tagName, 0, length)) {
 					this.tagValue = TAG_SUMMARY_VALUE;
 					this.tagWaitingForDescription = this.tagValue;
+				} else if (length == TAG_SNIPPET_LENGTH && CharOperation.equals(TAG_SNIPPET, tagName, 0, length)) {
+					this.tagValue = TAG_SNIPPET_VALUE;
+					this.tagWaitingForDescription = this.tagValue;
+					if (this.inlineTagStarted) {
+						parseSnippet();
+					}
 				}
 				break;
 			case 't':
@@ -920,6 +930,12 @@ public class JavadocParser extends AbstractCommentParser {
 	protected void pushText(int start, int end) {
 		// The tag gets its description => clear the flag
 		this.tagWaitingForDescription = NO_TAG_VALUE;
+	}
+
+	@Override
+	protected void  pushSnippetText(int start, int end) {
+		// The tag gets its description => clear the flag
+		this.tagWaitingForDescription = TAG_SNIPPET_VALUE;
 	}
 
 	/*

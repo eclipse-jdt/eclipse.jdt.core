@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -234,6 +238,12 @@ public final class TagElement extends ASTNode implements IDocElement {
 	 * @since 3.18
 	 */
 	public static final String TAG_IMPL_NOTE = "@implNote"; //$NON-NLS-1$
+
+	/**
+	 * Standard inline doc tag name (value {@value}).
+	 * @since 3.29 BETA_JAVA
+	 */
+	public static final String TAG_SNIPPET = "@snippet"; //$NON-NLS-1$
 
 	/**
 	 * The tag name, or null if none; defaults to null.
