@@ -4320,5 +4320,43 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
+	public void testBug578143_001() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" @SuppressWarnings(\"preview\")\n"+
+				" static  int foo(Object o) {\n"+
+				"   return switch (o) { \n"+
+				"      case X x && true -> 0;\n"+
+				"      default -> 1;\n"+
+				"   }; \n"+
+				" } \n"+
+				" public static void main(String[] args) {\n"+
+				"   System.out.println(X.foo(new X()));\n"+
+				"   System.out.println(X.foo(new Object()));\n"+
+				" }\n"+
+				"}",
+			},
+			"0\n" +
+			"1");
+	}
+	public void testBug578143_002() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" @SuppressWarnings(\"preview\")\n"+
+				" public static void main(String[] args) {\n"+
+				"     Boolean input = false;\n"+
+				"     int result = switch(input) {\n"+
+				"       case Boolean p && true -> 1;\n"+
+				"     };\n"+
+				"     System.out.println(result);\n"+
+				" }\n"+
+				"}",
+			},
+			"1");
+	}
 
 }

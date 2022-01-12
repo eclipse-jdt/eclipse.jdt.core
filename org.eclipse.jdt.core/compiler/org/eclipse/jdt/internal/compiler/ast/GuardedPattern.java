@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021 IBM Corporation and others.
+ * Copyright (c) 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -60,19 +64,22 @@ public class GuardedPattern extends Pattern {
 
 		Constant cst =  this.condition.optimizedBooleanConstant();
 		this.thenTarget = new BranchLabel(codeStream);
-
 		this.condition.generateOptimizedBoolean(
 				currentScope,
 				codeStream,
 				this.thenTarget,
 				null,
 				cst == Constant.NotAConstant);
+
 	}
 
+	public boolean isGuardTrueAlways() {
+		Constant cst = this.condition.optimizedBooleanConstant();
+		return cst != Constant.NotAConstant && cst.booleanValue() == true;
+	}
 	@Override
 	public boolean isTotalForType(TypeBinding type) {
-		Constant cst = this.condition.optimizedBooleanConstant();
-		return this.primaryPattern.isTotalForType(type) && cst != Constant.NotAConstant && cst.booleanValue() == true;
+		return this.primaryPattern.isTotalForType(type) && isGuardTrueAlways();
 	}
 
 	@Override
