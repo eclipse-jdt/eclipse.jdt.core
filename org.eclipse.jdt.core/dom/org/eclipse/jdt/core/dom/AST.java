@@ -2958,8 +2958,8 @@ public final class AST {
 	 * @return a new unparented tag element node
 	 * @since 3.29 BETA_JAVA 18
 	 */
-	public TagElement newTagProperty() {
-		TagElement result = new TagElement(this);
+	public TagProperty newTagProperty() {
+		TagProperty result = new TagProperty(this);
 		return result;
 	}
 

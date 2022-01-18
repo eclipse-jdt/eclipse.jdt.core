@@ -19,6 +19,7 @@ package org.eclipse.jdt.core.dom;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
@@ -257,6 +258,61 @@ class DocCommentParser extends AbstractCommentParser {
 		tagElement.setSourceRange(start, this.tagSourceEnd-start+1);
 		this.scanner.resetTo(position, this.javadocEnd);
 	}
+
+	@Override
+	protected Object createSnippetInnerTag(String tagName, int start, int end) {
+		if (tagName != null) {
+			TagElement tagElement = this.ast.newTagElement();
+			tagElement.setTagName(tagName.toString());
+			if (this.astPtr == -1) {
+				return null;
+			}
+			tagElement.setSourceRange(start, end-start);
+			return tagElement;
+		}
+		return null;
+	}
+
+	@Override
+	protected void addTagProperties(Object tag, Map<String, String> map) {
+		if (tag instanceof TagElement) {
+			TagElement tagElement = (TagElement) tag;
+			map.forEach((k, v) -> {
+				TagProperty tagProperty = this.ast.newTagProperty();
+				tagProperty.setName(k);
+				tagProperty.setValue(v);
+				tagElement.tagProperties().add(tagProperty);
+			});
+		}
+	}
+
+	@Override
+	protected void addSnippetInnerTag(Object obj) {
+		if (obj instanceof TagElement) {
+			TagElement tagElement = (TagElement) obj;
+			TagElement previousTag = null;
+			if (this.astPtr == -1) {
+				return;
+			} else {
+				previousTag = (TagElement) this.astStack[this.astPtr];
+				List fragments = previousTag.fragments();
+				if (this.inlineTagStarted) {
+					int size = fragments.size();
+					if (size == 0) {
+						//do nothing
+					} else {
+						// If last fragment is a tag, then use it as previous tag
+						ASTNode lastFragment = (ASTNode) fragments.get(size-1);
+						if (lastFragment.getNodeType() == ASTNode.TAG_ELEMENT) {
+							previousTag = (TagElement) lastFragment;
+						}
+					}
+				}
+			}
+			previousTag.fragments().add(tagElement);
+		}
+	}
+
 
 	@Override
 	protected Object createTypeReference(int primitiveToken) {
@@ -813,14 +869,17 @@ class DocCommentParser extends AbstractCommentParser {
 	}
 
 	@Override
-	protected void pushSnippetText(int start, int end) {
+	protected void pushSnippetText(int start, int end, boolean addNewLine) {
 
 		// Create text element
 		TextElement text = this.ast.newTextElement();
 		String textToBeAdded= new String( this.source, start, end-start);
 		int iindex = textToBeAdded.indexOf('*');
 		if (iindex > -1 && textToBeAdded.substring(0, iindex+1).trim().equals("*")) { //$NON-NLS-1$
-			textToBeAdded = textToBeAdded.substring(iindex+1)+ System.lineSeparator();
+			textToBeAdded = textToBeAdded.substring(iindex+1);
+			if (addNewLine) {
+				textToBeAdded += System.lineSeparator();
+			}
 		}
 		text.setText(textToBeAdded);
 		text.setSourceRange(start, end-start);
@@ -837,6 +896,7 @@ class DocCommentParser extends AbstractCommentParser {
 			previousStart = previousTag.getStartPosition();
 		}
 
+		TagElement prevTag = null;
 		// If we're in a inline tag, then retrieve previous tag in its fragments
 		List fragments = previousTag.fragments();
 		if (this.inlineTagStarted) {
@@ -849,13 +909,42 @@ class DocCommentParser extends AbstractCommentParser {
 				if (lastFragment.getNodeType() == ASTNode.TAG_ELEMENT) {
 					previousTag = (TagElement) lastFragment;
 					previousStart = previousTag.getStartPosition();
+					if (this.snippetInlineTagStarted) {
+						fragments = previousTag.fragments();
+						size = fragments.size();
+						if (size == 0) {
+							//do nothing
+						} else {
+							lastFragment = (ASTNode) fragments.get(size-1);
+							if (lastFragment.getNodeType() == ASTNode.TAG_ELEMENT) {
+								prevTag = (TagElement) lastFragment;
+								this.snippetInlineTagStarted = false;
+							}
+						}
+						this.snippetInlineTagStarted = false;
+					}
 				}
 			}
 		}
 
+		int finEnd = end;
 		// Add the text
-		previousTag.fragments().add(text);
-		previousTag.setSourceRange(previousStart, end-previousStart);
+		if (prevTag != null) {
+			prevTag.fragments().add(text);
+			int curStart = prevTag.getStartPosition();
+			int curEnd = curStart + prevTag.getLength();
+			int finStart = start;
+			if (curStart <  start) {
+				finStart = curStart;
+			}
+			if (curEnd > end) {
+				finEnd = curEnd;
+			}
+			prevTag.setSourceRange(finStart, finEnd - finStart);
+		} else {
+			previousTag.fragments().add(text);
+		}
+		previousTag.setSourceRange(previousStart, finEnd-previousStart);
 		this.textStart = -1;
 	}
 

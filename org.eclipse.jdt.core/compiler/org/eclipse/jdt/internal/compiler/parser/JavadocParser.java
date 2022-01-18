@@ -18,6 +18,7 @@
 package org.eclipse.jdt.internal.compiler.parser;
 
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
@@ -347,6 +348,21 @@ public class JavadocParser extends AbstractCommentParser {
 
 	@Override
 	protected void createTag() {
+		this.tagValue = TAG_OTHERS_VALUE;
+	}
+
+	@Override
+	protected Object createSnippetInnerTag(String tagName, int start, int end) {
+		return tagName;
+	}
+
+	@Override
+	protected void addTagProperties(Object Tag, Map<String, String> map) {
+		return;
+	}
+
+	@Override
+	protected void addSnippetInnerTag(Object tag) {
 		this.tagValue = TAG_OTHERS_VALUE;
 	}
 
@@ -933,7 +949,7 @@ public class JavadocParser extends AbstractCommentParser {
 	}
 
 	@Override
-	protected void  pushSnippetText(int start, int end) {
+	protected void  pushSnippetText(int start, int end, boolean addNewLine) {
 		// The tag gets its description => clear the flag
 		this.tagWaitingForDescription = TAG_SNIPPET_VALUE;
 	}

@@ -275,6 +275,12 @@ public final class TagElement extends ASTNode implements IDocElement {
 	public static final String TAG_SNIPPET = "@snippet"; //$NON-NLS-1$
 
 	/**
+	 * Standard snippet doc tag name (value {@value}).
+	 * @since 3.29 BETA_JAVA
+	 */
+	public static final String TAG_HIGHLIGHT = "@highlight"; //$NON-NLS-1$
+
+	/**
 	 * The tag name, or null if none; defaults to null.
 	 */
 	private String optionalTagName = null;

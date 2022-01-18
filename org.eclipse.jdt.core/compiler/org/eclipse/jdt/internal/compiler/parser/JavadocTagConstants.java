@@ -58,6 +58,7 @@ public interface JavadocTagConstants {
 	public static final char[] TAG_IMPL_SPEC = "implSpec".toCharArray(); //$NON-NLS-1$
 	public static final char[] TAG_IMPL_NOTE = "implNote".toCharArray(); //$NON-NLS-1$
 	public static final char[] TAG_SNIPPET = "snippet".toCharArray(); //$NON-NLS-1$
+	public static final char[] TAG_HIGHLIGHT = "highlight".toCharArray(); //$NON-NLS-1$
 
 	// tags lengthes
 	public static final int TAG_DEPRECATED_LENGTH = TAG_DEPRECATED.length;
@@ -90,6 +91,8 @@ public interface JavadocTagConstants {
 	public static final int TAG_IMPL_SPEC_LENGTH = TAG_IMPL_SPEC.length;
 	public static final int TAG_IMPL_NOTE_LENGTH = TAG_IMPL_NOTE.length;
 	public static final int TAG_SNIPPET_LENGTH = TAG_SNIPPET.length;
+	public static final int TAG_HIGHLIGHT_LENGTH = TAG_HIGHLIGHT.length;
+
 
 	// tags value
 	public static final int NO_TAG_VALUE = 0;
@@ -123,6 +126,7 @@ public interface JavadocTagConstants {
 	public static final int TAG_IMPL_SPEC_VALUE = 28;
 	public static final int TAG_IMPL_NOTE_VALUE = 29;
 	public static final int TAG_SNIPPET_VALUE = 30;
+	public static final int TAG_HIGHLIGHT_VALUE = 31;
 	public static final int TAG_OTHERS_VALUE = 100;
 	// Tag names array
 	public static final char[][] TAG_NAMES = {
@@ -157,6 +161,7 @@ public interface JavadocTagConstants {
 		TAG_IMPL_SPEC,			/* 28 */
 		TAG_IMPL_NOTE,			/* 29 */
 		TAG_SNIPPET,			/* 30 */
+		TAG_HIGHLIGHT,			/* 31 */
 	};
 
 	// tags expected positions
@@ -256,6 +261,11 @@ public interface JavadocTagConstants {
 		//since 18
 		{ TAG_SNIPPET }
 	};
+	public static final char[][][] IN_SNIPPET_TAGS = {
+		//since 18
+			{ TAG_HIGHLIGHT }
+	};
+	public final static int IN_SNIPPET_TAGS_LENGTH = IN_SNIPPET_TAGS.length;
 	public final static int INLINE_TAGS_LENGTH = INLINE_TAGS.length;
 	public final static int BLOCK_TAGS_LENGTH = BLOCK_TAGS.length;
 	public final static int ALL_TAGS_LENGTH = BLOCK_TAGS_LENGTH+INLINE_TAGS_LENGTH;
@@ -263,6 +273,7 @@ public interface JavadocTagConstants {
 	public final static short TAG_TYPE_NONE = 0;
 	public final static short TAG_TYPE_INLINE = 1;
 	public final static short TAG_TYPE_BLOCK = 2;
+	public final static short TAG_TYPE_IN_SNIPPET = 3;
 	public static final short[] JAVADOC_TAG_TYPE = {
 		TAG_TYPE_NONE, 		// NO_TAG_VALUE = 0;
 		TAG_TYPE_BLOCK,		// TAG_DEPRECATED_VALUE = 1;
@@ -295,7 +306,8 @@ public interface JavadocTagConstants {
 		TAG_TYPE_BLOCK,		// TAG_IMPL_SPEC = 28;
 		TAG_TYPE_BLOCK,		// TAG_IMPL_NOTE = 29;
 		TAG_TYPE_INLINE,	// TAG_SNIPPET_VALUE = 30;
-	};
+		TAG_TYPE_IN_SNIPPET,// TAG_HIGHLIGHT_VALUE = 31;
+ 	};
 	/*
 	 * Tags usage
 	 */
