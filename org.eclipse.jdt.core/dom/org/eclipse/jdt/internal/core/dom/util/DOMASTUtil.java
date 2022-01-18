@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019, 2021 IBM Corporation and others.
+ * Copyright (c) 2019, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -19,6 +23,7 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.Modifier;
 
+@SuppressWarnings("deprecation")
 public class DOMASTUtil {
 
 	/**
@@ -54,7 +59,6 @@ public class DOMASTUtil {
 	 * @see ASTNode#getNodeType()
 	 * @since 3.22
 	 */
-	@SuppressWarnings("deprecation")
 	private static boolean isNodeTypeSupportedinAST(int apiLevel, boolean previewEnabled, int nodeType) {
 		switch (nodeType) {
 			case ASTNode.SWITCH_EXPRESSION:
@@ -67,6 +71,8 @@ public class DOMASTUtil {
 				return apiLevel >= AST.JLS16;
 			case ASTNode.TYPE_PATTERN:
 				return apiLevel == AST.getJLSLatest() && previewEnabled;
+			case ASTNode.TAG_PROPERTY:
+				return apiLevel >= AST.JLS18;
 		}
 		return false;
 	}
@@ -181,7 +187,11 @@ public class DOMASTUtil {
 		return isNodeTypeSupportedinAST(apiLevel, previewEnabled, ASTNode.TYPE_PATTERN);
 	}
 
-	@SuppressWarnings("deprecation")
+	public static boolean isJavaDocCodeSnippetSupported(int apiLevel) {
+		return isNodeTypeSupportedinAST(apiLevel, true, ASTNode.TAG_PROPERTY);
+	}
+
+
 	public static void checkASTLevel(int level) {
 		// Clients can use AST.getJLSLatest()
 		if(level >=AST.JLS8 && level <= AST.getJLSLatest() )
@@ -197,7 +207,7 @@ public class DOMASTUtil {
 
 	private static final String[] AST_COMPLIANCE_MAP = {"-1","-1",JavaCore.VERSION_1_2, JavaCore.VERSION_1_3, JavaCore.VERSION_1_7, //$NON-NLS-1$ //$NON-NLS-2$
 			JavaCore.VERSION_1_7, JavaCore.VERSION_1_7, JavaCore.VERSION_1_7, JavaCore.VERSION_1_8, JavaCore.VERSION_9, JavaCore.VERSION_10,
-			JavaCore.VERSION_11, JavaCore.VERSION_12, JavaCore.VERSION_13, JavaCore.VERSION_14, JavaCore.VERSION_15, JavaCore.VERSION_16, JavaCore.VERSION_17};
+			JavaCore.VERSION_11, JavaCore.VERSION_12, JavaCore.VERSION_13, JavaCore.VERSION_14, JavaCore.VERSION_15, JavaCore.VERSION_16, JavaCore.VERSION_17, JavaCore.VERSION_18};
 
 	/**
 	 * Calculates the JavaCore Option value string corresponding to the input ast level.
@@ -206,7 +216,6 @@ public class DOMASTUtil {
 	 * @param astLevel
 	 * @return JavaCore Option value string corresponding to the ast level
 	 */
-	@SuppressWarnings("deprecation")
 	public static String getCompliance(int astLevel) {
 		if (astLevel < AST.JLS2 && astLevel > AST.getJLSLatest()) return JavaCore.latestSupportedJavaVersion();
 		return AST_COMPLIANCE_MAP[astLevel];

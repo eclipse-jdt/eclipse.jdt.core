@@ -1,11 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2021 IBM Corporation and others.
+ * Copyright (c) 2021, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  * SPDX-License-Identifier: EPL-2.0
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -30,6 +33,7 @@ public class ASTConverter_17Test extends ConverterTestSetup {
 
 	ICompilationUnit workingCopy;
 
+	@SuppressWarnings("deprecation")
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		this.ast = AST.newAST(getAST17(), false);
@@ -50,6 +54,7 @@ public class ASTConverter_17Test extends ConverterTestSetup {
 		return buildModelTestSuite(ASTConverter_17Test.class);
 	}
 
+	@SuppressWarnings("deprecation")
 	static int getAST17() {
 		return AST.JLS17;
 	}

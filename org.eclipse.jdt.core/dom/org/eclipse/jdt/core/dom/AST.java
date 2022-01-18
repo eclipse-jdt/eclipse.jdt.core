@@ -375,7 +375,7 @@ public final class AST {
 	 * programs written in all versions of the Java language
 	 * up to and including Java SE 16(aka JDK 16).
 	 * </p>
-	 * * @deprecated Clients should use the {@link #getJLSLatest()} AST API instead.
+	 * @deprecated Clients should use the {@link #getJLSLatest()} AST API instead.
 	 * @since 3.26
 	 */
 	public static final int JLS16 = 16;
@@ -390,7 +390,7 @@ public final class AST {
 	 * programs written in all versions of the Java language
 	 * up to and including Java SE 17(aka JDK 17).
 	 * </p>
-	 *
+	 * @deprecated Clients should use the {@link #getJLSLatest()} AST API instead.
 	 * @since 3.28
 	 */
 	public static final int JLS17 = 17;
@@ -2933,7 +2933,7 @@ public final class AST {
 
 	/**
 	 * Creates and returns a new tag element node.
-	 * Initially the new node has no tag name and an empty list of fragments.
+	 * Initially the new node has no tag name and an empty list of fragments and properties.
 	 * <p>
 	 * Note that this node type is used only inside doc comments
 	 * ({@link Javadoc}).
@@ -2943,6 +2943,22 @@ public final class AST {
 	 * @since 3.0
 	 */
 	public TagElement newTagElement() {
+		TagElement result = new TagElement(this);
+		return result;
+	}
+
+	/**
+	 * Creates and returns a new tag property node.
+	 * Initially the new node has no property name and value.
+	 * <p>
+	 * Note that this node type is used only inside doc comments
+	 * ({@link Javadoc}).
+	 * </p>
+	 *
+	 * @return a new unparented tag element node
+	 * @since 3.29 BETA_JAVA 18
+	 */
+	public TagElement newTagProperty() {
 		TagElement result = new TagElement(this);
 		return result;
 	}

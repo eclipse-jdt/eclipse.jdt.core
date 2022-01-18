@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021 IBM Corporation and others.
+ * Copyright (c) 2021, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -142,7 +142,7 @@ public class TypePattern extends Pattern {
 	 * <li>the node already has a parent</li>
 	 * <li>a cycle in would be created</li>
 	 * </ul>
-	 * @exception UnsupportedOperationException if this operation is used other than JLS17
+	 * @exception UnsupportedOperationException if this operation is used other than JLS18
 	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
 	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
 	 */
@@ -162,7 +162,7 @@ public class TypePattern extends Pattern {
 	 * Returns the pattern variable of Types Pattern.
 	 *
 	 * @return the pattern variable
-	 * @exception UnsupportedOperationException if this operation is used other than JLS17
+	 * @exception UnsupportedOperationException if this operation is used other than JLS18
 	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
 	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
 	 */

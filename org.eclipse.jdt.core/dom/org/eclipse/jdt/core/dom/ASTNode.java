@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1039,6 +1039,14 @@ public abstract class ASTNode {
 	 */
 	public static final int CASE_DEFAULT_EXPRESSION = 109;
 
+	/**
+	 * Node type constant indicating a node of type
+	 * <code>TagProperty</code>.
+	 * @see TagProperty
+	 * @since 3.29 BETA_JAVA 18
+	 */
+	public static final int TAG_PROPERTY = 110;
+
 
 	/**
 	 * Returns the node class for the corresponding node type.
@@ -1232,6 +1240,8 @@ public abstract class ASTNode {
 				return SynchronizedStatement.class;
 			case TAG_ELEMENT :
 				return TagElement.class;
+			case TAG_PROPERTY :
+				return TagProperty.class;
 			case TEXT_BLOCK :
 				return TextBlock.class;
 			case TEXT_ELEMENT :
@@ -2273,6 +2283,22 @@ public abstract class ASTNode {
 	 */
 	final void unsupportedBelow17() {
 		if (this.ast.apiLevel < AST.JLS17_INTERNAL) {
+			throw new UnsupportedOperationException("Operation only supported in ASTs with level JLS17 and above"); //$NON-NLS-1$
+		}
+	}
+
+	/**
+     * Checks that this AST operation is not used when
+     * building JLS2, JLS3, JLS4, JLS8, JLS9, JLS10, JLS11, JLS12, JLS13, JSL14, JSL15, JLS16 or JLS17 level ASTs.
+     * <p>
+     * Use this method to prevent access to new properties that have been added in JLS18
+     * </p>
+     *
+	 * @exception UnsupportedOperationException if this operation is used below JLS18
+	 * @since 3.29 BETA_JAVA 18
+	 */
+	final void unsupportedBelow18() {
+		if (this.ast.apiLevel < AST.JLS18_INTERNAL) {
 			throw new UnsupportedOperationException("Operation only supported in ASTs with level JLS17 and above"); //$NON-NLS-1$
 		}
 	}

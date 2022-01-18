@@ -21,6 +21,8 @@ package org.eclipse.jdt.core.dom;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jdt.internal.core.dom.util.DOMASTUtil;
+
 /**
  * AST node for a tag within a doc comment.
  * Tag elements nested within another tag element are called
@@ -28,6 +30,7 @@ import java.util.List;
  * <pre>
  * TagElement:
  *     [ <b>@</b> Identifier ] { DocElement }
+ *     {tagProperty = tagValue}
  * DocElement:
  *     TextElement
  *     Name
@@ -59,6 +62,13 @@ public final class TagElement extends ASTNode implements IDocElement {
 		new ChildListPropertyDescriptor(TagElement.class, "fragments", IDocElement.class, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
+	 * The "properties" structural property of this node type (element type: {@link TagProperty}).
+	 * @since 3.29 BETA_JAVA 18
+	 */
+	public static final ChildListPropertyDescriptor TAG_PROPERTIES_PROPERTY =
+		new ChildListPropertyDescriptor(TagElement.class, "tagProperties", TagProperty.class, CYCLE_RISK); //$NON-NLS-1$
+
+	/**
 	 * A list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor}),
 	 * or null if uninitialized.
@@ -66,12 +76,28 @@ public final class TagElement extends ASTNode implements IDocElement {
 	 */
 	private static final List PROPERTY_DESCRIPTORS;
 
+	/**
+	 * A list of property descriptors (element type:
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 * @since 3.29 BETA_JAVA 18
+	 */
+	private static final List PROPERTY_DESCRIPTORS_18;
+
 	static {
 		List propertyList = new ArrayList(3);
 		createPropertyList(TagElement.class, propertyList);
 		addProperty(TAG_NAME_PROPERTY, propertyList);
 		addProperty(FRAGMENTS_PROPERTY, propertyList);
 		PROPERTY_DESCRIPTORS = reapPropertyList(propertyList);
+
+		propertyList = new ArrayList(4);
+		createPropertyList(TagElement.class, propertyList);
+		addProperty(TAG_NAME_PROPERTY, propertyList);
+		addProperty(FRAGMENTS_PROPERTY, propertyList);
+		addProperty(TAG_PROPERTIES_PROPERTY, propertyList);
+
+		PROPERTY_DESCRIPTORS_18 = reapPropertyList(propertyList);
 	}
 
 	/**
@@ -85,6 +111,9 @@ public final class TagElement extends ASTNode implements IDocElement {
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
+		if (DOMASTUtil.isJavaDocCodeSnippetSupported(apiLevel)) {
+			return PROPERTY_DESCRIPTORS_18;
+		}
 		return PROPERTY_DESCRIPTORS;
 	}
 
@@ -258,6 +287,13 @@ public final class TagElement extends ASTNode implements IDocElement {
 		new ASTNode.NodeList(FRAGMENTS_PROPERTY);
 
 	/**
+	 * The list of doc elements (element type: {@link TagProperty}).
+	 * Defaults to an empty list.
+	 */
+	private ASTNode.NodeList tagProperties =
+		new ASTNode.NodeList(TAG_PROPERTIES_PROPERTY);
+
+	/**
 	 * Creates a new AST node for a tag element owned by the given AST.
 	 * The new node has no name and an empty list of fragments.
 	 * <p>
@@ -295,6 +331,8 @@ public final class TagElement extends ASTNode implements IDocElement {
 	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
 		if (property == FRAGMENTS_PROPERTY) {
 			return fragments();
+		} else if (property == TAG_PROPERTIES_PROPERTY) {
+			return tagProperties();
 		}
 		// allow default implementation to flag the error
 		return super.internalGetChildListProperty(property);
@@ -311,6 +349,9 @@ public final class TagElement extends ASTNode implements IDocElement {
 		result.setSourceRange(getStartPosition(), getLength());
 		result.setTagName(getTagName());
 		result.fragments().addAll(ASTNode.copySubtrees(target, fragments()));
+		if (DOMASTUtil.isJavaDocCodeSnippetSupported(target.apiLevel)) {
+			result.tagProperties().addAll(ASTNode.copySubtrees(target, tagProperties()));
+		}
 		return result;
 	}
 
@@ -325,6 +366,9 @@ public final class TagElement extends ASTNode implements IDocElement {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
 			acceptChildren(visitor, this.fragments);
+			if (DOMASTUtil.isJavaDocCodeSnippetSupported(this.getAST().apiLevel)) {
+				acceptChildren(visitor, this.tagProperties);
+			}
 		}
 		visitor.endVisit(this);
 	}
@@ -410,6 +454,19 @@ public final class TagElement extends ASTNode implements IDocElement {
 	}
 
 	/**
+	 * Returns the live list of tag properties in this tag element.
+	 *
+	 * @return the live list of properties in this tag element
+	 * (element type: {@link TagProperty})
+	 * @exception UnsupportedOperationException if this operation is used less than JLS18
+	 * @since 3.29 BETA_JAVA 18
+	 */
+	public List tagProperties() {
+		unsupportedBelow18();
+		return this.tagProperties;
+	}
+
+	/**
 	 * Returns whether this tag element is nested within another
 	 * tag element. Nested tag elements appears enclosed in
 	 * "{" and "}"; certain doc tags, including "@link" and
@@ -438,6 +495,6 @@ public final class TagElement extends ASTNode implements IDocElement {
 
 	@Override
 	int treeSize() {
-		return memSize() + this.fragments.listSize();
+		return memSize() + this.fragments.listSize() + (DOMASTUtil.isJavaDocCodeSnippetSupported(this.getAST().apiLevel)? this.tagProperties.listSize(): 0);
 	}
 }

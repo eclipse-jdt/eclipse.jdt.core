@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,9 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -1331,6 +1334,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
         case JavaCore.VERSION_14: return AST.JLS14;
         case JavaCore.VERSION_15: return AST.JLS15;
         case JavaCore.VERSION_16: return AST.JLS16;
+        case JavaCore.VERSION_17: return AST.JLS17;
+        case JavaCore.VERSION_18: return AST.JLS18;
         default:  return AST.JLS2;
 		}
 	}
@@ -9495,7 +9500,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			ASTNode.TYPE_PATTERN,
 			ASTNode.GUARDED_PATTERN,
 			ASTNode.NULL_PATTERN,
-			ASTNode.CASE_DEFAULT_EXPRESSION
+			ASTNode.CASE_DEFAULT_EXPRESSION,
+			ASTNode.TAG_PROPERTY
 		};
 
 		// assert that nodeType values are correct:
@@ -9547,7 +9553,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 
 	@SuppressWarnings("deprecation")
 	public void testASTLevels() throws Exception {
-		int[] apilLevels = {AST.JLS2, AST.JLS3, AST.JLS4, AST.JLS8, AST.JLS9, AST.JLS10, AST.JLS11, AST.JLS12, AST.JLS13, AST.JLS14, AST.JLS15, AST.JLS16, AST.JLS17};
+		int[] apilLevels = {AST.JLS2, AST.JLS3, AST.JLS4, AST.JLS8, AST.JLS9, AST.JLS10, AST.JLS11, AST.JLS12, AST.JLS13, AST.JLS14, AST.JLS15, AST.JLS16, AST.JLS17,AST.JLS18};
 		for (int level : apilLevels) {
 			try {
 				DOMASTUtil.checkASTLevel(level);

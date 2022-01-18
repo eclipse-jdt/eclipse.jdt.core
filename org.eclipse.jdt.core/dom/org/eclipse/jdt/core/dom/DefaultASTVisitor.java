@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,7 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- *Contributors:
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.core.dom;
@@ -350,6 +353,10 @@ class DefaultASTVisitor extends ASTVisitor {
 	}
 	@Override
 	public void endVisit(TagElement node) {
+		endVisitNode(node);
+	}
+	@Override
+	public void endVisit(TagProperty node) {
 		endVisitNode(node);
 	}
 	@Override
@@ -760,6 +767,11 @@ class DefaultASTVisitor extends ASTVisitor {
 
 	@Override
 	public boolean visit(TagElement node) {
+		return visitNode(node);
+	}
+
+	@Override
+	public boolean visit(TagProperty node) {
 		return visitNode(node);
 	}
 
