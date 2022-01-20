@@ -40,7 +40,7 @@ public ProblemTypeAndMethodTest(String name) {
 // Static initializer to specify tests subset using TESTS_* static variables
 // All specified tests which does not belong to the class are skipped...
 static {
-//		TESTS_NAMES = new String[] { "test376550" };
+		TESTS_NAMES = new String[] { "testBug576735" };
 //		TESTS_NUMBERS = new int[] { 113 };
 //		TESTS_RANGE = new int[] { 108, -1 };
 }
@@ -8782,5 +8782,32 @@ public void testBug542829() {
 		"}\n"
 	};
 	runner.runConformTest();
+}
+public void testBug576735() {
+	String path = getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "lib576735.jar";
+	String[] libs = getDefaultClassPaths();
+	int len = libs.length;
+	System.arraycopy(libs, 0, libs = new String[len+1], 0, len);
+	libs[len] = path;
+	Runner runner = new Runner();
+	runner.classLibraries = libs;
+	runner.expectedCompilerLog = "";
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(CompilerOptions.OPTION_Process_Annotations, CompilerOptions.ENABLED);
+	runner.testFiles = new String[] {
+			"does/not/Work.java",
+			"package does.not;\n" + // force this package to exist
+			"public interface Work {}",
+			"p/X.java",
+			"package p;\n" +
+			"import does.not.Work;\n" +
+			"import good.WithAnnotatedMethod;\n" +
+			"import does.not.ExistAnnotation;\n" + // resolving this triggers the location-less error
+			"public class X {\n" +
+			"	WithAnnotatedMethod field;\n" + // trigger creation of the BTB(WithAnnotatedMethod) and the URB(does.not.ExistAnnotation)
+			"	void meth0(@ExistAnnotation Work d) {\n" + // force resolving of URB(does.not.ExistAnnotation)
+			"	}\n" +
+			"}\n"};
+	runner.runNegativeTest();
 }
 }

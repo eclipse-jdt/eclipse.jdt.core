@@ -81,6 +81,7 @@ package org.eclipse.jdt.internal.compiler.problem;
 import java.io.CharConversionException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -185,6 +186,7 @@ import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
+import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment.LookupContext;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
@@ -5142,8 +5144,21 @@ public void isClassPathCorrect(char[][] wellKnownTypeName, CompilationUnitDeclar
 	// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=442755.
 	ReferenceContext savedContext = this.referenceContext;
 	this.referenceContext = compUnitDecl;
-	String[] arguments = new String[] {CharOperation.toString(wellKnownTypeName)};
 	int start = 0, end = 0;
+	Deque<LookupContext> currentContexts = compUnitDecl.scope.environment.currentContexts;
+	StringBuilder hints = new StringBuilder();
+	if (!currentContexts.isEmpty()) {
+		for (LookupContext context : currentContexts) {
+			if (start == 0 && context.getSourceStart() > 0) {
+				start = context.getSourceStart();
+				end = context.getSourceEnd();
+			} else {
+				hints.append("\n\t").append(context.getMessage());
+			}
+		}
+	}
+	String hintString = hints.length() > 0 ? "\nwhile"+hints.toString() : "";
+	String[] arguments = new String[] {CharOperation.toString(wellKnownTypeName), hintString};
 	if (location != null) {
 		if (location instanceof InvocationSite) {
 			InvocationSite site = (InvocationSite) location;

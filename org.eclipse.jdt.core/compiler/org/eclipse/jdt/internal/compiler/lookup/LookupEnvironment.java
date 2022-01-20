@@ -39,15 +39,18 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ClassFilePool;
@@ -144,6 +147,43 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	public boolean suppressImportErrors;			// per module
 
 	public String moduleVersion; 	// ROOT_ONLY
+
+	public static class LookupContext {
+		Supplier<String> messageProvider;
+		int sourceStart;
+		int sourceEnd;
+		public LookupContext(Supplier<String> messageProvider, int sourceStart, int sourceEnd) {
+			this.messageProvider = messageProvider;
+			this.sourceStart = sourceStart;
+			this.sourceEnd = sourceEnd;
+		}
+		public String getMessage() {
+			return this.messageProvider.get();
+		}
+		public int getSourceStart() {
+			return this.sourceStart;
+		}
+		public int getSourceEnd() {
+			return this.sourceEnd;
+		}
+	}
+	public Deque<LookupContext> currentContexts = new ArrayDeque<>();
+	public <T> T inContext(Supplier<String> context, Supplier<T> task) {
+		try {
+			this.currentContexts.add(new LookupContext(context, 0, 0));
+			return task.get();
+		} finally {
+			this.currentContexts.pop();
+		}
+	}
+	public <T> T inContext(int sourceStart, int sourceEnd, Supplier<T> task) {
+		try {
+			this.currentContexts.add(new LookupContext(null, sourceStart, sourceEnd));
+			return task.get();
+		} finally {
+			this.currentContexts.pop();
+		}
+	}
 
 	final static int BUILD_FIELDS_AND_METHODS = 4;
 	final static int BUILD_TYPE_HIERARCHY = 1;

@@ -457,7 +457,9 @@ void faultInImports() {
 			}
 		}
 		if ((importReference.bits & ASTNode.OnDemand) != 0) {
-			Binding importBinding = findImport(compoundName, compoundName.length);
+			Binding importBinding = this.environment.inContext(
+					importReference.sourceStart(), importReference.sourceEnd(),
+					() -> findImport(compoundName, compoundName.length));
 			if (!importBinding.isValidBinding()) {
 				problemReporter().importProblem(importReference, importBinding);
 				continue nextImport;
@@ -476,7 +478,9 @@ void faultInImports() {
 			}
 			recordImportBinding(new ImportBinding(compoundName, true, importBinding, importReference));
 		} else {
-			Binding importBinding = findSingleImport(compoundName, Binding.TYPE | Binding.FIELD | Binding.METHOD, importReference.isStatic());
+			Binding importBinding =  this.environment.inContext(
+					importReference.sourceStart(), importReference.sourceEnd(),
+					() -> findSingleImport(compoundName, Binding.TYPE | Binding.FIELD | Binding.METHOD, importReference.isStatic()));
 			if (importBinding instanceof SplitPackageBinding && !inJdtDebugCompileMode) {
 				SplitPackageBinding splitPackage = (SplitPackageBinding) importBinding;
 				int sourceEnd = (int)(importReference.sourcePositions[splitPackage.compoundName.length-1] & 0xFFFF);
