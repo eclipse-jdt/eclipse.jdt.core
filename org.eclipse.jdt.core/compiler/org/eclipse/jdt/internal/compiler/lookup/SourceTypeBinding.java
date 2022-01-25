@@ -58,8 +58,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -118,7 +117,7 @@ public class SourceTypeBinding extends ReferenceBinding {
 
 	private final static int MAX_SYNTHETICS = 3;
 
-	HashMap[] synthetics;
+	Map[] synthetics;
 	char[] genericReferenceTypeSignature;
 
 	private SimpleLookupTable storedAnnotations = null; // keys are this ReferenceBinding & its fields and methods, value is an AnnotationHolder
@@ -131,7 +130,6 @@ public class SourceTypeBinding extends ReferenceBinding {
 	public ExternalAnnotationProvider externalAnnotationProvider;
 
 	private SourceTypeBinding nestHost;
-	public HashSet<SourceTypeBinding> nestMembers;
 
 	private boolean isRecordDeclaration = false;
 	private RecordComponentBinding[] components; // for Java 14 record declaration - preview
@@ -266,9 +264,9 @@ public FieldBinding addSyntheticFieldForInnerclass(LocalVariableBinding actualOu
 	if (!isPrototype()) throw new IllegalStateException();
 
 	if (this.synthetics == null)
-		this.synthetics = new HashMap[MAX_SYNTHETICS];
+		this.synthetics = new Map[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.FIELD_EMUL] == null)
-		this.synthetics[SourceTypeBinding.FIELD_EMUL] = new HashMap(5);
+		this.synthetics[SourceTypeBinding.FIELD_EMUL] = new LinkedHashMap(5);
 
 	FieldBinding synthField = (FieldBinding) this.synthetics[SourceTypeBinding.FIELD_EMUL].get(actualOuterLocalVariable);
 	if (synthField == null) {
@@ -315,9 +313,9 @@ public FieldBinding addSyntheticFieldForInnerclass(ReferenceBinding enclosingTyp
 	if (!isPrototype()) throw new IllegalStateException();
 
 	if (this.synthetics == null)
-		this.synthetics = new HashMap[MAX_SYNTHETICS];
+		this.synthetics = new Map[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.FIELD_EMUL] == null)
-		this.synthetics[SourceTypeBinding.FIELD_EMUL] = new HashMap(5);
+		this.synthetics[SourceTypeBinding.FIELD_EMUL] = new LinkedHashMap(5);
 
 	FieldBinding synthField = (FieldBinding) this.synthetics[SourceTypeBinding.FIELD_EMUL].get(enclosingType);
 	if (synthField == null) {
@@ -367,9 +365,9 @@ public FieldBinding addSyntheticFieldForClassLiteral(TypeBinding targetType, Blo
 	if (!isPrototype()) throw new IllegalStateException();
 
 	if (this.synthetics == null)
-		this.synthetics = new HashMap[MAX_SYNTHETICS];
+		this.synthetics = new LinkedHashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.CLASS_LITERAL_EMUL] == null)
-		this.synthetics[SourceTypeBinding.CLASS_LITERAL_EMUL] = new HashMap(5);
+		this.synthetics[SourceTypeBinding.CLASS_LITERAL_EMUL] = new LinkedHashMap(5);
 
 	// use a different table than FIELDS, given there might be a collision between emulation of X.this$0 and X.class.
 	FieldBinding synthField = (FieldBinding) this.synthetics[SourceTypeBinding.CLASS_LITERAL_EMUL].get(targetType);
@@ -409,9 +407,9 @@ public FieldBinding addSyntheticFieldForAssert(BlockScope blockScope) {
 	if (!isPrototype()) throw new IllegalStateException();
 
 	if (this.synthetics == null)
-		this.synthetics = new HashMap[MAX_SYNTHETICS];
+		this.synthetics = new LinkedHashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.FIELD_EMUL] == null)
-		this.synthetics[SourceTypeBinding.FIELD_EMUL] = new HashMap(5);
+		this.synthetics[SourceTypeBinding.FIELD_EMUL] = new LinkedHashMap(5);
 
 	FieldBinding synthField = (FieldBinding) this.synthetics[SourceTypeBinding.FIELD_EMUL].get("assertionEmulation"); //$NON-NLS-1$
 	if (synthField == null) {
@@ -455,9 +453,9 @@ public FieldBinding addSyntheticFieldForEnumValues() {
 
 	if (!isPrototype()) throw new IllegalStateException();
 	if (this.synthetics == null)
-		this.synthetics = new HashMap[MAX_SYNTHETICS];
+		this.synthetics = new LinkedHashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.FIELD_EMUL] == null)
-		this.synthetics[SourceTypeBinding.FIELD_EMUL] = new HashMap(5);
+		this.synthetics[SourceTypeBinding.FIELD_EMUL] = new LinkedHashMap(5);
 
 	FieldBinding synthField = (FieldBinding) this.synthetics[SourceTypeBinding.FIELD_EMUL].get("enumConstantValues"); //$NON-NLS-1$
 	if (synthField == null) {
@@ -501,9 +499,9 @@ public FieldBinding addSyntheticFieldForEnumValues() {
 public SyntheticMethodBinding addSyntheticMethod(FieldBinding targetField, boolean isReadAccess, boolean isSuperAccess) {
 	if (!isPrototype()) throw new IllegalStateException();
 	if (this.synthetics == null)
-		this.synthetics = new HashMap[MAX_SYNTHETICS];
+		this.synthetics = new LinkedHashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.METHOD_EMUL] == null)
-		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new HashMap(5);
+		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new LinkedHashMap(5);
 
 	SyntheticMethodBinding accessMethod = null;
 	SyntheticMethodBinding[] accessors = (SyntheticMethodBinding[]) this.synthetics[SourceTypeBinding.METHOD_EMUL].get(targetField);
@@ -525,9 +523,9 @@ public SyntheticMethodBinding addSyntheticMethod(FieldBinding targetField, boole
 public SyntheticMethodBinding addSyntheticEnumMethod(char[] selector) {
 	if (!isPrototype()) throw new IllegalStateException();
 	if (this.synthetics == null)
-		this.synthetics = new HashMap[MAX_SYNTHETICS];
+		this.synthetics = new LinkedHashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.METHOD_EMUL] == null)
-		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new HashMap(5);
+		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new LinkedHashMap(5);
 
 	SyntheticMethodBinding accessMethod = null;
 	SyntheticMethodBinding[] accessors = (SyntheticMethodBinding[]) this.synthetics[SourceTypeBinding.METHOD_EMUL].get(selector);
@@ -549,9 +547,9 @@ public SyntheticMethodBinding addSyntheticEnumMethod(char[] selector) {
 public SyntheticFieldBinding addSyntheticFieldForSwitchEnum(char[] fieldName, String key) {
 	if (!isPrototype()) throw new IllegalStateException();
 	if (this.synthetics == null)
-		this.synthetics = new HashMap[MAX_SYNTHETICS];
+		this.synthetics = new LinkedHashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.FIELD_EMUL] == null)
-		this.synthetics[SourceTypeBinding.FIELD_EMUL] = new HashMap(5);
+		this.synthetics[SourceTypeBinding.FIELD_EMUL] = new LinkedHashMap(5);
 
 	SyntheticFieldBinding synthField = (SyntheticFieldBinding) this.synthetics[SourceTypeBinding.FIELD_EMUL].get(key);
 	if (synthField == null) {
@@ -594,9 +592,9 @@ public SyntheticFieldBinding addSyntheticFieldForSwitchEnum(char[] fieldName, St
 public SyntheticMethodBinding addSyntheticMethodForSwitchEnum(TypeBinding enumBinding, SwitchStatement switchStatement) {
 	if (!isPrototype()) throw new IllegalStateException();
 	if (this.synthetics == null)
-		this.synthetics = new HashMap[MAX_SYNTHETICS];
+		this.synthetics = new LinkedHashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.METHOD_EMUL] == null)
-		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new HashMap(5);
+		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new LinkedHashMap(5);
 
 	SyntheticMethodBinding accessMethod = null;
 	char[] selector = CharOperation.concat(TypeConstants.SYNTHETIC_SWITCH_ENUM_TABLE, enumBinding.constantPoolName());
@@ -622,9 +620,9 @@ public SyntheticMethodBinding addSyntheticMethodForSwitchEnum(TypeBinding enumBi
 public SyntheticMethodBinding addSyntheticMethodForEnumInitialization(int begin, int end) {
 	if (!isPrototype()) throw new IllegalStateException();
 	if (this.synthetics == null)
-		this.synthetics = new HashMap[MAX_SYNTHETICS];
+		this.synthetics = new LinkedHashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.METHOD_EMUL] == null)
-		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new HashMap(5);
+		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new LinkedHashMap(5);
 
 	SyntheticMethodBinding accessMethod = new SyntheticMethodBinding(this, begin, end);
 	SyntheticMethodBinding[] accessors = new SyntheticMethodBinding[2];
@@ -635,9 +633,9 @@ public SyntheticMethodBinding addSyntheticMethodForEnumInitialization(int begin,
 public SyntheticMethodBinding addSyntheticMethod(LambdaExpression lambda) {
 	if (!isPrototype()) throw new IllegalStateException();
 	if (this.synthetics == null)
-		this.synthetics = new HashMap[MAX_SYNTHETICS];
+		this.synthetics = new LinkedHashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.METHOD_EMUL] == null)
-		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new HashMap(5);
+		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new LinkedHashMap(5);
 
 	SyntheticMethodBinding lambdaMethod = null;
 	SyntheticMethodBinding[] lambdaMethods = (SyntheticMethodBinding[]) this.synthetics[SourceTypeBinding.METHOD_EMUL].get(lambda);
@@ -666,9 +664,9 @@ public SyntheticMethodBinding addSyntheticMethod(ReferenceExpression ref) {
 	if (!ref.isSerializable)
 		return null;
 	if (this.synthetics == null)
-		this.synthetics = new HashMap[MAX_SYNTHETICS];
+		this.synthetics = new LinkedHashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.METHOD_EMUL] == null)
-		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new HashMap(5);
+		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new LinkedHashMap(5);
 
 	SyntheticMethodBinding lambdaMethod = null;
 	SyntheticMethodBinding[] lambdaMethods = (SyntheticMethodBinding[]) this.synthetics[SourceTypeBinding.METHOD_EMUL].get(ref);
@@ -699,9 +697,9 @@ private void addDeserializeLambdaMethod() {
 public SyntheticMethodBinding addSyntheticMethod(MethodBinding targetMethod, boolean isSuperAccess) {
 	if (!isPrototype()) throw new IllegalStateException();
 	if (this.synthetics == null)
-		this.synthetics = new HashMap[MAX_SYNTHETICS];
+		this.synthetics = new LinkedHashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.METHOD_EMUL] == null)
-		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new HashMap(5);
+		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new LinkedHashMap(5);
 
 	SyntheticMethodBinding accessMethod = null;
 	SyntheticMethodBinding[] accessors = (SyntheticMethodBinding[]) this.synthetics[SourceTypeBinding.METHOD_EMUL].get(targetMethod);
@@ -729,9 +727,9 @@ public SyntheticMethodBinding addSyntheticMethod(MethodBinding targetMethod, boo
 public SyntheticMethodBinding addSyntheticArrayMethod(ArrayBinding arrayType, int purpose, char[] selector) {
 	if (!isPrototype()) throw new IllegalStateException();
 	if (this.synthetics == null)
-		this.synthetics = new HashMap[MAX_SYNTHETICS];
+		this.synthetics = new LinkedHashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.METHOD_EMUL] == null)
-		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new HashMap(5);
+		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new LinkedHashMap(5);
 
 	SyntheticMethodBinding arrayMethod = null;
 	SyntheticMethodBinding[] arrayMethods = (SyntheticMethodBinding[]) this.synthetics[SourceTypeBinding.METHOD_EMUL].get(arrayType);
@@ -750,9 +748,9 @@ public SyntheticMethodBinding addSyntheticArrayMethod(ArrayBinding arrayType, in
 public SyntheticMethodBinding addSyntheticFactoryMethod(MethodBinding privateConstructor, MethodBinding publicConstructor, TypeBinding [] enclosingInstances, char[] selector) {
 	if (!isPrototype()) throw new IllegalStateException();
 	if (this.synthetics == null)
-		this.synthetics = new HashMap[MAX_SYNTHETICS];
+		this.synthetics = new LinkedHashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.METHOD_EMUL] == null)
-		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new HashMap(5);
+		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new LinkedHashMap(5);
 
 	SyntheticMethodBinding factory = new SyntheticMethodBinding(privateConstructor, publicConstructor, selector, enclosingInstances, this);
 	this.synthetics[SourceTypeBinding.METHOD_EMUL].put(selector, new SyntheticMethodBinding[] { factory });
@@ -770,9 +768,9 @@ public SyntheticMethodBinding addSyntheticBridgeMethod(MethodBinding inheritedMe
 			return null; // do not need bridge method
 	}
 	if (this.synthetics == null)
-		this.synthetics = new HashMap[MAX_SYNTHETICS];
+		this.synthetics = new LinkedHashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.METHOD_EMUL] == null) {
-		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new HashMap(5);
+		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new LinkedHashMap(5);
 	} else {
 		// check to see if there is another equivalent inheritedMethod already added
 		Iterator synthMethods = this.synthetics[SourceTypeBinding.METHOD_EMUL].keySet().iterator();
@@ -818,9 +816,9 @@ public SyntheticMethodBinding addSyntheticBridgeMethod(MethodBinding inheritedMe
 		return null;
 	}
 	if (this.synthetics == null)
-		this.synthetics = new HashMap[MAX_SYNTHETICS];
+		this.synthetics = new LinkedHashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.METHOD_EMUL] == null) {
-		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new HashMap(5);
+		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new LinkedHashMap(5);
 	} else {
 		// check to see if there is another equivalent inheritedMethod already added
 		Iterator synthMethods = this.synthetics[SourceTypeBinding.METHOD_EMUL].keySet().iterator();
@@ -938,9 +936,9 @@ public List<MethodBinding> checkAndAddSyntheticRecordComponentAccessors(MethodBi
 public SyntheticMethodBinding addSyntheticRecordCanonicalConstructor() {
 	if (!isPrototype()) throw new IllegalStateException();
 	if (this.synthetics == null)
-		this.synthetics = new HashMap[MAX_SYNTHETICS];
+		this.synthetics = new LinkedHashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.METHOD_EMUL] == null)
-		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new HashMap(5);
+		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new LinkedHashMap(5);
 
 	SyntheticMethodBinding canonicalConstructor = new SyntheticMethodBinding(this, this.components);
 	SyntheticMethodBinding[] accessors = new SyntheticMethodBinding[2];
@@ -961,9 +959,9 @@ public void removeSyntheticRecordCanonicalConstructor(SyntheticMethodBinding imp
 public SyntheticMethodBinding addSyntheticRecordComponentAccessor(RecordComponentBinding rcb, int index) {
 	if (!isPrototype()) throw new IllegalStateException();
 	if (this.synthetics == null)
-		this.synthetics = new HashMap[MAX_SYNTHETICS];
+		this.synthetics = new LinkedHashMap[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.METHOD_EMUL] == null)
-		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new HashMap(5);
+		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new LinkedHashMap(5);
 
 	SyntheticMethodBinding accessMethod = new SyntheticMethodBinding(this, rcb, index);
 	SyntheticMethodBinding[] accessors = (SyntheticMethodBinding[]) this.synthetics[SourceTypeBinding.METHOD_EMUL].get(rcb.name);
@@ -998,9 +996,9 @@ public SyntheticMethodBinding addSyntheticRecordComponentAccessor(RecordComponen
 }
 public SyntheticMethodBinding addSyntheticRecordOverrideMethod(char[] selector, int index) {
 	if (this.synthetics == null)
-		this.synthetics = new HashMap[MAX_SYNTHETICS];
+		this.synthetics = new Map[MAX_SYNTHETICS];
 	if (this.synthetics[SourceTypeBinding.METHOD_EMUL] == null)
-		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new HashMap(5);
+		this.synthetics[SourceTypeBinding.METHOD_EMUL] = new LinkedHashMap(5);
 
 	SyntheticMethodBinding accessMethod = null;
 	SyntheticMethodBinding[] accessors = (SyntheticMethodBinding[]) this.synthetics[SourceTypeBinding.METHOD_EMUL].get(selector);
@@ -1018,7 +1016,7 @@ public SyntheticMethodBinding addSyntheticRecordOverrideMethod(char[] selector, 
 private void removeSyntheticRecordOverrideMethod(MethodBinding smb) {
 	if (this.synthetics == null)
 		return;
-	HashMap syntheticMethods = this.synthetics[SourceTypeBinding.METHOD_EMUL];
+	Map syntheticMethods = this.synthetics[SourceTypeBinding.METHOD_EMUL];
 	if (syntheticMethods == null)
 		return;
 	syntheticMethods.remove(smb.selector);

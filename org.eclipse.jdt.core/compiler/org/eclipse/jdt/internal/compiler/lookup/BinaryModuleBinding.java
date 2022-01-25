@@ -13,7 +13,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.stream.Stream;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -240,7 +240,7 @@ public class BinaryModuleBinding extends ModuleBinding {
 	}
 	private void resolveServices() {
 		this.services = new TypeBinding[this.unresolvedProvides.length];
-		this.implementations = new HashMap<>();
+		this.implementations = new LinkedHashMap<>();
 		for (int i = 0; i < this.unresolvedProvides.length; i++) {
 			this.services[i] = this.environment.getType(CharOperation.splitOn('.', this.unresolvedProvides[i].name()), this);
 			char[][] implNames = this.unresolvedProvides[i].with();

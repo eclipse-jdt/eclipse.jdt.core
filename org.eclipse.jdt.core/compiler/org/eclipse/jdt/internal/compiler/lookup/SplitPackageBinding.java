@@ -13,8 +13,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -63,8 +63,8 @@ public class SplitPackageBinding extends PackageBinding {
 
 	public SplitPackageBinding(PackageBinding initialBinding, ModuleBinding primaryModule) {
 		super(initialBinding.compoundName, initialBinding.parent, primaryModule.environment, primaryModule);
-		this.declaringModules = new HashSet<>();
-		this.incarnations = new HashSet<>();
+		this.declaringModules = new LinkedHashSet<>();
+		this.incarnations = new LinkedHashSet<>();
 		add(initialBinding);
 	}
 	public void add(PackageBinding packageBinding) {
@@ -164,7 +164,7 @@ public class SplitPackageBinding extends PackageBinding {
 	@Override
 	protected PackageBinding findPackage(char[] name, ModuleBinding module) {
 		char[][] subpackageCompoundName = CharOperation.arrayConcat(this.compoundName, name);
-		Set<PackageBinding> candidates = new HashSet<>();
+		Set<PackageBinding> candidates = new LinkedHashSet<>();
 		for (ModuleBinding candidateModule : this.declaringModules) {
 			PackageBinding candidate = candidateModule.getVisiblePackage(subpackageCompoundName);
 			if (candidate != null
