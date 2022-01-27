@@ -887,7 +887,11 @@ public class SwitchStatement extends Expression {
 									if (con.typeID() == TypeIds.T_JavaLangString) {
 										return c2.stringValue().equals(con.stringValue());
 									} else {
-										return (c2.typeID() == TypeIds.T_JavaLangString) ? false : c2.intValue() == c1;
+										if (c2.typeID() == TypeIds.T_JavaLangString)
+											return false;
+										if (con.intValue() == c2.intValue())
+											return true;
+										return this.constants[idx] == c1;
 									}
 								};
 								TypeBinding type = c.e.resolvedType;

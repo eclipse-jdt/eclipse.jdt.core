@@ -4358,5 +4358,32 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
-
+	public void testBug578402() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X  {\n"
+					+ "enum Color{BLUE, RED, YELLOW;}\n"
+					+ "    public static void run(Color c) {\n"
+					+ "        switch(c) {\n"
+					+ "                case BLUE -> {\n"
+					+ "                    System.out.println(\"BLUE\");\n"
+					+ "                }\n"
+					+ "                case RED -> {\n"
+					+ "                    System.out.println(\"RED\");\n"
+					+ "                }\n"
+					+ "                case Object o -> {\n"
+					+ "                    System.out.println(o.toString());\n"
+					+ "                }\n"
+					+ "            }\n"
+					+ "    }"
+					+ "	public static void main(String[] args) {\n"
+					+ "		run(Color.RED);\n"
+					+ "		run(Color.BLUE);\n"
+					+ "	}\n"
+					+ "}",
+				},
+				"RED\n" +
+				"BLUE");
+	}
 }
