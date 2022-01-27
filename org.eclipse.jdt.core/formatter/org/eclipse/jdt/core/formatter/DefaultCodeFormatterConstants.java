@@ -4933,6 +4933,38 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_KEEP_IF_THEN_BODY_BLOCK_ON_ONE_LINE = JavaCore.PLUGIN_ID + ".formatter.keep_if_then_body_block_on_one_line"; //$NON-NLS-1$
 	/**
 	 * <pre>
+	 * FORMATTER / Option to control when the body of a switch statement/expression with arrows should be kept on one line
+	 *     - option id:         "org.eclipse.jdt.core.formatter.keep_switch_body_block_on_one_line"
+	 *     - possible values:   { ONE_LINE_NEVER, ONE_LINE_IF_EMPTY, ONE_LINE_IF_SINGLE_ITEM,
+	 *                            ONE_LINE_ALWAYS, ONE_LINE_PRESERVE }
+	 *     - default:           ONE_LINE_NEVER
+	 * </pre>
+	 * @see #ONE_LINE_NEVER
+	 * @see #ONE_LINE_IF_EMPTY
+	 * @see #ONE_LINE_IF_SINGLE_ITEM
+	 * @see #ONE_LINE_ALWAYS
+	 * @see #ONE_LINE_PRESERVE
+	 * @since 3.29
+	 */
+	public static final String FORMATTER_KEEP_SWITCH_BODY_BLOCK_ON_ONE_LINE = JavaCore.PLUGIN_ID + ".formatter.keep_switch_body_block_on_one_line"; //$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option to control when a block following a switch case with arrow should be kept on one line
+	 *     - option id:         "org.eclipse.jdt.core.formatter.keep_switch_case_with_arrow_on_one_line"
+	 *     - possible values:   { ONE_LINE_NEVER, ONE_LINE_IF_EMPTY, ONE_LINE_IF_SINGLE_ITEM,
+	 *                            ONE_LINE_ALWAYS, ONE_LINE_PRESERVE }
+	 *     - default:           ONE_LINE_NEVER
+	 * </pre>
+	 * @see #ONE_LINE_NEVER
+	 * @see #ONE_LINE_IF_EMPTY
+	 * @see #ONE_LINE_IF_SINGLE_ITEM
+	 * @see #ONE_LINE_ALWAYS
+	 * @see #ONE_LINE_PRESERVE
+	 * @since 3.29
+	 */
+	public static final String FORMATTER_KEEP_SWITCH_CASE_WITH_ARROW_ON_ONE_LINE = JavaCore.PLUGIN_ID + ".formatter.keep_switch_case_with_arrow_on_one_line"; //$NON-NLS-1$
+	/**
+	 * <pre>
 	 * FORMATTER / Option to control when a code block other than if-then and loop body should
 	 *             be kept on one line
 	 *     - option id:         "org.eclipse.jdt.core.formatter.keep_code_block_on_one_line"

@@ -16098,4 +16098,69 @@ public void testBug578044e() throws JavaModelException {
 	String input = getCompilationUnit("Formatter", "", "test578044", "in.java").getSource();
 	formatSource(input, getCompilationUnit("Formatter", "", "test578044", "E_out.java").getSource());
 }
+
+/**
+ * https://bugs.eclipse.org/578361 - [formatter] Keep braced code on one line: settings for new switch constructs
+ */
+public void testBug578361a() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_14);
+	this.formatterPrefs.page_width = 80;
+	this.formatterPrefs.keep_switch_case_with_arrow_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_ALWAYS;
+	String input = getCompilationUnit("Formatter", "", "test578361", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test578361", "A_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/578361 - [formatter] Keep braced code on one line: settings for new switch constructs
+ */
+public void testBug578361b() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_14);
+	this.formatterPrefs.page_width = 80;
+	this.formatterPrefs.keep_switch_body_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_ALWAYS;
+	String input = getCompilationUnit("Formatter", "", "test578361", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test578361", "B_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/578361 - [formatter] Keep braced code on one line: settings for new switch constructs
+ */
+public void testBug578361c() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_14);
+	this.formatterPrefs.keep_switch_case_with_arrow_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_ALWAYS;
+	this.formatterPrefs.keep_switch_body_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_ALWAYS;
+	String input = getCompilationUnit("Formatter", "", "test578361", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test578361", "C_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/578361 - [formatter] Keep braced code on one line: settings for new switch constructs
+ */
+public void testBug578361d() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_14);
+	this.formatterPrefs.keep_switch_case_with_arrow_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_SINGLE_ITEM;
+	this.formatterPrefs.keep_switch_body_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_SINGLE_ITEM;
+	String input = getCompilationUnit("Formatter", "", "test578361", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test578361", "D_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/578361 - [formatter] Keep braced code on one line: settings for new switch constructs
+ */
+public void testBug578361e() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_14);
+	this.formatterPrefs.page_width = 55;
+	this.formatterPrefs.keep_switch_body_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_ALWAYS;
+	this.formatterPrefs.keep_switch_case_with_arrow_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_ALWAYS;
+	this.formatterPrefs.alignment_for_switch_case_with_arrow = Alignment.M_COMPACT_SPLIT + Alignment.M_INDENT_BY_ONE;
+	String input = getCompilationUnit("Formatter", "", "test578361", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test578361", "E_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/578361 - [formatter] Keep braced code on one line: settings for new switch constructs
+ */
+public void testBug578361f() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_14);
+	this.formatterPrefs.page_width = 55;
+	this.formatterPrefs.keep_switch_body_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_ALWAYS;
+	this.formatterPrefs.keep_switch_case_with_arrow_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_ALWAYS;
+	this.formatterPrefs.alignment_for_switch_case_with_arrow = Alignment.M_NO_ALIGNMENT;
+	String input = getCompilationUnit("Formatter", "", "test578361", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test578361", "F_out.java").getSource());
+}
 }

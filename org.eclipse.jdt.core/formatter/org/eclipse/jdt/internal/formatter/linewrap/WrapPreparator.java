@@ -14,6 +14,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.formatter.linewrap;
 
+import static java.util.stream.Collectors.toList;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameARROW;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOLON;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMA;
@@ -52,7 +53,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
-
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.Annotation;
@@ -995,24 +995,7 @@ public class WrapPreparator extends ASTVisitor {
 		}
 		if (node.getBody() instanceof Block) {
 			forceContinuousWrapping(node.getBody(), this.tm.firstIndexIn(node, -1));
-
-			List<Statement> statements = ((Block) node.getBody()).statements();
-			if (!statements.isEmpty()) {
-				int openBraceIndex = this.tm.firstIndexBefore(statements.get(0), TokenNameLBRACE);
-				int closeBraceIndex = this.tm.firstIndexAfter(statements.get(statements.size() - 1), TokenNameRBRACE);
-				boolean areKeptOnOneLine = this.tm.stream()
-						.skip(openBraceIndex + 1).limit(closeBraceIndex - openBraceIndex - 1)
-						.allMatch(t -> t.getLineBreaksBefore() == 0 && t.getLineBreaksAfter() == 0);
-				if (areKeptOnOneLine) {
-					for (Statement statement : statements)
-						this.wrapIndexes.add(this.tm.firstIndexIn(statement, -1));
-					this.wrapParentIndex = openBraceIndex;
-					this.wrapGroupEnd = closeBraceIndex;
-					handleWrap(Alignment.M_ONE_PER_LINE_SPLIT, node);
-					this.tm.get(closeBraceIndex).setWrapPolicy(new WrapPolicy(WrapMode.TOP_PRIORITY, openBraceIndex,
-							closeBraceIndex, 0, this.currentDepth, 1, false, false));
-				}
-			}
+			handleOneLineEnforced(node, ((Block) node.getBody()).statements());
 		}
 		if (node.hasParentheses()) {
 			List<VariableDeclaration> parameters = node.parameters();
@@ -1022,6 +1005,29 @@ public class WrapPreparator extends ASTVisitor {
 			this.currentDepth--;
 		}
 		return true;
+	}
+
+	private void handleOneLineEnforced(ASTNode node, List<Statement> statements) {
+		if (statements.isEmpty())
+			return;
+		int openBraceIndex = this.tm.firstIndexBefore(statements.get(0), TokenNameLBRACE);
+		int closeBraceIndex = this.tm.firstIndexAfter(statements.get(statements.size() - 1), TokenNameRBRACE);
+		if (areKeptOnOneLine(openBraceIndex, closeBraceIndex)) {
+			for (Statement statement : statements)
+				this.wrapIndexes.add(this.tm.firstIndexIn(statement, -1));
+			this.wrapParentIndex = openBraceIndex;
+			this.wrapGroupEnd = closeBraceIndex;
+			this.currentDepth++;
+			handleWrap(Alignment.M_ONE_PER_LINE_SPLIT + Alignment.M_INDENT_BY_ONE, node);
+			this.tm.get(closeBraceIndex).setWrapPolicy(new WrapPolicy(WrapMode.TOP_PRIORITY, openBraceIndex,
+					closeBraceIndex, 0, this.currentDepth, 1, false, false));
+			this.currentDepth--;
+		}
+	}
+
+	private boolean areKeptOnOneLine(int startIndex, int endIndex) {
+		return this.tm.stream().skip(startIndex + 1).limit(endIndex - startIndex - 1)
+				.allMatch(t -> t.getLineBreaksBefore() == 0 && t.getLineBreaksAfter() == 0);
 	}
 
 	@Override
@@ -1133,6 +1139,7 @@ public class WrapPreparator extends ASTVisitor {
 		int lParen = this.tm.firstIndexIn(node, TokenNameLPAREN);
 		int rParen = this.tm.firstIndexAfter(node.getExpression(), TokenNameRPAREN);
 		handleParenthesesPositions(lParen, rParen, this.options.parenthesis_positions_in_switch_statement);
+		handleOneLineEnforcedSwitchCases(node, node.statements());
 		return true;
 	}
 
@@ -1142,7 +1149,21 @@ public class WrapPreparator extends ASTVisitor {
 		int rParen = this.tm.firstIndexAfter(node.getExpression(), TokenNameRPAREN);
 		handleParenthesesPositions(lParen, rParen, this.options.parenthesis_positions_in_switch_statement);
 		forceContinuousWrapping(node, this.tm.firstIndexIn(node, TokenNameLPAREN));
+		List<Statement> statements = node.statements();
+		List<Statement> caseStatements = statements.stream().filter(SwitchCase.class::isInstance).collect(toList());
+		handleOneLineEnforced(node, caseStatements);
+		handleOneLineEnforcedSwitchCases(node, statements);
 		return true;
+	}
+
+	private void handleOneLineEnforcedSwitchCases(ASTNode node, List<Statement> statements) {
+		if (statements.isEmpty() || !((SwitchCase) statements.get(0)).isSwitchLabeledRule())
+			return;
+		for (Statement statement : statements) {
+			if (statement instanceof Block) {
+				handleOneLineEnforced(statement, ((Block)statement).statements());
+			}
+		}
 	}
 
 	@Override
@@ -1152,7 +1173,8 @@ public class WrapPreparator extends ASTVisitor {
 					? ((SwitchStatement) node.getParent()).statements()
 					: ((SwitchExpression) node.getParent()).statements();
 			Statement nextStatement = siblings.get(siblings.indexOf(node) + 1);
-			if (!(nextStatement instanceof Block)) {
+			if (!(nextStatement instanceof Block) || areKeptOnOneLine(this.tm.firstIndexIn(nextStatement, -1),
+					this.tm.lastIndexIn(nextStatement, -1))) {
 				int atArrow = this.tm.lastIndexIn(node, TokenNameARROW);
 				int afterArrow = this.tm.firstIndexIn(nextStatement, -1);
 				boolean wrapBefore = this.options.wrap_before_switch_case_arrow_operator;

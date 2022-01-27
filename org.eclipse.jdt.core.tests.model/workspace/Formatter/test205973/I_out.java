@@ -35,8 +35,8 @@ class Example {
 	    doSomething();
 	};
 	Runnable smallLambda = () -> {
-	    doFirstThing();
-	    doSecondThing();
+		doFirstThing();
+		doSecondThing();
 	};
 }
 

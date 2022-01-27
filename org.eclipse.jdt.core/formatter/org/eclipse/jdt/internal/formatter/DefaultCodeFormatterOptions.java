@@ -291,6 +291,8 @@ public class DefaultCodeFormatterOptions {
 
 	public String keep_loop_body_block_on_one_line;
 	public String keep_if_then_body_block_on_one_line;
+	public String keep_switch_body_block_on_one_line;
+	public String keep_switch_case_with_arrow_on_one_line;
 	public String keep_code_block_on_one_line;
 	public String keep_lambda_body_block_on_one_line;
 	public String keep_method_body_on_one_line;
@@ -723,6 +725,8 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_KEEP_ANNOTATION_DECLARATION_ON_ONE_LINE, this.keep_annotation_declaration_on_one_line);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_KEEP_ANONYMOUS_TYPE_DECLARATION_ON_ONE_LINE, this.keep_anonymous_type_declaration_on_one_line);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_KEEP_IF_THEN_BODY_BLOCK_ON_ONE_LINE, this.keep_if_then_body_block_on_one_line);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_KEEP_SWITCH_BODY_BLOCK_ON_ONE_LINE, this.keep_switch_body_block_on_one_line);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_KEEP_SWITCH_CASE_WITH_ARROW_ON_ONE_LINE, this.keep_switch_case_with_arrow_on_one_line);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_KEEP_LAMBDA_BODY_BLOCK_ON_ONE_LINE, this.keep_lambda_body_block_on_one_line);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_KEEP_LOOP_BODY_BLOCK_ON_ONE_LINE, this.keep_loop_body_block_on_one_line);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_KEEP_CODE_BLOCK_ON_ONE_LINE, this.keep_code_block_on_one_line);
@@ -1718,6 +1722,10 @@ public class DefaultCodeFormatterOptions {
 				v -> this.keep_anonymous_type_declaration_on_one_line = v);
 		setString(settings, DefaultCodeFormatterConstants.FORMATTER_KEEP_IF_THEN_BODY_BLOCK_ON_ONE_LINE, KEEP_ON_ONE_LINE_VALUES,
 				v -> this.keep_if_then_body_block_on_one_line = v);
+		setString(settings, DefaultCodeFormatterConstants.FORMATTER_KEEP_SWITCH_BODY_BLOCK_ON_ONE_LINE, KEEP_ON_ONE_LINE_VALUES,
+				v -> this.keep_switch_body_block_on_one_line = v);
+		setString(settings, DefaultCodeFormatterConstants.FORMATTER_KEEP_SWITCH_CASE_WITH_ARROW_ON_ONE_LINE, KEEP_ON_ONE_LINE_VALUES,
+				v -> this.keep_switch_case_with_arrow_on_one_line = v);
 		setString(settings, DefaultCodeFormatterConstants.FORMATTER_KEEP_LOOP_BODY_BLOCK_ON_ONE_LINE, KEEP_ON_ONE_LINE_VALUES,
 				v -> this.keep_loop_body_block_on_one_line = v);
 		setString(settings, DefaultCodeFormatterConstants.FORMATTER_KEEP_LAMBDA_BODY_BLOCK_ON_ONE_LINE, KEEP_ON_ONE_LINE_VALUES,
@@ -2795,6 +2803,10 @@ public class DefaultCodeFormatterOptions {
 			setBoolean(settings, DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_EMPTY_BLOCK, JavaCore.INSERT,
 					v -> this.keep_if_then_body_block_on_one_line = insertToOneLine.get(v));
 		}
+		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_KEEP_SWITCH_CASE_WITH_ARROW_ON_ONE_LINE) == null) {
+			setBoolean(settings, DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_EMPTY_BLOCK, JavaCore.INSERT,
+					v -> this.keep_switch_case_with_arrow_on_one_line = insertToOneLine.get(v));
+		}
 		if (settings.get(DefaultCodeFormatterConstants.FORMATTER_KEEP_LOOP_BODY_BLOCK_ON_ONE_LINE) == null) {
 			setBoolean(settings, DefaultCodeFormatterConstants.FORMATTER_INSERT_NEW_LINE_IN_EMPTY_BLOCK, JavaCore.INSERT,
 					v -> this.keep_loop_body_block_on_one_line = insertToOneLine.get(v));
@@ -3097,6 +3109,8 @@ public class DefaultCodeFormatterOptions {
 		this.keep_annotation_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
 		this.keep_anonymous_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
 		this.keep_if_then_body_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+		this.keep_switch_body_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+		this.keep_switch_case_with_arrow_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
 		this.keep_lambda_body_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
 		this.keep_loop_body_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
 		this.keep_code_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
@@ -3496,6 +3510,8 @@ public class DefaultCodeFormatterOptions {
 		this.keep_annotation_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
 		this.keep_anonymous_type_declaration_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
 		this.keep_if_then_body_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+		this.keep_switch_body_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
+		this.keep_switch_case_with_arrow_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
 		this.keep_lambda_body_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
 		this.keep_loop_body_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
 		this.keep_code_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_NEVER;
