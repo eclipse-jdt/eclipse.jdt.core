@@ -59,6 +59,7 @@ public interface JavadocTagConstants {
 	public static final char[] TAG_IMPL_NOTE = "implNote".toCharArray(); //$NON-NLS-1$
 	public static final char[] TAG_SNIPPET = "snippet".toCharArray(); //$NON-NLS-1$
 	public static final char[] TAG_HIGHLIGHT = "highlight".toCharArray(); //$NON-NLS-1$
+	public static final char[] TAG_REPLACE = "replace".toCharArray(); //$NON-NLS-1$
 
 	// tags lengthes
 	public static final int TAG_DEPRECATED_LENGTH = TAG_DEPRECATED.length;
@@ -92,6 +93,7 @@ public interface JavadocTagConstants {
 	public static final int TAG_IMPL_NOTE_LENGTH = TAG_IMPL_NOTE.length;
 	public static final int TAG_SNIPPET_LENGTH = TAG_SNIPPET.length;
 	public static final int TAG_HIGHLIGHT_LENGTH = TAG_HIGHLIGHT.length;
+	public static final int TAG_REPLACE_LENGTH = TAG_REPLACE.length;
 
 
 	// tags value
@@ -127,6 +129,7 @@ public interface JavadocTagConstants {
 	public static final int TAG_IMPL_NOTE_VALUE = 29;
 	public static final int TAG_SNIPPET_VALUE = 30;
 	public static final int TAG_HIGHLIGHT_VALUE = 31;
+	public static final int TAG_REPLACE_VALUE = 32;
 	public static final int TAG_OTHERS_VALUE = 100;
 	// Tag names array
 	public static final char[][] TAG_NAMES = {
@@ -162,6 +165,7 @@ public interface JavadocTagConstants {
 		TAG_IMPL_NOTE,			/* 29 */
 		TAG_SNIPPET,			/* 30 */
 		TAG_HIGHLIGHT,			/* 31 */
+		TAG_REPLACE,			/* 32 */
 	};
 
 	// tags expected positions
@@ -263,7 +267,7 @@ public interface JavadocTagConstants {
 	};
 	public static final char[][][] IN_SNIPPET_TAGS = {
 		//since 18
-			{ TAG_HIGHLIGHT }
+			{ TAG_HIGHLIGHT, TAG_REPLACE }
 	};
 	public final static int IN_SNIPPET_TAGS_LENGTH = IN_SNIPPET_TAGS.length;
 	public final static int INLINE_TAGS_LENGTH = INLINE_TAGS.length;
@@ -307,6 +311,7 @@ public interface JavadocTagConstants {
 		TAG_TYPE_BLOCK,		// TAG_IMPL_NOTE = 29;
 		TAG_TYPE_INLINE,	// TAG_SNIPPET_VALUE = 30;
 		TAG_TYPE_IN_SNIPPET,// TAG_HIGHLIGHT_VALUE = 31;
+		TAG_TYPE_IN_SNIPPET,// TAG_HIGHLIGHT_VALUE = 32;
  	};
 	/*
 	 * Tags usage
