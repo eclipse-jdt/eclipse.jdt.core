@@ -4472,4 +4472,92 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"true");
 	}
+	private String getTestCaseForBug578504 (String caseConstant) {
+		return "public class X {\n"
+				+ "    public Object literal = \"a\";\n"
+				+ "    @SuppressWarnings(\"preview\")\n"
+				+ "	public boolean foo() {\n"
+				+ "        String s = switch(literal) {\n"
+				+ "            " + caseConstant
+				+ "                yield \"a\";\n"
+				+ "            }\n"
+				+ "            case default -> { \n"
+				+ "                yield \"b\";\n"
+				+ "            }\n"
+				+ "        }; \n"
+				+ "        return s.equals(\"a\");\n"
+				+ "    }\n"
+				+ "    public static void main(String[] argv) {\n"
+				+ "    	X c = new X();\n"
+				+ "    	System.out.println(c.foo());\n"
+				+ "    }\n"
+				+ "}";
+	}
+	public void testBug578504_1() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					getTestCaseForBug578504("case ((String a && a.equals(\"a\")) && a != null)  -> { \n")
+					,
+				},
+				"true");
+	}
+	public void testBug578504_2() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					getTestCaseForBug578504("case ((CharSequence a && a instanceof String ss && ss == null) && ss != null)  -> {\n"),
+				},
+				"false");
+	}
+	public void testBug578504_3() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					getTestCaseForBug578504("case (CharSequence a && (a instanceof String ss && ss != null) && ss != null)  -> {\n"),
+				},
+				"true");
+	}
+	public void testBug578504_4() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					getTestCaseForBug578504("case ((CharSequence a && (a == null || a instanceof String ss)) && ss != null)  -> {\n"),
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 6)\n" +
+				"	case ((CharSequence a && (a == null || a instanceof String ss)) && ss != null)  -> {\n" +
+				"	                                                                   ^^\n" +
+				"ss cannot be resolved to a variable\n" +
+				"----------\n");
+	}
+	public void testBug578504_5() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					getTestCaseForBug578504("case ((CharSequence a && (a instanceof String ss || a == null)) && ss != null)  -> {\n"),
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 6)\n" +
+				"	case ((CharSequence a && (a instanceof String ss || a == null)) && ss != null)  -> {\n" +
+				"	                                                                   ^^\n" +
+				"ss cannot be resolved to a variable\n" +
+				"----------\n");
+	}
+	public void testBug578504_6() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					getTestCaseForBug578504("case ((CharSequence a && (a instanceof String ss && a instanceof String sss)) && ss == sss)  -> {\n"),
+				},
+				"true");
+	}
+	public void testBug578504_7() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					getTestCaseForBug578504("case ((CharSequence a && (a instanceof String ss && a instanceof String sss)) && ss != sss)  -> {\n"),
+				},
+				"false");
+	}
 }

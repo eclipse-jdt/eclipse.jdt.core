@@ -10832,7 +10832,13 @@ protected void consumeGuardedPattern() {
 	Pattern pattern = (Pattern) this.astStack[this.astPtr--];
 	Expression expr = this.expressionStack[this.expressionPtr--];
 	this.expressionLengthPtr--;
-	pushOnAstStack(new GuardedPattern(pattern, expr));
+	if (pattern instanceof GuardedPattern) {
+		GuardedPattern gPattern = (GuardedPattern) pattern;
+		AND_AND_Expression andExpression = new AND_AND_Expression(gPattern.condition, expr, OperatorIds.AND_AND);
+		pushOnAstStack(new GuardedPattern(gPattern.primaryPattern, andExpression));
+	} else {
+		pushOnAstStack(new GuardedPattern(pattern, expr));
+	}
 }
 protected void consumeTypePattern() {
 
