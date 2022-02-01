@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021 IBM Corporation and others.
+ * Copyright (c) 2021, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -212,7 +212,7 @@ public class GuardedPattern extends Pattern{
 	 * <code>empty</code> if there is none.
 	 * @return the pattern node
 	 * 			(element type: {@link Pattern})
-	 * @exception UnsupportedOperationException if this operation is used other than JLS17
+	 * @exception UnsupportedOperationException if this operation is used other than JLS18
 	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
 	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
 	 */
@@ -248,7 +248,7 @@ public class GuardedPattern extends Pattern{
 	 * Sets the pattern of this switch case.
 	 * @param pattern
 	 * @noreference This method is not intended to be referenced by clients.
-	 * @exception UnsupportedOperationException if this operation is used not for JLS17
+	 * @exception UnsupportedOperationException if this operation is used not for JLS18
 	 * @exception UnsupportedOperationException if this operation is used without previewEnabled
 	 */
 	public void setPattern(Pattern pattern) {
