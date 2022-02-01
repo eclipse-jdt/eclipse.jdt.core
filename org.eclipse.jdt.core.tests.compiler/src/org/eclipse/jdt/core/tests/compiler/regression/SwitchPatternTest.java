@@ -4445,7 +4445,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"2");
 	}
-	public void _testBug578241_1() {
+	public void testBug578241_1() {
 		runConformTest(
 				new String[] {
 					"X.java",

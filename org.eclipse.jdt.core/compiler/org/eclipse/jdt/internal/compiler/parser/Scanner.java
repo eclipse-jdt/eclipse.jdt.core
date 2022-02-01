@@ -1391,7 +1391,7 @@ public void ungetToken(int unambiguousToken) {
 	}
 	this.nextToken = unambiguousToken;
 }
-private void updateCase(int token) {
+protected void updateCase(int token) {
 	if (token == TokenNamecase) {
 		this.caseStartPosition = this.startPosition;
 		this.breakPreviewAllowed = true;
@@ -4704,14 +4704,24 @@ private static final class VanguardScanner extends Scanner {
 			updateScanContext(token);
 		} else if (mayBeAtCasePattern(token)) {
 			token = disambiguateCasePattern(token, this);
-		} else
-		if (token == TokenNameAT && atTypeAnnotation()) {
+		} else if (token == TokenNameARROW  &&
+				mayBeAtCaseLabelExpr() &&  this.caseStartPosition < this.startPosition) {
+				// this.caseStartPosition > this.startPositionpossible on recovery - bother only about correct ones.
+				// add fake token of TokenNameCOLON, call vanguard on this modified source
+				// TODO: Inefficient method due to redoing of the same source, investigate alternate
+				// Can we do a dup of parsing/check the transition of the state?
+				token = disambiguateArrowWithCaseExpr(this, token);
+		} else	if (token == TokenNameAT && atTypeAnnotation()) {
 			if (((VanguardParser) this.activeParser).currentGoal == Goal.LambdaParameterListGoal) {
 				token = disambiguatedToken(token, this);
 			} else {
 				token = TokenNameAT308;
 			}
 		}
+		this.lookBack[0] = this.lookBack[1];
+		this.lookBack[1] = token;
+		this.multiCaseLabelComma = false;
+		updateCase(token);
 		return token == TokenNameEOF ? TokenNameNotAToken : token;
 	}
 }
@@ -4747,7 +4757,7 @@ private static class Goal {
 	static int[] RestrictedIdentifierSealedFollow =  { TokenNameclass, TokenNameinterface,
 			TokenNameenum, TokenNameRestrictedIdentifierrecord };// Note: enum/record allowed as error flagging rules.
 	static int[] RestrictedIdentifierPermitsFollow =  { TokenNameLBRACE };
-	static int[] PatternCaseLabelFollow = {TokenNameCOLON, TokenNameARROW, TokenNameCOMMA};
+	static int[] PatternCaseLabelFollow = {TokenNameCOLON, TokenNameARROW, TokenNameCOMMA, TokenNameBeginCaseExpr};
 
 	static {
 
@@ -5389,12 +5399,7 @@ int disambiguatedToken(int token, Scanner scanner) {
 		// add fake token of TokenNameCOLON, call vanguard on this modified source
 		// TODO: Inefficient method due to redoing of the same source, investigate alternate
 		// Can we do a dup of parsing/check the transition of the state?
-		char[] nSource = CharOperation.append(Arrays.copyOfRange(scanner.source, scanner.caseStartPosition, scanner.startPosition), ':');
-		VanguardParser vp = getNewVanguardParser(nSource);
-		if (vp.parse(Goal.SwitchLabelCaseLhsGoal) == VanguardParser.SUCCESS) {
-			scanner.nextToken = TokenNameARROW;
-			return TokenNameBeginCaseExpr;
-		}
+		return disambiguateArrowWithCaseExpr(scanner, token);
 	} else	if (token == TokenNameLPAREN  && maybeAtLambdaOrCast()) {
 		if (parser.parse(Goal.LambdaParameterListGoal) == VanguardParser.SUCCESS) {
 			scanner.nextToken = TokenNameLPAREN;
@@ -5422,6 +5427,17 @@ int disambiguatedToken(int token, Scanner scanner) {
 	}
 	return token;
 }
+
+protected int disambiguateArrowWithCaseExpr(Scanner scanner, int retToken) {
+	char[] nSource = CharOperation.append(Arrays.copyOfRange(scanner.source, scanner.caseStartPosition, scanner.startPosition), ':');
+	VanguardParser vp = getNewVanguardParser(nSource);
+	if (vp.parse(Goal.SwitchLabelCaseLhsGoal) == VanguardParser.SUCCESS) {
+		scanner.nextToken = TokenNameARROW;
+		retToken = TokenNameBeginCaseExpr;
+//		scanner.caseStartPosition = scanner.caseStartStack.isEmpty() ? -1 : scanner.caseStartStack.pop();
+	}
+	return retToken;
+}
 /*
  * Assumption: mayBeAtCasePattern(token) is true before calling this method.
  */
@@ -5441,7 +5457,7 @@ int disambiguateCasePattern(int token, Scanner scanner) {
 	return token;
 }
 
-private boolean mayBeAtCaseLabelExpr() {
+protected boolean mayBeAtCaseLabelExpr() {
 	if (this.caseStartPosition <= 0)
 		return false;
 	if (this.lookBack[1] == TokenNamedefault) {

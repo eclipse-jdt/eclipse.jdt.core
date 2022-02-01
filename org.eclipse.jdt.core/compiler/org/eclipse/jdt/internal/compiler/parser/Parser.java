@@ -936,9 +936,9 @@ public class Parser implements TerminalTokens, ParserBasicInformation, Conflicte
 	protected int forStartPosition = 0;
 
 	protected int nestedType, dimensions, switchNestingLevel;
-	/* package */ int caseLevel;
-	protected int casePtr;
-	protected int[] caseStack;
+//	/* package */ int caseLevel;
+//	protected int casePtr;
+	protected Map<Integer, Integer> caseStartMap = new HashMap<>();
 	ASTNode [] noAstNodes = new ASTNode[AstStackIncrement];
 	public boolean switchWithTry = false;
 
@@ -1026,7 +1026,6 @@ public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals) {
 	this.expressionLengthStack = new int[30];
 	this.typeAnnotationLengthStack = new int[30];
 	this.intStack = new int[50];
-	this.caseStack = new int[16];
 	this.identifierStack = new char[30][];
 	this.identifierLengthStack = new int[30];
 	this.nestedMethod = new int[30];
@@ -2314,10 +2313,15 @@ protected void consumeCaseLabel() {
 	if (hasLeadingTagComment(FALL_THROUGH_TAG, caseStatement.sourceStart)) {
 		caseStatement.bits |= ASTNode.DocumentedFallthrough;
 	}
-	this.casePtr--;
-	this.scanner.caseStartPosition = this.casePtr >= 0 ? this.caseStack[this.casePtr] : -1;
+	this.scanner.caseStartPosition =  resetCaseStartAndPopPrev(this.switchNestingLevel);
 
 	pushOnAstStack(caseStatement);
+}
+private int resetCaseStartAndPopPrev(int nestingLevel) {
+	if (nestingLevel >= 0)
+		this.caseStartMap.put(nestingLevel, -1);
+
+	return this.caseStartMap.containsKey(nestingLevel - 1) ? this.caseStartMap.get(nestingLevel - 1): -1;
 }
 protected void consumeCastExpressionLL1() {
 	//CastExpression ::= '(' Name ')' InsideCastExpressionLL1 UnaryExpressionNotPlusMinus
@@ -9757,7 +9761,8 @@ private SwitchStatement createSwitchStatementOrExpression(boolean isStmt) {
 	if (length == 0 && !containsComment(switchStatement.blockStart, switchStatement.sourceEnd)) {
 		switchStatement.bits |= ASTNode.UndocumentedEmptyBlock;
 	}
-	this.scanner.caseStartPosition = -1; // safety: at the end of a switch we definitely leave the scope of this value
+//	this.scanner.caseStartPosition = -1; // safety: at the end of a switch we definitely leave the scope of this value
+	this.scanner.caseStartPosition =  resetCaseStartAndPopPrev(this.switchNestingLevel + 1); // +1 because already dec above
 	return switchStatement;
 }
 protected void consumeStatementSwitch() {
@@ -10001,7 +10006,11 @@ protected void consumeSwitchLabels() {
 protected void consumeSwitchLabelCaseLhs() {
 	if (this.scanner.lookBack[1] == TerminalTokens.TokenNameCOLON) // kludge for yield :(
 		this.scanner.yieldColons = 1;
-	this.scanner.caseStartPosition = -1; // value has expired
+	if (this.switchNestingLevel >= 0) {
+		this.caseStartMap.put(this.switchNestingLevel, -1);
+	}
+	this.scanner.caseStartPosition =  resetCaseStartAndPopPrev(this.switchNestingLevel);
+
 }
 protected void consumeCaseLabelExpr() {
 //	SwitchLabelExpr ::= SwitchLabelCaseLhs BeginCaseExpr '->'
@@ -10464,9 +10473,8 @@ protected void consumeToken(int type) {
 			pushOnIntStack(this.scanner.startPosition);
 			break;
 		case TokenNamecase :
-			this.caseLevel = this.switchNestingLevel;
 			pushOnIntStack(this.scanner.startPosition);
-			pushOnCaseStack(this.scanner.startPosition);
+			this.caseStartMap.put(this.switchNestingLevel, this.scanner.startPosition);
 			break;
 		case TokenNameswitch :
 			consumeNestedType();
@@ -12519,9 +12527,9 @@ public void initialize(boolean parsingCompilationUnit) {
 	this.identifierPtr = -1;
 	this.identifierLengthPtr	= -1;
 	this.intPtr = -1;
-	this.casePtr = -1;
 	this.nestedMethod[this.nestedType = 0] = 0; // need to reset for further reuse
 	this.switchNestingLevel = 0;
+	this.caseStartMap.clear();
 	this.switchWithTry = false;
 	this.variablesCounter[this.nestedType] = 0;
 	this.dimensions = 0 ;
@@ -13960,18 +13968,18 @@ protected void pushOnIntStack(int pos) {
 	}
 	this.intStack[this.intPtr] = pos;
 }
-protected void pushOnCaseStack(int pos) {
-
-	int stackLength = this.caseStack.length;
-	if (++this.casePtr >= stackLength) {
-		System.arraycopy(
-			this.caseStack, 0,
-			this.caseStack = new int[stackLength + StackIncrement], 0,
-			stackLength);
-	}
-	this.caseStack[this.casePtr] = pos;
-	// this.scanner.caseStartPosition updated at the scanner anyway - so not updating again.
-}
+//protected void _pushOnCaseStack(int pos) {
+//
+//	int stackLength = this.caseStartMap.length;
+//	if (++this.casePtr >= stackLength) {
+//		System.arraycopy(
+//			this.caseStartMap, 0,
+//			this.caseStartMap = new int[stackLength + StackIncrement], 0,
+//			stackLength);
+//	}
+//	this.caseStartMap[this.casePtr] = pos;
+//	// this.scanner.caseStartPosition updated at the scanner anyway - so not updating again.
+//}
 protected void pushOnRealBlockStack(int i){
 
 	int stackLength = this.realBlockStack.length;
@@ -14442,8 +14450,10 @@ protected int resumeOnSyntaxError() {
 	if (this.lastPosistion < this.scanner.currentPosition) {
 		this.lastPosistion = this.scanner.currentPosition;
 		this.scanner.lastPosition = this.scanner.currentPosition;
-		if (this.scanner.startPosition <= this.scanner.caseStartPosition)
+		if (this.scanner.startPosition <= this.scanner.caseStartPosition) {
 			this.scanner.caseStartPosition = -1;
+		}
+
 	}
 
 	/* attempt to reset state in order to resume to parse loop */
