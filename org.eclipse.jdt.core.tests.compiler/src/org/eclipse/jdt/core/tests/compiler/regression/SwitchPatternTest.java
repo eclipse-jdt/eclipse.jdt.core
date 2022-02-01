@@ -4386,4 +4386,64 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"RED\n" +
 				"BLUE");
 	}
+	public void testBug578402_2() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X  {\n"
+					+ "static final String CONST = \"abc\";\n"
+					+ "    public static void main(String args[]) {\n"
+					+ "        System.out.println(run());\n"
+					+ "    }\n"
+					+ "    public static int run() {\n"
+					+ "        String s = \"abc\";\n"
+					+ "        int a = -1;\n"
+					+ "        switch (s) {\n"
+					+ "            case CONST -> {\n"
+					+ "                a = 2;\n"
+					+ "                break;\n"
+					+ "            }\n"
+					+ "            case null -> {\n"
+					+ "                a = 0;\n"
+					+ "                break; \n"
+					+ "            }\n"
+					+ "            default -> {\n"
+					+ "            	a = 1;\n"
+					+ "            }\n"
+					+ "        }\n"
+					+ "        return a;\n"
+					+ "    }\n"
+					+ "}",
+				},
+				"2");
+	}
+	// to be enabled after bug 578417 is fixed.
+	public void _testBug578402_3() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X  {\n"
+					+ "static final String CONST = \"abc\";\n"
+					+ "    public static void main(String args[]) {\n"
+					+ "        System.out.println(run());\n"
+					+ "    }\n"
+					+ "    public static int run() {\n"
+					+ "        String s = \"abc\";\n"
+					+ "        int a = -1;\n"
+					+ "        switch (s) {\n"
+					+ "            case CONST -> {\n"
+					+ "                a = 2;\n"
+					+ "                break;\n"
+					+ "            }\n"
+					+ "            case String s1 -> {\n"
+					+ "                a = 0;\n"
+					+ "                break; \n"
+					+ "            }\n"
+					+ "        }\n"
+					+ "        return a;\n"
+					+ "    }\n"
+					+ "}",
+				},
+				"2");
+	}
 }
