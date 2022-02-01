@@ -33,7 +33,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug578107"};
+//		TESTS_NAMES = new String[] { "testBug578241"};
 	}
 
 	private static String previewLevel = "18";
@@ -4105,7 +4105,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"		#102 REF_getField c:Lp/Rec$MyInterface;";
 		SwitchPatternTest.verifyClassFile(expectedOutput, "p/Rec.class", ClassFileBytesDisassembler.SYSTEM);
 	}
-
 	public void testBug576785_001() {
 		runConformTest(
 			new String[] {
@@ -4445,5 +4444,32 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					+ "}",
 				},
 				"2");
+	}
+	public void _testBug578241_1() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"
+					+ "    public static void foo(Object obj, int x) {\n"
+					+ "    	switch (obj) {\n"
+					+ "    		case String s && (switch (x) {\n"
+					+ "					case 1 -> { yield true; }\n"
+					+ "					default -> { yield false; }\n"
+					+ "   	 									})	\n"
+					+ "   	 		 			-> {\n"
+					+ "   	 		 				System.out.println(\"true\");\n"
+					+ "   	 		 			}\n"
+					+ "					\n"
+					+ "   	 		 default -> {\n"
+					+ "   	 			System.out.println(\"false\");\n"
+					+ "   	 		 }\n"
+					+ "    	}	\n"
+					+ "    }\n"
+					+ "    public static void main(String[] args) {\n"
+					+ "		foo(\"abc\", 1);\n"
+					+ "	}\n"
+					+ "}",
+				},
+				"true");
 	}
 }
