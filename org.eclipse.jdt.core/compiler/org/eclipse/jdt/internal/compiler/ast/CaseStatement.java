@@ -81,7 +81,7 @@ public FlowInfo analyseCode(
 				if (!(i == nullPatternCount && e instanceof TypePattern))
 					currentScope.problemReporter().IllegalFallThroughToPattern(e);
 			}
-			analyseConstantExpression(currentScope, flowContext, flowInfo, e);
+			flowInfo = analyseConstantExpression(currentScope, flowContext, flowInfo, e);
 			if (nullPatternCount > 0 && e instanceof TypePattern) {
 				LocalVariableBinding binding = ((TypePattern) e).local.binding;
 				if (binding != null)
@@ -91,7 +91,7 @@ public FlowInfo analyseCode(
 	}
 	return flowInfo;
 }
-private void analyseConstantExpression(
+private FlowInfo analyseConstantExpression(
 		BlockScope currentScope,
 		FlowContext flowContext,
 		FlowInfo flowInfo,
@@ -110,7 +110,7 @@ private void analyseConstantExpression(
 			}
 		}
 	}
-	e.analyseCode(currentScope, flowContext, flowInfo);
+	return e.analyseCode(currentScope, flowContext, flowInfo);
 }
 
 @Override

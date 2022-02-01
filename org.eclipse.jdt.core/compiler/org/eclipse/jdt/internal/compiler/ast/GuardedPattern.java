@@ -32,6 +32,8 @@ public class GuardedPattern extends Pattern {
 	public Pattern primaryPattern;
 	public Expression condition;
 	/* package */ BranchLabel thenTarget;
+	int thenInitStateIndex1 = -1;
+	int thenInitStateIndex2 = -1;
 
 	public GuardedPattern(Pattern primaryPattern, Expression conditionalAndExpression) {
 		this.primaryPattern = primaryPattern;
@@ -55,7 +57,11 @@ public class GuardedPattern extends Pattern {
 	@Override
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 		flowInfo = this.primaryPattern.analyseCode(currentScope, flowContext, flowInfo);
-		return this.condition.analyseCode(currentScope, flowContext, flowInfo);
+		this.thenInitStateIndex1 = currentScope.methodScope().recordInitializationStates(flowInfo);
+		FlowInfo mergedFlow = this.condition.analyseCode(currentScope, flowContext, flowInfo);
+		mergedFlow = mergedFlow.safeInitsWhenTrue();
+		this.thenInitStateIndex2 = currentScope.methodScope().recordInitializationStates(mergedFlow);
+		return mergedFlow;
 	}
 
 	@Override
@@ -70,7 +76,10 @@ public class GuardedPattern extends Pattern {
 				this.thenTarget,
 				null,
 				cst == Constant.NotAConstant);
-
+		if (this.thenInitStateIndex2 != -1) {
+			codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.thenInitStateIndex2);
+			codeStream.addDefinitelyAssignedVariables(currentScope, this.thenInitStateIndex2);
+		}
 	}
 
 	public boolean isGuardTrueAlways() {
@@ -141,5 +150,11 @@ public class GuardedPattern extends Pattern {
 				this.condition.traverse(visitor, scope);
 		}
 		visitor.endVisit(this, scope);
+	}
+	public void suspendVariables(CodeStream codeStream, BlockScope scope) {
+		codeStream.removeNotDefinitelyAssignedVariables(scope, this.thenInitStateIndex1);
+	}
+	public void resumeVariables(CodeStream codeStream, BlockScope scope) {
+		codeStream.addDefinitelyAssignedVariables(scope, this.thenInitStateIndex2);
 	}
 }

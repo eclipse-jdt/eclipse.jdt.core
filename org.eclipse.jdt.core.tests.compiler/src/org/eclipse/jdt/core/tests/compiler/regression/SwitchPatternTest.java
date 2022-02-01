@@ -3514,13 +3514,13 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"public class X {\n"+
 					"	static String foo(Color o) {\n" +
 					"		return switch (o) {\n" +
-					"	     case Red -> \"Red\";\n" +
+					"	     case Red -> \"Const:Red\";\n" +
 					"	     case Color s -> s.toString();\n" +
 					"	   };\n" +
 					"	}\n" +
 					"	public static void main(String[] args) {\n" +
-					"		System.out.println(Color.Red);\n" +
-					"		System.out.println(Color.Blue);\n" +
+					"		System.out.println(foo(Color.Red));\n" +
+					"		System.out.println(foo(Color.Blue));\n" +
 					"	}\n" +
 					"} \n" +
 					"enum Color {\n" +
@@ -4380,7 +4380,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					+ "		run(Color.RED);\n"
 					+ "		run(Color.BLUE);\n"
 					+ "	}\n"
-					+ "}",
+					+ "}"
 				},
 				"RED\n" +
 				"BLUE");
@@ -4822,5 +4822,135 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"	^^\n" +
 				"A switch labeled block in a switch expression should not complete normally\n" +
 				"----------\n");
+	}
+	public void testBug578416() {
+		runConformTest(new String[] {
+				"X.java",
+				"public class X {\n"
+				+ "    public static int testMethod(I i) {\n"
+				+ "       return switch (i) {\n"
+				+ "            case I p1 && (p1 instanceof C p2) : {\n"
+				+ "                yield p2.value(); // Error here\n"
+				+ "            }\n"
+				+ "            case I p3 : {\n"
+				+ "                yield p3.value(); // No error here\n"
+				+ "            }\n"
+				+ "        };\n"
+				+ "    }\n"
+				+ "    interface I {\n"
+				+ "        public int value();\n"
+				+ "    }\n"
+				+ "    class C implements I {\n"
+				+ "    	@Override\n"
+				+ "    	public int value() {\n"
+				+ "    		return 0;\n"
+				+ "    	}\n"
+				+ "    }\n"
+				+ "    public static void main(String[] args) {\n"
+				+ "    	I i = new I() {\n"
+				+ "    		public int value() {\n"
+				+ "    			return 10;\n"
+				+ "    		} \n"
+				+ "    	}; \n"
+				+ "    	System.out.println(testMethod(i));\n"
+				+ "    	System.out.println(testMethod(new X().new C()));\n"
+				+ "	}"
+				+ "}\n"},
+				"10\n" +
+				"0");
+	}
+	public void testBug578416_1() {
+		runConformTest(new String[] {
+				"X.java",
+				"public class X {\n"
+				+ "    public static int testMethod(I i) {\n"
+				+ "       return switch (i) {\n"
+				+ "            case I p1 && (p1 instanceof C p2) : {\n"
+				+ "                yield p2.value();\n"
+				+ "            }\n"
+				+ "            case I p3 : {\n"
+				+ "                yield p3.value();\n"
+				+ "            }\n"
+				+ "        };\n"
+				+ "    }\n"
+				+ "    interface I {\n"
+				+ "        public int value();\n"
+				+ "    }\n"
+				+ "    class C implements I {\n"
+				+ "    	@Override\n"
+				+ "    	public int value() {\n"
+				+ "    		return 0;\n"
+				+ "    	}\n"
+				+ "    }\n"
+				+ "    public static void main(String[] args) {\n"
+				+ "    	I i = new I() {\n"
+				+ "    		public int value() {\n"
+				+ "    			return 10;\n"
+				+ "    		} \n"
+				+ "    	}; \n"
+				+ "    	System.out.println(testMethod(i));\n"
+				+ "    	System.out.println(testMethod(new X().new C()));\n"
+				+ "	}"
+				+ "}\n"},
+				"10\n" +
+				"0");
+	}
+	public void testBug578416_2() {
+		runConformTest(new String[] {
+				"X.java",
+				"public class X {\n"
+				+ "    public static int foo(Object o) {\n"
+				+ "       return switch (o) {\n"
+				+ "            case Number n && (n instanceof Integer i) : {\n"
+				+ "                yield n.intValue() + i; // Error here\n"
+				+ "            }\n"
+				+ "            case Number n2 : {\n"
+				+ "                yield n2.intValue();\n"
+				+ "            }\n"
+				+ "            default : {\n"
+				+ "                yield -1;\n"
+				+ "            }\n"
+				+ "        };\n"
+				+ "    }\n"
+				+ "    public static void main(String[] args) {\n"
+				+ "    	System.out.println(foo(new Integer(10)));\n"
+				+ "    	System.out.println(foo(new Integer(5)));\n"
+				+ "    	System.out.println(foo(new Long(5L)));\n"
+				+ "    	System.out.println(foo(new Float(0)));\n"
+				+ "	}"
+				+ "}\n"},
+				"20\n" +
+				"10\n" +
+				"5\n" +
+				"0");
+	}
+	public void testBug578416_3() {
+		runConformTest(new String[] {
+				"X.java",
+				"public class X {\n"
+				+ "    public static int foo(Object o) {\n"
+				+ "       return switch (o) {\n"
+				+ "            case Number n && (n instanceof Integer i && i.equals(10)) : {\n"
+				+ "                yield n.intValue() + i; // Error here\n"
+				+ "            }\n"
+				+ "            case Number n2 : {\n"
+				+ "                yield n2.intValue();\n"
+				+ "            }\n"
+				+ "            default : {\n"
+				+ "                yield -1;\n"
+				+ "            }\n"
+				+ "        };\n"
+				+ "    }\n"
+				+ "    public static void main(String[] args) {\n"
+				+ "    	System.out.println(foo(new Integer(10)));\n"
+				+ "    	System.out.println(foo(new Integer(5)));\n"
+				+ "    	System.out.println(foo(new Long(5L)));\n"
+				+ "    	System.out.println(foo(new Float(0)));\n"
+				+ "	}"
+				+ "}\n"},
+				"20\n" +
+				"5\n" +
+				"5\n" +
+				"0");
 	}
 }

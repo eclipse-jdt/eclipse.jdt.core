@@ -681,11 +681,16 @@ public class SwitchStatement extends Expression {
 				&& caseStatement.patternIndex != -1 // for null
 				) {
 			Pattern pattern = (Pattern) caseStatement.constantExpressions[caseStatement.patternIndex];
-			if (pattern instanceof GuardedPattern && !((GuardedPattern) pattern).isGuardTrueAlways()) {
-				codeStream.loadInt(caseIndex);
-				codeStream.store(this.restartIndexLocal, false);
-				codeStream.goto_(this.switchPatternRestartTarget);
-				((GuardedPattern) pattern).thenTarget.place();
+			if (pattern instanceof GuardedPattern) {
+				GuardedPattern guardedPattern = (GuardedPattern) pattern;
+				if (!guardedPattern.isGuardTrueAlways()) {
+					guardedPattern.suspendVariables(codeStream, this.scope);
+					codeStream.loadInt(caseIndex);
+					codeStream.store(this.restartIndexLocal, false);
+					codeStream.goto_(this.switchPatternRestartTarget);
+					guardedPattern.thenTarget.place();
+					guardedPattern.resumeVariables(codeStream, this.scope);
+				}
 			}
 		}
 	}
