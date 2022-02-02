@@ -1614,8 +1614,8 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 				&& tokenString.length() > 2
 				&& tokenString.startsWith("//")) { //$NON-NLS-1$
 			String tobeTokenized = tokenString.substring(2);
-			Scanner slScanner = new JavadocScanner(false, false, false/* nls */, this.scanner.sourceLevel,
-					null/* taskTags */, null/* taskPriorities */, false/* taskCaseSensitive */, false);
+			Scanner slScanner = new JavadocScanner(false, false, false/* nls */, this.scanner.sourceLevel, this.scanner.complianceLevel,
+					null/* taskTags */, null/* taskPriorities */, false/* taskCaseSensitive */, false, true, true);
 			slScanner.setSource(tobeTokenized.toCharArray());
 			boolean atTokenStarted= false;
 			int atTokenPos = -1;
@@ -1699,6 +1699,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 													}
 													break;
 												case TerminalTokens.TokenNameStringLiteral:
+												case TerminalTokens.TokenNameSingleQuoteStringLiteral:	
 													if (processValue) {
 														value = slScanner.getCurrentTokenString();
 														if (map.get(attribute) == null) {
@@ -1784,6 +1785,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 													}
 													break;
 												case TerminalTokens.TokenNameStringLiteral:
+												case TerminalTokens.TokenNameSingleQuoteStringLiteral:	
 													if (processValue) {
 														value = slScanner.getCurrentTokenString();
 														if (map.get(attribute) == null) {

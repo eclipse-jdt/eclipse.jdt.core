@@ -22,6 +22,10 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 public class JavadocScanner extends Scanner{
 
+	public boolean tokenizeSingleQuotes = false;
+	
+	public boolean considerRegexInStringLiteral = false;
+	
 	public JavadocScanner() {
 		this(false /*comment*/, false /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_3 /*sourceLevel*/, null/*taskTag*/, null/*taskPriorities*/, true /*taskCaseSensitive*/);
 	}
@@ -37,7 +41,7 @@ public class JavadocScanner extends Scanner{
 			boolean isTaskCaseSensitive,
 			boolean isPreviewEnabled) {
 
-		super(
+		this(
 				tokenizeComments,
 				tokenizeWhiteSpace,
 				checkNonExternalizedStringLiterals,
@@ -46,7 +50,9 @@ public class JavadocScanner extends Scanner{
 				taskTags,
 				taskPriorities,
 				isTaskCaseSensitive,
-				isPreviewEnabled);
+				isPreviewEnabled,
+				false,
+				false);
 	}
 
 	public JavadocScanner(
@@ -69,6 +75,7 @@ public class JavadocScanner extends Scanner{
 			taskPriorities,
 			isTaskCaseSensitive,
 			isPreviewEnabled);
+		
 	}
 
 	public JavadocScanner(
@@ -91,18 +98,39 @@ public class JavadocScanner extends Scanner{
 			isTaskCaseSensitive,
 			false);
 	}
+	
+	public JavadocScanner(
+			boolean tokenizeComments,
+			boolean tokenizeWhiteSpace,
+			boolean checkNonExternalizedStringLiterals,
+			long sourceLevel,
+			long complianceLevel,
+			char[][] taskTags,
+			char[][] taskPriorities,
+			boolean isTaskCaseSensitive,
+			boolean isPreviewEnabled,
+			boolean tokenizeSingleQuotes,
+			boolean considerRegexInStringLiteral) {
+
+		super(
+				tokenizeComments,
+				tokenizeWhiteSpace,
+				checkNonExternalizedStringLiterals,
+				sourceLevel,
+				complianceLevel,
+				taskTags,
+				taskPriorities,
+				isTaskCaseSensitive,
+				isPreviewEnabled);
+		this.tokenizeSingleQuotes = tokenizeSingleQuotes;
+		this.considerRegexInStringLiteral = considerRegexInStringLiteral;
+	}
 
 	@Override
 	protected int scanForStringLiteral() throws InvalidInputException {
-		boolean isTextBlock = false;
-
-		// consume next character
-		this.unicodeAsBackSlash = false;
-		boolean isUnicode = false;
-		isTextBlock = scanForTextBlockBeginning();
-		if (isTextBlock) {
-			return scanForTextBlock();
-		} else {
+		if (this.considerRegexInStringLiteral) {
+			this.unicodeAsBackSlash = false;
+			boolean isUnicode = false;
 			try {
 				// consume next character
 				this.unicodeAsBackSlash = false;
@@ -171,7 +199,7 @@ public class JavadocScanner extends Scanner{
 							this.currentCharacter = this.source[this.currentPosition++];
 						}
 						// we need to compute the escape character in a separate buffer
-						isRegex= scanRegexCharacter();
+						isRegex = scanRegexCharacter();
 						if (!isRegex) {
 							scanEscapeCharacter();
 						}
@@ -220,7 +248,142 @@ public class JavadocScanner extends Scanner{
 				throw e; // rethrow
 			}
 			return TokenNameStringLiteral;
+		} else {
+			return super.scanForStringLiteral();
+		}		
+	}
+	
+	@Override
+	protected int processSingleQuotes(boolean checkIfUnicode) throws InvalidInputException{
+		if (this.tokenizeSingleQuotes) {
+			return scanForSingleQuoteStringLiteral();
+		} else {
+			return super.processSingleQuotes(checkIfUnicode);
 		}
+	}
+
+	protected int scanForSingleQuoteStringLiteral() throws InvalidInputException {
+		this.unicodeAsBackSlash = false;
+		boolean isUnicode = false;
+		try {
+			// consume next character
+			this.unicodeAsBackSlash = false;
+			isUnicode = false;
+			if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
+					&& (this.source[this.currentPosition] == 'u')) {
+				getNextUnicodeChar();
+				isUnicode = true;
+			} else {
+				if (this.withoutUnicodePtr != 0) {
+					unicodeStore();
+				}
+			}
+
+			while (this.currentCharacter != '\'') {
+				boolean isRegex = false;
+				if (this.currentPosition >= this.eofPosition) {
+					throw new InvalidInputException(UNTERMINATED_STRING);
+				}
+				/**** \r and \n are not valid in string literals ****/
+				if ((this.currentCharacter == '\n') || (this.currentCharacter == '\r')) {
+					// relocate if finding another quote fairly close: thus unicode '/u000D' will be fully consumed
+					if (isUnicode) {
+						int start = this.currentPosition;
+						for (int lookAhead = 0; lookAhead < 50; lookAhead++) {
+							if (this.currentPosition >= this.eofPosition) {
+								this.currentPosition = start;
+								break;
+							}
+							if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\') && (this.source[this.currentPosition] == 'u')) {
+								isUnicode = true;
+								getNextUnicodeChar();
+							} else {
+								isUnicode = false;
+							}
+							if (!isUnicode && this.currentCharacter == '\n') {
+								this.currentPosition--; // set current position on new line character
+								break;
+							}
+							if (this.currentCharacter == '\'') {
+								throw new InvalidInputException(INVALID_CHAR_IN_STRING);
+							}
+						}
+					} else {
+						this.currentPosition--; // set current position on new line character
+					}
+					throw new InvalidInputException(INVALID_CHAR_IN_STRING);
+				}
+				if (this.currentCharacter == '\\') {
+					if (this.unicodeAsBackSlash) {
+						this.withoutUnicodePtr--;
+						// consume next character
+						this.unicodeAsBackSlash = false;
+						if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\') && (this.source[this.currentPosition] == 'u')) {
+							getNextUnicodeChar();
+							isUnicode = true;
+							this.withoutUnicodePtr--;
+						} else {
+							isUnicode = false;
+						}
+					} else {
+						if (this.withoutUnicodePtr == 0) {
+							unicodeInitializeBuffer(this.currentPosition - this.startPosition);
+						}
+						this.withoutUnicodePtr --;
+						this.currentCharacter = this.source[this.currentPosition++];
+					}
+					// we need to compute the escape character in a separate buffer
+					if (this.considerRegexInStringLiteral) {
+						isRegex = scanRegexCharacter();
+					}
+					if (!isRegex) {
+						scanEscapeCharacter();
+					}
+					if (this.withoutUnicodePtr != 0) {
+						if (isRegex) {
+							char ch = this.currentCharacter;
+							this.currentCharacter = '\\';
+							unicodeStore();
+							this.currentCharacter = ch;
+						}
+						unicodeStore();
+					}
+				}
+				// consume next character
+				this.unicodeAsBackSlash = false;
+				if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
+						&& (this.source[this.currentPosition] == 'u')) {
+					getNextUnicodeChar();
+					isUnicode = true;
+				} else {
+					isUnicode = false;
+					if (this.withoutUnicodePtr != 0) {
+						unicodeStore();
+					}
+				}
+
+			}
+		} catch (IndexOutOfBoundsException e) {
+			this.currentPosition--;
+			throw new InvalidInputException(UNTERMINATED_STRING);
+		} catch (InvalidInputException e) {
+			if (e.getMessage().equals(INVALID_ESCAPE)) {
+				// relocate if finding another quote fairly close: thus unicode '/u000D' will be fully consumed
+				for (int lookAhead = 0; lookAhead < 50; lookAhead++) {
+					if (this.currentPosition + lookAhead == this.eofPosition)
+						break;
+					if (this.source[this.currentPosition + lookAhead] == '\n')
+						break;
+					if (this.source[this.currentPosition + lookAhead] == '\'') {
+						this.currentPosition += lookAhead + 1;
+						break;
+					}
+				}
+
+			}
+			throw e; // rethrow
+		}
+		return TokenNameSingleQuoteStringLiteral;		
 	}
 
 	protected boolean scanRegexCharacter() {
