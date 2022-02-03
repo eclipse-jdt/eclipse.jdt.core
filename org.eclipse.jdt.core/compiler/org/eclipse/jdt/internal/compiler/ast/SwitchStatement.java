@@ -1197,7 +1197,7 @@ public class SwitchStatement extends Expression {
 		if ((this.switchBits & LabeledRules) == 0) { // switch labeled statement group
 			if (this.statements[this.statements.length - 1].canCompleteNormally())
 				return true; // last statement as well as last switch label after blocks if exists.
-			if (this.defaultCase == null)
+			if (this.totalPattern == null && this.defaultCase == null)
 				return true;
 			for (int i = 0, length = this.statements.length; i < length; i++) {
 				if (this.statements[i].breaksOut(null))
@@ -1208,7 +1208,7 @@ public class SwitchStatement extends Expression {
 			for (Statement stmt : this.statements) {
 				if (stmt instanceof CaseStatement)
 					continue; // skip case
-				if (this.defaultCase == null)
+				if (this.totalPattern == null && this.defaultCase == null)
 					return true;
 				if (stmt instanceof Expression)
 					return true;

@@ -4744,4 +4744,83 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Local variable i referenced from a guard must be final or effectively final\n" +
 				"----------\n");
 	}
+	public void testBug578568_1() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"
+								+ "    @SuppressWarnings(\"preview\")\n"
+								+ "	public static int foo(Number arg0) {\n"
+								+ "        int result = 0;\n"
+								+ "        result = \n"
+								+ "         switch (arg0) {\n"
+								+ "            case Object p -> {\n"
+								+ "                switch (arg0) {\n"
+								+ "                     case Number p1 -> {\n"
+								+ "                        yield 1;\n"
+								+ "                    }\n"
+								+ "                }\n"
+								+ "            }\n"
+								+ "        }; \n"
+								+ "        return result;\n"
+								+ "    }\n"
+								+ " public static void main(String[] args) {\n"
+								+ "    	System.out.println(foo(0L));\n"
+								+ "	}"
+								+ "}",
+				},
+				"1");
+	}
+	public void testBug578568_2() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"
+								+ " @SuppressWarnings(\"preview\")\n"
+								+ "	public static int foo(Number arg0) {\n"
+								+ "        return switch (arg0) {\n"
+								+ "            case Object p : {\n"
+								+ "                switch (arg0) {\n"
+								+ "                     case Number p1 : {\n"
+								+ "                        yield 1;\n"
+								+ "                    }\n"
+								+ "                }\n"
+								+ "            }\n"
+								+ "        }; \n"
+								+ "    }\n"
+								+ " public static void main(String[] args) {\n"
+								+ "    	System.out.println(foo(0L));\n"
+								+ "	}"
+								+ "}",
+				},
+				"1");
+	}
+	public void testBug578568_3() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"
+								+ " @SuppressWarnings(\"preview\")\n"
+								+ "	public static int foo(Object arg0) {\n"
+								+ "        return switch (arg0) {\n"
+								+ "            case Object p : {\n"
+								+ "                switch (arg0) {\n"
+								+ "                    case Number p1 : {\n"
+								+ "                        yield 1;\n"
+								+ "                    }\n"
+								+ "                    default: {\n"
+								+ "                    }"
+								+ "                }\n"
+								+ "            }\n"
+								+ "        }; \n"
+								+ " }\n"
+								+ "}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 12)\n" +
+				"	}\n" +
+				"	^^\n" +
+				"A switch labeled block in a switch expression should not complete normally\n" +
+				"----------\n");
+	}
 }
