@@ -4560,4 +4560,188 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"false");
 	}
+	public void testBug578553_1() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"
+					+ "	@SuppressWarnings(\"preview\")\n"
+					+ "	static Long foo(Number n) {\n"
+					+ "		return switch (n) {\n"
+					+ "	     case (Long l) && l.toString().equals(\"0\") -> {\n"
+					+ "	    	 yield ++l;\n"
+					+ "	     }\n"
+					+ "		default -> throw new IllegalArgumentException();\n"
+					+ "	   };\n"
+					+ "	}\n"
+					+ "	public static void main(String[] args) {\n"
+					+ "		System.out.println(foo(0L));\n"
+					+ "	}\n"
+					+ "}",
+				},
+				"1");
+	}
+	public void testBug578553_2() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"
+					+ "		@SuppressWarnings(\"preview\")\n"
+					+ "	static Long foo(Number n) {  \n"
+					+ "		return switch (n) { \n"
+					+ "	     case (Long l) && l.toString().equals(\"0\") -> {\n"
+					+ "	    	 yield switch(l) {\n"
+					+ "	    	 case Long l1 && l1.toString().equals(l1.toString()) -> {\n"
+					+ "	    	 	yield ++l + ++l1;\n"
+					+ "	    	 }\n"
+					+ "			default -> throw new IllegalArgumentException(\"Unexpected value: \" + l);\n"
+					+ "	    	 };\n"
+					+ "	     }\n"
+					+ "		default -> throw new IllegalArgumentException();\n"
+					+ "	   };\n"
+					+ "	}\n"
+					+ "	public static void main(String[] args) {\n"
+					+ "		System.out.println(foo(0L));\n"
+					+ "	}\n"
+					+ "}",
+				},
+				"2");
+	}
+	public void testBug578553_3() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"
+					+ "	@SuppressWarnings(\"preview\")\n"
+					+ "	static Long foo(Number n) {  \n"
+					+ "		return switch (n) { \n"
+					+ "	     case (Long l) && l.toString().equals(\"0\") -> {\n"
+					+ "	    	 yield switch(l) {\n"
+					+ "	    	 case Long l1 && l.toString().equals(l1.toString()) -> {\n"
+					+ "	    	 	yield ++l + ++l1;\n"
+					+ "	    	 }\n"
+					+ "			default -> throw new IllegalArgumentException(\"Unexpected value: \" + l);\n"
+					+ "	    	 };\n"
+					+ "	     }\n"
+					+ "		default -> throw new IllegalArgumentException();\n"
+					+ "	   };\n"
+					+ "	}\n"
+					+ "}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 7)\n" +
+				"	case Long l1 && l.toString().equals(l1.toString()) -> {\n" +
+				"	                ^\n" +
+				"Local variable l referenced from a guard must be final or effectively final\n" +
+				"----------\n");
+	}
+	public void testBug578553_4() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"
+					+ "	@SuppressWarnings(\"preview\")\n"
+					+ "	static Long foo(Number n) {  \n"
+					+ "	int i = 0;\n"
+					+ "	return switch(n) {\n"
+					+ "	  case Long l && (1 == switch(l) {\n"
+					+ "		case \n"
+					+ "			default -> {  \n"
+					+ "				yield (i++);\n"
+					+ "			} \n"
+					+ "		}) -> 1L; \n"
+					+ "	  default -> throw new IllegalArgumentException(\"Unexpected value: \" + n);\n"
+					+ "	  };\n"
+					+ "	}\n"
+					+ "}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 9)\n" +
+				"	yield (i++);\n" +
+				"	       ^\n" +
+				"Local variable i referenced from a guard must be final or effectively final\n" +
+				"----------\n");
+	}
+	public void testBug578553_5() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"
+					+ "	@SuppressWarnings(\"preview\")\n"
+					+ "	static Long foo(Number n) {  \n"
+					+ "	int i = 0;\n"
+					+ "	return switch(n) {\n"
+					+ "	  case Long l && (1 == switch(l) {\n"
+					+ "		case \n"
+					+ "			default -> {  \n"
+					+ "				yield ++i;\n"
+					+ "			} \n"
+					+ "		}) -> 1L; \n"
+					+ "	  default -> throw new IllegalArgumentException(\"Unexpected value: \" + n);\n"
+					+ "	  };\n"
+					+ "	}\n"
+					+ "}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 9)\n" +
+				"	yield ++i;\n" +
+				"	        ^\n" +
+				"Local variable i referenced from a guard must be final or effectively final\n" +
+				"----------\n");
+	}
+	public void testBug578553_6() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"
+					+ "	@SuppressWarnings(\"preview\")\n"
+					+ "	static Long foo(Number n) {  \n"
+					+ "	int i = 0;\n"
+					+ "	return switch(n) {\n"
+					+ "	  case Long l && (1 == switch(l) {\n"
+					+ "		case \n"
+					+ "			default -> {  \n"
+					+ "				yield (i=i+1);\n"
+					+ "			} \n"
+					+ "		}) -> 1L; \n"
+					+ "	  default -> throw new IllegalArgumentException(\"Unexpected value: \" + n);\n"
+					+ "	  };\n"
+					+ "	}\n"
+					+ "}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 9)\n" +
+				"	yield (i=i+1);\n" +
+				"	       ^\n" +
+				"Local variable i referenced from a guard must be final or effectively final\n" +
+				"----------\n");
+	}
+	public void testBug578553_7() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"
+					+ " static int bar() { return 1; }\n"
+					+ "	@SuppressWarnings(\"preview\")\n"
+					+ "	static Long foo(Number n) {  \n"
+					+ "	int i = 0;\n"
+					+ "	return switch(n) {\n"
+					+ "	  case Long l && (1 == switch(l) {\n"
+					+ "		case \n"
+					+ "			default -> {  \n"
+					+ "				yield (i = bar());\n"
+					+ "			} \n"
+					+ "		}) -> 1L; \n"
+					+ "	  default -> throw new IllegalArgumentException(\"Unexpected value: \" + n);\n"
+					+ "	  };\n"
+					+ "	}\n"
+					+ "}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 10)\n" +
+				"	yield (i = bar());\n" +
+				"	       ^\n" +
+				"Local variable i referenced from a guard must be final or effectively final\n" +
+				"----------\n");
+	}
 }

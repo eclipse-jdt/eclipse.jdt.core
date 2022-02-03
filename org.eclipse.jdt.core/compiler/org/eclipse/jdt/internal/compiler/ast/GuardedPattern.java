@@ -99,13 +99,15 @@ public class GuardedPattern extends Pattern {
 			return this.resolvedType;
 		this.resolvedType = this.primaryPattern.resolveType(scope);
 		this.condition.resolveType(scope);
+		LocalDeclaration PatternVar = this.primaryPattern.getPatternVariableIntroduced();
+		LocalVariableBinding lvb = PatternVar.binding;
 		this.condition.traverse(new ASTVisitor() {
 			@Override
 			public boolean visit(
 					SingleNameReference ref,
 					BlockScope skope) {
 				LocalVariableBinding local = ref.localVariableBinding();
-				if (local != null) {
+				if (local != null && local != lvb) {
 					ref.bits |= ASTNode.IsUsedInPatternGuard;
 				}
 				return false;
