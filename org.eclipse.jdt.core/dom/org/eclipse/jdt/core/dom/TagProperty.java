@@ -38,7 +38,7 @@ public class TagProperty extends ASTNode implements IDocElement{
 
 	TagProperty(AST ast) {
 		super(ast);
-		supportedOnlyIn18();
+		unsupportedBelow18();
 	}
 
 	/**
@@ -110,7 +110,7 @@ public class TagProperty extends ASTNode implements IDocElement{
 
 	@Override
 	int getNodeType0() {
-		return GUARDED_PATTERN;
+		return TAG_PROPERTY;
 	}
 
 	@Override
@@ -164,8 +164,8 @@ public class TagProperty extends ASTNode implements IDocElement{
 
 	/**
 	 * Returns the name of this tag property.
-	 *
 	 * @return the name
+	 * @exception UnsupportedOperationException if this operation is used below than JLS18
 	 */
 	public String getName() {
 		unsupportedBelow18();
@@ -175,7 +175,7 @@ public class TagProperty extends ASTNode implements IDocElement{
 	/**
 	 * Returns the value of this tag property.
 	 * @return the value
-	 * @exception UnsupportedOperationException if this operation is used other than JLS18
+	 * @exception UnsupportedOperationException if this operation is used below than JLS18
 	 */
 	public String getValue() {
 		unsupportedBelow18();
