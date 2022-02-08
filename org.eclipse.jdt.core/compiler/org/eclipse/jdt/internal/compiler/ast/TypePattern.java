@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021 IBM Corporation and others.
+ * Copyright (c) 2021, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -97,7 +97,7 @@ public class TypePattern extends Pattern {
 	public boolean isTotalForType(TypeBinding type) {
 		if (type == null || this.resolvedType == null)
 			return false;
-		return (type.erasure().isSubtypeOf(this.resolvedType.erasure(), false));
+		return (type.isSubtypeOf(this.resolvedType, false));
 	}
 	@Override
 	public boolean dominates(Pattern p) {

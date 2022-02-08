@@ -4953,4 +4953,87 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"5\n" +
 				"0");
 	}
+	public void testBug578635_1() {
+		runConformTest(new String[] {
+				"X.java",
+				"public class X {\n"
+				+ "   @SuppressWarnings({ \"preview\", \"rawtypes\" })\n"
+				+ "	public static boolean foo(Integer n) {\n"
+				+ "    	return switch (n) {\n"
+				+ "	    	case Integer x && x.equals(10) -> {\n"
+				+ "	    		yield true;\n"
+				+ "	    	}\n"
+				+ "	    	case Comparable y -> {\n"
+				+ "	    		yield false;\n"
+				+ "	    	}\n"
+				+ "    	};\n"
+				+ "    }\n"
+				+ "    public static void main(String[] argv) {\n"
+				+ "    	System.out.println(foo(Integer.valueOf(0)));\n"
+				+ "    	System.out.println(foo(Integer.valueOf(10)));\n"
+				+ "    }\n"
+				+ "}"},
+				"false\n" +
+				"true");
+	}
+	public void testBug578635_2() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"public class X {\n"
+				+ " @SuppressWarnings({ \"preview\", \"rawtypes\" })\n"
+				+ "	public static boolean foo(Integer n) {\n"
+				+ "    	return switch (n) {\n"
+				+ "	    	case Integer x && x.equals(10) -> {\n"
+				+ "	    		yield true;\n"
+				+ "	    	}\n"
+				+ "	    	case Comparable y -> {\n"
+				+ "	    		yield false;\n"
+				+ "	    	}\n"
+				+ "	    	default -> {\n"
+				+ "	    		yield false;\n"
+				+ "	    	}\n"
+				+ "    	};\n"
+				+ "    }\n"
+				+ "    public static void main(String[] argv) {\n"
+				+ "    	System.out.println(foo(Integer.valueOf(0)));\n"
+				+ "    	System.out.println(foo(Integer.valueOf(10)));\n"
+				+ "    }\n"
+				+ "}"},
+				"----------\n" +
+				"1. ERROR in X.java (at line 11)\n" +
+				"	default -> {\n" +
+				"	^^^^^^^\n" +
+				"Switch case cannot have both a total pattern and default label\n" +
+				"----------\n");
+	}
+	public void testBug578635_3() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"public class X {\n"
+				+ " @SuppressWarnings({ \"preview\", \"rawtypes\" })\n"
+				+ "	public static boolean foo(Integer n) {\n"
+				+ "    	return switch (n) {\n"
+				+ "	    	case Integer x && x.equals(10) -> {\n"
+				+ "	    		yield true;\n"
+				+ "	    	}\n"
+				+ "	    	case Comparable y -> {\n"
+				+ "	    		yield false;\n"
+				+ "	    	}\n"
+				+ "	    	default -> {\n"
+				+ "	    		yield false;\n"
+				+ "	    	}\n"
+				+ "    	};\n"
+				+ "    }\n"
+				+ "    public static void main(String[] argv) {\n"
+				+ "    	System.out.println(foo(Integer.valueOf(0)));\n"
+				+ "    	System.out.println(foo(Integer.valueOf(10)));\n"
+				+ "    }\n"
+				+ "}"},
+				"----------\n" +
+				"1. ERROR in X.java (at line 11)\n" +
+				"	default -> {\n" +
+				"	^^^^^^^\n" +
+				"Switch case cannot have both a total pattern and default label\n" +
+				"----------\n");
+	}
 }
