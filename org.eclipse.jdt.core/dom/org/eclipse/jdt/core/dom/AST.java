@@ -2099,6 +2099,20 @@ public final class AST {
 	}
 
 	/**
+	 * Creates and returns a new doc comment region node.
+	 * Initially the new node has an empty list of tag elements
+	 * (and, for backwards compatability, an unspecified, but legal,
+	 * doc comment string)
+	 *
+	 * @return a new unparented doc comment node
+	 * @since 3.29 BETA_JAVA 18
+	 */
+	public JavaDocRegion newJavaDocRegion() {
+		JavaDocRegion result = new JavaDocRegion(this);
+		return result;
+	}
+
+	/**
 	 * Creates a new unparented labeled statement node owned by this AST.
 	 * By default, the label and statement are both unspecified, but legal.
 	 *

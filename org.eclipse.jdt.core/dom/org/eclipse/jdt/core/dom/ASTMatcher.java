@@ -1297,6 +1297,32 @@ public class ASTMatcher {
 	}
 
 	/**
+	 * Returns whether the given node and the other object match.
+	 * <p>
+	 * The default implementation provided by this class tests whether the
+	 * other object is a node of the same type with structurally isomorphic
+	 * child subtrees. Subclasses may override this method as needed.
+	 * </p>
+	 *
+	 * @param node the node
+	 * @param other the other object, or <code>null</code>
+	 * @return <code>true</code> if the subtree matches, or
+	 *   <code>false</code> if they do not match or the other object has a
+	 *   different node type or is <code>null</code>
+	 * @see #ASTMatcher()
+	 * @see #ASTMatcher(boolean)
+	 * @since 3.29 BETA_JAVA 18
+	 */
+	public boolean match(JavaDocRegion node, Object other) {
+		if (!(other instanceof JavaDocRegion)) {
+			return false;
+		}
+		JavaDocRegion o = (JavaDocRegion) other;
+		return safeSubtreeListMatch(node.tags(), o.tags()) && safeSubtreeListMatch(node.texts(), o.texts())
+				&& safeEquals(node.isDummyRegion(), o.isDummyRegion());
+	}
+
+	/**
 	 * Return whether the deprecated comment strings of the given java doc are equals.
 	 * <p>
 	 * Note the only purpose of this method is to hide deprecated warnings.

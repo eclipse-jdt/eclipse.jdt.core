@@ -932,6 +932,12 @@ public class NaiveASTFlattener extends ASTVisitor {
 	}
 
 	@Override
+	public boolean visit(JavaDocRegion node) {
+		//ToDO
+		return false;
+	}
+
+	@Override
 	public boolean visit(LabeledStatement node) {
 		printIndent();
 		node.getLabel().accept(this);

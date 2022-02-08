@@ -1047,6 +1047,14 @@ public abstract class ASTNode {
 	 */
 	public static final int TAG_PROPERTY = 110;
 
+	/**
+	 * Node type constant indicating a node of type
+	 * <code>JavaDocRegion</code>.
+	 * @see JavaDocRegion
+	 * @since 3.29 BETA_JAVA 18
+	 */
+	public static final int JAVADOC_REGION = 111;
+
 
 	/**
 	 * Returns the node class for the corresponding node type.
@@ -1146,6 +1154,8 @@ public abstract class ASTNode {
 				return IntersectionType.class;
 			case JAVADOC :
 				return Javadoc.class;
+			case JAVADOC_REGION :
+				return JavaDocRegion.class;
 			case LABELED_STATEMENT :
 				return LabeledStatement.class;
 			case LAMBDA_EXPRESSION :

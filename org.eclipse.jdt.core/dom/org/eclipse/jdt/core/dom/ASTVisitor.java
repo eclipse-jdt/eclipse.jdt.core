@@ -901,6 +901,28 @@ public abstract class ASTVisitor {
 	}
 
 	/**
+	 * Visits the given AST node.
+	 * <p>
+	 * Unlike other node types, the boolean returned by the default
+	 * implementation is controlled by a constructor-supplied
+	 * parameter  {@link #ASTVisitor(boolean) ASTVisitor(boolean)}
+	 * which is <code>false</code> by default.
+	 * Subclasses may reimplement.
+	 * </p>
+	 *
+	 * @param node the node to visit
+	 * @return <code>true</code> if the children of this node should be
+	 * visited, and <code>false</code> if the children of this node should
+	 * be skipped
+	 * @see #ASTVisitor()
+	 * @see #ASTVisitor(boolean)
+	 * @since 3.29 BETA_JAVA 18
+	 */
+	public boolean visit(JavaDocRegion node) {
+		return this.visitDocTags;
+	}
+
+	/**
 	 * Visits the given type-specific AST node.
 	 * <p>
 	 * The default implementation does nothing and return true.
@@ -2544,6 +2566,19 @@ public abstract class ASTVisitor {
 	 * @param node the node to visit
 	 */
 	public void endVisit(Javadoc node) {
+		// default implementation: do nothing
+	}
+
+	/**
+	 * End of visit the given type-specific AST node.
+	 * <p>
+	 * The default implementation does nothing. Subclasses may reimplement.
+	 * </p>
+	 *
+	 * @param node the node to visit
+	 * @since 3.29 BETA_JAVA 18
+	 */
+	public void endVisit(JavaDocRegion node) {
 		// default implementation: do nothing
 	}
 
