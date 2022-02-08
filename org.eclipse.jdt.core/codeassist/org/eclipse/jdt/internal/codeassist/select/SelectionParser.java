@@ -28,6 +28,7 @@ package org.eclipse.jdt.internal.codeassist.select;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.codeassist.impl.AssistParser;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.ast.AND_AND_Expression;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AllocationExpression;
@@ -824,9 +825,16 @@ protected void consumeInstanceOfExpression() {
 		int length = this.expressionLengthPtr >= 0 ?
 				this.expressionLengthStack[this.expressionLengthPtr] : 0;
 		if (length > 0) {
-			InstanceOfExpression exp = (InstanceOfExpression) this.expressionStack[this.expressionPtr];
-			if (exp.elementVariable != null) {
-				pushOnAstStack(exp.elementVariable);
+			Expression exp = this.expressionStack[this.expressionPtr];
+			LocalDeclaration local = null;
+			if (exp instanceof InstanceOfExpression) {
+				local = ((InstanceOfExpression) exp).elementVariable;
+			} else if (exp instanceof AND_AND_Expression) {
+				InstanceOfExpression insExpr = (InstanceOfExpression) ((AND_AND_Expression) exp).left;
+				local = insExpr.elementVariable;
+			}
+			if (local != null) {
+				pushOnAstStack(local);
 			}
 		}
 	} else {

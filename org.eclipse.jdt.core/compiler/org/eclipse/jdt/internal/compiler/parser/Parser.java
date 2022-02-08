@@ -4587,10 +4587,7 @@ protected void consumeInstanceOfExpression() {
 	// consume annotations
 	if (length > 0) {
 		Pattern pattern = (Pattern) this.patternStack[this.patternPtr--];
-		this.expressionStack[this.expressionPtr] = exp =
-				new InstanceOfExpression(
-					this.expressionStack[this.expressionPtr],
-					pattern);
+		exp = consumePatternInsideInstanceof(pattern);
 	} else {
 		TypeReference typeRef = (TypeReference) this.expressionStack[this.expressionPtr--];
 		this.expressionLengthPtr--;
@@ -4606,6 +4603,29 @@ protected void consumeInstanceOfExpression() {
 		//array on base type....
 		exp.sourceEnd = this.scanner.startPosition - 1;
 	}
+}
+private Expression consumePatternInsideInstanceof(Pattern pattern) {
+	Expression exp;
+	if (pattern instanceof GuardedPattern) {
+		// This is a workaround as InstanceOfExpression doesn't handle a guarded pattern
+		// We alter the AST to look simpler
+		// As a result of this, the following code
+		//      str instanceof (String a && a == null)
+		// will be taken as
+		//     (str instanceof String a) && a == null
+		GuardedPattern gPattern = (GuardedPattern) pattern;
+		Expression insExpr = new InstanceOfExpression(
+								this.expressionStack[this.expressionPtr],
+									gPattern.primaryPattern);
+		AND_AND_Expression andExpression = new AND_AND_Expression(insExpr, gPattern.condition, OperatorIds.AND_AND);
+		this.expressionStack[this.expressionPtr] = exp = andExpression;
+	} else {
+		this.expressionStack[this.expressionPtr] = exp =
+			new InstanceOfExpression(
+				this.expressionStack[this.expressionPtr],
+				pattern);
+	}
+	return exp;
 }
 protected void consumeTypeReferenceWithModifiersAndAnnotations() {
 	// RelationalExpression ::= RelationalExpression 'instanceof' ReferenceType
@@ -4684,10 +4704,7 @@ protected void consumeInstanceOfExpressionWithName() {
 	if (length != 0) {
 		Pattern pattern = (Pattern) this.patternStack[this.patternPtr--];
 		pushOnExpressionStack(getUnspecifiedReferenceOptimized());
-		this.expressionStack[this.expressionPtr] = exp =
-				new InstanceOfExpression(
-					this.expressionStack[this.expressionPtr],
-					pattern);
+		exp = consumePatternInsideInstanceof(pattern);
 	} else {
 	//by construction, no base type may be used in getTypeReference
 		TypeReference typeRef = (TypeReference) this.expressionStack[this.expressionPtr--];

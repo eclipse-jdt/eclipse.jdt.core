@@ -3994,4 +3994,101 @@ public class PatternMatching16Test extends AbstractRegressionTest {
                 options);
 
     }
+	public void testBug578628_1() {
+		if (this.complianceLevel < ClassFileConstants.JDK18)
+			return;
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runConformTest(
+				new String[] {
+						"X.java",
+							"public class X {\n"
+							+ "    public static Object str = \"a\";\n"
+							+ "    public static void foo() {\n"
+							+ "    	if (str instanceof (String a && a == null)) {\n"
+							+ "            System.out.println(true);\n"
+							+ "        } else {\n"
+							+ "        	System.out.println(false);\n"
+							+ "        }\n"
+							+ "    } \n"
+							+ "    public static void main(String[] argv) {\n"
+							+ "    	foo();\n"
+							+ "    }\n"
+							+ "}",
+				},
+				"false",
+				compilerOptions);
+	}
+	public void testBug578628_2() {
+		if (this.complianceLevel < ClassFileConstants.JDK18)
+			return;
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runConformTest(
+				new String[] {
+						"X.java",
+							"public class X {\n"
+							+ "    public static Object str = \"a\";\n"
+							+ "    public static void foo() {\n"
+							+ "    	if (str instanceof (String a && a != null)) {\n"
+							+ "            System.out.println(true);\n"
+							+ "        } else {\n"
+							+ "        	System.out.println(false);\n"
+							+ "        }\n"
+							+ "    } \n"
+							+ "    public static void main(String[] argv) {\n"
+							+ "    	foo();\n"
+							+ "    }\n"
+							+ "}",
+				},
+				"true",
+				compilerOptions);
+	}
+	public void testBug578628_3() {
+		if (this.complianceLevel < ClassFileConstants.JDK18)
+			return;
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runConformTest(
+				new String[] {
+						"X.java",
+							"public class X {\n"
+							+ "    public static Object str = \"a\";\n"
+							+ "    public static void foo() {\n"
+							+ "    	bar(str instanceof (String a && a == null));\n"
+							+ "    } \n"
+							+ "    public static void bar(boolean arg) {\n"
+							+ "    	System.out.println(arg);\n"
+							+ "    }\n"
+							+ "    public static void main(String[] argv) {\n"
+							+ "    	foo();\n"
+							+ "    }\n"
+							+ "}",
+				},
+				"false",
+				compilerOptions);
+	}
+	public void testBug578628_4() {
+		if (this.complianceLevel < ClassFileConstants.JDK18)
+			return;
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runConformTest(
+				new String[] {
+						"X.java",
+							"public class X {\n"
+							+ "    public static Object str = \"a\";\n"
+							+ "public static void foo() {\n"
+							+ "    	boolean b = switch (str) {\n"
+							+ "    		case String s -> {\n"
+							+ "    			yield (str instanceof (String a && a != null));\n"
+							+ "    		}\n"
+							+ "    		default -> false;\n"
+							+ "    	};\n"
+							+ "    	System.out.println(b);\n"
+							+ "    }\n"
+							+ "    public static void main(String[] argv) {\n"
+							+ "    	foo();\n"
+							+ "    }\n"
+							+ "}",
+				},
+				"true",
+				compilerOptions);
+	}
 }
