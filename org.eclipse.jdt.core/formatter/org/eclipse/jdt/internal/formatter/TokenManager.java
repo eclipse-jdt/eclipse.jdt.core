@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2021 Mateusz Matela and others.
+ * Copyright (c) 2014, 2022 Mateusz Matela and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -14,6 +14,7 @@
 package org.eclipse.jdt.internal.formatter;
 
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_LINE;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_JAVADOC;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameNotAToken;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameStringLiteral;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameTextBlock;
@@ -303,7 +304,7 @@ public class TokenManager implements Iterable<Token> {
 	private String getEscapedTokenString(Token token) {
 		if (token.getLineBreaksBefore() > 0 && charAt(token.originalStart) == '@') {
 			return "&#64;" + this.source.substring(token.originalStart + 1, token.originalEnd + 1); //$NON-NLS-1$
-		} else if (token.tokenType == TokenNameNotAToken) {
+		} else if (token.tokenType == TokenNameNotAToken || token.tokenType == TokenNameCOMMENT_JAVADOC) {
 			String text = token.toString(this.source);
 			Matcher matcher = COMMENT_LINE_ANNOTATION_PATTERN.matcher(text);
 			if (matcher.find()) {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2020 Mateusz Matela and others.
+ * Copyright (c) 2014, 2022 Mateusz Matela and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -106,8 +106,8 @@ public class CommentsPreparator extends ASTVisitor {
 	/** Index: position within current comment; Value: whether wrapping on special characters is allowed */
 	private boolean[] allowSubstituteWrapping;
 
-	private int noFormatTagOpenStart = -1;
-	private int formatCodeTagOpenEnd = -1;
+	private int noFormatOpenTagStartIndex = -1;
+	private int formatCodeOpenTagEndIndex = -1;
 	private int lastFormatCodeClosingTagIndex = -1;
 	private ArrayList<Integer> commonAttributeAnnotations = new ArrayList<Integer>();
 	private DefaultCodeFormatter commentCodeFormatter;
@@ -538,8 +538,8 @@ public class CommentsPreparator extends ASTVisitor {
 
 	@Override
 	public boolean visit(Javadoc node) {
-		this.noFormatTagOpenStart = -1;
-		this.formatCodeTagOpenEnd = -1;
+		this.noFormatOpenTagStartIndex = -1;
+		this.formatCodeOpenTagEndIndex = -1;
 		this.lastFormatCodeClosingTagIndex = -1;
 		this.commonAttributeAnnotations.clear();
 		this.ctm = null;
@@ -602,6 +602,7 @@ public class CommentsPreparator extends ASTVisitor {
 				startTokeen.breakBefore();
 
 			handleHtml(node);
+			this.ctm.get(tokenStartingAt(node.getStartPosition())).setToEscape(false);
 		}
 
 		if (node.isNested() && IMMUTABLE_TAGS.contains(tagName) && startIndex < endIndex) {
@@ -779,7 +780,7 @@ public class CommentsPreparator extends ASTVisitor {
 				continue;
 
 			if (matcher.start(2) < matcher.end(2)) {
-				handleFormatCodeTag(startPos, endPos, isOpeningTag);
+				handleFormatCodeTag(node, startPos, endPos, isOpeningTag);
 			}
 			if (this.options.comment_format_html) {
 				if (TagElement.TAG_PARAM.equals(node.getTagName())
@@ -881,19 +882,18 @@ public class CommentsPreparator extends ASTVisitor {
 
 	private void handleNoFormatTag(int start, int end, boolean isOpeningTag) {
 		if (isOpeningTag) {
-			if (this.noFormatTagOpenStart < 0)
-				this.noFormatTagOpenStart = start;
-		} else if (this.noFormatTagOpenStart >= 0) {
-			int openingTagIndex = tokenStartingAt(this.noFormatTagOpenStart);
+			if (this.noFormatOpenTagStartIndex < 0)
+				this.noFormatOpenTagStartIndex = tokenStartingAt(start);
+		} else if (this.noFormatOpenTagStartIndex >= 0) {
 			int closingTagIndex = tokenEndingAt(end);
-			if (openingTagIndex < closingTagIndex) {
-				disableFormatting(openingTagIndex, closingTagIndex, true);
+			if (this.noFormatOpenTagStartIndex < closingTagIndex) {
+				disableFormatting(this.noFormatOpenTagStartIndex, closingTagIndex, true);
 			}
-			this.noFormatTagOpenStart = -1;
+			this.noFormatOpenTagStartIndex = -1;
 		}
 	}
 
-	private void handleFormatCodeTag(int startPos, int endPos, boolean isOpeningTag) {
+	private void handleFormatCodeTag(TagElement tagElement, int startPos, int endPos, boolean isOpeningTag) {
 		if (!this.options.comment_format_source) {
 			handleNoFormatTag(startPos, endPos, isOpeningTag);
 			return;
@@ -901,20 +901,70 @@ public class CommentsPreparator extends ASTVisitor {
 
 		// add empty lines before opening and after closing token
 		handleSeparateLineTag(startPos, endPos);
+		int startIndex = tokenStartingAt(startPos);
+		int endTagIndex = tokenEndingAt(endPos);
 		if (isOpeningTag) {
-			int startIndex = tokenStartingAt(startPos);
 			if (startIndex > 1)
 				this.ctm.get(startIndex).putLineBreaksBefore(2);
 
-			if (this.formatCodeTagOpenEnd < 0)
-				this.formatCodeTagOpenEnd = endPos;
-		} else if (this.formatCodeTagOpenEnd >= 0) {
-			int endTagIndex = tokenEndingAt(endPos);
+			if (this.formatCodeOpenTagEndIndex < 0)
+				this.formatCodeOpenTagEndIndex = endTagIndex;
+		} else if (this.formatCodeOpenTagEndIndex >= 0) {
 			if (endTagIndex < this.ctm.size() - 2)
 				this.ctm.get(endTagIndex).putLineBreaksAfter(2);
 
-			formatCode(startPos, endPos);
-			this.formatCodeTagOpenEnd = -1;
+			List<ASTNode> tags = new ArrayList<ASTNode>(tagElement.fragments());
+			tags.removeIf(f -> !(f instanceof TagElement) || !((TagElement) f).isNested());
+			tags.removeIf(f -> f.getStartPosition() > endPos || f.getStartPosition()
+					+ f.getLength() < this.ctm.get(this.formatCodeOpenTagEndIndex).originalStart);
+			if (!tags.isEmpty()) {
+				disableFormatting(this.formatCodeOpenTagEndIndex, startIndex, true);
+
+				String AT_CODE = TagElement.TAG_CODE;
+				String src = this.ctm.getSource();
+				tags.removeIf(f -> !((TagElement) f).getTagName().equals(AT_CODE));
+				for (ASTNode tagNode : tags) {
+					TagElement tag = (TagElement) tagNode;
+					if (tag.getTagName().equals(AT_CODE)) {
+						int nameEndPos = src.indexOf(AT_CODE, tag.getStartPosition()) + AT_CODE.length() - 1;
+						// int closingBracePos = src.lastIndexOf('}', tag.getStartPosition() + tag.getLength());
+						// TODO bug 570137 workaround
+						int closingBracePos = tag.getStartPosition() + 1;
+						for (int braces = 1; braces > 0 && closingBracePos < src.length(); closingBracePos++) {
+							if (src.charAt(closingBracePos) == '{')
+								braces++;
+							if (src.charAt(closingBracePos) == '}')
+								braces--;
+						}
+						closingBracePos--;
+
+						if (formatCode(tokenEndingAt(nameEndPos), tokenStartingAt(closingBracePos))) {
+							int closingIndex = tokenStartingAt(closingBracePos);
+							Token t = this.ctm.get(closingIndex);
+							this.commentStructure.set(closingIndex,
+									new Token(t, t.originalStart, t.originalEnd, TokenNameCOMMENT_JAVADOC));
+							boolean allowAnnotationAtLineStart = CompilerOptions.versionToJdkLevel(
+									this.sourceLevel) > CompilerOptions.versionToJdkLevel(CompilerOptions.VERSION_14);
+							for (int i = tokenEndingAt(nameEndPos) + 1; i < closingIndex; i++) {
+								t = this.ctm.get(i);
+								if (this.ctm.charAt(t.originalStart) == '@') {
+									if (allowAnnotationAtLineStart) {
+										t.setToEscape(false);
+									} else {
+										t.clearLineBreaksBefore();
+										t.spaceBefore();
+										this.ctm.get(i - 1).clearLineBreaksAfter();
+									}
+								}
+							}
+						}
+					}
+				}
+			} else if (this.formatCodeOpenTagEndIndex >= startIndex - 1
+					|| !formatCode(this.formatCodeOpenTagEndIndex, startIndex)) {
+				disableFormattingExclusively(this.formatCodeOpenTagEndIndex, startIndex);
+			}
+			this.formatCodeOpenTagEndIndex = -1;
 			this.lastFormatCodeClosingTagIndex = this.ctm.findIndex(startPos, -1, true);
 		}
 	}
@@ -1163,12 +1213,9 @@ public class CommentsPreparator extends ASTVisitor {
 		}
 	}
 
-	private void formatCode(int javadocNoFormatCloseStart, int javadocNoFormatCloseEnd) {
-		int openingTagLastIndex = tokenEndingAt(this.formatCodeTagOpenEnd);
-		int closingTagFirstIndex = tokenStartingAt(javadocNoFormatCloseStart);
-
-		int codeStartPosition = this.formatCodeTagOpenEnd + 1;
-		int codeEndPosition = javadocNoFormatCloseStart - 1;
+	private boolean formatCode(int openingIndex, int closingIndex) {
+		int codeStartPosition = this.ctm.get(openingIndex).originalEnd + 1;
+		int codeEndPosition = this.ctm.get(closingIndex).originalStart - 1;
 		StringBuilder codeBuilder = new StringBuilder(codeEndPosition - codeStartPosition + 1);
 		int[] positionMapping = new int[codeEndPosition - codeStartPosition + 1];
 		// ^ index: original source position (minus startPosition), value: position in code string
@@ -1177,16 +1224,15 @@ public class CommentsPreparator extends ASTVisitor {
 		List<Token> formattedTokens = getCommentCodeFormatter().prepareFormattedCode(codeBuilder.toString());
 
 		if (formattedTokens == null) {
-			disableFormattingExclusively(openingTagLastIndex, closingTagFirstIndex);
-			return;
+			return false;
 		}
 
 		formattedTokens = translateFormattedTokens(codeStartPosition, formattedTokens, positionMapping, null);
 
-		Token openingToken = this.ctm.get(openingTagLastIndex);
+		Token openingToken = this.ctm.get(openingIndex);
 		for (Token token : formattedTokens)
 			token.setAlign(token.getAlign() + openingToken.getAlign() + openingToken.getIndent());
-		fixJavadocTagAlign(openingToken, closingTagFirstIndex);
+		fixJavadocTagAlign(openingToken, closingIndex);
 
 		// there are too few linebreaks at the start and end
 		Token start = formattedTokens.get(0);
@@ -1194,11 +1240,12 @@ public class CommentsPreparator extends ASTVisitor {
 		Token end = formattedTokens.get(formattedTokens.size() - 1);
 		end.putLineBreaksAfter(end.getLineBreaksAfter() + 1);
 		// and there may be too many line breaks before closing tag
-		this.ctm.get(closingTagFirstIndex).clearLineBreaksBefore();
+		this.ctm.get(closingIndex).clearLineBreaksBefore();
 
-		List<Token> tokensToReplace = this.commentStructure.subList(openingTagLastIndex + 1, closingTagFirstIndex);
+		List<Token> tokensToReplace = this.commentStructure.subList(openingIndex + 1, closingIndex);
 		tokensToReplace.clear();
 		tokensToReplace.addAll(formattedTokens);
+		return true;
 	}
 
 	private DefaultCodeFormatter getCommentCodeFormatter() {

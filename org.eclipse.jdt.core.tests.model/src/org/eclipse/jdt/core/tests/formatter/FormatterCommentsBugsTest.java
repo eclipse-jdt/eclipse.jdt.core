@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -3433,7 +3433,7 @@ public void testBug239719() throws JavaModelException {
 		"/**\n" +
 		" * <pre>\n" +
 		" * public class Test implements Runnable {\n" +
-		" * 	&#64;Override\n" +
+		" * 	@Override\n" +
 		" * 	public void run() {\n" +
 		" * 		// Hello really bad Ganymede formatter !!!\n" +
 		" * 		// Shit happens when somebody tries to change a running system\n" +
@@ -5167,14 +5167,11 @@ public void testBug260381_wksp2_03() throws JavaModelException {
 		"	 * {@code public\n" +
 		"	 * static final} bimaps (\"constant bimaps\"). Example:\n" +
 		"	 * \n" +
-		"	 * <pre>\n" +
-		"	 * {\n" +
-		"	 * 	&#64;code\n" +
+		"	 * <pre>   {@code\n" +
 		"	 *\n" +
-		"	 * 	static final ImmutableBiMap<String, Integer> WORD_TO_INT = new ImmutableBiMap.Builder<String, Integer>()\n" +
-		"	 * 			.put(\"one\", 1).put(\"two\", 2).put(\"three\", 3).build();\n" +
-		"	 * }\n" +
-		"	 * </pre>\n" +
+		"	 * static final ImmutableBiMap<String, Integer> WORD_TO_INT = new ImmutableBiMap.Builder<String, Integer>()\n" +
+		"	 * 		.put(\"one\", 1).put(\"two\", 2).put(\"three\", 3).build();\n" +
+		"	 * }</pre>\n" +
 		"	 *\n" +
 		"	 * For <i>small</i> immutable bimaps, the {@code ImmutableBiMap.of()}\n" +
 		"	 * methods are even more convenient.\n" +
@@ -6253,18 +6250,15 @@ public void testBug300379() {
 	formatSource(source,
 		"public class X {\n" +
 		"	/**\n" +
-		"	 * <pre>\n" +
-		"	 * {\n" +
-		"	 * 	&#64;code\n" +
+		"	 * <pre>   {@code\n" +
 		"	 * \n" +
-		"	 * 	public class X {\n" +
-		"	 * 	}\n" +
+		"	 * public class X {\n" +
 		"	 * }\n" +
-		"	 * </pre>\n" +
+		"	 * }</pre>\n" +
 		"	 */\n" +
 		"	public void foo() {\n" +
 		"	}\n" +
-	    "}\n");
+		"}\n");
 }
 public void testBug300379b() {
 	String source =
@@ -6280,18 +6274,15 @@ public void testBug300379b() {
 	formatSource(source,
 		"public class X {\n" +
 		"	/**\n" +
-		"	 * <pre>\n" +
-		"	 * {\n" +
-		"	 * 	&#64;code\n" +
+		"	 * <pre>   {@code\n" +
 		"	 * \n" +
-		"	 * 	public class X {\n" +
-		"	 * 	}\n" +
+		"	 * public class X {\n" +
 		"	 * }\n" +
-		"	 * </pre>\n" +
+		"	 * }</pre>\n" +
 		"	 */\n" +
 		"	public void foo() {\n" +
 		"	}\n" +
-	    "}\n");
+		"}\n");
 }
 
 /**
@@ -7669,6 +7660,117 @@ public void testBug545898() {
 		" * @param\n" +
 		" */\n" +
 		"void foo() {\n" +
+		"}";
+	formatSource(source);
+}
+/**
+ * https://bugs.eclipse.org/552012 - Javadoc formatting breaks {@code} code block.
+ */
+public void testBug552012a() {
+	setComplianceLevel(CompilerOptions.VERSION_17);
+	String source =
+		"/**\n" +
+		" * Test1\n" +
+		" * <pre>{@code\n" +
+		" * public class X {@Deprecated int    a    ;\n" +
+		" * }\n" +
+		" * }</pre>\n" +
+		" * Test2\n" +
+		" * <pre>{@code int    a = 1   ;}</pre>\n" +
+		" * Test3\n" +
+		" * <pre>\n" +
+		" * code sample: {@code public   void foo( ){}  }\n" +
+		" * literal sample: {@literal public   void foo( ){}  }\n" +
+		" * the end\n" +
+		" * </pre>\n" +
+		" */\n" +
+		"public class MyTest {\n" +
+		"}";
+	formatSource(source,
+		"/**\n" +
+		" * Test1\n" +
+		" * \n" +
+		" * <pre>{@code\n" +
+		" * public class X {\n" +
+		" * 	@Deprecated\n" +
+		" * 	int a;\n" +
+		" * }\n" +
+		" * }</pre>\n" +
+		" * \n" +
+		" * Test2\n" +
+		" * \n" +
+		" * <pre>{@code\n" +
+		" * int a = 1;\n" +
+		" * }</pre>\n" +
+		" * \n" +
+		" * Test3\n" +
+		" * \n" +
+		" * <pre>\n" +
+		" * code sample: {@code\n" +
+		" * public void foo() {\n" +
+		" * }\n" +
+		" * }\n" +
+		" * literal sample: {@literal public   void foo( ){}  }\n" +
+		" * the end\n" +
+		" * </pre>\n" +
+		" */\n" +
+		"public class MyTest {\n" +
+		"}");
+}
+/**
+ * https://bugs.eclipse.org/552012 - Javadoc formatting breaks {@code} code block.
+ */
+public void testBug552012b() {
+	String source =
+		"/**\n" +
+		" * <pre>{@code\n" +
+		" * public class X {@Deprecated int    a    ;\n" +
+		" * }\n" +
+		" * }</pre>\n" +
+		" */\n" +
+		"public class MyTest {\n" +
+		"}";
+	formatSource(source,
+		"/**\n" +
+		" * <pre>{@code\n" +
+		" * public class X { @Deprecated\n" +
+		" * 	int a;\n" +
+		" * }\n" +
+		" * }</pre>\n" +
+		" */\n" +
+		"public class MyTest {\n" +
+		"}");
+}
+/**
+ * https://bugs.eclipse.org/552012 - Javadoc formatting breaks {@code} code block.
+ */
+public void testBug552012c() {
+	String source =
+		"/**\n" +
+		" * <pre>@something something</pre>\n" +
+		" */\n" +
+		"public class MyTest {\n" +
+		"}";
+	formatSource(source,
+		"/**\n" +
+		" * <pre>\n" +
+		" * &#64;something something\n" +
+		" * </pre>\n" +
+		" */\n" +
+		"public class MyTest {\n" +
+		"}");
+}
+/**
+ * https://bugs.eclipse.org/552012 - Javadoc formatting breaks {@code} code block.
+ */
+public void testBug552012d() {
+	String source =
+		"/**\n" +
+		" * <pre>\n" +
+		" * @something something\n" +
+		" * </pre>\n" +
+		" */\n" +
+		"public class MyTest {\n" +
 		"}";
 	formatSource(source);
 }
