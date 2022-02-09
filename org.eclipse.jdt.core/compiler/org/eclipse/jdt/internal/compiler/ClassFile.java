@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -192,7 +196,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 	public static final String METAFACTORY_STRING = new String(ConstantPool.METAFACTORY);
 	public static final String BOOTSTRAP_STRING = new String(ConstantPool.BOOTSTRAP);
 	public static final String TYPESWITCH_STRING = new String(ConstantPool.TYPESWITCH);
-	public static final String[] BOOTSTRAP_METHODS = {ALTMETAFACTORY_STRING, METAFACTORY_STRING, BOOTSTRAP_STRING, TYPESWITCH_STRING};
+	public static final String ENUMSWITCH_STRING = new String(ConstantPool.ENUMSWITCH);
+	public static final String[] BOOTSTRAP_METHODS = {ALTMETAFACTORY_STRING, METAFACTORY_STRING, BOOTSTRAP_STRING, TYPESWITCH_STRING, ENUMSWITCH_STRING};
 
 	/**
 	 * INTERNAL USE-ONLY
@@ -3649,7 +3654,12 @@ public class ClassFile implements TypeConstants, TypeIds {
 			} else if (o instanceof TypeDeclaration) {
 				localContentsOffset = addBootStrapRecordEntry(localContentsOffset, (TypeDeclaration) o, fPtr);
 			} else if (o instanceof SwitchStatement) {
-				localContentsOffset = addBootStrapTypeSwitchEntry(localContentsOffset, (SwitchStatement) o, fPtr);
+				SwitchStatement stmt = (SwitchStatement) o;
+				if (stmt.expression.resolvedType.isEnum()) {
+					localContentsOffset = addBootStrapEnumSwitchEntry(localContentsOffset, stmt, fPtr);
+				} else {
+					localContentsOffset = addBootStrapTypeSwitchEntry(localContentsOffset, stmt, fPtr);
+				}
 			}
 		}
 
@@ -3847,7 +3857,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		if (indexFortypeSwitch == 0) {
 			ReferenceBinding javaLangRuntimeSwitchBootstraps = this.referenceBinding.scope.getJavaLangRuntimeSwitchBootstraps();
 			indexFortypeSwitch = this.constantPool.literalIndexForMethodHandle(ClassFileConstants.MethodHandleRefKindInvokeStatic, javaLangRuntimeSwitchBootstraps,
-					ConstantPool.TYPESWITCH, ConstantPool.JAVA_LANG_RUNTIME_SWITCHBOOTSTRAPS_TYPESWITCH_SIGNATURE, false);
+					ConstantPool.TYPESWITCH, ConstantPool.JAVA_LANG_RUNTIME_SWITCHBOOTSTRAPS_SWITCH_SIGNATURE, false);
 			fPtr.put(ClassFile.TYPESWITCH_STRING, indexFortypeSwitch);
 		}
 		this.contents[localContentsOffset++] = (byte) (indexFortypeSwitch >> 8);
@@ -3875,6 +3885,45 @@ public class ClassFile implements TypeConstants, TypeIds {
 			} else {
 				int intValIdx =
 						this.constantPool.literalIndex(c.intValue());
+				this.contents[localContentsOffset++] = (byte) (intValIdx >> 8);
+				this.contents[localContentsOffset++] = (byte) intValIdx;
+			}
+		}
+
+		return localContentsOffset;
+	}
+	private int addBootStrapEnumSwitchEntry(int localContentsOffset, SwitchStatement switchStatement, Map<String, Integer> fPtr) {
+		final int contentsEntries = 10;
+		int indexForenumSwitch = fPtr.get(ClassFile.ENUMSWITCH_STRING);
+		if (contentsEntries + localContentsOffset >= this.contents.length) {
+			resizeContents(contentsEntries);
+		}
+		if (indexForenumSwitch == 0) {
+			ReferenceBinding javaLangRuntimeSwitchBootstraps = this.referenceBinding.scope.getJavaLangRuntimeSwitchBootstraps();
+			indexForenumSwitch = this.constantPool.literalIndexForMethodHandle(ClassFileConstants.MethodHandleRefKindInvokeStatic, javaLangRuntimeSwitchBootstraps,
+					ConstantPool.ENUMSWITCH, ConstantPool.JAVA_LANG_RUNTIME_SWITCHBOOTSTRAPS_SWITCH_SIGNATURE, false);
+			fPtr.put(ClassFile.ENUMSWITCH_STRING, indexForenumSwitch);
+		}
+		this.contents[localContentsOffset++] = (byte) (indexForenumSwitch >> 8);
+		this.contents[localContentsOffset++] = (byte) indexForenumSwitch;
+
+		// u2 num_bootstrap_arguments
+		int numArgsLocation = localContentsOffset;
+		CaseStatement.ResolvedCase[] constants = switchStatement.otherConstants;
+		int numArgs = constants.length;
+		this.contents[numArgsLocation++] = (byte) (numArgs >> 8);
+		this.contents[numArgsLocation] = (byte) numArgs;
+		localContentsOffset += 2;
+
+		for (CaseStatement.ResolvedCase c : constants) {
+			if (c.isPattern()) {
+				char[] typeName = switchStatement.expression.resolvedType.constantPoolName();
+				int typeIndex = this.constantPool.literalIndexForType(typeName);
+				this.contents[localContentsOffset++] = (byte) (typeIndex >> 8);
+				this.contents[localContentsOffset++] = (byte) typeIndex;
+			} else {
+				int intValIdx =
+						this.constantPool.literalIndex(c.e.toString());
 				this.contents[localContentsOffset++] = (byte) (intValIdx >> 8);
 				this.contents[localContentsOffset++] = (byte) intValIdx;
 			}

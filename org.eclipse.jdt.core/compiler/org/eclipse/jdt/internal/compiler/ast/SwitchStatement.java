@@ -716,11 +716,29 @@ public class SwitchStatement extends Expression {
 		codeStream.load(this.dispatchPatternCopy);
 		codeStream.load(this.restartIndexLocal);
 		int invokeDynamicNumber = codeStream.classFile.recordBootstrapMethod(this);
+		if (this.expression.resolvedType.isEnum()) {
+			generateEnumSwitchPatternPrologue(codeStream, invokeDynamicNumber);
+		} else {
+			generateTypeSwitchPatternPrologue(codeStream, invokeDynamicNumber);
+		}
+	}
+	private void generateTypeSwitchPatternPrologue(CodeStream codeStream, int invokeDynamicNumber) {
 		codeStream.invokeDynamic(invokeDynamicNumber,
 				2, // Object, restartIndex
 				1, // int
 				"typeSwitch".toCharArray(), //$NON-NLS-1$
 				"(Ljava/lang/Object;I)I".toCharArray(), //$NON-NLS-1$
+				TypeIds.T_int,
+				TypeBinding.INT);
+	}
+	private void generateEnumSwitchPatternPrologue(CodeStream codeStream, int invokeDynamicNumber) {
+		String genericTypeSignature = new String(this.expression.resolvedType.genericTypeSignature());
+		String callingParams = "(" + genericTypeSignature + "I)I"; //$NON-NLS-1$ //$NON-NLS-2$
+		codeStream.invokeDynamic(invokeDynamicNumber,
+				2, // Object, restartIndex
+				1, // int
+				"enumSwitch".toCharArray(), //$NON-NLS-1$
+				callingParams.toCharArray(),
 				TypeIds.T_int,
 				TypeBinding.INT);
 	}

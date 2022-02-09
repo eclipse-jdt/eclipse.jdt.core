@@ -3527,7 +3527,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"	Blue, Red; \n" +
 					"}",
 				},
-				"Red\n" +
+				"Const:Red\n" +
 				"Blue");
 	}
 	public void testBug575047_12() {
