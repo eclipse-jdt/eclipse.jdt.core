@@ -344,12 +344,13 @@ private static ClasspathMultiDirectory[] readSourceLocations(IProject project, D
 		if ((folderName = in.readUTF()).length() > 0) sourceFolder = project.getFolder(folderName);
 		if ((folderName = in.readUTF()).length() > 0) outputFolder = project.getFolder(folderName);
 		ClasspathMultiDirectory md =
-			(ClasspathMultiDirectory) ClasspathLocation.forSourceFolder(sourceFolder, outputFolder, readNames(in), readNames(in), in.readBoolean(), readNullablePath(in), allLocationsForEEA);
+			(ClasspathMultiDirectory) ClasspathLocation.forSourceFolder(sourceFolder, outputFolder, readNames(in), readNames(in), in.readBoolean(), readNullablePath(in));
 		if (in.readBoolean())
 			md.hasIndependentOutputFolder = true;
 		sourceLocations[i] = md;
-		if (allLocationsForEEA != null)
-			allLocationsForEEA.add(md);
+		if (allLocationsForEEA != null) {
+			md.connectAllLocationsForEEA(allLocationsForEEA, true);
+		}
 	}
 	return sourceLocations;
 }
@@ -370,12 +371,12 @@ private static ClasspathLocation[] readBinaryLocations(IProject project, DataInp
 					? (IContainer) root.getProject(path.toString())
 					: (IContainer) root.getFolder(path);
 				locations[i] = ClasspathLocation.forBinaryFolder(outputFolder, in.readBoolean(),
-							readRestriction(in), new Path(in.readUTF()), allLocationsForEEA, in.readBoolean());
+							readRestriction(in), new Path(in.readUTF()), in.readBoolean());
 				break;
 			case EXTERNAL_JAR :
 				String jarPath = in.readUTF();
 				if (Util.isJrt(jarPath)) {
-					locations[i] = ClasspathLocation.forJrtSystem(jarPath, readRestriction(in), new Path(in.readUTF()), allLocationsForEEA, in.readUTF());
+					locations[i] = ClasspathLocation.forJrtSystem(jarPath, readRestriction(in), new Path(in.readUTF()), in.readUTF());
 				} else {
 					locations[i] = ClasspathLocation.forLibrary(jarPath, in.readLong(),
 							readRestriction(in), new Path(in.readUTF()), in.readBoolean(), in.readUTF());
@@ -383,12 +384,13 @@ private static ClasspathLocation[] readBinaryLocations(IProject project, DataInp
 				break;
 			case INTERNAL_JAR :
 					locations[i] = ClasspathLocation.forLibrary(root.getFile(new Path(in.readUTF())),
-							readRestriction(in), new Path(in.readUTF()), allLocationsForEEA, in.readBoolean(), in.readUTF());
+							readRestriction(in), new Path(in.readUTF()), in.readBoolean(), in.readUTF());
 					break;
 		}
 		ClasspathLocation loc = locations[i];
-		if (allLocationsForEEA != null && kind != SOURCE_FOLDER && !allLocationsForEEA.contains(loc))
-			allLocationsForEEA.add(loc);
+		if (allLocationsForEEA != null) {
+			loc.connectAllLocationsForEEA(allLocationsForEEA, true);
+		}
 		char[] patchName = readName(in);
 		loc.patchModuleName = patchName.length > 0 ? new String(patchName) : null;
 		int limitSize = in.readInt();
