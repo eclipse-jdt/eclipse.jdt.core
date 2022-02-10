@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020, 2021 IBM Corporation and others.
+ * Copyright (c) 2020, 2022 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -5725,5 +5725,45 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				+ "	                      ^\n"
 				+ "The type Y extending a sealed class X should be a permitted subtype of X\n"
 				+ "----------\n");
+	}
+	public void testBug578619_1() {
+		runConformTest(
+				new String[] {
+						"Bug578619.java",
+						"public class Bug578619 {\n"
+						+ "	public static void main(String[] args) {\n"
+						+ "		System.out.println(\"Hola\");\n"
+						+ "	}\n"
+						+ "}\n"
+						+ "sealed interface I1 permits I2, I3 {}\n"
+						+ "non-sealed interface I2 extends I1 {}\n"
+						+ "non-sealed interface I3 extends I2, I1 {}"
+				},
+				"Hola");
+	}
+	public void testBug578619_2() {
+		runNegativeTest(
+				new String[] {
+						"Bug578619.java",
+						"public class Bug578619 {\n"
+						+ "	public static void main(String[] args) {\n"
+						+ "		System.out.println(\"Hola\");\n"
+						+ "	}\n"
+						+ "}\n"
+						+ "sealed interface I1 permits I2, I3 {}\n"
+						+ "non-sealed interface I2 extends I1 {}\n"
+						+ "non-sealed interface I3 extends I2 {}"
+				},
+				"----------\n" +
+				"1. ERROR in Bug578619.java (at line 6)\n" +
+				"	sealed interface I1 permits I2, I3 {}\n" +
+				"	                                ^^\n" +
+				"Permitted type I3 does not declare I1 as direct super interface \n" +
+				"----------\n" +
+				"2. ERROR in Bug578619.java (at line 8)\n" +
+				"	non-sealed interface I3 extends I2 {}\n" +
+				"	                     ^^\n" +
+				"An interface I3 declared as non-sealed should have a sealed direct superinterface\n" +
+				"----------\n");
 	}
 }
