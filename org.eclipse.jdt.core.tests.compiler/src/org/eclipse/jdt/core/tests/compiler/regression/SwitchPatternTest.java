@@ -5036,4 +5036,31 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Switch case cannot have both a total pattern and default label\n" +
 				"----------\n");
 	}
+	public void testBug578417_1() {
+		runConformTest(new String[] {
+				"X.java",
+				"public class X {\n"
+				+ "   @SuppressWarnings({ \"preview\", \"rawtypes\" })\n"
+				+ "    static final String CONSTANT = \"abc\";\n"
+				+ "    static String CON2 = \"abc\";\n"
+				+ "    public static int foo() {\n"
+				+ "        int res = 0;\n"
+				+ "        switch (CON2) {\n"
+				+ "            case CONSTANT -> {\n"
+				+ "                res = 1;\n"
+				+ "                break;\n"
+				+ "            }\n"
+				+ "            case String s -> {\n"
+				+ "                res = 2;\n"
+				+ "                break;\n"
+				+ "            }\n"
+				+ "        }\n"
+				+ "        return res;\n"
+				+ "    }\n"
+				+ "    public static void main(String argv[]) {\n"
+				+ "    	System.out.println(foo()); \n"
+				+ "    }\n"
+				+ "}"},
+				"1" );
+	}
 }

@@ -3877,7 +3877,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 				int typeIndex = this.constantPool.literalIndexForType(typeName);
 				this.contents[localContentsOffset++] = (byte) (typeIndex >> 8);
 				this.contents[localContentsOffset++] = (byte) typeIndex;
-			} else if (c.e instanceof StringLiteral) {
+			} else if ((c.e instanceof StringLiteral)||(c.c instanceof StringConstant)) {
 				int intValIdx =
 						this.constantPool.literalIndex(c.c.stringValue());
 				this.contents[localContentsOffset++] = (byte) (intValIdx >> 8);
