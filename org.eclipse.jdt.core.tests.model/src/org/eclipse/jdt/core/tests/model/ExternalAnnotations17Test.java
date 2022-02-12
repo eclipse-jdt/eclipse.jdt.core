@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2019 GK Software SE, and others.
+ * Copyright (c) 2015, 2022 GK Software SE, and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -709,5 +709,90 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 		} finally {
 			Platform.removeLogListener(listener);
 		}
+	}
+
+	public void testBug565246() throws Exception {
+		myCreateJavaProject("TestForloop");
+		this.project.setOption(JavaCore.COMPILER_PB_INCLUDE_ASSERTS_IN_NULL_ANALYSIS, JavaCore.ENABLED);
+
+		// std API missing from jclMin:
+		IPackageFragment fragment = this.project.getPackageFragmentRoots()[0].createPackageFragment("java.lang", true, null);
+		ICompilationUnit unit = fragment.createCompilationUnit("Iterable.java",
+				"package java.lang;\n" +
+				"public interface Iterable<T> {\n" +
+				"	@org.eclipse.jdt.annotation.NonNull java.util.Iterator<T> iterator();\n" +
+				"}\n",
+				true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
+
+		createFileInProject("annots/java/util", "Iterator.eea",
+				"class java/util/Iterator\n" +
+				"\n" +
+				"next\n" +
+				" ()TE;\n" +
+				" ()T1E;\n" + // this @NonNull should be respected by analysis of ForeachStatement
+				"\n");
+		addEeaToVariableEntry("JCL17_LIB", "annots");
+
+		fragment = this.project.getPackageFragmentRoots()[0].createPackageFragment("tests", true, null);
+		unit = fragment.createCompilationUnit("B.java",
+				"package tests;\n" +
+				"\n" +
+				"import java.util.Iterator;\n" +
+				"\n" +
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"\n" +
+				"@NonNullByDefault\n" +
+				"public class B<E> extends A<E> {\n" +
+				"\n" +
+				"	public void barKOWithForLoop(I<? extends E> c) {\n" +
+				"		for (E e : c) {\n" +
+				"			foo(e); //<-- WRONG: Null type safety: The expression of type 'E' needs unchecked conversion to conform to '@NonNull E'\n" +
+				"		}\n" +
+				"	}\n" +
+				"\n" +
+				"	public void barOKWithWhileIteratorLoop(I<? extends E> c) {\n" +
+				"		Iterator<? extends E> it = c.iterator();\n" +
+				"		while (it.hasNext()) {\n" +
+				"			E e = it.next(); // <-- OK\n" +
+				"			foo(e);\n" +
+				"		}\n" +
+				"	}\n" +
+				"\n" +
+				"	public void foo(E e) { }\n" +
+				"}\n" +
+				"\n" +
+				"@NonNullByDefault\n" +
+				"abstract class A<E> implements I<E> {\n" +
+				"\n" +
+				"	@Nullable public E e;\n" +
+				"\n" +
+				"	public Iterator<E> iterator() {\n" +
+				"		return new Iterator<E>() {\n" +
+				"			public boolean hasNext() {\n" +
+				"				return false;\n" +
+				"			}\n" +
+				"			public E next() {\n" +
+				"				E e = A.this.e;\n" +
+				"				assert e != null;\n" +
+				"				return e;\n" +
+				"			}\n" +
+				"			public void remove() {}\n" +
+				"		};\n" +
+				"	}\n" +
+				"\n" +
+				"	public void foo(E e) {\n" +
+				"		throw new RuntimeException();\n" +
+				"	}\n" +
+				"}\n" +
+				"\n" +
+				"@NonNullByDefault\n" +
+				"interface I<E> extends Iterable<E> {\n" +
+				"	public Iterator<E> iterator();\n" +
+				"	public void foo(E e);\n" +
+				"}\n",
+				true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
+		CompilationUnit reconciled = unit.reconcile(getJLS8(), true, null, new NullProgressMonitor());
+		IProblem[] problems = reconciled.getProblems();
+		assertNoProblems(problems);
 	}
 }
