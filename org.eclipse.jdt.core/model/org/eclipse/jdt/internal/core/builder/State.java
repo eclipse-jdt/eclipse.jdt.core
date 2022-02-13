@@ -29,6 +29,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -123,6 +124,40 @@ void copyFrom(State lastState) {
 	this.references = new LinkedHashMap<>(lastState.references);
 	this.typeLocators = new LinkedHashMap<>(lastState.typeLocators);
 }
+
+/**
+ * Compares this build state with other one in terms of persistence (transient data is ignored)
+ */
+@Override
+public boolean equals(Object obj) {
+	if (this == obj) {
+		return true;
+	}
+	if (!(obj instanceof State)) {
+		return false;
+	}
+	State other = (State) obj;
+	return this.buildNumber == other.buildNumber
+			&& this.lastStructuralBuildTime == other.lastStructuralBuildTime
+			&& Objects.equals(this.javaProjectName, other.javaProjectName)
+			&& Arrays.equals(this.sourceLocations, other.sourceLocations)
+			&& Arrays.equals(this.binaryLocations, other.binaryLocations)
+			&& Arrays.equals(this.testSourceLocations, other.testSourceLocations)
+			&& Arrays.equals(this.testBinaryLocations, other.testBinaryLocations)
+			&& Objects.equals(this.typeLocators, other.typeLocators)
+			&& Objects.equals(this.references, other.references);
+// Below fields aren't persisted
+//			&& this.previousStructuralBuildTime == other.previousStructuralBuildTime
+//			&& Arrays.equals(this.knownPackageNames, other.knownPackageNames)
+//			&& Objects.equals(this.structurallyChangedTypes, other.structurallyChangedTypes)
+//			&& Objects.equals(this.structuralBuildTimes, other.structuralBuildTimes)
+}
+
+@Override
+public int hashCode() {
+	return 31 + Objects.hash(this.javaProjectName);
+}
+
 public char[][] getDefinedTypeNamesFor(String typeLocator) {
 	Object c = this.references.get(typeLocator);
 	if (c instanceof AdditionalTypeCollection)
