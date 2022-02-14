@@ -80,7 +80,8 @@ public class CompressedWriterTest extends BuilderTests {
 				(w, v) -> w.writeLong(v.longValue()), r -> Long.valueOf(r.readLong()));
 
 		int[] ranges = new int[] { 5, Byte.MAX_VALUE, Byte.MAX_VALUE - 1, Byte.MAX_VALUE + 1, 254, 255, 256, 0xffff - 1,
-				0xffff, 0xffff + 1, 0xfffff, 0xfffff + 1, 0xffffff, 0xffffffff};
+				0xffff, 0xffff + 1, 0xfffff, 0xfffff + 1, 0xffffff - 1, 0xffffff, 0xffffff + 1, 0xffffffff - 1,
+				0xffffffff, 0x12, 0x1234, 0x123456, 0x12345678 };
 		for (int range : ranges) {
 			assertSame(new Integer[] { 0, 1, 2, range - 1 }, (w, v) -> w.writeIntInRange(v.intValue(), range),
 					r -> Integer.valueOf(r.readIntInRange(range)));

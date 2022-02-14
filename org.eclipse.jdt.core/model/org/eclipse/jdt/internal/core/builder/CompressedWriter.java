@@ -105,7 +105,7 @@ public class CompressedWriter {
 	 **/
 	public void writeIntInRange(int v, int range) throws IOException {
 		// => typically(0<range<256) only one byte per int
-		if (range < 0 || range > 0xFFFF) {
+		if (range < 0 || range > 0xFFFFFF) {
 			this.out.writeInt(v);
 		} else {
 			if (v >= range) {
@@ -116,8 +116,11 @@ public class CompressedWriter {
 			}
 			if (range <= 0xFF) {
 				this.out.writeByte(v);
-			} else {
+			} else if (range <= 0xFFFF) {
 				this.out.writeShort(v);
+			} else {
+				this.out.writeByte(v);
+				this.out.writeShort(v >>> 8);
 			}
 		}
 	}

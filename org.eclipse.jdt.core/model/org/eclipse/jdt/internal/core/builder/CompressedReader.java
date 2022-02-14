@@ -100,13 +100,17 @@ public class CompressedReader {
 	 * @see CompressedWriter#writeIntInRange(int, int)
 	 **/
 	public int readIntInRange(int range) throws IOException {
-		if (range < 0 || range > 0xFFFF) {
+		if (range < 0 || range > 0xFFFFFF) {
 			return this.in.readInt();
 		} else {
 			if (range <= 0xFF) {
 				return Byte.toUnsignedInt(this.in.readByte());
-			} else {
+			} else if (range <= 0xFFFF) {
 				return Short.toUnsignedInt(this.in.readShort());
+			} else {
+				byte b = this.in.readByte();
+				short s = this.in.readShort();
+				return ((s << 8 | (b & 0xff))) & 0xffffff;
 			}
 		}
 	}
