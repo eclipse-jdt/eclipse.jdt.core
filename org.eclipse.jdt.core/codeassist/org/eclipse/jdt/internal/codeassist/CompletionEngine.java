@@ -2991,6 +2991,8 @@ public final class CompletionEngine
 		setSourceAndTokenRange(javadocTag.tagSourceStart, javadocTag.sourceEnd);
 		findJavadocBlockTags(javadocTag);
 		findJavadocInlineTags(javadocTag);
+		findJavadocInSnippetTags(javadocTag);
+
 	}
 	//TODO
 	private void completionOnJavadocTypeParamReference(ASTNode astNode) {
@@ -8917,6 +8919,36 @@ public final class CompletionEngine
 				// do not add space at end of inline tag (see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=121026)
 				//completion[tagLength+2] = ' ';
 				completion[tagLength+2] = '}';
+				proposal.setCompletion(completion);
+				proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+				proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
+				proposal.setRelevance(relevance);
+				this.requestor.accept(proposal);
+				if (DEBUG) {
+					this.printDebug(proposal);
+				}
+			}
+		}
+	}
+
+	private void findJavadocInSnippetTags(CompletionOnJavadocTag javadocTag) {
+		char[][] possibleTags = javadocTag.getPossibleInSnippetTags();
+		if (possibleTags == null) return;
+		int length = possibleTags.length;
+		for (int i=0; i<length; i++) {
+			int relevance = computeBaseRelevance();
+			relevance += computeRelevanceForInterestingProposal();
+			relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for keywors
+
+			this.noProposal = false;
+			if (!this.requestor.isIgnored(CompletionProposal.JAVADOC_INLINE_TAG)) {
+				char[] possibleTag = possibleTags[i];
+				InternalCompletionProposal proposal =  createProposal(CompletionProposal.JAVADOC_BLOCK_TAG, this.actualCompletionPosition);
+				proposal.setName(possibleTag);
+				int tagLength = possibleTag.length;
+				char[] completion = new char[1+tagLength];
+				completion[0] = '@';
+				System.arraycopy(possibleTag, 0, completion, 1, tagLength);
 				proposal.setCompletion(completion);
 				proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
 				proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);

@@ -244,7 +244,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 								this.inlineTagStarted = false;
 								openingBraces = 0;
 							}
-						} else if ((!this.lineStarted || previousChar == '{')) {
+						} else if ((!this.lineStarted || previousChar == '{') || lookForTagsInSnippets()) {
 							if (this.inlineTagStarted) {
 								setInlineTagStarted(false);
 								// bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=53279
@@ -270,6 +270,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 								setInlineTagStarted(true);
 								invalidInlineTagLineEnd = this.lineEnd;
 							} else if (this.textStart != -1 && this.textStart < invalidTagLineEnd) {
+								if(!lookForTagsInSnippets())
 								pushText(this.textStart, invalidTagLineEnd);
 							}
 							this.scanner.resetTo(this.index, this.javadocEnd);
@@ -692,6 +693,10 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	 * @throws InvalidInputException If any problem happens during the parse in this area
 	 */
 	protected boolean parseHtmlTag(int previousPosition, int endTextPosition) throws InvalidInputException {
+		return false;
+	}
+
+	protected boolean lookForTagsInSnippets() {
 		return false;
 	}
 

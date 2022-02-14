@@ -179,6 +179,8 @@ public interface JavadocTagConstants {
 	 */
 	public final static int BLOCK_IDX = 0;
 	public final static int INLINE_IDX = 1;
+	public final static int SNIPPET_IDX = 2;
+
 
 	// href tag
 	public final static char[] HREF_TAG = {'h', 'r', 'e', 'f'};
@@ -267,10 +269,12 @@ public interface JavadocTagConstants {
 	};
 	public static final char[][][] IN_SNIPPET_TAGS = {
 		//since 18
-			{ TAG_HIGHLIGHT, TAG_REPLACE }
+			{ TAG_HIGHLIGHT, TAG_REPLACE, TAG_LINK }
 	};
 	public final static int IN_SNIPPET_TAGS_LENGTH = IN_SNIPPET_TAGS.length;
 	public final static int INLINE_TAGS_LENGTH = INLINE_TAGS.length;
+	public final static int SNIPPET_TAGS_LENGTH = IN_SNIPPET_TAGS.length;
+
 	public final static int BLOCK_TAGS_LENGTH = BLOCK_TAGS.length;
 	public final static int ALL_TAGS_LENGTH = BLOCK_TAGS_LENGTH+INLINE_TAGS_LENGTH;
 
@@ -335,6 +339,8 @@ public interface JavadocTagConstants {
 		TAG_IMPL_SPEC,
 		TAG_IMPL_NOTE,
 		TAG_SNIPPET,
+		TAG_HIGHLIGHT,
+		TAG_REPLACE
 	};
 	public static final char[][] COMPILATION_UNIT_TAGS = {};
 	public static final char[][] CLASS_TAGS = {
@@ -360,6 +366,8 @@ public interface JavadocTagConstants {
 		TAG_IMPL_SPEC,
 		TAG_IMPL_NOTE,
 		TAG_SNIPPET,
+		TAG_HIGHLIGHT,
+		TAG_REPLACE
 	};
 	public static final char[][] FIELD_TAGS = {
 		TAG_SEE,
@@ -382,6 +390,8 @@ public interface JavadocTagConstants {
 		TAG_IMPL_SPEC,
 		TAG_IMPL_NOTE,
 		TAG_SNIPPET,
+		TAG_HIGHLIGHT,
+		TAG_REPLACE
 	};
 	public static final char[][] METHOD_TAGS = {
 		TAG_SEE,
@@ -408,6 +418,8 @@ public interface JavadocTagConstants {
 		TAG_IMPL_SPEC,
 		TAG_IMPL_NOTE,
 		TAG_SNIPPET,
+		TAG_HIGHLIGHT,
+		TAG_REPLACE
 	};
 	public static final char[][] MODULE_TAGS = {
 			TAG_SEE,
@@ -432,5 +444,7 @@ public interface JavadocTagConstants {
 			TAG_IMPL_SPEC,
 			TAG_IMPL_NOTE,
 			TAG_SNIPPET,
+			TAG_HIGHLIGHT,
+			TAG_REPLACE
 		};
 }

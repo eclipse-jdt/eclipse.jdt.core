@@ -31,9 +31,13 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class CompletionJavadocParser extends JavadocParser {
 
+	boolean parsingSnippet=false;
+
 	// Initialize lengthes for block and inline tags tables
 	public final static int INLINE_ALL_TAGS_LENGTH;
 	public final static int BLOCK_ALL_TAGS_LENGTH;
+	public final static int SNIPPET_ALL_TAGS_LENGTH;
+
 	static {
 		int length = 0;
 		for (int i=0; i<INLINE_TAGS_LENGTH; i++) {
@@ -45,11 +49,17 @@ public class CompletionJavadocParser extends JavadocParser {
 			length += BLOCK_TAGS[i].length;
 		}
 		BLOCK_ALL_TAGS_LENGTH = length;
+		length = 0;
+		for (int i=0; i<SNIPPET_TAGS_LENGTH; i++) {
+			length += IN_SNIPPET_TAGS[i].length;
+		}
+		SNIPPET_ALL_TAGS_LENGTH = length;
+		//IN_SNIPPET_TAGS
 	}
 
 	// Level tags are array of inline/block tags depending on compilation source level
-	char[][][] levelTags = new char[2][][];
-	int[] levelTagsLength = new int[2];
+	char[][][] levelTags = new char[3][][];
+	int[] levelTagsLength = new int[3];
 
 	// Completion specific info
 	int cursorLocation;
@@ -328,14 +338,27 @@ public class CompletionJavadocParser extends JavadocParser {
 	/*
 	 * Get possible tags for a given prefix.
 	 */
-	private char[][][] possibleTags(char[] prefix, boolean newLine) {
-		char[][][] possibleTags = new char[2][][];
-		if (newLine) {
+	private char[][][] possibleTags(char[] prefix, boolean newLine, boolean inSnippet) {
+		char[][][] possibleTags = new char[3][][];
+		if (newLine && inSnippet == false) {
 			System.arraycopy(this.levelTags[BLOCK_IDX], 0, possibleTags[BLOCK_IDX] = new char[this.levelTagsLength[BLOCK_IDX]][], 0, this.levelTagsLength[BLOCK_IDX]);
 		} else {
 			possibleTags[BLOCK_IDX] = CharOperation.NO_CHAR_CHAR;
 		}
-		System.arraycopy(this.levelTags[INLINE_IDX], 0, possibleTags[INLINE_IDX] = new char[this.levelTagsLength[INLINE_IDX]][], 0, this.levelTagsLength[INLINE_IDX]);
+		if(inSnippet==false) {
+			System.arraycopy(this.levelTags[INLINE_IDX], 0, possibleTags[INLINE_IDX] = new char[this.levelTagsLength[INLINE_IDX]][], 0, this.levelTagsLength[INLINE_IDX]);
+		}
+		else {
+			possibleTags[INLINE_IDX] = CharOperation.NO_CHAR_CHAR;
+		}
+
+		if(inSnippet) {
+			System.arraycopy(this.levelTags[SNIPPET_IDX], 0, possibleTags[SNIPPET_IDX] = new char[this.levelTagsLength[SNIPPET_IDX]][], 0, this.levelTagsLength[SNIPPET_IDX]);
+
+		}
+		else {
+			possibleTags[SNIPPET_IDX] = CharOperation.NO_CHAR_CHAR;
+		}
 		if (prefix == null || prefix.length == 0) return possibleTags;
 		int kinds = this.levelTags.length;
 		for (int k=0; k<kinds; k++) {
@@ -391,6 +414,17 @@ public class CompletionJavadocParser extends JavadocParser {
 		}
 		if (this.levelTagsLength[INLINE_IDX] < INLINE_ALL_TAGS_LENGTH) {
 			System.arraycopy(this.levelTags[INLINE_IDX], 0, this.levelTags[INLINE_IDX] = new char[this.levelTagsLength[INLINE_IDX]][], 0, this.levelTagsLength[INLINE_IDX]);
+		}
+		// Init inline tags
+		this.levelTags[SNIPPET_IDX] = new char[SNIPPET_ALL_TAGS_LENGTH][];
+		this.levelTagsLength[SNIPPET_IDX]= 0;
+		for (int i=0; i< 1; i++) {// since only in java 18
+			int length = IN_SNIPPET_TAGS[i].length;
+			System.arraycopy(IN_SNIPPET_TAGS[i], 0, this.levelTags[SNIPPET_IDX], this.levelTagsLength[SNIPPET_IDX], length);
+			this.levelTagsLength[SNIPPET_IDX] += length;
+		}
+		if (this.levelTagsLength[SNIPPET_IDX] < INLINE_ALL_TAGS_LENGTH) {
+			System.arraycopy(this.levelTags[SNIPPET_IDX], 0, this.levelTags[SNIPPET_IDX] = new char[this.levelTagsLength[SNIPPET_IDX]][], 0, this.levelTagsLength[SNIPPET_IDX]);
 		}
 	}
 	/*
@@ -647,7 +681,13 @@ public class CompletionJavadocParser extends JavadocParser {
 	protected boolean parseTag(int previousPosition) throws InvalidInputException {
 		int startPosition = this.inlineTagStarted ? this.inlineTagStart : previousPosition;
 		boolean newLine = !this.lineStarted;
-		boolean valid = super.parseTag(previousPosition);
+		boolean valid = false;
+		try {
+			valid = super.parseTag(previousPosition);
+		}
+		catch (InvalidCursorLocation e) {
+			// catch exception and get a javadoc tag in snippet if possible
+		}
 		boolean inCompletion = (this.tagSourceStart <= (this.cursorLocation+1) && this.cursorLocation <= this.tagSourceEnd) // completion cursor is between first and last stacked identifiers
 			|| ((this.tagSourceStart == (this.tagSourceEnd+1) && this.tagSourceEnd == this.cursorLocation)); // or it's a completion on empty token
 		if (inCompletion) {
@@ -659,7 +699,7 @@ public class CompletionJavadocParser extends JavadocParser {
 			int length = this.cursorLocation+1-this.tagSourceStart;
 			char[] tag = new char[length];
 			System.arraycopy(this.source, this.tagSourceStart, tag, 0, length);
-			char[][][] tags = possibleTags(tag, newLine);
+			char[][][] tags = this.parsingSnippet ?  possibleTags(tag, false,true) : possibleTags(tag, newLine,false);
 			if (tags != null) {
 				this.completionNode = new CompletionOnJavadocTag(tag, position, startPosition, end, tags, this.allPossibleTags);
 			}
@@ -667,6 +707,16 @@ public class CompletionJavadocParser extends JavadocParser {
 		return valid;
 	}
 
+	@Override
+	protected boolean parseSnippet() throws InvalidInputException {
+		this.parsingSnippet = true;
+		return super.parseSnippet();
+	}
+
+	@Override
+	protected boolean lookForTagsInSnippets() {
+		return this.parsingSnippet;
+	}
 	@Override
 	protected boolean parseThrows() {
 		try {

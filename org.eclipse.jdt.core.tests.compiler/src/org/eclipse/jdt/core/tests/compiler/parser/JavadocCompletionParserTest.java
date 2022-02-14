@@ -824,4 +824,81 @@ public void test033() {
 	int end = source.indexOf('+');
 	assertEquals("Invalid tag end position", end, completionTag.tagSourceEnd);
 }
+public void test034() {
+	if(this.complianceLevel < ClassFileConstants.JDK18)
+		return;
+	String source = "package javadoc;\n" +
+		"/**\n" +
+		" * {@snippet :+\n" +
+		" * class HelloWorld {+\n" +
+		" *      public static void main(String... args) {+\n" +
+		" *         System.out.println(\"Hello World!\");      // @highligh substring=\"println\"\n" +
+		" * }+\n" +
+		" * }+\n" +
+		" */\n" +
+		"public class Test {}\n";
+	verifyCompletionInJavadoc(source, "@highligh");
+
+	char[][] allTags =  new char[][] { TAG_HIGHLIGHT  };
+	verifyCompletionOnJavadocTag("highligh".toCharArray(), allTags, false);
+
+}
+public void test035() {
+	if(this.complianceLevel < ClassFileConstants.JDK18)
+		return;
+	String source = "package javadoc;\n" +
+		"/**\n" +
+		" * {@snippet :+\n" +
+		" * class HelloWorld {+\n" +
+		" *      public static void main(String... args) {+\n" +
+		" *         System.out.println(\"Hello World!\");      // @rep substring=\"println\"\n" +
+		" * }+\n" +
+		" * }+\n" +
+		" */\n" +
+		"public class Test {}\n";
+	verifyCompletionInJavadoc(source, "@rep");
+
+	char[][] allTags =  new char[][] { TAG_REPLACE };
+	verifyCompletionOnJavadocTag("rep".toCharArray(), allTags, false);
+
+}
+public void test036() {
+	if(this.complianceLevel < ClassFileConstants.JDK18)
+		return;
+	String source = "package javadoc;\n" +
+		"/**\n" +
+		" * {@snippet :+\n" +
+		" * class HelloWorld {+\n" +
+		" *      public static void main(String... args) {+\n" +
+		" *         System.out.println(\"Hello World!\");      // @dep substring=\"println\"\n" +
+		" * }+\n" +
+		" * }+\n" +
+		" */\n" +
+		"public class Test {}\n";
+	verifyCompletionInJavadoc(source, "@dep");
+
+	char[][] allTags =  null;// @deprecated should not be shown since in snippet
+	verifyCompletionOnJavadocTag("dep".toCharArray(), allTags, false);
+
+}
+public void test037() {
+	if(this.complianceLevel < ClassFileConstants.JDK18)
+		return;
+	String source = "package javadoc;\n" +
+		"/**\n" +
+		" * {@snippet :+\n" +
+		" * class HelloWorld {+\n" +
+		" *      public static void main(String... args) {+\n" +
+		" *         System.out.println(\"Hello World!\");      // @lin substring=\"println\"\n" +
+		" * }+\n" +
+		" * }+\n" +
+		" */\n" +
+		"public class Test {}\n";
+	verifyCompletionInJavadoc(source, "@lin");
+
+	char[][] allTags =  new char[][] { TAG_LINK };
+	verifyCompletionOnJavadocTag("lin".toCharArray(), allTags, false);
+
+}
+
 }
