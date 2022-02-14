@@ -489,6 +489,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	protected Object createReturnStatement() { return null; }
 	protected abstract void createTag();
 	protected abstract Object createTypeReference(int primitiveToken);
+	protected abstract Object createTypeReference(int primitiveToken, boolean canBeModule);
 	protected abstract Object createModuleTypeReference(int primitiveToken, int moduleRefTokenCount);
 
 	private int getIndexPosition() {
@@ -1270,7 +1271,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		if (moduleRefTokenCount > 0) {
 			return createModuleTypeReference(primitiveToken, moduleRefTokenCount);
 		}
-		return createTypeReference(primitiveToken);
+		return createTypeReference(primitiveToken, (allowModule && parsingJava15Plus));
 	}
 
 	protected boolean parseReference() throws InvalidInputException {

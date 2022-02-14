@@ -294,6 +294,10 @@ public class BatchTestUtils {
 			System.err.println("Compilation failed: " + errorOutput);
 	 		junit.framework.TestCase.assertTrue("Compilation failed : " + errorOutput, false);
 		}
+		// Check the APT result for the source round already
+		if (!"succeeded".equals(System.getProperty(processor))) {
+			return;
+		}
 		List<String> classes = new ArrayList<>();
 		try {
 			System.clearProperty(processor);

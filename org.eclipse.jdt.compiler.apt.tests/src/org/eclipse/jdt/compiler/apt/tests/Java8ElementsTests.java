@@ -402,6 +402,18 @@ public class Java8ElementsTests extends TestCase {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		internalTestWithBinary(compiler, JAVA8_ANNOTATION_PROC, "testMethodAnnotation", null, "model9", "9");
 	}
+	public void testBug544288Javac() throws Exception {
+		if (!canRunJava9())
+			return;
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		internalTestWithBinary(compiler, JAVA8_ANNOTATION_PROC, "testBug544288", null, "bug544288", "9");
+	}
+	public void testBug544288() throws Exception {
+		if (!canRunJava9())
+			return;
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTestWithBinary(compiler, JAVA8_ANNOTATION_PROC, "testBug544288", null, "bug544288", "9");
+	}
 	private void internalTest(JavaCompiler compiler, String processor, String testMethod) throws IOException {
 		internalTest(compiler, processor, testMethod, null);
 	}

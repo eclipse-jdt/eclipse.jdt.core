@@ -15,6 +15,7 @@ package org.eclipse.jdt.internal.core.search.indexing;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
@@ -1132,12 +1133,20 @@ public void savePreBuiltIndex(Index index) throws IOException {
 	}
 }
 public void saveIndex(Index index) throws IOException {
+	ReadWriteMonitor monitor = index.monitor;
+	if (monitor == null) return; // index got deleted since acquired
+
 	// must have permission to write from the write monitor
 	if (index.hasChanged()) {
 		if (VERBOSE)
 			Util.verbose("-> saving index " + index.getIndexLocation()); //$NON-NLS-1$
-		index.save();
-		updateMetaIndex(index);
+		if (index.save()) {
+			updateMetaIndex(index);
+		} else {
+			if (VERBOSE)
+				Util.verbose("-> saving index cancelled " + index.getIndexLocation()); //$NON-NLS-1$
+			return;
+		}
 	}
 	synchronized (this) {
 		IPath containerPath = new Path(index.containerPath);
@@ -1190,12 +1199,13 @@ public void saveIndexes() {
 				if (monitor.exitReadEnterWrite()) {
 					try {
 						saveIndex(index);
-					} catch(IOException e) {
-						if (VERBOSE) {
-							Util.verbose("-> got the following exception while saving:", System.err); //$NON-NLS-1$
-							e.printStackTrace();
+					} catch(IOException | NegativeArraySizeException | OutOfMemoryError e) {
+						if(e instanceof FileNotFoundException && index.monitor == null) {
+							// index got deleted since acquired
+						} else {
+							Util.log(e, "Failed to save JDT index: " + index.toString()); //$NON-NLS-1$
+							allSaved = false;
 						}
-						allSaved = false;
 					} finally {
 						monitor.exitWriteEnterRead();
 					}
@@ -1775,9 +1785,15 @@ class MetaIndexUpdateRequest implements IJob {
 			try {
 				updateMetaIndex(indexFile.getName(), index.getMetaIndexQualifications());
 			} catch (IOException e) {
-				if (JobManager.VERBOSE) {
-					Util.verbose("-> failed to update meta index for index " + indexFile.getName() + " because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
-					e.printStackTrace();
+				Throwable cause = e.getCause();
+				if (cause != null) {
+					Util.log(e, "Failed to update meta index"); //$NON-NLS-1$
+				} else {
+					if (JobManager.VERBOSE) {
+						Util.verbose("-> failed to update meta index for index " + indexFile.getName() //$NON-NLS-1$
+								+ " because of the following exception:"); //$NON-NLS-1$
+						e.printStackTrace();
+					}
 				}
 			}
 		}

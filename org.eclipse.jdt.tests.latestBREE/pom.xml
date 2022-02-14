@@ -13,11 +13,10 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>tests-pom</artifactId>
-    <groupId>eclipse.jdt.core</groupId>
+    <groupId>org.eclipse.jdt</groupId>
     <version>4.13.0-SNAPSHOT</version>
     <relativePath>../tests-pom/</relativePath>
   </parent>
-  <groupId>org.eclipse.jdt</groupId>
   <artifactId>org.eclipse.jdt.tests.latestBREE</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <packaging>eclipse-test-plugin</packaging>

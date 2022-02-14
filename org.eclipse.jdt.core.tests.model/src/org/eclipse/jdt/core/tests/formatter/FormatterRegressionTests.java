@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -2145,6 +2145,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 	public void test189() {
 		DefaultCodeFormatterOptions preferences = new DefaultCodeFormatterOptions(DefaultCodeFormatterConstants.getEclipse21Settings());
 		preferences.tab_char = DefaultCodeFormatterOptions.TAB;
+		preferences.align_selector_in_method_invocation_on_expression_first_line = false;
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test189", "A.java", CodeFormatter.K_COMPILATION_UNIT);//$NON-NLS-1$ //$NON-NLS-2$
 	}
@@ -6720,6 +6721,7 @@ public class FormatterRegressionTests extends AbstractJavaModelTests {
 		preferences.keep_simple_if_on_one_line = true;
 		preferences.keep_guardian_clause_on_one_line = true;
         preferences.tab_size = 4;
+		preferences.align_selector_in_method_invocation_on_expression_first_line = false;
 		setPageWidth80(preferences);
 		DefaultCodeFormatter codeFormatter = new DefaultCodeFormatter(preferences);
 		runTest(codeFormatter, "test498", "A.java", CodeFormatter.K_COMPILATION_UNIT, true);//$NON-NLS-1$ //$NON-NLS-2$
@@ -15999,5 +16001,170 @@ public void testBug576373() {
 		"public sealed class X permits Y, Z {\n" +
 		"}";
 	formatSource(source);
+}
+
+/**
+ * https://bugs.eclipse.org/577117 - [formatter] Wrong indentation for method invocation on multi-line expression
+ */
+public void testBug577117a() {
+	this.formatterPrefs.page_width = 55;
+	this.formatterPrefs.align_selector_in_method_invocation_on_expression_first_line = false;
+	String source =
+		"class Example {\n" +
+		"	String foo() {\n" +
+		"		return new StringBuilder(Arrays.asList(11111111, 22222222, 3333333, 44444444)).append(\"TextTextText\").append(11111111 + 2222222 + 33333333).toStrinig();\n" +
+		"	}\n" +
+		"}";
+	formatSource(source,
+		"class Example {\n" +
+		"	String foo() {\n" +
+		"		return new StringBuilder(Arrays.asList(\n" +
+		"				11111111, 22222222, 3333333, 44444444))\n" +
+		"						.append(\"TextTextText\")\n" +
+		"						.append(11111111 + 2222222\n" +
+		"								+ 33333333)\n" +
+		"						.toStrinig();\n" +
+		"	}\n" +
+		"}");
+}
+/**
+ * https://bugs.eclipse.org/577117 - [formatter] Wrong indentation for method invocation on multi-line expression
+ */
+public void testBug577117b() {
+	this.formatterPrefs.page_width = 53;
+	String source =
+		"class Example {\n" +
+		"	String foo() {\n" +
+		"		return new StringBuilder(Arrays.asList(11111111, 22222222, 3333333, 444444)).append(\"TextTextText\").append(11111111 + 2222222 + 33333333).toStrinig();\n" +
+		"	}\n" +
+		"}";
+	formatSource(source,
+		"class Example {\n" +
+		"	String foo() {\n" +
+		"		return new StringBuilder(Arrays.asList(\n" +
+		"				11111111, 22222222, 3333333, 444444))\n" +
+		"				.append(\"TextTextText\")\n" +
+		"				.append(11111111 + 2222222\n" +
+		"						+ 33333333)\n" +
+		"				.toStrinig();\n" +
+		"	}\n" +
+		"}");
+}
+
+/**
+ * https://bugs.eclipse.org/578044 - [Formatter] Case statement in switch expression is not line wrapped
+ */
+public void testBug578044a() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_14);
+	this.formatterPrefs.page_width = 60;
+	String input = getCompilationUnit("Formatter", "", "test578044", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test578044", "A_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/578044 - [Formatter] Case statement in switch expression is not line wrapped
+ */
+public void testBug578044b() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_14);
+	this.formatterPrefs.page_width = 60;
+	this.formatterPrefs.alignment_for_switch_case_with_arrow = Alignment.M_COMPACT_SPLIT + Alignment.M_INDENT_DEFAULT;
+	String input = getCompilationUnit("Formatter", "", "test578044", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test578044", "B_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/578044 - [Formatter] Case statement in switch expression is not line wrapped
+ */
+public void testBug578044c() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_14);
+	this.formatterPrefs.page_width = 60;
+	this.formatterPrefs.alignment_for_switch_case_with_arrow = Alignment.M_COMPACT_SPLIT + Alignment.M_INDENT_DEFAULT
+			+ Alignment.M_FORCE;
+	this.formatterPrefs.wrap_before_switch_case_arrow_operator = true;
+	String input = getCompilationUnit("Formatter", "", "test578044", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test578044", "C_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/578044 - [Formatter] Case statement in switch expression is not line wrapped
+ */
+public void testBug578044d() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_14);
+	this.formatterPrefs.page_width = 60;
+	this.formatterPrefs.alignment_for_expressions_in_switch_case_with_arrow = Alignment.M_NEXT_PER_LINE_SPLIT + Alignment.M_INDENT_BY_ONE;
+	String input = getCompilationUnit("Formatter", "", "test578044", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test578044", "D_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/578044 - [Formatter] Case statement in switch expression is not line wrapped
+ */
+public void testBug578044e() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_14);
+	this.formatterPrefs.page_width = 60;
+	this.formatterPrefs.alignment_for_expressions_in_switch_case_with_colon = Alignment.M_ONE_PER_LINE_SPLIT + Alignment.M_INDENT_ON_COLUMN;
+	String input = getCompilationUnit("Formatter", "", "test578044", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test578044", "E_out.java").getSource());
+}
+
+/**
+ * https://bugs.eclipse.org/578361 - [formatter] Keep braced code on one line: settings for new switch constructs
+ */
+public void testBug578361a() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_14);
+	this.formatterPrefs.page_width = 80;
+	this.formatterPrefs.keep_switch_case_with_arrow_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_ALWAYS;
+	String input = getCompilationUnit("Formatter", "", "test578361", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test578361", "A_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/578361 - [formatter] Keep braced code on one line: settings for new switch constructs
+ */
+public void testBug578361b() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_14);
+	this.formatterPrefs.page_width = 80;
+	this.formatterPrefs.keep_switch_body_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_ALWAYS;
+	String input = getCompilationUnit("Formatter", "", "test578361", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test578361", "B_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/578361 - [formatter] Keep braced code on one line: settings for new switch constructs
+ */
+public void testBug578361c() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_14);
+	this.formatterPrefs.keep_switch_case_with_arrow_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_ALWAYS;
+	this.formatterPrefs.keep_switch_body_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_ALWAYS;
+	String input = getCompilationUnit("Formatter", "", "test578361", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test578361", "C_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/578361 - [formatter] Keep braced code on one line: settings for new switch constructs
+ */
+public void testBug578361d() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_14);
+	this.formatterPrefs.keep_switch_case_with_arrow_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_SINGLE_ITEM;
+	this.formatterPrefs.keep_switch_body_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_IF_SINGLE_ITEM;
+	String input = getCompilationUnit("Formatter", "", "test578361", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test578361", "D_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/578361 - [formatter] Keep braced code on one line: settings for new switch constructs
+ */
+public void testBug578361e() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_14);
+	this.formatterPrefs.page_width = 55;
+	this.formatterPrefs.keep_switch_body_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_ALWAYS;
+	this.formatterPrefs.keep_switch_case_with_arrow_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_ALWAYS;
+	this.formatterPrefs.alignment_for_switch_case_with_arrow = Alignment.M_COMPACT_SPLIT + Alignment.M_INDENT_BY_ONE;
+	String input = getCompilationUnit("Formatter", "", "test578361", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test578361", "E_out.java").getSource());
+}
+/**
+ * https://bugs.eclipse.org/578361 - [formatter] Keep braced code on one line: settings for new switch constructs
+ */
+public void testBug578361f() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_14);
+	this.formatterPrefs.page_width = 55;
+	this.formatterPrefs.keep_switch_body_block_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_ALWAYS;
+	this.formatterPrefs.keep_switch_case_with_arrow_on_one_line = DefaultCodeFormatterConstants.ONE_LINE_ALWAYS;
+	this.formatterPrefs.alignment_for_switch_case_with_arrow = Alignment.M_NO_ALIGNMENT;
+	String input = getCompilationUnit("Formatter", "", "test578361", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "test578361", "F_out.java").getSource());
 }
 }

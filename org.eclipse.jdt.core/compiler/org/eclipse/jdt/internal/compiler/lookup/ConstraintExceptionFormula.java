@@ -18,7 +18,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -124,7 +124,7 @@ public class ConstraintExceptionFormula extends ConstraintFormula {
 			if (this.right.isFunctionalInterface(context.scope)) {
 				LambdaExpression lambda = (LambdaExpression) this.left;
 				MethodBinding sam = this.right.getSingleAbstractMethod(context.scope, true); // TODO derive with target type?
-				final Set<InferenceVariable> variables = new HashSet<>();
+				final Set<InferenceVariable> variables = new LinkedHashSet<>();
 				if (lambda.argumentsTypeElided()) {
 					// i)
 					int len = sam.parameters.length;
@@ -144,7 +144,7 @@ public class ConstraintExceptionFormula extends ConstraintFormula {
 			}
 			if (this.right.isFunctionalInterface(context.scope)) { // TODO: && this.left is inexact
 				MethodBinding sam = this.right.getSingleAbstractMethod(context.scope, true); // TODO derive with target type?
-				final Set<InferenceVariable> variables = new HashSet<>();
+				final Set<InferenceVariable> variables = new LinkedHashSet<>();
 				int len = sam.parameters.length;
 				for (int i = 0; i < len; i++) {
 					sam.parameters[i].collectInferenceVariables(variables);

@@ -62,7 +62,7 @@ PackageNameSet(int size) {
 	this.names = new char[extraRoom][];
 }
 
-char[] add(char[] name) {
+synchronized char[] add(char[] name) {
 	int length = this.names.length;
 	int index = CharOperation.hashCode(name) % length;
 	char[] current;
@@ -77,7 +77,7 @@ char[] add(char[] name) {
 	return name;
 }
 
-void rehash() {
+synchronized void rehash() {
 	PackageNameSet newSet = new PackageNameSet(this.elementSize * 2); // double the number of expected elements
 	char[] current;
 	for (int i = this.names.length; --i >= 0;)

@@ -3016,15 +3016,15 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		String projectLoc = this.project.getProject().getLocation().toString();
 		Util.createJar(new String[0],
 			new String[] {
-				"pgen/CGen.eea",
-				"class pgen/CGen\n" +
+				"lib/pgen/CGen.eea",
+				"class lib/pgen/CGen\n" +
 				"\n" +
 				"get\n" +
 				" (Ljava/lang/String;)Ljava/lang/String;\n" +
 				" (L1java/lang/String;)L1java/lang/String;\n",
 
-				"pgen2/CGen2.eea",
-				"class pgen2/CGen2\n" +
+				"lib/pgen2/CGen2.eea",
+				"class lib/pgen2/CGen2\n" +
 				"\n" +
 				"get2\n" +
 				" (Ljava/lang/Exception;)Ljava/lang/String;\n" +
@@ -3040,8 +3040,8 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		addClasspathEntry(this.project, entry);
 
 		Util.createJar(new String[] {
-				"pgen/CGen.java",
-				"package pgen;\n" +
+				"lib/pgen/CGen.java",
+				"package lib.pgen;\n" +
 				"public class CGen {\n" +
 				"	public String get(String in) { return in; }\n" +
 				"}\n"
@@ -3055,17 +3055,18 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 				false/*exported*/);
 		addClasspathEntry(this.project, entry);
 
+		String externalJarLoc = Util.getOutputDirectory()+"/lib/prj2.jar";
 		Util.createJar(new String[] {
-				"pgen2/CGen2.java",
-				"package pgen2;\n" +
+				"lib.pgen2/CGen2.java",
+				"package lib.pgen2;\n" +
 				"public class CGen2 {\n" +
 				"	public String get2(Exception in) { return in.toString(); }\n" +
 				"}\n"
 			},
-			projectLoc+"/lib/prj2.jar",
+			externalJarLoc,
 			"1.8");
 		entry = JavaCore.newLibraryEntry(
-				new Path("/PrjTest/lib/prj2.jar"),
+				new Path(externalJarLoc),
 				null/*access rules*/,
 				null,
 				false/*exported*/);
@@ -3074,8 +3075,8 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 
 		createFileInProject("src/p", "Use.java",
 				"package p;\n" +
-				"import pgen.CGen;\n" +
-				"import pgen2.CGen2;\n" +
+				"import lib.pgen.CGen;\n" +
+				"import lib.pgen2.CGen2;\n" +
 				"import org.eclipse.jdt.annotation.NonNull;\n" +
 				"public class Use {\n" +
 				"	public @NonNull String test(CGen c) {\n" +

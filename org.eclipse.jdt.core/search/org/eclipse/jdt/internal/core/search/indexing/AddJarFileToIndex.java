@@ -279,10 +279,7 @@ class AddJarFileToIndex extends BinaryContainer {
 				monitor.exitWrite(); // free write lock
 			}
 		} catch (IOException | ZipError e) {
-			if (JobManager.VERBOSE) {
-				org.eclipse.jdt.internal.core.util.Util.verbose("-> failed to index " + this.containerPath + " because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
-				e.printStackTrace();
-			}
+			org.eclipse.jdt.internal.core.util.Util.log(e, "Failed to index " + this.containerPath); //$NON-NLS-1$
 			this.manager.removeIndex(this.containerPath);
 			return false;
 		}

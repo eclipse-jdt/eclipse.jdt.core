@@ -18,7 +18,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -499,7 +499,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 					return EMPTY_VARIABLE_LIST;
 				}
 				MethodBinding sam = targetType.getSingleAbstractMethod(context.scope, true);
-				final Set<InferenceVariable> variables = new HashSet<>();
+				final Set<InferenceVariable> variables = new LinkedHashSet<>();
 				if (lambda.argumentsTypeElided()) {
 					// i)
 					int len = sam.parameters.length;
@@ -524,7 +524,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 			}
 			if (this.right.isFunctionalInterface(context.scope) && !this.left.isExactMethodReference()) {
 				MethodBinding sam = this.right.getSingleAbstractMethod(context.scope, true);
-				final Set<InferenceVariable> variables = new HashSet<>();
+				final Set<InferenceVariable> variables = new LinkedHashSet<>();
 				int len = sam.parameters.length;
 				for (int i = 0; i < len; i++) {
 					sam.parameters[i].collectInferenceVariables(variables);
@@ -533,13 +533,13 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 			}
 		} else if (this.left instanceof ConditionalExpression && this.left.isPolyExpression()) {
 			ConditionalExpression expr = (ConditionalExpression) this.left;
-			Set<InferenceVariable> variables = new HashSet<>();
+			Set<InferenceVariable> variables = new LinkedHashSet<>();
 			variables.addAll(new ConstraintExpressionFormula(expr.valueIfTrue, this.right, COMPATIBLE).inputVariables(context));
 			variables.addAll(new ConstraintExpressionFormula(expr.valueIfFalse, this.right, COMPATIBLE).inputVariables(context));
 			return variables;
 		} else if (this.left instanceof SwitchExpression && this.left.isPolyExpression()) {
 			SwitchExpression expr = (SwitchExpression) this.left;
-			Set<InferenceVariable> variables = new HashSet<>();
+			Set<InferenceVariable> variables = new LinkedHashSet<>();
 			for (Expression re : expr.resultExpressions) {
 				variables.addAll(new ConstraintExpressionFormula(re, this.right, COMPATIBLE).inputVariables(context));
 			}

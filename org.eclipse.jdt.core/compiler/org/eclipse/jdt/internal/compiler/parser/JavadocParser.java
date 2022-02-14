@@ -368,6 +368,11 @@ public class JavadocParser extends AbstractCommentParser {
 
 	@Override
 	protected Object createTypeReference(int primitiveToken) {
+		return createTypeReference(primitiveToken, false);
+	}
+
+	@Override
+	protected Object createTypeReference(int primitiveToken, boolean canBeModule) {
 		TypeReference typeRef = null;
 		int size = this.identifierLengthStack[this.identifierLengthPtr];
 		if (size == 1) { // Single Type ref
@@ -375,13 +380,14 @@ public class JavadocParser extends AbstractCommentParser {
 						this.identifierStack[this.identifierPtr],
 						this.identifierPositionStack[this.identifierPtr],
 						this.tagSourceStart,
-						this.tagSourceEnd);
+						this.tagSourceEnd,
+						canBeModule);
 		} else if (size > 1) { // Qualified Type ref
 			char[][] tokens = new char[size][];
 			System.arraycopy(this.identifierStack, this.identifierPtr - size + 1, tokens, 0, size);
 			long[] positions = new long[size];
 			System.arraycopy(this.identifierPositionStack, this.identifierPtr - size + 1, positions, 0, size);
-			typeRef = new JavadocQualifiedTypeReference(tokens, positions, this.tagSourceStart, this.tagSourceEnd);
+			typeRef = new JavadocQualifiedTypeReference(tokens, positions, this.tagSourceStart, this.tagSourceEnd, canBeModule);
 		}
 		return typeRef;
 	}
@@ -408,13 +414,14 @@ public class JavadocParser extends AbstractCommentParser {
 						this.identifierStack[this.identifierPtr],
 						this.identifierPositionStack[this.identifierPtr],
 						this.tagSourceStart,
-						this.tagSourceEnd);
+						this.tagSourceEnd,
+						false);
 		} else if (newSize > 1) { // Qualified Type ref
 			char[][] tokens = new char[newSize][];
 			System.arraycopy(this.identifierStack, this.identifierPtr - newSize + 1, tokens, 0, newSize);
 			long[] positions = new long[newSize];
 			System.arraycopy(this.identifierPositionStack, this.identifierPtr - newSize + 1, positions, 0, newSize);
-			typeRef = new JavadocQualifiedTypeReference(tokens, positions, this.tagSourceStart, this.tagSourceEnd);
+			typeRef = new JavadocQualifiedTypeReference(tokens, positions, this.tagSourceStart, this.tagSourceEnd, false);
 		} else {
 			this.lastIdentifierEndPosition++;
 		}

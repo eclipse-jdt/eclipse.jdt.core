@@ -48,8 +48,11 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.WeakHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ForkJoinPool;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
@@ -174,6 +177,8 @@ import org.xml.sax.SAXException;
  * the static method <code>JavaModelManager.getJavaModelManager()</code>.
  */
 public class JavaModelManager implements ISaveParticipant, IContentTypeChangeListener {
+	/** Thread count for parallel save - if any value is set. Any value <= 1 will disable parallel save. **/
+	private static final Integer SAVE_THREAD_COUNT = Integer.getInteger("org.eclipse.jdt.model_save_threads"); //$NON-NLS-1$
 	private static ServiceRegistration<DebugOptionsListener> DEBUG_REGISTRATION;
 	private static final String NON_CHAINING_JARS_CACHE = "nonChainingJarsCache"; //$NON-NLS-1$
 	private static final String EXTERNAL_FILES_CACHE = "externalFilesCache";  //$NON-NLS-1$
@@ -4650,25 +4655,29 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			return;
 		}
 
-		ArrayList<IStatus> vStats= null; // lazy initialized
-		ArrayList<PerProjectInfo> values = null;
-		synchronized(this.perProjectInfos) {
-			values = new ArrayList<>(this.perProjectInfos.values());
+		ArrayList<PerProjectInfo> infos;
+		synchronized (this.perProjectInfos) {
+			infos = new ArrayList<>(this.perProjectInfos.values());
 		}
-		Iterator<PerProjectInfo> iterator = values.iterator();
-		while (iterator.hasNext()) {
-			try {
-				PerProjectInfo info = iterator.next();
-				saveState(info, context);
-			} catch (CoreException e) {
-				if (vStats == null)
-					vStats= new ArrayList<>();
-				vStats.add(e.getStatus());
-			}
+		int parallelism = Math.max(1, SAVE_THREAD_COUNT == null ? ForkJoinPool.getCommonPoolParallelism() : SAVE_THREAD_COUNT.intValue());
+		// never use a shared ForkJoinPool.commonPool() as it may be busy with other tasks, which might deadlock:
+		ForkJoinPool forkJoinPool =  new ForkJoinPool(parallelism);
+		IStatus[] stats;
+		try {
+			stats = forkJoinPool.submit(() -> infos.stream().parallel().map(info -> {
+				try {
+					saveState(info, context);
+				} catch (CoreException e) {
+					return e.getStatus();
+				}
+				return null;
+			}).filter(Objects::nonNull).toArray(IStatus[]::new)).get();
+		} catch (InterruptedException | ExecutionException e) {
+			throw new CoreException(Status.error(Messages.build_cannotSaveStates, e));
+		} finally {
+			forkJoinPool.shutdown();
 		}
-		if (vStats != null) {
-			IStatus[] stats= new IStatus[vStats.size()];
-			vStats.toArray(stats);
+		if (stats.length > 0) {
 			throw new CoreException(new MultiStatus(JavaCore.PLUGIN_ID, IStatus.ERROR, stats, Messages.build_cannotSaveStates, null));
 		}
 

@@ -14,7 +14,7 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.function.IntFunction;
 import java.util.stream.Stream;
 
@@ -83,7 +83,7 @@ public class SourceModuleBinding extends ModuleBinding {
 
 	public void setImplementations(TypeBinding infBinding, Collection<TypeBinding> resolvedImplementations) {
 		if (this.implementations == null)
-			this.implementations = new HashMap<>();
+			this.implementations = new LinkedHashMap<>();
 		this.implementations.put(infBinding, resolvedImplementations.toArray(new TypeBinding[resolvedImplementations.size()]));
 	}
 

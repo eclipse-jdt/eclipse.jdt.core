@@ -68,4 +68,21 @@ public class JavaSearchBug565512Test extends AbstractJavaSearchTests {
 				IJavaSearchConstants.DECLARATIONS, getJavaSearchScope());
 		assertSearchResults("lib/bug565512.jar lib565512.Class565512$InnerClass$InnerClass2 [No source]");
 	}
+
+	/** Bug 576580 - Search does not find any TYPE IMPLEMENTORS in .class files */
+	public void test576580() throws CoreException {
+		search("lib565512.Class565512", IJavaSearchConstants.TYPE, IJavaSearchConstants.IMPLEMENTORS, getJavaSearchScope());
+		assertSearchResults(
+				// XXX those anonymous names are wrong!
+				// among other things they have multiple results with same name,
+				// but at least they are found:
+				"lib/bug565512.jar lib565512.<anonymous> [No source]\n" + // XXX
+				"lib/bug565512.jar lib565512.<anonymous> [No source]\n" + // XXX
+				"lib/bug565512.jar lib565512.<anonymous> [No source]\n" + // XXX
+				"lib/bug565512.jar lib565512.<anonymous> [No source]\n" + // XXX
+				"lib/bug565512.jar lib565512.Class565512$ExtendedClass [No source]\n" + //
+				"lib/bug565512.jar lib565512.ExtendedClass565512$ExtendedClass [No source]\n" + //
+				"lib/bug565512.jar lib565512.ExtendedClass565512 [No source]" //
+		);
+	}
 }
