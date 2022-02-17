@@ -1409,6 +1409,7 @@ public int getNextToken() throws InvalidInputException {
 		this.scanContext = isInModuleDeclaration() ? ScanContext.EXPECTING_KEYWORD : ScanContext.INACTIVE;
 	}
 	token = getNextToken0();
+	updateCase(token);
 	if (areRestrictedModuleKeywordsActive()) {
 		if (isRestrictedKeyword(token))
 			token = disambiguatedRestrictedKeyword(token);
@@ -1427,7 +1428,6 @@ public int getNextToken() throws InvalidInputException {
 	this.lookBack[0] = this.lookBack[1];
 	this.lookBack[1] = token;
 	this.multiCaseLabelComma = false;
-	updateCase(token);
 	return token;
 }
 protected int getNextToken0() throws InvalidInputException {
@@ -4701,6 +4701,7 @@ private static final class VanguardScanner extends Scanner {
 			this.scanContext = isInModuleDeclaration() ? ScanContext.EXPECTING_KEYWORD : ScanContext.INACTIVE;
 		}
 		token = getNextToken0();
+		updateCase(token);
 		if (areRestrictedModuleKeywordsActive()) {
 			if (isRestrictedKeyword(token))
 				token = disambiguatedRestrictedKeyword(token);
@@ -4724,7 +4725,6 @@ private static final class VanguardScanner extends Scanner {
 		this.lookBack[0] = this.lookBack[1];
 		this.lookBack[1] = token;
 		this.multiCaseLabelComma = false;
-		updateCase(token);
 		return token == TokenNameEOF ? TokenNameNotAToken : token;
 	}
 }
@@ -5457,6 +5457,7 @@ int disambiguateCasePattern(int token, Scanner scanner) {
 	int delta = token == TokenNamecase ? 4 : 0; // 4 for case.
 	final VanguardParser parser = getNewVanguardParser();
 	parser.scanner.resetTo(parser.scanner.currentPosition + delta, parser.scanner.eofPosition);
+	parser.scanner.caseStartPosition = this.caseStartPosition;
 	if (parser.parse(Goal.PatternGoal) == VanguardParser.SUCCESS) {
 		if (token == TokenNamecase) {
 			scanner.nextToken = TokenNameBeginCaseElement;

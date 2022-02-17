@@ -7,6 +7,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -127,7 +131,7 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/X.java",
 				"public class X {\n" +
-						"public static  int field \n" +
+						"public static  int field; \n" +
 						"public static void main(String[] args) {\n" +
 						"foo(Integer.valueOf(5));\n" +
 						"foo(new Object());\n" +

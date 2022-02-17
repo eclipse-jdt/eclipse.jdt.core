@@ -5063,4 +5063,25 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				+ "}"},
 				"1" );
 	}
+	public void testBug578132_001() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					" @SuppressWarnings(\"preview\")\n"+
+					" static  int foo(Object o, boolean b) {\n"+
+					"   return switch (o) { \n"+
+					"      case X x && b -> 0; // compilation error\n"+
+					"      default -> 1;\n"+
+					"   }; \n"+
+					" } \n"+
+					" public static void main(String[] args) {\n"+
+					"   System.out.println(X.foo(new X(), true));\n"+
+					"   System.out.println(X.foo(new Object(), true));\n"+
+					" }\n"+
+					"}"
+				},
+				"0\n"+
+				"1");
+	}
 }
