@@ -76,7 +76,7 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 	}
 
 	static {
-		TESTS_NAMES = new String[] { "testTargetTypeUse" };
+//		TESTS_NAMES = new String[] { "testBug565246" };
 	}
 
 	/**
@@ -1143,6 +1143,45 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 					"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 					"Annotation type \'org.eclipse.jdt.annotation.NonNull\' cannot be found on the build path, which is implicitly needed for null analysis\n" +
 					"----------\n"					);
+		} finally {
+			deleteProject(project);
+		}
+	}
+	public void testBug565246() throws CoreException {
+		IJavaProject project = createJavaProject("Bug565246", new String[] {"src"}, new String[] {"JCL17_LIB", this.ANNOTATION_LIB_V1}, "bin", "1.7");
+		try {
+			project.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
+			createFolder("Bug565246/src/java/util");
+			createFile("Bug565246/src/java/util/Iterator.java",
+					"package java.util;\n" +
+					"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+					"\n" +
+					"@NonNullByDefault\n" +
+					"public interface Iterator<E> {\n" +
+					"	boolean hasNext();\n" +
+					"\n" +
+					"	E next();\n" +
+					"}\n");
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+
+			String testSourcePath = "Bug565246/src/Test.java";
+			createFile(testSourcePath,
+					"import org.eclipse.jdt.annotation.NonNull;\n" +
+					"import java.util.Collection;\n" +
+					"public class Test {\n" +
+					"	public void foo(Collection<String> list) {\n" +
+					"		for (String s : list)\n" +
+					"			bar(s);\n" +
+					"	}\n" +
+					"	void bar(@NonNull String s) {}\n" +
+					"}\n");
+
+			getCompilationUnit(testSourcePath).getWorkingCopy(this.wcOwner, null);
+			assertProblems("", "----------\n----------\n");
+
+			getWorkspace().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
+			IMarker[] markers = project.getProject().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", "", markers);
 		} finally {
 			deleteProject(project);
 		}

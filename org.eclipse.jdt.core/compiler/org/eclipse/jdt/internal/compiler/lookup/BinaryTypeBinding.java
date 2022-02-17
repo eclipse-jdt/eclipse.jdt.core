@@ -648,6 +648,8 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 				if (iMethods != null) {
 					for (int i = 0; i < iMethods.length; i++) {
 						// below 1.8 we still might use an annotation walker to discover external annotations:
+						// (not using walker, which has defaultNullness, because defaults on parameters & return will be applied
+						//  by ImplicitNullAnnotationVerifier, triggered per invocation via MessageSend.resolveType() et al)
 						ITypeAnnotationWalker methodWalker = ITypeAnnotationWalker.EMPTY_ANNOTATION_WALKER;
 						if (sourceLevel < ClassFileConstants.JDK1_8)
 							methodWalker = binaryType.enrichWithExternalAnnotationsFor(methodWalker, iMethods[i], this.environment);

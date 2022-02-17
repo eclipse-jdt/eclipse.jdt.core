@@ -40,6 +40,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.CaptureBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ImplicitNullAnnotationVerifier;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
@@ -131,6 +132,7 @@ public class ForeachStatement extends Statement {
 				ReferenceBinding iterator = currentScope.getJavaUtilIterator();
 				if (iterator != null) {
 					MethodBinding next = iterator.getExactMethod(TypeConstants.NEXT, Binding.NO_TYPES, currentScope.compilationUnitScope);
+					ImplicitNullAnnotationVerifier.ensureNullnessIsKnown(next, currentScope);
 					if (next != null && ((next.tagBits & TagBits.AnnotationNullMASK) != 0)) {
 						nullStatus = FlowInfo.tagBitsToNullStatus(next.tagBits);
 					}
