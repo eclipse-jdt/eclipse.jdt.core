@@ -27,7 +27,9 @@ import org.eclipse.jdt.internal.core.dom.util.DOMASTUtil;
  *
  * <pre>
  * TagProperty:
- *      Name && Value
+ *      Name
+ *      String Value
+ *      Node Value
  * </pre>
  *
  * @since 3.29 BETA_JAVA 18
@@ -47,10 +49,16 @@ public class TagProperty extends ASTNode implements IDocElement{
 	public static final SimplePropertyDescriptor NAME_PROPERTY  = new SimplePropertyDescriptor(TagProperty.class, "name", String.class, MANDATORY); //$NON-NLS-1$);
 
 	/**
-	 * The "value" structural property of this node type . (added in JEP 413).
+	 * The "string_value" structural property of this node type . (added in JEP 413).
 	 */
-	public static final SimplePropertyDescriptor VALUE_PROPERTY  =
-			new SimplePropertyDescriptor(TagProperty.class, "value", String.class, MANDATORY); //$NON-NLS-1$);
+	public static final SimplePropertyDescriptor STRING_VALUE_PROPERTY  =
+			new SimplePropertyDescriptor(TagProperty.class, "string_value", String.class, MANDATORY); //$NON-NLS-1$);
+
+	/**
+	 * The "node_value" structural property of this node type . (added in JEP 413).
+	 */
+	public static final ChildPropertyDescriptor NODE_VALUE_PROPERTY  =
+			new ChildPropertyDescriptor(TagProperty.class, "node_value", ASTNode.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$);
 
 
 	/**
@@ -61,10 +69,11 @@ public class TagProperty extends ASTNode implements IDocElement{
 	private static final List PROPERTY_DESCRIPTORS;
 
 	static {
-		List propertyList = new ArrayList(3);
+		List propertyList = new ArrayList(4);
 		createPropertyList(TagProperty.class, propertyList);
 		addProperty(NAME_PROPERTY, propertyList);
-		addProperty(VALUE_PROPERTY, propertyList);
+		addProperty(STRING_VALUE_PROPERTY, propertyList);
+		addProperty(NODE_VALUE_PROPERTY, propertyList);
 		PROPERTY_DESCRIPTORS = reapPropertyList(propertyList);
 	}
 
@@ -74,9 +83,14 @@ public class TagProperty extends ASTNode implements IDocElement{
 	private String name = null;
 
 	/**
-	 * The property value
+	 * The property string value
 	 */
-	private String value = null;
+	private String string_value = null;
+
+	/**
+	 * The property node value
+	 */
+	private ASTNode node_value = null;
 
 
 
@@ -96,16 +110,30 @@ public class TagProperty extends ASTNode implements IDocElement{
 				setName((String)newValue);
 				return null;
 			}
-		} else if (property == VALUE_PROPERTY) {
+		} else if (property == STRING_VALUE_PROPERTY) {
 			if (get) {
-				return getValue();
+				return getStringValue();
 			} else {
-				setValue((String)newValue);
+				setStringValue((String)newValue);
 				return null;
 			}
 		}
 		// allow default implementation to flag the error
 		return super.internalGetSetObjectProperty(property, get, newValue);
+	}
+
+	@Override
+	final ASTNode internalGetSetChildProperty(ChildPropertyDescriptor property, boolean get, ASTNode child) {
+		if (property == NODE_VALUE_PROPERTY) {
+			if (get) {
+				return getNodeValue();
+			} else {
+				setNodeValue(child);
+				return null;
+			}
+		}
+		// allow default implementation to flag the error
+		return super.internalGetSetChildProperty(property, get, child);
 	}
 
 	@Override
@@ -123,7 +151,8 @@ public class TagProperty extends ASTNode implements IDocElement{
 		TagProperty result = new TagProperty(target);
 		result.setSourceRange(getStartPosition(), getLength());
 		result.setName(getName());
-		result.setName(getValue());
+		result.setStringValue(getStringValue());
+		result.setNodeValue(ASTNode.copySubtree(target, getNodeValue()));
 		return result;
 	}
 
@@ -136,7 +165,7 @@ public class TagProperty extends ASTNode implements IDocElement{
 
 	@Override
 	int memSize() {
-		return BASE_NODE_SIZE + 2 * 4 + stringSize(this.name) + stringSize(this.value);
+		return BASE_NODE_SIZE + 1 * 4 + stringSize(this.name) + stringSize(this.string_value);
 	}
 
 	@Override
@@ -173,13 +202,23 @@ public class TagProperty extends ASTNode implements IDocElement{
 	}
 
 	/**
-	 * Returns the value of this tag property.
-	 * @return the value
+	 * Returns the string value of this tag property.
+	 * @return the string_value
 	 * @exception UnsupportedOperationException if this operation is used below than JLS18
 	 */
-	public String getValue() {
+	public String getStringValue() {
 		unsupportedBelow18();
-		return this.value;
+		return this.string_value;
+	}
+
+	/**
+	 * Returns the node value of this tag property.
+	 * @return the node_value
+	 * @exception UnsupportedOperationException if this operation is used below than JLS18
+	 */
+	public ASTNode getNodeValue() {
+		unsupportedBelow18();
+		return this.node_value;
 	}
 
 	/**
@@ -198,15 +237,28 @@ public class TagProperty extends ASTNode implements IDocElement{
 	}
 
 	/**
-	 * Sets the value of this tag property.
+	 * Sets the string value of this tag property.
 	 * @param value
 	 * @exception UnsupportedOperationException if this operation is used below JLS18
 	 */
-	public void setValue(String value) {
+	public void setStringValue(String value) {
 		unsupportedBelow18();
-		preValueChange(VALUE_PROPERTY);
-		this.value = value;
-		postValueChange(VALUE_PROPERTY);
+		preValueChange(STRING_VALUE_PROPERTY);
+		this.string_value = value;
+		postValueChange(STRING_VALUE_PROPERTY);
+	}
+
+	/**
+	 * Sets the node value of this tag property.
+	 * @param value
+	 * @exception UnsupportedOperationException if this operation is used below JLS18
+	 */
+	public void setNodeValue(ASTNode value) {
+		unsupportedBelow18();
+		ASTNode oldChild = this.node_value;
+		preReplaceChild(oldChild, value, NODE_VALUE_PROPERTY);
+		this.node_value = value;
+		postReplaceChild(oldChild, value, NODE_VALUE_PROPERTY);
 	}
 
 }

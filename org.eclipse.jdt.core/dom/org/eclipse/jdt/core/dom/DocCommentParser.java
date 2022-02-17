@@ -280,7 +280,7 @@ class DocCommentParser extends AbstractCommentParser {
 			map.forEach((k, v) -> {
 				TagProperty tagProperty = this.ast.newTagProperty();
 				tagProperty.setName(k);
-				tagProperty.setValue(v);
+				tagProperty.setStringValue(v);
 				tagElement.tagProperties().add(tagProperty);
 			});
 		}

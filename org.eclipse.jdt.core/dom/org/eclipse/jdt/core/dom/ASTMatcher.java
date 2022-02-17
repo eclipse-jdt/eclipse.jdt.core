@@ -2557,7 +2557,8 @@ public class ASTMatcher {
 		TagProperty o = (TagProperty) other;
 		return (
 				safeEquals(node.getName(), o.getName())
-				&& safeEquals(node.getValue(), o.getValue()));
+				&& safeEquals(node.getStringValue(), o.getStringValue()))
+				&& safeSubtreeMatch(node.getNodeValue(), o.getNodeValue());
 	}
 
 	/**
