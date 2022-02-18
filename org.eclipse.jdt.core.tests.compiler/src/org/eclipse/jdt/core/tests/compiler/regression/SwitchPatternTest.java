@@ -3538,7 +3538,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"	static String foo(Color o) {\n" +
 					"		return switch (o) {\n" +
 					"	     case Red -> \"Red\";\n" +
-					"	     case Color s && s == Color.Blue  -> s.toString();" +
+					"	     case Color s && s == Color.Blue  -> s.toString();\n" +
 					"	     case Color s -> s.toString();\n" +
 					"	   };\n" +
 					"	}\n" +
@@ -3561,7 +3561,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"public class X {\n"+
 					"	static String foo(Color o) {\n" +
 					"		return switch (o) {\n" +
-					"	     case Color s && s == Color.Blue  -> s.toString();" +
+					"	     case Color s && s == Color.Blue  -> s.toString();\n" +
 					"	     case Red -> \"Red\";\n" +
 					"	     case null -> \"\";\n" +
 					"	   };\n" +
@@ -3576,6 +3576,11 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"	return switch (o) {\n" +
 				"	               ^\n" +
 				"A Switch expression should cover all possible values\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 5)\n" +
+				"	case Red -> \"Red\";\n" +
+				"	     ^^^\n" +
+				"This case label is dominated by one of the preceding case label\n" +
 				"----------\n");
 	}
 	public void testBug575047_14() {
@@ -3585,7 +3590,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"public class X {\n"+
 					"	static String foo(Color o) {\n" +
 					"		return switch (o) {\n" +
-					"	     case Color s && s == Color.Blue  -> s.toString();" +
+					"	     case Color s && s == Color.Blue  -> s.toString();\n" +
 					"	     case Red -> \"Red\";\n" +
 					"	   };\n" +
 					"	}\n" +
@@ -3599,6 +3604,11 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"	return switch (o) {\n" +
 				"	               ^\n" +
 				"A Switch expression should cover all possible values\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 5)\n" +
+				"	case Red -> \"Red\";\n" +
+				"	     ^^^\n" +
+				"This case label is dominated by one of the preceding case label\n" +
 				"----------\n");
 	}
 	public void testBug575047_15() {

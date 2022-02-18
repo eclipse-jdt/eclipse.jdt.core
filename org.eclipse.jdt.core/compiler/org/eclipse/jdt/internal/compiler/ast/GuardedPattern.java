@@ -90,6 +90,10 @@ public class GuardedPattern extends Pattern {
 	public boolean isTotalForType(TypeBinding type) {
 		return this.primaryPattern.isTotalForType(type) && isGuardTrueAlways();
 	}
+	@Override
+	public Pattern primary() {
+		return this.primaryPattern;
+	}
 
 	@Override
 	public void resolve(BlockScope scope) {
