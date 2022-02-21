@@ -29,6 +29,7 @@ import org.eclipse.jdt.internal.core.dom.util.DOMASTUtil;
  * JavaDocRegion:
  *     [ TagElement { <b>,</b> TagElement } ]
  *     [ ASTNode { [TextElement] [JavaDocRegion] } ]
+ *     validSnippet
  * </pre>
  *
  * @since 3.29 BETA_JAVA 18
@@ -61,6 +62,11 @@ public class JavaDocRegion extends ASTNode implements IDocElement{
 	 */
 	public static final SimplePropertyDescriptor DUMMY_REGION_PROPERTY  = new SimplePropertyDescriptor(JavaDocRegion.class, "dummyRegion", boolean.class, MANDATORY); //$NON-NLS-1$);
 
+	/**
+	 * The "validSnippet" structural property of this node type (added in JEP 413).
+	 */
+	public static final SimplePropertyDescriptor VALID_SNIPPET_PROPERTY  = new SimplePropertyDescriptor(JavaDocRegion.class, "validSnippet", boolean.class, MANDATORY); //$NON-NLS-1$);
+
 
 	/**
 	 * A list of property descriptors (element type:
@@ -70,11 +76,12 @@ public class JavaDocRegion extends ASTNode implements IDocElement{
 	private static final List PROPERTY_DESCRIPTORS;
 
 	static {
-		List propertyList = new ArrayList(4);
+		List propertyList = new ArrayList(5);
 		createPropertyList(JavaDocRegion.class, propertyList);
 		addProperty(TAGS_PROPERTY, propertyList);
 		addProperty(TEXTS_PROPERTY, propertyList);
 		addProperty(DUMMY_REGION_PROPERTY, propertyList);
+		addProperty(VALID_SNIPPET_PROPERTY, propertyList);
 		PROPERTY_DESCRIPTORS = reapPropertyList(propertyList);
 	}
 
@@ -93,6 +100,11 @@ public class JavaDocRegion extends ASTNode implements IDocElement{
 	 */
 	private boolean dummyRegion = Boolean.TRUE;
 
+	/**
+	 * The property validSnippet
+	 */
+	private boolean validSnippet = Boolean.TRUE;
+
 
 
 
@@ -109,6 +121,13 @@ public class JavaDocRegion extends ASTNode implements IDocElement{
 				return isDummyRegion();
 			} else {
 				setDummyRegion(newValue);
+				return false;
+			}
+		} else if (property == VALID_SNIPPET_PROPERTY) {
+			if (get) {
+				return isValidSnippet();
+			} else {
+				setValidSnippet(newValue);
 				return false;
 			}
 		}
@@ -132,6 +151,7 @@ public class JavaDocRegion extends ASTNode implements IDocElement{
 		JavaDocRegion result = new JavaDocRegion(target);
 		result.setSourceRange(getStartPosition(), getLength());
 		result.setDummyRegion(isDummyRegion());
+		result.setValidSnippet(isValidSnippet());
 		result.tags().addAll(
 				ASTNode.copySubtrees(target, tags()));
 		result.texts().addAll(
@@ -211,7 +231,7 @@ public class JavaDocRegion extends ASTNode implements IDocElement{
 	}
 
 	/**
-	 * Sets the value of dummyRegiong property.
+	 * Sets the value of dummyRegion property.
 	 * @param dummyRegion
 	 * @exception UnsupportedOperationException if this operation is used below JLS18
 	 */
@@ -220,6 +240,28 @@ public class JavaDocRegion extends ASTNode implements IDocElement{
 		preValueChange(DUMMY_REGION_PROPERTY);
 		this.dummyRegion = dummyRegion;
 		postValueChange(DUMMY_REGION_PROPERTY);
+	}
+
+	/**
+	 * Returns <code>true</code> if region has valid snippet else <code>false</code>.
+	 * @return the validSnippet
+	 * @exception UnsupportedOperationException if this operation is used below JLS18
+	 */
+	public boolean isValidSnippet() {
+		unsupportedBelow18();
+		return this.validSnippet;
+	}
+
+	/**
+	 * Sets the value of validSnippet property.
+	 * @param validSnippet
+	 * @exception UnsupportedOperationException if this operation is used below JLS18
+	 */
+	public void setValidSnippet(boolean validSnippet) {
+		unsupportedBelow18();
+		preValueChange(VALID_SNIPPET_PROPERTY);
+		this.validSnippet = validSnippet;
+		postValueChange(VALID_SNIPPET_PROPERTY);
 	}
 
 }

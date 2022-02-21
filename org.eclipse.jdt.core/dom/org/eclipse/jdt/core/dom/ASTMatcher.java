@@ -1319,7 +1319,7 @@ public class ASTMatcher {
 		}
 		JavaDocRegion o = (JavaDocRegion) other;
 		return safeSubtreeListMatch(node.tags(), o.tags()) && safeSubtreeListMatch(node.texts(), o.texts())
-				&& safeEquals(node.isDummyRegion(), o.isDummyRegion());
+				&& safeEquals(node.isDummyRegion(), o.isDummyRegion() && safeEquals(node.isValidSnippet(), o.isValidSnippet()));
 	}
 
 	/**
