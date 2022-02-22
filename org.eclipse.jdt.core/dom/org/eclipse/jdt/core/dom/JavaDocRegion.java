@@ -36,25 +36,32 @@ import org.eclipse.jdt.internal.core.dom.util.DOMASTUtil;
  */
 
 @SuppressWarnings("rawtypes")
-public class JavaDocRegion extends ASTNode implements IDocElement{
+public class JavaDocRegion extends AbstractTagElement{
 
 	JavaDocRegion(AST ast) {
 		super(ast);
 		unsupportedBelow18();
 	}
 
+	/**
+	 * The "tagName" structural property of this node type (type: {@link String}).
+	 */
+
+	public static final SimplePropertyDescriptor TAG_NAME_PROPERTY =
+			internalTagNamePropertyFactory(JavaDocRegion.class);
+	/**
+	 * The "fragments" structural property of this node type (element type: {@link IDocElement}).
+	 * These are the containers which will have texts and other JavaDoc regions
+	 */
+	public static final ChildListPropertyDescriptor FRAGMENTS_PROPERTY =
+			internalFragmentsPropertyFactory(JavaDocRegion.class);
 
 	/**
 	 * The "tags" structural property of this node type (child type: {@link TagElement}). (added in JEP 413).
+	 * These are the decorators like link, highlight etc
 	 */
 	public static final ChildListPropertyDescriptor TAGS_PROPERTY  =
 			new ChildListPropertyDescriptor(JavaDocRegion.class, "tags", TagElement.class, CYCLE_RISK); //$NON-NLS-1$);
-
-	/**
-	 * The "texts" structural property of this node type can have Text/Region elements(child type: {@link TextElement}, {@link JavaDocRegion}}). (added in JEP 413).
-	 */
-	public static final ChildListPropertyDescriptor TEXTS_PROPERTY  =
-			new ChildListPropertyDescriptor(JavaDocRegion.class, "texts", ASTNode.class, CYCLE_RISK); //$NON-NLS-1$);
 
 
 	/**
@@ -76,10 +83,11 @@ public class JavaDocRegion extends ASTNode implements IDocElement{
 	private static final List PROPERTY_DESCRIPTORS;
 
 	static {
-		List propertyList = new ArrayList(5);
+		List propertyList = new ArrayList(6);
 		createPropertyList(JavaDocRegion.class, propertyList);
+		addProperty(TAG_NAME_PROPERTY, propertyList);
+		addProperty(FRAGMENTS_PROPERTY, propertyList);
 		addProperty(TAGS_PROPERTY, propertyList);
-		addProperty(TEXTS_PROPERTY, propertyList);
 		addProperty(DUMMY_REGION_PROPERTY, propertyList);
 		addProperty(VALID_SNIPPET_PROPERTY, propertyList);
 		PROPERTY_DESCRIPTORS = reapPropertyList(propertyList);
@@ -89,11 +97,6 @@ public class JavaDocRegion extends ASTNode implements IDocElement{
 	 * The tags list; <code>empty</code> for none;
 	 */
 	private ASTNode.NodeList tags = null;
-
-	/**
-	 * The texts list; <code>empty</code> for none;
-	 */
-	private ASTNode.NodeList texts = null;
 
 	/**
 	 * The property dummyRegion
@@ -112,7 +115,6 @@ public class JavaDocRegion extends ASTNode implements IDocElement{
 	List internalStructuralPropertiesForType(int apiLevel) {
 		return propertyDescriptors(apiLevel);
 	}
-
 
 	@Override
 	final boolean internalGetSetBooleanProperty(SimplePropertyDescriptor property, boolean get, boolean newValue) {
@@ -136,6 +138,17 @@ public class JavaDocRegion extends ASTNode implements IDocElement{
 	}
 
 	@Override
+	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
+		if (property == FRAGMENTS_PROPERTY) {
+			return fragments();
+		} else if (property == TAGS_PROPERTY) {
+			return tags();
+		}
+		// allow default implementation to flag the error
+		return super.internalGetChildListProperty(property);
+	}
+
+	@Override
 	int getNodeType0() {
 		return JAVADOC_REGION;
 	}
@@ -150,12 +163,13 @@ public class JavaDocRegion extends ASTNode implements IDocElement{
 	ASTNode clone0(AST target) {
 		JavaDocRegion result = new JavaDocRegion(target);
 		result.setSourceRange(getStartPosition(), getLength());
+		result.setTagName(getTagName());
 		result.setDummyRegion(isDummyRegion());
 		result.setValidSnippet(isValidSnippet());
 		result.tags().addAll(
 				ASTNode.copySubtrees(target, tags()));
-		result.texts().addAll(
-				ASTNode.copySubtrees(target, texts()));
+		result.fragments().addAll(
+				ASTNode.copySubtrees(target, fragments()));
 		return result;
 	}
 
@@ -168,12 +182,12 @@ public class JavaDocRegion extends ASTNode implements IDocElement{
 
 	@Override
 	int memSize() {
-		return BASE_NODE_SIZE + 1 * 4 ;
+		return super.memSize() + 3*4 ;
 	}
 
 	@Override
 	int treeSize() {
-		return memSize();
+		return memSize() ;
 	}
 
 
@@ -205,19 +219,6 @@ public class JavaDocRegion extends ASTNode implements IDocElement{
 	public List tags() {
 		unsupportedBelow18();
 		return this.tags;
-	}
-
-	/**
-	 * Returns the list of text elements in this region, or
-	 * <code>empty</code> if there is none.
-	 *
-	 *  @return the list of text element nodes
-	 *    (element type: {@link TextElement})
-	 * @exception UnsupportedOperationException if this operation is used below JLS18
-	 */
-	public List texts() {
-		unsupportedBelow18();
-		return this.texts;
 	}
 
 	/**
@@ -262,6 +263,16 @@ public class JavaDocRegion extends ASTNode implements IDocElement{
 		preValueChange(VALID_SNIPPET_PROPERTY);
 		this.validSnippet = validSnippet;
 		postValueChange(VALID_SNIPPET_PROPERTY);
+	}
+
+	@Override
+	ChildListPropertyDescriptor internalFragmentsPropertyFactory() {
+		return FRAGMENTS_PROPERTY;
+	}
+
+	@Override
+	SimplePropertyDescriptor internalTagNamePropertyFactory() {
+		return TAG_NAME_PROPERTY;
 	}
 
 }

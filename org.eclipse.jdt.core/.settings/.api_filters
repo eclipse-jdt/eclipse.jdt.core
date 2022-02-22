@@ -1,13 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component id="org.eclipse.jdt.core" version="2">
-    <resource path="META-INF/MANIFEST.MF">
-        <filter comment="For Java 18" id="924844039">
-            <message_arguments>
-                <message_argument value="3.29.0"/>
-                <message_argument value="3.29.0"/>
-            </message_arguments>
-        </filter>
-    </resource>
     <resource path="compiler/org/eclipse/jdt/core/compiler/CategorizedProblem.java" type="org.eclipse.jdt.core.compiler.CategorizedProblem">
         <filter comment="Java 14" id="576725006">
             <message_arguments>
@@ -22,6 +14,20 @@
                 <message_argument value="org.eclipse.jdt.core.dom.AST"/>
                 <message_argument value="JLS_Latest"/>
                 <message_argument value="17"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="dom/org/eclipse/jdt/core/dom/AbstractTagElement.java" type="org.eclipse.jdt.core.dom.AbstractTagElement">
+        <filter id="576725006">
+            <message_arguments>
+                <message_argument value="IDocElement"/>
+                <message_argument value="AbstractTagElement"/>
+            </message_arguments>
+        </filter>
+        <filter id="576778288">
+            <message_arguments>
+                <message_argument value="ASTNode"/>
+                <message_argument value="AbstractTagElement"/>
             </message_arguments>
         </filter>
     </resource>
@@ -86,20 +92,6 @@
             <message_arguments>
                 <message_argument value="ASTNode"/>
                 <message_argument value="ImportDeclaration"/>
-            </message_arguments>
-        </filter>
-    </resource>
-    <resource path="dom/org/eclipse/jdt/core/dom/JavaDocRegion.java" type="org.eclipse.jdt.core.dom.JavaDocRegion">
-        <filter comment="For Java 18" id="576725006">
-            <message_arguments>
-                <message_argument value="IDocElement"/>
-                <message_argument value="JavaDocRegion"/>
-            </message_arguments>
-        </filter>
-        <filter id="576778288">
-            <message_arguments>
-                <message_argument value="ASTNode"/>
-                <message_argument value="JavaDocRegion"/>
             </message_arguments>
         </filter>
     </resource>
@@ -200,14 +192,6 @@
             <message_arguments>
                 <message_argument value="ASTNode"/>
                 <message_argument value="Statement"/>
-            </message_arguments>
-        </filter>
-    </resource>
-    <resource path="dom/org/eclipse/jdt/core/dom/TagElement.java" type="org.eclipse.jdt.core.dom.TagElement">
-        <filter id="576725006">
-            <message_arguments>
-                <message_argument value="IDocElement"/>
-                <message_argument value="TagElement"/>
             </message_arguments>
         </filter>
     </resource>
