@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -16,6 +16,7 @@
  *								Bug 400874 - [1.8][compiler] Inference infrastructure should evolve to meet JLS8 18.x (Part G of JSR335 spec)
  *     Gábor Kövesdán - Contribution for Bug 350000 - [content assist] Include non-prefix matches in auto-complete suggestions
  *     Microsoft Corporation - Contribution for bug 575562 - improve completion search performance
+ *     							Bug 578817 - skip the ignored types before creating CompletionProposals
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist;
 
@@ -13748,6 +13749,10 @@ public final class CompletionEngine
 			typeCompletion = simpleTypeName;
 		}
 
+		if (this.requestor.isIgnored(fullyQualifiedName)) {
+			return;
+		}
+
 		ReferenceBinding typeBinding = this.lookupEnvironment.getType(CharOperation.splitOn('.', fullyQualifiedName));
 
 		int relevance = computeBaseRelevance();
@@ -13980,7 +13985,6 @@ public final class CompletionEngine
 						proposal.setReplaceRange(this.endPosition - this.offset, this.endPosition - this.offset);
 						proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 						proposal.setRelevance(relevance);
-
 						this.requestor.accept(proposal);
 						if(DEBUG) {
 							this.printDebug(proposal);
@@ -14045,6 +14049,9 @@ public final class CompletionEngine
 			completionName = simpleTypeName;
 		}
 
+		if (this.requestor.isIgnored(fullyQualifiedName)) {
+			return;
+		}
 		TypeBinding guessedType = null;
 		if ((modifiers & ClassFileConstants.AccAnnotation) != 0 &&
 				this.assistNodeIsAnnotation &&

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2019 IBM Corporation and others.
+ * Copyright (c) 2004, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -144,6 +144,19 @@ public abstract class CompletionRequestor {
 		} else {
 			this.ignoreSet &= ~(1 << completionProposalKind);
 		}
+	}
+
+	/**
+	 * Returns whether the given type proposal is ignored.
+	 *
+	 * @param fullTypeName the proposed type name of CompletionProposal
+	 * @return <code>true</code> if the given type name is ignored by
+	 * this requestor, and <code>false</code> if it is of interest
+	 *
+	 * @since 3.30
+	 */
+	public boolean isIgnored(char[] fullTypeName) {
+		return false;
 	}
 
 	/**
