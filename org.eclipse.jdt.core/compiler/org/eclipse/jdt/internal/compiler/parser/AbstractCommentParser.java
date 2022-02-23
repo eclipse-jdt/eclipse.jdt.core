@@ -1464,10 +1464,10 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	}
 
 	protected boolean parseSnippet() throws InvalidInputException {
-		int currentPosition = this.scanner.currentPosition;
 		boolean tokenWhiteSpace = this.scanner.tokenizeWhiteSpace;
 		boolean tokenizeComments = this.scanner.tokenizeComments;
-		this.scanner.tokenizeWhiteSpace = false;
+		this.scanner.tokenizeWhiteSpace = true;
+		this.scanner.tokenizeComments = true;
 		int previousPosition = -1;
 		int openBraces = 1;
 		boolean parsingJava18Plus = this.scanner != null ? this.scanner.sourceLevel >= ClassFileConstants.JDK18 : false;
@@ -1482,15 +1482,15 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			int token = readTokenSafely();
 
 			if (token != TerminalTokens.TokenNameCOLON) {
-				throw new InvalidInputException();
+				valid = false;
 			}
 			consumeToken();
 			if (!isNextNonSpaceCharNewLine()) {
-				throw new InvalidInputException();
+				valid = false;
+				consumeToken();
+			} else {
+				consumeNewLine();
 			}
-			consumeNewLine();
-			this.scanner.tokenizeWhiteSpace = true;
-			this.scanner.tokenizeComments = true;
 			int textEndPosition = this.index;
 			this.textStart = this.index;
 			while (this.index < this.scanner.eofPosition) {
@@ -1582,9 +1582,6 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 				}
 				consumeToken();
 			}
-		} catch (InvalidInputException ex) {
-			if (this.reportProblems) this.sourceParser.problemReporter().javadocInvalidReference(currentPosition, getTokenEndPosition());
-			valid = false;
 		}
 		finally {
 			// we have to make sure that this is reset to the previous value even if an exception occurs
@@ -1594,7 +1591,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		setInlineTagStarted(false);
 		boolean retVal = false;
 		if (!valid) {
-			retVal =  false;			
+			retVal =  false;
 		} else if (openBraces == 0) {
 			retVal = true;
 		}
@@ -2032,15 +2029,15 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	}
 
 	protected abstract Object createSnippetTag();
-	
+
 	protected abstract Object createSnippetInnerTag(String tagName, int start, int end);
 
 	protected abstract void addTagProperties(Object Tag, Map<String, String> map);
 
 	protected abstract void addSnippetInnerTag(Object tag);
-	
+
 	protected abstract void setSnippetError(Object tag, String value);
-	
+
 	protected abstract void setSnippetIsValid(Object tag, boolean value);
 
 	/*
