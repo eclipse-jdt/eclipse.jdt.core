@@ -301,7 +301,7 @@ class DocCommentParser extends AbstractCommentParser {
 	@Override
 	protected void setSnippetIsValid(Object tag, boolean value) {
 		if (tag instanceof TagElement) {
-			((TagElement) tag).setProperty(TagProperty.TAG_PROPERTY_SNIPPET_ERROR, value);
+			((TagElement) tag).setProperty(TagProperty.TAG_PROPERTY_SNIPPET_IS_VALID, value);
 		}
 	}
 
