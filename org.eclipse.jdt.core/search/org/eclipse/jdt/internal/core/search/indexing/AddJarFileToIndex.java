@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.Charset;
+import java.nio.file.NoSuchFileException;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipError;
@@ -26,7 +27,10 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
@@ -279,7 +283,12 @@ class AddJarFileToIndex extends BinaryContainer {
 				monitor.exitWrite(); // free write lock
 			}
 		} catch (IOException | ZipError e) {
-			org.eclipse.jdt.internal.core.util.Util.log(e, "Failed to index " + this.containerPath); //$NON-NLS-1$
+			if (e instanceof NoSuchFileException) {
+				IStatus info = new Status(IStatus.INFO, JavaCore.PLUGIN_ID, "File no longer exists: " + this.containerPath, e); //$NON-NLS-1$
+				org.eclipse.jdt.internal.core.util.Util.log(info);
+			} else {
+				org.eclipse.jdt.internal.core.util.Util.log(e, "Failed to index " + this.containerPath); //$NON-NLS-1$
+			}
 			this.manager.removeIndex(this.containerPath);
 			return false;
 		}
