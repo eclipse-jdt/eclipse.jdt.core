@@ -96,7 +96,7 @@ public class JavaDocRegion extends AbstractTagElement{
 	/**
 	 * The tags list; <code>empty</code> for none;
 	 */
-	private ASTNode.NodeList tags = null;
+	private ASTNode.NodeList tags = new ASTNode.NodeList(TAGS_PROPERTY);
 
 	/**
 	 * The property dummyRegion

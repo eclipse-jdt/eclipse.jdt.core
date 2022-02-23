@@ -313,6 +313,34 @@ class DocCommentParser extends AbstractCommentParser {
 	}
 
 	@Override
+	protected Object createSnippetRegion(String name, List<Object> tags, boolean isDummy) {
+		JavaDocRegion region = this.ast.newJavaDocRegion();
+		if (tags != null && tags.size() > 0) {
+			int start = -1;
+			int end = -1;
+			for (Object tag : tags) {
+				if (tag instanceof TagElement) {
+					TagElement tagElem = (TagElement) tag;
+					region.tags().add(tagElem);
+					int tagStart = tagElem.getStartPosition();
+					int tagEnd = tagStart + tagElem.getLength();
+					if (start == -1 || start > tagStart) {
+						start = tagStart;
+					}
+					if (end ==-1 || end < tagEnd) {
+						end = tagEnd;
+					}
+				}
+			}
+			region.setSourceRange(start, end-start);
+		}
+		if (name != null) {
+			region.setTagName(name);
+		}
+		return region;
+	}
+
+	@Override
 	protected Object createSnippetInnerTag(String tagName, int start, int end) {
 		if (tagName != null) {
 			TagElement tagElement = this.ast.newTagElement();
@@ -341,13 +369,13 @@ class DocCommentParser extends AbstractCommentParser {
 
 	@Override
 	protected void addSnippetInnerTag(Object obj) {
-		if (obj instanceof TagElement) {
-			TagElement tagElement = (TagElement) obj;
-			TagElement previousTag = null;
+		if (obj instanceof AbstractTagElement) {
+			AbstractTagElement tagElement = (AbstractTagElement) obj;
+			AbstractTagElement previousTag = null;
 			if (this.astPtr == -1) {
 				return;
 			} else {
-				previousTag = (TagElement) this.astStack[this.astPtr];
+				previousTag = (AbstractTagElement) this.astStack[this.astPtr];
 				List fragments = previousTag.fragments();
 				if (this.inlineTagStarted) {
 					int size = fragments.size();
@@ -356,8 +384,8 @@ class DocCommentParser extends AbstractCommentParser {
 					} else {
 						// If last fragment is a tag, then use it as previous tag
 						ASTNode lastFragment = (ASTNode) fragments.get(size-1);
-						if (lastFragment.getNodeType() == ASTNode.TAG_ELEMENT) {
-							previousTag = (TagElement) lastFragment;
+						if (lastFragment instanceof AbstractTagElement) {
+							previousTag = (AbstractTagElement) lastFragment;
 						}
 					}
 				}
@@ -943,18 +971,18 @@ class DocCommentParser extends AbstractCommentParser {
 		text.setSourceRange(start, end-start);
 
 		// Search previous tag on which to add the text element
-		TagElement previousTag = null;
+		AbstractTagElement previousTag = null;
 		int previousStart = start;
 		if (this.astPtr == -1) {
 			previousTag = this.ast.newTagElement();
 			previousTag.setSourceRange(start, end-start);
 			pushOnAstStack(previousTag, true);
 		} else {
-			previousTag = (TagElement) this.astStack[this.astPtr];
+			previousTag = (AbstractTagElement) this.astStack[this.astPtr];
 			previousStart = previousTag.getStartPosition();
 		}
 
-		TagElement prevTag = null;
+		AbstractTagElement prevTag = null;
 		// If we're in a inline tag, then retrieve previous tag in its fragments
 		List fragments = previousTag.fragments();
 		if (this.inlineTagStarted) {
@@ -964,8 +992,8 @@ class DocCommentParser extends AbstractCommentParser {
 			} else {
 				// If last fragment is a tag, then use it as previous tag
 				ASTNode lastFragment = (ASTNode) fragments.get(size-1);
-				if (lastFragment.getNodeType() == ASTNode.TAG_ELEMENT) {
-					previousTag = (TagElement) lastFragment;
+				if (lastFragment instanceof AbstractTagElement) {
+					previousTag = (AbstractTagElement) lastFragment;
 					previousStart = previousTag.getStartPosition();
 					if (this.snippetInlineTagStarted) {
 						fragments = previousTag.fragments();
@@ -974,8 +1002,8 @@ class DocCommentParser extends AbstractCommentParser {
 							//do nothing
 						} else {
 							lastFragment = (ASTNode) fragments.get(size-1);
-							if (lastFragment.getNodeType() == ASTNode.TAG_ELEMENT) {
-								prevTag = (TagElement) lastFragment;
+							if (lastFragment instanceof AbstractTagElement) {
+								prevTag = (AbstractTagElement) lastFragment;
 								this.snippetInlineTagStarted = false;
 							}
 						}

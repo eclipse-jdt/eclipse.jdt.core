@@ -358,10 +358,18 @@ public class JavadocParser extends AbstractCommentParser {
 	}
 
 	@Override
+	protected Object createSnippetRegion(String name, List<Object> tags, boolean isDummy) {
+		if (tags != null && tags.size() > 0) {
+			return tags.get(0);
+		}
+		return name;
+	}
+
+	@Override
 	protected void setSnippetIsValid(Object obj, boolean value) {
 		//do nothing;
 	}
-	
+
 	@Override
 	protected void setSnippetError(Object obj, String value) {
 		//do nothing;

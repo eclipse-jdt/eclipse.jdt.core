@@ -1629,227 +1629,244 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		final String REGEX = "regex"; //$NON-NLS-1$
 		final String TYPE = "type"; //$NON-NLS-1$
 		final String REPLACEMENT = "replacement"; //$NON-NLS-1$
-		if (tokenString != null
-				&& tokenString.length() > 2
-				&& tokenString.startsWith("//")) { //$NON-NLS-1$
-			String tobeTokenized = tokenString.substring(2);
-			Scanner slScanner = new JavadocScanner(false, false, false/* nls */, this.scanner.sourceLevel, this.scanner.complianceLevel,
-					null/* taskTags */, null/* taskPriorities */, false/* taskCaseSensitive */, false, true, true);
-			slScanner.setSource(tobeTokenized.toCharArray());
-			boolean atTokenStarted= false;
-			int atTokenPos = -1;
-			while (true) {
-				try {
-					int tokenType = slScanner.getNextToken();
-					if (tokenType == TokenNameEOF)
-						break;
-					mainSwitch : switch (tokenType) {
-						case TerminalTokens.TokenNameAT :
-							atTokenStarted = true;
-							atTokenPos = slScanner.getCurrentTokenStartPosition();
+		List<Object> inlineTags= new ArrayList<>();
+		try {
+			if (tokenString != null
+					&& tokenString.length() > 2
+					&& tokenString.startsWith("//")) { //$NON-NLS-1$
+				String tobeTokenized = tokenString.substring(2);
+				Scanner slScanner = new JavadocScanner(false, false, false/* nls */, this.scanner.sourceLevel, this.scanner.complianceLevel,
+						null/* taskTags */, null/* taskPriorities */, false/* taskCaseSensitive */, false, true, true);
+				slScanner.setSource(tobeTokenized.toCharArray());
+				boolean atTokenStarted= false;
+				int atTokenPos = -1;
+				boolean firstTagProcessed = false;
+				while (true) {
+					try {
+						int tokenType = slScanner.getNextToken();
+						if (tokenType == TokenNameEOF)
 							break;
-						case TerminalTokens.TokenNameIdentifier :
-							if (atTokenStarted) {
-								int curPos= slScanner.getCurrentTokenStartPosition();
-								if (curPos != atTokenPos+1) {
+						mainSwitch : switch (tokenType) {
+							case TerminalTokens.TokenNameAT :
+								atTokenStarted = true;
+								atTokenPos = slScanner.getCurrentTokenStartPosition();
+								break;
+							case TerminalTokens.TokenNameIdentifier :
+								if (atTokenStarted) {
+									int curPos= slScanner.getCurrentTokenStartPosition();
+									if (curPos != atTokenPos+1 && !firstTagProcessed) {
+										return inlineTag;
+									}
+									String snippetDecorator = slScanner.getCurrentTokenString();
+									int tokenStart= commentStart + slScanner.getCurrentTokenStartPosition()-1;
+									int tokenEnd= commentStart + slScanner.getCurrentTokenEndPosition();
+									String newTagName= null;
+									switch(snippetDecorator) {
+										case  HIGHLIGHT :
+											tokenStart= commentStart + 1 + slScanner.getCurrentTokenStartPosition();
+											tokenEnd= tokenStart + 10;
+											newTagName = '@' + HIGHLIGHT;
+											Map<String, String> map = new HashMap<>();
+											boolean breakToMainSwitch = false;
+											boolean createTag = false;
+											String attribute = null;
+											String value = null;
+											boolean processValue = false;
+											while (true) {
+												tokenType = slScanner.getNextToken();
+												switch (tokenType) {
+													case TokenNameEOF:
+														createTag = true;
+														break;
+													case TerminalTokens.TokenNameAT:
+														if (!processValue) {
+															breakToMainSwitch = true;
+															createTag = true;
+														}
+														processValue= false;
+														break;
+													case TerminalTokens.TokenNameCOLON:
+														tokenType = slScanner.getNextToken();
+														if (tokenType == TokenNameEOF) {
+															break;
+														} else {
+															return inlineTag;
+														}
+													case TerminalTokens.TokenNameIdentifier:
+														if (processValue) {
+															value = slScanner.getCurrentTokenString();
+															if (map.get(attribute) == null) {
+																map.put(attribute, value);
+																if ((attribute.equals(SUBSTRING) && (map.get(REGEX) != null))
+																		|| (attribute.equals(REGEX) && (map.get(SUBSTRING) != null))) {
+																	return inlineTag;
+																}
+															}
+															processValue= false;
+															attribute = null;
+														} else {
+															attribute = slScanner.getCurrentTokenString();
+															switch(attribute) {
+																case  SUBSTRING :
+																case  REGEX :
+																case  TYPE :
+																default :
+																	break;
+															}
+														}
+														break;
+													case TerminalTokens.TokenNameEQUAL:
+														if (attribute != null) {
+															processValue = true;
+														}
+														break;
+													case TerminalTokens.TokenNameStringLiteral:
+													case TerminalTokens.TokenNameSingleQuoteStringLiteral:
+														if (processValue) {
+															value = slScanner.getCurrentTokenString();
+															if (map.get(attribute) == null) {
+																map.put(attribute, value);
+																if ((attribute.equals(SUBSTRING) && (map.get(REGEX) != null))
+																		|| (attribute.equals(REGEX) && (map.get(SUBSTRING) != null))) {
+																	return inlineTag;
+																}
+															}
+															processValue= false;
+															attribute = null;
+														}
+														break;
+												}
+												if (createTag) {
+													break;
+												}
+												if (breakToMainSwitch)
+													break mainSwitch;
+											}
+											tokenEnd = tokenStart + slScanner.getCurrentTokenEndPosition();
+											inlineTag = createSnippetInnerTag(newTagName, tokenStart, tokenEnd);
+											addTagProperties(inlineTag, map);
+											inlineTags.add(inlineTag);
+											if (!firstTagProcessed) {
+												firstTagProcessed = true;
+											}
+											break;
+										case REPLACE:
+											tokenStart= commentStart + 1 + slScanner.getCurrentTokenStartPosition();
+											tokenEnd= tokenStart + 8;
+											newTagName = '@' + REPLACE;
+											map = new HashMap<>();
+											breakToMainSwitch = false;
+											createTag = false;
+											attribute = null;
+											value = null;
+											processValue = false;
+											boolean hasReplacementStr = false;
+											while (true) {
+												tokenType = slScanner.getNextToken();
+												switch (tokenType) {
+													case TokenNameEOF:
+														createTag = true;
+														break;
+													case TerminalTokens.TokenNameAT:
+														if (!processValue) {
+															breakToMainSwitch = true;
+															createTag = true;
+														}
+														processValue= false;
+														break;
+													case TerminalTokens.TokenNameCOLON:
+														tokenType = slScanner.getNextToken();
+														if (tokenType == TokenNameEOF) {
+															break;
+														} else {
+															return inlineTag;
+														}
+													case TerminalTokens.TokenNameIdentifier:
+														if (processValue) {
+															value = slScanner.getCurrentTokenString();
+															if (map.get(attribute) == null) {
+																map.put(attribute, value);
+																if ((attribute.equals(SUBSTRING) && (map.get(REGEX) != null))
+																		|| (attribute.equals(REGEX) && (map.get(SUBSTRING) != null))) {
+																	return inlineTag;
+																}
+															}
+															processValue= false;
+															attribute = null;
+														} else {
+															attribute = slScanner.getCurrentTokenString();
+															switch(attribute) {
+																case  SUBSTRING :
+																case  REGEX :
+																case  REPLACEMENT :
+																	break;
+																default :
+																	break;
+															}
+														}
+														break;
+													case TerminalTokens.TokenNameEQUAL:
+														if (attribute != null) {
+															processValue = true;
+														}
+														break;
+													case TerminalTokens.TokenNameStringLiteral:
+													case TerminalTokens.TokenNameSingleQuoteStringLiteral:
+														if (processValue) {
+															value = slScanner.getCurrentTokenString();
+															if (map.get(attribute) == null) {
+																if (attribute.equals(REPLACEMENT)) {
+																	hasReplacementStr = true;
+																}
+																map.put(attribute, value);
+																if ((attribute.equals(SUBSTRING) && (map.get(REGEX) != null))
+																		|| (attribute.equals(REGEX) && (map.get(SUBSTRING) != null))) {
+																	return inlineTag;
+																}
+															}
+															processValue= false;
+															attribute = null;
+														}
+														break;
+												}
+												if (createTag) {
+													break;
+												}
+												if (breakToMainSwitch)
+													break mainSwitch;
+											}
+											if (!hasReplacementStr) {
+												return inlineTag;
+											}
+											tokenEnd = tokenStart + slScanner.getCurrentTokenEndPosition();
+											inlineTag = createSnippetInnerTag(newTagName, tokenStart, tokenEnd);
+											addTagProperties(inlineTag, map);
+											inlineTags.add(inlineTag);
+											if (!firstTagProcessed) {
+												firstTagProcessed = true;
+											}
+											break;
+										default :
+											return inlineTag;
+									}
+								}
+								break;
+							default:
+								if (atTokenStarted) {
 									return inlineTag;
 								}
-								String snippetDecorator = slScanner.getCurrentTokenString();
-								int tokenStart= commentStart + slScanner.getCurrentTokenStartPosition()-1;
-								int tokenEnd= commentStart + slScanner.getCurrentTokenEndPosition();
-								String newTagName= null;
-								switch(snippetDecorator) {
-									case  HIGHLIGHT :
-										tokenStart= commentStart + 1 + slScanner.getCurrentTokenStartPosition();
-										tokenEnd= tokenStart + 10;
-										newTagName = '@' + HIGHLIGHT;
-										Map<String, String> map = new HashMap<>();
-										boolean breakToMainSwitch = false;
-										boolean createTag = false;
-										String attribute = null;
-										String value = null;
-										boolean processValue = false;
-										while (true) {
-											tokenType = slScanner.getNextToken();
-											switch (tokenType) {
-												case TokenNameEOF:
-													createTag = true;
-													break;
-												case TerminalTokens.TokenNameAT:
-													if (!processValue) {
-														breakToMainSwitch = true;
-														createTag = true;
-													}
-													processValue= false;
-													break;
-												case TerminalTokens.TokenNameCOLON:
-													tokenType = slScanner.getNextToken();
-													if (tokenType == TokenNameEOF) {
-														break;
-													} else {
-														return inlineTag;
-													}
-												case TerminalTokens.TokenNameIdentifier:
-													if (processValue) {
-														value = slScanner.getCurrentTokenString();
-														if (map.get(attribute) == null) {
-															map.put(attribute, value);
-															if ((attribute.equals(SUBSTRING) && (map.get(REGEX) != null))
-																	|| (attribute.equals(REGEX) && (map.get(SUBSTRING) != null))) {
-																return inlineTag;
-															}
-														}
-														processValue= false;
-														attribute = null;
-													} else {
-														attribute = slScanner.getCurrentTokenString();
-														switch(attribute) {
-															case  SUBSTRING :
-															case  REGEX :
-															case  TYPE :
-															default :
-																break;
-														}
-													}
-													break;
-												case TerminalTokens.TokenNameEQUAL:
-													if (attribute != null) {
-														processValue = true;
-													}
-													break;
-												case TerminalTokens.TokenNameStringLiteral:
-												case TerminalTokens.TokenNameSingleQuoteStringLiteral:
-													if (processValue) {
-														value = slScanner.getCurrentTokenString();
-														if (map.get(attribute) == null) {
-															map.put(attribute, value);
-															if ((attribute.equals(SUBSTRING) && (map.get(REGEX) != null))
-																	|| (attribute.equals(REGEX) && (map.get(SUBSTRING) != null))) {
-																return inlineTag;
-															}
-														}
-														processValue= false;
-														attribute = null;
-													}
-													break;
-											}
-											if (createTag) {
-												break;
-											}
-											if (breakToMainSwitch)
-												break mainSwitch;
-										}
-										tokenEnd = tokenStart + slScanner.getCurrentTokenEndPosition();
-										inlineTag = createSnippetInnerTag(newTagName, tokenStart, tokenEnd);
-										addTagProperties(inlineTag, map);
-										break;
-									case REPLACE:
-										tokenStart= commentStart + 1 + slScanner.getCurrentTokenStartPosition();
-										tokenEnd= tokenStart + 8;
-										newTagName = '@' + REPLACE;
-										map = new HashMap<>();
-										breakToMainSwitch = false;
-										createTag = false;
-										attribute = null;
-										value = null;
-										processValue = false;
-										boolean hasReplacementStr = false;
-										while (true) {
-											tokenType = slScanner.getNextToken();
-											switch (tokenType) {
-												case TokenNameEOF:
-													createTag = true;
-													break;
-												case TerminalTokens.TokenNameAT:
-													if (!processValue) {
-														breakToMainSwitch = true;
-														createTag = true;
-													}
-													processValue= false;
-													break;
-												case TerminalTokens.TokenNameCOLON:
-													tokenType = slScanner.getNextToken();
-													if (tokenType == TokenNameEOF) {
-														break;
-													} else {
-														return inlineTag;
-													}
-												case TerminalTokens.TokenNameIdentifier:
-													if (processValue) {
-														value = slScanner.getCurrentTokenString();
-														if (map.get(attribute) == null) {
-															map.put(attribute, value);
-															if ((attribute.equals(SUBSTRING) && (map.get(REGEX) != null))
-																	|| (attribute.equals(REGEX) && (map.get(SUBSTRING) != null))) {
-																return inlineTag;
-															}
-														}
-														processValue= false;
-														attribute = null;
-													} else {
-														attribute = slScanner.getCurrentTokenString();
-														switch(attribute) {
-															case  SUBSTRING :
-															case  REGEX :
-															case  REPLACEMENT :
-																break;
-															default :
-																break;
-														}
-													}
-													break;
-												case TerminalTokens.TokenNameEQUAL:
-													if (attribute != null) {
-														processValue = true;
-													}
-													break;
-												case TerminalTokens.TokenNameStringLiteral:
-												case TerminalTokens.TokenNameSingleQuoteStringLiteral:
-													if (processValue) {
-														value = slScanner.getCurrentTokenString();
-														if (map.get(attribute) == null) {
-															if (attribute.equals(REPLACEMENT)) {
-																hasReplacementStr = true;
-															}
-															map.put(attribute, value);
-															if ((attribute.equals(SUBSTRING) && (map.get(REGEX) != null))
-																	|| (attribute.equals(REGEX) && (map.get(SUBSTRING) != null))) {
-																return inlineTag;
-															}
-														}
-														processValue= false;
-														attribute = null;
-													}
-													break;
-											}
-											if (createTag) {
-												break;
-											}
-											if (breakToMainSwitch)
-												break mainSwitch;
-										}
-										if (!hasReplacementStr) {
-											return inlineTag;
-										}
-										tokenEnd = tokenStart + slScanner.getCurrentTokenEndPosition();
-										inlineTag = createSnippetInnerTag(newTagName, tokenStart, tokenEnd);
-										addTagProperties(inlineTag, map);
-										break;
-									default :
-										return inlineTag;
-								}
-							}
-							break;
-						default:
-							if (atTokenStarted) {
-								return inlineTag;
-							}
-							break;
-					}
+								break;
+						}
 
-				} catch (InvalidInputException e) {
-					// do nothing
+					} catch (InvalidInputException e) {
+						// do nothing
+					}
 				}
+			}
+		}
+		finally {
+			if (inlineTags.size() > 1) {
+				inlineTag = createSnippetRegion(null, inlineTags, true);
 			}
 		}
 		return inlineTag;
@@ -2039,6 +2056,8 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	protected abstract Object createSnippetTag();
 
 	protected abstract Object createSnippetInnerTag(String tagName, int start, int end);
+
+	protected abstract Object createSnippetRegion(String name, List<Object> tags, boolean isDummy);
 
 	protected abstract void addTagProperties(Object Tag, Map<String, String> map);
 
