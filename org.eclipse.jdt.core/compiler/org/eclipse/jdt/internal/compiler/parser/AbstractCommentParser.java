@@ -1478,9 +1478,12 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		Object snippetTag = null;
 		try {
 			snippetTag = createSnippetTag();
-			//pushSnippetTag();
 			int token = readTokenSafely();
-
+			if (token != TerminalTokens.TokenNameWHITESPACE) {
+				valid = false;
+			}
+			consumeToken();
+			token = readTokenSafely();
 			if (token != TerminalTokens.TokenNameCOLON) {
 				valid = false;
 			}
