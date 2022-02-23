@@ -1573,7 +1573,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 							addSnippetInnerTag(innerTag);
 							this.snippetInlineTagStarted = true;
 						}
-						valid = valid & lvalid;
+						//valid = valid & lvalid;
 						break;
 					default:
 						if (!this.lineStarted || this.textStart == -1) {
