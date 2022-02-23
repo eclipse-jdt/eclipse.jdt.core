@@ -352,6 +352,22 @@ public class JavadocParser extends AbstractCommentParser {
 	}
 
 	@Override
+	protected Object createSnippetTag() {
+		this.tagValue = TAG_SNIPPET_VALUE;
+		return this.tagValue;
+	}
+
+	@Override
+	protected void setSnippetIsValid(Object obj, boolean value) {
+		//do nothing;
+	}
+	
+	@Override
+	protected void setSnippetError(Object obj, String value) {
+		//do nothing;
+	}
+
+	@Override
 	protected Object createSnippetInnerTag(String tagName, int start, int end) {
 		return tagName;
 	}
@@ -770,7 +786,7 @@ public class JavadocParser extends AbstractCommentParser {
 					this.tagValue = TAG_SNIPPET_VALUE;
 					this.tagWaitingForDescription = this.tagValue;
 					if (this.inlineTagStarted) {
-						parseSnippet();
+						valid = parseSnippet();
 					}
 				}
 				break;

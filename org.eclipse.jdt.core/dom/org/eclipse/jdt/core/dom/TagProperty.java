@@ -60,6 +60,9 @@ public class TagProperty extends ASTNode implements IDocElement{
 	public static final ChildPropertyDescriptor NODE_VALUE_PROPERTY  =
 			new ChildPropertyDescriptor(TagProperty.class, "node_value", ASTNode.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$);
 
+	public static final String TAG_PROPERTY_SNIPPET_IS_VALID = "IsSnippetValid"; //$NON-NLS-1$
+
+	public static final String TAG_PROPERTY_SNIPPET_ERROR = "SnippetError"; //$NON-NLS-1$
 
 	/**
 	 * A list of property descriptors (element type:

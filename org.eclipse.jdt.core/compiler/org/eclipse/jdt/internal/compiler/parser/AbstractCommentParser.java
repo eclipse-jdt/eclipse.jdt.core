@@ -1466,15 +1466,18 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	protected boolean parseSnippet() throws InvalidInputException {
 		int currentPosition = this.scanner.currentPosition;
 		boolean tokenWhiteSpace = this.scanner.tokenizeWhiteSpace;
+		boolean tokenizeComments = this.scanner.tokenizeComments;
 		this.scanner.tokenizeWhiteSpace = false;
 		int previousPosition = -1;
 		int openBraces = 1;
 		boolean parsingJava18Plus = this.scanner != null ? this.scanner.sourceLevel >= ClassFileConstants.JDK18 : false;
+		boolean valid = true;
 		if (!parsingJava18Plus) {
 			throw new InvalidInputException();
 		}
+		Object snippetTag = null;
 		try {
-			createTag();
+			snippetTag = createSnippetTag();
 			//pushSnippetTag();
 			int token = readTokenSafely();
 
@@ -1487,6 +1490,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			}
 			consumeNewLine();
 			this.scanner.tokenizeWhiteSpace = true;
+			this.scanner.tokenizeComments = true;
 			int textEndPosition = this.index;
 			this.textStart = this.index;
 			while (this.index < this.scanner.eofPosition) {
@@ -1540,18 +1544,18 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 					case TerminalTokens.TokenNameCOMMENT_LINE:
 						String tokenString = this.scanner.getCurrentTokenString();
 						boolean handleNow = handleCommentLineForCurrentLine(tokenString);
-						boolean valid = false;
+						boolean lvalid = false;
 						Object innerTag = parseSnippetInlineTags(tokenString);
 						if (innerTag != null) {
-							valid = true;
+							lvalid = true;
 						}
-						if( valid && handleNow) {
+						if( lvalid && handleNow) {
 							addSnippetInnerTag(innerTag);
 							this.snippetInlineTagStarted = true;
 						}
 						textEndPosition = this.index;
 						int textPos = previousPosition;
-						if (!valid) {
+						if (!lvalid) {
 							textPos = textEndPosition;
 						}
 						if (this.lineStarted) {
@@ -1559,13 +1563,14 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 								this.textStart = previousPosition;
 							}
 							if (this.textStart != -1 && this.textStart < this.index) {
-								pushSnippetText(this.textStart, textPos, valid);
+								pushSnippetText(this.textStart, textPos, lvalid);
 							}
 						}
-						if (valid && !handleNow) {
+						if (lvalid && !handleNow) {
 							addSnippetInnerTag(innerTag);
 							this.snippetInlineTagStarted = true;
 						}
+						valid = valid & lvalid;
 						break;
 					default:
 						if (!this.lineStarted || this.textStart == -1) {
@@ -1579,16 +1584,24 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			}
 		} catch (InvalidInputException ex) {
 			if (this.reportProblems) this.sourceParser.problemReporter().javadocInvalidReference(currentPosition, getTokenEndPosition());
+			valid = false;
 		}
 		finally {
 			// we have to make sure that this is reset to the previous value even if an exception occurs
 			this.scanner.tokenizeWhiteSpace = tokenWhiteSpace;
+			this.scanner.tokenizeComments = tokenizeComments;
 		}
 		setInlineTagStarted(false);
-		if (openBraces == 0) {
-			return true;
+		boolean retVal = false;
+		if (!valid) {
+			retVal =  false;			
+		} else if (openBraces == 0) {
+			retVal = true;
 		}
-		return false;
+		if (snippetTag != null) {
+			this.setSnippetIsValid(snippetTag, retVal);
+		}
+		return retVal;
 	}
 
 	private boolean handleCommentLineForCurrentLine(String tokenString) {
@@ -1700,7 +1713,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 													}
 													break;
 												case TerminalTokens.TokenNameStringLiteral:
-												case TerminalTokens.TokenNameSingleQuoteStringLiteral:	
+												case TerminalTokens.TokenNameSingleQuoteStringLiteral:
 													if (processValue) {
 														value = slScanner.getCurrentTokenString();
 														if (map.get(attribute) == null) {
@@ -1786,7 +1799,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 													}
 													break;
 												case TerminalTokens.TokenNameStringLiteral:
-												case TerminalTokens.TokenNameSingleQuoteStringLiteral:	
+												case TerminalTokens.TokenNameSingleQuoteStringLiteral:
 													if (processValue) {
 														value = slScanner.getCurrentTokenString();
 														if (map.get(attribute) == null) {
@@ -2018,11 +2031,17 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		// do not store text by default
 	}
 
+	protected abstract Object createSnippetTag();
+	
 	protected abstract Object createSnippetInnerTag(String tagName, int start, int end);
 
 	protected abstract void addTagProperties(Object Tag, Map<String, String> map);
 
 	protected abstract void addSnippetInnerTag(Object tag);
+	
+	protected abstract void setSnippetError(Object tag, String value);
+	
+	protected abstract void setSnippetIsValid(Object tag, boolean value);
 
 	/*
 	 * Push a throws type ref in ast node stack.

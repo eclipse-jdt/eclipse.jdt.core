@@ -228,6 +228,44 @@ class DocCommentParser extends AbstractCommentParser {
 
 	@Override
 	protected void createTag() {
+		int position = this.scanner.currentPosition;
+		this.scanner.resetTo(this.tagSourceStart, this.tagSourceEnd);
+		StringBuilder tagName = new StringBuilder();
+		int start = this.tagSourceStart;
+		this.scanner.getNextChar();
+		while (this.scanner.currentPosition <= (this.tagSourceEnd+1)) {
+			tagName.append(this.scanner.currentCharacter);
+			this.scanner.getNextChar();
+		}
+		if (TagElement.TAG_SNIPPET.equals(tagName.toString())) {
+			this.tagSourceEnd = this.index;
+			// need to use createSnippetTag to create @snippet
+			return;
+		}
+		TagElement tagElement = this.ast.newTagElement();
+		tagElement.setTagName(tagName.toString());
+		if (this.inlineTagStarted) {
+			start = this.inlineTagStart;
+			TagElement previousTag = null;
+			if (this.astPtr == -1) {
+				previousTag = this.ast.newTagElement();
+				previousTag.setSourceRange(start, this.tagSourceEnd-start+1);
+				pushOnAstStack(previousTag, true);
+			} else {
+				previousTag = (TagElement) this.astStack[this.astPtr];
+			}
+			int previousStart = previousTag.getStartPosition();
+			previousTag.fragments().add(tagElement);
+			previousTag.setSourceRange(previousStart, this.tagSourceEnd-previousStart+1);
+		} else {
+			pushOnAstStack(tagElement, true);
+		}
+		tagElement.setSourceRange(start, this.tagSourceEnd-start+1);
+		this.scanner.resetTo(position, this.javadocEnd);
+	}
+
+	@Override
+	protected Object createSnippetTag() {
 		TagElement tagElement = this.ast.newTagElement();
 		int position = this.scanner.currentPosition;
 		this.scanner.resetTo(this.tagSourceStart, this.tagSourceEnd);
@@ -257,6 +295,21 @@ class DocCommentParser extends AbstractCommentParser {
 		}
 		tagElement.setSourceRange(start, this.tagSourceEnd-start+1);
 		this.scanner.resetTo(position, this.javadocEnd);
+		return tagElement;
+	}
+
+	@Override
+	protected void setSnippetIsValid(Object tag, boolean value) {
+		if (tag instanceof TagElement) {
+			((TagElement) tag).setProperty(TagProperty.TAG_PROPERTY_SNIPPET_ERROR, value);
+		}
+	}
+
+	@Override
+	protected void setSnippetError(Object tag, String value) {
+		if (tag instanceof TagElement) {
+			((TagElement) tag).setProperty(TagProperty.TAG_PROPERTY_SNIPPET_ERROR, value);
+		}
 	}
 
 	@Override
@@ -639,7 +692,7 @@ class DocCommentParser extends AbstractCommentParser {
 								valid = false;
 							} else {
 								this.tagValue = TAG_SNIPPET_VALUE;
-								parseSnippet();
+								valid = parseSnippet();
 							}
 						} else {
 							this.tagValue = TAG_OTHERS_VALUE;
