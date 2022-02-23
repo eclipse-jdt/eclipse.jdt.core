@@ -75,6 +75,8 @@ public IJavaElement copyPositive(IJavaElement element, IJavaElement container, I
 		// ensure the original element still exists
 		assertTrue("The original element must still exist", element.exists());
 
+		waitForAutoBuild();
+
 		// generate the new element	handle
 		copy = generateHandle(element, rename, container);
 		assertTrue("Copy should exist", copy.exists());
