@@ -1742,7 +1742,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 												if (breakToMainSwitch)
 													break mainSwitch;
 											}
-											tokenEnd = tokenStart + slScanner.getCurrentTokenEndPosition();
+											tokenEnd = commentStart + 1 + slScanner.getCurrentTokenEndPosition();
 											inlineTag = createSnippetInnerTag(newTagName, tokenStart, tokenEnd);
 											addTagProperties(inlineTag, map);
 											inlineTags.add(inlineTag);
@@ -1838,7 +1838,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 											if (!hasReplacementStr) {
 												return inlineTag;
 											}
-											tokenEnd = tokenStart + slScanner.getCurrentTokenEndPosition();
+											tokenEnd = commentStart + 1 + slScanner.getCurrentTokenEndPosition();
 											inlineTag = createSnippetInnerTag(newTagName, tokenStart, tokenEnd);
 											addTagProperties(inlineTag, map);
 											inlineTags.add(inlineTag);
