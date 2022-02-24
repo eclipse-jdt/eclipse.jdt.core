@@ -94,6 +94,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	protected int tagValue = NO_TAG_VALUE;
 	protected int lastBlockTagValue = NO_TAG_VALUE;
 	protected boolean snippetInlineTagStarted = false;
+	final static String SINGLE_LINE_COMMENT = "//"; //$NON-NLS-1$
 
 	// Line pointers
 	private int linePtr, lastLinePtr;
@@ -1553,7 +1554,12 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						String tokenString = this.scanner.getCurrentTokenString();
 						boolean handleNow = handleCommentLineForCurrentLine(tokenString);
 						boolean lvalid = false;
-						Object innerTag = parseSnippetInlineTags(tokenString);
+						int indexOfLastComment = -1;
+						int noSingleLineComm = getNumberOfSingleLineCommentInSnippetTag(tokenString.substring(2));
+						if (noSingleLineComm > 0)
+							indexOfLastComment = indexOfLastSingleComment(tokenString.substring(2),noSingleLineComm);
+
+						Object innerTag = parseSnippetInlineTags(indexOfLastComment == -1 ? tokenString : tokenString.substring(indexOfLastComment+2));
 						if (innerTag != null) {
 							lvalid = true;
 						}
@@ -1571,7 +1577,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 								this.textStart = previousPosition;
 							}
 							if (this.textStart != -1 && this.textStart < this.index) {
-								pushSnippetText(this.textStart, textPos, lvalid);
+								pushSnippetText(this.textStart,(innerTag!=null &&  indexOfLastComment >=0) ? textPos+indexOfLastComment+2:textPos, lvalid);
 							}
 						}
 						if (lvalid && !handleNow) {
@@ -1609,6 +1615,23 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		return retVal;
 	}
 
+	public int indexOfLastSingleComment(String tokenString, int last) {
+		int indexOfLastCom = 0;
+		int temp = -1;
+		String tempString = tokenString;
+		for (int i = 0; i < last; ++i) {
+			temp = tempString.indexOf(SINGLE_LINE_COMMENT);
+			if (temp == -1) {
+				indexOfLastCom = 0;
+				break;
+			}
+			tempString = tempString.substring(++temp);
+			indexOfLastCom += temp;
+		}
+		return --indexOfLastCom;
+	}
+
+
 	private boolean handleCommentLineForCurrentLine(String tokenString) {
 		boolean handle = true;
 		if (tokenString != null) {
@@ -1620,6 +1643,31 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		return handle;
 	}
 
+
+	protected int getNumberOfSingleLineCommentInSnippetTag(String tokenString) {
+		if (tokenString != null) {
+			String tokenStringStripped = tokenString.stripLeading();
+			Scanner slScanner = new JavadocScanner(true, true, false/* nls */, this.scanner.sourceLevel,
+					this.scanner.complianceLevel, null/* taskTags */, null/* taskPriorities */,
+					false/* taskCaseSensitive */, false, true, true);
+			slScanner.setSource(tokenStringStripped.toCharArray());
+			while (true) {
+				try {
+					int tokenType = slScanner.getNextToken();
+					if (tokenType == TokenNameEOF)
+						break;
+					switch (tokenType) {
+						case TerminalTokens.TokenNameCOMMENT_LINE:
+							return 1 + getNumberOfSingleLineCommentInSnippetTag(tokenStringStripped
+									.substring(2 + tokenStringStripped.indexOf(SINGLE_LINE_COMMENT)));
+					}
+				} catch (InvalidInputException e) {
+					// do nothing
+				}
+			}
+		}
+		return 0;
+	}
 	protected Object parseSnippetInlineTags(String tokenString) {
 		int commentStart = this.scanner.getCurrentTokenStartPosition();
 		Object inlineTag = null;
@@ -1629,11 +1677,12 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		final String REGEX = "regex"; //$NON-NLS-1$
 		final String TYPE = "type"; //$NON-NLS-1$
 		final String REPLACEMENT = "replacement"; //$NON-NLS-1$
+
 		List<Object> inlineTags= new ArrayList<>();
 		try {
 			if (tokenString != null
 					&& tokenString.length() > 2
-					&& tokenString.startsWith("//")) { //$NON-NLS-1$
+					&& tokenString.startsWith(SINGLE_LINE_COMMENT)) {
 				String tobeTokenized = tokenString.substring(2);
 				Scanner slScanner = new JavadocScanner(false, false, false/* nls */, this.scanner.sourceLevel, this.scanner.complianceLevel,
 						null/* taskTags */, null/* taskPriorities */, false/* taskCaseSensitive */, false, true, true);
