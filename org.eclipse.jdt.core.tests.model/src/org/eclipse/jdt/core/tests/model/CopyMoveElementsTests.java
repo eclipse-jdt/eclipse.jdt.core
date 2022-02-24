@@ -246,6 +246,8 @@ public void testCopyFieldInDifferentProject() throws CoreException {
 			"public class Y {\n" +
 			"}"
 		);
+
+		waitUntilIndexesReady();
 		IType typeDest = getCompilationUnit("/P2/src/Y.java").getType("Y");
 
 		copyPositive(fieldSource, typeDest, null, null, false);
