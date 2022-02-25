@@ -784,7 +784,7 @@ synchronized boolean addIndex(IPath containerPath, IndexLocation indexFile) {
  */
 public void indexSourceFolder(JavaProject javaProject, IPath sourceFolder, char[][] inclusionPatterns, char[][] exclusionPatterns) {
 	IProject project = javaProject.getProject();
-	if (this.awaitingJobs.size() > 1) {
+	if (awaitingJobsCount() > 1) {
 		// skip it if a job to index the project is already in the queue
 		IndexRequest request = new IndexAllProject(project, this);
 		if (isJobWaiting(request)) return;
@@ -1059,7 +1059,7 @@ public void removeIndexFamily(IPath path) {
  */
 public void removeSourceFolderFromIndex(JavaProject javaProject, IPath sourceFolder, char[][] inclusionPatterns, char[][] exclusionPatterns) {
 	IProject project = javaProject.getProject();
-	if (this.awaitingJobs.size() > 1) {
+	if (awaitingJobsCount() > 1) {
 		// skip it if a job to index the project is already in the queue
 		IndexRequest request = new IndexAllProject(project, this);
 		if (isJobWaiting(request)) return;
@@ -1150,9 +1150,10 @@ public void saveIndex(Index index) throws IOException {
 	}
 	synchronized (this) {
 		IPath containerPath = new Path(index.containerPath);
-		if (this.awaitingJobs.size() > 1) {
+		int awaitingJobsCount = awaitingJobsCount();
+		if (awaitingJobsCount > 1) {
 			// Start at the end and go backwards
-			ListIterator<IJob> iterator = this.awaitingJobs.listIterator(this.awaitingJobs.size());
+			ListIterator<IJob> iterator = this.awaitingJobs.listIterator(awaitingJobsCount);
 			IJob first = this.awaitingJobs.get(0);
 			while (iterator.hasPrevious()) {
 				IJob job = iterator.previous();
