@@ -1701,6 +1701,8 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 								atTokenPos = slScanner.getCurrentTokenStartPosition();
 								break;
 							case TerminalTokens.TokenNameIdentifier :
+								if(atTokenStarted==false) //invalid snippet inline, treat it like text
+									return null;
 								if (atTokenStarted) {
 									int curPos= slScanner.getCurrentTokenStartPosition();
 									if (curPos != atTokenPos+1 && !firstTagProcessed) {
@@ -1901,10 +1903,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 								}
 								break;
 							default:
-								if (atTokenStarted) {
-									return inlineTag;
-								}
-								break;
+								return inlineTag;//if at token not started then invalid
 						}
 
 					} catch (InvalidInputException e) {
