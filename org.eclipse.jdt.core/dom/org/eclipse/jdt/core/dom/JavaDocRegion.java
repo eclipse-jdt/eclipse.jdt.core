@@ -74,6 +74,8 @@ public class JavaDocRegion extends AbstractTagElement{
 	 */
 	public static final SimplePropertyDescriptor VALID_SNIPPET_PROPERTY  = new SimplePropertyDescriptor(JavaDocRegion.class, "validSnippet", boolean.class, MANDATORY); //$NON-NLS-1$);
 
+	static final String REGION_ENDED = "Region Ended"; //$NON-NLS-1$
+	static final String REGION_TO_BE_ENDED = "Region To Be Ended"; //$NON-NLS-1$
 
 	/**
 	 * A list of property descriptors (element type:

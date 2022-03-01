@@ -358,7 +358,7 @@ public class JavadocParser extends AbstractCommentParser {
 	}
 
 	@Override
-	protected Object createSnippetRegion(String name, List<Object> tags, boolean isDummy) {
+	protected Object createSnippetRegion(String name, List<Object> tags, boolean isDummy, Object snippetTag) {
 		if (tags != null && tags.size() > 0) {
 			return tags.get(0);
 		}
@@ -386,7 +386,7 @@ public class JavadocParser extends AbstractCommentParser {
 	}
 
 	@Override
-	protected void addSnippetInnerTag(Object tag) {
+	protected void addSnippetInnerTag(Object tag, Object snippetTag) {
 		this.tagValue = TAG_OTHERS_VALUE;
 	}
 
@@ -980,9 +980,14 @@ public class JavadocParser extends AbstractCommentParser {
 	}
 
 	@Override
-	protected void  pushSnippetText(int start, int end, boolean addNewLine) {
+	protected void  pushSnippetText(int start, int end, boolean addNewLine, Object snippetTag) {
 		// The tag gets its description => clear the flag
 		this.tagWaitingForDescription = TAG_SNIPPET_VALUE;
+	}
+
+	@Override
+	protected void closeJavaDocRegion(String name, Object snippetTag, int end){
+		//do nothing
 	}
 
 	/*

@@ -1532,7 +1532,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 										textToBeAdded = textToBeAdded.substring(iindex+1);
 									}
 									if (!textToBeAdded.isBlank()) {
-										pushSnippetText(this.textStart, this.index-1, false);
+										pushSnippetText(this.textStart, this.index-1, false, snippetTag);
 									}
 								}
 							}
@@ -1542,7 +1542,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						if (containsTokenNewLine(this.scanner.getCurrentTokenString())) {
 							if (this.lineStarted) {
 								if (this.textStart != -1 && this.textStart < textEndPosition) {
-									pushSnippetText(this.textStart, textEndPosition, true);
+									pushSnippetText(this.textStart, textEndPosition, true, snippetTag);
 								}
 							}
 							this.lineStarted = false;
@@ -1559,12 +1559,13 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						if (noSingleLineComm > 0)
 							indexOfLastComment = indexOfLastSingleComment(tokenString.substring(2),noSingleLineComm);
 
-						Object innerTag = parseSnippetInlineTags(indexOfLastComment == -1 ? tokenString : tokenString.substring(indexOfLastComment+2));
+						Object innerTag = parseSnippetInlineTags(indexOfLastComment == -1 ? tokenString : tokenString.substring(indexOfLastComment+2), snippetTag);
 						if (innerTag != null) {
 							lvalid = true;
 						}
-						if( lvalid && handleNow) {
-							addSnippetInnerTag(innerTag);
+						if( lvalid && handleNow && innerTag != snippetTag) {
+							if ( innerTag != snippetTag )
+								addSnippetInnerTag(innerTag, snippetTag);
 							this.snippetInlineTagStarted = true;
 						}
 						textEndPosition = this.index;
@@ -1577,11 +1578,12 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 								this.textStart = previousPosition;
 							}
 							if (this.textStart != -1 && this.textStart < this.index) {
-								pushSnippetText(this.textStart,(innerTag!=null &&  indexOfLastComment >=0) ? textPos+indexOfLastComment+2:textPos, lvalid);
+								pushSnippetText(this.textStart,(innerTag!=null &&  indexOfLastComment >=0) ? textPos+indexOfLastComment+2:textPos, lvalid, snippetTag);
 							}
 						}
 						if (lvalid && !handleNow) {
-							addSnippetInnerTag(innerTag);
+							if ( innerTag != snippetTag )
+								addSnippetInnerTag(innerTag, snippetTag);
 							this.snippetInlineTagStarted = true;
 						}
 						//valid = valid & lvalid;
@@ -1668,7 +1670,8 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		}
 		return 0;
 	}
-	protected Object parseSnippetInlineTags(String tokenString) {
+
+	protected Object parseSnippetInlineTags(String tokenString, Object snippetTag) {
 		int commentStart = this.scanner.getCurrentTokenStartPosition();
 		Object inlineTag = null;
 		final String REPLACE = "replace"; //$NON-NLS-1$
@@ -1677,6 +1680,9 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		final String REGEX = "regex"; //$NON-NLS-1$
 		final String TYPE = "type"; //$NON-NLS-1$
 		final String REPLACEMENT = "replacement"; //$NON-NLS-1$
+		final String REGION = "region"; //$NON-NLS-1$
+		final String END = "end"; //$NON-NLS-1$
+		boolean regionClosed = false;
 
 		List<Object> inlineTags= new ArrayList<>();
 		try {
@@ -1723,6 +1729,8 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 											String attribute = null;
 											String value = null;
 											boolean processValue = false;
+											boolean createRegion = false;
+											String regionName = null;
 											while (true) {
 												tokenType = slScanner.getNextToken();
 												switch (tokenType) {
@@ -1761,6 +1769,10 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 																case  SUBSTRING :
 																case  REGEX :
 																case  TYPE :
+																	break;
+																case  REGION :
+																	createRegion = true;
+																	break;
 																default :
 																	break;
 															}
@@ -1775,7 +1787,9 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 													case TerminalTokens.TokenNameSingleQuoteStringLiteral:
 														if (processValue) {
 															value = slScanner.getCurrentTokenString();
-															if (map.get(attribute) == null) {
+															if (REGION.equals(attribute)) {
+																regionName = value;
+															} else if (map.get(attribute) == null) {
 																map.put(attribute, value);
 																if ((attribute.equals(SUBSTRING) && (map.get(REGEX) != null))
 																		|| (attribute.equals(REGEX) && (map.get(SUBSTRING) != null))) {
@@ -1796,6 +1810,11 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 											tokenEnd = commentStart + 1 + slScanner.getCurrentTokenEndPosition();
 											inlineTag = createSnippetInnerTag(newTagName, tokenStart, tokenEnd);
 											addTagProperties(inlineTag, map);
+											if (createRegion) {
+												List<Object> tags = new ArrayList<>();
+												tags.add(inlineTag);
+												inlineTag = createSnippetRegion(regionName, tags, false, snippetTag);
+											}
 											inlineTags.add(inlineTag);
 											if (!firstTagProcessed) {
 												firstTagProcessed = true;
@@ -1812,6 +1831,8 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 											value = null;
 											processValue = false;
 											boolean hasReplacementStr = false;
+											createRegion = false;
+											regionName = null;
 											while (true) {
 												tokenType = slScanner.getNextToken();
 												switch (tokenType) {
@@ -1851,6 +1872,9 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 																case  REGEX :
 																case  REPLACEMENT :
 																	break;
+																case  REGION :
+																	createRegion = true;
+																	break;
 																default :
 																	break;
 															}
@@ -1865,7 +1889,9 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 													case TerminalTokens.TokenNameSingleQuoteStringLiteral:
 														if (processValue) {
 															value = slScanner.getCurrentTokenString();
-															if (map.get(attribute) == null) {
+															if (REGION.equals(attribute)) {
+																regionName = value;
+															} else if (map.get(attribute) == null) {
 																if (attribute.equals(REPLACEMENT)) {
 																	hasReplacementStr = true;
 																}
@@ -1892,9 +1918,82 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 											tokenEnd = commentStart + 1 + slScanner.getCurrentTokenEndPosition();
 											inlineTag = createSnippetInnerTag(newTagName, tokenStart, tokenEnd);
 											addTagProperties(inlineTag, map);
+											if (createRegion) {
+												List<Object> tags = new ArrayList<>();
+												tags.add(inlineTag);
+												inlineTag = createSnippetRegion(regionName, tags, false, snippetTag);
+											}
 											inlineTags.add(inlineTag);
 											if (!firstTagProcessed) {
 												firstTagProcessed = true;
+											}
+											break;
+										case  END :
+											boolean closeRegion = false;
+											regionName = null;
+											processValue = false;
+											attribute = null;
+											breakToMainSwitch = false;
+											while (true) {
+												tokenType = slScanner.getNextToken();
+												switch (tokenType) {
+													case TokenNameEOF:
+														closeRegion = true;
+														break;
+													case TerminalTokens.TokenNameAT:
+														if (!processValue) {
+															breakToMainSwitch = true;
+															closeRegion = true;
+														}
+														processValue= false;
+														break;
+													case TerminalTokens.TokenNameCOLON:
+														tokenType = slScanner.getNextToken();
+														if (tokenType == TokenNameEOF) {
+															break;
+														} else {
+															return inlineTag;
+														}
+													case TerminalTokens.TokenNameIdentifier:
+														if (processValue && REGION.equals(attribute)) {
+															regionName = slScanner.getCurrentTokenString();
+															processValue= false;
+															attribute = null;
+														} else {
+															attribute = slScanner.getCurrentTokenString();
+															switch(attribute) {
+																case  REGION :
+																	break;
+																default :
+																	break;
+															}
+														}
+														break;
+													case TerminalTokens.TokenNameEQUAL:
+														if (attribute != null) {
+															processValue = true;
+														}
+														break;
+													case TerminalTokens.TokenNameStringLiteral:
+													case TerminalTokens.TokenNameSingleQuoteStringLiteral:
+														if (processValue && REGION.equals(attribute)) {
+															regionName = slScanner.getCurrentTokenString();
+														}
+														processValue= false;
+														attribute = null;
+														break;
+												}
+												if (closeRegion) {
+													break;
+												}
+											}
+											if (closeRegion) {
+												tokenEnd = commentStart + 1 + slScanner.getCurrentTokenEndPosition();
+												this.closeJavaDocRegion(regionName, snippetTag, tokenEnd);
+												regionClosed = true;
+											}
+											if (breakToMainSwitch) {
+												break mainSwitch;
 											}
 											break;
 										default :
@@ -1914,8 +2013,11 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		}
 		finally {
 			if (inlineTags.size() > 1) {
-				inlineTag = createSnippetRegion(null, inlineTags, true);
+				inlineTag = createSnippetRegion(null, inlineTags, true, snippetTag);
 			}
+		}
+		if (regionClosed) {
+			return snippetTag;
 		}
 		return inlineTag;
 	}
@@ -2097,19 +2199,21 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		// do not store text by default
 	}
 
-	protected void pushSnippetText(int start, int end, boolean addNewLine) {
+	protected void pushSnippetText(int start, int end, boolean addNewLine, Object snippetTag) {
 		// do not store text by default
 	}
+
+	protected abstract void closeJavaDocRegion(String name, Object snippetTag, int end);
 
 	protected abstract Object createSnippetTag();
 
 	protected abstract Object createSnippetInnerTag(String tagName, int start, int end);
 
-	protected abstract Object createSnippetRegion(String name, List<Object> tags, boolean isDummy);
+	protected abstract Object createSnippetRegion(String name, List<Object> tags, boolean isDummy, Object snippetTag);
 
 	protected abstract void addTagProperties(Object Tag, Map<String, String> map);
 
-	protected abstract void addSnippetInnerTag(Object tag);
+	protected abstract void addSnippetInnerTag(Object tag, Object snippetTag);
 
 	protected abstract void setSnippetError(Object tag, String value);
 

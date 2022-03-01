@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -313,7 +314,54 @@ class DocCommentParser extends AbstractCommentParser {
 	}
 
 	@Override
-	protected Object createSnippetRegion(String name, List<Object> tags, boolean isDummy) {
+	protected Object createSnippetRegion(String name, List<Object> tags, boolean isDummy, Object snippetTag) {
+		if (!isDummy) {
+			return createSnippetOriginalRegion(name, tags);
+		}
+		List<TagElement> tagsToBeProcessed = new ArrayList<>();
+		Object toBeReturned = null;
+		if (tags != null && tags.size() > 0) {
+			int start = -1;
+			int end = -1;
+			for (Object tag : tags) {
+				if (tag instanceof TagElement) {
+					TagElement tagElem = (TagElement) tag;
+					tagsToBeProcessed.add(tagElem);
+					int tagStart = tagElem.getStartPosition();
+					int tagEnd = tagStart + tagElem.getLength();
+					if (start == -1 || start > tagStart) {
+						start = tagStart;
+					}
+					if (end ==-1 || end < tagEnd) {
+						end = tagEnd;
+					}
+				} else if (tag instanceof JavaDocRegion && snippetTag instanceof TagElement) {
+					TagElement snippet = (TagElement) snippetTag;
+					JavaDocRegion reg = (JavaDocRegion) tag;
+					if (!reg.isDummyRegion()) {
+						snippet.fragments().add(reg);
+					}
+					toBeReturned = reg;
+				}
+			}
+			if (tagsToBeProcessed.size() > 0) {
+				if (tagsToBeProcessed.size() == 1) {
+					return tagsToBeProcessed.get(0);
+				}
+				else {
+					JavaDocRegion region = this.ast.newJavaDocRegion();
+					region.tags().addAll(tagsToBeProcessed);
+					region.setSourceRange(start, end);
+					toBeReturned = region;
+				}
+			} else {
+				toBeReturned = snippetTag;
+			}
+		}
+		return toBeReturned;
+	}
+
+	private Object createSnippetOriginalRegion(String name, List<Object> tags) {
 		JavaDocRegion region = this.ast.newJavaDocRegion();
 		if (tags != null && tags.size() > 0) {
 			int start = -1;
@@ -333,6 +381,7 @@ class DocCommentParser extends AbstractCommentParser {
 				}
 			}
 			region.setSourceRange(start, end-start);
+			region.setDummyRegion(false);
 		}
 		if (name != null) {
 			region.setTagName(name);
@@ -355,6 +404,44 @@ class DocCommentParser extends AbstractCommentParser {
 	}
 
 	@Override
+	protected void closeJavaDocRegion(String name, Object snippetTag, int end) {
+		if (snippetTag instanceof TagElement) {
+			TagElement snippet = (TagElement) snippetTag;
+			List<JavaDocRegion> regions = snippet.tagRegions();
+			JavaDocRegion regionToClose = null;
+			if (name != null) {
+				for (JavaDocRegion region : regions) {
+					if (name.equals(region.getTagName())) {
+						if (!this.isRegionToBeEnded(region)
+								&& !this.hasRegionEnded(region)) {
+							regionToClose = region;
+							break;
+						}
+					}
+				}
+			} else {
+				for (int i= regions.size()-1; i >-1; i--) {
+					JavaDocRegion region = regions.get(i);
+					if (!this.isRegionToBeEnded(region)
+							&& !this.hasRegionEnded(region)) {
+						regionToClose = region;
+						break;
+					}
+				}
+			}
+			if (regionToClose != null) {
+				setRegionToBeEnded(regionToClose, true);
+				int start = regionToClose.getStartPosition();
+				int curEnd = start + regionToClose.getLength();
+				if (end > curEnd) {
+					regionToClose.setSourceRange(start, end-start);
+				}
+			}
+		}
+
+	}
+
+	@Override
 	protected void addTagProperties(Object tag, Map<String, String> map) {
 		if (tag instanceof TagElement) {
 			TagElement tagElement = (TagElement) tag;
@@ -368,8 +455,31 @@ class DocCommentParser extends AbstractCommentParser {
 	}
 
 	@Override
-	protected void addSnippetInnerTag(Object obj) {
-		if (obj instanceof AbstractTagElement) {
+	protected void addSnippetInnerTag(Object obj, Object snippetTag) {
+		boolean isNotDummyRegion = false;
+		if (obj instanceof JavaDocRegion) {
+			JavaDocRegion region = (JavaDocRegion) obj;
+			if (snippetTag instanceof TagElement) {
+				TagElement snippetTagElem = (TagElement) snippetTag;
+				if (!region.isDummyRegion()) {
+					snippetTagElem.fragments().add(region);
+					isNotDummyRegion = true;
+				} else {
+					Iterator<Object> itr = region.tags().iterator();
+					while (itr.hasNext()) {
+						Object tag = itr.next();
+						if (tag instanceof JavaDocRegion) {
+							JavaDocRegion reg = (JavaDocRegion) tag;
+							if (!reg.isDummyRegion()) {
+								region.tags().remove(reg);
+								snippetTagElem.fragments().add(reg);
+							}
+						}
+					}
+				}
+			}
+		}
+		if (obj instanceof AbstractTagElement && !isNotDummyRegion) {
 			AbstractTagElement tagElement = (AbstractTagElement) obj;
 			AbstractTagElement previousTag = null;
 			if (this.astPtr == -1) {
@@ -955,7 +1065,7 @@ class DocCommentParser extends AbstractCommentParser {
 	}
 
 	@Override
-	protected void pushSnippetText(int start, int end, boolean addNewLine) {
+	protected void pushSnippetText(int start, int end, boolean addNewLine, Object snippetTag) {
 
 		// Create text element
 		TextElement text = this.ast.newTextElement();
@@ -1014,8 +1124,13 @@ class DocCommentParser extends AbstractCommentParser {
 		}
 
 		int finEnd = end;
+		boolean isNotDummyJavaDocRegion = false;
+		if (prevTag instanceof JavaDocRegion && !((JavaDocRegion)prevTag).isDummyRegion()) {
+			isNotDummyJavaDocRegion = true;
+		}
 		// Add the text
-		if (prevTag != null) {
+		if (prevTag != null && !isNotDummyJavaDocRegion) {
+
 			prevTag.fragments().add(text);
 			int curStart = prevTag.getStartPosition();
 			int curEnd = curStart + prevTag.getLength();
@@ -1032,8 +1147,65 @@ class DocCommentParser extends AbstractCommentParser {
 		}
 		previousTag.setSourceRange(previousStart, finEnd-previousStart);
 		this.textStart = -1;
+
+		if (snippetTag instanceof TagElement) {
+			fragments =  ((TagElement) snippetTag).fragments();
+			for (Object frag : fragments) {
+				if (frag instanceof JavaDocRegion) {
+					JavaDocRegion region = (JavaDocRegion) frag;
+					if (!region.isDummyRegion() && !hasRegionEnded(region)) {
+						int startPos = region.getStartPosition();
+						int endPos = startPos + region.getLength();
+						if (startPos > start) {
+							startPos = start;
+						}
+						if (endPos < end) {
+							endPos = end;
+						}
+						region.setSourceRange(startPos, endPos-startPos);
+						if (isRegionToBeEnded(region)) {
+							setRegionEnded(region, true);
+						}
+					}
+				}
+			}
+		}
 	}
 
+	private boolean hasRegionEnded(JavaDocRegion region) {
+		boolean ended = false;
+		if (region != null) {
+			Object value = region.getProperty(JavaDocRegion.REGION_ENDED);
+			if (value instanceof Boolean && ((Boolean)value).booleanValue()) {
+				ended = true;
+			}
+		}
+		return ended;
+	}
+
+	private boolean isRegionToBeEnded(JavaDocRegion region) {
+		boolean toBeEnded = false;
+		if (region != null) {
+			Object value = region.getProperty(JavaDocRegion.REGION_TO_BE_ENDED);
+			if (value instanceof Boolean && ((Boolean)value).booleanValue()) {
+				toBeEnded = true;
+			}
+		}
+		return toBeEnded;
+	}
+
+	private void setRegionToBeEnded(JavaDocRegion region, boolean value) {
+		if (region != null) {
+			region.setProperty(JavaDocRegion.REGION_TO_BE_ENDED, value);
+		}
+	}
+
+	private void setRegionEnded(JavaDocRegion region, boolean value) {
+		if (region != null) {
+			region.setProperty(JavaDocRegion.REGION_ENDED, value);
+			setRegionToBeEnded(region, !value);
+		}
+	}
 
 	@Override
 	protected boolean pushThrowName(Object typeRef) {

@@ -395,6 +395,57 @@ public final class TagElement extends AbstractTagElement {
 		return this.tagProperties;
 	}
 
+	/**
+	 * Returns the list of non dummy JavaDopRegions in this tag element.
+	 *
+	 * @return the list of non dummy JavaDopRegions in this tag element.
+	 * (element type: {@link JavaDocRegion})
+	 * @exception UnsupportedOperationException if this operation is used less than JLS18
+	 * @since 3.29 BETA_JAVA 18
+	 */
+	public List tagRegions() {
+		unsupportedBelow18();
+		List<JavaDocRegion> regions = new ArrayList<>();
+		List<Object> frags = this.fragments();
+		if ( frags != null) {
+			for (Object fragment : frags) {
+				if (fragment instanceof JavaDocRegion
+						&& !((JavaDocRegion)fragment).isDummyRegion()) {
+					regions.add((JavaDocRegion)fragment);
+				}
+			}
+		}
+		return regions;
+	}
+
+	/**
+	 * Returns the list of non dummy JavaDocRegions containing this ASTNode and IDocElement.
+	 *
+	 * @return the list of non dummy JavaDocRegions containing this ASTNode and IDocElement.
+	 * (element type: {@link JavaDocRegion})
+	 * @exception UnsupportedOperationException if this operation is used less than JLS18
+	 * @since 3.29 BETA_JAVA 18
+	 */
+	public List tagRegionsContainingTextElement(ASTNode docElem) {
+		unsupportedBelow18();
+		List<JavaDocRegion> regions = new ArrayList<>();
+		if (docElem == null || !(docElem instanceof IDocElement)) {
+			return regions;
+		} else {
+			int textElemStart = docElem.getStartPosition();
+			int textElemEnd = textElemStart + docElem.getLength();
+			List<JavaDocRegion> javaDocRegions = this.tagRegions();
+			for (JavaDocRegion region : javaDocRegions) {
+				int regionStart = region.getStartPosition();
+				int regionEnd = regionStart + region.getLength();
+				if (regionStart <= textElemStart && regionEnd >= textElemEnd) {
+					regions.add(region);
+				}
+			}
+		}
+		return regions;
+	}
+
 	@Override
 	int memSize() {
 		return super.memSize();
