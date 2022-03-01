@@ -221,12 +221,12 @@ public static Test suite() {
 	 // add 17 specific test here (check duplicates)
 	 ArrayList since_17 = new ArrayList();
 	 since_17.add(SealedTypesTests.class);
-	 since_17.add(SwitchPatternTest.class);
 	 since_17.add(InstanceofPrimaryPatternTest.class);
-	 since_17.add(NullAnnotationTests18.class);
 
 	 // add 18 specific test here (check duplicates)
 	 ArrayList since_18 = new ArrayList();
+	 since_18.add(SwitchPatternTest.class);
+	 since_18.add(NullAnnotationTests18.class);
 
 	 // Build final test suite
 	TestSuite all = new TestSuite(TestAll.class.getName());
