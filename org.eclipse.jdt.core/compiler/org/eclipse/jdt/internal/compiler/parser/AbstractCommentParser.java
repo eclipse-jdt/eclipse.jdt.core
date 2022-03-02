@@ -537,6 +537,13 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	 * Parse argument in @see tag method reference
 	 */
 	protected Object parseArguments(Object receiver) throws InvalidInputException {
+		return parseArguments(receiver, true);
+	}
+
+	/*
+	 * Parse argument in @see tag method reference
+	 */
+	protected Object parseArguments(Object receiver, boolean checkVerifySpaceOrEndComment) throws InvalidInputException {
 
 		// Init
 		int modulo = 0; // should be 2 for (Type,Type,...) or 3 for (Type arg,Type arg,...)
@@ -652,7 +659,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 					iToken++;
 				} else if (token == TerminalTokens.TokenNameRPAREN) {
 					// verify characters after arguments declaration (expecting white space or end comment)
-					if (!verifySpaceOrEndComment()) {
+					if (checkVerifySpaceOrEndComment && !verifySpaceOrEndComment()) {
 						int end = this.starPosition == -1 ? this.lineEnd : this.starPosition;
 						if (this.source[end]=='\n') end--;
 						if (this.reportProblems) this.sourceParser.problemReporter().javadocMalformedSeeReference(start, end);
@@ -812,10 +819,14 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		return false;
 	}
 
+	protected Object parseMember(Object receiver) throws InvalidInputException {
+		return parseMember(receiver, false);
+	}
+
 	/*
 	 * Parse a method reference in @see tag
 	 */
-	protected Object parseMember(Object receiver) throws InvalidInputException {
+	protected Object parseMember(Object receiver, boolean refInStringLiteral) throws InvalidInputException {
 		// Init
 		this.identifierPtr = -1;
 		this.identifierLengthPtr = -1;
@@ -835,19 +846,26 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			try {
 				// Look for next token to know whether it's a field or method reference
 				int previousPosition = this.index;
-				if (readToken() == TerminalTokens.TokenNameLPAREN) {
-					consumeToken();
-					start = this.scanner.getCurrentTokenStartPosition();
-					try {
-						return parseArguments(receiver);
-					} catch (InvalidInputException e) {
-						int end = this.scanner.getCurrentTokenEndPosition() < this.lineEnd ?
-								this.scanner.getCurrentTokenEndPosition() :
-								this.scanner.getCurrentTokenStartPosition();
-						end = end < this.lineEnd ? end : this.lineEnd;
-						if (this.reportProblems) this.sourceParser.problemReporter().javadocInvalidSeeReferenceArgs(start, end);
+				try {
+					int token = readToken();
+					if (token == TerminalTokens.TokenNameLPAREN) {
+						consumeToken();
+						start = this.scanner.getCurrentTokenStartPosition();
+						try {
+							return parseArguments(receiver, !refInStringLiteral);
+						} catch (InvalidInputException e) {
+							int end = this.scanner.getCurrentTokenEndPosition() < this.lineEnd ?
+									this.scanner.getCurrentTokenEndPosition() :
+									this.scanner.getCurrentTokenStartPosition();
+							end = end < this.lineEnd ? end : this.lineEnd;
+							if (this.reportProblems) this.sourceParser.problemReporter().javadocInvalidSeeReferenceArgs(start, end);
+						}
+						return null;
 					}
-					return null;
+				} catch (InvalidInputException e) {
+					if (!refInStringLiteral || !Scanner.INVALID_CHAR_IN_STRING.equals(e.getMessage())) {
+						throw e;
+					}
 				}
 
 				// Reset position: we want to rescan last token
@@ -856,7 +874,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 				this.currentTokenType = -1;
 
 				// Verify character(s) after identifier (expecting space or end comment)
-				if (!verifySpaceOrEndComment()) {
+				if (!refInStringLiteral && !verifySpaceOrEndComment()) {
 					int end = this.starPosition == -1 ? this.lineEnd : this.starPosition;
 					if (this.source[end]=='\n') end--;
 					if (this.reportProblems) this.sourceParser.problemReporter().javadocMalformedSeeReference(start, end);
@@ -1685,6 +1703,8 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		final String REPLACEMENT = "replacement"; //$NON-NLS-1$
 		final String REGION = "region"; //$NON-NLS-1$
 		final String END = "end"; //$NON-NLS-1$
+		final String LINK = "link"; //$NON-NLS-1$
+		final String TARGET = "target"; //$NON-NLS-1$
 		boolean regionClosed = false;
 
 		List<Object> inlineTags= new ArrayList<>();
@@ -1726,7 +1746,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 											tokenStart= commentStart + 1 + slScanner.getCurrentTokenStartPosition();
 											tokenEnd= tokenStart + 10;
 											newTagName = '@' + HIGHLIGHT;
-											Map<String, String> map = new HashMap<>();
+											Map<String, Object> map = new HashMap<>();
 											boolean breakToMainSwitch = false;
 											boolean createTag = false;
 											String attribute = null;
@@ -1931,6 +1951,130 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 												firstTagProcessed = true;
 											}
 											break;
+										case LINK :
+											tokenStart= commentStart + 1 + slScanner.getCurrentTokenStartPosition();
+											tokenEnd= tokenStart + 4;
+											newTagName = '@' + LINK;
+											map = new HashMap<>();
+											breakToMainSwitch = false;
+											createTag = false;
+											attribute = null;
+											value = null;
+											processValue = false;
+											boolean hasTarget = false;
+											Object type = null;
+											createRegion = false;
+											regionName = null;
+											while (true) {
+												tokenType = slScanner.getNextToken();
+												switch (tokenType) {
+													case TokenNameEOF:
+														createTag = true;
+														break;
+													case TerminalTokens.TokenNameAT:
+														if (!processValue) {
+															breakToMainSwitch = true;
+															createTag = true;
+														}
+														processValue= false;
+														break;
+													case TerminalTokens.TokenNameCOLON:
+														tokenType = slScanner.getNextToken();
+														if (tokenType == TokenNameEOF) {
+															break;
+														} else {
+															return inlineTag;
+														}
+													case TerminalTokens.TokenNameIdentifier:
+														if (processValue) {
+															value = slScanner.getCurrentTokenString();
+															if (map.get(attribute) == null) {
+																if (REGION.equals(attribute)) {
+																	regionName = value;
+																} else if (TARGET.equals(attribute)) {
+																	type = parseLinkReference(slScanner.getCurrentTokenStartPosition(), value);
+																	if (type != null) {
+																		map.put(attribute, type);
+																		hasTarget = true;
+																	}
+																} else {
+																	map.put(attribute, value);
+																	if ((attribute.equals(SUBSTRING) && (map.get(REGEX) != null))
+																			|| (attribute.equals(REGEX) && (map.get(SUBSTRING) != null))) {
+																		return inlineTag;
+																	}
+																}
+															}
+															processValue= false;
+															attribute = null;
+														} else {
+															attribute = slScanner.getCurrentTokenString();
+															switch(attribute) {
+																case  SUBSTRING :
+																case  REGEX :
+																case  TYPE :
+																case  TARGET :
+																	break;
+																case  REGION :
+																	createRegion = true;
+																	break;
+																default :
+																	break;
+															}
+														}
+														break;
+													case TerminalTokens.TokenNameEQUAL:
+														if (attribute != null) {
+															processValue = true;
+														}
+														break;
+													case TerminalTokens.TokenNameStringLiteral:
+													case TerminalTokens.TokenNameSingleQuoteStringLiteral:
+														if (processValue) {
+															value = slScanner.getCurrentTokenString();
+															if (map.get(attribute) == null) {
+																if (REGION.equals(attribute)) {
+																	regionName = value;
+																} else if (TARGET.equals(attribute)) {
+																	type = parseLinkReference(slScanner.getCurrentTokenStartPosition(), value);
+																	if (type != null) {
+																		map.put(attribute, type);
+																		hasTarget = true;
+																	}
+																} else {
+																	map.put(attribute, value);
+																	if ((attribute.equals(SUBSTRING) && (map.get(REGEX) != null))
+																			|| (attribute.equals(REGEX) && (map.get(SUBSTRING) != null))) {
+																		return inlineTag;
+																	}
+																}
+															}
+															processValue= false;
+															attribute = null;
+														}
+														break;
+												}
+												if (createTag) {
+													break;
+												}
+												if (breakToMainSwitch)
+													break mainSwitch;
+											}
+											tokenEnd = commentStart + 1 + slScanner.getCurrentTokenEndPosition();
+											if (hasTarget) {
+												inlineTag = createSnippetInnerTag(newTagName, tokenStart, tokenEnd);
+												addTagProperties(inlineTag, map);
+												if (createRegion) {
+													List<Object> tags = new ArrayList<>();
+													tags.add(inlineTag);
+													inlineTag = createSnippetRegion(regionName, tags, false, snippetTag);
+												}
+												inlineTags.add(inlineTag);
+												if (!firstTagProcessed) {
+													firstTagProcessed = true;
+												}
+											}
+											break;
 										case  END :
 											boolean closeRegion = false;
 											regionName = null;
@@ -1994,6 +2138,9 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 												tokenEnd = commentStart + 1 + slScanner.getCurrentTokenEndPosition();
 												this.closeJavaDocRegion(regionName, snippetTag, tokenEnd);
 												regionClosed = true;
+												if (!firstTagProcessed) {
+													firstTagProcessed = true;
+												}
 											}
 											if (breakToMainSwitch) {
 												break mainSwitch;
@@ -2017,12 +2164,62 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		finally {
 			if (inlineTags.size() > 1) {
 				inlineTag = createSnippetRegion(null, inlineTags, true, snippetTag);
+			} else if (inlineTags.size() == 1){
+				inlineTag = inlineTags.get(0);
 			}
 		}
-		if (regionClosed) {
+		if (regionClosed && inlineTag == null) {
 			return snippetTag;
 		}
 		return inlineTag;
+	}
+
+	private Object parseLinkReference(int curPosition, String value) {
+		Object typeRef = null;
+		Object reference = null;
+		int indexx = this.index;
+		int oldCurrentPosition = this.scanner.currentPosition;
+		int oldStartPosition = this.scanner.startPosition;
+		this.scanner.currentPosition = this.scanner.getCurrentTokenStartPosition() + curPosition  + 3;
+		int allowedLength = this.scanner.getCurrentTokenStartPosition() + curPosition + value.length();
+		this.index = this.scanner.startPosition;
+		int oldToken = this.currentTokenType;
+		this.currentTokenType = -1;
+		boolean tokenizeWhiteSpaces = this.scanner.tokenizeWhiteSpace;
+		this.scanner.tokenizeWhiteSpace = false;
+		try {
+			while (this.scanner.currentPosition < allowedLength) {
+				int token = readTokenSafely();
+				this.scanner.tokenizeWhiteSpace = true;
+				switch (token) {
+					case TerminalTokens.TokenNameERROR :
+						consumeToken();
+						if (this.scanner.currentCharacter == '#') { // @see ...#member
+							reference = parseMember(typeRef, true);
+						}
+						break;
+					case TerminalTokens.TokenNameIdentifier :
+						typeRef = parseQualifiedName(true, true);
+						break;
+					default :
+						return null;
+				}
+
+			}
+		} catch (InvalidInputException ex) {
+			typeRef= null;
+		}
+		finally {
+			this.scanner.currentPosition = oldCurrentPosition;
+			this.scanner.startPosition = oldStartPosition;
+			this.index = indexx;
+			this.currentTokenType = oldToken;
+			this.scanner.tokenizeWhiteSpace = tokenizeWhiteSpaces;
+		}
+		if (reference != null) {
+			typeRef = reference;
+		}
+		return typeRef;
 	}
 
 	private boolean isNextNonSpaceCharNewLine() {
@@ -2214,7 +2411,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 
 	protected abstract Object createSnippetRegion(String name, List<Object> tags, boolean isDummy, Object snippetTag);
 
-	protected abstract void addTagProperties(Object Tag, Map<String, String> map);
+	protected abstract void addTagProperties(Object Tag, Map<String, Object> map);
 
 	protected abstract void addSnippetInnerTag(Object tag, Object snippetTag);
 

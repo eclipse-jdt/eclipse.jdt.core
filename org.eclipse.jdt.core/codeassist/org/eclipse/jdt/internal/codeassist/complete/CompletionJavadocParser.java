@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -427,14 +431,18 @@ public class CompletionJavadocParser extends JavadocParser {
 			System.arraycopy(this.levelTags[SNIPPET_IDX], 0, this.levelTags[SNIPPET_IDX] = new char[this.levelTagsLength[SNIPPET_IDX]][], 0, this.levelTagsLength[SNIPPET_IDX]);
 		}
 	}
+	@Override
+	protected Object parseArguments(Object receiver) throws InvalidInputException {
+		return parseArguments(receiver, true);
+	}
 	/*
 	 * Parse argument in @see tag method reference
 	 */
 	@Override
-	protected Object parseArguments(Object receiver) throws InvalidInputException {
+	protected Object parseArguments(Object receiver, boolean verifySpaceOrEndComment) throws InvalidInputException {
 
 		if (this.tagSourceStart>this.cursorLocation) {
-			return super.parseArguments(receiver);
+			return super.parseArguments(receiver, verifySpaceOrEndComment);
 		}
 
 		// Init

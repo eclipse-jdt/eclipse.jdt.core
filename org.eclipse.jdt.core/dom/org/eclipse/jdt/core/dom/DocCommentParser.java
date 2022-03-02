@@ -442,13 +442,17 @@ class DocCommentParser extends AbstractCommentParser {
 	}
 
 	@Override
-	protected void addTagProperties(Object tag, Map<String, String> map) {
+	protected void addTagProperties(Object tag, Map<String, Object> map) {
 		if (tag instanceof TagElement) {
 			TagElement tagElement = (TagElement) tag;
 			map.forEach((k, v) -> {
 				TagProperty tagProperty = this.ast.newTagProperty();
 				tagProperty.setName(k);
-				tagProperty.setStringValue(v);
+				if (v instanceof String) {
+					tagProperty.setStringValue((String)v);
+				} else if (v instanceof ASTNode) {
+					tagProperty.setNodeValue((ASTNode)v);
+				}
 				tagElement.tagProperties().add(tagProperty);
 			});
 		}
