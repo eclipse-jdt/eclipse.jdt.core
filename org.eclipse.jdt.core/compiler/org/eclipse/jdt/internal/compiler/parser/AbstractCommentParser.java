@@ -1475,6 +1475,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		this.scanner.tokenizeWhiteSpace = true;
 		this.scanner.tokenizeComments = true;
 		int previousPosition = -1;
+		int lastRBracePosition = -1;
 		int openBraces = 1;
 		boolean parsingJava18Plus = this.scanner != null ? this.scanner.sourceLevel >= ClassFileConstants.JDK18 : false;
 		boolean valid = true;
@@ -1520,6 +1521,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 					case TerminalTokens.TokenNameRBRACE:
 						openBraces--;
 						textEndPosition = this.index;
+						lastRBracePosition = this.scanner.currentPosition;
 						if (openBraces == 0) {
 							if (this.lineStarted) {
 								if (this.textStart == -1) {
@@ -1604,11 +1606,12 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			this.scanner.tokenizeWhiteSpace = tokenWhiteSpace;
 			this.scanner.tokenizeComments = tokenizeComments;
 		}
-		setInlineTagStarted(false);
 		boolean retVal = false;
 		if (!valid) {
 			retVal =  false;
 		} else if (openBraces == 0) {
+			this.scanner.currentPosition = lastRBracePosition-1;
+			this.index = lastRBracePosition-1;
 			retVal = true;
 		}
 		if (snippetTag != null) {
