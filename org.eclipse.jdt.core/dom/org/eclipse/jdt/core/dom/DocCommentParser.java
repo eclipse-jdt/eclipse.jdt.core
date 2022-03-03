@@ -1228,6 +1228,42 @@ class DocCommentParser extends AbstractCommentParser {
 	}
 
 	@Override
+	protected void pushExternalSnippetText(String text,int start, int end) {
+		String snippetLangHeader = "<pre>"; //$NON-NLS-1$ //the code snippets comes as preformatted so need to prefix them with <pre> tag
+		String snipperLangFooter = "</pre>"; //$NON-NLS-1$
+		text = snippetLangHeader + text + snipperLangFooter;
+		TextElement textElement = this.ast.newTextElement();
+		textElement.setText(text);
+		textElement.setSourceRange(start, end-start);
+
+		// Search previous tag on which to add the text element
+		TagElement previousTag = null;
+		int previousStart = start;
+		int previousEnd = end;
+		if (this.astPtr == -1) {
+			previousTag = this.ast.newTagElement();
+			previousTag.setSourceRange(start, end-start);
+			pushOnAstStack(previousTag, true);
+		} else {
+			previousTag = (TagElement) this.astStack[this.astPtr];
+			previousStart = previousTag.getStartPosition();
+			previousEnd = previousStart + previousTag.getLength();
+		}
+		previousTag.fragments().add(textElement);
+		int curStart = previousStart;
+		int curEnd = previousEnd;
+		if (start < previousStart) {
+			curStart = start;
+		}
+		if (end > previousEnd) {
+			curEnd = end;
+		}
+		previousTag.setSourceRange(curStart, curEnd-curStart);
+		this.textStart = -1;
+	}
+
+
+	@Override
 	protected boolean pushThrowName(Object typeRef) {
 		TagElement throwsTag = this.ast.newTagElement();
 		switch (this.tagValue) {

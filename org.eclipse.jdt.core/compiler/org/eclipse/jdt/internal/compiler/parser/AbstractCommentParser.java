@@ -19,6 +19,10 @@ package org.eclipse.jdt.internal.compiler.parser;
 
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameEOF;
 
+import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -122,6 +126,8 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	protected int providesReferencesPtr = -1;
 	protected TypeReference[] providesReferencesStack;
 
+	// Snippet search path
+	private String projectPath;
 
 	protected AbstractCommentParser(Parser sourceParser) {
 		this.sourceParser = sourceParser;
@@ -1506,7 +1512,104 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		try {
 			snippetTag = createSnippetTag();
 			if (!parseForColon()) {
-				valid  = false;
+				int token = readTokenSafely();
+				if (token != TerminalTokens.TokenNameIdentifier) {
+					valid = false;
+				} else {
+					final String FILE = "file"; //$NON-NLS-1$
+					consumeToken();
+					String snippetType = this.scanner.getCurrentTokenString();
+					switch (snippetType) {
+						case FILE:
+							consumeToken();
+							int start = this.scanner.getCurrentTokenStartPosition();
+							token = readTokenSafely();
+							if (token!=TerminalTokens.TokenNameEQUAL) {
+								valid = false;
+							} else {
+								consumeToken();
+								token = readTokenSafely();
+								String regionName = null;
+								if (token==TerminalTokens.TokenNameERROR||token==TerminalTokens.TokenNameStringLiteral){
+									String fileName = this.scanner.getCurrentTokenString();
+									int lastIndex = fileName.length() - 1;
+									if ((fileName.charAt(0) =='"' && fileName.charAt(lastIndex)=='"')
+											||(fileName.charAt(0) =='\'' && fileName.charAt(lastIndex)=='\'')) {
+										fileName = fileName.substring(1, lastIndex); // strip out quotes
+										Path filePath = FileSystems.getDefault().getPath(this.projectPath, "src", fileName); //$NON-NLS-1$
+										try {
+											String contents = Files.readString(filePath);
+											int end = this.scanner.getCurrentTokenEndPosition();
+											consumeToken();
+											boolean foundRegionDef = false;
+											final String REGION = "region"; //$NON-NLS-1$
+											while (this.index<this.scanner.eofPosition) {
+												token = readTokenSafely();
+												if (token == TerminalTokens.TokenNameRBRACE) {
+													break;
+												} else if (token == TerminalTokens.TokenNameIdentifier) {
+													consumeToken();
+													if (this.scanner.getCurrentTokenString().equals(REGION)) {
+														foundRegionDef = true;
+														break;
+													}
+												} else {
+													consumeToken();
+												}
+											}
+
+											if (foundRegionDef) {
+												token = readTokenSafely();
+												if (token!= TerminalTokens.TokenNameEQUAL) {
+													valid = false;
+												}
+												consumeToken();
+												token = readTokenSafely();
+												if (token==TerminalTokens.TokenNameERROR||token==TerminalTokens.TokenNameStringLiteral){
+													regionName = this.scanner.getCurrentTokenString();
+													consumeToken();
+													lastIndex = regionName.length() - 1;
+													if ((regionName.charAt(0) =='"' && regionName.charAt(lastIndex)=='"')
+															||(regionName.charAt(0) =='\'' && regionName.charAt(lastIndex)=='\'')) {
+														regionName = regionName.substring(1, lastIndex); // strip out quotes
+														end = this.scanner.getCurrentTokenEndPosition();
+													} else {
+														valid = false;
+													}
+
+												} else {
+													valid = false;
+												}
+											}
+
+											String snippetText = extractSnippet(contents, regionName);
+											pushExternalSnippetText(snippetText, start, end + 1);
+											valid = true;
+											this.index = end + 1;
+											this.scanner.currentPosition = end + 1;
+
+											if (snippetTag != null) {
+												this.setSnippetIsValid(snippetTag, valid);
+											}
+											return valid;
+
+
+										} catch (IOException e) {
+											e.printStackTrace();
+											return false;
+										}
+									} else {
+										valid = false;
+									}
+								} else {
+									valid = false;
+								}
+							}
+							break;
+						default:
+							valid = false;
+					}
+				}
 			} else {
 				if (this.index < this.scanner.eofPosition) {
 					int token = readTokenSafely();
@@ -1647,6 +1750,73 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		}
 		return retVal;
 	}
+	private String extractSnippet(String contents, String region) {
+		String snippetString = ""; //$NON-NLS-1$
+		final String START  = "start"; //$NON-NLS-1$
+		final String END    = "end"; //$NON-NLS-1$
+		final String REGION = "region"; //$NON-NLS-1$
+		int regionLen = REGION.length();
+		boolean extractRegion = region == null? false:true; // false if we don't have a region to extract
+		boolean insideRegion = false;
+		boolean containsJavadocsnippetTags = false;
+		Scanner snippetScanner = new Scanner(true, true, false, this.scanner.sourceLevel, this.scanner.complianceLevel,
+				null, null, false, false);
+		snippetScanner.setSource(contents.toCharArray());
+		while (true) {
+			int tokenType = 0;
+			try {
+				tokenType = snippetScanner.getNextToken();
+				containsJavadocsnippetTags = false;
+				if (tokenType == TokenNameEOF)
+					break;
+				if (tokenType == TerminalTokens.TokenNameCOMMENT_LINE) {
+					String commentLine = snippetScanner.getCurrentTokenString();
+					int regionIndex = commentLine.indexOf(REGION);
+					if (commentLine.contains("@"+START)) { //$NON-NLS-1$
+						if (regionIndex != -1) {
+							int regionNameStart = regionIndex + regionLen + 1;
+							char namedelim = commentLine.charAt(regionNameStart);
+							int regionNameEnd = commentLine.indexOf(namedelim, regionNameStart +1);
+							String regionName = commentLine.substring(regionNameStart +1, regionNameEnd);
+							if (regionName.equals(region)) {
+								insideRegion = true;
+							}
+						}
+					}
+					if (commentLine.contains("@"+END)) { //$NON-NLS-1$
+						if (regionIndex != -1) {
+							int regionNameStart = regionIndex + regionLen + 1;
+							char namedelim = commentLine.charAt(regionNameStart);
+							int regionNameEnd = commentLine.indexOf(namedelim, regionNameStart +1);
+							String regionName = commentLine.substring(regionNameStart +1, regionNameEnd);
+							if (regionName.equals(region)) {
+								insideRegion = false;
+							}
+						} else {
+							insideRegion = false;
+						}
+					}
+					if (insideRegion) {
+					int javadocSnippetTagStart = commentLine.lastIndexOf("//"); //$NON-NLS-1$
+						if (javadocSnippetTagStart >= 0 ) {
+							if (commentLine.substring(javadocSnippetTagStart + 2).stripLeading().startsWith("@")) { //$NON-NLS-1$
+								containsJavadocsnippetTags = true;
+								snippetString = snippetString + commentLine.substring(0, javadocSnippetTagStart) + System.lineSeparator();
+							}
+						}
+					}
+				}
+				if ((!extractRegion||insideRegion)&&(!containsJavadocsnippetTags)) {
+					snippetString = snippetString + snippetScanner.getCurrentTokenString();
+				}
+			} catch (InvalidInputException e) {
+				e.printStackTrace();
+			}
+
+		}
+		return snippetString;
+	}
+
 
 	private boolean parseForColon() {
 		boolean isValid =  true;
@@ -2443,6 +2613,10 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 
 	protected abstract void closeJavaDocRegion(String name, Object snippetTag, int end);
 
+	protected void pushExternalSnippetText(String text, int start, int end) {
+		// do not store text by default
+	}
+
 	protected abstract Object createSnippetTag();
 
 	protected abstract Object createSnippetInnerTag(String tagName, int start, int end);
@@ -2803,4 +2977,9 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			this.complianceLevel = this.sourceParser.options.complianceLevel;
 		}
 	}
+
+	public void setProjectPath(String projectPath) {
+		this.projectPath = projectPath;
+	}
+
 }

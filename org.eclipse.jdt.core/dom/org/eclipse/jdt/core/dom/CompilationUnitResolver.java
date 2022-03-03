@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -292,6 +296,21 @@ class CompilationUnitResolver extends Compiler {
 			int flags,
 			IProgressMonitor monitor,
 			boolean fromJavaProject) {
+		return convert(compilationUnitDeclaration, source,apiLevel, options, needToResolveBindings, owner, bindingTables,
+				flags, monitor, fromJavaProject, null);
+	}
+	public static CompilationUnit convert(
+			CompilationUnitDeclaration compilationUnitDeclaration,
+			char[] source,
+			int apiLevel,
+			Map options,
+			boolean needToResolveBindings,
+			WorkingCopyOwner owner,
+			DefaultBindingResolver.BindingTables bindingTables,
+			int flags,
+			IProgressMonitor monitor,
+			boolean fromJavaProject,
+			String projectPath) {
 		BindingResolver resolver = null;
 		AST ast = AST.newAST(apiLevel, JavaCore.ENABLED.equals(options.get(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES)));
 		String sourceModeSetting = (String) options.get(JavaCore.COMPILER_SOURCE);
@@ -320,6 +339,7 @@ class CompilationUnitResolver extends Compiler {
 		}
 		ast.setBindingResolver(resolver);
 		converter.setAST(ast);
+		converter.docParser.setProjectPath(projectPath);
 		compilationUnit = converter.convert(compilationUnitDeclaration, source);
 		compilationUnit.setLineEndTable(compilationUnitDeclaration.compilationResult.getLineSeparatorPositions());
 		ast.setDefaultNodeFlag(0);
@@ -515,11 +535,19 @@ class CompilationUnitResolver extends Compiler {
 			astRequestor.acceptAST(sourceUnits[i], node);
 		}
 	}
+
 	public static CompilationUnitDeclaration parse(
 			org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit,
 			NodeSearcher nodeSearcher,
 			Map settings,
 			int flags) {
+		return parse(sourceUnit, nodeSearcher, settings, flags, null);
+	}
+	public static CompilationUnitDeclaration parse(
+			org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit,
+			NodeSearcher nodeSearcher,
+			Map settings,
+			int flags, String projectPath) {
 		if (sourceUnit == null) {
 			throw new IllegalStateException();
 		}
@@ -534,6 +562,9 @@ class CompilationUnitResolver extends Compiler {
 					compilerOptions,
 					new DefaultProblemFactory()),
 			false);
+		if (projectPath != null) {
+			parser.javadocParser.setProjectPath(projectPath);
+		}
 		CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, compilerOptions.maxProblemsPerUnit);
 		CompilationUnitDeclaration compilationUnitDeclaration = parser.dietParse(sourceUnit, compilationResult);
 

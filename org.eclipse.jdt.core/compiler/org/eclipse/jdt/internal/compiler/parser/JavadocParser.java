@@ -990,6 +990,12 @@ public class JavadocParser extends AbstractCommentParser {
 		//do nothing
 	}
 
+	@Override
+	protected void pushExternalSnippetText(String text, int start, int end) {
+		// The tag gets its description => clear the flag
+		this.tagWaitingForDescription = TAG_SNIPPET_VALUE;
+	}
+
 	/*
 	 * Push a throws type ref in ast node stack.
 	 */
