@@ -1503,24 +1503,25 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		Object snippetTag = null;
 		try {
 			snippetTag = createSnippetTag();
-			int token = readTokenSafely();
-			if (token != TerminalTokens.TokenNameWHITESPACE) {
-				valid = false;
-			}
-			consumeToken();
-			token = readTokenSafely();
-			if (token != TerminalTokens.TokenNameCOLON) {
-				valid = false;
-			}
-			consumeToken();
-			if (!isNextNonSpaceCharNewLine()) {
-				valid = false;
-				consumeToken();
+			if (!parseForColon()) {
+				valid  = false;
 			} else {
-				consumeNewLine();
+				if (this.index < this.scanner.eofPosition) {
+					int token = readTokenSafely();
+					if (token == TerminalTokens.TokenNameWHITESPACE) {
+						if (containsNewLine(this.scanner.getCurrentTokenString())) {
+							consumeToken();
+						} else {
+							valid = false;
+						}
+					}
+				} else {
+					valid = false;
+				}
 			}
 			int textEndPosition = this.index;
 			this.textStart = this.index;
+			int token;
 			while (this.index < this.scanner.eofPosition) {
 				this.index = this.scanner.currentPosition;
 				if (openBraces == 0) {
@@ -1559,7 +1560,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						}
 						break;
 					case TerminalTokens.TokenNameWHITESPACE:
-						if (containsTokenNewLine(this.scanner.getCurrentTokenString())) {
+						if (containsNewLine(this.scanner.getCurrentTokenString())) {
 							if (this.lineStarted) {
 								if (this.textStart != -1 && this.textStart < textEndPosition) {
 									pushSnippetText(this.textStart, textEndPosition, true, snippetTag);
@@ -1637,6 +1638,49 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		}
 		return retVal;
 	}
+
+	private boolean parseForColon() {
+		boolean isValid =  true;
+		boolean colonTokenFound = false;
+		int token;
+		while (this.index < this.scanner.eofPosition) {
+			token = readTokenSafely();
+			switch(token) {
+				case TerminalTokens.TokenNameWHITESPACE :
+					if (containsNewLine(this.scanner.getCurrentTokenString())) {
+						consumeToken();
+						if (this.index < this.scanner.eofPosition) {
+							token = readTokenSafely();
+							if (token == TerminalTokens.TokenNameMULTIPLY) {
+								consumeToken();
+							} else {
+								isValid = false;
+							}
+						} else {
+							isValid = false;
+						}
+					} else {
+						consumeToken();
+					}
+					break;
+				case TerminalTokens.TokenNameCOLON :
+					consumeToken();
+					colonTokenFound = true;
+					break;
+				default :
+					isValid = false;
+					break;
+			}
+			if (colonTokenFound || !isValid) {
+				break;
+			}
+		}
+		if (colonTokenFound) {
+			isValid = true;
+		}
+		return isValid;
+	}
+
 
 	public int indexOfLastSingleComment(String tokenString, int last) {
 		int indexOfLastCom = 0;
@@ -2222,37 +2266,14 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		return typeRef;
 	}
 
-	private boolean isNextNonSpaceCharNewLine() {
+	private boolean containsNewLine(String str) {
 		boolean consider = false;
-		char ch = getChar();
-		while (ch == ' ') {
-			readChar();
-			ch = getChar();
-		}
-		if ((System.lineSeparator().indexOf(ch) == 0)) {
+		if(str != null
+				&& (str.contains(System.lineSeparator())
+						|| str.indexOf('\n') != -1)) {
 			consider = true;
 		}
 		return consider;
-	}
-
-	private boolean containsTokenNewLine(String str) {
-		boolean consider = false;
-		if(str != null && str.contains(System.lineSeparator())) {
-			consider = true;
-		}
-		return consider;
-	}
-
-	private void consumeNewLine() {
-		int lineSeperatorLength = System.lineSeparator().length();
-		for (int i=0; i< lineSeperatorLength; i++) {
-			char ch = getChar();
-			if ((System.lineSeparator().charAt(i) == ch)) {
-				readChar();
-			} else {
-				break;
-			}
-		}
 	}
 
 	/*
