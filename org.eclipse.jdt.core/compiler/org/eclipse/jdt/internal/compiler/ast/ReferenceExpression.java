@@ -277,7 +277,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 	private boolean shouldGenerateImplicitLambda(BlockScope currentScope) {
 		// these cases are either too complicated, impossible to handle or result in significant code duplication
 		return (this.binding.isVarargs() ||
-				(isConstructorReference() && this.receiverType.syntheticOuterLocalVariables() != null && this.shouldCaptureInstance) ||
+				(isConstructorReference() && (this.receiverType.syntheticOuterLocalVariables() != null || this.shouldCaptureInstance)) ||
 				this.requiresBridges() || // bridges.
 				!isDirectCodeGenPossible());
 		// To fix: We should opt for direct code generation wherever possible.

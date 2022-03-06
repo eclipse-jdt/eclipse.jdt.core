@@ -6585,10 +6585,10 @@ public void test406588() {
 				"}\n"
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 10)\n" +
-			"	this(Z::new);\n" +
-			"	     ^^^^^^\n" +
-			"No enclosing instance of the type X.Y is accessible in scope\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	interface I {\n" +
+			"	^\n" +
+			"No enclosing instance of type X.Y is available due to some intermediate constructor invocation\n" +
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406586, [1.8][compiler] Missing error about unavailable enclosing instance
@@ -6608,10 +6608,10 @@ public void test406586() {
 				"}\n"
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 8)\n" +
-			"	I i = Y::new;\n" +
-			"	      ^^^^^^\n" +
-			"No enclosing instance of the type X is accessible in scope\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	interface I {\n" +
+			"	^\n" +
+			"No enclosing instance of type X is accessible. Must qualify the allocation with an enclosing instance of type X (e.g. x.new A() where x is an instance of X).\n" +
 			"----------\n");
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401989, [1.8][compiler] hook lambda expressions into "can be static" analysis

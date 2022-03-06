@@ -2275,6 +2275,37 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 		null,true,
 		new String[]{"-Ddummy"});
 	}
+	public void testbug566155() {
+		// method reference must be compiled as an implicit lambda expression
+		// else it cannot be serialized correctly
+		this.runConformTest(new String[] {
+				"OuterClass.java",
+				"import java.io.*;\n"+
+				"import java.util.function.Supplier;\n"+
+				"\n"+
+				"public class OuterClass implements Serializable {\n"+
+				"\n"+
+				"    private static final long serialVersionUID = 5390565572939096897L;\n"+
+				"    public Supplier<OuterClass.InnerClass> supplier;\n"+
+				"\n"+
+				"    @SuppressWarnings(\"unchecked\")\n"+
+				"    public OuterClass() {\n"+
+				"        this.supplier = (Supplier<OuterClass.InnerClass> & Serializable) InnerClass::new;\n"+
+				"    }\n"+
+				"\n"+
+				"    public class InnerClass implements Serializable {\n"+
+				"        private static final long serialVersionUID = 2478179807896338433L;\n"+
+				" 	   public InnerClass() {\n"+
+				"        }\n"+
+				"    }\n"+
+				"\n"+
+				"}\n"
+		}, "");
+		String expectedOutput =
+			"lambda$1()LOuterClass$InnerClass;\n";
+		String data = printLambdaMethods(OUTPUT_DIR + File.separator + "OuterClass.class");
+		checkExpected(expectedOutput,data);
+	}
 	// ---
 
 	private void checkExpected(String expected, String actual) {
