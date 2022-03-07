@@ -2093,7 +2093,8 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 																if (REGION.equals(attribute)) {
 																	regionName = value;
 																} else if (TARGET.equals(attribute)) {
-																	type = parseLinkReference(slScanner.getCurrentTokenStartPosition(), value);
+																	String originalTokenString = this.scanner.getCurrentTokenString();
+																	type = parseLinkReference(slScanner.getCurrentTokenStartPosition() + originalTokenString.lastIndexOf(tokenString)/* add offset*/, value);
 																	if (type != null) {
 																		map.put(attribute, type);
 																		hasTarget = true;
