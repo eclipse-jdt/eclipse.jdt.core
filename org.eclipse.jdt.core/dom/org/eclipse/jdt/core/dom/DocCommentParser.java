@@ -314,8 +314,8 @@ class DocCommentParser extends AbstractCommentParser {
 	}
 
 	@Override
-	protected Object createSnippetRegion(String name, List<Object> tags, boolean isDummy, Object snippetTag) {
-		if (!isDummy) {
+	protected Object createSnippetRegion(String name, List<Object> tags, Object snippetTag, boolean isDummyRegion, boolean considerPrevTag) {
+		if (!isDummyRegion) {
 			return createSnippetOriginalRegion(name, tags);
 		}
 		List<TagElement> tagsToBeProcessed = new ArrayList<>();
@@ -345,14 +345,30 @@ class DocCommentParser extends AbstractCommentParser {
 				}
 			}
 			if (tagsToBeProcessed.size() > 0) {
-				if (tagsToBeProcessed.size() == 1) {
-					return tagsToBeProcessed.get(0);
+				boolean process = true;
+				if (considerPrevTag && snippetTag instanceof TagElement) {
+					TagElement snippetTagElem = (TagElement) snippetTag;
+					Object prevTag = snippetTagElem.fragments().get(snippetTagElem.fragments().size() - 1);
+					if (prevTag instanceof TagElement) {
+						tagsToBeProcessed.add(0, (TagElement)prevTag);
+						snippetTagElem.fragments().remove(prevTag);
+					} else if (prevTag instanceof JavaDocRegion) {
+						JavaDocRegion region = (JavaDocRegion) prevTag;
+						region.tags().addAll(tagsToBeProcessed);
+						toBeReturned = snippetTag;
+						process = false;
+					}
 				}
-				else {
-					JavaDocRegion region = this.ast.newJavaDocRegion();
-					region.tags().addAll(tagsToBeProcessed);
-					region.setSourceRange(start, end);
-					toBeReturned = region;
+				if (process) {
+					if (tagsToBeProcessed.size() == 1) {
+						return tagsToBeProcessed.get(0);
+					}
+					else {
+						JavaDocRegion region = this.ast.newJavaDocRegion();
+						region.tags().addAll(tagsToBeProcessed);
+						region.setSourceRange(start, end);
+						toBeReturned = region;
+					}
 				}
 			} else {
 				toBeReturned = snippetTag;

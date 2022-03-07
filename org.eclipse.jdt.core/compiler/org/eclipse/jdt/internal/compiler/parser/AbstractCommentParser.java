@@ -94,6 +94,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	protected int tagValue = NO_TAG_VALUE;
 	protected int lastBlockTagValue = NO_TAG_VALUE;
 	protected boolean snippetInlineTagStarted = false;
+	private int nonRegionTagCount;
 	final static String SINGLE_LINE_COMMENT = "//"; //$NON-NLS-1$
 
 	// Line pointers
@@ -1501,6 +1502,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			throw new InvalidInputException();
 		}
 		Object snippetTag = null;
+		this.nonRegionTagCount = 0;
 		try {
 			snippetTag = createSnippetTag();
 			if (!parseForColon()) {
@@ -1554,6 +1556,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 									}
 									if (!textToBeAdded.isBlank()) {
 										pushSnippetText(this.textStart, this.index-1, false, snippetTag);
+										this.nonRegionTagCount = 0;
 									}
 								}
 							}
@@ -1564,6 +1567,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 							if (this.lineStarted) {
 								if (this.textStart != -1 && this.textStart < textEndPosition) {
 									pushSnippetText(this.textStart, textEndPosition, true, snippetTag);
+									this.nonRegionTagCount = 0;
 								}
 							}
 							this.lineStarted = false;
@@ -1579,7 +1583,9 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						int noSingleLineComm = getNumberOfSingleLineCommentInSnippetTag(tokenString.substring(2));
 						if (noSingleLineComm > 0)
 							indexOfLastComment = indexOfLastSingleComment(tokenString.substring(2),noSingleLineComm);
-
+						if (!handleNow) {
+							this.nonRegionTagCount = 0;
+						}
 						Object innerTag = parseSnippetInlineTags(indexOfLastComment == -1 ? tokenString : tokenString.substring(indexOfLastComment+2), snippetTag);
 						if (innerTag != null) {
 							lvalid = true;
@@ -1600,6 +1606,9 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 							}
 							if (this.textStart != -1 && this.textStart < this.index) {
 								pushSnippetText(this.textStart,(innerTag!=null &&  indexOfLastComment >=0) ? textPos+indexOfLastComment+2:textPos, lvalid, snippetTag);
+								if (handleNow) {
+									this.nonRegionTagCount = 0;
+								}
 							}
 						}
 						if (lvalid && !handleNow) {
@@ -1750,7 +1759,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		final String LINK = "link"; //$NON-NLS-1$
 		final String TARGET = "target"; //$NON-NLS-1$
 		boolean regionClosed = false;
-
+		int initialTagCount = this.nonRegionTagCount;
 		List<Object> inlineTags= new ArrayList<>();
 		try {
 			if (tokenString != null
@@ -1880,7 +1889,9 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 											if (createRegion) {
 												List<Object> tags = new ArrayList<>();
 												tags.add(inlineTag);
-												inlineTag = createSnippetRegion(regionName, tags, false, snippetTag);
+												inlineTag = createSnippetRegion(regionName, tags, snippetTag, false, false);
+											} else {
+												this.nonRegionTagCount++;
 											}
 											inlineTags.add(inlineTag);
 											if (!firstTagProcessed) {
@@ -1988,7 +1999,9 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 											if (createRegion) {
 												List<Object> tags = new ArrayList<>();
 												tags.add(inlineTag);
-												inlineTag = createSnippetRegion(regionName, tags, false, snippetTag);
+												inlineTag = createSnippetRegion(regionName, tags, snippetTag, false, false);
+											} else {
+												this.nonRegionTagCount++;
 											}
 											inlineTags.add(inlineTag);
 											if (!firstTagProcessed) {
@@ -2111,7 +2124,9 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 												if (createRegion) {
 													List<Object> tags = new ArrayList<>();
 													tags.add(inlineTag);
-													inlineTag = createSnippetRegion(regionName, tags, false, snippetTag);
+													inlineTag = createSnippetRegion(regionName, tags, snippetTag, false, false);
+												} else {
+													this.nonRegionTagCount++;
 												}
 												inlineTags.add(inlineTag);
 												if (!firstTagProcessed) {
@@ -2206,9 +2221,10 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			}
 		}
 		finally {
-			if (inlineTags.size() > 1) {
-				inlineTag = createSnippetRegion(null, inlineTags, true, snippetTag);
-			} else if (inlineTags.size() == 1){
+			if (inlineTags.size() > 1
+					|| (initialTagCount > 0 && inlineTags.size() > 0)) {
+				inlineTag = createSnippetRegion(null, inlineTags, snippetTag, true, (initialTagCount > 0) ? true : false);
+			} else if (inlineTags.size() == 1) {
 				inlineTag = inlineTags.get(0);
 			}
 		}
@@ -2430,7 +2446,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 
 	protected abstract Object createSnippetInnerTag(String tagName, int start, int end);
 
-	protected abstract Object createSnippetRegion(String name, List<Object> tags, boolean isDummy, Object snippetTag);
+	protected abstract Object createSnippetRegion(String name, List<Object> tags, Object snippetTag, boolean isDummyRegion, boolean considerPrevTag);
 
 	protected abstract void addTagProperties(Object Tag, Map<String, Object> map);
 

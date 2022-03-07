@@ -39,9 +39,11 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.Comment;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.JavaDocRegion;
 import org.eclipse.jdt.core.dom.Javadoc;
 import org.eclipse.jdt.core.dom.TagElement;
 import org.eclipse.jdt.core.dom.TagProperty;
+import org.eclipse.jdt.core.dom.TextElement;
 import org.eclipse.jdt.internal.compiler.parser.JavadocTagConstants;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 
@@ -910,5 +912,167 @@ public class ASTConverterJavadocTest_18 extends ConverterTestSetup {
 		Object validPorperty = snippetTag.getProperty(TagProperty.TAG_PROPERTY_SNIPPET_IS_VALID);
 		assertNotNull("Snippet Tag valid property not present", validPorperty);
 		assertEquals("Snippet should not be valid", false, (validPorperty instanceof Boolean) ? ((Boolean)validPorperty).booleanValue() : false);
+	}
+
+	public void testSnippetMultiLineTagsJavadoc1() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_15_1/src/javadoc/X.java",
+			"package javadoc;\n" +
+			"public class X {\n" +
+			"    /**\n" +
+			"     * Below is an example snippet\n" +
+			"     * {@snippet :\n" +
+			"     *  //Starting Code // @highlight substring=\"out\" :\n" +
+			"     *  System.out.println(); // @highlight substring=\"print\"\n" +
+			"     * }\n" +
+			"     */\n" +
+			"    public static void foo(Object object) {\n" +
+			"    }\n" +
+			"}\n"
+		);
+		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
+		// Get comments
+		List unitComments = compilUnit.getCommentList();
+		int size = unitComments.size();
+		assertEquals("Wrong number of comments", 1, size);
+		Javadoc javadoc = (Javadoc) unitComments.get(0);
+		TagElement snippetTag = getSnippetTag(javadoc);
+		assertNotNull("Snippet Tag is not present", snippetTag);
+		Object validPorperty = snippetTag.getProperty(TagProperty.TAG_PROPERTY_SNIPPET_IS_VALID);
+		assertNotNull("Snippet Tag valid property not present", validPorperty);
+		assertEquals("Snippet should be valid", true, (validPorperty instanceof Boolean) ? ((Boolean)validPorperty).booleanValue() : false);
+		List fragments = snippetTag.fragments();
+		assertEquals("Three fragments should be created", 3, fragments.size());
+		assertEquals("First Tag should be TextElement", true, fragments.get(0) instanceof TextElement);
+		assertEquals("Second Tag should be JavaDocRegion", true, fragments.get(1) instanceof JavaDocRegion);
+		JavaDocRegion region = (JavaDocRegion) fragments.get(1);
+		assertEquals("JavaDocRegion should be dummy", true, region.isDummyRegion());
+		assertEquals("third Tag should be TextElement", true, fragments.get(2) instanceof TextElement);
+		assertEquals("JavaDocRegion should have 2 tags", 2, region.tags().size());
+		assertEquals("JavaDocRegion should have 1 text fragmwent", 1, region.fragments().size());
+	}
+
+	public void testSnippetMultiLineTagsJavadoc2() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_15_1/src/javadoc/X.java",
+			"package javadoc;\n" +
+			"public class X {\n" +
+			"    /**\n" +
+			"     * Below is an example snippet\n" +
+			"     * {@snippet :\n" +
+			"     *  //Starting Code // @highlight substring=\"out\" @highlight substring=\"Sys\" :\n" +
+			"     *  System.out.println(); // @highlight substring=\"print\"\n" +
+			"     * }\n" +
+			"     */\n" +
+			"    public static void foo(Object object) {\n" +
+			"    }\n" +
+			"}\n"
+		);
+		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
+		// Get comments
+		List unitComments = compilUnit.getCommentList();
+		int size = unitComments.size();
+		assertEquals("Wrong number of comments", 1, size);
+		Javadoc javadoc = (Javadoc) unitComments.get(0);
+		TagElement snippetTag = getSnippetTag(javadoc);
+		assertNotNull("Snippet Tag is not present", snippetTag);
+		Object validPorperty = snippetTag.getProperty(TagProperty.TAG_PROPERTY_SNIPPET_IS_VALID);
+		assertNotNull("Snippet Tag valid property not present", validPorperty);
+		assertEquals("Snippet should be valid", true, (validPorperty instanceof Boolean) ? ((Boolean)validPorperty).booleanValue() : false);
+		List fragments = snippetTag.fragments();
+		assertEquals("Three fragments should be created", 3, fragments.size());
+		assertEquals("First Tag should be TextElement", true, fragments.get(0) instanceof TextElement);
+		assertEquals("Second Tag should be JavaDocRegion", true, fragments.get(1) instanceof JavaDocRegion);
+		JavaDocRegion region = (JavaDocRegion) fragments.get(1);
+		assertEquals("JavaDocRegion should be dummy", true, region.isDummyRegion());
+		assertEquals("third Tag should be TextElement", true, fragments.get(2) instanceof TextElement);
+		assertEquals("JavaDocRegion should have 3 tags", 3, region.tags().size());
+		assertEquals("JavaDocRegion should have 1 text fragmwent", 1, region.fragments().size());
+	}
+
+	public void testSnippetMultiLineTagsJavadoc3() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_15_1/src/javadoc/X.java",
+			"package javadoc;\n" +
+			"public class X {\n" +
+			"    /**\n" +
+			"     * Below is an example snippet\n" +
+			"     * {@snippet :\n" +
+			"     *  //Starting Code // @highlight region substring=\"out\" :\n" +
+			"     *  System.out.println(); // @highlight substring=\"print\" @end\n" +
+			"     * }\n" +
+			"     */\n" +
+			"    public static void foo(Object object) {\n" +
+			"    }\n" +
+			"}\n"
+		);
+		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
+		// Get comments
+		List unitComments = compilUnit.getCommentList();
+		int size = unitComments.size();
+		assertEquals("Wrong number of comments", 1, size);
+		Javadoc javadoc = (Javadoc) unitComments.get(0);
+		TagElement snippetTag = getSnippetTag(javadoc);
+		assertNotNull("Snippet Tag is not present", snippetTag);
+		Object validPorperty = snippetTag.getProperty(TagProperty.TAG_PROPERTY_SNIPPET_IS_VALID);
+		assertNotNull("Snippet Tag valid property not present", validPorperty);
+		assertEquals("Snippet should be valid", true, (validPorperty instanceof Boolean) ? ((Boolean)validPorperty).booleanValue() : false);
+		List fragments = snippetTag.fragments();
+		assertEquals("Four fragments should be created", 4, fragments.size());
+		assertEquals("First Tag should be TextElement", true, fragments.get(0) instanceof TextElement);
+		assertEquals("Second Tag should be JavaDocRegion", true, fragments.get(1) instanceof JavaDocRegion);
+		JavaDocRegion region = (JavaDocRegion) fragments.get(1);
+		assertEquals("JavaDocRegion should be dummy", false, region.isDummyRegion());
+		assertEquals("third Tag should be TextElement", true, fragments.get(2) instanceof TagElement);
+		TagElement tagElem = (TagElement) fragments.get(2);
+		assertEquals("third Tag should be TextElement", true, fragments.get(3) instanceof TextElement);
+		assertEquals("TagElement should have 1 fragment", 1, tagElem.fragments().size());
+		assertEquals("Tag element fragment should be TextElement", true, tagElem.fragments().get(0) instanceof TextElement);
+		TextElement textElem =  (TextElement) tagElem.fragments().get(0);
+		List<JavaDocRegion> regions = snippetTag.tagRegionsContainingTextElement(textElem);
+		assertEquals("regions count should be 1", 1, regions.size());
+		assertEquals("original JavaDocRegion should be present here", true, regions.contains(region));
+	}
+
+	public void testSnippetMultiLineTagsJavadoc4() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/Converter_15_1/src/javadoc/X.java",
+			"package javadoc;\n" +
+			"public class X {\n" +
+			"    /**\n" +
+			"     * Below is an example snippet\n" +
+			"     * {@snippet :\n" +
+			"     *  //Starting Code // @highlight substring=\"out\" :\n" +
+			"     *  System.out.println(); // @highlight substring=\"print\" :\n" +
+			"     *  System.out.println();\n" +
+			"     * }\n" +
+			"     */\n" +
+			"    public static void foo(Object object) {\n" +
+			"    }\n" +
+			"}\n"
+		);
+		CompilationUnit compilUnit = verifyComments(this.workingCopies[0]);
+		// Get comments
+		List unitComments = compilUnit.getCommentList();
+		int size = unitComments.size();
+		assertEquals("Wrong number of comments", 1, size);
+		Javadoc javadoc = (Javadoc) unitComments.get(0);
+		TagElement snippetTag = getSnippetTag(javadoc);
+		assertNotNull("Snippet Tag is not present", snippetTag);
+		Object validPorperty = snippetTag.getProperty(TagProperty.TAG_PROPERTY_SNIPPET_IS_VALID);
+		assertNotNull("Snippet Tag valid property not present", validPorperty);
+		assertEquals("Snippet should be valid", true, (validPorperty instanceof Boolean) ? ((Boolean)validPorperty).booleanValue() : false);
+		List fragments = snippetTag.fragments();
+		assertEquals("Four fragments should be created", 4, fragments.size());
+		assertEquals("First fragment should be TextElement", true, fragments.get(0) instanceof TextElement);
+		assertEquals("Second fragment should be TagElement", true, fragments.get(1) instanceof TagElement);
+		TagElement tagElem = (TagElement) fragments.get(1);
+		assertEquals("TagElement should have 1 fragment", 1, tagElem.fragments().size());
+		assertEquals("Tag element fragment should be TextElement", true, tagElem.fragments().get(0) instanceof TextElement);
+		assertEquals("Third fragment should be TagElement", true, fragments.get(1) instanceof TagElement);
+		tagElem = (TagElement) fragments.get(2);
+		assertEquals("TagElement should have 1 fragment", 1, tagElem.fragments().size());
+		assertEquals("Tag element fragment should be TextElement", true, tagElem.fragments().get(0) instanceof TextElement);
+		assertEquals("Fourth fragment should be TextElement", true, fragments.get(3) instanceof TextElement);
 	}
 }
