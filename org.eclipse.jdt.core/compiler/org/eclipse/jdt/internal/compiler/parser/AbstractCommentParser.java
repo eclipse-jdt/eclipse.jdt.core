@@ -1511,7 +1511,8 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		this.nonRegionTagCount = 0;
 		try {
 			snippetTag = createSnippetTag();
-			if (!parseForColon()) {
+			Map<String, String> snippetAttributes  = new HashMap();
+			if (!parseTillColon(snippetAttributes)) {
 				int token = readTokenSafely();
 				if (token != TerminalTokens.TokenNameIdentifier) {
 					valid = false;
@@ -1669,6 +1670,27 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						if (containsNewLine(this.scanner.getCurrentTokenString())) {
 							if (this.lineStarted) {
 								if (this.textStart != -1 && this.textStart < textEndPosition) {
+									if (isProperties(snippetAttributes)) { //single quotes
+										String str = new String(this.source, this.textStart,
+												textEndPosition - this.textStart);
+										if (str.length() > 0 && (str.charAt(0) == '*' ||  str.charAt(0) == '#' ))  {
+											if(str.charAt(0) == '*' )
+												str = str.substring(1);
+											str = str.stripLeading().stripTrailing();
+											if (str.length() > 0 && str.charAt(0) == '#'
+													&& str.charAt(str.length() - 1) == ':') {
+												str = SINGLE_LINE_COMMENT + str.substring(1, str.length() - 1);
+												Object innerTag = parseSnippetInlineTags(str, snippetTag);
+												if (innerTag != null) {
+													addSnippetInnerTag(innerTag, snippetTag);
+													this.snippetInlineTagStarted = true;
+													this.lineStarted = false;
+													this.textStart = -1;
+													break;
+												}
+											}
+										}
+									}
 									pushSnippetText(this.textStart, textEndPosition, true, snippetTag);
 									this.nonRegionTagCount = 0;
 								}
@@ -1750,6 +1772,19 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		}
 		return retVal;
 	}
+	private boolean isProperties(Map<String, String> snippetAttributes) {
+		if (snippetAttributes.size()==0)
+			return false;
+		for (Map.Entry<String, String> entry : snippetAttributes.entrySet()) {
+		    String key = entry.getKey();
+		    String value = entry.getValue();
+		    if(key.equals("lang") && value.equals("properties")) { //$NON-NLS-1$ //$NON-NLS-2$
+		    	return true;
+		    }
+		}
+		return false;
+	}
+
 	private String extractSnippet(String contents, String region) {
 		String snippetString = ""; //$NON-NLS-1$
 		final String START  = "start"; //$NON-NLS-1$
@@ -1818,10 +1853,12 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	}
 
 
-	private boolean parseForColon() {
+	private boolean parseTillColon(Map<String, String> snippetAttributes) {
 		boolean isValid =  true;
 		boolean colonTokenFound = false;
 		int token;
+		String key = null;
+		boolean lookForValue = false;
 		while (this.index < this.scanner.eofPosition) {
 			token = readTokenSafely();
 			switch(token) {
@@ -1846,6 +1883,49 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 					consumeToken();
 					colonTokenFound = true;
 					break;
+				case TerminalTokens.TokenNameStringLiteral:
+				case TerminalTokens.TokenNameIdentifier: // name and equal can come for attribute
+					String isFile = this.scanner.getCurrentTokenString();
+					if(isFile.equals("file")) { //$NON-NLS-1$
+						isValid = false;
+						break;
+					}
+					consumeToken();
+					if (key == null)
+						key = this.scanner.getCurrentTokenString();
+					if (lookForValue && key != null) {
+						String value = this.scanner.getCurrentTokenString();
+						snippetAttributes.put(key,
+								token == TerminalTokens.TokenNameStringLiteral ? value.substring(1, value.length() - 1)
+										: value);
+						lookForValue = false;
+						key = null;
+					}
+
+				 	break;
+				case TerminalTokens.TokenNameEQUAL :
+					consumeToken();
+					lookForValue=true;
+					break;
+				case TerminalTokens.TokenNameERROR:
+					String currentTokenString = this.scanner.getCurrentTokenString();
+					if(currentTokenString.length()> 1 && currentTokenString.charAt(0) =='\'' && currentTokenString.charAt(currentTokenString.length()-1) =='\'') {
+						if (lookForValue && key != null) {
+							String value = this.scanner.getCurrentTokenString();
+							snippetAttributes.put(key, value.substring(1, value.length() - 1));
+							lookForValue = false;
+							key = null;
+							break;
+						}
+					}
+					if (this.scanner.currentCharacter == '"') {
+						if (!lookForValue)
+							isValid = false;
+					}
+					consumeToken();
+
+					break;
+
 				default :
 					isValid = false;
 					break;
@@ -2219,7 +2299,12 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 																if (REGION.equals(attribute)) {
 																	regionName = value;
 																} else if (TARGET.equals(attribute)) {
-																	type = parseLinkReference(slScanner.getCurrentTokenStartPosition(), value);
+																	String originalTokenString = this.scanner.getCurrentTokenString();
+																	int offset = originalTokenString.lastIndexOf(tokenString);
+																	if(offset == -1 ) {
+																		offset = 1- tokenString.length(); // for # converted to // current position at end
+																	}
+																	type = parseLinkReference(slScanner.getCurrentTokenStartPosition() + offset, value);
 																	if (type != null) {
 																		map.put(attribute, type);
 																		hasTarget = true;
@@ -2264,7 +2349,11 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 																	regionName = value;
 																} else if (TARGET.equals(attribute)) {
 																	String originalTokenString = this.scanner.getCurrentTokenString();
-																	type = parseLinkReference(slScanner.getCurrentTokenStartPosition() + originalTokenString.lastIndexOf(tokenString)/* add offset*/, value);
+																	int offset = originalTokenString.lastIndexOf(tokenString);
+																	if(offset == -1 ) {
+																		offset = 1- tokenString.length(); // for # converted to // current position at end
+																	}
+																	type = parseLinkReference(slScanner.getCurrentTokenStartPosition() + offset, value);
 																	if (type != null) {
 																		map.put(attribute, type);
 																		hasTarget = true;
