@@ -3624,11 +3624,6 @@ public void testExtraLibraries11() throws Exception {
 			JavaCore.VERSION_1_4);
 		createFile("/P/lib2.jar", "");
 		startDeltas();
-		if ("macosx".equals(System.getProperty("osgi.os"))) {
-			// necessary for filesystems with timestamps only upto seconds (eg. Mac)
-			// "lib1.jar" was created above and is modified below.
-			Thread.sleep(2000);
-		}
 		createLibrary(p, "lib1.jar", null, new String[0],
 			new String[] {
 				"META-INF/MANIFEST.MF",
