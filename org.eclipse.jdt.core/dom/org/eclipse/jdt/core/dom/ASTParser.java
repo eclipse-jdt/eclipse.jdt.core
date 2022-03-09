@@ -1158,12 +1158,6 @@ public class ASTParser {
 				break;
 			case K_COMPILATION_UNIT :
 				CompilationUnitDeclaration compilationUnitDeclaration = null;
-				String projectPath = null;
-				if (this.project != null
-						&& this.project.getProject() != null
-						&& this.project.getProject().getWorkspace()!=null) {
-					projectPath = this.project.getProject().getWorkspace().getRoot().getLocation().toString() + this.project.getPath().toString();
-				}
 				try {
 					NodeSearcher searcher = null;
 					org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit = null;
@@ -1276,7 +1270,7 @@ public class ASTParser {
 								searcher,
 								this.compilerOptions,
 								flags,
-								projectPath);
+								this.project);
 						needToResolveBindings = false;
 					}
 					CompilationUnit result = CompilationUnitResolver.convert(
@@ -1290,7 +1284,7 @@ public class ASTParser {
 						flags,
 						monitor,
 						this.project != null,
-						projectPath);
+						this.project);
 					result.setTypeRoot(this.typeRoot);
 					return result;
 				} finally {

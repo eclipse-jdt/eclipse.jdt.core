@@ -310,7 +310,7 @@ class CompilationUnitResolver extends Compiler {
 			int flags,
 			IProgressMonitor monitor,
 			boolean fromJavaProject,
-			String projectPath) {
+			IJavaProject project) {
 		BindingResolver resolver = null;
 		AST ast = AST.newAST(apiLevel, JavaCore.ENABLED.equals(options.get(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES)));
 		String sourceModeSetting = (String) options.get(JavaCore.COMPILER_SOURCE);
@@ -339,7 +339,7 @@ class CompilationUnitResolver extends Compiler {
 		}
 		ast.setBindingResolver(resolver);
 		converter.setAST(ast);
-		converter.docParser.setProjectPath(projectPath);
+		converter.docParser.setProjectPath(project);
 		compilationUnit = converter.convert(compilationUnitDeclaration, source);
 		compilationUnit.setLineEndTable(compilationUnitDeclaration.compilationResult.getLineSeparatorPositions());
 		ast.setDefaultNodeFlag(0);
@@ -547,7 +547,7 @@ class CompilationUnitResolver extends Compiler {
 			org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit,
 			NodeSearcher nodeSearcher,
 			Map settings,
-			int flags, String projectPath) {
+			int flags, IJavaProject projectPath) {
 		if (sourceUnit == null) {
 			throw new IllegalStateException();
 		}
