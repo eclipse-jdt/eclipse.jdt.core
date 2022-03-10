@@ -1526,15 +1526,14 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 					final String FILE = "file"; //$NON-NLS-1$
 					final String CLASS = "class"; //$NON-NLS-1$
 					consumeToken();
+					valid = false;
 					String snippetType = this.scanner.getCurrentTokenString();
 					switch (snippetType) {
 						case FILE:
 							consumeToken();
 							int start = this.scanner.getCurrentTokenStartPosition();
 							token = readTokenSafely();
-							if (token!=TerminalTokens.TokenNameEQUAL) {
-								valid = false;
-							} else {
+							if (token==TerminalTokens.TokenNameEQUAL) {
 								consumeToken();
 								token = readTokenSafely();
 								String regionName = null;
@@ -1550,11 +1549,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 										} catch (IOException e) {
 											valid = false;
 										}
-									} else {
-										valid = false;
 									}
-								} else {
-									valid = false;
 								}
 							}
 							if (snippetTag != null) {
@@ -1565,9 +1560,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 							consumeToken();
 							start = this.scanner.getCurrentTokenStartPosition();
 							token = readTokenSafely();
-							if (token!=TerminalTokens.TokenNameEQUAL) {
-								valid = false;
-							} else {
+							if (token==TerminalTokens.TokenNameEQUAL) {
 								consumeToken();
 								token = readTokenSafely();
 								String regionName = null;
@@ -1588,11 +1581,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 										} catch (IOException e) {
 											valid = false;
 										}
-									} else {
-										valid = false;
 									}
-								} else {
-									valid = false;
 								}
 							}
 							if (snippetTag != null) {
@@ -1778,7 +1767,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	}
 
 	private boolean readFileWithRegions(int start, String regionName, Path filePath) throws IOException {
-		boolean valid;
+		boolean valid = false;
 		int token;
 		int lastIndex;
 		String contents = Files.readString(filePath);
@@ -1789,6 +1778,8 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		while (this.index<this.scanner.eofPosition) {
 			token = readTokenSafely();
 			if (token == TerminalTokens.TokenNameRBRACE) {
+				end = this.index;
+				valid = true;
 				break;
 			} else if (token == TerminalTokens.TokenNameIdentifier) {
 				consumeToken();
@@ -1816,20 +1807,26 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						||(regionName.charAt(0) =='\'' && regionName.charAt(lastIndex)=='\'')) {
 					regionName = regionName.substring(1, lastIndex); // strip out quotes
 					end = this.scanner.getCurrentTokenEndPosition();
-				} else {
-					valid = false;
 				}
-
-			} else {
-				valid = false;
+				while (this.index<this.scanner.eofPosition) {
+					token = readTokenSafely();
+					if (token == TerminalTokens.TokenNameRBRACE) {
+						end = this.index;
+						valid = true;
+						break;
+					} else {
+						consumeToken();
+					}
+				}
 			}
 		}
 
-		String snippetText = extractSnippet(contents, regionName);
-		pushExternalSnippetText(snippetText, start, end + 1);
-		valid = true;
-		this.index = end + 1;
-		this.scanner.currentPosition = end + 1;
+		if (valid) {
+			String snippetText = extractSnippet(contents, regionName);
+			pushExternalSnippetText(snippetText, start, end);
+			this.index = end;
+			this.scanner.currentPosition = end;
+		}
 		return valid;
 	}
 
