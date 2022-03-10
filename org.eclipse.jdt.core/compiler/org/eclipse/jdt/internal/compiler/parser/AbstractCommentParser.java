@@ -98,7 +98,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	protected int tagValue = NO_TAG_VALUE;
 	protected int lastBlockTagValue = NO_TAG_VALUE;
 	protected boolean snippetInlineTagStarted = false;
-	private int nonRegionTagCount;
+	private int nonRegionTagCount, inlineTagCount;
 	final static String SINGLE_LINE_COMMENT = "//"; //$NON-NLS-1$
 
 	// Line pointers
@@ -1510,6 +1510,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		}
 		Object snippetTag = null;
 		this.nonRegionTagCount = 0;
+		this.inlineTagCount = 0;
 		try {
 			snippetTag = createSnippetTag();
 			Map<String, String> snippetAttributes  = new HashMap();
@@ -1638,6 +1639,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 									if (!textToBeAdded.isBlank()) {
 										pushSnippetText(this.textStart, this.index-1, false, snippetTag);
 										this.nonRegionTagCount = 0;
+										this.inlineTagCount = 0;
 									}
 								}
 							}
@@ -1670,6 +1672,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 									}
 									pushSnippetText(this.textStart, textEndPosition, true, snippetTag);
 									this.nonRegionTagCount = 0;
+									this.inlineTagCount = 0;
 								}
 							}
 							this.lineStarted = false;
@@ -1687,6 +1690,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 							indexOfLastComment = indexOfLastSingleComment(tokenString.substring(2),noSingleLineComm);
 						if (!handleNow) {
 							this.nonRegionTagCount = 0;
+							this.inlineTagCount = 0;
 						}
 						Object innerTag = parseSnippetInlineTags(indexOfLastComment == -1 ? tokenString : tokenString.substring(indexOfLastComment+2), snippetTag);
 						if (innerTag != null) {
@@ -1710,6 +1714,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 								pushSnippetText(this.textStart,(innerTag!=null &&  indexOfLastComment >=0) ? textPos+indexOfLastComment+2:textPos, lvalid, snippetTag);
 								if (handleNow) {
 									this.nonRegionTagCount = 0;
+									this.inlineTagCount = 0;
 								}
 							}
 						}
@@ -2196,7 +2201,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 											}
 											tokenEnd = commentStart + 1 + slScanner.getCurrentTokenEndPosition();
 											inlineTag = createSnippetInnerTag(newTagName, tokenStart, tokenEnd);
-											addTagProperties(inlineTag, map);
+											addTagProperties(inlineTag, map, ++this.inlineTagCount);
 											if (createRegion) {
 												List<Object> tags = new ArrayList<>();
 												tags.add(inlineTag);
@@ -2306,7 +2311,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 											}
 											tokenEnd = commentStart + 1 + slScanner.getCurrentTokenEndPosition();
 											inlineTag = createSnippetInnerTag(newTagName, tokenStart, tokenEnd);
-											addTagProperties(inlineTag, map);
+											addTagProperties(inlineTag, map, ++this.inlineTagCount);
 											if (createRegion) {
 												List<Object> tags = new ArrayList<>();
 												tags.add(inlineTag);
@@ -2441,7 +2446,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 											tokenEnd = commentStart + 1 + slScanner.getCurrentTokenEndPosition();
 											if (hasTarget) {
 												inlineTag = createSnippetInnerTag(newTagName, tokenStart, tokenEnd);
-												addTagProperties(inlineTag, map);
+												addTagProperties(inlineTag, map, ++this.inlineTagCount);
 												if (createRegion) {
 													List<Object> tags = new ArrayList<>();
 													tags.add(inlineTag);
@@ -2773,7 +2778,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 
 	protected abstract Object createSnippetRegion(String name, List<Object> tags, Object snippetTag, boolean isDummyRegion, boolean considerPrevTag);
 
-	protected abstract void addTagProperties(Object Tag, Map<String, Object> map);
+	protected abstract void addTagProperties(Object Tag, Map<String, Object> map, int tagCount);
 
 	protected abstract void addSnippetInnerTag(Object tag, Object snippetTag);
 

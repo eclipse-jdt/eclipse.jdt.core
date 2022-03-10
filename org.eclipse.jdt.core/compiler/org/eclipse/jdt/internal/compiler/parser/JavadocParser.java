@@ -381,7 +381,7 @@ public class JavadocParser extends AbstractCommentParser {
 	}
 
 	@Override
-	protected void addTagProperties(Object Tag, Map<String, Object> map) {
+	protected void addTagProperties(Object Tag, Map<String, Object> map, int tagCount) {
 		return;
 	}
 

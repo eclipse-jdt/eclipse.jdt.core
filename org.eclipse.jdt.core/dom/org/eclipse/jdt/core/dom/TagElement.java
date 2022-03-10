@@ -446,6 +446,34 @@ public final class TagElement extends AbstractTagElement {
 		return regions;
 	}
 
+	/**
+	 * Returns the list of non dummy JavaDocRegions starting at this ASTNode and IDocElement.
+	 *
+	 * @return the list of non dummy JavaDocRegions starting at this ASTNode and IDocElement.
+	 * (element type: {@link JavaDocRegion})
+	 * @exception UnsupportedOperationException if this operation is used less than JLS18
+	 * @since 3.29 BETA_JAVA 18
+	 */
+	public List tagRegionsStartingAtTextElement(ASTNode docElem) {
+		unsupportedBelow18();
+		List<JavaDocRegion> regions = new ArrayList<>();
+		if (docElem == null || !(docElem instanceof TextElement)) {
+			return regions;
+		} else {
+			TextElement textElem= (TextElement) docElem;
+			List<JavaDocRegion> javaDocRegions = this.tagRegions();
+			for (JavaDocRegion region : javaDocRegions) {
+				if (!region.isDummyRegion()) {
+					Object textObj= region.getProperty(TagProperty.TAG_PROPERTY_SNIPPET_REGION_TEXT);
+					if (textElem.equals(textObj)) {
+						regions.add(region);
+					}
+				}
+			}
+		}
+		return regions;
+	}
+
 	@Override
 	int memSize() {
 		return super.memSize();

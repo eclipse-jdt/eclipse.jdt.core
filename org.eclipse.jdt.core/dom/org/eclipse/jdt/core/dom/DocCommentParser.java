@@ -458,7 +458,7 @@ class DocCommentParser extends AbstractCommentParser {
 	}
 
 	@Override
-	protected void addTagProperties(Object tag, Map<String, Object> map) {
+	protected void addTagProperties(Object tag, Map<String, Object> map, int tagCount) {
 		if (tag instanceof TagElement) {
 			TagElement tagElement = (TagElement) tag;
 			map.forEach((k, v) -> {
@@ -471,6 +471,7 @@ class DocCommentParser extends AbstractCommentParser {
 				}
 				tagElement.tagProperties().add(tagProperty);
 			});
+			tagElement.setProperty(TagProperty.TAG_PROPERTY_SNIPPET_INLINE_TAG_COUNT, tagCount);
 		}
 	}
 
@@ -1181,6 +1182,10 @@ class DocCommentParser extends AbstractCommentParser {
 						}
 						if (endPos < end) {
 							endPos = end;
+						}
+						Object textVal = region.getProperty(TagProperty.TAG_PROPERTY_SNIPPET_REGION_TEXT);
+						if (!(textVal instanceof TextElement)) {
+							region.setProperty(TagProperty.TAG_PROPERTY_SNIPPET_REGION_TEXT, text);
 						}
 						region.setSourceRange(startPos, endPos-startPos);
 						if (isRegionToBeEnded(region)) {
