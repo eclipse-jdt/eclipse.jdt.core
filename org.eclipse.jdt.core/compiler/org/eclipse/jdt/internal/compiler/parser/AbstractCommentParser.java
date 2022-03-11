@@ -28,16 +28,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.core.runtime.IPath;
-import org.eclipse.jdt.core.IClasspathEntry;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
-import org.eclipse.jdt.internal.core.ClasspathEntry;
 
 /**
  * Parser specialized for decoding javadoc comments
@@ -131,8 +126,9 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	protected int providesReferencesPtr = -1;
 	protected TypeReference[] providesReferencesStack;
 
-	// Snippet search path
-	private IJavaProject project;
+	// Snippet search project path as src classpath for file/class support
+	private String projectPath;
+	private List srcClasspath;
 
 	protected AbstractCommentParser(Parser sourceParser) {
 		this.sourceParser = sourceParser;
@@ -1755,11 +1751,12 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	}
 
 	private Path getFilePathFromFileName(String fileName) {
-		String pPath = getProjectPath();//check for null here
-		ArrayList<IPath> sourceClassPaths = getSourceClassPaths();
+		if(this.projectPath == null)
+			return null;
+		ArrayList<String> sourceClassPaths = (ArrayList<String>) this.srcClasspath;
 		Path filePath = null;
-		for (IPath iPath : sourceClassPaths) {
-			filePath = FileSystems.getDefault().getPath(pPath, iPath.removeFirstSegments(1).toString(), fileName);
+		for (String iPath : sourceClassPaths) {
+			filePath = FileSystems.getDefault().getPath(this.projectPath, iPath, fileName);
 			if(filePath.toFile().exists())
 				break;
 		}
@@ -1828,36 +1825,6 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			this.scanner.currentPosition = end;
 		}
 		return valid;
-	}
-
-	private ArrayList<IPath> getSourceClassPaths() {
-		IClasspathEntry[] resolvedClasspath = null;
-		ArrayList<IPath> srcClassPath = new ArrayList<>();
-		try {
-			resolvedClasspath = this.project.getResolvedClasspath(true);
-		} catch (JavaModelException e) {
-			//do nothing
-		}
-
-		for (IClasspathEntry entry : resolvedClasspath) {
-		    if (entry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
-		    	if(entry instanceof ClasspathEntry) {
-		    		IPath path = ((ClasspathEntry)entry).getPath();
-		    		srcClassPath.add(path);
-		    	}
-		    }
-		}
-		return srcClassPath;
-	}
-
-	private String getProjectPath() {
-		String pPath = null;
-		if (this.project != null && this.project.getProject() != null
-				&& this.project.getProject().getWorkspace() != null) {
-			pPath = this.project.getProject().getWorkspace().getRoot().getLocation().toString()
-					+ this.project.getPath().toString();
-		}
-		return pPath;
 	}
 
 	private boolean isProperties(Map<String, String> snippetAttributes) {
@@ -3161,8 +3128,13 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		}
 	}
 
-	public void setProjectPath(IJavaProject projectPath) {
-		this.project = projectPath;
+	public void setProjectPath(String projectPath) {
+		this.projectPath = projectPath;
 	}
+
+	public void setProjectSrcClasspath(List path) {
+		this.srcClasspath = path;
+	}
+
 
 }

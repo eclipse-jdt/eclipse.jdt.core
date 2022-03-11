@@ -28,9 +28,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.SubMonitor;
+import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
@@ -69,6 +71,7 @@ import org.eclipse.jdt.internal.core.BinaryMember;
 import org.eclipse.jdt.internal.core.BinaryModule;
 import org.eclipse.jdt.internal.core.CancelableNameEnvironment;
 import org.eclipse.jdt.internal.core.CancelableProblemFactory;
+import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.INameEnvironmentWithProgress;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.LocalVariable;
@@ -339,13 +342,47 @@ class CompilationUnitResolver extends Compiler {
 		}
 		ast.setBindingResolver(resolver);
 		converter.setAST(ast);
-		converter.docParser.setProjectPath(project);
+		converter.docParser.setProjectPath(CompilationUnitResolver.getProjectPath(project));
+		converter.docParser.setProjectSrcClasspath(CompilationUnitResolver.getSourceClassPaths(project));
 		compilationUnit = converter.convert(compilationUnitDeclaration, source);
 		compilationUnit.setLineEndTable(compilationUnitDeclaration.compilationResult.getLineSeparatorPositions());
 		ast.setDefaultNodeFlag(0);
 		ast.setOriginalModificationCount(ast.modificationCount());
 		return compilationUnit;
 	}
+	private static String getProjectPath(IJavaProject project) {
+		String pPath = null;
+		if (project != null && project.getProject() != null
+				&& project.getProject().getWorkspace() != null) {
+			pPath = project.getProject().getWorkspace().getRoot().getLocation().toString()
+					+ project.getPath().toString();
+		}
+		return pPath;
+	}
+	private static ArrayList<String> getSourceClassPaths(IJavaProject project) {
+		ArrayList<String> srcClassPath = new ArrayList<>();
+		if(project == null)
+			return srcClassPath;
+		if(project.getProject() == null)
+			return srcClassPath;
+		IClasspathEntry[] resolvedClasspath = null;
+		try {
+			resolvedClasspath = project.getResolvedClasspath(true);
+		} catch (JavaModelException e) {
+			//do nothing
+		}
+
+		for (IClasspathEntry entry : resolvedClasspath) {
+		    if (entry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+		    	if(entry instanceof ClasspathEntry) {
+		    		IPath path = ((ClasspathEntry)entry).getPath();
+		    		srcClassPath.add(path.removeFirstSegments(1).toString());
+		    	}
+		    }
+		}
+		return srcClassPath;
+	}
+
 
 	protected static CompilerOptions getCompilerOptions(Map options, boolean statementsRecovery) {
 		CompilerOptions compilerOptions = new CompilerOptions(options);
@@ -547,7 +584,7 @@ class CompilationUnitResolver extends Compiler {
 			org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit,
 			NodeSearcher nodeSearcher,
 			Map settings,
-			int flags, IJavaProject projectPath) {
+			int flags, IJavaProject project) {
 		if (sourceUnit == null) {
 			throw new IllegalStateException();
 		}
@@ -562,8 +599,10 @@ class CompilationUnitResolver extends Compiler {
 					compilerOptions,
 					new DefaultProblemFactory()),
 			false);
-		if (projectPath != null) {
-			parser.javadocParser.setProjectPath(projectPath);
+		if (project != null) {
+			parser.javadocParser.setProjectPath(getProjectPath(project));
+			parser.javadocParser.setProjectSrcClasspath(getSourceClassPaths(project));
+
 		}
 		CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, compilerOptions.maxProblemsPerUnit);
 		CompilationUnitDeclaration compilationUnitDeclaration = parser.dietParse(sourceUnit, compilationResult);
