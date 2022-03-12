@@ -376,6 +376,12 @@ public class JavadocParser extends AbstractCommentParser {
 	}
 
 	@Override
+	protected void setSnippetID(Object tag, String value) {
+		// do nothing
+
+	}
+
+	@Override
 	protected Object createSnippetInnerTag(String tagName, int start, int end) {
 		return tagName;
 	}
@@ -1246,5 +1252,6 @@ public class JavadocParser extends AbstractCommentParser {
 		return true;
 
 	}
+
 
 }

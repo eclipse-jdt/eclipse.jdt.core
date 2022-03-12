@@ -314,6 +314,13 @@ class DocCommentParser extends AbstractCommentParser {
 	}
 
 	@Override
+	protected void setSnippetID(Object tag, String value) {
+		if (tag instanceof TagElement) {
+			((TagElement) tag).setProperty(TagProperty.TAG_PROPERTY_SNIPPET_ID, value);
+		}
+	}
+
+	@Override
 	protected Object createSnippetRegion(String name, List<Object> tags, Object snippetTag, boolean isDummyRegion, boolean considerPrevTag) {
 		if (!isDummyRegion) {
 			return createSnippetOriginalRegion(name, tags);

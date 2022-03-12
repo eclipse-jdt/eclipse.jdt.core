@@ -1603,6 +1603,9 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 					valid = false;
 				}
 			}
+			if(hasID(snippetAttributes)) {
+				this.setSnippetID(snippetTag, getID(snippetAttributes));
+			}
 			int textEndPosition = this.index;
 			this.textStart = this.index;
 			int token;
@@ -1843,6 +1846,27 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		    }
 		}
 		return false;
+	}
+
+	private boolean hasID(Map<String, String> snippetAttributes) {
+		if (snippetAttributes.size()==0)
+			return false;
+		for (String key: snippetAttributes.keySet()) {
+			   if(key.equals("id")) { //$NON-NLS-1$
+			    	return true;
+			    }
+		}
+		return false;
+	}
+	private String getID(Map<String, String> snippetAttributes) {
+		for (Map.Entry<String, String> entry : snippetAttributes.entrySet()) {
+		    String key = entry.getKey();
+		    String value = entry.getValue();
+		    if(key.equals("id") ) { //$NON-NLS-1$ 
+		    	return value;
+		    }
+		}
+		return ""; //$NON-NLS-1$
 	}
 
 	private String extractSnippet(String contents, String region) {
@@ -2785,6 +2809,8 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	protected abstract void setSnippetError(Object tag, String value);
 
 	protected abstract void setSnippetIsValid(Object tag, boolean value);
+
+	protected abstract void setSnippetID(Object tag, String value);
 
 	/*
 	 * Push a throws type ref in ast node stack.

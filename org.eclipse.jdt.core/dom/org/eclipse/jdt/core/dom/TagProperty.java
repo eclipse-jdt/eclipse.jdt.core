@@ -64,6 +64,8 @@ public class TagProperty extends ASTNode implements IDocElement{
 
 	public static final String TAG_PROPERTY_SNIPPET_ERROR = "SnippetError"; //$NON-NLS-1$
 
+	public static final String TAG_PROPERTY_SNIPPET_ID =  "SnippetID"; //$NON-NLS-1$
+
 	public static final String TAG_PROPERTY_SNIPPET_INLINE_TAG_COUNT = "SnippetInlineTagCount"; //$NON-NLS-1$
 
 	public static final String TAG_PROPERTY_SNIPPET_REGION_TEXT = "SnippetRegionTextElement"; //$NON-NLS-1$
@@ -74,6 +76,8 @@ public class TagProperty extends ASTNode implements IDocElement{
 	 * or null if uninitialized.
 	 */
 	private static final List PROPERTY_DESCRIPTORS;
+
+
 
 	static {
 		List propertyList = new ArrayList(4);
