@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -1227,6 +1231,18 @@ void setSourceStart(int sourceStart);
 	int JavadocInvalidModuleQualification = Javadoc + Internal + 1810;
 	/** @since 3.29*/
 	int JavadocInvalidModule = Javadoc + Internal + 1811;
+	/** @since 3.29 */
+	int JavadocInvalidSnippet = Javadoc + Internal + 1812;
+	/** @since 3.29 */
+	int JavadocInvalidSnippetMissingColon = Javadoc + Internal + 1813;
+	/** @since 3.29 */
+	int JavadocInvalidSnippetContentNewLine = Javadoc + Internal + 1814;
+	/** @since 3.29 */
+	int JavadocInvalidSnippetRegionNotClosed = Javadoc + Internal + 1815;
+	/** @since 3.29 */
+	int JavadocInvalidSnippetRegexSubstringTogether = Javadoc + Internal + 1816;
+	/** @since 3.29 */
+	int JavadocInvalidSnippetDuplicateRegions = Javadoc + Internal + 1817;
 
 	/**
 	 * Generics

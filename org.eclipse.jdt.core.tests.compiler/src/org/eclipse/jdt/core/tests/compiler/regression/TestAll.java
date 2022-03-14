@@ -227,6 +227,7 @@ public static Test suite() {
 	 ArrayList since_18 = new ArrayList();
 	 since_18.add(SwitchPatternTest.class);
 	 since_18.add(NullAnnotationTests18.class);
+	 since_18.add(JavadocTest_18.class);
 
 	 // Build final test suite
 	TestSuite all = new TestSuite(TestAll.class.getName());

@@ -1319,4 +1319,15 @@ class DocCommentParser extends AbstractCommentParser {
 			this.docComment.tags().add(this.astStack[idx]);
 		}
 	}
+
+	@Override
+	protected boolean areRegionsClosed() {
+		// do nothing
+		return true;
+	}
+
+	@Override
+	protected void setRegionPosition(int currentPosition) {
+
+	}
 }

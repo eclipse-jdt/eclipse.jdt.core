@@ -1519,6 +1519,10 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 				int token = readTokenSafely();
 				boolean eitherNameorClass = token == TerminalTokens.TokenNameIdentifier || token == TerminalTokens.TokenNameclass ;
 				if (!eitherNameorClass ) {
+					this.setSnippetError(snippetTag, "Missing colon"); //$NON-NLS-1$
+					this.setSnippetIsValid(snippetTag, false);
+					if(this.reportProblems)
+						this.sourceParser.problemReporter().javadocInvalidSnippetMissingColon(this.index, this.lineEnd);
 					valid = false;
 				} else {
 					final String FILE = "file"; //$NON-NLS-1$
@@ -1546,6 +1550,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 											valid = filePath==null ? false : readFileWithRegions(start, regionName, filePath);
 										} catch (IOException e) {
 											valid = false;
+											this.setSnippetError(snippetTag, "Error in reading file"); //$NON-NLS-1$
 										}
 									}
 								}
@@ -1578,6 +1583,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 											valid = filePath==null ? false : readFileWithRegions(start, regionName, filePath);
 										} catch (IOException e) {
 											valid = false;
+											this.setSnippetError(snippetTag, "Error in reading class"); //$NON-NLS-1$
 										}
 									}
 								}
@@ -1598,9 +1604,17 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 							consumeToken();
 						} else {
 							valid = false;
+							if(this.reportProblems) {
+								//after colon new line required
+								this.sourceParser.problemReporter().javadocInvalidSnippetContentNewLine(this.index, this.lineEnd);
+							}
+							this.setSnippetIsValid(snippetTag, false);
+							this.setSnippetError(snippetTag, "Snippet content should be in a new line"); //$NON-NLS-1$
+
 						}
 					}
 				} else {
+					//when will this happen?? never?
 					valid = false;
 				}
 			}
@@ -1741,6 +1755,13 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			}
 		}
 		finally {
+			if(!areRegionsClosed()) {
+				if(this.reportProblems) {
+					this.sourceParser.problemReporter().javadocInvalidSnippetRegionNotClosed(this.index, this.lineEnd);
+				}
+				this.setSnippetError(snippetTag, "Region not closed"); //$NON-NLS-1$
+				this.setSnippetIsValid(snippetTag, false);
+			}
 			// we have to make sure that this is reset to the previous value even if an exception occurs
 			this.scanner.tokenizeWhiteSpace = tokenWhiteSpace;
 			this.scanner.tokenizeComments = tokenizeComments;
@@ -1752,6 +1773,10 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			this.scanner.currentPosition = lastRBracePosition-1;
 			this.index = lastRBracePosition-1;
 			retVal = true;
+		}
+		if (retVal == false && openBraces == 0) {
+			this.scanner.currentPosition = lastRBracePosition - 1;
+			this.index = lastRBracePosition - 1;
 		}
 		if (snippetTag != null) {
 			this.setSnippetIsValid(snippetTag, retVal);
@@ -2175,6 +2200,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 																map.put(attribute, value);
 																if ((attribute.equals(SUBSTRING) && (map.get(REGEX) != null))
 																		|| (attribute.equals(REGEX) && (map.get(SUBSTRING) != null))) {
+																	reportRegexSubstringTogether(snippetTag);
 																	return inlineTag;
 																}
 															}
@@ -2189,6 +2215,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 																	break;
 																case  REGION :
 																	createRegion = true;
+																	setRegionPosition(slScanner.currentPosition);
 																	break;
 																default :
 																	break;
@@ -2211,6 +2238,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 																map.put(attribute, value);
 																if ((attribute.equals(SUBSTRING) && (map.get(REGEX) != null))
 																		|| (attribute.equals(REGEX) && (map.get(SUBSTRING) != null))) {
+																	reportRegexSubstringTogether(snippetTag);
 																	return inlineTag;
 																}
 															}
@@ -2285,6 +2313,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 																map.put(attribute, value);
 																if ((attribute.equals(SUBSTRING) && (map.get(REGEX) != null))
 																		|| (attribute.equals(REGEX) && (map.get(SUBSTRING) != null))) {
+																	reportRegexSubstringTogether(snippetTag);
 																	return inlineTag;
 																}
 															}
@@ -2299,6 +2328,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 																	break;
 																case  REGION :
 																	createRegion = true;
+																	setRegionPosition(slScanner.currentPosition);
 																	break;
 																default :
 																	break;
@@ -2324,6 +2354,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 																map.put(attribute, value);
 																if ((attribute.equals(SUBSTRING) && (map.get(REGEX) != null))
 																		|| (attribute.equals(REGEX) && (map.get(SUBSTRING) != null))) {
+																	reportRegexSubstringTogether(snippetTag);
 																	return inlineTag;
 																}
 															}
@@ -2411,6 +2442,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 																	map.put(attribute, value);
 																	if ((attribute.equals(SUBSTRING) && (map.get(REGEX) != null))
 																			|| (attribute.equals(REGEX) && (map.get(SUBSTRING) != null))) {
+																		reportRegexSubstringTogether(snippetTag);
 																		return inlineTag;
 																	}
 																}
@@ -2427,6 +2459,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 																	break;
 																case  REGION :
 																	createRegion = true;
+																	setRegionPosition(slScanner.currentPosition);
 																	break;
 																default :
 																	break;
@@ -2462,6 +2495,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 																	map.put(attribute, value);
 																	if ((attribute.equals(SUBSTRING) && (map.get(REGEX) != null))
 																			|| (attribute.equals(REGEX) && (map.get(SUBSTRING) != null))) {
+																		reportRegexSubstringTogether(snippetTag);
 																		return inlineTag;
 																	}
 																}
@@ -2529,6 +2563,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 															attribute = slScanner.getCurrentTokenString();
 															switch(attribute) {
 																case  REGION :
+																	setRegionPosition(slScanner.currentPosition);
 																	break;
 																default :
 																	break;
@@ -2819,6 +2854,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	}
 
 	protected abstract void closeJavaDocRegion(String name, Object snippetTag, int end);
+	protected abstract boolean areRegionsClosed();
 
 	protected void pushExternalSnippetText(String text, int start, int end) {
 		// do not store text by default
@@ -2844,6 +2880,17 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	 * Push a throws type ref in ast node stack.
 	 */
 	protected abstract boolean pushThrowName(Object typeRef);
+
+	protected abstract void setRegionPosition(int currentPosition);
+
+
+	private void reportRegexSubstringTogether(Object snippetTag) {
+		if(this.reportProblems) {
+			this.sourceParser.problemReporter().javadocInvalidSnippetRegexSubstringTogether(this.lineEnd -this.scanner.getCurrentTokenString().length() +2, this.lineEnd);
+		}
+		this.setSnippetIsValid(snippetTag, false);
+		this.setSnippetError(snippetTag, "Regex and substring together"); //$NON-NLS-1$
+	}
 
 	/*
 	 * Read current character and move index position.

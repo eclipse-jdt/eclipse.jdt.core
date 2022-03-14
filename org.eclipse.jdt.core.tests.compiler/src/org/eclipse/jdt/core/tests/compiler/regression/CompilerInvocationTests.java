@@ -775,6 +775,12 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("JavadocUndefinedType", new ProblemAttributes(CategorizedProblem.CAT_JAVADOC));
 		expectedProblemAttributes.put("JavadocUnexpectedTag", new ProblemAttributes(CategorizedProblem.CAT_JAVADOC));
 		expectedProblemAttributes.put("JavadocUnexpectedText", new ProblemAttributes(CategorizedProblem.CAT_JAVADOC));
+		expectedProblemAttributes.put("JavadocInvalidSnippet", new ProblemAttributes(CategorizedProblem.CAT_JAVADOC));
+		expectedProblemAttributes.put("JavadocInvalidSnippetMissingColon", new ProblemAttributes(CategorizedProblem.CAT_JAVADOC));
+		expectedProblemAttributes.put("JavadocInvalidSnippetContentNewLine", new ProblemAttributes(CategorizedProblem.CAT_JAVADOC));
+		expectedProblemAttributes.put("JavadocInvalidSnippetRegionNotClosed", new ProblemAttributes(CategorizedProblem.CAT_JAVADOC));
+		expectedProblemAttributes.put("JavadocInvalidSnippetRegexSubstringTogether", new ProblemAttributes(CategorizedProblem.CAT_JAVADOC));
+		expectedProblemAttributes.put("JavadocInvalidSnippetDuplicateRegions", new ProblemAttributes(CategorizedProblem.CAT_JAVADOC));
 		expectedProblemAttributes.put("JavadocUnterminatedInlineTag", new ProblemAttributes(CategorizedProblem.CAT_JAVADOC));
 		expectedProblemAttributes.put("JavadocUsingDeprecatedConstructor", new ProblemAttributes(CategorizedProblem.CAT_JAVADOC));
 		expectedProblemAttributes.put("JavadocUsingDeprecatedField", new ProblemAttributes(CategorizedProblem.CAT_JAVADOC));
@@ -1854,6 +1860,12 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("JavadocUndefinedType", new ProblemAttributes(JavaCore.COMPILER_PB_INVALID_JAVADOC));
 		expectedProblemAttributes.put("JavadocUnexpectedTag", new ProblemAttributes(JavaCore.COMPILER_PB_INVALID_JAVADOC));
 		expectedProblemAttributes.put("JavadocUnexpectedText", new ProblemAttributes(JavaCore.COMPILER_PB_INVALID_JAVADOC));
+		expectedProblemAttributes.put("JavadocInvalidSnippet", new ProblemAttributes(JavaCore.COMPILER_PB_INVALID_JAVADOC));
+		expectedProblemAttributes.put("JavadocInvalidSnippetMissingColon", new ProblemAttributes(JavaCore.COMPILER_PB_INVALID_JAVADOC));
+		expectedProblemAttributes.put("JavadocInvalidSnippetContentNewLine", new ProblemAttributes(JavaCore.COMPILER_PB_INVALID_JAVADOC));
+		expectedProblemAttributes.put("JavadocInvalidSnippetRegionNotClosed", new ProblemAttributes(JavaCore.COMPILER_PB_INVALID_JAVADOC));
+		expectedProblemAttributes.put("JavadocInvalidSnippetRegexSubstringTogether", new ProblemAttributes(JavaCore.COMPILER_PB_INVALID_JAVADOC));
+		expectedProblemAttributes.put("JavadocInvalidSnippetDuplicateRegions", new ProblemAttributes(JavaCore.COMPILER_PB_INVALID_JAVADOC));
 		expectedProblemAttributes.put("JavadocUnterminatedInlineTag", new ProblemAttributes(JavaCore.COMPILER_PB_INVALID_JAVADOC));
 		expectedProblemAttributes.put("JavadocUsingDeprecatedConstructor", new ProblemAttributes(JavaCore.COMPILER_PB_INVALID_JAVADOC));
 		expectedProblemAttributes.put("JavadocUsingDeprecatedField", new ProblemAttributes(JavaCore.COMPILER_PB_INVALID_JAVADOC));
