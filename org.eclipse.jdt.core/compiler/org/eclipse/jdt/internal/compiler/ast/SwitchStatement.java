@@ -25,7 +25,9 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.function.IntPredicate;
 
@@ -1065,22 +1067,13 @@ public class SwitchStatement extends Expression {
 			ref = tvb.firstBound instanceof ReferenceBinding ? (ReferenceBinding) tvb.firstBound : ref;
 		}
 		if (!ref.isSealed()) return false;
-		List<TypeBinding> allallowedTypes = new ArrayList<>();
+		List<ReferenceBinding> allallowedTypes = new ArrayList<>();
 		if (ref.isClass() && !ref.isAbstract())
 			allallowedTypes.add(ref);
 
-		List<TypeBinding> permittedTypes = new ArrayList<>(Arrays.asList(ref.permittedTypes()));
+		List<ReferenceBinding> permittedTypes = new ArrayList<>(Arrays.asList(ref.permittedTypes()));
 		allallowedTypes.addAll(permittedTypes);
-		int pendingTypes = allallowedTypes.size();
-		for (TypeBinding pt : allallowedTypes) {
-			for (TypeBinding type : this.caseLabelElementTypes) {
-				if (pt.isCompatibleWith(type)) {
-					--pendingTypes;
-					break;
-				}
-			}
-		}
-		if (pendingTypes > 0) {
+		if (!isExhaustiveWithCaseTypes(allallowedTypes, this.caseLabelElementTypes)) {
 			if (this instanceof SwitchExpression) // non-exhaustive switch expressions will be flagged later.
 				return false;
 			skope.problemReporter().enhancedSwitchMissingDefaultCase(this.expression);
@@ -1088,6 +1081,75 @@ public class SwitchStatement extends Expression {
 		}
 		this.switchBits |= SwitchStatement.Exhaustive;
 		return false;
+	}
+	private boolean isExhaustiveWithCaseTypes(List<ReferenceBinding> allallowedTypes,  List<TypeBinding> listedTypes) {
+		// first KISS (Keep It Simple Stupid)
+		int pendingTypes = allallowedTypes.size();
+		for (TypeBinding pt : allallowedTypes) {
+			for (TypeBinding type : listedTypes) {
+				if (pt.isCompatibleWith(type)) {
+					--pendingTypes;
+					break;
+				}
+			}
+		}
+		if (pendingTypes == 0)
+			return true;
+		// else - #KICKME (Keep It Complicated Keep Me Employed)"
+		List<TypeBinding> coveredTypes = new ArrayList<>(listedTypes);
+		List<ReferenceBinding> remainingTypes = new ArrayList<>(allallowedTypes);
+		remainingTypes.removeAll(coveredTypes);
+
+		Map<TypeBinding, List<TypeBinding>> impliedTypes = new HashMap<>();
+
+		for (ReferenceBinding type : remainingTypes) {
+			impliedTypes.put(type, new ArrayList<>());
+			List<ReferenceBinding> typesToAdd = new ArrayList<>();
+			for (ReferenceBinding impliedType : allallowedTypes) {
+				if (impliedType.equals(type)) continue;
+				if (type.isClass()) {
+					if (impliedType.isAbstract() && type.superclass().equals(impliedType)) {
+						typesToAdd.add(impliedType);
+					}
+					if (Arrays.asList(type.superInterfaces()).contains(impliedType))
+						typesToAdd.add(impliedType);
+				} else if (type.isInterface()) {
+					if (Arrays.asList(impliedType.superInterfaces()).contains(type))
+						typesToAdd.add(impliedType);
+				}
+			}
+			if (!typesToAdd.isEmpty()) {
+				impliedTypes.get(type).addAll(typesToAdd);
+			}
+		}
+		boolean delta = true;
+		while (delta) {
+			delta = false;
+			List<ReferenceBinding> typesToAdd = new ArrayList<>();
+			for (ReferenceBinding type : remainingTypes) {
+				boolean add = false;
+				if (type.isClass()) {
+					for (TypeBinding tb : impliedTypes.get(type)) {
+						if (coveredTypes.contains(tb)) {
+							add = true;
+							break;
+						}
+					}
+				} else if (type.isInterface()) {
+					add = coveredTypes.containsAll(impliedTypes.get(type));
+				}
+				if (add) {
+					typesToAdd.add(type);
+				}
+			}
+			if (!typesToAdd.isEmpty()) {
+				remainingTypes.removeAll(typesToAdd);
+				coveredTypes.addAll(typesToAdd);
+				typesToAdd.clear();
+				delta = true;
+			}
+		}
+		return remainingTypes.isEmpty();
 	}
 	private void addSecretPatternSwitchVariables(BlockScope upperScope) {
 		if (this.containsPatterns) {
