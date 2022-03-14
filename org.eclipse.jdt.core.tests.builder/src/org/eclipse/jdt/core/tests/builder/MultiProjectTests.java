@@ -174,7 +174,7 @@ public class MultiProjectTests extends BuilderTests {
 
 	public void testRemoveField() throws JavaModelException {
 		Hashtable options = JavaCore.getOptions();
-		options.put(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.IGNORE); //$NON-NLS-1$
+		options.put(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.IGNORE);
 		JavaCore.setOptions(options);
 
 		//----------------------------
@@ -229,7 +229,7 @@ public class MultiProjectTests extends BuilderTests {
 	public void testCompileOrder() throws JavaModelException {
 		Hashtable options = JavaCore.getOptions();
 		Hashtable newOptions = JavaCore.getOptions();
-		newOptions.put(JavaCore.CORE_CIRCULAR_CLASSPATH, JavaCore.WARNING); //$NON-NLS-1$
+		newOptions.put(JavaCore.CORE_CIRCULAR_CLASSPATH, JavaCore.WARNING);
 
 		JavaCore.setOptions(newOptions);
 
@@ -347,7 +347,7 @@ public class MultiProjectTests extends BuilderTests {
 	public void testCycle1() throws JavaModelException {
 		Hashtable options = JavaCore.getOptions();
 		Hashtable newOptions = JavaCore.getOptions();
-		newOptions.put(JavaCore.CORE_CIRCULAR_CLASSPATH, JavaCore.WARNING); //$NON-NLS-1$
+		newOptions.put(JavaCore.CORE_CIRCULAR_CLASSPATH, JavaCore.WARNING);
 
 		JavaCore.setOptions(newOptions);
 
@@ -430,7 +430,7 @@ public class MultiProjectTests extends BuilderTests {
 			env.waitForAutoBuild();
 
 			expectingCompilingOrder(new String[] { "/P1/src/p1/X.java", "/P2/src/p2/Y.java", "/P3/src/p3/Z.java",
-					"/P1/src/p1/X.java", "/P2/src/p2/Y.java", "/P3/src/p3/Z.java", "/P1/src/p1/X.java" });
+					"/P1/src/p1/X.java", "/P2/src/p2/Y.java", "/P1/src/p1/X.java", "/P3/src/p3/Z.java" });
 			expectingOnlySpecificProblemFor(p1, new Problem("p1",
 					"One or more cycles were detected in the build path of project 'P1'. The paths towards the cycle and cycle are:\n" +
 					"->{P1, P2}\n" +
@@ -460,7 +460,7 @@ public class MultiProjectTests extends BuilderTests {
 	public void testCycle2() throws JavaModelException {
 		Hashtable options = JavaCore.getOptions();
 		Hashtable newOptions = JavaCore.getOptions();
-		newOptions.put(JavaCore.CORE_CIRCULAR_CLASSPATH, JavaCore.WARNING); //$NON-NLS-1$
+		newOptions.put(JavaCore.CORE_CIRCULAR_CLASSPATH, JavaCore.WARNING);
 
 		JavaCore.setOptions(newOptions);
 
@@ -542,7 +542,7 @@ public class MultiProjectTests extends BuilderTests {
 			fullBuild();
 			env.waitForAutoBuild();
 			expectingCompilingOrder(new String[] { "/P1/src/p1/X.java", "/P2/src/p2/Y.java", "/P3/src/p3/Z.java",
-					"/P1/src/p1/X.java", "/P2/src/p2/Y.java", "/P3/src/p3/Z.java", "/P1/src/p1/X.java" });
+					"/P1/src/p1/X.java", "/P2/src/p2/Y.java", "/P1/src/p1/X.java", "/P3/src/p3/Z.java" });
 			expectingOnlySpecificProblemFor(p1,new Problem("p1",
 					"One or more cycles were detected in the build path of project 'P1'. The paths towards the cycle and cycle are:\n" +
 					"->{P1, P2}\n" +
@@ -574,7 +574,7 @@ public class MultiProjectTests extends BuilderTests {
 	public void testCycle3() throws JavaModelException {
 		Hashtable options = JavaCore.getOptions();
 		Hashtable newOptions = JavaCore.getOptions();
-		newOptions.put(JavaCore.CORE_CIRCULAR_CLASSPATH, JavaCore.WARNING); //$NON-NLS-1$
+		newOptions.put(JavaCore.CORE_CIRCULAR_CLASSPATH, JavaCore.WARNING);
 
 		JavaCore.setOptions(newOptions);
 
@@ -657,7 +657,7 @@ public class MultiProjectTests extends BuilderTests {
 			env.waitForAutoBuild();
 
 			expectingCompilingOrder(new String[] { "/P1/src/p1/X.java", "/P2/src/p2/Y.java", "/P3/src/p3/Z.java",
-					"/P1/src/p1/X.java", "/P2/src/p2/Y.java", "/P3/src/p3/Z.java", "/P1/src/p1/X.java" });
+					"/P1/src/p1/X.java", "/P2/src/p2/Y.java", "/P1/src/p1/X.java", "/P3/src/p3/Z.java" });
 			expectingOnlySpecificProblemFor(p1,new Problem("p1",
 					"One or more cycles were detected in the build path of project 'P1'. The paths towards the cycle and cycle are:\n" +
 					"->{P1, P2}\n" +
@@ -718,7 +718,7 @@ public class MultiProjectTests extends BuilderTests {
 	public void testCycle4() throws JavaModelException {
 		Hashtable options = JavaCore.getOptions();
 		Hashtable newOptions = JavaCore.getOptions();
-		newOptions.put(JavaCore.CORE_CIRCULAR_CLASSPATH, JavaCore.WARNING); //$NON-NLS-1$
+		newOptions.put(JavaCore.CORE_CIRCULAR_CLASSPATH, JavaCore.WARNING);
 
 		JavaCore.setOptions(newOptions);
 

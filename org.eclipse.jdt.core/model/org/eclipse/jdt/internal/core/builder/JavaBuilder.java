@@ -768,6 +768,7 @@ void mustPropagateStructuralChanges() {
 	LinkedHashSet cycleParticipants = new LinkedHashSet(3);
 	this.javaProject.updateCycleParticipants(new ArrayList(), cycleParticipants, new HashMap<>(), this.workspaceRoot, new HashSet(3), null);
 	IPath currentPath = this.javaProject.getPath();
+	Set<IProject> toRebuild = new HashSet<>();
 	Iterator i= cycleParticipants.iterator();
 	while (i.hasNext()) {
 		IPath participantPath = (IPath) i.next();
@@ -777,10 +778,12 @@ void mustPropagateStructuralChanges() {
 				if (DEBUG)
 					System.out.println("JavaBuilder: Requesting another build iteration since cycle participant " + project.getName() //$NON-NLS-1$
 						+ " has not yet seen some structural changes"); //$NON-NLS-1$
-				needRebuild();
-				return;
+				toRebuild.add(project);
 			}
 		}
+	}
+	if (!toRebuild.isEmpty()) {
+		requestProjectsRebuild(toRebuild);
 	}
 }
 
