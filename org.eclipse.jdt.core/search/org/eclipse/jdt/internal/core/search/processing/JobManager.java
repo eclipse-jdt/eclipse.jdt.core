@@ -36,7 +36,7 @@ public abstract class JobManager implements Runnable {
 
 	/* background processing */
 	protected volatile Thread processingThread;
-	protected Job progressJob;
+	protected volatile Job progressJob;
 
 	/* counter indicating whether job execution is enabled or not, disabled if <= 0
 	    it cannot go beyond 1 */
@@ -392,6 +392,8 @@ public abstract class JobManager implements Runnable {
 						}
 						job = currentJob();
 					}
+					//make sure next index job will schedule new ProgressJob:
+					JobManager.this.progressJob = null;
 					return Status.OK_STATUS;
 				}
 			}
@@ -405,8 +407,9 @@ public abstract class JobManager implements Runnable {
 
 						// must check for new job inside this sync block to avoid timing hole
 						if ((job = currentJob()) == null) {
-							if (this.progressJob != null) {
-								this.progressJob.cancel();
+							Job pJob = this.progressJob;
+							if (pJob != null) {
+								pJob.cancel();
 								this.progressJob = null;
 							}
 							if (idlingStart < 0)
@@ -433,10 +436,11 @@ public abstract class JobManager implements Runnable {
 					try {
 						this.executing = true;
 						if (this.progressJob == null) {
-							this.progressJob = new ProgressJob(Messages.bind(Messages.jobmanager_indexing, "", "")); //$NON-NLS-1$ //$NON-NLS-2$
-							this.progressJob.setPriority(Job.LONG);
-							this.progressJob.setSystem(true);
-							this.progressJob.schedule();
+							ProgressJob pJob = new ProgressJob(Messages.bind(Messages.jobmanager_indexing, "", "")); //$NON-NLS-1$ //$NON-NLS-2$
+							pJob.setPriority(Job.LONG);
+							pJob.setSystem(true);
+							pJob.schedule();
+							this.progressJob = pJob;
 						}
 						/*boolean status = */job.execute(null);
 						//if (status == FAILED) request(job);
