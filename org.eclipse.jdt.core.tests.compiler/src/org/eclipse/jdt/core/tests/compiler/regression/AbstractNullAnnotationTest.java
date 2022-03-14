@@ -92,7 +92,7 @@ public abstract class AbstractNullAnnotationTest extends AbstractComparableTest 
 			System.arraycopy(defaultLibs, 0, this.LIBS, 0, len);
 			String version = this.complianceLevel >= ClassFileConstants.JDK1_8 ? "[2.0.0,3.0.0)" : "[1.1.0,2.0.0)";
 			Bundle[] bundles = org.eclipse.jdt.core.tests.compiler.Activator.getPackageAdmin().getBundles("org.eclipse.jdt.annotation", version);
-			File bundleFile = FileLocator.getBundleFile(bundles[0]);
+			File bundleFile = FileLocator.getBundleFileLocation(bundles[0]).get();
 			if (bundleFile.isDirectory())
 				this.LIBS[len] = bundleFile.getPath()+"/bin";
 			else

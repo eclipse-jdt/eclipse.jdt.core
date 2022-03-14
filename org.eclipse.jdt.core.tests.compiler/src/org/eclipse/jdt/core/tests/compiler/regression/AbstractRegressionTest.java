@@ -1709,14 +1709,14 @@ protected static class JavacTestOptions {
 		return DefaultJavaRuntimeEnvironment.getDefaultClassPaths();
 	}
 	/** Get class library paths built from default class paths plus the JDT null annotations. */
-	protected String[] getLibsWithNullAnnotations(long sourceLevel) throws IOException {
+	protected String[] getLibsWithNullAnnotations(long sourceLevel) {
 		String[] defaultLibs = getDefaultClassPaths();
 		int len = defaultLibs.length;
 		String[] libs = new String[len+1];
 		System.arraycopy(defaultLibs, 0, libs, 0, len);
 		String version = sourceLevel < ClassFileConstants.JDK1_8 ? "[1.1.0,2.0.0)" : "[2.0.0,3.0.0)";
 		Bundle[] bundles = Platform.getBundles("org.eclipse.jdt.annotation", version);
-		File bundleFile = FileLocator.getBundleFile(bundles[0]);
+		File bundleFile = FileLocator.getBundleFileLocation(bundles[0]).get();
 		if (bundleFile.isDirectory())
 			libs[len] = bundleFile.getPath()+"/bin";
 		else

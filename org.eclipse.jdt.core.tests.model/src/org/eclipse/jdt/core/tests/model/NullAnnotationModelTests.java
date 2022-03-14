@@ -86,11 +86,11 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 	public void setUp() throws Exception {
 		super.setUp();
 		Bundle[] bundles = org.eclipse.jdt.core.tests.Activator.getPackageAdmin().getBundles("org.eclipse.jdt.annotation", "[2.0.0,3.0.0)");
-		File bundleFile = FileLocator.getBundleFile(bundles[0]);
+		File bundleFile = FileLocator.getBundleFileLocation(bundles[0]).get();
 		this.ANNOTATION_LIB = bundleFile.isDirectory() ? bundleFile.getPath()+"/bin" : bundleFile.getPath();
 
 		bundles = org.eclipse.jdt.core.tests.Activator.getPackageAdmin().getBundles("org.eclipse.jdt.annotation", "[1.1.0,2.0.0)");
-		bundleFile = FileLocator.getBundleFile(bundles[0]);
+		bundleFile = FileLocator.getBundleFileLocation(bundles[0]).get();
 		this.ANNOTATION_LIB_V1 = bundleFile.isDirectory() ? bundleFile.getPath()+"/bin" : bundleFile.getPath();
 	}
 

@@ -14,7 +14,6 @@
 package org.eclipse.jdt.core.tests.builder;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Arrays;
@@ -70,7 +69,7 @@ public void test001() throws JavaModelException {
 
 	incrementalBuild(projectPath);
 
-	IPath packageInfoPath = env.addFile(root, "pack/package-info.java", //$NON-NLS-1$ //$NON-NLS-2$
+	IPath packageInfoPath = env.addFile(root, "pack/package-info.java", //$NON-NLS-1$
 		"@Annot package p1" //$NON-NLS-1$
 	);
 
@@ -134,7 +133,7 @@ public void test002() throws JavaModelException {
 		"}"
 	);
 
-	env.addFile(root, "testcase/package-info.java", //$NON-NLS-1$ //$NON-NLS-2$
+	env.addFile(root, "testcase/package-info.java", //$NON-NLS-1$
 		"@TestAnnotation package testcase;" //$NON-NLS-1$
 	);
 	incrementalBuild(projectPath);
@@ -159,7 +158,7 @@ public void test003() throws JavaModelException {
 	env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 	env.addPackage(root, "testcase");
-	IPath packageInfoPath = env.addFile(root, "testcase/package-info.java", //$NON-NLS-1$ //$NON-NLS-2$
+	IPath packageInfoPath = env.addFile(root, "testcase/package-info.java", //$NON-NLS-1$
 		"" //$NON-NLS-1$
 	);
 
@@ -187,7 +186,7 @@ public void test004() throws JavaModelException {
 	env.addPackage(root, "my.foo");
 	env.addPackage(otherRoot, "my.foo");
 
-	env.addFile(root, "my/foo/package-info.java", //$NON-NLS-1$ //$NON-NLS-2$
+	env.addFile(root, "my/foo/package-info.java", //$NON-NLS-1$
 		"/**\n" +
 		"* A demo package for foo.\n" +
 		"*/\n" +
@@ -195,7 +194,7 @@ public void test004() throws JavaModelException {
 	);
 
 	IPath otherPackageInfoPath = env.addFile(otherRoot,
-		"my/foo/package-info.java", //$NON-NLS-1$ //$NON-NLS-2$
+		"my/foo/package-info.java", //$NON-NLS-1$
 		"/**\n" +
 		"* A demo package for foo.\n" +
 		"*/\n" +
@@ -224,7 +223,7 @@ public void test258145() throws JavaModelException {
 	env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
 
 	env.addPackage(root, "my.foo");
-	env.addFile(root, "my/foo/package-info.java", //$NON-NLS-1$ //$NON-NLS-2$
+	env.addFile(root, "my/foo/package-info.java", //$NON-NLS-1$
 		"/**\n" +
 		"* A demo package for foo.\n" +
 		"*/\n" +
@@ -236,7 +235,7 @@ public void test258145() throws JavaModelException {
 	env.addPackage(otherRoot, "my.foo");
 
 	IPath otherPackageInfoPath = env.addFile(otherRoot,
-		"my/foo/package-info.java", //$NON-NLS-1$ //$NON-NLS-2$
+		"my/foo/package-info.java", //$NON-NLS-1$
 		"/**\n" +
 		"* A demo package for foo.\n" +
 		"*/\n" +
@@ -300,7 +299,7 @@ public void test323785a () throws JavaModelException {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=372012
 // test missing default nullness annotation for a package without package-info
 // test when the package-info is added with the default annotation, the problem disappears
-public void testBug372012() throws JavaModelException, IOException {
+public void testBug372012() throws JavaModelException {
 
 	IPath projectPath = env.addProject("Project", "1.5");
 	env.addExternalJars(projectPath, Util.getJavaClassLibs());
@@ -357,7 +356,7 @@ public void testBug372012() throws JavaModelException, IOException {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=372012
 // test missing default nullness annotation for a package without package-info
 // test when the the default annotations are added to all top level types, the problem stays
-public void testBug372012a() throws JavaModelException, IOException {
+public void testBug372012a() throws JavaModelException {
 
 	IPath projectPath = env.addProject("Project", "1.5");
 	env.addExternalJars(projectPath, Util.getJavaClassLibs());
@@ -416,7 +415,7 @@ public void testBug372012a() throws JavaModelException, IOException {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=372012
 // test missing default nullness annotation for a package without package-info
 // test when the the default annotations is added to only 1 top level type, the problem stays
-public void testBug372012b() throws JavaModelException, IOException {
+public void testBug372012b() throws JavaModelException {
 
 	IPath projectPath = env.addProject("Project", "1.5");
 	env.addExternalJars(projectPath, Util.getJavaClassLibs());
@@ -474,7 +473,7 @@ public void testBug372012b() throws JavaModelException, IOException {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=372012
 // test missing default nullness annotation for a package with package-info
 // test when the the default annotation is removed from package-info, the problem comes back
-public void testBug372012c() throws JavaModelException, IOException {
+public void testBug372012c() throws JavaModelException {
 
 	IPath projectPath = env.addProject("Project", "1.5");
 	env.addExternalJars(projectPath, Util.getJavaClassLibs());
@@ -550,7 +549,7 @@ public void testBug367836() throws JavaModelException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=374063
 // verify that markers are created on the correct resource
-public void testBug374063() throws JavaModelException, IOException {
+public void testBug374063() throws JavaModelException {
 
 	IPath projectPath = env.addProject("Project", "1.5");
 	env.addExternalJars(projectPath, Util.getJavaClassLibs());
@@ -595,7 +594,7 @@ public void testBug374063() throws JavaModelException, IOException {
 	expectingUniqueCompiledClasses(new String[] { "p1.Test1", "p1.package-info" });
 }
 // 382960
-public void testBug382960() throws JavaModelException, IOException, CoreException {
+public void testBug382960() throws JavaModelException, CoreException {
 	IPath projectPath = env.addProject("Project", "1.5");
 	env.addExternalJars(projectPath, Util.getJavaClassLibs());
 	fullBuild(projectPath);
@@ -646,7 +645,7 @@ public void testBug382960() throws JavaModelException, IOException, CoreExceptio
 }
 // test that when a package-info.java has been created, markers on the
 // package fragments in all source folders are removed.
-public void testBug525469() throws JavaModelException, IOException {
+public void testBug525469() throws JavaModelException {
 
 	IPath projectPath = env.addProject("Project", "1.5");
 	env.addExternalJars(projectPath, Util.getJavaClassLibs());
@@ -707,9 +706,9 @@ public void testBug525469() throws JavaModelException, IOException {
 	expectingUniqueCompiledClasses(new String[] { "p1.Test1", "p1.Test2", "p1.package-info", "p2.OtherClass", "p2.package-info" });
 }
 
-void setupProjectForNullAnnotations(IPath projectPath) throws IOException, JavaModelException {
+void setupProjectForNullAnnotations(IPath projectPath) throws JavaModelException {
 	// add the org.eclipse.jdt.annotation library (bin/ folder or jar) to the project:
-	File bundleFile = FileLocator.getBundleFile(Platform.getBundle("org.eclipse.jdt.annotation"));
+	File bundleFile = FileLocator.getBundleFileLocation(Platform.getBundle("org.eclipse.jdt.annotation")).get();
 	String annotationsLib = bundleFile.isDirectory() ? bundleFile.getPath()+"/bin" : bundleFile.getPath();
 	IJavaProject javaProject = env.getJavaProject(projectPath);
 	IClasspathEntry[] rawClasspath = javaProject.getRawClasspath();

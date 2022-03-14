@@ -170,7 +170,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		super.setUpSuite();
 
 		Bundle[] bundles = getAnnotationBundles();
-		File bundleFile = FileLocator.getBundleFile(bundles[0]);
+		File bundleFile = FileLocator.getBundleFileLocation(bundles[0]).get();
 		this.ANNOTATION_LIB = bundleFile.isDirectory() ? bundleFile.getPath()+"/bin" : bundleFile.getPath();
 
 		// set up class path container bridging to the host JRE:

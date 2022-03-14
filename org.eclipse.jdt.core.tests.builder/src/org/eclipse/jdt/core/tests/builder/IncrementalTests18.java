@@ -14,8 +14,6 @@
 package org.eclipse.jdt.core.tests.builder;
 
 import java.io.File;
-import java.io.IOException;
-
 import junit.framework.Test;
 
 import org.eclipse.core.runtime.FileLocator;
@@ -43,10 +41,10 @@ public class IncrementalTests18 extends BuilderTests {
 		return AbstractCompilerTest.buildUniqueComplianceTestSuite(IncrementalTests18.class, ClassFileConstants.JDK1_8);
 	}
 
-	private void setupProjectForNullAnnotations() throws IOException, JavaModelException {
+	private void setupProjectForNullAnnotations() throws JavaModelException {
 		// add the org.eclipse.jdt.annotation library (bin/ folder or jar) to the project:
 		Bundle[] bundles = Platform.getBundles("org.eclipse.jdt.annotation","[2.0.0,3.0.0)");
-		File bundleFile = FileLocator.getBundleFile(bundles[0]);
+		File bundleFile = FileLocator.getBundleFileLocation(bundles[0]).get();
 		String annotationsLib = bundleFile.isDirectory() ? bundleFile.getPath()+"/bin" : bundleFile.getPath();
 		IJavaProject javaProject = env.getJavaProject("Project");
 		IClasspathEntry[] rawClasspath = javaProject.getRawClasspath();
@@ -367,7 +365,7 @@ public class IncrementalTests18 extends BuilderTests {
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=435544, [compiler][null] Enum constants not recognised as being NonNull (take2)
-	public void test435544() throws JavaModelException, IOException {
+	public void test435544() throws JavaModelException {
 		IPath projectPath = env.addProject("Project", "1.8");
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
@@ -506,7 +504,7 @@ public class IncrementalTests18 extends BuilderTests {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=445049,
 	// [compiler] java.lang.ClassCastException: org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding
 	// cannot be cast to org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding
-	public void test445049() throws JavaModelException, IOException {
+	public void test445049() throws JavaModelException {
 		IPath projectPath = env.addProject("Project", "1.8");
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 
@@ -735,7 +733,7 @@ public class IncrementalTests18 extends BuilderTests {
 			" resource : </Project/src/testNullAnnotations/Snippet.java> range : <303,324> category : <90> severity : <1>]");
 	}
 
-	public void testBug483744_remove() throws JavaModelException, IOException {
+	public void testBug483744_remove() throws JavaModelException {
 		IPath projectPath = env.addProject("Project", "1.8");
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());
 

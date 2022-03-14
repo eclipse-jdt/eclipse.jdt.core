@@ -18,8 +18,6 @@
 package org.eclipse.jdt.core.tests.builder;
 
 import java.io.File;
-import java.io.IOException;
-
 import junit.framework.Test;
 
 import org.eclipse.core.resources.IMarker;
@@ -144,10 +142,10 @@ public class AnnotationDependencyTests extends BuilderTests {
 		env.addClass(this.srcRoot, "p1", "AnnoClass", annoCode);
 	}
 
-	void setupProjectForNullAnnotations() throws IOException, JavaModelException {
+	void setupProjectForNullAnnotations() throws JavaModelException {
 		// add the org.eclipse.jdt.annotation library (bin/ folder or jar) to the project:
 		Bundle[] bundles = Platform.getBundles("org.eclipse.jdt.annotation","[1.1.0,2.0.0)");
-		File bundleFile = FileLocator.getBundleFile(bundles[0]);
+		File bundleFile = FileLocator.getBundleFileLocation(bundles[0]).get();
 		String annotationsLib = bundleFile.isDirectory() ? bundleFile.getPath()+"/bin" : bundleFile.getPath();
 		IJavaProject javaProject = env.getJavaProject(this.projectPath);
 		IClasspathEntry[] rawClasspath = javaProject.getRawClasspath();
@@ -1405,7 +1403,7 @@ public class AnnotationDependencyTests extends BuilderTests {
 	}
 
 	// Bug 365992 - [builder] [null] Change of nullness for a parameter doesn't trigger a build for the files that call the method
-	public void testParameterAnnotationDependency01() throws JavaModelException, IOException {
+	public void testParameterAnnotationDependency01() throws JavaModelException {
 		// prepare the project:
 		setupProjectForNullAnnotations();
 
@@ -1456,7 +1454,7 @@ public class AnnotationDependencyTests extends BuilderTests {
 
 	// Bug 365992 - [builder] [null] Change of nullness for a parameter doesn't trigger a build for the files that call the method
 	// Bug 366341 - Incremental compiler fails to detect right scope for annotation related code changes
-	public void testReturnAnnotationDependency01() throws JavaModelException, IOException {
+	public void testReturnAnnotationDependency01() throws JavaModelException {
 		// prepare the project:
 		setupProjectForNullAnnotations();
 
@@ -1517,7 +1515,7 @@ public class AnnotationDependencyTests extends BuilderTests {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=373571
 	// incremental build that uses binary type for Test1 should not report spurious null errors.
-	public void testReturnAnnotationDependency02() throws JavaModelException, IOException {
+	public void testReturnAnnotationDependency02() throws JavaModelException {
 		// prepare the project:
 		setupProjectForNullAnnotations();
 
@@ -1569,7 +1567,7 @@ public class AnnotationDependencyTests extends BuilderTests {
 	 //[compiler][null] Enum constants not recognized as being NonNull.
 	 //This test case exposes the bug mentioned in the defect. The enum
 	 //definition comes from a file different from where it is accessed.
-	 public void test411771a() throws IOException, JavaModelException {
+	 public void test411771a() throws JavaModelException {
 		 setupProjectForNullAnnotations();
 		 String testEnumCode = "package p1;\n" +
 				 "enum TestEnum {FOO };\n";
@@ -1596,7 +1594,7 @@ public class AnnotationDependencyTests extends BuilderTests {
 	 //[compiler][null] Enum constants not recognized as being NonNull.
 	 //Distinguish between enum constant and enum type. The enum type should not
 	 //be marked as NonNull.
-	 public void test411771b() throws IOException, JavaModelException {
+	 public void test411771b() throws JavaModelException {
 		 setupProjectForNullAnnotations();
 		 String testEnumCode = "package p1;\n" +
 				 "enum TestEnum { FOO };\n";
@@ -1632,7 +1630,7 @@ public class AnnotationDependencyTests extends BuilderTests {
 	 //[compiler][null] Enum constants not recognized as being NonNull.
 	 //A enum may contain fields other than predefined constants. We
 	 //should not tag them as NonNull.
-	 public void test411771c() throws IOException, JavaModelException {
+	 public void test411771c() throws JavaModelException {
 		 setupProjectForNullAnnotations();
 		 String testClass = "package p1;\n" +
 				 "public class A {}";

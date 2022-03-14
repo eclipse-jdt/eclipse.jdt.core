@@ -150,7 +150,7 @@ protected void setUp() throws Exception {
 		int len = defaultLibs.length;
 		this.assertLib = new String[len+1];
 		System.arraycopy(defaultLibs, 0, this.assertLib, 0, len);
-		File bundleFile = FileLocator.getBundleFile(Platform.getBundle("org.eclipse.equinox.common"));
+		File bundleFile = FileLocator.getBundleFileLocation(Platform.getBundle("org.eclipse.equinox.common")).get();
 		if (bundleFile.isDirectory())
 			this.assertLib[len] = bundleFile.getPath()+"/bin";
 		else

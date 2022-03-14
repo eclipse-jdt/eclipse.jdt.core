@@ -5838,7 +5838,7 @@ public void testBug440592() throws Exception {
 		deleteProjects(new String[] { "P" });
 	}
 }
-public void testBug485092() throws CoreException, IOException, InterruptedException {
+public void testBug485092() throws CoreException, InterruptedException {
 
 	IJavaProject project15 = null;
 	IJavaProject project18 = null;
@@ -5883,7 +5883,7 @@ public void testBug485092() throws CoreException, IOException, InterruptedExcept
 
 		project18.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
 		Bundle[] bundles = Platform.getBundles("org.eclipse.jdt.annotation","[2.0.0,3.0.0)");
-		File bundleFile = FileLocator.getBundleFile(bundles[0]);
+		File bundleFile = FileLocator.getBundleFileLocation(bundles[0]).get();
 		String annotationsLib = bundleFile.isDirectory() ? bundleFile.getPath()+"/bin" : bundleFile.getPath();
 		IClasspathEntry nullAnnotationsClassPathEntry = JavaCore.newLibraryEntry(new Path(annotationsLib), null, null);
 
