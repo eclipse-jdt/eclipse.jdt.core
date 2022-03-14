@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -22,20 +22,20 @@ public interface ParserBasicInformation {
 
 					ERROR_SYMBOL = 136,
 					MAX_NAME_LENGTH = 53,
-					NUM_STATES = 1219,
+					NUM_STATES = 1220,
 
 					NT_OFFSET = 136,
 					SCOPE_UBOUND = 318,
 					SCOPE_SIZE = 319,
-					LA_STATE_OFFSET = 18203,
+					LA_STATE_OFFSET = 18204,
 					MAX_LA = 1,
-					NUM_RULES = 932,
+					NUM_RULES = 933,
 					NUM_TERMINALS = 136,
 					NUM_NON_TERMINALS = 430,
 					NUM_SYMBOLS = 566,
-					START_STATE = 990,
+					START_STATE = 991,
 					EOFT_SYMBOL = 64,
 					EOLT_SYMBOL = 64,
-					ACCEPT_ACTION = 18202,
-					ERROR_ACTION = 18203;
+					ACCEPT_ACTION = 18203,
+					ERROR_ACTION = 18204;
 }

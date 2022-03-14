@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 IBM corporation and others.
+ * Copyright (c) 2016, 2022 IBM corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -230,7 +230,12 @@ public void testBug488569_007() {
 			"}",
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 15)\n" +
+		"1. WARNING in X.java (at line 14)\n" +
+		"	y1 = new Y();\n" +
+		"	^^^^^^^^^^^^\n" +
+		"Resource leak: \'y1\' is not closed at this location\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 15)\n" +
 		"	try (y1) { \n" +
 		"	     ^^\n" +
 		"Local variable y1 defined in an enclosing scope must be final or effectively final\n" +
@@ -710,7 +715,31 @@ public void testBug488569_021() {
 		"Unhandled exception type IOException thrown by automatic close() invocation on z\n" +
 		"----------\n");
 }
-
+public void testBug577128_1() {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"import java.io.IOException;\n" +
+			"public class X implements AutoCloseable {\n" +
+			"	private void release() {\n"
+			+ "		X cl = new X();\n"
+			+ "		try (this;cl) {} \n"
+			+ "        	catch (IOException e) {\n"
+			+ "        }\n"
+			+ "	}\n"
+			+ "	public static void main(String[] args) {\n"
+			+ "		X cl = new X();\n"
+			+ "		cl.release();\n"
+			+ "	}\n"
+			+ "	@Override\n"
+			+ "	public void close() throws IOException {\n"
+			+ "		System.out.println(\"close() call\");\n"
+			+ "	}\n"
+			+ "}\n",
+		},
+		"close() call\n" +
+		"close() call");
+}
 
 public static Class testClass() {
 	return TryStatement9Test.class;

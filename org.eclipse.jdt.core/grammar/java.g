@@ -1673,6 +1673,11 @@ Resource ::= Name
 /:$readableName Resource:/
 /:$compliance 1.9:/
 
+Resource ::= 'this'
+/.$putCase consumeResourceAsThis(); $break ./
+/:$readableName Resource:/
+/:$compliance 1.9:/
+
 Resource ::= FieldAccess
 /.$putCase consumeResourceAsFieldAccess(); $break ./
 /:$readableName Resource:/

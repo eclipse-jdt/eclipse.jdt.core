@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -136,7 +136,7 @@ public interface TerminalTokens {
 							TokenNameMINUS = 5,
 							TokenNameNOT = 66,
 							TokenNameREMAINDER = 9,
-							TokenNameXOR = 24,
+							TokenNameXOR = 25,
 							TokenNameAND = 22,
 							TokenNameMULTIPLY = 8,
 							TokenNameOR = 28,
@@ -150,7 +150,7 @@ public interface TerminalTokens {
 							TokenNameRBRACE = 33,
 							TokenNameLBRACKET = 6,
 							TokenNameRBRACKET = 69,
-							TokenNameSEMICOLON = 25,
+							TokenNameSEMICOLON = 24,
 							TokenNameQUESTION = 30,
 							TokenNameCOLON = 65,
 							TokenNameCOMMA = 32,
