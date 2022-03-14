@@ -871,7 +871,8 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						return null;
 					}
 				} catch (InvalidInputException e) {
-					if (!refInStringLiteral || !Scanner.INVALID_CHAR_IN_STRING.equals(e.getMessage())) {
+					if (!refInStringLiteral || (!Scanner.INVALID_CHAR_IN_STRING.equals(e.getMessage())
+							&& !Scanner.INVALID_CHARACTER_CONSTANT.equals(e.getMessage()))) {
 						throw e;
 					}
 				}
@@ -1862,7 +1863,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		for (Map.Entry<String, String> entry : snippetAttributes.entrySet()) {
 		    String key = entry.getKey();
 		    String value = entry.getValue();
-		    if(key.equals("id") ) { //$NON-NLS-1$ 
+		    if(key.equals("id") ) { //$NON-NLS-1$
 		    	return value;
 		    }
 		}
@@ -2203,6 +2204,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 													case TerminalTokens.TokenNameSingleQuoteStringLiteral:
 														if (processValue) {
 															value = slScanner.getCurrentTokenString();
+															value = stripQuotes(value);
 															if (REGION.equals(attribute)) {
 																regionName = value;
 															} else if (map.get(attribute) == null) {
@@ -2274,7 +2276,12 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 													case TerminalTokens.TokenNameIdentifier:
 														if (processValue) {
 															value = slScanner.getCurrentTokenString();
-															if (map.get(attribute) == null) {
+															if (REGION.equals(attribute)) {
+																regionName = value;
+															} else if (map.get(attribute) == null) {
+																if (attribute.equals(REPLACEMENT)) {
+																	hasReplacementStr = true;
+																}
 																map.put(attribute, value);
 																if ((attribute.equals(SUBSTRING) && (map.get(REGEX) != null))
 																		|| (attribute.equals(REGEX) && (map.get(SUBSTRING) != null))) {
@@ -2307,6 +2314,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 													case TerminalTokens.TokenNameSingleQuoteStringLiteral:
 														if (processValue) {
 															value = slScanner.getCurrentTokenString();
+															value = stripQuotes(value);
 															if (REGION.equals(attribute)) {
 																regionName = value;
 															} else if (map.get(attribute) == null) {
@@ -2436,6 +2444,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 															value = slScanner.getCurrentTokenString();
 															if (map.get(attribute) == null) {
 																if (REGION.equals(attribute)) {
+																	value = stripQuotes(value);
 																	regionName = value;
 																} else if (TARGET.equals(attribute)) {
 																	String originalTokenString = this.scanner.getCurrentTokenString();
@@ -2449,6 +2458,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 																		hasTarget = true;
 																	}
 																} else {
+																	value = stripQuotes(value);
 																	map.put(attribute, value);
 																	if ((attribute.equals(SUBSTRING) && (map.get(REGEX) != null))
 																			|| (attribute.equals(REGEX) && (map.get(SUBSTRING) != null))) {
@@ -2534,6 +2544,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 													case TerminalTokens.TokenNameSingleQuoteStringLiteral:
 														if (processValue && REGION.equals(attribute)) {
 															regionName = slScanner.getCurrentTokenString();
+															regionName = stripQuotes(regionName);
 														}
 														processValue= false;
 														attribute = null;
@@ -2584,13 +2595,30 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		return inlineTag;
 	}
 
+	private String stripQuotes(String str) {
+		if (str == null || str.length() <= 2) {
+			return str;
+		}
+		String finalStr= str;
+		int lastIndex = finalStr.length() - 1;
+		if ((finalStr.charAt(0) =='"' && finalStr.charAt(lastIndex)=='"')
+				||(finalStr.charAt(0) =='\'' && finalStr.charAt(lastIndex)=='\'')) {
+			finalStr = finalStr.substring(1, finalStr.length()-1);
+		}
+		return finalStr;
+	}
 	private Object parseLinkReference(int curPosition, String value) {
 		Object typeRef = null;
 		Object reference = null;
 		int indexx = this.index;
 		int oldCurrentPosition = this.scanner.currentPosition;
 		int oldStartPosition = this.scanner.startPosition;
-		this.scanner.currentPosition = this.scanner.getCurrentTokenStartPosition() + curPosition  + 3;
+		char c = value.charAt(0);
+		int additionalIndex = 2;
+		if (c == '"' || c== '\'' ) {
+			additionalIndex += 1;
+		}
+		this.scanner.currentPosition = this.scanner.getCurrentTokenStartPosition() + curPosition  + additionalIndex;
 		int allowedLength = this.scanner.getCurrentTokenStartPosition() + curPosition + value.length();
 		this.index = this.scanner.startPosition;
 		int oldToken = this.currentTokenType;
