@@ -5118,4 +5118,31 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"true\n"+
 				"false");
 	}
+	public void testBug577374_001() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"    sealed interface A {}\n"+
+					"    sealed interface B1 extends A {}\n"+
+					"    sealed interface B2 extends A {}\n"+
+					"    sealed interface C extends A {}\n"+
+					"    final class D1 implements B1, C {}\n"+
+					"    final class D2 implements B2, C {}\n"+
+					"    \n"+
+					"    public static int test(A arg) {\n"+
+					"        return switch (arg) {\n"+
+					"            case B1 b1 -> 1;\n"+
+					"            case B2 b2 -> 2;\n"+
+					"        };\n"+
+					"    }\n"+
+					"    public static void main(String[] args) {\n"+
+					"   X.D1 d1 = new X().new D1();\n"+
+					"   System.out.println(X.test(d1));\n"+
+					" }\n"+
+					"}"
+				},
+				"1");
+	}
+
 }
