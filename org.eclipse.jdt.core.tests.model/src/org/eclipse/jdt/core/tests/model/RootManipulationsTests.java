@@ -344,7 +344,8 @@ public void testCopySourceFolder5() throws CoreException {
 			"		p\n" +
 			"			X.java\n" +
 			"	L/P2/.classpath\n" +
-			"	L/P2/.project",
+			"	L/P2/.project\n" +
+			"	F/P2/.settings",
 			p2);
 	} finally {
 		stopDeltas();
@@ -393,7 +394,8 @@ public void testCopySourceFolder6() throws CoreException {
 			"		p\n" +
 			"			X.java\n" +
 			"	L/P/.classpath\n" +
-			"	L/P/.project",
+			"	L/P/.project\n" +
+			"	F/P/.settings",
 			project);
 	} finally {
 		stopDeltas();
@@ -470,7 +472,8 @@ public void testDeleteJarFile1() throws CoreException {
 			"	src\n" +
 			"		<default>\n" +
 			"	L/P/.classpath\n" +
-			"	L/P/.project",
+			"	L/P/.project\n" +
+			"	F/P/.settings",
 			project);
 	} finally {
 		stopDeltas();
@@ -500,7 +503,8 @@ public void testDeleteJarFile3() throws CoreException {
 			"	src\n" +
 			"		<default>\n" +
 			"	L/P/.classpath\n" +
-			"	L/P/.project",
+			"	L/P/.project\n" +
+			"	F/P/.settings",
 			project);
 	} finally {
 		stopDeltas();
@@ -534,14 +538,16 @@ public void testDeleteJarFile2() throws CoreException {
 			"	src\n" +
 			"		<default>\n" +
 			"	L/P1/.classpath\n" +
-			"	L/P1/.project",
+			"	L/P1/.project\n" +
+			"	F/P1/.settings",
 			p1);
 		assertJavaProject(
 			"P2\n" +
 			"	src\n" +
 			"		<default>\n" +
 			"	L/P2/.classpath\n" +
-			"	L/P2/.project",
+			"	L/P2/.project\n" +
+			"	F/P2/.settings",
 			p2);
 	} finally {
 		stopDeltas();
@@ -575,7 +581,8 @@ public void testDeleteSourceFolder1() throws CoreException {
 		assertJavaProject(
 			"P\n" +
 			"	L/P/.classpath\n" +
-			"	L/P/.project",
+			"	L/P/.project\n" +
+			"	F/P/.settings",
 			project);
 	} finally {
 		stopDeltas();
@@ -625,6 +632,7 @@ public void testDeleteSourceFolder2() throws CoreException {
 			"			Y.java\n" +
 			"	L/P/.classpath\n" +
 			"	L/P/.project\n" +
+			"	F/P/.settings\n" +
 			"	F/P/src1",
 			project);
 
@@ -665,7 +673,8 @@ public void testMoveSourceFolder1() throws CoreException {
 		assertJavaProject(
 			"P1\n" +
 			"	L/P1/.classpath\n" +
-			"	L/P1/.project",
+			"	L/P1/.project\n" +
+			"	F/P1/.settings",
 			p1);
 		assertJavaProject(
 			"P2\n" +
@@ -674,7 +683,8 @@ public void testMoveSourceFolder1() throws CoreException {
 			"		p\n" +
 			"			X.java\n" +
 			"	L/P2/.classpath\n" +
-			"	L/P2/.project",
+			"	L/P2/.project\n" +
+			"	F/P2/.settings",
 			p2);
 	} finally {
 		stopDeltas();
@@ -714,7 +724,8 @@ public void testMoveSourceFolder2() throws CoreException {
 		assertJavaProject(
 			"P1\n" +
 			"	L/P1/.classpath\n" +
-			"	L/P1/.project",
+			"	L/P1/.project\n" +
+			"	F/P1/.settings",
 			p1);
 		assertJavaProject(
 			"P2\n" +
@@ -723,7 +734,8 @@ public void testMoveSourceFolder2() throws CoreException {
 			"		p\n" +
 			"			X.java\n" +
 			"	L/P2/.classpath\n" +
-			"	L/P2/.project",
+			"	L/P2/.project\n" +
+			"	F/P2/.settings",
 			p2);
 	} finally {
 		stopDeltas();
@@ -778,6 +790,7 @@ public void testMoveSourceFolder3() throws CoreException {
 			"			Y.java\n" +
 			"	L/P1/.classpath\n" +
 			"	L/P1/.project\n" +
+			"	F/P1/.settings\n" +
 			"	F/P1/src1",
 			p1);
 		assertJavaProject(
@@ -787,7 +800,8 @@ public void testMoveSourceFolder3() throws CoreException {
 			"		p\n" +
 			"			X.java\n" +
 			"	L/P2/.classpath\n" +
-			"	L/P2/.project",
+			"	L/P2/.project\n" +
+			"	F/P2/.settings",
 			p2);
 	} finally {
 		stopDeltas();
@@ -823,7 +837,8 @@ public void testMoveSourceFolder4() throws CoreException {
 		assertJavaProject(
 			"P1\n" +
 			"	L/P1/.classpath\n" +
-			"	L/P1/.project",
+			"	L/P1/.project\n" +
+			"	F/P1/.settings",
 			p1);
 		assertJavaProject(
 			"P2\n" +
@@ -834,7 +849,8 @@ public void testMoveSourceFolder4() throws CoreException {
 			"	src2\n" +
 			"		<default>\n" +
 			"	L/P2/.classpath\n" +
-			"	L/P2/.project",
+			"	L/P2/.project\n" +
+			"	F/P2/.settings",
 			p2);
 	} finally {
 		stopDeltas();
@@ -869,7 +885,8 @@ public void testMoveSourceFolder5() throws CoreException {
 		assertJavaProject(
 			"P1\n" +
 			"	L/P1/.classpath\n" +
-			"	L/P1/.project",
+			"	L/P1/.project\n" +
+			"	F/P1/.settings",
 			p1);
 		assertJavaProject(
 			"P2\n" +
@@ -880,7 +897,8 @@ public void testMoveSourceFolder5() throws CoreException {
 			"	src2\n" +
 			"		<default>\n" +
 			"	L/P2/.classpath\n" +
-			"	L/P2/.project",
+			"	L/P2/.project\n" +
+			"	F/P2/.settings",
 			p2);
 	} finally {
 		stopDeltas();
@@ -913,7 +931,8 @@ public void testMoveSourceFolder6() throws CoreException {
 		assertJavaProject(
 			"P1\n" +
 			"	L/P1/.classpath\n" +
-			"	L/P1/.project",
+			"	L/P1/.project\n" +
+			"	F/P1/.settings",
 			p1);
 		assertJavaProject(
 			"P2\n" +
@@ -924,7 +943,8 @@ public void testMoveSourceFolder6() throws CoreException {
 			"	src\n" +
 			"		<default>\n" +
 			"	L/P2/.classpath\n" +
-			"	L/P2/.project",
+			"	L/P2/.project\n" +
+			"	F/P2/.settings",
 			p2);
 	} finally {
 		stopDeltas();
@@ -963,7 +983,8 @@ public void testRenameSourceFolder1() throws CoreException {
 			"		p\n" +
 			"			X.java\n" +
 			"	L/P/.classpath\n" +
-			"	L/P/.project",
+			"	L/P/.project\n" +
+			"	F/P/.settings",
 			project);
 	} finally {
 		stopDeltas();
@@ -1061,7 +1082,8 @@ public void testRenameSourceFolder2() throws CoreException {
 			"	src3\n" +
 			"		<default>\n" +
 			"	L/P/.classpath\n" +
-			"	L/P/.project",
+			"	L/P/.project\n" +
+			"	F/P/.settings",
 			project);
 
 		// rename src2
@@ -1084,7 +1106,8 @@ public void testRenameSourceFolder2() throws CoreException {
 			"	src3\n" +
 			"		<default>\n" +
 			"	L/P/.classpath\n" +
-			"	L/P/.project",
+			"	L/P/.project\n" +
+			"	F/P/.settings",
 			project);
 
 		// rename src3
@@ -1107,7 +1130,8 @@ public void testRenameSourceFolder2() throws CoreException {
 			"	src6\n" +
 			"		<default>\n" +
 			"	L/P/.classpath\n" +
-			"	L/P/.project",
+			"	L/P/.project\n" +
+			"	F/P/.settings",
 			project);
 	} finally {
 		stopDeltas();
@@ -1139,7 +1163,8 @@ public void testRenameJarFile1() throws CoreException {
 			"		<default>\n" +
 			"	myLib2.jar\n" +
 			"	L/P/.classpath\n" +
-			"	L/P/.project",
+			"	L/P/.project\n" +
+			"	F/P/.settings",
 			project);
 	} finally {
 		stopDeltas();
@@ -1176,7 +1201,8 @@ public void testRenameJarFile2() throws CoreException {
 			"		<default>\n" +
 			"	myLib2.jar\n" +
 			"	L/P1/.classpath\n" +
-			"	L/P1/.project",
+			"	L/P1/.project\n" +
+			"	F/P1/.settings",
 			p1);
 		assertJavaProject(
 			"P2\n" +
@@ -1184,7 +1210,8 @@ public void testRenameJarFile2() throws CoreException {
 			"		<default>\n" +
 			"	/P1/myLib2.jar\n" +
 			"	L/P2/.classpath\n" +
-			"	L/P2/.project",
+			"	L/P2/.project\n" +
+			"	F/P2/.settings",
 			p2);
 	} finally {
 		stopDeltas();
@@ -1225,7 +1252,8 @@ public void testRenameJarFile3() throws CoreException {
 			"		<default>\n" +
 			"	myLib2.jar\n" +
 			"	L/P/.classpath\n" +
-			"	L/P/.project",
+			"	L/P/.project\n" +
+			"	F/P/.settings",
 			project);
 	} finally {
 		stopDeltas();

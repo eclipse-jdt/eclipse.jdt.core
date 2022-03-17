@@ -122,6 +122,7 @@ public void testAddExclusionOnFolderUnderProject() throws CoreException {
 			"Unexpected non-java resources of project",
 			".classpath\n" +
 			".project\n" +
+			".settings\n" +
 			"doc",
 			javaProject.getNonJavaResources());
 	} finally {

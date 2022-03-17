@@ -1089,7 +1089,8 @@ public void testGetNonJavaResources1() throws CoreException {
 		assertResourcesEqual(
 			"Unexpected non-java resources for project",
 			"/P/.classpath\n" +
-			"/P/.project",
+			"/P/.project\n" +
+			"/P/.settings",
 			project.getNonJavaResources());
 	} finally {
 		this.deleteProject("P");
@@ -1105,7 +1106,8 @@ public void testGetNonJavaResources2() throws CoreException {
 		assertResourcesEqual(
 			"Unexpected non-java resources for project",
 			"/P/.classpath\n" +
-			"/P/.project",
+			"/P/.project\n" +
+			"/P/.settings",
 			project.getNonJavaResources());
 	} finally {
 		this.deleteProject("P");
@@ -1121,7 +1123,8 @@ public void testGetNonJavaResources3() throws CoreException {
 		assertResourcesEqual(
 			"Unexpected non-java resources for project",
 			"/P/.classpath\n" +
-			"/P/.project",
+			"/P/.project\n" +
+			"/P/.settings",
 			project.getNonJavaResources());
 	} finally {
 		this.deleteProject("P");
@@ -1139,6 +1142,7 @@ public void testGetNonJavaResources4() throws CoreException {
 			"Unexpected non-java resources for project",
 			"/P/.classpath\n" +
 			"/P/.project\n" +
+			"/P/.settings\n" +
 			"/P/x.y",
 			project.getNonJavaResources());
 	} finally {
@@ -1156,7 +1160,8 @@ public void testGetNonJavaResources5() throws CoreException {
 		assertResourcesEqual(
 			"Unexpected non-java resources for project",
 			"/P/.classpath\n" +
-			"/P/.project",
+			"/P/.project\n" +
+			"/P/.settings",
 			project.getNonJavaResources());
 	} finally {
 		this.deleteProject("P");

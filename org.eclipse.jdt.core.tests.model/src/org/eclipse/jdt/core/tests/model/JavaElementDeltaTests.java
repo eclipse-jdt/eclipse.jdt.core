@@ -1982,10 +1982,10 @@ public void testModifyProjectDescriptionAndRemoveFolder() throws CoreException {
 		final IProject projectFolder = project.getProject();
 		final IFolder folder = createFolder("/P/folder");
 
-		startDeltas();
 		getWorkspace().run(
 			new IWorkspaceRunnable() {
 				public void run(IProgressMonitor monitor) throws CoreException {
+					startDeltas();
 					IProjectDescription desc = projectFolder.getDescription();
 					desc.setComment("A comment");
 					projectFolder.setDescription(desc, null);
@@ -2359,7 +2359,8 @@ public void testRemoveAddBinaryProject() throws CoreException {
 			"	<project root>[*]: {ADDED TO CLASSPATH}\n" +
 			"	lib.jar[-]: {}\n" +
 			"	ResourceDelta(/P/.classpath)[*]\n" +
-			"	ResourceDelta(/P/.project)[*]"
+			"	ResourceDelta(/P/.project)[*]\n" +
+			"	ResourceDelta(/P/.settings)[*]"
 		);
 	} finally {
 		stopDeltas();
@@ -2387,7 +2388,8 @@ public void testRemoveAddJavaProject() throws CoreException {
 			"\n" +
 			"P[*]: {CONTENT}\n" +
 			"	ResourceDelta(/P/.classpath)[*]\n" +
-			"	ResourceDelta(/P/.project)[*]"
+			"	ResourceDelta(/P/.project)[*]\n" +
+			"	ResourceDelta(/P/.settings)[*]"
 		);
 	} finally {
 		stopDeltas();

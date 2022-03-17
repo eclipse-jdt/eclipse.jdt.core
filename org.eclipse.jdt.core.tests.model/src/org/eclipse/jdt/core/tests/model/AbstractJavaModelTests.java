@@ -1610,7 +1610,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				if (parent instanceof IFolder && !parent.exists()) {
 					createFolder(parent.getFullPath());
 				}
-				folder.create(true, true, null);
+				if(!folder.exists()) {
+					folder.create(true, true, null);
+				}
 			}
 		},
 		null);

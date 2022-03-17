@@ -114,7 +114,8 @@ public void testAddInclusionOnFolderUnderProject() throws CoreException {
 		assertResourceNamesEqual(
 			"Unexpected non-java resources of project",
 			".classpath\n" +
-			".project",
+			".project\n" +
+			".settings",
 			javaProject.getNonJavaResources());
 	} finally {
 		deleteProject("P1");
