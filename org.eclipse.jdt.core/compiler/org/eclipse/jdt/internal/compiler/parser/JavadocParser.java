@@ -1289,7 +1289,7 @@ public class JavadocParser extends AbstractCommentParser {
 
 	@Override
 	protected void setRegionPosition(int currentPosition) {
-		regionPosition=currentPosition;
+		this.regionPosition=currentPosition;
 
 	}
 }

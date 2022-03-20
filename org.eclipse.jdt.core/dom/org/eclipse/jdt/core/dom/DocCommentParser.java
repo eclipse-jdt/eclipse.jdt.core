@@ -1328,6 +1328,6 @@ class DocCommentParser extends AbstractCommentParser {
 
 	@Override
 	protected void setRegionPosition(int currentPosition) {
-
+		// do nothing
 	}
 }
