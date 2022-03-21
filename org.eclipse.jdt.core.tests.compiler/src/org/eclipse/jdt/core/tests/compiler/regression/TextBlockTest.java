@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020, 2021 IBM Corporation and others.
+ * Copyright (c) 2020, 2022 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1581,5 +1581,41 @@ public class TextBlockTest extends AbstractRegressionTest {
 				"}",
 				getCompilerOptions(),
 				new String[] {"--enable-preview"});
+	}
+	public void testBug578649_1() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"    public static void main(String[] args) {\n"
+						+ "        System.out.println(\"\"\"\n"
+						+ "        <record>\n"
+						+ "          <value field=\\\"NAME2\\\">b\\tc</value>\n"
+						+ "          <value field=\\\"NAME1\\\">a\\tb</value>\n"
+						+ "        </record>\n"
+						+ "        \"\"\");\n"
+						+ "    }\n" +
+						"}\n"
+				},
+				"<record>\n" +
+				"  <value field=\"NAME2\">b	c</value>\n" +
+				"  <value field=\"NAME1\">a	b</value>\n" +
+				"</record>",
+				getCompilerOptions());
+	}
+	public void testBug578649_2() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"    public static void main(String[] args) {\n"
+						+ "        System.out.println(\"\"\"\n"
+						+ "        123\\b45\n"
+						+ "        \"\"\");\n"
+						+ "    }\n" +
+						"}\n"
+				},
+				"123\b45",
+				getCompilerOptions());
 	}
 }
