@@ -78,7 +78,7 @@ public class SwitchStatement extends Expression {
 	public boolean containsPatterns;
 	public boolean containsNull;
 	private BranchLabel switchPatternRestartTarget;
-	/* package */ Pattern totalPattern;
+	/* package */ public Pattern totalPattern;
 
 	// fallthrough
 	public final static int CASE = 0;
@@ -115,6 +115,7 @@ public class SwitchStatement extends Expression {
 	/* package */ boolean isNonTraditional = false;
 	/* package */ List<Pattern> caseLabelElements = new ArrayList<>(0);//TODO: can we remove this?
 	public List<TypeBinding> caseLabelElementTypes = new ArrayList<>(0);
+	int constantIndex = 0;
 
 	protected int getFallThroughState(Statement stmt, BlockScope blockScope) {
 		if ((this.switchBits & LabeledRules) != 0) {
@@ -522,6 +523,7 @@ public class SwitchStatement extends Expression {
 			if (this.containsPatterns) {
 				generateCodeSwitchPatternPrologue(currentScope, codeStream);
 				valueRequired = true;
+				transformConstants();
 			} else if (resolvedType1.isEnum()) {
 				// go through the translation table
 				codeStream.invoke(Opcodes.OPC_invokestatic, this.synthetic, null /* default declaringClass */);
@@ -579,6 +581,7 @@ public class SwitchStatement extends Expression {
 
 			// generate the switch block statements
 			int caseIndex = 0;
+			int typeSwitchIndex = 0;
 			if (this.statements != null) {
 				for (int i = 0, maxCases = this.statements.length; i < maxCases; i++) {
 					Statement statement = this.statements[i];
@@ -591,16 +594,20 @@ public class SwitchStatement extends Expression {
 						caseStatement = (CaseStatement) statement;
 						patternCaseExitPreviousCaseScope(codeStream, caseIndex);
 						caseIndex++;
+						typeSwitchIndex += caseStatement.constantExpressions.length;
 					} else {
 						if (statement == this.defaultCase) { // statements[i] is a case or a default case
 							this.scope.enclosingCase = this.defaultCase; // record entering in a switch case block
 							if (this.preSwitchInitStateIndex != -1) {
 								codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.preSwitchInitStateIndex);
 							}
+						} else if (statement instanceof CaseStatement) {
+							caseStatement = (CaseStatement) statement;
+							typeSwitchIndex += caseStatement.constantExpressions.length;
 						}
 					}
 					statementGenerateCode(currentScope, codeStream, statement);
-					generateCodePatternCaseEpilogue(codeStream, caseIndex, caseStatement);
+					generateCodePatternCaseEpilogue(codeStream, typeSwitchIndex, caseStatement);
 				}
 			}
 			boolean enumInSwitchExpression =  resolvedType1.isEnum() && this instanceof SwitchExpression;
@@ -662,6 +669,19 @@ public class SwitchStatement extends Expression {
 			codeStream.recordPositionsFrom(pc, this.sourceStart);
 		} finally {
 			if (this.scope != null) this.scope.enclosingCase = null; // no longer inside switch case block
+		}
+	}
+	private void transformConstants() {
+		if (this.nullCase == null) {
+			for (int i = 0,l = this.otherConstants.length; i < l; ++i) {
+				if (this.otherConstants[i].e == this.totalPattern) {
+					this.otherConstants[i].index = -1;
+					break;
+				}
+			}
+		}
+		for (int i = 0; i < this.constants.length; i++) {
+			this.constants[i] = this.otherConstants[i].index;
 		}
 	}
 	private void generateCodeSwitchPatternEpilogue(CodeStream codeStream) {
@@ -940,6 +960,11 @@ public class SwitchStatement extends Expression {
 								} else {
 									if (!c.isPattern() && check.test(j)) {
 										if (this.isNonTraditional) {
+											boolean reportDup = true;
+											if (c.e instanceof NullLiteral || this.otherConstants[j].e instanceof NullLiteral) {
+												reportDup = c.e instanceof NullLiteral && this.otherConstants[j].e instanceof NullLiteral;
+											}
+											if (reportDup)
 											reportDuplicateCase(c.e, this.otherConstants[j].e, length);
 										} else {
 											reportDuplicateCase(caseStmt, this.cases[caseIndex[j]], length);

@@ -33,7 +33,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug577374_001"};
+//		TESTS_NAMES = new String[] { "testBug579355"};
 	}
 
 	private static String previewLevel = "18";
@@ -5143,6 +5143,65 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"}"
 				},
 				"1");
+	}
+	public void testBug579355_001() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"       static void constantLabelMustAppearBeforePattern(Integer o) {\n"+
+					"               switch (o) {\n"+
+					"               case -1, 1 -> System.out.println(\"special case:\" + o);\n"+
+					"               case Integer i && i > 0 -> System.out.println(\"positive integer: \" + o);\n"+
+					"               case Integer i -> System.out.println(\"other integer: \" + o);\n"+
+					"               }\n"+
+					"       }\n"+
+					"\n"+
+					"       public static void main(String[] args) {\n"+
+					"               X.constantLabelMustAppearBeforePattern(-10);\n"+
+					"               X.constantLabelMustAppearBeforePattern(-1);\n"+
+					"               X.constantLabelMustAppearBeforePattern(0);\n"+
+					"               X.constantLabelMustAppearBeforePattern(1);\n"+
+					"               X.constantLabelMustAppearBeforePattern(10);\n"+
+					"       } \n"+
+					"}"
+				},
+				"other integer: -10\n" +
+				"special case:-1\n" +
+				"other integer: 0\n" +
+				"special case:1\n" +
+				"positive integer: 10");
+	}
+	public void testBug579355_002() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"       static void constantLabelMustAppearBeforePattern(Integer o) {\n"+
+					"               switch (o) {\n"+
+					"               case -1, 1 -> System.out.println(\"special case:\" + o);\n"+
+					"               case null -> System.out.println(\"null\");\n"+
+					"               case Integer i && i > 0 -> System.out.println(\"positive integer: \" + o);\n"+
+					"               case Integer i -> System.out.println(\"other integer: \" + o);\n"+
+					"               }\n"+
+					"       }\n"+
+					"\n"+
+					"       public static void main(String[] args) {\n"+
+					"               X.constantLabelMustAppearBeforePattern(-10);\n"+
+					"               X.constantLabelMustAppearBeforePattern(-1);\n"+
+					"               X.constantLabelMustAppearBeforePattern(0);\n"+
+					"               X.constantLabelMustAppearBeforePattern(1);\n"+
+					"               X.constantLabelMustAppearBeforePattern(10);\n"+
+					"               X.constantLabelMustAppearBeforePattern(null);\n"+
+					"       } \n"+
+					"}"
+				},
+				"other integer: -10\n" +
+				"special case:-1\n" +
+				"other integer: 0\n" +
+				"special case:1\n" +
+				"positive integer: 10\n"+
+				"null");
 	}
 
 }

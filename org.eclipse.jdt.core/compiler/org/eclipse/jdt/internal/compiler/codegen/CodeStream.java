@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contribution for
@@ -7513,7 +7517,8 @@ public void swap() {
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_swap;
 }
 
-public void tableswitch(CaseLabel defaultLabel, int low, int high, int[] keys, int[] sortedIndexes, int[] mapping, CaseLabel[] casesLabel) {
+public void tableswitch(CaseLabel defaultLabel, int low, int high, int[] keys,
+		int[] sortedIndexes, int[] mapping, CaseLabel[] casesLabel) {
 	this.countLabels = 0;
 	this.stackDepth--;
 	popTypeBinding();
@@ -7538,12 +7543,13 @@ public void tableswitch(CaseLabel defaultLabel, int low, int high, int[] keys, i
 	defaultLabel.branch();
 	writeSignedWord(low);
 	writeSignedWord(high);
-	int i = low, j = low;
+	int i = low, j = 0;
 	// the index j is used to know if the index i is one of the missing entries in case of an
 	// optimized tableswitch
+
 	while (true) {
-		int index;
-		int key = keys[index = sortedIndexes[j - low]];
+		int index = sortedIndexes[j];
+		int key = keys[index];
 		if (key == i) {
 			casesLabel[mapping[index]].branch();
 			j++;
