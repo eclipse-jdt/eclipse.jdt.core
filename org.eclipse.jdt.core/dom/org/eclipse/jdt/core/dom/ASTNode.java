@@ -8,10 +8,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -1043,7 +1039,7 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type
 	 * <code>TagProperty</code>.
 	 * @see TagProperty
-	 * @since 3.29 BETA_JAVA 18
+	 * @since 3.29
 	 */
 	public static final int TAG_PROPERTY = 110;
 
@@ -1051,7 +1047,7 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type
 	 * <code>JavaDocRegion</code>.
 	 * @see JavaDocRegion
-	 * @since 3.29 BETA_JAVA 18
+	 * @since 3.29
 	 */
 	public static final int JAVADOC_REGION = 111;
 
@@ -2305,7 +2301,7 @@ public abstract class ASTNode {
      * </p>
      *
 	 * @exception UnsupportedOperationException if this operation is used below JLS18
-	 * @since 3.29 BETA_JAVA 18
+	 * @since 3.29
 	 */
 	final void unsupportedBelow18() {
 		if (this.ast.apiLevel < AST.JLS18_INTERNAL) {
@@ -2468,7 +2464,7 @@ public abstract class ASTNode {
      * </p>
      *
 	 * @exception UnsupportedOperationException if this operation is not used in JLS18
-	 * @since 3.28 BETA_JAVA 18
+	 * @since 3.29
 	 */
 	final void supportedOnlyIn18() {
 		if (this.ast.apiLevel != AST.JLS18_INTERNAL) {

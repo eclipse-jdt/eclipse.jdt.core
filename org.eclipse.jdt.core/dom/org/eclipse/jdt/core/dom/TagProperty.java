@@ -8,10 +8,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -32,7 +28,7 @@ import org.eclipse.jdt.internal.core.dom.util.DOMASTUtil;
  *      Node Value
  * </pre>
  *
- * @since 3.29 BETA_JAVA 18
+ * @since 3.29
  */
 
 @SuppressWarnings("rawtypes")
@@ -64,10 +60,19 @@ public class TagProperty extends ASTNode implements IDocElement{
 
 	public static final String TAG_PROPERTY_SNIPPET_ERROR = "SnippetError"; //$NON-NLS-1$
 
+	/**
+	 * @since 3.29
+	 */
 	public static final String TAG_PROPERTY_SNIPPET_ID =  "SnippetID"; //$NON-NLS-1$
 
+	/**
+	 * @since 3.29
+	 */
 	public static final String TAG_PROPERTY_SNIPPET_INLINE_TAG_COUNT = "SnippetInlineTagCount"; //$NON-NLS-1$
 
+	/**
+	 * @since 3.29
+	 */
 	public static final String TAG_PROPERTY_SNIPPET_REGION_TEXT = "SnippetRegionTextElement"; //$NON-NLS-1$
 
 	/**
