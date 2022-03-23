@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2020 IBM Corporation and others.
+ * Copyright (c) 2005, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -47,6 +47,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -1054,6 +1055,16 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		return isRawType();
 	}
 
+	@Override
+	public ReferenceBinding[] permittedTypes() {
+		ReferenceBinding[] permTypes = this.type.permittedTypes();
+		List<ReferenceBinding> applicablePermTypes = new ArrayList<>();
+		for (ReferenceBinding pt : permTypes) {
+			if (pt.isCompatibleWith(this))
+				applicablePermTypes.add(pt);
+		}
+		return applicablePermTypes.toArray(new ReferenceBinding[0]);
+	}
 	@Override
 	public TypeBinding unannotated() {
 		return this.hasTypeAnnotations() ? this.environment.getUnannotatedType(this) : this;

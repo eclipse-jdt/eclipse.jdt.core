@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -928,6 +929,12 @@ public class NaiveASTFlattener extends ASTVisitor {
 	}
 
 	@Override
+	public boolean visit(JavaDocRegion node) {
+		//ToDO
+		return false;
+	}
+
+	@Override
 	public boolean visit(LabeledStatement node) {
 		printIndent();
 		node.getLabel().accept(this);
@@ -1730,11 +1737,31 @@ public class NaiveASTFlattener extends ASTVisitor {
 			e.accept(this);
 			previousRequiresWhiteSpace = !currentIncludesWhiteSpace && !(e instanceof TagElement);
 		}
+		if (DOMASTUtil.isJavaDocCodeSnippetSupported(node.getAST().apiLevel())) {
+			for (Iterator it = node.tagProperties().iterator(); it.hasNext(); ) {
+				TagProperty tagProperty = (TagProperty) it.next();
+				tagProperty.accept(this);
+			}
+
+		}
 		if (node.isNested()) {
 			this.buffer.append("}");//$NON-NLS-1$
 		}
 		return false;
 	}
+
+	@Override
+	public boolean visit(TagProperty node) {
+		this.buffer.append("\n{"); //$NON-NLS-1$
+		this.buffer.append(node.getName());
+		this.buffer.append(" = "); //$NON-NLS-1$
+		this.buffer.append(node.getStringValue());
+		node.getNodeValue().accept(this);
+		this.buffer.append("}"); //$NON-NLS-1$
+		return false;
+	}
+
+
 
 	@Override
 	public boolean visit(TextBlock node) {

@@ -1387,7 +1387,7 @@ public void ungetToken(int unambiguousToken) {
 	}
 	this.nextToken = unambiguousToken;
 }
-private void updateCase(int token) {
+protected void updateCase(int token) {
 	if (token == TokenNamecase) {
 		this.caseStartPosition = this.startPosition;
 		this.breakPreviewAllowed = true;
@@ -1405,6 +1405,7 @@ public int getNextToken() throws InvalidInputException {
 		this.scanContext = isInModuleDeclaration() ? ScanContext.EXPECTING_KEYWORD : ScanContext.INACTIVE;
 	}
 	token = getNextToken0();
+	updateCase(token);
 	if (areRestrictedModuleKeywordsActive()) {
 		if (isRestrictedKeyword(token))
 			token = disambiguatedRestrictedKeyword(token);
@@ -1423,7 +1424,6 @@ public int getNextToken() throws InvalidInputException {
 	this.lookBack[0] = this.lookBack[1];
 	this.lookBack[1] = token;
 	this.multiCaseLabelComma = false;
-	updateCase(token);
 	return token;
 }
 protected int getNextToken0() throws InvalidInputException {
@@ -1671,87 +1671,7 @@ protected int getNextToken0() throws InvalidInputException {
 					++this.yieldColons;
 					return TokenNameCOLON;
 				case '\'' :
-					{
-						int test;
-						if ((test = getNextChar('\n', '\r')) == 0) {
-							throw new InvalidInputException(INVALID_CHARACTER_CONSTANT);
-						}
-						if (test > 0) {
-							// relocate if finding another quote fairly close: thus unicode '/u000D' will be fully consumed
-							for (int lookAhead = 0; lookAhead < 3; lookAhead++) {
-								if (this.currentPosition + lookAhead == this.eofPosition)
-									break;
-								if (this.source[this.currentPosition + lookAhead] == '\n')
-									break;
-								if (this.source[this.currentPosition + lookAhead] == '\'') {
-									this.currentPosition += lookAhead + 1;
-									break;
-								}
-							}
-							throw new InvalidInputException(INVALID_CHARACTER_CONSTANT);
-						}
-					}
-					if (getNextChar('\'')) {
-						// relocate if finding another quote fairly close: thus unicode '/u000D' will be fully consumed
-						for (int lookAhead = 0; lookAhead < 3; lookAhead++) {
-							if (this.currentPosition + lookAhead == this.eofPosition)
-								break;
-							if (this.source[this.currentPosition + lookAhead] == '\n')
-								break;
-							if (this.source[this.currentPosition + lookAhead] == '\'') {
-								this.currentPosition += lookAhead + 1;
-								break;
-							}
-						}
-						throw new InvalidInputException(INVALID_CHARACTER_CONSTANT);
-					}
-					if (getNextChar('\\')) {
-						if (this.unicodeAsBackSlash) {
-							// consume next character
-							this.unicodeAsBackSlash = false;
-							if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\') && (this.source[this.currentPosition] == 'u')) {
-								getNextUnicodeChar();
-							} else {
-								if (this.withoutUnicodePtr != 0) {
-									unicodeStore();
-								}
-							}
-						} else {
-							this.currentCharacter = this.source[this.currentPosition++];
-						}
-						scanEscapeCharacter();
-					} else { // consume next character
-						this.unicodeAsBackSlash = false;
-						checkIfUnicode = false;
-						try {
-							checkIfUnicode = ((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
-							&& (this.source[this.currentPosition] == 'u');
-						} catch(IndexOutOfBoundsException e) {
-							this.currentPosition--;
-							throw new InvalidInputException(INVALID_CHARACTER_CONSTANT);
-						}
-						if (checkIfUnicode) {
-							getNextUnicodeChar();
-						} else {
-							if (this.withoutUnicodePtr != 0) {
-								unicodeStore();
-							}
-						}
-					}
-					if (getNextChar('\''))
-						return TokenNameCharacterLiteral;
-					// relocate if finding another quote fairly close: thus unicode '/u000D' will be fully consumed
-					for (int lookAhead = 0; lookAhead < 20; lookAhead++) {
-						if (this.currentPosition + lookAhead == this.eofPosition)
-							break;
-						if (this.source[this.currentPosition + lookAhead] == '\n')
-							break;
-						if (this.source[this.currentPosition + lookAhead] == '\'') {
-							this.currentPosition += lookAhead + 1;
-							break;
-						}
-					}
-					throw new InvalidInputException(INVALID_CHARACTER_CONSTANT);
+					return processSingleQuotes(checkIfUnicode);
 				case '"' :
 					return scanForStringLiteral();
 				case '/' :
@@ -2012,7 +1932,90 @@ protected int getNextToken0() throws InvalidInputException {
 	}
 	return TokenNameEOF;
 }
-private int scanForStringLiteral() throws InvalidInputException {
+protected int processSingleQuotes(boolean checkIfUnicode) throws InvalidInputException{
+	{
+		int test;
+		if ((test = getNextChar('\n', '\r')) == 0) {
+			throw new InvalidInputException(INVALID_CHARACTER_CONSTANT);
+		}
+		if (test > 0) {
+			// relocate if finding another quote fairly close: thus unicode '/u000D' will be fully consumed
+			for (int lookAhead = 0; lookAhead < 3; lookAhead++) {
+				if (this.currentPosition + lookAhead == this.eofPosition)
+					break;
+				if (this.source[this.currentPosition + lookAhead] == '\n')
+					break;
+				if (this.source[this.currentPosition + lookAhead] == '\'') {
+					this.currentPosition += lookAhead + 1;
+					break;
+				}
+			}
+			throw new InvalidInputException(INVALID_CHARACTER_CONSTANT);
+		}
+	}
+	if (getNextChar('\'')) {
+		// relocate if finding another quote fairly close: thus unicode '/u000D' will be fully consumed
+		for (int lookAhead = 0; lookAhead < 3; lookAhead++) {
+			if (this.currentPosition + lookAhead == this.eofPosition)
+				break;
+			if (this.source[this.currentPosition + lookAhead] == '\n')
+				break;
+			if (this.source[this.currentPosition + lookAhead] == '\'') {
+				this.currentPosition += lookAhead + 1;
+				break;
+			}
+		}
+		throw new InvalidInputException(INVALID_CHARACTER_CONSTANT);
+	}
+	if (getNextChar('\\')) {
+		if (this.unicodeAsBackSlash) {
+			// consume next character
+			this.unicodeAsBackSlash = false;
+			if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\') && (this.source[this.currentPosition] == 'u')) {
+				getNextUnicodeChar();
+			} else {
+				if (this.withoutUnicodePtr != 0) {
+					unicodeStore();
+				}
+			}
+		} else {
+			this.currentCharacter = this.source[this.currentPosition++];
+		}
+		scanEscapeCharacter();
+	} else { // consume next character
+		this.unicodeAsBackSlash = false;
+		checkIfUnicode = false;
+		try {
+			checkIfUnicode = ((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
+			&& (this.source[this.currentPosition] == 'u');
+		} catch(IndexOutOfBoundsException e) {
+			this.currentPosition--;
+			throw new InvalidInputException(INVALID_CHARACTER_CONSTANT);
+		}
+		if (checkIfUnicode) {
+			getNextUnicodeChar();
+		} else {
+			if (this.withoutUnicodePtr != 0) {
+				unicodeStore();
+			}
+		}
+	}
+	if (getNextChar('\''))
+		return TokenNameCharacterLiteral;
+	// relocate if finding another quote fairly close: thus unicode '/u000D' will be fully consumed
+	for (int lookAhead = 0; lookAhead < 20; lookAhead++) {
+		if (this.currentPosition + lookAhead == this.eofPosition)
+			break;
+		if (this.source[this.currentPosition + lookAhead] == '\n')
+			break;
+		if (this.source[this.currentPosition + lookAhead] == '\'') {
+			this.currentPosition += lookAhead + 1;
+			break;
+		}
+	}
+	throw new InvalidInputException(INVALID_CHARACTER_CONSTANT);
+}
+protected int scanForStringLiteral() throws InvalidInputException {
 	boolean isTextBlock = false;
 
 	// consume next character
@@ -4695,20 +4698,30 @@ private static final class VanguardScanner extends Scanner {
 			this.scanContext = isInModuleDeclaration() ? ScanContext.EXPECTING_KEYWORD : ScanContext.INACTIVE;
 		}
 		token = getNextToken0();
+		updateCase(token);
 		if (areRestrictedModuleKeywordsActive()) {
 			if (isRestrictedKeyword(token))
 				token = disambiguatedRestrictedKeyword(token);
 			updateScanContext(token);
 		} else if (mayBeAtCasePattern(token)) {
 			token = disambiguateCasePattern(token, this);
-		} else
-		if (token == TokenNameAT && atTypeAnnotation()) {
+		} else if (token == TokenNameARROW  &&
+				mayBeAtCaseLabelExpr() &&  this.caseStartPosition < this.startPosition) {
+				// this.caseStartPosition > this.startPositionpossible on recovery - bother only about correct ones.
+				// add fake token of TokenNameCOLON, call vanguard on this modified source
+				// TODO: Inefficient method due to redoing of the same source, investigate alternate
+				// Can we do a dup of parsing/check the transition of the state?
+				token = disambiguateArrowWithCaseExpr(this, token);
+		} else	if (token == TokenNameAT && atTypeAnnotation()) {
 			if (((VanguardParser) this.activeParser).currentGoal == Goal.LambdaParameterListGoal) {
 				token = disambiguatedToken(token, this);
 			} else {
 				token = TokenNameAT308;
 			}
 		}
+		this.lookBack[0] = this.lookBack[1];
+		this.lookBack[1] = token;
+		this.multiCaseLabelComma = false;
 		return token == TokenNameEOF ? TokenNameNotAToken : token;
 	}
 }
@@ -4744,7 +4757,7 @@ private static class Goal {
 	static int[] RestrictedIdentifierSealedFollow =  { TokenNameclass, TokenNameinterface,
 			TokenNameenum, TokenNameRestrictedIdentifierrecord };// Note: enum/record allowed as error flagging rules.
 	static int[] RestrictedIdentifierPermitsFollow =  { TokenNameLBRACE };
-	static int[] PatternCaseLabelFollow = {TokenNameCOLON, TokenNameARROW, TokenNameCOMMA};
+	static int[] PatternCaseLabelFollow = {TokenNameCOLON, TokenNameARROW, TokenNameCOMMA, TokenNameBeginCaseExpr};
 
 	static {
 
@@ -5011,7 +5024,7 @@ private VanguardScanner getNewVanguardScanner() {
 	return vs;
 }
 protected final boolean mayBeAtCasePattern(int token) {
-	return (!isInModuleDeclaration() && this.complianceLevel == ClassFileConstants.JDK17 && this.previewEnabled)
+	return (!isInModuleDeclaration() && JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(this.complianceLevel, this.previewEnabled))
 			&& (token == TokenNamecase || this.multiCaseLabelComma);
 }
 protected final boolean mayBeAtBreakPreview() {
@@ -5394,12 +5407,7 @@ int disambiguatedToken(int token, Scanner scanner) {
 		// add fake token of TokenNameCOLON, call vanguard on this modified source
 		// TODO: Inefficient method due to redoing of the same source, investigate alternate
 		// Can we do a dup of parsing/check the transition of the state?
-		char[] nSource = CharOperation.append(Arrays.copyOfRange(scanner.source, scanner.caseStartPosition, scanner.startPosition), ':');
-		VanguardParser vp = getNewVanguardParser(nSource);
-		if (vp.parse(Goal.SwitchLabelCaseLhsGoal) == VanguardParser.SUCCESS) {
-			scanner.nextToken = TokenNameARROW;
-			return TokenNameBeginCaseExpr;
-		}
+		return disambiguateArrowWithCaseExpr(scanner, token);
 	} else	if (token == TokenNameLPAREN  && maybeAtLambdaOrCast()) {
 		if (parser.parse(Goal.LambdaParameterListGoal) == VanguardParser.SUCCESS) {
 			scanner.nextToken = TokenNameLPAREN;
@@ -5427,6 +5435,17 @@ int disambiguatedToken(int token, Scanner scanner) {
 	}
 	return token;
 }
+
+protected int disambiguateArrowWithCaseExpr(Scanner scanner, int retToken) {
+	char[] nSource = CharOperation.append(Arrays.copyOfRange(scanner.source, scanner.caseStartPosition, scanner.startPosition), ':');
+	VanguardParser vp = getNewVanguardParser(nSource);
+	if (vp.parse(Goal.SwitchLabelCaseLhsGoal) == VanguardParser.SUCCESS) {
+		scanner.nextToken = TokenNameARROW;
+		retToken = TokenNameBeginCaseExpr;
+//		scanner.caseStartPosition = scanner.caseStartStack.isEmpty() ? -1 : scanner.caseStartStack.pop();
+	}
+	return retToken;
+}
 /*
  * Assumption: mayBeAtCasePattern(token) is true before calling this method.
  */
@@ -5435,6 +5454,7 @@ int disambiguateCasePattern(int token, Scanner scanner) {
 	int delta = token == TokenNamecase ? 4 : 0; // 4 for case.
 	final VanguardParser parser = getNewVanguardParser();
 	parser.scanner.resetTo(parser.scanner.currentPosition + delta, parser.scanner.eofPosition);
+	parser.scanner.caseStartPosition = this.caseStartPosition;
 	if (parser.parse(Goal.PatternGoal) == VanguardParser.SUCCESS) {
 		if (token == TokenNamecase) {
 			scanner.nextToken = TokenNameBeginCaseElement;
@@ -5446,11 +5466,11 @@ int disambiguateCasePattern(int token, Scanner scanner) {
 	return token;
 }
 
-private boolean mayBeAtCaseLabelExpr() {
+protected boolean mayBeAtCaseLabelExpr() {
 	if (isInModuleDeclaration() || this.caseStartPosition <= 0)
 		return false;
 	if (this.lookBack[1] == TokenNamedefault) {
-		return this.complianceLevel == ClassFileConstants.JDK17 && this.previewEnabled ?
+		return JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(this.complianceLevel, this.previewEnabled) ?
 				(this.lookBack[0] == TerminalTokens.TokenNamecase || this.lookBack[0] == TerminalTokens.TokenNameCOMMA)
 				: false;
 	}

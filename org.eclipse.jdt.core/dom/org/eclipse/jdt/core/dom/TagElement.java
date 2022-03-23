@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2019 IBM Corporation and others.
+ * Copyright (c) 2004, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -17,6 +17,8 @@ package org.eclipse.jdt.core.dom;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jdt.internal.core.dom.util.DOMASTUtil;
+
 /**
  * AST node for a tag within a doc comment.
  * Tag elements nested within another tag element are called
@@ -24,6 +26,7 @@ import java.util.List;
  * <pre>
  * TagElement:
  *     [ <b>@</b> Identifier ] { DocElement }
+ *     {tagProperty = tagValue}
  * DocElement:
  *     TextElement
  *     Name
@@ -37,22 +40,29 @@ import java.util.List;
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
-public final class TagElement extends ASTNode implements IDocElement {
+public final class TagElement extends AbstractTagElement {
+
 
 	/**
 	 * The "tagName" structural property of this node type (type: {@link String}).
-	 *
-	 * @since 3.0
 	 */
-	public static final SimplePropertyDescriptor TAG_NAME_PROPERTY =
-		new SimplePropertyDescriptor(TagElement.class, "tagName", String.class, OPTIONAL); //$NON-NLS-1$
 
+	public static final SimplePropertyDescriptor TAG_NAME_PROPERTY =
+			internalTagNamePropertyFactory(TagElement.class);
 	/**
 	 * The "fragments" structural property of this node type (element type: {@link IDocElement}).
-	 * @since 3.0
 	 */
 	public static final ChildListPropertyDescriptor FRAGMENTS_PROPERTY =
-		new ChildListPropertyDescriptor(TagElement.class, "fragments", IDocElement.class, CYCLE_RISK); //$NON-NLS-1$
+			internalFragmentsPropertyFactory(TagElement.class);
+
+	/**
+	 * The "properties" structural property of this node type (element type: {@link TagProperty}).
+	 * @since 3.29
+	 */
+	public static final ChildListPropertyDescriptor TAG_PROPERTIES_PROPERTY =
+		new ChildListPropertyDescriptor(TagElement.class, "tagProperties", TagProperty.class, CYCLE_RISK); //$NON-NLS-1$
+
+
 
 	/**
 	 * A list of property descriptors (element type:
@@ -62,12 +72,28 @@ public final class TagElement extends ASTNode implements IDocElement {
 	 */
 	private static final List PROPERTY_DESCRIPTORS;
 
+	/**
+	 * A list of property descriptors (element type:
+	 * {@link StructuralPropertyDescriptor}),
+	 * or null if uninitialized.
+	 * @since 3.29
+	 */
+	private static final List PROPERTY_DESCRIPTORS_18;
+
 	static {
 		List propertyList = new ArrayList(3);
 		createPropertyList(TagElement.class, propertyList);
 		addProperty(TAG_NAME_PROPERTY, propertyList);
 		addProperty(FRAGMENTS_PROPERTY, propertyList);
 		PROPERTY_DESCRIPTORS = reapPropertyList(propertyList);
+
+		propertyList = new ArrayList(4);
+		createPropertyList(TagElement.class, propertyList);
+		addProperty(TAG_NAME_PROPERTY, propertyList);
+		addProperty(FRAGMENTS_PROPERTY, propertyList);
+		addProperty(TAG_PROPERTIES_PROPERTY, propertyList);
+
+		PROPERTY_DESCRIPTORS_18 = reapPropertyList(propertyList);
 	}
 
 	/**
@@ -81,7 +107,18 @@ public final class TagElement extends ASTNode implements IDocElement {
 	 * @since 3.0
 	 */
 	public static List propertyDescriptors(int apiLevel) {
+		if (DOMASTUtil.isJavaDocCodeSnippetSupported(apiLevel)) {
+			return PROPERTY_DESCRIPTORS_18;
+		}
 		return PROPERTY_DESCRIPTORS;
+	}
+	@Override
+	final ChildListPropertyDescriptor internalFragmentsPropertyFactory() {
+		return FRAGMENTS_PROPERTY;
+	}
+	@Override
+	final SimplePropertyDescriptor internalTagNamePropertyFactory() {
+		return TAG_NAME_PROPERTY;
 	}
 
 	/**
@@ -94,12 +131,13 @@ public final class TagElement extends ASTNode implements IDocElement {
 	 * <p>
 	 * Note that this tag first appeared in J2SE 5.
 	 * </p>
-	 * @since 3.1
+	 * @since 3.29
 	 */
 	public static final String TAG_CODE = "@code"; //$NON-NLS-1$
 
 	/**
 	 * Standard doc tag name (value {@value}).
+	 * @since 3.29
 	 */
 	public static final String TAG_DEPRECATED = "@deprecated"; //$NON-NLS-1$
 
@@ -110,33 +148,37 @@ public final class TagElement extends ASTNode implements IDocElement {
 
 	/**
 	 * Standard doc tag name (value {@value}).
+	 * @since 3.29
 	 */
 	public static final String TAG_EXCEPTION = "@exception"; //$NON-NLS-1$
 
 	/**
 	 * Standard doc tag name (value {@value}).
-	 * @since 3.18
+	 * @since 3.29
 	 */
 	public static final String TAG_HIDDEN = "@hidden"; //$NON-NLS-1$
 
 	/**
 	 * Standard doc tag name (value {@value}).
-	 * @since 3.18
+	 * @since 3.29
 	 */
 	public static final String TAG_INDEX = "@index"; //$NON-NLS-1$
 
 	/**
 	 * Standard inline doc tag name (value {@value}).
+	 * @since 3.29
 	 */
 	public static final String TAG_INHERITDOC = "@inheritDoc"; //$NON-NLS-1$
 
 	/**
 	 * Standard inline doc tag name (value {@value}).
+	 * @since 3.29
 	 */
 	public static final String TAG_LINK = "@link"; //$NON-NLS-1$
 
 	/**
 	 * Standard inline doc tag name (value {@value}).
+	 * @since 3.29
 	 */
 	public static final String TAG_LINKPLAIN = "@linkplain"; //$NON-NLS-1$
 
@@ -145,43 +187,49 @@ public final class TagElement extends ASTNode implements IDocElement {
 	 * <p>
 	 * Note that this tag first appeared in J2SE 5.
 	 * </p>
-	 * @since 3.1
+	 * @since 3.29
 	 */
 	public static final String TAG_LITERAL = "@literal"; //$NON-NLS-1$
 
 	/**
 	 * Standard doc tag name (value {@value}).
+	 * @since 3.29
 	 */
 	public static final String TAG_PARAM = "@param"; //$NON-NLS-1$
 
 	/**
 	 * Standard doc tag name (value {@value}).
-	 * @since 3.18
+	 * @since 3.29
 	 */
 	public static final String TAG_PROVIDES = "@provides"; //$NON-NLS-1$
 
 	/**
 	 * Standard doc tag name (value {@value}).
+	 * @since 3.29
 	 */
 	public static final String TAG_RETURN = "@return"; //$NON-NLS-1$
 
 	/**
 	 * Standard doc tag name (value {@value}).
+	 * @since 3.29
 	 */
 	public static final String TAG_SEE = "@see"; //$NON-NLS-1$
 
 	/**
 	 * Standard doc tag name (value {@value}).
+	 * @since 3.29
 	 */
 	public static final String TAG_SERIAL = "@serial"; //$NON-NLS-1$
 
 	/**
 	 * Standard doc tag name (value {@value}).
+	 * @since 3.29
 	 */
 	public static final String TAG_SERIALDATA= "@serialData"; //$NON-NLS-1$
 
 	/**
 	 * Standard doc tag name (value {@value}).
+	 * @since 3.29
 	 */
 	public static final String TAG_SERIALFIELD= "@serialField"; //$NON-NLS-1$
 
@@ -192,60 +240,76 @@ public final class TagElement extends ASTNode implements IDocElement {
 
 	/**
 	 * Standard doc tag name (value {@value}).
-	 * @since 3.18
+	 * @since 3.29
 	 */
 	public static final String TAG_SUMMARY = "@summary"; //$NON-NLS-1$
 
 	/**
 	 * Standard doc tag name (value {@value}).
+	 * @since 3.29
 	 */
 	public static final String TAG_THROWS = "@throws"; //$NON-NLS-1$
 
 	/**
 	 * Standard doc tag name (value {@value}).
-	 * @since 3.18
+	 * @since 3.29
 	 */
 	public static final String TAG_USES = "@uses"; //$NON-NLS-1$
 
 	/**
 	 * Standard inline doc tag name (value {@value}).
+	 * @since 3.29
 	 */
 	public static final String TAG_VALUE= "@value"; //$NON-NLS-1$
 
 	/**
 	 * Standard doc tag name (value {@value}).
+	 * @since 3.29
 	 */
 	public static final String TAG_VERSION = "@version"; //$NON-NLS-1$
 
 	/**
 	 * Javadoc tag name (value {@value}).
-	 * @since 3.18
+	 * @since 3.29
 	 */
 	public static final String TAG_API_NOTE = "@apiNote"; //$NON-NLS-1$
 
 	/**
 	 * Javadoc tag name (value {@value}).
-	 * @since 3.18
+	 * @since 3.29
 	 */
 	public static final String TAG_IMPL_SPEC = "@implSpec"; //$NON-NLS-1$
 
 	/**
 	 * Javadoc tag name (value {@value}).
-	 * @since 3.18
+	 * @since 3.29
 	 */
 	public static final String TAG_IMPL_NOTE = "@implNote"; //$NON-NLS-1$
 
 	/**
-	 * The tag name, or null if none; defaults to null.
+	 * Standard inline doc tag name (value {@value}).
+	 * @since 3.29
 	 */
-	private String optionalTagName = null;
+	public static final String TAG_SNIPPET = "@snippet"; //$NON-NLS-1$
 
 	/**
-	 * The list of doc elements (element type: {@link IDocElement}).
+	 * Standard snippet doc tag name (value {@value}).
+	 * @since 3.29
+	 */
+	public static final String TAG_HIGHLIGHT = "@highlight"; //$NON-NLS-1$
+
+	/**
+	 * Standard snippet doc tag name (value {@value}).
+	 * @since 3.29
+	 */
+	public static final String TAG_REPLACE = "@replace"; //$NON-NLS-1$
+
+	/**
+	 * The list of doc elements (element type: {@link TagProperty}).
 	 * Defaults to an empty list.
 	 */
-	private ASTNode.NodeList fragments =
-		new ASTNode.NodeList(FRAGMENTS_PROPERTY);
+	private ASTNode.NodeList tagProperties =
+		new ASTNode.NodeList(TAG_PROPERTIES_PROPERTY);
 
 	/**
 	 * Creates a new AST node for a tag element owned by the given AST.
@@ -267,24 +331,13 @@ public final class TagElement extends ASTNode implements IDocElement {
 		return propertyDescriptors(apiLevel);
 	}
 
-	@Override
-	final Object internalGetSetObjectProperty(SimplePropertyDescriptor property, boolean get, Object value) {
-		if (property == TAG_NAME_PROPERTY) {
-			if (get) {
-				return getTagName();
-			} else {
-				setTagName((String) value);
-				return null;
-			}
-		}
-		// allow default implementation to flag the error
-		return super.internalGetSetObjectProperty(property, get, value);
-	}
 
 	@Override
 	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
 		if (property == FRAGMENTS_PROPERTY) {
 			return fragments();
+		} else if (property == TAG_PROPERTIES_PROPERTY) {
+			return tagProperties();
 		}
 		// allow default implementation to flag the error
 		return super.internalGetChildListProperty(property);
@@ -301,6 +354,9 @@ public final class TagElement extends ASTNode implements IDocElement {
 		result.setSourceRange(getStartPosition(), getLength());
 		result.setTagName(getTagName());
 		result.fragments().addAll(ASTNode.copySubtrees(target, fragments()));
+		if (DOMASTUtil.isJavaDocCodeSnippetSupported(target.apiLevel)) {
+			result.tagProperties().addAll(ASTNode.copySubtrees(target, tagProperties()));
+		}
 		return result;
 	}
 
@@ -315,119 +371,113 @@ public final class TagElement extends ASTNode implements IDocElement {
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
 			acceptChildren(visitor, this.fragments);
+			if (DOMASTUtil.isJavaDocCodeSnippetSupported(this.getAST().apiLevel)) {
+				acceptChildren(visitor, this.tagProperties);
+			}
 		}
 		visitor.endVisit(this);
 	}
 
 	/**
-	 * Returns this node's tag name, or <code>null</code> if none.
-	 * For top level doc tags such as parameter tags, the tag name
-     * includes the "@" character ("@param").
-	 * For inline doc tags such as link tags, the tag name
-     * includes the "@" character ("@link").
-     * The tag name may also be <code>null</code>; this is used to
-     * represent the material at the start of a doc comment preceding
-     * the first explicit tag.
-     *
-	 * @return the tag name, or <code>null</code> if none
+	 * Returns the live list of tag properties in this tag element.
+	 *
+	 * @return the live list of properties in this tag element
+	 * (element type: {@link TagProperty})
+	 * @exception UnsupportedOperationException if this operation is used less than JLS18
+	 * @since 3.29
 	 */
-	public String getTagName() {
-		return this.optionalTagName;
+	public List tagProperties() {
+		unsupportedBelow18();
+		return this.tagProperties;
 	}
 
 	/**
-	 * Sets the tag name of this node to the given value.
-	 * For top level doc tags such as parameter tags, the tag name
-	 * includes the "@" character ("@param").
-	 * For inline doc tags such as link tags, the tag name
-	 * includes the "@" character ("@link").
-	 * The tag name may also be <code>null</code>; this is used to
-	 * represent the material at the start of a doc comment preceding
-	 * the first explicit tag.
+	 * Returns the list of non dummy JavaDopRegions in this tag element.
 	 *
-	 * @param tagName the tag name, or <code>null</code> if none
+	 * @return the list of non dummy JavaDopRegions in this tag element.
+	 * (element type: {@link JavaDocRegion})
+	 * @exception UnsupportedOperationException if this operation is used less than JLS18
+	 * @since 3.29
 	 */
-	public void setTagName(String tagName) {
-		preValueChange(TAG_NAME_PROPERTY);
-		this.optionalTagName = tagName;
-		postValueChange(TAG_NAME_PROPERTY);
+	public List tagRegions() {
+		unsupportedBelow18();
+		List<JavaDocRegion> regions = new ArrayList<>();
+		List<Object> frags = this.fragments();
+		if ( frags != null) {
+			for (Object fragment : frags) {
+				if (fragment instanceof JavaDocRegion
+						&& !((JavaDocRegion)fragment).isDummyRegion()) {
+					regions.add((JavaDocRegion)fragment);
+				}
+			}
+		}
+		return regions;
 	}
 
 	/**
-	 * Returns the live list of fragments in this tag element.
-	 * <p>
-	 * The fragments cover everything following the tag name
-	 * (or everything if there is no tag name), and generally omit
-	 * embedded line breaks (and leading whitespace on new lines,
-	 * including any leading "*"). {@link org.eclipse.jdt.core.dom.TagElement}
-	 * nodes are used to represent tag elements (e.g., "@link")
-	 * nested within this tag element.
-	 * </p>
-	 * <p>
-	 * Here are some typical examples:
-	 * <ul>
-	 * <li>"@see Foo#bar()" - TagElement with tag name "@see";
-	 * fragments() contains a single MethodRef node</li>
-	 * <li>"@param args the program arguments" -
-	 * TagElement with tag name "@param";
-	 * 2 fragments: SimpleName ("args"), TextElement
-	 * (" the program arguments")</li>
-	 * <li>"@return See {&#64;link #foo foo} instead." -
-	 * TagElement with tag name "@return";
-	 * 3 fragments: TextElement ("See "),
-	 * TagElement (for "&#64;link #foo foo"),
-	 * TextElement (" instead.")</li>
-	 * </ul>
-	 * The use of Name, MethodRef, and MemberRef nodes within
-	 * tag elements allows these fragments to be queried for
-	 * binding information.
-	 * <p>
-	 * Adding and removing nodes from this list affects this node
-	 * dynamically. The nodes in this list may be of various
-	 * types, including {@link TextElement},
-	 * {@link org.eclipse.jdt.core.dom.TagElement}, {@link Name},
-	 * {@link MemberRef}, and {@link MethodRef}.
-	 * Clients should assume that the list of types may grow in
-	 * the future, and write their code to deal with unexpected
-	 * nodes types. However, attempts to add a non-proscribed type
-	 * of node will trigger an exception.
+	 * Returns the list of non dummy JavaDocRegions containing this ASTNode and IDocElement.
 	 *
-	 * @return the live list of doc elements in this tag element
-	 * (element type: {@link IDocElement})
+	 * @return the list of non dummy JavaDocRegions containing this ASTNode and IDocElement.
+	 * (element type: {@link JavaDocRegion})
+	 * @exception UnsupportedOperationException if this operation is used less than JLS18
+	 * @since 3.29
 	 */
-	public List fragments() {
-		return this.fragments;
+	public List tagRegionsContainingTextElement(ASTNode docElem) {
+		unsupportedBelow18();
+		List<JavaDocRegion> regions = new ArrayList<>();
+		if (docElem == null || !(docElem instanceof IDocElement)) {
+			return regions;
+		} else {
+			int textElemStart = docElem.getStartPosition();
+			int textElemEnd = textElemStart + docElem.getLength();
+			List<JavaDocRegion> javaDocRegions = this.tagRegions();
+			for (JavaDocRegion region : javaDocRegions) {
+				int regionStart = region.getStartPosition();
+				int regionEnd = regionStart + region.getLength();
+				if (regionStart <= textElemStart && regionEnd >= textElemEnd) {
+					regions.add(region);
+				}
+			}
+		}
+		return regions;
 	}
 
 	/**
-	 * Returns whether this tag element is nested within another
-	 * tag element. Nested tag elements appears enclosed in
-	 * "{" and "}"; certain doc tags, including "@link" and
-	 * "@linkplain" are only meaningful as nested tags.
-	 * Top-level (i.e., non-nested) doc tags begin on a new line;
-	 * certain doc tags, including "@param" and
-	 * "@see" are only meaningful as top-level tags.
-	 * <p>
-	 * This convenience methods checks to see whether the parent
-	 * of this node is of type {@link org.eclipse.jdt.core.dom.TagElement}.
-	 * </p>
+	 * Returns the list of non dummy JavaDocRegions starting at this ASTNode and IDocElement.
 	 *
-	 * @return <code>true</code> if this node is a nested tag element,
-	 * and false if this node is either parented by a doc comment node
-	 * ({@link Javadoc}), or is unparented
+	 * @return the list of non dummy JavaDocRegions starting at this ASTNode and IDocElement.
+	 * (element type: {@link JavaDocRegion})
+	 * @exception UnsupportedOperationException if this operation is used less than JLS18
+	 * @since 3.29
 	 */
-	public boolean isNested() {
-		return (getParent() instanceof TagElement);
+	public List tagRegionsStartingAtTextElement(ASTNode docElem) {
+		unsupportedBelow18();
+		List<JavaDocRegion> regions = new ArrayList<>();
+		if (docElem == null || !(docElem instanceof TextElement)) {
+			return regions;
+		} else {
+			TextElement textElem= (TextElement) docElem;
+			List<JavaDocRegion> javaDocRegions = this.tagRegions();
+			for (JavaDocRegion region : javaDocRegions) {
+				if (!region.isDummyRegion()) {
+					Object textObj= region.getProperty(TagProperty.TAG_PROPERTY_SNIPPET_REGION_TEXT);
+					if (textElem.equals(textObj)) {
+						regions.add(region);
+					}
+				}
+			}
+		}
+		return regions;
 	}
 
 	@Override
 	int memSize() {
-		int size = BASE_NODE_SIZE + 2 * 4 + stringSize(this.optionalTagName);
-		return size;
+		return super.memSize();
 	}
 
 	@Override
 	int treeSize() {
-		return memSize() + this.fragments.listSize();
+		return memSize() + (DOMASTUtil.isJavaDocCodeSnippetSupported(this.getAST().apiLevel)? this.tagProperties.listSize(): 0);
 	}
+
 }

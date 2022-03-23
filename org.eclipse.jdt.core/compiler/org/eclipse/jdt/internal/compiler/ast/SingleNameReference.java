@@ -146,8 +146,12 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 			}
 			if (flowInfo.isPotentiallyAssigned(localBinding) || (this.bits & ASTNode.IsCapturedOuterLocal) != 0) {
 				localBinding.tagBits &= ~TagBits.IsEffectivelyFinal;
-				if (!isFinal && (this.bits & ASTNode.IsCapturedOuterLocal) != 0) {
-					currentScope.problemReporter().cannotReferToNonEffectivelyFinalOuterLocal(localBinding, this);
+				if (!isFinal) {
+					if ((this.bits & ASTNode.IsCapturedOuterLocal) != 0) {
+						currentScope.problemReporter().cannotReferToNonEffectivelyFinalOuterLocal(localBinding, this);
+					} else if ((this.bits & ASTNode.IsUsedInPatternGuard) != 0) {
+						currentScope.problemReporter().cannotReferToNonFinalLocalInGuard(localBinding, this);
+					}
 				}
 			}
 			if (! isFinal && (localBinding.tagBits & TagBits.IsEffectivelyFinal) != 0 && (localBinding.tagBits & TagBits.IsArgument) == 0) {

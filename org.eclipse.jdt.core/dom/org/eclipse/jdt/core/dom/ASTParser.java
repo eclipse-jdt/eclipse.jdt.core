@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2021 IBM Corporation and others.
+ * Copyright (c) 2004, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1265,7 +1265,8 @@ public class ASTParser {
 								sourceUnit,
 								searcher,
 								this.compilerOptions,
-								flags);
+								flags,
+								this.project);
 						needToResolveBindings = false;
 					}
 					CompilationUnit result = CompilationUnitResolver.convert(
@@ -1278,7 +1279,8 @@ public class ASTParser {
 						needToResolveBindings ? new DefaultBindingResolver.BindingTables() : null,
 						flags,
 						monitor,
-						this.project != null);
+						this.project != null,
+						this.project);
 					result.setTypeRoot(this.typeRoot);
 					return result;
 				} finally {

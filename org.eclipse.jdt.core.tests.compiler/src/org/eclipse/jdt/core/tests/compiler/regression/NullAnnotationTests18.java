@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021 GK Software SE, and others.
+ * Copyright (c) 2021, 2022 GK Software SE, and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -24,9 +24,9 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
 
-public class NullAnnotationTests17 extends AbstractNullAnnotationTest {
+public class NullAnnotationTests18 extends AbstractNullAnnotationTest {
 
-	public NullAnnotationTests17(String name) {
+	public NullAnnotationTests18(String name) {
 		super(name);
 	}
 
@@ -37,11 +37,11 @@ public class NullAnnotationTests17 extends AbstractNullAnnotationTest {
 	}
 
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_17);
+		return buildMinimalComplianceTestSuite(testClass(), F_18);
 	}
 
 	public static Class<?> testClass() {
-		return NullAnnotationTests17.class;
+		return NullAnnotationTests18.class;
 	}
 
 	@Deprecated // super method is deprecated
@@ -118,7 +118,7 @@ public class NullAnnotationTests17 extends AbstractNullAnnotationTest {
 			null,
 			jarFileName,
 			jcl17Path != null ? new String[] { jcl17Path } : null,
-			"17");
+			"18");
 		return jarFileName;
 	}
 
@@ -128,7 +128,7 @@ public class NullAnnotationTests17 extends AbstractNullAnnotationTest {
 		Runner runner = new Runner();
 		runner.classLibraries = this.LIBS;
 		Map<String,String> opts = getCompilerOptions();
-		opts.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_17);
+		opts.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_18);
 		opts.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		opts.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		runner.customOptions = opts;

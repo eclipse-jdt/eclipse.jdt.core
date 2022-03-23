@@ -13,7 +13,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.parser;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
@@ -67,6 +69,9 @@ public class JavadocParser extends AbstractCommentParser {
 	// flag to let the parser know that the current tag is waiting for a description
 	// see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=222900"
 	private int tagWaitingForDescription;
+
+	private ArrayList<String> regionNames = new ArrayList<>();
+	private int regionPosition = -1;
 
 	public JavadocParser(Parser sourceParser) {
 		super(sourceParser);
@@ -343,6 +348,66 @@ public class JavadocParser extends AbstractCommentParser {
 
 	@Override
 	protected void createTag() {
+		this.tagValue = TAG_OTHERS_VALUE;
+	}
+
+	@Override
+	protected Object createSnippetTag() {
+		this.tagValue = TAG_SNIPPET_VALUE;
+		return this.tagValue;
+	}
+
+	@Override
+	protected Object createSnippetRegion(String name, List<Object> tags, Object snippetTag, boolean isDummyRegion, boolean considerPrevTag) {
+		if(this.regionNames.contains(name)) {
+			if(this.reportProblems) {
+				int startPos= this.lineEnd -this.scanner.getCurrentTokenString().length() +2;
+				if(this.regionPosition>0)
+					startPos = startPos+this.regionPosition;
+				this.sourceParser.problemReporter().javadocInvalidSnippetDuplicateRegions(startPos-4, startPos+1);
+			}
+			this.setSnippetIsValid(snippetTag, false);
+			this.setSnippetError(snippetTag, "Duplicate regions"); //$NON-NLS-1$
+		}
+		else {
+			if(name!=null)
+				this.regionNames.add(name);
+		}
+
+		if (tags != null && tags.size() > 0) {
+			return tags.get(0);
+		}
+		return name;
+	}
+
+	@Override
+	protected void setSnippetIsValid(Object obj, boolean value) {
+		//do nothing;
+	}
+
+	@Override
+	protected void setSnippetError(Object obj, String value) {
+		//do nothing;
+	}
+
+	@Override
+	protected void setSnippetID(Object tag, String value) {
+		// do nothing
+
+	}
+
+	@Override
+	protected Object createSnippetInnerTag(String tagName, int start, int end) {
+		return tagName;
+	}
+
+	@Override
+	protected void addTagProperties(Object Tag, Map<String, Object> map, int tagCount) {
+		return;
+	}
+
+	@Override
+	protected void addSnippetInnerTag(Object tag, Object snippetTag) {
 		this.tagValue = TAG_OTHERS_VALUE;
 	}
 
@@ -746,6 +811,16 @@ public class JavadocParser extends AbstractCommentParser {
 				} else if (length == TAG_SUMMARY_LENGTH && CharOperation.equals(TAG_SUMMARY, tagName, 0, length)) {
 					this.tagValue = TAG_SUMMARY_VALUE;
 					this.tagWaitingForDescription = this.tagValue;
+				} else if (length == TAG_SNIPPET_LENGTH && CharOperation.equals(TAG_SNIPPET, tagName, 0, length)) {
+					this.tagValue = TAG_SNIPPET_VALUE;
+					this.tagWaitingForDescription = this.tagValue;
+					if (this.inlineTagStarted) {
+						valid = parseSnippet();
+					}
+				}else if (length> TAG_SNIPPET_LENGTH && CharOperation.prefixEquals(TAG_SNIPPET, tagName)) {
+					if (this.reportProblems ) {
+						this.sourceParser.problemReporter().javadocInvalidSnippet(this.tagSourceStart, this.tagSourceEnd);
+					}
 				}
 				break;
 			case 't':
@@ -927,6 +1002,24 @@ public class JavadocParser extends AbstractCommentParser {
 	protected void pushText(int start, int end) {
 		// The tag gets its description => clear the flag
 		this.tagWaitingForDescription = NO_TAG_VALUE;
+	}
+
+	@Override
+	protected void  pushSnippetText(int start, int end, boolean addNewLine, Object snippetTag) {
+		// The tag gets its description => clear the flag
+		this.tagWaitingForDescription = TAG_SNIPPET_VALUE;
+	}
+
+	@Override
+	protected void closeJavaDocRegion(String name, Object snippetTag, int end){
+		this.regionNames.remove(name);
+		//do nothing
+	}
+
+	@Override
+	protected void pushExternalSnippetText(String text, int start, int end) {
+		// The tag gets its description => clear the flag
+		this.tagWaitingForDescription = TAG_SNIPPET_VALUE;
 	}
 
 	/*
@@ -1180,4 +1273,19 @@ public class JavadocParser extends AbstractCommentParser {
 
 	}
 
+
+	@Override
+	/**	 * call at the end of snippet, so clear regionNames
+	 */
+	protected boolean areRegionsClosed() {
+		int size = this.regionNames.size();
+		this.regionNames.clear();
+		return size==0;
+	}
+
+	@Override
+	protected void setRegionPosition(int currentPosition) {
+		this.regionPosition=currentPosition;
+
+	}
 }

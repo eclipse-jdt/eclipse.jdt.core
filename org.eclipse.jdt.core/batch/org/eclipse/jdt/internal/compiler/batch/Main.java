@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -3167,6 +3167,9 @@ private String optionStringToVersion(String currentArg) {
 		case "17": //$NON-NLS-1$
 		case "17.0": //$NON-NLS-1$
 			return CompilerOptions.VERSION_17;
+		case "18": //$NON-NLS-1$
+		case "18.0": //$NON-NLS-1$
+			return CompilerOptions.VERSION_18;
 		default:
 			return null;
 	}

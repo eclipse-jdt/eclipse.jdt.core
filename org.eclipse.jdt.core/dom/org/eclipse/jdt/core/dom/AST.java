@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -371,7 +371,7 @@ public final class AST {
 	 * programs written in all versions of the Java language
 	 * up to and including Java SE 16(aka JDK 16).
 	 * </p>
-	 * * @deprecated Clients should use the {@link #getJLSLatest()} AST API instead.
+	 * @deprecated Clients should use the {@link #getJLSLatest()} AST API instead.
 	 * @since 3.26
 	 */
 	public static final int JLS16 = 16;
@@ -386,10 +386,25 @@ public final class AST {
 	 * programs written in all versions of the Java language
 	 * up to and including Java SE 17(aka JDK 17).
 	 * </p>
-	 *
+	 * @deprecated Clients should use the {@link #getJLSLatest()} AST API instead.
 	 * @since 3.28
 	 */
 	public static final int JLS17 = 17;
+	/**
+	 * Constant for indicating the AST API that handles JLS17.
+	 * <p>
+	 * This API is capable of handling all constructs in the
+	 * Java language as described in the Java Language
+	 * Specification, Java SE 18 Edition (JLS18).
+	 * JLS18 is a superset of all earlier versions of the
+	 * Java language, and the JLS18 API can be used to manipulate
+	 * programs written in all versions of the Java language
+	 * up to and including Java SE 18(aka JDK 18).
+	 * </p>
+	 *
+	 * @since 3.29
+	 */
+	public static final int JLS18 = 18;
 
 	/**
 	 * Internal synonym for {@link #JLS15}. Use to alleviate
@@ -406,19 +421,23 @@ public final class AST {
 	 * deprecation warnings once JLS17 is deprecated
 	 */
 	static final int JLS17_INTERNAL = JLS17;
-
+	/**
+	 * Internal synonym for {@link #JLS18}. Use to alleviate
+	 * deprecation warnings once JLS18 is deprecated
+	 */
+	static final int JLS18_INTERNAL = JLS18;
 	/**
 	 * Internal property for latest supported JLS level
 	 * This provides the latest JLS level.
 	 */
-	private static final int JLS_INTERNAL_Latest = JLS17;
+	private static final int JLS_INTERNAL_Latest = JLS18;
 
 	/**
 	 * @since 3.26
 	 * This provides the latest JLS level.
 	 * @deprecated use {@link #getJLSLatest()}
 	 */
-	public static final int JLS_Latest = JLS17;
+	public static final int JLS_Latest = JLS18;
 
 	/*
 	 * Must not collide with a value for ICompilationUnit constants
@@ -1153,6 +1172,7 @@ public final class AST {
         t.put(JavaCore.VERSION_15, ClassFileConstants.JDK15);
         t.put(JavaCore.VERSION_16, ClassFileConstants.JDK16);
         t.put(JavaCore.VERSION_17, ClassFileConstants.JDK17);
+        t.put(JavaCore.VERSION_18, ClassFileConstants.JDK18);
         return Collections.unmodifiableMap(t);
 	}
 	private static Map<String, Integer> getApiLevelMapTable() {
@@ -1174,6 +1194,7 @@ public final class AST {
         t.put(JavaCore.VERSION_15, JLS15_INTERNAL);
         t.put(JavaCore.VERSION_16, JLS16_INTERNAL);
         t.put(JavaCore.VERSION_17, JLS17_INTERNAL);
+        t.put(JavaCore.VERSION_18, JLS18_INTERNAL);
         return Collections.unmodifiableMap(t);
 	}
 	/**
@@ -2074,6 +2095,20 @@ public final class AST {
 	}
 
 	/**
+	 * Creates and returns a new doc comment region node.
+	 * Initially the new node has an empty list of tag elements
+	 * (and, for backwards compatability, an unspecified, but legal,
+	 * doc comment string)
+	 *
+	 * @return a new unparented doc comment node
+	 * @since 3.29
+	 */
+	public JavaDocRegion newJavaDocRegion() {
+		JavaDocRegion result = new JavaDocRegion(this);
+		return result;
+	}
+
+	/**
 	 * Creates a new unparented labeled statement node owned by this AST.
 	 * By default, the label and statement are both unspecified, but legal.
 	 *
@@ -2908,7 +2943,7 @@ public final class AST {
 
 	/**
 	 * Creates and returns a new tag element node.
-	 * Initially the new node has no tag name and an empty list of fragments.
+	 * Initially the new node has no tag name and an empty list of fragments and properties.
 	 * <p>
 	 * Note that this node type is used only inside doc comments
 	 * ({@link Javadoc}).
@@ -2919,6 +2954,22 @@ public final class AST {
 	 */
 	public TagElement newTagElement() {
 		TagElement result = new TagElement(this);
+		return result;
+	}
+
+	/**
+	 * Creates and returns a new tag property node.
+	 * Initially the new node has no property name and value.
+	 * <p>
+	 * Note that this node type is used only inside doc comments
+	 * ({@link Javadoc}).
+	 * </p>
+	 *
+	 * @return a new unparented tag element node
+	 * @since 3.29
+	 */
+	public TagProperty newTagProperty() {
+		TagProperty result = new TagProperty(this);
 		return result;
 	}
 

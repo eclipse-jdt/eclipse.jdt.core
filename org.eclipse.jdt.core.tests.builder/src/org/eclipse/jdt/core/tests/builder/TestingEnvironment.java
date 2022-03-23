@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -239,6 +239,9 @@ public void addClassFolder(IPath projectPath, IPath classFolderPath, boolean isE
 		} else if ("17".equals(compliance)) {
 			requiredComplianceFlag = AbstractCompilerTest.F_17;
 			compilerVersion = CompilerOptions.VERSION_17;
+		} else if ("18".equals(compliance)) {
+			requiredComplianceFlag = AbstractCompilerTest.F_18;
+			compilerVersion = CompilerOptions.VERSION_18;
 		} else if (!"1.4".equals(compliance) && !"1.3".equals(compliance)) {
 			throw new UnsupportedOperationException("Test framework doesn't support compliance level: " + compliance);
 		}

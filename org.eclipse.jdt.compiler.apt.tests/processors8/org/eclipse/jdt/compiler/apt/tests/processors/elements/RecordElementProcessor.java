@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020, 2021 IBM Corporation.
+ * Copyright (c) 2020, 2022 IBM Corporation.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -142,7 +142,7 @@ public class RecordElementProcessor extends BaseElementProcessor {
 			assertTrue("Preview flag not seen as enabled", preview);
 		}
 		SourceVersion sourceVersion = this.processingEnv.getSourceVersion();
-		assertNotSame("Should support the latest compliance", sourceVersion, SourceVersion.RELEASE_6);
+		assertEquals("Should support the latest compliance", sourceVersion, SourceVersion.RELEASE_6);
 	}
 	/*
 	 * Basic test for record element and kind

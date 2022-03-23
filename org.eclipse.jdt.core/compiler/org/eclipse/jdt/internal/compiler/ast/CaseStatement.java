@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -81,7 +81,7 @@ public FlowInfo analyseCode(
 				if (!(i == nullPatternCount && e instanceof TypePattern))
 					currentScope.problemReporter().IllegalFallThroughToPattern(e);
 			}
-			analyseConstantExpression(currentScope, flowContext, flowInfo, e);
+			flowInfo = analyseConstantExpression(currentScope, flowContext, flowInfo, e);
 			if (nullPatternCount > 0 && e instanceof TypePattern) {
 				LocalVariableBinding binding = ((TypePattern) e).local.binding;
 				if (binding != null)
@@ -91,7 +91,7 @@ public FlowInfo analyseCode(
 	}
 	return flowInfo;
 }
-private void analyseConstantExpression(
+private FlowInfo analyseConstantExpression(
 		BlockScope currentScope,
 		FlowContext flowContext,
 		FlowInfo flowInfo,
@@ -110,7 +110,7 @@ private void analyseConstantExpression(
 			}
 		}
 	}
-	e.analyseCode(currentScope, flowContext, flowInfo);
+	return e.analyseCode(currentScope, flowContext, flowInfo);
 }
 
 @Override
@@ -176,12 +176,14 @@ public static class ResolvedCase {
 	public Constant c;
 	public Expression e;
 	public TypeBinding t; // For ease of access. This.e contains the type binding anyway.
+	public int index;
 	private int intValue;
 	private boolean isPattern;
-	ResolvedCase(Constant c, Expression e, TypeBinding t) {
+	ResolvedCase(Constant c, Expression e, TypeBinding t, int index) {
 		this.c = c;
 		this.e = e;
 		this.t= t;
+		this.index = index;
 		if (c.typeID() == TypeIds.T_JavaLangString) {
 			c.stringValue().hashCode();
 		} else {
@@ -344,7 +346,9 @@ private ResolvedCase[] resolveCasePrivate(BlockScope scope, TypeBinding switchEx
 		if (caseType.isValidBinding()) {
 			Constant con = resolveConstantExpression(scope, caseType, switchExpressionType, switchStatement, e);
 			if (con != Constant.NotAConstant) {
-				cases.add(new ResolvedCase(con, e, caseType));
+				int index = this == switchStatement.nullCase && e instanceof NullLiteral ?
+						-1 : switchStatement.constantIndex++;
+				cases.add(new ResolvedCase(con, e, caseType, index));
 			}
 		}
 	}
@@ -446,7 +450,7 @@ private Constant resolveConstantExpression(BlockScope scope,
 	Constant constant = Constant.NotAConstant;
 	TypeBinding type = e.resolveType(scope);
 	if (type != null) {
-		constant = IntConstant.fromValue(switchStatement.caseLabelElements.size());
+		constant = IntConstant.fromValue(switchStatement.constantIndex);
 		switchStatement.caseLabelElements.add(e);
 		if (e.resolvedType != null) {
 			// 14.30.2 at compile-time we "resolve" the pattern with respect to the (compile-time) type

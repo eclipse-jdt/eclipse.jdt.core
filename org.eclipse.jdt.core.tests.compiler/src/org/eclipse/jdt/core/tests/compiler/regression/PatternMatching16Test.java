@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020, 2021 IBM Corporation and others.
+ * Copyright (c) 2020, 2022 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -120,7 +120,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"1. ERROR in X1.java (at line 0)\n" +
 				"	public class X1 {\n" +
 				"	^\n" +
-				"Preview features enabled at an invalid source release level 14, preview can be enabled only at source level 17\n" +
+				"Preview features enabled at an invalid source release level 14, preview can be enabled only at source level "+PREVIEW_ALLOWED_LEVEL+"\n" +
 				"----------\n",
 				null,
 				true,
@@ -3990,4 +3990,101 @@ public class PatternMatching16Test extends AbstractRegressionTest {
                 options);
 
     }
+	public void testBug578628_1() {
+		if (this.complianceLevel < ClassFileConstants.JDK18)
+			return;
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runConformTest(
+				new String[] {
+						"X.java",
+							"public class X {\n"
+							+ "    public static Object str = \"a\";\n"
+							+ "    public static void foo() {\n"
+							+ "    	if (str instanceof (String a && a == null)) {\n"
+							+ "            System.out.println(true);\n"
+							+ "        } else {\n"
+							+ "        	System.out.println(false);\n"
+							+ "        }\n"
+							+ "    } \n"
+							+ "    public static void main(String[] argv) {\n"
+							+ "    	foo();\n"
+							+ "    }\n"
+							+ "}",
+				},
+				"false",
+				compilerOptions);
+	}
+	public void testBug578628_2() {
+		if (this.complianceLevel < ClassFileConstants.JDK18)
+			return;
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runConformTest(
+				new String[] {
+						"X.java",
+							"public class X {\n"
+							+ "    public static Object str = \"a\";\n"
+							+ "    public static void foo() {\n"
+							+ "    	if (str instanceof (String a && a != null)) {\n"
+							+ "            System.out.println(true);\n"
+							+ "        } else {\n"
+							+ "        	System.out.println(false);\n"
+							+ "        }\n"
+							+ "    } \n"
+							+ "    public static void main(String[] argv) {\n"
+							+ "    	foo();\n"
+							+ "    }\n"
+							+ "}",
+				},
+				"true",
+				compilerOptions);
+	}
+	public void testBug578628_3() {
+		if (this.complianceLevel < ClassFileConstants.JDK18)
+			return;
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runConformTest(
+				new String[] {
+						"X.java",
+							"public class X {\n"
+							+ "    public static Object str = \"a\";\n"
+							+ "    public static void foo() {\n"
+							+ "    	bar(str instanceof (String a && a == null));\n"
+							+ "    } \n"
+							+ "    public static void bar(boolean arg) {\n"
+							+ "    	System.out.println(arg);\n"
+							+ "    }\n"
+							+ "    public static void main(String[] argv) {\n"
+							+ "    	foo();\n"
+							+ "    }\n"
+							+ "}",
+				},
+				"false",
+				compilerOptions);
+	}
+	public void testBug578628_4() {
+		if (this.complianceLevel < ClassFileConstants.JDK18)
+			return;
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runConformTest(
+				new String[] {
+						"X.java",
+							"public class X {\n"
+							+ "    public static Object str = \"a\";\n"
+							+ "public static void foo() {\n"
+							+ "    	boolean b = switch (str) {\n"
+							+ "    		case String s -> {\n"
+							+ "    			yield (str instanceof (String a && a != null));\n"
+							+ "    		}\n"
+							+ "    		default -> false;\n"
+							+ "    	};\n"
+							+ "    	System.out.println(b);\n"
+							+ "    }\n"
+							+ "    public static void main(String[] argv) {\n"
+							+ "    	foo();\n"
+							+ "    }\n"
+							+ "}",
+				},
+				"true",
+				compilerOptions);
+	}
 }

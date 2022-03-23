@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -158,6 +159,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected static boolean isJRE15 = false;
 	protected static boolean isJRE16 = false;
 	protected static boolean isJRE17 = false;
+	protected static boolean isJRE18 = false;
 	static {
 		String javaVersion = System.getProperty("java.version");
 		String vmName = System.getProperty("java.vm.name");
@@ -170,6 +172,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			}
 		}
 		long jdkLevel = CompilerOptions.versionToJdkLevel(javaVersion.length() > 3 ? javaVersion.substring(0, 3) : javaVersion);
+		if (jdkLevel >= ClassFileConstants.JDK18) {
+			isJRE18 = true;
+		}
 		if (jdkLevel >= ClassFileConstants.JDK17) {
 			isJRE17 = true;
 		}
@@ -254,9 +259,13 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 
 	/**
 	 * Internal synonym for constant AST.JSL17
+	 * @deprecated
 	 */
 	protected static final int AST_INTERNAL_JLS17 = AST.JLS17;
-
+	/**
+	 * Internal synonym for constant AST.JSL18
+	 */
+	protected static final int AST_INTERNAL_JLS18 = AST.JLS18;
 	/**
 	 * Internal synonym for the latest AST level.
 	 *

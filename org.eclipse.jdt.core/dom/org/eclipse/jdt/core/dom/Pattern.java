@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021 IBM Corporation and others.
+ * Copyright (c) 2021, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -41,6 +41,9 @@ public abstract class Pattern extends Expression {
 	 */
 	Pattern(AST ast) {
 		super(ast);
+		supportedOnlyIn18();
+		unsupportedWithoutPreviewError();
+
 	}
 
 	/**
@@ -59,7 +62,7 @@ public abstract class Pattern extends Expression {
 	 *
 	 *  @return the list of pattern variables
 	 *    (element type: {@link SingleVariableDeclaration})
-	 * @exception UnsupportedOperationException if this operation is not used for JLS17
+	 * @exception UnsupportedOperationException if this operation is not used for JLS18
 	 * @exception UnsupportedOperationException if this operation is not used with previewEnabled flag as true
 	 * @noreference This method is not intended to be referenced by clients.
 	 */

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020, 2021 IBM Corporation and others.
+ * Copyright (c) 2020, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -8,6 +8,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
@@ -45,10 +46,10 @@ public class ASTConverter_PreviewTest extends ConverterTestSetup {
 		super.setUpSuite();
 		this.ast = AST.newAST(getASTLatest(), false);
 		this.currentProject = getJavaProject("Converter_17");
-		if (this.ast.apiLevel() == AST.JLS17) {
-			this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_17);
-			this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_17);
-			this.currentProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_17);
+		if (this.ast.apiLevel() == AST.JLS18) {
+			this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_18);
+			this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_18);
+			this.currentProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_18);
 			this.currentProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 			this.currentProject.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
 
@@ -64,7 +65,7 @@ public class ASTConverter_PreviewTest extends ConverterTestSetup {
 	}
 
 	static int getASTLatest() {
-		return AST.JLS17;
+		return AST.getJLSLatest();
 	}
 	protected void tearDown() throws Exception {
 		super.tearDown();
@@ -75,12 +76,12 @@ public class ASTConverter_PreviewTest extends ConverterTestSetup {
 	}
 
 	private void printJREError() {
-		System.err.println("Test "+getName()+" requires a JRE 17");
+		System.err.println("Test "+getName()+" requires a JRE 18");
 	}
 
 	@SuppressWarnings("rawtypes")
 	public void testTypePattern() throws CoreException {
-		if (!isJRE17) {
+		if (!isJRE18) {
 			printJREError();
 			return;
 		}
@@ -128,7 +129,7 @@ public class ASTConverter_PreviewTest extends ConverterTestSetup {
 
 	@SuppressWarnings("rawtypes")
 	public void testGuardedPattern() throws CoreException {
-		if (!isJRE17) {
+		if (!isJRE18) {
 			printJREError();
 			return;
 		}
@@ -184,7 +185,7 @@ public class ASTConverter_PreviewTest extends ConverterTestSetup {
 
 	@SuppressWarnings("rawtypes")
 	public void testParenthesizedExpressionPattern() throws CoreException {
-		if (!isJRE17) {
+		if (!isJRE18) {
 			printJREError();
 			return;
 		}
@@ -225,7 +226,7 @@ public class ASTConverter_PreviewTest extends ConverterTestSetup {
 
 	@SuppressWarnings("rawtypes")
 	public void testNullPattern() throws CoreException {
-		if (!isJRE17) {
+		if (!isJRE18) {
 			printJREError();
 			return;
 		}
@@ -258,7 +259,7 @@ public class ASTConverter_PreviewTest extends ConverterTestSetup {
 
 	@SuppressWarnings("rawtypes")
 	public void testCaseDefaultExpressionPattern() throws CoreException {
-		if (!isJRE17) {
+		if (!isJRE18) {
 			printJREError();
 			return;
 		}
@@ -290,8 +291,8 @@ public class ASTConverter_PreviewTest extends ConverterTestSetup {
 	}
 
 	public void testBug575250() throws CoreException {
-		if (!isJRE17) {
-			System.err.println("Test "+getName()+" requires a JRE 17");
+		if (!isJRE18) {
+			System.err.println("Test "+getName()+" requires a JRE 18");
 			return;
 		}
 		String contents = "public class X {\n" +

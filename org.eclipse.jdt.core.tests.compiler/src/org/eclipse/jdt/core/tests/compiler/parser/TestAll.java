@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -115,26 +115,14 @@ public static TestSuite getTestSuite(boolean addComplianceDiagnoseTest) {
 	if ((possibleComplianceLevels & AbstractCompilerTest.F_1_8) != 0) {
 		ArrayList tests_1_8 = (ArrayList)testClasses.clone();
 		tests_1_8.addAll(TEST_CLASSES_1_5);
-		tests_1_8.add(ParserTest1_7.class);
-		tests_1_8.add(LambdaExpressionSyntaxTest.class);
-		tests_1_8.add(ReferenceExpressionSyntaxTest.class);
-		tests_1_8.add(TypeAnnotationSyntaxTest.class);
-		tests_1_8.add(CompletionParserTest18.class);
-		tests_1_8.add(SelectionParserTest18.class);
+		addJava1_8Tests(tests_1_8);
 		TestCase.resetForgottenFilters(tests_1_8);
 		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.JDK1_8, tests_1_8));
 	}
 	if ((possibleComplianceLevels & AbstractCompilerTest.F_9) != 0) {
 		ArrayList tests_9 = (ArrayList)testClasses.clone();
 		tests_9.addAll(TEST_CLASSES_1_5);
-		tests_9.add(ParserTest1_7.class);
-		tests_9.add(LambdaExpressionSyntaxTest.class);
-		tests_9.add(ReferenceExpressionSyntaxTest.class);
-		tests_9.add(TypeAnnotationSyntaxTest.class);
-		tests_9.add(CompletionParserTest18.class);
-		tests_9.add(SelectionParserTest18.class);
-		tests_9.add(SelectionParserTest9.class);
-		tests_9.add(ModuleDeclarationSyntaxTest.class);
+		addJava9Tests(tests_9);
 		// Reset forgotten subsets tests
 		TestCase.TESTS_PREFIX = null;
 		TestCase.TESTS_NAMES = null;
@@ -146,16 +134,7 @@ public static TestSuite getTestSuite(boolean addComplianceDiagnoseTest) {
 	if ((possibleComplianceLevels & AbstractCompilerTest.F_10) != 0) {
 		ArrayList tests_10 = (ArrayList)testClasses.clone();
 		tests_10.addAll(TEST_CLASSES_1_5);
-		tests_10.add(ParserTest1_7.class);
-		tests_10.add(LambdaExpressionSyntaxTest.class);
-		tests_10.add(ReferenceExpressionSyntaxTest.class);
-		tests_10.add(TypeAnnotationSyntaxTest.class);
-		tests_10.add(CompletionParserTest18.class);
-		tests_10.add(SelectionParserTest18.class);
-		tests_10.add(SelectionParserTest9.class);
-		tests_10.add(SelectionParserTest10.class);
-		tests_10.add(ModuleDeclarationSyntaxTest.class);
-		tests_10.add(JEP286ReservedWordTest.class);
+		addJava10Tests(tests_10);
 		// Reset forgotten subsets tests
 		TestCase.TESTS_PREFIX = null;
 		TestCase.TESTS_NAMES = null;
@@ -167,16 +146,7 @@ public static TestSuite getTestSuite(boolean addComplianceDiagnoseTest) {
 	if ((possibleComplianceLevels & AbstractCompilerTest.F_11) != 0) {
 		ArrayList tests_11 = (ArrayList)testClasses.clone();
 		tests_11.addAll(TEST_CLASSES_1_5);
-		tests_11.add(ParserTest1_7.class);
-		tests_11.add(LambdaExpressionSyntaxTest.class);
-		tests_11.add(ReferenceExpressionSyntaxTest.class);
-		tests_11.add(TypeAnnotationSyntaxTest.class);
-		tests_11.add(CompletionParserTest18.class);
-		tests_11.add(SelectionParserTest18.class);
-		tests_11.add(SelectionParserTest9.class);
-		tests_11.add(SelectionParserTest10.class);
-		tests_11.add(ModuleDeclarationSyntaxTest.class);
-		tests_11.add(JEP286ReservedWordTest.class);
+		addJava10Tests(tests_11);
 		// Reset forgotten subsets tests
 		TestCase.TESTS_PREFIX = null;
 		TestCase.TESTS_NAMES = null;
@@ -188,17 +158,7 @@ public static TestSuite getTestSuite(boolean addComplianceDiagnoseTest) {
 	if ((possibleComplianceLevels & AbstractCompilerTest.F_12) != 0) {
 		ArrayList tests_12 = (ArrayList)testClasses.clone();
 		tests_12.addAll(TEST_CLASSES_1_5);
-		tests_12.add(ParserTest1_7.class);
-		tests_12.add(LambdaExpressionSyntaxTest.class);
-		tests_12.add(ReferenceExpressionSyntaxTest.class);
-		tests_12.add(TypeAnnotationSyntaxTest.class);
-		tests_12.add(CompletionParserTest18.class);
-		tests_12.add(SelectionParserTest18.class);
-		tests_12.add(SelectionParserTest9.class);
-		tests_12.add(SelectionParserTest10.class);
-		tests_12.add(SelectionParserTest12.class);
-		tests_12.add(ModuleDeclarationSyntaxTest.class);
-		tests_12.add(JEP286ReservedWordTest.class);
+		addJava12Tests(tests_12);
 		// Reset forgotten subsets tests
 		TestCase.TESTS_PREFIX = null;
 		TestCase.TESTS_NAMES = null;
@@ -210,17 +170,7 @@ public static TestSuite getTestSuite(boolean addComplianceDiagnoseTest) {
 	if ((possibleComplianceLevels & AbstractCompilerTest.F_13) != 0) {
 		ArrayList tests_13 = (ArrayList)testClasses.clone();
 		tests_13.addAll(TEST_CLASSES_1_5);
-		tests_13.add(ParserTest1_7.class);
-		tests_13.add(LambdaExpressionSyntaxTest.class);
-		tests_13.add(ReferenceExpressionSyntaxTest.class);
-		tests_13.add(TypeAnnotationSyntaxTest.class);
-		tests_13.add(CompletionParserTest18.class);
-		tests_13.add(SelectionParserTest18.class);
-		tests_13.add(SelectionParserTest9.class);
-		tests_13.add(SelectionParserTest10.class);
-		tests_13.add(SelectionParserTest12.class);
-		tests_13.add(ModuleDeclarationSyntaxTest.class);
-		tests_13.add(JEP286ReservedWordTest.class);
+		addJava12Tests(tests_13);
 		//TODO:To add SwitchExpressionYieldTests here as well as master
 		// Reset forgotten subsets tests
 		TestCase.TESTS_PREFIX = null;
@@ -233,17 +183,7 @@ public static TestSuite getTestSuite(boolean addComplianceDiagnoseTest) {
 	if ((possibleComplianceLevels & AbstractCompilerTest.F_14) != 0) {
 		ArrayList tests_14 = (ArrayList)testClasses.clone();
 		tests_14.addAll(TEST_CLASSES_1_5);
-		tests_14.add(ParserTest1_7.class);
-		tests_14.add(LambdaExpressionSyntaxTest.class);
-		tests_14.add(ReferenceExpressionSyntaxTest.class);
-		tests_14.add(TypeAnnotationSyntaxTest.class);
-		tests_14.add(CompletionParserTest18.class);
-		tests_14.add(SelectionParserTest18.class);
-		tests_14.add(SelectionParserTest9.class);
-		tests_14.add(SelectionParserTest10.class);
-		tests_14.add(SelectionParserTest12.class);
-		tests_14.add(ModuleDeclarationSyntaxTest.class);
-		tests_14.add(JEP286ReservedWordTest.class);
+		addJava12Tests(tests_14);
 		// Reset forgotten subsets tests
 		TestCase.TESTS_PREFIX = null;
 		TestCase.TESTS_NAMES = null;
@@ -255,17 +195,7 @@ public static TestSuite getTestSuite(boolean addComplianceDiagnoseTest) {
 	if ((possibleComplianceLevels & AbstractCompilerTest.F_15) != 0) {
 		ArrayList tests_15 = (ArrayList)testClasses.clone();
 		tests_15.addAll(TEST_CLASSES_1_5);
-		tests_15.add(ParserTest1_7.class);
-		tests_15.add(LambdaExpressionSyntaxTest.class);
-		tests_15.add(ReferenceExpressionSyntaxTest.class);
-		tests_15.add(TypeAnnotationSyntaxTest.class);
-		tests_15.add(CompletionParserTest18.class);
-		tests_15.add(SelectionParserTest18.class);
-		tests_15.add(SelectionParserTest9.class);
-		tests_15.add(SelectionParserTest10.class);
-		tests_15.add(SelectionParserTest12.class);
-		tests_15.add(ModuleDeclarationSyntaxTest.class);
-		tests_15.add(JEP286ReservedWordTest.class);
+		addJava12Tests(tests_15);
 		// Reset forgotten subsets tests
 		TestCase.TESTS_PREFIX = null;
 		TestCase.TESTS_NAMES = null;
@@ -277,18 +207,7 @@ public static TestSuite getTestSuite(boolean addComplianceDiagnoseTest) {
 	if ((possibleComplianceLevels & AbstractCompilerTest.F_16) != 0) {
 		ArrayList tests_16 = (ArrayList)testClasses.clone();
 		tests_16.addAll(TEST_CLASSES_1_5);
-		tests_16.add(ParserTest1_7.class);
-		tests_16.add(LambdaExpressionSyntaxTest.class);
-		tests_16.add(ReferenceExpressionSyntaxTest.class);
-		tests_16.add(TypeAnnotationSyntaxTest.class);
-		tests_16.add(CompletionParserTest18.class);
-		tests_16.add(SelectionParserTest18.class);
-		tests_16.add(SelectionParserTest9.class);
-		tests_16.add(SelectionParserTest10.class);
-		tests_16.add(SelectionParserTest12.class);
-		tests_16.add(ModuleDeclarationSyntaxTest.class);
-		tests_16.add(JEP286ReservedWordTest.class);
-		tests_16.add(PatternMatchingSelectionTest.class);
+		addJava16Tests(tests_16);
 		// Reset forgotten subsets tests
 		TestCase.TESTS_PREFIX = null;
 		TestCase.TESTS_NAMES = null;
@@ -301,18 +220,7 @@ public static TestSuite getTestSuite(boolean addComplianceDiagnoseTest) {
 	if ((possibleComplianceLevels & AbstractCompilerTest.F_17) != 0) {
 		ArrayList tests_17 = (ArrayList)testClasses.clone();
 		tests_17.addAll(TEST_CLASSES_1_5);
-		tests_17.add(ParserTest1_7.class);
-		tests_17.add(LambdaExpressionSyntaxTest.class);
-		tests_17.add(ReferenceExpressionSyntaxTest.class);
-		tests_17.add(TypeAnnotationSyntaxTest.class);
-		tests_17.add(CompletionParserTest18.class);
-		tests_17.add(SelectionParserTest18.class);
-		tests_17.add(SelectionParserTest9.class);
-		tests_17.add(SelectionParserTest10.class);
-		tests_17.add(SelectionParserTest12.class);
-		tests_17.add(ModuleDeclarationSyntaxTest.class);
-		tests_17.add(JEP286ReservedWordTest.class);
-		tests_17.add(PatternMatchingSelectionTest.class);
+		addJava16Tests(tests_17);
 		// Reset forgotten subsets tests
 		TestCase.TESTS_PREFIX = null;
 		TestCase.TESTS_NAMES = null;
@@ -321,7 +229,50 @@ public static TestSuite getTestSuite(boolean addComplianceDiagnoseTest) {
 		TestCase.RUN_ONLY_ID = null;
 		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_17), tests_17));
 	}
+	if ((possibleComplianceLevels & AbstractCompilerTest.F_18) != 0) {
+		ArrayList tests_18 = (ArrayList)testClasses.clone();
+		tests_18.addAll(TEST_CLASSES_1_5);
+		addJava16Tests(tests_18);
+		// Reset forgotten subsets tests
+		TestCase.TESTS_PREFIX = null;
+		TestCase.TESTS_NAMES = null;
+		TestCase.TESTS_NUMBERS= null;
+		TestCase.TESTS_RANGE = null;
+		TestCase.RUN_ONLY_ID = null;
+		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_18), tests_18));
+	}
 	return all;
+}
+
+private static void addJava16Tests(ArrayList tests_16) {
+	addJava1_8Tests(tests_16);
+	tests_16.add(PatternMatchingSelectionTest.class);
+}
+
+private static void addJava12Tests(ArrayList tests_12) {
+	addJava10Tests(tests_12);
+	tests_12.add(SelectionParserTest12.class);
+}
+
+private static void addJava10Tests(ArrayList tests_10) {
+	addJava9Tests(tests_10);
+	tests_10.add(SelectionParserTest10.class);
+	tests_10.add(JEP286ReservedWordTest.class);
+}
+
+private static void addJava9Tests(ArrayList tests_9) {
+	addJava1_8Tests(tests_9);
+	tests_9.add(SelectionParserTest9.class);
+	tests_9.add(ModuleDeclarationSyntaxTest.class);
+}
+
+private static void addJava1_8Tests(ArrayList tests_1_8) {
+	tests_1_8.add(ParserTest1_7.class);
+	tests_1_8.add(LambdaExpressionSyntaxTest.class);
+	tests_1_8.add(ReferenceExpressionSyntaxTest.class);
+	tests_1_8.add(TypeAnnotationSyntaxTest.class);
+	tests_1_8.add(CompletionParserTest18.class);
+	tests_1_8.add(SelectionParserTest18.class);
 }
 public static Test suite() {
 	return getTestSuite(true);

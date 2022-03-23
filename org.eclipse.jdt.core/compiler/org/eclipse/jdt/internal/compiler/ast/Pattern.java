@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021 IBM Corporation and others.
+ * Copyright (c) 2021, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -36,6 +36,10 @@ public abstract class Pattern extends Expression {
 	}
 
 	public abstract boolean dominates(Pattern p);
+
+	public Pattern primary() {
+		return this;
+	}
 
 	@Override
 	public StringBuffer print(int indent, StringBuffer output) {

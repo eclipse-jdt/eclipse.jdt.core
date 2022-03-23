@@ -22,8 +22,10 @@ package org.eclipse.jdt.core.dom;
  *   {@link MemberRef}
  *   {@link MethodRef}
  *   {@link Name}
+ *   {@link AbstractTagElement}
  *   {@link TagElement}
  *   {@link TextElement}
+ *   {@link JavaDocRegion}
  * </pre>
  *
  * @since 3.11, internal interface since 3.0

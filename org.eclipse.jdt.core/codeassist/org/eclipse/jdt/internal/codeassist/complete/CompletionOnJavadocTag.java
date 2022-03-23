@@ -75,6 +75,19 @@ public class CompletionOnJavadocTag extends JavadocSingleNameReference implement
 				output.append('\n');
 			}
 		}
+		// Print snippet tags
+		char[][] snipTags = this.possibleTags[SNIPPET_IDX];
+		if (snipTags != null) {
+			int length=snipTags.length;
+			if (length > 0) {
+				output.append("\npossible snippet tags:"); //$NON-NLS-1$
+				for (int i=0; i<length; i++) {
+					output.append("\n	- "); //$NON-NLS-1$
+					output.append(snipTags[i]);
+				}
+				output.append('\n');
+			}
+		}
 		return output.append('>');
 	}
 
@@ -177,5 +190,8 @@ public class CompletionOnJavadocTag extends JavadocSingleNameReference implement
 	 */
 	public char[][] getPossibleInlineTags() {
 		return this.possibleTags[INLINE_IDX];
+	}
+	public char[][] getPossibleInSnippetTags() {
+		return this.possibleTags[SNIPPET_IDX];
 	}
 }

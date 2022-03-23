@@ -8500,6 +8500,15 @@ public void testBug267833_2() {
 					}
 				}
 			}
+			for (int i=0; i < JavadocTagConstants.IN_SNIPPET_TAGS_LENGTH; i++) {
+				int length = JavadocTagConstants.IN_SNIPPET_TAGS[i].length;
+				for (int j=0; j < length; j++) {
+					if (tagName == JavadocTagConstants.IN_SNIPPET_TAGS[i][j]) {
+						assertEquals(JavadocTagConstants.JAVADOC_TAG_TYPE[index], JavadocTagConstants.TAG_TYPE_IN_SNIPPET);
+						continue nextTag;
+					}
+				}
+			}
 		}
 		assertEquals(JavadocTagConstants.JAVADOC_TAG_TYPE[index], JavadocTagConstants.TAG_TYPE_NONE);
 	}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -164,6 +164,10 @@ public class CompletionNodeDetector extends ASTVisitor {
 	@Override
 	public void endVisit(FieldReference fieldReference, BlockScope scope) {
 		endVisit(fieldReference);
+	}
+	@Override
+	public void endVisit(GuardedPattern guardedPattern, BlockScope scope) {
+		endVisit(guardedPattern);
 	}
 	@Override
 	public void endVisit(IfStatement ifStatement, BlockScope scope) {
@@ -358,6 +362,10 @@ public class CompletionNodeDetector extends ASTVisitor {
 	@Override
 	public boolean visit(FieldReference fieldReference, BlockScope scope) {
 		return this.visit(fieldReference);
+	}
+	@Override
+	public boolean visit(GuardedPattern guardedPattern, BlockScope scope) {
+		return this.visit(guardedPattern);
 	}
 	@Override
 	public boolean visit(IfStatement ifStatement, BlockScope scope) {

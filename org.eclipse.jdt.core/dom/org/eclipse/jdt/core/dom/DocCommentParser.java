@@ -13,8 +13,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.dom;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
@@ -223,6 +225,44 @@ class DocCommentParser extends AbstractCommentParser {
 
 	@Override
 	protected void createTag() {
+		int position = this.scanner.currentPosition;
+		this.scanner.resetTo(this.tagSourceStart, this.tagSourceEnd);
+		StringBuilder tagName = new StringBuilder();
+		int start = this.tagSourceStart;
+		this.scanner.getNextChar();
+		while (this.scanner.currentPosition <= (this.tagSourceEnd+1)) {
+			tagName.append(this.scanner.currentCharacter);
+			this.scanner.getNextChar();
+		}
+		if (TagElement.TAG_SNIPPET.equals(tagName.toString())) {
+			this.tagSourceEnd = this.index;
+			// need to use createSnippetTag to create @snippet
+			return;
+		}
+		TagElement tagElement = this.ast.newTagElement();
+		tagElement.setTagName(tagName.toString());
+		if (this.inlineTagStarted) {
+			start = this.inlineTagStart;
+			TagElement previousTag = null;
+			if (this.astPtr == -1) {
+				previousTag = this.ast.newTagElement();
+				previousTag.setSourceRange(start, this.tagSourceEnd-start+1);
+				pushOnAstStack(previousTag, true);
+			} else {
+				previousTag = (TagElement) this.astStack[this.astPtr];
+			}
+			int previousStart = previousTag.getStartPosition();
+			previousTag.fragments().add(tagElement);
+			previousTag.setSourceRange(previousStart, this.tagSourceEnd-previousStart+1);
+		} else {
+			pushOnAstStack(tagElement, true);
+		}
+		tagElement.setSourceRange(start, this.tagSourceEnd-start+1);
+		this.scanner.resetTo(position, this.javadocEnd);
+	}
+
+	@Override
+	protected Object createSnippetTag() {
 		TagElement tagElement = this.ast.newTagElement();
 		int position = this.scanner.currentPosition;
 		this.scanner.resetTo(this.tagSourceStart, this.tagSourceEnd);
@@ -252,7 +292,242 @@ class DocCommentParser extends AbstractCommentParser {
 		}
 		tagElement.setSourceRange(start, this.tagSourceEnd-start+1);
 		this.scanner.resetTo(position, this.javadocEnd);
+		return tagElement;
 	}
+
+	@Override
+	protected void setSnippetIsValid(Object tag, boolean value) {
+		if (tag instanceof TagElement) {
+			((TagElement) tag).setProperty(TagProperty.TAG_PROPERTY_SNIPPET_IS_VALID, value);
+		}
+	}
+
+	@Override
+	protected void setSnippetError(Object tag, String value) {
+		if (tag instanceof TagElement) {
+			((TagElement) tag).setProperty(TagProperty.TAG_PROPERTY_SNIPPET_ERROR, value);
+		}
+	}
+
+	@Override
+	protected void setSnippetID(Object tag, String value) {
+		if (tag instanceof TagElement) {
+			((TagElement) tag).setProperty(TagProperty.TAG_PROPERTY_SNIPPET_ID, value);
+		}
+	}
+
+	@Override
+	protected Object createSnippetRegion(String name, List<Object> tags, Object snippetTag, boolean isDummyRegion, boolean considerPrevTag) {
+		if (!isDummyRegion) {
+			return createSnippetOriginalRegion(name, tags);
+		}
+		List<TagElement> tagsToBeProcessed = new ArrayList<>();
+		Object toBeReturned = null;
+		if (tags != null && tags.size() > 0) {
+			int start = -1;
+			int end = -1;
+			for (Object tag : tags) {
+				if (tag instanceof TagElement) {
+					TagElement tagElem = (TagElement) tag;
+					tagsToBeProcessed.add(tagElem);
+					int tagStart = tagElem.getStartPosition();
+					int tagEnd = tagStart + tagElem.getLength();
+					if (start == -1 || start > tagStart) {
+						start = tagStart;
+					}
+					if (end ==-1 || end < tagEnd) {
+						end = tagEnd;
+					}
+				} else if (tag instanceof JavaDocRegion && snippetTag instanceof TagElement) {
+					TagElement snippet = (TagElement) snippetTag;
+					JavaDocRegion reg = (JavaDocRegion) tag;
+					if (!reg.isDummyRegion()) {
+						snippet.fragments().add(reg);
+					}
+					toBeReturned = reg;
+				}
+			}
+			if (tagsToBeProcessed.size() > 0) {
+				boolean process = true;
+				if (considerPrevTag && snippetTag instanceof TagElement) {
+					TagElement snippetTagElem = (TagElement) snippetTag;
+					Object prevTag = snippetTagElem.fragments().get(snippetTagElem.fragments().size() - 1);
+					if (prevTag instanceof TagElement) {
+						tagsToBeProcessed.add(0, (TagElement)prevTag);
+						snippetTagElem.fragments().remove(prevTag);
+					} else if (prevTag instanceof JavaDocRegion) {
+						JavaDocRegion region = (JavaDocRegion) prevTag;
+						region.tags().addAll(tagsToBeProcessed);
+						toBeReturned = snippetTag;
+						process = false;
+					}
+				}
+				if (process) {
+					if (tagsToBeProcessed.size() == 1) {
+						return tagsToBeProcessed.get(0);
+					}
+					else {
+						JavaDocRegion region = this.ast.newJavaDocRegion();
+						region.tags().addAll(tagsToBeProcessed);
+						region.setSourceRange(start, end);
+						toBeReturned = region;
+					}
+				}
+			} else {
+				toBeReturned = snippetTag;
+			}
+		}
+		return toBeReturned;
+	}
+
+	private Object createSnippetOriginalRegion(String name, List<Object> tags) {
+		JavaDocRegion region = this.ast.newJavaDocRegion();
+		if (tags != null && tags.size() > 0) {
+			int start = -1;
+			int end = -1;
+			for (Object tag : tags) {
+				if (tag instanceof TagElement) {
+					TagElement tagElem = (TagElement) tag;
+					region.tags().add(tagElem);
+					int tagStart = tagElem.getStartPosition();
+					int tagEnd = tagStart + tagElem.getLength();
+					if (start == -1 || start > tagStart) {
+						start = tagStart;
+					}
+					if (end ==-1 || end < tagEnd) {
+						end = tagEnd;
+					}
+				}
+			}
+			region.setSourceRange(start, end-start);
+			region.setDummyRegion(false);
+		}
+		if (name != null) {
+			region.setTagName(name);
+		}
+		return region;
+	}
+
+	@Override
+	protected Object createSnippetInnerTag(String tagName, int start, int end) {
+		if (tagName != null) {
+			TagElement tagElement = this.ast.newTagElement();
+			tagElement.setTagName(tagName.toString());
+			if (this.astPtr == -1) {
+				return null;
+			}
+			tagElement.setSourceRange(start, end-start);
+			return tagElement;
+		}
+		return null;
+	}
+
+	@Override
+	protected void closeJavaDocRegion(String name, Object snippetTag, int end) {
+		if (snippetTag instanceof TagElement) {
+			TagElement snippet = (TagElement) snippetTag;
+			List<JavaDocRegion> regions = snippet.tagRegions();
+			JavaDocRegion regionToClose = null;
+			if (name != null) {
+				for (JavaDocRegion region : regions) {
+					if (name.equals(region.getTagName())) {
+						if (!this.isRegionToBeEnded(region)
+								&& !this.hasRegionEnded(region)) {
+							regionToClose = region;
+							break;
+						}
+					}
+				}
+			} else {
+				for (int i= regions.size()-1; i >-1; i--) {
+					JavaDocRegion region = regions.get(i);
+					if (!this.isRegionToBeEnded(region)
+							&& !this.hasRegionEnded(region)) {
+						regionToClose = region;
+						break;
+					}
+				}
+			}
+			if (regionToClose != null) {
+				setRegionToBeEnded(regionToClose, true);
+				int start = regionToClose.getStartPosition();
+				int curEnd = start + regionToClose.getLength();
+				if (end > curEnd) {
+					regionToClose.setSourceRange(start, end-start);
+				}
+			}
+		}
+
+	}
+
+	@Override
+	protected void addTagProperties(Object tag, Map<String, Object> map, int tagCount) {
+		if (tag instanceof TagElement) {
+			TagElement tagElement = (TagElement) tag;
+			map.forEach((k, v) -> {
+				TagProperty tagProperty = this.ast.newTagProperty();
+				tagProperty.setName(k);
+				if (v instanceof String) {
+					tagProperty.setStringValue((String)v);
+				} else if (v instanceof ASTNode) {
+					tagProperty.setNodeValue((ASTNode)v);
+				}
+				tagElement.tagProperties().add(tagProperty);
+			});
+			tagElement.setProperty(TagProperty.TAG_PROPERTY_SNIPPET_INLINE_TAG_COUNT, tagCount);
+		}
+	}
+
+	@Override
+	protected void addSnippetInnerTag(Object obj, Object snippetTag) {
+		boolean isNotDummyRegion = false;
+		if (obj instanceof JavaDocRegion) {
+			JavaDocRegion region = (JavaDocRegion) obj;
+			if (snippetTag instanceof TagElement) {
+				TagElement snippetTagElem = (TagElement) snippetTag;
+				if (!region.isDummyRegion()) {
+					snippetTagElem.fragments().add(region);
+					isNotDummyRegion = true;
+				} else {
+					Iterator<Object> itr = region.tags().iterator();
+					while (itr.hasNext()) {
+						Object tag = itr.next();
+						if (tag instanceof JavaDocRegion) {
+							JavaDocRegion reg = (JavaDocRegion) tag;
+							if (!reg.isDummyRegion()) {
+								region.tags().remove(reg);
+								snippetTagElem.fragments().add(reg);
+							}
+						}
+					}
+				}
+			}
+		}
+		if (obj instanceof AbstractTagElement && !isNotDummyRegion) {
+			AbstractTagElement tagElement = (AbstractTagElement) obj;
+			AbstractTagElement previousTag = null;
+			if (this.astPtr == -1) {
+				return;
+			} else {
+				previousTag = (AbstractTagElement) this.astStack[this.astPtr];
+				List fragments = previousTag.fragments();
+				if (this.inlineTagStarted) {
+					int size = fragments.size();
+					if (size == 0) {
+						//do nothing
+					} else {
+						// If last fragment is a tag, then use it as previous tag
+						ASTNode lastFragment = (ASTNode) fragments.get(size-1);
+						if (lastFragment instanceof AbstractTagElement) {
+							previousTag = (AbstractTagElement) lastFragment;
+						}
+					}
+				}
+			}
+			previousTag.fragments().add(tagElement);
+		}
+	}
+
 
 	@Override
 	protected Object createTypeReference(int primitiveToken, boolean canBeModule) {
@@ -572,6 +847,15 @@ class DocCommentParser extends AbstractCommentParser {
 							} else {
 								valid = parseReference(true);
 							}
+						} else if (length == TAG_SNIPPET_LENGTH && CharOperation.equals(TAG_SNIPPET, tagName)) {
+							this.tagValue = TAG_SNIPPET_LENGTH;
+							if (!this.inlineTagStarted) {
+								// @snippet is an inline comment
+								valid = false;
+							} else {
+								this.tagValue = TAG_SNIPPET_VALUE;
+								valid = parseSnippet();
+							}
 						} else {
 							this.tagValue = TAG_OTHERS_VALUE;
 							createTag();
@@ -805,6 +1089,189 @@ class DocCommentParser extends AbstractCommentParser {
 	}
 
 	@Override
+	protected void pushSnippetText(int start, int end, boolean addNewLine, Object snippetTag) {
+
+		// Create text element
+		TextElement text = this.ast.newTextElement();
+		String textToBeAdded= new String( this.source, start, end-start);
+		int iindex = textToBeAdded.indexOf('*');
+		if (iindex > -1 && textToBeAdded.substring(0, iindex+1).trim().equals("*")) { //$NON-NLS-1$
+			textToBeAdded = textToBeAdded.substring(iindex+1);
+			if (addNewLine) {
+				textToBeAdded += System.lineSeparator();
+			}
+		}
+		text.setText(textToBeAdded);
+		text.setSourceRange(start, end-start);
+
+		// Search previous tag on which to add the text element
+		AbstractTagElement previousTag = null;
+		int previousStart = start;
+		if (this.astPtr == -1) {
+			previousTag = this.ast.newTagElement();
+			previousTag.setSourceRange(start, end-start);
+			pushOnAstStack(previousTag, true);
+		} else {
+			previousTag = (AbstractTagElement) this.astStack[this.astPtr];
+			previousStart = previousTag.getStartPosition();
+		}
+
+		AbstractTagElement prevTag = null;
+		// If we're in a inline tag, then retrieve previous tag in its fragments
+		List fragments = previousTag.fragments();
+		if (this.inlineTagStarted) {
+			int size = fragments.size();
+			if (size == 0) {
+				//do nothing
+			} else {
+				// If last fragment is a tag, then use it as previous tag
+				ASTNode lastFragment = (ASTNode) fragments.get(size-1);
+				if (lastFragment instanceof AbstractTagElement) {
+					previousTag = (AbstractTagElement) lastFragment;
+					previousStart = previousTag.getStartPosition();
+					if (this.snippetInlineTagStarted) {
+						fragments = previousTag.fragments();
+						size = fragments.size();
+						if (size == 0) {
+							//do nothing
+						} else {
+							lastFragment = (ASTNode) fragments.get(size-1);
+							if (lastFragment instanceof AbstractTagElement) {
+								prevTag = (AbstractTagElement) lastFragment;
+								this.snippetInlineTagStarted = false;
+							}
+						}
+						this.snippetInlineTagStarted = false;
+					}
+				}
+			}
+		}
+
+		int finEnd = end;
+		boolean isNotDummyJavaDocRegion = false;
+		if (prevTag instanceof JavaDocRegion && !((JavaDocRegion)prevTag).isDummyRegion()) {
+			isNotDummyJavaDocRegion = true;
+		}
+		// Add the text
+		if (prevTag != null && !isNotDummyJavaDocRegion) {
+
+			prevTag.fragments().add(text);
+			int curStart = prevTag.getStartPosition();
+			int curEnd = curStart + prevTag.getLength();
+			int finStart = start;
+			if (curStart <  start) {
+				finStart = curStart;
+			}
+			if (curEnd > end) {
+				finEnd = curEnd;
+			}
+			prevTag.setSourceRange(finStart, finEnd - finStart);
+		} else {
+			previousTag.fragments().add(text);
+		}
+		previousTag.setSourceRange(previousStart, finEnd-previousStart);
+		this.textStart = -1;
+
+		if (snippetTag instanceof TagElement) {
+			fragments =  ((TagElement) snippetTag).fragments();
+			for (Object frag : fragments) {
+				if (frag instanceof JavaDocRegion) {
+					JavaDocRegion region = (JavaDocRegion) frag;
+					if (!region.isDummyRegion() && !hasRegionEnded(region)) {
+						int startPos = region.getStartPosition();
+						int endPos = startPos + region.getLength();
+						if (startPos > start) {
+							startPos = start;
+						}
+						if (endPos < end) {
+							endPos = end;
+						}
+						Object textVal = region.getProperty(TagProperty.TAG_PROPERTY_SNIPPET_REGION_TEXT);
+						if (!(textVal instanceof TextElement)) {
+							region.setProperty(TagProperty.TAG_PROPERTY_SNIPPET_REGION_TEXT, text);
+						}
+						region.setSourceRange(startPos, endPos-startPos);
+						if (isRegionToBeEnded(region)) {
+							setRegionEnded(region, true);
+						}
+					}
+				}
+			}
+		}
+	}
+
+	private boolean hasRegionEnded(JavaDocRegion region) {
+		boolean ended = false;
+		if (region != null) {
+			Object value = region.getProperty(JavaDocRegion.REGION_ENDED);
+			if (value instanceof Boolean && ((Boolean)value).booleanValue()) {
+				ended = true;
+			}
+		}
+		return ended;
+	}
+
+	private boolean isRegionToBeEnded(JavaDocRegion region) {
+		boolean toBeEnded = false;
+		if (region != null) {
+			Object value = region.getProperty(JavaDocRegion.REGION_TO_BE_ENDED);
+			if (value instanceof Boolean && ((Boolean)value).booleanValue()) {
+				toBeEnded = true;
+			}
+		}
+		return toBeEnded;
+	}
+
+	private void setRegionToBeEnded(JavaDocRegion region, boolean value) {
+		if (region != null) {
+			region.setProperty(JavaDocRegion.REGION_TO_BE_ENDED, value);
+		}
+	}
+
+	private void setRegionEnded(JavaDocRegion region, boolean value) {
+		if (region != null) {
+			region.setProperty(JavaDocRegion.REGION_ENDED, value);
+			setRegionToBeEnded(region, !value);
+		}
+	}
+
+	@Override
+	protected void pushExternalSnippetText(String text,int start, int end) {
+		String snippetLangHeader = "<pre>"; //$NON-NLS-1$ //the code snippets comes as preformatted so need to prefix them with <pre> tag
+		String snipperLangFooter = "</pre>"; //$NON-NLS-1$
+		text = snippetLangHeader + text + snipperLangFooter;
+		TextElement textElement = this.ast.newTextElement();
+		textElement.setText(text);
+		textElement.setSourceRange(start, end-start);
+
+		// Search previous tag on which to add the text element
+		TagElement previousTag = null;
+		int previousStart = start;
+		int previousEnd = end;
+		if (this.astPtr == -1) {
+			previousTag = this.ast.newTagElement();
+			previousTag.setSourceRange(start, end-start);
+			pushOnAstStack(previousTag, true);
+		} else {
+			previousTag = (TagElement) this.astStack[this.astPtr];
+			previousStart = previousTag.getStartPosition();
+			previousEnd = previousStart + previousTag.getLength();
+		}
+		previousTag.fragments().add(textElement);
+		int curStart = previousStart;
+		int curEnd = previousEnd;
+		if (start < previousStart) {
+			curStart = start;
+		}
+		if (end > previousEnd) {
+			curEnd = end;
+		}
+		previousTag.setSourceRange(curStart, curEnd-curStart);
+		this.textStart = -1;
+	}
+
+
+	@Override
 	protected boolean pushThrowName(Object typeRef) {
 		TagElement throwsTag = this.ast.newTagElement();
 		switch (this.tagValue) {
@@ -847,5 +1314,16 @@ class DocCommentParser extends AbstractCommentParser {
 		for (int idx = 0; idx <= this.astPtr; idx++) {
 			this.docComment.tags().add(this.astStack[idx]);
 		}
+	}
+
+	@Override
+	protected boolean areRegionsClosed() {
+		// do nothing
+		return true;
+	}
+
+	@Override
+	protected void setRegionPosition(int currentPosition) {
+		// do nothing
 	}
 }

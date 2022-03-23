@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021 IBM Corporation and others.
+ * Copyright (c) 2021, 2022 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -29,16 +29,16 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug575737"};
+//		TESTS_NAMES = new String[] { "testBug579355"};
 	}
 
-	private static String previewLevel = "17";
+	private static String previewLevel = "18";
 
 	public static Class<?> testClass() {
 		return SwitchPatternTest.class;
 	}
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_17);
+		return buildMinimalComplianceTestSuite(testClass(), F_18);
 	}
 	public SwitchPatternTest(String testName){
 		super(testName);
@@ -47,9 +47,9 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions() {
 		Map<String, String> defaultOptions = super.getCompilerOptions();
-		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_17); // FIXME
-		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_17);
-		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_17);
+		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_18);
+		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_18);
+		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_18);
 		defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		defaultOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
@@ -3510,20 +3510,20 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"public class X {\n"+
 					"	static String foo(Color o) {\n" +
 					"		return switch (o) {\n" +
-					"	     case Red -> \"Red\";\n" +
+					"	     case Red -> \"Const:Red\";\n" +
 					"	     case Color s -> s.toString();\n" +
 					"	   };\n" +
 					"	}\n" +
 					"	public static void main(String[] args) {\n" +
-					"		System.out.println(Color.Red);\n" +
-					"		System.out.println(Color.Blue);\n" +
+					"		System.out.println(foo(Color.Red));\n" +
+					"		System.out.println(foo(Color.Blue));\n" +
 					"	}\n" +
 					"} \n" +
 					"enum Color {\n" +
 					"	Blue, Red; \n" +
 					"}",
 				},
-				"Red\n" +
+				"Const:Red\n" +
 				"Blue");
 	}
 	public void testBug575047_12() {
@@ -3534,7 +3534,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"	static String foo(Color o) {\n" +
 					"		return switch (o) {\n" +
 					"	     case Red -> \"Red\";\n" +
-					"	     case Color s && s == Color.Blue  -> s.toString();" +
+					"	     case Color s && s == Color.Blue  -> s.toString();\n" +
 					"	     case Color s -> s.toString();\n" +
 					"	   };\n" +
 					"	}\n" +
@@ -3557,7 +3557,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"public class X {\n"+
 					"	static String foo(Color o) {\n" +
 					"		return switch (o) {\n" +
-					"	     case Color s && s == Color.Blue  -> s.toString();" +
+					"	     case Color s && s == Color.Blue  -> s.toString();\n" +
 					"	     case Red -> \"Red\";\n" +
 					"	     case null -> \"\";\n" +
 					"	   };\n" +
@@ -3572,6 +3572,11 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"	return switch (o) {\n" +
 				"	               ^\n" +
 				"A Switch expression should cover all possible values\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 5)\n" +
+				"	case Red -> \"Red\";\n" +
+				"	     ^^^\n" +
+				"This case label is dominated by one of the preceding case label\n" +
 				"----------\n");
 	}
 	public void testBug575047_14() {
@@ -3581,7 +3586,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"public class X {\n"+
 					"	static String foo(Color o) {\n" +
 					"		return switch (o) {\n" +
-					"	     case Color s && s == Color.Blue  -> s.toString();" +
+					"	     case Color s && s == Color.Blue  -> s.toString();\n" +
 					"	     case Red -> \"Red\";\n" +
 					"	   };\n" +
 					"	}\n" +
@@ -3595,6 +3600,11 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"	return switch (o) {\n" +
 				"	               ^\n" +
 				"A Switch expression should cover all possible values\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 5)\n" +
+				"	case Red -> \"Red\";\n" +
+				"	     ^^^\n" +
+				"This case label is dominated by one of the preceding case label\n" +
 				"----------\n");
 	}
 	public void testBug575047_15() {
@@ -4101,5 +4111,1178 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"		#102 REF_getField c:Lp/Rec$MyInterface;";
 		SwitchPatternTest.verifyClassFile(expectedOutput, "p/Rec.class", ClassFileBytesDisassembler.SYSTEM);
 	}
-
+	public void testBug576785_001() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"sealed interface J<X> permits D, E {}\n"+
+				"final class D implements J<String> {}\n"+
+				"final class E<X> implements J<X> {}\n"+
+				"\n"+
+				"public class X {\n"+
+				"       static int testExhaustive2(J<Integer> ji) {\n"+
+				"               return switch (ji) { // Exhaustive!\n"+
+				"               case E<Integer> e -> 42;\n"+
+				"               };\n"+
+				"       }\n"+
+				"       public static void main(String[] args) {\n"+
+				"               J<Integer> ji = new E<>();\n"+
+				"               System.out.println(X.testExhaustive2(ji));\n"+
+				"       }\n"+
+				"}",
+			},
+			"42");
+	}
+	public void testBug576785_002() {
+		runNegativeTest(
+				new String[] {
+				"X.java",
+				"@SuppressWarnings(\"rawtypes\")\n" +
+				"sealed interface J<T> permits D, E, F {}\n"+
+				"final class D implements J<String> {}\n"+
+				"final class E<T> implements J<T> {}\n"+
+				"final class F<T> implements J<T> {}\n"+
+				"\n"+
+				"public class X {\n"+
+				"@SuppressWarnings(\"preview\")\n" +
+				" static int testExhaustive2(J<Integer> ji) {\n"+
+				"   return switch (ji) { // Exhaustive!\n"+
+				"   case E<Integer> e -> 42;\n"+
+				"   };\n"+
+				" }\n"+
+				" public static void main(String[] args) {\n"+
+				"   J<Integer> ji = new E<>();\n"+
+				"   System.out.println(X.testExhaustive2(ji));\n"+
+				"   Zork();\n"+
+				" }\n"+
+				"}"
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 10)\n" +
+				"	return switch (ji) { // Exhaustive!\n" +
+				"	               ^^\n" +
+				"A switch expression should have a default case\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 17)\n" +
+				"	Zork();\n" +
+				"	^^^^\n" +
+				"The method Zork() is undefined for the type X\n" +
+				"----------\n");
+	}
+	public void testBug576830_001() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" static void foo(Object o) {\n"+
+				"   switch (o) {\n"+
+				"   };\n"+
+				" }\n"+
+				" public static void main(String[] args) {\n"+
+				"   foo(\"Hello\");\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	switch (o) {\n" +
+			"	        ^\n" +
+			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"----------\n");
+	}
+	public void testBug578107_001() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"sealed class C permits D {}\n"+
+				"final class D extends C {}\n"+
+				"public class X {\n"+
+				"       @SuppressWarnings(\"preview\")\n"+
+				"       static  void foo(C ji) {\n"+
+				"                switch (ji) { // non-exhaustive\n"+
+				"                  case D d : System.out.println(\"D\"); break;\n"+
+				"               }; \n"+
+				"       } \n"+
+				"       public static void main(String[] args) {\n"+
+				"               X.foo(new D());\n"+
+				"               Zork();\n"+
+				"       }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 6)\n" +
+			"	switch (ji) { // non-exhaustive\n" +
+			"	        ^^\n" +
+			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 12)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n");
+	}
+	public void testBug578107_002() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"abstract sealed class C permits D {}\n"+
+				"final class D extends C {}\n"+
+				"public class X {\n"+
+				"       @SuppressWarnings(\"preview\")\n"+
+				"       static  void foo(C ji) {\n"+
+				"                switch (ji) { // non-exhaustive\n"+
+				"                  case D d : System.out.println(\"D\"); break;\n"+
+				"               }; \n"+
+				"       } \n"+
+				"       public static void main(String[] args) {\n"+
+				"               X.foo(new D());\n"+
+				"               Zork();\n"+
+				"       }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 12)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n");
+	}
+	public void testBug578107_003() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"sealed interface C permits D {}\n"+
+				"final class D implements C {}\n"+
+				"public class X {\n"+
+				"       @SuppressWarnings(\"preview\")\n"+
+				"       static  void foo(C ji) {\n"+
+				"                switch (ji) { // non-exhaustive\n"+
+				"                  case D d : System.out.println(\"D\"); break;\n"+
+				"               }; \n"+
+				"       } \n"+
+				"       public static void main(String[] args) {\n"+
+				"               X.foo(new D());\n"+
+				"               Zork();\n"+
+				"       }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 12)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n");
+	}
+	public void testBug578108_001() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"sealed abstract class C permits D {}\n"+
+				"final class D extends C {}\n"+
+				"public class X {\n"+
+				" @SuppressWarnings(\"preview\")\n"+
+				" static <T extends C> void foo(T  ji) {\n"+
+				"    switch (ji) { // exhaustive because C is sealed and abstract\n"+
+				"      case D d : System.out.println(\"D\"); break;\n"+
+				"   }; \n"+
+				" } \n"+
+				" public static void main(String[] args) {\n"+
+				"   X.foo(new D());\n"+
+				"   Zork();\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 12)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n");
+	}
+	public void testBug578108_002() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"sealed interface C permits D {}\n"+
+				"final class D implements C {}\n"+
+				"public class X {\n"+
+				" @SuppressWarnings(\"preview\")\n"+
+				" static <T extends C> void foo(T  ji) {\n"+
+				"    switch (ji) { // exhaustive because C is sealed and abstract\n"+
+				"      case D d : System.out.println(\"D\"); break;\n"+
+				"   }; \n"+
+				" } \n"+
+				" public static void main(String[] args) {\n"+
+				"   X.foo(new D());\n"+
+				"   Zork();\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 12)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n");
+	}
+	public void testBug578143_001() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" @SuppressWarnings(\"preview\")\n"+
+				" static  int foo(Object o) {\n"+
+				"   return switch (o) { \n"+
+				"      case X x && true -> 0;\n"+
+				"      default -> 1;\n"+
+				"   }; \n"+
+				" } \n"+
+				" public static void main(String[] args) {\n"+
+				"   System.out.println(X.foo(new X()));\n"+
+				"   System.out.println(X.foo(new Object()));\n"+
+				" }\n"+
+				"}",
+			},
+			"0\n" +
+			"1");
+	}
+	public void testBug578143_002() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" @SuppressWarnings(\"preview\")\n"+
+				" public static void main(String[] args) {\n"+
+				"     Boolean input = false;\n"+
+				"     int result = switch(input) {\n"+
+				"       case Boolean p && true -> 1;\n"+
+				"     };\n"+
+				"     System.out.println(result);\n"+
+				" }\n"+
+				"}",
+			},
+			"1");
+	}
+	public void testBug578402() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X  {\n"
+					+ "enum Color{BLUE, RED, YELLOW;}\n"
+					+ "    public static void run(Color c) {\n"
+					+ "        switch(c) {\n"
+					+ "                case BLUE -> {\n"
+					+ "                    System.out.println(\"BLUE\");\n"
+					+ "                }\n"
+					+ "                case RED -> {\n"
+					+ "                    System.out.println(\"RED\");\n"
+					+ "                }\n"
+					+ "                case Object o -> {\n"
+					+ "                    System.out.println(o.toString());\n"
+					+ "                }\n"
+					+ "            }\n"
+					+ "    }"
+					+ "	public static void main(String[] args) {\n"
+					+ "		run(Color.RED);\n"
+					+ "		run(Color.BLUE);\n"
+					+ "	}\n"
+					+ "}"
+				},
+				"RED\n" +
+				"BLUE");
+	}
+	public void testBug578402_2() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X  {\n"
+					+ "static final String CONST = \"abc\";\n"
+					+ "    public static void main(String args[]) {\n"
+					+ "        System.out.println(run());\n"
+					+ "    }\n"
+					+ "    public static int run() {\n"
+					+ "        String s = \"abc\";\n"
+					+ "        int a = -1;\n"
+					+ "        switch (s) {\n"
+					+ "            case CONST -> {\n"
+					+ "                a = 2;\n"
+					+ "                break;\n"
+					+ "            }\n"
+					+ "            case null -> {\n"
+					+ "                a = 0;\n"
+					+ "                break; \n"
+					+ "            }\n"
+					+ "            default -> {\n"
+					+ "            	a = 1;\n"
+					+ "            }\n"
+					+ "        }\n"
+					+ "        return a;\n"
+					+ "    }\n"
+					+ "}",
+				},
+				"2");
+	}
+	// to be enabled after bug 578417 is fixed.
+	public void _testBug578402_3() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X  {\n"
+					+ "static final String CONST = \"abc\";\n"
+					+ "    public static void main(String args[]) {\n"
+					+ "        System.out.println(run());\n"
+					+ "    }\n"
+					+ "    public static int run() {\n"
+					+ "        String s = \"abc\";\n"
+					+ "        int a = -1;\n"
+					+ "        switch (s) {\n"
+					+ "            case CONST -> {\n"
+					+ "                a = 2;\n"
+					+ "                break;\n"
+					+ "            }\n"
+					+ "            case String s1 -> {\n"
+					+ "                a = 0;\n"
+					+ "                break; \n"
+					+ "            }\n"
+					+ "        }\n"
+					+ "        return a;\n"
+					+ "    }\n"
+					+ "}",
+				},
+				"2");
+	}
+	public void testBug578241_1() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"
+					+ "    public static void foo(Object obj, int x) {\n"
+					+ "    	switch (obj) {\n"
+					+ "    		case String s && (switch (x) {\n"
+					+ "					case 1 -> { yield true; }\n"
+					+ "					default -> { yield false; }\n"
+					+ "   	 									})	\n"
+					+ "   	 		 			-> {\n"
+					+ "   	 		 				System.out.println(\"true\");\n"
+					+ "   	 		 			}\n"
+					+ "					\n"
+					+ "   	 		 default -> {\n"
+					+ "   	 			System.out.println(\"false\");\n"
+					+ "   	 		 }\n"
+					+ "    	}	\n"
+					+ "    }\n"
+					+ "    public static void main(String[] args) {\n"
+					+ "		foo(\"abc\", 1);\n"
+					+ "	}\n"
+					+ "}",
+				},
+				"true");
+	}
+	private String getTestCaseForBug578504 (String caseConstant) {
+		return "public class X {\n"
+				+ "    public Object literal = \"a\";\n"
+				+ "    @SuppressWarnings(\"preview\")\n"
+				+ "	public boolean foo() {\n"
+				+ "        String s = switch(literal) {\n"
+				+ "            " + caseConstant
+				+ "                yield \"a\";\n"
+				+ "            }\n"
+				+ "            case default -> { \n"
+				+ "                yield \"b\";\n"
+				+ "            }\n"
+				+ "        }; \n"
+				+ "        return s.equals(\"a\");\n"
+				+ "    }\n"
+				+ "    public static void main(String[] argv) {\n"
+				+ "    	X c = new X();\n"
+				+ "    	System.out.println(c.foo());\n"
+				+ "    }\n"
+				+ "}";
+	}
+	public void testBug578504_1() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					getTestCaseForBug578504("case ((String a && a.equals(\"a\")) && a != null)  -> { \n")
+					,
+				},
+				"true");
+	}
+	public void testBug578504_2() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					getTestCaseForBug578504("case ((CharSequence a && a instanceof String ss && ss == null) && ss != null)  -> {\n"),
+				},
+				"false");
+	}
+	public void testBug578504_3() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					getTestCaseForBug578504("case (CharSequence a && (a instanceof String ss && ss != null) && ss != null)  -> {\n"),
+				},
+				"true");
+	}
+	public void testBug578504_4() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					getTestCaseForBug578504("case ((CharSequence a && (a == null || a instanceof String ss)) && ss != null)  -> {\n"),
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 6)\n" +
+				"	case ((CharSequence a && (a == null || a instanceof String ss)) && ss != null)  -> {\n" +
+				"	                                                                   ^^\n" +
+				"ss cannot be resolved to a variable\n" +
+				"----------\n");
+	}
+	public void testBug578504_5() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					getTestCaseForBug578504("case ((CharSequence a && (a instanceof String ss || a == null)) && ss != null)  -> {\n"),
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 6)\n" +
+				"	case ((CharSequence a && (a instanceof String ss || a == null)) && ss != null)  -> {\n" +
+				"	                                                                   ^^\n" +
+				"ss cannot be resolved to a variable\n" +
+				"----------\n");
+	}
+	public void testBug578504_6() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					getTestCaseForBug578504("case ((CharSequence a && (a instanceof String ss && a instanceof String sss)) && ss == sss)  -> {\n"),
+				},
+				"true");
+	}
+	public void testBug578504_7() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					getTestCaseForBug578504("case ((CharSequence a && (a instanceof String ss && a instanceof String sss)) && ss != sss)  -> {\n"),
+				},
+				"false");
+	}
+	public void testBug578553_1() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"
+					+ "	@SuppressWarnings(\"preview\")\n"
+					+ "	static Long foo(Number n) {\n"
+					+ "		return switch (n) {\n"
+					+ "	     case (Long l) && l.toString().equals(\"0\") -> {\n"
+					+ "	    	 yield ++l;\n"
+					+ "	     }\n"
+					+ "		default -> throw new IllegalArgumentException();\n"
+					+ "	   };\n"
+					+ "	}\n"
+					+ "	public static void main(String[] args) {\n"
+					+ "		System.out.println(foo(0L));\n"
+					+ "	}\n"
+					+ "}",
+				},
+				"1");
+	}
+	public void testBug578553_2() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"
+					+ "		@SuppressWarnings(\"preview\")\n"
+					+ "	static Long foo(Number n) {  \n"
+					+ "		return switch (n) { \n"
+					+ "	     case (Long l) && l.toString().equals(\"0\") -> {\n"
+					+ "	    	 yield switch(l) {\n"
+					+ "	    	 case Long l1 && l1.toString().equals(l1.toString()) -> {\n"
+					+ "	    	 	yield ++l + ++l1;\n"
+					+ "	    	 }\n"
+					+ "			default -> throw new IllegalArgumentException(\"Unexpected value: \" + l);\n"
+					+ "	    	 };\n"
+					+ "	     }\n"
+					+ "		default -> throw new IllegalArgumentException();\n"
+					+ "	   };\n"
+					+ "	}\n"
+					+ "	public static void main(String[] args) {\n"
+					+ "		System.out.println(foo(0L));\n"
+					+ "	}\n"
+					+ "}",
+				},
+				"2");
+	}
+	public void testBug578553_3() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"
+					+ "	@SuppressWarnings(\"preview\")\n"
+					+ "	static Long foo(Number n) {  \n"
+					+ "		return switch (n) { \n"
+					+ "	     case (Long l) && l.toString().equals(\"0\") -> {\n"
+					+ "	    	 yield switch(l) {\n"
+					+ "	    	 case Long l1 && l.toString().equals(l1.toString()) -> {\n"
+					+ "	    	 	yield ++l + ++l1;\n"
+					+ "	    	 }\n"
+					+ "			default -> throw new IllegalArgumentException(\"Unexpected value: \" + l);\n"
+					+ "	    	 };\n"
+					+ "	     }\n"
+					+ "		default -> throw new IllegalArgumentException();\n"
+					+ "	   };\n"
+					+ "	}\n"
+					+ "}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 7)\n" +
+				"	case Long l1 && l.toString().equals(l1.toString()) -> {\n" +
+				"	                ^\n" +
+				"Local variable l referenced from a guard must be final or effectively final\n" +
+				"----------\n");
+	}
+	public void testBug578553_4() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"
+					+ "	@SuppressWarnings(\"preview\")\n"
+					+ "	static Long foo(Number n) {  \n"
+					+ "	int i = 0;\n"
+					+ "	return switch(n) {\n"
+					+ "	  case Long l && (1 == switch(l) {\n"
+					+ "		case \n"
+					+ "			default -> {  \n"
+					+ "				yield (i++);\n"
+					+ "			} \n"
+					+ "		}) -> 1L; \n"
+					+ "	  default -> throw new IllegalArgumentException(\"Unexpected value: \" + n);\n"
+					+ "	  };\n"
+					+ "	}\n"
+					+ "}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 9)\n" +
+				"	yield (i++);\n" +
+				"	       ^\n" +
+				"Local variable i referenced from a guard must be final or effectively final\n" +
+				"----------\n");
+	}
+	public void testBug578553_5() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"
+					+ "	@SuppressWarnings(\"preview\")\n"
+					+ "	static Long foo(Number n) {  \n"
+					+ "	int i = 0;\n"
+					+ "	return switch(n) {\n"
+					+ "	  case Long l && (1 == switch(l) {\n"
+					+ "		case \n"
+					+ "			default -> {  \n"
+					+ "				yield ++i;\n"
+					+ "			} \n"
+					+ "		}) -> 1L; \n"
+					+ "	  default -> throw new IllegalArgumentException(\"Unexpected value: \" + n);\n"
+					+ "	  };\n"
+					+ "	}\n"
+					+ "}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 9)\n" +
+				"	yield ++i;\n" +
+				"	        ^\n" +
+				"Local variable i referenced from a guard must be final or effectively final\n" +
+				"----------\n");
+	}
+	public void testBug578553_6() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"
+					+ "	@SuppressWarnings(\"preview\")\n"
+					+ "	static Long foo(Number n) {  \n"
+					+ "	int i = 0;\n"
+					+ "	return switch(n) {\n"
+					+ "	  case Long l && (1 == switch(l) {\n"
+					+ "		case \n"
+					+ "			default -> {  \n"
+					+ "				yield (i=i+1);\n"
+					+ "			} \n"
+					+ "		}) -> 1L; \n"
+					+ "	  default -> throw new IllegalArgumentException(\"Unexpected value: \" + n);\n"
+					+ "	  };\n"
+					+ "	}\n"
+					+ "}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 9)\n" +
+				"	yield (i=i+1);\n" +
+				"	       ^\n" +
+				"Local variable i referenced from a guard must be final or effectively final\n" +
+				"----------\n");
+	}
+	public void testBug578553_7() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"
+					+ " static int bar() { return 1; }\n"
+					+ "	@SuppressWarnings(\"preview\")\n"
+					+ "	static Long foo(Number n) {  \n"
+					+ "	int i = 0;\n"
+					+ "	return switch(n) {\n"
+					+ "	  case Long l && (1 == switch(l) {\n"
+					+ "		case \n"
+					+ "			default -> {  \n"
+					+ "				yield (i = bar());\n"
+					+ "			} \n"
+					+ "		}) -> 1L; \n"
+					+ "	  default -> throw new IllegalArgumentException(\"Unexpected value: \" + n);\n"
+					+ "	  };\n"
+					+ "	}\n"
+					+ "}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 10)\n" +
+				"	yield (i = bar());\n" +
+				"	       ^\n" +
+				"Local variable i referenced from a guard must be final or effectively final\n" +
+				"----------\n");
+	}
+	public void testBug578568_1() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"
+								+ "    @SuppressWarnings(\"preview\")\n"
+								+ "	public static int foo(Number arg0) {\n"
+								+ "        int result = 0;\n"
+								+ "        result = \n"
+								+ "         switch (arg0) {\n"
+								+ "            case Object p -> {\n"
+								+ "                switch (arg0) {\n"
+								+ "                     case Number p1 -> {\n"
+								+ "                        yield 1;\n"
+								+ "                    }\n"
+								+ "                }\n"
+								+ "            }\n"
+								+ "        }; \n"
+								+ "        return result;\n"
+								+ "    }\n"
+								+ " public static void main(String[] args) {\n"
+								+ "    	System.out.println(foo(0L));\n"
+								+ "	}"
+								+ "}",
+				},
+				"1");
+	}
+	public void testBug578568_2() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"
+								+ " @SuppressWarnings(\"preview\")\n"
+								+ "	public static int foo(Number arg0) {\n"
+								+ "        return switch (arg0) {\n"
+								+ "            case Object p : {\n"
+								+ "                switch (arg0) {\n"
+								+ "                     case Number p1 : {\n"
+								+ "                        yield 1;\n"
+								+ "                    }\n"
+								+ "                }\n"
+								+ "            }\n"
+								+ "        }; \n"
+								+ "    }\n"
+								+ " public static void main(String[] args) {\n"
+								+ "    	System.out.println(foo(0L));\n"
+								+ "	}"
+								+ "}",
+				},
+				"1");
+	}
+	public void testBug578568_3() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"
+								+ " @SuppressWarnings(\"preview\")\n"
+								+ "	public static int foo(Object arg0) {\n"
+								+ "        return switch (arg0) {\n"
+								+ "            case Object p : {\n"
+								+ "                switch (arg0) {\n"
+								+ "                    case Number p1 : {\n"
+								+ "                        yield 1;\n"
+								+ "                    }\n"
+								+ "                    default: {\n"
+								+ "                    }"
+								+ "                }\n"
+								+ "            }\n"
+								+ "        }; \n"
+								+ " }\n"
+								+ "}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 12)\n" +
+				"	}\n" +
+				"	^^\n" +
+				"A switch labeled block in a switch expression should not complete normally\n" +
+				"----------\n");
+	}
+	public void testBug578416() {
+		runConformTest(new String[] {
+				"X.java",
+				"public class X {\n"
+				+ "    public static int testMethod(I i) {\n"
+				+ "       return switch (i) {\n"
+				+ "            case I p1 && (p1 instanceof C p2) : {\n"
+				+ "                yield p2.value(); // Error here\n"
+				+ "            }\n"
+				+ "            case I p3 : {\n"
+				+ "                yield p3.value(); // No error here\n"
+				+ "            }\n"
+				+ "        };\n"
+				+ "    }\n"
+				+ "    interface I {\n"
+				+ "        public int value();\n"
+				+ "    }\n"
+				+ "    class C implements I {\n"
+				+ "    	@Override\n"
+				+ "    	public int value() {\n"
+				+ "    		return 0;\n"
+				+ "    	}\n"
+				+ "    }\n"
+				+ "    public static void main(String[] args) {\n"
+				+ "    	I i = new I() {\n"
+				+ "    		public int value() {\n"
+				+ "    			return 10;\n"
+				+ "    		} \n"
+				+ "    	}; \n"
+				+ "    	System.out.println(testMethod(i));\n"
+				+ "    	System.out.println(testMethod(new X().new C()));\n"
+				+ "	}"
+				+ "}\n"},
+				"10\n" +
+				"0");
+	}
+	public void testBug578416_1() {
+		runConformTest(new String[] {
+				"X.java",
+				"public class X {\n"
+				+ "    public static int testMethod(I i) {\n"
+				+ "       return switch (i) {\n"
+				+ "            case I p1 && (p1 instanceof C p2) : {\n"
+				+ "                yield p2.value();\n"
+				+ "            }\n"
+				+ "            case I p3 : {\n"
+				+ "                yield p3.value();\n"
+				+ "            }\n"
+				+ "        };\n"
+				+ "    }\n"
+				+ "    interface I {\n"
+				+ "        public int value();\n"
+				+ "    }\n"
+				+ "    class C implements I {\n"
+				+ "    	@Override\n"
+				+ "    	public int value() {\n"
+				+ "    		return 0;\n"
+				+ "    	}\n"
+				+ "    }\n"
+				+ "    public static void main(String[] args) {\n"
+				+ "    	I i = new I() {\n"
+				+ "    		public int value() {\n"
+				+ "    			return 10;\n"
+				+ "    		} \n"
+				+ "    	}; \n"
+				+ "    	System.out.println(testMethod(i));\n"
+				+ "    	System.out.println(testMethod(new X().new C()));\n"
+				+ "	}"
+				+ "}\n"},
+				"10\n" +
+				"0");
+	}
+	public void testBug578416_2() {
+		runConformTest(new String[] {
+				"X.java",
+				"public class X {\n"
+				+ "    public static int foo(Object o) {\n"
+				+ "       return switch (o) {\n"
+				+ "            case Number n && (n instanceof Integer i) : {\n"
+				+ "                yield n.intValue() + i; // Error here\n"
+				+ "            }\n"
+				+ "            case Number n2 : {\n"
+				+ "                yield n2.intValue();\n"
+				+ "            }\n"
+				+ "            default : {\n"
+				+ "                yield -1;\n"
+				+ "            }\n"
+				+ "        };\n"
+				+ "    }\n"
+				+ "    public static void main(String[] args) {\n"
+				+ "    	System.out.println(foo(new Integer(10)));\n"
+				+ "    	System.out.println(foo(new Integer(5)));\n"
+				+ "    	System.out.println(foo(new Long(5L)));\n"
+				+ "    	System.out.println(foo(new Float(0)));\n"
+				+ "	}"
+				+ "}\n"},
+				"20\n" +
+				"10\n" +
+				"5\n" +
+				"0");
+	}
+	public void testBug578416_3() {
+		runConformTest(new String[] {
+				"X.java",
+				"public class X {\n"
+				+ "    public static int foo(Object o) {\n"
+				+ "       return switch (o) {\n"
+				+ "            case Number n && (n instanceof Integer i && i.equals(10)) : {\n"
+				+ "                yield n.intValue() + i; // Error here\n"
+				+ "            }\n"
+				+ "            case Number n2 : {\n"
+				+ "                yield n2.intValue();\n"
+				+ "            }\n"
+				+ "            default : {\n"
+				+ "                yield -1;\n"
+				+ "            }\n"
+				+ "        };\n"
+				+ "    }\n"
+				+ "    public static void main(String[] args) {\n"
+				+ "    	System.out.println(foo(new Integer(10)));\n"
+				+ "    	System.out.println(foo(new Integer(5)));\n"
+				+ "    	System.out.println(foo(new Long(5L)));\n"
+				+ "    	System.out.println(foo(new Float(0)));\n"
+				+ "	}"
+				+ "}\n"},
+				"20\n" +
+				"5\n" +
+				"5\n" +
+				"0");
+	}
+	public void testBug578635_1() {
+		runConformTest(new String[] {
+				"X.java",
+				"public class X {\n"
+				+ "   @SuppressWarnings({ \"preview\", \"rawtypes\" })\n"
+				+ "	public static boolean foo(Integer n) {\n"
+				+ "    	return switch (n) {\n"
+				+ "	    	case Integer x && x.equals(10) -> {\n"
+				+ "	    		yield true;\n"
+				+ "	    	}\n"
+				+ "	    	case Comparable y -> {\n"
+				+ "	    		yield false;\n"
+				+ "	    	}\n"
+				+ "    	};\n"
+				+ "    }\n"
+				+ "    public static void main(String[] argv) {\n"
+				+ "    	System.out.println(foo(Integer.valueOf(0)));\n"
+				+ "    	System.out.println(foo(Integer.valueOf(10)));\n"
+				+ "    }\n"
+				+ "}"},
+				"false\n" +
+				"true");
+	}
+	public void testBug578635_2() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"public class X {\n"
+				+ " @SuppressWarnings({ \"preview\", \"rawtypes\" })\n"
+				+ "	public static boolean foo(Integer n) {\n"
+				+ "    	return switch (n) {\n"
+				+ "	    	case Integer x && x.equals(10) -> {\n"
+				+ "	    		yield true;\n"
+				+ "	    	}\n"
+				+ "	    	case Comparable y -> {\n"
+				+ "	    		yield false;\n"
+				+ "	    	}\n"
+				+ "	    	default -> {\n"
+				+ "	    		yield false;\n"
+				+ "	    	}\n"
+				+ "    	};\n"
+				+ "    }\n"
+				+ "    public static void main(String[] argv) {\n"
+				+ "    	System.out.println(foo(Integer.valueOf(0)));\n"
+				+ "    	System.out.println(foo(Integer.valueOf(10)));\n"
+				+ "    }\n"
+				+ "}"},
+				"----------\n" +
+				"1. ERROR in X.java (at line 11)\n" +
+				"	default -> {\n" +
+				"	^^^^^^^\n" +
+				"Switch case cannot have both a total pattern and default label\n" +
+				"----------\n");
+	}
+	public void testBug578635_3() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"public class X {\n"
+				+ " @SuppressWarnings({ \"preview\", \"rawtypes\" })\n"
+				+ "	public static boolean foo(Integer n) {\n"
+				+ "    	return switch (n) {\n"
+				+ "	    	case Integer x && x.equals(10) -> {\n"
+				+ "	    		yield true;\n"
+				+ "	    	}\n"
+				+ "	    	case Comparable y -> {\n"
+				+ "	    		yield false;\n"
+				+ "	    	}\n"
+				+ "	    	default -> {\n"
+				+ "	    		yield false;\n"
+				+ "	    	}\n"
+				+ "    	};\n"
+				+ "    }\n"
+				+ "    public static void main(String[] argv) {\n"
+				+ "    	System.out.println(foo(Integer.valueOf(0)));\n"
+				+ "    	System.out.println(foo(Integer.valueOf(10)));\n"
+				+ "    }\n"
+				+ "}"},
+				"----------\n" +
+				"1. ERROR in X.java (at line 11)\n" +
+				"	default -> {\n" +
+				"	^^^^^^^\n" +
+				"Switch case cannot have both a total pattern and default label\n" +
+				"----------\n");
+	}
+	public void testBug578417_1() {
+		runConformTest(new String[] {
+				"X.java",
+				"public class X {\n"
+				+ "   @SuppressWarnings({ \"preview\", \"rawtypes\" })\n"
+				+ "    static final String CONSTANT = \"abc\";\n"
+				+ "    static String CON2 = \"abc\";\n"
+				+ "    public static int foo() {\n"
+				+ "        int res = 0;\n"
+				+ "        switch (CON2) {\n"
+				+ "            case CONSTANT -> {\n"
+				+ "                res = 1;\n"
+				+ "                break;\n"
+				+ "            }\n"
+				+ "            case String s -> {\n"
+				+ "                res = 2;\n"
+				+ "                break;\n"
+				+ "            }\n"
+				+ "        }\n"
+				+ "        return res;\n"
+				+ "    }\n"
+				+ "    public static void main(String argv[]) {\n"
+				+ "    	System.out.println(foo()); \n"
+				+ "    }\n"
+				+ "}"},
+				"1" );
+	}
+	public void testBug578132_001() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					" @SuppressWarnings(\"preview\")\n"+
+					" static  int foo(Object o, boolean b) {\n"+
+					"   return switch (o) { \n"+
+					"      case X x && b -> 0; // compilation error\n"+
+					"      default -> 1;\n"+
+					"   }; \n"+
+					" } \n"+
+					" public static void main(String[] args) {\n"+
+					"   System.out.println(X.foo(new X(), true));\n"+
+					"   System.out.println(X.foo(new Object(), true));\n"+
+					" }\n"+
+					"}"
+				},
+				"0\n"+
+				"1");
+	}
+	public void test576788_1() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					" @SuppressWarnings(\"preview\")\n"+
+					"     public static void foo1(Object o) {\n"
+					+ "    	boolean b = switch (o) {\n"
+					+ "    		case String s, null -> {\n"
+					+ "    			yield s == null;\n"
+					+ "    		}\n"
+					+ "    		default -> true;\n"
+					+ "    	};\n"
+					+ "    	System.out.println(b);\n"
+					+ "    } \n"
+					+ "    public static void main(String[] argv) {\n"
+					+ "    	foo1(null);\n"
+					+ "    	foo1(\"abc\");\n"
+					+ "    }\n"+
+					"}"
+				},
+				"true\n"+
+				"false");
+	}
+	public void testBug577374_001() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"    sealed interface A {}\n"+
+					"    sealed interface B1 extends A {}\n"+
+					"    sealed interface B2 extends A {}\n"+
+					"    sealed interface C extends A {}\n"+
+					"    final class D1 implements B1, C {}\n"+
+					"    final class D2 implements B2, C {}\n"+
+					"    \n"+
+					"    public static int test(A arg) {\n"+
+					"        return switch (arg) {\n"+
+					"            case B1 b1 -> 1;\n"+
+					"            case B2 b2 -> 2;\n"+
+					"        };\n"+
+					"    }\n"+
+					"    public static void main(String[] args) {\n"+
+					"   X.D1 d1 = new X().new D1();\n"+
+					"   System.out.println(X.test(d1));\n"+
+					" }\n"+
+					"}"
+				},
+				"1");
+	}
+	public void testBug579355_001() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"       static void constantLabelMustAppearBeforePattern(Integer o) {\n"+
+					"               switch (o) {\n"+
+					"               case -1, 1 -> System.out.println(\"special case:\" + o);\n"+
+					"               case Integer i && i > 0 -> System.out.println(\"positive integer: \" + o);\n"+
+					"               case Integer i -> System.out.println(\"other integer: \" + o);\n"+
+					"               }\n"+
+					"       }\n"+
+					"\n"+
+					"       public static void main(String[] args) {\n"+
+					"               X.constantLabelMustAppearBeforePattern(-10);\n"+
+					"               X.constantLabelMustAppearBeforePattern(-1);\n"+
+					"               X.constantLabelMustAppearBeforePattern(0);\n"+
+					"               X.constantLabelMustAppearBeforePattern(1);\n"+
+					"               X.constantLabelMustAppearBeforePattern(10);\n"+
+					"       } \n"+
+					"}"
+				},
+				"other integer: -10\n" +
+				"special case:-1\n" +
+				"other integer: 0\n" +
+				"special case:1\n" +
+				"positive integer: 10");
+	}
+	public void testBug579355_002() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"       static void constantLabelMustAppearBeforePattern(Integer o) {\n"+
+					"               switch (o) {\n"+
+					"               case -1, 1 -> System.out.println(\"special case:\" + o);\n"+
+					"               case null -> System.out.println(\"null\");\n"+
+					"               case Integer i && i > 0 -> System.out.println(\"positive integer: \" + o);\n"+
+					"               case Integer i -> System.out.println(\"other integer: \" + o);\n"+
+					"               }\n"+
+					"       }\n"+
+					"\n"+
+					"       public static void main(String[] args) {\n"+
+					"               X.constantLabelMustAppearBeforePattern(-10);\n"+
+					"               X.constantLabelMustAppearBeforePattern(-1);\n"+
+					"               X.constantLabelMustAppearBeforePattern(0);\n"+
+					"               X.constantLabelMustAppearBeforePattern(1);\n"+
+					"               X.constantLabelMustAppearBeforePattern(10);\n"+
+					"               X.constantLabelMustAppearBeforePattern(null);\n"+
+					"       } \n"+
+					"}"
+				},
+				"other integer: -10\n" +
+				"special case:-1\n" +
+				"other integer: 0\n" +
+				"special case:1\n" +
+				"positive integer: 10\n"+
+				"null");
+	}
+	public void testBug579355_003() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"           public int foo(Integer i) {\n"
+					+ "        int result = 0;\n"
+					+ "        switch (i) {\n"
+					+ "            case 0 -> {\n"
+					+ "                result = 3;\n"
+					+ "                break;\n"
+					+ "            }\n"
+					+ "            case null -> {\n"
+					+ "                result = 5;\n"
+					+ "                break;\n"
+					+ "            }\n"
+					+ "            case (Integer p) -> {\n"
+					+ "                result = 6;\n"
+					+ "                break;\n"
+					+ "            }\n"
+					+ "            case 10 -> {\n"
+					+ "                result = 9;\n"
+					+ "                break;\n"
+					+ "            }\n"
+					+ "        }   \n"
+					+ "        return result;\n"
+					+ "    }\n"+
+					"}"
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 17)\n" +
+				"	case 10 -> {\n" +
+				"	     ^^\n" +
+				"This case label is dominated by one of the preceding case label\n" +
+				"----------\n");
+	}
+	public void testBug579355_004() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"    public static Color color = Color.BLUE;\n"
+					+ "    public static void main(String args[]) {\n"
+					+ "        Color c; \n"
+					+ "        var result = switch(color){\n"
+					+ "                case BLUE ->  (c = color) == Color.BLUE;\n"
+					+ "                case RED, GREEN ->  (c = color) + \"text\";\n"
+					+ "                case YELLOW ->  new String((c = color) + \"text\");\n"
+					+ "                default ->  (c = color);\n"
+					+ "                };\n"
+					+ "        if (result != null && c == Color.BLUE) {\n"
+					+ "        	System.out.println(\"Pass\");\n"
+					+ "        } else {\n"
+					+ "        	System.out.println(\"Fail\");\n"
+					+ "        }\n"
+					+ "    } \n"
+					+ "}\n"
+					+ "enum Color{BLUE, RED, GREEN, YELLOW;}"
+				},
+				"Pass");
+	}
+	public void testBug579355_005() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"    public int foo(Character c) {\n"
+					+ "        int result = 0;\n"
+					+ "        result = switch (c) {\n"
+					+ "            case Character c1 -> 1;\n"
+					+ "            case (short)1 -> 5;\n"
+					+ "        };\n"
+					+ "        return result;\n"
+					+ "    }\n"
+					+ "    public static void main(String args[]) {\n"
+					+ "    	X x = new X();\n"
+					+ "    	if (x.foo('\\u0001') == 1) {\n"
+					+ "            System.out.println(\"Pass\");\n"
+					+ "        } else {\n"
+					+ "        	System.out.println(\"Fail\");\n"
+					+ "        }\n"
+					+ "    }\n"
+					+ "}"
+				},
+				"Pass");
+	}
 }

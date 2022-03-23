@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -49,6 +49,7 @@ public class AbstractCompilerTest extends TestCase {
 	public static final int F_15  = 0x1000;
 	public static final int F_16  = 0x2000;
 	public static final int F_17  = 0x4000;
+	public static final int F_18  = 0x8000;
 
 	public static final boolean RUN_JAVAC = CompilerOptions.ENABLED.equals(System.getProperty("run.javac"));
 	public static final boolean PERFORMANCE_ASSERTS = !CompilerOptions.DISABLED.equals(System.getProperty("jdt.performance.asserts"));
@@ -68,6 +69,7 @@ public class AbstractCompilerTest extends TestCase {
 	protected static boolean isJRE15Plus = false;
 	protected static boolean isJRE16Plus = false;
 	protected static boolean isJRE17Plus = false;
+	protected static boolean isJRE18Plus = false;
 	protected static boolean reflectNestedClassUseDollar;
 
 	public static int[][] complianceTestLevelMapping = new int[][] {
@@ -86,6 +88,7 @@ public class AbstractCompilerTest extends TestCase {
 		new int[] {F_15, ClassFileConstants.MAJOR_VERSION_15},
 		new int[] {F_16, ClassFileConstants.MAJOR_VERSION_16},
 		new int[] {F_17, ClassFileConstants.MAJOR_VERSION_17},
+		new int[] {F_18, ClassFileConstants.MAJOR_VERSION_18},
 	};
 
 	/**
@@ -315,7 +318,8 @@ public class AbstractCompilerTest extends TestCase {
 	public static int getPossibleComplianceLevels() {
 		if (possibleComplianceLevels == UNINITIALIZED) {
 			String specVersion = System.getProperty("java.specification.version");
-			isJRE17Plus =  CompilerOptions.VERSION_17.equals(specVersion);
+			isJRE18Plus =  CompilerOptions.VERSION_18.equals(specVersion);
+			isJRE17Plus =  isJRE18Plus || CompilerOptions.VERSION_17.equals(specVersion);
 			isJRE16Plus = isJRE17Plus || CompilerOptions.VERSION_16.equals(specVersion);
 			isJRE15Plus = isJRE16Plus || CompilerOptions.VERSION_15.equals(specVersion);
 			isJRE14Plus = isJRE15Plus || CompilerOptions.VERSION_14.equals(specVersion);
@@ -372,6 +376,9 @@ public class AbstractCompilerTest extends TestCase {
 					} else if (CompilerOptions.VERSION_17.equals(compliance)) {
 						if (isJRE17Plus)
 							possibleComplianceLevels |= F_17;
+					} else if (CompilerOptions.VERSION_18.equals(compliance)) {
+						if (isJRE18Plus)
+							possibleComplianceLevels |= F_18;
 					} else {
 						System.out.println("Ignoring invalid compliance (" + compliance + ")");
 						System.out.print("Use one of ");
@@ -389,7 +396,9 @@ public class AbstractCompilerTest extends TestCase {
 						System.out.print(CompilerOptions.VERSION_13 + ", ");
 						System.out.println(CompilerOptions.VERSION_14 + ", ");
 						System.out.println(CompilerOptions.VERSION_15 + ", ");
-						System.out.println(CompilerOptions.VERSION_16);
+						System.out.println(CompilerOptions.VERSION_16 + ", ");
+						System.out.println(CompilerOptions.VERSION_17 + ", ");
+						System.out.println(CompilerOptions.VERSION_18);
 					}
 				}
 				if (possibleComplianceLevels == 0) {
@@ -459,6 +468,10 @@ public class AbstractCompilerTest extends TestCase {
 					if (canRun17) {
 						possibleComplianceLevels |= F_17;
 					}
+					boolean canRun18 = canRun17 && !CompilerOptions.VERSION_17.equals(specVersion);
+					if (canRun18) {
+						possibleComplianceLevels |= F_18;
+					}
 				} else if ("1.0".equals(specVersion)
 							|| CompilerOptions.VERSION_1_1.equals(specVersion)
 							|| CompilerOptions.VERSION_1_2.equals(specVersion)
@@ -491,6 +504,9 @@ public class AbstractCompilerTest extends TestCase {
 																possibleComplianceLevels |= F_16;
 																if (!CompilerOptions.VERSION_16.equals(specVersion)) {
 																	possibleComplianceLevels |= F_17;
+																	if (!CompilerOptions.VERSION_17.equals(specVersion)) {
+																		possibleComplianceLevels |= F_18;
+																	}
 																}
 															}
 														}
@@ -671,7 +687,7 @@ public class AbstractCompilerTest extends TestCase {
 	}
 
 	protected static String getVersionString(long compliance) {
-		String version = "version 16 : 60.0";
+		String version = "version 17 : 61.0";
 		if (compliance < ClassFileConstants.JDK9) return "version 1.8 : 52.0";
 		if (compliance == ClassFileConstants.JDK9) return "version 9 : 53.0";
 		if (compliance == ClassFileConstants.JDK10) return "version 10 : 54.0";
@@ -680,7 +696,7 @@ public class AbstractCompilerTest extends TestCase {
 			int major = Integer.parseInt(ver) + ClassFileConstants.MAJOR_VERSION_0;
 			return "version " + ver + " : " + major + ".0";
 		}
-		if (compliance >= ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_17)) return version; // keep this stmt for search for next bump up
+		if (compliance >= ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_18)) return version; // keep this stmt for search for next bump up
 		return version;
 	}
 
