@@ -33,7 +33,7 @@ import java.util.List;
  * </pre>
  *
  * @see Javadoc
- * @since 3.29
+ * @since 3.30
  */
 
 @SuppressWarnings("rawtypes")
@@ -42,7 +42,7 @@ public abstract class AbstractTagElement extends ASTNode implements IDocElement 
 	/**
 	 * The "tagName" structural property of this node type (type: {@link String}).
 	 *
-	 * @since 3.29
+	 * @since 3.30
 	 */
 	public static final SimplePropertyDescriptor internalTagNamePropertyFactory(Class nodeClass) {
 		return new SimplePropertyDescriptor(nodeClass, "tagName", String.class, OPTIONAL); //$NON-NLS-1$
@@ -50,7 +50,7 @@ public abstract class AbstractTagElement extends ASTNode implements IDocElement 
 
 	/**
 	 * The "fragments" structural property of this node type (element type: {@link IDocElement}).
-	 * @since 3.29
+	 * @since 3.30
 	 */
 
 	static final ChildListPropertyDescriptor internalFragmentsPropertyFactory(Class nodeClass) {

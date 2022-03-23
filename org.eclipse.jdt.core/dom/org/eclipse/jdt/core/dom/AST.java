@@ -402,7 +402,7 @@ public final class AST {
 	 * up to and including Java SE 18(aka JDK 18).
 	 * </p>
 	 *
-	 * @since 3.29
+	 * @since 3.30
 	 */
 	public static final int JLS18 = 18;
 
@@ -2101,7 +2101,7 @@ public final class AST {
 	 * doc comment string)
 	 *
 	 * @return a new unparented doc comment node
-	 * @since 3.29
+	 * @since 3.30
 	 */
 	public JavaDocRegion newJavaDocRegion() {
 		JavaDocRegion result = new JavaDocRegion(this);
@@ -2966,7 +2966,7 @@ public final class AST {
 	 * </p>
 	 *
 	 * @return a new unparented tag element node
-	 * @since 3.29
+	 * @since 3.30
 	 */
 	public TagProperty newTagProperty() {
 		TagProperty result = new TagProperty(this);

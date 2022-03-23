@@ -196,6 +196,24 @@
         </filter>
     </resource>
     <resource path="dom/org/eclipse/jdt/core/dom/TagProperty.java" type="org.eclipse.jdt.core.dom.TagProperty">
+        <filter id="336658481">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.dom.TagProperty"/>
+                <message_argument value="TAG_PROPERTY_SNIPPET_ID"/>
+            </message_arguments>
+        </filter>
+        <filter id="336658481">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.dom.TagProperty"/>
+                <message_argument value="TAG_PROPERTY_SNIPPET_INLINE_TAG_COUNT"/>
+            </message_arguments>
+        </filter>
+        <filter id="336658481">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.dom.TagProperty"/>
+                <message_argument value="TAG_PROPERTY_SNIPPET_REGION_TEXT"/>
+            </message_arguments>
+        </filter>
         <filter id="576725006">
             <message_arguments>
                 <message_argument value="IDocElement"/>

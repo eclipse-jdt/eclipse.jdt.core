@@ -28,7 +28,7 @@ import org.eclipse.jdt.internal.core.dom.util.DOMASTUtil;
  *     validSnippet
  * </pre>
  *
- * @since 3.29
+ * @since 3.30
  */
 
 @SuppressWarnings("rawtypes")

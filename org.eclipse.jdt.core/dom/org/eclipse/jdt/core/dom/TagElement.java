@@ -57,7 +57,7 @@ public final class TagElement extends AbstractTagElement {
 
 	/**
 	 * The "properties" structural property of this node type (element type: {@link TagProperty}).
-	 * @since 3.29
+	 * @since 3.30
 	 */
 	public static final ChildListPropertyDescriptor TAG_PROPERTIES_PROPERTY =
 		new ChildListPropertyDescriptor(TagElement.class, "tagProperties", TagProperty.class, CYCLE_RISK); //$NON-NLS-1$
@@ -76,7 +76,7 @@ public final class TagElement extends AbstractTagElement {
 	 * A list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor}),
 	 * or null if uninitialized.
-	 * @since 3.29
+	 * @since 3.30
 	 */
 	private static final List PROPERTY_DESCRIPTORS_18;
 
@@ -131,13 +131,13 @@ public final class TagElement extends AbstractTagElement {
 	 * <p>
 	 * Note that this tag first appeared in J2SE 5.
 	 * </p>
-	 * @since 3.29
+	 * @since 3.30
 	 */
 	public static final String TAG_CODE = "@code"; //$NON-NLS-1$
 
 	/**
 	 * Standard doc tag name (value {@value}).
-	 * @since 3.29
+	 * @since 3.30
 	 */
 	public static final String TAG_DEPRECATED = "@deprecated"; //$NON-NLS-1$
 
@@ -148,37 +148,37 @@ public final class TagElement extends AbstractTagElement {
 
 	/**
 	 * Standard doc tag name (value {@value}).
-	 * @since 3.29
+	 * @since 3.30
 	 */
 	public static final String TAG_EXCEPTION = "@exception"; //$NON-NLS-1$
 
 	/**
 	 * Standard doc tag name (value {@value}).
-	 * @since 3.29
+	 * @since 3.30
 	 */
 	public static final String TAG_HIDDEN = "@hidden"; //$NON-NLS-1$
 
 	/**
 	 * Standard doc tag name (value {@value}).
-	 * @since 3.29
+	 * @since 3.30
 	 */
 	public static final String TAG_INDEX = "@index"; //$NON-NLS-1$
 
 	/**
 	 * Standard inline doc tag name (value {@value}).
-	 * @since 3.29
+	 * @since 3.30
 	 */
 	public static final String TAG_INHERITDOC = "@inheritDoc"; //$NON-NLS-1$
 
 	/**
 	 * Standard inline doc tag name (value {@value}).
-	 * @since 3.29
+	 * @since 3.30
 	 */
 	public static final String TAG_LINK = "@link"; //$NON-NLS-1$
 
 	/**
 	 * Standard inline doc tag name (value {@value}).
-	 * @since 3.29
+	 * @since 3.30
 	 */
 	public static final String TAG_LINKPLAIN = "@linkplain"; //$NON-NLS-1$
 
@@ -187,49 +187,49 @@ public final class TagElement extends AbstractTagElement {
 	 * <p>
 	 * Note that this tag first appeared in J2SE 5.
 	 * </p>
-	 * @since 3.29
+	 * @since 3.30
 	 */
 	public static final String TAG_LITERAL = "@literal"; //$NON-NLS-1$
 
 	/**
 	 * Standard doc tag name (value {@value}).
-	 * @since 3.29
+	 * @since 3.30
 	 */
 	public static final String TAG_PARAM = "@param"; //$NON-NLS-1$
 
 	/**
 	 * Standard doc tag name (value {@value}).
-	 * @since 3.29
+	 * @since 3.30
 	 */
 	public static final String TAG_PROVIDES = "@provides"; //$NON-NLS-1$
 
 	/**
 	 * Standard doc tag name (value {@value}).
-	 * @since 3.29
+	 * @since 3.30
 	 */
 	public static final String TAG_RETURN = "@return"; //$NON-NLS-1$
 
 	/**
 	 * Standard doc tag name (value {@value}).
-	 * @since 3.29
+	 * @since 3.30
 	 */
 	public static final String TAG_SEE = "@see"; //$NON-NLS-1$
 
 	/**
 	 * Standard doc tag name (value {@value}).
-	 * @since 3.29
+	 * @since 3.30
 	 */
 	public static final String TAG_SERIAL = "@serial"; //$NON-NLS-1$
 
 	/**
 	 * Standard doc tag name (value {@value}).
-	 * @since 3.29
+	 * @since 3.30
 	 */
 	public static final String TAG_SERIALDATA= "@serialData"; //$NON-NLS-1$
 
 	/**
 	 * Standard doc tag name (value {@value}).
-	 * @since 3.29
+	 * @since 3.30
 	 */
 	public static final String TAG_SERIALFIELD= "@serialField"; //$NON-NLS-1$
 
@@ -240,67 +240,67 @@ public final class TagElement extends AbstractTagElement {
 
 	/**
 	 * Standard doc tag name (value {@value}).
-	 * @since 3.29
+	 * @since 3.30
 	 */
 	public static final String TAG_SUMMARY = "@summary"; //$NON-NLS-1$
 
 	/**
 	 * Standard doc tag name (value {@value}).
-	 * @since 3.29
+	 * @since 3.30
 	 */
 	public static final String TAG_THROWS = "@throws"; //$NON-NLS-1$
 
 	/**
 	 * Standard doc tag name (value {@value}).
-	 * @since 3.29
+	 * @since 3.30
 	 */
 	public static final String TAG_USES = "@uses"; //$NON-NLS-1$
 
 	/**
 	 * Standard inline doc tag name (value {@value}).
-	 * @since 3.29
+	 * @since 3.30
 	 */
 	public static final String TAG_VALUE= "@value"; //$NON-NLS-1$
 
 	/**
 	 * Standard doc tag name (value {@value}).
-	 * @since 3.29
+	 * @since 3.30
 	 */
 	public static final String TAG_VERSION = "@version"; //$NON-NLS-1$
 
 	/**
 	 * Javadoc tag name (value {@value}).
-	 * @since 3.29
+	 * @since 3.30
 	 */
 	public static final String TAG_API_NOTE = "@apiNote"; //$NON-NLS-1$
 
 	/**
 	 * Javadoc tag name (value {@value}).
-	 * @since 3.29
+	 * @since 3.30
 	 */
 	public static final String TAG_IMPL_SPEC = "@implSpec"; //$NON-NLS-1$
 
 	/**
 	 * Javadoc tag name (value {@value}).
-	 * @since 3.29
+	 * @since 3.30
 	 */
 	public static final String TAG_IMPL_NOTE = "@implNote"; //$NON-NLS-1$
 
 	/**
 	 * Standard inline doc tag name (value {@value}).
-	 * @since 3.29
+	 * @since 3.30
 	 */
 	public static final String TAG_SNIPPET = "@snippet"; //$NON-NLS-1$
 
 	/**
 	 * Standard snippet doc tag name (value {@value}).
-	 * @since 3.29
+	 * @since 3.30
 	 */
 	public static final String TAG_HIGHLIGHT = "@highlight"; //$NON-NLS-1$
 
 	/**
 	 * Standard snippet doc tag name (value {@value}).
-	 * @since 3.29
+	 * @since 3.30
 	 */
 	public static final String TAG_REPLACE = "@replace"; //$NON-NLS-1$
 
@@ -384,7 +384,7 @@ public final class TagElement extends AbstractTagElement {
 	 * @return the live list of properties in this tag element
 	 * (element type: {@link TagProperty})
 	 * @exception UnsupportedOperationException if this operation is used less than JLS18
-	 * @since 3.29
+	 * @since 3.30
 	 */
 	public List tagProperties() {
 		unsupportedBelow18();
@@ -397,7 +397,7 @@ public final class TagElement extends AbstractTagElement {
 	 * @return the list of non dummy JavaDopRegions in this tag element.
 	 * (element type: {@link JavaDocRegion})
 	 * @exception UnsupportedOperationException if this operation is used less than JLS18
-	 * @since 3.29
+	 * @since 3.30
 	 */
 	public List tagRegions() {
 		unsupportedBelow18();
@@ -420,7 +420,7 @@ public final class TagElement extends AbstractTagElement {
 	 * @return the list of non dummy JavaDocRegions containing this ASTNode and IDocElement.
 	 * (element type: {@link JavaDocRegion})
 	 * @exception UnsupportedOperationException if this operation is used less than JLS18
-	 * @since 3.29
+	 * @since 3.30
 	 */
 	public List tagRegionsContainingTextElement(ASTNode docElem) {
 		unsupportedBelow18();
@@ -448,7 +448,7 @@ public final class TagElement extends AbstractTagElement {
 	 * @return the list of non dummy JavaDocRegions starting at this ASTNode and IDocElement.
 	 * (element type: {@link JavaDocRegion})
 	 * @exception UnsupportedOperationException if this operation is used less than JLS18
-	 * @since 3.29
+	 * @since 3.30
 	 */
 	public List tagRegionsStartingAtTextElement(ASTNode docElem) {
 		unsupportedBelow18();

@@ -1227,17 +1227,17 @@ void setSourceStart(int sourceStart);
 	int JavadocInvalidModuleQualification = Javadoc + Internal + 1810;
 	/** @since 3.29*/
 	int JavadocInvalidModule = Javadoc + Internal + 1811;
-	/** @since 3.29 */
+	/** @since 3.30*/
 	int JavadocInvalidSnippet = Javadoc + Internal + 1812;
-	/** @since 3.29 */
+	/** @since 3.30 */
 	int JavadocInvalidSnippetMissingColon = Javadoc + Internal + 1813;
-	/** @since 3.29 */
+	/** @since 3.30 */
 	int JavadocInvalidSnippetContentNewLine = Javadoc + Internal + 1814;
-	/** @since 3.29 */
+	/** @since 3.30 */
 	int JavadocInvalidSnippetRegionNotClosed = Javadoc + Internal + 1815;
-	/** @since 3.29 */
+	/** @since 3.30 */
 	int JavadocInvalidSnippetRegexSubstringTogether = Javadoc + Internal + 1816;
-	/** @since 3.29 */
+	/** @since 3.30 */
 	int JavadocInvalidSnippetDuplicateRegions = Javadoc + Internal + 1817;
 
 	/**

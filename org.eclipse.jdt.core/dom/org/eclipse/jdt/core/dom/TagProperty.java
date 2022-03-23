@@ -28,7 +28,7 @@ import org.eclipse.jdt.internal.core.dom.util.DOMASTUtil;
  *      Node Value
  * </pre>
  *
- * @since 3.29
+ * @since 3.30
  */
 
 @SuppressWarnings("rawtypes")
@@ -61,17 +61,17 @@ public class TagProperty extends ASTNode implements IDocElement{
 	public static final String TAG_PROPERTY_SNIPPET_ERROR = "SnippetError"; //$NON-NLS-1$
 
 	/**
-	 * @since 3.29
+	 * @since 3.30
 	 */
 	public static final String TAG_PROPERTY_SNIPPET_ID =  "SnippetID"; //$NON-NLS-1$
 
 	/**
-	 * @since 3.29
+	 * @since 3.30
 	 */
 	public static final String TAG_PROPERTY_SNIPPET_INLINE_TAG_COUNT = "SnippetInlineTagCount"; //$NON-NLS-1$
 
 	/**
-	 * @since 3.29
+	 * @since 3.30
 	 */
 	public static final String TAG_PROPERTY_SNIPPET_REGION_TEXT = "SnippetRegionTextElement"; //$NON-NLS-1$
 

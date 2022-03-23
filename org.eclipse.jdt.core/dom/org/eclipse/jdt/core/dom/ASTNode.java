@@ -1039,7 +1039,7 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type
 	 * <code>TagProperty</code>.
 	 * @see TagProperty
-	 * @since 3.29
+	 * @since 3.30
 	 */
 	public static final int TAG_PROPERTY = 110;
 
@@ -1047,7 +1047,7 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type
 	 * <code>JavaDocRegion</code>.
 	 * @see JavaDocRegion
-	 * @since 3.29
+	 * @since 3.30
 	 */
 	public static final int JAVADOC_REGION = 111;
 
@@ -2301,7 +2301,7 @@ public abstract class ASTNode {
      * </p>
      *
 	 * @exception UnsupportedOperationException if this operation is used below JLS18
-	 * @since 3.29
+	 * @since 3.30
 	 */
 	final void unsupportedBelow18() {
 		if (this.ast.apiLevel < AST.JLS18_INTERNAL) {
@@ -2464,7 +2464,7 @@ public abstract class ASTNode {
      * </p>
      *
 	 * @exception UnsupportedOperationException if this operation is not used in JLS18
-	 * @since 3.29
+	 * @since 3.30
 	 */
 	final void supportedOnlyIn18() {
 		if (this.ast.apiLevel != AST.JLS18_INTERNAL) {
