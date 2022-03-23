@@ -348,10 +348,8 @@ class CompilationUnitResolver extends Compiler {
 	}
 	private static String getProjectPath(IJavaProject project) {
 		String pPath = null;
-		if (project != null && project.getProject() != null
-				&& project.getProject().getWorkspace() != null) {
-			pPath = project.getProject().getWorkspace().getRoot().getLocation().toString()
-					+ project.getPath().toString();
+		if (project != null && project.getProject() != null) {
+			pPath = project.getProject().getLocation().toString();
 		}
 		return pPath;
 	}
