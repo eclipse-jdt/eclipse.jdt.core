@@ -2645,12 +2645,6 @@ public class DeltaProcessor {
 						elementRemoved(element, delta, rootInfo);
 					}
 					this.state.addClasspathValidation(rootInfo.project);
-				} else if ((flags & IResourceDelta.CONTENT) != 0 || (flags & IResourceDelta.ENCODING) != 0) {
-					// content or encoding has changed
-					element = createElement(delta.getResource(), elementType, rootInfo);
-					if (element == null) return false;
-					updateIndex(element, delta);
-					contentChanged(element);
 				} else if (elementType == IJavaElement.JAVA_PROJECT) {
 					if ((flags & IResourceDelta.OPEN) != 0) {
 						// project has been opened or closed
@@ -2708,6 +2702,19 @@ public class DeltaProcessor {
 							return false; // when a project's nature is added/removed don't process children
 						}
 					}
+					if ((flags & IResourceDelta.CONTENT) != 0 || (flags & IResourceDelta.ENCODING) != 0) {
+						// content or encoding has changed
+						element = createElement(delta.getResource(), elementType, rootInfo);
+						if (element == null) return false;
+						updateIndex(element, delta);
+						contentChanged(element);
+					}
+				} else if ((flags & IResourceDelta.CONTENT) != 0 || (flags & IResourceDelta.ENCODING) != 0) {
+					// content or encoding has changed
+					element = createElement(delta.getResource(), elementType, rootInfo);
+					if (element == null) return false;
+					updateIndex(element, delta);
+					contentChanged(element);
 				}
 				return true;
 		}

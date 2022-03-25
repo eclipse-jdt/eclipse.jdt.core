@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.eclipse.core.internal.resources.CharsetDeltaJob;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -3393,9 +3394,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			public void run(IProgressMonitor monitor) throws CoreException {
 				project.create(null);
 				project.open(null);
+				project.setDefaultCharset(ResourcesPlugin.getEncoding(), monitor);
 			}
 		};
 		getWorkspace().run(populate, null);
+		waitForCharsetDeltaJob();
 		IJavaProject javaProject = JavaCore.create(project);
 		setUpProjectCompliance(javaProject, compliance, useFullJCL);
 		javaProject.setOption(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.IGNORE);
@@ -3849,6 +3852,14 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 
 	protected IPath getJRE9Path() {
 		return new Path(System.getProperty("java.home") + "/lib/jrt-fs.jar");
+	}
+
+	public void waitForCharsetDeltaJob() throws CoreException {
+		try {
+			Job.getJobManager().join(CharsetDeltaJob.FAMILY_CHARSET_DELTA, null);
+		} catch (OperationCanceledException | InterruptedException e) {
+			throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, e.getMessage(), e));
+		}
 	}
 
 	/**
