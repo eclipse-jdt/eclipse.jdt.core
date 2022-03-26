@@ -241,9 +241,7 @@ public class TagProperty extends ASTNode implements IDocElement{
 	 * Sets the name of this tag property.
 	 *
 	 * @param name
-	 * <ul>
 	 * @exception UnsupportedOperationException if this operation is used below JLS18
-	 * </ul>
 	 */
 	public void setName(String name) {
 		unsupportedBelow18();
