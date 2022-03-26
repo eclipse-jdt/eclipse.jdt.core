@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -346,12 +347,23 @@ class CompilationUnitResolver extends Compiler {
 		ast.setOriginalModificationCount(ast.modificationCount());
 		return compilationUnit;
 	}
+
+	/**
+	 * @return absolute path in local file system, may return {@code null}
+	 */
 	private static String getProjectPath(IJavaProject project) {
-		String pPath = null;
-		if (project != null && project.getProject() != null) {
-			pPath = project.getProject().getLocation().toString();
+		if(project == null) {
+			return null;
 		}
-		return pPath;
+		IProject rp = project.getProject();
+		if (rp == null) {
+			return null;
+		}
+		IPath location = rp.getLocation();
+		if(location == null) {
+			return null;
+		}
+		return location.toOSString();
 	}
 	private static ArrayList<String> getSourceClassPaths(IJavaProject project) {
 		ArrayList<String> srcClassPath = new ArrayList<>();

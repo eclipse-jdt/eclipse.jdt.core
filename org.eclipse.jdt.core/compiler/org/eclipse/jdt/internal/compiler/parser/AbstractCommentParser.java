@@ -3230,6 +3230,9 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		}
 	}
 
+	/**
+	 * @param projectPath Absolute path in local file system
+	 */
 	public void setProjectPath(String projectPath) {
 		this.projectPath = projectPath;
 	}
