@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017, 2021 IBM Corporation.
+ * Copyright (c) 2017, 2022 IBM Corporation.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -57,6 +57,7 @@ import javax.tools.JavaFileObject;
 
 import org.eclipse.jdt.compiler.apt.tests.processors.base.BaseProcessor;
 import org.eclipse.jdt.compiler.apt.tests.processors.util.TestDirectiveVisitor;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 /**
@@ -71,6 +72,7 @@ public class Java9ElementProcessor extends BaseProcessor {
 	boolean reportSuccessAlready = true;
 	RoundEnvironment roundEnv = null;
 	Messager _messager = null;
+	boolean isJre18;
 	boolean isJre17;
 	boolean isJre12;
 	boolean isJre11;
@@ -93,12 +95,13 @@ public class Java9ElementProcessor extends BaseProcessor {
 		} else {
 			char c = '.';
 			if (property.indexOf(c) == -1) {
-				int ver12 = Integer.parseInt(CompilerOptions.VERSION_12);
-				int current = Integer.parseInt(property);
-				if (current >= ver12) {
-					int ver17 = Integer.parseInt(CompilerOptions.VERSION_17);
-					if (current >= ver17) {
+				int current = Integer.parseInt(property) + ClassFileConstants.MAJOR_VERSION_0;
+				if (current >= ClassFileConstants.MAJOR_VERSION_12) {
+					if (current >= ClassFileConstants.MAJOR_VERSION_17) {
 						this.isJre17 = true;
+						if (current >= ClassFileConstants.MAJOR_VERSION_18) {
+							this.isJre18 = true;
+						}
 					} else {
 						this.isJre12 = true;
 					}
@@ -498,7 +501,7 @@ public class Java9ElementProcessor extends BaseProcessor {
 		assertNotNull("java.base module null", base);
 		List<? extends Directive> directives = base.getDirectives();
 		List<Directive> filterDirective = filterDirective(directives, DirectiveKind.USES);
-		assertEquals("incorrect no of uses", (this.isJre11 || this.isJre12) ? 33 : 34, filterDirective.size());
+		assertEquals("incorrect no of uses", (this.isJre11 || this.isJre12) ? 33 : (this.isJre18 ? 35 : 34), filterDirective.size());
 	}
 	/*
 	 * Test java.base module can be loaded and verify its 'provides' attributes

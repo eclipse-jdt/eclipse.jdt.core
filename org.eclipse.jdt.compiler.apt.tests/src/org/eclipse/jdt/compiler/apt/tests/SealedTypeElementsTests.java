@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020, 2021 IBM Corporation.
+ * Copyright (c) 2020, 2022 IBM Corporation.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -32,63 +32,63 @@ public class SealedTypeElementsTests extends TestCase {
 
 	public void test001() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "17", "test001", null, "sealed", false);
+		internalTest(compiler, MODULE_PROC, "17", "test001", null, "sealed");
 	}
 	public void test001Javac() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "17", "test001", null, "sealed", true);
+		internalTest(compiler, MODULE_PROC, "17", "test001", null, "sealed");
 	}
 	public void test002() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "17", "test002", null, "sealed", false);
+		internalTest(compiler, MODULE_PROC, "17", "test002", null, "sealed");
 	}
 	public void test002Javac() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "17", "test002", null, "sealed", true);
+		internalTest(compiler, MODULE_PROC, "17", "test002", null, "sealed");
 	}
 	public void test003() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "17", "test003", null, "sealed", false);
+		internalTest(compiler, MODULE_PROC, "17", "test003", null, "sealed");
 	}
 	public void test003Javac() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "17", "test003", null, "sealed", true);
+		internalTest(compiler, MODULE_PROC, "17", "test003", null, "sealed");
 	}
 	public void test004() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "17", "test004", null, "sealed", false);
+		internalTest(compiler, MODULE_PROC, "17", "test004", null, "sealed");
 	}
 	public void test004Javac() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "17", "test004", null, "sealed", true);
+		internalTest(compiler, MODULE_PROC, "17", "test004", null, "sealed");
 	}
 	public void test005Src() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "17", "test005Src", null, "sealed", false);
+		internalTest(compiler, MODULE_PROC, "17", "test005Src", null, "sealed");
 	}
 	public void test005SrcJavac() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "17", "test005Src", null, "sealed", true);
+		internalTest(compiler, MODULE_PROC, "17", "test005Src", null, "sealed");
 	}
 	public void test005Binary() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "17", "test005Binary", null, "sealed", false);
+		internalTest(compiler, MODULE_PROC, "17", "test005Binary", null, "sealed");
 	}
 	public void test005BinaryJavac() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "17", "test005Binary", null, "sealed", true);
+		internalTest(compiler, MODULE_PROC, "17", "test005Binary", null, "sealed");
 	}
 	public void test006() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "17", "test006", null, "sealed", false);
+		internalTest(compiler, MODULE_PROC, "17", "test006", null, "sealed");
 	}
 	public void test006Javac() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "17", "test006", null, "sealed", true);
+		internalTest(compiler, MODULE_PROC, "17", "test006", null, "sealed");
 	}
 
-	protected void internalTestWithPreview(JavaCompiler compiler, String processor, String compliance,
-			String testMethod, String testClass, String resourceArea, boolean preview) throws IOException {
+	protected void internalTest(JavaCompiler compiler, String processor, String compliance,
+			String testMethod, String testClass, String resourceArea) throws IOException {
 		if (!canRunJava17()) {
 			return;
 		}
@@ -111,8 +111,6 @@ public class SealedTypeElementsTests extends TestCase {
 			options.add("-source");
 			options.add(compliance);
 		}
-		if (preview)
-			options.add("--enable-preview");
 		BatchTestUtils.compileInModuleMode(compiler, options, processor, targetFolder, null, true, true);
 		// If it succeeded, the processor will have set this property to "succeeded";
 		// if not, it will set it to an error value.
