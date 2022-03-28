@@ -1159,7 +1159,7 @@ public void test428735() throws JavaModelException {
 	String completeBehind = "p.get";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	assertResults("getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, null, null, getClass, null, [186, 189], " + (R_DEFAULT + R_EXPECTED_TYPE + 30) + "}\n" +
+	assertResults("getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, null, null, getClass, null, [186, 189], " + (R_DEFAULT + R_PACKAGE_EXPECTED_TYPE + 30) + "}\n" +
                   "getLastName[METHOD_REF]{getLastName(), LPerson;, ()Ljava.lang.String;, null, null, getLastName, null, [186, 189], " + (R_DEFAULT + R_EXACT_EXPECTED_TYPE + 30) + "}", requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428735,  [1.8][assist] Missing completion proposals inside lambda body expression - other than first token
@@ -1913,7 +1913,7 @@ public void test435682() throws JavaModelException {
 	String completeBehind = "so.tr";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	assertResults("trim[METHOD_REF]{trim(), Ljava.lang.String;, ()Ljava.lang.String;, null, null, trim, null, [237, 239], " + (R_DEFAULT + R_EXPECTED_TYPE + 30) + "}", requestor.getResults());
+	assertResults("trim[METHOD_REF]{trim(), Ljava.lang.String;, ()Ljava.lang.String;, null, null, trim, null, [237, 239], " + (R_DEFAULT + R_PACKAGE_EXPECTED_TYPE + 30) + "}", requestor.getResults());
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=435682, [1.8] content assist not working inside lambda expression
 public void test435682a() throws JavaModelException {
@@ -6262,9 +6262,9 @@ public void testBug577883_expectCompletions_onLambdaVars_inNestedLambdas() throw
 			+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 55}\n"
 			+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 55}\n"
 			+ "equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 80}\n"
-			+ "getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, getClass, null, 80}\n"
 			+ "hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 80}\n"
-			+ "toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 80}\n"
+			+ "getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, getClass, null, 85}\n"
+			+ "toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 85}\n"
 			+ "clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 90}",
 			result);
 }
@@ -6297,11 +6297,11 @@ public void testBug577883_expectCompletions_onLambdaVars_inNestedLambdasL2() thr
 			+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, ()V, wait, null, 55}\n"
 			+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (J)V, wait, (millis), 55}\n"
 			+ "wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, wait, (millis, nanos), 55}\n"
-			+ "boo[METHOD_REF]{boo(), LBug577883$Int;, ()Ljava.lang.Integer;, boo, null, 80}\n"
 			+ "equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 80}\n"
-			+ "getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, getClass, null, 80}\n"
 			+ "hashCode[METHOD_REF]{hashCode(), Ljava.lang.Object;, ()I, hashCode, null, 80}\n"
-			+ "toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 80}\n"
+			+ "boo[METHOD_REF]{boo(), LBug577883$Int;, ()Ljava.lang.Integer;, boo, null, 85}\n"
+			+ "getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, getClass, null, 85}\n"
+			+ "toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 85}\n"
 			+ "clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, 90}",
 			result);
 }
@@ -6483,11 +6483,11 @@ public void testBug578817() throws JavaModelException {
 	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
 	String result = requestor.getResults();
-	assertResults("LinkedHashMap[CONSTRUCTOR_INVOCATION]{(), Ljava.util.LinkedHashMap;, ()V, LinkedHashMap, null, 76}\n"
-			+ "LinkedHashMap[CONSTRUCTOR_INVOCATION]{(), Ljava.util.LinkedHashMap;, (I)V, LinkedHashMap, (arg0), 76}\n"
-			+ "LinkedHashMap[CONSTRUCTOR_INVOCATION]{(), Ljava.util.LinkedHashMap;, (IF)V, LinkedHashMap, (arg0, arg1), 76}\n"
-			+ "LinkedHashMap[CONSTRUCTOR_INVOCATION]{(), Ljava.util.LinkedHashMap;, (IFZ)V, LinkedHashMap, (arg0, arg1, arg2), 76}\n"
-			+ "LinkedHashMap[CONSTRUCTOR_INVOCATION]{(), Ljava.util.LinkedHashMap;, (Ljava.util.Map<+TK;+TV;>;)V, LinkedHashMap, (arg0), 76}", result);
+	assertResults("LinkedHashMap[CONSTRUCTOR_INVOCATION]{(), Ljava.util.LinkedHashMap;, ()V, LinkedHashMap, null, 81}\n"
+			+ "LinkedHashMap[CONSTRUCTOR_INVOCATION]{(), Ljava.util.LinkedHashMap;, (I)V, LinkedHashMap, (arg0), 81}\n"
+			+ "LinkedHashMap[CONSTRUCTOR_INVOCATION]{(), Ljava.util.LinkedHashMap;, (IF)V, LinkedHashMap, (arg0, arg1), 81}\n"
+			+ "LinkedHashMap[CONSTRUCTOR_INVOCATION]{(), Ljava.util.LinkedHashMap;, (IFZ)V, LinkedHashMap, (arg0, arg1, arg2), 81}\n"
+			+ "LinkedHashMap[CONSTRUCTOR_INVOCATION]{(), Ljava.util.LinkedHashMap;, (Ljava.util.Map<+TK;+TV;>;)V, LinkedHashMap, (arg0), 81}", result);
 
 	requestor = new CompletionTestsRequestor2(true);
 	requestor.setAllowsRequiredProposals(CompletionProposal.TYPE_REF, CompletionProposal.TYPE_REF, true);
@@ -6499,4 +6499,29 @@ public void testBug578817() throws JavaModelException {
 	result = requestor.getResults();
 	assertResults("", result);
 }
+	public void testBug564875() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/X.java",
+				"import java.util.List;\n" +
+				"class Person {\n" +
+				"   String getLastName() { return null; }\n" +
+				"   Person getLastPerson() { return null; }\n" +
+				"}\n" +
+				"public class X {\n" +
+				"	void test1 (List<Person> people) {\n" +
+				"		people.stream().forEach(p -> System.out.println(p.get)); \n" +
+				"	}\n" +
+				"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "p.get";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults("getLastPerson[METHOD_REF]{getLastPerson(), LPerson;, ()LPerson;, null, null, getLastPerson, null, [229, 232], "+ (R_DEFAULT+R_EXPECTED_TYPE+30)+"}\n"
+				+ "getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, null, null, getClass, null, [229, 232], "+(R_DEFAULT+R_PACKAGE_EXPECTED_TYPE+30)+"}\n"
+				+ "getLastName[METHOD_REF]{getLastName(), LPerson;, ()Ljava.lang.String;, null, null, getLastName, null, [229, 232], "+(R_DEFAULT+R_EXACT_EXPECTED_TYPE+30)+"}", requestor.getResults());
+	}
 }

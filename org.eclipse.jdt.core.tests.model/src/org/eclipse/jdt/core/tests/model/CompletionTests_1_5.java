@@ -7617,7 +7617,7 @@ public void test0232() throws JavaModelException {
 				result.proposals);
     } else {
     	assertResults(
-				"Test<ZT>[TYPE_REF]{Test, test0232, Ltest0232.Test<TZT;>;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_EXPECTED_TYPE) + "}",
+				"Test<ZT>[TYPE_REF]{Test, test0232, Ltest0232.Test<TZT;>;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_PACKAGE_EXPECTED_TYPE) + "}",
 				result.proposals);
     }
 }

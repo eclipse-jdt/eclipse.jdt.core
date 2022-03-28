@@ -4933,12 +4933,16 @@ public final class CompletionEngine
 				if((this.expectedTypesFilter & SUBTYPE) != 0
 						&& (proposalType.erasure().isCompatibleWith(this.expectedTypes[i].erasure()))) {
 
-					if(CharOperation.equals(this.expectedTypes[i].qualifiedPackageName(), proposalType.qualifiedPackageName()) &&
-							CharOperation.equals(this.expectedTypes[i].qualifiedSourceName(), proposalType.qualifiedSourceName())) {
-						return R_EXACT_EXPECTED_TYPE;
+					if(CharOperation.equals(this.expectedTypes[i].qualifiedPackageName(), proposalType.qualifiedPackageName()) ) {
+						if(CharOperation.equals(this.expectedTypes[i].qualifiedSourceName(), proposalType.qualifiedSourceName()))
+								return R_EXACT_EXPECTED_TYPE;
+						if(!CharOperation.equals(this.expectedTypes[i].qualifiedSourceName(), proposalType.qualifiedSourceName()) &&
+								proposalType.qualifiedPackageName().length !=0)
+							return R_PACKAGE_EXPECTED_TYPE;
 					}
 
 					relevance = R_EXPECTED_TYPE;
+
 				}
 				if((this.expectedTypesFilter & SUPERTYPE) != 0
 						&& this.expectedTypes[i].isCompatibleWith(proposalType)) {
