@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -26445,6 +26445,29 @@ public void testBug574982() throws JavaModelException {
 			"A3[TYPE_REF]{A3, , LA3;, null, null, 52}\n" +
 			"ArrayTest[TYPE_REF]{ArrayTest, , LArrayTest;, null, null, 52}\n" +
 			"A[TYPE_REF]{A, , LA;, null, null, 56}",
+			requestor.getResults());
+}
+/**
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=578815
+ * @throws IOException
+ */
+public void testCompletionConstructorsForSubTypes() throws JavaModelException, IOException {
+	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionConstructorsForSubTypes.java");
+	String str = cu.getSource();
+	String completeBehind = "new ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, false, false, true, true);
+	requestor.allowAllRequiredProposals();
+	cu.codeComplete(cursorLocation, requestor, new NullProgressMonitor());
+
+	assertEquals(
+			"CompletionConstructorsForSubTypes[CONSTRUCTOR_INVOCATION]{(), LCompletionConstructorsForSubTypes;, ()V, CompletionConstructorsForSubTypes, null, 55}\n" +
+			"   CompletionConstructorsForSubTypes[TYPE_REF]{CompletionConstructorsForSubTypes, , LCompletionConstructorsForSubTypes;, null, null, 55}\n" +
+			"CompletionConstructorsForSubTypes2[CONSTRUCTOR_INVOCATION]{(), LCompletionConstructorsForSubTypes2;, ()V, CompletionConstructorsForSubTypes2, null, 75}\n" +
+			"   CompletionConstructorsForSubTypes2[TYPE_REF]{CompletionConstructorsForSubTypes2, , LCompletionConstructorsForSubTypes2;, null, null, 75}\n" +
+			"CompletionConstructorsForSubTypes1[ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION]{(), LCompletionConstructorsForSubTypes1;, ()V, CompletionConstructorsForSubTypes1, null, 82}\n" +
+			"   CompletionConstructorsForSubTypes1[TYPE_REF]{CompletionConstructorsForSubTypes1, , LCompletionConstructorsForSubTypes1;, null, null, 82}",
 			requestor.getResults());
 }
 }

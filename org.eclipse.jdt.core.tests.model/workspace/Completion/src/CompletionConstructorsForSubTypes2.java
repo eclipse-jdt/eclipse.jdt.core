@@ -1,0 +1,2 @@
+public class CompletionConstructorsForSubTypes2 implements CompletionConstructorsForSubTypes1 {
+}
