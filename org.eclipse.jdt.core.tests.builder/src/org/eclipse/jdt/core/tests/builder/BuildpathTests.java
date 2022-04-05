@@ -448,6 +448,11 @@ public void testChangeZIPArchive2() throws Exception {
 	fullBuild(projectPath);
 	expectingNoProblems();
 
+	if (Util.isMacOS()) {
+		// Wait a moment so the jar timestamp will be different
+		Thread.sleep(2000);
+	}
+
 	org.eclipse.jdt.core.tests.util.Util.createJar(
 		new String[] {
 			"p/X.java",

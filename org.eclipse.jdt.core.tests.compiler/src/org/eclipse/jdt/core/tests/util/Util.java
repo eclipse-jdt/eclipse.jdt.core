@@ -1073,6 +1073,7 @@ public static boolean isFileDeleted(File file) {
     return !file.exists() && getParentChildFile(file) == null;
 }
 public static boolean isMacOS() {
+	// Alternative: "macosx".equals(System.getProperty("osgi.os"))
     return System.getProperty("os.name").indexOf("Mac") != -1;
 }
 /**
