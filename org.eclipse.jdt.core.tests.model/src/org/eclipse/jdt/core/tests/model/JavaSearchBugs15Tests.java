@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c)  2020, 2021 IBM Corporation and others.
+ * Copyright (c)  2020, 2022 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -1087,7 +1087,7 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 			int length = selection.length();
 
 			IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
-			assertTrue(elements.length ==1);
+			assertEquals("incorrect size of elements", 1, elements.length);
 			assertTrue((elements[0] instanceof LocalVariable));
 
 		}
