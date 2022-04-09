@@ -1,6 +1,6 @@
 pipeline {
 	options {
-		timeout(time: 140, unit: 'MINUTES')
+		timeout(time: 180, unit: 'MINUTES')
 		buildDiscarder(logRotator(numToKeepStr:'5'))
 		timestamps()
 	}
@@ -15,10 +15,16 @@ pipeline {
 		stage('Build') {
 			steps {
 				wrap([$class: 'Xvnc', useXauthority: true]) {
-					sh """
+					sh """#!/bin/bash -x
+					echo $JAVA_TOOL_OPTIONS
+					echo $_JAVA_OPTIONS
+					unset JAVA_TOOL_OPTIONS
+					unset _JAVA_OPTIONS
+					echo $JAVA_TOOL_OPTIONS
+					echo $_JAVA_OPTIONS
 					mvn -f pom.xml -U clean verify --batch-mode -Pbuild-individual-bundles -Pbree-libs -Ptest-on-javase-17 -Papi-check \
-          -Dmaven.repo.local=$WORKSPACE/.m2/repository \
-          -Dtycho.surefire.argLine="--add-modules ALL-SYSTEM -Dcompliance=1.8,11,17 -Djdt.performance.asserts=disabled" 
+					-Dmaven.repo.local=$WORKSPACE/.m2/repository \
+					-Dtycho.surefire.argLine="--add-modules ALL-SYSTEM -Dcompliance=1.8,11,17 -Djdt.performance.asserts=disabled" 
 					"""
 				}
 			}
