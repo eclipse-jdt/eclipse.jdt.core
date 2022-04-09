@@ -44,19 +44,5 @@ pipeline {
 				}
 			}
 		}
-		stage('Check freeze period') {
-			when {
-				not {
-					branch 'master'
-				}
-			}
-			steps {
-				sh "wget https://download.eclipse.org/eclipse/relengScripts/scripts/verifyFreezePeriod.sh"
-				sh "chmod +x verifyFreezePeriod.sh"
-				withCredentials([string(credentialsId: 'google-api-key', variable: 'GOOGLE_API_KEY')]) {
-					sh './verifyFreezePeriod.sh'
-				}
-			}
-		}
 	}
 }
