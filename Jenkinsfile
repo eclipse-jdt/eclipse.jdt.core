@@ -19,7 +19,7 @@ pipeline {
 					
 					unset JAVA_TOOL_OPTIONS
 					unset _JAVA_OPTIONS
-					MAVEN_OPTS="-Xmx6G"
+					MAVEN_OPTS="-Xmx4G"
 					mvn -f pom.xml -U clean verify --batch-mode -Pbuild-individual-bundles -Pbree-libs -Ptest-on-javase-17 -Papi-check \
 					-Dmaven.repo.local=$WORKSPACE/.m2/repository \
 					-Dtycho.surefire.argLine="--add-modules ALL-SYSTEM -Dcompliance=1.8,11,17 -Djdt.performance.asserts=disabled" 
