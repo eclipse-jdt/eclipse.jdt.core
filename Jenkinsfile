@@ -5,7 +5,7 @@ pipeline {
 		timestamps()
 	}
 	agent {
-		label "centos-latest"
+		label "centos-7"
 	}
 	tools {
 		maven 'apache-maven-latest'
