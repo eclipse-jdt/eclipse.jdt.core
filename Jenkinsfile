@@ -19,6 +19,8 @@ pipeline {
 					
 					/opt/tools/java/openjdk/jdk-11/latest/bin/java -version
 					java -version
+					
+					df -k
 					mkdir -p $WORKSPACE/tmp
 					
 					unset JAVA_TOOL_OPTIONS
