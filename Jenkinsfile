@@ -1,6 +1,6 @@
 pipeline {
 	options {
-		timeout(time: 180, unit: 'MINUTES')
+		timeout(time: 60, unit: 'MINUTES')
 		buildDiscarder(logRotator(numToKeepStr:'5'))
 		timestamps()
 	}
@@ -23,7 +23,9 @@ pipeline {
 					unset JAVA_TOOL_OPTIONS
 					unset _JAVA_OPTIONS
 					MAVEN_OPTS="-Xmx4G"
-					mvn -U clean verify --batch-mode -Pbuild-individual-bundles -Pbree-libs -Ptest-on-javase-17 -Papi-check \
+					mvn -U clean verify --batch-mode --fail-at-end -Dmaven.repo.local=$WORKSPACE/.m2/repository \
+					-Pbuild-individual-bundles -Ptest-on-javase-17 -Pbree-libs -Papi-check \
+					-Dcompare-version-with-baselines.skip=false -Dproject.build.sourceEncoding=UTF-8 \
 					-Dtycho.surefire.argLine="--add-modules ALL-SYSTEM -Dcompliance=1.8,11,17 -Djdt.performance.asserts=disabled" 
 					"""
 				}
