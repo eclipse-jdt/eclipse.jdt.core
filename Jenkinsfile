@@ -19,13 +19,14 @@ pipeline {
 					
 					/opt/tools/java/openjdk/jdk-11/latest/bin/java -version
 					java -version
+					mkdir -p $WORKSPACE/tmp
 					
 					unset JAVA_TOOL_OPTIONS
 					unset _JAVA_OPTIONS
 					MAVEN_OPTS="-Xmx4G"
 					mvn -U clean verify --batch-mode --fail-at-end -Dmaven.repo.local=$WORKSPACE/.m2/repository \
 					-Pbuild-individual-bundles -Ptest-on-javase-17 -Pbree-libs -Papi-check \
-					-Dcompare-version-with-baselines.skip=false -Dproject.build.sourceEncoding=UTF-8 \
+					-Djava.io.tmpdir=$WORKSPACE/tmp -Dcompare-version-with-baselines.skip=false -Dproject.build.sourceEncoding=UTF-8 \
 					-Dtycho.surefire.argLine="--add-modules ALL-SYSTEM -Dcompliance=1.8,11,17 -Djdt.performance.asserts=disabled" 
 					"""
 				}
