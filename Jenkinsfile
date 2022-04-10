@@ -9,7 +9,7 @@ pipeline {
 	}
 	tools {
 		maven 'apache-maven-latest'
-		jdk 'openjdk-jdk17-latest'
+		jdk 'openjdk-jdk11-latest'
 	}
 	stages {
 		stage('Build') {
@@ -17,10 +17,13 @@ pipeline {
 				wrap([$class: 'Xvnc', useXauthority: true]) {
 					sh """#!/bin/bash -x
 					
+					/opt/tools/java/openjdk/jdk-11/latest/bin/java -version
+					java -version
+					
 					unset JAVA_TOOL_OPTIONS
 					unset _JAVA_OPTIONS
 					MAVEN_OPTS="-Xmx4G"
-					mvn -f pom.xml -U clean verify --batch-mode -Pbuild-individual-bundles -Pbree-libs -Papi-check \
+					mvn -U clean verify --batch-mode -Pbuild-individual-bundles -Pbree-libs -Ptest-on-javase-17 -Papi-check \
 					-Dtycho.surefire.argLine="--add-modules ALL-SYSTEM -Dcompliance=1.8,11,17 -Djdt.performance.asserts=disabled" 
 					"""
 				}
