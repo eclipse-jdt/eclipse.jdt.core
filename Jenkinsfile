@@ -27,7 +27,7 @@ pipeline {
 					unset _JAVA_OPTIONS
 					MAVEN_OPTS="-Xmx4G"
 					mvn -U clean verify --batch-mode --fail-at-end -Dmaven.repo.local=$WORKSPACE/.m2/repository \
-					-Pbuild-individual-bundles -Ptest-on-javase-17 -Pbree-libs -Papi-check \
+					-Pbuild-individual-bundles -Ptest-on-javase-17 -Pbree-libs -Papi-check -Dtycho.version=2.7.0 \
 					-Djava.io.tmpdir=$WORKSPACE/tmp -Dcompare-version-with-baselines.skip=false -Dproject.build.sourceEncoding=UTF-8 \
 					-Dtycho.surefire.argLine="--add-modules ALL-SYSTEM -Dcompliance=1.8,11,17 -Djdt.performance.asserts=disabled" 
 					"""
