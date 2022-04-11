@@ -835,6 +835,7 @@ protected void consumeInstanceOfExpression() {
 			}
 			if (local != null) {
 				pushOnAstStack(local);
+				this.astPtr--;
 			}
 		}
 	} else {
