@@ -25,7 +25,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.eclipse.core.internal.resources.CharsetDeltaJob;
@@ -524,6 +528,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 
 	protected ILogListener logListener;
 	protected ILog log;
+
+	protected static boolean systemConfigReported;
 
 
 	public AbstractJavaModelTests(String name) {
@@ -3648,7 +3654,14 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			description.setAutoBuilding(false);
 			getWorkspace().setDescription(description);
 		}
+
+		if (!systemConfigReported) {
+			printSystemEnv();
+			systemConfigReported = true;
+		}
+		printMemoryUse();
 	}
+
 	@Override
 	protected void setUp () throws Exception {
 		super.setUp();
@@ -3659,6 +3672,56 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 		logInfo("SETUP " + getName());
 	}
+
+    private static void printSystemEnv() {
+        Set<Entry<String, String>> set = new TreeMap<>(System.getenv()).entrySet();
+        StringBuilder sb = new StringBuilder("\n###################### System environment ######################\n");
+        for (Entry<String, String> entry : set) {
+            sb.append(" ").append(entry.getKey()).append("=").append(entry.getValue()).append("\n");
+        }
+
+        sb.append("\n###################### System properties ######################\n");
+        Set<Entry<String, String>> props = getPropertiesSafe();
+        for (Entry<String, String> entry : props) {
+            sb.append(" ").append(entry.getKey()).append("=").append(entry.getValue()).append("\n");
+        }
+        String env = sb.toString();
+        System.out.println(env);
+        logInfo(env);
+    }
+
+    private static void printMemoryUse() {
+    	System.gc();
+    	System.runFinalization();
+    	System.gc();
+    	System.runFinalization();
+    	long nax = Runtime.getRuntime().maxMemory();
+    	long total = Runtime.getRuntime().totalMemory();
+		long free = Runtime.getRuntime().freeMemory();
+		long used = total - free;
+		System.out.print("\n########### Memory usage reported by JVM ########");
+		System.out.printf(Locale.GERMAN, "%n%,16d bytes max heap", nax);
+		System.out.printf(Locale.GERMAN, "%n%,16d bytes heap allocated", total);
+		System.out.printf(Locale.GERMAN, "%n%,16d bytes free heap", free);
+    	System.out.printf(Locale.GERMAN, "%n%,16d bytes used heap", used);
+    	System.out.println("\n#################################################\n");
+    }
+
+    /**
+     * Retrieves properties safely. In case if someone tries to change the properties set
+     * while iterating over the collection, we repeat the procedure till this
+     * works without an error.
+     */
+    private static Set<Entry<String, String>> getPropertiesSafe() {
+        try {
+            return new TreeMap<>(System.getProperties().entrySet().stream()
+                    .collect(Collectors.toMap(e -> String.valueOf(e.getKey()),
+                            e -> String.valueOf(e.getValue())))).entrySet();
+        } catch (Exception e) {
+            return getPropertiesSafe();
+        }
+    }
+
 	protected void sortElements(IJavaElement[] elements) {
 		Util.Comparer comparer = new Util.Comparer() {
 			public int compare(Object a, Object b) {
@@ -3929,6 +3992,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			ILog log = plugin.getLog();
 			Status status = new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, errorMessage, e);
 			log.log(status);
+		} else {
+			System.out.println(errorMessage);
+			e.printStackTrace(System.out);
 		}
 	}
 
@@ -3936,6 +4002,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		Plugin plugin = JavaCore.getPlugin();
 		if (plugin != null) {
 			plugin.getLog().log(new Status(IStatus.INFO, JavaCore.PLUGIN_ID, message));
+		} else {
+			System.out.println(message);
 		}
 	}
 }

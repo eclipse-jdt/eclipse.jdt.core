@@ -25,7 +25,11 @@ pipeline {
 					
 					unset JAVA_TOOL_OPTIONS
 					unset _JAVA_OPTIONS
-					MAVEN_OPTS="-Xmx2G"
+					
+					# The max heap should be specified for tycho explicitly
+					# via configuration/argLine property in pom.xml
+					# export MAVEN_OPTS="-Xmx2G"
+					
 					mvn -U clean verify --batch-mode --fail-at-end -Dmaven.repo.local=$WORKSPACE/.m2/repository \
 					-Pbuild-individual-bundles -Ptest-on-javase-17 -Pbree-libs -Papi-check -Dtycho.version=2.7.0 \
 					-Djava.io.tmpdir=$WORKSPACE/tmp -Dcompare-version-with-baselines.skip=false -Dproject.build.sourceEncoding=UTF-8 \
