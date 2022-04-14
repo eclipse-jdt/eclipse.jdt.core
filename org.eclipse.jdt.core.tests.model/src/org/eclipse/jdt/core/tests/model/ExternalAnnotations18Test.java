@@ -3271,4 +3271,42 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 			ContainerInitializer.setInitializer(prev);
 		}
 	}
+	public void testAnnotatedSourceSharesOutputFolder() throws CoreException {
+		IJavaProject prj1 = null;
+		myCreateJavaProject("Prj1");
+		addSourceFolderWithExternalAnnotations(this.project, "/Prj1/src-gen", null, "/Prj1/annot-gen");
+		prj1 = this.project;
+		try {
+			createFileInProject("annot-gen/pgen", "CGen.eea",
+					"class pgen/CGen\n" +
+					"\n" +
+					"get\n" +
+					" (Ljava/lang/String;)Ljava/lang/String;\n" +
+					" (L1java/lang/String;)L1java/lang/String;\n");
+
+			createFileInProject("src-gen/pgen", "CGen.java",
+					"package pgen;\n" +
+					"public class CGen {\n" +
+					"	public String get(String in) { return in; }\n" +
+					"}\n");
+			this.project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+
+			createFileInProject("src/pgen", "CImpl.java",
+					"package pgen;\n" +
+					"import org.eclipse.jdt.annotation.*;\n" +
+					"public class CImpl extends CGen {\n" +
+					"	public @NonNull String get(@NonNull String in) { return in; }\n" +
+					"}\n");
+			ICompilationUnit unit = JavaCore.createCompilationUnitFrom(this.project.getProject().getFile("src/pgen/CImpl.java")).getWorkingCopy(null);
+			CompilationUnit reconciled = unit.reconcile(AST.getJLSLatest(), true, null, new NullProgressMonitor());
+			IProblem[] problems = reconciled.getProblems();
+			assertNoProblems(problems);
+			this.project.getProject().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
+			IMarker[] markers = this.project.getProject().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, false, IResource.DEPTH_INFINITE);
+			assertNoMarkers(markers);
+		} finally {
+			if (prj1 != null)
+				prj1.getProject().delete(true, true , null);
+		}
+	}
 }
