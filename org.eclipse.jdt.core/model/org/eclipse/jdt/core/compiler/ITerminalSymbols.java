@@ -190,4 +190,24 @@ public interface ITerminalSymbols {
 	 */
 	int TokenNameCOLON_COLON = 406;
 
+	/** @since 3.30 */
+	int TokenNameNotAToken = 408;
+
+	/** @since 3.30 */
+	int TokenNameRestrictedIdentifierYield = 409;
+
+	/** @since 3.30 */
+	int TokenNameRestrictedIdentifierpermits = 410;
+
+	/** @since 3.30 */
+	int TokenNameRestrictedIdentifierrecord = 411;
+
+	/** @since 3.30 */
+	int TokenNameRestrictedIdentifiersealed = 412;
+
+	/** @since 3.30 */
+	int TokenNameSingleQuoteStringLiteral = 413;
+
+	/** @since 3.30 */
+	int TokenNamenon_sealed = 414;
 }
