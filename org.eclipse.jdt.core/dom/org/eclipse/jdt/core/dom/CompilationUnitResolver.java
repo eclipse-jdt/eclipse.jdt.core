@@ -377,6 +377,8 @@ class CompilationUnitResolver extends Compiler {
 		} catch (JavaModelException e) {
 			//do nothing
 		}
+		if(resolvedClasspath == null)
+			return srcClassPath;
 
 		for (IClasspathEntry entry : resolvedClasspath) {
 		    if (entry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
