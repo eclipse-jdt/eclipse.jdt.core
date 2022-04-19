@@ -141,7 +141,7 @@ private void computeClasspathLocations(
 		ClasspathEntry entry = (ClasspathEntry) classpathEntries[i];
 		IPath path = entry.getPath();
 		Object target = JavaModel.getTarget(path, true);
-		IPath externalAnnotationPath = ClasspathEntry.getExternalAnnotationPath(entry, javaProject.getProject(), true);
+		IPath externalAnnotationPath = entry.getExternalAnnotationPath(javaProject.getProject(), true);
 		if (target == null) continue nextEntry;
 		boolean isOnModulePath = isOnModulePath(entry);
 
@@ -208,7 +208,7 @@ private void computeClasspathLocations(
 							continue nextPrereqEntry;
 						IPath srcExtAnnotPath = (externalAnnotationPath != null)
 							? externalAnnotationPath
-							: ClasspathEntry.getExternalAnnotationPath(prereqEntry, javaProject.getProject(), true);
+							: prereqEntry.getExternalAnnotationPath(javaProject.getProject(), true);
 						Object prereqTarget = JavaModel.getTarget(prereqEntry.getPath(), true);
 						if (!(prereqTarget instanceof IContainer)) continue nextPrereqEntry;
 						if (srcExtAnnotPath == null) {
@@ -219,7 +219,7 @@ private void computeClasspathLocations(
 								if (other.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
 									IPath otherOutput = other.getOutputLocation();
 									if ((outputLoc == null) ? otherOutput == null : outputLoc.equals(otherOutput)) {
-										srcExtAnnotPath = ClasspathEntry.getExternalAnnotationPath(other, javaProject.getProject(),  true);
+										srcExtAnnotPath = other.getExternalAnnotationPath(javaProject.getProject(),  true);
 										if (srcExtAnnotPath != null)
 											break; // TODO: merging of several .eea?
 									}
