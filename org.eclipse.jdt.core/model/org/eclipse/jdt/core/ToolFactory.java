@@ -38,7 +38,7 @@ import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.PackageFragment;
-import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ThreadLocalZipFile;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ZipFileResource;
 import org.eclipse.jdt.internal.core.util.ClassFileReader;
 import org.eclipse.jdt.internal.core.util.Disassembler;
 import org.eclipse.jdt.internal.core.util.PublicScanner;
@@ -265,7 +265,7 @@ public class ToolFactory {
 			try {
 				if (root instanceof JarPackageFragmentRoot) {
 					String archiveName = null;
-					try (ThreadLocalZipFile jar =  ((JarPackageFragmentRoot)root).getJar()){
+					try (ZipFileResource jar =  ((JarPackageFragmentRoot)root).getJar()){
 						archiveName = jar.getName();
 					}
 					PackageFragment packageFragment = (PackageFragment) classfile.getParent();

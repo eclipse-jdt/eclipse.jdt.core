@@ -42,7 +42,7 @@ import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.PackageFragment;
 import org.eclipse.jdt.internal.core.PackageFragmentRoot;
-import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ThreadLocalZipFile;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ZipFileResource;
 import org.eclipse.jdt.internal.core.nd.util.CharArrayUtils;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -139,7 +139,7 @@ public class BinaryTypeFactory {
 		}
 		if (descriptor.isInJarFile()) {
 			if (CharOperation.indexOf("jrt-fs.jar".toCharArray(), descriptor.location, false) == -1) { //$NON-NLS-1$
-				try (ThreadLocalZipFile zip = JavaModelManager.getJavaModelManager().getZipFile(new Path(new String(descriptor.workspacePath)))){
+				try (ZipFileResource zip = JavaModelManager.getJavaModelManager().getZipFile(new Path(new String(descriptor.workspacePath)))){
 					char[] entryNameCharArray = CharArrayUtils.concat(
 							fieldDescriptorToBinaryName(descriptor.fieldDescriptor), SuffixConstants.SUFFIX_class);
 					String entryName = new String(entryNameCharArray);

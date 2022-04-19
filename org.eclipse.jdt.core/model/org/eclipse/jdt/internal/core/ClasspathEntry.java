@@ -71,7 +71,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.util.ManifestAnalyzer;
 import org.eclipse.jdt.internal.compiler.util.QuietClose;
-import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ThreadLocalZipFile;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ZipFileResource;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 import org.eclipse.jdt.internal.core.util.ZipState;
@@ -1004,7 +1004,7 @@ public class ClasspathEntry implements IClasspathEntry {
 
 	private static char[] getManifestContents(IPath jarPath) throws CoreException, IOException {
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		try (ThreadLocalZipFile zip = manager.getZipFile(jarPath)) {
+		try (ZipFileResource zip = manager.getZipFile(jarPath)) {
 			ZipEntry manifest = zip.getEntry(TypeConstants.META_INF_MANIFEST_MF);
 			if (manifest == null) {
 				return null;

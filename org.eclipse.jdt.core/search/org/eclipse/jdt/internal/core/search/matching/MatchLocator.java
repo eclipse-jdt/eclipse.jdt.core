@@ -91,7 +91,7 @@ import org.eclipse.jdt.internal.core.SourceMethod;
 import org.eclipse.jdt.internal.core.SourceType;
 import org.eclipse.jdt.internal.core.SourceTypeElementInfo;
 import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles;
-import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ThreadLocalZipFile;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ZipFileResource;
 import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ThreadLocalZipFileHolder;
 import org.eclipse.jdt.internal.core.index.Index;
 import org.eclipse.jdt.internal.core.search.*;
@@ -282,7 +282,7 @@ public static IBinaryType classFileReader(IType type) {
 			return ClassFileReader.readFromJrt(new File(rootPath), null, path);
 		} else {
 			IPath zipPath = root.getPath();
-			try (ThreadLocalZipFile zipFile = manager.getZipFile(zipPath)){
+			try (ZipFileResource zipFile = manager.getZipFile(zipPath)){
 				String classFileName = classFile.getElementName();
 				String path = Util.concatWith(pkg.names, classFileName, '/');
 				return Util.read(zipFile, path);
@@ -891,7 +891,7 @@ protected IBinaryType getBinaryInfo(ClassFile classFile, IResource resource) thr
 			// class file in a jar
 			String classFileName = classFile.getElementName();
 			String classFilePath = Util.concatWith(pkg.names, classFileName, '/');
-			try (ThreadLocalZipFile zipFile =  ((JarPackageFragmentRoot)root).getJar()){
+			try (ZipFileResource zipFile =  ((JarPackageFragmentRoot)root).getJar()){
 				info = Util.read(zipFile, classFilePath);
 			}
 		} else {

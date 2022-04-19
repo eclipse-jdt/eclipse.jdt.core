@@ -47,7 +47,7 @@ import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles;
-import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ThreadLocalZipFile;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ZipFileResource;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.PackageFragmentRoot;
 import org.eclipse.jdt.internal.core.util.Messages;
@@ -109,7 +109,7 @@ protected SimpleSet findPackageSet() {
 }
 protected String readJarContent(final SimpleSet packageSet) {
 	String modInfo = null;
-	try (ThreadLocalZipFile zipFile = createZipFile()) {
+	try (ZipFileResource zipFile = createZipFile()) {
 		for (Enumeration e = zipFile.entries(); e.hasMoreElements(); ) {
 			String fileName = ((ZipEntry) e.nextElement()).getName();
 			if (fileName.startsWith("META-INF/")) //$NON-NLS-1$
@@ -287,7 +287,7 @@ public boolean equals(Object o) {
 public NameEnvironmentAnswer findClass(String binaryFileName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName, boolean asBinaryOnly, Predicate<String> moduleNameFilter) {
 	if (!isPackage(qualifiedPackageName, moduleName)) return null; // most common case
 
-	try (ThreadLocalZipFile zipFile = createZipFile()) {
+	try (ZipFileResource zipFile = createZipFile()) {
 		IBinaryType reader = Util.read(zipFile, qualifiedBinaryFileName);
 		if (reader != null) {
 			char[] modName = this.module == null ? null : this.module.name();
@@ -340,7 +340,7 @@ public boolean hasCompilationUnit(String pkgName, String moduleName) {
 		// Even if knownPackageNames contained the pkg we're looking for, we still need to verify
 		// that the package in this jar actually contains at least one .class file (since
 		// knownPackageNames includes empty packages)
-		try (ThreadLocalZipFile zipFile = createZipFile()) {
+		try (ZipFileResource zipFile = createZipFile()) {
 			for (Enumeration<? extends ZipEntry> e = zipFile.entries(); e.hasMoreElements(); ) {
 				String fileName = e.nextElement().getName();
 				if (fileName.startsWith(pkgName)
@@ -404,7 +404,7 @@ public NameEnvironmentAnswer findClass(String typeName, String qualifiedPackageN
 public Manifest getManifest() {
 	if (!scanContent()) // ensure zipFile is initialized
 		return null;
-	try (ThreadLocalZipFile zipFile = createZipFile()) {
+	try (ZipFileResource zipFile = createZipFile()) {
 		ZipEntry entry = zipFile.getEntry(TypeConstants.META_INF_MANIFEST_MF);
 		if (entry == null) {
 			return null;
@@ -438,7 +438,7 @@ public char[][] listPackages() {
 protected IBinaryType decorateWithExternalAnnotations(IBinaryType reader, String fileNameWithoutExtension) {
 	if (scanContent()) { // ensure zipFile is initialized
 		String qualifiedBinaryFileName = fileNameWithoutExtension + ExternalAnnotationProvider.ANNOTATION_FILE_SUFFIX;
-		try (ThreadLocalZipFile zipFile = createZipFile()) {
+		try (ZipFileResource zipFile = createZipFile()) {
 			ZipEntry entry = zipFile.getEntry(qualifiedBinaryFileName);
 			if (entry != null) {
 				try(InputStream is = zipFile.getInputStream(entry)) {
@@ -458,7 +458,7 @@ protected IBinaryType decorateWithExternalAnnotations(IBinaryType reader, String
  * @return the zipFile
  * @throws CoreException
  */
-public ThreadLocalZipFile createZipFile() throws CoreException {
+public ZipFileResource createZipFile() throws CoreException {
 	if (this.resource==null) {
 		try {
 			return ThreadLocalZipFiles.createZipFile(new Path(this.zipFilename));

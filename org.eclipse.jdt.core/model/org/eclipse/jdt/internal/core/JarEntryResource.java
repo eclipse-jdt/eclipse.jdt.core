@@ -20,7 +20,7 @@ import org.eclipse.core.runtime.PlatformObject;
 import org.eclipse.jdt.core.IJarEntryResource;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
-import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ThreadLocalZipFile;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ZipFileResource;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public abstract class JarEntryResource  extends PlatformObject implements IJarEntryResource {
@@ -81,7 +81,7 @@ public abstract class JarEntryResource  extends PlatformObject implements IJarEn
 		}
 	}
 
-	protected ThreadLocalZipFile getZipFile() throws CoreException {
+	protected ZipFileResource getZipFile() throws CoreException {
 		if (this.parent instanceof IPackageFragment) {
 			JarPackageFragmentRoot root = (JarPackageFragmentRoot) ((IPackageFragment) this.parent).getParent();
 			return root.getJar();

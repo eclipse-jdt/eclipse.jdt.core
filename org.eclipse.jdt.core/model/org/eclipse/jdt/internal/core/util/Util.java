@@ -75,7 +75,7 @@ import org.eclipse.jdt.internal.core.Member;
 import org.eclipse.jdt.internal.core.MemberValuePair;
 import org.eclipse.jdt.internal.core.PackageFragment;
 import org.eclipse.jdt.internal.core.PackageFragmentRoot;
-import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ThreadLocalZipFile;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ZipFileResource;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.text.edits.MalformedTreeException;
 import org.eclipse.text.edits.TextEdit;
@@ -883,7 +883,7 @@ public class Util {
 					if (JavaModelManager.isJrt(path)) {
 						return ClassFileConstants.JDK9;
 					} else {
-						try (ThreadLocalZipFile jar = JavaModelManager.getJavaModelManager().getZipFile(path)) {
+						try (ZipFileResource jar = JavaModelManager.getJavaModelManager().getZipFile(path)) {
 							for (Enumeration e = jar.entries(); e.hasMoreElements();) {
 								ZipEntry member = (ZipEntry) e.nextElement();
 								String entryName = member.getName();
@@ -3364,7 +3364,7 @@ public class Util {
 		return method;
 	}
 
-	public static byte[] getZipEntryByteContent(ZipEntry ze, ThreadLocalZipFiles.ThreadLocalZipFile zip) throws IOException {
+	public static byte[] getZipEntryByteContent(ZipEntry ze, ThreadLocalZipFiles.ZipFileResource zip) throws IOException {
 		try (QuietClose<InputStream> q = new QuietClose<>(zip.getInputStream(ze))) {
 			InputStream stream = q.get();
 			return read(stream, ze);
@@ -3378,7 +3378,7 @@ public class Util {
 		}
 	}
 
-	public static org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader read(ThreadLocalZipFile zip, String filename)
+	public static org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader read(ZipFileResource zip, String filename)
 			throws org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException, java.io.IOException {
 		java.util.zip.ZipEntry ze = zip.getEntry(filename);
 		if (ze == null)

@@ -32,7 +32,7 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
  * ZipFile until all Wrapper and all AutoCloseable Holder closed.
  *
  * @see java.util.zip.ZipFile
- * @see ThreadLocalZipFile
+ * @see ZipFileResource
  **/
 public final class ThreadLocalZipFiles {
 	public static boolean ZIP_ACCESS_VERBOSE = false;
@@ -41,7 +41,7 @@ public final class ThreadLocalZipFiles {
 	 * A cache of opened zip files per thread. (for a given thread, the object value is a HashMap from IPath to
 	 * java.io.ZipFile)
 	 */
-	private static ThreadLocal<Map<IPath, ThreadLocalZipFile>> threadlocalZipMap = ThreadLocal
+	private static ThreadLocal<Map<IPath, ZipFileResource>> threadlocalZipMap = ThreadLocal
 			.withInitial(() -> new HashMap<>());
 	private static ThreadLocal<Integer> holderReferenceCount = ThreadLocal.withInitial(() -> 0);
 
@@ -82,7 +82,7 @@ public final class ThreadLocalZipFiles {
 	}
 
 	private static void flushThreadLocalZipFiles() {
-		for (ThreadLocalZipFile zip : new ArrayList<>(threadlocalZipMap.get().values())) {
+		for (ZipFileResource zip : new ArrayList<>(threadlocalZipMap.get().values())) {
 			zip.close();
 		}
 		threadlocalZipMap.remove();
@@ -104,13 +104,13 @@ public final class ThreadLocalZipFiles {
 	 *
 	 * @see java.util.zip.ZipFile
 	 **/
-	public static final class ThreadLocalZipFile implements AutoCloseable {
+	public static final class ZipFileResource implements AutoCloseable {
 
 		private java.util.zip.ZipFile zipFile;
 		private int referenceCount;
 		private IPath path;
 
-		public ThreadLocalZipFile(IPath path) throws IOException, CoreException {
+		public ZipFileResource(IPath path) throws IOException, CoreException {
 			this.path = path;
 			if (verboseLogging()) {
 				System.out.println(this + " Opened"); //$NON-NLS-1$
@@ -192,9 +192,9 @@ public final class ThreadLocalZipFiles {
 	 * The receiver must close the returned resource after use.
 	 * @throws CoreException **/
 	@SuppressWarnings("resource") // create method forwards ownership to caller
-	public static ThreadLocalZipFile createZipFile(IPath path) throws IOException, CoreException {
+	public static ZipFileResource createZipFile(IPath path) throws IOException, CoreException {
 		{
-			ThreadLocalZipFile existing = threadlocalZipMap.get().get(path);
+			ZipFileResource existing = threadlocalZipMap.get().get(path);
 			if (existing != null) {
 				existing.referenceCount++;
 				if (verboseLogging()) {
@@ -204,7 +204,7 @@ public final class ThreadLocalZipFiles {
 			}
 		}
 		{
-			ThreadLocalZipFile newZipFile = new ThreadLocalZipFile(path);
+			ZipFileResource newZipFile = new ZipFileResource(path);
 			threadlocalZipMap.get().put(path, newZipFile);
 			newZipFile.referenceCount += 1 + (holderReferenceCount.get() > 0 ? 1 : 0);
 			return newZipFile;

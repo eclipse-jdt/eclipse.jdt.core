@@ -30,7 +30,7 @@ import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
-import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ThreadLocalZipFile;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ZipFileResource;
 
 public class ClasspathJMod extends ClasspathJar {
 
@@ -72,7 +72,7 @@ public class ClasspathJMod extends ClasspathJar {
 		if (moduleNameFilter != null && this.module != null && !moduleNameFilter.test(String.valueOf(this.module.name())))
 			return null;
 
-		try (ThreadLocalZipFile zipFile = createZipFile()) {
+		try (ZipFileResource zipFile = createZipFile()) {
 			qualifiedBinaryFileName = new String(CharOperation.append(CLASSES_FOLDER, qualifiedBinaryFileName.toCharArray()));
 			IBinaryType reader = org.eclipse.jdt.internal.core.util.Util.read(zipFile, qualifiedBinaryFileName);
 			if (reader != null) {
@@ -95,7 +95,7 @@ public class ClasspathJMod extends ClasspathJar {
 	@Override
 	protected String readJarContent(final SimpleSet packageSet) {
 		String modInfo = null;
-		try (ThreadLocalZipFile zipFile = createZipFile()) {
+		try (ZipFileResource zipFile = createZipFile()) {
 			for (Enumeration<? extends ZipEntry> e = zipFile.entries(); e.hasMoreElements(); ) {
 				ZipEntry entry = e.nextElement();
 				char[] entryName = entry.getName().toCharArray();

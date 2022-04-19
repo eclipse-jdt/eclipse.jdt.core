@@ -41,7 +41,7 @@ import javax.tools.StandardJavaFileManager;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.internal.compiler.apt.util.EclipseFileManager;
 import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles;
-import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ThreadLocalZipFile;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ZipFileResource;
 import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ThreadLocalZipFileHolder;
 
 import junit.framework.TestCase;
@@ -246,20 +246,20 @@ public class FileManagerTests extends TestCase {
 		File src = new File(BatchTestUtils.getPluginDirectoryPath(), "resources/targets/filemanager/dependency.zip");
 		Path copy = Files.copy(src.toPath(), target);
 		IPath copyPath=new org.eclipse.core.runtime.Path(copy.toFile().getPath());
-		try (ThreadLocalZipFile zipFile1 = ThreadLocalZipFiles.createZipFile(copyPath)) {
-			try (ThreadLocalZipFile zipFile2 = ThreadLocalZipFiles.createZipFile(copyPath)) {
+		try (ZipFileResource zipFile1 = ThreadLocalZipFiles.createZipFile(copyPath)) {
+			try (ZipFileResource zipFile2 = ThreadLocalZipFiles.createZipFile(copyPath)) {
 				assertSame("same zipfileInstances expected", zipFile1, zipFile2);
-				try (ThreadLocalZipFile zipFile3 = ThreadLocalZipFiles.createZipFile(copyPath)) {
+				try (ZipFileResource zipFile3 = ThreadLocalZipFiles.createZipFile(copyPath)) {
 					assertSame("same zipfileInstances expected", zipFile1, zipFile3);
 				}
 			}
 		}
-		ThreadLocalZipFile z1;
-		try (ThreadLocalZipFile zipFile1 = ThreadLocalZipFiles.createZipFile(copyPath)) {
+		ZipFileResource z1;
+		try (ZipFileResource zipFile1 = ThreadLocalZipFiles.createZipFile(copyPath)) {
 			z1 = zipFile1;
 		}
-		ThreadLocalZipFile z2;
-		try (ThreadLocalZipFile zipFile2 = ThreadLocalZipFiles.createZipFile(copyPath)) {
+		ZipFileResource z2;
+		try (ZipFileResource zipFile2 = ThreadLocalZipFiles.createZipFile(copyPath)) {
 			z2 = zipFile2;
 		}
 		assertNotSame("different zipfileInstances expected", z1, z2);
@@ -273,43 +273,43 @@ public class FileManagerTests extends TestCase {
 		File src = new File(BatchTestUtils.getPluginDirectoryPath(), "resources/targets/filemanager/dependency.zip");
 		Path copy = Files.copy(src.toPath(), target);
 		IPath copyPath=new org.eclipse.core.runtime.Path(copy.toFile().getPath());
-		ThreadLocalZipFile z1a;
-		ThreadLocalZipFile z1b;
-		ThreadLocalZipFile z2a;
-		ThreadLocalZipFile z2b;
-		ThreadLocalZipFile z3a;
-		ThreadLocalZipFile z3b;
+		ZipFileResource z1a;
+		ZipFileResource z1b;
+		ZipFileResource z2a;
+		ZipFileResource z2b;
+		ZipFileResource z3a;
+		ZipFileResource z3b;
 		try (ThreadLocalZipFileHolder holder1 = ThreadLocalZipFiles.createZipHolder(this)) {
 			try (ThreadLocalZipFileHolder holder2 = ThreadLocalZipFiles.createZipHolder(new Object())) {
 				try (ThreadLocalZipFileHolder holder3 = ThreadLocalZipFiles.createZipHolder(new Object())) {
-					try (ThreadLocalZipFile zipFileA = ThreadLocalZipFiles.createZipFile(copyPath)) {
+					try (ZipFileResource zipFileA = ThreadLocalZipFiles.createZipFile(copyPath)) {
 						z3a = zipFileA;
 					}
-					try (ThreadLocalZipFile zipFileB = ThreadLocalZipFiles.createZipFile(copyPath)) {
+					try (ZipFileResource zipFileB = ThreadLocalZipFiles.createZipFile(copyPath)) {
 						z3b = zipFileB;
 					}
 					assertSame("same zipfileInstances expected", z3a, z3b);
 				}
-				try (ThreadLocalZipFile zipFileA = ThreadLocalZipFiles.createZipFile(copyPath)) {
+				try (ZipFileResource zipFileA = ThreadLocalZipFiles.createZipFile(copyPath)) {
 					z2a = zipFileA;
 				}
-				try (ThreadLocalZipFile zipFileB = ThreadLocalZipFiles.createZipFile(copyPath)) {
+				try (ZipFileResource zipFileB = ThreadLocalZipFiles.createZipFile(copyPath)) {
 					z2b = zipFileB;
 				}
 				assertSame("same zipfileInstances expected", z2a, z2b);
 				assertSame("same zipfileInstances expected", z2a, z3a);
 			}
-			try (ThreadLocalZipFile zipFileA = ThreadLocalZipFiles.createZipFile(copyPath)) {
+			try (ZipFileResource zipFileA = ThreadLocalZipFiles.createZipFile(copyPath)) {
 				z1a = zipFileA;
 			}
-			try (ThreadLocalZipFile zipFileB = ThreadLocalZipFiles.createZipFile(copyPath)) {
+			try (ZipFileResource zipFileB = ThreadLocalZipFiles.createZipFile(copyPath)) {
 				z1b = zipFileB;
 			}
 			assertSame("same zipfileInstances expected", z1a, z1b);
 			assertSame("same zipfileInstances expected", z1a, z3a);
 		}
-		ThreadLocalZipFile z0a;
-		try (ThreadLocalZipFile zipFileA = ThreadLocalZipFiles.createZipFile(copyPath)) {
+		ZipFileResource z0a;
+		try (ZipFileResource zipFileA = ThreadLocalZipFiles.createZipFile(copyPath)) {
 			z0a = zipFileA;
 		}
 		assertNotSame("different zipfileInstances expected", z1a, z0a);

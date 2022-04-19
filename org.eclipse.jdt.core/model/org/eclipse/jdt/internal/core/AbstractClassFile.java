@@ -33,7 +33,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
-import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ThreadLocalZipFile;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ZipFileResource;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -222,7 +222,7 @@ public abstract class AbstractClassFile extends Openable implements IClassFile, 
 					className,
 					root.getElementName());
 		} else {
-			try (ThreadLocalZipFile zip = root.getJar()){
+			try (ZipFileResource zip = root.getJar()){
 				ZipEntry ze = zip.getEntry(className);
 				if (ze != null) {
 					contents = Util.getZipEntryByteContent(ze, zip);

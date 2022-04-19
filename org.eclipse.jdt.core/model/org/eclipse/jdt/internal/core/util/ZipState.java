@@ -23,7 +23,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ThreadLocalZipFile;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ZipFileResource;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 
@@ -71,14 +71,14 @@ public final class ZipState {
 
 	/** returns either a new Wrapper around ZipFile or a previously cached instance.
 	 * The receiver must close the returned resource after use. **/
-	public static ThreadLocalZipFile createZipFile(IPath path) throws CoreException {
+	public static ZipFileResource createZipFile(IPath path) throws CoreException {
 		getArchiveValidity(path); // evicts validity after some time
 		return createZipFileWithoutEvict(path);
 	}
 
-	private static ThreadLocalZipFile createZipFileWithoutEvict(IPath path) throws CoreException {
+	private static ZipFileResource createZipFileWithoutEvict(IPath path) throws CoreException {
 		try {
-			ThreadLocalZipFile zipFile = ThreadLocalZipFiles.createZipFile(path);
+			ZipFileResource zipFile = ThreadLocalZipFiles.createZipFile(path);
 			setArchiveValidity(path, ArchiveValidity.VALID); // remember its valid & update TTL
 			return zipFile;
 		} catch (IOException e) {
@@ -150,7 +150,7 @@ public final class ZipState {
 		// If the TTL for this cache entry has expired, directly check whether the archive is still invalid.
 		// If it transitioned to being valid, remove it from the cache and force an update to project caches.
 		if (now > invalidArchiveInfo.evictionTimestamp) {
-			try (ThreadLocalZipFile zipFile = createZipFileWithoutEvict(path)) {
+			try (ZipFileResource zipFile = createZipFileWithoutEvict(path)) {
 				removeArchiveValidity(path);
 			} catch (CoreException e) {
 				// Archive is still invalid, fall through to reporting it is invalid.
@@ -172,7 +172,7 @@ public final class ZipState {
 		if (isArchiveStateKnownToBeValid(path)) {
 			return; // known to be valid
 		}
-		try (ThreadLocalZipFile file = createZipFile(path)) {
+		try (ZipFileResource file = createZipFile(path)) {
 			// just check
 		}
 	}

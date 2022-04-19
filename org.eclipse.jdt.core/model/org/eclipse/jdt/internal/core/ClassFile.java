@@ -58,7 +58,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IDependent;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
-import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ThreadLocalZipFile;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ZipFileResource;
 import org.eclipse.jdt.internal.core.nd.java.model.BinaryTypeDescriptor;
 import org.eclipse.jdt.internal.core.nd.java.model.BinaryTypeFactory;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
@@ -286,7 +286,7 @@ private IBinaryType getJarBinaryTypeInfo() throws CoreException, IOException, Cl
 	return result;
 }
 
-public static ThreadLocalZipFile getAnnotationZipFile(String resolvedPath, IPath externalAnnotationPath) throws IOException {
+public static ZipFileResource getAnnotationZipFile(String resolvedPath, IPath externalAnnotationPath) throws IOException {
 	File annotationBase = new File(resolvedPath);
 	if (!annotationBase.isFile()) {
 		return null;
@@ -324,7 +324,7 @@ private IBinaryType setupExternalAnnotationProvider(IProject project, final IPat
 	} else {
 		resolvedPath = externalAnnotationPath.toString(); // not in workspace, use as is
 	}
-	try (ThreadLocalZipFile	annotationZip = getAnnotationZipFile(resolvedPath,externalAnnotationPath)){
+	try (ZipFileResource annotationZip = getAnnotationZipFile(resolvedPath,externalAnnotationPath)){
 
 		ExternalAnnotationProvider annotationProvider = externalAnnotationProvider(resolvedPath, typeName, annotationZip);
 		result = new ExternalAnnotationDecorator(reader, annotationProvider);
@@ -342,7 +342,7 @@ private IBinaryType setupExternalAnnotationProvider(IProject project, final IPat
 }
 
 public static ExternalAnnotationProvider externalAnnotationProvider(String basePath, String qualifiedBinaryTypeName,
-		ThreadLocalZipFile zipFile) throws IOException {
+		ZipFileResource zipFile) throws IOException {
 	String qualifiedBinaryFileName = qualifiedBinaryTypeName + ExternalAnnotationProvider.ANNOTATION_FILE_SUFFIX;
 	if (zipFile == null) {
 		return ExternalAnnotationDecorator.externalAnnotationProviderFile(basePath, qualifiedBinaryTypeName, qualifiedBinaryFileName);

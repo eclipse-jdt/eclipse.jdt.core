@@ -40,7 +40,7 @@ import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles;
-import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ThreadLocalZipFile;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ZipFileResource;
 import org.eclipse.jdt.internal.core.index.Index;
 import org.eclipse.jdt.internal.core.index.IndexLocation;
 import org.eclipse.jdt.internal.core.search.JavaSearchDocument;
@@ -157,7 +157,7 @@ class AddJarFileToIndex extends BinaryContainer {
 					zipFilePath = (Path) this.containerPath;
 					// path is already canonical since coming from a library classpath entry
 				}
-				try (ThreadLocalZipFile zip = ThreadLocalZipFiles.createZipFile(zipFilePath)) {
+				try (ZipFileResource zip = ThreadLocalZipFiles.createZipFile(zipFilePath)) {
 
 					if (this.isCancelled) {
 						if (JobManager.VERBOSE)

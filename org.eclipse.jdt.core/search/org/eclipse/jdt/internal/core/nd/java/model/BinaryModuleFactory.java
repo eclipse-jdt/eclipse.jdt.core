@@ -38,7 +38,7 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JrtPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.ModularClassFile;
 import org.eclipse.jdt.internal.core.PackageFragmentRoot;
-import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ThreadLocalZipFile;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ZipFileResource;
 
 /**
  * <strong>FIXME:</strong> this class is a stub as of now, it does not support modules in the new index.
@@ -122,7 +122,7 @@ public class BinaryModuleFactory {
 			return null;
 		}
 		if (descriptor.isInJarFile()) {
-			try (ThreadLocalZipFile zip = JavaModelManager.getJavaModelManager().getZipFile(new Path(new String(descriptor.workspacePath)))){
+			try (ZipFileResource zip = JavaModelManager.getJavaModelManager().getZipFile(new Path(new String(descriptor.workspacePath)))){
 				String entryName = TypeConstants.MODULE_INFO_CLASS_NAME_STRING;
 				ZipEntry ze = zip.getEntry(entryName);
 				if (ze != null) {

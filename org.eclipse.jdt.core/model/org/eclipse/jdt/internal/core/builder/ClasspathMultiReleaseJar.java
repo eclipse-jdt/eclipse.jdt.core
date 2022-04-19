@@ -20,7 +20,7 @@ import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
-import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ThreadLocalZipFile;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ZipFileResource;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public class ClasspathMultiReleaseJar extends ClasspathJar {
@@ -49,7 +49,7 @@ public class ClasspathMultiReleaseJar extends ClasspathJar {
 	@Override
 	IModule initializeModule() {
 		IModule mod = null;
-		try (ThreadLocalZipFile file = createZipFile()){
+		try (ZipFileResource file = createZipFile()){
 			ClassFileReader classfile = null;
 			try {
 				for (String path : supportedVersions(file)) {
@@ -75,7 +75,7 @@ public class ClasspathMultiReleaseJar extends ClasspathJar {
 		return mod;
 	}
 
-	private static String[] initializeVersions(ThreadLocalZipFile zipFile, String compliance) {
+	private static String[] initializeVersions(ZipFileResource zipFile, String compliance) {
 		int earliestJavaVersion = ClassFileConstants.MAJOR_VERSION_9;
 		long latestJDK = CompilerOptions.versionToJdkLevel(compliance);
 		int latestJavaVer = (int) (latestJDK >> 16);
@@ -90,7 +90,7 @@ public class ClasspathMultiReleaseJar extends ClasspathJar {
 		return versions.toArray(new String[versions.size()]);
 	}
 
-	private String[] supportedVersions(ThreadLocalZipFile zipFile) {
+	private String[] supportedVersions(ZipFileResource zipFile) {
 		String[] versions = this.supportedVersions;
 		if (versions == null) {
 			versions = initializeVersions(zipFile, this.compliance);
@@ -102,7 +102,7 @@ public class ClasspathMultiReleaseJar extends ClasspathJar {
 	@Override
 	protected String readJarContent(final SimpleSet packageSet) {
 		String modInfo = null;
-		try (ThreadLocalZipFile zipFile = createZipFile()) {
+		try (ZipFileResource zipFile = createZipFile()) {
 			for (Enumeration<? extends ZipEntry> e = zipFile.entries(); e.hasMoreElements(); ) {
 				String fileName = ((ZipEntry) e.nextElement()).getName();
 				if (fileName.startsWith(META_INF_VERSIONS) && fileName.length() > META_INF_LENGTH) {
@@ -132,7 +132,7 @@ public class ClasspathMultiReleaseJar extends ClasspathJar {
 		if (!isPackage(qualifiedPackageName, moduleName)) {
 			return null; // most common case
 		}
-		try (ThreadLocalZipFile zipFile = createZipFile()) {
+		try (ZipFileResource zipFile = createZipFile()) {
 			for (String path : supportedVersions(zipFile)) {
 				String s = null;
 				try {

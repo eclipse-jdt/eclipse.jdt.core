@@ -28,7 +28,7 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.compiler.util.Util;
-import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ThreadLocalZipFile;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ZipFileResource;
 
 /**
  * A jar entry that represents a non-java file found in a JAR.
@@ -63,7 +63,7 @@ public class JarEntryFile  extends JarEntryResource {
 			}
 			return null;
 		} else {
-			try (ThreadLocalZipFile zipFile = getZipFile()){
+			try (ZipFileResource zipFile = getZipFile()){
 				String entryName = getEntryName();
 				ZipEntry zipEntry = zipFile.getEntry(entryName);
 				if (zipEntry == null){

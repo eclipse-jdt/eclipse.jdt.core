@@ -142,7 +142,7 @@ import org.eclipse.jdt.internal.compiler.util.ObjectVector;
 import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles;
 import org.eclipse.jdt.internal.core.DeltaProcessor.RootInfo;
 import org.eclipse.jdt.internal.core.JavaProjectElementInfo.ProjectCache;
-import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ThreadLocalZipFile;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ZipFileResource;
 import org.eclipse.jdt.internal.core.builder.JavaBuilder;
 import org.eclipse.jdt.internal.core.dom.SourceRangeVerifier;
 import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore;
@@ -2696,7 +2696,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 * {@link FileNotFoundException} if the file does not exist, or a
 	 * {@link IOException} if we were unable to read the file.
 	 */
-	public ThreadLocalZipFile getZipFile(IPath path) throws CoreException {
+	public ZipFileResource getZipFile(IPath path) throws CoreException {
 		return ZipState.createZipFile(path);
 	}
 

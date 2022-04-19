@@ -70,7 +70,7 @@ import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles;
 import org.eclipse.jdt.internal.compiler.util.Util;
-import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ThreadLocalZipFile;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ZipFileResource;
 import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ThreadLocalZipFileHolder;
 import org.eclipse.jdt.internal.core.util.ReferenceInfoAdapter;
 
@@ -574,7 +574,7 @@ public class SourceMapper
 			}
 		} else if (root.isArchive()) {
 			JavaModelManager manager = JavaModelManager.getJavaModelManager();
-			try (ThreadLocalZipFile zip = manager.getZipFile(pkgFragmentRootPath)) {
+			try (ZipFileResource zip = manager.getZipFile(pkgFragmentRootPath)) {
 				for (Enumeration entries = zip.entries(); entries.hasMoreElements(); ) {
 					ZipEntry entry = (ZipEntry) entries.nextElement();
 					String entryName = entry.getName();
@@ -645,7 +645,7 @@ public class SourceMapper
 				computeRootPath(folder, firstLevelPackageNames, containsADefaultPackage, tempRoots, folder.getFullPath().segmentCount()/*if external folder, this is the linked folder path*/);
 			} else {
 				JavaModelManager manager = JavaModelManager.getJavaModelManager();
-				try (ThreadLocalZipFile zip = manager.getZipFile(this.sourcePath)){
+				try (ZipFileResource zip = manager.getZipFile(this.sourcePath)){
 					for (Enumeration entries = zip.entries(); entries.hasMoreElements(); ) {
 						ZipEntry entry = (ZipEntry) entries.nextElement();
 						String entryName;
@@ -1245,7 +1245,7 @@ public class SourceMapper
 			}
 
 			// try to get the entry
-			try (ThreadLocalZipFile zip =  JavaModelManager.getJavaModelManager().getZipFile(this.sourcePath)){
+			try (ZipFileResource zip =  JavaModelManager.getJavaModelManager().getZipFile(this.sourcePath)){
 				ZipEntry entry = zip.getEntry(fullName);
 				if (entry != null) {
 					// now read the source code
@@ -1624,7 +1624,7 @@ public class SourceMapper
 			this.typeDepth = -1;
 		}
 	}
-	private char[] readSource(ZipEntry entry, ThreadLocalZipFile zip, String charSet) {
+	private char[] readSource(ZipEntry entry, ZipFileResource zip, String charSet) {
 		try {
 			byte[] bytes = org.eclipse.jdt.internal.core.util.Util.getZipEntryByteContent(entry, zip);
 			if (bytes != null) {
