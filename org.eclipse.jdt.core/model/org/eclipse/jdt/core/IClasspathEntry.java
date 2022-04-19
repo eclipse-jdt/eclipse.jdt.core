@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 
 /**
@@ -507,4 +508,24 @@ public interface IClasspathEntry {
 		}
 		return false;
 	}
+
+	/**
+	 * Answer the path for external annotations (for null analysis) associated with this classpath entry.
+	 * Five shapes of paths are supported:
+	 * <ol>
+	 * <li>relative, variable (VAR/relpath): resolve classpath variable VAR and append relpath</li>
+	 * <li>relative, container (CON/relpath): locate relpath among the elements within container CON</li>
+	 * <li>relative, project (relpath): interpret relpath as a relative path within the given project</li>
+	 * <li>absolute, workspace (/Proj/relpath): an absolute path in the workspace</li>
+	 * <li>absolute, filesystem (/abspath): an absolute path in the filesystem</li>
+	 * </ol>
+	 * In case of ambiguity, workspace lookup has higher priority than filesystem lookup
+	 * (in fact filesystem paths are never validated).
+	 *
+	 * @param project project whose classpath we are analysing
+	 * @param resolve if true, any workspace-relative paths will be resolved to filesystem paths.
+	 * @return a path (in the workspace or filesystem-absolute) or null
+	 * @since 3.30
+	 */
+	IPath getExternalAnnotationPath(IProject project, boolean resolve);
 }
