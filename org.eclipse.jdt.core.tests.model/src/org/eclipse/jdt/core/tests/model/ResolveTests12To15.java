@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019, 2020 IBM Corporation and others.
+ * Copyright (c) 2019, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -25,7 +25,7 @@ public class ResolveTests12To15 extends AbstractJavaModelTests {
 	ICompilationUnit wc = null;
 
 static {
-//	 TESTS_NAMES = new String[] { "test018" };
+//	 TESTS_NAMES = new String[] { "testBug577508_3" };
 	// TESTS_NUMBERS = new int[] { 124 };
 	// TESTS_RANGE = new int[] { 16, -1 };
 }
@@ -802,5 +802,86 @@ public void testBugDiamond() throws JavaModelException {
 			"Unexpected elements",
 			"s2 [in <anonymous #1> [in test() [in Test2 [in [Working copy] Test2.java [in <default> [in src [in Resolve]]]]]]]",
 			elements);
+}
+public void testBug577508_1() throws JavaModelException {
+	this.wc = getWorkingCopy("/Resolve15/src/X.java",
+			"public class X {\n"
+					+ "    public X () {\n"
+					+ "		new Runnable() {\n"
+					+ "			public void run () {\n"
+					+ "				Object object = null;\n"
+					+ "				if (object instanceof Thread thread) thread.start();\n"
+					+ "				tryToOpenDeclarationOnThisMethod();\n"
+					+ "			}\n"
+					+ "		};\n"
+					+ "	}\n"
+					+ "	public void tryToOpenDeclarationOnThisMethod () {\n"
+					+ "	}\n"
+					+ "}");
+	String str = this.wc.getSource();
+	String selection = "tryToOpenDeclarationOnThisMethod";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"tryToOpenDeclarationOnThisMethod() [in X [in [Working copy] X.java [in <default> [in src [in Resolve15]]]]]",
+		elements
+	);
+}
+public void testBug577508_2() throws JavaModelException {
+	this.wc = getWorkingCopy("/Resolve15/src/X.java",
+			"public class X {\n"
+					+ "    public X () {\n"
+					+ "		for (Object object : new Object[] {\"test\"}) {\n"
+					+ "			if (object instanceof String string) {\n"
+					+ "				System.out.println(string);\n"
+					+ "				tryToOpenDeclarationOnThisMethod();\n"
+					+ "			}\n"
+					+ "		}\n"
+					+ "	}\n"
+					+ "	static public void tryToOpenDeclarationOnThisMethod () {\n"
+					+ "	}\n"
+					+ "}");
+	String str = this.wc.getSource();
+	String selection = "tryToOpenDeclarationOnThisMethod";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"tryToOpenDeclarationOnThisMethod() [in X [in [Working copy] X.java [in <default> [in src [in Resolve15]]]]]",
+		elements
+	);
+}
+public void testBug577508_3() throws JavaModelException {
+	this.wc = getWorkingCopy("/Resolve15/src/X.java",
+			"public class X {\n"
+			+ "  public static void main(String[] args) {\n"
+			+ "    Set<Foo> foos = Set.of(new Foo(), new Bar());\n"
+			+ "    for (Foo foo : foos) {\n"
+			+ "      String string;\n"
+			+ "      if (foo instanceof Bar bar) {\n"
+			+ "        string = \"__\";\n"
+			+ "      }\n"
+			+ "    }\n"
+			+ "    String[] names = new String[] {};\n"
+			+ "    for (String name : names) {\n"
+			+ "      int size = name.length();\n"
+			+ "    }\n"
+			+ "  }\n"
+			+ "  static class Foo {}\n"
+			+ "  static class Bar extends Foo {}\n"
+			+ "}");
+	String str = this.wc.getSource();
+	String selection = "length";
+	int start = str.indexOf(selection);
+	int length = "length".length();
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"length() [in String [in String.class [in java.lang [in "+ getExternalPath() + "jclMin14.jar]]]]",
+		elements
+	);
 }
 }
