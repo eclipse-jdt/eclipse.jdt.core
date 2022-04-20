@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2019 IBM Corporation and others.
+ * Copyright (c) 2012, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -970,7 +970,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 
 		if (sam.parameters.length != this.arguments.length)
 			return null;
-
+		this.descriptor = sam;
 		LambdaExpression copy = null;
 		if (this.copiesPerTargetType != null) {
 			copy = this.copiesPerTargetType.get(targetType);

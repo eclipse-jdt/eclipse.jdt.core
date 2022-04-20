@@ -6524,4 +6524,42 @@ public void testBug578817() throws JavaModelException {
 				+ "getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, null, null, getClass, null, [229, 232], "+(R_DEFAULT+R_PACKAGE_EXPECTED_TYPE+30)+"}\n"
 				+ "getLastName[METHOD_REF]{getLastName(), LPerson;, ()Ljava.lang.String;, null, null, getLastName, null, [229, 232], "+(R_DEFAULT+R_EXACT_EXPECTED_TYPE+30)+"}", requestor.getResults());
 	}
+	public void testBug562551() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/X.java",
+				"import java.util.Map;\n"
+				+ "import java.util.function.Supplier;\n"
+				+ "public class X {\n"
+				+ "	SingletonSupplier<Map<String, Object>> beansSupplier = SingletonSupplier.of(() -> {\n"
+				+ "		Map<String, Object> beans = new HashMap<>();\n"
+				+ "		beans.cle\n"
+				+ "		return Collections.unmodifiableMap(beans);\n"
+				+ "	});\n"
+				+ "	public static class SingletonSupplier<T> implements Supplier<T> {\n"
+				+ "		@Override\n"
+				+ "		public T get() {\n"
+				+ "			return null;\n"
+				+ "		}\n"
+				+ "		public T obtain() {\n"
+				+ "			T instance = get();\n"
+				+ "			return instance;\n"
+				+ "		}\n"
+				+ "		public static <T> SingletonSupplier<T> of(T instance) {\n"
+				+ "			return null;\n"
+				+ "		}"
+				+ "		public static <T> SingletonSupplier<T> of(Supplier<T> supplier) {\n"
+				+ "			return null;\n"
+				+ "		}\n"
+				+ "	}\n"
+				+ "}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "beans.cle";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults("clear[METHOD_REF]{clear(), Ljava.util.Map<Ljava.lang.String;Ljava.lang.Object;>;, ()V, null, null, clear, null, [216, 219], "+ (R_DEFAULT+R_EXPECTED_TYPE+10)+"}", requestor.getResults());
+	}
 }
