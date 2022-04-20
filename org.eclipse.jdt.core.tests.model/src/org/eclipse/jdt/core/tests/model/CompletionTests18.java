@@ -6560,6 +6560,6 @@ public void testBug578817() throws JavaModelException {
 		String completeBehind = "beans.cle";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-		assertResults("clear[METHOD_REF]{clear(), Ljava.util.Map<Ljava.lang.String;Ljava.lang.Object;>;, ()V, null, null, clear, null, [216, 219], "+ (R_DEFAULT+R_EXPECTED_TYPE+10)+"}", requestor.getResults());
+		assertResults("clear[METHOD_REF]{clear(), Ljava.util.Map<Ljava.lang.String;Ljava.lang.Object;>;, ()V, null, null, clear, null, [215, 218], "+ (R_DEFAULT+R_EXPECTED_TYPE+10)+"}", requestor.getResults());
 	}
 }

@@ -904,7 +904,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		// copy here is potentially compatible with the target type and has its shape fully computed: i.e value/void compatibility is determined and result expressions have been gathered.
 		targetType = findGroundTargetType(this.enclosingScope, targetType, targetType, argumentsTypeElided());
 		MethodBinding sam = targetType.getSingleAbstractMethod(this.enclosingScope, true);
-		if (sam == null || sam.problemId() == ProblemReasons.NoSuchSingleAbstractMethod) {
+		if (sam == null || sam.returnType == null || sam.problemId() == ProblemReasons.NoSuchSingleAbstractMethod) {
 			return CompatibilityResult.INCOMPATIBLE;
 		}
 		if (sam.returnType.id == TypeIds.T_void) {
