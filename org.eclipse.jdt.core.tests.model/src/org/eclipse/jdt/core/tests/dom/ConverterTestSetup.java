@@ -94,6 +94,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	 */
 	@Override
 	public void tearDownSuite() throws Exception {
+		System.out.println(">>> tear down "+this);
 		this.ast = null;
 		if (TEST_SUITES == null) {
 			this.deleteProject("Converter"); //$NON-NLS-1$
@@ -133,6 +134,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 		}
 
 		super.tearDownSuite();
+		System.out.println("<<< tear down "+this);
 	}
 
 	@Override
@@ -236,6 +238,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	 */
 	@Override
 	public void setUpSuite() throws Exception {
+		System.out.println(">>> set up "+this);
 		super.setUpSuite();
 
 		if (!PROJECT_SETUP) {
@@ -253,9 +256,12 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 			setUpJavaProject("Converter_15_1", "15"); //$NON-NLS-1$ //$NON-NLS-2$
 			setUpJavaProject("Converter_16", "16"); //$NON-NLS-1$ //$NON-NLS-2$
 			setUpJavaProject("Converter_17", "17"); //$NON-NLS-1$ //$NON-NLS-2$
+			System.out.println(">>> set up projects created");
 			waitUntilIndexesReady(); // needed to find secondary types
+			System.out.println(">>> set up indexes ready");
 			PROJECT_SETUP = true;
 		}
+		System.out.println("<<< set up "+this);
 	}
 
 	protected void assertExtraDimensionsEqual(String message, List dimensions, String expected) {
