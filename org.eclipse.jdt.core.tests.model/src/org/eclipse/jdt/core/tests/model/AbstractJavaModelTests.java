@@ -3664,6 +3664,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 
 	@Override
 	protected void setUp () throws Exception {
+		System.out.println(">>> individual setUp "+getName());
 		super.setUp();
 
 		if (NameLookup.VERBOSE || BasicSearchEngine.VERBOSE || JavaModelManager.VERBOSE) {
@@ -3671,6 +3672,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			System.out.println("Running test "+getName()+"...");
 		}
 		logInfo("SETUP " + getName());
+		System.out.println("<<< individual setUp "+getName());
 	}
 
     private static void printSystemEnv() {

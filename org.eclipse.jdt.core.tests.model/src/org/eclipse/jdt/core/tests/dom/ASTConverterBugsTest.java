@@ -39,6 +39,7 @@ public void setUpSuite() throws Exception {
 	super.setUpSuite();
 //	setUpJCLClasspathVariables("1.5");
 	waitUntilIndexesReady();
+	System.out.println("<<< set up - indexes ready "+this);
 }
 
 public ASTConverterBugsTest(String name) {
@@ -130,6 +131,7 @@ protected void resolveASTs(ICompilationUnit[] cus, String[] bindingKeys, ASTRequ
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=186410"
  */
 public void testBug186410() throws CoreException, IOException {
+	System.out.println("testBug186410 starting");
 	try {
 		createJavaProject("P", new String[] { "" }, new String[0], "");
 			createFile("P/A.java",
