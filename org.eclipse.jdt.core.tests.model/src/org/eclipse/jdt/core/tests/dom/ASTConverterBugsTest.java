@@ -29,6 +29,7 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.internal.core.search.processing.JobManager;
 
 @SuppressWarnings("rawtypes")
 public class ASTConverterBugsTest extends ConverterTestSetup {
@@ -38,6 +39,7 @@ public void setUpSuite() throws Exception {
 //	PROJECT_SETUP = true; // do not copy Converter* directories
 	super.setUpSuite();
 //	setUpJCLClasspathVariables("1.5");
+	JobManager.VERBOSE = true;
 	waitUntilIndexesReady();
 	System.out.println("<<< set up - indexes ready "+this);
 }

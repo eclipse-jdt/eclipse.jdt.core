@@ -3965,7 +3965,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		SearchEngine engine = new SearchEngine();
 		IJavaSearchScope scope = SearchEngine.createWorkspaceScope();
 		try {
+			System.out.println("wait 1");
 			JavaModelManager.getIndexManager().waitForIndex(isIndexDisabledForTest(), null);
+			System.out.println("wait 2");
 			engine.searchAllTypeNames(
 				null,
 				SearchPattern.R_EXACT_MATCH,
@@ -3983,6 +3985,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				},
 				IJavaSearchConstants.WAIT_UNTIL_READY_TO_SEARCH,
 				null);
+			System.out.println("wait 3");
 		} catch (CoreException e) {
 			logError("exception occurred while waiting on indexing", e);
 		}
