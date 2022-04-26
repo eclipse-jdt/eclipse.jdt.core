@@ -25,6 +25,8 @@ import junit.framework.Test;
 
 public class SubwordCompletionTests extends AbstractJavaModelCompletionTests {
 
+private Hashtable<String, String> defaultOptions;
+
 public static Test suite() {
 	return buildModelTestSuite(SubwordCompletionTests.class, BYTECODE_DECLARATION_ORDER);
 }
@@ -40,6 +42,7 @@ public void setUpSuite() throws Exception {
 	super.setUpSuite();
 	Hashtable<String, String> options = new Hashtable<>(this.oldOptions);
 	options.put(JavaCore.CODEASSIST_SUBWORD_MATCH, JavaCore.ENABLED);
+	this.defaultOptions = options;
 	JavaCore.setOptions(options);
 }
 public void tearDownSuite() throws Exception {
@@ -57,6 +60,12 @@ public void tearDownSuite() throws Exception {
 	}
 	super.tearDownSuite();
 }
+
+@Override
+protected Hashtable<String, String> getDefaultJavaCoreOptions() {
+	return this.defaultOptions;
+}
+
 private CompletionTestsRequestor2 createFilteredRequestor() {
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 	Predicate<CompletionProposal> javaTypeRef = p -> p.getKind() == CompletionProposal.TYPE_REF && new String(p.getSignature()).startsWith("Ljava.");

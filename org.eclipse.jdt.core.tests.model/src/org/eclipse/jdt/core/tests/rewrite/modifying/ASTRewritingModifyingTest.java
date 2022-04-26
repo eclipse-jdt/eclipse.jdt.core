@@ -55,7 +55,8 @@ public abstract class ASTRewritingModifyingTest extends AbstractJavaModelTests {
 	protected IJavaProject javaProject;
 	protected IPackageFragmentRoot sourceFolder;
 
-	private Hashtable oldOptions;
+	private Hashtable<String, String> oldOptions;
+	private Hashtable<String, String> defaultOptions;
 
 	public ASTRewritingModifyingTest(String name) {
 		super(name);
@@ -79,20 +80,28 @@ public abstract class ASTRewritingModifyingTest extends AbstractJavaModelTests {
 		this.javaProject = createJavaProject("P", new String[] {"src"}, null, "bin", "1.5");
 		this.sourceFolder = getPackageFragmentRoot("P", "src");
 
-		Hashtable options = JavaCore.getOptions();
+		Hashtable<String, String> options = JavaCore.getOptions();
 		this.oldOptions = (Hashtable)options.clone();
 		options.put(DefaultCodeFormatterConstants.FORMATTER_TAB_CHAR, JavaCore.SPACE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_TAB_SIZE, "4");
+		this.defaultOptions = options;
 		JavaCore.setOptions(options);
 
 		waitUntilIndexesReady();
 	}
+
 	@Override
 	public void tearDownSuite() throws Exception {
 		deleteProject("P");
 		JavaCore.setOptions(this.oldOptions);
 		super.tearDownSuite();
 	}
+
+	@Override
+	protected Hashtable<String, String> getDefaultJavaCoreOptions() {
+		return this.defaultOptions;
+	}
+
 	public CompilationUnit createCU(
 		ICompilationUnit unit,
 		boolean resolveBindings,
