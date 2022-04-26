@@ -129,6 +129,9 @@ public class SuiteOfTestCases extends org.eclipse.jdt.core.tests.junit.extension
 	public void setUpSuite() throws Exception {
 		// Indexer is disabled for tests by defailt, see
 		// org.eclipse.jdt.core.tests.junit.extension.TestCase.isIndexDisabledForTest()
+
+		// The first individual setup() call will also call done()
+		FreezeMonitor.expectCompletionIn(FROZEN_TEST_TIMEOUT_MS);
 	}
 
 	/**
@@ -137,6 +140,10 @@ public class SuiteOfTestCases extends org.eclipse.jdt.core.tests.junit.extension
 	public void tearDownSuite() throws Exception {
 		// Indexer is disabled for tests by defailt, see
 		// org.eclipse.jdt.core.tests.junit.extension.TestCase.isIndexDisabledForTest()
+
+		// Just to be symmetrical to setup(), actually this shouldn't be needed
+		// if we have at least one test
+		FreezeMonitor.done();
 	}
 
 	@Override
