@@ -3905,12 +3905,31 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 
 		// ensure workspace options have been restored to their default
 		Hashtable options = JavaCore.getOptions();
-		Hashtable defaultOptions = JavaCore.getDefaultOptions();
-		assertEquals(
-			"Workspace options should be back to their default",
-			new CompilerOptions(defaultOptions).toString(),
-			new CompilerOptions(options).toString());
+		Hashtable defaultOptions = getDefaultJavaCoreOptions();
+		boolean resetToDefault = true;
+		try {
+			String expected = new CompilerOptions(defaultOptions).toString();
+			String actual = new CompilerOptions(options).toString();
+			assertEquals("Workspace options should be back to their default", expected, actual);
+			resetToDefault = false;
+		} finally {
+			if(resetToDefault) {
+				// Don't let all following tests use broken defaults and fail too
+				JavaCore.setOptions(defaultOptions);
+			}
+		}
 		super.tearDown();
+	}
+
+	/**
+	 * Override to supply "test class default JavaCore options"
+	 * so that these options will be restored for other tests in the class
+	 * even if one the test changes them without restoring in teardown.
+	 *
+	 * @return by default {@link JavaCore#getDefaultOptions()}
+	 */
+	protected Hashtable<String, String> getDefaultJavaCoreOptions() {
+		return JavaCore.getDefaultOptions();
 	}
 
 	protected IPath getJRE9Path() {

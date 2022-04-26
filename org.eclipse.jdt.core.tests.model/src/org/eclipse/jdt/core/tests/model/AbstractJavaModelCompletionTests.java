@@ -40,6 +40,8 @@ public abstract class AbstractJavaModelCompletionTests extends AbstractJavaModel
 	}
 	Hashtable<String, String> oldOptions;
 	ICompilationUnit wc = null;
+	private Hashtable<String, String> defaultOptions;
+
 public AbstractJavaModelCompletionTests(String name) {
 	super(name);
 }
@@ -168,6 +170,7 @@ public void setUpSuite() throws Exception {
 	Hashtable<String, String> options = new Hashtable<>(this.oldOptions);
 	options.put(JavaCore.CODEASSIST_SUBWORD_MATCH, JavaCore.DISABLED);
 	JavaCore.setOptions(options);
+	this.defaultOptions = options;
 	System.setProperty(AssistOptions.PROPERTY_SubstringMatch, "false");
 	waitUntilIndexesReady();
 }
@@ -191,6 +194,12 @@ public void tearDownSuite() throws Exception {
 	}
 	super.tearDownSuite();
 }
+
+@Override
+protected Hashtable<String, String> getDefaultJavaCoreOptions() {
+	return this.defaultOptions;
+}
+
 @Override
 protected void tearDown() throws Exception {
 	if(this.wc != null) {
