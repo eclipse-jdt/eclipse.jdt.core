@@ -2,6 +2,7 @@ pipeline {
 	options {
 		timeout(time: 60, unit: 'MINUTES')
 		buildDiscarder(logRotator(numToKeepStr:'15'))
+		disableConcurrentBuilds(abortPrevious: true)
 		timestamps()
 	}
 	agent {
