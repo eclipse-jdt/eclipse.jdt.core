@@ -17,6 +17,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Set;
 
+import org.eclipse.jdt.internal.core.search.processing.JobManager;
 import org.eclipse.test.internal.performance.PerformanceMeterFactory;
 
 import junit.extensions.TestSetup;
@@ -129,6 +130,9 @@ public class SuiteOfTestCases extends org.eclipse.jdt.core.tests.junit.extension
 	public void setUpSuite() throws Exception {
 		// Indexer is disabled for tests by defailt, see
 		// org.eclipse.jdt.core.tests.junit.extension.TestCase.isIndexDisabledForTest()
+
+		// Added for https://github.com/eclipse-jdt/eclipse.jdt.core/issues/41
+		JobManager.VERBOSE = true;
 
 		// The first individual setup() call will also call done()
 		FreezeMonitor.expectCompletionIn(FROZEN_TEST_TIMEOUT_MS);
