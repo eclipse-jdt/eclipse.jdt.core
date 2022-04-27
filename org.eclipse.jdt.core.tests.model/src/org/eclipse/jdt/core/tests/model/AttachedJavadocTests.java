@@ -20,6 +20,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import junit.framework.Test;
 
@@ -743,6 +744,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		this.project.setOptions(options);
 		IClasspathEntry[] entries = this.project.getRawClasspath();
 
+		AtomicBoolean stop = new AtomicBoolean();
 		try {
 			IClasspathAttribute attribute =
 					JavaCore.newClasspathAttribute(
@@ -774,6 +776,9 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 						synchronized (varThis) {
 							varThis.notify();
 						}
+						if(stop.get()) {
+							break;
+						}
 					}
 				}
 			};
@@ -791,6 +796,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 			paramNames = method.getParameterNames();
 			assertStringsEqual("Parameter names", new String[]{"param"}, paramNames);
 		} finally {
+			stop.set(true);
 			this.project.setRawClasspath(entries, null);
 			if (timeout != null)
 				options.put(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC, timeout);
