@@ -25,7 +25,7 @@ public class ResolveTests12To15 extends AbstractJavaModelTests {
 	ICompilationUnit wc = null;
 
 static {
-//	 TESTS_NAMES = new String[] { "testBug577508_3" };
+//	 TESTS_NAMES = new String[] { "testBug577508_4" };
 	// TESTS_NUMBERS = new int[] { 124 };
 	// TESTS_RANGE = new int[] { 16, -1 };
 }
@@ -881,6 +881,38 @@ public void testBug577508_3() throws JavaModelException {
 	assertElementsEqual(
 		"Unexpected elements",
 		"length() [in String [in String.class [in java.lang [in "+ getExternalPath() + "jclMin14.jar]]]]",
+		elements
+	);
+}
+public void testBug577508_4() throws JavaModelException {
+	this.wc = getWorkingCopy("/Resolve15/src/X.java",
+			"public class X {\n"
+			+ "  static public void main (String[] args) {\n"
+			+ "	Object[] objects = new Object[3];\n"
+			+ "	for (Object object : objects) \n"
+			+ "		if (object instanceof String string && !(object instanceof Runnable)) \n"
+			+ "			System.out.println(); // Open Declaration fails here if you remove the braces from the for loop.\n"
+			+ "	System.out.println(); // Open Declaration always fails here.\n"
+			+ "}\n"
+			+ "}");
+	String str = this.wc.getSource();
+	String selection = "println";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"println(java.lang.String) [in PrintStream [in PrintStream.class [in java.io [in "+ getExternalPath() + "jclMin14.jar]]]]",
+		elements
+	);
+
+	str = this.wc.getSource();
+	start = str.lastIndexOf(selection);
+	length = selection.length();
+	elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"println(java.lang.String) [in PrintStream [in PrintStream.class [in java.io [in "+ getExternalPath() + "jclMin14.jar]]]]",
 		elements
 	);
 }
