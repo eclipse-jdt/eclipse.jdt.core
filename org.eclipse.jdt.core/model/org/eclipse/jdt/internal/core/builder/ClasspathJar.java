@@ -125,13 +125,18 @@ IModule initializeModule() {
 	ZipFile file = null;
 	try {
 		file = new ZipFile(this.zipFilename);
-		String releasePath = "META-INF/versions/" + this.compliance + '/' + IModule.MODULE_INFO_CLASS; //$NON-NLS-1$
 		ClassFileReader classfile = null;
-		try {
-			classfile = ClassFileReader.read(file, releasePath);
-		} catch (Exception e) {
-			e.printStackTrace();
-			// move on to the default
+		for (int version = Integer.parseInt(this.compliance); version >= 9; version--) {
+			String releasePath = "META-INF/versions/" + version + '/' + IModule.MODULE_INFO_CLASS; //$NON-NLS-1$
+			try {
+				classfile = ClassFileReader.read(file, releasePath);
+				if (classfile != null) {
+					break;
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				// move on to the next or default
+			}
 		}
 		if (classfile == null) {
 			classfile = ClassFileReader.read(file, IModule.MODULE_INFO_CLASS); // FIXME: use jar cache
