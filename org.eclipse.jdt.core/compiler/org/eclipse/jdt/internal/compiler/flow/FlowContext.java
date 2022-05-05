@@ -40,6 +40,7 @@ import org.eclipse.jdt.internal.compiler.ast.NullAnnotationMatching;
 import org.eclipse.jdt.internal.compiler.ast.Reference;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.SubRoutineStatement;
+import org.eclipse.jdt.internal.compiler.ast.SwitchExpression;
 import org.eclipse.jdt.internal.compiler.ast.ThrowStatement;
 import org.eclipse.jdt.internal.compiler.ast.TryStatement;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
@@ -65,6 +66,7 @@ public class FlowContext implements TypeConstants {
 
 	// preempt marks looping contexts
 	public final static FlowContext NotContinuableContext = new FlowContext(null, null, true);
+	public final static FlowContext ContinuedContextCrossingSwitchExpression = new FlowContext(null, null, true);
 	public ASTNode associatedNode;
 	public FlowContext parent;
 	public FlowInfo initsOnFinally;
@@ -592,7 +594,10 @@ public FlowContext getTargetContextForContinueLabel(char[] labelName) {
 			// label is found, but not a continuable location
 			return FlowContext.NotContinuableContext;
 		}
-		current = current.getLocalParent();
+		current = current.getLocalContinueTraversableParent();
+		if (current == ContinuedContextCrossingSwitchExpression) {
+			return ContinuedContextCrossingSwitchExpression;
+		}
 	}
 	// not found
 	return null;
@@ -649,7 +654,10 @@ public FlowContext getTargetContextForDefaultContinue() {
 				return current;
 			return lastNonReturningSubRoutine;
 		}
-		current = current.getLocalParent();
+		current = current.getLocalContinueTraversableParent();
+		if (current == ContinuedContextCrossingSwitchExpression) {
+			return ContinuedContextCrossingSwitchExpression;
+		}
 	}
 	// not found
 	return null;
@@ -670,6 +678,24 @@ public FlowContext getLocalParent() {
 	if (this.associatedNode instanceof AbstractMethodDeclaration || this.associatedNode instanceof TypeDeclaration || this.associatedNode instanceof LambdaExpression)
 		return null;
 	return this.parent;
+}
+
+/**
+ * If no boundary of any node not traversable by continue is crossed, returns the parent flow context. See below for a list of nodes untraversable by continue.
+ * Otherwise, if no such parent exists because a switch expression is crossed, returns {@link #ContinuedContextCrossingSwitchExpression}.
+ * Otherwise, returns {@code null}.
+ * <p>
+ * This method differs from {@link #getLocalParent()} only in that {@link #ContinuedContextCrossingSwitchExpression} is returned
+ * if a switch expression is crossed.
+ * <p>
+ * According to JLS 18, chapter 14.16.: "It is a compile-time error if the continue target contains any
+ * method, constructor, instance initializer, static initializer, lambda expression, or switch expression that encloses the continue statement.
+ * Everything except switch expressions is caught by the normal {@link #getLocalParent()} method.
+ */
+public FlowContext getLocalContinueTraversableParent() {
+	if (this.associatedNode instanceof SwitchExpression)
+		return ContinuedContextCrossingSwitchExpression;
+	return getLocalParent();
 }
 
 public String individualToString() {

@@ -389,11 +389,9 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 	static class OOBLFlagger extends ASTVisitor {
 		Set<String> labelDecls;
 		Set<BreakStatement> referencedBreakLabels;
-		Set<ContinueStatement> referencedContinueLabels;
 		public OOBLFlagger(SwitchExpression se) {
 			this.labelDecls = new HashSet<>();
 			this.referencedBreakLabels = new HashSet<>();
-			this.referencedContinueLabels = new HashSet<>();
 		}
 		@Override
 		public boolean visit(SwitchExpression switchExpression, BlockScope blockScope) {
@@ -406,12 +404,6 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 						continue;
 					if (!this.labelDecls.contains(new String(bs.label)))
 						blockScope.problemReporter().switchExpressionsBreakOutOfSwitchExpression(bs);
-				}
-				for (ContinueStatement cs : this.referencedContinueLabels) {
-					if (cs.label == null || cs.label.length == 0)
-						continue;
-					if (!this.labelDecls.contains(new String(cs.label)))
-						blockScope.problemReporter().switchExpressionsContinueOutOfSwitchExpression(cs);
 				}
 			} catch (EmptyStackException e) {
 				// ignore
@@ -426,12 +418,6 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 		public boolean visit(BreakStatement breakStatement, BlockScope blockScope) {
 			if (breakStatement.label != null && breakStatement.label.length != 0)
 				this.referencedBreakLabels.add(breakStatement);
-			return true;
-		}
-		@Override
-		public boolean visit(ContinueStatement continueStatement, BlockScope blockScope) {
-			if (continueStatement.label != null && continueStatement.label.length != 0)
-				this.referencedContinueLabels.add(continueStatement);
 			return true;
 		}
 		@Override
