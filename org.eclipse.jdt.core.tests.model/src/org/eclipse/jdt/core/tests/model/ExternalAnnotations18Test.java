@@ -17,6 +17,7 @@ package org.eclipse.jdt.core.tests.model;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -3057,6 +3058,14 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 	}
 
 	public void testAnnotationsInProjectReferencedViaContainer() throws CoreException, IOException {
+		internalTestAnnotationsInProjectReferencedViaContainer(null);
+	}
+	public void testAnnotationsInExternalProjectReferencedViaContainer() throws CoreException, IOException {
+		URI parentLocation = getWorkspaceRoot().getLocation().toFile().getParentFile().toURI();
+		URI location = parentLocation.resolve(URI.create("external-project"));
+		internalTestAnnotationsInProjectReferencedViaContainer(location);
+	}
+	void internalTestAnnotationsInProjectReferencedViaContainer(URI location) throws CoreException, IOException {
 		// undeployed version of testSeparateAnnotationJarInContainer:
 		// container "resolved" the eea-artifact to a workspace project
 		myCreateJavaProject("PrjTest");
@@ -3069,8 +3078,13 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 				'/'+eeaProjectName, null,
 				fullPathToPrj1, null));
 
+		IJavaProject eeaProject = null;
 		try {
-			createJavaProject(eeaProjectName);
+			final String projectName = eeaProjectName;
+			eeaProject = createJavaProject(projectName, location,
+					new String[] {""}, new String[] {"JCL_LIB"},
+					null, null, null, null, null, true, null,
+					"", null, null, null, "", false, false);
 			createFolder('/'+eeaProjectName+"/lib/pgen");
 			createFolder('/'+eeaProjectName+"/lib/pgen2");
 			createFile(eeaProjectName+"/lib/pgen/CGen.eea",   mixedArtifacts_CGen_eea_content);
@@ -3101,6 +3115,8 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 			internalTestMixedArtifactsTest();
 		} finally {
 			ContainerInitializer.setInitializer(prev);
+			if (eeaProject.exists())
+				eeaProject.getProject().delete(true, null);
 		}
 	}
 
