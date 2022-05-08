@@ -20,6 +20,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.net.URI;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -599,6 +600,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		IProjectDescription description = project.getDescription();
 		description.setNatureIds(new String[] {JavaCore.NATURE_ID});
 		project.setDescription(description, null);
+	}
+	protected IProjectDescription projectDescriptionForLocation(String projectName, URI location) throws CoreException {
+		IProjectDescription desc = ResourcesPlugin.getWorkspace().newProjectDescription(projectName);
+		desc.setLocationURI(location);
+		return desc;
 	}
 	protected void assertSearchResults(String expected, Object collector) {
 		assertSearchResults("Unexpected search results", expected, collector);
@@ -1794,6 +1800,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		return
 				this.createJavaProject(
 					projectName,
+					null,
 					sourceFolders,
 					libraries,
 					null/*no inclusion pattern*/,
@@ -1969,6 +1976,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			final boolean simulateImport) throws CoreException {
 		return createJavaProject(
 				projectName,
+				null,
 				sourceFolders,
 				libraries,
 				librariesInclusionPatterns,
@@ -1988,6 +1996,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	}
 	protected IJavaProject createJavaProject(
 			final String projectName,
+			URI locationURI,
 			final String[] sourceFolders,
 			final String[] libraries,
 			final String[][] librariesInclusionPatterns,
@@ -2008,7 +2017,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		IWorkspaceRunnable create = new IWorkspaceRunnable() {
 			public void run(IProgressMonitor monitor) throws CoreException {
 				// create project
-				createProject(projectName);
+				if (locationURI != null)
+					createExternalProject(projectName, locationURI);
+				else
+					createProject(projectName);
 
 				// set java nature
 				addJavaNature(projectName);
@@ -2331,6 +2343,17 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		IWorkspaceRunnable create = new IWorkspaceRunnable() {
 			public void run(IProgressMonitor monitor) throws CoreException {
 				project.create(null);
+				project.open(null);
+			}
+		};
+		getWorkspace().run(create, null);
+		return project;
+	}
+	protected IProject createExternalProject(final String projectName, URI location) throws CoreException {
+		final IProject project = getProject(projectName);
+		IWorkspaceRunnable create = new IWorkspaceRunnable() {
+			public void run(IProgressMonitor monitor) throws CoreException {
+				project.create(projectDescriptionForLocation(projectName, location), null);
 				project.open(null);
 			}
 		};
