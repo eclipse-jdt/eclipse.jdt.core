@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -227,6 +231,10 @@ public static Test suite() {
 	 since_18.add(NullAnnotationTests18.class);
 	 since_18.add(JavadocTest_18.class);
 
+	 // add 19 specific test here (check duplicates)
+	 ArrayList since_19 = new ArrayList();
+	 since_19.add(SwitchPatternTest.class);
+
 	 // Build final test suite
 	TestSuite all = new TestSuite(TestAll.class.getName());
 	all.addTest(new TestSuite(StandAloneASTParserTest.class));
@@ -443,6 +451,27 @@ public static Test suite() {
 		tests_18.addAll(since_18);
 		TestCase.resetForgottenFilters(tests_18);
 		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_18), tests_18));
+	}
+	if ((possibleComplianceLevels & AbstractCompilerTest.F_19) != 0) {
+		ArrayList tests_19 = (ArrayList)standardTests.clone();
+		tests_19.addAll(since_1_4);
+		tests_19.addAll(since_1_5);
+		tests_19.addAll(since_1_6);
+		tests_19.addAll(since_1_7);
+		tests_19.addAll(since_1_8);
+		tests_19.addAll(since_9);
+		tests_19.addAll(since_10);
+		tests_19.addAll(since_11);
+		tests_19.addAll(since_12);
+		tests_19.addAll(since_13);
+		tests_19.addAll(since_14);
+		tests_19.addAll(since_15);
+		tests_19.addAll(since_16);
+		tests_19.addAll(since_17);
+		tests_19.addAll(since_18);
+		tests_19.addAll(since_19);
+		TestCase.resetForgottenFilters(tests_19);
+		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_19), tests_19));
 	}
 	all.addTest(new TestSuite(Jsr14Test.class));
 	return all;

@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -50,7 +54,7 @@ public interface TerminalTokens {
 							TokenNamechar = 108,
 							TokenNameclass = 70,
 							TokenNamecontinue = 83,
-							TokenNameconst = 134,
+							TokenNameconst = 135,
 							TokenNamedefault = 76,
 							TokenNamedo = 84,
 							TokenNamedouble = 109,
@@ -62,9 +66,9 @@ public interface TerminalTokens {
 							TokenNamefinally = 116,
 							TokenNamefloat = 110,
 							TokenNamefor = 85,
-							TokenNamegoto = 135,
+							TokenNamegoto = 136,
 							TokenNameif = 86,
-							TokenNameimplements = 131,
+							TokenNameimplements = 132,
 							TokenNameimport = 111,
 							TokenNameinstanceof = 17,
 							TokenNameint = 112,
@@ -100,10 +104,10 @@ public interface TerminalTokens {
 							TokenNametransitive = 128,
 							TokenNameexports = 123,
 							TokenNameopens = 124,
-							TokenNameto = 132,
+							TokenNameto = 133,
 							TokenNameuses = 125,
 							TokenNameprovides = 126,
-							TokenNamewith = 133,
+							TokenNamewith = 134,
 							TokenNameIntegerLiteral = 55,
 							TokenNameLongLiteral = 56,
 							TokenNameFloatingPointLiteral = 57,
@@ -132,7 +136,7 @@ public interface TerminalTokens {
 							TokenNameRIGHT_SHIFT_EQUAL = 102,
 							TokenNameUNSIGNED_RIGHT_SHIFT_EQUAL = 103,
 							TokenNameOR_OR = 31,
-							TokenNameAND_AND = 29,
+							TokenNameAND_AND = 30,
 							TokenNamePLUS = 4,
 							TokenNameMINUS = 5,
 							TokenNameNOT = 66,
@@ -152,7 +156,7 @@ public interface TerminalTokens {
 							TokenNameLBRACKET = 6,
 							TokenNameRBRACKET = 69,
 							TokenNameSEMICOLON = 24,
-							TokenNameQUESTION = 30,
+							TokenNameQUESTION = 29,
 							TokenNameCOLON = 65,
 							TokenNameCOMMA = 32,
 							TokenNameDOT = 1,
@@ -173,6 +177,7 @@ public interface TerminalTokens {
 							TokenNameRestrictedIdentifiersealed = 41,
 							TokenNameRestrictedIdentifierpermits = 127,
 							TokenNameBeginCaseElement = 130,
+							TokenNameRestrictedIdentifierWhen = 131,
 							TokenNameEOF = 64,
-							TokenNameERROR = 136;
+							TokenNameERROR = 137;
 }

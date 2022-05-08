@@ -269,8 +269,13 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected static final int AST_INTERNAL_JLS17 = AST.JLS17;
 	/**
 	 * Internal synonym for constant AST.JSL18
+	 * @deprecated
 	 */
 	protected static final int AST_INTERNAL_JLS18 = AST.JLS18;
+	/**
+	 * Internal synonym for constant AST.JSL18
+	 */
+	protected static final int AST_INTERNAL_JLS19 = AST.JLS19;
 	/**
 	 * Internal synonym for the latest AST level.
 	 *
