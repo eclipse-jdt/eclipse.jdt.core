@@ -38,6 +38,7 @@ import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ForeachStatement;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.ast.Initializer;
+import org.eclipse.jdt.internal.compiler.ast.InstanceOfExpression;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
@@ -49,7 +50,6 @@ import org.eclipse.jdt.internal.compiler.ast.RequiresStatement;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.ast.SuperReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.TypePattern;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
@@ -374,8 +374,9 @@ public RecoveredElement buildInitialRecoveryState(){
 		}
 	}
 	// This is  copy of the code that processes astStack early in this method
-	for (int i = 0; i <= this.patternPtr; i++, lastNode = node) {
-		node = this.patternStack[i];
+	for (int i = 0; i <= this.expressionPtr; i++, lastNode = node) {
+		node = this.expressionStack[i];
+		if (node == null || !(node instanceof InstanceOfExpression)) continue;
 		/* check for intermediate block creation, so recovery can properly close them afterwards */
 		int nodeStart = node.sourceStart;
 		for (int j = blockIndex; j <= this.realBlockPtr; j++){
@@ -401,12 +402,11 @@ public RecoveredElement buildInitialRecoveryState(){
 			blockIndex = j+1; // shift the index to the new block
 		}
 
-		if (node instanceof TypePattern){
-			TypePattern pattern = (TypePattern) node;
-			LocalDeclaration local = pattern.getPatternVariableIntroduced();
+		InstanceOfExpression pattern = (InstanceOfExpression) node;
+		LocalDeclaration local = pattern.elementVariable;
+		if (local != null)
 			element = element.add(local, 0);
-			continue;
-		}
+		continue;
 	}
 	if (this.currentToken == TokenNameRBRACE) {
 		 if (isIndirectlyInsideLambdaExpression())
