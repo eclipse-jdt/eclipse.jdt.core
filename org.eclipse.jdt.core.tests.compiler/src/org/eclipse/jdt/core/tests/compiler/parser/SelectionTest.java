@@ -1979,9 +1979,11 @@ public void test45() {
 		"public class X {\n"+
 		"  public X() {\n"+
 		"  }\n"+
-		"  void foo() {\n"+
-		"    <SelectOnType:Object> s;\n" +
-		"  }\n"+
+		"  void foo() {\n" +
+		"    if ((x instanceof <SelectOnType:Object> s))\n" +
+		"        {\n" +
+		"        }\n" +
+		"  }\n" +
 		"}\n";
 	String expectedReplacedSource = "Object";
 	String testName = "<select inside instanceof statement>";
