@@ -22,6 +22,8 @@ import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.util.Messages;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ThreadLocalZipFileHolder;
 import org.eclipse.jdt.internal.core.util.Util;
 
 import java.io.*;
@@ -167,6 +169,12 @@ public static void writeState(Object state, DataOutputStream out) throws IOExcep
 
 @Override
 protected IProject[] build(int kind, Map ignored, IProgressMonitor monitor) throws CoreException {
+	try (ThreadLocalZipFileHolder holder = ThreadLocalZipFiles.createZipHolder(this)) {
+		return buildCached(kind, ignored, monitor);
+	}
+}
+
+protected IProject[] buildCached(int kind, Map ignored, IProgressMonitor monitor) throws CoreException {
 	this.currentProject = getProject();
 	if (this.currentProject == null || !this.currentProject.isAccessible()) return new IProject[0];
 
