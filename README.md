@@ -8,6 +8,8 @@ This is the core part of Eclipse's Java development tools. It contains the non-U
 * a Java source code formatter
 * APIs for code assist, access to the AST and structured manipulation of Java source.
 
+[![Check Code Freeze Period](https://github.com/carstenartur/eclipse.jdt.core/actions/workflows/verifyFreezePeriod.yml/badge.svg)](https://github.com/carstenartur/eclipse.jdt.core/actions/workflows/verifyFreezePeriod.yml)
+
 For more information and important links, refer to the [JDT wiki page] [1] or the [JDT project overview page] [2].
 
 License
