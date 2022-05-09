@@ -212,11 +212,7 @@ public final class ThreadLocalZipFiles {
 	}
 
 	public static boolean verboseLogging() {
-		if (java.util.Arrays.stream(Thread.currentThread().getStackTrace()).anyMatch(s->(""+s).contains("JavaSearchBugsTests$"))) {  //$NON-NLS-1$//$NON-NLS-2$
-			(new RuntimeException()).printStackTrace(System.out);
-		}
-		return true;
-//		return ZIP_ACCESS_VERBOSE;
+		return ZIP_ACCESS_VERBOSE;
 	}
 
 	public static boolean isPresent(IPath path) {
