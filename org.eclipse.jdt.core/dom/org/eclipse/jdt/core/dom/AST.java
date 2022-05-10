@@ -423,7 +423,7 @@ public final class AST {
 	 * up to and including Java SE 18(aka JDK 18).
 	 * </p>
 	 *
-	 * @since 3.32 BETA_JAVA19
+	 * @since 3.31 BETA_JAVA19
 	 */
 	public static final int JLS19 = 19;
 	/**
