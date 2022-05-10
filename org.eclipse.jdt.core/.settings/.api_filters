@@ -9,6 +9,13 @@
         </filter>
     </resource>
     <resource path="dom/org/eclipse/jdt/core/dom/AST.java" type="org.eclipse.jdt.core.dom.AST">
+        <filter comment="BETA_JAVA19 change" id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.dom.AST"/>
+                <message_argument value="JLS_Latest"/>
+                <message_argument value="18"/>
+            </message_arguments>
+        </filter>
         <filter comment="BETA_JAVA19 comment" id="1141899266">
             <message_arguments>
                 <message_argument value="3.31 BETA_JAVA19"/>

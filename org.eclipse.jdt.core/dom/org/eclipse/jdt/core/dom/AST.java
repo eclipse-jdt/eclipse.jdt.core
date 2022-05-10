@@ -450,14 +450,14 @@ public final class AST {
 	 * Internal property for latest supported JLS level
 	 * This provides the latest JLS level.
 	 */
-	private static final int JLS_INTERNAL_Latest = JLS18;
+	private static final int JLS_INTERNAL_Latest = JLS19;
 
 	/**
 	 * @since 3.26
 	 * This provides the latest JLS level.
 	 * @deprecated use {@link #getJLSLatest()}
 	 */
-	public static final int JLS_Latest = JLS18;
+	public static final int JLS_Latest = JLS_INTERNAL_Latest;
 
 	/*
 	 * Must not collide with a value for ICompilationUnit constants
