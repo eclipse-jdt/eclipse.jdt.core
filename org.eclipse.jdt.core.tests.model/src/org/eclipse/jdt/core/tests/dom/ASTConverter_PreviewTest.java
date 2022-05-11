@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -46,10 +50,10 @@ public class ASTConverter_PreviewTest extends ConverterTestSetup {
 		super.setUpSuite();
 		this.ast = AST.newAST(getASTLatest(), false);
 		this.currentProject = getJavaProject("Converter_17");
-		if (this.ast.apiLevel() == AST.JLS18) {
-			this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_18);
-			this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_18);
-			this.currentProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_18);
+		if (this.ast.apiLevel() == AST.JLS19) {
+			this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_19);
+			this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_19);
+			this.currentProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_19);
 			this.currentProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 			this.currentProject.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
 
@@ -128,7 +132,7 @@ public class ASTConverter_PreviewTest extends ConverterTestSetup {
 	}
 
 	@SuppressWarnings("rawtypes")
-	public void testGuardedPattern() throws CoreException {
+	public void _testGuardedPattern() throws CoreException {
 		if (!isJRE18) {
 			printJREError();
 			return;

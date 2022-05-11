@@ -120,6 +120,7 @@ $Terminals
 	RestrictedIdentifiersealed
 	RestrictedIdentifierpermits
 	BeginCaseElement
+	RestrictedIdentifierWhen
 
 --    BodyMarker
 
@@ -229,8 +230,9 @@ Goal ::= '->' SwitchLabelCaseLhs
 -- JSR 360 Restricted
 Goal ::= RestrictedIdentifiersealed Modifiersopt
 Goal ::= RestrictedIdentifierpermits PermittedSubclasses
--- jsr 406 --
+-- jsr 427 --
 Goal ::= BeginCaseElement Pattern
+Goal ::= RestrictedIdentifierWhen Expression
 /:$readableName Goal:/
 
 Literal -> IntegerLiteral
@@ -1251,14 +1253,11 @@ InstanceofPrimaryParenPattern ::=  'instanceof'  ParenthesizedPattern
 /.$putCase consumeInstanceofPrimaryParenPattern(); $break ./
 /:$readableName InstanceofPrimaryParenPattern:/
 
-Pattern -> PrimaryPattern
-Pattern -> GuardedPattern
-/:$readableName Pattern:/
 
-PrimaryPattern -> TypePattern
-PrimaryPattern -> ParenthesizedPattern
-/.$putCase consumePrimaryPattern(); $break ./
-/:$readableName PrimaryPattern:/
+Pattern -> TypePattern
+Pattern -> ParenthesizedPattern
+/.$putCase consumePattern(); $break ./
+/:$readableName Pattern:/
 
 ParenthesizedPattern ::= PushLPAREN Pattern PushRPAREN
 /.$putCase consumeParenthesizedPattern(); $break ./
@@ -1267,10 +1266,6 @@ ParenthesizedPattern ::= PushLPAREN Pattern PushRPAREN
 TypePattern ::= Modifiersopt Type 'Identifier'
 /.$putCase consumeTypePattern(); $break ./
 /:$readableName TypePattern:/
-
-GuardedPattern ::= PrimaryPattern '&&' ConditionalAndExpression
-/.$putCase consumeGuardedPattern(); $break ./
-/:$readableName GuardedPattern:/
 
 -----------------------------------------------
 -- 16 feature : end of instanceof pattern matching
@@ -1535,9 +1530,22 @@ CaseLabelElement ::= 'default'
 /.$putCase consumeCaseLabelElement(CaseLabelKind.CASE_DEFAULT); $break ./
 /:$readableName CaseLabelElement:/
 
-CaseLabelElement ::= BeginCaseElement Pattern
+CaseLabelElement ::= CaseLabelElementPattern
 /.$putCase consumeCaseLabelElement(CaseLabelKind.CASE_PATTERN); $break ./
 /:$readableName CaseLabelElement:/
+
+CaseLabelElement ::=  CaseLabelElementPattern Guard
+/.$putCase consumeCaseLabelElement(CaseLabelKind.CASE_PATTERN); $break ./
+/:$readableName CaseLabelElement:/
+
+CaseLabelElementPattern ::= BeginCaseElement Pattern
+/.$putCase consumeCaseLabelElementPattern(); $break ./
+/:$readableName CaseLabelElementPattern:/
+
+Guard ::= RestrictedIdentifierWhen Expression
+/.$putCase consumeGuard(); $break ./
+/:$readableName Guard:/
+/:$compliance 19:/
 
 YieldStatement ::= RestrictedIdentifierYield Expression ;
 /.$putCase consumeStatementYield() ; $break ./
