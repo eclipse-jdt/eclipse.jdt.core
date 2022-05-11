@@ -6,6 +6,10 @@
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
@@ -2468,7 +2472,22 @@ public abstract class ASTNode {
 	 */
 	final void supportedOnlyIn18() {
 		if (this.ast.apiLevel != AST.JLS18_INTERNAL) {
-			throw new UnsupportedOperationException("Operation only supported in JLS17 AST"); //$NON-NLS-1$
+			throw new UnsupportedOperationException("Operation only supported in JLS18 AST"); //$NON-NLS-1$
+		}
+	}
+	/**
+ 	 * Checks that this AST operation is only used when
+     * building JLS19 level ASTs.
+     * <p>
+     * Use this method to prevent access to new properties available only in JLS19.
+     * </p>
+     *
+	 * @exception UnsupportedOperationException if this operation is not used in JLS19
+	 * @since 3.30
+	 */
+	final void supportedOnlyIn19() {
+		if (this.ast.apiLevel != AST.JLS19_INTERNAL) {
+			throw new UnsupportedOperationException("Operation only supported in JLS19 AST"); //$NON-NLS-1$
 		}
 	}
 

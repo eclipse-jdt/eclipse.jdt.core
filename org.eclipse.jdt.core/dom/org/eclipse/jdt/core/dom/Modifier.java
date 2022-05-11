@@ -111,7 +111,10 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 		 * @since 3.24
 		 */
 		public static final ModifierKeyword SEALED_KEYWORD = new ModifierKeyword("sealed", SEALED);//$NON-NLS-1$
-
+		/**
+		 * @since 3.30
+		 */
+		public static final ModifierKeyword WHEN_KEYWORD = new ModifierKeyword("when", WHEN);//$NON-NLS-1$
 		/**
 		 * @since 3.24
 		 */
@@ -338,6 +341,12 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 	 * @since 3.24
 	 */
 	public static final int NON_SEALED = 0x1000;
+	/**
+	 * "when" modifier constant (bit mask).
+	 * Applicable only to types.
+	 * @since 3.30
+	 */
+	public static final int WHEN = 0x2000;
 
 	/**
 	 * "default" modifier constant (bit mask) (added in JLS8 API).

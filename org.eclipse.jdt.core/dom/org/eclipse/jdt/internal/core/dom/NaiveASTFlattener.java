@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -817,7 +821,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 	public boolean visit(GuardedPattern node) {
 		if (DOMASTUtil.isPatternSupported(node.getAST())) {
 			node.getPattern().accept(this);
-			this.buffer.append(" && ");//$NON-NLS-1$
+			this.buffer.append(" when ");//$NON-NLS-1$
 			node.getExpression().accept(this);
 		}
 		return false;
