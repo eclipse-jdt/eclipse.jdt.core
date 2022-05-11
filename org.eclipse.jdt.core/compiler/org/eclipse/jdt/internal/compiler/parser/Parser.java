@@ -4607,26 +4607,11 @@ protected void consumeInstanceOfExpression() {
 	}
 }
 protected Expression consumePatternInsideInstanceof(Pattern pattern) {
-	Expression exp;
-	if (pattern instanceof GuardedPattern) {
-		// This is a workaround as InstanceOfExpression doesn't handle a guarded pattern
-		// We alter the AST to look simpler
-		// As a result of this, the following code
-		//      str instanceof (String a && a == null)
-		// will be taken as
-		//     (str instanceof String a) && a == null
-		GuardedPattern gPattern = (GuardedPattern) pattern;
-		Expression insExpr = new InstanceOfExpression(
-								this.expressionStack[this.expressionPtr],
-									gPattern.primaryPattern);
-		AND_AND_Expression andExpression = new AND_AND_Expression(insExpr, gPattern.condition, OperatorIds.AND_AND);
-		this.expressionStack[this.expressionPtr] = exp = andExpression;
-	} else {
-		this.expressionStack[this.expressionPtr] = exp =
+	Expression exp =
+		this.expressionStack[this.expressionPtr] =
 			new InstanceOfExpression(
 				this.expressionStack[this.expressionPtr],
 				pattern);
-	}
 	return exp;
 }
 protected void consumeTypeReferenceWithModifiersAndAnnotations() {
