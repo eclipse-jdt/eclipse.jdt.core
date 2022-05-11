@@ -4348,6 +4348,8 @@ public String toStringAction(int act) {
 	switch (act) {
 		case TokenNameIdentifier :
 			return "Identifier(" + new String(getCurrentTokenSource()) + ")"; //$NON-NLS-1$ //$NON-NLS-2$
+		case TokenNameRestrictedIdentifierWhen :
+			return "when"; //$NON-NLS-1$
 		case TokenNameRestrictedIdentifierYield :
 			return "yield"; //$NON-NLS-1$
 		case TokenNameRestrictedIdentifierrecord :
@@ -4684,6 +4686,7 @@ public static boolean isKeyword(int token) {
 		case TerminalTokens.TokenNameRestrictedIdentifierrecord:
 		case TerminalTokens.TokenNameRestrictedIdentifiersealed:
 		case TerminalTokens.TokenNameRestrictedIdentifierpermits:
+		case TerminalTokens.TokenNameRestrictedIdentifierWhen:
 			// making explicit - not a (restricted) keyword but restricted identifier.
 			//$FALL-THROUGH$
 		default:
@@ -5054,7 +5057,7 @@ protected boolean mayBeAtGuard(int token) {
 		case TokenNamecase:
 		case TokenNamedefault:
 		case TokenNameSEMICOLON:
-		case TokenNameAND_AND:
+		case TokenNameRestrictedIdentifierWhen:
 		case TokenNameOR_OR:
 			return false;
 	}

@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component id="org.eclipse.jdt.core" version="2">
+    <resource path="META-INF/MANIFEST.MF">
+        <filter id="923795461">
+            <message_arguments>
+                <message_argument value="3.30.0"/>
+                <message_argument value="3.29.0"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="compiler/org/eclipse/jdt/core/compiler/CategorizedProblem.java" type="org.eclipse.jdt.core.compiler.CategorizedProblem">
         <filter comment="Java 14" id="576725006">
             <message_arguments>
@@ -151,6 +159,14 @@
             <message_arguments>
                 <message_argument value="IExtendedModifier"/>
                 <message_argument value="Modifier"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="dom/org/eclipse/jdt/core/dom/Modifier.java" type="org.eclipse.jdt.core.dom.Modifier$ModifierKeyword">
+        <filter id="336658481">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.dom.Modifier.ModifierKeyword"/>
+                <message_argument value="WHEN_KEYWORD"/>
             </message_arguments>
         </filter>
     </resource>

@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Tom Tromey - patch for readTable(String) as described in http://bugs.eclipse.org/bugs/show_bug.cgi?id=32196
@@ -247,6 +251,8 @@ public class Parser implements TerminalTokens, ParserBasicInformation, Conflicte
 						compliance = ClassFileConstants.JDK17;
 					}  else if("18".equals(token)) { //$NON-NLS-1$
 						compliance = ClassFileConstants.JDK18;
+					}  else if("19".equals(token)) { //$NON-NLS-1$
+						compliance = ClassFileConstants.JDK19;
 					} else if("recovery".equals(token)) { //$NON-NLS-1$
 						compliance = ClassFileConstants.JDK_DEFERRED;
 					}

@@ -447,6 +447,11 @@ public final class AST {
 	 */
 	static final int JLS18_INTERNAL = JLS18;
 	/**
+	 * Internal synonym for {@link #JLS19}. Use to alleviate
+	 * deprecation warnings once JLS19 is deprecated
+	 */
+	static final int JLS19_INTERNAL = JLS19;
+	/**
 	 * Internal property for latest supported JLS level
 	 * This provides the latest JLS level.
 	 */
@@ -1193,6 +1198,7 @@ public final class AST {
         t.put(JavaCore.VERSION_16, ClassFileConstants.JDK16);
         t.put(JavaCore.VERSION_17, ClassFileConstants.JDK17);
         t.put(JavaCore.VERSION_18, ClassFileConstants.JDK18);
+        t.put(JavaCore.VERSION_19, ClassFileConstants.JDK19);
         return Collections.unmodifiableMap(t);
 	}
 	private static Map<String, Integer> getApiLevelMapTable() {
@@ -1215,6 +1221,7 @@ public final class AST {
         t.put(JavaCore.VERSION_16, JLS16_INTERNAL);
         t.put(JavaCore.VERSION_17, JLS17_INTERNAL);
         t.put(JavaCore.VERSION_18, JLS18_INTERNAL);
+        t.put(JavaCore.VERSION_19, JLS19_INTERNAL);
         return Collections.unmodifiableMap(t);
 	}
 	/**
