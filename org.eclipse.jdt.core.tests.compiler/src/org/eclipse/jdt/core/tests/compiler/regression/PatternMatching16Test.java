@@ -7,6 +7,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -1030,6 +1034,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				options);
 	}
 	/* Test that we report subtypes of pattern variables used in the same stmt
+	 * As of Java 19, we no longer report error for the above
 	 */
 	public void test020() {
 		Map<String, String> options = getCompilerOptions(true);
@@ -1042,15 +1047,15 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 						"  }\n" +
 						"  public static void foo(Object[] o) {\n" +
 						"		boolean b = (o instanceof String[] s) && s instanceof CharSequence[] s2;\n" +
-						"		System.out.print(b);\n" +
+						"		System.out.print(b1);\n" +
 						"	}\n" +
 						"}\n",
 				},
 				"----------\n" +
-				"1. ERROR in X20.java (at line 6)\n" +
-				"	boolean b = (o instanceof String[] s) && s instanceof CharSequence[] s2;\n" +
-				"	                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Expression type cannot be a subtype of the Pattern type\n" +
+				"1. ERROR in X20.java (at line 7)\n" +
+				"	System.out.print(b1);\n" +
+				"	                 ^^\n" +
+				"b1 cannot be resolved to a variable\n" +
 				"----------\n",
 				"",
 				null,
@@ -2418,16 +2423,16 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 						"        return true;\n" +
 						"    }\n" +
 						"	public static void main(String argv[]) {\n" +
-						"		System.out.println(\"\");\n" +
+						"		System.out.println(abc);\n" +
 						"	}\n" +
 						"}\n",
 				},
 				"----------\n" +
-					"1. ERROR in X.java (at line 4)\n" +
-					"	if (null instanceof T t) {\n" +
-					"	    ^^^^^^^^^^^^^^^^^^^\n" +
-					"Expression type cannot be a subtype of the Pattern type\n" +
-					"----------\n",
+				"1. ERROR in X.java (at line 10)\n" +
+				"	System.out.println(abc);\n" +
+				"	                   ^^^\n" +
+				"abc cannot be resolved to a variable\n" +
+				"----------\n",
 				"",
 				null,
 				true,

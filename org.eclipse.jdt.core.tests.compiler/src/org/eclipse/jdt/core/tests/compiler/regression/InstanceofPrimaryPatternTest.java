@@ -267,7 +267,7 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 				"public class X {\n" +
 				"  public static void foo(String s) {\n" +
 				"		if (s instanceof Object o) {\n" +
-				"			System.out.println(s);\n" +
+				"			System.out.println(s1);\n" +
 				"		}\n " +
 				"	}\n" +
 				"  public static void main(String[] obj) {\n" +
@@ -276,10 +276,10 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 				"}\n",
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	if (s instanceof Object o) {\n" +
-			"	    ^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Expression type cannot be a subtype of the Pattern type\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	System.out.println(s1);\n" +
+			"	                   ^^\n" +
+			"s1 cannot be resolved to a variable\n" +
 			"----------\n");
 	}
 }
