@@ -10790,6 +10790,60 @@ public void testBug261722() throws Exception {
 }
 
 /**
+ * bug 575436: JavaModelManager.getLocalFile(IPath)
+ * should return the same file handle for the argument no matter if that file actually exists or not.
+ *
+ * Before it did return just another file - which did not exists too - but was just the wrong filename.
+ *
+ * @throws Exception
+ */
+public void testBugDeletedFileLocation() throws Exception {
+	IPath projectPath = null;
+	IJavaProject javaProject = null;
+	try {
+		// Create jar and project
+		final int MAX = 10;
+		final String[] pathsAndContents = new String[(1+MAX)*2];
+		pathsAndContents[0] = "p575436/X.java";
+		pathsAndContents[1] = "package p575436;\n" +
+        	"public class X {}";
+		for (int i=1; i<=MAX; i++) {
+			String className = (i<10) ? "X0"+i : "X"+i;
+			pathsAndContents[i*2] = "p575436/"+className+".java";
+			pathsAndContents[i*2+1] = "package p575436;\n" +
+	        	"public class "+className+" extends X {}";
+        }
+		javaProject = createJavaProject("P");
+		projectPath = javaProject.getProject().getLocation();
+		addLibrary(javaProject, "lib575436.jar", "lib575436.zip", pathsAndContents, "1.4");
+		waitUntilIndexesReady();
+
+		IResource resource1=javaProject.getProject().findMember(new Path("lib575436.jar"));
+		File localFileExisting1 = JavaModelManager.getLocalFile(resource1);
+		assertTrue(localFileExisting1.exists());
+		IResource resource2=javaProject.getProject().findMember(new Path("lib575436.zip"));
+		File localFileExisting2 = JavaModelManager.getLocalFile(resource2);
+		assertTrue(localFileExisting2.exists());
+
+		deleteProject(javaProject);
+
+		File localFileDeleted1 = JavaModelManager.getLocalFile(resource1);
+		assertFalse(localFileExisting1.exists());
+		File localFileDeleted2 = JavaModelManager.getLocalFile(resource2);
+		assertFalse(localFileExisting2.exists());
+
+		// Verify search results
+		assertEquals("1", localFileExisting1, localFileDeleted1);
+		assertEquals("2", localFileExisting2, localFileDeleted2);
+	} finally {
+		if (projectPath != null) {
+			deleteFile("/P/lib575436.jar");
+			deleteFile("/P/lib575436.zip");
+		}
+	}
+}
+
+/**
  * @bug 265065: [search] java.lang.ClassCastException while running "Refactor...Extract Class"
  * @test Ensure that no CCE occurs while using an OrPattern made of VariablePattern
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=265065"

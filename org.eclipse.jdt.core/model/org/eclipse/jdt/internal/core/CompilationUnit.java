@@ -32,6 +32,8 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ThreadLocalZipFileHolder;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -1313,12 +1315,10 @@ public org.eclipse.jdt.core.dom.CompilationUnit reconcile(
 		stats.startRun(new String(getFileName()));
 	}
 	ReconcileWorkingCopyOperation op = new ReconcileWorkingCopyOperation(this, astLevel, reconcileFlags, workingCopyOwner);
-	JavaModelManager manager = JavaModelManager.getJavaModelManager();
-	try {
-		manager.cacheZipFiles(this); // cache zip files for performance (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=134172)
+
+	// cache zip files for performance (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=134172)
+	try (ThreadLocalZipFileHolder h=ThreadLocalZipFiles.createZipHolder(this)) {
 		op.runOperation(monitor);
-	} finally {
-		manager.flushZipFiles(this);
 	}
 	if(ReconcileWorkingCopyOperation.PERF) {
 		stats.endRun();

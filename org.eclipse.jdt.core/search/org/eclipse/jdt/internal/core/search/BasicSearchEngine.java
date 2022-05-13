@@ -33,6 +33,8 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ThreadLocalZipFileHolder;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.search.indexing.*;
 import org.eclipse.jdt.internal.core.search.matching.*;
@@ -208,7 +210,8 @@ public class BasicSearchEngine {
 	 * @param requestor a callback object to which each match is reported
 	 */
 	void findMatches(SearchPattern pattern, SearchParticipant[] participants, IJavaSearchScope scope, SearchRequestor requestor, IProgressMonitor monitor) throws CoreException {
-		try {
+		// cache zipfiles from core.builder.ClasspathJar in JavaSearchNameEnvironment.locationSet:
+		try (ThreadLocalZipFileHolder holder=ThreadLocalZipFiles.createZipHolder(this)){
 			if (VERBOSE) {
 				Util.verbose("Searching for pattern: " + pattern.toString()); //$NON-NLS-1$
 				Util.verbose(scope.toString());

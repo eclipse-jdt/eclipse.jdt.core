@@ -14,6 +14,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -30,6 +31,7 @@ import org.eclipse.jdt.internal.core.DefaultWorkingCopyOwner;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.NameLookup;
+import org.eclipse.jdt.internal.core.util.ZipState;
 
 import junit.framework.Test;
 
@@ -366,40 +368,28 @@ public void testTransitionFromInvalidToValidJar() throws CoreException, IOExcept
 	IPath transitioningIPath = Path.fromOSString(transitioningJar);
 
 	try {
-		Util.createJar(
-				new String[] {
-						"test1/IResource.java", //$NON-NLS-1$
-						"package test1;\n" + //$NON-NLS-1$
-						"public class IResource {\n" + //$NON-NLS-1$
-						"}" //$NON-NLS-1$
-					},
-				new String[] {
-					"META-INF/MANIFEST.MF",
-					"Manifest-Version: 1.0\n"
-				},
-				transitioningJar,
-				JavaCore.VERSION_1_4);
+		createValidJarWithSameTimeStamp(transitioningJar);
 
 		// Set up the project with the invalid jar and allow all of the classpath validation
 		// and delta processing to complete.
-		JavaModelManager.throwIoExceptionsInGetZipFile = true;
+		makeJarInvalidWithSameTimeStamp(transitioningJar);
 		JavaProject proj = (JavaProject) createJavaProject("P", new String[] {}, new String[] {transitioningJar}, "bin");
 		JavaModelManager.getJavaModelManager().getJavaModel().refreshExternalArchives(null, null);
 		waitForAutoBuild();
 
 		assertTrue("The invalid archive cache should report that the jar is invalid",
-				!JavaModelManager.getJavaModelManager().getArchiveValidity(transitioningIPath).isValid());
+				!ZipState.getArchiveValidity(transitioningIPath).isValid());
 		IType type = getNameLookup(proj).findType("test1.IResource", false, NameLookup.ACCEPT_CLASSES);
 		assertEquals("Name lookup should fail when the jar is invalid", null, type);
 
 		// Cause IO exceptions to be thrown on all file operations
-		JavaModelManager.throwIoExceptionsInGetZipFile = false;
+		createValidJarWithSameTimeStamp(transitioningJar);
 
 		// Since the timestamp hasn't changed, an external archive refresh isn't going
 		// to update the caches or cause name lookups to work.
 		JavaModelManager.getJavaModelManager().getJavaModel().refreshExternalArchives(null, null);
 		assertTrue("External archive refresh sees no changes, so the invalid archive cache should be unchanged",
-				!JavaModelManager.getJavaModelManager().getArchiveValidity(transitioningIPath).isValid());
+				!ZipState.getArchiveValidity(transitioningIPath).isValid());
 		type = getNameLookup(proj).findType("test1.IResource", false, NameLookup.ACCEPT_CLASSES);
 		assertEquals("External archive refresh sees no changes, so the project cache should be unchanged",
 				null, type);
@@ -411,13 +401,47 @@ public void testTransitionFromInvalidToValidJar() throws CoreException, IOExcept
 		ClasspathEntry.validateClasspathEntry(proj, transitioningEntry, false, false);
 
 		assertFalse("The invalid archive cache should no longer report the jar as invalid",
-				!JavaModelManager.getJavaModelManager().getArchiveValidity(transitioningIPath).isValid());
+				!ZipState.getArchiveValidity(transitioningIPath).isValid());
 		type = getNameLookup(proj).findType("test1.IResource", false, NameLookup.ACCEPT_CLASSES);
 		assertFalse("Name lookup should be able to find types in the valid jar", type == null);
 	} finally {
 		Files.deleteIfExists(transitioningJarPath);
 		deleteProject("P");
 	}
+}
+
+private void createValidJarWithSameTimeStamp(String transitioningJar) throws IOException {
+	File file = new File(transitioningJar);
+	Long lastModified = null;
+	if (file.exists()) {
+	 lastModified = file.lastModified();
+	}
+	Util.createJar(
+			new String[] {
+					"test1/IResource.java", //$NON-NLS-1$
+					"package test1;\n" + //$NON-NLS-1$
+					"public class IResource {\n" + //$NON-NLS-1$
+					"}" //$NON-NLS-1$
+				},
+			new String[] {
+				"META-INF/MANIFEST.MF",
+				"Manifest-Version: 1.0\n"
+			},
+			transitioningJar,
+			JavaCore.VERSION_1_4);
+	if (lastModified!=null) {
+		file.setLastModified(lastModified);
+	}
+}
+
+private void makeJarInvalidWithSameTimeStamp(String transitioningJar) throws IOException {
+	File file = new File(transitioningJar);
+	long lastModified = file.lastModified();
+	java.nio.file.Path path = file.toPath();
+	byte[] bytes = Files.readAllBytes(path);
+	bytes[(int)file.length()-22] = (byte) (bytes[0] ^ 255); // invert signature
+	Files.write(path, bytes);
+	file.setLastModified(lastModified);
 }
 }
 

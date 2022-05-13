@@ -27,10 +27,11 @@ import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.Openable;
 import org.eclipse.jdt.internal.core.SearchableEnvironment;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ThreadLocalZipFileHolder;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class RegionBasedHierarchyBuilder extends HierarchyBuilder {
@@ -44,10 +45,9 @@ public class RegionBasedHierarchyBuilder extends HierarchyBuilder {
 @Override
 public void build(boolean computeSubtypes) {
 
-	JavaModelManager manager = JavaModelManager.getJavaModelManager();
-	try {
-		// optimize access to zip files while building hierarchy
-		manager.cacheZipFiles(this);
+	// optimize access to zip files while building hierarchy
+	try (ThreadLocalZipFileHolder h = ThreadLocalZipFiles
+				.createZipHolder(this)) {
 
 		if (this.hierarchy.focusType == null || computeSubtypes) {
 			HashMap allOpenablesInRegion = determineOpenablesInRegion(this.hierarchy.progressMonitor.split(30));
@@ -58,8 +58,6 @@ public void build(boolean computeSubtypes) {
 			this.hierarchy.initialize(1);
 			buildSupertypes();
 		}
-	} finally {
-		manager.flushZipFiles(this);
 	}
 }
 /**

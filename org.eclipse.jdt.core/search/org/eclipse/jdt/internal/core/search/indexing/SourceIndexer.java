@@ -49,6 +49,8 @@ import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ThreadLocalZipFileHolder;
 import org.eclipse.jdt.internal.core.DefaultWorkingCopyOwner;
 import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelManager;
@@ -146,7 +148,8 @@ public class SourceIndexer extends AbstractIndexer implements ITypeRequestor, Su
 	}
 
 	public void resolveDocument() {
-		try {
+		try (ThreadLocalZipFileHolder h = ThreadLocalZipFiles
+				.createZipHolder(this)) { // use model only for caching
 			IPath path = new Path(this.document.getPath());
 			IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(path.segment(0));
 			JavaModel model = JavaModelManager.getJavaModelManager().getJavaModel();
@@ -164,7 +167,6 @@ public class SourceIndexer extends AbstractIndexer implements ITypeRequestor, Su
 			this.basicParser.reportOnlyOneSyntaxError = true;
 			this.basicParser.scanner.taskTags = null;
 			this.cud = this.basicParser.parse(this.compilationUnit, new CompilationResult(this.compilationUnit, 0, 0, this.options.maxProblemsPerUnit));
-			JavaModelManager.getJavaModelManager().cacheZipFiles(this); // use model only for caching
 			// Use a non model name environment to avoid locks, monitors and such.
 			INameEnvironment nameEnvironment = IndexBasedJavaSearchEnvironment.create(Collections.singletonList((IJavaProject)javaProject), JavaModelManager.getJavaModelManager().getWorkingCopies(DefaultWorkingCopyOwner.PRIMARY, true/*add primary WCs*/));
 			this.lookupEnvironment = new LookupEnvironment(this, this.options, problemReporter, nameEnvironment);
@@ -177,8 +179,6 @@ public class SourceIndexer extends AbstractIndexer implements ITypeRequestor, Su
 			if (JobManager.VERBOSE) {
 				e.printStackTrace();
 			}
-		} finally {
-			JavaModelManager.getJavaModelManager().flushZipFiles(this);
 		}
 	}
 

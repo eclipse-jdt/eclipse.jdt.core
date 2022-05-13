@@ -53,6 +53,8 @@ import org.eclipse.jdt.internal.core.Member;
 import org.eclipse.jdt.internal.core.Openable;
 import org.eclipse.jdt.internal.core.PackageFragment;
 import org.eclipse.jdt.internal.core.SearchableEnvironment;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles;
+import org.eclipse.jdt.internal.core.util.ThreadLocalZipFiles.ThreadLocalZipFileHolder;
 import org.eclipse.jdt.internal.core.search.IndexQueryRequestor;
 import org.eclipse.jdt.internal.core.search.JavaSearchParticipant;
 import org.eclipse.jdt.internal.core.search.SubTypeSearchJob;
@@ -140,11 +142,8 @@ public IndexBasedHierarchyBuilder(TypeHierarchy hierarchy, IJavaSearchScope scop
 }
 @Override
 public void build(boolean computeSubtypes) {
-	JavaModelManager manager = JavaModelManager.getJavaModelManager();
-	try {
-		// optimize access to zip files while building hierarchy
-		manager.cacheZipFiles(this);
-
+	// optimize access to zip files while building hierarchy
+	try (ThreadLocalZipFileHolder h = ThreadLocalZipFiles.createZipHolder(this)) {
 		if (computeSubtypes) {
 			// Note by construction there always is a focus type here
 			IType focusType = getType();
@@ -169,8 +168,6 @@ public void build(boolean computeSubtypes) {
 			this.hierarchy.initialize(1);
 			buildSupertypes();
 		}
-	} finally {
-		manager.flushZipFiles(this);
 	}
 }
 private void buildForProject(JavaProject project, ArrayList potentialSubtypes, org.eclipse.jdt.core.ICompilationUnit[] workingCopies, HashSet localTypes, IProgressMonitor monitor) throws JavaModelException {
