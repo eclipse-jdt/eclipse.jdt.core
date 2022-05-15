@@ -2465,7 +2465,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 				"}\n",
 				"/UnannotatedLib/libs/List.java",
 				"package libs;\n" +
-				"public interface List<T> extends java.util.Collection<T> {\n" +
+				"public interface List<T> {\n" +
 				"	Stream<T> stream();\n" +
 				"}\n",
 				"Collector.java",
@@ -2517,7 +2517,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 				"}\n",
 				"/UnannotatedLib/libs/List.java",
 				"package libs;\n" +
-				"public interface List<T> extends java.util.Collection<T> {\n" +
+				"public interface List<T> {\n" +
 				"	Stream<T> stream();\n" +
 				"}\n",
 				"/UnannotatedLib/libs/Collector.java",
