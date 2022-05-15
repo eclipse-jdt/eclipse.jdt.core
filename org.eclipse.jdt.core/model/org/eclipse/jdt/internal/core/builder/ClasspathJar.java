@@ -194,16 +194,10 @@ ClasspathJar(String zipFilename, long lastModified, AccessRuleSet accessRuleSet,
 	this.isOnModulePath = isOnModulePath;
 }
 
-public ClasspathJar(ZipFile zipFile, AccessRuleSet accessRuleSet, IPath externalAnnotationPath, boolean isOnModulePath) {
-	this(zipFile.getName(), accessRuleSet, externalAnnotationPath, isOnModulePath);
+public ClasspathJar(ZipFile zipFile, AccessRuleSet accessRuleSet, boolean isOnModulePath) {
+	this(zipFile.getName(), 0, accessRuleSet, null, isOnModulePath);
 	this.zipFile = zipFile;
 	this.closeZipFileAtEnd = true;
-}
-
-public ClasspathJar(String fileName, AccessRuleSet accessRuleSet, IPath externalAnnotationPath, boolean isOnModulePath) {
-	this(fileName, 0, accessRuleSet, externalAnnotationPath, isOnModulePath);
-	if (externalAnnotationPath != null)
-		this.externalAnnotationPath = externalAnnotationPath.toString();
 }
 
 @Override
