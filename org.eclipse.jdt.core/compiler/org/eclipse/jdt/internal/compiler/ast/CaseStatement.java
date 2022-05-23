@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -458,7 +462,7 @@ private Constant resolveConstantExpression(BlockScope scope,
 			TypeBinding pb = e.resolveAtType(scope, switchStatement.expression.resolvedType);
 			if (pb != null) switchStatement.caseLabelElementTypes.add(pb);
 			TypeBinding expressionType = switchStatement.expression.resolvedType;
-			LocalDeclaration patternVar = e.getPatternVariableIntroduced();
+			LocalDeclaration patternVar = e.getPatternVariable();
 			if (patternVar != null && !patternVar.type.isTypeNameVar(scope)) {
 				// The following code is copied from InstanceOfExpression#resolve()
 				// But there are enough differences to warrant a copy
@@ -507,7 +511,7 @@ private Constant resolveConstantExpression(BlockScope scope,
 			e.traverse(new ASTVisitor() {
 				@Override
 				public boolean visit(TypePattern typePattern, BlockScope scope) {
-					LocalDeclaration local = typePattern.getPatternVariableIntroduced();
+					LocalDeclaration local = typePattern.getPatternVariable();
 					if (local != null && local.binding != null)
 						codeStream.removeVariable(local.binding);
 					return false; // No deeper than this on this node
@@ -535,7 +539,7 @@ public void traverse(ASTVisitor visitor, 	BlockScope blockScope) {
  */
 public LocalDeclaration getLocalDeclaration() {
 	Expression cexp = this.constantExpressions[this.patternIndex];
-	LocalDeclaration patternVariableIntroduced = cexp.getPatternVariableIntroduced();
+	LocalDeclaration patternVariableIntroduced = cexp.getPatternVariable();
 	return patternVariableIntroduced;
 }
 

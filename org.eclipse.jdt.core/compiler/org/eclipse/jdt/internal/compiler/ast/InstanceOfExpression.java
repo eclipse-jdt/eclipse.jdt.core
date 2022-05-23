@@ -43,6 +43,7 @@ public class InstanceOfExpression extends OperatorExpression {
 	public Expression expression;
 	public TypeReference type;
 	public LocalDeclaration elementVariable;
+	public Pattern pattern;
 	static final char[] SECRET_INSTANCEOF_PATTERN_EXPRESSION_VALUE = " instanceOfPatternExpressionValue".toCharArray(); //$NON-NLS-1$
 
 	public LocalVariableBinding secretInstanceOfPatternExpressionValue = null;
@@ -57,13 +58,12 @@ public InstanceOfExpression(Expression expression, TypeReference type) {
 }
 public InstanceOfExpression(Expression expression, Pattern pattern) {
 	this.expression = expression;
-	// As of now, instanceof can only have a type pattern variable.
-	// So, extract the local variable definition and ignore the pattern
-	this.elementVariable = pattern.getPatternVariableIntroduced();
-	this.type = this.elementVariable.type;
+	this.pattern = pattern;
+	this.elementVariable = pattern.getPatternVariable();
+	this.type = pattern.getType();
 	this.bits |= INSTANCEOF << OperatorSHIFT;
 	this.sourceStart = expression.sourceStart;
-	this.sourceEnd = this.elementVariable.declarationSourceEnd;
+	this.sourceEnd = this.pattern.sourceEnd;
 }
 
 @Override
@@ -245,7 +245,7 @@ private void addAssignment(BlockScope currentScope, CodeStream codeStream, Local
 @Override
 public StringBuffer printExpressionNoParenthesis(int indent, StringBuffer output) {
 	this.expression.printExpression(indent, output).append(" instanceof "); //$NON-NLS-1$
-	return this.elementVariable == null ? this.type.print(0, output) : this.elementVariable.printAsExpression(0, output);
+	return this.pattern == null ? this.type.print(0, output) : this.pattern.printExpression(0, output);
 }
 
 @Override
@@ -255,17 +255,20 @@ public void addPatternVariables(BlockScope currentScope, CodeStream codeStream) 
 	}
 }
 public boolean resolvePatternVariable(BlockScope scope) {
-	if (this.elementVariable == null) return false;
-	if (this.elementVariable.binding == null) {
-		this.elementVariable.modifiers |= ExtraCompilerModifiers.AccPatternVariable;
-		this.elementVariable.resolve(scope, true);
-		// Kludge - to remove the AccBlankFinal added by the LocalDeclaration#resolve() due to the
-		// missing initializer
-		this.elementVariable.modifiers &= ~ExtraCompilerModifiers.AccBlankFinal;
-		this.elementVariable.binding.modifiers |= ExtraCompilerModifiers.AccPatternVariable;
-		this.elementVariable.binding.useFlag = LocalVariableBinding.USED;
-		// Why cant this be done in the constructor?
-		this.type = this.elementVariable.type;
+	if (this.pattern != null) {
+		this.pattern.resolve(scope);
+		if (this.elementVariable == null) return false;
+		if (this.elementVariable.binding == null) {
+			this.elementVariable.modifiers |= ExtraCompilerModifiers.AccPatternVariable;
+			this.elementVariable.resolve(scope, true);
+			// Kludge - to remove the AccBlankFinal added by the LocalDeclaration#resolve() due to the
+			// missing initializer
+			this.elementVariable.modifiers &= ~ExtraCompilerModifiers.AccBlankFinal;
+			this.elementVariable.binding.modifiers |= ExtraCompilerModifiers.AccPatternVariable;
+			this.elementVariable.binding.useFlag = LocalVariableBinding.USED;
+			// Why cant this be done in the constructor?
+			this.type = this.elementVariable.type;
+		}
 	}
 	return true;
 }
@@ -297,7 +300,7 @@ public boolean containsPatternVariable() {
 	return this.elementVariable != null;
 }
 @Override
-public LocalDeclaration getPatternVariableIntroduced() {
+public LocalDeclaration getPatternVariable() {
 	return this.elementVariable;
 }
 private void addSecretInstanceOfPatternExpressionValue(BlockScope scope1) {

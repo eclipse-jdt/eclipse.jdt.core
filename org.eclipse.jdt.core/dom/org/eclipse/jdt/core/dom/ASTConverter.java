@@ -2240,6 +2240,17 @@ class ASTConverter {
 		guardedPattern.setRestrictedIdentifierStartPosition(pattern.restrictedIdentifierStart);
 		return guardedPattern;
 	}
+	// TODO: Implement this. What we have here is just a dummy implementation
+	public Pattern convert(org.eclipse.jdt.internal.compiler.ast.RecordPattern pattern) {
+		TypePattern typePattern = new TypePattern(this.ast);
+		if (this.resolveBindings) {
+			recordNodes(typePattern, pattern);
+		}
+		int startPosition = pattern.typePattern.sourceStart;
+		int sourceEnd= pattern.sourceEnd;
+		typePattern.setSourceRange(startPosition, sourceEnd - startPosition + 1);
+		return typePattern;
+	}
 
 	public IfStatement convert(org.eclipse.jdt.internal.compiler.ast.IfStatement statement) {
 		IfStatement ifStatement = new IfStatement(this.ast);
@@ -2780,6 +2791,9 @@ class ASTConverter {
 			}
 			if (pattern instanceof org.eclipse.jdt.internal.compiler.ast.TypePattern) {
 				return convert((org.eclipse.jdt.internal.compiler.ast.TypePattern) pattern);
+			}
+			if (pattern instanceof org.eclipse.jdt.internal.compiler.ast.RecordPattern) {
+				return convert((org.eclipse.jdt.internal.compiler.ast.RecordPattern) pattern);
 			}
 
 			return null;

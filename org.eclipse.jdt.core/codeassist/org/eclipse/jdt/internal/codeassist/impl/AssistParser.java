@@ -403,7 +403,7 @@ public RecoveredElement buildInitialRecoveryState(){
 
 		if (node instanceof TypePattern){
 			TypePattern pattern = (TypePattern) node;
-			LocalDeclaration local = pattern.getPatternVariableIntroduced();
+			LocalDeclaration local = pattern.getPatternVariable();
 			element = element.add(local, 0);
 			continue;
 		}

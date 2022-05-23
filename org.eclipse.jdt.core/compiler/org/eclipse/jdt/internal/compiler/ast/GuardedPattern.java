@@ -51,8 +51,8 @@ public class GuardedPattern extends Pattern {
 	}
 
 	@Override
-	public LocalDeclaration getPatternVariableIntroduced() {
-		return this.primaryPattern.getPatternVariableIntroduced();
+	public LocalDeclaration getPatternVariable() {
+		return this.primaryPattern.getPatternVariable();
 	}
 
 	@Override
@@ -113,7 +113,7 @@ public class GuardedPattern extends Pattern {
 			return this.resolvedType;
 		this.resolvedType = this.primaryPattern.resolveType(scope);
 		this.condition.resolveType(scope);
-		LocalDeclaration PatternVar = this.primaryPattern.getPatternVariableIntroduced();
+		LocalDeclaration PatternVar = this.primaryPattern.getPatternVariable();
 		LocalVariableBinding lvb = PatternVar.binding;
 		this.condition.traverse(new ASTVisitor() {
 			@Override
