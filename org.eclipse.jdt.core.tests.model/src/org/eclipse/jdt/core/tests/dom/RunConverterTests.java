@@ -62,7 +62,7 @@ public static Class[] getAllTestClasses() {
 		ASTConverter_15Test.class,
 		ASTConverter_16Test.class,
 		ASTConverter_17Test.class,
-		ASTConverter_19Test.class,
+		ASTConverter_GuardedPattern_Test.class,
 		ASTConverter_PreviewTest.class,
 	};
 }

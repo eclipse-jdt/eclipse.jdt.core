@@ -34,7 +34,7 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 
 import junit.framework.Test;
 
-public class ASTConverter_19Test extends ConverterTestSetup {
+public class ASTConverter_GuardedPattern_Test extends ConverterTestSetup {
 
 	ICompilationUnit workingCopy;
 
@@ -51,12 +51,12 @@ public class ASTConverter_19Test extends ConverterTestSetup {
 		}
 	}
 
-	public ASTConverter_19Test(String name) {
+	public ASTConverter_GuardedPattern_Test(String name) {
 		super(name);
 	}
 
 	public static Test suite() {
-		return buildModelTestSuite(ASTConverter_19Test.class);
+		return buildModelTestSuite(ASTConverter_GuardedPattern_Test.class);
 	}
 
 	static int getAST19() {
