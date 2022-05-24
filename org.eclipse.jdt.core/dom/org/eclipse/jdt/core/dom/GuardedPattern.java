@@ -135,6 +135,7 @@ public class GuardedPattern extends Pattern{
 		result.setSourceRange(getStartPosition(), getLength());
 		result.setPattern((Pattern) getPattern().clone(target));
 		result.setExpression((Expression) getExpression().clone(target));
+		result.setRestrictedIdentifierStartPosition(this.restrictedIdentifierStartPosition);
 		return result;
 	}
 
@@ -271,7 +272,7 @@ public class GuardedPattern extends Pattern{
 	 * @noreference
 	 * since 3.30
 	 */
-	public void setRestrictedIdentifierStartPosition(int restrictedIdentifierStartPosition) {
+	protected void setRestrictedIdentifierStartPosition(int restrictedIdentifierStartPosition) {
 		if (restrictedIdentifierStartPosition < 0) {
 			throw new IllegalArgumentException();
 		}
