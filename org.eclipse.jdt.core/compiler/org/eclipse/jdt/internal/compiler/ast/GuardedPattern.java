@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -30,6 +34,7 @@ public class GuardedPattern extends Pattern {
 	/* package */ BranchLabel thenTarget;
 	int thenInitStateIndex1 = -1;
 	int thenInitStateIndex2 = -1;
+	public int restrictedIdentifierStart = -1; // used only for 'when' restricted keyword.
 
 	public GuardedPattern(Pattern primaryPattern, Expression conditionalAndExpression) {
 		this.primaryPattern = primaryPattern;
@@ -137,7 +142,7 @@ public class GuardedPattern extends Pattern {
 
 	@Override
 	public StringBuffer printExpression(int indent, StringBuffer output) {
-		this.primaryPattern.print(indent, output).append(" && "); //$NON-NLS-1$
+		this.primaryPattern.print(indent, output).append(" when "); //$NON-NLS-1$
 		return this.condition.print(indent, output);
 	}
 
