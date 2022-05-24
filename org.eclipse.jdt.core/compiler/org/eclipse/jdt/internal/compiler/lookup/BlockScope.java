@@ -855,9 +855,9 @@ public VariableBinding[] getEmulationPath(LocalVariableBinding outerLocalVariabl
 private Object[] getSyntheticEnclosingArgumentLambda(MethodScope methodScope, ReferenceBinding targetEnclosingType) {
 	Map<SourceTypeBinding, SyntheticArgumentBinding> stbToSynthetic =
 			methodScope.isConstructorCall &&
-			methodScope.referenceContext instanceof LambdaExpression && 
+			methodScope.referenceContext instanceof LambdaExpression &&
 			((LambdaExpression) methodScope.referenceContext).hasOuterClassMemberReference ?
-			getMapSyntheticEnclosingType(): null;
+			((LambdaExpression) methodScope.referenceContext).mapSyntheticEnclosingTypes: null;
 
 	SyntheticArgumentBinding sa = stbToSynthetic != null ? stbToSynthetic.get(targetEnclosingType) : null;
 	return sa != null ? new Object[] {sa} : null;
@@ -876,7 +876,6 @@ private Object[] getSyntheticEnclosingArgumentLambda(MethodScope methodScope, Re
 public Object[] getEmulationPath(ReferenceBinding targetEnclosingType, boolean onlyExactMatch, boolean denyEnclosingArgInConstructorCall) {
 MethodScope currentMethodScope = methodScope();
 	SourceTypeBinding sourceType = currentMethodScope.enclosingSourceType();
-	Object[] synEAL = getSyntheticEnclosingArgumentLambda(currentMethodScope, targetEnclosingType);
 	// use 'this' if possible
 	if (!currentMethodScope.isStatic && !currentMethodScope.isConstructorCall) {
 		if (TypeBinding.equalsEquals(sourceType, targetEnclosingType) || (!onlyExactMatch && sourceType.findSuperTypeOriginatingFrom(targetEnclosingType) != null)) {
@@ -932,6 +931,7 @@ MethodScope currentMethodScope = methodScope();
 		}
 	}
 	FieldBinding syntheticField = sourceType.getSyntheticField(targetEnclosingType, onlyExactMatch);
+	Object[] synEAL = getSyntheticEnclosingArgumentLambda(currentMethodScope, targetEnclosingType);
 	if (syntheticField != null) {
 		if (currentMethodScope.isConstructorCall){
 			return synEAL != null ? synEAL : BlockScope.NoEnclosingInstanceInConstructorCall;

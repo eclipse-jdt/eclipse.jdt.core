@@ -5432,9 +5432,6 @@ public abstract class Scope {
 		}
 		return resolutionScope;
 	}
-	protected Map<SourceTypeBinding, SyntheticArgumentBinding> getMapSyntheticEnclosingType() {
-		return null;
-	}
 	// Some entity in the receiver scope is referencing instance data of enclosing type. Tag all intervening methods as instance methods.
 	public void tagAsAccessingEnclosingInstanceStateOf(ReferenceBinding enclosingType, boolean typeVariableAccess) {
 		MethodScope methodScope = methodScope();
@@ -5451,11 +5448,9 @@ public abstract class Scope {
 				SourceTypeBinding lambdaEnclosingType = methodScope.classScope().referenceContext.binding;
 				ReferenceBinding tmp = lambdaEnclosingType;
 				while ((tmp = tmp.enclosingType()) != null) {
-					if (!methodScope.isConstructorCall || !enclosingType.equals(tmp)) continue;
-					if ((lambda.mapSyntheticEnclosingTypes = getMapSyntheticEnclosingType()) != null) {
-						lambda.mapSyntheticEnclosingTypes.put((SourceTypeBinding) enclosingType, null);
-						lambda.hasOuterClassMemberReference = true; // ref to Outer class members allowed - interpreting 8.8.7.1
-					}
+					if (!methodScope.isConstructorCall || !TypeBinding.equalsEquals(enclosingType, tmp)) continue;
+					lambda.mapSyntheticEnclosingTypes.computeIfAbsent((SourceTypeBinding) enclosingType, lambda::addSyntheticArgument);
+					lambda.hasOuterClassMemberReference = true; // ref to Outer class members allowed - interpreting 8.8.7.1
 					break;
 				}
 				if (!typeVariableAccess && !lambda.scope.isStatic && !lambda.hasOuterClassMemberReference)

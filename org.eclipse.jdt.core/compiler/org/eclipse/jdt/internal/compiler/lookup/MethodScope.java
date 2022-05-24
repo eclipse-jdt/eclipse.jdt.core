@@ -22,7 +22,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -511,14 +510,6 @@ public FieldBinding findField(TypeBinding receiverType, char[] fieldName, Invoca
 				ProblemReasons.NonStaticReferenceInConstructorInvocation);
 	}
 	return field;
-}
-
-@Override
-protected Map<SourceTypeBinding, SyntheticArgumentBinding> getMapSyntheticEnclosingType() {
-	if (this.mapSyntheticEnclosingTypes == null) {
-		this.mapSyntheticEnclosingTypes = new HashMap<>();
-	}
-	return this.mapSyntheticEnclosingTypes;
 }
 
 public boolean isInsideConstructor() {

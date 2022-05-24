@@ -100,7 +100,6 @@ import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
-import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.WildcardBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope.Substitutor;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
@@ -126,7 +125,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 	public LambdaExpression original = this;
 	private boolean committed = false;
 	public SyntheticArgumentBinding[] outerLocalVariables = NO_SYNTHETIC_ARGUMENTS;
-	public Map<SourceTypeBinding, SyntheticArgumentBinding> mapSyntheticEnclosingTypes = null;
+	public Map<SourceTypeBinding, SyntheticArgumentBinding> mapSyntheticEnclosingTypes = new HashMap<>();
 	public boolean hasOuterClassMemberReference = false;
 	private int outerLocalVariablesSlotSize = 0;
 	private boolean assistNode = false;
@@ -215,24 +214,20 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 				syntheticArgument.resolvedPosition++;
 			}
 			signature.append(syntheticArgument.type.signature());
-			LocalVariableBinding capturedOuterLocal = syntheticArgument.actualOuterLocalVariable;
-			VariableBinding[] path = currentScope.getEmulationPath(capturedOuterLocal);
-			codeStream.generateOuterAccess(path, this, capturedOuterLocal, currentScope);
-		}
-		// handling of passing enclosing class instance variable
-		if (this.hasOuterClassMemberReference) {
-			SourceTypeBinding[] stbs = this.mapSyntheticEnclosingTypes.keySet().toArray(new SourceTypeBinding[0]);
-			for (int i = 0, max = stbs.length; i < max; i++) {
-				SourceTypeBinding stb = stbs[i];
-				signature.append(stb.signature());
-				Object[] path = currentScope.getEmulationPath(
-						stb,
+			Object[] path;
+			Binding target;
+			if (syntheticArgument.actualOuterLocalVariable != null) {
+				LocalVariableBinding capturedOuterLocal = syntheticArgument.actualOuterLocalVariable;
+				path = currentScope.getEmulationPath(capturedOuterLocal);
+				target = capturedOuterLocal;
+			} else {
+				path = currentScope.getEmulationPath(
+						(ReferenceBinding) syntheticArgument.type,
 						false /*not only exact match (that is, allow compatible)*/,
 						false);
-				codeStream.generateOuterAccess(path, this, stb, currentScope);
-				SyntheticArgumentBinding sab = addSyntheticArgument(stb);
-				this.mapSyntheticEnclosingTypes.put(stb, sab);
+				target = syntheticArgument.type;
 			}
+			codeStream.generateOuterAccess(path, this, target, currentScope);
 		}
 		signature.append(')');
 		if (this.expectedType instanceof IntersectionTypeBinding18) {
@@ -1379,11 +1374,11 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		}
 	}
 
-	private SyntheticArgumentBinding addSyntheticArgument(ReferenceBinding enclosingType) {
-		
-		if (this.original != this || this.binding == null) 
+	public SyntheticArgumentBinding addSyntheticArgument(ReferenceBinding enclosingType) {
+
+		if (this.original != this || this.binding == null)
 			return null; // Do not bother tracking outer locals for clones created during overload resolution.
-		
+
 		SyntheticArgumentBinding syntheticLocal = null;
 		int newSlot = this.outerLocalVariables.length;
 		System.arraycopy(this.outerLocalVariables, 0, this.outerLocalVariables = new SyntheticArgumentBinding[newSlot + 1], 0, newSlot);
