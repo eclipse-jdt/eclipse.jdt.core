@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -165,6 +169,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected static boolean isJRE16 = false;
 	protected static boolean isJRE17 = false;
 	protected static boolean isJRE18 = false;
+	protected static boolean isJRE19 = false;
 	static {
 		String javaVersion = System.getProperty("java.version");
 		String vmName = System.getProperty("java.vm.name");
@@ -177,6 +182,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			}
 		}
 		long jdkLevel = CompilerOptions.versionToJdkLevel(javaVersion.length() > 3 ? javaVersion.substring(0, 3) : javaVersion);
+		if (jdkLevel >= ClassFileConstants.JDK19) {
+			isJRE19 = true;
+		}
 		if (jdkLevel >= ClassFileConstants.JDK18) {
 			isJRE18 = true;
 		}
@@ -273,7 +281,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 */
 	protected static final int AST_INTERNAL_JLS18 = AST.JLS18;
 	/**
-	 * Internal synonym for constant AST.JSL18
+	 * Internal synonym for constant AST.JSL19
 	 */
 	protected static final int AST_INTERNAL_JLS19 = AST.JLS19;
 	/**

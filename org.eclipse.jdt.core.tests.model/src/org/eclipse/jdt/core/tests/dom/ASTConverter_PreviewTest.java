@@ -85,7 +85,7 @@ public class ASTConverter_PreviewTest extends ConverterTestSetup {
 
 	@SuppressWarnings("rawtypes")
 	public void testTypePattern() throws CoreException {
-		if (!isJRE18) {
+		if (!isJRE19) {
 			printJREError();
 			return;
 		}
@@ -133,7 +133,7 @@ public class ASTConverter_PreviewTest extends ConverterTestSetup {
 
 	@SuppressWarnings("rawtypes")
 	public void _testGuardedPattern() throws CoreException {
-		if (!isJRE18) {
+		if (!isJRE19) {
 			printJREError();
 			return;
 		}
@@ -189,7 +189,7 @@ public class ASTConverter_PreviewTest extends ConverterTestSetup {
 
 	@SuppressWarnings("rawtypes")
 	public void testParenthesizedExpressionPattern() throws CoreException {
-		if (!isJRE18) {
+		if (!isJRE19) {
 			printJREError();
 			return;
 		}
@@ -230,7 +230,7 @@ public class ASTConverter_PreviewTest extends ConverterTestSetup {
 
 	@SuppressWarnings("rawtypes")
 	public void testNullPattern() throws CoreException {
-		if (!isJRE18) {
+		if (!isJRE19) {
 			printJREError();
 			return;
 		}
@@ -263,7 +263,7 @@ public class ASTConverter_PreviewTest extends ConverterTestSetup {
 
 	@SuppressWarnings("rawtypes")
 	public void testCaseDefaultExpressionPattern() throws CoreException {
-		if (!isJRE18) {
+		if (!isJRE19) {
 			printJREError();
 			return;
 		}
@@ -295,7 +295,7 @@ public class ASTConverter_PreviewTest extends ConverterTestSetup {
 	}
 
 	public void testBug575250() throws CoreException {
-		if (!isJRE18) {
+		if (!isJRE19) {
 			System.err.println("Test "+getName()+" requires a JRE 18");
 			return;
 		}
