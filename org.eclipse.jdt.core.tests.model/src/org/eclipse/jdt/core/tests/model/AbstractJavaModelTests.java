@@ -3450,7 +3450,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				newJclSrcString = "JCL18_SRC"; // Use the same source
 			}
 		} else {
-			if (compliance.equals("17")) {
+			if (compliance.equals("19")) {
+				// Reuse the same 14 stuff as of now. No real need for a new one
+				newJclLibString = "JCL_19_LIB";
+				newJclSrcString = "JCL_19_SRC";
+			} else if (compliance.equals("17")) {
 				// Reuse the same 14 stuff as of now. No real need for a new one
 				newJclLibString = "JCL_17_LIB";
 				newJclSrcString = "JCL_17_SRC";

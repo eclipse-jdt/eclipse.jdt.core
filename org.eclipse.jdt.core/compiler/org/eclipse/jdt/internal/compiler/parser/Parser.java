@@ -7700,7 +7700,7 @@ protected void consumeRule(int act) {
 			break;
 
     case 467 : if (DEBUG) { System.out.println("Guard ::= RestrictedIdentifierWhen Expression"); }  //$NON-NLS-1$
-		    consumeGuard();
+    		consumeGuard();
 			break;
 
     case 468 : if (DEBUG) { System.out.println("YieldStatement ::= RestrictedIdentifierYield Expression"); }  //$NON-NLS-1$
@@ -10316,6 +10316,9 @@ protected void consumeToken(int type) {
 			checkAndSetModifiers(ExtraCompilerModifiers.AccSealed);
 			pushOnExpressionStackLengthStack(0);
 			break;
+		case TokenNameRestrictedIdentifierWhen :
+			pushOnIntStack(this.scanner.startPosition);
+			break;
 		case TokenNametransient :
 			checkAndSetModifiers(ClassFileConstants.AccTransient);
 			pushOnExpressionStackLengthStack(0);
@@ -10855,7 +10858,9 @@ protected void consumeGuard() {
 	Pattern pattern = (Pattern) this.astStack[this.astPtr--];
 	Expression expr = this.expressionStack[this.expressionPtr--];
 	this.expressionLengthPtr--;
-	pushOnAstStack(new GuardedPattern(pattern, expr));
+	GuardedPattern gPattern = new GuardedPattern(pattern, expr);
+	gPattern.restrictedIdentifierStart = this.intStack[this.intPtr--];
+	pushOnAstStack(gPattern);
 }
 protected void consumeTypePattern() {
 

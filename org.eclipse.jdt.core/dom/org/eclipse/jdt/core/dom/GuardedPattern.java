@@ -55,6 +55,11 @@ public class GuardedPattern extends Pattern{
 	public static final ChildPropertyDescriptor EXPRESSION_PROPERTY  =
 			new ChildPropertyDescriptor(GuardedPattern.class, "expression", Expression.class, MANDATORY,  CYCLE_RISK); //$NON-NLS-1$);
 
+	/**
+	 * A character index into the original restricted identifier source string, or <code>-1</code> if no restricted
+	 * identifier source position information is available for this node; <code>-1</code> by default.
+	 */
+	private int restrictedIdentifierStartPosition = -1;
 
 	/**
 	 * A list of property descriptors (element type:
@@ -130,6 +135,7 @@ public class GuardedPattern extends Pattern{
 		result.setSourceRange(getStartPosition(), getLength());
 		result.setPattern((Pattern) getPattern().clone(target));
 		result.setExpression((Expression) getExpression().clone(target));
+		result.setRestrictedIdentifierStartPosition(this.restrictedIdentifierStartPosition);
 		return result;
 	}
 
@@ -258,6 +264,32 @@ public class GuardedPattern extends Pattern{
 		preReplaceChild(oldChild, pattern, PATTERN_PROPERTY);
 		this.pattern = pattern;
 		postReplaceChild(oldChild, pattern, PATTERN_PROPERTY);
+	}
+
+	/**
+	 * A character index into the original restricted identifier source string, or <code>-1</code> if no restricted
+	 * identifier source position information is available for this node; <code>-1</code> by default.
+	 * @noreference
+	 * since 3.30
+	 */
+	protected void setRestrictedIdentifierStartPosition(int restrictedIdentifierStartPosition) {
+		if (restrictedIdentifierStartPosition < 0) {
+			throw new IllegalArgumentException();
+		}
+		// restrictedIdentifierStartPosition is not considered a structural property
+		// but we protect it nevertheless
+		checkModifiable();
+		this.restrictedIdentifierStartPosition = restrictedIdentifierStartPosition;
+	}
+
+	/**
+	 * A character index into the original restricted identifier source string, or <code>-1</code> if no restricted
+	 * identifier source position information is available for this node; <code>-1</code> by default.
+	 * @noreference
+	 * @since 3.30
+	 */
+	public int getRestrictedIdentifierStartPosition() {
+		return this.restrictedIdentifierStartPosition;
 	}
 
 }
