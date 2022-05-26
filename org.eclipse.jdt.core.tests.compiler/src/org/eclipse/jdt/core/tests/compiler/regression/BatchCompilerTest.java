@@ -71,7 +71,7 @@ import org.eclipse.jdt.internal.compiler.util.ManifestAnalyzer;
 public class BatchCompilerTest extends AbstractBatchCompilerTest {
 
 	static {
-		TESTS_NAMES = new String[] { "testIssue89" };
+//		TESTS_NAMES = new String[] { "test440477" };
 //		TESTS_NUMBERS = new int[] { 306 };
 //		TESTS_RANGE = new int[] { 298, -1 };
 	}
@@ -13316,17 +13316,17 @@ public void test413873() {
 	this.runConformTest(
 		new String[] {
 			"OuterClass.java",
-			"public class OuterClass<T> {\n" +
-			"	private final class InnerClass {\n" +
-			"	}\n" +
-			"\n" +
-			"	private InnerClass foo(final InnerClass object) {\n" +
-			"		return object;\n" +
-			"	}\n" +
-			"	\n" +
-			"	public void doStuff() {\n" +
-			"		foo(new InnerClass());\n" +
-			"	}\n" +
+			"public class OuterClass<T> {\n" + 
+			"	private final class InnerClass {\n" + 
+			"	}\n" + 
+			"\n" + 
+			"	private InnerClass foo(final InnerClass object) {\n" + 
+			"		return object;\n" + 
+			"	}\n" + 
+			"	\n" + 
+			"	public void doStuff() {\n" + 
+			"		foo(new InnerClass());\n" + 
+			"	}\n" + 
 			"}"
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "OuterClass.java\""
