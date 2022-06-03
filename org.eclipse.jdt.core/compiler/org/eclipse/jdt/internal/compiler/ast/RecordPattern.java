@@ -17,30 +17,33 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import java.util.function.Consumer;
-
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.RecordComponentBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
-public class RecordPattern extends Pattern {
+public class RecordPattern extends TypePattern {
 
 	public Pattern[] patterns;
 	public TypePattern typePattern;
 	public TypeReference type;
 
 	public RecordPattern(LocalDeclaration local) {
+		super(local);
 		this.typePattern = new TypePattern(local);
 		this.type = local.type;
 		this.sourceStart = local.sourceStart;
 		this.sourceEnd = local.sourceEnd;
 	}
 	public RecordPattern(TypeReference type, int sourceStart, int sourceEnd) {
+		super();
 		this.type = type;
 		this.sourceStart = sourceStart;
 		this.sourceEnd = sourceEnd;
@@ -49,19 +52,12 @@ public class RecordPattern extends Pattern {
 	public TypeReference getType() {
 		return this.type;
 	}
-	public void runFunctionOnPatterns(Consumer<Pattern> func) {
-		if (this.patterns != ASTNode.NO_TYPE_PATTERNS) {
-			for (Pattern p : this.patterns) {
-				func.accept(p);
-			}
-		}
-
-	}
  	@Override
 	public void collectPatternVariablesToScope(LocalVariableBinding[] variables, BlockScope scope) {
 		if (this.resolvedType == null) {
 			this.resolveType(scope);
 		}
+		this.addPatternVariablesWhenTrue(variables);
 		if (this.typePattern != null && this.typePattern.local.binding != null) {
 			if (this.patternVarsWhenTrue == null) {
 				this.patternVarsWhenTrue = new LocalVariableBinding[1];
@@ -70,10 +66,10 @@ public class RecordPattern extends Pattern {
 				this.addPatternVariablesWhenTrue(new LocalVariableBinding[] {this.typePattern.local.binding});
 			}
 		}
-		runFunctionOnPatterns((p) -> {
+		for (Pattern p : this.patterns) {
 			p.collectPatternVariablesToScope(this.patternVarsWhenTrue, scope);
 			this.addPatternVariablesWhenTrue(p.patternVarsWhenTrue);
-		});
+		}
 	}
 	@Override
 	public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding expressionType, TypeBinding match, boolean isNarrowing) {
@@ -91,11 +87,19 @@ public class RecordPattern extends Pattern {
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 		if (this.typePattern != null) {
 			this.typePattern.analyseCode(currentScope, flowContext, flowInfo);
-			runFunctionOnPatterns((p) -> {
-				// p.analyseCode(currentScope, flowContext, flowInfo);
-			});
+		}
+		for (Pattern p : this.patterns) {
+			 p.analyseCode(currentScope, flowContext, flowInfo);
 		}
 		return flowInfo;
+	}
+	@Override
+	public boolean isTotalForType(TypeBinding t) {
+		return false;
+	}
+	@Override
+	public void resolveWithExpression(BlockScope scope, Expression exp) {
+		this.expression = exp;
 	}
 	@Override
 	public TypeBinding resolveAtType(BlockScope scope, TypeBinding u) {
@@ -108,17 +112,45 @@ public class RecordPattern extends Pattern {
 		return this.resolvedType;
 	}
 	@Override
-	public TypeBinding resolveType(BlockScope scope) {
+	public TypeBinding resolveType(BlockScope scope, boolean isPatternVariable) {
 		if (this.resolvedType != null)
 			return this.resolvedType;
-		runFunctionOnPatterns((p) -> {
-			p.resolveType(scope);
-		});
+
 		if (this.typePattern != null) {
 			this.resolvedType = this.typePattern.resolveType(scope);
 		} else {
 			this.resolvedType = this.type.resolveType(scope);
 		}
+
+		// check whether the give type reference is a record
+		// check whether the pattern signature matches that of the record declaration
+		if (!this.resolvedType.isRecord()) {
+			scope.problemReporter().unexpectedTypeinRecordPattern(this.resolvedType, this.type);
+			return this.resolvedType;
+		}
+		RecordComponentBinding[] components = this.resolvedType.components();
+		if (components.length != this.patterns.length) {
+			scope.problemReporter().recordPatternSignatureMismatch(this.resolvedType, this);
+		} else {
+			for (int i = 0; i < components.length; i++) {
+				Pattern p = this.patterns[i];
+				TypeBinding resolveType = p.resolveType(scope, true);
+				RecordComponentBinding componentBinding = components[i];
+				if (p.getType().isTypeNameVar(scope)) {
+					p.resolvedType = componentBinding.type;
+				} else {
+					if (componentBinding.type.isCompatibleWith(resolveType)) {
+						MethodBinding[] methods = this.resolvedType.getMethods(componentBinding.name);
+						if (methods != null && methods.length > 0) {
+							p.accessorMethod = methods[0]; // TODO: Not enough?
+						}
+					} else {
+						scope.problemReporter().recordPatternSignatureMismatch(this.resolvedType, this.patterns[i].getType());
+					}
+				}
+			}
+		}
+
 		return this.resolvedType;
 	}
 	@Override
@@ -127,14 +159,21 @@ public class RecordPattern extends Pattern {
 	}
 	@Override
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
-		if (this.typePattern != null) {
-			this.typePattern.generateCode(currentScope, codeStream);
-		} else {
-			this.type.generateCode(currentScope, codeStream);
+		for (Pattern p : this.patterns) {
+			if (p.accessorMethod != null) {
+				p.isTotalTypeNode = true;
+				codeStream.dup();
+				generateArguments(p.accessorMethod, null, currentScope, codeStream);
+				codeStream.invoke(Opcodes.OPC_invokevirtual, p.accessorMethod, this.resolvedType, null);
+				p.generateCode(currentScope, codeStream);
+			}
 		}
-		runFunctionOnPatterns((p) -> {
-			//p.generateCode(currentScope, codeStream);
-		});
+		if (this.typePattern == null || this.typePattern.getPatternVariable() == null) {
+			codeStream.pop();
+		} else {
+			this.typePattern.isTotalTypeNode = true;
+			this.typePattern.generateCode(currentScope, codeStream);
+		}
 	}
 
 	@Override
