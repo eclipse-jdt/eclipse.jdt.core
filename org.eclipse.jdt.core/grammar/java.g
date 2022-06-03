@@ -1281,7 +1281,8 @@ RecordPattern ::= Modifiersopt Type RecordStructurePattern 'Identifier'
 /:$readableName RecordPatternWithId:/
 /:$compliance 19:/
 
-RecordStructurePattern ::= '(' RecordComponentPatternsopt RecordComponentPatternList ')'
+RecordStructurePattern ::= PushLPAREN RecordComponentPatternsopt PushRPAREN
+RecordStructurePattern ::= PushLPAREN RecordComponentPatternList PushRPAREN
 /.$putCase consumeRecordStructure(); $break ./
 /:$readableName RecordStructurePattern:/
 /:$compliance 19:/

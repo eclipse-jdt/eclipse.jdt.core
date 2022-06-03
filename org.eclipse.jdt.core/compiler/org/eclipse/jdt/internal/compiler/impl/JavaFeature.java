@@ -65,6 +65,10 @@ public enum JavaFeature {
 			Messages.bind(Messages.pattern_matching_switch),
 			new char[][] {},
 			true),
+	RECORD_PATTERNS(ClassFileConstants.JDK19,
+			Messages.bind(Messages.record_patterns),
+			new char[][] {},
+			true),
     ;
 
 	final long compliance;

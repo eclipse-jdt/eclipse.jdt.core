@@ -2641,7 +2641,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 8)\n" +
 				"	default: \n" +
 				"	^^^^^^^\n" +
-				"Switch case cannot have both a total pattern and default label\n" +
+				"Switch case cannot have both unconditional pattern and default label\n" +
 				"----------\n");
 	}
 	public void testBug573921_10() {
@@ -2665,7 +2665,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 8)\n" +
 				"	default: \n" +
 				"	^^^^^^^\n" +
-				"Switch case cannot have both a total pattern and default label\n" +
+				"Switch case cannot have both unconditional pattern and default label\n" +
 				"----------\n");
 	}
 	public void testBug573921_11() {
@@ -2689,7 +2689,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 8)\n" +
 				"	default: \n" +
 				"	^^^^^^^\n" +
-				"Switch case cannot have both a total pattern and default label\n" +
+				"Switch case cannot have both unconditional pattern and default label\n" +
 				"----------\n");
 	}
 	public void testBug575049_001() {
@@ -2813,7 +2813,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 5)\n" +
 			"	case Integer i1 -> 0;\n" +
 			"	^^^^^^^^^^^^^^^\n" +
-			"Switch case cannot have both a total pattern and default label\n" +
+			"Switch case cannot have both unconditional pattern and default label\n" +
 			"----------\n");
 	}
 	public void testBug575053_001() {
@@ -3424,7 +3424,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 6)\n" +
 				"	case String s -> -1;\n" +
 				"	     ^^^^^^^^\n" +
-				"The switch statement cannot have more than one total pattern\n" +
+				"The switch statement cannot have more than one unconditional pattern\n" +
 				"----------\n" +
 				"2. ERROR in X.java (at line 6)\n" +
 				"	case String s -> -1;\n" +
@@ -5032,7 +5032,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 11)\n" +
 				"	default -> {\n" +
 				"	^^^^^^^\n" +
-				"Switch case cannot have both a total pattern and default label\n" +
+				"Switch case cannot have both unconditional pattern and default label\n" +
 				"----------\n");
 	}
 	public void testBug578635_3() {
@@ -5062,7 +5062,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 11)\n" +
 				"	default -> {\n" +
 				"	^^^^^^^\n" +
-				"Switch case cannot have both a total pattern and default label\n" +
+				"Switch case cannot have both unconditional pattern and default label\n" +
 				"----------\n");
 	}
 	public void testBug578417_1() {

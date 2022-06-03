@@ -3998,6 +3998,39 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	public void testBug578628_1() {
 		if (this.complianceLevel < ClassFileConstants.JDK18)
 			return;
+		runNegativeTest(
+				new String[] {
+						"X.java",
+							"public class X {\n"
+							+ "    public static Object str = \"a\";\n"
+							+ "    public static void foo() {\n"
+							+ "    	if (str instanceof (String a && a == null)) {\n"
+							+ "            System.out.println(true);\n"
+							+ "        } else {\n"
+							+ "        	System.out.println(false);\n"
+							+ "        }\n"
+							+ "    } \n"
+							+ "    public static void main(String[] argv) {\n"
+							+ "    	foo();\n"
+							+ "    }\n"
+							+ "}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	if (str instanceof (String a && a == null)) {\n" +
+				"	                           ^\n" +
+				"Syntax error, insert \")\" to complete ParenthesizedPattern\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 4)\n" +
+				"	if (str instanceof (String a && a == null)) {\n" +
+				"	                                          ^\n" +
+				"Syntax error on token \")\", delete this token\n" +
+				"----------\n",
+				false);
+	}
+	public void testBug578628_1a() {
+		if (this.complianceLevel < ClassFileConstants.JDK18)
+			return;
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runConformTest(
 				new String[] {
@@ -4005,7 +4038,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 							"public class X {\n"
 							+ "    public static Object str = \"a\";\n"
 							+ "    public static void foo() {\n"
-							+ "    	if (str instanceof (String a && a == null)) {\n"
+							+ "    	if (str instanceof String a && a == null) {\n"
 							+ "            System.out.println(true);\n"
 							+ "        } else {\n"
 							+ "        	System.out.println(false);\n"
@@ -4029,7 +4062,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 							"public class X {\n"
 							+ "    public static Object str = \"a\";\n"
 							+ "    public static void foo() {\n"
-							+ "    	if (str instanceof (String a && a != null)) {\n"
+							+ "    	if (str instanceof String a && a != null) {\n"
 							+ "            System.out.println(true);\n"
 							+ "        } else {\n"
 							+ "        	System.out.println(false);\n"
@@ -4053,7 +4086,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 							"public class X {\n"
 							+ "    public static Object str = \"a\";\n"
 							+ "    public static void foo() {\n"
-							+ "    	bar(str instanceof (String a && a == null));\n"
+							+ "    	bar(str instanceof String a && a == null);\n"
 							+ "    } \n"
 							+ "    public static void bar(boolean arg) {\n"
 							+ "    	System.out.println(arg);\n"
@@ -4067,7 +4100,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				compilerOptions);
 	}
 	public void testBug578628_4() {
-		if (this.complianceLevel < ClassFileConstants.JDK18)
+		if (this.complianceLevel < ClassFileConstants.JDK19)
 			return;
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runConformTest(
@@ -4078,7 +4111,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 							+ "public static void foo() {\n"
 							+ "    	boolean b = switch (str) {\n"
 							+ "    		case String s -> {\n"
-							+ "    			yield (str instanceof (String a && a != null));\n"
+							+ "    			yield (str instanceof String a && a != null);\n"
 							+ "    		}\n"
 							+ "    		default -> false;\n"
 							+ "    	};\n"

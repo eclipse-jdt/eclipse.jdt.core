@@ -2507,4 +2507,14 @@ void setSourceStart(int sourceStart);
 	/** @since 3.28
 	 * @noreference preview feature error */
 	int UnexpectedTypeinSwitchPattern = PreviewRelated + 1911;
+	/**
+	 * @since 3.30
+	 * @noreference preview feature
+	 */
+	int UnexpectedTypeinRecordPattern =  PreviewRelated + 1912;
+	/**
+	 * @since 3.30
+	 * @noreference preview feature
+	 */
+	int RecordPatternMismatch =  PreviewRelated + 1913;
 }

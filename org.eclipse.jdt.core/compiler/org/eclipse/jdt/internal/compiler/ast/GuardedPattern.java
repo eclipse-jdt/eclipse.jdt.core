@@ -114,7 +114,7 @@ public class GuardedPattern extends Pattern {
 		this.resolvedType = this.primaryPattern.resolveType(scope);
 		this.condition.resolveType(scope);
 		LocalDeclaration PatternVar = this.primaryPattern.getPatternVariable();
-		LocalVariableBinding lvb = PatternVar.binding;
+		LocalVariableBinding lvb = PatternVar == null ? null : PatternVar.binding;
 		this.condition.traverse(new ASTVisitor() {
 			@Override
 			public boolean visit(
@@ -161,5 +161,9 @@ public class GuardedPattern extends Pattern {
 	}
 	public void resumeVariables(CodeStream codeStream, BlockScope scope) {
 		codeStream.addDefinitelyAssignedVariables(scope, this.thenInitStateIndex2);
+	}
+	@Override
+	public void resolveWithExpression(BlockScope scope, Expression expression) {
+		this.primaryPattern.resolveWithExpression(scope, expression);
 	}
 }

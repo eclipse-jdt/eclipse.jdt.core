@@ -12323,5 +12323,21 @@ public void unexpectedTypeinSwitchPattern(TypeBinding type, ASTNode element) {
 			element.sourceStart,
 			element.sourceEnd);
 }
+public void unexpectedTypeinRecordPattern(TypeBinding type, ASTNode element) {
+	this.handle(
+			IProblem.UnexpectedTypeinRecordPattern,
+			new String[] {new String(type.readableName())},
+			new String[] {new String(type.shortReadableName())},
+			element.sourceStart,
+			element.sourceEnd);
+}
+public void recordPatternSignatureMismatch(TypeBinding type, ASTNode element) {
+	this.handle(
+			IProblem.RecordPatternMismatch,
+			new String[] {new String(type.readableName())},
+			new String[] {new String(type.shortReadableName())},
+			element.sourceStart,
+			element.sourceEnd);
+}
 
 }
