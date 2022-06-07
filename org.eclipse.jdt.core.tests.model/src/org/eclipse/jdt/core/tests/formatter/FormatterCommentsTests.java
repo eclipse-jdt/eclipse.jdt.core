@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1242,5 +1242,158 @@ public void testWkspGanymede04() throws JavaModelException {
 // JUnit 3.8.2
 public void testWkspJUnit01() throws JavaModelException {
 	formatUnit("wksp.junit", "X01.java");
+}
+public void testSnippet01() {
+	setComplianceLevel(CompilerOptions.VERSION_18);
+	this.formatterPrefs.comment_line_length = 40;
+	String source =
+		"/**\n" +
+		" * Code sample:" +
+		" * {@snippet lang=java :\n" +
+		" *   public static void main(String... args) {\n" +
+		" *       for (var arg : args) {                 // @highlight  type=italic regex = \"\\barg\\b\"\n" +
+		" *           if (!arg.isBlank()) {  System.out.println(arg);    }\n" +
+		" *       }                                      // @end\n" +
+		" *   }\n" +
+		" *   } OK?\n" +
+		" */" +
+		"class Test{}";
+	formatSource(source,
+		"/**\n" +
+		" * Code sample: *\n" +
+		" * {@snippet lang = java :\n" +
+		" * public static void main(String... args) {\n" +
+		" * 	for (var arg : args) {                 // @highlight type = italic regex = \"\\barg\\b\"\n" +
+		" * 		if (!arg.isBlank()) {\n" +
+		" * 			System.out.println(arg);\n" +
+		" * 		}\n" +
+		" * 	}                                      // @end\n" +
+		" * }\n" +
+		" * }\n" +
+		" * OK?\n" +
+		" */\n" +
+		"class Test {\n" +
+		"}"
+	);
+}
+public void testSnippet02() {
+	setComplianceLevel(CompilerOptions.VERSION_18);
+	this.formatterPrefs.insert_space_before_assignment_operator = false;
+	String source =
+		"/**\n" +
+		" * Here are the configuration properties:\n" +
+		" * {@snippet file=\"config.properties\" id=\"testtest\"  \n" +
+		" * lang  = properties}\n" +
+		" */\n" +
+		"public class T {}";
+	formatSource(source,
+		"/**\n" +
+		" * Here are the configuration properties:\n" +
+		" * {@snippet file= \"config.properties\" id= \"testtest\" lang= properties}\n" +
+		" */\n" +
+		"public class T {\n" +
+		"}"
+	);
+}
+public void testSnippet03() {
+	setComplianceLevel(CompilerOptions.VERSION_18);
+	this.formatterPrefs.insert_space_after_assignment_operator = false;
+	String source =
+		"/**\n" +
+		" * Here are the configuration properties:\n" +
+		" * {@snippet id=\"test   test\"   lang  = properties:\n" +
+		" *   config1=value1;\n" +
+		" *   config2=value2;\n" +
+		" * }\n" +
+		" */\n" +
+		"public class T {}";
+	formatSource(source,
+		"/**\n" +
+		" * Here are the configuration properties:\n" +
+		" * {@snippet id =\"test   test\" lang =properties:\n" +
+		" *   config1=value1;\n" +
+		" *   config2=value2;\n" +
+		" * }\n" +
+		" */\n" +
+		"public class T {\n" +
+		"}"
+	);
+}
+public void testSnippet04() {
+	setComplianceLevel(CompilerOptions.VERSION_18);
+	String source =
+		"/**\n" +
+		" * Here are the configuration properties:\n" +
+		" * {@snippet  id=\"test   test\"  \n" +
+		" * :\n" +
+		" *   config1=value1;\n" +
+		" *   config2=value2;\n" +
+		" * }\n" +
+		" */\n" +
+		"public class T {}";
+	formatSource(source,
+		"/**\n" +
+		" * Here are the configuration properties:\n" +
+		" * {@snippet id = \"test   test\" :\n" +
+		" * config1 = value1;\n" +
+		" * config2 = value2;\n" +
+		" * }\n" +
+		" */\n" +
+		"public class T {\n" +
+		"}"
+	);
+}
+public void testSnippet05() {
+	setComplianceLevel(CompilerOptions.VERSION_18);
+	this.formatterPrefs.insert_space_before_assignment_operator = false;
+	String source =
+		"/**\n" +
+		" * Here are the configuration properties:\n" +
+		" * {@snippet\n" +
+		" *  id=\"testtest\" \n" +
+		" *  lang='java' :\n" +
+		" *   // @replace region substring='value		'	replacement=\"value:	\" \n" +
+		" *   config1=\"value		1\";\n" +
+		" *   config2=\"value		2\";\n" +
+		" *   // @end\n" +
+		" * } */\n" +
+		"public class T {}";
+	formatSource(source,
+		"/**\n" +
+		" * Here are the configuration properties:\n" +
+		" * {@snippet id= \"testtest\" lang= 'java' :\n" +
+		" * // @replace region substring= 'value		' replacement= \"value:	\"\n" +
+		" * config1= \"value		1\";\n" +
+		" * config2= \"value		2\";\n" +
+		" * // @end\n" +
+		" * }\n" +
+		" */\n" +
+		"public class T {\n" +
+		"}"
+	);
+}
+public void testSnippet06() {
+	setComplianceLevel(CompilerOptions.VERSION_18);
+	this.formatterPrefs.insert_space_after_assignment_operator = false;
+	String source =
+		"/**\n" +
+		" * {@snippet :\n" +
+		" *   // @replace substring	=	'value		' replacement=\"value:	\" :\n" +
+		" *   config1=\"value		1\";\n" +
+		" *   config2=\"value		2\";\n" +
+		" * }\n" +
+		" */\n" +
+		"public class T {}";
+	formatSource(source,
+		"/**\n" +
+		" * {@snippet :\n" +
+		" * // @replace substring ='value		' replacement =\"value:	\" :\n" +
+		" * config1 =\"value		1\";\n" +
+		" * config2 =\"value		2\";\n" +
+		" * }\n" +
+		" */\n" +
+		"public class T {\n" +
+		"}"
+	);
 }
 }
