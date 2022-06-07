@@ -30,9 +30,12 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 public class TypePattern extends Pattern {
 
 	public LocalDeclaration local;
+	Expression expression;
 
 	public TypePattern(LocalDeclaration local) {
 		this.local = local;
+	}
+	protected TypePattern() {
 	}
 	@Override
 	public TypeReference getType() {
@@ -47,8 +50,6 @@ public class TypePattern extends Pattern {
 			if (this.patternVarsWhenTrue == null) {
 				this.patternVarsWhenTrue = new LocalVariableBinding[1];
 				this.patternVarsWhenTrue[0] = this.local.binding;
-			} else {
-				this.addPatternVariablesWhenTrue(new LocalVariableBinding[] {this.local.binding});
 			}
 		}
 	}
@@ -95,7 +96,10 @@ public class TypePattern extends Pattern {
 	public LocalDeclaration getPatternVariable() {
 		return this.local;
 	}
-
+	@Override
+	public void resolveWithExpression(BlockScope scope, Expression exp) {
+		this.expression = exp;
+	}
 	@Override
 	public void resolve(BlockScope scope) {
 		this.resolveType(scope);
@@ -123,14 +127,13 @@ public class TypePattern extends Pattern {
 		}
 		return this.resolvedType;
 	}
-
 	@Override
-	public TypeBinding resolveType(BlockScope scope) {
+	public TypeBinding resolveType(BlockScope scope, boolean isPatternVariable) {
 		if (this.resolvedType != null || this.local == null)
 			return this.resolvedType;
 
 		this.local.modifiers |= ExtraCompilerModifiers.AccPatternVariable;
-		this.local.resolve(scope, true);
+		this.local.resolve(scope, isPatternVariable);
 		if (this.local.binding != null) {
 			this.local.binding.modifiers |= ExtraCompilerModifiers.AccPatternVariable;
 			this.local.binding.useFlag = LocalVariableBinding.USED;

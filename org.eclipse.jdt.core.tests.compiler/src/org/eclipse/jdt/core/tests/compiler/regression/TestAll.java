@@ -227,11 +227,11 @@ public static Test suite() {
 
 	 // add 18 specific test here (check duplicates)
 	 ArrayList since_18 = new ArrayList();
-	 since_18.add(NullAnnotationTests18.class);
 	 since_18.add(JavadocTest_18.class);
 
 	 // add 19 specific test here (check duplicates)
 	 ArrayList since_19 = new ArrayList();
+	 since_19.add(NullAnnotationTests18.class);
 	 since_19.add(SwitchPatternTest.class);
 	 since_19.add(RecordPatternTest.class);
 

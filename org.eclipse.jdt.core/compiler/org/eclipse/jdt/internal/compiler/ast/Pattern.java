@@ -21,23 +21,34 @@ import java.util.function.Supplier;
 
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public abstract class Pattern extends Expression {
 
 	/* package */ boolean isTotalTypeNode = false;
+	/* package */ static final char[] SecretPatternVariableName = "switchDispatchPattern".toCharArray(); //$NON-NLS-1$
+
+	protected MethodBinding accessorMethod;
 
 	public boolean isTotalForType(TypeBinding type) {
 		return false;
 	}
-
 	public TypeBinding resolveAtType(BlockScope scope, TypeBinding type) {
+		return null;
+	}
+	@Override
+	public TypeBinding resolveType(BlockScope scope) {
+		return resolveType(scope, true);
+	}
+	public TypeBinding resolveType(BlockScope scope, boolean isPatternVariable) {
 		return null;
 	}
 
 	public TypeReference getType() {
 		return null;
 	}
+	public abstract void resolveWithExpression(BlockScope scope, Expression expression);
 
 	public void setTargetSupplier(Supplier<BranchLabel> targetSupplier) {
 		// default implementation does nothing

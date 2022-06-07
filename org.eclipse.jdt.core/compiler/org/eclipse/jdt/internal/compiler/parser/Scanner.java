@@ -4823,6 +4823,9 @@ private static class Goal {
 			if ("ParenthesizedPattern".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
 				patternStates.add(i);
 			else
+			if ("RecordPattern".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
+				patternStates.add(i);
+			else
 			if ("Expression".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
 				GuardRule = i;
 
@@ -4859,7 +4862,7 @@ private static class Goal {
 
 	boolean hasBeenReached(int act, int token) {
 		/*
-		System.out.println("[Goal = " + Parser.name[Parser.non_terminal_index[Parser.lhs[this.rule]]] + "]  " + "Saw: " + Parser.name[Parser.non_terminal_index[Parser.lhs[act]]] + "::" +  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
+		System.out.println("[Goal = " + Parser.name[Parser.non_terminal_index[Parser.lhs[act]]] + "]  " + "Saw: " + Parser.name[Parser.non_terminal_index[Parser.lhs[act]]] + "::" +  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 					Parser.name[Parser.terminal_index[token]]);
 		*/
 		boolean foundRule = false;
@@ -5496,7 +5499,6 @@ protected int disambiguateArrowWithCaseExpr(Scanner scanner, int retToken) {
  * Assumption: mayBeAtCasePattern(token) is true before calling this method.
  */
 int disambiguateCasePattern(int token, Scanner scanner) {
-	assert mayBeAtCasePattern(token);
 	int delta = token == TokenNamecase ? 4 : 0; // 4 for case.
 	final VanguardParser parser = getNewVanguardParser();
 	parser.scanner.resetTo(parser.scanner.currentPosition + delta, parser.scanner.eofPosition);
