@@ -1394,7 +1394,7 @@ public class ClasspathEntry implements IClasspathEntry {
 								if (tgtJProject.exists()) {
 									if (resolve) {
 										// resolve the project's output location:
-										return wsRoot.getLocation().append(tgtJProject.getOutputLocation());
+										return wsRoot.findMember(tgtJProject.getOutputLocation()).getLocation();
 									}
 									// in non-resolving scenarii return the unresolved source folder path
 									for (IClasspathEntry classpathEntry : tgtJProject.getRawClasspath()) {

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -127,16 +127,15 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 			boolean referencesGenericType = false;
 			ReferenceBinding declaringClass = this.binding.declaringClass;
 			if (declaringClass.isGenericType()) {
-				if (condition.test(this.binding.returnType, declaringClass))
+				if (condition.test(this.binding.returnType, declaringClass)) {
 					referencesGenericType = true;
-				if (!referencesGenericType) {
-					if (this.binding.parameters != null && this.arguments != null) {
-						int length = Math.min(this.binding.parameters.length, this.arguments.length);
-						for (int i = 0; i < length; i++) {
-							if (condition.test(this.binding.parameters[i], this.binding.declaringClass)) {
-								referencesGenericType = true;
-								break;
-							}
+				}
+				if (!referencesGenericType && this.binding.parameters != null && this.arguments != null) {
+					int length = Math.min(this.binding.parameters.length, this.arguments.length);
+					for (int i = 0; i < length; i++) {
+						if (condition.test(this.binding.parameters[i], this.binding.declaringClass)) {
+							referencesGenericType = true;
+							break;
 						}
 					}
 				}

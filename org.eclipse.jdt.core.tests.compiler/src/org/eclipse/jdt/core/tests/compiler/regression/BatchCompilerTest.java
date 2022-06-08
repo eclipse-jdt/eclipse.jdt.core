@@ -13316,17 +13316,17 @@ public void test413873() {
 	this.runConformTest(
 		new String[] {
 			"OuterClass.java",
-			"public class OuterClass<T> {\n" + 
-			"	private final class InnerClass {\n" + 
-			"	}\n" + 
-			"\n" + 
-			"	private InnerClass foo(final InnerClass object) {\n" + 
-			"		return object;\n" + 
-			"	}\n" + 
-			"	\n" + 
-			"	public void doStuff() {\n" + 
-			"		foo(new InnerClass());\n" + 
-			"	}\n" + 
+			"public class OuterClass<T> {\n" +
+			"	private final class InnerClass {\n" +
+			"	}\n" +
+			"\n" +
+			"	private InnerClass foo(final InnerClass object) {\n" +
+			"		return object;\n" +
+			"	}\n" +
+			"	\n" +
+			"	public void doStuff() {\n" +
+			"		foo(new InnerClass());\n" +
+			"	}\n" +
 			"}"
 			},
 			"\"" + OUTPUT_DIR +  File.separator + "OuterClass.java\""
@@ -13398,7 +13398,7 @@ public void testIssue89_3() {
 				"X.java",
 				"import java.util.Set;\n"
 				+ "public class X<T> {\n"
-				+ " private final class InnerClass{}"
+				+ " private final class InnerClass{}\n"
 				+ "	public boolean method1(final Set<Integer> a) {\n"
 				+ "		return a.isEmpty();\n"
 				+ "	}\n"
@@ -13412,9 +13412,9 @@ public void testIssue89_3() {
 				+ " -1.6 -warn:all-static-method -proc:none -d none",
 				"",
 				"----------\n" +
-				"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-						"	private final class InnerClass{}	public boolean method1(final Set<Integer> a) {\n" +
-				"	                                	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
+				"	public boolean method1(final Set<Integer> a) {\n" +
+				"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 				"The method method1(Set<Integer>) from the type X<T> can potentially be declared as static\n" +
 				"----------\n" +
 				"1 problem (1 warning)\n" +
@@ -13427,7 +13427,7 @@ public void testIssue89_4() {
 				"X.java",
 				"import java.util.Set;\n"
 				+ "public class X<T> {\n"
-				+ " private final class InnerClass{}"
+				+ " private final class InnerClass{}\n"
 				+ "	public boolean method1(final Set<Integer> a) {\n"
 				+ "		return a.isEmpty();\n"
 				+ "	}\n"
@@ -13441,10 +13441,36 @@ public void testIssue89_4() {
 				+ " -1.6 -warn:all-static-method -proc:none -d none",
 				"",
 				"----------\n" +
-				"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
-				"	private final class InnerClass{}	public boolean method1(final Set<Integer> a) {\n" +
-				"	                                	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 4)\n" +
+				"	public boolean method1(final Set<Integer> a) {\n" +
+				"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 				"The method method1(Set<Integer>) from the type X<T> can potentially be declared as static\n" +
+				"----------\n" +
+				"1 problem (1 warning)\n" +
+				"error: warnings found and -failOnWarning specified\n",
+				true);
+}
+public void testIssue89_5() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.Set;\n"
+				+ "public class X<T> {\n"
+				+ " private final class InnerClass{}"
+				+ "	public boolean method1(final Set<InnerClass> a) {\n"
+				+ "		return a.isEmpty();\n"
+				+ "	}\n"
+				+ "}"
+				},
+				"\"" + OUTPUT_DIR +  File.separator + "X.java\" "
+				+ " -failOnWarning"
+				+ " -1.6 -warn:all-static-method -proc:none -d none",
+				"",
+				"----------\n" +
+				"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/X.java (at line 3)\n" +
+				"	private final class InnerClass{}	public boolean method1(final Set<InnerClass> a) {\n" +
+				"	                                	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"The method method1(Set<X<T>.InnerClass>) from the type X<T> can potentially be declared as static\n" +
 				"----------\n" +
 				"1 problem (1 warning)\n" +
 				"error: warnings found and -failOnWarning specified\n",

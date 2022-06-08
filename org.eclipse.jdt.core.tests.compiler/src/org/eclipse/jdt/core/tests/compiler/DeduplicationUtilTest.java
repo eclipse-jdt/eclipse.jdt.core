@@ -54,8 +54,7 @@ public class DeduplicationUtilTest extends TestCase {
 			assertSame(b, expected);
 			b = null;
 			expected = null;
-			System.gc();
-			System.runFinalization();
+			forceGc();
 			String actual = DeduplicationUtil.intern(a);
 			assertSame(a, actual); // i.e. actual != expected since "expected" was garbage collected.
 		}
@@ -78,8 +77,7 @@ public class DeduplicationUtilTest extends TestCase {
 			assertSame(b, expected);
 			b = null;
 			expected = null;
-			System.gc();
-			System.runFinalization();
+			forceGc();
 			char[] actual = DeduplicationUtil.intern(a);
 			assertSame(a, actual);
 		}
@@ -98,22 +96,51 @@ public class DeduplicationUtilTest extends TestCase {
 			Object a = supplier.get();
 			Object b = supplier.get();
 			assertNotSame(a, b);
+			assertEquals(a, b);
 			Object expected = DeduplicationUtil.internObject(b);
 			assertSame(b, expected);
 			b = null;
 			expected = null;
-			System.gc();
-			System.runFinalization();
+
+			forceGc();
+
+			// Now "b" is not referenced anymore, can be garbage collected
+			// and DeduplicationUtil is supposed to release weak reference to it
+			// so after trying to intern "a" we will get "a" and not previously set "b"
 			Object actual = DeduplicationUtil.internObject(a);
+
+			// It is impossible to rely on GC to run immediately, so loop few times
+			for (int i = 0; i < 42; i++) {
+				if(actual != a) {
+					forceGc();
+					actual = DeduplicationUtil.internObject(a);
+				} else {
+					break;
+				}
+			}
 			assertSame(a, actual);
 		}
 		{ // strong
 			Object a = supplier.get();
 			Object b = supplier.get();
 			assertNotSame(a, b);
+			assertEquals(a, b);
 			Object actual = DeduplicationUtil.internObject(a);
 			Object expected = DeduplicationUtil.internObject(b);
+
+			// since "a" is still referenced, we should get it
 			assertSame(expected, actual);
+		}
+	}
+
+	private void forceGc() {
+		System.gc();
+		System.runFinalization();
+		try {
+			// give gc some time to run
+			Thread.sleep(500);
+		} catch (InterruptedException e) {
+			// don't care
 		}
 	}
 }
