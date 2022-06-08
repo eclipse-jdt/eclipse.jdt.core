@@ -7,6 +7,12 @@
                 <message_argument value="3.29.0"/>
             </message_arguments>
         </filter>
+        <filter id="924844039">
+            <message_arguments>
+                <message_argument value="3.30.50"/>
+                <message_argument value="3.30.0"/>
+            </message_arguments>
+        </filter>
     </resource>
     <resource path="compiler/org/eclipse/jdt/core/compiler/CategorizedProblem.java" type="org.eclipse.jdt.core.compiler.CategorizedProblem">
         <filter comment="Java 14" id="576725006">
@@ -17,11 +23,11 @@
         </filter>
     </resource>
     <resource path="dom/org/eclipse/jdt/core/dom/AST.java" type="org.eclipse.jdt.core.dom.AST">
-        <filter comment="BETA_JAVA19 " id="388194388">
+        <filter id="388194388">
             <message_arguments>
                 <message_argument value="org.eclipse.jdt.core.dom.AST"/>
                 <message_argument value="JLS_Latest"/>
-                <message_argument value="17"/>
+                <message_argument value="18"/>
             </message_arguments>
         </filter>
         <filter comment="BETA_JAVA19 comment" id="1141899266">
@@ -219,6 +225,24 @@
         </filter>
     </resource>
     <resource path="dom/org/eclipse/jdt/core/dom/TagProperty.java" type="org.eclipse.jdt.core.dom.TagProperty">
+        <filter id="336658481">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.dom.TagProperty"/>
+                <message_argument value="TAG_PROPERTY_SNIPPET_ID"/>
+            </message_arguments>
+        </filter>
+        <filter id="336658481">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.dom.TagProperty"/>
+                <message_argument value="TAG_PROPERTY_SNIPPET_INLINE_TAG_COUNT"/>
+            </message_arguments>
+        </filter>
+        <filter id="336658481">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.dom.TagProperty"/>
+                <message_argument value="TAG_PROPERTY_SNIPPET_REGION_TEXT"/>
+            </message_arguments>
+        </filter>
         <filter id="576725006">
             <message_arguments>
                 <message_argument value="IDocElement"/>
