@@ -8,15 +8,6 @@
             </message_arguments>
         </filter>
     </resource>
-    <resource path="dom/org/eclipse/jdt/core/dom/AST.java" type="org.eclipse.jdt.core.dom.AST">
-        <filter comment="For new java version" id="388194388">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.dom.AST"/>
-                <message_argument value="JLS_Latest"/>
-                <message_argument value="17"/>
-            </message_arguments>
-        </filter>
-    </resource>
     <resource path="dom/org/eclipse/jdt/core/dom/AbstractTagElement.java" type="org.eclipse.jdt.core.dom.AbstractTagElement">
         <filter id="576725006">
             <message_arguments>
@@ -196,24 +187,6 @@
         </filter>
     </resource>
     <resource path="dom/org/eclipse/jdt/core/dom/TagProperty.java" type="org.eclipse.jdt.core.dom.TagProperty">
-        <filter id="336658481">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.dom.TagProperty"/>
-                <message_argument value="TAG_PROPERTY_SNIPPET_ID"/>
-            </message_arguments>
-        </filter>
-        <filter id="336658481">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.dom.TagProperty"/>
-                <message_argument value="TAG_PROPERTY_SNIPPET_INLINE_TAG_COUNT"/>
-            </message_arguments>
-        </filter>
-        <filter id="336658481">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.dom.TagProperty"/>
-                <message_argument value="TAG_PROPERTY_SNIPPET_REGION_TEXT"/>
-            </message_arguments>
-        </filter>
         <filter id="576725006">
             <message_arguments>
                 <message_argument value="IDocElement"/>
