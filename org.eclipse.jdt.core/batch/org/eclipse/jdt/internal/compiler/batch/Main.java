@@ -33,7 +33,6 @@
 package org.eclipse.jdt.internal.compiler.batch;
 
 import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -41,7 +40,6 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.LineNumberReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -51,6 +49,7 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.DateFormat;
@@ -2027,11 +2026,10 @@ public void configure(String[] argv) {
 					if (encodingStart >= 1) {
 						if (encodingStart < encodingEnd) {
 							customEncoding = currentArg.substring(encodingStart, encodingEnd);
-							try { // ensure encoding is supported
-								new InputStreamReader(new ByteArrayInputStream(new byte[0]), customEncoding);
-							} catch (UnsupportedEncodingException e) {
+							// ensure encoding is supported
+							if(!isCharsetSupported(customEncoding)) {
 								throw new IllegalArgumentException(
-									this.bind("configure.unsupportedEncoding", customEncoding), e); //$NON-NLS-1$
+									this.bind("configure.unsupportedEncoding", customEncoding)); //$NON-NLS-1$
 							}
 						}
 						currentArg = currentArg.substring(0, encodingStart - 1);
@@ -2757,11 +2755,10 @@ public void configure(String[] argv) {
 				} else {
 					specifiedEncodings = new HashSet<>();
 				}
-				try { // ensure encoding is supported
-					new InputStreamReader(new ByteArrayInputStream(new byte[0]), currentArg);
-				} catch (UnsupportedEncodingException e) {
+				// ensure encoding is supported
+				if(!isCharsetSupported(currentArg)) {
 					throw new IllegalArgumentException(
-						this.bind("configure.unsupportedEncoding", currentArg), e); //$NON-NLS-1$
+						this.bind("configure.unsupportedEncoding", currentArg)); //$NON-NLS-1$
 				}
 				specifiedEncodings.add(currentArg);
 				this.options.put(CompilerOptions.OPTION_Encoding, currentArg);
@@ -5616,5 +5613,9 @@ protected void validateOptions(boolean didSpecifyCompliance) {
 			}
 		}
 	}
+}
+
+boolean isCharsetSupported(String name) {
+    return Charset.availableCharsets().keySet().contains(name);
 }
 }

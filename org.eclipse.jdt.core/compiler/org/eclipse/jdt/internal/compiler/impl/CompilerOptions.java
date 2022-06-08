@@ -30,9 +30,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.impl;
 
-import java.io.ByteArrayInputStream;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -1682,11 +1680,9 @@ public class CompilerOptions {
 			this.defaultEncoding = null;
 			String stringValue = optionValue;
 			if (stringValue.length() > 0){
-				try {
-					new InputStreamReader(new ByteArrayInputStream(new byte[0]), stringValue);
+				// ensure encoding is supported
+				if(isCharsetSupported(stringValue)) {
 					this.defaultEncoding = stringValue;
-				} catch(UnsupportedEncodingException e){
-					// ignore unsupported encoding
 				}
 			}
 		}
@@ -2293,5 +2289,9 @@ public class CompilerOptions {
 			return this.useNullTypeAnnotations;
 		return this.isAnnotationBasedNullAnalysisEnabled
 				&& this.sourceLevel >=  ClassFileConstants.JDK1_8;
+	}
+
+	boolean isCharsetSupported(String name) {
+	    return Charset.availableCharsets().keySet().contains(name);
 	}
 }
