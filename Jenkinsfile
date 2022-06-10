@@ -6,11 +6,11 @@ pipeline {
 		timestamps()
 	}
 	agent {
-		label "centos-7"
+		label "centos-latest"
 	}
 	tools {
 		maven 'apache-maven-latest'
-		jdk 'openjdk-jdk11-latest'
+		jdk 'openjdk-jdk17-latest'
 	}
 	stages {
 		stage('Build') {
@@ -33,8 +33,7 @@ pipeline {
 					mvn -U -X -e clean verify --batch-mode --fail-at-end -Dmaven.repo.local=$WORKSPACE/.m2/repository \
 					-Pbuild-individual-bundles -Ptest-on-javase-17 -Pbree-libs -Papi-check \
 					-Djava.io.tmpdir=$WORKSPACE/tmp -Dcompare-version-with-baselines.skip=false -Dproject.build.sourceEncoding=UTF-8 \
-					-Dtycho.surefire.argLine="--add-modules ALL-SYSTEM -Dcompliance=1.8,11,17 -Djdt.performance.asserts=disabled" \
-					-DskipTests=true
+					-Dtycho.surefire.argLine="--add-modules ALL-SYSTEM -Dcompliance=1.8,11,17 -Djdt.performance.asserts=disabled"
 					"""
 				}
 			}
