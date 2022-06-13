@@ -169,10 +169,13 @@ public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStr
 	codeStream.ifeq(nextSibling);
 	codeStream.load(this.secretInstanceOfPatternExpressionValue);
 	codeStream.checkcast(this.type, this.type.resolvedType, codeStream.position);
-	codeStream.dup();
-	if (this.pattern instanceof RecordPattern)
-		this.pattern.generateCode(currentScope, codeStream);
+	if (this.pattern instanceof RecordPattern) {
+		this.pattern.generateOptimizedBoolean(currentScope, codeStream, trueLabel, falseLabel);
+		codeStream.load(this.secretInstanceOfPatternExpressionValue);
+		codeStream.checkcast(this.type, this.type.resolvedType, codeStream.position);
+	}
 	else {
+		codeStream.dup();
 		codeStream.store(this.elementVariable.binding, false);
 	}
 
@@ -321,7 +324,6 @@ private void addSecretInstanceOfPatternExpressionValue(BlockScope scope1) {
 				false);
 	local.setConstant(Constant.NotAConstant);
 	local.useFlag = LocalVariableBinding.USED;
-	local.declaration = new LocalDeclaration(InstanceOfExpression.SECRET_INSTANCEOF_PATTERN_EXPRESSION_VALUE, 0, 0);
 	scope1.addLocalVariable(local);
 	this.secretInstanceOfPatternExpressionValue = local;
 }
