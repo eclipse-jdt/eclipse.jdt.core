@@ -5616,6 +5616,21 @@ protected void validateOptions(boolean didSpecifyCompliance) {
 }
 
 boolean isCharsetSupported(String name) {
-    return Charset.availableCharsets().keySet().contains(name);
+	/**
+	 * java.nio uses different encoding names than java.io
+	 * see https://docs.oracle.com/javase/7/docs/technotes/guides/intl/encoding.doc.html
+	 */
+	Map<String,String> io2nio= new HashMap<String, String>();
+	io2nio.put("Cp1250", "windows-1250"); //$NON-NLS-1$ //$NON-NLS-2$
+	io2nio.put("Cp1251", "windows-1251"); //$NON-NLS-1$ //$NON-NLS-2$
+	io2nio.put("Cp1252", "windows-1252"); //$NON-NLS-1$ //$NON-NLS-2$
+	io2nio.put("Cp1253", "windows-1253"); //$NON-NLS-1$ //$NON-NLS-2$
+	io2nio.put("Cp1254", "windows-1254"); //$NON-NLS-1$ //$NON-NLS-2$
+	io2nio.put("Cp1257", "windows-1257"); //$NON-NLS-1$ //$NON-NLS-2$
+	if(io2nio.containsKey(name)) {
+		return Charset.availableCharsets().keySet().contains(io2nio.get(name));
+	} else {
+		return Charset.availableCharsets().keySet().contains(name);
+	}
 }
 }
