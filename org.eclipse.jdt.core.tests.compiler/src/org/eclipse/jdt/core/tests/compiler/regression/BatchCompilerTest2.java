@@ -26,7 +26,7 @@ import junit.framework.Test;
 public class BatchCompilerTest2 extends AbstractBatchCompilerTest {
 
 	static {
-		TESTS_NAMES = new String[] { "testIssue147" };
+//		TESTS_NAMES = new String[] { "testIssue147" };
 //		TESTS_NUMBERS = new int[] { 306 };
 //		TESTS_RANGE = new int[] { 298, -1 };
 	}
