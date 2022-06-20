@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -867,6 +867,23 @@ public abstract class Scope {
 		if (tiebreakingVarargsMethods) {
 			if (CompilerOptions.tolerateIllegalAmbiguousVarargsInvocation && compilerOptions.complianceLevel < ClassFileConstants.JDK1_7)
 				tiebreakingVarargsMethods = false;
+		}
+		/* Need to deduce Polymorphic method based on https://docs.oracle.com/javase/specs/jls/se11/html/jls-15.html#jls-15.12.3
+		 * Reproduced here
+		 *
+		 * A method is signature polymorphic if all of the following are true:
+		 *  * It is declared in the java.lang.invoke.MethodHandle class or the java.lang.invoke.VarHandle class.
+		 *  * It has a single variable arity parameter (§8.4.1) whose declared type is Object[].
+		 *  * It is native.
+		 */
+		String declaringClassName = method.declaringClass.toString();
+		if (declaringClassName.contains("java.lang.invoke.MethodHandle") //$NON-NLS-1$
+				||declaringClassName.contains("java.lang.invoke.VarHandle")) { //$NON-NLS-1$
+			if (method.isNative() && method.isVarargs() && method.parameters.length == 1) {
+				if (method.parameters[0].toString().contentEquals("java.lang.Object[]")) { //$NON-NLS-1$
+					method.tagBits |= TagBits.AnnotationPolymorphicSignature;
+				}
+			}
 		}
 		if ((parameterCompatibilityLevel(method, arguments, tiebreakingVarargsMethods)) > NOT_COMPATIBLE) {
 			if ((method.tagBits & TagBits.AnnotationPolymorphicSignature) != 0) {
