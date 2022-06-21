@@ -868,23 +868,9 @@ public abstract class Scope {
 			if (CompilerOptions.tolerateIllegalAmbiguousVarargsInvocation && compilerOptions.complianceLevel < ClassFileConstants.JDK1_7)
 				tiebreakingVarargsMethods = false;
 		}
-		/* Need to deduce Polymorphic method based on https://docs.oracle.com/javase/specs/jls/se11/html/jls-15.html#jls-15.12.3
-		 * Reproduced here
-		 *
-		 * A method is signature polymorphic if all of the following are true:
-		 *  * It is declared in the java.lang.invoke.MethodHandle class or the java.lang.invoke.VarHandle class.
-		 *  * It has a single variable arity parameter (§8.4.1) whose declared type is Object[].
-		 *  * It is native.
-		 */
-		String declaringClassName = method.declaringClass.toString();
-		if (declaringClassName.contains("java.lang.invoke.MethodHandle") //$NON-NLS-1$
-				||declaringClassName.contains("java.lang.invoke.VarHandle")) { //$NON-NLS-1$
-			if (method.isNative() && method.isVarargs() && method.parameters.length == 1) {
-				if (method.parameters[0].toString().contentEquals("java.lang.Object[]")) { //$NON-NLS-1$
-					method.tagBits |= TagBits.AnnotationPolymorphicSignature;
-				}
-			}
-		}
+
+		deduceSignaturePolymorphicAnnotation(method);
+
 		if ((parameterCompatibilityLevel(method, arguments, tiebreakingVarargsMethods)) > NOT_COMPATIBLE) {
 			if ((method.tagBits & TagBits.AnnotationPolymorphicSignature) != 0) {
 				// generate polymorphic method
@@ -901,6 +887,34 @@ public abstract class Scope {
 		if (method instanceof PolyParameterizedGenericMethodBinding) // Not reached, but left in for now.
 			return new ProblemMethodBinding(method, method.selector, method.parameters, ProblemReasons.InferredApplicableMethodInapplicable);
 		return null; // incompatible
+	}
+
+	/* Need to deduce Signature polymorphic method based on https://docs.oracle.com/javase/specs/jls/se11/html/jls-15.html#jls-15.12.3
+	 * Definition reproduced here
+	 *
+	 * A method is signature polymorphic if all of the following are true:
+	 *  * It is declared in the java.lang.invoke.MethodHandle class or the java.lang.invoke.VarHandle class.
+	 *  * It has a single variable arity parameter (§8.4.1) whose declared type is Object[].
+	 *  * It is native.
+	 */
+
+	private void deduceSignaturePolymorphicAnnotation(MethodBinding method) {
+		if (((method.tagBits & TagBits.AnnotationPolymorphicSignature) == 0)
+				&& method.isNative()
+				&& method.isVarargs()
+				&& method.parameters.length == 1) {
+			/*
+			 *  here type will be arrayType we will come here only if the method is of type
+			 *  varargs(represented by arraytype) and with only one parameter.
+			 */
+			if (method.parameters[0].leafComponentType().id == TypeIds.T_JavaLangObject) {
+				ReferenceBinding declaringClass = method.declaringClass;
+				if ((declaringClass != null)
+						&&(declaringClass.id == getJavaLangInvokeMethodHandle().id||declaringClass.id == getJavaLangInvokeVarHandle().id)) {
+					method.tagBits |= TagBits.AnnotationPolymorphicSignature;
+				}
+			}
+		}
 	}
 
 	/**
@@ -2953,6 +2967,18 @@ public abstract class Scope {
 		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_INVOKE_METHODHANDLES);
 		ReferenceBinding outerType = unitScope.environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_INVOKE_METHODHANDLES, this);
 		return findDirectMemberType("Lookup".toCharArray(), outerType); //$NON-NLS-1$
+	}
+
+	public final ReferenceBinding getJavaLangInvokeMethodHandle() {
+		CompilationUnitScope unitScope = compilationUnitScope();
+		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_INVOKE_METHODHANDLE);
+		return unitScope.environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_INVOKE_METHODHANDLE, this);
+	}
+
+	public final ReferenceBinding getJavaLangInvokeVarHandle() {
+		CompilationUnitScope unitScope = compilationUnitScope();
+		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_INVOKE_VARHANDLE);
+		return unitScope.environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_INVOKE_VARHANDLE, this);
 	}
 
 	public final ReferenceBinding getJavaLangInteger() {
