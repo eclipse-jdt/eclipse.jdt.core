@@ -418,5 +418,24 @@ public void testBug568802() {
 		new File(libPath).delete();
 	}
 }
+public void testIssue114() {
+	this.runNegativeTest(
+		new String[] {
+				"Foo.java",
+				"import com.sun.imageio.plugins.png.PNGImageReader;\n" +
+				"import com.sun.imageio.plugins.png.PNGImageReaderSpi;\n" +
+				"\n" +
+				"public class Foo {\n" +
+				"        PNGImageReader r;\n" +
+				"}\n"
+			},
+			"\"" + OUTPUT_DIR +  File.separator + "Foo.java\"" +
+					" --release 9" +
+					" --add-exports java.desktop/com.sun.imageio.plugins.png=ALL-UNNAMED",
+			"",
+			"Exporting a package from system module 'java.desktop' is not allowed with --release\n",
+			true
+		);
+}
 
 }

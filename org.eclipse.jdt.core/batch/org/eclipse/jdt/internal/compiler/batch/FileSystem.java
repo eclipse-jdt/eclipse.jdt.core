@@ -127,6 +127,7 @@ public class FileSystem implements IModuleAwareNameEnvironment, SuffixConstants 
 		public String getDestinationPath();
 		Collection<String> getModuleNames(Collection<String> limitModules);
 		Collection<String> getModuleNames(Collection<String> limitModules, Function<String,IModule> getModule);
+		default boolean forbidsExportFrom(String modName) { return false; }
 	}
 	public interface ClasspathSectionProblemReporter {
 		void invalidClasspathSection(String jarFilePath);
