@@ -73,7 +73,7 @@ public class SwitchStatement extends Expression {
 
 	public boolean containsPatterns;
 	public boolean containsNull;
-	private BranchLabel switchPatternRestartTarget;
+	BranchLabel switchPatternRestartTarget;
 	/* package */ public Pattern totalPattern;
 
 	// fallthrough
@@ -699,17 +699,15 @@ public class SwitchStatement extends Expression {
 				&& caseStatement.patternIndex != -1 // for null
 				) {
 			Pattern pattern = (Pattern) caseStatement.constantExpressions[caseStatement.patternIndex];
-			if (pattern instanceof GuardedPattern) {
-				GuardedPattern guardedPattern = (GuardedPattern) pattern;
-				if (!guardedPattern.isGuardTrueAlways()) {
-					guardedPattern.suspendVariables(codeStream, this.scope);
-					codeStream.loadInt(caseIndex);
-					codeStream.store(this.restartIndexLocal, false);
-					codeStream.goto_(this.switchPatternRestartTarget);
-					guardedPattern.thenTarget.place();
-					guardedPattern.resumeVariables(codeStream, this.scope);
-				}
+			pattern.elseTarget.place();
+			pattern.suspendVariables(codeStream, this.scope);
+			if (!pattern.isAlwaysTrue()) {
+				codeStream.loadInt(caseIndex);
+				codeStream.store(this.restartIndexLocal, false);
+				codeStream.goto_(this.switchPatternRestartTarget);
 			}
+			pattern.thenTarget.place();
+			pattern.resumeVariables(codeStream, this.scope);
 		}
 	}
 	private void generateCodeSwitchPatternPrologue(BlockScope currentScope, CodeStream codeStream) {
@@ -723,8 +721,7 @@ public class SwitchStatement extends Expression {
 		codeStream.store(this.dispatchPatternCopy, false);
 		codeStream.addVariable(this.dispatchPatternCopy);
 
-		int restartIndex = 0;
-		codeStream.loadInt(restartIndex);
+		codeStream.loadInt(0); // restartIndex
 		codeStream.store(this.restartIndexLocal, false);
 		codeStream.addVariable(this.restartIndexLocal);
 

@@ -163,8 +163,10 @@ private void casePatternExpressionGenerateCode(BlockScope currentScope, CodeStre
 	if (this.patternIndex != -1) {
 		LocalVariableBinding local = currentScope.findVariable(SwitchStatement.SecretPatternVariableName, null);
 		codeStream.load(local);
-		Pattern patternExpression = ((Pattern) this.constantExpressions[this.patternIndex]);
-		patternExpression.generateCode(currentScope, codeStream);
+		Pattern pattern = ((Pattern) this.constantExpressions[this.patternIndex]);
+		pattern.generateCode(currentScope, codeStream);
+		if (!(pattern instanceof GuardedPattern))
+			codeStream.goto_(pattern.thenTarget);
 	}
 }
 

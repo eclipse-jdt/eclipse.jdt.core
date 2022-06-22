@@ -5,7 +5,7 @@
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
- * 
+ *
  * SPDX-License-Identifier: EPL-2.0
  *
  * This is an implementation of an early-draft specification developed under the Java
@@ -2246,7 +2246,7 @@ class ASTConverter {
 		if (this.resolveBindings) {
 			recordNodes(typePattern, pattern);
 		}
-		int startPosition = pattern.typePattern.sourceStart;
+		int startPosition = pattern.local.sourceStart;
 		int sourceEnd= pattern.sourceEnd;
 		typePattern.setSourceRange(startPosition, sourceEnd - startPosition + 1);
 		return typePattern;

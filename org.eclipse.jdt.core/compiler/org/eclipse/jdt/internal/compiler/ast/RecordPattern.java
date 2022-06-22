@@ -18,6 +18,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
@@ -32,12 +33,12 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 public class RecordPattern extends TypePattern {
 
 	public Pattern[] patterns;
-	public TypePattern typePattern;
 	public TypeReference type;
+	int thenInitStateIndex1 = -1;
+	int thenInitStateIndex2 = -1;
 
 	public RecordPattern(LocalDeclaration local) {
 		super(local);
-		this.typePattern = new TypePattern(local);
 		this.type = local.type;
 		this.sourceStart = local.sourceStart;
 		this.sourceEnd = local.sourceEnd;
@@ -58,14 +59,7 @@ public class RecordPattern extends TypePattern {
 			this.resolveType(scope);
 		}
 		this.addPatternVariablesWhenTrue(variables);
-		if (this.typePattern != null && this.typePattern.local.binding != null) {
-			if (this.patternVarsWhenTrue == null) {
-				this.patternVarsWhenTrue = new LocalVariableBinding[1];
-				this.patternVarsWhenTrue[0] = this.typePattern.local.binding;
-			} else {
-				this.addPatternVariablesWhenTrue(new LocalVariableBinding[] {this.typePattern.local.binding});
-			}
-		}
+		super.collectPatternVariablesToScope(variables, scope);
 		for (Pattern p : this.patterns) {
 			p.collectPatternVariablesToScope(this.patternVarsWhenTrue, scope);
 			this.addPatternVariablesWhenTrue(p.patternVarsWhenTrue);
@@ -81,16 +75,16 @@ public class RecordPattern extends TypePattern {
 
 	@Override
 	public LocalDeclaration getPatternVariable() {
-		return this.typePattern != null ? this.typePattern.getPatternVariable() : null;
+		return super.getPatternVariable();
 	}
 	@Override
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
-		if (this.typePattern != null) {
-			this.typePattern.analyseCode(currentScope, flowContext, flowInfo);
-		}
+		flowInfo = super.analyseCode(currentScope, flowContext, flowInfo);
 		for (Pattern p : this.patterns) {
 			 p.analyseCode(currentScope, flowContext, flowInfo);
 		}
+		flowInfo = flowInfo.safeInitsWhenTrue();
+		this.thenInitStateIndex2 = currentScope.methodScope().recordInitializationStates(flowInfo);
 		return flowInfo;
 	}
 	@Override
@@ -106,8 +100,8 @@ public class RecordPattern extends TypePattern {
 		for (Pattern p : this.patterns) {
 			p.resolveAtType(scope, u);
 		}
-		if (this.typePattern != null) {
-			this.resolvedType = this.typePattern.resolveAtType(scope, u);
+		if (this.local != null) {
+			this.resolvedType = super.resolveAtType(scope, u);
 		}
 		return this.resolvedType;
 	}
@@ -115,12 +109,14 @@ public class RecordPattern extends TypePattern {
 	public TypeBinding resolveType(BlockScope scope, boolean isPatternVariable) {
 		if (this.resolvedType != null)
 			return this.resolvedType;
+		super.resolveType(scope, isPatternVariable);
 
-		if (this.typePattern != null) {
-			this.resolvedType = this.typePattern.resolveType(scope);
+		if (this.local != null) {
+			this.resolvedType = super.resolveType(scope);
 		} else {
 			this.resolvedType = this.type.resolveType(scope);
 		}
+		initSecretPatternVariable(scope);
 
 		// check whether the give type reference is a record
 		// check whether the pattern signature matches that of the record declaration
@@ -128,24 +124,25 @@ public class RecordPattern extends TypePattern {
 			scope.problemReporter().unexpectedTypeinRecordPattern(this.resolvedType, this.type);
 			return this.resolvedType;
 		}
+		this.isTotalTypeNode = isTotalForType(this.resolvedType);
 		RecordComponentBinding[] components = this.resolvedType.components();
 		if (components.length != this.patterns.length) {
 			scope.problemReporter().recordPatternSignatureMismatch(this.resolvedType, this);
 		} else {
 			for (int i = 0; i < components.length; i++) {
 				Pattern p = this.patterns[i];
-				TypeBinding resolveType = p.resolveType(scope, true);
+				p.resolveType(scope, true);
 				RecordComponentBinding componentBinding = components[i];
 				if (p.getType().isTypeNameVar(scope)) {
 					p.resolvedType = componentBinding.type;
 				} else {
-					if (componentBinding.type.isCompatibleWith(resolveType)) {
+					TypeBinding expressionType = componentBinding.type;
+					if (p.isPatternTypeCompatible(expressionType, scope)) {
+						p.isTotalTypeNode = p.isTotalForType(componentBinding.type);
 						MethodBinding[] methods = this.resolvedType.getMethods(componentBinding.name);
 						if (methods != null && methods.length > 0) {
 							p.accessorMethod = methods[0]; // TODO: Not enough?
 						}
-					} else {
-						scope.problemReporter().recordPatternSignatureMismatch(this.resolvedType, this.patterns[i].getType());
 					}
 				}
 			}
@@ -154,36 +151,77 @@ public class RecordPattern extends TypePattern {
 		return this.resolvedType;
 	}
 	@Override
+	public boolean isAlwaysTrue() {
+		return false;
+	}
+	@Override
 	public boolean dominates(Pattern p) {
 		return isTotalForType(p.resolvedType);
 	}
 	@Override
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
-		for (Pattern p : this.patterns) {
-			if (p.accessorMethod != null) {
-				p.isTotalTypeNode = true;
-				codeStream.dup();
-				generateArguments(p.accessorMethod, null, currentScope, codeStream);
-				codeStream.invoke(Opcodes.OPC_invokevirtual, p.accessorMethod, this.resolvedType, null);
-				p.generateCode(currentScope, codeStream);
-			}
-		}
-		if (this.typePattern == null || this.typePattern.getPatternVariable() == null) {
-			codeStream.pop();
-		} else {
-			this.typePattern.isTotalTypeNode = true;
-			this.typePattern.generateCode(currentScope, codeStream);
+		codeStream.checkcast(this.resolvedType);
+		super.generateCode(currentScope, codeStream);
+	}
+	@Override
+	public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel) {
+		initializePatternVariables(currentScope, codeStream);
+		generatePatternVariable(currentScope, codeStream, trueLabel, falseLabel);
+		wrapupGeneration(codeStream);
+		if (this.thenInitStateIndex2 != -1) {
+			codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.thenInitStateIndex2);
+			codeStream.addDefinitelyAssignedVariables(currentScope, this.thenInitStateIndex2);
 		}
 	}
-
+	@Override
+	protected void generatePatternVariable(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel) {
+		boolean isSubtype = false;
+		if (this.expression != null && this.expression.resolvedType != null) {
+			isSubtype = this.expression.resolvedType.isSubtypeOf(this.resolvedType, false);
+		} else {
+			isSubtype = this.accessorMethod == null ? true : this.accessorMethod.returnType.isSubtypeOf(this.resolvedType, false);
+		}
+		if (!isSubtype) {
+			codeStream.load(this.secretPatternVariable);
+			codeStream.instance_of(this.resolvedType);
+			BranchLabel target = falseLabel != null ? falseLabel : new BranchLabel(codeStream);
+			codeStream.ifeq(target);
+		}
+		for (Pattern p : this.patterns) {
+			if (p.accessorMethod != null) {
+				codeStream.load(this.secretPatternVariable);
+				if (!isSubtype)
+					codeStream.checkcast(this.resolvedType);
+				generateArguments(p.accessorMethod, null, currentScope, codeStream);
+				codeStream.invoke(Opcodes.OPC_invokevirtual, p.accessorMethod, this.resolvedType, null);
+				p.generateOptimizedBoolean(currentScope, codeStream, trueLabel, falseLabel);
+			}
+		}
+		super.generatePatternVariable(currentScope, codeStream, trueLabel, falseLabel);
+	}
+	@Override
+	public void wrapupGeneration(CodeStream codeStream) {
+		for (Pattern p : this.patterns) {
+			p.wrapupGeneration(codeStream);
+		}
+		super.wrapupGeneration(codeStream);
+	}
+	@Override
+	public void suspendVariables(CodeStream codeStream, BlockScope scope) {
+		codeStream.removeNotDefinitelyAssignedVariables(scope, this.thenInitStateIndex1);
+	}
+	@Override
+	public void resumeVariables(CodeStream codeStream, BlockScope scope) {
+		codeStream.addDefinitelyAssignedVariables(scope, this.thenInitStateIndex2);
+	}
 	@Override
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		for (Pattern p : this.patterns) {
 			visitor.visit(p, scope);
 		}
 		if (visitor.visit(this, scope)) {
-			if (this.typePattern != null)
-				this.typePattern.traverse(visitor, scope);
+			if (this.local != null)
+				this.local.traverse(visitor, scope);
 			else if (this.type != null) {
 				this.type.traverse(visitor, scope);
 			}
@@ -204,8 +242,8 @@ public class RecordPattern extends TypePattern {
 			}
 		}
 		output.append(')');
-		if (this.typePattern != null)
-			output.append(' ').append(this.typePattern.local.name);
+		if (this.local != null)
+			output.append(' ').append(this.local.name);
 		return output;
 	}
 }

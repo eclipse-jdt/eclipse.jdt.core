@@ -12339,5 +12339,12 @@ public void recordPatternSignatureMismatch(TypeBinding type, ASTNode element) {
 			element.sourceStart,
 			element.sourceEnd);
 }
-
+public void incompatiblePatternType(ASTNode element, TypeBinding type, TypeBinding expected) {
+	this.handle(
+			IProblem.PatternTypeMismatch,
+			new String[] {new String(type.readableName()), new String(expected.readableName())},
+			new String[] {new String(type.shortReadableName()), new String(expected.readableName())},
+			element.sourceStart,
+			element.sourceEnd);
+}
 }

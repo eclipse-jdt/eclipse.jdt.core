@@ -31,7 +31,6 @@ public class GuardedPattern extends Pattern {
 
 	public Pattern primaryPattern;
 	public Expression condition;
-	/* package */ BranchLabel thenTarget;
 	int thenInitStateIndex1 = -1;
 	int thenInitStateIndex2 = -1;
 	public int restrictedIdentifierStart = -1; // used only for 'when' restricted keyword.
@@ -66,11 +65,14 @@ public class GuardedPattern extends Pattern {
 	}
 
 	@Override
-	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
- 		this.primaryPattern.generateCode(currentScope, codeStream);
-
-		Constant cst =  this.condition.optimizedBooleanConstant();
+	public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel) {
 		this.thenTarget = new BranchLabel(codeStream);
+		this.elseTarget = new BranchLabel(codeStream);
+		this.primaryPattern.thenTarget = this.thenTarget;
+ 		this.primaryPattern.elseTarget = this.elseTarget;
+		this.primaryPattern.generateCode(currentScope, codeStream);
+		Constant cst =  this.condition.optimizedBooleanConstant();
+
 		this.condition.generateOptimizedBoolean(
 				currentScope,
 				codeStream,
@@ -83,13 +85,14 @@ public class GuardedPattern extends Pattern {
 		}
 	}
 
-	public boolean isGuardTrueAlways() {
+	@Override
+	public boolean isAlwaysTrue() {
 		Constant cst = this.condition.optimizedBooleanConstant();
 		return cst != Constant.NotAConstant && cst.booleanValue() == true;
 	}
 	@Override
 	public boolean isTotalForType(TypeBinding type) {
-		return this.primaryPattern.isTotalForType(type) && isGuardTrueAlways();
+		return this.primaryPattern.isTotalForType(type) && isAlwaysTrue();
 	}
 	@Override
 	public Pattern primary() {
@@ -156,14 +159,35 @@ public class GuardedPattern extends Pattern {
 		}
 		visitor.endVisit(this, scope);
 	}
+	@Override
 	public void suspendVariables(CodeStream codeStream, BlockScope scope) {
 		codeStream.removeNotDefinitelyAssignedVariables(scope, this.thenInitStateIndex1);
+		this.primaryPattern.suspendVariables(codeStream, scope);
 	}
+	@Override
 	public void resumeVariables(CodeStream codeStream, BlockScope scope) {
 		codeStream.addDefinitelyAssignedVariables(scope, this.thenInitStateIndex2);
+		this.primaryPattern.resumeVariables(codeStream, scope);
 	}
 	@Override
 	public void resolveWithExpression(BlockScope scope, Expression expression) {
 		this.primaryPattern.resolveWithExpression(scope, expression);
+	}
+	@Override
+	protected boolean isPatternTypeCompatible(TypeBinding other, BlockScope scope) {
+		return this.primaryPattern.isPatternTypeCompatible(other, scope);
+	}
+	@Override
+	public void wrapupGeneration(CodeStream codeStream) {
+		this.primaryPattern.wrapupGeneration(codeStream);
+	}
+	@Override
+	protected void generatePatternVariable(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel,
+			BranchLabel falseLabel) {
+		this.primaryPattern.generatePatternVariable(currentScope, codeStream, trueLabel, falseLabel);
+	}
+	@Override
+	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
+		this.generateOptimizedBoolean(currentScope, codeStream, null, null);
 	}
 }

@@ -246,7 +246,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"@SuppressWarnings(\"preview\")\n"
 				+ "public class X {\n"
 				+ "  static void print(Rectangle r) {\n"
-				+ "    if (r instanceof (Rectangle(ColoredPoint(Point(Object o1, Object o2), Color c),\n"
+				+ "    if (r instanceof (Rectangle(ColoredPoint(Point(String o1, String o2), Color c),\n"
 				+ "	    									ColoredPoint lr) r1)) {    \n"
 				+ "	        System.out.println(\"Upper-left corner: \" + r1);\n"
 				+ "	    }\n"
@@ -259,14 +259,14 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				},
 				"----------\n" +
 				"1. ERROR in X.java (at line 4)\n" +
-				"	if (r instanceof (Rectangle(ColoredPoint(Point(Object o1, Object o2), Color c),\n" +
-				"	                                               ^^^^^^\n" +
-				"Record pattern should match the signature of the record declaration\n" +
+				"	if (r instanceof (Rectangle(ColoredPoint(Point(String o1, String o2), Color c),\n" +
+				"	                                               ^^^^^^^^^\n" +
+				"Pattern of type int is not compatible with type java.lang.String\n" +
 				"----------\n" +
 				"2. ERROR in X.java (at line 4)\n" +
-				"	if (r instanceof (Rectangle(ColoredPoint(Point(Object o1, Object o2), Color c),\n" +
-				"	                                                          ^^^^^^\n" +
-				"Record pattern should match the signature of the record declaration\n" +
+				"	if (r instanceof (Rectangle(ColoredPoint(Point(String o1, String o2), Color c),\n" +
+				"	                                                          ^^^^^^^^^\n" +
+				"Pattern of type int is not compatible with type java.lang.String\n" +
 				"----------\n");
 	}
 	// Test that pattern types that don't match record component's types are reported
@@ -428,12 +428,12 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 						+ "enum Color { RED, GREEN, BLUE }\n"
 						+ "record ColoredPoint(Point p, Color c) {}\n"
 						+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"
-		},
+			},
 				"----------\n" +
-						"1. ERROR in X.java (at line 9)\n" +
-						"	default -> {yield r1.upperLeft().p().x();}    }; \n" +
-						"	                  ^^\n" +
-						"r1 cannot be resolved\n" +
+				"1. ERROR in X.java (at line 9)\n" +
+				"	default -> {yield r1.upperLeft().p().x();}    }; \n" +
+				"	                  ^^\n" +
+				"r1 cannot be resolved\n" +
 				"----------\n");
 	}
 	// Test that when expressions are supported and pattern variables are available inside when expressions
@@ -498,22 +498,305 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"X.java",
 				"@SuppressWarnings(\"preview\")"
 						+ "public class X {\n"
-						+ "  public static void print(Record r) {\n"
-						+ "    int res = switch(r) {\n"
-						+ "       case Record() r1 -> {\n"
-						+ "        		yield 1;  \n"
-						+ "        } \n"
-						+ "        default -> 0;\n"
-						+ "    }; \n"
-						+ "    System.out.println(\"Returns: \" + res);\n"
+						+ "	 @SuppressWarnings(\"preview\")\n"
+						+ "	public static void print(Pair p) {\n"
+						+ "    if (p instanceof Pair(Teacher(Object n), Student(Object n1, Integer i)) r1) {                \n"
+						+ "			 System.out.println(r1); \n"
+						+ "		 } else {                         \n"
+						+ "			 System.out.println(\"ELSE\");\n"
+						+ "		 } \n"
 						+ "  }\n"
 						+ "  public static void main(String[] args) {\n"
-						+ "    print(new Record());\n"
+						+ "    print(new Pair(new Teacher(\"123\"), new Student(\"abc\", 1)));\n"
 						+ "  }\n"
 						+ "}\n"
-						+ "record Record() {}\n"
+						+ "sealed interface Person permits Student, Teacher {\n"
+						+ "    String name();\n"
+						+ "}\n"
+						+ " record Student(String name, Integer id) implements Person {}\n"
+						+ " record Teacher(String name) implements Person {}\n"
+						+ " record Pair(Person s, Person s1) {}\n"
 						},
-				"Returns: 1");
+				"Pair[s=Teacher[name=123], s1=Student[name=abc, id=1]]");
+	}
+	// Should not reach IF or throw CCE.
+	// Should reach ELSE
+	public void test16() {
+		runConformTest(new String[] {
+				"X.java",
+				"@SuppressWarnings(\"preview\")"
+						+ "public class X {\n"
+						+ "	 @SuppressWarnings(\"preview\")\n"
+						+ "	public static void print(Pair p) {\n"
+						+ "    if (p instanceof Pair(Teacher(Object n), Student(Object n1, Integer i)) r1) {                \n"
+						+ "			 System.out.println(\"IF\"); \n"
+						+ "		 } else {                         \n"
+						+ "			 System.out.println(\"ELSE\");\n"
+						+ "		 } \n"
+						+ "  }\n"
+						+ "  public static void main(String[] args) {\n"
+						+ "    print(new Pair(new Student(\"abc\", 1), new Teacher(\"123\")));\n"
+						+ "  }\n"
+						+ "}\n"
+						+ "sealed interface Person permits Student, Teacher {\n"
+						+ "    String name();\n"
+						+ "}\n"
+						+ " record Student(String name, Integer id) implements Person {}\n"
+						+ " record Teacher(String name) implements Person {}\n"
+						+ " record Pair(Person s, Person s1) {}\n"
+						},
+				"ELSE");
+	}
+	public void test17() {
+		runConformTest(new String[] {
+				"X.java",
+				"@SuppressWarnings(\"preview\")"
+						+ "public class X {\n"
+						+ "	 @SuppressWarnings(\"preview\")\n"
+						+ "	public static void print(Pair p) {\n"
+						+ "    if (p instanceof Pair(Teacher(Object n), Student(Object n1, Integer i)) r1) {                \n"
+						+ "			 System.out.println(n1.getClass().getTypeName() + \":\" + n1 + \",\" + i); \n"
+						+ "		 } else {                         \n"
+						+ "			 System.out.println(\"ELSE\");\n"
+						+ "		 } \n"
+						+ "  }\n"
+						+ "  public static void main(String[] args) {\n"
+						+ "    print(new Pair(new Teacher(\"123\"), new Student(\"abc\", 10)));\n"
+						+ "  }\n"
+						+ "}\n"
+						+ "sealed interface Person permits Student, Teacher {\n"
+						+ "    String name();\n"
+						+ "}\n"
+						+ " record Student(String name, Integer id) implements Person {}\n"
+						+ " record Teacher(String name) implements Person {}\n"
+						+ " record Pair(Person s, Person s1) {}\n"
+						},
+				"java.lang.String:abc,10");
+	}
+	// Same as 17(), but base type instead of wrapper
+	public void test18() {
+		runConformTest(new String[] {
+				"X.java",
+				"@SuppressWarnings(\"preview\")"
+						+ "public class X {\n"
+						+ "	 @SuppressWarnings(\"preview\")\n"
+						+ "	public static void print(Pair p) {\n"
+						+ "    if (p instanceof Pair(Teacher(Object n), Student(Object n1, int i)) r1) {                \n"
+						+ "			 System.out.println(n1.getClass().getTypeName() + \":\" + n1 + \",\" + i); \n"
+						+ "		 } else {                         \n"
+						+ "			 System.out.println(\"ELSE\");\n"
+						+ "		 } \n"
+						+ "  }\n"
+						+ "  public static void main(String[] args) {\n"
+						+ "    print(new Pair(new Teacher(\"123\"), new Student(\"abc\", 10)));\n"
+						+ "  }\n"
+						+ "}\n"
+						+ "sealed interface Person permits Student, Teacher {\n"
+						+ "    String name();\n"
+						+ "}\n"
+						+ " record Student(String name, int id) implements Person {}\n"
+						+ " record Teacher(String name) implements Person {}\n"
+						+ " record Pair(Person s, Person s1) {}\n"
+						},
+				"java.lang.String:abc,10");
+	}
+	public void test19() {
+		runConformTest(new String[] {
+				"X.java",
+				"@SuppressWarnings(\"preview\")"
+						+ "public class X {\n"
+						+ "	 @SuppressWarnings(\"preview\")\n"
+						+ "	public static void print(Pair p) {\n"
+						+ "		 int res1 = switch(p) {\n"
+						+ "		 	case Pair(Student(Object n1, int i), Teacher(Object n)) r1 -> {  \n"
+						+ "              	   yield i; \n"
+						+ "                 }\n"
+						+ "		 	default -> -1;\n"
+						+ "		 };\n"
+						+ "		 System.out.println(res1);\n"
+						+ "  }\n"
+						+ "	 public static void main(String[] args) {\n"
+						+ "		print(new Pair( new Student(\"abc\", 15), new Teacher(\"123\")));\n"
+						+ "		print(new Pair( new Teacher(\"123\"), new Student(\"abc\", 1)));\n"
+						+ "	}\n"
+						+ "}\n"
+						+ "sealed interface Person permits Student, Teacher {\n"
+						+ "    String name();\n"
+						+ "}\n"
+						+ " record Student(String name, int id) implements Person {}\n"
+						+ " record Teacher(String name) implements Person {}\n"
+						+ " record Pair(Person s, Person s1) {}\n"
+						},
+				"15\n"
+				+ "-1");
+	}
+	// Test that Object being pattern-checked works in switch-case
+	public void test20() {
+		runConformTest(new String[] {
+				"X.java",
+				"@SuppressWarnings(\"preview\")"
+						+ "public class X {\n"
+						+ "	 @SuppressWarnings(\"preview\")\n"
+						+ "	public static void print(Object p) {\n"
+						+ "		 int res1 = switch(p) {\n"
+						+ "		 	case Pair(Student(Object n1, int i), Teacher(Object n)) p1 -> {  \n"
+						+ "              	   yield i; \n"
+						+ "                 }\n"
+						+ "		 	default -> -1;\n"
+						+ "		 };\n"
+						+ "		 System.out.println(res1);\n"
+						+ "  }\n"
+						+ "	 public static void main(String[] args) {\n"
+						+ "		print(new Pair( new Student(\"abc\", 15), new Teacher(\"123\")));\n"
+						+ "		print(new Pair( new Teacher(\"123\"), new Student(\"abc\", 1)));\n"
+						+ "	}\n"
+						+ "}\n"
+						+ "sealed interface Person permits Student, Teacher {\n"
+						+ "    String name();\n"
+						+ "}\n"
+						+ " record Student(String name, int id) implements Person {}\n"
+						+ " record Teacher(String name) implements Person {}\n"
+						+ " record Pair(Person s, Person s1) {}\n"
+						},
+				"15\n"
+				+ "-1");
+	}
+	// // Test that Object being pattern-checked works in 'instanceof'
+	public void test21() {
+		runConformTest(new String[] {
+				"X.java",
+				"@SuppressWarnings(\"preview\")"
+						+ "public class X {\n"
+						+ "	 @SuppressWarnings(\"preview\")\n"
+						+ "	public static void print(Object p) {\n"
+						+ "    if (p instanceof Pair(Student(Object n1, int i), Teacher(Object n)) p1) {\n"
+						+ "      System.out.println(i);\n"
+						+ "    }\n"
+						+ "  }\n"
+						+ "	 public static void main(String[] args) {\n"
+						+ "		print(new Pair( new Student(\"abc\", 15), new Teacher(\"123\")));\n"
+						+ "		print(new Pair( new Teacher(\"123\"), new Student(\"abc\", 1)));\n"
+						+ "	}\n"
+						+ "}\n"
+						+ "sealed interface Person permits Student, Teacher {\n"
+						+ "    String name();\n"
+						+ "}\n"
+						+ " record Student(String name, int id) implements Person {}\n"
+						+ " record Teacher(String name) implements Person {}\n"
+						+ " record Pair(Person s, Person s1) {}\n"
+						},
+				"15");
+	}
+	// Nested record pattern with a simple (constant) 'when' clause
+	public void test22() {
+		runConformTest(new String[] {
+				"X.java",
+					"@SuppressWarnings(\"preview\")"
+					+ "public class X {\n"
+					+ "  public static void printLowerRight(Rectangle r) {\n"
+					+ "    int res = switch(r) {\n"
+					+ "       case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
+					+ "                               ColoredPoint lr) r1 when x > 1 -> {\n"
+					+ "                            	   System.out.println(\"one\");	   \n"
+					+ "        		yield x;\n"
+					+ "        } \n"
+					+ "       case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
+					+ "                               ColoredPoint lr) r1 when x <= 0 -> {\n"
+					+ "                            	   System.out.println(\"two\");	  \n"
+					+ "        		yield x;  \n"
+					+ "        } \n"
+					+ "        default -> 0;\n"
+					+ "    };  \n"
+					+ "    System.out.println(\"Returns: \" + res);\n"
+					+ "  }\n"
+					+ "  public static void main(String[] args) {\n"
+					+ "    printLowerRight(new Rectangle(new ColoredPoint(new Point(0, 0), Color.BLUE), \n"
+					+ "        new ColoredPoint(new Point(30, 10), Color.RED)));\n"
+					+ "    printLowerRight(new Rectangle(new ColoredPoint(new Point(5, 5), Color.BLUE), \n"
+					+ "        new ColoredPoint(new Point(30, 10), Color.RED)));\n"
+					+ "  }\n"
+					+ "}\n"
+					+ "record Point(int x, int y) {}\n"
+					+ "enum Color { RED, GREEN, BLUE }\n"
+					+ "record ColoredPoint(Point p, Color c) {}\n"
+					+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"
+						},
+				"two\n" +
+				"Returns: 0\n" +
+				"one\n" +
+				"Returns: 5");
+	}
+	// Nested record pattern with a method invocation in a 'when' clause
+	public void test23 () {
+		runConformTest(new String[] {
+				"X.java",
+					"@SuppressWarnings(\"preview\")"
+					+ "public class X {\n"
+					+ "  public static void printLowerRight(Rectangle r) {\n"
+					+ "    int res = switch(r) {\n"
+					+ "       case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
+					+ "                               ColoredPoint lr) r1 when x > value() -> {\n"
+					+ "                            	   System.out.println(\"one\");	   \n"
+					+ "        		yield x;\n"
+					+ "        } \n"
+					+ "        default -> 0;\n"
+					+ "    };  \n"
+					+ "    System.out.println(\"Returns: \" + res);\n"
+					+ "  }\n"
+					+ "  public static int value() {\n"
+					+ "    return 0;\n"
+					+ "  }\n"
+					+ "  public static void main(String[] args) {\n"
+					+ "    printLowerRight(new Rectangle(new ColoredPoint(new Point(0, 0), Color.BLUE), \n"
+					+ "        new ColoredPoint(new Point(30, 10), Color.RED)));\n"
+					+ "    printLowerRight(new Rectangle(new ColoredPoint(new Point(5, 5), Color.BLUE), \n"
+					+ "        new ColoredPoint(new Point(30, 10), Color.RED)));\n"
+					+ "  }\n"
+					+ "}\n"
+					+ "record Point(int x, int y) {}\n"
+					+ "enum Color { RED, GREEN, BLUE }\n"
+					+ "record ColoredPoint(Point p, Color c) {}\n"
+					+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"
+						},
+				"Returns: 0\n" +
+				"one\n" +
+				"Returns: 5");
+	}
+	// Nested record pattern with another switch expression + record pattern in a 'when' clause
+	// Failing now.
+	public void _test24() {
+		runConformTest(new String[] {
+				"X.java",
+					"public class X {\n"
+					+ "  @SuppressWarnings(\"preview\")\n"
+					+ "  public static void printLowerRight(Object r) {\n"
+					+ "    int res = switch(r) {\n"
+					+ "       case Rectangle(ColoredPoint(Point(int x, int y), Color c), \n"
+					+ "    		   				ColoredPoint lr) r1 when x > \n"
+					+ "								       switch(r) {\n"
+					+ "								       	 case Rectangle(ColoredPoint c1,  ColoredPoint lr1) r2  -> 2;  \n"
+					+ "								       	 default -> 3;   \n"
+					+ "								       }\n"
+					+ "								       	-> x;  \n"
+					+ "								       default -> 0;     \n"
+					+ "    			};    \n"
+					+ "    			System.out.println(\"Returns: \" + res);\n"
+					+ "  }\n"
+					+ "  public static void main(String[] args) {\n"
+					+ "    printLowerRight(new Rectangle(new ColoredPoint(new Point(0, 0), Color.BLUE), \n"
+					+ "        new ColoredPoint(new Point(30, 10), Color.RED)));\n"
+					+ "    printLowerRight(new Rectangle(new ColoredPoint(new Point(5, 5), Color.BLUE), \n"
+					+ "        new ColoredPoint(new Point(30, 10), Color.RED)));\n"
+					+ "  }\n"
+					+ "}\n"
+					+ "record Point(int x, int y) {}\n"
+					+ "enum Color { RED, GREEN, BLUE }\n"
+					+ "record ColoredPoint(Point p, Color c) {}\n"
+					+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"
+						},
+				"Returns: 0\n" +
+				"one\n" +
+				"Returns: 5");
 	}
 	// TODO:
 	// Test that var types are accepted within record patterns

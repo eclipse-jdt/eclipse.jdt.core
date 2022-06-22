@@ -20,16 +20,23 @@ package org.eclipse.jdt.internal.compiler.ast;
 import java.util.function.Supplier;
 
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
+import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public abstract class Pattern extends Expression {
 
 	/* package */ boolean isTotalTypeNode = false;
-	/* package */ static final char[] SecretPatternVariableName = "switchDispatchPattern".toCharArray(); //$NON-NLS-1$
+	static final char[] SECRET_PATTERN_VARIABLE_NAME = "secretPatternVariable".toCharArray(); //$NON-NLS-1$
+
+	public LocalVariableBinding secretPatternVariable = null;
 
 	protected MethodBinding accessorMethod;
+	/* package */ BranchLabel elseTarget;
+	/* package */ BranchLabel thenTarget;
+
 
 	public boolean isTotalForType(TypeBinding type) {
 		return false;
@@ -44,6 +51,26 @@ public abstract class Pattern extends Expression {
 	public TypeBinding resolveType(BlockScope scope, boolean isPatternVariable) {
 		return null;
 	}
+	public boolean isAlwaysTrue() {
+		return true;
+	}
+	@Override
+	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
+		if (this.elseTarget == null)
+			this.elseTarget = new BranchLabel(codeStream);
+		if (this.thenTarget == null)
+			this.thenTarget = new BranchLabel(codeStream);
+		generateOptimizedBoolean(currentScope, codeStream, this.thenTarget, this.elseTarget);
+	}
+	public void suspendVariables(CodeStream codeStream, BlockScope scope) {
+		// nothing by default
+	}
+	public void resumeVariables(CodeStream codeStream, BlockScope scope) {
+		// nothing by default
+	}
+	public abstract void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel);
+	protected abstract void generatePatternVariable(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel);
+	protected abstract void wrapupGeneration(CodeStream codeStream);
 
 	public TypeReference getType() {
 		return null;
@@ -53,6 +80,7 @@ public abstract class Pattern extends Expression {
 	public void setTargetSupplier(Supplier<BranchLabel> targetSupplier) {
 		// default implementation does nothing
 	}
+	protected abstract boolean isPatternTypeCompatible(TypeBinding other, BlockScope scope);
 
 	public abstract boolean dominates(Pattern p);
 

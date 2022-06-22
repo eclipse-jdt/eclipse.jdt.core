@@ -2517,4 +2517,9 @@ void setSourceStart(int sourceStart);
 	 * @noreference preview feature
 	 */
 	int RecordPatternMismatch =  PreviewRelated + 1913;
+	/**
+	 * @since 3.30
+	 * @noreference preview feature
+	 */
+	int PatternTypeMismatch =  PreviewRelated + 1914;
 }
