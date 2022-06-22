@@ -64,7 +64,7 @@ public class JRTUtil {
 	public static final int NOTIFY_ALL = NOTIFY_FILES | NOTIFY_PACKAGES | NOTIFY_MODULES;
 
 	// TODO: Java 9 Think about clearing the cache too.
-	private static Map<String, Optional<JrtFileSystem>> images = new ConcurrentHashMap<>();
+	private static Map<String, JrtFileSystem> images = new ConcurrentHashMap<>();
 
 	/**
 	 * Map from JDK home path to ct.sym file (located in /lib in the JDK)
@@ -114,17 +114,19 @@ public class JRTUtil {
 	public static JrtFileSystem getJrtSystem(File image, String release) {
 		String key = image.toString();
 		if (release != null) key = key + "|" + release; //$NON-NLS-1$
-		Optional<JrtFileSystem> system = images.computeIfAbsent(key, x -> {
+		JrtFileSystem system = images.computeIfAbsent(key, x -> {
 			try {
-				return Optional.ofNullable(JrtFileSystem.getNewJrtFileSystem(image, release));
+				return JrtFileSystem.getNewJrtFileSystem(image, release);
 			} catch (IOException e) {
 				// Needs better error handling downstream? But for now, make sure
 				// a dummy JrtFileSystem is not created.
+				System.err.println("Error: failed to create JrtFileSystem from " + image); //$NON-NLS-1$
 				e.printStackTrace();
-				return Optional.empty();
+				// Don't save value in the map, may be we can recover later
+				return null;
 			}
 		});
-		return system.orElse(null);
+		return system;
 	}
 
 	public static CtSym getCtSym(Path jdkHome) throws IOException {
