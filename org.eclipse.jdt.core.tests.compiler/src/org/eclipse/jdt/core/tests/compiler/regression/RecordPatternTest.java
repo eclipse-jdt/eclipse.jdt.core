@@ -16,9 +16,15 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Map;
 
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
@@ -29,9 +35,9 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "test009" };
+//		TESTS_NAMES = new String[] { "test25" };
 	}
-
+	private String extraLibPath;
 	public static Class<?> testClass() {
 		return RecordPatternTest.class;
 	}
@@ -54,7 +60,25 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	protected Map<String, String> getCompilerOptions() {
 		return getCompilerOptions(true);
 	}
-
+	protected String[] getDefaultClassPaths() {
+		String[] libs = DefaultJavaRuntimeEnvironment.getDefaultClassPaths();
+		if (this.extraLibPath != null) {
+			String[] l = new String[libs.length + 1];
+			System.arraycopy(libs, 0, l, 0, libs.length);
+			l[libs.length] = this.extraLibPath;
+			return l;
+		}
+		return libs;
+	}
+	@Override
+	protected INameEnvironment getNameEnvironment(final String[] testFiles, String[] classPaths, Map<String, String> options) {
+		this.classpaths = classPaths == null ? getDefaultClassPaths() : classPaths;
+		INameEnvironment[] classLibs = getClassLibs(false, options);
+		for (INameEnvironment nameEnvironment : classLibs) {
+			((FileSystem) nameEnvironment).scanForModules(createParser());
+		}
+		return new InMemoryNameEnvironment9(testFiles, this.moduleMap, classLibs);
+	}
 	@Override
 	protected void runConformTest(String[] testFiles, String expectedOutput) {
 		runConformTest(testFiles, expectedOutput, getCompilerOptions(true));
@@ -65,6 +89,33 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			return;
 		runConformTest(testFiles, expectedOutput, customOptions, new String[] {"--enable-preview"}, JAVAC_OPTIONS);
 	}
+	protected void runConformTest(
+			String[] testFiles,
+			String expectedOutputString,
+			String[] classLibraries,
+			boolean shouldFlushOutputDirectory,
+			String[] vmArguments) {
+			runTest(
+		 		// test directory preparation
+				shouldFlushOutputDirectory /* should flush output directory */,
+				testFiles /* test files */,
+				// compiler options
+				classLibraries /* class libraries */,
+				null /* no custom options */,
+				false /* do not perform statements recovery */,
+				null /* no custom requestor */,
+				// compiler results
+				false /* expecting no compiler errors */,
+				null /* do not check compiler log */,
+				// runtime options
+				false /* do not force execution */,
+				vmArguments /* vm arguments */,
+				// runtime results
+				expectedOutputString /* expected output string */,
+				null /* do not check error string */,
+				// javac options
+				JavacTestOptions.DEFAULT /* default javac test options */);
+		}
 	protected void runNegativeTest(
 			String[] testFiles,
 			String expectedCompilerLog,
@@ -797,6 +848,61 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"Returns: 0\n" +
 				"one\n" +
 				"Returns: 5");
+	}
+	//https://github.com/eclipse-jdt/eclipse.jdt.core/issues/157
+	public void test25() {
+		String currentWorkingDirectoryPath = System.getProperty("user.dir");
+		this.extraLibPath = currentWorkingDirectoryPath + File.separator + "libtest25.jar";
+		try {
+		Util.createJar(
+			new String[] {
+				"p/RecordPattern1.java;\n",
+				"package p;\n"
+				+ "public class RecordPattern1 {}\n"
+				+ "record Point(int x, int y) {}\n"
+				+ "enum Color {\n"
+				+ "	RED, GREEN, BLUE\n"
+				+ "}\n"
+				+ "record ColoredPoint(Point p, Color c) {}\n"
+				+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}\n"
+			},
+			this.extraLibPath,
+			JavaCore.VERSION_19,
+			true);
+		// new String[] {libPath}
+		this.runConformTest(
+				new String[] {
+						"p/X.java",
+						"package p;\n"
+						+ "@SuppressWarnings(\"preview\")\n"
+						+ "public class X {\n"
+						+ "	public static void printLowerRight(Rectangle r) {\n"
+						+ "		int res = switch(r) {\n"
+						+ "		case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
+						+ "				ColoredPoint lr) r1  -> {\n"
+						+ "					yield 1;  \n"
+						+ "				} \n"
+						+ "				default -> 0;\n"
+						+ "		};\n"
+						+ "		System.out.println(res);\n"
+						+ "	}\n"
+						+ "	public static void main(String[] args) {\n"
+						+ "			    printLowerRight(new Rectangle(new ColoredPoint(new Point(15, 5), Color.BLUE), \n"
+						+ "			        new ColoredPoint(new Point(30, 10), Color.RED)));\n"
+						+ "			  }\n"
+						+ "}\n"
+				},
+				"1",
+				null,
+				true,
+				new String[] {"--enable-preview"},
+				null,
+				null);
+		} catch (IOException e) {
+			System.err.println("RecordPatternTest.test25() could not write to current working directory " + currentWorkingDirectoryPath);
+		} finally {
+			new File(this.extraLibPath).delete();
+		}
 	}
 	// TODO:
 	// Test that var types are accepted within record patterns
