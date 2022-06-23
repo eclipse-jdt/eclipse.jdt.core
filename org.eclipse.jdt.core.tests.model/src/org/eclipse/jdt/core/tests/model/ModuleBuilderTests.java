@@ -35,6 +35,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IAccessRule;
 import org.eclipse.jdt.core.IClasspathAttribute;
+import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaModelMarker;
@@ -4764,6 +4765,42 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			assertMarkers("Unexpected markers",	"",  markers);
 		} finally {
 			deleteProject("morg.astro");
+			deleteProject("com.greetings");
+		}
+	}
+	public void testAddExportsIllegal() throws CoreException {
+		try {
+			// need to simulate a system library container (provided otherwise by jdt.launching)
+			ContainerInitializer.setInitializer(new TestContainerInitializer(IClasspathContainer.K_SYSTEM));
+
+			IJavaProject p = createJava10Project("com.greetings", new String[] {"src"}); // compliance 10 ensures that --release is effective
+			setClasspath(p, new IClasspathEntry[] {
+				JavaCore.newContainerEntry(new Path(TestContainerInitializer.TEST_CONTAINER_NAME), null,
+						new IClasspathAttribute[] {
+								new ClasspathAttribute("module", "true"),
+								new ClasspathAttribute(IClasspathAttribute.ADD_EXPORTS, "java.desktop/com.sun.imageio.plugins.png=ALL-UNNAMED") },
+						false),
+				JavaCore.newSourceEntry(new Path("/com.greetings/src"))
+			});
+			p.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
+			createSourceFiles(p, new String[] { // this file is not really used, due to the build path error
+					"src/Foo.java",
+					"import com.sun.imageio.plugins.png.PNGImageReader;\n" +
+					"import com.sun.imageio.plugins.png.PNGImageReaderSpi;\n" +
+					"\n" +
+					"public class Foo {\n" +
+					"	PNGImageReader r;\n" +
+					"}\n"
+			});
+			p.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
+			assertMarkers("Unexpected markers",
+					"Exporting a package from system module \'java.desktop\' is not allowed with --release.\n" +
+					"The project cannot be built until build path errors are resolved",
+					markers);
+		} finally {
+			ContainerInitializer.setInitializer(null);
 			deleteProject("com.greetings");
 		}
 	}
