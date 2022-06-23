@@ -17,6 +17,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
@@ -50,9 +51,18 @@ public class TypePattern extends Pattern {
 			this.resolveType(scope);
 		}
 		if (this.local != null && this.local.binding != null) {
+			LocalVariableBinding binding = this.local.binding;
+			if (variables != null) {
+				for (LocalVariableBinding variable : variables) {
+					if (variable == binding) continue; // Shouldn't happen
+					if (CharOperation.equals(binding.name, variable.name)) {
+						scope.problemReporter().redefineLocal(this.local);
+					}
+				}
+			}
 			if (this.patternVarsWhenTrue == null) {
 				this.patternVarsWhenTrue = new LocalVariableBinding[1];
-				this.patternVarsWhenTrue[0] = this.local.binding;
+				this.patternVarsWhenTrue[0] = binding;
 			}
 		}
 	}

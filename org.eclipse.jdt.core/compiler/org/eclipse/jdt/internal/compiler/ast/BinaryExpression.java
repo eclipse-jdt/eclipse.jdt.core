@@ -1812,6 +1812,14 @@ public StringBuffer printExpressionNoParenthesis(int indent, StringBuffer output
 }
 
 @Override
+public void collectPatternVariablesToScope(LocalVariableBinding[] variables, BlockScope scope) {
+	this.addPatternVariablesWhenTrue(variables);
+	this.left.addPatternVariablesWhenTrue(variables);
+	this.left.collectPatternVariablesToScope(variables, scope);
+	this.right.addPatternVariablesWhenTrue(variables);
+	this.right.collectPatternVariablesToScope(variables, scope);
+}
+@Override
 public void addPatternVariables(BlockScope scope, CodeStream codeStream) {
 	this.left.addPatternVariables(scope, codeStream);
 	this.right.addPatternVariables(scope, codeStream);

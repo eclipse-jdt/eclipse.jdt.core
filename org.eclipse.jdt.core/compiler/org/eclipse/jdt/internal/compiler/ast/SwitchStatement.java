@@ -823,6 +823,21 @@ public class SwitchStatement extends Expression {
 		return false;
 	}
 	@Override
+	public void collectPatternVariablesToScope(LocalVariableBinding[] variables, BlockScope skope) {
+		if (this.statements != null && this.containsPatterns) {
+			for (Statement stmt : this.statements) {
+				if (stmt instanceof CaseStatement) {
+					CaseStatement caseStatement = (CaseStatement) stmt;
+					if (caseStatement.constantExpressions != null) {
+						for (Expression exp : caseStatement.constantExpressions) {
+							exp.collectPatternVariablesToScope(variables, skope);
+						}
+					}
+				}
+			}
+		}
+	}
+	@Override
 	public void resolve(BlockScope upperScope) {
 		try {
 			boolean isEnumSwitch = false;

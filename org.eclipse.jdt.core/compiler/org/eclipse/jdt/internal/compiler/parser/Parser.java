@@ -10929,7 +10929,7 @@ protected void consumeRecordPatternWithId() {
 	char[] identifierName = this.identifierStack[this.identifierPtr];
 	long namePositions = this.identifierPositionStack[this.identifierPtr--];
 	TypeReference type = getTypeReference(0);
-	LocalDeclaration local = new LocalDeclaration(identifierName, type.sourceStart, (int) namePositions);
+	LocalDeclaration local = new LocalDeclaration(identifierName, (int) (namePositions >>> 32), (int) namePositions);
 	local.type = type;
 	RecordPattern recPattern = new RecordPattern(local);
 	if (length != 0) {

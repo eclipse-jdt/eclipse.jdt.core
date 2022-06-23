@@ -61,7 +61,7 @@ public class RecordPattern extends TypePattern {
 		this.addPatternVariablesWhenTrue(variables);
 		super.collectPatternVariablesToScope(variables, scope);
 		for (Pattern p : this.patterns) {
-			p.collectPatternVariablesToScope(this.patternVarsWhenTrue, scope);
+			p.collectPatternVariablesToScope(variables, scope);
 			this.addPatternVariablesWhenTrue(p.patternVarsWhenTrue);
 		}
 	}

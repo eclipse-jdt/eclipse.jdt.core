@@ -340,7 +340,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"----------\n" +
 				"1. ERROR in X.java (at line 4)\n" +
 				"	if (r instanceof (Rectangle(ColoredPoint(Point(int i, int j), Color c), ColoredPoint lr, Object obj) r1)) {    \n" +
-				"	                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"	                                                                                                     ^^\n" +
 				"Record pattern should match the signature of the record declaration\n" +
 				"----------\n");
 	}
@@ -376,10 +376,9 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"
 				},
 				"----------\n" +
-				"1. ERROR in X.java (at line 8)\n" +
-				"	case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n" +
-				"				ColoredPoint(Point(int x1, int y1), Color c1)) r1 -> {\n" +
-				"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"1. ERROR in X.java (at line 9)\n" +
+				"	ColoredPoint(Point(int x1, int y1), Color c1)) r1 -> {\n" +
+				"	                                               ^^\n" +
 				"This case label is dominated by one of the preceding case label\n" +
 				"----------\n");
 	}
@@ -903,6 +902,105 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 		} finally {
 			new File(this.extraLibPath).delete();
 		}
+	}
+	// Test that pattern variables declared in instanceof can't be used in a switch/case
+	public void test26() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"@SuppressWarnings(\"preview\")\n"
+						+ "public class X {\n"
+						+ "  static void print(Rectangle r) {\n"
+						+ "    	if (r instanceof Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
+						+ "			ColoredPoint lr) r1 && x > (switch(r) {\n"
+						+ "										case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
+						+ "												ColoredPoint lr) r1  -> { \n"
+						+ "													yield 1;\n"
+						+ "												}\n"
+						+ "												default -> 0;  \n"
+						+ "												})) {\n"
+						+ "		System.out.println(x);\n"
+						+ "	  }\n"
+						+ "	}\n"
+						+ "}\n"
+						+ "record Point(int x, int y) {}\n"
+						+ "enum Color { RED, GREEN, BLUE }\n"
+						+ "record ColoredPoint(Point p, Color c) {}\n"
+						+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"
+			},
+				"----------\n" +
+				"1. ERROR in X.java (at line 6)\n" +
+				"	case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n" +
+				"	                                      ^\n" +
+				"Duplicate local variable x\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 6)\n" +
+				"	case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n" +
+				"	                                             ^\n" +
+				"Duplicate local variable y\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 6)\n" +
+				"	case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n" +
+				"	                                                       ^\n" +
+				"Duplicate local variable c\n" +
+				"----------\n" +
+				"4. ERROR in X.java (at line 7)\n" +
+				"	ColoredPoint lr) r1  -> { \n" +
+				"	             ^^\n" +
+				"Duplicate local variable lr\n" +
+				"----------\n" +
+				"5. ERROR in X.java (at line 7)\n" +
+				"	ColoredPoint lr) r1  -> { \n" +
+				"	                 ^^\n" +
+				"Duplicate local variable r1\n" +
+				"----------\n");
+	}
+	// Test that pattern variables declared in switch/case can't be used in an instanceof expression part of the 'when' clause
+	public void test27() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"@SuppressWarnings(\"preview\")\n"
+						+ "public class X {\n"
+						+ "  static void print(Rectangle r) {\n"
+						+ "	int res = switch(r) {\n"
+						+ "		case Rectangle(ColoredPoint(Point(int x, int y), Color c), ColoredPoint lr) r1 when (r1 instanceof  Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
+						+ "				ColoredPoint lr) r1) -> { \n"
+						+ "				yield 1;\n"
+						+ "			}\n"
+						+ "			default -> 0;  \n"
+						+ "	};\n"
+						+ "	}\n"
+						+ "}\n"
+						+ "record Point(int x, int y) {}\n"
+						+ "enum Color { RED, GREEN, BLUE }\n"
+						+ "record ColoredPoint(Point p, Color c) {}\n"
+						+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"
+			},
+				"----------\n" +
+				"1. ERROR in X.java (at line 5)\n" +
+				"	case Rectangle(ColoredPoint(Point(int x, int y), Color c), ColoredPoint lr) r1 when (r1 instanceof  Rectangle(ColoredPoint(Point(int x, int y), Color c),\n" +
+				"	                                                                                                                                     ^\n" +
+				"Duplicate local variable x\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 5)\n" +
+				"	case Rectangle(ColoredPoint(Point(int x, int y), Color c), ColoredPoint lr) r1 when (r1 instanceof  Rectangle(ColoredPoint(Point(int x, int y), Color c),\n" +
+				"	                                                                                                                                            ^\n" +
+				"Duplicate local variable y\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 5)\n" +
+				"	case Rectangle(ColoredPoint(Point(int x, int y), Color c), ColoredPoint lr) r1 when (r1 instanceof  Rectangle(ColoredPoint(Point(int x, int y), Color c),\n" +
+				"	                                                                                                                                                      ^\n" +
+				"Duplicate local variable c\n" +
+				"----------\n" +
+				"4. ERROR in X.java (at line 6)\n" +
+				"	ColoredPoint lr) r1) -> { \n" +
+				"	             ^^\n" +
+				"Duplicate local variable lr\n" +
+				"----------\n" +
+				"5. ERROR in X.java (at line 6)\n" +
+				"	ColoredPoint lr) r1) -> { \n" +
+				"	                 ^^\n" +
+				"Duplicate local variable r1\n" +
+				"----------\n");
 	}
 	// TODO:
 	// Test that var types are accepted within record patterns

@@ -28,7 +28,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference.AnnotationPosition;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -284,24 +283,6 @@ public boolean resolvePatternVariable(BlockScope scope) {
 @Override
 public void collectPatternVariablesToScope(LocalVariableBinding[] variables, BlockScope scope) {
 	this.expression.collectPatternVariablesToScope(variables, scope);
-	if (this.elementVariable != null) {
-		if (this.elementVariable.binding == null) {
-			resolvePatternVariable(scope);
-			if (variables != null) {
-				for (LocalVariableBinding variable : variables) {
-					if (CharOperation.equals(this.elementVariable.name, variable.name)) {
-						scope.problemReporter().redefineLocal(this.elementVariable);
-					}
-				}
-			}
-		}
-		if (this.patternVarsWhenTrue == null) {
-			this.patternVarsWhenTrue = new LocalVariableBinding[1];
-			this.patternVarsWhenTrue[0] = this.elementVariable.binding;
-		} else {
-			this.addPatternVariablesWhenTrue(new LocalVariableBinding[] {this.elementVariable.binding});
-		}
-	}
 	if (this.pattern != null) {
 		this.pattern.collectPatternVariablesToScope(variables, scope);
 		this.addPatternVariablesWhenTrue(this.pattern.patternVarsWhenTrue);
