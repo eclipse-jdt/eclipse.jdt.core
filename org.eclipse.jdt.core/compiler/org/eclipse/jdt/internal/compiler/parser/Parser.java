@@ -10919,6 +10919,7 @@ protected void consumeRecordPattern() {
 	} else {
 		recPattern.patterns = ASTNode.NO_TYPE_PATTERNS;
 	}
+	this.intPtr -= 3; // 2 for '(' and ')' and one for the 0 pushed by consumeReferenceType()
 	problemReporter().validateJavaFeatureSupport(JavaFeature.RECORD_PATTERNS, type.sourceStart, sourceEnd);
 	pushOnAstStack(recPattern);
 }
@@ -10929,7 +10930,8 @@ protected void consumeRecordPatternWithId() {
 	char[] identifierName = this.identifierStack[this.identifierPtr];
 	long namePositions = this.identifierPositionStack[this.identifierPtr--];
 	TypeReference type = getTypeReference(0);
-	LocalDeclaration local = new LocalDeclaration(identifierName, (int) (namePositions >>> 32), (int) namePositions);
+	LocalDeclaration local = createLocalDeclaration(identifierName, (int) (namePositions >>> 32), (int) namePositions);
+	local.declarationSourceEnd = local.declarationEnd;
 	local.type = type;
 	RecordPattern recPattern = new RecordPattern(local);
 	if (length != 0) {
@@ -10944,6 +10946,10 @@ protected void consumeRecordPatternWithId() {
 	} else {
 		recPattern.patterns = ASTNode.NO_TYPE_PATTERNS;
 	}
+	this.intPtr -= 3; // 2 for '(' and ')' and one for the 0 pushed by consumeReferenceType()
+	recPattern.sourceStart = this.intStack[this.intPtr--];
+	local.modifiers =  this.intStack[this.intPtr--];
+	local.declarationSourceStart = type.sourceStart;
 	pushOnAstStack(recPattern);
 }
 protected void consumeRecordStructure() {
