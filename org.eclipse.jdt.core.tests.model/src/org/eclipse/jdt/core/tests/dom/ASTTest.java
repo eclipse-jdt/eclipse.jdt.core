@@ -1337,6 +1337,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
         case JavaCore.VERSION_16: return AST.JLS16;
         case JavaCore.VERSION_17: return AST.JLS17;
         case JavaCore.VERSION_18: return AST.JLS18;
+        case JavaCore.VERSION_19: return AST.JLS19;
         default:  return AST.JLS2;
 		}
 	}
@@ -9503,7 +9504,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			ASTNode.NULL_PATTERN,
 			ASTNode.CASE_DEFAULT_EXPRESSION,
 			ASTNode.TAG_PROPERTY,
-			ASTNode.JAVADOC_REGION
+			ASTNode.JAVADOC_REGION,
+			ASTNode.RECORD_PATTERN
 		};
 
 		// assert that nodeType values are correct:

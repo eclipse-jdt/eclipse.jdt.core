@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021, 2022 IBM Corporation and others.
+ * Copyright (c) 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -27,22 +27,28 @@ import org.eclipse.jdt.internal.core.dom.util.DOMASTUtil;
  * TypePattern pattern AST node type.
  *
  * <pre>
- * TypePattern:
- *      SingleVariableDeclaration
+ * RecordPattern:
+ *      Pattern<Pattern<Patterns....>> SingleVariableDeclaration
  * </pre>
  *
- * @since 3.27
+ * @since 3.31 BETA_JAVA19
  * @noinstantiate This class is not intended to be instantiated by clients.
  * @noreference This class is not intended to be referenced by clients.
  */
 @SuppressWarnings("rawtypes")
-public class TypePattern extends Pattern {
+public class RecordPattern extends Pattern {
+
 	/**
 	 * The "patternVariable" structural property of this node type (child type: {@link SingleVariableDeclaration}).
 	 */
 	public static final ChildPropertyDescriptor PATTERN_VARIABLE_PROPERTY =
-			new ChildPropertyDescriptor(TypePattern.class, "patternVariable", SingleVariableDeclaration.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+			new ChildPropertyDescriptor(RecordPattern.class, "patternVariable", SingleVariableDeclaration.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
 
+	/**
+	 * The "patterns" structural property of this node type (child type: {@link Pattern}).
+	 */
+	public static final ChildListPropertyDescriptor PATTERNS_PROPERTY =
+			new ChildListPropertyDescriptor(RecordPattern.class, "patterns", Pattern.class, CYCLE_RISK); //$NON-NLS-1$
 	/**
 	 * A list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor}),
@@ -51,18 +57,19 @@ public class TypePattern extends Pattern {
 	private static final List PROPERTY_DESCRIPTORS;
 
 	static {
-		List properyList = new ArrayList(3);
-		createPropertyList(TypePattern.class, properyList);
+		List properyList = new ArrayList(4);
+		createPropertyList(RecordPattern.class, properyList);
 		addProperty(PATTERN_VARIABLE_PROPERTY, properyList);
+		addProperty(PATTERNS_PROPERTY, properyList);
 		PROPERTY_DESCRIPTORS = reapPropertyList(properyList);
 	}
 
 	@Override
 	int getNodeType0() {
-		return ASTNode.TYPE_PATTERN;
+		return ASTNode.RECORD_PATTERN;
 	}
 
-	TypePattern(AST ast) {
+	RecordPattern(AST ast) {
 		super(ast);
 		supportedOnlyIn19();
 		unsupportedWithoutPreviewError();
@@ -73,6 +80,14 @@ public class TypePattern extends Pattern {
 	 * The pattern Variable list; <code>empty</code> for none;
 	 */
 	private SingleVariableDeclaration patternVariable = null;
+
+	/**
+	 * The patterns
+	 * (element type: {@link Pattern}).
+	 * Defaults to an empty list.
+	 */
+	private ASTNode.NodeList patterns =
+		new ASTNode.NodeList(PATTERNS_PROPERTY);
 
 	/**
 	 * Returns a list of structural property descriptors for this node type.
@@ -126,11 +141,20 @@ public class TypePattern extends Pattern {
 	}
 
 	@Override
+	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
+		if (property == PATTERNS_PROPERTY) {
+			return patterns();
+		}
+		// allow default implementation to flag the error
+		return super.internalGetChildListProperty(property);
+	}
+	@Override
 	public List<SingleVariableDeclaration> patternVariables() {
 		supportedOnlyIn19();
 		unsupportedWithoutPreviewError();
 		return new ArrayList<SingleVariableDeclaration>(Arrays.asList(getPatternVariable()));
 	}
+
 
 	/**
 	 * Sets the pattern variable.
@@ -182,6 +206,23 @@ public class TypePattern extends Pattern {
 		return this.patternVariable;
 	}
 
+	/**
+	 * Returns the nested Pattern list.
+	 *
+	 * @return the live list of pattern nodes
+	 *    (element type: {@link Pattern})
+	 * @exception UnsupportedOperationException if this operation is used other than JLS19
+	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
+	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
+	 */
+	@SuppressWarnings("unchecked")
+	public List<Pattern> patterns() {
+		supportedOnlyIn19();
+		unsupportedWithoutPreviewError();
+		return this.patterns;
+	}
+
+
 	@Override
 	boolean subtreeMatch0(ASTMatcher matcher, Object other) {
 		return matcher.match(this, other);
@@ -189,9 +230,10 @@ public class TypePattern extends Pattern {
 
 	@Override
 	ASTNode clone0(AST target) {
-		TypePattern result = new TypePattern(target);
+		RecordPattern result = new RecordPattern(target);
 		result.setSourceRange(getStartPosition(), getLength());
 		result.setPatternVariable((SingleVariableDeclaration) getPatternVariable().clone(target));
+		result.patterns().addAll(ASTNode.copySubtrees(target, patterns()));
 		return result;
 	}
 
@@ -201,6 +243,7 @@ public class TypePattern extends Pattern {
 		if (visitChildren) {
 			// visit children in normal left to right reading order
 			acceptChild(visitor, getPatternVariable());
+			acceptChildren(visitor, this.patterns);
 		}
 		visitor.endVisit(this);
 
@@ -208,14 +251,15 @@ public class TypePattern extends Pattern {
 
 	@Override
 	int memSize() {
-		return BASE_NODE_SIZE + 1 * 4;
+		return BASE_NODE_SIZE + 2 * 4 ;
 	}
 
 	@Override
 	int treeSize() {
 		return
 				memSize()
-				+ (this.patternVariable == null ? 0 : getPatternVariable().treeSize());
+				+ (this.patternVariable == null ? 0 : getPatternVariable().treeSize())
+				+ this.patterns.listSize();
 	}
 
 
