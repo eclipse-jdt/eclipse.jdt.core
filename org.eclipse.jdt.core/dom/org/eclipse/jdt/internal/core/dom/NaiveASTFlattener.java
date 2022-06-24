@@ -900,6 +900,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 		return false;
 	}
 
+
 	@Override
 	public boolean visit(PatternInstanceofExpression node) {
 		node.getLeftOperand().accept(this);
@@ -1425,6 +1426,36 @@ public class NaiveASTFlattener extends ASTVisitor {
 		this.buffer.append("}\n");//$NON-NLS-1$
 		return false;
 	}
+
+	@Override
+	public boolean visit(RecordPattern node) {
+		if (DOMASTUtil.isPatternSupported(node.getAST())) {
+			for (Pattern pattern : node.patterns()) {
+				visitPattern(pattern);
+			}
+			if (node.getPatternVariable() != null) {
+				node.getPatternVariable().accept(this);
+			}
+		}
+		return false;
+	}
+
+	private boolean visitPattern(Pattern node) {
+		if (!DOMASTUtil.isPatternSupported(node.getAST())) {
+			return false;
+		}
+		if (node instanceof RecordPattern) {
+			visit((RecordPattern) node);
+		}
+		if (node instanceof GuardedPattern) {
+			return visit((GuardedPattern) node);
+		}
+		if (node instanceof TypePattern) {
+			return visit((TypePattern) node);
+		}
+		return false;
+	}
+
 
 	@Override
 	public boolean visit(RequiresDirective node) {
