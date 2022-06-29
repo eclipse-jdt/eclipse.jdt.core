@@ -79,6 +79,7 @@ public class RecordPattern extends TypePattern {
 	}
 	@Override
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
+		this.thenInitStateIndex1 = currentScope.methodScope().recordInitializationStates(flowInfo);
 		flowInfo = super.analyseCode(currentScope, flowContext, flowInfo);
 		for (Pattern p : this.patterns) {
 			 p.analyseCode(currentScope, flowContext, flowInfo);
