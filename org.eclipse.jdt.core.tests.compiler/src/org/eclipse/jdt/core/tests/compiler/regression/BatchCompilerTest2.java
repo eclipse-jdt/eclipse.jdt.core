@@ -461,7 +461,7 @@ public void testIssue147() throws Exception {
 			"}\n"
 		},
 		"\"" + OUTPUT_DIR +  File.separator + "X.java\"" +
-				" --release " + CompilerOptions.VERSION_11 + " ",
+				" --release " + CompilerOptions.VERSION_9 + " ",
 				"",
 				"",
 				true);

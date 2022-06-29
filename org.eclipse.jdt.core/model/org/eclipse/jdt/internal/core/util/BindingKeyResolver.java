@@ -423,7 +423,9 @@ public class BindingKeyResolver extends BindingKeyParser {
 					this.methodBinding = method;
 					this.compilerBinding = this.methodBinding;
 					return;
-				} else if ((method.tagBits & TagBits.AnnotationPolymorphicSignature) != 0) {
+				} else if (method.hasPolymorphicSignature(this.scope)) {
+					// set polymorphic tagbits
+					method.tagBits |= TagBits.AnnotationPolymorphicSignature;
 					this.typeBinding = null;
 					char[][] typeParameters = Signature.getParameterTypes(signature);
 					int length = typeParameters.length;

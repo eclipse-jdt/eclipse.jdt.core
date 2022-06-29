@@ -869,11 +869,11 @@ public abstract class Scope {
 				tiebreakingVarargsMethods = false;
 		}
 
-		deduceSignaturePolymorphicAnnotation(method);
 
 		if ((parameterCompatibilityLevel(method, arguments, tiebreakingVarargsMethods)) > NOT_COMPATIBLE) {
-			if ((method.tagBits & TagBits.AnnotationPolymorphicSignature) != 0) {
-				// generate polymorphic method
+			if (method.hasPolymorphicSignature(this)) {
+				// generate polymorphic method and set polymorphic tagbits as well
+				method.tagBits |= TagBits.AnnotationPolymorphicSignature;
 				return this.environment().createPolymorphicMethod(method, arguments, this);
 			}
 			return method;
@@ -887,34 +887,6 @@ public abstract class Scope {
 		if (method instanceof PolyParameterizedGenericMethodBinding) // Not reached, but left in for now.
 			return new ProblemMethodBinding(method, method.selector, method.parameters, ProblemReasons.InferredApplicableMethodInapplicable);
 		return null; // incompatible
-	}
-
-	/* Need to deduce Signature polymorphic method based on https://docs.oracle.com/javase/specs/jls/se11/html/jls-15.html#jls-15.12.3
-	 * Definition reproduced here
-	 *
-	 * A method is signature polymorphic if all of the following are true:
-	 *  * It is declared in the java.lang.invoke.MethodHandle class or the java.lang.invoke.VarHandle class.
-	 *  * It has a single variable arity parameter (§8.4.1) whose declared type is Object[].
-	 *  * It is native.
-	 */
-
-	private void deduceSignaturePolymorphicAnnotation(MethodBinding method) {
-		if (((method.tagBits & TagBits.AnnotationPolymorphicSignature) == 0)
-				&& method.isNative()
-				&& method.isVarargs()
-				&& method.parameters.length == 1) {
-			/*
-			 *  here type will be arrayType we will come here only if the method is of type
-			 *  varargs(represented by arraytype) and with only one parameter.
-			 */
-			if (method.parameters[0].leafComponentType().id == TypeIds.T_JavaLangObject) {
-				ReferenceBinding declaringClass = method.declaringClass;
-				if ((declaringClass != null)
-						&&(declaringClass.id == getJavaLangInvokeMethodHandle().id||declaringClass.id == getJavaLangInvokeVarHandle().id)) {
-					method.tagBits |= TagBits.AnnotationPolymorphicSignature;
-				}
-			}
-		}
 	}
 
 	/**
@@ -1388,8 +1360,9 @@ public abstract class Scope {
 				if (invocationSite.genericTypeArguments() != null) {
 					// computeCompatibleMethod(..) will return a PolymorphicMethodBinding if needed
 					exactMethod = computeCompatibleMethod(exactMethod, argumentTypes, invocationSite);
-				} else if ((exactMethod.tagBits & TagBits.AnnotationPolymorphicSignature) != 0) {
-					// generate polymorphic method
+				} else if (exactMethod.hasPolymorphicSignature(this)) {
+					// generate polymorphic method and set polymorphic tagbits as well
+					exactMethod.tagBits |= TagBits.AnnotationPolymorphicSignature;
 					return this.environment().createPolymorphicMethod(exactMethod, argumentTypes, this);
 				}
 				return exactMethod;
