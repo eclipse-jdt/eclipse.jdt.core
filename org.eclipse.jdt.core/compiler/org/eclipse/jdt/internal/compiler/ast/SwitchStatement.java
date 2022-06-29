@@ -1191,7 +1191,6 @@ public class SwitchStatement extends Expression {
 			this.scope.addLocalVariable(this.dispatchPatternCopy);
 			this.dispatchPatternCopy.setConstant(Constant.NotAConstant);
 			this.dispatchPatternCopy.useFlag = LocalVariableBinding.USED;
-
 			this.restartIndexLocal  = new LocalVariableBinding(SecretPatternRestartIndexName, TypeBinding.INT, ClassFileConstants.AccDefault, false);
 			this.scope.addLocalVariable(this.restartIndexLocal);
 			this.restartIndexLocal.setConstant(Constant.NotAConstant);

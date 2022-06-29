@@ -340,7 +340,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"----------\n" +
 				"1. ERROR in X.java (at line 4)\n" +
 				"	if (r instanceof (Rectangle(ColoredPoint(Point(int i, int j), Color c), ColoredPoint lr, Object obj) r1)) {    \n" +
-				"	                                                                                                     ^^\n" +
+				"	                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 				"Record pattern should match the signature of the record declaration\n" +
 				"----------\n");
 	}
@@ -376,9 +376,10 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"
 				},
 				"----------\n" +
-				"1. ERROR in X.java (at line 9)\n" +
-				"	ColoredPoint(Point(int x1, int y1), Color c1)) r1 -> {\n" +
-				"	                                               ^^\n" +
+				"1. ERROR in X.java (at line 8)\n" +
+				"	case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n" +
+				"				ColoredPoint(Point(int x1, int y1), Color c1)) r1 -> {\n" +
+				"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 				"This case label is dominated by one of the preceding case label\n" +
 				"----------\n");
 	}
@@ -653,8 +654,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	public void test19() {
 		runConformTest(new String[] {
 				"X.java",
-				"@SuppressWarnings(\"preview\")"
-						+ "public class X {\n"
+						"public class X {\n"
 						+ "	 @SuppressWarnings(\"preview\")\n"
 						+ "	public static void print(Pair p) {\n"
 						+ "		 int res1 = switch(p) {\n"
@@ -684,8 +684,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	public void test20() {
 		runConformTest(new String[] {
 				"X.java",
-				"@SuppressWarnings(\"preview\")"
-						+ "public class X {\n"
+						"public class X {\n"
 						+ "	 @SuppressWarnings(\"preview\")\n"
 						+ "	public static void print(Object p) {\n"
 						+ "		 int res1 = switch(p) {\n"
@@ -814,7 +813,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	}
 	// Nested record pattern with another switch expression + record pattern in a 'when' clause
 	// Failing now.
-	public void _test24() {
+	public void test24() {
 		runConformTest(new String[] {
 				"X.java",
 					"public class X {\n"
@@ -845,8 +844,36 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 					+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"
 						},
 				"Returns: 0\n" +
-				"one\n" +
 				"Returns: 5");
+	}
+	public void test24a() {
+		runConformTest(new String[] {
+				"X.java",
+					"public class X {\n"
+					+ "  @SuppressWarnings(\"preview\")\n"
+					+ "  public static void printLowerRight(Object r) {\n"
+					+ "    	  int x = 0;\n"
+					+ "       if (r instanceof Rectangle(ColoredPoint c,  ColoredPoint lr) r1 && x < switch(r) {\n"
+					+ "    	 case Rectangle(ColoredPoint c1,  ColoredPoint lr1) r2  -> 2;  \n"
+					+ "    	 default -> 3;   \n"
+					+ "	  }) {\n"
+					+ "		  System.out.println(\"IF\");\n"
+					+ "	  }\n"
+					+ "  }\n"
+					+ "  public static void main(String[] args) {\n"
+					+ "    printLowerRight(new Rectangle(new ColoredPoint(new Point(0, 0), Color.BLUE), \n"
+					+ "        new ColoredPoint(new Point(30, 10), Color.RED)));\n"
+					+ "    printLowerRight(new Rectangle(new ColoredPoint(new Point(5, 5), Color.BLUE), \n"
+					+ "        new ColoredPoint(new Point(30, 10), Color.RED)));\n"
+					+ "  }\n"
+					+ "}\n"
+					+ "record Point(int x, int y) {}\n"
+					+ "enum Color { RED, GREEN, BLUE }\n"
+					+ "record ColoredPoint(Point p, Color c) {}\n"
+					+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"
+						},
+				"IF\n" +
+				"IF");
 	}
 	//https://github.com/eclipse-jdt/eclipse.jdt.core/issues/157
 	public void test25() {
