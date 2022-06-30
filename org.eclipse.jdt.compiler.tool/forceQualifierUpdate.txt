@@ -1,8 +1,0 @@
-# To force a version qualifier update add the bug here
-Bug 403352 - Update all parent versions to match our build stream
-Bug 407853 - ECJ download misses legal file (about.html)
-Bug 386901 - Eclipse does not pass all annotated classes to annotation processor
-Bug 407852 - ECJ source download is not correct
-Bug 534597 - Unanticipated comparator errors in I20180511-2000
-Bug 566471 - I20200828-0150 - Comparator Errors Found
-Bug 573283 - javax15api.jar contains Java 14 (58.0) class files

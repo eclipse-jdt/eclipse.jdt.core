@@ -6,5 +6,6 @@ Bundle-Version: 1.1.0.qualifier
 Bundle-Vendor: %providerName
 Bundle-RequiredExecutionEnvironment: JavaSE-11
 Export-Package: META-INF.services
+Require-Bundle: org.eclipse.jdt.core.compiler.batch;bundle-version="3.33.0"
 Automatic-Module-Name: org.eclipse.jdt.core.internal.tools
 
