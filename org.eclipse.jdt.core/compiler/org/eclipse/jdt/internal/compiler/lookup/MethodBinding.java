@@ -1489,8 +1489,8 @@ public boolean hasPolymorphicSignature(Scope scope) {
 		 */
 		if (this.parameters[0].leafComponentType().id == TypeIds.T_JavaLangObject) {
 			ReferenceBinding declaringClassLocal = this.declaringClass;
-			if ((declaringClassLocal != null)
-					&&(declaringClassLocal.id == scope.getJavaLangInvokeMethodHandle().id||declaringClassLocal.id == scope.getJavaLangInvokeVarHandle().id)) {
+			if ((declaringClassLocal != null) && (declaringClassLocal.id == scope.getJavaLangInvokeMethodHandle().id
+					|| declaringClassLocal.id == scope.getJavaLangInvokeVarHandle().id)) {
 				return true;
 			}
 		}
