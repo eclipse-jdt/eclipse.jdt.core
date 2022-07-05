@@ -26,7 +26,7 @@ import junit.framework.Test;
 public class BatchCompilerTest2 extends AbstractBatchCompilerTest {
 
 	static {
-//		TESTS_NAMES = new String[] { "test440477" };
+//		TESTS_NAMES = new String[] { "testIssue147" };
 //		TESTS_NUMBERS = new int[] { 306 };
 //		TESTS_RANGE = new int[] { 298, -1 };
 	}
@@ -438,4 +438,34 @@ public void testIssue114() {
 		);
 }
 
+public void testIssue147() throws Exception {
+	runConformTest(
+		new String[] {
+			"X.java",
+			"import java.lang.invoke.MethodHandle;\n" +
+			"import java.lang.invoke.MethodHandles;\n" +
+			"import java.lang.reflect.Method;\n" +
+			"\n" +
+			"\n" +
+			"public class X {\n" +
+			"	public final Object invoke(Object self) throws Throwable {\n" +
+			"\n" +
+			"			Method method = null;\n" +
+			"			try {\n" +
+			"				MethodHandle methodHandle = MethodHandles.lookup().unreflect(method );\n" +
+			"				return methodHandle.invoke(self);\n" +
+			"			} catch (IllegalArgumentException e) {\n" +
+			"				throw e;\n" +
+			"			} \n" +
+			"		}\n" +
+			"}\n"
+		},
+		"\"" + OUTPUT_DIR +  File.separator + "X.java\"" +
+				" --release " + CompilerOptions.VERSION_9 + " ",
+				"",
+				"",
+				true);
+	String expectedOutput = "java.lang.invoke.MethodHandle.invoke(java.lang.Object)";
+	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+}
 }
