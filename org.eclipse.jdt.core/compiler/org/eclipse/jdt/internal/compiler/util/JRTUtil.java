@@ -55,9 +55,8 @@ public class JRTUtil {
 	static final String[] NO_MODULE = new String[0];
 	static final String MULTIPLE = "MU"; //$NON-NLS-1$
 	static final String DEFAULT_PACKAGE = ""; //$NON-NLS-1$
-	static String MODULE_TO_LOAD;
 	public static final String JRT_FS_JAR = "jrt-fs.jar"; //$NON-NLS-1$
-	static URI JRT_URI = URI.create("jrt:/"); //$NON-NLS-1$
+	final static URI JRT_URI = URI.create("jrt:/"); //$NON-NLS-1$
 	public static final int NOTIFY_FILES = 0x0001;
 	public static final int NOTIFY_PACKAGES = 0x0002;
 	public static final int NOTIFY_MODULES = 0x0004;
@@ -151,7 +150,6 @@ public class JRTUtil {
 	/** TEST ONLY (use when changing the "modules.to.load" property). */
 	public static void reset() {
 		images.clear();
-		MODULE_TO_LOAD = System.getProperty("modules.to.load"); //$NON-NLS-1$
 	}
 
 	/**
@@ -284,8 +282,8 @@ class JrtFileSystemWithOlderRelease extends JrtFileSystem {
 					if (count == 2) {
 						// e.g. /9A/java.base
 						java.nio.file.Path mod = dir.getName(1);
-						if ((JRTUtil.MODULE_TO_LOAD != null && JRTUtil.MODULE_TO_LOAD.length() > 0
-								&& JRTUtil.MODULE_TO_LOAD.indexOf(mod.toString()) == -1)) {
+						if ((MODULE_TO_LOAD != null && MODULE_TO_LOAD.length() > 0
+								&& MODULE_TO_LOAD.indexOf(mod.toString()) == -1)) {
 							return FileVisitResult.SKIP_SUBTREE;
 						}
 						return ((notify & JRTUtil.NOTIFY_MODULES) == 0) ? FileVisitResult.CONTINUE
@@ -342,6 +340,8 @@ class JrtFileSystem {
 	Path modRoot;
 	String jdkHome;
 
+	protected final String MODULE_TO_LOAD;
+
 	public static JrtFileSystem getNewJrtFileSystem(File jrt, String release) throws IOException {
 		return (release == null) ? new JrtFileSystem(jrt) :
 				new JrtFileSystemWithOlderRelease(jrt, release);
@@ -356,6 +356,7 @@ class JrtFileSystem {
 	 * @throws IOException
 	 */
 	JrtFileSystem(File jrt) throws IOException {
+		MODULE_TO_LOAD = System.getProperty("modules.to.load"); //$NON-NLS-1$
 		initialize(jrt);
 	}
 
@@ -370,7 +371,6 @@ class JrtFileSystem {
 			jrtPath = Paths.get(this.jdkHome, "lib", JRTUtil.JRT_FS_JAR).toUri().toURL(); //$NON-NLS-1$
 
 		}
-		JRTUtil.MODULE_TO_LOAD = System.getProperty("modules.to.load"); //$NON-NLS-1$
 		String javaVersion = System.getProperty("java.version"); //$NON-NLS-1$
 		if (javaVersion != null && javaVersion.startsWith("1.8")) { //$NON-NLS-1$
 			try (URLClassLoader loader = new URLClassLoader(new URL[] { jrtPath })) {
@@ -587,8 +587,8 @@ class JrtFileSystem {
 				if (count == 2) {
 					// e.g. /modules/java.base
 					java.nio.file.Path mod = dir.getName(1);
-					if ((JRTUtil.MODULE_TO_LOAD != null && JRTUtil.MODULE_TO_LOAD.length() > 0 &&
-							JRTUtil.MODULE_TO_LOAD.indexOf(mod.toString()) == -1)) {
+					if ((MODULE_TO_LOAD != null && MODULE_TO_LOAD.length() > 0 &&
+							MODULE_TO_LOAD.indexOf(mod.toString()) == -1)) {
 						return FileVisitResult.SKIP_SUBTREE;
 					}
 					return ((notify & JRTUtil.NOTIFY_MODULES) == 0) ?
