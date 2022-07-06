@@ -47,6 +47,7 @@ import org.eclipse.jdt.internal.compiler.env.IModule;
 public class JRTUtil {
 
 	public static final boolean DISABLE_CACHE = Boolean.getBoolean("org.eclipse.jdt.disable_JRT_cache"); //$NON-NLS-1$
+	public static final boolean PROPAGATE_IO_ERRORS = Boolean.getBoolean("org.eclipse.jdt.propagate_io_errors"); //$NON-NLS-1$
 
 	public static final String JAVA_BASE = "java.base".intern(); //$NON-NLS-1$
 	public static final char[] JAVA_BASE_CHAR = JAVA_BASE.toCharArray();
@@ -224,7 +225,19 @@ public class JRTUtil {
 	public static byte[] safeReadBytes(Path path) throws IOException {
 		try {
 			return Files.readAllBytes(path);
-		} catch (ClosedByInterruptException | NoSuchFileException e) {
+		} catch (ClosedByInterruptException e) {
+			// retry once again
+			try {
+				return Files.readAllBytes(path);
+			} catch (NoSuchFileException e2) {
+				return null;
+			} catch (ClosedByInterruptException e2) {
+				if (PROPAGATE_IO_ERRORS) {
+					throw e2;
+				}
+				return null;
+			}
+		} catch (NoSuchFileException e) {
 			return null;
 		}
 	}
