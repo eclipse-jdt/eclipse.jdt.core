@@ -117,6 +117,9 @@ public class RecordPattern extends TypePattern {
 		} else {
 			this.resolvedType = this.type.resolveType(scope);
 		}
+		if (!this.resolvedType.isValidBinding())
+			return this.resolvedType;
+
 		initSecretPatternVariable(scope);
 
 		// check whether the give type reference is a record
@@ -157,7 +160,22 @@ public class RecordPattern extends TypePattern {
 	}
 	@Override
 	public boolean dominates(Pattern p) {
-		return isTotalForType(p.resolvedType);
+		if (!this.resolvedType.isValidBinding())
+			return false;
+		if (!super.isTotalForType(p.resolvedType)) {
+			return false;
+		}
+		if (p instanceof RecordPattern) {
+			RecordPattern rp = (RecordPattern) p;
+			if (this.patterns.length != rp.patterns.length)
+				return false;
+			for(int i = 0; i < this.patterns.length; i++) {
+				if (!this.patterns[i].dominates(rp.patterns[i])) {
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 	@Override
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {

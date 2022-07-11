@@ -1029,6 +1029,316 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"Duplicate local variable r1\n" +
 				"----------\n");
 	}
+	// Test nested record patterns in 'instanceof' within a swith-case with similar record pattern
+	public void test28() {
+		runConformTest(new String[] {
+				"X.java",
+				"@SuppressWarnings(\"preview\")\n"
+				+ "public class X {\n"
+				+ "  static void print(Rectangle r) {\n"
+				+ "    int res = switch(r) {\n"
+				+ "		case Rectangle(ColoredPoint(Point(int x, int y), Color c), ColoredPoint lr) r1 when (r instanceof  Rectangle(ColoredPoint(Point(int x1, int y1), Color c1),\n"
+				+ "				ColoredPoint lr1) r2) -> { \n"
+				+ "				yield lr1.p().y();\n"
+				+ "			}\n"
+				+ "			default -> 0;  \n"
+				+ "     };\n"
+				+ "   System.out.println(res);\n"
+				+ "  }\n"
+				+ "  public static void main(String[] args) {\n"
+				+ "    print(new Rectangle(new ColoredPoint(new Point(1,1), Color.RED), new ColoredPoint(new Point(5,5), Color.RED)));\n"
+				+ "  }\n"
+				+ "}\n"
+				+ "record Point(int x, int y) {}\n"
+				+ "enum Color { RED, GREEN, BLUE }\n"
+				+ "record ColoredPoint(Point p, Color c) {}\n"
+				+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"
+			},
+			"5",
+			null,
+			true,
+			new String[] {"--enable-preview"},
+			null,
+			null);
+	}
+	// Test that a simple type pattern dominates a following record pattern of the same type
+	public void test29() {
+		runNegativeTest(new String[] {
+				"X.java",
+						"public class X {\n"
+						+ "	@SuppressWarnings(\"preview\")\n"
+						+ "	public void foo(Object o) {\n"
+						+ "       int res = switch (o) {\n"
+						+ "        case R r -> 1;\n"
+						+ "        case R(int a) -> 0;\n"
+						+ "        default -> -1;\n"
+						+ "       };\n"
+						+ "	}\n"
+						+ "}\n"
+						+ "record R(int i) {}"
+		},
+				"----------\n" +
+				"1. ERROR in X.java (at line 6)\n" +
+				"	case R(int a) -> 0;\n" +
+				"	     ^^^^^^^^\n" +
+				"This case label is dominated by one of the preceding case label\n" +
+				"----------\n");
+	}
+	// Test that an identical record pattern dominates another record pattern
+	public void test30() {
+		runNegativeTest(new String[] {
+				"X.java",
+						"public class X {\n"
+						+ "	@SuppressWarnings(\"preview\")\n"
+						+ "	public void foo(Object o) {\n"
+						+ "       int res = switch (o) {\n"
+						+ "        case R(int a) r -> 1;\n"
+						+ "        case R(int a) -> 0;\n"
+						+ "        default -> -1;\n"
+						+ "       };\n"
+						+ "	}\n"
+						+ "}\n"
+						+ "record R(int i) {}"
+		},
+				"----------\n" +
+				"1. ERROR in X.java (at line 6)\n" +
+				"	case R(int a) -> 0;\n" +
+				"	     ^^^^^^^^\n" +
+				"This case label is dominated by one of the preceding case label\n" +
+				"----------\n");
+	}
+	// Test that a type pattern with 'when' does not dominate a record pattern of the same type
+	public void test31() {
+		runConformTest(new String[] {
+				"X.java",
+						"@SuppressWarnings(\"preview\")\n"
+						+ "public class X {\n"
+						+ "	public boolean predicate() { return true; }\n"
+						+ "	public void foo(Object o) {\n"
+						+ "       int res = switch (o) {\n"
+						+ "        case R r when predicate() -> 1;\n"
+						+ "        case R(int a) -> 0;\n"
+						+ "        default -> -1;\n"
+						+ "       };\n"
+						+ "       System.out.println(res);\n"
+						+ "	}\n"
+						+ "  public static void main(String[] args) {\n"
+						+ "    (new X()).foo(new R(10));\n"
+						+ "  }\n"
+						+ "}\n"
+						+ "record R(int i) {}"
+		},
+			"1");
+	}
+	// Test that a type pattern with 'when' does not dominate a record pattern of the same type
+	public void test31a() {
+		runConformTest(new String[] {
+				"X.java",
+						"@SuppressWarnings(\"preview\")\n"
+						+ "public class X {\n"
+						+ "	public boolean predicate() { return false; }\n"
+						+ "	public void foo(Object o) {\n"
+						+ "       int res = switch (o) {\n"
+						+ "        case R r when predicate() -> 1;\n"
+						+ "        case R(int a) -> 0;\n"
+						+ "        default -> -1;\n"
+						+ "       };\n"
+						+ "       System.out.println(res);\n"
+						+ "	}\n"
+						+ "  public static void main(String[] args) {\n"
+						+ "    (new X()).foo(new R(10));\n"
+						+ "  }\n"
+						+ "}\n"
+						+ "record R(int i) {}"
+		},
+			"0");
+	}
+	// Test that a record pattern with 'when' does not dominate an identical record pattern
+	public void test32() {
+		runConformTest(new String[] {
+				"X.java",
+						"@SuppressWarnings(\"preview\")\n"
+						+ "public class X {\n"
+						+ "	public boolean predicate() { return true; }\n"
+						+ "	public void foo(Object o) {\n"
+						+ "       int res = switch (o) {\n"
+						+ "        case R(int a) r  when predicate() -> 1;\n"
+						+ "        case R(int a) -> 0;\n"
+						+ "        default -> -1;\n"
+						+ "       };\n"
+						+ "       System.out.println(res);\n"
+						+ "	}\n"
+						+ "  public static void main(String[] args) {\n"
+						+ "    (new X()).foo(new R(10));\n"
+						+ "  }\n"
+						+ "}\n"
+						+ "record R(int i) {}"
+		},
+			"1");
+	}
+	// Test that a record pattern with 'when' does not dominate an identical record pattern
+	public void test32a() {
+		runConformTest(new String[] {
+				"X.java",
+				"@SuppressWarnings(\"preview\")\n"
+				+ "public class X {\n"
+				+ "	public boolean predicate() { return false; }\n"
+				+ "	public void foo(Object o) {\n"
+				+ "       int res = switch (o) {\n"
+				+ "        case R(int a) r  when predicate() -> 1;\n"
+				+ "        case R(int a) -> 0;\n"
+				+ "        default -> -1;\n"
+				+ "       };\n"
+				+ "       System.out.println(res);\n"
+				+ "	}\n"
+				+ "  public static void main(String[] args) {\n"
+				+ "    (new X()).foo(new R(10));\n"
+				+ "  }\n"
+				+ "}\n"
+				+ "record R(int i) {}"
+		},
+			"0");
+	}
+	// Test that a parenthesized type pattern dominates a record pattern of the same type
+	public void test33() {
+		runNegativeTest(new String[] {
+				"X.java",
+						"public class X {\n"
+						+ "	@SuppressWarnings(\"preview\")\n"
+						+ "	public void foo(Object o) {\n"
+						+ "       int res = switch (o) {\n"
+						+ "        case ((R r)) -> 1;\n"
+						+ "        case ((R(int a))) -> 0;\n"
+						+ "        default -> -1;\n"
+						+ "       };\n"
+						+ "	}\n"
+						+ "}\n"
+						+ "record R(int i) {}"
+		},
+				"----------\n" +
+				"1. ERROR in X.java (at line 6)\n" +
+				"	case ((R(int a))) -> 0;\n" +
+				"	       ^^^^^^^^\n" +
+				"This case label is dominated by one of the preceding case label\n" +
+				"----------\n");
+	}
+	// Test that a parenthesized record pattern dominates an identical record pattern
+	public void test34() {
+		runNegativeTest(new String[] {
+				"X.java",
+						"public class X {\n"
+						+ "	@SuppressWarnings(\"preview\")\n"
+						+ "	public void foo(Object o) {\n"
+						+ "       int res = switch (o) {\n"
+						+ "        case ((R(int a))) -> 1;\n"
+						+ "        case ((R(int a))) -> 0;\n"
+						+ "        default -> -1;\n"
+						+ "       };\n"
+						+ "	}\n"
+						+ "}\n"
+						+ "record R(int i) {}"
+		},
+				"----------\n" +
+				"1. ERROR in X.java (at line 6)\n" +
+				"	case ((R(int a))) -> 0;\n" +
+				"	       ^^^^^^^^\n" +
+				"This case label is dominated by one of the preceding case label\n" +
+				"----------\n");
+	}
+	// Test that pattern dominance is reported on identical nested record pattern
+	public void test35() {
+		runNegativeTest(new String[] {
+				"X.java",
+						"public class X {\n"
+						+ "	@SuppressWarnings(\"preview\")\n"
+						+ "	public void foo(Object o) {\n"
+						+ "       int res = switch (o) {\n"
+						+ "       case Pair(Teacher(Object n), Student(Object n1, Integer i)) -> 0;\n"
+						+ "       case Pair(Teacher(Object n), Student(Object n1, Integer i)) r1 -> 1;\n"
+						+ "        default -> -1;\n"
+						+ "       };\n"
+						+ "       System.out.println(res);\n"
+						+ "	}\n"
+						+ "	public static void main(String[] args) {\n"
+						+ "		(new X()).foo(new Pair(new Teacher(\"123\"), new Student(\"abc\", 10)));\n"
+						+ "	}\n"
+						+ "}\n"
+						+ "record R(int i) {}   \n"
+						+ "sealed interface Person permits Student, Teacher {\n"
+						+ "	String name();\n"
+						+ "}\n"
+						+ "record Student(String name, Integer id) implements Person {}\n"
+						+ "record Teacher(String name) implements Person {}\n"
+						+ "record Pair(Person s, Person s1) {} "
+		},
+				"----------\n" +
+				"1. ERROR in X.java (at line 6)\n" +
+				"	case Pair(Teacher(Object n), Student(Object n1, Integer i)) r1 -> 1;\n" +
+				"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"This case label is dominated by one of the preceding case label\n" +
+				"----------\n");
+	}
+	// Test that pattern dominance is reported on identical nested record pattern
+	public void test36() {
+		runNegativeTest(new String[] {
+				"X.java",
+						"public class X {\n"
+						+ "	@SuppressWarnings(\"preview\")\n"
+						+ "	public void foo(Object o) {\n"
+						+ "       int res = switch (o) {\n"
+						+ "       case Pair(Teacher(Object n), Student(Object n1, Integer i)) -> 0;\n"
+						+ "       case Pair(Teacher(Object n), Student(String n1, Integer i)) r1 -> 1;\n"
+						+ "        default -> -1;\n"
+						+ "       };\n"
+						+ "       System.out.println(res);\n"
+						+ "	}\n"
+						+ "	public static void main(String[] args) {\n"
+						+ "		(new X()).foo(new Pair(new Teacher(\"123\"), new Student(\"abc\", 10)));\n"
+						+ "	}\n"
+						+ "}\n"
+						+ "record R(int i) {}   \n"
+						+ "sealed interface Person permits Student, Teacher {\n"
+						+ "	String name();\n"
+						+ "}\n"
+						+ "record Student(String name, Integer id) implements Person {}\n"
+						+ "record Teacher(String name) implements Person {}\n"
+						+ "record Pair(Person s, Person s1) {} "
+		},
+				"----------\n" + 
+				"1. ERROR in X.java (at line 6)\n" + 
+				"	case Pair(Teacher(Object n), Student(String n1, Integer i)) r1 -> 1;\n" + 
+				"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
+				"This case label is dominated by one of the preceding case label\n" + 
+				"----------\n");
+	}
+	// Test that pattern dominance is reported on identical nested record pattern
+	public void test37() {
+		runConformTest(new String[] {
+				"X.java",
+						"public class X {\n"
+						+ "	@SuppressWarnings(\"preview\")\n"
+						+ "	public void foo(Object o) {\n"
+						+ "       int res = switch (o) {\n"
+						+ "       case Pair(Teacher(Object n), Student(String n1, Integer i)) -> 0;\n"
+						+ "       case Pair(Teacher(Object n), Student(Object n1, Integer i)) r1 -> 1;\n"
+						+ "        default -> -1;\n"
+						+ "       };\n"
+						+ "       System.out.println(res);\n"
+						+ "	}\n"
+						+ "	public static void main(String[] args) {\n"
+						+ "		(new X()).foo(new Pair(new Teacher(\"123\"), new Student(\"abc\", 10)));\n"
+						+ "	}\n"
+						+ "}\n"
+						+ "record R(int i) {}   \n"
+						+ "sealed interface Person permits Student, Teacher {\n"
+						+ "	String name();\n"
+						+ "}\n"
+						+ "record Student(String name, Integer id) implements Person {}\n"
+						+ "record Teacher(String name) implements Person {}\n"
+						+ "record Pair(Person s, Person s1) {} "
+		},
+				"0");
+	}
 	// TODO:
 	// Test that var types are accepted within record patterns
 	// Test that type patterns defined in nested record patterns are available - instanceof/IF
