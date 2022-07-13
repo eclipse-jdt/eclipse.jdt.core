@@ -47,6 +47,7 @@ import org.eclipse.jdt.internal.compiler.env.IModule;
 public class JRTUtil {
 
 	public static final boolean DISABLE_CACHE = Boolean.getBoolean("org.eclipse.jdt.disable_JRT_cache"); //$NON-NLS-1$
+	public static final boolean PROPAGATE_IO_ERRORS = Boolean.getBoolean("org.eclipse.jdt.propagate_io_errors"); //$NON-NLS-1$
 
 	public static final String JAVA_BASE = "java.base".intern(); //$NON-NLS-1$
 	public static final char[] JAVA_BASE_CHAR = JAVA_BASE.toCharArray();
@@ -64,7 +65,7 @@ public class JRTUtil {
 	public static final int NOTIFY_ALL = NOTIFY_FILES | NOTIFY_PACKAGES | NOTIFY_MODULES;
 
 	// TODO: Java 9 Think about clearing the cache too.
-	private static Map<String, Optional<JrtFileSystem>> images = new ConcurrentHashMap<>();
+	private static Map<String, JrtFileSystem> images = new ConcurrentHashMap<>();
 
 	/**
 	 * Map from JDK home path to ct.sym file (located in /lib in the JDK)
@@ -114,17 +115,19 @@ public class JRTUtil {
 	public static JrtFileSystem getJrtSystem(File image, String release) {
 		String key = image.toString();
 		if (release != null) key = key + "|" + release; //$NON-NLS-1$
-		Optional<JrtFileSystem> system = images.computeIfAbsent(key, x -> {
+		JrtFileSystem system = images.computeIfAbsent(key, x -> {
 			try {
-				return Optional.ofNullable(JrtFileSystem.getNewJrtFileSystem(image, release));
+				return JrtFileSystem.getNewJrtFileSystem(image, release);
 			} catch (IOException e) {
 				// Needs better error handling downstream? But for now, make sure
 				// a dummy JrtFileSystem is not created.
+				System.err.println("Error: failed to create JrtFileSystem from " + image); //$NON-NLS-1$
 				e.printStackTrace();
-				return Optional.empty();
+				// Don't save value in the map, may be we can recover later
+				return null;
 			}
 		});
-		return system.orElse(null);
+		return system;
 	}
 
 	public static CtSym getCtSym(Path jdkHome) throws IOException {
@@ -222,7 +225,19 @@ public class JRTUtil {
 	public static byte[] safeReadBytes(Path path) throws IOException {
 		try {
 			return Files.readAllBytes(path);
-		} catch (ClosedByInterruptException | NoSuchFileException e) {
+		} catch (ClosedByInterruptException e) {
+			// retry once again
+			try {
+				return Files.readAllBytes(path);
+			} catch (NoSuchFileException e2) {
+				return null;
+			} catch (ClosedByInterruptException e2) {
+				if (PROPAGATE_IO_ERRORS) {
+					throw e2;
+				}
+				return null;
+			}
+		} catch (NoSuchFileException e) {
 			return null;
 		}
 	}

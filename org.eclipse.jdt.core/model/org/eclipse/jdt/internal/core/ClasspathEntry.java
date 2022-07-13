@@ -2242,6 +2242,7 @@ public class ClasspathEntry implements IClasspathEntry {
 						IJavaModelStatus status = null;
 						// Validate extra attributes
 						IClasspathAttribute[] extraAttributes = entry.getExtraAttributes();
+						String addExports = null;
 						if (extraAttributes != null) {
 							int length = extraAttributes.length;
 							HashSet set = new HashSet(length);
@@ -2250,6 +2251,9 @@ public class ClasspathEntry implements IClasspathEntry {
 								if (!set.add(attName)) {
 									status = new JavaModelStatus(IJavaModelStatusConstants.NAME_COLLISION, Messages.bind(Messages.classpath_duplicateEntryExtraAttribute, new String[] {attName, entryPathMsg, projectName}));
 									break;
+								}
+								if (IClasspathAttribute.ADD_EXPORTS.equals(attName)) {
+									addExports = extraAttributes[i].getValue();
 								}
 							}
 							if (status == null) {
@@ -2270,6 +2274,15 @@ public class ClasspathEntry implements IClasspathEntry {
 						} else if (container == JavaModelManager.CONTAINER_INITIALIZATION_IN_PROGRESS) {
 							// don't create a marker if initialization is in progress (case of cp initialization batching)
 							return JavaModelStatus.VERIFIED_OK;
+						}
+						if ((container.getKind() == IClasspathContainer.K_DEFAULT_SYSTEM || container.getKind() == IClasspathContainer.K_SYSTEM)
+								&& addExports != null
+								&& JavaCore.ENABLED.equals(project.getOption(JavaCore.COMPILER_RELEASE, false))) {
+							int idx = addExports.indexOf('/');
+							if (idx > 0) {
+								String moduleName = addExports.substring(0, idx);
+								return  new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_illegalAddExportsSystemModule, new String[] {moduleName}));
+							}
 						}
 						IClasspathEntry[] containerEntries = container.getClasspathEntries();
 						if (containerEntries != null){

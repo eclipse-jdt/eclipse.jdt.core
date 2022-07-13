@@ -300,5 +300,9 @@ public class ClasspathJep247 extends ClasspathJrt {
 	public int getMode() {
 		return BINARY;
 	}
+	@Override
+	public boolean forbidsExportFrom(String modName) {
+		return servesModule(modName.toCharArray());
+	}
 
 }
