@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015, 2020 IBM Corporation.
+ * Copyright (c) 2015, 2022 IBM Corporation.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,6 +10,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Christoph Läubrich - adding helper for getting a JarFileSystem
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.util;
 
@@ -23,6 +24,8 @@ import java.net.URLClassLoader;
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystem;
+import java.nio.file.FileSystemAlreadyExistsException;
+import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
@@ -30,6 +33,7 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.ProviderNotFoundException;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -128,6 +132,36 @@ public class JRTUtil {
 			}
 		});
 		return system;
+	}
+
+	/**
+	 * Convenient method to get access to the given archive as a {@link FileSystem}.
+	 * <p>
+	 * <b>Note:</b> if the file system for given archive was already created before, the method will reuse existing file
+	 * system, otherwise a new {@link FileSystem} object will be created.
+	 * <p>
+	 * The caller should not close returned {@link FileSystem} as it might be shared with others.
+	 *
+	 * @param path
+	 *            absolute file path to a jar archive
+	 * @return never null
+	 * @throws IOException
+	 */
+	public static FileSystem getJarFileSystem(Path path) throws IOException {
+		URI uri = URI.create("jar:file:" + path.toUri().getRawPath()); //$NON-NLS-1$
+		try {
+			try {
+				return FileSystems.getFileSystem(uri);
+			} catch (FileSystemNotFoundException fne) {
+				try {
+					return FileSystems.newFileSystem(uri, Map.of(), ClassLoader.getSystemClassLoader());
+				} catch (FileSystemAlreadyExistsException e) {
+					return FileSystems.getFileSystem(uri);
+				}
+			}
+		} catch (ProviderNotFoundException e) {
+			throw new IOException("No provider for uri " + uri, e); //$NON-NLS-1$
+		}
 	}
 
 	public static CtSym getCtSym(Path jdkHome) throws IOException {
