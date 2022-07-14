@@ -237,10 +237,13 @@ public class ModuleFinder {
 		try {
 			zipFile = new ZipFile(file);
 			if (release != null) {
-				String releasePath = "META-INF/versions/" + release + "/" + path; //$NON-NLS-1$ //$NON-NLS-2$
-				ZipEntry entry = zipFile.getEntry(releasePath);
-				if (entry != null) {
-					path = releasePath;
+				for (int version = Integer.parseInt(release); version >= 9; version--) {
+					String releasePath = "META-INF/versions/" + version + "/" + path; //$NON-NLS-1$ //$NON-NLS-2$
+					ZipEntry entry = zipFile.getEntry(releasePath);
+					if (entry != null) {
+						path = releasePath;
+						break;
+					}
 				}
 			}
 			ClassFileReader reader = ClassFileReader.read(zipFile, path);

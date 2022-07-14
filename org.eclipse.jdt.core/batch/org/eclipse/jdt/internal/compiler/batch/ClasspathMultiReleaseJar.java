@@ -49,9 +49,13 @@ public class ClasspathMultiReleaseJar extends ClasspathJar {
 			} catch (FileSystemAlreadyExistsException e) {
 				this.fs = FileSystems.getFileSystem(uri);
 			}
-			this.releasePath = this.fs.getPath("/", "META-INF", "versions", this.compliance); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			if (!Files.exists(this.releasePath)) {
-				this.releasePath = null;
+			for (int version = Integer.parseInt(this.compliance); version >= 9; version--) {
+				this.releasePath = this.fs.getPath("/", "META-INF", "versions", String.valueOf(version)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				if (Files.exists(this.releasePath)) {
+					break;
+				} else {
+					this.releasePath = null;
+				}
 			}
 		}
 	}
