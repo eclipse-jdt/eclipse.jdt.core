@@ -143,6 +143,7 @@ public class JrtFileSystem extends Archive {
 		private JrtFileObject(File file, Path path, String module, Charset charset) {
 			super(file, path.toString(), charset);
 			this.path = path;
+			this.module = module;
 		}
 
 		@Override
