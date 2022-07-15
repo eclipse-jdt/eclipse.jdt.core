@@ -85,6 +85,10 @@ class DefaultASTVisitor extends ASTVisitor {
 		endVisitNode(node);
 	}
 	@Override
+	public void endVisit(CaseDefaultExpression node) {
+		endVisitNode(node);
+	}
+	@Override
 	public void endVisit(CastExpression node) {
 		endVisitNode(node);
 	}
@@ -166,6 +170,10 @@ class DefaultASTVisitor extends ASTVisitor {
 		endVisitNode(node);
 	}
 	@Override
+	public void endVisit(GuardedPattern node) {
+		endVisitNode(node);
+	}
+	@Override
 	public void endVisit(IfStatement node) {
 		endVisitNode(node);
 	}
@@ -191,6 +199,10 @@ class DefaultASTVisitor extends ASTVisitor {
 	}
 	@Override
 	public void endVisit(Javadoc node) {
+		endVisitNode(node);
+	}
+	@Override
+	public void endVisit(JavaDocRegion node) {
 		endVisitNode(node);
 	}
 	@Override
@@ -245,6 +257,10 @@ class DefaultASTVisitor extends ASTVisitor {
 		endVisitNode(node);
 	}
 	@Override
+	public void endVisit(ModuleQualifiedName node) {
+		endVisitNode(node);
+	}
+	@Override
 	public void endVisit(NameQualifiedType node) {
 		endVisitNode(node);
 	}
@@ -255,6 +271,10 @@ class DefaultASTVisitor extends ASTVisitor {
 	}
 	@Override
 	public void endVisit(NullLiteral node) {
+		endVisitNode(node);
+	}
+	@Override
+	public void endVisit(NullPattern node) {
 		endVisitNode(node);
 	}
 	@Override
@@ -271,6 +291,10 @@ class DefaultASTVisitor extends ASTVisitor {
 	}
 	@Override
 	public void endVisit(ParenthesizedExpression node) {
+		endVisitNode(node);
+	}
+	@Override
+	public void endVisit(PatternInstanceofExpression node) {
 		endVisitNode(node);
 	}
 	@Override
@@ -291,6 +315,10 @@ class DefaultASTVisitor extends ASTVisitor {
 	}
 	@Override
 	public void endVisit(QualifiedType node) {
+		endVisitNode(node);
+	}
+	@Override
+	public void endVisit(RecordDeclaration node) {
 		endVisitNode(node);
 	}
 	@Override
@@ -399,6 +427,10 @@ class DefaultASTVisitor extends ASTVisitor {
 		endVisitNode(node);
 	}
 	@Override
+	public void endVisit(TypePattern node) {
+		endVisitNode(node);
+	}
+	@Override
 	public void endVisit(UnionType node) {
 		endVisitNode(node);
 	}
@@ -484,6 +516,10 @@ class DefaultASTVisitor extends ASTVisitor {
 		return visitNode(node);
 	}
 	@Override
+	public boolean visit(CaseDefaultExpression node) {
+		return visitNode(node);
+	}
+	@Override
 	public boolean visit(CastExpression node) {
 		return visitNode(node);
 	}
@@ -565,6 +601,10 @@ class DefaultASTVisitor extends ASTVisitor {
 		return visitNode(node);
 	}
 	@Override
+	public boolean visit(GuardedPattern node) {
+		return visitNode(node);
+	}
+	@Override
 	public boolean visit(IfStatement node) {
 		return visitNode(node);
 	}
@@ -595,6 +635,10 @@ class DefaultASTVisitor extends ASTVisitor {
 			return visitNode(node);
 		}
 		return false;
+	}
+	@Override
+	public boolean visit(JavaDocRegion node) {
+		return visitNode(node);
 	}
 	@Override
 	public boolean visit(LabeledStatement node) {
@@ -644,6 +688,10 @@ class DefaultASTVisitor extends ASTVisitor {
 		return visitNode(node);
 	}
 	@Override
+	public boolean visit(ModuleQualifiedName node) {
+		return visitNode(node);
+	}
+	@Override
 	public boolean visit(MethodRefParameter node) {
 		return visitNode(node);
 	}
@@ -661,6 +709,10 @@ class DefaultASTVisitor extends ASTVisitor {
 		return visitNode(node);
 	}
 	@Override
+	public boolean visit(NullPattern node) {
+		return visitNode(node);
+	}
+	@Override
 	public boolean visit(NumberLiteral node) {
 		return visitNode(node);
 	}
@@ -674,6 +726,10 @@ class DefaultASTVisitor extends ASTVisitor {
 	}
 	@Override
 	public boolean visit(ParenthesizedExpression node) {
+		return visitNode(node);
+	}
+	@Override
+	public boolean visit(PatternInstanceofExpression node) {
 		return visitNode(node);
 	}
 	@Override
@@ -695,6 +751,10 @@ class DefaultASTVisitor extends ASTVisitor {
 	}
 	@Override
 	public boolean visit(QualifiedType node) {
+		return visitNode(node);
+	}
+	@Override
+	public boolean visit(RecordDeclaration node) {
 		return visitNode(node);
 	}
 	@Override
@@ -820,6 +880,11 @@ class DefaultASTVisitor extends ASTVisitor {
 
 	@Override
 	public boolean visit(TypeParameter node) {
+		return visitNode(node);
+	}
+
+	@Override
+	public boolean visit(TypePattern node) {
 		return visitNode(node);
 	}
 

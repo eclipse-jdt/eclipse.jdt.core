@@ -36,6 +36,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IAccessRule;
 import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IClasspathAttribute;
+import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
@@ -46,10 +47,64 @@ import org.eclipse.jdt.core.IParent;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.batch.BatchCompiler;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 
 public class ModifyingResourceTests extends AbstractJavaModelTests {
+
+	/** Bridge to hook the host JRE into the registered ContainerInitializer. */
+	protected static class TestContainerInitializer implements ContainerInitializer.ITestInitializer {
+
+		/** Use this container name in test projects. */
+		static final String TEST_CONTAINER_NAME = "org.eclipse.jdt.core.tests.model.TEST_CONTAINER";
+
+		/** Simulate workspace-settings for rt.jar. */
+		public static String RT_JAR_ANNOTATION_PATH = null;
+
+		int containerKind = 0;
+
+		static class TestContainer implements IClasspathContainer {
+			IPath path;
+			IClasspathEntry[] entries;
+			int kind;
+			TestContainer(IPath path, IClasspathEntry[] entries, int kind){
+				this.path = path;
+				this.entries = entries;
+				this.kind = kind;
+			}
+			public IPath getPath() { return this.path; }
+			public IClasspathEntry[] getClasspathEntries() { return this.entries;	}
+			public String getDescription() { return this.path.toString(); 	}
+			public int getKind() { return this.kind; }
+		}
+
+		public TestContainerInitializer(int containerKind) { this.containerKind = containerKind; }
+
+		@Override
+		public void initialize(IPath containerPath, IJavaProject project) throws CoreException {
+			String[] jars = Util.getJavaClassLibs();
+			IClasspathEntry[] entries = new IClasspathEntry[jars.length];
+			for (int i = 0; i < jars.length; i++) {
+				IClasspathAttribute[] extraAttributes;
+				if (RT_JAR_ANNOTATION_PATH != null && jars[i].endsWith("rt.jar"))
+					extraAttributes = externalAnnotationExtraAttributes(RT_JAR_ANNOTATION_PATH);
+				else
+					extraAttributes = ClasspathEntry.NO_EXTRA_ATTRIBUTES;
+				entries[i] = JavaCore.newLibraryEntry(new Path(jars[i]), null, null,
+						ClasspathEntry.NO_ACCESS_RULES, extraAttributes, false/*not exported*/);
+			}
+			JavaCore.setClasspathContainer(
+					new Path(TEST_CONTAINER_NAME),
+					new IJavaProject[]{ project },
+					new IClasspathContainer[] { new TestContainer(new Path(TEST_CONTAINER_NAME), entries, this.containerKind) },
+					null);
+		}
+		@Override
+		public boolean allowFailureContainer() {
+			return false;
+		}
+	}
 
 public ModifyingResourceTests(String name) {
 	super(name);

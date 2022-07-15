@@ -1464,4 +1464,38 @@ public void updateTypeVariableBinding(TypeVariableBinding previousBinding, TypeV
 		}
 	}
 }
+
+/**
+ * Identifies whether the method has Polymorphic signature based on <a href=https://docs.oracle.com/javase/specs/jls/se11/html/jls-15.html#jls-15.12.3>jls-15.12.3</a><br/>
+ *
+ * Definition reproduced here. <br/><br/>
+ *
+ * A method is signature polymorphic if all of the following are true:
+ *  <li> It is declared in the java.lang.invoke.MethodHandle class or the java.lang.invoke.VarHandle class. </li>
+ *  <li> It has a single variable arity parameter (§8.4.1) whose declared type is Object[]. </li>
+ *  <li> It is native. </li>
+ * <br/>
+ * @param  scope
+ * @return true if the method has Polymorphic Signature
+ */
+public boolean hasPolymorphicSignature(Scope scope) {
+	if ((this.tagBits & TagBits.AnnotationPolymorphicSignature) != 0) {
+		return true;
+	}
+	if (this.isNative()	&& this.isVarargs() && this.parameters.length == 1) {
+		/*
+		 *  here type will be arrayType we will come here only if the method is of type
+		 *  varargs(represented by arraytype) and with only one parameter.
+		 */
+		if (this.parameters[0].leafComponentType().id == TypeIds.T_JavaLangObject) {
+			ReferenceBinding declaringClassLocal = this.declaringClass;
+			if ((declaringClassLocal != null) && (declaringClassLocal.id == scope.getJavaLangInvokeMethodHandle().id
+					|| declaringClassLocal.id == scope.getJavaLangInvokeVarHandle().id)) {
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
 }

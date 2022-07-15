@@ -194,6 +194,7 @@ public final class Messages extends NLS {
 	public static String classpath_testSourceRequiresSeparateOutputFolder;
 	public static String classpath_testOutputFolderMustBeSeparateFromMainOutputFolders;
 	public static String classpath_main_only_project_depends_on_test_only_project;
+	public static String classpath_illegalAddExportsSystemModule;
 	public static String file_notFound;
 	public static String file_badFormat;
 	public static String path_nullPath;
