@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018, 2021 IBM Corporation.
+ * Copyright (c) 2018, 2022 IBM Corporation.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v2.0
  * which accompanies this distribution, and is available at
@@ -7,16 +7,13 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Christoph Läubrich - use Filesystem helper method
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.batch;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.nio.file.DirectoryStream;
-import java.nio.file.FileSystemAlreadyExistsException;
-import java.nio.file.FileSystemNotFoundException;
-import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;
@@ -45,7 +42,7 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class ClasspathJep247 extends ClasspathJrt {
 
-	protected java.nio.file.FileSystem fs = null;
+	protected java.nio.file.FileSystem fs;
 	protected String compliance = null;
 	protected long jdklevel;
 	protected String releaseInHex = null;
@@ -110,24 +107,10 @@ public class ClasspathJep247 extends ClasspathJrt {
 		}
 		this.releaseInHex = CtSym.getReleaseCode(this.compliance);
 		Path filePath = this.jdkHome.toPath().resolve("lib").resolve("ct.sym"); //$NON-NLS-1$ //$NON-NLS-2$
-		URI t = filePath.toUri();
 		if (!Files.exists(filePath)) {
 			return;
 		}
-		URI uri = URI.create("jar:file:" + t.getRawPath()); //$NON-NLS-1$
-		try {
-			this.fs = FileSystems.getFileSystem(uri);
-		} catch(FileSystemNotFoundException fne) {
-			// Ignore and move on
-		}
-		if (this.fs == null) {
-			HashMap<String, ?> env = new HashMap<>();
-			try {
-				this.fs = FileSystems.newFileSystem(uri, env);
-			} catch (FileSystemAlreadyExistsException e) {
-				this.fs = FileSystems.getFileSystem(uri);
-			}
-		}
+		this.fs = JRTUtil.getJarFileSystem(filePath);
 		this.releasePath = this.fs.getPath("/"); //$NON-NLS-1$
 		if (!Files.exists(this.fs.getPath(this.releaseInHex))) {
 			throw new IllegalArgumentException("release " + this.compliance + " is not found in the system");  //$NON-NLS-1$//$NON-NLS-2$
@@ -299,6 +282,10 @@ public class ClasspathJep247 extends ClasspathJrt {
 	@Override
 	public int getMode() {
 		return BINARY;
+	}
+	@Override
+	public boolean forbidsExportFrom(String modName) {
+		return servesModule(modName.toCharArray());
 	}
 
 }

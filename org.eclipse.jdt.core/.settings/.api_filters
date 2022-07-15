@@ -1,15 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component id="org.eclipse.jdt.core" version="2">
     <resource path="META-INF/MANIFEST.MF">
-        <filter id="923795461">
+        <filter id="931135546">
             <message_arguments>
-                <message_argument value="3.30.0"/>
-                <message_argument value="3.29.0"/>
-            </message_arguments>
-        </filter>
-        <filter id="924844039">
-            <message_arguments>
-                <message_argument value="3.30.50"/>
+                <message_argument value="3.30.150"/>
                 <message_argument value="3.30.0"/>
             </message_arguments>
         </filter>
@@ -225,24 +219,6 @@
         </filter>
     </resource>
     <resource path="dom/org/eclipse/jdt/core/dom/TagProperty.java" type="org.eclipse.jdt.core.dom.TagProperty">
-        <filter id="336658481">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.dom.TagProperty"/>
-                <message_argument value="TAG_PROPERTY_SNIPPET_ID"/>
-            </message_arguments>
-        </filter>
-        <filter id="336658481">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.dom.TagProperty"/>
-                <message_argument value="TAG_PROPERTY_SNIPPET_INLINE_TAG_COUNT"/>
-            </message_arguments>
-        </filter>
-        <filter id="336658481">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.dom.TagProperty"/>
-                <message_argument value="TAG_PROPERTY_SNIPPET_REGION_TEXT"/>
-            </message_arguments>
-        </filter>
         <filter id="576725006">
             <message_arguments>
                 <message_argument value="IDocElement"/>

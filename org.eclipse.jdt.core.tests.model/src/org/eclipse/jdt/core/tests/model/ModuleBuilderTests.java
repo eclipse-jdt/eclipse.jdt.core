@@ -35,6 +35,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IAccessRule;
 import org.eclipse.jdt.core.IClasspathAttribute;
+import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaModelMarker;
@@ -4764,6 +4765,51 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			assertMarkers("Unexpected markers",	"",  markers);
 		} finally {
 			deleteProject("morg.astro");
+			deleteProject("com.greetings");
+		}
+	}
+	public void testAddExportsIllegal() throws CoreException {
+		try {
+			// need to simulate a system library container (provided otherwise by jdt.launching)
+			ContainerInitializer.setInitializer(new TestContainerInitializer(IClasspathContainer.K_SYSTEM));
+
+			IJavaProject p = createJava10Project("com.greetings", new String[] {"src"}); // compliance 10 ensures that --release is effective
+			setClasspath(p, new IClasspathEntry[] {
+				JavaCore.newContainerEntry(new Path(TestContainerInitializer.TEST_CONTAINER_NAME), null,
+						new IClasspathAttribute[] {
+								new ClasspathAttribute("module", "true"),
+								new ClasspathAttribute(IClasspathAttribute.ADD_EXPORTS, "java.desktop/com.sun.imageio.plugins.png=ALL-UNNAMED") },
+						false),
+				JavaCore.newSourceEntry(new Path("/com.greetings/src"))
+			});
+			p.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
+			createSourceFiles(p, new String[] {
+					"src/Foo.java",
+					"import com.sun.imageio.plugins.png.PNGImageReader;\n" +
+					"\n" +
+					"public class Foo {\n" +
+					"	PNGImageReader r;\n" +
+					"}\n"
+			});
+			p.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
+			String expectedMarkers =
+					"Exporting a package from system module \'java.desktop\' is not allowed with --release.\n" +
+					"The project cannot be built until build path errors are resolved";
+			assertMarkers("Unexpected markers", expectedMarkers, markers);
+			// toggle to disabled should resolve the error:
+			p.setOption(JavaCore.COMPILER_RELEASE, JavaCore.DISABLED);
+			p.getProject().getWorkspace().build(IncrementalProjectBuilder.AUTO_BUILD, null);
+			markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", "", markers);
+			// toggle back to enabled should resurface the error
+			p.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
+			p.getProject().getWorkspace().build(IncrementalProjectBuilder.AUTO_BUILD, null);
+			markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", expectedMarkers, markers);
+		} finally {
+			ContainerInitializer.setInitializer(null);
 			deleteProject("com.greetings");
 		}
 	}

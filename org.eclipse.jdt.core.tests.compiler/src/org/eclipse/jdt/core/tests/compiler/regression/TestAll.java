@@ -30,6 +30,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.util.ArrayList;
 
 import org.eclipse.jdt.core.tests.compiler.util.HashtableOfObjectTest;
+import org.eclipse.jdt.core.tests.compiler.util.JrtUtilTest;
 import org.eclipse.jdt.core.tests.dom.StandAloneASTParserTest;
 import org.eclipse.jdt.core.tests.junit.extension.TestCase;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
@@ -239,6 +240,7 @@ public static Test suite() {
 	TestSuite all = new TestSuite(TestAll.class.getName());
 	all.addTest(new TestSuite(StandAloneASTParserTest.class));
 	all.addTest(new TestSuite(HashtableOfObjectTest.class));
+	all.addTest(new TestSuite(JrtUtilTest.class));
 	int possibleComplianceLevels = AbstractCompilerTest.getPossibleComplianceLevels();
 	if ((possibleComplianceLevels & AbstractCompilerTest.F_1_3) != 0) {
 		ArrayList tests_1_3 = (ArrayList)standardTests.clone();
