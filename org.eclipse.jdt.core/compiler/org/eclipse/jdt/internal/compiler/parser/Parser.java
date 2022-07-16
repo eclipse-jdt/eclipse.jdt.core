@@ -10928,9 +10928,10 @@ protected void consumeRecordPatternWithId() {
 	this.astPtr -= length;
 	// Identifier
 	char[] identifierName = this.identifierStack[this.identifierPtr];
-	long namePositions = this.identifierPositionStack[this.identifierPtr--];
-	TypeReference type = getTypeReference(0);
+	long namePositions = this.identifierPositionStack[this.identifierPtr];
 	LocalDeclaration local = createLocalDeclaration(identifierName, (int) (namePositions >>> 32), (int) namePositions);
+    this.identifierPtr--;
+	TypeReference type = getTypeReference(0);
 	local.declarationSourceEnd = local.declarationEnd;
 	local.type = type;
 	RecordPattern recPattern = new RecordPattern(local);
