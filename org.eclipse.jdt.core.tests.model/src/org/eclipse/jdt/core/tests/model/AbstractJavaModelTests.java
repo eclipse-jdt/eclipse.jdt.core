@@ -3029,7 +3029,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected void search(IJavaElement element, int limitTo, int matchRule, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
 		boolean indexDisabled = isIndexDisabledForTest();
 		if(indexDisabled) {
-			JavaModelManager.getIndexManager().enable();
+			enableIndexer();
 		}
 		try {
 			SearchPattern pattern = SearchPattern.createPattern(element, limitTo, matchRule);
@@ -3043,7 +3043,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			);
 		} finally {
 			if(indexDisabled) {
-				JavaModelManager.getIndexManager().disable();
+				disableIndexer();
 			}
 		}
 	}
@@ -3053,7 +3053,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected void search(String patternString, int searchFor, int limitTo, int matchRule, IJavaSearchScope scope, SearchRequestor requestor) throws CoreException {
 		boolean indexDisabled = isIndexDisabledForTest();
 		if(indexDisabled) {
-			JavaModelManager.getIndexManager().enable();
+			enableIndexer();
 		}
 		try {
 		if (patternString.indexOf('*') != -1 || patternString.indexOf('?') != -1)
@@ -3072,7 +3072,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			null);
 		} finally {
 			if(indexDisabled) {
-				JavaModelManager.getIndexManager().disable();
+				disableIndexer();
 			}
 		}
 	}

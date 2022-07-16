@@ -230,12 +230,16 @@ public class SearchTests extends ModifyingResourceTests implements IJavaSearchCo
 		}
 		public void runAndSuspend(IWorkspaceRunnable runnable) throws Semaphore.TimeOutException, CoreException {
 	 		IndexManager indexManager = JavaModelManager.getIndexManager();
-			indexManager.disable();
+	 		while(indexManager.isEnabled()) {
+	 			indexManager.disable();
+	 		}
 			if (runnable != null) {
 				runnable.run(null);
 			}
 			indexManager.request(this);
-			indexManager.enable();
+			while(!indexManager.isEnabled()) {
+	 			indexManager.enable();
+	 		}
 			this.startingSem.acquire(30000); // wait for job to start (wait 30s max)
 		}
 
@@ -358,7 +362,7 @@ public void tearDownSuite() throws Exception {
 public void testChangeClasspath() throws CoreException, TimeOutException {
 	boolean indexDisabled = isIndexDisabledForTest();
 	if(indexDisabled) {
-		JavaModelManager.getIndexManager().enable();
+		enableIndexer();
 	}
 	WaitingJob job = new WaitingJob();
 	try {
@@ -396,7 +400,7 @@ public void testChangeClasspath() throws CoreException, TimeOutException {
 		job.resume();
 		deleteProject("P1");
 		if(indexDisabled) {
-			JavaModelManager.getIndexManager().disable();
+			disableIndexer();
 		}
 	}
 }
