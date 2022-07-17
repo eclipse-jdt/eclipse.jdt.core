@@ -40,6 +40,8 @@ import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.UserLibraryClasspathContainer;
+import org.eclipse.jdt.internal.core.index.Index;
+import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.osgi.service.prefs.BackingStoreException;
 
 public class JavaIndexTests extends AbstractJavaSearchTests  {
@@ -801,7 +803,9 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 			setClasspath(p, new IClasspathEntry[] {entry});
 			waitUntilIndexesReady();
 
-			assertEquals(url,JavaModelManager.getIndexManager().getIndex(libPath, false, false).getIndexLocation().getUrl().toString());
+			IndexManager indexManager = JavaModelManager.getIndexManager();
+			Index index = indexManager.getIndex(libPath, false, false);
+			assertEquals(url, index.getIndexLocation().getUrl().toString());
 
 			search("Test", TYPE, DECLARATIONS, EXACT_RULE, SearchEngine.createJavaSearchScope(new IJavaElement[]{p}));
 			assertSearchResults(getExternalPath() + "Test.jar pkg.Test");
@@ -811,7 +815,8 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 			waitUntilIndexesReady();
 
 			this.resultCollector = new JavaSearchResultCollector();
-			assertEquals(url,JavaModelManager.getIndexManager().getIndex(libPath, false, false).getIndexLocation().getUrl().toString());
+			index = indexManager.getIndex(libPath, false, false);
+			assertEquals(url, index.getIndexLocation().getUrl().toString());
 			search("Test", TYPE, DECLARATIONS, EXACT_RULE, SearchEngine.createJavaSearchScope(new IJavaElement[]{p}));
 			assertSearchResults(getExternalPath() + "Test.jar pkg.Test");
 		} finally {
