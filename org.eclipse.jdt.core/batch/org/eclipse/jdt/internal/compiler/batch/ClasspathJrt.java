@@ -166,7 +166,14 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 
 			}, JRTUtil.NOTIFY_ALL);
 		} catch (IOException e) {
-			// Ignore and move on
+			String error = "Failed to find module " + moduleName + " defining package " + qualifiedPackageName //$NON-NLS-1$ //$NON-NLS-2$
+					+ " in " + this; //$NON-NLS-1$
+			if (JRTUtil.PROPAGATE_IO_ERRORS) {
+				throw new IllegalStateException(error, e);
+			} else {
+				System.err.println(error);
+				e.printStackTrace();
+			}
 		}
 
 		int size = answers.size();
