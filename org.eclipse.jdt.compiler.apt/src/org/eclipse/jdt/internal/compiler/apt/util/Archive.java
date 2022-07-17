@@ -27,6 +27,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
+import org.eclipse.jdt.internal.compiler.util.JRTUtil;
+
 /**
  * Used as a zip file cache.
  */
@@ -90,12 +92,25 @@ public class Archive implements Closeable {
 		return this.packagesCache.keySet();
 	}
 
+	/**
+	 * Returns an array of String - the array contains exactly two elements. The first element
+	 * is the name of the type and the second being the module that contains the type. For a regular
+	 * Jar archive, the module element will be null. This is applicable only to Jimage files
+	 * where types are contained by multiple modules.
+	 */
 	public List<String[]> getTypes(String packageName) {
 		// package name is expected to ends with '/'
 		if (this.packagesCache == null) {
 			try {
 				this.zipFile = new ZipFile(this.file);
 			} catch(IOException e) {
+				String error = "Failed to read types from archive " + this.file; //$NON-NLS-1$
+				if (JRTUtil.PROPAGATE_IO_ERRORS) {
+					throw new IllegalStateException(error, e);
+				} else {
+					System.err.println(error);
+					e.printStackTrace();
+				}
 				return Collections.<String[]>emptyList();
 			}
 			this.initialize();
