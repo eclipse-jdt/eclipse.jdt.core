@@ -21,8 +21,6 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.StringTokenizer;
 
-import junit.framework.Test;
-
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -52,7 +50,8 @@ import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.SourceType;
-import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
+
+import junit.framework.Test;
 
 @SuppressWarnings({"rawtypes", "unchecked", "hiding"})
 public class CompletionTests2 extends AbstractJavaModelCompletionTests {
@@ -5258,14 +5257,13 @@ public void testBug281598b() throws Exception {
 }
 public void testBug281598c() throws Exception {
 	boolean indexState = isIndexDisabledForTest();
-	IndexManager indexManager = JavaModelManager.getIndexManager();
 	try {
 		// Create project
 		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin", "1.4");
 		waitUntilIndexesReady();
 
 		// Disable indexing
-		indexManager.disable();
+		disableIndexer();
 
 		// Create compilation unit in which completion occurs
 		String path = "/P/src/test/Test.java";
@@ -5293,7 +5291,7 @@ public void testBug281598c() throws Exception {
 			"String[TYPE_REF]{String, java.lang, Ljava.lang.String;, null, null, "+(R_DEFAULT+R_RESOLVED+R_INTERESTING+R_CASE+R_UNQUALIFIED+R_NON_RESTRICTED)+"}",
 			requestor.getResults());
 	} finally {
-		indexManager.enable();
+		enableIndexer();
 		deleteProject("P");
 		this.indexDisabledForTest = indexState;
 	}

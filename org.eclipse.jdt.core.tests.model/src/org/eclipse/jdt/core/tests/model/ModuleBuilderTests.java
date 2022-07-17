@@ -4783,10 +4783,9 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 				JavaCore.newSourceEntry(new Path("/com.greetings/src"))
 			});
 			p.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
-			createSourceFiles(p, new String[] { // this file is not really used, due to the build path error
+			createSourceFiles(p, new String[] {
 					"src/Foo.java",
 					"import com.sun.imageio.plugins.png.PNGImageReader;\n" +
-					"import com.sun.imageio.plugins.png.PNGImageReaderSpi;\n" +
 					"\n" +
 					"public class Foo {\n" +
 					"	PNGImageReader r;\n" +
@@ -4795,10 +4794,21 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			p.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			sortMarkers(markers);
-			assertMarkers("Unexpected markers",
+			String expectedMarkers =
 					"Exporting a package from system module \'java.desktop\' is not allowed with --release.\n" +
-					"The project cannot be built until build path errors are resolved",
-					markers);
+					"The project cannot be built until build path errors are resolved";
+			assertMarkers("Unexpected markers", expectedMarkers, markers);
+			// toggle to disabled should resolve the error:
+			p.setOption(JavaCore.COMPILER_RELEASE, JavaCore.DISABLED);
+			p.getProject().getWorkspace().build(IncrementalProjectBuilder.AUTO_BUILD, null);
+			markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", "", markers);
+			// toggle back to enabled should resurface the error
+			p.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
+			p.getProject().getWorkspace().build(IncrementalProjectBuilder.AUTO_BUILD, null);
+			markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
+			assertMarkers("Unexpected markers", expectedMarkers, markers);
 		} finally {
 			ContainerInitializer.setInitializer(null);
 			deleteProject("com.greetings");
