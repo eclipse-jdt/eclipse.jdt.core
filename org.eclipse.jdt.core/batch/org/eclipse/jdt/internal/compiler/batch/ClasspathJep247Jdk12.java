@@ -132,7 +132,13 @@ public class ClasspathJep247Jdk12 extends ClasspathJep247 {
 			}
 			this.subReleases = sub.toArray(new String[sub.size()]);
 		} catch (IOException e) {
-			//e.printStackTrace();
+			String error = "Failed to walk subreleases for release " + this.releasePath + " in " + filePath; //$NON-NLS-1$ //$NON-NLS-2$
+			if (JRTUtil.PROPAGATE_IO_ERRORS) {
+				throw new IllegalStateException(error, e);
+			} else {
+				System.err.println(error);
+				e.printStackTrace();
+			}
 		}
 		super.initialize();
 	}
@@ -297,8 +303,14 @@ public class ClasspathJep247Jdk12 extends ClasspathJep247 {
 					}
 				}
 			} catch (IOException e) {
-				e.printStackTrace();
-				// Rethrow
+				String error = "Failed to find module " + moduleName + " defining package " + qualifiedPackageName //$NON-NLS-1$ //$NON-NLS-2$
+						+ " in release " + this.releasePath + " in " + this; //$NON-NLS-1$ //$NON-NLS-2$
+				if (JRTUtil.PROPAGATE_IO_ERRORS) {
+					throw new IllegalStateException(error, e);
+				} else {
+					System.err.println(error);
+					e.printStackTrace();
+				}
 			}
 		}
 		return singletonModuleNameIf(this.packageCache.contains(qualifiedPackageName));

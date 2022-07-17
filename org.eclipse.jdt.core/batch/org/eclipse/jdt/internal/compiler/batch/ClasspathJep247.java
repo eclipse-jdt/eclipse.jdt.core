@@ -241,8 +241,14 @@ public class ClasspathJep247 extends ClasspathJrt {
 					});
 				}
 			} catch (IOException e) {
-				e.printStackTrace();
-				// Rethrow
+				String error = "Failed to find module " + moduleName + " defining package " + qualifiedPackageName //$NON-NLS-1$ //$NON-NLS-2$
+						+ " in release " + this.releasePath + " in " + this; //$NON-NLS-1$ //$NON-NLS-2$
+				if (JRTUtil.PROPAGATE_IO_ERRORS) {
+					throw new IllegalStateException(error, e);
+				} else {
+					System.err.println(error);
+					e.printStackTrace();
+				}
 			}
 			this.subReleases = sub.toArray(new String[sub.size()]);
 		}
