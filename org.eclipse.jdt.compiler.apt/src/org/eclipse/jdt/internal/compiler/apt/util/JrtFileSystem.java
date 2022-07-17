@@ -113,7 +113,13 @@ public class JrtFileSystem extends Archive {
             		return true;
             }).collect(Collectors.toList());
         } catch (IOException e) {
-        	// ignore
+        	String error = "Failed to read files from " + resolve; //$NON-NLS-1$
+			if (JRTUtil.PROPAGATE_IO_ERRORS) {
+				throw new IllegalStateException(error, e);
+			} else {
+				System.err.println(error);
+				e.printStackTrace();
+			}
         }
         List<JrtFileObject> result = new ArrayList<>();
         for (Path p: files) {
