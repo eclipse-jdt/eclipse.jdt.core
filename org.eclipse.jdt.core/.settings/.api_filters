@@ -1,10 +1,70 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component id="org.eclipse.jdt.core" version="2">
+    <resource path="META-INF/MANIFEST.MF">
+        <filter id="923795461">
+            <message_arguments>
+                <message_argument value="3.30.100"/>
+                <message_argument value="3.30.0"/>
+            </message_arguments>
+        </filter>
+        <filter id="924844039">
+            <message_arguments>
+                <message_argument value="3.30.100"/>
+                <message_argument value="3.30.0"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="batch/org/eclipse/jdt/core/compiler/batch/BatchCompiler.java" type="org.eclipse.jdt.core.compiler.batch.BatchCompiler">
+        <filter id="305324134">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.batch.BatchCompiler"/>
+                <message_argument value="org.eclipse.jdt.core_3.30.100"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="compiler/org/eclipse/jdt/core/compiler/CategorizedProblem.java" type="org.eclipse.jdt.core.compiler.CategorizedProblem">
+        <filter id="305324134">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.CategorizedProblem"/>
+                <message_argument value="org.eclipse.jdt.core_3.30.100"/>
+            </message_arguments>
+        </filter>
         <filter comment="Java 14" id="576725006">
             <message_arguments>
                 <message_argument value="IProblem"/>
                 <message_argument value="CategorizedProblem"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="compiler/org/eclipse/jdt/core/compiler/CharOperation.java" type="org.eclipse.jdt.core.compiler.CharOperation">
+        <filter id="305324134">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.CharOperation"/>
+                <message_argument value="org.eclipse.jdt.core_3.30.100"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="compiler/org/eclipse/jdt/core/compiler/CompilationProgress.java" type="org.eclipse.jdt.core.compiler.CompilationProgress">
+        <filter id="305324134">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.CompilationProgress"/>
+                <message_argument value="org.eclipse.jdt.core_3.30.100"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="compiler/org/eclipse/jdt/core/compiler/IProblem.java" type="org.eclipse.jdt.core.compiler.IProblem">
+        <filter id="305324134">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="org.eclipse.jdt.core_3.30.100"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="compiler/org/eclipse/jdt/core/compiler/InvalidInputException.java" type="org.eclipse.jdt.core.compiler.InvalidInputException">
+        <filter id="305324134">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.InvalidInputException"/>
+                <message_argument value="org.eclipse.jdt.core_3.30.100"/>
             </message_arguments>
         </filter>
     </resource>
@@ -261,6 +321,76 @@
             <message_arguments>
                 <message_argument value="IOpcodeMnemonics"/>
                 <message_argument value="OpcodeStringValues"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="model/org/eclipse/jdt/internal/compiler/DocumentElementParser.java" type="org.eclipse.jdt.internal.compiler.DocumentElementParser">
+        <filter id="1110441988">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.internal.compiler.DocumentElementParser"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="model/org/eclipse/jdt/internal/compiler/ExtraFlags.java" type="org.eclipse.jdt.internal.compiler.ExtraFlags">
+        <filter id="1110441988">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.internal.compiler.ExtraFlags"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="model/org/eclipse/jdt/internal/compiler/IDocumentElementRequestor.java" type="org.eclipse.jdt.internal.compiler.IDocumentElementRequestor">
+        <filter id="1110441988">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.internal.compiler.IDocumentElementRequestor"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="model/org/eclipse/jdt/internal/compiler/ISourceElementRequestor.java" type="org.eclipse.jdt.internal.compiler.ISourceElementRequestor">
+        <filter id="1110441988">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.internal.compiler.ISourceElementRequestor"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="model/org/eclipse/jdt/internal/compiler/SourceElementNotifier.java" type="org.eclipse.jdt.internal.compiler.SourceElementNotifier">
+        <filter id="1110441988">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.internal.compiler.SourceElementNotifier"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="model/org/eclipse/jdt/internal/compiler/SourceElementParser.java" type="org.eclipse.jdt.internal.compiler.SourceElementParser">
+        <filter id="1110441988">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.internal.compiler.SourceElementParser"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="model/org/eclipse/jdt/internal/compiler/SourceElementRequestorAdapter.java" type="org.eclipse.jdt.internal.compiler.SourceElementRequestorAdapter">
+        <filter id="1110441988">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.internal.compiler.SourceElementRequestorAdapter"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="model/org/eclipse/jdt/internal/compiler/SourceJavadocParser.java" type="org.eclipse.jdt.internal.compiler.SourceJavadocParser">
+        <filter id="1110441988">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.internal.compiler.SourceJavadocParser"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="model/org/eclipse/jdt/internal/compiler/parser/SourceTypeConverter.java" type="org.eclipse.jdt.internal.compiler.parser.SourceTypeConverter">
+        <filter id="1110441988">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.internal.compiler.parser.SourceTypeConverter"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="model/org/eclipse/jdt/internal/compiler/parser/TypeConverter.java" type="org.eclipse.jdt.internal.compiler.parser.TypeConverter">
+        <filter id="1110441988">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.internal.compiler.parser.TypeConverter"/>
             </message_arguments>
         </filter>
     </resource>
