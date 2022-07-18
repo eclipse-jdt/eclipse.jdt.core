@@ -404,10 +404,22 @@ final class RuntimeIOException extends RuntimeException {
 class Jdk {
 	final String path;
 	final String release;
+	static final Map<String, String> pathToRelease = new ConcurrentHashMap<>();
 
 	public Jdk(File jrt) throws IOException {
 		this.path = toJdkHome(jrt);
-		this.release = readJdkReleaseFile(this.path);
+		try {
+			String rel = pathToRelease.computeIfAbsent(this.path, key -> {
+				try {
+					return readJdkReleaseFile(this.path);
+				} catch (IOException e) {
+					throw new RuntimeIOException(e);
+				}
+			});
+			this.release = rel;
+		} catch (RuntimeIOException rio) {
+			throw rio.getCause();
+		}
 	}
 
 	@Override
