@@ -79,19 +79,26 @@ public class JRTUtil {
 
 	public interface JrtFileVisitor<T> {
 
-		public FileVisitResult visitPackage(T dir, T mod, BasicFileAttributes attrs) throws IOException;
+		public default FileVisitResult visitPackage(T dir, T mod, BasicFileAttributes attrs) throws IOException {
+			return FileVisitResult.CONTINUE;
+		}
 
-		public FileVisitResult visitFile(T file, T mod, BasicFileAttributes attrs) throws IOException;
+		public default FileVisitResult visitFile(T file, T mod, BasicFileAttributes attrs) throws IOException {
+			return FileVisitResult.CONTINUE;
+		}
+
 		/**
 		 * Invoked when a root directory of a module being visited. The element returned
 		 * contains only the module name segment - e.g. "java.base". Clients can use this to control
 		 * how the JRT needs to be processed, for e.g., clients can skip a particular module
 		 * by returning FileVisitResult.SKIP_SUBTREE
 		 */
-		public FileVisitResult visitModule(T path, String name) throws IOException;
+		public default FileVisitResult visitModule(T path, String name) throws IOException  {
+			return FileVisitResult.CONTINUE;
+		}
 	}
 
-	static abstract class AbstractFileVisitor<T> implements FileVisitor<T> {
+	public static abstract class AbstractFileVisitor<T> implements FileVisitor<T> {
 		@Override
 		public FileVisitResult preVisitDirectory(T dir, BasicFileAttributes attrs) throws IOException {
 			return FileVisitResult.CONTINUE;
