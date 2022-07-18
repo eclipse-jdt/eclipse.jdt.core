@@ -30,7 +30,7 @@ pipeline {
 					# via configuration/argLine property in pom.xml
 					# export MAVEN_OPTS="-Xmx2G"
 					
-					mvn -U clean verify --batch-mode --fail-at-end -Dtycho.version=2.7.3 -Dmaven.repo.local=$WORKSPACE/.m2/repository \
+					mvn -U clean verify --batch-mode --fail-at-end -Dmaven.repo.local=$WORKSPACE/.m2/repository \
 					-Pbuild-individual-bundles -Ptest-on-javase-17 -Pbree-libs -Papi-check \
 					-Djava.io.tmpdir=$WORKSPACE/tmp -Dproject.build.sourceEncoding=UTF-8 \
 					-Dtycho.surefire.argLine="--add-modules ALL-SYSTEM -Dcompliance=1.8,11,17 -Djdt.performance.asserts=disabled"
