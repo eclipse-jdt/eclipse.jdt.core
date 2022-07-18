@@ -83,33 +83,39 @@ static Map<String, SimpleSet> findPackagesInModules(final ClasspathJrt jrt) {
 	Map<String, SimpleSet> cache = PackageCache.computeIfAbsent(jrt.zipFilename, zipFileName -> {
 		final Map<String, SimpleSet> packagesInModule = new HashMap<>();
 		try {
-			final File imageFile = jrt.jrtFile;
-			JRTUtil.walkModuleImage(imageFile, new JRTUtil.JrtFileVisitor<Path>() {
-				// TODO: next, extract this to dedicated class and reuse in ClasspathJrtWithReleaseOption.findPackagesInModules
-				SimpleSet packageSet;
-				@Override
-				public FileVisitResult visitPackage(Path dir, Path mod, BasicFileAttributes attrs) throws IOException {
-					ClasspathJar.addToPackageSet(this.packageSet, dir.toString(), true);
-					return FileVisitResult.CONTINUE;
-				}
-
-				@Override
-				public FileVisitResult visitModule(Path path, String name) throws IOException {
-					this.packageSet = new SimpleSet(41);
-					this.packageSet.add(""); //$NON-NLS-1$
-					if (name.endsWith("/")) { //$NON-NLS-1$
-						name = name.substring(0, name.length() - 1);
-					}
-					packagesInModule.put(name, this.packageSet);
-					return FileVisitResult.CONTINUE;
-				}
-			}, JRTUtil.NOTIFY_PACKAGES | JRTUtil.NOTIFY_MODULES);
+			JRTUtil.walkModuleImage(jrt.jrtFile, new JrtPackageVisitor(packagesInModule), JRTUtil.NOTIFY_PACKAGES | JRTUtil.NOTIFY_MODULES);
 		} catch (IOException e) {
 			Util.log(e, "Failed to init packages for " + zipFileName); //$NON-NLS-1$
 		}
 		return packagesInModule.isEmpty() ? null : Collections.unmodifiableMap(packagesInModule);
 	});
 	return cache;
+}
+
+static final class JrtPackageVisitor implements JRTUtil.JrtFileVisitor<Path> {
+	private final Map<String, SimpleSet> packagesInModule;
+	SimpleSet packageSet;
+
+	JrtPackageVisitor(Map<String, SimpleSet> packagesInModule) {
+		this.packagesInModule = packagesInModule;
+	}
+
+	@Override
+	public FileVisitResult visitPackage(Path dir, Path mod, BasicFileAttributes attrs) throws IOException {
+		ClasspathJar.addToPackageSet(this.packageSet, dir.toString(), true);
+		return FileVisitResult.CONTINUE;
+	}
+
+	@Override
+	public FileVisitResult visitModule(Path path, String name) throws IOException {
+		this.packageSet = new SimpleSet(41);
+		this.packageSet.add(""); //$NON-NLS-1$
+		if (name.endsWith("/")) { //$NON-NLS-1$
+			name = name.substring(0, name.length() - 1);
+		}
+		this.packagesInModule.put(name, this.packageSet);
+		return FileVisitResult.CONTINUE;
+	}
 }
 
 public static void loadModules(final ClasspathJrt jrt) {

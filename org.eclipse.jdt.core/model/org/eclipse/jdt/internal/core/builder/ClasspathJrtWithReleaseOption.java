@@ -133,26 +133,7 @@ public class ClasspathJrtWithReleaseOption extends ClasspathJrt {
 		Map<String, SimpleSet> cache = PackageCache.computeIfAbsent(this.modPathString, key -> {
 			final Map<String, SimpleSet> packagesInModule = new HashMap<>();
 			try {
-				JRTUtil.walkModuleImage(this.jrtFile, this.release, new JRTUtil.JrtFileVisitor<Path>() {
-					SimpleSet packageSet;
-
-					@Override
-					public FileVisitResult visitPackage(Path dir, Path mod, BasicFileAttributes attrs) throws IOException {
-						ClasspathJar.addToPackageSet(this.packageSet, dir.toString(), true);
-						return FileVisitResult.CONTINUE;
-					}
-
-					@Override
-					public FileVisitResult visitModule(Path path, String name) throws IOException {
-						this.packageSet = new SimpleSet(41);
-						this.packageSet.add(""); //$NON-NLS-1$
-						if (name.endsWith("/")) { //$NON-NLS-1$
-							name = name.substring(0, name.length() - 1);
-						}
-						packagesInModule.put(name, this.packageSet);
-						return FileVisitResult.CONTINUE;
-					}
-				}, JRTUtil.NOTIFY_PACKAGES | JRTUtil.NOTIFY_MODULES);
+				JRTUtil.walkModuleImage(this.jrtFile, this.release, new JrtPackageVisitor(packagesInModule), JRTUtil.NOTIFY_PACKAGES | JRTUtil.NOTIFY_MODULES);
 			} catch (IOException e) {
 				Util.log(e, "Failed to init packages for " + this.modPathString); //$NON-NLS-1$
 			}
