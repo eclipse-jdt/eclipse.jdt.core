@@ -78,19 +78,6 @@ public class JrtFileSystem extends Archive {
 
 		org.eclipse.jdt.internal.compiler.util.JRTUtil.walkModuleImage(this.file,
 				new org.eclipse.jdt.internal.compiler.util.JRTUtil.JrtFileVisitor<Path>() {
-
-			@Override
-			public FileVisitResult visitPackage(Path dir, Path mod, BasicFileAttributes attrs)
-					throws IOException {
-				return FileVisitResult.CONTINUE;
-			}
-
-			@Override
-			public FileVisitResult visitFile(Path f, Path mod, BasicFileAttributes attrs)
-					throws IOException {
-				return FileVisitResult.CONTINUE;
-			}
-
 			@Override
 			public FileVisitResult visitModule(Path path, String name) throws IOException {
 				JrtFileSystem.this.modulePathMap.put(name, path);
