@@ -130,6 +130,9 @@ public class ClasspathJrtWithReleaseOption extends ClasspathJrt {
 		if (this.fs == null || !this.ctSym.isJRE12Plus()) {
 			return ClasspathJrt.findPackagesInModules(this);
 		}
+		if (this.modPathString == null) {
+			return Map.of();
+		}
 		Map<String, SimpleSet> cache = PackageCache.computeIfAbsent(this.modPathString, key -> {
 			final Map<String, SimpleSet> packagesInModule = new HashMap<>();
 			try {
