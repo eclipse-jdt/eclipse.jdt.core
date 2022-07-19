@@ -2323,7 +2323,9 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			return doVisitUnchangedChildren(node);
 		}
 
-		rewriteRequiredNode(node, RecordPattern.PATTERN_VARIABLE_PROPERTY);
+		// How to handle nested patterns - rewriteNodeList(node, RecordPattern.PATTERNS_PROPERTY, pos, Util.EMPTY_STRING, ", "); //$NON-NLS-1$
+		rewriteRequiredNode(node, RecordPattern.PATTERN_TYPE_PROPERTY);
+		rewriteRequiredNode(node, RecordPattern.PATTERN_NAME_PROPERTY);
 		return false;
 	}
 

@@ -2161,7 +2161,8 @@ public class ASTMatcher {
 			return false;
 		}
 		RecordPattern o = (RecordPattern) other;
-		return safeSubtreeMatch(node.getPatternVariable(), o.getPatternVariable())
+		return safeSubtreeMatch(node.getPatternType(), o.getPatternType())
+				&& safeSubtreeMatch(node.getPatternName(), o.getPatternName())
 				&& safeSubtreeListMatch(node.patterns(), o.patterns());
 	}
 

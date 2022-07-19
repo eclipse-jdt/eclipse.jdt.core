@@ -1430,11 +1430,17 @@ public class NaiveASTFlattener extends ASTVisitor {
 	@Override
 	public boolean visit(RecordPattern node) {
 		if (DOMASTUtil.isPatternSupported(node.getAST())) {
+
+			if (node.getPatternType() != null) {
+				this.buffer.append(" ");//$NON-NLS-1$
+				node.getPatternType().accept(this);
+			}
 			for (Pattern pattern : node.patterns()) {
 				visitPattern(pattern);
 			}
-			if (node.getPatternVariable() != null) {
-				node.getPatternVariable().accept(this);
+			if (node.getPatternName() != null) {
+				this.buffer.append(" ");//$NON-NLS-1$
+				node.getPatternName().accept(this);
 			}
 		}
 		return false;
@@ -1445,7 +1451,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 			return false;
 		}
 		if (node instanceof RecordPattern) {
-			visit((RecordPattern) node);
+			return visit((RecordPattern) node);
 		}
 		if (node instanceof GuardedPattern) {
 			return visit((GuardedPattern) node);
@@ -2001,7 +2007,9 @@ public class NaiveASTFlattener extends ASTVisitor {
 	@Override
 	public boolean visit(TypePattern node) {
 		if (DOMASTUtil.isPatternSupported(node.getAST())) {
+			this.buffer.append("(");//$NON-NLS-1$
 			node.getPatternVariable().accept(this);
+			this.buffer.append(")");//$NON-NLS-1$
 		}
 		return false;
 	}

@@ -125,7 +125,6 @@ public class TypePattern extends Pattern {
 		return super.internalGetSetChildProperty(property, get, child);
 	}
 
-	@Override
 	public List<SingleVariableDeclaration> patternVariables() {
 		supportedOnlyIn19();
 		unsupportedWithoutPreviewError();
