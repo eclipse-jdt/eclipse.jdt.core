@@ -80,6 +80,9 @@ void setZipFile(String zipFilename) {
  * @return A SimpleSet with the all the package names in the zipFile.
  */
 static Map<String, SimpleSet> findPackagesInModules(final ClasspathJrt jrt) {
+	if (jrt.zipFilename == null) {
+		return Map.of();
+	}
 	Map<String, SimpleSet> cache = PackageCache.computeIfAbsent(jrt.zipFilename, zipFileName -> {
 		final Map<String, SimpleSet> packagesInModule = new HashMap<>();
 		try {
@@ -119,7 +122,11 @@ static final class JrtPackageVisitor implements JRTUtil.JrtFileVisitor<Path> {
 }
 
 public static void loadModules(final ClasspathJrt jrt) {
-	ModulesCache.computeIfAbsent(jrt.getKey(), key -> {
+	String jrtKey = jrt.getKey();
+	if (jrtKey == null) {
+		return;
+	}
+	ModulesCache.computeIfAbsent(jrtKey, key -> {
 		Map<String, IModule> newCache = new HashMap<>();
 		try {
 			final File imageFile = jrt.jrtFile;
@@ -240,6 +247,9 @@ public IModule getModule(char[] moduleName) {
 	return getModule(String.valueOf(moduleName));
 }
 public IModule getModule(String moduleName) {
+	if (!hasModule()) {
+		return null;
+	}
 	Map<String, IModule> modules = ModulesCache.get(getKey());
 	if (modules != null) {
 		return modules.get(moduleName);

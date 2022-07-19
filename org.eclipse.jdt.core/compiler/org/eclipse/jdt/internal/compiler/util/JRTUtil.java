@@ -446,7 +446,7 @@ class Jdk {
 	}
 
 	static String toJdkHome(File jrt) {
-		String home = null;
+		String home;
 		Path normalized = jrt.toPath().normalize();
 		if (jrt.getName().equals(JRTUtil.JRT_FS_JAR)) {
 			home = normalized.getParent().getParent().toString();
