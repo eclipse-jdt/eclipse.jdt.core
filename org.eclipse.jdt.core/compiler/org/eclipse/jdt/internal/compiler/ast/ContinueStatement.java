@@ -51,6 +51,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	if (targetContext == FlowContext.NotContinuableContext) {
 		currentScope.problemReporter().invalidContinue(this);
 		return flowInfo; // pretend it did not continue since no actual target
+	} else if (targetContext == FlowContext.ContinuedContextCrossingSwitchExpression) {
+		currentScope.problemReporter().switchExpressionsContinueOutOfSwitchExpression(this);
+		return flowInfo; // pretend it did not continue since no actual target
 	}
 	this.initStateIndex =
 		currentScope.methodScope().recordInitializationStates(flowInfo);
