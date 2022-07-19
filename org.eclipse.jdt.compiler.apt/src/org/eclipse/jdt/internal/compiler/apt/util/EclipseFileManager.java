@@ -67,6 +67,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 /**
@@ -102,8 +103,13 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		try {
 			initialize(Util.getJavaHome());
 		} catch (IOException e) {
-			e.printStackTrace();
-			// ignore
+			String error = "Failed to init EclipseFileManager from " + Util.getJavaHome(); //$NON-NLS-1$
+			if (JRTUtil.PROPAGATE_IO_ERRORS) {
+				throw new IllegalStateException(error, e);
+			} else {
+				System.err.println(error);
+				e.printStackTrace();
+			}
 		}
 		try {
 			this.bundle = ResourceBundleFactory.getBundle(this.locale);
@@ -135,7 +141,9 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	public void close() throws IOException {
 		this.locationHandler.close();
 		for (Archive archive : this.archivesCache.values()) {
-			archive.close();
+			if (archive != null) {
+				archive.close();
+			}
 		}
 		this.archivesCache.clear();
 		for (URLClassLoader cl : this.classloaders.values()) {
@@ -239,8 +247,14 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	@Override
 	public void flush() throws IOException {
 		for (Archive archive : this.archivesCache.values()) {
-			archive.flush();
+			if (archive != null) {
+				archive.flush();
+			}
 		}
+	}
+
+	JrtFileSystem getJrtFileSystem(File f){
+		return (JrtFileSystem) getArchive(f);
 	}
 
 	private Archive getArchive(File f) {
@@ -253,11 +267,19 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		// create a new archive
 		if (f.exists()) {
 			try {
-				archive = new Archive(f);
-			} catch (ZipException e) {
-				// ignore
+				if (isJrt(f)) {
+					archive = new JrtFileSystem(f);
+				} else {
+					archive = new Archive(f);
+				}
 			} catch (IOException e) {
-				// ignore
+				String error = "Failed to create archive from " + f; //$NON-NLS-1$
+				if (JRTUtil.PROPAGATE_IO_ERRORS) {
+					throw new IllegalStateException(error, e);
+				} else {
+					System.err.println(error);
+					e.printStackTrace();
+				}
 			}
 		}
 		try (Archive previous = this.archivesCache.put(f, archive)) {
@@ -491,7 +513,15 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		String normalizedFileName = normalized(className);
 		normalizedFileName += kind.extension;
 		for (File file : files) {
-			if (file.isDirectory()) {
+			if (file.equals(this.jrtHome)) {
+				String modName;
+				if (location instanceof ModuleLocationWrapper) {
+					modName = ((ModuleLocationWrapper) location).modName;
+				} else {
+					modName = ""; //$NON-NLS-1$
+				}
+				return this.jrtSystem.getArchiveFileObject(normalizedFileName, modName, this.charset);
+			} else  if (file.isDirectory()) {
 				// handle directory
 				File f = new File(file, normalizedFileName);
 				if (f.exists()) {
@@ -689,8 +719,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 						if (classpaths != null) {
 							Iterable<? extends File> iterable = getLocation(StandardLocation.SYSTEM_MODULES);
 							if (iterable != null) {
-								setLocation(StandardLocation.SYSTEM_MODULES,
-									concatFiles(iterable, classpaths));
+								setLocation(StandardLocation.SYSTEM_MODULES, concatFiles(iterable, classpaths));
 							} else {
 								setLocation(StandardLocation.SYSTEM_MODULES, classpaths);
 							}
@@ -854,7 +883,13 @@ public class EclipseFileManager implements StandardJavaFileManager {
 					}
 			}
 		} catch (IOException e) {
-			// ignore
+			String error = "Failed to handle option " + current; //$NON-NLS-1$
+			if (JRTUtil.PROPAGATE_IO_ERRORS) {
+				throw new IllegalStateException(error, e);
+			} else {
+				System.err.println(error);
+				e.printStackTrace();
+			}
 		}
 		return false;
 	}
@@ -878,6 +913,20 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	@Override
 	public String inferBinaryName(Location location, JavaFileObject file) {
 		validateNonModuleLocation(location);
+		Iterable<? extends Path> paths = getLocationAsPaths(location);
+		if (paths == null) {
+			return null;
+		}
+		if (file instanceof JrtFileObject) {
+			Path filePath = ((JrtFileObject) file).path;
+			filePath = filePath.subpath(2, filePath.getNameCount());
+			String name = filePath.toString();
+			int index = name.lastIndexOf('.');
+			if (index != -1) {
+				name = name.substring(0, index);
+			}
+			return name.replace('/', '.');
+		}
 		String name = file.getName();
 		JavaFileObject javaFileObject = null;
 		int index = name.lastIndexOf('.');
@@ -898,8 +947,14 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	}
 
 	private boolean isArchive(File f) {
+		if (isJrt(f))
+			return false;
 		String extension = getExtension(f);
-		return extension.equalsIgnoreCase(".jar") || extension.equalsIgnoreCase(".zip");//$NON-NLS-1$//$NON-NLS-2$
+		return extension.equalsIgnoreCase(".jar") || extension.equalsIgnoreCase(".zip"); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	private boolean isJrt(File f) {
+		return f.getName().toLowerCase().equals(JrtFileSystem.BOOT_MODULE);
 	}
 
 	/* (non-Javadoc)
@@ -976,7 +1031,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	 */
 	@Override
 	public void setLocation(Location location, Iterable<? extends File> files) throws IOException {
-		if (location.isOutputLocation()) {
+		if (location.isOutputLocation() && files != null) {
 			// output location
 			int count = 0;
 			for (Iterator<? extends File> iterator = files.iterator(); iterator.hasNext(); ) {
@@ -1278,6 +1333,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		}
 		return MessageFormat.format(message, (Object[]) arguments);
 	}
+
 	private Iterable<? extends File> getFiles(final Iterable<? extends Path> paths) {
 		if (paths == null)
 			return null;
@@ -1362,14 +1418,14 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	@Override
 	public void setLocationFromPaths(Location location, Collection<? extends Path> paths) throws IOException {
 		setLocation(location, getFiles(paths));
-		if (location == StandardLocation.MODULE_PATH) {
+		if (location == StandardLocation.MODULE_PATH || location == StandardLocation.MODULE_SOURCE_PATH) {
 			// FIXME: same for module source path?
 			Map<String, String> options = new HashMap<>();
 			// FIXME: Find a way to get the options from the EclipseCompiler and pass it to the parser.
-			// FIXME: need to be the latest and not hardcoded value
-			options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_9);
-			options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_9);
-			options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_9);
+			String latest = CompilerOptions.getLatestVersion();
+			options.put(CompilerOptions.OPTION_Compliance, latest);
+			options.put(CompilerOptions.OPTION_Source, latest);
+			options.put(CompilerOptions.OPTION_TargetPlatform, latest);
 			CompilerOptions compilerOptions = new CompilerOptions(options);
 			ProblemReporter problemReporter =
 					new ProblemReporter(
@@ -1383,7 +1439,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 					Collection<String> moduleNames = cp.getModuleNames(null);
 					for (String string : moduleNames) {
 						Path p = Paths.get(cp.getPath());
-						setLocationForModule(StandardLocation.MODULE_PATH, string,  Collections.singletonList(p));
+						setLocationForModule(location, string,  Collections.singletonList(p));
 					}
 				}
 			}
@@ -1423,8 +1479,14 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		Location result = this.locationHandler.getLocation(location, moduleName);
 		if (result == null && location == StandardLocation.CLASS_OUTPUT) {
 			LocationWrapper wrapper = this.locationHandler.getLocation(StandardLocation.MODULE_SOURCE_PATH, moduleName);
-			deriveOutputLocationForModules(moduleName, wrapper.paths);
-			result = getLocationForModule(location, moduleName);
+			// There are cases where we don't have module source path in that case we need to create
+			// classes in default location
+			if (wrapper == null) {
+				result = location;
+			} else {
+				deriveOutputLocationForModules(moduleName, wrapper.paths);
+				result = getLocationForModule(location, moduleName);
+			}
 		} else if (result == null && location == StandardLocation.SOURCE_OUTPUT) {
 			LocationWrapper wrapper = this.locationHandler.getLocation(StandardLocation.MODULE_SOURCE_PATH, moduleName);
 			deriveSourceOutputLocationForModules(moduleName, wrapper.paths);

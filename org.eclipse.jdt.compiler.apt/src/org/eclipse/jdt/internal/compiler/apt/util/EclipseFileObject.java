@@ -15,6 +15,10 @@
 
 package org.eclipse.jdt.internal.compiler.apt.util;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -35,6 +39,7 @@ import javax.tools.SimpleJavaFileObject;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
+import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 
 /**
  * Implementation of a Java file object that corresponds to a file on the file system
@@ -66,7 +71,13 @@ public class EclipseFileObject extends SimpleJavaFileObject {
 		} catch (ClassFormatException e) {
 			// ignore
 		} catch (IOException e) {
-			// ignore
+			String error = "Failed to read access level from " + this.f; //$NON-NLS-1$
+			if (JRTUtil.PROPAGATE_IO_ERRORS) {
+				throw new IllegalStateException(error, e);
+			} else {
+				System.err.println(error);
+				e.printStackTrace();
+			}
 		}
 		if (reader == null) {
 			return null;
@@ -89,7 +100,7 @@ public class EclipseFileObject extends SimpleJavaFileObject {
 	 */
 	@Override
 	public NestingKind getNestingKind() {
-		switch(kind) {
+		switch(this.kind) {
 			case SOURCE :
 				return NestingKind.TOP_LEVEL;
 			case CLASS :
@@ -99,7 +110,13 @@ public class EclipseFileObject extends SimpleJavaFileObject {
         		} catch (ClassFormatException e) {
         			// ignore
         		} catch (IOException e) {
-        			// ignore
+        			String error = "Failed to read access nesting kind from " + this.f; //$NON-NLS-1$
+        			if (JRTUtil.PROPAGATE_IO_ERRORS) {
+        				throw new IllegalStateException(error, e);
+        			} else {
+        				System.err.println(error);
+        				e.printStackTrace();
+        			}
         		}
         		if (reader == null) {
         			return null;
@@ -119,7 +136,7 @@ public class EclipseFileObject extends SimpleJavaFileObject {
 		}
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see javax.tools.FileObject#delete()
 	 */
 	@Override
@@ -136,7 +153,7 @@ public class EclipseFileObject extends SimpleJavaFileObject {
 		return eclipseFileObject.toUri().equals(this.uri);
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see javax.tools.FileObject#getCharContent(boolean)
 	 */
 	@Override
@@ -144,7 +161,7 @@ public class EclipseFileObject extends SimpleJavaFileObject {
 		return Util.getCharContents(this, ignoreEncodingErrors, org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(this.f), this.charset.name());
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see javax.tools.FileObject#getLastModified()
 	 */
 	@Override
@@ -159,42 +176,41 @@ public class EclipseFileObject extends SimpleJavaFileObject {
 
 	@Override
 	public int hashCode() {
-		return f.hashCode();
+		return this.f.hashCode();
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see javax.tools.FileObject#openInputStream()
 	 */
 	@Override
 	public InputStream openInputStream() throws IOException {
-		// TODO (olivier) should be used buffered input stream
-		return new FileInputStream(this.f);
+		return new BufferedInputStream(new FileInputStream(this.f));
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see javax.tools.FileObject#openOutputStream()
 	 */
 	@Override
 	public OutputStream openOutputStream() throws IOException {
 		ensureParentDirectoriesExist();
-		return new FileOutputStream(this.f);
+		return new BufferedOutputStream(new FileOutputStream(this.f));
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see javax.tools.FileObject#openReader(boolean)
 	 */
 	@Override
 	public Reader openReader(boolean ignoreEncodingErrors) throws IOException {
-		return new FileReader(this.f);
+		return new BufferedReader(new FileReader(this.f));
 	}
 
-	/* (non-Javadoc)
+	/**
 	 * @see javax.tools.FileObject#openWriter()
 	 */
 	@Override
 	public Writer openWriter() throws IOException {
 		ensureParentDirectoriesExist();
-		return new FileWriter(this.f);
+		return new BufferedWriter(new FileWriter(this.f));
 	}
 
 	@Override
@@ -204,12 +220,12 @@ public class EclipseFileObject extends SimpleJavaFileObject {
 
     private void ensureParentDirectoriesExist() throws IOException {
         if (!this.parentsExist) {
-            File parent = f.getParentFile();
+            File parent = this.f.getParentFile();
             if (parent != null && !parent.exists()) {
                 if (!parent.mkdirs()) {
                     // could have been concurrently created
                     if (!parent.exists() || !parent.isDirectory())
-                        throw new IOException("Unable to create parent directories for " + f); //$NON-NLS-1$
+                        throw new IOException("Unable to create parent directories for " + this.f); //$NON-NLS-1$
                 }
             }
             this.parentsExist = true;

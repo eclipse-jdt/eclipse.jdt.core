@@ -33,6 +33,7 @@ import javax.tools.JavaFileObject;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
+import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 
 /**
  * Implementation of a Java file object that corresponds to an entry in a zip/jar file
@@ -84,7 +85,13 @@ public class ArchiveFileObject implements JavaFileObject {
 		} catch (ClassFormatException e) {
 			// ignore
 		} catch (IOException e) {
-			// ignore
+			String error = "Failed to read entry " + this.entryName + " from archive " + this.file; //$NON-NLS-1$ //$NON-NLS-2$
+			if (JRTUtil.PROPAGATE_IO_ERRORS) {
+				throw new IllegalStateException(error, e);
+			} else {
+				System.err.println(error);
+				e.printStackTrace();
+			}
 		}
 		return reader;
 	}

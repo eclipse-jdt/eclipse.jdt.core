@@ -39,6 +39,7 @@ import javax.tools.SimpleJavaFileObject;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
+import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 
 /**
  * Implementation of a Java file object that corresponds to a file on the file system
@@ -70,7 +71,13 @@ public class EclipseFileObject extends SimpleJavaFileObject {
 		} catch (ClassFormatException e) {
 			// ignore
 		} catch (IOException e) {
-			// ignore
+			String error = "Failed to read access level from " + this.f; //$NON-NLS-1$
+			if (JRTUtil.PROPAGATE_IO_ERRORS) {
+				throw new IllegalStateException(error, e);
+			} else {
+				System.err.println(error);
+				e.printStackTrace();
+			}
 		}
 		if (reader == null) {
 			return null;
@@ -103,7 +110,13 @@ public class EclipseFileObject extends SimpleJavaFileObject {
         		} catch (ClassFormatException e) {
         			// ignore
         		} catch (IOException e) {
-        			// ignore
+        			String error = "Failed to read access nesting kind from " + this.f; //$NON-NLS-1$
+        			if (JRTUtil.PROPAGATE_IO_ERRORS) {
+        				throw new IllegalStateException(error, e);
+        			} else {
+        				System.err.println(error);
+        				e.printStackTrace();
+        			}
         		}
         		if (reader == null) {
         			return null;

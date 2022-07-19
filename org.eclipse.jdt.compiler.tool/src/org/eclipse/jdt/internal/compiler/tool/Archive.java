@@ -27,6 +27,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
+import org.eclipse.jdt.internal.compiler.util.JRTUtil;
+
 /**
  * Used as a zip file cache.
  */
@@ -108,6 +110,13 @@ public class Archive implements Closeable {
 			try {
 				this.zipFile = new ZipFile(this.file);
 			} catch(IOException e) {
+				String error = "Failed to read types from archive " + this.file; //$NON-NLS-1$
+				if (JRTUtil.PROPAGATE_IO_ERRORS) {
+					throw new IllegalStateException(error, e);
+				} else {
+					System.err.println(error);
+					e.printStackTrace();
+				}
 				return Collections.<String[]>emptyList();
 			}
 			this.initialize();

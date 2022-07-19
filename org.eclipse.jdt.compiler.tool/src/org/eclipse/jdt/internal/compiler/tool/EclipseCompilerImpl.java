@@ -69,6 +69,7 @@ import org.eclipse.jdt.internal.compiler.problem.DefaultProblem;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
+import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.compiler.util.Messages;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
@@ -545,7 +546,13 @@ public class EclipseCompilerImpl extends Main {
 										JrtFileSystem jrtfs = efm.getJrtFileSystem(classpathJrt.file);
 										efm.locationHandler.newSystemLocation(StandardLocation.SYSTEM_MODULES, jrtfs);
 									} catch (IOException e) {
-										e.printStackTrace();
+										String error = "Failed to create JRTFS from " + classpathJrt.file; //$NON-NLS-1$
+										if (JRTUtil.PROPAGATE_IO_ERRORS) {
+											throw new IllegalStateException(error, e);
+										} else {
+											System.err.println(error);
+											e.printStackTrace();
+										}
 									}
 								}
 							}
