@@ -45,6 +45,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
 
 /**
  * Utilities for working with types (as opposed to elements).
@@ -142,9 +143,9 @@ public class TypesImpl implements Types {
 			typeMirror = findMemberInHierarchy(referenceBinding, elementImpl._binding, new MemberInTypeFinder() {
 				@Override
 				public TypeMirror find(ReferenceBinding typeBinding, Binding memberBinding) {
-					FieldBinding fieldBinding = (FieldBinding) memberBinding;
+					VariableBinding variableBinding = (VariableBinding) memberBinding;
 					for (FieldBinding field : typeBinding.fields()) {
-						if (CharOperation.equals(field.name, fieldBinding.name)) {
+						if (CharOperation.equals(field.name, variableBinding.name)) {
 							return TypesImpl.this._env.getFactory().newTypeMirror(field);
 						}
 					}
