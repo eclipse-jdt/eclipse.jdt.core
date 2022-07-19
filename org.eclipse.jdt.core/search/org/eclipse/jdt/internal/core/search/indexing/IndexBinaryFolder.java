@@ -155,6 +155,12 @@ public class IndexBinaryFolder extends IndexRequest {
 	protected Integer updatedIndexState() {
 		return IndexManager.REBUILDING_STATE;
 	}
+
+	@Override
+	public boolean canDiscardWaitingJobs() {
+		return true;
+	}
+
 	@Override
 	public String toString() {
 		return "indexing binary folder " + this.folder.getFullPath(); //$NON-NLS-1$

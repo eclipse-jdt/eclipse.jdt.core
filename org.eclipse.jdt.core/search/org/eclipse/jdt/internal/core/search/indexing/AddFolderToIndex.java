@@ -24,6 +24,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
 import org.eclipse.jdt.internal.core.index.Index;
+import org.eclipse.jdt.internal.core.search.processing.IJob;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -112,6 +113,18 @@ class AddFolderToIndex extends IndexRequest {
 		}
 		return true;
 	}
+
+	@Override
+	public boolean canDiscardWaitingJobs() {
+		return true;
+	}
+
+	@Override
+	public boolean canDiscard(IJob job) {
+		// for now let folder jobs for same container continue, because of possibly different filters
+		return super.canDiscard(job) && job instanceof RemoveContainerFromIndex;
+	}
+
 	@Override
 	public String toString() {
 		return "adding " + this.folderPath + " to index " + this.containerPath; //$NON-NLS-1$ //$NON-NLS-2$
