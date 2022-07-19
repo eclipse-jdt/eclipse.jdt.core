@@ -525,7 +525,14 @@ protected IJavaElement createHandle(AbstractMethodDeclaration method, IJavaEleme
 			for (int i = 0; i < argCount; i++) {
 				char[] typeName = null;
 				if (i == 0 && firstIsSynthetic) {
-					typeName = type.getDeclaringType().getFullyQualifiedName().toCharArray();
+					IType declaringType = type.getDeclaringType();
+					if(declaringType != null) {
+						typeName = declaringType.getFullyQualifiedName().toCharArray();
+					} else {
+						if (BasicSearchEngine.VERBOSE) {
+							System.out.println("Null declaring type for " + type); //$NON-NLS-1$
+						}
+					}
 				} else if (arguments != null) {
 					TypeReference typeRef = arguments[firstIsSynthetic ? i - 1 : i].type;
 					typeName = CharOperation.concatWith(typeRef.getTypeName(), '.');
