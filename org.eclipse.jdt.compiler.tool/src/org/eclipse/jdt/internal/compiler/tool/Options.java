@@ -95,6 +95,7 @@ public final class Options {
 		Options.ONE_ARGUMENT_OPTIONS.add("-processor");//$NON-NLS-1$
 		Options.ONE_ARGUMENT_OPTIONS.add("-classNames");//$NON-NLS-1$
 		Options.ONE_ARGUMENT_OPTIONS.add("-properties");//$NON-NLS-1$
+		Options.ONE_ARGUMENT_OPTIONS.add("-optprops");//$NON-NLS-1$
 
 	}
 	public static int processOptionsFileManager(String option) {

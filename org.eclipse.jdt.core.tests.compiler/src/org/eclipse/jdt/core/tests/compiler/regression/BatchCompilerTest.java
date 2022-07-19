@@ -724,6 +724,8 @@ public void test012(){
         "                         file contents. This option can be used with -nowarn,\n" +
         "                         -err:.., -info: or -warn:.. options, but the last one\n" +
         "                         on the command line sets the options to be used.\n" +
+        "    -optprops <file>     same as -properties except that no error is given if\n" +
+        "                         the file does not exist.\n" +
         " \n" +
         " Debug options:\n" +
         "    -g[:lines,vars,source] custom debug info\n" +
