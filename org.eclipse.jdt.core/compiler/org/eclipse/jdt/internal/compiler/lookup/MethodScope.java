@@ -22,6 +22,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.Map;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.*;
@@ -74,6 +76,9 @@ public class MethodScope extends BlockScope {
 			System.out.println("JDT/Core testing with -Djdt.flow.test.extra=true"); //$NON-NLS-1$
 		}
 	}
+
+	// enclosing type access mapper
+	public Map<SourceTypeBinding, SyntheticArgumentBinding> mapSyntheticEnclosingTypes = null;
 
 public MethodScope(Scope parent, ReferenceContext context, boolean isStatic) {
 	super(METHOD_SCOPE, parent);
