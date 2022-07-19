@@ -431,11 +431,9 @@ public class CompilerOptions implements ProblemReasons, ProblemSeverities, Class
 				this.defaultEncoding = null;
 				String stringValue = (String) optionValue;
 				if (stringValue.length() > 0){
-					try { 
-						new InputStreamReader(new ByteArrayInputStream(new byte[0]), stringValue);
+					// ensure encoding is supported
+					if(isCharsetSupported(stringValue)) {
 						this.defaultEncoding = stringValue;
-					} catch(UnsupportedEncodingException e){
-						// ignore unsupported encoding
 					}
 				}
 			}
