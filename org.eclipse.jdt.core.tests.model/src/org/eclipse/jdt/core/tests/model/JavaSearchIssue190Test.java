@@ -42,14 +42,16 @@ public class JavaSearchIssue190Test extends AbstractJavaSearchTests {
 	}
 
 	public static Test suite() {
-		return buildModelTestSuite(JavaSearchIssue190Test.class, BYTECODE_DECLARATION_ORDER);
+		return buildModelTestSuite(JavaSearchIssue190Test.class,
+				BYTECODE_DECLARATION_ORDER);
 	}
 
 	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		JAVA_PROJECT = setUpJavaProject(getProjectName(), "11");
-		// Prevent ComparisonFailure on tearDown which checks that "Workspace options should be back to their default":
+		// Prevent ComparisonFailure on tearDown which checks that "Workspace
+		// options should be back to their default":
 		JavaCore.setOptions(JavaCore.getDefaultOptions());
 	}
 
@@ -62,12 +64,14 @@ public class JavaSearchIssue190Test extends AbstractJavaSearchTests {
 
 	@Override
 	IJavaSearchScope getJavaSearchScope() {
-		IJavaElement[] elements = new IJavaElement[] { getJavaProject(getProjectName()) };
+		IJavaElement[] elements = new IJavaElement[]{
+				getJavaProject(getProjectName())};
 		return SearchEngine.createJavaSearchScope(elements, true);
 	}
 
 	public void testIssue190() throws CoreException {
-		FunctionalInterface functionalInterface = ExceptionalBiConsumer.class.getAnnotation(FunctionalInterface.class);
+		FunctionalInterface functionalInterface = ExceptionalBiConsumer.class
+				.getAnnotation(FunctionalInterface.class);
 
 		assumeNotNull(functionalInterface);
 
@@ -84,9 +88,12 @@ public class JavaSearchIssue190Test extends AbstractJavaSearchTests {
 			}
 		};
 
-		search(FunctionalInterface.class.getCanonicalName(), IJavaSearchConstants.ANNOTATION_TYPE,
-				IJavaSearchConstants.ANNOTATION_TYPE_REFERENCE, getJavaSearchScope(), searchRequestor);
+		search(FunctionalInterface.class.getCanonicalName(),
+				IJavaSearchConstants.ANNOTATION_TYPE,
+				IJavaSearchConstants.ANNOTATION_TYPE_REFERENCE,
+				getJavaSearchScope(), searchRequestor);
 
-		assertTrue("Annotation not found", annotatedClasses.contains(ExceptionalBiConsumer.class.getName()));
+		assertTrue("Annotation not found", annotatedClasses
+				.contains(ExceptionalBiConsumer.class.getName()));
 	}
 }
