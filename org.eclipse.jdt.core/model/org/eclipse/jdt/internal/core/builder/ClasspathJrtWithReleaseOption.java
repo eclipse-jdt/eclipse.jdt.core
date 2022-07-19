@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2021 IBM Corporation and others.
+ * Copyright (c) 2016, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -87,7 +87,7 @@ public class ClasspathJrtWithReleaseOption extends ClasspathJrt {
 	 * if the compliance is below 6, we simply return the lowest supported
 	 * release, which is 6.
 	 */
-	private String getReleaseOptionFromCompliance(String comp) {
+	private String getReleaseOptionFromCompliance(String comp) throws CoreException {
 		if (JavaCore.compareJavaVersions(comp, JavaCore.VERSION_1_5) <= 0) {
 			return "6"; //$NON-NLS-1$
 		}
@@ -95,7 +95,11 @@ public class ClasspathJrtWithReleaseOption extends ClasspathJrt {
 		if (index != -1) {
 			return comp.substring(index + 2, comp.length());
 		} else {
-			return comp;
+			if (comp.indexOf('.') == -1) {
+				return comp;
+			}
+			throw new CoreException(new Status(IStatus.ERROR, ClasspathJrtWithReleaseOption.class,
+						"Invalid value for --release argument:" + comp)); //$NON-NLS-1$
 		}
 	}
 
