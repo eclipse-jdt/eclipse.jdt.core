@@ -5,4 +5,4 @@ Bundle-SymbolicName: org.eclipse.jdt.core.tests.model.issue190
 Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: org.eclipse.jdt.core.tests.model.issue190
 Bundle-RequiredExecutionEnvironment: JavaSE-11
-Require-Bundle: org.eclipse.jdt.core.tests.model
+Require-Bundle: org.eclipse.jdt.core.tests.builder

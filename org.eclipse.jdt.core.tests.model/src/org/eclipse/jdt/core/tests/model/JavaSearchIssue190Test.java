@@ -27,8 +27,7 @@ import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.core.search.SearchRequestor;
-import org.eclipse.jdt.core.tests.dom.RunAllTestsTracing;
-import org.eclipse.test.TracingSuite.TracingOptions;
+import org.eclipse.jdt.core.tests.builder.CompressedWriterTest.ExceptionalBiConsumer;
 
 import junit.framework.Test;
 
@@ -68,9 +67,9 @@ public class JavaSearchIssue190Test extends AbstractJavaSearchTests {
 	}
 
 	public void testIssue190() throws CoreException {
-		TracingOptions tracingOptions = RunAllTestsTracing.class.getAnnotation(TracingOptions.class);
+		FunctionalInterface functionalInterface = ExceptionalBiConsumer.class.getAnnotation(FunctionalInterface.class);
 
-		assumeNotNull(tracingOptions);
+		assumeNotNull(functionalInterface);
 
 		List<String> annotatedClasses = new ArrayList<String>();
 
@@ -85,9 +84,9 @@ public class JavaSearchIssue190Test extends AbstractJavaSearchTests {
 			}
 		};
 
-		search(TracingOptions.class.getCanonicalName(), IJavaSearchConstants.ANNOTATION_TYPE,
+		search(FunctionalInterface.class.getCanonicalName(), IJavaSearchConstants.ANNOTATION_TYPE,
 				IJavaSearchConstants.ANNOTATION_TYPE_REFERENCE, getJavaSearchScope(), searchRequestor);
 
-		assertTrue("Annotation not found", annotatedClasses.contains(RunAllTestsTracing.class.getCanonicalName()));
+		assertTrue("Annotation not found", annotatedClasses.contains(ExceptionalBiConsumer.class.getName()));
 	}
 }
