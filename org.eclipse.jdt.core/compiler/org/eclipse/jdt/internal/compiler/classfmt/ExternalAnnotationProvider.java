@@ -53,6 +53,7 @@ public class ExternalAnnotationProvider {
 
 	private static final String TYPE_PARAMETER_PREFIX = " <"; //$NON-NLS-1$
 
+	private static final ExternalAnnotationProvider OUTER_FOR_PARTIAL_WALKERS= new ExternalAnnotationProvider();
 
 	private String typeName;
 	String typeParametersAnnotationSource;
@@ -71,7 +72,12 @@ public class ExternalAnnotationProvider {
 		initialize(input);
 	}
 
-	private void initialize(InputStream input) throws IOException {
+	// only for OUTER_FOR_PARTIAL_WALKERS:
+	private ExternalAnnotationProvider() {
+		// no initialization here, we don't have any input
+	}
+
+	void initialize(InputStream input) throws IOException {
 		try (LineNumberReader reader = new LineNumberReader(new InputStreamReader(input))) {
 			assertClassHeader(reader.readLine(), this.typeName);
 
@@ -714,5 +720,9 @@ public class ExternalAnnotationProvider {
 		public ITypeAnnotationWalker toThrows(int index) {
 			throw new UnsupportedOperationException("Field has no throws"); //$NON-NLS-1$
 		}
+	}
+
+	public static ITypeAnnotationWalker synthesizeForMethod(char[] source, LookupEnvironment env) {
+		return OUTER_FOR_PARTIAL_WALKERS.new MethodAnnotationWalker(source, 0, env);
 	}
 }
