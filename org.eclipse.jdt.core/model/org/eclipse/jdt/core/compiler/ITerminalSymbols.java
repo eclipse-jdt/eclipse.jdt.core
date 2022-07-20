@@ -215,6 +215,6 @@ public interface ITerminalSymbols {
 	/** @since 3.30 */
 	int TokenNamenon_sealed = 414;
 
-	/** @since 3.30 BETA_JAVA19 */
+	/** @since 3.31 BETA_JAVA19 */
 	int TokenNameRestrictedIdentifierWhen = 415;
 }
