@@ -379,14 +379,11 @@ public void tagAsUnnecessaryCast(Scope scope, TypeBinding castType) {
 public void traverse(ASTVisitor visitor, BlockScope scope) {
 	if (visitor.visit(this, scope)) {
 		this.expression.traverse(visitor, scope);
-		if (this.elementVariable != null) {
-			this.elementVariable.traverse(visitor, scope);
+		if (this.pattern != null) {
+			this.pattern.traverse(visitor, scope);
 		} else {
 			this.type.traverse(visitor, scope);
 		}
-	}
-	if (this.pattern !=null) {
-		this.pattern.traverse(visitor, scope);
 	}
 	visitor.endVisit(this, scope);
 }
