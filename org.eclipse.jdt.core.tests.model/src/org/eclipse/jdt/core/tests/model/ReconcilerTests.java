@@ -188,7 +188,7 @@ protected void assertNoProblem(char[] source, ICompilationUnit unit) throws Inte
 	if (this.problemRequestor.problemCount > 0) {
 		// If errors then wait for indexes to finish
 		while (indexManager.awaitingJobsCount() > 0) {
-			Thread.sleep(100);
+			waitUntilIndexesReady();
 		}
 		// Reconcile again to see if error goes away
 		this.problemRequestor.initialize(source);

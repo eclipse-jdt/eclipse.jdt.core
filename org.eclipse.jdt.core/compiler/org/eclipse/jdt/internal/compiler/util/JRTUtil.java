@@ -79,19 +79,26 @@ public class JRTUtil {
 
 	public interface JrtFileVisitor<T> {
 
-		public FileVisitResult visitPackage(T dir, T mod, BasicFileAttributes attrs) throws IOException;
+		public default FileVisitResult visitPackage(T dir, T mod, BasicFileAttributes attrs) throws IOException {
+			return FileVisitResult.CONTINUE;
+		}
 
-		public FileVisitResult visitFile(T file, T mod, BasicFileAttributes attrs) throws IOException;
+		public default FileVisitResult visitFile(T file, T mod, BasicFileAttributes attrs) throws IOException {
+			return FileVisitResult.CONTINUE;
+		}
+
 		/**
 		 * Invoked when a root directory of a module being visited. The element returned
 		 * contains only the module name segment - e.g. "java.base". Clients can use this to control
 		 * how the JRT needs to be processed, for e.g., clients can skip a particular module
 		 * by returning FileVisitResult.SKIP_SUBTREE
 		 */
-		public FileVisitResult visitModule(T path, String name) throws IOException;
+		public default FileVisitResult visitModule(T path, String name) throws IOException  {
+			return FileVisitResult.CONTINUE;
+		}
 	}
 
-	static abstract class AbstractFileVisitor<T> implements FileVisitor<T> {
+	public static abstract class AbstractFileVisitor<T> implements FileVisitor<T> {
 		@Override
 		public FileVisitResult preVisitDirectory(T dir, BasicFileAttributes attrs) throws IOException {
 			return FileVisitResult.CONTINUE;
@@ -137,7 +144,7 @@ public class JRTUtil {
 			e.printStackTrace();
 			return null;
 		}
-		if (release != null /*&& !jdk.sameRelease(release)*/) {
+		if (release != null && !jdk.sameRelease(release)) {
 			key = key + "|" + release; //$NON-NLS-1$
 		}
 		JrtFileSystem system = images.computeIfAbsent(key, x -> {
@@ -397,10 +404,22 @@ final class RuntimeIOException extends RuntimeException {
 class Jdk {
 	final String path;
 	final String release;
+	static final Map<String, String> pathToRelease = new ConcurrentHashMap<>();
 
 	public Jdk(File jrt) throws IOException {
 		this.path = toJdkHome(jrt);
-		this.release = readJdkReleaseFile(this.path);
+		try {
+			String rel = pathToRelease.computeIfAbsent(this.path, key -> {
+				try {
+					return readJdkReleaseFile(this.path);
+				} catch (IOException e) {
+					throw new RuntimeIOException(e);
+				}
+			});
+			this.release = rel;
+		} catch (RuntimeIOException rio) {
+			throw rio.getCause();
+		}
 	}
 
 	@Override
@@ -427,7 +446,7 @@ class Jdk {
 	}
 
 	static String toJdkHome(File jrt) {
-		String home = null;
+		String home;
 		Path normalized = jrt.toPath().normalize();
 		if (jrt.getName().equals(JRTUtil.JRT_FS_JAR)) {
 			home = normalized.getParent().getParent().toString();
@@ -466,7 +485,7 @@ class JrtFileSystem {
 	final String release;
 
 	public static JrtFileSystem getNewJrtFileSystem(Jdk jdk, String release) throws IOException {
-		if (release == null /*|| jdk.sameRelease(release)*/) {
+		if (release == null || jdk.sameRelease(release)) {
 			return new JrtFileSystem(jdk, null);
 		} else {
 			return new JrtFileSystemWithOlderRelease(jdk, release);

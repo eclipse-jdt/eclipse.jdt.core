@@ -62,7 +62,7 @@ public class JrtUtilTest extends TestCase {
 		int majorVersionSegment = getMajorVersionSegment(this.jdkRelease);
 		Object jrtSystem = JRTUtil.getJrtSystem(this.image);
 		Object jrtSystem2 = JRTUtil.getJrtSystem(this.image, String.valueOf(majorVersionSegment));
-		assertNotSame(jrtSystem, jrtSystem2);
+		assertSame(jrtSystem, jrtSystem2);
 
 		jrtSystem2 = JRTUtil.getJrtSystem(this.image, String.valueOf(--majorVersionSegment));
 		assertNotSame(jrtSystem, jrtSystem2);

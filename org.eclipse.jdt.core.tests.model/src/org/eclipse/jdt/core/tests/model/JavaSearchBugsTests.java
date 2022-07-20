@@ -12432,7 +12432,6 @@ public void testBug323514() throws Exception {
 	} finally {
 		deleteExternalFile(libPath);
 		deleteProject("P");
-		org.eclipse.jdt.internal.core.search.processing.JobManager.VERBOSE = false;
 	}
 }
 public void testBug323514a() throws Exception {
@@ -12493,8 +12492,8 @@ public void testBug323514a() throws Exception {
 public void testBug323514b() throws Exception {
 	String libPath = getExternalResourcePath("lib323514.jar");
 	waitUntilIndexesReady();
-	boolean isDebugging = false; // turn to true to verify using the trace that the external jar file is not re-indexed while opening the project
-	org.eclipse.jdt.internal.core.search.processing.JobManager.VERBOSE = isDebugging;
+//	boolean isDebugging = false; // turn to true to verify using the trace that the external jar file is not re-indexed while opening the project
+//	org.eclipse.jdt.internal.core.search.processing.JobManager.VERBOSE = isDebugging;
 	try {
 		// Create project and external jar file
 		Util.createJar(

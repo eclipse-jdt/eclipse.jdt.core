@@ -4807,6 +4807,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			p.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
 			p.getProject().getWorkspace().build(IncrementalProjectBuilder.AUTO_BUILD, null);
 			markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
 			assertMarkers("Unexpected markers", expectedMarkers, markers);
 		} finally {
 			ContainerInitializer.setInitializer(null);
