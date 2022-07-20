@@ -385,13 +385,8 @@ public void traverse(ASTVisitor visitor, BlockScope scope) {
 			this.type.traverse(visitor, scope);
 		}
 	}
-	if (this.pattern instanceof RecordPattern) {
-		if (((RecordPattern) this.pattern).patterns != null) {
-			Pattern[] rPatterns = ((RecordPattern) this.pattern).patterns;
-			for (Pattern pat : rPatterns) {
-				pat.traverse(visitor, scope);
-			}
-		}
+	if (this.pattern !=null) {
+		this.pattern.traverse(visitor, scope);
 	}
 	visitor.endVisit(this, scope);
 }
