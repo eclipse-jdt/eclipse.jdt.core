@@ -78,7 +78,6 @@ public class JavaSearchIssue190Test extends AbstractJavaSearchTests {
 
 	public void testIssue190() throws CoreException {
 		Documented documented = Nullable.class.getAnnotation(Documented.class);
-
 		assumeNotNull(documented);
 
 		IProject project = getJavaProject(getProjectName()).getProject();
