@@ -15,10 +15,12 @@ package org.eclipse.jdt.core.tests.model;
 
 import static org.junit.Assume.assumeNotNull;
 
+import java.lang.annotation.Documented;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
@@ -27,7 +29,6 @@ import org.eclipse.jdt.core.search.IJavaSearchScope;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchMatch;
 import org.eclipse.jdt.core.search.SearchRequestor;
-import org.eclipse.jdt.core.tests.builder.CompressedWriterTest.ExceptionalBiConsumer;
 
 import junit.framework.Test;
 
@@ -70,10 +71,9 @@ public class JavaSearchIssue190Test extends AbstractJavaSearchTests {
 	}
 
 	public void testIssue190() throws CoreException {
-		FunctionalInterface functionalInterface = ExceptionalBiConsumer.class
-				.getAnnotation(FunctionalInterface.class);
+		Documented documented = Nullable.class.getAnnotation(Documented.class);
 
-		assumeNotNull(functionalInterface);
+		assumeNotNull(documented);
 
 		List<String> annotatedClasses = new ArrayList<String>();
 
@@ -88,12 +88,12 @@ public class JavaSearchIssue190Test extends AbstractJavaSearchTests {
 			}
 		};
 
-		search(FunctionalInterface.class.getCanonicalName(),
+		search(Documented.class.getCanonicalName(),
 				IJavaSearchConstants.ANNOTATION_TYPE,
 				IJavaSearchConstants.ANNOTATION_TYPE_REFERENCE,
 				getJavaSearchScope(), searchRequestor);
 
-		assertTrue("Annotation not found", annotatedClasses
-				.contains(ExceptionalBiConsumer.class.getName()));
+		assertTrue("Annotation not found",
+				annotatedClasses.contains(Nullable.class.getName()));
 	}
 }
