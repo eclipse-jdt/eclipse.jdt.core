@@ -89,14 +89,8 @@ public class JavaSearchIssue190Test extends AbstractJavaSearchTests {
 		StringBuilder builder = new StringBuilder();
 
 		for (IMarker problem : problems) {
-			int severity = problem.getAttribute(IMarker.SEVERITY,
-					IMarker.SEVERITY_INFO);
 			String message = problem.getAttribute(IMarker.MESSAGE).toString();
-
-			if (severity >= IMarker.SEVERITY_ERROR) {
-				builder.append(message);
-				builder.append("\n");
-			}
+			builder.append(message);
 		}
 
 		assertTrue(builder.toString(), builder.length() == 0);
@@ -119,7 +113,7 @@ public class JavaSearchIssue190Test extends AbstractJavaSearchTests {
 				IJavaSearchConstants.ANNOTATION_TYPE_REFERENCE,
 				getJavaSearchScope(), searchRequestor);
 
-		assertTrue("Annotation not found",
+		assertTrue("Annotation not found. Found annotations: " + annotatedClasses,
 				annotatedClasses.contains(Nullable.class.getName()));
 	}
 }
