@@ -1055,6 +1055,14 @@ public abstract class ASTNode {
 	 */
 	public static final int JAVADOC_REGION = 111;
 
+	/**
+	 * Node type constant indicating a node of type
+	 * <code>RecordPattern</code>.
+	 * @see RecordPattern
+	 * @since 3.31 BETA_JAVA19
+	 */
+	public static final int RECORD_PATTERN = 112;
+
 
 	/**
 	 * Returns the node class for the corresponding node type.
@@ -1218,6 +1226,8 @@ public abstract class ASTNode {
 				return QualifiedType.class;
 			case RECORD_DECLARATION :
 				return RecordDeclaration.class;
+			case RECORD_PATTERN :
+				return RecordPattern.class;
 			case REQUIRES_DIRECTIVE :
 				return RequiresDirective.class;
 			case RETURN_STATEMENT :

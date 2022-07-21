@@ -2315,6 +2315,21 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	}
 
 	@Override
+	public boolean visit(RecordPattern node) {
+		if (!DOMASTUtil.isPatternSupported(node.getAST())) {
+			return false;
+		}
+		if (!hasChildrenChanges(node)) {
+			return doVisitUnchangedChildren(node);
+		}
+
+		// How to handle nested patterns - rewriteNodeList(node, RecordPattern.PATTERNS_PROPERTY, pos, Util.EMPTY_STRING, ", "); //$NON-NLS-1$
+		rewriteRequiredNode(node, RecordPattern.PATTERN_TYPE_PROPERTY);
+		rewriteRequiredNode(node, RecordPattern.PATTERN_NAME_PROPERTY);
+		return false;
+	}
+
+	@Override
 	public boolean visit(ReturnStatement node) {
 		try {
 			this.beforeRequiredSpaceIndex = getScanner().getTokenEndOffset(TerminalTokens.TokenNamereturn, node.getStartPosition());

@@ -164,11 +164,6 @@ public class GuardedPattern extends Pattern{
 			+ (this.conditonalExpression == null ? 0 : getExpression().treeSize());
 	}
 
-	@Override
-	public List<SingleVariableDeclaration> patternVariables() {
-		return null;
-	}
-
 	/**
 	 * Returns a list of structural property descriptors for this node type.
 	 * Clients must not modify the result.

@@ -30,27 +30,33 @@ import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.GuardedPattern;
+import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.ParenthesizedExpression;
 import org.eclipse.jdt.core.dom.Pattern;
+import org.eclipse.jdt.core.dom.PatternInstanceofExpression;
+import org.eclipse.jdt.core.dom.RecordPattern;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.SwitchCase;
+import org.eclipse.jdt.core.dom.SwitchExpression;
 import org.eclipse.jdt.core.dom.SwitchStatement;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypePattern;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 
 import junit.framework.Test;
 
-public class ASTConverter_PreviewTest extends ConverterTestSetup {
+public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 
 	ICompilationUnit workingCopy;
 
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		this.ast = AST.newAST(getASTLatest(), false);
-		this.currentProject = getJavaProject("Converter_17");
+		this.currentProject = getJavaProject("Converter_19");
 		if (this.ast.apiLevel() == AST.JLS19) {
 			this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_19);
 			this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_19);
@@ -61,12 +67,12 @@ public class ASTConverter_PreviewTest extends ConverterTestSetup {
 		}
 	}
 
-	public ASTConverter_PreviewTest(String name) {
+	public ASTConverter_RecordPattern_Test(String name) {
 		super(name);
 	}
 
 	public static Test suite() {
-		return buildModelTestSuite(ASTConverter_PreviewTest.class);
+		return buildModelTestSuite(ASTConverter_RecordPattern_Test.class);
 	}
 
 	static int getASTLatest() {
@@ -100,7 +106,7 @@ public class ASTConverter_PreviewTest extends ConverterTestSetup {
 			    "}\n" +
 				"\n" +
 				"}\n";
-		this.workingCopy = getWorkingCopy("/Converter_17/src/X.java", true/*resolve*/);
+		this.workingCopy = getWorkingCopy("/Converter_19/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
 			this.workingCopy);
@@ -149,7 +155,7 @@ public class ASTConverter_PreviewTest extends ConverterTestSetup {
 			    "}\n" +
 				"\n" +
 				"}\n";
-		this.workingCopy = getWorkingCopy("/Converter_17/src/X.java", true/*resolve*/);
+		this.workingCopy = getWorkingCopy("/Converter_19/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
 			this.workingCopy);
@@ -204,7 +210,7 @@ public class ASTConverter_PreviewTest extends ConverterTestSetup {
 			    "}\n" +
 				"\n" +
 				"}\n";
-		this.workingCopy = getWorkingCopy("/Converter_17/src/X.java", true/*resolve*/);
+		this.workingCopy = getWorkingCopy("/Converter_19/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
 			this.workingCopy);
@@ -247,7 +253,7 @@ public class ASTConverter_PreviewTest extends ConverterTestSetup {
 			    "}\n" +
 				"\n" +
 				"}\n";
-		this.workingCopy = getWorkingCopy("/Converter_17/src/X.java", true/*resolve*/);
+		this.workingCopy = getWorkingCopy("/Converter_19/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
 			this.workingCopy);
@@ -278,7 +284,7 @@ public class ASTConverter_PreviewTest extends ConverterTestSetup {
 			    "}\n" +
 				"\n" +
 				"}\n";
-		this.workingCopy = getWorkingCopy("/Converter_17/src/X.java", true/*resolve*/);
+		this.workingCopy = getWorkingCopy("/Converter_19/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
 			this.workingCopy);
@@ -309,7 +315,7 @@ public class ASTConverter_PreviewTest extends ConverterTestSetup {
 				"    }\n" +
 				"  }\n" +
 				"}\n";
-		this.workingCopy = getWorkingCopy("/Converter_17/src/X.java", true/*resolve*/);
+		this.workingCopy = getWorkingCopy("/Converter_19/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
 			this.workingCopy);
@@ -359,7 +365,8 @@ public class ASTConverter_PreviewTest extends ConverterTestSetup {
 						+ "  static void print(Rectangle r) {\n"
 						+ "    if (r instanceof (Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
 						+ "                               ColoredPoint lr) r1)) {\n"
-						+ "        System.out.println(\"Upper-left corner: \" + r1);\n"
+						+ "        System.out.println(\"Upper-left corner: \");\n"
+						+ "        System.out.println(r1.toString());\n"
 						+ "    }\n"
 						+ "  }\n"
 						+ "  public static void main(String[] obj) {\n"
@@ -371,7 +378,7 @@ public class ASTConverter_PreviewTest extends ConverterTestSetup {
 						+ "enum Color { RED, GREEN, BLUE }\n"
 						+ "record ColoredPoint(Point p, Color c) {}\n"
 						+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}";
-		this.workingCopy = getWorkingCopy("/Converter_17/src/X.java", true/*resolve*/);
+		this.workingCopy = getWorkingCopy("/Converter_19/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
 			this.workingCopy);
@@ -383,8 +390,18 @@ public class ASTConverter_PreviewTest extends ConverterTestSetup {
 		TypeDeclaration type = (TypeDeclaration)node;
 		MethodDeclaration[] methods = type.getMethods();
 		assertEquals("Method list empty", 2, methods.length);
+		MethodDeclaration printMethod = methods[0];
+		assertEquals("Method name is not print", "print", printMethod.getName().toString());
+		List<ASTNode> statements = printMethod.getBody().statements();
+		IfStatement ifStatement = (IfStatement)statements.get(0);
+		assertEquals("Not a PatternInstanceOf Expression", true, ifStatement.getExpression() instanceof PatternInstanceofExpression);
+		PatternInstanceofExpression patternExpression = (PatternInstanceofExpression)ifStatement.getExpression();
+		assertEquals("Name of right Operand is not r1", "r1", patternExpression.getRightOperand().getName().toString());
+
+
 	}
 
+	@SuppressWarnings("rawtypes")
 	public void testRecordPattern002() throws CoreException {
 		if (!isJRE19) {
 			System.err.println("Test "+getName()+" requires a JRE 19");
@@ -396,7 +413,8 @@ public class ASTConverter_PreviewTest extends ConverterTestSetup {
 				+ "       case Record(int x) r1 -> x ;\n"
 				+ "        default -> 0;\n"
 				+ "    }; \n"
-				+ "    System.out.println(\"Returns: \" + res);\n"
+				+ "    System.out.println(\"Returns: \");\n"
+				+ "    System.out.println(res);\n"
 				+ "  }\n"
 				+ "  public static void main(String[] args) {\n"
 				+ "    print(new Record(3));\n"
@@ -415,5 +433,31 @@ public class ASTConverter_PreviewTest extends ConverterTestSetup {
 		assertEquals("Not a Type Declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
 		TypeDeclaration type = (TypeDeclaration)node;
 		MethodDeclaration[] methods = type.getMethods();
+		assertEquals("Method list empty", 2, methods.length);
+		MethodDeclaration printMethod = methods[0];
+		assertEquals("Method name is not print", "print", printMethod.getName().toString());
+		List<ASTNode> statements = printMethod.getBody().statements();
+		VariableDeclarationStatement switchCasestatement = (VariableDeclarationStatement)statements.get(0);
+		List fragments = switchCasestatement.fragments();
+		assertEquals("Incorrect no of fragments", 1, fragments.size());
+		node = (ASTNode) fragments.get(0);
+		assertEquals("Switch statement", node.getNodeType(), ASTNode.VARIABLE_DECLARATION_FRAGMENT);
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) node;
+		Expression initializer = fragment.getInitializer();
+		assertEquals("incorrect type", ASTNode.SWITCH_EXPRESSION, initializer.getNodeType());
+		List switchStatements = ((SwitchExpression) initializer).statements();
+
+		SwitchCase caseStmt = (SwitchCase) switchStatements.get(0);
+		assertEquals("incorrect type", ASTNode.RECORD_PATTERN, ((Expression)caseStmt.expressions().get(0)).getNodeType());
+		RecordPattern recordPattern = (RecordPattern)caseStmt.expressions().get(0);
+		assertEquals("StartPosition of Record Pattern is not 94",94 , recordPattern.getStartPosition());
+		assertEquals("Length of Record Pattern is not 16",16 , recordPattern.getLength());
+		assertEquals("Type of RecordPattern variable is not Record","Record" , recordPattern.getPatternType().toString());
+		assertEquals("StartPosition of Type variable is not 94",94 , recordPattern.getPatternType().getStartPosition());
+		assertEquals("Length of Record Pattern is not 6",6 , recordPattern.getPatternType().getLength());
+		assertEquals("Name of RecordPattern variableis not r1","r1" , recordPattern.getPatternName().toString());
+		assertEquals("StartPosition of Record Pattern is not 108",108 , recordPattern.getPatternName().getStartPosition());
+		assertEquals("Length of Record Pattern is not 2",2 , recordPattern.getPatternName().getLength());
+		assertEquals("Type of Nested pattern in RecordPattern is not TypePattern",ASTNode.TYPE_PATTERN , recordPattern.patterns().get(0).getNodeType());
 	}
 }
