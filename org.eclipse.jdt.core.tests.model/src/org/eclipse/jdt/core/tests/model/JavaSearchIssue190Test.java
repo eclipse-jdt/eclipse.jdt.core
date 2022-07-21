@@ -93,7 +93,7 @@ public class JavaSearchIssue190Test extends AbstractJavaSearchTests {
 					IMarker.SEVERITY_INFO);
 			String message = problem.getAttribute(IMarker.MESSAGE).toString();
 
-			if (severity != IMarker.SEVERITY_ERROR) {
+			if (severity >= IMarker.SEVERITY_ERROR) {
 				builder.append(message);
 				builder.append("\n");
 			}
