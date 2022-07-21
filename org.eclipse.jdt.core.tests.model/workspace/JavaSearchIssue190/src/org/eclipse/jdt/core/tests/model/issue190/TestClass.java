@@ -1,10 +1,10 @@
 package org.eclipse.jdt.core.tests.model.issue190;
 
-import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.jdt.core.JavaCore;
 
 public class TestClass {
-	
-	public Nullable getNullable() {
-		return null;
+		
+	public JavaCore getJavaCore() {
+		return JavaCore.getJavaCore();
 	}
 }
