@@ -13,7 +13,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assume.assumeNotNull;
 
 import java.lang.annotation.Documented;
@@ -98,9 +97,9 @@ public class JavaSearchIssue190Test extends AbstractJavaSearchTests {
 				builder.append(message);
 				builder.append("\n");
 			}
-
-			assertNotEquals(builder.toString(), IMarker.SEVERITY_ERROR, severity);
 		}
+
+		assertTrue(builder.toString(), builder.length() == 0);
 
 		List<String> annotatedClasses = new ArrayList<String>();
 
