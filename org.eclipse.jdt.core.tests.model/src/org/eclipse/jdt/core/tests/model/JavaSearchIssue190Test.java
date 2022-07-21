@@ -13,15 +13,21 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assume.assumeNotNull;
 
 import java.lang.annotation.Documented;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.annotation.Nullable;
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaModelMarker;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
@@ -74,6 +80,20 @@ public class JavaSearchIssue190Test extends AbstractJavaSearchTests {
 		Documented documented = Nullable.class.getAnnotation(Documented.class);
 
 		assumeNotNull(documented);
+
+
+		IProject project = getJavaProject(getProjectName()).getProject();
+		project.build(IncrementalProjectBuilder.FULL_BUILD, null);
+
+		IMarker[] problems = project.findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
+
+		for (IMarker problem : problems) {
+			int severity = problem.getAttribute(IMarker.SEVERITY, IMarker.SEVERITY_INFO);
+			String message = problem.getAttribute(IMarker.MESSAGE).toString();
+
+			assertNotEquals(message, IMarker.SEVERITY_ERROR, severity);
+		}
+
 
 		List<String> annotatedClasses = new ArrayList<String>();
 
