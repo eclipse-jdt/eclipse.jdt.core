@@ -81,19 +81,20 @@ public class JavaSearchIssue190Test extends AbstractJavaSearchTests {
 
 		assumeNotNull(documented);
 
-
 		IProject project = getJavaProject(getProjectName()).getProject();
 		project.build(IncrementalProjectBuilder.FULL_BUILD, null);
 
-		IMarker[] problems = project.findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
+		IMarker[] problems = project.findMarkers(
+				IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true,
+				IResource.DEPTH_INFINITE);
 
 		for (IMarker problem : problems) {
-			int severity = problem.getAttribute(IMarker.SEVERITY, IMarker.SEVERITY_INFO);
+			int severity = problem.getAttribute(IMarker.SEVERITY,
+					IMarker.SEVERITY_INFO);
 			String message = problem.getAttribute(IMarker.MESSAGE).toString();
 
 			assertNotEquals(message, IMarker.SEVERITY_ERROR, severity);
 		}
-
 
 		List<String> annotatedClasses = new ArrayList<String>();
 
