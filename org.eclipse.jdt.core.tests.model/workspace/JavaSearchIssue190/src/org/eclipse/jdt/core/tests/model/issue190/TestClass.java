@@ -5,6 +5,6 @@ import org.eclipse.jdt.core.JavaCore;
 public class TestClass {
 
 	public JavaCore getJavaCore() {
-		return null;
+		return JavaCore.getJavaCore();
 	}
 }
