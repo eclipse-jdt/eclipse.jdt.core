@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Issue 190
+Bundle-SymbolicName: org.eclipse.jdt.core.issue190
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: org.eclipse.jdt.core.issue190
+Bundle-RequiredExecutionEnvironment: JavaSE-11
+Require-Bundle: org.eclipse.jdt.core
+Export-Package: org.eclipse.jdt.core.issue190
