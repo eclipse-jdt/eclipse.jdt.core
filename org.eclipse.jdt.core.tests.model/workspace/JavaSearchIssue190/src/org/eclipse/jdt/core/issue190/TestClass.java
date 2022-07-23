@@ -1,4 +1,4 @@
-package org.eclipse.jdt.core.issue190.tests;
+package org.eclipse.jdt.core.issue190;
 
 import org.eclipse.jdt.core.JavaCore;
 
