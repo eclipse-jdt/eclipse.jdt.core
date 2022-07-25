@@ -110,10 +110,5 @@ public class NullPattern extends Pattern {
 	int treeSize() {
 		return memSize();
 	}
-
-	@Override
-	public List<SingleVariableDeclaration> patternVariables() {
-		return null;
-	}
 }
 
