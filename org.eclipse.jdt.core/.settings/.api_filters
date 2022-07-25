@@ -1,13 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component id="org.eclipse.jdt.core" version="2">
-    <resource path="META-INF/MANIFEST.MF">
-        <filter id="931135546">
-            <message_arguments>
-                <message_argument value="3.30.150"/>
-                <message_argument value="3.30.0"/>
-            </message_arguments>
-        </filter>
-    </resource>
     <resource path="compiler/org/eclipse/jdt/core/compiler/CategorizedProblem.java" type="org.eclipse.jdt.core.compiler.CategorizedProblem">
         <filter comment="Java 14" id="576725006">
             <message_arguments>
@@ -22,13 +14,6 @@
                 <message_argument value="org.eclipse.jdt.core.dom.AST"/>
                 <message_argument value="JLS_Latest"/>
                 <message_argument value="18"/>
-            </message_arguments>
-        </filter>
-        <filter comment="BETA_JAVA19 comment" id="1141899266">
-            <message_arguments>
-                <message_argument value="3.31 BETA_JAVA19"/>
-                <message_argument value="3.30 BETA_JAVA19"/>
-                <message_argument value="JLS19"/>
             </message_arguments>
         </filter>
     </resource>
@@ -99,6 +84,14 @@
             <message_arguments>
                 <message_argument value="ASTNode"/>
                 <message_argument value="Expression"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="dom/org/eclipse/jdt/core/dom/GuardedPattern.java" type="org.eclipse.jdt.core.dom.GuardedPattern">
+        <filter comment="Removed for preview feature Java 19" id="338792546">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.dom.GuardedPattern"/>
+                <message_argument value="patternVariables()"/>
             </message_arguments>
         </filter>
     </resource>
@@ -186,6 +179,14 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="dom/org/eclipse/jdt/core/dom/NullPattern.java" type="org.eclipse.jdt.core.dom.NullPattern">
+        <filter comment="Removed for preview feature Java 19" id="338792546">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.dom.NullPattern"/>
+                <message_argument value="patternVariables()"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="dom/org/eclipse/jdt/core/dom/PackageDeclaration.java" type="org.eclipse.jdt.core.dom.PackageDeclaration">
         <filter id="576778288">
             <message_arguments>
@@ -261,15 +262,6 @@
             <message_arguments>
                 <message_argument value="ASTNode"/>
                 <message_argument value="VariableDeclaration"/>
-            </message_arguments>
-        </filter>
-    </resource>
-    <resource path="model/org/eclipse/jdt/core/JavaCore.java" type="org.eclipse.jdt.core.JavaCore">
-        <filter comment="BETA_JAVA19 comment" id="1141899266">
-            <message_arguments>
-                <message_argument value="3.31 BETA_JAVA19"/>
-                <message_argument value="3.30 BETA_JAVA19"/>
-                <message_argument value="VERSION_19"/>
             </message_arguments>
         </filter>
     </resource>
