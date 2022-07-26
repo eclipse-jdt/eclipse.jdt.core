@@ -480,7 +480,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		if ((this.binding.tagBits & TagBits.HasMissingType) != 0) {
 			this.scope.problemReporter().missingTypeInLambda(this, this.binding);
 		}
-		if (this.shouldCaptureInstance && this.scope.isConstructorCall && !this.hasOuterClassMemberReference) {
+		if (this.shouldCaptureInstance && this.scope.isConstructorCall) {
 			this.scope.problemReporter().fieldsOrThisBeforeConstructorInvocation(this);
 		}
 		// beyond this point ensure that all local type bindings are their final binding:

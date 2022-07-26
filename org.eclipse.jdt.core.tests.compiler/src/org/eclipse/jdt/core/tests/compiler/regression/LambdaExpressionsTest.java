@@ -7369,6 +7369,36 @@ public void testBug529197_002() {
 			"SUCCESS"
 			);
 }
+public void testBug529197_003() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"class Struct { String component; }\n" +
+				"public class X {\n" +
+				"    Struct struct = new Struct();\n" +
+				"\n" +
+				"    public static void main(String[] args) {\n" +
+				"       X x = new X();\n" +
+				"       x.new Inner();\n" +
+				"       System.out.println(x.struct.component);\n" +
+				"    }\n" +
+				"\n" +
+				"    public class Inner {\n" +
+				"        public Inner(Runnable r) {\n" +
+				"        	r.run();\n" +
+				"        	System.out.print(\"SUCCESS\"); \n" +
+				"        }\n" +
+				"        public Inner() {\n" +
+				"            this(() -> {\n" +
+				"                struct.component = \".run\";\n" +
+				"            });\n" +
+				"        }\n" +
+				"    }\n" +
+				"}\n",
+			},
+			"SUCCESS.run"
+			);
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

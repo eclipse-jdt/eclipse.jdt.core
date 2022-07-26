@@ -77,9 +77,6 @@ public class MethodScope extends BlockScope {
 		}
 	}
 
-	// enclosing type access mapper
-	public Map<SourceTypeBinding, SyntheticArgumentBinding> mapSyntheticEnclosingTypes = null;
-
 public MethodScope(Scope parent, ReferenceContext context, boolean isStatic) {
 	super(METHOD_SCOPE, parent);
 	this.locals = new LocalVariableBinding[5];
@@ -510,6 +507,16 @@ public FieldBinding findField(TypeBinding receiverType, char[] fieldName, Invoca
 				ProblemReasons.NonStaticReferenceInConstructorInvocation);
 	}
 	return field;
+}
+
+protected Object[] getSyntheticEnclosingArgumentOfLambda(ReferenceBinding targetEnclosingType) {
+	SyntheticArgumentBinding sa = null;
+	if (this.isConstructorCall && this.referenceContext instanceof LambdaExpression) {
+		Map<SourceTypeBinding,SyntheticArgumentBinding> stbToSynthetic = ((LambdaExpression) this.referenceContext).mapSyntheticEnclosingTypes;
+		if (stbToSynthetic != null)
+			sa = stbToSynthetic.get(targetEnclosingType);
+	}
+	return sa != null ? new Object[] {sa} : null;
 }
 
 public boolean isInsideConstructor() {
