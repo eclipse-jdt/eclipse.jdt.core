@@ -30,7 +30,6 @@ import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.GuardedPattern;
-import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.ParenthesizedExpression;
 import org.eclipse.jdt.core.dom.Pattern;
 import org.eclipse.jdt.core.dom.SimpleName;
@@ -348,72 +347,5 @@ public class ASTConverter_PreviewTest extends ConverterTestSetup {
 		start = contents.indexOf("i_1");
 		assertEquals("wrong source range", name.getStartPosition(), start);
 		assertEquals("wrong source range", name.getLength(), "i_1".length());
-	}
-
-	public void testRecordPattern001() throws CoreException {
-		if (!isJRE19) {
-			printJREError();
-			return;
-		}
-		String contents = "public class X {\n"
-						+ "  static void print(Rectangle r) {\n"
-						+ "    if (r instanceof (Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
-						+ "                               ColoredPoint lr) r1)) {\n"
-						+ "        System.out.println(\"Upper-left corner: \" + r1);\n"
-						+ "    }\n"
-						+ "  }\n"
-						+ "  public static void main(String[] obj) {\n"
-						+ "    print(new Rectangle(new ColoredPoint(new Point(0, 0), Color.BLUE), \n"
-						+ "                               new ColoredPoint(new Point(10, 15), Color.RED)));\n"
-						+ "  }\n"
-						+ "}\n"
-						+ "record Point(int x, int y) {}\n"
-						+ "enum Color { RED, GREEN, BLUE }\n"
-						+ "record ColoredPoint(Point p, Color c) {}\n"
-						+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}";
-		this.workingCopy = getWorkingCopy("/Converter_17/src/X.java", true/*resolve*/);
-		ASTNode node = buildAST(
-			contents,
-			this.workingCopy);
-		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
-		CompilationUnit compilationUnit = (CompilationUnit) node;
-		assertProblemsSize(compilationUnit, 0);
-		node = ((AbstractTypeDeclaration)compilationUnit.types().get(0));
-		assertEquals("Not a Type Declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
-		TypeDeclaration type = (TypeDeclaration)node;
-		MethodDeclaration[] methods = type.getMethods();
-		assertEquals("Method list empty", 2, methods.length);
-	}
-
-	public void testRecordPattern002() throws CoreException {
-		if (!isJRE19) {
-			System.err.println("Test "+getName()+" requires a JRE 19");
-			return;
-		}
-		String contents =  "public class X {\n"
-				+ "  public static void print(Record r) {\n"
-				+ "    int res = switch(r) {\n"
-				+ "       case Record(int x) r1 -> x ;\n"
-				+ "        default -> 0;\n"
-				+ "    }; \n"
-				+ "    System.out.println(\"Returns: \" + res);\n"
-				+ "  }\n"
-				+ "  public static void main(String[] args) {\n"
-				+ "    print(new Record(3));\n"
-				+ "  }\n"
-				+ "}\n"
-				+ "record Record(int x) {}";
-
-	this.workingCopy = getWorkingCopy("/Converter_19/src/X.java", true/*resolve*/);
-		ASTNode node = buildAST(
-			contents,
-			this.workingCopy);
-		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
-		CompilationUnit compilationUnit = (CompilationUnit) node;
-		assertProblemsSize(compilationUnit, 0);
-		node = ((AbstractTypeDeclaration)compilationUnit.types().get(0));
-		assertEquals("Not a Type Declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
-		TypeDeclaration type = (TypeDeclaration)node;
-		MethodDeclaration[] methods = type.getMethods();
 	}
 }
