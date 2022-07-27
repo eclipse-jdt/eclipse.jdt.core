@@ -1817,7 +1817,7 @@ private boolean checkInstanceofKeyword() {
 private boolean checkYieldKeyword() {
 	// Clients to ensure that we are already inside a method
 	char[] id = this.scanner.getCurrentIdentifierSource();
-	if(id.length > 0 && CharOperation.prefixEquals(id, Keywords.YIELD)) {
+	if(id.length > 0 && CharOperation.equals(id, Keywords.YIELD)) {
 		return true;
 	}
 	return false;
