@@ -99,14 +99,15 @@ public class TypePattern extends Pattern {
 	public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel) {
 		if (this.local != null) {
 			LocalVariableBinding localBinding = this.local.binding;
-			if (!this.isTotalTypeNode)
+			if (!this.isTotalTypeNode) {
 				codeStream.checkcast(localBinding.type);
+			}
 			this.local.generateCode(currentScope, codeStream);
 			codeStream.store(localBinding, false);
 			localBinding.recordInitializationStartPC(codeStream.position);
 		}
 	}
-	protected void initializePatternVariables(BlockScope currentScope, CodeStream codeStream) {
+	public void initializePatternVariables(BlockScope currentScope, CodeStream codeStream) {
 		codeStream.addVariable(this.secretPatternVariable);
 		codeStream.store(this.secretPatternVariable, false);
 	}

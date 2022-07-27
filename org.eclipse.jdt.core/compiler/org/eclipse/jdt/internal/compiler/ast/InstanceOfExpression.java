@@ -167,13 +167,12 @@ public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStr
 	codeStream.instance_of(this.type, this.type.resolvedType);
 	codeStream.ifeq(nextSibling);
 	codeStream.load(this.secretInstanceOfPatternExpressionValue);
-	codeStream.checkcast(this.type, this.type.resolvedType, codeStream.position);
 	if (this.pattern instanceof RecordPattern) {
-		this.pattern.generateOptimizedBoolean(currentScope, codeStream, trueLabel, falseLabel);
+		this.pattern.generateOptimizedBoolean(currentScope, codeStream, trueLabel, nextSibling);
 		codeStream.load(this.secretInstanceOfPatternExpressionValue);
 		codeStream.checkcast(this.type, this.type.resolvedType, codeStream.position);
-	}
-	else {
+	} else {
+		codeStream.checkcast(this.type, this.type.resolvedType, codeStream.position);
 		codeStream.dup();
 		codeStream.store(this.elementVariable.binding, false);
 	}

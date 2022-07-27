@@ -178,12 +178,8 @@ public class RecordPattern extends TypePattern {
 		return true;
 	}
 	@Override
-	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
-		codeStream.checkcast(this.resolvedType);
-		super.generateCode(currentScope, codeStream);
-	}
-	@Override
 	public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel) {
+		codeStream.checkcast(this.resolvedType);
 		initializePatternVariables(currentScope, codeStream);
 		generatePatternVariable(currentScope, codeStream, trueLabel, falseLabel);
 		wrapupGeneration(codeStream);
@@ -194,13 +190,7 @@ public class RecordPattern extends TypePattern {
 	}
 	@Override
 	protected void generatePatternVariable(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel) {
-		boolean isSubtype = false;
-		if (this.expression != null && this.expression.resolvedType != null) {
-			isSubtype = this.expression.resolvedType.isSubtypeOf(this.resolvedType, false);
-		} else {
-			isSubtype = this.accessorMethod == null ? true : this.accessorMethod.returnType.isSubtypeOf(this.resolvedType, false);
-		}
-		if (!isSubtype) {
+		if (!this.isTotalTypeNode) {
 			codeStream.load(this.secretPatternVariable);
 			codeStream.instance_of(this.resolvedType);
 			BranchLabel target = falseLabel != null ? falseLabel : new BranchLabel(codeStream);
@@ -209,10 +199,20 @@ public class RecordPattern extends TypePattern {
 		for (Pattern p : this.patterns) {
 			if (p.accessorMethod != null) {
 				codeStream.load(this.secretPatternVariable);
-				if (!isSubtype)
+				if (!this.isTotalTypeNode)
 					codeStream.checkcast(this.resolvedType);
 				generateArguments(p.accessorMethod, null, currentScope, codeStream);
 				codeStream.invoke(Opcodes.OPC_invokevirtual, p.accessorMethod, this.resolvedType, null);
+				if (!p.isTotalTypeNode) {
+					if (p instanceof TypePattern) {
+						((TypePattern)p).initializePatternVariables(currentScope, codeStream);
+						codeStream.load(p.secretPatternVariable);
+						codeStream.instance_of(p.resolvedType);
+						BranchLabel target = falseLabel != null ? falseLabel : new BranchLabel(codeStream);
+						codeStream.ifeq(target);
+						codeStream.load(p.secretPatternVariable);
+					}
+				}
 				p.generateOptimizedBoolean(currentScope, codeStream, trueLabel, falseLabel);
 			}
 		}
