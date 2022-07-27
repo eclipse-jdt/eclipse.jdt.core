@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertNotEquals;
 
 import java.util.List;
@@ -596,6 +597,9 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 			for (IMethodBinding mBinding : mBindings) {
 				if (mBinding.getName().equals("X") || mBinding.getName().equals("foo")) {
 					assertFalse("foo is not a synthetic method", mBinding.isSyntheticRecordMethod());
+					if (mBinding.getName().equals("X")) {
+						assertArrayEquals(mBinding.getParameterNames(), new String[] { "myComp" });
+					}
 				} else {
 					assertTrue("expected a synthetic method", mBinding.isSyntheticRecordMethod());
 				}

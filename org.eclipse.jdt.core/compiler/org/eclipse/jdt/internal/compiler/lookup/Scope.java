@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -868,9 +868,12 @@ public abstract class Scope {
 			if (CompilerOptions.tolerateIllegalAmbiguousVarargsInvocation && compilerOptions.complianceLevel < ClassFileConstants.JDK1_7)
 				tiebreakingVarargsMethods = false;
 		}
+
+
 		if ((parameterCompatibilityLevel(method, arguments, tiebreakingVarargsMethods)) > NOT_COMPATIBLE) {
-			if ((method.tagBits & TagBits.AnnotationPolymorphicSignature) != 0) {
-				// generate polymorphic method
+			if (method.hasPolymorphicSignature(this)) {
+				// generate polymorphic method and set polymorphic tagbits as well
+				method.tagBits |= TagBits.AnnotationPolymorphicSignature;
 				return this.environment().createPolymorphicMethod(method, arguments, this);
 			}
 			return method;
@@ -1357,8 +1360,9 @@ public abstract class Scope {
 				if (invocationSite.genericTypeArguments() != null) {
 					// computeCompatibleMethod(..) will return a PolymorphicMethodBinding if needed
 					exactMethod = computeCompatibleMethod(exactMethod, argumentTypes, invocationSite);
-				} else if ((exactMethod.tagBits & TagBits.AnnotationPolymorphicSignature) != 0) {
-					// generate polymorphic method
+				} else if (exactMethod.hasPolymorphicSignature(this)) {
+					// generate polymorphic method and set polymorphic tagbits as well
+					exactMethod.tagBits |= TagBits.AnnotationPolymorphicSignature;
 					return this.environment().createPolymorphicMethod(exactMethod, argumentTypes, this);
 				}
 				return exactMethod;
@@ -2936,6 +2940,18 @@ public abstract class Scope {
 		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_INVOKE_METHODHANDLES);
 		ReferenceBinding outerType = unitScope.environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_INVOKE_METHODHANDLES, this);
 		return findDirectMemberType("Lookup".toCharArray(), outerType); //$NON-NLS-1$
+	}
+
+	public final ReferenceBinding getJavaLangInvokeMethodHandle() {
+		CompilationUnitScope unitScope = compilationUnitScope();
+		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_INVOKE_METHODHANDLE);
+		return unitScope.environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_INVOKE_METHODHANDLE, this);
+	}
+
+	public final ReferenceBinding getJavaLangInvokeVarHandle() {
+		CompilationUnitScope unitScope = compilationUnitScope();
+		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_INVOKE_VARHANDLE);
+		return unitScope.environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_INVOKE_VARHANDLE, this);
 	}
 
 	public final ReferenceBinding getJavaLangInteger() {

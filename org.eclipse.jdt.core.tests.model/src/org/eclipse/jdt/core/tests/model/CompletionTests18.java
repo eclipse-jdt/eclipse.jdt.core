@@ -6524,4 +6524,106 @@ public void testBug578817() throws JavaModelException {
 				+ "getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<*>;, null, null, getClass, null, [229, 232], "+(R_DEFAULT+R_PACKAGE_EXPECTED_TYPE+30)+"}\n"
 				+ "getLastName[METHOD_REF]{getLastName(), LPerson;, ()Ljava.lang.String;, null, null, getLastName, null, [229, 232], "+(R_DEFAULT+R_EXACT_EXPECTED_TYPE+30)+"}", requestor.getResults());
 	}
+  
+public void testGH109_expectCompletions_insideLambdaNestedBlocks() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"Completion/src/GH109.java",
+			"import java.util.stream.Stream;\n"
+			+ "\n"
+			+ "public class GH109\n"
+			+ "{\n"
+			+ "  public static void main(String[] args)\n"
+			+ "  {\n"
+			+ "    if(args.length > 0) {\n"
+			+ "      Stream.of(args).forEach(name -> {\n"
+			+ "        try\n"
+			+ "        {\n"
+			+ "          if (name.startsWith(\"A\"))\n"
+			+ "          {\n"
+			+ "            name.\n"
+			+ "          }\n"
+			+ "          \n"
+			+ "        }\n"
+			+ "        catch (Exception e)\n"
+			+ "        {\n"
+			+ "        }\n"
+			+ "      });\n"
+			+ "    }\n"
+			+ "  }\n"
+			+ "}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "  name.";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	String result = requestor.getResults();
+	assertTrue(result.contains("startsWith[METHOD_REF]{startsWith(), Ljava.lang.String;, (Ljava.lang.String;)Z, startsWith, (arg0), 60}\n"
+			+ "startsWith[METHOD_REF]{startsWith(), Ljava.lang.String;, (Ljava.lang.String;I)Z, startsWith, (arg0, arg1), 60}\n"));
+}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/195
+	public void testIssue195() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"Completion/src/A.java",
+				"public class A {\n" +
+				"  public void test() {\n" +
+				"    List<String> list = new java.util.ArrayL\n" +
+				"  }\n" +
+				"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "ArrayL";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+		assertResults(
+				"ArrayList[CONSTRUCTOR_INVOCATION]{(), Ljava.util.ArrayList;, ()V, null, null, ArrayList, null, [84, 84], 54}\n" +
+				"ArrayList[CONSTRUCTOR_INVOCATION]{(), Ljava.util.ArrayList;, (I)V, null, null, ArrayList, (arg0), [84, 84], 54}\n" +
+				"ArrayList[CONSTRUCTOR_INVOCATION]{(), Ljava.util.ArrayList;, (Ljava.util.Collection<+TE;>;)V, null, null, ArrayList, (arg0), [84, 84], 54}",
+				requestor.getResults());
+	}
+
+public void testGH109_expectCompletionsWithCast_insideLambdaNestedBlocksWithInstanceOf() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"Completion/src/GH109.java",
+			"import java.util.stream.Stream;\n"
+			+ "\n"
+			+ "public class GH109\n"
+			+ "{\n"
+			+ "  public static void main(String[] args)\n"
+			+ "  {\n"
+			+ "    if(args.length > 0) {\n"
+			+ "      Stream.of(args).map(Object.class::cast).forEach(name -> {\n"
+			+ "        try\n"
+			+ "        {\n"
+			+ "          if (name instanceof String)\n"
+			+ "          {\n"
+			+ "            name.sta\n"
+			+ "          }\n"
+			+ "          \n"
+			+ "        }\n"
+			+ "        catch (Exception e)\n"
+			+ "        {\n"
+			+ "        }\n"
+			+ "      });\n"
+			+ "    }\n"
+			+ "  }\n"
+			+ "}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "  name.sta";
+	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	String result = requestor.getResults();
+	assertTrue(result.contains("startsWith[METHOD_REF_WITH_CASTED_RECEIVER]{((String)name).startsWith(), Ljava.lang.String;, (Ljava.lang.String;)Z, Ljava.lang.String;, startsWith, (arg0), 60}\n"
+			+ "startsWith[METHOD_REF_WITH_CASTED_RECEIVER]{((String)name).startsWith(), Ljava.lang.String;, (Ljava.lang.String;I)Z, Ljava.lang.String;, startsWith, (arg0, arg1), 60}"));
+}
 }

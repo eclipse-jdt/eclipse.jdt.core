@@ -245,6 +245,9 @@ public interface TypeConstants {
 	char[][] JAVA_LANG_INVOKE_LAMBDAMETAFACTORY = {JAVA, LANG, INVOKE, "LambdaMetafactory".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_INVOKE_SERIALIZEDLAMBDA = {JAVA, LANG, INVOKE, "SerializedLambda".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_INVOKE_METHODHANDLES = {JAVA, LANG, INVOKE, "MethodHandles".toCharArray()}; //$NON-NLS-1$
+	char[][] JAVA_LANG_INVOKE_METHODHANDLE = {JAVA, LANG, INVOKE, "MethodHandle".toCharArray()}; //$NON-NLS-1$
+	char[][] JAVA_LANG_INVOKE_VARHANDLE = {JAVA, LANG, INVOKE, "VarHandle".toCharArray()}; //$NON-NLS-1$
+
 	char[][] JAVA_LANG_AUTOCLOSEABLE =  {JAVA, LANG, "AutoCloseable".toCharArray()}; //$NON-NLS-1$
 	char[] CLOSE = "close".toCharArray(); //$NON-NLS-1$
 	char[][] JAVA_LANG_RUNTIME_OBJECTMETHODS = {JAVA, LANG, RUNTIME, "ObjectMethods".toCharArray()}; //$NON-NLS-1$

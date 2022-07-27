@@ -75,53 +75,6 @@ import org.osgi.framework.Bundle;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ExternalAnnotations18Test extends ModifyingResourceTests {
 
-	/** Bridge to hook the host JRE into the registered ContainerInitializer. */
-	static class TestContainerInitializer implements ContainerInitializer.ITestInitializer {
-
-		/** Use this container name in test projects. */
-		private static final String TEST_CONTAINER_NAME = "org.eclipse.jdt.core.tests.model.TEST_CONTAINER";
-
-		/** Simulate workspace-settings for rt.jar. */
-		public static String RT_JAR_ANNOTATION_PATH = null;
-
-		static class TestContainer implements IClasspathContainer {
-			IPath path;
-			IClasspathEntry[] entries;
-			TestContainer(IPath path, IClasspathEntry[] entries){
-				this.path = path;
-				this.entries = entries;
-			}
-			public IPath getPath() { return this.path; }
-			public IClasspathEntry[] getClasspathEntries() { return this.entries;	}
-			public String getDescription() { return this.path.toString(); 	}
-			public int getKind() { return 0; }
-		}
-
-		@Override
-		public void initialize(IPath containerPath, IJavaProject project) throws CoreException {
-			String[] jars = Util.getJavaClassLibs();
-			IClasspathEntry[] entries = new IClasspathEntry[jars.length];
-			for (int i = 0; i < jars.length; i++) {
-				IClasspathAttribute[] extraAttributes;
-				if (RT_JAR_ANNOTATION_PATH != null && jars[i].endsWith("rt.jar"))
-					extraAttributes = externalAnnotationExtraAttributes(RT_JAR_ANNOTATION_PATH);
-				else
-					extraAttributes = ClasspathEntry.NO_EXTRA_ATTRIBUTES;
-				entries[i] = JavaCore.newLibraryEntry(new Path(jars[i]), null, null,
-						ClasspathEntry.NO_ACCESS_RULES, extraAttributes, false/*not exported*/);
-			}
-			JavaCore.setClasspathContainer(
-					new Path(TEST_CONTAINER_NAME),
-					new IJavaProject[]{ project },
-					new IClasspathContainer[] { new TestContainer(new Path(TEST_CONTAINER_NAME), entries) },
-					null);
-		}
-		@Override
-		public boolean allowFailureContainer() {
-			return false;
-		}
-	}
-
 	/**
 	 * Initializer for a container that may provide a mix of entries, some of which are "self-annotating",
 	 * i.e., contain .eea files for their own classes.
@@ -249,7 +202,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		this.ANNOTATION_LIB = bundleFile.isDirectory() ? bundleFile.getPath()+"/bin" : bundleFile.getPath();
 
 		// set up class path container bridging to the host JRE:
-		ContainerInitializer.setInitializer(new TestContainerInitializer());
+		ContainerInitializer.setInitializer(new TestContainerInitializer(IClasspathContainer.K_DEFAULT_SYSTEM));
 	}
 
 	/**
