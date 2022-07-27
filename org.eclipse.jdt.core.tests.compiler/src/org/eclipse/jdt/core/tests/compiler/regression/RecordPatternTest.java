@@ -1304,11 +1304,11 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 						+ "record Teacher(String name) implements Person {}\n"
 						+ "record Pair(Person s, Person s1) {} "
 		},
-				"----------\n" + 
-				"1. ERROR in X.java (at line 6)\n" + 
-				"	case Pair(Teacher(Object n), Student(String n1, Integer i)) r1 -> 1;\n" + 
-				"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" + 
-				"This case label is dominated by one of the preceding case label\n" + 
+				"----------\n" +
+				"1. ERROR in X.java (at line 6)\n" +
+				"	case Pair(Teacher(Object n), Student(String n1, Integer i)) r1 -> 1;\n" +
+				"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"This case label is dominated by one of the preceding case label\n" +
 				"----------\n");
 	}
 	// Test that pattern dominance is reported on identical nested record pattern
