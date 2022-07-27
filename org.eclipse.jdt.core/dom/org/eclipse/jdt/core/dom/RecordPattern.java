@@ -27,7 +27,7 @@ import org.eclipse.jdt.internal.core.dom.util.DOMASTUtil;
  *
  * <pre>
  * RecordPattern:
- *      Pattern<Pattern<Patterns....>> SingleVariableDeclaration
+ *      Pattern<Pattern<Patterns....>> Type SimpleName
  * </pre>
  *
  * @since 3.31 BETA_JAVA19
@@ -53,7 +53,7 @@ public class RecordPattern extends Pattern {
 	 * The "patternName" structural property of this node type (child type: {@link SimpleName}).
 	 */
 	public static final ChildPropertyDescriptor PATTERN_NAME_PROPERTY =
-			new ChildPropertyDescriptor(RecordPattern.class, "patternName", SimpleName.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+			new ChildPropertyDescriptor(RecordPattern.class, "patternName", SimpleName.class, OPTIONAL, CYCLE_RISK); //$NON-NLS-1$
 
 		/**
 	 * A list of property descriptors (element type:
@@ -86,7 +86,7 @@ public class RecordPattern extends Pattern {
 	/**
 	 * The pattern name;
 	 */
-	private SimpleName patternName = null;
+	private SimpleName optionalPatternName = null;
 
 	/**
 	 * The pattern type;
@@ -193,9 +193,9 @@ public class RecordPattern extends Pattern {
 		if (patternName == null) {
 			throw new IllegalArgumentException();
 		}
-		ASTNode oldChild = this.patternName;
+		ASTNode oldChild = this.optionalPatternName;
 		preReplaceChild(oldChild, patternName, PATTERN_NAME_PROPERTY);
-		this.patternName = patternName;
+		this.optionalPatternName = patternName;
 		postReplaceChild(oldChild, patternName, PATTERN_NAME_PROPERTY);
 	}
 
@@ -236,17 +236,7 @@ public class RecordPattern extends Pattern {
 	public SimpleName getPatternName() {
 		supportedOnlyIn19();
 		unsupportedWithoutPreviewError();
-		if (this.patternName  == null) {
-			// lazy init must be thread-safe for readers
-			synchronized (this) {
-				if (this.patternName == null) {
-					preLazyInit();
-					this.patternName= new SimpleName(this.ast);
-					postLazyInit(this.patternName, PATTERN_NAME_PROPERTY);
-				}
-			}
-		}
-		return this.patternName;
+		return this.optionalPatternName;
 	}
 
 	/**
@@ -328,7 +318,7 @@ public class RecordPattern extends Pattern {
 		return
 				memSize()
 				+ (this.patternType == null ? 0 : getPatternType().treeSize())
-				+ (this.patternName == null ? 0 : getPatternName().treeSize())
+				+ (this.optionalPatternName == null ? 0 : getPatternName().treeSize())
 				+ this.patterns.listSize();
 	}
 
