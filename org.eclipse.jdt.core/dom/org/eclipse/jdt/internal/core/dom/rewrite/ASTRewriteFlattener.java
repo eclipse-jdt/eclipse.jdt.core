@@ -919,6 +919,51 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	}
 
 	@Override
+	public boolean visit(RecordPattern node) {
+		if (DOMASTUtil.isPatternSupported(node.getAST())) {
+
+			if (node.getPatternType() != null) {
+				node.getPatternType().accept(this);
+			}
+			boolean addBraces = node.patterns().size() > 1;
+			if (addBraces) {
+				this.result.append("(");//$NON-NLS-1$
+			}
+			int size = 1;
+			for (Pattern pattern : node.patterns()) {
+					visitPattern(pattern);
+					if (addBraces && size < node.patterns().size()) {
+						this.result.append(", ");//$NON-NLS-1$
+					}
+					size++;
+			}
+			if (addBraces) {
+				this.result.append(")");//$NON-NLS-1$
+			}
+			if (node.getPatternName() != null) {
+				node.getPatternName().accept(this);
+			}
+		}
+		return false;
+	}
+
+	private boolean visitPattern(Pattern node) {
+		if (!DOMASTUtil.isPatternSupported(node.getAST())) {
+			return false;
+		}
+		if (node instanceof RecordPattern) {
+			return visit((RecordPattern) node);
+		}
+		if (node instanceof GuardedPattern) {
+			return visit((GuardedPattern) node);
+		}
+		if (node instanceof TypePattern) {
+			return visit((TypePattern) node);
+		}
+		return false;
+	}
+
+	@Override
 	public boolean visit(RequiresDirective node) {
 		this.result.append("requires "); //$NON-NLS-1$
 		visitList(node, RequiresDirective.MODIFIERS_PROPERTY, String.valueOf(' '), Util.EMPTY_STRING, String.valueOf(' '));

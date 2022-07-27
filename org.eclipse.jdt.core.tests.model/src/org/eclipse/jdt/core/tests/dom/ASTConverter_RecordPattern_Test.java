@@ -535,4 +535,63 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 		assertEquals("Type of Nested pattern in Point is not TypePattern",ASTNode.TYPE_PATTERN , recordPattern2.patterns().get(1).getNodeType());
 
 	}
+
+	@SuppressWarnings("rawtypes")
+	public void testRecordPattern004() throws CoreException {
+		if (!isJRE19) {
+			System.err.println("Test "+getName()+" requires a JRE 19");
+			return;
+		}
+		String contents =  "public class X {\n"
+				+ "  public static void printLowerRight(Rectangle r) {\n"
+				+ "    int res = switch(r) {\n"
+				+ "       case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
+				+ "                               ColoredPoint lr) r1 when x > 0 -> {\n"
+				+ "        		yield 1;  \n"
+				+ "        } \n"
+				+ "        default -> 0;\n"
+				+ "    }; \n"
+				+ "    System.out.println(res);\n"
+				+ "  }\n"
+				+ "  public static void main(String[] args) {\n"
+				+ "    printLowerRight(new Rectangle(new ColoredPoint(new Point(15, 5), Color.BLUE), \n"
+				+ "        new ColoredPoint(new Point(30, 10), Color.RED)));\n"
+				+ "  }\n"
+				+ "}\n"
+				+ "record Point(int x, int y) {}\n"
+				+ "enum Color { RED, GREEN, BLUE }\n"
+				+ "record ColoredPoint(Point p, Color c) {}\n"
+				+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}";
+
+	this.workingCopy = getWorkingCopy("/Converter_19/src/X.java", true/*resolve*/);
+		ASTNode node = buildAST(
+			contents,
+			this.workingCopy);
+		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		CompilationUnit compilationUnit = (CompilationUnit) node;
+		assertProblemsSize(compilationUnit, 0);
+		node = ((AbstractTypeDeclaration)compilationUnit.types().get(0));
+		assertEquals("Not a Type Declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
+		TypeDeclaration type = (TypeDeclaration)node;
+		MethodDeclaration[] methods = type.getMethods();
+		assertEquals("Method list empty", 2, methods.length);
+		MethodDeclaration printMethod = methods[0];
+		assertEquals("Method name is not printLowerRight", "printLowerRight", printMethod.getName().toString());
+		List<ASTNode> statements = printMethod.getBody().statements();
+		VariableDeclarationStatement switchCasestatement = (VariableDeclarationStatement)statements.get(0);
+		List fragments = switchCasestatement.fragments();
+		assertEquals("Incorrect no of fragments", 1, fragments.size());
+		node = (ASTNode) fragments.get(0);
+		assertEquals("Switch statement", node.getNodeType(), ASTNode.VARIABLE_DECLARATION_FRAGMENT);
+		VariableDeclarationFragment fragment = (VariableDeclarationFragment) node;
+		Expression initializer = fragment.getInitializer();
+		assertEquals("incorrect type", ASTNode.SWITCH_EXPRESSION, initializer.getNodeType());
+		List switchStatements = ((SwitchExpression) initializer).statements();
+
+		SwitchCase caseStmt = (SwitchCase) switchStatements.get(0);
+		assertEquals("incorrect type", ASTNode.GUARDED_PATTERN, ((Expression)caseStmt.expressions().get(0)).getNodeType());
+		GuardedPattern guardedPattern = (GuardedPattern)caseStmt.expressions().get(0);
+		assertEquals("There should be 1 Record Pattern", ASTNode.RECORD_PATTERN , guardedPattern.getPattern().getNodeType());
+
+	}
 }
