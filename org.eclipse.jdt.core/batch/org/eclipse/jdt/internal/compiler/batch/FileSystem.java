@@ -340,7 +340,7 @@ public static Classpath getClasspath(String classpathName, String encoding,
 						}
 						JRT_CLASSPATH_CACHE.put(file, result);
 					}
-				} else {
+				} else if (file.isFile()){
 					result =
 							(release == null) ?
 									new ClasspathJar(file, true, accessRuleSet, null) :
