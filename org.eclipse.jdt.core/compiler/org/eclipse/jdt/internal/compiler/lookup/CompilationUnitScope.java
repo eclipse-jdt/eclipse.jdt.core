@@ -227,7 +227,7 @@ void checkAndSetImports() {
 	}
 
 	// allocate the import array, add java.lang.* by default
-	int numberOfStatements = this.referenceContext.imports.length;
+	final int numberOfStatements = this.referenceContext.imports.length;
 	int numberOfImports = numberOfStatements + 1;
 	for (int i = 0; i < numberOfStatements; i++) {
 		ImportReference importReference = this.referenceContext.imports[i];
@@ -247,18 +247,22 @@ void checkAndSetImports() {
 		// skip duplicates or imports of the current package
 		for (int j = 0; j < index; j++) {
 			ImportBinding resolved = resolvedImports[j];
-			if (resolved.onDemand == ((importReference.bits & ASTNode.OnDemand) != 0) && resolved.isStatic() == importReference.isStatic())
-				if (CharOperation.equals(compoundName, resolvedImports[j].compoundName))
+			if (resolved.onDemand == ((importReference.bits & ASTNode.OnDemand) != 0) && resolved.isStatic() == importReference.isStatic()) {
+				if (CharOperation.equals(compoundName, resolvedImports[j].compoundName)) {
 					continue nextImport;
+				}
+			}
 		}
 
 		if ((importReference.bits & ASTNode.OnDemand) != 0) {
-			if (CharOperation.equals(compoundName, this.currentPackageName))
-				continue nextImport;
+			if (CharOperation.equals(compoundName, this.currentPackageName)) {
+				continue;
+			}
 
 			Binding importBinding = findImport(compoundName, compoundName.length);
-			if (!importBinding.isValidBinding() || (importReference.isStatic() && importBinding instanceof PackageBinding))
-				continue nextImport;	// we report all problems in faultInImports()
+			if (!importBinding.isValidBinding() || (importReference.isStatic() && importBinding instanceof PackageBinding)) {
+				continue;	// we report all problems in faultInImports()
+			}
 			resolvedImports[index++] = new ImportBinding(compoundName, true, importBinding, importReference);
 		} else {
 			// resolve single imports only when the last name matches
@@ -267,8 +271,9 @@ void checkAndSetImports() {
 	}
 
 	// shrink resolvedImports... only happens if an error was reported
-	if (resolvedImports.length > index)
+	if (resolvedImports.length > index) {
 		System.arraycopy(resolvedImports, 0, resolvedImports = new ImportBinding[index], 0, index);
+	}
 	this.imports = resolvedImports;
 }
 
