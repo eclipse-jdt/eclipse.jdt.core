@@ -374,4 +374,57 @@ public class CompletionTests19 extends AbstractJavaModelCompletionTests {
 					requestor.getResults());
 
 		}
+		//content assist in record pattern switch case - use the variable in case statement - CCE
+		public void test010() throws JavaModelException {
+			this.workingCopies = new ICompilationUnit[1];
+			this.workingCopies[0] = getWorkingCopy(
+					"/Completion/src/X.java",
+					"@SuppressWarnings(\"preview\")"
+					+ "public class X {\n"
+					+ "  public static void printLowerRight(Rectangle r) {\n"
+					+ "    int res = switch(r) {\n"
+					+ "       case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
+					+ "                               ColoredPoint lr) r1  -> {\n"
+					+ "    			/*here*/r1.	"
+					+ "System.out.println(\"x= \" + x);\n"
+					+ "    				System.out.println(\"y= \" + y);\n"
+					+ "    				System.out.println(\"lr= \" + lr);\n"
+					+ "    				System.out.println(\"lr.c()= \" + lr.c());\n"
+					+ "    				System.out.println(\"lr.p()= \" + lr.p());\n"
+					+ "    				System.out.println(\"lr.p().x()= \" + lr.p().x());\n"
+					+ "    				System.out.println(\"lr.p().y()= \" + lr.p().y());\n"
+					+ "    				System.out.println(\"c= \" + c);\n"
+					+ "    				System.out.println(\"r1= \" + r1);\n"
+					+ "        		yield x;  \n"
+					+ "        } \n"
+					+ "        default -> 0;\n"
+					+ "    }; \n"
+					+ "    System.out.println(\"Returns: \" + res);\n"
+					+ "  }\n"
+					+ "  public static void main(String[] args) {\n"
+					+ "    printLowerRight(new Rectangle(new ColoredPoint(new Point(15, 5), Color.BLUE), \n"
+					+ "        new ColoredPoint(new Point(30, 10), Color.RED)));\n"
+					+ "  }\n"
+					+ "}\n"
+					+ "record Point(int x, int y) {}\n"
+					+ "enum Color { RED, GREEN, BLUE }\n"
+					+ "record ColoredPoint(Point p, Color c) {}\n"
+					+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"
+					);
+			CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+			requestor.allowAllRequiredProposals();
+			String str = this.workingCopies[0].getSource();
+			String completeBehind = "/*here*/r1.";
+			int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+			this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+			assertResults("equals[METHOD_REF]{equals(), LRectangle;, (Ljava.lang.Object;)Z, equals, (arg0), 60}\n"
+					+ "hashCode[METHOD_REF]{hashCode(), LRectangle;, ()I, hashCode, null, 60}\n"
+					+ "lowerRight[FIELD_REF]{lowerRight, LRectangle;, LColoredPoint;, lowerRight, null, 60}\n"
+					+ "lowerRight[METHOD_REF]{lowerRight(), LRectangle;, ()LColoredPoint;, lowerRight, null, 60}\n"
+					+ "toString[METHOD_REF]{toString(), LRectangle;, ()Ljava.lang.String;, toString, null, 60}\n"
+					+ "upperLeft[FIELD_REF]{upperLeft, LRectangle;, LColoredPoint;, upperLeft, null, 60}\n"
+					+ "upperLeft[METHOD_REF]{upperLeft(), LRectangle;, ()LColoredPoint;, upperLeft, null, 60}",
+					requestor.getResults());
+
+		}
 }
