@@ -1434,7 +1434,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 			if (node.getPatternType() != null) {
 				node.getPatternType().accept(this);
 			}
-			boolean addBraces = node.patterns().size() > 1;
+			boolean addBraces = node.patterns().size() >= 1;
 			if (addBraces) {
 				this.buffer.append("(");//$NON-NLS-1$
 			}
@@ -1450,6 +1450,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 				this.buffer.append(")");//$NON-NLS-1$
 			}
 			if (node.getPatternName() != null) {
+				this.buffer.append(" ");//$NON-NLS-1$
 				node.getPatternName().accept(this);
 			}
 		}
