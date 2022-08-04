@@ -2763,6 +2763,18 @@ public final class AST {
 		RecordDeclaration result = new RecordDeclaration(this);
 		return result;
 	}
+
+	/**
+	 * Creates and returns a new unparented type pattern node with an
+	 * unspecified pattern variable.
+	 *
+	 * @return a new unparented type pattern node
+	 * @since 3.31 BETA_JAVA19
+	 */
+	public RecordPattern newRecordPattern() {
+		RecordPattern result = new RecordPattern(this);
+		return result;
+	}
 	/**
 	 * Creates and returns a new unparented requires directive
 	 * node for an unspecified, but legal, name;
