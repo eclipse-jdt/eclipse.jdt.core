@@ -135,24 +135,36 @@ public class RecordPattern extends TypePattern {
 		} else {
 			for (int i = 0; i < components.length; i++) {
 				Pattern p = this.patterns[i];
-				p.resolveType(scope, true);
+				if (!(p instanceof TypePattern))
+					continue;
+				TypePattern tp = (TypePattern) p;
 				RecordComponentBinding componentBinding = components[i];
 				if (p.getType().isTypeNameVar(scope)) {
-					p.resolvedType = componentBinding.type;
-				} else {
-					TypeBinding expressionType = componentBinding.type;
-					if (p.isPatternTypeCompatible(expressionType, scope)) {
-						p.isTotalTypeNode = p.isTotalForType(componentBinding.type);
-						MethodBinding[] methods = this.resolvedType.getMethods(componentBinding.name);
-						if (methods != null && methods.length > 0) {
-							p.accessorMethod = methods[0]; // TODO: Not enough?
-						}
+					infuseInferredType(tp, componentBinding);
+				}
+				p.resolveType(scope, true);
+				TypeBinding expressionType = componentBinding.type;
+				if (p.isPatternTypeCompatible(expressionType, scope)) {
+					p.isTotalTypeNode = p.isTotalForType(componentBinding.type);
+					MethodBinding[] methods = this.resolvedType.getMethods(componentBinding.name);
+					if (methods != null && methods.length > 0) {
+						p.accessorMethod = methods[0];
 					}
 				}
 			}
 		}
-
 		return this.resolvedType;
+	}
+	private void infuseInferredType(TypePattern tp, RecordComponentBinding componentBinding) {
+		SingleTypeReference ref = new SingleTypeReference(tp.local.type.getTypeName()[0],
+				tp.local.type.sourceStart,
+				tp.local.type.sourceEnd) {
+			@Override
+			public TypeBinding resolveType(BlockScope scope, boolean checkBounds) {
+				return componentBinding.type;
+			}
+		};
+		tp.local.type = ref;
 	}
 	@Override
 	public boolean isAlwaysTrue() {
