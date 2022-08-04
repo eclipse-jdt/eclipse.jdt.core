@@ -1422,4 +1422,130 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 		},
 		"NPE with java.lang.NullPointerException");
 	}
+	public void test41() {
+		runConformTest(new String[] {
+				"X.java",
+						"public class X {\n"
+						+ "  @SuppressWarnings(\"preview\")\n"
+						+ "  public static void printLowerRight(Object r) {\n"
+						+ "    long res = switch(r) {\n"
+						+ "       case Rectangle(ColoredPoint(Point(var x, long y), Color c), \n"
+						+ "    		   				ColoredPoint lr) r1 when x > \n"
+						+ "								       switch(r) {\n"
+						+ "								       	 case Rectangle(ColoredPoint c1,  ColoredPoint lr1) r2  -> 2;  \n"
+						+ "								       	 default -> 10;   \n"
+						+ "								       } \n"
+						+ "								       	-> x + 10;  \n"
+						+ "								       default -> 0;     \n"
+						+ "    			};    \n"
+						+ "    			System.out.println(\"Returns: \" + res);\n"
+						+ "  } \n"
+						+ "  public static void main(String[] args) {\n"
+						+ "	printLowerRight(new Rectangle(new ColoredPoint(new Point(2, 4), Color.GREEN), new ColoredPoint(new Point(5, 4), Color.GREEN))); \n"
+						+ "  }\n"
+						+ "}\n"
+						+ "record Point(long x, long y) {}    \n"
+						+ "enum Color { RED, GREEN, BLUE }\n"
+						+ "record ColoredPoint(Point p, Color c) {} \n"
+						+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"
+		},
+		"Returns: 0");
+	}
+	public void test42() {
+		runConformTest(new String[] {
+				"X.java",
+						"public class X {\n"
+						+ "  @SuppressWarnings(\"preview\")\n"
+						+ "  public static void printLowerRight(Object r) {\n"
+						+ "    long res = switch(r) {\n"
+						+ "       case Rectangle(ColoredPoint(Point(var x, long y), Color c), \n"
+						+ "    		   				ColoredPoint lr) r1 when x > \n"
+						+ "								       switch(r) {\n"
+						+ "								       	 case Rectangle(ColoredPoint c1,  var lr1) r2  -> lr1.p().x();\n"
+						+ "								       	 default -> 10;   \n"
+						+ "								       } \n"
+						+ "								       	-> x + 10;  \n"
+						+ "								       default -> 0;     \n"
+						+ "    			};    \n"
+						+ "    			System.out.println(\"Returns: \" + res);\n"
+						+ "  } \n"
+						+ "  public static void main(String[] args) {\n"
+						+ "	printLowerRight(new Rectangle(new ColoredPoint(new Point(10, 4), Color.GREEN), new ColoredPoint(new Point(5, 4), Color.GREEN))); \n"
+						+ "  }\n"
+						+ "}\n"
+						+ "record Point(long x, long y) {}    \n"
+						+ "enum Color { RED, GREEN, BLUE }\n"
+						+ "record ColoredPoint(Point p, Color c) {} \n"
+						+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"
+		},
+		"Returns: 20");
+	}
+	public void test43() {
+		runNegativeTest(new String[] {
+				"X.java",
+						"public class X {\n"
+						+ "  @SuppressWarnings(\"preview\")\n"
+						+ "  public static void printLowerRight(Object r) {\n"
+						+ "    long res = switch(r) {\n"
+						+ "       case Rectangle(ColoredPoint(Point(var x, long y), Color c), \n"
+						+ "    		   				ColoredPoint lr) r1 when x > \n"
+						+ "								       switch(r) {\n"
+						+ "								       	 case Rectangle(ColoredPoint c1,  ColoredPoint lr1) r2  -> 2;  \n"
+						+ "								       	 default -> 10;   \n"
+						+ "								       } \n"
+						+ "								       	-> x + 10;  \n"
+						+ "								       default -> 0;     \n"
+						+ "    			};    \n"
+						+ "    			System.out.println(\"Returns: \" + res);\n"
+						+ "  } \n"
+						+ "  public static void main(String[] args) {\n"
+						+ "	printLowerRight(new Rectangle(new ColoredPoint(new Point(2, 4), Color.GREEN), new ColoredPoint(new Point(5, 4), Color.GREEN))); \n"
+						+ "  }\n"
+						+ "}\n"
+						+ "record Point(int x, int y) {}    \n"
+						+ "enum Color { RED, GREEN, BLUE }\n"
+						+ "record ColoredPoint(Point p, Color c) {} \n"
+						+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"
+		},
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	case Rectangle(ColoredPoint(Point(var x, long y), Color c), \n" +
+			"	                                         ^^^^^^\n" +
+			"Pattern of type int is not compatible with type long\n" +
+			"----------\n");
+	}
+	public void test44() {
+		runNegativeTest(new String[] {
+				"X.java",
+						"public class X {\n"
+						+ "  @SuppressWarnings(\"preview\")\n"
+						+ "  public static void printLowerRight(Object r) {\n"
+						+ "    long res = switch(r) {\n"
+						+ "       case Rectangle(ColoredPoint(Point(var x, int y), Color c), \n"
+						+ "    		   				ColoredPoint lr) r1 when x > \n"
+						+ "								       switch(r) {\n"
+						+ "								       	 case Rectangle(ColoredPoint c1,  ColoredPoint lr1) r2  -> 2;  \n"
+						+ "								       	 default -> 10;   \n"
+						+ "								       } \n"
+						+ "								       	-> x + 10;  \n"
+						+ "								       default -> 0;     \n"
+						+ "    			};    \n"
+						+ "    			System.out.println(\"Returns: \" + res);\n"
+						+ "  } \n"
+						+ "  public static void main(String[] args) {\n"
+						+ "	printLowerRight(new Rectangle(new ColoredPoint(new Point(2, 4), Color.GREEN), new ColoredPoint(new Point(5, 4), Color.GREEN))); \n"
+						+ "  }\n"
+						+ "}\n"
+						+ "record Point(long x, long y) {}    \n"
+						+ "enum Color { RED, GREEN, BLUE }\n"
+						+ "record ColoredPoint(Point p, Color c) {} \n"
+						+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"
+		},
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	case Rectangle(ColoredPoint(Point(var x, int y), Color c), \n" +
+			"	                                         ^^^^^\n" +
+			"Pattern of type long is not compatible with type int\n" +
+			"----------\n");
+	}
 }

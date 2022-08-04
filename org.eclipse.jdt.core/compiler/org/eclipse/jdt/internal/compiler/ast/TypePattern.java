@@ -148,8 +148,12 @@ public class TypePattern extends Pattern {
 	@Override
 	protected boolean isPatternTypeCompatible(TypeBinding other, BlockScope scope) {
 		TypeBinding patternType = this.resolvedType;
-		if (other.isBaseType() != patternType.isBaseType() ||
-				!checkCastTypesCompatibility(scope, other, patternType, this.expression, true)) {
+		if (patternType.isBaseType()) {
+			if (!TypeBinding.equalsEquals(other, patternType)) {
+				scope.problemReporter().incompatiblePatternType(this, other, patternType);
+				return false;
+			}
+		} else if (!checkCastTypesCompatibility(scope, other, patternType, this.expression, true)) {
 			scope.problemReporter().incompatiblePatternType(this, other, patternType);
 			return false;
 		}

@@ -25,12 +25,15 @@ public class SingleTypeReference extends TypeReference {
 
 	public char[] token;
 
+	public SingleTypeReference(char[] source, int start, int end) {
+		this.token = source;
+		this.sourceStart = start;
+		this.sourceEnd = end;
+}
 	public SingleTypeReference(char[] source, long pos) {
-
 			this.token = source;
-			this.sourceStart = (int) (pos>>>32)  ;
-			this.sourceEnd = (int) (pos & 0x00000000FFFFFFFFL) ;
-
+			this.sourceStart = (int) (pos>>>32);
+			this.sourceEnd = (int) (pos & 0x00000000FFFFFFFFL);
 	}
 
 	@Override
