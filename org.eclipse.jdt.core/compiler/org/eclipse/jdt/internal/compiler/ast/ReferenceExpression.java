@@ -279,6 +279,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 		return (this.binding.isVarargs() ||
 				(isConstructorReference() && (this.receiverType.syntheticOuterLocalVariables() != null || this.shouldCaptureInstance)) ||
 				this.requiresBridges() || // bridges.
+				!(this.binding.original().signature().equals(this.binding.signature())) ||
 				!isDirectCodeGenPossible());
 		// To fix: We should opt for direct code generation wherever possible.
 	}
