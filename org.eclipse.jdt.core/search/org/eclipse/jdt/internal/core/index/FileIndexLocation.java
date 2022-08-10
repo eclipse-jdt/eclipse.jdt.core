@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2013 IBM Corporation and others.
+ * Copyright (c) 2011, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -23,16 +23,19 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 
 public class FileIndexLocation extends IndexLocation {
-	File indexFile;
+	final File indexFile;
+	final String canonicalPath;
 
 	public FileIndexLocation(File file) {
 		super(file);
 		this.indexFile = file;
+		this.canonicalPath = computeCanonicalFilePath(file);
 	}
 
 	public FileIndexLocation(URL url, File file) {
 		super(url);
 		this.indexFile = file;
+		this.canonicalPath = computeCanonicalFilePath(file);
 	}
 
 	public FileIndexLocation(File file, boolean participantIndex) {
@@ -81,14 +84,18 @@ public class FileIndexLocation extends IndexLocation {
 		return new FileInputStream(this.indexFile);
 	}
 
-	@Override
-	public String getCanonicalFilePath() {
+	private static String computeCanonicalFilePath(File indexFile) {
 		try {
-			return this.indexFile.getCanonicalPath();
+			return indexFile.getCanonicalPath();
 		} catch (IOException e) {
 			// ignore
 		}
 		return null;
+	}
+
+	@Override
+	public String getCanonicalFilePath() {
+		return this.canonicalPath;
 	}
 
 	@Override
@@ -108,11 +115,10 @@ public class FileIndexLocation extends IndexLocation {
 
 	@Override
 	public boolean startsWith(IPath path) {
-		try {
-			return path.isPrefixOf(new Path(this.indexFile.getCanonicalPath()));
-		} catch (IOException e) {
+		if (this.canonicalPath==null) {
 			return false;
 		}
+		return path.isPrefixOf(new Path(this.canonicalPath));
 	}
 
 }
