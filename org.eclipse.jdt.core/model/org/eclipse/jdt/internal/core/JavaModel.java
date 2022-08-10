@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -409,17 +409,7 @@ public static boolean isJmod(File file) {
  * JavaModelManager's external file cache.
  */
 static private boolean isExternalFile(IPath path) {
-	if (JavaModelManager.getJavaModelManager().isExternalFile(path)) {
-		return true;
-	}
-	if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
-		System.out.println("(" + Thread.currentThread() + ") [JavaModel.isExternalFile(...)] Checking existence of " + path.toString()); //$NON-NLS-1$ //$NON-NLS-2$
-	}
-	boolean isFile = path.toFile().isFile();
-	if (isFile) {
-		JavaModelManager.getJavaModelManager().addExternalFile(path);
-	}
-	return isFile;
+	return JavaModelManager.getJavaModelManager().isExternalFileCached(path);
 }
 
 /**
