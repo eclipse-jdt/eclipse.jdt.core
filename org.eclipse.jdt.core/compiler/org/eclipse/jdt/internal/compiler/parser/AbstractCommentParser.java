@@ -1851,7 +1851,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		}
 
 		if (valid) {
-			String snippetText = extractExternalSnippet2(contents, regionName);
+			String snippetText = extractExternalSnippet(contents, regionName);
 			//pushExternalSnippetText(snippetText, start, end);
 			parseExternalSnippet(snippetText, snippetTag);
 			this.index = end;
@@ -1957,85 +1957,6 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 	}
 
 	private String extractExternalSnippet(String contents, String region) {
-		String snippetString = ""; //$NON-NLS-1$
-		final String START  = "@start"; //$NON-NLS-1$
-		final String END    = "@end"; //$NON-NLS-1$
-		final String REGION = "region"; //$NON-NLS-1$
-		int regionLen = REGION.length();
-		boolean extractRegion = region == null? false:true; // false if we don't have a region to extract
-		boolean insideRegion = false;
-		int indexPos = 0;
-		boolean containsJavadocsnippetTags = false;
-		Scanner snippetScanner = new Scanner(true, true, false, this.scanner.sourceLevel, this.scanner.complianceLevel,
-				null, null, false, false);
-		snippetScanner.setSource(contents.toCharArray());
-		int count = 0;
-		while (true) {
-			int tokenType = 0;
-			try {
-				tokenType = snippetScanner.getNextToken();
-				containsJavadocsnippetTags = false;
-				if (tokenType == TokenNameEOF)
-					break;
-				if (tokenType == TerminalTokens.TokenNameCOMMENT_LINE) {
-					String commentLine = snippetScanner.getCurrentTokenString();
-					int noSingleLineComm = getNumberOfSingleLineCommentInSnippetTag(commentLine.substring(2));
-					if (noSingleLineComm > 0) {
-						int indexOfLastComment = indexOfLastSingleComment(commentLine.substring(2),noSingleLineComm);
-						commentLine = commentLine.substring(indexOfLastComment);
-					}
-					int regionIndex = commentLine.indexOf(REGION);
-					if (commentLine.contains(START)) {
-						if (regionIndex != -1) {
-							int regionNameStart = regionIndex + regionLen + 1;
-							char namedelim = commentLine.charAt(regionNameStart);
-							int regionNameEnd = commentLine.indexOf(namedelim, regionNameStart +1);
-							String regionName = commentLine.substring(regionNameStart +1, regionNameEnd);
-							if (regionName.equals(region)) {
-								insideRegion = true;
-							}
-						}
-					}
-					if (commentLine.contains(END)) {
-						if (regionIndex != -1) {
-							int regionNameStart = regionIndex + regionLen + 1;
-							char namedelim = commentLine.charAt(regionNameStart);
-							int regionNameEnd = commentLine.indexOf(namedelim, regionNameStart +1);
-							String regionName = commentLine.substring(regionNameStart +1, regionNameEnd);
-							if (regionName.equals(region)) {
-								insideRegion = false;
-							}
-						} else {
-							insideRegion = false;
-						}
-					}
-					if (insideRegion) {
-						int javadocSnippetTagStart = commentLine.lastIndexOf("//"); //$NON-NLS-1$
-						if (javadocSnippetTagStart >= 0 && count++ == 0) {
-							if (commentLine.substring(javadocSnippetTagStart + 2).stripLeading().startsWith("@")) { //$NON-NLS-1$
-								containsJavadocsnippetTags = true;
-								snippetString = snippetString + commentLine.substring(0, javadocSnippetTagStart) + System.lineSeparator();
-							}
-						}
-					}
-				} else if (insideRegion && tokenType == TerminalTokens.TokenNameWHITESPACE
-						&& containsNewLine(snippetScanner.getCurrentTokenString())) {
-					if (indexPos  == 0 ) {
-						indexPos = snippetScanner.getCurrentTokenEndPosition();
-					}
-				}
-				if ((!extractRegion||insideRegion)&&(!containsJavadocsnippetTags)) {
-					snippetString = snippetString + snippetScanner.getCurrentTokenString();
-				}
-			} catch (InvalidInputException e) {
-				e.printStackTrace();
-			}
-
-		}
-		return snippetString;
-	}
-
-	private String extractExternalSnippet2(String contents, String region) {
 		String snippetString = ""; //$NON-NLS-1$
 		final String START  = "start"; //$NON-NLS-1$
 		final String END    = "end"; //$NON-NLS-1$
