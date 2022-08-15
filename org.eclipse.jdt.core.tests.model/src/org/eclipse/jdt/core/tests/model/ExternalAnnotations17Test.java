@@ -710,6 +710,157 @@ public class ExternalAnnotations17Test extends ExternalAnnotations18Test {
 			Platform.removeLogListener(listener);
 		}
 	}
+	// wrong selector
+	public void testBogusAnnotationFile3() throws Exception {
+		LogListener listener = new LogListener();
+		try {
+			Platform.addLogListener(listener);
+
+			myCreateJavaProject("TestLibs");
+			String lib1Content =
+					"package libs;\n" +
+					"\n" +
+					"public interface Lib1<T> {\n" +
+					"	public Lib1<T> getLib();\n" +
+					"}\n";
+			addLibraryWithExternalAnnotations(this.project, "lib1.jar", "annots", new String[] {
+					"/UnannotatedLib/libs/Lib1.java",
+					lib1Content
+				}, null);
+			createFileInProject("annots/libs", "Lib1.eea",
+					"class libs/Lib1\n" +
+					"\n" +
+					"()V\n" +
+					"foo\n");
+
+			// type check sources:
+			IPackageFragment fragment = this.project.getPackageFragmentRoots()[0].createPackageFragment("tests", true, null);
+			ICompilationUnit cu = fragment.createCompilationUnit("Test1.java",
+					"package tests;\n" +
+					"import org.eclipse.jdt.annotation.*;\n" +
+					"\n" +
+					"import libs.Lib1;\n" +
+					"\n" +
+					"public class Test1 {\n" +
+					"	@NonNull Lib1<String> test0(Lib1<String> stringLib) {\n" +
+					"		return stringLib.getLib();\n" +
+					"	}\n" +
+					"}\n",
+					true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
+			CompilationUnit reconciled = cu.reconcile(getJLS8(), true, null, new NullProgressMonitor());
+			IProblem[] problems = reconciled.getProblems();
+			assertProblems(problems, new String[] {
+					"Pb(912) Null type safety: The expression of type 'Lib1<String>' needs unchecked conversion to conform to '@NonNull Lib1<String>'",
+			}, new int[] { 8 });
+
+			assertEquals("number of log entries", 1, listener.loggedStatus.size());
+			final Throwable exception = listener.loggedStatus.get(0).getException();
+			assertEquals("logged message", "Illegal selector in external annotation file for libs/Lib1 at line 3: \"()V\"", exception.getMessage());
+		} finally {
+			Platform.removeLogListener(listener);
+		}
+	}
+	// invalid raw signature
+	public void testBogusAnnotationFile4() throws Exception {
+		LogListener listener = new LogListener();
+		try {
+			Platform.addLogListener(listener);
+
+			myCreateJavaProject("TestLibs");
+			String lib1Content =
+					"package libs;\n" +
+					"\n" +
+					"public interface Lib1<T> {\n" +
+					"	public Lib1<T> getLib();\n" +
+					"}\n";
+			addLibraryWithExternalAnnotations(this.project, "lib1.jar", "annots", new String[] {
+					"/UnannotatedLib/libs/Lib1.java",
+					lib1Content
+				}, null);
+			createFileInProject("annots/libs", "Lib1.eea",
+					"class libs/Lib1\n" +
+					"\n" +
+					"foo\n" +
+					" wrong()\n");
+
+			// type check sources:
+			IPackageFragment fragment = this.project.getPackageFragmentRoots()[0].createPackageFragment("tests", true, null);
+			ICompilationUnit cu = fragment.createCompilationUnit("Test1.java",
+					"package tests;\n" +
+					"import org.eclipse.jdt.annotation.*;\n" +
+					"\n" +
+					"import libs.Lib1;\n" +
+					"\n" +
+					"public class Test1 {\n" +
+					"	@NonNull Lib1<String> test0(Lib1<String> stringLib) {\n" +
+					"		return stringLib.getLib();\n" +
+					"	}\n" +
+					"}\n",
+					true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
+			CompilationUnit reconciled = cu.reconcile(getJLS8(), true, null, new NullProgressMonitor());
+			IProblem[] problems = reconciled.getProblems();
+			assertProblems(problems, new String[] {
+					"Pb(912) Null type safety: The expression of type 'Lib1<String>' needs unchecked conversion to conform to '@NonNull Lib1<String>'",
+			}, new int[] { 8 });
+
+			assertEquals("number of log entries", 1, listener.loggedStatus.size());
+			final Throwable exception = listener.loggedStatus.get(0).getException();
+			assertEquals("logged message", "Illegal format in external annotation file for libs/Lib1 at line 4: invalid signature \"wrong()\"", exception.getMessage());
+		} finally {
+			Platform.removeLogListener(listener);
+		}
+	}
+	// invalid annotated signature
+	public void testBogusAnnotationFile5() throws Exception {
+		LogListener listener = new LogListener();
+		try {
+			Platform.addLogListener(listener);
+
+			myCreateJavaProject("TestLibs");
+			String lib1Content =
+					"package libs;\n" +
+					"\n" +
+					"public interface Lib1<T> {\n" +
+					"	public Lib1<T> getLib();\n" +
+					"}\n";
+			addLibraryWithExternalAnnotations(this.project, "lib1.jar", "annots", new String[] {
+					"/UnannotatedLib/libs/Lib1.java",
+					lib1Content
+				}, null);
+			createFileInProject("annots/libs", "Lib1.eea",
+					"class libs/Lib1\n" +
+					"\n" +
+					"foo\n" +
+					" ()V\n" +
+					" wrong()\n");
+
+			// type check sources:
+			IPackageFragment fragment = this.project.getPackageFragmentRoots()[0].createPackageFragment("tests", true, null);
+			ICompilationUnit cu = fragment.createCompilationUnit("Test1.java",
+					"package tests;\n" +
+					"import org.eclipse.jdt.annotation.*;\n" +
+					"\n" +
+					"import libs.Lib1;\n" +
+					"\n" +
+					"public class Test1 {\n" +
+					"	@NonNull Lib1<String> test0(Lib1<String> stringLib) {\n" +
+					"		return stringLib.getLib();\n" +
+					"	}\n" +
+					"}\n",
+					true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
+			CompilationUnit reconciled = cu.reconcile(getJLS8(), true, null, new NullProgressMonitor());
+			IProblem[] problems = reconciled.getProblems();
+			assertProblems(problems, new String[] {
+					"Pb(912) Null type safety: The expression of type 'Lib1<String>' needs unchecked conversion to conform to '@NonNull Lib1<String>'",
+			}, new int[] { 8 });
+
+			assertEquals("number of log entries", 1, listener.loggedStatus.size());
+			final Throwable exception = listener.loggedStatus.get(0).getException();
+			assertEquals("logged message", "Illegal format in external annotation file for libs/Lib1 at line 5: invalid signature \"wrong()\"", exception.getMessage());
+		} finally {
+			Platform.removeLogListener(listener);
+		}
+	}
 
 	public void testBug565246() throws Exception {
 		myCreateJavaProject("TestForloop");
