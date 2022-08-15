@@ -449,6 +449,9 @@ protected BinaryTypeBinding cacheBinaryType(IType type, IBinaryType binaryType) 
 		cacheBinaryType(enclosingType, null); // cache enclosing types first, so that binary type can be found in lookup enviroment
 	if (binaryType == null) {
 		ClassFile classFile = (ClassFile) type.getClassFile();
+		if (classFile == null) {
+			return null;
+		}
 		try {
 			binaryType = getBinaryInfo(classFile, classFile.resource());
 		} catch (CoreException e) {
