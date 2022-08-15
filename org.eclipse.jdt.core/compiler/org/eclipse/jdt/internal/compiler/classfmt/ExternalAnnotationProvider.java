@@ -116,10 +116,10 @@ public class ExternalAnnotationProvider {
 				try {
 					// raw signature:
 					line = reader.readLine();
-					if (line != null && !line.isEmpty() && line.charAt(0) == ' ') {
+					if (line != null && !line.isEmpty() && line.charAt(0) == ' ') { // first signature line is mandatory
 						rawSig = line.substring(1);
 						String trimmed = trimTail(rawSig.trim());
-						if (!isValidMemberSignature(trimmed)) {
+						if (!isValidSignature(trimmed, isSuper)) {
 							errDetail = ": invalid signature \""+trimmed+'"'; //$NON-NLS-1$
 							break readSignatures;
 						}
@@ -137,7 +137,7 @@ public class ExternalAnnotationProvider {
 					}
 					annotSig = line.substring(1);
 					String trimmed = trimTail(annotSig.trim());
-					if (!isValidMemberSignature(trimmed))
+					if (!isValidSignature(trimmed, isSuper))
 						errDetail = ": invalid signature \""+trimmed+'"'; //$NON-NLS-1$
 				} catch (Exception ex) {
 					// continue to escalate below
@@ -167,9 +167,12 @@ public class ExternalAnnotationProvider {
 		}
 	}
 
-	private boolean isValidMemberSignature(String trim) {
+	private boolean isValidSignature(String trim, boolean expectTypeArguments) {
 		if (trim.length() > 0) {
 			char first = trim.charAt(0);
+			if (expectTypeArguments) {
+				return first == '<'; // looks like a type argument
+			}
 			if (first == '(' || (first == '<' && trim.indexOf('(') != -1)) {
 				return true; // looks like a message signature
 			}
