@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryElementValuePair;
@@ -32,6 +31,8 @@ import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.SignatureWrapper;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
+
+import static org.eclipse.jdt.internal.compiler.util.Util.*;
 
 public class ExternalAnnotationProvider {
 
@@ -176,14 +177,57 @@ public class ExternalAnnotationProvider {
 			if (first == '(' || (first == '<' && trim.indexOf('(') != -1)) {
 				return true; // looks like a message signature
 			}
-			try {
-				Signature.getTypeSignatureKind(trim);
-				return true; // looks like a field signature
-			} catch (IllegalArgumentException iae) {
-				return false;
-			}
+			return isValidTypeSignature(trim.toCharArray()); // looks like a field signature
 		}
 		return false;
+	}
+	private boolean isValidTypeSignature(char[] typeSignature) {
+		// simplified variant of org.eclipse.jdt.core.Signature.getTypeSignatureKind(char[]) -- which is inaccessible here
+		// need a minimum 1 char
+		if (typeSignature.length < 1) {
+			return false;
+		}
+		char c = typeSignature[0];
+		if (c == C_GENERIC_START) {
+			int count = 1;
+			for (int i = 1, length = typeSignature.length; i < length; i++) {
+				switch (typeSignature[i]) {
+					case 	C_GENERIC_START:
+						count++;
+						break;
+					case C_GENERIC_END:
+						count--;
+						break;
+				}
+				if (count == 0) {
+					if (i+1 < length)
+						c = typeSignature[i+1];
+					break;
+				}
+			}
+		}
+		switch (c) {
+			case C_ARRAY :
+			case C_RESOLVED :
+			case C_UNRESOLVED :
+			case C_TYPE_VARIABLE :
+			case C_BOOLEAN :
+			case C_BYTE :
+			case C_CHAR :
+			case C_DOUBLE :
+			case C_FLOAT :
+			case C_INT :
+			case C_LONG :
+			case C_SHORT :
+			case C_VOID :
+			case C_STAR :
+			case C_SUPER :
+			case C_EXTENDS :
+			case C_CAPTURE :
+				return true;
+			default :
+				return false;
+		}
 	}
 
 	/**
