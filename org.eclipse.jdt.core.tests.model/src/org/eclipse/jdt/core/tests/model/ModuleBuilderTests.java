@@ -8989,6 +8989,8 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testIssue23() throws CoreException {
+		if (isJRE17)
+			return;
 		IJavaProject p1 = createJava9Project("Issue23", "18");
 		Map<String, String> options = new HashMap<>();
 		// Make sure the new options map doesn't reset.
