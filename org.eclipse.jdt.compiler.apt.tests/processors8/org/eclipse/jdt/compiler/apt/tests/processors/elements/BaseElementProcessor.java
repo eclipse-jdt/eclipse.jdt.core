@@ -223,11 +223,6 @@ abstract class BaseElementProcessor extends BaseProcessor {
 			reportError(buf.toString());
 		}
 	}
-	public void assertEquals(Object expected, Object actual) {
-		if (expected != actual) {
-
-		}
-	}
 	protected void verifyAnnotations(AnnotatedConstruct construct, String[] annots) {
 		List<? extends AnnotationMirror> annotations = construct.getAnnotationMirrors();
 		assertEquals("Incorrect no of annotations", annots.length, annotations.size());

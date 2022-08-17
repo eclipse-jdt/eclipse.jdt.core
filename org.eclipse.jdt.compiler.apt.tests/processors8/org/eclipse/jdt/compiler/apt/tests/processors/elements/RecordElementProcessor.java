@@ -27,8 +27,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.annotation.processing.Filer;
-import javax.annotation.processing.Messager;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
@@ -43,6 +41,7 @@ import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.ExecutableType;
+import javax.lang.model.type.PrimitiveType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.ElementFilter;
@@ -51,18 +50,9 @@ import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 
 @SupportedAnnotationTypes("*")
 public class RecordElementProcessor extends BaseElementProcessor {
-	boolean reportSuccessAlready = true;
-	RoundEnvironment roundEnv = null;
-	Messager _messager = null;
-	Filer _filer = null;
-	boolean isBinaryMode = false;
-	String mode;
 	@Override
 	public synchronized void init(ProcessingEnvironment processingEnv) {
 		super.init(processingEnv);
-		_elementUtils = processingEnv.getElementUtils();
-		_messager = processingEnv.getMessager();
-		_filer = processingEnv.getFiler();
 	}
 	// Always return false from this processor, because it supports "*".
 	// The return value does not signify success or failure!
@@ -149,12 +139,7 @@ public class RecordElementProcessor extends BaseElementProcessor {
 	 */
 	public void testRecords1() {
 		Set<? extends Element> elements = roundEnv.getRootElements();
-		TypeElement record = null;
-		for (Element element : elements) {
-			if ("Point".equals(element.getSimpleName().toString())) {
-				record = (TypeElement) element;
-			}
-		}
+		TypeElement record = find(elements, "Point");
 		assertNotNull("TypeElement for record should not be null", record);
 		assertEquals("Name for record should not be null", "records.Point", record.getQualifiedName().toString());
 		assertEquals("Incorrect element kind", ElementKind.RECORD, record.getKind());
@@ -168,12 +153,7 @@ public class RecordElementProcessor extends BaseElementProcessor {
 	 */
 	public void testRecords2() {
 		Set<? extends Element> elements = roundEnv.getRootElements();
-		TypeElement record = null;
-		for (Element element : elements) {
-			if ("Point".equals(element.getSimpleName().toString())) {
-				record = (TypeElement) element;
-			}
-		}
+		TypeElement record = find(elements, "Point");
 		assertNotNull("TypeElement for record should not be null", record);
 		List<? extends Element> enclosedElements = record.getEnclosedElements();
 		assertNotNull("enclosedElements for record should not be null", enclosedElements);
@@ -186,18 +166,19 @@ public class RecordElementProcessor extends BaseElementProcessor {
 		assertEquals("Incorrect name for record component", "comp_", recordComponent.getSimpleName().toString());
 		Element enclosingElement = recordComponent.getEnclosingElement();
 		assertEquals("Elements should be same", record, enclosingElement);
+		TypeMirror recordTypeElement = record.asType();
+		DeclaredType declaredType = (DeclaredType) recordTypeElement;
+		TypeMirror member = _typeUtils.asMemberOf(declaredType, element);
+		assertNotNull("member of the element should not be null", member);
+		assertTrue("member is a primitive type", member instanceof PrimitiveType);
+		assertEquals("member is a primitive type", TypeKind.INT, member.getKind());
 	}
 	/*
 	 * Test that the implicit modifiers are set for a record and its methods
 	 */
 	public void testRecords3() {
 		Set<? extends Element> elements = roundEnv.getRootElements();
-		TypeElement record = null;
-		for (Element element : elements) {
-			if ("Point".equals(element.getSimpleName().toString())) {
-				record = (TypeElement) element;
-			}
-		}
+		TypeElement record = find(elements, "Point");
 		assertNotNull("TypeElement for record should not be null", record);
 		Set<Modifier> modifiers = record.getModifiers();
 		assertTrue("record should be public", modifiers.contains(Modifier.PUBLIC));
@@ -229,12 +210,7 @@ public class RecordElementProcessor extends BaseElementProcessor {
 	}
 	public void testRecords3a() {
 		Set<? extends Element> elements = roundEnv.getRootElements();
-		TypeElement record = null;
-		for (Element element : elements) {
-			if ("Record2".equals(element.getSimpleName().toString())) {
-				record = (TypeElement) element;
-			}
-		}
+		TypeElement record = find(elements, "Record2");
 		assertNotNull("TypeElement for record should not be null", record);
 		Set<Modifier> modifiers = record.getModifiers();
 		assertTrue("record should be public", modifiers.contains(Modifier.PUBLIC));
@@ -272,12 +248,7 @@ public class RecordElementProcessor extends BaseElementProcessor {
 	 */
 	public void testRecords4() {
 		Set<? extends Element> elements = roundEnv.getRootElements();
-		TypeElement record = null;
-		for (Element element : elements) {
-			if ("Point".equals(element.getSimpleName().toString())) {
-				record = (TypeElement) element;
-			}
-		}
+		TypeElement record = find(elements, "Point");
 		assertNotNull("TypeElement for record should not be null", record);
 		verifyAnnotations(record, new String[]{"@Deprecated()"});
 
@@ -296,14 +267,17 @@ public class RecordElementProcessor extends BaseElementProcessor {
 		recordComponent = (RecordComponentElement) element;
 		verifyAnnotations(recordComponent, new String[]{"@MyAnnot2()"});
 	}
-	public void testRecords4a() {
-		Set<? extends Element> elements = roundEnv.getRootElements();
-		TypeElement record = null;
+	private TypeElement find(Set<? extends Element> elements, String name) {
 		for (Element element : elements) {
-			if ("Point".equals(element.getSimpleName().toString())) {
-				record = (TypeElement) element;
+			if (name.equals(element.getSimpleName().toString())) {
+				return (TypeElement) element;
 			}
 		}
+		return null;
+	}
+	public void testRecords4a() {
+		Set<? extends Element> elements = roundEnv.getRootElements();
+		TypeElement record = find(elements, "Point");
 		assertNotNull("TypeElement for record should not be null", record);
 		verifyAnnotations(record, new String[]{"@Deprecated()"});
 
@@ -600,12 +574,7 @@ public class RecordElementProcessor extends BaseElementProcessor {
 	}
 	public void testRecords10() {
 		Set<? extends Element> elements = roundEnv.getRootElements();
-		TypeElement record = null;
-		for (Element element : elements) {
-			if ("R4".equals(element.getSimpleName().toString())) {
-				record = (TypeElement) element;
-			}
-		}
+		TypeElement record = find(elements, "R4");
 		assertNotNull("TypeElement for record should not be null", record);
 
 		List<? extends Element> enclosedElements = record.getEnclosedElements();
