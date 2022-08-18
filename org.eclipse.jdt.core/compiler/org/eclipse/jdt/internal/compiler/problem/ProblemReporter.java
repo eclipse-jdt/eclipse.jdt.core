@@ -850,6 +850,7 @@ public static int getProblemCategory(int severity, int problemID) {
 	// categorize fatal problems per ID
 	switch (problemID) {
 		case IProblem.IsClassPathCorrect :
+		case IProblem.IsClassPathCorrectWithReferencingType :
 		case IProblem.CorruptedSignature :
 		case IProblem.UndefinedModuleAddReads :
 		case IProblem.MissingNullAnnotationImplicitlyUsed :
@@ -5136,7 +5137,9 @@ public void discouragedValueBasedTypeToSynchronize(Expression expression, TypeBi
 		expression.sourceStart,
 		expression.sourceEnd);
 }
-public void isClassPathCorrect(char[][] wellKnownTypeName, CompilationUnitDeclaration compUnitDecl, Object location, boolean implicitAnnotationUse) {
+public void isClassPathCorrect(char[][] wellKnownTypeName, CompilationUnitDeclaration compUnitDecl,
+					Object location, boolean implicitAnnotationUse, ReferenceBinding referencingType)
+{
 	// ProblemReporter is not designed to be reentrant. Just in case, we discovered a build path problem while we are already
 	// in the midst of reporting some other problem, save and restore reference context thereby mimicking a stack.
 	// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=442755.
@@ -5156,8 +5159,19 @@ public void isClassPathCorrect(char[][] wellKnownTypeName, CompilationUnitDeclar
 		}
 	}
 	try {
+		int pId = IProblem.IsClassPathCorrect;
+		if (implicitAnnotationUse) {
+			pId = IProblem.MissingNullAnnotationImplicitlyUsed;
+		} else {
+			if (referencingType != null) {
+				// avoid readableName() which might cause reentrant "isClassPathCorrect" when resolving type variables
+				char[] fullyQualifiedtypeName = CharOperation.concatWith(referencingType.fPackage.compoundName, referencingType.qualifiedSourceName(), '.');
+				arguments = new String[] { arguments[0], new String(fullyQualifiedtypeName) };
+				pId = IProblem.IsClassPathCorrectWithReferencingType;
+			}
+		}
 		this.handle(
-				implicitAnnotationUse ? IProblem.MissingNullAnnotationImplicitlyUsed : IProblem.IsClassPathCorrect,
+				pId,
 				arguments,
 				arguments,
 				start,

@@ -472,7 +472,7 @@ public class IncrementalTests18 extends BuilderTests {
 			" Cannot find the class file for Y. Fix the build path then try building" +
 			" this project [ resource : </Project> range : <-1,-1> category : <10> severity : <2>]\n" +
 			"Problem : The type Y cannot be resolved. It is indirectly referenced from" +
-			" required .class files [ resource : </Project/Unmarshaller.java> range : <0,1> category : <10> severity : <2>]");
+			" required type Z [ resource : </Project/Unmarshaller.java> range : <0,1> category : <10> severity : <2>]");
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=442755,
@@ -498,7 +498,7 @@ public class IncrementalTests18 extends BuilderTests {
 			" Cannot find the class file for Y. Fix the build path then try building" +
 			" this project [ resource : </Project> range : <-1,-1> category : <10> severity : <2>]\n" +
 			"Problem : The type Y cannot be resolved. It is indirectly referenced from" +
-			" required .class files [ resource : </Project/X.java> range : <0,1> category : <10> severity : <2>]");
+			" required type Z [ resource : </Project/X.java> range : <0,1> category : <10> severity : <2>]");
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=445049,

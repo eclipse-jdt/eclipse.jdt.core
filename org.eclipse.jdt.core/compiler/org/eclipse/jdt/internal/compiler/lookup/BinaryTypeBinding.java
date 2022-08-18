@@ -444,6 +444,8 @@ public MethodBinding[] availableMethods() {
 
 void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 	if (!isPrototype()) throw new IllegalStateException();
+	ReferenceBinding previousRequester = this.environment.requestingType;
+	this.environment.requestingType = this;
 	try {
 		// default initialization for super-interfaces early, in case some aborting compilation error occurs,
 		// and still want to use binaries passed that point (e.g. type hierarchy resolver, see bug 63748).
@@ -701,6 +703,8 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 			this.fields = Binding.NO_FIELDS;
 		if (this.methods == null)
 			this.methods = Binding.NO_METHODS;
+
+		this.environment.requestingType = previousRequester;
 	}
 }
 void markImplicitTerminalDeprecation(ReferenceBinding type) {

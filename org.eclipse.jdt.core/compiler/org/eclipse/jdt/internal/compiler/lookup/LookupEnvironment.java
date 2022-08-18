@@ -143,6 +143,9 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	 */
 	public boolean suppressImportErrors;			// per module
 
+	/** type that is driving current lookup attempts. */
+	public ReferenceBinding requestingType;
+
 	public String moduleVersion; 	// ROOT_ONLY
 
 	final static int BUILD_FIELDS_AND_METHODS = 4;
@@ -1667,7 +1670,7 @@ public ReferenceBinding getResolvedType(char[][] compoundName, ModuleBinding mod
 	this.problemReporter.isClassPathCorrect(
 		compoundName,
 		scope == null ? this.root.unitBeingCompleted : scope.referenceCompilationUnit(),
-		this.missingClassFileLocation, implicitAnnotationUse);
+		this.missingClassFileLocation, implicitAnnotationUse, this.requestingType);
 	return createMissingType(null, compoundName);
 }
 public ReferenceBinding getResolvedJavaBaseType(char[][] compoundName, Scope scope) {
@@ -1774,7 +1777,7 @@ private ReferenceBinding getTypeFromCompoundName(char[][] compoundName, boolean 
 			binding = packageBinding.getType0(compoundName[compoundName.length - 1]);
 		}
 		if(binding == null) {
-			binding = new UnresolvedReferenceBinding(compoundName, packageBinding);
+			binding = new UnresolvedReferenceBinding(compoundName, packageBinding, this.requestingType);
 			if (wasMissingType) {
 				binding.tagBits |= TagBits.HasMissingType; // record it was bound to a missing type
 			}
@@ -1788,7 +1791,7 @@ private ReferenceBinding getTypeFromCompoundName(char[][] compoundName, boolean 
 			 * misconfiguration now that did not also exist in some equivalent form while producing the class files which encode
 			 * these missing types. So no need to bark again. Note that wasMissingType == true signals a type referenced in a .class
 			 * file which could not be found when the binary was produced. See https://bugs.eclipse.org/bugs/show_bug.cgi?id=364450 */
-			this.problemReporter.isClassPathCorrect(compoundName, this.root.unitBeingCompleted, this.missingClassFileLocation, false);
+			this.problemReporter.isClassPathCorrect(compoundName, this.root.unitBeingCompleted, this.missingClassFileLocation, false, this.requestingType);
 		}
 		// create a proxy for the missing BinaryType
 		binding = createMissingType(null, compoundName);
