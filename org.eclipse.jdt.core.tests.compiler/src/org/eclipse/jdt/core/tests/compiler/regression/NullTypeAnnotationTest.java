@@ -3741,6 +3741,55 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 			"----------\n");
 	}
 
+	public void testArray4() {
+		Map options = getCompilerOptions();
+		options.put(JavaCore.COMPILER_PB_ANNOTATED_TYPE_ARGUMENT_TO_UNANNOTATED, JavaCore.WARNING);
+		runNegativeTestWithLibs(
+			new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.NonNull;\n" +
+				"\n" +
+				"public class X<T> {\n" +
+				"   \n" +
+				"	void ok() {\n" +
+				"		@NonNull String @NonNull [] s0 = new @NonNull String @NonNull [0];\n" + // array exists, but no contents that could be null
+				"		@NonNull String @NonNull[]@NonNull[] s2 = new @NonNull String @NonNull[2]@NonNull[0];\n" + // inner arrays will be null
+				"		String []@NonNull[] s4 = new String [getDims()]@NonNull[1];\n" + // leaves are null but that's ok
+				"		@NonNull String @NonNull[][] s5 = new @NonNull String @NonNull[5][];\n" + // OK: outer array exists, inner arrays are unannotated
+				"	}\n" +
+				"	void nok() {\n" +
+				"		@NonNull String @NonNull [] s1 = new @NonNull String @NonNull [1];\n" +
+				"		@NonNull String @NonNull[]@NonNull[] s2 = new @NonNull String @NonNull[2]@NonNull[];\n" + // inner arrays will be null
+				"		@NonNull String @NonNull[][] s3 = new @NonNull String @NonNull[1][3];\n" + // leaf cells will be null
+				"		@NonNull String @NonNull[]@NonNull[] s6 = new @NonNull String @NonNull[5]@NonNull[];\n" +
+				"	}\n" +
+				"	int getDims() { return 1; }\n" +
+				"}"
+			},
+			options,
+			"----------\n" +
+			"1. INFO in X.java (at line 12)\n" +
+			"	@NonNull String @NonNull [] s1 = new @NonNull String @NonNull [1];\n" +
+			"	                                                              ^^^\n" +
+			"This array dimension with declared element type @NonNull String will be initialized with \'null\' entries\n" +
+			"----------\n" +
+			"2. INFO in X.java (at line 13)\n" +
+			"	@NonNull String @NonNull[]@NonNull[] s2 = new @NonNull String @NonNull[2]@NonNull[];\n" +
+			"	                                                                      ^^^\n" +
+			"This array dimension with declared element type @NonNull String @NonNull[] will be initialized with \'null\' entries\n" +
+			"----------\n" +
+			"3. INFO in X.java (at line 14)\n" +
+			"	@NonNull String @NonNull[][] s3 = new @NonNull String @NonNull[1][3];\n" +
+			"	                                                                 ^^^\n" +
+			"This array dimension with declared element type @NonNull String will be initialized with \'null\' entries\n" +
+			"----------\n" +
+			"4. INFO in X.java (at line 15)\n" +
+			"	@NonNull String @NonNull[]@NonNull[] s6 = new @NonNull String @NonNull[5]@NonNull[];\n" +
+			"	                                                                      ^^^\n" +
+			"This array dimension with declared element type @NonNull String @NonNull[] will be initialized with \'null\' entries\n" +
+			"----------\n");
+	}
+
 	public void testBug417759() {
 		runNegativeTestWithLibs(
 			new String[] {
@@ -4456,7 +4505,12 @@ public void testBug427163c() {
 		"	                                         ^^^^^^^^^^^^^^^^^^\n" +
 		"Contradictory null specification; only one of @NonNull and @Nullable can be specified at any location\n" +
 		"----------\n" +
-		"5. ERROR in X.java (at line 8)\n" +
+		"5. INFO in X.java (at line 7)\n" +
+		"	String[] strings4 = new @NonNull String  @Nullable @NonNull[1];\n" +
+		"	                                                           ^^^\n" +
+		"This array dimension with declared element type @NonNull String will be initialized with \'null\' entries\n" +
+		"----------\n" +
+		"6. ERROR in X.java (at line 8)\n" +
 		"	String[][] strings5 = new String[] @NonNull @Nullable[] {};\n" +
 		"	                                   ^^^^^^^^^^^^^^^^^^\n" +
 		"Contradictory null specification; only one of @NonNull and @Nullable can be specified at any location\n" +
