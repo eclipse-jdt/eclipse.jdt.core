@@ -15947,8 +15947,9 @@ public void testBug567016() {
 /**
  * https://bugs.eclipse.org/573949 - [17][switch pattern][formatter] JEP 406 changes
  */
-public void _testBug573949() {
+public void testBug573949() {
 	setComplianceLevel(CompilerOptions.VERSION_19);
+	this.formatterOptions.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 	String source =
 		"public class X {\n" +
 		" private static void foo(Object o) {\n" +
@@ -15960,7 +15961,7 @@ public void _testBug573949() {
 		"\n" +
 		"static void testTriangle(Shape s) {\n" +
 		"    switch (s) {\n" +
-		"        case Triangle t&&(t.calculateArea() > 100) ->\n" +
+		"        case Triangle t when t.calculateArea() > 100 ->\n" +
 		"            System.out.println(\"Large triangle\");\n" +
 		"        default ->\n" +
 		"            System.out.println(\"A shape, possibly a small triangle\");\n" +
@@ -15980,7 +15981,7 @@ public void _testBug573949() {
 		"\n" +
 		"	static void testTriangle(Shape s) {\n" +
 		"		switch (s) {\n" +
-		"		case Triangle t && (t.calculateArea() > 100) -> System.out.println(\"Large triangle\");\n" +
+		"		case Triangle t when t.calculateArea() > 100 -> System.out.println(\"Large triangle\");\n" +
 		"		default -> System.out.println(\"A shape, possibly a small triangle\");\n" +
 		"		}\n" +
 		"	}\n" +
