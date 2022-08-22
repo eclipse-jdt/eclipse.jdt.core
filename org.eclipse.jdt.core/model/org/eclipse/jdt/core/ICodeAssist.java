@@ -72,7 +72,6 @@ public interface ICodeAssist {
 	 * is the 0-based index of the character, after which code assist is desired.
 	 * An <code>offset</code> of -1 indicates to code assist at the beginning of this
 	 * compilation unit.
-	 * <p>
 	 *
 	 * @param offset the given offset position
 	 * @param requestor the given completion requestor
@@ -99,6 +98,7 @@ public interface ICodeAssist {
 	 * can be very long to compute are proposed. To avoid that the code assist operation
 	 * take too much time a {@link IProgressMonitor} which automatically cancel the code
 	 * assist operation when a specified amount of time is reached could be used.
+	 * </p>
 	 *
 	 * <pre>
 	 * new IProgressMonitor() {
@@ -113,7 +113,6 @@ public interface ICodeAssist {
 	 *     ...
 	 * };
 	 * </pre>
-	 * <p>
 	 *
 	 * @param offset the given offset position
 	 * @param requestor the given completion requestor
@@ -207,6 +206,7 @@ public interface ICodeAssist {
 	 * can be very long to compute are proposed. To avoid that the code assist operation
 	 * take too much time a {@link IProgressMonitor} which automatically cancel the code
 	 * assist operation when a specified amount of time is reached could be used.
+	 * </p>
 	 *
 	 * <pre>
 	 * new IProgressMonitor() {
@@ -221,7 +221,6 @@ public interface ICodeAssist {
 	 *     ...
 	 * };
 	 * </pre>
-	 * <p>
 	 *
 	 * @param offset the given offset position
 	 * @param requestor the given completion requestor
