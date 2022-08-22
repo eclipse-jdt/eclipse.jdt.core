@@ -22,7 +22,9 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaElement;
@@ -415,6 +417,11 @@ private int indexOf(String containerPath, String relativePath) {
  * Returns whether the enclosing path encloses the given path (or is equal to it)
  */
 private boolean encloses(String enclosingPath, String path, int index) {
+	if (path.indexOf(JAR_FILE_ENTRY_SEPARATOR) != -1) {
+		String message = "Unexpected symbol '" + JAR_FILE_ENTRY_SEPARATOR + "' in path \"" + path + "\".";  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$
+		Status warning = new Status(IStatus.WARNING, JavaCore.PLUGIN_ID, IStatus.ERROR, message, new IllegalArgumentException());
+		Util.log(warning);
+	}
 	// normalize given path as it can come from outside
 	path = normalize(path);
 
@@ -499,7 +506,15 @@ private IPath getPath(IJavaElement element, boolean relativeToRoot) {
 
 @Override
 public AccessRuleSet getAccessRuleSet(String relativePath, String containerPath) {
-	int index = indexOf(containerPath, relativePath);
+	int index;
+	// check if there is a module in the relative path, if so remove it
+	int separatorIndex = relativePath.indexOf(JAR_FILE_ENTRY_SEPARATOR);
+	if (separatorIndex != -1) {
+		String relativePathWithoutModule = relativePath.substring(separatorIndex+1);
+		index = indexOf(containerPath, relativePathWithoutModule);
+	} else {
+		index = indexOf(containerPath, relativePath);
+	}
 	if (index == -1) {
 		// this search scope does not enclose given path
 		return NOT_ENCLOSED;
@@ -587,6 +602,11 @@ public IPackageFragmentRoot packageFragmentRoot(String resourcePathString, int j
 	if (isJarFile) {
 		// internal or external jar (case 3, 4, or 5)
 		String relativePath = resourcePathString.substring(jarSeparatorIndex+1);
+		// Module in the jar
+		int moduleSeparatorIndex = relativePath.indexOf(JAR_FILE_ENTRY_SEPARATOR);
+		if (moduleSeparatorIndex != -1) {
+			relativePath = relativePath.substring(moduleSeparatorIndex+1);
+		}
 		index = indexOf(jarPath, relativePath);
 	} else {
 		// resource in workspace (case 1 or 2)
