@@ -15,23 +15,40 @@ package org.eclipse.jdt.core.tests.model;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.HashMap;
-
-import junit.framework.Test;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.search.*;
+import org.eclipse.jdt.core.IClasspathContainer;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.search.IJavaSearchConstants;
+import org.eclipse.jdt.core.search.IJavaSearchScope;
+import org.eclipse.jdt.core.search.SearchEngine;
+import org.eclipse.jdt.core.search.SearchParticipant;
+import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.tests.model.AbstractJavaSearchTests.JavaSearchResultCollector;
 import org.eclipse.jdt.core.tests.model.AbstractJavaSearchTests.TypeNameMatchCollector;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.index.IndexLocation;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
+
+import junit.framework.Test;
 
 /**
  * Tests the Java search engine accross multiple projects.
@@ -1124,4 +1141,68 @@ public void testBug397818() throws CoreException {
 		deleteProject("P1");
 	}
 }
+/*
+ * Test that we can find methods in a type from a jar with modules,
+ * using a type in the JRE as an example.
+ * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/332
+ */
+public void testModuleJarSearchBugGh332() throws Exception {
+	String testProjectName = "gh322ModuleJarSearchBug";
+	try {
+		IJavaProject project = setUpJavaProject(testProjectName, "11", false);
+		waitForAutoBuild();
+		waitUntilIndexesReady();
+
+		JavaSearchResultCollector resultCollector = new JavaSearchResultCollector();
+		String timerTypeFqn = "java.util.Timer";
+		IType timerType = project.findType(timerTypeFqn);
+		assertNotNull("Failed to find JRE type: " + timerTypeFqn, timerType);
+		String methodName = "sched";
+		IMethod schedMethod = null;
+		for (IMethod method : timerType.getMethods()) {
+			if (methodName.equals(method.getElementName())) {
+				schedMethod = method;
+			}
+		}
+		IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] { schedMethod.getAncestor(IJavaElement.PACKAGE_FRAGMENT) });
+		assertNotNull("Failed to find method: " + methodName + ", in JRE type: " + timerTypeFqn, schedMethod);
+		int agnosticMatchRule = SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE | SearchPattern.R_ERASURE_MATCH;
+		SearchPattern pattern = SearchPattern.createPattern(schedMethod, IJavaSearchConstants.REFERENCES, agnosticMatchRule);
+		SearchEngine searchEngine = new SearchEngine();
+		searchEngine.search(pattern, new SearchParticipant[] {SearchEngine.getDefaultSearchParticipant()}, scope, resultCollector, new NullProgressMonitor());
+
+		String foundReferences = resultCollector.toString();
+		assertFalse("Expected search to find references of method: " + schedMethod, foundReferences.isEmpty());
+		List<String> results = Arrays.asList(foundReferences.split(System.lineSeparator()));
+		String[] expectedResults = {
+				"void java.util.Timer.schedule(java.util.TimerTask, long)",
+				"void java.util.Timer.schedule(java.util.TimerTask, java.util.Date)",
+				"void java.util.Timer.schedule(java.util.TimerTask, long, long)",
+				"void java.util.Timer.schedule(java.util.TimerTask, java.util.Date, long)",
+				"void java.util.Timer.scheduleAtFixedRate(java.util.TimerTask, long, long)",
+				"void java.util.Timer.scheduleAtFixedRate(java.util.TimerTask, java.util.Date, long)",
+		};
+		assertEquals("Unexpected search results:\n" + foundReferences, expectedResults.length, results.size());
+		Set<String> notFound = new LinkedHashSet<>();
+		notFound.addAll(Arrays.asList(expectedResults));
+		for (String expectedResult : expectedResults) {
+			boolean isFound = false;
+			for (String match : results) {
+				if (match.contains(expectedResult)) {
+					isFound = true;
+					break;
+				}
+			}
+			if (isFound) {
+				notFound.remove(expectedResult);
+			}
+		}
+		assertTrue("Unexpected search result\nExpected:\n" + String.join("\n", expectedResults) + "\nActual:\n" + foundReferences + "\nExpected but not found:\n" + String.join("\n", notFound),
+				notFound.isEmpty());
+	} finally {
+		JavaCore.setOptions(getDefaultJavaCoreOptions());
+		deleteProject(testProjectName);
+	}
+}
+
 }
