@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.*;
@@ -227,7 +228,7 @@ void checkAndSetImports() {
 	}
 
 	// allocate the import array, add java.lang.* by default
-	int numberOfStatements = this.referenceContext.imports.length;
+	final int numberOfStatements = this.referenceContext.imports.length;
 	int numberOfImports = numberOfStatements + 1;
 	for (int i = 0; i < numberOfStatements; i++) {
 		ImportReference importReference = this.referenceContext.imports[i];
@@ -240,36 +241,62 @@ void checkAndSetImports() {
 	resolvedImports[0] = getDefaultImports()[0];
 	int index = 1;
 
+	Predicate<ImportReference> isStaticImport = i -> i.isStatic();
+	Predicate<ImportReference> isNotStaticImport = Predicate.not(isStaticImport);
+
+	// GitHub 269: resolve non-static imports first, so that cyclic static imports can be resolved correctly
+	index = resolveImports(numberOfStatements, resolvedImports, index, isNotStaticImport);
+
+	// non-static imports are resolved now, "store" them before continuing with static imports
+	ImportBinding[] temp = new ImportBinding[index];
+	System.arraycopy(resolvedImports, 0, temp, 0, index);
+	this.imports = temp;
+
+	// GitHub 269: non-static imports are resolved, now we can resolve static imports
+	index = resolveImports(numberOfStatements, resolvedImports, index, isStaticImport);
+
+	// shrink resolvedImports... only happens if an error was reported
+	if (resolvedImports.length > index) {
+		System.arraycopy(resolvedImports, 0, resolvedImports = new ImportBinding[index], 0, index);
+	}
+	this.imports = resolvedImports;
+}
+
+private int resolveImports(int numberOfStatements, ImportBinding[] resolvedImports, int index, Predicate<ImportReference> filter) {
 	nextImport : for (int i = 0; i < numberOfStatements; i++) {
 		ImportReference importReference = this.referenceContext.imports[i];
+		if (!filter.test(importReference)) {
+			continue;
+		}
+
 		char[][] compoundName = importReference.tokens;
 
 		// skip duplicates or imports of the current package
 		for (int j = 0; j < index; j++) {
 			ImportBinding resolved = resolvedImports[j];
-			if (resolved.onDemand == ((importReference.bits & ASTNode.OnDemand) != 0) && resolved.isStatic() == importReference.isStatic())
-				if (CharOperation.equals(compoundName, resolvedImports[j].compoundName))
+			if (resolved.onDemand == ((importReference.bits & ASTNode.OnDemand) != 0) && resolved.isStatic() == importReference.isStatic()) {
+				if (CharOperation.equals(compoundName, resolvedImports[j].compoundName)) {
 					continue nextImport;
+				}
+			}
 		}
 
 		if ((importReference.bits & ASTNode.OnDemand) != 0) {
-			if (CharOperation.equals(compoundName, this.currentPackageName))
-				continue nextImport;
+			if (CharOperation.equals(compoundName, this.currentPackageName)) {
+				continue;
+			}
 
 			Binding importBinding = findImport(compoundName, compoundName.length);
-			if (!importBinding.isValidBinding() || (importReference.isStatic() && importBinding instanceof PackageBinding))
-				continue nextImport;	// we report all problems in faultInImports()
+			if (!importBinding.isValidBinding() || (importReference.isStatic() && importBinding instanceof PackageBinding)) {
+				continue;	// we report all problems in faultInImports()
+			}
 			resolvedImports[index++] = new ImportBinding(compoundName, true, importBinding, importReference);
 		} else {
 			// resolve single imports only when the last name matches
 			resolvedImports[index++] = new ImportBinding(compoundName, false, null, importReference);
 		}
 	}
-
-	// shrink resolvedImports... only happens if an error was reported
-	if (resolvedImports.length > index)
-		System.arraycopy(resolvedImports, 0, resolvedImports = new ImportBinding[index], 0, index);
-	this.imports = resolvedImports;
+	return index;
 }
 
 /**

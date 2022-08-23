@@ -15,9 +15,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import static org.junit.Assert.assertNotEquals;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import junit.framework.Test;
@@ -3671,6 +3674,70 @@ public void testIndexQualificationBinaryNestedSubTypes_SearchForNestedSuperType(
 
 	} finally {
 		deleteQualifierProject();
+	}
+}
+
+/**
+ * @bug GitHub 269: Wrong type hierarchy computed for types with cyclic static imports.
+ * @see "https://github.com/eclipse-jdt/eclipse.jdt.core/issues/269"
+ */
+public void testBugGh269() throws Exception {
+	String testProjectName = "TypeHierarchyBugGh269";
+	IJavaProject projectQ = createJavaProject(testProjectName, new String[] {"src"}, new String[] {"JCL11_LIB"}, "bin", "11");
+	try {
+		addClasspathEntry(projectQ, getJRTLibraryEntry());
+		waitUntilIndexesReady();
+		createFolder("/TypeHierarchyBugGh269/src/p269");
+		createFolder("/TypeHierarchyBugGh269/src/p269/internal");
+		createFile(
+			"/TypeHierarchyBugGh269/src/p269/Gh269TestInterface.java",
+			"package p269;\n" +
+			"public interface Gh269TestInterface {\n" +
+			"    void foo();\n" +
+			"}"
+		);
+		String subtypeContents =
+				"package p269.internal;\n" +
+				"import static p269.internal.Gh269SomeClass.*;\n" +
+				"import p269.Gh269TestInterface;\n" +
+				"public class Gh269TestImplementation implements Gh269TestInterface {\n" +
+				"    @Override public void foo() { someStaticMethod(); }\n" +
+				"    public static void someOtherStaticMethod() { System.out.println(\"hello world\"); }\n" +
+				"}";
+		createFile(
+				"/TypeHierarchyBugGh269/src/p269/internal/Gh269TestImplementation.java",
+				subtypeContents
+				);
+		createFile(
+				"/TypeHierarchyBugGh269/src/p269/internal/Gh269SomeClass.java",
+				"package p269.internal;\n" +
+				"import static p269.internal.Gh269TestImplementation.*;\n" +
+				"public class Gh269SomeClass implements Comparable<Gh269SomeClass> {\n" +
+				"    public static void someStaticMethod() { someOtherStaticMethod(); }\n" +
+				"    @Override public int compareTo(Gh269SomeClass o) { return 0; }\n" +
+				"}"
+				);
+		waitUntilIndexesReady();
+
+		int indexStart = subtypeContents.indexOf("implements Gh269TestInterface");
+		assertNotEquals("Failed to find implements statement", -1, indexStart);
+		indexStart += "implements ".length();
+		int length = "Gh269TestInterface".length();
+
+		ICompilationUnit compilationUnit = getCompilationUnit("/TypeHierarchyBugGh269/src/p269/internal/Gh269TestImplementation.java");
+		IJavaElement[] selectedTypes = compilationUnit.codeSelect(indexStart, length);
+		assertEquals("Expected only 1 type to be selected but got: " + Arrays.toString(selectedTypes), 1, selectedTypes.length);
+		IType type = (IType) selectedTypes[0];
+		assertTrue("Type should exist!", type.exists());
+		ITypeHierarchy hierarchy = type.newTypeHierarchy(new NullProgressMonitor());
+		assertHierarchyEquals(
+			"Focus: Gh269TestInterface [in Gh269TestInterface.java [in p269 [in src [in TypeHierarchyBugGh269]]]]\n" +
+			"Super types:\n" +
+			"Sub types:\n" +
+			"  Gh269TestImplementation [in Gh269TestImplementation.java [in p269.internal [in src [in TypeHierarchyBugGh269]]]]\n",
+			hierarchy);
+	} finally {
+		deleteProject(testProjectName);
 	}
 }
 

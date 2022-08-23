@@ -22,6 +22,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.Map;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.*;
@@ -505,6 +507,16 @@ public FieldBinding findField(TypeBinding receiverType, char[] fieldName, Invoca
 				ProblemReasons.NonStaticReferenceInConstructorInvocation);
 	}
 	return field;
+}
+
+protected Object[] getSyntheticEnclosingArgumentOfLambda(ReferenceBinding targetEnclosingType) {
+	SyntheticArgumentBinding sa = null;
+	if (this.isConstructorCall && this.referenceContext instanceof LambdaExpression) {
+		Map<SourceTypeBinding,SyntheticArgumentBinding> stbToSynthetic = ((LambdaExpression) this.referenceContext).mapSyntheticEnclosingTypes;
+		if (stbToSynthetic != null)
+			sa = stbToSynthetic.get(targetEnclosingType);
+	}
+	return sa != null ? new Object[] {sa} : null;
 }
 
 public boolean isInsideConstructor() {

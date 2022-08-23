@@ -138,7 +138,7 @@ boolean isOpen();
  * {@link ICompilationUnit#reconcile(int, boolean, boolean, WorkingCopyOwner, IProgressMonitor)}
  * operation will not account for changes which occurred before an
  * explicit use of {@link #makeConsistent(IProgressMonitor)}
- * <p>
+ * </p>
  * @param progress the given progress monitor
  * @exception JavaModelException if the element is unable to access the contents
  * 		of its underlying resource. Reasons include:

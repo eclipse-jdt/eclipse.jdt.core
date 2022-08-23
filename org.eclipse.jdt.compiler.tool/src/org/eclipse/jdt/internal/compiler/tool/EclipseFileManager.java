@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2019 IBM Corporation and others.
+ * Copyright (c) 2006, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -39,7 +39,6 @@ import java.util.ResourceBundle;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.zip.ZipException;
 
 import javax.lang.model.SourceVersion;
 import javax.tools.FileObject;
@@ -67,6 +66,7 @@ import org.eclipse.jdt.internal.compiler.tool.JrtFileSystem.JrtFileObject;
 import org.eclipse.jdt.internal.compiler.tool.ModuleLocationHandler.LocationContainer;
 import org.eclipse.jdt.internal.compiler.tool.ModuleLocationHandler.LocationWrapper;
 import org.eclipse.jdt.internal.compiler.tool.ModuleLocationHandler.ModuleLocationWrapper;
+import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 /**
@@ -102,8 +102,13 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		try {
 			initialize(Util.getJavaHome());
 		} catch (IOException e) {
-			e.printStackTrace();
-			// ignore
+			String error = "Failed to init EclipseFileManager from " + Util.getJavaHome(); //$NON-NLS-1$
+			if (JRTUtil.PROPAGATE_IO_ERRORS) {
+				throw new IllegalStateException(error, e);
+			} else {
+				System.err.println(error);
+				e.printStackTrace();
+			}
 		}
 		try {
 			this.bundle = ResourceBundleFactory.getBundle(this.locale);
@@ -127,6 +132,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		// No annotation module path by default
 		this.setLocation(StandardLocation.ANNOTATION_PROCESSOR_PATH, defaultClasspath);
 	}
+
 	/* (non-Javadoc)
 	 * @see javax.tools.JavaFileManager#close()
 	 */
@@ -134,7 +140,9 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	public void close() throws IOException {
 		this.locationHandler.close();
 		for (Archive archive : this.archivesCache.values()) {
-			archive.close();
+			if (archive != null) {
+				archive.close();
+			}
 		}
 		this.archivesCache.clear();
 		for (URLClassLoader cl : this.classloaders.values()) {
@@ -238,7 +246,9 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	@Override
 	public void flush() throws IOException {
 		for (Archive archive : this.archivesCache.values()) {
-			archive.flush();
+			if (archive != null) {
+				archive.flush();
+			}
 		}
 	}
 
@@ -261,10 +271,14 @@ public class EclipseFileManager implements StandardJavaFileManager {
 				} else {
 					archive = new Archive(f);
 				}
-			} catch (ZipException e) {
-				// ignore
 			} catch (IOException e) {
-				// ignore
+				String error = "Failed to create archive from " + f; //$NON-NLS-1$
+				if (JRTUtil.PROPAGATE_IO_ERRORS) {
+					throw new IllegalStateException(error, e);
+				} else {
+					System.err.println(error);
+					e.printStackTrace();
+				}
 			}
 		}
 		try (Archive previous = this.archivesCache.put(f, archive)) {
@@ -407,7 +421,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		if (files == null) {
 			throw new IllegalArgumentException("Unknown location : " + location);//$NON-NLS-1$
 		}
-		String normalizedFileName = normalized(packageName) + '/' + relativeName.replace('\\', '/');
+		String normalizedFileName = normalizedFileName(packageName, relativeName);
 		for (File file : files) {
 			if (file.isDirectory()) {
 				// handle directory
@@ -447,6 +461,17 @@ public class EclipseFileManager implements StandardJavaFileManager {
 			return null;
 		}
 		return archive.contains(normalizedFileName);
+	}
+
+
+	private String normalizedFileName(String packageName, String relativeName) {
+		StringBuilder sb = new StringBuilder();
+		sb.append(normalized(packageName));
+		if (sb.length() > 0) {
+			sb.append('/');
+		}
+		sb.append(relativeName.replace('\\', '/'));
+		return sb.toString();
 	}
 
 	/* (non-Javadoc)
@@ -857,7 +882,13 @@ public class EclipseFileManager implements StandardJavaFileManager {
 					}
 			}
 		} catch (IOException e) {
-			// ignore
+			String error = "Failed to handle option " + current; //$NON-NLS-1$
+			if (JRTUtil.PROPAGATE_IO_ERRORS) {
+				throw new IllegalStateException(error, e);
+			} else {
+				System.err.println(error);
+				e.printStackTrace();
+			}
 		}
 		return false;
 	}

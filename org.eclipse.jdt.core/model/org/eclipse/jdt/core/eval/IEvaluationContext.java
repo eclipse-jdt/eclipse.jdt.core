@@ -100,7 +100,7 @@ public interface IEvaluationContext {
 	 * reporting results to the given completion requestor.
 	 * <p>
 	 * Note that code completion does not involve evaluation.
-	 * <p>
+	 * </p>
 	 *
 	 * @param codeSnippet the code snippet to complete in
 	 * @param position the character position in the code snippet to complete at,
@@ -132,7 +132,7 @@ public interface IEvaluationContext {
 	 * </p>
 	 * <p>
 	 * Note that code completion does not involve evaluation.
-	 * <p>
+	 * </p>
 	 *
 	 * @param codeSnippet the code snippet to complete in
 	 * @param position the character position in the code snippet to complete at,
@@ -159,7 +159,7 @@ public interface IEvaluationContext {
 	 * reporting results to the given completion requestor.
 	 * <p>
 	 * Note that code completion does not involve evaluation.
-	 * <p>
+	 * </p>
 	 *
 	 * @param codeSnippet the code snippet to complete in
 	 * @param position the character position in the code snippet to complete at,
@@ -184,11 +184,12 @@ public interface IEvaluationContext {
 	 * reporting results to the given completion requestor.
 	 * <p>
 	 * Note that code completion does not involve evaluation.
-	 * <p>
+	 * </p><p>
 	 * If {@link IProgressMonitor} is not <code>null</code> then some proposals which
 	 * can be very long to compute are proposed. To avoid that the code assist operation
 	 * take too much time a {@link IProgressMonitor} which automatically cancel the code
 	 * assist operation when a specified amount of time is reached could be used.
+	 * </p>
 	 *
 	 * <pre>
 	 * new IProgressMonitor() {
@@ -203,7 +204,6 @@ public interface IEvaluationContext {
 	 *     ...
 	 * };
 	 * </pre>
-	 * <p>
 	 *
 	 * @param codeSnippet the code snippet to complete in
 	 * @param position the character position in the code snippet to complete at,
@@ -237,7 +237,7 @@ public interface IEvaluationContext {
 	 * </p>
 	 * <p>
 	 * Note that code completion does not involve evaluation.
-	 * <p>
+	 * </p>
 	 *
 	 * @param codeSnippet the code snippet to complete in
 	 * @param position the character position in the code snippet to complete at,
@@ -271,11 +271,12 @@ public interface IEvaluationContext {
 	 * </p>
 	 * <p>
 	 * Note that code completion does not involve evaluation.
-	 * <p>
+	 * </p><p>
 	 * If {@link IProgressMonitor} is not <code>null</code> then some proposals which
 	 * can be very long to compute are proposed. To avoid that the code assist operation
 	 * take too much time a {@link IProgressMonitor} which automatically cancel the code
 	 * assist operation when a specified amount of time is reached could be used.
+	 * </p>
 	 *
 	 * <pre>
 	 * new IProgressMonitor() {
@@ -290,7 +291,6 @@ public interface IEvaluationContext {
 	 *     ...
 	 * };
 	 * </pre>
-	 * <p>
 	 *
 	 * @param codeSnippet the code snippet to complete in
 	 * @param position the character position in the code snippet to complete at,
@@ -320,7 +320,7 @@ public interface IEvaluationContext {
 	 * <p>
 	 * Note that code select does not involve evaluation, and problems are never
 	 * reported.
-	 * <p>
+	 * </p>
 	 *
 	 * @param codeSnippet the code snippet to resolve in
 	 * @param offset the position in the code snippet of the first character
@@ -349,7 +349,7 @@ public interface IEvaluationContext {
 	 * <p>
 	 * Note that code select does not involve evaluation, and problems are never
 	 * reported.
-	 * <p>
+	 * </p>
 	 *
 	 * @param codeSnippet the code snippet to resolve in
 	 * @param offset the position in the code snippet of the first character
@@ -542,7 +542,7 @@ public interface IEvaluationContext {
 	 * reporting results to the given completion requestor.
 	 * <p>
 	 * Note that code completion does not involve evaluation.
-	 * <p>
+	 * </p>
 	 *
 	 * @param codeSnippet the code snippet to complete in
 	 * @param position the character position in the code snippet to complete at,
