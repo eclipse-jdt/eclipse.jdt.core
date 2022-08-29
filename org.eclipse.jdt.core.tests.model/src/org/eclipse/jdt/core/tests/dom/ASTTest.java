@@ -9506,6 +9506,7 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 			ASTNode.TAG_PROPERTY,
 			ASTNode.JAVADOC_REGION,
 			ASTNode.RECORD_PATTERN
+			ASTNode.JAVADOC_TEXT_ELEMENT
 		};
 
 		// assert that nodeType values are correct:
