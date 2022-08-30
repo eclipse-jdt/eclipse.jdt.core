@@ -8,6 +8,15 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="dom/org/eclipse/jdt/core/dom/AST.java" type="org.eclipse.jdt.core.dom.AST">
+        <filter id="388194388">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.dom.AST"/>
+                <message_argument value="JLS_Latest"/>
+                <message_argument value="18"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="dom/org/eclipse/jdt/core/dom/AbstractTagElement.java" type="org.eclipse.jdt.core.dom.AbstractTagElement">
         <filter id="576725006">
             <message_arguments>
@@ -92,6 +101,14 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="dom/org/eclipse/jdt/core/dom/GuardedPattern.java" type="org.eclipse.jdt.core.dom.GuardedPattern">
+        <filter comment="Removed for preview feature Java 19" id="338792546">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.dom.GuardedPattern"/>
+                <message_argument value="patternVariables()"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="dom/org/eclipse/jdt/core/dom/ImportDeclaration.java" type="org.eclipse.jdt.core.dom.ImportDeclaration">
         <filter id="576778288">
             <message_arguments>
@@ -152,6 +169,14 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="dom/org/eclipse/jdt/core/dom/Modifier.java" type="org.eclipse.jdt.core.dom.Modifier$ModifierKeyword">
+        <filter id="336658481">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.dom.Modifier.ModifierKeyword"/>
+                <message_argument value="WHEN_KEYWORD"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="dom/org/eclipse/jdt/core/dom/ModuleQualifiedName.java" type="org.eclipse.jdt.core.dom.ModuleQualifiedName">
         <filter comment="Java 15 Merge" id="576778288">
             <message_arguments>
@@ -165,6 +190,14 @@
             <message_arguments>
                 <message_argument value="IDocElement"/>
                 <message_argument value="Name"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="dom/org/eclipse/jdt/core/dom/NullPattern.java" type="org.eclipse.jdt.core.dom.NullPattern">
+        <filter comment="Removed for preview feature Java 19" id="338792546">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.dom.NullPattern"/>
+                <message_argument value="patternVariables()"/>
             </message_arguments>
         </filter>
     </resource>

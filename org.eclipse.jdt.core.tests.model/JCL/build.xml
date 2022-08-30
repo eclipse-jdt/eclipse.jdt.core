@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-    Copyright (c) 2020, 2021 GK Software SE and others.
+    Copyright (c) 2020, 2022 GK Software SE and others.
 
     This program and the accompanying materials
     are made available under the terms of the Eclipse Public License 2.0
@@ -60,12 +60,20 @@
 			<param name="suffix" value="14"/>
 		</antcall>
 		<antcall target="converterJclMin">
+			<param name="compliance" value="15"/>
+			<param name="suffix" value="15"/>
+		</antcall>
+		<antcall target="converterJclMin">
 			<param name="compliance" value="17"/>
 			<param name="suffix" value="17"/>
 		</antcall>
 		<antcall target="converterJclMin">
-					<param name="compliance" value="15"/>
-					<param name="suffix" value="15"/>
+			<param name="compliance" value="18"/>
+			<param name="suffix" value="18"/>
+		</antcall>
+		<antcall target="converterJclMin">
+			<param name="compliance" value="19"/>
+			<param name="suffix" value="19"/>
 		</antcall>
 	</target>
 	<target name="converterJclMin">

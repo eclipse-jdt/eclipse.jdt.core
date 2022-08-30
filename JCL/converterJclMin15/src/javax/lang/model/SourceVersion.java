@@ -28,16 +28,17 @@ public enum SourceVersion {
 	RELEASE_12,
 
 	RELEASE_13, 
-	RELEASE_14;
+	RELEASE_14,
+	RELEASE_15;
 
 	public static SourceVersion latest() {
-		return RELEASE_14;
+		return RELEASE_15;
 	}
 
 	private static final SourceVersion latestSupported = getLatestSupported();
 
 	private static SourceVersion getLatestSupported() {
-		return RELEASE_14;
+		return RELEASE_15;
 	}
 
 	public static SourceVersion latestSupported() {

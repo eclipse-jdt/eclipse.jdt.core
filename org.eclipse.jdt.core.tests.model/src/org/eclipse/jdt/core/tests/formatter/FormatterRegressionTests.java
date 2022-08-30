@@ -15947,8 +15947,8 @@ public void testBug567016() {
 /**
  * https://bugs.eclipse.org/573949 - [17][switch pattern][formatter] JEP 406 changes
  */
-public void testBug573949() {
-	setComplianceLevel(CompilerOptions.VERSION_18);
+public void _testBug573949() {
+	setComplianceLevel(CompilerOptions.VERSION_19);
 	String source =
 		"public class X {\n" +
 		" private static void foo(Object o) {\n" +

@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -402,10 +406,26 @@ public final class AST {
 	 * up to and including Java SE 18(aka JDK 18).
 	 * </p>
 	 *
+	 * @deprecated
 	 * @since 3.30
 	 */
 	public static final int JLS18 = 18;
 
+	/**
+	 * Constant for indicating the AST API that handles JLS17.
+	 * <p>
+	 * This API is capable of handling all constructs in the
+	 * Java language as described in the Java Language
+	 * Specification, Java SE 18 Edition (JLS18).
+	 * JLS18 is a superset of all earlier versions of the
+	 * Java language, and the JLS18 API can be used to manipulate
+	 * programs written in all versions of the Java language
+	 * up to and including Java SE 18(aka JDK 18).
+	 * </p>
+	 *
+	 * @since 3.31 BETA_JAVA19
+	 */
+	public static final int JLS19 = 19;
 	/**
 	 * Internal synonym for {@link #JLS15}. Use to alleviate
 	 * deprecation warnings once JLS15 is deprecated
@@ -427,17 +447,22 @@ public final class AST {
 	 */
 	static final int JLS18_INTERNAL = JLS18;
 	/**
+	 * Internal synonym for {@link #JLS19}. Use to alleviate
+	 * deprecation warnings once JLS19 is deprecated
+	 */
+	static final int JLS19_INTERNAL = JLS19;
+	/**
 	 * Internal property for latest supported JLS level
 	 * This provides the latest JLS level.
 	 */
-	private static final int JLS_INTERNAL_Latest = JLS18;
+	private static final int JLS_INTERNAL_Latest = JLS19;
 
 	/**
 	 * @since 3.26
 	 * This provides the latest JLS level.
 	 * @deprecated use {@link #getJLSLatest()}
 	 */
-	public static final int JLS_Latest = JLS18;
+	public static final int JLS_Latest = JLS_INTERNAL_Latest;
 
 	/*
 	 * Must not collide with a value for ICompilationUnit constants
@@ -1173,6 +1198,7 @@ public final class AST {
         t.put(JavaCore.VERSION_16, ClassFileConstants.JDK16);
         t.put(JavaCore.VERSION_17, ClassFileConstants.JDK17);
         t.put(JavaCore.VERSION_18, ClassFileConstants.JDK18);
+        t.put(JavaCore.VERSION_19, ClassFileConstants.JDK19);
         return Collections.unmodifiableMap(t);
 	}
 	private static Map<String, Integer> getApiLevelMapTable() {
@@ -1195,6 +1221,7 @@ public final class AST {
         t.put(JavaCore.VERSION_16, JLS16_INTERNAL);
         t.put(JavaCore.VERSION_17, JLS17_INTERNAL);
         t.put(JavaCore.VERSION_18, JLS18_INTERNAL);
+        t.put(JavaCore.VERSION_19, JLS19_INTERNAL);
         return Collections.unmodifiableMap(t);
 	}
 	/**
@@ -2750,6 +2777,18 @@ public final class AST {
 	 */
 	public RecordDeclaration newRecordDeclaration() {
 		RecordDeclaration result = new RecordDeclaration(this);
+		return result;
+	}
+
+	/**
+	 * Creates and returns a new unparented type pattern node with an
+	 * unspecified pattern variable.
+	 *
+	 * @return a new unparented type pattern node
+	 * @since 3.31 BETA_JAVA19
+	 */
+	public RecordPattern newRecordPattern() {
+		RecordPattern result = new RecordPattern(this);
 		return result;
 	}
 	/**

@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Benjamin Muskalla - Contribution for bug 239066
@@ -2177,14 +2181,6 @@ public void duplicateInitializationOfFinalLocal(LocalVariableBinding local, ASTN
 public void illegalRedeclarationOfPatternVar(LocalVariableBinding local, ASTNode location) {
 	this.handle(
 			IProblem.PatternVariableRedeclared,
-			NoArgument,
-			NoArgument,
-			nodeSourceStart(local, location),
-			nodeSourceEnd(local, location));
-}
-public void patternCannotBeSubtypeOfExpression(LocalVariableBinding local, ASTNode location) {
-	this.handle(
-			IProblem.PatternSubtypeOfExpression,
 			NoArgument,
 			NoArgument,
 			nodeSourceStart(local, location),
@@ -5175,6 +5171,7 @@ private boolean isRestrictedIdentifier(int token) {
 		case TerminalTokens.TokenNameRestrictedIdentifierrecord:
 		case TerminalTokens.TokenNameRestrictedIdentifiersealed:
 		case TerminalTokens.TokenNameRestrictedIdentifierpermits:
+		case TerminalTokens.TokenNameRestrictedIdentifierWhen:
 			return true;
 		default: return false;
 	}
@@ -5237,6 +5234,7 @@ private boolean isKeyword(int token) {
 		case TerminalTokens.TokenNameRestrictedIdentifierrecord:
 		case TerminalTokens.TokenNameRestrictedIdentifiersealed:
 		case TerminalTokens.TokenNameRestrictedIdentifierpermits:
+		case TerminalTokens.TokenNameRestrictedIdentifierWhen:
 			// making explicit - not a (restricted) keyword but restricted identifier.
 			//$FALL-THROUGH$
 		default:
@@ -12329,5 +12327,28 @@ public void unexpectedTypeinSwitchPattern(TypeBinding type, ASTNode element) {
 			element.sourceStart,
 			element.sourceEnd);
 }
-
+public void unexpectedTypeinRecordPattern(TypeBinding type, ASTNode element) {
+	this.handle(
+			IProblem.UnexpectedTypeinRecordPattern,
+			new String[] {new String(type.readableName())},
+			new String[] {new String(type.shortReadableName())},
+			element.sourceStart,
+			element.sourceEnd);
+}
+public void recordPatternSignatureMismatch(TypeBinding type, ASTNode element) {
+	this.handle(
+			IProblem.RecordPatternMismatch,
+			new String[] {new String(type.readableName())},
+			new String[] {new String(type.shortReadableName())},
+			element.sourceStart,
+			element.sourceEnd);
+}
+public void incompatiblePatternType(ASTNode element, TypeBinding type, TypeBinding expected) {
+	this.handle(
+			IProblem.PatternTypeMismatch,
+			new String[] {new String(type.readableName()), new String(expected.readableName())},
+			new String[] {new String(type.shortReadableName()), new String(expected.readableName())},
+			element.sourceStart,
+			element.sourceEnd);
+}
 }

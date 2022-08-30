@@ -1733,7 +1733,9 @@ public ReferenceBinding[] permittedTypes() {
 public ReferenceBinding[] superInterfaces() {
 	return Binding.NO_SUPERINTERFACES;
 }
-
+public RecordComponentBinding[] components() {
+	return Binding.NO_COMPONENTS;
+}
 public SyntheticArgumentBinding[] syntheticOuterLocalVariables() {
 	return null;		// is null if no enclosing instances are required
 }
