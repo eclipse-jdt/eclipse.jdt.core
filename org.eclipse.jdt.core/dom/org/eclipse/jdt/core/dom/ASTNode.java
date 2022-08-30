@@ -1061,7 +1061,7 @@ public abstract class ASTNode {
 	 * @see RecordPattern
 	 * @since 3.31 BETA_JAVA19
 	 */
-	public static final int RECORD_PATTERN = 112;
+	public static final int RECORD_PATTERN = 113;
 
 
 	/**
