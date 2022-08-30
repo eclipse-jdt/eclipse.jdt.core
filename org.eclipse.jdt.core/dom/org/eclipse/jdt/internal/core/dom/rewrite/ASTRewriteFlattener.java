@@ -684,6 +684,11 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	}
 
 	@Override
+	public boolean visit(JavaDocTextElement node) {
+		this.result.append(getAttribute(node, JavaDocTextElement.TEXT_PROPERTY));
+		return false;
+	}
+	@Override
 	public boolean visit(LabeledStatement node) {
 		getChildNode(node, LabeledStatement.LABEL_PROPERTY).accept(this);
 		this.result.append(": "); //$NON-NLS-1$
