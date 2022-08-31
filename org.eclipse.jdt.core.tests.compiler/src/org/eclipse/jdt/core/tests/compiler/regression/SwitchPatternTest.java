@@ -7,10 +7,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -33,16 +29,16 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug578132_001"};
+//		TESTS_NAMES = new String[] { "testBug579355"};
 	}
 
-	private static String previewLevel = "19";
+	private static String previewLevel = "18";
 
 	public static Class<?> testClass() {
 		return SwitchPatternTest.class;
 	}
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_19);
+		return buildMinimalComplianceTestSuite(testClass(), F_18);
 	}
 	public SwitchPatternTest(String testName){
 		super(testName);
@@ -51,9 +47,9 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions() {
 		Map<String, String> defaultOptions = super.getCompilerOptions();
-		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_19);
-		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_19);
-		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_19);
+		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_18);
+		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_18);
+		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_18);
 		defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		defaultOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
@@ -130,7 +126,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			assertEquals("Wrong contents", expectedOutput, result);
 		}
 	}
-	public void testIssue57_001() {
+	public void testBug573516_001() {
 		runConformTest(
 			new String[] {
 				"X.java",
@@ -148,25 +144,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"}",
 			},
 			"String: Hello World!");
-	}
-	public void testIssue57_002() {
-		runConformTest(
-			new String[] {
-				"X.java",
-				"public class X {\n"+
-				" private static void foo(Object o) {\n"+
-				"   switch (o) {\n"+
-				"     case Integer i when i > 10    -> System.out.println(\"Integer: greater than 10\");\n"+
-				"     case String  s   -> System.out.println(\"String: Hello World!\");\n"+
-				"     default       -> System.out.println(\"Object\");\n"+
-				"   }\n"+
-				" }\n"+
-				" public static void main(String[] args) {\n"+
-				"   foo(12);\n"+
-				" }\n"+
-				"}",
-			},
-			"Integer: greater than 10");
 	}
 	public void testBug573516_002() {
 		runNegativeTest(
@@ -224,7 +201,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"public class X {\n"+
 				" private static void foo(Object o) {\n"+
 				"   switch (o) {\n"+
-				"     case Integer t when t > 0 -> System.out.println(\"Integer && t > 0\");\n"+
+				"     case Integer t && t > 0 -> System.out.println(\"Integer && t > 0\");\n"+
 				"     default       -> System.out.println(\"Object\");\n"+
 				"   }\n"+
 				" }\n"+
@@ -278,7 +255,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"public class X {\n"+
 				" private static void foo(Object o) {\n"+
 				"   switch (o) {\n"+
-				"     case Integer t, String s when s.length > 0, X x when x.hashCode() > 10 : System.out.println(\"Integer, String or X\");\n"+
+				"     case Integer t, String s && s.length > 0, X x && x.hashCode() > 10 : System.out.println(\"Integer, String or X\");\n"+
 				"     default : System.out.println(\"Object\");\n"+
 				"   }\n"+
 				" }\n"+
@@ -291,13 +268,13 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			},
 			"----------\n" +
 			"1. ERROR in X.java (at line 4)\n" +
-			"	case Integer t, String s when s.length > 0, X x when x.hashCode() > 10 : System.out.println(\"Integer, String or X\");\n" +
-			"	                ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"	case Integer t, String s && s.length > 0, X x && x.hashCode() > 10 : System.out.println(\"Integer, String or X\");\n" +
+			"	                ^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"A switch label may not have more than one pattern case label element\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 4)\n" +
-			"	case Integer t, String s when s.length > 0, X x when x.hashCode() > 10 : System.out.println(\"Integer, String or X\");\n" +
-			"	                                ^^^^^^\n" +
+			"	case Integer t, String s && s.length > 0, X x && x.hashCode() > 10 : System.out.println(\"Integer, String or X\");\n" +
+			"	                              ^^^^^^\n" +
 			"length cannot be resolved or is not a field\n" +
 			"----------\n" +
 			"3. ERROR in X.java (at line 10)\n" +
@@ -511,7 +488,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"     case Integer I: \n"+
 					"       System.out.println(\"Integer\"); \n"+
 					"       System.out.println(I); \n"+
-					"     case String s when s.length()>1: \n"+
+					"     case String s && s.length()>1: \n"+
 					"       System.out.println(\"String s && s.length()>1\"); \n"+
 					"       System.out.println(s); \n"+
 					"       break;// error no fallthrough allowed in pattern\n"+
@@ -532,8 +509,8 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"----------\n" +
 				"1. ERROR in X.java (at line 7)\n" +
-				"	case String s when s.length()>1: \n" +
-				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"	case String s && s.length()>1: \n" +
+				"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 				"Illegal fall-through to a pattern\n" +
 				"----------\n");
 	}
@@ -576,7 +553,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					" private static void foo(Object o) {\n"+
 					"   switch (o) {\n"+
 					"     case Integer I: System.out.println(\"Integer\"); break;\n"+
-					"     case String s when s.length()>1: System.out.println(\"String > 1\"); break;\n"+
+					"     case String s && s.length()>1: System.out.println(\"String > 1\"); break;\n"+
 					"     case String s1: System.out.println(\"String\"); break;\n"+
 					"     case X x: System.out.println(\"X\"); break;\n"+
 					"     default : System.out.println(\"Object\");\n"+
@@ -605,8 +582,8 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"       System.out.println(\"Integer\"); \n"+
 					"       System.out.println(I); \n"+
 					"       break; \n"+
-					"     case String s when s.length()>1: \n"+
-					"       System.out.println(\"String s when s.length()>1\"); \n"+
+					"     case String s && s.length()>1: \n"+
+					"       System.out.println(\"String s && s.length()>1\"); \n"+
 					"       System.out.println(s); \n"+
 					"       break;\n"+
 					"     case String s1: \n"+
@@ -628,7 +605,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"   public static Object bar() { return new Object();}\n"+
 					"}",
 				},
-				"String s when s.length()>1\n" +
+				"String s && s.length()>1\n" +
 				"Hello World!\n" +
 				"String\n" +
 				"H\n" +
@@ -645,8 +622,8 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"       System.out.println(\"Integer\"); \n"+
 					"       System.out.println(I); \n"+
 					"       break; \n"+
-					"     case String s when s.length()>1: \n"+
-					"       System.out.println(\"String s when s.length()>1\"); \n"+
+					"     case String s && s.length()>1: \n"+
+					"       System.out.println(\"String s && s.length()>1\"); \n"+
 					"       System.out.println(s); \n"+
 					"       break;\n"+
 					"     case String s: \n"+
@@ -668,7 +645,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"   public static Object bar() { return new Object();}\n"+
 					"}",
 				},
-				"String s when s.length()>1\n" +
+				"String s && s.length()>1\n" +
 				"Hello World!\n" +
 				"String\n" +
 				"H\n" +
@@ -733,8 +710,8 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"       System.out.println(\"Integer\"); \n"+
 					"       System.out.println(I); \n"+
 					"       break; \n"+
-					"     case String s when s.length()>1: \n"+
-					"       System.out.println(\"String s when s.length()>1\"); \n"+
+					"     case String s && s.length()>1: \n"+
+					"       System.out.println(\"String s && s.length()>1\"); \n"+
 					"       System.out.println(s); \n"+
 					"       break;\n"+
 					"     case String s1: \n"+
@@ -759,7 +736,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"   public static Object bar() { return new Object();}\n"+
 					"}",
 				},
-				"String s when s.length()>1\n" +
+				"String s && s.length()>1\n" +
 				"Hello World!\n" +
 				"NULL\n" +
 				"Object");
@@ -829,10 +806,10 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"\n"+
 					" private static void foo(Object o) {\n"+
 					"   switch (o) {\n"+
-					"   case Integer i when i>10:\n"+
+					"   case Integer i && i>10:\n"+
 					"     System.out.println(\"Greater than 10:\" + o);\n"+
 					"     break;\n"+
-					"   case Integer j when j>0:\n"+
+					"   case Integer j && j>0:\n"+
 					"     System.out.println(\"Greater than 0:\" + o);\n"+
 					"     break;\n"+
 					"   default:\n"+
@@ -857,8 +834,8 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"\n"+
 					" private static void foo1(Object o) {\n"+
 					"   switch (o) {\n"+
-					"   case Integer i when i>10 -> System.out.println(\"Greater than 10:\");\n"+
-					"   case String s when s.equals(\"ff\") -> System.out.println(\"String:\" + s);\n"+
+					"   case Integer i&&i>10 -> System.out.println(\"Greater than 10:\");\n"+
+					"   case String s&&s.equals(\"ff\") -> System.out.println(\"String:\" + s);\n"+
 					"   default -> System.out.println(\"Object:\" + o);\n"+
 					"   }\n"+
 					" }\n"+
@@ -901,10 +878,10 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"\n"+
 					" private static void foo(Object o) {\n"+
 					"   switch (o) {\n"+
-					"   case Integer i when i>10:\n"+
+					"   case Integer i && i>10:\n"+
 					"     System.out.println(\"Greater than 10:\" + o);\n"+
 					"     break;\n"+
-					"   case Integer j when j>0:\n"+
+					"   case Integer j && j>0:\n"+
 					"     System.out.println(\"Greater than 0:\" + o);\n"+
 					"     break;\n"+
 					"   case default:\n"+
@@ -1205,7 +1182,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 						+ "		switch (o) {\n"
 						+ "			case Integer i1:\n"
 						+ "				break;\n"
-						+ "			case String s1 when s1.length() > i1:\n"
+						+ "			case String s1 && s1.length() > i1:\n"
 						+ "					System.out.println(s1.length());\n"
 						+ "				break;\n"
 						+ "			default:\n"
@@ -1216,8 +1193,8 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"----------\n" +
 				"1. ERROR in X.java (at line 6)\n" +
-				"	case String s1 when s1.length() > i1:\n" +
-				"	                                  ^^\n" +
+				"	case String s1 && s1.length() > i1:\n" +
+				"	                                ^^\n" +
 				"i1 cannot be resolved to a variable\n" +
 				"----------\n");
 	}
@@ -1232,7 +1209,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				+ "	public static void foo(Object o) {\n"
 				+ "	  try {\n"
 				+ "		switch (o) {\n"
-				+ "			case String s1 when s1.length() == 0:\n"
+				+ "			case String s1 && s1.length() == 0:\n"
 				+ "					break;"
 				+ "			case String s1:\n"
 				+ "					s1 = null;\n"
@@ -1302,7 +1279,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 						+ "	public static void foo(Object o) {\n"
 						+ "		int len = 2;\n"
 						+ "		switch (o) {\n"
-						+ "		case String o1 when o1.length() > len:\n"
+						+ "		case String o1 && o1.length() > len:\n"
 						+ "			len = 0;\n"
 						+ "		break;\n"
 						+ "		default:\n"
@@ -1313,8 +1290,8 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"----------\n" +
 				"1. ERROR in X.java (at line 5)\n" +
-				"	case String o1 when o1.length() > len:\n" +
-				"	                                  ^^^\n" +
+				"	case String o1 && o1.length() > len:\n" +
+				"	                                ^^^\n" +
 				"Local variable len referenced from a guard must be final or effectively final\n" +
 				"----------\n");
 	}
@@ -1328,7 +1305,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 						+ "	public static void foo(Object o) {\n"
 						+ "		int len = 2;\n"
 						+ "		switch (o) {\n"
-						+ "		case String o1 when len < o1.length():\n"
+						+ "		case String o1 && len < o1.length():\n"
 						+ "			len = 0;\n"
 						+ "		break;\n"
 						+ "		default:\n"
@@ -1339,8 +1316,8 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"----------\n" +
 				"1. ERROR in X.java (at line 5)\n" +
-				"	case String o1 when len < o1.length():\n" +
-				"	                    ^^^\n" +
+				"	case String o1 && len < o1.length():\n" +
+				"	                  ^^^\n" +
 				"Local variable len referenced from a guard must be final or effectively final\n" +
 				"----------\n");
 	}
@@ -1354,7 +1331,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 						+ "	public static void foo(Object o) {\n"
 						+ "		final int len = 2;\n"
 						+ "		switch (o) {\n"
-						+ "		case String o1 when len < o1.length():\n"
+						+ "		case String o1 && len < o1.length():\n"
 						+ "			len = 0;\n"
 						+ "		break;\n"
 						+ "		default:\n"
@@ -1378,7 +1355,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 						+ "	public static void foo(Object o) {\n"
 						+ "		int len = 2;\n"
 						+ "		switch (o) {\n"
-						+ "		case String o1 when len < o1.length():\n"
+						+ "		case String o1 && len < o1.length():\n"
 						+ "			System.out.println(o1);\n"
 						+ "		break;\n"
 						+ "		default:\n"
@@ -2299,7 +2276,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"public class X {\n"+
 				" private static void foo(Object o) {\n"+
 				"   switch (o) {\n"+
-				"     case null, Integer i when i > 10 -> System.out.println(0);\n"+
+				"     case null, Integer i && i > 10 -> System.out.println(0);\n"+
 				"     default -> System.out.println(o);\n"+
 				"   }\n"+
 				"   Zork();\n"+
@@ -2308,8 +2285,8 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			},
 			"----------\n" +
 			"1. ERROR in X.java (at line 4)\n" +
-			"	case null, Integer i when i > 10 -> System.out.println(0);\n" +
-			"	           ^^^^^^^^^^^^^^^^^^^^^\n" +
+			"	case null, Integer i && i > 10 -> System.out.println(0);\n" +
+			"	           ^^^^^^^^^^^^^^^^^^^\n" +
 			"A null case label and patterns can co-exist only if the pattern is a type pattern\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 7)\n" +
@@ -2325,7 +2302,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"public class X {\n"+
 				" private static void foo(Object o) {\n"+
 				"   switch (o) {\n"+
-				"     case Integer i when i > 10, null  -> System.out.println(0);\n"+
+				"     case Integer i && i > 10, null  -> System.out.println(0);\n"+
 				"     default -> System.out.println(o);\n"+
 				"   }\n"+
 				"   Zork();\n"+
@@ -2334,8 +2311,8 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			},
 			"----------\n" +
 			"1. ERROR in X.java (at line 4)\n" +
-			"	case Integer i when i > 10, null  -> System.out.println(0);\n" +
-			"	                            ^^^^\n" +
+			"	case Integer i && i > 10, null  -> System.out.println(0);\n" +
+			"	                          ^^^^\n" +
 			"A null case label and patterns can co-exist only if the pattern is a type pattern\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 7)\n" +
@@ -2374,7 +2351,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"   String s1 = \" Hello \";\n"+
 				"   String s2 = \"World!\";\n"+
 				"   switch (o) {\n"+
-				"     case Integer I when I > 10: break;\n"+
+				"     case Integer I && I > 10: break;\n"+
 				"      case X J: break;\n"+
 				"      case String s : break;\n"+
 				"      default:\n"+
@@ -2424,7 +2401,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"		switch(o) {\n" +
 					"			case CharSequence cs ->\n" +
 					"			System.out.println(\"A sequence of length \" + cs.length());\n" +
-					"			case String s when s.length() > 0 -> \n" +
+					"			case String s && s.length() > 0 -> \n" +
 					"			System.out.println(\"A string: \" + s);\n" +
 					"			default -> {\n" +
 					"				break;\n" +
@@ -2435,8 +2412,8 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"----------\n" +
 				"1. ERROR in X.java (at line 6)\n" +
-				"	case String s when s.length() > 0 -> \n" +
-				"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"	case String s && s.length() > 0 -> \n" +
+				"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 				"This case label is dominated by one of the preceding case label\n" +
 				"----------\n");
 	}
@@ -2524,10 +2501,10 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					" }\n"+
 					" private static void foo(Object o) {\n"+
 					"		switch(o) {\n" +
-					"		case String s when s.length() < 5 :\n" +
+					"		case String s && s.length() < 5 :\n" +
 					"			System.out.println(\"1:\" + s);\n" +
 					"			break;\n" +
-					"		case String s when s.length() == 5:\n" +
+					"		case String s && s.length() == 5:\n" +
 					"			System.out.println(\"2:\" + s);\n" +
 					"			break;\n" +
 					"		default : System.out.println(\"Object\");\n" +
@@ -2547,10 +2524,10 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					" }\n"+
 					" private static void foo(Object o) {\n"+
 					"		switch(o) {\n" +
-					"		case String s when s.length() < 5 :\n" +
+					"		case String s && s.length() < 5 :\n" +
 					"			System.out.println(\"1:\" + s);\n" +
 					"			break;\n" +
-					"		case String s when s.length() == 5:\n" +
+					"		case String s && s.length() == 5:\n" +
 					"			System.out.println(\"2:\" + s);\n" +
 					"			break;\n" +
 					"		default : System.out.println(\"Object\");\n" +
@@ -2641,7 +2618,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 8)\n" +
 				"	default: \n" +
 				"	^^^^^^^\n" +
-				"Switch case cannot have both unconditional pattern and default label\n" +
+				"Switch case cannot have both a total pattern and default label\n" +
 				"----------\n");
 	}
 	public void testBug573921_10() {
@@ -2665,7 +2642,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 8)\n" +
 				"	default: \n" +
 				"	^^^^^^^\n" +
-				"Switch case cannot have both unconditional pattern and default label\n" +
+				"Switch case cannot have both a total pattern and default label\n" +
 				"----------\n");
 	}
 	public void testBug573921_11() {
@@ -2689,7 +2666,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 8)\n" +
 				"	default: \n" +
 				"	^^^^^^^\n" +
-				"Switch case cannot have both unconditional pattern and default label\n" +
+				"Switch case cannot have both a total pattern and default label\n" +
 				"----------\n");
 	}
 	public void testBug575049_001() {
@@ -2813,7 +2790,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 5)\n" +
 			"	case Integer i1 -> 0;\n" +
 			"	^^^^^^^^^^^^^^^\n" +
-			"Switch case cannot have both unconditional pattern and default label\n" +
+			"Switch case cannot have both a total pattern and default label\n" +
 			"----------\n");
 	}
 	public void testBug575053_001() {
@@ -2823,7 +2800,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"public class X {\n" +
 				"	public void foo(String o) {\n" +
 				"		switch (o) {\n" +
-				"		  case String s when s.length() > 0  -> {}\n" +
+				"		  case String s && s.length() > 0  -> {}\n" +
 				"		  default -> {}\n" +
 				"		} \n" +
 				"	}\n" +
@@ -2837,7 +2814,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"}",
 			},
 			"java.lang.NullPointerException\n" +
-			"	at java.base/java.util.Objects.requireNonNull(Objects.java:233)\n" +
+			"	at java.base/java.util.Objects.requireNonNull(Objects.java:208)\n" +
 			"	at X.foo(X.java:3)\n" +
 			"	at X.main(X.java:10)");
 	}
@@ -2863,7 +2840,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			},
 			"",
 			"java.lang.NullPointerException\n" +
-			"	at java.base/java.util.Objects.requireNonNull(Objects.java:233)\n" +
+			"	at java.base/java.util.Objects.requireNonNull(Objects.java:208)\n" +
 			"	at X.foo(X.java:3)\n" +
 			"	at X.main(X.java:10)");
 	}
@@ -2885,14 +2862,14 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			},
 			"0");
 	}
-	public void _testBug575249_02() {
+	public void testBug575249_02() {
 		runConformTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" +
 				"	public static int foo(Object o) {\n" +
 				"		return switch (o) {\n" +
-				"		  case (String s when s.length() < 10) : yield 0;\n" +
+				"		  case (String s && s.length() < 10) : yield 0;\n" +
 				"		  default : yield 1;\n" +
 				"		};\n" +
 				"	}\n" +
@@ -2921,7 +2898,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			},
 			"0");
 	}
-	public void _testBug575249_04() {
+	public void testBug575249_04() {
 		runConformTest(
 			new String[] {
 				"X.java",
@@ -3413,7 +3390,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"public class X {\n"+
 					" static int foo(String o) {\n"+
 					"    return switch (o) {\n" +
-					"		     case String s when s.length() > 0 -> 3;\n" +
+					"		     case String s && s.length() > 0 -> 3;\n" +
 					"		     case String s1 -> 1;\n" +
 					"		     case String s -> -1;\n"+
 					"		   };\n"+
@@ -3424,7 +3401,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 6)\n" +
 				"	case String s -> -1;\n" +
 				"	     ^^^^^^^^\n" +
-				"The switch statement cannot have more than one unconditional pattern\n" +
+				"The switch statement cannot have more than one total pattern\n" +
 				"----------\n" +
 				"2. ERROR in X.java (at line 6)\n" +
 				"	case String s -> -1;\n" +
@@ -3503,8 +3480,8 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"public class X {\n"+
 					"	static String foo(Object o) {\n" +
 					"	   return switch (o) {\n" +
-					"		 case String i when i.length() == 0 -> \"empty\";\n" +
-					"	     case String i when i.length() > 0 -> \"zero+\";\n" +
+					"		 case String i && i.length() == 0 -> \"empty\";\n" +
+					"	     case String i && i.length() > 0 -> \"zero+\";\n" +
 					"	     case Color s -> s.toString();\n" +
 					"		 default -> \"unknown\";\n" +
 					"	   };\n" +
@@ -3557,7 +3534,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"	static String foo(Color o) {\n" +
 					"		return switch (o) {\n" +
 					"	     case Red -> \"Red\";\n" +
-					"	     case Color s when s == Color.Blue  -> s.toString();\n" +
+					"	     case Color s && s == Color.Blue  -> s.toString();\n" +
 					"	     case Color s -> s.toString();\n" +
 					"	   };\n" +
 					"	}\n" +
@@ -3580,7 +3557,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"public class X {\n"+
 					"	static String foo(Color o) {\n" +
 					"		return switch (o) {\n" +
-					"	     case Color s when s == Color.Blue  -> s.toString();\n" +
+					"	     case Color s && s == Color.Blue  -> s.toString();\n" +
 					"	     case Red -> \"Red\";\n" +
 					"	     case null -> \"\";\n" +
 					"	   };\n" +
@@ -3609,7 +3586,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"public class X {\n"+
 					"	static String foo(Color o) {\n" +
 					"		return switch (o) {\n" +
-					"	     case Color s when s == Color.Blue  -> s.toString();\n" +
+					"	     case Color s && s == Color.Blue  -> s.toString();\n" +
 					"	     case Red -> \"Red\";\n" +
 					"	   };\n" +
 					"	}\n" +
@@ -3638,7 +3615,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"	static void foo(Integer o) {\n" +
 					"		switch (o) {\n" +
 					"		  case 1: break;\n" +
-					"		  case Integer s when s == 2:\n" +
+					"		  case Integer s && s == 2:\n" +
 					"			  System.out.println(s);break;\n" +
 					"		  case null, default:\n" +
 					"			  System.out.println(\"null/default\");\n" +
@@ -3675,7 +3652,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"public class X {\n"+
 					"	public int foo(CharSequence c) {\n" +
 					"		return switch (c) {\n" +
-					"		   case CharSequence c1 when (c instanceof String c1 && c1.length() > 0) -> 0;\n" +
+					"		   case CharSequence c1 && (c instanceof String c1 && c1.length() > 0) -> 0;\n" +
 					"		   default -> 0;\n" +
 					"		};\n" +
 					"	}" +
@@ -3683,8 +3660,8 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"----------\n" +
 				"1. ERROR in X.java (at line 4)\n" +
-				"	case CharSequence c1 when (c instanceof String c1 && c1.length() > 0) -> 0;\n" +
-				"	                                               ^^\n" +
+				"	case CharSequence c1 && (c instanceof String c1 && c1.length() > 0) -> 0;\n" +
+				"	                                             ^^\n" +
 				"Duplicate local variable c1\n" +
 				"----------\n");
 	}
@@ -3713,7 +3690,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"}",
 				},
 				"java.lang.NullPointerException\n"
-				+ "	at java.base/java.util.Objects.requireNonNull(Objects.java:233)\n"
+				+ "	at java.base/java.util.Objects.requireNonNull(Objects.java:208)\n"
 				+ "	at X.foo(X.java:4)\n"
 				+ "	at X.main(X.java:15)");
 	}
@@ -4356,7 +4333,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				" @SuppressWarnings(\"preview\")\n"+
 				" static  int foo(Object o) {\n"+
 				"   return switch (o) { \n"+
-				"      case X x when true -> 0;\n"+
+				"      case X x && true -> 0;\n"+
 				"      default -> 1;\n"+
 				"   }; \n"+
 				" } \n"+
@@ -4378,7 +4355,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				" public static void main(String[] args) {\n"+
 				"     Boolean input = false;\n"+
 				"     int result = switch(input) {\n"+
-				"       case Boolean p when true -> 1;\n"+
+				"       case Boolean p && true -> 1;\n"+
 				"     };\n"+
 				"     System.out.println(result);\n"+
 				" }\n"+
@@ -4446,7 +4423,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"2");
 	}
 	// to be enabled after bug 578417 is fixed.
-	public void testBug578402_3() {
+	public void _testBug578402_3() {
 		runConformTest(
 				new String[] {
 					"X.java",
@@ -4481,7 +4458,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"public class X {\n"
 					+ "    public static void foo(Object obj, int x) {\n"
 					+ "    	switch (obj) {\n"
-					+ "    		case String s when (switch (x) {\n"
+					+ "    		case String s && (switch (x) {\n"
 					+ "					case 1 -> { yield true; }\n"
 					+ "					default -> { yield false; }\n"
 					+ "   	 									})	\n"
@@ -4522,7 +4499,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				+ "    }\n"
 				+ "}";
 	}
-	public void _testBug578504_1() {
+	public void testBug578504_1() {
 		runConformTest(
 				new String[] {
 					"X.java",
@@ -4531,7 +4508,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"true");
 	}
-	public void _testBug578504_2() {
+	public void testBug578504_2() {
 		runConformTest(
 				new String[] {
 					"X.java",
@@ -4539,7 +4516,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"false");
 	}
-	public void _testBug578504_3() {
+	public void testBug578504_3() {
 		runConformTest(
 				new String[] {
 					"X.java",
@@ -4547,7 +4524,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"true");
 	}
-	public void _testBug578504_4() {
+	public void testBug578504_4() {
 		runNegativeTest(
 				new String[] {
 					"X.java",
@@ -4560,7 +4537,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"ss cannot be resolved to a variable\n" +
 				"----------\n");
 	}
-	public void _testBug578504_5() {
+	public void testBug578504_5() {
 		runNegativeTest(
 				new String[] {
 					"X.java",
@@ -4573,7 +4550,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"ss cannot be resolved to a variable\n" +
 				"----------\n");
 	}
-	public void _testBug578504_6() {
+	public void testBug578504_6() {
 		runConformTest(
 				new String[] {
 					"X.java",
@@ -4581,7 +4558,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"true");
 	}
-	public void _testBug578504_7() {
+	public void testBug578504_7() {
 		runConformTest(
 				new String[] {
 					"X.java",
@@ -4597,7 +4574,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					+ "	@SuppressWarnings(\"preview\")\n"
 					+ "	static Long foo(Number n) {\n"
 					+ "		return switch (n) {\n"
-					+ "	     case (Long l) when l.toString().equals(\"0\") -> {\n"
+					+ "	     case (Long l) && l.toString().equals(\"0\") -> {\n"
 					+ "	    	 yield ++l;\n"
 					+ "	     }\n"
 					+ "		default -> throw new IllegalArgumentException();\n"
@@ -4618,9 +4595,9 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					+ "		@SuppressWarnings(\"preview\")\n"
 					+ "	static Long foo(Number n) {  \n"
 					+ "		return switch (n) { \n"
-					+ "	     case (Long l) when l.toString().equals(\"0\") -> {\n"
+					+ "	     case (Long l) && l.toString().equals(\"0\") -> {\n"
 					+ "	    	 yield switch(l) {\n"
-					+ "	    	 case Long l1 when l1.toString().equals(l1.toString()) -> {\n"
+					+ "	    	 case Long l1 && l1.toString().equals(l1.toString()) -> {\n"
 					+ "	    	 	yield ++l + ++l1;\n"
 					+ "	    	 }\n"
 					+ "			default -> throw new IllegalArgumentException(\"Unexpected value: \" + l);\n"
@@ -4644,9 +4621,9 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					+ "	@SuppressWarnings(\"preview\")\n"
 					+ "	static Long foo(Number n) {  \n"
 					+ "		return switch (n) { \n"
-					+ "	     case (Long l) when l.toString().equals(\"0\") -> {\n"
+					+ "	     case (Long l) && l.toString().equals(\"0\") -> {\n"
 					+ "	    	 yield switch(l) {\n"
-					+ "	    	 case Long l1 when l.toString().equals(l1.toString()) -> {\n"
+					+ "	    	 case Long l1 && l.toString().equals(l1.toString()) -> {\n"
 					+ "	    	 	yield ++l + ++l1;\n"
 					+ "	    	 }\n"
 					+ "			default -> throw new IllegalArgumentException(\"Unexpected value: \" + l);\n"
@@ -4659,8 +4636,8 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"----------\n" +
 				"1. ERROR in X.java (at line 7)\n" +
-				"	case Long l1 when l.toString().equals(l1.toString()) -> {\n" +
-				"	                  ^\n" +
+				"	case Long l1 && l.toString().equals(l1.toString()) -> {\n" +
+				"	                ^\n" +
 				"Local variable l referenced from a guard must be final or effectively final\n" +
 				"----------\n");
 	}
@@ -4673,7 +4650,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					+ "	static Long foo(Number n) {  \n"
 					+ "	int i = 0;\n"
 					+ "	return switch(n) {\n"
-					+ "	  case Long l when (1 == switch(l) {\n"
+					+ "	  case Long l && (1 == switch(l) {\n"
 					+ "		case \n"
 					+ "			default -> {  \n"
 					+ "				yield (i++);\n"
@@ -4700,7 +4677,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					+ "	static Long foo(Number n) {  \n"
 					+ "	int i = 0;\n"
 					+ "	return switch(n) {\n"
-					+ "	  case Long l when (1 == switch(l) {\n"
+					+ "	  case Long l && (1 == switch(l) {\n"
 					+ "		case \n"
 					+ "			default -> {  \n"
 					+ "				yield ++i;\n"
@@ -4727,7 +4704,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					+ "	static Long foo(Number n) {  \n"
 					+ "	int i = 0;\n"
 					+ "	return switch(n) {\n"
-					+ "	  case Long l when (1 == switch(l) {\n"
+					+ "	  case Long l && (1 == switch(l) {\n"
 					+ "		case \n"
 					+ "			default -> {  \n"
 					+ "				yield (i=i+1);\n"
@@ -4755,7 +4732,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					+ "	static Long foo(Number n) {  \n"
 					+ "	int i = 0;\n"
 					+ "	return switch(n) {\n"
-					+ "	  case Long l when (1 == switch(l) {\n"
+					+ "	  case Long l && (1 == switch(l) {\n"
 					+ "		case \n"
 					+ "			default -> {  \n"
 					+ "				yield (i = bar());\n"
@@ -4858,7 +4835,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"public class X {\n"
 				+ "    public static int testMethod(I i) {\n"
 				+ "       return switch (i) {\n"
-				+ "            case I p1 when (p1 instanceof C p2) : {\n"
+				+ "            case I p1 && (p1 instanceof C p2) : {\n"
 				+ "                yield p2.value(); // Error here\n"
 				+ "            }\n"
 				+ "            case I p3 : {\n"
@@ -4894,7 +4871,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"public class X {\n"
 				+ "    public static int testMethod(I i) {\n"
 				+ "       return switch (i) {\n"
-				+ "            case I p1 when (p1 instanceof C p2) : {\n"
+				+ "            case I p1 && (p1 instanceof C p2) : {\n"
 				+ "                yield p2.value();\n"
 				+ "            }\n"
 				+ "            case I p3 : {\n"
@@ -4930,7 +4907,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"public class X {\n"
 				+ "    public static int foo(Object o) {\n"
 				+ "       return switch (o) {\n"
-				+ "            case Number n when (n instanceof Integer i) : {\n"
+				+ "            case Number n && (n instanceof Integer i) : {\n"
 				+ "                yield n.intValue() + i; // Error here\n"
 				+ "            }\n"
 				+ "            case Number n2 : {\n"
@@ -4959,7 +4936,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"public class X {\n"
 				+ "    public static int foo(Object o) {\n"
 				+ "       return switch (o) {\n"
-				+ "            case Number n when (n instanceof Integer i && i.equals(10)) : {\n"
+				+ "            case Number n && (n instanceof Integer i && i.equals(10)) : {\n"
 				+ "                yield n.intValue() + i; // Error here\n"
 				+ "            }\n"
 				+ "            case Number n2 : {\n"
@@ -4989,7 +4966,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				+ "   @SuppressWarnings({ \"preview\", \"rawtypes\" })\n"
 				+ "	public static boolean foo(Integer n) {\n"
 				+ "    	return switch (n) {\n"
-				+ "	    	case Integer x when x.equals(10) -> {\n"
+				+ "	    	case Integer x && x.equals(10) -> {\n"
 				+ "	    		yield true;\n"
 				+ "	    	}\n"
 				+ "	    	case Comparable y -> {\n"
@@ -5012,7 +4989,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				+ " @SuppressWarnings({ \"preview\", \"rawtypes\" })\n"
 				+ "	public static boolean foo(Integer n) {\n"
 				+ "    	return switch (n) {\n"
-				+ "	    	case Integer x when x.equals(10) -> {\n"
+				+ "	    	case Integer x && x.equals(10) -> {\n"
 				+ "	    		yield true;\n"
 				+ "	    	}\n"
 				+ "	    	case Comparable y -> {\n"
@@ -5032,7 +5009,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 11)\n" +
 				"	default -> {\n" +
 				"	^^^^^^^\n" +
-				"Switch case cannot have both unconditional pattern and default label\n" +
+				"Switch case cannot have both a total pattern and default label\n" +
 				"----------\n");
 	}
 	public void testBug578635_3() {
@@ -5042,7 +5019,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				+ " @SuppressWarnings({ \"preview\", \"rawtypes\" })\n"
 				+ "	public static boolean foo(Integer n) {\n"
 				+ "    	return switch (n) {\n"
-				+ "	    	case Integer x when x.equals(10) -> {\n"
+				+ "	    	case Integer x && x.equals(10) -> {\n"
 				+ "	    		yield true;\n"
 				+ "	    	}\n"
 				+ "	    	case Comparable y -> {\n"
@@ -5062,7 +5039,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 11)\n" +
 				"	default -> {\n" +
 				"	^^^^^^^\n" +
-				"Switch case cannot have both unconditional pattern and default label\n" +
+				"Switch case cannot have both a total pattern and default label\n" +
 				"----------\n");
 	}
 	public void testBug578417_1() {
@@ -5100,7 +5077,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					" @SuppressWarnings(\"preview\")\n"+
 					" static  int foo(Object o, boolean b) {\n"+
 					"   return switch (o) { \n"+
-					"      case X x when b -> 0; // compilation error\n"+
+					"      case X x && b -> 0; // compilation error\n"+
 					"      default -> 1;\n"+
 					"   }; \n"+
 					" } \n"+
@@ -5171,7 +5148,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"       static void constantLabelMustAppearBeforePattern(Integer o) {\n"+
 					"               switch (o) {\n"+
 					"               case -1, 1 -> System.out.println(\"special case:\" + o);\n"+
-					"               case Integer i when i > 0 -> System.out.println(\"positive integer: \" + o);\n"+
+					"               case Integer i && i > 0 -> System.out.println(\"positive integer: \" + o);\n"+
 					"               case Integer i -> System.out.println(\"other integer: \" + o);\n"+
 					"               }\n"+
 					"       }\n"+
@@ -5200,7 +5177,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"               switch (o) {\n"+
 					"               case -1, 1 -> System.out.println(\"special case:\" + o);\n"+
 					"               case null -> System.out.println(\"null\");\n"+
-					"               case Integer i when i > 0 -> System.out.println(\"positive integer: \" + o);\n"+
+					"               case Integer i && i > 0 -> System.out.println(\"positive integer: \" + o);\n"+
 					"               case Integer i -> System.out.println(\"other integer: \" + o);\n"+
 					"               }\n"+
 					"       }\n"+

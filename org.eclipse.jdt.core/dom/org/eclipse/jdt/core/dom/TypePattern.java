@@ -8,10 +8,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -64,7 +60,7 @@ public class TypePattern extends Pattern {
 
 	TypePattern(AST ast) {
 		super(ast);
-		supportedOnlyIn19();
+		supportedOnlyIn18();
 		unsupportedWithoutPreviewError();
 	}
 
@@ -125,8 +121,9 @@ public class TypePattern extends Pattern {
 		return super.internalGetSetChildProperty(property, get, child);
 	}
 
+	@Override
 	public List<SingleVariableDeclaration> patternVariables() {
-		supportedOnlyIn19();
+		supportedOnlyIn18();
 		unsupportedWithoutPreviewError();
 		return new ArrayList<SingleVariableDeclaration>(Arrays.asList(getPatternVariable()));
 	}
@@ -141,12 +138,12 @@ public class TypePattern extends Pattern {
 	 * <li>the node already has a parent</li>
 	 * <li>a cycle in would be created</li>
 	 * </ul>
-	 * @exception UnsupportedOperationException if this operation is used other than JLS19
+	 * @exception UnsupportedOperationException if this operation is used other than JLS18
 	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
 	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
 	 */
 	public void setPatternVariable(SingleVariableDeclaration patternVariable) {
-		supportedOnlyIn19();
+		supportedOnlyIn18();
 		unsupportedWithoutPreviewError();
 		if (patternVariable == null) {
 			throw new IllegalArgumentException();
@@ -161,12 +158,12 @@ public class TypePattern extends Pattern {
 	 * Returns the pattern variable of Types Pattern.
 	 *
 	 * @return the pattern variable
-	 * @exception UnsupportedOperationException if this operation is used other than JLS19
+	 * @exception UnsupportedOperationException if this operation is used other than JLS18
 	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
 	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
 	 */
 	public SingleVariableDeclaration getPatternVariable() {
-		supportedOnlyIn19();
+		supportedOnlyIn18();
 		unsupportedWithoutPreviewError();
 		if (this.patternVariable  == null) {
 			// lazy init must be thread-safe for readers

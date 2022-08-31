@@ -7,10 +7,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -1034,7 +1030,6 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				options);
 	}
 	/* Test that we report subtypes of pattern variables used in the same stmt
-	 * As of Java 19, we no longer report error for the above
 	 */
 	public void test020() {
 		Map<String, String> options = getCompilerOptions(true);
@@ -1047,15 +1042,15 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 						"  }\n" +
 						"  public static void foo(Object[] o) {\n" +
 						"		boolean b = (o instanceof String[] s) && s instanceof CharSequence[] s2;\n" +
-						"		System.out.print(b1);\n" +
+						"		System.out.print(b);\n" +
 						"	}\n" +
 						"}\n",
 				},
 				"----------\n" +
-				"1. ERROR in X20.java (at line 7)\n" +
-				"	System.out.print(b1);\n" +
-				"	                 ^^\n" +
-				"b1 cannot be resolved to a variable\n" +
+				"1. ERROR in X20.java (at line 6)\n" +
+				"	boolean b = (o instanceof String[] s) && s instanceof CharSequence[] s2;\n" +
+				"	                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"Expression type cannot be a subtype of the Pattern type\n" +
 				"----------\n",
 				"",
 				null,
@@ -2423,16 +2418,16 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 						"        return true;\n" +
 						"    }\n" +
 						"	public static void main(String argv[]) {\n" +
-						"		System.out.println(abc);\n" +
+						"		System.out.println(\"\");\n" +
 						"	}\n" +
 						"}\n",
 				},
 				"----------\n" +
-				"1. ERROR in X.java (at line 10)\n" +
-				"	System.out.println(abc);\n" +
-				"	                   ^^^\n" +
-				"abc cannot be resolved to a variable\n" +
-				"----------\n",
+					"1. ERROR in X.java (at line 4)\n" +
+					"	if (null instanceof T t) {\n" +
+					"	    ^^^^^^^^^^^^^^^^^^^\n" +
+					"Expression type cannot be a subtype of the Pattern type\n" +
+					"----------\n",
 				"",
 				null,
 				true,
@@ -3932,55 +3927,59 @@ public class PatternMatching16Test extends AbstractRegressionTest {
     			"        }\n" +
     		    "    }\n" +
     			"}";
-    	String expectedOutput =  "  public static void main(String[] args);\n" +
-    					"     0  ldc <String \"OK: \"> [16]\n" +
-    					"     2  astore_1 [y]\n" +
-    					"     3  ldc <String \"local\"> [18]\n" +
-    					"     5  astore 4\n" +
-    					"     7  aload 4\n" +
-    					"     9  instanceof String [20]\n" +
-    					"    12  ifeq 54\n" +
-    					"    15  aload 4\n" +
-    					"    17  checkcast String [20]\n" +
-    					"    20  dup\n" +
-    					"    21  astore_2\n" +
-    					"    22  aload 4\n" +
-    					"    24  checkcast String [20]\n" +
-    					"    27  if_acmpne 54\n" +
-    					"    30  getstatic System.out : PrintStream [22]\n" +
-    					"    33  new StringBuilder [28]\n" +
-    					"    36  dup\n" +
-    					"    37  aload_1 [y]\n" +
-    					"    38  invokestatic String.valueOf(Object) : String [30]\n" +
-    					"    41  invokespecial StringBuilder(String) [34]\n" +
-    					"    44  aload_2 [x]\n" +
-    					"    45  invokevirtual StringBuilder.append(String) : StringBuilder [37]\n" +
-    					"    48  invokevirtual StringBuilder.toString() : String [41]\n" +
-    					"    51  invokevirtual PrintStream.println(String) : void [45]\n" +
-    					"    54  return\n" +
-    					"      Line numbers:\n" +
-    					"        [pc: 0, line: 13]\n" +
-    					"        [pc: 3, line: 14]\n" +
-    					"        [pc: 30, line: 15]\n" +
-    					"        [pc: 54, line: 17]\n" +
-    					"      Local variable table:\n" +
-    					"        [pc: 0, pc: 55] local: args index: 0 type: String[]\n" +
-    					"        [pc: 3, pc: 55] local: y index: 1 type: String\n" +
-    					"        [pc: 30, pc: 54] local: x index: 2 type: String\n" +
-    					"      Stack map table: number of frames 1\n" +
-    					"        [pc: 54, append: {String}]\n" +
-    					"    RuntimeVisibleTypeAnnotations: \n" +
-    					"      #57 @Type(\n" +
-    					"        target type = 0x40 LOCAL_VARIABLE\n" +
-    					"        local variable entries:\n" +
-    					"          [pc: 3, pc: 55] index: 1\n" +
-    					"      )\n" +
-    					"      #57 @Type(\n" +
-    					"        target type = 0x40 LOCAL_VARIABLE\n" +
-    					"        local variable entries:\n" +
-    					"          [pc: 30, pc: 54] index: 2\n" +
-    					"      )\n" +
-    					"\n";
+    	String expectedOutput = ""
+    			+ "  // Method descriptor #15 ([Ljava/lang/String;)V\n"
+    			+ "  // Stack: 4, Locals: 4\n"
+    			+ "  public static void main(String[] args);\n"
+    			+ "     0  ldc <String \"OK: \"> [16]\n"
+    			+ "     2  astore_1 [y]\n"
+    			+ "     3  ldc <String \"local\"> [18]\n"
+    			+ "     5  astore_3 [ instanceOfPatternExpressionValue]\n"
+    			+ "     6  aload_3 [ instanceOfPatternExpressionValue]\n"
+    			+ "     7  instanceof String [20]\n"
+    			+ "    10  ifeq 50\n"
+    			+ "    13  aload_3 [ instanceOfPatternExpressionValue]\n"
+    			+ "    14  checkcast String [20]\n"
+    			+ "    17  dup\n"
+    			+ "    18  astore_2\n"
+    			+ "    19  aload_3\n"
+    			+ "    20  checkcast String [20]\n"
+    			+ "    23  if_acmpne 50\n"
+    			+ "    26  getstatic System.out : PrintStream [22]\n"
+    			+ "    29  new StringBuilder [28]\n"
+    			+ "    32  dup\n"
+    			+ "    33  aload_1 [y]\n"
+    			+ "    34  invokestatic String.valueOf(Object) : String [30]\n"
+    			+ "    37  invokespecial StringBuilder(String) [34]\n"
+    			+ "    40  aload_2 [x]\n"
+    			+ "    41  invokevirtual StringBuilder.append(String) : StringBuilder [37]\n"
+    			+ "    44  invokevirtual StringBuilder.toString() : String [41]\n"
+    			+ "    47  invokevirtual PrintStream.println(String) : void [45]\n"
+    			+ "    50  return\n"
+    			+ "      Line numbers:\n"
+    			+ "        [pc: 0, line: 13]\n"
+    			+ "        [pc: 3, line: 14]\n"
+    			+ "        [pc: 26, line: 15]\n"
+    			+ "        [pc: 50, line: 17]\n"
+    			+ "      Local variable table:\n"
+    			+ "        [pc: 0, pc: 51] local: args index: 0 type: String[]\n"
+    			+ "        [pc: 3, pc: 51] local: y index: 1 type: String\n"
+    			+ "        [pc: 26, pc: 50] local: x index: 2 type: String\n"
+    			+ "        [pc: 6, pc: 20] local:  instanceOfPatternExpressionValue index: 3 type: Object\n"
+    			+ "      Stack map table: number of frames 1\n"
+    			+ "        [pc: 50, append: {String}]\n"
+    			+ "    RuntimeVisibleTypeAnnotations: \n"
+    			+ "      #59 @Type(\n"
+    			+ "        target type = 0x40 LOCAL_VARIABLE\n"
+    			+ "        local variable entries:\n"
+    			+ "          [pc: 3, pc: 51] index: 1\n"
+    			+ "      )\n"
+    			+ "      #59 @Type(\n"
+    			+ "        target type = 0x40 LOCAL_VARIABLE\n"
+    			+ "        local variable entries:\n"
+    			+ "          [pc: 26, pc: 50] index: 2\n"
+    			+ "      )\n"
+    			+ "\n";
     	checkClassFile("Test", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
         runConformTest(
                 new String[] {
@@ -3994,39 +3993,6 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	public void testBug578628_1() {
 		if (this.complianceLevel < ClassFileConstants.JDK18)
 			return;
-		runNegativeTest(
-				new String[] {
-						"X.java",
-							"public class X {\n"
-							+ "    public static Object str = \"a\";\n"
-							+ "    public static void foo() {\n"
-							+ "    	if (str instanceof (String a && a == null)) {\n"
-							+ "            System.out.println(true);\n"
-							+ "        } else {\n"
-							+ "        	System.out.println(false);\n"
-							+ "        }\n"
-							+ "    } \n"
-							+ "    public static void main(String[] argv) {\n"
-							+ "    	foo();\n"
-							+ "    }\n"
-							+ "}",
-				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	if (str instanceof (String a && a == null)) {\n" +
-				"	                           ^\n" +
-				"Syntax error, insert \")\" to complete ParenthesizedPattern\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 4)\n" +
-				"	if (str instanceof (String a && a == null)) {\n" +
-				"	                                          ^\n" +
-				"Syntax error on token \")\", delete this token\n" +
-				"----------\n",
-				false);
-	}
-	public void testBug578628_1a() {
-		if (this.complianceLevel < ClassFileConstants.JDK18)
-			return;
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runConformTest(
 				new String[] {
@@ -4034,7 +4000,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 							"public class X {\n"
 							+ "    public static Object str = \"a\";\n"
 							+ "    public static void foo() {\n"
-							+ "    	if (str instanceof String a && a == null) {\n"
+							+ "    	if (str instanceof (String a && a == null)) {\n"
 							+ "            System.out.println(true);\n"
 							+ "        } else {\n"
 							+ "        	System.out.println(false);\n"
@@ -4058,7 +4024,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 							"public class X {\n"
 							+ "    public static Object str = \"a\";\n"
 							+ "    public static void foo() {\n"
-							+ "    	if (str instanceof String a && a != null) {\n"
+							+ "    	if (str instanceof (String a && a != null)) {\n"
 							+ "            System.out.println(true);\n"
 							+ "        } else {\n"
 							+ "        	System.out.println(false);\n"
@@ -4082,7 +4048,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 							"public class X {\n"
 							+ "    public static Object str = \"a\";\n"
 							+ "    public static void foo() {\n"
-							+ "    	bar(str instanceof String a && a == null);\n"
+							+ "    	bar(str instanceof (String a && a == null));\n"
 							+ "    } \n"
 							+ "    public static void bar(boolean arg) {\n"
 							+ "    	System.out.println(arg);\n"
@@ -4096,7 +4062,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				compilerOptions);
 	}
 	public void testBug578628_4() {
-		if (this.complianceLevel < ClassFileConstants.JDK19)
+		if (this.complianceLevel < ClassFileConstants.JDK18)
 			return;
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runConformTest(
@@ -4107,7 +4073,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 							+ "public static void foo() {\n"
 							+ "    	boolean b = switch (str) {\n"
 							+ "    		case String s -> {\n"
-							+ "    			yield (str instanceof String a && a != null);\n"
+							+ "    			yield (str instanceof (String a && a != null));\n"
 							+ "    		}\n"
 							+ "    		default -> false;\n"
 							+ "    	};\n"

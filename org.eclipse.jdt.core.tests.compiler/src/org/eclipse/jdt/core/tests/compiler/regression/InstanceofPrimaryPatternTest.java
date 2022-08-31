@@ -1,15 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2021, 2022 IBM Corporation and others.
+ * Copyright (c) 2021 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -188,17 +184,7 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 				"}\n",
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 3)\n" +
-			"	if (obj instanceof (String s && s.length() > 0)) {\n" +
-			"	                           ^\n" +
-			"Syntax error, insert \")\" to complete ParenthesizedPattern\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
-			"	if (obj instanceof (String s && s.length() > 0)) {\n" +
-			"	                                               ^\n" +
-			"Syntax error on token \")\", delete this token\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 9)\n" +
+			"1. ERROR in X.java (at line 9)\n" +
 			"	Zork();\n" +
 			"	^^^^\n" +
 			"The method Zork() is undefined for the type X\n" +
@@ -267,7 +253,7 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 				"public class X {\n" +
 				"  public static void foo(String s) {\n" +
 				"		if (s instanceof Object o) {\n" +
-				"			System.out.println(s1);\n" +
+				"			System.out.println(s);\n" +
 				"		}\n " +
 				"	}\n" +
 				"  public static void main(String[] obj) {\n" +
@@ -276,10 +262,10 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 				"}\n",
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	System.out.println(s1);\n" +
-			"	                   ^^\n" +
-			"s1 cannot be resolved to a variable\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	if (s instanceof Object o) {\n" +
+			"	    ^^^^^^^^^^^^^^^^^^^^^\n" +
+			"Expression type cannot be a subtype of the Pattern type\n" +
 			"----------\n");
 	}
 }

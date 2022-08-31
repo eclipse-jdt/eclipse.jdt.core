@@ -8,10 +8,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -54,7 +50,6 @@ public class AbstractCompilerTest extends TestCase {
 	public static final int F_16  = 0x2000;
 	public static final int F_17  = 0x4000;
 	public static final int F_18  = 0x8000;
-	public static final int F_19  = 0x10000;
 
 	public static final boolean RUN_JAVAC = CompilerOptions.ENABLED.equals(System.getProperty("run.javac"));
 	public static final boolean PERFORMANCE_ASSERTS = !CompilerOptions.DISABLED.equals(System.getProperty("jdt.performance.asserts"));
@@ -75,7 +70,6 @@ public class AbstractCompilerTest extends TestCase {
 	protected static boolean isJRE16Plus = false;
 	protected static boolean isJRE17Plus = false;
 	protected static boolean isJRE18Plus = false;
-	protected static boolean isJRE19Plus = false;
 	protected static boolean reflectNestedClassUseDollar;
 
 	public static int[][] complianceTestLevelMapping = new int[][] {
@@ -95,7 +89,6 @@ public class AbstractCompilerTest extends TestCase {
 		new int[] {F_16, ClassFileConstants.MAJOR_VERSION_16},
 		new int[] {F_17, ClassFileConstants.MAJOR_VERSION_17},
 		new int[] {F_18, ClassFileConstants.MAJOR_VERSION_18},
-		new int[] {F_19, ClassFileConstants.MAJOR_VERSION_19},
 	};
 
 	/**
@@ -325,9 +318,8 @@ public class AbstractCompilerTest extends TestCase {
 	public static int getPossibleComplianceLevels() {
 		if (possibleComplianceLevels == UNINITIALIZED) {
 			String specVersion = System.getProperty("java.specification.version");
-			isJRE19Plus = CompilerOptions.VERSION_19.equals(specVersion);
-			isJRE18Plus = isJRE19Plus || CompilerOptions.VERSION_18.equals(specVersion);
-			isJRE17Plus = isJRE18Plus || CompilerOptions.VERSION_17.equals(specVersion);
+			isJRE18Plus =  CompilerOptions.VERSION_18.equals(specVersion);
+			isJRE17Plus =  isJRE18Plus || CompilerOptions.VERSION_17.equals(specVersion);
 			isJRE16Plus = isJRE17Plus || CompilerOptions.VERSION_16.equals(specVersion);
 			isJRE15Plus = isJRE16Plus || CompilerOptions.VERSION_15.equals(specVersion);
 			isJRE14Plus = isJRE15Plus || CompilerOptions.VERSION_14.equals(specVersion);
@@ -387,9 +379,6 @@ public class AbstractCompilerTest extends TestCase {
 					} else if (CompilerOptions.VERSION_18.equals(compliance)) {
 						if (isJRE18Plus)
 							possibleComplianceLevels |= F_18;
-					} else if (CompilerOptions.VERSION_19.equals(compliance)) {
-						if (isJRE19Plus)
-							possibleComplianceLevels |= F_19;
 					} else {
 						System.out.println("Ignoring invalid compliance (" + compliance + ")");
 						System.out.print("Use one of ");
@@ -409,8 +398,7 @@ public class AbstractCompilerTest extends TestCase {
 						System.out.println(CompilerOptions.VERSION_15 + ", ");
 						System.out.println(CompilerOptions.VERSION_16 + ", ");
 						System.out.println(CompilerOptions.VERSION_17 + ", ");
-						System.out.println(CompilerOptions.VERSION_18 + ", ");
-						System.out.println(CompilerOptions.VERSION_19);
+						System.out.println(CompilerOptions.VERSION_18);
 					}
 				}
 				if (possibleComplianceLevels == 0) {
@@ -484,10 +472,6 @@ public class AbstractCompilerTest extends TestCase {
 					if (canRun18) {
 						possibleComplianceLevels |= F_18;
 					}
-					boolean canRun19 = canRun18 && !CompilerOptions.VERSION_18.equals(specVersion);
-					if (canRun19) {
-						possibleComplianceLevels |= F_19;
-					}
 				} else if ("1.0".equals(specVersion)
 							|| CompilerOptions.VERSION_1_1.equals(specVersion)
 							|| CompilerOptions.VERSION_1_2.equals(specVersion)
@@ -522,9 +506,6 @@ public class AbstractCompilerTest extends TestCase {
 																	possibleComplianceLevels |= F_17;
 																	if (!CompilerOptions.VERSION_17.equals(specVersion)) {
 																		possibleComplianceLevels |= F_18;
-																		if (!CompilerOptions.VERSION_18.equals(specVersion)) {
-																			possibleComplianceLevels |= F_19;
-																		}
 																	}
 																}
 															}
@@ -715,7 +696,7 @@ public class AbstractCompilerTest extends TestCase {
 			int major = Integer.parseInt(ver) + ClassFileConstants.MAJOR_VERSION_0;
 			return "version " + ver + " : " + major + ".0";
 		}
-		if (compliance >= ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_19)) return version; // keep this stmt for search for next bump up
+		if (compliance >= ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_18)) return version; // keep this stmt for search for next bump up
 		return version;
 	}
 

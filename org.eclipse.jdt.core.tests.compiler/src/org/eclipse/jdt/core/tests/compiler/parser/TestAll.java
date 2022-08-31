@@ -8,10 +8,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *      Jesper Steen Møller <jesper@selskabet.org> - Contributions for
@@ -244,18 +240,6 @@ public static TestSuite getTestSuite(boolean addComplianceDiagnoseTest) {
 		TestCase.TESTS_RANGE = null;
 		TestCase.RUN_ONLY_ID = null;
 		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_18), tests_18));
-	}
-	if ((possibleComplianceLevels & AbstractCompilerTest.F_19) != 0) {
-		ArrayList tests_19 = (ArrayList)testClasses.clone();
-		tests_19.addAll(TEST_CLASSES_1_5);
-		addJava16Tests(tests_19);
-		// Reset forgotten subsets tests
-		TestCase.TESTS_PREFIX = null;
-		TestCase.TESTS_NAMES = null;
-		TestCase.TESTS_NUMBERS= null;
-		TestCase.TESTS_RANGE = null;
-		TestCase.RUN_ONLY_ID = null;
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_19), tests_19));
 	}
 	return all;
 }

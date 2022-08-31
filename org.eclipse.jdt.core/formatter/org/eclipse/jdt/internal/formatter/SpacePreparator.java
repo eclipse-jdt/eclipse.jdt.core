@@ -462,7 +462,7 @@ public class SpacePreparator extends ASTVisitor {
 
 	@Override
 	public boolean visit(GuardedPattern node) {
-		handleTokenAfter(node.getPattern(), TokenNameRestrictedIdentifierWhen, this.options.insert_space_before_logical_operator,
+		handleTokenAfter(node.getPattern(), TokenNameAND_AND, this.options.insert_space_before_logical_operator,
 				this.options.insert_space_after_logical_operator);
 		return true;
 	}
