@@ -73,7 +73,7 @@ public class SwitchStatement extends Expression {
 
 	public boolean containsPatterns;
 	public boolean containsNull;
-	BranchLabel switchPatternRestartTarget;
+	private BranchLabel switchPatternRestartTarget;
 	/* package */ public Pattern totalPattern;
 
 	// fallthrough
@@ -700,15 +700,17 @@ public class SwitchStatement extends Expression {
 				&& caseStatement.patternIndex != -1 // for null
 				) {
 			Pattern pattern = (Pattern) caseStatement.constantExpressions[caseStatement.patternIndex];
-			pattern.elseTarget.place();
-			pattern.suspendVariables(codeStream, this.scope);
-			if (!pattern.isAlwaysTrue()) {
-				codeStream.loadInt(caseIndex);
-				codeStream.store(this.restartIndexLocal, false);
-				codeStream.goto_(this.switchPatternRestartTarget);
+			if (pattern instanceof GuardedPattern) {
+				GuardedPattern guardedPattern = (GuardedPattern) pattern;
+				if (!guardedPattern.isGuardTrueAlways()) {
+					guardedPattern.suspendVariables(codeStream, this.scope);
+					codeStream.loadInt(caseIndex);
+					codeStream.store(this.restartIndexLocal, false);
+					codeStream.goto_(this.switchPatternRestartTarget);
+					guardedPattern.thenTarget.place();
+					guardedPattern.resumeVariables(codeStream, this.scope);
+				}
 			}
-			pattern.thenTarget.place();
-			pattern.resumeVariables(codeStream, this.scope);
 		}
 	}
 	private void generateCodeSwitchPatternPrologue(BlockScope currentScope, CodeStream codeStream) {
@@ -722,7 +724,8 @@ public class SwitchStatement extends Expression {
 		codeStream.store(this.dispatchPatternCopy, false);
 		codeStream.addVariable(this.dispatchPatternCopy);
 
-		codeStream.loadInt(0); // restartIndex
+		int restartIndex = 0;
+		codeStream.loadInt(restartIndex);
 		codeStream.store(this.restartIndexLocal, false);
 		codeStream.addVariable(this.restartIndexLocal);
 
@@ -822,21 +825,6 @@ public class SwitchStatement extends Expression {
 			default: break;
 		}
 		return false;
-	}
-	@Override
-	public void collectPatternVariablesToScope(LocalVariableBinding[] variables, BlockScope skope) {
-		if (this.statements != null && this.containsPatterns) {
-			for (Statement stmt : this.statements) {
-				if (stmt instanceof CaseStatement) {
-					CaseStatement caseStatement = (CaseStatement) stmt;
-					if (caseStatement.constantExpressions != null) {
-						for (Expression exp : caseStatement.constantExpressions) {
-							exp.collectPatternVariablesToScope(variables, skope);
-						}
-					}
-				}
-			}
-		}
 	}
 	@Override
 	public void resolve(BlockScope upperScope) {
@@ -1192,6 +1180,7 @@ public class SwitchStatement extends Expression {
 			this.scope.addLocalVariable(this.dispatchPatternCopy);
 			this.dispatchPatternCopy.setConstant(Constant.NotAConstant);
 			this.dispatchPatternCopy.useFlag = LocalVariableBinding.USED;
+
 			this.restartIndexLocal  = new LocalVariableBinding(SecretPatternRestartIndexName, TypeBinding.INT, ClassFileConstants.AccDefault, false);
 			this.scope.addLocalVariable(this.restartIndexLocal);
 			this.restartIndexLocal.setConstant(Constant.NotAConstant);

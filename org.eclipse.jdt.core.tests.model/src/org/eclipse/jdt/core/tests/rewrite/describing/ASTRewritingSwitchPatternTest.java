@@ -6,10 +6,6 @@
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * SPDX-License-Identifier: EPL-2.0
  *
  *     IBM Corporation - initial API and implementation
@@ -57,23 +53,23 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 	}
 
 	public static Test suite() {
-		return createSuite(ASTRewritingSwitchPatternTest.class, 19);
+		return createSuite(ASTRewritingSwitchPatternTest.class, 18);
 	}
 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		if (this.apiLevel == AST.JLS19 ) { // Remove this after it is a standard feature
-			this.project1.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_19);
-			this.project1.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_19);
-			this.project1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_19);
+		if (this.apiLevel == AST.JLS18 ) { // Remove this after it is a standard feature
+			this.project1.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_18);
+			this.project1.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_18);
+			this.project1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_18);
 			this.project1.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 		}
 	}
 
 	private boolean checkAPILevel() {
-		if (this.apiLevel < 19) {
-			System.err.println("Test "+getName()+" requires a JRE 19");
+		if (this.apiLevel < 18) {
+			System.err.println("Test "+getName()+" requires a JRE 18");
 			return true;
 		}
 		return false;
@@ -346,7 +342,7 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 		buf.append("public class X {\n");
 		buf.append(		"void foo(Object o) {\n");
 		buf.append(		"	switch (o) {\n");
-		buf.append(	    "		case Integer i when i > 10:\n");
+		buf.append(	    "		case Integer i && i > 10:\n");
 		buf.append(	    "            System.out.println(\"Greater than 10\");\n");
 		buf.append(	    "        default       	: System.out.println(\"0\");\n");
 		buf.append(	    "	}\n");
@@ -365,7 +361,7 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 		buf.append("public class X {\n");
 		buf.append(		"void foo(Object o) {\n");
 		buf.append(		"	switch (o) {\n");
-		buf.append(	    "       case String s when s.equals(\"hi\") : System.out.println(\"hi\");\n");
+		buf.append(	    "       case String s && s.equals(\"hi\") : System.out.println(\"hi\");\n");
 		buf.append(	    "		default       	: System.out.println(\"0\");\n");
 		buf.append(	    "	}\n");
 		buf.append(	    "}\n");
@@ -414,7 +410,7 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 		buf.append("public class X {\n");
 		buf.append(		"void foo(Object o) {\n");
 		buf.append(		"	switch (o) {\n");
-		buf.append(	    "       case Integer i when i > 10 : System.out.println(\"hi\");\n");
+		buf.append(	    "       case Integer i && i > 10 : System.out.println(\"hi\");\n");
 		buf.append(	    "		default       	: System.out.println(\"0\");\n");
 		buf.append(	    "	}\n");
 		buf.append(	    "}\n");
@@ -432,8 +428,8 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 		buf.append("public class X {\n");
 		buf.append(		"void foo(Object o) {\n");
 		buf.append(		"	int i = switch (o) {\n");
-		buf.append(	    "		case Integer i when i > 10 : System.out.println(\"hi\");\n");
-		buf.append(	    "       case String s when s.equals(\"hi\") : System.out.println(\"hi\");\n");
+		buf.append(	    "		case Integer i && i > 10 : System.out.println(\"hi\");\n");
+		buf.append(	    "       case String s && s.equals(\"hi\") : System.out.println(\"hi\");\n");
 		buf.append(	    "		default       	-> 0;\n");
 		buf.append(	    "	};\n");
 		buf.append(	    "}\n");
@@ -472,7 +468,7 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 		buf.append("public class X {\n");
 		buf.append(		"void foo(Object o) {\n");
 		buf.append(		"	int i = switch (o) {\n");
-		buf.append(	    "		case String s when s.equals(\"hi\") : System.out.println(\"hi\");\n");
+		buf.append(	    "		case String s && s.equals(\"hi\") : System.out.println(\"hi\");\n");
 		buf.append(	    "		default       	-> 0;\n");
 		buf.append(	    "	};\n");
 		buf.append(	    "}\n");

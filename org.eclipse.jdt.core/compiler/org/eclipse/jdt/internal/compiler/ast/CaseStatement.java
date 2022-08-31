@@ -8,10 +8,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -163,10 +159,8 @@ private void casePatternExpressionGenerateCode(BlockScope currentScope, CodeStre
 	if (this.patternIndex != -1) {
 		LocalVariableBinding local = currentScope.findVariable(SwitchStatement.SecretPatternVariableName, null);
 		codeStream.load(local);
-		Pattern pattern = ((Pattern) this.constantExpressions[this.patternIndex]);
-		pattern.generateCode(currentScope, codeStream);
-		if (!(pattern instanceof GuardedPattern))
-			codeStream.goto_(pattern.thenTarget);
+		Pattern patternExpression = ((Pattern) this.constantExpressions[this.patternIndex]);
+		patternExpression.generateCode(currentScope, codeStream);
 	}
 }
 
@@ -464,7 +458,7 @@ private Constant resolveConstantExpression(BlockScope scope,
 			TypeBinding pb = e.resolveAtType(scope, switchStatement.expression.resolvedType);
 			if (pb != null) switchStatement.caseLabelElementTypes.add(pb);
 			TypeBinding expressionType = switchStatement.expression.resolvedType;
-			LocalDeclaration patternVar = e.getPatternVariable();
+			LocalDeclaration patternVar = e.getPatternVariableIntroduced();
 			if (patternVar != null && !patternVar.type.isTypeNameVar(scope)) {
 				// The following code is copied from InstanceOfExpression#resolve()
 				// But there are enough differences to warrant a copy
@@ -513,7 +507,7 @@ private Constant resolveConstantExpression(BlockScope scope,
 			e.traverse(new ASTVisitor() {
 				@Override
 				public boolean visit(TypePattern typePattern, BlockScope scope) {
-					LocalDeclaration local = typePattern.getPatternVariable();
+					LocalDeclaration local = typePattern.getPatternVariableIntroduced();
 					if (local != null && local.binding != null)
 						codeStream.removeVariable(local.binding);
 					return false; // No deeper than this on this node
@@ -541,7 +535,7 @@ public void traverse(ASTVisitor visitor, 	BlockScope blockScope) {
  */
 public LocalDeclaration getLocalDeclaration() {
 	Expression cexp = this.constantExpressions[this.patternIndex];
-	LocalDeclaration patternVariableIntroduced = cexp.getPatternVariable();
+	LocalDeclaration patternVariableIntroduced = cexp.getPatternVariableIntroduced();
 	return patternVariableIntroduced;
 }
 

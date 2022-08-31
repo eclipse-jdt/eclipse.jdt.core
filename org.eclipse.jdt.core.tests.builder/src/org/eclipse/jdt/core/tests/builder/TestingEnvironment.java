@@ -8,10 +8,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -246,9 +242,6 @@ public void addClassFolder(IPath projectPath, IPath classFolderPath, boolean isE
 		} else if ("18".equals(compliance)) {
 			requiredComplianceFlag = AbstractCompilerTest.F_18;
 			compilerVersion = CompilerOptions.VERSION_18;
-		} else if ("19".equals(compliance)) {
-			requiredComplianceFlag = AbstractCompilerTest.F_19;
-			compilerVersion = CompilerOptions.VERSION_19;
 		} else if (!"1.4".equals(compliance) && !"1.3".equals(compliance)) {
 			throw new UnsupportedOperationException("Test framework doesn't support compliance level: " + compliance);
 		}

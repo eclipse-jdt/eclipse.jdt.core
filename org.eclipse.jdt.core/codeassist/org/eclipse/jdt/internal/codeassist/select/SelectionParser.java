@@ -837,7 +837,7 @@ protected void consumeInstanceOfExpressionWithName() {
 		if (this.expressionStack[this.expressionPtr] != this.assistNode) {
 			// Push only when the selection node is not the expression of this
 			// pattern matching instanceof expression
-			LocalDeclaration patternVariableIntroduced = pattern.getPatternVariable();
+			LocalDeclaration patternVariableIntroduced = pattern.getPatternVariableIntroduced();
 			if (patternVariableIntroduced != null) {
 				// filter out patternVariableIntroduced based on current selection if there is an assist node
 				if (this.assistNode == null || (this.selectionStart <= patternVariableIntroduced.sourceStart

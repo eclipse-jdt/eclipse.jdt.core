@@ -8,10 +8,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -76,7 +72,6 @@ public class Java9ElementProcessor extends BaseProcessor {
 	boolean reportSuccessAlready = true;
 	RoundEnvironment roundEnv = null;
 	Messager _messager = null;
-	boolean isJre19;
 	boolean isJre18;
 	boolean isJre17;
 	boolean isJre12;
@@ -106,9 +101,6 @@ public class Java9ElementProcessor extends BaseProcessor {
 						this.isJre17 = true;
 						if (current >= ClassFileConstants.MAJOR_VERSION_18) {
 							this.isJre18 = true;
-							if (current >= ClassFileConstants.MAJOR_VERSION_19) {
-								this.isJre19 = true;
-							}
 						}
 					} else {
 						this.isJre12 = true;

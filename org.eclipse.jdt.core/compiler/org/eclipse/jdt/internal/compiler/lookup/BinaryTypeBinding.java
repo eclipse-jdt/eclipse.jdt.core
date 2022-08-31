@@ -8,10 +8,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -1315,7 +1311,7 @@ public RecordComponentBinding[] components() {
 	for (int i = this.components.length; --i >= 0;) {
 		resolveTypeFor(this.components[i]);
 	}
-	this.extendedTagBits |= ExtendedTagBits.AreRecordComponentsComplete;
+	this.tagBits |= ExtendedTagBits.AreRecordComponentsComplete;
 	return this.components;
 }
 // NOTE: the type of each field of a binary type is resolved when needed

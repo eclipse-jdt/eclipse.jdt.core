@@ -8,11 +8,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *      Jesper Steen Møller - Contributions for
@@ -75,6 +70,5 @@ public interface Keywords {
 	char[] FALSE = "false".toCharArray(); //$NON-NLS-1$
 	char[] NULL = "null".toCharArray(); //$NON-NLS-1$
 	char[] VAR = "var".toCharArray(); //$NON-NLS-1$ // Admittedly not a full blown keyword, just "reserved"
-	char[] WHEN = "when".toCharArray(); //$NON-NLS-1$ // Admittedly not a full blown keyword, just "reserved"
 
 }

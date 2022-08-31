@@ -8,9 +8,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -326,10 +323,6 @@ class DefaultASTVisitor extends ASTVisitor {
 	}
 	@Override
 	public void endVisit(RecordDeclaration node) {
-		endVisitNode(node);
-	}
-	@Override
-	public void endVisit(RecordPattern node) {
 		endVisitNode(node);
 	}
 	@Override
@@ -770,10 +763,6 @@ class DefaultASTVisitor extends ASTVisitor {
 	}
 	@Override
 	public boolean visit(RecordDeclaration node) {
-		return visitNode(node);
-	}
-	@Override
-	public boolean visit(RecordPattern node) {
 		return visitNode(node);
 	}
 	@Override

@@ -490,14 +490,14 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		if (!this.condition.containsPatternVariable()) {
 			return;
 		}
-		if (this.condition.getPatternVariable() != null) {
-			char[] name = this.condition.getPatternVariable().name;
-			LocalDeclaration localVar = this.valueIfTrue.getPatternVariable();
+		if (this.condition.getPatternVariableIntroduced() != null) {
+			char[] name = this.condition.getPatternVariableIntroduced().name;
+			LocalDeclaration localVar = this.valueIfTrue.getPatternVariableIntroduced();
 			if (localVar != null && CharOperation.equals(name, localVar.name)) {
 					scope.problemReporter().illegalRedeclarationOfPatternVar(localVar.binding, localVar);
 					return;
 			}
-			localVar = this.valueIfFalse.getPatternVariable();
+			localVar = this.valueIfFalse.getPatternVariableIntroduced();
 			if (localVar != null && CharOperation.equals(name, localVar.name)) {
 				scope.problemReporter().illegalRedeclarationOfPatternVar(localVar.binding, localVar);
 				return;
