@@ -1057,12 +1057,19 @@ public abstract class ASTNode {
 
 	/**
 	 * Node type constant indicating a node of type
+	 * <code>TextElement</code>.
+	 * @see TextElement
+	 * @since 3.31
+	 */
+	public static final int JAVADOC_TEXT_ELEMENT = 112;
+
+	/**
+	 * Node type constant indicating a node of type
 	 * <code>RecordPattern</code>.
 	 * @see RecordPattern
 	 * @since 3.31 BETA_JAVA19
 	 */
 	public static final int RECORD_PATTERN = 113;
-
 
 	/**
 	 * Returns the node class for the corresponding node type.
@@ -1164,6 +1171,8 @@ public abstract class ASTNode {
 				return Javadoc.class;
 			case JAVADOC_REGION :
 				return JavaDocRegion.class;
+			case JAVADOC_TEXT_ELEMENT :
+				return JavaDocTextElement.class;
 			case LABELED_STATEMENT :
 				return LabeledStatement.class;
 			case LAMBDA_EXPRESSION :

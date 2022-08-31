@@ -209,6 +209,10 @@ class DefaultASTVisitor extends ASTVisitor {
 		endVisitNode(node);
 	}
 	@Override
+	public void endVisit(JavaDocTextElement node) {
+		endVisitNode(node);
+	}
+	@Override
 	public void endVisit(LabeledStatement node) {
 		endVisitNode(node);
 	}
@@ -645,6 +649,10 @@ class DefaultASTVisitor extends ASTVisitor {
 	}
 	@Override
 	public boolean visit(JavaDocRegion node) {
+		return visitNode(node);
+	}
+	@Override
+	public boolean visit(JavaDocTextElement node) {
 		return visitNode(node);
 	}
 	@Override
