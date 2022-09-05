@@ -1569,7 +1569,7 @@ protected NameReference getUnspecifiedReferenceOptimized() {
 	int index = indexOfAssistIdentifier();
 	NameReference reference = super.getUnspecifiedReferenceOptimized();
 
-	if (index >= 0){
+	if (index > 0){
 		if (!this.diet){
 			this.restartRecovery	= true;	// force to restart in recovery mode
 			this.lastIgnoredToken = -1;
