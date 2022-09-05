@@ -53,6 +53,7 @@ import org.eclipse.jdt.internal.compiler.ast.NameReference;
 import org.eclipse.jdt.internal.compiler.ast.NormalAnnotation;
 import org.eclipse.jdt.internal.compiler.ast.Pattern;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
+import org.eclipse.jdt.internal.compiler.ast.RecordPattern;
 import org.eclipse.jdt.internal.compiler.ast.Reference;
 import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
 import org.eclipse.jdt.internal.compiler.ast.ReturnStatement;
@@ -819,6 +820,15 @@ protected void consumeInsideCastExpressionWithQualifiedGenerics() {
 @Override
 protected void consumeInstanceOfExpression() {
 	if (indexOfAssistIdentifier() < 0) {
+		if(this.astStack[0] instanceof RecordPattern) {
+			RecordPattern rp = (RecordPattern)this.astStack[0];
+			Pattern[] patterns = rp.patterns;
+			for (Pattern pattern : patterns) {
+				LocalDeclaration patternVariable = pattern.getPatternVariable();
+				pushOnAstStack(patternVariable);
+
+			}
+		}
 		super.consumeInstanceOfExpression();
 	} else {
 		getTypeReference(this.intStack[this.intPtr--]);
@@ -1569,7 +1579,7 @@ protected NameReference getUnspecifiedReferenceOptimized() {
 	int index = indexOfAssistIdentifier();
 	NameReference reference = super.getUnspecifiedReferenceOptimized();
 
-	if (index > 0){
+	if (index >= 0){
 		if (!this.diet){
 			this.restartRecovery	= true;	// force to restart in recovery mode
 			this.lastIgnoredToken = -1;
