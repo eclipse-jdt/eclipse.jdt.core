@@ -10871,7 +10871,6 @@ protected void consumeGuard() {
 	pushOnAstStack(gPattern);
 }
 protected void consumeTypePattern() {
-
 	//name
 	char[] identifierName = this.identifierStack[this.identifierPtr];
 	long namePosition = this.identifierPositionStack[this.identifierPtr];
@@ -10951,6 +10950,7 @@ protected void consumeRecordPatternWithId() {
 	recPattern.sourceStart = this.intStack[this.intPtr--];
 	local.modifiers =  this.intStack[this.intPtr--];
 	local.declarationSourceStart = type.sourceStart;
+	problemReporter().validateJavaFeatureSupport(JavaFeature.RECORD_PATTERNS, type.sourceStart, local.declarationEnd);
 	pushOnAstStack(recPattern);
 }
 protected void consumeRecordStructure() {

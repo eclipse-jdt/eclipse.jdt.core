@@ -63,6 +63,10 @@ public class TypePattern extends Pattern {
 			if (this.patternVarsWhenTrue == null) {
 				this.patternVarsWhenTrue = new LocalVariableBinding[1];
 				this.patternVarsWhenTrue[0] = binding;
+			} else {
+				LocalVariableBinding[] vars = new LocalVariableBinding[1];
+				vars[0] = binding;
+				this.addPatternVariablesWhenTrue(vars);
 			}
 		}
 	}
