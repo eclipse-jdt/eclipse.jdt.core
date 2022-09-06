@@ -1548,4 +1548,27 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"Pattern of type long is not compatible with type int\n" +
 			"----------\n");
 	}
+	public void test45() {
+		runNegativeTest(new String[] {
+				"X.java",
+						"@SuppressWarnings(\"preview\")\n"
+						+ "public class X {\n"
+						+ "	static void print(Object r) {\n"
+						+ "		switch (r) {\n"
+						+ "			case Rectangle r1 when (r instanceof (Rectangle(ColoredPoint upperLeft2, ColoredPoint lowerRight) r2)):\n"
+						+ "				System.out.println(r2);// error should not be reported here\n"
+						+ "			break;\n"
+						+ "		}\n"
+						+ "	}\n"
+						+ "}\n"
+						+ "record ColoredPoint() {}\n"
+						+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {} "
+		},
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	switch (r) {\n" +
+			"	        ^\n" +
+			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"----------\n");
+	}
 }
