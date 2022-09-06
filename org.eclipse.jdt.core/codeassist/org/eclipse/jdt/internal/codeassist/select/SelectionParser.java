@@ -826,6 +826,8 @@ protected void consumeInstanceOfExpression() {
 		ArrayList<RecordPattern> rpArray = new ArrayList<>();
 		//collect all RP in aststack ..and add local variables in AST stack
 		for (int i =0 ; i < this.astStack.length;i++ ) {
+			if(this.astStack[i]==null)
+				break;
 			if(this.astStack[i] instanceof RecordPattern) {
 				rpArray.add((RecordPattern)this.astStack[i]);
 			}
