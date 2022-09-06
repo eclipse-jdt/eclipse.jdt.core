@@ -845,8 +845,8 @@ protected void consumeInstanceOfExpression() {
 private void pushLocalVariableFromRecordPatternOnAstStack(RecordPattern rp) {
 	Pattern[] patterns = rp.patterns;
 	for (Pattern pattern : patterns) {
-		if(pattern instanceof RecordPattern)
-			pushLocalVariableFromRecordPatternOnAstStack((RecordPattern)pattern);
+//		if(pattern instanceof RecordPattern)
+//			pushLocalVariableFromRecordPatternOnAstStack((RecordPattern)pattern);
 		LocalDeclaration patternVariable = pattern.getPatternVariable();
 		if(patternVariable !=null)
 			pushOnAstStack(patternVariable);
