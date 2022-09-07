@@ -8994,9 +8994,9 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		IJavaProject p1 = createJava9Project("Issue23", "18");
 		Map<String, String> options = new HashMap<>();
 		// Make sure the new options map doesn't reset.
-		options.put(CompilerOptions.OPTION_Compliance, "17.8");
-		options.put(CompilerOptions.OPTION_Source, "17.8");
-		options.put(CompilerOptions.OPTION_TargetPlatform, "17.8");
+		options.put(CompilerOptions.OPTION_Compliance, "16.8");
+		options.put(CompilerOptions.OPTION_Source, "16.8");
+		options.put(CompilerOptions.OPTION_TargetPlatform, "16.8");
 		options.put(CompilerOptions.OPTION_Release, "enabled");
 		p1.setOptions(options);
 		try {
@@ -9013,7 +9013,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			waitForAutoBuild();
 			p1.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p1.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
-			assertMarkers("Unexpected markers", "The project was not built due to \"Invalid value for --release argument:17.8\". Fix the problem, then try refreshing this project and building it since it may be inconsistent", markers);
+			assertMarkers("Unexpected markers", "The project was not built due to \"Invalid value for --release argument:16.8\". Fix the problem, then try refreshing this project and building it since it may be inconsistent", markers);
 		} finally {
 			deleteProject(p1);
 		}
