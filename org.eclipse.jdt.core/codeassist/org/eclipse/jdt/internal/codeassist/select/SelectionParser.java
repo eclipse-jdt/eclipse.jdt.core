@@ -53,6 +53,7 @@ import org.eclipse.jdt.internal.compiler.ast.NameReference;
 import org.eclipse.jdt.internal.compiler.ast.NormalAnnotation;
 import org.eclipse.jdt.internal.compiler.ast.Pattern;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
+import org.eclipse.jdt.internal.compiler.ast.RecordPattern;
 import org.eclipse.jdt.internal.compiler.ast.Reference;
 import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
 import org.eclipse.jdt.internal.compiler.ast.ReturnStatement;
@@ -830,26 +831,16 @@ protected void consumeInstanceOfExpression() {
 @Override
 protected void consumeInstanceOfExpressionWithName() {
 	int length = this.patternLengthPtr >= 0 ?
-			this.patternLengthStack[this.patternLengthPtr--] : 0;
+			this.patternLengthStack[this.patternLengthPtr] : 0;
 	if (length > 0) {
-		Pattern pattern = (Pattern) this.patternStack[this.patternPtr--];
-		pushOnExpressionStack(getUnspecifiedReferenceOptimized());
+		Pattern pattern = (Pattern) this.patternStack[this.patternPtr];
 		if (this.expressionStack[this.expressionPtr] != this.assistNode) {
-			// Push only when the selection node is not the expression of this
-			// pattern matching instanceof expression
-			LocalDeclaration patternVariableIntroduced = pattern.getPatternVariable();
-			if (patternVariableIntroduced != null) {
-				// filter out patternVariableIntroduced based on current selection if there is an assist node
-				if (this.assistNode == null || (this.selectionStart <= patternVariableIntroduced.sourceStart
-						&& this.selectionEnd >= patternVariableIntroduced.sourceEnd)) {
-					pushOnAstStack(patternVariableIntroduced);
-				}
-			}
 			if ((this.selectionStart >= pattern.sourceStart)
 					&&  (this.selectionEnd <= pattern.sourceEnd)) {
 				this.restartRecovery	= true;
 				this.lastIgnoredToken = -1;
-			}
+			} else
+				super.consumeInstanceOfExpressionWithName();
 		} else if (indexOfAssistIdentifier() >= 0) {
 			this.isOrphanCompletionNode = true;
 			this.restartRecovery = true;
@@ -1569,6 +1560,10 @@ protected NameReference getUnspecifiedReferenceOptimized() {
 	int index = indexOfAssistIdentifier();
 	NameReference reference = super.getUnspecifiedReferenceOptimized();
 
+	if(index>=0 && reference instanceof SingleNameReference) {
+	 if( checkForNameReferenceInPatternStack((SingleNameReference)reference))
+		 return  reference;// dont go for recovery
+	}
 	if (index >= 0){
 		if (!this.diet){
 			this.restartRecovery	= true;	// force to restart in recovery mode
@@ -1577,6 +1572,35 @@ protected NameReference getUnspecifiedReferenceOptimized() {
 		this.isOrphanCompletionNode = true;
 	}
 	return reference;
+}
+private boolean checkForNameReferenceInPatternStack(SingleNameReference reference) {
+	for (ASTNode astNode : this.patternStack) {
+		if(astNode == null )
+			break;
+		if (astNode instanceof RecordPattern) {
+			RecordPattern rp = (RecordPattern) astNode;
+			if(checkInRecordPattern(rp,reference))
+				return true;
+		}
+
+	}
+	return false;
+
+}
+private boolean checkInRecordPattern(RecordPattern rp,SingleNameReference reference) {
+	Pattern[] pat = rp.patterns;
+	for (Pattern pattern : pat) {
+		if(pattern instanceof RecordPattern) {
+			checkInRecordPattern((RecordPattern)pattern,reference);
+		}
+		else {
+			LocalDeclaration ld = pattern.getPatternVariable();
+			if( CharOperation.equals(ld.name, reference.token))
+				return true;
+		}
+	}
+	return false;
+
 }
 @Override
 public void initializeScanner(){
