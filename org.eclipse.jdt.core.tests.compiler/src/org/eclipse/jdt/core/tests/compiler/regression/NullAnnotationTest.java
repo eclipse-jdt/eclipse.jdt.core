@@ -8707,7 +8707,6 @@ public void testBug418236() {
 }
 public void testBug461878() {
 	Map compilerOptions = getCompilerOptions();
-	compilerOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "javax.annotation.Nonnull");
 	runNegativeTest(
 		true, /*flush*/
 		new String[] {
