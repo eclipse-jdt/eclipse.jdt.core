@@ -877,6 +877,20 @@ protected void consumeInstanceOfExpressionWithName() {
 	}
 }
 @Override
+protected void consumeGuard() {
+	this.astLengthPtr--;
+	Pattern pattern = null;
+	ASTNode astNode = this.astStack[this.astPtr--];
+	if(!(astNode instanceof Pattern))
+			return;
+	pattern = (Pattern)astNode;
+	Expression expr = this.expressionStack[this.expressionPtr--];
+	this.expressionLengthPtr--;
+	GuardedPattern gPattern = new GuardedPattern(pattern, expr);
+	gPattern.restrictedIdentifierStart = this.intStack[this.intPtr--];
+	pushOnAstStack(gPattern);
+}
+@Override
 protected void consumeLambdaExpression() {
 	super.consumeLambdaExpression();
 	LambdaExpression expression = (LambdaExpression) this.expressionStack[this.expressionPtr];
