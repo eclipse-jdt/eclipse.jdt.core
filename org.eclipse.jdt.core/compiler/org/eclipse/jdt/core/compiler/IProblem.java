@@ -1940,7 +1940,7 @@ void setSourceStart(int sourceStart);
 	int AnnotatedTypeArgumentToUnannotated = Internal + 983;
 	/** @since 3.21 */
 	int AnnotatedTypeArgumentToUnannotatedSuperHint = Internal + 984;
-	/** @since 3.31 */
+	/** @since 3.32 */
 	int NonNullArrayContentNotInitialized = Internal + 985;
 
 
