@@ -839,25 +839,21 @@ protected void consumeInstanceOfExpressionWithName() {
 			this.patternLengthPtr--;
 			this.patternPtr--;
 			pushOnExpressionStack(getUnspecifiedReferenceOptimized());
-
 			pushOnAstStack(pattern.getPatternVariable());
 			pushedPatterVar=true;
 		}
-
 		if ((this.selectionStart >= pattern.sourceStart) && (this.selectionEnd <= pattern.sourceEnd)) {
 			this.restartRecovery = true;
 			this.lastIgnoredToken = -1;
 		} else {
-			//pushOnAstStack(pattern.getPatternVariable());
 			if(pattern instanceof RecordPattern)
 				super.consumeInstanceOfExpressionWithName();
 			else {
 				if(pushedPatterVar == false) {
-					this.patternLengthPtr--;
-					this.patternPtr--;
-					pushOnExpressionStack(getUnspecifiedReferenceOptimized());
-
-					pushOnAstStack(pattern.getPatternVariable());
+//					this.patternLengthPtr--;
+//					this.patternPtr--;
+//					pushOnExpressionStack(getUnspecifiedReferenceOptimized());
+//					pushOnAstStack(pattern.getPatternVariable());
 				}
 			}
 
@@ -879,16 +875,14 @@ protected void consumeInstanceOfExpressionWithName() {
 @Override
 protected void consumeGuard() {
 	this.astLengthPtr--;
-	Pattern pattern = null;
 	ASTNode astNode = this.astStack[this.astPtr--];
 	if(!(astNode instanceof Pattern))
 			return;
-	pattern = (Pattern)astNode;
-	Expression expr = this.expressionStack[this.expressionPtr--];
-	this.expressionLengthPtr--;
-	GuardedPattern gPattern = new GuardedPattern(pattern, expr);
-	gPattern.restrictedIdentifierStart = this.intStack[this.intPtr--];
-	pushOnAstStack(gPattern);
+	else {
+		this.astLengthPtr++;
+		this.astPtr++;
+		super.consumeGuard();
+	}
 }
 @Override
 protected void consumeLambdaExpression() {
