@@ -834,13 +834,12 @@ protected void consumeInstanceOfExpressionWithName() {
 			this.patternLengthStack[this.patternLengthPtr] : 0;
 	if (length > 0) {
 		Pattern pattern = (Pattern) this.patternStack[this.patternPtr];
-		boolean pushedPatterVar = false;
 		if(!(pattern instanceof RecordPattern)) {
 			this.patternLengthPtr--;
 			this.patternPtr--;
 			pushOnExpressionStack(getUnspecifiedReferenceOptimized());
-			pushOnAstStack(pattern.getPatternVariable());
-			pushedPatterVar=true;
+			if(pattern.getPatternVariable() !=null)
+				pushOnAstStack(pattern.getPatternVariable());
 		}
 		if ((this.selectionStart >= pattern.sourceStart) && (this.selectionEnd <= pattern.sourceEnd)) {
 			this.restartRecovery = true;
@@ -848,14 +847,6 @@ protected void consumeInstanceOfExpressionWithName() {
 		} else {
 			if(pattern instanceof RecordPattern)
 				super.consumeInstanceOfExpressionWithName();
-			else {
-				if(pushedPatterVar == false) {
-//					this.patternLengthPtr--;
-//					this.patternPtr--;
-//					pushOnExpressionStack(getUnspecifiedReferenceOptimized());
-//					pushOnAstStack(pattern.getPatternVariable());
-				}
-			}
 
 		}
 	} else if (indexOfAssistIdentifier() >= 0) {
