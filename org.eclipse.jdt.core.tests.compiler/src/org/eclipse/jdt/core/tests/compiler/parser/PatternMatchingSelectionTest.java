@@ -46,14 +46,15 @@ public void test001() throws JavaModelException {
 
 	String selectionIdentifier = "x_";
 	String expectedUnitDisplayString =
-			"public class X {\n" +
-					"  protected Object x_;\n" +
-					"  public X() {\n" +
-					"  }\n" +
-					"  public @SuppressWarnings(\"preview\") void f(Object obj, boolean b) {\n" +
-					"    <SelectOnName:x_>;\n" +
-					"  }\n" +
-					"}\n";
+			"public class X {\n"
+			+ "  protected Object x_;\n"
+			+ "  public X() {\n"
+			+ "  }\n"
+			+ "  public @SuppressWarnings(\"preview\") void f(Object obj, boolean b) {\n"
+			+ "    String y;\n"
+			+ "    <SelectOnName:x_>;\n"
+			+ "  }\n"
+			+ "}\n";
 	String expectedReplacedSource = "x_";
 	String testName = "X.java";
 
