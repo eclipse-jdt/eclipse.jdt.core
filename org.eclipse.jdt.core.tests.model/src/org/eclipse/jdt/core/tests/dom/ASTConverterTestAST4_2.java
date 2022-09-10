@@ -6117,7 +6117,7 @@ public class ASTConverterTestAST4_2 extends ConverterTestSetup {
 		CompilationUnit compilationUnit = (CompilationUnit) node;
 		String expectedResult =
 			"The hierarchy of the type X is inconsistent\n" +
-			"The type test0599.Zork2 cannot be resolved. It is indirectly referenced from required .class files";
+			"The type test0599.Zork2 cannot be resolved. It is indirectly referenced from required type test0599.Zork";
 		assertProblemsSize(compilationUnit, 2, expectedResult);
 		compilationUnit.accept(new ASTVisitor() {
 			public void endVisit(MethodDeclaration methodDeclaration) {

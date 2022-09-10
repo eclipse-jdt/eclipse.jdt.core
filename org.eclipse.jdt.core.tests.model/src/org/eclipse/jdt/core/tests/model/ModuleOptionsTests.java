@@ -425,7 +425,7 @@ public class ModuleOptionsTests extends ModifyingResourceTests {
 			markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			assertMarkers("Unexpected markers",
 					"The project was not built since its build path is incomplete. Cannot find the class file for org.astro.World. Fix the build path then try building this project\n" +
-					"The type org.astro.World cannot be resolved. It is indirectly referenced from required .class files",
+					"The type org.astro.World cannot be resolved. It is indirectly referenced from required type one.p.C",
 					markers);
 		} finally {
 			deleteExternalResource(libPath);
@@ -497,7 +497,7 @@ public class ModuleOptionsTests extends ModifyingResourceTests {
 			IMarker[] markers = p2.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			assertMarkers("Unexpected markers",
 					"The project was not built since its build path is incomplete. Cannot find the class file for org.astro.World. Fix the build path then try building this project\n" +
-					"The type org.astro.World cannot be resolved. It is indirectly referenced from required .class files",
+					"The type org.astro.World cannot be resolved. It is indirectly referenced from required type one.p.C",
 					markers);
 			IClasspathAttribute[] attrs = new IClasspathAttribute[] {
 					JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true"),

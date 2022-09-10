@@ -811,7 +811,7 @@ void setSourceStart(int sourceStart);
 	int PackageCollidesWithType = TypeRelated + 321;
 	int TypeCollidesWithPackage = TypeRelated + 322;
 	int DuplicateTypes = TypeRelated + 323;
-	int IsClassPathCorrect = TypeRelated + 324;
+	int IsClassPathCorrect = TypeRelated + 324; // see also IsClasspathCorrectWithReferencingType below
 	int PublicClassMustMatchFileName = TypeRelated + 325;
 	/** @deprecated - problem is no longer generated */
 	int MustSpecifyPackage = Internal + 326;
@@ -858,6 +858,8 @@ void setSourceStart(int sourceStart);
 	int IllegalVisibilityModifierCombinationForField = FieldRelated + 344;
 	int IllegalModifierCombinationFinalVolatileForField = FieldRelated + 345;
 	int UnexpectedStaticModifierForField = FieldRelated + 346;
+	/** @since 3.32 */
+	int IsClassPathCorrectWithReferencingType = TypeRelated + 347;
 
 	/** @deprecated - problem is no longer generated, use {@link #UndefinedType} instead */
 	int FieldTypeNotFound =  FieldRelated + 349 + ProblemReasons.NotFound; // FieldRelated + 350

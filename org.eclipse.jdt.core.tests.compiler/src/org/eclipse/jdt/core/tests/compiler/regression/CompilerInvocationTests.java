@@ -700,6 +700,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("InvalidUsageOfWildcard", new ProblemAttributes(CategorizedProblem.CAT_SYNTAX));
 		expectedProblemAttributes.put("InvalidVoidExpression", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("IsClassPathCorrect", new ProblemAttributes(CategorizedProblem.CAT_BUILDPATH));
+		expectedProblemAttributes.put("IsClassPathCorrectWithReferencingType", new ProblemAttributes(CategorizedProblem.CAT_BUILDPATH));
 		expectedProblemAttributes.put("JavadocAmbiguousConstructor", new ProblemAttributes(CategorizedProblem.CAT_JAVADOC));
 		expectedProblemAttributes.put("JavadocAmbiguousField", new ProblemAttributes(CategorizedProblem.CAT_JAVADOC));
 		expectedProblemAttributes.put("JavadocAmbiguousMethod", new ProblemAttributes(CategorizedProblem.CAT_JAVADOC));
@@ -1783,6 +1784,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("InvalidUsageOfWildcard", SKIP);
 		expectedProblemAttributes.put("InvalidVoidExpression", SKIP);
 		expectedProblemAttributes.put("IsClassPathCorrect", SKIP);
+		expectedProblemAttributes.put("IsClassPathCorrectWithReferencingType", SKIP);
 		expectedProblemAttributes.put("JavadocAmbiguousConstructor", new ProblemAttributes(JavaCore.COMPILER_PB_INVALID_JAVADOC));
 		expectedProblemAttributes.put("JavadocAmbiguousField", new ProblemAttributes(JavaCore.COMPILER_PB_INVALID_JAVADOC));
 		expectedProblemAttributes.put("JavadocAmbiguousMethod", new ProblemAttributes(JavaCore.COMPILER_PB_INVALID_JAVADOC));
