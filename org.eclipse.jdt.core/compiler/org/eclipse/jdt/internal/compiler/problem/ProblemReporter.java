@@ -847,7 +847,7 @@ public static int getProblemCategory(int severity, int problemID) {
 				break categorizeOnIrritant;
 		}
 	}
-	// categorize fatal problems per ID
+	// categorize fatal / non-configurable problems per ID
 	switch (problemID) {
 		case IProblem.IsClassPathCorrect :
 		case IProblem.IsClassPathCorrectWithReferencingType :
@@ -857,6 +857,8 @@ public static int getProblemCategory(int severity, int problemID) {
 			return CategorizedProblem.CAT_BUILDPATH;
 		case IProblem.ProblemNotAnalysed :
 			return CategorizedProblem.CAT_UNNECESSARY_CODE;
+		case IProblem.NonNullArrayContentNotInitialized :
+			return CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM;
 		default :
 			if ((problemID & IProblem.Syntax) != 0)
 				return CategorizedProblem.CAT_SYNTAX;
@@ -10898,6 +10900,17 @@ public void arrayReferencePotentialNullReference(ArrayReference arrayReference) 
 	this.handle(IProblem.ArrayReferencePotentialNullReference, NoArgument, NoArgument, arrayReference.sourceStart, arrayReference.sourceEnd);
 
 }
+
+public void nonNullArrayContentNotInitialized(Expression dimension, LookupEnvironment lookupEnvironment, TypeBinding elementType) {
+	this.handle(
+			IProblem.NonNullArrayContentNotInitialized,
+			new String[] {new String(elementType.nullAnnotatedReadableName(lookupEnvironment.globalOptions, false))},
+			new String[] {new String(elementType.nullAnnotatedReadableName(lookupEnvironment.globalOptions, true))},
+			ProblemSeverities.Info,
+			dimension.sourceStart-1, // optimistically try to include '[' and ']'
+			dimension.sourceEnd+1);
+}
+
 public void nullityMismatchingTypeAnnotation(Expression expression, TypeBinding providedType, TypeBinding requiredType, NullAnnotationMatching status)
 {
 	if (providedType == requiredType) return; //$IDENTITY-COMPARISON$
