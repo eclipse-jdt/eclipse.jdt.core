@@ -8784,6 +8784,8 @@ public void testBug542829() {
 	runner.runConformTest();
 }
 public void testBug576735() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
+
 	String path = getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "lib576735.jar";
 	String[] libs = getDefaultClassPaths();
 	int len = libs.length;
