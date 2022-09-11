@@ -15,8 +15,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist.select;
 
-import java.util.ArrayList;
-
 /*
  * Parser able to build specific completion parse nodes, given a cursorLocation.
  *
@@ -822,18 +820,6 @@ protected void consumeInsideCastExpressionWithQualifiedGenerics() {
 @Override
 protected void consumeInstanceOfExpression() {
 	if (indexOfAssistIdentifier() < 0) {
-		ArrayList<RecordPattern> rpArray = new ArrayList<>();
-		//collect all RP in aststack ..and add local variables in AST stack
-		for (int i =0 ; i < this.astStack.length;i++ ) {
-			if(this.astStack[i]==null)
-				break;
-			if(this.astStack[i] instanceof RecordPattern) {
-				rpArray.add((RecordPattern)this.astStack[i]);
-			}
-		}
-		for (RecordPattern  recordPattern: rpArray) {
-			pushLocalVariableFromRecordPatternOnAstStack(recordPattern);
-		}
 		super.consumeInstanceOfExpression();
 	} else {
 		getTypeReference(this.intStack[this.intPtr--]);
@@ -842,16 +828,45 @@ protected void consumeInstanceOfExpression() {
 		this.lastIgnoredToken = -1;
 	}
 }
+@Override
+protected Expression consumePatternInsideInstanceof(Pattern pattern) {
+	if(pattern instanceof RecordPattern) {
+		pushLocalVariableFromRecordPatternOnAstStack((RecordPattern)pattern);
+	}
+	return super.consumePatternInsideInstanceof(pattern);
+}
+
+@Override
+protected void consumeCaseLabelElement(CaseLabelKind kind) {
+	super.consumeCaseLabelElement(kind);
+	switch (kind) {
+		case CASE_PATTERN: {
+			ASTNode[] ps = this.patternStack;
+			if (ps[0] instanceof RecordPattern) {
+				pushLocalVariableFromRecordPatternOnAstStack((RecordPattern) ps[0]);
+			}
+		}
+			break;
+		default:
+			break;
+
+	}
+}
+
 private void pushLocalVariableFromRecordPatternOnAstStack(RecordPattern rp) {
 	Pattern[] patterns = rp.patterns;
 	for (Pattern pattern : patterns) {
-//		if(pattern instanceof RecordPattern)
-//			pushLocalVariableFromRecordPatternOnAstStack((RecordPattern)pattern);
-		LocalDeclaration patternVariable = pattern.getPatternVariable();
-		if(patternVariable !=null)
-			pushOnAstStack(patternVariable);
+		if (pattern instanceof RecordPattern)
+			pushLocalVariableFromRecordPatternOnAstStack((RecordPattern) pattern);
+		else {
+			LocalDeclaration patternVariable = pattern.getPatternVariable();
+			if (patternVariable != null)
+				pushOnAstStack(patternVariable);
+
+		}
 	}
 }
+
 @Override
 protected void consumeInstanceOfExpressionWithName() {
 	int length = this.patternLengthPtr >= 0 ?
@@ -860,16 +875,6 @@ protected void consumeInstanceOfExpressionWithName() {
 		Pattern pattern = (Pattern) this.patternStack[this.patternPtr--];
 		pushOnExpressionStack(getUnspecifiedReferenceOptimized());
 		if (this.expressionStack[this.expressionPtr] != this.assistNode) {
-			// Push only when the selection node is not the expression of this
-			// pattern matching instanceof expression
-			LocalDeclaration patternVariableIntroduced = pattern.getPatternVariable();
-			if (patternVariableIntroduced != null) {
-				// filter out patternVariableIntroduced based on current selection if there is an assist node
-				if (this.assistNode == null || (this.selectionStart <= patternVariableIntroduced.sourceStart
-						&& this.selectionEnd >= patternVariableIntroduced.sourceEnd)) {
-					pushOnAstStack(patternVariableIntroduced);
-				}
-			}
 			if ((this.selectionStart >= pattern.sourceStart)
 					&&  (this.selectionEnd <= pattern.sourceEnd)) {
 				this.restartRecovery	= true;
