@@ -875,6 +875,17 @@ protected void consumeInstanceOfExpressionWithName() {
 		Pattern pattern = (Pattern) this.patternStack[this.patternPtr--];
 		pushOnExpressionStack(getUnspecifiedReferenceOptimized());
 		if (this.expressionStack[this.expressionPtr] != this.assistNode) {
+			// Push only when the selection node is not the expression of this
+			// pattern matching instanceof expression
+			LocalDeclaration patternVariableIntroduced = pattern.getPatternVariable();
+			if (patternVariableIntroduced != null) {
+				// filter out patternVariableIntroduced based on current selection if there is an assist node
+				if (this.assistNode == null || (this.selectionStart <= patternVariableIntroduced.sourceStart
+						&& this.selectionEnd >= patternVariableIntroduced.sourceEnd)) {
+					if(!(pattern instanceof RecordPattern))
+						pushOnAstStack(patternVariableIntroduced);
+				}
+			}
 			if ((this.selectionStart >= pattern.sourceStart)
 					&&  (this.selectionEnd <= pattern.sourceEnd)) {
 				this.restartRecovery	= true;
