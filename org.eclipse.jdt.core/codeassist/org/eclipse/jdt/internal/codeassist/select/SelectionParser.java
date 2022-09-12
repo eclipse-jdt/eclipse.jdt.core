@@ -53,6 +53,7 @@ import org.eclipse.jdt.internal.compiler.ast.NameReference;
 import org.eclipse.jdt.internal.compiler.ast.NormalAnnotation;
 import org.eclipse.jdt.internal.compiler.ast.Pattern;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
+import org.eclipse.jdt.internal.compiler.ast.RecordPattern;
 import org.eclipse.jdt.internal.compiler.ast.Reference;
 import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
 import org.eclipse.jdt.internal.compiler.ast.ReturnStatement;
@@ -828,6 +829,45 @@ protected void consumeInstanceOfExpression() {
 	}
 }
 @Override
+protected Expression consumePatternInsideInstanceof(Pattern pattern) {
+	if(pattern instanceof RecordPattern) {
+		pushLocalVariableFromRecordPatternOnAstStack((RecordPattern)pattern);
+	}
+	return super.consumePatternInsideInstanceof(pattern);
+}
+
+@Override
+protected void consumeCaseLabelElement(CaseLabelKind kind) {
+	super.consumeCaseLabelElement(kind);
+	switch (kind) {
+		case CASE_PATTERN: {
+			ASTNode[] ps = this.patternStack;
+			if (ps[0] instanceof RecordPattern) {
+				pushLocalVariableFromRecordPatternOnAstStack((RecordPattern) ps[0]);
+			}
+		}
+			break;
+		default:
+			break;
+
+	}
+}
+
+private void pushLocalVariableFromRecordPatternOnAstStack(RecordPattern rp) {
+	Pattern[] patterns = rp.patterns;
+	for (Pattern pattern : patterns) {
+		if (pattern instanceof RecordPattern)
+			pushLocalVariableFromRecordPatternOnAstStack((RecordPattern) pattern);
+		else {
+			LocalDeclaration patternVariable = pattern.getPatternVariable();
+			if (patternVariable != null)
+				pushOnAstStack(patternVariable);
+
+		}
+	}
+}
+
+@Override
 protected void consumeInstanceOfExpressionWithName() {
 	int length = this.patternLengthPtr >= 0 ?
 			this.patternLengthStack[this.patternLengthPtr--] : 0;
@@ -842,7 +882,8 @@ protected void consumeInstanceOfExpressionWithName() {
 				// filter out patternVariableIntroduced based on current selection if there is an assist node
 				if (this.assistNode == null || (this.selectionStart <= patternVariableIntroduced.sourceStart
 						&& this.selectionEnd >= patternVariableIntroduced.sourceEnd)) {
-					pushOnAstStack(patternVariableIntroduced);
+					if(!(pattern instanceof RecordPattern))
+						pushOnAstStack(patternVariableIntroduced);
 				}
 			}
 			if ((this.selectionStart >= pattern.sourceStart)
