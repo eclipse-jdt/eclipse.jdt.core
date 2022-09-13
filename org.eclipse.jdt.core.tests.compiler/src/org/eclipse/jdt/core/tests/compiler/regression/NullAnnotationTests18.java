@@ -541,4 +541,56 @@ public class NullAnnotationTests18 extends AbstractNullAnnotationTest {
 		runner.expectedOutputString = "0";
 		runner.runConformTest();
 	}
+
+	public void testInstanceOfPatternIsNonNull() {
+		Runner runner = getDefaultRunner();
+		runner.testFiles = new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"public class X {\n" +
+				"	public static void consumeNonNull(@NonNull String s) {\n" +
+				"		System.out.println(\"nonnull\");\n" +
+				"	}\n" +
+				"	public static void main(String... args) {\n" +
+				"		Object o = Math.random() < 0 ? new Object() : \"blah\";\n" +
+				"		if (o instanceof String message) {\n" +
+				"			consumeNonNull(message);\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n"
+			};
+		runner.expectedCompilerLog = "";
+		runner.expectedOutputString = "nonnull";
+		runner.runConformTest();
+	}
+
+	public void testInstanceOfPatternIsLaterAssignedNull() {
+		Runner runner = getDefaultRunner();
+		runner.testFiles = new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"public class X {\n" +
+				"	public static void consumeNonNull(@NonNull String s) {\n" +
+				"		System.out.println(\"nonnull\");\n" +
+				"	}\n" +
+				"	public static void main(String... args) {\n" +
+				"		Object o = Math.random() >= 0 ? new Object() : \"blah\";\n" +
+				"		if (o instanceof String message) {\n" +
+				"			consumeNonNull(message);\n" +
+				"			message = null;\n" +
+				"			consumeNonNull(message);\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n"
+			};
+		runner.expectedCompilerLog =
+				"----------\n" +
+				"1. ERROR in X.java (at line 11)\n" +
+				"	consumeNonNull(message);\n" +
+				"	               ^^^^^^^\n" +
+				"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" +
+				"----------\n";
+		runner.runNegativeTest();
+	}
+
 }
