@@ -709,9 +709,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 			// >= 1.5 : LUB(operand types) must exist
 			TypeBinding commonType = null;
 			if (valueIfTrueType == TypeBinding.NULL) {
-				commonType = valueIfFalseType;
+				commonType = valueIfFalseType.withoutToplevelNullAnnotation(); // null on other branch invalidates any @NonNull
 			} else if (valueIfFalseType == TypeBinding.NULL) {
-				commonType = valueIfTrueType;
+				commonType = valueIfTrueType.withoutToplevelNullAnnotation(); // null on other branch invalidates any @NonNull
 			} else {
 				commonType = scope.lowerUpperBound(new TypeBinding[] { valueIfTrueType, valueIfFalseType });
 			}

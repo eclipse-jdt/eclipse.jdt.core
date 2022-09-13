@@ -593,4 +593,39 @@ public class NullAnnotationTests18 extends AbstractNullAnnotationTest {
 		runner.runNegativeTest();
 	}
 
+	// since 11: uses 'var'
+	public void testNullableVar() {
+		Runner runner = getDefaultRunner();
+		runner.testFiles = new String[] {
+				"Test.java",
+				"\n" +
+				"import org.eclipse.jdt.annotation.NonNull;\n" +
+				"\n" +
+				"public class Test {\n" +
+				"	public @NonNull Test getSomeValue() { return this; }\n" +
+				"	\n" +
+				"	void test(boolean rainyDay) {\n" +
+				"		var a = rainyDay ? getSomeValue() : null;\n" +
+				"		a.getSomeValue(); // problem not detected\n" +
+				"	}\n" +
+				"	void test2(boolean rainyDay) {\n" +
+				"		Test a = rainyDay ? getSomeValue() : null;\n" +
+				"		a.getSomeValue(); // Potential null pointer access: The variable a may be null at this location\n" +
+				"	}\n" +
+				"}\n"
+			};
+		runner.expectedCompilerLog =
+				"----------\n" +
+				"1. ERROR in Test.java (at line 9)\n" +
+				"	a.getSomeValue(); // problem not detected\n" +
+				"	^\n" +
+				"Potential null pointer access: The variable a may be null at this location\n" +
+				"----------\n" +
+				"2. ERROR in Test.java (at line 13)\n" +
+				"	a.getSomeValue(); // Potential null pointer access: The variable a may be null at this location\n" +
+				"	^\n" +
+				"Potential null pointer access: The variable a may be null at this location\n" +
+				"----------\n";
+		runner.runNegativeTest();
+	}
 }
