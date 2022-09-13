@@ -33,7 +33,7 @@ public class RunCompletionModelTests extends junit.framework.TestCase {
 	public final static List COMPLETION_SUITES = new ArrayList();
 	static {
 		if (!ONLY_JAVADOC) {
-			COMPLETION_SUITES.add(CompletionTests.class);
+			COMPLETION_SUITES.add(CompletionTests.class);//dummy
 			COMPLETION_SUITES.add(CompletionTests2.class);
 			COMPLETION_SUITES.add(CompletionTests3.class);
 			COMPLETION_SUITES.add(CompletionTests_1_5.class);
