@@ -43,7 +43,7 @@ public class ASTRewritingInstanceOfPatternExpressionTest extends ASTRewritingTes
 	}
 
 	public static Test suite() {
-		return createSuite(ASTRewritingInstanceOfPatternExpressionTest.class, 16);
+		return createSuite(ASTRewritingInstanceOfPatternExpressionTest.class, 19);
 	}
 
 	@SuppressWarnings("deprecation")
@@ -51,16 +51,16 @@ public class ASTRewritingInstanceOfPatternExpressionTest extends ASTRewritingTes
 	protected void setUp() throws Exception {
 		super.setUp();
 		if (this.apiLevel == AST.JLS16 ) {
-			this.project1.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_16);
-			this.project1.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_16);
-			this.project1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_16);
+			this.project1.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_19);
+			this.project1.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_19);
+			this.project1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_19);
 		}
 	}
 
 	@SuppressWarnings({ "rawtypes", "deprecation" })
 	public void test001() throws Exception {
-		if (this.apiLevel != 16) {
-			System.err.println("Test "+getName()+" requires a JRE 16");
+		if (this.apiLevel != 19) {
+			System.err.println("Test "+getName()+" requires a JRE 19");
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
@@ -115,8 +115,8 @@ public class ASTRewritingInstanceOfPatternExpressionTest extends ASTRewritingTes
 
 	@SuppressWarnings({ "rawtypes", "deprecation" })
 	public void test002() throws Exception {
-		if (this.apiLevel != 16) {
-			System.err.println("Test "+getName()+" requires a JRE 16");
+		if (this.apiLevel != 19) {
+			System.err.println("Test "+getName()+" requires a JRE 19");
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
@@ -170,8 +170,8 @@ public class ASTRewritingInstanceOfPatternExpressionTest extends ASTRewritingTes
 
 	@SuppressWarnings({ "rawtypes", "deprecation" })
 	public void test003() throws Exception {
-		if (this.apiLevel != 16) {
-			System.err.println("Test "+getName()+" requires a JRE 16");
+		if (this.apiLevel != 19) {
+			System.err.println("Test "+getName()+" requires a JRE 19");
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);

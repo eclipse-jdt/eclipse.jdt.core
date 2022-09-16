@@ -564,7 +564,7 @@ public class ASTConverter_16Test extends ConverterTestSetup {
 
 
 	public void testPatternInstanceOfExpression001() throws JavaModelException {
-		if (!isJRE16) {
+		if (!isJRE19) {
 			System.err.println("Test "+getName()+" requires a JRE 16");
 			return;
 		}
@@ -597,7 +597,7 @@ public class ASTConverter_16Test extends ConverterTestSetup {
 	}
 
 	public void testPatternInstanceOfExpression002() throws JavaModelException {
-		if (!isJRE16) {
+		if (!isJRE19) {
 			System.err.println("Test "+getName()+" requires a JRE 16");
 			return;
 		}
@@ -631,7 +631,7 @@ public class ASTConverter_16Test extends ConverterTestSetup {
 	}
 
 	public void testPatternInstanceOfExpression003() throws JavaModelException {
-		if (!isJRE16) {
+		if (!isJRE19) {
 			System.err.println("Test "+getName()+" requires a JRE 16");
 			return;
 		}
