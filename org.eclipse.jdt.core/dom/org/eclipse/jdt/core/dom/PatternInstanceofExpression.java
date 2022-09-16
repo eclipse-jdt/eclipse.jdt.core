@@ -23,6 +23,9 @@ import java.util.List;
  *    Expression <b>instanceof</b> Variable
  * </pre>
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
 @SuppressWarnings("rawtypes")
@@ -35,10 +38,10 @@ public class PatternInstanceofExpression extends Expression {
 		new ChildPropertyDescriptor(PatternInstanceofExpression.class, "leftOperand", Expression.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
-	 * The "rightOperand" structural property of this node type (child type: {@link SingleVariableDeclaration}).
+	 * The "rightOperand" structural property of this node type (child type: {@link Pattern}).
 	 */
 	public static final ChildPropertyDescriptor RIGHT_OPERAND_PROPERTY =
-		new ChildPropertyDescriptor(PatternInstanceofExpression.class, "rightOperand", SingleVariableDeclaration.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
+		new ChildPropertyDescriptor(PatternInstanceofExpression.class, "rightOperand", Pattern.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * A list of property descriptors (element type:
@@ -80,7 +83,7 @@ public class PatternInstanceofExpression extends Expression {
 	 * The right operand; lazily initialized; defaults to an unspecified,
 	 * but legal, simple variable decalaration.
 	 */
-	private SingleVariableDeclaration rightOperand = null;
+	private Pattern rightOperand = null;
 
 
 	/**
@@ -114,7 +117,7 @@ public class PatternInstanceofExpression extends Expression {
 			if (get) {
 				return getRightOperand();
 			} else {
-				setRightOperand((SingleVariableDeclaration) child);
+				setRightOperand((Pattern) child);
 				return null;
 			}
 		}
@@ -132,7 +135,7 @@ public class PatternInstanceofExpression extends Expression {
 		PatternInstanceofExpression result = new PatternInstanceofExpression(target);
 		result.setSourceRange(getStartPosition(), getLength());
 		result.setLeftOperand((Expression) getLeftOperand().clone(target));
-		result.setRightOperand((SingleVariableDeclaration) getRightOperand().clone(target));
+		result.setRightOperand((Pattern) getRightOperand().clone(target));
 		return result;
 	}
 
@@ -199,16 +202,14 @@ public class PatternInstanceofExpression extends Expression {
 	 * Returns the right operand of this instanceof expression.
 	 *
 	 * @return the right operand node
-	 * @since 3.27
+	 * @since 3.31 BETA_JAVA_19
 	 */
-	public SingleVariableDeclaration getRightOperand() {
+	public Pattern getRightOperand() {
 		if (this.rightOperand  == null) {
 			// lazy init must be thread-safe for readers
 			synchronized (this) {
 				if (this.rightOperand == null) {
-					preLazyInit();
-					this.rightOperand= new SingleVariableDeclaration(this.ast);
-					postLazyInit(this.rightOperand, RIGHT_OPERAND_PROPERTY);
+					return null;
 				}
 			}
 		}
@@ -225,9 +226,9 @@ public class PatternInstanceofExpression extends Expression {
 	 * <li>the node already has a parent</li>
 	 * <li>a cycle in would be created</li>
 	 * </ul>
-	 * @since 3.27
+	 * @since 3.31 BETA_JAVA_19
 	 */
-	public void setRightOperand(SingleVariableDeclaration referenceDeclaration) {
+	public void setRightOperand(Pattern referenceDeclaration) {
 		if (referenceDeclaration == null) {
 			throw new IllegalArgumentException();
 		}

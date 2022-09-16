@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2020, 2021 IBM Corporation and others.
+ * Copyright (c) 2020, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * SPDX-License-Identifier: EPL-2.0
  *     IBM Corporation - initial API and implementation
@@ -44,6 +48,7 @@ import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.TextBlock;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclarationStatement;
+import org.eclipse.jdt.core.dom.TypePattern;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 
@@ -849,7 +854,8 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 				checkSourceRange(expression, "o instanceof String s", contents);
 				assertEquals("Not an instanceof expression", ASTNode.INSTANCEOF_EXPRESSION, expression.getNodeType());
 				PatternInstanceofExpression instanceofExpression = (PatternInstanceofExpression) expression;
-				SingleVariableDeclaration var = instanceofExpression.getRightOperand();
+				TypePattern typePattern = (TypePattern)instanceofExpression.getRightOperand();
+				SingleVariableDeclaration var = typePattern.getPatternVariable();
 				checkSourceRange(var, "String s", contents);
 			}finally {
 				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
@@ -892,7 +898,8 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 				checkSourceRange(expression, "o instanceof String", contents);
 				assertEquals("Not an instanceof expression", ASTNode.INSTANCEOF_EXPRESSION, expression.getNodeType());
 				PatternInstanceofExpression instanceofExpression = (PatternInstanceofExpression) expression;
-				SingleVariableDeclaration var = instanceofExpression.getRightOperand();
+				TypePattern typePattern = (TypePattern)instanceofExpression.getRightOperand();
+				SingleVariableDeclaration var = typePattern.getPatternVariable();
 				assertNull(var);
 			}finally {
 				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
@@ -932,12 +939,8 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 				IfStatement ifStatement = (IfStatement) node;
 				Expression expression = ifStatement.getExpression();
 				checkSourceRange(expression, "o instanceof String s", contents);
-				assertEquals("Not an instanceof expression", ASTNode.INSTANCEOF_EXPRESSION, expression.getNodeType());
-				PatternInstanceofExpression instanceofExpression = (PatternInstanceofExpression) expression;
-				SingleVariableDeclaration var = instanceofExpression.getRightOperand();
-				checkSourceRange(var, "String s", contents);
-				String instanceofExpressionString = instanceofExpression.toString();
-				assertEquals("o instanceof String s", instanceofExpressionString);
+				assertEquals("Not an instanceof expression", ASTNode.PATTERN_INSTANCEOF_EXPRESSION, expression.getNodeType());
+
 			}finally {
 				javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 			}

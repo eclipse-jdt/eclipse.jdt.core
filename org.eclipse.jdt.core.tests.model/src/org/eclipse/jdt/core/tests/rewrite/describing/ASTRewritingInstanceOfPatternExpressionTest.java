@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2020, 2021 IBM Corporation and others.
+ * Copyright (c) 2020, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * SPDX-License-Identifier: EPL-2.0
  *     IBM Corporation - initial API and implementation
@@ -26,6 +30,7 @@ import org.eclipse.jdt.core.dom.PatternInstanceofExpression;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.TypePattern;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 
 import junit.framework.Test;
@@ -81,11 +86,13 @@ public class ASTRewritingInstanceOfPatternExpressionTest extends ASTRewritingTes
 		{ // add InstanceOfPattern expression
 			IfStatement ifStatement= ast.newIfStatement();
 			PatternInstanceofExpression instanceOfExpression = ast.newPatternInstanceofExpression();
+			TypePattern typePattern = ast.newTypePattern();
 			instanceOfExpression.setLeftOperand(ast.newSimpleName("o"));//$NON-NLS-1$
 			SingleVariableDeclaration singleVariableDeclaration = ast.newSingleVariableDeclaration();
 			singleVariableDeclaration.setType(ast.newSimpleType(ast.newSimpleName("String")));//$NON-NLS-1$
 			singleVariableDeclaration.setName(ast.newSimpleName("s"));
-			instanceOfExpression.setRightOperand(singleVariableDeclaration);
+			typePattern.setPatternVariable(singleVariableDeclaration);
+			instanceOfExpression.setRightOperand(typePattern);
 			ifStatement.setExpression(instanceOfExpression);
 			ifStatement.setThenStatement(ast.newEmptyStatement());
 			rewrite.getListRewrite(block, Block.STATEMENTS_PROPERTY).insertLast(ifStatement, null);

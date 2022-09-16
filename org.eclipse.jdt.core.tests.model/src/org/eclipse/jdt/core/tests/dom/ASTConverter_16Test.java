@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020, 2021 IBM Corporation and others.
+ * Copyright (c) 2020, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -39,6 +43,7 @@ import org.eclipse.jdt.core.dom.IfStatement;
 import org.eclipse.jdt.core.dom.InstanceofExpression;
 import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.Pattern;
 import org.eclipse.jdt.core.dom.PatternInstanceofExpression;
 import org.eclipse.jdt.core.dom.RecordDeclaration;
 import org.eclipse.jdt.core.dom.SimpleName;
@@ -587,7 +592,7 @@ public class ASTConverter_16Test extends ConverterTestSetup {
 		checkSourceRange(expression, "o instanceof String s", contents);
 		assertEquals("Not an instanceof expression", ASTNode.PATTERN_INSTANCEOF_EXPRESSION, expression.getNodeType());
 		PatternInstanceofExpression instanceofExpression = (PatternInstanceofExpression) expression;
-		SingleVariableDeclaration var = instanceofExpression.getRightOperand();
+		Pattern var = instanceofExpression.getRightOperand();
 		checkSourceRange(var, "String s", contents);
 	}
 
@@ -655,7 +660,7 @@ public class ASTConverter_16Test extends ConverterTestSetup {
 		checkSourceRange(expression, "o instanceof String s", contents);
 		assertEquals("Not an instanceof expression", ASTNode.PATTERN_INSTANCEOF_EXPRESSION, expression.getNodeType());
 		PatternInstanceofExpression instanceofExpression = (PatternInstanceofExpression) expression;
-		SingleVariableDeclaration var = instanceofExpression.getRightOperand();
+		Pattern var = instanceofExpression.getRightOperand();
 		checkSourceRange(var, "String s", contents);
 		String instanceofExpressionString = instanceofExpression.toString();
 		assertEquals("o instanceof String s", instanceofExpressionString);
