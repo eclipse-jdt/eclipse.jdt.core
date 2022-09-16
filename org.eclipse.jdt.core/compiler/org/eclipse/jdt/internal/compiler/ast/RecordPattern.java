@@ -90,7 +90,14 @@ public class RecordPattern extends TypePattern {
 	}
 	@Override
 	public boolean isTotalForType(TypeBinding t) {
-		return false;
+		if (!super.isTotalForType(this.resolvedType)) {
+			return false;
+		}
+		for (Pattern p : this.patterns) {
+			if (!p.isTotalTypeNode)
+				return false;
+		}
+		return true;
 	}
 	@Override
 	public void resolveWithExpression(BlockScope scope, Expression exp) {
@@ -128,7 +135,7 @@ public class RecordPattern extends TypePattern {
 			scope.problemReporter().unexpectedTypeinRecordPattern(this.resolvedType, this.type);
 			return this.resolvedType;
 		}
-		this.isTotalTypeNode = isTotalForType(this.resolvedType);
+		this.isTotalTypeNode = TypePattern.isPatternSubType(this, this.resolvedType);
 		RecordComponentBinding[] components = this.resolvedType.components();
 		if (components.length != this.patterns.length) {
 			scope.problemReporter().recordPatternSignatureMismatch(this.resolvedType, this);
@@ -145,7 +152,7 @@ public class RecordPattern extends TypePattern {
 				p.resolveType(scope, true);
 				TypeBinding expressionType = componentBinding.type;
 				if (p.isPatternTypeCompatible(expressionType, scope)) {
-					p.isTotalTypeNode = p.isTotalForType(componentBinding.type);
+					p.isTotalTypeNode = TypePattern.isPatternSubType(p, componentBinding.type);
 					MethodBinding[] methods = this.resolvedType.getMethods(componentBinding.name);
 					if (methods != null && methods.length > 0) {
 						p.accessorMethod = methods[0];
@@ -202,12 +209,10 @@ public class RecordPattern extends TypePattern {
 	}
 	@Override
 	protected void generatePatternVariable(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel) {
-		if (!this.isTotalTypeNode) {
-			codeStream.load(this.secretPatternVariable);
-			codeStream.instance_of(this.resolvedType);
-			BranchLabel target = falseLabel != null ? falseLabel : new BranchLabel(codeStream);
-			codeStream.ifeq(target);
-		}
+		codeStream.load(this.secretPatternVariable);
+		codeStream.instance_of(this.resolvedType);
+		BranchLabel target = falseLabel != null ? falseLabel : new BranchLabel(codeStream);
+		codeStream.ifeq(target);
 		for (Pattern p : this.patterns) {
 			if (p.accessorMethod != null) {
 				codeStream.load(this.secretPatternVariable);
@@ -220,7 +225,7 @@ public class RecordPattern extends TypePattern {
 						((TypePattern)p).initializePatternVariables(currentScope, codeStream);
 						codeStream.load(p.secretPatternVariable);
 						codeStream.instance_of(p.resolvedType);
-						BranchLabel target = falseLabel != null ? falseLabel : new BranchLabel(codeStream);
+						target = falseLabel != null ? falseLabel : new BranchLabel(codeStream);
 						codeStream.ifeq(target);
 						codeStream.load(p.secretPatternVariable);
 					}

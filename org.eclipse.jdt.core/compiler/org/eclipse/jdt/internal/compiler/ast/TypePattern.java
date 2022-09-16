@@ -145,9 +145,12 @@ public class TypePattern extends Pattern {
 	}
 	@Override
 	public boolean isTotalForType(TypeBinding type) {
-		if (type == null || this.resolvedType == null)
+		return isPatternSubType(this, type);
+	}
+	public static boolean isPatternSubType(Pattern p, TypeBinding type) {
+		if (type == null || p.resolvedType == null)
 			return false;
-		return (type.isSubtypeOf(this.resolvedType, false));
+		return (type.isSubtypeOf(p.resolvedType, false));
 	}
 	@Override
 	protected boolean isPatternTypeCompatible(TypeBinding other, BlockScope scope) {

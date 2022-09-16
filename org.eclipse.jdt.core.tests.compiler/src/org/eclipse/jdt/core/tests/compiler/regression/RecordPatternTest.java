@@ -35,7 +35,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "test25" };
+//		TESTS_NAMES = new String[] { "test16" };
 	}
 	private String extraLibPath;
 	public static Class<?> testClass() {
@@ -1570,5 +1570,55 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"	        ^\n" +
 			"An enhanced switch statement should be exhaustive; a default label expected\n" +
 			"----------\n");
+	}
+	public void test46() {
+		runConformTest(new String[] {
+				"X.java",
+				"public class X {\n"
+				+ "  record Person(String name, int age) {}\n"
+				+ "  @SuppressWarnings(\"preview\")\n"
+				+ "  public static void main(String[] args) {\n"
+				+ "	  Person person = new Person(\"Bob\", 12);\n"
+				+ "	  switch (person) {\n"
+				+ "	  	case Person(String name, int age) -> System.out.println(name +  \" \" + age);\n"
+				+ "	  }\n"
+				+ "  }\n"
+				+ "}"
+		},
+		"Bob 12");
+	}
+	public void test47() {
+		runConformTest(new String[] {
+				"X.java",
+				"public class X {\n"
+				+ "  record Person(String name, int age) {}\n"
+				+ "  @SuppressWarnings(\"preview\")\n"
+				+ "  public static void main(String[] args) {\n"
+				+ "	  Person person = new Person(\"Bob\", 12);\n"
+				+ "	  switch (person) {\n"
+				+ "	  	case Person(var name, var age) -> System.out.println(name +  \" \" + age);\n"
+				+ "	  }\n"
+				+ "  }\n"
+				+ "}"
+		},
+		"Bob 12");
+	}
+	public void test48() {
+		runConformTest(new String[] {
+				"X.java",
+				"public class X {\n"
+				+ "  enum Color { RED, BLACK }\n"
+				+ "  public static void main(String[] args) {\n"
+				+ "    var color = Color.RED;\n"
+				+ "    switch (color) {\n"
+				+ "      case null -> throw null;\n"
+				+ "      case RED -> System.out.println(\"RED\");\n"
+				+ "      case BLACK -> System.out.println(\"BLACK\");\n"
+				+ "    }\n"
+				+ "  }\n"
+				+ "}\n"
+				+ ""
+		},
+		"RED");
 	}
 }

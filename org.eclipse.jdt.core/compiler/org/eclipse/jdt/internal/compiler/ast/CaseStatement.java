@@ -489,15 +489,17 @@ private Constant resolveConstantExpression(BlockScope scope,
 				}
 			}
 			if (e.isTotalForType(expressionType)) {
-				if ((switchStatement.switchBits & SwitchStatement.TotalPattern) != 0) {
-					scope.problemReporter().duplicateTotalPattern(e);
-					return IntConstant.fromValue(-1);
+				switchStatement.switchBits |= SwitchStatement.Exhaustive;
+				if (!(e instanceof RecordPattern)) {
+					if ((switchStatement.switchBits & SwitchStatement.TotalPattern) != 0) {
+						scope.problemReporter().duplicateTotalPattern(e);
+						return IntConstant.fromValue(-1);
+					}
+					switchStatement.switchBits |= SwitchStatement.TotalPattern;
+					switchStatement.totalPattern = e;
 				}
-				switchStatement.switchBits |= (SwitchStatement.TotalPattern | SwitchStatement.Exhaustive);
 				if (switchStatement.defaultCase != null)
 					scope.problemReporter().illegalTotalPatternWithDefault(this);
-				switchStatement.totalPattern = e;
-				e.isTotalTypeNode = true;
 				if (switchStatement.nullCase == null)
 					constant = IntConstant.fromValue(-1);
 			}
