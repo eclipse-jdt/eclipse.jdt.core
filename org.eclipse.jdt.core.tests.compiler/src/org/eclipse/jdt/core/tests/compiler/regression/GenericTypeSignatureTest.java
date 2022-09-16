@@ -18,6 +18,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.GenericSignatureFormatError;
+import java.lang.reflect.Method;
 
 import junit.framework.Test;
 
@@ -33,6 +35,7 @@ import org.eclipse.jdt.core.util.ILocalVariableTypeTableAttribute;
 import org.eclipse.jdt.core.util.ILocalVariableTypeTableEntry;
 import org.eclipse.jdt.core.util.IMethodInfo;
 import org.eclipse.jdt.core.util.ISignatureAttribute;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.IBinaryField;
@@ -1326,4 +1329,85 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		}
 	}
 
+	/**
+	 * javac does not generate a method signature in that case, and the JDT compiler
+	 * produced
+	 *
+	 * <pre>{@code Signature: ()+Ljava/util/stream/Stream<Ljava/lang/String;>;}</pre>
+	 *
+	 * That is not a valid signature due to the {@code '+'} at the beginning. This
+	 * makes various tools that analyze the class files fail, including the JDK
+	 * reflection API (like, e.g., {@link Method#toGenericString()}) with a
+	 * {@link GenericSignatureFormatError}. Removing it would make the signature
+	 * valid but has the potential to make it nonsensical, like in the following
+	 * example:
+	 *
+	 * <pre>{@code
+	 * // Signature: ()+Ljava/util/stream/Stream<TT;>;
+	 * private static synthetic java.util.stream.Stream lambda$2();
+	 * }</pre>
+	 *
+	 * The type parameters that originate from the location of the lambda / method
+	 * reference are not defined here (note that the lambda is static). The
+	 * signature would need to be
+	 *
+	 * <pre>{@code Signature: <T:Ljava/lang/Object;>()Ljava/util/stream/Stream<TT;>;}</pre>
+	 *
+	 * Generating valid and useful generic method signatures for synthetic methods
+	 * like lambdas does likely cost more than it is worth, so JDT should probably
+	 * follow the javac behavior.
+	 */
+	public void testGenericVarargsMethodReferenceLambdasHaveNoSignature() {
+		// uses lambdas
+		if (this.complianceLevel < ClassFileConstants.JDK1_8)
+			return;
+		final String[] testsSource = new String[] {
+				"X.java",
+				"import java.util.Optional;\n" +
+				"import java.util.stream.Stream;\n" +
+				"public interface X {\n" +
+				"  static void m1() {\n" +
+				"    Optional.<Stream<String>>empty().orElseGet(Stream::of);\n" +
+				"  }\n" +
+                "\n" +
+				"  static <T> Stream<T> m2() {\n" +
+				"    return Optional.<Stream<T>>empty().orElseGet(Stream::of);\n" +
+				"  }\n" +
+				"}\n",
+			};
+			this.runConformTest(
+				testsSource,
+				"");
+
+			try {
+				ClassFileReader classFileReader = ClassFileReader.read(OUTPUT_DIR + File.separator + "X.class");
+				IBinaryMethod[] methods = classFileReader.getMethods();
+				assertNotNull("No methods", methods);
+				assertEquals("Wrong size", 4, methods.length);
+
+				IBinaryMethod m1 = methods[0];
+				assertEquals("Wrong name", "m1", new String(m1.getSelector()));
+				assertNull("Unexpected signature, m1 itself is not generic", m1.getGenericSignature());
+
+				IBinaryMethod m2 = methods[1];
+				assertEquals("Wrong name", "m2", new String(m2.getSelector()));
+				String signature = String.valueOf(m2.getGenericSignature());
+				assertEquals("Unexpected signature, m2 itself is generic",
+						"<T:Ljava/lang/Object;>()Ljava/util/stream/Stream<TT;>;", signature);
+
+				IBinaryMethod m1Lambda = methods[2];
+				assertEquals("Wrong name", "lambda$2", new String(m1Lambda.getSelector()));
+				assertNull("Synthetic method for lambda in m1 must not have a generic signature",
+						m1Lambda.getGenericSignature());
+
+				IBinaryMethod m2Lambda = methods[2];
+				assertEquals("Wrong name", "lambda$3", new String(m2Lambda.getSelector()));
+				assertNull("Synthetic method for lambda in m2 must not have a generic signature",
+						m2Lambda.getGenericSignature());
+			} catch (ClassFormatException e) {
+				assertTrue(false);
+			} catch (IOException e) {
+				assertTrue(false);
+			}
+		}
 }
