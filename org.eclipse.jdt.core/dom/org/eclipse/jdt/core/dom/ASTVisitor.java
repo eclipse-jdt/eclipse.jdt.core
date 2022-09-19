@@ -8,10 +8,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -1499,7 +1495,7 @@ public abstract class ASTVisitor {
 	 * @return <code>true</code> if the children of this node should be
 	 * visited, and <code>false</code> if the children of this node should
 	 * be skipped
-	 * @since 3.31 BETA_JAVA19
+	 * @since 3.31
 	 */
 	public boolean visit(RecordPattern node) {
 		return true;
@@ -3049,7 +3045,7 @@ public abstract class ASTVisitor {
 	 * </p>
 	 *
 	 * @param node the node to visit
-	 * @since 3.31 BETA_JAVA19
+	 * @since 3.31
 	 * @noreference This method is not intended to be referenced by clients.
 	 */
 	public void endVisit(RecordPattern node) {

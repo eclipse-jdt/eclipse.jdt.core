@@ -6,10 +6,6 @@
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
@@ -1067,7 +1063,7 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type
 	 * <code>RecordPattern</code>.
 	 * @see RecordPattern
-	 * @since 3.31 BETA_JAVA19
+	 * @since 3.31
 	 */
 	public static final int RECORD_PATTERN = 113;
 
