@@ -3455,13 +3455,7 @@ protected boolean typeInHierarchy(ReferenceBinding binding) {
 private IJavaElement createHandleFromNestAncestors(AbstractMethodDeclaration method, IJavaElement type) throws JavaModelException {
 	BinaryType binaryType = getBinaryType(type);
 	if (binaryType != null) {
-		boolean isJarOrClass = isJarOrClass(binaryType);
-		if (isJarOrClass) {
-			return findMethodInNestAncestors(method, binaryType);
-		} else {
-			// TODO: JAVA 9 - JIMAGE to be included later - currently assuming that only .class
-			// files will be dealt here.
-		}
+		return findMethodInNestAncestors(method, binaryType);
 	}
 	return null;
 }
@@ -3500,13 +3494,4 @@ private BinaryType getBinaryType(IJavaElement type) {
 	return binaryType;
 }
 
-private boolean isJarOrClass(BinaryType binaryType) {
-	if (binaryType != null) {
-		String fileName = binaryType.getPath().toOSString();
-		if (fileName != null) {
-			return fileName.endsWith("jar") || fileName.endsWith(SuffixConstants.SUFFIX_STRING_class); //$NON-NLS-1$
-		}
-	}
-	return false;
-}
 }
