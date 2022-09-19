@@ -8,10 +8,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -215,6 +211,6 @@ public interface ITerminalSymbols {
 	/** @since 3.30 */
 	int TokenNamenon_sealed = 414;
 
-	/** @since 3.31 BETA_JAVA19 */
+	/** @since 3.31 */
 	int TokenNameRestrictedIdentifierWhen = 415;
 }
