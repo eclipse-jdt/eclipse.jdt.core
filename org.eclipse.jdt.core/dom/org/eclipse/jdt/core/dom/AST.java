@@ -419,7 +419,7 @@ public final class AST {
 	 * up to and including Java SE 18(aka JDK 18).
 	 * </p>
 	 *
-	 * @since 3.31
+	 * @since 3.32
 	 */
 	public static final int JLS19 = 19;
 	/**
@@ -2781,7 +2781,7 @@ public final class AST {
 	 * unspecified pattern variable.
 	 *
 	 * @return a new unparented type pattern node
-	 * @since 3.31
+	 * @since 3.32
 	 */
 	public RecordPattern newRecordPattern() {
 		RecordPattern result = new RecordPattern(this);

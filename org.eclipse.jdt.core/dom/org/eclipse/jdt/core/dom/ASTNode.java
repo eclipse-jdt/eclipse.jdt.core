@@ -1063,7 +1063,7 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type
 	 * <code>RecordPattern</code>.
 	 * @see RecordPattern
-	 * @since 3.31
+	 * @since 3.32
 	 */
 	public static final int RECORD_PATTERN = 113;
 

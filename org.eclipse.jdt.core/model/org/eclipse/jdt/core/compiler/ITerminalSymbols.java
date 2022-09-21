@@ -211,6 +211,6 @@ public interface ITerminalSymbols {
 	/** @since 3.30 */
 	int TokenNamenon_sealed = 414;
 
-	/** @since 3.31 */
+	/** @since 3.32 */
 	int TokenNameRestrictedIdentifierWhen = 415;
 }
