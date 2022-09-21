@@ -1495,7 +1495,7 @@ public abstract class ASTVisitor {
 	 * @return <code>true</code> if the children of this node should be
 	 * visited, and <code>false</code> if the children of this node should
 	 * be skipped
-	 * @since 3.31
+	 * @since 3.32
 	 */
 	public boolean visit(RecordPattern node) {
 		return true;
