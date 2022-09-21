@@ -25,6 +25,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.InvalidPathException;
+import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -7476,6 +7477,63 @@ public void testBug539998() throws CoreException {
 				status);
 	} finally {
 		this.deleteProjects(new String[] { "P1", "P2" });
+	}
+}
+
+public void testBug576735a() throws Exception {
+	IJavaProject project = this.createJavaProject("P1", new String[] {"src"}, new String[] { "JCL18_LIB"}, "bin", "1.8" );
+	try {
+		String projectLocation = project.getProject().getLocation().toOSString();
+
+		// create a jar that will be missing from P1's dependencies:
+		Util.createJar(
+				new String[] {
+						"lib576735a1/Missing.java",
+						"package libMissing;\n" +
+						"public class Missing {\n" +
+						"}\n"
+				},
+				getDefaultJavaCoreOptions(),
+				projectLocation + File.separator + "libMissing.jar");
+
+		// create another jar depending on libMissing.jar:
+		String[] classpath = getJCL15PlusLibraryIfNeeded("1.8");
+		classpath = Arrays.copyOf(classpath, classpath.length+1);
+		classpath[classpath.length-1] = projectLocation + File.separator + "libMissing.jar";
+		Util.createJar(
+				new String[] {
+						"lib576735a/Lib.java",
+						"package lib576735a;\n" +
+						"public class Lib {\n" +
+						"	void m(libMissing.Missing arg) {}\n" +
+						"}\n"
+				},
+				new String[0],
+				getDefaultJavaCoreOptions(),
+				classpath,
+				projectLocation + File.separator + "lib576735a.jar");
+		project.getProject().refreshLocal(IResource.DEPTH_INFINITE, null);
+		addLibraryEntry(project, "/P1/lib576735a.jar", false);
+
+		createFile(
+				"/P1/src/X.java",
+				"/* header comment */\n" + // #1 (locationless): The type libMissing.Missing cannot be resolved. It is indirectly referenced from required type lib576735a.Lib
+				"import libMissing.Missing;\n" + // #2: The import libMissing.Missing cannot be resolved
+				"public class X extends lib576735a.Lib {\n" +
+				"	Missing f;\n" + // #4: Missing cannot be resolved to a type
+				"}\n"
+			);
+
+		project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+		IMarker[] markers = project.getProject().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, false, IResource.DEPTH_INFINITE);
+		sortMarkers(markers);
+		assertMarkers("Unexpected markers",
+				"The project was not built since its build path is incomplete. Cannot find the class file for libMissing.Missing. Fix the build path then try building this project\n" +
+				"The type libMissing.Missing cannot be resolved. It is indirectly referenced from required type lib576735a.Lib",
+				markers);
+	} finally {
+		if ( project != null && project.exists())
+			this.deleteProject("P1");
 	}
 }
 }

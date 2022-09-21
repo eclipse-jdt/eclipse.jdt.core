@@ -9869,7 +9869,7 @@ public void test292() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=316456
 public void test293() {
-	this.runNegativeTest(
+	this.runConformTest(
 		new String[] {
 				"X.java",
 				"@A(name = X.QUERY_NAME, query = X.QUERY)\n" +
@@ -9882,12 +9882,7 @@ public void test293() {
 				"    String query();\n" +
 				"}\n"
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	@A(name = X.QUERY_NAME, query = X.QUERY)\n" +
-		"	                                  ^^^^^\n" +
-		"The field X.QUERY is not visible\n" +
-		"----------\n");
+		"");
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=179566
 public void test294() {
@@ -12349,4 +12344,23 @@ public void testBug490698_comment16() {
 			"}\n"
 		});
 }
+
+public void testBugVisibility() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) {
+		return;
+	}
+	runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"	String z() { return Y.MSG; }\n" +
+			"	@Deprecated(since = Y.MSG)\n" +
+			"	static class Y {\n" +
+			"		private final static String MSG = \"msg\";\n" +
+			"	}\n" +
+			"}",
+		},
+		"");
+}
+
 }

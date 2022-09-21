@@ -718,7 +718,7 @@ ImportBinding[] getDefaultImports() {
 		problemReporter().isClassPathCorrect(
 				TypeConstants.JAVA_LANG_OBJECT,
 			this.referenceContext,
-			this.environment.missingClassFileLocation, false);
+			this.environment.missingClassFileLocation, false, null/*resolving j.l.O is not specific to any referencing type*/);
 		BinaryTypeBinding missingObject = this.environment.createMissingType(null, TypeConstants.JAVA_LANG_OBJECT);
 		importBinding = missingObject.fPackage;
 	}

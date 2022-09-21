@@ -444,6 +444,8 @@ public MethodBinding[] availableMethods() {
 
 void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 	if (!isPrototype()) throw new IllegalStateException();
+	ReferenceBinding previousRequester = this.environment.requestingType;
+	this.environment.requestingType = this;
 	try {
 		// default initialization for super-interfaces early, in case some aborting compilation error occurs,
 		// and still want to use binaries passed that point (e.g. type hierarchy resolver, see bug 63748).
@@ -530,7 +532,7 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 					this.superInterfaces = new ReferenceBinding[size];
 					for (short i = 0; i < size; i++)
 						// attempt to find each superinterface if it exists in the cache (otherwise - resolve it when requested)
-						this.superInterfaces[i] = this.environment.getTypeFromConstantPoolName(interfaceNames[i], 0, -1, false, missingTypeNames, toplevelWalker.toSupertype(i, superclassName));
+						this.superInterfaces[i] = this.environment.getTypeFromConstantPoolName(interfaceNames[i], 0, -1, false, missingTypeNames, toplevelWalker.toSupertype(i, interfaceNames[i]));
 					this.tagBits |= TagBits.HasUnresolvedSuperinterfaces;
 				}
 			}
@@ -701,6 +703,8 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 			this.fields = Binding.NO_FIELDS;
 		if (this.methods == null)
 			this.methods = Binding.NO_METHODS;
+
+		this.environment.requestingType = previousRequester;
 	}
 }
 void markImplicitTerminalDeprecation(ReferenceBinding type) {

@@ -692,10 +692,14 @@ protected void storeProblemsFor(SourceFile sourceFile, CategorizedProblem[] prob
 
 		// handle buildpath problems (missing classfile, unresolved add-reads...)
 		String buildPathProblemMessage = null;
-		if (id == IProblem.IsClassPathCorrect) {
-			buildPathProblemMessage = Messages.bind(Messages.build_incompleteClassPath, problem.getArguments()[0]);
-		} else if (id == IProblem.UndefinedModuleAddReads) {
-			buildPathProblemMessage = Messages.bind(Messages.build_errorOnModuleDirective, problem.getMessage());
+		switch (id) {
+			case IProblem.IsClassPathCorrect:
+			case IProblem.IsClassPathCorrectWithReferencingType:
+				buildPathProblemMessage = Messages.bind(Messages.build_incompleteClassPath, problem.getArguments()[0]);
+				break;
+			case IProblem.UndefinedModuleAddReads:
+				buildPathProblemMessage = Messages.bind(Messages.build_errorOnModuleDirective, problem.getMessage());
+				break;
 		}
 		if (buildPathProblemMessage != null) {
 			if (JavaBuilder.DEBUG)

@@ -382,7 +382,7 @@ public void test004() {
 			"1. ERROR in X.java (at line 1)\n" +
 			"	import p.OtherFoo;\n" +
 			"	^\n" +
-			"The type q.Zork cannot be resolved. It is indirectly referenced from required .class files\n" +
+			"The type q.Zork cannot be resolved. It is indirectly referenced from required type p.OtherFoo\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 2)\n" +
 			"	import q.Zork;\n" +
@@ -498,7 +498,7 @@ public void test005() {
 		"1. ERROR in X.java (at line 4)\n" +
 		"	ofoo.bar();\n" +
 		"	^^^^^^^^^^\n" +
-		"The type q1.q2.Zork cannot be resolved. It is indirectly referenced from required .class files\n" +
+		"The type q1.q2.Zork cannot be resolved. It is indirectly referenced from required type p.OtherFoo\n" +
 		"----------\n" +
 		"2. ERROR in X.java (at line 4)\n" +
 		"	ofoo.bar();\n" +
@@ -565,7 +565,7 @@ public void test006() {
 		"2. ERROR in X.java (at line 5)\n" +
 		"	ofoo.bar();\n" +
 		"	^^^^^^^^^^\n" +
-		"The type q1.q2.Zork cannot be resolved. It is indirectly referenced from required .class files\n" +
+		"The type q1.q2.Zork cannot be resolved. It is indirectly referenced from required type p.OtherFoo\n" +
 		"----------\n" +
 		"3. ERROR in X.java (at line 5)\n" +
 		"	ofoo.bar();\n" +
@@ -632,7 +632,7 @@ public void test007() {
 		"2. ERROR in X.java (at line 5)\n" +
 		"	ofoo.bar();\n" +
 		"	^^^^^^^^^^\n" +
-		"The type q1.q2.Zork cannot be resolved. It is indirectly referenced from required .class files\n" +
+		"The type q1.q2.Zork cannot be resolved. It is indirectly referenced from required type p.OtherFoo\n" +
 		"----------\n" +
 		"3. ERROR in X.java (at line 5)\n" +
 		"	ofoo.bar();\n" +
@@ -8782,5 +8782,50 @@ public void testBug542829() {
 		"}\n"
 	};
 	runner.runConformTest();
+}
+public void testBug576735() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
+
+	String path = getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "lib576735.jar";
+	String[] libs = getDefaultClassPaths();
+	int len = libs.length;
+	System.arraycopy(libs, 0, libs = new String[len+1], 0, len);
+	libs[len] = path;
+	Runner runner = new Runner();
+	runner.classLibraries = libs;
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(CompilerOptions.OPTION_Process_Annotations, CompilerOptions.ENABLED);
+	runner.testFiles = new String[] {
+			"does/not/Work.java",
+			"package does.not;\n" + // force this package to exist
+			"public interface Work {}",
+			"p/X.java",
+			"package p;\n" +
+			"import does.not.Work;\n" +
+			"import good.WithAnnotatedMethod;\n" +
+			"import does.not.ExistAnnotation;\n" + // resolving this triggers the location-less error
+			"public class X {\n" +
+			"	WithAnnotatedMethod field;\n" + // trigger creation of the BTB(WithAnnotatedMethod) and the URB(does.not.ExistAnnotation)
+			"	void meth0(@ExistAnnotation Work d) {\n" + // force resolving of URB(does.not.ExistAnnotation)
+			"	}\n" +
+			"}\n"};
+	runner.expectedCompilerLog =
+			"----------\n" +
+			"1. ERROR in p\\X.java (at line 1)\n" +
+			"	package p;\n" +
+			"	^\n" +
+			"The type does.not.ExistAnnotation cannot be resolved. It is indirectly referenced from required type good.WithAnnotatedMethod\n" +
+			"----------\n" +
+			"2. ERROR in p\\X.java (at line 4)\n" +
+			"	import does.not.ExistAnnotation;\n" +
+			"	       ^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"The import does.not.ExistAnnotation cannot be resolved\n" +
+			"----------\n" +
+			"3. ERROR in p\\X.java (at line 7)\n" +
+			"	void meth0(@ExistAnnotation Work d) {\n" +
+			"	            ^^^^^^^^^^^^^^^\n" +
+			"ExistAnnotation cannot be resolved to a type\n" +
+			"----------\n";
+	runner.runNegativeTest();
 }
 }

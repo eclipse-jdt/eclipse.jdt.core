@@ -7744,7 +7744,7 @@ public class ASTConverter15JLS4Test extends ConverterTestSetup {
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
 		CompilationUnit unit = (CompilationUnit) node;
 		String expectedProblems = "The hierarchy of the type X is inconsistent\n" +
-		"The type test0235.Zork cannot be resolved. It is indirectly referenced from required .class files";
+		"The type test0235.Zork cannot be resolved. It is indirectly referenced from required type test0235.I";
 		assertProblemsSize(unit, 2, expectedProblems);
 		node = getASTNode(unit, 0);
 		assertEquals("Not a type declaration", ASTNode.TYPE_DECLARATION, node.getNodeType());
