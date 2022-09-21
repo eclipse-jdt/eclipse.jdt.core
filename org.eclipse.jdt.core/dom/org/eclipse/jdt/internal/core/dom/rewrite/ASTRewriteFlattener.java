@@ -6,6 +6,10 @@
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * SPDX-License-Identifier: EPL-2.0
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -579,7 +583,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	public boolean visit(GuardedPattern node) {
 		if (DOMASTUtil.isPatternSupported(node.getAST())) {
 			node.getPattern().accept(this);
-			this.result.append(" && ");//$NON-NLS-1$
+			this.result.append(" when ");//$NON-NLS-1$
 			node.getExpression().accept(this);
 		}
 		return false;
@@ -916,6 +920,52 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		this.result.append('{');
 		visitList(node, RecordDeclaration.BODY_DECLARATIONS_PROPERTY, Util.EMPTY_STRING, String.valueOf(';'), Util.EMPTY_STRING);
 		this.result.append('}');
+		return false;
+	}
+
+	@Override
+	public boolean visit(RecordPattern node) {
+		if (DOMASTUtil.isPatternSupported(node.getAST())) {
+
+			if (node.getPatternType() != null) {
+				node.getPatternType().accept(this);
+			}
+			boolean addBraces = node.patterns().size() >= 1;
+			if (addBraces) {
+				this.result.append("(");//$NON-NLS-1$
+			}
+			int size = 1;
+			for (Pattern pattern : node.patterns()) {
+					visitPattern(pattern);
+					if (addBraces && size < node.patterns().size()) {
+						this.result.append(", ");//$NON-NLS-1$
+					}
+					size++;
+			}
+			if (addBraces) {
+				this.result.append(")");//$NON-NLS-1$
+			}
+			if (node.getPatternName() != null) {
+				this.result.append(" ");//$NON-NLS-1$
+				node.getPatternName().accept(this);
+			}
+		}
+		return false;
+	}
+
+	private boolean visitPattern(Pattern node) {
+		if (!DOMASTUtil.isPatternSupported(node.getAST())) {
+			return false;
+		}
+		if (node instanceof RecordPattern) {
+			return visit((RecordPattern) node);
+		}
+		if (node instanceof GuardedPattern) {
+			return visit((GuardedPattern) node);
+		}
+		if (node instanceof TypePattern) {
+			return visit((TypePattern) node);
+		}
 		return false;
 	}
 

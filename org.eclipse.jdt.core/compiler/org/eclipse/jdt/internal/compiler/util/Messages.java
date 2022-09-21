@@ -123,6 +123,7 @@ public final class Messages {
 	public static String records;
 	public static String sealed_types;
 	public static String pattern_matching_switch;
+	public static String record_patterns;
 
 	static {
 		initializeMessages(BUNDLE_NAME, Messages.class);

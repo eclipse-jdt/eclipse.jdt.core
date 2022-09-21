@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -23,7 +27,7 @@ import org.eclipse.jdt.internal.core.dom.util.DOMASTUtil;
  *
  * <pre>
  * GuardedPattern:
- *      Pattern && Expression
+ *      Pattern when Expression
  * </pre>
  *
  * @since 3.27
@@ -36,7 +40,7 @@ public class GuardedPattern extends Pattern{
 
 	GuardedPattern(AST ast) {
 		super(ast);
-		supportedOnlyIn18();
+		supportedOnlyIn19();
 		unsupportedWithoutPreviewError();
 	}
 
@@ -51,6 +55,11 @@ public class GuardedPattern extends Pattern{
 	public static final ChildPropertyDescriptor EXPRESSION_PROPERTY  =
 			new ChildPropertyDescriptor(GuardedPattern.class, "expression", Expression.class, MANDATORY,  CYCLE_RISK); //$NON-NLS-1$);
 
+	/**
+	 * A character index into the original restricted identifier source string, or <code>-1</code> if no restricted
+	 * identifier source position information is available for this node; <code>-1</code> by default.
+	 */
+	private int restrictedIdentifierStartPosition = -1;
 
 	/**
 	 * A list of property descriptors (element type:
@@ -126,6 +135,7 @@ public class GuardedPattern extends Pattern{
 		result.setSourceRange(getStartPosition(), getLength());
 		result.setPattern((Pattern) getPattern().clone(target));
 		result.setExpression((Expression) getExpression().clone(target));
+		result.setRestrictedIdentifierStartPosition(this.restrictedIdentifierStartPosition);
 		return result;
 	}
 
@@ -152,11 +162,6 @@ public class GuardedPattern extends Pattern{
 				memSize()
 			+ (this.pattern == null ? 0 : getPattern().treeSize())
 			+ (this.conditonalExpression == null ? 0 : getExpression().treeSize());
-	}
-
-	@Override
-	public List<SingleVariableDeclaration> patternVariables() {
-		return null;
 	}
 
 	/**
@@ -198,7 +203,7 @@ public class GuardedPattern extends Pattern{
 	 * @return the expression node, or <code>null</code> if there is none
 	 */
 	public Expression getExpression() {
-		supportedOnlyIn18();
+		supportedOnlyIn19();
 		unsupportedWithoutPreviewError();
 		return this.conditonalExpression;
 	}
@@ -213,7 +218,7 @@ public class GuardedPattern extends Pattern{
 	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
 	 */
 	public Pattern getPattern() {
-		supportedOnlyIn18();
+		supportedOnlyIn19();
 		unsupportedWithoutPreviewError();
 		return this.pattern;
 	}
@@ -232,7 +237,7 @@ public class GuardedPattern extends Pattern{
 	 * </ul>
 	 */
 	public void setExpression(Expression expression) {
-		supportedOnlyIn18();
+		supportedOnlyIn19();
 		unsupportedWithoutPreviewError();
 		ASTNode oldChild = this.conditonalExpression;
 		preReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
@@ -248,12 +253,38 @@ public class GuardedPattern extends Pattern{
 	 * @exception UnsupportedOperationException if this operation is used without previewEnabled
 	 */
 	public void setPattern(Pattern pattern) {
-		supportedOnlyIn18();
+		supportedOnlyIn19();
 		unsupportedWithoutPreviewError();
 		ASTNode oldChild = this.pattern;
 		preReplaceChild(oldChild, pattern, PATTERN_PROPERTY);
 		this.pattern = pattern;
 		postReplaceChild(oldChild, pattern, PATTERN_PROPERTY);
+	}
+
+	/**
+	 * A character index into the original restricted identifier source string, or <code>-1</code> if no restricted
+	 * identifier source position information is available for this node; <code>-1</code> by default.
+	 * @noreference
+	 * since 3.30
+	 */
+	protected void setRestrictedIdentifierStartPosition(int restrictedIdentifierStartPosition) {
+		if (restrictedIdentifierStartPosition < 0) {
+			throw new IllegalArgumentException();
+		}
+		// restrictedIdentifierStartPosition is not considered a structural property
+		// but we protect it nevertheless
+		checkModifiable();
+		this.restrictedIdentifierStartPosition = restrictedIdentifierStartPosition;
+	}
+
+	/**
+	 * A character index into the original restricted identifier source string, or <code>-1</code> if no restricted
+	 * identifier source position information is available for this node; <code>-1</code> by default.
+	 * @noreference
+	 * @since 3.30
+	 */
+	public int getRestrictedIdentifierStartPosition() {
+		return this.restrictedIdentifierStartPosition;
 	}
 
 }

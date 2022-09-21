@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -222,6 +226,8 @@ public interface JavadocTagConstants {
 		{},
 		// since 18
 		{},
+		// since 19
+		{},
 	};
 	public static final char[][][] INLINE_TAGS = {
 		// since 1.0
@@ -261,7 +267,9 @@ public interface JavadocTagConstants {
 		//since 17
 		{},
 		//since 18
-		{ TAG_SNIPPET }
+		{ TAG_SNIPPET },
+		//since 19
+		{}
 	};
 	public static final char[][][] IN_SNIPPET_TAGS = {
 		//since 18

@@ -7,6 +7,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -132,7 +136,7 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		JAVA_PROJECT = setUpJavaProject("JavaSearchBugs", "17");
+		JAVA_PROJECT = setUpJavaProject("JavaSearchBugs", "19");
 	}
 
 	public void tearDownSuite() throws Exception {
@@ -389,7 +393,7 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 						"private static void foo(Object o) {\n" +
 						" int /*here*/local=0" +
 						" switch (o) {\n" +
-						"	case Integer i && local >9  -> System.out.println(\"Integer:\" + i +local);\n" +
+						"	case Integer i when local >9  -> System.out.println(\"Integer:\" + i +local);\n" +
 						"	case String s     -> System.out.println(\"String:\" + s + local);\n" +
 						"	default       -> System.out.println(\"Object\" + o);\n" +
 						" 	}\n" +
@@ -429,7 +433,7 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 						"private static void foo(Object o) {\n" +
 						" switch (o) {\n" +
 						"	case Integer i     -> System.out.println(\"Integer:\" + i);\n" +
-						"	case String /*here*/s && s.hashCode()>0    -> System.out.println(\"String:\" );\n" +
+						"	case String /*here*/s when s.hashCode()>0    -> System.out.println(\"String:\" );\n" +
 						"	default       -> System.out.println(\"Object\" + o);\n" +
 						" 	}\n" +
 						"}\n" +
@@ -506,7 +510,7 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 						"}\n" +
 						"private static void foo(S o) {\n" +
 						" switch (o) {\n" +
-						"	case A /*here*/a && a.hashCode()> 0 :     System.out.println(\"A:\" + a +a); break;\n" +
+						"	case A /*here*/a when a.hashCode()> 0 :     System.out.println(\"A:\" + a +a); break;\n" +
 						"	case B b :     System.out.println(\"B:\" + b);\n" +
 						"	default  :     System.out.println(\"Object\" + o);\n" +
 						" 	}\n" +
@@ -585,7 +589,7 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 						"}\n" +
 						"private static void foo(S o) {\n" +
 						" switch (o) {\n" +
-						"	case A /*here*/a && a.hashCode() :     System.out.println(\"A:\" + a +a); break;\n" +
+						"	case A /*here*/a when a.hashCode() :     System.out.println(\"A:\" + a +a); break;\n" +
 						"	case B b :     System.out.println(\"B:\" + b);\n" +
 						"	default  :     System.out.println(\"Object\" + o);\n" +
 						" 	}\n" +
@@ -625,7 +629,7 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 						"}\n" +
 						"private static int foo(S o) {\n" +
 						" switch (o) {\n" +
-						"	case A /*here*/a && a.hashCode()> 0 -> 1;\n" +
+						"	case A /*here*/a when a.hashCode()> 0 -> 1;\n" +
 						"	case B b ->2;\n" +
 						"	default  -> 3;\n" +
 						" 	}\n" +
@@ -700,7 +704,7 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 						"private static void foo(Object o) {\n" +
 						" switch (o) {\n" +
 						"	case Integer i     : System.out.println(\"Integer:\" + i);break;\n" +
-						"	case String /*here*/s && s.hashCode()>0    : System.out.println(\"String:\" );break;\n" +
+						"	case String /*here*/s when s.hashCode()>0    : System.out.println(\"String:\" );break;\n" +
 						"	default       : System.out.println(\"Object\" + o);\n" +
 						" 	}\n" +
 						"}\n" +
@@ -778,7 +782,7 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 						"}\n" +
 						"private static void foo(S o) {\n" +
 						" switch (o) {\n" +
-						"	case A /*here*/a && a.toString().length()>2 ->     System.out.println(\"A:\" + a +a); \n" +
+						"	case A /*here*/a when a.toString().length()>2 ->     System.out.println(\"A:\" + a +a); \n" +
 						"	case B b ->    System.out.println(\"B:\" + b);\n" +
 						"	default  -> System.out.println(\"Object\" + o);\n" +
 						" 	}\n" +
@@ -889,7 +893,7 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 						"private static void foo(Object o) {\n" +
 						" final int a=0; \n" +
 						" switch (o) {\n" +
-						"	case Integer i  && a > 5  -> System.out.println(\"Integer:\" + /*here*/i);\n" +
+						"	case Integer i  when a > 5  -> System.out.println(\"Integer:\" + /*here*/i);\n" +
 						"	case String s     -> System.out.println(\"String:\" + s + s);\n" +
 						"	default       -> System.out.println(\"Object\" + o);\n" +
 						" 	}\n" +
@@ -926,7 +930,7 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 						"private static void foo(Object o) {\n" +
 						" final int a=0; \n" +
 						" switch (o) {\n" +
-						"	case Integer i  && a > 5  -> System.out.println(\"Integer:\" + /*here*/i);\n" +
+						"	case Integer i  when a > 5  -> System.out.println(\"Integer:\" + /*here*/i);\n" +
 						"	case String s     -> System.out.println(\"String:\" + s + s);\n" +
 						"	default       -> System.out.println(\"Object\" + o);\n" +
 						" 	}\n" +
@@ -1257,7 +1261,7 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 						"private static void foo(Object o) {\n" +
 						" switch (o) {\n" +
 						"	case Integer i     -> System.out.println(\"Integer:\" + i);\n" +
-						"	case String s && /*here*/s.hashCode()>0    -> System.out.println(\"String:\" );\n" +
+						"	case String s when /*here*/s.hashCode()>0    -> System.out.println(\"String:\" );\n" +
 						"	default       -> System.out.println(\"Object\" + o);\n" +
 						" 	}}\n" +
 						"}\n" +
@@ -1274,7 +1278,7 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 			int length = selection.length();
 
 			IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
-			assertTrue(elements.length ==1);
+			assertEquals("incorrect no of elements", 1, elements.length);
 			assertTrue(elements[0] instanceof ILocalVariable);
 
 		} finally {
@@ -1293,7 +1297,7 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 						" String myVar= new String();" +
 						" switch (o) {\n" +
 						"	case Integer i     -> System.out.println(\"Integer:\" + i);\n" +
-						"	case String s1 && s1 != myVar && 0 < /*here*/s1.length()   -> System.out.println(s1 );\n" +
+						"	case String s1 when s1 != myVar && 0 < /*here*/s1.length()   -> System.out.println(s1 );\n" +
 						"	default       -> {\n" +
 						"	String s1 =  new String();\n" +
 						"	System.out.println(s1);\n" +
@@ -1311,7 +1315,7 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 			int start = str.indexOf(selection);
 			int length = selection.length();
 			IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
-			assertTrue(elements.length ==1);
+			assertEquals("incorrect no of elements", 1, elements.length);
 			assertTrue(elements[0] instanceof ILocalVariable);
 			search(elements[0], REFERENCES, EXACT_RULE);
 			assertSearchResults("src/X.java void X.foo(Object) [s1] EXACT_MATCH\n"
@@ -1334,7 +1338,7 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 						" String myVar= new String();" +
 						" switch (o) {\n" +
 						"	case Integer i     -> System.out.println(\"Integer:\" + i);\n" +
-						"	case String s1 && /*here*/s1 != myVar && 0 < s1.length()   -> System.out.println(s1 );\n" +
+						"	case String s1 when /*here*/s1 != myVar && 0 < s1.length()   -> System.out.println(s1 );\n" +
 						"	default       -> {\n" +
 						"	String s1 =  new String();\n" +
 						"	System.out.println(s1);\n" +
@@ -1352,7 +1356,7 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 			int start = str.indexOf(selection);
 			int length = selection.length();
 			IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
-			assertTrue(elements.length ==1);
+			assertEquals("incorrect no of elements", 1, elements.length);
 			assertTrue(elements[0] instanceof ILocalVariable);
 			search(elements[0], REFERENCES, EXACT_RULE);
 			assertSearchResults("src/X.java void X.foo(Object) [s1] EXACT_MATCH\n"
@@ -1375,7 +1379,7 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 						" String myVar= new String();" +
 						" switch (o) {\n" +
 						"	case Integer i     -> System.out.println(\"Integer:\" + i);\n" +
-						"	case String s1 && s1 != myVar && 0 < s1.length()   -> System.out.println(s1 );\n" +
+						"	case String s1 when s1 != myVar && 0 < s1.length()   -> System.out.println(s1 );\n" +
 						"	default       -> {\n" +
 						"	String s1 =  new String();\n" +
 						"	System.out.println(/*here*/s1);\n" +
@@ -1393,7 +1397,7 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 			int start = str.indexOf(selection);
 			int length = selection.length();
 			IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
-			assertTrue(elements.length ==1);
+			assertEquals("incorrect no of elements", 1, elements.length);
 			assertTrue(elements[0] instanceof ILocalVariable);
 			search(elements[0], REFERENCES, EXACT_RULE);
 			assertSearchResults("src/X.java void X.foo(Object) [s1] EXACT_MATCH");
@@ -1449,7 +1453,7 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 						"}\n" +
 						"private static int  foo(Object o) {\n" +
 						" return switch (o) {\n" +
-						"	case String strGP && (o instanceof String c3 && c3.length() > 0) && strGP.length() > 0 -> 0;\n" +
+						"	case String strGP when (o instanceof String c3 && c3.length() > 0) && strGP.length() > 0 -> 0;\n" +
 						"	default       -> 0;\n" +
 						" 	};\n" +
 						" 	}\n" +
@@ -1487,7 +1491,7 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 							"}\n" +
 							"private static int  foo(Object o) {\n" +
 							" return switch (o) {\n" +
-							"	case String strGP && (o instanceof String c3 && c3.length() > 0) && strGP.length() > 0 -> 0;\n" +
+							"	case String strGP when (o instanceof String c3 && c3.length() > 0) && strGP.length() > 0 -> 0;\n" +
 							"	default       -> 0;\n" +
 							" 	};\n" +
 							" 	}\n" +

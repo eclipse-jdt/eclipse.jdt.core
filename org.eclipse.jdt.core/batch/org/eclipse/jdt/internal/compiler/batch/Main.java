@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Tom Tromey - Contribution for bug 125961
@@ -3170,6 +3174,9 @@ private String optionStringToVersion(String currentArg) {
 		case "18": //$NON-NLS-1$
 		case "18.0": //$NON-NLS-1$
 			return CompilerOptions.VERSION_18;
+		case "19": //$NON-NLS-1$
+		case "19.0": //$NON-NLS-1$
+			return CompilerOptions.VERSION_19;
 		default:
 			return null;
 	}
