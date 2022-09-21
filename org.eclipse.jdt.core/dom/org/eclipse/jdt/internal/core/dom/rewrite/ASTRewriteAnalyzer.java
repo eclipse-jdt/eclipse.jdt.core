@@ -7,6 +7,9 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -2311,6 +2314,21 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		pos = getPosAfterRightParenthesis(pos);
 		pos= getPosAfterLeftBrace(pos);
 		rewriteParagraphList(node, RecordDeclaration.BODY_DECLARATIONS_PROPERTY, pos, startIndent, -1, 2);
+		return false;
+	}
+
+	@Override
+	public boolean visit(RecordPattern node) {
+		if (!DOMASTUtil.isPatternSupported(node.getAST())) {
+			return false;
+		}
+		if (!hasChildrenChanges(node)) {
+			return doVisitUnchangedChildren(node);
+		}
+
+		int pos = rewriteRequiredNode(node, RecordPattern.PATTERN_TYPE_PROPERTY);
+		rewriteNodeList(node, RecordPattern.PATTERNS_PROPERTY, pos, Util.EMPTY_STRING, ", "); //$NON-NLS-1$
+		rewriteRequiredNode(node, RecordPattern.PATTERN_NAME_PROPERTY);
 		return false;
 	}
 

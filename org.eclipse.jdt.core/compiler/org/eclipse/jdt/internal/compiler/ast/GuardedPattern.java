@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -27,9 +31,9 @@ public class GuardedPattern extends Pattern {
 
 	public Pattern primaryPattern;
 	public Expression condition;
-	/* package */ BranchLabel thenTarget;
 	int thenInitStateIndex1 = -1;
 	int thenInitStateIndex2 = -1;
+	public int restrictedIdentifierStart = -1; // used only for 'when' restricted keyword.
 
 	public GuardedPattern(Pattern primaryPattern, Expression conditionalAndExpression) {
 		this.primaryPattern = primaryPattern;
@@ -46,8 +50,8 @@ public class GuardedPattern extends Pattern {
 	}
 
 	@Override
-	public LocalDeclaration getPatternVariableIntroduced() {
-		return this.primaryPattern.getPatternVariableIntroduced();
+	public LocalDeclaration getPatternVariable() {
+		return this.primaryPattern.getPatternVariable();
 	}
 
 	@Override
@@ -61,11 +65,12 @@ public class GuardedPattern extends Pattern {
 	}
 
 	@Override
-	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
- 		this.primaryPattern.generateCode(currentScope, codeStream);
-
-		Constant cst =  this.condition.optimizedBooleanConstant();
+	public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel) {
 		this.thenTarget = new BranchLabel(codeStream);
+		this.elseTarget = new BranchLabel(codeStream);
+		this.primaryPattern.generateOptimizedBoolean(currentScope, codeStream, this.thenTarget, this.elseTarget);
+		Constant cst =  this.condition.optimizedBooleanConstant();
+
 		this.condition.generateOptimizedBoolean(
 				currentScope,
 				codeStream,
@@ -78,13 +83,14 @@ public class GuardedPattern extends Pattern {
 		}
 	}
 
-	public boolean isGuardTrueAlways() {
+	@Override
+	public boolean isAlwaysTrue() {
 		Constant cst = this.condition.optimizedBooleanConstant();
 		return cst != Constant.NotAConstant && cst.booleanValue() == true;
 	}
 	@Override
 	public boolean isTotalForType(TypeBinding type) {
-		return this.primaryPattern.isTotalForType(type) && isGuardTrueAlways();
+		return this.primaryPattern.isTotalForType(type) && isAlwaysTrue();
 	}
 	@Override
 	public Pattern primary() {
@@ -108,8 +114,8 @@ public class GuardedPattern extends Pattern {
 			return this.resolvedType;
 		this.resolvedType = this.primaryPattern.resolveType(scope);
 		this.condition.resolveType(scope);
-		LocalDeclaration PatternVar = this.primaryPattern.getPatternVariableIntroduced();
-		LocalVariableBinding lvb = PatternVar.binding;
+		LocalDeclaration PatternVar = this.primaryPattern.getPatternVariable();
+		LocalVariableBinding lvb = PatternVar == null ? null : PatternVar.binding;
 		this.condition.traverse(new ASTVisitor() {
 			@Override
 			public boolean visit(
@@ -137,7 +143,7 @@ public class GuardedPattern extends Pattern {
 
 	@Override
 	public StringBuffer printExpression(int indent, StringBuffer output) {
-		this.primaryPattern.print(indent, output).append(" && "); //$NON-NLS-1$
+		this.primaryPattern.print(indent, output).append(" when "); //$NON-NLS-1$
 		return this.condition.print(indent, output);
 	}
 
@@ -151,10 +157,31 @@ public class GuardedPattern extends Pattern {
 		}
 		visitor.endVisit(this, scope);
 	}
+	@Override
 	public void suspendVariables(CodeStream codeStream, BlockScope scope) {
 		codeStream.removeNotDefinitelyAssignedVariables(scope, this.thenInitStateIndex1);
+		this.primaryPattern.suspendVariables(codeStream, scope);
 	}
+	@Override
 	public void resumeVariables(CodeStream codeStream, BlockScope scope) {
 		codeStream.addDefinitelyAssignedVariables(scope, this.thenInitStateIndex2);
+		this.primaryPattern.resumeVariables(codeStream, scope);
+	}
+	@Override
+	public void resolveWithExpression(BlockScope scope, Expression expression) {
+		this.primaryPattern.resolveWithExpression(scope, expression);
+	}
+	@Override
+	protected boolean isPatternTypeCompatible(TypeBinding other, BlockScope scope) {
+		return this.primaryPattern.isPatternTypeCompatible(other, scope);
+	}
+	@Override
+	public void wrapupGeneration(CodeStream codeStream) {
+		this.primaryPattern.wrapupGeneration(codeStream);
+	}
+	@Override
+	protected void generatePatternVariable(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel,
+			BranchLabel falseLabel) {
+		this.primaryPattern.generatePatternVariable(currentScope, codeStream, trueLabel, falseLabel);
 	}
 }

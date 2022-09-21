@@ -8,6 +8,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * 
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *		IBM Corporation - initial API and implementation
  *		Stephan Herrmann - Contribution for
@@ -1812,7 +1817,7 @@ private boolean checkInstanceofKeyword() {
 private boolean checkYieldKeyword() {
 	// Clients to ensure that we are already inside a method
 	char[] id = this.scanner.getCurrentIdentifierSource();
-	if(id.length > 0 && CharOperation.prefixEquals(id, Keywords.YIELD)) {
+	if(id.length > 0 && CharOperation.equals(id, Keywords.YIELD)) {
 		return true;
 	}
 	return false;
@@ -5286,6 +5291,9 @@ boolean computeKeywords(int kind, List<char[]> keywords) {
 		keywords.add(Keywords.TRUE);
 		keywords.add(Keywords.FALSE);
 		keywords.add(Keywords.NULL);
+		if (this.options.complianceLevel >= ClassFileConstants.JDK19) {
+			keywords.add(Keywords.WHEN);
+		}
 		if (kind == K_YIELD_KEYWORD) {
 			keywords.add(Keywords.YIELD);
 		}

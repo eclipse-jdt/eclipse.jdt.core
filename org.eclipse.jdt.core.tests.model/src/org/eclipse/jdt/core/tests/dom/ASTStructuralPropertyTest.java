@@ -8,6 +8,9 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -372,7 +375,7 @@ public class ASTStructuralPropertyTest extends org.eclipse.jdt.core.tests.junit.
 				// oops - guess that's not valid
 			}
 		}
-		assertEquals("Wrong last known type", 112, hi); // last known one
+		assertEquals("Wrong last known type", 113, hi); // last known one
 		assertEquals("Wrong number of distinct types",  hi, classes.size()); // all classes are distinct
 	}
 }
