@@ -112,7 +112,7 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 		 */
 		public static final ModifierKeyword SEALED_KEYWORD = new ModifierKeyword("sealed", SEALED);//$NON-NLS-1$
 		/**
-		 * @since 3.31
+		 * @since 3.32
 		 * @noreference preview feature
 		 */
 		public static final ModifierKeyword WHEN_KEYWORD = new ModifierKeyword("when", WHEN);//$NON-NLS-1$
@@ -345,7 +345,7 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 	/**
 	 * "when" modifier constant (bit mask).
 	 * Applicable only to types.
-	 * @since 3.31
+	 * @since 3.32
 	 * @noreference preview feature
 	 */
 	public static final int WHEN = 0x2000;
