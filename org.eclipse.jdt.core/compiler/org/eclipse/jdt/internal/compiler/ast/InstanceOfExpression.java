@@ -91,6 +91,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	}
 	if (this.elementVariable != null) {
 		initsWhenTrue.markAsDefinitelyAssigned(this.elementVariable.binding);
+		initsWhenTrue.markAsDefinitelyNonNull(this.elementVariable.binding);
 	}
 	if (this.pattern != null) {
 		this.pattern.analyseCode(currentScope, flowContext, (initsWhenTrue == null) ? flowInfo : initsWhenTrue);

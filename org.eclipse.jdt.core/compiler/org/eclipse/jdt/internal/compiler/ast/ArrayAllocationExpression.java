@@ -180,33 +180,58 @@ public class ArrayAllocationExpression extends Expression {
 					&& (referenceType.tagBits & TagBits.AnnotationNullMASK) == TagBits.AnnotationNullMASK)
 			{
 				scope.problemReporter().contradictoryNullAnnotations(this.type.annotations[this.type.annotations.length-1]);
+				referenceType = referenceType.withoutToplevelNullAnnotation();
 			}
 			this.resolvedType = scope.createArrayType(referenceType, this.dimensions.length);
 
+			int lastInitializedDim = -1;
+			long[] nullTagBitsPerDimension = null;
 			if (this.annotationsOnDimensions != null) {
 				this.resolvedType = resolveAnnotations(scope, this.annotationsOnDimensions, this.resolvedType);
-				long[] nullTagBitsPerDimension = ((ArrayBinding)this.resolvedType).nullTagBitsPerDimension;
+				nullTagBitsPerDimension = ((ArrayBinding)this.resolvedType).nullTagBitsPerDimension;
 				if (nullTagBitsPerDimension != null) {
 					for (int i = 0; i < this.annotationsOnDimensions.length; i++) {
 						if ((nullTagBitsPerDimension[i] & TagBits.AnnotationNullMASK) == TagBits.AnnotationNullMASK) {
 							scope.problemReporter().contradictoryNullAnnotations(this.annotationsOnDimensions[i]);
 							nullTagBitsPerDimension[i] = 0;
 						}
+						if (this.dimensions[i] != null) {
+							lastInitializedDim = i;
+						}
 					}
 				}
 			}
 
-			// check the initializer
 			if (this.initializer != null) {
 				this.resolvedType = ArrayTypeReference.maybeMarkArrayContentsNonNull(scope, this.resolvedType, this.sourceStart, this.dimensions.length, null);
 				if ((this.initializer.resolveTypeExpecting(scope, this.resolvedType)) != null)
 					this.initializer.binding = (ArrayBinding)this.resolvedType;
+			} else {
+				// check uninitialized cells declared @NonNull inside the last initialized dimension
+				if (lastInitializedDim != -1 && nullTagBitsPerDimension != null) {
+					checkUninitializedNonNullArrayContents(scope, nullTagBitsPerDimension[lastInitializedDim+1], lastInitializedDim);
+				}
 			}
 			if ((referenceType.tagBits & TagBits.HasMissingType) != 0) {
 				return null;
 			}
 		}
 		return this.resolvedType;
+	}
+
+	protected void checkUninitializedNonNullArrayContents(BlockScope scope, long elementNullTagBits, int lastDim) {
+		if ((elementNullTagBits & TagBits.AnnotationNonNull) == 0)
+			return; // next element type admits 'null' entries
+		if (this.dimensions[lastDim] instanceof IntLiteral) {
+			Constant intConstant = ((IntLiteral) this.dimensions[lastDim]).constant;
+			if (intConstant.intValue() == 0)
+				return; // last dimension [0] implies no 'null' entries
+		}
+		TypeBinding elementType = this.resolvedType;
+		for (int i=0; i<lastDim+1; i++) {
+			elementType = ((ArrayBinding) elementType).elementsType();
+		}
+		scope.problemReporter().nonNullArrayContentNotInitialized(this.dimensions[lastDim], scope.environment(), elementType);
 	}
 
 	@Override

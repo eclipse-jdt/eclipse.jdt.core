@@ -2638,6 +2638,9 @@ protected void reportMatching(AbstractMethodDeclaration method, TypeDeclaration 
 			if ((this.matchContainer & PatternLocator.METHOD_CONTAINER) != 0) {
 				if (enclosingElement == null) {
 					enclosingElement = createHandle(method, parent);
+					if (enclosingElement == null && (type.bits & ASTNode.IsAnonymousType) != 0) {
+						enclosingElement = createHandleFromNestAncestors(method, parent);
+					}
 				}
 				if (encloses(enclosingElement)) {
 					if (this.pattern.mustResolve) {
@@ -2670,6 +2673,7 @@ protected void reportMatching(AbstractMethodDeclaration method, TypeDeclaration 
 		}
 	}
 }
+
 /**
  * Report matching in annotations.
  * @param otherElements TODO
@@ -3138,24 +3142,7 @@ protected void reportMatching(TypeDeclaration type, IJavaElement parent, int acc
 	} else if (enclosingElement instanceof IMember) {
 	    IMember member = (IMember) parent;
 		if (member.isBinary())  {
-			IOpenable openable = enclosingElement.getOpenable();
-			IJavaElement anonType = null;
-			if (openable instanceof ClassFile) {
-				BinaryType binaryType = (BinaryType)((ClassFile) openable).getType();
-				String fileName = binaryType.getPath().toOSString();
-				if ((type.bits & ASTNode.IsAnonymousType) != 0) {
-					if (fileName != null) {
-						if (fileName.endsWith("jar") || fileName.endsWith(SuffixConstants.SUFFIX_STRING_class)) { //$NON-NLS-1$
-							IOrdinaryClassFile classFile= binaryType.getPackageFragment().getOrdinaryClassFile(binaryType.getTypeQualifiedName() +
-									"$" + Integer.toString(occurrenceCount) + SuffixConstants.SUFFIX_STRING_class);//$NON-NLS-1$
-							anonType =  classFile.getType();
-						}
-					} else {
-						// TODO: JAVA 9 - JIMAGE to be included later - currently assuming that only .class files will be dealt here.
-					}
-				}
-			}
-			enclosingElement = anonType != null ? anonType : ((IOrdinaryClassFile)this.currentPossibleMatch.openable).getType() ;
+			enclosingElement = ((IOrdinaryClassFile)this.currentPossibleMatch.openable).getType();
 		} else {
 			enclosingElement = member.getType(new String(type.name), occurrenceCount);
 		}
@@ -3457,4 +3444,54 @@ protected boolean typeInHierarchy(ReferenceBinding binding) {
 	}
 	return false;
 }
+/*
+ * Go through the nest hierarchy of a type, to try to create a method handle for a method declaration.
+ * Does not try to create a method handle for the specified type, only for types higher in the nest hierarchy.
+ *
+ * See:
+ * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/375
+ * https://bugs.eclipse.org/bugs/show_bug.cgi?id=468127
+ */
+private IJavaElement createHandleFromNestAncestors(AbstractMethodDeclaration method, IJavaElement type) throws JavaModelException {
+	BinaryType binaryType = getBinaryType(type);
+	if (binaryType != null) {
+		return findMethodInNestAncestors(method, binaryType);
+	}
+	return null;
+}
+
+/*
+ * Tries to find a method in the nest ancestors of a type. E.g. for Type$2$1, nest ancestors are: Type$1, Type
+ */
+private IJavaElement findMethodInNestAncestors(AbstractMethodDeclaration method, BinaryType binaryType) {
+	IJavaElement methodHandle = null;
+	int index = 0;
+	String typeQualifiedName = binaryType.getTypeQualifiedName();
+	// loop until we find the method or arrive at the nested classes host, e.g. for Type$2$1 the "visited" types are: Type$1, Type
+	while (methodHandle == null && index != -1) {
+		index = typeQualifiedName.lastIndexOf('$');
+		if (index != -1) {
+			typeQualifiedName = typeQualifiedName.substring(0, index);
+		}
+		String className = typeQualifiedName + SuffixConstants.SUFFIX_STRING_class;
+		IOrdinaryClassFile classFile = binaryType.getPackageFragment()
+				.getOrdinaryClassFile(className);
+		IType parentType = classFile.getType();
+		methodHandle = createHandle(method, parentType);
+	}
+	return methodHandle;
+}
+
+private BinaryType getBinaryType(IJavaElement type) {
+	BinaryType binaryType = null;
+	IMember member = (IMember) type;
+	if (member.isBinary()) {
+		IOpenable openable = member.getOpenable();
+		if (openable instanceof ClassFile) {
+			binaryType = (BinaryType) ((ClassFile) openable).getType();
+		}
+	}
+	return binaryType;
+}
+
 }

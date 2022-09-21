@@ -2569,7 +2569,7 @@ public void testBug360164a() throws IOException, CoreException {
 		assertProblems("Unexpected problems",
 				"----------\n" +
 				"1. ERROR in /P/src/X.java\n" +
-				"The type java.lang.Enum cannot be resolved. It is indirectly referenced from required .class files\n" +
+				"The type java.lang.Enum cannot be resolved. It is indirectly referenced from required type p360164.MyEnum\n" +
 				"----------\n",
 				problemRequestor);
 	} finally {

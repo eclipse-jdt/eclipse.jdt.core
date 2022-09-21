@@ -25,11 +25,13 @@ public class UnresolvedReferenceBinding extends ReferenceBinding {
 ReferenceBinding resolvedType;
 TypeBinding[] wrappers;
 UnresolvedReferenceBinding prototype;
+ReferenceBinding requestingType;
 
-UnresolvedReferenceBinding(char[][] compoundName, PackageBinding packageBinding) {
+UnresolvedReferenceBinding(char[][] compoundName, PackageBinding packageBinding, ReferenceBinding requestingType) {
 	this.compoundName = compoundName;
 	this.sourceName = compoundName[compoundName.length - 1]; // reasonable guess
 	this.fPackage = packageBinding;
+	this.requestingType = requestingType;
 	this.wrappers = null;
 	this.prototype = this;
 	computeId();
@@ -123,7 +125,9 @@ ReferenceBinding resolve(LookupEnvironment environment, boolean convertGenericTo
 				environment.problemReporter.isClassPathCorrect(
 					this.compoundName,
 					environment.root.unitBeingCompleted,
-					environment.missingClassFileLocation, false);
+					environment.missingClassFileLocation,
+					false,
+					this.requestingType);
 			}
 			// create a proxy for the missing BinaryType
 			targetType = environment.createMissingType(null, this.compoundName);

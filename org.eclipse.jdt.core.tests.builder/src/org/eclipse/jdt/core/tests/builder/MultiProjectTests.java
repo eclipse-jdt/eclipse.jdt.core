@@ -1696,7 +1696,7 @@ public void testCycle7() throws JavaModelException {
 			env.waitForAutoBuild();
 
 			expectingOnlySpecificProblemsFor(p1,new Problem[]{
-				new Problem("p1", "The type p3.Z cannot be resolved. It is indirectly referenced from required .class files", x, 48, 49, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR),//$NON-NLS-1$ //$NON-NLS-2$
+				new Problem("p1", "The type p3.Z cannot be resolved. It is indirectly referenced from required type p2.Y", x, 48, 49, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR),//$NON-NLS-1$ //$NON-NLS-2$
 				new Problem("p1", "The project was not built since its build path is incomplete. Cannot find the class file for p3.Z. Fix the build path then try building this project", p1, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR)//$NON-NLS-1$ //$NON-NLS-2$
 			});
 		} finally {
@@ -1838,7 +1838,7 @@ public void test102_missing_required_binaries() throws JavaModelException {
 				"The project was not built since its build path is incomplete. Cannot find the class file for I. Fix the build path then try building this project",
 				p3, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR),
 			new Problem("p3",
-				"The type I cannot be resolved. It is indirectly referenced from required .class files",
+				"The type I cannot be resolved. It is indirectly referenced from required type X",
 				y, 23, 24, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR),
 		});
 	} finally {
@@ -1900,7 +1900,7 @@ public void test103_missing_required_binaries() throws JavaModelException {
 					"The project was not built since its build path is incomplete. Cannot find the class file for I. Fix the build path then try building this project",
 					p3, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR),
 				new Problem("p3",
-					"The type I cannot be resolved. It is indirectly referenced from required .class files",
+					"The type I cannot be resolved. It is indirectly referenced from required type X",
 					y, 0, 1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR),
 		});
 	} finally {
@@ -2200,7 +2200,7 @@ public void test461074_error() throws JavaModelException {
 				"The project was not built since its build path is incomplete. Cannot find the class file for pack.missing.MissingType. Fix the build path then try building this project",
 				p3, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR),
 			new Problem("p3",
-				"The type pack.missing.MissingType cannot be resolved. It is indirectly referenced from required .class files",
+				"The type pack.missing.MissingType cannot be resolved. It is indirectly referenced from required type pack.lib.SuperClass",
 				test, 0, 1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR),
 	});
 	env.setBuildOrder(null);

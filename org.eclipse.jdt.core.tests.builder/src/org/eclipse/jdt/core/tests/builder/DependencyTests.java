@@ -84,7 +84,7 @@ public class DependencyTests extends BuilderTests {
 
 		org.eclipse.jdt.core.IJavaProject p = env.getJavaProject("Project");
 		java.util.Map options = p.getOptions(true);
-		options.put(org.eclipse.jdt.core.JavaCore.CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER, org.eclipse.jdt.core.JavaCore.DISABLED); //$NON-NLS-1$
+		options.put(org.eclipse.jdt.core.JavaCore.CORE_JAVA_BUILD_CLEAN_OUTPUT_FOLDER, org.eclipse.jdt.core.JavaCore.DISABLED);
 		p.setOptions(options);
 
 		env.addClass(root, "p1", "A", //$NON-NLS-1$ //$NON-NLS-2$
@@ -914,7 +914,7 @@ public class DependencyTests extends BuilderTests {
 		fullBuild();
 		expectingOnlyProblemsFor(new IPath[] {project3Path, bPath});
 		expectingSpecificProblemFor(project3Path, new Problem("Project3", "The project was not built since its build path is incomplete. Cannot find the class file for p1.MissingClass. Fix the build path then try building this project", project3Path, -1, -1, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
-		expectingSpecificProblemFor(bPath, new Problem("B", "The type p1.MissingClass cannot be resolved. It is indirectly referenced from required .class files", bPath, 86, 111, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+		expectingSpecificProblemFor(bPath, new Problem("B", "The type p1.MissingClass cannot be resolved. It is indirectly referenced from required type p2.A", bPath, 86, 111, CategorizedProblem.CAT_BUILDPATH, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
 
 		env.addClass(root2, "p2", "A", //$NON-NLS-1$ //$NON-NLS-2$
 			"package p2;\n"+ //$NON-NLS-1$
