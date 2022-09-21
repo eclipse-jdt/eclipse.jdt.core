@@ -8,10 +8,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Tom Tromey - patch for readTable(String) as described in http://bugs.eclipse.org/bugs/show_bug.cgi?id=32196
@@ -10871,7 +10867,6 @@ protected void consumeGuard() {
 	pushOnAstStack(gPattern);
 }
 protected void consumeTypePattern() {
-
 	//name
 	char[] identifierName = this.identifierStack[this.identifierPtr];
 	long namePosition = this.identifierPositionStack[this.identifierPtr];
@@ -10951,6 +10946,7 @@ protected void consumeRecordPatternWithId() {
 	recPattern.sourceStart = this.intStack[this.intPtr--];
 	local.modifiers =  this.intStack[this.intPtr--];
 	local.declarationSourceStart = type.sourceStart;
+	problemReporter().validateJavaFeatureSupport(JavaFeature.RECORD_PATTERNS, type.sourceStart, local.declarationEnd);
 	pushOnAstStack(recPattern);
 }
 protected void consumeRecordStructure() {

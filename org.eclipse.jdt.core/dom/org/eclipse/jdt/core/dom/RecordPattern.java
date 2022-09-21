@@ -8,10 +8,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -30,7 +26,7 @@ import org.eclipse.jdt.internal.core.dom.util.DOMASTUtil;
  *      Pattern<Pattern<Patterns....>> Type SimpleName
  * </pre>
  *
- * @since 3.31 BETA_JAVA19
+ * @since 3.31
  * @noinstantiate This class is not intended to be instantiated by clients.
  * @noreference This class is not intended to be referenced by clients.
  */

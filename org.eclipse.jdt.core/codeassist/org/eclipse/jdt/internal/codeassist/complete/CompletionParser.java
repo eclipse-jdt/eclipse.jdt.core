@@ -8,10 +8,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * 
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *		IBM Corporation - initial API and implementation
@@ -4255,6 +4251,9 @@ protected void consumeToken(int token) {
 					// YieldStatement and thus not producing accurate completion, but completion doesn't have
 					// enough information anyway about the LHS anyway.
 					token = this.currentToken = this.getNextToken();
+					if(token == TokenNameIntegerLiteral && this.previousToken == TokenNameIdentifier ) {
+						token = this.currentToken = this.getNextToken();
+					}
 					super.consumeToken(this.currentToken);
 				}
 				if (previous == TokenNameDOT) { // e.g. foo().[fred]()

@@ -7,10 +7,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -700,6 +696,86 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
 	}
+	public void testIssue344_001() throws CoreException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+				"public class X {\n"
+						+ "  static void print(Rectangle r) {\n"
+						+ "    if (r instanceof (Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
+						+ "                               ColoredPoint lr) r11)) {\n"
+						+ "        System.out.println(\"Upper-left corner: \" + /*here*/lr);\n"
+						+ "    }\n"
+						+ "  }\n"
+						+ "  public static void main(String[] obj) {\n"
+						+ "    print(new Rectangle(new ColoredPoint(new Point(0, 0), Color.BLUE), \n"
+						+ "                               new ColoredPoint(new Point(10, 15), Color.RED)));\n"
+						+ "  }\n"
+						+ "}\n"
+						+ "record Point(int x, int y) {}\n"
+						+ "enum Color { RED, GREEN, BLUE }\n"
+						+ "record ColoredPoint(Point p, Color c) {}\n"
+						+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"
+				);
+		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
+		// working copies
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			String str = this.workingCopies[0].getSource();
+			String selection = "/*here*/lr";
+			int start = str.indexOf(selection);
+			int length = selection.length();
+
+			IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+			ILocalVariable local = (ILocalVariable) elements[0];
+			search(local, DECLARATIONS, EXACT_RULE);
+			assertSearchResults("src/X.java void X.print(Rectangle).lr [lr] EXACT_MATCH");
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
+	public void testIssue344_002() throws CoreException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+				"public class X {\n"
+						+ "  static void print(Rectangle r) {\n"
+						+ "switch (r) {\n"
+						+ "case Rectangle r1 when (r instanceof (Rectangle(ColoredPoint upperLeft2, ColoredPoint lowerRight) r2)):\n"
+						+ "	System.out.println( /*here*/upperLeft2);\n"
+						+ "	break;\n"
+						+ "	default :\n"
+						+ "		break;\n"
+						+ "	} \n"
+						+ "  }\n"
+						+ "  public static void main(String[] obj) {\n"
+						+ "    print(new Rectangle(new ColoredPoint(new Point(0, 0), Color.BLUE), \n"
+						+ "                               new ColoredPoint(new Point(10, 15), Color.RED)));\n"
+						+ "  }\n"
+						+ "}\n"
+						+ "record Point(int x, int y) {}\n"
+						+ "enum Color { RED, GREEN, BLUE }\n"
+						+ "record ColoredPoint(Point p, Color c) {}\n"
+						+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"
+				);
+		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
+		// working copies
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			String str = this.workingCopies[0].getSource();
+			String selection = "/*here*/upperLeft2";
+			int start = str.indexOf(selection);
+			int length = selection.length();
+
+			IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+			ILocalVariable local = (ILocalVariable) elements[0];
+			search(local, DECLARATIONS, EXACT_RULE);
+			assertSearchResults("src/X.java void X.print(Rectangle).upperLeft2 [upperLeft2] EXACT_MATCH");
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
+
 }
 
 
