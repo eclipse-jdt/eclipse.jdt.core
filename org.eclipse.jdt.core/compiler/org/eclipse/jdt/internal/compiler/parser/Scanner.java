@@ -5081,16 +5081,18 @@ protected boolean mayBeAtGuard(int token) {
 		return false;
 	if (!JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(this.complianceLevel, this.previewEnabled))
 		return false;
-	switch (this.lookBack[1]) { // a simple elimination optimization for some common possible cases
-		case TokenNameCOMMA:
-		case TokenNamecase:
-		case TokenNamedefault:
-		case TokenNameSEMICOLON:
-		case TokenNameRestrictedIdentifierWhen:
-		case TokenNameOR_OR:
-			return false;
+	/*
+	 * A simple elimination optimization for some common possible cases. According to the JLS 19 including
+	 * patterns-switch and record-patterns Section 14.30.1, a guard may only be preceded by either right parentheses or
+	 * an identifier. However, we may still encounter comments, whitespace or the not-a-token token.
+	 */
+	switch (this.lookBack[1]) {
+		case TokenNameRPAREN:
+		case TokenNameIdentifier:
+		case TokenNameNotAToken: // TODO is this useful? Some tests start scanning at "when", but this makes not sense as a Pattern is required by the JLS
+			return true;
 	}
-	return true;
+	return false;
 }
 protected final boolean mayBeAtBreakPreview() {
 	return !isInModuleDeclaration() && this.breakPreviewAllowed && this.lookBack[1] != TokenNameARROW;
