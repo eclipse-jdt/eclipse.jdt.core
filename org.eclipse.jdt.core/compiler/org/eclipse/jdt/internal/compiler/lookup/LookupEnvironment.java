@@ -110,6 +110,7 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	private SimpleLookupTable uniqueGetClassMethodBinding; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=300734
 
 	boolean useModuleSystem;					// true when compliance >= 9 and nameEnvironment is module aware
+	boolean ignoreUnnamedModule;
 	// key is a string with the module name value is a module binding
 	public HashtableOfModule knownModules;		// SHARED
 
@@ -180,6 +181,7 @@ public LookupEnvironment(ITypeRequestor typeRequestor, CompilerOptions globalOpt
 	this.knownModules = new HashtableOfModule();
 	this.useModuleSystem = nameEnvironment instanceof IModuleAwareNameEnvironment && globalOptions.complianceLevel >= ClassFileConstants.JDK9;
 	this.resolutionListeners = new IQualifiedTypeResolutionListener[0];
+	this.ignoreUnnamedModule = this.globalOptions.ignoreUnnamedModuleForSplitPackage;
 }
 
 /** Construct a specific LookupEnvironment, corresponding to the given module. */
@@ -204,6 +206,7 @@ LookupEnvironment(LookupEnvironment rootEnv, ModuleBinding module) {
 	this.typeSystem = rootEnv.typeSystem;
 	// knownModules is unused in specific LookupEnvironments
 	this.useModuleSystem = rootEnv.useModuleSystem;
+	this.ignoreUnnamedModule = this.globalOptions.ignoreUnnamedModuleForSplitPackage;
 }
 
 // NOTE: only for resolving!

@@ -2645,6 +2645,20 @@ public final class JavaCore extends Plugin {
 	 * @since 3.18
 	 */
 	public static final String COMPILER_PB_REPORT_PREVIEW_FEATURES = PLUGIN_ID + ".compiler.problem.reportPreviewFeatures"; //$NON-NLS-1$
+
+	/**
+	 * Compiler option ID: Ignore unnamed module for split package.
+	 * <p>When enabled, the compiler will ignore the unnamed module when a package is defined in both a named module and the unnamed module.</p>
+	 *
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.ignoreUnnamedModuleForSplitPackage"</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "enabled", "disabled" }</code></dd>
+	 * <dt>Default:</dt><dd><code>"disabled"</code></dd>
+	 * </dl>
+	 * @category CompilerOptionID
+	 * @since 3.32
+	 */
+	public static final String COMPILER_IGNORE_UNNAMED_MODULE_FOR_SPLIT_PACKAGE = PLUGIN_ID + ".compiler.ignoreUnnamedModuleForSplitPackage"; //$NON-NLS-1$"
 	/**
 	 * Core option ID: Set the timeout value for retrieving the method's parameter names from javadoc.
 	 * <p>Timeout in milliseconds to retrieve the method's parameter names from javadoc.</p>
