@@ -267,7 +267,7 @@ public class SplitPackageBinding extends PackageBinding {
 					return incarnation;
 				} else {
 					if (clientModule.canAccess(incarnation)) {
-						if (incarnation.enclosingModule.isUnnamed()) { // TODO: check preference
+						if (incarnation.enclosingModule.isUnnamed()) {
 							bindingInUnnamedModule = incarnation;
 						} else {
 							visibleCountInNamedModules++;
@@ -277,13 +277,15 @@ public class SplitPackageBinding extends PackageBinding {
 				}
 			}
 		}
-		if (visibleCountInNamedModules > 1)
+		if (visibleCountInNamedModules > 1) {
 			return this; // conflict, return split
-		else if (visibleCountInNamedModules == 1)
-			if (this.environment.ignoreUnnamedModule || bindingInUnnamedModule == null)
+		} else if (visibleCountInNamedModules == 1) {
+			if (this.environment.globalOptions.ignoreUnnamedModuleForSplitPackage || bindingInUnnamedModule == null) {
 				return uniqueInNamedModules;
-			else
+			} else {
 				return this;
+			}
+		}
 		return bindingInUnnamedModule;
 	}
 
