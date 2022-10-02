@@ -13326,4 +13326,16 @@ public void testIssue443b() {
 		"sealed interface Expr<A> permits MathExpr {\n" +
 		"}");
 }
+/**
+ * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/369
+ */
+public void testIssue369() {
+	setComplianceLevel(CompilerOptions.VERSION_17);
+	this.formatterPrefs.insert_space_after_opening_paren_in_record_declaration = true;
+	this.formatterPrefs.insert_space_before_closing_paren_in_record_declaration = true;
+	formatSource(
+		"@JsonPropertyOrder({ \"position\", \"value\" })\n" +
+		"public record ValueWithPosition( String position, String value ) {\n" +
+		"}");
+}
 }
