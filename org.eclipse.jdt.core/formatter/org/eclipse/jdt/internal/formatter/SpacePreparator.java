@@ -182,10 +182,12 @@ public class SpacePreparator extends ASTVisitor {
 		List<TypeParameter> typeParameters = node.typeParameters();
 		handleTypeParameters(typeParameters);
 
-		if (!node.isInterface() && !node.superInterfaceTypes().isEmpty()) {
-			// fix for: class A<E> extends ArrayList<String>implements Callable<String>
-			handleToken(node.getName(), TokenNameimplements, true, false);
-		}
+		if (!node.superInterfaceTypes().isEmpty())
+			handleTokenAfter(node.getName(), node.isInterface() ? TokenNameextends : TokenNameimplements, true, true);
+		if (node.getSuperclassType() != null)
+			handleTokenAfter(node.getName(), TokenNameextends, true, true);
+		if (!node.permittedTypes().isEmpty())
+			handleTokenAfter(node.getName(), TokenNameRestrictedIdentifierpermits, true, true);
 
 		handleToken(node.getName(), TokenNameLBRACE,
 				this.options.insert_space_before_opening_brace_in_type_declaration, false);
@@ -366,7 +368,8 @@ public class SpacePreparator extends ASTVisitor {
 					this.options.insert_space_after_opening_angle_bracket_in_type_parameters);
 			handleTokenAfter(typeParameters.get(typeParameters.size() - 1), TokenNameGREATER,
 					this.options.insert_space_before_closing_angle_bracket_in_type_parameters,
-					this.options.insert_space_after_closing_angle_bracket_in_type_parameters);
+					typeParameters.get(0).getParent() instanceof RecordDeclaration ? false
+							: this.options.insert_space_after_closing_angle_bracket_in_type_parameters);
 			handleCommas(typeParameters, this.options.insert_space_before_comma_in_type_parameters,
 					this.options.insert_space_after_comma_in_type_parameters);
 		}
