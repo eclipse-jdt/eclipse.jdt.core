@@ -267,18 +267,19 @@ public class SpacePreparator extends ASTVisitor {
 		}
 
 		List<SingleVariableDeclaration> components = node.recordComponents();
-		if (handleEmptyParens(node, this.options.insert_space_between_empty_parens_in_constructor_declaration)) {
-			handleToken(node, TokenNameLPAREN,
+		ASTNode nodeBeforeLParen = typeParameters.isEmpty() ? node.getName()
+				: typeParameters.get(typeParameters.size() - 1);
+		ASTNode nodeBeforeRParen = components.isEmpty() ? nodeBeforeLParen
+				: components.get(components.size() - 1);
+		if (handleEmptyParens(nodeBeforeLParen, this.options.insert_space_between_empty_parens_in_constructor_declaration)) {
+			handleTokenAfter(nodeBeforeLParen, TokenNameLPAREN,
 					this.options.insert_space_before_opening_paren_in_record_declaration, false);
 		} else {
-			handleToken(node, TokenNameLPAREN,
+			handleTokenAfter(nodeBeforeLParen, TokenNameLPAREN,
 					this.options.insert_space_before_opening_paren_in_record_declaration,
 					this.options.insert_space_after_opening_paren_in_record_declaration);
-
-			if (this.options.insert_space_before_closing_paren_in_record_declaration) {
-				ASTNode nodeBeforeBrace = components.isEmpty() ? node.getName() : components.get(components.size() - 1);
-				handleTokenAfter(nodeBeforeBrace, TokenNameRPAREN, true, false);
-			}
+			handleTokenAfter(nodeBeforeRParen, TokenNameRPAREN,
+					this.options.insert_space_before_closing_paren_in_record_declaration, false);
 		}
 		handleCommas(components, this.options.insert_space_before_comma_in_record_components,
 				this.options.insert_space_after_comma_in_record_components);
