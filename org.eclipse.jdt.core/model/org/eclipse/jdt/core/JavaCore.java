@@ -2649,8 +2649,10 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Compiler option ID: Ignore unnamed module for split package.
 	 * <p>
-	 * When enabled, the compiler will ignore the unnamed module when a package is defined in both a named module and the unnamed module.
-	 * This preference is introduced due to the explanation described in https://openjdk.org/projects/jigsaw/spec/sotms/#the-unnamed-module.
+	 * With this option the compiler will deliberately accept programs violating JLS in a specific way.
+	 * Instead the compiler will behave in accordance to the original, but unmaintained document
+	 * <a href="https://openjdk.org/projects/jigsaw/spec/sotms/#the-unnamed-module">"The State of the Module System"</a>,
+	 * which indicates that different semantics had been intended.
 	 * </p>
 	 *
 	 * <dl>

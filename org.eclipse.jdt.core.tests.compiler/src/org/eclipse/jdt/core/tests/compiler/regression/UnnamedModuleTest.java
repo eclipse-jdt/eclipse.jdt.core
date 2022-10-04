@@ -75,7 +75,7 @@ public void testBug522326() {
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/415
 // Should compile successfully when the compilation unit contains a split package and
 // the option 'OPTION_IgnoreUnnamedModuleForSplitPackage' is turned on.
-public void testIgnoreUnnamedModule() {
+public void testIgnoreUnnamedModule1() {
 	String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "ignore-unnamed-module-test.jar";
 	String[] defaultLibs = getDefaultClassPaths();
 	int len = defaultLibs.length;
@@ -88,10 +88,89 @@ public void testIgnoreUnnamedModule() {
 			true,
 			new String[] {
 				"X.java",
-				"import org.xml.sax.SAXParseException;\n" +
+				"import org.xml.sax.SAXException;\n" +
 				"public class X {\n" +
 				"	void foo() {\n" +
-				"		SAXParseException s;\n" +
+				"		SAXException s;\n" +
+				"	}\n" +
+				"}"
+			},
+			libs,
+			compilerOptions,
+			"",
+			"",
+			"",
+			JavacTestOptions.DEFAULT);
+}
+public void testIgnoreUnnamedModule2() {
+	String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "ignore-unnamed-module-test.jar";
+	String[] defaultLibs = getDefaultClassPaths();
+	int len = defaultLibs.length;
+	String[] libs = new String[len+1];
+	System.arraycopy(defaultLibs, 0, libs, 0, len);
+	libs[len] = path;
+	Map<String, String> compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_IgnoreUnnamedModuleForSplitPackage, CompilerOptions.ENABLED);
+	this.runConformTest(
+			true,
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	void foo() {\n" +
+				"		org.xml.sax.SAXException s;\n" +
+				"	}\n" +
+				"}"
+			},
+			libs,
+			compilerOptions,
+			"",
+			"",
+			"",
+			JavacTestOptions.DEFAULT);
+}
+public void testIgnoreUnnamedModule3() {
+	String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "ignore-unnamed-module-test.jar";
+	String[] defaultLibs = getDefaultClassPaths();
+	int len = defaultLibs.length;
+	String[] libs = new String[len+1];
+	System.arraycopy(defaultLibs, 0, libs, 0, len);
+	libs[len] = path;
+	Map<String, String> compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_IgnoreUnnamedModuleForSplitPackage, CompilerOptions.ENABLED);
+	this.runConformTest(
+			true,
+			new String[] {
+				"X.java",
+				"import static org.xml.sax.helpers.NamespaceSupport.XMLNS;\n" +
+				"public class X {\n" +
+				"	void foo() {\n" +
+				"		String s = XMLNS;\n" +
+				"	}\n" +
+				"}"
+			},
+			libs,
+			compilerOptions,
+			"",
+			"",
+			"",
+			JavacTestOptions.DEFAULT);
+}
+public void testIgnoreUnnamedModule4() {
+	String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "ignore-unnamed-module-test.jar";
+	String[] defaultLibs = getDefaultClassPaths();
+	int len = defaultLibs.length;
+	String[] libs = new String[len+1];
+	System.arraycopy(defaultLibs, 0, libs, 0, len);
+	libs[len] = path;
+	Map<String, String> compilerOptions = getCompilerOptions();
+	compilerOptions.put(CompilerOptions.OPTION_IgnoreUnnamedModuleForSplitPackage, CompilerOptions.ENABLED);
+	this.runConformTest(
+			true,
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	void foo() {\n" +
+				"		String s = org.xml.sax.helpers.NamespaceSupport.XMLNS;\n" +
 				"	}\n" +
 				"}"
 			},
