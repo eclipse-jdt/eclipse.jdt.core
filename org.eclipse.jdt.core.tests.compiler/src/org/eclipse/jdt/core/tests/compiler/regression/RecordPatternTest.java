@@ -1567,4 +1567,51 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"An enhanced switch statement should be exhaustive; a default label expected\n" +
 			"----------\n");
 	}
+	public void test46() {
+		runConformTest(new String[] {
+			"X.java",
+				"  @SuppressWarnings(\"preview\")\n"
+				+ "public class X {\n"
+				+ "  static void printGenericBoxString1(Box<Object> objectBox) {\n"
+				+ "	  if (objectBox instanceof Box<Object>(String s)) {\n"
+				+ "		  System.out.println(s); \n"
+				+ "	  }\n"
+				+ "  }\n"
+				+ "static void printGenericBoxString2(Box<String> stringBox) {\n"
+				+ "    if (stringBox instanceof Box<String>(var s)) {\n"
+				+ "      System.out.println(s);\n"
+				+ "    }\n"
+				+ "  }\n"
+				+ "public static void main(String[] args) {\n"
+				+ "	printGenericBoxString1(new Box(\"Hello\"));\n"
+				+ "	Object o = new Integer(10);\n"
+				+ "	Box<Object> box = new Box(o);\n"
+				+ "	printGenericBoxString1(box);\n"
+				+ "}\n"
+				+ "}\n"
+				+ "record Box<T>(T t) {} "
+			},
+				"Hello");
+	}
+	public void test47() {
+		runNegativeTest(new String[] {
+			"X.java",
+				"  @SuppressWarnings(\"preview\")\n"
+				+ "public class X {\n"
+				+ "  static void printGenericBoxString1(Box<Object> objectBox) {\n"
+				+ "    if (objectBox instanceof Box<String>(String s)) {\n"
+				+ "      System.out.println(s); // this one should report an unsafe cast error\n"
+				+ "    }\n"
+				+ "  }\n"
+				+ "  public static void main(String[] args) {}\n"
+				+ "}\n"
+				+ "record Box<T>(T t) {} "
+			},
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	if (objectBox instanceof Box<String>(String s)) {\n" +
+				"	    ^^^^^^^^^\n" +
+				"Type Box<Object> cannot be safely cast to Box<String>\n" +
+				"----------\n");
+	}
 }
