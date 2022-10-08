@@ -29,6 +29,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.formatter.IndentManipulation;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions.Alignment;
@@ -13303,6 +13304,38 @@ public void testBug576954() {
 		"					default -> \"many\";\n" +
 		"				}).forEach(System.out::println);\n" +
 		"	}\n" +
+		"}");
+}
+/**
+ * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/443
+ */
+public void testIssue443a() {
+	setComplianceLevel(CompilerOptions.VERSION_17);
+	this.formatterPrefs.insert_space_after_closing_angle_bracket_in_type_parameters = true;
+	formatSource(
+		"record MyRecord<A>() {\n" +
+		"}");
+}
+public void testIssue443b() {
+	setComplianceLevel(CompilerOptions.VERSION_17);
+	this.formatterPrefs.insert_space_after_closing_angle_bracket_in_type_parameters = false;
+	formatSource(
+		"class MyClass<A> extends AnotherClass {\n" +
+		"}\n" +
+		"\n" +
+		"sealed interface Expr<A> permits MathExpr {\n" +
+		"}");
+}
+/**
+ * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/369
+ */
+public void testIssue369() {
+	setComplianceLevel(CompilerOptions.VERSION_17);
+	this.formatterPrefs.insert_space_after_opening_paren_in_record_declaration = true;
+	this.formatterPrefs.insert_space_before_closing_paren_in_record_declaration = true;
+	formatSource(
+		"@JsonPropertyOrder({ \"position\", \"value\" })\n" +
+		"public record ValueWithPosition( String position, String value ) {\n" +
 		"}");
 }
 }
