@@ -185,7 +185,7 @@ public class Scanner implements TerminalTokens {
 	 * </ul>
 	 * As this look back is intended for resolving ambiguities and conflicts, it ignores whitespace and comments.
 	 *
-	 * @see #resetLookBack() Reset the lock back and clear all stored tokens
+	 * @see #resetLookBack() Reset the look back and clear all stored tokens
 	 * @see #addTokenToLookBack(int) Add a token to the look back, removing the oldest entry
 	 */
 	int lookBack[] = new int[2]; // fall back to spring forward.
@@ -5089,7 +5089,7 @@ protected boolean mayBeAtGuard(int token) {
 	switch (this.lookBack[1]) {
 		case TokenNameRPAREN:
 		case TokenNameIdentifier:
-		case TokenNameNotAToken: // TODO is this useful? Some tests start scanning at "when", but this makes not sense as a Pattern is required by the JLS
+		case TokenNameNotAToken: // TODO is this useful? Some tests start scanning at "when", but this makes no sense as a Pattern is required by the JLS
 			return true;
 	}
 	return false;
