@@ -1173,7 +1173,7 @@ public void testModuleJarSearchBugGh332() throws Exception {
 
 		String foundReferences = resultCollector.toString();
 		assertFalse("Expected search to find references of method: " + schedMethod, foundReferences.isEmpty());
-		List<String> results = Arrays.asList(foundReferences.split(System.lineSeparator()));
+		List<String> results = Arrays.asList(foundReferences.split("\n"));
 		String[] expectedResults = {
 				"void java.util.Timer.schedule(java.util.TimerTask, long)",
 				"void java.util.Timer.schedule(java.util.TimerTask, java.util.Date)",
