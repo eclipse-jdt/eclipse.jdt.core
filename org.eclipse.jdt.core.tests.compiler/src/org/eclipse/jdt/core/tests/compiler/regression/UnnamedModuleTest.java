@@ -181,4 +181,31 @@ public void testIgnoreUnnamedModule4() {
 			"",
 			JavacTestOptions.DEFAULT);
 }
+public void testConflictWithUnnamedModule() {
+	String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "ignore-unnamed-module-test.jar";
+	String[] defaultLibs = getDefaultClassPaths();
+	int len = defaultLibs.length;
+	String[] libs = new String[len+1];
+	System.arraycopy(defaultLibs, 0, libs, 0, len);
+	libs[len] = path;
+	Runner runner = new Runner();
+	runner.classLibraries = libs;
+	runner.testFiles =
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	void foo() {\n" +
+				"		String s = org.xml.sax.helpers.NamespaceSupport.XMLNS;\n" +
+				"	}\n" +
+				"}"
+			};
+	runner.expectedErrorString =
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	String s = org.xml.sax.helpers.NamespaceSupport.XMLNS;\n" +
+			"	           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"The package org.xml.sax.helpers is accessible from more than one module: <unnamed>, java.xml\n" +
+			"----------\n";
+	runner.runNegativeTest();
+}
 }
