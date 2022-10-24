@@ -458,6 +458,14 @@ public void testIncludeCUOnly01_new() throws CoreException {
 			workingCopy.discardWorkingCopy();
 	}
 }
+
+/**
+ * Same test as above but checking in modular environment, where search failed to see package in unnamed module
+ */
+public void testIncludeCUOnly01_new_modular() throws CoreException {
+	this.project.setOption(JavaCore.COMPILER_COMPLIANCE, "11");
+	testIncludeCUOnly01_new();
+}
 /**
  * Ensure that a type can be resolved if it is included but not its super packages.
  * (regression test for bug 119161 classes in "deep" packages not fully recognized when using tight inclusion filters)
