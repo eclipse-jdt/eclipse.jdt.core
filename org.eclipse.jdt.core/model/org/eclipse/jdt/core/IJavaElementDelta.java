@@ -316,6 +316,14 @@ public interface IJavaElementDelta {
 	public int F_ANNOTATIONS = 0x400000;
 
 	/**
+	 * Change flag indicating that the attributes of the element have changed.
+	 * Use {@link #getClasspathAttributeDeltas()} to get the added/removed/changed attributes.
+	 *
+	 * @since 3.33
+	 */
+	public int F_CLASSPATH_ATTRIBUTES = 0x800000;
+
+	/**
 	 * Returns deltas for the children that have been added.
 	 * @return deltas for the children that have been added
 	 */
@@ -427,4 +435,17 @@ public interface IJavaElementDelta {
 	 * @return the underlying resource deltas, or <code>null</code> if none
 	 */
 	public IResourceDelta[] getResourceDeltas();
+
+	/**
+	 * Returns deltas for affected attributes (added, removed, or changed).
+	 * Returns an empty array if no attribute was affected, or if this delta's element is not
+	 * for an affected {@link IClasspathEntry}.
+	 *
+	 * @return deltas for affected attributes (added, removed, or changed)
+	 *
+	 * @since 3.33
+	 */
+	default public IClasspathAttributeDelta[] getClasspathAttributeDeltas() {
+		return new IClasspathAttributeDelta[] {};
+	}
 }
