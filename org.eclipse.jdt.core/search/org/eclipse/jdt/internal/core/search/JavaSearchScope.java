@@ -52,11 +52,11 @@ import org.eclipse.jdt.internal.core.util.Util;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class JavaSearchScope extends AbstractJavaSearchScope {
 
-	private ArrayList elements;
+	private HashSet<IJavaElement> elements;
 
-	/* The paths of the resources in this search scope
-	    (or the classpath entries' paths if the resources are projects)
-	*/
+	/**
+	 * The paths of the resources in this search scope (or the classpath entries' paths if the resources are projects)
+	 */
 	private ArrayList projectPaths = new ArrayList(); // container paths projects
 	private int[] projectIndexes; // Indexes of projects in list
 	private String[] containerPaths; // path to the container (e.g. /P/src, /P/lib.jar, c:\temp\mylib.jar)
@@ -273,7 +273,7 @@ public void add(IJavaElement element) throws JavaModelException {
 			// remember sub-cu (or sub-class file) java elements
 			if (element instanceof IMember) {
 				if (this.elements == null) {
-					this.elements = new ArrayList();
+					this.elements = new HashSet<>();
 				}
 				this.elements.add(element);
 			}
@@ -455,15 +455,12 @@ private boolean encloses(String enclosingPath, String path, int index) {
 @Override
 public boolean encloses(IJavaElement element) {
 	if (this.elements != null) {
-		for (int i = 0, length = this.elements.size(); i < length; i++) {
-			IJavaElement scopeElement = (IJavaElement)this.elements.get(i);
-			IJavaElement searchedElement = element;
-			while (searchedElement != null) {
-				if (searchedElement.equals(scopeElement))
-					return true;
-				searchedElement = searchedElement.getParent();
+		IJavaElement searchedElement = element;
+		do {
+			if (this.elements.contains(searchedElement)) {
+				return true;
 			}
-		}
+		} while ((searchedElement = searchedElement.getParent()) != null);
 		return false;
 	}
 	IPackageFragmentRoot root = (IPackageFragmentRoot) element.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT);
@@ -661,10 +658,9 @@ public String toString() {
 	StringBuilder result = new StringBuilder("JavaSearchScope on "); //$NON-NLS-1$
 	if (this.elements != null) {
 		result.append("["); //$NON-NLS-1$
-		for (int i = 0, length = this.elements.size(); i < length; i++) {
-			JavaElement element = (JavaElement)this.elements.get(i);
+		for (IJavaElement element : this.elements) {
 			result.append("\n\t"); //$NON-NLS-1$
-			result.append(element.toStringWithAncestors());
+			result.append(((JavaElement) element).toStringWithAncestors());
 		}
 		result.append("\n]"); //$NON-NLS-1$
 	} else {
