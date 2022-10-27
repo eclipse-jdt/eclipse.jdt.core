@@ -1149,7 +1149,7 @@ public void testBug397818() throws CoreException {
 public void testModuleJarSearchBugGh332() throws Exception {
 	String testProjectName = "gh322ModuleJarSearchBug";
 	try {
-		IJavaProject project = setUpJavaProject(testProjectName, "11", false);
+		IJavaProject project = setupModuleProject(testProjectName, new String[] {"src"}, new String[0], null);
 		waitForAutoBuild();
 		waitUntilIndexesReady();
 
