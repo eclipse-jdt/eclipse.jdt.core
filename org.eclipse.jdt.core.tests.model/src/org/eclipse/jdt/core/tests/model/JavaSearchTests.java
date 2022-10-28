@@ -4658,10 +4658,10 @@ public void testAnonymousTypeMethodReferenceSearchGh432() throws Exception {
 			"void run() {key=Lp/TestGh432$148;.run()V} [in <anonymous #1> [in main(String[]) [in TestGh432 [in TestGh432.java [in p [in src [in gh432MethodReferencesSearchBug]]]]]]]",
 			"void run() {key=Lp/TestGh432$138;.run()V} [in <anonymous #1> [in run() [in <anonymous #1> [in main(String[]) [in TestGh432 [in TestGh432.java [in p [in src [in gh432MethodReferencesSearchBug]]]]]]]]]",
 			"run() (not open) {key=Lp/TestGh432$162;.run()V} [in <anonymous #1> [in run() [in <lambda #1> [in main(String[]) [in TestGh432 [in TestGh432.java [in p [in src [in gh432MethodReferencesSearchBug]]]]]]]]]",
-
 	};
 	try {
-		IJavaProject p = setupModuleProject(testProjectName, new String[] {"src"}, new String[0], null);
+		IJavaProject p = createJava11Project(testProjectName, new String[] {"src"});
+		waitUntilIndexesReady();
 		String packageFolder = "/" + testProjectName + "/src/p";
 		createFolder(packageFolder);
 		String sourceFile = packageFolder + "/TestGh432.java";
@@ -4677,10 +4677,10 @@ public void testAnonymousTypeMethodReferenceSearchGh432() throws Exception {
 			waitUntilIndexesReady();
 
 			IMethod testMethod = findMethod(p, "p.TestGh432", "missingReference");
-			String foundReferences = searchForMethodReferences(testMethod);
+			String foundReferences = searchForMethodReferences(testMethod).strip();
 			assertFalse("Expected search to find references of method: " + testMethod + ", in snippet:\n" + fileContent, foundReferences.isEmpty());
-			List<String> results = Arrays.asList(foundReferences.split(System.lineSeparator()));
-			assertEquals("Unexpected search result for snippet:\n" + fileContent, expectedResults, String.join(System.lineSeparator(), results));
+			List<String> results = Arrays.asList(foundReferences.split("\n"));
+			assertEquals("Unexpected search result for snippet:\n" + fileContent, expectedResults, String.join("\n", results));
 		}
 	} finally {
 		JavaCore.setOptions(getDefaultJavaCoreOptions());
