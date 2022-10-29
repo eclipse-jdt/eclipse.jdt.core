@@ -1815,4 +1815,24 @@ public class CompletionProposal {
 	public boolean canUseDiamond(CompletionContext coreContext) {
 		return false; // default overridden by concrete implementation
 	}
+
+	/**
+	 * Returns whether this proposal is an array type reference.
+	 * <p>
+	 * This field is available for the following kinds of
+	 * completion proposals:
+	 * <ul>
+	 * <li><code>TYPE_REF</code> - return <code>true</code>
+	 * if the referenced type is an array</li>
+	 * </ul>
+	 * For other kinds of completion proposals, this method returns
+	 * <code>false</code>.
+	 *
+	 * @return <code>true</code> if the proposal is an array type reference.
+	 * @since 3.32
+	 */
+	public boolean isArray() {
+		return false; // default overridden by concrete implementation
+	}
+
 }

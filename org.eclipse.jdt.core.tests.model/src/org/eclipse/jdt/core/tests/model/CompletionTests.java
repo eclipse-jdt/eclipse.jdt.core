@@ -15919,7 +15919,7 @@ public void testConstructor1() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 
 	assertResults(
-			"TestConstructor1[TYPE_REF]{TestConstructor1, test, Ltest.TestConstructor1;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
+			"TestConstructor1[TYPE_REF<ARRAY>]{TestConstructor1[], test, Ltest.TestConstructor1;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
 			"TestConstructor1[CONSTRUCTOR_INVOCATION]{(), Ltest.TestConstructor1;, (I)V, TestConstructor1, (i), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
 			"   TestConstructor1[TYPE_REF]{TestConstructor1, test, Ltest.TestConstructor1;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}",
 			requestor.getResults());
@@ -15951,7 +15951,7 @@ public void testConstructor2() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 
 	assertResults(
-			"TestConstructor1[TYPE_REF]{TestConstructor1, test, Ltest.TestConstructor1;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
+			"TestConstructor1[TYPE_REF<ARRAY>]{TestConstructor1[], test, Ltest.TestConstructor1;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
 			"TestConstructor1[CONSTRUCTOR_INVOCATION]{(), Ltest.TestConstructor1;, (I)V, TestConstructor1, (i), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
 			"   TestConstructor1[TYPE_REF]{TestConstructor1, test, Ltest.TestConstructor1;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}",
 			requestor.getResults());
@@ -15983,7 +15983,7 @@ public void testConstructor3() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 
 	assertResults(
-			"TestConstructor1[TYPE_REF]{TestConstructor1, test, Ltest.TestConstructor1;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
+			"TestConstructor1[TYPE_REF<ARRAY>]{TestConstructor1[], test, Ltest.TestConstructor1;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
 			"TestConstructor1[CONSTRUCTOR_INVOCATION]{(), Ltest.TestConstructor1;, (I)V, TestConstructor1, (i), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
 			"   TestConstructor1[TYPE_REF]{TestConstructor1, test, Ltest.TestConstructor1;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}",
 			requestor.getResults());
@@ -16016,7 +16016,7 @@ public void testConstructor4() throws JavaModelException {
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, monitor);
 
 	assertResults(
-			"TestConstructor1[TYPE_REF]{TestConstructor1, test, Ltest.TestConstructor1;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
+			"TestConstructor1[TYPE_REF<ARRAY>]{TestConstructor1[], test, Ltest.TestConstructor1;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED)+"}\n" +
 			"TestConstructor1[CONSTRUCTOR_INVOCATION]{(), Ltest.TestConstructor1;, (I)V, TestConstructor1, (i), "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}\n" +
 			"   TestConstructor1[TYPE_REF]{TestConstructor1, test, Ltest.TestConstructor1;, null, null, "+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CONSTRUCTOR)+"}",
 			requestor.getResults());

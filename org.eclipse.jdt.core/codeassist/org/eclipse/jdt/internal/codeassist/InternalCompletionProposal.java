@@ -65,6 +65,7 @@ public class InternalCompletionProposal extends CompletionProposal {
 	protected int accessibility = IAccessRule.K_ACCESSIBLE;
 
 	protected boolean isConstructor = false;
+	protected boolean isArray = false;
 
 	/**
 	 * Kind of completion request.
@@ -1083,6 +1084,9 @@ public class InternalCompletionProposal extends CompletionProposal {
 				break;
 			case CompletionProposal.TYPE_REF :
 				buffer.append("TYPE_REF"); //$NON-NLS-1$
+				if (this.isArray) {
+					buffer.append("<ARRAY>"); //$NON-NLS-1$
+				}
 				break;
 			case CompletionProposal.VARIABLE_DECLARATION :
 				buffer.append("VARIABLE_DECLARATION"); //$NON-NLS-1$
@@ -1199,5 +1203,14 @@ public class InternalCompletionProposal extends CompletionProposal {
 		else {
 			return false;
 		}
+	}
+
+	@Override
+	public boolean isArray() {
+		return this.isArray;
+	}
+
+	protected void setArray(boolean isArray) {
+		this.isArray = isArray;
 	}
 }

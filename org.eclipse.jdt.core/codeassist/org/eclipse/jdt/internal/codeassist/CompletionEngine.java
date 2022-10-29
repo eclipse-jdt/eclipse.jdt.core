@@ -12083,135 +12083,160 @@ public final class CompletionEngine
 
 				checkCancel();
 
+				ReferenceBinding refBinding;
+				boolean receiverIsArrayType = false;
 				if(this.expectedTypes[i] instanceof ReferenceBinding) {
-					ReferenceBinding refBinding = (ReferenceBinding)this.expectedTypes[i];
+					refBinding = (ReferenceBinding) this.expectedTypes[i];
+				} else if (this.expectedTypes[i] instanceof ArrayBinding) {
+					receiverIsArrayType = true;
+					TypeBinding leaf = ((ArrayBinding) this.expectedTypes[i]).leafComponentType();
+					refBinding = this.lookupEnvironment
+							.getType(CharOperation.splitOn('.', CharOperation.concat(leaf.qualifiedPackageName(),
+									leaf.qualifiedSourceName(), '.')));
+				} else {
+					return;
+				}
 
-					if (typeLength > 0) {
-						if (typeLength > refBinding.sourceName.length) continue next;
-
-						if (isFailedMatch(token, refBinding.sourceName)) continue next;
-					}
-
-
-					if(refBinding.isTypeVariable() && this.assistNodeIsConstructor) {
-						// don't propose type variable if the completion is a constructor ('new |')
-						continue next;
-					}
-					if (this.options.checkDeprecation &&
-							refBinding.isViewedAsDeprecated() &&
-							!scope.isDefinedInSameUnit(refBinding))
+				if (typeLength > 0) {
+					if (typeLength > refBinding.sourceName.length)
 						continue next;
 
-					int accessibility = IAccessRule.K_ACCESSIBLE;
-					if(refBinding.hasRestrictedAccess()) {
-						AccessRestriction accessRestriction = this.lookupEnvironment.getAccessRestriction(refBinding);
-						if(accessRestriction != null) {
-							switch (accessRestriction.getProblemId()) {
-								case IProblem.ForbiddenReference:
-									if (this.options.checkForbiddenReference) {
-										continue next;
-									}
-									accessibility = IAccessRule.K_NON_ACCESSIBLE;
-									break;
-								case IProblem.DiscouragedReference:
-									if (this.options.checkDiscouragedReference) {
-										continue next;
-									}
-									accessibility = IAccessRule.K_DISCOURAGED;
-									break;
-							}
-						}
-					}
-					if(isForbidden(refBinding)) continue next;
+					if (isFailedMatch(token, refBinding.sourceName))
+						continue next;
+				}
 
-					for (int j = 0; j < typesFound.size(); j++) {
-						ReferenceBinding typeFound = (ReferenceBinding)typesFound.elementAt(j);
-						if (TypeBinding.equalsEquals(typeFound, refBinding.erasure())) {
-							continue next;
-						}
-					}
 
-					typesFound.add(refBinding);
+				if (refBinding.isTypeVariable() && this.assistNodeIsConstructor) {
+					// don't propose type variable if the completion is a constructor ('new |')
+					continue next;
+				}
+				if (this.options.checkDeprecation &&
+						refBinding.isViewedAsDeprecated() &&
+						!scope.isDefinedInSameUnit(refBinding))
+					continue next;
 
-					boolean inSameUnit = this.unitScope.isDefinedInSameUnit(refBinding);
-
-					// top level types of the current unit are already proposed.
-					if(!inSameUnit || (inSameUnit && refBinding.isMemberType())) {
-						char[] packageName = refBinding.qualifiedPackageName();
-						char[] typeName = refBinding.sourceName();
-						char[] completionName = typeName;
-
-						boolean isQualified = false;
-						if (!this.insideQualifiedReference && !refBinding.isMemberType()) {
-							if (mustQualifyType(packageName, typeName, null, refBinding.modifiers)) {
-								if (packageName == null || packageName.length == 0)
-									if (this.unitScope != null && this.unitScope.fPackage.compoundName != CharOperation.NO_CHAR_CHAR)
-										continue next; // ignore types from the default package from outside it
-								completionName = CharOperation.concat(packageName, typeName, '.');
-								isQualified = true;
-							}
-						}
-
-						if (this.assistNodeIsExtendedType && refBinding.isFinal()) continue next;
-						if (this.assistNodeIsInterfaceExcludingAnnotation && refBinding.isAnnotationType()) continue next;
-						if(this.assistNodeIsClass) {
-							if(!refBinding.isClass()) continue next;
-						} else if(this.assistNodeIsInterface) {
-							if(!refBinding.isInterface() && !refBinding.isAnnotationType()) continue next;
-						} else if (this.assistNodeIsAnnotation) {
-							if(!refBinding.isAnnotationType()) continue next;
-						}
-
-						int relevance = computeBaseRelevance();
-						relevance += computeRelevanceForResolution();
-						relevance += computeRelevanceForInterestingProposal(refBinding);
-						relevance += computeRelevanceForCaseMatching(token, typeName);
-						relevance += computeRelevanceForExpectingType(refBinding);
-						relevance += computeRelevanceForQualification(isQualified);
-						relevance += computeRelevanceForRestrictions(accessibility);
-
-						if(refBinding.isClass()) {
-							relevance += computeRelevanceForClass();
-							relevance += computeRelevanceForException(typeName);
-						} else if(refBinding.isEnum()) {
-							relevance += computeRelevanceForEnum();
-						} else if(refBinding.isInterface()) {
-							relevance += computeRelevanceForInterface();
-						}
-
-						if (proposeType &&
-								(!this.assistNodeIsConstructor ||
-										!allowingLongComputationProposals ||
-										hasStaticMemberTypes(refBinding, scope.enclosingSourceType() ,this.unitScope)) ||
-										hasArrayTypeAsExpectedSuperTypes()) {
-							this.noProposal = false;
-							if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
-								InternalCompletionProposal proposal =  createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
-								proposal.setDeclarationSignature(packageName);
-								proposal.setSignature(getSignature(refBinding));
-								proposal.setPackageName(packageName);
-								proposal.setTypeName(typeName);
-								proposal.setCompletion(completionName);
-								proposal.setFlags(refBinding.modifiers);
-								proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
-								proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
-								proposal.setRelevance(relevance);
-								proposal.setAccessibility(accessibility);
-								this.requestor.accept(proposal);
-								if(DEBUG) {
-									this.printDebug(proposal);
+				int accessibility = IAccessRule.K_ACCESSIBLE;
+				if (refBinding.hasRestrictedAccess()) {
+					AccessRestriction accessRestriction = this.lookupEnvironment.getAccessRestriction(refBinding);
+					if (accessRestriction != null) {
+						switch (accessRestriction.getProblemId()) {
+							case IProblem.ForbiddenReference:
+								if (this.options.checkForbiddenReference) {
+									continue next;
 								}
+								accessibility = IAccessRule.K_NON_ACCESSIBLE;
+								break;
+							case IProblem.DiscouragedReference:
+								if (this.options.checkDiscouragedReference) {
+									continue next;
+								}
+								accessibility = IAccessRule.K_DISCOURAGED;
+								break;
+						}
+					}
+				}
+				if (isForbidden(refBinding))
+					continue next;
+
+				for (int j = 0; j < typesFound.size(); j++) {
+					ReferenceBinding typeFound = (ReferenceBinding) typesFound.elementAt(j);
+					if (TypeBinding.equalsEquals(typeFound, refBinding.erasure())) {
+						continue next;
+					}
+				}
+
+				typesFound.add(refBinding);
+
+				boolean inSameUnit = this.unitScope.isDefinedInSameUnit(refBinding);
+
+				// top level types of the current unit are already proposed.
+				if (!inSameUnit || (inSameUnit && refBinding.isMemberType())) {
+					char[] packageName = refBinding.qualifiedPackageName();
+					char[] typeName = refBinding.sourceName();
+					char[] completionName = typeName;
+
+					boolean isQualified = false;
+					if (!this.insideQualifiedReference && !refBinding.isMemberType()) {
+						if (mustQualifyType(packageName, typeName, null, refBinding.modifiers)) {
+							if (packageName == null || packageName.length == 0)
+								if (this.unitScope != null
+										&& this.unitScope.fPackage.compoundName != CharOperation.NO_CHAR_CHAR)
+									continue next; // ignore types from the default package from outside it
+							completionName = CharOperation.concat(packageName, typeName, '.');
+							isQualified = true;
+						}
+					}
+
+					if (this.assistNodeIsExtendedType && refBinding.isFinal())
+						continue next;
+					if (this.assistNodeIsInterfaceExcludingAnnotation && refBinding.isAnnotationType())
+						continue next;
+					if (this.assistNodeIsClass) {
+						if (!refBinding.isClass())
+							continue next;
+					} else if (this.assistNodeIsInterface) {
+						if (!refBinding.isInterface() && !refBinding.isAnnotationType())
+							continue next;
+					} else if (this.assistNodeIsAnnotation) {
+						if (!refBinding.isAnnotationType())
+							continue next;
+					}
+
+					int relevance = computeBaseRelevance();
+					relevance += computeRelevanceForResolution();
+					relevance += computeRelevanceForInterestingProposal(refBinding);
+					relevance += computeRelevanceForCaseMatching(token, typeName);
+					relevance += computeRelevanceForExpectingType(refBinding);
+					relevance += computeRelevanceForQualification(isQualified);
+					relevance += computeRelevanceForRestrictions(accessibility);
+
+					if (refBinding.isClass()) {
+						relevance += computeRelevanceForClass();
+						relevance += computeRelevanceForException(typeName);
+					} else if (refBinding.isEnum()) {
+						relevance += computeRelevanceForEnum();
+					} else if (refBinding.isInterface()) {
+						relevance += computeRelevanceForInterface();
+					}
+
+					if (proposeType &&
+							(!this.assistNodeIsConstructor ||
+									!allowingLongComputationProposals ||
+									hasStaticMemberTypes(refBinding, scope.enclosingSourceType(), this.unitScope))
+							||
+							hasArrayTypeAsExpectedSuperTypes()) {
+						this.noProposal = false;
+						if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
+							InternalCompletionProposal proposal = createProposal(CompletionProposal.TYPE_REF,
+									this.actualCompletionPosition);
+							proposal.setDeclarationSignature(packageName);
+							proposal.setSignature(getSignature(refBinding));
+							proposal.setPackageName(packageName);
+							proposal.setTypeName(typeName);
+							if (receiverIsArrayType) {
+								completionName = CharOperation.concat(completionName, new char[] { '[', ']' });
+							}
+							proposal.setArray(receiverIsArrayType);
+							proposal.setCompletion(completionName);
+							proposal.setFlags(refBinding.modifiers);
+							proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+							proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
+							proposal.setRelevance(relevance);
+							proposal.setAccessibility(accessibility);
+							this.requestor.accept(proposal);
+							if (DEBUG) {
+								this.printDebug(proposal);
 							}
 						}
+					}
 
-						if (proposeConstructor) {
-							findConstructorsOrAnonymousTypes(
-									refBinding,
-									scope,
-									FakeInvocationSite,
-									isQualified,
-									relevance);
-						}
+					if (proposeConstructor) {
+						findConstructorsOrAnonymousTypes(
+								refBinding,
+								scope,
+								FakeInvocationSite,
+								isQualified,
+								relevance);
 					}
 				}
 			}
