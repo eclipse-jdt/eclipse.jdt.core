@@ -10379,4 +10379,31 @@ public void testBug508834_comment0() {
 				"}\n"
 			});
 	}
+	public void testIssue506() {
+		runConformTest(
+			new String[] {
+				"Convert.java",
+				"import java.util.function.Function;\n" +
+				"\n" +
+				"class Convert<A> {\n" +
+				"    public static <B> void test(final B a) {\n" +
+				"        Convert<B> res1 = convert(arg -> create(arg), a); // ok\n" +
+				"\n" +
+				"        Convert<B> res2 = convert(arg -> wrap(create(arg)), a); // error: Type mismatch\n" +
+				"    }\n" +
+				"\n" +
+				"    public static <C, D> Convert<D> convert(final Function<C, Convert<D>> func, final C value) {\n" +
+				"        return null;\n" +
+				"    }\n" +
+				"\n" +
+				"    public static <E> E wrap(final E a) {\n" +
+				"        return null;\n" +
+				"    }\n" +
+				"\n" +
+				"    public static <F> Convert<F> create(final F initial) {\n" +
+				"        return null;\n" +
+				"    }\n" +
+				"}\n"
+			});
+	}
 }

@@ -299,7 +299,7 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 							methodSubstitute = new PolyParameterizedGenericMethodBinding(methodSubstitute);
 						}
 					} finally {
-						if (allArgumentsAreProper) {
+						if (allArgumentsAreProper || !methodSubstitute.isVarargs()) {
 							if (invocationSite instanceof Invocation)
 								((Invocation) invocationSite).registerInferenceContext(methodSubstitute, infCtx18); // keep context so we can finish later
 							else if (invocationSite instanceof ReferenceExpression)
