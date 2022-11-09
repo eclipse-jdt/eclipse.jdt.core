@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013, 2019 GK Software AG, and others.
+ * Copyright (c) 2013, 2022 GK Software AG, and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -173,6 +173,7 @@ public class InferenceContext18 {
 	private boolean directlyAcceptingInnerBounds = false;
 	/** Not per JLS: pushing bounds from inner to outer may have to be deferred till after overload resolution, store here a runnable to perform the push. */
 	private Runnable pushToOuterJob = null;
+	private boolean isInexactVarargsInference = false;
 
 	public static boolean isSameSite(InvocationSite site1, InvocationSite site2) {
 		if (site1 == site2)
@@ -708,7 +709,7 @@ public class InferenceContext18 {
 			if (innerMethod instanceof ParameterizedGenericMethodBinding)
 				 innerContext = invocation.getInferenceContext((ParameterizedGenericMethodBinding) innerMethod);
 
-			if (innerContext != null) {
+			if (innerContext != null && !innerContext.isInexactVarargsInference()) {
 				MethodBinding shallowMethod = innerMethod.shallowOriginal();
 				innerContext.outerContext = this;
 				if (innerContext.stepCompleted < InferenceContext18.APPLICABILITY_INFERRED) // shouldn't happen, but let's play safe
@@ -2184,5 +2185,13 @@ public class InferenceContext18 {
 			}
 		}
 		return typeVariables;
+	}
+
+	public boolean isInexactVarargsInference() {
+		return this.isInexactVarargsInference;
+	}
+
+	public void setInexactVarargsInference(boolean isInexactVarargsInference) {
+		this.isInexactVarargsInference = isInexactVarargsInference;
 	}
 }
