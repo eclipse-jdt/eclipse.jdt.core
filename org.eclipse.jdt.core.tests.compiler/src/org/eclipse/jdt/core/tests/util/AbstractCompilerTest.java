@@ -51,6 +51,7 @@ public class AbstractCompilerTest extends TestCase {
 	public static final int F_17  = 0x4000;
 	public static final int F_18  = 0x8000;
 	public static final int F_19  = 0x10000;
+	public static final int F_20  = 0x12000;
 
 	public static final boolean RUN_JAVAC = CompilerOptions.ENABLED.equals(System.getProperty("run.javac"));
 	public static final boolean PERFORMANCE_ASSERTS = !CompilerOptions.DISABLED.equals(System.getProperty("jdt.performance.asserts"));
@@ -72,6 +73,7 @@ public class AbstractCompilerTest extends TestCase {
 	protected static boolean isJRE17Plus = false;
 	protected static boolean isJRE18Plus = false;
 	protected static boolean isJRE19Plus = false;
+	protected static boolean isJRE20Plus = false;
 	protected static boolean reflectNestedClassUseDollar;
 
 	public static int[][] complianceTestLevelMapping = new int[][] {
@@ -92,6 +94,7 @@ public class AbstractCompilerTest extends TestCase {
 		new int[] {F_17, ClassFileConstants.MAJOR_VERSION_17},
 		new int[] {F_18, ClassFileConstants.MAJOR_VERSION_18},
 		new int[] {F_19, ClassFileConstants.MAJOR_VERSION_19},
+		new int[] {F_20, ClassFileConstants.MAJOR_VERSION_20},
 	};
 
 	/**
@@ -330,7 +333,8 @@ public class AbstractCompilerTest extends TestCase {
 			if (spec > Integer.parseInt(CompilerOptions.getLatestVersion())) {
 				specVersion = CompilerOptions.getLatestVersion();
 			}
-			isJRE19Plus = CompilerOptions.VERSION_19.equals(specVersion);
+			isJRE20Plus = CompilerOptions.VERSION_20.equals(specVersion);
+			isJRE19Plus = isJRE20Plus || CompilerOptions.VERSION_19.equals(specVersion);
 			isJRE18Plus = isJRE19Plus || CompilerOptions.VERSION_18.equals(specVersion);
 			isJRE17Plus = isJRE18Plus || CompilerOptions.VERSION_17.equals(specVersion);
 			isJRE16Plus = isJRE17Plus || CompilerOptions.VERSION_16.equals(specVersion);
