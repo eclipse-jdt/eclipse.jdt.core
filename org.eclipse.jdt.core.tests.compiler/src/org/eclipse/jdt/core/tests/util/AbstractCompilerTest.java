@@ -321,7 +321,8 @@ public class AbstractCompilerTest extends TestCase {
 	public static int getPossibleComplianceLevels() {
 		if (possibleComplianceLevels == UNINITIALIZED) {
 			String specVersion = System.getProperty("java.specification.version");
-			isJRE19Plus = CompilerOptions.VERSION_19.equals(specVersion);
+			isJRE19Plus = CompilerOptions.VERSION_19.equals(specVersion)
+					|| Integer.parseInt(specVersion) >= Integer.parseInt(CompilerOptions.VERSION_19);
 			isJRE18Plus = isJRE19Plus || CompilerOptions.VERSION_18.equals(specVersion);
 			isJRE17Plus = isJRE18Plus || CompilerOptions.VERSION_17.equals(specVersion);
 			isJRE16Plus = isJRE17Plus || CompilerOptions.VERSION_16.equals(specVersion);
