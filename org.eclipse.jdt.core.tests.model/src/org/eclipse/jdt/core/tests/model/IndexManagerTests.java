@@ -166,6 +166,18 @@ public class IndexManagerTests extends ModifyingResourceTests {
 		assertEquals("Expected number of indexes are not found for binary.Deep", size - 1, indexNames.get().size());
 	}
 
+	public void testSearchMetaIndex_ForSourceTypeDeclarations() throws CoreException {
+		if (SKIP_TESTS)
+			return;
+
+		createFolder("/IndexProject/src/app");
+		createFile("/IndexProject/src/app/Q1.java", "package app;\n public class Q1 {\n" + "}");
+
+		Optional<Set<String>> indexNames = searchInMetaIndex("app.Q1");
+		assertTrue("No meta index", indexNames.isPresent());
+		assertEquals("No results found", 1, indexNames.get().size());
+	}
+
 	private void changeFile(String path, String content) {
 		IFile file = getFile(path);
 		if (!file.exists()) {
