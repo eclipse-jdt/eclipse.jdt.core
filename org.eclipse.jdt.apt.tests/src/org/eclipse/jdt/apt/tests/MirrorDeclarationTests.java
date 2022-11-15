@@ -299,13 +299,13 @@ public class MirrorDeclarationTests extends APTTestBase {
 		@Override
 		public void _process() {
 			called = true;
-			assertTrue(decls.size() == 1);
+			assertEquals(1, decls.size());
 
 			Declaration d = decls.iterator().next();
 			SourcePosition p = d.getPosition();
 
-			assertTrue(p.column() == 32);
-			assertTrue(p.line() == 3);
+			assertEquals(32, p.column());
+			assertEquals(3, p.line());
 		}
 	}
 
@@ -321,9 +321,9 @@ public class MirrorDeclarationTests extends APTTestBase {
 				if ("GenericAnnotation".equals(am.getAnnotationType().getDeclaration().getSimpleName())) {
 					continue;
 				}
-				assertTrue(null != am.getPosition());
+				assertNotNull(am.getPosition());
 				AnnotationTypeDeclaration atd = am.getAnnotationType().getDeclaration();
-				assertTrue(null != atd.getPosition());
+				assertNotNull(atd.getPosition());
 				for (Map.Entry<AnnotationTypeElementDeclaration, AnnotationValue> entry : am.getElementValues().entrySet()) {
 					assertNotNull(entry.getKey().getPosition());
 					assertNotNull(entry.getKey().getDefaultValue().getPosition());
@@ -340,7 +340,7 @@ public class MirrorDeclarationTests extends APTTestBase {
 		public void _process() {
 			called = true;
 			AnnotationTypeDeclaration annoDecl = (AnnotationTypeDeclaration)env.getTypeDeclaration("pkg.PkgAnnotation");
-			assertTrue(null != annoDecl);
+			assertNotNull(annoDecl);
 			// get the annotated declarations
 			Collection<Declaration> annotatedDecls = env.getDeclarationsAnnotatedWith(annoDecl);
 			// don't return the package declaration - well, apt is doing that..
@@ -374,19 +374,19 @@ public class MirrorDeclarationTests extends APTTestBase {
 		IPath tail = path.removeFirstSegments(2);
 		IJavaProject p = JavaCore.create(project);
 		ICompilationUnit cu = (ICompilationUnit) p.findElement(tail);
-		assertTrue("Could not find cu", cu != null);
+		assertNotNull("Could not find cu", cu);
 
 		AnnotationProcessorEnvironment env = EnvironmentFactory.getEnvironment(cu, p);
 		TypeDeclaration t = env.getTypeDeclaration("test.X");
 
 		SourcePosition pos = t.getPosition();
 
-		assertTrue(pos.column() == 32);
-		assertTrue(pos.line() == 3);
+		assertEquals(32, pos.column());
+		assertEquals(3, pos.line());
 
 		// Bad type should gracefully return null
 		TypeDeclaration tBad = env.getTypeDeclaration("test.XYZ");
-		assertTrue(null == tBad);
+		assertNull(tBad);
 	}
 
 }
