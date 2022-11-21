@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2019 IBM Corporation and others.
+ * Copyright (c) 2012, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -40,6 +40,7 @@ import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.UserLibraryClasspathContainer;
+import org.eclipse.jdt.internal.core.index.DiskIndex;
 import org.eclipse.jdt.internal.core.index.Index;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.osgi.service.prefs.BackingStoreException;
@@ -890,7 +891,7 @@ public class JavaIndexTests extends AbstractJavaSearchTests  {
 		CRC32 checksumCalculator = new CRC32();
 		checksumCalculator.update(jarFilePath.getBytes());
 		String fileName = Long.toString(checksumCalculator.getValue()) + ".index";
-		String indexFilePath = Paths.get(sharedIndexDir, fileName).toString();
+		String indexFilePath = Paths.get(sharedIndexDir, DiskIndex.INDEX_VERSION, fileName).toString();
 		try {
 			createJar(new String[] {
 					"pkg/Test.java",
