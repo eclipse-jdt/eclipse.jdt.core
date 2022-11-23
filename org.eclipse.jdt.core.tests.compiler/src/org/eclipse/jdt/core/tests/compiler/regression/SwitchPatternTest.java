@@ -29,7 +29,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug578132_001"};
+//		TESTS_NAMES = new String[] { "testIssue449_001"};
 	}
 
 	private static String previewLevel = "19";
@@ -5303,5 +5303,22 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					+ "}"
 				},
 				"Pass");
+	}
+	public void testIssue449_001() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"  public static void main(String[] args) {\n"+
+					"    Object obj = null;\n"+
+					"    var a = switch (obj) {\n"+
+					"        case null -> 1;\n"+
+					"        default   -> 2;\n"+
+					"    };\n"+
+					"    System.out.println(a);\n"+
+					"  }\n" +
+					"}"
+				},
+				"1");
 	}
 }

@@ -517,7 +517,7 @@ public class SwitchStatement extends Expression {
 
 			final TypeBinding resolvedType1 = this.expression.resolvedType;
 			boolean valueRequired = false;
-			if (this.containsPatterns) {
+			if (this.containsPatterns || isNullAndNeedsPatternVar()) {
 				generateCodeSwitchPatternPrologue(currentScope, codeStream);
 				valueRequired = true;
 				transformConstants();
@@ -682,7 +682,7 @@ public class SwitchStatement extends Expression {
 		}
 	}
 	private void generateCodeSwitchPatternEpilogue(CodeStream codeStream) {
-		if (this.containsPatterns && this.caseLabelElements.size() > 0) {
+		if ((this.containsPatterns && this.caseLabelElements.size() > 0) || isNullAndNeedsPatternVar()) {
 			codeStream.removeVariable(this.dispatchPatternCopy);
 			codeStream.removeVariable(this.restartIndexLocal);
 		}
@@ -1185,8 +1185,18 @@ public class SwitchStatement extends Expression {
 		}
 		return remainingTypes.isEmpty();
 	}
+	private boolean isNullAndNeedsPatternVar() {
+		if (this.containsPatterns)
+			return false; // don't bother - already taken care
+		if (!this.containsNull)
+			return false;
+		TypeBinding eType = this.expression != null ? this.expression.resolvedType : null;
+		if (eType == null)
+			return false;
+		return !(eType.isPrimitiveOrBoxedPrimitiveType() || eType.isEnum());
+	}
 	private void addSecretPatternSwitchVariables(BlockScope upperScope) {
-		if (this.containsPatterns) {
+		if (this.containsPatterns || isNullAndNeedsPatternVar()) {
 			this.scope = new BlockScope(upperScope);
 			this.dispatchPatternCopy  = new LocalVariableBinding(SecretPatternVariableName, this.expression.resolvedType, ClassFileConstants.AccDefault, false);
 			this.scope.addLocalVariable(this.dispatchPatternCopy);
