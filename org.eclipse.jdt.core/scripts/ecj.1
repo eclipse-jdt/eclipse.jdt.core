@@ -34,7 +34,7 @@ Compliance Options
 .ul
 Warning Options
 .sp
-.B \-?:warn \-help:warn \-warn:... \-nowarn \-err:... \-deprecation \-properties 
+.B \-?:warn \-help:warn \-warn:... \-nowarn \-err:... \-deprecation \-properties \-optprops
 .sp
 .ul 
 Debug Options
@@ -752,6 +752,12 @@ To ensure that a property file has the same effect when used in the IDE and for 
 .B \-enableJavadoc\fR \t\tdefault changed to enabled
 .br
 error/warning \fBforbidden\fR \tdefault changed to error
+
+.B
+.IP "\-optprops <file>"
+Equivalent to \-properties except that it is not considered an error but instead the option is silently ignored if the file does not exist.
+
+Use this option instead of \-properties if can only specify one set of compiler arguments for a number of directories, but only some of them contains a property file.
 
 .P
 .ul

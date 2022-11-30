@@ -1899,6 +1899,7 @@ public void configure(String[] argv) {
 	boolean printUsageRequired = false;
 	String usageSection = null;
 	boolean printVersionRequired = false;
+	boolean propertiesAreOptional = false;
 
 	boolean didSpecifyDeprecation = false;
 	boolean didSpecifyCompliance = false;
@@ -2629,6 +2630,12 @@ public void configure(String[] argv) {
 					continue;
 				}
 				if (currentArg.equals("-properties")) { //$NON-NLS-1$
+					propertiesAreOptional = false;
+					mode = INSIDE_WARNINGS_PROPERTIES;
+					continue;
+				}
+				if (currentArg.equals("-optprops")) { //$NON-NLS-1$
+					propertiesAreOptional = true;
 					mode = INSIDE_WARNINGS_PROPERTIES;
 					continue;
 				}
@@ -2908,7 +2915,7 @@ public void configure(String[] argv) {
 				mode = DEFAULT;
 				continue;
 			case INSIDE_WARNINGS_PROPERTIES :
-				initializeWarnings(currentArg);
+				initializeWarnings(currentArg, propertiesAreOptional);
 				mode = DEFAULT;
 				continue;
 			case INSIDE_ANNOTATIONPATH_start:
@@ -3274,10 +3281,16 @@ private static String getAllEncodings(Set<String> encodings) {
 	return String.valueOf(buffer);
 }
 @SuppressWarnings("rawtypes")
-private void initializeWarnings(String propertiesFile) {
+private void initializeWarnings(String propertiesFile, boolean propertiesAreOptional) {
 	File file = new File(propertiesFile);
 	if (!file.exists()) {
-		throw new IllegalArgumentException(this.bind("configure.missingwarningspropertiesfile", propertiesFile)); //$NON-NLS-1$
+		if (propertiesAreOptional) {
+			// intentionally, no message is printed
+			return;
+		}
+		else {
+			throw new IllegalArgumentException(this.bind("configure.missingwarningspropertiesfile", propertiesFile)); //$NON-NLS-1$
+		}
 	}
 	BufferedInputStream stream = null;
 	Properties properties = null;
