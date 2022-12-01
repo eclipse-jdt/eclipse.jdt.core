@@ -27,33 +27,4 @@
   	<testClass>org.eclipse.jdt.compiler.apt.tests.AllTests</testClass>
   </properties>
 
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.eclipse.tycho</groupId>
-        <artifactId>target-platform-configuration</artifactId>
-        <configuration>
-          <dependency-resolution>
-            <!--
-              these fragments are assumed to be present during compile and runtime.
-              cleaner solution would be to add Import-Package
-            -->
-            <extraRequirements>
-              <requirement>
-                <type>eclipse-plugin</type>
-                <id>org.eclipse.jdt.compiler.apt</id>
-                <versionRange>0.0.0</versionRange>
-              </requirement>
-              <requirement>
-                <type>eclipse-plugin</type>
-                <id>org.eclipse.jdt.compiler.tool</id>
-                <versionRange>0.0.0</versionRange>
-              </requirement>
-            </extraRequirements>
-          </dependency-resolution>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
-
 </project>
