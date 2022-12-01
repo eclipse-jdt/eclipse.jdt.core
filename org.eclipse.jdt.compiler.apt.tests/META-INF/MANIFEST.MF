@@ -18,7 +18,7 @@ Export-Package: org.eclipse.jdt.compiler.apt.tests,
  org.eclipse.jdt.compiler.apt.tests.processors.elements,
  org.eclipse.jdt.compiler.apt.tests.processors.genclass,
  org.eclipse.jdt.compiler.apt.tests.processors.visitors
-Import-Package: org.eclipse.jdt.internal.compiler.tool;resolution:=optional
+Import-Package: org.eclipse.jdt.internal.compiler.tool
 Eclipse-BundleShape: dir
 Bundle-ClassPath: .
 Automatic-Module-Name: org.eclipse.jdt.compiler.apt.tests
