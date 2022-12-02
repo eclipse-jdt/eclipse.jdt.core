@@ -67,7 +67,7 @@
 		<replace file="${target.folder}/org/eclipse/jdt/internal/compiler/batch/messages.properties" token="bundle_qualifier" value="${bundleVersionQualifer}"/>
 		<echo message="Extract .class file and properties for the batch compiler" />
 		<copy todir="${ecj-temp-folder}">
-			<fileset dir="${target.folder}">
+			<fileset dir="${basedir}/../org.eclipse.jdt.core.compiler.batch/target/classes">
 				<include name="org/eclipse/jdt/internal/compiler/**"/>
 				<include name="org/eclipse/jdt/core/compiler/**"/>
 				<exclude name="**/package.htm*"/>
@@ -112,6 +112,9 @@
 			<fileset dir="${target.folder}">
 				<exclude name="org/eclipse/jdt/core/CheckDebugAttributes*.*"/>
 				<exclude name="org/eclipse/jdt/core/BuildJarIndex*.*"/>
+			</fileset>
+			<fileset dir="${basedir}/../org.eclipse.jdt.core.compiler.batch/target/classes">
+				<include name="org/eclipse/jdt/internal/antadapter/*.*"/>
 			</fileset>
 		</copy>
 	</target>
