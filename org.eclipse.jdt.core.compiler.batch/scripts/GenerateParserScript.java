@@ -23,7 +23,7 @@ public class GenerateParserScript {
 
 	public static void main(String[] args) throws IOException, InterruptedException {
 		File grammarDir = new File("../grammar");
-		File parserDir = new File("../compiler/org/eclipse/jdt/internal/compiler/parser");
+		File parserDir = new File("../src/org/eclipse/jdt/internal/compiler/parser");
 		String jikespg = System.getProperty("JIKESPG");
 		assertTrue(jikespg != null);
 
