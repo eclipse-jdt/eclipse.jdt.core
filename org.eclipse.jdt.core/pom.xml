@@ -40,6 +40,12 @@
 						<replace token="bundle_version" value="${unqualifiedVersion}" dir="${project.build.directory}/classes">
 							<include name="org/eclipse/jdt/internal/compiler/batch/messages.properties"/>
 						</replace>
+						<copy todir="${project.build.directory}/jdtCompilerAdapter.jar-classes">
+							<fileset dir="${project.build.directory}/../../org.eclipse.jdt.core.compiler.batch/target/classes">
+								<include name="org/eclipse/jdt/core/*.class"/>
+								<include name="org/eclipse/jdt/internal/antadapter/**"/>
+							</fileset>
+						</copy>
 					</target>
 				</configuration>
 				<goals>
