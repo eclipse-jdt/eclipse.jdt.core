@@ -270,7 +270,7 @@ public class AptPlugin extends Plugin implements DebugOptionsListener {
 	public static boolean canRunJava6Processors() {
 		if (_java6ProcessorClass == null)
 			return false;
-		return Platform.getBundle("org.eclipse.jdt.compiler.apt") != null; //$NON-NLS-1$
+		return Platform.getBundle("org.eclipse.jdt.core.compiler.batch") != null; //$NON-NLS-1$
 	}
 
 	/**
