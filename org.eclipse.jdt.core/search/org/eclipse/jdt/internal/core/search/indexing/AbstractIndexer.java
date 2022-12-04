@@ -253,9 +253,16 @@ public abstract class AbstractIndexer implements IIndexConstants {
 				packageName == null ? CharOperation.NO_CHAR : packageName);
 
 		addIndexEntry(TYPE_DECL, indexKey);
-		addIndexMetaQualification(
-				CharOperation.concat(packageName, '.', CharOperation.concatWith(enclosingTypeNames, '$'), '$', name),
-				false);
+		if (enclosingTypeNames != null && enclosingTypeNames.length > 0) {
+			addIndexMetaQualification(
+					CharOperation.concat(packageName, '.', CharOperation.concatWith(enclosingTypeNames, '$'), '$',
+							name),
+					false);
+		} else {
+			addIndexMetaQualification(
+					CharOperation.concat(packageName, name, '.'),
+					false);
+		}
 	}
 	public void addTypeReference(char[] typeName) {
 		addTypeReference(typeName, false);
