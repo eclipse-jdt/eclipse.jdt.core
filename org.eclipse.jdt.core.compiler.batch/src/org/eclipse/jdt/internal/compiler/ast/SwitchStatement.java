@@ -867,7 +867,7 @@ public class SwitchStatement extends Expression {
 						this.expression.computeConversion(upperScope, TypeBinding.INT, expressionType);
 						break checkType;
 					} else if (compilerOptions.complianceLevel >= ClassFileConstants.JDK1_7 && expressionType.id == TypeIds.T_JavaLangString) {
-						if (this.containsPatterns) {
+						if (this.containsPatterns || this.containsNull) {
 							isStringSwitch = !JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(compilerOptions);
 							this.isNonTraditional = true;
 							break checkType;
