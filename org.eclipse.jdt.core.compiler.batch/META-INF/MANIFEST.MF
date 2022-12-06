@@ -9,7 +9,7 @@ Bundle-Vendor: Eclipse.org
 Automatic-Module-Name: org.eclipse.jdt.core.compiler.batch
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: JavaSE-11
-Export-Package: org.eclipse.jdt.core,
+Export-Package: META-INF.services,
  org.eclipse.jdt.core.compiler,
  org.eclipse.jdt.core.compiler.batch,
  org.eclipse.jdt.internal.antadapter;x-friends:="org.eclipse.jdt.core",
@@ -29,5 +29,4 @@ Export-Package: org.eclipse.jdt.core,
  org.eclipse.jdt.internal.compiler.parser.diagnose;x-friends:="org.eclipse.jdt.core",
  org.eclipse.jdt.internal.compiler.problem;x-friends:="org.eclipse.jdt.core",
  org.eclipse.jdt.internal.compiler.tool;x-friends:="org.eclipse.jdt.compiler.tool.tests,org.eclipse.jdt.core",
- org.eclipse.jdt.internal.compiler.util;x-friends:="org.eclipse.jdt.core.internal.tools,org.eclipse.jdt.core",
- META-INF.services
+ org.eclipse.jdt.internal.compiler.util;x-friends:="org.eclipse.jdt.core.internal.tools,org.eclipse.jdt.core"
