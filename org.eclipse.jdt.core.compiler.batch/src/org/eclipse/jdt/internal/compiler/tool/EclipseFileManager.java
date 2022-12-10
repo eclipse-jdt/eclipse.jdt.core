@@ -83,7 +83,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	Map<File, Archive> archivesCache;
 	Charset charset;
 	Locale locale;
-	ModuleLocationHandler locationHandler;
+	protected ModuleLocationHandler locationHandler;
 	final Map<Location, URLClassLoader> classloaders;
 	int flags;
 	boolean isOnJvm9;
@@ -1338,7 +1338,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 		return MessageFormat.format(message, (Object[]) arguments);
 	}
 
-	private Iterable<? extends File> getFiles(final Iterable<? extends Path> paths) {
+	protected Iterable<? extends File> getFiles(final Iterable<? extends Path> paths) {
 		if (paths == null)
 			return null;
 		return () -> new Iterator<>() {
@@ -1353,7 +1353,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 			}
 		};
 	}
-	private Iterable<? extends Path> getPaths(final Iterable<? extends File> files) {
+	protected Iterable<? extends Path> getPaths(final Iterable<? extends File> files) {
 		if (files == null)
 			return null;
 		return () -> new Iterator<>() {
@@ -1372,7 +1372,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	private void validateFileObject(FileObject file) {
 		// FIXME: fill-up
 	}
-	private void validateModuleLocation(Location location, String modName) {
+	protected void validateModuleLocation(Location location, String modName) {
 		Objects.requireNonNull(location);
 		if (modName == null) {
 			throw new IllegalArgumentException("module must not be null"); //$NON-NLS-1$
