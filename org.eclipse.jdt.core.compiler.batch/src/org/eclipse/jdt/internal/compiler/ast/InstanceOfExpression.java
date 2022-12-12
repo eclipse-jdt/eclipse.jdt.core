@@ -216,12 +216,13 @@ public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStr
 			if (falseLabel == null) {
 				if (trueLabel != null) {
 					// Implicit falling through the FALSE case
-					codeStream.if_acmpeq(trueLabel);
+					codeStream.pop2();
+					codeStream.goto_(trueLabel);
 				}
 			} else {
 				if (trueLabel == null) {
 					// Implicit falling through the TRUE case
-					codeStream.if_acmpne(falseLabel);
+					codeStream.pop2();
 				} else {
 					// No implicit fall through TRUE/FALSE --> should never occur
 				}
