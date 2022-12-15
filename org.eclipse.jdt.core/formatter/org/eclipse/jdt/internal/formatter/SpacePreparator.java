@@ -81,6 +81,7 @@ import org.eclipse.jdt.core.dom.PostfixExpression;
 import org.eclipse.jdt.core.dom.PrefixExpression;
 import org.eclipse.jdt.core.dom.ProvidesDirective;
 import org.eclipse.jdt.core.dom.RecordDeclaration;
+import org.eclipse.jdt.core.dom.RecordPattern;
 import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
@@ -461,6 +462,13 @@ public class SpacePreparator extends ASTVisitor {
 			handleCommas(node.expressions(), this.options.insert_space_before_comma_in_switch_case_expressions,
 					this.options.insert_space_after_comma_in_switch_case_expressions);
 		}
+		return true;
+	}
+
+	@Override
+	public boolean visit(RecordPattern node) {
+		handleCommas(node.patterns(), this.options.insert_space_before_comma_in_record_components,
+				this.options.insert_space_after_comma_in_record_components);
 		return true;
 	}
 
