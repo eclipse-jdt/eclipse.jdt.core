@@ -16164,8 +16164,10 @@ public void testBug578361f() throws JavaModelException {
 	String input = getCompilationUnit("Formatter", "", "test578361", "in.java").getSource();
 	formatSource(input, getCompilationUnit("Formatter", "", "test578361", "F_out.java").getSource());
 }
-
-public void testIssue264() {
+/**
+ * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/264 - [19] Formatter support for JEP 405: Record Patterns
+ */
+public void testIssue264a() {
 	setComplianceLevel(CompilerOptions.VERSION_19);
 	this.formatterOptions.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 	String source =
@@ -16177,6 +16179,30 @@ public void testIssue264() {
 		"	int baz(Bar bar) {\n" +
 		"		return switch (bar) {\n" +
 		"		case Bar(Foo(var a, var b), Foo(var c, var d)) -> a + b + c + d;\n" +
+		"		};\n" +
+		"	}\n" +
+		"}");
+}
+/**
+ * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/264 - [19] Formatter support for JEP 405: Record Patterns
+ */
+public void testIssue264b() {
+	setComplianceLevel(CompilerOptions.VERSION_19);
+	this.formatterOptions.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+	this.formatterPrefs.insert_space_before_comma_in_record_components = false;
+	this.formatterPrefs.insert_space_after_comma_in_record_components = false;
+	this.formatterPrefs.insert_space_before_opening_paren_in_record_declaration = true;
+	this.formatterPrefs.insert_space_after_opening_paren_in_record_declaration = true;
+	this.formatterPrefs.insert_space_before_closing_paren_in_record_declaration = true;
+	String source =
+		"public class X{int baz(Bar bar){return switch(bar){\n" +
+		"	case Bar(Foo(var a,var b),Foo(var c,var d))->a+b+c+d;\n" +
+		"};}}";
+	formatSource(source,
+		"public class X {\n" +
+		"	int baz(Bar bar) {\n" +
+		"		return switch (bar) {\n" +
+		"		case Bar ( Foo ( var a,var b ),Foo ( var c,var d ) ) -> a + b + c + d;\n" +
 		"		};\n" +
 		"	}\n" +
 		"}");
