@@ -3427,6 +3427,10 @@ public final class CompletionEngine
 						null,
 						-1,
 						-1);
+			} else if (!this.requestor.isIgnored(CompletionProposal.KEYWORD) && receiverType != null
+					&& receiverType instanceof ArrayBinding) {
+				setSourceAndTokenRange(referenceExpression.nameSourceStart, referenceExpression.sourceEnd);
+				findKeywords(this.completionToken, new char[][] { Keywords.NEW }, false, false);
 			}
 		}
 	}

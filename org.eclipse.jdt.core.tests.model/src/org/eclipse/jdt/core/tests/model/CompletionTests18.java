@@ -17,8 +17,6 @@ package org.eclipse.jdt.core.tests.model;
 import java.util.HashMap;
 import java.util.Map;
 
-import junit.framework.Test;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.CompletionProposal;
@@ -29,6 +27,8 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.eval.IEvaluationContext;
 import org.eclipse.jdt.internal.codeassist.RelevanceConstants;
+
+import junit.framework.Test;
 
 public class CompletionTests18 extends AbstractJavaModelCompletionTests {
 
@@ -6625,5 +6625,29 @@ public void testGH109_expectCompletionsWithCast_insideLambdaNestedBlocksWithInst
 	String result = requestor.getResults();
 	assertTrue(result.contains("startsWith[METHOD_REF_WITH_CASTED_RECEIVER]{((String)name).startsWith(), Ljava.lang.String;, (Ljava.lang.String;)Z, Ljava.lang.String;, startsWith, (arg0), 60}\n"
 			+ "startsWith[METHOD_REF_WITH_CASTED_RECEIVER]{((String)name).startsWith(), Ljava.lang.String;, (Ljava.lang.String;I)Z, Ljava.lang.String;, startsWith, (arg0, arg1), 60}"));
+}
+
+public void testGH583_onArrayCreationSupplier_expectNewMethodRefCompletions() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/GH583.java",
+			"import java.util.Arrays;\n"
+					+ "public class GH583 {\n"
+					+ "    public void foo() {\n"
+					+ "			Arrays.asList(\"1\").stream().toArray(String[]::)"
+					+ "    }\n"
+					+ "}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "toArray(String[]::";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+	String result = requestor.getResults();
+	assertTrue(String.format("Result doesn't contain expected methods (%s)", result),
+			result.contains("new[KEYWORD]{new, null, null, new, null, 49}"));
 }
 }
