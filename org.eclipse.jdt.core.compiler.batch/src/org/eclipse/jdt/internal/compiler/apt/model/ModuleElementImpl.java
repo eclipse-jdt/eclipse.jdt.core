@@ -46,7 +46,6 @@ public class ModuleElementImpl extends ElementImpl implements ModuleElement {
 
 	/**
 	 * In general, clients should call
-	 * {@link Factory#newDeclaredType(org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding)} or
 	 * {@link Factory#newElement(org.eclipse.jdt.internal.compiler.lookup.Binding)}
 	 * to create new instances.
 	 */
@@ -108,7 +107,7 @@ public class ModuleElementImpl extends ElementImpl implements ModuleElement {
 		}
 		List<Element> enclosed = new ArrayList<>(unique.size());
 		for (PlainPackageBinding p : unique) {
-			PackageElement pElement = (PackageElement) _env.getFactory().newElement(p);
+			PackageElement pElement = (PackageElement) this._env.getFactory().newElement(p);
 			enclosed.add(pElement);
 		}
 		return Collections.unmodifiableList(enclosed);
@@ -176,37 +175,37 @@ public class ModuleElementImpl extends ElementImpl implements ModuleElement {
 	}
 	@Override
 	protected AnnotationBinding[] getAnnotationBindings() {
-		return ((ModuleBinding) _binding).getAnnotations();
+		return ((ModuleBinding) this._binding).getAnnotations();
 	}
 
 	abstract class PackageDirectiveImpl {
-		PackageBinding binding;
+		final PackageBinding binding1;
 		List<ModuleElement> targets;
 
 		PackageDirectiveImpl(PackageBinding pBinding) {
-			this.binding = pBinding;
+			this.binding1 = pBinding;
 		}
 
 		public PackageElement getPackage() {
-			return _env.getFactory().newPackageElement(binding);
+			return ModuleElementImpl.this._env.getFactory().newPackageElement(this.binding1);
 		}
 
 		public List<? extends ModuleElement> getTargetModules(String[] restrictions) {
 			if(this.targets != null) {
-				return targets;
+				return this.targets;
 			}
 			if (restrictions.length == 0) {
 				return (this.targets = null);
 			}
-			List<ModuleElement> targets = new ArrayList<>(restrictions.length);
+			List<ModuleElement> targets1 = new ArrayList<>(restrictions.length);
 			for (String string : restrictions) {
 				ModuleBinding target = ModuleElementImpl.this.binding.environment.getModule(string.toCharArray());
 				if (target != null) {
-					ModuleElement element = ((ModuleElement) _env.getFactory().newElement(target));
-					targets.add(element);
+					ModuleElement element = ((ModuleElement) ModuleElementImpl.this._env.getFactory().newElement(target));
+					targets1.add(element);
 				}
 			}
-			return (this.targets = Collections.unmodifiableList(targets));
+			return (this.targets = Collections.unmodifiableList(targets1));
 		}
 	}
 
@@ -228,14 +227,14 @@ public class ModuleElementImpl extends ElementImpl implements ModuleElement {
 
 		@Override
 		public PackageElement getPackage() {
-			return _env.getFactory().newPackageElement(binding);
+			return ModuleElementImpl.this._env.getFactory().newPackageElement(this.binding1);
 		}
 		@Override
 		public List<? extends ModuleElement> getTargetModules() {
 			if(this.targets != null) {
-				return targets;
+				return this.targets;
 			}
-			return getTargetModules(ModuleElementImpl.this.binding.getExportRestrictions(this.binding));
+			return getTargetModules(ModuleElementImpl.this.binding.getExportRestrictions(this.binding1));
 		}
 
 	}
@@ -261,7 +260,7 @@ public class ModuleElementImpl extends ElementImpl implements ModuleElement {
 
 		@Override
 		public ModuleElement getDependency() {
-			return (ModuleElement) _env.getFactory().newElement(dependency, ElementKind.MODULE);
+			return (ModuleElement) ModuleElementImpl.this._env.getFactory().newElement(this.dependency, ElementKind.MODULE);
 		}
 
 		@Override
@@ -294,17 +293,17 @@ public class ModuleElementImpl extends ElementImpl implements ModuleElement {
 		@Override
 		public List<? extends ModuleElement> getTargetModules() {
 			if(this.targets != null) {
-				return targets;
+				return this.targets;
 			}
-			return getTargetModules(ModuleElementImpl.this.binding.getOpenRestrictions(this.binding));
+			return getTargetModules(ModuleElementImpl.this.binding.getOpenRestrictions(this.binding1));
 		}
 	}
 
 	class UsesDirectiveImpl implements ModuleElement.UsesDirective {
-		TypeBinding binding = null;
+		final TypeBinding binding1;
 
 		UsesDirectiveImpl(TypeBinding binding) {
-			this.binding = binding;
+			this.binding1 = binding;
 		}
 
 		@Override
@@ -319,7 +318,7 @@ public class ModuleElementImpl extends ElementImpl implements ModuleElement {
 
 		@Override
 		public TypeElement getService() {
-			return (TypeElement) _env.getFactory().newElement(binding);
+			return (TypeElement) ModuleElementImpl.this._env.getFactory().newElement(this.binding1);
 		}
 
 	}
@@ -354,7 +353,7 @@ public class ModuleElementImpl extends ElementImpl implements ModuleElement {
 			}
 
 			List<TypeElement> list = new ArrayList<>(implementations2.length);
-			Factory factory = _env.getFactory();
+			Factory factory = ModuleElementImpl.this._env.getFactory();
 			for (TypeBinding type: implementations2) {
 				TypeElement element = (TypeElement) factory.newElement(type);
 				list.add(element);
@@ -364,7 +363,7 @@ public class ModuleElementImpl extends ElementImpl implements ModuleElement {
 
 		@Override
 		public TypeElement getService() {
-			return (TypeElement) _env.getFactory().newElement(this.service);
+			return (TypeElement) ModuleElementImpl.this._env.getFactory().newElement(this.service);
 		}
 	}
 }

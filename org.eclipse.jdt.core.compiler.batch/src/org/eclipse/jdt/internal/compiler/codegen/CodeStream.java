@@ -2964,7 +2964,7 @@ public void generateSyntheticBodyForDeserializeLambda(SyntheticMethodBinding met
 			invoke(Opcodes.OPC_invokevirtual, 1, 1, ConstantPool.JavaLangInvokeSerializedLambdaConstantPoolName,
 					ConstantPool.GetImplMethodSignature, ConstantPool.GetImplMethodSignatureSignature,
 					getPopularBinding(ConstantPool.JavaLangStringConstantPoolName));
-			ldc(new String(mb.signature())); // e.g. "(I)I"
+			ldc(new String(mb.original().signature())); // e.g. "(I)I"
 			invokeObjectEquals();
 			ifeq(nextOne);
 

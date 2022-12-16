@@ -737,6 +737,41 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			 JavaCore.setOptions(javaCoreOptions);
 		}
 	}
+	public void testConvertToModuleWithRelease9() throws CoreException, IOException {
+		Hashtable<String, String> javaCoreOptions = JavaCore.getOptions();
+		try {
+			IJavaProject project = setUpJavaProject("ConvertToModule");
+			Map<String, String> options = new HashMap<>();
+			// Make sure the new options map doesn't reset.
+			options.put(CompilerOptions.OPTION_Compliance, "9");
+			options.put(CompilerOptions.OPTION_Source, "9");
+			options.put(CompilerOptions.OPTION_TargetPlatform, "9");
+			options.put(CompilerOptions.OPTION_Release, "enabled");
+			project.setOptions(options);
+			project.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IPackageFragmentRoot[] roots = project.getPackageFragmentRoots();
+			IPackageFragmentRoot theRoot = null;
+			for (IPackageFragmentRoot root : roots) {
+				if (root.getElementName().equals("jdt.test")) {
+					theRoot = root;
+					break;
+				}
+			}
+			assertNotNull("should not be null", theRoot);
+			String[] modules = JavaCore.getReferencedModules(project);
+			if (isJRE12)
+				assertStringsEqual("incorrect result", new String[]{"java.desktop", "java.rmi", "java.sql"}, modules);
+			else if (isJRE11)
+				assertStringsEqual("incorrect result", new String[]{"java.datatransfer", "java.desktop", "java.net.http", "java.rmi", "java.sql"}, modules);
+			else if (isJRE10)
+				assertStringsEqual("incorrect result", new String[]{"java.datatransfer", "java.desktop", "java.rmi", "java.sql"}, modules);
+			else // 9
+				assertStringsEqual("incorrect result", new String[]{"java.desktop", "java.rmi", "java.sql"}, modules);
+		} finally {
+			this.deleteProject("ConvertToModule");
+			 JavaCore.setOptions(javaCoreOptions);
+		}
+	}
 	public void test_services_abstractImpl() throws CoreException {
 		try {
 			String[] sources = new String[] {

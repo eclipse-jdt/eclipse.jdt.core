@@ -147,7 +147,7 @@ public class ModuleLocationHandler {
 			 this.clear();
 		 }
 		@Override
-		Iterable<? extends Path> getPaths() {
+		public Iterable<? extends Path> getPaths() {
 			if (this.paths != null)
 				return this.paths;
 			return this.locationPaths.keySet();
@@ -192,7 +192,7 @@ public class ModuleLocationHandler {
 		}
 	}
 
-	class LocationWrapper implements Location {
+	public class LocationWrapper implements Location {
 
 		Location loc;
 		boolean output;
@@ -215,7 +215,7 @@ public class ModuleLocationHandler {
 			return this.output;
 		}
 
-		Iterable<? extends Path> getPaths() {
+		public Iterable<? extends Path> getPaths() {
 			return this.paths;
 		}
 
@@ -256,7 +256,7 @@ public class ModuleLocationHandler {
 		}
 
 		@Override
-		Iterable<? extends Path> getPaths() {
+		public Iterable<? extends Path> getPaths() {
 			return this.paths;
 		}
 
