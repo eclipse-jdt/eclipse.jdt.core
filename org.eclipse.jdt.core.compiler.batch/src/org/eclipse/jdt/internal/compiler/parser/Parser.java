@@ -11183,19 +11183,16 @@ protected void consumeRecordDeclaration() {
 	TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
 	this.recordNestedMethodLevels.remove(typeDecl);
 	problemReporter().validateJavaFeatureSupport(JavaFeature.RECORDS, typeDecl.sourceStart, typeDecl.sourceEnd);
+	/* create canonical constructor - check for the clash later at binding time */
+	/* https://github.com/eclipse-jdt/eclipse.jdt.core/issues/365 */
+	typeDecl.createDefaultConstructor(!(this.diet && this.dietInt == 0), true);
 	//convert constructor that do not have the type's name into methods
 	ConstructorDeclaration cd = typeDecl.getConstructor(this);
-	if (cd == null) {
-		/* create canonical constructor - check for the clash later at binding time */
-		cd = typeDecl.createDefaultConstructor(!(this.diet && this.dietInt == 0), true);
-	} else {
-		if (cd instanceof CompactConstructorDeclaration
-			|| ((typeDecl.recordComponents == null || typeDecl.recordComponents.length == 0)
-			&& (cd.arguments == null || cd.arguments.length == 0))) {
-			cd.bits |= ASTNode.IsCanonicalConstructor;
-		}
+	if (cd instanceof CompactConstructorDeclaration
+		|| ((typeDecl.recordComponents == null || typeDecl.recordComponents.length == 0)
+		&& (cd.arguments == null || cd.arguments.length == 0))) {
+		cd.bits |= ASTNode.IsCanonicalConstructor;
 	}
-
 	if (this.scanner.containsAssertKeyword) {
 		typeDecl.bits |= ASTNode.ContainsAssertion;
 	}
