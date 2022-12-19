@@ -138,7 +138,7 @@ public class BaseMessagerImpl {
 						AptSourceLocalVariableBinding parameterBinding = (AptSourceLocalVariableBinding) binding;
 						LocalDeclaration parameterDeclaration = parameterBinding.declaration;
 						if (parameterDeclaration != null) {
-							MethodBinding methodBinding = parameterBinding.methodBinding;
+							MethodBinding methodBinding = parameterBinding.getMethodBinding();
 							if (methodBinding != null) {
 								referenceContext = methodBinding.sourceMethod();
 							}

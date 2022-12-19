@@ -16,10 +16,10 @@ package org.eclipse.jdt.internal.compiler.lookup;
 public class AptSourceLocalVariableBinding extends LocalVariableBinding {
 
 	// enclosing element
-	public MethodBinding methodBinding;
+	private MethodBinding methodBinding;
 	private LocalVariableBinding local;
 
-	public AptSourceLocalVariableBinding(LocalVariableBinding localVariableBinding, MethodBinding methodBinding) {
+	public AptSourceLocalVariableBinding(LocalVariableBinding localVariableBinding) {
 		super(localVariableBinding.name, localVariableBinding.type, localVariableBinding.modifiers, true);
 		this.constant = localVariableBinding.constant;
 		this.declaration = localVariableBinding.declaration;
@@ -30,12 +30,19 @@ public class AptSourceLocalVariableBinding extends LocalVariableBinding {
 		this.useFlag = localVariableBinding.useFlag;
 		this.initializationCount = localVariableBinding.initializationCount;
 		this.initializationPCs = localVariableBinding.initializationPCs;
-		this.methodBinding = methodBinding;
 		this.local = localVariableBinding;
 	}
 
 	@Override
 	public AnnotationBinding[] getAnnotations() {
 		return this.local.getAnnotations();
+	}
+
+	public MethodBinding getMethodBinding() {
+		if (this.methodBinding == null && this.local.getEnclosingMethod() != null) {
+			MethodBinding binding = local.getEnclosingMethod();
+			this.methodBinding = ((SourceTypeBinding) binding.declaringClass).resolveTypesFor(binding);
+		}
+		return this.methodBinding;
 	}
 }

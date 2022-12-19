@@ -20,7 +20,6 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.apt.model.ElementImpl;
 import org.eclipse.jdt.internal.compiler.apt.model.Factory;
 import org.eclipse.jdt.internal.compiler.apt.util.ManyToMany;
-import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
@@ -30,7 +29,6 @@ import org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.RecordComponent;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
-import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.AptSourceLocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
@@ -68,22 +66,14 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 	@Override
 	public boolean visit(Argument argument, BlockScope scope) {
 		Annotation[] annotations = argument.annotations;
-		ReferenceContext referenceContext = scope.referenceContext();
-		if (referenceContext instanceof AbstractMethodDeclaration) {
-			MethodBinding binding = ((AbstractMethodDeclaration) referenceContext).binding;
-			if (binding != null) {
-				TypeDeclaration typeDeclaration = scope.referenceType();
-				typeDeclaration.binding.resolveTypesFor(binding);
-				if (argument.binding != null) {
-					argument.binding = new AptSourceLocalVariableBinding(argument.binding, binding);
-				}
-			}
-			if (annotations != null && argument.binding != null) {
-				this.resolveAnnotations(
-						scope,
-						annotations,
-						argument.binding);
-			}
+		if (argument.binding != null && argument.binding.getEnclosingMethod() != null) {
+			argument.binding = new AptSourceLocalVariableBinding(argument.binding);
+		}
+		if (annotations != null && argument.binding != null) {
+			this.resolveAnnotations(
+					scope,
+					annotations,
+					argument.binding);
 		}
 		return false;
 	}
@@ -258,8 +248,8 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 
 		Annotation[] annotations = module.annotations;
 		if (annotations != null) {
-			this.resolveAnnotations(module.scope, 
-					annotations, 
+			this.resolveAnnotations(module.scope,
+					annotations,
 					binding);
 		}
 		return true;
