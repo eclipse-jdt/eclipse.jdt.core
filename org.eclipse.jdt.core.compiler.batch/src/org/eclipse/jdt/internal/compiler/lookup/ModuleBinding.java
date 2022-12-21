@@ -96,7 +96,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		@Override
 		PlainPackageBinding getDeclaredPackage(char[] flatName) {
 			PlainPackageBinding declaredPackage = super.getDeclaredPackage(flatName);
-			if (declaredPackage == null && this.environment.useModuleSystem) {
+			if (declaredPackage == null && flatName.length > 0 && this.environment.useModuleSystem) {
 				IModuleAwareNameEnvironment moduleEnv = (IModuleAwareNameEnvironment) this.environment.nameEnvironment;
 				char[][] compoundName = CharOperation.splitOn('.', flatName);
 				char[][] declaringModuleNames = moduleEnv.getUniqueModulesDeclaringPackage(compoundName, nameForLookup());
