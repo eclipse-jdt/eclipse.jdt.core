@@ -267,8 +267,12 @@ public class SpacePreparator extends ASTVisitor {
 					this.options.insert_space_after_comma_in_superinterfaces);
 		}
 
-		List<SingleVariableDeclaration> components = node.recordComponents();
-		ASTNode nodeBeforeLParen = typeParameters.isEmpty() ? node.getName()
+		handleRecordComponents(node.recordComponents(), node.getName(), typeParameters);
+		return true;
+	}
+
+	private void handleRecordComponents(List<? extends ASTNode> components, ASTNode name, List<TypeParameter> typeParameters) {
+		ASTNode nodeBeforeLParen = typeParameters.isEmpty() ? name
 				: typeParameters.get(typeParameters.size() - 1);
 		ASTNode nodeBeforeRParen = components.isEmpty() ? nodeBeforeLParen
 				: components.get(components.size() - 1);
@@ -284,7 +288,6 @@ public class SpacePreparator extends ASTVisitor {
 		}
 		handleCommas(components, this.options.insert_space_before_comma_in_record_components,
 				this.options.insert_space_after_comma_in_record_components);
-		return true;
 	}
 
 	@Override
@@ -467,8 +470,7 @@ public class SpacePreparator extends ASTVisitor {
 
 	@Override
 	public boolean visit(RecordPattern node) {
-		handleCommas(node.patterns(), this.options.insert_space_before_comma_in_record_components,
-				this.options.insert_space_after_comma_in_record_components);
+		handleRecordComponents(node.patterns(), node.getPatternType(), List.of());
 		return true;
 	}
 
