@@ -185,6 +185,7 @@ import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.PackageFragmentRoot;
+import org.eclipse.jdt.internal.core.PlatformPropertiesUtils;
 import org.eclipse.jdt.internal.core.Region;
 import org.eclipse.jdt.internal.core.SetContainerOperation;
 import org.eclipse.jdt.internal.core.SetVariablesOperation;
@@ -197,6 +198,9 @@ import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.ModuleUtil;
 import org.eclipse.jdt.internal.core.util.Util;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Filter;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.InvalidSyntaxException;
 
 /**
  * The plug-in runtime class for the Java model plug-in containing the core
@@ -219,6 +223,10 @@ import org.osgi.framework.BundleContext;
 public final class JavaCore extends Plugin {
 
 	private static final IResource[] NO_GENERATED_RESOURCES = new IResource[0];
+
+	private final static String PLATFORM_WS = "platform.ws"; //$NON-NLS-1$
+	private final static String PLATFORM_OS = "platform.os"; //$NON-NLS-1$
+	private final static String PLATFORM_ARCH = "platform.arch"; //$NON-NLS-1$
 
 	private static Plugin JAVA_CORE_PLUGIN = null;
 	/**
@@ -5585,7 +5593,8 @@ public final class JavaCore extends Plugin {
 		if (extraAttributes == null) {
 			extraAttributes = ClasspathEntry.NO_EXTRA_ATTRIBUTES;
 		}
-		return new ClasspathEntry(
+
+		ClasspathEntry entry = new ClasspathEntry(
 			IPackageFragmentRoot.K_SOURCE,
 			IClasspathEntry.CPE_SOURCE,
 			path,
@@ -5598,6 +5607,22 @@ public final class JavaCore extends Plugin {
 			null,
 			false, // no access rules to combine
 			extraAttributes);
+		for (IClasspathAttribute attribute : extraAttributes) {
+			String name = attribute.getName();
+			if (name.equals("filter")) { //$NON-NLS-1$
+				try {
+					Filter filter = FrameworkUtil.createFilter(attribute.getValue());
+					String os = PlatformPropertiesUtils.getOS(System.getProperties());
+					String ws = PlatformPropertiesUtils.getWS(System.getProperties());
+					String arch = PlatformPropertiesUtils.getArch(System.getProperties());
+					boolean disabled = !filter.matches(Map.of(PLATFORM_OS, os, PLATFORM_WS, ws, PLATFORM_ARCH, arch));
+					entry.setDisabled(disabled);
+				} catch (InvalidSyntaxException e) {
+					getJavaCore().getLog().error("Can't evaluate filter", e); //$NON-NLS-1$
+				}
+			}
+		}
+		return entry;
 	}
 
 	/**

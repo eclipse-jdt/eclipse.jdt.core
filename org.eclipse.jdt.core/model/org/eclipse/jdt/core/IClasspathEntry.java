@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,6 +10,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Christoph Läubrich - Support dynamic enable/disable of classpath entries
  *******************************************************************************/
 package org.eclipse.jdt.core;
 
@@ -529,4 +530,12 @@ public interface IClasspathEntry {
 	 * @since 3.30
 	 */
 	IPath getExternalAnnotationPath(IProject project, boolean resolve);
+
+	/**
+	 * Check if this entry is disabled, for example ebcause it does not match the current environment.
+	 *
+	 * @return <code>true</code> if this entry is disabled <code>false</code> otherwhise.
+	 * @since 3.34
+	 */
+	boolean isDisabled();
 }

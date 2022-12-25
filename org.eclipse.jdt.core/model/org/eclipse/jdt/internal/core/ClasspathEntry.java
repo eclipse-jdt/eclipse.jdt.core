@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -17,6 +17,7 @@
  *								Bug 462768 - [null] NPE when using linked folder for external annotations
  *                              Bug 465296 - precedence of extra attributes on a classpath container
  *     Karsten Thoms - Bug 532505 - Reduce memory footprint of ClasspathAccessRule
+ *     Christoph Läubrich - Issue 613 - Support dynamic enable/disable of classpath entries
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
@@ -249,6 +250,7 @@ public class ClasspathEntry implements IClasspathEntry {
 	 * The extra attributes
 	 */
 	public IClasspathAttribute[] extraAttributes;
+	private boolean disabled;
 
 	public ClasspathEntry(
 			int contentKind,
@@ -1827,6 +1829,15 @@ public class ClasspathEntry implements IClasspathEntry {
 			}
 		}
 		return false;
+	}
+
+	public void setDisabled(boolean disabled) {
+		this.disabled = disabled;
+	}
+
+	@Override
+	public boolean isDisabled() {
+		return this.disabled;
 	}
 
 	/**
