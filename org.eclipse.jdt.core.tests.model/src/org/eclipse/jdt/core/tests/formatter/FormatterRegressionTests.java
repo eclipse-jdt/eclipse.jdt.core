@@ -16207,4 +16207,20 @@ public void testIssue264b() {
 		"	}\n" +
 		"}");
 }
+/**
+ * https://bugs.eclipse.org/564052 - [15] JEP 360 - Sealed Types -Formatter Support
+ */
+public void testBug564052() {
+	setComplianceLevel(CompilerOptions.VERSION_17);
+	this.formatterPrefs.alignment_for_permitted_types_in_type_declaration = Alignment.M_ONE_PER_LINE_SPLIT + Alignment.M_FORCE;
+	String source =
+		"sealed class Example permits C1, C2, C3 {}";
+	formatSource(source,
+		"sealed class Example\n" +
+		"		permits\n" +
+		"		C1,\n" +
+		"		C2,\n" +
+		"		C3 {\n" +
+		"}");
+}
 }
