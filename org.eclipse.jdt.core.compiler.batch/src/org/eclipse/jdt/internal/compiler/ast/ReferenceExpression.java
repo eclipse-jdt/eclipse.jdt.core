@@ -1161,10 +1161,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 		int parametersLength = sam.parameters.length;
 		TypeBinding[] descriptorParameters = new TypeBinding[parametersLength];
 		for (int i = 0; i < parametersLength; i++) {
-			descriptorParameters[i] = new ReferenceBinding() {
-				{
-					this.compoundName = CharOperation.NO_CHAR_CHAR;
-				}
+			descriptorParameters[i] = new ReferenceBinding(CharOperation.NO_CHAR_CHAR) {
 				@Override
 				public boolean isCompatibleWith(TypeBinding otherType, Scope captureScope) {
 					return true;

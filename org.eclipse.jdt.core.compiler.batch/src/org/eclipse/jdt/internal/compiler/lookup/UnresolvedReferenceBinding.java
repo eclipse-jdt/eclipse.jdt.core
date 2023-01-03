@@ -28,7 +28,7 @@ UnresolvedReferenceBinding prototype;
 ReferenceBinding requestingType;
 
 UnresolvedReferenceBinding(char[][] compoundName, PackageBinding packageBinding, ReferenceBinding requestingType) {
-	this.compoundName = compoundName;
+	super(compoundName);
 	this.sourceName = compoundName[compoundName.length - 1]; // reasonable guess
 	this.fPackage = packageBinding;
 	this.requestingType = requestingType;

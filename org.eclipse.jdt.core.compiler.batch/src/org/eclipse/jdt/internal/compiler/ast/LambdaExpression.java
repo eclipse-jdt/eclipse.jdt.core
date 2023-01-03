@@ -1468,6 +1468,9 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 			return null;
 
 		class LambdaTypeBinding extends ReferenceBinding {
+			LambdaTypeBinding() {
+				super((char[][]) null);
+			}
 			@Override
 			public MethodBinding[] methods() {
 				return new MethodBinding [] { getMethodBinding() };

@@ -57,8 +57,8 @@ public LocalTypeBinding(ClassScope scope, SourceTypeBinding enclosingType, CaseS
 	}
 }
 
-public LocalTypeBinding(LocalTypeBinding prototype) {
-	super(prototype);
+public LocalTypeBinding(LocalTypeBinding prototype, SourceTypeBinding enclosingType) {
+	super(prototype, enclosingType);
 	this.dependents = prototype.dependents;
 	this.enclosingCase = prototype.enclosingCase;
 	this.sourceStart = prototype.sourceStart;
@@ -161,9 +161,7 @@ public char[] constantPoolName() /* java/lang/Object */ {
 
 @Override
 public TypeBinding clone(TypeBinding outerType) {
-	LocalTypeBinding copy = new LocalTypeBinding(this);
-	copy.enclosingType = (SourceTypeBinding) outerType;
-	return copy;
+	return new LocalTypeBinding(this, (SourceTypeBinding) outerType);
 }
 
 @Override

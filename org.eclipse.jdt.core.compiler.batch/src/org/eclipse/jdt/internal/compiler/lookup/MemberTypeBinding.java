@@ -22,8 +22,8 @@ public MemberTypeBinding(char[][] compoundName, ClassScope scope, SourceTypeBind
 	this.tagBits |= TagBits.MemberTypeMask;
 }
 
-public MemberTypeBinding(MemberTypeBinding prototype) {
-	super(prototype);
+public MemberTypeBinding(MemberTypeBinding prototype, SourceTypeBinding enclosingType) {
+	super(prototype, enclosingType);
 }
 
 void checkSyntheticArgsAndFields() {
@@ -56,9 +56,7 @@ public char[] constantPoolName() /* java/lang/Object */ {
 
 @Override
 public TypeBinding clone(TypeBinding outerType) {
-	MemberTypeBinding copy = new MemberTypeBinding(this);
-	copy.enclosingType = (SourceTypeBinding) outerType;
-	return copy;
+	return new MemberTypeBinding(this, (SourceTypeBinding) outerType);
 }
 
 /**

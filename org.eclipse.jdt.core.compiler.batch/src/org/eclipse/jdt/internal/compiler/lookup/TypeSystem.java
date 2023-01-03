@@ -73,6 +73,7 @@ public class TypeSystem {
 			public TypeBinding[] arguments;
 			private ReferenceBinding enclosingType;
 			public PTBKey(ReferenceBinding type, TypeBinding[] arguments, ReferenceBinding enclosingType, LookupEnvironment environment) {
+				super((char[][]) null);
 				this.type = type;
 				this.arguments = arguments;
 				this.enclosingType = enclosingType;

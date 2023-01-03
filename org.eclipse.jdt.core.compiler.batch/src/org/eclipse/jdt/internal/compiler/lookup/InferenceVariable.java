@@ -83,8 +83,8 @@ public class InferenceVariable extends TypeVariableBinding {
 	}
 
 
-	InvocationSite site;
-	TypeBinding typeParameter;
+	final InvocationSite site;
+	final TypeBinding typeParameter;
 	long nullHints; // one of TagBits.{AnnotationNonNull,AnnotationNullable} may steer inference into inferring nullness as well; set both bits to request avoidance.
 	private InferenceVariable prototype;
 	int varId; // this is used for constructing a source name like T#0.
@@ -209,14 +209,20 @@ public class InferenceVariable extends TypeVariableBinding {
 		return debugName();
 	}
 
+	private int hashCode;
 	@Override
 	public int hashCode() {
-		int code = this.typeParameter.hashCode() + 17 * this.rank;
-		if (this.site != null) {
-			code = 31 * code + this.site.sourceStart();
-			code = 31 * code + this.site.sourceEnd();
+		if (this.hashCode == 0 || (this.typeParameter instanceof WildcardBinding
+				&& ((WildcardBinding) this.typeParameter).hashCode() == 0)) {
+			int code = this.typeParameter.hashCode() + 17 * this.rank;
+			if (this.site != null) {
+				// sourceStart and sourceEnd should not change at this point
+				code = 31 * code + this.site.sourceStart();
+				code = 31 * code + this.site.sourceEnd();
+			}
+			this.hashCode = code;
 		}
-		return code;
+		return this.hashCode;
 	}
 	@Override
 	public boolean equals(Object obj) {

@@ -20,7 +20,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 
 public abstract class NestedTypeBinding extends SourceTypeBinding {
 
-	public SourceTypeBinding enclosingType;
+	public final SourceTypeBinding enclosingType;
 
 	public SyntheticArgumentBinding[] enclosingInstances;
 	private ReferenceBinding[] enclosingTypes = Binding.UNINITIALIZED_REFERENCE_TYPES;
@@ -33,7 +33,7 @@ public NestedTypeBinding(char[][] typeName, ClassScope scope, SourceTypeBinding 
 	this.enclosingType = enclosingType;
 }
 
-public NestedTypeBinding(NestedTypeBinding prototype) {
+public NestedTypeBinding(NestedTypeBinding prototype, SourceTypeBinding enclosingType) {
 	super(prototype);
 	this.enclosingType = prototype.enclosingType;
 	this.enclosingInstances = prototype.enclosingInstances;

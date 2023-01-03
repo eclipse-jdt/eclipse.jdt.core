@@ -79,7 +79,7 @@ null is NOT a valid value for a non-public field... it just means the field is n
 
 abstract public class ReferenceBinding extends TypeBinding {
 
-	public char[][] compoundName;
+	public final char[][] compoundName;
 	public char[] sourceName;
 	public int modifiers;
 	public PackageBinding fPackage;
@@ -92,7 +92,7 @@ abstract public class ReferenceBinding extends TypeBinding {
 	int typeBits; // additional bits characterizing this type
 	protected MethodBinding [] singleAbstractMethod;
 
-	public static final ReferenceBinding LUB_GENERIC = new ReferenceBinding() { /* used for lub computation */
+	public static final ReferenceBinding LUB_GENERIC = new ReferenceBinding((char[][]) null) { /* used for lub computation */
 		{ this.id = TypeIds.T_undefined; }
 		@Override
 		public boolean hasTypeBit(int bit) { return false; }
@@ -133,8 +133,9 @@ abstract public class ReferenceBinding extends TypeBinding {
 	this.singleAbstractMethod = prototype.singleAbstractMethod;
 }
 
-public ReferenceBinding() {
+public ReferenceBinding(char[][] compoundName) {
 	super();
+	this.compoundName = compoundName;
 }
 
 public static FieldBinding binarySearch(char[] name, FieldBinding[] sortedFields) {

@@ -44,6 +44,7 @@ public class IntersectionTypeBinding18 extends ReferenceBinding {
 	int length;
 
 	public IntersectionTypeBinding18(ReferenceBinding[] intersectingTypes, LookupEnvironment environment) {
+		super((char[][]) null);
 		this.intersectingTypes = intersectingTypes;
 		this.length = intersectingTypes.length;
 		if (!intersectingTypes[0].isClass()) {
@@ -53,6 +54,7 @@ public class IntersectionTypeBinding18 extends ReferenceBinding {
 	}
 
 	private IntersectionTypeBinding18(IntersectionTypeBinding18 prototype) {
+		super((char[][]) null);
 		this.intersectingTypes = prototype.intersectingTypes;
 		this.length = prototype.length;
 		if (!this.intersectingTypes[0].isClass()) {

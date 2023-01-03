@@ -63,7 +63,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeConstants.BoundCheckStatus;
 public class TypeVariableBinding extends ReferenceBinding {
 
 	public Binding declaringElement; // binding of declaring type or method
-	public int rank; // declaration rank, can be used to match variable in parameterized type
+	public final int rank; // declaration rank, can be used to match variable in parameterized type
 
 	/**
 	 * Denote the first explicit (binding) bound amongst the supertypes (from declaration in source)
@@ -78,6 +78,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 	LookupEnvironment environment;
 
 	public TypeVariableBinding(char[] sourceName, Binding declaringElement, int rank, LookupEnvironment environment) {
+		super((char[][]) null);
 		this.sourceName = sourceName;
 		this.declaringElement = declaringElement;
 		this.rank = rank;
@@ -90,11 +91,13 @@ public class TypeVariableBinding extends ReferenceBinding {
 
 	// for subclass CaptureBinding
 	protected TypeVariableBinding(char[] sourceName, LookupEnvironment environment) {
+		super((char[][]) null);
 		this.sourceName = sourceName;
 		this.modifiers = ClassFileConstants.AccPublic | ExtraCompilerModifiers.AccGenericSignature; // treat type var as public
 		this.tagBits |= TagBits.HasTypeVariable;
 		this.environment = environment;
 		this.typeBits = TypeIds.BitUninitialized;
+		this.rank = 0;
 		// don't yet compute the ID!
 	}
 

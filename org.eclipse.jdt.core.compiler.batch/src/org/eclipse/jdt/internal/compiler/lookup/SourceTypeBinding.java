@@ -138,7 +138,7 @@ public class SourceTypeBinding extends ReferenceBinding {
 	private MethodBinding[] recordComponentAccessors = null; // hash maybe an overkill
 
 public SourceTypeBinding(char[][] compoundName, PackageBinding fPackage, ClassScope scope) {
-	this.compoundName = compoundName;
+	super(compoundName);
 	this.fPackage = fPackage;
 	this.fileName = scope.referenceCompilationUnit().getFileName();
 	this.modifiers = scope.referenceContext.modifiers;

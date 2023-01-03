@@ -80,6 +80,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	protected ReferenceBinding enclosingType;
 
 	public ParameterizedTypeBinding(ReferenceBinding type, TypeBinding[] arguments,  ReferenceBinding enclosingType, LookupEnvironment environment){
+		super(type.compoundName);
 		this.environment = environment;
 		this.enclosingType = enclosingType; // never unresolved, but if type is an unresolved nested type, enclosingType is null here but set later in swapUnresolved.
 		if (!type.hasEnclosingInstanceContext() && arguments == null && !(this instanceof RawTypeBinding))
@@ -899,7 +900,6 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	void initialize(ReferenceBinding someType, TypeBinding[] someArguments) {
 		this.type = someType;
 		this.sourceName = someType.sourceName;
-		this.compoundName = someType.compoundName;
 		this.fPackage = someType.fPackage;
 		this.fileName = someType.fileName;
 		// should not be set yet

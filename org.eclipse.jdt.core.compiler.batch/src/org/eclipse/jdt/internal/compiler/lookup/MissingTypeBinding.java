@@ -28,7 +28,7 @@ public class MissingTypeBinding extends BinaryTypeBinding {
  * @param environment
  */
 public MissingTypeBinding(PackageBinding packageBinding, char[][] compoundName, LookupEnvironment environment) {
-	this.compoundName = compoundName;
+	super(compoundName);
 	computeId();
 	this.tagBits |= TagBits.IsBinaryBinding | TagBits.HierarchyHasProblems | TagBits.HasMissingType;
 	this.environment = environment;

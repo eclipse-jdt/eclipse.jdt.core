@@ -58,6 +58,8 @@ public class WildcardBinding extends ReferenceBinding {
 	 * When unbound, the bound denotes the corresponding type variable (so as to retrieve its bound lazily)
 	 */
 	public WildcardBinding(ReferenceBinding genericType, int rank, TypeBinding bound, TypeBinding[] otherBounds, int boundKind, LookupEnvironment environment) {
+		super((char[][]) null);
+		this.genericType = genericType;
 		this.rank = rank;
 	    this.boundKind = boundKind;
 		this.modifiers = ClassFileConstants.AccPublic | ExtraCompilerModifiers.AccGenericSignature; // treat wildcard as public
@@ -614,9 +616,13 @@ public class WildcardBinding extends ReferenceBinding {
         return this.genericSignature;
     }
 
+	private int hashCode;
 	@Override
 	public int hashCode() {
-		return this.genericType.hashCode();
+		if (this.hashCode == 0) {
+			this.hashCode = this.genericType.hashCode();
+		}
+		return this.hashCode;
 	}
 
 	@Override
@@ -635,7 +641,6 @@ public class WildcardBinding extends ReferenceBinding {
 	}
 
 	void initialize(ReferenceBinding someGenericType, TypeBinding someBound, TypeBinding[] someOtherBounds) {
-		this.genericType = someGenericType;
 		this.bound = someBound;
 		this.otherBounds = someOtherBounds;
 		if (someGenericType != null) {
@@ -960,6 +965,7 @@ public class WildcardBinding extends ReferenceBinding {
 		boolean affected = false;
 		if (this.genericType == unresolvedType) { //$IDENTITY-COMPARISON$
 			this.genericType = resolvedType; // no raw conversion
+			this.hashCode = 0;
 			affected = true;
 		}
 		if (this.bound == unresolvedType) { //$IDENTITY-COMPARISON$

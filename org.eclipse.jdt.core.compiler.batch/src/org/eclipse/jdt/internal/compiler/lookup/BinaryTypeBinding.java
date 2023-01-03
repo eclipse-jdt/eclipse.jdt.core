@@ -257,7 +257,8 @@ public static TypeBinding resolveType(TypeBinding type, LookupEnvironment enviro
 /**
  * Default empty constructor for subclasses only.
  */
-protected BinaryTypeBinding() {
+protected BinaryTypeBinding(char[][] compoundName) {
+	super(compoundName);
 	// only for subclasses
 	this.prototype = this;
 }
@@ -294,9 +295,8 @@ public BinaryTypeBinding(PackageBinding packageBinding, IBinaryType binaryType, 
  * @param needFieldsAndMethods
  */
 public BinaryTypeBinding(PackageBinding packageBinding, IBinaryType binaryType, LookupEnvironment environment, boolean needFieldsAndMethods) {
-
+	super(CharOperation.splitOn('/', binaryType.getName()));
 	this.prototype = this;
-	this.compoundName = CharOperation.splitOn('/', binaryType.getName());
 	computeId();
 
 	this.tagBits |= TagBits.IsBinaryBinding;

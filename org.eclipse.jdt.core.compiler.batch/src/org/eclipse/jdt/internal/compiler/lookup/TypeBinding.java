@@ -64,7 +64,7 @@ abstract public class TypeBinding extends Binding {
 	protected AnnotationBinding [] typeAnnotations = Binding.NO_ANNOTATIONS;
 
 	// jsr 308
-	public static final ReferenceBinding TYPE_USE_BINDING = new ReferenceBinding() { /* used for type annotation resolution. */
+	public static final ReferenceBinding TYPE_USE_BINDING = new ReferenceBinding((char[][]) null) { /* used for type annotation resolution. */
 		{ this.id = TypeIds.T_undefined; }
 		@Override
 		public int kind() { return Binding.TYPE_USE; }
