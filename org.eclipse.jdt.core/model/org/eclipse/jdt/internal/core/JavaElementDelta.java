@@ -17,9 +17,11 @@ package org.eclipse.jdt.internal.core;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IResourceDelta;
+import org.eclipse.jdt.core.IClasspathAttributeDelta;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaElementDelta;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -87,6 +89,8 @@ public class JavaElementDelta extends SimpleDelta implements IJavaElementDelta {
 
 	public boolean ignoreFromTests = false;
 
+	private List<IClasspathAttributeDelta> attributeDeltas;
+
 	/**
 	 * The delta key
 	 */
@@ -122,6 +126,7 @@ public class JavaElementDelta extends SimpleDelta implements IJavaElementDelta {
  */
 public JavaElementDelta(IJavaElement element) {
 	this.changedElement = element;
+	this.attributeDeltas = null;
 }
 /**
  * Adds the child delta to the collection of affected children.  If the
@@ -702,6 +707,14 @@ public String toDebugString(int depth) {
 			buffer.append(((JavaElementDelta) annotations[i]).toDebugString(depth + 1));
 		}
 	}
+	IClasspathAttributeDelta[] attributes = getClasspathAttributeDeltas();
+	for (IClasspathAttributeDelta delta : attributes) {
+		buffer.append("\n");//$NON-NLS-1$
+		for (int j = 0; j < depth+1; j++) {
+			buffer.append('\t');
+		}
+		buffer.append(delta.toString());
+	}
 	return buffer.toString();
 }
 @Override
@@ -828,6 +841,12 @@ protected boolean toDebugString(StringBuffer buffer, int flags) {
 		buffer.append("ANNOTATIONS"); //$NON-NLS-1$
 		prev = true;
 	}
+	if ((flags & IJavaElementDelta.F_CLASSPATH_ATTRIBUTES) != 0) {
+		if (prev)
+			buffer.append(" | "); //$NON-NLS-1$
+		buffer.append("CLASSPATH ATTRIBUTES"); //$NON-NLS-1$
+		prev = true;
+	}
 	return prev;
 }
 /**
@@ -837,5 +856,20 @@ protected boolean toDebugString(StringBuffer buffer, int flags) {
 @Override
 public String toString() {
 	return toDebugString(0);
+}
+
+void addAttributeDelta(IClasspathAttributeDelta attributeDelta) {
+	if (this.attributeDeltas == null) {
+		this.attributeDeltas = new ArrayList<>();
+	}
+	this.attributeDeltas.add(attributeDelta);
+}
+
+@Override
+public IClasspathAttributeDelta[] getClasspathAttributeDeltas() {
+	if (this.attributeDeltas == null) {
+		return new IClasspathAttributeDelta[] {};
+	}
+	return this.attributeDeltas.toArray(IClasspathAttributeDelta[]::new);
 }
 }

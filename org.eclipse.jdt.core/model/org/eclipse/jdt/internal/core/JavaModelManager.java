@@ -55,6 +55,7 @@ import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinWorkerThread;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
@@ -4695,8 +4696,14 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			infos = new ArrayList<>(this.perProjectInfos.values());
 		}
 		int parallelism = Math.max(1, SAVE_THREAD_COUNT == null ? ForkJoinPool.getCommonPoolParallelism() : SAVE_THREAD_COUNT.intValue());
-		// never use a shared ForkJoinPool.commonPool() as it may be busy with other tasks, which might deadlock:
-		ForkJoinPool forkJoinPool =  new ForkJoinPool(parallelism);
+		// Never use a shared ForkJoinPool.commonPool() as it may be busy with other tasks, which might deadlock.
+		// Also use a custom ForkJoinWorkerThreadFactory, to prevent issues with a
+		// potential SecurityManager, since the threads created by it get no permissions.
+		// See related problem in eclipse-platform https://github.com/eclipse-platform/eclipse.platform/issues/294
+		ForkJoinPool forkJoinPool = new ForkJoinPool(parallelism, //
+				pool -> new ForkJoinWorkerThread(pool) {
+					// anonymous subclass to access protected constructor
+				}, null, false);
 		IStatus[] stats;
 		try {
 			stats = forkJoinPool.submit(() -> infos.stream().parallel().map(info -> {

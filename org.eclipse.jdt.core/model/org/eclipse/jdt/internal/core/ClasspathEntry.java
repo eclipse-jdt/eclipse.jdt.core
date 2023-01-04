@@ -71,6 +71,7 @@ import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.util.ManifestAnalyzer;
+import org.eclipse.jdt.internal.core.index.DiskIndex;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 import org.w3c.dom.DOMException;
@@ -1790,7 +1791,7 @@ public class ClasspathEntry implements IClasspathEntry {
 						CRC32 checksumCalculator = new CRC32();
 						checksumCalculator.update(pathString.getBytes());
 						String fileName = Long.toString(checksumCalculator.getValue()) + ".index"; //$NON-NLS-1$
-						return Paths.get(SHARED_INDEX_LOCATION, fileName).toUri().toURL();
+						return Paths.get(SHARED_INDEX_LOCATION, DiskIndex.INDEX_VERSION, fileName).toUri().toURL();
 					} catch (MalformedURLException e1) {
 						Util.log(e1); // should not happen if protocol known (eg. 'file')
 					}

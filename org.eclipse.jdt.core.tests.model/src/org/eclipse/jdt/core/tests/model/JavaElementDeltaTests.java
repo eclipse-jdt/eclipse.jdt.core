@@ -16,6 +16,7 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.CoreException;
@@ -3211,5 +3212,63 @@ public void testBug455882() {
 		"	P2[+]: {}",
 		delta
 	);
+}
+// See: https://github.com/eclipse-jdt/eclipse.jdt.core/issues/486
+public void testClasspathAttributesDeltaGh486() throws Exception {
+	try {
+		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[0], "bin");
+		startDeltas();
+
+		setJavaDocLocation(p, "some_location");
+		String[] expectedDelta = {
+				"P[*]: {CHILDREN | CONTENT | RAW CLASSPATH CHANGED | RESOLVED CLASSPATH CHANGED}",
+				"	src[*]: {CLASSPATH ATTRIBUTES}",
+				"		attribute name=javadoc_location, value=some_location[+]",
+				"	ResourceDelta(/P/.classpath)[*]",
+		};
+		expectDelta(expectedDelta);
+
+		setJavaDocLocation(p, "some_location2");
+		expectedDelta[2] = "		attribute name=javadoc_location, value=some_location2[*]";
+		expectDelta(expectedDelta);
+
+		setJavaDocLocation(p, "");
+		expectedDelta[2] = "		attribute name=javadoc_location, value=[*]";
+		expectDelta(expectedDelta);
+
+		setJavaDocLocation(p, null);
+		expectedDelta[2] = "		attribute name=javadoc_location[-]";
+		expectDelta(expectedDelta);
+	} finally {
+		stopDeltas();
+		deleteProject("P");
+	}
+}
+
+private void setJavaDocLocation(IJavaProject p, String javadocLocation) throws CoreException {
+	IClasspathEntry[] classpath = p.getRawClasspath();
+	IClasspathEntry[] newClasspath = Arrays.copyOf(classpath, classpath.length);
+	for (int i = 0; i < classpath.length; ++i) {
+		IClasspathEntry entry = classpath[i];
+		if (entry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+			IClasspathAttribute[] attributes = {};
+			if (javadocLocation != null) {
+				IClasspathAttribute attribute = new ClasspathAttribute(IClasspathAttribute.JAVADOC_LOCATION_ATTRIBUTE_NAME, javadocLocation);
+				attributes = new IClasspathAttribute[] { attribute };
+			}
+			entry = JavaCore.newSourceEntry(entry.getPath(), null, null, null, attributes);
+		}
+		newClasspath[i] = entry;
+	}
+	p.setRawClasspath(newClasspath, null);
+	refresh(p);
+}
+
+private void expectDelta(String[] expectedDelta) {
+	assertDeltas(
+		"Unexpected delta",
+		String.join("\n", expectedDelta)
+	);
+	clearDeltas();
 }
 }

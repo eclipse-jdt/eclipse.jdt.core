@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -53,7 +53,8 @@ private int bufferIndex, bufferEnd; // used when reading from the file into the 
 private int streamEnd; // used when writing data from the streamBuffer to the file
 char separator = Index.DEFAULT_SEPARATOR;
 
-public static final String SIGNATURE = "INDEX VERSION 1.132"; //$NON-NLS-1$
+public static final String INDEX_VERSION = "1.132"; //$NON-NLS-1$
+public static final String SIGNATURE = "INDEX VERSION " + INDEX_VERSION; //$NON-NLS-1$
 private static final char[] SIGNATURE_CHARS = SIGNATURE.toCharArray();
 public static boolean DEBUG = false;
 

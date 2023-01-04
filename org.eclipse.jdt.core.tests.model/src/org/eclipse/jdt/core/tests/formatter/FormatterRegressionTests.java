@@ -16164,4 +16164,63 @@ public void testBug578361f() throws JavaModelException {
 	String input = getCompilationUnit("Formatter", "", "test578361", "in.java").getSource();
 	formatSource(input, getCompilationUnit("Formatter", "", "test578361", "F_out.java").getSource());
 }
+/**
+ * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/264 - [19] Formatter support for JEP 405: Record Patterns
+ */
+public void testIssue264a() {
+	setComplianceLevel(CompilerOptions.VERSION_19);
+	this.formatterOptions.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+	String source =
+		"public class X{int baz(Bar bar){return switch(bar){\n" +
+		"	case Bar(Foo(var a,var b),Foo(var c,var d))->a+b+c+d;\n" +
+		"};}}";
+	formatSource(source,
+		"public class X {\n" +
+		"	int baz(Bar bar) {\n" +
+		"		return switch (bar) {\n" +
+		"		case Bar(Foo(var a, var b), Foo(var c, var d)) -> a + b + c + d;\n" +
+		"		};\n" +
+		"	}\n" +
+		"}");
+}
+/**
+ * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/264 - [19] Formatter support for JEP 405: Record Patterns
+ */
+public void testIssue264b() {
+	setComplianceLevel(CompilerOptions.VERSION_19);
+	this.formatterOptions.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+	this.formatterPrefs.insert_space_before_comma_in_record_components = false;
+	this.formatterPrefs.insert_space_after_comma_in_record_components = false;
+	this.formatterPrefs.insert_space_before_opening_paren_in_record_declaration = true;
+	this.formatterPrefs.insert_space_after_opening_paren_in_record_declaration = true;
+	this.formatterPrefs.insert_space_before_closing_paren_in_record_declaration = true;
+	String source =
+		"public class X{int baz(Bar bar){return switch(bar){\n" +
+		"	case Bar(Foo(var a,var b),Foo(var c,var d))->a+b+c+d;\n" +
+		"};}}";
+	formatSource(source,
+		"public class X {\n" +
+		"	int baz(Bar bar) {\n" +
+		"		return switch (bar) {\n" +
+		"		case Bar ( Foo ( var a,var b ),Foo ( var c,var d ) ) -> a + b + c + d;\n" +
+		"		};\n" +
+		"	}\n" +
+		"}");
+}
+/**
+ * https://bugs.eclipse.org/564052 - [15] JEP 360 - Sealed Types -Formatter Support
+ */
+public void testBug564052() {
+	setComplianceLevel(CompilerOptions.VERSION_17);
+	this.formatterPrefs.alignment_for_permitted_types_in_type_declaration = Alignment.M_ONE_PER_LINE_SPLIT + Alignment.M_FORCE;
+	String source =
+		"sealed class Example permits C1, C2, C3 {}";
+	formatSource(source,
+		"sealed class Example\n" +
+		"		permits\n" +
+		"		C1,\n" +
+		"		C2,\n" +
+		"		C3 {\n" +
+		"}");
+}
 }
