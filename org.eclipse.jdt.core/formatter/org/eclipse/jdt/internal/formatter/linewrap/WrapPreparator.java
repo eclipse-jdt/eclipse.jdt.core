@@ -38,6 +38,7 @@ import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNamee
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameextends;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameimplements;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNamenew;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameRestrictedIdentifierpermits;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNamesuper;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNamethis;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNamethrows;
@@ -318,6 +319,14 @@ public class WrapPreparator extends ASTVisitor {
 			this.wrapIndexes.add(this.tm.firstIndexBefore(superInterfaceTypes.get(0), implementsToken));
 			prepareElementsList(superInterfaceTypes, TokenNameCOMMA, -1);
 			handleWrap(this.options.alignment_for_superinterfaces_in_type_declaration, PREFERRED);
+		}
+
+		List<Type> permittedTypes = node.permittedTypes();
+		if (!permittedTypes.isEmpty()) {
+			this.wrapParentIndex = this.tm.lastIndexIn(node.getName(), -1);
+			this.wrapIndexes.add(this.tm.firstIndexBefore(permittedTypes.get(0), TokenNameRestrictedIdentifierpermits));
+			prepareElementsList(permittedTypes, TokenNameCOMMA, -1);
+			handleWrap(this.options.alignment_for_permitted_types_in_type_declaration, PREFERRED);
 		}
 
 		prepareElementsList(node.typeParameters(), TokenNameCOMMA, TokenNameLESS);

@@ -158,6 +158,7 @@ public class DefaultCodeFormatterOptions {
 	public int alignment_for_parameterized_type_references;
 	public int alignment_for_parameters_in_constructor_declaration;
 	public int alignment_for_parameters_in_method_declaration;
+	public int alignment_for_permitted_types_in_type_declaration;
 	public int alignment_for_record_components;
 	public int alignment_for_selector_in_method_invocation;
 	public int alignment_for_superclass_in_type_declaration;
@@ -607,6 +608,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_PARAMETERIZED_TYPE_REFERENCES, getAlignment(this.alignment_for_parameterized_type_references));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_PARAMETERS_IN_CONSTRUCTOR_DECLARATION, getAlignment(this.alignment_for_parameters_in_constructor_declaration));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_PARAMETERS_IN_METHOD_DECLARATION, getAlignment(this.alignment_for_parameters_in_method_declaration));
+		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_PERMITTED_TYPES_IN_TYPE_DECLARATION, getAlignment(this.alignment_for_permitted_types_in_type_declaration));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_RECORD_COMPONENTS, getAlignment(this.alignment_for_record_components));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_RESOURCES_IN_TRY, getAlignment(this.alignment_for_resources_in_try));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_SELECTOR_IN_METHOD_INVOCATION, getAlignment(this.alignment_for_selector_in_method_invocation));
@@ -1170,6 +1172,8 @@ public class DefaultCodeFormatterOptions {
 				this.alignment_for_parameters_in_method_declaration = Alignment.M_COMPACT_SPLIT;
 			}
 		}
+		setInt(settings, DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_PERMITTED_TYPES_IN_TYPE_DECLARATION,
+				v -> this.alignment_for_permitted_types_in_type_declaration = v);
 		setInt(settings, DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_RECORD_COMPONENTS,
 				v -> this.alignment_for_record_components = v);
 		final Object alignmentForResourcesInTry = settings.get(DefaultCodeFormatterConstants.FORMATTER_ALIGNMENT_FOR_RESOURCES_IN_TRY);
@@ -2991,6 +2995,7 @@ public class DefaultCodeFormatterOptions {
 		this.alignment_for_parameterized_type_references = Alignment.M_NO_ALIGNMENT;
 		this.alignment_for_parameters_in_constructor_declaration = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_parameters_in_method_declaration = Alignment.M_COMPACT_SPLIT;
+		this.alignment_for_permitted_types_in_type_declaration = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_record_components = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_resources_in_try = Alignment.M_NEXT_PER_LINE_SPLIT;
 		this.alignment_for_selector_in_method_invocation = Alignment.M_COMPACT_SPLIT;
@@ -3392,6 +3397,7 @@ public class DefaultCodeFormatterOptions {
 		this.alignment_for_parameterized_type_references = Alignment.M_NO_ALIGNMENT;
 		this.alignment_for_parameters_in_constructor_declaration = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_parameters_in_method_declaration = Alignment.M_COMPACT_SPLIT;
+		this.alignment_for_permitted_types_in_type_declaration = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_record_components = Alignment.M_COMPACT_SPLIT;
 		this.alignment_for_resources_in_try = Alignment.M_NEXT_PER_LINE_SPLIT;
 		this.alignment_for_selector_in_method_invocation = Alignment.M_COMPACT_SPLIT;
