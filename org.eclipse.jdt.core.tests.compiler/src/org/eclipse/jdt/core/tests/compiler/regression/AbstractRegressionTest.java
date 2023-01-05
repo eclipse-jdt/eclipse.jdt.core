@@ -312,6 +312,10 @@ static class JavacCompiler {
 			return JavaCore.VERSION_17;
 		} else if(rawVersion.startsWith("18")) {
 			return JavaCore.VERSION_18;
+		} else if(rawVersion.startsWith("19")) {
+			return JavaCore.VERSION_19;
+		} else if(rawVersion.startsWith("20")) {
+			return JavaCore.VERSION_20;
 		} else {
 			throw new RuntimeException("unknown javac version: " + rawVersion);
 		}
@@ -520,6 +524,34 @@ static class JavacCompiler {
 				return 0100;
 			}
 			if ("18.0.2".equals(rawVersion)) {
+				return 0200;
+			}
+		}
+		if (version == JavaCore.VERSION_19) {
+			if ("19-ea".equals(rawVersion)) {
+				return 0000;
+			}
+			if ("19".equals(rawVersion)) {
+				return 0000;
+			}
+			if ("19.0.1".equals(rawVersion)) {
+				return 0100;
+			}
+			if ("19.0.2".equals(rawVersion)) {
+				return 0200;
+			}
+		}
+		if (version == JavaCore.VERSION_20) {
+			if ("20-ea".equals(rawVersion)) {
+				return 0000;
+			}
+			if ("20".equals(rawVersion)) {
+				return 0000;
+			}
+			if ("20.0.1".equals(rawVersion)) {
+				return 0100;
+			}
+			if ("20.0.2".equals(rawVersion)) {
 				return 0200;
 			}
 		}

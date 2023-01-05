@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021, 2022 IBM Corporation and others.
+ * Copyright (c) 2021, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -60,7 +64,7 @@ public class TypePattern extends Pattern {
 
 	TypePattern(AST ast) {
 		super(ast);
-		supportedOnlyIn19();
+		supportedOnlyIn20();
 		unsupportedWithoutPreviewError();
 	}
 
@@ -142,7 +146,7 @@ public class TypePattern extends Pattern {
 	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
 	 */
 	public void setPatternVariable(SingleVariableDeclaration patternVariable) {
-		supportedOnlyIn19();
+		supportedOnlyIn20();
 		unsupportedWithoutPreviewError();
 		if (patternVariable == null) {
 			throw new IllegalArgumentException();
@@ -162,7 +166,7 @@ public class TypePattern extends Pattern {
 	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
 	 */
 	public SingleVariableDeclaration getPatternVariable() {
-		supportedOnlyIn19();
+		supportedOnlyIn20();
 		unsupportedWithoutPreviewError();
 		if (this.patternVariable  == null) {
 			// lazy init must be thread-safe for readers

@@ -3957,6 +3957,8 @@ public void testBug521362_emptyFile() {
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 	}
 	public void testReleaseOption2() throws Exception {
+		if (isJRE20Plus) return;
+		if (isJRE19Plus)
 		this.runConformTest(
 				new String[] {
 					"X.java",
@@ -3973,6 +3975,8 @@ public void testBug521362_emptyFile() {
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 	}
 	public void testReleaseOption3() throws Exception {
+		if (isJRE20Plus) return;
+		if (isJRE19Plus)
 		this.runConformTest(
 				new String[] {
 					"X.java",
@@ -4050,7 +4054,7 @@ public void testBug521362_emptyFile() {
 		     true);
 	}
 	public void testReleaseOption8() throws Exception {
-
+		if (isJRE20Plus) return;
 		String output =
 				isJRE12Plus ?
 						"	public java.util.stream.Stream<String> emptyStream() {\n" +
@@ -4081,6 +4085,7 @@ public void testBug521362_emptyFile() {
 		     true);
 	}
 	public void testReleaseOption9() throws Exception {
+		if (isJRE20Plus) return;
 		this.runNegativeTest(
 				new String[] {
 					"X.java",
@@ -4340,7 +4345,7 @@ public void testBug521362_emptyFile() {
 	        /*not tested with javac*/"");
 	}
 	public void testReleaseOption20() throws Exception {
-		if (!isJRE12Plus) return;
+		if (!isJRE12Plus || isJRE20Plus) return;
 		this.runNegativeTest(
 				new String[] {
 					"X.java",

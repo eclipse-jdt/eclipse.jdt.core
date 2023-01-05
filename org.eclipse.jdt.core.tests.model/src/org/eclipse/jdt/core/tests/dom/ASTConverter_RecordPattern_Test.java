@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020, 2022 IBM Corporation and others.
+ * Copyright (c) 2020, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -53,10 +57,10 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 		super.setUpSuite();
 		this.ast = AST.newAST(getASTLatest(), false);
 		this.currentProject = getJavaProject("Converter_19");
-		if (this.ast.apiLevel() == AST.JLS19) {
-			this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_19);
-			this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_19);
-			this.currentProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_19);
+		if (this.ast.apiLevel() == AST.JLS20) {
+			this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_20);
+			this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_20);
+			this.currentProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_20);
 			this.currentProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 			this.currentProject.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
 
@@ -83,12 +87,12 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 	}
 
 	private void printJREError() {
-		System.err.println("Test "+getName()+" requires a JRE 19");
+		System.err.println("Test "+getName()+" requires a JRE 20");
 	}
 
 	@SuppressWarnings("rawtypes")
 	public void testTypePattern() throws CoreException {
-		if (!isJRE19) {
+		if (!isJRE20) {
 			printJREError();
 			return;
 		}
@@ -137,7 +141,7 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 	// This was valid for Java 18 but not in Java 19
 	@SuppressWarnings("rawtypes")
 	public void _testGuardedPattern() throws CoreException {
-		if (!isJRE19) {
+		if (!isJRE20) {
 			printJREError();
 			return;
 		}
@@ -193,7 +197,7 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 
 	@SuppressWarnings("rawtypes")
 	public void testParenthesizedExpressionPattern() throws CoreException {
-		if (!isJRE19) {
+		if (!isJRE20) {
 			printJREError();
 			return;
 		}
@@ -234,7 +238,7 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 
 	@SuppressWarnings("rawtypes")
 	public void testNullPattern() throws CoreException {
-		if (!isJRE19) {
+		if (!isJRE20) {
 			printJREError();
 			return;
 		}
@@ -267,7 +271,7 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 
 	@SuppressWarnings("rawtypes")
 	public void testCaseDefaultExpressionPattern() throws CoreException {
-		if (!isJRE19) {
+		if (!isJRE20) {
 			printJREError();
 			return;
 		}
@@ -299,7 +303,7 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 	}
 
 	public void testBug575250() throws CoreException {
-		if (!isJRE19) {
+		if (!isJRE20) {
 			System.err.println("Test "+getName()+" requires a JRE 18");
 			return;
 		}
@@ -353,7 +357,7 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 	}
 
 	public void testRecordPattern001() throws CoreException {
-		if (!isJRE19) {
+		if (!isJRE20) {
 			printJREError();
 			return;
 		}
@@ -399,7 +403,7 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 
 	@SuppressWarnings("rawtypes")
 	public void testRecordPattern002() throws CoreException {
-		if (!isJRE19) {
+		if (!isJRE20) {
 			System.err.println("Test "+getName()+" requires a JRE 19");
 			return;
 		}
@@ -459,7 +463,7 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 
 	@SuppressWarnings("rawtypes")
 	public void testRecordPattern003() throws CoreException {
-		if (!isJRE19) {
+		if (!isJRE20) {
 			System.err.println("Test "+getName()+" requires a JRE 19");
 			return;
 		}
@@ -534,7 +538,7 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 
 	@SuppressWarnings("rawtypes")
 	public void testRecordPattern004() throws CoreException {
-		if (!isJRE19) {
+		if (!isJRE20) {
 			System.err.println("Test "+getName()+" requires a JRE 19");
 			return;
 		}

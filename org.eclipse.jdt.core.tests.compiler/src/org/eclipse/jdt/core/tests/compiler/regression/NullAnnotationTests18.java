@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021, 2022 GK Software SE, and others.
+ * Copyright (c) 2021, 2023 GK Software SE, and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     Stephan Herrmann - initial API and implementation
@@ -37,7 +41,7 @@ public class NullAnnotationTests18 extends AbstractNullAnnotationTest {
 	}
 
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_19);
+		return buildMinimalComplianceTestSuite(testClass(), F_20);
 	}
 
 	public static Class<?> testClass() {
@@ -128,7 +132,7 @@ public class NullAnnotationTests18 extends AbstractNullAnnotationTest {
 		Runner runner = new Runner();
 		runner.classLibraries = this.LIBS;
 		Map<String,String> opts = getCompilerOptions();
-		opts.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_19);
+		opts.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_20);
 		opts.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		opts.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		runner.customOptions = opts;
