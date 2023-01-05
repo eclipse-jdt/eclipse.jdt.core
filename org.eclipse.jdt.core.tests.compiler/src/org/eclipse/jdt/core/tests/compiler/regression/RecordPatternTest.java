@@ -1,11 +1,15 @@
 /*******************************************************************************
- * Copyright (c) 2022 IBM Corporation and others.
+ * Copyright (c) 2022, 2023 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -27,7 +31,7 @@ import junit.framework.Test;
 
 public class RecordPatternTest extends AbstractRegressionTest9 {
 
-	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("-source 19 --enable-preview -Xlint:-preview");
+	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("-source 20 --enable-preview -Xlint:-preview");
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
@@ -38,7 +42,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 		return RecordPatternTest.class;
 	}
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_19);
+		return buildMinimalComplianceTestSuite(testClass(), F_20);
 	}
 	public RecordPatternTest(String testName){
 		super(testName);
@@ -46,9 +50,14 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions(boolean preview) {
 		Map<String, String> defaultOptions = super.getCompilerOptions();
-		if (this.complianceLevel >= ClassFileConstants.getLatestJDKLevel()
-				&& preview) {
-			defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		if (preview) {
+			if (this.complianceLevel >= ClassFileConstants.getLatestJDKLevel()) {
+				defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+			} else {
+				defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_20);
+				defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_20);
+				defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_20);
+			}
 		}
 		return defaultOptions;
 	}
@@ -889,7 +898,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}\n"
 			},
 			this.extraLibPath,
-			JavaCore.VERSION_19,
+			JavaCore.VERSION_20,
 			true);
 		// new String[] {libPath}
 		this.runConformTest(
