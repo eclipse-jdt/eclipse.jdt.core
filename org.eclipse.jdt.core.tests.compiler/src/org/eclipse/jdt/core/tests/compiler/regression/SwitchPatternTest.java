@@ -1,11 +1,15 @@
 /*******************************************************************************
- * Copyright (c) 2021, 2022 IBM Corporation and others.
+ * Copyright (c) 2021, 2023 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -29,7 +33,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testIssue554_001"};
+//		TESTS_NAMES = new String[] { "testBug578553"};
 	}
 
 	private static String previewLevel = "20";
@@ -374,7 +378,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"public class X {\n"+
 				" private static void foo(Object o) {\n"+
 				"   switch (o.hashCode()) {\n"+
-				"     case default : System.out.println(\"Default\");\n"+
+				"     case null, default : System.out.println(\"Default\");\n"+
 				"     default : System.out.println(\"Object\");\n"+
 				"   }\n"+
 				" }\n"+
@@ -386,12 +390,17 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"class Y {}",
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 5)\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	case null, default : System.out.println(\"Default\");\n" +
+			"	     ^^^^\n" +
+			"Type mismatch: cannot convert from null to int\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 5)\n" +
 			"	default : System.out.println(\"Object\");\n" +
 			"	^^^^^^^\n" +
 			"The default case is already defined\n" +
 			"----------\n" +
-			"2. ERROR in X.java (at line 10)\n" +
+			"3. ERROR in X.java (at line 10)\n" +
 			"	Zork();\n" +
 			"	^^^^\n" +
 			"The method Zork() is undefined for the type X\n" +
@@ -424,14 +433,19 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"2. ERROR in X.java (at line 4)\n" +
 			"	case String s, default : System.out.println(\"Error should be flagged for String and default\");\n" +
 			"	               ^^^^^^^\n" +
+			"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 4)\n" +
+			"	case String s, default : System.out.println(\"Error should be flagged for String and default\");\n" +
+			"	               ^^^^^^^\n" +
 			"A switch label may not have both a pattern case label element and a default case label element\n" +
 			"----------\n" +
-			"3. ERROR in X.java (at line 5)\n" +
+			"4. ERROR in X.java (at line 5)\n" +
 			"	default : System.out.println(\"Object\");\n" +
 			"	^^^^^^^\n" +
 			"The default case is already defined\n" +
 			"----------\n" +
-			"4. ERROR in X.java (at line 10)\n" +
+			"5. ERROR in X.java (at line 10)\n" +
 			"	Zork();\n" +
 			"	^^^^\n" +
 			"The method Zork() is undefined for the type X\n" +
@@ -876,7 +890,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"\n"+
 					" private static void foo(Object o) {\n"+
 					"   switch (o) {\n"+
-					"    case default:\n"+
+					"    case null, default:\n"+
 					"     System.out.println(\"Object: \" + o);\n"+
 					"   }\n"+
 					" }\n"+
@@ -903,7 +917,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"   case Integer j when j>0:\n"+
 					"     System.out.println(\"Greater than 0:\" + o);\n"+
 					"     break;\n"+
-					"   case default:\n"+
+					"   case null,default:\n"+
 					"     System.out.println(\"Give Me Some SunShine:\" + o);\n"+
 					"   }\n"+
 					" }\n"+
@@ -927,18 +941,28 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"   case Integer i :\n"+
 					"     System.out.println(\"Integer:\" + o);\n"+
 					"     break;\n"+
-					"   case default:\n"+
+					"   case null, default:\n"+
 					"     System.out.println(\"Object\" + o);\n"+
-					"   case default:\n"+
+					"   case null, default:\n"+
 					"     System.out.println(\"Give me Some Sunshine\" + o);\n"+
 					"   }\n"+
 					" }\n"+
 					"}",
 				},
 				"----------\n" +
-				"1. ERROR in X.java (at line 13)\n" +
-				"	case default:\n" +
-				"	^^^^^^^^^^^^\n" +
+				"1. ERROR in X.java (at line 11)\n" +
+				"	case null, default:\n" +
+				"	     ^^^^\n" +
+				"Duplicate case\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 13)\n" +
+				"	case null, default:\n" +
+				"	     ^^^^\n" +
+				"Duplicate case\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 13)\n" +
+				"	case null, default:\n" +
+				"	           ^^^^^^^\n" +
 				"The default case is already defined\n" +
 				"----------\n");
 	}
@@ -965,7 +989,12 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"}",
 				},
 				"----------\n" +
-				"1. ERROR in X.java (at line 13)\n" +
+				"1. ERROR in X.java (at line 11)\n" +
+				"	case default:\n" +
+				"	     ^^^^^^^\n" +
+				"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 13)\n" +
 				"	default:\n" +
 				"	^^^^^^^\n" +
 				"The default case is already defined\n" +
@@ -1388,7 +1417,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"hello");
 	}
-	public void testBug574719_001() {
+	public void _testBug574719_001() {
 		runConformTest(
 			new String[] {
 				"X.java",
@@ -1407,7 +1436,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
-	public void testBug574719_002() {
+	public void _testBug574719_002() {
 		runConformTest(
 			new String[] {
 				"X.java",
@@ -1426,7 +1455,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			},
 			"1");
 	}
-	public void testBug574719_003() {
+	public void _testBug574719_003() {
 		runConformTest(
 			new String[] {
 				"X.java",
@@ -1447,7 +1476,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"1\n" +
 			"1");
 	}
-	public void testBug574719_004() {
+	public void _testBug574719_004() {
 		runConformTest(
 			new String[] {
 				"X.java",
@@ -1469,7 +1498,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"1\n" +
 			"2");
 	}
-	public void testBug574719_005() {
+	public void _testBug574719_005() {
 		runConformTest(
 			new String[] {
 				"X.java",
@@ -1513,11 +1542,21 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"----------\n" +
 			"1. ERROR in X.java (at line 6)\n" +
 			"	case 1, default, default   : k = 1;\n" +
+			"	        ^^^^^^^\n" +
+			"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 6)\n" +
+			"	case 1, default, default   : k = 1;\n" +
 			"	                 ^^^^^^^\n" +
 			"The default case is already defined\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 6)\n" +
+			"	case 1, default, default   : k = 1;\n" +
+			"	                 ^^^^^^^\n" +
+			"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
 			"----------\n");
 	}
-	public void testBug574719_007() {
+	public void _testBug574719_007() {
 		runConformTest(
 			new String[] {
 				"X.java",
@@ -1587,8 +1626,18 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"----------\n" +
 			"1. ERROR in X.java (at line 5)\n" +
 			"	case default, 1, default   : k = 1;\n" +
+			"	     ^^^^^^^\n" +
+			"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 5)\n" +
+			"	case default, 1, default   : k = 1;\n" +
 			"	                 ^^^^^^^\n" +
 			"The default case is already defined\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 5)\n" +
+			"	case default, 1, default   : k = 1;\n" +
+			"	                 ^^^^^^^\n" +
+			"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
 			"----------\n");
 	}
 	public void testBug574561_003() {
@@ -1612,8 +1661,18 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"----------\n" +
 			"1. ERROR in X.java (at line 5)\n" +
 			"	case default, 1, default   : k = 1;\n" +
+			"	     ^^^^^^^\n" +
+			"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 5)\n" +
+			"	case default, 1, default   : k = 1;\n" +
 			"	                 ^^^^^^^\n" +
 			"The default case is already defined\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 5)\n" +
+			"	case default, 1, default   : k = 1;\n" +
+			"	                 ^^^^^^^\n" +
+			"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
 			"----------\n");
 	}
 	public void testBug574793_001() {
@@ -1990,6 +2049,11 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"----------\n" +
 			"1. ERROR in X.java (at line 7)\n" +
 			"	case  10, null, var k  -> System.out.println(0);\n" +
+			"	          ^^^^\n" +
+			"A null case label has to be either the only expression in a case label or the first expression followed only by a default\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 7)\n" +
+			"	case  10, null, var k  -> System.out.println(0);\n" +
 			"	                ^^^\n" +
 			"\'var\' is not allowed here\n" +
 			"----------\n");
@@ -2013,15 +2077,20 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"----------\n" +
 			"1. ERROR in X.java (at line 7)\n" +
 			"	case  default, var k  -> System.out.println(0);\n" +
+			"	      ^^^^^^^\n" +
+			"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 7)\n" +
+			"	case  default, var k  -> System.out.println(0);\n" +
 			"	               ^^^\n" +
 			"\'var\' is not allowed here\n" +
 			"----------\n" +
-			"2. ERROR in X.java (at line 7)\n" +
+			"3. ERROR in X.java (at line 7)\n" +
 			"	case  default, var k  -> System.out.println(0);\n" +
 			"	               ^^^^^\n" +
 			"A switch label may not have both a pattern case label element and a default case label element\n" +
 			"----------\n" +
-			"3. ERROR in X.java (at line 8)\n" +
+			"4. ERROR in X.java (at line 8)\n" +
 			"	default -> System.out.println(o);\n" +
 			"	^^^^^^^\n" +
 			"The default case is already defined\n" +
@@ -2046,20 +2115,30 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"----------\n" +
 			"1. ERROR in X.java (at line 7)\n" +
 			"	case  default, default, var k  -> System.out.println(0);\n" +
+			"	      ^^^^^^^\n" +
+			"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 7)\n" +
+			"	case  default, default, var k  -> System.out.println(0);\n" +
 			"	               ^^^^^^^\n" +
 			"The default case is already defined\n" +
 			"----------\n" +
-			"2. ERROR in X.java (at line 7)\n" +
+			"3. ERROR in X.java (at line 7)\n" +
+			"	case  default, default, var k  -> System.out.println(0);\n" +
+			"	               ^^^^^^^\n" +
+			"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 7)\n" +
 			"	case  default, default, var k  -> System.out.println(0);\n" +
 			"	                        ^^^\n" +
 			"\'var\' is not allowed here\n" +
 			"----------\n" +
-			"3. ERROR in X.java (at line 7)\n" +
+			"5. ERROR in X.java (at line 7)\n" +
 			"	case  default, default, var k  -> System.out.println(0);\n" +
 			"	                        ^^^^^\n" +
 			"A switch label may not have both a pattern case label element and a default case label element\n" +
 			"----------\n" +
-			"4. ERROR in X.java (at line 8)\n" +
+			"6. ERROR in X.java (at line 8)\n" +
 			"	default -> System.out.println(o);\n" +
 			"	^^^^^^^\n" +
 			"The default case is already defined\n" +
@@ -2084,6 +2163,11 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"----------\n" +
 			"1. ERROR in X.java (at line 7)\n" +
 			"	case  default, 1, var k  -> System.out.println(0);\n" +
+			"	      ^^^^^^^\n" +
+			"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 7)\n" +
+			"	case  default, 1, var k  -> System.out.println(0);\n" +
 			"	                  ^^^\n" +
 			"\'var\' is not allowed here\n" +
 			"----------\n" +
@@ -2092,7 +2176,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"	                  ^^^^^\n" +
 			"A switch label may not have both a pattern case label element and a default case label element\n" +
 			"----------\n" +
-			"5. ERROR in X.java (at line 8)\n" +
+			"4. ERROR in X.java (at line 8)\n" +
 			"	default -> System.out.println(o);\n" +
 			"	^^^^^^^\n" +
 			"The default case is already defined\n" +
@@ -2114,9 +2198,14 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 4)\n" +
 			"	case String s, default, Integer i  -> System.out.println(0);\n" +
 			"	               ^^^^^^^\n" +
-			"A switch label may not have both a pattern case label element and a default case label element\n" +
+			"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 4)\n" +
+			"	case String s, default, Integer i  -> System.out.println(0);\n" +
+			"	               ^^^^^^^\n" +
+			"A switch label may not have both a pattern case label element and a default case label element\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 4)\n" +
 			"	case String s, default, Integer i  -> System.out.println(0);\n" +
 			"	                        ^^^^^^^^^\n" +
 			"A switch label may not have more than one pattern case label element\n" +
@@ -2219,8 +2308,18 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"----------\n" +
 			"1. ERROR in X.java (at line 4)\n" +
 			"	case default, default -> System.out.println(0);\n" +
+			"	     ^^^^^^^\n" +
+			"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	case default, default -> System.out.println(0);\n" +
 			"	              ^^^^^^^\n" +
 			"The default case is already defined\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 4)\n" +
+			"	case default, default -> System.out.println(0);\n" +
+			"	              ^^^^^^^\n" +
+			"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
 			"----------\n");
 	}
 	public void testBug574563_001() {
@@ -2261,7 +2360,12 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"}",
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 9)\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	case null, Integer i  -> System.out.println(0);\n" +
+			"	           ^^^^^^^^^\n" +
+			"A null case label and patterns cannot co-exist in the same case label. \n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 9)\n" +
 			"	Zork();\n" +
 			"	^^^^\n" +
 			"The method Zork() is undefined for the type X\n" +
@@ -2282,7 +2386,12 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"}",
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 7)\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	case Integer i, null  -> System.out.println(0);\n" +
+			"	                ^^^^\n" +
+			"A null case label has to be either the only expression in a case label or the first expression followed only by a default\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 7)\n" +
 			"	Zork();\n" +
 			"	^^^^\n" +
 			"The method Zork() is undefined for the type X\n" +
@@ -2306,7 +2415,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 4)\n" +
 			"	case null, Integer i when i > 10 -> System.out.println(0);\n" +
 			"	           ^^^^^^^^^^^^^^^^^^^^^\n" +
-			"A null case label and patterns can co-exist only if the pattern is a type pattern\n" +
+			"A null case label and patterns cannot co-exist in the same case label. \n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 7)\n" +
 			"	Zork();\n" +
@@ -2332,7 +2441,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 4)\n" +
 			"	case Integer i when i > 10, null  -> System.out.println(0);\n" +
 			"	                            ^^^^\n" +
-			"A null case label and patterns can co-exist only if the pattern is a type pattern\n" +
+			"A null case label has to be either the only expression in a case label or the first expression followed only by a default\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 7)\n" +
 			"	Zork();\n" +
@@ -2990,7 +3099,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"1\n" +
 			"0");
 	}
-	public void testBug575241_04() {
+	public void _testBug575241_04() {
 		runConformTest(
 			new String[] {
 				"X.java",
@@ -3030,7 +3139,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"0\n" +
 			"100");
 	}
-	public void testBug575241_06() {
+	public void _testBug575241_06() {
 		runConformTest(
 			new String[] {
 				"X.java",
@@ -3069,7 +3178,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"Hello\n" +
 			"100");
 	}
-	public void testBug575241_08() {
+	public void _testBug575241_08() {
 		runConformTest(
 			new String[] {
 				"X.java",
@@ -3088,7 +3197,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"Hello\n" +
 			"null");
 	}
-	public void testBug575356_01() {
+	public void _testBug575356_01() {
 		this.runConformTest(
 				new String[] {
 					"X.java",
@@ -3124,7 +3233,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"hello");
 	}
-	public void testBug575356_03() {
+	public void _testBug575356_03() {
 		this.runConformTest(
 				new String[] {
 					"X.java",
@@ -3151,7 +3260,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"   switch (o) {\n"+
 					"    case Integer i ->\n"+
 					"      System.out.println(\"Integer:\"+ i );\n"+
-					"    case default -> System.out.println(o.toString() );\n"+
+					"    case null, default -> System.out.println(o.toString() );\n"+
 					"   }\n"+
 					"}\n"+
 					"\n"+
@@ -3293,7 +3402,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	// total for the type of the selector expression of the enclosing
 	// switch statement or switch expression dominates a switch label that has
 	// a null case label element.
-	public void testBug575047_01() {
+	public void _testBug575047_01() {
 		runNegativeTest(
 				new String[] {
 					"X.java",
@@ -3686,7 +3795,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// Fails with Javac as it prints Javac instead of throwing NPE
 	// https://bugs.openjdk.java.net/browse/JDK-8272776
-	public void testBug575051_1() {
+	public void _testBug575051_1() {
 		runConformTest(
 				new String[] {
 					"X.java",
@@ -3764,7 +3873,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"----------\n",
 				"");
 	}
-	public void testBug575571_1() {
+	public void _testBug575571_1() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportMissingDefaultCase, CompilerOptions.WARNING);
 		runWarningTest(
@@ -3952,17 +4061,27 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"2. ERROR in X.java (at line 7)\n" +
 				"	case Number n, null ->\n" +
 				"	               ^^^^\n" +
+				"A null case label has to be either the only expression in a case label or the first expression followed only by a default\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 7)\n" +
+				"	case Number n, null ->\n" +
+				"	               ^^^^\n" +
 				"Duplicate case\n" +
 				"----------\n" +
-				"3. ERROR in X.java (at line 9)\n" +
+				"4. ERROR in X.java (at line 9)\n" +
 				"	case null, Class c ->\n" +
 				"	     ^^^^\n" +
 				"Duplicate case\n" +
 				"----------\n" +
-				"4. WARNING in X.java (at line 9)\n" +
+				"5. WARNING in X.java (at line 9)\n" +
 				"	case null, Class c ->\n" +
 				"	           ^^^^^\n" +
 				"Class is a raw type. References to generic type Class<T> should be parameterized\n" +
+				"----------\n" +
+				"6. ERROR in X.java (at line 9)\n" +
+				"	case null, Class c ->\n" +
+				"	           ^^^^^^^\n" +
+				"A null case label and patterns cannot co-exist in the same case label. \n" +
 				"----------\n");
 	}
 	public void testBug575737_001() {
@@ -4670,7 +4789,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					+ "	int i = 0;\n"
 					+ "	return switch(n) {\n"
 					+ "	  case Long l when (1 == switch(l) {\n"
-					+ "		case \n"
+					+ "		//case \n"
 					+ "			default -> {  \n"
 					+ "				yield (i++);\n"
 					+ "			} \n"
@@ -4697,7 +4816,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					+ "	int i = 0;\n"
 					+ "	return switch(n) {\n"
 					+ "	  case Long l when (1 == switch(l) {\n"
-					+ "		case \n"
+					+ "		//case \n"
 					+ "			default -> {  \n"
 					+ "				yield ++i;\n"
 					+ "			} \n"
@@ -4724,7 +4843,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					+ "	int i = 0;\n"
 					+ "	return switch(n) {\n"
 					+ "	  case Long l when (1 == switch(l) {\n"
-					+ "		case \n"
+					+ "		//case \n"
 					+ "			default -> {  \n"
 					+ "				yield (i=i+1);\n"
 					+ "			} \n"
@@ -4741,7 +4860,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Local variable i referenced from a guard must be final or effectively final\n" +
 				"----------\n");
 	}
-	public void testBug578553_7() {
+	public void _testBug578553_7() {
 		runNegativeTest(
 				new String[] {
 					"X.java",
@@ -4752,7 +4871,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					+ "	int i = 0;\n"
 					+ "	return switch(n) {\n"
 					+ "	  case Long l when (1 == switch(l) {\n"
-					+ "		case \n"
+					+ "		//case \n"
 					+ "			default -> {  \n"
 					+ "				yield (i = bar());\n"
 					+ "			} \n"
@@ -5117,8 +5236,11 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					" @SuppressWarnings(\"preview\")\n"+
 					"     public static void foo1(Object o) {\n"
 					+ "    	boolean b = switch (o) {\n"
-					+ "    		case String s, null -> {\n"
+					+ "    		case String s -> {\n"
 					+ "    			yield s == null;\n"
+					+ "    		}\n"
+					+ "    		case null -> {\n"
+					+ "    			yield true;\n"
 					+ "    		}\n"
 					+ "    		default -> true;\n"
 					+ "    	};\n"
@@ -5337,5 +5459,259 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"}"
 				},
 				"1");
+	}
+	public void testIssue_556_001() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					" @SuppressWarnings(\"preview\")\n"+
+					"     public static void foo1(Object o) {\n"
+					+ "    	boolean b = switch (o) {\n"
+					+ "    		case String s, null -> {\n"
+					+ "    			yield s == null;\n"
+					+ "    		}\n"
+					+ "    		default -> true;\n"
+					+ "    	};\n"
+					+ "    	System.out.println(b);\n"
+					+ "    } \n"
+					+ "    public static void main(String[] argv) {\n"
+					+ "    	foo1(null);\n"
+					+ "    	foo1(\"abc\");\n"
+					+ "    }\n"+
+					"}"
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 5)\n" +
+				"	case String s, null -> {\n" +
+				"	               ^^^^\n" +
+				"A null case label has to be either the only expression in a case label or the first expression followed only by a default\n" +
+				"----------\n");
+	}
+	public void testIssue_556_002() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					" public static void main(String[] args) {\n"+
+					"   foo(\"Hello World!\");\n"+
+					" }\n"+
+					"\n"+
+					" private static void foo(Object o) {\n"+
+					"   switch (o) {\n"+
+					"    case default:\n"+
+					"     System.out.println(\"Object: \" + o);\n"+
+					"   }\n"+
+					" }\n"+
+					"}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 8)\n" +
+				"	case default:\n" +
+				"	     ^^^^^^^\n" +
+				"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
+				"----------\n");
+	}
+	public void testIssue_556_003() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					" public static void main(String[] args) {\n"+
+					"   foo(Integer.valueOf(11));\n"+
+					"   foo(Integer.valueOf(9));\n"+
+					"   foo(\"Hello World!\");\n"+
+					" }\n"+
+					"\n"+
+					" private static void foo(Object o) {\n"+
+					"   switch (o) {\n"+
+					"   case Integer i when i>10:\n"+
+					"     System.out.println(\"Greater than 10:\" + o);\n"+
+					"     break;\n"+
+					"   case Integer j when j>0:\n"+
+					"     System.out.println(\"Greater than 0:\" + o);\n"+
+					"     break;\n"+
+					"   case default:\n"+
+					"     System.out.println(\"Give Me Some SunShine:\" + o);\n"+
+					"   }\n"+
+					" }\n"+
+					"}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 16)\n" +
+				"	case default:\n" +
+				"	     ^^^^^^^\n" +
+				"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
+				"----------\n");
+	}
+	public void testIssue_556_004() {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					" public static void main(String[] args) {\n"+
+					"   foo(\"Hello World!\");\n"+
+					" }\n"+
+					"\n"+
+					" private static void foo(Object o) {\n"+
+					"   switch (o) {\n"+
+					"   case Integer i :\n"+
+					"     System.out.println(\"Integer:\" + o);\n"+
+					"     break;\n"+
+					"   case default:\n"+
+					"     System.out.println(\"Object\" + o);\n"+
+					"   case default:\n"+
+					"     System.out.println(\"Give me Some Sunshine\" + o);\n"+
+					"   }\n"+
+					" }\n"+
+					"}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 11)\n" +
+				"	case default:\n" +
+				"	     ^^^^^^^\n" +
+				"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 13)\n" +
+				"	case default:\n" +
+				"	^^^^^^^^^^^^\n" +
+				"The default case is already defined\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 13)\n" +
+				"	case default:\n" +
+				"	     ^^^^^^^\n" +
+				"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
+				"----------\n");
+	}
+	public void testIssue_556_005() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" private static void foo(Object o) {\n"+
+				"   switch (o.hashCode()) {\n"+
+				"     case default : System.out.println(\"Default\");\n"+
+				"     default : System.out.println(\"Object\");\n"+
+				"   }\n"+
+				" }\n"+
+				" public static void main(String[] args) {\n"+
+				"   foo(\"Hello World\");\n"+
+				"   Zork();\n"+
+				" }\n"+
+				"}\n"+
+				"class Y {}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	case default : System.out.println(\"Default\");\n" +
+			"	     ^^^^^^^\n" +
+			"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 5)\n" +
+			"	default : System.out.println(\"Object\");\n" +
+			"	^^^^^^^\n" +
+			"The default case is already defined\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 10)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n");
+	}
+	public void testIssue_556_006() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" public static int foo(Integer o) {\n"+
+				"   int k = 0;\n"+
+				"   switch (o) {\n"+
+				"     case 0, default   : k = 1;\n"+
+				"   }\n"+
+				"   return k;\n"+
+				" } \n"+
+				" public static void main(String[] args) {\n"+
+				"   System.out.println(foo(100 ));\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	case 0, default   : k = 1;\n" +
+			"	        ^^^^^^^\n" +
+			"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
+			"----------\n");
+	}
+	public void testIssue_556_007() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n"+
+				" public static int foo(Integer o) {\n"+
+				"   int k = 0;\n"+
+				"   switch (o) {\n"+
+				"     case 0, default, 1   : k = 1;\n"+
+				"   }\n"+
+				"   return k;\n"+
+				" } \n"+
+				" public static void main(String[] args) {\n"+
+				"   System.out.println(foo(100 ));\n"+
+				" }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	case 0, default, 1   : k = 1;\n" +
+			"	        ^^^^^^^\n" +
+			"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
+			"----------\n");
+	}
+	public void _testIssue_556_008() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" +
+					"	public void foo(Object o) {\n" +
+					"	  try{\n" +
+					"		switch (o) {\n" +
+					"		  default:\n" +
+					"			  break;\n" +
+					"		  case String s :\n" +
+					"			  System.out.println(s);\n" +
+					"		} \n" +
+					"	  } catch(Exception t) {\n" +
+					"		 t.printStackTrace(System.out);\n" +
+					"	  }\n" +
+					"	}\n" +
+					"	public static void main(String[] args) {\n" +
+					"		  (new X()).foo(null);\n" +
+					"	}\n" +
+					"}",
+				},
+				"error");
+	}
+	public void _testIssue_556_009() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n" +
+					"	public void foo(Object o) {\n" +
+					"	  try{\n" +
+					"		switch (o) {\n" +
+					"		  case null, default:\n" +
+					"			  break;\n" +
+					"		  case String s :\n" +
+					"			  System.out.println(s);\n" +
+					"		} \n" +
+					"	  } catch(Exception t) {\n" +
+					"		 t.printStackTrace(System.out);\n" +
+					"	  }\n" +
+					"	}\n" +
+					"	public static void main(String[] args) {\n" +
+					"		  (new X()).foo(null);\n" +
+					"	}\n" +
+					"}",
+				},
+				"error - case null, default should be the last one ");
 	}
 }

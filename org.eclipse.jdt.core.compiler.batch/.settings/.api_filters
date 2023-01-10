@@ -24,6 +24,14 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="src/org/eclipse/jdt/core/compiler/IProblem.java" type="org.eclipse.jdt.core.compiler.IProblem">
+        <filter comment="Java 20 change" id="405864542">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="CannotMixNullAndNonTypePattern"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="src/org/eclipse/jdt/core/compiler/batch/BatchCompiler.java" type="org.eclipse.jdt.core.compiler.batch.BatchCompiler">
         <filter id="1108344834">
             <message_arguments>
