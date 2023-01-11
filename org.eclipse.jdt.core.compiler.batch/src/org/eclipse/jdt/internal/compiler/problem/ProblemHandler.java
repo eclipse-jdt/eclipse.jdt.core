@@ -138,6 +138,7 @@ public void handle(
 			 } else {
 				 return; // ignore non reportable warning
 			 }
+
 		 }
 		 if (mandatory)
 			 referenceContext.tagAsHavingIgnoredMandatoryErrors(problemId);
