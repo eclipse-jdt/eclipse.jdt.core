@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -240,18 +244,22 @@ private Expression getFirstValidExpression(BlockScope scope, SwitchStatement swi
 	assert this.constantExpressions != null;
 	Expression ret = null;
 	int patternCaseLabelCount = 0;
-	int typePatternCount = 0;
 	int defaultCaseLabelCount = 0;
 	int nullCaseLabelCount = 0;
 
 	boolean patternSwitchAllowed = JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(scope.compilerOptions());
 	if (patternSwitchAllowed) {
+		int exprCount = 0;
 		for (Expression e : this.constantExpressions) {
+			++exprCount;
 			 if (e instanceof FakeDefaultLiteral) {
 				 scope.problemReporter().validateJavaFeatureSupport(JavaFeature.PATTERN_MATCHING_IN_SWITCH,
 							e.sourceStart, e.sourceEnd);
 				 flagDuplicateDefault(scope, switchStatement,
 						 this.constantExpressions.length > 1 ? e : this);
+				 if (exprCount != 2 || nullCaseLabelCount < 1) {
+					 scope.problemReporter().patternSwitchCaseDefaultOnlyAsSecond(e);
+				 }
 				 if (patternCaseLabelCount > 0) {
 					 scope.problemReporter().switchPatternBothPatternAndDefaultCaseLabelsNotAllowed(e);
 				 }
@@ -268,10 +276,8 @@ private Expression getFirstValidExpression(BlockScope scope, SwitchStatement swi
 					scope.problemReporter().switchPatternBothPatternAndDefaultCaseLabelsNotAllowed(e);
 					return e; // Return and avoid secondary errors
 				}
-				if (e instanceof TypePattern) {
-					++typePatternCount;
-				} else if (nullCaseLabelCount > 0 ) {
-					scope.problemReporter().switchPatternBothNullAndNonTypePatternNotAllowed(e);
+				if (nullCaseLabelCount > 0 ) {
+					scope.problemReporter().cannotMixNullAndNonTypePattern(e);
 					return e; // Return and avoid secondary errors
 				}
 			} else if (e instanceof NullLiteral) {
@@ -289,8 +295,10 @@ private Expression getFirstValidExpression(BlockScope scope, SwitchStatement swi
 					// TODO: Decide whether we need to have a more fine-grain element level error flagging for null specifically
 //					continue;
 				}
-				if ((patternCaseLabelCount - typePatternCount) > 0) {
-					scope.problemReporter().switchPatternBothNullAndNonTypePatternNotAllowed(e);
+				// note: case null or case null, default are the only constructs allowed with null
+				//  second condition added since duplicate case label will anyway be flagged
+				if (exprCount > 1 && nullCaseLabelCount < 2) {
+					scope.problemReporter().patternSwitchNullOnlyOrFirstWithDefault(e);
 					return e; // Return and avoid secondary errors
 				}
 			}
