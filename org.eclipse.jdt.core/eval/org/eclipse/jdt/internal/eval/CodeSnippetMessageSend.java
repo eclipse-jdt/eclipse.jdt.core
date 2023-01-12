@@ -30,7 +30,6 @@ import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.ast.NameReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
-import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
@@ -44,6 +43,8 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
+
+import com.sun.tools.javac.jvm.ByteCodes;
 
 public class CodeSnippetMessageSend extends MessageSend {
 	EvaluationContext evaluationContext;
@@ -91,14 +92,14 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 		// actual message invocation
 		TypeBinding constantPoolDeclaringClass = CodeStream.getConstantPoolDeclaringClass(currentScope, codegenBinding, this.actualReceiverType, this.receiver.isImplicitThis());
 		if (isStatic) {
-			codeStream.invoke(Opcodes.OPC_invokestatic, codegenBinding, constantPoolDeclaringClass, this.typeArguments);
+			codeStream.invoke(ByteCodes.invokestatic, codegenBinding, constantPoolDeclaringClass, this.typeArguments);
 		} else if( (this.receiver.isSuper()) || codegenBinding.isPrivate()){
-			codeStream.invoke(Opcodes.OPC_invokespecial, codegenBinding, constantPoolDeclaringClass, this.typeArguments);
+			codeStream.invoke(ByteCodes.invokespecial, codegenBinding, constantPoolDeclaringClass, this.typeArguments);
 		} else {
 			if (constantPoolDeclaringClass.isInterface()) { // interface or annotation type
-				codeStream.invoke(Opcodes.OPC_invokeinterface, codegenBinding, constantPoolDeclaringClass, this.typeArguments);
+				codeStream.invoke(ByteCodes.invokeinterface, codegenBinding, constantPoolDeclaringClass, this.typeArguments);
 			} else {
-				codeStream.invoke(Opcodes.OPC_invokevirtual, codegenBinding, constantPoolDeclaringClass, this.typeArguments);
+				codeStream.invoke(ByteCodes.invokevirtual, codegenBinding, constantPoolDeclaringClass, this.typeArguments);
 			}
 		}
 	} else {

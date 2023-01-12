@@ -69,6 +69,8 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
+import com.sun.tools.javac.jvm.ByteCodes;
+
 public class AllocationExpression extends Expression implements IPolyExpression, Invocation {
 
 	public TypeReference type;
@@ -219,7 +221,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	}
 	// invoke constructor
 	if (this.syntheticAccessor == null) {
-		codeStream.invoke(Opcodes.OPC_invokespecial, codegenBinding, null /* default declaringClass */, this.typeArguments);
+		codeStream.invoke(ByteCodes.invokespecial, codegenBinding, null /* default declaringClass */, this.typeArguments);
 	} else {
 		// synthetic accessor got some extra arguments appended to its signature, which need values
 		for (int i = 0,
@@ -228,7 +230,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 			i++) {
 			codeStream.aconst_null();
 		}
-		codeStream.invoke(Opcodes.OPC_invokespecial, this.syntheticAccessor, null /* default declaringClass */, this.typeArguments);
+		codeStream.invoke(ByteCodes.invokespecial, this.syntheticAccessor, null /* default declaringClass */, this.typeArguments);
 	}
 	if (valueRequired) {
 		codeStream.generateImplicitConversion(this.implicitConversion);

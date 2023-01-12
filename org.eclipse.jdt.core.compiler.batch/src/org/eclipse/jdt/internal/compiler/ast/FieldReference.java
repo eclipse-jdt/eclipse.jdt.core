@@ -28,7 +28,6 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
-import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
@@ -51,6 +50,8 @@ import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
+
+import com.sun.tools.javac.jvm.ByteCodes;
 
 public class FieldReference extends Reference implements InvocationSite {
 
@@ -287,12 +288,12 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 			if (this.syntheticAccessors == null || this.syntheticAccessors[FieldReference.READ] == null) {
 				TypeBinding constantPoolDeclaringClass = CodeStream.getConstantPoolDeclaringClass(currentScope, codegenBinding, this.actualReceiverType, this.receiver.isImplicitThis());
 				if (isStatic) {
-					codeStream.fieldAccess(Opcodes.OPC_getstatic, codegenBinding, constantPoolDeclaringClass);
+					codeStream.fieldAccess(ByteCodes.getstatic, codegenBinding, constantPoolDeclaringClass);
 				} else {
-					codeStream.fieldAccess(Opcodes.OPC_getfield, codegenBinding, constantPoolDeclaringClass);
+					codeStream.fieldAccess(ByteCodes.getfield, codegenBinding, constantPoolDeclaringClass);
 				}
 			} else {
-				codeStream.invoke(Opcodes.OPC_invokestatic, this.syntheticAccessors[FieldReference.READ], null /* default declaringClass */);
+				codeStream.invoke(ByteCodes.invokestatic, this.syntheticAccessors[FieldReference.READ], null /* default declaringClass */);
 			}
 			// required cast must occur even if no value is required
 			if (this.genericCast != null) codeStream.checkcast(this.genericCast);
@@ -320,9 +321,9 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 					MethodBinding accessor = this.syntheticAccessors == null ? null : this.syntheticAccessors[FieldReference.READ];
 					if (accessor == null) {
 						TypeBinding constantPoolDeclaringClass = CodeStream.getConstantPoolDeclaringClass(currentScope, codegenBinding, this.actualReceiverType, this.receiver.isImplicitThis());
-						codeStream.fieldAccess(Opcodes.OPC_getstatic, codegenBinding, constantPoolDeclaringClass);
+						codeStream.fieldAccess(ByteCodes.getstatic, codegenBinding, constantPoolDeclaringClass);
 					} else {
-						codeStream.invoke(Opcodes.OPC_invokestatic, accessor, null /* default declaringClass */);
+						codeStream.invoke(ByteCodes.invokestatic, accessor, null /* default declaringClass */);
 					}
 					switch (codegenBinding.type.id) {
 						case T_long :
@@ -355,17 +356,17 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 	if (isStatic) {
 		if (this.syntheticAccessors == null || this.syntheticAccessors[FieldReference.READ] == null) {
 			TypeBinding constantPoolDeclaringClass = CodeStream.getConstantPoolDeclaringClass(currentScope, codegenBinding, this.actualReceiverType, this.receiver.isImplicitThis());
-			codeStream.fieldAccess(Opcodes.OPC_getstatic, codegenBinding, constantPoolDeclaringClass);
+			codeStream.fieldAccess(ByteCodes.getstatic, codegenBinding, constantPoolDeclaringClass);
 		} else {
-			codeStream.invoke(Opcodes.OPC_invokestatic, this.syntheticAccessors[FieldReference.READ], null /* default declaringClass */);
+			codeStream.invoke(ByteCodes.invokestatic, this.syntheticAccessors[FieldReference.READ], null /* default declaringClass */);
 		}
 	} else {
 		codeStream.dup();
 		if (this.syntheticAccessors == null || this.syntheticAccessors[FieldReference.READ] == null) {
 			TypeBinding constantPoolDeclaringClass = CodeStream.getConstantPoolDeclaringClass(currentScope, codegenBinding, this.actualReceiverType, this.receiver.isImplicitThis());
-			codeStream.fieldAccess(Opcodes.OPC_getfield, codegenBinding, constantPoolDeclaringClass);
+			codeStream.fieldAccess(ByteCodes.getfield, codegenBinding, constantPoolDeclaringClass);
 		} else {
-			codeStream.invoke(Opcodes.OPC_invokestatic, this.syntheticAccessors[FieldReference.READ], null /* default declaringClass */);
+			codeStream.invoke(ByteCodes.invokestatic, this.syntheticAccessors[FieldReference.READ], null /* default declaringClass */);
 		}
 	}
 	int operationTypeID;
@@ -405,17 +406,17 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 	if (isStatic) {
 		if (this.syntheticAccessors == null || this.syntheticAccessors[FieldReference.READ] == null) {
 			TypeBinding constantPoolDeclaringClass = CodeStream.getConstantPoolDeclaringClass(currentScope, codegenBinding, this.actualReceiverType, this.receiver.isImplicitThis());
-			codeStream.fieldAccess(Opcodes.OPC_getstatic, codegenBinding, constantPoolDeclaringClass);
+			codeStream.fieldAccess(ByteCodes.getstatic, codegenBinding, constantPoolDeclaringClass);
 		} else {
-			codeStream.invoke(Opcodes.OPC_invokestatic, this.syntheticAccessors[FieldReference.READ], null /* default declaringClass */);
+			codeStream.invoke(ByteCodes.invokestatic, this.syntheticAccessors[FieldReference.READ], null /* default declaringClass */);
 		}
 	} else {
 		codeStream.dup();
 		if (this.syntheticAccessors == null || this.syntheticAccessors[FieldReference.READ] == null) {
 			TypeBinding constantPoolDeclaringClass = CodeStream.getConstantPoolDeclaringClass(currentScope, codegenBinding, this.actualReceiverType, this.receiver.isImplicitThis());
-			codeStream.fieldAccess(Opcodes.OPC_getfield, codegenBinding, constantPoolDeclaringClass);
+			codeStream.fieldAccess(ByteCodes.getfield, codegenBinding, constantPoolDeclaringClass);
 		} else {
-			codeStream.invoke(Opcodes.OPC_invokestatic, this.syntheticAccessors[FieldReference.READ], null /* default declaringClass */);
+			codeStream.invoke(ByteCodes.invokestatic, this.syntheticAccessors[FieldReference.READ], null /* default declaringClass */);
 		}
 	}
 	TypeBinding operandType;

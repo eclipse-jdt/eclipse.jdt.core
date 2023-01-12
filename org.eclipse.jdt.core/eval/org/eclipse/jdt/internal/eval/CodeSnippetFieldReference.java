@@ -22,7 +22,6 @@ import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.FieldReference;
 import org.eclipse.jdt.internal.compiler.ast.IntLiteral;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
-import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -31,6 +30,8 @@ import org.eclipse.jdt.internal.compiler.lookup.ProblemFieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
+
+import com.sun.tools.javac.jvm.ByteCodes;
 
 public class CodeSnippetFieldReference extends FieldReference implements ProblemReasons, EvaluationConstants {
 
@@ -103,9 +104,9 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 					if (codegenBinding.canBeSeenBy(this.actualReceiverType, this, currentScope)) {
 						TypeBinding constantPoolDeclaringClass = CodeStream.getConstantPoolDeclaringClass(currentScope, codegenBinding, this.actualReceiverType, this.receiver.isImplicitThis());
 						if (isStatic) {
-							codeStream.fieldAccess(Opcodes.OPC_getstatic , codegenBinding, constantPoolDeclaringClass);
+							codeStream.fieldAccess(ByteCodes.getstatic , codegenBinding, constantPoolDeclaringClass);
 						} else {
-							codeStream.fieldAccess(Opcodes.OPC_getfield, codegenBinding, constantPoolDeclaringClass);
+							codeStream.fieldAccess(ByteCodes.getfield, codegenBinding, constantPoolDeclaringClass);
 						}
 					} else {
 						if (isStatic) {
@@ -141,10 +142,10 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 		this.receiver.generateCode(currentScope, codeStream, !(isStatic = codegenBinding.isStatic()));
 		TypeBinding constantPoolDeclaringClass = CodeStream.getConstantPoolDeclaringClass(currentScope, codegenBinding, this.actualReceiverType, this.receiver.isImplicitThis());
 		if (isStatic) {
-			codeStream.fieldAccess(Opcodes.OPC_getstatic, codegenBinding, constantPoolDeclaringClass);
+			codeStream.fieldAccess(ByteCodes.getstatic, codegenBinding, constantPoolDeclaringClass);
 		} else {
 			codeStream.dup();
-			codeStream.fieldAccess(Opcodes.OPC_getfield, codegenBinding, constantPoolDeclaringClass);
+			codeStream.fieldAccess(ByteCodes.getfield, codegenBinding, constantPoolDeclaringClass);
 		}
 		int operationTypeID;
 		switch(operationTypeID = (this.implicitConversion & IMPLICIT_CONVERSION_MASK) >> 4) {

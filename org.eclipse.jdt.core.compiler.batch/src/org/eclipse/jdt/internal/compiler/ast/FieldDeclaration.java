@@ -39,6 +39,8 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
+import com.sun.tools.javac.jvm.ByteCodes;
+
 public class FieldDeclaration extends AbstractVariableDeclaration {
 
 	public FieldBinding binding;
@@ -135,9 +137,9 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		this.initialization.generateCode(currentScope, codeStream, true);
 		// store into field
 		if (isStatic) {
-			codeStream.fieldAccess(Opcodes.OPC_putstatic, this.binding, null /* default declaringClass */);
+			codeStream.fieldAccess(ByteCodes.putstatic, this.binding, null /* default declaringClass */);
 		} else {
-			codeStream.fieldAccess(Opcodes.OPC_putfield, this.binding, null /* default declaringClass */);
+			codeStream.fieldAccess(ByteCodes.putfield, this.binding, null /* default declaringClass */);
 		}
 	}
 	// The fields escape CodeStream#exitUserScope(), and as a result end PC wouldn't be set.
