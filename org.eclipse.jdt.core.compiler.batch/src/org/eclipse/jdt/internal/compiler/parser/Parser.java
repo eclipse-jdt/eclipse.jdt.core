@@ -1094,7 +1094,7 @@ public RecoveredElement buildInitialRecoveryState(){
 		return element;
 	} else if (this.referenceContext instanceof AbstractMethodDeclaration methodDeclaration){
 		element = new RecoveredMethod(methodDeclaration, null, 0, this);
-		this.lastCheckPoint = ((AbstractMethodDeclaration) this.referenceContext).bodyStart;
+		this.lastCheckPoint = methodDeclaration.bodyStart;
 		if(this.statementRecoveryActivated) {
 			element = element.add(new Block(0), 0);
 		}
@@ -2173,7 +2173,7 @@ protected void consumeBinaryExpressionWithName(int op) {
 							string1.extendWith(char2);
 					} else if (expr2 instanceof StringLiteral string2) { //string+string
 						this.expressionStack[this.expressionPtr] =
-							string2.extendWith(string2);
+							string1.extendWith(string2);
 					} else {
 						this.expressionStack[this.expressionPtr] = new BinaryExpression(expr1, expr2, PLUS);
 					}

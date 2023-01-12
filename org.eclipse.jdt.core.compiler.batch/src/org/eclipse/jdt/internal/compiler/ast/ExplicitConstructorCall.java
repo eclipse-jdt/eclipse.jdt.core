@@ -38,7 +38,6 @@ import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.INVOCATION
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
-import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
@@ -60,6 +59,8 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
+
+import com.sun.tools.javac.jvm.ByteCodes;
 
 public class ExplicitConstructorCall extends Statement implements Invocation {
 
@@ -190,9 +191,9 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 					i++) {
 					codeStream.aconst_null();
 				}
-				codeStream.invoke(Opcodes.OPC_invokespecial, this.syntheticAccessor, null /* default declaringClass */, this.typeArguments);
+				codeStream.invoke(ByteCodes.invokespecial, this.syntheticAccessor, null /* default declaringClass */, this.typeArguments);
 			} else {
-				codeStream.invoke(Opcodes.OPC_invokespecial, codegenBinding, null /* default declaringClass */, this.typeArguments);
+				codeStream.invoke(ByteCodes.invokespecial, codegenBinding, null /* default declaringClass */, this.typeArguments);
 			}
 			codeStream.recordPositionsFrom(pc, this.sourceStart);
 		} finally {

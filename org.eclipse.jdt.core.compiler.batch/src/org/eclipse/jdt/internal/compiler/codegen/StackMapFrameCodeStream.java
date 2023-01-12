@@ -33,6 +33,8 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
 
+import com.sun.tools.javac.jvm.ByteCodes;
+
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class StackMapFrameCodeStream extends CodeStream {
 	public static class ExceptionMarker implements Comparable {
@@ -204,7 +206,7 @@ public class StackMapFrameCodeStream extends CodeStream {
 			// use in CLDC mode
 			BranchLabel endLabel = new BranchLabel(this);
 			if (syntheticFieldBinding != null) { // non interface case
-				fieldAccess(Opcodes.OPC_getstatic, syntheticFieldBinding, null /* default declaringClass */);
+				fieldAccess(ByteCodes.getstatic, syntheticFieldBinding, null /* default declaringClass */);
 				dup();
 				ifnonnull(endLabel);
 				pop();
@@ -247,7 +249,7 @@ public class StackMapFrameCodeStream extends CodeStream {
 
 			if (syntheticFieldBinding != null) { // non interface case
 				dup();
-				fieldAccess(Opcodes.OPC_putstatic, syntheticFieldBinding, null /* default declaringClass */);
+				fieldAccess(ByteCodes.putstatic, syntheticFieldBinding, null /* default declaringClass */);
 			}
 			goto_(endLabel);
 			int savedStackDepth = this.stackDepth;
