@@ -1667,6 +1667,9 @@ public class ClassScope extends Scope {
 			typeReference.aboutToResolve(this); // allows us to trap completion & selection nodes
 			unitScope.recordQualifiedReference(typeReference.getTypeName());
 			this.superTypeReference = typeReference;
+			if (this.compilerOptions().isAnnotationBasedNullAnalysisEnabled) {
+				this.hasDefaultNullnessFor(0 /*location*/, typeReference.sourceStart);
+			}
 			ReferenceBinding superType = (ReferenceBinding) typeReference.resolveSuperType(this);
 			return superType;
 		} catch (AbortCompilation e) {
