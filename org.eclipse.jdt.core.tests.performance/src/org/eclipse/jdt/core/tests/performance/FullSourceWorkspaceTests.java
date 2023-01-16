@@ -14,13 +14,17 @@
 
 package org.eclipse.jdt.core.tests.performance;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.text.DateFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -43,12 +47,10 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.core.runtime.preferences.InstanceScope;
@@ -90,6 +92,8 @@ import junit.framework.TestSuite;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public abstract class FullSourceWorkspaceTests extends TestCase {
+
+	private static final String GITHUB_TESTS_BINARIES = "https://github.com/eclipse-jdt/eclipse.jdt.core.binaries/raw/master/org.eclipse.jdt.core.tests.binaries/";
 
 	// Debug variables
 	final static boolean DEBUG = "true".equals(System.getProperty("debug"));
@@ -451,16 +455,18 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	}
 
 	/*
-	 * Returns the OS path to the directory that contains this plugin.
+	 * Fetches file with given name from org.eclipse.jdt.core.tests.binaries bundle from github
 	 */
-	static String getPluginBinariesDirectoryPath() {
-		try {
-			URL platformURL = Platform.getBundle("org.eclipse.jdt.core.tests.binaries").getEntry("/");
-			return new File(FileLocator.toFileURL(platformURL).getFile()).getAbsolutePath();
-		} catch (IOException e) {
-			e.printStackTrace();
+	public static File fetchFromBinariesProject(String nameInProject, long size) throws IOException, MalformedURLException {
+		String tmpRoot = System.getProperty("java.io.tmpdir");
+		File tempFile = new File(tmpRoot, nameInProject);
+		if (!tempFile.isFile() || tempFile.length() != size) {
+			String githubUrl = GITHUB_TESTS_BINARIES + nameInProject;
+			try(BufferedInputStream bin = new BufferedInputStream(new URL(githubUrl).openStream())){
+				Files.copy(bin, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+			}
 		}
-		return null;
+		return tempFile;
 	}
 
 	/**
@@ -669,7 +675,8 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		long start = System.currentTimeMillis();
 		int dirLength = directories.length;
 		if (dirLength < 62) {
-			String fullSourceZipPath = getPluginBinariesDirectoryPath() + File.separator + "full-source-R3_0.zip";
+			File file = fetchFromBinariesProject("full-source-R3_0.zip", 34_494_852);
+			String fullSourceZipPath = file.getAbsolutePath();
 			System.out.println("Unzipping "+fullSourceZipPath);
 			System.out.print("	in "+targetWorkspacePath+"...");
 			Util.unzip(fullSourceZipPath, targetWorkspacePath);
