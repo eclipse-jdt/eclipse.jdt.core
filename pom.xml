@@ -25,6 +25,7 @@
 
   <properties>
     <tycho.scmUrl>scm:git:https://github.com/eclipse-jdt/eclipse.jdt.core.git</tycho.scmUrl>
+    <tycho.version>3.0.1</tycho.version>
   </properties>
 
   <!-- 
