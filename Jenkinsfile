@@ -15,7 +15,6 @@ pipeline {
 	stages {
 		stage('Build') {
 			steps {
-				wrap([$class: 'Xvnc', useXauthority: true]) {
 					sh """#!/bin/bash -x
 					
 					/opt/tools/java/openjdk/jdk-11/latest/bin/java -version
@@ -35,7 +34,6 @@ pipeline {
 					-Djava.io.tmpdir=$WORKSPACE/tmp -Dproject.build.sourceEncoding=UTF-8 \
 					-Dtycho.surefire.argLine="--add-modules ALL-SYSTEM -Dcompliance=1.8,11,17,20 -Djdt.performance.asserts=disabled"
 					"""
-				}
 			}
 			post {
 				always {
