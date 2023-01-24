@@ -3099,7 +3099,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"1\n" +
 			"0");
 	}
-	public void _testBug575241_04() {
+	public void testBug575241_04() {
 		runConformTest(
 			new String[] {
 				"X.java",
@@ -3112,12 +3112,16 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				" }\n"+
 				" public static void main(String[] args) {\n"+
 				"   System.out.println(foo(Integer.valueOf(0)));\n"+
-				"   System.out.println(foo(null));\n"+
+				"   try {\n"+
+				"   foo(null);\n"+
+				"   } catch (NullPointerException e) {\n"+
+				"     System.out.println(\"NPE\");\n"+
+				"   }\n"+
 				" }\n"+
 				"}",
 			},
 			"1\n" +
-			"2");
+			"NPE");
 	}
 	public void testBug575241_05() {
 		runConformTest(
@@ -3132,14 +3136,18 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				" }\n"+
 				" public static void main(String[] args) {\n"+
 				"   foo(Integer.valueOf(0));\n"+
+				"   try {\n"+
 				"   foo(null);\n"+
+				"   } catch (NullPointerException e) {\n"+
+				"     System.out.println(\"NPE\");\n"+
+				"   }\n"+
 				" }\n"+
 				"}",
 			},
 			"0\n" +
 			"100");
 	}
-	public void _testBug575241_06() {
+	public void testBug575241_06() {
 		runConformTest(
 			new String[] {
 				"X.java",
@@ -3151,12 +3159,16 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				" }\n"+
 				" public static void main(String[] args) {\n"+
 				"   foo(Integer.valueOf(0));\n"+
+				"   try {\n"+
 				"   foo(null);\n"+
+				"   } catch (NullPointerException e) {\n"+
+				"     System.out.println(\"NPE\");\n"+
+				"   }\n"+
 				" }\n"+
 				"}",
 			},
 			"0\n" +
-			"null");
+			"NPE");
 	}
 	public void testBug575241_07() {
 		runConformTest(
@@ -3178,7 +3190,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"Hello\n" +
 			"100");
 	}
-	public void _testBug575241_08() {
+	public void testBug575241_08() {
 		runConformTest(
 			new String[] {
 				"X.java",
@@ -3190,12 +3202,16 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				" }\n"+
 				" public static void main(String[] args) {\n"+
 				"   foo(\"Hello\");\n"+
+				"   try {\n"+
 				"   foo(null);\n"+
+				"   } catch (NullPointerException e) {\n"+
+				"     System.out.println(\"NPE\");\n"+
+				"   }\n"+
 				" }\n"+
 				"}",
 			},
 			"Hello\n" +
-			"null");
+			"NPE");
 	}
 	public void _testBug575356_01() {
 		this.runConformTest(
@@ -3398,11 +3414,8 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"A switch expression should have a default case\n" +
 			"----------\n");
 	}
-	// From 14.11.1: A switch label that has a pattern case label element p that is
-	// total for the type of the selector expression of the enclosing
-	// switch statement or switch expression dominates a switch label that has
-	// a null case label element.
-	public void _testBug575047_01() {
+	// From 14.11.1.2 - null to be handled separately - no dominance here
+	public void testBug575047_01() {
 		runNegativeTest(
 				new String[] {
 					"X.java",
@@ -3412,14 +3425,15 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"     case Integer i1 -> 0;\n"+
 					"     case null -> 2;\n"+
 					"   };\n"+
+					"   Zork();\n"+
 					" }\n"+
 					"}",
 				},
 				"----------\n" +
-				"1. ERROR in X.java (at line 5)\n" +
-				"	case null -> 2;\n" +
-				"	     ^^^^\n" +
-				"This case label is dominated by one of the preceding case label\n" +
+				"1. ERROR in X.java (at line 7)\n" +
+				"	Zork();\n" +
+				"	^^^^\n" +
+				"The method Zork() is undefined for the type X\n" +
 				"----------\n");
 	}
 	// A switch label that has a pattern case label element p dominates another
