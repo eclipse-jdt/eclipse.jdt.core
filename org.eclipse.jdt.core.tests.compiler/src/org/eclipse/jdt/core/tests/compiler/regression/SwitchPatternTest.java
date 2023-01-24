@@ -33,7 +33,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug578553"};
+//		TESTS_NAMES = new String[] { "testBug578553_7"};
 	}
 
 	private static String previewLevel = "20";
@@ -4860,8 +4860,10 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Local variable i referenced from a guard must be final or effectively final\n" +
 				"----------\n");
 	}
-	public void _testBug578553_7() {
+	public void testBug578553_7() {
 		runNegativeTest(
+				false /*skipJavac */,
+				JavacTestOptions.JavacHasABug.JavacBug8299416,
 				new String[] {
 					"X.java",
 					"public class X {\n"

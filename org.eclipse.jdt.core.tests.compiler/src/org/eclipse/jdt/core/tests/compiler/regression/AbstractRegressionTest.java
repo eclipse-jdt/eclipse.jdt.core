@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2022 IBM Corporation and others.
+ * Copyright (c) 2000, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -1137,7 +1141,10 @@ protected static class JavacTestOptions {
 			JavacBug8231436 = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8231436 to implement https://bugs.openjdk.java.net/browse/JDK-8231435
 				    new JavacHasABug(MismatchType.JavacErrorsEclipseNone) : null,
 			JavacBug8231436_EclipseWarns = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8231436 to implement https://bugs.openjdk.java.net/browse/JDK-8231435
-				    new JavacHasABug(MismatchType.JavacErrorsEclipseWarnings) : null;
+				    new JavacHasABug(MismatchType.JavacErrorsEclipseWarnings) : null,
+		    JavacBug8299416 = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8299416
+					new JavacBugExtraJavacOptionsPlusMismatch(" --release 20 --enable-preview -Xlint:-preview",
+							MismatchType.EclipseErrorsJavacNone| MismatchType.EclipseErrorsJavacWarnings) : null;
 
 		// bugs that have been fixed but that we've not identified
 		public static JavacHasABug
@@ -1213,6 +1220,17 @@ protected static class JavacTestOptions {
 		String extraJavacOptions;
 		public JavacBug8226510(String extraJavacOptions) {
 			super(MismatchType.EclipseErrorsJavacWarnings);
+			this.extraJavacOptions = extraJavacOptions;
+		}
+		@Override
+		String getCompilerOptions() {
+			return super.getCompilerOptions() + this.extraJavacOptions;
+		}
+	}
+	public static class JavacBugExtraJavacOptionsPlusMismatch extends JavacHasABug {
+		String extraJavacOptions;
+		public JavacBugExtraJavacOptionsPlusMismatch(String extraJavacOptions, int mismatchType) {
+			super(mismatchType);
 			this.extraJavacOptions = extraJavacOptions;
 		}
 		@Override
