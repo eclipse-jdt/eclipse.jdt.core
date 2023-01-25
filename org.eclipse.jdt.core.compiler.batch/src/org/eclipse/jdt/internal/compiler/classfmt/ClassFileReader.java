@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -22,6 +22,7 @@ package org.eclipse.jdt.internal.compiler.classfmt;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.function.Predicate;
 
@@ -88,7 +89,7 @@ public class ClassFileReader extends ClassFileStruct implements IBinaryType {
 	private boolean isRecord;
 	private int recordComponentsCount;
 	private RecordComponentInfo[] recordComponents;
-
+	URI path;
 private static String printTypeModifiers(int modifiers) {
 	java.io.StringWriter out = new java.io.StringWriter();
 	java.io.PrintWriter print = new java.io.PrintWriter(out);
@@ -110,10 +111,13 @@ public static ClassFileReader read(File file) throws ClassFormatException, IOExc
 
 public static ClassFileReader read(File file, boolean fullyInitialize) throws ClassFormatException, IOException {
 	byte classFileBytes[] = Util.getFileByteContent(file);
-	ClassFileReader classFileReader = new ClassFileReader(classFileBytes, file.getAbsolutePath().toCharArray());
+	URI uri = file.toURI();
+	ClassFileReader classFileReader = new ClassFileReader(uri, classFileBytes, file.getAbsolutePath().toCharArray());
 	if (fullyInitialize) {
 		classFileReader.initialize();
 	}
+	if (classFileReader.moduleDeclaration != null)
+		classFileReader.moduleDeclaration.path = uri;
 	return classFileReader;
 }
 
@@ -143,7 +147,7 @@ public static ClassFileReader readFromJrt(
 		String filename)
 
 		throws ClassFormatException, java.io.IOException {
-		return JRTUtil.getClassfile(jrt, filename, module);
+		return JRTUtil.getClassfile(jrt, filename, module == null ? null : new String(module.name()));
 	}
 public static ClassFileReader readFromModule(
 		File jrt,
@@ -158,7 +162,7 @@ public static ClassFileReader read(
 	java.util.zip.ZipFile zip,
 	String filename,
 	boolean fullyInitialize)
-	throws ClassFormatException, java.io.IOException {
+			throws ClassFormatException, java.io.IOException {
 	java.util.zip.ZipEntry ze = zip.getEntry(filename);
 	if (ze == null)
 		return null;
@@ -186,6 +190,14 @@ public static ClassFileReader read(String fileName, boolean fullyInitialize) thr
  */
 public ClassFileReader(byte classFileBytes[], char[] fileName) throws ClassFormatException {
 	this(classFileBytes, fileName, false);
+	if (this.moduleDeclaration != null)
+		this.moduleDeclaration.path = this.path;
+}
+public ClassFileReader(URI path, byte classFileBytes[], char[] fileName) throws ClassFormatException {
+	this(classFileBytes, fileName, false);
+	this.path = path;
+	if (this.moduleDeclaration != null)
+		this.moduleDeclaration.path = this.path;
 }
 
 /**
@@ -451,6 +463,7 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 						}
 					} else if (CharOperation.equals(attributeName, AttributeNamesConstants.ModuleName)) {
 						this.moduleDeclaration = ModuleInfo.createModule(this.reference, this.constantPoolOffsets, readOffset);
+						this.moduleDeclaration.path = this.path;
 						this.moduleName = this.moduleDeclaration.name();
 					}
 					break;
@@ -1460,5 +1473,9 @@ public boolean isRecord() {
 @Override
 public IRecordComponent[] getRecordComponents() {
 	return this.recordComponents;
+}
+@Override
+public URI getURI() {
+	return this.path;
 }
 }
