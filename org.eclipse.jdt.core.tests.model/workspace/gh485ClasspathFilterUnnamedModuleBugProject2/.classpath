@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-11"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.MODULE_PATH"/>
+	<classpathentry including="com/g/f/t/f/" kind="src" path="src"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

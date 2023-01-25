@@ -78,10 +78,13 @@ import org.eclipse.jdt.core.search.TypeNameRequestor;
 import org.eclipse.jdt.core.search.TypeReferenceMatch;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.core.ClassFile;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.LocalVariable;
+import org.eclipse.jdt.internal.core.SearchableEnvironment;
 import org.eclipse.jdt.internal.core.SourceMethod;
 import org.eclipse.jdt.internal.core.TypeParameter;
 import org.eclipse.jdt.internal.core.index.DiskIndex;
@@ -15318,4 +15321,58 @@ public void testBug573486_showReferences_inMethodsAndFields_whenNoSource() throw
 	}
 }
 
+/*
+ * Test that using a classpath filter doesn't result in
+ * not knowing a package is in the unnamed module.
+ * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/485
+ */
+public void testClasspathFilterUnnamedModuleBugGh485() throws Exception {
+	String testProject1Name = "gh485ClasspathFilterUnnamedModuleBugProject1";
+	String testProject2Name = "gh485ClasspathFilterUnnamedModuleBugProject2";
+	try {
+		JavaProject project1 = (JavaProject) setUpJavaProject(testProject1Name, "11", false);
+		String packageFolder1 = "/" + testProject1Name + "/src/t/t/t1/";
+		createFolder(packageFolder1);
+		String snippet1 = "package t.t.t1;\n" +
+				"import com.g.f.t.f.FWC;\n" +
+				"public class F {\n" +
+				"  public static final FWC EMPTY = null;\n" +
+				"}";
+		createFile(packageFolder1 + "/F.java", snippet1);
+		setUpJavaProject(testProject2Name, "11", false);
+		String packageFolder2 =  "/" + testProject2Name + "/src/com/g/f/t/f";
+		createFolder(packageFolder2);
+		String snippet2 = "package com.g.f.t.f;\n" +
+				"import com.g.f.t.f.FWC;\n" +
+				"public class FWC {\n" +
+				"  public static void main(String[] args) { }\n" +
+				"}";
+		createFile(packageFolder2 + "/FWC.java", snippet2);
+		waitForAutoBuild();
+		waitUntilIndexesReady();
+
+		IType type = project1.findType("t.t.t1.F");
+		ICompilationUnit[] cus = { type.getCompilationUnit() };
+
+		boolean excludeTests = false;
+		SearchableEnvironment search = new SearchableEnvironment(project1, cus, excludeTests);
+
+		char[][] packageName = { new char[] { 'c', 'o', 'm' } };
+		char[][] modules = search.getModulesDeclaringPackage(packageName, ModuleBinding.UNNAMED);
+		assertNotNull("Expected to find module for package: " + toString(packageName), modules);
+		assertEquals("Expected unnamed module for package: " + toString(packageName), "", toString(modules));
+	} finally {
+		JavaCore.setOptions(getDefaultJavaCoreOptions());
+		deleteProject(testProject1Name);
+		deleteProject(testProject2Name);
+	}
+}
+private static String toString(char[][] modules) {
+	StringBuilder sb = new StringBuilder();
+	for (char[] m : modules) {
+		sb.append(m);
+	}
+	String s = sb.toString();
+	return s;
+}
 }

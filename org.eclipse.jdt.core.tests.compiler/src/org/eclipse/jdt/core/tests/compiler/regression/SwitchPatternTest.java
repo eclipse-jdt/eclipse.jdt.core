@@ -5730,4 +5730,32 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"error - case null, default should be the last one ");
 	}
+	public void testIssue658() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"@SuppressWarnings(\"preview\")\n"
+					+ "public class X {\n"
+					+ "	public static void main(String argv[]) {\n"
+					+ "		(new X()).foo(\"abc\");\n"
+					+ "	}\n"
+					+ "	public void foo(String s) {\n"
+					+ "		int v = 0;\n"
+					+ "		Boolean b1 = Boolean.valueOf(true);\n"
+					+ "		switch (s) {\n"
+					+ "			case String obj when b1 -> v = 1;\n"
+					+ "			default -> v = 0;\n"
+					+ "		}\n"
+					+ "		System.out.println(v);\n"
+					+ "		Boolean b2 = Boolean.valueOf(false);\n"
+					+ "		switch (s) {\n"
+					+ "			case String obj when b2 -> v = 1;\n"
+					+ "			default -> v = 0;\n"
+					+ "		}\n"
+					+ "		System.out.println(v);\n"
+					+ "	}\n"
+					+ "}"
+				},
+				"1\n0");
+	}
 }

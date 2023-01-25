@@ -15,32 +15,36 @@
 
 package org.eclipse.jdt.apt.tests;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.zip.ZipInputStream;
-
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
-import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.core.tests.builder.Problem;
 import org.eclipse.jdt.core.tests.builder.BuilderTests;
+import org.eclipse.jdt.core.tests.builder.Problem;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 public class PerfTests extends BuilderTests
 {
 
+	private static final String GITHUB_TESTS_BINARIES = "https://github.com/eclipse-jdt/eclipse.jdt.core.binaries/raw/master/org.eclipse.jdt.core.tests.binaries/";
 	private IPath projectPath;
 
 	public PerfTests(String name)
@@ -62,11 +66,9 @@ public class PerfTests extends BuilderTests
 		IPath path = root.getLocation();
 		File destRoot = path.toFile();
 
-		URL platformURL = Platform.getBundle("org.eclipse.jdt.core.tests.binaries").getEntry("/");  //$NON-NLS-1$//$NON-NLS-2$
-		File f = new File(FileLocator.toFileURL(platformURL).getFile());
-		f = new File(f, "perf-test-project.zip"); //$NON-NLS-1$
-
-		InputStream in = new FileInputStream(f);
+		File tempPath = fetchFromBinariesProject("perf-test-project.zip", 3_307_492);
+		
+		InputStream in = new FileInputStream(tempPath);
 		ZipInputStream zipIn = new ZipInputStream(in);
 		try {
 			TestUtil.unzip(zipIn, destRoot);
@@ -84,6 +86,18 @@ public class PerfTests extends BuilderTests
 
 		assertNoUnexpectedProblems();
 
+	}
+
+	private static File fetchFromBinariesProject(String nameInProject, long size) throws IOException, MalformedURLException {
+		String tmpRoot = System.getProperty("java.io.tmpdir");
+		File tempFile = new File(tmpRoot, nameInProject);
+		if (!tempFile.isFile() || tempFile.length() != size) {			
+			String githubUrl = GITHUB_TESTS_BINARIES + nameInProject;
+			try(BufferedInputStream bin = new BufferedInputStream(new URL(githubUrl).openStream())){
+				Files.copy(bin, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+			}
+		}
+		return tempFile;
 	}
 
 	/**

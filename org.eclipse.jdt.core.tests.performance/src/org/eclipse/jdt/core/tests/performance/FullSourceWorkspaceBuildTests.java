@@ -280,20 +280,17 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 		compile(sources, options, classpath, null, log, logFileName);
 	}
 
-	// compile the sources present in this plugin directory using batch compiler
-	void compile (String[] srcPaths, String options, String compliance, boolean log) throws IOException {
+	// compile the file from org.eclipse.jdt.core.tests.binaries bundle using batch compiler
+	void compile (String srcPath, long fileSize, String options, String compliance, boolean log) throws IOException {
 		final String targetWorkspacePath = ResourcesPlugin.getWorkspace().getRoot().getLocation().toFile().getCanonicalPath();
 		String logFileName = targetWorkspacePath + File.separator + getName()+".log";
 
-		String pluginDir = getPluginBinariesDirectoryPath();
-		String sources = "";
-		for (int i=0, l=srcPaths.length; i<l; i++) {
-			String path = pluginDir + File.separator + srcPaths[i];
-			if (path.indexOf(" ") > 0) {
-				path = "\"" + path + "\"";
-			}
-			sources += " " + path;
+		File file = fetchFromBinariesProject(srcPath, fileSize);
+		String path = file.getAbsolutePath();
+		if (path.indexOf(" ") > 0) {
+			path = "\"" + path + "\"";
 		}
+		String sources = " " + path;
 		compile(sources, options, "", compliance, log, logFileName);
 	}
 
@@ -794,7 +791,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 */
 	public void testBuildGenericType() throws IOException, CoreException {
 		tagAsSummary("Build Generic Type ", false); // do NOT put in fingerprint
-		compile(new String[] {"EclipseVisitorBug.java"}, "", "1.6", false /*no log*/ );
+		compile("EclipseVisitorBug.java", 37_884, "", "1.6", false /*no log*/ );
 	}
 
 	/**
@@ -802,6 +799,6 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 */
 	public void testBug434326() throws IOException, CoreException {
 		tagAsSummary("Build with Generic Types ", false); // do NOT put in fingerprint
-		compile(new String[] {"GenericsTest.java"}, "", "1.8", false /*no log*/ );
+		compile("GenericsTest.java", 12_629_541, "", "1.8", false /*no log*/ );
 	}
 }
