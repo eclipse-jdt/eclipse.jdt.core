@@ -1987,7 +1987,7 @@ private void scanFieldForNullAnnotation(IBinaryField field, VariableBinding fiel
 				&& fieldType.acceptsNonNullDefault()) {
 				int nullDefaultFromField = getNullDefaultFrom(field.getAnnotations());
 				if (nullDefaultFromField == Binding.NO_NULL_DEFAULT
-						? hasNonNullDefaultFor(DefaultLocationField, -1)
+						? hasNonNullDefaultForType(fieldType, DefaultLocationField, -1)
 						: (nullDefaultFromField & DefaultLocationField) != 0) {
 					fieldBinding.type = this.environment.createAnnotatedType(fieldType,
 							new AnnotationBinding[] { this.environment.getNonNullAnnotation() });
@@ -2027,7 +2027,7 @@ private void scanFieldForNullAnnotation(IBinaryField field, VariableBinding fiel
 		this.externalAnnotationStatus = ExternalAnnotationStatus.TYPE_IS_ANNOTATED;
 	if (!explicitNullness) {
 		int nullDefaultFromField = getNullDefaultFrom(field.getAnnotations());
-		if (nullDefaultFromField == Binding.NO_NULL_DEFAULT ? hasNonNullDefaultFor(DefaultLocationField, -1)
+		if (nullDefaultFromField == Binding.NO_NULL_DEFAULT ? hasNonNullDefaultForType(fieldBinding.type, DefaultLocationField, -1)
 				: (nullDefaultFromField & DefaultLocationField) != 0) {
 			fieldBinding.tagBits |= TagBits.AnnotationNonNull;
 		}
