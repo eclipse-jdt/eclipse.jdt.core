@@ -587,6 +587,17 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_ALIGNMENT_FOR_PARAMETERS_IN_METHOD_DECLARATION = JavaCore.PLUGIN_ID + ".formatter.alignment_for_parameters_in_method_declaration";	 //$NON-NLS-1$
 	/**
 	 * <pre>
+	 * FORMATTER / Option for alignment of permitted types in type declaration
+	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_permitted_types_in_type_declaration"
+	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int, int)</code> call
+	 *     - default:           createAlignmentValue(false, WRAP_COMPACT, INDENT_DEFAULT)
+	 * </pre>
+	 * @see #createAlignmentValue(boolean, int, int)
+	 * @since 3.33
+	 */
+	public static final String FORMATTER_ALIGNMENT_FOR_PERMITTED_TYPES_IN_TYPE_DECLARATION = JavaCore.PLUGIN_ID + ".formatter.alignment_for_permitted_types_in_type_declaration"; //$NON-NLS-1$
+	/**
+	 * <pre>
 	 * FORMATTER / Option for alignment of components in record declaration
 	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_record_components"
 	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int, int)</code> call

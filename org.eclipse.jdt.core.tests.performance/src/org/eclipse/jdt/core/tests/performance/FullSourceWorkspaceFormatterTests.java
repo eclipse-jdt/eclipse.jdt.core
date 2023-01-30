@@ -69,14 +69,14 @@ protected void setUp() throws Exception {
 
 	// Read big file
 	System.out.print("	- Read big file source...");
+	File file = fetchFromBinariesProject("GenericTypeTest.java", 1_258_374);
+	String sourceFilePath = file.getAbsolutePath();
+
 	long start = System.currentTimeMillis();
-	FORMAT_TYPE_SOURCE = Util.fileContent(getPluginBinariesDirectoryPath()+File.separator+"GenericTypeTest.java");
+	FORMAT_TYPE_SOURCE = Util.fileContent(sourceFilePath);
 	System.out.println("("+(System.currentTimeMillis()-start)+"ms)");
 }
 
-/* (non-Javadoc)
- * @see junit.framework.TestCase#tearDown()
- */
 @Override
 protected void tearDown() throws Exception {
 

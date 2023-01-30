@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
@@ -627,5 +628,62 @@ public class NullAnnotationTests18 extends AbstractNullAnnotationTest {
 				"Potential null pointer access: The variable a may be null at this location\n" +
 				"----------\n";
 		runner.runNegativeTest();
+	}
+	public void testGH629_01() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_18);
+		options.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "test.NonNull");
+		options.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "test.Nullable");
+		options.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
+
+		runNegativeTestWithLibs(
+				new String[] {
+						"Configuration.java",
+						"public interface Configuration {\n" +
+								"}\n",
+						"Init.java",
+						"public interface Init<C extends Configuration> {\n" +
+								"}\n",
+						"Annot.java",
+						"public @interface Annot {\n" +
+								"    Class<? extends Init<? extends Configuration>>[] inits(); \n" +
+								"}\n",
+						"App.java",
+						"interface I<T> {}\n" +
+						"@Annot(inits = {App.MyInit.class})\n" +
+								"public class App {\n" +
+								"    static class MyInit implements I<String>, Init<Configuration> {}\n" +
+								"}\n"
+				},
+				options,
+				"");
+	}
+	public void testGH629_02() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_18);
+		options.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "test.NonNull");
+		options.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "test.Nullable");
+		options.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
+
+		runNegativeTestWithLibs(
+				new String[] {
+						"Annot.java",
+						"public @interface Annot {\n" +
+								"    Class<? extends Init<? extends Configuration>>[] inits(); \n" +
+								"}\n",
+						"App.java",
+						"@Annot(inits = {App.MyInit.class})\n" +
+						"public class App {\n" +
+						"    static class MyInit implements Init<Configuration> {}\n" +
+						"}\n",
+						"Configuration.java",
+						"public interface Configuration {\n" +
+								"}\n",
+						"Init.java",
+						"public interface Init<C extends Configuration> {\n" +
+								"}\n"
+				},
+				options,
+				"");
 	}
 }
