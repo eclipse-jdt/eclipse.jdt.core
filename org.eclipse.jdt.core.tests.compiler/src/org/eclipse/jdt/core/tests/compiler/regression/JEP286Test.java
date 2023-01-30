@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018, 2020 Jesper Steen Møller and others.
+ * Copyright (c) 2018, 2023 Jesper Steen Møller and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1393,6 +1393,23 @@ public void testBug567183_4() {
 			"	var item1 = container.items.get(0).get(0);\n" +
 			"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"The type Item is not visible\n" +
+			"----------\n");
+}
+public void testIssue600() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static void main(String [] args) {\n" +
+				"		var<Integer> x = List.of(42);\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 3)\n" +
+			"	var<Integer> x = List.of(42);\n" +
+			"	^^^\n" +
+			"\'var\' cannot be used with type arguments\n" +
 			"----------\n");
 }
 }
