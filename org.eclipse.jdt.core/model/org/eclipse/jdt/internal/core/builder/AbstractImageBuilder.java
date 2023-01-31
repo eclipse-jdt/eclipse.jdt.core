@@ -63,6 +63,7 @@ private boolean inCompiler;
 
 protected boolean keepStoringProblemMarkers;
 protected Map<SourceFile, AnnotationBinding[]> filesWithAnnotations = null;
+protected Map<SourceFile, ClassContent[]> compiledClassFiles = new HashMap<>();
 
 //2000 is best compromise between space used and speed
 public static int MAX_AT_ONCE = Integer.getInteger(JavaModelManager.MAX_COMPILED_UNITS_AT_ONCE, 2000).intValue();
@@ -149,13 +150,14 @@ public void acceptResult(CompilationResult result) {
 		String mainTypeName = null;
 		String typeLocator = compilationUnit.typeLocator();
 		ClassFile[] classFiles = result.getClassFiles();
+		ClassContent[] classContent = new ClassContent[classFiles.length];
 		int length = classFiles.length;
 		ArrayList duplicateTypeNames = null;
 		ArrayList definedTypeNames = new ArrayList(length);
 		ArrayList<CompilationParticipantResult> postProcessingResults = new ArrayList<>();
 		for (int i = 0; i < length; i++) {
 			ClassFile classFile = classFiles[i];
-
+			classContent[i] = new ClassContent();
 			char[][] compoundName = classFile.getCompoundName();
 			char[] typeName = compoundName[compoundName.length - 1];
 			boolean isNestedType = classFile.isNestedType;
@@ -212,7 +214,7 @@ public void acceptResult(CompilationResult result) {
 				}
 			}
 			try {
-				definedTypeNames.add(writeClassFile(classFile, compilationUnit, !isNestedType));
+				definedTypeNames.add(writeClassFile(classFile, compilationUnit, !isNestedType, classContent[i]));
 			} catch (CoreException e) {
 				Util.log(e, "JavaBuilder handling CoreException"); //$NON-NLS-1$
 				if (e.getStatus().getCode() == IResourceStatus.CASE_VARIANT_EXISTS)
@@ -226,7 +228,7 @@ public void acceptResult(CompilationResult result) {
 			AnnotationBinding[] bindings = result.annotations.stream().flatMap(Arrays::stream).filter(Objects::nonNull).toArray(AnnotationBinding[]::new);
 			this.filesWithAnnotations.put(compilationUnit, bindings);
 		}
-
+		this.compiledClassFiles.put(compilationUnit, classContent);
 		this.compiler.lookupEnvironment.releaseClassFiles(classFiles);
 		finishedWith(typeLocator, result, compilationUnit.getMainTypeName(), definedTypeNames, duplicateTypeNames);
 		for (CompilationParticipantResult postProcessingResult : postProcessingResults) {
@@ -319,7 +321,7 @@ protected void compile(SourceFile[] units) {
 	if (this.filesWithAnnotations != null && this.filesWithAnnotations.size() > 0)
 		// will add files that have annotations in acceptResult() & then processAnnotations() before exitting this method
 		this.filesWithAnnotations.clear();
-
+	this.compiledClassFiles.clear();
 	// notify CompilationParticipants which source files are about to be compiled
 	CompilationParticipantResult[] participantResults = this.javaBuilder.participants == null ? null : notifyParticipants(units);
 	if (participantResults != null && participantResults.length > units.length) {
@@ -369,11 +371,20 @@ protected void compile(SourceFile[] units) {
 
 	if (participantResults != null) {
 		for (int i = participantResults.length; --i >= 0;)
-			if (participantResults[i] != null)
+			if (participantResults[i] != null) {
 				recordParticipantResult(participantResults[i]);
+				participantResults[i].setClassFiles(this.compiledClassFiles.remove(participantResults[i].sourceFile));
+			}
 
 		processAnnotations(participantResults);
+		processClasses(participantResults);
 	}
+}
+
+private void processClasses(CompilationParticipantResult[] participantResults) {
+	for (int i = 0, l = this.javaBuilder.participants.length; i < l; i++)
+		if (this.javaBuilder.participants[i].isClassProcessor())
+			this.javaBuilder.participants[i].processClasses(participantResults);
 }
 
 protected void compile(SourceFile[] units, SourceFile[] additionalUnits, boolean compilingFirstGroup) {
@@ -886,8 +897,9 @@ protected void updateTasksFor(SourceFile sourceFile, CompilationResult result) t
 	storeTasksFor(sourceFile, tasks);
 }
 
-protected char[] writeClassFile(ClassFile classFile, SourceFile compilationUnit, boolean isTopLevelType) throws CoreException {
+protected char[] writeClassFile(ClassFile classFile, SourceFile compilationUnit, boolean isTopLevelType, ClassContent classContent) throws CoreException {
 	String fileName = new String(classFile.fileName()); // the qualified type name "p1/p2/A"
+	classContent.setFileName(fileName + "." + SuffixConstants.EXTENSION_class); //$NON-NLS-1$
 	IPath filePath = new Path(fileName);
 	IContainer outputFolder = compilationUnit.sourceLocation.binaryFolder;
 	IContainer container = outputFolder;
@@ -897,28 +909,14 @@ protected char[] writeClassFile(ClassFile classFile, SourceFile compilationUnit,
 	}
 
 	IFile file = container.getFile(filePath.addFileExtension(SuffixConstants.EXTENSION_class));
-	writeClassFileContents(classFile, file, fileName, isTopLevelType, compilationUnit);
+	classContent.setFile(file);
+	writeClassFileContents(classFile, file, fileName, isTopLevelType, compilationUnit, classContent);
+
 	// answer the name of the class file as in Y or Y$M
 	return filePath.lastSegment().toCharArray();
 }
 
-protected void writeClassFileContents(ClassFile classFile, IFile file, String qualifiedFileName, boolean isTopLevelType, SourceFile compilationUnit) throws CoreException {
-//	InputStream input = new SequenceInputStream(
-//			new ByteArrayInputStream(classFile.header, 0, classFile.headerOffset),
-//			new ByteArrayInputStream(classFile.contents, 0, classFile.contentsOffset));
-	InputStream input = new ByteArrayInputStream(classFile.getBytes());
-	if (file.exists()) {
-		// Deal with shared output folders... last one wins... no collision cases detected
-		if (JavaBuilder.DEBUG)
-			System.out.println("Writing changed class file " + file.getName());//$NON-NLS-1$
-		if (!file.isDerived())
-			file.setDerived(true, null);
-		file.setContents(input, true, false, null);
-	} else {
-		// Default implementation just writes out the bytes for the new class file...
-		if (JavaBuilder.DEBUG)
-			System.out.println("Writing new class file " + file.getName());//$NON-NLS-1$
-		file.create(input, IResource.FORCE | IResource.DERIVED, null);
-	}
+protected void writeClassFileContents(ClassFile classFile, IFile file, String qualifiedFileName, boolean isTopLevelType, SourceFile compilationUnit, ClassContent classContent) throws CoreException {
+	classContent.setBytes(classFile.getBytes());
 }
 }
