@@ -64,9 +64,15 @@ public boolean hasAnnotations() {
  * Returns whether the compilation unit contained any annotations with a given type when it was compiled.
  *
  * NOTE: This is only valid during {@link CompilationParticipant#processAnnotations(BuildContext[])}.
+<<<<<<< Upstream, based on master
  * @param fqn the fully qualified name of the annotation to check for presence
  * @return whether the compilation unit contained any annotations of the given type when it was compiled
  * @since 3.35
+=======
+ * @param fqn the fully qualified name of the annotation to check for precence
+ * @return whether the compilation unit contained any annotations of the given type when it was compiled
+ * @since 3.34
+>>>>>>> ea801ca Enhance the BuildContext with the discovered annotations
  */
 public boolean hasAnnotations(String fqn) {
 	return false; // default overridden by concrete implementation
