@@ -268,7 +268,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		if (isTypeNameVar && !isPatternVariable) {
 			if (this.type.isParameterizedTypeReference()) {
 				scope.problemReporter().varCannotBeUsedWithTypeArguments(this.type);
-				return;
 			}
 			if ((this.bits & ASTNode.IsForeachElementVariable) == 0) {
 				// infer a type from the initializer
