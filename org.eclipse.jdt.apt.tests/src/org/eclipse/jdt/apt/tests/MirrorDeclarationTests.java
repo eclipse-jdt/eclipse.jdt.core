@@ -18,9 +18,6 @@ package org.eclipse.jdt.apt.tests;
 import java.util.Collection;
 import java.util.Map;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.core.env.EnvironmentFactory;
@@ -42,6 +39,9 @@ import com.sun.mirror.declaration.AnnotationValue;
 import com.sun.mirror.declaration.Declaration;
 import com.sun.mirror.declaration.TypeDeclaration;
 import com.sun.mirror.util.SourcePosition;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 public class MirrorDeclarationTests extends APTTestBase {
 
@@ -340,7 +340,7 @@ public class MirrorDeclarationTests extends APTTestBase {
 		public void _process() {
 			called = true;
 			AnnotationTypeDeclaration annoDecl = (AnnotationTypeDeclaration)env.getTypeDeclaration("pkg.PkgAnnotation");
-			assertNotNull(annoDecl);
+			assertNotNull("Type declaration 'pkg.PkgAnnotation' not found!", annoDecl);
 			// get the annotated declarations
 			Collection<Declaration> annotatedDecls = env.getDeclarationsAnnotatedWith(annoDecl);
 			// don't return the package declaration - well, apt is doing that..
