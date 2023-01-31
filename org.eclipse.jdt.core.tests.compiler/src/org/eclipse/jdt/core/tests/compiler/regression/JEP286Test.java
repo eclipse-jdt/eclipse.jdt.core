@@ -1395,7 +1395,7 @@ public void testBug567183_4() {
 			"The type Item is not visible\n" +
 			"----------\n");
 }
-public void testIssue600() {
+public void testIssue600_1() {
 	this.runNegativeTest(
 			new String[] {
 				"X.java",
@@ -1411,5 +1411,22 @@ public void testIssue600() {
 			"	^^^\n" +
 			"\'var\' cannot be used with type arguments\n" +
 			"----------\n");
+}
+public void testIssue600_2() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static void main(String [] args) {\n" +
+				"		for (var<Integer> i = 0; i < 100; i++) {};\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"----------\n"
+			+ "1. ERROR in X.java (at line 3)\\n\n"
+			+ "	for (var<Integer> i = 0; i < 100; i++) {};\n"
+			+ "	     ^^^\n"
+			+ "'var' cannot be used with type arguments\\n\n"
+			+ "----------\n");
 }
 }
