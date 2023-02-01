@@ -162,12 +162,8 @@ public static ClassFileReader read(
 	java.util.zip.ZipFile zip,
 	String filename,
 	boolean fullyInitialize)
-			throws ClassFormatException, java.io.IOException {
-	java.util.zip.ZipEntry ze = zip.getEntry(filename);
-	if (ze == null)
-		return null;
-	byte classFileBytes[] = Util.getZipEntryByteContent(ze, zip);
-	ClassFileReader classFileReader = new ClassFileReader(classFileBytes, filename.toCharArray());
+	throws ClassFormatException, java.io.IOException {
+	ClassFileReader classFileReader = Util.getZipEntryClassFile(zip.getName(), filename);
 	if (fullyInitialize) {
 		classFileReader.initialize();
 	}

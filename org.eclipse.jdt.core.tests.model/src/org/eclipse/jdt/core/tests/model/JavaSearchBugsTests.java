@@ -10719,10 +10719,10 @@ public void testBug251827c() throws CoreException {
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=261722"
  */
 public void testBug261722() throws Exception {
+	String libPath = getExternalResourcePath("lib261722.jar");
+	waitUntilIndexesReady();
 	IPath projectPath = null;
-	IJavaProject javaProject = null;
 	try {
-		// Create jar and project
 		final int MAX = 10;
 		final String[] pathsAndContents = new String[(1+MAX)*2];
 		pathsAndContents[0] = "p261722/X.java";
@@ -10734,9 +10734,14 @@ public void testBug261722() throws Exception {
 			pathsAndContents[i*2+1] = "package p261722;\n" +
 	        	"public class "+className+" extends X {}";
         }
-		javaProject = createJavaProject("P");
+		Util.createJar(
+			pathsAndContents,
+			new HashMap(),
+			libPath);
+
+		IJavaProject javaProject = createJavaProject("P");
+		createJavaProject("P", new String[0], new String[] {libPath}, "");
 		projectPath = javaProject.getProject().getLocation();
-		addLibrary(javaProject, "lib261722.jar", "lib261722.zip", pathsAndContents, "1.4");
 		waitUntilIndexesReady();
 
 		// Create a specific requestor slowed down to give the main thread
