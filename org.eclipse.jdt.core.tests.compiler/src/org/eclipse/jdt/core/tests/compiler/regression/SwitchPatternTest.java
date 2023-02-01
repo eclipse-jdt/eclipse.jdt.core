@@ -33,7 +33,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug578553_7"};
+//		TESTS_NAMES = new String[] { "testIssue_556_009"};
 	}
 
 	private static String previewLevel = "20";
@@ -5682,7 +5682,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
 			"----------\n");
 	}
-	public void _testIssue_556_008() {
+	public void testIssue_556_008() {
 		runNegativeTest(
 				new String[] {
 					"X.java",
@@ -5693,6 +5693,9 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"		  default:\n" +
 					"			  break;\n" +
 					"		  case String s :\n" +
+					"			  System.out.println(10);\n" +
+					"			  break;\n" +
+					"		  case String s when (s.length() == 10):\n" +
 					"			  System.out.println(s);\n" +
 					"		} \n" +
 					"	  } catch(Exception t) {\n" +
@@ -5704,9 +5707,14 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"	}\n" +
 					"}",
 				},
-				"error");
+				"----------\n" +
+				"1. ERROR in X.java (at line 10)\n" +
+				"	case String s when (s.length() == 10):\n" +
+				"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"This case label is dominated by one of the preceding case label\n" +
+				"----------\n");
 	}
-	public void _testIssue_556_009() {
+	public void testIssue_556_009() {
 		runNegativeTest(
 				new String[] {
 					"X.java",
@@ -5728,7 +5736,12 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"	}\n" +
 					"}",
 				},
-				"error - case null, default should be the last one ");
+				"----------\n" +
+				"1. ERROR in X.java (at line 7)\n" +
+				"	case String s :\n" +
+				"	     ^^^^^^^^\n" +
+				"This case label is dominated by one of the preceding case label\n" +
+				"----------\n");
 	}
 	public void testIssue658() {
 		runConformTest(
