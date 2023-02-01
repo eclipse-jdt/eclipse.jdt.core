@@ -912,6 +912,7 @@ public class SwitchStatement extends Expression {
 				Pattern[] patterns = new Pattern[this.nConstants];
 				int[] caseIndex = new int[this.nConstants];
 				LocalVariableBinding[] patternVariables = null;
+				boolean caseNullDefaultFound = false;
 				for (int i = 0; i < length; i++) {
 					ResolvedCase[] constantsList;
 					final Statement statement = this.statements[i];
@@ -930,6 +931,8 @@ public class SwitchStatement extends Expression {
 						continue;
 					}
 					CaseStatement caseStmt = (CaseStatement) statement;
+					caseNullDefaultFound = caseNullDefaultFound ?
+							caseNullDefaultFound : isCaseStmtNullDefault(caseStmt);
 					constantsList = caseStmt.resolveCase(this.scope, expressionType, this);
 					if (constantsList != ResolvedCase.UnresolvedCase) {
 						for (ResolvedCase c : constantsList) {
@@ -955,6 +958,10 @@ public class SwitchStatement extends Expression {
 								TypeBinding type = c.e.resolvedType;
 								if (!type.isValidBinding())
 									continue;
+								if (caseNullDefaultFound && c.isPattern()) {
+									this.scope.problemReporter().patternDominatedByAnother(c.e);
+									continue;
+								}
 								Pattern p1 = patterns[j];
 								if (p1 != null) {
 									if (c.isPattern()) {
@@ -1056,6 +1063,13 @@ public class SwitchStatement extends Expression {
 		} finally {
 			if (this.scope != null) this.scope.enclosingCase = null; // no longer inside switch case block
 		}
+	}
+	private boolean isCaseStmtNullDefault(CaseStatement caseStmt) {
+		return caseStmt != null
+				&& caseStmt.constantExpressions != null
+				&& caseStmt.constantExpressions.length == 2
+				&& caseStmt.constantExpressions[0] instanceof NullLiteral
+				&& caseStmt.constantExpressions[1] instanceof FakeDefaultLiteral;
 	}
 	private boolean isExhaustive() {
 		return (this.switchBits & SwitchStatement.Exhaustive) != 0;
