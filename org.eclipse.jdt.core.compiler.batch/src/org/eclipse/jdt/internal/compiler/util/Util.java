@@ -643,7 +643,7 @@ public class Util implements SuffixConstants {
 		Path path = fs.getPath(fileName);
 		InputStream stream = null;
 		try {
-			if (!Files.exists(zipfile)) {
+			if (!Files.exists(path)) {
 				throw new IOException("Invalid zip entry name : " + zipName); //$NON-NLS-1$
 			}
 			InputStream inputStream = Files.newInputStream(path);

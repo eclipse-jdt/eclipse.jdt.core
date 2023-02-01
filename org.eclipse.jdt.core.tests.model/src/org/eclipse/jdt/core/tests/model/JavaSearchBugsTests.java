@@ -10739,8 +10739,7 @@ public void testBug261722() throws Exception {
 			new HashMap(),
 			libPath);
 
-		IJavaProject javaProject = createJavaProject("P");
-		createJavaProject("P", new String[0], new String[] {libPath}, "");
+		IJavaProject javaProject = createJavaProject("P", new String[0], new String[] {libPath}, "");
 		projectPath = javaProject.getProject().getLocation();
 		waitUntilIndexesReady();
 
