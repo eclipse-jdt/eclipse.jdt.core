@@ -1072,7 +1072,7 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 					"----------\n" +
 					"1. WARNING in /Bug549764/src/nullAnalysis/Endpoint.java (at line 14)\n" +
 					"	native void format(@NonNull String comment, String arg);\n" +
-					"	                   ^^^^^^^^^^^^^^^^^^^^^^^\n" +
+					"	                   ^^^^^^^^^^^^^^^\n" +
 					"The nullness annotation is redundant with a default that applies to this location\n" +
 					"----------\n"
 					);

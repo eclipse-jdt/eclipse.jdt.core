@@ -2039,6 +2039,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 			this.root = null; // prepare to get the root from project Test1
 
 			setupJavaProject("Test3b");
+			this.project.setOption(JavaCore.COMPILER_PB_REDUNDANT_NULL_ANNOTATION, JavaCore.IGNORE);
 			Util.createSourceZip(
 				new String[] {
 					"libs/MyFunction.eea",
@@ -2319,6 +2320,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		try {
 			String projectName = "Bug500024";
 			setupJavaProject(projectName, true, true);
+			this.project.setOption(JavaCore.COMPILER_PB_REDUNDANT_NULL_ANNOTATION, JavaCore.IGNORE);
 
 			addEeaToVariableEntry("JCL18_FULL", "/"+projectName+"/annots");
 			IPackageFragment fragment = this.project.getPackageFragmentRoots()[0].createPackageFragment("test1", true, null);
@@ -2358,6 +2360,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		try {
 			String projectName = "Bug500024";
 			setupJavaProject(projectName, true, true);
+			this.project.setOption(JavaCore.COMPILER_PB_REDUNDANT_NULL_ANNOTATION, JavaCore.IGNORE);
 
 			String projectLoc = this.project.getResource().getLocation().toString();
 			String annotsZip = "/annots.zip";
@@ -2583,6 +2586,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 	}
 	public void testBug517275() throws Exception {
 		myCreateJavaProject("TestLibs");
+		this.project.setOption(JavaCore.COMPILER_PB_REDUNDANT_NULL_ANNOTATION, JavaCore.IGNORE);
 		String lib1Content =
 				"package libs;\n" +
 				"import java.util.List;\n" +
@@ -2627,6 +2631,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 	}
 	public void testBug513880() throws Exception {
 		myCreateJavaProject("TestLibs");
+		this.project.setOption(JavaCore.COMPILER_PB_REDUNDANT_NULL_ANNOTATION, JavaCore.IGNORE);
 		String lib1Content =
 				"package libs;\n" +
 				"import java.util.List;\n" +

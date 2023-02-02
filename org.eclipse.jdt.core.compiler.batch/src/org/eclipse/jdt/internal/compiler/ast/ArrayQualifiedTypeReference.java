@@ -69,6 +69,13 @@ public class ArrayQualifiedTypeReference extends QualifiedTypeReference {
 		this.annotationsOnDimensions = annotationsOnDimensions;
 	}
 
+	@Override
+	public Annotation[] getTopAnnotations() {
+		if (this.annotationsOnDimensions != null)
+			return this.annotationsOnDimensions[0];
+		return new Annotation[0];
+	}
+
 	/**
 	 * @return char[][]
 	 */
