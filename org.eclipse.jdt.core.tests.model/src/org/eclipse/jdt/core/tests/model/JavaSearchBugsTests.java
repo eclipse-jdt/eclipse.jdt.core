@@ -21,6 +21,7 @@ import static org.eclipse.jdt.core.search.IJavaSearchScope.SYSTEM_LIBRARIES;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -15367,6 +15368,73 @@ public void testClasspathFilterUnnamedModuleBugGh485() throws Exception {
 		deleteProject(testProject2Name);
 	}
 }
+
+/*
+ * After fixing an compile error about a method reference to a not-existing method,
+ * no call hierarchy was found for the then-existing method.
+ * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/438
+ */
+public void testMethodReferenceAfterCompileErrorBugGh438() throws Exception {
+	String testProjectName = "gh438MethodReferenceAfterCompileErrorProject";
+	try {
+		IJavaProject project = createJava11Project(testProjectName, new String[] {"src"});
+		setUpProjectCompliance(project, "11", true);
+		String packageFolder = "/" + testProjectName + "/src/test";
+		createFolder(packageFolder);
+		String testSource = "package test;\n" +
+				"public class Test {\n" +
+				"  public void testMethod() {\n" +
+				"    MyClass myClass = new MyClass();\n" +
+				"    java.util.stream.Stream.of(\"hello\").forEach(myClass::doSomething);\n" +
+				"  }\n" +
+				"}";
+		createFile(packageFolder + "/Test.java", testSource);
+		buildAndExpectProblems(project, "MyClass cannot be resolved to a type\nMyClass cannot be resolved to a type");
+
+		String myClassSource = "package test;\n" +
+				"public class MyClass {\n" +
+				"  void doSomething(String s) {\n" +
+				"    System.out.println(s);\n" +
+				"  }\n" +
+				"}";
+		createFile(packageFolder + "/MyClass.java", myClassSource);
+		buildAndExpectNoProblems(project);
+
+		IType type = project.findType("test.MyClass");
+		IMethod method = type.getMethod("doSomething", new String[] { "QString;" });
+		search(method, REFERENCES, EXACT_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
+		assertSearchResults(
+				"src/test/Test.java void test.Test.testMethod() [doSomething] EXACT_MATCH");
+	} finally {
+		deleteProject(testProjectName);
+	}
+}
+
+private void buildAndExpectProblems(IJavaProject javaProject, String expectedMarkers) throws CoreException {
+	IProject project = javaProject.getProject();
+	project.build(IncrementalProjectBuilder.AUTO_BUILD, new NullProgressMonitor());
+	waitForAutoBuild();
+	waitUntilIndexesReady();
+	assertProblemMarkers("Expected build problems on project due to undefined type",
+			expectedMarkers, project);
+}
+
+private void buildAndExpectNoProblems(IJavaProject... javaProjects) throws CoreException {
+	List<IProject> projects = new ArrayList<>();
+	if (javaProjects != null) {
+		Arrays.stream(javaProjects).forEach(jp -> projects.add(jp.getProject()));
+	}
+	for (IProject project : projects) {
+		project.build(IncrementalProjectBuilder.AUTO_BUILD, new NullProgressMonitor());
+	}
+	waitForAutoBuild();
+	waitUntilIndexesReady();
+
+	for (IProject project : projects) {
+		assertProblemMarkers("Expected no build problems on project: " + project, "", project);
+	}
+}
+
 private static String toString(char[][] modules) {
 	StringBuilder sb = new StringBuilder();
 	for (char[] m : modules) {
