@@ -2340,7 +2340,7 @@ public void reset(){
 }
 
 void commit(boolean isStart) {
-	int newSnapShotPosition = this.scanner.startPosition;
+	int newSnapShotPosition = isStart ? this.scanner.startPosition : this.blockStarts[this.realBlockPtr];
 	if (this.snapShotPtr == -1) {
 		// first commit:
 		addNewSnapShot(newSnapShotPosition);

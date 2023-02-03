@@ -602,4 +602,32 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 						+ "}",
 				requestor.getResults());
 	}
+
+	public void testGH697_CompletionOnSwitchExpressionInsideLambda() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/Switch.java",
+				"import java.util.function.Function;\n"
+						+ "import java.util.stream.Stream; \n"
+						+ "import java.util.stream.Collectors; \n"
+						+ " \n"
+						+ "public class Switch {\n"
+						+ "static Map<Thread.State, String> toMap() {\n"
+						+ "		return Stream.of(Thread.State.values()).collect(Collectors.toMap(Function.identity(), state -> {\n"
+						+ "			return switch (state) {\n"
+						+ "				case B -> \"blocked\"; \n"
+						+ "			};\n"
+						+ "		}));\n"
+						+ "}\n"
+						+ "}\n");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "case B";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"BLOCKED[FIELD_REF]{BLOCKED, LThread$State;, LThread$State;, BLOCKED, null, "
+						+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_QUALIFIED + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	}
 }
