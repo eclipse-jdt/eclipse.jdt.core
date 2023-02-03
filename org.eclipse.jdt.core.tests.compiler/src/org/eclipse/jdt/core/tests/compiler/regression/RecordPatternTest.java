@@ -1731,4 +1731,37 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"Duplicate local variable i1\n" +
 				"----------\n");
 	}
+	public void testIssue691_1() {
+		runNegativeTest(new String[] {
+				"X.java",
+					"@SuppressWarnings(\"preview\")\n"
+					+ "public class X {\n"
+					+ "	public void foo(Number s) {\n"
+					+ "		switch (s) {\n"
+					+ "			case R(Integer i1, Integer i2) -> {}\n"
+					+ "			default -> {}\n"
+					+ "		}\n"
+					+ "	}\n"
+					+ "	public void foo(Object o) {\n"
+					+ "		switch (o) {\n"
+					+ "			case R(Number i1, Integer i2) -> {}\n"
+					+ "			default -> {}\n"
+					+ "		}\n"
+					+ "	}\n"
+					+ "	public void bar(Object o) {\n"
+					+ "		switch (o) {\n"
+					+ "		case R(Integer i1, Integer i2) r1 -> {}\n"
+					+ "			default -> {}\n"
+					+ "		}\n"
+					+ "	}\n"
+					+ "} \n"
+					+ "record R(Integer i1, Integer i2) {}"
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 5)\n" +
+				"	case R(Integer i1, Integer i2) -> {}\n" +
+				"	     ^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"Type mismatch: cannot convert from Number to R\n" +
+				"----------\n");
+	}
 }
