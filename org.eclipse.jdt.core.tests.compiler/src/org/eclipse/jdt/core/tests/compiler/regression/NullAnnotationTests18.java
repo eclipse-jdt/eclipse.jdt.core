@@ -699,4 +699,183 @@ public class NullAnnotationTests18 extends AbstractNullAnnotationTest {
 			"");
 	}
 
+	public void testIssue233_ok() throws Exception {
+		Runner runner = getDefaultRunner();
+		runner.customOptions = getCompilerOptions();
+		runner.customOptions.put(JavaCore.COMPILER_PB_REDUNDANT_NULL_ANNOTATION, JavaCore.IGNORE);
+		runner.testFiles = new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"record A1(@NonNull String ca1, String ca2) {}\n" +
+				"record B1(@Nullable String cb1, String cb2) {}\n" +
+				"@NonNullByDefault\n" +
+				"public class X {\n" +
+				"	record A2(@NonNull String ca1, String ca2) {}\n" +
+				"	record B2(@Nullable String cb1, String cb2) {}\n" +
+				"\n" +
+				"	public static @NonNull String workWithA(A1 a, boolean f) {\n" +
+				"		return f ? a.ca1() : a.ca2();\n" +
+				"	}\n" +
+				"	public static @NonNull String workWithA(A2 a, boolean f) {\n" +
+				"		return f ? a.ca1() : a.ca2();\n" +
+				"	}\n" +
+				"	public static String workWithB(B1 b, boolean f) {\n" +
+				"		if (f) {\n" +
+				"			String c = b.cb1();\n" +
+				"			return c != null ? c : \"default \";\n" +
+				"		}\n" +
+				"		return b.cb2();\n" +
+				"	}\n" +
+				"	public static String workWithB(B2 b, boolean f) {\n" +
+				"		if (f) {\n" +
+				"			String c = b.cb1();\n" +
+				"			return c != null ? c : \"default \";\n" +
+				"		}\n" +
+				"		return b.cb2();\n" +
+				"	}\n" +
+				"	public static void main(String... args) {\n" +
+				"		@NonNull String sa11 = workWithA(new A1(\"hello \", \"A11 \"), true);\n" +
+				"		@NonNull String sa12 = workWithA(new A1(\"hello \", \"A12 \"), false);\n" +
+				"		@NonNull String sb11 = workWithB(new B1(null, \"B11 \"), true);\n" +
+				"		@NonNull String sb12 = workWithB(new B1(null, \"B12 \"), false);\n" +
+				"		@NonNull String sa21 = workWithA(new A2(\"hello \", \"A21 \"), true);\n" +
+				"		@NonNull String sa22 = workWithA(new A2(\"hello \", \"A22 \"), false);\n" +
+				"		@NonNull String sb21 = workWithB(new B2(null, \"B21\"), true);\n" +
+				"		@NonNull String sb22 = workWithB(new B2(null, \"B22\"), false);\n" +
+				"		System.out.println(sa11+sa12+sb11+sb12+sa21+sa22+sb21+sb22);\n" +
+				"	}\n" +
+				"}\n"
+			};
+		runner.expectedOutputString = "hello A12 default B12 hello A22 default B22";
+		runner.runConformTest();
+	}
+	public void testIssue233_nok() throws Exception {
+		// like testIssue233_ok - but annotations on record components ca1 / cb1 swapped (twice)
+		Runner runner = getDefaultRunner();
+		runner.customOptions = getCompilerOptions();
+		runner.customOptions.put(JavaCore.COMPILER_PB_REDUNDANT_NULL_ANNOTATION, JavaCore.IGNORE);
+		runner.testFiles = new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"record A1(@Nullable String ca1, String ca2) {}\n" +
+				"record B1(@NonNull String cb1, String cb2) {}\n" +
+				"@NonNullByDefault\n" +
+				"public class X {\n" +
+				"	record A2(@Nullable String ca1, String ca2) {}\n" +
+				"	record B2(@NonNull String cb1, String cb2) {}\n" +
+				"\n" +
+				"	public static @NonNull String workWithA(A1 a, boolean f) {\n" +
+				"		return f ? a.ca1() : a.ca2();\n" +
+				"	}\n" +
+				"	public static @NonNull String workWithA(A2 a, boolean f) {\n" +
+				"		return f ? a.ca1() : a.ca2();\n" +
+				"	}\n" +
+				"	public static String workWithB(B1 b, boolean f) {\n" +
+				"		if (f) {\n" +
+				"			String c = b.cb1();\n" +
+				"			return c != null ? c : \"default \";\n" +
+				"		}\n" +
+				"		return b.cb2();\n" +
+				"	}\n" +
+				"	public static String workWithB(B2 b, boolean f) {\n" +
+				"		if (f) {\n" +
+				"			String c = b.cb1();\n" +
+				"			return c != null ? c : \"default \";\n" +
+				"		}\n" +
+				"		return b.cb2();\n" +
+				"	}\n" +
+				"	public static void main(String... args) {\n" +
+				"		@NonNull String sa11 = workWithA(new A1(\"hello \", \"A11 \"), true);\n" +
+				"		@NonNull String sa12 = workWithA(new A1(\"hello \", \"A12 \"), false);\n" +
+				"		@NonNull String sb11 = workWithB(new B1(null, \"B11 \"), true);\n" +
+				"		@NonNull String sb12 = workWithB(new B1(null, \"B12 \"), false);\n" +
+				"		@NonNull String sa21 = workWithA(new A2(\"hello \", \"A21 \"), true);\n" +
+				"		@NonNull String sa22 = workWithA(new A2(\"hello \", \"A22 \"), false);\n" +
+				"		@NonNull String sb21 = workWithB(new B2(null, \"B21\"), true);\n" +
+				"		@NonNull String sb22 = workWithB(new B2(null, \"B22\"), false);\n" +
+				"		System.out.println(sa11+sa12+sb11+sb12+sa21+sa22+sb21+sb22);\n" +
+				"	}\n" +
+				"}\n"
+			};
+		runner.expectedCompilerLog =
+				"----------\n" +
+				"1. ERROR in X.java (at line 10)\n" +
+				"	return f ? a.ca1() : a.ca2();\n" +
+				"	           ^^^^^^^\n" +
+				"Null type mismatch (type annotations): required \'@NonNull String\' but this expression has type \'@Nullable String\'\n" +
+				"----------\n" +
+				"2. WARNING in X.java (at line 10)\n" +
+				"	return f ? a.ca1() : a.ca2();\n" +
+				"	                     ^^^^^^^\n" +
+				"Null type safety (type annotations): The expression of type \'String\' needs unchecked conversion to conform to \'@NonNull String\'\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 13)\n" +
+				"	return f ? a.ca1() : a.ca2();\n" +
+				"	           ^^^^^^^\n" +
+				"Null type mismatch (type annotations): required \'@NonNull String\' but this expression has type \'@Nullable String\'\n" +
+				"----------\n" +
+				"4. ERROR in X.java (at line 18)\n" +
+				"	return c != null ? c : \"default \";\n" +
+				"	       ^\n" +
+				"Redundant null check: The variable c cannot be null at this location\n" +
+				"----------\n" +
+				"5. WARNING in X.java (at line 20)\n" +
+				"	return b.cb2();\n" +
+				"	       ^^^^^^^\n" +
+				"Null type safety (type annotations): The expression of type \'String\' needs unchecked conversion to conform to \'@NonNull String\'\n" +
+				"----------\n" +
+				"6. ERROR in X.java (at line 25)\n" +
+				"	return c != null ? c : \"default \";\n" +
+				"	       ^\n" +
+				"Redundant null check: The variable c cannot be null at this location\n" +
+				"----------\n" +
+				"7. ERROR in X.java (at line 32)\n" +
+				"	@NonNull String sb11 = workWithB(new B1(null, \"B11 \"), true);\n" +
+				"	                                        ^^^^\n" +
+				"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" +
+				"----------\n" +
+				"8. ERROR in X.java (at line 33)\n" +
+				"	@NonNull String sb12 = workWithB(new B1(null, \"B12 \"), false);\n" +
+				"	                                        ^^^^\n" +
+				"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" +
+				"----------\n" +
+				"9. ERROR in X.java (at line 36)\n" +
+				"	@NonNull String sb21 = workWithB(new B2(null, \"B21\"), true);\n" +
+				"	                                        ^^^^\n" +
+				"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" +
+				"----------\n" +
+				"10. ERROR in X.java (at line 37)\n" +
+				"	@NonNull String sb22 = workWithB(new B2(null, \"B22\"), false);\n" +
+				"	                                        ^^^^\n" +
+				"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" +
+				"----------\n";
+		runner.expectedOutputString = "hellodefault";
+		runner.runNegativeTest();
+	}
+	public void testIssue233_npeWitness() throws Exception {
+		Runner runner = getDefaultRunner();
+		runner.testFiles = new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"public record X(@NonNull String ca1, String ca2, @Nullable String ca2) {}\n"
+			};
+		runner.expectedCompilerLog =
+				"----------\n" +
+				"1. ERROR in X.java (at line 2)\n" +
+				"	public record X(@NonNull String ca1, String ca2, @Nullable String ca2) {}\n" +
+				"	                                            ^^^\n" +
+				"Duplicate component ca2 in record\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 2)\n" +
+				"	public record X(@NonNull String ca1, String ca2, @Nullable String ca2) {}\n" +
+				"	                                                                  ^^^\n" +
+				"Duplicate component ca2 in record\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 2)\n" +
+				"	public record X(@NonNull String ca1, String ca2, @Nullable String ca2) {}\n" +
+				"	                                                                  ^^^\n" +
+				"Duplicate parameter ca2\n" +
+				"----------\n";
+		runner.runNegativeTest();
+	}
 }
