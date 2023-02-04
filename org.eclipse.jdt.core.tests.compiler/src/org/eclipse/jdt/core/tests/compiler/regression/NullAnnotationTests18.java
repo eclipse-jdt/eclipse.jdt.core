@@ -686,4 +686,17 @@ public class NullAnnotationTests18 extends AbstractNullAnnotationTest {
 				options,
 				"");
 	}
+	public void testBug572361() {
+		runConformTestWithLibs(
+			new String[] {
+				"NonNullByDefaultAndRecords.java",
+				"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
+				"\n" +
+				"@NonNullByDefault\n" +
+				"public record NonNullByDefaultAndRecords () { }\n"
+			},
+			getCompilerOptions(),
+			"");
+	}
+
 }
