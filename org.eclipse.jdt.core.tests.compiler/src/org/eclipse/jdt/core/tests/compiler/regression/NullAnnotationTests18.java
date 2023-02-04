@@ -852,4 +852,30 @@ public class NullAnnotationTests18 extends AbstractNullAnnotationTest {
 		runner.expectedOutputString = "hellodefault";
 		runner.runNegativeTest();
 	}
+	public void testIssue233_npeWitness() throws Exception {
+		Runner runner = getDefaultRunner();
+		runner.testFiles = new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"public record X(@NonNull String ca1, String ca2, @Nullable String ca2) {}\n"
+			};
+		runner.expectedCompilerLog =
+				"----------\n" +
+				"1. ERROR in X.java (at line 2)\n" +
+				"	public record X(@NonNull String ca1, String ca2, @Nullable String ca2) {}\n" +
+				"	                                            ^^^\n" +
+				"Duplicate component ca2 in record\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 2)\n" +
+				"	public record X(@NonNull String ca1, String ca2, @Nullable String ca2) {}\n" +
+				"	                                                                  ^^^\n" +
+				"Duplicate component ca2 in record\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 2)\n" +
+				"	public record X(@NonNull String ca1, String ca2, @Nullable String ca2) {}\n" +
+				"	                                                                  ^^^\n" +
+				"Duplicate parameter ca2\n" +
+				"----------\n";
+		runner.runNegativeTest();
+	}
 }

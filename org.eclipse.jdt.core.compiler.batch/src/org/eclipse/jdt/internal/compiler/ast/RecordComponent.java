@@ -98,12 +98,14 @@ public class RecordComponent extends AbstractVariableDeclaration {
 				if (resolvedAnnotationType != null && (resolvedAnnotationType.getAnnotationTagBits() & TagBits.AnnotationForTypeUse) != 0) {
 					this.bits |= ASTNode.HasTypeAnnotations;
 					// also update the accessor's return type:
-					for (MethodBinding methodBinding : this.binding.declaringRecord.methods()) {
-						if (methodBinding instanceof SyntheticMethodBinding) {
-							SyntheticMethodBinding smb = (SyntheticMethodBinding) methodBinding;
-							if (smb.purpose == SyntheticMethodBinding.FieldReadAccess && smb.recordComponentBinding == this.binding) {
-								smb.returnType = this.binding.type;
-								break;
+					if (this.binding != null && this.binding.declaringRecord != null) {
+						for (MethodBinding methodBinding : this.binding.declaringRecord.methods()) {
+							if (methodBinding instanceof SyntheticMethodBinding) {
+								SyntheticMethodBinding smb = (SyntheticMethodBinding) methodBinding;
+								if (smb.purpose == SyntheticMethodBinding.FieldReadAccess && smb.recordComponentBinding == this.binding) {
+									smb.returnType = this.binding.type;
+									break;
+								}
 							}
 						}
 					}
