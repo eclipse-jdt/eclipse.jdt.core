@@ -1136,4 +1136,44 @@ public class NullAnnotationBatchCompilerTest extends AbstractBatchCompilerTest {
 				"2 problems (1 error, 1 warning)\n";
 		this.runNegativeTest(testFiles, commandLine, "", expectedCompilerMessage, false);
 	}
+
+	public void testGHTycho1641() throws IOException {
+		// tests external annotations with --release option
+		String annotDir = OUTPUT_DIR + File.separator + "eea";
+		String annotJavaUtilDir = annotDir + "/java/util".replace('/', File.separatorChar);
+		new File(annotJavaUtilDir).mkdirs();
+		Util.createFile(annotJavaUtilDir + File.separatorChar + "Objects.eea",
+				"class java/util/Objects\n" +
+				"requireNonNull\n" +
+				" <T:Ljava/lang/Object;>(TT;)TT;\n" +
+				" <T:Ljava/lang/Object;>(TT;)T1T;\n");
+		runConformTest(
+			new String[] {
+				"org/eclipse/jdt/annotation/NonNull.java",
+				NONNULL_ANNOTATION_18_CONTENT,
+				"org/eclipse/jdt/annotation/Nullable.java",
+				NULLABLE_ANNOTATION_18_CONTENT,
+				"collectiontest/TestClass.java",
+				"package collectiontest;\n" +
+				"import java.util.Objects;\n" +
+				"import org.eclipse.jdt.annotation.Nullable;\n" +
+				"public class TestClass {\n" +
+				"\n" +
+				"    @Nullable String test;\n" +
+				"\n" +
+				"    public void concat(String suffix) {\n" +
+				"        test = Objects.requireNonNull(test).concat(suffix);\n" +
+				"    }\n" +
+				"}\n"
+			},
+			"--release 11 "+
+			" -sourcepath \"" + OUTPUT_DIR + "\"" +
+			" -annotationpath \""+annotDir+ "\"" +
+			" -err:+nullAnnot -err:+null -proc:none -d \"" + OUTPUT_DIR + "\"" +
+			" \"" + OUTPUT_DIR +  File.separator + "collectiontest" + File.separator + "TestClass.java\"",
+			"",
+			"",
+			false);
+	}
+
 }
