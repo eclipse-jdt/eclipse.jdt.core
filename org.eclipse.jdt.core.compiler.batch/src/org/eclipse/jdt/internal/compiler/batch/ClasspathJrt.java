@@ -42,7 +42,6 @@ import org.eclipse.jdt.internal.compiler.env.IMultiModuleEntry;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding.ExternalAnnotationStatus;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
-import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry {
@@ -88,26 +87,7 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 			IBinaryType reader = ClassFileReader.readFromModule(this.file, moduleName, qualifiedBinaryFileName, this.moduleNamesCache::contains);
 
 			if (reader != null) {
-				searchPaths:
-				if (this.annotationPaths != null) {
-					String qualifiedClassName = qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length()-SuffixConstants.EXTENSION_CLASS.length()-1);
-					for (String annotationPath : this.annotationPaths) {
-						try {
-							if (this.annotationZipFile == null) {
-								this.annotationZipFile = ExternalAnnotationDecorator.getAnnotationZipFile(annotationPath, null);
-							}
-							reader = ExternalAnnotationDecorator.create(reader, annotationPath, qualifiedClassName, this.annotationZipFile);
-
-							if (reader.getExternalAnnotationStatus() == ExternalAnnotationStatus.TYPE_IS_ANNOTATED) {
-								break searchPaths;
-							}
-						} catch (IOException e) {
-							// don't let error on annotations fail class reading
-						}
-					}
-					// location is configured for external annotations, but no .eea found, decorate in order to answer NO_EEA_FILE:
-					reader = new ExternalAnnotationDecorator(reader, null);
-				}
+				reader = maybeDecorateForExternalAnnotations(qualifiedBinaryFileName, reader);
 				char[] answerModuleName = reader.getModule();
 				if (answerModuleName == null && moduleName != null)
 					answerModuleName = moduleName.toCharArray();
@@ -117,6 +97,31 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 			// treat as if class file is missing
 		}
 		return null;
+	}
+
+	protected IBinaryType maybeDecorateForExternalAnnotations(String qualifiedBinaryFileName, IBinaryType reader) {
+		searchPaths:
+		if (this.annotationPaths != null) {
+			int extensionPos = qualifiedBinaryFileName.lastIndexOf('.'); // extension could be .class or .sig
+			String qualifiedClassName = qualifiedBinaryFileName.substring(0, extensionPos);
+			for (String annotationPath : this.annotationPaths) {
+				try {
+					if (this.annotationZipFile == null) {
+						this.annotationZipFile = ExternalAnnotationDecorator.getAnnotationZipFile(annotationPath, null);
+					}
+					reader = ExternalAnnotationDecorator.create(reader, annotationPath, qualifiedClassName, this.annotationZipFile);
+
+					if (reader.getExternalAnnotationStatus() == ExternalAnnotationStatus.TYPE_IS_ANNOTATED) {
+						break searchPaths;
+					}
+				} catch (IOException e) {
+					// don't let error on annotations fail class reading
+				}
+			}
+			// location is configured for external annotations, but no .eea found, decorate in order to answer NO_EEA_FILE:
+			reader = new ExternalAnnotationDecorator(reader, null);
+		}
+		return reader;
 	}
 	@Override
 	public boolean hasAnnotationFileFor(String qualifiedTypeName) {
