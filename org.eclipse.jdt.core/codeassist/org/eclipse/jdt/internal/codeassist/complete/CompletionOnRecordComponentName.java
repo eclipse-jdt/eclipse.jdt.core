@@ -18,7 +18,6 @@ import org.eclipse.jdt.internal.compiler.ast.RecordComponent;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 
-// copied implementation from org.eclipse.jdt.core/codeassist/org/eclipse/jdt/internal/codeassist/complete/CompletionOnFieldName.java
 public class CompletionOnRecordComponentName extends RecordComponent {
 
 	public CompletionOnRecordComponentName(char[] name, long posNom, TypeReference tr, int modifiers) {
