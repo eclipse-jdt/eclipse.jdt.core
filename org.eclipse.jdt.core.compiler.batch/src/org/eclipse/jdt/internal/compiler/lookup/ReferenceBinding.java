@@ -1257,8 +1257,10 @@ public boolean hasMemberTypes() {
  * for 1.8 check if the default is applicable to the given kind of location.
  */
 // pre: null annotation analysis is enabled
-boolean hasNonNullDefaultFor(int location, int sourceStart) {
+boolean hasNonNullDefaultForType(TypeBinding type, int location, int sourceStart) {
 	// Note, STB overrides for correctly handling local types
+	if (type != null && !type.acceptsNonNullDefault())
+		return false;
 	ReferenceBinding currentType = this;
 	while (currentType != null) {
 		int nullDefault = ((ReferenceBinding)currentType.original()).getNullDefault();
