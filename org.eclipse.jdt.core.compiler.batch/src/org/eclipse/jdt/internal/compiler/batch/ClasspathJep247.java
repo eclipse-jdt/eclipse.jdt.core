@@ -33,6 +33,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
+import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -74,7 +75,7 @@ public class ClasspathJep247 extends ClasspathJrt {
 
 		try {
 			//TODO: Check if any conversion needed for path separator
-			ClassFileReader reader = null;
+			IBinaryType reader = null;
 			byte[] content = null;
 			qualifiedBinaryFileName = qualifiedBinaryFileName.replace(".class", ".sig"); //$NON-NLS-1$ //$NON-NLS-2$
 			if (this.subReleases != null && this.subReleases.length > 0) {
@@ -91,6 +92,7 @@ public class ClasspathJep247 extends ClasspathJrt {
 			}
 			if (content != null) {
 				reader = new ClassFileReader(content, qualifiedBinaryFileName.toCharArray());
+				reader = maybeDecorateForExternalAnnotations(qualifiedBinaryFileName, reader);
 				char[] modName = moduleName != null ? moduleName.toCharArray() : null;
 				return new NameEnvironmentAnswer(reader, fetchAccessRestriction(qualifiedBinaryFileName), modName);
 			}
