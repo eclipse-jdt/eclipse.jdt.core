@@ -29,7 +29,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 
-public abstract class JobManager implements Runnable {
+public abstract class JobManager {
 
 	/**
 	 * queue of jobs to execute
@@ -416,7 +416,7 @@ public abstract class JobManager implements Runnable {
 		} else {
 			synchronized (this) {
 				/* initiate background processing */
-				Thread t = new Thread(this, processName());
+				Thread t = new Thread(this::indexerLoop, processName());
 				t.setDaemon(true);
 				// less prioritary by default, priority is raised if clients are actively waiting on it
 				t.setPriority(Thread.NORM_PRIORITY-1);
@@ -428,11 +428,11 @@ public abstract class JobManager implements Runnable {
 			}
 		}
 	}
+
 	/**
 	 * Infinite loop performing resource indexing
 	 */
-	@Override
-	public void run() {
+	void indexerLoop() {
 
 		long idlingStart = -1;
 		activateProcessing();
