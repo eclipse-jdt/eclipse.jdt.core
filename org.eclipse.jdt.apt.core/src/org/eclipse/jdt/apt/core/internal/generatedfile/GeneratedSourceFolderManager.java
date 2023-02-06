@@ -29,6 +29,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.apt.core.internal.AptPlugin;
 import org.eclipse.jdt.apt.core.internal.AptProject;
@@ -265,7 +266,7 @@ public class GeneratedSourceFolderManager {
 	 * This should only be called on an event thread, with no locks on the project
 	 * or classpath.
 	 */
-	public void enabledPreferenceChanged()
+	public void enabledPreferenceChanged(IProgressMonitor monitor)
 	{
 		final boolean enable = AptConfig.isEnabled(_aptProject.getJavaProject());
 		// Short-circuit if nothing changed.
@@ -276,10 +277,10 @@ public class GeneratedSourceFolderManager {
 			// no change in state
 			return;
 		}
-		enabledPreferenceChangedTo(enable);
+		enabledPreferenceChangedTo(enable, monitor);
 	}
 
-	private void enabledPreferenceChangedTo(final boolean enable) {
+	private void enabledPreferenceChangedTo(final boolean enable, IProgressMonitor monitor) {
 		_aptEnabled = enable;
 
 		if ( AptPlugin.DEBUG ) {
@@ -290,7 +291,7 @@ public class GeneratedSourceFolderManager {
 			configure();
 		}
 		else {
-			removeFolder(false);
+			removeFolder(false, monitor);
 		}
 	}
 
@@ -302,7 +303,7 @@ public class GeneratedSourceFolderManager {
  	 * This should only be called on an event thread, with no locks on the project
 	 * or classpath.
 	 */
-	public void folderNamePreferenceChanged()
+	public void folderNamePreferenceChanged(IProgressMonitor monitor)
 	{
 		// if APT is disabled, we don't need to do anything
 		if (!_aptEnabled) {
@@ -318,7 +319,7 @@ public class GeneratedSourceFolderManager {
 			return;
 		}
 
-		removeFolder(true);
+		removeFolder(true, monitor);
 		configure();
 	}
 
@@ -445,9 +446,11 @@ public class GeneratedSourceFolderManager {
 
 	/**
 	 * Remove a folder from disk and from the classpath.
+	 * 
 	 * @param srcFolder
+	 * @param monitor   for cancelation checks
 	 */
-	private void removeFolder(boolean waitForWorkspaceEvents) {
+	private void removeFolder(boolean waitForWorkspaceEvents, IProgressMonitor monitor) {
 		final IFolder srcFolder = _generatedSourceFolder;
 		if (srcFolder == null) {
 			return;
@@ -468,15 +471,17 @@ public class GeneratedSourceFolderManager {
 
 		final IWorkspaceRunnable runnable = new IWorkspaceRunnable(){
 	        @Override
-			public void run(IProgressMonitor monitor)
+			public void run(IProgressMonitor inner)
 	        {
+				SubMonitor subMonitor = SubMonitor.convert(inner);
             	try {
             		IResource parent = srcFolder.getParent();
             		boolean deleted = FileSystemUtil.deleteDerivedResources(srcFolder);
 
             		// We also want to delete our parent folder(s) if they are derived and empty
             		if (deleted) {
-            			while (parent.isDerived() && parent.getType() == IResource.FOLDER) {
+						while (parent.isDerived() && parent.getType() == IResource.FOLDER) {
+							subMonitor.checkCanceled();
             				IFolder parentFolder = (IFolder)parent;
             				if (parentFolder.members().length == 0) {
             					parent = parentFolder.getParent();
@@ -497,7 +502,7 @@ public class GeneratedSourceFolderManager {
 	    };
 	    IWorkspace ws = ResourcesPlugin.getWorkspace();
 	    try{
-	    	ws.run(runnable, ws.getRoot(), IWorkspace.AVOID_UPDATE, null);
+			ws.run(runnable, ws.getRoot(), IWorkspace.AVOID_UPDATE, monitor);
 	    }catch(CoreException e){
 			AptPlugin.log(e, "Runnable for deleting old generated source folder " + srcFolder.getName() + " failed."); //$NON-NLS-1$ //$NON-NLS-2$
 		}
@@ -505,7 +510,7 @@ public class GeneratedSourceFolderManager {
 			try {
 				Thread.sleep(50);
 				// wait for workspace events *after* delete task is done
-				Job.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD, null);
+				Job.getJobManager().join(ResourcesPlugin.FAMILY_AUTO_BUILD, monitor);
 			} catch (OperationCanceledException | InterruptedException e) {
 				// ignore
 			}

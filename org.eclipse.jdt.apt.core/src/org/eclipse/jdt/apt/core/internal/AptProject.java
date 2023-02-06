@@ -16,6 +16,7 @@ package org.eclipse.jdt.apt.core.internal;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedFileManager;
 import org.eclipse.jdt.apt.core.internal.generatedfile.GeneratedSourceFolderManager;
 import org.eclipse.jdt.apt.core.internal.util.FileSystemUtil;
@@ -76,14 +77,14 @@ public class AptProject {
 	 * certain resource change listeners.
 	 * @param key a preference key such as @see AptPreferenceConstants#APT_ENABLED
 	 */
-	public void preferenceChanged(String key) {
+	public void preferenceChanged(String key, IProgressMonitor monitor) {
 		if (AptPreferenceConstants.APT_GENSRCDIR.equals(key)) {
-			_main_gsfm.folderNamePreferenceChanged();
+			_main_gsfm.folderNamePreferenceChanged(monitor);
 		} else if (AptPreferenceConstants.APT_GENTESTSRCDIR.equals(key)) {
-			_test_gsfm.folderNamePreferenceChanged();
+			_test_gsfm.folderNamePreferenceChanged(monitor);
 		} else if(AptPreferenceConstants.APT_ENABLED.equals(key) ){
-			_main_gsfm.enabledPreferenceChanged();
-			_test_gsfm.enabledPreferenceChanged();
+			_main_gsfm.enabledPreferenceChanged(monitor);
+			_test_gsfm.enabledPreferenceChanged(monitor);
 		}
 	}
 

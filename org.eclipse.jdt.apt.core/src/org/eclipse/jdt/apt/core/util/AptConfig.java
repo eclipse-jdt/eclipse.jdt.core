@@ -20,8 +20,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IFolder;
@@ -32,6 +32,7 @@ import org.eclipse.core.resources.ProjectScope;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
@@ -757,6 +758,23 @@ public class AptConfig {
 	 * @param enabled
 	 */
 	public static void setEnabled(IJavaProject jproject, boolean enabled) {
+		setEnabled(jproject, enabled, null);
+	}
+
+	/**
+	 * Turn annotation processing on or off for this project.
+	 * <p>
+	 * Prior to Eclipse 3.3, this affected the org.eclipse.jdt.apt.aptEnabled
+	 * setting. In Eclipse 3.3, it affects the
+	 * org.eclipse.jdt.core.compiler.processingEnabled setting; the older setting is
+	 * still set (and read) in order to preserve backward compatibility.
+	 * 
+	 * @param jproject an IJavaProject, or null to set workspace preferences.
+	 * @param enabled
+	 * @param monitor  a monitor for cancelation checks
+	 * @since 3.8
+	 */
+	public static void setEnabled(IJavaProject jproject, boolean enabled, IProgressMonitor monitor) {
 		if (jproject == null && enabled == true) {
 			IllegalArgumentException e = new IllegalArgumentException();
 			IStatus status = AptPlugin.createWarningStatus(e,
@@ -765,9 +783,9 @@ public class AptConfig {
 			throw e;
 		}
 		setString(jproject, AptPreferenceConstants.APT_PROCESSANNOTATIONS,
-				enabled ? AptPreferenceConstants.ENABLED : AptPreferenceConstants.DISABLED);
+				enabled ? AptPreferenceConstants.ENABLED : AptPreferenceConstants.DISABLED, monitor);
 		// backward compatibility: also save old setting
-		setBoolean(jproject, AptPreferenceConstants.APT_ENABLED, enabled);
+		setBoolean(jproject, AptPreferenceConstants.APT_ENABLED, enabled, monitor);
 		if (enabled) {
 			AptProject aptProject = AptPlugin.getAptProject(jproject);
 			aptProject.getGeneratedSourceFolderManager(true).ensureFolderExists();
@@ -794,7 +812,21 @@ public class AptConfig {
 	 * on individual projects.
 	 */
 	public static void setProcessDuringReconcile(IJavaProject jproject, boolean enabled) {
-		setBoolean(jproject, AptPreferenceConstants.APT_RECONCILEENABLED, enabled);
+		setProcessDuringReconcile(jproject, enabled, null);
+	}
+
+	/**
+	 * Turn processing during reconcile on or off. Processing during build is
+	 * unaffected. Note that if isEnabled() is false, processing will not occur at
+	 * all; the two settings are independent.
+	 * 
+	 * @param jproject the IJavaProject to modify. This setting is only valid on
+	 *                 individual projects.
+	 * @param monitor  monitor for cancelation checks
+	 * @since 3.8
+	 */
+	public static void setProcessDuringReconcile(IJavaProject jproject, boolean enabled, IProgressMonitor monitor) {
+		setBoolean(jproject, AptPreferenceConstants.APT_RECONCILEENABLED, enabled, monitor);
 	}
 
 	private static boolean getBoolean(IJavaProject jproj, String optionName) {
@@ -910,11 +942,18 @@ public class AptConfig {
     	return getString(jproject, AptPreferenceConstants.APT_GENSRCDIR);
     }
 
-    public static void setGenSrcDir(IJavaProject jproject, String dirString) {
+	public static void setGenSrcDir(IJavaProject jproject, String dirString) {
+		setGenSrcDir(jproject, dirString, null);
+	}
+
+	/**
+	 * @since 3.8
+	 */
+	public static void setGenSrcDir(IJavaProject jproject, String dirString, IProgressMonitor monitor) {
     	if (!GeneratedSourceFolderManager.validate(jproject, dirString)) {
     		throw new IllegalArgumentException("Illegal name for generated source folder: " + dirString); //$NON-NLS-1$
     	}
-    	setString(jproject, AptPreferenceConstants.APT_GENSRCDIR, dirString);
+		setString(jproject, AptPreferenceConstants.APT_GENSRCDIR, dirString, monitor);
     }
 
     /**
@@ -928,17 +967,24 @@ public class AptConfig {
 	 * @since 3.6
 	 */
     public static void setGenTestSrcDir(IJavaProject jproject, String dirString) {
+		setGenTestSrcDir(jproject, dirString, null);
+	}
+
+	/**
+	 * @since 3.8
+	 */
+	public static void setGenTestSrcDir(IJavaProject jproject, String dirString, IProgressMonitor monitor) {
     	if (!GeneratedSourceFolderManager.validate(jproject, dirString)) {
     		throw new IllegalArgumentException("Illegal name for generated test source folder: " + dirString); //$NON-NLS-1$
     	}
-    	setString(jproject, AptPreferenceConstants.APT_GENTESTSRCDIR, dirString);
+		setString(jproject, AptPreferenceConstants.APT_GENTESTSRCDIR, dirString, monitor);
     }
 
     public static boolean validateGenSrcDir(IJavaProject jproject, String dirName) {
     	return GeneratedSourceFolderManager.validate(jproject, dirName);
     }
 
-	private static void setBoolean(IJavaProject jproject, String optionName, boolean value) {
+	private static void setBoolean(IJavaProject jproject, String optionName, boolean value, IProgressMonitor monitor) {
 		IScopeContext context = (null != jproject) ?
 				new ProjectScope(jproject.getProject()) : InstanceScope.INSTANCE;
 		IEclipsePreferences node = context.getNode(AptPlugin.PLUGIN_ID);
@@ -947,12 +993,12 @@ public class AptConfig {
 		node.putBoolean(optionName, value);
 		if (jproject != null && oldValue == null || (value != Boolean.parseBoolean(oldValue))) {
 			AptProject aproj = AptPlugin.getAptProject(jproject);
-			aproj.preferenceChanged(optionName);
+			aproj.preferenceChanged(optionName, monitor);
 		}
 		flushPreference(optionName, node);
 	}
 
-	private static void setString(IJavaProject jproject, String optionName, String value) {
+	private static void setString(IJavaProject jproject, String optionName, String value, IProgressMonitor monitor) {
 		IScopeContext context = (null != jproject) ?
 				new ProjectScope(jproject.getProject()) : InstanceScope.INSTANCE;
 		IEclipsePreferences node;
@@ -966,7 +1012,7 @@ public class AptConfig {
 		node.put(optionName, value);
 		if (jproject != null && !value.equals(oldValue)) {
 			AptProject aproj = AptPlugin.getAptProject(jproject);
-			aproj.preferenceChanged(optionName);
+			aproj.preferenceChanged(optionName, monitor);
 		}
 		flushPreference(optionName, node);
 	}
