@@ -18726,4 +18726,26 @@ public void testBug499596() throws Exception {
 	runner.classLibraries = this.LIBS;
 	runner.runWarningTest();
 }
+public void testRedundantNonNull_field() {
+	Runner runner = new Runner();
+	runner.testFiles =
+		new String[] {
+			"test1/Foo.java",
+			"package test1;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"@NonNullByDefault\n" +
+			"public class Foo {\n" +
+			"    @NonNull Object f=new Object();\n" +
+			"}\n"
+		};
+	runner.expectedCompilerLog =
+			"----------\n" +
+			"1. WARNING in test1\\Foo.java (at line 5)\n" +
+			"	@NonNull Object f=new Object();\n" +
+			"	^^^^^^^^^^^^^^^\n" +
+			"The nullness annotation is redundant with a default that applies to this location\n" +
+			"----------\n";
+	runner.classLibraries = this.LIBS;
+	runner.runWarningTest();
+}
 }
