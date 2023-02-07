@@ -123,7 +123,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 							return ConstraintTypeFormula.create(exprType, this.right, COMPATIBLE, this.isSoft);
 						}
 						if (innerCtx.isInexactVarargsInference()) {
-							// See https://github.com/eclipse-jdt/eclipse.jdt.core/pull/508
+							// See https://github.com/eclipse-jdt/eclipse.jdt.core/pull/524
 							// Skip the inner inference result for now until the varargs method
 							// is inferred a second time by a proper target type.
 							return TRUE;
