@@ -152,6 +152,7 @@ import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
 import org.eclipse.jdt.internal.core.search.IRestrictedAccessTypeRequestor;
 import org.eclipse.jdt.internal.core.search.JavaWorkspaceScope;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
+import org.eclipse.jdt.internal.core.search.indexing.RemoveContainerFromIndex;
 import org.eclipse.jdt.internal.core.search.processing.IJob;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
 import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
@@ -1305,7 +1306,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 					IPath path = entry.getPath();
 					if (rootInfos.get(path) == null) {
 						externalTimeStamps.remove(path);
-						indexManager.removeIndex(path); // force reindexing on next reference (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=250083 )
+						indexManager.request(new RemoveContainerFromIndex(path, indexManager)); // force reindexing on next reference (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=250083 )
 					}
 				}
 			}

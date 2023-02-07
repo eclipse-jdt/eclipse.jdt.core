@@ -249,6 +249,12 @@ public class IndexAllProject extends IndexRequest {
 	protected Integer updatedIndexState() {
 		return IndexManager.REBUILDING_STATE;
 	}
+
+	@Override
+	public boolean canDiscardWaitingJobs() {
+		return true;
+	}
+
 	@Override
 	public String toString() {
 		return "indexing project " + this.project.getFullPath(); //$NON-NLS-1$

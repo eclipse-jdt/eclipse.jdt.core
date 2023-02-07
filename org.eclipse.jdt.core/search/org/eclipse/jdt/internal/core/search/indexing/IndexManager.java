@@ -804,6 +804,9 @@ public synchronized void jobWasCancelled(IPath containerPath) {
 	Index index = getIndex(indexLocation);
 	if (index != null) {
 		index.monitor = null;
+		if (VERBOSE) {
+			Util.verbose("-> index removed for path " + containerPath + " : " + indexLocation); //$NON-NLS-1$//$NON-NLS-2$
+		}
 		this.indexes.removeKey(indexLocation);
 	}
 	updateIndexState(indexLocation, UNKNOWN_STATE);
@@ -1103,12 +1106,12 @@ public synchronized boolean resetIndex(IPath containerPath) {
 		// Path is already canonical
 		IndexLocation indexLocation = computeIndexLocation(containerPath);
 		Index index = getIndex(indexLocation);
-		if (VERBOSE) {
-			Util.verbose("-> reseting index: "+indexLocation+" for path: "+containerPathString); //$NON-NLS-1$ //$NON-NLS-2$
-		}
 		if (index == null) {
 			// the index does not exist, try to recreate it
 			return recreateIndex(containerPath) != null;
+		}
+		if (VERBOSE) {
+			Util.verbose("-> reseting index: "+indexLocation+" for path: "+containerPathString); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		index.reset();
 		return true;
@@ -1146,7 +1149,7 @@ public void saveIndex(Index index) throws IOException {
 	// must have permission to write from the write monitor
 	if (index.hasChanged()) {
 		if (VERBOSE)
-			Util.verbose("-> saving index " + index.getIndexLocation()); //$NON-NLS-1$
+			Util.verbose("-> saving index " + index.getIndexLocation() + " for path: " + index.containerPath); //$NON-NLS-1$ //$NON-NLS-2$
 		if (index.save()) {
 			updateMetaIndex(index);
 		} else {

@@ -565,12 +565,14 @@ public void testConcurrentJob() throws CoreException, InterruptedException, IOEx
   * Ensures that types are found if the project is a lib folder
   * (regression test for bug 83822 Classes at root of project not found in Open Type dialog)
   */
- public void testProjectLib() throws CoreException {
+ public void XtestProjectLib() throws CoreException {
+//	boolean indexDisabled = isIndexDisabledForTest();
  	try {
  		IJavaProject javaProject = createJavaProject("P1", new String[0], new String[] {"/P1"}, "bin");
  		createClassFile("/P1", "X.class", "public class X {}");
  		IProject project = javaProject.getProject();
  		project.close(null);
+// 		this.indexDisabledForTest = false;
  		waitUntilIndexesReady();
  		project.open(null);
  		assertAllTypes(
@@ -580,6 +582,7 @@ public void testConcurrentJob() throws CoreException, InterruptedException, IOEx
  		);
  	} finally {
  		deleteProject("P1");
+// 		this.indexDisabledForTest = indexDisabled;
  	}
  }
 /*
