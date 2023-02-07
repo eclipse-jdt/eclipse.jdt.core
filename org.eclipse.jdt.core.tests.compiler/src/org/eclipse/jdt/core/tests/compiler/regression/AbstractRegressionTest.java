@@ -1508,6 +1508,7 @@ protected static class JavacTestOptions {
 	 */
 	private static final class ProblemLog {
 		final Set<String> logEntry = new HashSet<>();
+		String duplicateEntry = null;
 
 		public ProblemLog(String log) {
 			String[] entries = log.split("----------\n");
@@ -1518,12 +1519,15 @@ protected static class JavacTestOptions {
 				if (matcher.find()) {
 					entry = entry.substring(matcher.end());
 				}
-				this.logEntry.add(entry);
+				if (!entry.isEmpty() && !this.logEntry.add(entry))
+					this.duplicateEntry = entry;
 			}
 		}
 
 		public boolean sameAs(String toTest) {
 			ProblemLog log = new ProblemLog(toTest);
+			if (this.duplicateEntry != null && log.duplicateEntry == null) // have a duplicate that is unexpected?
+				fail("Duplicate entry in compiler log:\n"+this.duplicateEntry);
 			return equals(log);
 		}
 

@@ -829,14 +829,9 @@ public class NullAnnotationBatchCompilerTest extends AbstractBatchCompilerTest {
 					"1. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/test1/Test1.java (at line 13)\n" +
 					"	public boolean equals(@NonNull Object other) { return false; }\n" +
 					"	                      ^^^^^^^^^^^^^^^\n" +
-					"The nullness annotation is redundant with a default that applies to this location\n" +
-					"----------\n" +
-					"2. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/test1/Test1.java (at line 13)\n" +
-					"	public boolean equals(@NonNull Object other) { return false; }\n" +
-					"	                      ^^^^^^^^^^^^^^^\n" +
 					"Illegal redefinition of parameter other, inherited method from Object declares this parameter as @Nullable\n" +
 					"----------\n" +
-					"2 problems (2 warnings)\n";
+					"1 problem (1 warning)\n";
 		try {
 			if (isSuccess)
 				this.runConformTest(testFiles, commandLine, "", expectedCompilerMessage, true);
@@ -948,14 +943,9 @@ public class NullAnnotationBatchCompilerTest extends AbstractBatchCompilerTest {
 				"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/test1/Test1.java (at line 13)\n" +
 				"	public boolean equals(@NonNull Object other) { return false; }\n" +
 				"	                      ^^^^^^^^^^^^^^^\n" +
-				"The nullness annotation is redundant with a default that applies to this location\n" +
-				"----------\n" +
-				"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/test1/Test1.java (at line 13)\n" +
-				"	public boolean equals(@NonNull Object other) { return false; }\n" +
-				"	                      ^^^^^^^^^^^^^^^\n" +
 				"Illegal redefinition of parameter other, inherited method from Object declares this parameter as @Nullable\n" +
 				"----------\n" +
-				"4 problems (4 warnings)\n",
+				"3 problems (3 warnings)\n",
 				true);
 	}
 
@@ -990,14 +980,9 @@ public class NullAnnotationBatchCompilerTest extends AbstractBatchCompilerTest {
 				"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/test1/Test1.java (at line 13)\n" +
 				"	public boolean equals(@NonNull Object other) { return false; }\n" +
 				"	                      ^^^^^^^^^^^^^^^\n" +
-				"The nullness annotation is redundant with a default that applies to this location\n" +
-				"----------\n" +
-				"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/test1/Test1.java (at line 13)\n" +
-				"	public boolean equals(@NonNull Object other) { return false; }\n" +
-				"	                      ^^^^^^^^^^^^^^^\n" +
 				"Illegal redefinition of parameter other, inherited method from Object declares this parameter as @Nullable\n" +
 				"----------\n" +
-				"4 problems (4 warnings)\n",
+				"3 problems (3 warnings)\n",
 				true);
 	}
 
@@ -1032,14 +1017,9 @@ public class NullAnnotationBatchCompilerTest extends AbstractBatchCompilerTest {
 				"3. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/test1/Test1.java (at line 13)\n" +
 				"	public boolean equals(@NonNull Object other) { return false; }\n" +
 				"	                      ^^^^^^^^^^^^^^^\n" +
-				"The nullness annotation is redundant with a default that applies to this location\n" +
-				"----------\n" +
-				"4. WARNING in ---OUTPUT_DIR_PLACEHOLDER---/test1/Test1.java (at line 13)\n" +
-				"	public boolean equals(@NonNull Object other) { return false; }\n" +
-				"	                      ^^^^^^^^^^^^^^^\n" +
 				"Illegal redefinition of parameter other, inherited method from Object declares this parameter as @Nullable\n" +
 				"----------\n" +
-				"4 problems (4 warnings)\n",
+				"3 problems (3 warnings)\n",
 				true);
 	}
 	public void testBug571055_explicit() throws IOException {

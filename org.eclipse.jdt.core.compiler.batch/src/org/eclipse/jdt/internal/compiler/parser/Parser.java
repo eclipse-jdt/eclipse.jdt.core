@@ -11270,7 +11270,7 @@ private void convertToFields(TypeDeclaration typeDecl, RecordComponent[] recComp
 			continue;
 		}
 		if (recComp.type.getLastToken() == TypeConstants.VOID) {
-			problemReporter().recordComponentCannotBeVoid(recComp);
+			// flag the error in SourceTypeBinding.resolveTypeFor(RecordComponentBinding)
 			continue;
 		}
 		if (recComp.isVarArgs() && i < max - 1)

@@ -218,9 +218,9 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 					for (int i = 0; i < argLength; i++) {
 						TypeReference typeArgument = this.typeArguments[i];
 						if (isClassScope) {
-							typeArgument.resolveType((ClassScope) scope);
+							typeArgument.resolveType((ClassScope) scope); // default location not needed in resilience mode
 						} else {
-							typeArgument.resolveType((BlockScope) scope, checkBounds);
+							typeArgument.resolveType((BlockScope) scope, checkBounds); // default location not needed in resilience mode
 						}
 					}
 					return null;

@@ -47,6 +47,7 @@ import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.RecordComponent;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference.AnnotationPosition;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
@@ -545,10 +546,14 @@ protected void fillInDefaultNonNullness18(AbstractMethodDeclaration sourceMethod
 	if(original == null) {
 		return;
 	}
+	if (sourceMethod != null && (sourceMethod.bits & (ASTNode.IsCanonicalConstructor | ASTNode.IsImplicit)) != 0) {
+		return;
+	}
 	ParameterNonNullDefaultProvider hasNonNullDefaultForParameter = hasNonNullDefaultForParameter(sourceMethod);
 	if (hasNonNullDefaultForParameter.hasAnyNonNullDefault()) {
 		boolean added = false;
 		int length = this.parameters.length;
+		ParameterNonNullDefaultProvider parameterDefaults = hasNonNullDefaultForParameter(sourceMethod);
 		for (int i = 0; i < length; i++) {
 			if (!hasNonNullDefaultForParameter.hasNonNullDefaultForParam(i))
 				continue;
@@ -563,6 +568,15 @@ protected void fillInDefaultNonNullness18(AbstractMethodDeclaration sourceMethod
 					if (sourceMethod != null)
 						sourceMethod.arguments[i].binding.type = this.parameters[i];
 				}
+			} else if (existing == TagBits.AnnotationNonNull
+					&& sourceMethod != null
+					&& parameter.hasNullTypeAnnotations()
+					&& parameterDefaults.hasNonNullDefaultForParam(i)) {
+				Argument argument = sourceMethod.arguments[i];
+				Annotation[] annotations = argument.type.getTopAnnotations();
+				if (!TypeReference.containsNullAnnotation(annotations))
+					annotations = argument.annotations;
+				sourceMethod.scope.problemReporter().nullAnnotationIsRedundant(argument.type, annotations);
 			}
 		}
 		if (added)
