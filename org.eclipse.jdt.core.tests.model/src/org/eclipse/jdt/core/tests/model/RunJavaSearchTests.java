@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -70,6 +70,7 @@ public class RunJavaSearchTests extends junit.framework.TestCase {
 		allClasses.add(JavaSearchBugs15Tests.class);
 		allClasses.add(JavaSearchBugs16Tests.class);
 		allClasses.add(JavaSearchBugs17Tests.class);
+		allClasses.add(JavaSearchBugs19Tests.class);
 		allClasses.add(JavaSearchMultipleProjectsTests.class);
 		allClasses.add(SearchTests.class);
 		allClasses.add(JavaSearchScopeTests.class);

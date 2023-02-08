@@ -1067,4 +1067,117 @@ public void test022() throws JavaModelException {
 	checkMethodParse(string.toCharArray(), selectionStart, selectionEnd, expectedSelection, expectedUnitDisplayString,
 			selectionIdentifier, expectedReplacedSource, testName);
 }
+public void testIssue708_1() throws JavaModelException {
+	String string =  "public class X {\n"
+			+ "	public void test(Type type, String string) {\n"
+			+ "		switch (type) {\n"
+			+ "		case openDeclarationFails -> {\n"
+			+ "			switch (string) {\n"
+			+ "				case \"Test\" -> method(Type.openDeclarationFails);\n"
+			+ "			}\n"
+			+ "		}\n"
+			+ "		}\n"
+			+ "	}\n"
+			+ "	private void method(Type relay) {}\n"
+			+ "	static public enum Type {\n"
+			+ "		openDeclarationFails, anotherValue;\n"
+			+ "	}\n"
+			+ "}";
+
+	String selection = "openDeclarationFails";
+	String selectKey = "<SelectOnName:";
+	String expectedSelection = selectKey + selection + ">";
+
+	String selectionIdentifier = "openDeclarationFails";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public static enum Type {\n" +
+			"    openDeclarationFails(),\n" +
+			"    anotherValue(),\n" +
+			"    <clinit>() {\n" +
+			"    }\n" +
+			"    public Type() {\n" +
+			"    }\n" +
+			"  }\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  public void test(Type type, String string) {\n" +
+			"    {\n" +
+			"      switch (type) {\n" +
+			"      case <SelectOnName:openDeclarationFails> :\n" +
+			"      }\n" +
+			"    }\n" +
+			"  }\n" +
+			"  private void method(Type relay) {\n" +
+			"  }\n" +
+			"}\n";
+	String expectedReplacedSource = "openDeclarationFails";
+	String testName = "X.java";
+
+	int selectionStart = string.indexOf(selection);
+	int selectionEnd = selectionStart + selection.length() - 1;
+
+	checkMethodParse(string.toCharArray(), selectionStart, selectionEnd, expectedSelection, expectedUnitDisplayString,
+			selectionIdentifier, expectedReplacedSource, testName);
+}
+public void testIssue708_2() throws JavaModelException {
+	String string =  "public class X {\n"
+			+ "	static public enum Type {\n"
+			+ "		openDeclarationFails, anotherValue;\n"
+			+ "	}\n"
+			+ "	public void test(Type type, String string) {\n"
+			+ "		switch (type) {\n"
+			+ "		case openDeclarationFails -> {\n"
+			+ "			switch (string) {\n"
+			+ "			case \"Test\" -> method(Type.openDeclarationFails);\n"
+			+ "			}\n"
+			+ "		}\n"
+			+ "		case anotherValue -> {\n"
+			+ "			switch (string) {\n"
+			+ "			case \"Test\" -> method(Type.anotherValue);\n"
+			+ "			}\n"
+			+ "		}\n"
+			+ "		}\n"
+			+ "	}\n"
+			+ "	private void method(Type relay) {}\n"
+			+ "}";
+
+	String selection = "anotherValue";
+	String selectKey = "<SelectOnName:";
+	String expectedSelection = selectKey + "Type." + selection + ">";
+
+	String selectionIdentifier = "anotherValue";
+	String expectedUnitDisplayString =
+			"public class X {\n" +
+			"  public static enum Type {\n" +
+			"    openDeclarationFails(),\n" +
+			"    anotherValue(),\n" +
+			"    <clinit>() {\n" +
+			"    }\n" +
+			"    public Type() {\n" +
+			"    }\n" +
+			"  }\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  public void test(Type type, String string) {\n" +
+			"    {\n" +
+			"      {\n" +
+			"        {\n" +
+			"          <SelectOnName:Type.anotherValue>;\n" +
+			"        }\n" +
+			"      }\n" +
+			"    }\n" +
+			"  }\n" +
+			"  private void method(Type relay) {\n" +
+			"  }\n" +
+			"}\n";
+	String expectedReplacedSource = "Type.anotherValue";
+	String testName = "X.java";
+
+	int selectionStart = string.lastIndexOf(selection);
+	int selectionEnd = selectionStart + selection.length() - 1;
+
+	checkMethodParse(string.toCharArray(), selectionStart, selectionEnd, expectedSelection, expectedUnitDisplayString,
+			selectionIdentifier, expectedReplacedSource, testName);
+}
 }
