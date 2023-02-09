@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017, 2021 IBM Corporation.
+ * Copyright (c) 2017, 2023 IBM Corporation.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -440,6 +440,20 @@ public class Java9ElementsTests extends TestCase {
 							File.pathSeparator + autoModuleJar);
 				});
 	}
+	public void testGetFileObjectOfJavac() throws IOException {
+		if (!canRunJava18()) {
+			return;
+		}
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		internalTest3(compiler, MODULE_PROC, "testGetFileObjectOf", null, false);
+	}
+	public void testGetFileObjectOf() throws IOException {
+		if (!canRunJava18()) {
+			return;
+		}
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTest3(compiler, MODULE_PROC, "testGetFileObjectOf", null, false);
+	}
 	protected void internalTestWithBinary(JavaCompiler compiler, String processor, String compliance, String testMethod, String testClass, String resourceArea) throws IOException {
 		if (!canRunJava9()) {
 			return;
@@ -583,6 +597,14 @@ public class Java9ElementsTests extends TestCase {
 	public boolean canRunJava17() {
 		try {
 			SourceVersion.valueOf("RELEASE_17");
+		} catch(IllegalArgumentException iae) {
+			return false;
+		}
+		return true;
+	}
+	public boolean canRunJava18() {
+		try {
+			SourceVersion.valueOf("RELEASE_18");
 		} catch(IllegalArgumentException iae) {
 			return false;
 		}

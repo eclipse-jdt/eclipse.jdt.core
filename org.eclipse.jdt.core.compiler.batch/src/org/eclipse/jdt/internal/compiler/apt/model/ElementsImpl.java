@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2022 BEA Systems, Inc. and others
+ * Copyright (c) 2006, 2023 BEA Systems, Inc. and others
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -17,12 +17,16 @@
 
 package org.eclipse.jdt.internal.compiler.apt.model;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
+import java.nio.charset.Charset;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -41,8 +45,12 @@ import javax.lang.model.element.Name;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
+import javax.tools.JavaFileManager;
+import javax.tools.JavaFileObject;
+import javax.tools.JavaFileObject.Kind;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
@@ -50,6 +58,9 @@ import org.eclipse.jdt.internal.compiler.ast.Javadoc;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
+import org.eclipse.jdt.internal.compiler.lookup.BinaryModuleBinding;
+import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
@@ -59,9 +70,12 @@ import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.SourceModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
+import org.eclipse.jdt.internal.compiler.tool.EclipseFileManager;
+import org.eclipse.jdt.internal.compiler.tool.PathFileObject;
 
 /**
  * Utilities for working with java8 and earlier language elements.
@@ -81,7 +95,7 @@ public class ElementsImpl implements Elements {
 	 * not create their own; they should ask the env for it.
 	 */
 	protected ElementsImpl(BaseProcessingEnvImpl env) {
-		_env = env;
+		this._env = env;
 	}
 
 	public static ElementsImpl create(BaseProcessingEnvImpl env) {
@@ -122,7 +136,7 @@ public class ElementsImpl implements Elements {
 			}
 			List<AnnotationMirror> list = new ArrayList<>(annotations.size());
 			for (AnnotationBinding annotation : annotations) {
-				list.add(_env.getFactory().newAnnotationMirror(annotation));
+				list.add(this._env.getFactory().newAnnotationMirror(annotation));
 			}
 			return Collections.unmodifiableList(list);
 		}
@@ -176,14 +190,14 @@ public class ElementsImpl implements Elements {
 		}
 		List<Element> allMembers = new ArrayList<>();
 		for (ReferenceBinding nestedType : types.values()) {
-			allMembers.add(_env.getFactory().newElement(nestedType));
+			allMembers.add(this._env.getFactory().newElement(nestedType));
 		}
 		for (FieldBinding field : fields) {
-			allMembers.add(_env.getFactory().newElement(field));
+			allMembers.add(this._env.getFactory().newElement(field));
 		}
 		for (Set<MethodBinding> sameNamedMethods : methods.values()) {
 			for (MethodBinding method : sameNamedMethods) {
-				allMembers.add(_env.getFactory().newElement(method));
+				allMembers.add(this._env.getFactory().newElement(method));
 			}
 		}
 		return allMembers;
@@ -250,7 +264,7 @@ public class ElementsImpl implements Elements {
 					boolean unique = true;
 					if (!ignoreVisibility) {
 						for (MethodBinding existing : sameNamedMethods) {
-							MethodVerifier verifier = _env.getLookupEnvironment().methodVerifier();
+							MethodVerifier verifier = this._env.getLookupEnvironment().methodVerifier();
 							if (verifier.doesMethodOverride(existing, method)) {
 								unique = false;
 								break;
@@ -567,16 +581,16 @@ public class ElementsImpl implements Elements {
 
 	@Override
 	public PackageElement getPackageElement(CharSequence name) {
-		LookupEnvironment le = _env.getLookupEnvironment(); // FIXME(SHMOD): does this lookup need to be module-aware?
+		LookupEnvironment le = this._env.getLookupEnvironment(); // FIXME(SHMOD): does this lookup need to be module-aware?
 		if (name.length() == 0) {
-			return (PackageElement) _env.getFactory().newElement(le.defaultPackage);
+			return (PackageElement) this._env.getFactory().newElement(le.defaultPackage);
 		}
 		char[] packageName = name.toString().toCharArray();
 		PackageBinding packageBinding = le.createPackage(CharOperation.splitOn('.', packageName));
 		if (packageBinding == null) {
 			return null;
 		}
-		return (PackageElement) _env.getFactory().newElement(packageBinding);
+		return (PackageElement) this._env.getFactory().newElement(packageBinding);
 	}
 
 	@Override
@@ -589,24 +603,24 @@ public class ElementsImpl implements Elements {
 			case RECORD :
 				TypeElementImpl typeElementImpl = (TypeElementImpl) type;
 				ReferenceBinding referenceBinding = (ReferenceBinding)typeElementImpl._binding;
-				return (PackageElement) _env.getFactory().newElement(referenceBinding.fPackage);
+				return (PackageElement) this._env.getFactory().newElement(referenceBinding.fPackage);
 			case PACKAGE :
 				return (PackageElement) type;
 			case CONSTRUCTOR :
 			case METHOD :
 				ExecutableElementImpl executableElementImpl = (ExecutableElementImpl) type;
 				MethodBinding methodBinding = (MethodBinding) executableElementImpl._binding;
-				return (PackageElement) _env.getFactory().newElement(methodBinding.declaringClass.fPackage);
+				return (PackageElement) this._env.getFactory().newElement(methodBinding.declaringClass.fPackage);
 			case ENUM_CONSTANT :
 			case FIELD :
 			case RECORD_COMPONENT :
 				VariableElementImpl variableElementImpl = (VariableElementImpl) type;
 				FieldBinding fieldBinding = (FieldBinding) variableElementImpl._binding;
-				return (PackageElement) _env.getFactory().newElement(fieldBinding.declaringClass.fPackage);
+				return (PackageElement) this._env.getFactory().newElement(fieldBinding.declaringClass.fPackage);
 			case PARAMETER :
 				variableElementImpl = (VariableElementImpl) type;
 				LocalVariableBinding localVariableBinding = (LocalVariableBinding) variableElementImpl._binding;
-				return (PackageElement) _env.getFactory().newElement(localVariableBinding.declaringScope.classScope().referenceContext.binding.fPackage);
+				return (PackageElement) this._env.getFactory().newElement(localVariableBinding.declaringScope.classScope().referenceContext.binding.fPackage);
 			case EXCEPTION_PARAMETER :
 			case INSTANCE_INIT :
 			case OTHER :
@@ -626,7 +640,7 @@ public class ElementsImpl implements Elements {
 	 */
 	@Override
 	public TypeElement getTypeElement(CharSequence name) {
-		LookupEnvironment le = _env.getLookupEnvironment();
+		LookupEnvironment le = this._env.getLookupEnvironment();
 		final char[][] compoundName = CharOperation.splitOn('.', name.toString().toCharArray());
 		ReferenceBinding binding = le.getType(compoundName);
 		// If we didn't find the binding, maybe it's a nested type;
@@ -658,7 +672,7 @@ public class ElementsImpl implements Elements {
 		if((binding.tagBits & TagBits.HasMissingType) != 0) {
 			return null;
 		}
-		return new TypeElementImpl(_env, binding, null);
+		return new TypeElementImpl(this._env, binding, null);
 	}
 
 	/* (non-Javadoc)
@@ -736,4 +750,71 @@ public class ElementsImpl implements Elements {
 		ModuleBinding binding = ((ModuleElementImpl) module).binding;
 		return binding != null ? binding.isAutomatic() : false;
     }
+	@Override
+	public javax.tools.JavaFileObject getFileObjectOf(Element element) {
+		switch(element.getKind()) {
+			case CLASS:
+			case ENUM:
+			case RECORD:
+			case ANNOTATION_TYPE:
+				TypeElement outer = getOutermostTypeElement(element);
+				TypeElementImpl typeElementImpl = (TypeElementImpl) outer;
+				Binding typeBinding = typeElementImpl._binding;
+				if (typeBinding instanceof SourceTypeBinding) {
+					SourceTypeBinding sourceTypeBinding = (SourceTypeBinding) typeBinding;
+					ReferenceContext referenceContext = sourceTypeBinding.scope.referenceContext();
+					return getSourceJavaFileObject(referenceContext);
+				} else if(typeBinding instanceof BinaryTypeBinding) {
+					BinaryTypeBinding binaryBinding = (BinaryTypeBinding) typeBinding;
+					if (binaryBinding.path != null) {
+						return new PathFileObject(Path.of(binaryBinding.path), Kind.CLASS, Charset.defaultCharset());
+					}
+				}
+				break;
+			case MODULE:
+				ModuleElementImpl moduleEl = (ModuleElementImpl) element;
+				ModuleBinding binding = (ModuleBinding) moduleEl._binding;
+				if (binding instanceof SourceModuleBinding) {
+					SourceModuleBinding sourceModule = (SourceModuleBinding) binding;
+					return getSourceJavaFileObject(sourceModule.scope.referenceContext());
+				} else if (binding instanceof BinaryModuleBinding) {
+					BinaryModuleBinding binaryBinding = (BinaryModuleBinding) binding;
+					if (binaryBinding.path != null) {
+						return new PathFileObject(Path.of(binaryBinding.path), Kind.CLASS, Charset.defaultCharset());
+					}
+				}
+				break;
+			case LOCAL_VARIABLE:
+			case FIELD:
+			case RECORD_COMPONENT:
+			case ENUM_CONSTANT:
+			case METHOD:
+			case CONSTRUCTOR:
+				if (element.getEnclosingElement() != null) {
+					return getFileObjectOf(element.getEnclosingElement());
+				}
+				break;
+			default:
+				break;
+		}
+		return null;
+	}
+	private JavaFileObject getSourceJavaFileObject(ReferenceContext referenceContext) {
+		JavaFileManager fileManager = this._env.getFileManager();
+		if (fileManager instanceof EclipseFileManager) {
+			EclipseFileManager eFileManager = (EclipseFileManager) fileManager;
+			CompilationResult compilationResult = referenceContext.compilationResult();
+			String fileName = new String(compilationResult.fileName);
+			File f = new File(fileName);
+			if (f.exists()) {
+				Iterator<? extends JavaFileObject> objects = eFileManager.getJavaFileObjects(f).iterator();
+				if (objects.hasNext()) {
+					return objects.next();
+				}
+			}
+		} else {
+			throw new UnsupportedOperationException();
+		}
+		return null;
+	}
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -27,6 +27,10 @@ import java.io.StringWriter;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -45,6 +49,8 @@ import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
 import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
@@ -626,6 +632,39 @@ public class Util implements SuffixConstants {
 				}
 			}
 		}
+	}
+	/**
+	 * Creates and returns a ClassFileReader.
+	 * @throws IOException if a problem occurred reading the zip entry.
+	 */
+	public static ClassFileReader getZipEntryClassFile(String zipName, String fileName) throws IOException {
+		Path zipfile = Paths.get(zipName);
+		java.nio.file.FileSystem fs = FileSystems.newFileSystem(zipfile, null);
+		Path path = fs.getPath(fileName);
+		InputStream stream = null;
+		try(fs) {
+			if (!Files.exists(path)) {
+				throw new IOException("Invalid zip entry name : " + zipName); //$NON-NLS-1$
+			}
+			InputStream inputStream = Files.newInputStream(path);
+			if (inputStream == null) {
+				throw new IOException("Invalid zip entry name : " + zipName); //$NON-NLS-1$
+			}
+			stream = new BufferedInputStream(inputStream);
+			ClassFileReader reader = new ClassFileReader(path.toUri(), getInputStreamAsByteArray(inputStream), fileName.toCharArray());
+			return reader;
+		} catch (ClassFormatException e) {
+			e.printStackTrace();
+		} finally {
+			if (stream != null) {
+				try {
+					stream.close();
+				} catch (IOException e) {
+					// ignore
+				}
+			}
+		}
+		return null;
 	}
 	public static int hashCode(Object[] array) {
 		int prime = 31;

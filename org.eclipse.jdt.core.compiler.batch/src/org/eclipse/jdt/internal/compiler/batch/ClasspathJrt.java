@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2018 IBM Corporation.
+ * Copyright (c) 2016, 2023 IBM Corporation.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -225,8 +225,14 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 					}
 
 					@Override
-					public FileVisitResult visitModule(Path p, String name) throws IOException {
-						ClasspathJrt.this.acceptModule(JRTUtil.getClassfileContent(ClasspathJrt.this.file, IModule.MODULE_INFO_CLASS, name), newCache);
+					public FileVisitResult visitModule(Path p, String name) {
+						try {
+							ClasspathJrt.this.acceptModule(JRTUtil.getClassfile(ClasspathJrt.this.file, IModule.MODULE_INFO_CLASS, name), newCache);
+						} catch (IOException e) {
+							e.printStackTrace();
+						} catch (ClassFormatException e) {
+							e.printStackTrace();
+						}
 						return FileVisitResult.SKIP_SUBTREE;
 					}
 				}, JRTUtil.NOTIFY_MODULES);
@@ -252,20 +258,6 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 			if (moduleDecl != null) {
 				cache.put(String.valueOf(moduleDecl.name()), moduleDecl);
 			}
-		}
-	}
-
-	void acceptModule(byte[] content, Map<String, IModule> cache) {
-		if (content == null)
-			return;
-		ClassFileReader reader = null;
-		try {
-			reader = new ClassFileReader(content, IModule.MODULE_INFO_CLASS.toCharArray());
-		} catch (ClassFormatException e) {
-			e.printStackTrace();
-		}
-		if (reader != null) {
-			acceptModule(reader, cache);
 		}
 	}
 
