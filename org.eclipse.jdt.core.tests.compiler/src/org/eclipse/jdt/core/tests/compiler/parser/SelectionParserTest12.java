@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019 IBM Corporation and others.
+ * Copyright (c) 2019, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -500,13 +500,11 @@ public void test010() throws JavaModelException {
 			"  public X() {\n" +
 			"  }\n" +
 			"  public static void foo(Num num_) {\n" +
-			"    switch (num_) {\n" +
-			"    case THREE ->\n" +
-			"        {\n" +
-			"          int i_j;\n" +
-			"          System.out.println(<SelectOnName:i_j>);\n" +
-			"          break;\n" +
-			"        }\n" +
+			"    {\n" +
+			"      {\n" +
+			"        int i_j;\n" +
+			"        <SelectOnName:i_j>;\n" +
+			"      }\n" +
 			"    }\n" +
 			"  }\n" +
 			"}\n";
