@@ -518,4 +518,64 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 						requestor.getResults());
 
 	}
+
+	public void testGH667_CompletionOnRecordComponent_SimpleTypeName() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/Person.java",
+				"public record Person(Nam) {\n"
+						+ "}\n");
+		this.workingCopies[1] = getWorkingCopy(
+				"/Completion/src/Name.java",
+				"public class Name {\n"
+						+ "}\n");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "Nam";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"Name[TYPE_REF]{Name, , LName;, null, null, null, null, [21, 24], "
+						+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	}
+
+	public void testGH667_CompletionOnRecordComponent_QualifiedTypeName() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/Person.java",
+				"public record Person(pack2.P) {\n"
+						+ "}\n");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "pack2.P";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"PX[TYPE_REF]{pack2.PX, pack2, Lpack2.PX;, null, null, null, null, [21, 28], "
+						+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_QUALIFIED + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	}
+
+	public void testGH667_CompletionOnRecordComponent_VariableName() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/Person.java",
+				"public record Person(Name ) {\n"
+						+ "}\n");
+		this.workingCopies[1] = getWorkingCopy(
+				"/Completion/src/Name.java",
+				"public class Name {\n"
+						+ "}\n");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "Name ";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"name[VARIABLE_DECLARATION]{name, null, LName;, null, null, name, null, [26, 26], "
+						+ (R_DEFAULT + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	}
+
 }

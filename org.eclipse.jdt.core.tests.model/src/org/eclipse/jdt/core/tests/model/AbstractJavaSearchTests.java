@@ -741,6 +741,11 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 			}
 			return contents;
 		}
+		public void clear() {
+			this.lines.clear();
+			this.match = null;
+			this.count = 0;
+		}
 		public String toString() {
 	    	StringBuilder buffer = new StringBuilder();
 	    	List displayedLines = new ArrayList(this.lines);

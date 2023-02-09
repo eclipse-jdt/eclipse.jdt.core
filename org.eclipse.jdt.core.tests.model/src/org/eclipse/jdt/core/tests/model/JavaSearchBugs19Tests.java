@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2022 IBM Corporation and others.
+ * Copyright (c) 2022, 2023 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -16,6 +16,7 @@ import java.io.IOException;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.ILocalVariable;
@@ -775,7 +776,72 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
 	}
+	public void testIssue708_1() throws CoreException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
+				"public class Test1 {\n"
+				+ "	public void test(Type type, String string) {\n"
+				+ "		switch (type) {\n"
+				+ "		case openDeclarationFails -> {\n"
+				+ "			switch (string) {\n"
+				+ "			case \"Test\" -> method(Type.openDeclarationFails);\n"
+				+ "			}\n"
+				+ "			method(Type.openDeclarationFails);\n"
+				+ "		}\n"
+				+ "		case anotherValue -> {\n"
+				+ "			switch (string) {\n"
+				+ "			case \"Test\" -> method(Type.anotherValue);\n"
+				+ "			}\n"
+				+ "		}\n"
+				+ "		}\n"
+				+ "	}\n"
+				+ "	private void method(Type relay) {}\n"
+				+ "	static public enum Type {\n"
+				+ "		openDeclarationFails, anotherValue;\n"
+				+ "	}\n"
+				+ "}"
+				);
+		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
+		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
+		try {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			String str = this.workingCopies[0].getSource();
+			String selection = "Type.openDeclarationFails";
+			int start = str.indexOf(selection);
+			int length = selection.length();
 
+			IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+			IField local = (IField) elements[0];
+			search(local, DECLARATIONS, EXACT_RULE);
+			assertSearchResults("src/X.java Test1$Type.openDeclarationFails [openDeclarationFails] EXACT_MATCH");
+
+			str = this.workingCopies[0].getSource();
+			selection = "Type.anotherValue";
+			start = str.indexOf(selection);
+			length = selection.length();
+
+			elements = this.workingCopies[0].codeSelect(start, length);
+			local = (IField) elements[0];
+			this.resultCollector.clear();
+			search(local, DECLARATIONS, EXACT_RULE);
+			assertSearchResults("src/X.java Test1$Type.anotherValue [anotherValue] EXACT_MATCH");
+
+			str = this.workingCopies[0].getSource();
+			selection = "openDeclarationFails";
+			start = str.lastIndexOf(selection);
+			length = selection.length();
+
+			elements = this.workingCopies[0].codeSelect(start, length);
+			local = (IField) elements[0];
+			this.resultCollector.clear();
+			search(local, ALL_OCCURRENCES, EXACT_RULE);
+			assertSearchResults("src/X.java void Test1.test(Type, String) [openDeclarationFails] EXACT_MATCH\n" +
+					"src/X.java void Test1.test(Type, String) [openDeclarationFails] EXACT_MATCH\n" +
+					"src/X.java void Test1.test(Type, String) [openDeclarationFails] EXACT_MATCH\n" +
+					"src/X.java Test1$Type.openDeclarationFails [openDeclarationFails] EXACT_MATCH");
+		} finally {
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
+		}
+	}
 }
-
 

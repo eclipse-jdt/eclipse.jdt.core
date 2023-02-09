@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -49,6 +49,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.net.URI;
 import java.util.ArrayList;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -109,6 +110,7 @@ public class BinaryTypeBinding extends ReferenceBinding {
 	protected TypeVariableBinding[] typeVariables;
 	protected ModuleBinding module;
 	private BinaryTypeBinding prototype;
+	public URI path;
 
 	// For the link with the principle structure
 	protected LookupEnvironment environment;
@@ -275,6 +277,7 @@ public BinaryTypeBinding(BinaryTypeBinding prototype) {
 	this.prototype = prototype.prototype;
 	this.environment = prototype.environment;
 	this.storedAnnotations = prototype.storedAnnotations;
+	this.path = prototype.path;
 }
 
 /**
@@ -340,6 +343,8 @@ public BinaryTypeBinding(PackageBinding packageBinding, IBinaryType binaryType, 
 	}
 	if (needFieldsAndMethods)
 		cachePartsFrom(binaryType, true);
+	if (this.environment.globalOptions.processAnnotations)
+		this.path = binaryType.getURI();
 }
 @Override
 public boolean canBeSeenBy(Scope sco) {
@@ -1987,7 +1992,7 @@ private void scanFieldForNullAnnotation(IBinaryField field, VariableBinding fiel
 				&& fieldType.acceptsNonNullDefault()) {
 				int nullDefaultFromField = getNullDefaultFrom(field.getAnnotations());
 				if (nullDefaultFromField == Binding.NO_NULL_DEFAULT
-						? hasNonNullDefaultFor(DefaultLocationField, -1)
+						? hasNonNullDefaultForType(fieldType, DefaultLocationField, -1)
 						: (nullDefaultFromField & DefaultLocationField) != 0) {
 					fieldBinding.type = this.environment.createAnnotatedType(fieldType,
 							new AnnotationBinding[] { this.environment.getNonNullAnnotation() });
@@ -2027,7 +2032,7 @@ private void scanFieldForNullAnnotation(IBinaryField field, VariableBinding fiel
 		this.externalAnnotationStatus = ExternalAnnotationStatus.TYPE_IS_ANNOTATED;
 	if (!explicitNullness) {
 		int nullDefaultFromField = getNullDefaultFrom(field.getAnnotations());
-		if (nullDefaultFromField == Binding.NO_NULL_DEFAULT ? hasNonNullDefaultFor(DefaultLocationField, -1)
+		if (nullDefaultFromField == Binding.NO_NULL_DEFAULT ? hasNonNullDefaultForType(fieldBinding.type, DefaultLocationField, -1)
 				: (nullDefaultFromField & DefaultLocationField) != 0) {
 			fieldBinding.tagBits |= TagBits.AnnotationNonNull;
 		}
