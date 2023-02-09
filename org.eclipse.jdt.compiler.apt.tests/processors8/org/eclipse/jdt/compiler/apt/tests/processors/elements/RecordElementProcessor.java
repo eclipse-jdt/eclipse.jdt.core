@@ -281,6 +281,8 @@ public class RecordElementProcessor extends BaseElementProcessor {
 		assertNotNull("TypeElement for record should not be null", record);
 		verifyAnnotations(record, new String[]{"@Deprecated()"});
 
+		assertEquals("incorrect no of record components", 6, record.getRecordComponents().size());
+
 		List<? extends Element> enclosedElements = record.getEnclosedElements();
 		assertNotNull("enclosedElements for record should not be null", enclosedElements);
 		List<RecordComponentElement> recordComponentsIn = ElementFilter.recordComponentsIn(enclosedElements);
