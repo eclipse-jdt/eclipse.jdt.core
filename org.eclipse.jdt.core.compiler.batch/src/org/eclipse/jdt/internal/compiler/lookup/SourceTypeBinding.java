@@ -3561,23 +3561,19 @@ public RecordComponentBinding getRecordComponent(char[] name) {
 	}
 	return null;
 }
-/**
- * Get the accessor method given the record component name
- * @param name name of the record component
- * @return the method binding of the accessor if found, else null
- */
+
+@Override
 public MethodBinding getRecordComponentAccessor(char[] name) {
-	MethodBinding accessor = null;
 	if (this.recordComponentAccessors != null) {
 		for (MethodBinding m : this.recordComponentAccessors) {
 			if (CharOperation.equals(m.selector, name)) {
-				accessor = m;
-				break;
+				return m;
 			}
 		}
 	}
-	return accessor;
+	return null;
 }
+
 public void computeRecordComponents() {
 	if (!this.isRecord() || this.implicitComponentFields != null)
 		return;

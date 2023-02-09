@@ -1865,6 +1865,18 @@ public boolean isRecord() {
 }
 
 @Override
+public MethodBinding getRecordComponentAccessor(char[] name) {
+	if (isRecord()) {
+		for (MethodBinding m : this.getMethods(name)) {
+			if (CharOperation.equals(m.selector, name)) {
+				return m;
+			}
+		}
+	}
+	return null;
+}
+
+@Override
 public ReferenceBinding containerAnnotationType() {
 	if (!isPrototype()) throw new IllegalStateException();
 	if (this.containerAnnotationType instanceof UnresolvedReferenceBinding) {
