@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2017, 2022 IBM Corporation.
+ * Copyright (c) 2017, 2023 IBM Corporation.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -80,6 +80,7 @@ public class Java9ElementProcessor extends BaseProcessor {
 	boolean isJre10;
 	int roundNo = 0;
 	boolean isJavac;
+	boolean binary = false;
 	@Override
 	public synchronized void init(ProcessingEnvironment processingEnv) {
 		super.init(processingEnv);
@@ -127,6 +128,9 @@ public class Java9ElementProcessor extends BaseProcessor {
 			// Disable this processor unless we are intentionally performing the test.
 			return false;
 		} else {
+			if (options.containsKey("binary")) {
+				this.binary = true;
+			}
 			try {
 				if (!invokeTestMethods(options)) {
 					testAll();
@@ -859,7 +863,6 @@ public class Java9ElementProcessor extends BaseProcessor {
 			this.reportSuccessAlready = false;
 			try {
 				TypeElement annotatedType = _elementUtils.getTypeElement("targets.bug535819.Entity1");
-				System.out.println(annotatedType);
 				Filer filer = processingEnv.getFiler();
 				JavaFileObject jfo = filer.createSourceFile("targets.bug535819.query.QEntity1", annotatedType);
 				Writer writer = jfo.openWriter();
@@ -961,6 +964,48 @@ public class Java9ElementProcessor extends BaseProcessor {
 		assertEquals("incorrect no of directives", 3, directives.size());
 		List<Directive> exports = filterDirective(directives, DirectiveKind.EXPORTS);
 		assertEquals("incorrect exports count", 2, exports.size());
+	}
+	public void testGetFileObjectOf() {
+		TypeElement typeElement =_elementUtils.getTypeElement("abc.internal.A");
+		assertNotNull("Type should not be null", typeElement);
+		JavaFileObject fo = _elementUtils.getFileObjectOf(typeElement);
+		assertNotNull("file object should not be null", fo);
+		assertEquals("should be of kind source", this.binary ? JavaFileObject.Kind.CLASS : JavaFileObject.Kind.SOURCE, fo.getKind());
+		ModuleElement m = _elementUtils.getModuleOf(typeElement);
+		assertNotNull("Module should not be null", m);
+		fo = _elementUtils.getFileObjectOf(m);
+		assertNotNull("file object should not be null", fo);
+		assertEquals("should be of kind source", this.binary ? JavaFileObject.Kind.CLASS : JavaFileObject.Kind.SOURCE, fo.getKind());
+
+		Set<? extends ModuleElement> allModuleElements = _elementUtils.getAllModuleElements();
+		ModuleElement base = null;
+		for (ModuleElement moduleElement : allModuleElements) {
+			if (moduleElement.getQualifiedName().toString().equals("java.base")) {
+				base = moduleElement;
+			}
+		}
+		assertNotNull("java.base module null", base);
+		fo = _elementUtils.getFileObjectOf(base);
+		assertNotNull("file object should not be null", fo);
+		assertEquals("should be of kind source", JavaFileObject.Kind.CLASS, fo.getKind());
+		VariableElement field = null;
+		ExecutableElement method = null;
+		List<? extends Element> enclosedElements = typeElement.getEnclosedElements();
+		for (Element element : enclosedElements) {
+			if (element.getKind() == ElementKind.FIELD && element.getSimpleName().toString().equals("aField")) {
+				field = (VariableElement) element;
+			} else if (element.getKind() == ElementKind.METHOD && element.getSimpleName().toString().equals("aMethod")) {
+				method = (ExecutableElement) element;
+			}
+		}
+		assertNotNull("Field should not be null", field);
+		fo = _elementUtils.getFileObjectOf(field);
+		assertNotNull("file object should not be null", fo);
+		assertEquals("should be of kind source", this.binary ? JavaFileObject.Kind.CLASS : JavaFileObject.Kind.SOURCE, fo.getKind());
+		assertNotNull("Method should not be null", method);
+		fo = _elementUtils.getFileObjectOf(method);
+		assertNotNull("file object should not be null", fo);
+		assertEquals("should be of kind source", this.binary ? JavaFileObject.Kind.CLASS : JavaFileObject.Kind.SOURCE, fo.getKind());
 	}
 	private void validateModifiers(ExecutableElement method, Modifier[] expected) {
 		Set<Modifier> modifiers = method.getModifiers();
