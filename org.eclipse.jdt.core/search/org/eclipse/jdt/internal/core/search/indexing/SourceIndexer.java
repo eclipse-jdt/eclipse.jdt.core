@@ -13,13 +13,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.indexing;
 
-import java.util.Collections;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -55,7 +53,7 @@ import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.SourceTypeElementInfo;
 import org.eclipse.jdt.internal.core.jdom.CompilationUnit;
-import org.eclipse.jdt.internal.core.search.matching.IndexBasedJavaSearchEnvironment;
+import org.eclipse.jdt.internal.core.search.matching.JavaSearchNameEnvironment;
 import org.eclipse.jdt.internal.core.search.matching.MethodPattern;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
 
@@ -166,7 +164,7 @@ public class SourceIndexer extends AbstractIndexer implements ITypeRequestor, Su
 			this.cud = this.basicParser.parse(this.compilationUnit, new CompilationResult(this.compilationUnit, 0, 0, this.options.maxProblemsPerUnit));
 			JavaModelManager.getJavaModelManager().cacheZipFiles(this); // use model only for caching
 			// Use a non model name environment to avoid locks, monitors and such.
-			INameEnvironment nameEnvironment = IndexBasedJavaSearchEnvironment.create(Collections.singletonList((IJavaProject)javaProject), JavaModelManager.getJavaModelManager().getWorkingCopies(DefaultWorkingCopyOwner.PRIMARY, true/*add primary WCs*/));
+			INameEnvironment nameEnvironment = new JavaSearchNameEnvironment(javaProject, JavaModelManager.getJavaModelManager().getWorkingCopies(DefaultWorkingCopyOwner.PRIMARY, true/*add primary WCs*/));
 			this.lookupEnvironment = new LookupEnvironment(this, this.options, problemReporter, nameEnvironment);
 			reduceParseTree(this.cud);
 			this.lookupEnvironment.buildTypeBindings(this.cud, null);

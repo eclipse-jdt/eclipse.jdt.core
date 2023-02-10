@@ -693,6 +693,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected void addLibrary(IJavaProject javaProject, String jarName, String sourceZipName, String[] pathAndContents, String compliance) throws CoreException, IOException {
 		addLibrary(javaProject, jarName, sourceZipName, pathAndContents, null/*no non-Java resources*/, null, null, compliance, null);
 	}
+	protected void addLibrary(IJavaProject javaProject, String jarName, String sourceZipName, String[] pathAndContents, String compliance, boolean exported) throws CoreException, IOException {
+		addLibrary(javaProject, jarName, sourceZipName, pathAndContents, null/*no non-Java resources*/, null, null, compliance, null, exported);
+	}
 	protected void addLibrary(IJavaProject javaProject, String jarName, String sourceZipName, String[] pathAndContents, String[] nonJavaResources, String compliance) throws CoreException, IOException {
 		addLibrary(javaProject, jarName, sourceZipName, pathAndContents, nonJavaResources, null, null, compliance, null);
 	}
@@ -720,6 +723,19 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			String[] librariesExclusionPatterns,
 			String compliance,
 			Map options) throws CoreException, IOException {
+		addLibrary(javaProject, jarName, sourceZipName, pathAndContents, nonJavaResources, librariesInclusionPatterns, librariesExclusionPatterns, compliance, options, true);
+	}
+	private void addLibrary(
+			IJavaProject javaProject,
+			String jarName,
+			String sourceZipName,
+			String[] pathAndContents,
+			String[] nonJavaResources,
+			String[] librariesInclusionPatterns,
+			String[] librariesExclusionPatterns,
+			String compliance,
+			Map options,
+			boolean exported) throws CoreException, IOException {
 		IProject project = createLibrary(javaProject, jarName, sourceZipName, pathAndContents, nonJavaResources, compliance, options);
 		String projectPath = '/' + project.getName() + '/';
 		addLibraryEntry(
@@ -729,7 +745,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			null,
 			toIPathArray(librariesInclusionPatterns),
 			toIPathArray(librariesExclusionPatterns),
-			true
+			exported
 		);
 	}
 	protected IProject createLibrary(
