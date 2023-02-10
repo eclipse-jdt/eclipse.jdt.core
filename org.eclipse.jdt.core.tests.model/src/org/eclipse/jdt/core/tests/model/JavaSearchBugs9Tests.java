@@ -503,7 +503,7 @@ public void testBug501162_008() throws Exception {
 				"package pack22;\n" +
 				"public interface I22 {}\n");
 
-		addClasspathEntry(project1, JavaCore.newProjectEntry(project2.getPath()));
+		addModularProjectEntry(project1, project2);
 		project1.close(); // sync
 		project2.close();
 		project2.open(null);
@@ -1081,7 +1081,7 @@ public void testBug501162_019() throws Exception {
 				"    public ITwo i2;\n" +
 				"    public XOne X1;\n" +
 				"}\n");
-		addLibraryEntry(project1, "/JavaSearchBugs/lib/bzero501162.jar", false);
+		addModularLibraryEntry(project1, new Path("/JavaSearchBugs/lib/bzero501162.jar"), null);
 		project1.close(); // sync
 		project1.open(null);
 		SearchPattern pattern = SearchPattern.createPattern("pack.one",
@@ -1120,7 +1120,7 @@ public void testBug501162_020() throws Exception {
 				"    public ITwo i2;\n" +
 				"    public XOne X1;\n" +
 				"}\n");
-		addLibraryEntry(project1, "/JavaSearchBugs/lib/bzero501162.jar", false);
+		addModularLibraryEntry(project1, new Path("/JavaSearchBugs/lib/bzero501162.jar"), null);
 		project1.close(); // sync
 		project1.open(null);
 		SearchPattern pattern = SearchPattern.createPattern("pack.two",
@@ -1160,7 +1160,7 @@ public void testBug501162_021() throws Exception {
 				"    public ITwo i2;\n" +
 				"    public XOne X1;\n" +
 				"}\n");
-		addLibraryEntry(project1, "/JavaSearchBugs/lib/bzero501162.jar", false);
+		addModularLibraryEntry(project1, new Path("/JavaSearchBugs/lib/bzero501162.jar"), null);
 		project1.close(); // sync
 		project1.open(null);
 		SearchPattern pattern = SearchPattern.createPattern("pack.three",
@@ -1200,7 +1200,7 @@ public void testBug501162_022() throws Exception {
 				"    public ITwo i2;\n" +
 				"    public XOne X1;\n" +
 				"}\n");
-		addLibraryEntry(project1, "/JavaSearchBugs/lib/bzero501162.jar", false);
+		addModularLibraryEntry(project1, new Path("/JavaSearchBugs/lib/bzero501162.jar"), null);
 		project1.close(); // sync
 		project1.open(null);
 		SearchPattern pattern = SearchPattern.createPattern("java.base",
@@ -1386,7 +1386,7 @@ public void testBug501162_027() throws Exception {
 				"    public ITwo i2;\n" +
 				"    public XOne X1;\n" +
 				"}\n");
-		addLibraryEntry(project1, "/JavaSearchBugs/lib/bzero501162.jar", false);
+		addModularLibraryEntry(project1, new Path("/JavaSearchBugs/lib/bzero501162.jar"), null);
 		project1.close(); // sync
 		project1.open(null);
 		SearchPattern pattern = SearchPattern.createPattern("XOne",
@@ -1425,7 +1425,7 @@ public void testBug501162_028() throws Exception {
 				"    public ITwo i2;\n" +
 				"    public XOne X1;\n" +
 				"}\n");
-		addLibraryEntry(project1, "/JavaSearchBugs/lib/bzero501162.jar", false);
+		addModularLibraryEntry(project1, new Path("/JavaSearchBugs/lib/bzero501162.jar"), null);
 		project1.close(); // sync
 		project1.open(null);
 		SearchPattern pattern = SearchPattern.createPattern("XFourOne",
@@ -1462,7 +1462,7 @@ public void testBug501162_029() throws Exception {
 				"    public ITwo i2;\n" +
 				"    public XOne X1;\n" +
 				"}\n");
-		addLibraryEntry(project1, "/JavaSearchBugs/lib/bzero501162.jar", false);
+		addModularLibraryEntry(project1, new Path("/JavaSearchBugs/lib/bzero501162.jar"), null);
 		project1.close(); // sync
 		project1.open(null);
 		SearchPattern pattern = SearchPattern.createPattern("ITwo",
@@ -1502,7 +1502,7 @@ public void testBug501162_030() throws Exception {
 				"    public ITwo i2;\n" +
 				"    public XOne X1;\n" +
 				"}\n");
-		addLibraryEntry(project1, "/JavaSearchBugs/lib/bzero501162.jar", false);
+		addModularLibraryEntry(project1, new Path("/JavaSearchBugs/lib/bzero501162.jar"), null);
 		project1.close(); // sync
 		project1.open(null);
 		SearchPattern pattern = SearchPattern.createPattern("IThreeOne",
@@ -1539,7 +1539,7 @@ public void testBug501162_031() throws Exception {
 				"    public ITwo i2;\n" +
 				"    public XOne X1;\n" +
 				"}\n");
-		addLibraryEntry(project1, "/JavaSearchBugs/lib/bzero501162.jar", false);
+		addModularLibraryEntry(project1, new Path("/JavaSearchBugs/lib/bzero501162.jar"), null);
 		project1.close(); // sync
 		project1.open(null);
 		SearchPattern pattern = SearchPattern.createPattern("XThreeOne",
@@ -1576,7 +1576,7 @@ public void testBug501162_032() throws Exception {
 				"    public ITwo i2;\n" +
 				"    public XOne X1;\n" +
 				"}\n");
-		addLibraryEntry(project1, "/JavaSearchBugs/lib/bzero501162.jar", false);
+		addModularLibraryEntry(project1, new Path("/JavaSearchBugs/lib/bzero501162.jar"), null);
 		project1.close(); // sync
 		project1.open(null);
 		SearchPattern pattern = SearchPattern.createPattern("zero",
@@ -1918,7 +1918,7 @@ public void testBug501162_041() throws Exception {
 				"    public ITwo i2;\n" +
 				"    public XOne X1;\n" +
 				"}\n");
-		addLibraryEntry(project1, "/JavaSearchBugs/lib/bzero.src.501162.jar", false);
+		addModularLibraryEntry(project1, new Path("/JavaSearchBugs/lib/bzero.src.501162.jar"), null);
 		project1.close(); // sync
 		project1.open(null);
 		SearchPattern pattern = SearchPattern.createPattern("XOne",
@@ -1994,7 +1994,7 @@ public void testBug501162_043() throws Exception {
 				"    public ITwo i2;\n" +
 				"    public XOne X1;\n" +
 				"}\n");
-		addLibraryEntry(project1, "/JavaSearchBugs/lib/bzero.src.501162.jar", false);
+		addModularLibraryEntry(project1, new Path("/JavaSearchBugs/lib/bzero.src.501162.jar"), null);
 		project1.close(); // sync
 		project1.open(null);
 		SearchPattern pattern = SearchPattern.createPattern("ITwo",
@@ -2074,7 +2074,7 @@ public void testBug501162_045() throws Exception {
 				"    public ITwo i2;\n" +
 				"    public XOne X1;\n" +
 				"}\n");
-		addLibraryEntry(project1, "/JavaSearchBugs/lib/bzero.src.501162.jar", false);
+		addModularLibraryEntry(project1, new Path("/JavaSearchBugs/lib/bzero.src.501162.jar"), null);
 		project1.close(); // sync
 		project1.open(null);
 		SearchPattern pattern = SearchPattern.createPattern("XThreeOne",
@@ -3516,7 +3516,7 @@ public void testBug519151_023() throws Exception {
 				"module second {\n" +
 				"}\n";
 		createFile("/second/src/module-info.java",	secondFile);
-		addLibraryEntry(project2, "/JavaSearchBugs/lib/lib519151.jar", false);
+		addModularLibraryEntry(project2, new Path("/JavaSearchBugs/lib/lib519151.jar"), null);
 		project1.close(); // sync
 		project2.close(); // sync
 		project2.open(null);
