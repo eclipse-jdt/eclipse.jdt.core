@@ -17,7 +17,9 @@ import static java.util.stream.Collectors.joining;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -40,6 +42,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.env.IModuleAwareNameEnvironment;
+import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
@@ -159,6 +162,10 @@ public void cleanup() {
 }
 
 protected /* visible for testing only */ void addProjectClassPath(JavaProject javaProject) {
+	addProjectClassPath(javaProject, false);
+}
+
+void addProjectClassPath(JavaProject javaProject, boolean onlyExported) {
 	long start = 0;
 	if (NameLookup.VERBOSE) {
 		Util.verbose(" EXTENDING JavaSearchNameEnvironment");  //$NON-NLS-1$
@@ -166,7 +173,7 @@ protected /* visible for testing only */ void addProjectClassPath(JavaProject ja
 		start = System.currentTimeMillis();
 	}
 
-	LinkedHashSet<ClasspathLocation> locations = computeClasspathLocations(javaProject);
+	LinkedHashSet<ClasspathLocation> locations = computeClasspathLocations(javaProject, onlyExported);
 	if (locations != null) this.locationSet.addAll(locations);
 
     if (NameLookup.VERBOSE) {
@@ -177,6 +184,10 @@ protected /* visible for testing only */ void addProjectClassPath(JavaProject ja
 }
 
 private LinkedHashSet<ClasspathLocation> computeClasspathLocations(JavaProject javaProject) {
+	return computeClasspathLocations(javaProject, false);
+}
+
+private LinkedHashSet<ClasspathLocation> computeClasspathLocations(JavaProject javaProject, boolean onlyExported) {
 
 	IPackageFragmentRoot[] roots = null;
 	try {
@@ -195,7 +206,11 @@ private LinkedHashSet<ClasspathLocation> computeClasspathLocations(JavaProject j
 	int length = roots.length;
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	for (int i = 0; i < length; i++) {
-		ClasspathLocation cp = mapToClassPathLocation(manager, (PackageFragmentRoot) roots[i], imd);
+		PackageFragmentRoot root = (PackageFragmentRoot) roots[i];
+		if (onlyExported && !isSourceOrExported(root)) {
+			continue;
+		}
+		ClasspathLocation cp = mapToClassPathLocation(manager, root, imd);
 		if (cp != null) {
 			try {
 				indexPackageNames(cp, roots[i]);
@@ -561,6 +576,16 @@ public char[][] getAllAutomaticModules() {
 	return set.toArray(new char[set.size()][]);
 }
 
+public static INameEnvironment createWithReferencedProjects(IJavaProject javaProject, List<IJavaProject> referencedProjects, org.eclipse.jdt.core.ICompilationUnit[] copies) {
+	JavaSearchNameEnvironment result = new JavaSearchNameEnvironment(javaProject, copies);
+
+	Iterator<IJavaProject> next = referencedProjects.iterator();
+	while (next.hasNext()) {
+		result.addProjectClassPath((JavaProject)next.next(), true);
+	}
+	return result;
+}
+
 private static boolean isComplianceJava9OrHigher(IJavaProject javaProject) {
 	if (javaProject == null) {
 		return false;
@@ -606,5 +631,16 @@ private static boolean hasSystemModule(PackageFragmentRoot fragmentRoot) {
 		return true;
 	}
 	return false;
+}
+
+private static boolean isSourceOrExported(PackageFragmentRoot root) {
+	boolean isExported = true; // if we run into exceptions, assume exported
+	try {
+		IClasspathEntry entry = root.getRawClasspathEntry();
+		isExported = entry.getEntryKind() == IClasspathEntry.CPE_SOURCE || entry.isExported();
+	} catch (JavaModelException e) {
+		Util.log(e, "Error checking whether package fragment root is exported!"); //$NON-NLS-1$
+	}
+	return isExported;
 }
 }

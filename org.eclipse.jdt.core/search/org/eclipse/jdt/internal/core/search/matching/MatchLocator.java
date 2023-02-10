@@ -1239,14 +1239,13 @@ public void initialize(JavaProject project, int possibleMatchSize) throws JavaMo
 	SearchableEnvironment searchableEnvironment = project.newSearchableNameEnvironment(this.workingCopies);
 
 	List<IJavaProject> projects = new ArrayList<>();
-	projects.add(project);
 	if (this.pattern.focus != null) {
 		IJavaProject focusProject = this.pattern.focus.getJavaProject();
 		if (!project.equals(focusProject)) {
 			projects.add(focusProject);
 		}
 	}
-	this.nameEnvironment = IndexBasedJavaSearchEnvironment.create(projects, this.workingCopies);
+	this.nameEnvironment = JavaSearchNameEnvironment.createWithReferencedProjects(project, projects, this.workingCopies);
 
 	// create lookup environment
 	Map map = project.getOptions(true);

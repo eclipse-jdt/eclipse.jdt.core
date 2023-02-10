@@ -23,7 +23,6 @@ package org.eclipse.jdt.internal.codeassist;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -258,7 +257,7 @@ import org.eclipse.jdt.internal.core.SourceMethodElementInfo;
 import org.eclipse.jdt.internal.core.SourceType;
 import org.eclipse.jdt.internal.core.SourceTypeElementInfo;
 import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
-import org.eclipse.jdt.internal.core.search.matching.IndexBasedJavaSearchEnvironment;
+import org.eclipse.jdt.internal.core.search.matching.JavaSearchNameEnvironment;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -13442,7 +13441,7 @@ public final class CompletionEngine
 	private INameEnvironment getNoCacheNameEnvironment() {
 		if (this.noCacheNameEnvironment == null) {
 			JavaModelManager.getJavaModelManager().cacheZipFiles(this);
-			this.noCacheNameEnvironment = IndexBasedJavaSearchEnvironment.create(Collections.singletonList(this.javaProject), this.owner == null ? null : JavaModelManager.getJavaModelManager().getWorkingCopies(this.owner, true/*add primary WCs*/));
+			this.noCacheNameEnvironment = new JavaSearchNameEnvironment(this.javaProject, this.owner == null ? null : JavaModelManager.getJavaModelManager().getWorkingCopies(this.owner, true/*add primary WCs*/));
 		}
 		return this.noCacheNameEnvironment;
 	}
