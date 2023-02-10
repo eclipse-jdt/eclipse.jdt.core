@@ -23,7 +23,7 @@ import junit.framework.Test;
 public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 
 	static {
-		//		TESTS_NAMES = new String[]{"test034"};
+		// TESTS_NAMES = new String[]{"test034"};
 	}
 
 	public CompletionTests14(String name) {
@@ -31,7 +31,7 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 	}
 
 	public void setUpSuite() throws Exception {
-		if (COMPLETION_PROJECT == null)  {
+		if (COMPLETION_PROJECT == null) {
 			COMPLETION_PROJECT = setUpJavaProject("Completion", "16");
 		} else {
 			setUpProjectCompliance(COMPLETION_PROJECT, "16");
@@ -49,8 +49,8 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Point.java",
 				"public record Point() imple {\n" +
-				"}");
-		this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
+						"}");
+		this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
 		String str = this.workingCopies[0].getSource();
@@ -68,8 +68,9 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Point.java",
 				"public record Point() exte {\n" +
-				"}");
-		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
+						"}");
+		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all working
+																			// copies
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
 		try {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
@@ -79,7 +80,7 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 			int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
 			this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 			assertResults("", requestor.getResults());
-		}finally {
+		} finally {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
 	}
@@ -89,8 +90,8 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Point.java",
 				"public record Point<U>() imple {\n" +
-				"}");
-		this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
+						"}");
+		this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
 		String str = this.workingCopies[0].getSource();
@@ -101,13 +102,14 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 				"implements[KEYWORD]{implements, null, null, implements, null, 49}",
 				requestor.getResults());
 	}
+
 	public void test004() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Point.java",
 				"public record Point<U>() exte {\n" +
-				"}");
-		this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
+						"}");
+		this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
 		String str = this.workingCopies[0].getSource();
@@ -122,8 +124,8 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Point.java",
 				"public record Point<U extends Thread>() imple {\n" +
-				"}");
-		this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
+						"}");
+		this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
 		String str = this.workingCopies[0].getSource();
@@ -135,12 +137,13 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 				requestor.getResults());
 
 	}
+
 	public void test006() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Point.java",
 				"public record Point<U extends Thread>() /*here*/exte {\n" +
-				"}");
+						"}");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -166,12 +169,13 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		assertResults("implements[KEYWORD]{implements, null, null, implements, null, 49}", requestor.getResults());
 
 	}
+
 	public void test008() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Point.java",
 				"public record Point(int comp) exte {\n" +
-				"}");
+						"}");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
@@ -186,8 +190,8 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Point.java",
 				"public record Point<U>(int comp) imple {\n" +
-				"}");
-		this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
+						"}");
+		this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -205,8 +209,8 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Point.java",
 				"public record Point<U>(int comp) exte {\n" +
-				"}");
-		this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
+						"}");
+		this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -222,8 +226,9 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Point.java",
 				"public record Point<U extends Thread>(int comp) imple {\n" +
-				"}");
-		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
+						"}");
+		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all working
+																			// copies
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
 		try {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
@@ -236,8 +241,7 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 			assertResults(
 					"implements[KEYWORD]{implements, null, null, implements, null, 49}",
 					requestor.getResults());
-		}
-		finally {
+		} finally {
 			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, old);
 		}
 	}
@@ -247,7 +251,7 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Point.java",
 				"public record Point<U extends Thread>(int comp) /*here*/exte {\n" +
-				"}");
+						"}");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -264,12 +268,12 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 				"/Completion/src/mypack1/rrr.java",
 				"package mypack1;\n" +
 						"public record rrr() {\n" +
-				"}");
+						"}");
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/mypack1/MyClass.java",
 				"package mypack1;\n" +
 						"public class MyClass extends /*here*/rr {\n" +
-				"}");
+						"}");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -287,10 +291,10 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 				"/**\n" +
 						" * \n" +
 						" * @par \n" +
-						" *\n"+
+						" *\n" +
 						" */\n" +
 						"public record Point()  {\n" +
-				"}");
+						"}");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -308,10 +312,10 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 				"/**\n" +
 						" * \n" +
 						" * @par \n" +
-						" *\n"+
+						" *\n" +
 						" */\n" +
 						"//public record Point(int a)  {\n" +
-				"}");
+						"}");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -329,9 +333,8 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Point.java",
 				"public record  Point(int comp_) { \n" +
-						"}\n"+
-						"class MyClass extends /*here*/Poin	\n"
-				);
+						"}\n" +
+						"class MyClass extends /*here*/Poin	\n");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
@@ -341,13 +344,14 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults("", requestor.getResults());
 	}
+
 	public void testBug564828_1() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Point.java",
 				"public reco {\n" +
-				"}");
-		this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
+						"}");
+		this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
 		String str = this.workingCopies[0].getSource();
@@ -360,21 +364,21 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 
 	}
 
-	//check if local variable record shows up
+	// check if local variable record shows up
 	public void testBug564828_2() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Point.java",
 				"public class Point {\n" +
-				"private void method(){\n" +
-				"int record;\n" +
-				"{\n" +
-				" /*here*/rec\n" +
-				"}\n" +
-				"}\n" +
+						"private void method(){\n" +
+						"int record;\n" +
+						"{\n" +
+						" /*here*/rec\n" +
+						"}\n" +
+						"}\n" +
 
-				"}");
-		this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
+						"}");
+		this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
 		String str = this.workingCopies[0].getSource();
@@ -382,11 +386,12 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-				"Record[TYPE_REF]{Record, java.lang, Ljava.lang.Record;, null, null, 42}\n"+
-				"record[LOCAL_VARIABLE_REF]{record, null, I, record, null, 52}",
+				"Record[TYPE_REF]{Record, java.lang, Ljava.lang.Record;, null, null, 42}\n" +
+						"record[LOCAL_VARIABLE_REF]{record, null, I, record, null, 52}",
 				requestor.getResults());
 
 	}
+
 	// Complete with "." after a text block
 	public void testBug553097_1() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
@@ -399,8 +404,8 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 						+ "			\"\"\".len\n" +
 						"}\n" +
 
-				"}");
-		this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
+						"}");
+		this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
 		String str = this.workingCopies[0].getSource();
@@ -408,11 +413,14 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-				"length[METHOD_REF]{length(), Ljava.lang.String;, ()I, length, null, "+
-						(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_NON_STATIC + R_NON_RESTRICTED) +"}",
-						requestor.getResults());
+				"length[METHOD_REF]{length(), Ljava.lang.String;, ()I, length, null, " +
+						(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_NON_STATIC
+								+ R_NON_RESTRICTED)
+						+ "}",
+				requestor.getResults());
 
 	}
+
 	// Same as above, but text block inside a method
 	public void testBug553097_2() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
@@ -426,7 +434,7 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 						+ "			\"\"\".len\n"
 						+ "  }\n"
 						+ "}");
-		this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
+		this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
 		String str = this.workingCopies[0].getSource();
@@ -434,11 +442,14 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-				"length[METHOD_REF]{length(), Ljava.lang.String;, ()I, length, null, "+
-						(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_NON_STATIC + R_NON_RESTRICTED) +"}",
-						requestor.getResults());
+				"length[METHOD_REF]{length(), Ljava.lang.String;, ()I, length, null, " +
+						(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_NON_STATIC
+								+ R_NON_RESTRICTED)
+						+ "}",
+				requestor.getResults());
 
 	}
+
 	public void testBug553097_3() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
@@ -453,7 +464,7 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 						+ "			\"\"\" + d_\n"
 						+ "  }\n"
 						+ "}");
-		this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
+		this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
 		String str = this.workingCopies[0].getSource();
@@ -461,11 +472,14 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-				"d_ef[LOCAL_VARIABLE_REF]{d_ef, null, Ljava.lang.String;, d_ef, null, "+
-						(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) +"}",
-						requestor.getResults());
+				"d_ef[LOCAL_VARIABLE_REF]{d_ef, null, Ljava.lang.String;, d_ef, null, " +
+						(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED
+								+ R_NON_RESTRICTED)
+						+ "}",
+				requestor.getResults());
 
 	}
+
 	public void testBug553097_4() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
@@ -480,7 +494,7 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 						+ "			\"\"\";\n"
 						+ "  }\n"
 						+ "}");
-		this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
+		this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
 		String str = this.workingCopies[0].getSource();
@@ -488,11 +502,14 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-				"a_rg[LOCAL_VARIABLE_REF]{a_rg, null, Ljava.lang.String;, a_rg, null, "+
-						(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_NON_RESTRICTED) +"}",
-						requestor.getResults());
+				"a_rg[LOCAL_VARIABLE_REF]{a_rg, null, Ljava.lang.String;, a_rg, null, " +
+						(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED
+								+ R_NON_RESTRICTED)
+						+ "}",
+				requestor.getResults());
 
 	}
+
 	public void testBug553097_5() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
@@ -505,7 +522,7 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 						+ "     d_\n"
 						+ "  }\n"
 						+ "}");
-		this.workingCopies[0].getJavaProject(); //assuming single project for all working copies
+		this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
 		String str = this.workingCopies[0].getSource();
@@ -513,9 +530,9 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-				"d_ef[LOCAL_VARIABLE_REF]{d_ef, null, Ljava.lang.String;, d_ef, null, "+
-						(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE  + R_UNQUALIFIED + R_NON_RESTRICTED) +"}",
-						requestor.getResults());
+				"d_ef[LOCAL_VARIABLE_REF]{d_ef, null, Ljava.lang.String;, d_ef, null, " +
+						(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
 
 	}
 
@@ -604,20 +621,30 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 	}
 
 	public void testGH697_CompletionOnSwitchExpressionInsideLambda() throws JavaModelException {
-		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies = new ICompilationUnit[3];
+		this.workingCopies[1] = getWorkingCopy(
+				"/Completion/src/State.java",
+				"public enum State {\n"
+						+ "	BLOCKED, RUNNING;"
+						+ "}\n");
+		this.workingCopies[2] = getWorkingCopy(
+				"/Completion/src/Func.java",
+				"public interface Func<I,O> {\n"
+						+ "	O apply(I input);"
+						+ "}\n");
+
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src/Switch.java",
-				"import java.util.function.Function;\n"
-						+ "import java.util.stream.Stream; \n"
-						+ "import java.util.stream.Collectors; \n"
-						+ " \n"
-						+ "public class Switch {\n"
-						+ "static Map<Thread.State, String> toMap() {\n"
-						+ "		return Stream.of(Thread.State.values()).collect(Collectors.toMap(Function.identity(), state -> {\n"
-						+ "			return switch (state) {\n"
-						+ "				case B -> \"blocked\"; \n"
-						+ "			};\n"
-						+ "		}));\n"
+				"public class Switch {\n"
+						+ "static String toString(State state) {\n"
+						+ " 	return Switch.<State, String>transform(state, st -> {\n"
+						+ " 		return switch(st) { \n"
+						+ " 			case B\n"
+						+ " 		};\n"
+						+ " 	});\n"
+						+ "}\n"
+						+ "static <I, O> O transform(I input, Func<I, O> t) {\n"
+						+ "	return null;"
 						+ "}\n"
 						+ "}\n");
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
@@ -626,8 +653,11 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-				"BLOCKED[FIELD_REF]{BLOCKED, LThread$State;, LThread$State;, BLOCKED, null, "
-						+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_QUALIFIED + R_NON_RESTRICTED) + "}",
+				"BLOCKED[FIELD_REF]{BLOCKED, LState;, LState;, null, null, BLOCKED, null, [149, 150], "
+						+ (R_DEFAULT + R_ENUM + R_ENUM_CONSTANT + R_RESOLVED + R_INTERESTING + R_CASE
+								+ R_UNQUALIFIED
+								+ R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE)
+						+ "}",
 				requestor.getResults());
 	}
 }
