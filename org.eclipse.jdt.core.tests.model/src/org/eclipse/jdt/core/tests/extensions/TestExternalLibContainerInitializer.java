@@ -47,7 +47,7 @@ public class TestExternalLibContainerInitializer extends ClasspathContainerIniti
 			public IClasspathEntry[] getClasspathEntries() {
 				if (TestExternalLibContainerInitializer.this.entries == null) {
 					TestExternalLibContainerInitializer.this.entries = new IClasspathEntry[] {
-							JavaCore.newLibraryEntry(containerPath, null, null)
+							JavaCore.newLibraryEntry(containerPath, containerPath, null)
 						};
 				}
 				return TestExternalLibContainerInitializer.this.entries;
