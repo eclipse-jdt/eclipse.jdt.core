@@ -80,6 +80,7 @@ public class RunJavaSearchTests extends junit.framework.TestCase {
 		allClasses.add(JavaSearchBug565512Test.class);
 		allClasses.add(JavaSearchNameEnvironmentTest.class);
 		allClasses.add(JavaSearchSuperAfterStatementTests.class);
+		allClasses.add(JavaSearchIssue190Test.class);
 
 		// Reset forgotten subsets of tests
 		TestCase.TESTS_PREFIX = null;
