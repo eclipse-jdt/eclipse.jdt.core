@@ -24,11 +24,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -637,35 +636,26 @@ public class Util implements SuffixConstants {
 	 * Creates and returns a ClassFileReader.
 	 * @throws IOException if a problem occurred reading the zip entry.
 	 */
-	public static ClassFileReader getZipEntryClassFile(String zipName, String fileName) throws IOException {
-		Path zipfile = Paths.get(zipName);
-		java.nio.file.FileSystem fs = FileSystems.newFileSystem(zipfile, null);
-		Path path = fs.getPath(fileName);
-		InputStream stream = null;
-		try(fs) {
-			if (!Files.exists(path)) {
-				throw new IOException("Invalid zip entry name : " + zipName); //$NON-NLS-1$
+	public static ClassFileReader getZipEntryClassFile(String zipName, String fileName) throws IOException, ClassFormatException {
+		try(ZipFile zip = new ZipFile(zipName)) {
+			ZipEntry entry = zip.getEntry(fileName);
+			if (entry == null) {
+				throw new IOException("Invalid zip entry name : " + fileName + " in " + zipName); //$NON-NLS-1$ //$NON-NLS-2$
 			}
-			InputStream inputStream = Files.newInputStream(path);
-			if (inputStream == null) {
-				throw new IOException("Invalid zip entry name : " + zipName); //$NON-NLS-1$
-			}
-			stream = new BufferedInputStream(inputStream);
-			ClassFileReader reader = new ClassFileReader(path.toUri(), getInputStreamAsByteArray(inputStream), fileName.toCharArray());
-			return reader;
-		} catch (ClassFormatException e) {
-			e.printStackTrace();
-		} finally {
-			if (stream != null) {
-				try {
-					stream.close();
-				} catch (IOException e) {
-					// ignore
-				}
+			try(BufferedInputStream stream = new BufferedInputStream(zip.getInputStream(entry))){
+				URI uri = toJarUri(zipName, fileName);
+				ClassFileReader reader = new ClassFileReader(uri, getInputStreamAsByteArray(stream), fileName.toCharArray());
+				return reader;
 			}
 		}
-		return null;
 	}
+
+	private static URI toJarUri(String zipName, String fileName) {
+		Path zipfile = Paths.get(zipName);
+		URI uri = URI.create("jar:file://" + zipfile.toUri().getRawPath() + "!/" + fileName); //$NON-NLS-1$ //$NON-NLS-2$
+		return uri;
+	}
+
 	public static int hashCode(Object[] array) {
 		int prime = 31;
 		if (array == null) {
