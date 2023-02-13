@@ -45,6 +45,7 @@ import javax.lang.model.element.ModuleElement.DirectiveKind;
 import javax.lang.model.element.ModuleElement.ExportsDirective;
 import javax.lang.model.element.ModuleElement.ProvidesDirective;
 import javax.lang.model.element.ModuleElement.RequiresDirective;
+import javax.lang.model.element.NestingKind;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
@@ -971,6 +972,23 @@ public class Java9ElementProcessor extends BaseProcessor {
 		JavaFileObject fo = _elementUtils.getFileObjectOf(typeElement);
 		assertNotNull("file object should not be null", fo);
 		assertEquals("should be of kind source", this.binary ? JavaFileObject.Kind.CLASS : JavaFileObject.Kind.SOURCE, fo.getKind());
+		if (this.binary && !this.isJavac) {
+			assertEquals("Incorrect modifier", Modifier.PUBLIC, fo.getAccessLevel());
+			assertEquals("Incorrect nesting kind", NestingKind.TOP_LEVEL, fo.getNestingKind());
+			TypeElement innerType = null;
+			List<? extends Element> inner = typeElement.getEnclosedElements();
+			for (Element element : inner) {
+				if (element.getKind() == ElementKind.CLASS && element.getSimpleName().toString().equals("InnerTypeInAModule")) {
+					innerType = (TypeElement) element;
+				}
+			}
+			fo = _elementUtils.getFileObjectOf(innerType);
+			assertNotNull("file object should not be null", fo);
+			assertEquals("should be of kind source", this.binary ? JavaFileObject.Kind.CLASS : JavaFileObject.Kind.SOURCE, fo.getKind());
+			assertEquals("Incorrect modifier", Modifier.PUBLIC, fo.getAccessLevel());
+			assertEquals("Incorrect nesting kind", NestingKind.TOP_LEVEL, fo.getNestingKind());
+		}
+
 		ModuleElement m = _elementUtils.getModuleOf(typeElement);
 		assertNotNull("Module should not be null", m);
 		fo = _elementUtils.getFileObjectOf(m);

@@ -17,16 +17,12 @@
 
 package org.eclipse.jdt.internal.compiler.apt.model;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
-import java.nio.charset.Charset;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -45,12 +41,8 @@ import javax.lang.model.element.Name;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
-import javax.tools.JavaFileManager;
-import javax.tools.JavaFileObject;
-import javax.tools.JavaFileObject.Kind;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
@@ -58,9 +50,6 @@ import org.eclipse.jdt.internal.compiler.ast.Javadoc;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
-import org.eclipse.jdt.internal.compiler.lookup.BinaryModuleBinding;
-import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
@@ -70,12 +59,9 @@ import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
-import org.eclipse.jdt.internal.compiler.lookup.SourceModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
-import org.eclipse.jdt.internal.compiler.tool.EclipseFileManager;
-import org.eclipse.jdt.internal.compiler.tool.PathFileObject;
 
 /**
  * Utilities for working with java8 and earlier language elements.
@@ -750,71 +736,4 @@ public class ElementsImpl implements Elements {
 		ModuleBinding binding = ((ModuleElementImpl) module).binding;
 		return binding != null ? binding.isAutomatic() : false;
     }
-	@Override
-	public javax.tools.JavaFileObject getFileObjectOf(Element element) {
-		switch(element.getKind()) {
-			case CLASS:
-			case ENUM:
-			case RECORD:
-			case ANNOTATION_TYPE:
-				TypeElement outer = getOutermostTypeElement(element);
-				TypeElementImpl typeElementImpl = (TypeElementImpl) outer;
-				Binding typeBinding = typeElementImpl._binding;
-				if (typeBinding instanceof SourceTypeBinding) {
-					SourceTypeBinding sourceTypeBinding = (SourceTypeBinding) typeBinding;
-					ReferenceContext referenceContext = sourceTypeBinding.scope.referenceContext();
-					return getSourceJavaFileObject(referenceContext);
-				} else if(typeBinding instanceof BinaryTypeBinding) {
-					BinaryTypeBinding binaryBinding = (BinaryTypeBinding) typeBinding;
-					if (binaryBinding.path != null) {
-						return new PathFileObject(Path.of(binaryBinding.path), Kind.CLASS, Charset.defaultCharset());
-					}
-				}
-				break;
-			case MODULE:
-				ModuleElementImpl moduleEl = (ModuleElementImpl) element;
-				ModuleBinding binding = (ModuleBinding) moduleEl._binding;
-				if (binding instanceof SourceModuleBinding) {
-					SourceModuleBinding sourceModule = (SourceModuleBinding) binding;
-					return getSourceJavaFileObject(sourceModule.scope.referenceContext());
-				} else if (binding instanceof BinaryModuleBinding) {
-					BinaryModuleBinding binaryBinding = (BinaryModuleBinding) binding;
-					if (binaryBinding.path != null) {
-						return new PathFileObject(Path.of(binaryBinding.path), Kind.CLASS, Charset.defaultCharset());
-					}
-				}
-				break;
-			case LOCAL_VARIABLE:
-			case FIELD:
-			case RECORD_COMPONENT:
-			case ENUM_CONSTANT:
-			case METHOD:
-			case CONSTRUCTOR:
-				if (element.getEnclosingElement() != null) {
-					return getFileObjectOf(element.getEnclosingElement());
-				}
-				break;
-			default:
-				break;
-		}
-		return null;
-	}
-	private JavaFileObject getSourceJavaFileObject(ReferenceContext referenceContext) {
-		JavaFileManager fileManager = this._env.getFileManager();
-		if (fileManager instanceof EclipseFileManager) {
-			EclipseFileManager eFileManager = (EclipseFileManager) fileManager;
-			CompilationResult compilationResult = referenceContext.compilationResult();
-			String fileName = new String(compilationResult.fileName);
-			File f = new File(fileName);
-			if (f.exists()) {
-				Iterator<? extends JavaFileObject> objects = eFileManager.getJavaFileObjects(f).iterator();
-				if (objects.hasNext()) {
-					return objects.next();
-				}
-			}
-		} else {
-			throw new UnsupportedOperationException();
-		}
-		return null;
-	}
 }
