@@ -33,7 +33,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testIssue_556_009"};
+//		TESTS_NAMES = new String[] { "testIssue712"};
 	}
 
 	private static String previewLevel = "20";
@@ -5770,5 +5770,90 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					+ "}"
 				},
 				"1\n0");
+	}
+	public void testIssue712_001() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"       \n"+
+					"       public static void main(String[] args) {\n"+
+					"               Object o = \"Hello World\";\n"+
+					"               foo(o);\n"+
+					"       }\n"+
+					"       @SuppressWarnings(\"preview\")\n"+
+					"       public static void foo(Object o) {\n"+
+					"         switch (o) {\n"+
+					"           case String s:\n"+
+					"               System.out.println(s);        // No break!\n"+
+					"           case R():\n"+
+					"               System.out.println(\"It's either an R or a string\"); // Allowed\n"+
+					"               break;\n"+
+					"           default:\n"+
+					"         }\n"+
+					"       }\n"+
+					"\n"+
+					"}\n"+
+					"\n"+
+					"record R() {} \n"+
+					"record S() {}\n"
+				},
+				"Hello World\n" +
+				"It\'s either an R or a string");
+	}
+	public void testIssue712_002() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					" \n"+
+					" public static void main(String[] args) {\n"+
+					"   Object o = new R();\n"+
+					"   foo(o);\n"+
+					" }\n"+
+					" @SuppressWarnings(\"preview\")\n"+
+					" public static void foo(Object o) {\n"+
+					"   switch (o) {\n"+
+					"     case R():\n"+
+					"     case S():                         // Multiple case labels!\n"+
+					"         System.out.println(\"Either R or an S\");\n"+
+					"         break;\n"+
+					"     default:\n"+
+					" }\n"+
+					" }\n"+
+					"\n"+
+					"}\n"+
+					"\n"+
+					"record R() {}\n"+
+					"record S() {}\n"
+				},
+				"Either R or an S");
+	}
+	public void testIssue712_003() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					" \n"+
+					" public static void main(String[] args) {\n"+
+					"   Object o = null;\n"+
+					"   foo(o);\n"+
+					" }\n"+
+					" @SuppressWarnings(\"preview\")\n"+
+					" public static void foo(Object o) {\n"+
+					"   switch (o) {\n"+
+					"     case null:\n"+
+					"     case R():                         // Multiple case labels!\n"+
+					"         System.out.println(\"Either null or an R\");\n"+
+					"         break;\n"+
+					"     default:\n"+
+					" }\n"+
+					" }\n"+
+					"}\n"+
+					"\n"+
+					"record R() {}\n"+
+					"record S() {}"
+				},
+				"Either null or an R");
 	}
 }

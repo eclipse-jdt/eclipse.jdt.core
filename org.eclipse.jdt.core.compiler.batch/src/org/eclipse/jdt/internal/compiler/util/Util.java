@@ -639,7 +639,7 @@ public class Util implements SuffixConstants {
 	 */
 	public static ClassFileReader getZipEntryClassFile(String zipName, String fileName) throws IOException {
 		Path zipfile = Paths.get(zipName);
-		java.nio.file.FileSystem fs = FileSystems.newFileSystem(zipfile, null);
+		java.nio.file.FileSystem fs = FileSystems.newFileSystem(zipfile,(java.lang.ClassLoader) null);
 		Path path = fs.getPath(fileName);
 		InputStream stream = null;
 		try(fs) {

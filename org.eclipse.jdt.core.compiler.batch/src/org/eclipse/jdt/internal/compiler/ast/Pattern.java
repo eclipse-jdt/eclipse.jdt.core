@@ -52,11 +52,14 @@ public abstract class Pattern extends Expression {
 	}
 	@Override
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
+		setTargets(codeStream);
+		generateOptimizedBoolean(currentScope, codeStream, this.thenTarget, this.elseTarget);
+	}
+	/* package */ void setTargets(CodeStream codeStream) {
 		if (this.elseTarget == null)
 			this.elseTarget = new BranchLabel(codeStream);
 		if (this.thenTarget == null)
 			this.thenTarget = new BranchLabel(codeStream);
-		generateOptimizedBoolean(currentScope, codeStream, this.thenTarget, this.elseTarget);
 	}
 	public void suspendVariables(CodeStream codeStream, BlockScope scope) {
 		// nothing by default

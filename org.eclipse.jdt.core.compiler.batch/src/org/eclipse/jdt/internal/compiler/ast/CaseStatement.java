@@ -119,7 +119,13 @@ private FlowInfo analyseConstantExpression(
 
 @Override
 public boolean containsPatternVariable() {
-	return this.patternIndex != -1;
+	if (this.patternIndex == -1
+			|| this.constantExpressions.length <= this.patternIndex
+			|| !(this.constantExpressions[this.patternIndex] instanceof Pattern))
+		return false;
+	Pattern pattern = (Pattern) this.constantExpressions[this.patternIndex];
+	return pattern instanceof TypePattern ?
+			((TypePattern) pattern).local != null : true;
 }
 @Override
 public StringBuffer printStatement(int tab, StringBuffer output) {
@@ -161,10 +167,15 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 
 private void casePatternExpressionGenerateCode(BlockScope currentScope, CodeStream codeStream) {
 	if (this.patternIndex != -1) {
-		LocalVariableBinding local = currentScope.findVariable(SwitchStatement.SecretPatternVariableName, null);
-		codeStream.load(local);
 		Pattern pattern = ((Pattern) this.constantExpressions[this.patternIndex]);
-		pattern.generateCode(currentScope, codeStream);
+		if (containsPatternVariable()) {
+			LocalVariableBinding local = currentScope.findVariable(SwitchStatement.SecretPatternVariableName, null);
+			codeStream.load(local);
+			pattern.generateCode(currentScope, codeStream);
+		} else {
+			pattern.setTargets(codeStream);
+		}
+
 		if (!(pattern instanceof GuardedPattern))
 			codeStream.goto_(pattern.thenTarget);
 	}
