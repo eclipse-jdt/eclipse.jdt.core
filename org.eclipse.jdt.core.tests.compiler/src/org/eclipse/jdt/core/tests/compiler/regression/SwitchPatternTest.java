@@ -5771,4 +5771,56 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"1\n0");
 	}
+	public void testIssue711_1() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"import java.util.*;\n" +
+					"public class X {\n" +
+					"@SuppressWarnings(\"preview\")\n"
+					+ "public static void foo(List<Number> l) {\n"
+					+ "	switch (l) {\n"
+					+ "	    case ArrayList<Number> al -> \n"
+					+ "	        System.out.println(\"An ArrayList of Number\");\n"
+					+ "	    case ArrayList<? extends Number> aln -> // Error - dominated case label\n"
+					+ "	        System.out.println(\"An ArrayList of Number\");\n"
+					+ "	    default -> \n"
+					+ "	        System.out.println(\"A List\");\n"
+					+ "	}\n"
+					+ "}\n" +
+					"}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 8)\n" +
+				"	case ArrayList<? extends Number> aln -> // Error - dominated case label\n" +
+				"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"This case label is dominated by one of the preceding case label\n" +
+				"----------\n");
+	}
+	public void testIssue711_2() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"import java.util.*;\n" +
+					"public class X {\n" +
+					"@SuppressWarnings(\"preview\")\n"
+					+ "public static void foo(List<Number> l) {\n"
+					+ "	switch (l) {\n"
+					+ "	    case ArrayList<? extends Number> aln ->\n"
+					+ "	        System.out.println(\"An ArrayList of Number\");\n"
+					+ "	    case ArrayList<Number> al ->  // Error - dominated case label\n"
+					+ "	        System.out.println(\"An ArrayList of Number\");\n"
+					+ "	    default -> \n"
+					+ "	        System.out.println(\"A List\");\n"
+					+ "	}\n"
+					+ "}\n" +
+					"}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 8)\n" +
+				"	case ArrayList<Number> al ->  // Error - dominated case label\n" +
+				"	     ^^^^^^^^^^^^^^^^^^^^\n" +
+				"This case label is dominated by one of the preceding case label\n" +
+				"----------\n");
+	}
 }
