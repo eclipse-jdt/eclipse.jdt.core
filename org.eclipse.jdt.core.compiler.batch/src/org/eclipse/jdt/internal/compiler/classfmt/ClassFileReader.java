@@ -116,8 +116,6 @@ public static ClassFileReader read(File file, boolean fullyInitialize) throws Cl
 	if (fullyInitialize) {
 		classFileReader.initialize();
 	}
-	if (classFileReader.moduleDeclaration != null)
-		classFileReader.moduleDeclaration.path = uri;
 	return classFileReader;
 }
 
@@ -186,12 +184,18 @@ public static ClassFileReader read(String fileName, boolean fullyInitialize) thr
  * @param fileName	Actual name of the file that contains the bytes, can be null
  *
  * @exception ClassFormatException
+ * @Deprecated Use {@link #ClassFileReader(URI, byte[], char[])} where an annotation processor might be in the picture
  */
 public ClassFileReader(byte classFileBytes[], char[] fileName) throws ClassFormatException {
 	this(classFileBytes, fileName, false);
-	if (this.moduleDeclaration != null)
-		this.moduleDeclaration.path = this.path;
 }
+/**
+ * @param path URI pointing to the resource of the .class file
+ * @param classFileBytes Actual bytes of a .class file
+ * @param fileName	Actual name of the file that contains the bytes, can be null
+ *
+ * @exception ClassFormatException
+ */
 public ClassFileReader(URI path, byte classFileBytes[], char[] fileName) throws ClassFormatException {
 	this(classFileBytes, fileName, false);
 	this.path = path;
@@ -209,6 +213,7 @@ public ClassFileReader(URI path, byte classFileBytes[], char[] fileName) throws 
  * @param fullyInitialize boolean
  * 		Flag to fully initialize the new object
  * @exception ClassFormatException
+ * @Deprecated Use {@link #ClassFileReader(URI, byte[], char[])} where an annotation processor might be in the picture
  */
 public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInitialize) throws ClassFormatException {
 	// This method looks ugly but is actually quite simple, the constantPool is constructed
@@ -462,7 +467,6 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 						}
 					} else if (CharOperation.equals(attributeName, AttributeNamesConstants.ModuleName)) {
 						this.moduleDeclaration = ModuleInfo.createModule(this.reference, this.constantPoolOffsets, readOffset);
-						this.moduleDeclaration.path = this.path;
 						this.moduleName = this.moduleDeclaration.name();
 					}
 					break;
