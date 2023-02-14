@@ -578,13 +578,10 @@ private static boolean isOnModulePath(JavaProject javaProject, PackageFragmentRo
 			 * so we cannot rely on the attribute.
 			 */
 			isOnModulePath = isModularProject(javaProject);
-		} else if (classpathEntry.getEntryKind() == IClasspathEntry.CPE_CONTAINER) {
+		} else if (hasSystemModule(root)) {
 			/*
 			 * The JRE 9+ container is on the module path without the 'module' classpath attribute being set.
-			 * So for any container with modules, we assume its on the module path. Since its difficult to know
-			 * whether we have the JRE container or not.
-			 * We want to improve this check with https://github.com/eclipse-jdt/eclipse.jdt.core/issues/748,
-			 * so that only module path containers have their module infos added.
+			 * We detected the JRE container by checking the container for system modules.
 			 */
 			isOnModulePath = true;
 		} else {
@@ -601,5 +598,13 @@ private static boolean isModularProject(IJavaProject project) throws JavaModelEx
 	IModuleDescription module = project.getModuleDescription();
 	String modName = module == null ? null : module.getElementName();
 	return modName != null && modName.length() > 0;
+}
+
+private static boolean hasSystemModule(PackageFragmentRoot fragmentRoot) {
+	IModuleDescription module = fragmentRoot.getModuleDescription();
+	if (module != null && module.isSystemModule()) {
+		return true;
+	}
+	return false;
 }
 }
