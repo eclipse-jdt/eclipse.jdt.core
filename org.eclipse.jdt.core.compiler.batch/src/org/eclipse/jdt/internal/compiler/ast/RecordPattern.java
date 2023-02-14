@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -124,8 +128,6 @@ public class RecordPattern extends TypePattern {
 		if (!this.resolvedType.isRecord()) {
 			scope.problemReporter().unexpectedTypeinRecordPattern(this.resolvedType, this.type);
 			return this.resolvedType;
-		} else if (this.resolvedType.isRawType()) {
-			scope.problemReporter().rawTypeInRecordPattern(this.resolvedType, this.type);
 		}
 		this.isTotalTypeNode = isTotalForType(this.resolvedType);
 		RecordComponentBinding[] components = this.resolvedType.components();

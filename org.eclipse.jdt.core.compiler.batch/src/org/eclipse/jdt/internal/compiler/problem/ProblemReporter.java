@@ -12413,12 +12413,4 @@ public void incompatiblePatternType(ASTNode element, TypeBinding type, TypeBindi
 			element.sourceStart,
 			element.sourceEnd);
 }
-public void rawTypeInRecordPattern(TypeBinding type, ASTNode element) {
-	this.handle(
-			IProblem.RawTypeInRecordPattern,
-			new String[] {new String(type.readableName())},
-			new String[] {new String(type.shortReadableName())},
-			element.sourceStart,
-			element.sourceEnd);
-}
 }
