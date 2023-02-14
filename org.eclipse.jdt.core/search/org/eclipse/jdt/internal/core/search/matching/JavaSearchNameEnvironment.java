@@ -282,21 +282,7 @@ private ClasspathLocation mapToClassPathLocation(JavaModelManager manager, Packa
 	}
 	JavaProject javaProject = root.getJavaProject();
 	if (isComplianceJava9OrHigher(javaProject)) {
-		boolean isOnModulePath = true; // if an exception occurs, assume yes
-		try {
-			IClasspathEntry classpathEntry = root.getRawClasspathEntry();
-			if (classpathEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
-				/*
-				 * Source classpath entries of a project never have the module attribute set,
-				 * so we cannot rely on the attribute.
-				 */
-				isOnModulePath = isModularProject(javaProject);
-			} else {
-				isOnModulePath = ClasspathEntry.isModular(classpathEntry);
-			}
-		} catch (JavaModelException e) {
-			Util.log(e, "Error checking whether PackageFragmentRoot is on module path!"); //$NON-NLS-1$
-		}
+		boolean isOnModulePath = isOnModulePath(javaProject, root);
 		if (isOnModulePath) {
 			addModuleClassPathInfo(root, defaultModule, cp);
 		}
@@ -580,6 +566,35 @@ private static boolean isComplianceJava9OrHigher(IJavaProject javaProject) {
 		return false;
 	}
 	return CompilerOptions.versionToJdkLevel(javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true)) >= ClassFileConstants.JDK9;
+}
+
+private static boolean isOnModulePath(JavaProject javaProject, PackageFragmentRoot root) {
+	boolean isOnModulePath;
+	try {
+		IClasspathEntry classpathEntry = root.getRawClasspathEntry();
+		if (classpathEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+			/*
+			 * Source classpath entries of a project never have the module attribute set,
+			 * so we cannot rely on the attribute.
+			 */
+			isOnModulePath = isModularProject(javaProject);
+		} else if (classpathEntry.getEntryKind() == IClasspathEntry.CPE_CONTAINER) {
+			/*
+			 * The JRE 9+ container is on the module path without the 'module' classpath attribute being set.
+			 * So for any container with modules, we assume its on the module path. Since its difficult to know
+			 * whether we have the JRE container or not.
+			 * We want to improve this check with https://github.com/eclipse-jdt/eclipse.jdt.core/issues/748,
+			 * so that only module path containers have their module infos added.
+			 */
+			isOnModulePath = true;
+		} else {
+			isOnModulePath = ClasspathEntry.isModular(classpathEntry);
+		}
+	} catch (JavaModelException e) {
+		isOnModulePath = true; // if an exception occurs, assume yes
+		Util.log(e, "Error checking whether PackageFragmentRoot is on module path!"); //$NON-NLS-1$
+	}
+	return isOnModulePath;
 }
 
 private static boolean isModularProject(IJavaProject project) throws JavaModelException {

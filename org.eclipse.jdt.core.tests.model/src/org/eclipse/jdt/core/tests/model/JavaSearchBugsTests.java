@@ -21,7 +21,6 @@ import static org.eclipse.jdt.core.search.IJavaSearchScope.SYSTEM_LIBRARIES;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -15472,31 +15471,6 @@ public void testModuleConflictForClasspathProjectsBugGh675() throws Exception {
 				"src/test/Test.java void test.Test.testMethod() [testField] EXACT_MATCH");
 	} finally {
 		deleteProject(projectName);
-	}
-}
-
-private void buildAndExpectProblems(IJavaProject javaProject, String expectedMarkers) throws CoreException {
-	IProject project = javaProject.getProject();
-	project.build(IncrementalProjectBuilder.AUTO_BUILD, new NullProgressMonitor());
-	waitForAutoBuild();
-	waitUntilIndexesReady();
-	assertProblemMarkers("Expected build problems on project due to undefined type",
-			expectedMarkers, project);
-}
-
-private void buildAndExpectNoProblems(IJavaProject... javaProjects) throws CoreException {
-	List<IProject> projects = new ArrayList<>();
-	if (javaProjects != null) {
-		Arrays.stream(javaProjects).forEach(jp -> projects.add(jp.getProject()));
-	}
-	for (IProject project : projects) {
-		project.build(IncrementalProjectBuilder.AUTO_BUILD, new NullProgressMonitor());
-	}
-	waitForAutoBuild();
-	waitUntilIndexesReady();
-
-	for (IProject project : projects) {
-		assertProblemMarkers("Expected no build problems on project: " + project, "", project);
 	}
 }
 
