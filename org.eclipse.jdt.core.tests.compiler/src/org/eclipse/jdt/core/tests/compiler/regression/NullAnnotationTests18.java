@@ -170,7 +170,7 @@ public class NullAnnotationTests18 extends AbstractNullAnnotationTest {
 		runner.runConformTest();
 	}
 
-	public void test_totalTypePatternDoesNotAdmitNull() {
+	public void test_totalTypePatternAdmitsNull() {
 		Runner runner = getDefaultRunner();
 		runner.testFiles = new String[] {
 				"X.java",
@@ -205,8 +205,7 @@ public class NullAnnotationTests18 extends AbstractNullAnnotationTest {
 				"	                                ^^\n" +
 				"Null type safety (type annotations): The expression of type \'Number\' needs unchecked conversion to conform to \'@NonNull Number\'\n" +
 				"----------\n";
-//		runner.expectedOutputString = "Cannot invoke \"Object.toString()\" because \"n\" is null";
-		runner.expectedOutputString = "null";
+		runner.expectedOutputString = "Cannot invoke \"Object.toString()\" because \"n\" is null";
 		runner.runConformTest();
 	}
 
@@ -351,8 +350,7 @@ public class NullAnnotationTests18 extends AbstractNullAnnotationTest {
 		runner.runConformTest();
 	}
 
-	// null cannot be in the same case with pattern as per the 432+433 jep
-	public void _test_switchNullInSameCase() {
+	public void test_switchNullInSameCase() {
 		Runner runner = getDefaultRunner();
 		runner.customOptions.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.WARNING);
 		runner.testFiles = new String[] {
