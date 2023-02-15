@@ -5823,4 +5823,62 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"This case label is dominated by one of the preceding case label\n" +
 				"----------\n");
 	}
+	public void testIssue742_1() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"import java.util.*;\n" +
+					"public class X {\n" +
+					"@SuppressWarnings(\"preview\")\n"
+					+ "public static void foo(Integer n) {\n"
+					+ "  switch (n) {\n"
+					+ "    case Integer i when true -> // Allowed but why write this?\n"
+					+ "        System.out.println(\"An integer\"); \n"
+					+ "    case Integer i ->                     // Error - dominated case label\n"
+					+ "        System.out.println(\"An integer\"); \n"
+					+ "  }\n"
+					+ "}\n" +
+					"}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 8)\n" +
+				"	case Integer i ->                     // Error - dominated case label\n" +
+				"	     ^^^^^^^^^\n" +
+				"The switch statement cannot have more than one unconditional pattern\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 8)\n" +
+				"	case Integer i ->                     // Error - dominated case label\n" +
+				"	     ^^^^^^^^^\n" +
+				"This case label is dominated by one of the preceding case label\n" +
+				"----------\n");
+	}
+	public void testIssue742_2() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"import java.util.*;\n" +
+					"public class X {\n" +
+					"@SuppressWarnings(\"preview\")\n"
+					+ "public static void foo(Integer n) {\n"
+					+ "  switch (n) {\n"
+					+ "    case Integer i -> // Allowed but why write this?\n"
+					+ "        System.out.println(\"An integer\"); \n"
+					+ "    case Integer i when true ->                     // Error - dominated case label\n"
+					+ "        System.out.println(\"An integer\"); \n"
+					+ "  }\n"
+					+ "}\n" +
+					"}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 8)\n" +
+				"	case Integer i when true ->                     // Error - dominated case label\n" +
+				"	     ^^^^^^^^^^^^^^^^^^^\n" +
+				"The switch statement cannot have more than one unconditional pattern\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 8)\n" +
+				"	case Integer i when true ->                     // Error - dominated case label\n" +
+				"	     ^^^^^^^^^^^^^^^^^^^\n" +
+				"This case label is dominated by one of the preceding case label\n" +
+				"----------\n");
+	}
 }
