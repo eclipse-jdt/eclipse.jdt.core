@@ -100,6 +100,10 @@ public class TypePattern extends Pattern {
 		return flowInfo;
 	}
 	@Override
+	public boolean containsPatternVariable(BlockScope scope) {
+		return this.local != null;
+	}
+	@Override
 	public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel) {
 		if (this.local != null) {
 			LocalVariableBinding localBinding = this.local.binding;

@@ -36,6 +36,7 @@ public class RecordPattern extends TypePattern {
 	public TypeReference type;
 	int thenInitStateIndex1 = -1;
 	int thenInitStateIndex2 = -1;
+	private Boolean containsPatternVariables = null;
 
 	public RecordPattern(LocalDeclaration local) {
 		super(local);
@@ -73,6 +74,24 @@ public class RecordPattern extends TypePattern {
 			return super.checkUnsafeCast(scope, castType, expressionType, match, isNarrowing);
 	}
 
+	@Override
+	public boolean containsPatternVariable(BlockScope scope) {
+		if (this.containsPatternVariables != null)
+			return this.containsPatternVariables;
+
+		class PatternVariablesVisitor extends ASTVisitor {
+			public boolean hasPatternVar = false;
+
+			@Override
+			public boolean visit(RecordPattern recordPattern, BlockScope blockScope) {
+				return this.hasPatternVar = recordPattern.patterns != null
+						&& recordPattern.patterns.length > 0;
+			}
+ 		}
+		PatternVariablesVisitor pvv = new PatternVariablesVisitor();
+		this.traverse(pvv, scope);
+		return this.containsPatternVariables = pvv.hasPatternVar;
+	}
 	@Override
 	public LocalDeclaration getPatternVariable() {
 		return super.getPatternVariable();

@@ -1310,6 +1310,7 @@ public void test011_problem_categories() {
 	    expectedProblemAttributes.put("DiscouragedValueBasedTypeSynchronization", new ProblemAttributes(true));
 	    expectedProblemAttributes.put("ConstantWithPatternIncompatible", new ProblemAttributes(true));
 	    expectedProblemAttributes.put("IllegalFallthroughToPattern", new ProblemAttributes(true));
+	    expectedProblemAttributes.put("IllegalFallthroughFromAPattern", new ProblemAttributes(true));
 	    expectedProblemAttributes.put("OnlyOnePatternCaseLabelAllowed", new ProblemAttributes(true));
 	    expectedProblemAttributes.put("CannotMixPatternAndDefault", new ProblemAttributes(true));
 	    expectedProblemAttributes.put("CannotMixNullAndNonTypePattern", new ProblemAttributes(true));
@@ -2404,6 +2405,7 @@ public void test012_compiler_problems_tuning() {
 	    expectedProblemAttributes.put("DiscouragedValueBasedTypeSynchronization", SKIP);
 	    expectedProblemAttributes.put("ConstantWithPatternIncompatible", SKIP);
 	    expectedProblemAttributes.put("IllegalFallthroughToPattern", SKIP);
+	    expectedProblemAttributes.put("IllegalFallthroughFromAPattern", SKIP);
 	    expectedProblemAttributes.put("OnlyOnePatternCaseLabelAllowed", SKIP);
 	    expectedProblemAttributes.put("CannotMixPatternAndDefault", SKIP);
 	    expectedProblemAttributes.put("CannotMixNullAndNonTypePattern", SKIP);

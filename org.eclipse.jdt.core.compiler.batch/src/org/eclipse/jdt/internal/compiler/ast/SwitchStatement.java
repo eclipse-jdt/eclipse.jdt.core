@@ -172,13 +172,19 @@ public class SwitchStatement extends Expression {
 				int initialComplaintLevel = (flowInfo.reachMode() & FlowInfo.UNREACHABLE) != 0 ? Statement.COMPLAINED_FAKE_REACHABLE : Statement.NOT_COMPLAINED;
 				int complaintLevel = initialComplaintLevel;
 				int fallThroughState = CASE;
+				int prevCaseStmtIndex = -100;
 				for (int i = 0, max = this.statements.length; i < max; i++) {
 					Statement statement = this.statements[i];
 					if ((caseIndex < this.caseCount) && (statement == this.cases[caseIndex])) { // statement is a case
 						this.scope.enclosingCase = this.cases[caseIndex]; // record entering in a switch case block
 						caseIndex++;
+						if (prevCaseStmtIndex == i - 1) {
+							if (((CaseStatement) this.statements[prevCaseStmtIndex]).containsPatternVariable(this.scope))
+								this.scope.problemReporter().illegalFallthroughFromAPattern(this.statements[prevCaseStmtIndex]);
+						}
+						prevCaseStmtIndex = i;
 						if (fallThroughState == FALLTHROUGH && complaintLevel <= NOT_COMPLAINED) {
-							if (((CaseStatement) statement).containsPatternVariable())
+							if (((CaseStatement) statement).containsPatternVariable(this.scope))
 								this.scope.problemReporter().IllegalFallThroughToPattern(this.scope.enclosingCase);
 							else if ((statement.bits & ASTNode.DocumentedFallthrough) == 0) { // the case is not fall-through protected by a line comment
 								this.scope.problemReporter().possibleFallThroughCase(this.scope.enclosingCase);
@@ -694,7 +700,7 @@ public class SwitchStatement extends Expression {
 	private void patternCaseExitPreviousCaseScope(CodeStream codeStream, int caseIndex) {
 		if (caseIndex > 0) {
 			CaseStatement caseStatement = this.cases[caseIndex];
-			if (caseStatement.containsPatternVariable()) {
+			if (caseStatement.containsPatternVariable(this.scope)) {
 				caseStatement.patternCaseRemovePatternLocals(codeStream);
 			}
 		}
@@ -704,6 +710,8 @@ public class SwitchStatement extends Expression {
 				&& caseStatement.patternIndex != -1 // for null
 				) {
 			Pattern pattern = (Pattern) caseStatement.constantExpressions[caseStatement.patternIndex];
+//			if (!pattern.containsPatternVariable())
+//				return;
 			pattern.elseTarget.place();
 			pattern.suspendVariables(codeStream, this.scope);
 			if (!pattern.isAlwaysTrue()) {
@@ -920,7 +928,7 @@ public class SwitchStatement extends Expression {
 					// so that we can resolve all statements (including case statements)
 					// with the pattern variables in scope.
 					if (statement instanceof CaseStatement) {
-						if (statement.containsPatternVariable()) {
+						if (statement.containsPatternVariable(this.scope)) {
 							((CaseStatement) statement).collectPatternVariablesToScope(null, this.scope);
 							patternVariables = statement.getPatternVariablesWhenTrue();
 						} else {

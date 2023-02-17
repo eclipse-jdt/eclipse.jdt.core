@@ -118,8 +118,13 @@ private FlowInfo analyseConstantExpression(
 }
 
 @Override
-public boolean containsPatternVariable() {
-	return this.patternIndex != -1;
+public boolean containsPatternVariable(BlockScope scope) {
+	if (this.patternIndex == -1
+			|| this.constantExpressions.length <= this.patternIndex
+			|| !(this.constantExpressions[this.patternIndex] instanceof Pattern))
+		return false;
+	Pattern pattern = (Pattern) this.constantExpressions[this.patternIndex];
+	return pattern.containsPatternVariable(scope);
 }
 @Override
 public StringBuffer printStatement(int tab, StringBuffer output) {
@@ -161,10 +166,15 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 
 private void casePatternExpressionGenerateCode(BlockScope currentScope, CodeStream codeStream) {
 	if (this.patternIndex != -1) {
-		LocalVariableBinding local = currentScope.findVariable(SwitchStatement.SecretPatternVariableName, null);
-		codeStream.load(local);
 		Pattern pattern = ((Pattern) this.constantExpressions[this.patternIndex]);
-		pattern.generateCode(currentScope, codeStream);
+		if (containsPatternVariable(currentScope)) {
+			LocalVariableBinding local = currentScope.findVariable(SwitchStatement.SecretPatternVariableName, null);
+			codeStream.load(local);
+			pattern.generateCode(currentScope, codeStream);
+		} else {
+			pattern.setTargets(codeStream);
+		}
+
 		if (!(pattern instanceof GuardedPattern))
 			codeStream.goto_(pattern.thenTarget);
 	}
@@ -218,7 +228,7 @@ public static class ResolvedCase {
  * Returns the constant intValue or ordinal for enum constants. If constant is NotAConstant, then answers Float.MIN_VALUE
  */
 public ResolvedCase[] resolveCase(BlockScope scope, TypeBinding switchExpressionType, SwitchStatement switchStatement) {
-	if (containsPatternVariable()) {
+	if (containsPatternVariable(scope)) {
 		return resolveWithPatternVariablesInScope(this.patternVarsWhenTrue, scope, switchExpressionType, switchStatement);
 	}
 	return resolveCasePrivate(scope, switchExpressionType, switchStatement);
@@ -382,7 +392,7 @@ private void flagDuplicateDefault(BlockScope scope, SwitchStatement switchStatem
 	}
 }
 public void collectPatternVariablesToScope(LocalVariableBinding[] variables, BlockScope scope) {
-	if (!containsPatternVariable()) {
+	if (!containsPatternVariable(scope)) {
 		return;
 	}
 	for (Expression e : this.constantExpressions) {

@@ -291,7 +291,7 @@ public void collectPatternVariablesToScope(LocalVariableBinding[] variables, Blo
 	}
 }
 @Override
-public boolean containsPatternVariable() {
+public boolean containsPatternVariable(BlockScope scope) {
 	return this.elementVariable != null || this.pattern != null;
 }
 @Override

@@ -12309,6 +12309,14 @@ public void IllegalFallThroughToPattern(Statement statement) {
 		statement.sourceStart,
 		statement.sourceEnd);
 	}
+public void illegalFallthroughFromAPattern(Statement statement) {
+	this.handle(
+		IProblem.IllegalFallthroughFromAPattern,
+		NoArgument,
+		NoArgument,
+		statement.sourceStart,
+		statement.sourceEnd);
+	}
 public void switchPatternOnlyOnePatternCaseLabelAllowed(Expression element) {
 	this.handle(
 			IProblem.OnlyOnePatternCaseLabelAllowed,

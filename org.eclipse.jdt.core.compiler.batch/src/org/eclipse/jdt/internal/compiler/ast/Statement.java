@@ -552,7 +552,7 @@ public void resolveWithPatternVariablesInScope(LocalVariableBinding[] patternVar
 public TypeBinding resolveExpressionType(BlockScope scope) {
 	return null;
 }
-public boolean containsPatternVariable() {
+public boolean containsPatternVariable(BlockScope scope) {
 	return false;
 }
 /**
