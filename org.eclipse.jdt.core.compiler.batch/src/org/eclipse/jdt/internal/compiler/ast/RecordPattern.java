@@ -36,7 +36,6 @@ public class RecordPattern extends TypePattern {
 	public TypeReference type;
 	int thenInitStateIndex1 = -1;
 	int thenInitStateIndex2 = -1;
-	private Boolean containsPatternVariables = null;
 
 	public RecordPattern(LocalDeclaration local) {
 		super(local);

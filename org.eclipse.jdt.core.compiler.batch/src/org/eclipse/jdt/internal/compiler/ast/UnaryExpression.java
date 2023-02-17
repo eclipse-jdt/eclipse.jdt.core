@@ -339,7 +339,10 @@ public class UnaryExpression extends OperatorExpression {
 	}
 	@Override
 	public boolean containsPatternVariable(BlockScope scope) {
-		return this.expression.containsPatternVariable(scope);
+		if (this.containsPatternVariables == null) {
+			this.containsPatternVariables = this.expression.containsPatternVariable(scope);
+		}
+		return this.containsPatternVariables;
 	}
 	@Override
 	public LocalDeclaration getPatternVariable() {

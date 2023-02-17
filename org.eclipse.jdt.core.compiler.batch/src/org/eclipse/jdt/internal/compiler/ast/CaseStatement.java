@@ -119,12 +119,17 @@ private FlowInfo analyseConstantExpression(
 
 @Override
 public boolean containsPatternVariable(BlockScope scope) {
-	if (this.patternIndex == -1
-			|| this.constantExpressions.length <= this.patternIndex
-			|| !(this.constantExpressions[this.patternIndex] instanceof Pattern))
-		return false;
-	Pattern pattern = (Pattern) this.constantExpressions[this.patternIndex];
-	return pattern.containsPatternVariable(scope);
+	if (this.containsPatternVariables == null ) {
+		if (this.patternIndex == -1
+				|| this.constantExpressions.length <= this.patternIndex
+				|| !(this.constantExpressions[this.patternIndex] instanceof Pattern)) {
+			this.containsPatternVariables = false;
+		} else {
+			Pattern pattern = (Pattern) this.constantExpressions[this.patternIndex];
+			this.containsPatternVariables = pattern.containsPatternVariable(scope);
+		}
+	}
+	return this.containsPatternVariables;
 }
 @Override
 public StringBuffer printStatement(int tab, StringBuffer output) {

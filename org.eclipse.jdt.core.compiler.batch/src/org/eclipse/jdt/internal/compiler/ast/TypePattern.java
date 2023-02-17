@@ -101,7 +101,10 @@ public class TypePattern extends Pattern {
 	}
 	@Override
 	public boolean containsPatternVariable(BlockScope scope) {
-		return this.local != null;
+		if (this.containsPatternVariables == null) {
+			this.containsPatternVariables = this.local != null;
+		}
+		return this.containsPatternVariables;
 	}
 	@Override
 	public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel) {

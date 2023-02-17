@@ -302,7 +302,10 @@ public class WhileStatement extends Statement {
 
 	@Override
 	public boolean containsPatternVariable(BlockScope scope) {
-		return this.condition != null && this.condition.containsPatternVariable(scope);
+		if (this.containsPatternVariables == null) {
+			this.containsPatternVariables = this.condition != null && this.condition.containsPatternVariable(scope);
+		}
+		return this.containsPatternVariables;
 	}
 
 	@Override

@@ -51,7 +51,10 @@ public class GuardedPattern extends Pattern {
 
 	@Override
 	public boolean containsPatternVariable(BlockScope scope) {
-		return this.primaryPattern.containsPatternVariable(scope) || this.condition.containsPatternVariable(scope);
+		if (this.containsPatternVariables == null) {
+			this.containsPatternVariables = this.primaryPattern.containsPatternVariable(scope) || this.condition.containsPatternVariable(scope);
+		}
+		return this.containsPatternVariables;
 	}
 	@Override
 	public LocalDeclaration getPatternVariable() {

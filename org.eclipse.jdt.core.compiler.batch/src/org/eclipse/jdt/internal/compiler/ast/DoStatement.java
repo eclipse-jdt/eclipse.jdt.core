@@ -251,7 +251,10 @@ public void resolve(BlockScope scope) {
 
 @Override
 public boolean containsPatternVariable(BlockScope scope) {
-	return this.condition.containsPatternVariable(scope);
+	if (this.containsPatternVariables == null) {
+		this.containsPatternVariables = this.condition.containsPatternVariable(scope);
+	}
+	return this.containsPatternVariables;
 }
 @Override
 public void traverse(ASTVisitor visitor, BlockScope scope) {

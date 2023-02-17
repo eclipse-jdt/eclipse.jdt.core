@@ -1830,7 +1830,10 @@ public void addPatternVariables(BlockScope scope, CodeStream codeStream) {
 }
 @Override
 public boolean containsPatternVariable(BlockScope scope) {
-	return this.left.containsPatternVariable(scope) || this.right.containsPatternVariable(scope);
+	if (this.containsPatternVariables == null) {
+		this.containsPatternVariables = this.left.containsPatternVariable(scope) || this.right.containsPatternVariable(scope);
+	}
+	return this.containsPatternVariables;
 }
 @Override
 public TypeBinding resolveType(BlockScope scope) {

@@ -54,6 +54,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public abstract class Statement extends ASTNode {
 
+	protected Boolean containsPatternVariables = null;
 	/**
 	 * Answers true if the if is identified as a known coding pattern which
 	 * should be tolerated by dead code analysis.

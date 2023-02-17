@@ -443,7 +443,10 @@ public class ForStatement extends Statement {
 
 	@Override
 	public boolean containsPatternVariable(BlockScope blockScope) {
-		return this.condition != null && this.condition.containsPatternVariable(blockScope);
+		if (this.containsPatternVariables == null) {
+			this.containsPatternVariables = this.condition != null && this.condition.containsPatternVariable(blockScope);
+		}
+		return this.containsPatternVariables;
 	}
 
 	@Override
