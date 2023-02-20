@@ -835,7 +835,7 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-				"BLOCKED[FIELD_REF]{BLOCKED, LState;, LState;, null, null, BLOCKED, null, [141, 142], "
+				"BLOCKED[FIELD_REF]{BLOCKED, LState;, LState;, null, null, BLOCKED, null, [122, 123], "
 						+ (R_DEFAULT + R_ENUM + R_ENUM_CONSTANT + R_RESOLVED + R_INTERESTING + R_CASE
 								+ R_UNQUALIFIED + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE)
 						+ "}",
