@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright (c) 2023 IBM Corporation and others.
+
+    This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License 2.0
+    which accompanies this distribution, and is available at
+    https://www.eclipse.org/legal/epl-2.0/
+
+    SPDX-License-Identifier: EPL-2.0
+    
+    Contributors:
+        IBM Corporation - initial API and implementation
+ -->
+<project name="export-JCLmins" default="build" basedir=".">
+	<property name="jclbase" value="${basedir}/../JCL"/>
+	<target name="build">
+		<antcall target="javaxAPI">
+			<param name="compliance" value="20"/>
+			<param name="suffix" value="20"/>
+		</antcall>
+	</target>
+	<target name="javaxAPI">
+		<mkdir dir="${jclbase}/javax${suffix}api/bin" />
+		<javac srcdir="${jclbase}/javax${suffix}api/src" destdir="${jclbase}/javax${suffix}api/bin"
+					debuglevel="lines,source"
+					source="${compliance}"
+					target="${compliance}">
+			<compilerarg line="-Xlint:none"/>
+		</javac>
+		<jar destfile="${basedir}/lib/javax${suffix}api.jar" basedir="${jclbase}/javax${suffix}api/bin"/>
+	</target>
+</project>
