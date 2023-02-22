@@ -19,6 +19,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import java.util.function.Supplier;
 
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -37,6 +38,23 @@ public abstract class Pattern extends Expression {
 	/* package */ BranchLabel elseTarget;
 	/* package */ BranchLabel thenTarget;
 
+
+	@Override
+	public boolean containsPatternVariable() {
+		class PatternVariablesVisitor extends ASTVisitor {
+			public boolean hasPatternVar = false;
+
+			@Override
+			public boolean visit(TypePattern typePattern, BlockScope blockScope) {
+				 this.hasPatternVar = typePattern.local != null;
+				 return !this.hasPatternVar;
+			}
+ 		}
+
+		PatternVariablesVisitor pvv = new PatternVariablesVisitor();
+		this.traverse(pvv, (BlockScope) null);
+		return pvv.hasPatternVar;
+	}
 
 	public boolean isTotalForType(TypeBinding type) {
 		return false;

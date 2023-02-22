@@ -8,10 +8,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -49,13 +45,6 @@ public class GuardedPattern extends Pattern {
 		addPatternVariablesWhenTrue(this.condition.getPatternVariablesWhenTrue());
 	}
 
-	@Override
-	public boolean containsPatternVariable(BlockScope scope) {
-		if (this.containsPatternVariables == null) {
-			this.containsPatternVariables = this.primaryPattern.containsPatternVariable(scope) || this.condition.containsPatternVariable(scope);
-		}
-		return this.containsPatternVariables;
-	}
 	@Override
 	public LocalDeclaration getPatternVariable() {
 		return this.primaryPattern.getPatternVariable();

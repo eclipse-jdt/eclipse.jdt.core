@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,10 +7,6 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -250,7 +246,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		this.elseStatement.generateCode(currentScope, codeStream);
 	} else {
 		// generate condition side-effects
-		if (this.condition.containsPatternVariable(currentScope)) {
+		if (this.condition.containsPatternVariable()) {
 			this.condition.generateOptimizedBoolean(
 				currentScope,
 				codeStream,
@@ -298,7 +294,7 @@ private void resolveIfStatement(BlockScope scope) {
 }
 @Override
 public void resolve(BlockScope scope) {
-	if (containsPatternVariable(scope)) {
+	if (containsPatternVariable()) {
 		this.condition.collectPatternVariablesToScope(null, scope);
 		LocalVariableBinding[] patternVariablesInTrueScope = this.condition.getPatternVariablesWhenTrue();
 		LocalVariableBinding[] patternVariablesInFalseScope = this.condition.getPatternVariablesWhenFalse();
@@ -323,11 +319,8 @@ public void resolve(BlockScope scope) {
 }
 
 @Override
-public boolean containsPatternVariable(BlockScope scope) {
-	if (this.containsPatternVariables == null) {
-		this.containsPatternVariables = this.condition.containsPatternVariable(scope);
-	}
-	return this.containsPatternVariables;
+public boolean containsPatternVariable() {
+	return this.condition.containsPatternVariable();
 }
 
 @Override

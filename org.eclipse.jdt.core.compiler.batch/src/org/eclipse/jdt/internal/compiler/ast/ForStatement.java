@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2021 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,10 +7,6 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
- *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -274,7 +270,7 @@ public class ForStatement extends Statement {
 				this.initializations[i].generateCode(this.scope, codeStream);
 			}
 		}
-		if (containsPatternVariable(currentScope)) {
+		if (containsPatternVariable()) {
 			this.condition.addPatternVariables(currentScope, codeStream);
 		}
 		Constant cst = this.condition == null ? null : this.condition.optimizedBooleanConstant();
@@ -415,7 +411,7 @@ public class ForStatement extends Statement {
 		LocalVariableBinding[] patternVariablesInTrueScope = null;
 		LocalVariableBinding[] patternVariablesInFalseScope = null;
 
-		if (containsPatternVariable(upperScope)) {
+		if (containsPatternVariable()) {
 			this.condition.collectPatternVariablesToScope(null, upperScope);
 			patternVariablesInTrueScope = this.condition.getPatternVariablesWhenTrue();
 			patternVariablesInFalseScope = this.condition.getPatternVariablesWhenFalse();
@@ -442,11 +438,8 @@ public class ForStatement extends Statement {
 	}
 
 	@Override
-	public boolean containsPatternVariable(BlockScope blockScope) {
-		if (this.containsPatternVariables == null) {
-			this.containsPatternVariables = this.condition != null && this.condition.containsPatternVariable(blockScope);
-		}
-		return this.containsPatternVariables;
+	public boolean containsPatternVariable() {
+		return this.condition != null && this.condition.containsPatternVariable();
 	}
 
 	@Override

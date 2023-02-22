@@ -8,10 +8,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -358,7 +354,7 @@ public RecoveredElement buildInitialRecoveryState(){
 				} else if ((stmt instanceof ForeachStatement) && ((ForeachStatement) stmt).action == null) {
 					element = element.add(stmt, 0);
 					this.lastCheckPoint = stmt.sourceEnd + 1;
-				} else if (stmt.containsPatternVariable(null)) {
+				} else if (stmt.containsPatternVariable()) {
 					LocalDeclaration localDeclaration = null;
 					if(stmt instanceof CaseStatement) {
 						localDeclaration = ((CaseStatement)stmt).getLocalDeclaration();
