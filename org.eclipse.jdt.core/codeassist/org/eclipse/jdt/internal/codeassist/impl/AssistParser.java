@@ -1942,6 +1942,19 @@ protected boolean isInsideMethod(){
 	}
 	return false;
 }
+/**
+ * Returns whether we are inside a method invocation (MessageSend).
+ */
+protected boolean isInsideMethodInvocation() {
+	int i = this.elementPtr;
+	while (i > -1) {
+		switch (this.elementKindStack[i]) {
+			case K_SELECTOR: return true;
+		}
+		i--;
+	}
+	return false;
+}
 protected boolean isInsideType(){
 	int i = this.elementPtr;
 	while(i > -1) {

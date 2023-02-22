@@ -6103,7 +6103,12 @@ protected int resumeAfterRecovery() {
 	if (this.assistNode != null) {
 
 		if (requireExtendedRecovery()) {
-			if (this.unstackedAct != ERROR_ACTION) {
+			if (this.unstackedAct != ERROR_ACTION
+					// resume also if we are inside a MessageSend to complete collecting all paramaters
+					// when using generics, it helps for proper resolution of the MessageSend when all
+					// paramaters are collected. This is essential when next few paramaters are the ones
+					// that decide a TypeParameter of a current completing paramater type.
+					|| (isInsideMethodInvocation() && this.currentToken != TerminalTokens.TokenNameEOF)) {
 				return RESUME;
 			}
 			return super.resumeAfterRecovery();
