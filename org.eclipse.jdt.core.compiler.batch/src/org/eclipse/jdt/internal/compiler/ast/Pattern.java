@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021, 2022 IBM Corporation and others.
+ * Copyright (c) 2021, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -15,6 +19,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import java.util.function.Supplier;
 
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -34,6 +39,23 @@ public abstract class Pattern extends Expression {
 	/* package */ BranchLabel thenTarget;
 
 
+	@Override
+	public boolean containsPatternVariable() {
+		class PatternVariablesVisitor extends ASTVisitor {
+			public boolean hasPatternVar = false;
+
+			@Override
+			public boolean visit(TypePattern typePattern, BlockScope blockScope) {
+				 this.hasPatternVar = typePattern.local != null;
+				 return !this.hasPatternVar;
+			}
+ 		}
+
+		PatternVariablesVisitor pvv = new PatternVariablesVisitor();
+		this.traverse(pvv, (BlockScope) null);
+		return pvv.hasPatternVar;
+	}
+
 	public boolean isTotalForType(TypeBinding type) {
 		return false;
 	}
@@ -52,11 +74,14 @@ public abstract class Pattern extends Expression {
 	}
 	@Override
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
+		setTargets(codeStream);
+		generateOptimizedBoolean(currentScope, codeStream, this.thenTarget, this.elseTarget);
+	}
+	/* package */ void setTargets(CodeStream codeStream) {
 		if (this.elseTarget == null)
 			this.elseTarget = new BranchLabel(codeStream);
 		if (this.thenTarget == null)
 			this.thenTarget = new BranchLabel(codeStream);
-		generateOptimizedBoolean(currentScope, codeStream, this.thenTarget, this.elseTarget);
 	}
 	public void suspendVariables(CodeStream codeStream, BlockScope scope) {
 		// nothing by default

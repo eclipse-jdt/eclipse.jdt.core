@@ -172,11 +172,17 @@ public class SwitchStatement extends Expression {
 				int initialComplaintLevel = (flowInfo.reachMode() & FlowInfo.UNREACHABLE) != 0 ? Statement.COMPLAINED_FAKE_REACHABLE : Statement.NOT_COMPLAINED;
 				int complaintLevel = initialComplaintLevel;
 				int fallThroughState = CASE;
+				int prevCaseStmtIndex = -100;
 				for (int i = 0, max = this.statements.length; i < max; i++) {
 					Statement statement = this.statements[i];
 					if ((caseIndex < this.caseCount) && (statement == this.cases[caseIndex])) { // statement is a case
 						this.scope.enclosingCase = this.cases[caseIndex]; // record entering in a switch case block
 						caseIndex++;
+						if (prevCaseStmtIndex == i - 1) {
+							if (((CaseStatement) this.statements[prevCaseStmtIndex]).containsPatternVariable())
+								this.scope.problemReporter().illegalFallthroughFromAPattern(this.statements[prevCaseStmtIndex]);
+						}
+						prevCaseStmtIndex = i;
 						if (fallThroughState == FALLTHROUGH && complaintLevel <= NOT_COMPLAINED) {
 							if (((CaseStatement) statement).containsPatternVariable())
 								this.scope.problemReporter().IllegalFallThroughToPattern(this.scope.enclosingCase);
@@ -704,6 +710,8 @@ public class SwitchStatement extends Expression {
 				&& caseStatement.patternIndex != -1 // for null
 				) {
 			Pattern pattern = (Pattern) caseStatement.constantExpressions[caseStatement.patternIndex];
+//			if (!pattern.containsPatternVariable())
+//				return;
 			pattern.elseTarget.place();
 			pattern.suspendVariables(codeStream, this.scope);
 			if (!pattern.isAlwaysTrue()) {

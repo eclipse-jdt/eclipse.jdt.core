@@ -72,7 +72,6 @@ public class RecordPattern extends TypePattern {
 		else
 			return super.checkUnsafeCast(scope, castType, expressionType, match, isNarrowing);
 	}
-
 	@Override
 	public LocalDeclaration getPatternVariable() {
 		return super.getPatternVariable();

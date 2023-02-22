@@ -35,7 +35,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "test25" };
+//		TESTS_NAMES = new String[] { "test13" };
 	}
 	private String extraLibPath;
 	public static Class<?> testClass() {

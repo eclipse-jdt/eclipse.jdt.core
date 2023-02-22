@@ -2513,7 +2513,13 @@ void setSourceStart(int sourceStart);
 	 * @noreference preview feature error */
 	int PatternSwitchCaseDefaultOnlyAsSecond = PreviewRelated + 1921;
 
-	 /** @since 3.28
+	/**
+	 * @since 3.33
+	 * @noreference preview feature error
+	 */
+	int IllegalFallthroughFromAPattern = PreviewRelated + 1922;
+
+	/** @since 3.28
 	 * @noreference preview feature error */
 	int UnnecessaryNullCaseInSwitchOverNonNull = PreviewRelated + 1910;
 	/** @since 3.28
