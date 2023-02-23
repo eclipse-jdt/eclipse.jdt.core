@@ -28,6 +28,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -9746,12 +9747,15 @@ public final class CompletionEngine
 			return parameterName;
 		}
 		MessageSend parent = (MessageSend) this.parser.assistNodeParent;
-		MethodBinding[] candidates = parent.actualReceiverType.getMethods(parent.selector);
-		for (MethodBinding bindind : candidates) {
-			if (bindind.parameters.length >= parent.arguments.length) {
+		Optional<TypeBinding> receiverType = Optional.ofNullable(parent.actualReceiverType)
+				.or(() -> Optional.ofNullable(parent.receiver).map(r -> r.resolvedType));
+
+		MethodBinding[] candidates = receiverType.map(t -> t.getMethods(parent.selector)).orElse(new MethodBinding[0]);
+		for (MethodBinding binding : candidates) {
+			if (binding.parameterNames.length >= parent.arguments.length) {
 				for (int i = 0; i < parent.arguments.length; i++) {
 					if (parent.arguments[i] == this.parser.assistNode) {
-						parameterName = bindind.parameterNames[i];
+						parameterName = binding.parameterNames[i];
 					}
 				}
 			}
