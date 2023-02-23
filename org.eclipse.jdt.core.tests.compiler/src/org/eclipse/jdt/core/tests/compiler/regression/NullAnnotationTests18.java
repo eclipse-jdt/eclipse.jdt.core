@@ -456,8 +456,8 @@ public class NullAnnotationTests18 extends AbstractNullAnnotationTest {
 				  "	void foo(@Nullable Object o) {\n" +
 				  "		switch (o) {\n" +
 				  "			case Integer i -> consumeInt(i);\n" +
-				  "			default -> System.out.println(o.toString());\n" +
 				  "			case null -> System.out.print(\"null\");\n" +
+				  "			default -> System.out.println(o.toString());\n" +
 				  "		};\n" +
 				  "	}\n" +
 				  "	void consumeInt(@NonNull Integer i) {\n" +
@@ -483,8 +483,8 @@ public class NullAnnotationTests18 extends AbstractNullAnnotationTest {
 				  "	void foo() {\n" +
 				  "		switch (this.o) {\n" +
 				  "			case Integer i -> consumeInt(i);\n" +
-				  "			default -> System.out.println(this.o.toString());\n" +
 				  "			case null -> System.out.print(\"null\");\n" +
+				  "			default -> System.out.println(this.o.toString());\n" +
 				  "		};\n" +
 				  "	}\n" +
 				  "	void consumeInt(@NonNull Integer i) {\n" +
@@ -510,8 +510,8 @@ public class NullAnnotationTests18 extends AbstractNullAnnotationTest {
 				  "	void foo(X x) {\n" +
 				  "		switch (x.o) {\n" +
 				  "			case Integer i -> consumeInt(i);\n" +
-				  "			default -> System.out.println(x.o.toString());\n" +
 				  "			case null -> System.out.print(\"null\");\n" +
+				  "			default -> System.out.println(x.o.toString());\n" +
 				  "		};\n" +
 				  "	}\n" +
 				  "	void consumeInt(@NonNull Integer i) {\n" +
