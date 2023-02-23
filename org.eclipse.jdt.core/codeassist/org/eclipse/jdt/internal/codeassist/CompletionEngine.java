@@ -4858,6 +4858,21 @@ public final class CompletionEngine
 		return 0;
 	}
 	int computeRelevanceForCaseMatching(char[] token, char[] proposalName){
+		return computeRelevanceForCaseMatching(token, proposalName, false);
+	}
+
+	/**
+	 * Compute relevance based on case matching.
+	 * 
+	 * @param token
+	 *                         Token to use for matching
+	 * @param proposalName
+	 *                         string to be matched against the token
+	 * @param boostSubword
+	 *                         boost sub-word matching regardless of option and if match, consider it as a exact match.
+	 * @return match relevance or zero if none of the types matched.
+	 */
+	int computeRelevanceForCaseMatching(char[] token, char[] proposalName, boolean boostSubword) {
 		if(CharOperation.equals(token, proposalName, true)) {
 			return R_EXACT_NAME + R_CASE;
 		} else if(CharOperation.equals(token, proposalName, false)) {
@@ -4869,8 +4884,8 @@ public final class CompletionEngine
 				return R_CAMEL_CASE;
 		} else if (this.options.substringMatch && CharOperation.substringMatch(token, proposalName)) {
 			return R_SUBSTRING;
-		} else if (this.options.subwordMatch && CharOperation.subWordMatch(token, proposalName)) {
-			return R_SUBWORD;
+		} else if ((this.options.subwordMatch || boostSubword) && CharOperation.subWordMatch(token, proposalName)) {
+			return boostSubword ? R_EXACT_NAME : R_SUBWORD;
 		}
 		return 0;
 	}
@@ -7047,6 +7062,13 @@ public final class CompletionEngine
 				}
 			}
 		}
+
+		// find parameter name if methodName is empty
+		char[] parameterName = new char[0];
+		if (fieldName.length == 0 && this.parser.assistNodeParent instanceof MessageSend) {
+			parameterName = findParameterNameAtLocationFromAssistParent();
+		}
+
 		// Inherited fields which are hidden by subclasses are filtered out
 		// No visibility checks can be performed without the scope & invocationSite
 
@@ -7184,7 +7206,8 @@ public final class CompletionEngine
 			int relevance = computeBaseRelevance();
 			relevance += computeRelevanceForResolution();
 			relevance += computeRelevanceForInterestingProposal(field);
-			relevance += computeRelevanceForCaseMatching(fieldName, field.name);
+			relevance += computeRelevanceForCaseMatching(fieldName.length == 0 ? parameterName : fieldName, field.name,
+					fieldName.length == 0);
 			int computeRelevanceForExpectingType = computeRelevanceForExpectingType(field.type);
 			if(this.strictMatchForExtepectedType && computeRelevanceForExpectingType <= 0) {
 				continue;
@@ -9372,6 +9395,12 @@ public final class CompletionEngine
 		int minTypeArgLength = typeArgTypes == null ? 0 : typeArgTypes.length;
 		int minArgLength = argTypes == null ? 0 : argTypes.length;
 
+		// find parameter name if methodName is empty
+		char[] parameterName = new char[0];
+		if (methodName.length == 0 && this.parser.assistNodeParent instanceof MessageSend) {
+			parameterName = findParameterNameAtLocationFromAssistParent();
+		}
+
 		next : for (int f = methods.length; --f >= 0;) {
 			MethodBinding method = methods[f];
 
@@ -9568,7 +9597,8 @@ public final class CompletionEngine
 			int relevance = computeBaseRelevance();
 			relevance += computeRelevanceForResolution();
 			relevance += computeRelevanceForInterestingProposal();
-			relevance += computeRelevanceForCaseMatching(methodName, method.selector);
+			relevance += computeRelevanceForCaseMatching(methodName.length == 0 ? parameterName : methodName,
+					method.selector, methodName.length == 0);
 			int computeRelevanceForExpectingType = computeRelevanceForExpectingType(method.returnType);
 			if(this.strictMatchForExtepectedType && computeRelevanceForExpectingType <= 0) {
 				continue;
@@ -9708,6 +9738,28 @@ public final class CompletionEngine
 		}
 
 		methodsFound.addAll(newMethodsFound);
+	}
+
+	private char[] findParameterNameAtLocationFromAssistParent() {
+		char[] parameterName = new char[0];
+		if (!(this.parser.assistNodeParent instanceof MessageSend)) {
+			return parameterName;
+		}
+		MessageSend parent = (MessageSend) this.parser.assistNodeParent;
+		MethodBinding[] candidates = parent.actualReceiverType.getMethods(parent.selector);
+		for (MethodBinding bindind : candidates) {
+			if (bindind.parameters.length >= parent.arguments.length) {
+				for (int i = 0; i < parent.arguments.length; i++) {
+					if (parent.arguments[i] == this.parser.assistNode) {
+						parameterName = bindind.parameterNames[i];
+					}
+				}
+			}
+			if (parameterName.length > 0) {
+				break;
+			}
+		}
+		return parameterName;
 	}
 	private void findLocalMethodsFromFavorites(
 			char[] methodName,
