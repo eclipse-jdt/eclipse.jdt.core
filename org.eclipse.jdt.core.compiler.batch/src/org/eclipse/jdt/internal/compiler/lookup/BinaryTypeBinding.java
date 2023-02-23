@@ -343,8 +343,7 @@ public BinaryTypeBinding(PackageBinding packageBinding, IBinaryType binaryType, 
 	}
 	if (needFieldsAndMethods)
 		cachePartsFrom(binaryType, true);
-	if (this.environment.globalOptions.processAnnotations)
-		this.path = binaryType.getURI();
+	this.path = binaryType.getURI();
 }
 @Override
 public boolean canBeSeenBy(Scope sco) {
@@ -1862,6 +1861,18 @@ private boolean isPrototype() {
 @Override
 public boolean isRecord() {
 	return (this.modifiers & ExtraCompilerModifiers.AccRecord) != 0;
+}
+
+@Override
+public MethodBinding getRecordComponentAccessor(char[] name) {
+	if (isRecord()) {
+		for (MethodBinding m : this.getMethods(name)) {
+			if (CharOperation.equals(m.selector, name)) {
+				return m;
+			}
+		}
+	}
+	return null;
 }
 
 @Override
