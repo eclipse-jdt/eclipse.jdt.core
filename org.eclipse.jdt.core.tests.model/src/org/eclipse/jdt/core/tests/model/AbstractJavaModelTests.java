@@ -4054,6 +4054,25 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 	}
 
+	protected void makeJCLModular(IJavaProject javaProject) throws JavaModelException {
+		IClasspathEntry[] classpath = javaProject.getRawClasspath();
+		for (int i = 0, length = classpath.length; i < length; i++) {
+			IClasspathEntry entry = classpath[i];
+			final IPath path = entry.getPath();
+			if (isJCLPath(path)) {
+					classpath[i] = JavaCore.newVariableEntry(
+							entry.getPath(),
+							entry.getSourceAttachmentPath(),
+							entry.getSourceAttachmentRootPath(),
+							entry.getAccessRules(),
+							moduleAttribute(),
+							entry.isExported());
+					break;
+			}
+		}
+		javaProject.setRawClasspath(classpath, null);
+	}
+
 	private static void logError(String errorMessage, CoreException e) {
 		Plugin plugin = JavaCore.getPlugin();
 		if (plugin != null) {

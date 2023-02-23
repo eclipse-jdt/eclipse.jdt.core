@@ -21,7 +21,6 @@ import static org.eclipse.jdt.core.search.IJavaSearchScope.SYSTEM_LIBRARIES;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -15414,28 +15413,64 @@ public void testMethodReferenceAfterCompileErrorBugGh438() throws Exception {
 	}
 }
 
-private void buildAndExpectProblems(IJavaProject javaProject, String expectedMarkers) throws CoreException {
-	IProject project = javaProject.getProject();
-	project.build(IncrementalProjectBuilder.AUTO_BUILD, new NullProgressMonitor());
-	waitForAutoBuild();
-	waitUntilIndexesReady();
-	assertProblemMarkers("Expected build problems on project due to undefined type",
-			expectedMarkers, project);
-}
+/*
+ * Test that having a module conflict in projects that are on the compile classpath
+ * (and not the compile module path) doesn't affect searching for types in those projects.
+ * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/675
+ */
+public void testModuleConflictForClasspathProjectsBugGh675() throws Exception {
+	String projectName = "gh675ModuleConflictForClasspathProjectsBugProject";
+	try {
+		IJavaProject project = createJavaProject(projectName, new String[] {"src"}, new String[] {"JCL11_LIB"}, "bin", "11");
+		String packageFolder = "/" + projectName + "/src/test/";
+		createFolder(packageFolder);
+		String snippet =
+				"package test;\n" +
+				"import testpackage.TestClass;\n" +
+				"public class Test {\n" +
+				"  public TestClass testField = null;\n" +
+				"  public void testMethod() {\n" +
+				"      testField = null;\n" +
+				"  }\n" +
+				"}";
+		createFile(packageFolder + "/Test.java", snippet);
 
-private void buildAndExpectNoProblems(IJavaProject... javaProjects) throws CoreException {
-	List<IProject> projects = new ArrayList<>();
-	if (javaProjects != null) {
-		Arrays.stream(javaProjects).forEach(jp -> projects.add(jp.getProject()));
-	}
-	for (IProject project : projects) {
-		project.build(IncrementalProjectBuilder.AUTO_BUILD, new NullProgressMonitor());
-	}
-	waitForAutoBuild();
-	waitUntilIndexesReady();
+		String ambiguousTypeDefinition =
+				"package testpackage;\n" +
+				"public class TestClass {\n" +
+				"}";
 
-	for (IProject project : projects) {
-		assertProblemMarkers("Expected no build problems on project: " + project, "", project);
+		addLibrary(project,
+				"libGh675_1.jar",
+				"libGh675_1.src.zip",
+				new String[] {
+						"testpackage/TestClass.java",
+						ambiguousTypeDefinition },
+				JavaCore.VERSION_11);
+
+		addLibrary(project,
+				"libGh675_2.jar",
+				"libGh675_2.src.zip",
+				new String[]  {
+						"module-info.java",
+						"module testmodule {\n" +
+						"  exports testpackage;\n" +
+						"}",
+						"testpackage/TestClass.java",
+						ambiguousTypeDefinition },
+				JavaCore.VERSION_11);
+
+		buildAndExpectNoProblems(project);
+		waitUntilIndexesReady();
+
+		IType type = project.findType("test.Test");
+
+		IField field = type.getField("testField");
+		search(field, REFERENCES, EXACT_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
+		assertSearchResults(
+				"src/test/Test.java void test.Test.testMethod() [testField] EXACT_MATCH");
+	} finally {
+		deleteProject(projectName);
 	}
 }
 

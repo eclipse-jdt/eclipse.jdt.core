@@ -455,17 +455,21 @@ public class EncodingTests extends ModifyingResourceTests {
 	 * Verification is done by comparing source with file contents read directly with VM encoding...
 	 */
 	public void test021() throws JavaModelException, CoreException {
+		getWorkspaceRoot().setDefaultCharset(vmEncoding, null);
+		try {
+			// Get class file and compare source
+			IPackageFragmentRoot root = getPackageFragmentRoot("Encoding", "testUTF8.jar");
+			this.utf8Source = root.getPackageFragment("testUTF8").getClassFile("Test.class");
+			assertNotNull(this.utf8Source);
+			String source = this.utf8Source.getSource();
+			assertNotNull(source);
+			String encodedContents = new String (Util.getResourceContentsAsCharArray(this.utf8File, vmEncoding));
+			assertSourceEquals("Encoded UTF-8 source should have been decoded the same way!", source, encodedContents);
 
-		// Get class file and compare source
-		IPackageFragmentRoot root = getPackageFragmentRoot("Encoding", "testUTF8.jar");
-		this.utf8Source = root.getPackageFragment("testUTF8").getClassFile("Test.class");
-		assertNotNull(this.utf8Source);
-		String source = this.utf8Source.getSource();
-		assertNotNull(source);
-		String encodedContents = new String (Util.getResourceContentsAsCharArray(this.utf8File, vmEncoding));
-		assertSourceEquals("Encoded UTF-8 source should have been decoded the same way!", source, encodedContents);
-
-		// Cannot compare bytes array without encoding as we're dependent of linux/windows os for new lines delimiter
+			// Cannot compare bytes array without encoding as we're dependent of linux/windows os for new lines delimiter
+		} finally {
+			getWorkspaceRoot().setDefaultCharset(wkspEncoding, null);
+		}
 	}
 
 	/*

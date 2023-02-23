@@ -135,6 +135,7 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		JAVA_PROJECT = setUpJavaProject("JavaSearchBugs", "16");
+		makeJCLModular(JAVA_PROJECT);
 	}
 
 	public void tearDownSuite() throws Exception {
