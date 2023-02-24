@@ -1268,39 +1268,34 @@ TypePattern ::= Modifiersopt Type 'Identifier'
 -----------------------------------------------
 
 -----------------------------------------------
--- 19 preview feature : record patterns
+-- 20 preview feature : record patterns
 -----------------------------------------------
 
 RecordPattern ::= Modifiersopt Type RecordStructurePattern
 /.$putCase consumeRecordPattern(); $break ./
 /:$readableName RecordPattern:/
-/:$compliance 19:/
-
-RecordPattern ::= Modifiersopt Type RecordStructurePattern 'Identifier'
-/.$putCase consumeRecordPatternWithId(); $break ./
-/:$readableName RecordPatternWithId:/
-/:$compliance 19:/
+/:$compliance 20:/
 
 RecordStructurePattern ::= PushLPAREN RecordComponentPatternsopt PushRPAREN
 RecordStructurePattern ::= PushLPAREN RecordComponentPatternList PushRPAREN
 /.$putCase consumeRecordStructure(); $break ./
 /:$readableName RecordStructurePattern:/
-/:$compliance 19:/
+/:$compliance 20:/
 
 RecordComponentPatternsopt ::= $empty
 /.$putCase consumeRecordComponentPatternsopt(); $break ./
 /:$readableName RecordComponentsopt:/
-/:$compliance 19:/
+/:$compliance 20:/
 
 
 RecordComponentPatternList ::=  'Pattern'
 RecordComponentPatternList ::=  RecordComponentPatternList ',' 'Pattern'
 /.$putCase consumeRecordComponentPatternList();  $break ./
 /:$readableName RecordComponentPatternList:/
-/:$compliance 19:/
+/:$compliance 20:/
 
 -----------------------------------------------
--- 19 preview feature : end of record patterns
+-- 20 preview feature : end of record patterns
 -----------------------------------------------
 
 ConstantDeclaration -> FieldDeclaration
