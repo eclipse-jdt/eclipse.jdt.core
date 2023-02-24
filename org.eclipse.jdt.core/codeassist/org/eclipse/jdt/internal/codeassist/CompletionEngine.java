@@ -691,6 +691,8 @@ public final class CompletionEngine
 		createTypeSignature(CharOperation.concatWith(JAVA_LANG, '.'), OBJECT);
 	private final static char[] JAVA_LANG_NAME =
 		CharOperation.concatWith(JAVA_LANG, '.');
+	private final static char[] GET = "get".toCharArray(); //$NON-NLS-1$
+	private final static char[] IS = "is".toCharArray(); //$NON-NLS-1$
 
 	private final static int NONE = 0;
 	private final static int SUPERTYPE = 1;
@@ -4858,35 +4860,27 @@ public final class CompletionEngine
 		}
 		return 0;
 	}
+
 	int computeRelevanceForCaseMatching(char[] token, char[] proposalName){
-		return computeRelevanceForCaseMatching(token, proposalName, false);
+		return computeRelevanceForCaseMatching(new char[][] { token }, proposalName);
 	}
 
-	/**
-	 * Compute relevance based on case matching.
-	 * 
-	 * @param token
-	 *                         Token to use for matching
-	 * @param proposalName
-	 *                         string to be matched against the token
-	 * @param boostSubword
-	 *                         boost sub-word matching regardless of option and if match, consider it as a exact match.
-	 * @return match relevance or zero if none of the types matched.
-	 */
-	int computeRelevanceForCaseMatching(char[] token, char[] proposalName, boolean boostSubword) {
-		if(CharOperation.equals(token, proposalName, true)) {
-			return R_EXACT_NAME + R_CASE;
-		} else if(CharOperation.equals(token, proposalName, false)) {
-			return R_EXACT_NAME;
-		} else if (CharOperation.prefixEquals(token, proposalName, false)) {
-			if (CharOperation.prefixEquals(token, proposalName, true))
-				return R_CASE;
-		} else if (this.options.camelCaseMatch && CharOperation.camelCaseMatch(token, proposalName)){
+	int computeRelevanceForCaseMatching(char[][] tokens, char[] proposalName) {
+		for (char[] token : tokens) {
+			if (CharOperation.equals(token, proposalName, true)) {
+				return R_EXACT_NAME + R_CASE;
+			} else if (CharOperation.equals(token, proposalName, false)) {
+				return R_EXACT_NAME;
+			} else if (CharOperation.prefixEquals(token, proposalName, false)) {
+				if (CharOperation.prefixEquals(token, proposalName, true))
+					return R_CASE;
+			} else if (this.options.camelCaseMatch && CharOperation.camelCaseMatch(token, proposalName)) {
 				return R_CAMEL_CASE;
-		} else if (this.options.substringMatch && CharOperation.substringMatch(token, proposalName)) {
-			return R_SUBSTRING;
-		} else if ((this.options.subwordMatch || boostSubword) && CharOperation.subWordMatch(token, proposalName)) {
-			return boostSubword ? R_EXACT_NAME : R_SUBWORD;
+			} else if (this.options.substringMatch && CharOperation.substringMatch(token, proposalName)) {
+				return R_SUBSTRING;
+			} else if (this.options.subwordMatch && CharOperation.subWordMatch(token, proposalName)) {
+				return R_SUBWORD;
+			}
 		}
 		return 0;
 	}
@@ -7064,10 +7058,13 @@ public final class CompletionEngine
 			}
 		}
 
-		// find parameter name if methodName is empty
-		char[] parameterName = new char[0];
+		// find parameter name if fieldName is empty
+		char[][] tokens = new char[0][0];
 		if (fieldName.length == 0 && this.parser.assistNodeParent instanceof MessageSend) {
-			parameterName = findParameterNameAtLocationFromAssistParent();
+			char[] parameterName = findParameterNameAtLocationFromAssistParent();
+			tokens = new char[][] { parameterName, fieldName };
+		} else {
+			tokens = new char[][] { fieldName };
 		}
 
 		// Inherited fields which are hidden by subclasses are filtered out
@@ -7207,8 +7204,7 @@ public final class CompletionEngine
 			int relevance = computeBaseRelevance();
 			relevance += computeRelevanceForResolution();
 			relevance += computeRelevanceForInterestingProposal(field);
-			relevance += computeRelevanceForCaseMatching(fieldName.length == 0 ? parameterName : fieldName, field.name,
-					fieldName.length == 0);
+			relevance += computeRelevanceForCaseMatching(tokens, field.name);
 			int computeRelevanceForExpectingType = computeRelevanceForExpectingType(field.type);
 			if(this.strictMatchForExtepectedType && computeRelevanceForExpectingType <= 0) {
 				continue;
@@ -9397,9 +9393,13 @@ public final class CompletionEngine
 		int minArgLength = argTypes == null ? 0 : argTypes.length;
 
 		// find parameter name if methodName is empty
-		char[] parameterName = new char[0];
+		char[][] tokens = new char[0][0];
 		if (methodName.length == 0 && this.parser.assistNodeParent instanceof MessageSend) {
-			parameterName = findParameterNameAtLocationFromAssistParent();
+			char[] parameterName = findParameterNameAtLocationFromAssistParent();
+			tokens = new char[][] { parameterName, CharOperation.concat(GET, parameterName),
+					CharOperation.concat(IS, parameterName), methodName };
+		} else {
+			tokens = new char[][] { methodName };
 		}
 
 		next : for (int f = methods.length; --f >= 0;) {
@@ -9598,8 +9598,7 @@ public final class CompletionEngine
 			int relevance = computeBaseRelevance();
 			relevance += computeRelevanceForResolution();
 			relevance += computeRelevanceForInterestingProposal();
-			relevance += computeRelevanceForCaseMatching(methodName.length == 0 ? parameterName : methodName,
-					method.selector, methodName.length == 0);
+			relevance += computeRelevanceForCaseMatching(tokens, method.selector);
 			int computeRelevanceForExpectingType = computeRelevanceForExpectingType(method.returnType);
 			if(this.strictMatchForExtepectedType && computeRelevanceForExpectingType <= 0) {
 				continue;
