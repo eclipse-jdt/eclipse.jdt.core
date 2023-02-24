@@ -1271,27 +1271,24 @@ TypePattern ::= Modifiersopt Type 'Identifier'
 -- 20 preview feature : record patterns
 -----------------------------------------------
 
-RecordPattern ::= Modifiersopt Type RecordStructurePattern
+RecordPattern ::= Modifiersopt Type PushLPAREN PatternListopt PushRPAREN
 /.$putCase consumeRecordPattern(); $break ./
 /:$readableName RecordPattern:/
 /:$compliance 20:/
 
-RecordStructurePattern ::= PushLPAREN RecordComponentPatternsopt PushRPAREN
-RecordStructurePattern ::= PushLPAREN RecordComponentPatternList PushRPAREN
-/.$putCase consumeRecordStructure(); $break ./
-/:$readableName RecordStructurePattern:/
+PatternListopt ::=  $empty
+/.$putCase consumePatternListopt(); $break ./
+/:$readableName PatternListopt:/
 /:$compliance 20:/
 
-RecordComponentPatternsopt ::= $empty
-/.$putCase consumeRecordComponentPatternsopt(); $break ./
-/:$readableName RecordComponentsopt:/
+PatternListopt -> PatternList
+/:$readableName PatternListopt:/
 /:$compliance 20:/
 
-
-RecordComponentPatternList ::=  'Pattern'
-RecordComponentPatternList ::=  RecordComponentPatternList ',' 'Pattern'
-/.$putCase consumeRecordComponentPatternList();  $break ./
-/:$readableName RecordComponentPatternList:/
+PatternList -> Pattern
+PatternList ::= PatternList ',' Pattern
+/.$putCase consumePatternList();  $break ./
+/:$readableName PatternList:/
 /:$compliance 20:/
 
 -----------------------------------------------
