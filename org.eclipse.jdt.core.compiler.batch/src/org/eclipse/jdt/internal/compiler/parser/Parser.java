@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2022 IBM Corporation and others.
+ * Copyright (c) 2000, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10000,12 +10000,15 @@ protected void consumeTextBlock() {
 						textBlock2,
 						this.scanner.startPosition,
 						this.scanner.currentPosition - 1,
-						Util.getLineNumber(this.scanner.startPosition, this.scanner.lineEnds, 0, this.scanner.linePtr));
+						Util.getLineNumber(this.scanner.startPosition, this.scanner.lineEnds, 0, this.scanner.linePtr),
+						Util.getLineNumber(this.scanner.currentPosition - 1, this.scanner.lineEnds, 0, this.scanner.linePtr));
+		this.compilationUnit.recordStringLiteral(textBlock, this.currentElement != null);
 	} else {
 		textBlock = new TextBlock(
 				textBlock2,
 			this.scanner.startPosition,
 			this.scanner.currentPosition - 1,
+			0,
 			0);
 	}
 	pushOnExpressionStack(textBlock);
