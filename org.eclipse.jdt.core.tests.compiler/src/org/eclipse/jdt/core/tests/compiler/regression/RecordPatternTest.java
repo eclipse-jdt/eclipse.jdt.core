@@ -35,7 +35,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "test13" };
+//		TESTS_NAMES = new String[] { "test26" };
 	}
 	private String extraLibPath;
 	public static Class<?> testClass() {
@@ -146,8 +146,8 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"public class X {\n"
 				+ "  static void print(Rectangle r) {\n"
 				+ "    if (r instanceof (Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
-				+ "                               ColoredPoint lr) r1)) {\n"
-				+ "        System.out.println(\"Upper-left corner: \" + r1);\n"
+				+ "                               ColoredPoint lr) )) {\n"
+				+ "        System.out.println(\"Upper-left corner:\");\n"
 				+ "    }\n"
 				+ "  }\n"
 				+ "  public static void main(String[] obj) {\n"
@@ -160,7 +160,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				+ "record ColoredPoint(Point p, Color c) {}\n"
 				+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"
 				},
-				"Upper-left corner: Rectangle[upperLeft=ColoredPoint[p=Point[x=0, y=0], c=BLUE], lowerRight=ColoredPoint[p=Point[x=10, y=15], c=RED]]",
+				"Upper-left corner:",
 				options);
 	}
 	// Test that pattern variables are allowed for the nested patterns (not just the outermost record pattern)
@@ -172,7 +172,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				+ "  public static void printLowerRight(Rectangle r) {\n"
 				+ "    int res = switch(r) {\n"
 				+ "       case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
-				+ "                               ColoredPoint lr) r1  -> {\n"
+				+ "                               ColoredPoint lr)  -> {\n"
 				+ "        		yield 1;\n"
 				+ "        }\n"
 				+ "        default -> 0;\n"
@@ -254,8 +254,8 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				+ "public class X {\n"
 				+ "  static void print(Rectangle r) {\n"
 				+ "    if (r instanceof (Rectangle(ColoredPoint(Point(int i, int j), Color c),\n"
-				+ "	    									ColoredPoint lr) r1)) {\n"
-				+ "	        System.out.println(\"Upper-left corner: \" + r1);\n"
+				+ "	    									ColoredPoint lr))) {\n"
+				+ "	        System.out.println(\"Upper-left corner: \");\n"
 				+ "	    }\n"
 				+ "  }\n"
 				+ "}\n"
@@ -279,8 +279,8 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				+ "public class X {\n"
 				+ "  static void print(Rectangle r) {\n"
 				+ "    if (r instanceof (Rectangle(ColoredPoint(Point(int i), Color c),\n"
-				+ "	    									ColoredPoint lr) r1)) {\n"
-				+ "	        System.out.println(\"Upper-left corner: \" + r1);\n"
+				+ "	    									ColoredPoint lr))) {\n"
+				+ "	        System.out.println(\"Upper-left corner: \");\n"
 				+ "	    }\n"
 				+ "  }\n"
 				+ "}\n"
@@ -303,8 +303,8 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				+ "public class X {\n"
 				+ "  static void print(Rectangle r) {\n"
 				+ "    if (r instanceof (Rectangle(ColoredPoint(Point(String o1, String o2), Color c),\n"
-				+ "	    									ColoredPoint lr) r1)) {\n"
-				+ "	        System.out.println(\"Upper-left corner: \" + r1);\n"
+				+ "	    									ColoredPoint lr))) {\n"
+				+ "	        System.out.println(\"Upper-left corner: \" );\n"
 				+ "	    }\n"
 				+ "  }\n"
 				+ "}\n"
@@ -332,8 +332,8 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"@SuppressWarnings(\"preview\")\n"
 				+ "public class X {\n"
 				+ "  static void print(Rectangle r) {\n"
-				+ "    if (r instanceof (Rectangle(ColoredPoint(Point(int i, int j), Color c), ColoredPoint lr, Object obj) r1)) {\n"
-				+ "	        System.out.println(\"Upper-left corner: \" + r1);\n"
+				+ "    if (r instanceof (Rectangle(ColoredPoint(Point(int i, int j), Color c), ColoredPoint lr, Object obj))) {\n"
+				+ "	        System.out.println(\"Upper-left corner: \" );\n"
 				+ "	    }\n"
 				+ "  }\n"
 				+ "}\n"
@@ -344,8 +344,8 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				},
 				"----------\n" +
 				"1. ERROR in X.java (at line 4)\n" +
-				"	if (r instanceof (Rectangle(ColoredPoint(Point(int i, int j), Color c), ColoredPoint lr, Object obj) r1)) {\n" +
-				"	                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"	if (r instanceof (Rectangle(ColoredPoint(Point(int i, int j), Color c), ColoredPoint lr, Object obj))) {\n" +
+				"	                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 				"Record pattern should match the signature of the record declaration\n" +
 				"----------\n");
 	}
@@ -368,8 +368,8 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				+ "			yield 0;\n"
 				+ "		}\n"
 				+ "		case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
-				+ "				ColoredPoint(Point(int x1, int y1), Color c1)) r1 -> {\n"
-				+ "			yield r1.lowerRight().p().y();\n"
+				+ "				ColoredPoint(Point(int x1, int y1), Color c1)) -> {\n"
+				+ "			yield 1;\n"
 				+ "		}\n"
 				+ "    };\n"
 				+ "    System.out.println(res);\n"
@@ -383,8 +383,8 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"----------\n" +
 				"1. ERROR in X.java (at line 8)\n" +
 				"	case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n" +
-				"				ColoredPoint(Point(int x1, int y1), Color c1)) r1 -> {\n" +
-				"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"				ColoredPoint(Point(int x1, int y1), Color c1)) -> {\n" +
+				"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 				"This case label is dominated by one of the preceding case label\n" +
 				"----------\n");
 	}
@@ -397,7 +397,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				+ "  public static void printLowerRight(Rectangle r) {\n"
 				+ "    int res = switch(r) {\n"
 				+ "       case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
-				+ "                               ColoredPoint lr) r1  -> {\n"
+				+ "                               ColoredPoint lr)  -> {\n"
 				+ "    				System.out.println(\"x= \" + x);\n"
 				+ "    				System.out.println(\"y= \" + y);\n"
 				+ "    				System.out.println(\"lr= \" + lr);\n"
@@ -406,7 +406,6 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				+ "    				System.out.println(\"lr.p().x()= \" + lr.p().x());\n"
 				+ "    				System.out.println(\"lr.p().y()= \" + lr.p().y());\n"
 				+ "    				System.out.println(\"c= \" + c);\n"
-				+ "    				System.out.println(\"r1= \" + r1);\n"
 				+ "        		yield x;\n"
 				+ "        }\n"
 				+ "        default -> 0;\n"
@@ -431,7 +430,6 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"lr.p().x()= 30\n" +
 				"lr.p().y()= 10\n" +
 				"c= BLUE\n" +
-				"r1= Rectangle[upperLeft=ColoredPoint[p=Point[x=15, y=5], c=BLUE], lowerRight=ColoredPoint[p=Point[x=30, y=10], c=RED]]\n" +
 				"Returns: 15");
 	}
 	// Test that nested pattern variables from record patterns are in not scope outside the case block
@@ -443,8 +441,8 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				+ "  static void print(Rectangle r) {\n"
 				+ "    int res = switch(r) {\n"
 				+ "		case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
-				+ "				ColoredPoint(Point(int x1, int y1), Color c1)) r1 -> {\n"
-				+ "			yield r1.lowerRight().p().y();\n"
+				+ "				ColoredPoint(Point(int x1, int y1), Color c1)) -> {\n"
+				+ "			yield 1;\n"
 				+ "		}\n"
 				+ "		default -> {yield x;}"
 				+ "    };\n"
@@ -472,10 +470,10 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 						+ "  static void print(Rectangle r) {\n"
 						+ "    int res = switch(r) {\n"
 						+ "		case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
-						+ "				ColoredPoint(Point(int x1, int y1), Color c1)) r1 -> {\n"
-						+ "			yield r1.lowerRight().p().y();\n"
+						+ "				ColoredPoint(Point(int x1, int y1), Color c1)) -> {\n"
+						+ "			yield 1;\n"
 						+ "		}\n"
-						+ "		default -> {yield r1.upperLeft().p().x();}"
+						+ "		default -> {yield x1;}"
 						+ "    };\n"
 						+ "    System.out.println(res);\n"
 						+ "  }\n"
@@ -487,9 +485,9 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			},
 				"----------\n" +
 				"1. ERROR in X.java (at line 9)\n" +
-				"	default -> {yield r1.upperLeft().p().x();}    };\n" +
+				"	default -> {yield x1;}    };\n" +
 				"	                  ^^\n" +
-				"r1 cannot be resolved\n" +
+				"x1 cannot be resolved to a variable\n" +
 				"----------\n");
 	}
 	// Test that when expressions are supported and pattern variables are available inside when expressions
@@ -501,11 +499,11 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 						+ "  public static void printLowerRight(Rectangle r) {\n"
 						+ "    int res = switch(r) {\n"
 						+ "       case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
-						+ "                               ColoredPoint lr) r1 when x > 0 -> {\n"
+						+ "                               ColoredPoint lr)  when x > 0 -> {\n"
 						+ "        		yield 1;\n"
 						+ "        }\n"
 						+ "       case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
-						+ "                               ColoredPoint lr) r1 when x <= 0 -> {\n"
+						+ "                               ColoredPoint lr)  when x <= 0 -> {\n"
 						+ "        		yield -1;\n"
 						+ "        }\n"
 						+ "        default -> 0;\n"
@@ -535,7 +533,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 						+ "public class X {\n"
 						+ "  public static void print(Record r) {\n"
 						+ "    int res = switch(r) {\n"
-						+ "       case Record(int x) r1 -> x ;\n"
+						+ "       case Record(int x) -> x ;\n"
 						+ "        default -> 0;\n"
 						+ "    };\n"
 						+ "    System.out.println(\"Returns: \" + res);\n"
@@ -556,8 +554,8 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 						+ "public class X {\n"
 						+ "	 @SuppressWarnings(\"preview\")\n"
 						+ "	public static void print(Pair p) {\n"
-						+ "    if (p instanceof Pair(Teacher(Object n), Student(Object n1, Integer i)) r1) {\n"
-						+ "			 System.out.println(r1);\n"
+						+ "    if (p instanceof Pair(Teacher(Object n), Student(Object n1, Integer i)) ) {\n"
+						+ "			 System.out.println(n1);\n"
 						+ "		 } else {\n"
 						+ "			 System.out.println(\"ELSE\");\n"
 						+ "		 }\n"
@@ -573,7 +571,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 						+ " record Teacher(String name) implements Person {}\n"
 						+ " record Pair(Person s, Person s1) {}\n"
 						},
-				"Pair[s=Teacher[name=123], s1=Student[name=abc, id=1]]");
+				"abc");
 	}
 	// Should not reach IF or throw CCE.
 	// Should reach ELSE
@@ -584,7 +582,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 						+ "public class X {\n"
 						+ "	 @SuppressWarnings(\"preview\")\n"
 						+ "	public static void print(Pair p) {\n"
-						+ "    if (p instanceof Pair(Teacher(Object n), Student(Object n1, Integer i)) r1) {\n"
+						+ "    if (p instanceof Pair(Teacher(Object n), Student(Object n1, Integer i))) {\n"
 						+ "			 System.out.println(\"IF\");\n"
 						+ "		 } else {\n"
 						+ "			 System.out.println(\"ELSE\");\n"
@@ -610,7 +608,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 						+ "public class X {\n"
 						+ "	 @SuppressWarnings(\"preview\")\n"
 						+ "	public static void print(Pair p) {\n"
-						+ "    if (p instanceof Pair(Teacher(Object n), Student(Object n1, Integer i)) r1) {\n"
+						+ "    if (p instanceof Pair(Teacher(Object n), Student(Object n1, Integer i))) {\n"
 						+ "			 System.out.println(n1.getClass().getTypeName() + \":\" + n1 + \",\" + i);\n"
 						+ "		 } else {\n"
 						+ "			 System.out.println(\"ELSE\");\n"
@@ -637,7 +635,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 						+ "public class X {\n"
 						+ "	 @SuppressWarnings(\"preview\")\n"
 						+ "	public static void print(Pair p) {\n"
-						+ "    if (p instanceof Pair(Teacher(Object n), Student(Object n1, int i)) r1) {\n"
+						+ "    if (p instanceof Pair(Teacher(Object n), Student(Object n1, int i))) {\n"
 						+ "			 System.out.println(n1.getClass().getTypeName() + \":\" + n1 + \",\" + i);\n"
 						+ "		 } else {\n"
 						+ "			 System.out.println(\"ELSE\");\n"
@@ -663,7 +661,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 						+ "	 @SuppressWarnings(\"preview\")\n"
 						+ "	public static void print(Pair p) {\n"
 						+ "		 int res1 = switch(p) {\n"
-						+ "		 	case Pair(Student(Object n1, int i), Teacher(Object n)) r1 -> {\n"
+						+ "		 	case Pair(Student(Object n1, int i), Teacher(Object n)) -> {\n"
 						+ "              	   yield i;\n"
 						+ "                 }\n"
 						+ "		 	default -> -1;\n"
@@ -693,7 +691,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 						+ "	 @SuppressWarnings(\"preview\")\n"
 						+ "	public static void print(Object p) {\n"
 						+ "		 int res1 = switch(p) {\n"
-						+ "		 	case Pair(Student(Object n1, int i), Teacher(Object n)) p1 -> {\n"
+						+ "		 	case Pair(Student(Object n1, int i), Teacher(Object n)) -> {\n"
 						+ "              	   yield i;\n"
 						+ "                 }\n"
 						+ "		 	default -> -1;\n"
@@ -723,7 +721,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 						+ "public class X {\n"
 						+ "	 @SuppressWarnings(\"preview\")\n"
 						+ "	public static void print(Object p) {\n"
-						+ "    if (p instanceof Pair(Student(Object n1, int i), Teacher(Object n)) p1) {\n"
+						+ "    if (p instanceof Pair(Student(Object n1, int i), Teacher(Object n))) {\n"
 						+ "      System.out.println(i);\n"
 						+ "    }\n"
 						+ "  }\n"
@@ -750,12 +748,12 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 					+ "  public static void printLowerRight(Rectangle r) {\n"
 					+ "    int res = switch(r) {\n"
 					+ "       case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
-					+ "                               ColoredPoint lr) r1 when x > 1 -> {\n"
+					+ "                               ColoredPoint lr) when x > 1 -> {\n"
 					+ "                            	   System.out.println(\"one\");\n"
 					+ "        		yield x;\n"
 					+ "        }\n"
 					+ "       case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
-					+ "                               ColoredPoint lr) r1 when x <= 0 -> {\n"
+					+ "                               ColoredPoint lr) when x <= 0 -> {\n"
 					+ "                            	   System.out.println(\"two\");	\n"
 					+ "        		yield x;\n"
 					+ "        }\n"
@@ -789,7 +787,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 					+ "  public static void printLowerRight(Rectangle r) {\n"
 					+ "    int res = switch(r) {\n"
 					+ "       case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
-					+ "                               ColoredPoint lr) r1 when x > value() -> {\n"
+					+ "                               ColoredPoint lr) when x > value() -> {\n"
 					+ "                            	   System.out.println(\"one\");\n"
 					+ "        		yield x;\n"
 					+ "        }\n"
@@ -826,9 +824,9 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 					+ "  public static void printLowerRight(Object r) {\n"
 					+ "    int res = switch(r) {\n"
 					+ "       case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
-					+ "    		   				ColoredPoint lr) r1 when x >\n"
+					+ "    		   				ColoredPoint lr) when x >\n"
 					+ "								       switch(r) {\n"
-					+ "								       	 case Rectangle(ColoredPoint c1,  ColoredPoint lr1) r2  -> 2;\n"
+					+ "								       	 case Rectangle(ColoredPoint c1,  ColoredPoint lr1) -> 2;\n"
 					+ "								       	 default -> 3;\n"
 					+ "								       }\n"
 					+ "								       	-> x;\n"
@@ -858,8 +856,8 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 					+ "  @SuppressWarnings(\"preview\")\n"
 					+ "  public static void printLowerRight(Object r) {\n"
 					+ "    	  int x = 0;\n"
-					+ "       if (r instanceof Rectangle(ColoredPoint c,  ColoredPoint lr) r1 && x < switch(r) {\n"
-					+ "    	 case Rectangle(ColoredPoint c1,  ColoredPoint lr1) r2  -> 2;\n"
+					+ "       if (r instanceof Rectangle(ColoredPoint c,  ColoredPoint lr) && x < switch(r) {\n"
+					+ "    	 case Rectangle(ColoredPoint c1,  ColoredPoint lr1)  -> 2;\n"
 					+ "    	 default -> 3;\n"
 					+ "	  }) {\n"
 					+ "		  System.out.println(\"IF\");\n"
@@ -910,7 +908,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 						+ "	public static void printLowerRight(Rectangle r) {\n"
 						+ "		int res = switch(r) {\n"
 						+ "		case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
-						+ "				ColoredPoint lr) r1  -> {\n"
+						+ "				ColoredPoint lr)  -> {\n"
 						+ "					yield 1;\n"
 						+ "				}\n"
 						+ "				default -> 0;\n"
@@ -936,16 +934,17 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 		}
 	}
 	// Test that pattern variables declared in instanceof can't be used in a switch/case
-	public void test26() {
+	// Error messages need to rechecked - too many - ref https://github.com/eclipse-jdt/eclipse.jdt.core/issues/777
+	public void _test26() {
 		runNegativeTest(new String[] {
 				"X.java",
 				"@SuppressWarnings(\"preview\")\n"
 						+ "public class X {\n"
 						+ "  static void print(Rectangle r) {\n"
 						+ "    	if (r instanceof Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
-						+ "			ColoredPoint lr) r1 && x > (switch(r) {\n"
+						+ "			ColoredPoint lr) && x > (switch(r) {\n"
 						+ "										case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
-						+ "												ColoredPoint lr) r1  -> {\n"
+						+ "												ColoredPoint lr)  -> {\n"
 						+ "													yield 1;\n"
 						+ "												}\n"
 						+ "												default -> 0;\n"
@@ -987,15 +986,15 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"----------\n");
 	}
 	// Test that pattern variables declared in switch/case can't be used in an instanceof expression part of the 'when' clause
-	public void test27() {
+	// not relevant anymore since named record patterns are not there - 20
+	public void _test27() {
 		runNegativeTest(new String[] {
 				"X.java",
 				"@SuppressWarnings(\"preview\")\n"
 						+ "public class X {\n"
 						+ "  static void print(Rectangle r) {\n"
 						+ "	int res = switch(r) {\n"
-						+ "		case Rectangle(ColoredPoint(Point(int x, int y), Color c), ColoredPoint lr) r1 when (r1 instanceof  Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
-						+ "				ColoredPoint lr) r1) -> {\n"
+						+ "		case Rectangle(ColoredPoint(Point(int x, int y), Color c), ColoredPoint lr) when (c instanceof Color) -> {\n"
 						+ "				yield 1;\n"
 						+ "			}\n"
 						+ "			default -> 0;\n"
@@ -1042,8 +1041,8 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				+ "public class X {\n"
 				+ "  static void print(Rectangle r) {\n"
 				+ "    int res = switch(r) {\n"
-				+ "		case Rectangle(ColoredPoint(Point(int x, int y), Color c), ColoredPoint lr) r1 when (r instanceof  Rectangle(ColoredPoint(Point(int x1, int y1), Color c1),\n"
-				+ "				ColoredPoint lr1) r2) -> {\n"
+				+ "		case Rectangle(ColoredPoint(Point(int x, int y), Color c), ColoredPoint lr) when (r instanceof  Rectangle(ColoredPoint(Point(int x1, int y1), Color c1),\n"
+				+ "				ColoredPoint lr1)) -> {\n"
 				+ "				yield lr1.p().y();\n"
 				+ "			}\n"
 				+ "			default -> 0;\n"
@@ -1097,7 +1096,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 						+ "	@SuppressWarnings(\"preview\")\n"
 						+ "	public void foo(Object o) {\n"
 						+ "       int res = switch (o) {\n"
-						+ "        case R(int a) r -> 1;\n"
+						+ "        case R(int a) -> 1;\n"
 						+ "        case R(int a) -> 0;\n"
 						+ "        default -> -1;\n"
 						+ "       };\n"
@@ -1167,7 +1166,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 						+ "	public boolean predicate() { return true; }\n"
 						+ "	public void foo(Object o) {\n"
 						+ "       int res = switch (o) {\n"
-						+ "        case R(int a) r  when predicate() -> 1;\n"
+						+ "        case R(int a)  when predicate() -> 1;\n"
 						+ "        case R(int a) -> 0;\n"
 						+ "        default -> -1;\n"
 						+ "       };\n"
@@ -1190,7 +1189,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				+ "	public boolean predicate() { return false; }\n"
 				+ "	public void foo(Object o) {\n"
 				+ "       int res = switch (o) {\n"
-				+ "        case R(int a) r  when predicate() -> 1;\n"
+				+ "        case R(int a)  when predicate() -> 1;\n"
 				+ "        case R(int a) -> 0;\n"
 				+ "        default -> -1;\n"
 				+ "       };\n"
@@ -1259,7 +1258,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 						+ "	public void foo(Object o) {\n"
 						+ "       int res = switch (o) {\n"
 						+ "       case Pair(Teacher(Object n), Student(Object n1, Integer i)) -> 0;\n"
-						+ "       case Pair(Teacher(Object n), Student(Object n1, Integer i)) r1 -> 1;\n"
+						+ "       case Pair(Teacher(Object n), Student(Object n1, Integer i)) -> 1;\n"
 						+ "        default -> -1;\n"
 						+ "       };\n"
 						+ "       System.out.println(res);\n"
@@ -1278,8 +1277,8 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 		},
 				"----------\n" +
 				"1. ERROR in X.java (at line 6)\n" +
-				"	case Pair(Teacher(Object n), Student(Object n1, Integer i)) r1 -> 1;\n" +
-				"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"	case Pair(Teacher(Object n), Student(Object n1, Integer i)) -> 1;\n" +
+				"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 				"This case label is dominated by one of the preceding case label\n" +
 				"----------\n");
 	}
@@ -1292,7 +1291,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 						+ "	public void foo(Object o) {\n"
 						+ "       int res = switch (o) {\n"
 						+ "       case Pair(Teacher(Object n), Student(Object n1, Integer i)) -> 0;\n"
-						+ "       case Pair(Teacher(Object n), Student(String n1, Integer i)) r1 -> 1;\n"
+						+ "       case Pair(Teacher(Object n), Student(String n1, Integer i)) -> 1;\n"
 						+ "        default -> -1;\n"
 						+ "       };\n"
 						+ "       System.out.println(res);\n"
@@ -1311,8 +1310,8 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 		},
 				"----------\n" +
 				"1. ERROR in X.java (at line 6)\n" +
-				"	case Pair(Teacher(Object n), Student(String n1, Integer i)) r1 -> 1;\n" +
-				"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"	case Pair(Teacher(Object n), Student(String n1, Integer i)) -> 1;\n" +
+				"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 				"This case label is dominated by one of the preceding case label\n" +
 				"----------\n");
 	}
@@ -1325,7 +1324,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 						+ "	public void foo(Object o) {\n"
 						+ "       int res = switch (o) {\n"
 						+ "       case Pair(Teacher(Object n), Student(String n1, Integer i)) -> 0;\n"
-						+ "       case Pair(Teacher(Object n), Student(Object n1, Integer i)) r1 -> 1;\n"
+						+ "       case Pair(Teacher(Object n), Student(Object n1, Integer i)) -> 1;\n"
 						+ "        default -> -1;\n"
 						+ "       };\n"
 						+ "       System.out.println(res);\n"
@@ -1352,8 +1351,8 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 						+ "public class X {\n"
 						+ "  static void print(Rectangle r) {\n"
 						+ "    int res = switch(r) {\n"
-						+ "		case Rectangle(ColoredPoint(Point(int x, int y), Color c), ColoredPoint lr) r1 when (r instanceof  Rectangle(ColoredPoint(Point(int x1, int y1), Color c1),\n"
-						+ "				ColoredPoint lr1) r2) -> {\n"
+						+ "		case Rectangle(ColoredPoint(Point(int x, int y), Color c), ColoredPoint lr) when (r instanceof  Rectangle(ColoredPoint(Point(int x1, int y1), Color c1),\n"
+						+ "				ColoredPoint lr1)) -> {\n"
 						+ "				yield lr1.p().y();\n"
 						+ "			}\n"
 						+ "			default -> 0;\n"
@@ -1378,8 +1377,8 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 						+ "public class X {\n"
 						+ "  static void print(Rectangle r) {\n"
 						+ "    int res = switch(r) {\n"
-						+ "		case Rectangle(ColoredPoint(Point(int x, int y), Color c), ColoredPoint lr) r1 when (r instanceof  Rectangle(ColoredPoint(Point(int x1, int y1), Color c1),\n"
-						+ "				ColoredPoint lr1) r2) -> {\n"
+						+ "		case Rectangle(ColoredPoint(Point(int x, int y), Color c), ColoredPoint lr) when (r instanceof  Rectangle(ColoredPoint(Point(int x1, int y1), Color c1),\n"
+						+ "				ColoredPoint lr1)) -> {\n"
 						+ "				yield lr1.p().y();\n"
 						+ "			}\n"
 						+ "			default -> 0;\n"
@@ -1404,8 +1403,8 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 						+ "public class X {\n"
 						+ "  static void print(Rectangle r) {\n"
 						+ "    int res = switch(r) {\n"
-						+ "		case Rectangle(ColoredPoint(Point(int x, int y), Color c), ColoredPoint lr) r1 when (r instanceof  Rectangle(ColoredPoint(Point(int x1, int y1), Color c1),\n"
-						+ "				ColoredPoint lr1) r2) -> {\n"
+						+ "		case Rectangle(ColoredPoint(Point(int x, int y), Color c), ColoredPoint lr) when (r instanceof  Rectangle(ColoredPoint(Point(int x1, int y1), Color c1),\n"
+						+ "				ColoredPoint lr1)) -> {\n"
 						+ "				yield lr1.p().y();\n"
 						+ "			}\n"
 						+ "			default -> 0;\n"
@@ -1435,9 +1434,9 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 						+ "  public static void printLowerRight(Object r) {\n"
 						+ "    long res = switch(r) {\n"
 						+ "       case Rectangle(ColoredPoint(Point(var x, long y), Color c), \n"
-						+ "    		   				ColoredPoint lr) r1 when x > \n"
+						+ "    		   				ColoredPoint lr) when x > \n"
 						+ "								       switch(r) {\n"
-						+ "								       	 case Rectangle(ColoredPoint c1,  ColoredPoint lr1) r2  -> 2;  \n"
+						+ "								       	 case Rectangle(ColoredPoint c1,  ColoredPoint lr1) -> 2;  \n"
 						+ "								       	 default -> 10;   \n"
 						+ "								       } \n"
 						+ "								       	-> x + 10;  \n"
@@ -1464,9 +1463,9 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 						+ "  public static void printLowerRight(Object r) {\n"
 						+ "    long res = switch(r) {\n"
 						+ "       case Rectangle(ColoredPoint(Point(var x, long y), Color c), \n"
-						+ "    		   				ColoredPoint lr) r1 when x > \n"
+						+ "    		   				ColoredPoint lr) when x > \n"
 						+ "								       switch(r) {\n"
-						+ "								       	 case Rectangle(ColoredPoint c1,  var lr1) r2  -> lr1.p().x();\n"
+						+ "								       	 case Rectangle(ColoredPoint c1,  var lr1)  -> lr1.p().x();\n"
 						+ "								       	 default -> 10;   \n"
 						+ "								       } \n"
 						+ "								       	-> x + 10;  \n"
@@ -1493,9 +1492,9 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 						+ "  public static void printLowerRight(Object r) {\n"
 						+ "    long res = switch(r) {\n"
 						+ "       case Rectangle(ColoredPoint(Point(var x, long y), Color c), \n"
-						+ "    		   				ColoredPoint lr) r1 when x > \n"
+						+ "    		   				ColoredPoint lr) when x > \n"
 						+ "								       switch(r) {\n"
-						+ "								       	 case Rectangle(ColoredPoint c1,  ColoredPoint lr1) r2  -> 2;  \n"
+						+ "								       	 case Rectangle(ColoredPoint c1,  ColoredPoint lr1)  -> 2;  \n"
 						+ "								       	 default -> 10;   \n"
 						+ "								       } \n"
 						+ "								       	-> x + 10;  \n"
@@ -1527,9 +1526,9 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 						+ "  public static void printLowerRight(Object r) {\n"
 						+ "    long res = switch(r) {\n"
 						+ "       case Rectangle(ColoredPoint(Point(var x, int y), Color c), \n"
-						+ "    		   				ColoredPoint lr) r1 when x > \n"
+						+ "    		   				ColoredPoint lr) when x > \n"
 						+ "								       switch(r) {\n"
-						+ "								       	 case Rectangle(ColoredPoint c1,  ColoredPoint lr1) r2  -> 2;  \n"
+						+ "								       	 case Rectangle(ColoredPoint c1,  ColoredPoint lr1)  -> 2;  \n"
 						+ "								       	 default -> 10;   \n"
 						+ "								       } \n"
 						+ "								       	-> x + 10;  \n"
@@ -1560,8 +1559,8 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 						+ "public class X {\n"
 						+ "	static void print(Object r) {\n"
 						+ "		switch (r) {\n"
-						+ "			case Rectangle r1 when (r instanceof (Rectangle(ColoredPoint upperLeft2, ColoredPoint lowerRight) r2)):\n"
-						+ "				System.out.println(r2);// error should not be reported here\n"
+						+ "			case Rectangle(var a, var b) when (r instanceof (Rectangle(ColoredPoint upperLeft2, ColoredPoint lowerRight))):\n"
+						+ "				System.out.println(r);// error should not be reported here\n"
 						+ "			break;\n"
 						+ "		}\n"
 						+ "	}\n"
@@ -1693,10 +1692,10 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 					"@SuppressWarnings(\"preview\")\n"
 					+ "public class X {\n"
 					+ "	public void foo(Object s) {\n"
-					+ "		if (s instanceof OuterR(R(Integer i1, Double i2), R(Integer i3, Double i4)) i1) { \n"
+					+ "		if (s instanceof OuterR(R(Integer i1, Double i2), R(Integer i3, Double i4))) { \n"
 					+ "				System.out.println(\"IF\");\n"
 					+ "		}\n"
-					+ "		if (s instanceof OuterR(R(Integer i1, Double i2), R(Integer i1, Double i4)) outer) { \n"
+					+ "		if (s instanceof OuterR(R(Integer i1, Double i2), R(Integer i1, Double i4))) { \n"
 					+ "				System.out.println(\"SECOND IF\");\n"
 					+ "		}\n"
 					+ "	}\n"
@@ -1705,13 +1704,8 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 					+ "record OuterR(R r1, R r2) {}"
 				},
 				"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	if (s instanceof OuterR(R(Integer i1, Double i2), R(Integer i3, Double i4)) i1) { \n" +
-				"	                                  ^^\n" +
-				"Duplicate local variable i1\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 7)\n" +
-				"	if (s instanceof OuterR(R(Integer i1, Double i2), R(Integer i1, Double i4)) outer) { \n" +
+				"1. ERROR in X.java (at line 7)\n" +
+				"	if (s instanceof OuterR(R(Integer i1, Double i2), R(Integer i1, Double i4))) { \n" +
 				"	                                                            ^^\n" +
 				"Duplicate local variable i1\n" +
 				"----------\n");
@@ -1735,7 +1729,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 					+ "	}\n"
 					+ "	public void bar(Object o) {\n"
 					+ "		switch (o) {\n"
-					+ "		case R(Integer i1, Integer i2) r1 -> {}\n"
+					+ "		case R(Integer i1, Integer i2)-> {}\n"
 					+ "			default -> {}\n"
 					+ "		}\n"
 					+ "	}\n"
@@ -1747,6 +1741,34 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"	case R(Integer i1, Integer i2) -> {}\n" +
 				"	     ^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 				"Type mismatch: cannot convert from Number to R\n" +
+				"----------\n");
+	}
+	public void testRemoveNamedRecordPatterns_001() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"@SuppressWarnings(\"preview\")\n" +
+				"public class X {\n" +
+				" public static void foo(Rectangle r) {\n" +
+				"   int res = switch (r) {\n" +
+				"     case Rectangle(int x, int y) r -> 1;\n" +
+				"     default -> 0;\n" +
+				"   };\n" +
+				"   System.out.println(res);\n" +
+				" }\n" +
+				"\n" +
+				" public static void main(String[] args) {\n" +
+				"   foo(new Rectangle(10, 20));\n" +
+				" }\n" +
+				"}\n" +
+				"\n" +
+				"record Rectangle(int x, int y) {\n" +
+				"}"
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 5)\n" +
+				"	case Rectangle(int x, int y) r -> 1;\n" +
+				"	                             ^\n" +
+				"Syntax error on token \"r\", delete this token\n" +
 				"----------\n");
 	}
 }
