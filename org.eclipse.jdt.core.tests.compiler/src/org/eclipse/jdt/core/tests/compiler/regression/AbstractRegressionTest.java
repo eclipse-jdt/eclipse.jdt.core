@@ -2534,6 +2534,9 @@ protected void runJavac(
 	if (newOptions.indexOf(" -implicit") < 0) {
 		newOptions = newOptions.concat(" -implicit:none");
 	}
+	if (classLibraries == null) {
+		classLibraries = this.classpaths;
+	}
 	if (classLibraries != null) {
 		List<String> filteredLibs = new ArrayList<>();
 		for (String lib : classLibraries) {
