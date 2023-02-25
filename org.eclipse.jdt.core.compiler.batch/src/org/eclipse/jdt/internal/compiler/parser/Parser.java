@@ -7491,7 +7491,7 @@ protected void consumeRule(int act) {
 		    consumeTypePattern();
 			break;
 
-    case 364 : if (DEBUG) { System.out.println("RecordPattern ::= Modifiersopt Type..."); }  //$NON-NLS-1$
+    case 364 : if (DEBUG) { System.out.println("RecordPattern ::= Modifiersopt ReferenceType..."); }  //$NON-NLS-1$
 		    consumeRecordPattern();
 			break;
 

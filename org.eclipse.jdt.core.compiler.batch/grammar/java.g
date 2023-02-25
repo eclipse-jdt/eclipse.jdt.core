@@ -1271,7 +1271,7 @@ TypePattern ::= Modifiersopt Type 'Identifier'
 -- 20 preview feature : record patterns
 -----------------------------------------------
 
-RecordPattern ::= Modifiersopt Type RecordStructurePattern
+RecordPattern ::= Modifiersopt ReferenceType RecordStructurePattern
 /.$putCase consumeRecordPattern(); $break ./
 /:$readableName RecordPattern:/
 /:$compliance 20:/
