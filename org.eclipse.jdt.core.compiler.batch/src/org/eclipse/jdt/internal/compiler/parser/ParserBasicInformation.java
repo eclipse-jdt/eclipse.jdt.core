@@ -22,7 +22,7 @@ public interface ParserBasicInformation {
 
 					ERROR_SYMBOL = 137,
 					MAX_NAME_LENGTH = 53,
-					NUM_STATES = 1223,
+					NUM_STATES = 1225,
 
 					NT_OFFSET = 137,
 					SCOPE_UBOUND = 319,

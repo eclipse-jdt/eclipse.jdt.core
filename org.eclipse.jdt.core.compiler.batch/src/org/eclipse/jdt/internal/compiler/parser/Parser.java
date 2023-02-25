@@ -7491,7 +7491,7 @@ protected void consumeRule(int act) {
 		    consumeTypePattern();
 			break;
 
-    case 364 : if (DEBUG) { System.out.println("RecordPattern ::= Modifiersopt Type PushLPAREN..."); }  //$NON-NLS-1$
+    case 364 : if (DEBUG) { System.out.println("RecordPattern ::= Modifiersopt ReferenceType PushLPAREN"); }  //$NON-NLS-1$
 		    consumeRecordPattern();
 			break;
 
@@ -7500,7 +7500,7 @@ protected void consumeRule(int act) {
 			break;
 
     case 368 : if (DEBUG) { System.out.println("PatternList ::= PatternList COMMA Pattern"); }  //$NON-NLS-1$
-		    consumePatternList();
+		    consumePatternList(); 
 			break;
 
     case 370 : if (DEBUG) { System.out.println("PushLeftBrace ::="); }  //$NON-NLS-1$

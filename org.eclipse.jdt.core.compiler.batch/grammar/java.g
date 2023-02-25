@@ -1271,7 +1271,7 @@ TypePattern ::= Modifiersopt Type 'Identifier'
 -- 20 preview feature : record patterns
 -----------------------------------------------
 
-RecordPattern ::= Modifiersopt Type PushLPAREN PatternListopt PushRPAREN
+RecordPattern ::= Modifiersopt ReferenceType PushLPAREN PatternListopt PushRPAREN
 /.$putCase consumeRecordPattern(); $break ./
 /:$readableName RecordPattern:/
 /:$compliance 20:/
