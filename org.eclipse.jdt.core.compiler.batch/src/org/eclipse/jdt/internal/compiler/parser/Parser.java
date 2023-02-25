@@ -38,6 +38,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -11203,7 +11204,10 @@ protected void consumeRecordDeclaration() {
 	if (length == 0 && !containsComment(typeDecl.bodyStart, typeDecl.bodyEnd)) {
 		typeDecl.bits |= ASTNode.UndocumentedEmptyBlock;
 	}
-	TypeReference superClass = new QualifiedTypeReference(TypeConstants.JAVA_LANG_RECORD, new long[] {0});
+	char[][] sources = TypeConstants.JAVA_LANG_RECORD;
+	long[] poss = new long[sources.length];
+	Arrays.fill(poss, 0);
+	TypeReference superClass = new QualifiedTypeReference(sources, poss);
 	superClass.bits |= ASTNode.IsSuperType;
 	typeDecl.superclass = superClass;
 	typeDecl.declarationSourceEnd = flushCommentsDefinedPriorTo(this.endStatementPosition);
