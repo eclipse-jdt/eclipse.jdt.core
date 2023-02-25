@@ -16,9 +16,11 @@ import java.io.IOException;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IField;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.ILocalVariable;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
@@ -621,6 +623,44 @@ public class JavaSearchBugs16Tests extends AbstractJavaSearchTests {
 
 			}
 		}
+
+	/*
+	 * A record defined in a JRE class causes an AIOOBE during a call hierarchy computation.
+	 * The record is encountered while indexing a Java project with a snippet,
+	 * when computing the call hierarchy of a field in the snippet.
+	 * The same AIOOBE can be reproduced with a reference search in the same snippet.
+	 * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/790
+	 */
+	public void testAIOOBEForRecordClassGh790() throws Exception {
+		String testProjectName = "gh790AIOOBEForRecordClass";
+		try {
+			IJavaProject project = createJava16Project(testProjectName, new String[] {"src"});
+			String packageFolder = "/" + testProjectName + "/src/test";
+			createFolder(packageFolder);
+			String testSource =
+				"package test;\n" +
+				"public class Test {\n" +
+				"protected final java.util.HashMap<?, ?> internal;\n" +
+				"protected final java.util.HashMap<?, ?> map;\n" +
+				"    public Test() {\n" +
+				"	    internal = new java.util.HashMap<>();\n" +
+				"	    map = internal;\n" +
+				"    }\n" +
+			    "}\n";
+			createFile(packageFolder + "/Test.java", testSource);
+			buildAndExpectNoProblems(project);
+
+			IType type = project.findType("test.Test");
+			IField field = type.getField("internal");
+			search(field, REFERENCES, EXACT_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
+			assertSearchResults(
+					"src/test/Test.java test.Test() [internal] EXACT_MATCH\n" +
+					"src/test/Test.java test.Test() [internal] EXACT_MATCH");
+		} finally {
+			deleteProject(testProjectName);
+		}
+	}
+
 }
 
 
