@@ -1426,7 +1426,7 @@ public RecordComponentBinding[] components() {
 				if (smb.purpose == SyntheticMethodBinding.RecordCanonicalConstructor) {
 					for (int i = 0, l = smb.parameters.length; i < l; ++i) {
 						smb.parameters[i] = this.components[i].type;
-						if (smb.parameters[i] != null && smb.parameters[i].isParameterizedTypeWithActualArguments()) {
+						if (smb.parameters[i] != null && smb.parameters[i].isParameterizedType()) {
 							smb.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
 						}
 					}
