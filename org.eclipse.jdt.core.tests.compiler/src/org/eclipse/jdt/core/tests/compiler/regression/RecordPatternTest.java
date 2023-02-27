@@ -35,7 +35,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "test26" };
+//		TESTS_NAMES = new String[] { "testEnhancedForWithRecordPattern_001" };
 	}
 	private String extraLibPath;
 	public static Class<?> testClass() {
@@ -1770,5 +1770,31 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"	                             ^\n" +
 				"Syntax error on token \"r\", delete this token\n" +
 				"----------\n");
+	}
+	public void testEnhancedForWithRecordPattern_001() {
+		runConformTest(new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" +
+			"import java.util.List;\n" +
+			"\n" +
+			"@SuppressWarnings(\"preview\")\n" +
+			"public class X {\n" +
+			" \n" +
+			" public static void foo(List<R> rList) {\n" +
+			"   for (R(Integer a) : rList) { \n" +
+			"     System.out.println(a);  \n" +
+			"   }\n" +
+			" }\n" +
+			" public static void main(String[] args) {\n" +
+			"   List<R> rList = new ArrayList<>();\n" +
+			"   rList.add(new R(1));\n" +
+			"   rList.add(new R(2));\n" +
+			"   foo(rList);\n" +
+			" }\n" +
+			"}\n" +
+			"record R(Integer i) {}"
+			},
+			"1\n" +
+			"2");
 	}
 }
