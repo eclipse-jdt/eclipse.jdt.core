@@ -1426,6 +1426,9 @@ public RecordComponentBinding[] components() {
 				if (smb.purpose == SyntheticMethodBinding.RecordCanonicalConstructor) {
 					for (int i = 0, l = smb.parameters.length; i < l; ++i) {
 						smb.parameters[i] = this.components[i].type;
+						if (smb.parameters[i] != null && smb.parameters[i].isParameterizedTypeWithActualArguments()) {
+							smb.modifiers |= ExtraCompilerModifiers.AccGenericSignature;
+						}
 					}
 					if (this.isVarArgs == true) {
 						smb.modifiers |= ClassFileConstants.AccVarargs;
