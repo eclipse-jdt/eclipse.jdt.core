@@ -299,4 +299,84 @@ public void testissue342_001() throws Exception {
 		deleteProject(p);
 	}
 }
+public void testGH612_001() throws Exception {
+	if (!isJRE16)
+		return;
+	IJavaProject p = createJava16Project("p");
+	createFolder("/p/src/a");
+	try {
+		String source =
+				"package a;\n"
+				+ "public class X {\n"
+				+ "    public static void main(String[] args) {\n"
+				+ "        Sub sub = new Sub();\n"
+				+ "        sub.method1();\n"
+				+ "    }\n"
+				+ "\n"
+				+ "    static class Outer<T> { \n"
+				+ "        class Inner {\n"
+				+ "            void sayHi() {\n"
+				+ "                System.out.println(\"hello world!\");\n"
+				+ "            }\n"
+				+ "        }\n"
+				+ "    }\n"
+				+ "\n"
+				+ "    static class Sub extends Outer<Sub.Inner> {\n"
+				+ "        void method1() {\n"
+				+ "            Inner inner = new Inner();\n"
+				+ "            inner.sayHi();\n"
+				+ "        }\n"
+				+ "    }\n"
+				+ "}\n";
+		createFile("p/src/a/X.java",
+				source);
+		p.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+		IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+		assertMarkers("markers in p",
+				"",
+				markers);
+	} finally {
+		deleteProject(p);
+	}
+}
+public void testGH612_002() throws Exception {
+	if (!isJRE16)
+		return;
+	IJavaProject p = createJava16Project("p");
+	createFolder("/p/src/a");
+	try {
+		String source =
+				"package a;\n"
+				+ "public class X {\n"
+				+ "    public static void main(String[] args) {\n"
+				+ "        Sub sub = new Sub();\n"
+				+ "        sub.method1();\n"
+				+ "    }\n"
+				+ "\n"
+				+ "    static interface Outer<T> { \n"
+				+ "        class Inner {\n"
+				+ "            void sayHi() {\n"
+				+ "                System.out.println(\"hello world!\");\n"
+				+ "            }\n"
+				+ "        }\n"
+				+ "    }\n"
+				+ "\n"
+				+ "    static class Sub implements Outer<Sub.Inner> {\n"
+				+ "        void method1() {\n"
+				+ "            Inner inner = new Inner();\n"
+				+ "            inner.sayHi();\n"
+				+ "        }\n"
+				+ "    }\n"
+				+ "}\n";
+		createFile("p/src/a/X.java",
+				source);
+		p.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+		IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+		assertMarkers("markers in p",
+				"",
+				markers);
+	} finally {
+		deleteProject(p);
+	}
+}
 }
