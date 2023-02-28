@@ -776,7 +776,10 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"two\n" +
 				"Returns: 0\n" +
 				"one\n" +
-				"Returns: 5");
+				"Returns: 5",
+				getCompilerOptions(true),
+				new String[] {"--enable-preview"},
+				JavacTestOptions.SKIP); // Javac crashes. Let's skip for no
 	}
 	// Nested record pattern with a method invocation in a 'when' clause
 	public void test23 () {
@@ -898,7 +901,6 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			this.extraLibPath,
 			JavaCore.VERSION_20,
 			true);
-		// new String[] {libPath}
 		this.runConformTest(
 				new String[] {
 						"p/X.java",
@@ -922,11 +924,9 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 						+ "}\n"
 				},
 				"1",
-				null,
-				true,
+				getCompilerOptions(true),
 				new String[] {"--enable-preview"},
-				null,
-				null);
+				JavacTestOptions.SKIP); // Too complicated to pass extra lib to Javac, let's skip
 		} catch (IOException e) {
 			System.err.println("RecordPatternTest.test25() could not write to current working directory " + currentWorkingDirectoryPath);
 		} finally {
@@ -1058,12 +1058,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				+ "record ColoredPoint(Point p, Color c) {}\n"
 				+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"
 			},
-			"5",
-			null,
-			true,
-			new String[] {"--enable-preview"},
-			null,
-			null);
+			"5");
 	}
 	// Test that a simple type pattern dominates a following record pattern of the same type
 	public void test29() {
