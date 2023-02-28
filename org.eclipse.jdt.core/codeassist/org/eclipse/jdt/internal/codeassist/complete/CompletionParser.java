@@ -6108,7 +6108,8 @@ protected int resumeAfterRecovery() {
 					// when using generics, it helps for proper resolution of the MessageSend when all
 					// paramaters are collected. This is essential when next few paramaters are the ones
 					// that decide a TypeParameter of a current completing paramater type.
-					|| (isInsideMethodInvocation() && this.currentToken != TerminalTokens.TokenNameEOF)) {
+					|| (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_BETWEEN_CASE_AND_COLON
+							&& isInsideMethodInvocation() && this.currentToken != TerminalTokens.TokenNameEOF)) {
 				return RESUME;
 			}
 			return super.resumeAfterRecovery();
