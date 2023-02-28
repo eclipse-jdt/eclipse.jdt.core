@@ -35,7 +35,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testEnhancedForWithRecordPattern_001" };
+//		TESTS_NAMES = new String[] { "testEnhancedForWithRecordPattern_002" };
 	}
 	private String extraLibPath;
 	public static Class<?> testClass() {
@@ -1791,5 +1791,28 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			},
 			"1\n" +
 			"2");
+	}
+	public void testEnhancedForWithRecordPattern_002() {
+		runConformTest(new String[] {
+			"X.java",
+			"@SuppressWarnings(\"preview\")\n" +
+			"public class X {\n" +
+			" \n" +
+			"    public static boolean foo() {\n" +
+			"        boolean ret = false;\n" +
+			"        R[] recArray = {new R(0)};\n" +
+			"        for (R(int x) : recArray) {\n" +
+			"            ret = true;\n" +
+			"        }\n" +
+			"        return ret;\n" +
+			"    }\n" +
+			"       \n" +
+			"    public static void main(String[] args) {\n" +
+			"   System.out.println(foo());\n" +
+			" }\n" +
+			"}\n" +
+			"record R(int i) {}"
+			},
+			"true");
 	}
 }
