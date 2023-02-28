@@ -3482,6 +3482,7 @@ protected void consumeEnhancedForStatementHeader(){
 	}
 }
 protected void consumeEnhancedForStatementHeaderInitRecord(boolean hasModifiers) {
+	this.astLengthPtr--;
 	RecordPattern recordPattern = (RecordPattern) this.astStack[this.astPtr--];
 	ForEachStatementWithRecordPattern forEachStatementWithRecordPattern =
 			new ForEachStatementWithRecordPattern(
