@@ -216,6 +216,7 @@ public static Test suite() {
 	 since_16.add(PatternMatching16Test.class);
 	 since_16.add(RecordsRestrictedClassTest.class);
 	 since_16.add(JavadocTestForRecord.class);
+	 since_16.add(GenericTypeSignatureTest_16.class);
 
 	 // add 17 specific test here (check duplicates)
 	 ArrayList since_17 = new ArrayList();
