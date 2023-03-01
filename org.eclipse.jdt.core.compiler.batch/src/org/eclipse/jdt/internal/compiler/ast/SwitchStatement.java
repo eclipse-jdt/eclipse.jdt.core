@@ -642,10 +642,19 @@ public class SwitchStatement extends Expression {
 				 * IllegalClassChangeError seems legitimate as this would mean the enum type has been recompiled with more
 				 * enum constants and the class that is using the switch on the enum has not been recompiled
 				 */
-				codeStream.newJavaLangIncompatibleClassChangeError();
-				codeStream.dup();
-				codeStream.invokeJavaLangIncompatibleClassChangeErrorDefaultConstructor();
-				codeStream.athrow();
+				if (compilerOptions.complianceLevel >= ClassFileConstants.JDK19) {
+					codeStream.newJavaLangMatchException();
+					codeStream.dup();
+					codeStream.aconst_null();
+					codeStream.aconst_null();
+					codeStream.invokeJavaLangMatchExceptionConstructor();
+					codeStream.athrow();
+				} else {
+					codeStream.newJavaLangIncompatibleClassChangeError();
+					codeStream.dup();
+					codeStream.invokeJavaLangIncompatibleClassChangeErrorDefaultConstructor();
+					codeStream.athrow();
+				}
 			}
 			// May loose some local variable initializations : affecting the local variable attributes
 			if (this.mergedInitStateIndex != -1) {

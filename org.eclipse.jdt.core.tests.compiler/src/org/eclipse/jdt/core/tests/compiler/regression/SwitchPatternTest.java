@@ -4297,15 +4297,15 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		 "works");
 		String expectedOutput =
 				"Bootstrap methods:\n" +
-				"  0 : # 93 invokestatic java/lang/runtime/SwitchBootstraps.typeSwitch:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;\n" +
+				"  0 : # 95 invokestatic java/lang/runtime/SwitchBootstraps.typeSwitch:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;\n" +
 				"	Method arguments:\n" +
 				"		#32 p/Rec$MyInterface$MyClass1\n" +
 				"		#34 p/Rec$MyInterface$MyClass2,\n" +
-				"  1 : # 100 invokestatic java/lang/runtime/ObjectMethods.bootstrap:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/TypeDescriptor;Ljava/lang/Class;Ljava/lang/String;[Ljava/lang/invoke/MethodHandle;)Ljava/lang/Object;\n" +
+				"  1 : # 102 invokestatic java/lang/runtime/ObjectMethods.bootstrap:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/TypeDescriptor;Ljava/lang/Class;Ljava/lang/String;[Ljava/lang/invoke/MethodHandle;)Ljava/lang/Object;\n" +
 				"	Method arguments:\n" +
 				"		#1 p/Rec\n" +
-				"		#101 c\n" +
-				"		#102 REF_getField c:Lp/Rec$MyInterface;";
+				"		#103 c\n" +
+				"		#104 REF_getField c:Lp/Rec$MyInterface;";
 		SwitchPatternTest.verifyClassFile(expectedOutput, "p/Rec.class", ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void testBug576785_001() {
