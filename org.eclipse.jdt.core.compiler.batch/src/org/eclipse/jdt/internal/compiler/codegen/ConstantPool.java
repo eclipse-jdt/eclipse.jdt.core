@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2022 IBM Corporation and others.
+ * Copyright (c) 2000, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -168,6 +172,8 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	public static final char[] JavaLangEnumConstantPoolName = "java/lang/Enum".toCharArray(); //$NON-NLS-1$
 	public static final char[] JavaLangErrorConstantPoolName = "java/lang/Error".toCharArray(); //$NON-NLS-1$
 	public static final char[] JavaLangIncompatibleClassChangeErrorConstantPoolName = "java/lang/IncompatibleClassChangeError".toCharArray(); //$NON-NLS-1$
+	public static final char[] JavaLangMatchExceptionConstantPoolName = "java/lang/MatchException".toCharArray(); //$NON-NLS-1$
+	public static final char[] JavaLangMatchExceptionNewInstanceSignature = "(Ljava/lang/String;Ljava/lang/Throwable;)V".toCharArray(); //$NON-NLS-1$
 	public static final char[] JavaLangExceptionConstantPoolName = "java/lang/Exception".toCharArray(); //$NON-NLS-1$
 	public static final char[] JavaLangFloatConstantPoolName = "java/lang/Float".toCharArray(); //$NON-NLS-1$
 	public static final char[] JavaLangIntegerConstantPoolName = "java/lang/Integer".toCharArray(); //$NON-NLS-1$
