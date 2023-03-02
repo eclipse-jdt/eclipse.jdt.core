@@ -6383,7 +6383,12 @@ private boolean foundToken(int token) {
 @Override
 protected int actFromTokenOrSynthetic(int previousAct) {
 	int newAct = tAction(previousAct, this.currentToken);
-	if (this.hasError && !this.diet && newAct == ERROR_ACTION && this.scanner.currentPosition > this.cursorLocation) {
+	if (this.hasError
+			&& (!this.diet || 
+			(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_BETWEEN_CASE_AND_COLON && 
+			isIndirectlyInsideFieldInitialization())) // diet or a complex field init with switch expression
+			&& newAct == ERROR_ACTION
+			&& this.scanner.currentPosition > this.cursorLocation) {
 		if (requireExtendedRecovery()) {
 			// during extended recovery, if EOF would be wrong, try a few things to reduce our stacks:
 			for (int tok : RECOVERY_TOKENS) {

@@ -1949,6 +1949,9 @@ protected boolean isInsideMethodInvocation() {
 	int i = this.elementPtr;
 	while (i > -1) {
 		switch (this.elementKindStack[i]) {
+			case K_TYPE_DELIMITER : return false;
+			case K_METHOD_DELIMITER : return false;
+			case K_FIELD_INITIALIZER_DELIMITER : return false;
 			case K_SELECTOR: return true;
 		}
 		i--;
