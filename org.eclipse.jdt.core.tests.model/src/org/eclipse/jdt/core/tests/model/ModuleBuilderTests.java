@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2022 IBM Corporation and others.
+ * Copyright (c) 2016, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -5604,7 +5604,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		try {
 			IClasspathAttribute[] attributes = {
 					JavaCore.newClasspathAttribute(IClasspathAttribute.MODULE, "true"),
-					JavaCore.newClasspathAttribute(IClasspathAttribute.PATCH_MODULE, "java.desktop=/missing.path::java.base=/org.astro.patch/src:/org.astro.patch/src2")
+					JavaCore.newClasspathAttribute(IClasspathAttribute.PATCH_MODULE, "java.desktop=/missing.path::java.base=/org.astro.patch/src" + File.pathSeparator + "/org.astro.patch/src2")
 			};
 			IJavaProject patchProject = createJava9ProjectWithJREAttributes("org.astro.patch", new String[]{"src", "src2"}, attributes);
 
