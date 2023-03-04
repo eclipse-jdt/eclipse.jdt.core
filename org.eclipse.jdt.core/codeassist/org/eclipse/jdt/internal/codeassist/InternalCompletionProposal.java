@@ -192,6 +192,11 @@ public class InternalCompletionProposal extends CompletionProposal {
 	 */
 	private boolean parameterNamesComputed = false;
 
+	/**
+	 * If represents the array type completion, this holds the receivers array dimensions.
+	 */
+	private int arrayDimensions = 0;
+
 	protected char[][] findConstructorParameterNames(char[] declaringTypePackageName, char[] declaringTypeName, char[] selector, char[][] paramTypeNames){
 		if(paramTypeNames == null || declaringTypeName == null) return null;
 
@@ -1083,6 +1088,9 @@ public class InternalCompletionProposal extends CompletionProposal {
 				break;
 			case CompletionProposal.TYPE_REF :
 				buffer.append("TYPE_REF"); //$NON-NLS-1$
+				if (this.arrayDimensions > 0) {
+					buffer.append("<ARRAY>"); //$NON-NLS-1$
+				}
 				break;
 			case CompletionProposal.VARIABLE_DECLARATION :
 				buffer.append("VARIABLE_DECLARATION"); //$NON-NLS-1$
@@ -1199,5 +1207,14 @@ public class InternalCompletionProposal extends CompletionProposal {
 		else {
 			return false;
 		}
+	}
+
+	@Override
+	public int getArrayDimensions() {
+		return this.arrayDimensions;
+	}
+
+	public void setArrayDimensions(int dimensions) {
+		this.arrayDimensions = dimensions;
 	}
 }

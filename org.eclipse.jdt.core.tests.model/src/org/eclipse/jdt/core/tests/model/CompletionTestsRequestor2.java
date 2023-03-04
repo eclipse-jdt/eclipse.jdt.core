@@ -399,6 +399,9 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 				break;
 			case CompletionProposal.TYPE_REF :
 				buffer.append("TYPE_REF"); //$NON-NLS-1$
+				if (proposal.getArrayDimensions() > 0) {
+					buffer.append("<ARRAY>"); //$NON-NLS-1$
+				}
 				break;
 			case CompletionProposal.VARIABLE_DECLARATION :
 				buffer.append("VARIABLE_DECLARATION"); //$NON-NLS-1$

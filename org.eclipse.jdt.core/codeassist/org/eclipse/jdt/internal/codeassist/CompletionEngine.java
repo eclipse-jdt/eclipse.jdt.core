@@ -12187,8 +12187,17 @@ public final class CompletionEngine
 
 				checkCancel();
 
-				if(this.expectedTypes[i] instanceof ReferenceBinding) {
-					ReferenceBinding refBinding = (ReferenceBinding)this.expectedTypes[i];
+				TypeBinding expectedType = this.expectedTypes[i];
+				TypeBinding originalExpectedType = expectedType;
+				int dimensions = 0;
+				if (expectedType instanceof ArrayBinding) {
+					ArrayBinding arrayBinding = (ArrayBinding) expectedType;
+					expectedType = arrayBinding.leafComponentType();
+					dimensions = arrayBinding.dimensions();
+				}
+
+				if (expectedType instanceof ReferenceBinding) {
+					ReferenceBinding refBinding = (ReferenceBinding) expectedType;
 
 					if (typeLength > 0) {
 						if (typeLength > refBinding.sourceName.length) continue next;
@@ -12270,7 +12279,9 @@ public final class CompletionEngine
 						relevance += computeRelevanceForResolution();
 						relevance += computeRelevanceForInterestingProposal(refBinding);
 						relevance += computeRelevanceForCaseMatching(token, typeName);
-						relevance += computeRelevanceForExpectingType(refBinding);
+						// if an array, then we need to use the original expected type.
+						relevance += computeRelevanceForExpectingType(
+								dimensions > 0 ? originalExpectedType : refBinding);
 						relevance += computeRelevanceForQualification(isQualified);
 						relevance += computeRelevanceForRestrictions(accessibility);
 
@@ -12284,7 +12295,7 @@ public final class CompletionEngine
 						}
 
 						if (proposeType &&
-								(!this.assistNodeIsConstructor ||
+								(!this.assistNodeIsConstructor || dimensions > 0 ||
 										!allowingLongComputationProposals ||
 										hasStaticMemberTypes(refBinding, scope.enclosingSourceType() ,this.unitScope)) ||
 										hasArrayTypeAsExpectedSuperTypes()) {
@@ -12301,6 +12312,7 @@ public final class CompletionEngine
 								proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 								proposal.setRelevance(relevance);
 								proposal.setAccessibility(accessibility);
+								proposal.setArrayDimensions(dimensions);
 								this.requestor.accept(proposal);
 								if(DEBUG) {
 									this.printDebug(proposal);
@@ -12308,7 +12320,7 @@ public final class CompletionEngine
 							}
 						}
 
-						if (proposeConstructor) {
+						if (proposeConstructor && dimensions == 0) {
 							findConstructorsOrAnonymousTypes(
 									refBinding,
 									scope,
@@ -12317,6 +12329,42 @@ public final class CompletionEngine
 									relevance);
 						}
 					}
+				} else if (expectedType instanceof BaseTypeBinding) {
+					BaseTypeBinding baseType = (BaseTypeBinding) expectedType;
+					// only go further if we are completing on an array.
+					if (dimensions > 0 && proposeType &&
+							(!this.assistNodeIsConstructor || !allowingLongComputationProposals)
+							&& baseType.isPrimitiveType()) {
+						this.noProposal = false;
+						if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
+							InternalCompletionProposal proposal = createProposal(CompletionProposal.TYPE_REF,
+									this.actualCompletionPosition);
+
+							char[] typeName = baseType.sourceName();
+							char[] completionName = typeName;
+							int relevance = computeBaseRelevance();
+							relevance += computeRelevanceForResolution();
+							relevance += computeRelevanceForInterestingProposal(baseType);
+							relevance += computeRelevanceForCaseMatching(token, typeName);
+							relevance += computeRelevanceForExpectingType(originalExpectedType); // use array type here
+							relevance += computeRelevanceForQualification(true);
+							relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE);
+
+							proposal.setSignature(getSignature(baseType));
+							proposal.setTypeName(typeName);
+							proposal.setCompletion(completionName);
+							proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+							proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
+							proposal.setRelevance(relevance);
+							proposal.setAccessibility(IAccessRule.K_ACCESSIBLE);
+							proposal.setArrayDimensions(dimensions);
+							this.requestor.accept(proposal);
+							if (DEBUG) {
+								this.printDebug(proposal);
+							}
+						}
+					}
+
 				}
 			}
 		}
