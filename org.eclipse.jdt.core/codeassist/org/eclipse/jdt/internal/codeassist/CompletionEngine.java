@@ -28,7 +28,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.StreamSupport;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -4861,26 +4863,31 @@ public final class CompletionEngine
 		return 0;
 	}
 
-	int computeRelevanceForCaseMatching(char[] token, char[] proposalName){
-		return computeRelevanceForCaseMatching(new char[][] { token }, proposalName);
+	int computeRelevanceForCaseMatching(char[][] tokens, char[] proposalName) {
+		int finalRelevance = 0;
+		for (int i = 0; i < tokens.length; i++) {
+			int relevance = computeRelevanceForCaseMatching(tokens[i], proposalName);
+			if (relevance > finalRelevance) {
+				finalRelevance = relevance;
+			}
+		}
+		return finalRelevance;
 	}
 
-	int computeRelevanceForCaseMatching(char[][] tokens, char[] proposalName) {
-		for (char[] token : tokens) {
-			if (CharOperation.equals(token, proposalName, true)) {
-				return R_EXACT_NAME + R_CASE;
-			} else if (CharOperation.equals(token, proposalName, false)) {
-				return R_EXACT_NAME;
-			} else if (CharOperation.prefixEquals(token, proposalName, false)) {
-				if (CharOperation.prefixEquals(token, proposalName, true))
-					return R_CASE;
-			} else if (this.options.camelCaseMatch && CharOperation.camelCaseMatch(token, proposalName)) {
-				return R_CAMEL_CASE;
-			} else if (this.options.substringMatch && CharOperation.substringMatch(token, proposalName)) {
-				return R_SUBSTRING;
-			} else if (this.options.subwordMatch && CharOperation.subWordMatch(token, proposalName)) {
-				return R_SUBWORD;
-			}
+	int computeRelevanceForCaseMatching(char[] token, char[] proposalName) {
+		if (CharOperation.equals(token, proposalName, true)) {
+			return R_EXACT_NAME + R_CASE;
+		} else if (CharOperation.equals(token, proposalName, false)) {
+			return R_EXACT_NAME;
+		} else if (CharOperation.prefixEquals(token, proposalName, false)) {
+			if (CharOperation.prefixEquals(token, proposalName, true))
+				return R_CASE;
+		} else if (this.options.camelCaseMatch && CharOperation.camelCaseMatch(token, proposalName)) {
+			return R_CAMEL_CASE;
+		} else if (this.options.substringMatch && CharOperation.substringMatch(token, proposalName)) {
+			return R_SUBSTRING;
+		} else if (this.options.subwordMatch && CharOperation.subWordMatch(token, proposalName)) {
+			return R_SUBWORD;
 		}
 		return 0;
 	}
@@ -7059,12 +7066,9 @@ public final class CompletionEngine
 		}
 
 		// find parameter name if fieldName is empty
-		char[][] tokens = new char[0][0];
-		if (fieldName.length == 0 && this.parser.assistNodeParent instanceof MessageSend) {
-			char[] parameterName = findParameterNameAtLocationFromAssistParent();
-			tokens = new char[][] { parameterName, fieldName };
-		} else {
-			tokens = new char[][] { fieldName };
+		char[] token = fieldName;
+		if (fieldName.length == 0) {
+			token = findParameterNameAtLocationFromAssistParent(new ObjectVector());
 		}
 
 		// Inherited fields which are hidden by subclasses are filtered out
@@ -7204,7 +7208,7 @@ public final class CompletionEngine
 			int relevance = computeBaseRelevance();
 			relevance += computeRelevanceForResolution();
 			relevance += computeRelevanceForInterestingProposal(field);
-			relevance += computeRelevanceForCaseMatching(tokens, field.name);
+			relevance += computeRelevanceForCaseMatching(token, field.name);
 			int computeRelevanceForExpectingType = computeRelevanceForExpectingType(field.type);
 			if(this.strictMatchForExtepectedType && computeRelevanceForExpectingType <= 0) {
 				continue;
@@ -9393,13 +9397,12 @@ public final class CompletionEngine
 		int minArgLength = argTypes == null ? 0 : argTypes.length;
 
 		// find parameter name if methodName is empty
-		char[][] tokens = new char[0][0];
-		if (methodName.length == 0 && this.parser.assistNodeParent instanceof MessageSend) {
-			char[] parameterName = findParameterNameAtLocationFromAssistParent();
-			tokens = new char[][] { parameterName, CharOperation.concat(GET, parameterName),
-					CharOperation.concat(IS, parameterName), methodName };
-		} else {
-			tokens = new char[][] { methodName };
+		char[][] tokens = new char[][] { methodName };
+		if (methodName.length == 0) {
+			char[] parameterName = findParameterNameAtLocationFromAssistParent(new ObjectVector());
+			char[] nameForMethods = firstUpper(parameterName);
+			tokens = new char[][] { parameterName, CharOperation.concat(GET, nameForMethods),
+					CharOperation.concat(IS, nameForMethods) };
 		}
 
 		next : for (int f = methods.length; --f >= 0;) {
@@ -9740,20 +9743,47 @@ public final class CompletionEngine
 		methodsFound.addAll(newMethodsFound);
 	}
 
-	private char[] findParameterNameAtLocationFromAssistParent() {
-		char[] parameterName = new char[0];
-		if (!(this.parser.assistNodeParent instanceof MessageSend)) {
-			return parameterName;
+	private char[] firstUpper(char[] name) {
+		char[] result = new char[name.length];
+		for (int i = 0; i < name.length; i++) {
+			if (i == 0) {
+				result[i] = Character.toUpperCase(name[i]);
+			} else {
+				result[i] = name[i];
+			}
 		}
-		MessageSend parent = (MessageSend) this.parser.assistNodeParent;
-		Optional<TypeBinding> receiverType = Optional.ofNullable(parent.actualReceiverType)
-				.or(() -> Optional.ofNullable(parent.receiver).map(r -> r.resolvedType));
+		return result;
+	}
 
-		MethodBinding[] candidates = receiverType.map(t -> t.getMethods(parent.selector)).orElse(new MethodBinding[0]);
+	private char[] findParameterNameAtLocationFromAssistParent(ObjectVector methodsFound) {
+		char[] parameterName = new char[0];
+		MethodBinding[] candidates;
+		final MessageSend parent;
+		if (!(this.parser.assistNodeParent instanceof MessageSend)) {
+			if (this.parser.assistNode instanceof MessageSend) {
+				parent = (MessageSend) this.parser.assistNode;
+				candidates = StreamSupport.stream(methodsFound.spliterator(), false)
+						.filter(Objects::nonNull)
+						.filter(o -> o instanceof Object[]).map(o -> (Object[]) o)
+						.map(o -> o[0]).filter(o -> o instanceof MethodBinding).map(b -> (MethodBinding) b)
+						.filter(b -> CharOperation.equals(parent.selector, b.selector)).findFirst()
+						.map(m -> new MethodBinding[] { m }).orElse(new MethodBinding[0]);
+			} else {
+				parent = null;
+				candidates = new MethodBinding[0];
+			}
+		} else {
+			parent = (MessageSend) this.parser.assistNodeParent;
+			candidates = Optional.ofNullable(parent.actualReceiverType)
+					.or(() -> Optional.ofNullable(parent.receiver).map(r -> r.resolvedType))
+					.map(t -> t.getMethods(parent.selector)).orElse(new MethodBinding[0]);
+		}
+
+		final int argumentLength = (parent.arguments == null) ? 1 : parent.arguments.length;
 		for (MethodBinding binding : candidates) {
-			if (binding.parameterNames.length >= parent.arguments.length) {
-				for (int i = 0; i < parent.arguments.length; i++) {
-					if (parent.arguments[i] == this.parser.assistNode) {
+			if (binding.parameterNames.length >= argumentLength) {
+				for (int i = 0; i < argumentLength; i++) {
+					if (parent.arguments == null || parent.arguments[i] == this.parser.assistNode) {
 						parameterName = binding.parameterNames[i];
 					}
 				}
@@ -13124,6 +13154,10 @@ public final class CompletionEngine
 		ObjectVector fieldsFound = new ObjectVector();
 
 		Scope currentScope = scope;
+
+		if (token.length == 0) {
+			token = findParameterNameAtLocationFromAssistParent(methodsFound);
+		}
 
 		if (!this.requestor.isIgnored(CompletionProposal.LOCAL_VARIABLE_REF)) {
 			done1 : while (true) { // done when a COMPILATION_UNIT_SCOPE is found
