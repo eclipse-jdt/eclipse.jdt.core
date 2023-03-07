@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13,8 +13,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search;
 
-import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.search.*;
+import java.lang.reflect.Modifier;
+
+import org.eclipse.jdt.core.IAccessRule;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.search.TypeNameMatch;
 
 /**
  * Java Search concrete class for a type name match.
@@ -33,7 +37,24 @@ public class JavaSearchTypeNameMatch extends TypeNameMatch {
  */
 public JavaSearchTypeNameMatch(IType type, int modifiers) {
 	this.type = type;
-	this.modifiers = modifiers;
+	this.modifiers = getEffectiveModifiers(type, modifiers);
+}
+
+private int getEffectiveModifiers(IType origType, int origModifiers) { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=567663
+	try {
+		if (origType.isMember() && origType.getParent() instanceof IType) {
+			IType parentType= (IType)origType.getParent();
+			if (parentType.isInterface()) {
+				if (!Modifier.isPublic(origModifiers) && !Modifier.isPrivate(origModifiers) && !Modifier.isProtected(origModifiers)) {
+					return origModifiers | Modifier.PUBLIC | Modifier.STATIC;
+				}
+				return origModifiers | Modifier.STATIC;
+			}
+		}
+	} catch (JavaModelException e) {
+		// should never happen
+	}
+	return origModifiers;
 }
 
 /* (non-Javadoc)
