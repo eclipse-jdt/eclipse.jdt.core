@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018 IBM Corporation.
+ * Copyright (c) 2018, 2023 IBM Corporation.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -102,7 +102,7 @@ public class Java11ElementsTests extends TestCase {
 		options.add("-A" + MODULE_PROC);
 		options.add("-A" + testMethod);
 		if (compiler instanceof EclipseCompiler) {
-			options.add("-9");
+			options.add("-17");
 		}
 		BatchTestUtils.compileInModuleMode(compiler, options, MODULE_PROC, srcRoot, null, true, false);
 		assertEquals("succeeded", System.getProperty(MODULE_PROC));
