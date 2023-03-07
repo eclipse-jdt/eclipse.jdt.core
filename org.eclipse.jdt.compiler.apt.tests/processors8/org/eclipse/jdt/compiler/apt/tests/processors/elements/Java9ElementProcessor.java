@@ -1119,14 +1119,84 @@ public class Java9ElementProcessor extends BaseProcessor {
 			}
 			JavaFileObject fileObject = _elementUtils.getFileObjectOf(anotherCls);
 			if (!fileObject.getName().contains("JavaFileWithManyClasses")) {
-				reportError("getFileObjectOf() Auxiliary class should contain it's primary class "
-						+ "JavaFileWithManyClasses but found" + fileObject.getName());
+				reportError("Incorrect FileObject name. Expected to contain JavaFileWithManyClasses"
+						+ " but was " + fileObject.getName());
 			}
 			fileObject = _elementUtils.getFileObjectOf(anotherInt);
 			if (!fileObject.getName().contains("JavaFileWithManyClasses")) {
-				reportError("getFileObjectOf() Auxiliary class should contain it's primary class "
-						+ "JavaFileWithManyClasses but found" + fileObject.getName());
+				reportError("Incorrect FileObject name. Expected to contain JavaFileWithManyClasses"
+						+ " but was " + fileObject.getName());
 			}
+		}
+	}
+	public void testElementsInType() {
+		TypeElement topType = _elementUtils.getTypeElement("xyz.TypeWithManyElements");
+		JavaFileObject fileObject = _elementUtils.getFileObjectOf(topType);
+		String topTypeName = "TypeWithManyElements";
+		if (!fileObject.getName().contains(topTypeName)) {
+			reportError("Incorrect FileObject name. Expected to contain " + topTypeName + 
+					" but was " + fileObject.getName());
+		}
+		List<ExecutableElement> constructors = ElementFilter.constructorsIn(topType.getEnclosedElements());
+		List<ExecutableElement> methods = ElementFilter.methodsIn(topType.getEnclosedElements());
+		List<VariableElement> fields = ElementFilter.fieldsIn(topType.getEnclosedElements());
+		// Fields
+		for (VariableElement field : fields) {
+			fileObject = _elementUtils.getFileObjectOf(field);
+			if (!fileObject.getName().contains(topTypeName)) {
+				reportError("Incorrect FileObject name. Expected to contain " + topTypeName + 
+						" but was " + fileObject.getName());
+			}
+		}
+		// Constructors
+		for (ExecutableElement constructor : constructors) {
+			fileObject = _elementUtils.getFileObjectOf(constructor);
+			if (!fileObject.getName().contains(topTypeName)) {
+				reportError("Incorrect FileObject name. Expected to contain " + topTypeName + 
+					" but was " + fileObject.getName());
+			}
+		}
+		// Methods and Parameters
+		for (ExecutableElement method : methods) {
+			fileObject = _elementUtils.getFileObjectOf(method);
+			if (!fileObject.getName().contains(topTypeName)) {
+				reportError("Incorrect FileObject name. Expected to contain " + topTypeName + 
+						" but was " + fileObject.getName());
+			}
+			List<? extends VariableElement> methodParams = method.getParameters();
+			for (VariableElement param : methodParams) {
+				JavaFileObject fileObjectForParam = _elementUtils.getFileObjectOf(param);
+				if (!fileObjectForParam.getName().contains(topTypeName)) {
+					reportError("Incorrect FileObject name. Expected to contain " + topTypeName + 
+							" but was " + fileObject.getName());
+				}
+			}
+		}
+
+	}
+	public void testDeeplyNestedTypes() {
+		final String topmost = "xyz.MultiNestedType";
+		TypeElement topTypeElement = _elementUtils.getTypeElement(topmost);
+		TypeElement[] types = { topTypeElement, 
+				_elementUtils.getTypeElement("xyz.NestedRecord"),
+				_elementUtils.getTypeElement("xyz.NestedEnum"), 
+				_elementUtils.getTypeElement("xyz.NestedTypes") 
+		};
+		_elementUtils.getFileObjectOf(topTypeElement);
+		for (TypeElement element : types) {
+			validateInnerElements(element);
+		}
+	}
+	private void validateInnerElements(TypeElement e) {
+		List<? extends Element> members = _elementUtils.getAllMembers(e);
+		List<TypeElement> types = ElementFilter.typesIn(members);
+		for (TypeElement t : types) {
+			String topTypeName = _elementUtils.getOutermostTypeElement(t).getSimpleName().toString();
+			if (!_elementUtils.getFileObjectOf(t).getName().contains(topTypeName)) {
+				reportError("Incorrect FileObject name. Expected to contain " + topTypeName + 
+						" but was " + _elementUtils.getFileObjectOf(t));
+			}
+			validateInnerElements(t);
 		}
 	}
 	private void validateModifiers(ExecutableElement method, Modifier[] expected) {

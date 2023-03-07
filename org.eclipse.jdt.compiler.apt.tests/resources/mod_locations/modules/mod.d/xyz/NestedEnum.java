@@ -1,20 +1,19 @@
 package xyz;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-record NestedRecord (Color c, Point p) {
-	enum Color {
-		RED, BLUE, YELLOW;
+public enum NestedEnum {
+	X, Y;
+	class NestedEnum1 {
+		class NestedEnum2 {}
 	}
-	record Point(int x, int y) {}
-	public class NestedClass1 {
-		class NestedClass2 {
+	interface NestedEnumI {
+		interface NestedEnumI1 {
 		}
 	}
-	enum NestedEnum1 {
-		X, Y;
-
-		enum NestedEnum2 {
+	record NestedRecord() {
+		record NestedRecord1() {
+			record NestedRecord2() {
+			}
 		}
 	}
 	@Retention(RetentionPolicy.RUNTIME)

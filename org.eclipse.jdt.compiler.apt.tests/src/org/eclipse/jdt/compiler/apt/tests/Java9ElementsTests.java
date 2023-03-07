@@ -468,6 +468,34 @@ public class Java9ElementsTests extends TestCase {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		internalTest4(compiler, "20", MODULE_PROC, "testGetFileObjectOfRecords", null, true);
 	}
+	public void testElementsInTypeJavac() throws IOException {
+		if (!canRunJava20()) {
+			return;
+		}
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		internalTest4(compiler, "20", MODULE_PROC, "testElementsInType", null, true);
+	}
+	public void testElementsInType() throws IOException {
+		if (!canRunJava20()) {
+			return;
+		}
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTest4(compiler, "20", MODULE_PROC, "testElementsInType", null, true);
+	}
+	public void testDeeplyNestedTypesJavac() throws IOException {
+		if (!canRunJava20()) {
+			return;
+		}
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		internalTest4(compiler, "20", MODULE_PROC, "testDeeplyNestedTypes", null, true);
+	}
+	public void testDeeplyNestedTypes() throws IOException {
+		if (!canRunJava20()) {
+			return;
+		}
+		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
+		internalTest4(compiler, "20", MODULE_PROC, "testDeeplyNestedTypes", null, true);
+	}
 	protected void internalTestWithBinary(JavaCompiler compiler, String processor, String compliance, String testMethod, String testClass, String resourceArea) throws IOException {
 		if (!canRunJava9()) {
 			return;

@@ -213,6 +213,7 @@ public class ElementsImpl9 extends ElementsImpl {
 	@Override
 	public javax.tools.JavaFileObject getFileObjectOf(Element element) {
 		switch(element.getKind()) {
+			case INTERFACE:
 			case CLASS:
 			case ENUM:
 			case RECORD:
@@ -245,6 +246,7 @@ public class ElementsImpl9 extends ElementsImpl {
 					return getFileObjectForType((TypeBinding) typeOrPackage);
 				}
 				break;
+			case PARAMETER:
 			case LOCAL_VARIABLE:
 			case FIELD:
 			case RECORD_COMPONENT:
