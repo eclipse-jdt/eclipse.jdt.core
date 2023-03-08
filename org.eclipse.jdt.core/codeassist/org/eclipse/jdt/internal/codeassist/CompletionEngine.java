@@ -9759,27 +9759,24 @@ public final class CompletionEngine
 		char[] parameterName = new char[0];
 		MethodBinding[] candidates;
 		final MessageSend parent;
-		if (!(this.parser.assistNodeParent instanceof MessageSend)) {
-			if (this.parser.assistNode instanceof MessageSend) {
-				parent = (MessageSend) this.parser.assistNode;
-				candidates = StreamSupport.stream(methodsFound.spliterator(), false)
-						.filter(Objects::nonNull)
-						.filter(o -> o instanceof Object[]).map(o -> (Object[]) o)
-						.map(o -> o[0]).filter(o -> o instanceof MethodBinding).map(b -> (MethodBinding) b)
-						.filter(b -> CharOperation.equals(parent.selector, b.selector)).findFirst()
-						.map(m -> new MethodBinding[] { m }).orElse(new MethodBinding[0]);
-			} else {
-				parent = null;
-				candidates = new MethodBinding[0];
-			}
-		} else {
+		if (this.parser.assistNodeParent instanceof MessageSend) {
 			parent = (MessageSend) this.parser.assistNodeParent;
 			candidates = Optional.ofNullable(parent.actualReceiverType)
 					.or(() -> Optional.ofNullable(parent.receiver).map(r -> r.resolvedType))
 					.map(t -> t.getMethods(parent.selector)).orElse(new MethodBinding[0]);
+		} else if (this.parser.assistNode instanceof MessageSend) {
+			parent = (MessageSend) this.parser.assistNode;
+			candidates = StreamSupport.stream(methodsFound.spliterator(), false)
+					.filter(Objects::nonNull)
+					.filter(o -> o instanceof Object[]).map(o -> (Object[]) o)
+					.map(o -> o[0]).filter(o -> o instanceof MethodBinding).map(b -> (MethodBinding) b)
+					.filter(b -> CharOperation.equals(parent.selector, b.selector)).findFirst()
+					.map(m -> new MethodBinding[] { m }).orElse(new MethodBinding[0]);
+		} else {
+			return parameterName;
 		}
 
-		final int argumentLength = (parent.arguments == null) ? 1 : parent.arguments.length;
+		final int argumentLength = (parent.arguments != null) ? parent.arguments.length : 1;
 		for (MethodBinding binding : candidates) {
 			if (binding.parameterNames.length >= argumentLength) {
 				for (int i = 0; i < argumentLength; i++) {
