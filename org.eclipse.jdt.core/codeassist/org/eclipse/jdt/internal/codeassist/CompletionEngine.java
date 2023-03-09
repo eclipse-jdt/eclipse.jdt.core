@@ -7065,11 +7065,7 @@ public final class CompletionEngine
 			}
 		}
 
-		// find parameter name if fieldName is empty
-		char[] token = fieldName;
-		if (fieldName.length == 0) {
-			token = findParameterNameAtLocationFromAssistParent(new ObjectVector());
-		}
+		char[] boostMatches = findParameterNameAtLocationFromAssistParent(new ObjectVector());
 
 		// Inherited fields which are hidden by subclasses are filtered out
 		// No visibility checks can be performed without the scope & invocationSite
@@ -7208,7 +7204,10 @@ public final class CompletionEngine
 			int relevance = computeBaseRelevance();
 			relevance += computeRelevanceForResolution();
 			relevance += computeRelevanceForInterestingProposal(field);
-			relevance += computeRelevanceForCaseMatching(token, field.name);
+			relevance += computeRelevanceForCaseMatching(fieldName, field.name);
+			if(boostMatches.length > 0) {
+				relevance += computeRelevanceForCaseMatching(boostMatches, field.name);
+			}
 			int computeRelevanceForExpectingType = computeRelevanceForExpectingType(field.type);
 			if(this.strictMatchForExtepectedType && computeRelevanceForExpectingType <= 0) {
 				continue;
@@ -9396,12 +9395,11 @@ public final class CompletionEngine
 		int minTypeArgLength = typeArgTypes == null ? 0 : typeArgTypes.length;
 		int minArgLength = argTypes == null ? 0 : argTypes.length;
 
-		// find parameter name if methodName is empty
-		char[][] tokens = new char[][] { methodName };
-		if (methodName.length == 0) {
-			char[] parameterName = findParameterNameAtLocationFromAssistParent(new ObjectVector());
+		char[][] boostMatches = new char[0][];
+		char[] parameterName = findParameterNameAtLocationFromAssistParent(new ObjectVector());
+		if(parameterName.length > 0) {
 			char[] nameForMethods = firstUpper(parameterName);
-			tokens = new char[][] { parameterName, CharOperation.concat(GET, nameForMethods),
+			boostMatches = new char[][] { parameterName, CharOperation.concat(GET, nameForMethods),
 					CharOperation.concat(IS, nameForMethods) };
 		}
 
@@ -9601,7 +9599,10 @@ public final class CompletionEngine
 			int relevance = computeBaseRelevance();
 			relevance += computeRelevanceForResolution();
 			relevance += computeRelevanceForInterestingProposal();
-			relevance += computeRelevanceForCaseMatching(tokens, method.selector);
+			relevance += computeRelevanceForCaseMatching(methodName, method.selector);
+			if(boostMatches.length > 0) {
+				relevance += computeRelevanceForCaseMatching(boostMatches, method.selector);
+			}
 			int computeRelevanceForExpectingType = computeRelevanceForExpectingType(method.returnType);
 			if(this.strictMatchForExtepectedType && computeRelevanceForExpectingType <= 0) {
 				continue;
@@ -13152,9 +13153,7 @@ public final class CompletionEngine
 
 		Scope currentScope = scope;
 
-		if (token.length == 0) {
-			token = findParameterNameAtLocationFromAssistParent(methodsFound);
-		}
+		char[]	boostMatches = findParameterNameAtLocationFromAssistParent(methodsFound);
 
 		if (!this.requestor.isIgnored(CompletionProposal.LOCAL_VARIABLE_REF)) {
 			done1 : while (true) { // done when a COMPILATION_UNIT_SCOPE is found
@@ -13228,6 +13227,9 @@ public final class CompletionEngine
 							relevance += computeRelevanceForResolution();
 							relevance += computeRelevanceForInterestingProposal(local);
 							relevance += computeRelevanceForCaseMatching(token, local.name);
+							if(boostMatches.length > 0) {
+								relevance += computeRelevanceForCaseMatching(boostMatches, local.name);
+							}
 							int computeRelevanceForExpectingType = computeRelevanceForExpectingType(local.type);
 							if(this.strictMatchForExtepectedType && computeRelevanceForExpectingType <= 0) {
 								continue;

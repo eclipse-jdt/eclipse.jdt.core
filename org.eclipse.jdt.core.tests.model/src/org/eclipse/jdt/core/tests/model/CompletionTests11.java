@@ -86,8 +86,8 @@ public void test_members_matching_paramater_name_on_getter() throws JavaModelExc
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertTrue(requestor.getResults(), requestor.getResults()
 			.contains("getName[METHOD_REF]{getName(), Ltest.Smart$Task;, ()Ljava.lang.String;, getName, null, " +
-					(R_DEFAULT + R_INTERESTING + R_EXACT_NAME + R_CASE + R_EXACT_EXPECTED_TYPE + R_NON_STATIC
-							+ R_NON_RESTRICTED + R_RESOLVED)
+					(R_DEFAULT + R_INTERESTING + R_EXACT_NAME + R_CASE + R_CASE + R_EXACT_EXPECTED_TYPE
+							+ R_NON_STATIC + R_NON_RESTRICTED + R_RESOLVED)
 					+ "}"));
 }
 
@@ -117,8 +117,8 @@ public void test_members_matching_paramater_name_on_non_getter() throws JavaMode
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	assertTrue(requestor.getResults(), requestor.getResults()
 			.contains("details[METHOD_REF]{details(), Ltest.Smart$Task;, ()Ljava.lang.String;, details, null, " +
-					(R_DEFAULT + R_INTERESTING + R_EXACT_NAME + R_CASE + R_EXACT_EXPECTED_TYPE + R_NON_STATIC
-							+ R_NON_RESTRICTED + R_RESOLVED)
+					(R_DEFAULT + R_INTERESTING + R_EXACT_NAME + R_CASE + R_CASE + R_EXACT_EXPECTED_TYPE
+							+ R_NON_STATIC + R_NON_RESTRICTED + R_RESOLVED)
 					+ "}"));
 }
 
@@ -150,8 +150,8 @@ public void test_members_matching_paramater_name_on_boolean_getter() throws Java
 			.contains(
 					"isCompleted[METHOD_REF]{isCompleted(), Ltest.Smart$Task;, ()Z, isCompleted, null, "
 							+
-							(R_DEFAULT + R_INTERESTING + R_EXACT_NAME + R_CASE + R_EXACT_EXPECTED_TYPE + R_NON_STATIC
-									+ R_NON_RESTRICTED + R_RESOLVED)
+							(R_DEFAULT + R_INTERESTING + R_EXACT_NAME + R_CASE + R_CASE + R_EXACT_EXPECTED_TYPE
+									+ R_NON_STATIC + R_NON_RESTRICTED + R_RESOLVED)
 							+ "}"));
 }
 
@@ -217,8 +217,8 @@ public void test_members_matching_paramater_name_on_field() throws JavaModelExce
 			.contains(
 					"assignee[FIELD_REF]{assignee, Ltest.Smart$Task;, Ljava.lang.String;, assignee, null, "
 							+
-							(R_DEFAULT + R_INTERESTING + R_EXACT_NAME + R_CASE + R_EXACT_EXPECTED_TYPE + R_NON_STATIC
-									+ R_NON_RESTRICTED + R_RESOLVED)
+							(R_DEFAULT + R_INTERESTING + R_EXACT_NAME + R_CASE + R_CASE + R_EXACT_EXPECTED_TYPE
+									+ R_NON_STATIC + R_NON_RESTRICTED + R_RESOLVED)
 							+ "}"));
 }
 
@@ -244,7 +244,7 @@ public void test_members_matching_paramater_name_on_local_variable() throws Java
 			.contains(
 					"name[LOCAL_VARIABLE_REF]{name, null, Ljava.lang.String;, name, null, "
 							+
-							(R_DEFAULT + R_INTERESTING + R_EXACT_NAME + R_NON_STATIC + R_NON_RESTRICTED
+							(R_DEFAULT + R_INTERESTING + R_EXACT_NAME + R_CASE + R_NON_STATIC + R_NON_RESTRICTED
 									+ R_UNQUALIFIED)
 							+ "}"));
 }
