@@ -42,6 +42,27 @@ public class RecordComponentBinding extends VariableBinding {
 		return RECORD_COMPONENT;
 	}
 
+	public void fillInDefaultNonNullness(RecordComponent sourceComponent, Scope scope) {
+		if (this.type == null || this.type.isBaseType())
+			return;
+		LookupEnvironment environment = scope.environment();
+		if (environment.usesNullTypeAnnotations()) {
+			if (!this.type.acceptsNonNullDefault())
+				return;
+			if ( (this.type.tagBits & TagBits.AnnotationNullMASK) == 0) {
+				this.type = environment.createAnnotatedType(this.type, new AnnotationBinding[]{environment.getNonNullAnnotation()});
+			} else if ((this.type.tagBits & TagBits.AnnotationNonNull) != 0) {
+				scope.problemReporter().nullAnnotationIsRedundant(sourceComponent.type, sourceComponent.annotations);
+			}
+		} else {
+			if ( (this.tagBits & TagBits.AnnotationNullMASK) == 0 ) {
+				this.tagBits |= TagBits.AnnotationNonNull;
+			} else if ((this.tagBits & TagBits.AnnotationNonNull) != 0) {
+				scope.problemReporter().nullAnnotationIsRedundant(sourceComponent.type, sourceComponent.annotations);
+			}
+		}
+	}
+
 	/*
 	 * declaringUniqueKey # recordComponentName
 	 *    p.X (int first, int second) { }  --> Lp/X;#first

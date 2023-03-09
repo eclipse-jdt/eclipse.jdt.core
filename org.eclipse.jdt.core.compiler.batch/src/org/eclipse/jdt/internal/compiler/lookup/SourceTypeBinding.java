@@ -1464,7 +1464,7 @@ public RecordComponentBinding resolveTypeFor(RecordComponentBinding component) {
 		// component cannot be static, hence no static initializer scope
 		MethodScope initializationScope = this.scope.referenceContext.initializerScope;
 		RecordComponent componentDecl = componentDecls[f];
-		TypeBinding componentType = componentDecl.type.resolveType(initializationScope, true /* check bounds*/);
+		TypeBinding componentType = componentDecl.type.resolveType(initializationScope, true /* check bounds*/); // no location here, @NNBD to be handled in fillInDefaultNonNullness()
 		component.type = componentType;
 		component.modifiers &= ~ExtraCompilerModifiers.AccUnresolved;
 		if (componentType == null) {
@@ -1499,8 +1499,15 @@ public RecordComponentBinding resolveTypeFor(RecordComponentBinding component) {
 			}
 			Annotation.isTypeUseCompatible(componentDecl.type, this.scope, annotations);
 		}
-		// TODO Bug 562478: apply null default: - to check anything to be done? - SH
-//		if (this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {}
+		// apply null default:
+		if (this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
+			if (hasNonNullDefaultForType(componentType, DefaultLocationField, componentDecl.sourceStart)) {
+				component.fillInDefaultNonNullness(componentDecl, initializationScope);
+			}
+			// validate null annotation:
+			if (!this.scope.validateNullAnnotation(component.tagBits, componentDecl.type, componentDecl.annotations))
+				component.tagBits &= ~TagBits.AnnotationNullMASK;
+		}
 
 		if (initializationScope.shouldCheckAPILeaks(this, component.isPublic()) && componentDecl.type != null) // fieldDecl.type is null for enum constants
 			initializationScope.detectAPILeaks(componentDecl.type, componentType);
@@ -2269,7 +2276,7 @@ public MethodBinding[] methods() {
 	try {
 		for (int i = 0, length = this.methods.length; i < length; i++) {
 			if ((this.tagBits & TagBits.AreMethodsComplete) != 0) {
-				// recursive c-all to methods() from resolveTypesFor(..) resolved the methods
+				// recursive call to methods() from resolveTypesFor(..) resolved the methods
 				return this.methods;
 			}
 
@@ -2624,7 +2631,7 @@ public FieldBinding resolveTypeFor(FieldBinding field) {
 			TypeBinding fieldType =
 				fieldDecl.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT
 					? initializationScope.environment().convertToRawType(this, false /*do not force conversion of enclosing types*/) // enum constant is implicitly of declaring enum type
-					: fieldDecl.type.resolveType(initializationScope, true /* check bounds*/);
+					: fieldDecl.type.resolveType(initializationScope, true /* check bounds*/); // no location here, @NNBD to be handled in fillInDefaultNonNullness(
 			field.type = fieldType;
 			field.modifiers &= ~ExtraCompilerModifiers.AccUnresolved;
 			if (fieldType == null) {
@@ -2750,7 +2757,7 @@ private MethodBinding resolveTypesWithSuspendedTempErrorHandlingPolicy(MethodBin
 		int count = 0;
 		ReferenceBinding resolvedExceptionType;
 		for (int i = 0; i < size; i++) {
-			resolvedExceptionType = (ReferenceBinding) exceptionTypes[i].resolveType(methodDecl.scope, true /* check bounds*/);
+			resolvedExceptionType = (ReferenceBinding) exceptionTypes[i].resolveType(methodDecl.scope, true /* check bounds*/); // no location as @NNBD doesn't apply
 			if (resolvedExceptionType == null)
 				continue;
 			if (resolvedExceptionType.isBoundParameterizedType()) {
@@ -2777,12 +2784,14 @@ private MethodBinding resolveTypesWithSuspendedTempErrorHandlingPolicy(MethodBin
 	}
 
 	if (methodDecl.receiver != null) {
-		method.receiver = methodDecl.receiver.type.resolveType(methodDecl.scope, true /* check bounds*/);
+		method.receiver = methodDecl.receiver.type.resolveType(methodDecl.scope, true /* check bounds*/); // no location as @NNBD doesn't apply
 	}
 	final boolean reportUnavoidableGenericTypeProblems = this.scope.compilerOptions().reportUnavoidableGenericTypeProblems;
 	boolean foundArgProblem = false;
 	boolean checkAPIleak = methodDecl.scope.shouldCheckAPILeaks(this, method.isPublic());
 	Argument[] arguments = methodDecl.arguments;
+	boolean isImplicitRecordConstructor = this.isRecordDeclaration &&
+			methodDecl instanceof ConstructorDeclaration && ((methodDecl.bits & ASTNode.IsImplicit) != 0);
 	if (arguments != null) {
 		int size = arguments.length;
 		method.parameters = Binding.NO_PARAMETERS;
@@ -2800,8 +2809,7 @@ private MethodBinding resolveTypesWithSuspendedTempErrorHandlingPolicy(MethodBin
 			}
 			try {
 				ASTNode.handleNonNullByDefault(methodDecl.scope, arg.annotations, arg);
-				// don't pass optional 'location' arg, to avoid applying @NNBD before ImplicitNullAnnotationVerifier has run:
-				parameterType = arg.type.resolveType(methodDecl.scope, true /* check bounds*/);
+				parameterType = arg.type.resolveType(methodDecl.scope, true /* check bounds*/); // no location here, @NNBD to be handled in fillInDefaultNonNullness()
 			} finally {
 				if (deferRawTypeCheck) {
 					arg.type.bits &= ~ASTNode.IgnoreRawTypeCheck;
@@ -2811,9 +2819,7 @@ private MethodBinding resolveTypesWithSuspendedTempErrorHandlingPolicy(MethodBin
 			if (parameterType == null) {
 				foundArgProblem = true;
 			} else if (parameterType == TypeBinding.VOID) {
-				if (this.isRecordDeclaration &&
-						methodDecl instanceof ConstructorDeclaration &&
-						((methodDecl.bits & ASTNode.IsImplicit) != 0)) {
+				if (isImplicitRecordConstructor) {
 					// do nothing - already raised for record component.
 				} else
 					methodDecl.scope.problemReporter().argumentTypeCannotBeVoid(methodDecl, arg);
@@ -2847,7 +2853,10 @@ private MethodBinding resolveTypesWithSuspendedTempErrorHandlingPolicy(MethodBin
 				methodDecl.scope.problemReporter().safeVarargsOnNonFinalInstanceMethod(method);
 			}
 		} else {
-			checkAndFlagHeapPollution(method, methodDecl);
+			if (isImplicitRecordConstructor) {
+				// do nothing - already raised for record component.
+			} else
+				checkAndFlagHeapPollution(method, methodDecl);
 		}
 	}
 
@@ -2868,7 +2877,7 @@ private MethodBinding resolveTypesWithSuspendedTempErrorHandlingPolicy(MethodBin
 				returnType.bits |= ASTNode.IgnoreRawTypeCheck;
 			}
 			try {
-				methodType = returnType.resolveType(methodDecl.scope, true /* check bounds*/);
+				methodType = returnType.resolveType(methodDecl.scope, true /* check bounds*/); // no location here, @NNBD to be handled in fillInDefaultNonNullness()
 			} finally {
 				if (deferRawTypeCheck) {
 					returnType.bits &= ~ASTNode.IgnoreRawTypeCheck;

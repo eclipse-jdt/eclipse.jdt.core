@@ -273,7 +273,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 
 			if (!argumentsTypeElided) {
 				for (int i = 0; i < argumentsLength; i++)
-					this.argumentTypes[i] = this.arguments[i].type.resolveType(blockScope, true /* check bounds*/);
+					this.argumentTypes[i] = this.arguments[i].type.resolveType(blockScope, true /* check bounds*/); // @NNBD doesn't apply on lambda args
 			}
 			if (this.expectedType == null && this.expressionContext == INVOCATION_CONTEXT) {
 				return new PolyTypeBinding(this);

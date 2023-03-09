@@ -878,4 +878,26 @@ public class NullAnnotationTests18 extends AbstractNullAnnotationTest {
 				"----------\n";
 		runner.runNegativeTest();
 	}
+
+	public void testRedundantNonNull_component() throws Exception {
+		Runner runner = getDefaultRunner();
+		runner.testFiles = new String[] {
+				"X.java",
+				"import org.eclipse.jdt.annotation.*;\n" +
+				"@NonNullByDefault\n" +
+				"public class X {\n" +
+				"	record A2(@NonNull String ca1, String ca2) {}\n" +
+				"	record B2(@Nullable String cb1, String cb2) {}\n" +
+				"	public static void main(String... args) {}\n" +
+				"}\n"
+			};
+		runner.expectedCompilerLog =
+				"----------\n" +
+				"1. WARNING in X.java (at line 4)\n" +
+				"	record A2(@NonNull String ca1, String ca2) {}\n" +
+				"	          ^^^^^^^^^^^^^^^\n" +
+				"The nullness annotation is redundant with a default that applies to this location\n" +
+				"----------\n";
+		runner.runWarningTest();
+	}
 }

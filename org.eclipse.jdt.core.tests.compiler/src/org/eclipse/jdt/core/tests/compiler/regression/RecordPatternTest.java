@@ -973,6 +973,11 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"----------\n" +
 				"5. ERROR in X.java (at line 7)\n" +
 				"	ColoredPoint lr) r1  -> {\n" +
+				"	             ^^\n" +
+				"Duplicate local variable lr\n" +
+				"----------\n" +
+				"6. ERROR in X.java (at line 7)\n" +
+				"	ColoredPoint lr) r1  -> {\n" +
 				"	                 ^^\n" +
 				"Duplicate local variable r1\n" +
 				"----------\n");
@@ -1020,6 +1025,11 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"Duplicate local variable lr\n" +
 				"----------\n" +
 				"5. ERROR in X.java (at line 6)\n" +
+				"	ColoredPoint lr) r1) -> {\n" +
+				"	             ^^\n" +
+				"Duplicate local variable lr\n" +
+				"----------\n" +
+				"6. ERROR in X.java (at line 6)\n" +
 				"	ColoredPoint lr) r1) -> {\n" +
 				"	                 ^^\n" +
 				"Duplicate local variable r1\n" +

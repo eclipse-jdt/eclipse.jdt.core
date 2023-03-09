@@ -229,9 +229,9 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 					for (int j = 0; j < argLength; j++) {
 						TypeReference typeArgument = args[j];
 						if (isClassScope) {
-							typeArgument.resolveType((ClassScope) scope);
+							typeArgument.resolveType((ClassScope) scope); // default location not needed in resilience mode
 						} else {
-							typeArgument.resolveType((BlockScope) scope, checkBounds);
+							typeArgument.resolveType((BlockScope) scope, checkBounds); // default location not needed in resilience mode
 						}
 					}
 				}
@@ -258,9 +258,9 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 						for (int k = 0; k < argLength; k++) {
 						    TypeReference typeArgument = args[k];
 						    if (isClassScope) {
-						    	typeArgument.resolveType((ClassScope) scope);
+						    	typeArgument.resolveType((ClassScope) scope); // default location not needed in resilience mode
 						    } else {
-						    	typeArgument.resolveType((BlockScope) scope);
+						    	typeArgument.resolveType((BlockScope) scope); // default location not needed in resilience mode
 						    }
 						}
 				    }

@@ -253,7 +253,7 @@ public Constant constant(Scope scope) {
 }
 
 public void fillInDefaultNonNullness(FieldDeclaration sourceField, Scope scope) {
-	if (this.type == null || this.type.isBaseType())
+	if (this.type == null || this.type.isBaseType() || sourceField.isARecordComponent)
 		return;
 	LookupEnvironment environment = scope.environment();
 	if (environment.usesNullTypeAnnotations()) {

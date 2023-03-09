@@ -680,12 +680,12 @@ protected void resolveAnnotations(Scope scope, int location) {
 				if (this.resolvedType instanceof ArrayBinding) {
 					long[] nullTagBitsPerDimension = ((ArrayBinding)this.resolvedType).nullTagBitsPerDimension;
 					if (nullTagBitsPerDimension != null) {
-						for (int i = 0; i < dimensions; i++) { // skip last annotations at [dimensions] (concerns the leaf type)
+						for (int i = 0; i < dimensions; i++) {
 							long nullTagBits = nullTagBitsPerDimension[i] & TagBits.AnnotationNullMASK;
 							if (nullTagBits == TagBits.AnnotationNullMASK) {
 								scope.problemReporter().contradictoryNullAnnotations(annotationsOnDimensions[i]);
 								nullTagBitsPerDimension[i] = 0;
-							} else if (nullTagBits == TagBits.AnnotationNonNull) {
+							} else if (nullTagBits == TagBits.AnnotationNonNull && i > 0) { // i == 0 is the toplevel type, which is handled below
 								if (scope.hasDefaultNullnessFor(Binding.DefaultLocationArrayContents, this.sourceStart))
 									scope.problemReporter().nullAnnotationIsRedundant(this, annotationsOnDimensions[i]);
 							}
@@ -712,9 +712,7 @@ protected void resolveAnnotations(Scope scope, int location) {
 				this.resolvedType = environment.createAnnotatedType(this.resolvedType, annots);
 			}
 		} else if (nullTagBits == TagBits.AnnotationNonNull) {
-			if (location != Binding.DefaultLocationParameter) { // parameters are handled in MethodBinding.fillInDefaultNonNullness18()
-				scope.problemReporter().nullAnnotationIsRedundant(this, getTopAnnotations());
-			}
+			scope.problemReporter().nullAnnotationIsRedundant(this, getTopAnnotations());
 		}
 	}
 }

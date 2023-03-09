@@ -18748,4 +18748,72 @@ public void testRedundantNonNull_field() {
 	runner.classLibraries = this.LIBS;
 	runner.runWarningTest();
 }
+public void testNonNullByDefault_more() {
+	Runner runner = new Runner();
+	runner.testFiles =
+		new String[] {
+			"test1/Foo.java",
+			"package test1;\n" +
+			"import java.util.function.Consumer;\n" +
+			"import org.eclipse.jdt.annotation.*;\n" +
+			"@NonNullByDefault\n" +
+			"public class Foo<T extends @NonNull Number & java.io.@NonNull Serializable> {\n" +
+			"	<U> Foo(U u) {}\n" +
+			"	Foo() {\n" +
+			"		<Integer>this(null);\n" +
+			"	}\n" +
+			"	Consumer<Boolean> recorder = (@NonNull Boolean b) -> {}; // no warning here, @NNBD doesn't apply\n" +
+			"	@Nullable Consumer<@NonNull Integer> consInt1;\n" +
+			"	java.util.function.@Nullable Consumer<@NonNull Integer> consInt2;\n" +
+			"	Consumer<Integer> consInt3 = this::<@NonNull Integer>consumeV;\n" +
+			"	Foo<Integer> foo = new <@NonNull String>Foo<@NonNull Integer>(\"\");\n" +
+			"\n" +
+			"	<V> void consumeV(V i) {}\n" +
+			"}\n"
+		};
+	runner.expectedCompilerLog =
+			"----------\n" +
+			"1. WARNING in test1\\Foo.java (at line 5)\n" +
+			"	public class Foo<T extends @NonNull Number & java.io.@NonNull Serializable> {\n" +
+			"	                           ^^^^^^^^^^^^^^^\n" +
+			"The nullness annotation is redundant with a default that applies to this location\n" +
+			"----------\n" +
+			"2. WARNING in test1\\Foo.java (at line 5)\n" +
+			"	public class Foo<T extends @NonNull Number & java.io.@NonNull Serializable> {\n" +
+			"	                                                     ^^^^^^^^^^^^^^^^^^^^^\n" +
+			"The nullness annotation is redundant with a default that applies to this location\n" +
+			"----------\n" +
+			"3. ERROR in test1\\Foo.java (at line 8)\n" +
+			"	<Integer>this(null);\n" +
+			"	              ^^^^\n" +
+			"Null type mismatch: required \'@NonNull Integer\' but the provided value is null\n" +
+			"----------\n" +
+			"4. WARNING in test1\\Foo.java (at line 11)\n" +
+			"	@Nullable Consumer<@NonNull Integer> consInt1;\n" +
+			"	                   ^^^^^^^^^^^^^^^^\n" +
+			"The nullness annotation is redundant with a default that applies to this location\n" +
+			"----------\n" +
+			"5. WARNING in test1\\Foo.java (at line 12)\n" +
+			"	java.util.function.@Nullable Consumer<@NonNull Integer> consInt2;\n" +
+			"	                                      ^^^^^^^^^^^^^^^^\n" +
+			"The nullness annotation is redundant with a default that applies to this location\n" +
+			"----------\n" +
+			"6. WARNING in test1\\Foo.java (at line 13)\n" +
+			"	Consumer<Integer> consInt3 = this::<@NonNull Integer>consumeV;\n" +
+			"	                                    ^^^^^^^^^^^^^^^^\n" +
+			"The nullness annotation is redundant with a default that applies to this location\n" +
+			"----------\n" +
+			"7. WARNING in test1\\Foo.java (at line 14)\n" +
+			"	Foo<Integer> foo = new <@NonNull String>Foo<@NonNull Integer>(\"\");\n" +
+			"	                        ^^^^^^^^^^^^^^^\n" +
+			"The nullness annotation is redundant with a default that applies to this location\n" +
+			"----------\n" +
+			"8. WARNING in test1\\Foo.java (at line 14)\n" +
+			"	Foo<Integer> foo = new <@NonNull String>Foo<@NonNull Integer>(\"\");\n" +
+			"	                                            ^^^^^^^^^^^^^^^^\n" +
+			"The nullness annotation is redundant with a default that applies to this location\n" +
+			"----------\n";
+	runner.classLibraries = this.LIBS;
+	runner.runNegativeTest();
+}
 }

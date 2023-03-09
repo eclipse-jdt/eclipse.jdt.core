@@ -323,7 +323,7 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 				}
 				if (this.typeArguments != null) {
 					for (int i = 0, max = this.typeArguments.length; i < max; i++) {
-						this.typeArguments[i].resolveType(scope, true /* check bounds*/);
+						this.typeArguments[i].resolveType(scope, true /* check bounds*/, Binding.DefaultLocationTypeArgument);
 					}
 				}
 				if (this.arguments != null) {
@@ -375,7 +375,7 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 				this.genericTypeArguments = new TypeBinding[length];
 				for (int i = 0; i < length; i++) {
 					TypeReference typeReference = this.typeArguments[i];
-					if ((this.genericTypeArguments[i] = typeReference.resolveType(scope, true /* check bounds*/)) == null) {
+					if ((this.genericTypeArguments[i] = typeReference.resolveType(scope, true /* check bounds*/, Binding.DefaultLocationTypeArgument)) == null) {
 						argHasError = true;
 					}
 					if (argHasError && typeReference instanceof Wildcard) {

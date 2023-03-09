@@ -56,7 +56,6 @@ import java.util.Map;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.ast.TypeReference.AnnotationPosition;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
@@ -1161,8 +1160,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 					if (Annotation.isTypeUseCompatible(typeRef, scope)) { // discard hybrid annotations on name qualified types.
 						local.declaration.bits |= HasTypeAnnotations;
 						typeRef.bits |= HasTypeAnnotations;
-						int location = local.isParameter() ? Binding.DefaultLocationParameter : 0 /*no default for locals*/;
-						local.type = mergeAnnotationsIntoType(scope, se8Annotations, se8nullBits, se8NullAnnotation, typeRef, location, local.type);
+						local.type = mergeAnnotationsIntoType(scope, se8Annotations, se8nullBits, se8NullAnnotation, typeRef, local.type);
 						if(scope.environment().usesNullTypeAnnotations()) {
 							local.tagBits &= ~(se8nullBits);
 						}
@@ -1175,8 +1173,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 					if (Annotation.isTypeUseCompatible(fieldDeclaration.type, scope)) { // discard hybrid annotations on name qualified types.
 						fieldDeclaration.bits |= HasTypeAnnotations;
 						fieldDeclaration.type.bits |= HasTypeAnnotations;
-						field.type = mergeAnnotationsIntoType(scope, se8Annotations, se8nullBits, se8NullAnnotation,
-								fieldDeclaration.type, Binding.DefaultLocationField, field.type);
+						field.type = mergeAnnotationsIntoType(scope, se8Annotations, se8nullBits, se8NullAnnotation, fieldDeclaration.type, field.type);
 						if(scope.environment().usesNullTypeAnnotations()) {
 							field.tagBits &= ~(se8nullBits);
 						}
@@ -1188,8 +1185,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 					if (Annotation.isTypeUseCompatible(recordComponent.type, scope)) { // discard hybrid annotations on name qualified types.
 						recordComponent.bits |= HasTypeAnnotations;
 						recordComponent.type.bits |= HasTypeAnnotations;
-						recordComponentBinding.type = mergeAnnotationsIntoType(scope, se8Annotations, se8nullBits, se8NullAnnotation, recordComponent.type,
-								Binding.DefaultLocationField, recordComponentBinding.type);
+						recordComponentBinding.type = mergeAnnotationsIntoType(scope, se8Annotations, se8nullBits, se8NullAnnotation, recordComponent.type, recordComponentBinding.type);
 						if(scope.environment().usesNullTypeAnnotations()) { //TODO Bug 562478
 							recordComponentBinding.tagBits &= ~(se8nullBits);
 						}
@@ -1203,8 +1199,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 						if (Annotation.isTypeUseCompatible(methodDecl.returnType, scope)) {
 							methodDecl.bits |= HasTypeAnnotations;
 							methodDecl.returnType.bits |= HasTypeAnnotations;
-							method.returnType = mergeAnnotationsIntoType(scope, se8Annotations, se8nullBits, se8NullAnnotation,
-									methodDecl.returnType, Binding.DefaultLocationReturnType, method.returnType);
+							method.returnType = mergeAnnotationsIntoType(scope, se8Annotations, se8nullBits, se8NullAnnotation, methodDecl.returnType, method.returnType);
 							if(scope.environment().usesNullTypeAnnotations()) {
 								method.tagBits &= ~(se8nullBits);
 							}
@@ -1286,7 +1281,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	}
 
 	private static TypeBinding mergeAnnotationsIntoType(BlockScope scope, AnnotationBinding[] se8Annotations, long se8nullBits, Annotation se8NullAnnotation,
-			TypeReference typeRef, int location, TypeBinding existingType)
+			TypeReference typeRef, TypeBinding existingType)
 	{
 		if (existingType == null || !existingType.isValidBinding()) return existingType;
 		TypeReference unionRef = typeRef.isUnionType() ? ((UnionTypeReference) typeRef).typeReferences[0] : null;
@@ -1306,29 +1301,13 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 			return existingType;
 		}
 
-		if (typeRef.dimensions() > 0) {
-			location = Binding.DefaultLocationArrayContents; // moving from SE7 to SE8 position applies to the array contents!
-		}
-
-		long prevNullBits = oldLeafType.tagBits & TagBits.AnnotationNullMASK;
-		if ((prevNullBits | se8nullBits) == TagBits.AnnotationNullMASK && typeRef.hasNullTypeAnnotation(AnnotationPosition.MAIN_TYPE)) {
-			// would merging introduce a contradiction?
-			if (!(oldLeafType instanceof TypeVariableBinding)) { // let type-use annotations override annotations on the type parameter declaration
-				if (prevNullBits != TagBits.AnnotationNullMASK && se8nullBits != TagBits.AnnotationNullMASK) { // conflict caused by the merge?
-					scope.problemReporter().contradictoryNullAnnotations(se8NullAnnotation);
-				}
-				se8nullBits = TagBits.AnnotationNullMASK;
-			}
-			oldLeafType = oldLeafType.withoutToplevelNullAnnotation();
-		} else if (se8nullBits == TagBits.AnnotationNonNull
-					&& location != Binding.DefaultLocationReturnType // normal return type cases are handled in MethodBinding.fillInDefaultNonNullness18()
-					&& location != Binding.DefaultLocationField      // normal field type cases are handled in FieldBinding.fillInDefaultNonNullness()
-					&& scope.hasDefaultNullnessForType(typeRef.resolvedType, location, typeRef.sourceStart)) {
-			scope.problemReporter().nullAnnotationIsRedundant(typeRef, new Annotation[] { se8NullAnnotation });
-		}
 		if (se8nullBits == TagBits.AnnotationNullMASK) {
 			// withdraw contradicting null annotations
 			se8Annotations = scope.environment().filterNullTypeAnnotations(se8Annotations);
+		} else if (se8nullBits == TagBits.AnnotationNonNull
+					&& typeRef.dimensions() > 0  // in this case moving from SE7 to SE8 position applies it to the array contents!
+					&& scope.hasDefaultNullnessForType(typeRef.resolvedType, Binding.DefaultLocationArrayContents, typeRef.sourceStart)) {
+			scope.problemReporter().nullAnnotationIsRedundant(typeRef, new Annotation[] { se8NullAnnotation });
 		}
 		if (se8Annotations.length > 0) {
 			AnnotationBinding [][] goodies = new AnnotationBinding[typeRef.getAnnotatableLevels()][];
