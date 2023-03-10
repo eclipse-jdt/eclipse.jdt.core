@@ -2981,6 +2981,57 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		}
 	}
 
+	/**
+	 * <br>For the following scenario, no call hierarchy is found:</br>
+	 * A nested private class implements a public nested interface.
+	 * The overridden method from the interface also has an argument of the interface type.
+	 * No call hierarchy is found for the overridden method, when searching from within the nested class.
+	 * See: https://github.com/eclipse-jdt/eclipse.jdt.core/issues/821
+	 */
+	public void testCallHierarchyWithNestedInterfacesGh821() throws Exception {
+		String projectName = "TestCallHierarchyWithNestedInterfacesGh821";
+		try {
+			IJavaProject project = createJavaProject(projectName, new String[] { "src" }, new String[] { "JCL15_LIB" }, "bin", "1.5");
+			String packageFolder = "/" + projectName + "/src/test";
+			createFolder(packageFolder);
+			String snippet1 =
+					"""
+					package test;
+					public class TestNestedPrivateClass {
+						public NestedInterface nm = new NC();
+						public interface NestedInterface {
+							public void foo(NestedInterface arg);
+						}
+						private final class NC implements NestedInterface {
+							public void foo(NestedInterface arg) {}
+						}
+					}
+					""";
+			createFile(packageFolder + "/TestNestedPrivateClass.java", snippet1);
+			String snippet2 =
+					"""
+					package test;
+					public class TestReferencingClass {
+						public static void bar() {
+							TestNestedPrivateClass c = new TestNestedPrivateClass();
+							TestNestedPrivateClass.NestedInterface nestedMember = c.nm;
+							nestedMember.foo(nestedMember);
+						}
+					}
+					""";
+			createFile(packageFolder + "/TestReferencingClass.java", snippet2);
+			buildAndExpectNoProblems(project);
+			IType type = project.findType("test.TestNestedPrivateClass.NC");
+			IMethod[] methods = type.getMethods();
+			assertEquals("Expected one method in: " + Arrays.asList(methods), 1, methods.length);
+			search(methods[0], REFERENCES, EXACT_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
+			assertSearchResults(
+					"src/test/TestReferencingClass.java void test.TestReferencingClass.bar() [foo(nestedMember)] EXACT_MATCH");
+		} finally {
+			deleteProject(projectName);
+		}
+	}
+
 	private static void printJavaElements(IJavaProject javaProject, PrintStream output) throws Exception {
 		output.println("Printing Java elements of Java project: " + javaProject);
 		List<IJavaElement> queue = new LinkedList<>();
