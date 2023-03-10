@@ -34,6 +34,8 @@ public abstract class Pattern extends Expression {
 
 	public LocalVariableBinding secretPatternVariable = null;
 
+	public Boolean containsTypeElidedPatternVar = null;
+
 	protected MethodBinding accessorMethod;
 	/* package */ BranchLabel elseTarget;
 	/* package */ BranchLabel thenTarget;
@@ -43,16 +45,19 @@ public abstract class Pattern extends Expression {
 	public boolean containsPatternVariable() {
 		class PatternVariablesVisitor extends ASTVisitor {
 			public boolean hasPatternVar = false;
+			public boolean typeElidedVar =  false;
 
 			@Override
 			public boolean visit(TypePattern typePattern, BlockScope blockScope) {
 				 this.hasPatternVar = typePattern.local != null;
-				 return !this.hasPatternVar;
+				 this.typeElidedVar |= typePattern.getType().isTypeNameVar(blockScope);
+				 return !(this.hasPatternVar && this.typeElidedVar);
 			}
  		}
 
 		PatternVariablesVisitor pvv = new PatternVariablesVisitor();
 		this.traverse(pvv, (BlockScope) null);
+		this.containsTypeElidedPatternVar = pvv.typeElidedVar;
 		return pvv.hasPatternVar;
 	}
 

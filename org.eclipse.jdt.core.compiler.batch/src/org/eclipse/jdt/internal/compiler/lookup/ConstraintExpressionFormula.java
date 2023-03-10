@@ -558,4 +558,5 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 		buf.append(RIGHT_ANGLE_BRACKET);
 		return buf.toString();
 	}
+
 }

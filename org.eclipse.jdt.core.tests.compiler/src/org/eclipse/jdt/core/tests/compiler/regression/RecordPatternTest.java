@@ -35,7 +35,8 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testEnhancedForWithRecordPattern_002" };
+//		TESTS_NAMES = new String[] { "testRecordPatternTypeInference_001" };
+		TESTS_NAMES = new String[] { "test48" };
 	}
 	private String extraLibPath;
 	public static Class<?> testClass() {
@@ -1812,6 +1813,26 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			" }\n" +
 			"}\n" +
 			"record R(int i) {}"
+			},
+			"true");
+	}
+	public void testRecordPatternTypeInference_001() {
+		runConformTest(new String[] {
+			"X.java",
+			"import java.util.function.UnaryOperator;\n" +
+			"\n" +
+			"record Mapper<T>(T in, T out) implements UnaryOperator<T> {\n" +
+			"    public T apply(T arg) { return in.equals(arg) ? out : null; }\n" +
+			"}\n" +
+			"\n" +
+			"@SuppressWarnings(\"preview\")\n" +
+			"public class X {\n" +
+			" void test(UnaryOperator<? extends CharSequence> op) {\n" +
+			"     if (op instanceof Mapper(var in, var out)) {\n" +
+			"         boolean shorter = out.length() < in.length();\n" +
+			"     }\n" +
+			" } \n" +
+			"}"
 			},
 			"true");
 	}

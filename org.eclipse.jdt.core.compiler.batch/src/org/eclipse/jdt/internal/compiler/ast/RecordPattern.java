@@ -24,9 +24,12 @@ import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.RecordComponentBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
@@ -94,6 +97,19 @@ public class RecordPattern extends TypePattern {
 	@Override
 	public void resolveWithExpression(BlockScope scope, Expression exp) {
 		this.expression = exp;
+		if (shouldInitiateRecordTypeInference()) {
+			LocalVariableBinding localVariableBinding = exp.localVariableBinding();
+			if (localVariableBinding.type.isParameterizedType()) {
+				ReferenceBinding binding = inferRecordParameterization(scope, (ParameterizedTypeBinding) localVariableBinding.type);
+				if (binding == null || !binding.isValidBinding()) {
+//					scope.problemReporter().cannotInferElidedTypes(this);
+//					return this.resolvedType = null;
+				}
+				this.resolvedType = binding;
+			} else {
+				// TODO: which scenarios? eg? if found add the code here from resolveType();
+			}
+		}
 	}
 	@Override
 	public TypeBinding resolveAtType(BlockScope scope, TypeBinding u) {
@@ -128,6 +144,9 @@ public class RecordPattern extends TypePattern {
 			scope.problemReporter().unexpectedTypeinRecordPattern(this.resolvedType, this.type);
 			return this.resolvedType;
 		}
+		if (shouldInitiateRecordTypeInference())
+			return this.resolvedType; // do the actual stuff in resolveWithExpression
+
 		this.isTotalTypeNode = isTotalForType(this.resolvedType);
 		RecordComponentBinding[] components = this.resolvedType.components();
 		if (components.length != this.patterns.length) {
@@ -154,6 +173,26 @@ public class RecordPattern extends TypePattern {
 			}
 		}
 		return this.resolvedType;
+	}
+	private ReferenceBinding inferRecordParameterization(BlockScope scope, ParameterizedTypeBinding proposedMatchingType) {
+		InferenceContext18 freshInferenceContext = new InferenceContext18(scope);
+		try {
+			return freshInferenceContext.inferRecordPatternParameterization(this, scope, proposedMatchingType);
+		} finally {
+			freshInferenceContext.cleanUp();
+		}
+	}
+	private boolean shouldInitiateRecordTypeInference() {
+		ReferenceBinding binding = this.resolvedType != null ? this.resolvedType.actualType() : null;
+		if (binding == null || !binding.isGenericType())
+			return false;
+
+		if (this.resolvedType.isParameterizedType())
+			return false;
+		if (this.containsTypeElidedPatternVar == null) {
+			this.containsPatternVariable();
+		}
+		return this.containsTypeElidedPatternVar;
 	}
 	private void infuseInferredType(TypePattern tp, RecordComponentBinding componentBinding) {
 		SingleTypeReference ref = new SingleTypeReference(tp.local.type.getTypeName()[0],
