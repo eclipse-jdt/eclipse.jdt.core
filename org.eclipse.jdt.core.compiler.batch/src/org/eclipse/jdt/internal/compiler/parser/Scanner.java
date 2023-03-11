@@ -1395,8 +1395,7 @@ public int scanIdentifier() throws InvalidInputException {
 }
 public void ungetToken(int unambiguousToken) {
 	if (this.nextToken != TokenNameNotAToken) {
-		return;
-		// throw new ArrayIndexOutOfBoundsException("Single cell array overflow"); //$NON-NLS-1$
+		throw new ArrayIndexOutOfBoundsException("Single cell array overflow"); //$NON-NLS-1$
 	}
 	this.nextToken = unambiguousToken;
 }

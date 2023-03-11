@@ -6103,13 +6103,7 @@ protected int resumeAfterRecovery() {
 	if (this.assistNode != null) {
 
 		if (requireExtendedRecovery()) {
-			if (this.unstackedAct != ERROR_ACTION
-					// resume also if we are inside a MessageSend to complete collecting all paramaters
-					// when using generics, it helps for proper resolution of the MessageSend when all
-					// paramaters are collected. This is essential when next few paramaters are the ones
-					// that decide a TypeParameter of a current completing paramater type.
-					|| (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_BETWEEN_CASE_AND_COLON
-							&& isInsideMethodInvocation() && this.currentToken != TerminalTokens.TokenNameEOF)) {
+			if (this.unstackedAct != ERROR_ACTION) {
 				return RESUME;
 			}
 			return super.resumeAfterRecovery();
@@ -6383,12 +6377,7 @@ private boolean foundToken(int token) {
 @Override
 protected int actFromTokenOrSynthetic(int previousAct) {
 	int newAct = tAction(previousAct, this.currentToken);
-	if (this.hasError
-			&& (!this.diet || 
-			(topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_BETWEEN_CASE_AND_COLON && 
-			isIndirectlyInsideFieldInitialization())) // diet or a complex field init with switch expression
-			&& newAct == ERROR_ACTION
-			&& this.scanner.currentPosition > this.cursorLocation) {
+	if (this.hasError && !this.diet && newAct == ERROR_ACTION && this.scanner.currentPosition > this.cursorLocation) {
 		if (requireExtendedRecovery()) {
 			// during extended recovery, if EOF would be wrong, try a few things to reduce our stacks:
 			for (int tok : RECOVERY_TOKENS) {

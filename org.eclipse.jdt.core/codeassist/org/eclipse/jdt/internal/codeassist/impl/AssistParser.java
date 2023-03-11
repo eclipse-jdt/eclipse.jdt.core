@@ -142,7 +142,7 @@ public abstract class AssistParser extends Parser {
 
 	public int cursorLocation = Integer.MAX_VALUE;
 
-	protected static final int[] RECOVERY_TOKENS = { TokenNameSEMICOLON, TokenNameRPAREN, TokenNameRBRACE, TokenNameRBRACKET};
+	protected static final int[] RECOVERY_TOKENS = { TokenNameSEMICOLON, TokenNameRPAREN, TokenNameRBRACE, TokenNameRBRACKET, TokenNameARROW, TokenNameCOLON};
 
 
 public AssistParser(ProblemReporter problemReporter) {
