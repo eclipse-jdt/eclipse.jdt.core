@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2022 IBM Corporation and others.
+ * Copyright (c) 2000, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -38,6 +38,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -9999,12 +10000,15 @@ protected void consumeTextBlock() {
 						textBlock2,
 						this.scanner.startPosition,
 						this.scanner.currentPosition - 1,
-						Util.getLineNumber(this.scanner.startPosition, this.scanner.lineEnds, 0, this.scanner.linePtr));
+						Util.getLineNumber(this.scanner.startPosition, this.scanner.lineEnds, 0, this.scanner.linePtr),
+						Util.getLineNumber(this.scanner.currentPosition - 1, this.scanner.lineEnds, 0, this.scanner.linePtr));
+		this.compilationUnit.recordStringLiteral(textBlock, this.currentElement != null);
 	} else {
 		textBlock = new TextBlock(
 				textBlock2,
 			this.scanner.startPosition,
 			this.scanner.currentPosition - 1,
+			0,
 			0);
 	}
 	pushOnExpressionStack(textBlock);
@@ -11182,19 +11186,16 @@ protected void consumeRecordDeclaration() {
 	TypeDeclaration typeDecl = (TypeDeclaration) this.astStack[this.astPtr];
 	this.recordNestedMethodLevels.remove(typeDecl);
 	problemReporter().validateJavaFeatureSupport(JavaFeature.RECORDS, typeDecl.sourceStart, typeDecl.sourceEnd);
+	/* create canonical constructor - check for the clash later at binding time */
+	/* https://github.com/eclipse-jdt/eclipse.jdt.core/issues/365 */
+	typeDecl.createDefaultConstructor(!(this.diet && this.dietInt == 0), true);
 	//convert constructor that do not have the type's name into methods
 	ConstructorDeclaration cd = typeDecl.getConstructor(this);
-	if (cd == null) {
-		/* create canonical constructor - check for the clash later at binding time */
-		cd = typeDecl.createDefaultConstructor(!(this.diet && this.dietInt == 0), true);
-	} else {
-		if (cd instanceof CompactConstructorDeclaration
-			|| ((typeDecl.recordComponents == null || typeDecl.recordComponents.length == 0)
-			&& (cd.arguments == null || cd.arguments.length == 0))) {
-			cd.bits |= ASTNode.IsCanonicalConstructor;
-		}
+	if (cd instanceof CompactConstructorDeclaration
+		|| ((typeDecl.recordComponents == null || typeDecl.recordComponents.length == 0)
+		&& (cd.arguments == null || cd.arguments.length == 0))) {
+		cd.bits |= ASTNode.IsCanonicalConstructor;
 	}
-
 	if (this.scanner.containsAssertKeyword) {
 		typeDecl.bits |= ASTNode.ContainsAssertion;
 	}
@@ -11203,7 +11204,10 @@ protected void consumeRecordDeclaration() {
 	if (length == 0 && !containsComment(typeDecl.bodyStart, typeDecl.bodyEnd)) {
 		typeDecl.bits |= ASTNode.UndocumentedEmptyBlock;
 	}
-	TypeReference superClass = new QualifiedTypeReference(TypeConstants.JAVA_LANG_RECORD, new long[] {0});
+	char[][] sources = TypeConstants.JAVA_LANG_RECORD;
+	long[] poss = new long[sources.length];
+	Arrays.fill(poss, 0);
+	TypeReference superClass = new QualifiedTypeReference(sources, poss);
 	superClass.bits |= ASTNode.IsSuperType;
 	typeDecl.superclass = superClass;
 	typeDecl.declarationSourceEnd = flushCommentsDefinedPriorTo(this.endStatementPosition);
@@ -11394,7 +11398,7 @@ protected void consumeRecordComponent(boolean isVarArgs) {
 	RecordComponent recordComponent;
 	recordComponent = createComponent(identifierName, namePositions, type,
 			this.intStack[this.intPtr--] & ~ClassFileConstants.AccDeprecated // modifiers
-	);
+			, modifierPositions);
 	recordComponent.declarationSourceStart = modifierPositions;
 	recordComponent.bits |= (type.bits & ASTNode.HasTypeAnnotations);
 	// consume annotations
@@ -11716,7 +11720,8 @@ protected FieldDeclaration createFieldDeclaration(char[] fieldDeclarationName, i
 	return new FieldDeclaration(fieldDeclarationName, sourceStart, sourceEnd);
 }
 
-protected RecordComponent createComponent(char[] identifierName, long namePositions, TypeReference type, int modifier) {
+protected RecordComponent createComponent(char[] identifierName, long namePositions, TypeReference type, int modifier,
+		int declStart) {
 	return new RecordComponent(identifierName, namePositions, type, modifier);
 }
 protected JavadocParser createJavadocParser() {
