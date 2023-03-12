@@ -36,6 +36,7 @@ public abstract class Pattern extends Expression {
 
 	public Boolean containsTypeElidedPatternVar = null;
 
+	private Pattern enclosingPattern;
 	protected MethodBinding accessorMethod;
 	/* package */ BranchLabel elseTarget;
 	/* package */ BranchLabel thenTarget;
@@ -59,6 +60,20 @@ public abstract class Pattern extends Expression {
 		this.traverse(pvv, (BlockScope) null);
 		this.containsTypeElidedPatternVar = pvv.typeElidedVar;
 		return pvv.hasPatternVar;
+	}
+
+	/**
+	 * @return the enclosingPattern
+	 */
+	public Pattern getEnclosingPattern() {
+		return this.enclosingPattern;
+	}
+
+	/**
+	 * @param enclosingPattern the enclosingPattern to set
+	 */
+	public void setEnclosingPattern(Pattern enclosingPattern) {
+		this.enclosingPattern = enclosingPattern;
 	}
 
 	public boolean isTotalForType(TypeBinding type) {

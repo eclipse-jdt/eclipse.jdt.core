@@ -28,6 +28,8 @@ import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.RecordComponentBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
@@ -35,6 +37,7 @@ public class TypePattern extends Pattern {
 
 	public LocalDeclaration local;
 	Expression expression;
+	public int index = -1; // denoting position
 
 	public TypePattern(LocalDeclaration local) {
 		this.local = local;
@@ -188,6 +191,31 @@ public class TypePattern extends Pattern {
 			return this.resolvedType;
 		if (this.local != null) {
 			this.local.modifiers |= ExtraCompilerModifiers.AccPatternVariable;
+//			this.local.resolve(scope, isPatternVariable);
+
+			if (this.local.isTypeNameVar(scope) ) {
+				/* If the LocalVariableType is var then the pattern variable must appear in
+				 *  a pattern list of a record pattern with type R. Let T be the type of the
+				 *  corresponding component field in R. The type of the pattern variable is
+				 *  the upward projection of T with respect to all synthetic type variables
+				 *  mentioned by T.*/
+				Pattern enclosingPattern = this.getEnclosingPattern();
+				if (enclosingPattern instanceof RecordPattern) {
+					ReferenceBinding recType = (ReferenceBinding) enclosingPattern.resolvedType;
+					if (recType != null) {
+						RecordComponentBinding[] components = recType.components();
+						RecordComponentBinding rcb = components[this.index];
+						if (rcb != null) {
+//							ReferenceBinding ref = (ReferenceBinding) rcb.type.upwardsProjection(scope, null);
+							//recType.upwardsProjection(scope, new TypeBinding[] {rcb.type});
+							System.out.println(rcb);
+							this.local.type.resolvedType = rcb.type;
+//							this.local.binding = new LocalVariableBinding(this.local.name, rcb.type, this.local.modifiers, false /*isArgument*/);
+//							this.local.resolve(scope, isPatternVariable);
+						}
+					}
+				}
+			}
 			this.local.resolve(scope, isPatternVariable);
 			if (this.local.binding != null) {
 				this.local.binding.modifiers |= ExtraCompilerModifiers.AccPatternVariable;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2022 IBM Corporation and others.
+ * Copyright (c) 2005, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -75,6 +79,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	public ReferenceBinding superclass;
 	public ReferenceBinding[] superInterfaces;
 	public FieldBinding[] fields;
+	protected RecordComponentBinding[] components;
 	public ReferenceBinding[] memberTypes;
 	public MethodBinding[] methods;
 	protected ReferenceBinding enclosingType;
@@ -120,7 +125,24 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	}
 	@Override
 	public RecordComponentBinding[] components() {
-		return this.type.components();
+		if ((this.extendedTagBits & ExtendedTagBits.AreRecordComponentsComplete) != 0)
+			return this.components;
+
+		try {
+			RecordComponentBinding[] originalRecordComponents = this.type.components();
+			int length = originalRecordComponents.length;
+			RecordComponentBinding[] parameterizedRecordComponents = new RecordComponentBinding[length];
+			for (int i = 0; i < length; i++)
+				// substitute all record components, so as to get updated declaring class at least
+				parameterizedRecordComponents[i] = new ParameterizedRecordComponentBinding(this, originalRecordComponents[i]);
+			this.components = parameterizedRecordComponents;
+		} finally {
+			// if the original record components cannot be retrieved (ex. AbortCompilation), then assume we do not have any record components
+			if (this.components == null)
+				this.components = Binding.NO_COMPONENTS;
+			this.extendedTagBits |= ExtendedTagBits.AreRecordComponentsComplete;
+		}
+		return this.components;
 	}
 	/**
 	 * Iterate type arguments, and validate them according to corresponding variable bounds.
@@ -804,6 +826,32 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		return ReferenceBinding.binarySearch(fieldName, this.fields);
 	}
 
+	 /**
+	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#getComponent(char[], boolean)
+	 */
+	@Override
+	public RecordComponentBinding getComponent(char[] name, boolean needResolve) {
+		if (((this.extendedTagBits & ExtendedTagBits.AreRecordComponentsComplete) == 0)) {
+			for (RecordComponentBinding rcb : this.type.unResolvedComponents()) {
+				if (CharOperation.equals(name, rcb.name)) {
+					return rcb;
+				}
+			}
+			return null;
+		}
+		components(); // ensure record components have been initialized
+		return getRecordComponent(name);
+	}
+	@Override
+	public RecordComponentBinding getRecordComponent(char[] name) {
+		if (this.components != null) {
+			for (RecordComponentBinding rcb : this.components) {
+				if (CharOperation.equals(name, rcb.name))
+					return rcb;
+			}
+		}
+		return null;
+	}
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#getMethods(char[])
 	 */
@@ -1626,6 +1674,11 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	public FieldBinding[] unResolvedFields() {
 		return this.fields;
 	}
+	@Override
+	public RecordComponentBinding[] unResolvedComponents() {
+		return this.components;
+	}
+
 	@Override
 	protected MethodBinding[] getInterfaceAbstractContracts(Scope scope, boolean replaceWildcards, boolean filterDefaultMethods) throws InvalidInputException {
 		if (replaceWildcards) {

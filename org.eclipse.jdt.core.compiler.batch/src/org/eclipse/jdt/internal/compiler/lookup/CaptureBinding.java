@@ -287,6 +287,8 @@ public class CaptureBinding extends TypeVariableBinding {
 				for (int i = 0; i < mentionedTypeVariables.length; ++i) {
 					if (TypeBinding.equalsEquals(this, mentionedTypeVariables[i])) {
 						TypeBinding upperBoundForProjection = this.upperBoundForProjection();
+						if (upperBoundForProjection == null)
+							upperBoundForProjection = scope.getJavaLangObject();
 						return ((ReferenceBinding)upperBoundForProjection).upwardsProjection(scope, mentionedTypeVariables);
 					}
 				}

@@ -2016,8 +2016,8 @@ public class InferenceContext18 {
 		List<CaptureBinding> yTypeVariables = new ArrayList<>();
 		for (TypeBinding b : instantiations) {
 			// ...be any fresh type variables introduced by resolution. - how to get this condition?
-			if (b.isCapture())
-				yTypeVariables.add((CaptureBinding) b);
+			if (b instanceof CaptureBinding18)
+				yTypeVariables.add((CaptureBinding18) b);
 		}
 		return yTypeVariables.toArray(new TypeVariableBinding[0]);
 	}
