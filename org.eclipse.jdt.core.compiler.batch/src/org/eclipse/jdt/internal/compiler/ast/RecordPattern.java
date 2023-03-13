@@ -27,7 +27,6 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.RecordComponentBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
@@ -99,13 +98,15 @@ public class RecordPattern extends TypePattern {
 		this.expression = exp;
 		if (shouldInitiateRecordTypeInference()) {
 			LocalVariableBinding localVariableBinding = exp.localVariableBinding();
-			if (localVariableBinding.type.isParameterizedType()) {
-				ReferenceBinding binding = inferRecordParameterization(scope, (ParameterizedTypeBinding) localVariableBinding.type);
+			if (localVariableBinding.type instanceof ReferenceBinding) {
+				ReferenceBinding binding = inferRecordParameterization(scope, (ReferenceBinding) localVariableBinding.type);
 				if (binding == null || !binding.isValidBinding()) {
-//					scope.problemReporter().cannotInferElidedTypes(this);
-//					return this.resolvedType = null;
+					scope.problemReporter().cannotInferRecordPatternTypes(this);
+				    this.resolvedType = null;
+				    return;
 				}
 				this.resolvedType = binding;
+				setAccessorsPlusInfuseInferredType(scope);
 			} else {
 				// TODO: which scenarios? eg? if found add the code here from resolveType();
 			}
@@ -147,6 +148,10 @@ public class RecordPattern extends TypePattern {
 		if (shouldInitiateRecordTypeInference())
 			return this.resolvedType; // do the actual stuff in resolveWithExpression
 
+		setAccessorsPlusInfuseInferredType(scope);
+		return this.resolvedType;
+	}
+	private void setAccessorsPlusInfuseInferredType(BlockScope scope) {
 		this.isTotalTypeNode = isTotalForType(this.resolvedType);
 		RecordComponentBinding[] components = this.resolvedType.components();
 		if (components.length != this.patterns.length) {
@@ -172,9 +177,8 @@ public class RecordPattern extends TypePattern {
 				}
 			}
 		}
-		return this.resolvedType;
 	}
-	private ReferenceBinding inferRecordParameterization(BlockScope scope, ParameterizedTypeBinding proposedMatchingType) {
+	private ReferenceBinding inferRecordParameterization(BlockScope scope, ReferenceBinding proposedMatchingType) {
 		InferenceContext18 freshInferenceContext = new InferenceContext18(scope);
 		try {
 			return freshInferenceContext.inferRecordPatternParameterization(this, scope, proposedMatchingType);
@@ -253,7 +257,9 @@ public class RecordPattern extends TypePattern {
 				if (!this.isTotalTypeNode)
 					codeStream.checkcast(this.resolvedType);
 				generateArguments(p.accessorMethod, null, currentScope, codeStream);
-				codeStream.invoke(Opcodes.OPC_invokevirtual, p.accessorMethod, this.resolvedType, null);
+				codeStream.invoke(Opcodes.OPC_invokevirtual, p.accessorMethod.original(), this.resolvedType, null);
+				if (!p.accessorMethod.original().equals(p.accessorMethod))
+					codeStream.checkcast(p.accessorMethod.returnType);
 				if (!p.isTotalTypeNode) {
 					if (p instanceof TypePattern) {
 						((TypePattern)p).initializePatternVariables(currentScope, codeStream);

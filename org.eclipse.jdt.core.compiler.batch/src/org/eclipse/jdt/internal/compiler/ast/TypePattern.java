@@ -17,6 +17,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -26,12 +29,15 @@ import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.CaptureBinding18;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.RecordComponentBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBindingVisitor;
+import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
 public class TypePattern extends Pattern {
 
@@ -206,12 +212,12 @@ public class TypePattern extends Pattern {
 						RecordComponentBinding[] components = recType.components();
 						RecordComponentBinding rcb = components[this.index];
 						if (rcb != null) {
-//							ReferenceBinding ref = (ReferenceBinding) rcb.type.upwardsProjection(scope, null);
-							//recType.upwardsProjection(scope, new TypeBinding[] {rcb.type});
-							System.out.println(rcb);
-							this.local.type.resolvedType = rcb.type;
-//							this.local.binding = new LocalVariableBinding(this.local.name, rcb.type, this.local.modifiers, false /*isArgument*/);
-//							this.local.resolve(scope, isPatternVariable);
+							TypeVariableBinding[] mentionedTypeVariables = findCaptured18TypeVariables(rcb.type);
+							if  (mentionedTypeVariables != null && mentionedTypeVariables.length > 0) {
+								this.local.type.resolvedType = recType.upwardsProjection(scope, mentionedTypeVariables);
+							} else {
+								this.local.type.resolvedType = rcb.type;
+							}
 						}
 					}
 				}
@@ -226,6 +232,19 @@ public class TypePattern extends Pattern {
 		}
 
 		return this.resolvedType;
+	}
+	private TypeVariableBinding[] findCaptured18TypeVariables(TypeBinding typeBinding) {
+		final Set<TypeVariableBinding> mentioned = new HashSet<>();
+		TypeBindingVisitor.visit(new TypeBindingVisitor() {
+			@Override
+			public boolean visit(TypeVariableBinding typeVariable) {
+				if (typeVariable instanceof CaptureBinding18)
+					mentioned.add(typeVariable);
+				return super.visit(typeVariable);
+			}
+		}, typeBinding);
+		if (mentioned.isEmpty()) return null;
+		return mentioned.toArray(new TypeVariableBinding[mentioned.size()]);
 	}
 	protected void initSecretPatternVariable(BlockScope scope) {
 		LocalVariableBinding l =

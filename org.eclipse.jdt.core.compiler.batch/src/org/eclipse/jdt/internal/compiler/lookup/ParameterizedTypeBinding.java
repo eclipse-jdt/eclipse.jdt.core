@@ -1615,6 +1615,20 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 				buffer.append("NULL SUPERINTERFACES"); //$NON-NLS-1$
 			}
 
+			if (isRecord() && this.components != null) {
+				if (this.components != Binding.NO_COMPONENTS) {
+					buffer.append("\n\t("); //$NON-NLS-1$
+					for (int i = 0, length = this.components.length; i < length; i++) {
+						if (i  > 0)
+							buffer.append(", "); //$NON-NLS-1$
+						buffer.append((this.components[i] != null) ? this.components[i].toString() : "NULL TYPE"); //$NON-NLS-1$
+					}
+					if (this.components.length > 0)
+						buffer.append(")"); //$NON-NLS-1$
+				}
+			} else {
+				buffer.append("NULL COMPONENTS"); //$NON-NLS-1$
+			}
 			if (enclosingType() != null) {
 				buffer.append("\n\tenclosing type : "); //$NON-NLS-1$
 				buffer.append(enclosingType().debugName());

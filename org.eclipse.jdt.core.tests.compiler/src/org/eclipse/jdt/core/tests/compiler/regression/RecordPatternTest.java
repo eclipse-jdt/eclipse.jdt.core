@@ -36,6 +36,8 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
 //		TESTS_NAMES = new String[] { "testRecordPatternTypeInference_001" };
+//		TESTS_NAMES = new String[] { "testRecordPatternTypeInference_002" };
+//		TESTS_NAMES = new String[] { "testRecordPatternTypeInference_003" };
 //		TESTS_NAMES = new String[] { "test48" };
 //		TESTS_NAMES = new String[] { "test42" };
 	}
@@ -1818,7 +1820,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"true");
 	}
 	public void testRecordPatternTypeInference_001() {
-		runConformTest(new String[] {
+		runNegativeTest(new String[] {
 			"X.java",
 			"import java.util.function.UnaryOperator;\n" +
 			"\n" +
@@ -1833,8 +1835,63 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"         boolean shorter = out.length() < in.length();\n" +
 			"     }\n" +
 			" } \n" +
+			" Zork();\n"+
+			"}"
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 14)\n" +
+			"	Zork();\n" +
+			"	^^^^^^\n" +
+			"Return type for the method is missing\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 14)\n" +
+			"	Zork();\n" +
+			"	^^^^^^\n" +
+			"This method requires a body instead of a semicolon\n" +
+			"----------\n");
+	}
+	public void testRecordPatternTypeInference_002() {
+		runConformTest(new String[] {
+			"X.java",
+			"import java.util.function.UnaryOperator;\n" +
+			"\n" +
+			"record Mapper<T>(T in) implements UnaryOperator<T> {\n" +
+			"    public T apply(T arg) { return in.equals(arg) ? in : null; }\n" +
+			"}\n" +
+			"\n" +
+			"public class X {\n" +
+			" @SuppressWarnings(\"preview\")\n" +
+			" public static boolean test(UnaryOperator<? extends CharSequence> op) {\n" +
+			"     if (op instanceof Mapper(var in)) {\n" +
+			"         return in.length() > 0;\n" +
+			"     }\n" +
+			"   return false;\n" +
+			" }\n" +
+			" public static void main(String[] args) {\n" +
+			"   Mapper<CharSequence> op = new Mapper<>(new String(\"abcd\"));\n" +
+			"   System.out.println(test(op));\n" +
+			" }\n" +
 			"}"
 			},
 			"true");
+	}
+	public void testRecordPatternTypeInference_003() {
+		runConformTest(new String[] {
+			"X.java",
+				"  @SuppressWarnings(\"preview\")\n"
+				+ "public class X {\n"
+				+ "	public static void main(String[] args) {\n"
+				+ "		foo(new Box<>(\"B\"));\n"
+				+ "	}\n"
+				+ "	static void foo(Box b) {\n"
+				+ "		if (b instanceof Box(var t)) {\n"
+				+ "			System.out.println(\"I'm a box of \" + t.getClass().getName());\n"
+				+ "		}\n"
+				+ "	}\n"
+				+ "	record Box<T> (T t) {\n"
+				+ "	}\n"
+				+ "}"
+			},
+				"I\'m a box of java.lang.String");
 	}
 }

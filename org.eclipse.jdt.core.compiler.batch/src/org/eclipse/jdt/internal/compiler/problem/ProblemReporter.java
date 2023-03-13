@@ -156,6 +156,7 @@ import org.eclipse.jdt.internal.compiler.ast.QualifiedSuperReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.Receiver;
 import org.eclipse.jdt.internal.compiler.ast.RecordComponent;
+import org.eclipse.jdt.internal.compiler.ast.RecordPattern;
 import org.eclipse.jdt.internal.compiler.ast.Reference;
 import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
 import org.eclipse.jdt.internal.compiler.ast.ReturnStatement;
@@ -12420,5 +12421,14 @@ public void incompatiblePatternType(ASTNode element, TypeBinding type, TypeBindi
 			new String[] {new String(type.shortReadableName()), new String(expected.readableName())},
 			element.sourceStart,
 			element.sourceEnd);
+}
+public void cannotInferRecordPatternTypes(RecordPattern pattern) {
+	String arguments [] = new String [] { pattern.toString() };
+	this.handle(
+			IProblem.CannotInferRecordPatternTypes,
+			arguments,
+			arguments,
+			pattern.sourceStart,
+			pattern.sourceEnd);
 }
 }
