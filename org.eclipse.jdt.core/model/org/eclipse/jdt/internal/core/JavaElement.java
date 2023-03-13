@@ -97,6 +97,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	public static final char JEM_ANNOTATION = '}';
 	public static final char JEM_LAMBDA_EXPRESSION = ')';
 	public static final char JEM_LAMBDA_METHOD = '&';
+	public static final char JEM_METHOD_REFERENCE_METHOD = ':';
 	public static final char JEM_STRING = '"';
 	public static final char JEM_MODULE = '`';
 

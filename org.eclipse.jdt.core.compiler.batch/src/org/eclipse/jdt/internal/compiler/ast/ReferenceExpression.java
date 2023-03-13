@@ -49,6 +49,8 @@ package org.eclipse.jdt.internal.compiler.ast;
 import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.INVOCATION_CONTEXT;
 
 import java.util.HashMap;
+
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -78,6 +80,7 @@ import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
 import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
@@ -97,7 +100,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 
-public class ReferenceExpression extends FunctionalExpression implements IPolyExpression, InvocationSite {
+public class ReferenceExpression extends FunctionalExpression implements IPolyExpression, InvocationSite, ReferenceContext {
 	// secret variable name
 	private static final String SecretReceiverVariableName = " rec_"; //$NON-NLS-1$
 	private static final char[] ImplicitArgName = " arg".toCharArray(); //$NON-NLS-1$
@@ -125,6 +128,10 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 	private HashMap<TypeBinding, ReferenceExpression> copiesPerTargetType;
 	public char[] text; // source representation of the expression.
 	private HashMap<ParameterizedGenericMethodBinding, InferenceContext18> inferenceContexts;
+
+	public MethodScope scope;
+
+	private ReferenceBinding classType;
 
 	// the scanner used when creating this expression, may be a RecoveryScanner (with proper RecoveryScannerData),
 	// need to keep it so copy() can parse in the same mode (normal/recovery):
@@ -562,6 +569,10 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 
 	@Override
 	public TypeBinding resolveType(BlockScope scope) {
+
+		MethodScope methodScope = scope.methodScope();
+		this.scope = new MethodScope(scope, this, methodScope.isStatic, methodScope.lastVisibleFieldID);
+		this.scope.isConstructorCall = methodScope.isConstructorCall;
 
 		final CompilerOptions compilerOptions = scope.compilerOptions();
 		TypeBinding lhsType;
@@ -1312,5 +1323,92 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 
 	public boolean isArrayConstructorReference() {
 		return isConstructorReference() && this.lhs.resolvedType != null && this.lhs.resolvedType.isArrayType();
+	}
+
+	public ReferenceBinding getTypeBinding() {
+
+		if (this.classType != null || this.resolvedType == null)
+			return null;
+
+		class MethodReferenceTypeBinding extends ReferenceBinding {
+			@Override
+			public MethodBinding[] methods() {
+				return new MethodBinding [] { getMethodBinding() };
+			}
+			@Override
+			public char[] sourceName() {
+				return TypeConstants.METHOD_REFERENCE_TYPE;
+			}
+			@Override
+			public ReferenceBinding superclass() {
+				return ReferenceExpression.this.enclosingScope.getJavaLangObject();
+			}
+			@Override
+			public ReferenceBinding[] superInterfaces() {
+				return new ReferenceBinding[] { (ReferenceBinding) ReferenceExpression.this.resolvedType };
+			}
+			@Override
+			public char[] computeUniqueKey() {
+				return ReferenceExpression.this.descriptor.declaringClass.computeUniqueKey();
+			}
+			@Override
+			public String toString() {
+				StringBuilder output = new StringBuilder();
+				output.append(TypeConstants.METHOD_REFERENCE_TYPE);
+				output.append(" implements "); //$NON-NLS-1$
+				output.append(ReferenceExpression.this.descriptor.declaringClass.sourceName());
+				output.append('.');
+				output.append(ReferenceExpression.this.descriptor.toString());
+				return output.toString();
+			}
+		}
+		return this.classType = new MethodReferenceTypeBinding();
+	}
+
+	@Override
+	public void abort(int abortLevel, CategorizedProblem problem) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public CompilationResult compilationResult() {
+		return this.compilationResult;
+	}
+
+	@Override
+	public CompilationUnitDeclaration getCompilationUnitDeclaration() {
+		return this.enclosingScope == null ? null : this.enclosingScope.compilationUnitScope().referenceContext;
+	}
+
+	@Override
+	public boolean hasErrors() {
+		return this.ignoreFurtherInvestigation;
+	}
+
+	@Override
+	public void tagAsHavingErrors() {
+		this.ignoreFurtherInvestigation = true;
+		Scope parent = this.enclosingScope.parent;
+		while (parent != null) {
+			switch(parent.kind) {
+				case Scope.CLASS_SCOPE:
+				case Scope.METHOD_SCOPE:
+					ReferenceContext parentAST = parent.referenceContext();
+					if (parentAST != this) {
+						parentAST.tagAsHavingErrors();
+						return;
+					}
+					//$FALL-THROUGH$
+				default:
+					parent = parent.parent;
+					break;
+			}
+		}
+	}
+
+	@Override
+	public void tagAsHavingIgnoredMandatoryErrors(int problemId) {
+		//
 	}
 }
