@@ -99,7 +99,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		initsWhenTrue.markAsDefinitelyNonNull(this.elementVariable.binding);
 	}
 	if (this.pattern != null) {
-		this.pattern.analyseCode(currentScope, flowContext, (initsWhenTrue == null) ? flowInfo : initsWhenTrue);
+		FlowInfo patternFlow = this.pattern.analyseCode(currentScope, flowContext, (initsWhenTrue == null) ? flowInfo : initsWhenTrue);
+		initsWhenTrue = initsWhenTrue == null ? patternFlow : initsWhenTrue.addInitializationsFrom(patternFlow);
 	}
 	return (initsWhenTrue == null) ? flowInfo :
 			FlowInfo.conditional(initsWhenTrue, flowInfo.copy());

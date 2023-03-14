@@ -1897,7 +1897,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"I\'m a box of java.lang.String");
 	}
 	// TODO : STACK VERIFICATION ERROR
-	public void _testRecordPatternTypeInference_004() {
+	public void testRecordPatternTypeInference_004() {
 		runConformTest(new String[] {
 			"X.java",
 			"import java.util.ArrayList;\n" +
@@ -1915,7 +1915,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"        return false;\n" +
 			"    }  \n" +
 			"\n" +
-			"    public static void main() {\n" +
+			"    public static void main(String... args) {\n" +
 			"        List<R<? extends I>> list = new ArrayList<>();\n" +
 			"        list.add(new R<>(new RecB(2)));\n" +
 			"        System.out.println(test(list));\n" +

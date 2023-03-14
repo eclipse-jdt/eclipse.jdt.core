@@ -89,22 +89,23 @@ public class TypePattern extends Pattern {
 	@Override
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 		if (this.local != null) {
-			flowInfo.markAsDefinitelyAssigned(this.local.binding);
+			FlowInfo patternInfo = flowInfo.copy();
+			patternInfo.markAsDefinitelyAssigned(this.local.binding);
 			if (!this.isTotalTypeNode) {
 				// non-total type patterns create a nonnull local:
-				flowInfo.markAsDefinitelyNonNull(this.local.binding);
+				patternInfo.markAsDefinitelyNonNull(this.local.binding);
 			} else {
 				// total type patterns inherit the nullness of the value being switched over, unless ...
 				if (flowContext.associatedNode instanceof SwitchStatement) {
 					SwitchStatement swStmt = (SwitchStatement) flowContext.associatedNode;
 					int nullStatus = swStmt.containsNull
 							? FlowInfo.NON_NULL // ... null is handled in a separate case
-							: swStmt.expression.nullStatus(flowInfo, flowContext);
-					flowInfo.markNullStatus(this.local.binding, nullStatus);
+							: swStmt.expression.nullStatus(patternInfo, flowContext);
+					patternInfo.markNullStatus(this.local.binding, nullStatus);
 				}
 			}
+			return patternInfo;
 		}
-		super.analyseCode(currentScope, flowContext, flowInfo);
 		return flowInfo;
 	}
 	@Override

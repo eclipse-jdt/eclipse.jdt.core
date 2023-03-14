@@ -83,9 +83,9 @@ public class RecordPattern extends TypePattern {
 		this.thenInitStateIndex1 = currentScope.methodScope().recordInitializationStates(flowInfo);
 		flowInfo = super.analyseCode(currentScope, flowContext, flowInfo);
 		for (Pattern p : this.patterns) {
-			 p.analyseCode(currentScope, flowContext, flowInfo);
+			 flowInfo = p.analyseCode(currentScope, flowContext, flowInfo);
 		}
-		flowInfo = flowInfo.safeInitsWhenTrue();
+		flowInfo = flowInfo.safeInitsWhenTrue(); // TODO: is this really needed?
 		this.thenInitStateIndex2 = currentScope.methodScope().recordInitializationStates(flowInfo);
 		return flowInfo;
 	}
