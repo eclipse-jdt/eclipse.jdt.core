@@ -10379,4 +10379,19 @@ public void testBug508834_comment0() {
 				"}\n"
 			});
 	}
+	public void testBugGh837() {
+		if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // uses parameterized types
+		runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.Collections;\n" +
+				"import java.util.List;\n" +
+				"public class X {\n" +
+				"	public static <Z extends Comparable<? super Z>> String test(List<Z> in) {\n" +
+				"		List<String> x = (List<String>) in;\n" +
+				"		return x.get(0);\n" +
+				"	}\n" +
+				"}\n"
+			});
+	}
 }

@@ -1488,6 +1488,8 @@ private boolean isCompatibleWith0(TypeBinding otherType, /*@Nullable*/ Scope cap
 	// bound
 	if (isEquivalentTo(otherType))
 		return true;
+	if (kind() == Binding.WILDCARD_TYPE  && ((WildcardBinding) this).boundCheck(otherType))
+		return true;
 	switch (otherType.kind()) {
 		case Binding.WILDCARD_TYPE :
 		case Binding.INTERSECTION_TYPE:
