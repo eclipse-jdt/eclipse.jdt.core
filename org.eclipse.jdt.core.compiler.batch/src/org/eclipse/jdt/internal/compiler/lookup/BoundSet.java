@@ -1294,32 +1294,14 @@ class BoundSet {
 		}
 		return null;
 	}
-	public ParameterizedTypeBinding condition18_5_5_item_4(
+	public TypeBinding[] condition18_5_5_item_4(
 			ReferenceBinding rAlpha,
 			InferenceVariable[] alpha,
 			TypeBinding tPrime, InferenceContext18 ctx18) {
 		/* If T' is a parameterization of a generic class G, and there exists a supertype
 		 *  of R<α1, ..., αn> that is also a parameterization of G, let R' be that supertype.
 		 */
-		if (!tPrime.isParameterizedType()) return null;
-		TypeBinding g = tPrime.original();
-
-		if (!rAlpha.isParameterizedType()) return null;
-
-		// forget superclass - it will be java.lang.Record anyway
-		// however, adding this in case there could be a change in future.
-		ReferenceBinding superClass = rAlpha.superclass();
-		if (superClass != null && superClass.isParameterizedType()) {
-			if (TypeBinding.equalsEquals(g, superClass.original())) {
-				return (ParameterizedTypeBinding) superClass;
-			}
-		}
-		// rPrime - here is the actual possibility - finding in super interfaces.
-		for (ReferenceBinding sIntf : rAlpha.superInterfaces()) {
-			if (sIntf.isParameterizedType() && TypeBinding.equalsEquals(g, sIntf.original())) {
-				return (ParameterizedTypeBinding) sIntf;
-			}
-		}
-		return null;
+		return tPrime.isParameterizedType() ?
+				superTypesWithCommonGenericType(rAlpha, tPrime) : null;
 	}
 }

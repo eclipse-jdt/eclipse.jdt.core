@@ -38,6 +38,8 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 //		TESTS_NAMES = new String[] { "testRecordPatternTypeInference_001" };
 //		TESTS_NAMES = new String[] { "testRecordPatternTypeInference_002" };
 //		TESTS_NAMES = new String[] { "testRecordPatternTypeInference_003" };
+//		TESTS_NAMES = new String[] { "testRecordPatternTypeInference_004" };
+//		TESTS_NAMES = new String[] { "testRecordPatternTypeInference_005" };
 //		TESTS_NAMES = new String[] { "test48" };
 //		TESTS_NAMES = new String[] { "test42" };
 	}
@@ -1893,5 +1895,56 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				+ "}"
 			},
 				"I\'m a box of java.lang.String");
+	}
+	// TODO : STACK VERIFICATION ERROR
+	public void _testRecordPatternTypeInference_004() {
+		runConformTest(new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" +
+			"import java.util.List;\n" +
+			"\n" +
+			"interface I {int a();}\n" +
+			"record RecB(int a) implements I {}\n" +
+			"record R<T>(T a) {}\n" +
+			"\n" +
+			"public class X {\n" +
+			"\n" +
+			"    private static boolean test(List<R<? extends I>> list) {\n" +
+			"        if (list.get(0) instanceof R(var a))\n" +
+			"         return a.a() > 0;\n" +
+			"        return false;\n" +
+			"    }  \n" +
+			"\n" +
+			"    public static void main() {\n" +
+			"        List<R<? extends I>> list = new ArrayList<>();\n" +
+			"        list.add(new R<>(new RecB(2)));\n" +
+			"        System.out.println(test(list));\n" +
+			"    }\n" +
+			"}"
+			},
+			"true");
+	}
+	public void testRecordPatternTypeInference_005() {
+		runConformTest(new String[] {
+			"X.java",
+			"interface I {int a();}\n" +
+			"record RecB(int a) implements I {}\n" +
+			"record R<T>(T a) {}\n" +
+			"\n" +
+			"public class X {\n" +
+			"\n" +
+			"    private static boolean test(R<? extends I> op) {\n" +
+			"        if (op instanceof R(var a)) {\n" +
+			"         return a.a() > 0;\n" +
+			"        }\n" +
+			"        return false;\n" +
+			"    }  \n" +
+			"    public static void main(String[] args) {\n" +
+			"        R<? extends I> op = new R<>(new RecB(2));\n" +
+			"        System.out.println(test(op));\n" +
+			"    }\n" +
+			"}"
+			},
+			"true");
 	}
 }

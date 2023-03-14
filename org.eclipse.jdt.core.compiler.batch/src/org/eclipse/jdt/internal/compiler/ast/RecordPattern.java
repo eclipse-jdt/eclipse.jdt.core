@@ -98,8 +98,10 @@ public class RecordPattern extends TypePattern {
 		this.expression = exp;
 		if (shouldInitiateRecordTypeInference()) {
 			LocalVariableBinding localVariableBinding = exp.localVariableBinding();
-			if (localVariableBinding.type instanceof ReferenceBinding) {
-				ReferenceBinding binding = inferRecordParameterization(scope, (ReferenceBinding) localVariableBinding.type);
+			TypeBinding type1 = localVariableBinding != null && localVariableBinding.type != null ?
+					localVariableBinding.type : exp.resolvedType;
+			if (type1 instanceof ReferenceBinding) {
+				ReferenceBinding binding = inferRecordParameterization(scope, (ReferenceBinding) type1);
 				if (binding == null || !binding.isValidBinding()) {
 					scope.problemReporter().cannotInferRecordPatternTypes(this);
 				    this.resolvedType = null;
@@ -246,10 +248,10 @@ public class RecordPattern extends TypePattern {
 	@Override
 	protected void generatePatternVariable(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel) {
 		if (!this.isTotalTypeNode) {
-			codeStream.load(this.secretPatternVariable);
-			codeStream.instance_of(this.resolvedType);
-			BranchLabel target = falseLabel != null ? falseLabel : new BranchLabel(codeStream);
-			codeStream.ifeq(target);
+//			codeStream.load(this.secretPatternVariable);
+//			codeStream.instance_of(this.resolvedType);
+//			BranchLabel target = falseLabel != null ? falseLabel : new BranchLabel(codeStream);
+//			codeStream.ifeq(target);
 		}
 		for (Pattern p : this.patterns) {
 			if (p.accessorMethod != null) {

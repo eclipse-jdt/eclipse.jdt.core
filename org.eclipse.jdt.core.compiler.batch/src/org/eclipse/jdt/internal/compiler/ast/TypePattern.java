@@ -29,7 +29,6 @@ import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.CaptureBinding18;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.RecordComponentBinding;
@@ -212,7 +211,7 @@ public class TypePattern extends Pattern {
 						RecordComponentBinding[] components = recType.components();
 						RecordComponentBinding rcb = components[this.index];
 						if (rcb != null) {
-							TypeVariableBinding[] mentionedTypeVariables = findCaptured18TypeVariables(rcb.type);
+							TypeVariableBinding[] mentionedTypeVariables = findSyntheticTypeVariables(rcb.type);
 							if  (mentionedTypeVariables != null && mentionedTypeVariables.length > 0) {
 								this.local.type.resolvedType = recType.upwardsProjection(scope, mentionedTypeVariables);
 							} else {
@@ -233,12 +232,13 @@ public class TypePattern extends Pattern {
 
 		return this.resolvedType;
 	}
-	private TypeVariableBinding[] findCaptured18TypeVariables(TypeBinding typeBinding) {
+	// Synthetics? Ref 4.10.5 also watch out for spec changes in rec pattern..
+	private TypeVariableBinding[] findSyntheticTypeVariables(TypeBinding typeBinding) {
 		final Set<TypeVariableBinding> mentioned = new HashSet<>();
 		TypeBindingVisitor.visit(new TypeBindingVisitor() {
 			@Override
 			public boolean visit(TypeVariableBinding typeVariable) {
-				if (typeVariable instanceof CaptureBinding18)
+				if (typeVariable.isCapture())
 					mentioned.add(typeVariable);
 				return super.visit(typeVariable);
 			}
