@@ -18,8 +18,7 @@ import junit.framework.Test;
 
 public class CompletionTests11 extends AbstractJavaModelCompletionTests {
 	static {
-		// TESTS_NAMES = new String[] {
-		// "test_members_matching_paramater_name_on_field" };
+		// TESTS_NAMES = new String[] {};
 	}
 
 public CompletionTests11(String name) {

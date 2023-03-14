@@ -9398,7 +9398,7 @@ public final class CompletionEngine
 		char[][] boostMatches = new char[0][];
 		char[] parameterName = findParameterNameAtLocationFromAssistParent(new ObjectVector());
 		if(parameterName.length > 0) {
-			char[] nameForMethods = firstUpper(parameterName);
+			char[] nameForMethods = capitalize(parameterName);
 			boostMatches = new char[][] { parameterName, CharOperation.concat(GET, nameForMethods),
 					CharOperation.concat(IS, nameForMethods) };
 		}
@@ -9744,7 +9744,7 @@ public final class CompletionEngine
 		methodsFound.addAll(newMethodsFound);
 	}
 
-	private char[] firstUpper(char[] name) {
+	private char[] capitalize(char[] name) {
 		char[] result = new char[name.length];
 		for (int i = 0; i < name.length; i++) {
 			if (i == 0) {
