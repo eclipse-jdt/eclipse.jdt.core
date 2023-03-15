@@ -40,6 +40,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 //		TESTS_NAMES = new String[] { "testRecordPatternTypeInference_003" };
 //		TESTS_NAMES = new String[] { "testRecordPatternTypeInference_004" };
 //		TESTS_NAMES = new String[] { "testRecordPatternTypeInference_005" };
+//		TESTS_NAMES = new String[] { "testRecordPatternTypeInference_006" };
 //		TESTS_NAMES = new String[] { "test48" };
 //		TESTS_NAMES = new String[] { "test42" };
 	}
@@ -1943,6 +1944,29 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"        R<? extends I> op = new R<>(new RecB(2));\n" +
 			"        System.out.println(test(op));\n" +
 			"    }\n" +
+			"}"
+			},
+			"true");
+	}
+	public void testRecordPatternTypeInference_006() {
+		runConformTest(new String[] {
+			"X.java",
+			"public class X {\n" +
+			" \n" +
+			"     public static <P> boolean test(P p) {\n" +
+			"         if (p instanceof R(var a)) {\n" +
+			"              return a.len() > 0;\n" +
+			"         }\n" +
+			"         return false;\n" +
+			"     }\n" +
+			" \n" +
+			"     public static void main(String argv[]) {\n" +
+			"         System.out.println(test(new R<>(new Y())));\n" +
+			"     }\n" +
+			"}\n" +
+			"record R<T extends Y>(T a) {}\n" +
+			"class Y {\n" +
+			" public int len() { return 10;}\n" +
 			"}"
 			},
 			"true");

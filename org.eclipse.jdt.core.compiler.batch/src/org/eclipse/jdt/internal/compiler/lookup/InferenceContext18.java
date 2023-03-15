@@ -1794,7 +1794,7 @@ public class InferenceContext18 {
 		if (!(typeBinding instanceof ReferenceBinding))
 			return null; // should not happen.
 		// 1.If T is not downcast convertible (5.5) to the raw type R, inference fails.
-		if (!typeBinding.isCompatibleWith(candidateT))
+		if (!isCompatibleWith(candidateT, typeBinding))
 			return null;
 		//2. Otherwise, where P1, ..., Pn (n ≥ 1) are the type parameters of R,...
 		TypeVariableBinding[] typeVariables = typeBinding.typeVariables();// type para
@@ -1805,7 +1805,7 @@ public class InferenceContext18 {
 		InferenceVariable[] alphas = createInitialBoundSet(typeVariables); // creates initial bound set B
 
 		// 3. A type T' is derived from T, as follows:
-		TypeBinding tPrime = deriveTPrime(candidateT, alphas);
+		TypeBinding tPrime = deriveTPrime(candidateT, alphas, typeBinding);
 		if (tPrime == null)
 			return null;
 
@@ -1836,6 +1836,27 @@ public class InferenceContext18 {
 		//6. => 18_5_5_item_6
 		// TODO: implementation
 		return getRecordPatternTypeFromUpwardsProjection(typeBinding, alphas, solution);
+	}
+
+	private boolean isCompatibleWith(TypeBinding candidateT, TypeBinding typeBinding) {
+		if (candidateT.isTypeVariable() || candidateT.isIntersectionType18()) {
+			// 18.5.5_item_3_bullet_3
+			/* If T is a type variable or an intersection type, then for each upper bound of the type
+			 * variable or element of the intersection type, this step and step 4 are repeated
+			 * recursively. All bounds produced in steps 3 and 4 are incorporated into a single bound set.*/
+
+			TypeBinding[] allBoundCandidates = candidateT.isTypeVariable() ?
+					((TypeVariableBinding) candidateT).allUpperBounds() :
+						((IntersectionTypeBinding18) candidateT).getIntersectingTypes();
+			if (allBoundCandidates != null) {
+				for (TypeBinding t : allBoundCandidates) {
+					if (typeBinding.isCompatibleWith(t))
+						return true;
+				}
+			}
+			return false;
+		}
+		return typeBinding.isCompatibleWith(candidateT);
 	}
 
 	/* 6. => 18_5_5_item_6
@@ -1880,6 +1901,8 @@ public class InferenceContext18 {
 	 * If T' is a parameterization of a generic class G, and there exists a supertype of
 	 * R<α1, ..., αn> that is also a parameterization of G, let R' be that supertype */
 	private boolean findRPrimeAndResultingBounds(TypeBinding typeBinding, InferenceVariable[] alphas, TypeBinding tPrime) {
+		if (tPrime == null)
+			return false;
 		ReferenceBinding rAlpha = this.environment.createParameterizedType(
 				(ReferenceBinding) typeBinding.original(), alphas, typeBinding.enclosingType(), typeBinding.getTypeAnnotations());
 		TypeBinding[] rPrimes = this.currentBounds.condition18_5_5_item_4(rAlpha, alphas, tPrime, this);
@@ -1898,7 +1921,7 @@ public class InferenceContext18 {
 		} /* else part: Otherwise, B2 is the same as B1.*/
 		return true;
 	}
-	private TypeBinding deriveTPrime(TypeBinding candidateT, InferenceVariable[] alphas) {
+	private TypeBinding deriveTPrime(TypeBinding candidateT, InferenceVariable[] alphas, TypeBinding typeBinding) {
 		ParameterizedTypeBinding parameterizedType = null;
 		TypeBinding tPrime = null;
 		if (candidateT.isParameterizedType()) {
@@ -1919,8 +1942,6 @@ public class InferenceContext18 {
 					parameterizedType.genericType(), typeVariables,
 					parameterizedType.enclosingType(), parameterizedType.getTypeAnnotations());
 			createAdditionalBoundswithU((ParameterizedTypeBinding) tPrime, notJust18_5_5_item_3_bullet_1Betas, typeVariables);
-		} else if (candidateT.isClass() || candidateT.isInterface()) {
-			tPrime = candidateT; //18.5.5_item_3_bullet_2
 		} else if (candidateT.isTypeVariable() || candidateT.isIntersectionType18()) {
 			// 18.5.5_item_3_bullet_3
 			/* If T is a type variable or an intersection type, then for each upper bound of the type
@@ -1933,11 +1954,14 @@ public class InferenceContext18 {
 
 			if (allBoundCandidates != null) {
 				for (TypeBinding t : allBoundCandidates) {
-					TypeBinding ttPrime = deriveTPrime(candidateT, alphas);
-					if (!findRPrimeAndResultingBounds(t, alphas, ttPrime))
+					TypeBinding ttPrime = deriveTPrime(t, alphas, typeBinding);
+					if (!findRPrimeAndResultingBounds(typeBinding, alphas, ttPrime))
 						return null;
 				}
 			}
+			return tPrime = candidateT; //18.5.5_item_3_bullet_2
+		} else if (candidateT.isClass() || candidateT.isInterface()) {
+			tPrime = candidateT; //18.5.5_item_3_bullet_2
 		}
 		return tPrime;
 	}
