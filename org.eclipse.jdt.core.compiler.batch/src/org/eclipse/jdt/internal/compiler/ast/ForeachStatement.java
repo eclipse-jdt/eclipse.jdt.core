@@ -107,11 +107,8 @@ public class ForeachStatement extends Statement {
 		this.pattern = recordPattern;
 		this.elementVariable.type = this.pattern.type;
 	}
-
 	public void transformAction() {
-		if (this.pattern == null) {
-			this.action = null;
-		} else if (this.action != null) {
+		if (this.pattern != null && this.action != null) {
 			SwitchStatement switchStatement = new SwitchStatement();
 			switchStatement.containsPatterns = true;
 			switchStatement.containsNull = true;
@@ -134,7 +131,6 @@ public class ForeachStatement extends Statement {
 			this.action = switchStatement;
 		}
 	}
-
 	@Override
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 		// initialize break and continue labels
@@ -466,9 +462,6 @@ public class ForeachStatement extends Statement {
 	public StringBuffer printStatement(int indent, StringBuffer output) {
 
 		printIndent(indent, output).append("for ("); //$NON-NLS-1$
-		if (this.pattern != null) {
-			this.pattern.printExpression(0, output);
-		}
 		this.elementVariable.printAsExpression(0, output);
 		output.append(" : ");//$NON-NLS-1$
 		if (this.collection != null) {
@@ -531,13 +524,6 @@ public class ForeachStatement extends Statement {
 		// use the scope that will hold the init declarations
 		this.scope = new BlockScope(upperScope);
 		this.scope.blockStatement = this;
-		LocalVariableBinding[] patternVariablesInTrueScope = null;
-
-		if (this.pattern != null) {
-			this.pattern.collectPatternVariablesToScope(null, this.scope);
-			patternVariablesInTrueScope = this.pattern.getPatternVariablesWhenTrue();
-			this.pattern.resolve(this.scope);
-		}
 		this.elementVariable.resolve(this.scope); // collection expression can see itemVariable
 		TypeBinding elementType = this.elementVariable.type.resolvedType;
 		TypeBinding collectionType = this.collection == null ? null : this.collection.resolveType(upperScope);
@@ -727,7 +713,7 @@ public class ForeachStatement extends Statement {
 			}
 		}
 		if (this.action != null) {
-			this.action.resolveWithPatternVariablesInScope(patternVariablesInTrueScope, this.scope);
+			this.action.resolve(this.scope);
 		}
 	}
 
