@@ -76,7 +76,7 @@ public class CompactConstructorDeclaration extends ConstructorDeclaration {
 			assert flowInfo.isDefinitelyAssigned(field);
 			fieldAssignments.add(assignment);
 		}
-		if (fieldAssignments.isEmpty())
+		if (fieldAssignments.isEmpty() || (flowInfo.tagBits & FlowInfo.UNREACHABLE_OR_DEAD) != 0)
 			return;
 
 		Statement[] fa = fieldAssignments.toArray(new Statement[0]);

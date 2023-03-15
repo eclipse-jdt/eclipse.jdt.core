@@ -9213,4 +9213,58 @@ public void testIssue365_001() throws Exception {
 	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "A.class", ClassFileBytesDisassembler.SYSTEM);
 
 }
+
+/**
+ * Test that the following code doesn't result in generating byte code after the throw statement:
+ * <pre>
+ * record X(String s) {
+ *    X {
+ *        throw new RuntimeException();
+ *    }
+ * }
+ * </pre>
+ */
+public void testRecordConstructorWithExceptionGh487() throws Exception {
+	getPossibleComplianceLevels();
+	runConformTest(
+			// test directory preparation
+			true /* should flush output directory */,
+			new String[] { /* test files */
+					"X.java",
+					"""
+					public record X(String s) {
+					    public X {
+					        throw new RuntimeException();
+					    }
+					    public static void main(String[] args) throws Exception {
+					        new X("");
+					    }
+					}
+					""",
+			},
+			// compiler results
+			"" /* expected compiler log */,
+			// runtime results
+			"" /* expected output string */,
+			"""
+			java.lang.RuntimeException
+				at X.<init>(X.java:3)
+				at X.main(X.java:6)
+			""" /* expected error string */,
+			// javac options
+			JavacTestOptions.forRelease("16"));
+	String expectedOutput = // constructor
+			"""
+			  // Method descriptor #8 (Ljava/lang/String;)V
+			  // Stack: 2, Locals: 2
+			  public X(java.lang.String s);
+			     0  aload_0 [this]
+			     1  invokespecial java.lang.Record() [10]
+			     4  new java.lang.RuntimeException [13]
+			     7  dup
+			     8  invokespecial java.lang.RuntimeException() [15]
+			    11  athrow
+			""";
+	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+}
 }
