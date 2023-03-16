@@ -410,7 +410,7 @@ public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletion
 			CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 			requestor.allowAllRequiredProposals();
 			String str = this.workingCopies[0].getSource();
-			String completeBehind = "/*here*/lr.c";
+			String completeBehind = "/*here*/lr.co";
 			int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
 			this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 			assertResults("color[FIELD_REF]{color, LColoredPoint;, LColor;, color, null, 60}\n"
