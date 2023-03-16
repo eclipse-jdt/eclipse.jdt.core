@@ -939,8 +939,11 @@ public class SwitchStatement extends Expression {
 					// with the pattern variables in scope.
 					if (statement instanceof CaseStatement) {
 						if (statement.containsPatternVariable()) {
+							CaseStatement caseStatement = (CaseStatement) statement;
 							((CaseStatement) statement).collectPatternVariablesToScope(null, this.scope);
 							patternVariables = statement.getPatternVariablesWhenTrue();
+							Pattern pattern = (Pattern)caseStatement.constantExpressions[caseStatement.patternIndex];
+							pattern.resolveWithExpression(this.scope, this.expression);
 						} else {
 							patternVariables = null; // Probably redundant?
 						}

@@ -41,6 +41,8 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 //		TESTS_NAMES = new String[] { "testRecordPatternTypeInference_004" };
 //		TESTS_NAMES = new String[] { "testRecordPatternTypeInference_005" };
 //		TESTS_NAMES = new String[] { "testRecordPatternTypeInference_006" };
+//		TESTS_NAMES = new String[] { "testRecordPatternTypeInference_007" };
+//		TESTS_NAMES = new String[] { "testRecordPatternTypeInference_008" };
 //		TESTS_NAMES = new String[] { "test48" };
 //		TESTS_NAMES = new String[] { "test42" };
 	}
@@ -1986,6 +1988,29 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"             return a instanceof I;\n" +
 			"        }\n" +
 			"        return false; \n" +
+			"    }\n" +
+			"\n" +
+			"    public static void main(String argv[]) {\n" +
+			"       System.out.println(test(new R<>((I) () -> 0)));\n" +
+			"    }\n" +
+			"}"
+			},
+			"true");
+	}
+	public void testRecordPatternTypeInference_008() {
+		runConformTest(new String[] {
+			"X.java",
+			"interface I {int a();}\n" +
+			"\n" +
+			"record R<T>(T a) {}\n" +
+			"\n" +
+			"public class X {\n" +
+			"\n" +
+			"    public static boolean test(R<I> p) {\n" +
+			"        return switch (p) {\n" +
+			"            case R(var a) -> a instanceof I;\n" +
+			"            default ->  false;\n" +
+			"        };\n" +
 			"    }\n" +
 			"\n" +
 			"    public static void main(String argv[]) {\n" +

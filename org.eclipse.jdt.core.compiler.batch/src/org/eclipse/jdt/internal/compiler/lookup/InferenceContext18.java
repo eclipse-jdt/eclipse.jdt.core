@@ -1797,7 +1797,7 @@ public class InferenceContext18 {
 		if (!isDownwardCompatible(candidateT, typeBinding))
 			return null;
 		//2. Otherwise, where P1, ..., Pn (n ≥ 1) are the type parameters of R,...
-		TypeVariableBinding[] typeVariables = typeBinding.typeVariables();// type para
+		TypeVariableBinding[] typeVariables = typeBinding.original().typeVariables();// type para
 		if (typeVariables == null)
 			return null;
 		// An initial bound set, B0, is generated from the declared bounds of P1, ..., Pn,
@@ -1909,6 +1909,7 @@ public class InferenceContext18 {
 			 * TODO: refactor the method below into two? - instead of creating array - here reusing. */
 			for (TypeBinding rPrime : rPrimes) {
 				if (!rPrime.isParameterizedType()) continue;
+//				if (rPrime.typeArguments().length == 0) continue; // TODO: should we?
 				if (!reduceWithEqualityConstraints(new TypeBinding[] {tPrime}, new TypeBinding[] {rPrime})) {
 					 /* If B2 contains the bound false, inference fails. */
 					return false;
