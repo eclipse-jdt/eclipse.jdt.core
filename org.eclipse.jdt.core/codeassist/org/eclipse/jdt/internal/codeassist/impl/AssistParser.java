@@ -395,11 +395,12 @@ public RecoveredElement buildInitialRecoveryState(){
 						for (LocalDeclaration local : locals) {
 							element.add(local, 0);
 						}
-						this.lastCheckPoint = stmt.sourceEnd + 1;
 					}
+					element.add(stmt, 0);
+					this.lastCheckPoint = stmt.sourceEnd + 1;
 				}
-				continue;
 			}
+			continue;
 		}
 		if (node instanceof ImportReference){
 			ImportReference importRef = (ImportReference) node;
