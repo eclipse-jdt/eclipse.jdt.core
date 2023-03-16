@@ -1971,4 +1971,28 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			},
 			"true");
 	}
+	public void testRecordPatternTypeInference_007() {
+		runConformTest(new String[] {
+			"X.java",
+			"interface I {\n" +
+			"   int a();\n" +
+			"}\n" +
+			"\n" +
+			"record R<T>(T a) {}\n" +
+			"public class X {\n" +
+			"\n" +
+			"    public static boolean test(R<?> p) {\n" +
+			"        if (p instanceof R(var a)) {\n" +
+			"             return a instanceof I;\n" +
+			"        }\n" +
+			"        return false; \n" +
+			"    }\n" +
+			"\n" +
+			"    public static void main(String argv[]) {\n" +
+			"       System.out.println(test(new R<>((I) () -> 0)));\n" +
+			"    }\n" +
+			"}"
+			},
+			"true");
+	}
 }

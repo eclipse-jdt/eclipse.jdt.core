@@ -1794,7 +1794,7 @@ public class InferenceContext18 {
 		if (!(typeBinding instanceof ReferenceBinding))
 			return null; // should not happen.
 		// 1.If T is not downcast convertible (5.5) to the raw type R, inference fails.
-		if (!isCompatibleWith(candidateT, typeBinding))
+		if (!isDownwardCompatible(candidateT, typeBinding))
 			return null;
 		//2. Otherwise, where P1, ..., Pn (n ≥ 1) are the type parameters of R,...
 		TypeVariableBinding[] typeVariables = typeBinding.typeVariables();// type para
@@ -1838,12 +1838,8 @@ public class InferenceContext18 {
 		return getRecordPatternTypeFromUpwardsProjection(typeBinding, alphas, solution);
 	}
 
-	private boolean isCompatibleWith(TypeBinding candidateT, TypeBinding typeBinding) {
+	private boolean isDownwardCompatible(TypeBinding candidateT, TypeBinding typeBinding) {
 		if (candidateT.isTypeVariable() || candidateT.isIntersectionType18()) {
-			// 18.5.5_item_3_bullet_3
-			/* If T is a type variable or an intersection type, then for each upper bound of the type
-			 * variable or element of the intersection type, this step and step 4 are repeated
-			 * recursively. All bounds produced in steps 3 and 4 are incorporated into a single bound set.*/
 
 			TypeBinding[] allBoundCandidates = candidateT.isTypeVariable() ?
 					((TypeVariableBinding) candidateT).allUpperBounds() :
@@ -2020,9 +2016,9 @@ public class InferenceContext18 {
 					case Wildcard.SUPER :
 						bound = new TypeBound(beta[i], wildcard.bound, ReductionResult.SUPERTYPE);
 						break;
-//					case Wildcard.UNBOUND :
-//						bound = new TypeBound(beta[i], this.object, ReductionResult.SUBTYPE);
-//						break;
+					case Wildcard.UNBOUND :
+						bound = new TypeBound(beta[i], this.object, ReductionResult.SUBTYPE);
+						break;
 					default:
 						continue;
 				}
