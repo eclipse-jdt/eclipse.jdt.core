@@ -2020,4 +2020,39 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			},
 			"true");
 	}
+	public void testRecordPatternTypeInference_009() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"interface I {\n" +
+				"   int a();\n" +
+				"}\n" +
+				"\n" +
+				"record R<T>(T a) {}\n" +
+				"\n" +
+				"public class X {\n" +
+				"\n" +
+				"    private static boolean test(R<? extends I> p) {\n" +
+				"        if (p instanceof R(String a)) {\n" +
+				"             return a instanceof String;\n" +
+				"        }\n" +
+				"        return true;\n" +
+				"    }\n" +
+				"\n" +
+				"    public static void main(String argv[]) {\n" +
+				"        System.out.println(test(new R<>((I) () -> 0))); \n" +
+				"    }\n" +
+				"}"
+				},
+				"----------\n" +
+				"1. WARNING in X.java (at line 10)\n" +
+				"	if (p instanceof R(String a)) {\n" +
+				"	                 ^^^^^^^^^^^\n" +
+				"You are using a preview language feature that may or may not be supported in a future release\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 10)\n" +
+				"	if (p instanceof R(String a)) {\n" +
+				"	                   ^^^^^^^^\n" +
+				"Pattern of type ? extends I is not compatible with type java.lang.String\n" +
+				"----------\n");
+	}
 }
