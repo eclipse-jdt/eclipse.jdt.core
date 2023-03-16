@@ -7,6 +7,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -22,7 +26,7 @@ public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletion
 
 
 	static {
-//		 TESTS_NAMES = new String[]{"test006"};
+//		 TESTS_NAMES = new String[]{"test012"};
 	}
 
 	public CompletionTestsForRecordPattern(String name) {
@@ -463,27 +467,103 @@ public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletion
 					"/Completion/src/X.java",
 					"@SuppressWarnings(\"preview\")"
 					+ "public class X {\n"
-					+ " \n"
 					+ "    public static boolean foo(Object o) {\n"
 					+ "        boolean ret = false;\n"
 					+ "        R[] recArray = {new R(0)};\n"
 					+ "        for (R(int x_1) : recArray) {\n"
-					+ "        	System.out.println(x_);  \n"
+					+ "            System.out.println(x_);  \n"
 					+ "            ret = true;\n"
 					+ "        }\n"
-					+ "        return ret;  \n"
+					+ "        return ret;\n"
 					+ "    }\n"
 					+ "}\n"
-					+ "record R(int i) {} "
+					+ "record R(int i) {}"
 					);
 			CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 			requestor.allowAllRequiredProposals();
 			String str = this.workingCopies[0].getSource();
 			String completeBehind = "x_";
-			int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
+			int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 			this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-			assertResults("x_[VARIABLE_DECLARATION]{x_, null, I, x_, null, 77}",
+			assertResults("x_1[LOCAL_VARIABLE_REF]{x_1, null, I, x_1, null, 52}",
 					requestor.getResults());
-
+		}
+		public void test013() throws JavaModelException {
+			this.workingCopies = new ICompilationUnit[1];
+			this.workingCopies[0] = getWorkingCopy(
+					"/Completion/src/X.java",
+					"@SuppressWarnings(\"preview\")\n"
+					+ "public class X {\n"
+					+ "    public static void foo(ColoredRectangle[] array) {\n"
+					+ "       for(ColoredRectangle(int x_1, int y_1, Color col) : array) {\n"
+					+ "    	  int per = 2 * x_ + 2 * y_1;\n"
+					+ "       }\n"
+					+ "    }\n"
+					+ "}\n"
+					+ "record ColoredRectangle(int length, int width, Color color) {}\n"
+					+ "enum Color {\n"
+					+ "	RED, GREEN, BLUE;\n"
+					+ "}"
+					);
+			CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+			requestor.allowAllRequiredProposals();
+			String str = this.workingCopies[0].getSource();
+			String completeBehind = "x_";
+			int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+			this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+			assertResults("x_1[LOCAL_VARIABLE_REF]{x_1, null, I, x_1, null, 82}",
+					requestor.getResults());
+		}
+		public void test014() throws JavaModelException {
+			this.workingCopies = new ICompilationUnit[1];
+			this.workingCopies[0] = getWorkingCopy(
+					"/Completion/src/X.java",
+					"@SuppressWarnings(\"preview\")\n"
+					+ "public class X {\n"
+					+ "    public static void foo(ColoredRectangle[] array) {\n"
+					+ "       for(ColoredRectangle(int x_1, int y_1, Color col) : array) {\n"
+					+ "    	  int per = 2 * x_1 + 2 * y_;\n"
+					+ "       }\n"
+					+ "    }\n"
+					+ "}\n"
+					+ "record ColoredRectangle(int length, int width, Color color) {}\n"
+					+ "enum Color {\n"
+					+ "	RED, GREEN, BLUE;\n"
+					+ "}"
+					);
+			CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+			requestor.allowAllRequiredProposals();
+			String str = this.workingCopies[0].getSource();
+			String completeBehind = "y_";
+			int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+			this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+			assertResults("y_1[LOCAL_VARIABLE_REF]{y_1, null, I, y_1, null, 82}",
+					requestor.getResults());
+		}
+		public void test015() throws JavaModelException {
+			this.workingCopies = new ICompilationUnit[1];
+			this.workingCopies[0] = getWorkingCopy(
+					"/Completion/src/X.java",
+					"@SuppressWarnings(\"preview\")\n"
+					+ "public class X {\n"
+					+ "    public static void foo(ColoredRectangle[] ar_ray) {\n"
+					+ "       for(ColoredRectangle(int x_1, int y_1, Color col) : ar_) {\n"
+					+ "    	  int per = 2 * x_1 + 2 * y_1;\n"
+					+ "       }\n"
+					+ "    }\n"
+					+ "}\n"
+					+ "record ColoredRectangle(int length, int width, Color color) {}\n"
+					+ "enum Color {\n"
+					+ "	RED, GREEN, BLUE;\n"
+					+ "}"
+					);
+			CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+			requestor.allowAllRequiredProposals();
+			String str = this.workingCopies[0].getSource();
+			String completeBehind = "ar_";
+			int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+			this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+			assertResults("ar_ray[LOCAL_VARIABLE_REF]{ar_ray, null, [LColoredRectangle;, ar_ray, null, 52}",
+					requestor.getResults());
 		}
 }
