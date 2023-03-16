@@ -819,7 +819,7 @@ protected void consumeInsideCastExpressionWithQualifiedGenerics() {
 }
 @Override
 protected void consumeInstanceOfExpression() {
-	if (indexOfAssistIdentifier() < 0) {
+	if (indexOfAssistIdentifier() < 0 || this.genericsIdentifiersLengthPtr < 0) {
 		super.consumeInstanceOfExpression();
 	} else {
 		getTypeReference(this.intStack[this.intPtr--]);
