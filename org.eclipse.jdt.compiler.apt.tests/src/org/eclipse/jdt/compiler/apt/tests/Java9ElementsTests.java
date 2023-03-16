@@ -445,14 +445,14 @@ public class Java9ElementsTests extends TestCase {
 			return;
 		}
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		internalTest3(compiler, MODULE_PROC, "testGetFileObjectOf", null, false);
+		internalTest3(compiler, MODULE_PROC, "testGetFileObjectOf", null, true);
 	}
 	public void testGetFileObjectOf() throws IOException {
 		if (!canRunJava18()) {
 			return;
 		}
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTest3(compiler, MODULE_PROC, "testGetFileObjectOf", null, false);
+		internalTest3(compiler, MODULE_PROC, "testGetFileObjectOf", null, true);
 	}
 	protected void internalTestWithBinary(JavaCompiler compiler, String processor, String compliance, String testMethod, String testClass, String resourceArea) throws IOException {
 		if (!canRunJava9()) {

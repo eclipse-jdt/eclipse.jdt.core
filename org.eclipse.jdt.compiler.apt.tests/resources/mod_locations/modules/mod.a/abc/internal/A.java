@@ -4,4 +4,5 @@ public class A extends TypeInAModule {
 	public void aMethod() {
 		// Nothing here
 	}
+	class InnerTypeInAModule {}
 }

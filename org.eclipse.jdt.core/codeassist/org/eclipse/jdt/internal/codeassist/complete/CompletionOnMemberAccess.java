@@ -76,6 +76,9 @@ public class CompletionOnMemberAccess extends FieldReference {
 				ProblemMethodBinding problemMethodBinding = new ProblemMethodBinding(messageSend.selector, argBindings, ProblemReasons.NotFound);
 				throw new CompletionNodeFound(this, problemMethodBinding, scope);
 			}
+			if (messageSend.binding != null) {
+				throw new CompletionNodeFound(this, messageSend.binding.declaringClass, scope);
+			}
 		}
 
 		if (this.actualReceiverType == null || !this.actualReceiverType.isValidBinding())

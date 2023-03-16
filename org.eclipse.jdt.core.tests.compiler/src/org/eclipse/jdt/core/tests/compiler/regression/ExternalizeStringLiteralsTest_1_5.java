@@ -21,14 +21,14 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
-public class ExternalizeStringLiterals15Test extends AbstractRegressionTest {
+public class ExternalizeStringLiteralsTest_1_5 extends AbstractRegressionTest {
 
 static {
 //	TESTS_NAMES = new String[] { "test000" };
 //	TESTS_NUMBERS = new int[] { 7 };
 //	TESTS_RANGE = new int[] { 11, -1 };
 }
-public ExternalizeStringLiterals15Test(String name) {
+public ExternalizeStringLiteralsTest_1_5(String name) {
 	super(name);
 }
 public static Test suite() {
@@ -274,6 +274,6 @@ public void test007() {
 		customOptions);
 }
 public static Class testClass() {
-	return ExternalizeStringLiterals15Test.class;
+	return ExternalizeStringLiteralsTest_1_5.class;
 }
 }

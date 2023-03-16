@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -15,6 +15,7 @@
  *							  Bug 405066 - [1.8][compiler][codegen] Implement code generation infrastructure for JSR335
  *     Frits Jalvingh    - contributions for bug 533830.
  *     Red Hat Inc.	     - add module-info Javadoc support
+ *     Red Hat Inc.      - add NLS support for Text Blocks
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
@@ -710,7 +711,7 @@ private void reportNLSProblems() {
 			int i = 0;
 			stringLiteralsLoop: for (; i < stringLiteralsLength; i++) {
 				literal = this.stringLiterals[i];
-				final int literalLineNumber = literal.lineNumber;
+				final int literalLineNumber = literal instanceof TextBlock ? ((TextBlock)literal).endLineNumber : literal.lineNumber;
 				if (lastLineNumber != literalLineNumber) {
 					indexInLine = 1;
 					lastLineNumber = literalLineNumber;

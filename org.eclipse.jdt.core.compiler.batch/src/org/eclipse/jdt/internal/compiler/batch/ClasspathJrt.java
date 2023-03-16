@@ -225,13 +225,11 @@ public class ClasspathJrt extends ClasspathLocation implements IMultiModuleEntry
 					}
 
 					@Override
-					public FileVisitResult visitModule(Path p, String name) {
+					public FileVisitResult visitModule(Path p, String name) throws IOException {
 						try {
 							ClasspathJrt.this.acceptModule(JRTUtil.getClassfile(ClasspathJrt.this.file, IModule.MODULE_INFO_CLASS, name), newCache);
-						} catch (IOException e) {
-							e.printStackTrace();
 						} catch (ClassFormatException e) {
-							e.printStackTrace();
+							throw new IOException(e);
 						}
 						return FileVisitResult.SKIP_SUBTREE;
 					}

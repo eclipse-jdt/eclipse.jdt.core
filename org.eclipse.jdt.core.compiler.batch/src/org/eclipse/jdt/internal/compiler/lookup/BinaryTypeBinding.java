@@ -343,8 +343,7 @@ public BinaryTypeBinding(PackageBinding packageBinding, IBinaryType binaryType, 
 	}
 	if (needFieldsAndMethods)
 		cachePartsFrom(binaryType, true);
-	if (this.environment.globalOptions.processAnnotations)
-		this.path = binaryType.getURI();
+	this.path = binaryType.getURI();
 }
 @Override
 public boolean canBeSeenBy(Scope sco) {

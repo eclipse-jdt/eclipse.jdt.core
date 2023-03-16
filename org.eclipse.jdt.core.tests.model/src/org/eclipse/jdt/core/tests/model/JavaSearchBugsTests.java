@@ -21,7 +21,6 @@ import static org.eclipse.jdt.core.search.IJavaSearchScope.SYSTEM_LIBRARIES;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -15415,7 +15414,7 @@ public void testMethodReferenceAfterCompileErrorBugGh438() throws Exception {
 }
 
 /*
- * Test that having a module conflict in projects that are on the compile classpath
+ * Test that having a module conflict in libraries that are on the compile classpath
  * (and not the compile module path) doesn't affect searching for types in those projects.
  * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/675
  */
@@ -15475,28 +15474,79 @@ public void testModuleConflictForClasspathProjectsBugGh675() throws Exception {
 	}
 }
 
-private void buildAndExpectProblems(IJavaProject javaProject, String expectedMarkers) throws CoreException {
-	IProject project = javaProject.getProject();
-	project.build(IncrementalProjectBuilder.AUTO_BUILD, new NullProgressMonitor());
-	waitForAutoBuild();
-	waitUntilIndexesReady();
-	assertProblemMarkers("Expected build problems on project due to undefined type",
-			expectedMarkers, project);
-}
+/**
+ * A modular project refers to a modular library defining a type {@code TestClass},
+ * this project also references a non-modular project on its classpath.
+ * The non-modular project uses a non-modular library that defines the same type {@code TestClass}.
+ * Since neither project exports the library, there is no compile error and no module conflict for the type.
+ * This test ensures the search doesn't run into a module conflict due to not considering whether the libraries are exported.
+ *
+ * Originally the problem was observed by using a Java 8 project and a Java 11 project,
+ * with {@code java.util.Locale} as the type that causes the search to run into a module conflict.
+ *
+ * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/723
+ */
+public void testModuleConflictGh723() throws Exception {
+	String projectName = "gh723Project";
+	String modularProjectName = "gh723ProjectModular";
+	try {
+		IJavaProject project = createJavaProject(projectName, new String[] {"src"}, new String[] {"JCL11_LIB"}, "bin", "11");
+		IJavaProject modularProject = createJavaProject(modularProjectName, new String[] {"src"}, new String[] {"JCL11_LIB"}, "bin", "11");
 
-private void buildAndExpectNoProblems(IJavaProject... javaProjects) throws CoreException {
-	List<IProject> projects = new ArrayList<>();
-	if (javaProjects != null) {
-		Arrays.stream(javaProjects).forEach(jp -> projects.add(jp.getProject()));
-	}
-	for (IProject project : projects) {
-		project.build(IncrementalProjectBuilder.AUTO_BUILD, new NullProgressMonitor());
-	}
-	waitForAutoBuild();
-	waitUntilIndexesReady();
+		createFolder("/" + projectName + "/src/test/");
+		createFile("/" + projectName + "/src/test/Test.java",
+				"package test;\n" +
+				"public class Test {\n" +
+				"  public static void test(testpackage.TestClass t) {\n" +
+				"  }\n" +
+				"}");
 
-	for (IProject project : projects) {
-		assertProblemMarkers("Expected no build problems on project: " + project, "", project);
+		createFolder("/" + modularProjectName + "/src/testmodular/");
+		createFile("/" + modularProjectName + "/src/testmodular/TestModular.java",
+				"package testmodular;\n" +
+				"public class TestModular {\n" +
+				"  public void testModular() {\n" +
+				"      test.Test.test(null);\n" +
+				"  }\n" +
+				"}");
+
+		String ambiguousTypeDefinition =
+				"package testpackage;\n" +
+				"public class TestClass {\n" +
+				"}";
+
+		addLibrary(project,
+				"libGh723.jar",
+				"libGh723.src.zip",
+				new String[] {
+						"testpackage/TestClass.java",
+						ambiguousTypeDefinition },
+				JavaCore.VERSION_1_8,
+				false);
+
+		addModularLibrary(modularProject,
+				"libGh723_modular.jar",
+				"libGh723_modular.src.zip",
+				new String[] {
+						"module-info.java",
+						"module testmodule {\n" +
+						"  exports testpackage;\n" +
+						"}",
+						"testpackage/TestClass.java",
+						ambiguousTypeDefinition },
+				JavaCore.VERSION_11);
+
+		addClasspathEntry(modularProject, JavaCore.newProjectEntry(project.getPath()));
+		buildAndExpectNoProblems(project, modularProject);
+
+		IType type = project.findType("test.Test");
+		IMethod method = type.getMethod("test", new String [] {"Qtestpackage.TestClass;"});
+		search(method, REFERENCES, EXACT_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
+		assertSearchResults(
+				"src/testmodular/TestModular.java void testmodular.TestModular.testModular() [test(null)] EXACT_MATCH");
+	} finally {
+		deleteProject(projectName);
+		deleteProject(modularProjectName);
 	}
 }
 

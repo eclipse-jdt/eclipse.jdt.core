@@ -2292,7 +2292,7 @@ public MethodBinding[] methods() {
 			computeRecordComponents();
 			MethodBinding recordExplicitCanon = checkAndGetExplicitCanonicalConstructors();
 			if (recordExplicitCanon != null) {
-				if (recordCanonIndex != -1 ) {
+				if (recordCanonIndex != -1 && resolvedMethods[recordCanonIndex] instanceof SyntheticMethodBinding) {
 					removeSyntheticRecordCanonicalConstructor((SyntheticMethodBinding) resolvedMethods[recordCanonIndex]);
 					resolvedMethods[recordCanonIndex] = null;
 					failed++;
@@ -2504,6 +2504,15 @@ public MethodBinding[] methods() {
 		// handle forward references to potential default abstract methods
 		addDefaultAbstractMethods();
 		this.tagBits |= TagBits.AreMethodsComplete;
+		if (this.isRecordDeclaration) {
+			/* https://github.com/eclipse-jdt/eclipse.jdt.core/issues/365 */
+			for (int i = 0; i < this.methods.length; i++) {
+				MethodBinding method = this.methods[i];
+				if ((method.tagBits & TagBits.AnnotationSafeVarargs) == 0 && method.sourceMethod() != null) {
+					checkAndFlagHeapPollution(method, method.sourceMethod());
+				}
+			}
+		}
 	}
 	return this.methods;
 }
@@ -2847,7 +2856,10 @@ private MethodBinding resolveTypesWithSuspendedTempErrorHandlingPolicy(MethodBin
 				methodDecl.scope.problemReporter().safeVarargsOnNonFinalInstanceMethod(method);
 			}
 		} else {
-			checkAndFlagHeapPollution(method, methodDecl);
+			/* https://github.com/eclipse-jdt/eclipse.jdt.core/issues/365 */
+			if (!this.isRecordDeclaration) {
+				checkAndFlagHeapPollution(method, methodDecl);
+			}
 		}
 	}
 

@@ -6753,4 +6753,27 @@ public void testGH583_onArrayCreationSupplier_expectNewMethodRefCompletions() th
 	assertTrue(String.format("Result doesn't contain expected methods (%s)", result),
 			result.contains("new[KEYWORD]{new, null, null, new, null, 49}"));
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/767
+public void testGH767() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/Foo.java",
+					"public class Foo {\n"
+					+ "    public void foo() {\n"
+					+ "			\"abc\".substring(i)."
+					+ "    }\n"
+					+ "}");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "substring(i).";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+	String result = requestor.getResults();
+	assertTrue(String.format("Result doesn't contain expected method (%s)", result),
+			result.contains("length[METHOD_REF]{length(), Ljava.lang.String;, ()I, length, null, 60}\n"));
+}
 }

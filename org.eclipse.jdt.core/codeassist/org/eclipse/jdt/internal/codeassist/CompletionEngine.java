@@ -23,12 +23,14 @@ package org.eclipse.jdt.internal.codeassist;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.StreamSupport;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -258,7 +260,7 @@ import org.eclipse.jdt.internal.core.SourceMethodElementInfo;
 import org.eclipse.jdt.internal.core.SourceType;
 import org.eclipse.jdt.internal.core.SourceTypeElementInfo;
 import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
-import org.eclipse.jdt.internal.core.search.matching.IndexBasedJavaSearchEnvironment;
+import org.eclipse.jdt.internal.core.search.matching.JavaSearchNameEnvironment;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -691,6 +693,8 @@ public final class CompletionEngine
 		createTypeSignature(CharOperation.concatWith(JAVA_LANG, '.'), OBJECT);
 	private final static char[] JAVA_LANG_NAME =
 		CharOperation.concatWith(JAVA_LANG, '.');
+	private final static char[] GET = "get".toCharArray(); //$NON-NLS-1$
+	private final static char[] IS = "is".toCharArray(); //$NON-NLS-1$
 
 	private final static int NONE = 0;
 	private final static int SUPERTYPE = 1;
@@ -4858,16 +4862,28 @@ public final class CompletionEngine
 		}
 		return 0;
 	}
-	int computeRelevanceForCaseMatching(char[] token, char[] proposalName){
-		if(CharOperation.equals(token, proposalName, true)) {
+
+	int computeRelevanceForCaseMatching(char[][] tokens, char[] proposalName) {
+		int finalRelevance = 0;
+		for (int i = 0; i < tokens.length; i++) {
+			int relevance = computeRelevanceForCaseMatching(tokens[i], proposalName);
+			if (relevance > finalRelevance) {
+				finalRelevance = relevance;
+			}
+		}
+		return finalRelevance;
+	}
+
+	int computeRelevanceForCaseMatching(char[] token, char[] proposalName) {
+		if (CharOperation.equals(token, proposalName, true)) {
 			return R_EXACT_NAME + R_CASE;
-		} else if(CharOperation.equals(token, proposalName, false)) {
+		} else if (CharOperation.equals(token, proposalName, false)) {
 			return R_EXACT_NAME;
 		} else if (CharOperation.prefixEquals(token, proposalName, false)) {
 			if (CharOperation.prefixEquals(token, proposalName, true))
 				return R_CASE;
-		} else if (this.options.camelCaseMatch && CharOperation.camelCaseMatch(token, proposalName)){
-				return R_CAMEL_CASE;
+		} else if (this.options.camelCaseMatch && CharOperation.camelCaseMatch(token, proposalName)) {
+			return R_CAMEL_CASE;
 		} else if (this.options.substringMatch && CharOperation.substringMatch(token, proposalName)) {
 			return R_SUBSTRING;
 		} else if (this.options.subwordMatch && CharOperation.subWordMatch(token, proposalName)) {
@@ -7048,6 +7064,9 @@ public final class CompletionEngine
 				}
 			}
 		}
+
+		char[] boostMatches = findParameterNameAtLocationFromAssistParent(new ObjectVector());
+
 		// Inherited fields which are hidden by subclasses are filtered out
 		// No visibility checks can be performed without the scope & invocationSite
 
@@ -7186,6 +7205,9 @@ public final class CompletionEngine
 			relevance += computeRelevanceForResolution();
 			relevance += computeRelevanceForInterestingProposal(field);
 			relevance += computeRelevanceForCaseMatching(fieldName, field.name);
+			if(boostMatches.length > 0) {
+				relevance += computeRelevanceForCaseMatching(boostMatches, field.name);
+			}
 			int computeRelevanceForExpectingType = computeRelevanceForExpectingType(field.type);
 			if(this.strictMatchForExtepectedType && computeRelevanceForExpectingType <= 0) {
 				continue;
@@ -9373,6 +9395,14 @@ public final class CompletionEngine
 		int minTypeArgLength = typeArgTypes == null ? 0 : typeArgTypes.length;
 		int minArgLength = argTypes == null ? 0 : argTypes.length;
 
+		char[][] boostMatches = new char[0][];
+		char[] parameterName = findParameterNameAtLocationFromAssistParent(new ObjectVector());
+		if(parameterName.length > 0) {
+			char[] nameForMethods = capitalize(parameterName);
+			boostMatches = new char[][] { parameterName, CharOperation.concat(GET, nameForMethods),
+					CharOperation.concat(IS, nameForMethods) };
+		}
+
 		next : for (int f = methods.length; --f >= 0;) {
 			MethodBinding method = methods[f];
 
@@ -9570,6 +9600,9 @@ public final class CompletionEngine
 			relevance += computeRelevanceForResolution();
 			relevance += computeRelevanceForInterestingProposal();
 			relevance += computeRelevanceForCaseMatching(methodName, method.selector);
+			if(boostMatches.length > 0) {
+				relevance += computeRelevanceForCaseMatching(boostMatches, method.selector);
+			}
 			int computeRelevanceForExpectingType = computeRelevanceForExpectingType(method.returnType);
 			if(this.strictMatchForExtepectedType && computeRelevanceForExpectingType <= 0) {
 				continue;
@@ -9709,6 +9742,55 @@ public final class CompletionEngine
 		}
 
 		methodsFound.addAll(newMethodsFound);
+	}
+
+	private char[] capitalize(char[] name) {
+		char[] result = new char[name.length];
+		for (int i = 0; i < name.length; i++) {
+			if (i == 0) {
+				result[i] = Character.toUpperCase(name[i]);
+			} else {
+				result[i] = name[i];
+			}
+		}
+		return result;
+	}
+
+	private char[] findParameterNameAtLocationFromAssistParent(ObjectVector methodsFound) {
+		char[] parameterName = new char[0];
+		MethodBinding[] candidates;
+		final MessageSend parent;
+		if (this.parser.assistNodeParent instanceof MessageSend) {
+			parent = (MessageSend) this.parser.assistNodeParent;
+			candidates = Optional.ofNullable(parent.actualReceiverType)
+					.or(() -> Optional.ofNullable(parent.receiver).map(r -> r.resolvedType))
+					.map(t -> t.getMethods(parent.selector)).orElse(new MethodBinding[0]);
+		} else if (this.parser.assistNode instanceof MessageSend) {
+			parent = (MessageSend) this.parser.assistNode;
+			candidates = StreamSupport.stream(methodsFound.spliterator(), false)
+					.filter(Objects::nonNull)
+					.filter(o -> o instanceof Object[]).map(o -> (Object[]) o)
+					.map(o -> o[0]).filter(o -> o instanceof MethodBinding).map(b -> (MethodBinding) b)
+					.filter(b -> CharOperation.equals(parent.selector, b.selector)).findFirst()
+					.map(m -> new MethodBinding[] { m }).orElse(new MethodBinding[0]);
+		} else {
+			return parameterName;
+		}
+
+		final int argumentLength = (parent.arguments != null) ? parent.arguments.length : 1;
+		for (MethodBinding binding : candidates) {
+			if (binding.parameterNames.length >= argumentLength) {
+				for (int i = 0; i < argumentLength; i++) {
+					if (parent.arguments == null || parent.arguments[i] == this.parser.assistNode) {
+						parameterName = binding.parameterNames[i];
+					}
+				}
+			}
+			if (parameterName.length > 0) {
+				break;
+			}
+		}
+		return parameterName;
 	}
 	private void findLocalMethodsFromFavorites(
 			char[] methodName,
@@ -13071,6 +13153,8 @@ public final class CompletionEngine
 
 		Scope currentScope = scope;
 
+		char[]	boostMatches = findParameterNameAtLocationFromAssistParent(methodsFound);
+
 		if (!this.requestor.isIgnored(CompletionProposal.LOCAL_VARIABLE_REF)) {
 			done1 : while (true) { // done when a COMPILATION_UNIT_SCOPE is found
 
@@ -13143,6 +13227,9 @@ public final class CompletionEngine
 							relevance += computeRelevanceForResolution();
 							relevance += computeRelevanceForInterestingProposal(local);
 							relevance += computeRelevanceForCaseMatching(token, local.name);
+							if(boostMatches.length > 0) {
+								relevance += computeRelevanceForCaseMatching(boostMatches, local.name);
+							}
 							int computeRelevanceForExpectingType = computeRelevanceForExpectingType(local.type);
 							if(this.strictMatchForExtepectedType && computeRelevanceForExpectingType <= 0) {
 								continue;
@@ -13442,7 +13529,7 @@ public final class CompletionEngine
 	private INameEnvironment getNoCacheNameEnvironment() {
 		if (this.noCacheNameEnvironment == null) {
 			JavaModelManager.getJavaModelManager().cacheZipFiles(this);
-			this.noCacheNameEnvironment = IndexBasedJavaSearchEnvironment.create(Collections.singletonList(this.javaProject), this.owner == null ? null : JavaModelManager.getJavaModelManager().getWorkingCopies(this.owner, true/*add primary WCs*/));
+			this.noCacheNameEnvironment = new JavaSearchNameEnvironment(this.javaProject, this.owner == null ? null : JavaModelManager.getJavaModelManager().getWorkingCopies(this.owner, true/*add primary WCs*/));
 		}
 		return this.noCacheNameEnvironment;
 	}

@@ -576,6 +576,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"----------\n");
 	}
 	public void testBug550750_025() {
+		getPossibleComplianceLevels();
 		this.runNegativeTest(
 				new String[] {
 						"X.java",
@@ -602,9 +603,15 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"	record Point(int myInt, int myZ, int myZ) implements I {\n" +
 			"	                                     ^^^\n" +
 			"Duplicate component myZ in record\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 6)\n" +
+			"	record Point(int myInt, int myZ, int myZ) implements I {\n" +
+			"	                                     ^^^\n" +
+			"Duplicate parameter myZ\n" +
 			"----------\n");
 	}
 	public void testBug550750_026() {
+		getPossibleComplianceLevels();
 		this.runNegativeTest(
 				new String[] {
 						"X.java",
@@ -634,8 +641,18 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"----------\n" +
 			"3. ERROR in X.java (at line 6)\n" +
 			"	record Point(int myInt, int myInt, int myInt, int myZ) implements I {\n" +
+			"	                            ^^^^^\n" +
+			"Duplicate parameter myInt\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 6)\n" +
+			"	record Point(int myInt, int myInt, int myInt, int myZ) implements I {\n" +
 			"	                                       ^^^^^\n" +
 			"Duplicate component myInt in record\n" +
+			"----------\n" +
+			"5. ERROR in X.java (at line 6)\n" +
+			"	record Point(int myInt, int myInt, int myInt, int myZ) implements I {\n" +
+			"	                                       ^^^^^\n" +
+			"Duplicate parameter myInt\n" +
 			"----------\n");
 	}
 	public void testBug550750_027() {
@@ -1112,6 +1129,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 			"----------\n");
 	}
 	public void testBug553152_008() {
+		getPossibleComplianceLevels();
 		this.runNegativeTest(
 				new String[] {
 						"X.java",
@@ -1133,22 +1151,17 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 						"interface I {}\n"
 				},
 			"----------\n" +
-			"1. ERROR in X.java (at line 7)\n" +
-			"	public Point {\n" +
-			"	       ^^^^^\n" +
-			"Duplicate method Point(Integer, int) in type Point\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 8)\n" +
+			"1. ERROR in X.java (at line 8)\n" +
 			"	this.myInt = 0;\n" +
 			"	^^^^^^^^^^\n" +
 			"Illegal explicit assignment of a final field myInt in compact constructor\n" +
 			"----------\n" +
-			"3. ERROR in X.java (at line 9)\n" +
+			"2. ERROR in X.java (at line 9)\n" +
 			"	this.myZ = 0;\n" +
 			"	^^^^^^^^\n" +
 			"Illegal explicit assignment of a final field myZ in compact constructor\n" +
 			"----------\n" +
-			"4. ERROR in X.java (at line 11)\n" +
+			"3. ERROR in X.java (at line 11)\n" +
 			"	public Point(Integer myInt, int myZ) {\n" +
 			"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Duplicate method Point(Integer, int) in type Point\n" +
@@ -7351,6 +7364,7 @@ public void testBug563182_01() {
 //Test that in presence of an explicit canonical constructor that is NOT annotated with @SafeVarargs,
 // we don't report the warning on the record type but report on the explicit canonical constructor
 public void testBug563182_02() {
+	getPossibleComplianceLevels();
 	Map<String, String> customOptions = getCompilerOptions();
 	this.runNegativeTest(
 		new String[] {
@@ -7378,6 +7392,7 @@ public void testBug563182_02() {
 //Test that in presence of an explicit canonical constructor that IS annotated with @SafeVarargs,
 //we don't report the warning on neither the record type nor the explicit canonical constructor
 public void testBug563182_03() {
+	getPossibleComplianceLevels();
 	Map<String, String> customOptions = getCompilerOptions();
 	this.runNegativeTest(
 		new String[] {
@@ -7427,6 +7442,7 @@ public void testBug563182_04() {
 //Test that in presence of a compact canonical constructor that IS annotated with @SafeVarargs,
 //we don't report the warning on neither the record type nor the compact canonical constructor
 public void testBug563182_05() {
+	getPossibleComplianceLevels();
 	Map<String, String> customOptions = getCompilerOptions();
 	this.runNegativeTest(
 		new String[] {
@@ -8982,6 +8998,7 @@ public void testBug572934_003() {
 	options.put(CompilerOptions.OPTION_ReportSpecialParameterHidingField, CompilerOptions.DISABLED);
 }
 public void testBug573195_001() throws Exception {
+	getPossibleComplianceLevels();
 	runConformTest(
 			new String[] {
 					"X.java",
@@ -8999,19 +9016,20 @@ public void testBug573195_001() throws Exception {
 				},
 				"1");
 	String expectedOutput = // constructor
-			"  // Method descriptor #12 (I)V\n" +
+			"  // Method descriptor #8 (I)V\n" +
 			"  // Stack: 2, Locals: 2\n" +
-			"  protected X$R(int arg0);\n" +
+			"  protected X$R(int i);\n" +
 			"     0  aload_0 [this]\n" +
-			"     1  invokespecial java.lang.Record() [36]\n" +
+			"     1  invokespecial java.lang.Record() [10]\n" +
 			"     4  aload_0 [this]\n" +
-			"     5  iload_1 [arg0]\n" +
-			"     6  putfield X$R.i : int [20]\n" +
+			"     5  iload_1 [i]\n" +
+			"     6  putfield X$R.i : int [13]\n" +
 			"     9  return\n";
 	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "X$R.class", ClassFileBytesDisassembler.SYSTEM);
 }
 
 public void testBug574284_001() throws Exception {
+	getPossibleComplianceLevels();
 	runConformTest(
 			new String[] {
 					"X.java",
@@ -9032,17 +9050,17 @@ public void testBug574284_001() throws Exception {
 			},
 		"0");
 	String expectedOutput = // constructor
-			"  // Method descriptor #14 (Z[I)V\n" +
+			"  // Method descriptor #10 (Z[I)V\n" +
 			"  // Stack: 2, Locals: 3\n" +
-			"  X$Rec(boolean arg0, int... arg1);\n" +
+			"  X$Rec(boolean isHidden, int... indexes);\n" +
 			"     0  aload_0 [this]\n" +
-			"     1  invokespecial java.lang.Record() [41]\n" +
+			"     1  invokespecial java.lang.Record() [12]\n" +
 			"     4  aload_0 [this]\n" +
-			"     5  iload_1 [arg0]\n" +
-			"     6  putfield X$Rec.isHidden : boolean [21]\n" +
+			"     5  iload_1 [isHidden]\n" +
+			"     6  putfield X$Rec.isHidden : boolean [15]\n" +
 			"     9  aload_0 [this]\n" +
-			"    10  aload_2 [arg1]\n" +
-			"    11  putfield X$Rec.indexes : int[] [24]\n" +
+			"    10  aload_2 [indexes]\n" +
+			"    11  putfield X$Rec.indexes : int[] [17]\n" +
 			"    14  return\n";
 	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "X$Rec.class", ClassFileBytesDisassembler.SYSTEM);
 
@@ -9162,5 +9180,37 @@ public void testBug576806_001() {
 		null,
 		false,
 		options);
+}
+
+public void testIssue365_001() throws Exception {
+	getPossibleComplianceLevels();
+	runConformTest(
+			new String[] {
+					"A.java",
+					"import java.util.Collections;\n" +
+					"import java.util.List;\n" +
+					"public record A(List<String> names) {\n" +
+					"    public A(String name) {\n" +
+					"        this(Collections.singletonList(name));\n" +
+					"    }\n" +
+					"    public static void main(String[] args) {\n" +
+					"        System.out.println(0);\n" +
+					"    }" +
+					"}\n"
+			},
+		"0");
+	String expectedOutput = // constructor
+			"  // Method descriptor #10 (Ljava/util/List;)V\n" +
+			"  // Signature: (Ljava/util/List<Ljava/lang/String;>;)V\n" +
+			"  // Stack: 2, Locals: 2\n" +
+			"  public A(java.util.List names);\n" +
+			"     0  aload_0 [this]\n" +
+			"     1  invokespecial java.lang.Record() [13]\n" +
+			"     4  aload_0 [this]\n" +
+			"     5  aload_1 [names]\n" +
+			"     6  putfield A.names : java.util.List [16]\n" +
+			"     9  return\n";
+	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "A.class", ClassFileBytesDisassembler.SYSTEM);
+
 }
 }

@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.dom.AST;
+
 import junit.framework.Test;
 
 public class ReconcilerTests16 extends ModifyingResourceTests {
@@ -242,6 +243,53 @@ public void testBug576448_001() throws Exception {
 		this.workingCopy = getCompilationUnit("p/src/X.java").getWorkingCopy(this.wcOwner, null);
 		this.problemRequestor.initialize(this.workingCopy.getSource().toCharArray());
 		this.workingCopy.reconcile(JLS_LATEST, true, this.wcOwner, null);
+		assertProblems("Expecting no problems",
+				"----------\n" +
+				"----------\n",
+				this.problemRequestor);
+		this.workingCopy.discardWorkingCopy();
+	} finally {
+		deleteProject(p);
+	}
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/342
+public void testissue342_001() throws Exception {
+	if (!isJRE16)
+		return;
+	IJavaProject p = createJava16Project("p");
+	createFolder("/p/src/a");
+	try {
+		createFile("p/src/a/Sneaker.java",
+				"package a;\n"+
+				"\n"+
+				"public record Sneaker(String brand, float price, int ... sizes) {\n"+
+				" public void test () {\n"+
+				"   Sneaker sn = new Sneaker(\"Eclipse\", 100, 9, 10, 11);\n"+
+				"   System.out.println(sn.sizes().length);\n" +
+				" }\n"+
+				"}");
+		String mainSource =
+				"package a;\n"+
+				"\n"+
+				"public class Main {\n"+
+				"  public static void main(String[] args) {\n"+
+				"   Sneaker sn = new Sneaker(\"Eclipse\", 100, 1, 2, 3);\n"+
+				"   System.out.println(sn.sizes().length);\n" +
+				"  }\n"+
+				"}";
+		createFile("p/src/a/Main.java", mainSource);
+
+		p.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+		IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+		assertMarkers("markers in p",
+				"",
+				markers);
+		int reconcileFlags= ICompilationUnit.FORCE_PROBLEM_DETECTION;
+		reconcileFlags|= ICompilationUnit.ENABLE_STATEMENTS_RECOVERY;
+		reconcileFlags|= ICompilationUnit.ENABLE_BINDINGS_RECOVERY;
+		this.workingCopy = getCompilationUnit("p/src/a/Main.java").getWorkingCopy(this.wcOwner, null);
+		this.problemRequestor.initialize(mainSource.toCharArray());
+		this.workingCopy.reconcile(JLS_LATEST, reconcileFlags, this.wcOwner, null);
 		assertProblems("Expecting no problems",
 				"----------\n" +
 				"----------\n",

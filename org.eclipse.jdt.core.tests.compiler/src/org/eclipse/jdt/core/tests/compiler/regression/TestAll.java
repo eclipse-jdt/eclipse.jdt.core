@@ -113,7 +113,7 @@ public static Test suite() {
 	since_1_5.add(BatchCompilerTest.class);
 	since_1_5.add(NullAnnotationBatchCompilerTest.class);
 	since_1_5.add(ConcurrentBatchCompilerTest.class);
-	since_1_5.add(ExternalizeStringLiterals15Test.class);
+	since_1_5.add(ExternalizeStringLiteralsTest_1_5.class);
 	since_1_5.add(Deprecated15Test.class);
 	since_1_5.add(InnerEmulationTest_1_5.class);
 	since_1_5.add(AssignmentTest_1_5.class);
@@ -205,6 +205,7 @@ public static Test suite() {
 	 since_15.add(Unicode13Test.class);
 	 since_15.add(BatchCompilerTest_15.class);
 	 since_15.add(TextBlockTest.class);
+	 since_15.add(ExternalizeStringLiteralsTest_15.class);
 
 	 // add 16 specific test here (check duplicates)
 	 ArrayList since_16 = new ArrayList();

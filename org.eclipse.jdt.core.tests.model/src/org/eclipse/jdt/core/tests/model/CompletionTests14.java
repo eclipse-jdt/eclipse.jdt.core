@@ -578,4 +578,28 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 				requestor.getResults());
 	}
 
+	public void testGH757_CompletionOnTypeNameAboveRecordDeclaration() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/Person.java",
+				"public class Person {\n"
+						+ "private Name name = new Name \n"
+						+ "record Age(int value){};"
+						+ "}\n");
+		this.workingCopies[1] = getWorkingCopy(
+				"/Completion/src/Name.java",
+				"public class Name {\n"
+						+ "}\n");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "new Name";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"Name[TYPE_REF]{Name, , LName;, null, null, null, null, [46, 50], "
+						+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED
+								+ R_EXACT_NAME + R_EXACT_EXPECTED_TYPE)
+						+ "}",
+				requestor.getResults());
+	}
 }
