@@ -462,7 +462,11 @@ public class ForeachStatement extends Statement {
 	public StringBuffer printStatement(int indent, StringBuffer output) {
 
 		printIndent(indent, output).append("for ("); //$NON-NLS-1$
-		this.elementVariable.printAsExpression(0, output);
+		if (this.pattern != null) {
+			this.pattern.printExpression(0, output);
+		} else {
+			this.elementVariable.printAsExpression(0, output);
+		}
 		output.append(" : ");//$NON-NLS-1$
 		if (this.collection != null) {
 			this.collection.print(0, output).append(") "); //$NON-NLS-1$
@@ -525,6 +529,13 @@ public class ForeachStatement extends Statement {
 		this.scope = new BlockScope(upperScope);
 		this.scope.blockStatement = this;
 		this.elementVariable.resolve(this.scope); // collection expression can see itemVariable
+		LocalVariableBinding[] patternVariablesInTrueScope = null;
+
+		if (this.pattern != null) {
+			this.pattern.collectPatternVariablesToScope(null, this.scope);
+			patternVariablesInTrueScope = this.pattern.getPatternVariablesWhenTrue();
+			this.pattern.resolve(this.scope);
+		}
 		TypeBinding elementType = this.elementVariable.type.resolvedType;
 		TypeBinding collectionType = this.collection == null ? null : this.collection.resolveType(upperScope);
 
@@ -713,7 +724,7 @@ public class ForeachStatement extends Statement {
 			}
 		}
 		if (this.action != null) {
-			this.action.resolve(this.scope);
+			this.action.resolveWithPatternVariablesInScope(patternVariablesInTrueScope, this.scope);
 		}
 	}
 

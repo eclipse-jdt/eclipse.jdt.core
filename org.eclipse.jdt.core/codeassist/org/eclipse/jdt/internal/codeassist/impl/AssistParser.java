@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -281,38 +285,7 @@ public RecoveredElement buildInitialRecoveryState(){
 			}
 			blockIndex = j+1; // shift the index to the new block
 		}
-		if (node instanceof CaseStatement) {
-			// Kludge, for the unfortunate case where recovery can't
-			// construct a switch expression but simply creates a case statement (with type patterns)
-			// and leaves it in the astStack
-			final List<LocalDeclaration> locals = new ArrayList<>();
-			node.traverse(new ASTVisitor() {
-				@SuppressWarnings("synthetic-access")
-				@Override
-				public boolean visit(RecordPattern pattern, BlockScope scope) {
-					LocalDeclaration local = pattern.local;
-					if (local == null)
-						return true;
-					locals.add(local);
-					AssistParser.this.lastCheckPoint = local.declarationSourceEnd + 1;
-					return true;
-				}
-				@SuppressWarnings("synthetic-access")
-				@Override
-				public boolean visit(TypePattern pattern, BlockScope scope) {
-					LocalDeclaration local = pattern.local;
-					if (local == null)
-						return true;
-					locals.add(local);
-					AssistParser.this.lastCheckPoint = local.declarationSourceEnd + 1;
-					return true;
-				}
-			}, null);
-			for (LocalDeclaration local : locals) {
-				element.add(local, 0);
-			}
-			continue;
-		}
+
 		if (node instanceof LocalDeclaration){
 			LocalDeclaration local = (LocalDeclaration) node;
 			if (local.declarationSourceEnd == 0){
@@ -392,11 +365,36 @@ public RecoveredElement buildInitialRecoveryState(){
 					element = element.add(stmt, 0);
 					this.lastCheckPoint = stmt.sourceEnd + 1;
 				} else if (stmt.containsPatternVariable()) {
-					LocalDeclaration localDeclaration = null;
 					if(stmt instanceof CaseStatement) {
-						localDeclaration = ((CaseStatement)stmt).getLocalDeclaration();
-						if(localDeclaration !=null)
-							element.add(localDeclaration, 0);
+						// Kludge, for the unfortunate case where recovery can't
+						// construct a switch expression but simply creates a case statement (with type patterns)
+						// and leaves it in the astStack
+						final List<LocalDeclaration> locals = new ArrayList<>();
+						node.traverse(new ASTVisitor() {
+							@SuppressWarnings("synthetic-access")
+							@Override
+							public boolean visit(RecordPattern pattern, BlockScope scope) {
+								LocalDeclaration local = pattern.local;
+								if (local == null)
+									return true;
+								locals.add(local);
+								AssistParser.this.lastCheckPoint = local.declarationSourceEnd + 1;
+								return true;
+							}
+							@SuppressWarnings("synthetic-access")
+							@Override
+							public boolean visit(TypePattern pattern, BlockScope scope) {
+								LocalDeclaration local = pattern.local;
+								if (local == null)
+									return true;
+								locals.add(local);
+								AssistParser.this.lastCheckPoint = local.declarationSourceEnd + 1;
+								return true;
+							}
+						}, null);
+						for (LocalDeclaration local : locals) {
+							element.add(local, 0);
+						}
 					}
 					element.add(stmt, 0);
 					this.lastCheckPoint = stmt.sourceEnd + 1;
