@@ -381,7 +381,7 @@ public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletion
 					+ "    int res = switch(r) {\n"
 					+ "       case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
 					+ "                               ColoredPoint lr)  -> {\n"
-					+ "    			/*here*/lr.c	"
+					+ "    			/*here*/lr.co	"
 					+ "System.out.println(\"x= \" + x);\n"
 					+ "    				System.out.println(\"y= \" + y);\n"
 					+ "    				System.out.println(\"lr= \" + lr);\n"
@@ -404,7 +404,7 @@ public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletion
 					+ "}\n"
 					+ "record Point(int x, int y) {}\n"
 					+ "enum Color { RED, GREEN, BLUE }\n"
-					+ "record ColoredPoint(Point p, Color c) {}\n"
+					+ "record ColoredPoint(Point p, Color color) {}\n"
 					+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"
 					);
 			CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
@@ -413,8 +413,8 @@ public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletion
 			String completeBehind = "/*here*/lr.c";
 			int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
 			this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-			assertResults("c[FIELD_REF]{c, LColoredPoint;, LColor;, c, null, 64}\n"
-					+ "c[METHOD_REF]{c(), LColoredPoint;, ()LColor;, c, null, 64}",
+			assertResults("color[FIELD_REF]{color, LColoredPoint;, LColor;, color, null, 60}\n"
+					+ "color[METHOD_REF]{color(), LColoredPoint;, ()LColor;, color, null, 60}",
 					requestor.getResults());
 
 		}
