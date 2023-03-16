@@ -40,8 +40,10 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.jdt.core.IAccessRule;
+import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IField;
@@ -2832,6 +2834,65 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			"lib491656_001.jar void p2.MyLinkedHashMap$Entry.recordAccess(java.util.HashMap<K,V>) EXACT_MATCH");
 		} finally {
 			deleteProject("P");
+		}
+	}
+
+	/**
+	 * Test that a diamond in a type name doesn't result in an AIOOBE during a search.
+	 * See: https://github.com/eclipse-jdt/eclipse.jdt.core/issues/825
+	 */
+	public void testOutOfBoundsIndexExceptionDuringSearchGh825() throws Exception {
+		String projectName = "testGh825";
+		try {
+			IJavaProject project = createJavaProject(projectName, new String[] {"src"}, new String[] {"JCL11_LIB"}, "bin", "11");
+			String srcFolder = "/" + projectName + "/src/";
+			String packageFolder = srcFolder + "test";
+			createFolder(packageFolder);
+			String snippet = String.join(System.lineSeparator(), new String[] {
+					"package test;",
+					"public class Test {",
+					"    public interface TestInterface<T> {",
+					"        void testMethod(T t);",
+					"    }",
+					"    TestInterface<String> SUP = new TestInterface<>() {",
+					"        public void testMethod(String s) {}",
+					"    };",
+					"    static void shouldFail() {}",
+					"}",
+			});
+			createFile(packageFolder + "/Test.java", snippet);
+
+			String module = "module tester {}";
+			createFile(srcFolder + "/module-info.java", module);
+
+			String testFolder = "/" + projectName + "/test";
+			createFolder(testFolder);
+			IClasspathAttribute[] testAttrs = { JavaCore.newClasspathAttribute(IClasspathAttribute.TEST, Boolean.toString(true)) };
+			addClasspathEntry(project, JavaCore.newSourceEntry(
+					new Path(testFolder),
+					null,
+					null,
+					new Path("/" + projectName + "/bin-test"),
+					testAttrs));
+
+			addLibrary(project,
+					"libGh825.jar",
+					"libGh825.src.zip",
+					new String[] {
+							"testpackage/TestClass.java",
+							"package testpackage;\n" +
+							"public class TestClass {}"
+					},
+					JavaCore.VERSION_11);
+
+			buildAndExpectNoProblems(project);
+			IType type = project.findType("test.Test");
+			IMethod method = type.getMethod("shouldFail", new String[0]);
+			search(method, REFERENCES, EXACT_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
+			// we expect no matches and no exceptions
+			assertSearchResults("");
+		} finally {
+			deleteProject(projectName);
 		}
 	}
 
