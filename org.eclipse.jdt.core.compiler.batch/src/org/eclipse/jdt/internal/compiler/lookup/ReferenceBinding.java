@@ -1559,7 +1559,28 @@ private boolean isCompatibleWith0(TypeBinding otherType, /*@Nullable*/ Scope cap
 			if (isInterface())  // Explicit conversion from an interface
 										// to a class is not allowed
 				return false;
-			return otherReferenceType.isSuperclassOf(this);
+			if (otherReferenceType.isSuperclassOf(this)) {
+				return true;
+			}
+			if (isHierarchyBeingConnected() && this instanceof SourceTypeBinding) {
+				SourceTypeBinding sourceType = (SourceTypeBinding) this;
+				if (sourceType.scope != null && sourceType.scope.referenceContext != null
+						&& sourceType.scope.compilerOptions().isAnnotationBasedNullAnalysisEnabled) {
+					TypeReference reference = sourceType.scope.referenceContext.superclass;
+					if (reference != null) {
+						if (!(reference.resolvedType instanceof ReferenceBinding)) {
+							reference.resolveType(sourceType.scope);
+						}
+						if (reference.resolvedType instanceof ReferenceBinding) {
+							ReferenceBinding binding = (ReferenceBinding) reference.resolvedType;
+							if (binding.isCompatibleWith(otherReferenceType, captureScope)) {
+								return true;
+							}
+						}
+					}
+				}
+			}
+			return false;
 		default :
 			return false;
 	}

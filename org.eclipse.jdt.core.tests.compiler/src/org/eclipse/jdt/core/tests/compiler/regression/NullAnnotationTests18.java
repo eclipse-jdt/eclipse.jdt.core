@@ -688,6 +688,36 @@ public class NullAnnotationTests18 extends AbstractNullAnnotationTest {
 				options,
 				"");
 	}
+	public void testGH854() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_18);
+		options.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "test.NonNull");
+		options.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "test.Nullable");
+		options.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
+
+		runNegativeTestWithLibs(
+				new String[] {
+						"Annot.java",
+						"public @interface Annot {\n" +
+								"    Class<? extends Init<? extends Configuration>>[] inits(); \n" +
+								"}\n",
+						"App.java",
+						"interface I<T> {}\n" +
+						"class IImpl<T> implements I<String>, Init<Configuration> {}\n" +
+						"@Annot(inits = {App.MyInit.class})\n" +
+						"public class App {\n" +
+						"    static class MyInit extends IImpl<Configuration> {}\n" +
+						"}\n",
+						"Configuration.java",
+						"public interface Configuration {\n" +
+								"}\n",
+						"Init.java",
+						"public interface Init<C extends Configuration> {\n" +
+								"}\n"
+				},
+				options,
+				"");
+	}
 	public void testBug572361() {
 		runConformTestWithLibs(
 			new String[] {
