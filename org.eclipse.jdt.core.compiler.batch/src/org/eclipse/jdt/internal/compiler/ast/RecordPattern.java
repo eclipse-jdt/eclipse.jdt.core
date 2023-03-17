@@ -147,8 +147,9 @@ public class RecordPattern extends TypePattern {
 			scope.problemReporter().unexpectedTypeinRecordPattern(this.resolvedType, this.type);
 			return this.resolvedType;
 		}
-		if (shouldInitiateRecordTypeInference())
+		if (shouldInitiateRecordTypeInference()) {
 			return this.resolvedType; // do the actual stuff in resolveWithExpression
+		}
 
 		setAccessorsPlusInfuseInferredType(scope);
 		return this.resolvedType;
@@ -167,6 +168,8 @@ public class RecordPattern extends TypePattern {
 				RecordComponentBinding componentBinding = components[i];
 				if (p.getType().isTypeNameVar(scope)) {
 					infuseInferredType(tp, componentBinding);
+					if (tp.local.binding != null) // rewrite with the inferred type
+						tp.local.binding.type = componentBinding.type;
 				}
 				p.resolveType(scope, true);
 				TypeBinding expressionType = componentBinding.type;

@@ -295,10 +295,10 @@ private void resolveIfStatement(BlockScope scope) {
 @Override
 public void resolve(BlockScope scope) {
 	if (containsPatternVariable()) {
-		TypeBinding type = this.condition.resolveTypeExpecting(scope, TypeBinding.BOOLEAN);
 		this.condition.collectPatternVariablesToScope(null, scope);
 		LocalVariableBinding[] patternVariablesInTrueScope = this.condition.getPatternVariablesWhenTrue();
 		LocalVariableBinding[] patternVariablesInFalseScope = this.condition.getPatternVariablesWhenFalse();
+		TypeBinding type = this.condition.resolveTypeExpecting(scope, TypeBinding.BOOLEAN);
 		this.condition.computeConversion(scope, type, type);
 
 		if (this.thenStatement != null) {
