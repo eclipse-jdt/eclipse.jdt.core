@@ -423,6 +423,8 @@ public class AbstractCompilerTest extends TestCase {
 						boolean canRunNext = canRunPrevious && !previousVersion.equals(specVersion);
 						if (canRunNext) {
 							possibleComplianceLevels |= versionMap[0];
+						} else {
+							break;
 						}
 						previousVersion = versionString;
 					}
