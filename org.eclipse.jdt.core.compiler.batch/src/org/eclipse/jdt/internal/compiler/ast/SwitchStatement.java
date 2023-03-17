@@ -940,10 +940,15 @@ public class SwitchStatement extends Expression {
 					if (statement instanceof CaseStatement) {
 						if (statement.containsPatternVariable()) {
 							CaseStatement caseStatement = (CaseStatement) statement;
-							((CaseStatement) statement).collectPatternVariablesToScope(null, this.scope);
+							caseStatement.collectPatternVariablesToScope(null, this.scope);
 							patternVariables = statement.getPatternVariablesWhenTrue();
-							Pattern pattern = (Pattern)caseStatement.constantExpressions[caseStatement.patternIndex];
-							pattern.resolveWithExpression(this.scope, this.expression);
+							if (caseStatement.patternIndex >= 0) {
+								Expression probablePattern = caseStatement.constantExpressions[caseStatement.patternIndex];
+								if (probablePattern instanceof Pattern) {
+									Pattern pattern = (Pattern)probablePattern;
+									pattern.resolveWithExpression(this.scope, this.expression);
+								}
+							}
 						} else {
 							patternVariables = null; // Probably redundant?
 						}

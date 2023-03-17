@@ -17,7 +17,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 
 /**
@@ -32,9 +31,7 @@ public class ParameterizedRecordComponentBinding extends RecordComponentBinding 
 
 public ParameterizedRecordComponentBinding(ParameterizedTypeBinding parameterizedDeclaringClass, RecordComponentBinding originalRecordComponent) {
 	super (originalRecordComponent.name,
-            (originalRecordComponent.modifiers & ClassFileConstants.AccEnum) != 0
-            	? parameterizedDeclaringClass // enum constant get paramType as its type
-       			: Scope.substitute(parameterizedDeclaringClass, originalRecordComponent.type), // no need to check for static as components cannot be static
+            Scope.substitute(parameterizedDeclaringClass, originalRecordComponent.type), // no need to check for static as components cannot be static
             originalRecordComponent.modifiers,
             parameterizedDeclaringClass);
     this.originalRecordComponent = originalRecordComponent;

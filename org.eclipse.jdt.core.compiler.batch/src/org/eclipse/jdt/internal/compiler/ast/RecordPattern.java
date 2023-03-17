@@ -195,8 +195,6 @@ public class RecordPattern extends TypePattern {
 
 		if (this.resolvedType.isParameterizedType())
 			return false;
-		if (this.resolvedType.original().isGenericType())
-			return true;
 		if (this.containsTypeElidedPatternVar == null) {
 			this.containsPatternVariable();
 		}
