@@ -407,37 +407,38 @@ public RecoveredElement buildInitialRecoveryState(){
 	// This is  copy of the code that processes astStack early in this method
 	for (int i = 0; i <= this.expressionPtr; i++, lastNode = node) {
 		node = this.expressionStack[i];
-		if (node == null || !(node instanceof InstanceOfExpression)) continue;
-		/* check for intermediate block creation, so recovery can properly close them afterwards */
-		int nodeStart = node.sourceStart;
-		for (int j = blockIndex; j <= this.realBlockPtr; j++){
-			if (this.blockStarts[j] >= 0) {
-				if (this.blockStarts[j] > nodeStart){
-					blockIndex = j; // shift the index to the new block
-					break;
-				}
-				if (this.blockStarts[j] != lastStart){ // avoid multiple block if at same position
+		if (node instanceof InstanceOfExpression) {
+			/* check for intermediate block creation, so recovery can properly close them afterwards */
+			int nodeStart = node.sourceStart;
+			for (int j = blockIndex; j <= this.realBlockPtr; j++){
+				if (this.blockStarts[j] >= 0) {
+					if (this.blockStarts[j] > nodeStart){
+						blockIndex = j; // shift the index to the new block
+						break;
+					}
+					if (this.blockStarts[j] != lastStart){ // avoid multiple block if at same position
+						block = new Block(0);
+						block.sourceStart = lastStart = this.blockStarts[j];
+						element = element.add(block, 1);
+					}
+				} else {
+					if (-this.blockStarts[j] > nodeStart){
+						blockIndex = j; // shift the index to the new block
+						break;
+					}
 					block = new Block(0);
-					block.sourceStart = lastStart = this.blockStarts[j];
+					block.sourceStart = lastStart = -this.blockStarts[j];
 					element = element.add(block, 1);
 				}
-			} else {
-				if (-this.blockStarts[j] > nodeStart){
-					blockIndex = j; // shift the index to the new block
-					break;
-				}
-				block = new Block(0);
-				block.sourceStart = lastStart = -this.blockStarts[j];
-				element = element.add(block, 1);
+				blockIndex = j+1; // shift the index to the new block
 			}
-			blockIndex = j+1; // shift the index to the new block
-		}
 
-		InstanceOfExpression pattern = (InstanceOfExpression) node;
-		LocalDeclaration local = pattern.elementVariable;
-		if (local != null)
-			element = element.add(local, 0);
-		continue;
+			InstanceOfExpression pattern = (InstanceOfExpression) node;
+			LocalDeclaration local = pattern.elementVariable;
+			if (local != null)
+				element = element.add(local, 0);
+			continue;
+		}
 	}
 	if (this.currentToken == TokenNameRBRACE) {
 		 if (isIndirectlyInsideLambdaExpression())
