@@ -2733,4 +2733,39 @@ public void testConstantInLocal() throws JavaModelException {
 			"CONSTANT [in Local [in main(String[]) [in X [in [Working copy] Test2.java [in <default> [in src [in Resolve]]]]]]]",
 			elements);
 }
+/*
+ * Test that assigning a anonymous inner class definition to a field
+ * doesn't result in a bad selections within the inner class.
+ * See: https://github.com/eclipse-jdt/eclipse.jdt.core/issues/860
+ */
+public void testAssignAnonymousClassToFieldGh860() throws Exception {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy(
+			"/Resolve/src/X.java",
+			"public class X {\n" +
+			"	public static class S {\n" +
+			"		public void testMethod() {}\n" +
+			"	}\n" +
+			"	Object o;\n" +
+			"	public void foo(){\n" +
+			"	    o = new Object(){\n" +
+			"	        public void m(){\n" +
+			"	            S s = new S();\n" +
+			"	            s.testMethod();\n" +
+			"	        }\n" +
+			"	    };\n" +
+			"	}\n" +
+			"}\n");
+
+	String str = this.workingCopies[0].getSource();
+	String selection = "s.testMethod";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length, this.wcOwner);
+
+	assertElementsEqual(
+			"Unexpected elements after selecting method in anonymous class assigned to a field",
+			"testMethod() [in S [in X [in [Working copy] X.java [in <default> [in src [in Resolve]]]]]]",
+			elements);
+}
 }

@@ -31,6 +31,7 @@ import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
+import org.eclipse.jdt.internal.compiler.ast.Assignment;
 import org.eclipse.jdt.internal.compiler.ast.Block;
 import org.eclipse.jdt.internal.compiler.ast.CaseStatement;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
@@ -50,6 +51,7 @@ import org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ModuleReference;
 import org.eclipse.jdt.internal.compiler.ast.NameReference;
 import org.eclipse.jdt.internal.compiler.ast.RecordPattern;
+import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.RequiresStatement;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.ast.SuperReference;
@@ -437,6 +439,16 @@ public RecoveredElement buildInitialRecoveryState(){
 			LocalDeclaration local = pattern.elementVariable;
 			if (local != null)
 				element = element.add(local, 0);
+			continue;
+		}
+		if (node instanceof Assignment) {
+			Assignment assignment = (Assignment) node;
+			if (assignment.expression instanceof QualifiedAllocationExpression) {
+				QualifiedAllocationExpression expression = (QualifiedAllocationExpression) assignment.expression;
+				if (expression.anonymousType != null) {
+					element.add(assignment, 0);
+				}
+			}
 			continue;
 		}
 	}
