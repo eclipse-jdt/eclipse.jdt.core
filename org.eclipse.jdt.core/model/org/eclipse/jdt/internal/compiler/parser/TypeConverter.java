@@ -482,14 +482,21 @@ public abstract class TypeConverter {
 			/* rebuild identifiers and dimensions */
 			if (identCount == 1) { // simple type reference
 				if (dim == 0) {
+					int n = typeName.length;
+					boolean hasDiamond = n > 2 && typeName[n - 2] == '<' && typeName[n - 1] == '>';
 					char[] nameFragment;
-					if (nameFragmentStart != 0 || nameFragmentEnd >= 0) {
-						int nameFragmentLength = nameFragmentEnd - nameFragmentStart + 1;
+					int nameFragmentLength = nameFragmentEnd - nameFragmentStart + 1;
+					boolean hasEmptyFragment = nameFragmentLength == 0 && hasDiamond;
+					if ((nameFragmentStart != 0 || nameFragmentEnd >= 0) && !hasEmptyFragment) {
 						System.arraycopy(typeName, nameFragmentStart, nameFragment = new char[nameFragmentLength], 0, nameFragmentLength);
 					} else {
 						nameFragment = typeName;
 					}
-					return new SingleTypeReference(nameFragment, ((long) start << 32) + end);
+					SingleTypeReference singleTypeReference = new SingleTypeReference(nameFragment, ((long) start << 32) + end);
+					if (hasDiamond) {
+						singleTypeReference.bits |= ASTNode.IsDiamond;
+					}
+					return singleTypeReference;
 				} else {
 					int nameFragmentLength = nameFragmentEnd - nameFragmentStart + 1;
 					char[] nameFragment = new char[nameFragmentLength];
