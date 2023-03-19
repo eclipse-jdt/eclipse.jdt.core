@@ -13141,7 +13141,7 @@ public void testBug345807() throws CoreException {
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=355605
-public void testBug355605() throws CoreException {
+public void testBug355605_1() throws CoreException {
 	try {
 	createJavaProject("P");
 
@@ -13163,6 +13163,44 @@ public void testBug355605() throws CoreException {
 			+ "   };\n"
 			+ "}\n"
 			+ "}\n" ;
+		createFile("/P/X.java", fileContent);
+
+		waitUntilIndexesReady();
+		this.resultCollector = new TestCollector();
+		this.resultCollector.showAccuracy(true);
+		ICompilationUnit unit = getCompilationUnit("/P/X.java");
+		IMethod method = selectMethod(unit, "myMethod", 1);
+		IJavaSearchScope hierarchyScope = SearchEngine.createHierarchyScope((IType)method.getParent());
+		search(method, IMPLEMENTORS, EXACT_RULE, hierarchyScope, this.resultCollector);
+		assertSearchResults("Unexpected search results!", "X.java void X$R.t:<anonymous>#1.s:<anonymous>#1.myMethod() [myMethod] EXACT_MATCH", this.resultCollector);
+
+	} finally {
+		deleteProject("P");
+	}
+}
+public void testBug355605_2() throws CoreException {
+	try {
+		createJavaProject("P");
+
+		String fileContent =
+				"public class X { \n"
+						+ "class R {\n"
+						+ "   class S {\n"
+						+ "     S(String s) {}\n"
+						+ "   	void setInfo(String x) {\n"
+						+ "   	}\n"
+						+ "   }\n"
+						+ "   class T {\n"
+						+ "   }\n"
+						+ "	T t = new T()  {\n"
+						+ "		S s = new S(\"test\") {\n"
+						+ "           void myMethod() {\n"
+						+ "               setInfo(\"a\");\n"
+						+ "           }\n"
+						+ "      };// S ends\n"
+						+ "   };\n"
+						+ "}\n"
+						+ "}\n" ;
 		createFile("/P/X.java", fileContent);
 
 		waitUntilIndexesReady();
