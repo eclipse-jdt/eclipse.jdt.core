@@ -2894,6 +2894,54 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 			deleteProject(projectName);
 		}
 	}
+	public void testCallHierarchyAnonymousInnerTypeGh856() throws CoreException, IOException {
+		try {
+			IJavaProject p = createJavaProject("P", new String[] { "src" }, new String[] { "JCL11_LIB" }, "bin", "11");
+			createFolder("/P/src/test");
+			createFile("/P/src/test/X.java", String.join(System.lineSeparator(), new String[] {
+					"package test;\n",
+					"public class X {\n",
+					"    public static interface Action1 {\n",
+					"        public void doit();\n",
+					"    }\n",
+					"\n",
+					"    public static interface Action2 {\n",
+					"        public void doit();\n",
+					"    }\n",
+					"\n",
+					"    public static void action1( Action1 action ) {\n",
+					"        action.doit();\n",
+					"    }\n",
+					"\n",
+					"    public static void action2( Action2 action ) {\n",
+					"        action.doit();\n",
+					"    }\n",
+					"\n",
+					"    public static void testMethod() {\n",
+					"        action2( new Action2() {\n",
+					"            public void doit() { // call hierarchy here\n",
+					"            }\n",
+					"        } );\n",
+					"    }\n",
+					"}\n",
+			}));
+			buildAndExpectNoProblems(p);
+			IType type = p.findType("test.X");
+			IMethod testMethod = type.getMethod("testMethod", new String[0]);
+			IJavaElement[] children = testMethod.getChildren();
+			assertEquals("Expected to find 1 anonymous type in method, instead found children " + Arrays.toString(children),
+					1, children.length);
+			IType anonymousType = (IType) children[0];
+			IMethod method = anonymousType.getMethod("doit", new String[0]);
+			search(method, REFERENCES, EXACT_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
+			assertSearchResults(
+					"Unexpected search results!",
+					"src/test/X.java void test.X.action2(Action2) [doit()] EXACT_MATCH",
+					this.resultCollector);
+		} finally {
+			deleteProject("P");
+		}
+	}
 
 	/**
 	 * Test that an inner class constructor with first argument of the outer type
