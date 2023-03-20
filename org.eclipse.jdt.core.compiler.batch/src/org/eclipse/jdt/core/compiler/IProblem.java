@@ -2545,4 +2545,9 @@ void setSourceStart(int sourceStart);
 	 * @noreference preview feature
 	 */
 	int RawTypeInRecordPattern =  PreviewRelated + 1915;
+	/**
+	 * @since 3.33
+	 * @noreference preview feature
+	 */
+	int CannotInferRecordPatternTypes = PreviewRelated + 1940;
 }

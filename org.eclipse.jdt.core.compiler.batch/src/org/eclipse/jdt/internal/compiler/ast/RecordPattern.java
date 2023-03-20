@@ -24,9 +24,11 @@ import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.RecordComponentBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
@@ -81,9 +83,9 @@ public class RecordPattern extends TypePattern {
 		this.thenInitStateIndex1 = currentScope.methodScope().recordInitializationStates(flowInfo);
 		flowInfo = super.analyseCode(currentScope, flowContext, flowInfo);
 		for (Pattern p : this.patterns) {
-			 p.analyseCode(currentScope, flowContext, flowInfo);
+			 flowInfo = p.analyseCode(currentScope, flowContext, flowInfo);
 		}
-		flowInfo = flowInfo.safeInitsWhenTrue();
+		flowInfo = flowInfo.safeInitsWhenTrue(); // TODO: is this really needed?
 		this.thenInitStateIndex2 = currentScope.methodScope().recordInitializationStates(flowInfo);
 		return flowInfo;
 	}
@@ -94,6 +96,23 @@ public class RecordPattern extends TypePattern {
 	@Override
 	public void resolveWithExpression(BlockScope scope, Expression exp) {
 		this.expression = exp;
+		if (shouldInitiateRecordTypeInference()) {
+			LocalVariableBinding localVariableBinding = exp.localVariableBinding();
+			TypeBinding type1 = localVariableBinding != null && localVariableBinding.type != null ?
+					localVariableBinding.type : exp.resolvedType;
+			if (type1 instanceof ReferenceBinding) {
+				ReferenceBinding binding = inferRecordParameterization(scope, (ReferenceBinding) type1);
+				if (binding == null || !binding.isValidBinding()) {
+					scope.problemReporter().cannotInferRecordPatternTypes(this);
+				    this.resolvedType = null;
+				    return;
+				}
+				this.resolvedType = binding;
+				setAccessorsPlusInfuseInferredType(scope);
+			} else {
+				// TODO: which scenarios? eg? if found add the code here from resolveType();
+			}
+		}
 	}
 	@Override
 	public TypeBinding resolveAtType(BlockScope scope, TypeBinding u) {
@@ -114,6 +133,7 @@ public class RecordPattern extends TypePattern {
 		if (this.local != null) {
 			this.resolvedType = super.resolveType(scope);
 		} else {
+			this.type.bits |= ASTNode.IgnoreRawTypeCheck;
 			this.resolvedType = this.type.resolveType(scope);
 		}
 		if (!this.resolvedType.isValidBinding())
@@ -128,6 +148,14 @@ public class RecordPattern extends TypePattern {
 			scope.problemReporter().unexpectedTypeinRecordPattern(this.resolvedType, this.type);
 			return this.resolvedType;
 		}
+		if (shouldInitiateRecordTypeInference()) {
+			return this.resolvedType; // do the actual stuff in resolveWithExpression
+		}
+
+		setAccessorsPlusInfuseInferredType(scope);
+		return this.resolvedType;
+	}
+	private void setAccessorsPlusInfuseInferredType(BlockScope scope) {
 		this.isTotalTypeNode = isTotalForType(this.resolvedType);
 		RecordComponentBinding[] components = this.resolvedType.components();
 		if (components.length != this.patterns.length) {
@@ -141,6 +169,8 @@ public class RecordPattern extends TypePattern {
 				RecordComponentBinding componentBinding = components[i];
 				if (p.getType().isTypeNameVar(scope)) {
 					infuseInferredType(tp, componentBinding);
+					if (tp.local.binding != null) // rewrite with the inferred type
+						tp.local.binding.type = componentBinding.type;
 				}
 				p.resolveType(scope, true);
 				TypeBinding expressionType = componentBinding.type;
@@ -153,7 +183,26 @@ public class RecordPattern extends TypePattern {
 				}
 			}
 		}
-		return this.resolvedType;
+	}
+	private ReferenceBinding inferRecordParameterization(BlockScope scope, ReferenceBinding proposedMatchingType) {
+		InferenceContext18 freshInferenceContext = new InferenceContext18(scope);
+		try {
+			return freshInferenceContext.inferRecordPatternParameterization(this, scope, proposedMatchingType);
+		} finally {
+			freshInferenceContext.cleanUp();
+		}
+	}
+	private boolean shouldInitiateRecordTypeInference() {
+		ReferenceBinding binding = this.resolvedType != null ? this.resolvedType.actualType() : null;
+		if (binding == null || !binding.isGenericType())
+			return false;
+
+		if (this.resolvedType.isParameterizedType())
+			return false;
+		if (this.containsTypeElidedPatternVar == null) {
+			this.containsPatternVariable();
+		}
+		return this.containsTypeElidedPatternVar;
 	}
 	private void infuseInferredType(TypePattern tp, RecordComponentBinding componentBinding) {
 		SingleTypeReference ref = new SingleTypeReference(tp.local.type.getTypeName()[0],
@@ -203,10 +252,10 @@ public class RecordPattern extends TypePattern {
 	@Override
 	protected void generatePatternVariable(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel) {
 		if (!this.isTotalTypeNode) {
-			codeStream.load(this.secretPatternVariable);
-			codeStream.instance_of(this.resolvedType);
-			BranchLabel target = falseLabel != null ? falseLabel : new BranchLabel(codeStream);
-			codeStream.ifeq(target);
+//			codeStream.load(this.secretPatternVariable);
+//			codeStream.instance_of(this.resolvedType);
+//			BranchLabel target = falseLabel != null ? falseLabel : new BranchLabel(codeStream);
+//			codeStream.ifeq(target);
 		}
 		for (Pattern p : this.patterns) {
 			if (p.accessorMethod != null) {
@@ -214,7 +263,9 @@ public class RecordPattern extends TypePattern {
 				if (!this.isTotalTypeNode)
 					codeStream.checkcast(this.resolvedType);
 				generateArguments(p.accessorMethod, null, currentScope, codeStream);
-				codeStream.invoke(Opcodes.OPC_invokevirtual, p.accessorMethod, this.resolvedType, null);
+				codeStream.invoke(Opcodes.OPC_invokevirtual, p.accessorMethod.original(), this.resolvedType, null);
+				if (!p.accessorMethod.original().equals(p.accessorMethod))
+					codeStream.checkcast(p.accessorMethod.returnType);
 				if (!p.isTotalTypeNode) {
 					if (p instanceof TypePattern) {
 						((TypePattern)p).initializePatternVariables(currentScope, codeStream);

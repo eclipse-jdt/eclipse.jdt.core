@@ -35,7 +35,18 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testEnhancedForWithRecordPattern_002" };
+//		TESTS_NAMES = new String[] { "testRecordPatternTypeInference_001" };
+//		TESTS_NAMES = new String[] { "testRecordPatternTypeInference_002" };
+//		TESTS_NAMES = new String[] { "testRecordPatternTypeInference_003" };
+//		TESTS_NAMES = new String[] { "testRecordPatternTypeInference_004" };
+//		TESTS_NAMES = new String[] { "testRecordPatternTypeInference_005" };
+//		TESTS_NAMES = new String[] { "testRecordPatternTypeInference_006" };
+//		TESTS_NAMES = new String[] { "testRecordPatternTypeInference_007" };
+//		TESTS_NAMES = new String[] { "testRecordPatternTypeInference_008" };
+//		TESTS_NAMES = new String[] { "testRecordPatternTypeInference_009" };
+//		TESTS_NAMES = new String[] { "testRecordPatternTypeInference_010" };
+//		TESTS_NAMES = new String[] { "test48" };
+//		TESTS_NAMES = new String[] { "test42" };
 	}
 	private String extraLibPath;
 	public static Class<?> testClass() {
@@ -1814,5 +1825,262 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"record R(int i) {}"
 			},
 			"true");
+	}
+	public void testRecordPatternTypeInference_001() {
+		runNegativeTest(new String[] {
+			"X.java",
+			"import java.util.function.UnaryOperator;\n" +
+			"\n" +
+			"record Mapper<T>(T in, T out) implements UnaryOperator<T> {\n" +
+			"    public T apply(T arg) { return in.equals(arg) ? out : null; }\n" +
+			"}\n" +
+			"\n" +
+			"@SuppressWarnings(\"preview\")\n" +
+			"public class X {\n" +
+			" void test(UnaryOperator<? extends CharSequence> op) {\n" +
+			"     if (op instanceof Mapper(var in, var out)) {\n" +
+			"         boolean shorter = out.length() < in.length();\n" +
+			"     }\n" +
+			" } \n" +
+			" Zork();\n"+
+			"}"
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 14)\n" +
+			"	Zork();\n" +
+			"	^^^^^^\n" +
+			"Return type for the method is missing\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 14)\n" +
+			"	Zork();\n" +
+			"	^^^^^^\n" +
+			"This method requires a body instead of a semicolon\n" +
+			"----------\n");
+	}
+	public void testRecordPatternTypeInference_002() {
+		runConformTest(new String[] {
+			"X.java",
+			"import java.util.function.UnaryOperator;\n" +
+			"\n" +
+			"record Mapper<T>(T in) implements UnaryOperator<T> {\n" +
+			"    public T apply(T arg) { return in.equals(arg) ? in : null; }\n" +
+			"}\n" +
+			"\n" +
+			"public class X {\n" +
+			" @SuppressWarnings(\"preview\")\n" +
+			" public static boolean test(UnaryOperator<? extends CharSequence> op) {\n" +
+			"     if (op instanceof Mapper(var in)) {\n" +
+			"         return in.length() > 0;\n" +
+			"     }\n" +
+			"   return false;\n" +
+			" }\n" +
+			" public static void main(String[] args) {\n" +
+			"   Mapper<CharSequence> op = new Mapper<>(new String(\"abcd\"));\n" +
+			"   System.out.println(test(op));\n" +
+			" }\n" +
+			"}"
+			},
+			"true");
+	}
+	public void testRecordPatternTypeInference_003() {
+		runConformTest(new String[] {
+			"X.java",
+				"  @SuppressWarnings(\"preview\")\n"
+				+ "public class X {\n"
+				+ "	public static void main(String[] args) {\n"
+				+ "		foo(new Box<>(\"B\"));\n"
+				+ "	}\n"
+				+ "	static void foo(Box b) {\n"
+				+ "		if (b instanceof Box(var t)) {\n"
+				+ "			System.out.println(\"I'm a box of \" + t.getClass().getName());\n"
+				+ "		}\n"
+				+ "	}\n"
+				+ "	record Box<T> (T t) {\n"
+				+ "	}\n"
+				+ "}"
+			},
+				"I\'m a box of java.lang.String");
+	}
+	// TODO : STACK VERIFICATION ERROR
+	public void testRecordPatternTypeInference_004() {
+		runConformTest(new String[] {
+			"X.java",
+			"import java.util.ArrayList;\n" +
+			"import java.util.List;\n" +
+			"\n" +
+			"interface I {int a();}\n" +
+			"record RecB(int a) implements I {}\n" +
+			"record R<T>(T a) {}\n" +
+			"\n" +
+			"public class X {\n" +
+			"\n" +
+			"    private static boolean test(List<R<? extends I>> list) {\n" +
+			"        if (list.get(0) instanceof R(var a))\n" +
+			"         return a.a() > 0;\n" +
+			"        return false;\n" +
+			"    }  \n" +
+			"\n" +
+			"    public static void main(String... args) {\n" +
+			"        List<R<? extends I>> list = new ArrayList<>();\n" +
+			"        list.add(new R<>(new RecB(2)));\n" +
+			"        System.out.println(test(list));\n" +
+			"    }\n" +
+			"}"
+			},
+			"true");
+	}
+	public void testRecordPatternTypeInference_005() {
+		runConformTest(new String[] {
+			"X.java",
+			"interface I {int a();}\n" +
+			"record RecB(int a) implements I {}\n" +
+			"record R<T>(T a) {}\n" +
+			"\n" +
+			"public class X {\n" +
+			"\n" +
+			"    private static boolean test(R<? extends I> op) {\n" +
+			"        if (op instanceof R(var a)) {\n" +
+			"         return a.a() > 0;\n" +
+			"        }\n" +
+			"        return false;\n" +
+			"    }  \n" +
+			"    public static void main(String[] args) {\n" +
+			"        R<? extends I> op = new R<>(new RecB(2));\n" +
+			"        System.out.println(test(op));\n" +
+			"    }\n" +
+			"}"
+			},
+			"true");
+	}
+	public void testRecordPatternTypeInference_006() {
+		runConformTest(new String[] {
+			"X.java",
+			"public class X {\n" +
+			" \n" +
+			"     public static <P> boolean test(P p) {\n" +
+			"         if (p instanceof R(var a)) {\n" +
+			"              return a.len() > 0;\n" +
+			"         }\n" +
+			"         return false;\n" +
+			"     }\n" +
+			" \n" +
+			"     public static void main(String argv[]) {\n" +
+			"         System.out.println(test(new R<>(new Y())));\n" +
+			"     }\n" +
+			"}\n" +
+			"record R<T extends Y>(T a) {}\n" +
+			"class Y {\n" +
+			" public int len() { return 10;}\n" +
+			"}"
+			},
+			"true");
+	}
+	public void testRecordPatternTypeInference_007() {
+		runConformTest(new String[] {
+			"X.java",
+			"interface I {\n" +
+			"   int a();\n" +
+			"}\n" +
+			"\n" +
+			"record R<T>(T a) {}\n" +
+			"public class X {\n" +
+			"\n" +
+			"    public static boolean test(R<?> p) {\n" +
+			"        if (p instanceof R(var a)) {\n" +
+			"             return a instanceof I;\n" +
+			"        }\n" +
+			"        return false; \n" +
+			"    }\n" +
+			"\n" +
+			"    public static void main(String argv[]) {\n" +
+			"       System.out.println(test(new R<>((I) () -> 0)));\n" +
+			"    }\n" +
+			"}"
+			},
+			"true");
+	}
+	public void testRecordPatternTypeInference_008() {
+		runConformTest(new String[] {
+			"X.java",
+			"interface I {int a();}\n" +
+			"\n" +
+			"record R<T>(T a) {}\n" +
+			"\n" +
+			"public class X {\n" +
+			"\n" +
+			"    public static boolean test(R<I> p) {\n" +
+			"        return switch (p) {\n" +
+			"            case R(var a) -> a instanceof I;\n" +
+			"            default ->  false;\n" +
+			"        };\n" +
+			"    }\n" +
+			"\n" +
+			"    public static void main(String argv[]) {\n" +
+			"       System.out.println(test(new R<>((I) () -> 0)));\n" +
+			"    }\n" +
+			"}"
+			},
+			"true");
+	}
+	// TODO: failing
+	public void _testRecordPatternTypeInference_009() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"interface I {\n" +
+				"   int a();\n" +
+				"}\n" +
+				"\n" +
+				"record R<T>(T a) {}\n" +
+				"\n" +
+				"public class X {\n" +
+				"\n" +
+				"    private static boolean test(R<? extends I> p) {\n" +
+				"        if (p instanceof R(String a)) {\n" +
+				"             return a instanceof String;\n" +
+				"        }\n" +
+				"        return true;\n" +
+				"    }\n" +
+				"\n" +
+				"    public static void main(String argv[]) {\n" +
+				"        System.out.println(test(new R<>((I) () -> 0))); \n" +
+				"    }\n" +
+				"}"
+				},
+				"----------\n" +
+				"1. WARNING in X.java (at line 10)\n" +
+				"	if (p instanceof R(String a)) {\n" +
+				"	                 ^^^^^^^^^^^\n" +
+				"You are using a preview language feature that may or may not be supported in a future release\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 10)\n" +
+				"	if (p instanceof R(String a)) {\n" +
+				"	                   ^^^^^^^^\n" +
+				"Pattern of type ? extends I is not compatible with type java.lang.String\n" +
+				"----------\n");
+	}
+	public void testRecordPatternTypeInference_010() {
+		runConformTest(new String[] {
+				"X.java",
+				"interface I {\n" +
+				"   int a();\n" +
+				"}\n" +
+				"\n" +
+				"record R<T>(T a) {}\n" +
+				"\n" +
+				"public class X {\n" +
+				"\n" +
+				"    private static boolean test(R<?> p) {\n" +
+				"        if (p instanceof R(String a)) {\n" +
+				"             return a instanceof String;\n" +
+				"        }\n" +
+				"        return true;\n" +
+				"    }\n" +
+				"\n" +
+				"    public static void main(String argv[]) {\n" +
+				"        System.out.println(test(new R<>((I) () -> 0))); \n" +
+				"    }\n" +
+				"}"
+				},
+				"true");
 	}
 }

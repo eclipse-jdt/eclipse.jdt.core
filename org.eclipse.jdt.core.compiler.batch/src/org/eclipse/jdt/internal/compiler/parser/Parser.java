@@ -10930,6 +10930,11 @@ protected void consumeRecordPattern() {
 				0,
 				length);
 		recPattern.patterns = patterns;
+		for (int i = 0; i < length; ++i) {
+			TypePattern pattern = (TypePattern) patterns[i];
+			pattern.setEnclosingPattern(recPattern);
+			pattern.index = i;
+		}
 	} else {
 		recPattern.patterns = ASTNode.NO_TYPE_PATTERNS;
 	}
@@ -10958,6 +10963,9 @@ protected void consumeRecordPatternWithId() {
 				0,
 				length);
 		recPattern.patterns = patterns;
+		for (Pattern pattern : patterns) {
+			pattern.setEnclosingPattern(recPattern);
+		}
 	} else {
 		recPattern.patterns = ASTNode.NO_TYPE_PATTERNS;
 	}

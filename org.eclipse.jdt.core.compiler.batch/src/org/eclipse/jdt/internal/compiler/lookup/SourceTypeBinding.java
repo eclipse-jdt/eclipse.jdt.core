@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -100,6 +104,7 @@ public class SourceTypeBinding extends ReferenceBinding {
 	public ReferenceBinding superclass;                    // MUST NOT be modified directly, use setter !
 	public ReferenceBinding[] superInterfaces;             // MUST NOT be modified directly, use setter !
 	private FieldBinding[] fields;                         // MUST NOT be modified directly, use setter !
+	private RecordComponentBinding[] components; 		   // MUST NOT be modified directly, use setter !
 	private MethodBinding[] methods;                       // MUST NOT be modified directly, use setter !
 	public ReferenceBinding[] memberTypes;                 // MUST NOT be modified directly, use setter !
 	public TypeVariableBinding[] typeVariables;            // MUST NOT be modified directly, use setter !
@@ -132,7 +137,6 @@ public class SourceTypeBinding extends ReferenceBinding {
 	private SourceTypeBinding nestHost;
 
 	private boolean isRecordDeclaration = false;
-	private RecordComponentBinding[] components; // for Java 14 record declaration - preview
 	public boolean isVarArgs =  false; // for record declaration
 	private FieldBinding[] implicitComponentFields; // cache
 	private MethodBinding[] recordComponentAccessors = null; // hash maybe an overkill
@@ -1879,6 +1883,46 @@ public FieldBinding getField(char[] fieldName, boolean needResolve) {
 	return null;
 }
 
+//NOTE: the type of a record component of a source type is resolved when needed
+@Override
+public RecordComponentBinding getComponent(char[] componentName, boolean needResolve) {
+	if (!isPrototype())
+		return this.prototype.getComponent(componentName, needResolve);
+
+	if ((this.extendedTagBits & ExtendedTagBits.AreRecordComponentsComplete) != 0) {
+		// not sorted since the order is important. ReferenceBinding.binarySearch(fieldName, this.components)
+		return getRecordComponent(componentName);
+	}
+
+	// always resolve anyway on source types
+	RecordComponentBinding component = getRecordComponent(componentName);
+	if (component != null) {
+		RecordComponentBinding result = null;
+		try {
+			result = resolveTypeFor(component);
+			return result;
+		} finally {
+			if (result == null) {
+				// ensure record components are consistent reqardless of the error
+				int newSize = this.components.length - 1;
+				if (newSize == 0) {
+					setComponents(Binding.NO_COMPONENTS);
+				} else {
+					RecordComponentBinding[] newComponents = new RecordComponentBinding[newSize];
+					int index = 0;
+					for (int i = 0, length = this.components.length; i < length; i++) {
+						RecordComponentBinding rcb = this.components[i];
+						if (rcb == component) continue;
+						newComponents[index++] = rcb;
+					}
+					setComponents(newComponents);
+				}
+			}
+		}
+	}
+	return null;
+}
+
 // NOTE: the return type, arg & exception types of each method of a source type are resolved when needed
 @Override
 public MethodBinding[] getMethods(char[] selector) {
@@ -3502,6 +3546,13 @@ public FieldBinding[] unResolvedFields() {
 	return this.fields;
 }
 
+@Override
+public RecordComponentBinding[] unResolvedComponents() {
+	if (!isPrototype())
+		return this.prototype.unResolvedComponents();
+	return this.components;
+}
+
 public void tagIndirectlyAccessibleMembers() {
 	if (!isPrototype()) {
 		this.prototype.tagIndirectlyAccessibleMembers();
@@ -3552,6 +3603,7 @@ public boolean isNestmateOf(SourceTypeBinding other) {
 public FieldBinding[] getImplicitComponentFields() {
 	return this.implicitComponentFields;
 }
+@Override
 public RecordComponentBinding getRecordComponent(char[] name) {
 	if (this.isRecordDeclaration && this.components != null) {
 		for (RecordComponentBinding rcb : this.components) {
