@@ -1063,9 +1063,6 @@ public class InferenceContext18 {
 		return solve(false);
 	}
 
-	public /*@Nullable*/ BoundSet solve(InferenceVariable[] toResolve) throws InferenceFailureException {
-		return solve(toResolve, false);
-	}
 	public /*@Nullable*/ BoundSet solve(InferenceVariable[] toResolve, boolean isRecordPatternTypeInference) throws InferenceFailureException {
 		if (!reduce())
 			return null;
@@ -1141,7 +1138,8 @@ public class InferenceContext18 {
 		return this.currentBounds.reduceOneConstraint(this, constraint); // TODO(SH): should we immediately call a diat incorporate, or can we simply wait for the next round?
 	}
 
-	 /* <b>JLS 18.4 for 18.5.5_item_3_bullet_5</b> Resolution
+	 /** <b>JLS 18.4 </b> Resolution
+	  * @param isRecordPatternTypeInference for 18.5.5_item_3_bullet_5
 	 * @return answer null if some constraint resolved to FALSE, otherwise the boundset representing the solution
 	 * @throws InferenceFailureException
 	 */
@@ -1247,7 +1245,6 @@ public class InferenceContext18 {
 					for (int j = 0; j < numVars; j++) {
 						InferenceVariable variable = variables[j];
 						CaptureBinding18 zsj = zs[j];
-//						if (!isRecordPatternTypeInference) {
 						// add lower bounds:
 						TypeBinding[] lowerBounds = tmpBoundSet.lowerBounds(variable, true/*onlyProper*/);
 						if (lowerBounds != Binding.NO_TYPES) {
@@ -1954,8 +1951,6 @@ public class InferenceContext18 {
 		};
 		if (!synthExpr.checkCastTypesCompatibility(scope2, candidateT, typeBinding, synthExpr, false))
 			return null;
-//		if (!isDownwardCompatible(candidateT, typeBinding))
-//			return null;
 		//2. Otherwise, where P1, ..., Pn (n ≥ 1) are the type parameters of R,...
 		TypeVariableBinding[] typeVariables = typeBinding.original().typeVariables();// type para
 		if (typeVariables == null)
@@ -1994,7 +1989,6 @@ public class InferenceContext18 {
 			return null;
 
 		//6. => 18_5_5_item_6
-		// TODO: implementation
 		return getRecordPatternTypeFromUpwardsProjection(typeBinding, alphas, solution);
 	}
 
@@ -2016,12 +2010,14 @@ public class InferenceContext18 {
 				instantiations,
 				r.enclosingType(),
 				r.getTypeAnnotations());
-		TypeVariableBinding[] yTypeVariables = getFreshTypeVariables(instantiations);
-//		if (yTypeVariables == null || yTypeVariables.length == 0)
-//			return null;
+		if (rA == null)
+			return null;
 
-		return rA != null ? yTypeVariables == null || yTypeVariables.length == 0 ? rA :
-				rA.upwardsProjection(this.scope, yTypeVariables) : null;
+		TypeVariableBinding[] yTypeVariables = getFreshTypeVariables(instantiations);
+		if (yTypeVariables == null || yTypeVariables.length == 0)
+			return rA;
+
+		return rA.upwardsProjection(this.scope, yTypeVariables);
 	}
 
 	private TypeVariableBinding[] getFreshTypeVariables(TypeBinding[] instantiations) {

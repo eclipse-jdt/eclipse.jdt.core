@@ -452,7 +452,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 						toResolve = true;
 				}
 				if (toResolve) {
-					BoundSet solution = inferenceContext.solve(new InferenceVariable[]{alpha});
+					BoundSet solution = inferenceContext.solve(new InferenceVariable[]{alpha}, false);
 					if (solution == null)
 						return false;
 					TypeBinding u = solution.getInstantiation(alpha, null).capture(inferenceContext.scope, invocationSite.sourceStart(), invocationSite.sourceEnd());

@@ -133,6 +133,7 @@ public class RecordPattern extends TypePattern {
 		if (this.local != null) {
 			this.resolvedType = super.resolveType(scope);
 		} else {
+			this.type.bits |= ASTNode.IgnoreRawTypeCheck;
 			this.resolvedType = this.type.resolveType(scope);
 		}
 		if (!this.resolvedType.isValidBinding())
