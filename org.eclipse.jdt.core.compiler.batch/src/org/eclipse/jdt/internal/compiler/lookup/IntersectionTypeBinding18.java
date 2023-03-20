@@ -39,6 +39,8 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
  */
 public class IntersectionTypeBinding18 extends ReferenceBinding {
 
+	private static final char[] INTERSECTION_PACKAGE_NAME = "<package intersection>".toCharArray(); //$NON-NLS-1$
+
 	public ReferenceBinding [] intersectingTypes;
 	private ReferenceBinding javaLangObject;
 	int length;
@@ -253,6 +255,11 @@ public class IntersectionTypeBinding18 extends ReferenceBinding {
 		if (classIdx > -1 && classIdx < Integer.MAX_VALUE)
 			return this.intersectingTypes[classIdx].erasure();
 		return this;
+	}
+
+	@Override
+	public char[] qualifiedPackageName() {
+		return INTERSECTION_PACKAGE_NAME;
 	}
 
 	@Override
