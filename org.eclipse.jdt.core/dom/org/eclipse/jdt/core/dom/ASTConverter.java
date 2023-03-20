@@ -2304,7 +2304,7 @@ class ASTConverter {
 		}
 		Expression leftExpression = convert(expression.expression);
 		patternInstanceOfExpression.setLeftOperand(leftExpression);
-		patternInstanceOfExpression.setRightOperand(convertToSingleVariableDeclaration(expression.elementVariable));
+		patternInstanceOfExpression.setRightOperand(convert(expression.pattern));
 		int startPosition = leftExpression.getStartPosition();
 		int sourceEnd= expression.elementVariable.sourceEnd;
 

@@ -1,10 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2020, 2021 IBM Corporation and others.
+ * Copyright (c) 2020, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * SPDX-License-Identifier: EPL-2.0
  *     IBM Corporation - initial API and implementation
@@ -26,6 +30,7 @@ import org.eclipse.jdt.core.dom.PatternInstanceofExpression;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.TypePattern;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 
 import junit.framework.Test;
@@ -38,7 +43,7 @@ public class ASTRewritingInstanceOfPatternExpressionTest extends ASTRewritingTes
 	}
 
 	public static Test suite() {
-		return createSuite(ASTRewritingInstanceOfPatternExpressionTest.class, 16);
+		return createSuite(ASTRewritingInstanceOfPatternExpressionTest.class, 19);
 	}
 
 	@SuppressWarnings("deprecation")
@@ -46,16 +51,16 @@ public class ASTRewritingInstanceOfPatternExpressionTest extends ASTRewritingTes
 	protected void setUp() throws Exception {
 		super.setUp();
 		if (this.apiLevel == AST.JLS16 ) {
-			this.project1.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_16);
-			this.project1.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_16);
-			this.project1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_16);
+			this.project1.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_19);
+			this.project1.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_19);
+			this.project1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_19);
 		}
 	}
 
 	@SuppressWarnings({ "rawtypes", "deprecation" })
 	public void test001() throws Exception {
-		if (this.apiLevel != 16) {
-			System.err.println("Test "+getName()+" requires a JRE 16");
+		if (this.apiLevel != 19) {
+			System.err.println("Test "+getName()+" requires a JRE 19");
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
@@ -81,11 +86,13 @@ public class ASTRewritingInstanceOfPatternExpressionTest extends ASTRewritingTes
 		{ // add InstanceOfPattern expression
 			IfStatement ifStatement= ast.newIfStatement();
 			PatternInstanceofExpression instanceOfExpression = ast.newPatternInstanceofExpression();
+			TypePattern typePattern = ast.newTypePattern();
 			instanceOfExpression.setLeftOperand(ast.newSimpleName("o"));//$NON-NLS-1$
 			SingleVariableDeclaration singleVariableDeclaration = ast.newSingleVariableDeclaration();
 			singleVariableDeclaration.setType(ast.newSimpleType(ast.newSimpleName("String")));//$NON-NLS-1$
 			singleVariableDeclaration.setName(ast.newSimpleName("s"));
-			instanceOfExpression.setRightOperand(singleVariableDeclaration);
+			typePattern.setPatternVariable(singleVariableDeclaration);
+			instanceOfExpression.setRightOperand(typePattern);
 			ifStatement.setExpression(instanceOfExpression);
 			ifStatement.setThenStatement(ast.newEmptyStatement());
 			rewrite.getListRewrite(block, Block.STATEMENTS_PROPERTY).insertLast(ifStatement, null);
@@ -108,8 +115,8 @@ public class ASTRewritingInstanceOfPatternExpressionTest extends ASTRewritingTes
 
 	@SuppressWarnings({ "rawtypes", "deprecation" })
 	public void test002() throws Exception {
-		if (this.apiLevel != 16) {
-			System.err.println("Test "+getName()+" requires a JRE 16");
+		if (this.apiLevel != 19) {
+			System.err.println("Test "+getName()+" requires a JRE 19");
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
@@ -163,8 +170,8 @@ public class ASTRewritingInstanceOfPatternExpressionTest extends ASTRewritingTes
 
 	@SuppressWarnings({ "rawtypes", "deprecation" })
 	public void test003() throws Exception {
-		if (this.apiLevel != 16) {
-			System.err.println("Test "+getName()+" requires a JRE 16");
+		if (this.apiLevel != 19) {
+			System.err.println("Test "+getName()+" requires a JRE 19");
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);

@@ -52,7 +52,7 @@ public abstract class Pattern extends Expression {
 	 */
 	@SuppressWarnings("rawtypes")
 	static final ChildPropertyDescriptor internalPatternPropertyFactory(Class nodeClass) {
-		return new ChildPropertyDescriptor(nodeClass, "pattern", Javadoc.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
+		return new ChildPropertyDescriptor(nodeClass, "pattern", Pattern.class, MANDATORY, NO_CYCLE_RISK); //$NON-NLS-1$
 	}
 
 }

@@ -392,7 +392,7 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 		IfStatement ifStatement = (IfStatement)statements.get(0);
 		assertEquals("Not a PatternInstanceOf Expression", true, ifStatement.getExpression() instanceof PatternInstanceofExpression);
 		PatternInstanceofExpression patternExpression = (PatternInstanceofExpression)ifStatement.getExpression();
-		assertEquals("Name of right Operand is not r1", "r1", patternExpression.getRightOperand().getName().toString());
+		assertEquals("Name of right Operand is not r1", "Rectangle(ColoredPoint(Point(int x, int y), Color c), ColoredPoint lr) r1", patternExpression.getRightOperand().toString());
 
 
 	}

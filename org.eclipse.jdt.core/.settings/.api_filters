@@ -209,6 +209,20 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="dom/org/eclipse/jdt/core/dom/PatternInstanceofExpression.java" type="org.eclipse.jdt.core.dom.PatternInstanceofExpression">
+        <filter comment="For Beta Java 19" id="338792546">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.dom.PatternInstanceofExpression"/>
+                <message_argument value="getRightOperand()"/>
+            </message_arguments>
+        </filter>
+        <filter comment="For Beta Java 19" id="338792546">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.dom.PatternInstanceofExpression"/>
+                <message_argument value="setRightOperand(SingleVariableDeclaration)"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="dom/org/eclipse/jdt/core/dom/QualifiedName.java" type="org.eclipse.jdt.core.dom.QualifiedName">
         <filter id="576778288">
             <message_arguments>
