@@ -1828,7 +1828,9 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 			}
 			consumeToken();
 			token = readTokenSafely();
-			if (token==TerminalTokens.TokenNameERROR||token==TerminalTokens.TokenNameStringLiteral){
+			if (token==TerminalTokens.TokenNameERROR
+					|| token==TerminalTokens.TokenNameStringLiteral
+					|| token==TerminalTokens.TokenNameIdentifier){
 				regionName = this.scanner.getCurrentTokenString();
 				consumeToken();
 				lastIndex = regionName.length() - 1;
@@ -1994,8 +1996,9 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 						indexOfLastComment = indexOfLastSingleComment(commentLine.substring(2),noSingleLineComm);
 						commentStr = commentLine.substring(indexOfLastComment+2);
 					}
-					Scanner commentScanner = new Scanner(false, false, false, this.scanner.sourceLevel, this.scanner.complianceLevel,
-							null, null, false, false);
+					Scanner commentScanner = new JavadocScanner(false, false, false/* nls */, this.scanner.sourceLevel, this.scanner.complianceLevel,
+							null/* taskTags */, null/* taskPriorities */, false/* taskCaseSensitive */, false, true, true);
+
 					if (commentStr.startsWith("//")) { //$NON-NLS-1$
 						commentStr = commentStr.substring(2);
 					}
@@ -2051,6 +2054,25 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 											isRegion = true;
 											break;
 										default:
+											if (getRegionValue) {
+												String regionStr = commentScanner.getCurrentTokenString();
+												regionStr = stripQuotes(regionStr);
+												if (START.equals(attribute) &&  regionStr.equals(region)) {
+													insideRegion = true;
+													regionStarted = true;
+												}
+												if (END.equals(attribute)) {
+													if (regionStr.equals(region)) {
+														insideRegion = false;
+													}
+													stack.removeFirst();
+												}
+												if (!END.equals(attribute) && insideRegion) {
+													stack.addFirst(attribute);
+												}
+												attribute = null;
+												getRegionValue = false;
+											}
 											isRegion = false;
 											break;
 									}
@@ -2389,7 +2411,9 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 													case TerminalTokens.TokenNameIdentifier:
 														if (processValue) {
 															value = slScanner.getCurrentTokenString();
-															if (map.get(attribute) == null) {
+															if (REGION.equals(attribute)) {
+																regionName = value;
+															} else if (map.get(attribute) == null) {
 																map.put(attribute, value);
 																if ((attribute.equals(SUBSTRING) && (map.get(REGEX) != null))
 																		|| (attribute.equals(REGEX) && (map.get(SUBSTRING) != null))) {
