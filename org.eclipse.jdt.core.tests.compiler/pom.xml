@@ -19,7 +19,7 @@
     <relativePath>../tests-pom/</relativePath>
   </parent>
   <artifactId>org.eclipse.jdt.core.tests.compiler</artifactId>
-  <version>3.12.2100-SNAPSHOT</version>
+  <version>3.12.2200-SNAPSHOT</version>
   <packaging>eclipse-test-plugin</packaging>
 
   <properties>
@@ -31,7 +31,6 @@
   		<plugin>
   			<groupId>org.eclipse.tycho</groupId>
 	  		<artifactId>tycho-surefire-plugin</artifactId>
-	  		<version>${tycho.version}</version>
 	  		<configuration>
 	  			<includes>
 	  				<include>org/eclipse/jdt/core/tests/compiler/parser/TestAll.class</include>
