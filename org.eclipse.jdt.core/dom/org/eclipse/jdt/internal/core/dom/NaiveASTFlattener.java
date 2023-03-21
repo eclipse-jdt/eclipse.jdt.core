@@ -897,6 +897,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 	}
 
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public boolean visit(PatternInstanceofExpression node) {
 		node.getLeftOperand().accept(this);
