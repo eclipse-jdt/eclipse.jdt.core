@@ -5550,6 +5550,11 @@ protected boolean mayBeAtCaseLabelExpr() {
 				(this.lookBack[0] == TerminalTokens.TokenNamecase || this.lookBack[0] == TerminalTokens.TokenNameCOMMA)
 				: false;
 	}
+	if (this.lookBack[0] == TokenNameBeginLambda) {
+		return JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(this.complianceLevel, this.previewEnabled) ?
+				this.lookBack[1] != TokenNameRPAREN
+				: false;
+	}
 	return true;
 }
 
