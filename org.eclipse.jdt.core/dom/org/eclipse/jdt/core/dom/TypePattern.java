@@ -126,7 +126,7 @@ public class TypePattern extends Pattern {
 	}
 
 	public List<SingleVariableDeclaration> patternVariables() {
-		supportedOnlyIn19();
+		supportedOnlyIn20();
 		unsupportedWithoutPreviewError();
 		return new ArrayList<SingleVariableDeclaration>(Arrays.asList(getPatternVariable()));
 	}

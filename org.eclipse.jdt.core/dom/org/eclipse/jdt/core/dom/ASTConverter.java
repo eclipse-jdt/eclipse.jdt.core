@@ -2240,7 +2240,7 @@ class ASTConverter {
 		guardedPattern.setRestrictedIdentifierStartPosition(pattern.restrictedIdentifierStart);
 		return guardedPattern;
 	}
-	// TODO: Implement this. What we have here is just a dummy implementation
+
 	public Pattern convert(org.eclipse.jdt.internal.compiler.ast.RecordPattern pattern) {
 		RecordPattern recordPattern = new RecordPattern(this.ast);
 		if (this.resolveBindings) {
@@ -2283,7 +2283,7 @@ class ASTConverter {
 	}
 
 	public Expression convert(org.eclipse.jdt.internal.compiler.ast.InstanceOfExpression expression) {
-		if (DOMASTUtil.isPatternInstanceofExpressionSupported(this.ast) && expression.elementVariable != null) {
+		if (DOMASTUtil.isPatternInstanceofExpressionSupported(this.ast) && expression.pattern != null) {
 			return convertToPatternInstanceOfExpression(expression);
 		}
 		InstanceofExpression instanceOfExpression = new InstanceofExpression(this.ast);
@@ -2301,6 +2301,7 @@ class ASTConverter {
 		return instanceOfExpression;
 	}
 
+	@SuppressWarnings("deprecation")
 	public PatternInstanceofExpression convertToPatternInstanceOfExpression(org.eclipse.jdt.internal.compiler.ast.InstanceOfExpression expression) {
 		PatternInstanceofExpression patternInstanceOfExpression = new PatternInstanceofExpression(this.ast);
 		if (this.resolveBindings) {
@@ -2308,9 +2309,13 @@ class ASTConverter {
 		}
 		Expression leftExpression = convert(expression.expression);
 		patternInstanceOfExpression.setLeftOperand(leftExpression);
-		patternInstanceOfExpression.setRightOperand(convertToSingleVariableDeclaration(expression.elementVariable));
+		if (this.ast.apiLevel == AST.JLS20 && this.ast.isPreviewEnabled()) {
+			patternInstanceOfExpression.setPattern(convert(expression.pattern));
+		} else {
+			patternInstanceOfExpression.setRightOperand(convertToSingleVariableDeclaration(expression.elementVariable));
+		}
 		int startPosition = leftExpression.getStartPosition();
-		int sourceEnd= expression.elementVariable.sourceEnd;
+		int sourceEnd= expression.pattern.sourceEnd;
 
 		patternInstanceOfExpression.setSourceRange(startPosition, sourceEnd - startPosition + 1);
 		return patternInstanceOfExpression;
@@ -2808,8 +2813,6 @@ class ASTConverter {
 			if (pattern instanceof org.eclipse.jdt.internal.compiler.ast.TypePattern) {
 				return convert((org.eclipse.jdt.internal.compiler.ast.TypePattern) pattern);
 			}
-
-
 			return null;
 	}
 

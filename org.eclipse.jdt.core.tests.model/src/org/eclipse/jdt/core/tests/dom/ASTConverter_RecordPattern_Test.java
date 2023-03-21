@@ -138,9 +138,8 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 
 	}
 
-	// This was valid for Java 18 but not in Java 19
 	@SuppressWarnings("rawtypes")
-	public void _testGuardedPattern() throws CoreException {
+	public void testGuardedPattern() throws CoreException {
 		if (!isJRE20) {
 			printJREError();
 			return;
@@ -148,8 +147,8 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 		String contents = "public class X {\n" +
 				"void foo(Object o) {\n" +
 				"	switch (o) {\n" +
-			    "		case Integer i  && (i.intValue() > 10)   -> System.out.println(\"Greater than 10 \");\n" +
-			    "		case String s && s.equals(\"ff\")   -> System.out.println(s);\n" +
+			    "		case Integer i when (i.intValue() > 10)   -> System.out.println(\"Greater than 10 \");\n" +
+			    "		case String s when s.equals(\"ff\")   -> System.out.println(s);\n" +
 			    "		default       	-> System.out.println(o.toString());\n" +
 			    "	}\n" +
 			    "}\n" +
@@ -279,7 +278,7 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 				"void foo(Object o) {\n" +
 				"	switch (o) {\n" +
 			    "		case Integer i  : System.out.println(i.toString());\n" +
-			    "		case default    : System.out.println(o.toString());\n" +
+			    "		case null, default    : System.out.println(o.toString());\n" +
 			    "	}\n" +
 			    "}\n" +
 				"\n" +
@@ -296,10 +295,10 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 		List statements = ((SwitchStatement)node).statements();
 		assertEquals("incorrect no of statements", 4, statements.size());
 		SwitchCase caseDefault = (SwitchCase) statements.get(2);
-		Expression caseDefaultExpression = (Expression) caseDefault.expressions().get(0);
-		assertEquals("Case Default Expression",caseDefaultExpression.getNodeType() , ASTNode.CASE_DEFAULT_EXPRESSION);
-
-
+		Expression exp = (Expression) caseDefault.expressions().get(0);
+		assertEquals("Case Default Expression",exp.getNodeType() , ASTNode.NULL_LITERAL);
+		exp = (Expression) caseDefault.expressions().get(1);
+		assertEquals("Case Default Expression",exp.getNodeType() , ASTNode.CASE_DEFAULT_EXPRESSION);
 	}
 
 	public void testBug575250() throws CoreException {
@@ -364,9 +363,9 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 		String contents = "public class X {\n"
 						+ "  static void print(Rectangle r) {\n"
 						+ "    if (r instanceof (Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
-						+ "                               ColoredPoint lr) r1)) {\n"
+						+ "                               ColoredPoint lr))) {\n"
 						+ "        System.out.println(\"Upper-left corner: \");\n"
-						+ "        System.out.println(r1.toString());\n"
+						+ "        System.out.println(lr.toString());\n"
 						+ "    }\n"
 						+ "  }\n"
 						+ "  public static void main(String[] obj) {\n"
@@ -394,11 +393,24 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 		assertEquals("Method name is not print", "print", printMethod.getName().toString());
 		List<ASTNode> statements = printMethod.getBody().statements();
 		IfStatement ifStatement = (IfStatement)statements.get(0);
-		assertEquals("Not a PatternInstanceOf Expression", true, ifStatement.getExpression() instanceof PatternInstanceofExpression);
+		assertEquals("Not a PatternInstanceOf Expression", "org.eclipse.jdt.core.dom.PatternInstanceofExpression", ifStatement.getExpression().getClass().getName());
 		PatternInstanceofExpression patternExpression = (PatternInstanceofExpression)ifStatement.getExpression();
-		assertEquals("Name of right Operand is not r1", "r1", patternExpression.getRightOperand().getName().toString());
-
-
+		Pattern pattern = patternExpression.getPattern();
+		assertNotNull("Pattern should not be null", pattern);
+		assertEquals("Should be a record pattern", "org.eclipse.jdt.core.dom.RecordPattern", pattern.getClass().getName());
+		RecordPattern recPattern = (RecordPattern) pattern;
+		assertNull("Pattern name should be null", recPattern.getPatternName());
+		List<Pattern> patterns = recPattern.patterns();
+		assertEquals("Incorrect nested pattern size", 2, patterns.size());
+		pattern = patterns.get(0);
+		assertEquals("Should be a type pattern", "org.eclipse.jdt.core.dom.RecordPattern", pattern.getClass().getName());
+		recPattern = (RecordPattern) pattern;
+		assertNull("Pattern name should be null", recPattern.getPatternName());
+		pattern = patterns.get(1);
+		assertEquals("Should be a type pattern", "org.eclipse.jdt.core.dom.TypePattern", pattern.getClass().getName());
+		TypePattern tPattern = (TypePattern) pattern;
+		assertNotNull("Pattern name should not be null", tPattern.getPatternVariable());
+		assertEquals("Incorrect pattern variable name", "lr", tPattern.getPatternVariable().getName().toString());
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -410,7 +422,7 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 		String contents =  "public class X {\n"
 				+ "  public static void print(Record r) {\n"
 				+ "    int res = switch(r) {\n"
-				+ "       case Record(int x) r1 -> x ;\n"
+				+ "       case Record(int x) -> x ;\n"
 				+ "        default -> 0;\n"
 				+ "    }; \n"
 				+ "    System.out.println(\"Returns: \");\n"
@@ -451,13 +463,11 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 		assertEquals("incorrect type", ASTNode.RECORD_PATTERN, ((Expression)caseStmt.expressions().get(0)).getNodeType());
 		RecordPattern recordPattern = (RecordPattern)caseStmt.expressions().get(0);
 		assertEquals("StartPosition of Record Pattern is not 94",94 , recordPattern.getStartPosition());
-		assertEquals("Length of Record Pattern is not 16",16 , recordPattern.getLength());
+		assertEquals("Length of Record Pattern is not 13",13 , recordPattern.getLength());
 		assertEquals("Type of RecordPattern variable is not Record","Record" , recordPattern.getPatternType().toString());
 		assertEquals("StartPosition of Type variable is not 94",94 , recordPattern.getPatternType().getStartPosition());
 		assertEquals("Length of Record Pattern is not 6",6 , recordPattern.getPatternType().getLength());
-		assertEquals("Name of RecordPattern variableis not r1","r1" , recordPattern.getPatternName().toString());
-		assertEquals("StartPosition of Record Pattern is not 108",108 , recordPattern.getPatternName().getStartPosition());
-		assertEquals("Length of Record Pattern is not 2",2 , recordPattern.getPatternName().getLength());
+		assertNull("Name of RecordPattern variableis not null", recordPattern.getPatternName());
 		assertEquals("Type of Nested pattern in RecordPattern is not TypePattern",ASTNode.TYPE_PATTERN , recordPattern.patterns().get(0).getNodeType());
 	}
 
@@ -471,7 +481,7 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 				+ "  public static void printLowerRight(Rectangle r) {\n"
 				+ "    int res = switch(r) {\n"
 				+ "       case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
-				+ "                               ColoredPoint lr) r1  -> {\n"
+				+ "                               ColoredPoint lr) -> {\n"
 				+ "        		yield 1;  \n"
 				+ "        } \n"
 				+ "        default -> 0;\n"
@@ -517,7 +527,7 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 		assertEquals("incorrect type", ASTNode.RECORD_PATTERN, ((Expression)caseStmt.expressions().get(0)).getNodeType());
 		RecordPattern recordPattern = (RecordPattern)caseStmt.expressions().get(0);
 		assertEquals("Type of RecordPattern variable is not Rectangle","Rectangle" , recordPattern.getPatternType().toString());
-		assertEquals("Name of RecordPattern variable is not r1","r1" , recordPattern.getPatternName().toString());
+		assertNull("Name of RecordPattern variable is not null", recordPattern.getPatternName());
 		assertEquals("There should be 2 nested Patterns in Rectangle", 2 , recordPattern.patterns().size());
 		assertEquals("Type of Nested pattern in Rectangle is not RecordPattern",ASTNode.RECORD_PATTERN , recordPattern.patterns().get(0).getNodeType());
 		assertEquals("Type of Nested pattern in Rectangle is not TypePattern",ASTNode.TYPE_PATTERN , recordPattern.patterns().get(1).getNodeType());
@@ -546,7 +556,7 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 				+ "  public static void printLowerRight(Rectangle r) {\n"
 				+ "    int res = switch(r) {\n"
 				+ "       case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
-				+ "                               ColoredPoint lr) r1 when x > 0 -> {\n"
+				+ "                               ColoredPoint lr) when x > 0 -> {\n"
 				+ "        		yield 1;  \n"
 				+ "        } \n"
 				+ "        default -> 0;\n"
