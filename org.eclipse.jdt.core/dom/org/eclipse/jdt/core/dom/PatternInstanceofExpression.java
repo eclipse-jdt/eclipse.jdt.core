@@ -97,10 +97,24 @@ public class PatternInstanceofExpression extends Expression {
 	 * @since 3.27
 	 */
 	public static List propertyDescriptors(int apiLevel) {
-		if (apiLevel < AST.JLS20_INTERNAL) {
-			return PROPERTY_DESCRIPTORS_16;
+		return PROPERTY_DESCRIPTORS_16;
+	}
+	/**
+	 * Returns a list of structural property descriptors for this node type.
+	 * Clients must not modify the result.
+	 *
+	 * @param apiLevel the API level; one of the
+	 * <code>AST.JLS*</code> constants
+	 * @param isPreview If Java language preview features are enabled or not
+	 * @return a list of property descriptors (element type:
+	 * {@link StructuralPropertyDescriptor})
+	 * @since 3.33 BETA_JAVA20
+	 */
+	public static List propertyDescriptors(int apiLevel, boolean isPreview) {
+		if (apiLevel >= AST.JLS20_INTERNAL && isPreview) {
+			return PROPERTY_DESCRIPTORS_20;
 		}
-		return PROPERTY_DESCRIPTORS_20;
+		return PROPERTY_DESCRIPTORS_16;
 	}
 
 	/**
@@ -134,7 +148,12 @@ public class PatternInstanceofExpression extends Expression {
 	}
 
 	@Override
-	final List internalStructuralPropertiesForType(int apiLevel) {
+	final List internalStructuralPropertiesForType(int apiLevel, boolean isPreview) {
+		return propertyDescriptors(apiLevel, isPreview);
+	}
+
+	@Override
+	List internalStructuralPropertiesForType(int apiLevel) {
 		return propertyDescriptors(apiLevel);
 	}
 
@@ -157,6 +176,8 @@ public class PatternInstanceofExpression extends Expression {
 			}
 		}
 		if (property == PATTERN_PROPERTY) {
+			if (!this.ast.isPreviewEnabled())
+				return null;
 			if (get) {
 				return getPattern();
 			} else {
@@ -198,10 +219,10 @@ public class PatternInstanceofExpression extends Expression {
 		if (visitChildren) {
 			// visit children in normal left to right reading order
 			acceptChild(visitor, getLeftOperand());
-			if (this.ast.apiLevel < AST.JLS20_INTERNAL) {
-				acceptChild(visitor, getRightOperand());
-			} else {
+			if (this.ast.apiLevel >= AST.JLS20_INTERNAL && this.ast.isPreviewEnabled()) {
 				acceptChild(visitor, getPattern());
+			} else {
+				acceptChild(visitor, getRightOperand());
 			}
 		}
 		visitor.endVisit(this);
@@ -257,7 +278,6 @@ public class PatternInstanceofExpression extends Expression {
 	 * @deprecated
 	 */
 	public SingleVariableDeclaration getRightOperand() {
-		unsupportedIn20();
 		if (this.rightOperand  == null) {
 			// lazy init must be thread-safe for readers
 			synchronized (this) {
@@ -304,7 +324,6 @@ public class PatternInstanceofExpression extends Expression {
 	 * @deprecated
 	 */
 	public void setRightOperand(SingleVariableDeclaration referenceDeclaration) {
-		unsupportedIn20();
 		if (referenceDeclaration == null) {
 			throw new IllegalArgumentException();
 		}

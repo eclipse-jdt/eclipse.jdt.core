@@ -653,11 +653,12 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		return false;
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public boolean visit(PatternInstanceofExpression node) {
 		getChildNode(node, PatternInstanceofExpression.LEFT_OPERAND_PROPERTY).accept(this);
 		this.result.append(" instanceof "); //$NON-NLS-1$
-		if (node.getAST().apiLevel() >= AST.JLS20) {
+		if (node.getAST().apiLevel() >= AST.JLS20 && node.getAST().isPreviewEnabled()) {
 			getChildNode(node, PatternInstanceofExpression.PATTERN_PROPERTY).accept(this);
 		} else {
 			getChildNode(node, PatternInstanceofExpression.RIGHT_OPERAND_PROPERTY).accept(this);

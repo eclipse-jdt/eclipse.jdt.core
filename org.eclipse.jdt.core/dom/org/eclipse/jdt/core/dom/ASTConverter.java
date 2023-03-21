@@ -2309,7 +2309,7 @@ class ASTConverter {
 		}
 		Expression leftExpression = convert(expression.expression);
 		patternInstanceOfExpression.setLeftOperand(leftExpression);
-		if (this.ast.apiLevel == AST.JLS20) {
+		if (this.ast.apiLevel == AST.JLS20 && this.ast.isPreviewEnabled()) {
 			patternInstanceOfExpression.setPattern(convert(expression.pattern));
 		} else {
 			patternInstanceOfExpression.setRightOperand(convertToSingleVariableDeclaration(expression.elementVariable));
