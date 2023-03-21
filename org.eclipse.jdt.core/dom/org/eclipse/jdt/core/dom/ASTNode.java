@@ -2514,7 +2514,7 @@ public abstract class ASTNode {
      * </p>
      *
 	 * @exception UnsupportedOperationException if this operation is not used in JLS20
-	 * @since 3.33 BETA_JAVA20
+	 * @since 3.33
 	 */
 	final void supportedOnlyIn20() {
 		if (this.ast.apiLevel < AST.JLS20_INTERNAL) {
