@@ -70,9 +70,8 @@ public class ASTConverter_GuardedPattern_Test extends ConverterTestSetup {
 		}
 	}
 
-
 	public void testGuardedPattern001() throws CoreException {
-		if (!isJRE19) {
+		if (!isJRE20) {
 			System.err.println("Test "+getName()+" requires a JRE 19");
 			return;
 		}
@@ -140,6 +139,4 @@ public class ASTConverter_GuardedPattern_Test extends ConverterTestSetup {
 		int restrictedWhenStartPos = gPattern.getRestrictedIdentifierStartPosition();
 		assertEquals("Not correct restricted start position", 451, restrictedWhenStartPos);
 	}
-
-
 }

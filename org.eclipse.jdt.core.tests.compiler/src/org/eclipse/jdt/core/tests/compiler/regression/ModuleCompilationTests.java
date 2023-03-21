@@ -3957,8 +3957,7 @@ public void testBug521362_emptyFile() {
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 	}
 	public void testReleaseOption2() throws Exception {
-		if (isJRE20Plus) return;
-		if (isJRE19Plus)
+		if (!isJRE17Plus) return;
 		this.runConformTest(
 				new String[] {
 					"X.java",
@@ -3967,16 +3966,15 @@ public void testBug521362_emptyFile() {
 					"}",
 				},
 		     "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		     + " --release 7 -d \"" + OUTPUT_DIR + "\"",
+		     + " --release 10 -d \"" + OUTPUT_DIR + "\"",
 		     "",
 		     "",
 		     true);
-		String expectedOutput = "// Compiled from X.java (version 1.7 : 51.0, super bit)";
+		String expectedOutput = "// Compiled from X.java (version 10 : 54.0, super bit)";
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 	}
 	public void testReleaseOption3() throws Exception {
-		if (isJRE20Plus) return;
-		if (isJRE19Plus)
+		if (!isJRE17Plus) return;
 		this.runConformTest(
 				new String[] {
 					"X.java",
@@ -3985,11 +3983,11 @@ public void testBug521362_emptyFile() {
 					"}",
 				},
 		     "\"" + OUTPUT_DIR +  File.separator + "X.java\""
-		     + " --release 7 -d \"" + OUTPUT_DIR + "\"",
+		     + " --release 10 -d \"" + OUTPUT_DIR + "\"",
 		     "",
 		     "",
 		     true);
-		String expectedOutput = "// Compiled from X.java (version 1.7 : 51.0, super bit)";
+		String expectedOutput = "// Compiled from X.java (version 10 : 54.0, super bit)";
 			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 	}
 	public void testReleaseOption4() throws Exception {

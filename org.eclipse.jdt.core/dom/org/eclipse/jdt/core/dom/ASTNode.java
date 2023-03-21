@@ -2526,6 +2526,20 @@ public abstract class ASTNode {
 		}
 	}
 	/**
+     * Checks that this AST operation is not used when
+     * building JLS20 level ASTs.
+     * <p>
+     * Use this method to prevent access to new properties that have been added in JLS20.
+     * </p>
+     *
+	 * @exception UnsupportedOperationException if this operation is used in a JLS20 AST
+     */
+	final void unsupportedIn20() {
+	  if (this.ast.apiLevel == AST.JLS20_INTERNAL) {
+	  	throw new UnsupportedOperationException("Operation not supported in JLS20 AST"); //$NON-NLS-1$
+	  }
+	}
+	/**
 	 * Sets or clears this node's parent node and location.
 	 * <p>
 	 * Note that this method is package-private. The pointer from a node

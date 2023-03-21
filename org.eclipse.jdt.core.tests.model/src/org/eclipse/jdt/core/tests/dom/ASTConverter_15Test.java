@@ -814,6 +814,7 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 		assertEquals("wrong line number", 9, compilationUnit.getLineNumber(node.getStartPosition()));
 	}
 
+	@SuppressWarnings("deprecation")
 	public void _testPatternInstanceOfExpression001() throws JavaModelException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
@@ -856,6 +857,7 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 			}
 	}
 
+	@SuppressWarnings("deprecation")
 	public void _testPatternInstanceOfExpression002() throws JavaModelException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");
@@ -899,6 +901,7 @@ public class ASTConverter_15Test extends ConverterTestSetup {
 			}
 	}
 
+	@SuppressWarnings("deprecation")
 	public void _testPatternInstanceOfExpression003() throws JavaModelException {
 		if (!isJRE15) {
 			System.err.println("Test "+getName()+" requires a JRE 15");

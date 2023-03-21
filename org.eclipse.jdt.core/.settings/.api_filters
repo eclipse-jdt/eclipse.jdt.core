@@ -199,6 +199,14 @@
             </message_arguments>
         </filter>
     </resource>
+    <resource path="dom/org/eclipse/jdt/core/dom/PatternInstanceofExpression.java" type="org.eclipse.jdt.core.dom.PatternInstanceofExpression">
+        <filter id="336658481">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.dom.PatternInstanceofExpression"/>
+                <message_argument value="PATTERN_PROPERTY"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="dom/org/eclipse/jdt/core/dom/QualifiedName.java" type="org.eclipse.jdt.core.dom.QualifiedName">
         <filter id="576778288">
             <message_arguments>
