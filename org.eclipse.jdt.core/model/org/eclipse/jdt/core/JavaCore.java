@@ -8,10 +8,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     IBM Corporation - added the following constants:
@@ -3186,7 +3182,7 @@ public final class JavaCore extends Plugin {
 	public static final String VERSION_19 = "19"; //$NON-NLS-1$
 	/**
 	 * Configurable option value: {@value}.
-	 * @since 3.33 BETA_JAVA20
+	 * @since 3.33
 	 * @category OptionValue
 	 */
 	public static final String VERSION_20 = "20"; //$NON-NLS-1$
