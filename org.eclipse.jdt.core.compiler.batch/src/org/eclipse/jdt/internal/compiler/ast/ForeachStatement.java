@@ -60,6 +60,7 @@ public class ForeachStatement extends Statement {
 	public LocalDeclaration elementVariable;
 	public int elementVariableImplicitWidening = -1;
 	public Expression collection;
+	public Statement originalAction;
 	public Statement action;
 	public RecordPattern pattern;
 
@@ -128,6 +129,9 @@ public class ForeachStatement extends Statement {
 			stmts.add(new ThrowStatement(allocationExpression, 0, 0));
 
 			switchStatement.statements = stmts.toArray(new Statement[0]);
+			switchStatement.sourceStart = this.action.sourceStart;
+			switchStatement.sourceEnd = this.action.sourceEnd;
+			this.originalAction = this.action;
 			this.action = switchStatement;
 		}
 	}
