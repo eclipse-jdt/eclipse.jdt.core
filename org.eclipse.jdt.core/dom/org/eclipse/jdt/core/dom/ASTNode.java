@@ -1142,6 +1142,8 @@ public abstract class ASTNode {
 				return EmptyStatement.class;
 			case ENHANCED_FOR_STATEMENT :
 				return EnhancedForStatement.class;
+			case ENHANCED_FOR_WITH_RECORD_PATTERN :
+				return EnhancedForWithRecordPattern.class;
 			case ENUM_CONSTANT_DECLARATION :
 				return EnumConstantDeclaration.class;
 			case ENUM_DECLARATION :
