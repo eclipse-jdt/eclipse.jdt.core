@@ -1949,6 +1949,7 @@ public class ASTMatcher {
 	 *   different node type or is <code>null</code>
 	 * @since 3.26
 	 */
+	@SuppressWarnings("deprecation")
 	public boolean match(PatternInstanceofExpression node, Object other) {
 		if (!(other instanceof PatternInstanceofExpression)) {
 			return false;
