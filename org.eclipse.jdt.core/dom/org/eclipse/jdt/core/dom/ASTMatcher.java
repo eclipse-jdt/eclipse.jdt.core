@@ -854,6 +854,8 @@ public class ASTMatcher {
 	 * @return <code>true</code> if the subtree matches, or
 	 *   <code>false</code> if they do not match or the other object has a
 	 *   different node type or is <code>null</code>
+	 * @since 3.33
+	 * @noreference This method is not intended to be referenced by clients.
 	 */
 	public boolean match(EnhancedForWithRecordPattern node, Object other) {
 		if (!(other instanceof EnhancedForWithRecordPattern)) {
