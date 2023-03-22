@@ -10084,6 +10084,25 @@ public void testBug458332() {
 		"450\n" +
 		"250");
 }
+//https://github.com/eclipse-jdt/eclipse.jdt.core/issues/859,  Double Lambda causes compiler to ignore other code
+public void testDoubleLambdaAndSemicolonGh859() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n"+
+				"	 interface S<T> {\n"+
+				"	     T s(T t);\n"+
+				"	 }\n"+
+				"    void f() {\n"+
+				"        S<S<?>> s = v -> x -> x ) ;\n"+
+				"        {} // empty block to force scope handling for the lambda line\n"+
+				"    }\n"+
+				"}\n"
+			},
+			"----------\n"+
+			"1. ERROR in X.java (at line 6)\n"+
+			"----------\n");
+}
 public static Class testClass() {
 	return NegativeLambdaExpressionsTest.class;
 }
