@@ -49,7 +49,7 @@ public class PatternInstanceofExpression extends Expression {
 		new ChildPropertyDescriptor(PatternInstanceofExpression.class, "rightOperand", SingleVariableDeclaration.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
 	/**
 	 * The "pattern" structural property of this node type (child type: {@link Pattern}).
-	 * @since 3.33 BETA_JAVA20
+	 * @since 3.33 
 	 */
 	public static final ChildPropertyDescriptor PATTERN_PROPERTY =
 		new ChildPropertyDescriptor(PatternInstanceofExpression.class, "pattern", Pattern.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
@@ -67,7 +67,7 @@ public class PatternInstanceofExpression extends Expression {
 	 * {@link StructuralPropertyDescriptor}),
 	 * or null if uninitialized.
 	 *
-	 * @since 3.33 BETA_JAVA20
+	 * @since 3.33 
 	 */
 	private static final List PROPERTY_DESCRIPTORS_20;
 
@@ -108,7 +108,7 @@ public class PatternInstanceofExpression extends Expression {
 	 * @param isPreview If Java language preview features are enabled or not
 	 * @return a list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor})
-	 * @since 3.33 BETA_JAVA20
+	 * @since 3.33 
 	 */
 	public static List propertyDescriptors(int apiLevel, boolean isPreview) {
 		if (apiLevel >= AST.JLS20_INTERNAL && isPreview) {
@@ -294,7 +294,7 @@ public class PatternInstanceofExpression extends Expression {
 	 * Returns the pattern of this instanceof expression.
 	 *
 	 * @return the pattern
-	 * @since 3.33 BETA_JAVA20
+	 * @since 3.33 
 	 */
 	public Pattern getPattern() {
 		supportedOnlyIn20();
@@ -342,7 +342,7 @@ public class PatternInstanceofExpression extends Expression {
 	 * <li>the node already has a parent</li>
 	 * <li>a cycle in would be created</li>
 	 * </ul>
-	 * @since 3.33 BETA_JAVA20
+	 * @since 3.33 
 	 */
 	public void setPattern(Pattern pattern) {
 		supportedOnlyIn20();
