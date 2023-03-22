@@ -148,7 +148,7 @@ public class EnhancedForWithRecordPattern extends Statement {
 
 	@Override
 	final int getNodeType0() {
-		return ENHANCED_FOR_STATEMENT;
+		return ENHANCED_FOR_WITH_RECORD_PATTERN;
 	}
 
 	@Override
