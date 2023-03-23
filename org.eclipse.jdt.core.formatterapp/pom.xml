@@ -18,6 +18,6 @@
     <version>4.28.0-SNAPSHOT</version>
   </parent>
   <artifactId>org.eclipse.jdt.core.formatterapp</artifactId>
-  <version>1.1.0-SNAPSHOT</version>
+  <version>1.2.0-SNAPSHOT</version>
   <packaging>eclipse-plugin</packaging>
 </project>

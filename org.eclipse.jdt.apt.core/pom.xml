@@ -17,6 +17,6 @@
     <version>4.28.0-SNAPSHOT</version>
   </parent>
   <artifactId>org.eclipse.jdt.apt.core</artifactId>
-  <version>3.7.100-SNAPSHOT</version>
+  <version>3.8.0-SNAPSHOT</version>
   <packaging>eclipse-plugin</packaging>
 </project>

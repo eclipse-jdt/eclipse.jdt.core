@@ -1,19 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component id="org.eclipse.jdt.core" version="2">
-    <resource path="META-INF/MANIFEST.MF">
-        <filter comment="Java 20" id="923795461">
-            <message_arguments>
-                <message_argument value="3.33.0"/>
-                <message_argument value="3.32.0"/>
-            </message_arguments>
-        </filter>
-        <filter id="924844039">
-            <message_arguments>
-                <message_argument value="3.33.50"/>
-                <message_argument value="3.33.0"/>
-            </message_arguments>
-        </filter>
-    </resource>
     <resource path="dom/org/eclipse/jdt/core/dom/AST.java" type="org.eclipse.jdt.core.dom.AST">
         <filter comment="Java 20 constants addition https://github.com/eclipse-jdt/eclipse.jdt.core/pull/541" id="388194388">
             <message_arguments>
@@ -164,14 +150,6 @@
             <message_arguments>
                 <message_argument value="IExtendedModifier"/>
                 <message_argument value="Modifier"/>
-            </message_arguments>
-        </filter>
-    </resource>
-    <resource path="dom/org/eclipse/jdt/core/dom/Modifier.java" type="org.eclipse.jdt.core.dom.Modifier$ModifierKeyword">
-        <filter id="336658481">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.dom.Modifier.ModifierKeyword"/>
-                <message_argument value="WHEN_KEYWORD"/>
             </message_arguments>
         </filter>
     </resource>
