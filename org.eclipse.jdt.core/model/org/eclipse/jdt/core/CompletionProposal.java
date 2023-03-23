@@ -1815,4 +1815,22 @@ public class CompletionProposal {
 	public boolean canUseDiamond(CompletionContext coreContext) {
 		return false; // default overridden by concrete implementation
 	}
+
+	/**
+	 * Returns the dimension count if this proposal holds a array completion.
+	 * <p>
+	 * This field is available for the following kinds of
+	 * completion proposals:
+	 * <ul>
+	 * <li><code>TYPE_REF</code> - return dimension count if the referenced type is an array, otherwise
+	 * <code>0</code>.</li>
+	 * </ul>
+	 * For other kinds of completion proposals, this method returns <code>0</code>.
+	 *
+	 * @return dimension count or <code>0</code> for non array <code>TYPE_REF</code> proposals.
+	 * @since 3.34
+	 */
+	public int getArrayDimensions() {
+		return 0; // default overridden by concrete implementation
+	}
 }
