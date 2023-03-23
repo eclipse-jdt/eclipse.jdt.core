@@ -316,13 +316,15 @@ public final class ImportRewriteAnalyzer {
 			}
 			else {
 				surroundingStart = 0;
-				ASTNode topNode = nodesTreeMap.firstEntry().getValue();
-				if (topNode instanceof Comment) {
-					for (ASTNode node : nodesTreeMap.values()) {
-						if (!(node instanceof Comment)) {
-							break;
-						} else {
-							surroundingStart = node.getStartPosition() + node.getLength();
+				if (!nodesTreeMap.isEmpty()) {
+					ASTNode topNode = nodesTreeMap.firstEntry().getValue();
+					if (topNode instanceof Comment) {
+						for (ASTNode node : nodesTreeMap.values()) {
+							if (!(node instanceof Comment)) {
+								break;
+							} else {
+								surroundingStart = node.getStartPosition() + node.getLength();
+							}
 						}
 					}
 				}
