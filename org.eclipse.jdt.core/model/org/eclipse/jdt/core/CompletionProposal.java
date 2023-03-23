@@ -1828,7 +1828,7 @@ public class CompletionProposal {
 	 * For other kinds of completion proposals, this method returns <code>0</code>.
 	 *
 	 * @return dimension count or <code>0</code> for non array <code>TYPE_REF</code> proposals.
-	 * @since 3.33
+	 * @since 3.34
 	 */
 	public int getArrayDimensions() {
 		return 0; // default overridden by concrete implementation
