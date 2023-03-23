@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2021 BEA Systems, Inc.
+ * Copyright (c) 2007, 2023 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -59,66 +59,66 @@ public abstract class BaseProcessingEnvImpl implements ProcessingEnvironment {
 	public ModuleBinding _current_module;
 
 	public BaseProcessingEnvImpl() {
-		_addedUnits = new ArrayList<>();
-		_addedClassFiles = new ArrayList<>();
-		_deletedUnits = new ArrayList<>();
-		_elementUtils = ElementsImpl.create(this);
-		_typeUtils = new TypesImpl(this);
-		_factory = new Factory(this);
-		_errorRaised = false;
+		this._addedUnits = new ArrayList<>();
+		this._addedClassFiles = new ArrayList<>();
+		this._deletedUnits = new ArrayList<>();
+		this._elementUtils = ElementsImpl.create(this);
+		this._typeUtils = new TypesImpl(this);
+		this._factory = new Factory(this);
+		this._errorRaised = false;
 	}
 
 	public void addNewUnit(ICompilationUnit unit) {
-		_addedUnits.add(unit);
+		this._addedUnits.add(unit);
 	}
 
 	public void addNewClassFile(ReferenceBinding binding) {
-		_addedClassFiles.add(binding);
+		this._addedClassFiles.add(binding);
 	}
 
 	public Compiler getCompiler() {
-		return _compiler;
+		return this._compiler;
 	}
 
 	public ICompilationUnit[] getDeletedUnits() {
-		ICompilationUnit[] result = new ICompilationUnit[_deletedUnits.size()];
-		_deletedUnits.toArray(result);
+		ICompilationUnit[] result = new ICompilationUnit[this._deletedUnits.size()];
+		this._deletedUnits.toArray(result);
 		return result;
 	}
 
 	public ICompilationUnit[] getNewUnits() {
-		ICompilationUnit[] result = new ICompilationUnit[_addedUnits.size()];
-		_addedUnits.toArray(result);
+		ICompilationUnit[] result = new ICompilationUnit[this._addedUnits.size()];
+		this._addedUnits.toArray(result);
 		return result;
 	}
 
 	@Override
 	public Elements getElementUtils() {
-		return _elementUtils;
+		return this._elementUtils;
 	}
 
 	@Override
 	public Filer getFiler() {
-		return _filer;
+		return this._filer;
 	}
 
 	@Override
 	public Messager getMessager() {
-		return _messager;
+		return this._messager;
 	}
 
 	@Override
 	public Map<String, String> getOptions() {
-		return _processorOptions;
+		return this._processorOptions;
 	}
 
 	@Override
 	public Types getTypeUtils() {
-		return _typeUtils;
+		return this._typeUtils;
 	}
 
 	public LookupEnvironment getLookupEnvironment() {
-		return _compiler.lookupEnvironment;
+		return this._compiler.lookupEnvironment;
 	}
 
 	@Override
@@ -176,18 +176,18 @@ public abstract class BaseProcessingEnvImpl implements ProcessingEnvironment {
 	 * newly generated compilation units (ie, once per round)
 	 */
 	public void reset() {
-		_addedUnits.clear();
-		_addedClassFiles.clear();
-		_deletedUnits.clear();
+		this._addedUnits.clear();
+		this._addedClassFiles.clear();
+		this._deletedUnits.clear();
 	}
 
 	/**
 	 * Has an error been raised in any of the rounds of processing in this build?
-	 * @return
+	 * @return error flag
 	 */
 	public boolean errorRaised()
 	{
-		return _errorRaised;
+		return this._errorRaised;
 	}
 
 	/**
@@ -196,23 +196,20 @@ public abstract class BaseProcessingEnvImpl implements ProcessingEnvironment {
 	 */
 	public void setErrorRaised(boolean b)
 	{
-		_errorRaised = true;
+		this._errorRaised = true;
 	}
 
 	public Factory getFactory()
 	{
-		return _factory;
+		return this._factory;
 	}
 
 	public ReferenceBinding[] getNewClassFiles() {
-		ReferenceBinding[] result = new ReferenceBinding[_addedClassFiles.size()];
-		_addedClassFiles.toArray(result);
+		ReferenceBinding[] result = new ReferenceBinding[this._addedClassFiles.size()];
+		this._addedClassFiles.toArray(result);
 		return result;
 	}
-	/*
-	 * This overrides ProcessingEnvironment, but can't declare so since
-	 * we are still compiling against JDK 8.
-	 */
+	@Override
     public boolean isPreviewEnabled() {
         return this._compiler.options.enablePreviewFeatures;
     }

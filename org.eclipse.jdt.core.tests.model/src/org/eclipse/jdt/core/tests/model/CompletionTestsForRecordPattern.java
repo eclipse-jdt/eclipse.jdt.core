@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2022 IBM Corporation and others.
+ * Copyright (c) 2022, 2023 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,30 +18,29 @@ import org.eclipse.jdt.core.JavaModelException;
 
 import junit.framework.Test;
 
-public class CompletionTests19 extends AbstractJavaModelCompletionTests {
+public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletionTests {
 
 
 	static {
-		// TESTS_NAMES = new String[]{"test034"};
+//		 TESTS_NAMES = new String[]{"test012"};
 	}
 
-	public CompletionTests19(String name) {
+	public CompletionTestsForRecordPattern(String name) {
 		super(name);
 	}
 
 	public void setUpSuite() throws Exception {
 		if (COMPLETION_PROJECT == null) {
-
-			COMPLETION_PROJECT = setUpJavaProject("Completion", "19");
+			COMPLETION_PROJECT = setUpJavaProject("Completion", "20");
 		} else {
-			setUpProjectCompliance(COMPLETION_PROJECT, "19");
+			setUpProjectCompliance(COMPLETION_PROJECT, "20");
 		}
 		super.setUpSuite();
 		COMPLETION_PROJECT.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 	}
 
 	public static Test suite() {
-		return buildModelTestSuite(CompletionTests19.class);
+		return buildModelTestSuite(CompletionTestsForRecordPattern.class);
 	}
 	//content assist just record pattern usage
 	public void test001() throws JavaModelException {
@@ -235,8 +234,9 @@ public class CompletionTests19 extends AbstractJavaModelCompletionTests {
 				+ "  public static void printLowerRight(Rectangle r) {\n"
 				+ "    int res = switch(r) {\n"
 				+ "       case  Rectangle(ColoredPoint( Point(int x, int y),  Color c),\n"
-				+ "                               ColoredPoint lr) r1  -> {\n"
-				+ "        		r1.toStrin ;yield 1;  \n"
+				+ "                               ColoredPoint lr)  -> {\n"
+				+ "        		lr.toStrin ;"
+				+ "				yield 1;\n"
 				+ "        } \n"
 				+ "        default -> 0;\n"
 				+ "    }; \n"
@@ -254,10 +254,10 @@ public class CompletionTests19 extends AbstractJavaModelCompletionTests {
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		requestor.allowAllRequiredProposals();
 		String str = this.workingCopies[0].getSource();
-		String completeBehind = "r1.toStrin";
+		String completeBehind = "lr.toStrin";
 		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-		assertResults("toString[METHOD_REF]{toString(), LRectangle;, ()Ljava.lang.String;, toString, null, 60}",
+		assertResults("toString[METHOD_REF]{toString(), LColoredPoint;, ()Ljava.lang.String;, toString, null, 60}",
 				requestor.getResults());
 
 	}
@@ -337,11 +337,11 @@ public class CompletionTests19 extends AbstractJavaModelCompletionTests {
 							+ "  public static void printLowerRight(Rectangle r) {\n"
 							+ "    int res = switch(r) {\n"
 							+ "       case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
-							+ "                               ColoredPoint lr) r1 whe x > 0 -> {\n"
+							+ "                               ColoredPoint lr) whe x > 0 -> {\n"
 							+ "        		yield 1;  \n"
 							+ "        } \n"
 							+ "       case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
-							+ "                               ColoredPoint lr) r1 when x <= 0 -> {\n"
+							+ "                               ColoredPoint lr) when x <= 0 -> {\n"
 							+ "        		yield -1;  \n"
 							+ "        } \n"
 							+ "        default -> 0;\n"
@@ -380,8 +380,8 @@ public class CompletionTests19 extends AbstractJavaModelCompletionTests {
 					+ "  public static void printLowerRight(Rectangle r) {\n"
 					+ "    int res = switch(r) {\n"
 					+ "       case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
-					+ "                               ColoredPoint lr) r1  -> {\n"
-					+ "    			/*here*/r1.	"
+					+ "                               ColoredPoint lr)  -> {\n"
+					+ "    			/*here*/lr.co	"
 					+ "System.out.println(\"x= \" + x);\n"
 					+ "    				System.out.println(\"y= \" + y);\n"
 					+ "    				System.out.println(\"lr= \" + lr);\n"
@@ -404,22 +404,17 @@ public class CompletionTests19 extends AbstractJavaModelCompletionTests {
 					+ "}\n"
 					+ "record Point(int x, int y) {}\n"
 					+ "enum Color { RED, GREEN, BLUE }\n"
-					+ "record ColoredPoint(Point p, Color c) {}\n"
+					+ "record ColoredPoint(Point p, Color color) {}\n"
 					+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}"
 					);
 			CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 			requestor.allowAllRequiredProposals();
 			String str = this.workingCopies[0].getSource();
-			String completeBehind = "/*here*/r1.";
+			String completeBehind = "/*here*/lr.co";
 			int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
 			this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-			assertResults("equals[METHOD_REF]{equals(), LRectangle;, (Ljava.lang.Object;)Z, equals, (arg0), 60}\n"
-					+ "hashCode[METHOD_REF]{hashCode(), LRectangle;, ()I, hashCode, null, 60}\n"
-					+ "lowerRight[FIELD_REF]{lowerRight, LRectangle;, LColoredPoint;, lowerRight, null, 60}\n"
-					+ "lowerRight[METHOD_REF]{lowerRight(), LRectangle;, ()LColoredPoint;, lowerRight, null, 60}\n"
-					+ "toString[METHOD_REF]{toString(), LRectangle;, ()Ljava.lang.String;, toString, null, 60}\n"
-					+ "upperLeft[FIELD_REF]{upperLeft, LRectangle;, LColoredPoint;, upperLeft, null, 60}\n"
-					+ "upperLeft[METHOD_REF]{upperLeft(), LRectangle;, ()LColoredPoint;, upperLeft, null, 60}",
+			assertResults("color[FIELD_REF]{color, LColoredPoint;, LColor;, color, null, 60}\n"
+					+ "color[METHOD_REF]{color(), LColoredPoint;, ()LColor;, color, null, 60}",
 					requestor.getResults());
 
 		}
@@ -434,7 +429,7 @@ public class CompletionTests19 extends AbstractJavaModelCompletionTests {
 					+ "  public static void printLowerRight(Rectangle r) {\n"
 					+ "    int res = switch(r) {\n"
 					+ "       case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
-					+ "                               ColoredPoint lr) r1  -> {\n"
+					+ "                               ColoredPoint lr)  -> {\n"
 					+ "                               fals "
 					+ "        		yield 1;  \n"
 					+ "        } \n"
@@ -461,5 +456,110 @@ public class CompletionTests19 extends AbstractJavaModelCompletionTests {
 			assertResults("false[KEYWORD]{false, null, null, false, null, 52}",
 					requestor.getResults());
 
+		}
+		public void test012() throws JavaModelException {
+			this.workingCopies = new ICompilationUnit[1];
+			this.workingCopies[0] = getWorkingCopy(
+					"/Completion/src/X.java",
+					"@SuppressWarnings(\"preview\")"
+					+ "public class X {\n"
+					+ "    public static boolean foo(Object o) {\n"
+					+ "        boolean ret = false;\n"
+					+ "        R[] recArray = {new R(0)};\n"
+					+ "        for (R(int x_1) : recArray) {\n"
+					+ "            System.out.println(x_);  \n"
+					+ "            ret = true;\n"
+					+ "        }\n"
+					+ "        return ret;\n"
+					+ "    }\n"
+					+ "}\n"
+					+ "record R(int i) {}"
+					);
+			CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+			requestor.allowAllRequiredProposals();
+			String str = this.workingCopies[0].getSource();
+			String completeBehind = "x_";
+			int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+			this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+			assertResults("x_1[LOCAL_VARIABLE_REF]{x_1, null, I, x_1, null, 52}",
+					requestor.getResults());
+		}
+		public void test013() throws JavaModelException {
+			this.workingCopies = new ICompilationUnit[1];
+			this.workingCopies[0] = getWorkingCopy(
+					"/Completion/src/X.java",
+					"@SuppressWarnings(\"preview\")\n"
+					+ "public class X {\n"
+					+ "    public static void foo(ColoredRectangle[] array) {\n"
+					+ "       for(ColoredRectangle(int x_1, int y_1, Color col) : array) {\n"
+					+ "    	  int per = 2 * x_ + 2 * y_1;\n"
+					+ "       }\n"
+					+ "    }\n"
+					+ "}\n"
+					+ "record ColoredRectangle(int length, int width, Color color) {}\n"
+					+ "enum Color {\n"
+					+ "	RED, GREEN, BLUE;\n"
+					+ "}"
+					);
+			CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+			requestor.allowAllRequiredProposals();
+			String str = this.workingCopies[0].getSource();
+			String completeBehind = "x_";
+			int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+			this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+			assertResults("x_1[LOCAL_VARIABLE_REF]{x_1, null, I, x_1, null, 82}",
+					requestor.getResults());
+		}
+		public void test014() throws JavaModelException {
+			this.workingCopies = new ICompilationUnit[1];
+			this.workingCopies[0] = getWorkingCopy(
+					"/Completion/src/X.java",
+					"@SuppressWarnings(\"preview\")\n"
+					+ "public class X {\n"
+					+ "    public static void foo(ColoredRectangle[] array) {\n"
+					+ "       for(ColoredRectangle(int x_1, int y_1, Color col) : array) {\n"
+					+ "    	  int per = 2 * x_1 + 2 * y_;\n"
+					+ "       }\n"
+					+ "    }\n"
+					+ "}\n"
+					+ "record ColoredRectangle(int length, int width, Color color) {}\n"
+					+ "enum Color {\n"
+					+ "	RED, GREEN, BLUE;\n"
+					+ "}"
+					);
+			CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+			requestor.allowAllRequiredProposals();
+			String str = this.workingCopies[0].getSource();
+			String completeBehind = "y_";
+			int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+			this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+			assertResults("y_1[LOCAL_VARIABLE_REF]{y_1, null, I, y_1, null, 82}",
+					requestor.getResults());
+		}
+		public void test015() throws JavaModelException {
+			this.workingCopies = new ICompilationUnit[1];
+			this.workingCopies[0] = getWorkingCopy(
+					"/Completion/src/X.java",
+					"@SuppressWarnings(\"preview\")\n"
+					+ "public class X {\n"
+					+ "    public static void foo(ColoredRectangle[] ar_ray) {\n"
+					+ "       for(ColoredRectangle(int x_1, int y_1, Color col) : ar_) {\n"
+					+ "    	  int per = 2 * x_1 + 2 * y_1;\n"
+					+ "       }\n"
+					+ "    }\n"
+					+ "}\n"
+					+ "record ColoredRectangle(int length, int width, Color color) {}\n"
+					+ "enum Color {\n"
+					+ "	RED, GREEN, BLUE;\n"
+					+ "}"
+					);
+			CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+			requestor.allowAllRequiredProposals();
+			String str = this.workingCopies[0].getSource();
+			String completeBehind = "ar_";
+			int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+			this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+			assertResults("ar_ray[LOCAL_VARIABLE_REF]{ar_ray, null, [LColoredRectangle;, ar_ray, null, 52}",
+					requestor.getResults());
 		}
 }

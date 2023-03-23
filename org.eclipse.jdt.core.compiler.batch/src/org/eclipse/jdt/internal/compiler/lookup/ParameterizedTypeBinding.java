@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2022 IBM Corporation and others.
+ * Copyright (c) 2005, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -75,6 +75,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	public ReferenceBinding superclass;
 	public ReferenceBinding[] superInterfaces;
 	public FieldBinding[] fields;
+	protected RecordComponentBinding[] components;
 	public ReferenceBinding[] memberTypes;
 	public MethodBinding[] methods;
 	protected ReferenceBinding enclosingType;
@@ -120,7 +121,24 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	}
 	@Override
 	public RecordComponentBinding[] components() {
-		return this.type.components();
+		if ((this.extendedTagBits & ExtendedTagBits.AreRecordComponentsComplete) != 0)
+			return this.components;
+
+		try {
+			RecordComponentBinding[] originalRecordComponents = this.type.components();
+			int length = originalRecordComponents.length;
+			RecordComponentBinding[] parameterizedRecordComponents = new RecordComponentBinding[length];
+			for (int i = 0; i < length; i++)
+				// substitute all record components, so as to get updated declaring class at least
+				parameterizedRecordComponents[i] = new ParameterizedRecordComponentBinding(this, originalRecordComponents[i]);
+			this.components = parameterizedRecordComponents;
+		} finally {
+			// if the original record components cannot be retrieved (ex. AbortCompilation), then assume we do not have any record components
+			if (this.components == null)
+				this.components = Binding.NO_COMPONENTS;
+			this.extendedTagBits |= ExtendedTagBits.AreRecordComponentsComplete;
+		}
+		return this.components;
 	}
 	/**
 	 * Iterate type arguments, and validate them according to corresponding variable bounds.
@@ -804,6 +822,32 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		return ReferenceBinding.binarySearch(fieldName, this.fields);
 	}
 
+	 /**
+	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#getComponent(char[], boolean)
+	 */
+	@Override
+	public RecordComponentBinding getComponent(char[] name, boolean needResolve) {
+		if (((this.extendedTagBits & ExtendedTagBits.AreRecordComponentsComplete) == 0)) {
+			for (RecordComponentBinding rcb : this.type.unResolvedComponents()) {
+				if (CharOperation.equals(name, rcb.name)) {
+					return rcb;
+				}
+			}
+			return null;
+		}
+		components(); // ensure record components have been initialized
+		return getRecordComponent(name);
+	}
+	@Override
+	public RecordComponentBinding getRecordComponent(char[] name) {
+		if (this.components != null) {
+			for (RecordComponentBinding rcb : this.components) {
+				if (CharOperation.equals(name, rcb.name))
+					return rcb;
+			}
+		}
+		return null;
+	}
 	/**
 	 * @see org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding#getMethods(char[])
 	 */
@@ -1567,6 +1611,20 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 				buffer.append("NULL SUPERINTERFACES"); //$NON-NLS-1$
 			}
 
+			if (isRecord() && this.components != null) {
+				if (this.components != Binding.NO_COMPONENTS) {
+					buffer.append("\n\t("); //$NON-NLS-1$
+					for (int i = 0, length = this.components.length; i < length; i++) {
+						if (i  > 0)
+							buffer.append(", "); //$NON-NLS-1$
+						buffer.append((this.components[i] != null) ? this.components[i].toString() : "NULL TYPE"); //$NON-NLS-1$
+					}
+					if (this.components.length > 0)
+						buffer.append(")"); //$NON-NLS-1$
+				}
+			} else {
+				buffer.append("NULL COMPONENTS"); //$NON-NLS-1$
+			}
 			if (enclosingType() != null) {
 				buffer.append("\n\tenclosing type : "); //$NON-NLS-1$
 				buffer.append(enclosingType().debugName());
@@ -1626,6 +1684,11 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	public FieldBinding[] unResolvedFields() {
 		return this.fields;
 	}
+	@Override
+	public RecordComponentBinding[] unResolvedComponents() {
+		return this.components;
+	}
+
 	@Override
 	protected MethodBinding[] getInterfaceAbstractContracts(Scope scope, boolean replaceWildcards, boolean filterDefaultMethods) throws InvalidInputException {
 		if (replaceWildcards) {

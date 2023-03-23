@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2022 IBM Corporation and others.
+ * Copyright (c) 2022, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -8,7 +8,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- *     IBM Corporation - initial API and implementation
+ * IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
 
@@ -36,12 +36,12 @@ public class ASTConverter_GuardedPattern_Test extends ConverterTestSetup {
 
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		this.ast = AST.newAST(getAST19(), true);
+		this.ast = AST.newAST(getAST20(), true);
 		this.currentProject = getJavaProject("Converter_19");
-		if (this.ast.apiLevel() == AST.JLS19 ) {
-			this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_19);
-			this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_19);
-			this.currentProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_19);
+		if (this.ast.apiLevel() == AST.JLS20 ) {
+			this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_20);
+			this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_20);
+			this.currentProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_20);
 			this.currentProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 			this.currentProject.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
 		}
@@ -55,8 +55,8 @@ public class ASTConverter_GuardedPattern_Test extends ConverterTestSetup {
 		return buildModelTestSuite(ASTConverter_GuardedPattern_Test.class);
 	}
 
-	static int getAST19() {
-		return AST.JLS19;
+	static int getAST20() {
+		return AST.JLS20;
 	}
 	protected void tearDown() throws Exception {
 		super.tearDown();
@@ -66,9 +66,8 @@ public class ASTConverter_GuardedPattern_Test extends ConverterTestSetup {
 		}
 	}
 
-
 	public void testGuardedPattern001() throws CoreException {
-		if (!isJRE19) {
+		if (!isJRE20) {
 			System.err.println("Test "+getName()+" requires a JRE 19");
 			return;
 		}
@@ -136,6 +135,4 @@ public class ASTConverter_GuardedPattern_Test extends ConverterTestSetup {
 		int restrictedWhenStartPos = gPattern.getRestrictedIdentifierStartPosition();
 		assertEquals("Not correct restricted start position", 451, restrictedWhenStartPos);
 	}
-
-
 }

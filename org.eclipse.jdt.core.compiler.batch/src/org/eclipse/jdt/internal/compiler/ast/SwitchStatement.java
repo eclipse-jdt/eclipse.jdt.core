@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2022 IBM Corporation and others.
+ * Copyright (c) 2000, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -168,11 +168,17 @@ public class SwitchStatement extends Expression {
 				int initialComplaintLevel = (flowInfo.reachMode() & FlowInfo.UNREACHABLE) != 0 ? Statement.COMPLAINED_FAKE_REACHABLE : Statement.NOT_COMPLAINED;
 				int complaintLevel = initialComplaintLevel;
 				int fallThroughState = CASE;
+				int prevCaseStmtIndex = -100;
 				for (int i = 0, max = this.statements.length; i < max; i++) {
 					Statement statement = this.statements[i];
 					if ((caseIndex < this.caseCount) && (statement == this.cases[caseIndex])) { // statement is a case
 						this.scope.enclosingCase = this.cases[caseIndex]; // record entering in a switch case block
 						caseIndex++;
+						if (prevCaseStmtIndex == i - 1) {
+							if (((CaseStatement) this.statements[prevCaseStmtIndex]).containsPatternVariable())
+								this.scope.problemReporter().illegalFallthroughFromAPattern(this.statements[prevCaseStmtIndex]);
+						}
+						prevCaseStmtIndex = i;
 						if (fallThroughState == FALLTHROUGH && complaintLevel <= NOT_COMPLAINED) {
 							if (((CaseStatement) statement).containsPatternVariable())
 								this.scope.problemReporter().IllegalFallThroughToPattern(this.scope.enclosingCase);
@@ -632,10 +638,19 @@ public class SwitchStatement extends Expression {
 				 * IllegalClassChangeError seems legitimate as this would mean the enum type has been recompiled with more
 				 * enum constants and the class that is using the switch on the enum has not been recompiled
 				 */
-				codeStream.newJavaLangIncompatibleClassChangeError();
-				codeStream.dup();
-				codeStream.invokeJavaLangIncompatibleClassChangeErrorDefaultConstructor();
-				codeStream.athrow();
+				if (compilerOptions.complianceLevel >= ClassFileConstants.JDK19) {
+					codeStream.newJavaLangMatchException();
+					codeStream.dup();
+					codeStream.aconst_null();
+					codeStream.aconst_null();
+					codeStream.invokeJavaLangMatchExceptionConstructor();
+					codeStream.athrow();
+				} else {
+					codeStream.newJavaLangIncompatibleClassChangeError();
+					codeStream.dup();
+					codeStream.invokeJavaLangIncompatibleClassChangeErrorDefaultConstructor();
+					codeStream.athrow();
+				}
 			}
 			// May loose some local variable initializations : affecting the local variable attributes
 			if (this.mergedInitStateIndex != -1) {
@@ -700,6 +715,8 @@ public class SwitchStatement extends Expression {
 				&& caseStatement.patternIndex != -1 // for null
 				) {
 			Pattern pattern = (Pattern) caseStatement.constantExpressions[caseStatement.patternIndex];
+//			if (!pattern.containsPatternVariable())
+//				return;
 			pattern.elseTarget.place();
 			pattern.suspendVariables(codeStream, this.scope);
 			if (!pattern.isAlwaysTrue()) {
@@ -713,7 +730,7 @@ public class SwitchStatement extends Expression {
 	}
 	private void generateCodeSwitchPatternPrologue(BlockScope currentScope, CodeStream codeStream) {
 		this.expression.generateCode(currentScope, codeStream, true);
-		if ((this.switchBits & NullCase) == 0 && this.totalPattern == null) {
+		if ((this.switchBits & NullCase) == 0) {
 			codeStream.dup();
 			codeStream.invokeJavaUtilObjectsrequireNonNull();
 			codeStream.pop();
@@ -908,6 +925,8 @@ public class SwitchStatement extends Expression {
 				Pattern[] patterns = new Pattern[this.nConstants];
 				int[] caseIndex = new int[this.nConstants];
 				LocalVariableBinding[] patternVariables = null;
+				boolean caseNullDefaultFound = false;
+				boolean defaultFound = false;
 				for (int i = 0; i < length; i++) {
 					ResolvedCase[] constantsList;
 					final Statement statement = this.statements[i];
@@ -916,8 +935,16 @@ public class SwitchStatement extends Expression {
 					// with the pattern variables in scope.
 					if (statement instanceof CaseStatement) {
 						if (statement.containsPatternVariable()) {
-							((CaseStatement) statement).collectPatternVariablesToScope(null, this.scope);
+							CaseStatement caseStatement = (CaseStatement) statement;
+							caseStatement.collectPatternVariablesToScope(null, this.scope);
 							patternVariables = statement.getPatternVariablesWhenTrue();
+							if (caseStatement.patternIndex >= 0) {
+								Expression probablePattern = caseStatement.constantExpressions[caseStatement.patternIndex];
+								if (probablePattern instanceof Pattern) {
+									Pattern pattern = (Pattern)probablePattern;
+									pattern.resolveWithExpression(this.scope, this.expression);
+								}
+							}
 						} else {
 							patternVariables = null; // Probably redundant?
 						}
@@ -926,6 +953,9 @@ public class SwitchStatement extends Expression {
 						continue;
 					}
 					CaseStatement caseStmt = (CaseStatement) statement;
+					caseNullDefaultFound = caseNullDefaultFound ?
+							caseNullDefaultFound : isCaseStmtNullDefault(caseStmt);
+					defaultFound |= caseStmt.constantExpressions == null;
 					constantsList = caseStmt.resolveCase(this.scope, expressionType, this);
 					if (constantsList != ResolvedCase.UnresolvedCase) {
 						for (ResolvedCase c : constantsList) {
@@ -935,6 +965,10 @@ public class SwitchStatement extends Expression {
 							this.otherConstants[counter] = c;
 							final int c1 = this.containsPatterns ? (c.intValue() == -1 ? -1 : counter) : c.intValue();
 							this.constants[counter] = c1;
+							if (counter == 0 && defaultFound) {
+								if (c.isPattern() || isCaseStmtNullOnly(caseStmt))
+								this.scope.problemReporter().patternDominatedByAnother(c.e);
+							}
 							for (int j = 0; j < counter; j++) {
 								IntPredicate check = (idx) -> {
 									Constant c2 = this.otherConstants[idx].c;
@@ -951,6 +985,10 @@ public class SwitchStatement extends Expression {
 								TypeBinding type = c.e.resolvedType;
 								if (!type.isValidBinding())
 									continue;
+								if ((caseNullDefaultFound || defaultFound) && (c.isPattern() || isCaseStmtNullOnly(caseStmt))) {
+									this.scope.problemReporter().patternDominatedByAnother(c.e);
+									continue;
+								}
 								Pattern p1 = patterns[j];
 								if (p1 != null) {
 									if (c.isPattern()) {
@@ -1052,6 +1090,19 @@ public class SwitchStatement extends Expression {
 		} finally {
 			if (this.scope != null) this.scope.enclosingCase = null; // no longer inside switch case block
 		}
+	}
+	private boolean isCaseStmtNullDefault(CaseStatement caseStmt) {
+		return caseStmt != null
+				&& caseStmt.constantExpressions != null
+				&& caseStmt.constantExpressions.length == 2
+				&& caseStmt.constantExpressions[0] instanceof NullLiteral
+				&& caseStmt.constantExpressions[1] instanceof FakeDefaultLiteral;
+	}
+	private boolean isCaseStmtNullOnly(CaseStatement caseStmt) {
+		return caseStmt != null
+				&& caseStmt.constantExpressions != null
+				&& caseStmt.constantExpressions.length == 1
+				&& caseStmt.constantExpressions[0] instanceof NullLiteral;
 	}
 	private boolean isExhaustive() {
 		return (this.switchBits & SwitchStatement.Exhaustive) != 0;

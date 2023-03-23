@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2022 IBM Corporation and others.
+ * Copyright (c) 2000, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1068,6 +1068,15 @@ public abstract class ASTNode {
 	public static final int RECORD_PATTERN = 113;
 
 	/**
+	 * Node type constant indicating a node of type
+	 * <code>EnhancedForWithRecordPattern</code>.
+	 * @see EnhancedForWithRecordPattern
+	 * @since 3.34
+	 * @noreference This field is not intended to be referenced by clients.
+	 */
+	public static final int ENHANCED_FOR_WITH_RECORD_PATTERN = 114;
+
+	/**
 	 * Returns the node class for the corresponding node type.
 	 *
 	 * @param nodeType AST node type
@@ -1133,6 +1142,8 @@ public abstract class ASTNode {
 				return EmptyStatement.class;
 			case ENHANCED_FOR_STATEMENT :
 				return EnhancedForStatement.class;
+			case ENHANCED_FOR_WITH_RECORD_PATTERN :
+				return EnhancedForWithRecordPattern.class;
 			case ENUM_CONSTANT_DECLARATION :
 				return EnumConstantDeclaration.class;
 			case ENUM_DECLARATION :
@@ -2506,6 +2517,35 @@ public abstract class ASTNode {
 		}
 	}
 
+	/**
+ 	 * Checks that this AST operation is only used when
+     * building JLS20 level ASTs.
+     * <p>
+     * Use this method to prevent access to new properties available only in JLS20.
+     * </p>
+     *
+	 * @exception UnsupportedOperationException if this operation is not used in JLS20
+	 * @since 3.33
+	 */
+	final void supportedOnlyIn20() {
+		if (this.ast.apiLevel < AST.JLS20_INTERNAL) {
+			throw new UnsupportedOperationException("Operation only supported in JLS20 AST"); //$NON-NLS-1$
+		}
+	}
+	/**
+     * Checks that this AST operation is not used when
+     * building JLS20 level ASTs.
+     * <p>
+     * Use this method to prevent access to new properties that have been added in JLS20.
+     * </p>
+     *
+	 * @exception UnsupportedOperationException if this operation is used in a JLS20 AST
+     */
+	final void unsupportedIn20() {
+	  if (this.ast.apiLevel == AST.JLS20_INTERNAL) {
+	  	throw new UnsupportedOperationException("Operation not supported in JLS20 AST"); //$NON-NLS-1$
+	  }
+	}
 	/**
 	 * Sets or clears this node's parent node and location.
 	 * <p>

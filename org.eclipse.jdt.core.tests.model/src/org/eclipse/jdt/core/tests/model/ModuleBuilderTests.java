@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016, 2022 IBM Corporation and others.
+ * Copyright (c) 2016, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -6970,13 +6970,14 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testBug527569a() throws CoreException {
-		IJavaProject p1 = createJava9Project("Bug527569", "9");
+		if (!isJRE19) return;
+		IJavaProject p1 = createJava9Project("Bug527569", "17");
 		try {
 			createFolder("/Bug527569/src/p1");
 			createFile("/Bug527569/src/p1/X.java",
 					"package p1;\n" +
 					"public class X {\n" +
-					"	public java.util.stream.Stream<String> emptyStream() {\n" +
+					"	public java.lang.MatchException getException() {\n" +
 					"		return null;\n" +
 					"	}\n" +
 					"}");
@@ -6991,13 +6992,14 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testBug527569b() throws CoreException {
-		IJavaProject p1 = createJava9Project("Bug527569", "1.7");
+		if (!isJRE19) return;
+		IJavaProject p1 = createJava9Project("Bug527569", "17");
 		try {
 			createFolder("/Bug527569/src/p1");
 			createFile("/Bug527569/src/p1/X.java",
 					"package p1;\n" +
 					"public class X {\n" +
-					"	public java.util.stream.Stream<String> emptyStream() {\n" +
+					"	public java.lang.MatchException getException() {\n" +
 					"		return null;\n" +
 					"	}\n" +
 					"}");
@@ -7012,13 +7014,13 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testBug527569c() throws CoreException {
-		if (!isJRE9) return;
-		IJavaProject p1 = createJava9Project("Bug527569", "1.7");
+		if (!isJRE19) return;
+		IJavaProject p1 = createJava9Project("Bug527569", "17");
 		Map<String, String> options = new HashMap<>();
 		// Make sure the new options map doesn't reset.
-		options.put(CompilerOptions.OPTION_Compliance, "1.7");
-		options.put(CompilerOptions.OPTION_Source, "1.7");
-		options.put(CompilerOptions.OPTION_TargetPlatform, "1.7");
+		options.put(CompilerOptions.OPTION_Compliance, "17");
+		options.put(CompilerOptions.OPTION_Source, "17");
+		options.put(CompilerOptions.OPTION_TargetPlatform, "17");
 		options.put(CompilerOptions.OPTION_Release, "enabled");
 		p1.setOptions(options);
 		try {
@@ -7026,7 +7028,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			createFile("/Bug527569/src/p1/X.java",
 					"package p1;\n" +
 					"public class X {\n" +
-					"	public java.util.stream.Stream<String> emptyStream() {\n" +
+					"	public java.lang.MatchException getException() {\n" +
 					"		return null;\n" +
 					"	}\n" +
 					"}");
@@ -7035,7 +7037,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			waitForAutoBuild();
 			p1.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p1.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
-			assertMarkers("Unexpected markers", "java.util.stream.Stream cannot be resolved to a type", markers);
+			assertMarkers("Unexpected markers", "java.lang.MatchException cannot be resolved to a type", markers);
 		} finally {
 			deleteProject(p1);
 		}
@@ -8263,9 +8265,9 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	public void testReleaseOption1() throws Exception {
 		Hashtable<String, String> options = JavaCore.getOptions();
 		IJavaProject p = createJava9Project("p");
-		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_7);
-		p.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_7);
-		p.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_7);
+		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_11);
+		p.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_11);
+		p.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_11);
 		p.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
 		String outputDirectory = Util.getOutputDirectory();
 		try {
@@ -8327,9 +8329,9 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			return;
 		Hashtable<String, String> options = JavaCore.getOptions();
 		IJavaProject p = createJava9Project("p");
-		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_7);
-		p.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_7);
-		p.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_7);
+		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_11);
+		p.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_11);
+		p.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_11);
 		p.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
 		String outputDirectory = Util.getOutputDirectory();
 		try {
@@ -8387,16 +8389,17 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testReleaseOption5() throws Exception {
+		if (!isJRE19) return;
 		Hashtable<String, String> options = JavaCore.getOptions();
 		IJavaProject p = createJava9Project("p");
-		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_7);
-		p.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_7);
-		p.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_7);
+		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_11);
+		p.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_11);
+		p.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_11);
 		p.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
 		String outputDirectory = Util.getOutputDirectory();
 		try {
 			String testSource = "public class X {\n" +
-								"	public java.util.stream.Stream<String> emptyStream() {\n" +
+								"	public java.lang.MatchException getException() {\n" +
 								"		return null;\n" +
 								"	}\n" +
 								"}";
@@ -8407,7 +8410,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			waitForAutoBuild();
 			IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			assertMarkers("Unexpected markers",
-					"java.util.stream.Stream cannot be resolved to a type",  markers);
+					"java.lang.MatchException cannot be resolved to a type",  markers);
 
 		} finally {
 			JavaCore.setOptions(options);
@@ -8418,6 +8421,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testReleaseOption6() throws Exception {
+		if (isJRE20) return; // Effectively disable it for most older versions.
 		Hashtable<String, String> options = JavaCore.getOptions();
 		IJavaProject p = createJava9Project("p");
 		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_7);
@@ -8626,21 +8630,27 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 		}
 	}
 	public void testReleaseOption12() throws Exception {
-		if (!isJRE12)
+		if (!isJRE16)
 			return;
 		Hashtable<String, String> options = JavaCore.getOptions();
-		IJavaProject p = createJava9Project("p");
-		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_7);
-		p.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_7);
-		p.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_7);
+		IJavaProject p = createJava16Project("p");
+		IClasspathEntry[] rawClasspath = p.getRawClasspath();
+		IClasspathEntry jrtEntry = getJRTLibraryEntry();
+		for(int i = 0; i < rawClasspath.length; i++) {
+			if (rawClasspath[i].getEntryKind() == IClasspathEntry.CPE_CONTAINER)
+				rawClasspath[i] = jrtEntry;
+		}
+		p.setRawClasspath(rawClasspath, null);
+		p.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_15);
+		p.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_15);
+		p.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_15);
 		p.setOption(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
 		String outputDirectory = Util.getOutputDirectory();
 		try {
-			String testSource = "import java.io.*;\n" +
-								"\n" +
+			String testSource = "import javax.lang.model.*;\n" +
 								"public class X {\n" +
 								"	public static void main(String[] args) {\n" +
-								"		String str = Integer.toUnsignedString(1, 1);\n" +
+								"		SourceVersion version = SourceVersion.RELEASE_16;\n" +
 								"	}\n" +
 								"}";
 			String mPath = "p/src/X.java";
@@ -8650,7 +8660,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			waitForAutoBuild();
 			IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			assertMarkers("Unexpected markers",
-					"The method toUnsignedString(int, int) is undefined for the type Integer",  markers);
+					"RELEASE_16 cannot be resolved or is not a field",  markers);
 
 		} finally {
 			JavaCore.setOptions(options);

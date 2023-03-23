@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2022 IBM Corporation and others.
+ * Copyright (c) 2000, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -152,6 +152,7 @@ import org.eclipse.jdt.internal.compiler.ast.QualifiedSuperReference;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.Receiver;
 import org.eclipse.jdt.internal.compiler.ast.RecordComponent;
+import org.eclipse.jdt.internal.compiler.ast.RecordPattern;
 import org.eclipse.jdt.internal.compiler.ast.Reference;
 import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
 import org.eclipse.jdt.internal.compiler.ast.ReturnStatement;
@@ -12305,6 +12306,14 @@ public void IllegalFallThroughToPattern(Statement statement) {
 		statement.sourceStart,
 		statement.sourceEnd);
 	}
+public void illegalFallthroughFromAPattern(Statement statement) {
+	this.handle(
+		IProblem.IllegalFallthroughFromAPattern,
+		NoArgument,
+		NoArgument,
+		statement.sourceStart,
+		statement.sourceEnd);
+	}
 public void switchPatternOnlyOnePatternCaseLabelAllowed(Expression element) {
 	this.handle(
 			IProblem.OnlyOnePatternCaseLabelAllowed,
@@ -12321,9 +12330,25 @@ public void switchPatternBothPatternAndDefaultCaseLabelsNotAllowed(Expression el
 			element.sourceStart,
 			element.sourceEnd);
 }
-public void switchPatternBothNullAndNonTypePatternNotAllowed(Expression element) {
+public void cannotMixNullAndNonTypePattern(Expression element) {
 	this.handle(
 			IProblem.CannotMixNullAndNonTypePattern,
+			NoArgument,
+			NoArgument,
+			element.sourceStart,
+			element.sourceEnd);
+}
+public void patternSwitchNullOnlyOrFirstWithDefault(Expression element) {
+	this.handle(
+			IProblem.PatternSwitchNullOnlyOrFirstWithDefault,
+			NoArgument,
+			NoArgument,
+			element.sourceStart,
+			element.sourceEnd);
+}
+public void patternSwitchCaseDefaultOnlyAsSecond(Expression element) {
+	this.handle(
+			IProblem.PatternSwitchCaseDefaultOnlyAsSecond,
 			NoArgument,
 			NoArgument,
 			element.sourceStart,
@@ -12393,12 +12418,13 @@ public void incompatiblePatternType(ASTNode element, TypeBinding type, TypeBindi
 			element.sourceStart,
 			element.sourceEnd);
 }
-public void rawTypeInRecordPattern(TypeBinding type, ASTNode element) {
+public void cannotInferRecordPatternTypes(RecordPattern pattern) {
+	String arguments [] = new String [] { pattern.toString() };
 	this.handle(
-			IProblem.RawTypeInRecordPattern,
-			new String[] {new String(type.readableName())},
-			new String[] {new String(type.shortReadableName())},
-			element.sourceStart,
-			element.sourceEnd);
+			IProblem.CannotInferRecordPatternTypes,
+			arguments,
+			arguments,
+			pattern.sourceStart,
+			pattern.sourceEnd);
 }
 }

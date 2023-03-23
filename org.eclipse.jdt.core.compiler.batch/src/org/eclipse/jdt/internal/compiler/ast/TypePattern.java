@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021, 2022 IBM Corporation and others.
+ * Copyright (c) 2021, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13,6 +13,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -24,13 +27,18 @@ import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.RecordComponentBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBindingVisitor;
+import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
 public class TypePattern extends Pattern {
 
 	public LocalDeclaration local;
 	Expression expression;
+	public int index = -1; // denoting position
 
 	public TypePattern(LocalDeclaration local) {
 		this.local = local;
@@ -77,22 +85,23 @@ public class TypePattern extends Pattern {
 	@Override
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 		if (this.local != null) {
-			flowInfo.markAsDefinitelyAssigned(this.local.binding);
+			FlowInfo patternInfo = flowInfo.copy();
+			patternInfo.markAsDefinitelyAssigned(this.local.binding);
 			if (!this.isTotalTypeNode) {
 				// non-total type patterns create a nonnull local:
-				flowInfo.markAsDefinitelyNonNull(this.local.binding);
+				patternInfo.markAsDefinitelyNonNull(this.local.binding);
 			} else {
 				// total type patterns inherit the nullness of the value being switched over, unless ...
 				if (flowContext.associatedNode instanceof SwitchStatement) {
 					SwitchStatement swStmt = (SwitchStatement) flowContext.associatedNode;
 					int nullStatus = swStmt.containsNull
 							? FlowInfo.NON_NULL // ... null is handled in a separate case
-							: swStmt.expression.nullStatus(flowInfo, flowContext);
-					flowInfo.markNullStatus(this.local.binding, nullStatus);
+							: swStmt.expression.nullStatus(patternInfo, flowContext);
+					patternInfo.markNullStatus(this.local.binding, nullStatus);
 				}
 			}
+			return patternInfo;
 		}
-		super.analyseCode(currentScope, flowContext, flowInfo);
 		return flowInfo;
 	}
 	@Override
@@ -161,7 +170,9 @@ public class TypePattern extends Pattern {
 	}
 	@Override
 	public boolean dominates(Pattern p) {
-		return isTotalForType(p.resolvedType);
+		if (p.resolvedType == null || this.resolvedType == null)
+			return false;
+		return p.resolvedType.erasure().isSubtypeOf(this.resolvedType.erasure(), false);
 	}
 
 	/*
@@ -182,6 +193,31 @@ public class TypePattern extends Pattern {
 			return this.resolvedType;
 		if (this.local != null) {
 			this.local.modifiers |= ExtraCompilerModifiers.AccPatternVariable;
+//			this.local.resolve(scope, isPatternVariable);
+
+			if (this.local.isTypeNameVar(scope) ) {
+				/* If the LocalVariableType is var then the pattern variable must appear in
+				 *  a pattern list of a record pattern with type R. Let T be the type of the
+				 *  corresponding component field in R. The type of the pattern variable is
+				 *  the upward projection of T with respect to all synthetic type variables
+				 *  mentioned by T.*/
+				Pattern enclosingPattern = this.getEnclosingPattern();
+				if (enclosingPattern instanceof RecordPattern) {
+					ReferenceBinding recType = (ReferenceBinding) enclosingPattern.resolvedType;
+					if (recType != null) {
+						RecordComponentBinding[] components = recType.components();
+						RecordComponentBinding rcb = components[this.index];
+						if (rcb != null) {
+							TypeVariableBinding[] mentionedTypeVariables = findSyntheticTypeVariables(rcb.type);
+							if  (mentionedTypeVariables != null && mentionedTypeVariables.length > 0) {
+								this.local.type.resolvedType = recType.upwardsProjection(scope, mentionedTypeVariables);
+							} else {
+								this.local.type.resolvedType = rcb.type;
+							}
+						}
+					}
+				}
+			}
 			this.local.resolve(scope, isPatternVariable);
 			if (this.local.binding != null) {
 				this.local.binding.modifiers |= ExtraCompilerModifiers.AccPatternVariable;
@@ -192,6 +228,20 @@ public class TypePattern extends Pattern {
 		}
 
 		return this.resolvedType;
+	}
+	// Synthetics? Ref 4.10.5 also watch out for spec changes in rec pattern..
+	private TypeVariableBinding[] findSyntheticTypeVariables(TypeBinding typeBinding) {
+		final Set<TypeVariableBinding> mentioned = new HashSet<>();
+		TypeBindingVisitor.visit(new TypeBindingVisitor() {
+			@Override
+			public boolean visit(TypeVariableBinding typeVariable) {
+				if (typeVariable.isCapture())
+					mentioned.add(typeVariable);
+				return super.visit(typeVariable);
+			}
+		}, typeBinding);
+		if (mentioned.isEmpty()) return null;
+		return mentioned.toArray(new TypeVariableBinding[mentioned.size()]);
 	}
 	protected void initSecretPatternVariable(BlockScope scope) {
 		LocalVariableBinding l =

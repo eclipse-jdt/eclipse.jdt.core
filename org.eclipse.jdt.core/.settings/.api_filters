@@ -1,19 +1,25 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component id="org.eclipse.jdt.core" version="2">
-    <resource path="compiler/org/eclipse/jdt/core/compiler/CategorizedProblem.java" type="org.eclipse.jdt.core.compiler.CategorizedProblem">
-        <filter comment="Java 14" id="576725006">
+    <resource path="META-INF/MANIFEST.MF">
+        <filter comment="Java 20" id="923795461">
             <message_arguments>
-                <message_argument value="IProblem"/>
-                <message_argument value="CategorizedProblem"/>
+                <message_argument value="3.33.0"/>
+                <message_argument value="3.32.0"/>
+            </message_arguments>
+        </filter>
+        <filter id="924844039">
+            <message_arguments>
+                <message_argument value="3.33.50"/>
+                <message_argument value="3.33.0"/>
             </message_arguments>
         </filter>
     </resource>
     <resource path="dom/org/eclipse/jdt/core/dom/AST.java" type="org.eclipse.jdt.core.dom.AST">
-        <filter id="388194388">
+        <filter comment="Java 20 constants addition https://github.com/eclipse-jdt/eclipse.jdt.core/pull/541" id="388194388">
             <message_arguments>
                 <message_argument value="org.eclipse.jdt.core.dom.AST"/>
                 <message_argument value="JLS_Latest"/>
-                <message_argument value="18"/>
+                <message_argument value="19"/>
             </message_arguments>
         </filter>
     </resource>
@@ -101,14 +107,6 @@
             </message_arguments>
         </filter>
     </resource>
-    <resource path="dom/org/eclipse/jdt/core/dom/GuardedPattern.java" type="org.eclipse.jdt.core.dom.GuardedPattern">
-        <filter comment="Removed for preview feature Java 19" id="338792546">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.dom.GuardedPattern"/>
-                <message_argument value="patternVariables()"/>
-            </message_arguments>
-        </filter>
-    </resource>
     <resource path="dom/org/eclipse/jdt/core/dom/ImportDeclaration.java" type="org.eclipse.jdt.core.dom.ImportDeclaration">
         <filter id="576778288">
             <message_arguments>
@@ -193,19 +191,19 @@
             </message_arguments>
         </filter>
     </resource>
-    <resource path="dom/org/eclipse/jdt/core/dom/NullPattern.java" type="org.eclipse.jdt.core.dom.NullPattern">
-        <filter comment="Removed for preview feature Java 19" id="338792546">
-            <message_arguments>
-                <message_argument value="org.eclipse.jdt.core.dom.NullPattern"/>
-                <message_argument value="patternVariables()"/>
-            </message_arguments>
-        </filter>
-    </resource>
     <resource path="dom/org/eclipse/jdt/core/dom/PackageDeclaration.java" type="org.eclipse.jdt.core.dom.PackageDeclaration">
         <filter id="576778288">
             <message_arguments>
                 <message_argument value="ASTNode"/>
                 <message_argument value="PackageDeclaration"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="dom/org/eclipse/jdt/core/dom/PatternInstanceofExpression.java" type="org.eclipse.jdt.core.dom.PatternInstanceofExpression">
+        <filter id="336658481">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.dom.PatternInstanceofExpression"/>
+                <message_argument value="PATTERN_PROPERTY"/>
             </message_arguments>
         </filter>
     </resource>

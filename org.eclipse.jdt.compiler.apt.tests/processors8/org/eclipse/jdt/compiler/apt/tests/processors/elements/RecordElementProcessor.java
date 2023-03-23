@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020, 2022 IBM Corporation.
+ * Copyright (c) 2020, 2023 IBM Corporation.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -591,5 +591,34 @@ public class RecordElementProcessor extends BaseElementProcessor {
 		VariableElement var = parameters.get(0);
 		assertEquals("component name incorrect", "i", var.getSimpleName().toString());
 		verifyAnnotations(var, new String[]{"@Marker4()"});
+	}
+	public void testRecordsConstructors() {
+		Set<? extends Element> elements = roundEnv.getRootElements();
+		TypeElement record = find(elements, "Record2");
+		assertNotNull("TypeElement for record should not be null", record);
+		List<? extends Element> enclosedElements = record.getEnclosedElements();
+		List<ExecutableElement> methods = ElementFilter.constructorsIn(enclosedElements);
+		assertEquals("Incorrect no of constructors", 1, methods.size());
+		ExecutableElement constr = methods.get(0);
+		if (isBinaryMode) {
+			assertFalse("Should not be canonical constructor", _elementUtils.isCanonicalConstructor(constr));
+			assertFalse("Should not be compact constructor", _elementUtils.isCompactConstructor(constr));
+		} else {
+			assertTrue("Should be canonical constructor", _elementUtils.isCanonicalConstructor(constr));
+			assertFalse("Should not be compact constructor", _elementUtils.isCompactConstructor(constr));
+		}
+		record = find(elements, "Record3");
+		assertNotNull("TypeElement for record should not be null", record);
+		enclosedElements = record.getEnclosedElements();
+		methods = ElementFilter.constructorsIn(enclosedElements);
+		assertEquals("Incorrect no of constructors", 1, methods.size());
+		constr = methods.get(0);
+		if (isBinaryMode) {
+			assertFalse("Should not be canonical constructor", _elementUtils.isCanonicalConstructor(constr));
+			assertFalse("Should not be compact constructor", _elementUtils.isCompactConstructor(constr));
+		} else {
+			assertTrue("Should not be canonical constructor", _elementUtils.isCanonicalConstructor(constr));
+			assertTrue("Should be a compact constructor", _elementUtils.isCompactConstructor(constr));
+		}
 	}
 }

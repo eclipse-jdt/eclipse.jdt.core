@@ -1294,4 +1294,14 @@ class BoundSet {
 		}
 		return null;
 	}
+	public TypeBinding[] condition18_5_5_item_4(
+			ReferenceBinding rAlpha,
+			InferenceVariable[] alpha,
+			TypeBinding tPrime, InferenceContext18 ctx18) {
+		/* If T' is a parameterization of a generic class G, and there exists a supertype
+		 *  of R<α1, ..., αn> that is also a parameterization of G, let R' be that supertype.
+		 */
+		return tPrime.isParameterizedType() ?
+				superTypesWithCommonGenericType(rAlpha, tPrime) : null;
+	}
 }

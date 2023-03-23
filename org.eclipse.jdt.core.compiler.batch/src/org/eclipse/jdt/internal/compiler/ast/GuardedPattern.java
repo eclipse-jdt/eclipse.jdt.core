@@ -100,7 +100,8 @@ public class GuardedPattern extends Pattern {
 
 	@Override
 	public boolean dominates(Pattern p) {
-		// Guarded pattern can never dominate another, even if the guards are identical
+		if (isAlwaysTrue())
+			return this.primaryPattern.dominates(p);
 		return false;
 	}
 

@@ -854,6 +854,33 @@ public class ASTMatcher {
 	 * @return <code>true</code> if the subtree matches, or
 	 *   <code>false</code> if they do not match or the other object has a
 	 *   different node type or is <code>null</code>
+	 * @since 3.33
+	 * @noreference This method is not intended to be referenced by clients.
+	 */
+	public boolean match(EnhancedForWithRecordPattern node, Object other) {
+		if (!(other instanceof EnhancedForWithRecordPattern)) {
+			return false;
+		}
+		EnhancedForWithRecordPattern o = (EnhancedForWithRecordPattern) other;
+		return (
+			safeSubtreeMatch(node.getPattern(), o.getPattern())
+				&& safeSubtreeMatch(node.getExpression(), o.getExpression())
+				&& safeSubtreeMatch(node.getBody(), o.getBody()));
+	}
+
+	/**
+	 * Returns whether the given node and the other object match.
+	 * <p>
+	 * The default implementation provided by this class tests whether the
+	 * other object is a node of the same type with structurally isomorphic
+	 * child subtrees. Subclasses may override this method as needed.
+	 * </p>
+	 *
+	 * @param node the node
+	 * @param other the other object, or <code>null</code>
+	 * @return <code>true</code> if the subtree matches, or
+	 *   <code>false</code> if they do not match or the other object has a
+	 *   different node type or is <code>null</code>
 	 * @since 3.1
 	 */
 	public boolean match(EnumConstantDeclaration node, Object other) {
@@ -1949,6 +1976,7 @@ public class ASTMatcher {
 	 *   different node type or is <code>null</code>
 	 * @since 3.26
 	 */
+	@SuppressWarnings("deprecation")
 	public boolean match(PatternInstanceofExpression node, Object other) {
 		if (!(other instanceof PatternInstanceofExpression)) {
 			return false;

@@ -32,6 +32,7 @@ import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.FunctionalExpression;
 import org.eclipse.jdt.internal.compiler.ast.Invocation;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
+import org.eclipse.jdt.internal.compiler.ast.RecordPattern;
 import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
 import org.eclipse.jdt.internal.compiler.ast.SwitchExpression;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
@@ -791,6 +792,12 @@ public class InferenceContext18 {
 			return null;
 		InferenceVariable[] alpha = addInitialTypeVariableSubstitutions(a);
 
+		createAdditionalBounds(a, alpha);
+		TypeBinding falpha = substitute(functionalInterface);
+		return falpha.getSingleAbstractMethod(this.scope, true).parameters;
+	}
+
+	private void createAdditionalBounds(TypeBinding[] a, InferenceVariable[] alpha) {
 		for (int i = 0; i < a.length; i++) {
 			TypeBound bound;
 			if (a[i].kind() == Binding.WILDCARD_TYPE) {
@@ -813,8 +820,6 @@ public class InferenceContext18 {
 			}
 			this.currentBounds.addBound(bound, this.environment);
 		}
-		TypeBinding falpha = substitute(functionalInterface);
-		return falpha.getSingleAbstractMethod(this.scope, true).parameters;
 	}
 
 	public boolean reduceWithEqualityConstraints(TypeBinding[] p, TypeBinding[] q) {
@@ -1019,6 +1024,15 @@ public class InferenceContext18 {
 	 * @throws InferenceFailureException a compile error has been detected during inference
 	 */
 	public /*@Nullable*/ BoundSet solve(boolean inferringApplicability) throws InferenceFailureException {
+		return solve(inferringApplicability, false);
+	}
+	/**
+	 * Try to solve the inference problem defined by constraints and bounds previously registered.
+	 * @param isRecordPatternTypeInference see 18_5_5_item_5 for Record Type Inference
+	 * @return a bound set representing the solution, or null if inference failed
+	 * @throws InferenceFailureException a compile error has been detected during inference
+	 */
+	private /*@Nullable*/ BoundSet solve(boolean inferringApplicability, boolean isRecordPatternTypeInference) throws InferenceFailureException {
 
 		if (!reduce())
 			return null;
@@ -1027,7 +1041,7 @@ public class InferenceContext18 {
 		if (inferringApplicability)
 			this.b2 = this.currentBounds.copy(); // Preserve the result after reduction, without effects of resolve() for later use in invocation type inference.
 
-		BoundSet solution = resolve(this.inferenceVariables);
+		BoundSet solution = resolve(this.inferenceVariables, isRecordPatternTypeInference);
 
 		/* If inferring applicability make a final pass over the initial constraints preserved as final constraints to make sure they hold true at a macroscopic level.
 		   See https://bugs.eclipse.org/bugs/show_bug.cgi?id=426537#c55 onwards.
@@ -1049,13 +1063,13 @@ public class InferenceContext18 {
 		return solve(false);
 	}
 
-	public /*@Nullable*/ BoundSet solve(InferenceVariable[] toResolve) throws InferenceFailureException {
+	public /*@Nullable*/ BoundSet solve(InferenceVariable[] toResolve, boolean isRecordPatternTypeInference) throws InferenceFailureException {
 		if (!reduce())
 			return null;
 		if (!this.currentBounds.incorporate(this))
 			return null;
 
-		return resolve(toResolve);
+		return resolve(toResolve, isRecordPatternTypeInference);
 	}
 
 	/**
@@ -1124,12 +1138,14 @@ public class InferenceContext18 {
 		return this.currentBounds.reduceOneConstraint(this, constraint); // TODO(SH): should we immediately call a diat incorporate, or can we simply wait for the next round?
 	}
 
-	/**
-	 * <b>JLS 18.4</b> Resolution
+	 /** <b>JLS 18.4 </b> Resolution
+	  * @param isRecordPatternTypeInference for 18.5.5_item_3_bullet_5
 	 * @return answer null if some constraint resolved to FALSE, otherwise the boundset representing the solution
 	 * @throws InferenceFailureException
 	 */
-	private /*@Nullable*/ BoundSet resolve(InferenceVariable[] toResolve) throws InferenceFailureException {
+	private /*@Nullable*/ BoundSet resolve(
+			InferenceVariable[] toResolve,
+			boolean isRecordPatternTypeInference) throws InferenceFailureException {
 		this.captureId = 0;
 		// NOTE: 18.5.2 ...
 		// "(While it was necessary to demonstrate that the inference variables in B1 could be resolved
@@ -1144,7 +1160,7 @@ public class InferenceContext18 {
 				final int numVars = variableSet.size();
 				if (numVars > 0) {
 					final InferenceVariable[] variables = variableSet.toArray(new InferenceVariable[numVars]);
-					variables: if (!tmpBoundSet.hasCaptureBound(variableSet)) {
+					variables: if (!isRecordPatternTypeInference && !tmpBoundSet.hasCaptureBound(variableSet)) {
 						// try to instantiate this set of variables in a fresh copy of the bound set:
 						BoundSet prevBoundSet = tmpBoundSet;
 						tmpBoundSet = tmpBoundSet.copy();
@@ -1244,6 +1260,7 @@ public class InferenceContext18 {
 							if (!setUpperBounds(zsj, upperBounds))
 								continue; // at violation of well-formedness skip this candidate and proceed
 						}
+//						}
 						if (tmpBoundSet == this.currentBounds)
 							tmpBoundSet = tmpBoundSet.copy();
 						Iterator<ParameterizedTypeBinding> captureKeys = tmpBoundSet.captures.keySet().iterator();
@@ -1274,7 +1291,14 @@ public class InferenceContext18 {
 		}
 		return tmpBoundSet;
 	}
-
+	/**
+	 * <b>JLS 18.4</b> Resolution
+	 * @return answer null if some constraint resolved to FALSE, otherwise the boundset representing the solution
+	 * @throws InferenceFailureException
+	 */
+	private /*@Nullable*/ BoundSet resolve(InferenceVariable[] toResolve) throws InferenceFailureException {
+		return resolve(toResolve, false);
+	}
 	private TypeBinding intersectionFromGlb(TypeBinding[] glbs) {
 		ReferenceBinding[] refGlbs = new ReferenceBinding[glbs.length];
 		for (int i = 0; i < glbs.length; i++) {
@@ -1909,5 +1933,256 @@ public class InferenceContext18 {
 	public void cleanUp() {
 		this.b2 = null;
 		this.currentBounds = null;
+	}
+
+	// section 18.5.5
+	public ReferenceBinding inferRecordPatternParameterization(
+			RecordPattern recordPattern,
+			BlockScope scope2,
+			TypeBinding candidateT) {
+		TypeBinding typeBinding = recordPattern.resolvedType;
+		if (!(typeBinding instanceof ReferenceBinding))
+			return null; // should not happen.
+		// 1.If T is not downcast convertible (5.5) to the raw type R, inference fails.
+		Expression synthExpr = new Expression() {
+			@Override public StringBuffer printExpression(int indent, StringBuffer output) {
+				return output;
+			}
+		};
+		if (!synthExpr.checkCastTypesCompatibility(scope2, candidateT, typeBinding, synthExpr, false))
+			return null;
+		//2. Otherwise, where P1, ..., Pn (n ≥ 1) are the type parameters of R,...
+		TypeVariableBinding[] typeVariables = typeBinding.original().typeVariables();// type para
+		if (typeVariables == null)
+			return null;
+		// An initial bound set, B0, is generated from the declared bounds of P1, ..., Pn,
+		// as described in 18.1.3.
+		InferenceVariable[] alphas = createInitialBoundSet(typeVariables); // creates initial bound set B
+
+		// 3. A type T' is derived from T, as follows:
+		TypeBinding tPrime = deriveTPrime(candidateT, alphas, typeBinding);
+		if (tPrime == null)
+			return null;
+
+		/* 4. => 18_5_5_item_4 */
+		if (!findRPrimeAndResultingBounds(typeBinding, alphas, tPrime))
+			return null;
+
+		/* 5. => 18_5_5_item_5
+		 *
+		 *  Otherwise, the inference variables α1, ..., αn are resolved in B2 (18.4).
+		 *  Unlike normal resolution, in this case resolution skips the step that attempts
+		 *  to produce an instantiation for an inference variable from its proper lower bounds
+		 *  or proper upper bounds; instead, any new instantiations are created by skipping
+		 *  directly to the step that introduces fresh type variables.
+		 *
+		 *  If resolution fails, then inference fails.
+		 */
+		BoundSet solution = null;
+		try {
+			solution = solve(false, true /* isRecordPatternTypeInference */);
+		} catch (InferenceFailureException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if (solution == null)
+			return null;
+
+		//6. => 18_5_5_item_6
+		return getRecordPatternTypeFromUpwardsProjection(typeBinding, alphas, solution);
+	}
+
+	/* 6. => 18_5_5_item_6
+	 * Otherwise, let A1, ..., An be the resolved instantiations for α1, ..., αn, and
+	 * let Y1, ..., Yp (p ≥ 0) be any fresh type variables introduced by resolution.
+	 * The type of the record pattern is the upward projection of R<A1, ..., An>
+	 * with respect to Y1, ..., Yp (4.10.5).
+	 */
+	private ReferenceBinding getRecordPatternTypeFromUpwardsProjection(TypeBinding typeBinding,
+			InferenceVariable[] alphas, BoundSet solution) {
+		TypeBinding[] instantiations = new TypeBinding[alphas.length];
+		for (int i = 0, l = alphas.length; i < l; ++i) {
+			instantiations[i] = solution.getInstantiation(alphas[i], this.environment);
+		}
+		ReferenceBinding r = (ReferenceBinding) typeBinding.original();
+		ParameterizedTypeBinding rA = this.environment.createParameterizedType(
+				r,
+				instantiations,
+				r.enclosingType(),
+				r.getTypeAnnotations());
+		if (rA == null)
+			return null;
+
+		TypeVariableBinding[] yTypeVariables = getFreshTypeVariables(instantiations);
+		if (yTypeVariables == null || yTypeVariables.length == 0)
+			return rA;
+
+		return rA.upwardsProjection(this.scope, yTypeVariables);
+	}
+
+	private TypeVariableBinding[] getFreshTypeVariables(TypeBinding[] instantiations) {
+		if (instantiations == null)
+			return null;
+		List<CaptureBinding> yTypeVariables = new ArrayList<>();
+		for (TypeBinding b : instantiations) {
+			// ...be any fresh type variables introduced by resolution. - how to get this condition?
+			if (b instanceof CaptureBinding)
+				yTypeVariables.add((CaptureBinding) b);
+		}
+		return yTypeVariables.toArray(new TypeVariableBinding[0]);
+	}
+
+	/* 4. => 18_5_5_item_4
+	 * If T' is a parameterization of a generic class G, and there exists a supertype of
+	 * R<α1, ..., αn> that is also a parameterization of G, let R' be that supertype */
+	private boolean findRPrimeAndResultingBounds(TypeBinding typeBinding, InferenceVariable[] alphas, TypeBinding tPrime) {
+		if (tPrime == null)
+			return false;
+		ReferenceBinding rAlpha = this.environment.createParameterizedType(
+				(ReferenceBinding) typeBinding.original(), alphas, typeBinding.enclosingType(), typeBinding.getTypeAnnotations());
+		TypeBinding[] rPrimes = this.currentBounds.condition18_5_5_item_4(rAlpha, alphas, tPrime, this);
+		if (rPrimes != null) {
+			// TODO:
+			/* The constraint formula ‹T' = R'› is reduced (18.2) and the resulting bounds are
+			 * incorporated into B1 to produce a new bound set, B2.
+			 * TODO: refactor the method below into two? - instead of creating array - here reusing. */
+			for (TypeBinding rPrime : rPrimes) {
+				if (!rPrime.isParameterizedType()) continue;
+				try {
+					if (!reduceAndIncorporate(ConstraintTypeFormula.create(tPrime, rPrime, ReductionResult.SAME))) {
+						 /* If B2 contains the bound false, inference fails. */
+						return false;
+					}
+				} catch (InferenceFailureException e) {
+					return false;
+				}
+//				if (rPrime.typeArguments().length == 0) continue; // TODO: should we?
+//				if (!reduceWithEqualityConstraints(new TypeBinding[] {tPrime}, new TypeBinding[] {rPrime})) {
+//					 /* If B2 contains the bound false, inference fails. */
+//					return false;
+//				}
+			}
+		} /* else part: Otherwise, B2 is the same as B1.*/
+		return true;
+	}
+	private TypeBinding deriveTPrime(TypeBinding candidateT, InferenceVariable[] alphas, TypeBinding typeBinding) {
+		ParameterizedTypeBinding parameterizedType = null;
+		TypeBinding tPrime = null;
+		if (candidateT.isParameterizedType()) {
+			parameterizedType = InferenceContext18.parameterizedWithWildcard(candidateT);
+		}
+		if (parameterizedType != null && parameterizedType.arguments != null) {
+			TypeBinding[] arguments = parameterizedType.arguments;
+			/* addTypeVariableSubstitutions() gives a beta for every argument which is
+			 * a super set of betas required by 18_5_5_item_3_bullet_1 betas.
+			 * this happens since we are just reusing 18.5.2.1 utility
+			 * And hence the name notJust18_5_5_item_3_bullet_1Betas
+			 * TODO: a Just18_5_5_item_3_bullet_1Betas utility?
+			 */
+			InferenceVariable[] notJust18_5_5_item_3_bullet_1Betas = addTypeVariableSubstitutions(arguments);
+			TypeVariableBinding[] typeVariables = getTPrimeArgumentsAndCreateBounds(parameterizedType,
+					notJust18_5_5_item_3_bullet_1Betas);
+			tPrime = this.environment.createParameterizedType(
+					parameterizedType.genericType(), typeVariables,
+					parameterizedType.enclosingType(), parameterizedType.getTypeAnnotations());
+			createAdditionalBoundswithU((ParameterizedTypeBinding) tPrime, notJust18_5_5_item_3_bullet_1Betas, typeVariables);
+		} else if (candidateT.isTypeVariable() || candidateT.isIntersectionType18()) {
+			// 18.5.5_item_3_bullet_3
+			/* If T is a type variable or an intersection type, then for each upper bound of the type
+			 * variable or element of the intersection type, this step and step 4 are repeated
+			 * recursively. All bounds produced in steps 3 and 4 are incorporated into a single bound set.*/
+
+			TypeBinding[] allBoundCandidates = candidateT.isTypeVariable() ?
+					((TypeVariableBinding) candidateT).allUpperBounds() :
+						((IntersectionTypeBinding18) candidateT).getIntersectingTypes();
+
+			if (allBoundCandidates != null) {
+				for (TypeBinding t : allBoundCandidates) {
+					TypeBinding ttPrime = deriveTPrime(t, alphas, typeBinding);
+					if (!findRPrimeAndResultingBounds(typeBinding, alphas, ttPrime))
+						return null;
+				}
+			}
+			return tPrime = candidateT; //18.5.5_item_3_bullet_2
+		} else if (candidateT.isClass() || candidateT.isInterface()) {
+			tPrime = candidateT; //18.5.5_item_3_bullet_2
+		}
+		return tPrime;
+	}
+
+	private void createAdditionalBoundswithU(ParameterizedTypeBinding tPrime, InferenceVariable[] notJust18_5_5_item_3_bullet_1Betas,
+			TypeVariableBinding[] typeVariables) {
+		TypeVariableBinding[] typeParams = tPrime.original().typeVariables();
+		TypeBinding[] aArr = tPrime.typeArguments();
+		for (int i = 0, l = notJust18_5_5_item_3_bullet_1Betas.length; i < l; ++i) {
+			InferenceVariable beta = notJust18_5_5_item_3_bullet_1Betas[i];
+			if (!beta.equals(typeVariables[i])) continue; //not an expected inference variable.
+
+			TypeBinding[] uArr = typeParams[i]!= null ? typeParams[i].allUpperBounds() : null;
+			if (uArr == null || uArr.length == 0) {
+				/* If there is no TypeBound for the type parameter corresponding to βi,
+				 * or if no proper upper bounds are derived from the TypeBound (only dependencies), //TODO:HOW TO check this condition?
+				 * then the bound βi <: Object appears in the set.*/
+				TypeBound bound = new TypeBound(beta, this.object, ReductionResult.SUBTYPE);
+				this.currentBounds.addBound(bound, this.environment);
+				return;
+			}
+			/*For each βi (1 ≤ i ≤ k), and for each type U delimited by & in the TypeBound
+			 * of the type parameter corresponding to βi (1 ≤ i ≤ m),
+			 * the bound βi <: U[Q1:=A1, ..., Qm:=Am] appears in the bound set.*/
+			for (TypeBinding u : uArr) {
+				TypeBinding rhs = null;
+				if (!u.isProperType(false)) {
+					rhs = this.object;
+				} else if (u.original().isGenericType()) {
+					rhs = this.environment.createParameterizedType(
+							(ReferenceBinding) u.original(), aArr,
+							u.enclosingType(), u.getTypeAnnotations());
+				} else {
+					rhs = u;
+				}
+				TypeBound bound = new TypeBound(beta, rhs, ReductionResult.SUBTYPE);
+				this.currentBounds.addBound(bound, this.environment);
+			}
+		}
+	}
+
+	private TypeVariableBinding[] getTPrimeArgumentsAndCreateBounds(
+			ParameterizedTypeBinding parameterizedType,
+			InferenceVariable[] beta) {
+		TypeBinding[] arguments = parameterizedType.typeArguments();
+		TypeVariableBinding[] typeVariables = new TypeVariableBinding[arguments.length];
+		TypeBound bound;
+		for (int i = 0, l = arguments.length; i < l; ++i) {
+			bound = null;
+			if (arguments[i].kind() == Binding.WILDCARD_TYPE) {
+				WildcardBinding wildcard = (WildcardBinding) arguments[i];
+				switch(wildcard.boundKind) {
+					case Wildcard.EXTENDS :
+						bound = new TypeBound(beta[i], wildcard.allBounds(), ReductionResult.SUBTYPE);
+						break;
+					case Wildcard.SUPER :
+						bound = new TypeBound(beta[i], wildcard.bound, ReductionResult.SUPERTYPE);
+						break;
+					case Wildcard.UNBOUND :
+						bound = new TypeBound(beta[i], this.object, ReductionResult.SUBTYPE);
+						break;
+					default:
+						continue;
+				}
+			} else {
+				/* As per 18_5_5_item_3_bullet_1 should not have a beta here
+				 * instead the same typevariable  */
+				typeVariables[i] = parameterizedType.type.typeVariables()[i];
+			}
+			if (bound != null) {
+				this.currentBounds.addBound(bound, this.environment);
+				typeVariables[i] = beta[i];
+			} else {
+				typeVariables[i] = parameterizedType.type.typeVariables()[i];
+
+			}
+		}
+		return typeVariables;
 	}
 }

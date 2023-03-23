@@ -2501,6 +2501,20 @@ void setSourceStart(int sourceStart);
 	 * @noreference preview feature error */
 	int DuplicateTotalPattern = PreviewRelated + 1909;
 
+	 /** @since 3.34
+	 * @noreference preview feature error */
+	int PatternSwitchNullOnlyOrFirstWithDefault = PreviewRelated + 1920;
+
+	 /** @since 3.34
+	 * @noreference preview feature error */
+	int PatternSwitchCaseDefaultOnlyAsSecond = PreviewRelated + 1921;
+
+	/**
+	 * @since 3.34
+	 * @noreference preview feature error
+	 */
+	int IllegalFallthroughFromAPattern = PreviewRelated + 1922;
+
 	/** @since 3.28
 	 * @noreference preview feature error */
 	int UnnecessaryNullCaseInSwitchOverNonNull = PreviewRelated + 1910;
@@ -2527,4 +2541,9 @@ void setSourceStart(int sourceStart);
 	 * @noreference preview feature
 	 */
 	int RawTypeInRecordPattern =  PreviewRelated + 1915;
+	/**
+	 * @since 3.34
+	 * @noreference preview feature
+	 */
+	int CannotInferRecordPatternTypes = PreviewRelated + 1940;
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2022 IBM Corporation and others.
+ * Copyright (c) 2000, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -312,6 +312,10 @@ static class JavacCompiler {
 			return JavaCore.VERSION_17;
 		} else if(rawVersion.startsWith("18")) {
 			return JavaCore.VERSION_18;
+		} else if(rawVersion.startsWith("19")) {
+			return JavaCore.VERSION_19;
+		} else if(rawVersion.startsWith("20")) {
+			return JavaCore.VERSION_20;
 		} else {
 			throw new RuntimeException("unknown javac version: " + rawVersion);
 		}
@@ -520,6 +524,34 @@ static class JavacCompiler {
 				return 0100;
 			}
 			if ("18.0.2".equals(rawVersion)) {
+				return 0200;
+			}
+		}
+		if (version == JavaCore.VERSION_19) {
+			if ("19-ea".equals(rawVersion)) {
+				return 0000;
+			}
+			if ("19".equals(rawVersion)) {
+				return 0000;
+			}
+			if ("19.0.1".equals(rawVersion)) {
+				return 0100;
+			}
+			if ("19.0.2".equals(rawVersion)) {
+				return 0200;
+			}
+		}
+		if (version == JavaCore.VERSION_20) {
+			if ("20-ea".equals(rawVersion)) {
+				return 0000;
+			}
+			if ("20".equals(rawVersion)) {
+				return 0000;
+			}
+			if ("20.0.1".equals(rawVersion)) {
+				return 0100;
+			}
+			if ("20.0.2".equals(rawVersion)) {
 				return 0200;
 			}
 		}
@@ -1105,7 +1137,10 @@ protected static class JavacTestOptions {
 			JavacBug8231436 = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8231436 to implement https://bugs.openjdk.java.net/browse/JDK-8231435
 				    new JavacHasABug(MismatchType.JavacErrorsEclipseNone) : null,
 			JavacBug8231436_EclipseWarns = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8231436 to implement https://bugs.openjdk.java.net/browse/JDK-8231435
-				    new JavacHasABug(MismatchType.JavacErrorsEclipseWarnings) : null;
+				    new JavacHasABug(MismatchType.JavacErrorsEclipseWarnings) : null,
+		    JavacBug8299416 = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8299416
+					new JavacBugExtraJavacOptionsPlusMismatch(" --release 20 --enable-preview -Xlint:-preview",
+							MismatchType.EclipseErrorsJavacNone| MismatchType.EclipseErrorsJavacWarnings) : null;
 
 		// bugs that have been fixed but that we've not identified
 		public static JavacHasABug
@@ -1181,6 +1216,17 @@ protected static class JavacTestOptions {
 		String extraJavacOptions;
 		public JavacBug8226510(String extraJavacOptions) {
 			super(MismatchType.EclipseErrorsJavacWarnings);
+			this.extraJavacOptions = extraJavacOptions;
+		}
+		@Override
+		String getCompilerOptions() {
+			return super.getCompilerOptions() + this.extraJavacOptions;
+		}
+	}
+	public static class JavacBugExtraJavacOptionsPlusMismatch extends JavacHasABug {
+		String extraJavacOptions;
+		public JavacBugExtraJavacOptionsPlusMismatch(String extraJavacOptions, int mismatchType) {
+			super(mismatchType);
 			this.extraJavacOptions = extraJavacOptions;
 		}
 		@Override
@@ -2483,6 +2529,9 @@ protected void runJavac(
 	}
 	if (newOptions.indexOf(" -implicit") < 0) {
 		newOptions = newOptions.concat(" -implicit:none");
+	}
+	if (classLibraries == null) {
+		classLibraries = this.classpaths;
 	}
 	if (classLibraries != null) {
 		List<String> filteredLibs = new ArrayList<>();

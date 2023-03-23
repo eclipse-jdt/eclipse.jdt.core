@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021, 2022 IBM Corporation and others.
+ * Copyright (c) 2021, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -60,7 +60,7 @@ public class TypePattern extends Pattern {
 
 	TypePattern(AST ast) {
 		super(ast);
-		supportedOnlyIn19();
+		supportedOnlyIn20();
 		unsupportedWithoutPreviewError();
 	}
 
@@ -122,7 +122,7 @@ public class TypePattern extends Pattern {
 	}
 
 	public List<SingleVariableDeclaration> patternVariables() {
-		supportedOnlyIn19();
+		supportedOnlyIn20();
 		unsupportedWithoutPreviewError();
 		return new ArrayList<SingleVariableDeclaration>(Arrays.asList(getPatternVariable()));
 	}
@@ -142,7 +142,7 @@ public class TypePattern extends Pattern {
 	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
 	 */
 	public void setPatternVariable(SingleVariableDeclaration patternVariable) {
-		supportedOnlyIn19();
+		supportedOnlyIn20();
 		unsupportedWithoutPreviewError();
 		if (patternVariable == null) {
 			throw new IllegalArgumentException();
@@ -162,7 +162,7 @@ public class TypePattern extends Pattern {
 	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
 	 */
 	public SingleVariableDeclaration getPatternVariable() {
-		supportedOnlyIn19();
+		supportedOnlyIn20();
 		unsupportedWithoutPreviewError();
 		if (this.patternVariable  == null) {
 			// lazy init must be thread-safe for readers

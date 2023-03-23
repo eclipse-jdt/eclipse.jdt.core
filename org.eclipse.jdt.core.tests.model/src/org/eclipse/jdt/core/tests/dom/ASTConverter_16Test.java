@@ -556,8 +556,7 @@ public class ASTConverter_16Test extends ConverterTestSetup {
 		assertEquals("Restricter identifier position for interface' is not -1", startPos, -1);
 	}
 
-
-
+	@SuppressWarnings("deprecation")
 	public void testPatternInstanceOfExpression001() throws JavaModelException {
 		if (!isJRE16) {
 			System.err.println("Test "+getName()+" requires a JRE 16");

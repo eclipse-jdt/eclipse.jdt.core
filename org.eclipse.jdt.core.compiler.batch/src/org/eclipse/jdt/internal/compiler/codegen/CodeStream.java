@@ -6727,6 +6727,31 @@ public void newJavaLangIncompatibleClassChangeError() {
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_new;
 	writeUnsignedShort(this.constantPool.literalIndexForType(ConstantPool.JavaLangIncompatibleClassChangeErrorConstantPoolName));
 }
+public void newJavaLangMatchException() {
+	// new: java.lang.MatchException
+	this.countLabels = 0;
+	this.stackDepth++;
+	pushTypeBinding(ConstantPool.JavaLangMatchExceptionConstantPoolName);
+	if (this.stackDepth > this.stackMax)
+		this.stackMax = this.stackDepth;
+	if (this.classFileOffset + 2 >= this.bCodeStream.length) {
+		resizeByteArray();
+	}
+	this.position++;
+	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_new;
+	writeUnsignedShort(this.constantPool.literalIndexForType(ConstantPool.JavaLangMatchExceptionConstantPoolName));
+}
+public void invokeJavaLangMatchExceptionConstructor() {
+	// invokespecial: java.lang.MatchException.<init>(Ljava/lang/String;Ljava/lang/Throwable;)V
+	invoke(
+			Opcodes.OPC_invokespecial,
+			3, // receiverAndArgsSize
+			0, // return type size
+			ConstantPool.JavaLangMatchExceptionConstantPoolName,
+			ConstantPool.Init,
+			ConstantPool.JavaLangMatchExceptionNewInstanceSignature,
+			null);
+}
 public void newNoClassDefFoundError() {
 	// new: java.lang.NoClassDefFoundError
 	this.countLabels = 0;

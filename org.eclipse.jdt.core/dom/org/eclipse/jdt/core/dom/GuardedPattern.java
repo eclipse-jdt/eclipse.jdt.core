@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021, 2022 IBM Corporation and others.
+ * Copyright (c) 2021, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -36,7 +36,7 @@ public class GuardedPattern extends Pattern{
 
 	GuardedPattern(AST ast) {
 		super(ast);
-		supportedOnlyIn19();
+		supportedOnlyIn20();
 		unsupportedWithoutPreviewError();
 	}
 
@@ -199,7 +199,7 @@ public class GuardedPattern extends Pattern{
 	 * @return the expression node, or <code>null</code> if there is none
 	 */
 	public Expression getExpression() {
-		supportedOnlyIn19();
+		supportedOnlyIn20();
 		unsupportedWithoutPreviewError();
 		return this.conditonalExpression;
 	}
@@ -214,7 +214,7 @@ public class GuardedPattern extends Pattern{
 	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
 	 */
 	public Pattern getPattern() {
-		supportedOnlyIn19();
+		supportedOnlyIn20();
 		unsupportedWithoutPreviewError();
 		return this.pattern;
 	}
@@ -233,7 +233,7 @@ public class GuardedPattern extends Pattern{
 	 * </ul>
 	 */
 	public void setExpression(Expression expression) {
-		supportedOnlyIn19();
+		supportedOnlyIn20();
 		unsupportedWithoutPreviewError();
 		ASTNode oldChild = this.conditonalExpression;
 		preReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
@@ -249,7 +249,7 @@ public class GuardedPattern extends Pattern{
 	 * @exception UnsupportedOperationException if this operation is used without previewEnabled
 	 */
 	public void setPattern(Pattern pattern) {
-		supportedOnlyIn19();
+		supportedOnlyIn20();
 		unsupportedWithoutPreviewError();
 		ASTNode oldChild = this.pattern;
 		preReplaceChild(oldChild, pattern, PATTERN_PROPERTY);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2022 IBM Corporation and others.
+ * Copyright (c) 2022, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -74,7 +74,7 @@ public class RecordPattern extends Pattern {
 
 	RecordPattern(AST ast) {
 		super(ast);
-		supportedOnlyIn19();
+		supportedOnlyIn20();
 		unsupportedWithoutPreviewError();
 	}
 
@@ -184,7 +184,7 @@ public class RecordPattern extends Pattern {
 	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
 	 */
 	public void setPatternName(SimpleName patternName) {
-		supportedOnlyIn19();
+		supportedOnlyIn20();
 		unsupportedWithoutPreviewError();
 		if (patternName == null) {
 			throw new IllegalArgumentException();
@@ -210,7 +210,7 @@ public class RecordPattern extends Pattern {
 	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
 	 */
 	public void setPatternType(Type patternType) {
-		supportedOnlyIn19();
+		supportedOnlyIn20();
 		unsupportedWithoutPreviewError();
 		if (patternType == null) {
 			throw new IllegalArgumentException();
@@ -230,7 +230,7 @@ public class RecordPattern extends Pattern {
 	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
 	 */
 	public SimpleName getPatternName() {
-		supportedOnlyIn19();
+		supportedOnlyIn20();
 		unsupportedWithoutPreviewError();
 		return this.optionalPatternName;
 	}
@@ -244,7 +244,7 @@ public class RecordPattern extends Pattern {
 	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
 	 */
 	public Type getPatternType() {
-		supportedOnlyIn19();
+		supportedOnlyIn20();
 		unsupportedWithoutPreviewError();
 		if (this.patternType  == null) {
 			// lazy init must be thread-safe for readers
@@ -270,7 +270,7 @@ public class RecordPattern extends Pattern {
 	 */
 	@SuppressWarnings("unchecked")
 	public List<Pattern> patterns() {
-		supportedOnlyIn19();
+		supportedOnlyIn20();
 		unsupportedWithoutPreviewError();
 		return this.patterns;
 	}
