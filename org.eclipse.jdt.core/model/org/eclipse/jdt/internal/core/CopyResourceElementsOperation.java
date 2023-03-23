@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13,19 +13,41 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.NavigableMap;
+import java.util.TreeMap;
 
-import org.eclipse.core.resources.*;
+import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceRuleFactory;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
 import org.eclipse.core.runtime.jobs.MultiRule;
-import org.eclipse.jdt.core.*;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaElementDelta;
+import org.eclipse.jdt.core.IJavaModelStatus;
+import org.eclipse.jdt.core.IJavaModelStatusConstants;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
+import org.eclipse.jdt.core.dom.Comment;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Javadoc;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
@@ -36,7 +58,10 @@ import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
+import org.eclipse.text.edits.DeleteEdit;
+import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.TextEdit;
+import org.eclipse.text.edits.TextEditGroup;
 
 /**
  * This operation copies/moves/renames a collection of resources from their current
@@ -545,8 +570,10 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 						CompilationUnit astCU = (CompilationUnit) this.parser.createAST(this.progressMonitor);
 						AST ast = astCU.getAST();
 						ASTRewrite rewrite = ASTRewrite.create(ast);
-						updatePackageStatement(astCU, newFragName, rewrite, cu);
+						TextEdit additionalEdits = new MultiTextEdit();
+						updatePackageStatement(astCU, newFragName, rewrite, cu, additionalEdits);
 						TextEdit edits = rewrite.rewriteAST();
+						edits.addChild(additionalEdits);
 						applyTextEdit(cu, edits);
 						cu.save(null, false);
 					}
@@ -639,11 +666,42 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 			AST ast = astCU.getAST();
 			ASTRewrite rewrite = ASTRewrite.create(ast);
 			updateTypeName(cu, astCU, cu.getElementName(), newName, rewrite);
-			updatePackageStatement(astCU, destPackageName, rewrite, cu);
-			return rewrite.rewriteAST();
+			MultiTextEdit additionalEdits = new MultiTextEdit();
+			updatePackageStatement(astCU, destPackageName, rewrite, cu, additionalEdits);
+			TextEdit edits = rewrite.rewriteAST();
+			edits.addChild(additionalEdits);
+			return edits;
 		}
 	}
-	private void updatePackageStatement(CompilationUnit astCU, String[] pkgName, ASTRewrite rewriter, ICompilationUnit cu) throws JavaModelException {
+	/**
+	 * Builds a NavigableMap containing all of the given compilation unit's top-level nodes
+	 * (package declaration, import declarations, type declarations, and non-doc comments),
+	 * keyed by start position.
+	 */
+	private static NavigableMap<Integer, ASTNode> mapTopLevelNodes(CompilationUnit compilationUnit) {
+		NavigableMap<Integer, ASTNode> map = new TreeMap<Integer, ASTNode>();
+
+		Collection<ASTNode> nodes = new ArrayList<ASTNode>();
+		if (compilationUnit.getPackage() != null) {
+			nodes.add(compilationUnit.getPackage());
+		}
+		nodes.addAll(compilationUnit.imports());
+		nodes.addAll(compilationUnit.types());
+		for (Comment comment : ((List<Comment>) compilationUnit.getCommentList())) {
+			// Include only top-level (non-doc) comments;
+			// doc comments are contained within their parent nodes' ranges.
+			if (comment.getParent() == null) {
+				nodes.add(comment);
+			}
+		}
+
+		for (ASTNode node : nodes) {
+			map.put(node.getStartPosition(), node);
+		}
+
+		return map;
+	}
+	private void updatePackageStatement(CompilationUnit astCU, String[] pkgName, ASTRewrite rewriter, ICompilationUnit cu, TextEdit additionalEdits) throws JavaModelException {
 		boolean defaultPackage = pkgName.length == 0;
 		AST ast = astCU.getAST();
 		if (defaultPackage) {
@@ -676,9 +734,35 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 				rewriter.set(pkg, PackageDeclaration.NAME_PROPERTY, name, null);
 			} else {
 				// create new package statement
-				pkg = ast.newPackageDeclaration();
-				pkg.setName(ast.newName(pkgName));
-				rewriter.set(astCU, CompilationUnit.PACKAGE_PROPERTY, pkg, null);
+				NavigableMap<Integer, ASTNode> nodesTreeMap = mapTopLevelNodes(astCU);
+				ASTNode topNode = nodesTreeMap.firstEntry().getValue();
+				if (topNode instanceof Comment) {
+					TextEditGroup group = new TextEditGroup("comment deletes"); //$NON-NLS-1$
+					int startPosition = topNode.getStartPosition();
+					int endPosition = topNode.getStartPosition() + topNode.getLength();
+					int deleteEnd = endPosition;
+					for (ASTNode node : nodesTreeMap.values()) {
+						if (!(node instanceof Comment)) {
+							deleteEnd = node.getStartPosition();
+							break;
+						} else {
+							endPosition = node.getStartPosition() + node.getLength();
+							deleteEnd = endPosition;
+						}
+					}
+					String commentSource = cu.getSource().substring(startPosition, endPosition);
+					commentSource = commentSource + System.lineSeparator() + "package " + pkgName[0] + ";" + System.lineSeparator(); //$NON-NLS-1$ //$NON-NLS-2$
+					ASTNode newPkg = rewriter.createStringPlaceholder(commentSource, ASTNode.PACKAGE_DECLARATION);
+					rewriter.set(astCU, CompilationUnit.PACKAGE_PROPERTY, newPkg, group);
+
+					DeleteEdit delete = new DeleteEdit(startPosition, deleteEnd - startPosition);
+					group.addTextEdit(delete);
+					additionalEdits.addChild(delete);
+				} else {
+					pkg = ast.newPackageDeclaration();
+					pkg.setName(ast.newName(pkgName));
+					rewriter.set(astCU, CompilationUnit.PACKAGE_PROPERTY, pkg, null);
+				}
 			}
 		}
 	}
