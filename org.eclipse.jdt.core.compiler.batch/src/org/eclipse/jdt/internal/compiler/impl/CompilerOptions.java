@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2022 IBM Corporation and others.
+ * Copyright (c) 2000, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -241,6 +241,7 @@ public class CompilerOptions {
 	public static final String VERSION_17 = "17"; //$NON-NLS-1$
 	public static final String VERSION_18 = "18"; //$NON-NLS-1$
 	public static final String VERSION_19 = "19"; //$NON-NLS-1$
+	public static final String VERSION_20 = "20"; //$NON-NLS-1$
 	/*
 	 * Note: Whenever a new version is added, make sure getLatestVersion()
 	 * is updated with it.
@@ -614,7 +615,7 @@ public class CompilerOptions {
 	 * Return the latest Java language version supported by the Eclipse compiler
 	 */
 	public static String getLatestVersion() {
-		return VERSION_19;
+		return VERSION_20;
 	}
 	/**
 	 * Return the most specific option key controlling this irritant. Note that in some case, some irritant is controlled by

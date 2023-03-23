@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2022 IBM Corporation and others.
+ * Copyright (c) 2000, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -56,6 +56,7 @@ public InstanceOfExpression(Expression expression, Pattern pattern) {
 	this.pattern = pattern;
 	this.elementVariable = pattern.getPatternVariable();
 	this.type = pattern.getType();
+	this.type.bits |= IgnoreRawTypeCheck;
 	this.bits |= INSTANCEOF << OperatorSHIFT;
 	this.sourceStart = expression.sourceStart;
 	this.sourceEnd = this.pattern.sourceEnd;
@@ -94,7 +95,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		initsWhenTrue.markAsDefinitelyNonNull(this.elementVariable.binding);
 	}
 	if (this.pattern != null) {
-		this.pattern.analyseCode(currentScope, flowContext, (initsWhenTrue == null) ? flowInfo : initsWhenTrue);
+		FlowInfo patternFlow = this.pattern.analyseCode(currentScope, flowContext, (initsWhenTrue == null) ? flowInfo : initsWhenTrue);
+		initsWhenTrue = initsWhenTrue == null ? patternFlow : initsWhenTrue.addInitializationsFrom(patternFlow);
 	}
 	return (initsWhenTrue == null) ? flowInfo :
 			FlowInfo.conditional(initsWhenTrue, flowInfo.copy());
@@ -311,12 +313,13 @@ public TypeBinding resolveType(BlockScope scope) {
 	this.constant = Constant.NotAConstant;
 	if (this.elementVariable != null || this.pattern != null)
 		addSecretInstanceOfPatternExpressionValue(scope);
-	resolvePatternVariable(scope);
+//	resolvePatternVariable(scope);
 	TypeBinding checkedType = this.type.resolveType(scope, true /* check bounds*/);
 	if (this.expression instanceof CastExpression) {
 		((CastExpression) this.expression).setInstanceofType(checkedType); // for cast expression we need to know instanceof type to not tag unnecessary when needed
 	}
 	TypeBinding expressionType = this.expression.resolveType(scope);
+	resolvePatternVariable(scope);
 	if (this.pattern != null) {
 		this.pattern.resolveWithExpression(scope, this.expression);
 	}

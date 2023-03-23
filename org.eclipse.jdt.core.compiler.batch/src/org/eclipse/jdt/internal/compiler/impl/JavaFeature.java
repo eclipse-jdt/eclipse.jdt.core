@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020, 2022 IBM Corporation and others.
+ * Copyright (c) 2020, 2023 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -57,11 +57,11 @@ public enum JavaFeature {
 			Messages.bind(Messages.sealed_types),
 			new char[][] {TypeConstants.SEALED, TypeConstants.PERMITS},
 			false),
-	PATTERN_MATCHING_IN_SWITCH(ClassFileConstants.JDK19,
+	PATTERN_MATCHING_IN_SWITCH(ClassFileConstants.JDK20,
 			Messages.bind(Messages.pattern_matching_switch),
 			new char[][] {},
 			true),
-	RECORD_PATTERNS(ClassFileConstants.JDK19,
+	RECORD_PATTERNS(ClassFileConstants.JDK20,
 			Messages.bind(Messages.record_patterns),
 			new char[][] {},
 			true),

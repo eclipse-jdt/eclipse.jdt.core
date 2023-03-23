@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021, 2022 GK Software SE, and others.
+ * Copyright (c) 2021, 2023 GK Software SE, and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -38,7 +38,7 @@ public class NullAnnotationTests18 extends AbstractNullAnnotationTest {
 	}
 
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_19);
+		return buildMinimalComplianceTestSuite(testClass(), F_20);
 	}
 
 	public static Class<?> testClass() {
@@ -129,7 +129,7 @@ public class NullAnnotationTests18 extends AbstractNullAnnotationTest {
 		Runner runner = new Runner();
 		runner.classLibraries = this.LIBS;
 		Map<String,String> opts = getCompilerOptions();
-		opts.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_19);
+		opts.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_20);
 		opts.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		opts.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		runner.customOptions = opts;
@@ -166,7 +166,7 @@ public class NullAnnotationTests18 extends AbstractNullAnnotationTest {
 		runner.runConformTest();
 	}
 
-	public void test_totalTypePatternAdmitsNull() {
+	public void test_totalTypePatternDoesNotAdmitNull() {
 		Runner runner = getDefaultRunner();
 		runner.testFiles = new String[] {
 				"X.java",
@@ -201,7 +201,8 @@ public class NullAnnotationTests18 extends AbstractNullAnnotationTest {
 				"	                                ^^\n" +
 				"Null type safety (type annotations): The expression of type \'Number\' needs unchecked conversion to conform to \'@NonNull Number\'\n" +
 				"----------\n";
-		runner.expectedOutputString = "Cannot invoke \"Object.toString()\" because \"n\" is null";
+//		runner.expectedOutputString = "Cannot invoke \"Object.toString()\" because \"n\" is null";
+		runner.expectedOutputString = "null";
 		runner.runConformTest();
 	}
 
@@ -346,7 +347,8 @@ public class NullAnnotationTests18 extends AbstractNullAnnotationTest {
 		runner.runConformTest();
 	}
 
-	public void test_switchNullInSameCase() {
+	// null cannot be in the same case with pattern as per the 432+433 jep
+	public void _test_switchNullInSameCase() {
 		Runner runner = getDefaultRunner();
 		runner.customOptions.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.WARNING);
 		runner.testFiles = new String[] {
@@ -450,8 +452,8 @@ public class NullAnnotationTests18 extends AbstractNullAnnotationTest {
 				  "	void foo(@Nullable Object o) {\n" +
 				  "		switch (o) {\n" +
 				  "			case Integer i -> consumeInt(i);\n" +
-				  "			default -> System.out.println(o.toString());\n" +
 				  "			case null -> System.out.print(\"null\");\n" +
+				  "			default -> System.out.println(o.toString());\n" +
 				  "		};\n" +
 				  "	}\n" +
 				  "	void consumeInt(@NonNull Integer i) {\n" +
@@ -477,8 +479,8 @@ public class NullAnnotationTests18 extends AbstractNullAnnotationTest {
 				  "	void foo() {\n" +
 				  "		switch (this.o) {\n" +
 				  "			case Integer i -> consumeInt(i);\n" +
-				  "			default -> System.out.println(this.o.toString());\n" +
 				  "			case null -> System.out.print(\"null\");\n" +
+				  "			default -> System.out.println(this.o.toString());\n" +
 				  "		};\n" +
 				  "	}\n" +
 				  "	void consumeInt(@NonNull Integer i) {\n" +
@@ -504,8 +506,8 @@ public class NullAnnotationTests18 extends AbstractNullAnnotationTest {
 				  "	void foo(X x) {\n" +
 				  "		switch (x.o) {\n" +
 				  "			case Integer i -> consumeInt(i);\n" +
-				  "			default -> System.out.println(x.o.toString());\n" +
 				  "			case null -> System.out.print(\"null\");\n" +
+				  "			default -> System.out.println(x.o.toString());\n" +
 				  "		};\n" +
 				  "	}\n" +
 				  "	void consumeInt(@NonNull Integer i) {\n" +

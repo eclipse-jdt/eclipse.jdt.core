@@ -3175,6 +3175,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		return false;
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public boolean visit(PatternInstanceofExpression node) {
 		if (!hasChildrenChanges(node)) {
@@ -3183,7 +3184,11 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 
 		rewriteRequiredNode(node, PatternInstanceofExpression.LEFT_OPERAND_PROPERTY);
 		ensureSpaceAfterReplace(node, PatternInstanceofExpression.LEFT_OPERAND_PROPERTY);
-		rewriteRequiredNode(node, PatternInstanceofExpression.RIGHT_OPERAND_PROPERTY);
+		if (node.getAST().apiLevel() >= AST.JLS20 && node.getAST().isPreviewEnabled()) {
+			rewriteRequiredNode(node, PatternInstanceofExpression.PATTERN_PROPERTY);
+		} else {
+			rewriteRequiredNode(node, PatternInstanceofExpression.RIGHT_OPERAND_PROPERTY);
+		}
 		return false;
 	}
 

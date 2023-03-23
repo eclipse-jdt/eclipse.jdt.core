@@ -4786,6 +4786,7 @@ private static class Goal {
 	static int[] RestrictedIdentifierPermitsRule;
 	static int[] RestrictedIdentifierWhenRule;
 	static int[] PatternRules;
+	static int RecordPatternRule = 0;
 
 	static Goal LambdaParameterListGoal;
 	static Goal IntersectionCastGoal;
@@ -4798,6 +4799,7 @@ private static class Goal {
 	static Goal RestrictedIdentifierPermitsGoal;
 	static Goal RestrictedIdentifierWhenGoal;
 	static Goal PatternGoal;
+	static Goal RecordPatternGoal;
 
 	static int[] EMPTY_FOLLOW_SET = new int[0];
 	static int[] RestrictedIdentifierSealedFollow =  { TokenNameclass, TokenNameinterface,
@@ -4805,6 +4807,7 @@ private static class Goal {
 	static int[] RestrictedIdentifierPermitsFollow =  { TokenNameLBRACE };
 	static int[] PatternCaseLabelFollow = {TokenNameCOLON, TokenNameARROW, TokenNameCOMMA, TokenNameBeginCaseExpr, TokenNameRestrictedIdentifierWhen};
 	static int[] GuardFollow = EMPTY_FOLLOW_SET;
+	static int[] RecordPatternFollow = {TokenNameCOLON}; // disambiguate only for enh for
 
 	static {
 
@@ -4849,9 +4852,10 @@ private static class Goal {
 			if ("ParenthesizedPattern".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
 				patternStates.add(i);
 			else
-			if ("RecordPattern".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
+			if ("RecordPattern".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) {//$NON-NLS-1$
 				patternStates.add(i);
-			else
+				RecordPatternRule = i;
+			} else
 			if ("Expression".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
 				GuardRule = i;
 
@@ -4871,6 +4875,7 @@ private static class Goal {
 		RestrictedIdentifierPermitsGoal = new Goal(TokenNameRestrictedIdentifierpermits, RestrictedIdentifierPermitsFollow, RestrictedIdentifierPermitsRule);
 		RestrictedIdentifierWhenGoal = new Goal(TokenNameRestrictedIdentifierWhen, GuardFollow, GuardRule);
 		PatternGoal = new Goal(TokenNameBeginCaseElement, PatternCaseLabelFollow, PatternRules);
+		RecordPatternGoal =  new Goal(TokenNameQUESTION, RecordPatternFollow, RecordPatternRule);
 	}
 
 
@@ -5119,7 +5124,9 @@ protected final boolean maybeAtLambdaOrCast() { // Could the '(' we saw just now
 	}
 }
 
-
+protected final boolean maybeAtEnhForRecordPattern() {
+	return this.lookBack[1] == TokenNamefor && !isInModuleDeclaration();
+}
 protected final boolean maybeAtReferenceExpression() { // Did the '<' we saw just now herald a reference expression's type arguments and trunk ?
 	if (isInModuleDeclaration())
 		return false;
@@ -5494,6 +5501,11 @@ int disambiguatedToken(int token, Scanner scanner) {
 		if (parser.parse(Goal.IntersectionCastGoal) == VanguardParser.SUCCESS) {
 			scanner.nextToken = TokenNameLPAREN;
 			return TokenNameBeginIntersectionCast;
+		}
+	} else	if (token == TokenNameLPAREN  && maybeAtEnhForRecordPattern()) {
+		if (parser.parse(Goal.RecordPatternGoal) == VanguardParser.SUCCESS) {
+			scanner.nextToken = TokenNameBeginRecordPattern;
+			return TokenNameLPAREN;
 		}
 	} else if (token == TokenNameLESS && maybeAtReferenceExpression()) {
 		if (parser.parse(Goal.ReferenceExpressionGoal) == VanguardParser.SUCCESS) {

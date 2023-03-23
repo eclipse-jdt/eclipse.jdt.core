@@ -15,6 +15,7 @@ package org.eclipse.jdt.internal.compiler.apt.model;
 
 import java.io.File;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashSet;
@@ -47,6 +48,8 @@ import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SourceModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.tool.EclipseFileManager;
 import org.eclipse.jdt.internal.compiler.tool.PathFileObject;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfModule;
@@ -206,37 +209,40 @@ public class ElementsImpl9 extends ElementsImpl {
 	@Override
 	public javax.tools.JavaFileObject getFileObjectOf(Element element) {
 		switch(element.getKind()) {
+			case INTERFACE:
 			case CLASS:
 			case ENUM:
 			case RECORD:
 			case ANNOTATION_TYPE:
-				TypeElement outer = getOutermostTypeElement(element);
-				TypeElementImpl typeElementImpl = (TypeElementImpl) outer;
-				Binding typeBinding = typeElementImpl._binding;
-				if (typeBinding instanceof SourceTypeBinding) {
-					SourceTypeBinding sourceTypeBinding = (SourceTypeBinding) typeBinding;
-					ReferenceContext referenceContext = sourceTypeBinding.scope.referenceContext();
-					return getSourceJavaFileObject(referenceContext);
-				} else if(typeBinding instanceof BinaryTypeBinding) {
-					BinaryTypeBinding binaryBinding = (BinaryTypeBinding) typeBinding;
-					if (binaryBinding.path != null) {
-						return new PathFileObject(Path.of(binaryBinding.path), Kind.CLASS, Charset.defaultCharset());
-					}
+				TypeElementImpl elementImpl = (TypeElementImpl) element;
+				ReferenceBinding refBinding = (ReferenceBinding) elementImpl._binding;
+				if (!refBinding.isBinaryBinding()) {
+					TypeElementImpl outer = (TypeElementImpl) getOutermostTypeElement(element);
+					refBinding = (ReferenceBinding) outer._binding;
 				}
-				break;
+				return getFileObjectForType(refBinding);
 			case MODULE:
 				ModuleElementImpl moduleEl = (ModuleElementImpl) element;
-				ModuleBinding binding = (ModuleBinding) moduleEl._binding;
-				if (binding instanceof SourceModuleBinding) {
-					SourceModuleBinding sourceModule = (SourceModuleBinding) binding;
+				ModuleBinding mBinding = (ModuleBinding) moduleEl._binding;
+				if (mBinding instanceof SourceModuleBinding) {
+					SourceModuleBinding sourceModule = (SourceModuleBinding) mBinding;
 					return getSourceJavaFileObject(sourceModule.scope.referenceContext());
-				} else if (binding instanceof BinaryModuleBinding) {
-					BinaryModuleBinding binaryBinding = (BinaryModuleBinding) binding;
+				} else if (mBinding instanceof BinaryModuleBinding) {
+					BinaryModuleBinding binaryBinding = (BinaryModuleBinding) mBinding;
 					if (binaryBinding.path != null) {
 						return new PathFileObject(Path.of(binaryBinding.path), Kind.CLASS, Charset.defaultCharset());
 					}
 				}
 				break;
+			case PACKAGE:
+				PackageElementImpl packEl = (PackageElementImpl) element;
+				PackageBinding pBinding = (PackageBinding) packEl._binding;
+				Binding typeOrPackage = pBinding.getTypeOrPackage(TypeConstants.PACKAGE_INFO_NAME, pBinding.enclosingModule, true);
+				if (typeOrPackage != null) {
+					return getFileObjectForType((TypeBinding) typeOrPackage);
+				}
+				break;
+			case PARAMETER:
 			case LOCAL_VARIABLE:
 			case FIELD:
 			case RECORD_COMPONENT:
@@ -249,6 +255,22 @@ public class ElementsImpl9 extends ElementsImpl {
 				break;
 			default:
 				break;
+		}
+		return null;
+	}
+	private JavaFileObject getFileObjectForType(TypeBinding binding) {
+		if (binding instanceof SourceTypeBinding) {
+			SourceTypeBinding sourceTypeBinding = (SourceTypeBinding) binding;
+			ReferenceContext referenceContext = sourceTypeBinding.scope.referenceContext();
+			return getSourceJavaFileObject(referenceContext);
+		} else if(binding instanceof BinaryTypeBinding) {
+			BinaryTypeBinding binaryBinding = (BinaryTypeBinding) binding;
+			if (binaryBinding.path != null) {
+				Path of = Path.of(binaryBinding.path);
+				if (Files.exists(of)) {
+					return new PathFileObject(of, Kind.CLASS, Charset.defaultCharset());
+				}
+			}
 		}
 		return null;
 	}
@@ -270,4 +292,14 @@ public class ElementsImpl9 extends ElementsImpl {
 		}
 		return null;
 	}
+	@Override
+    public boolean isCanonicalConstructor(ExecutableElement e) {
+		MethodBinding methodBinding = (MethodBinding) ((ExecutableElementImpl) e)._binding;
+		return methodBinding.isCanonicalConstructor();
+    }
+	@Override
+    public boolean isCompactConstructor(ExecutableElement e) {
+		MethodBinding methodBinding = (MethodBinding) ((ExecutableElementImpl) e)._binding;
+        return methodBinding.isCompactConstructor();
+    }
 }

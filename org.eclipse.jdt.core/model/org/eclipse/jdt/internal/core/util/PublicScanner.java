@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2022 IBM Corporation and others.
+ * Copyright (c) 2000, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -143,6 +143,7 @@ public class PublicScanner implements IScanner, ITerminalSymbols {
 			case TerminalTokens.TokenNameBeginCaseExpr : nextToken = getNextToken(); break;
 			case TerminalTokens.TokenNameBeginIntersectionCast : nextToken = getNextToken(); break;
 			case TerminalTokens.TokenNameBeginLambda : nextToken = getNextToken(); break;
+			case TerminalTokens.TokenNameBeginRecordPattern : nextToken = getNextToken(); break;
 			case TerminalTokens.TokenNameBeginTypeArguments : nextToken = getNextToken(); break;
 			case TerminalTokens.TokenNameCOLON : nextToken = ITerminalSymbols.TokenNameCOLON; break;
 			case TerminalTokens.TokenNameCOLON_COLON : nextToken = ITerminalSymbols.TokenNameCOLON_COLON; break;

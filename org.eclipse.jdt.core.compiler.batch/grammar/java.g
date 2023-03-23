@@ -121,6 +121,7 @@ $Terminals
 	RestrictedIdentifierpermits
 	BeginCaseElement
 	RestrictedIdentifierWhen
+	BeginRecordPattern
 
 --    BodyMarker
 
@@ -234,6 +235,8 @@ Goal ::= RestrictedIdentifierpermits PermittedSubclasses
 Goal ::= BeginCaseElement Pattern
 Goal ::= RestrictedIdentifierWhen Expression
 /:$readableName Goal:/
+
+Goal ::= '?' '(' RecordPattern
 
 Literal -> IntegerLiteral
 Literal -> LongLiteral
@@ -1268,39 +1271,31 @@ TypePattern ::= Modifiersopt Type 'Identifier'
 -----------------------------------------------
 
 -----------------------------------------------
--- 19 preview feature : record patterns
+-- 20 preview feature : record patterns
 -----------------------------------------------
 
-RecordPattern ::= Modifiersopt Type RecordStructurePattern
+RecordPattern ::= Modifiersopt ReferenceType PushLPAREN PatternListopt PushRPAREN
 /.$putCase consumeRecordPattern(); $break ./
 /:$readableName RecordPattern:/
-/:$compliance 19:/
+/:$compliance 20:/
 
-RecordPattern ::= Modifiersopt Type RecordStructurePattern 'Identifier'
-/.$putCase consumeRecordPatternWithId(); $break ./
-/:$readableName RecordPatternWithId:/
-/:$compliance 19:/
+PatternListopt ::=  $empty
+/.$putCase consumePatternListopt(); $break ./
+/:$readableName PatternListopt:/
+/:$compliance 20:/
 
-RecordStructurePattern ::= PushLPAREN RecordComponentPatternsopt PushRPAREN
-RecordStructurePattern ::= PushLPAREN RecordComponentPatternList PushRPAREN
-/.$putCase consumeRecordStructure(); $break ./
-/:$readableName RecordStructurePattern:/
-/:$compliance 19:/
+PatternListopt -> PatternList
+/:$readableName PatternListopt:/
+/:$compliance 20:/
 
-RecordComponentPatternsopt ::= $empty
-/.$putCase consumeRecordComponentPatternsopt(); $break ./
-/:$readableName RecordComponentsopt:/
-/:$compliance 19:/
-
-
-RecordComponentPatternList ::=  'Pattern'
-RecordComponentPatternList ::=  RecordComponentPatternList ',' 'Pattern'
-/.$putCase consumeRecordComponentPatternList();  $break ./
-/:$readableName RecordComponentPatternList:/
-/:$compliance 19:/
+PatternList -> Pattern
+PatternList ::= PatternList ',' Pattern
+/.$putCase consumePatternList();  $break ./
+/:$readableName PatternList:/
+/:$compliance 20:/
 
 -----------------------------------------------
--- 19 preview feature : end of record patterns
+-- 20 preview feature : end of record patterns
 -----------------------------------------------
 
 ConstantDeclaration -> FieldDeclaration
@@ -2495,6 +2490,21 @@ EnhancedForStatementHeader ::= EnhancedForStatementHeaderInit ':' Expression ')'
 /.$putCase consumeEnhancedForStatementHeader(); $break ./
 /:$readableName EnhancedForStatementHeader:/
 /:$compliance 1.5:/
+
+EnhancedForStatementHeaderInitRecord ::= 'for' '(' BeginRecordPattern RecordPattern
+/.$putCase consumeEnhancedForStatementHeaderInitRecord(false); $break ./
+/:$readableName EnhancedForStatementHeaderInitRecord:/
+/:$compliance 20:/
+
+EnhancedForStatementHeaderInitRecord ::= 'for' '(' Modifiers BeginRecordPattern RecordPattern
+/.$putCase consumeEnhancedForStatementHeaderInitRecord(true); $break ./
+/:$readableName EnhancedForStatementHeaderInitRecord:/
+/:$compliance 20:/
+
+EnhancedForStatementHeader ::= EnhancedForStatementHeaderInitRecord ':' Expression ')'
+/.$putCase consumeEnhancedForStatementHeader(); $break ./
+/:$readableName EnhancedForStatementHeader:/
+/:$compliance 20:/
 
 -----------------------------------------------
 -- 1.5 features : static imports

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -407,6 +407,9 @@ public abstract class ASTVisitor {
     		ClassScope scope) {
 		// do nothing by default
 	}
+	public void endVisit(RecordPattern recordPattern, BlockScope scope) {
+		// do nothing by default
+	}
 	public void endVisit(ReturnStatement returnStatement, BlockScope scope) {
 		// do nothing by default
 	}
@@ -537,6 +540,9 @@ public abstract class ASTVisitor {
 	}
 	public void endVisit(RecordComponent recordComponent, BlockScope scope) {
 		// do nothing by default, keep traversing
+	}
+	public boolean visit(RecordPattern recordPattern, BlockScope scope) {
+		return true; // do nothing by default, keep traversing
 	}
 	public boolean visit(
     		AllocationExpression allocationExpression,

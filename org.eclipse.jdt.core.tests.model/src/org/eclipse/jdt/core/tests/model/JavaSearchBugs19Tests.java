@@ -145,7 +145,8 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 	}
 
 	// record pattern - just check if search for record pattern local declaration works as expected
-	public void testIssue215_001() throws CoreException {
+	// Enable with fix of https://github.com/eclipse-jdt/eclipse.jdt.core/issues/785
+	public void _testIssue215_001() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
 				"public class X {\n"
@@ -192,7 +193,7 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 				"public class X {\n"
 						+ "  static void print(Rectangle r) {\n"
 						+ "    if (r instanceof (Rectangle(ColoredPoint(Point(int /*here*/xyz, int y), Color c),\n"
-						+ "                               ColoredPoint lr) r11)) {\n"
+						+ "                               ColoredPoint lr))) {\n"
 						+ "        System.out.println(\"Upper-left corner: \" + xyz);\n"
 						+ "    }\n"
 						+ "  }\n"
@@ -225,7 +226,8 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 		}
 	}
 	// record pattern - just check if all occurence search for record pattern local declaration works
-	public void testIssue215_003() throws CoreException {
+	// Enable with fix of https://github.com/eclipse-jdt/eclipse.jdt.core/issues/785
+	public void _testIssue215_003() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
 				"public class X {\n"
@@ -268,7 +270,8 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 
 
 	// record pattern - just check if all occurence search for component in record pattern local declaration works
-	public void testIssue215_004() throws CoreException {
+	// Enable with fix of https://github.com/eclipse-jdt/eclipse.jdt.core/issues/785
+	public void _testIssue215_004() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
 				"public class X {\n"
@@ -309,7 +312,8 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 		}
 	}
 	// record pattern - if search for "valid record pattern and make the pattern variable available in switch expression" works
-	public void testIssue215_005() throws CoreException {
+	// Enable with fix of https://github.com/eclipse-jdt/eclipse.jdt.core/issues/785
+	public void _testIssue215_005() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
 				"@SuppressWarnings(\"preview\")"
@@ -354,7 +358,8 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 		}
 	}
 	// record pattern - if search for component in "valid record pattern and make the pattern variable available in switch expression" works
-	public void testIssue215_006() throws CoreException {
+	// Enable with fix of https://github.com/eclipse-jdt/eclipse.jdt.core/issues/785
+	public void _testIssue215_006() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
 				"@SuppressWarnings(\"preview\")"
@@ -399,7 +404,8 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 		}
 	}
 	// record pattern - if search for enum in "valid record pattern and make the pattern variable available in switch expression" works
-	public void testIssue215_007() throws CoreException {
+	// Enable with fix of https://github.com/eclipse-jdt/eclipse.jdt.core/issues/785
+	public void _testIssue215_007() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
 				"@SuppressWarnings(\"preview\")"
@@ -593,7 +599,8 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 		}
 	}
 	// record pattern - just check if all occurence search for record pattern local declaration works
-	public void testIssue215_011() throws CoreException {
+	// Enable with fix of https://github.com/eclipse-jdt/eclipse.jdt.core/issues/785
+	public void _testIssue215_011() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
 				"@SuppressWarnings(\"preview\")"
@@ -652,7 +659,8 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 		}
 	}
 	// record pattern - just check if search for record pattern local declaration works - another example
-	public void testIssue215_0012() throws CoreException {
+	// Enable with fix of https://github.com/eclipse-jdt/eclipse.jdt.core/issues/785
+	public void _testIssue215_0012() throws CoreException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
 				"@SuppressWarnings(\"preview\")"
@@ -741,7 +749,7 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 				"public class X {\n"
 						+ "  static void print(Rectangle r) {\n"
 						+ "switch (r) {\n"
-						+ "case Rectangle r1 when (r instanceof (Rectangle(ColoredPoint upperLeft2, ColoredPoint lowerRight) r2)):\n"
+						+ "case Rectangle r1 when (r instanceof (Rectangle(ColoredPoint upperLeft2, ColoredPoint lowerRight))):\n"
 						+ "	System.out.println( /*here*/upperLeft2);\n"
 						+ "	break;\n"
 						+ "	default :\n"

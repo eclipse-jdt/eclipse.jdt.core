@@ -73,6 +73,7 @@ public class Java9ElementProcessor extends BaseProcessor {
 	boolean reportSuccessAlready = true;
 	RoundEnvironment roundEnv = null;
 	Messager _messager = null;
+	boolean isJre20;
 	boolean isJre19;
 	boolean isJre18;
 	boolean isJre17;
@@ -106,6 +107,9 @@ public class Java9ElementProcessor extends BaseProcessor {
 							this.isJre18 = true;
 							if (current >= ClassFileConstants.MAJOR_VERSION_19) {
 								this.isJre19 = true;
+								if (current >= ClassFileConstants.MAJOR_VERSION_20) {
+									this.isJre20 = true;
+								}
 							}
 						}
 					} else {
@@ -511,7 +515,8 @@ public class Java9ElementProcessor extends BaseProcessor {
 		assertNotNull("java.base module null", base);
 		List<? extends Directive> directives = base.getDirectives();
 		List<Directive> filterDirective = filterDirective(directives, DirectiveKind.USES);
-		assertEquals("incorrect no of uses", (this.isJre11 || this.isJre12) ? 33 : (this.isJre18 ? 35 : 34), filterDirective.size());
+		int modCount =  (this.isJre11 || this.isJre12) ? 33 : (this.isJre18 ? (this.isJre20 ? 36 : 35) : 34);
+		assertEquals("incorrect no of uses", modCount, filterDirective.size());
 	}
 	/*
 	 * Test java.base module can be loaded and verify its 'provides' attributes
@@ -971,29 +976,44 @@ public class Java9ElementProcessor extends BaseProcessor {
 		assertNotNull("Type should not be null", typeElement);
 		JavaFileObject fo = _elementUtils.getFileObjectOf(typeElement);
 		assertNotNull("file object should not be null", fo);
-		assertEquals("should be of kind source", this.binary ? JavaFileObject.Kind.CLASS : JavaFileObject.Kind.SOURCE, fo.getKind());
-		if (this.binary && !this.isJavac) {
-			assertEquals("Incorrect modifier", Modifier.PUBLIC, fo.getAccessLevel());
-			assertEquals("Incorrect nesting kind", NestingKind.TOP_LEVEL, fo.getNestingKind());
-			TypeElement innerType = null;
-			List<? extends Element> inner = typeElement.getEnclosedElements();
-			for (Element element : inner) {
-				if (element.getKind() == ElementKind.CLASS && element.getSimpleName().toString().equals("InnerTypeInAModule")) {
-					innerType = (TypeElement) element;
-				}
-			}
-			fo = _elementUtils.getFileObjectOf(innerType);
-			assertNotNull("file object should not be null", fo);
-			assertEquals("should be of kind source", this.binary ? JavaFileObject.Kind.CLASS : JavaFileObject.Kind.SOURCE, fo.getKind());
-			assertEquals("Incorrect modifier", Modifier.PUBLIC, fo.getAccessLevel());
+		assertEquals("Incorrect kind", this.binary ? JavaFileObject.Kind.CLASS : JavaFileObject.Kind.SOURCE, fo.getKind());
+		String expectedUri = "mod.a/abc/internal/A." + (this.binary ? "class" : "java");
+		assertEndsWith("Incorrect path", fo.toUri().toString(), expectedUri);
+		if (!this.isJavac) {
+			// Javac returns a null from getNestingKind()
 			assertEquals("Incorrect nesting kind", NestingKind.TOP_LEVEL, fo.getNestingKind());
 		}
+		TypeElement innerType = null;
+		List<? extends Element> inner = typeElement.getEnclosedElements();
+		for (Element element : inner) {
+			if (element.getKind() == ElementKind.CLASS && element.getSimpleName().toString().equals("InnerTypeInAModule")) {
+				innerType = (TypeElement) element;
+			}
+		}
+		fo = _elementUtils.getFileObjectOf(innerType);
+		assertNotNull("file object should not be null", fo);
+		assertEquals("Incorrect kind", this.binary ? JavaFileObject.Kind.CLASS : JavaFileObject.Kind.SOURCE, fo.getKind());
+		expectedUri = this.binary ? "A$InnerTypeInAModule.class" : "mod.a/abc/internal/A.java";
+		assertEndsWith("Incorrect path", fo.toUri().toString(), expectedUri);
 
 		ModuleElement m = _elementUtils.getModuleOf(typeElement);
 		assertNotNull("Module should not be null", m);
 		fo = _elementUtils.getFileObjectOf(m);
 		assertNotNull("file object should not be null", fo);
-		assertEquals("should be of kind source", this.binary ? JavaFileObject.Kind.CLASS : JavaFileObject.Kind.SOURCE, fo.getKind());
+		assertEquals("Incorrect kind", this.binary ? JavaFileObject.Kind.CLASS : JavaFileObject.Kind.SOURCE, fo.getKind());
+		expectedUri = "mod.a/module-info." + (this.binary ? "class" : "java");
+		assertEndsWith("Incorrect path", fo.toUri().toString(), expectedUri);
+
+		PackageElement p = _elementUtils.getPackageOf(typeElement);
+		assertNotNull("Module should not be null", p);
+		fo = _elementUtils.getFileObjectOf(p);
+		// TODO: Javac fails this as of now. So, exclude it
+		if (!this.isJavac) {
+			assertNotNull("file object should not be null", fo);
+			assertEquals("Incorrect kind", this.binary ? JavaFileObject.Kind.CLASS : JavaFileObject.Kind.SOURCE, fo.getKind());
+			expectedUri = "mod.a/abc/internal/package-info." + (this.binary ? "class" : "java");
+			assertEndsWith("Incorrect path", fo.toUri().toString(), expectedUri);
+		}
 
 		Set<? extends ModuleElement> allModuleElements = _elementUtils.getAllModuleElements();
 		ModuleElement base = null;
@@ -1006,6 +1026,8 @@ public class Java9ElementProcessor extends BaseProcessor {
 		fo = _elementUtils.getFileObjectOf(base);
 		assertNotNull("file object should not be null", fo);
 		assertEquals("should be of kind source", JavaFileObject.Kind.CLASS, fo.getKind());
+		expectedUri = "java.base/module-info.class";
+		assertEndsWith("Incorrect path", fo.toUri().toString(), expectedUri);
 		VariableElement field = null;
 		ExecutableElement method = null;
 		List<? extends Element> enclosedElements = typeElement.getEnclosedElements();
@@ -1020,10 +1042,162 @@ public class Java9ElementProcessor extends BaseProcessor {
 		fo = _elementUtils.getFileObjectOf(field);
 		assertNotNull("file object should not be null", fo);
 		assertEquals("should be of kind source", this.binary ? JavaFileObject.Kind.CLASS : JavaFileObject.Kind.SOURCE, fo.getKind());
+		expectedUri = "mod.a/abc/internal/A." + (this.binary ? "class" : "java");
+		assertEndsWith("Incorrect path", fo.toUri().toString(), expectedUri);
+
 		assertNotNull("Method should not be null", method);
 		fo = _elementUtils.getFileObjectOf(method);
 		assertNotNull("file object should not be null", fo);
 		assertEquals("should be of kind source", this.binary ? JavaFileObject.Kind.CLASS : JavaFileObject.Kind.SOURCE, fo.getKind());
+		expectedUri = "mod.a/abc/internal/A." + (this.binary ? "class" : "java");
+		assertEndsWith("Incorrect path", fo.toUri().toString(), expectedUri);
+	}
+	public void testGetFileObjectOfRecords() {
+		TypeElement typeElement =_elementUtils.getTypeElement("xyz.NestedRecord");
+		assertNotNull("Type should not be null", typeElement);
+		JavaFileObject fo = _elementUtils.getFileObjectOf(typeElement);
+		assertNotNull("file object should not be null", fo);
+		assertEquals("should be of kind source", this.binary ? JavaFileObject.Kind.CLASS : JavaFileObject.Kind.SOURCE, fo.getKind());
+		String expectedUri = "xyz/NestedRecord." + (this.binary ? "class" : "java");
+		assertEndsWith("Incorrect path", fo.toUri().toString(), expectedUri);
+		List<? extends Element> inner = typeElement.getEnclosedElements();
+		TypeElement recordEl = null;
+		TypeElement enumEl = null;
+		for (Element element : inner) {
+			if (element.getKind() == ElementKind.RECORD && element.getSimpleName().toString().equals("Point")) {
+				recordEl = (TypeElement) element;
+			} else if (element.getKind() == ElementKind.ENUM && element.getSimpleName().toString().equals("Color")) {
+				enumEl = (TypeElement) element;
+			}
+		}
+		assertNotNull("Type should not be null", recordEl);
+		fo = _elementUtils.getFileObjectOf(recordEl);
+		assertNotNull("file object should not be null", fo);
+		assertEquals("should be of kind source", this.binary ? JavaFileObject.Kind.CLASS : JavaFileObject.Kind.SOURCE, fo.getKind());
+		expectedUri = this.binary ? "xyz/NestedRecord$Point.class" : "xyz/NestedRecord.java";
+		assertEndsWith("Incorrect path", fo.toUri().toString(), expectedUri);
+
+		assertNotNull("Type should not be null", enumEl);
+		fo = _elementUtils.getFileObjectOf(enumEl);
+		assertNotNull("file object should not be null", fo);
+		assertEquals("should be of kind source", this.binary ? JavaFileObject.Kind.CLASS : JavaFileObject.Kind.SOURCE, fo.getKind());
+		expectedUri = this.binary ? "xyz/NestedRecord$Color.class" : "xyz/NestedRecord.java";
+		assertEndsWith("Incorrect path", fo.toUri().toString(), expectedUri);
+
+		typeElement =_elementUtils.getTypeElement("xyz.JavaFileWithManyClasses");
+		assertNotNull("Type should not be null", typeElement);
+		fo = _elementUtils.getFileObjectOf(typeElement);
+		assertNotNull("file object should not be null", fo);
+		assertEquals("should be of kind source", this.binary ? JavaFileObject.Kind.CLASS : JavaFileObject.Kind.SOURCE, fo.getKind());
+		expectedUri = "xyz/JavaFileWithManyClasses." + (this.binary ? "class" : "java");
+		assertEndsWith("Incorrect path", fo.toUri().toString(), expectedUri);
+
+		typeElement =_elementUtils.getTypeElement("xyz.AnotherClass");
+		assertNotNull("Type should not be null", typeElement);
+		fo = _elementUtils.getFileObjectOf(typeElement);
+		assertNotNull("file object should not be null", fo);
+		assertEquals("should be of kind source", this.binary ? JavaFileObject.Kind.CLASS : JavaFileObject.Kind.SOURCE, fo.getKind());
+		expectedUri = this.binary ? "xyz/AnotherClass.class" : "xyz/JavaFileWithManyClasses.java";
+		assertEndsWith("Incorrect path", fo.toUri().toString(), expectedUri);
+
+		typeElement =_elementUtils.getTypeElement("xyz.AnotherInterface");
+		assertNotNull("Type should not be null", typeElement);
+		fo = _elementUtils.getFileObjectOf(typeElement);
+		assertNotNull("file object should not be null", fo);
+		assertEquals("should be of kind source", this.binary ? JavaFileObject.Kind.CLASS : JavaFileObject.Kind.SOURCE, fo.getKind());
+		expectedUri = this.binary ? "xyz/AnotherInterface.class" : "xyz/JavaFileWithManyClasses.java";
+		assertEndsWith("Incorrect path", fo.toUri().toString(), expectedUri);
+		if (!this.binary) {
+			Element anotherCls = null;
+			Element anotherInt = null;		
+			for (Element e : this.roundEnv.getRootElements()) {
+				if ("AnotherClass".equals(e.getSimpleName().toString())) {
+					anotherCls = e;
+				} else if ("AnotherInterface".equals(e.getSimpleName().toString())) {
+					anotherInt = e;
+				}
+			}
+			JavaFileObject fileObject = _elementUtils.getFileObjectOf(anotherCls);
+			if (!fileObject.getName().contains("JavaFileWithManyClasses")) {
+				reportError("Incorrect FileObject name. Expected to contain JavaFileWithManyClasses"
+						+ " but was " + fileObject.getName());
+			}
+			fileObject = _elementUtils.getFileObjectOf(anotherInt);
+			if (!fileObject.getName().contains("JavaFileWithManyClasses")) {
+				reportError("Incorrect FileObject name. Expected to contain JavaFileWithManyClasses"
+						+ " but was " + fileObject.getName());
+			}
+		}
+	}
+	public void testElementsInType() {
+		TypeElement topType = _elementUtils.getTypeElement("xyz.TypeWithManyElements");
+		JavaFileObject fileObject = _elementUtils.getFileObjectOf(topType);
+		String topTypeName = "TypeWithManyElements";
+		if (!fileObject.getName().contains(topTypeName)) {
+			reportError("Incorrect FileObject name. Expected to contain " + topTypeName + 
+					" but was " + fileObject.getName());
+		}
+		List<ExecutableElement> constructors = ElementFilter.constructorsIn(topType.getEnclosedElements());
+		List<ExecutableElement> methods = ElementFilter.methodsIn(topType.getEnclosedElements());
+		List<VariableElement> fields = ElementFilter.fieldsIn(topType.getEnclosedElements());
+		// Fields
+		for (VariableElement field : fields) {
+			fileObject = _elementUtils.getFileObjectOf(field);
+			if (!fileObject.getName().contains(topTypeName)) {
+				reportError("Incorrect FileObject name. Expected to contain " + topTypeName + 
+						" but was " + fileObject.getName());
+			}
+		}
+		// Constructors
+		for (ExecutableElement constructor : constructors) {
+			fileObject = _elementUtils.getFileObjectOf(constructor);
+			if (!fileObject.getName().contains(topTypeName)) {
+				reportError("Incorrect FileObject name. Expected to contain " + topTypeName + 
+					" but was " + fileObject.getName());
+			}
+		}
+		// Methods and Parameters
+		for (ExecutableElement method : methods) {
+			fileObject = _elementUtils.getFileObjectOf(method);
+			if (!fileObject.getName().contains(topTypeName)) {
+				reportError("Incorrect FileObject name. Expected to contain " + topTypeName + 
+						" but was " + fileObject.getName());
+			}
+			List<? extends VariableElement> methodParams = method.getParameters();
+			for (VariableElement param : methodParams) {
+				JavaFileObject fileObjectForParam = _elementUtils.getFileObjectOf(param);
+				if (!fileObjectForParam.getName().contains(topTypeName)) {
+					reportError("Incorrect FileObject name. Expected to contain " + topTypeName + 
+							" but was " + fileObject.getName());
+				}
+			}
+		}
+
+	}
+	public void testDeeplyNestedTypes() {
+		final String topmost = "xyz.MultiNestedType";
+		TypeElement topTypeElement = _elementUtils.getTypeElement(topmost);
+		TypeElement[] types = { topTypeElement, 
+				_elementUtils.getTypeElement("xyz.NestedRecord"),
+				_elementUtils.getTypeElement("xyz.NestedEnum"), 
+				_elementUtils.getTypeElement("xyz.NestedTypes") 
+		};
+		_elementUtils.getFileObjectOf(topTypeElement);
+		for (TypeElement element : types) {
+			validateInnerElements(element);
+		}
+	}
+	private void validateInnerElements(TypeElement e) {
+		List<? extends Element> members = _elementUtils.getAllMembers(e);
+		List<TypeElement> types = ElementFilter.typesIn(members);
+		for (TypeElement t : types) {
+			String topTypeName = _elementUtils.getOutermostTypeElement(t).getSimpleName().toString();
+			if (!_elementUtils.getFileObjectOf(t).getName().contains(topTypeName)) {
+				reportError("Incorrect FileObject name. Expected to contain " + topTypeName + 
+						" but was " + _elementUtils.getFileObjectOf(t));
+			}
+			validateInnerElements(t);
+		}
 	}
 	private void validateModifiers(ExecutableElement method, Modifier[] expected) {
 		Set<Modifier> modifiers = method.getModifiers();
@@ -1078,6 +1252,12 @@ public class Java9ElementProcessor extends BaseProcessor {
 		if (!actual.isEmpty()) {
 			reportError("Unexpected modifiers present:" + actual.toString());
 		}
+	}
+	public void assertEndsWith(String msg, String whole, String tail) {
+		if (whole.endsWith(tail)) {
+			return;
+		}
+		reportError(msg + ", String \"" + whole + "\" does not end with \"" + tail + "\"");
 	}
 	public void assertTrue(String msg, boolean value) {
 		if (!value) reportError(msg);

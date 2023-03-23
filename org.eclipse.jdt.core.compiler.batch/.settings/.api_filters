@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <component id="org.eclipse.jdt.core.compiler.batch" version="2">
+    <resource path="META-INF/MANIFEST.MF">
+        <filter id="924844039">
+            <message_arguments>
+                <message_argument value="3.33.50"/>
+                <message_argument value="3.33.0"/>
+            </message_arguments>
+        </filter>
+    </resource>
     <resource path="META-INF/MANIFEST.MF" type="org.eclipse.jdt.core.BuildJarIndex">
         <filter id="305324134">
             <message_arguments>
@@ -21,6 +29,14 @@
             <message_arguments>
                 <message_argument value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
                 <message_argument value="org.eclipse.jdt.core.compiler.batch_3.33.0"/>
+            </message_arguments>
+        </filter>
+    </resource>
+    <resource path="src/org/eclipse/jdt/core/compiler/IProblem.java" type="org.eclipse.jdt.core.compiler.IProblem">
+        <filter comment="Java 20 change" id="405864542">
+            <message_arguments>
+                <message_argument value="org.eclipse.jdt.core.compiler.IProblem"/>
+                <message_argument value="CannotMixNullAndNonTypePattern"/>
             </message_arguments>
         </filter>
     </resource>
