@@ -436,7 +436,7 @@ public final class AST {
 	 * up to and including Java SE 20(aka JDK 20).
 	 * </p>
 	 *
-	 * @since 3.33
+	 * @since 3.34
 	 */
 	public static final int JLS20 = 20;
 

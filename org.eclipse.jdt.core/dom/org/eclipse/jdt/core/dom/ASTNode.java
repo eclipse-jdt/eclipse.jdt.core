@@ -1071,7 +1071,7 @@ public abstract class ASTNode {
 	 * Node type constant indicating a node of type
 	 * <code>EnhancedForWithRecordPattern</code>.
 	 * @see EnhancedForWithRecordPattern
-	 * @since 3.33
+	 * @since 3.34
 	 * @noreference This field is not intended to be referenced by clients.
 	 */
 	public static final int ENHANCED_FOR_WITH_RECORD_PATTERN = 114;
