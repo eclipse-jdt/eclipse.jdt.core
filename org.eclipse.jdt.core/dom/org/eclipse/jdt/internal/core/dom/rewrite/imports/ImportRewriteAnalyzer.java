@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2013, 2014, 2015 IBM Corporation and others.
+ * Copyright (c) 2000, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -28,6 +28,7 @@ import java.util.Map.Entry;
 import java.util.NavigableMap;
 import java.util.Set;
 import java.util.TreeMap;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -315,6 +316,18 @@ public final class ImportRewriteAnalyzer {
 			}
 			else {
 				surroundingStart = 0;
+				if (!nodesTreeMap.isEmpty()) {
+					ASTNode topNode = nodesTreeMap.firstEntry().getValue();
+					if (topNode instanceof Comment) {
+						for (ASTNode node : nodesTreeMap.values()) {
+							if (!(node instanceof Comment)) {
+								break;
+							} else {
+								surroundingStart = node.getStartPosition() + node.getLength();
+							}
+						}
+					}
+				}
 			}
 
 			positionAfterImports = surroundingStart;
