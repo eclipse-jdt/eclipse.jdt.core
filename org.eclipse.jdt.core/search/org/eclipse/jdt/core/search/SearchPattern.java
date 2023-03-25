@@ -2234,9 +2234,8 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo, int
 			break;
 		case IJavaElement.TYPE :
 			IType type = (IType)element;
-			char[] simpleName = type.getElementName().toCharArray();
-			searchPattern = 	createTypePattern(
-					simpleName,
+			searchPattern = createTypePattern(
+						type.getElementName().toCharArray(),
 						type.getPackageFragment().getElementName().toCharArray(),
 						ignoreDeclaringType ? null : enclosingTypeNames(type),
 						null,
@@ -2246,6 +2245,9 @@ public static SearchPattern createPattern(IJavaElement element, int limitTo, int
 			if ((maskedLimitTo == IJavaSearchConstants.DECLARATIONS) ||
 					(maskedLimitTo == IJavaSearchConstants.REFERENCES)) {
 				char[] qualifiedName = type.getFullyQualifiedName().toCharArray();
+				// for java.lang type refs the element name is qualified with the java.lang, but at indexing time we only
+				// have the simple name. So we should make sure we search for the simple name as well.
+				char[] simpleName = CharOperation.lastSegment(type.getElementName().toCharArray(), '.');
 				qualifiedName = CharOperation.equals(simpleName, qualifiedName) ? CharOperation.NO_CHAR : qualifiedName;
 				MatchLocator.setIndexQualifierQuery(searchPattern, QualifierQuery.encodeQuery(new QueryCategory[] {
 						QueryCategory.REF

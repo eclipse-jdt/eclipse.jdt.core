@@ -149,6 +149,7 @@ public void acceptUnknownReference(char[][] name, int sourceStart, int sourceEnd
 @Override
 public void acceptUnknownReference(char[] name, int sourcePosition) {
 	this.indexer.addNameReference(name);
+	this.indexer.addIndexMetaQualification(name, false);
 }
 
 private void addDefaultConstructorIfNecessary(TypeInfo typeInfo) {
