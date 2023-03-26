@@ -4800,30 +4800,103 @@ public void testMethodReferenceForTypeFromJREModuleBugGh740() throws Exception {
 		deleteProject(projectName);
 	}
 }
+
 public void testGH902_whenTypeReferenceIsUnknown_expectToBeFound() throws CoreException {
 	try {
 		IJavaProject project = createJava9Project("JavaSearchBugs9");
 		project.open(null);
-		createFile("JavaSearchBugs9/src/GH902.java",
-		"""
-			public class GH902 {
-				public static void foo() {
-					StackWalker.getInstance().forEach(s -> System.out.println(s));
-				}
-			}
-		""");
+		createFile("JavaSearchBugs9/src/GH902.java", 
+				"""
+					public class GH902 {
+						public static void foo() {
+							StackWalker.getInstance().forEach(s -> System.out.println(s));
+						}
+					}
+				""");
 
-		// sync
-		project.close();
+		refresh(project);
+
+		IType type = project.findType("java.lang.StackWalker");
+		assertNotNull("type should not be null", type);
+		search(type, REFERENCES, EXACT_RULE, SearchEngine.createWorkspaceScope());
+		assertTrue("Actual: ".concat(this.resultCollector.toString()),
+				this.resultCollector.toString().contains("src/GH902.java void GH902.foo() [StackWalker] EXACT_MATCH"));
+	} finally {
+		deleteProject("JavaSearchBugs9");
+	}
+}
+
+public void testGH902_whenTypeReferenceIsUnknownButQualified_expectToBeFound() throws CoreException {
+	try {
+		IJavaProject project = createJava9Project("JavaSearchBugs9");
 		project.open(null);
+		createFile("JavaSearchBugs9/src/GH902.java", 
+				"""
+					public class GH902 {
+						public static void foo() {
+							java.lang.StackWalker.getInstance().forEach(s -> System.out.println(s));
+						}
+					}
+				""");
+
+		refresh(project);
 
 		IType type = project.findType("java.lang.StackWalker");
 		assertNotNull("type should not be null", type);
 		search(type, REFERENCES, EXACT_RULE, SearchEngine.createWorkspaceScope());
 		assertTrue("Actual: ".concat(this.resultCollector.toString()), this.resultCollector.toString()
-				.contains("src/GH902.java void GH902.foo() [StackWalker] EXACT_MATCH"));
+				.contains("src/GH902.java void GH902.foo() [java.lang.StackWalker] EXACT_MATCH"));
+	} finally {
+		deleteProject("JavaSearchBugs9");
 	}
-	finally {
+}
+
+public void testGH902_whenTypeReferenceIsUnknownButQualifiedNested_expectToBeFound() throws CoreException {
+	try {
+		IJavaProject project = createJava9Project("JavaSearchBugs9");
+		project.open(null);
+		createFile("JavaSearchBugs9/src/GH902.java", 
+				"""
+					public class GH902 {
+						public static void foo() {
+							java.util.AbstractMap.Entry.comparingByKey();
+						}
+					}
+				""");
+
+		refresh(project);
+
+		IType type = project.findType("java.util.Map.Entry");
+		assertNotNull("type should not be null", type);
+		search(type, REFERENCES, RAW_RULE, SearchEngine.createWorkspaceScope());
+		assertTrue("Actual: ".concat(this.resultCollector.toString()), this.resultCollector.toString()
+				.contains("src/GH902.java void GH902.foo() [java.util.AbstractMap.Entry] EXACT_MATCH"));
+	} finally {
+		deleteProject("JavaSearchBugs9");
+	}
+}
+
+public void testGH902_whenTypeReferenceIsUnknownButNested_expectToBeFound() throws CoreException {
+	try {
+		IJavaProject project = createJava9Project("JavaSearchBugs9");
+		project.open(null);
+		createFile("JavaSearchBugs9/src/GH902.java", 
+				"""
+					import static java.util.AbstractMap.*;
+					public class GH902 {
+						public static void foo() {
+							Entry.comparingByKey();
+						}
+					}
+				""");
+		refresh(project);
+
+		IType type = project.findType("java.util.Map.Entry");
+		assertNotNull("type should not be null", type);
+		search(type, REFERENCES, RAW_RULE, SearchEngine.createWorkspaceScope());
+		assertTrue("Actual: ".concat(this.resultCollector.toString()),
+				this.resultCollector.toString().contains("src/GH902.java void GH902.foo() [Entry] EXACT_MATCH"));
+	} finally {
 		deleteProject("JavaSearchBugs9");
 	}
 }
