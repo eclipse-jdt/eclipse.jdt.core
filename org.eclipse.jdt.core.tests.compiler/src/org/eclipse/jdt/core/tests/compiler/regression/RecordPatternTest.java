@@ -1834,12 +1834,12 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"}"
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 14)\n" +
+			"1. ERROR in X.java (at line 12)\n" +
 			"	Zork();\n" +
 			"	^^^^^^\n" +
 			"Return type for the method is missing\n" +
 			"----------\n" +
-			"2. ERROR in X.java (at line 14)\n" +
+			"2. ERROR in X.java (at line 12)\n" +
 			"	Zork();\n" +
 			"	^^^^^^\n" +
 			"This method requires a body instead of a semicolon\n" +
