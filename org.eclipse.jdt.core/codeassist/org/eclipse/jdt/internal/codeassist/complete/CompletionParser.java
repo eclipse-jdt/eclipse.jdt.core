@@ -2698,9 +2698,6 @@ protected void consumeSwitchExpression() {
 	if (this.assistNode != null) {
 		SwitchExpression expr = (SwitchExpression) this.expressionStack[this.expressionPtr];
 		expr.resolveAll = true;
-		if (this.assistNodeParent instanceof SwitchStatement) {
-			expr.statements = ((SwitchStatement) this.assistNodeParent).statements;
-		}
 	}
 }
 @Override

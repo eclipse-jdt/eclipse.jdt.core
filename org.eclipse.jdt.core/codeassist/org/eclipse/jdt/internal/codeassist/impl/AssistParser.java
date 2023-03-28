@@ -142,7 +142,7 @@ public abstract class AssistParser extends Parser {
 
 	public int cursorLocation = Integer.MAX_VALUE;
 
-	protected static final int[] RECOVERY_TOKENS = { TokenNameSEMICOLON, TokenNameRPAREN, TokenNameRBRACE, TokenNameRBRACKET, TokenNameARROW, TokenNameCOLON};
+	protected static final int[] RECOVERY_TOKENS = { TokenNameSEMICOLON, TokenNameRPAREN, TokenNameRBRACE, TokenNameRBRACKET, TokenNameCOLON};
 
 
 public AssistParser(ProblemReporter problemReporter) {
@@ -1937,22 +1937,6 @@ protected boolean isInsideMethod(){
 			case K_TYPE_DELIMITER : return false;
 			case K_METHOD_DELIMITER : return true;
 			case K_FIELD_INITIALIZER_DELIMITER : return false;
-		}
-		i--;
-	}
-	return false;
-}
-/**
- * Returns whether we are inside a method invocation (MessageSend).
- */
-protected boolean isInsideMethodInvocation() {
-	int i = this.elementPtr;
-	while (i > -1) {
-		switch (this.elementKindStack[i]) {
-			case K_TYPE_DELIMITER : return false;
-			case K_METHOD_DELIMITER : return false;
-			case K_FIELD_INITIALIZER_DELIMITER : return false;
-			case K_SELECTOR: return true;
 		}
 		i--;
 	}
