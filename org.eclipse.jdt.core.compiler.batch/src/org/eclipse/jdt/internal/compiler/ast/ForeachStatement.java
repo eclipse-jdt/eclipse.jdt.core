@@ -536,6 +536,9 @@ public class ForeachStatement extends Statement {
 		LocalVariableBinding[] patternVariablesInTrueScope = null;
 
 		if (this.pattern != null) {
+			if (!upperScope.compilerOptions().enablePreviewFeatures) {
+				return;
+			}
 			this.pattern.collectPatternVariablesToScope(null, this.scope);
 			patternVariablesInTrueScope = this.pattern.getPatternVariablesWhenTrue();
 			this.pattern.resolve(this.scope);

@@ -97,7 +97,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	}
 	@Override
 	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions) {
-		if(!isJRE19Plus)
+		if(!isJRE20Plus)
 			return;
 		runConformTest(testFiles, expectedOutput, customOptions, new String[] {"--enable-preview"}, JAVAC_OPTIONS);
 	}
@@ -1757,12 +1757,10 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"   };\n" +
 				"   System.out.println(res);\n" +
 				" }\n" +
-				"\n" +
 				" public static void main(String[] args) {\n" +
 				"   foo(new Rectangle(10, 20));\n" +
 				" }\n" +
 				"}\n" +
-				"\n" +
 				"record Rectangle(int x, int y) {\n" +
 				"}"
 				},
@@ -1778,10 +1776,8 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"X.java",
 			"import java.util.ArrayList;\n" +
 			"import java.util.List;\n" +
-			"\n" +
 			"@SuppressWarnings(\"preview\")\n" +
 			"public class X {\n" +
-			" \n" +
 			" public static void foo(List<R> rList) {\n" +
 			"   for (R(Integer a) : rList) { \n" +
 			"     System.out.println(a);  \n" +
@@ -1804,7 +1800,6 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"X.java",
 			"@SuppressWarnings(\"preview\")\n" +
 			"public class X {\n" +
-			" \n" +
 			"    public static boolean foo() {\n" +
 			"        boolean ret = false;\n" +
 			"        R[] recArray = {new R(0)};\n" +
@@ -1813,7 +1808,6 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"        }\n" +
 			"        return ret;\n" +
 			"    }\n" +
-			"       \n" +
 			"    public static void main(String[] args) {\n" +
 			"   System.out.println(foo());\n" +
 			" }\n" +
@@ -1826,11 +1820,9 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 		runNegativeTest(new String[] {
 			"X.java",
 			"import java.util.function.UnaryOperator;\n" +
-			"\n" +
 			"record Mapper<T>(T in, T out) implements UnaryOperator<T> {\n" +
 			"    public T apply(T arg) { return in.equals(arg) ? out : null; }\n" +
 			"}\n" +
-			"\n" +
 			"@SuppressWarnings(\"preview\")\n" +
 			"public class X {\n" +
 			" void test(UnaryOperator<? extends CharSequence> op) {\n" +
@@ -1842,12 +1834,12 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"}"
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 14)\n" +
+			"1. ERROR in X.java (at line 12)\n" +
 			"	Zork();\n" +
 			"	^^^^^^\n" +
 			"Return type for the method is missing\n" +
 			"----------\n" +
-			"2. ERROR in X.java (at line 14)\n" +
+			"2. ERROR in X.java (at line 12)\n" +
 			"	Zork();\n" +
 			"	^^^^^^\n" +
 			"This method requires a body instead of a semicolon\n" +
@@ -1857,11 +1849,9 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 		runConformTest(new String[] {
 			"X.java",
 			"import java.util.function.UnaryOperator;\n" +
-			"\n" +
 			"record Mapper<T>(T in) implements UnaryOperator<T> {\n" +
 			"    public T apply(T arg) { return in.equals(arg) ? in : null; }\n" +
 			"}\n" +
-			"\n" +
 			"public class X {\n" +
 			" @SuppressWarnings(\"preview\")\n" +
 			" public static boolean test(UnaryOperator<? extends CharSequence> op) {\n" +
@@ -1903,19 +1893,15 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"X.java",
 			"import java.util.ArrayList;\n" +
 			"import java.util.List;\n" +
-			"\n" +
 			"interface I {int a();}\n" +
 			"record RecB(int a) implements I {}\n" +
 			"record R<T>(T a) {}\n" +
-			"\n" +
 			"public class X {\n" +
-			"\n" +
 			"    private static boolean test(List<R<? extends I>> list) {\n" +
 			"        if (list.get(0) instanceof R(var a))\n" +
 			"         return a.a() > 0;\n" +
 			"        return false;\n" +
 			"    }  \n" +
-			"\n" +
 			"    public static void main(String... args) {\n" +
 			"        List<R<? extends I>> list = new ArrayList<>();\n" +
 			"        list.add(new R<>(new RecB(2)));\n" +
@@ -1931,9 +1917,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"interface I {int a();}\n" +
 			"record RecB(int a) implements I {}\n" +
 			"record R<T>(T a) {}\n" +
-			"\n" +
 			"public class X {\n" +
-			"\n" +
 			"    private static boolean test(R<? extends I> op) {\n" +
 			"        if (op instanceof R(var a)) {\n" +
 			"         return a.a() > 0;\n" +
@@ -1952,14 +1936,12 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 		runConformTest(new String[] {
 			"X.java",
 			"public class X {\n" +
-			" \n" +
 			"     public static <P> boolean test(P p) {\n" +
 			"         if (p instanceof R(var a)) {\n" +
 			"              return a.len() > 0;\n" +
 			"         }\n" +
 			"         return false;\n" +
 			"     }\n" +
-			" \n" +
 			"     public static void main(String argv[]) {\n" +
 			"         System.out.println(test(new R<>(new Y())));\n" +
 			"     }\n" +
@@ -1977,17 +1959,14 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"interface I {\n" +
 			"   int a();\n" +
 			"}\n" +
-			"\n" +
 			"record R<T>(T a) {}\n" +
 			"public class X {\n" +
-			"\n" +
 			"    public static boolean test(R<?> p) {\n" +
 			"        if (p instanceof R(var a)) {\n" +
 			"             return a instanceof I;\n" +
 			"        }\n" +
 			"        return false; \n" +
 			"    }\n" +
-			"\n" +
 			"    public static void main(String argv[]) {\n" +
 			"       System.out.println(test(new R<>((I) () -> 0)));\n" +
 			"    }\n" +
@@ -1999,18 +1978,14 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 		runConformTest(new String[] {
 			"X.java",
 			"interface I {int a();}\n" +
-			"\n" +
 			"record R<T>(T a) {}\n" +
-			"\n" +
 			"public class X {\n" +
-			"\n" +
 			"    public static boolean test(R<I> p) {\n" +
 			"        return switch (p) {\n" +
 			"            case R(var a) -> a instanceof I;\n" +
 			"            default ->  false;\n" +
 			"        };\n" +
 			"    }\n" +
-			"\n" +
 			"    public static void main(String argv[]) {\n" +
 			"       System.out.println(test(new R<>((I) () -> 0)));\n" +
 			"    }\n" +
@@ -2025,18 +2000,14 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"interface I {\n" +
 				"   int a();\n" +
 				"}\n" +
-				"\n" +
 				"record R<T>(T a) {}\n" +
-				"\n" +
 				"public class X {\n" +
-				"\n" +
 				"    private static boolean test(R<? extends I> p) {\n" +
 				"        if (p instanceof R(String a)) {\n" +
 				"             return a instanceof String;\n" +
 				"        }\n" +
 				"        return true;\n" +
 				"    }\n" +
-				"\n" +
 				"    public static void main(String argv[]) {\n" +
 				"        System.out.println(test(new R<>((I) () -> 0))); \n" +
 				"    }\n" +
@@ -2060,23 +2031,46 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"interface I {\n" +
 				"   int a();\n" +
 				"}\n" +
-				"\n" +
 				"record R<T>(T a) {}\n" +
-				"\n" +
 				"public class X {\n" +
-				"\n" +
 				"    private static boolean test(R<?> p) {\n" +
 				"        if (p instanceof R(String a)) {\n" +
 				"             return a instanceof String;\n" +
 				"        }\n" +
 				"        return true;\n" +
 				"    }\n" +
-				"\n" +
 				"    public static void main(String argv[]) {\n" +
 				"        System.out.println(test(new R<>((I) () -> 0))); \n" +
 				"    }\n" +
 				"}"
 				},
 				"true");
+	}
+	public void testIssue882() {
+		Map<String, String> options = getCompilerOptions(false);
+		runNegativeTest(new String[] {
+				"X.java",
+				"import java.util.ArrayList;\n"
+				+ "import java.util.List;\n"
+				+ "@SuppressWarnings(\"preview\")\n"
+				+ "public class X {\n"
+				+ "	public static void foo(List<R> rList) {\n"
+				+ "		for(R(Integer abcs):rList) {\n"
+				+ "			System.out.println(abcs);\n"
+				+ "		}\n"
+				+ "	}\n"
+				+ "	record R(int i) {}\n"
+				+ "}"
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 6)\n" +
+				"	for(R(Integer abcs):rList) {\n" +
+				"	    ^^^^^^^^^^^^^^^\n" +
+				"Record Pattern is a preview feature and disabled by default. Use --enable-preview to enable\n" +
+				"----------\n",
+				"",
+				null,
+				false,
+				options);
 	}
 }

@@ -2161,6 +2161,9 @@ class ASTConverter {
 				return createFakeEmptyStatement(statement);
 			default :
 				if (statement.pattern != null) {
+					if (!this.ast.isPreviewEnabled()) {
+						return createFakeEmptyStatement(statement);
+					}
 					EnhancedForWithRecordPattern enhancedFor = new EnhancedForWithRecordPattern(this.ast);
 					enhancedFor.setPattern((RecordPattern) convert(statement.pattern));
 					org.eclipse.jdt.internal.compiler.ast.Expression collection = statement.collection;
@@ -2323,7 +2326,23 @@ class ASTConverter {
 		if (this.ast.apiLevel == AST.JLS20 && this.ast.isPreviewEnabled()) {
 			patternInstanceOfExpression.setPattern(convert(expression.pattern));
 		} else {
-			patternInstanceOfExpression.setRightOperand(convertToSingleVariableDeclaration(expression.elementVariable));
+			if (expression.elementVariable != null) {
+				patternInstanceOfExpression.setRightOperand(convertToSingleVariableDeclaration(expression.elementVariable));
+			} else if (expression.pattern != null){
+				// Let's recover a bit and create a SVD, even though what we have is a record pattern.
+				SingleVariableDeclaration rightOperand = patternInstanceOfExpression.getRightOperand();
+				if (rightOperand != null) { // Most certainly not null
+					TypeReference type = expression.pattern.getType();
+					Type convertType = convertType(type);
+					rightOperand.setType(convertType);
+					int startPosition = expression.pattern.sourceStart;
+					int sourceEnd = expression.pattern.sourceEnd;
+					rightOperand.setSourceRange(startPosition, sourceEnd - startPosition + 1);
+					SimpleName name = rightOperand.getName();
+					startPosition = type.sourceStart + 1;
+					name.setSourceRange(startPosition, sourceEnd - startPosition + 1);
+				}
+			}
 		}
 		int startPosition = leftExpression.getStartPosition();
 		int sourceEnd= expression.pattern.sourceEnd;
