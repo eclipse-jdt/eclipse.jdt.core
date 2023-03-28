@@ -31,18 +31,8 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testRecordPatternTypeInference_001" };
-//		TESTS_NAMES = new String[] { "testRecordPatternTypeInference_002" };
-//		TESTS_NAMES = new String[] { "testRecordPatternTypeInference_003" };
-//		TESTS_NAMES = new String[] { "testRecordPatternTypeInference_004" };
-//		TESTS_NAMES = new String[] { "testRecordPatternTypeInference_005" };
-//		TESTS_NAMES = new String[] { "testRecordPatternTypeInference_006" };
-//		TESTS_NAMES = new String[] { "testRecordPatternTypeInference_007" };
-//		TESTS_NAMES = new String[] { "testRecordPatternTypeInference_008" };
-//		TESTS_NAMES = new String[] { "testRecordPatternTypeInference_009" };
-//		TESTS_NAMES = new String[] { "testRecordPatternTypeInference_010" };
-//		TESTS_NAMES = new String[] { "test48" };
-//		TESTS_NAMES = new String[] { "test42" };
+
+//		TESTS_NAMES = new String[] { "testRecordPatternTypeInference_011" };
 	}
 	private String extraLibPath;
 	public static Class<?> testClass() {
@@ -2072,5 +2062,40 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				null,
 				false,
 				options);
+		}
+	public void testRecordPatternTypeInference_011() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"interface I {\n" +
+				"   int a();\n" +
+				"}\n" +
+				"\n" +
+				"record R<T>(T a) {}\n" +
+				"\n" +
+				"public class X {\n" +
+				"\n" +
+				"    private static boolean test(R<? extends I> p) {\n" +
+				"        if (p instanceof R<>(String a)) {\n" +
+				"             return a instanceof String;\n" +
+				"        }\n" +
+				"        return true;\n" +
+				"    }\n" +
+				"\n" +
+				"    public static void main(String argv[]) {\n" +
+				"        System.out.println(test(new R<>((I) () -> 0))); \n" +
+				"    }\n" +
+				"}"
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 10)\n" +
+				"	if (p instanceof R<>(String a)) {\n" +
+				"	    ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"Incompatible conditional operand types R<capture#1-of ? extends I> and R\n" +
+				"----------\n" +
+				"2. WARNING in X.java (at line 10)\n" +
+				"	if (p instanceof R<>(String a)) {\n" +
+				"	                 ^^^^^^^^^^^^^\n" +
+				"You are using a preview language feature that may or may not be supported in a future release\n" +
+				"----------\n");
 	}
 }
