@@ -3885,6 +3885,7 @@ protected void consumeEnumConstantNoClassBody() {
 	if (initialization != null) {
 		initialization.sourceEnd = endOfEnumConstant;
 	}
+	resetModifiers();
 }
 protected void consumeEnumConstants() {
 	concatNodeLists();
@@ -3907,6 +3908,7 @@ protected void consumeEnumConstantWithClassBody() {
 	if (initialization != null) {
 		initialization.sourceEnd = declarationSourceEnd;
 	}
+	resetModifiers();
 }
 protected void consumeEnumDeclaration() {
 	// EnumDeclaration ::= EnumHeader ClassHeaderImplementsopt EnumBody
