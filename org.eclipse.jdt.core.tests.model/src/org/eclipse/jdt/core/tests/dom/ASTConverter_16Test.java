@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020, 2021 IBM Corporation and others.
+ * Copyright (c) 2020, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -654,6 +654,7 @@ public class ASTConverter_16Test extends ConverterTestSetup {
 		checkSourceRange(expression, "o instanceof String s", contents);
 		assertEquals("Not an instanceof expression", ASTNode.PATTERN_INSTANCEOF_EXPRESSION, expression.getNodeType());
 		PatternInstanceofExpression instanceofExpression = (PatternInstanceofExpression) expression;
+		@SuppressWarnings("deprecation")
 		SingleVariableDeclaration var = instanceofExpression.getRightOperand();
 		checkSourceRange(var, "String s", contents);
 		String instanceofExpressionString = instanceofExpression.toString();
