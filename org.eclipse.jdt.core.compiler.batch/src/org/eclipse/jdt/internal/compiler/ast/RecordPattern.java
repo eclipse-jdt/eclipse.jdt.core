@@ -159,6 +159,10 @@ public class RecordPattern extends TypePattern {
 		} else {
 			for (int i = 0; i < components.length; i++) {
 				Pattern p = this.patterns[i];
+				if (p instanceof RecordPattern) {
+					((RecordPattern)p).setAccessorsPlusInfuseInferredType(scope);
+					continue;
+				}
 				if (!(p instanceof TypePattern))
 					continue;
 				TypePattern tp = (TypePattern) p;
@@ -254,6 +258,10 @@ public class RecordPattern extends TypePattern {
 //			codeStream.ifeq(target);
 		}
 		for (Pattern p : this.patterns) {
+			if (p instanceof RecordPattern) {
+				((RecordPattern)p).generatePatternVariable(currentScope, codeStream, trueLabel, falseLabel);
+				continue;
+			}
 			if (p.accessorMethod != null) {
 				codeStream.load(this.secretPatternVariable);
 				if (!this.isTotalTypeNode)

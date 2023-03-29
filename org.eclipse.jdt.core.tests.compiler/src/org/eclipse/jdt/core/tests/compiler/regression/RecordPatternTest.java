@@ -31,8 +31,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-
-//		TESTS_NAMES = new String[] { "testRecordPatternTypeInference_011" };
+		TESTS_NAMES = new String[] { "testIssue_900_1" };
 	}
 	private String extraLibPath;
 	public static Class<?> testClass() {
@@ -2096,6 +2095,40 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"	if (p instanceof R<>(String a)) {\n" +
 				"	                 ^^^^^^^^^^^^^\n" +
 				"You are using a preview language feature that may or may not be supported in a future release\n" +
+				"----------\n");
+	}
+	public void testIssue_900_1() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"class X {\n" +
+				"\n" +
+				" record Box<T>(T t) {}\n" +
+				" \n" +
+				" static void test4(Box<Box<String>> bo) {\n" +
+				"     if (bo instanceof Box(Box(var s))) {    \n" +
+				"         System.out.println(\"abc \" + s);\n" +
+				"     }\n" +
+				" }\n" +
+				"  public static void main(String[] args) {\n" +
+				"   Zork();\n" +
+				"  }\n" +
+				"}"
+				},
+				"----------\n" +
+				"1. WARNING in X.java (at line 6)\n" +
+				"	if (bo instanceof Box(Box(var s))) {    \n" +
+				"	                  ^^^^^^^^^^^^^^^\n" +
+				"You are using a preview language feature that may or may not be supported in a future release\n" +
+				"----------\n" +
+				"2. WARNING in X.java (at line 6)\n" +
+				"	if (bo instanceof Box(Box(var s))) {    \n" +
+				"	                      ^^^^^^^^^^\n" +
+				"You are using a preview language feature that may or may not be supported in a future release\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 11)\n" +
+				"	Zork();\n" +
+				"	^^^^\n" +
+				"The method Zork() is undefined for the type X\n" +
 				"----------\n");
 	}
 }
