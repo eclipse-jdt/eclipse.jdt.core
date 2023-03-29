@@ -6128,4 +6128,58 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"This case label is dominated by one of the preceding case label\n" +
 				"----------\n");
 	}
+	public void testIssue919() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				" public class X {\n"
+				+ " @SuppressWarnings(\"preview\")\n"
+				+ "   static void defaultCanAppearBeforePattern(Integer i) {\n"
+				+ "	  switch (i) {\n"
+				+ "	  case null -> System.out.println(\"value unavailable: \" + i);\n"
+				+ "	  case -1, 1 -> System.out.println(\"absolute value 1: \" + i);\n"
+				+ "	  default -> System.out.println(\"other integer: \" + i);\n"
+				+ "	  case Integer value when value > 0 -> System.out.println(\"positive integer: \" + i);\n"
+				+ "	  }\n"
+				+ "  }\n"
+				+ "  static void defaultCanAppearBeforeNull(Integer i) {\n"
+				+ "	  switch (i) {\n"
+				+ "	  case -1, 1 -> System.out.println(\"absolute value 1: \" + i);\n"
+				+ "	  default -> System.out.println(\"other integer: \" + i);\n"
+				+ "	  case null -> System.out.println(\"value unavailable: \" + i);\n"
+				+ "	  case Integer value when value > 0 -> System.out.println(\"positive integer: \" + i);\n"
+				+ "	  }\n"
+				+ "  }\n"
+				+ "  static void defaultCanAppearBeforeConstantLabel(Integer i) {\n"
+				+ "	  switch (i) {\n"
+				+ "	  case null -> System.out.println(\"value unavailable: \" + i);\n"
+				+ "	  default -> System.out.println(\"other integer: \" + i);\n"
+				+ "	  case -1, 1 -> System.out.println(\"absolute value 1: \" + i);\n"
+				+ "	  case Integer value when value > 0 -> System.out.println(\"positive integer: \" + i);\n"
+				+ "	  }\n"
+				+ "  }\n"
+				+ "}"
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 8)\n" +
+			"	case Integer value when value > 0 -> System.out.println(\"positive integer: \" + i);\n" +
+			"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"This case label is dominated by one of the preceding case label\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 15)\n" +
+			"	case null -> System.out.println(\"value unavailable: \" + i);\n" +
+			"	     ^^^^\n" +
+			"This case label is dominated by one of the preceding case label\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 16)\n" +
+			"	case Integer value when value > 0 -> System.out.println(\"positive integer: \" + i);\n" +
+			"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"This case label is dominated by one of the preceding case label\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 24)\n" +
+			"	case Integer value when value > 0 -> System.out.println(\"positive integer: \" + i);\n" +
+			"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"This case label is dominated by one of the preceding case label\n" +
+			"----------\n");
+	}
 }
