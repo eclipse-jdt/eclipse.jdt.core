@@ -987,7 +987,7 @@ public class SwitchStatement extends Expression {
 									continue;
 								if ((caseNullDefaultFound || defaultFound) && (c.isPattern() || isCaseStmtNullOnly(caseStmt))) {
 									this.scope.problemReporter().patternDominatedByAnother(c.e);
-									continue;
+									break;
 								}
 								Pattern p1 = patterns[j];
 								if (p1 != null) {
