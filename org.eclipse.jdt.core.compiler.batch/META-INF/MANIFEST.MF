@@ -8,7 +8,7 @@ Bundle-ClassPath: .
 Bundle-Vendor: Eclipse.org
 Automatic-Module-Name: org.eclipse.jdt.core.compiler.batch
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-11
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: META-INF.services,
  org.eclipse.jdt.core.compiler,
  org.eclipse.jdt.core.compiler.batch,
