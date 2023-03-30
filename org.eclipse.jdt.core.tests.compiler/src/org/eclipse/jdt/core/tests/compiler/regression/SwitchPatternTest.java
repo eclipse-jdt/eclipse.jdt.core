@@ -2364,7 +2364,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 4)\n" +
 			"	case null, Integer i  -> System.out.println(0);\n" +
 			"	           ^^^^^^^^^\n" +
-			"A null case label and patterns cannot co-exist in the same case label. \n" +
+			"A null case label and patterns cannot co-exist in the same case label\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 9)\n" +
 			"	Zork();\n" +
@@ -2416,7 +2416,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 4)\n" +
 			"	case null, Integer i when i > 10 -> System.out.println(0);\n" +
 			"	           ^^^^^^^^^^^^^^^^^^^^^\n" +
-			"A null case label and patterns cannot co-exist in the same case label. \n" +
+			"A null case label and patterns cannot co-exist in the same case label\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 7)\n" +
 			"	Zork();\n" +
@@ -4111,7 +4111,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"8. ERROR in X.java (at line 9)\n" +
 				"	case null, Class c ->\n" +
 				"	           ^^^^^^^\n" +
-				"A null case label and patterns cannot co-exist in the same case label. \n" +
+				"A null case label and patterns cannot co-exist in the same case label\n" +
 				"----------\n" +
 				"9. ERROR in X.java (at line 9)\n" +
 				"	case null, Class c ->\n" +
