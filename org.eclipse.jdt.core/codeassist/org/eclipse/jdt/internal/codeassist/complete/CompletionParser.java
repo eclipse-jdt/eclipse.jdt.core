@@ -4249,7 +4249,7 @@ protected void consumeToken(int token) {
 			case TokenNameIdentifier:
 				if (this.inReferenceExpression)
 					break;
-				if (this.scanner.previewEnabled && isInsideSwitch() && checkYieldKeyword()) {
+				if (isInsideSwitch() && checkYieldKeyword()) {
 					pushOnElementStack(K_YIELD_KEYWORD);
 					// Take the short cut here.
 					// Instead of injecting the TokenNameRestrictedIdentifierYield, totally ignore it
