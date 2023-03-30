@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2022 IBM Corporation and others.
+ * Copyright (c) 2000, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -3846,7 +3846,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 		return localContentsOffset;
 	}
 	private int addBootStrapTypeSwitchEntry(int localContentsOffset, SwitchStatement switchStatement, Map<String, Integer> fPtr) {
-		final int contentsEntries = 10;
+		CaseStatement.ResolvedCase[] constants = switchStatement.otherConstants;
+		int numArgs = constants.length;
+		final int contentsEntries = 10 + (numArgs * 2);
 		int indexFortypeSwitch = fPtr.get(ClassFile.TYPESWITCH_STRING);
 		if (contentsEntries + localContentsOffset >= this.contents.length) {
 			resizeContents(contentsEntries);
@@ -3862,8 +3864,6 @@ public class ClassFile implements TypeConstants, TypeIds {
 
 		// u2 num_bootstrap_arguments
 		int numArgsLocation = localContentsOffset;
-		CaseStatement.ResolvedCase[] constants = switchStatement.otherConstants;
-		int numArgs = constants.length;
 		if (switchStatement.containsNull) --numArgs;
 		this.contents[numArgsLocation++] = (byte) (numArgs >> 8);
 		this.contents[numArgsLocation] = (byte) numArgs;
