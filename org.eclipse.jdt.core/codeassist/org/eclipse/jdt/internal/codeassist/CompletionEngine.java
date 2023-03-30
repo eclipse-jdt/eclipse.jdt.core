@@ -3931,7 +3931,7 @@ public final class CompletionEngine
 			if(resolvedType.isEnum()) {
 				if (!this.requestor.isIgnored(CompletionProposal.FIELD_REF)) {
 					this.assistNodeIsEnum = true;
-					findEnumConstantsFromSwithStatement(this.completionToken, (SwitchStatement) astNodeParent);
+					findEnumConstantsFromSwithStatement(this.completionToken, switchStatement);
 				}
 			}
 			else {

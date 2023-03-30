@@ -602,4 +602,283 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 						+ "}",
 				requestor.getResults());
 	}
+
+	public void testGH697_CompletionOnSwitchExpressionInsideLambda() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[3];
+		this.workingCopies[1] = getWorkingCopy(
+				"/Completion/src/State.java",
+				"public enum State {\n"
+						+ "	BLOCKED, RUNNING;"
+						+ "}\n");
+		this.workingCopies[2] = getWorkingCopy(
+				"/Completion/src/Func.java",
+				"public interface Func<I,O> {\n"
+						+ "	O apply(I input);"
+						+ "}\n");
+
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/Switch.java",
+				"public class Switch {\n"
+						+ "static String toString(State state) {\n"
+						+ " 	return Switch.<State, String>transform(state, st -> {\n"
+						+ " 		return switch(st) { \n"
+						+ " 			case B\n"
+						+ " 		};\n"
+						+ " 	});\n"
+						+ "}\n"
+						+ "static <I, O> O transform(I input, Func<I, O> t) {\n"
+						+ "	return null;"
+						+ "}\n"
+						+ "}\n");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "case B";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"BLOCKED[FIELD_REF]{BLOCKED, LState;, LState;, null, null, BLOCKED, null, [149, 150], "
+						+ (R_DEFAULT + R_ENUM + R_ENUM_CONSTANT + R_RESOLVED + R_INTERESTING + R_CASE
+								+ R_UNQUALIFIED + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE)
+						+ "}",
+				requestor.getResults());
+	}
+
+	public void testGH697_CompletionOnCompletedSwitchExpressionInsideLambda() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[3];
+		this.workingCopies[1] = getWorkingCopy(
+				"/Completion/src/State.java",
+				"public enum State {\n"
+						+ "	BLOCKED, RUNNING;"
+						+ "}\n");
+		this.workingCopies[2] = getWorkingCopy(
+				"/Completion/src/Func.java",
+				"public interface Func<I,O> {\n"
+						+ "	O apply(I input);"
+						+ "}\n");
+
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/Switch.java",
+				"public class Switch {\n"
+						+ "static String toString(State state) {\n"
+						+ " 	return Switch.<State, String>transform(state, st -> {\n"
+						+ " 		return switch(st) { \n"
+						+ " 			case BLOCK -> \"blocked\";\n"
+						+ " 		};\n"
+						+ " 	});\n"
+						+ "}\n"
+						+ "static <I, O> O transform(I input, Func<I, O> t) {\n"
+						+ "	return null;"
+						+ "}\n"
+						+ "}\n");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "case B";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"BLOCKED[FIELD_REF]{BLOCKED, LState;, LState;, null, null, BLOCKED, null, [149, 154], "
+						+ (R_DEFAULT + R_ENUM + R_ENUM_CONSTANT + R_RESOLVED + R_INTERESTING + R_CASE
+								+ R_UNQUALIFIED + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE)
+						+ "}",
+				requestor.getResults());
+	}
+
+	public void testGH697_CompletionOnCompletedSwitchExpressionInitializationInsideLambda() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[3];
+		this.workingCopies[1] = getWorkingCopy(
+				"/Completion/src/State.java",
+				"public enum State {\n"
+						+ "	BLOCKED, RUNNING;"
+						+ "}\n");
+		this.workingCopies[2] = getWorkingCopy(
+				"/Completion/src/Func.java",
+				"public interface Func<I,O> {\n"
+						+ "	O apply(I input);"
+						+ "}\n");
+
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/Switch.java",
+				"public class Switch {\n"
+						+ "static String toString(State state) {\n"
+						+ " 	return Switch.<State, String>transform(state, st -> {\n"
+						+ " 		String value = switch(st) { \n"
+						+ " 			case BLOCK -> \"blocked\";\n"
+						+ " 		};\n"
+						+ "			return value;\n"
+						+ " 	});\n"
+						+ "}\n"
+						+ "static <I, O> O transform(I input, Func<I, O> t) {\n"
+						+ "	return null;"
+						+ "}\n"
+						+ "}\n");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "case B";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"BLOCKED[FIELD_REF]{BLOCKED, LState;, LState;, null, null, BLOCKED, null, [157, 162], "
+						+ (R_DEFAULT + R_ENUM + R_ENUM_CONSTANT + R_RESOLVED + R_INTERESTING + R_CASE
+								+ R_UNQUALIFIED + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE)
+						+ "}",
+				requestor.getResults());
+	}
+
+	public void testGH697_CompletionOnCompletedSwitchExpressionAssignmentInsideLambda() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[3];
+		this.workingCopies[1] = getWorkingCopy(
+				"/Completion/src/State.java",
+				"public enum State {\n"
+						+ "	BLOCKED, RUNNING;"
+						+ "}\n");
+		this.workingCopies[2] = getWorkingCopy(
+				"/Completion/src/Func.java",
+				"public interface Func<I,O> {\n"
+						+ "	O apply(I input);"
+						+ "}\n");
+
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/Switch.java",
+				"public class Switch {\n"
+						+ "static String toString(State state) {\n"
+						+ " 	return Switch.<State, String>transform(state, st -> {\n"
+						+ " 	String value = null;\n"
+						+ "		value = switch(st) { \n"
+						+ " 			case BLOCK -> \"blocked\";\n"
+						+ " 		};\n"
+						+ "			return value;\n"
+						+ " 	});\n"
+						+ "}\n"
+						+ "static <I, O> O transform(I input, Func<I, O> t) {\n"
+						+ "	return null;"
+						+ "}\n"
+						+ "}\n");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "case B";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"BLOCKED[FIELD_REF]{BLOCKED, LState;, LState;, null, null, BLOCKED, null, [172, 177], "
+						+ (R_DEFAULT + R_ENUM + R_ENUM_CONSTANT + R_RESOLVED + R_INTERESTING + R_CASE
+								+ R_UNQUALIFIED + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE)
+						+ "}",
+				requestor.getResults());
+	}
+
+	public void testGH697_CompletionOnSwitchExpressionWithoutReturn() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[3];
+		this.workingCopies[1] = getWorkingCopy(
+				"/Completion/src/State.java",
+				"public enum State {\n"
+						+ "	BLOCKED, RUNNING;"
+						+ "}\n");
+		this.workingCopies[2] = getWorkingCopy(
+				"/Completion/src/Func.java",
+				"public interface Func<I,O> {\n"
+						+ "	O apply(I input);"
+						+ "}\n");
+
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/Switch.java",
+				"public class Switch {\n"
+						+ "static String toString(State state) {\n"
+						+ " 	return Switch.<State, String>transform(state, \n"
+						+ " 		st -> switch(st) { \n"
+						+ " 			case B\n"
+						+ " 		});\n"
+						+ "}\n"
+						+ "static <I, O> O transform(I input, Func<I, O> t) {\n"
+						+ "	return null;"
+						+ "}\n"
+						+ "}\n");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "case B";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"BLOCKED[FIELD_REF]{BLOCKED, LState;, LState;, null, null, BLOCKED, null, [141, 142], "
+						+ (R_DEFAULT + R_ENUM + R_ENUM_CONSTANT + R_RESOLVED + R_INTERESTING + R_CASE
+								+ R_UNQUALIFIED + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE)
+						+ "}",
+				requestor.getResults());
+	}
+
+	public void testGH697_CompletionOnSwitchExpressionAsFirstParameter() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[3];
+		this.workingCopies[1] = getWorkingCopy(
+				"/Completion/src/State.java",
+				"public enum State {\n"
+						+ "	BLOCKED, RUNNING;"
+						+ "}\n");
+		this.workingCopies[2] = getWorkingCopy(
+				"/Completion/src/Func.java",
+				"public interface Func<I,O> {\n"
+						+ "	O apply(I input);"
+						+ "}\n");
+
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/Switch.java",
+				"public class Switch {\n"
+						+ "static String toString(State state) {\n"
+						+ " 	return Switch.<State, String>transform(\n"
+						+ " 		st -> switch(st) { \n"
+						+ " 			case B\n"
+						+ " 		}, state);\n"
+						+ "}\n"
+						+ "static <I, O> O transform(Func<I, O> t, I input) {\n"
+						+ "	return null;"
+						+ "}\n"
+						+ "}\n");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "case B";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"BLOCKED[FIELD_REF]{BLOCKED, LState;, LState;, null, null, BLOCKED, null, [134, 135], "
+						+ (R_DEFAULT + R_ENUM + R_ENUM_CONSTANT + R_RESOLVED + R_INTERESTING + R_CASE
+								+ R_UNQUALIFIED + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE)
+						+ "}",
+				requestor.getResults());
+	}
+
+	public void testGH697_CompletionOnSwitchExpressionAsFirstParameter_OnInitializer() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[3];
+		this.workingCopies[1] = getWorkingCopy(
+				"/Completion/src/State.java",
+				"public enum State {\n"
+						+ "	BLOCKED, RUNNING;"
+						+ "}\n");
+		this.workingCopies[2] = getWorkingCopy(
+				"/Completion/src/Func.java",
+				"public interface Func<I,O> {\n"
+						+ "	O apply(I input);"
+						+ "}\n");
+
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/Switch.java",
+				"public class Switch {\n"
+						+ "private static String S = Switch.transform(\n"
+						+ " 		st -> switch(st) { \n"
+						+ " 			case B\n"
+						+ " 		}, State.BLOCKED);\n"
+						+ "static <I, O> O transform(Func<I, O> t, I input) {\n"
+						+ "	return null;"
+						+ "}\n"
+						+ "}\n");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "case B";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"BLOCKED[FIELD_REF]{BLOCKED, LState;, LState;, null, null, BLOCKED, null, [98, 99], "
+						+ (R_DEFAULT + R_ENUM + R_ENUM_CONSTANT + R_RESOLVED + R_INTERESTING + R_CASE
+								+ R_UNQUALIFIED + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE)
+						+ "}",
+				requestor.getResults());
+	}
+
 }

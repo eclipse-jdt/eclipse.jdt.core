@@ -266,6 +266,10 @@ public class CompletionNodeDetector extends ASTVisitor {
 		endVisit(switchStatement);
 	}
 	@Override
+	public void endVisit(SwitchExpression switchExpression, BlockScope scope) {
+		endVisit(switchExpression);
+	}
+	@Override
 	public void endVisit(ThisReference thisReference, BlockScope scope) {
 		endVisit(thisReference);
 	}
@@ -467,6 +471,10 @@ public class CompletionNodeDetector extends ASTVisitor {
 	@Override
 	public boolean visit(SwitchStatement switchStatement, BlockScope blockScope) {
 		return this.visit(switchStatement);
+	}
+	@Override
+	public boolean visit(SwitchExpression switchExpression, BlockScope blockScope) {
+		return this.visit(switchExpression);
 	}
 	@Override
 	public boolean visit(ThisReference thisReference, BlockScope scope) {
