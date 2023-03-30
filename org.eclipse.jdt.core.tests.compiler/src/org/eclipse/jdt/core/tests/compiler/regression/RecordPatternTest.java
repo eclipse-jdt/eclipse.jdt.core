@@ -382,7 +382,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"	case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n" +
 				"				ColoredPoint(Point(int x1, int y1), Color c1)) -> {\n" +
 				"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case label\n" +
+				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
 	// Test that nested pattern variables from record patterns are in scope in the case block
@@ -1077,7 +1077,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 6)\n" +
 				"	case R(int a) -> 0;\n" +
 				"	     ^^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case label\n" +
+				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
 	// Test that an identical record pattern dominates another record pattern
@@ -1100,7 +1100,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 6)\n" +
 				"	case R(int a) -> 0;\n" +
 				"	     ^^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case label\n" +
+				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
 	// Test that a type pattern with 'when' does not dominate a record pattern of the same type
@@ -1215,7 +1215,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 6)\n" +
 				"	case ((R(int a))) -> 0;\n" +
 				"	       ^^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case label\n" +
+				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
 	// Test that a parenthesized record pattern dominates an identical record pattern
@@ -1238,7 +1238,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 6)\n" +
 				"	case ((R(int a))) -> 0;\n" +
 				"	       ^^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case label\n" +
+				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
 	// Test that pattern dominance is reported on identical nested record pattern
@@ -1271,7 +1271,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 6)\n" +
 				"	case Pair(Teacher(Object n), Student(Object n1, Integer i)) -> 1;\n" +
 				"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case label\n" +
+				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
 	// Test that pattern dominance is reported on identical nested record pattern
@@ -1304,7 +1304,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 6)\n" +
 				"	case Pair(Teacher(Object n), Student(String n1, Integer i)) -> 1;\n" +
 				"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case label\n" +
+				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
 	// Test that pattern dominance is reported on identical nested record pattern

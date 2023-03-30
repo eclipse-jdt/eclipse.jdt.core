@@ -1754,7 +1754,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 5)\n" +
 			"	case  Integer i, 30  -> System.out.println(o);\n" +
 			"	                 ^^\n" +
-			"This case label is dominated by one of the preceding case label\n" +
+			"This case label is dominated by one of the preceding case labels\n" +
 			"----------\n");
 	}
 	// Test that fall-through to a pattern is not allowed (label statement group has one statement)
@@ -1835,7 +1835,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 5)\n" +
 				"	case Float f :\n" +
 				"	     ^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case label\n" +
+				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
 	// Test that falling through from a pattern to a default is allowed
@@ -2364,7 +2364,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 4)\n" +
 			"	case null, Integer i  -> System.out.println(0);\n" +
 			"	           ^^^^^^^^^\n" +
-			"A null case label and patterns cannot co-exist in the same case label. \n" +
+			"A null case label and patterns cannot co-exist in the same case label\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 9)\n" +
 			"	Zork();\n" +
@@ -2416,7 +2416,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 4)\n" +
 			"	case null, Integer i when i > 10 -> System.out.println(0);\n" +
 			"	           ^^^^^^^^^^^^^^^^^^^^^\n" +
-			"A null case label and patterns cannot co-exist in the same case label. \n" +
+			"A null case label and patterns cannot co-exist in the same case label\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 7)\n" +
 			"	Zork();\n" +
@@ -2543,7 +2543,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 6)\n" +
 				"	case String s when s.length() > 0 -> \n" +
 				"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case label\n" +
+				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
 	public void testBug573921_2() {
@@ -2569,7 +2569,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 7)\n" +
 				"	case String s:\n" +
 				"	     ^^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case label\n" +
+				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
 	public void testBug573921_3() {
@@ -2699,7 +2699,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"3. ERROR in X.java (at line 9)\n" +
 				"	case List<String> s: \n" +
 				"	     ^^^^^^^^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case label\n" +
+				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
 	public void testBug573921_8() {
@@ -2924,7 +2924,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"2. ERROR in X.java (at line 5)\n" +
 			"	case Integer i1 -> 0;\n" +
 			"	     ^^^^^^^^^^\n" +
-			"This case label is dominated by one of the preceding case label\n" +
+			"This case label is dominated by one of the preceding case labels\n" +
 			"----------\n");
 	}
 	public void testBug575053_001() {
@@ -3464,7 +3464,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 5)\n" +
 				"	case 0 -> 0;\n" +
 				"	     ^\n" +
-				"This case label is dominated by one of the preceding case label\n" +
+				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
 	public void testBug575047_03() {
@@ -3487,7 +3487,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 6)\n" +
 				"	case Blue :\n" +
 				"	     ^^^^\n" +
-				"This case label is dominated by one of the preceding case label\n" +
+				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
 	public void testBug575047_04() {
@@ -3554,7 +3554,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"2. ERROR in X.java (at line 6)\n" +
 				"	case String s -> -1;\n" +
 				"	     ^^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case label\n" +
+				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
 	// Test that when a literal is used as case constant
@@ -3724,7 +3724,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"2. ERROR in X.java (at line 5)\n" +
 				"	case Red -> \"Red\";\n" +
 				"	     ^^^\n" +
-				"This case label is dominated by one of the preceding case label\n" +
+				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
 	public void testBug575047_14() {
@@ -3752,7 +3752,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"2. ERROR in X.java (at line 5)\n" +
 				"	case Red -> \"Red\";\n" +
 				"	     ^^^\n" +
-				"This case label is dominated by one of the preceding case label\n" +
+				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
 	public void testBug575047_15() {
@@ -3889,7 +3889,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 5)\n" +
 				"	case String s :\n" +
 				"	     ^^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case label\n" +
+				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n",
 				"");
 	}
@@ -4081,12 +4081,12 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"2. ERROR in X.java (at line 7)\n" +
 				"	case Number n, null ->\n" +
 				"	     ^^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case label\n" +
+				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n" +
 				"3. ERROR in X.java (at line 7)\n" +
 				"	case Number n, null ->\n" +
 				"	     ^^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case label\n" +
+				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n" +
 				"4. ERROR in X.java (at line 7)\n" +
 				"	case Number n, null ->\n" +
@@ -4111,32 +4111,32 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"8. ERROR in X.java (at line 9)\n" +
 				"	case null, Class c ->\n" +
 				"	           ^^^^^^^\n" +
-				"A null case label and patterns cannot co-exist in the same case label. \n" +
+				"A null case label and patterns cannot co-exist in the same case label\n" +
 				"----------\n" +
 				"9. ERROR in X.java (at line 9)\n" +
 				"	case null, Class c ->\n" +
 				"	           ^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case label\n" +
+				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n" +
 				"10. ERROR in X.java (at line 9)\n" +
 				"	case null, Class c ->\n" +
 				"	           ^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case label\n" +
+				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n" +
 				"11. ERROR in X.java (at line 9)\n" +
 				"	case null, Class c ->\n" +
 				"	           ^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case label\n" +
+				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n" +
 				"12. ERROR in X.java (at line 9)\n" +
 				"	case null, Class c ->\n" +
 				"	           ^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case label\n" +
+				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n" +
 				"13. ERROR in X.java (at line 9)\n" +
 				"	case null, Class c ->\n" +
 				"	           ^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case label\n" +
+				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
 	public void testBug575737_001() {
@@ -5430,7 +5430,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 17)\n" +
 				"	case 10 -> {\n" +
 				"	     ^^\n" +
-				"This case label is dominated by one of the preceding case label\n" +
+				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
 	public void testBug579355_004() {
@@ -5752,12 +5752,12 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 7)\n" +
 				"	case String s :\n" +
 				"	     ^^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case label\n" +
+				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n" +
 				"2. ERROR in X.java (at line 10)\n" +
 				"	case String s when (s.length() == 10):\n" +
 				"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case label\n" +
+				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
 	public void testIssue_556_009() {
@@ -5786,7 +5786,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 7)\n" +
 				"	case String s :\n" +
 				"	     ^^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case label\n" +
+				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
 	public void testIssue658() {
@@ -5840,7 +5840,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 8)\n" +
 				"	case ArrayList<? extends Number> aln -> // Error - dominated case label\n" +
 				"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case label\n" +
+				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
 	public void testIssue711_2() {
@@ -5866,7 +5866,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 8)\n" +
 				"	case ArrayList<Number> al ->  // Error - dominated case label\n" +
 				"	     ^^^^^^^^^^^^^^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case label\n" +
+				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
 	public void testIssue742_1() {
@@ -5895,7 +5895,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"2. ERROR in X.java (at line 8)\n" +
 				"	case Integer i ->                     // Error - dominated case label\n" +
 				"	     ^^^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case label\n" +
+				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
 	public void testIssue742_2() {
@@ -5924,7 +5924,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"2. ERROR in X.java (at line 8)\n" +
 				"	case Integer i when true ->                     // Error - dominated case label\n" +
 				"	     ^^^^^^^^^^^^^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case label\n" +
+				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
 	public void testIssue712_001() {
@@ -6058,7 +6058,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 8)\n" +
 				"	case Integer i: System.out.println(\"integer\"); break;\n" +
 				"	     ^^^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case label\n" +
+				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
 	public void testIssueDefaultDominance_002() {
@@ -6080,7 +6080,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 7)\n" +
 				"	case Integer i: System.out.println(\"integer\"); break;\n" +
 				"	     ^^^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case label\n" +
+				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
 	public void testIssueDefaultDominance_003() {
@@ -6102,7 +6102,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 7)\n" +
 				"	case null: System.out.println(\"null\"); break;\n" +
 				"	     ^^^^\n" +
-				"This case label is dominated by one of the preceding case label\n" +
+				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
 	public void testIssueDefaultDominance_004() {
@@ -6125,7 +6125,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 8)\n" +
 				"	case null: System.out.println(\"null\"); break;\n" +
 				"	     ^^^^\n" +
-				"This case label is dominated by one of the preceding case label\n" +
+				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
 	public void testIssue919() {
@@ -6164,22 +6164,22 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 8)\n" +
 			"	case Integer value when value > 0 -> System.out.println(\"positive integer: \" + i);\n" +
 			"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"This case label is dominated by one of the preceding case label\n" +
+			"This case label is dominated by one of the preceding case labels\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 15)\n" +
 			"	case null -> System.out.println(\"value unavailable: \" + i);\n" +
 			"	     ^^^^\n" +
-			"This case label is dominated by one of the preceding case label\n" +
+			"This case label is dominated by one of the preceding case labels\n" +
 			"----------\n" +
 			"3. ERROR in X.java (at line 16)\n" +
 			"	case Integer value when value > 0 -> System.out.println(\"positive integer: \" + i);\n" +
 			"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"This case label is dominated by one of the preceding case label\n" +
+			"This case label is dominated by one of the preceding case labels\n" +
 			"----------\n" +
 			"4. ERROR in X.java (at line 24)\n" +
 			"	case Integer value when value > 0 -> System.out.println(\"positive integer: \" + i);\n" +
 			"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"This case label is dominated by one of the preceding case label\n" +
+			"This case label is dominated by one of the preceding case labels\n" +
 			"----------\n");
 	}
 }
