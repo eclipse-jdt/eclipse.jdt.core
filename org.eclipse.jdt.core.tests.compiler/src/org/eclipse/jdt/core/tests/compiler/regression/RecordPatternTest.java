@@ -932,7 +932,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	}
 	// Test that pattern variables declared in instanceof can't be used in a switch/case
 	// Error messages need to rechecked - too many - ref https://github.com/eclipse-jdt/eclipse.jdt.core/issues/777
-	public void _test26() {
+	public void test26() {
 		runNegativeTest(new String[] {
 				"X.java",
 				"@SuppressWarnings(\"preview\")\n"
@@ -941,7 +941,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 						+ "    	if (r instanceof Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
 						+ "			ColoredPoint lr) && x > (switch(r) {\n"
 						+ "										case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
-						+ "												ColoredPoint lr)  -> {\n"
+						+ "												ColoredPoint lr) -> {\n"
 						+ "													yield 1;\n"
 						+ "												}\n"
 						+ "												default -> 0;\n"
@@ -972,14 +972,9 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"Duplicate local variable c\n" +
 				"----------\n" +
 				"4. ERROR in X.java (at line 7)\n" +
-				"	ColoredPoint lr) r1  -> {\n" +
+				"	ColoredPoint lr) -> {\n" +
 				"	             ^^\n" +
 				"Duplicate local variable lr\n" +
-				"----------\n" +
-				"5. ERROR in X.java (at line 7)\n" +
-				"	ColoredPoint lr) r1  -> {\n" +
-				"	                 ^^\n" +
-				"Duplicate local variable r1\n" +
 				"----------\n");
 	}
 	// Test that pattern variables declared in switch/case can't be used in an instanceof expression part of the 'when' clause

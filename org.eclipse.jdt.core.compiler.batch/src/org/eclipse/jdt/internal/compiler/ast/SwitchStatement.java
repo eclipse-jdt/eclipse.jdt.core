@@ -936,7 +936,7 @@ public class SwitchStatement extends Expression {
 					if (statement instanceof CaseStatement) {
 						if (statement.containsPatternVariable()) {
 							CaseStatement caseStatement = (CaseStatement) statement;
-							caseStatement.collectPatternVariablesToScope(null, this.scope);
+							caseStatement.collectPatternVariablesToScope(this.patternVarsWhenTrue, this.scope);
 							patternVariables = statement.getPatternVariablesWhenTrue();
 							if (caseStatement.patternIndex >= 0) {
 								Expression probablePattern = caseStatement.constantExpressions[caseStatement.patternIndex];
