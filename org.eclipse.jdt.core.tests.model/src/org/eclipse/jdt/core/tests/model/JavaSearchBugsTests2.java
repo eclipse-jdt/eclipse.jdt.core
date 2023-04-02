@@ -2896,6 +2896,91 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		}
 	}
 
+	/**
+	 * Test that an inner class constructor with first argument of the outer type
+	 * doesn't result in no search matches.
+	 * See: https://github.com/eclipse-jdt/eclipse.jdt.core/issues/401
+	 */
+	public void testInnerConstructorWithOuterTypeArgumentGh401() throws Exception {
+		String projectName = "testGh401";
+		try {
+			IJavaProject project = createJavaProject(projectName, new String[] {"src"}, new String[] {"JCL11_LIB"}, "bin", "11");
+			String srcFolder = "/" + projectName + "/src/";
+			String packageFolder = srcFolder + "test1";
+			createFolder(packageFolder);
+			String snippet1 =
+					"""
+					package test1;
+					public final class Outer1 {
+						public void staticConstructorCaller() {
+							new StaticInner1(this);
+						}
+						public void constructorCaller() {
+							new Inner1(this);
+						}
+						private static final class StaticInner1 {
+							StaticInner1(Outer1 o) {}
+						}
+						private final class Inner1 {
+							Inner1(Outer1 o) {}
+						}
+					}
+					""";
+			createFile(packageFolder + "/Outer1.java", snippet1);
+
+			addLibrary(project,
+					"libGh401.jar",
+					"libGh401.src.zip",
+					new String[] {
+							"test2/Outer2.java",
+							"""
+							package test2;
+							public final class Outer2 {
+								public void staticConstructorCaller() {
+									new StaticInner2(this);
+								}
+								public void constructorCaller() {
+									new Inner2(this);
+								}
+								private static final class StaticInner2 {
+									StaticInner2(Outer2 o) {}
+								}
+								private final class Inner2 {
+									Inner2(Outer2 o) {}
+								}
+							}
+							""",
+					},
+					JavaCore.VERSION_11);
+
+			buildAndExpectNoProblems(project);
+
+			String[] typesAndExpcetedMatches = {
+				"test1.Outer1.StaticInner1",
+				"src/test1/Outer1.java void test1.Outer1.staticConstructorCaller() [new StaticInner1(this)] EXACT_MATCH",
+				"test1.Outer1.Inner1",
+				"src/test1/Outer1.java void test1.Outer1.constructorCaller() [new Inner1(this)] EXACT_MATCH",
+				"test2.Outer2.StaticInner2",
+				"libGh401.jar void test2.Outer2.staticConstructorCaller() EXACT_MATCH",
+				"test2.Outer2.Inner2",
+				"libGh401.jar void test2.Outer2.constructorCaller() EXACT_MATCH",
+
+			};
+
+			for (int i = 0; i < typesAndExpcetedMatches.length; i += 2) {
+				String type =          typesAndExpcetedMatches[i + 0];
+				String expectedMatch = typesAndExpcetedMatches[i + 1];
+				IType staticInnerType = project.findType(type);
+				IMethod staticInnerConstructor = staticInnerType.getMethods()[0];
+				search(staticInnerConstructor, REFERENCES, EXACT_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
+				assertSearchResults(expectedMatch);
+				this.resultCollector.clear();
+			}
+		} finally {
+			deleteProject(projectName);
+		}
+	}
+
 	private static void printJavaElements(IJavaProject javaProject, PrintStream output) throws Exception {
 		output.println("Printing Java elements of Java project: " + javaProject);
 		List<IJavaElement> queue = new LinkedList<>();
