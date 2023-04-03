@@ -14158,9 +14158,20 @@ public final class CompletionEngine
 		relevance += computeRelevanceForInterestingProposal();
 		relevance += computeRelevanceForRestrictions(accessibility);
 		relevance += computeRelevanceForCaseMatching(this.completionToken, simpleTypeName);
-		relevance += computeRelevanceForExpectingType(typeBinding);
+		int relevanceForExpected = computeRelevanceForExpectingType(typeBinding);
+		relevance += relevanceForExpected;
 		relevance += computeRelevanceForQualification(isQualified);
 		relevance += computeRelevanceForConstructor();
+
+		boolean isCompatibleType = this.expectedTypesPtr < 0 || relevanceForExpected >= R_EXPECTED_TYPE;
+		char[][] typeVariables = null;
+		if (typeBinding != null && typeBinding.typeVariables() != null) {
+			TypeVariableBinding[] variableBindings = typeBinding.erasure().typeVariables();
+			typeVariables = new char[variableBindings.length][];
+			for (int i = 0; i < typeVariables.length; i++) {
+				typeVariables[i] = variableBindings[i].sourceName;
+			}
+		}
 
 		boolean isInterface = false;
 		int kind = typeModifiers & (ClassFileConstants.AccInterface | ClassFileConstants.AccEnum | ClassFileConstants.AccAnnotation);
@@ -14205,6 +14216,8 @@ public final class CompletionEngine
 		typeProposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
 		typeProposal.setTokenRange(this.startPosition - this.offset, this.endPosition - this.offset);
 		typeProposal.setRelevance(relevance);
+		typeProposal.setDeclarationTypeVariables(typeVariables);
+		typeProposal.setCompatibleProposal(isCompatibleType);
 
 		switch (parameterCount) {
 			case -1: // default constructor
@@ -14233,6 +14246,8 @@ public final class CompletionEngine
 						proposal.setReplaceRange(this.endPosition - this.offset, this.endPosition - this.offset);
 						proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 						proposal.setRelevance(relevance);
+						proposal.setDeclarationTypeVariables(typeVariables);
+						proposal.setCompatibleProposal(isCompatibleType);
 						this.requestor.accept(proposal);
 						if(DEBUG) {
 							this.printDebug(proposal);
@@ -14257,6 +14272,8 @@ public final class CompletionEngine
 						proposal.setReplaceRange(this.endPosition - this.offset, this.endPosition - this.offset);
 						proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 						proposal.setRelevance(relevance);
+						proposal.setDeclarationTypeVariables(typeVariables);
+						proposal.setCompatibleProposal(isCompatibleType);
 						this.requestor.accept(proposal);
 						if(DEBUG) {
 							this.printDebug(proposal);
@@ -14286,6 +14303,8 @@ public final class CompletionEngine
 						proposal.setReplaceRange(this.endPosition - this.offset, this.endPosition - this.offset);
 						proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 						proposal.setRelevance(relevance);
+						proposal.setDeclarationTypeVariables(typeVariables);
+						proposal.setCompatibleProposal(isCompatibleType);
 						this.requestor.accept(proposal);
 						if(DEBUG) {
 							this.printDebug(proposal);
@@ -14310,6 +14329,8 @@ public final class CompletionEngine
 						proposal.setReplaceRange(this.endPosition - this.offset, this.endPosition - this.offset);
 						proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 						proposal.setRelevance(relevance);
+						proposal.setDeclarationTypeVariables(typeVariables);
+						proposal.setCompatibleProposal(isCompatibleType);
 						this.requestor.accept(proposal);
 						if(DEBUG) {
 							this.printDebug(proposal);
@@ -14355,6 +14376,8 @@ public final class CompletionEngine
 						proposal.setReplaceRange(this.endPosition - this.offset, this.endPosition - this.offset);
 						proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 						proposal.setRelevance(relevance);
+						proposal.setDeclarationTypeVariables(typeVariables);
+						proposal.setCompatibleProposal(isCompatibleType);
 						this.requestor.accept(proposal);
 						if(DEBUG) {
 							this.printDebug(proposal);
@@ -14383,6 +14406,8 @@ public final class CompletionEngine
 						proposal.setReplaceRange(this.endPosition - this.offset, this.endPosition - this.offset);
 						proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 						proposal.setRelevance(relevance);
+						proposal.setDeclarationTypeVariables(typeVariables);
+						proposal.setCompatibleProposal(isCompatibleType);
 						this.requestor.accept(proposal);
 						if(DEBUG) {
 							this.printDebug(proposal);
