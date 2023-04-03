@@ -945,6 +945,28 @@ public class InternalExtendedCompletionContext {
 		return false;
 	}
 
+	public boolean canUseDiamond(String[] parameterTypes, char[][] typeVariables) {
+		Scope scope = this.assistScope;
+		if (scope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_7)
+			return false;
+		// If no LHS or return type expected, then we can safely use diamond
+		char[][] expectedTypekeys = this.completionContext.getExpectedTypesKeys();
+		if (expectedTypekeys == null || expectedTypekeys.length == 0)
+			return true;
+		// Next, find out whether any of the constructor parameters are the same as one of the
+		// class type variables. If yes, diamond cannot be used.
+		if (typeVariables != null) {
+			for (int i = 0; i < parameterTypes.length; i++) {
+				for (int j = 0; j < typeVariables.length; j++) {
+					if (CharOperation.equals(parameterTypes[i].toCharArray(), typeVariables[j]))
+						return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
 	/**
 	 * @see InternalCompletionContext#getCompletionNode()
 	 */

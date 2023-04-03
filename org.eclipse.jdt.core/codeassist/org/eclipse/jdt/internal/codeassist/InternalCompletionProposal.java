@@ -130,6 +130,20 @@ public class InternalCompletionProposal extends CompletionProposal {
 	 */
 	private char[] declarationKey = null;
 
+ 	/**
+	 * Type variable names of the relevant type declaration
+	 * in the context.
+	 *
+	 * Defaults to null if not set.
+	 *
+	 */
+	private char[][] declarationTypeVariables = null;
+
+	/**
+	 * Indicates whether the proposal is a context-compatible proposal.
+	 */
+	private boolean isCompatibleProposal = true;
+
 	/**
 	 * Simple name of the method, field,
 	 * member, or variable relevant in the context, or
@@ -1202,6 +1216,9 @@ public class InternalCompletionProposal extends CompletionProposal {
 			for (int i= 0; i < types.length; i++) {
 				paramTypeNames[i]= new String(Signature.toCharArray(types[i]));
 			}
+			if (this.declarationTypeVariables != null) {
+				return internalCompletionContext.extendedContext.canUseDiamond(paramTypeNames, this.declarationTypeVariables);
+			}
 			return internalCompletionContext.extendedContext.canUseDiamond(paramTypeNames,declarationType);
 		}
 		else {
@@ -1216,5 +1233,31 @@ public class InternalCompletionProposal extends CompletionProposal {
 
 	public void setArrayDimensions(int dimensions) {
 		this.arrayDimensions = dimensions;
+	}
+
+	/**
+	 * Returns the type variables of the declaring type corresponding to this proposal.
+	 *
+	 * If not set, defaults to null.
+	 *
+	 * @return the type variable names
+	 */
+	public char[][] getDeclarationTypeVariables() {
+		return this.declarationTypeVariables;
+	}
+
+	public void setDeclarationTypeVariables(char[][] declarationTypeVariables) {
+		this.declarationTypeVariables = declarationTypeVariables;
+	}
+
+	/**
+	 * Returns whether the completion proposal is a context-compatible proposal.
+	 */
+	public boolean isCompatibleProposal() {
+		return this.isCompatibleProposal;
+	}
+
+	public void setCompatibleProposal(boolean isCompatibleProposal) {
+		this.isCompatibleProposal = isCompatibleProposal;
 	}
 }
