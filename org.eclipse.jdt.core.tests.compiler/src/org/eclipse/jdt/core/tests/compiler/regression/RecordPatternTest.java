@@ -2088,4 +2088,111 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"You are using a preview language feature that may or may not be supported in a future release\n" +
 				"----------\n");
 	}
+	public void testIssue900_1() {
+		runConformTest(new String[] {
+				"X.java",
+				"@SuppressWarnings(\"preview\")\n"
+				+ "class X {\n"
+				+ "	record Box<T>(T t) {}\n"
+				+ "	// no issues\n"
+				+ "	static void test1(Box<String> bo) {\n"
+				+ "		if (bo instanceof Box<String>(var s)) {\n"
+				+ "			System.out.println(\"String \" + s);\n"
+				+ "		}\n"
+				+ "	}\n"
+				+ "	// no issues\n"
+				+ "	static void test2(Box<String> bo) {\n"
+				+ "	    if (bo instanceof Box(var s)) {    // Inferred to be Box<String>(var s)\n"
+				+ "	        System.out.println(\"String \" + s);\n"
+				+ "	    }\n"
+				+ "	}\n"
+				+ "	// \"Errors occurred during the build\": \"info cannot be null\"\n"
+				+ "	static void test3(Box<Box<String>> bo) {\n"
+				+ "	    if (bo instanceof Box<Box<String>>(Box(var s))) {        \n"
+				+ "	        System.out.println(\"String \" + s.getClass().toString());\n"
+				+ "	    }\n"
+				+ "	}    \n"
+				+ "	// \"Errors occurred during the build\": \"info cannot be null\"\n"
+				+ "	static void test4(Box<Box<String>> bo) {\n"
+				+ "	    if (bo instanceof Box(Box(var s))) {    \n"
+				+ "	        System.out.println(\"String \" + s);\n"
+				+ "	    }\n"
+				+ "	}\n"
+				+ "	public static void main(String[] args) {\n"
+				+ "		Box<Box<String>> bo = new Box(new Box(\"\"));\n"
+				+ "		test3(bo);\n"
+				+ "	}\n"
+				+ "}"
+				},
+				"String class java.lang.String");
+	}
+	// The following code is accepted by ECJ, but it should really reject the code
+	// at Box(String s1, String s2)
+	public void _testIssue900_2() {
+		runNegativeTest(new String[] {
+				"X.java",
+				"@SuppressWarnings(\"preview\")\n"
+				+ "class X {\n"
+				+ "	record Box<T, U>(T t1, U t2) {}\n"
+				+ "	static void test3(Box<Box<String, Integer>, Box<Integer, String>> bo) {\n"
+				+ "	    if (bo instanceof Box<Box<String, Integer>, Box<Integer, String>>(Box(String s1, String s2), Box b1)) {        \n"
+				+ "	        System.out.println(\"String \" + s1.getClass().toString());\n"
+				+ "	    }\n"
+				+ "	}    \n"
+				+ "	public static void main(String[] args) {\n"
+				+ "		Box<Box<String, Integer>, Box<Integer, String>> bo = new Box(new Box(\"\", Integer.valueOf(0)), new Box(Integer.valueOf(0), \"\"));  \n"
+				+ "		test3(bo);\n"
+				+ "	}\n"
+				+ "}"
+				},
+				"");
+	}
+	public void testIssue900_3() {
+		Map<String,String> options = getCompilerOptions(true);
+		String old1 = options.get(CompilerOptions.OPTION_ReportRawTypeReference);
+		String old2 = options.get(CompilerOptions.OPTION_ReportUncheckedTypeOperation);
+		options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
+		options.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.IGNORE);
+		try {
+			runNegativeTest(new String[] {
+					"X.java",
+					"@SuppressWarnings(\"preview\")\n"
+							+ "class X {\n"
+							+ "	record Box<T, U>(T t, U u) {}\n"
+							+ "	static void test3(Box<Box<String>> bo) {\n"
+							+ "	    if (bo instanceof Box<Box<String>>(Box(var s1, String s2), Box b1)) {        \n"
+							+ "	        System.out.println(\"String \" + s1.getClass().toString());\n"
+							+ "	    }\n"
+							+ "	}    \n"
+							+ "	public static void main(String[] args) {\n"
+							+ "		Box<Box<String, Integer>, Box<Integer, String>> bo = new Box(new Box(\"\", Integer.valueOf(0)), new Box(Integer.valueOf(0), \"\"));\n"
+							+ "		test3(bo);\n"
+							+ "	}\n"
+							+ "}"
+			},
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	static void test3(Box<Box<String>> bo) {\n" +
+				"	                      ^^^\n" +
+				"Incorrect number of arguments for type X.Box<T,U>; it cannot be parameterized with arguments <String>\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 5)\n" +
+				"	if (bo instanceof Box<Box<String>>(Box(var s1, String s2), Box b1)) {        \n" +
+				"	                      ^^^\n" +
+				"Incorrect number of arguments for type X.Box<T,U>; it cannot be parameterized with arguments <String>\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 11)\n" +
+				"	test3(bo);\n" +
+				"	^^^^^\n" +
+				"The method test3(X.Box<X.Box<String,Integer>,X.Box<Integer,String>>) is undefined for the type X\n" +
+				"----------\n",
+				"",
+				null,
+				false,
+				options);
+		} finally {
+			options.put(CompilerOptions.OPTION_ReportRawTypeReference, old1);
+			options.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, old2);
+		}
+	}
 }
