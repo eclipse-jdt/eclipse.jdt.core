@@ -178,7 +178,8 @@ public class EclipseCompilerImpl extends Main {
 							name,
 							null,
 							this.destinationPaths[i],
-							shouldIgnoreOptionalProblems(this.ignoreOptionalProblemsFromFolders, name.toCharArray()), this.modNames[i]) {
+							shouldIgnoreOptionalProblems(this.ignoreOptionalProblemsFromFolders, name.toCharArray()),
+							this.modNames[i], createAnnotationPathProvider()) {
 
 							@Override
 							public char[] getContents() {
@@ -760,6 +761,7 @@ public class EclipseCompilerImpl extends Main {
 				this.checkedClasspaths[i++] = classpath;
 			}
 		}
+		setAnnotionsPathsOnClasspath();
 	}
 	private String getJavaVersion(File javaHome) {
 		String version = ""; //$NON-NLS-1$
@@ -790,6 +792,10 @@ public class EclipseCompilerImpl extends Main {
 		} else {
 			system = FileSystem.getJrtClasspath(jdkHome.toString(), null, null, null);
 		}
+		if (this.annotationPaths != null && CompilerOptions.ENABLED.equals(this.options.get(CompilerOptions.OPTION_AnnotationBasedNullAnalysis))) {
+			setAnnotionsPathsOnClasspath(system);
+		}
+
 		return system;
 	}
 
