@@ -932,7 +932,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	}
 	// Test that pattern variables declared in instanceof can't be used in a switch/case
 	// Error messages need to rechecked - too many - ref https://github.com/eclipse-jdt/eclipse.jdt.core/issues/777
-	public void _test26() {
+	public void test26() {
 		runNegativeTest(new String[] {
 				"X.java",
 				"@SuppressWarnings(\"preview\")\n"
@@ -941,7 +941,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 						+ "    	if (r instanceof Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
 						+ "			ColoredPoint lr) && x > (switch(r) {\n"
 						+ "										case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
-						+ "												ColoredPoint lr)  -> {\n"
+						+ "												ColoredPoint lr) -> {\n"
 						+ "													yield 1;\n"
 						+ "												}\n"
 						+ "												default -> 0;\n"
@@ -972,26 +972,21 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"Duplicate local variable c\n" +
 				"----------\n" +
 				"4. ERROR in X.java (at line 7)\n" +
-				"	ColoredPoint lr) r1  -> {\n" +
+				"	ColoredPoint lr) -> {\n" +
 				"	             ^^\n" +
 				"Duplicate local variable lr\n" +
-				"----------\n" +
-				"5. ERROR in X.java (at line 7)\n" +
-				"	ColoredPoint lr) r1  -> {\n" +
-				"	                 ^^\n" +
-				"Duplicate local variable r1\n" +
 				"----------\n");
 	}
 	// Test that pattern variables declared in switch/case can't be used in an instanceof expression part of the 'when' clause
 	// not relevant anymore since named record patterns are not there - 20
-	public void _test27() {
+	public void test27() {
 		runNegativeTest(new String[] {
 				"X.java",
 				"@SuppressWarnings(\"preview\")\n"
 						+ "public class X {\n"
 						+ "  static void print(Rectangle r) {\n"
 						+ "	int res = switch(r) {\n"
-						+ "		case Rectangle(ColoredPoint(Point(int x, int y), Color c), ColoredPoint lr) when (c instanceof Color) -> {\n"
+						+ "		case Rectangle(ColoredPoint(Point(int x, int y), Color c), ColoredPoint lr) when lr instanceof ColoredPoint(Point(int x, int y), Color c) -> {\n"
 						+ "				yield 1;\n"
 						+ "			}\n"
 						+ "			default -> 0;\n"
@@ -1005,29 +1000,24 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			},
 				"----------\n" +
 				"1. ERROR in X.java (at line 5)\n" +
-				"	case Rectangle(ColoredPoint(Point(int x, int y), Color c), ColoredPoint lr) r1 when (r1 instanceof  Rectangle(ColoredPoint(Point(int x, int y), Color c),\n" +
-				"	                                                                                                                                     ^\n" +
+				"	case Rectangle(ColoredPoint(Point(int x, int y), Color c), ColoredPoint lr) when lr instanceof ColoredPoint(Point(int x, int y), Color c) -> {\n" +
+				"	                                                                                                                      ^\n" +
 				"Duplicate local variable x\n" +
 				"----------\n" +
 				"2. ERROR in X.java (at line 5)\n" +
-				"	case Rectangle(ColoredPoint(Point(int x, int y), Color c), ColoredPoint lr) r1 when (r1 instanceof  Rectangle(ColoredPoint(Point(int x, int y), Color c),\n" +
-				"	                                                                                                                                            ^\n" +
+				"	case Rectangle(ColoredPoint(Point(int x, int y), Color c), ColoredPoint lr) when lr instanceof ColoredPoint(Point(int x, int y), Color c) -> {\n" +
+				"	                                                                                                                             ^\n" +
 				"Duplicate local variable y\n" +
 				"----------\n" +
 				"3. ERROR in X.java (at line 5)\n" +
-				"	case Rectangle(ColoredPoint(Point(int x, int y), Color c), ColoredPoint lr) r1 when (r1 instanceof  Rectangle(ColoredPoint(Point(int x, int y), Color c),\n" +
-				"	                                                                                                                                                      ^\n" +
+				"	case Rectangle(ColoredPoint(Point(int x, int y), Color c), ColoredPoint lr) when lr instanceof ColoredPoint(Point(int x, int y), Color c) -> {\n" +
+				"	                                                                                                                                       ^\n" +
 				"Duplicate local variable c\n" +
 				"----------\n" +
-				"4. ERROR in X.java (at line 6)\n" +
-				"	ColoredPoint lr) r1) -> {\n" +
-				"	             ^^\n" +
-				"Duplicate local variable lr\n" +
-				"----------\n" +
-				"5. ERROR in X.java (at line 6)\n" +
-				"	ColoredPoint lr) r1) -> {\n" +
-				"	                 ^^\n" +
-				"Duplicate local variable r1\n" +
+				"4. ERROR in X.java (at line 5)\n" +
+				"	case Rectangle(ColoredPoint(Point(int x, int y), Color c), ColoredPoint lr) when lr instanceof ColoredPoint(Point(int x, int y), Color c) -> {\n" +
+				"	                                                                                                                                       ^\n" +
+				"Duplicate local variable c\n" +
 				"----------\n");
 	}
 	// Test nested record patterns in 'instanceof' within a swith-case with similar record pattern

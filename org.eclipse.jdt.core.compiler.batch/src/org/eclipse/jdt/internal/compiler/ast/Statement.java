@@ -493,10 +493,12 @@ public LocalVariableBinding[] getPatternVariablesWhenFalse() {
 }
 public void addPatternVariablesWhenTrue(LocalVariableBinding[] vars) {
 	if (vars == null || vars.length == 0) return;
+	if (this.patternVarsWhenTrue == vars) return;
 	this.patternVarsWhenTrue = addPatternVariables(this.patternVarsWhenTrue, vars);
 }
 public void addPatternVariablesWhenFalse(LocalVariableBinding[] vars) {
 	if (vars == null || vars.length == 0) return;
+	if (this.patternVarsWhenFalse == vars) return;
 	this.patternVarsWhenFalse = addPatternVariables(this.patternVarsWhenFalse, vars);
 }
 private LocalVariableBinding[] addPatternVariables(LocalVariableBinding[] current, LocalVariableBinding[] add) {
