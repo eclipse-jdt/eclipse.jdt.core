@@ -3423,25 +3423,7 @@ public CompilationUnit[] getCompilationUnits() {
 					// if we got exception during canonicalization, fall back to the name that was specified
 					fileName = this.filenames[i];
 				}
-				Function<String,String> annotationPathProvider = null;
-				if (this.annotationsFromClasspath) {
-					annotationPathProvider = (String qualifiedTypeName) -> {
-						for (Classpath classpathEntry : this.checkedClasspaths) {
-							if (classpathEntry.hasAnnotationFileFor(qualifiedTypeName.replace('.', '/')))
-								return classpathEntry.getPath();
-						}
-						return null;
-					};
-				} else if (this.annotationPaths != null) {
-					annotationPathProvider = (String qualifiedTypeName) -> {
-						String eeaFileName = '/'+qualifiedTypeName.replace('.', '/')+ExternalAnnotationProvider.ANNOTATION_FILE_SUFFIX;
-						for (String annotationPath : this.annotationPaths) {
-							if (new File(annotationPath+eeaFileName).exists())
-								return annotationPath;
-						}
-						return null;
-					};
-				}
+				Function<String,String> annotationPathProvider = createAnnotationPathProvider();
 				units[i] = new CompilationUnit(null, fileName, encoding, this.destinationPaths[i],
 						shouldIgnoreOptionalProblems(this.ignoreOptionalProblemsFromFolders, fileName.toCharArray()),
 						this.modNames[i], annotationPathProvider);
@@ -3449,6 +3431,32 @@ public CompilationUnit[] getCompilationUnits() {
 		}
 	}
 	return units;
+}
+
+/*
+ * Creates a provider for external annotations that can be passed to a CompilationUnit.
+ */
+protected Function<String,String> createAnnotationPathProvider() {
+	if (this.annotationsFromClasspath) {
+		return (String qualifiedTypeName) -> {
+			for (Classpath classpathEntry : this.checkedClasspaths) {
+				if (classpathEntry.hasAnnotationFileFor(qualifiedTypeName.replace('.', '/')))
+					return classpathEntry.getPath();
+			}
+			return null;
+		};
+	} else if (this.annotationPaths != null) {
+		return (String qualifiedTypeName) -> {
+			String eeaFileName = '/'+qualifiedTypeName.replace('.', '/')+ExternalAnnotationProvider.ANNOTATION_FILE_SUFFIX;
+			for (String annotationPath : this.annotationPaths) {
+				if (new File(annotationPath+eeaFileName).exists())
+					return annotationPath;
+			}
+			return null;
+		};
+	}
+
+	return null;
 }
 
 /*
@@ -5314,16 +5322,30 @@ protected void setPaths(ArrayList<String> bootclasspaths,
 	this.checkedClasspaths = new FileSystem.Classpath[allPaths.size()];
 	allPaths.toArray(this.checkedClasspaths);
 	this.logger.logClasspath(this.checkedClasspaths);
+	setAnnotionsPathsOnClasspath();
+}
 
+/*
+ * Sets the external annotation paths on classpath entries.
+ */
+protected void setAnnotionsPathsOnClasspath() {
 	if (this.annotationPaths != null && CompilerOptions.ENABLED.equals(this.options.get(CompilerOptions.OPTION_AnnotationBasedNullAnalysis))) {
 		for (FileSystem.Classpath c : this.checkedClasspaths) {
-			if (c instanceof ClasspathJar)
-				((ClasspathJar) c).annotationPaths = this.annotationPaths;
-			else if (c instanceof ClasspathJrt)
-				((ClasspathJrt) c).annotationPaths = this.annotationPaths;
+			setAnnotionsPathsOnClasspath(c);
 		}
 	}
 }
+
+/*
+ * Sets the external annotation paths on a single classpath entry.
+ */
+protected void setAnnotionsPathsOnClasspath(Classpath cp) {
+	if (cp instanceof ClasspathJar)
+		((ClasspathJar) cp).annotationPaths = this.annotationPaths;
+	else if (cp instanceof ClasspathJrt)
+		((ClasspathJrt) cp).annotationPaths = this.annotationPaths;
+}
+
 public final static boolean shouldIgnoreOptionalProblems(char[][] folderNames, char[] fileName) {
 	if (folderNames == null || fileName == null) {
 		return false;
