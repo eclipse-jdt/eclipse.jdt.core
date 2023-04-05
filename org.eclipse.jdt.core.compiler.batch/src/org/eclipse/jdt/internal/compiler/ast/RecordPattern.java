@@ -176,7 +176,6 @@ public class RecordPattern extends TypePattern {
 					MethodBinding[] methods = this.resolvedType.getMethods(componentBinding.name);
 					if (methods != null && methods.length > 0) {
 						p.accessorMethod = methods[0];
-//						p.resolvedType = p.accessorMethod.returnType;
 					}
 				}
 			}
