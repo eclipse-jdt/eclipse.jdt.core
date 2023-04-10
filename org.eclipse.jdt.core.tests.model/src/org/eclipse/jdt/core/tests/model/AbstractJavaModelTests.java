@@ -291,6 +291,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 */
 	protected static final int AST_INTERNAL_JLS20 = AST.JLS20;
 	/**
+	 * Internal synonym for constant AST.JSL21
+	 */
+	protected static final int AST_INTERNAL_JLS21 = AST.JLS21;
+	/**
 	 * Internal synonym for the latest AST level.
 	 *
 	 */

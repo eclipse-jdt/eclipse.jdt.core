@@ -4092,7 +4092,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				compilerOptions);
 	}
 	public void testBug578628_4() {
-		if (this.complianceLevel < ClassFileConstants.JDK20)
+		if (this.complianceLevel < ClassFileConstants.JDK21)
 			return;
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runConformTest(
