@@ -87,7 +87,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	}
 	@Override
 	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions) {
-		if(!isJRE20Plus)
+		if(!isJRE21Plus)
 			return;
 		runConformTest(testFiles, expectedOutput, customOptions, new String[] {"--enable-preview"}, JAVAC_OPTIONS);
 	}
