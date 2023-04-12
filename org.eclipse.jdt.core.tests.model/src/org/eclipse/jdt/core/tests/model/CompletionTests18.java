@@ -6799,4 +6799,128 @@ public void testIntersection18GH831() throws Exception {
 	assertTrue(String.format("Result doesn't contain expected method (%s)", result),
 	result.contains("get[METHOD_REF]{get(), Ljava.util.Optional<Ljava.io.Serializable;>;, ()Ljava.io.Serializable;, get, null, 60}\n"));
 }
+
+public void testGH960_onVarargArgument_expectCompletionsMatchingElementType() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/Completion/src/GH960.java", """
+			public class GH960 {
+				public void foo(Thread.State... states) {
+				}
+
+				public void boo() {
+				   Thread.State currentState = Thread.State.BLOCKED;
+
+				   foo()
+				}
+			}
+			""");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "foo(";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+	String result = requestor.getResults();
+	assertResults(
+			"BLOCKED[FIELD_REF]{State.BLOCKED, Ljava.lang.Thread$State;, Ljava.lang.Thread$State;, BLOCKED, null, "
+					+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED) + "}\n"
+					+ "NEW[FIELD_REF]{State.NEW, Ljava.lang.Thread$State;, Ljava.lang.Thread$State;, NEW, null, "
+					+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED) + "}\n"
+					+ "RUNNABLE[FIELD_REF]{State.RUNNABLE, Ljava.lang.Thread$State;, Ljava.lang.Thread$State;, RUNNABLE, null, "
+					+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED) + "}\n"
+					+ "TERMINATED[FIELD_REF]{State.TERMINATED, Ljava.lang.Thread$State;, Ljava.lang.Thread$State;, TERMINATED, null, "
+					+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED) + "}\n"
+					+ "TIMED_WAITING[FIELD_REF]{State.TIMED_WAITING, Ljava.lang.Thread$State;, Ljava.lang.Thread$State;, TIMED_WAITING, null, "
+					+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED) + "}\n"
+					+ "WAITING[FIELD_REF]{State.WAITING, Ljava.lang.Thread$State;, Ljava.lang.Thread$State;, WAITING, null, "
+					+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED) + "}\n"
+					+ "currentState[LOCAL_VARIABLE_REF]{currentState, null, Ljava.lang.Thread$State;, currentState, null, "
+					+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n"
+					+ "foo[METHOD_REF]{, LGH960;, ([Ljava.lang.Thread$State;)V, foo, (states), " + (R_DEFAULT
+							+ R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED)
+					+ "}",
+			result);
+}
+
+public void testGH960_onVarargArguments_expectCompletionsMatchingElementType() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/Completion/src/GH960.java", """
+			public class GH960 {
+				public void foo(Thread.State... states) {
+				}
+
+				public void boo() {
+				   Thread.State currentState = Thread.State.BLOCKED;
+
+				   foo(State.BLOCKED, )
+				}
+			}
+			""");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "foo(State.BLOCKED, ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+	String result = requestor.getResults();
+	int relevanceExpectedTypes = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED
+			+ R_EXACT_EXPECTED_TYPE;
+	assertContains("Enums",
+			"BLOCKED[FIELD_REF]{State.BLOCKED, Ljava.lang.Thread$State;, Ljava.lang.Thread$State;, BLOCKED, null, "
+					+ relevanceExpectedTypes + "}\n"
+					+ "NEW[FIELD_REF]{State.NEW, Ljava.lang.Thread$State;, Ljava.lang.Thread$State;, NEW, null, "
+					+ relevanceExpectedTypes + "}\n"
+					+ "RUNNABLE[FIELD_REF]{State.RUNNABLE, Ljava.lang.Thread$State;, Ljava.lang.Thread$State;, RUNNABLE, null, "
+					+ relevanceExpectedTypes + "}\n"
+					+ "TERMINATED[FIELD_REF]{State.TERMINATED, Ljava.lang.Thread$State;, Ljava.lang.Thread$State;, TERMINATED, null, "
+					+ relevanceExpectedTypes + "}\n"
+					+ "TIMED_WAITING[FIELD_REF]{State.TIMED_WAITING, Ljava.lang.Thread$State;, Ljava.lang.Thread$State;, TIMED_WAITING, null, "
+					+ relevanceExpectedTypes + "}\n"
+					+ "WAITING[FIELD_REF]{State.WAITING, Ljava.lang.Thread$State;, Ljava.lang.Thread$State;, WAITING, null, "
+					+ relevanceExpectedTypes + "}\n",
+			result);
+	assertContains("Variables",
+			"currentState[LOCAL_VARIABLE_REF]{currentState, null, Ljava.lang.Thread$State;, currentState, null, "
+					+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED
+							+ R_EXACT_EXPECTED_TYPE)
+					+ "}",
+			result);
+}
+
+public void testGH960_onBeforeVarargArguments_expectCompletionsMatchingElementType() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/Completion/src/GH960.java", """
+			public class GH960 {
+				public void foo(String name, Thread.State... states) {
+				}
+
+				public void boo() {
+				   Thread.State currentState = Thread.State.BLOCKED;
+				   String threadName = "name";
+
+				   foo(, State.BLOCKED)
+				}
+			}
+			""");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "foo(";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+	String result = requestor.getResults();
+	assertContains("Variables",
+			"threadName[LOCAL_VARIABLE_REF]{threadName, null, Ljava.lang.String;, threadName, null, "
+					+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			result);
+}
 }

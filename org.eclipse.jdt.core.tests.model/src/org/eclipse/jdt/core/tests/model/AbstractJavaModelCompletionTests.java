@@ -217,4 +217,27 @@ protected void assertResults(String expected, String actual) {
 		throw c;
 	}
 }
+
+protected void assertContains(String message, String expected, String containsIn) {
+	if (!containsIn.contains(expected)) {
+		StringBuffer formatted;
+		if (message != null) {
+			formatted = new StringBuffer(message).append('.');
+		} else {
+			formatted = new StringBuffer();
+		}
+		final String expectedWithLineSeparators = showLineSeparators(expected);
+		final String actualWithLineSeparators = showLineSeparators(containsIn);
+		formatted.append("\n----------- Expected to contain ------------\n"); //$NON-NLS-1$
+		formatted.append(expectedWithLineSeparators);
+		formatted.append("\n------------ but was ------------\n"); //$NON-NLS-1$
+		formatted.append(actualWithLineSeparators);
+		formatted.append("\n--------- Difference is ----------\n"); //$NON-NLS-1$
+		throw new ComparisonFailure(formatted.toString(), expectedWithLineSeparators, actualWithLineSeparators);
+	}
+}
+
+protected void assertContains(String expected, String containsIn) {
+	assertContains(null, expected, containsIn);
+}
 }
