@@ -1430,7 +1430,7 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 				"ERROR 2: aaa cannot be resolved to a module",
 				"""
 				----------
-				1. ERROR in /tmp/module-info.java (at line 2)
+				1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/module-info.java (at line 2)
 					requires aaa;
 					         ^^^
 				aaa cannot be resolved to a module
