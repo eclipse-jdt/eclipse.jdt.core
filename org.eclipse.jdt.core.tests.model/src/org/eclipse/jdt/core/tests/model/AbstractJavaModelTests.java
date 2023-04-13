@@ -168,6 +168,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected static boolean isJRE18 = false;
 	protected static boolean isJRE19 = false;
 	protected static boolean isJRE20 = false;
+	protected static boolean isJRE21 = false;
 	static {
 		String javaVersion = System.getProperty("java.version");
 		String vmName = System.getProperty("java.vm.name");
@@ -180,6 +181,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			}
 		}
 		long jdkLevel = CompilerOptions.versionToJdkLevel(javaVersion.length() > 3 ? javaVersion.substring(0, 3) : javaVersion);
+		if (jdkLevel >= ClassFileConstants.JDK21) {
+			isJRE21 = true;
+		}
 		if (jdkLevel >= ClassFileConstants.JDK20) {
 			isJRE20 = true;
 		}

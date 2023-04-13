@@ -53,23 +53,23 @@ public class ASTRewritingRecordPatternTest extends ASTRewritingTest {
 	}
 
 	public static Test suite() {
-		return createSuite(ASTRewritingRecordPatternTest.class, 20);
+		return createSuite(ASTRewritingRecordPatternTest.class, 21);
 	}
 
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		if (this.apiLevel == AST.JLS20 ) { // Remove this after it is a standard feature
-			this.project1.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_20);
-			this.project1.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_20);
-			this.project1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_20);
+		if (this.apiLevel == AST.JLS21 ) { // Remove this after it is a standard feature
+			this.project1.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_21);
+			this.project1.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_21);
+			this.project1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_21);
 			this.project1.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 		}
 	}
 
 	private boolean checkAPILevel() {
-		if (this.apiLevel < 20) {
-			System.err.println("Test "+getName()+" requires a JRE 20");
+		if (this.apiLevel < 21) {
+			System.err.println("Test "+getName()+" requires a JRE 21");
 			return true;
 		}
 		return false;
