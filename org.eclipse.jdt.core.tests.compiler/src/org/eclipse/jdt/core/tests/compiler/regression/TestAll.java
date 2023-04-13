@@ -511,7 +511,8 @@ public static Test suite() {
 		tests_21.addAll(since_18);
 		tests_21.addAll(since_21);
 		TestCase.resetForgottenFilters(tests_21);
-		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_20), tests_21));
+		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(
+				ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_21), tests_21));
 	}
 	all.addTest(new TestSuite(Jsr14Test.class));
 	return all;

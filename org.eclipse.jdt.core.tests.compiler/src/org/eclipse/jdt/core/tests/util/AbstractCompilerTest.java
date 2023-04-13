@@ -396,7 +396,8 @@ public class AbstractCompilerTest extends TestCase {
 						System.out.println(CompilerOptions.VERSION_17 + ", ");
 						System.out.println(CompilerOptions.VERSION_18 + ", ");
 						System.out.println(CompilerOptions.VERSION_19 + ", ");
-						System.out.println(CompilerOptions.VERSION_20);
+						System.out.println(CompilerOptions.VERSION_20 + ", ");
+						System.out.println(CompilerOptions.VERSION_21);
 					}
 				}
 				if (possibleComplianceLevels == 0) {
