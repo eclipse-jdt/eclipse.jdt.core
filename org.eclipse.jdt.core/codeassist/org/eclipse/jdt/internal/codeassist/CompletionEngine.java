@@ -3372,8 +3372,7 @@ public final class CompletionEngine
 
 			TypeBinding paramType = method.parameters[index];
 			addExpectedType(paramType, scope);
-			if (method.isVarargs() && paramType.isArrayType()
-					&& index == (method.parameters.length - 1)) {
+			if (method.isVarargs() && paramType.isArrayType() && index == (method.parameters.length - 1)) {
 				addExpectedType(((ArrayBinding) paramType).elementsType(), scope);
 			}
 		}
@@ -3997,29 +3996,8 @@ public final class CompletionEngine
 
 			checkCancel();
 
-			// see if we can find argument type at position incase if we are at a vararg.
-			if (astNodeParent instanceof MessageSend m && this.expectedTypesPtr == -1) {
-				final ObjectVector methodsToSearchOn = new ObjectVector();
-				final CompletionRequestor actual = this.requestor;
-				this.requestor = new CompletionRequestor(true) {
-
-					@Override
-					public void accept(CompletionProposal proposal) {
-						// do nothing
-					}
-				};
-				this.requestor.setIgnored(CompletionProposal.METHOD_REF, false);
-				try {
-					// this will help to find the actual resolved method we are at since current MessageSend is not
-					// properly resolved. We use the same strategy we have at completionOnMessageSend
-					findVariablesAndMethods(m.selector, scope, m, scope, false, false, true, methodsToSearchOn);
-				} finally {
-					this.requestor = actual;
-				}
-
-				pushExpectedTypesForArgumentPosition(methodsToSearchOn,
-						(int) Stream.of(m.argumentTypes).filter(Objects::nonNull).count(), scope);
-			}
+			// see if we can find argument type at position in case if we are at a vararg.
+			checkForVarargExpectedTypes(astNodeParent, scope);
 			findVariablesAndMethods(this.completionToken, scope, singleNameReference, scope, insideTypeAnnotation,
 					singleNameReference.isInsideAnnotationAttribute, true, new ObjectVector());
 
@@ -4043,6 +4021,31 @@ public final class CompletionEngine
 					findExplicitConstructors(Keywords.SUPER, ref.superclass(), (MethodScope)scope, singleNameReference);
 				}
 			}
+		}
+	}
+
+	private void checkForVarargExpectedTypes(ASTNode astNodeParent, Scope scope) {
+		if (astNodeParent instanceof MessageSend m && this.expectedTypesPtr == -1) {
+			final ObjectVector methodsToSearchOn = new ObjectVector();
+			final CompletionRequestor actual = this.requestor;
+			this.requestor = new CompletionRequestor(true) {
+
+				@Override
+				public void accept(CompletionProposal proposal) {
+					// do nothing
+				}
+			};
+			this.requestor.setIgnored(CompletionProposal.METHOD_REF, false);
+			try {
+				// this will help to find the actual resolved method we are at since current MessageSend is not
+				// properly resolved. We use the same strategy we have at completionOnMessageSend
+				findVariablesAndMethods(m.selector, scope, m, scope, false, false, true, methodsToSearchOn);
+			} finally {
+				this.requestor = actual;
+			}
+
+			pushExpectedTypesForArgumentPosition(methodsToSearchOn,
+					(int) Stream.of(m.argumentTypes).filter(Objects::nonNull).count(), scope);
 		}
 	}
 
