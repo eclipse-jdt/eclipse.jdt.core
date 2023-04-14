@@ -220,11 +220,9 @@ protected void assertResults(String expected, String actual) {
 
 protected void assertContains(String message, String expected, String containsIn) {
 	if (!containsIn.contains(expected)) {
-		StringBuffer formatted;
+		StringBuilder formatted = new StringBuilder();
 		if (message != null) {
-			formatted = new StringBuffer(message).append('.');
-		} else {
-			formatted = new StringBuffer();
+			formatted.append(message).append('.');
 		}
 		final String expectedWithLineSeparators = showLineSeparators(expected);
 		final String actualWithLineSeparators = showLineSeparators(containsIn);

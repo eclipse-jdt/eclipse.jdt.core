@@ -6804,13 +6804,17 @@ public void testGH960_onVarargArgument_expectCompletionsMatchingElementType() th
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/Completion/src/GH960.java", """
 			public class GH960 {
-				public void foo(Thread.State... states) {
+				public void foo(GH960.State... states) {
 				}
 
 				public void boo() {
-				   Thread.State currentState = Thread.State.BLOCKED;
+					GH960.State currentState = GH960.State.BLOCKED;
 
-				   foo()
+					foo()
+				}
+
+				public static enum State {
+					BLOCKED, RUNNABLE;
 				}
 			}
 			""");
@@ -6825,21 +6829,13 @@ public void testGH960_onVarargArgument_expectCompletionsMatchingElementType() th
 
 	String result = requestor.getResults();
 	assertResults(
-			"BLOCKED[FIELD_REF]{State.BLOCKED, Ljava.lang.Thread$State;, Ljava.lang.Thread$State;, BLOCKED, null, "
+			"BLOCKED[FIELD_REF]{State.BLOCKED, LGH960$State;, LGH960$State;, BLOCKED, null, "
 					+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED) + "}\n"
-					+ "NEW[FIELD_REF]{State.NEW, Ljava.lang.Thread$State;, Ljava.lang.Thread$State;, NEW, null, "
+					+ "RUNNABLE[FIELD_REF]{State.RUNNABLE, LGH960$State;, LGH960$State;, RUNNABLE, null, "
 					+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED) + "}\n"
-					+ "RUNNABLE[FIELD_REF]{State.RUNNABLE, Ljava.lang.Thread$State;, Ljava.lang.Thread$State;, RUNNABLE, null, "
-					+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED) + "}\n"
-					+ "TERMINATED[FIELD_REF]{State.TERMINATED, Ljava.lang.Thread$State;, Ljava.lang.Thread$State;, TERMINATED, null, "
-					+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED) + "}\n"
-					+ "TIMED_WAITING[FIELD_REF]{State.TIMED_WAITING, Ljava.lang.Thread$State;, Ljava.lang.Thread$State;, TIMED_WAITING, null, "
-					+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED) + "}\n"
-					+ "WAITING[FIELD_REF]{State.WAITING, Ljava.lang.Thread$State;, Ljava.lang.Thread$State;, WAITING, null, "
-					+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED) + "}\n"
-					+ "currentState[LOCAL_VARIABLE_REF]{currentState, null, Ljava.lang.Thread$State;, currentState, null, "
+					+ "currentState[LOCAL_VARIABLE_REF]{currentState, null, LGH960$State;, currentState, null, "
 					+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n"
-					+ "foo[METHOD_REF]{, LGH960;, ([Ljava.lang.Thread$State;)V, foo, (states), " + (R_DEFAULT
+					+ "foo[METHOD_REF]{, LGH960;, ([LGH960$State;)V, foo, (states), " + (R_DEFAULT
 							+ R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED)
 					+ "}",
 			result);
@@ -6849,13 +6845,17 @@ public void testGH960_onVarargArguments_expectCompletionsMatchingElementType() t
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy("/Completion/src/GH960.java", """
 			public class GH960 {
-				public void foo(Thread.State... states) {
+				public void foo(GH960.State... states) {
 				}
 
 				public void boo() {
-				   Thread.State currentState = Thread.State.BLOCKED;
+					GH960.State currentState = GH960.State.BLOCKED;
 
-				   foo(State.BLOCKED, )
+					foo(State.BLOCKED, )
+				}
+
+				public static enum State {
+					BLOCKED, RUNNABLE;
 				}
 			}
 			""");
@@ -6872,21 +6872,13 @@ public void testGH960_onVarargArguments_expectCompletionsMatchingElementType() t
 	int relevanceExpectedTypes = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED
 			+ R_EXACT_EXPECTED_TYPE;
 	assertContains("Enums",
-			"BLOCKED[FIELD_REF]{State.BLOCKED, Ljava.lang.Thread$State;, Ljava.lang.Thread$State;, BLOCKED, null, "
+			"BLOCKED[FIELD_REF]{State.BLOCKED, LGH960$State;, LGH960$State;, BLOCKED, null, "
 					+ relevanceExpectedTypes + "}\n"
-					+ "NEW[FIELD_REF]{State.NEW, Ljava.lang.Thread$State;, Ljava.lang.Thread$State;, NEW, null, "
-					+ relevanceExpectedTypes + "}\n"
-					+ "RUNNABLE[FIELD_REF]{State.RUNNABLE, Ljava.lang.Thread$State;, Ljava.lang.Thread$State;, RUNNABLE, null, "
-					+ relevanceExpectedTypes + "}\n"
-					+ "TERMINATED[FIELD_REF]{State.TERMINATED, Ljava.lang.Thread$State;, Ljava.lang.Thread$State;, TERMINATED, null, "
-					+ relevanceExpectedTypes + "}\n"
-					+ "TIMED_WAITING[FIELD_REF]{State.TIMED_WAITING, Ljava.lang.Thread$State;, Ljava.lang.Thread$State;, TIMED_WAITING, null, "
-					+ relevanceExpectedTypes + "}\n"
-					+ "WAITING[FIELD_REF]{State.WAITING, Ljava.lang.Thread$State;, Ljava.lang.Thread$State;, WAITING, null, "
-					+ relevanceExpectedTypes + "}\n",
+					+ "RUNNABLE[FIELD_REF]{State.RUNNABLE, LGH960$State;, LGH960$State;, RUNNABLE, null, "
+					+ relevanceExpectedTypes + "}",
 			result);
 	assertContains("Variables",
-			"currentState[LOCAL_VARIABLE_REF]{currentState, null, Ljava.lang.Thread$State;, currentState, null, "
+			"currentState[LOCAL_VARIABLE_REF]{currentState, null, LGH960$State;, currentState, null, "
 					+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED
 							+ R_EXACT_EXPECTED_TYPE)
 					+ "}",

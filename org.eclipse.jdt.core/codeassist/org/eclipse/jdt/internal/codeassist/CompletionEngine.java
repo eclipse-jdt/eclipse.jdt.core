@@ -3334,8 +3334,7 @@ public final class CompletionEngine
 		findCompletionsForArgumentPosition(methodsFound, argTypes != null ? argTypes.length : 0, scope);
 	}
 
-	private void findCompletionsForArgumentPosition(ObjectVector methodsFound, int completedArgumentLength,
-			Scope scope) {
+	private void findCompletionsForArgumentPosition(ObjectVector methodsFound, int completedArgumentLength, Scope scope) {
 		pushExpectedTypesForArgumentPosition(methodsFound, completedArgumentLength, scope);
 		this.strictMatchForExtepectedType = true;
 		int filter = this.expectedTypesFilter;
@@ -3344,8 +3343,7 @@ public final class CompletionEngine
 		int tStart = this.tokenStart, tEnd = this.tokenEnd;
 		try {
 			this.startPosition = this.endPosition = this.tokenStart = this.tokenEnd = this.actualCompletionPosition + 1;
-			findVariablesAndMethods(CharOperation.NO_CHAR, scope, FakeInvocationSite, scope, false, false, false,
-					methodsFound);
+			findVariablesAndMethods(CharOperation.NO_CHAR, scope, FakeInvocationSite, scope, false, false, false, methodsFound);
 		} finally {
 			this.startPosition = start;
 			this.endPosition = end;
@@ -3363,11 +3361,12 @@ public final class CompletionEngine
 		}
 		for (int i = 0; i < methodsToSearchOn.size; i++) {
 			MethodBinding method = (MethodBinding) ((Object[]) methodsToSearchOn.elementAt(i))[0];
-			if (method.parameters.length <= completedArgumentLength && !method.isVarargs()) {
+			boolean onOrAfterLastParam = method.parameters.length <= completedArgumentLength;
+			if (onOrAfterLastParam && !method.isVarargs()) {
 				continue;
 			}
 
-			int index = (method.parameters.length <= completedArgumentLength)
+			int index = onOrAfterLastParam
 					? method.parameters.length - 1
 					: completedArgumentLength;
 
