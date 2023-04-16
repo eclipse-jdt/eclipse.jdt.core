@@ -5794,12 +5794,26 @@ private MessageSend internalNewMessageSend() {
 }
 @Override
 protected AllocationExpression newAllocationExpression(boolean isQualified) {
-	if (this.assistNode != null && this.lParenPos == this.assistNode.sourceEnd) {
+	if (this.assistNode != null && checkIfAtFirstArgumentOfConstructor()) {
 		CompletionOnQualifiedAllocationExpression allocation = new CompletionOnQualifiedAllocationExpression();
 		this.assistNode = allocation;
 		return allocation;
 	}
 	return super.newAllocationExpression(isQualified);
+}
+private boolean checkIfAtFirstArgumentOfConstructor() {
+	// See if we are in a simple constructure like Foo(|) or Foo(|null, null)
+	if(this.lParenPos == this.assistNode.sourceEnd) {
+		return true;
+	}
+	// We try to handle the situation where lParenPos represents a argument MessageSend's left paren in the AllocationExpression like
+	// Foo(|null, Collections.empty(), null). Here we try to calculate the constructor's left paren and match it with the 
+	// assistNode position.
+	if(this.assistNode instanceof CompletionOnSingleNameReference) {
+		int startPos = this.intStack[this.intPtr] + this.identifierStack[this.identifierPtr].length + 1 /*(*/ + 3 /*new*/;
+		return startPos == this.assistNode.sourceEnd;
+	}
+	return false;
 }
 public CompilationUnitDeclaration parse(ICompilationUnit sourceUnit, CompilationResult compilationResult, int cursorLoc) {
 

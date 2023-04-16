@@ -6085,7 +6085,9 @@ public final class CompletionEngine
 						continue next;
 					for (int a = minArgLength; --a >= 0;)
 						if (argTypes[a] != null) { // can be null if it could not be resolved properly
-							if (!argTypes[a].isCompatibleWith(constructor.parameters[a]))
+							if (!argTypes[a].isCompatibleWith(constructor.parameters[a])
+								// check if this type pair is parameterized types and their erasure types matches
+									&& !argTypes[a].erasure().isCompatibleWith(constructor.parameters[a].erasure()))
 								continue next;
 						}
 
