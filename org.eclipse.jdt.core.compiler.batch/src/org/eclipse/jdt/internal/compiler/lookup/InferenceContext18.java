@@ -483,6 +483,7 @@ public class InferenceContext18 {
 				this.currentBounds = solution; // this is final, keep the result:
 			return solution;
 		} finally {
+			assert !(step == TYPE_INFERRED_FINAL && this.isInexactVarargsInference);
 			this.stepCompleted = step;
 		}
 	}
