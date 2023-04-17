@@ -21,6 +21,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
@@ -9556,7 +9557,8 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 
 	@SuppressWarnings("deprecation")
 	public void testASTLevels() throws Exception {
-		int[] apilLevels = {AST.JLS2, AST.JLS3, AST.JLS4, AST.JLS8, AST.JLS9, AST.JLS10, AST.JLS11, AST.JLS12, AST.JLS13, AST.JLS14, AST.JLS15, AST.JLS16, AST.JLS17,AST.JLS18, AST.JLS19, AST.JLS20};
+		int[] apilLevels = {AST.JLS2, AST.JLS3, AST.JLS4, AST.JLS8, AST.JLS9, AST.JLS10, AST.JLS11,
+				AST.JLS12, AST.JLS13, AST.JLS14, AST.JLS15, AST.JLS16, AST.JLS17,AST.JLS18, AST.JLS19, AST.JLS20};
 		for (int level : apilLevels) {
 			try {
 				DOMASTUtil.checkASTLevel(level);
@@ -9564,6 +9566,12 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 				throw new AssertionFailedError("missing support for AST level: " + level);
 			}
 		}
+		Hashtable<String, String> options = JavaCore.getDefaultOptions();
+		options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.latestSupportedJavaVersion());
+		options.put(JavaCore.COMPILER_SOURCE, JavaCore.latestSupportedJavaVersion());
+		options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.latestSupportedJavaVersion());
+		AST a = new AST(options);
+		assertEquals("Incorrect ast mapping", a.apiLevel(), AST.getJLSLatest());
 	}
 }
 
