@@ -2533,6 +2533,21 @@ public abstract class ASTNode {
 		}
 	}
 	/**
+ 	 * Checks that this AST operation is only used when
+     * building JLS21 level ASTs.
+     * <p>
+     * Use this method to prevent access to new properties available only in JLS21.
+     * </p>
+     *
+	 * @exception UnsupportedOperationException if this operation is not used in JLS21
+	 * @since 3.34 BETA_JAVA21
+	 */
+	final void supportedOnlyIn21() {
+		if (this.ast.apiLevel < AST.JLS21_INTERNAL) {
+			throw new UnsupportedOperationException("Operation only supported in JLS21 AST"); //$NON-NLS-1$
+		}
+	}
+	/**
      * Checks that this AST operation is not used when
      * building JLS20 level ASTs.
      * <p>

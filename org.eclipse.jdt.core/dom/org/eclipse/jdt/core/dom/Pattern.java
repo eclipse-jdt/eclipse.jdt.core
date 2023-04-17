@@ -39,7 +39,7 @@ public abstract class Pattern extends Expression {
 	 */
 	Pattern(AST ast) {
 		super(ast);
-		supportedOnlyIn20();
+		supportedOnlyIn21();
 		unsupportedWithoutPreviewError();
 
 	}

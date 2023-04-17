@@ -3184,7 +3184,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 
 		rewriteRequiredNode(node, PatternInstanceofExpression.LEFT_OPERAND_PROPERTY);
 		ensureSpaceAfterReplace(node, PatternInstanceofExpression.LEFT_OPERAND_PROPERTY);
-		if (node.getAST().apiLevel() >= AST.JLS20 && node.getAST().isPreviewEnabled()) {
+		if (node.getAST().apiLevel() >= AST.JLS21 && node.getAST().isPreviewEnabled()) {
 			rewriteRequiredNode(node, PatternInstanceofExpression.PATTERN_PROPERTY);
 		} else {
 			rewriteRequiredNode(node, PatternInstanceofExpression.RIGHT_OPERAND_PROPERTY);

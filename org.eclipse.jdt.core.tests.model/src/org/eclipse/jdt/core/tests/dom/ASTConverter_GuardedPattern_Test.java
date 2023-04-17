@@ -129,6 +129,6 @@ public class ASTConverter_GuardedPattern_Test extends ConverterTestSetup {
 		assertEquals("Not a Guarded Pattern", ASTNode.GUARDED_PATTERN, exp.getNodeType());
 		GuardedPattern gPattern = (GuardedPattern) exp;
 		int restrictedWhenStartPos = gPattern.getRestrictedIdentifierStartPosition();
-		assertEquals("Not correct restricted start position", 451, restrictedWhenStartPos);
+		assertEquals("Not correct restricted start position", 444, restrictedWhenStartPos);
 	}
 }

@@ -54,29 +54,29 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 		super.setUpSuite();
 		this.ast = AST.newAST(getASTLatest(), false);
 		this.currentProject = getJavaProject("Converter_19");
-		if (this.ast.apiLevel() == AST.JLS20) {
-			this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_20);
-			this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_20);
-			this.currentProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_20);
+		if (this.ast.apiLevel() == AST.JLS21) {
+			this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_21);
+			this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_21);
+			this.currentProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_21);
 			this.currentProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 			this.currentProject.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
 		}
 	}
 	protected void disablePreview() {
 		this.currentProject = getJavaProject("Converter_19");
-		if (this.ast.apiLevel() == AST.JLS20) {
-			this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_20);
-			this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_20);
-			this.currentProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_20);
+		if (this.ast.apiLevel() == AST.JLS21) {
+			this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_21);
+			this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_21);
+			this.currentProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_21);
 			this.currentProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
 		}
 	}
 	protected void enabledPreview() {
 		this.currentProject = getJavaProject("Converter_19");
-		if (this.ast.apiLevel() == AST.JLS20) {
-			this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_20);
-			this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_20);
-			this.currentProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_20);
+		if (this.ast.apiLevel() == AST.JLS21) {
+			this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_21);
+			this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_21);
+			this.currentProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_21);
 			this.currentProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 			this.currentProject.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
 		}
@@ -102,12 +102,12 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 	}
 
 	private void printJREError() {
-		System.err.println("Test "+getName()+" requires a JRE 20");
+		System.err.println("Test "+getName()+" requires a JRE 21");
 	}
 
 	@SuppressWarnings("rawtypes")
 	public void testTypePattern() throws CoreException {
-		if (!isJRE20) {
+		if (!isJRE21) {
 			printJREError();
 			return;
 		}
@@ -155,7 +155,7 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 
 	@SuppressWarnings("rawtypes")
 	public void testGuardedPattern() throws CoreException {
-		if (!isJRE20) {
+		if (!isJRE21) {
 			printJREError();
 			return;
 		}
@@ -211,7 +211,7 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 
 	@SuppressWarnings("rawtypes")
 	public void testParenthesizedExpressionPattern() throws CoreException {
-		if (!isJRE20) {
+		if (!isJRE21) {
 			printJREError();
 			return;
 		}
@@ -252,7 +252,7 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 
 	@SuppressWarnings("rawtypes")
 	public void testNullPattern() throws CoreException {
-		if (!isJRE20) {
+		if (!isJRE21) {
 			printJREError();
 			return;
 		}
@@ -285,7 +285,7 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 
 	@SuppressWarnings("rawtypes")
 	public void testCaseDefaultExpressionPattern() throws CoreException {
-		if (!isJRE20) {
+		if (!isJRE21) {
 			printJREError();
 			return;
 		}
@@ -317,8 +317,8 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 	}
 
 	public void testBug575250() throws CoreException {
-		if (!isJRE20) {
-			System.err.println("Test "+getName()+" requires a JRE 20");
+		if (!isJRE21) {
+			System.err.println("Test "+getName()+" requires a JRE 21");
 			return;
 		}
 		String contents = "public class X {\n" +
@@ -371,7 +371,7 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 	}
 
 	public void testRecordPattern001() throws CoreException {
-		if (!isJRE20) {
+		if (!isJRE21) {
 			printJREError();
 			return;
 		}
@@ -430,8 +430,8 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 
 	@SuppressWarnings("rawtypes")
 	public void testRecordPattern002() throws CoreException {
-		if (!isJRE20) {
-			System.err.println("Test "+getName()+" requires a JRE 20");
+		if (!isJRE21) {
+			System.err.println("Test "+getName()+" requires a JRE 21");
 			return;
 		}
 		String contents =  "public class X {\n"
@@ -488,8 +488,8 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 
 	@SuppressWarnings("rawtypes")
 	public void testRecordPattern003() throws CoreException {
-		if (!isJRE20) {
-			System.err.println("Test "+getName()+" requires a JRE 20");
+		if (!isJRE21) {
+			System.err.println("Test "+getName()+" requires a JRE 21");
 			return;
 		}
 		String contents =  "public class X {\n"
@@ -563,8 +563,8 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 
 	@SuppressWarnings("rawtypes")
 	public void testRecordPattern004() throws CoreException {
-		if (!isJRE20) {
-			System.err.println("Test "+getName()+" requires a JRE 20");
+		if (!isJRE21) {
+			System.err.println("Test "+getName()+" requires a JRE 21");
 			return;
 		}
 		String contents =  "public class X {\n"
@@ -619,8 +619,8 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 		assertEquals("There should be 1 Record Pattern", ASTNode.RECORD_PATTERN , guardedPattern.getPattern().getNodeType());
 	}
 	public void testIssue882_1() throws Exception {
-		if (!isJRE20) {
-			System.err.println("Test "+getName()+" requires a JRE 20");
+		if (!isJRE21) {
+			System.err.println("Test "+getName()+" requires a JRE 21");
 			return;
 		}
 		try {
@@ -659,8 +659,8 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 		}
 	}
 	public void testIssue882_2() throws Exception {
-		if (!isJRE20) {
-			System.err.println("Test "+getName()+" requires a JRE 20");
+		if (!isJRE21) {
+			System.err.println("Test "+getName()+" requires a JRE 21");
 			return;
 		}
 		try {

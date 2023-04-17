@@ -60,7 +60,7 @@ public class TypePattern extends Pattern {
 
 	TypePattern(AST ast) {
 		super(ast);
-		supportedOnlyIn20();
+		supportedOnlyIn21();
 		unsupportedWithoutPreviewError();
 	}
 
