@@ -20,8 +20,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.eclipse.core.resources.IFolder;
@@ -365,7 +365,12 @@ public class AptConfig {
     		IResource binPathResource = root.findMember(binPath);
     		String binDirString;
     		if (binPathResource != null) {
-    			binDirString = root.findMember(binPath).getLocation().toOSString();
+    			IPath binPathLocation = binPathResource.getLocation();
+    			if (binPathLocation == null) {
+    				AptPlugin.logWarning(null, "Failed to resolve output location for the following project: " + otherJavaProject); //$NON-NLS-1$
+    				return;
+    			}
+    			binDirString = binPathLocation.toOSString();
     		}
     		else {
     			binDirString = binPath.toOSString();
