@@ -782,7 +782,7 @@ public class JavadocParser extends AbstractCommentParser {
 			case 'r':
 				if (length == TAG_RETURN_LENGTH && CharOperation.equals(TAG_RETURN, tagName, 0, length)) {
 					this.tagValue = TAG_RETURN_VALUE;
-					if (!this.inlineTagStarted) {
+					if(this.sourceLevel >= ClassFileConstants.JDK16 || !this.inlineTagStarted){
 						valid = parseReturn();
 					}
 				}
@@ -877,14 +877,18 @@ public class JavadocParser extends AbstractCommentParser {
 			if (!this.inlineTagStarted) {
 				this.lastBlockTagValue = this.tagValue;
 			}
-			// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=267833
-			// Report a problem if a block tag is being used in the context of an inline tag and vice versa.
-			if ((this.inlineTagStarted ? JAVADOC_TAG_TYPE[this.tagValue] == TAG_TYPE_BLOCK : JAVADOC_TAG_TYPE[this.tagValue] == TAG_TYPE_INLINE)) {
-				valid = false;
-				this.tagValue = TAG_OTHERS_VALUE;
-				this.tagWaitingForDescription = NO_TAG_VALUE;
-				if (this.reportProblems) {
-					this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
+			if(this.tagValue == TAG_RETURN_VALUE && this.sourceLevel >= ClassFileConstants.JDK16) {
+				// no checks for @return, which can be both inline / block since Java 16
+			} else {
+				// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=267833
+				// Report a problem if a block tag is being used in the context of an inline tag and vice versa.
+				if ((this.inlineTagStarted ? JAVADOC_TAG_TYPE[this.tagValue] == TAG_TYPE_BLOCK : JAVADOC_TAG_TYPE[this.tagValue] == TAG_TYPE_INLINE)) {
+					valid = false;
+					this.tagValue = TAG_OTHERS_VALUE;
+					this.tagWaitingForDescription = NO_TAG_VALUE;
+					if (this.reportProblems) {
+						this.sourceParser.problemReporter().javadocUnexpectedTag(this.tagSourceStart, this.tagSourceEnd);
+					}
 				}
 			}
 		}
