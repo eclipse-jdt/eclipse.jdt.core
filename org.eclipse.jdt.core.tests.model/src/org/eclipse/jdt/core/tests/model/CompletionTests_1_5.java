@@ -14827,4 +14827,44 @@ public void testGH969_completeOnArgumentPosition_WithToken() throws Exception {
 					+ relevance + "}",
 			requestor.getResults());
 }
+
+public void testGH969_completeOnArgumentPosition_onMethodWithReceiver() throws Exception {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy("/Completion/src/GH969.java", """
+			public class GH969 {
+				public static void main(String[] args) {
+					instance().foo(new PersonDetails(GH969.emptyList(), 0));
+				}
+				public static GH969 instance() {
+					return new GH969();
+				}
+				public void foo(PersonDetails per) {}
+				private static <T> GH969List<T> emptyList(){ return null; }
+				public static class PersonDetails {
+					public PersonDetails(GH969List<String> address, int age){}
+				}
+			}
+			""");
+	this.workingCopies[1] = getWorkingCopy("/Completion/src/GH969List.java", """
+			public class GH969List<T> {
+				public static <T> GH969List<T> empty() {
+					return new GH969List<>();
+				}
+			}
+			""");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "new PersonDetails(";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	int relevance = R_DEFAULT + R_INTERESTING + R_RESOLVED + R_NON_RESTRICTED;
+	assertEquals(
+			"GH969.PersonDetails[ANONYMOUS_CLASS_DECLARATION]{, LGH969$PersonDetails;, (LGH969List<Ljava.lang.String;>;I)V, LGH969$PersonDetails;, LGH969$PersonDetails;.(LGH969List<Ljava/lang/String;>;I)V, null, (address, age), replace[119, 119], token[119, 119], "
+					+ relevance + "}\n"
+					+ "PersonDetails[METHOD_REF<CONSTRUCTOR>]{, LGH969$PersonDetails;, (LGH969List<Ljava.lang.String;>;I)V, null, null, PersonDetails, (address, age), replace[119, 119], token[80, 119], "
+					+ relevance + "}",
+			requestor.getResults());
+}
 }
