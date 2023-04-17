@@ -5812,13 +5812,17 @@ private boolean checkIfAtFirstArgumentOfConstructor() {
 	}
 	// We try to handle the situation where lParenPos represents a argument MessageSend's left paren in the AllocationExpression like
 	// Foo(|null, Collections.empty(), null). Here we try to calculate the constructor's left paren and match it with the 
-	// assistNode position.
+	// assistNode position if the assistNode is a CompletionOnSingleNameReference or CompletionOnMessageSendName.
+	
+	// following int literals represents
+	// 1 -> '('
+	// 3 -> 'new'
+	int startPos = this.intStack[this.intPtr] + this.identifierStack[this.identifierPtr].length + 1 + 3;
+
 	if (this.assistNode instanceof CompletionOnSingleNameReference) {
-		// following int literals represents
-		// 1 -> '('
-		// 3 -> 'new'
-		int startPos = this.intStack[this.intPtr] + this.identifierStack[this.identifierPtr].length + 1 + 3;
 		return startPos == this.assistNode.sourceEnd;
+	} else if (this.assistNode instanceof CompletionOnMessageSendName ms) {
+		return startPos == ms.sourceStart - 1;
 	}
 	return false;
 }
