@@ -111,7 +111,7 @@ public class PatternInstanceofExpression extends Expression {
 	 * @since 3.34
 	 */
 	public static List propertyDescriptors(int apiLevel, boolean isPreview) {
-		if (apiLevel >= AST.JLS20_INTERNAL && isPreview) {
+		if (apiLevel >= AST.JLS21_INTERNAL && isPreview) {
 			return PROPERTY_DESCRIPTORS_20;
 		}
 		return PROPERTY_DESCRIPTORS_16;
@@ -219,7 +219,7 @@ public class PatternInstanceofExpression extends Expression {
 		if (visitChildren) {
 			// visit children in normal left to right reading order
 			acceptChild(visitor, getLeftOperand());
-			if (this.ast.apiLevel >= AST.JLS20_INTERNAL && this.ast.isPreviewEnabled()) {
+			if (this.ast.apiLevel >= AST.JLS21_INTERNAL && this.ast.isPreviewEnabled()) {
 				acceptChild(visitor, getPattern());
 			} else {
 				acceptChild(visitor, getRightOperand());

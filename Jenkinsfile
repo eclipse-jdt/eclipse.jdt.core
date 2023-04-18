@@ -30,9 +30,9 @@ pipeline {
 					# export MAVEN_OPTS="-Xmx2G"
 					
 					mvn -U clean verify --batch-mode --fail-at-end -Dmaven.repo.local=$WORKSPACE/.m2/repository \
-					-Pbuild-individual-bundles -Ptest-on-javase-20 -Pbree-libs -Papi-check \
+					-Pbuild-individual-bundles -Ptest-on-javase-21 -Pbree-libs -Papi-check \
 					-Djava.io.tmpdir=$WORKSPACE/tmp -Dproject.build.sourceEncoding=UTF-8 \
-					-Dtycho.surefire.argLine="--add-modules ALL-SYSTEM -Dcompliance=1.8,11,17,20 -Djdt.performance.asserts=disabled"
+					-Dtycho.surefire.argLine="--add-modules ALL-SYSTEM -Dcompliance=1.8,11,17,19,21 -Djdt.performance.asserts=disabled"
 					"""
 			}
 			post {

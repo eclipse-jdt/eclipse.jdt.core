@@ -32,13 +32,13 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 //		TESTS_NAMES = new String[] { "testIssueDefaultDominance"};
 	}
 
-	private static String previewLevel = "20";
+	private static String previewLevel = "21";
 
 	public static Class<?> testClass() {
 		return SwitchPatternTest.class;
 	}
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_20);
+		return buildMinimalComplianceTestSuite(testClass(), F_21);
 	}
 	public SwitchPatternTest(String testName){
 		super(testName);
@@ -47,9 +47,9 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions() {
 		Map<String, String> defaultOptions = super.getCompilerOptions();
-		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_20);
-		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_20);
-		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_20);
+		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_21);
+		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_21);
+		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_21);
 		defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		defaultOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);

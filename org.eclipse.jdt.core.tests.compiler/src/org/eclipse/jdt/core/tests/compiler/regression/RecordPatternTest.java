@@ -27,7 +27,7 @@ import junit.framework.Test;
 
 public class RecordPatternTest extends AbstractRegressionTest9 {
 
-	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("-source 20 --enable-preview -Xlint:-preview");
+	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("-source 21 --enable-preview -Xlint:-preview");
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
@@ -39,7 +39,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 		return RecordPatternTest.class;
 	}
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_20);
+		return buildMinimalComplianceTestSuite(testClass(), F_21);
 	}
 	public RecordPatternTest(String testName){
 		super(testName);
@@ -51,9 +51,9 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			if (this.complianceLevel >= ClassFileConstants.getLatestJDKLevel()) {
 				defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 			} else {
-				defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_20);
-				defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_20);
-				defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_20);
+				defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_21);
+				defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_21);
+				defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_21);
 			}
 		}
 		return defaultOptions;
@@ -87,7 +87,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	}
 	@Override
 	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions) {
-		if(!isJRE20Plus)
+		if(!isJRE21Plus)
 			return;
 		runConformTest(testFiles, expectedOutput, customOptions, new String[] {"--enable-preview"}, JAVAC_OPTIONS);
 	}
@@ -896,7 +896,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				+ "record Rectangle(ColoredPoint upperLeft, ColoredPoint lowerRight) {}\n"
 			},
 			this.extraLibPath,
-			JavaCore.VERSION_20,
+			JavaCore.VERSION_21,
 			true);
 		this.runConformTest(
 				new String[] {
