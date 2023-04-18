@@ -30,6 +30,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.eclipse.core.runtime.CoreException;
@@ -3334,19 +3335,7 @@ public final class CompletionEngine
 	}
 
 	private void findCompletionsForArgumentPosition(ObjectVector methodsFound, int completedArgumentLength, Scope scope) {
-		if(methodsFound.size == 0) {
-			return;
-		}
-
-		for(int i = 0; i < methodsFound.size; i++) {
-			MethodBinding method = (MethodBinding) ((Object[])methodsFound.elementAt(i))[0];
-			if(method.parameters.length <= completedArgumentLength) {
-				continue;
-			}
-
-			TypeBinding paramType = method.parameters[completedArgumentLength];
-			addExpectedType(paramType, scope);
-		}
+		pushExpectedTypesForArgumentPosition(methodsFound, completedArgumentLength, scope);
 		this.strictMatchForExtepectedType = true;
 		int filter = this.expectedTypesFilter;
 		this.expectedTypesFilter = SUBTYPE;
@@ -3362,6 +3351,30 @@ public final class CompletionEngine
 			this.tokenEnd = tEnd;
 			this.strictMatchForExtepectedType = false;
 			this.expectedTypesFilter = filter;
+		}
+	}
+
+	private void pushExpectedTypesForArgumentPosition(ObjectVector methodsToSearchOn, int completedArgumentLength,
+			Scope scope) {
+		if (methodsToSearchOn.size == 0) {
+			return;
+		}
+		for (int i = 0; i < methodsToSearchOn.size; i++) {
+			MethodBinding method = (MethodBinding) ((Object[]) methodsToSearchOn.elementAt(i))[0];
+			boolean onOrAfterLastParam = method.parameters.length <= completedArgumentLength;
+			if (onOrAfterLastParam && !method.isVarargs()) {
+				continue;
+			}
+
+			int index = onOrAfterLastParam
+					? method.parameters.length - 1
+					: completedArgumentLength;
+
+			TypeBinding paramType = method.parameters[index];
+			addExpectedType(paramType, scope);
+			if (method.isVarargs() && paramType.isArrayType() && index == (method.parameters.length - 1)) {
+				addExpectedType(((ArrayBinding) paramType).elementsType(), scope);
+			}
 		}
 	}
 
@@ -3983,13 +3996,10 @@ public final class CompletionEngine
 
 			checkCancel();
 
-			findVariablesAndMethods(
-				this.completionToken,
-				scope,
-				singleNameReference,
-				scope,
-				insideTypeAnnotation,
-				singleNameReference.isInsideAnnotationAttribute);
+			// see if we can find argument type at position in case if we are at a vararg.
+			checkForVarargExpectedTypes(astNodeParent, scope);
+			findVariablesAndMethods(this.completionToken, scope, singleNameReference, scope, insideTypeAnnotation,
+					singleNameReference.isInsideAnnotationAttribute, true, new ObjectVector());
 
 			checkCancel();
 
@@ -4011,6 +4021,31 @@ public final class CompletionEngine
 					findExplicitConstructors(Keywords.SUPER, ref.superclass(), (MethodScope)scope, singleNameReference);
 				}
 			}
+		}
+	}
+
+	private void checkForVarargExpectedTypes(ASTNode astNodeParent, Scope scope) {
+		if (astNodeParent instanceof MessageSend m && this.expectedTypesPtr == -1) {
+			final ObjectVector methodsToSearchOn = new ObjectVector();
+			final CompletionRequestor actual = this.requestor;
+			this.requestor = new CompletionRequestor(true) {
+
+				@Override
+				public void accept(CompletionProposal proposal) {
+					// do nothing
+				}
+			};
+			this.requestor.setIgnored(CompletionProposal.METHOD_REF, false);
+			try {
+				// this will help to find the actual resolved method we are at since current MessageSend is not
+				// properly resolved. We use the same strategy we have at completionOnMessageSend
+				findVariablesAndMethods(m.selector, scope, m, scope, false, false, true, methodsToSearchOn);
+			} finally {
+				this.requestor = actual;
+			}
+
+			pushExpectedTypesForArgumentPosition(methodsToSearchOn,
+					(int) Stream.of(m.argumentTypes).filter(Objects::nonNull).count(), scope);
 		}
 	}
 
