@@ -38,8 +38,9 @@ pipeline {
 			post {
 				always {
 					archiveArtifacts artifacts: '*.log,*/target/work/data/.metadata/*.log,*/tests/target/work/data/.metadata/*.log,apiAnalyzer-workspace/.metadata/*.log', allowEmptyArchive: true
-					publishIssues issues:[scanForIssues(tool: java()), scanForIssues(tool: mavenConsole())]
 					junit '**/target/surefire-reports/*.xml'
+					discoverGitReferenceBuild referenceJob: 'eclipse.jdt.core-github/master'
+					recordIssues publishAllIssues: true, tools: [java(), mavenConsole(), javaDoc()]
 				}
 			}
 		}

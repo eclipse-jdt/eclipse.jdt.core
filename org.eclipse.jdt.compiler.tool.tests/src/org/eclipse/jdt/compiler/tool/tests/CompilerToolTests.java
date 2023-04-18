@@ -1416,6 +1416,30 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 				);
 	}
 
+	/**
+	 * See: https://github.com/eclipse-jdt/eclipse.jdt.core/issues/954
+	 */
+	public void testModuleCannotBeResolvedErrorMessageGh955() throws Exception {
+		suppressTest(
+				"module-info.java",
+				"""
+				module testmodule {
+					requires aaa;
+				}
+				""",
+				"ERROR 2: aaa cannot be resolved to a module",
+				"""
+				----------
+				1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/module-info.java (at line 2)
+					requires aaa;
+					         ^^^
+				aaa cannot be resolved to a module
+				----------
+				1 problem (1 error)
+				"""
+				);
+	}
+
 	public void testSupportedCompilerVersions() throws IOException {
 		Set<SourceVersion> sourceVersions = compiler.getSourceVersions();
 		SourceVersion[] values = SourceVersion.values();
