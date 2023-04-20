@@ -14723,4 +14723,187 @@ public void testBug573279() throws Exception {
 			"wait[METHOD_REF]{wait(), Ljava.lang.Object;, (JI)V, null, null, wait, (millis, nanos), replace[289, 318], token[289, 292], "+relevance+"}",
 			requestor.getResults());
 }
+public void testGH969_completeOnFirstArgumentPosition_noToken() throws Exception {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy("/Completion/src/GH969.java", """
+			public class GH969 {
+				public static void main(String[] args) {
+					foo("1", new PersonDetails("1", GH969List.empty(), 0));
+				}
+				private static void foo(String name, PersonDetails per) {}
+
+				public static class PersonDetails {
+					public PersonDetails(String id, GH969List<String> address, int age){}
+				}
+			}
+			""");
+	this.workingCopies[1] = getWorkingCopy("/Completion/src/GH969List.java", """
+			public class GH969List<T> {
+				public static <T> GH969List<T> empty() {
+					return new GH969List<>();
+				}
+			}
+			""");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "foo(\"1\", new PersonDetails(";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	int relevance = R_DEFAULT + R_INTERESTING + R_RESOLVED + R_NON_RESTRICTED;
+	assertEquals(
+			"GH969.PersonDetails[ANONYMOUS_CLASS_DECLARATION]{, LGH969$PersonDetails;, (Ljava.lang.String;LGH969List<Ljava.lang.String;>;I)V, LGH969$PersonDetails;, LGH969$PersonDetails;.(Ljava/lang/String;LGH969List<Ljava/lang/String;>;I)V, null, (id, address, age), replace[118, 118], token[118, 118], "
+					+ relevance + "}\n"
+					+ "PersonDetails[METHOD_REF<CONSTRUCTOR>]{, LGH969$PersonDetails;, (Ljava.lang.String;LGH969List<Ljava.lang.String;>;I)V, null, null, PersonDetails, (id, address, age), replace[118, 118], token[74, 118], "
+					+ relevance + "}",
+			requestor.getResults());
+}
+public void testGH969_completeOnFirstArgumentPosition_WithToken() throws Exception {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy("/Completion/src/GH969.java", """
+			public class GH969 {
+				public static void main(String[] args) {
+					foo("1", new PersonDetails(first, GH969List.empty(), 0));
+				}
+				private static void foo(String name, PersonDetails per) {}
+				private static String firstName() { return ""; }
+				public static class PersonDetails {
+					public PersonDetails(String id, GH969List<String> address, int age){}
+				}
+			}
+			""");
+	this.workingCopies[1] = getWorkingCopy("/Completion/src/GH969List.java", """
+			public class GH969List<T> {
+				public static <T> GH969List<T> empty() {
+					return new GH969List<>();
+				}
+			}
+			""");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "PersonDetails(first";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	int relevance = R_DEFAULT + R_INTERESTING + R_RESOLVED + R_NON_RESTRICTED + R_CASE + R_UNQUALIFIED;
+	assertEquals(
+			"firstName[METHOD_REF]{firstName(), LGH969;, ()Ljava.lang.String;, null, null, firstName, null, replace[92, 97], token[92, 97], "
+					+ relevance + "}",
+			requestor.getResults());
+}
+public void testGH969_completeOnArgumentPosition_WithToken() throws Exception {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy("/Completion/src/GH969.java", """
+			public class GH969 {
+				public static void main(String[] args) {
+					foo("1", new PersonDetails("1", empty, 0));
+				}
+				private static void foo(String name, PersonDetails per) {}
+				private static <T> GH969List emptyList(){ retutn null; }
+				public static class PersonDetails {
+					public PersonDetails(String id, GH969List<String> address, int age){}
+				}
+			}
+			""");
+	this.workingCopies[1] = getWorkingCopy("/Completion/src/GH969List.java", """
+			public class GH969List<T> {
+				public static <T> GH969List<T> empty() {
+					return new GH969List<>();
+				}
+			}
+			""");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = ", empty";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	int relevance = R_DEFAULT + R_INTERESTING + R_RESOLVED + R_NON_RESTRICTED + R_CASE + R_UNQUALIFIED;
+	assertEquals(
+			"emptyList[METHOD_REF]{emptyList(), LGH969;, <T:Ljava.lang.Object;>()LGH969List;, null, null, emptyList, null, replace[97, 102], token[97, 102], "
+					+ relevance + "}",
+			requestor.getResults());
+}
+
+public void testGH969_completeOnArgumentPosition_onMethodWithReceiver() throws Exception {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy("/Completion/src/GH969.java", """
+			public class GH969 {
+				public static void main(String[] args) {
+					instance().foo(new PersonDetails(GH969.emptyList(), 0));
+				}
+				public static GH969 instance() {
+					return new GH969();
+				}
+				public void foo(PersonDetails per) {}
+				private static <T> GH969List<T> emptyList(){ return null; }
+				public static class PersonDetails {
+					public PersonDetails(GH969List<String> address, int age){}
+				}
+			}
+			""");
+	this.workingCopies[1] = getWorkingCopy("/Completion/src/GH969List.java", """
+			public class GH969List<T> {
+				public static <T> GH969List<T> empty() {
+					return new GH969List<>();
+				}
+			}
+			""");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "new PersonDetails(";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	int relevance = R_DEFAULT + R_INTERESTING + R_RESOLVED + R_NON_RESTRICTED;
+	assertEquals(
+			"GH969.PersonDetails[ANONYMOUS_CLASS_DECLARATION]{, LGH969$PersonDetails;, (LGH969List<Ljava.lang.String;>;I)V, LGH969$PersonDetails;, LGH969$PersonDetails;.(LGH969List<Ljava/lang/String;>;I)V, null, (address, age), replace[119, 119], token[119, 119], "
+					+ relevance + "}\n"
+					+ "PersonDetails[METHOD_REF<CONSTRUCTOR>]{, LGH969$PersonDetails;, (LGH969List<Ljava.lang.String;>;I)V, null, null, PersonDetails, (address, age), replace[119, 119], token[80, 119], "
+					+ relevance + "}",
+			requestor.getResults());
+}
+public void testGH969_completeOnArgumentPosition_onMethodInvocation() throws Exception {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy("/Completion/src/GH969.java", """
+			public class GH969 {
+				public static void main(String[] args) {
+					instance().foo(new PersonDetails(emptyList(), 0));
+				}
+				public static GH969 instance() {
+					return new GH969();
+				}
+				public void foo(PersonDetails per) {}
+				private static <T> GH969List<T> emptyList(){ return null; }
+				public static class PersonDetails {
+					public PersonDetails(GH969List<String> address, int age){}
+				}
+			}
+			""");
+	this.workingCopies[1] = getWorkingCopy("/Completion/src/GH969List.java", """
+			public class GH969List<T> {
+				public static <T> GH969List<T> empty() {
+					return new GH969List<>();
+				}
+			}
+			""");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, true, true, true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "new PersonDetails(";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	int relevance = R_DEFAULT + R_INTERESTING + R_RESOLVED + R_NON_RESTRICTED;
+	assertEquals(
+			"GH969.PersonDetails[ANONYMOUS_CLASS_DECLARATION]{, LGH969$PersonDetails;, (LGH969List<Ljava.lang.String;>;I)V, LGH969$PersonDetails;, LGH969$PersonDetails;.(LGH969List<Ljava/lang/String;>;I)V, null, (address, age), replace[113, 113], token[113, 113], "
+					+ relevance + "}\n"
+					+ "PersonDetails[METHOD_REF<CONSTRUCTOR>]{, LGH969$PersonDetails;, (LGH969List<Ljava.lang.String;>;I)V, null, null, PersonDetails, (address, age), replace[113, 113], token[80, 113], "
+					+ relevance + "}",
+			requestor.getResults());
+}
 }
