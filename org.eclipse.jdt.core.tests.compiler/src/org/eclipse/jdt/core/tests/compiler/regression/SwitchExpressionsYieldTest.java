@@ -6167,4 +6167,69 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"Syntax error, insert \";\" to complete BlockStatements\n" +
 			"----------\n");
 	}
+	/**
+	 * Test for the bug, a switch in a method followed by a lambda in another method,
+	 * followed by an incomplete method definition.
+	 * Instead of seeing only compile errors for the incomplete method definition,
+	 * compile errors are seen for the switch and the lambda too.
+	 * See: https://github.com/eclipse-jdt/eclipse.jdt.core/issues/193
+	 */
+	public void testSwitchAndLambdaGh193_compileErrors() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"\n"+
+					"       void a() {\n"+
+					"               switch (1) {\n"+
+					"                       case 1: {\n"+
+					"                           break;\n"+
+					"                       }\n"+
+					"               };\n"+
+					"       }\n"+
+					"       void b() {\n"+
+					"               Runnable r = () -> {\n"+
+					"               };\n"+
+					"       }\n"+
+					"       private fi\n"+
+					"}\n"
+				},
+				"----------\n"+
+				"1. ERROR in X.java (at line 14)\n"+
+				"	private fi\n"+
+				"	        ^^\n"+
+				"Syntax error, insert \"Identifier (\" to complete MethodHeaderName\n"+
+				"----------\n"+
+				"2. ERROR in X.java (at line 14)\n"+
+				"	private fi\n"+
+				"	        ^^\n"+
+				"Syntax error, insert \")\" to complete MethodDeclaration\n"+
+				"----------\n"+
+				"3. ERROR in X.java (at line 14)\n"+
+				"	private fi\n"+
+				"	        ^^\n"+
+				"Syntax error, insert \";\" to complete MethodDeclaration\n"+
+				"----------\n");
+	}
+	/**
+	 * Extra test for the bug fix, ensure a lambda inside an arrow switch case doesn't cause compile errors.
+	 * See: https://github.com/eclipse-jdt/eclipse.jdt.core/issues/193
+	 */
+	public void testSwitchAndLambdaGh193_nestedLambda() {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"	public static void main(String[] args) {\n"+
+					"		java.util.function.Supplier<Runnable> s = switch (1) {\n"+
+					"			case 1 -> () -> () -> System.out.println(\"1\");\n"+
+					"			case 2 -> () -> () -> System.out.println(\"2\");\n"+
+					"			default -> () -> () -> System.out.println(\"default\");\n"+
+					"		};\n"+
+					"		s.get().run();\n"+
+					"	}\n"+
+					"}"
+				},
+				"1");
+	}
 }
