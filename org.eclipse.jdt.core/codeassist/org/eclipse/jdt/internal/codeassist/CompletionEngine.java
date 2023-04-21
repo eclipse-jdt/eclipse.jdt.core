@@ -2041,6 +2041,10 @@ public final class CompletionEngine
 			completionOnExplicitConstructorCall(astNode, qualifiedBinding, scope);
 		} else if (astNode instanceof CompletionOnQualifiedAllocationExpression) {
 			completionOnQualifiedAllocationExpression(astNode, qualifiedBinding, scope);
+			// rebuild the context with newly found expected types so other completion computers can benefit from it.
+			if(this.expectedTypesPtr > -1) {
+				buildContext(astNode, astNodeParent, compilationUnitDeclaration, qualifiedBinding, scope);
+			}
 		} else if (astNode instanceof CompletionOnClassLiteralAccess) {
 			completionOnClassLiteralAccess(astNode, qualifiedBinding, scope);
 		} else if (astNode instanceof CompletionOnMethodName) {
@@ -3641,6 +3645,7 @@ public final class CompletionEngine
 		TypeBinding[] argTypes = computeTypes(allocExpression.arguments);
 
 		ReferenceBinding ref = (ReferenceBinding) qualifiedBinding;
+		ObjectVector constructorsFound = new ObjectVector();
 
 		if (ref.problemId() == ProblemReasons.NotFound) {
 			findConstructorsFromMissingType(
@@ -3661,7 +3666,8 @@ public final class CompletionEngine
 						null,
 						null,
 						null,
-						false);
+						false, 
+						constructorsFound);
 			}
 
 			checkCancel();
@@ -3680,6 +3686,7 @@ public final class CompletionEngine
 					false);
 			}
 		}
+		findCompletionsForArgumentPosition(constructorsFound, argTypes != null ? argTypes.length : 0, scope);
 	}
 
 	private void completionOnQualifiedNameReference(ASTNode astNode, ASTNode enclosingNode, Binding qualifiedBinding,
@@ -5940,6 +5947,13 @@ public final class CompletionEngine
 		}
 	}
 
+	void findConstructors(ReferenceBinding currentType, TypeBinding[] argTypes, Scope scope,
+			InvocationSite invocationSite, boolean forAnonymousType, Binding[] missingElements,
+			int[] missingElementsStarts, int[] missingElementsEnds, boolean missingElementsHaveProblems) {
+		findConstructors(currentType, argTypes, scope, invocationSite, forAnonymousType, missingElements,
+				missingElementsStarts, missingElementsEnds, missingElementsHaveProblems, new ObjectVector());
+	}
+
 	void findConstructors(
 		ReferenceBinding currentType,
 		TypeBinding[] argTypes,
@@ -5949,7 +5963,8 @@ public final class CompletionEngine
 		Binding[] missingElements,
 		int[] missingElementsStarts,
 		int[] missingElementsEnds,
-		boolean missingElementsHaveProblems) {
+		boolean missingElementsHaveProblems, 
+		ObjectVector foundConstructors) {
 
 		int relevance = computeBaseRelevance();
 		relevance += computeRelevanceForResolution();
@@ -5972,7 +5987,8 @@ public final class CompletionEngine
 				missingElementsHaveProblems,
 				true,
 				false,
-				relevance);
+				relevance, 
+				foundConstructors);
 	}
 
 
@@ -6029,6 +6045,15 @@ public final class CompletionEngine
 		missingTypesConverter.guess(typeRef, scope, substitutionRequestor);
 	}
 
+	private void findConstructors(ReferenceBinding currentType, TypeBinding[] argTypes, Scope scope,
+			InvocationSite invocationSite, boolean forAnonymousType, Binding[] missingElements,
+			int[] missingElementsStarts, int[] missingElementsEnds, boolean missingElementsHaveProblems,
+			boolean exactMatch, boolean isQualified, int relevance) {
+		findConstructors(currentType, argTypes, scope, invocationSite, forAnonymousType, missingElements,
+				missingElementsStarts, missingElementsEnds, missingElementsHaveProblems, exactMatch, isQualified,
+				relevance, new ObjectVector());
+	}
+
 	private void findConstructors(
 		ReferenceBinding currentType,
 		TypeBinding[] argTypes,
@@ -6041,7 +6066,8 @@ public final class CompletionEngine
 		boolean missingElementsHaveProblems,
 		boolean exactMatch,
 		boolean isQualified,
-		int relevance) {
+		int relevance, 
+		ObjectVector constructorsFound) {
 
 		// No visibility checks can be performed without the scope & invocationSite
 		MethodBinding[] methods = null;
@@ -6091,6 +6117,7 @@ public final class CompletionEngine
 								continue next;
 						}
 
+					constructorsFound.add(new Object[]{constructor, currentType});
 					char[][] parameterPackageNames = new char[paramLength][];
 					char[][] parameterTypeNames = new char[paramLength][];
 					for (int i = 0; i < paramLength; i++) {
