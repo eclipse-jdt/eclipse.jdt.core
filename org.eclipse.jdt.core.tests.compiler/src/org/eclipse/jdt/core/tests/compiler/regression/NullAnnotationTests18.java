@@ -130,6 +130,7 @@ public class NullAnnotationTests18 extends AbstractNullAnnotationTest {
 		runner.classLibraries = this.LIBS;
 		Map<String,String> opts = getCompilerOptions();
 		opts.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_20);
+		opts.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_20);
 		opts.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		opts.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		runner.customOptions = opts;
