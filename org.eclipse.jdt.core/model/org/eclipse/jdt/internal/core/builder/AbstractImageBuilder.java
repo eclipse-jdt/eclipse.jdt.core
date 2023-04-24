@@ -150,6 +150,7 @@ public void acceptResult(CompilationResult result) {
 		int length = classFiles.length;
 		ArrayList duplicateTypeNames = null;
 		ArrayList definedTypeNames = new ArrayList(length);
+		ArrayList<CompilationParticipantResult> postProcessingResults = new ArrayList<>();
 		for (int i = 0; i < length; i++) {
 			ClassFile classFile = classFiles[i];
 
@@ -190,6 +191,20 @@ public void acceptResult(CompilationResult result) {
 				if (result.checkSecondaryTypes && !qualifiedTypeName.equals(compilationUnit.initialTypeName))
 					acceptSecondaryType(classFile);
 			}
+			for (int j = 0, l = this.javaBuilder.participants == null ? 0 : this.javaBuilder.participants.length; j < l; j++) {
+				CompilationParticipant compilationParticipant = this.javaBuilder.participants[j];
+				if (!compilationParticipant.isPostProcessor()) {
+					continue;
+				}
+				CompilationParticipantResult buildContext = new CompilationParticipantResult(compilationUnit,
+						this.compilationGroup == CompilationGroup.TEST);
+				Optional<byte[]> postProcessingResult = compilationParticipant.postProcess(buildContext,
+						new ByteArrayInputStream(classFile.getBytes()));
+				postProcessingResults.add(buildContext);
+				if (postProcessingResult.isPresent()) {
+					classFile.internalSetBytes(postProcessingResult.get());
+				}
+			}
 			try {
 				definedTypeNames.add(writeClassFile(classFile, compilationUnit, !isNestedType));
 			} catch (CoreException e) {
@@ -205,6 +220,9 @@ public void acceptResult(CompilationResult result) {
 
 		this.compiler.lookupEnvironment.releaseClassFiles(classFiles);
 		finishedWith(typeLocator, result, compilationUnit.getMainTypeName(), definedTypeNames, duplicateTypeNames);
+		for (CompilationParticipantResult postProcessingResult : postProcessingResults) {
+			recordParticipantResult(postProcessingResult); // depends on new compiler state which was just recorded
+		}
 		this.notifier.compiled(compilationUnit);
 	}
 }
