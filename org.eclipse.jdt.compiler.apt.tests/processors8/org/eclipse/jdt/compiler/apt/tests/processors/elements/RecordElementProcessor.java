@@ -132,7 +132,8 @@ public class RecordElementProcessor extends BaseElementProcessor {
 			assertTrue("Preview flag not seen as enabled", preview);
 		}
 		SourceVersion sourceVersion = this.processingEnv.getSourceVersion();
-		assertEquals("Should support the latest compliance", sourceVersion, SourceVersion.RELEASE_6);
+		SourceVersion expected = SourceVersion.valueOf("RELEASE_" + Runtime.version().feature());
+		assertEquals("Should support the latest compliance", expected, sourceVersion);
 	}
 	/*
 	 * Basic test for record element and kind
