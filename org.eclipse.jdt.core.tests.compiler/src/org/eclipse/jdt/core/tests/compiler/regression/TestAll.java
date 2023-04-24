@@ -228,14 +228,11 @@ public static Test suite() {
 	 ArrayList since_18 = new ArrayList();
 	 since_18.add(JavadocTest_18.class);
 
-	 // add 19 specific test here (check duplicates)
-	 ArrayList since_19 = new ArrayList();
-	 since_19.add(NullAnnotationTests18.class);
-
-	 // add 19 specific test here (check duplicates)
+	 // add 20 specific test here (check duplicates)
 	 ArrayList since_20 = new ArrayList();
 	 since_20.add(SwitchPatternTest.class);
 	 since_20.add(RecordPatternTest.class);
+	 since_20.add(NullAnnotationTests18.class);
 
 	 // Build final test suite
 	TestSuite all = new TestSuite(TestAll.class.getName());
@@ -472,7 +469,6 @@ public static Test suite() {
 		tests_19.addAll(since_16);
 		tests_19.addAll(since_17);
 		tests_19.addAll(since_18);
-		tests_19.addAll(since_19);
 		TestCase.resetForgottenFilters(tests_19);
 		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_19), tests_19));
 	}
@@ -493,7 +489,6 @@ public static Test suite() {
 		tests_20.addAll(since_16);
 		tests_20.addAll(since_17);
 		tests_20.addAll(since_18);
-		tests_20.addAll(since_19);
 		tests_20.addAll(since_20);
 		TestCase.resetForgottenFilters(tests_20);
 		all.addTest(AbstractCompilerTest.buildComplianceTestSuite(ClassFileConstants.getComplianceLevelForJavaVersion(ClassFileConstants.MAJOR_VERSION_20), tests_20));
