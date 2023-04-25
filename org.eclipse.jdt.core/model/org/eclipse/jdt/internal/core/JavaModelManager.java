@@ -171,6 +171,9 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+// XXX important issue
+
+
 /**
  * The <code>JavaModelManager</code> manages instances of <code>IJavaModel</code>.
  * <code>IElementChangedListener</code>s register with the <code>JavaModelManager</code>,
