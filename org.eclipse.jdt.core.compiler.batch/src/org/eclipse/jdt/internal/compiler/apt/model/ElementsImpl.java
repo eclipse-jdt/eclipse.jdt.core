@@ -213,7 +213,7 @@ public class ElementsImpl implements Elements {
 	 * For fields, add them all; javac implementation does not take field hiding into account.
 	 * @param binding the type whose members will be added to the lists
 	 * @param directMembers if true, all members will be added regardless of whether they
-	 * are private, overridden, etc.
+	 * are private, overridden, static etc.
 	 * @param types a map of type simple name to type binding
 	 * @param fields a list of field bindings
 	 * @param methods a map of method simple name to set of method bindings with that name
