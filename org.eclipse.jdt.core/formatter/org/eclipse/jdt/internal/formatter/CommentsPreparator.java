@@ -807,7 +807,7 @@ public class CommentsPreparator extends ASTVisitor {
 				Matcher attrMatcher = HTML_ATTRIBUTE_PATTERN.matcher(attributesText);
 				final int commentStart = this.ctm.get(0).originalStart;
 				while (attrMatcher.find()) {
-					int equalPos = node.getStartPosition() + matcher.start(8) + attrMatcher.start(1);
+					int equalPos = node.getStartPosition() + matcher.start(9) + attrMatcher.start(1);
 					assert this.tm.charAt(equalPos) == '=';
 					this.allowSubstituteWrapping[equalPos - commentStart] = true;
 				}
