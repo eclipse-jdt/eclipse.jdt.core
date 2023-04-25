@@ -60,7 +60,7 @@ public class TypesImpl implements Types {
      * not create their own; they should ask the env for it.
      */
     public TypesImpl(BaseProcessingEnvImpl env) {
-        _env = env;
+        this._env = env;
     }
 
     /* (non-Javadoc)
