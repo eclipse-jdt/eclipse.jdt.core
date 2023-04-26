@@ -33,7 +33,7 @@ import org.eclipse.jdt.core.IJavaProject;
  * rather than a CompilationParticipant. It is only necessary to use a CompilationParticipant if
  * the build step needs to interact with the Java build, for instance by creating additional
  * Java source files that must themselves in turn be compiled.
- * <p>
+ * </p><p>
  * Clients wishing to participate in the compilation process must subclass this class, and implement
  * {@link #isActive(IJavaProject)}, {@link #aboutToBuild(IJavaProject)},
  * {@link #reconcile(ReconcileContext)}, etc.
@@ -118,6 +118,7 @@ public void cleanStarting(IJavaProject project) {
  *  <pre>
  * 	javaProject.getProject().isOpen();
  * </pre>
+ * </p>
  * @param project the project to participate in
  * @return whether this participant is active for a given project
  */
@@ -174,7 +175,7 @@ public boolean isPostProcessor() {
  * class is written out to disk. This allows to perform arbitrary byte code manipulation on the generated class.
  * <p>
  * Only sent to participants that answer true to {@link #isPostProcessor()}.
- * <p>
+ * </p>
  * <ul>
  * <li>If additional dependencies to other classes are introduced by the modified class, these dependencies have to be
  * recorded by calling {@link BuildContext#recordDependencies(String[])}.</li>
