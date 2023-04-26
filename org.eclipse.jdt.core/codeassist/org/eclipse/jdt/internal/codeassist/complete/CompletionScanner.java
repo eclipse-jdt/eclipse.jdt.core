@@ -378,6 +378,7 @@ protected int getNextToken0() throws InvalidInputException {
 									break;
 								}
 							}
+							// ignore
 							throw new InvalidInputException(INVALID_CHARACTER_CONSTANT);
 						}
 					}
