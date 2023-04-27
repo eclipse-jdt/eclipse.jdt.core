@@ -111,14 +111,13 @@ public void cleanStarting(IJavaProject project) {
  * </p><p>
  * For efficiency, participants that are not interested in the
  * given project should return <code>false</code> for that project.
- * </p><p>
+ * </p>
  * Note: In {@link org.eclipse.jdt.core.WorkingCopyOwner#newWorkingCopy(String, org.eclipse.jdt.core.IClasspathEntry[], org.eclipse.core.runtime.IProgressMonitor)
  * special cases}, the project may be closed and not exist. Participants typically return false when the
  * underlying project is closed. I.e. when the following check returns false:
  *  <pre>
  * 	javaProject.getProject().isOpen();
  * </pre>
- * </p>
  * @param project the project to participate in
  * @return whether this participant is active for a given project
  */
