@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinWorkerThread;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -137,7 +138,16 @@ public boolean execute(IProgressMonitor progressMonitor) {
 private boolean performParallelSearch(Index[] indexes, SubMonitor loopMonitor) {
 	boolean isComplete = true;
 	List<Future<IndexResult>> futures = new ArrayList<>(indexes.length);
-	ForkJoinPool commonPool = ForkJoinPool.commonPool();
+
+	// Never use a shared ForkJoinPool.commonPool() as it may be busy with other tasks, which might deadlock.
+	// Also use a custom ForkJoinWorkerThreadFactory, to prevent issues with a
+	// potential SecurityManager, since the threads created by it get no permissions.
+	// See related problem in eclipse-platform https://github.com/eclipse-platform/eclipse.platform/issues/294
+	ForkJoinPool commonPool = new ForkJoinPool(ForkJoinPool.getCommonPoolParallelism(),
+			pool -> new ForkJoinWorkerThread(pool) {
+				// anonymous subclass to access protected constructor
+			}, null, false);
+
 	ParallelSearchMonitor monitor = new ParallelSearchMonitor(loopMonitor);
 
 	try {
