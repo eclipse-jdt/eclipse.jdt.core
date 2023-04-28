@@ -380,4 +380,9 @@ public class IntersectionTypeBinding18 extends ReferenceBinding {
 			this.tagBits |= intersectingType.updateTagBits();
 		return super.updateTagBits();
 	}
+
+	@Override
+	public boolean isNonDenotable() {
+		return true;
+	}
 }
