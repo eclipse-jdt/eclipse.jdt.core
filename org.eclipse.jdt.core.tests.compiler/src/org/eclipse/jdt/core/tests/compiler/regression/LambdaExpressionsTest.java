@@ -7399,6 +7399,43 @@ public void testBug529197_003() {
 			"SUCCESS.run"
 			);
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/756
+public void testIssue756() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.reflect.GenericSignatureFormatError;\n" +
+				"import java.lang.reflect.Method;\n" +
+				"import java.util.function.Supplier;\n" +
+				"\n" +
+				"public class X<T> {\n" +
+				"    public X(T... elements) {\n" +
+				"    	System.out.println();\n" +
+				"    }\n" +
+				"\n" +
+				"    public static Supplier<? extends X<Object>> supplier() {\n" +
+				"        return X<Object>::new;\n" +
+				"    }\n" +
+				"\n" +
+				"    public static void main(String[] args) {\n" +
+				"		boolean OK = true;\n" +
+				"    	for (Method m : X.class.getDeclaredMethods()) {\n" +
+				"			try {\n" +
+				"				m.getGenericReturnType();\n" +
+				"			} catch (GenericSignatureFormatError e) {\n" +
+				"				System.out.println(\"Oops, bad signature in class file\");\n" +
+				"				OK = false;\n" +
+				"			}\n" +
+				"		}\n" +
+				"    	if (OK)\n" +
+				"    		System.out.println(\"All clear!\");\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"All clear!"
+			);
+}
+
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
