@@ -12259,6 +12259,7 @@ public final class CompletionEngine
 					expectedType = arrayBinding.leafComponentType();
 					dimensions = arrayBinding.dimensions();
 				}
+				final boolean isArrayCompletion = dimensions > 0;
 
 				if (expectedType instanceof ReferenceBinding) {
 					ReferenceBinding refBinding = (ReferenceBinding) expectedType;
@@ -12303,7 +12304,8 @@ public final class CompletionEngine
 
 					for (int j = 0; j < typesFound.size(); j++) {
 						ReferenceBinding typeFound = (ReferenceBinding)typesFound.elementAt(j);
-						if (TypeBinding.equalsEquals(typeFound, refBinding.erasure())) {
+						// only skip if not processing an array expected type.
+						if (TypeBinding.equalsEquals(typeFound, refBinding.erasure()) && !isArrayCompletion) {
 							continue next;
 						}
 					}
@@ -12313,7 +12315,7 @@ public final class CompletionEngine
 					boolean inSameUnit = this.unitScope.isDefinedInSameUnit(refBinding);
 
 					// top level types of the current unit are already proposed.
-					if(!inSameUnit || (inSameUnit && refBinding.isMemberType())) {
+					if(!inSameUnit || (inSameUnit && refBinding.isMemberType()) || (inSameUnit && isArrayCompletion)) {
 						char[] packageName = refBinding.qualifiedPackageName();
 						char[] typeName = refBinding.sourceName();
 						char[] completionName = typeName;
@@ -12345,7 +12347,7 @@ public final class CompletionEngine
 						relevance += computeRelevanceForCaseMatching(token, typeName);
 						// if an array, then we need to use the original expected type.
 						relevance += computeRelevanceForExpectingType(
-								dimensions > 0 ? originalExpectedType : refBinding);
+							isArrayCompletion ? originalExpectedType : refBinding);
 						relevance += computeRelevanceForQualification(isQualified);
 						relevance += computeRelevanceForRestrictions(accessibility);
 
@@ -12359,7 +12361,7 @@ public final class CompletionEngine
 						}
 
 						if (proposeType &&
-								(!this.assistNodeIsConstructor || dimensions > 0 ||
+								(!this.assistNodeIsConstructor || isArrayCompletion ||
 										!allowingLongComputationProposals ||
 										hasStaticMemberTypes(refBinding, scope.enclosingSourceType() ,this.unitScope)) ||
 										hasArrayTypeAsExpectedSuperTypes()) {
@@ -12396,9 +12398,7 @@ public final class CompletionEngine
 				} else if (expectedType instanceof BaseTypeBinding) {
 					BaseTypeBinding baseType = (BaseTypeBinding) expectedType;
 					// only go further if we are completing on an array.
-					if (dimensions > 0 && proposeType &&
-							(!this.assistNodeIsConstructor || !allowingLongComputationProposals)
-							&& baseType.isPrimitiveType()) {
+					if (isArrayCompletion && proposeType && baseType.isPrimitiveType()) {
 						this.noProposal = false;
 						if (!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
 							InternalCompletionProposal proposal = createProposal(CompletionProposal.TYPE_REF,

@@ -26522,4 +26522,28 @@ public void testGH504PrimitiveArrayTypeRecieverExpectArrayCompletion() throws Ja
 					+ "}",
 			requestor.getResults());
 }
+public void testGH1021OnSourceTypeArrayExpectArrayCompletion() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("Completion/src/ArrayTest.java", """
+			public class ArrayTest {
+			  public void test() {
+			 		ArrayTest[] arr = new\s
+			  }
+			}
+			""");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "new ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertResults(
+			"ArrayTest[TYPE_REF]{ArrayTest, , LArrayTest;, null, null, "
+					+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n"
+					+ "ArrayTest[TYPE_REF<ARRAY>]{ArrayTest, , LArrayTest;, null, null, " + (R_DEFAULT + R_RESOLVED
+							+ R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED)
+					+ "}",
+			requestor.getResults());
+}
 }
