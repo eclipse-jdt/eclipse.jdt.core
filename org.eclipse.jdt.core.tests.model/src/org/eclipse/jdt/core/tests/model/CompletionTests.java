@@ -26538,10 +26538,7 @@ public void testGH1021OnSourceTypeArrayExpectArrayCompletion() throws JavaModelE
 	String completeBehind = "new ";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-	assertResults(
-			"ArrayTest[TYPE_REF]{ArrayTest, , LArrayTest;, null, null, "
-					+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n"
-					+ "ArrayTest[TYPE_REF<ARRAY>]{ArrayTest, , LArrayTest;, null, null, " + (R_DEFAULT + R_RESOLVED
+	assertResults("ArrayTest[TYPE_REF<ARRAY>]{ArrayTest, , LArrayTest;, null, null, " + (R_DEFAULT + R_RESOLVED
 							+ R_INTERESTING + R_CASE + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED)
 					+ "}",
 			requestor.getResults());
