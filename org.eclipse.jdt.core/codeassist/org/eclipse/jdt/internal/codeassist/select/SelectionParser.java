@@ -157,7 +157,7 @@ protected void attachOrphanCompletionNode(){
 					int length = this.astLengthStack[this.astLengthPtr];
 					int newAstPtr = this.astPtr - length;
 					ASTNode firstNode = this.astStack[newAstPtr + 1];
-					if (length != 0 && firstNode.sourceStart > switchStatement.expression.sourceEnd) {
+					if (length != 0 && switchStatement.expression != null && firstNode.sourceStart > switchStatement.expression.sourceEnd) {
 						switchStatement.statements = new Statement[length + 1];
 						System.arraycopy(this.astStack, newAstPtr + 1, switchStatement.statements, 0, length);
 					}
