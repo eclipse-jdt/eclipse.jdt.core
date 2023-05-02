@@ -62,6 +62,7 @@ public class Scanner implements TerminalTokens {
 	//flag indicating if processed source contains occurrences of keyword assert
 	public boolean containsAssertKeyword = false;
 	public boolean previewEnabled;
+	protected int templateCount;
 
 	// 1.5 feature
 	public boolean useEnumAsAnIndentifier = false;
@@ -536,6 +537,27 @@ public char[] getCurrentTokenSourceString() {
 			0,
 			length);
 	}
+	return result;
+}
+public char[] getCurrentStringFragment(boolean end) {
+	//return the token REAL source (aka unicodes are precomputed).
+	//REMOVE the two " that are at the beginning and the end.
+
+	char[] result;
+//	if (this.withoutUnicodePtr != 0)
+//		//0 is used as a fast test flag so the real first char is in position 1
+//		System.arraycopy(this.withoutUnicodeBuffer, 2,
+//		//2 is 1 (real start) + 1 (to jump over the ")
+//		result = new char[this.withoutUnicodePtr - 2], 0, this.withoutUnicodePtr - 2);
+//	else {
+		int length  = this.currentPosition - this.startPosition - (end ? 1 : 0);
+		System.arraycopy(
+			this.source,
+			this.startPosition,
+			result = new char[length],
+			0,
+			length);
+//	}
 	return result;
 }
 protected final boolean scanForTextBlockBeginning() {
@@ -1450,6 +1472,10 @@ protected int getNextToken0() throws InvalidInputException {
 	int whiteStart = 0;
 	try {
 		while (true) { //loop for jumping over comments
+			if (this.templateCount > 0 && this.lookBack[1] == TokenNameRBRACE) {
+				this.templateCount--;
+				return scanForStringLiteral();
+			}
 			this.withoutUnicodePtr = 0;
 			//start with a new token (even comment written with unicode )
 
@@ -1560,6 +1586,21 @@ protected int getNextToken0() throws InvalidInputException {
 				case '{' :
 					return TokenNameLBRACE;
 				case '}' :
+//					if (this.templateCount > 0) {
+//						//this.templateCount--;
+//						this.currentCharacter = this.source[--this.currentPosition];
+//						this.startPosition = this.currentPosition;
+//						return TokenNameBeginStringTemplateLastArg;
+//					}
+//					if (this.lookBack[1] == TokenNameBeginStringTemplateLastArg) {
+//						this.templateCount++;
+//						this.startPosition = this.currentPosition;
+//						return scanForStringLiteral();
+//					}
+//					if (this.templateCount > 0) {
+//						this.templateCount--;
+						//return scanForStringLiteral();
+//					}
 					return TokenNameRBRACE;
 				case '[' :
 					return TokenNameLBRACKET;
@@ -1687,6 +1728,9 @@ protected int getNextToken0() throws InvalidInputException {
 				case '\'' :
 					return processSingleQuotes(checkIfUnicode);
 				case '"' :
+//					if (this.templateCount > 0) {
+//						//this.currentCharacter = this.source[--this.currentPosition];
+//					}
 					return scanForStringLiteral();
 				case '/' :
 					if (!this.skipComments) {
@@ -1894,6 +1938,10 @@ protected int getNextToken0() throws InvalidInputException {
 						return TokenNameEOF;
 					//the atEnd may not be <currentPosition == source.length> if source is only some part of a real (external) stream
 					throw new InvalidInputException("Ctrl-Z"); //$NON-NLS-1$
+				case '\\' :
+					if (getNextChar('{'))
+						return TokenNameBeginStringTemplate;
+					//$FALL-THROUGH$
 				default :
 					char c = this.currentCharacter;
 					if (c < ScannerHelper.MAX_OBVIOUS) {
@@ -2105,8 +2153,21 @@ protected int scanForStringLiteral() throws InvalidInputException {
 						this.withoutUnicodePtr --;
 						this.currentCharacter = this.source[this.currentPosition++];
 					}
-					// we need to compute the escape character in a separate buffer
-					scanEscapeCharacter();
+
+					if (this.currentCharacter == '{' && JavaFeature.STRING_TEMPLATES.isSupported(this.complianceLevel, this.previewEnabled)) {
+						this.templateCount++;
+						this.withoutUnicodePtr = 0;
+						this.currentPosition -= 2;
+						//if (this.source[this.startPosition] == '\"' || this.source[this.startPosition])
+						this.startPosition++; // Move past the double quote or }
+						//this.currentCharacter = this.source[this.currentPosition];
+						//this.templateCount--;
+						return TerminalTokens.TokenNameStringFragment;
+					} else {
+						// we need to compute the escape character in a separate buffer
+						scanEscapeCharacter();
+					}
+
 					if (this.withoutUnicodePtr != 0) {
 						unicodeStore();
 					}
@@ -2145,7 +2206,16 @@ protected int scanForStringLiteral() throws InvalidInputException {
 			}
 			throw e; // rethrow
 		}
-		return TokenNameStringLiteral;
+		if (this.lookBack[1] == TokenNameRBRACE) {
+			if (this.currentCharacter == '"') {
+				this.startPosition++; // move past the }
+				this.templateCount = 0;
+				return TerminalTokens.TokenNameStringTemplateEnd;
+			}
+			this.templateCount--;
+			return TerminalTokens.TokenNameStringFragment;
+		}
+		return TerminalTokens.TokenNameStringLiteral;
 	}
 }
 

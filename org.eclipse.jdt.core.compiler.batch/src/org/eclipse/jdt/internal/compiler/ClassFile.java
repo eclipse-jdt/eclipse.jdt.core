@@ -80,6 +80,7 @@ import org.eclipse.jdt.internal.compiler.ast.SingleMemberAnnotation;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.StringLiteral;
 import org.eclipse.jdt.internal.compiler.ast.SwitchStatement;
+import org.eclipse.jdt.internal.compiler.ast.TemplateExpression;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
@@ -203,6 +204,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 	public static final String CLASSDESC_OF = "ClassDesc.of"; //$NON-NLS-1$
 	public static final String[] BOOTSTRAP_METHODS = { ALTMETAFACTORY_STRING, METAFACTORY_STRING, BOOTSTRAP_STRING,
 			TYPESWITCH_STRING, ENUMSWITCH_STRING, CONCAT_CONSTANTS, INVOKE_STRING, ENUMDESC_OF, CLASSDESC, CLASSDESC_OF };
+	public static final String PROCESS_STRING = new String(ConstantPool.PROCESS);
 
 	/**
 	 * INTERNAL USE-ONLY
@@ -3673,6 +3675,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 				localContentsOffset = addBootStrapTypeCaseConstantEntry(localContentsOffset, (ResolvedCase) o, fPtr);
 			} else if (o instanceof TypeBinding) {
 				localContentsOffset = addClassDescBootstrap(localContentsOffset, (TypeBinding) o, fPtr);
+			} else if (o instanceof TemplateExpression) {
+				TemplateExpression template = (TemplateExpression) o;
+				localContentsOffset = addBootStrapTemplateRuntimeEntry(localContentsOffset, template, fPtr);
 			}
 		}
 
@@ -4070,6 +4075,46 @@ public class ClassFile implements TypeConstants, TypeIds {
 				this.constantPool.literalIndex(recipe);
 		this.contents[localContentsOffset++] = (byte) (intValIdx >> 8);
 		this.contents[localContentsOffset++] = (byte) intValIdx;
+
+		return localContentsOffset;
+	}
+	private int addBootStrapTemplateRuntimeEntry(int localContentsOffset, TemplateExpression expression, Map<String, Integer> fPtr) {
+		final int contentsEntries = 10;
+		int indexForProcess = fPtr.get(ClassFile.PROCESS_STRING);
+		if (contentsEntries + localContentsOffset >= this.contents.length) {
+			resizeContents(contentsEntries);
+		}
+		if (indexForProcess == 0) {
+			ReferenceBinding javaLangRuntimeSwitchBootstraps = this.referenceBinding.scope.getJavaLangRuntimeTemplateRuntimeBootstraps();
+			indexForProcess = this.constantPool.literalIndexForMethodHandle(ClassFileConstants.MethodHandleRefKindInvokeStatic, javaLangRuntimeSwitchBootstraps,
+					ConstantPool.PROCESS, ConstantPool.JAVA_LANG_RUNTIME_STRING_TEMPLATE_SIGNATURE, false);
+			fPtr.put(ClassFile.PROCESS_STRING, indexForProcess);
+		}
+		this.contents[localContentsOffset++] = (byte) (indexForProcess >> 8);
+		this.contents[localContentsOffset++] = (byte) indexForProcess;
+
+		// u2 num_bootstrap_arguments
+		int numArgsLocation = localContentsOffset;
+//		CaseStatement.ResolvedCase[] constants = template.otherConstants;
+//		StringTemplate template = expression.template;
+//		int numArgs = constants.length;
+//		this.contents[numArgsLocation++] = (byte) (numArgs >> 8);
+//		this.contents[numArgsLocation] = (byte) numArgs;
+//		localContentsOffset += 2;
+//
+//		for (CaseStatement.ResolvedCase c : constants) {
+//			if (c.isPattern()) {
+//				char[] typeName = switchStatement.expression.resolvedType.constantPoolName();
+//				int typeIndex = this.constantPool.literalIndexForType(typeName);
+//				this.contents[localContentsOffset++] = (byte) (typeIndex >> 8);
+//				this.contents[localContentsOffset++] = (byte) typeIndex;
+//			} else {
+//				int intValIdx =
+//						this.constantPool.literalIndex(c.e.toString());
+//				this.contents[localContentsOffset++] = (byte) (intValIdx >> 8);
+//				this.contents[localContentsOffset++] = (byte) intValIdx;
+//			}
+//		}
 
 		return localContentsOffset;
 	}
@@ -6399,6 +6444,13 @@ public class ClassFile implements TypeConstants, TypeIds {
 			this.bootstrapMethods = new ArrayList<>();
 		}
 		this.bootstrapMethods.add(expression);
+		return this.bootstrapMethods.size() - 1;
+	}
+	public int recordBootstrapMethod(TemplateExpression template) {
+		if (this.bootstrapMethods == null) {
+			this.bootstrapMethods = new ArrayList<>();
+		}
+		this.bootstrapMethods.add(template);
 		return this.bootstrapMethods.size() - 1;
 	}
 	public void reset(/*@Nullable*/SourceTypeBinding typeBinding, CompilerOptions options) {

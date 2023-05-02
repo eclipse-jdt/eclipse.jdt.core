@@ -73,6 +73,7 @@ public interface TypeConstants {
 	char[] CharArray_JAVA_IO_OBJECTINPUTSTREAM = "java.io.ObjectInputStream".toCharArray(); //$NON-NLS-1$
 	char[] CharArray_JAVA_IO_OBJECTOUTPUTSTREAM = "java.io.ObjectOutputStream".toCharArray(); //$NON-NLS-1$
 	char[] CharArray_JAVA_IO_OBJECTSTREAMFIELD = "java.io.ObjectStreamField".toCharArray(); //$NON-NLS-1$
+	char[] CharArray_JAVA_LANG_PROCESSOR = "java.lang.StringTemplate$Processor".toCharArray(); //$NON-NLS-1$
 	char[] ANONYM_PREFIX = "new ".toCharArray(); //$NON-NLS-1$
 	char[] ANONYM_SUFFIX = "(){}".toCharArray(); //$NON-NLS-1$
     char[] WILDCARD_NAME = { '?' };
@@ -177,6 +178,7 @@ public interface TypeConstants {
 	char[][] JAVA_LANG_STRING = {JAVA, LANG, "String".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_STRINGBUFFER = {JAVA, LANG, "StringBuffer".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_STRINGBUILDER = {JAVA, LANG, "StringBuilder".toCharArray()}; //$NON-NLS-1$
+	char[][] JAVA_LANG_STRINGTEMPLATE = {JAVA, LANG, "StringTemplate".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_SYSTEM = {JAVA, LANG, "System".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_RUNTIMEEXCEPTION = {JAVA, LANG, "RuntimeException".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_THROWABLE = {JAVA, LANG, "Throwable".toCharArray()}; //$NON-NLS-1$
@@ -259,7 +261,7 @@ public interface TypeConstants {
 	char[][] JAVA_LANG_INVOKE_CONSTANTBOOTSTRAP = {JAVA, LANG, INVOKE, "ConstantBootstraps".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_ENUM_ENUMDESC = {JAVA, LANG, "Enum$EnumDesc".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_CONSTANT_CLASSDESC = {JAVA, LANG, "constant".toCharArray(), "ClassDesc".toCharArray()}; //$NON-NLS-1$ //$NON-NLS-2$
-
+	char[][] JAVA_LANG_RUNTIME_TEMPLATERUNTIME = {JAVA, LANG, RUNTIME, "TemplateRuntime".toCharArray()}; //$NON-NLS-1$
 	// known helper functions for closing a Closeable (all receive a Closeable as their first argument):
 	public static class CloseMethodRecord {
 		public char[][] typeName;

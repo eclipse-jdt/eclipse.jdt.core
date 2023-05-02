@@ -26,14 +26,12 @@ public class StringLiteral extends Literal {
 	int lineNumber;
 
 	public StringLiteral(char[] token, int start, int end, int lineNumber) {
-
 		this(start,end);
 		this.source = token;
 		this.lineNumber = lineNumber - 1; // line number is 1 based
 	}
 
 	public StringLiteral(int s, int e) {
-
 		super(s,e);
 	}
 

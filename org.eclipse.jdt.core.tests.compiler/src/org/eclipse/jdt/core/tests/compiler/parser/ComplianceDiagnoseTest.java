@@ -183,7 +183,6 @@ public void test0002() {
 		expected15ProblemLog
 	);
 }
-// TODO: Fix this and Enable
 public void test0003() {
 	String[] testFiles = new String[] {
 		"X.java",

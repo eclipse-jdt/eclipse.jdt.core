@@ -122,6 +122,9 @@ $Terminals
 	BeginCaseElement
 	RestrictedIdentifierWhen
 	BeginRecordPattern
+	BeginStringTemplate
+	StringTemplateEnd
+	StringFragment
 
 --    BodyMarker
 
@@ -179,7 +182,7 @@ $Alias
 	'...'  ::= ELLIPSIS
 	'@308' ::= AT308
 	'@308...' ::= AT308DOTDOTDOT
-	
+	'\{'   ::= BeginStringTemplate
 $Start
 	Goal
 
@@ -835,6 +838,7 @@ VariableDeclaratorId ::= 'Identifier' Dimsopt
 
 VariableInitializer -> Expression
 VariableInitializer -> ArrayInitializer
+VariableInitializer -> StringTemplateExpression
 /:$readableName VariableInitializer:/
 /:$recovery_template Identifier:/
 
@@ -1291,6 +1295,45 @@ PatternList ::= PatternList ',' Pattern
 
 -----------------------------------------------
 -- 20 preview feature : end of record patterns
+-----------------------------------------------
+
+-----------------------------------------------
+-- 21 preview feature : String templates
+-----------------------------------------------
+
+TemplateArgument -> StringLiteral
+TemplateArgument -> TextBlock
+TemplateArgument -> StringTemplate
+
+StringTemplateExpression ::= Name '.' TemplateArgument
+/.$putCase consumeTemplateExpression(); $break ./
+/:$readableName TemplateExpression:/
+/:$compliance 21:/
+
+StringTemplateBegin ::= StringFragment '\{'
+StringTemplateMid ::= '}' StringFragment '\{' EmbeddedExpression
+
+EmbeddedExpression ::= Expression
+/.$putCase consumeEmbeddedExpression(); $break ./
+/:$readableName TemplateExpression:/
+/:$compliance 21:/
+
+StringTemplateMidListOpt ::=  $empty
+/:$compliance 21:/
+
+StringTemplateMidListOpt ->  StringTemplateMidList
+/:$compliance 21:/
+
+StringTemplateMidList -> StringTemplateMid
+StringTemplateMidList ::= StringTemplateMidList StringTemplateMid
+/:$compliance 21:/
+
+StringTemplate ::= StringTemplateBegin EmbeddedExpression StringTemplateMidListOpt StringTemplateEnd
+/.$putCase consumeStringTemplate(); $break ./
+/:$compliance 21:/
+
+-----------------------------------------------
+-- 21 preview feature : end of String templates
 -----------------------------------------------
 
 ConstantDeclaration -> FieldDeclaration
