@@ -382,7 +382,7 @@ public class IntersectionTypeBinding18 extends ReferenceBinding {
 	}
 
 	@Override
-	public boolean isNonDenotable() {
-		return true;
+	public char[] genericTypeSignature(boolean approximateToDenotable) {
+    	return approximateToDenotable ? erasure().genericTypeSignature() : genericTypeSignature();
 	}
 }
