@@ -818,17 +818,6 @@ protected void consumeInsideCastExpressionWithQualifiedGenerics() {
 	pushOnElementStack(K_CAST_STATEMENT);
 }
 @Override
-protected void consumeInstanceOfExpression() {
-	if (indexOfAssistIdentifier() < 0) {
-		super.consumeInstanceOfExpression();
-	} else {
-		getTypeReference(this.intStack[this.intPtr--]);
-		this.isOrphanCompletionNode = true;
-		this.restartRecovery = true;
-		this.lastIgnoredToken = -1;
-	}
-}
-@Override
 protected Expression consumePatternInsideInstanceof(Pattern pattern) {
 	if(pattern instanceof RecordPattern) {
 		pushLocalVariableFromRecordPatternOnAstStack((RecordPattern)pattern);
