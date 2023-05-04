@@ -185,6 +185,8 @@ private boolean performParallelSearch(Index[] indexes, SubMonitor loopMonitor) {
 	} catch (Exception e) {
 		monitor.setCanceled(true);
 		throw e;
+	} finally {
+		commonPool.shutdown();
 	}
 	return isComplete;
 }
