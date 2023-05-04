@@ -58,7 +58,6 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
-import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.flow.FieldInitsFakingFlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
@@ -123,7 +122,6 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 	private MethodBinding[] potentialMethods = Binding.NO_METHODS;
 	protected ReferenceExpression original;
 	private HashMap<TypeBinding, ReferenceExpression> copiesPerTargetType;
-	public char[] text; // source representation of the expression.
 	private HashMap<ParameterizedGenericMethodBinding, InferenceContext18> inferenceContexts;
 
 	// the scanner used when creating this expression, may be a RecoveryScanner (with proper RecoveryScannerData),
@@ -145,16 +143,20 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 		this.sourceEnd = sourceEndPosition;
 	}
 
+	/** 
+	 * @return a virgin copy of `this' by reparsing the stashed textual form.
+	 */
 	private ReferenceExpression copy() {
 		final Parser parser = new Parser(this.enclosingScope.problemReporter(), false);
-		final ICompilationUnit compilationUnit = this.compilationResult.getCompilationUnit();
-		final char[] source = compilationUnit != null ? compilationUnit.getContents() : this.text;
+		char [] source = new char [this.sourceEnd+1];
+		System.arraycopy(this.text, 0, source, this.sourceStart, this.sourceEnd - this.sourceStart + 1);
 		parser.scanner = this.scanner;
-		ReferenceExpression copy =  (ReferenceExpression) parser.parseExpression(source, compilationUnit != null ? this.sourceStart : 0, this.sourceEnd - this.sourceStart + 1,
+		ReferenceExpression copy =  (ReferenceExpression) parser.parseExpression(source, this.sourceStart, this.sourceEnd - this.sourceStart + 1,
 										this.enclosingScope.referenceCompilationUnit(), false /* record line separators */);
 		copy.original = this;
 		copy.sourceStart = this.sourceStart;
 		copy.sourceEnd = this.sourceEnd;
+		copy.text = this.text;
 		return copy;
 	}
 
