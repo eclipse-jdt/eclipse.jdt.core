@@ -5562,21 +5562,6 @@ public final class CompletionEngine
 			int[] missingElementsStarts,
 			int[] missingElementsEnds,
 			boolean missingElementsHaveProblems) {
-		createTypeProposal(refBinding, typeName, accessibility, completionName, relevance, missingElements,
-				missingElementsStarts, missingElementsEnds, missingElementsHaveProblems, new ObjectVector());
-	}
-
-	private void createTypeProposal(
-			ReferenceBinding refBinding,
-			char[] typeName,
-			int accessibility,
-			char[] completionName,
-			int relevance,
-			Binding[] missingElements,
-			int[] missingElementsStarts,
-			int[] missingElementsEnds,
-			boolean missingElementsHaveProblems,
-			ObjectVector proposalsCreated) {
 
 		// Create standard type proposal
 		if(!this.isIgnored(CompletionProposal.TYPE_REF, missingElements != null) && (this.assistNodeInJavadoc & CompletionOnJavadoc.ONLY_INLINE_TAG) == 0) {
@@ -5608,7 +5593,6 @@ public final class CompletionEngine
 			if(DEBUG) {
 				this.printDebug(proposal);
 			}
-			proposalsCreated.add(proposal);
 		}
 
 		// Create javadoc text proposal if necessary
@@ -5631,7 +5615,6 @@ public final class CompletionEngine
 			if(DEBUG) {
 				this.printDebug(proposal);
 			}
-			proposalsCreated.add(proposal);
 		}
 	}
 	private void createTypeVariable(TypeVariableBinding typeVariable, Scope scope, StringBuffer completion) {
@@ -11681,6 +11664,15 @@ public final class CompletionEngine
 					!isIgnored(CompletionProposal.ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION, CompletionProposal.TYPE_REF));
 
 
+		boolean isEmptyPrefix = token.length == 0;
+
+		checkCancel();
+		if (proposeConstructor) {
+			findTypesFromExpectedTypes(token, scope, typesFound, proposeType, true);
+		} else if(isEmptyPrefix && !this.assistNodeIsAnnotation) {
+			findTypesFromExpectedTypes(token, scope, typesFound, proposeType, false);
+		}
+
 		if ((proposeType || proposeConstructor) && scope.enclosingSourceType() != null) {
 
 			checkCancel();
@@ -11698,9 +11690,6 @@ public final class CompletionEngine
 			}
 		}
 
-		boolean isEmptyPrefix = token.length == 0;
-
-		ObjectVector proposalsFound = new ObjectVector();
 		if ((proposeType || proposeConstructor) && this.unitScope != null) {
 
 			ReferenceBinding outerInvocationType = scope.enclosingSourceType();
@@ -11809,7 +11798,7 @@ public final class CompletionEngine
 								null,
 								null,
 								null,
-								false, proposalsFound);
+								false);
 				}
 
 				if (proposeConstructor) {
@@ -11823,29 +11812,16 @@ public final class CompletionEngine
 			}
 		}
 
+		checkCancel();
 		if (proposeConstructor && !isEmptyPrefix) {
-
-			checkCancel();
-
 			findTypesFromImports(token, scope, proposeType, typesFound);
 		} else if(proposeType) {
-
-			checkCancel();
-
 			findTypesFromStaticImports(token, scope, proposeAllMemberTypes, typesFound);
 		}
 
-		if (proposeConstructor) {
-
-			checkCancel();
-
-			findTypesFromExpectedTypes(token, scope, typesFound, proposeType, proposeConstructor, proposalsFound);
-		}
-
+		checkCancel();
 		if (isEmptyPrefix && !this.assistNodeIsAnnotation) {
-			if (!proposeConstructor) {
-				findTypesFromExpectedTypes(token, scope, typesFound, proposeType, proposeConstructor, proposalsFound);
-			} else {
+			if (proposeConstructor) {
 				findConstructorsFromSubTypes(scope, typesFound);
 			}
 		} else {
@@ -12259,7 +12235,7 @@ public final class CompletionEngine
 		}
 	}
 
-	private void findTypesFromExpectedTypes(char[] token, Scope scope, ObjectVector typesFound, boolean proposeType, boolean proposeConstructor, ObjectVector proposalsFound) {
+	private void findTypesFromExpectedTypes(char[] token, Scope scope, ObjectVector typesFound, boolean proposeType, boolean proposeConstructor) {
 		if(this.expectedTypesPtr > -1) {
 			boolean allowingLongComputationProposals = isAllowingLongComputationProposals();
 
@@ -12322,18 +12298,17 @@ public final class CompletionEngine
 
 					for (int j = 0; j < typesFound.size(); j++) {
 						ReferenceBinding typeFound = (ReferenceBinding)typesFound.elementAt(j);
-						// only skip if not processing an array expected type.
-						if (TypeBinding.equalsEquals(typeFound, refBinding.erasure()) && !isArrayCompletion) {
+						if (TypeBinding.equalsEquals(typeFound, refBinding.erasure())) {
 							continue next;
 						}
 					}
 
-					typesFound.add(refBinding);
-
 					boolean inSameUnit = this.unitScope.isDefinedInSameUnit(refBinding);
 
-					// top level types of the current unit are already proposed.
+					// top level types of the current unit will be proposed by the caller unless expected type is an array.
 					if(!inSameUnit || (inSameUnit && refBinding.isMemberType()) || (inSameUnit && isArrayCompletion)) {
+						typesFound.add(refBinding);
+
 						char[] packageName = refBinding.qualifiedPackageName();
 						char[] typeName = refBinding.sourceName();
 						char[] completionName = typeName;
@@ -12385,41 +12360,21 @@ public final class CompletionEngine
 										hasArrayTypeAsExpectedSuperTypes()) {
 							this.noProposal = false;
 							if(!this.requestor.isIgnored(CompletionProposal.TYPE_REF)) {
-								char[] signature = getSignature(refBinding);
-								boolean found = false;
-								// check if we already found this completion before. if we have found then change it's
-								// dimension and relevance to match against expected type.
-								for (int j = 0; j < proposalsFound.size(); j++) {
-									InternalCompletionProposal proposal = (InternalCompletionProposal) proposalsFound
-											.elementAt(j);
-									if (proposal.getKind() == CompletionProposal.TYPE_REF
-											&& CharOperation.equals(proposal.getPackageName(), packageName)
-											&& CharOperation.equals(proposal.getSignature(), signature)
-											&& CharOperation.equals(proposal.getTypeName(), typeName)
-											&& CharOperation.equals(proposal.getCompletion(), completionName)) {
-										proposal.setArrayDimensions(dimensions);
-										proposal.setRelevance(relevance);
-										found = true;
-										break;
-									}
-								}
-								if (!found) {
-									InternalCompletionProposal proposal =  createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
-									proposal.setDeclarationSignature(packageName);
-									proposal.setSignature(signature);
-									proposal.setPackageName(packageName);
-									proposal.setTypeName(typeName);
-									proposal.setCompletion(completionName);
-									proposal.setFlags(refBinding.modifiers);
-									proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
-									proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
-									proposal.setRelevance(relevance);
-									proposal.setAccessibility(accessibility);
-									proposal.setArrayDimensions(dimensions);
-									this.requestor.accept(proposal);
-									if(DEBUG) {
-										this.printDebug(proposal);
-									}
+								InternalCompletionProposal proposal =  createProposal(CompletionProposal.TYPE_REF, this.actualCompletionPosition);
+								proposal.setDeclarationSignature(packageName);
+								proposal.setSignature(getSignature(refBinding));
+								proposal.setPackageName(packageName);
+								proposal.setTypeName(typeName);
+								proposal.setCompletion(completionName);
+								proposal.setFlags(refBinding.modifiers);
+								proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
+								proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
+								proposal.setRelevance(relevance);
+								proposal.setAccessibility(accessibility);
+								proposal.setArrayDimensions(dimensions);
+								this.requestor.accept(proposal);
+								if(DEBUG) {
+									this.printDebug(proposal);
 								}
 							}
 						}
