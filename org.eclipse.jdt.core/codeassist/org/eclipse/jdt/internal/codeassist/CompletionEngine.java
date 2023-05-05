@@ -11812,14 +11812,18 @@ public final class CompletionEngine
 			}
 		}
 
-		checkCancel();
 		if (proposeConstructor && !isEmptyPrefix) {
+
+			checkCancel();
+
 			findTypesFromImports(token, scope, proposeType, typesFound);
 		} else if(proposeType) {
+
+			checkCancel();
+
 			findTypesFromStaticImports(token, scope, proposeAllMemberTypes, typesFound);
 		}
 
-		checkCancel();
 		if (isEmptyPrefix && !this.assistNodeIsAnnotation) {
 			if (proposeConstructor) {
 				findConstructorsFromSubTypes(scope, typesFound);
