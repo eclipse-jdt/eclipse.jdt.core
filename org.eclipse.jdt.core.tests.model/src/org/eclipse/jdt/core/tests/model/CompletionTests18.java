@@ -6955,4 +6955,31 @@ public void testGH979_on1stConstructorArgument_expectCompletionsMatchinType() th
 					+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			result);
 }
+
+public void testGH979_onAnonClassConstructorWith_expectOnlyAnonClassCompletion() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/Completion/src/GH979.java", """
+		import java.io.Serializable;
+		public class GH979 {
+				public GH979() {}
+
+				public void foo() {
+					Serializable run= new Serializable() {
+					};
+				}
+			}
+			""");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "Serializable run= new Serializable(";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+	String result = requestor.getResults();
+	assertResults("Serializable[ANONYMOUS_CLASS_DECLARATION]{, Ljava.io.Serializable;, ()V, null, null, "
+			+ (R_DEFAULT + R_INTERESTING + R_RESOLVED + R_NON_RESTRICTED) + "}", result);
+}
 }
