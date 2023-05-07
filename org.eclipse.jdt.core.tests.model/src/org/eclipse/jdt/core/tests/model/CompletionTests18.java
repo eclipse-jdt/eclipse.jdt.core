@@ -6955,4 +6955,39 @@ public void testGH979_on1stConstructorArgument_expectCompletionsMatchinType() th
 					+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			result);
 }
+
+public void testGH979_onAnonClassConstructorWith_expectOnlyAnonClassCompletion() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[1] = getWorkingCopy("/Completion/src/Serial.java", """
+			public interface Serial {
+
+			}
+			""");
+	this.workingCopies[0] = getWorkingCopy("/Completion/src/GH979.java", """
+		public class GH979 {
+				public GH979() {}
+
+				public void foo() {
+					Serial run= new Serial() {
+					};
+				}
+
+				public Serial toString1() {
+					return null;
+				}
+			}
+			""");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "Serial run= new Serial(";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+	String result = requestor.getResults();
+	assertResults("Serial[ANONYMOUS_CLASS_DECLARATION]{, LSerial;, ()V, null, null, "
+			+ (R_DEFAULT + R_INTERESTING + R_RESOLVED + R_NON_RESTRICTED) + "}", result);
+}
 }
