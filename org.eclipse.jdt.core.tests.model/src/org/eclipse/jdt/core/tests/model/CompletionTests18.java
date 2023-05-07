@@ -6957,15 +6957,23 @@ public void testGH979_on1stConstructorArgument_expectCompletionsMatchinType() th
 }
 
 public void testGH979_onAnonClassConstructorWith_expectOnlyAnonClassCompletion() throws JavaModelException {
-	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[1] = getWorkingCopy("/Completion/src/Serial.java", """
+			public interface Serial {
+
+			}
+			""");
 	this.workingCopies[0] = getWorkingCopy("/Completion/src/GH979.java", """
-		import java.io.Serializable;
 		public class GH979 {
 				public GH979() {}
 
 				public void foo() {
-					Serializable run= new Serializable() {
+					Serial run= new Serial() {
 					};
+				}
+
+				public Serial toString1() {
+					return null;
 				}
 			}
 			""");
@@ -6974,12 +6982,12 @@ public void testGH979_onAnonClassConstructorWith_expectOnlyAnonClassCompletion()
 	requestor.allowAllRequiredProposals();
 
 	String str = this.workingCopies[0].getSource();
-	String completeBehind = "Serializable run= new Serializable(";
+	String completeBehind = "Serial run= new Serial(";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
 
 	String result = requestor.getResults();
-	assertResults("Serializable[ANONYMOUS_CLASS_DECLARATION]{, Ljava.io.Serializable;, ()V, null, null, "
+	assertResults("Serial[ANONYMOUS_CLASS_DECLARATION]{, LSerial;, ()V, null, null, "
 			+ (R_DEFAULT + R_INTERESTING + R_RESOLVED + R_NON_RESTRICTED) + "}", result);
 }
 }
