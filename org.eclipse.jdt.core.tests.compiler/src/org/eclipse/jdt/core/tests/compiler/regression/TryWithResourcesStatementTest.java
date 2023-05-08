@@ -4320,6 +4320,46 @@ public void testBug467230() {
 			"	at Test.main(Test.java:14)\n",
 			null);
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/934
+public void testGHIssue934() {
+	this.runConformTest(
+			true,
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	static class Y implements AutoCloseable {\n" +
+				"		RuntimeException e;\n" +
+				"\n" +
+				"		public Y(RuntimeException e) {\n" +
+				"			this.e = e;\n" +
+				"		}\n" +
+				"\n" +
+				"		@Override\n" +
+				"		public void close() {\n" +
+				"			throw e;\n" +
+				"		}\n" +
+				"	}\n" +
+				"    public static void main(String[] args) {\n" +
+				"        RuntimeException e = new RuntimeException(\"My Exception\");\n" +
+				"        try {\n" +
+				"            try (Y A = new Y(e)) {\n" +
+				"                throw e;\n" +
+				"            }\n" +
+				"        } catch (IllegalArgumentException iae) {\n" +
+				"            if (iae.getCause() == e) \n" +
+				"                System.out.println(\"OK!\");\n" +
+				"        }\n" +
+				"    }\n" +
+				"}\n"
+
+			},
+			null,
+			null,
+			null,
+			"OK!",
+			"",
+			null);
+}
 public static Class testClass() {
 	return TryWithResourcesStatementTest.class;
 }
