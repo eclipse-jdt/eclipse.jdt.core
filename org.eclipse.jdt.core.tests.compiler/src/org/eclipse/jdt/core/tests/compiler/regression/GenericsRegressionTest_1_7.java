@@ -2051,12 +2051,22 @@ public void test0052() {
 			"	                         ^\n" +
 			"Redundant specification of type arguments <AX<String>>\n" +
 			"----------\n" +
-			"5. ERROR in X.java (at line 10)\n" +
+			"5. ERROR in X.java (at line 9)\n" +
+			"	X<? extends AX> x5 = new X<AX<String>>(new AX<String>());\n" +
+			"	                                           ^^\n" +
+			"Redundant specification of type arguments <String>\n" +
+			"----------\n" +
+			"6. ERROR in X.java (at line 10)\n" +
 			"	X<?> x6 = new X<AX<String>>(new AX<String>());\n" +
 			"	              ^\n" +
 			"Redundant specification of type arguments <AX<String>>\n" +
 			"----------\n" +
-			"6. ERROR in X.java (at line 11)\n" +
+			"7. ERROR in X.java (at line 10)\n" +
+			"	X<?> x6 = new X<AX<String>>(new AX<String>());\n" +
+			"	                                ^^\n" +
+			"Redundant specification of type arguments <String>\n" +
+			"----------\n" +
+			"8. ERROR in X.java (at line 11)\n" +
 			"	X<Class<? extends Object>> x7 = new X<Class<? extends Object>>();\n" +
 			"	                                    ^\n" +
 			"Redundant specification of type arguments <Class<? extends Object>>\n" +
@@ -2088,12 +2098,22 @@ public void test0052() {
 			"	                         ^\n" +
 			"Redundant specification of type arguments <AX<String>>\n" +
 			"----------\n" +
-			"6. ERROR in X.java (at line 10)\n" +
+			"6. ERROR in X.java (at line 9)\n" +
+			"	X<? extends AX> x5 = new X<AX<String>>(new AX<String>());\n" +
+			"	                                           ^^\n" +
+			"Redundant specification of type arguments <String>\n" +
+			"----------\n" +
+			"7. ERROR in X.java (at line 10)\n" +
 			"	X<?> x6 = new X<AX<String>>(new AX<String>());\n" +
 			"	              ^\n" +
 			"Redundant specification of type arguments <AX<String>>\n" +
 			"----------\n" +
-			"7. ERROR in X.java (at line 11)\n" +
+			"8. ERROR in X.java (at line 10)\n" +
+			"	X<?> x6 = new X<AX<String>>(new AX<String>());\n" +
+			"	                                ^^\n" +
+			"Redundant specification of type arguments <String>\n" +
+			"----------\n" +
+			"9. ERROR in X.java (at line 11)\n" +
 			"	X<Class<? extends Object>> x7 = new X<Class<? extends Object>>();\n" +
 			"	                                    ^\n" +
 			"Redundant specification of type arguments <Class<? extends Object>>\n" +
@@ -2150,6 +2170,11 @@ public void test0052b() {
 			"	String s = foo(new X<String>(\"aaa\"));\n" +
 			"	                   ^\n" +
 			"Redundant specification of type arguments <String>\n" +
+			"----------\n" +
+			"5. ERROR in X.java (at line 12)\n" +
+			"	String s2 = foo(new X<String>(1,\"aaa\"));\n" +
+			"	                    ^\n" +
+			"Redundant specification of type arguments <String>\n" +
 			"----------\n"
 		: // additional error at line 7 due to better inference
 			"----------\n" +
@@ -2176,6 +2201,11 @@ public void test0052b() {
 			"5. ERROR in X.java (at line 11)\n" +
 			"	String s = foo(new X<String>(\"aaa\"));\n" +
 			"	                   ^\n" +
+			"Redundant specification of type arguments <String>\n" +
+			"----------\n" +
+			"6. ERROR in X.java (at line 12)\n" +
+			"	String s2 = foo(new X<String>(1,\"aaa\"));\n" +
+			"	                    ^\n" +
 			"Redundant specification of type arguments <String>\n" +
 			"----------\n"
 		),
@@ -2209,7 +2239,12 @@ public void test0052c() {
 		"	                   ^\n" +
 		"Redundant specification of type arguments <Integer>\n" +
 		"----------\n" +
-		"2. ERROR in X.java (at line 8)\n" +
+		"2. ERROR in X.java (at line 5)\n" +
+		"	foo3(new X<Integer>(\"\",\"\"));\n" +
+		"	         ^\n" +
+		"Redundant specification of type arguments <Integer>\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 8)\n" +
 		"	return new X<Integer>(\"\",\"\");\n" +
 		"	           ^\n" +
 		"Redundant specification of type arguments <Integer>\n" +
