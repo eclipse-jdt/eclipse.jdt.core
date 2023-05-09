@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2022 IBM Corporation and others.
+ * Copyright (c) 2000, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -357,8 +357,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		argument.computeConversion(scope, parameterType, argumentType);
 		if (argument instanceof AllocationExpression) {
 			AllocationExpression allocExp = (AllocationExpression) argument;
-			// we need this only when this is met and as a result the error
-			// is not reported in AllocationExpression#checkTypeArgumentRedundancy()
+			// we need this only when the error is not reported in AllocationExpression#checkTypeArgumentRedundancy()
 			if (allocExp.typeExpected == null) {
 				final boolean isDiamond = allocExp.type != null && (allocExp.type.bits & ASTNode.IsDiamond) != 0;
 				allocExp.typeExpected = parameterType;
