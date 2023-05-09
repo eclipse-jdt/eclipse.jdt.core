@@ -3690,7 +3690,13 @@ public final class CompletionEngine
 					false);
 			}
 		}
-		findCompletionsForArgumentPosition(constructorsFound, argTypes != null ? argTypes.length : 0, scope);
+		// here we assume that if first type is null we have a <CompleteOnName:>
+		int completedArgLen = 0;
+		if (argTypes != null) {
+			completedArgLen = argTypes[0] == null ? 0 : argTypes.length;
+		}
+
+		findCompletionsForArgumentPosition(constructorsFound, completedArgLen, scope);
 	}
 
 	private void completionOnQualifiedNameReference(ASTNode astNode, ASTNode enclosingNode, Binding qualifiedBinding,
