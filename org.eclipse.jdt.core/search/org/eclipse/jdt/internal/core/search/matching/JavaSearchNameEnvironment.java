@@ -594,29 +594,30 @@ private static boolean isComplianceJava9OrHigher(IJavaProject javaProject) {
 }
 
 private static boolean isOnModulePath(JavaProject javaProject, PackageFragmentRoot root) {
-	boolean isOnModulePath;
+	if (hasSystemModule(root)) {
+		/*
+		 * The JRE 9+ container is on the module path without the 'module' classpath attribute being set.
+		 * We detected the JRE container by checking the container for system modules.
+		 */
+		return true;
+	}
 	try {
 		IClasspathEntry classpathEntry = root.getRawClasspathEntry();
-		if (classpathEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
+		if (ClasspathEntry.isModular(classpathEntry)) {
+			return true;
+		}
+		if (classpathEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE || classpathEntry.getEntryKind() == IClasspathEntry.CPE_CONTAINER) {
 			/*
-			 * Source classpath entries of a project never have the module attribute set,
+			 * Source/container classpath entries of a project don't always have the module attribute set,
 			 * so we cannot rely on the attribute.
 			 */
-			isOnModulePath = isModularProject(javaProject);
-		} else if (hasSystemModule(root)) {
-			/*
-			 * The JRE 9+ container is on the module path without the 'module' classpath attribute being set.
-			 * We detected the JRE container by checking the container for system modules.
-			 */
-			isOnModulePath = true;
-		} else {
-			isOnModulePath = ClasspathEntry.isModular(classpathEntry);
+			return isModularProject(javaProject);
 		}
 	} catch (JavaModelException e) {
-		isOnModulePath = true; // if an exception occurs, assume yes
 		Util.log(e, "Error checking whether PackageFragmentRoot is on module path!"); //$NON-NLS-1$
+		return true; // if an exception occurs, assume yes
 	}
-	return isOnModulePath;
+	return false;
 }
 
 private static boolean isModularProject(IJavaProject project) throws JavaModelException {
