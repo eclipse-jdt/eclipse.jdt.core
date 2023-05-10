@@ -7436,6 +7436,92 @@ public void testIssue756() {
 			);
 }
 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=577466
+public void test577466() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import static java.util.function.Function.identity;\n" +
+				"import java.util.Map;\n" +
+				"import java.util.concurrent.ConcurrentHashMap;\n" +
+				"import java.util.stream.Collectors;\n" +
+				"import java.util.stream.Stream;\n" +
+				"\n" +
+				"public class X {\n" +
+				"\n" +
+				"    private static final Map<Class<?>, Map<String, I>> LOOKUP = new ConcurrentHashMap<>();\n" +
+				"\n" +
+				"    @SuppressWarnings(\"unchecked\")\n" +
+				"    static <E extends Enum<E> & I> E lookupLiteral(Class<E> enumType, String literal) {\n" +
+				"        return (E) LOOKUP.computeIfAbsent(enumType, t ->\n" +
+				"            Stream.of(enumType.getEnumConstants()).collect(Collectors.<E, String, I>toMap(E::getLiteral, identity()))\n" +
+				"        ).get(literal);\n" +
+				"    }\n" +
+				" \n" +
+				"    public static void main(String[] args) {\n" +
+				"        System.out.println(X.lookupLiteral(EN.class, \"a\"));\n" +
+				"    }\n" +
+				"\n" +
+				"    interface I {\n" +
+				"        String getLiteral();\n" +
+				"    }\n" +
+				"\n" +
+				"    enum EN implements I { \n" +
+				"        A(\"a\");\n" +
+				"\n" +
+				"        final String literal;\n" +
+				"\n" +
+				"        EN(String literal) {\n" +
+				"            this.literal = literal;\n" +
+				"        }\n" +
+				"\n" +
+				"        @Override\n" +
+				"        public String getLiteral() {\n" +
+				"            return literal;\n" +
+				"        }\n" +
+				"    }\n" +
+				"}\n"
+
+			},
+			"A"
+			);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=570511#c2
+public void test570511_comment2() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.function.Supplier;\n" +
+				"\n" +
+				"  public class X {\n" +
+				"\n" +
+				"    public static void main(String[] args) {\n" +
+				"        System.out.println(getValue(Size.S));\n" +
+				"    }\n" +
+				"\n" +
+				"    enum Size implements Supplier<String> {\n" +
+				"        S, M, L;\n" +
+				"\n" +
+				"        @Override\n" +
+				"        public String get() {\n" +
+				"            return \"Size: \" + toString();\n" +
+				"        }\n" +
+				"    }\n" +
+				"\n" +
+				"    public static <V extends Enum<?> & Supplier<String>> String getValue(V t) {\n" +
+				"        return valueOf(t::get);\n" +
+				"    }\n" +
+				"\n" +
+				"    public static String valueOf(Supplier<String> id) {\n" +
+				"        return id.get();\n" +
+				"    }\n" +
+				"  }\n"
+			},
+			"Size: S"
+			);
+}
+
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

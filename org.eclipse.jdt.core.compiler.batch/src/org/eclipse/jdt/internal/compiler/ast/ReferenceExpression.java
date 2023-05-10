@@ -143,7 +143,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 		this.sourceEnd = sourceEndPosition;
 	}
 
-	/** 
+	/**
 	 * @return a virgin copy of `this' by reparsing the stashed textual form.
 	 */
 	private ReferenceExpression copy() {
@@ -300,15 +300,26 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 				}
 			}
 			TypeBinding[] descriptorParams = this.descriptor.parameters;
-			TypeBinding[] origParams = this.binding.original().parameters;
-			TypeBinding[] origDescParams = this.descriptor.original().parameters;
-			int offset = this.receiverPrecedesParameters ? 1 : 0;
-			for (int i = 0; i < descriptorParams.length - offset; i++) {
-				TypeBinding descType = descriptorParams[i + offset];
-				TypeBinding origDescType = origDescParams[i + offset];
-				if (descType.isIntersectionType18() ||
-						(descType.isTypeVariable() && ((TypeVariableBinding) descType).boundsCount() > 1)) {
-					return CharOperation.equals(origDescType.signature(), origParams[i].signature());
+			if (descriptorParams.length > 0) {
+				TypeBinding[] origParams = this.binding.original().parameters;
+				TypeBinding[] origDescParams = this.descriptor.original().parameters;
+				for (int i = 0; i < descriptorParams.length; i++) {
+					TypeBinding descType = descriptorParams[i];
+					TypeBinding origDescType = origDescParams[i];
+					TypeBinding origParam = this.receiverPrecedesParameters
+							? i == 0 ? this.receiverType : origParams[i - 1]
+							: origParams[i];
+					if (descType.isIntersectionType18()
+							|| (descType.isTypeVariable() && ((TypeVariableBinding) descType).boundsCount() > 1)) {
+						if (!CharOperation.equals(origDescType.signature(), origParam.signature()))
+							return false;
+					}
+				}
+			} else if (this.haveReceiver) {
+				 if (this.receiverType.isIntersectionType18()
+						 || (this.receiverType.isTypeVariable() && ((TypeVariableBinding) this.receiverType).boundsCount() > 1)) {
+					 if (!CharOperation.equals(this.binding.original().declaringClass.signature(), this.receiverType.signature()))
+						return false;
 				}
 			}
 		}
