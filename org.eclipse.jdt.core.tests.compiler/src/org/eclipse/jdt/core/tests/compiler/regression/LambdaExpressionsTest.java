@@ -7521,6 +7521,208 @@ public void test570511_comment2() {
 			"Size: S"
 			);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=483219
+public void test483219_comment_0() {
+	this.runConformTest(
+			new String[] {
+				"Intersection.java",
+				"public class Intersection {\n" +
+				"  interface I {\n" +
+				"  }\n" +
+				"  interface J {\n" +
+				"    void foo();\n" +
+				"  }\n" +
+				"\n" +
+				"  static <T extends I & J> void bar(T t) {\n" +
+				"      Runnable r = t::foo;\n" +
+				"  } \n" +
+				"  \n" +
+				"  public static void main(String[] args) {\n" +
+				"    class A implements I, J { public void foo() {} }\n" +
+				"    bar(new A());\n" +
+				"  }\n" +
+				"}\n"
+
+			},
+			""
+			);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=483219
+public void test483219_comment_1() {
+	this.runConformTest(
+			new String[] {
+				"Main.java",
+				"import java.util.Arrays;\n" +
+				"import java.util.Comparator;\n" +
+				"import java.util.List;\n" +
+				"\n" +
+				"import static java.util.stream.Collectors.toList;\n" +
+				"\n" +
+				"public class Main {\n" +
+				"\n" +
+				"\n" +
+				"    public static void main(String[] args) {\n" +
+				"        Main main = new Main();\n" +
+				"        main.toInfoListError(Arrays.asList(new Base()));\n" +
+				"    }\n" +
+				"\n" +
+				"    public <H extends B & A> List<Info> toInfoListError(List<H> list) {\n" +
+				"        Comparator<B> byNameComparator = (B b1, B b2) -> b1.getB().compareToIgnoreCase(b2.getB());\n" +
+				"        return list.stream().sorted(byNameComparator).map(Info::new).collect(toList());\n" +
+				"    }\n" +
+				"\n" +
+				"    public <H extends B & A> List<Info> toInfoListWorks(List<H> list) {\n" +
+				"        Comparator<B> byNameComparator = (B b1, B b2) -> b1.getB().compareToIgnoreCase(b2.getB());\n" +
+				"        return list.stream().sorted(byNameComparator).map(s -> new Info(s)).collect(toList());\n" +
+				"    }\n" +
+				"}\n" +
+				"\n" +
+				"interface B {\n" +
+				"    public String getB();\n" +
+				"}\n" +
+				"\n" +
+				"interface A {\n" +
+				"    public long getA();\n" +
+				"}\n" +
+				"\n" +
+				"class Info {\n" +
+				"\n" +
+				"    private final long a;\n" +
+				"    private final String b;\n" +
+				"\n" +
+				"    <H extends A & B> Info(H h) {\n" +
+				"        a = h.getA();\n" +
+				"        b = h.getB();\n" +
+				"    }\n" +
+				"}\n" +
+				"\n" +
+				"class Base implements A, B {\n" +
+				"\n" +
+				"    @Override\n" +
+				"    public long getA() {\n" +
+				"        return 7L;\n" +
+				"    }\n" +
+				"\n" +
+				"    @Override\n" +
+				"    public String getB() {\n" +
+				"        return \"hello\";\n" +
+				"    }\n" +
+				"}\n"
+			},
+			""
+			);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=483219
+public void test483219_comment_2a() {
+	this.runConformTest(
+			new String[] {
+				"MethodHandleTest.java",
+				"import java.awt.Component;\n" +
+				"import java.util.Collection;\n" +
+				"import java.util.Collections;\n" +
+				"\n" +
+				"public class MethodHandleTest {\n" +
+				"    public static void main(String... args) {\n" +
+				"        new MethodHandleTest().run();\n" +
+				"    }\n" +
+				"\n" +
+				"    private void run() {\n" +
+				"        ComponentWithSomeMethod myComp = new ComponentWithSomeMethod();\n" +
+				"        new Caller<ComponentWithSomeMethod>().callSomeMethod(Collections.singletonList(myComp));\n" +
+				"    }\n" +
+				"\n" +
+				"    private interface HasSomeMethod {\n" +
+				"        void someMethod();\n" +
+				"    }\n" +
+				"\n" +
+				"    static class ComponentWithSomeMethod extends Component implements HasSomeMethod {\n" +
+				"        @Override\n" +
+				"        public void someMethod() {\n" +
+				"            System.out.println(\"Some method\");\n" +
+				"        }\n" +
+				"    }\n" +
+				"\n" +
+				"    class Caller<T extends Component & HasSomeMethod> {\n" +
+				"        public void callSomeMethod(Collection<T> components) {\n" +
+				"            components.forEach(HasSomeMethod::someMethod); //  <-- crashes\n" +
+				"//          components.forEach(comp -> comp.someMethod());     <-- works fine\n" +
+				"\n" +
+				"        }\n" +
+				"    }\n" +
+				"}\n"
+
+			},
+			"Some method"
+			);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=483219
+public void test483219_comment_2b() {
+	this.runConformTest(
+			new String[] {
+				"Foo.java",
+				"import java.util.stream.Stream;\n" +
+				"public final class Foo\n" +
+				"{\n" +
+				"    private interface X\n" +
+				"    {\n" +
+				"        default void x()\n" +
+				"        {\n" +
+				"        }\n" +
+				"    }\n" +
+				"\n" +
+				"    private enum E1\n" +
+				"        implements X\n" +
+				"    {\n" +
+				"        INSTANCE,\n" +
+				"        ;\n" +
+				"    }\n" +
+				"\n" +
+				"    private enum E2\n" +
+				"        implements X\n" +
+				"    {\n" +
+				"        INSTANCE,\n" +
+				"        ;\n" +
+				"    }\n" +
+				"\n" +
+				"    public static void main(final String... args)\n" +
+				"    {\n" +
+				"        Stream.of(E1.INSTANCE, E2.INSTANCE).forEach(X::x);\n" +
+				"    }\n" +
+				"}\n"
+			},
+			""
+			);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=483219
+public void test483219_comment_3() {
+	this.runConformTest(
+			new String[] {
+				"SortedInterfacesTest.java",
+				"import java.util.function.Consumer;\n" +
+				"public class SortedInterfacesTest {\n" +
+				"   <T> void forAll(Consumer<T> consumer, T... values) { }\n" +
+				"\n" +
+				"   public void secondTest() {\n" +
+				"       forAll(Picture::draw, new MyPicture(), new Universal());\n" +
+				"   }\n" +
+				"\n" +
+				"   interface Shape { void draw(); }\n" +
+				"   interface Marker { }\n" +
+				"   interface Picture { void draw(); }\n" +
+				"\n" +
+				"   class MyShape implements Marker, Shape { public void draw() { } }\n" +
+				"   class MyPicture implements Marker, Picture { public void draw() { } }\n" +
+				"   class Universal implements Marker, Picture, Shape { public void draw() { } }\n" +
+				"\n" +
+				"   public static void main(String[] args) {\n" +
+				"       new SortedInterfacesTest().secondTest();\n" +
+				"   }\n" +
+				"}\n"
+			},
+			""
+			);
+}
 
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
