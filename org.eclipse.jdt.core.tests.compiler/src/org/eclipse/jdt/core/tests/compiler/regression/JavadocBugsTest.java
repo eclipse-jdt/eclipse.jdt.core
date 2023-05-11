@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -8486,7 +8486,8 @@ public void testBug267833_2() {
 				int length = JavadocTagConstants.BLOCK_TAGS[i].length;
 				for (int j=0; j < length; j++) {
 					if (tagName == JavadocTagConstants.BLOCK_TAGS[i][j]) {
-						assertEquals(JavadocTagConstants.JAVADOC_TAG_TYPE[index], JavadocTagConstants.TAG_TYPE_BLOCK);
+						int tagType = JavadocTagConstants.JAVADOC_TAG_TYPE[index];
+						assertTrue((tagType & JavadocTagConstants.TAG_TYPE_BLOCK) != 0);
 						continue nextTag;
 					}
 				}
@@ -8495,7 +8496,8 @@ public void testBug267833_2() {
 				int length = JavadocTagConstants.INLINE_TAGS[i].length;
 				for (int j=0; j < length; j++) {
 					if (tagName == JavadocTagConstants.INLINE_TAGS[i][j]) {
-						assertEquals(JavadocTagConstants.JAVADOC_TAG_TYPE[index], JavadocTagConstants.TAG_TYPE_INLINE);
+						int tagType = JavadocTagConstants.JAVADOC_TAG_TYPE[index];
+						assertTrue((tagType & JavadocTagConstants.TAG_TYPE_INLINE) != 0);
 						continue nextTag;
 					}
 				}
