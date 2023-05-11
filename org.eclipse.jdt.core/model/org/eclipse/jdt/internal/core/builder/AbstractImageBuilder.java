@@ -184,7 +184,11 @@ public void acceptResult(CompilationResult result) {
 						String simpleName = qualifiedTypeName.substring(qualifiedTypeName.lastIndexOf('/')+1);
 						type = mainType == null ? null : mainType.getCompilationUnit().getType(simpleName);
 					}
-					createProblemFor(compilationUnit.resource, type, Messages.bind(Messages.build_duplicateClassFile, new String(typeName)), JavaCore.ERROR);
+					if(TypeConstants.MODULE_INFO_NAME_STRING.equals(qualifiedTypeName)) {
+						createProblemFor(compilationUnit.resource, type, Messages.build_duplicateModuleInfo, JavaCore.ERROR);
+					} else {
+						createProblemFor(compilationUnit.resource, type, Messages.bind(Messages.build_duplicateClassFile, new String(typeName)), JavaCore.ERROR);
+					}
 					continue;
 				}
 				this.newState.recordLocatorForType(qualifiedTypeName, typeLocator);
@@ -432,7 +436,9 @@ protected void createProblemFor(IResource resource, IMember javaElement, String 
 				if (e.getJavaModelStatus().getCode() != IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST) {
 					throw e;
 				}
-				if (!CharOperation.equals(javaElement.getElementName().toCharArray(), TypeConstants.PACKAGE_INFO_NAME)) {
+				char[] elementName = javaElement.getElementName().toCharArray();
+				if (!CharOperation.equals(elementName, TypeConstants.PACKAGE_INFO_NAME)
+						&& !CharOperation.equals(elementName, TypeConstants.MODULE_INFO_NAME)) {
 					throw e;
 				}
 				// else silently swallow the exception as the synthetic interface type package-info has no
