@@ -697,6 +697,7 @@ public void exitField(int initializationStart, int declarationEnd, int declarati
 	info.setFlags(fieldInfo.modifiers);
 	char[] typeName = JavaModelManager.getJavaModelManager().intern(fieldInfo.type);
 	info.setTypeName(typeName);
+	info.isRecordComponent = fieldInfo.isRecordComponent;
 	this.newElements.put(handle, info);
 
 	if (fieldInfo.annotations != null) {
