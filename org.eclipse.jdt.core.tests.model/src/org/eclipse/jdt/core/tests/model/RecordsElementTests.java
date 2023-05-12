@@ -159,6 +159,8 @@ public class RecordsElementTests extends AbstractJavaModelTests {
 			assertEquals("Incorret no of fields", 2, fields.length);
 			for (IField field : fields) {
 				assertTrue("Should be record component: " + field, field.isRecordComponent());
+				IField sameField = types[0].getRecordComponent(field.getElementName());
+				assertTrue("Should be record component: " + sameField, sameField.isRecordComponent());
 			}
 
 			IMethod[] methods = types[0].getMethods();
@@ -243,6 +245,8 @@ public class RecordsElementTests extends AbstractJavaModelTests {
 			assertEquals("Incorret no of fields", 2, fields.length);
 			for (IField field : fields) {
 				assertTrue("Should be record component: " + field, field.isRecordComponent());
+				IField sameField = types[0].getRecordComponent(field.getElementName());
+				assertTrue("Should be record component: " + sameField, sameField.isRecordComponent());
 			}
 			IMethod[] methods = types[0].getMethods();
 			assertNotNull("should not be null", methods);
@@ -324,6 +328,8 @@ public class RecordsElementTests extends AbstractJavaModelTests {
 			assertEquals("Incorret no of fields", 2, fields.length);
 			for (IField field : fields) {
 				assertTrue("Should be record component: " + field, field.isRecordComponent());
+				IField sameField = type.getRecordComponent(field.getElementName());
+				assertTrue("Should be record component: " + sameField, sameField.isRecordComponent());
 			}
 
 			IMethod[] methods = type.getMethods();
