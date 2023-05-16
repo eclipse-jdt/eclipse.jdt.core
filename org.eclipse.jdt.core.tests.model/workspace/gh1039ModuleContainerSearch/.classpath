@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+    <classpathentry excluding="tmp" kind="src" path="src"/>
+    <classpathentry kind="var" path="JCL9_LIB" sourcepath="JCL9_SRC" rootpath=""/>
+    <classpathentry kind="output" path="bin"/>
+</classpath>
