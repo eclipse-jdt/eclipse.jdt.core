@@ -195,9 +195,9 @@ private LinkedHashSet<ClasspathLocation> computeClasspathLocations(JavaProject j
 	} catch (JavaModelException e) {
 		return null;// project doesn't exist
 	}
-	IModuleDescription imd = null;
+	IModuleDescription projectModule = null;
 	try {
-		imd = javaProject.getModuleDescription();
+		projectModule = javaProject.getModuleDescription();
 	} catch (JavaModelException e) {
 		// e.printStackTrace(); // ignore
 	}
@@ -210,7 +210,7 @@ private LinkedHashSet<ClasspathLocation> computeClasspathLocations(JavaProject j
 		if (onlyExported && !isSourceOrExported(root)) {
 			continue;
 		}
-		ClasspathLocation cp = mapToClassPathLocation(manager, root, imd);
+		ClasspathLocation cp = mapToClassPathLocation(manager, root, projectModule);
 		if (cp != null) {
 			try {
 				indexPackageNames(cp, roots[i]);
@@ -297,24 +297,21 @@ private ClasspathLocation mapToClassPathLocation(JavaModelManager manager, Packa
 	}
 	JavaProject javaProject = root.getJavaProject();
 	if (isComplianceJava9OrHigher(javaProject)) {
-		boolean isOnModulePath = isOnModulePath(javaProject, root);
-		if (isOnModulePath) {
-			addModuleClassPathInfo(root, defaultModule, cp);
+		IModuleDescription module = computeModuleFor(root, defaultModule);
+		if (module != null) {
+			addModuleClassPathInfo(module, cp);
 		}
 	}
 	return cp;
 }
 
-private void addModuleClassPathInfo(PackageFragmentRoot root, IModuleDescription defaultModule, ClasspathLocation cp) {
-	IModuleDescription imd = root.getModuleDescription();
-	if (imd != null) {
-		String moduleName = addModuleClassPathInfo(cp, imd);
-		if (moduleName != null)
-			this.modules.put(moduleName, imd);
-		if (this.moduleLocations != null)
-			this.moduleLocations.put(moduleName, cp);
-	} else if (defaultModule != null) {
-		addModuleClassPathInfo(cp, defaultModule);
+private void addModuleClassPathInfo(IModuleDescription module, ClasspathLocation cp) {
+	String moduleName = addModuleClassPathInfo(cp, module);
+	if (moduleName != null) {
+		this.modules.put(moduleName, module);
+	}
+	if (this.moduleLocations != null) {
+		this.moduleLocations.put(moduleName, cp);
 	}
 }
 private String addModuleClassPathInfo(ClasspathLocation cp, IModuleDescription imd) {
@@ -593,44 +590,39 @@ private static boolean isComplianceJava9OrHigher(IJavaProject javaProject) {
 	return CompilerOptions.versionToJdkLevel(javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true)) >= ClassFileConstants.JDK9;
 }
 
-private static boolean isOnModulePath(JavaProject javaProject, PackageFragmentRoot root) {
-	boolean isOnModulePath;
+/**
+ * Computes matching module for given {@link PackageFragmentRoot}
+ * @param root
+ * @param defaultModule project module or {@code null}
+ * @return may return {@code null}
+ */
+private static IModuleDescription computeModuleFor(PackageFragmentRoot root, IModuleDescription defaultModule) {
+	/*
+	 * The JRE 9+ container is on the module path without the 'module' classpath attribute being set.
+	 * We detected the JRE container by checking the container for system modules.
+	 */
+	IModuleDescription rootModule = root.getModuleDescription();
+	if (rootModule != null && rootModule.isSystemModule()) {
+		return rootModule;
+	}
+
 	try {
 		IClasspathEntry classpathEntry = root.getRawClasspathEntry();
-		if (classpathEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {
-			/*
-			 * Source classpath entries of a project never have the module attribute set,
-			 * so we cannot rely on the attribute.
-			 */
-			isOnModulePath = isModularProject(javaProject);
-		} else if (hasSystemModule(root)) {
-			/*
-			 * The JRE 9+ container is on the module path without the 'module' classpath attribute being set.
-			 * We detected the JRE container by checking the container for system modules.
-			 */
-			isOnModulePath = true;
-		} else {
-			isOnModulePath = ClasspathEntry.isModular(classpathEntry);
+		if (ClasspathEntry.isModular(classpathEntry)) {
+			return rootModule != null? rootModule : defaultModule;
+		}
+		/*
+		 * Source/container classpath entries of a project don't always have the module attribute set,
+		 * so we cannot rely on the attribute.
+		 */
+		int entryKind = classpathEntry.getEntryKind();
+		if (entryKind == IClasspathEntry.CPE_SOURCE || entryKind == IClasspathEntry.CPE_CONTAINER) {
+			return rootModule != null? rootModule : defaultModule;
 		}
 	} catch (JavaModelException e) {
-		isOnModulePath = true; // if an exception occurs, assume yes
 		Util.log(e, "Error checking whether PackageFragmentRoot is on module path!"); //$NON-NLS-1$
 	}
-	return isOnModulePath;
-}
-
-private static boolean isModularProject(IJavaProject project) throws JavaModelException {
-	IModuleDescription module = project.getModuleDescription();
-	String modName = module == null ? null : module.getElementName();
-	return modName != null && modName.length() > 0;
-}
-
-private static boolean hasSystemModule(PackageFragmentRoot fragmentRoot) {
-	IModuleDescription module = fragmentRoot.getModuleDescription();
-	if (module != null && module.isSystemModule()) {
-		return true;
-	}
-	return false;
+	return defaultModule;
 }
 
 private static boolean isSourceOrExported(PackageFragmentRoot root) {

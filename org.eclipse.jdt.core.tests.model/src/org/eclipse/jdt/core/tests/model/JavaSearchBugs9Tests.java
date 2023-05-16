@@ -4805,7 +4805,7 @@ public void testGH902_whenTypeReferenceIsUnknown_expectToBeFound() throws CoreEx
 	try {
 		IJavaProject project = createJava9Project("JavaSearchBugs9");
 		project.open(null);
-		createFile("JavaSearchBugs9/src/GH902.java", 
+		createFile("JavaSearchBugs9/src/GH902.java",
 				"""
 					public class GH902 {
 						public static void foo() {
@@ -4830,7 +4830,7 @@ public void testGH902_whenTypeReferenceIsUnknownButQualified_expectToBeFound() t
 	try {
 		IJavaProject project = createJava9Project("JavaSearchBugs9");
 		project.open(null);
-		createFile("JavaSearchBugs9/src/GH902.java", 
+		createFile("JavaSearchBugs9/src/GH902.java",
 				"""
 					public class GH902 {
 						public static void foo() {
@@ -4855,7 +4855,7 @@ public void testGH902_whenTypeReferenceIsUnknownButQualifiedNested_expectToBeFou
 	try {
 		IJavaProject project = createJava9Project("JavaSearchBugs9");
 		project.open(null);
-		createFile("JavaSearchBugs9/src/GH902.java", 
+		createFile("JavaSearchBugs9/src/GH902.java",
 				"""
 					public class GH902 {
 						public static void foo() {
@@ -4880,7 +4880,7 @@ public void testGH902_whenTypeReferenceIsUnknownButNested_expectToBeFound() thro
 	try {
 		IJavaProject project = createJava9Project("JavaSearchBugs9");
 		project.open(null);
-		createFile("JavaSearchBugs9/src/GH902.java", 
+		createFile("JavaSearchBugs9/src/GH902.java",
 				"""
 					import static java.util.AbstractMap.*;
 					public class GH902 {
@@ -4898,6 +4898,60 @@ public void testGH902_whenTypeReferenceIsUnknownButNested_expectToBeFound() thro
 				this.resultCollector.toString().contains("src/GH902.java void GH902.foo() [Entry] EXACT_MATCH"));
 	} finally {
 		deleteProject("JavaSearchBugs9");
+	}
+}
+
+/*
+ * Test for call hierarchy of a field with a type coming from a container,
+ * when the search is initiated in a project that defines a module.
+ * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/740
+ */
+public void testModuleContainerSearchBugGh1039() throws Exception {
+	String jarProjectName = "gh1039ModuleContainerSearch";
+	setUpJavaProject(jarProjectName);
+	String projectName = "gh1039ModuleContainerSearchTest";
+	try {
+		IJavaProject project = createJava9Project(projectName);
+
+		addClasspathEntry(project, JavaCore.newContainerEntry(new Path("container/default"), ClasspathEntry.NO_ACCESS_RULES, new IClasspathAttribute[0], false));
+
+		Path jarPath = new Path("/gh1039ModuleContainerSearch/TestGH1039.jar");
+		JavaCore.setClasspathContainer(
+				new Path("container/default"),
+				new IJavaProject[]{ project },
+				new IClasspathContainer[] {
+					new TestContainer(
+						new Path("container/default"),
+						new IClasspathEntry[] {
+								JavaCore.newLibraryEntry(jarPath, null, null, null, moduleAttribute(), false),
+						})
+				},
+				null);
+		String fileContent =
+				"""
+				module testmodule {
+				    requires dummymodule;
+				}
+				""";
+		createFile("/" + projectName + "/src/module-info.java",	fileContent);
+		String packageFolder = "/" + projectName + "/src/test";
+		createFolder(packageFolder);
+		String testSource =
+				"""
+				package test;
+				@dummy.Dummy
+				public class Test {
+				};
+				""";
+		createFile(packageFolder + "/Test.java", testSource);
+		buildAndExpectNoProblems(project);
+		IType type = project.findType("dummy.Dummy");
+		search(type, REFERENCES, EXACT_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
+		assertSearchResults(
+				"src/test/Test.java test.Test [dummy.Dummy] EXACT_MATCH");
+	} finally {
+		deleteProject(projectName);
+		deleteProject(jarProjectName);
 	}
 }
 // Add more tests here
