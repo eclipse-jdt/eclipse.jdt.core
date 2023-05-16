@@ -5424,6 +5424,9 @@ public abstract class Scope {
 	}
 
 	public boolean hasDefaultNullnessForType(TypeBinding type, int location, int sourceStart) {
+		TypeBinding enclosingType = enclosingReceiverType();
+		if (enclosingType != null && (enclosingType.original().tagBits & TagBits.EndHierarchyCheck) == 0)
+			return false;
 		if (environment().usesNullTypeAnnotations() && type != null && !type.acceptsNonNullDefault())
 			return false;
 		return hasDefaultNullnessFor(location, sourceStart);

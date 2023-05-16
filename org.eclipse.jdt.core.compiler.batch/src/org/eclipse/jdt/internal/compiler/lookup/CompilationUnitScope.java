@@ -20,6 +20,7 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -389,11 +390,16 @@ public char[] computeConstantPoolName(LocalTypeBinding localType) {
 	return candidateName;
 }
 
-void connectTypeHierarchy() {
+void connectTypeHierarchy1() {
 	for (int i = 0, length = this.topLevelTypes.length; i < length; i++)
 		this.topLevelTypes[i].scope.connectTypeHierarchy();
-	// Wait for all hierarchy information to be built before
-	// checking on permitted types
+}
+void connectTypeHierarchy2() {
+	// Only now that all hierarchy information is built we're ready for ...
+	// ... integrating annotations
+	for (int i = 0, length = this.topLevelTypes.length; i < length; i++)
+		this.topLevelTypes[i].scope.referenceType().updateSupertypesWithAnnotations(Collections.emptyMap());
+	// ... checking on permitted types
 	for (int i = 0, length = this.topLevelTypes.length; i < length; i++)
 		this.topLevelTypes[i].scope.connectImplicitPermittedTypes();
 }

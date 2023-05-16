@@ -138,6 +138,7 @@ public class ClassScope extends Scope {
 				}
 			}
 		}
+		anonymousType.tagBits |= TagBits.EndHierarchyCheck;
 		connectMemberTypes();
 		buildFieldsAndMethods();
 		anonymousType.faultInTypesForFieldsAndMethods();

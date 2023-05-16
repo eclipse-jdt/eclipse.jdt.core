@@ -74,17 +74,22 @@ public void initializeDeprecatedAnnotationTagBits() {
 		super.initializeDeprecatedAnnotationTagBits();
 		if ((this.tagBits & TagBits.AnnotationDeprecated) == 0) {
 			// check enclosing type
-			ReferenceBinding enclosing;
-			if (((enclosing = enclosingType()).tagBits & TagBits.DeprecatedAnnotationResolved) == 0) {
-				enclosing.initializeDeprecatedAnnotationTagBits();
-			}
-			if (enclosing.isViewedAsDeprecated()) {
-				this.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
-				this.tagBits |= (enclosing.tagBits & TagBits.AnnotationTerminallyDeprecated);
-			}
+			updateDeprecationFromEnclosing();
 		}
 	}
 }
+
+public void updateDeprecationFromEnclosing() {
+	ReferenceBinding enclosing = enclosingType();
+	if ((enclosing.tagBits & TagBits.DeprecatedAnnotationResolved) == 0) {
+		enclosing.initializeDeprecatedAnnotationTagBits();
+	}
+	if (enclosing.isViewedAsDeprecated()) {
+		this.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
+		this.tagBits |= (enclosing.tagBits & TagBits.AnnotationTerminallyDeprecated);
+	}
+}
+
 @Override
 public String toString() {
 	if (this.hasTypeAnnotations()) {

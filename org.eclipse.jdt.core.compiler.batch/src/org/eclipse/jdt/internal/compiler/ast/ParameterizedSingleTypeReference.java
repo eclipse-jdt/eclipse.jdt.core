@@ -386,6 +386,12 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 	}
 
 	@Override
+	public void updateWithAnnotations(Scope scope, int location) {
+		this.resolvedType = updateParameterizedTypeWithAnnotations(scope, this.resolvedType, this.typeArguments);
+		resolveAnnotations(scope, location); // see comment in super TypeReference.updateWithAnnotations()
+	}
+
+	@Override
 	public TypeBinding resolveType(BlockScope scope, boolean checkBounds, int location) {
 	    return internalResolveType(scope, null, checkBounds, location);
 	}
