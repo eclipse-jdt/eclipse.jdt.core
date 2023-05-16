@@ -7828,10 +7828,10 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 					"     36  pop\n" +
 					"     37  return\n" +
 					"     38  aload 4 [fis]\n" +
-					"     40  ifnull 81\n" +
+					"     40  ifnull 86\n" +
 					"     43  aload 4 [fis]\n" +
 					"     45  invokevirtual java.io.FileInputStream.close() : void [25]\n" +
-					"     48  goto 81\n" +
+					"     48  goto 86\n" +
 					"     51  astore_2\n" +
 					"     52  aload 4 [fis]\n" +
 					"     54  ifnull 62\n" +
@@ -7844,47 +7844,49 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 					"     66  ifnonnull 74\n" +
 					"     69  aload_3\n" +
 					"     70  astore_2\n" +
-					"     71  goto 79\n" +
-
+					"     71  goto 84\n" +
 					"     74  aload_2\n" +
 					"     75  aload_3\n" +
-					"     76  invokevirtual java.lang.Throwable.addSuppressed(java.lang.Throwable) : void [32]\n" +
+					"     76  if_acmpeq 84\n" +
 					"     79  aload_2\n" +
-					"     80  athrow\n" +
-					"     81  iload_1 [i]\n" +
-					"     82  bipush 35\n" +
-					"     84  if_icmpne 117\n" +
-					"     87  aload_0 [this]\n" + 	// return 2
-					"     88  " + xBarCall +
-					"     91  pop\n" +
-					"     92  return\n" +
-					"     93  astore_2 [e]\n" +
-					"     94  aload_0 [this]\n" +
-					"     95  " + xBarCall +
-					"     98  pop\n" +
+					"     80  aload_3\n" +
+					"     81  invokevirtual java.lang.Throwable.addSuppressed(java.lang.Throwable) : void [32]\n" +
+					"     84  aload_2\n" +
+					"     85  athrow\n" +
+					"     86  iload_1 [i]\n" +
+					"     87  bipush 35\n" +
+					"     89  if_icmpne 122\n" +
+					"     92  aload_0 [this]\n" + 	// return 2
+					"     93  " + xBarCall +
+					"     96  pop\n" +
+					"     97  return\n" +
+					"     98  astore_2 [e]\n" +
 					"     99  aload_0 [this]\n" +
 					"    100  " + xBarCall +
 					"    103  pop\n" +
-					"    104  goto 122\n" +
-					"    107  astore 5\n" +
-					"    109  aload_0 [this]\n" +
-					"    110  " + xBarCall +
-					"    113  pop\n" +
-					"    114  aload 5\n" +
-					"    116  athrow\n" +
-					"    117  aload_0 [this]\n" +
-					"    118  " + xBarCall +
-					"    121  pop\n" +
-					"    122  return\n" +
+					"    104  aload_0 [this]\n" +
+					"    105  " + xBarCall +
+					"    108  pop\n" +
+					"    109  goto 127\n" +
+					"    112  astore 5\n" +
+					"    114  aload_0 [this]\n" +
+					"    115  " + xBarCall +
+					"    118  pop\n" +
+					"    119  aload 5\n" +
+					"    121  athrow\n" +
+					"    122  aload_0 [this]\n" +
+					"    123  " + xBarCall +
+					"    126  pop\n" +
+					"    127  return\n" +
 					"      Exception Table:\n" +
 					"        [pc: 17, pc: 22] -> 51 when : any\n" +
 					"        [pc: 6, pc: 32] -> 64 when : any\n" +
 					"        [pc: 38, pc: 64] -> 64 when : any\n" +
-					"        [pc: 2, pc: 32] -> 93 when : java.io.IOException\n" +
-					"        [pc: 38, pc: 87] -> 93 when : java.io.IOException\n" +
-					"        [pc: 2, pc: 32] -> 107 when : any\n" +
-					"        [pc: 38, pc: 87] -> 107 when : any\n" +
-					"        [pc: 93, pc: 99] -> 107 when : any\n" +
+					"        [pc: 2, pc: 32] -> 98 when : java.io.IOException\n" +
+					"        [pc: 38, pc: 92] -> 98 when : java.io.IOException\n" +
+					"        [pc: 2, pc: 32] -> 112 when : any\n" +
+					"        [pc: 38, pc: 92] -> 112 when : any\n" +
+					"        [pc: 98, pc: 104] -> 112 when : any\n" +
 					"      Line numbers:\n" +
 					"        [pc: 0, line: 5]\n" +
 					"        [pc: 2, line: 7]\n" +
@@ -7893,22 +7895,22 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 					"        [pc: 32, line: 15]\n" +
 					"        [pc: 37, line: 8]\n" +
 					"        [pc: 38, line: 9]\n" +
-					"        [pc: 81, line: 10]\n" +
-					"        [pc: 87, line: 15]\n" +
-					"        [pc: 92, line: 11]\n" +
-					"        [pc: 93, line: 12]\n" +
-					"        [pc: 94, line: 13]\n" +
-					"        [pc: 99, line: 15]\n" +
-					"        [pc: 107, line: 14]\n" +
-					"        [pc: 109, line: 15]\n" +
-					"        [pc: 114, line: 16]\n" +
-					"        [pc: 117, line: 15]\n" +
-					"        [pc: 122, line: 17]\n" +
+					"        [pc: 86, line: 10]\n" +
+					"        [pc: 92, line: 15]\n" +
+					"        [pc: 97, line: 11]\n" +
+					"        [pc: 98, line: 12]\n" +
+					"        [pc: 99, line: 13]\n" +
+					"        [pc: 104, line: 15]\n" +
+					"        [pc: 112, line: 14]\n" +
+					"        [pc: 114, line: 15]\n" +
+					"        [pc: 119, line: 16]\n" +
+					"        [pc: 122, line: 15]\n" +
+					"        [pc: 127, line: 17]\n" +
 					"      Local variable table:\n" +
-					"        [pc: 0, pc: 123] local: this index: 0 type: X\n" +
-					"        [pc: 2, pc: 123] local: i index: 1 type: int\n" +
+					"        [pc: 0, pc: 128] local: this index: 0 type: X\n" +
+					"        [pc: 2, pc: 128] local: i index: 1 type: int\n" +
 					"        [pc: 17, pc: 62] local: fis index: 4 type: java.io.FileInputStream\n" +
-					"        [pc: 94, pc: 99] local: e index: 2 type: java.io.IOException\n" +
+					"        [pc: 99, pc: 104] local: e index: 2 type: java.io.IOException\n" +
 					"      Stack map table: number of frames 12\n" +
 					"        [pc: 32, full, stack: {}, locals: {X, int, java.lang.Throwable, java.lang.Throwable, java.io.FileInputStream}]\n" +
 					"        [pc: 38, same]\n" +
@@ -7916,12 +7918,12 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 					"        [pc: 62, chop 1 local(s)]\n" +
 					"        [pc: 64, same_locals_1_stack_item, stack: {java.lang.Throwable}]\n" +
 					"        [pc: 74, same]\n" +
-					"        [pc: 79, same]\n" +
-					"        [pc: 81, chop 2 local(s)]\n" +
-					"        [pc: 93, same_locals_1_stack_item, stack: {java.io.IOException}]\n" +
-					"        [pc: 107, same_locals_1_stack_item, stack: {java.lang.Throwable}]\n" +
-					"        [pc: 117, same]\n" +
-					"        [pc: 122, same]\n";
+					"        [pc: 84, same]\n" +
+					"        [pc: 86, chop 2 local(s)]\n" +
+					"        [pc: 98, same_locals_1_stack_item, stack: {java.io.IOException}]\n" +
+					"        [pc: 112, same_locals_1_stack_item, stack: {java.lang.Throwable}]\n" +
+					"        [pc: 122, same]\n" +
+					"        [pc: 127, same]\n";
 			int index = actualOutput.indexOf(expectedOutput);
 			if (index == -1 || expectedOutput.length() == 0) {
 				System.out.println(Util.displayString(actualOutput, 2));
