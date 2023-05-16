@@ -1397,13 +1397,11 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 
 				IBinaryMethod m1Lambda = methods[2];
 				assertEquals("Wrong name", "lambda$2", new String(m1Lambda.getSelector()));
-				assertNull("Synthetic method for lambda in m1 must not have a generic signature",
-						m1Lambda.getGenericSignature());
+				assertEquals("Wrong signature", "()Ljava/util/stream/Stream<TT;>;", new String(m1Lambda.getGenericSignature()));
 
-				IBinaryMethod m2Lambda = methods[2];
+				IBinaryMethod m2Lambda = methods[3];
 				assertEquals("Wrong name", "lambda$3", new String(m2Lambda.getSelector()));
-				assertNull("Synthetic method for lambda in m2 must not have a generic signature",
-						m2Lambda.getGenericSignature());
+				assertEquals("Wrong signature", "()Ljava/util/stream/Stream<TT;>;", new String(m2Lambda.getGenericSignature()));
 			} catch (ClassFormatException e) {
 				assertTrue(false);
 			} catch (IOException e) {
