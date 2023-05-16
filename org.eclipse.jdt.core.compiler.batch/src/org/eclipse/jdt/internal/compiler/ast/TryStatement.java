@@ -634,6 +634,9 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 					elseLabel.place();
 					codeStream.load(this.primaryExceptionVariable);
 					codeStream.load(this.caughtThrowableVariable);
+					codeStream.if_acmpeq(postElseLabel);
+					codeStream.load(this.primaryExceptionVariable);
+					codeStream.load(this.caughtThrowableVariable);
 					codeStream.invokeThrowableAddSuppressed();
 					postElseLabel.place();
 				}

@@ -2238,7 +2238,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"      #85 @A(\n" +
 			"        target type = 0x41 RESOURCE_VARIABLE\n" +
 			"        local variable entries:\n" +
-			"          [pc: 21, pc: 130] index: 3\n" +
+			"          [pc: 21, pc: 135] index: 3\n" +
 			"      )\n";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
