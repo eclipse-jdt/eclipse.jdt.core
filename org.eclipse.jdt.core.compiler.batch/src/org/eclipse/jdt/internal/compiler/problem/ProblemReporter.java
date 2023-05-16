@@ -2003,7 +2003,7 @@ String deprecatedSinceValue(Supplier<AnnotationBinding[]> annotations) {
 		ReferenceContext contextSave = this.referenceContext;
 		try {
 			for (AnnotationBinding annotationBinding : annotations.get()) {
-				if (annotationBinding.getAnnotationType().id == TypeIds.T_JavaLangDeprecated) {
+				if (annotationBinding != null && annotationBinding.getAnnotationType().id == TypeIds.T_JavaLangDeprecated) {
 					for (ElementValuePair elementValuePair : annotationBinding.getElementValuePairs()) {
 						if (CharOperation.equals(elementValuePair.getName(), TypeConstants.SINCE) && elementValuePair.value instanceof StringConstant)
 							return ((StringConstant) elementValuePair.value).stringValue();

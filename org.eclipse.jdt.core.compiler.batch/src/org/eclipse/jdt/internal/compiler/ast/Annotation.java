@@ -903,6 +903,55 @@ public abstract class Annotation extends Expression {
 			return null;
 		}
 
+		if (!shouldDeferResolvingDetails(scope, (ReferenceBinding) typeBinding)
+			|| !scope.classScope().deferCheck(() -> resolveDetails(scope)))
+		{
+			resolveDetails(scope);
+		}
+		return this.resolvedType;
+	}
+	/** check if resolving annotation details right now risks undesired (ahead-of-time) side effects. */
+	private boolean shouldDeferResolvingDetails(BlockScope scope, ReferenceBinding annotationType) {
+		if (this instanceof MarkerAnnotation)
+			return false; // no details, no need to defer
+		ReferenceBinding enclosing = scope.enclosingReceiverType();
+		if (enclosing == null)
+			return false; // happens in module scope
+		// risk may exist when resolving annotation on the enclosing type:
+		if (this.recipient != enclosing.original())
+			return false;
+		// risk exist only if that enclosing type or one of its members isn't yet ready:
+		if (isReadyIncludingMembers(enclosing))
+			return false;
+		// exclude @NonNullByDefault, because
+		// * caller may need detail information
+		// * member-value-pairs cannot point back into the unconnected type
+		if (annotationType.hasNullBit(TypeIds.BitNonNullByDefaultAnnotation))
+			return false;
+		// exclude annotations on @NonNull/@Nullable itself because
+		// * tagBits needs to be set right now
+		// * the current (meta) annotation 'annotationType' cannot possibly point back into 'enclosing':
+		if (enclosing.hasNullBit(TypeIds.BitNonNullAnnotation|TypeIds.BitNullableAnnotation))
+			return false;
+		return true;
+	}
+
+	protected boolean isReadyIncludingMembers(ReferenceBinding referenceType) {
+		if ((referenceType.tagBits & TagBits.EndHierarchyCheck) == 0)
+			return false;
+		if (referenceType instanceof SourceTypeBinding) {
+			ReferenceBinding[] members = ((SourceTypeBinding) referenceType).memberTypes;
+			if (members != null) {
+				for (ReferenceBinding member : members) {
+					if (!isReadyIncludingMembers(member))
+						return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	private void resolveDetails(BlockScope scope) {
 		ReferenceBinding annotationType = (ReferenceBinding) this.resolvedType;
 		MethodBinding[] methods = annotationType.methods();
 		// clone valuePairs to keep track of unused ones
@@ -1112,7 +1161,6 @@ public abstract class Annotation extends Expression {
 			}
 			checkAnnotationTarget(this, scope, annotationType, kind, this.recipient, tagBits & TagBits.AnnotationNullMASK);
 		}
-		return this.resolvedType;
 	}
 
 	public long handleNonNullByDefault(BlockScope scope) {
