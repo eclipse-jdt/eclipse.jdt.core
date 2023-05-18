@@ -7724,6 +7724,42 @@ public void test483219_comment_3() {
 			);
 }
 
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1048
+// Reflection APIs fail with NPE processing class file produced by JDT compiler
+public void testGHIssue1048() {
+	this.runConformTest(
+			new String[] {
+				"Reproducer.java",
+				"import java.io.IOException;\n" +
+				"import java.io.Serializable;\n" +
+				"import java.lang.reflect.Method;\n" +
+				"import java.util.Optional;\n" +
+				"import java.util.stream.Stream;\n" +
+				"public class Reproducer {\n" +
+				"    public static void main(String[] args) {\n" +
+				"        try {\n" +
+				"            new Reproducer().testClassWithStreamAndOptional2();\n" +
+				"        } catch (IOException e) {\n" +
+				"            e.printStackTrace();\n" +
+				"        }\n" +
+				"    }\n" +
+				"    private void testClassWithStreamAndOptional2() throws IOException {\n" +
+				"        Class<?> c = this.getClass();\n" +
+				"        for (Method m : c.getDeclaredMethods()) {\n" +
+				"            if (m.isSynthetic())\n" +
+				"                System.out.println(m.getGenericReturnType());\n" +
+				"        }\n" +
+				"    }\n" +
+				"    private Stream<Serializable> doMyStuff() {\n" +
+				"        Stream<Serializable> s = Stream.empty(); \n" +
+				"        return Optional.ofNullable(s).orElseGet(Stream::of);\n" +
+				"    }\n" +
+				"}\n"
+			},
+			"interface java.util.stream.Stream"
+			);
+}
+
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
