@@ -46,8 +46,8 @@ public LocalTypeBinding(ClassScope scope, SourceTypeBinding enclosingType, CaseS
 	}
 	this.enclosingCase = switchCase;
 	this.sourceStart = typeDeclaration.sourceStart;
-	MethodScope methodScope = scope.enclosingMethodScope();
-	MethodBinding methodBinding = methodScope.referenceMethodBinding();
+	MethodScope methodScope = scope.lexicallyEnclosingMethodScope();
+	MethodBinding methodBinding = methodScope != null ? methodScope.referenceMethodBinding() : null;
 	if (methodBinding != null) {
 		this.enclosingMethod = methodBinding;
 	}
