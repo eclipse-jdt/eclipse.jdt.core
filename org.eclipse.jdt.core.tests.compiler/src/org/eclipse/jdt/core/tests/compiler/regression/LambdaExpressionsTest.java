@@ -7759,6 +7759,67 @@ public void testGHIssue1048() {
 			"interface java.util.stream.Stream"
 			);
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1054
+// AIOOBE when checking implicit lambda generation requirement
+public void testGHIssue1054() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.invoke.MethodHandle;\n" +
+				"interface FI {\n" +
+				"    Object invokeMethodReference(String s, char c1, char c2) throws Throwable;\n" +
+				"}\n" +
+				"public class X {\n" +
+				"    private static MethodHandle createMethodHandle() {\n" +
+				"    	return null;\n" +
+				"    }\n" +
+				"    public static void run() throws Throwable {\n" +
+				"        MethodHandle ms = createMethodHandle(); \n" +
+				"        FI fi = ms::invoke;\n" +
+				"        fi.invokeMethodReference(\"\", (char)0, (char)0);\n" +
+				"    }\n" +
+				"    public static void main(String [] args) throws Throwable {\n" +
+				"        try { \n" +
+				"            run();\n" +
+				"        } catch(NullPointerException npe) {\n" +
+				"            System.out.println(\"NPE as expected\");\n" +
+				"        }\n" +
+				"    }\n" +
+				"}\n"},
+			"NPE as expected"
+			);
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1054
+// AIOOBE when checking implicit lambda generation requirement
+public void testGHIssue1054_2() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.invoke.MethodHandle;\n" +
+				"interface FI {\n" +
+				"    <T extends Object & Runnable> Object invokeMethodReference(Object o, T t2) throws Throwable;\n" +
+				"}\n" +
+				"public class X {\n" +
+				"    private static MethodHandle createMethodHandle() {\n" +
+				"    	return null;\n" +
+				"    }\n" +
+				"    public static void run() throws Throwable {\n" +
+				"        MethodHandle ms = createMethodHandle(); \n" +
+				"        FI fi = ms::invoke;\n" +
+				"        fi.invokeMethodReference(null, ()-> {}); \n" +
+				"    }\n" +
+				"    public static void main(String[] args) throws Throwable {\n" +
+				"    	try {\n" +
+				"    		run();\n" +
+				"    	} catch (NullPointerException npe) {\n" +
+				"    		System.out.println(\"NPE as expected\");\n" +
+				"    	}\n" +
+				"	}\n" +
+				"}\n"},
+			"NPE as expected"
+			);
+}
 
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
