@@ -776,7 +776,7 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 				fieldReceiverType = fieldReceiverType.getErasureCompatibleType(field.declaringClass);// handle indirect inheritance thru variable secondary bound
 				FieldBinding originalBinding = previousField.original();
 				if (TypeBinding.notEquals(fieldReceiverType, oldReceiverType) || originalBinding.type.leafComponentType().isTypeVariable()) { // record need for explicit cast at codegen
-			    	setGenericCast(index-1,originalBinding.type.genericCast(fieldReceiverType)); // type cannot be base-type even in boxing case
+			    	setGenericCast(place,originalBinding.type.genericCast(fieldReceiverType)); // type cannot be base-type even in boxing case
 				}
 		    }
 			// only last field is actually a write access if any

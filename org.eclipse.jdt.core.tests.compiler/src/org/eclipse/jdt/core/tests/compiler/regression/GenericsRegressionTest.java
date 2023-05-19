@@ -6770,5 +6770,106 @@ public void testBugGH472_d() {
 		);
 	}
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=540063
+// VerifyError with nested static templated instance
+public void test540063() {
+	this.runConformTest(
+		new String[] {
+			"SomeClass.java",
+			"public class SomeClass {\n" +
+			"  public static void main(String[] args) {\n" +
+			"    String s = Namespace.t.contained.s;\n" +
+			"    System.out.println(s);\n" +
+			"  }\n" +
+			"\n" +
+			"  static class Namespace {\n" +
+			"    static Templated<StringHolder> t = new Templated<StringHolder>(new StringHolder());\n" +
+			"  }\n" +
+			"\n" +
+			"  static class Templated<T> {\n" +
+			"    T contained;\n" +
+			"\n" +
+			"    Templated(T contained) {\n" +
+			"      this.contained = contained;\n" +
+			"    }\n" +
+			"  }\n" +
+			"\n" +
+			"  static class StringHolder {\n" +
+			"    String s = \"some string\";\n" +
+			"  }\n" +
+			"}\n"
+			},
+		"some string"
+	);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=540063
+// VerifyError with nested static templated instance
+public void test540063_2() {
+	this.runConformTest(
+		new String[] {
+			"SomeClass.java",
+			"public class SomeClass {\n" +
+			"  public static void main(String[] args) {\n" +
+			"    String s = t.contained.s;\n" +
+			"    System.out.println(s);\n" +
+			"  }\n" +
+			"\n" +
+			"  static Templated<StringHolder> t = new Templated<StringHolder>(new StringHolder());\n" +
+			"\n" +
+			"  static class Templated<T> {\n" +
+			"    T contained;\n" +
+			"\n" +
+			"    Templated(T contained) {\n" +
+			"      this.contained = contained;\n" +
+			"    }\n" +
+			"  }\n" +
+			"\n" +
+			"  static class StringHolder {\n" +
+			"    String s = \"some string\";\n" +
+			"  }\n" +
+			"}\n"
+		},
+		"some string"
+	);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=540063
+// VerifyError with nested static templated instance
+public void test540063_3() {
+	this.runConformTest(
+		new String[] {
+			"SomeClass.java",
+			"public class SomeClass {\n" +
+			"  public static void main(String[] args) {\n" +
+			"    String s = Namespace_O.Namespace_M.Namespace_I.t.contained.s;\n" +
+			"    System.out.println(s);\n" +
+			"  }\n" +
+			"\n" +
+			" static class Namespace_O {\n" +
+			"	static class Namespace_M {\n" +
+			"		static class Namespace_I {\n" +
+			"			static Templated<StringHolder> t = new Templated<StringHolder>(new StringHolder());\n" +
+			"		}\n" +
+			"	}\n" +
+			"  }\n" +
+			"\n" +
+			"  static class Templated<T> {\n" +
+			"    T contained;\n" +
+			"\n" +
+			"    Templated(T contained) {\n" +
+			"      this.contained = contained;\n" +
+			"    }\n" +
+			"  }\n" +
+			"\n" +
+			"  static class StringHolder {\n" +
+			"    String s = \"some string\";\n" +
+			"  }\n" +
+			"}\n"
+		},
+		"some string"
+	);
+}
 }
 
