@@ -6871,5 +6871,45 @@ public void test540063_3() {
 		"some string"
 	);
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=570022
+// QualifiedNameReference.setGenericCast(...) throws ArrayIndexOutOfBoundsException
+public void test570022() {
+	this.runNegativeTest(
+			new String[] {
+					"p000/aazh.java",
+					"package p000;\n" +
+					"\n" +
+					"public class aazh {\n" +
+					"    public static p000.abyz<p000.aazh.EnumC0166a> f2789a = p000.abyz.m1243c(p000.aazh.EnumC0166a.DISABLED);\n" +
+					"\n" +
+					"    public enum EnumC0166a {\n" +
+					"        DISABLED;\n" +
+					"        \n" +
+					"        public boolean f2796f;\n" +
+					"    }\n" +
+					"}\n",
+					"p000/abam.java",
+					"package p000;\n" +
+					"\n" +
+					"public class abam {\n" +
+					"    public Object mo369h() {\n" +
+					"        return p000.aazh.f2789a.f4668a.f2796f;\n" +
+					"    }\n" +
+					"}\n",
+					"p000/abyz.java",
+					"package p000;\n" +
+					"\n" +
+					"public class abyz<T> {\n" +
+					"    public volatile T f4668a;\n" +
+					"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in p000\\aazh.java (at line 4)\n" +
+			"	public static p000.abyz<p000.aazh.EnumC0166a> f2789a = p000.abyz.m1243c(p000.aazh.EnumC0166a.DISABLED);\n" +
+			"	                                                                 ^^^^^^\n" +
+			"The method m1243c(aazh.EnumC0166a) is undefined for the type abyz\n" +
+			"----------\n");
+}
 }
 
