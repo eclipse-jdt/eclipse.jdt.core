@@ -278,4 +278,25 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 			"s1 cannot be resolved to a variable\n" +
 			"----------\n");
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1076
+	// ECJ accepts invalid Java code instanceof final Type
+	public void testGH1076() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"class Test {\n" +
+				"    void check() {\n" +
+				"        Number n = Integer.valueOf(1);\n" +
+				"        if (n instanceof final Integer) {}\n" +
+				"        if (n instanceof final Integer x) {}\n" +
+				"    }\n" +
+				"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	if (n instanceof final Integer) {}\n" +
+			"	                 ^^^^^\n" +
+			"Syntax error, modifiers are not allowed here\n" +
+			"----------\n");
+	}
 }
