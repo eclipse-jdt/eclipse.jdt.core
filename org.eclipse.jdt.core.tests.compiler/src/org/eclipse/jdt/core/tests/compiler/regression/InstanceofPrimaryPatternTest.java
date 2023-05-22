@@ -295,7 +295,7 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 			"----------\n" +
 			"1. ERROR in X.java (at line 4)\n" +
 			"	if (n instanceof final Integer) {}\n" +
-			"	                 ^^^^^\n" +
+			"	                 ^^^^^^^^^^^^^\n" +
 			"Syntax error, modifiers are not allowed here\n" +
 			"----------\n");
 	}

@@ -4608,7 +4608,7 @@ protected void consumeInstanceOfExpression() {
 		int anyModifiersourceStart = this.intStack[this.intPtr--];
 		int anyModifiers =  this.intStack[this.intPtr--];
 		if (anyModifiers != 0) {
-			problemReporter().illegalModifiers(anyModifiersourceStart, typeRef.sourceStart - 2);
+			problemReporter().illegalModifiers(anyModifiersourceStart, typeRef.sourceEnd);
 		}
 	}
 
