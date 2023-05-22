@@ -74,6 +74,7 @@ import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.CaptureBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18;
@@ -84,12 +85,14 @@ import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ParameterizedMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PolyTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.lookup.Scope.Substitutor;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Substitution;
 import org.eclipse.jdt.internal.compiler.lookup.Substitution.NullSubstitution;
@@ -99,8 +102,8 @@ import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
+import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.WildcardBinding;
-import org.eclipse.jdt.internal.compiler.lookup.Scope.Substitutor;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
@@ -285,6 +288,22 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		super.resolveType(blockScope, skipKosherCheck); // compute & capture interface function descriptor.
 
 		final boolean haveDescriptor = this.descriptor != null;
+
+		if (this.descriptor instanceof ParameterizedMethodBinding && this.descriptor.parameters != null) {
+			for (int i = 0; i < this.descriptor.parameters.length; i++) {
+				TypeBinding parameter = this.descriptor.parameters[i];
+				if (parameter instanceof CaptureBinding && ((CaptureBinding) parameter).firstBound == null) {
+					TypeBinding uncaptured = ((org.eclipse.jdt.internal.compiler.lookup.CaptureBinding) parameter)
+							.uncapture(this.scope);
+					if (uncaptured.isWildcard()) {
+						TypeVariableBinding typeVariable = ((WildcardBinding) uncaptured).typeVariable();
+						if (typeVariable != null && typeVariable.firstBound != null) {
+							this.descriptor.parameters[i] = typeVariable.firstBound;
+						}
+					}
+				}
+			}
+		}
 
 		if (!skipKosherCheck && (!haveDescriptor || this.descriptor.typeVariables != Binding.NO_TYPE_VARIABLES)) // already complained in kosher*
 			return this.resolvedType = null;
