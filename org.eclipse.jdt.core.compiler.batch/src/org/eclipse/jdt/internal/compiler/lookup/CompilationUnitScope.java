@@ -72,6 +72,8 @@ public class CompilationUnitScope extends Scope {
 	/** Cache of interned inference variables. Access only via {@link InferenceVariable#get(TypeBinding, int, InvocationSite, Scope, ReferenceBinding, boolean)}. */
 	Map<InferenceVariable.InferenceVarKey, InferenceVariable> uniqueInferenceVariables = new HashMap<>();
 
+	public RuntimeException deferredException; // enables deferring a CompletionNodeFound exception, not used during normal compilation
+
 public CompilationUnitScope(CompilationUnitDeclaration unit, LookupEnvironment environment) {
 	this(unit, environment.globalOptions);
 	this.environment = environment;

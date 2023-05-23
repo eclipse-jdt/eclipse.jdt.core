@@ -64,9 +64,12 @@ public class CompletionOnSingleNameReference extends SingleNameReference {
 
 	@Override
 	public TypeBinding resolveType(BlockScope scope) {
+		CompletionNodeFound exception;
 		if(scope instanceof MethodScope) {
-			throw new CompletionNodeFound(this, scope, ((MethodScope)scope).insideTypeAnnotation);
+			exception = new CompletionNodeFound(this, scope, ((MethodScope)scope).insideTypeAnnotation);
+		} else {
+			exception = new CompletionNodeFound(this, scope);
 		}
-		throw new CompletionNodeFound(this, scope);
+		return exception.throwOrDeferAndReturn(() -> super.resolveType(scope));
 	}
 }
