@@ -5168,12 +5168,6 @@ public abstract class Scope {
 		return null;
 	}
 
-	public boolean deferCheck(Runnable check) {
-		if (this.parent != null)
-			return this.parent.deferCheck(check); // only ClassScope potentially records this
-		return false;
-	}
-
 	public void deferBoundCheck(TypeReference typeRef) {
 		// TODO: use dynamic binding rather than explicit type check
 		if (this.kind == CLASS_SCOPE) {

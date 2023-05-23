@@ -67,7 +67,6 @@ public class CompilationUnitScope extends Scope {
 	 */
 	private boolean skipCachingImports;
 
-	boolean connectingHierarchy;
 	private ArrayList<Invocation> inferredInvocations;
 	/** Cache of interned inference variables. Access only via {@link InferenceVariable#get(TypeBinding, int, InvocationSite, Scope, ReferenceBinding, boolean)}. */
 	Map<InferenceVariable.InferenceVarKey, InferenceVariable> uniqueInferenceVariables = new HashMap<>();
