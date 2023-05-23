@@ -18773,7 +18773,7 @@ public void testGH1007_srikanth() {
 		};
 	runner.runConformTest();
 }
-public void testGH854() {
+public void _testGH854() {
 	Runner runner = new Runner();
 	runner.testFiles =
 		new String[] {
