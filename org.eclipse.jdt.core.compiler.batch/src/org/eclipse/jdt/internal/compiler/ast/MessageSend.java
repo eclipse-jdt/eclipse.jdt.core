@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -830,6 +830,9 @@ public TypeBinding resolveType(BlockScope scope) {
 			scope.problemReporter().errorNoMethodFor(this, this.actualReceiverType, this.argumentTypes);
 			return null;
 		}
+	}
+	if (this.argumentsHaveErrors) {
+		return null;
 	}
 
 	TypeBinding methodType = findMethodBinding(scope);
