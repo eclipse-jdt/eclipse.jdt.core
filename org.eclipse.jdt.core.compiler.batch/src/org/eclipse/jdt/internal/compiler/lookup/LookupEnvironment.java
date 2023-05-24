@@ -43,6 +43,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -147,6 +148,8 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	public ReferenceBinding requestingType;
 
 	public String moduleVersion; 	// ROOT_ONLY
+
+	private final Set<String> acceptingSourceFiles = new HashSet<>();
 
 	final static int BUILD_FIELDS_AND_METHODS = 4;
 	final static int BUILD_TYPE_HIERARCHY = 1;
@@ -333,12 +336,18 @@ ReferenceBinding askForType(PackageBinding packageBinding, char[] name, ModuleBi
 			}
 		} else if (answer.isCompilationUnit()) {
 			// the type was found as a .java file, try to build it then search the cache
+			String fileName = String.valueOf(answer.getCompilationUnit().getFileName());
 			try {
-				this.typeRequestor.accept(answer.getCompilationUnit(), answer.getAccessRestriction());
+				boolean added = this.acceptingSourceFiles.add(fileName);
+				if (added) {
+					this.typeRequestor.accept(answer.getCompilationUnit(), answer.getAccessRestriction());
+				}
 			} catch (AbortCompilation abort) {
 				if (CharOperation.equals(name, TypeConstants.PACKAGE_INFO_NAME))
 					return null; // silently, requestor may not be able to handle compilation units (HierarchyResolver)
 				throw abort;
+			} finally {
+				this.acceptingSourceFiles.remove(fileName);
 			}
 		} else if (answer.isSourceType()) {
 			// the type was found as a source model
