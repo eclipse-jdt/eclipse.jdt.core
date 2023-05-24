@@ -95,6 +95,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 
 public class ReferenceExpression extends FunctionalExpression implements IPolyExpression, InvocationSite {
 	// secret variable name
@@ -153,6 +154,9 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 		parser.scanner = this.scanner;
 		ReferenceExpression copy =  (ReferenceExpression) parser.parseExpression(source, this.sourceStart, this.sourceEnd - this.sourceStart + 1,
 										this.enclosingScope.referenceCompilationUnit(), false /* record line separators */);
+		if (copy== null) {// on AbortCompilation
+			return null;
+		}
 		copy.original = this;
 		copy.sourceStart = this.sourceStart;
 		copy.sourceEnd = this.sourceEnd;
@@ -192,6 +196,9 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 	public void generateImplicitLambda(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
 
 		ReferenceExpression copy = copy();
+		if (copy==null) {
+			throw new AbortCompilation();
+		}
 
 		int argc = this.descriptor.parameters.length;
 
