@@ -502,4 +502,51 @@ public void testGHIssue1085_3() throws Exception {
 		deleteProject(p);
 	}
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=578080
+// incorrect compiler error: Type inference not working on records with constructor
+public void test578080() throws Exception {
+	if (!isJRE16)
+		return;
+	IJavaProject p = createJava16Project("p");
+	try {
+		createFile("p/src/Diamond.java",
+				"public record Diamond<T> (T value) {\n" +
+				"	public Diamond {	\n" +
+				"	}\n" +
+				"}\n"
+						);
+
+		createFile("p/src/DiamondTest.java",
+				"public class DiamondTest {\n" +
+				"	public void testDiamond(){\n" +
+				"		assertEquals(new Diamond<>(\"y\"), new Diamond<>(\"y\"));\n" +
+				"		final Diamond<String> hi = new Diamond<>(\"hello\");\n" +
+				"		assertNotNull(hi);\n" +
+				"	}\n" +
+				"\n" +
+				"	private void assertNotNull(Diamond<String> hi) {\n" +
+				"	}\n" +
+				"\n" +
+				"	private void assertEquals(Object o1, Object o2) {\n" +
+				"	} \n" +
+				"}\n");
+
+		p.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
+		IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+		assertMarkers("markers in p",
+				"",
+				markers);
+
+		this.workingCopy = getCompilationUnit("p/src/DiamondTest.java").getWorkingCopy(this.wcOwner, null);
+		this.problemRequestor.initialize(this.workingCopy.getSource().toCharArray());
+		this.workingCopy.reconcile(JLS_LATEST, true, this.wcOwner, null);
+		assertProblems("Expecting no problems",
+				"----------\n" +
+				"----------\n",
+				this.problemRequestor);
+		this.workingCopy.discardWorkingCopy();
+	} finally {
+		deleteProject(p);
+	}
+}
 }
