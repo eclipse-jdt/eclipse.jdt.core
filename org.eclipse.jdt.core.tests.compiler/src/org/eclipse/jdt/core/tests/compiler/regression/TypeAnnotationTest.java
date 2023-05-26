@@ -4225,6 +4225,8 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
+				"import java.lang.annotation.*;\n" +
+				"@Target({ElementType.METHOD, ElementType.TYPE_USE})\n" +
 				"@interface Annot {\r\n" +
 				"	int value() default 0;\r\n" +
 				"}\r\n" +
@@ -4241,7 +4243,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"  public void foo();\n" +
 			"    0  return\n" +
 			"      Line numbers:\n" +
-			"        [pc: 0, line: 7]\n" +
+			"        [pc: 0, line: 9]\n" +
 			"      Local variable table:\n" +
 			"        [pc: 0, pc: 1] local: this index: 0 type: X\n" +
 			"    RuntimeInvisibleAnnotations: \n" +
@@ -4258,6 +4260,8 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		runner.testFiles =
 			new String[] {
 				"X.java",
+				"import java.lang.annotation.*;\n" +
+				"@Target({ElementType.METHOD, ElementType.TYPE_USE})\n" +
 				"@interface Annot {\n" +
 				"	int value() default 0;\n" +
 				"}\n" +
@@ -4268,7 +4272,6 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"}\n",
 			};
 		runner.expectedCompilerLog = "";
-		runner.javacTestOptions = JavacTestOptions.JavacHasABug.JavacBug8231436;
 		runner.runConformTest();
 
 		String expectedOutput =
@@ -4287,7 +4290,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"    1  invokespecial java.lang.Object() [14]\n" +
 				"    4  return\n" +
 				"      Line numbers:\n" +
-				"        [pc: 0, line: 4]\n" +
+				"        [pc: 0, line: 6]\n" +
 				"      Local variable table:\n" +
 				"        [pc: 0, pc: 5] local: this index: 0 type: X\n" +
 				"      Local variable type table:\n" +
@@ -4298,7 +4301,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"  public void foo(java.lang.String[] args);\n" +
 				"    0  return\n" +
 				"      Line numbers:\n" +
-				"        [pc: 0, line: 7]\n" +
+				"        [pc: 0, line: 9]\n" +
 				"      Local variable table:\n" +
 				"        [pc: 0, pc: 1] local: this index: 0 type: X\n" +
 				"        [pc: 0, pc: 1] local: args index: 1 type: java.lang.String[]\n" +

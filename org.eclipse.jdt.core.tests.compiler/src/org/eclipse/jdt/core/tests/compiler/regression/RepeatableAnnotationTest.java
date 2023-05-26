@@ -22,7 +22,6 @@ import java.io.File;
 
 import junit.framework.Test;
 
-import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.JavacHasABug;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
@@ -1427,8 +1426,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	public void testDeprecation() {
-		Runner runner = new Runner();
-		runner.testFiles =
+		this.runNegativeTest(
 			new String[] {
 				"TC.java",
 				"@Deprecated\n" +
@@ -1442,26 +1440,36 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 				"}\n" +
 				"interface I<@T(1) @T(2) K> {\n" +
 				"}\n"
-			};
-		runner.expectedCompilerLog =
+			},
 			"----------\n" +
 			"1. WARNING in T.java (at line 1)\n" +
 			"	@java.lang.annotation.Repeatable(TC.class)\n" +
 			"	                                 ^^\n" +
 			"The type TC is deprecated\n" +
 			"----------\n" +
-			"2. WARNING in T.java (at line 5)\n" +
+			"2. ERROR in T.java (at line 5)\n" +
+			"	interface I<@T(1) @T(2) K> {\n" +
+			"	            ^^\n" +
+			"Annotation types that do not specify explicit target element types cannot be applied here\n" +
+			"----------\n" +
+			"3. WARNING in T.java (at line 5)\n" +
 			"	interface I<@T(1) @T(2) K> {\n" +
 			"	            ^^\n" +
 			"The type TC is deprecated\n" +
-			"----------\n";
-		runner.javacTestOptions = JavacHasABug.JavacBug8231436_EclipseWarns;
-		runner.runWarningTest();
+			"----------\n" +
+			"4. ERROR in T.java (at line 5)\n" +
+			"	interface I<@T(1) @T(2) K> {\n" +
+			"	            ^^\n" +
+			"Annotation types that do not specify explicit target element types cannot be applied here\n" +
+			"----------\n" +
+			"5. ERROR in T.java (at line 5)\n" +
+			"	interface I<@T(1) @T(2) K> {\n" +
+			"	                  ^^\n" +
+			"Annotation types that do not specify explicit target element types cannot be applied here\n" +
+			"----------\n");
 	}
 	public void testDeprecation2() { // verify that deprecation warning does not show up when the deprecated element is used in the same file defining it.
-		// was negative prior to https://bugs.openjdk.java.net/browse/JDK-8231435
-		Runner runner = new Runner();
-		runner.testFiles =
+		this.runNegativeTest(
 			new String[] {
 				"T.java",
 				"@Deprecated\n" +
@@ -1474,10 +1482,23 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 				"}\n" +
 				"interface I<@T(1) @T(2) K> {\n" +
 				"}\n"
-			};
-		runner.expectedCompilerLog = "";
-		runner.javacTestOptions = JavacHasABug.JavacBug8231436;
-		runner.runConformTest();
+			},
+			"----------\n" +
+			"1. ERROR in T.java (at line 9)\n" +
+			"	interface I<@T(1) @T(2) K> {\n" +
+			"	            ^^\n" +
+			"Annotation types that do not specify explicit target element types cannot be applied here\n" +
+			"----------\n" +
+			"2. ERROR in T.java (at line 9)\n" +
+			"	interface I<@T(1) @T(2) K> {\n" +
+			"	            ^^\n" +
+			"Annotation types that do not specify explicit target element types cannot be applied here\n" +
+			"----------\n" +
+			"3. ERROR in T.java (at line 9)\n" +
+			"	interface I<@T(1) @T(2) K> {\n" +
+			"	                  ^^\n" +
+			"Annotation types that do not specify explicit target element types cannot be applied here\n" +
+			"----------\n");
 	}
 
 	// 419209: [1.8] Repeating container annotations should be rejected in the presence of annotation it contains
