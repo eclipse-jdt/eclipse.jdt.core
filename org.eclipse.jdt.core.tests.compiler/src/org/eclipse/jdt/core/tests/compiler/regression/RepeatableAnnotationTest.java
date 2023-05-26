@@ -1447,7 +1447,12 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 			"	                                 ^^\n" +
 			"The type TC is deprecated\n" +
 			"----------\n" +
-			"2. WARNING in T.java (at line 5)\n" +
+			"2. ERROR in T.java (at line 5)\n" +
+			"	interface I<@T(1) @T(2) K> {\n" +
+			"	            ^^\n" +
+			"Annotation types that do not specify explicit target element types cannot be applied here\n" +
+			"----------\n" +
+			"3. WARNING in T.java (at line 5)\n" +
 			"	interface I<@T(1) @T(2) K> {\n" +
 			"	            ^^\n" +
 			"The type TC is deprecated\n");
