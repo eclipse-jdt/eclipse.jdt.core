@@ -9267,4 +9267,128 @@ public void testRecordConstructorWithExceptionGh487() throws Exception {
 			""";
 	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 }
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1092
+// Duplicate Annotation Error for Records
+public void testGH1092() throws Exception {
+	runConformTest(
+			new String[] {
+					"X.java",
+					"import java.lang.annotation.*;\n" +
+					"import java.lang.annotation.Target;\n" +
+					"import java.util.List;\n" +
+					"import java.lang.reflect.AnnotatedParameterizedType;\n" +
+					"\n" +
+					"@Target(ElementType.TYPE_USE)\n" +
+					"@Retention(RetentionPolicy.RUNTIME)\n" +
+					"@interface Ann {\n" +
+					"}\n" +
+					"\n" +
+					"record Record(\n" +
+					"    @Ann\n" +
+					"    List<@Ann String> list\n" +
+					") {\n" +
+					"}\n" +
+					"\n" +
+					"public class X {\n" +
+					"\n" +
+					"	static void assertDoesNotThrow(Runnable exe, String message) {\n" +
+					"		exe.run();\n" +
+					"	}\n" +
+					"	\n" +
+					"    public static void main(String [] args) throws Exception {\n" +
+					"        AnnotatedParameterizedType listField = (AnnotatedParameterizedType) Record.class.getDeclaredMethod(\"list\").getAnnotatedReturnType();\n" +
+					"        assertDoesNotThrow(listField::getAnnotatedActualTypeArguments, \"Should not throw duplicate annotation exception.\");\n" +
+					"    }\n" +
+					"}\n"
+				},
+		"");
+
+	// verify annotations on field
+	String expectedOutput =
+			"  // Field descriptor #6 Ljava/util/List;\n" +
+			"  // Signature: Ljava/util/List<Ljava/lang/String;>;\n" +
+			"  private final java.util.List list;\n" +
+			"    RuntimeVisibleTypeAnnotations: \n" +
+			"      #10 @Ann(\n" +
+			"        target type = 0x13 FIELD\n" +
+			"      )\n" +
+			"      #10 @Ann(\n" +
+			"        target type = 0x13 FIELD\n" +
+			"        location = [TYPE_ARGUMENT(0)]\n" +
+			"      )\n" +
+			"  \n";
+	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Record.class", ClassFileBytesDisassembler.SYSTEM);
+
+	// verify annotations on constructor
+	expectedOutput =
+			"  // Method descriptor #12 (Ljava/util/List;)V\n" +
+			"  // Signature: (Ljava/util/List<Ljava/lang/String;>;)V\n" +
+			"  // Stack: 2, Locals: 2\n" +
+			"  Record(java.util.List list);\n" +
+			"     0  aload_0 [this]\n" +
+			"     1  invokespecial java.lang.Record() [15]\n" +
+			"     4  aload_0 [this]\n" +
+			"     5  aload_1 [list]\n" +
+			"     6  putfield Record.list : java.util.List [18]\n" +
+			"     9  return\n" +
+			"      Line numbers:\n" +
+			"        [pc: 0, line: 11]\n" +
+			"      Local variable table:\n" +
+			"        [pc: 0, pc: 10] local: this index: 0 type: Record\n" +
+			"        [pc: 0, pc: 10] local: list index: 1 type: java.util.List\n" +
+			"      Local variable type table:\n" +
+			"        [pc: 0, pc: 10] local: list index: 1 type: java.util.List<java.lang.String>\n" +
+			"      Method Parameters:\n" +
+			"        list\n" +
+			"    RuntimeVisibleTypeAnnotations: \n" +
+			"      #10 @Ann(\n" +
+			"        target type = 0x16 METHOD_FORMAL_PARAMETER\n" +
+			"        method parameter index = 0\n" +
+			"      )\n" +
+			"      #10 @Ann(\n" +
+			"        target type = 0x16 METHOD_FORMAL_PARAMETER\n" +
+			"        method parameter index = 0\n" +
+			"        location = [TYPE_ARGUMENT(0)]\n" +
+			"      )\n" +
+			"  \n" ;
+	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Record.class", ClassFileBytesDisassembler.SYSTEM);
+
+	// verify annotations on accessor
+	expectedOutput =
+			"  // Method descriptor #26 ()Ljava/util/List;\n" +
+			"  // Signature: ()Ljava/util/List<Ljava/lang/String;>;\n" +
+			"  // Stack: 1, Locals: 1\n" +
+			"  public java.util.List list();\n" +
+			"    0  aload_0 [this]\n" +
+			"    1  getfield Record.list : java.util.List [18]\n" +
+			"    4  areturn\n" +
+			"      Line numbers:\n" +
+			"        [pc: 0, line: 13]\n" +
+			"    RuntimeVisibleTypeAnnotations: \n" +
+			"      #10 @Ann(\n" +
+			"        target type = 0x14 METHOD_RETURN\n" +
+			"      )\n" +
+			"      #10 @Ann(\n" +
+			"        target type = 0x14 METHOD_RETURN\n" +
+			"        location = [TYPE_ARGUMENT(0)]\n" +
+			"      )\n" +
+			"  \n";
+	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Record.class", ClassFileBytesDisassembler.SYSTEM);
+
+	// verify annotations on record component
+	expectedOutput =
+			"// Component descriptor #6 Ljava/util/List;\n" +
+			"// Signature: Ljava/util/List<Ljava/lang/String;>;\n" +
+			"java.util.List list;\n" +
+			"  RuntimeVisibleTypeAnnotations: \n" +
+			"    #10 @Ann(\n" +
+			"      target type = 0x13 FIELD\n" +
+			"    )\n" +
+			"    #10 @Ann(\n" +
+			"      target type = 0x13 FIELD\n" +
+			"      location = [TYPE_ARGUMENT(0)]\n" +
+			"    )\n";
+	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Record.class", ClassFileBytesDisassembler.SYSTEM);
+}
 }
