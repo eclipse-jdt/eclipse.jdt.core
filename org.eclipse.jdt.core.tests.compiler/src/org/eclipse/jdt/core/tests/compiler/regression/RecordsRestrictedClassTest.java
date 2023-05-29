@@ -3746,22 +3746,18 @@ public void testBug562439_019() throws IOException, ClassFormatException {
 			"    RuntimeInvisibleAnnotations: \n" +
 			"      #8 @Annot(\n" +
 			"      )\n" +
-			"    RuntimeInvisibleTypeAnnotations: \n" +
-			"      #8 @Annot(\n" +
-			"        target type = 0x13 FIELD\n" +
-			"      )\n" +
 			"  \n";
 	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
 			"  Point(int myInt, char myChar);\n" +
 			"     0  aload_0 [this]\n" +
-			"     1  invokespecial java.lang.Record() [16]\n" +
+			"     1  invokespecial java.lang.Record() [15]\n" +
 			"     4  aload_0 [this]\n" +
 			"     5  iload_1 [myInt]\n" +
-			"     6  putfield Point.myInt : int [19]\n" +
+			"     6  putfield Point.myInt : int [18]\n" +
 			"     9  aload_0 [this]\n" +
 			"    10  iload_2 [myChar]\n" +
-			"    11  putfield Point.myChar : char [21]\n" +
+			"    11  putfield Point.myChar : char [20]\n" +
 			"    14  return\n" +
 			"      Line numbers:\n" +
 			"        [pc: 0, line: 11]\n" +
@@ -3777,28 +3773,19 @@ public void testBug562439_019() throws IOException, ClassFormatException {
 			"        #8 @Annot(\n" +
 			"        )\n" +
 			"      Number of annotations for parameter 1: 0\n" +
-			"    RuntimeInvisibleTypeAnnotations: \n" +
-			"      #8 @Annot(\n" +
-			"        target type = 0x16 METHOD_FORMAL_PARAMETER\n" +
-			"        method parameter index = 0\n" +
-			"      )\n" +
 			"  \n";
 	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
-			"  // Method descriptor #28 ()I\n" +
+			"  // Method descriptor #27 ()I\n" +
 			"  // Stack: 1, Locals: 1\n" +
 			"  public int myInt();\n" +
 			"    0  aload_0 [this]\n" +
-			"    1  getfield Point.myInt : int [19]\n" +
+			"    1  getfield Point.myInt : int [18]\n" +
 			"    4  ireturn\n" +
 			"      Line numbers:\n" +
 			"        [pc: 0, line: 11]\n" +
 			"    RuntimeInvisibleAnnotations: \n" +
 			"      #8 @Annot(\n" +
-			"      )\n" +
-			"    RuntimeInvisibleTypeAnnotations: \n" +
-			"      #8 @Annot(\n" +
-			"        target type = 0x14 METHOD_RETURN\n" +
 			"      )\n";
 	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput =
@@ -3809,10 +3796,6 @@ public void testBug562439_019() throws IOException, ClassFormatException {
 			"int myInt;\n" +
 			"  RuntimeInvisibleAnnotations: \n" +
 			"    #8 @Annot(\n" +
-			"    )\n" +
-			"  RuntimeInvisibleTypeAnnotations: \n" +
-			"    #8 @Annot(\n" +
-			"      target type = 0x13 FIELD\n" +
 			"    )\n";
 	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Point.class", ClassFileBytesDisassembler.SYSTEM);
 }
@@ -8403,7 +8386,7 @@ public void testBug571038_3() throws Exception {
 			+ "@interface MyAnnot {}\n"
 		},
 	 "hello");
-	String expectedOutput = "  // Method descriptor #30 ()[LMyIntf;\n"
+	String expectedOutput = "  // Method descriptor #29 ()[LMyIntf;\n"
 			+ "  // Signature: ()[LMyIntf<TT;>;\n"
 			+ "  // Stack: 1, Locals: 1\n"
 			+ "  public MyIntf[] t();\n";
@@ -8427,6 +8410,7 @@ public void testBug571038_4() throws Exception {
 			+ "}\n"
 			+ "interface MyIntf<T> {}\n"
 			+ "@Retention(RetentionPolicy.RUNTIME)\n"
+			+ "@java.lang.annotation.Target(ElementType.TYPE_USE)\n"
 			+ "@interface MyAnnot {}\n"
 		},
 	 "hello");
