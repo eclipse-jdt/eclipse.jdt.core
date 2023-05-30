@@ -655,7 +655,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 			if ((this.produceAttributes & ClassFileConstants.ATTR_TYPE_ANNOTATION) != 0) {
 				List<AnnotationContext> allTypeAnnotationContexts = new ArrayList<>();
 				if (annotations != null && (recordComponent.bits & ASTNode.HasTypeAnnotations) != 0) {
-					recordComponent.getAllAnnotationContexts(AnnotationTargetTypeConstants.FIELD, allTypeAnnotationContexts);
+					recordComponent.getAllAnnotationContexts(AnnotationTargetTypeConstants.RECORD_COMPONENT, allTypeAnnotationContexts);
 				}
 				TypeReference recordComponentType = recordComponent.type;
 				if (recordComponentType != null && ((recordComponentType.bits & ASTNode.HasTypeAnnotations) != 0)) {
