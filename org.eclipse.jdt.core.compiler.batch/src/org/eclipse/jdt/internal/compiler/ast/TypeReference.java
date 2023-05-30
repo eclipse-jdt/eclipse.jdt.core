@@ -192,7 +192,7 @@ static class AnnotationCollector extends ASTVisitor {
 	private boolean targetingTypeParameter() {
 		return this.targetType == AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER || this.targetType == AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER;
 	}
-	
+
 	private boolean internalVisit(Annotation annotation) {
 		AnnotationContext annotationContext = null;
 		if (annotation.isRuntimeTypeInvisible(targetingTypeParameter())) {

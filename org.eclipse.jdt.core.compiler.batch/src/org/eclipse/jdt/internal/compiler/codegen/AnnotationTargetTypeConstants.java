@@ -19,6 +19,8 @@ package org.eclipse.jdt.internal.compiler.codegen;
 
 public interface AnnotationTargetTypeConstants {
 
+	int NonJVMS4_7_20_TargetLocation         = -1;
+
 	// Targets for type parameter declarations
 	int CLASS_TYPE_PARAMETER                 = 0x00;
 	int METHOD_TYPE_PARAMETER                = 0x01;

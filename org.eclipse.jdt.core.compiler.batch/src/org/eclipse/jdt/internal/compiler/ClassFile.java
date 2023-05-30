@@ -4578,9 +4578,17 @@ public class ClassFile implements TypeConstants, TypeIds {
 			if (annotationMask != 0 && (annotationMask & targetMask) == 0) {
 				if (!jdk16packageInfoAnnotation(annotationMask, targetMask)) continue;
 			}
+<<<<<<< Upstream, based on branch 'master' of git@github.com:srikanth-sankaran/eclipse.jdt.core.git
 			if (annotation.isRuntimeInvisible() || annotation.isRuntimeTypeInvisible(false)) {
+=======
+			if (annotation.isRuntimeInvisible() || annotation.isRuntimeTypeInvisible(AnnotationTargetTypeConstants.NonJVMS4_7_20_TargetLocation)) {
+>>>>>>> 9828d8a Implement the recent changes to JLS 9.6.4.1
 				invisibleAnnotationsCounter++;
+<<<<<<< Upstream, based on branch 'master' of git@github.com:srikanth-sankaran/eclipse.jdt.core.git
 			} else if (annotation.isRuntimeVisible() || annotation.isRuntimeTypeVisible(false)) {
+=======
+			} else if (annotation.isRuntimeVisible() || annotation.isRuntimeTypeVisible(AnnotationTargetTypeConstants.NonJVMS4_7_20_TargetLocation)) {
+>>>>>>> 9828d8a Implement the recent changes to JLS 9.6.4.1
 				visibleAnnotationsCounter++;
 			}
 		}
@@ -4609,7 +4617,11 @@ public class ClassFile implements TypeConstants, TypeIds {
 				if (annotationMask != 0 && (annotationMask & targetMask) == 0) {
 					if (!jdk16packageInfoAnnotation(annotationMask, targetMask)) continue;
 				}
+<<<<<<< Upstream, based on branch 'master' of git@github.com:srikanth-sankaran/eclipse.jdt.core.git
 				if (annotation.isRuntimeInvisible() || annotation.isRuntimeTypeInvisible(false)) {
+=======
+				if (annotation.isRuntimeInvisible() || annotation.isRuntimeTypeInvisible(AnnotationTargetTypeConstants.NonJVMS4_7_20_TargetLocation)) {
+>>>>>>> 9828d8a Implement the recent changes to JLS 9.6.4.1
 					int currentAnnotationOffset = this.contentsOffset;
 					generateAnnotation(annotation, currentAnnotationOffset);
 					invisibleAnnotationsCounter--;
@@ -4657,7 +4669,11 @@ public class ClassFile implements TypeConstants, TypeIds {
 				if (annotationMask != 0 && (annotationMask & targetMask) == 0) {
 					if (!jdk16packageInfoAnnotation(annotationMask, targetMask)) continue;
 				}
+<<<<<<< Upstream, based on branch 'master' of git@github.com:srikanth-sankaran/eclipse.jdt.core.git
 				if (annotation.isRuntimeVisible() || annotation.isRuntimeTypeVisible(false)) {
+=======
+				if (annotation.isRuntimeVisible() || annotation.isRuntimeTypeVisible(AnnotationTargetTypeConstants.NonJVMS4_7_20_TargetLocation)) {
+>>>>>>> 9828d8a Implement the recent changes to JLS 9.6.4.1
 					visibleAnnotationsCounter--;
 					int currentAnnotationOffset = this.contentsOffset;
 					generateAnnotation(annotation, currentAnnotationOffset);
