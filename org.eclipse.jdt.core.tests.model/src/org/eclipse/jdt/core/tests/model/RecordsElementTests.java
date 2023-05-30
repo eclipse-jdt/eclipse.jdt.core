@@ -44,10 +44,10 @@ public class RecordsElementTests extends AbstractJavaModelTests {
 		super(name);
 	}
 	public static Test suite() {
-		return buildModelTestSuite(AbstractCompilerTest.F_15, RecordsElementTests.class);
+		return buildModelTestSuite(AbstractCompilerTest.F_17, RecordsElementTests.class);
 	}
 	protected IJavaProject createJavaProject(String projectName) throws CoreException {
-		IJavaProject createJavaProject = super.createJavaProject(projectName, new String[] {"src"}, new String[] {"JCL14_LIB"}, "bin", "15");
+		IJavaProject createJavaProject = super.createJavaProject(projectName, new String[] {"src"}, new String[] {"JCL14_LIB"}, "bin", "17");
 		createJavaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 		return createJavaProject;
 	}
@@ -154,6 +154,15 @@ public class RecordsElementTests extends AbstractJavaModelTests {
 			assertEquals("Incorret no of types", 1, types.length);
 			assertTrue("type should be a record", types[0].isRecord());
 			assertEquals("type should be a record", IJavaElement.TYPE, types[0].getElementType());
+
+			IField[] fields = types[0].getRecordComponents();
+			assertEquals("Incorret no of fields", 2, fields.length);
+			for (IField field : fields) {
+				assertTrue("Should be record component: " + field, field.isRecordComponent());
+				IField sameField = types[0].getRecordComponent(field.getElementName());
+				assertTrue("Should be record component: " + sameField, sameField.isRecordComponent());
+			}
+
 			IMethod[] methods = types[0].getMethods();
 			assertNotNull("should not be null", methods);
 			assertEquals("Incorret no of elements", 0, methods.length);
@@ -231,6 +240,14 @@ public class RecordsElementTests extends AbstractJavaModelTests {
 			assertEquals("Incorret no of types", 1, types.length);
 			assertTrue("type should be a record", types[0].isRecord());
 			assertEquals("type should be a record", IJavaElement.TYPE, types[0].getElementType());
+
+			IField[] fields = types[0].getRecordComponents();
+			assertEquals("Incorret no of fields", 2, fields.length);
+			for (IField field : fields) {
+				assertTrue("Should be record component: " + field, field.isRecordComponent());
+				IField sameField = types[0].getRecordComponent(field.getElementName());
+				assertTrue("Should be record component: " + sameField, sameField.isRecordComponent());
+			}
 			IMethod[] methods = types[0].getMethods();
 			assertNotNull("should not be null", methods);
 			assertEquals("Incorret no of elements", 1, methods.length);
@@ -284,7 +301,7 @@ public class RecordsElementTests extends AbstractJavaModelTests {
 			String outputDirectory = Util.getOutputDirectory();
 
 			String jarPath = outputDirectory + File.separator + "records.jar";
-			Util.createJar(sources, jarPath, "15", true);
+			Util.createJar(sources, jarPath, "17", false);
 
 			IJavaProject project = createJavaProject("RecordsElement");
 			addClasspathEntry(project, JavaCore.newLibraryEntry(new Path(jarPath), null, null, null, null, false));
@@ -307,8 +324,13 @@ public class RecordsElementTests extends AbstractJavaModelTests {
 			assertTrue("should be a record", type.isRecord());
 			assertEquals("type should be a record", IJavaElement.TYPE, type.getElementType());
 
-			IField[] fields = type.getFields();
-			assertEquals("Incorret no of fields", 0, fields.length);
+			IField[] fields = type.getRecordComponents();
+			assertEquals("Incorret no of fields", 2, fields.length);
+			for (IField field : fields) {
+				assertTrue("Should be record component: " + field, field.isRecordComponent());
+				IField sameField = type.getRecordComponent(field.getElementName());
+				assertTrue("Should be record component: " + sameField, sameField.isRecordComponent());
+			}
 
 			IMethod[] methods = type.getMethods();
 			assertNotNull("should not be null", methods);
@@ -352,7 +374,7 @@ public class RecordsElementTests extends AbstractJavaModelTests {
 			String outputDirectory = Util.getOutputDirectory();
 
 			String jarPath = outputDirectory + File.separator + "records.jar";
-			Util.createJar(sources, jarPath, "15", true);
+			Util.createJar(sources, jarPath, "17", false);
 
 			IJavaProject project = createJavaProject("RecordsElement");
 			addClasspathEntry(project, JavaCore.newLibraryEntry(new Path(jarPath), null, null, null, null, false));

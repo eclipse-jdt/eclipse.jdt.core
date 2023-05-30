@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2011 BEA Systems, Inc.
+ * Copyright (c) 2007, 2023 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -53,6 +53,7 @@ public class ElementUtilsProc extends BaseProcessor
 	private TypeElement _elementG;
 	private TypeElement _elementH;
 	private TypeElement _elementJ;
+	private TypeElement _bug547185;
 	private TypeElement _elementAnnoX;
 	private ExecutableElement _annoXValue;
 	private TypeElement _elementAnnoY;
@@ -155,7 +156,11 @@ public class ElementUtilsProc extends BaseProcessor
 			reportError("element J was not found or was not a class");
 			return false;
 		}
-
+		_bug547185 = _elementUtils.getTypeElement("targets.model.pc.Bug547185");
+		if (null == _bug547185 || _bug547185.getKind() != ElementKind.CLASS) {
+			reportError("element Bug547185 was not found or was not a class");
+			return false;
+		}
 		_elementAnnoX = _elementUtils.getTypeElement("targets.model.pc.AnnoX");
 		if (null == _elementAnnoX || _elementAnnoX.getKind() != ElementKind.ANNOTATION_TYPE) {
 			reportError("annotation type annoX was not found or was not an annotation");
@@ -337,6 +342,27 @@ public class ElementUtilsProc extends BaseProcessor
 		}
 		if (!foundGMethodT1) {
 			reportError("examineGetAllMembers: getAllMembers(_elementG) did not include G's method_T1(String)");
+			return false;
+		}
+		boolean foundMethodOf = false;
+		members = _elementUtils.getAllMembers(_bug547185);
+		if (null == members) {
+			reportError("examineGetAllMembers: getAllMembers(_bug547185) returned null");
+			return false;
+		}
+		for (ExecutableElement method : ElementFilter.methodsIn(members)) {
+			Element enclosing = method.getEnclosingElement();
+			if ("of".equals(method.getSimpleName().toString())) {
+				if (_bug547185.equals(enclosing)) {
+					foundMethodOf = true;
+				} else {
+					reportError("examineGetAllMembers: getAllMembers(_bug547185) included an overridden static method of()");
+					return false;
+				}
+			}
+		}
+		if (foundMethodOf) {
+			reportError("examineGetAllMembers: getAllMembers(_bug547185) included an overridden static method of()");
 			return false;
 		}
 		return true;

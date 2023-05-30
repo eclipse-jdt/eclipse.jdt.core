@@ -1767,4 +1767,12 @@ public long updateTagBits() {
 public boolean isFreeTypeVariable() {
 	return false;
 }
+
+/**
+ * Does this type lack a class file representation on its own ?
+ */
+public boolean isNonDenotable() {
+	return false;
+}
+
 }

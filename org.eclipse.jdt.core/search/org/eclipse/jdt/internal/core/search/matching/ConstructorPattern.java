@@ -18,6 +18,7 @@ import java.io.IOException;
 import org.eclipse.jdt.core.BindingKey;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
@@ -303,7 +304,8 @@ public ConstructorPattern(
 	char[][] parameterQualifications,
 	char[][] parameterSimpleNames,
 	int limitTo,
-	int matchRule) {
+	int matchRule,
+	boolean isStaticInnerConstructor) {
 
 	this(matchRule);
 
@@ -327,7 +329,7 @@ public ConstructorPattern(
 	this.declaringSimpleName = (this.isCaseSensitive || this.isCamelCase) ? declaringSimpleName : CharOperation.toLowerCase(declaringSimpleName);
 	if (parameterSimpleNames != null) {
 		this.parameterCount = parameterSimpleNames.length;
-		boolean synthetic = this.parameterCount>0 && declaringQualification != null && CharOperation.equals(CharOperation.concat(parameterQualifications[0], parameterSimpleNames[0], '.'), declaringQualification);
+		boolean synthetic = !isStaticInnerConstructor && this.parameterCount>0 && declaringQualification != null && CharOperation.equals(CharOperation.concat(parameterQualifications[0], parameterSimpleNames[0], '.'), declaringQualification);
 		int offset = 0;
 		if (synthetic) {
 			// skip first synthetic parameter
@@ -363,7 +365,8 @@ public ConstructorPattern(
 		parameterQualifications,
 		parameterSimpleNames,
 		limitTo,
-		matchRule);
+		matchRule,
+		isStaticInnerConstructor(method));
 
 	// Set flags
 	try {
@@ -426,7 +429,8 @@ public ConstructorPattern(
 		parameterQualifications,
 		parameterSimpleNames,
 		limitTo,
-		matchRule);
+		matchRule,
+		false);
 
 	// Store type signature and arguments for declaring type
 	if (declaringSignature != null) {
@@ -585,5 +589,15 @@ protected StringBuffer print(StringBuffer output) {
 	}
 	output.append(')');
 	return super.print(output);
+}
+private static boolean isStaticInnerConstructor(IMethod method) {
+	try {
+		IType declaringType = method.getDeclaringType();
+		int flags = declaringType.getFlags();
+		return Flags.isStatic(flags);
+	} catch (JavaModelException e) {
+		// assume no
+		return false;
+	}
 }
 }

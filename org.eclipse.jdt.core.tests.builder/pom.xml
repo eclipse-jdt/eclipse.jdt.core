@@ -44,7 +44,7 @@
 
   <profiles>
 	<profile>
-		<id>test-on-javase-9</id>
+		<id>test-on-javase-17</id>
 		<build>
 			<plugins>
 				<plugin>
@@ -53,7 +53,7 @@
 					<configuration>
 						<toolchains>
 							<jdk>
-								<id>JavaSE-9</id>
+								<id>JavaSE-17</id>
 							</jdk>
 						</toolchains>
 					</configuration>
@@ -61,11 +61,11 @@
 			</plugins>
 		</build>
 		<properties>
-			<tycho.surefire.argLine>--add-modules ALL-SYSTEM</tycho.surefire.argLine>
+			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.4,1.7,1.8,17</tycho.surefire.argLine>
 		</properties>
 	</profile>
 	<profile>
-		<id>test-on-javase-10</id>
+		<id>test-on-javase-20</id>
 		<build>
 			<plugins>
 				<plugin>
@@ -74,7 +74,7 @@
 					<configuration>
 						<toolchains>
 							<jdk>
-								<id>JavaSE-10</id>
+								<id>JavaSE-20</id>
 							</jdk>
 						</toolchains>
 					</configuration>
@@ -82,30 +82,7 @@
 			</plugins>
 		</build>
 		<properties>
-			<!-- Overridden in https://ci.eclipse.org/jdt/job/eclipse.jdt.core-run.javac-10/configure  -->
-			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.4,1.7,1.8,10</tycho.surefire.argLine>
-		</properties>
-	</profile>
-	<profile>
-		<id>test-on-javase-11</id>
-		<build>
-			<plugins>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-toolchains-plugin</artifactId>
-					<configuration>
-						<toolchains>
-							<jdk>
-								<id>JavaSE-11</id>
-							</jdk>
-						</toolchains>
-					</configuration>
-				</plugin>
-			</plugins>
-		</build>
-		<properties>
-			<!-- Overridden in https://ci.eclipse.org/jdt/job/eclipse.jdt.core-run.javac-11/configure  -->
-			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.4,1.7,1.8,11</tycho.surefire.argLine>
+			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.4,1.7,1.8,20</tycho.surefire.argLine>
 		</properties>
 	</profile>
   </profiles>

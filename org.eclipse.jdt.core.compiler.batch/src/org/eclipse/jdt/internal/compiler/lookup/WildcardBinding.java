@@ -1087,4 +1087,9 @@ public class WildcardBinding extends ReferenceBinding {
 		}
 		return super.updateTagBits();
 	}
+
+	@Override
+	public boolean isNonDenotable() {
+		return true;
+	}
 }
