@@ -236,6 +236,8 @@ private static Class[] getAllTestClasses() {
 		CharDeduplicationTest.class,
 
 		DeduplicationUtilTest.class,
+
+		RecordsElementTests.class,
 	};
 
 	Class[] deprecatedClasses = getDeprecatedJDOMTestClasses();

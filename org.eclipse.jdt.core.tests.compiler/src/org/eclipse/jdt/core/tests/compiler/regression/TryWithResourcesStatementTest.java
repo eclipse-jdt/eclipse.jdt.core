@@ -4320,6 +4320,82 @@ public void testBug467230() {
 			"	at Test.main(Test.java:14)\n",
 			null);
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/934
+public void _testGHIssue934() {
+	this.runConformTest(
+			true,
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	static class Y implements AutoCloseable {\n" +
+				"		RuntimeException e;\n" +
+				"\n" +
+				"		public Y(RuntimeException e) {\n" +
+				"			this.e = e;\n" +
+				"		}\n" +
+				"\n" +
+				"		@Override\n" +
+				"		public void close() {\n" +
+				"			throw e;\n" +
+				"		}\n" +
+				"	}\n" +
+				"    public static void main(String[] args) {\n" +
+				"        RuntimeException e = new RuntimeException(\"My Exception\");\n" +
+				"        try {\n" +
+				"            try (Y A = new Y(e)) {\n" +
+				"                throw e;\n" +
+				"            }\n" +
+				"        } catch (IllegalArgumentException iae) {\n" +
+				"            if (iae.getCause() == e) \n" +
+				"                System.out.println(\"OK!\");\n" +
+				"        }\n" +
+				"    }\n" +
+				"}\n"
+
+			},
+			null,
+			null,
+			null,
+			"OK!",
+			"",
+			null);
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1063
+// Regression in code generation for try with resources with the fix for Issue # 934
+public void testGHIssue1063() {
+	this.runConformTest(
+			true,
+			new String[] {
+				"X.java",
+				"import java.io.Closeable;\n" +
+				"import java.io.IOException;\n" +
+				"\n" +
+				"public class X {\n" +
+				"	public static void main(String[] args) throws IOException {\n" +
+				"		try (DummyClosable closable = new DummyClosable()) {\n" +
+				"			throw new IOException(\"OMG!!!\");\n" +
+				"		} catch (IOException e) {\n" +
+				"			throw e;\n" +
+				"		}\n" +
+				"	}\n" +
+				"\n" +
+				"	static class DummyClosable implements Closeable {\n" +
+				"		@Override\n" +
+				"		public void close() throws IOException {\n" +
+				"			System.out.println(\"Closed!\");\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n"
+			},
+			null,
+			null,
+			null,
+			"Closed!",
+			"java.io.IOException: OMG!!!\n" +
+			"	at X.main(X.java:7)\n",
+			null);
+}
 public static Class testClass() {
 	return TryWithResourcesStatementTest.class;
 }

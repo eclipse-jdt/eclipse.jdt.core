@@ -6799,4 +6799,195 @@ public void testIntersection18GH831() throws Exception {
 	assertTrue(String.format("Result doesn't contain expected method (%s)", result),
 	result.contains("get[METHOD_REF]{get(), Ljava.util.Optional<Ljava.io.Serializable;>;, ()Ljava.io.Serializable;, get, null, 60}\n"));
 }
+
+public void testGH960_onVarargArgument_expectCompletionsMatchingElementType() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/Completion/src/GH960.java", """
+			public class GH960 {
+				public void foo(GH960.State... states) {
+				}
+
+				public void boo() {
+					GH960.State currentState = GH960.State.BLOCKED;
+
+					foo()
+				}
+
+				public static enum State {
+					BLOCKED, RUNNABLE;
+				}
+			}
+			""");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "foo(";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+	String result = requestor.getResults();
+	assertResults(
+			"BLOCKED[FIELD_REF]{State.BLOCKED, LGH960$State;, LGH960$State;, BLOCKED, null, "
+					+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED) + "}\n"
+					+ "RUNNABLE[FIELD_REF]{State.RUNNABLE, LGH960$State;, LGH960$State;, RUNNABLE, null, "
+					+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED) + "}\n"
+					+ "currentState[LOCAL_VARIABLE_REF]{currentState, null, LGH960$State;, currentState, null, "
+					+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n"
+					+ "foo[METHOD_REF]{, LGH960;, ([LGH960$State;)V, foo, (states), " + (R_DEFAULT
+							+ R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_UNQUALIFIED + R_NON_RESTRICTED)
+					+ "}",
+			result);
+}
+
+public void testGH960_onVarargArguments_expectCompletionsMatchingElementType() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/Completion/src/GH960.java", """
+			public class GH960 {
+				public void foo(GH960.State... states) {
+				}
+
+				public void boo() {
+					GH960.State currentState = GH960.State.BLOCKED;
+
+					foo(State.BLOCKED, )
+				}
+
+				public static enum State {
+					BLOCKED, RUNNABLE;
+				}
+			}
+			""");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "foo(State.BLOCKED, ";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+	String result = requestor.getResults();
+	int relevanceExpectedTypes = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED
+			+ R_EXACT_EXPECTED_TYPE;
+	assertContains("Enums",
+			"BLOCKED[FIELD_REF]{State.BLOCKED, LGH960$State;, LGH960$State;, BLOCKED, null, "
+					+ relevanceExpectedTypes + "}\n"
+					+ "RUNNABLE[FIELD_REF]{State.RUNNABLE, LGH960$State;, LGH960$State;, RUNNABLE, null, "
+					+ relevanceExpectedTypes + "}",
+			result);
+	assertContains("Variables",
+			"currentState[LOCAL_VARIABLE_REF]{currentState, null, LGH960$State;, currentState, null, "
+					+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED
+							+ R_EXACT_EXPECTED_TYPE)
+					+ "}",
+			result);
+}
+
+public void testGH960_onBeforeVarargArguments_expectCompletionsMatchingElementType() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[1];
+	this.workingCopies[0] = getWorkingCopy("/Completion/src/GH960.java", """
+			public class GH960 {
+				public void foo(String name, Thread.State... states) {
+				}
+
+				public void boo() {
+				   Thread.State currentState = Thread.State.BLOCKED;
+				   String threadName = "name";
+
+				   foo(, State.BLOCKED)
+				}
+			}
+			""");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "foo(";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+	String result = requestor.getResults();
+	assertContains("Variables",
+			"threadName[LOCAL_VARIABLE_REF]{threadName, null, Ljava.lang.String;, threadName, null, "
+					+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			result);
+}
+
+public void testGH979_on1stConstructorArgument_expectCompletionsMatchinType() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[1] = getWorkingCopy("/Completion/src/GH979List.java", """
+			public class GH979List<T> {
+
+			}
+			""");
+	this.workingCopies[0] = getWorkingCopy("/Completion/src/GH979.java", """
+			public class GH979 {
+				public GH979(GH979List<String> names, int age) {}
+
+				public static void foo() {
+					GH979 value = new GH979();
+				}
+
+				public static GH979List<String> newInstance() {
+					return null;
+				}
+			}
+			""");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "new GH979(";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+	String result = requestor.getResults();
+	assertResults(
+			"GH979[ANONYMOUS_CLASS_DECLARATION]{, LGH979;, (LGH979List<Ljava.lang.String;>;I)V, null, (names, age), "
+					+ (R_DEFAULT + R_INTERESTING + R_RESOLVED + R_NON_RESTRICTED) + "}\n"
+					+ "GH979[METHOD_REF<CONSTRUCTOR>]{, LGH979;, (LGH979List<Ljava.lang.String;>;I)V, GH979, (names, age), "
+					+ (R_DEFAULT + R_INTERESTING + R_RESOLVED + R_NON_RESTRICTED) + "}\n"
+					+ "newInstance[METHOD_REF]{newInstance(), LGH979;, ()LGH979List<Ljava.lang.String;>;, newInstance, null, "
+					+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			result);
+}
+
+public void testGH979_onAnonClassConstructorWith_expectOnlyAnonClassCompletion() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[1] = getWorkingCopy("/Completion/src/Serial.java", """
+			public interface Serial {
+
+			}
+			""");
+	this.workingCopies[0] = getWorkingCopy("/Completion/src/GH979.java", """
+		public class GH979 {
+				public GH979() {}
+
+				public void foo() {
+					Serial run= new Serial() {
+					};
+				}
+
+				public Serial toString1() {
+					return null;
+				}
+			}
+			""");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "Serial run= new Serial(";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+	String result = requestor.getResults();
+	assertResults("Serial[ANONYMOUS_CLASS_DECLARATION]{, LSerial;, ()V, null, null, "
+			+ (R_DEFAULT + R_INTERESTING + R_RESOLVED + R_NON_RESTRICTED) + "}", result);
+}
 }
