@@ -194,9 +194,9 @@ static class AnnotationCollector extends ASTVisitor {
 
 	private boolean internalVisit(Annotation annotation) {
 		AnnotationContext annotationContext = null;
-		if (annotation.isRuntimeTypeInvisible()) {
+		if (annotation.isRuntimeTypeInvisible(this.targetType)) {
 			annotationContext = new AnnotationContext(annotation, this.typeReference, this.targetType, AnnotationContext.INVISIBLE);
-		} else if (annotation.isRuntimeTypeVisible()) {
+		} else if (annotation.isRuntimeTypeVisible(this.targetType)) {
 			annotationContext = new AnnotationContext(annotation, this.typeReference, this.targetType, AnnotationContext.VISIBLE);
 		}
 		if (annotationContext != null) {

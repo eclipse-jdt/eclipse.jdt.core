@@ -6967,4 +6967,37 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		assertEquals(1, annos.length);
 		assertEquals("java.lang.Deprecated", annos[0].getAnnotationType().debugName());
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1096
+	// ECJ out of sync with JLS 9.6.4.1
+	public void testGH1096() throws Exception {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"import java.lang.annotation.*;\n" +
+					"@interface MTPA {}\n" +
+					"@Retention(RetentionPolicy.RUNTIME)\n"+
+					"@interface CTPA {}\n" +
+					"public class X<@CTPA K, T> {\n" +
+					"    <U, @MTPA V> void m(U arg1) {}\n" +
+					"}\n",
+				},
+				"");
+		String expectedOutput =
+				"RuntimeInvisibleTypeAnnotations: \n" +
+				"      #24 @MTPA(\n" +
+				"        target type = 0x1 METHOD_TYPE_PARAMETER\n" +
+				"        type parameter index = 1\n" +
+				"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+
+		expectedOutput =
+				"  RuntimeVisibleTypeAnnotations: \n" +
+				"    #29 @CTPA(\n" +
+				"      target type = 0x0 CLASS_TYPE_PARAMETER\n" +
+				"      type parameter index = 0\n" +
+				"    )\n" +
+				"}";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
 }

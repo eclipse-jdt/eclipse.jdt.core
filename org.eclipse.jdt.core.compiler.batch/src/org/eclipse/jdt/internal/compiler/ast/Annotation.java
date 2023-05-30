@@ -43,6 +43,7 @@ import java.util.Stack;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.codegen.AnnotationTargetTypeConstants;
 import org.eclipse.jdt.internal.compiler.env.EnumConstantSignature;
 import org.eclipse.jdt.internal.compiler.impl.BooleanConstant;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -768,17 +769,17 @@ public abstract class Annotation extends Expression {
 		return (metaTagBits & TagBits.AnnotationRetentionMASK) == TagBits.AnnotationClassRetention;
 	}
 
-	public boolean isRuntimeTypeInvisible() {
+	public boolean isRuntimeTypeInvisible(int targetType) {
 		final TypeBinding annotationBinding = this.resolvedType;
 		if (annotationBinding == null) {
 			return false;
 		}
 		long metaTagBits = annotationBinding.getAnnotationTagBits(); // could be forward reference
 
-		if ((metaTagBits & (TagBits.AnnotationTargetMASK)) == 0) { // explicit target required for JSR308 style annotations.
-			return false;
-		}
-		if ((metaTagBits & (TagBits.AnnotationForTypeParameter | TagBits.AnnotationForTypeUse)) == 0) {
+		if ((metaTagBits & (TagBits.AnnotationTargetMASK)) == 0) { // In the absence of explicit target, applicable only to declaration sites
+			if (targetType != AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER && targetType != AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER)
+				return false;
+		} else if ((metaTagBits & (TagBits.AnnotationForTypeParameter | TagBits.AnnotationForTypeUse)) == 0) {
 			return false;
 		}
 
@@ -788,17 +789,17 @@ public abstract class Annotation extends Expression {
 		return (metaTagBits & TagBits.AnnotationRetentionMASK) == TagBits.AnnotationClassRetention;
 	}
 
-	public boolean isRuntimeTypeVisible() {
+	public boolean isRuntimeTypeVisible(int targetType) {
 		final TypeBinding annotationBinding = this.resolvedType;
 		if (annotationBinding == null) {
 			return false;
 		}
 		long metaTagBits = annotationBinding.getAnnotationTagBits();
 
-		if ((metaTagBits & (TagBits.AnnotationTargetMASK)) == 0) { // explicit target required for JSR308 style annotations.
-			return false;
-		}
-		if ((metaTagBits & (TagBits.AnnotationForTypeParameter | TagBits.AnnotationForTypeUse)) == 0) {
+		if ((metaTagBits & (TagBits.AnnotationTargetMASK)) == 0) { // In the absence of explicit target, applicable only to declaration sites
+			if (targetType != AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER && targetType != AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER)
+				return false;
+		} else if ((metaTagBits & (TagBits.AnnotationForTypeParameter | TagBits.AnnotationForTypeUse)) == 0) {
 			return false;
 		}
 		if ((metaTagBits & TagBits.AnnotationRetentionMASK) == 0)
@@ -1276,6 +1277,9 @@ public abstract class Annotation extends Expression {
 				}
 				break;
 			case Binding.TYPE_PARAMETER : // jsr308
+				if ((metaTagBits & TagBits.AnnotationTargetMASK) == 0) {
+					return AnnotationTargetAllowed.YES;
+				}
 				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391196
 				if ((metaTagBits & (TagBits.AnnotationForTypeParameter | TagBits.AnnotationForTypeUse)) != 0) {
 					return AnnotationTargetAllowed.YES;
@@ -1302,10 +1306,11 @@ public abstract class Annotation extends Expression {
 
 		long metaTagBits = annotationType.getAnnotationTagBits(); // could be forward reference
 		if ((metaTagBits & TagBits.AnnotationTargetMASK) == 0) {
-			// does not specify any target restriction - all locations supported in Java 7 and before are possible
-			// TBD - revisit for modules - as per 9.6.4.1, annotation without target is applicable for module declaration
-			// which is listed as a declaration context, but javac does not allow this
-			if (kind == Binding.TYPE_PARAMETER || kind == Binding.TYPE_USE) {
+			/* JLS 9.6.4.1: If an annotation of type java.lang.annotation.Target is not present on the
+			   declaration of an annotation interface A, then A is applicable in all declaration
+			   contexts and in no type contexts.
+			*/
+			if (kind == Binding.TYPE_USE) {
 				scope.problemReporter().explitAnnotationTargetRequired(annotation);
 			}
 			return AnnotationTargetAllowed.YES;

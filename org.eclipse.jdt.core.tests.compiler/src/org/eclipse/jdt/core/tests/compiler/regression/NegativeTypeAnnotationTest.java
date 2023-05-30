@@ -686,19 +686,14 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 	public void test032() throws Exception {
-		this.runNegativeTest(
+		this.runConformTest(
 				new String[] {
 					"Marker.java",
 					"@interface Marker {}",
 					"X.java",
 					"public class X<@Marker T> {}",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 1)\n" +
-				"	public class X<@Marker T> {}\n" +
-				"	               ^^^^^^^\n" +
-				"Annotation types that do not specify explicit target element types cannot be applied here\n" +
-				"----------\n");
+				"");
 
 	}
 	public void test033() throws Exception {
@@ -892,7 +887,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 					"X.java",
 					"@interface Marker {}\n" +
 					"@Marker	// line 2: Don't complain \n" +
-					"public class X<@Marker T>  extends @Marker Object{		// 3: Complain \n" +
+					"public class X<@Marker T>  extends @Marker Object{		// 3: Complain only on super type and not on class type parameter\n" +
 					"	public @Marker Object foo(@Marker Object obj) {  // 4: Don't complain on both\n" +
 					"		return null;\n" +
 					"	}\n" +
@@ -900,12 +895,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				},
 				"----------\n" +
 				"1. ERROR in X.java (at line 3)\n" +
-				"	public class X<@Marker T>  extends @Marker Object{		// 3: Complain \n" +
-				"	               ^^^^^^^\n" +
-				"Annotation types that do not specify explicit target element types cannot be applied here\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 3)\n" +
-				"	public class X<@Marker T>  extends @Marker Object{		// 3: Complain \n" +
+				"	public class X<@Marker T>  extends @Marker Object{		// 3: Complain only on super type and not on class type parameter\n" +
 				"	                                   ^^^^^^^\n" +
 				"Annotation types that do not specify explicit target element types cannot be applied here\n" +
 				"----------\n");
