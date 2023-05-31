@@ -6911,5 +6911,71 @@ public void test570022() {
 			"The method m1243c(aazh.EnumC0166a) is undefined for the type abyz\n" +
 			"----------\n");
 }
+//https://github.com/eclipse-jdt/eclipse.jdt.core/issues/656
+//Compilation error with multiple bounds and package protected abstract method
+public void testBugGH656() {
+		this.runConformTest(
+			new String[] {
+				"package1/MyGenericClass.java",
+				"package package1;\n" +
+				"import package2.MyAbstract;\n" +
+				"import package2.MyInterface;\n" +
+				"public class MyGenericClass<T extends MyAbstract & MyInterface> { // removing MyInterface works\n" +
+				"}\n",
+				"package2/MyInterface.java",
+				"package package2;\n" +
+				"public interface MyInterface {\n" +
+				"     void myMethod();\n" +
+				"}\n",
+				"package2/MyAbstract.java",
+				"package package2;\n" +
+				"public abstract class MyAbstract {\n" +
+				"	/* package protected! */ abstract void someAbstractMethod();\n" +
+				"}\n"
+			}
+		);
+}
+//https://github.com/eclipse-jdt/eclipse.jdt.core/issues/656
+//Compilation error with multiple bounds and package protected abstract method
+public void testBugGH656_2() {
+		this.runNegativeTest(
+			new String[] {
+				"package1/MyGenericClass.java",
+				"package package1;\n" +
+				"import package2.MyAbstract;\n" +
+				"import package2.MyInterface;\n" +
+				"public class MyGenericClass<T extends MyAbstract & MyInterface> { // removing MyInterface works\n" +
+				"}\n" +
+				"class JavacWillAlsoError extends MyAbstract implements MyInterface {\n" +
+				"\n" +
+				"	public void myMethod() {\n" +
+				"	}\n" +
+				"\n" +
+				"	public void someAbstractMethod() {\n" +
+				"	}\n" +
+				"}\n",
+				"package2/MyInterface.java",
+				"package package2;\n" +
+				"public interface MyInterface {\n" +
+				"     void myMethod();\n" +
+				"}\n",
+				"package2/MyAbstract.java",
+				"package package2;\n" +
+				"public abstract class MyAbstract {\n" +
+				"	/* package protected! */ abstract void someAbstractMethod();\n" +
+				"}\n"
+			},
+			"----------\n" +
+			"1. ERROR in package1\\MyGenericClass.java (at line 6)\n" +
+			"	class JavacWillAlsoError extends MyAbstract implements MyInterface {\n" +
+			"	      ^^^^^^^^^^^^^^^^^^\n" +
+			"This class must implement the inherited abstract method MyAbstract.someAbstractMethod(), but cannot override it since it is not visible from JavacWillAlsoError. Either make the type abstract or make the inherited method visible\n" +
+			"----------\n" +
+			"2. WARNING in package1\\MyGenericClass.java (at line 11)\n" +
+			"	public void someAbstractMethod() {\n" +
+			"	            ^^^^^^^^^^^^^^^^^^^^\n" +
+			"The method JavacWillAlsoError.someAbstractMethod() does not override the inherited method from MyAbstract since it is private to a different package\n" +
+			"----------\n");
+}
 }
 
