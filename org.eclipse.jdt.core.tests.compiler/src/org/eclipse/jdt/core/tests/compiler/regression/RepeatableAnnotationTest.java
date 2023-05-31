@@ -1556,4 +1556,36 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 			"The repeatable annotation @Foo may not be present where its container annotation type @FooContainer is repeated\n" +
 			"----------\n");
 	}
+	// check repeated occurrence of annotation where annotation container is not valid for the target
+	public void testRepeatingAnnotationsWithoutTarget() {
+		this.runNegativeTest(
+			new String[] {
+				"FooContainer.java",
+				"public @interface FooContainer {\n" +
+				"	Foo[] value();\n" +
+				"}\n",
+				"Foo.java",
+				"@java.lang.annotation.Repeatable(FooContainer.class) public @interface Foo {\n" +
+				"}\n",
+				"X.java",
+				"public class X<@Foo @Foo T> extends @Foo @Foo Object {\n" +
+				"}\n"
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	public class X<@Foo @Foo T> extends @Foo @Foo Object {\n" +
+			"	                                    ^^^^\n" +
+			"Annotation types that do not specify explicit target element types cannot be applied here\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 1)\n" +
+			"	public class X<@Foo @Foo T> extends @Foo @Foo Object {\n" +
+			"	                                    ^^^^\n" +
+			"The annotation @Foo cannot be repeated at this location since its container annotation type @FooContainer is disallowed at this location\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 1)\n" +
+			"	public class X<@Foo @Foo T> extends @Foo @Foo Object {\n" +
+			"	                                         ^^^^\n" +
+			"Annotation types that do not specify explicit target element types cannot be applied here\n" +
+			"----------\n");
+	}
 }

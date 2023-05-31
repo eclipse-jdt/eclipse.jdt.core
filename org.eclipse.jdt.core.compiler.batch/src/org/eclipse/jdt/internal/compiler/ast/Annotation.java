@@ -1165,7 +1165,7 @@ public abstract class Annotation extends Expression {
 	}
 
 	public enum AnnotationTargetAllowed {
-		YES, TYPE_ANNOTATION_ON_QUALIFIED_NAME, NO;
+		YES, NO_DUE_TO_LACKING_TARGET, TYPE_ANNOTATION_ON_QUALIFIED_NAME, NO/*_DUE_TO_MISMATCHED_TARGET*/;
 	}
 
 	private static AnnotationTargetAllowed isAnnotationTargetAllowed(Binding recipient, BlockScope scope, TypeBinding annotationType, int kind, long metaTagBits) {
@@ -1310,10 +1310,7 @@ public abstract class Annotation extends Expression {
 			   declaration of an annotation interface A, then A is applicable in all declaration
 			   contexts and in no type contexts.
 			*/
-			if (kind == Binding.TYPE_USE) {
-				scope.problemReporter().explitAnnotationTargetRequired(annotation);
-			}
-			return AnnotationTargetAllowed.YES;
+			return kind == Binding.TYPE_USE ?  AnnotationTargetAllowed.NO_DUE_TO_LACKING_TARGET : AnnotationTargetAllowed.YES;
 		}
 
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391201
@@ -1341,13 +1338,16 @@ public abstract class Annotation extends Expression {
 			// no need to check annotation usage if missing
 			return;
 		}
-	AnnotationTargetAllowed annotationTargetAllowed = isAnnotationTargetAllowed(annotation, scope, annotationType, kind);
-	if (annotationTargetAllowed != AnnotationTargetAllowed.YES) {
-		if(annotationTargetAllowed == AnnotationTargetAllowed.TYPE_ANNOTATION_ON_QUALIFIED_NAME) {
-			scope.problemReporter().typeAnnotationAtQualifiedName(annotation);
-		} else {
-			scope.problemReporter().disallowedTargetForAnnotation(annotation);
-		}
+
+		AnnotationTargetAllowed annotationTargetAllowed = isAnnotationTargetAllowed(annotation, scope, annotationType, kind);
+		if (annotationTargetAllowed != AnnotationTargetAllowed.YES) {
+			if(annotationTargetAllowed == AnnotationTargetAllowed.TYPE_ANNOTATION_ON_QUALIFIED_NAME) {
+				scope.problemReporter().typeAnnotationAtQualifiedName(annotation);
+			} else if (annotationTargetAllowed == AnnotationTargetAllowed.NO_DUE_TO_LACKING_TARGET) {
+				scope.problemReporter().explitAnnotationTargetRequired(annotation);
+			} else {
+				scope.problemReporter().disallowedTargetForAnnotation(annotation);
+			}
 			if (recipient instanceof TypeBinding)
 				((TypeBinding)recipient).tagBits &= ~tagBitsToRevert;
 		}
