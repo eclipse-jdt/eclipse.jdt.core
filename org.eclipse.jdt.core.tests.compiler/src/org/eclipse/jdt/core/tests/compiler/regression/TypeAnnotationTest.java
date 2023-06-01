@@ -7052,4 +7052,70 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			},
 			"");
 		}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=566803
+	// field.getAnnotatedType().getAnnotations() broken in the latest ECJ version
+	public void testBug566803() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.*;\n" +
+				"import java.lang.reflect.AnnotatedType;\n" +
+				"import java.lang.reflect.Field;\n" +
+				"\n" +
+				"public class X  {\n" +
+				"\n" +
+				"  @TestAnn1(\"1-1\")\n" +
+				"  @TestAnn1(\"1-2\")\n" +
+				"  public static final @TestAnnFirst long aaa = 1;\n" +
+				"\n" +
+				"  public void broken() {\n" +
+				"	  throw new Error(\"Broken\");\n" +
+				"  }\n" +
+				"  \n" +
+				"  public static void main(String[] args) throws NoSuchFieldException, SecurityException {\n" +
+				"	new X().test();\n" +
+				"}\n" +
+				"  public void test() throws NoSuchFieldException, SecurityException {\n" +
+				"    Field f = X.class.getDeclaredField(\"aaa\");\n" +
+				"    AnnotatedType s = f.getAnnotatedType();\n" +
+				"\n" +
+				"    if (long.class != s.getType()) {\n" +
+				"    	broken();\n" +
+				"    }\n" +
+				"\n" +
+				"    Annotation[] as = s.getAnnotations();\n" +
+				"    for (int i = 0; i < as.length; i++) {\n" +
+				"      System.out.println(i + \" \" + as[i]);\n" +
+				"    }\n" +
+				"\n" +
+				"    if (1 != as.length) {\n" +
+				"    	broken();\n" +
+				"    }\n" +
+				"    as = s.getAnnotationsByType(TestAnnFirst.class);\n" +
+				"    if (1 != as.length) {\n" +
+				"    	broken();\n" +
+				"    }\n" +
+				"  }\n" +
+				"\n" +
+				"  @Retention(RetentionPolicy.RUNTIME)\n" +
+				"  @java.lang.annotation.Target(ElementType.TYPE_USE)\n" +
+				"  public @interface TestAnnFirst {\n" +
+				"  }\n" +
+				"\n" +
+				"  @Retention(value = RetentionPolicy.RUNTIME)\n" +
+				"  @Inherited\n" +
+				"  @Repeatable(TestAnn1s.class)\n" +
+				"  public @interface TestAnn1 {\n" +
+				"    String value() default \"1\";\n" +
+				"  }\n" +
+				"\n" +
+				"  @Retention(value = RetentionPolicy.RUNTIME)\n" +
+				"  @Inherited\n" +
+				"  public @interface TestAnn1s {\n" +
+				"    TestAnn1[] value();\n" +
+				"  }\n" +
+				"}\n",
+			},
+			"0 @X.TestAnnFirst()");
+		}
 }
