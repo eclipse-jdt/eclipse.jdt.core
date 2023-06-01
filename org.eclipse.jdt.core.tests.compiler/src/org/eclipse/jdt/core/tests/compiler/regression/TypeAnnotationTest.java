@@ -7000,4 +7000,56 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"}";
 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=568240
+	// Method's annotation attribute is compiled as annotation on return type
+	public void testBug568240() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.ElementType;\n" +
+				"import java.lang.annotation.Retention;\n" +
+				"import java.lang.annotation.RetentionPolicy;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"import java.lang.reflect.AnnotatedType;\n" +
+				"import java.util.Arrays;\n" +
+				"\n" +
+				"public class X {\n" +
+				"\n" +
+				"    public void test() {\n" +
+				"\n" +
+				"        AnnotatedType annotatedReturnType = Foo.class.getMethods()[0].getAnnotatedReturnType();\n" +
+				"\n" +
+				"        // @Child is an attribute of the @Ann annotation. Not a TYPE_USE annotation on the return type.\n" +
+				"        if (!Arrays.asList(annotatedReturnType.getAnnotations()).isEmpty()) {\n" +
+				"        	throw new Error(\"Broken\");\n" +
+				"        }\n" +
+				"\n" +
+				"    }\n" +
+				"    \n" +
+				"    public static void main(String[] args) {\n" +
+				"		new X().test();\n" +
+				"	}\n" +
+				"\n" +
+				"	public static interface Foo {\n" +
+				"\n" +
+				"        @Ann(value = @Ann.Child(value = \"foo\"))\n" +
+				"        String get();\n" +
+				"\n" +
+				"    }\n" +
+				"\n" +
+				"    @Target(ElementType.METHOD)\n" +
+				"    @Retention(RetentionPolicy.RUNTIME)\n" +
+				"    public static @interface Ann {\n" +
+				"\n" +
+				"        Child value();\n" +
+				"\n" +
+				"        @Retention(RetentionPolicy.RUNTIME)\n" +
+				"        public static @interface Child {\n" +
+				"            String value();\n" +
+				"        }\n" +
+				"    }\n" +
+				"}\n",
+			},
+			"");
+		}
 }
