@@ -668,11 +668,11 @@ public abstract class Annotation extends Expression {
 	private static void checkContainerAnnotationTypeTarget(ASTNode culpritNode, Scope scope, ReferenceBinding containerType, ReferenceBinding repeatableAnnotationType) {
 		long tagBits = repeatableAnnotationType.getAnnotationTagBits();
 		if ((tagBits & TagBits.AnnotationTargetMASK) == 0)
-			tagBits = TagBits.SE7AnnotationTargetMASK; // absence of @Target meta-annotation implies all SE7 targets not all targets.
+			tagBits = TagBits.AnnotationForDeclarationMASK; // absence of @Target meta-annotation implies all declaration targets not all targets.
 
 		long containerAnnotationTypeTypeTagBits = containerType.getAnnotationTagBits();
 		if ((containerAnnotationTypeTypeTagBits & TagBits.AnnotationTargetMASK) == 0)
-			containerAnnotationTypeTypeTagBits = TagBits.SE7AnnotationTargetMASK;
+			containerAnnotationTypeTypeTagBits = TagBits.AnnotationForDeclarationMASK;
 
 		final long targets = tagBits & TagBits.AnnotationTargetMASK;
 		final long containerAnnotationTypeTargets = containerAnnotationTypeTypeTagBits & TagBits.AnnotationTargetMASK;
@@ -754,14 +754,6 @@ public abstract class Annotation extends Expression {
 			return false;
 		}
 		long metaTagBits = annotationBinding.getAnnotationTagBits(); // could be forward reference
-
-		// we need to filter out only "pure" type use and type parameter annotations, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=392119
-		if ((metaTagBits & (TagBits.AnnotationForTypeParameter | TagBits.AnnotationForTypeUse)) != 0) {
-			if ((metaTagBits & TagBits.SE7AnnotationTargetMASK) == 0) {  // not a hybrid target.
-				return false;
-			}
-		}
-
 		if ((metaTagBits & TagBits.AnnotationRetentionMASK) == 0)
 			return true; // by default the retention is CLASS
 
@@ -813,12 +805,6 @@ public abstract class Annotation extends Expression {
 			return false;
 		}
 		long metaTagBits = annotationBinding.getAnnotationTagBits();
-		// we need to filter out only "pure" type use and type parameter annotations, see https://bugs.eclipse.org/bugs/show_bug.cgi?id=392119
-		if ((metaTagBits & (TagBits.AnnotationForTypeParameter | TagBits.AnnotationForTypeUse)) != 0) {
-			if ((metaTagBits & TagBits.SE7AnnotationTargetMASK) == 0) { // not a hybrid target.
-				return false;
-			}
-		}
 		if ((metaTagBits & TagBits.AnnotationRetentionMASK) == 0)
 			return false; // by default the retention is CLASS
 
@@ -1313,7 +1299,7 @@ public abstract class Annotation extends Expression {
 		}
 
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391201
-		if ((metaTagBits & TagBits.SE7AnnotationTargetMASK) == 0
+		if ((metaTagBits & TagBits.AnnotationForDeclarationMASK) == 0
 				&& (metaTagBits & (TagBits.AnnotationForTypeUse | TagBits.AnnotationForTypeParameter)) != 0) {
 			if (scope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_8) {
 				switch (kind) {
@@ -1407,7 +1393,7 @@ public abstract class Annotation extends Expression {
 			for (int i = 0, annotationsLength = annotations.length; i < annotationsLength; i++) {
 				Annotation annotation = annotations[i];
 				long metaTagBits = annotation.resolvedType.getAnnotationTagBits();
-				if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0 && (metaTagBits & TagBits.SE7AnnotationTargetMASK) == 0) {
+				if ((metaTagBits & TagBits.AnnotationForTypeUse) != 0 && (metaTagBits & TagBits.AnnotationForDeclarationMASK) == 0) {
 					ReferenceBinding currentType = (ReferenceBinding) resolvedType;
 					while (currentType.isNestedType()) {
 						if (currentType.isStatic()) {

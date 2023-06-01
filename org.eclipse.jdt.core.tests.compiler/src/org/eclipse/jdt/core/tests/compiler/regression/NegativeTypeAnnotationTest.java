@@ -694,6 +694,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 					"public class X<@Marker T> {}",
 				},
 				"");
+
 	}
 	public void test033() throws Exception {
 		this.runNegativeTest(

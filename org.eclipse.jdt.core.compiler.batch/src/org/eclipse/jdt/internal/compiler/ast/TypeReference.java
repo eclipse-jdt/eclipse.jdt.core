@@ -297,6 +297,12 @@ static class AnnotationCollector extends ASTVisitor {
 		return false;
 	}
 	@Override
+	public boolean visit(TypeParameter typeParameter, BlockScope scope) {
+		// never implicitly traverse type parameters
+		// their annotations are explicitly handled in TypeParameter.getAllAnnotationContexts(int, int, List<AnnotationContext>)
+		return false;
+	}
+	@Override
 	public void endVisit(Wildcard wildcard, BlockScope scope) {
 		this.currentWildcard = null;
 	}
