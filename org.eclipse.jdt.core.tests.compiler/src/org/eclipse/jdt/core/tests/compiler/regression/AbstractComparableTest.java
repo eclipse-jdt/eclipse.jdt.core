@@ -53,6 +53,17 @@ public class AbstractComparableTest extends AbstractRegressionTest {
 		"@Retention(RUNTIME)\n" +
 		"public @interface Inject {}\n";
 
+	protected static final String JAKARTA_INJECT_NAME = "jakarta/inject/Inject.java";
+	protected static final String JAKARTA_INJECT_CONTENT =
+		"package jakarta.inject;\n" +
+		"import static java.lang.annotation.ElementType.*;\n" +
+		"import java.lang.annotation.Retention;\n" +
+		"import static java.lang.annotation.RetentionPolicy.RUNTIME;\n" +
+		"import java.lang.annotation.Target;\n" +
+		"@Target({ METHOD, CONSTRUCTOR, FIELD })\n" +
+		"@Retention(RUNTIME)\n" +
+		"public @interface Inject {}\n";
+
 	protected static final String SPRINGFRAMEWORK_AUTOWIRED_NAME = "org/springframework/beans/factory/annotation/Autowired.java";
 	protected static final String SPRINGFRAMEWORK_AUTOWIRED_CONTENT =
 		"package org.springframework.beans.factory.annotation;\n" +
