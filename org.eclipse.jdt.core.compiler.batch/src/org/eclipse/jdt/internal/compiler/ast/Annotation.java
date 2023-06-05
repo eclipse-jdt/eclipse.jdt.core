@@ -43,7 +43,6 @@ import java.util.Stack;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.codegen.AnnotationTargetTypeConstants;
 import org.eclipse.jdt.internal.compiler.env.EnumConstantSignature;
 import org.eclipse.jdt.internal.compiler.impl.BooleanConstant;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -769,7 +768,7 @@ public abstract class Annotation extends Expression {
 		return (metaTagBits & TagBits.AnnotationRetentionMASK) == TagBits.AnnotationClassRetention;
 	}
 
-	public boolean isRuntimeTypeInvisible(int targetType) {
+	public boolean isRuntimeTypeInvisible(boolean targetingTypeParameter) {
 		final TypeBinding annotationBinding = this.resolvedType;
 		if (annotationBinding == null) {
 			return false;
@@ -777,7 +776,7 @@ public abstract class Annotation extends Expression {
 		long metaTagBits = annotationBinding.getAnnotationTagBits(); // could be forward reference
 
 		if ((metaTagBits & (TagBits.AnnotationTargetMASK)) == 0) { // In the absence of explicit target, applicable only to declaration sites
-			if (targetType != AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER && targetType != AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER)
+			if (!targetingTypeParameter)
 				return false;
 		} else if ((metaTagBits & (TagBits.AnnotationForTypeParameter | TagBits.AnnotationForTypeUse)) == 0) {
 			return false;
@@ -789,7 +788,7 @@ public abstract class Annotation extends Expression {
 		return (metaTagBits & TagBits.AnnotationRetentionMASK) == TagBits.AnnotationClassRetention;
 	}
 
-	public boolean isRuntimeTypeVisible(int targetType) {
+	public boolean isRuntimeTypeVisible(boolean targetingTypeParameter) {
 		final TypeBinding annotationBinding = this.resolvedType;
 		if (annotationBinding == null) {
 			return false;
@@ -797,7 +796,7 @@ public abstract class Annotation extends Expression {
 		long metaTagBits = annotationBinding.getAnnotationTagBits();
 
 		if ((metaTagBits & (TagBits.AnnotationTargetMASK)) == 0) { // In the absence of explicit target, applicable only to declaration sites
-			if (targetType != AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER && targetType != AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER)
+			if (!targetingTypeParameter)
 				return false;
 		} else if ((metaTagBits & (TagBits.AnnotationForTypeParameter | TagBits.AnnotationForTypeUse)) == 0) {
 			return false;
