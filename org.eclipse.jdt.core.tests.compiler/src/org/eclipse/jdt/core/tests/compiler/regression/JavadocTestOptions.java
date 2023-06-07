@@ -63,10 +63,10 @@ public class JavadocTestOptions extends JavadocTest {
 	String reportMissingJavadocCommentsVisibility = null;
 	String reportMissingJavadocCommentsOverriding = null;
 
-	private final int PUBLIC_VISIBILITY = 0;
-	private final int PROTECTED_VISIBILITY = 1;
-	private final int DEFAULT_VISIBILITY = 2;
-	private final int PRIVATE_VISIBILITY = 3;
+	private static final int PUBLIC_VISIBILITY = 0;
+	private static final int PROTECTED_VISIBILITY = 1;
+	private static final int DEFAULT_VISIBILITY = 2;
+	private static final int PRIVATE_VISIBILITY = 3;
 
 	private static final String INVALID_CLASS_JAVADOC_REF = "	/**\n" +
 		"	 * @see X_dep\n" +
