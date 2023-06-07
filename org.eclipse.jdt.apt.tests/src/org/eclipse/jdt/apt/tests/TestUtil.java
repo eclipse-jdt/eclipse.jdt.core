@@ -156,9 +156,10 @@ public class TestUtil
 
 		}
 
-		addLibraryEntry( project, new Path(classesJarPath), null /*srcAttachmentPath*/,
-				null /*srcAttachmentPathRoot*/, true );
-
+		if(project != null) {
+			addLibraryEntry( project, new Path(classesJarPath), null /*srcAttachmentPath*/,
+					null /*srcAttachmentPathRoot*/, true );
+		}
 
 		// This file will be locked until GC takes care of unloading the
 		// annotation processor classes, so we can't delete it ourselves.
