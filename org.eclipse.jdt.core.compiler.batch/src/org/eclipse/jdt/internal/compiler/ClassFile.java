@@ -4578,9 +4578,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 			if (annotationMask != 0 && (annotationMask & targetMask) == 0) {
 				if (!jdk16packageInfoAnnotation(annotationMask, targetMask)) continue;
 			}
-			if (annotation.isRuntimeInvisible() || annotation.isRuntimeTypeInvisible()) {
+			if (annotation.isRuntimeInvisible() || annotation.isRuntimeTypeInvisible(false)) {
 				invisibleAnnotationsCounter++;
-			} else if (annotation.isRuntimeVisible() || annotation.isRuntimeTypeVisible()) {
+			} else if (annotation.isRuntimeVisible() || annotation.isRuntimeTypeVisible(false)) {
 				visibleAnnotationsCounter++;
 			}
 		}
@@ -4609,7 +4609,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 				if (annotationMask != 0 && (annotationMask & targetMask) == 0) {
 					if (!jdk16packageInfoAnnotation(annotationMask, targetMask)) continue;
 				}
-				if (annotation.isRuntimeInvisible() || annotation.isRuntimeTypeInvisible()) {
+				if (annotation.isRuntimeInvisible() || annotation.isRuntimeTypeInvisible(false)) {
 					int currentAnnotationOffset = this.contentsOffset;
 					generateAnnotation(annotation, currentAnnotationOffset);
 					invisibleAnnotationsCounter--;
@@ -4657,7 +4657,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 				if (annotationMask != 0 && (annotationMask & targetMask) == 0) {
 					if (!jdk16packageInfoAnnotation(annotationMask, targetMask)) continue;
 				}
-				if (annotation.isRuntimeVisible() || annotation.isRuntimeTypeVisible()) {
+				if (annotation.isRuntimeVisible() || annotation.isRuntimeTypeVisible(false)) {
 					visibleAnnotationsCounter--;
 					int currentAnnotationOffset = this.contentsOffset;
 					generateAnnotation(annotation, currentAnnotationOffset);

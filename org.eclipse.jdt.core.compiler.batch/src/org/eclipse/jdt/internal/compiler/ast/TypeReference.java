@@ -189,11 +189,15 @@ static class AnnotationCollector extends ASTVisitor {
 		this.targetType = targetType;
 	}
 
+	private boolean targetingTypeParameter() {
+		return this.targetType == AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER || this.targetType == AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER;
+	}
+	
 	private boolean internalVisit(Annotation annotation) {
 		AnnotationContext annotationContext = null;
-		if (annotation.isRuntimeTypeInvisible()) {
+		if (annotation.isRuntimeTypeInvisible(targetingTypeParameter())) {
 			annotationContext = new AnnotationContext(annotation, this.typeReference, this.targetType, AnnotationContext.INVISIBLE);
-		} else if (annotation.isRuntimeTypeVisible()) {
+		} else if (annotation.isRuntimeTypeVisible(targetingTypeParameter())) {
 			annotationContext = new AnnotationContext(annotation, this.typeReference, this.targetType, AnnotationContext.VISIBLE);
 		}
 		if (annotationContext != null) {

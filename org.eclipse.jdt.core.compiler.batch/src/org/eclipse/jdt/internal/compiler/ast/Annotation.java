@@ -768,18 +768,19 @@ public abstract class Annotation extends Expression {
 		return (metaTagBits & TagBits.AnnotationRetentionMASK) == TagBits.AnnotationClassRetention;
 	}
 
-	public boolean isRuntimeTypeInvisible() {
+	public boolean isRuntimeTypeInvisible(boolean targetingTypeParameter) {
 		final TypeBinding annotationBinding = this.resolvedType;
 		if (annotationBinding == null) {
 			return false;
 		}
 		long metaTagBits = annotationBinding.getAnnotationTagBits(); // could be forward reference
 
-		if ((metaTagBits & (TagBits.AnnotationTargetMASK)) != 0) {
-			if ((metaTagBits & (TagBits.AnnotationForTypeParameter | TagBits.AnnotationForTypeUse)) == 0) {
+		if ((metaTagBits & (TagBits.AnnotationTargetMASK)) == 0) { // In the absence of explicit target, applicable only to declaration sites
+			if (!targetingTypeParameter)
 				return false;
-			}
-		} // else: no-@Target always applicable
+		} else if ((metaTagBits & (TagBits.AnnotationForTypeParameter | TagBits.AnnotationForTypeUse)) == 0) {
+			return false;
+		}
 
 		if ((metaTagBits & TagBits.AnnotationRetentionMASK) == 0)
 			return true; // by default the retention is CLASS
@@ -787,18 +788,19 @@ public abstract class Annotation extends Expression {
 		return (metaTagBits & TagBits.AnnotationRetentionMASK) == TagBits.AnnotationClassRetention;
 	}
 
-	public boolean isRuntimeTypeVisible() {
+	public boolean isRuntimeTypeVisible(boolean targetingTypeParameter) {
 		final TypeBinding annotationBinding = this.resolvedType;
 		if (annotationBinding == null) {
 			return false;
 		}
 		long metaTagBits = annotationBinding.getAnnotationTagBits();
 
-		if ((metaTagBits & (TagBits.AnnotationTargetMASK)) != 0) {
-			if ((metaTagBits & (TagBits.AnnotationForTypeParameter | TagBits.AnnotationForTypeUse)) == 0) {
+		if ((metaTagBits & (TagBits.AnnotationTargetMASK)) == 0) { // In the absence of explicit target, applicable only to declaration sites
+			if (!targetingTypeParameter)
 				return false;
-			}
-		} // else: no-@Target always applicable
+		} else if ((metaTagBits & (TagBits.AnnotationForTypeParameter | TagBits.AnnotationForTypeUse)) == 0) {
+			return false;
+		}
 		if ((metaTagBits & TagBits.AnnotationRetentionMASK) == 0)
 			return false; // by default the retention is CLASS
 
@@ -1162,7 +1164,7 @@ public abstract class Annotation extends Expression {
 	}
 
 	public enum AnnotationTargetAllowed {
-		YES, TYPE_ANNOTATION_ON_QUALIFIED_NAME, NO;
+		YES, NO_DUE_TO_LACKING_TARGET, TYPE_ANNOTATION_ON_QUALIFIED_NAME, NO/*_DUE_TO_MISMATCHED_TARGET*/;
 	}
 
 	private static AnnotationTargetAllowed isAnnotationTargetAllowed(Binding recipient, BlockScope scope, TypeBinding annotationType, int kind, long metaTagBits) {
@@ -1274,6 +1276,9 @@ public abstract class Annotation extends Expression {
 				}
 				break;
 			case Binding.TYPE_PARAMETER : // jsr308
+				if ((metaTagBits & TagBits.AnnotationTargetMASK) == 0) {
+					return AnnotationTargetAllowed.YES;
+				}
 				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391196
 				if ((metaTagBits & (TagBits.AnnotationForTypeParameter | TagBits.AnnotationForTypeUse)) != 0) {
 					return AnnotationTargetAllowed.YES;
@@ -1300,8 +1305,11 @@ public abstract class Annotation extends Expression {
 
 		long metaTagBits = annotationType.getAnnotationTagBits(); // could be forward reference
 		if ((metaTagBits & TagBits.AnnotationTargetMASK) == 0) {
-			// does not specify any target restriction - all locations are possible
-			return AnnotationTargetAllowed.YES;
+			/* JLS 9.6.4.1: If an annotation of type java.lang.annotation.Target is not present on the
+			   declaration of an annotation interface A, then A is applicable in all declaration
+			   contexts and in no type contexts.
+			*/
+			return kind == Binding.TYPE_USE ?  AnnotationTargetAllowed.NO_DUE_TO_LACKING_TARGET : AnnotationTargetAllowed.YES;
 		}
 
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391201
@@ -1329,13 +1337,16 @@ public abstract class Annotation extends Expression {
 			// no need to check annotation usage if missing
 			return;
 		}
-	AnnotationTargetAllowed annotationTargetAllowed = isAnnotationTargetAllowed(annotation, scope, annotationType, kind);
-	if (annotationTargetAllowed != AnnotationTargetAllowed.YES) {
-		if(annotationTargetAllowed == AnnotationTargetAllowed.TYPE_ANNOTATION_ON_QUALIFIED_NAME) {
-			scope.problemReporter().typeAnnotationAtQualifiedName(annotation);
-		} else {
-			scope.problemReporter().disallowedTargetForAnnotation(annotation);
-		}
+
+		AnnotationTargetAllowed annotationTargetAllowed = isAnnotationTargetAllowed(annotation, scope, annotationType, kind);
+		if (annotationTargetAllowed != AnnotationTargetAllowed.YES) {
+			if(annotationTargetAllowed == AnnotationTargetAllowed.TYPE_ANNOTATION_ON_QUALIFIED_NAME) {
+				scope.problemReporter().typeAnnotationAtQualifiedName(annotation);
+			} else if (annotationTargetAllowed == AnnotationTargetAllowed.NO_DUE_TO_LACKING_TARGET) {
+				scope.problemReporter().explitAnnotationTargetRequired(annotation);
+			} else {
+				scope.problemReporter().disallowedTargetForAnnotation(annotation);
+			}
 			if (recipient instanceof TypeBinding)
 				((TypeBinding)recipient).tagBits &= ~tagBitsToRevert;
 		}

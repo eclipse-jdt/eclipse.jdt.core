@@ -686,20 +686,18 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 	public void test032() throws Exception {
-		Runner runner = new Runner();
-		runner.testFiles =
+		this.runConformTest(
 				new String[] {
 					"Marker.java",
 					"@interface Marker {}",
 					"X.java",
 					"public class X<@Marker T> {}",
-				};
-		runner.javacTestOptions = JavacTestOptions.JavacHasABug.JavacBug8231436;
-		runner.runConformTest();
+				},
+				"");
+
 	}
 	public void test033() throws Exception {
-		Runner runner = new Runner();
-		runner.testFiles =
+		this.runNegativeTest(
 				new String[] {
 					"Marker.java",
 					"@interface Marker {}",
@@ -707,9 +705,13 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 					"public class Y {}",
 					"X.java",
 					"public class X extends @Marker Y {}",
-				};
-		runner.javacTestOptions = JavacTestOptions.JavacHasABug.JavacBug8231436;
-		runner.runConformTest();
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 1)\n" +
+				"	public class X extends @Marker Y {}\n" +
+				"	                       ^^^^^^^\n" +
+				"Annotation types that do not specify explicit target element types cannot be applied here\n" +
+				"----------\n");
 	}
 	// check locations
 	public void test034() throws Exception {
@@ -880,20 +882,23 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 			"----------\n");
 	}
 	public void test037() {
-		Runner runner = new Runner();
-		runner.testFiles =
+		this.runNegativeTest(
 				new String[] {
 					"X.java",
 					"@interface Marker {}\n" +
 					"@Marker	// line 2: Don't complain \n" +
-					"public class X<@Marker T>  extends @Marker Object{		// 3: Complain \n" +
+					"public class X<@Marker T>  extends @Marker Object{		// 3: Complain only on super type and not on class type parameter\n" +
 					"	public @Marker Object foo(@Marker Object obj) {  // 4: Don't complain on both\n" +
 					"		return null;\n" +
 					"	}\n" +
 					"}\n",
-				};
-		runner.javacTestOptions = JavacTestOptions.JavacHasABug.JavacBug8231436;
-		runner.runConformTest();
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 3)\n" +
+				"	public class X<@Marker T>  extends @Marker Object{		// 3: Complain only on super type and not on class type parameter\n" +
+				"	                                   ^^^^^^^\n" +
+				"Annotation types that do not specify explicit target element types cannot be applied here\n" +
+				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=383950
 	// [1.8][compiler] Type annotations must have target type meta annotation TYPE_USE
@@ -2099,8 +2104,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 	public void test062() throws Exception {
-		// was negative prior to https://bugs.openjdk.java.net/browse/JDK-8231435
-		this.runConformTest(
+		this.runNegativeTest(
 				new String[] {
 					"X.java",
 					"public class X {\n" +
@@ -2111,7 +2115,12 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 					"@interface Marker {\n" +
 					"}\n"
 				},
-				"");
+				"----------\n" +
+				"1. ERROR in X.java (at line 2)\n" +
+				"	public <T> @Marker Object foo() {\n" +
+				"	           ^^^^^^^\n" +
+				"Annotation types that do not specify explicit target element types cannot be applied here\n" +
+				"----------\n");
 	}
 	public void test063() throws Exception {
 		this.runNegativeTest(
@@ -2153,8 +2162,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 	public void test065() throws Exception {
-		Runner runner = new Runner();
-		runner.testFiles =
+		this.runNegativeTest(
 				new String[] {
 					"X.java",
 					"public class X {\n" +
@@ -2162,9 +2170,18 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 					"}\n" +
 					"@interface Marker {\n" +
 					"}\n"
-				};
-		runner.javacTestOptions = JavacTestOptions.JavacHasABug.JavacBug8231436;
-		runner.runConformTest();
+				},
+				"----------\n" +
+				"1. WARNING in X.java (at line 2)\n" +
+				"	Object o = new <String> @Marker X();\n" +
+				"	                ^^^^^^\n" +
+				"Unused type arguments for the non generic constructor X() of type X; it should not be parameterized with arguments <String>\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 2)\n" +
+				"	Object o = new <String> @Marker X();\n" +
+				"	                        ^^^^^^^\n" +
+				"Annotation types that do not specify explicit target element types cannot be applied here\n" +
+				"----------\n");
 	}
 	public void test066() throws Exception {
 		this.runNegativeTest(
@@ -2176,9 +2193,13 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 					"@interface Marker {\n" +
 					"}\n"
 				},
-				// one error removed after https://bugs.openjdk.java.net/browse/JDK-8231435
 				"----------\n" +
 				"1. ERROR in X.java (at line 2)\n" +
+				"	Object o = new X().new <String> @Marker X();\n" +
+				"	                                ^^^^^^^\n" +
+				"Annotation types that do not specify explicit target element types cannot be applied here\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 2)\n" +
 				"	Object o = new X().new <String> @Marker X();\n" +
 				"	                                ^^^^^^^^^\n" +
 				"X.X cannot be resolved to a type\n" +
@@ -2202,8 +2223,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"----------\n");
 	}
 	public void test068() throws Exception {
-		Runner runner = new Runner();
-		runner.testFiles =
+		this.runNegativeTest(
 				new String[] {
 					"X.java",
 					"public class X {\n" +
@@ -2211,9 +2231,18 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 					"}\n" +
 					"@interface Marker {\n" +
 					"}\n"
-				};
-		runner.javacTestOptions = JavacTestOptions.JavacHasABug.JavacBug8231436;
-		runner.runConformTest();
+				},
+				"----------\n" +
+				"1. WARNING in X.java (at line 2)\n" +
+				"	Object o = new <String> @Marker X() {};\n" +
+				"	                ^^^^^^\n" +
+				"Unused type arguments for the non generic constructor X() of type X; it should not be parameterized with arguments <String>\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 2)\n" +
+				"	Object o = new <String> @Marker X() {};\n" +
+				"	                        ^^^^^^^\n" +
+				"Annotation types that do not specify explicit target element types cannot be applied here\n" +
+				"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=385293
 	public void test069() throws Exception {
@@ -2280,6 +2309,8 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 	public void test0388085a() {
 		this.runNegativeTest(
 				new String[] {"X.java",
+						"import java.lang.annotation.Target;\n" +
+						"import static java.lang.annotation.ElementType.*;\n" +
 						"class X {\n" +
 						"	public void main() {\n" +
 						"		final One<@Marker ? extends Two<@Marker ? super Three<? extends Four<@Marker ? super String, @Marker ? extends Object>>>> one = null;" +
@@ -2291,13 +2322,26 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 						"class Three<T> {}\n" +
 						"class Four<U, V> {}\n" +
 						"@interface Marker {}"},
-						// some errors no longer raised since https://bugs.openjdk.java.net/browse/JDK-8231435
 						"----------\n" +
-						"1. ERROR in X.java (at line 3)\n" +
+						"1. ERROR in X.java (at line 5)\n" +
 						"	final One<@Marker ? extends Two<@Marker ? super Three<? extends Four<@Marker ? super String, @Marker ? extends Object>>>> one = null;		one = null;\n" +
-						"	                                                                                                                                     		^^^\n" +
-						"The final local variable one cannot be assigned. It must be blank and not using a compound assignment\n" +
-						"----------\n");
+						"	          ^^^^^^^\n" +
+						"Annotation types that do not specify explicit target element types cannot be applied here\n" +
+						"----------\n" +
+						"2. ERROR in X.java (at line 5)\n" +
+						"	final One<@Marker ? extends Two<@Marker ? super Three<? extends Four<@Marker ? super String, @Marker ? extends Object>>>> one = null;		one = null;\n" +
+						"	                                ^^^^^^^\n" +
+						"Annotation types that do not specify explicit target element types cannot be applied here\n" +
+						"----------\n" +
+						"3. ERROR in X.java (at line 5)\n" +
+						"	final One<@Marker ? extends Two<@Marker ? super Three<? extends Four<@Marker ? super String, @Marker ? extends Object>>>> one = null;		one = null;\n" +
+						"	                                                                     ^^^^^^^\n" +
+						"Annotation types that do not specify explicit target element types cannot be applied here\n" +
+						"----------\n" +
+						"4. ERROR in X.java (at line 5)\n" +
+						"	final One<@Marker ? extends Two<@Marker ? super Three<? extends Four<@Marker ? super String, @Marker ? extends Object>>>> one = null;		one = null;\n" +
+						"	                                                                                             ^^^^^^^\n" +
+						"Annotation types that do not specify explicit target element types cannot be applied here\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=390882
 	public void test0390882() {
@@ -2672,12 +2716,16 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"    TYPE_PARAMETER,\n" +
 				"    TYPE_USE\n" +
 				"}\n"},
-				// one error removed after https://bugs.openjdk.java.net/browse/JDK-8231435
 				"----------\n" +
 				"1. ERROR in X.java (at line 2)\n" +
 				"	X<@Marker ?> l;\n" +
 				"	  ^^^^^^^\n" +
 				"The annotation @Marker is disallowed for this location\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 4)\n" +
+				"	X<@Marker3 ?> l3;\n" +
+				"	  ^^^^^^^^\n" +
+				"Annotation types that do not specify explicit target element types cannot be applied here\n" +
 				"----------\n");
 	}
 	public void testBug391315a() {
@@ -4415,5 +4463,34 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				},
 				"",
 				true);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=552082
+	public void test552082_comment_0() throws Exception {
+		this.runNegativeTest(
+				new String[] {
+					"EclipseReturnValueAnnotationTest.java",
+					"class EclipseReturnValueAnnotationTest {\n" +
+					"    \n" +
+					"    @interface SomeAnnotation {}\n" +
+					"\n" +
+					"     public @SomeAnnotation String foo(Object anything) {\n" +
+					"         return \"foo\";\n" +
+					"     }\n" +
+					"\n" +
+					"     public  <T>  @SomeAnnotation String bar(T anything) { // Error - type annotation position\n" +
+					"         return \"bar\";\n" +
+					"     }\n" +
+					"\n" +
+					"     public @SomeAnnotation <T> String baz(T anything) {  // OK - declaration annotation on method \n" +
+					"         return \"baz\";\n" +
+					"     }\n" +
+					"}\n",
+				},
+				"----------\n" +
+				"1. ERROR in EclipseReturnValueAnnotationTest.java (at line 9)\n" +
+				"	public  <T>  @SomeAnnotation String bar(T anything) { // Error - type annotation position\n" +
+				"	             ^^^^^^^^^^^^^^^\n" +
+				"Annotation types that do not specify explicit target element types cannot be applied here\n" +
+				"----------\n");
 	}
 }
