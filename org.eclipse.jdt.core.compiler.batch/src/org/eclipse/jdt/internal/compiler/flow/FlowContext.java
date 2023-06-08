@@ -40,6 +40,7 @@ import org.eclipse.jdt.internal.compiler.ast.NullAnnotationMatching;
 import org.eclipse.jdt.internal.compiler.ast.Reference;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.SubRoutineStatement;
+import org.eclipse.jdt.internal.compiler.ast.SwitchExpression;
 import org.eclipse.jdt.internal.compiler.ast.ThrowStatement;
 import org.eclipse.jdt.internal.compiler.ast.TryStatement;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
@@ -65,6 +66,7 @@ public class FlowContext implements TypeConstants {
 
 	// preempt marks looping contexts
 	public final static FlowContext NotContinuableContext = new FlowContext(null, null, true);
+	public final static FlowContext NonLocalGotoThroughSwitchContext = new FlowContext(null, null, true);
 	public ASTNode associatedNode;
 	public FlowContext parent;
 	public FlowInfo initsOnFinally;
@@ -544,6 +546,8 @@ public FlowInfo getInitsForFinalBlankInitializationCheck(TypeBinding declaringTy
 public FlowContext getTargetContextForBreakLabel(char[] labelName) {
 	FlowContext current = this, lastNonReturningSubRoutine = null;
 	while (current != null) {
+		if (current.associatedNode instanceof SwitchExpression)
+			return NonLocalGotoThroughSwitchContext;
 		if (current.isNonReturningContext()) {
 			lastNonReturningSubRoutine = current;
 		}
@@ -570,6 +574,8 @@ public FlowContext getTargetContextForContinueLabel(char[] labelName) {
 	FlowContext lastNonReturningSubRoutine = null;
 
 	while (current != null) {
+		if (current.associatedNode instanceof SwitchExpression)
+			return NonLocalGotoThroughSwitchContext;
 		if (current.isNonReturningContext()) {
 			lastNonReturningSubRoutine = current;
 		} else {
@@ -604,6 +610,8 @@ public FlowContext getTargetContextForContinueLabel(char[] labelName) {
 public FlowContext getTargetContextForDefaultBreak() {
 	FlowContext current = this, lastNonReturningSubRoutine = null;
 	while (current != null) {
+		if (current.associatedNode instanceof SwitchExpression)
+			return NonLocalGotoThroughSwitchContext;
 		if (current.isNonReturningContext()) {
 			lastNonReturningSubRoutine = current;
 		}
@@ -617,15 +625,15 @@ public FlowContext getTargetContextForDefaultBreak() {
 	return null;
 }
 /*
- * lookup a default yield through switch expression locations
+ * lookup a yield target ...
  */
-public FlowContext getTargetContextForDefaultYield() {
+public FlowContext getTargetContextForYield(boolean requireExpression) {
 	FlowContext current = this, lastNonReturningSubRoutine = null;
 	while (current != null) {
 		if (current.isNonReturningContext()) {
 			lastNonReturningSubRoutine = current;
 		}
-		if (current.isBreakable() && current.labelName() == null && ((SwitchFlowContext) current).isExpression){
+		if (current.isBreakable() && current.labelName() == null && (!requireExpression || ((SwitchFlowContext) current).isExpression)) {
 			if (lastNonReturningSubRoutine == null) return current;
 			return lastNonReturningSubRoutine;
 		}
@@ -641,6 +649,8 @@ public FlowContext getTargetContextForDefaultYield() {
 public FlowContext getTargetContextForDefaultContinue() {
 	FlowContext current = this, lastNonReturningSubRoutine = null;
 	while (current != null) {
+		if (current.associatedNode instanceof SwitchExpression)
+			return NonLocalGotoThroughSwitchContext;
 		if (current.isNonReturningContext()) {
 			lastNonReturningSubRoutine = current;
 		}
