@@ -806,13 +806,13 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 }
 @Override
 protected void consumeInstanceOfExpression() {
-	super.consumeInstanceOfExpression();
 	this.intPtr--; // skip declarationSourceStart of modifiers
+	super.consumeInstanceOfExpression();
 }
 @Override
 protected void consumeInstanceOfExpressionWithName() {
-	super.consumeInstanceOfExpressionWithName();
 	this.intPtr--; // skip declarationSourceStart of modifiers
+	super.consumeInstanceOfExpressionWithName();
 }
 /*
  *
