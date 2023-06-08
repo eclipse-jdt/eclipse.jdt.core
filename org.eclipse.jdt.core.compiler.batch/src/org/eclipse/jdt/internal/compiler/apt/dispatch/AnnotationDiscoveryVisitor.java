@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2020 IBM Corporation and others.
+ * Copyright (c) 2006, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -279,8 +279,7 @@ public class AnnotationDiscoveryVisitor extends ASTVisitor {
 		AnnotationBinding [] annotationBindings = element.getPackedAnnotationBindings(); // discovery is never in terms of repeating annotation.
 		for (AnnotationBinding binding : annotationBindings) {
 			ReferenceBinding annotationType = binding.getAnnotationType();
-			if (binding != null
-					&& Annotation.isAnnotationTargetAllowed(scope, annotationType, currentBinding)
+			if (Annotation.isAnnotationTargetAllowed(scope, annotationType, currentBinding)
 					) { // binding should be resolved, but in case it's not, ignore it: it could have been wrapped into a container.
 				TypeElement anno = (TypeElement)this._factory.newElement(annotationType);
 				this._annoToElement.put(anno, element);

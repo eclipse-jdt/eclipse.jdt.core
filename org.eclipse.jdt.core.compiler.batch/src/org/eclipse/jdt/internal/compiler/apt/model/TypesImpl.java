@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007 - 2017 BEA Systems, Inc. and others
+ * Copyright (c) 2007 - 2023 BEA Systems, Inc. and others
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -578,7 +578,7 @@ public class TypesImpl implements Types {
             // No boxing conversion was found
             throw new IllegalArgumentException();
         }
-        return (PrimitiveType) this._env.getFactory().newTypeMirror((BaseTypeBinding)unboxed);
+        return (PrimitiveType) this._env.getFactory().newTypeMirror(unboxed);
     }
 
 }

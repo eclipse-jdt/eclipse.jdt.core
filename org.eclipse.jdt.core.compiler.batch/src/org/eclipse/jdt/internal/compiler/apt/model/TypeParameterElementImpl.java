@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2015 BEA Systems, Inc.
+ * Copyright (c) 2007, 2023 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -33,9 +33,9 @@ import javax.lang.model.type.TypeMirror;
 
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
-import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
 /**
@@ -116,7 +116,7 @@ public class TypeParameterElementImpl extends ElementImpl implements TypeParamet
 			}
 		} else {
 			// at least we must add java.lang.Object
-			typeBounds.add(this._env.getFactory().newTypeMirror(this._env.getLookupEnvironment().getType(LookupEnvironment.JAVA_LANG_OBJECT)));
+			typeBounds.add(this._env.getFactory().newTypeMirror(this._env.getLookupEnvironment().getType(TypeConstants.JAVA_LANG_OBJECT)));
 		}
 		return Collections.unmodifiableList(typeBounds);
 	}
