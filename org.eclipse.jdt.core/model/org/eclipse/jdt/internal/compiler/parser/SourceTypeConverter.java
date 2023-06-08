@@ -644,7 +644,8 @@ public class SourceTypeConverter extends TypeConverter {
 				for (int i = 0; i < sourceMethodCount; i++) {
 					if (sourceMethods[i].isConstructor()) {
 						if (needConstructor) {
-							extraConstructor = 0; // Does not need the extra constructor since one constructor already exists.
+							if (!type.isRecord())     // Records need a canonical constructor - clashes with express ones handled elsewhere
+								extraConstructor = 0; // Does not need the extra constructor since one constructor already exists.
 							methodCount++;
 						}
 					} else if (needMethod) {
