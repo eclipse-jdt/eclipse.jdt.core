@@ -7861,6 +7861,27 @@ public void testGHIssue975() {
 			);
 }
 
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/625
+public void testGHIssue625() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.io.Serializable;\n" +
+				"import java.util.Optional;\n" +
+				"\n" +
+				"public class X {\n" +
+				"	 public static void main(String[] argv) {\n" +
+				"	        System.out.println(dummy(\"foo\"));\n" +
+				"	    }\n" +
+				"	\n" +
+				"	    static <T extends Serializable & CharSequence> int dummy(T value) {\n" +
+				"	        return Optional.ofNullable(value).map(CharSequence::length).orElse(0);\n" +
+				"	    }\n" +
+				"}\n"},
+			"3"
+			);
+}
+
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
