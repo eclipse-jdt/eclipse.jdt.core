@@ -7882,6 +7882,42 @@ public void testGHIssue625() {
 			);
 }
 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=551882
+// Invalid receiver type class X; not a subtype of implementation type interface Y
+public void testBug551882() {
+	this.runConformTest(
+			new String[] {
+				"Foo.java",
+				"class X {\n" +
+				"}\n" +
+				"\n" +
+				"interface Y {\n" +
+				"	void foo();\n" +
+				"}\n" +
+				"\n" +
+				"class Z extends X implements Y {\n" +
+				"\n" +
+				"	@Override\n" +
+				"	public void foo() {\n" +
+				"	}\n" +
+				"	\n" +
+				"}\n" +
+				"public class Foo {\n" +
+				"\n" +
+				"	<T extends X & Y> void run(T t) {\n" +
+				"		Runnable r = t::foo;\n" +
+				"		r.run();\n" +
+				"	}\n" +
+				"	\n" +
+				"	public static void main(String[] args) {\n" +
+				"		new Foo().run(new Z() {});\n" +
+				"	}\n" +
+				"\n" +
+				"}\n"},
+			""
+			);
+}
+
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
