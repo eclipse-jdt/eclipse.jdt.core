@@ -44,14 +44,10 @@ public class CompletionOnReferenceExpressionName extends ReferenceExpression imp
 			this.resolvedTypeArguments = new TypeBinding[length];
 			for (int i = 0; i < length; i++) {
 				TypeReference typeReference = this.typeArguments[i];
-				if ((this.resolvedTypeArguments[i] = typeReference.resolveType(scope,
-						true /* check bounds */)) == null) {
+				if ((this.resolvedTypeArguments[i] = typeReference.resolveType(scope, true /* check bounds*/)) == null) {
 					typeArgumentsHaveErrors = true;
 				}
-				if (typeArgumentsHaveErrors && typeReference instanceof Wildcard) { // resolveType on wildcard always
-																					// return null above,
-																					// resolveTypeArgument is the real
-																					// workhorse.
+				if (typeArgumentsHaveErrors && typeReference instanceof Wildcard) { // resolveType on wildcard always return null above, resolveTypeArgument is the real workhorse.
 					scope.problemReporter().illegalUsageOfWildcard(typeReference);
 				}
 			}
