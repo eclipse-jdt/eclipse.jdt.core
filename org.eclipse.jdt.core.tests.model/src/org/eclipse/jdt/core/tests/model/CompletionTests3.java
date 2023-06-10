@@ -1512,9 +1512,11 @@ public void testBug575631_comment3d() throws Exception {
 		String completeAfter = "bar(";
 		int cursorLocation = str.indexOf(completeAfter) + completeAfter.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-		assertResults(
-			"bar[METHOD_REF]{, LX;, (ZI)V, bar, (b, j), 56}", // select overload with int as 2nd arg
-			requestor.getResults());
+		assertResults("""
+				bool[LOCAL_VARIABLE_REF]{bool, null, Z, bool, null, 52}
+				equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 52}
+				bar[METHOD_REF]{, LX;, (ZI)V, bar, (b, j), 56}""", // select overload with int as 2nd arg
+				requestor.getResults());
 	} finally {
 		deleteProject("P");
 	}
