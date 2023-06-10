@@ -68,6 +68,7 @@ import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.core.search.SearchRequestor;
 import org.eclipse.jdt.internal.codeassist.complete.AssistNodeParentAnnotationArrayInitializer;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionJavadoc;
+import org.eclipse.jdt.internal.codeassist.complete.CompletionNode;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionNodeDetector;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionNodeFound;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnAnnotationOfType;
@@ -3335,7 +3336,23 @@ public final class CompletionEngine
 				-1);
 		}
 
-		findCompletionsForArgumentPosition(methodsFound, argTypes != null ? argTypes.length : 0, scope);
+		findCompletionsForArgumentPosition(methodsFound, findCompletionArgIndex(messageSend.arguments), scope);
+	}
+
+	private int findCompletionArgIndex(Expression[] arguments) {
+		if (arguments == null) {
+			return 0;
+		}
+		for (int index = 0; index < arguments.length; index++) {
+			if ((arguments[index] instanceof CompletionNode)
+					// the following handles when the cursor is at the receiver in a completed expression like
+					// new PersonDetails(GH969.emptyList(), 0) here the cursor is after new PersonDetails(
+					|| (arguments[index] instanceof MessageSend ms && ms.receiver instanceof CompletionNode)
+					|| (arguments[index] instanceof FieldReference fr && fr.receiver instanceof CompletionNode)) {
+				return index;
+			}
+		}
+		return arguments.length;
 	}
 
 	private void findCompletionsForArgumentPosition(ObjectVector methodsFound, int completedArgumentLength, Scope scope) {
@@ -3690,13 +3707,7 @@ public final class CompletionEngine
 					false);
 			}
 		}
-		// here we assume that if first type is null we have a <CompleteOnName:>
-		int completedArgLen = 0;
-		if (argTypes != null) {
-			completedArgLen = argTypes[0] == null ? 0 : argTypes.length;
-		}
-
-		findCompletionsForArgumentPosition(constructorsFound, completedArgLen, scope);
+		findCompletionsForArgumentPosition(constructorsFound, findCompletionArgIndex(allocExpression.arguments), scope);
 	}
 
 	private void completionOnQualifiedNameReference(ASTNode astNode, ASTNode enclosingNode, Binding qualifiedBinding,

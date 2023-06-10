@@ -38,7 +38,7 @@ package org.eclipse.jdt.internal.codeassist.complete;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
-public class CompletionOnExplicitConstructorCall extends ExplicitConstructorCall {
+public class CompletionOnExplicitConstructorCall extends ExplicitConstructorCall implements CompletionNode {
 
 	public CompletionOnExplicitConstructorCall(int accessMode) {
 		super(accessMode);

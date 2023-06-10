@@ -37,7 +37,7 @@ package org.eclipse.jdt.internal.codeassist.complete;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
-public class CompletionOnSingleNameReference extends SingleNameReference {
+public class CompletionOnSingleNameReference extends SingleNameReference implements CompletionNode {
 
 	public char[][] possibleKeywords;
 	public boolean canBeExplicitConstructor;

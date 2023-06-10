@@ -23,7 +23,7 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 
-public class CompletionOnReferenceExpressionName extends ReferenceExpression {
+public class CompletionOnReferenceExpressionName extends ReferenceExpression implements CompletionNode {
 
 	public CompletionOnReferenceExpressionName(Scanner scanner) {
 		super(scanner);
@@ -44,10 +44,14 @@ public class CompletionOnReferenceExpressionName extends ReferenceExpression {
 			this.resolvedTypeArguments = new TypeBinding[length];
 			for (int i = 0; i < length; i++) {
 				TypeReference typeReference = this.typeArguments[i];
-				if ((this.resolvedTypeArguments[i] = typeReference.resolveType(scope, true /* check bounds*/)) == null) {
+				if ((this.resolvedTypeArguments[i] = typeReference.resolveType(scope,
+						true /* check bounds */)) == null) {
 					typeArgumentsHaveErrors = true;
 				}
-				if (typeArgumentsHaveErrors && typeReference instanceof Wildcard) { // resolveType on wildcard always return null above, resolveTypeArgument is the real workhorse.
+				if (typeArgumentsHaveErrors && typeReference instanceof Wildcard) { // resolveType on wildcard always
+																					// return null above,
+																					// resolveTypeArgument is the real
+																					// workhorse.
 					scope.problemReporter().illegalUsageOfWildcard(typeReference);
 				}
 			}

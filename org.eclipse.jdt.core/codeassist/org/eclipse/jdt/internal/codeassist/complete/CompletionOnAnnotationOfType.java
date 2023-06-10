@@ -18,7 +18,7 @@ import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 
-public class CompletionOnAnnotationOfType extends TypeDeclaration {
+public class CompletionOnAnnotationOfType extends TypeDeclaration implements CompletionNode {
 	public ASTNode potentialAnnotatedNode;
 	// During recovery a parameter can be parsed as a FieldDeclaration instead of Argument.
 	// 'isParameter' is set to true in this case.
