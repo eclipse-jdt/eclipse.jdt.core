@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2013 IBM Corporation and others.
+ * Copyright (c) 2006, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -62,11 +62,11 @@ public class TypeVariableImpl extends TypeMirrorImpl implements TypeVariable {
 			// no explicit bound
 			return this._env.getFactory().newTypeMirror(typeVariableBinding.upperBound());
 		}
-		if (firstBound != null && superInterfaces.length == 1 && TypeBinding.equalsEquals(superInterfaces[0], firstBound)) {
+		if (superInterfaces.length == 1 && TypeBinding.equalsEquals(superInterfaces[0], firstBound)) {
 			// only one bound that is an interface
 			return this._env.getFactory().newTypeMirror(typeVariableBinding.upperBound());
 		}
-		return this._env.getFactory().newTypeMirror((TypeVariableBinding) this._binding);
+		return this._env.getFactory().newTypeMirror(this._binding);
 	}
 
 	/* (non-Javadoc)

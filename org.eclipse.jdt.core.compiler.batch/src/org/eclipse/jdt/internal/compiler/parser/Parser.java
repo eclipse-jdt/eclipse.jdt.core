@@ -4605,8 +4605,11 @@ protected void consumeInstanceOfExpression() {
  				new InstanceOfExpression(
  					this.expressionStack[this.expressionPtr],
  					typeRef);
-		this.intPtr--; // skip modifierSourceStart
-		this.intPtr--; // lose the fake modifier if any
+		int anyModifiersourceStart = this.intStack[this.intPtr--];
+		int anyModifiers =  this.intStack[this.intPtr--];
+		if (anyModifiers != 0) {
+			problemReporter().illegalModifiers(anyModifiersourceStart, typeRef.sourceEnd);
+		}
 	}
 
 	if (exp.sourceEnd == 0) {

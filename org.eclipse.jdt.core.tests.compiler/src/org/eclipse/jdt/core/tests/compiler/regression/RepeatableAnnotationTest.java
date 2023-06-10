@@ -22,7 +22,6 @@ import java.io.File;
 
 import junit.framework.Test;
 
-import org.eclipse.jdt.core.tests.compiler.regression.AbstractRegressionTest.JavacTestOptions.JavacHasABug;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
@@ -1427,8 +1426,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 			"----------\n");
 	}
 	public void testDeprecation() {
-		Runner runner = new Runner();
-		runner.testFiles =
+		this.runNegativeTest(
 			new String[] {
 				"TC.java",
 				"@Deprecated\n" +
@@ -1442,8 +1440,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 				"}\n" +
 				"interface I<@T(1) @T(2) K> {\n" +
 				"}\n"
-			};
-		runner.expectedCompilerLog =
+			},
 			"----------\n" +
 			"1. WARNING in T.java (at line 1)\n" +
 			"	@java.lang.annotation.Repeatable(TC.class)\n" +
@@ -1453,15 +1450,10 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 			"2. WARNING in T.java (at line 5)\n" +
 			"	interface I<@T(1) @T(2) K> {\n" +
 			"	            ^^\n" +
-			"The type TC is deprecated\n" +
-			"----------\n";
-		runner.javacTestOptions = JavacHasABug.JavacBug8231436_EclipseWarns;
-		runner.runWarningTest();
+			"The type TC is deprecated\n");
 	}
 	public void testDeprecation2() { // verify that deprecation warning does not show up when the deprecated element is used in the same file defining it.
-		// was negative prior to https://bugs.openjdk.java.net/browse/JDK-8231435
-		Runner runner = new Runner();
-		runner.testFiles =
+		this.runNegativeTest(
 			new String[] {
 				"T.java",
 				"@Deprecated\n" +
@@ -1472,12 +1464,15 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 				"@interface T {\n" +
 				"  public int value() default -1;\n" +
 				"}\n" +
-				"interface I<@T(1) @T(2) K> {\n" +
+				"interface I extends @T(1) Runnable {\n" +
 				"}\n"
-			};
-		runner.expectedCompilerLog = "";
-		runner.javacTestOptions = JavacHasABug.JavacBug8231436;
-		runner.runConformTest();
+			},
+			"----------\n" +
+			"1. ERROR in T.java (at line 9)\n" +
+			"	interface I extends @T(1) Runnable {\n" +
+			"	                    ^^\n" +
+			"Annotation types that do not specify explicit target element types cannot be applied here\n" +
+			"----------\n");
 	}
 
 	// 419209: [1.8] Repeating container annotations should be rejected in the presence of annotation it contains
@@ -1559,6 +1554,38 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 			"	@FooContainer({@Foo(2)}) @Foo(1) @FooContainer({@Foo(3)}) class A {}\n" +
 			"	                         ^^^^\n" +
 			"The repeatable annotation @Foo may not be present where its container annotation type @FooContainer is repeated\n" +
+			"----------\n");
+	}
+	// check repeated occurrence of annotation where annotation container is not valid for the target
+	public void testRepeatingAnnotationsWithoutTarget() {
+		this.runNegativeTest(
+			new String[] {
+				"FooContainer.java",
+				"public @interface FooContainer {\n" +
+				"	Foo[] value();\n" +
+				"}\n",
+				"Foo.java",
+				"@java.lang.annotation.Repeatable(FooContainer.class) public @interface Foo {\n" +
+				"}\n",
+				"X.java",
+				"public class X<@Foo @Foo T> extends @Foo @Foo Object {\n" +
+				"}\n"
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	public class X<@Foo @Foo T> extends @Foo @Foo Object {\n" +
+			"	                                    ^^^^\n" +
+			"Annotation types that do not specify explicit target element types cannot be applied here\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 1)\n" +
+			"	public class X<@Foo @Foo T> extends @Foo @Foo Object {\n" +
+			"	                                    ^^^^\n" +
+			"The annotation @Foo cannot be repeated at this location since its container annotation type @FooContainer is disallowed at this location\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 1)\n" +
+			"	public class X<@Foo @Foo T> extends @Foo @Foo Object {\n" +
+			"	                                         ^^^^\n" +
+			"Annotation types that do not specify explicit target element types cannot be applied here\n" +
 			"----------\n");
 	}
 }

@@ -515,6 +515,10 @@ void computeInheritedMethods() {
 	checkForRedundantSuperinterfaces(superclass, this.type.superInterfaces());
 }
 
+void computeInheritedMethods(ReferenceBinding superclass, ReferenceBinding[] superInterfaces) {
+	computeInheritedMethods(superclass, superInterfaces, false);
+}
+
 /*
 Binding creation is responsible for reporting:
 	- all modifier problems (duplicates & multiple visibility modifiers + incompatible combinations)
@@ -527,7 +531,7 @@ Binding creation is responsible for reporting:
 	- check the type of any array is not void
 	- check that each exception type is Throwable or a subclass of it
 */
-void computeInheritedMethods(ReferenceBinding superclass, ReferenceBinding[] superInterfaces) {
+void computeInheritedMethods(ReferenceBinding superclass, ReferenceBinding[] superInterfaces, boolean verifyingTypeVariableBounds) {
 	// only want to remember inheritedMethods that can have an impact on the current type
 	// if an inheritedMethod has been 'replaced' by a supertype's method then skip it, however
     // see usage of canOverridingMethodDifferInErasure below.
@@ -568,7 +572,7 @@ void computeInheritedMethods(ReferenceBinding superclass, ReferenceBinding[] sup
 				}
 			}
 
-			if (!inheritedMethod.isDefault() || inheritedMethod.declaringClass.fPackage == this.type.fPackage) {
+			if (!inheritedMethod.isDefault() || inheritedMethod.declaringClass.fPackage == this.type.fPackage || verifyingTypeVariableBounds) {
 				if (existingMethods == null) {
 					existingMethods = new MethodBinding[] {inheritedMethod};
 				} else {

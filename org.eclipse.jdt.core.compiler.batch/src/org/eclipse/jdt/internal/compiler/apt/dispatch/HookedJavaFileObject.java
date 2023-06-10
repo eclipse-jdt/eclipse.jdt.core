@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2014 BEA Systems, Inc. and others
+ * Copyright (c) 2006, 2023 BEA Systems, Inc. and others
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -254,8 +254,7 @@ public class HookedJavaFileObject extends
 								this._filer.addNewClassFile(type);
 							} else {
 								BinaryTypeBinding binaryBinding = new BinaryTypeBinding(type.getPackage(), binaryType, this._filer._env._compiler.lookupEnvironment, true);
-								if (binaryBinding != null)
-									this._filer.addNewClassFile(binaryBinding);
+								this._filer.addNewClassFile(binaryBinding);
 							}
 						}
 					}

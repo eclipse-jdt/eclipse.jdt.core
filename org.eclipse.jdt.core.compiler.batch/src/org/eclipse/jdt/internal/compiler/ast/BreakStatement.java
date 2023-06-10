@@ -36,17 +36,15 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		? flowContext.getTargetContextForDefaultBreak()
 		: flowContext.getTargetContextForBreakLabel(this.label);
 
-		// JLS 13 14.15
-		if (targetContext instanceof SwitchFlowContext &&
-				targetContext.associatedNode instanceof SwitchExpression) {
-			currentScope.problemReporter().switchExpressionBreakNotAllowed(this);
-		}
 	if (targetContext == null) {
 		if (this.label == null) {
 			currentScope.problemReporter().invalidBreak(this);
 		} else {
 			currentScope.problemReporter().undefinedLabel(this);
 		}
+		return flowInfo; // pretend it did not break since no actual target
+	} else if (targetContext == FlowContext.NonLocalGotoThroughSwitchContext) { // JLS 13 14.15
+		currentScope.problemReporter().switchExpressionsBreakOutOfSwitchExpression(this);
 		return flowInfo; // pretend it did not break since no actual target
 	}
 

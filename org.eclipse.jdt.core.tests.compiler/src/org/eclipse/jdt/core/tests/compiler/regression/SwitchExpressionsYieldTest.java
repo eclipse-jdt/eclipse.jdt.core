@@ -1185,7 +1185,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 10)\n" +
 			"	break;\n" +
 			"	^^^^^^\n" +
-			"break out of switch expression not allowed\n" +
+			"Breaking out of switch expressions not permitted\n" +
 			"----------\n");
 	}
 	public void testBug544073_036() {
@@ -2145,6 +2145,11 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 11)\n" +
 			"	continue;\n" +
 			"	^^^^^^^^^\n" +
+			"Continue out of switch expressions not permitted\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 11)\n" +
+			"	continue;\n" +
+			"	^^^^^^^^^\n" +
 			"'continue' or 'return' cannot be the last statement in a Switch expression case body\n" +
 			"----------\n");
 	}
@@ -2178,6 +2183,11 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"	return 2;\n" +
 			"	^^^^^^^^^\n" +
 			"Return within switch expressions not permitted\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 11)\n" +
+			"	return 2;\n" +
+			"	^^^^^^^^^\n" +
+			"'continue' or 'return' cannot be the last statement in a Switch expression case body\n" +
 			"----------\n");
 	}
 	public void testBug544073_078() {
@@ -3399,12 +3409,23 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"        new X().foo(0, 1);\n"+
 				"     }\n"+
 				"}\n"
-			},	"----------\n" +
-			"1. ERROR in X.java (at line 7)\n" +
-			"	break LABEL; // NO error flagged\n" +
-			"	^^^^^^^^^^^^\n" +
-			"Breaking out of switch expressions not permitted\n" +
-			"----------\n");
+			},
+				"----------\n" +
+				"1. WARNING in X.java (at line 3)\n" +
+				"	LABEL: while (i == 0) {\n" +
+				"	^^^^^\n" +
+				"The label LABEL is never explicitly referenced\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 7)\n" +
+				"	break LABEL; // NO error flagged\n" +
+				"	^^^^^^^^^^^^\n" +
+				"Breaking out of switch expressions not permitted\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 9)\n" +
+				"	yield 1;\n" +
+				"	^^^^^^^^\n" +
+				"Unreachable code\n" +
+				"----------\n");
 	}
 	public void testBug558067_002() {
 		this.runNegativeTest(
@@ -3435,17 +3456,33 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"        new X().foo(0, 1);\n"+
 				"     }\n"+
 				"} \n"
-			},	"----------\n" +
-			"1. ERROR in X.java (at line 10)\n" +
-			"	break LABEL;\n" +
-			"	^^^^^^^^^^^^\n" +
-			"Breaking out of switch expressions not permitted\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 17)\n" +
-			"	case 2: for(;;) break TOP;\n" +
-			"	                ^^^^^^^^^^\n" +
-			"Breaking out of switch expressions not permitted\n" +
-			"----------\n");
+			},
+				"----------\n" +
+				"1. WARNING in X.java (at line 3)\n" +
+				"	TOP:System.out.println(\"hello\");\n" +
+				"	^^^\n" +
+				"The label TOP is never explicitly referenced\n" +
+				"----------\n" +
+				"2. WARNING in X.java (at line 6)\n" +
+				"	LABEL: while (i == 0) {\n" +
+				"	^^^^^\n" +
+				"The label LABEL is never explicitly referenced\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 10)\n" +
+				"	break LABEL;\n" +
+				"	^^^^^^^^^^^^\n" +
+				"Breaking out of switch expressions not permitted\n" +
+				"----------\n" +
+				"4. ERROR in X.java (at line 12)\n" +
+				"	yield 1;\n" +
+				"	^^^^^^^^\n" +
+				"Unreachable code\n" +
+				"----------\n" +
+				"5. ERROR in X.java (at line 17)\n" +
+				"	case 2: for(;;) break TOP;\n" +
+				"	                ^^^^^^^^^^\n" +
+				"Breaking out of switch expressions not permitted\n" +
+				"----------\n");
 	}
 	public void testBug558067_003() {
 		this.runNegativeTest(
@@ -3470,12 +3507,23 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"        new X().foo(0, 1);\n"+
 				"     }\n"+
 				"}\n"
-			},	"----------\n" +
-			"1. ERROR in X.java (at line 7)\n" +
-			"	continue LABEL;\n" +
-			"	^^^^^^^^^^^^^^^\n" +
-			"Continue out of switch expressions not permitted\n" +
-			"----------\n");
+			},
+				"----------\n" +
+				"1. WARNING in X.java (at line 3)\n" +
+				"	LABEL: while (i == 0) {\n" +
+				"	^^^^^\n" +
+				"The label LABEL is never explicitly referenced\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 7)\n" +
+				"	continue LABEL;\n" +
+				"	^^^^^^^^^^^^^^^\n" +
+				"Continue out of switch expressions not permitted\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 9)\n" +
+				"	yield 1;\n" +
+				"	^^^^^^^^\n" +
+				"Unreachable code\n" +
+				"----------\n");
 	}
 	public void testBug558067_004() {
 		this.runNegativeTest(
@@ -3502,12 +3550,18 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"        new X().foo(0, 1);\n"+
 				"     }\n"+
 				"}\n"
-			},	"----------\n" +
-			"1. ERROR in X.java (at line 8)\n" +
-			"	break LABEL;\n" +
-			"	^^^^^^^^^^^^\n" +
-			"Breaking out of switch expressions not permitted\n" +
-			"----------\n");
+			},
+				"----------\n" +
+				"1. WARNING in X.java (at line 3)\n" +
+				"	LABEL: while (i == 0) {\n" +
+				"	^^^^^\n" +
+				"The label LABEL is never explicitly referenced\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 8)\n" +
+				"	break LABEL;\n" +
+				"	^^^^^^^^^^^^\n" +
+				"Breaking out of switch expressions not permitted\n" +
+				"----------\n");
 	}
 	public void testBug558067_005() {
 		this.runNegativeTest(
@@ -3534,12 +3588,18 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"        new X().foo(0, 1);\n"+
 				"     }\n"+
 				"}\n"
-			},	"----------\n" +
-			"1. ERROR in X.java (at line 8)\n" +
-			"	continue LABEL;\n" +
-			"	^^^^^^^^^^^^^^^\n" +
-			"Continue out of switch expressions not permitted\n" +
-			"----------\n");
+			},
+				"----------\n" +
+				"1. WARNING in X.java (at line 3)\n" +
+				"	LABEL: while (i == 0) {\n" +
+				"	^^^^^\n" +
+				"The label LABEL is never explicitly referenced\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 8)\n" +
+				"	continue LABEL;\n" +
+				"	^^^^^^^^^^^^^^^\n" +
+				"Continue out of switch expressions not permitted\n" +
+				"----------\n");
 	}
 		public void testConversion1() {
 		runConformTest(
@@ -6183,5 +6243,57 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"}"
 				},
 				"PASS");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/53
+	// continue without label is incorrectly handled in a switch expression
+	public void testGHIssue53() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	interface I {\n" +
+				"		void foo();\n" +
+				"	}\n" +
+				"	public static String string = \"a\";\n" +
+				"\n" +
+				"	public static void main(String[] args) {\n" +
+				"		loop: for (;;) {\n" +
+				"			System.out.println(\"In loop before switch\");\n" +
+				"			\n" +
+				"			int result = 123 + switch (string) {\n" +
+				"			case \"a\" -> {\n" +
+				"				if (string == null)\n" +
+				"					continue; // incorrectly compiles in JDT\n" +
+				"				else \n" +
+				"					continue loop; // correctly flagged as error (\"Continue out of switch\n" +
+				"				// expressions not permitted\")\n" +
+				"				// javac (correctly) outputs \"error: attempt to continue out of a switch\n" +
+				"				// expression\" for both continue statements\n" +
+				"				yield 789;\n" +
+				"			}\n" +
+				"			default -> 456;\n" +
+				"			};\n" +
+				"			System.out.println(\"After switch. result: \" + result);\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n"
+
+				},
+				"----------\n" +
+				"1. WARNING in X.java (at line 8)\n" +
+				"	loop: for (;;) {\n" +
+				"	^^^^\n" +
+				"The label loop is never explicitly referenced\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 14)\n" +
+				"	continue; // incorrectly compiles in JDT\n" +
+				"	^^^^^^^^^\n" +
+				"Continue out of switch expressions not permitted\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 16)\n" +
+				"	continue loop; // correctly flagged as error (\"Continue out of switch\n" +
+				"	^^^^^^^^^^^^^^\n" +
+				"Continue out of switch expressions not permitted\n" +
+				"----------\n");
 	}
 }

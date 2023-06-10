@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2021 BEA Systems, Inc and others.
+ * Copyright (c) 2007, 2023 BEA Systems, Inc and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -50,6 +50,7 @@ public class VisitorProc extends BaseProcessor
 	/**
 	 * This visitor is invoked on the top-level types in resources/targets/model.
 	 * We expect to see each of the visitX() methods get hit as a result.
+	 * @deprecated
 	 */
 	private static class ElementVisitorTester extends ElementScanner6<Void, Void> {
 
@@ -130,8 +131,9 @@ public class VisitorProc extends BaseProcessor
 
 	}
 
-	/*
+	/**
 	 * The specific values checked by this visitor correspond to values in targets.model.pc.TypedAnnos.java
+	 * @deprecated
 	 */
 	private static class AnnotationVisitorTester extends AbstractAnnotationValueVisitor6<Void, Void> {
 

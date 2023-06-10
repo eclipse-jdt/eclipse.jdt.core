@@ -43,6 +43,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			currentScope.problemReporter().undefinedLabel(this);
 		}
 		return flowInfo; // pretend it did not continue since no actual target
+	} else if (targetContext == FlowContext.NonLocalGotoThroughSwitchContext) {
+		currentScope.problemReporter().switchExpressionsContinueOutOfSwitchExpression(this);
+		return flowInfo; // pretend it did not continue since no actual target
 	}
 
 	targetContext.recordAbruptExit();

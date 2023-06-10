@@ -6215,9 +6215,9 @@ public void test476859() {
 			"}"
 		};
 	runner.expectedOutputString =
-		"private static java.lang.reflect.Method Test.lambda$0(java.lang.Void)";
+		"public static void Test.main(java.lang.String[])";
 	runner.expectedJavacOutputString =
-		"private static java.lang.reflect.Method Test.lambda$main$0(java.lang.Void)";
+		"public static void Test.main(java.lang.String[])";
 	runner.runConformTest();
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=476859 enclosing method not found error when EJC compiled, works fine with oracle jdk compiler
@@ -6250,11 +6250,11 @@ public void test476859a() {
 			"}\n"
 		};
 	runner.expectedOutputString =
-		"private static java.lang.reflect.Method Test.lambda$0(java.lang.Void)\n" +
-		"private java.lang.reflect.Method AnotherClass.lambda$0(java.lang.Void)";
+		"public static void Test.main(java.lang.String[])\n" +
+		"void AnotherClass.foo()";
 	runner.expectedJavacOutputString =
-			"private static java.lang.reflect.Method Test.lambda$main$0(java.lang.Void)\n" +
-			"private java.lang.reflect.Method AnotherClass.lambda$foo$0(java.lang.Void)";
+		"public static void Test.main(java.lang.String[])\n" +
+		"void AnotherClass.foo()";
 	runner.runConformTest();
 }
 public void testBug499258() {
@@ -6468,9 +6468,9 @@ public void test509804() {
 			"}\n"
 		};
 	runner.expectedOutputString =
-			"private static java.lang.Object Test.lambda$1()";
+			"null";
 	runner.expectedJavacOutputString =
-			"private static java.lang.Object Test.lambda$static$0()";
+			"null";
 	runner.runConformTest();
 }
 public void testBug514105() {
@@ -7818,6 +7818,103 @@ public void testGHIssue1054_2() {
 				"	}\n" +
 				"}\n"},
 			"NPE as expected"
+			);
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/975
+// [Compiler] Reflection returns null for lambda capturing local method type variable
+public void testGHIssue975() {
+	this.runConformTest(
+			new String[] {
+				"Test.java",
+				"import java.lang.reflect.*;\n" +
+				"\n" +
+				"public class Test {\n" +
+				"    static class Capturing<T> {\n" +
+				"        protected Capturing() {\n" +
+				"            ParameterizedType paramT = (ParameterizedType) getClass().getGenericSuperclass();\n" +
+				"            Type t = paramT.getActualTypeArguments()[0];\n" +
+				"\n" +
+				"            if (t instanceof TypeVariable) {\n" +
+				"                System.out.println(\"Found expected type\");\n" +
+				"            } else {\n" +
+				"                throw new AssertionError(\"Unexpected type: \" + t);\n" +
+				"            }\n" +
+				"        }\n" +
+				"    }\n" +
+				"\n" +
+				"    static void run(Runnable r) {\n" +
+				"        r.run();\n" +
+				"    }\n" +
+				"\n" +
+				"    public static <T> void main(String... args) {\n" +
+				"        class Local {\n" +
+				"            <M> void runTest() {\n" +
+				"                run(() -> new Capturing<M>() {});\n" +
+				"            }\n" +
+				"        }\n" +
+				"\n" +
+				"        new Local().runTest();\n" +
+				"    }\n" +
+				"}\n"},
+			"Found expected type"
+			);
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/625
+public void testGHIssue625() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.io.Serializable;\n" +
+				"import java.util.Optional;\n" +
+				"\n" +
+				"public class X {\n" +
+				"	 public static void main(String[] argv) {\n" +
+				"	        System.out.println(dummy(\"foo\"));\n" +
+				"	    }\n" +
+				"	\n" +
+				"	    static <T extends Serializable & CharSequence> int dummy(T value) {\n" +
+				"	        return Optional.ofNullable(value).map(CharSequence::length).orElse(0);\n" +
+				"	    }\n" +
+				"}\n"},
+			"3"
+			);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=551882
+// Invalid receiver type class X; not a subtype of implementation type interface Y
+public void testBug551882() {
+	this.runConformTest(
+			new String[] {
+				"Foo.java",
+				"class X {\n" +
+				"}\n" +
+				"\n" +
+				"interface Y {\n" +
+				"	void foo();\n" +
+				"}\n" +
+				"\n" +
+				"class Z extends X implements Y {\n" +
+				"\n" +
+				"	@Override\n" +
+				"	public void foo() {\n" +
+				"	}\n" +
+				"	\n" +
+				"}\n" +
+				"public class Foo {\n" +
+				"\n" +
+				"	<T extends X & Y> void run(T t) {\n" +
+				"		Runnable r = t::foo;\n" +
+				"		r.run();\n" +
+				"	}\n" +
+				"	\n" +
+				"	public static void main(String[] args) {\n" +
+				"		new Foo().run(new Z() {});\n" +
+				"	}\n" +
+				"\n" +
+				"}\n"},
+			""
 			);
 }
 

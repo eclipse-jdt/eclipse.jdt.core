@@ -2025,6 +2025,13 @@ public void disallowedTargetForAnnotation(Annotation annotation) {
 		annotation.sourceStart,
 		annotation.sourceEnd);
 }
+public void explitAnnotationTargetRequired(Annotation annotation) {
+	this.handle(IProblem.ExplicitAnnotationTargetRequired,
+			NoArgument,
+			NoArgument,
+			annotation.sourceStart,
+			annotation.sourceEnd);
+}
 public void polymorphicMethodNotBelow17(ASTNode node) {
 	this.handle(
 			IProblem.PolymorphicMethodNotBelow17,
@@ -11666,6 +11673,7 @@ public void switchExpressionMixedCase(ASTNode statement) {
 		statement.sourceStart,
 		statement.sourceEnd);
 }
+// Is this redundant ?? See switchExpressionsBreakOutOfSwitchExpression
 public void switchExpressionBreakNotAllowed(ASTNode statement) {
 	this.handle(
 		IProblem.SwitchExpressionsYieldBreakNotAllowed,
