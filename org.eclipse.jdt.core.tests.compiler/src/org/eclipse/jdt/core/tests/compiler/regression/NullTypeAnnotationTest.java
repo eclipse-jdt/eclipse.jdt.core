@@ -18797,6 +18797,36 @@ public void testGH854() {
 		};
 	runner.runConformTest();
 }
+// duplicate of #1077
+public void testGH475() {
+	Runner runner = new Runner();
+	runner.testFiles =
+		new String[] {
+			"Controller.java",
+			"public class Controller<T> {\n" +
+			"    final static String ENDPOINT = \"controll\";\n" +
+			"}\n",
+			"RequestMapping.java",
+			"import java.lang.annotation.ElementType;\n" +
+			"import java.lang.annotation.Retention;\n" +
+			"import java.lang.annotation.RetentionPolicy;\n" +
+			"import java.lang.annotation.Target;\n" +
+			"\n" +
+			"@Target(ElementType.TYPE)\n" +
+			"@Retention(RetentionPolicy.RUNTIME)\n" +
+			"public @interface RequestMapping {\n" +
+			"	String name() default \"\";\n" +
+			"	String[] value() default {};\n" +
+			"}\n",
+			"CtlImpl.java",
+			"@RequestMapping(CtlImpl.CTL_ENDPOINT)\n" +
+			"public class CtlImpl extends Controller<String> {\n" +
+			"    final static String CTL_ENDPOINT = ENDPOINT + \"/ctl\";\n" +
+			"    static String value;\n" +
+			"}\n"
+		};
+	runner.runConformTest();
+}
 public void testVSCodeIssue3076() {
 	Runner runner = new Runner();
 	runner.testFiles =
