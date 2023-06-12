@@ -3951,7 +3951,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		// u2 num_bootstrap_arguments
 		int numArgsLocation = localContentsOffset;
 		this.contents[numArgsLocation++] = 0;
-		this.contents[numArgsLocation] = 1;
+		this.contents[numArgsLocation] = (byte) 1;
 		localContentsOffset += 2;
 
 		int intValIdx =

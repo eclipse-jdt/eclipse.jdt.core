@@ -2627,8 +2627,7 @@ public void generateStringConcatenationAppend(BlockScope blockScope, Expression 
 			// Operand is already on the stack
 			invokeStringValueOf(TypeIds.T_JavaLangObject);
 			arguments.add(blockScope.getJavaLangString());
-			//TODO make a constant
-			builder.append('\u0001'); //java.lang.invoke.StringConcatFactory.TAG_ARG
+			builder.append(TypeConstants.STRING_CONCAT_FACTORY_ARG);
 		} else {
 			oper1.buildStringForConcatation(blockScope, this, oper1.implicitConversion & TypeIds.COMPILE_TYPE_MASK, builder, arguments);
 		}

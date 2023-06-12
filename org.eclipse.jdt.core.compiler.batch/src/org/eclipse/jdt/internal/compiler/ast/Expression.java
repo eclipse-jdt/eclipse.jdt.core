@@ -946,7 +946,7 @@ public void buildStringForConcatation(BlockScope blockScope, CodeStream codeStre
 			case TypeIds.T_boolean :
 				generateCode(blockScope, codeStream, true);
 				argTypes.add(this.resolvedType);
-				builder.append('\u0001');
+				builder.append(STRING_CONCAT_FACTORY_ARG);
 				break;
 			default :
 				if (this.resolvedType.id == TypeIds.T_null) {
@@ -956,7 +956,7 @@ public void buildStringForConcatation(BlockScope blockScope, CodeStream codeStre
 					generateCode(blockScope, codeStream, true);
 					codeStream.invokeStringValueOf(typeID);
 					argTypes.add(blockScope.getJavaLangString());
-					builder.append('\u0001');
+					builder.append(STRING_CONCAT_FACTORY_ARG);
 				}
 				break;
 		}
