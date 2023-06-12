@@ -7085,7 +7085,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"\n" +
 				"    Annotation[] as = s.getAnnotations();\n" +
 				"    for (int i = 0; i < as.length; i++) {\n" +
-				"      System.out.println(i + \" \" + as[i]);\n" +
+				"      System.out.println(i + \" @\" + as[i].annotationType().getCanonicalName() + \"()\");\n" +
 				"    }\n" +
 				"\n" +
 				"    if (1 != as.length) {\n" +
