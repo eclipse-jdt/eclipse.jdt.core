@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -15,6 +15,8 @@
  *								bug 383368 - [compiler][null] syntactic null analysis for field references
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
+
+import java.util.List;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.impl.*;
@@ -1563,6 +1565,20 @@ public void generateOptimizedLogicalXor(BlockScope currentScope, CodeStream code
 	codeStream.recordPositionsFrom(codeStream.position, this.sourceEnd);
 }
 
+@Override
+public void buildStringForConcatation(BlockScope blockScope, CodeStream codeStream, int typeID, StringBuilder builder, List<TypeBinding> argTypes) {
+	if ((((this.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT) == OperatorIds.PLUS)
+			&& ((this.bits & ASTNode.ReturnTypeIDMASK) == TypeIds.T_JavaLangString)) {
+			if (this.constant != Constant.NotAConstant) {
+				super.buildStringForConcatation(blockScope, codeStream, typeID, builder, argTypes);
+			} else {
+				this.left.buildStringForConcatation(blockScope, codeStream, this.left.implicitConversion & TypeIds.COMPILE_TYPE_MASK, builder, argTypes);
+				this.right.buildStringForConcatation(blockScope, codeStream, this.right.implicitConversion & TypeIds.COMPILE_TYPE_MASK, builder, argTypes);
+			}
+		} else {
+			super.buildStringForConcatation(blockScope, codeStream, typeID, builder, argTypes);
+		}
+}
 @Override
 public void generateOptimizedStringConcatenation(BlockScope blockScope, CodeStream codeStream, int typeID) {
 	// keep implementation in sync with CombinedBinaryExpression

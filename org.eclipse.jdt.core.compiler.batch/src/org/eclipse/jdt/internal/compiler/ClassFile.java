@@ -194,7 +194,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 	public static final String BOOTSTRAP_STRING = new String(ConstantPool.BOOTSTRAP);
 	public static final String TYPESWITCH_STRING = new String(ConstantPool.TYPESWITCH);
 	public static final String ENUMSWITCH_STRING = new String(ConstantPool.ENUMSWITCH);
-	public static final String[] BOOTSTRAP_METHODS = {ALTMETAFACTORY_STRING, METAFACTORY_STRING, BOOTSTRAP_STRING, TYPESWITCH_STRING, ENUMSWITCH_STRING};
+	public static final String CONCAT_CONSTANTS = new String(ConstantPool.ConcatWithConstants);
+	public static final String[] BOOTSTRAP_METHODS = {ALTMETAFACTORY_STRING, METAFACTORY_STRING, BOOTSTRAP_STRING, TYPESWITCH_STRING, ENUMSWITCH_STRING, CONCAT_CONSTANTS};
 
 	/**
 	 * INTERNAL USE-ONLY
@@ -3657,6 +3658,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 				} else {
 					localContentsOffset = addBootStrapTypeSwitchEntry(localContentsOffset, stmt, fPtr);
 				}
+			} else if (o instanceof Expression) {
+				localContentsOffset = addBootStrapStringConcatEntry(localContentsOffset, (Expression) o, fPtr);
 			}
 		}
 
@@ -3930,7 +3933,34 @@ public class ClassFile implements TypeConstants, TypeIds {
 
 		return localContentsOffset;
 	}
+	private int addBootStrapStringConcatEntry(int localContentsOffset, Expression expression, Map<String, Integer> fPtr) {
+		final int contentsEntries = 10;
+		int indexForStringConcat = fPtr.get(ClassFile.CONCAT_CONSTANTS);
+		if (contentsEntries + localContentsOffset >= this.contents.length) {
+			resizeContents(contentsEntries);
+		}
+		if (indexForStringConcat == 0) {
+			ReferenceBinding javaLangRuntimeSwitchBootstraps = this.referenceBinding.scope.getJavaLangInvokeStringConcatFactory();
+			indexForStringConcat = this.constantPool.literalIndexForMethodHandle(ClassFileConstants.MethodHandleRefKindInvokeStatic, javaLangRuntimeSwitchBootstraps,
+					ConstantPool.ConcatWithConstants, ConstantPool.JAVA_LANG_INVOKE_STRING_CONCAT_FACTORY_SIGNATURE, false);
+			fPtr.put(ClassFile.CONCAT_CONSTANTS, indexForStringConcat);
+		}
+		this.contents[localContentsOffset++] = (byte) (indexForStringConcat >> 8);
+		this.contents[localContentsOffset++] = (byte) indexForStringConcat;
 
+		// u2 num_bootstrap_arguments
+		int numArgsLocation = localContentsOffset;
+		this.contents[numArgsLocation++] = 0;
+		this.contents[numArgsLocation] = 1;
+		localContentsOffset += 2;
+
+		int intValIdx =
+				this.constantPool.literalIndex(expression.concatenatedLiteral.toString());
+		this.contents[localContentsOffset++] = (byte) (intValIdx >> 8);
+		this.contents[localContentsOffset++] = (byte) intValIdx;
+
+		return localContentsOffset;
+	}
 	private int generateLineNumberAttribute() {
 		int localContentsOffset = this.contentsOffset;
 		int attributesNumber = 0;
@@ -6233,7 +6263,13 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.bootstrapMethods.add(switchStatement);
 		return this.bootstrapMethods.size() - 1;
 	}
-
+	public int recordBootstrapMethod(Expression expression) {
+		if (this.bootstrapMethods == null) {
+			this.bootstrapMethods = new ArrayList<>();
+		}
+		this.bootstrapMethods.add(expression);
+		return this.bootstrapMethods.size() - 1;
+	}
 	public void reset(/*@Nullable*/SourceTypeBinding typeBinding, CompilerOptions options) {
 		// the code stream is reinitialized for each method
 		if (typeBinding != null) {

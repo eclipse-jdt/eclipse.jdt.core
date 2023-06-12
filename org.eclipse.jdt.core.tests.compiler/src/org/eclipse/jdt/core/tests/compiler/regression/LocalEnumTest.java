@@ -4864,49 +4864,49 @@ public void test127() throws Exception {
 			ClassFileBytesDisassembler.DETAILED);
 
 	String expectedOutput =
-		"public class X {\n"
-		+ "  \n"
-		+ "  // Method descriptor #6 ()V\n"
-		+ "  // Stack: 1, Locals: 1\n"
-		+ "  public X();\n"
-		+ "    0  aload_0 [this]\n"
-		+ "    1  invokespecial java.lang.Object() [8]\n"
-		+ "    4  return\n"
-		+ "      Line numbers:\n"
-		+ "        [pc: 0, line: 1]\n"
-		+ "      Local variable table:\n"
-		+ "        [pc: 0, pc: 5] local: this index: 0 type: X\n"
-		+ "  \n"
-		+ "  // Method descriptor #15 ([Ljava/lang/String;)V\n"
-		+ "  // Stack: 4, Locals: 1\n"
-		+ "  public static void main(java.lang.String[] args);\n"
-		+ "     0  getstatic java.lang.System.out : java.io.PrintStream [16]\n"
-		+ "     3  new java.lang.StringBuilder [22]\n"
-		+ "     6  dup\n"
-		+ "     7  ldc <String \"[\"> [24]\n"
-		+ "     9  invokespecial java.lang.StringBuilder(java.lang.String) [26]\n"
-		+ "    12  invokestatic X$1Y.values() : X$1Y[] [29]\n"
-		+ "    15  arraylength\n"
-		+ "    16  invokevirtual java.lang.StringBuilder.append(int) : java.lang.StringBuilder [35]\n"
-		+ "    19  ldc <String \"]\"> [39]\n"
-		+ "    21  invokevirtual java.lang.StringBuilder.append(java.lang.String) : java.lang.StringBuilder [41]\n"
-		+ "    24  invokevirtual java.lang.StringBuilder.toString() : java.lang.String [44]\n"
-		+ "    27  invokevirtual java.io.PrintStream.println(java.lang.String) : void [48]\n"
-		+ "    30  return\n"
-		+ "      Line numbers:\n"
-		+ "        [pc: 0, line: 10]\n"
-		+ "        [pc: 30, line: 11]\n"
-		+ "      Local variable table:\n"
-		+ "        [pc: 0, pc: 31] local: args index: 0 type: java.lang.String[]\n"
-		+ "\n"
-		+ "  Inner classes:\n"
-		+ "    [inner class info: #30 X$1Y, outer class info: #0\n"
-		+ "     inner name: #58 Y, accessflags: 17416 abstract static]\n"
-		+ "\n"
-		+ "Nest Members:\n"
-		+ "   #30 X$1Y,\n"
-		+ "   #60 X$1Y$1\n"
-		+ "}";
+			"// Compiled from X.java (version 16 : 60.0, super bit)\n" +
+			"public class X {\n" +
+			"  \n" +
+			"  // Method descriptor #6 ()V\n" +
+			"  // Stack: 1, Locals: 1\n" +
+			"  public X();\n" +
+			"    0  aload_0 [this]\n" +
+			"    1  invokespecial java.lang.Object() [8]\n" +
+			"    4  return\n" +
+			"      Line numbers:\n" +
+			"        [pc: 0, line: 1]\n" +
+			"      Local variable table:\n" +
+			"        [pc: 0, pc: 5] local: this index: 0 type: X\n" +
+			"  \n" +
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" +
+			"  // Stack: 3, Locals: 1\n" +
+			"  public static void main(java.lang.String[] args);\n" +
+			"     0  getstatic java.lang.System.out : java.io.PrintStream [16]\n" +
+			"     3  invokestatic X$1Y.values() : X$1Y[] [22]\n" +
+			"     6  arraylength\n" +
+			"     7  invokedynamic 0 makeConcatWithConstants(int) : java.lang.String [28]\n" +
+			"    12  invokevirtual java.io.PrintStream.println(java.lang.String) : void [32]\n" +
+			"    15  return\n" +
+			"      Line numbers:\n" +
+			"        [pc: 0, line: 10]\n" +
+			"        [pc: 15, line: 11]\n" +
+			"      Local variable table:\n" +
+			"        [pc: 0, pc: 16] local: args index: 0 type: java.lang.String[]\n" +
+			"\n" +
+			"  Inner classes:\n" +
+			"    [inner class info: #23 X$1Y, outer class info: #0\n" +
+			"     inner name: #52 Y, accessflags: 17416 abstract static],\n" +
+			"    [inner class info: #53 java/lang/invoke/MethodHandles$Lookup, outer class info: #55 java/lang/invoke/MethodHandles\n" +
+			"     inner name: #57 Lookup, accessflags: 25 public static final]\n" +
+			"\n" +
+			"Nest Members:\n" +
+			"   #23 X$1Y,\n" +
+			"   #59 X$1Y$1\n" +
+			"Bootstrap methods:\n" +
+			"  0 : # 48 invokestatic java/lang/invoke/StringConcatFactory.makeConcatWithConstants:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;\n" +
+			"	Method arguments:\n" +
+			"		#49 []\n" +
+			"}";
 
 	int index = actualOutput.indexOf(expectedOutput);
 

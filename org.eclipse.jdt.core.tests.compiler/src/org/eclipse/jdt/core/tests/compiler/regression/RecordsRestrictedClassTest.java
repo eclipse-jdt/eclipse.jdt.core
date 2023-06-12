@@ -2103,13 +2103,20 @@ public void testBug560569_001() throws Exception {
 		},
 	 "true");
 	String expectedOutput =
-			"Bootstrap methods:\n" +
-			"  0 : # 69 invokestatic java/lang/runtime/ObjectMethods.bootstrap:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/TypeDescriptor;Ljava/lang/Class;Ljava/lang/String;[Ljava/lang/invoke/MethodHandle;)Ljava/lang/Object;\n" +
-			"	Method arguments:\n" +
-			"		#1 Car\n" +
-			"		#70 model;year\n" +
-			"		#72 REF_getField model:Ljava/lang/String;\n" +
-			"		#73 REF_getField year:I\n";
+			(this.complianceLevel < ClassFileConstants.JDK9) ?
+				"  0 : # 69 invokestatic java/lang/runtime/ObjectMethods.bootstrap:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/TypeDescriptor;Ljava/lang/Class;Ljava/lang/String;[Ljava/lang/invoke/MethodHandle;)Ljava/lang/Object;\n" +
+				"	Method arguments:\n" +
+				"		#1 Car\n" +
+				"		#70 model;year\n" +
+				"		#72 REF_getField model:Ljava/lang/String;\n" +
+				"		#73 REF_getField year:I\n"
+			:
+				"  1 : # 59 invokestatic java/lang/runtime/ObjectMethods.bootstrap:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/TypeDescriptor;Ljava/lang/Class;Ljava/lang/String;[Ljava/lang/invoke/MethodHandle;)Ljava/lang/Object;\n" +
+				"	Method arguments:\n" +
+				"		#1 Car\n" +
+				"		#60 model;year\n" +
+				"		#62 REF_getField model:Ljava/lang/String;\n" +
+				"		#63 REF_getField year:I";
 	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Car.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedOutput = 			"  // Method descriptor #12 (Ljava/lang/String;I)V\n" +
 			"  // Stack: 2, Locals: 3\n" +
