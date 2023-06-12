@@ -18,8 +18,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.GenericSignatureFormatError;
-import java.lang.reflect.Method;
 
 import junit.framework.Test;
 
@@ -1329,34 +1327,6 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		}
 	}
 
-	/**
-	 * javac does not generate a method signature in that case, and the JDT compiler
-	 * produced
-	 *
-	 * <pre>{@code Signature: ()+Ljava/util/stream/Stream<Ljava/lang/String;>;}</pre>
-	 *
-	 * That is not a valid signature due to the {@code '+'} at the beginning. This
-	 * makes various tools that analyze the class files fail, including the JDK
-	 * reflection API (like, e.g., {@link Method#toGenericString()}) with a
-	 * {@link GenericSignatureFormatError}. Removing it would make the signature
-	 * valid but has the potential to make it nonsensical, like in the following
-	 * example:
-	 *
-	 * <pre>{@code
-	 * // Signature: ()+Ljava/util/stream/Stream<TT;>;
-	 * private static synthetic java.util.stream.Stream lambda$2();
-	 * }</pre>
-	 *
-	 * The type parameters that originate from the location of the lambda / method
-	 * reference are not defined here (note that the lambda is static). The
-	 * signature would need to be
-	 *
-	 * <pre>{@code Signature: <T:Ljava/lang/Object;>()Ljava/util/stream/Stream<TT;>;}</pre>
-	 *
-	 * Generating valid and useful generic method signatures for synthetic methods
-	 * like lambdas does likely cost more than it is worth, so JDT should probably
-	 * follow the javac behavior.
-	 */
 	public void testGenericVarargsMethodReferenceLambdasHaveNoSignature() {
 		// uses lambdas
 		if (this.complianceLevel < ClassFileConstants.JDK1_8)
@@ -1397,11 +1367,11 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 
 				IBinaryMethod m1Lambda = methods[2];
 				assertEquals("Wrong name", "lambda$2", new String(m1Lambda.getSelector()));
-				assertEquals("Wrong signature", "()Ljava/util/stream/Stream<TT;>;", new String(m1Lambda.getGenericSignature()));
+				assertNull("Wrong signature - non denotable should have been suppressed", m1Lambda.getGenericSignature());
 
 				IBinaryMethod m2Lambda = methods[3];
 				assertEquals("Wrong name", "lambda$3", new String(m2Lambda.getSelector()));
-				assertEquals("Wrong signature", "()Ljava/util/stream/Stream<TT;>;", new String(m2Lambda.getGenericSignature()));
+				assertNull("Wrong signature - non denotable should have been suppressed", m2Lambda.getGenericSignature());
 			} catch (ClassFormatException e) {
 				assertTrue(false);
 			} catch (IOException e) {
