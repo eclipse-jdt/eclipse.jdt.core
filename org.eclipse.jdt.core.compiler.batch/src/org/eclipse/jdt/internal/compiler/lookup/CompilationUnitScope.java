@@ -451,7 +451,6 @@ void faultInImports() {
 	this.importPtr = 1;
 
 	CompilerOptions compilerOptions = compilerOptions();
-	boolean inJdtDebugCompileMode = compilerOptions.enableJdtDebugCompileMode;
 
 	// keep static imports with normal imports until there is a reason to split them up
 	// on demand imports continue to be packages & types. need to check on demand type imports for fields/methods
@@ -478,7 +477,7 @@ void faultInImports() {
 			}
 			if (importBinding instanceof PackageBinding) {
 				PackageBinding uniquePackage = ((PackageBinding)importBinding).getVisibleFor(module(), false);
-				if (uniquePackage instanceof SplitPackageBinding && !inJdtDebugCompileMode) {
+				if (uniquePackage instanceof SplitPackageBinding) {
 					SplitPackageBinding splitPackage = (SplitPackageBinding) uniquePackage;
 					problemReporter().conflictingPackagesFromModules(splitPackage, module(), importReference.sourceStart, importReference.sourceEnd);
 					continue nextImport;
@@ -491,7 +490,7 @@ void faultInImports() {
 			recordImportBinding(new ImportBinding(compoundName, true, importBinding, importReference));
 		} else {
 			Binding importBinding = findSingleImport(compoundName, Binding.TYPE | Binding.FIELD | Binding.METHOD, importReference.isStatic());
-			if (importBinding instanceof SplitPackageBinding && !inJdtDebugCompileMode) {
+			if (importBinding instanceof SplitPackageBinding) {
 				SplitPackageBinding splitPackage = (SplitPackageBinding) importBinding;
 				int sourceEnd = (int)(importReference.sourcePositions[splitPackage.compoundName.length-1] & 0xFFFF);
 				problemReporter().conflictingPackagesFromModules((SplitPackageBinding) importBinding, module(), importReference.sourceStart, sourceEnd);
@@ -522,7 +521,7 @@ void faultInImports() {
 					importedPackage = (PackageBinding) findImport(importedPackage.compoundName, false, true);
 					if (importedPackage != null)
 						importedPackage = importedPackage.getVisibleFor(module(), true);
-					if (importedPackage instanceof SplitPackageBinding && !inJdtDebugCompileMode) {
+					if (importedPackage instanceof SplitPackageBinding) {
 						SplitPackageBinding splitPackage = (SplitPackageBinding) importedPackage;
 						int sourceEnd = (int) importReference.sourcePositions[splitPackage.compoundName.length-1];
 						problemReporter().conflictingPackagesFromModules(splitPackage, module(), importReference.sourceStart, sourceEnd);

@@ -208,9 +208,6 @@ public class CompilerOptions {
 
 	public static final String OPTION_ReportSuppressWarningNotFullyAnalysed = "org.eclipse.jdt.core.compiler.problem.suppressWarningsNotFullyAnalysed";  //$NON-NLS-1$
 
-	// Internally used option to allow debug framework compile evaluation snippets in context of modules, see bug 543604
-	public static final String OPTION_JdtDebugCompileMode = "org.eclipse.jdt.internal.debug.compile.mode"; //$NON-NLS-1$
-
 	public static final String OPTION_IgnoreUnnamedModuleForSplitPackage = "org.eclipse.jdt.core.compiler.ignoreUnnamedModuleForSplitPackage"; //$NON-NLS-1$
 
 	public static final String OPTION_UseStringConcatFactory = "org.eclipse.jdt.core.compiler.codegen.useStringConcatFactory"; //$NON-NLS-1$
@@ -547,9 +544,6 @@ public class CompilerOptions {
 
 	/** Master flag to enabled/disable all preview features */
 	public boolean enablePreviewFeatures;
-
-	/** Enable a less restrictive compile mode for JDT debug. */
-	public boolean enableJdtDebugCompileMode;
 
 	/** Should the compiler ignore the unnamed module when a package is defined in both a named module and the unnamed module? */
 	public boolean ignoreUnnamedModuleForSplitPackage;
@@ -1606,7 +1600,6 @@ public class CompilerOptions {
 		this.complainOnUninternedIdentityComparison = false;
 		this.enablePreviewFeatures = false;
 
-		this.enableJdtDebugCompileMode = false;
 		this.ignoreUnnamedModuleForSplitPackage = false;
 		this.useStringConcatFactory = true;
 	}
@@ -2134,14 +2127,6 @@ public class CompilerOptions {
 			updateSeverity(PreviewFeatureUsed, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportSuppressWarningNotFullyAnalysed)) != null)
 			updateSeverity(SuppressWarningsNotAnalysed, optionValue);
-
-		if ((optionValue = optionsMap.get(OPTION_JdtDebugCompileMode)) != null) {
-			if (ENABLED.equals(optionValue)) {
-				this.enableJdtDebugCompileMode = true;
-			} else if (DISABLED.equals(optionValue)) {
-				this.enableJdtDebugCompileMode = false;
-			}
-		}
 
 		if ((optionValue = optionsMap.get(OPTION_IgnoreUnnamedModuleForSplitPackage)) != null) {
 			if (ENABLED.equals(optionValue)) {

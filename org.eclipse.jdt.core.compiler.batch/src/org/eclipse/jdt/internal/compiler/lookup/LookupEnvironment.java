@@ -1502,7 +1502,7 @@ private boolean flaggedJavaBaseTypeErrors(ReferenceBinding result, char[][] comp
 					ModuleBinding visibleModule = currentPack != null ? currentPack.enclosingModule : null;
 					if (visibleModule != null && visibleModule != javaBaseModule()) {
 						// A type from java.base is not visible
-						if (!this.globalOptions.enableJdtDebugCompileMode) {
+						if (!this.globalOptions.ignoreUnnamedModuleForSplitPackage) {
 							this.problemReporter.conflictingPackageInModules(compoundName, this.root.unitBeingCompleted, this.missingClassFileLocation,
 									readableName, TypeConstants.JAVA_BASE, visibleModule.readableName());
 							return true;
