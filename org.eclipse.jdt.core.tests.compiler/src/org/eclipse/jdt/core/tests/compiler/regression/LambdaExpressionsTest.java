@@ -7917,8 +7917,48 @@ public void testBug551882() {
 			""
 			);
 }
-
-public static Class testClass() {
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=546161
+//LambdaConversionException due to invalid instantiated method type argument to LambdaMetafactory::metafactory
+public void testBug546161() {
+	this.runConformTest(
+			new String[] {
+				"Main.java",
+				"public class Main {\n" +
+				"    public static void main(String[] args) {\n" +
+				"    	((Widget<?>) new Widget<>()).addListener(evt -> {});\n" +
+				"    }\n" +
+				"}\n" +
+				"\n" +
+				"class Widget<E extends CharSequence> {\n" +
+				"    void addListener(Listener<? super E> listener) {}\n" +
+				"}\n" +
+				"\n" +
+				"interface Listener<E extends CharSequence> {\n" +
+				"    void m(E event);\n" +
+				"}\n"},
+			""
+			);
+}
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=546161
+//LambdaConversionException due to invalid instantiated method type argument to LambdaMetafactory::metafactory
+public void testBug546161_2() {
+	this.runConformTest(
+			new String[] {
+				"Main.java",
+				"public class Main {\n" +
+				"    public static void main(String[] args) {\n" +
+				"    	new Widget<>().addListener(evt -> {});\n" +
+				"    }\n" +
+				"}\n" +
+				"class Widget<E extends CharSequence> {\n" +
+				"    void addListener(Listener<? super E> listener) {}\n" +
+				"}\n" +
+				"interface Listener<E extends CharSequence> {\n" +
+				"    void m(E event);\n" +
+				"}\n"},
+			""
+			);
+}public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
 }
