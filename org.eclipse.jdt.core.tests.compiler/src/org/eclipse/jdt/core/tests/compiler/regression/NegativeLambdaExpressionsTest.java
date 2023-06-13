@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011, 2021 IBM Corporation and others.
+ * Copyright (c) 2011, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10235,6 +10235,38 @@ public void test553601() {
 		"	                                                           ^\n" +
 		"Syntax error on token(s), misplaced construct(s)\n" +
 		"----------\n");
+}
+
+public void testIssue810() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class Foo {\n"+
+				"static void foo() { \n"+
+				"run(Bar::privateMethod); // <-- warning: Access to enclosing method ... emulated by a synthetic accessor\n"+// method
+				"}\n" +
+				"public static void main(String[] args) {\n"+
+				"Zork z; \n"+
+				"}\n" +
+				"static class Bar { \n"+
+				"private static void privateMethod() { \n" +
+				/**/" }\n" +
+				"}\n" +
+				"static void run(Runnable r) { \n"+
+				"r.run(); \n"+
+				"} \n"+
+			    "}\n"},
+				"----------\n" +
+				"1. WARNING in X.java (at line 3)\n" +
+				"	run(Bar::privateMethod); // <-- warning: Access to enclosing method ... emulated by a synthetic accessor\n" +
+				"	    ^^^^^^^^^^^^^^^^^^\n" +
+				"Access to privateMethod() from the type Foo.Bar is emulated by a synthetic accessor method\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 6)\n" +
+				"	Zork z; \n" +
+				"	^^^^\n" +
+				"Zork cannot be resolved to a type\n" +
+				"----------\n");
 }
 
 public static Class testClass() {
