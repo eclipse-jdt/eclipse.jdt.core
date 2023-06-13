@@ -978,7 +978,7 @@ public class SwitchStatement extends Expression {
 								IntPredicate check = (idx) -> {
 									Constant c2 = this.otherConstants[idx].c;
 									if (con.typeID() == TypeIds.T_JavaLangString) {
-										return c.intValue() == this.otherConstants[idx].intValue();
+										return c2.stringValue().equals(con.stringValue());
 									} else {
 										if (c2.typeID() == TypeIds.T_JavaLangString)
 											return false;
