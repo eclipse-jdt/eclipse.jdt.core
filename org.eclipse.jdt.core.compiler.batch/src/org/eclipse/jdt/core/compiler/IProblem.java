@@ -2542,4 +2542,9 @@ void setSourceStart(int sourceStart);
 	 * @noreference preview feature
 	 */
 	int CannotInferRecordPatternTypes = PreviewRelated + 1940;
+
+	/**
+	 * @since 3.35
+	 */
+	int SyntheticAccessorNotEnclosingMethod = MethodRelated + 1990;
 }

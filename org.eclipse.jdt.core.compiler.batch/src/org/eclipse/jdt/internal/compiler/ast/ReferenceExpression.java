@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -478,7 +478,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 		if (this.binding.isPrivate()) {
 			if (TypeBinding.notEquals(enclosingSourceType, codegenBinding.declaringClass)){
 				this.syntheticAccessor = ((SourceTypeBinding)codegenBinding.declaringClass).addSyntheticMethod(codegenBinding, false /* not super access */);
-				currentScope.problemReporter().needToEmulateMethodAccess(codegenBinding, this);
+				currentScope.problemReporter().checkSyntheticAccessor(codegenBinding, this);
 			}
 			return;
 		}
