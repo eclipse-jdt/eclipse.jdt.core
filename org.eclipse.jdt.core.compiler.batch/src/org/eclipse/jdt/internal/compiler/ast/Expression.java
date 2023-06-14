@@ -946,7 +946,7 @@ public void buildStringForConcatation(BlockScope blockScope, CodeStream codeStre
 			case TypeIds.T_boolean :
 				generateCode(blockScope, codeStream, true);
 				argTypes.add(this.resolvedType);
-				builder.append(STRING_CONCAT_FACTORY_ARG);
+				builder.append(STRING_CONCAT_MARKER_1);
 				break;
 			default :
 				if (this.resolvedType.id == TypeIds.T_null) {
@@ -956,12 +956,19 @@ public void buildStringForConcatation(BlockScope blockScope, CodeStream codeStre
 					generateCode(blockScope, codeStream, true);
 					codeStream.invokeStringValueOf(typeID);
 					argTypes.add(blockScope.getJavaLangString());
-					builder.append(STRING_CONCAT_FACTORY_ARG);
+					builder.append(STRING_CONCAT_MARKER_1);
 				}
 				break;
 		}
 	} else {
-		builder.append(this.constant.stringValue());
+		// StringLiteral and CharLiteral may contain special characters
+		if (this.constant.stringValue().indexOf('\u0001') != -1 || this.constant.stringValue().indexOf('\u0002') != -1) {
+			codeStream.ldc(this.constant.stringValue());
+			builder.append(STRING_CONCAT_MARKER_1);
+			argTypes.add(blockScope.getJavaLangString());
+		} else {
+			builder.append(this.constant.stringValue());
+		}
 	}
 }
 private MethodBinding[] getAllOriginalInheritedMethods(ReferenceBinding binding) {

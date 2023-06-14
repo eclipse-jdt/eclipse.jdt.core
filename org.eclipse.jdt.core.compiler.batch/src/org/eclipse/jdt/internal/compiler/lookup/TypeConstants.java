@@ -119,7 +119,7 @@ public interface TypeConstants {
     char[] UPPER_RECORD_COMPONENT = "RECORD_COMPONENT".toCharArray(); //$NON-NLS-1$
     char[] YIELD = "yield".toCharArray(); //$NON-NLS-1$
     // Duplicated since java.lang.invoke.StringConcatFactory.TAG_ARG isn't public
-    char[] STRING_CONCAT_FACTORY_ARG = new char[] {'\u0001'};
+    char[] STRING_CONCAT_MARKER_1 = new char[] {'\u0001'};
 
     // JEP 286
 	char[] VAR = "var".toCharArray(); //$NON-NLS-1$
