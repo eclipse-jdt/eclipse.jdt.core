@@ -7972,6 +7972,207 @@ public void testGH1060() {
 			);
 }
 
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=546161
+//LambdaConversionException due to invalid instantiated method type argument to LambdaMetafactory::metafactory
+public void testBug546161() {
+	this.runConformTest(
+			new String[] {
+				"Main.java",
+				"public class Main {\n" +
+				"    public static void main(String[] args) {\n" +
+				"    	((Widget<?>) new Widget<>()).addListener(evt -> {});\n" +
+				"    }\n" +
+				"}\n" +
+				"\n" +
+				"class Widget<E extends CharSequence> {\n" +
+				"    void addListener(Listener<? super E> listener) {}\n" +
+				"}\n" +
+				"\n" +
+				"interface Listener<E extends CharSequence> {\n" +
+				"    void m(E event);\n" +
+				"}\n"},
+			""
+			);
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=546161
+//LambdaConversionException due to invalid instantiated method type argument to LambdaMetafactory::metafactory
+public void testBug546161_2() {
+	this.runConformTest(
+			new String[] {
+				"Main.java",
+				"public class Main {\n" +
+				"    public static void main(String[] args) {\n" +
+				"    	new Widget<>().addListener(evt -> {});\n" +
+				"    }\n" +
+				"}\n" +
+				"class Widget<E extends CharSequence> {\n" +
+				"    void addListener(Listener<? super E> listener) {}\n" +
+				"}\n" +
+				"interface Listener<E extends CharSequence> {\n" +
+				"    void m(E event);\n" +
+				"}\n"},
+			""
+			);
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=574269
+//java.lang.invoke.LambdaConversionException: Invalid receiver type class java.lang.Object
+public void testBug574269() {
+	this.runConformTest(
+			new String[] {
+				"Test.java",
+				"import java.util.List;\n" +
+				"\n" +
+				"public class Test {\n" +
+				"\n" +
+				"	public static void main(String[] args) {\n" +
+				"		System.out.println(\"Testing with explicit type\");\n" +
+				"		MyGroup group = new MyGroup();\n" +
+				"\n" +
+				"		System.out.println(\"  Testing lambda\");\n" +
+				"		if (group.getPersons().stream().anyMatch(p -> p.isFoo())) {}\n" +
+				"		System.out.println(\"  Lambda is good\");\n" +
+				"		\n" +
+				"		System.out.println(\"  Testing method reference\");\n" +
+				"		if (group.getPersons().stream().anyMatch(Test.Person::isFoo)) {}\n" +
+				"		System.out.println(\"  Method reference is good\");\n" +
+				"\n" +
+				"		System.out.println(\"Testing with wildcard\");\n" +
+				"		Group<?> group2 = new MyGroup();\n" +
+				"\n" +
+				"		System.out.println(\"  Testing lambda\");\n" +
+				"		if (group2.getPersons().stream().anyMatch(p -> p.isFoo())) {}\n" +
+				"		System.out.println(\"  Lambda is good\");\n" +
+				"		\n" +
+				"		System.out.println(\"  Testing method reference\");\n" +
+				"		if (group2.getPersons().stream().anyMatch(Test.Person::isFoo)) {}\n" +
+				"		System.out.println(\"  Method reference is good\");\n" +
+				"	}\n" +
+				"\n" +
+				"	interface Group<T extends Person> {\n" +
+				"		List<T> getPersons();\n" +
+				"	}\n" +
+				"\n" +
+				"	interface Person {\n" +
+				"		boolean isFoo();\n" +
+				"	}\n" +
+				"\n" +
+				"	static class MyGroup implements Group<MyPerson> {\n" +
+				"\n" +
+				"		@Override\n" +
+				"		public List<MyPerson> getPersons() {\n" +
+				"			return List.of();\n" +
+				"		}\n" +
+				"	}\n" +
+				"\n" +
+				"	static class MyPerson implements Person {\n" +
+				"\n" +
+				"		@Override\n" +
+				"		public boolean isFoo() {\n" +
+				"			return true;\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n"},
+			"Testing with explicit type\n" +
+			"  Testing lambda\n" +
+			"  Lambda is good\n" +
+			"  Testing method reference\n" +
+			"  Method reference is good\n" +
+			"Testing with wildcard\n" +
+			"  Testing lambda\n" +
+			"  Lambda is good\n" +
+			"  Testing method reference\n" +
+			"  Method reference is good"
+			);
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=574269
+//java.lang.invoke.LambdaConversionException: Invalid receiver type class java.lang.Object
+public void testBug574269_2() {
+	this.runConformTest(
+			new String[] {
+				"TestX.java",
+				"import java.util.List;\n" +
+				"\n" +
+				"public class TestX {\n" +
+				"\n" +
+				"	public static void main(String[] args) {\n" +
+				"		Group<MyPerson> group1 = new MyGroup();\n" +
+				"		group1.getPersons().stream().anyMatch(TestX.Person::isFoo);\n" +
+				"		System.out.println(\"Method reference is good\");\n" +
+				"		\n" +
+				"		Group<?> group2 = new MyGroup();\n" +
+				"		group2.getPersons().stream().anyMatch(TestX.Person::isFoo);\n" +
+				"		System.out.println(\"Method reference is not bad\");\n" +
+				"	}\n" +
+				"\n" +
+				"	interface Group<T extends Person> {\n" +
+				"		List<T> getPersons();\n" +
+				"	}\n" +
+				"\n" +
+				"	interface Person {\n" +
+				"		boolean isFoo();\n" +
+				"	}\n" +
+				"\n" +
+				"	static class MyGroup implements Group<MyPerson> {\n" +
+				"		@Override\n" +
+				"		public List<MyPerson> getPersons() {\n" +
+				"			return List.of();\n" +
+				"		}\n" +
+				"	}\n" +
+				"\n" +
+				"	static class MyPerson implements Person {\n" +
+				"		@Override\n" +
+				"		public boolean isFoo() {\n" +
+				"			return true;\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n"},
+			"Method reference is good\n" +
+			"Method reference is not bad"
+			);
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=570511
+//java.lang.BootstrapMethodError in Eclipse compiled code that doesn't happen with javac
+public void testBug570511() {
+	this.runConformTest(
+			new String[] {
+				"T.java",
+				"// ---------------------------------------------------------------\n" +
+				"import java.util.function.Consumer;\n" +
+				"\n" +
+				"public class T {\n" +
+				"    public static void main(String[] args) {\n" +
+				"        new T().test(new X());\n" +
+				"    }\n" +
+				"\n" +
+				"    void test(I<?> i) {\n" +
+				"        i.m(\"a\", \"b\", this::m);\n" +
+				"    }\n" +
+				"\n" +
+				"    void m(I<?> i) {\n" +
+				"        System.out.println(\"T.m\");\n" +
+				"    }\n" +
+				"}\n" +
+				"\n" +
+				"interface I<C extends I<C>> {\n" +
+				"    C m(Object key, Object value, Consumer<? super C> consumer);\n" +
+				"}\n" +
+				"\n" +
+				"class X implements I<X> {\n" +
+				"    @Override\n" +
+				"    public X m(Object key, Object value, Consumer<? super X> consumer) {\n" +
+				"        consumer.accept(this);\n" +
+				"        System.out.println(\"X.m\");\n" +
+				"        return null;\n" +
+				"    }\n" +
+				"}\n"},
+			"T.m\n" +
+			"X.m"
+			);
+}
 
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
