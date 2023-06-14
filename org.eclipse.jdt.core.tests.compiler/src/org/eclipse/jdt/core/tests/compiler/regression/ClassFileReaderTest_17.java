@@ -139,4 +139,37 @@ public class ClassFileReaderTest_17 extends AbstractRegressionTest {
 		int modifiers = method.getModifiers();
 		assertTrue("strictfp modifier not expected", (modifiers & ClassFileConstants.AccStrictfp) == 0);
 	}
+	public void testWildcardBinding() throws Exception {
+		String source =
+				"public class X {    \n"
+				+ "    public static void main(String[] args) {\n"
+				+ "		getHasValue().addValueChangeListener(evt -> {System.out.println(\"hello\");});		\n"
+				+ "    }\n"
+				+ "    public static HasValue<?, ?> getHasValue() { \n"
+				+ "        return new HasValue<HasValue.ValueChangeEvent<String>, String>() { \n"
+				+ "			@Override\n"
+				+ "			public void addValueChangeListener(\n"
+				+ "					HasValue.ValueChangeListener<? super HasValue.ValueChangeEvent<String>> listener) {\n"
+				+ "				listener.valueChanged(null);\n"
+				+ "			}\n"
+				+ "		};\n"
+				+ "    }    \n"
+				+ "}\n"
+				+ "\n"
+				+ "interface HasValue<E extends HasValue.ValueChangeEvent<V>,V> {    \n"
+				+ "    public static interface ValueChangeEvent<V> {}    \n"
+				+ "    public static interface ValueChangeListener<E extends HasValue.ValueChangeEvent<?>> {\n"
+				+ "        void valueChanged(E event);\n"
+				+ "    }    \n"
+				+ "    void addValueChangeListener(HasValue.ValueChangeListener<? super E> listener);\n"
+				+ "}\n";
+
+		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = getInternalClassFile("", "X", "X", source);
+		IBinaryMethod[] methods = classFileReader.getMethods();
+		IBinaryMethod method = methods[3];
+		String name = new String(method.getSelector());
+		assertTrue("invalid name", "lambda$0".equals(name));
+		String descriptor = new String(method.getMethodDescriptor());
+		assertTrue("invalid descriptor", "(LHasValue$ValueChangeEvent;)V".equals(descriptor));
+	}
 }
