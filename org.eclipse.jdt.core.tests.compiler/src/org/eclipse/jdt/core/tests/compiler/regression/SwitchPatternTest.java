@@ -6182,4 +6182,46 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"This case label is dominated by one of the preceding case labels\n" +
 			"----------\n");
 	}
+	public void testIssue1126a() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					" 	static int foo(String i) {\n"+
+					"		return switch (i) {\n"+
+					"	     case \"abc\" -> 0;\n"+
+					"	     case \"abcd\" -> 1;\n"+
+					"	     case String s -> -1;\n"+
+					"	   };\n"+
+					"	}\n"+
+					" public static void main(String[] args) {\n"+
+					"   System.out.println(foo(\"abcd\"));\n"+
+					"   System.out.println(foo(\"abc\"));\n"+
+					" }\n"+
+					"}",
+				},
+				"1\n" +
+				"0");
+	}
+	public void testIssue1126b() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					" 	static int foo(String i) {\n"+
+					"		return switch (i) {\n"+
+					"	     case \"FB\" -> 0;\n"+
+					"	     case \"Ea\" -> 1;\n"+
+					"	     case String s -> -1;\n"+
+					"	   };\n"+
+					"	}\n"+
+					" public static void main(String[] args) {\n"+
+					"   System.out.println(foo(\"Ea\"));\n"+
+					"   System.out.println(foo(\"FB\"));\n"+
+					" }\n"+
+					"}",
+				},
+				"1\n" +
+				"0");
+	}
 }
