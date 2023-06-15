@@ -42,6 +42,7 @@ public interface TypeConstants {
 	char[] JAVA = "java".toCharArray(); //$NON-NLS-1$
 	char[] JAVAC = "javac".toCharArray(); //$NON-NLS-1$
 	char[] JAVAX = "javax".toCharArray(); //$NON-NLS-1$
+	char[] JAKARTA = "jakarta".toCharArray(); //$NON-NLS-1$
 	char[] LANG = "lang".toCharArray(); //$NON-NLS-1$
 	char[] IO = "io".toCharArray(); //$NON-NLS-1$
 	char[] NIO = "nio".toCharArray(); //$NON-NLS-1$
@@ -417,6 +418,7 @@ public interface TypeConstants {
 	char[] INJECT_PACKAGE = "inject".toCharArray(); //$NON-NLS-1$
 	char[] INJECT_TYPE = "Inject".toCharArray(); //$NON-NLS-1$
 	char[][] JAVAX_ANNOTATION_INJECT_INJECT = new char[][] { JAVAX, INJECT_PACKAGE, INJECT_TYPE };
+	char[][] JAKARTA_ANNOTATION_INJECT_INJECT = new char[][] { JAKARTA, INJECT_PACKAGE, INJECT_TYPE };
 	char[][] COM_GOOGLE_INJECT_INJECT = new char[][] {COM, GOOGLE, INJECT_PACKAGE, INJECT_TYPE };
 	//    detail for the above:
 	char[] OPTIONAL = "optional".toCharArray(); //$NON-NLS-1$
