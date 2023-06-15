@@ -3569,6 +3569,65 @@ public void testBug561167() {
 		// javac options
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=572534
+// ClassCastException LocalTypeBinding cannot be cast to ParameterizedTypeBinding in inferDiamondConstructor
+public void testBug572534() {
+	if (this.complianceLevel > ClassFileConstants.JDK1_8) {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
+		customOptions.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
+		runNegativeTest(
+			// test directory preparation
+			true /* flush output directory */,
+			new String[] { /* test files */
+				"X.java",
+				"import java.util.List;\n" +
+				"\n" +
+				"public class X {\n" +
+				"	\n" +
+				"	public static void main(String[] args) throws Exception {\n" +
+				"		List<String> list = null;\n" +
+				"		Object foo = null;\n"+
+				"		list = new ObjectMapper2().readValue((String)foo, new TypeReference2<>() { /*  */ });\n" +
+				"		\n" +
+				"		// Commenting out the previous line and explicitly typing the TypeReference works around it\n" +
+				"		list = new ObjectMapper2().readValue((String)foo, new TypeReference2<List<String>>() { /*  */ });\n" +
+				"		System.out.println(list);\n" +
+				"	}\n" +
+				"	\n" +
+				"	private static class TypeReference2<T> implements Comparable<TypeReference2<T>> {\n" +
+				"		@Override\n" +
+				"		public int compareTo(TypeReference2<T> o) {\n" +
+				"			return 0;\n" +
+				"		}\n" +
+				"	}\n" +
+				"   private void unused() {}\n" +
+				"\n" +
+				"	private static class ObjectMapper2 {\n" +
+				"		private <T> T readValue(String content, TypeReference2<T> valueTypeRef) {\n" +
+				"			return readValue(content, \"\");\n" +
+				"		}\n" +
+				"\n" +
+				"		private <T> T readValue(String content, String foo) {\n" +
+				"			return null;\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n"
+
+		},
+		// compiler options
+		null /* no class libraries */,
+		customOptions /* custom options */,
+		"----------\n" +
+		"1. WARNING in X.java (at line 21)\n" +
+		"	private void unused() {}\n" +
+		"	             ^^^^^^^^\n" +
+		"The method unused() from the type X is never used locally\n" +
+		"----------\n",
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
+	}
+}
 
 public static Class testClass() {
 	return CastTest.class;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2018 BEA Systems, Inc.
+ * Copyright (c) 2006, 2023 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -66,7 +66,7 @@ public class DeclaredTypeImpl extends TypeMirrorImpl implements DeclaredType {
 			return this._env.getFactory().newElement(prototype, this._elementKindHint);
 		}
 		// The JDT compiler does not distinguish between type elements and declared types
-		return this._env.getFactory().newElement((ReferenceBinding)this._binding, this._elementKindHint);
+		return this._env.getFactory().newElement(this._binding, this._elementKindHint);
 	}
 
 	@Override

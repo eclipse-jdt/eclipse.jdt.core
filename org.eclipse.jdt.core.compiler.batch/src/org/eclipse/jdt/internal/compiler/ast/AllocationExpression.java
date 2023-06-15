@@ -589,7 +589,7 @@ public MethodBinding inferConstructorOfElidedParameterizedType(final Scope scope
 			return cached;
 	}
 	boolean[] inferredReturnTypeOut = new boolean[1];
-	MethodBinding constructor = inferDiamondConstructor(scope, this, this.resolvedType, this.argumentTypes, inferredReturnTypeOut);
+	MethodBinding constructor = inferDiamondConstructor(scope, this, this.type.resolvedType, this.argumentTypes, inferredReturnTypeOut);
 	if (constructor != null) {
 		this.inferredReturnType = inferredReturnTypeOut[0];
 		if (constructor instanceof ParameterizedGenericMethodBinding && scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_8) {

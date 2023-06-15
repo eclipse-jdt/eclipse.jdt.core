@@ -1134,10 +1134,6 @@ protected static class JavacTestOptions {
 					new JavacBug8221413(" --release 12 --enable-preview -Xlint:-preview") : null,
 			JavacBug8226510_switchExpression = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8226510
 					new JavacBug8226510(" --release 12 --enable-preview -Xlint:-preview") : null,
-			JavacBug8231436 = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8231436 to implement https://bugs.openjdk.java.net/browse/JDK-8231435
-				    new JavacHasABug(MismatchType.JavacErrorsEclipseNone) : null,
-			JavacBug8231436_EclipseWarns = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8231436 to implement https://bugs.openjdk.java.net/browse/JDK-8231435
-				    new JavacHasABug(MismatchType.JavacErrorsEclipseWarnings) : null,
 		    JavacBug8299416 = RUN_JAVAC ? // https://bugs.openjdk.java.net/browse/JDK-8299416
 					new JavacBugExtraJavacOptionsPlusMismatch(" --release 20 --enable-preview -Xlint:-preview",
 							MismatchType.EclipseErrorsJavacNone| MismatchType.EclipseErrorsJavacWarnings) : null;

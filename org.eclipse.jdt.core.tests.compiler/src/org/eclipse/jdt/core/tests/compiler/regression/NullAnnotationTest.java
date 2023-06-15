@@ -10701,13 +10701,22 @@ public void testBug548418_001a() {
 			"	}\n"+
 			"}\n"
 				},
-		"----------\n" +
-		"1. ERROR in X.java (at line 13)\n" +
-		"	break x;\n" +
-		"	^^^^^^^^\n" +
-		"Breaking out of switch expressions not permitted\n" +
-		"----------\n"
-	);
+			"----------\n" +
+			"1. ERROR in X.java (at line 12)\n" +
+			"	x = null;\n" +
+			"	    ^^^^\n" +
+			"Null type mismatch: required '@NonNull X' but the provided value is null\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 13)\n" +
+			"	break x;\n" +
+			"	^^^^^^^^\n" +
+			"Breaking out of switch expressions not permitted\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 15)\n" +
+			"	default -> null;\n" +
+			"	           ^^^^\n" +
+			"Null type mismatch: required '@NonNull X' but the provided value is null\n" +
+			"----------\n");
 }
 public void testBug548418_001b() {
 	if (this.complianceLevel < ClassFileConstants.JDK14) return;

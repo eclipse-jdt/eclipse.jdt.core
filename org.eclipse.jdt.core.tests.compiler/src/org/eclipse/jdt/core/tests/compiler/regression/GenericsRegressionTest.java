@@ -6770,5 +6770,212 @@ public void testBugGH472_d() {
 		);
 	}
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=540063
+// VerifyError with nested static templated instance
+public void test540063() {
+	this.runConformTest(
+		new String[] {
+			"SomeClass.java",
+			"public class SomeClass {\n" +
+			"  public static void main(String[] args) {\n" +
+			"    String s = Namespace.t.contained.s;\n" +
+			"    System.out.println(s);\n" +
+			"  }\n" +
+			"\n" +
+			"  static class Namespace {\n" +
+			"    static Templated<StringHolder> t = new Templated<StringHolder>(new StringHolder());\n" +
+			"  }\n" +
+			"\n" +
+			"  static class Templated<T> {\n" +
+			"    T contained;\n" +
+			"\n" +
+			"    Templated(T contained) {\n" +
+			"      this.contained = contained;\n" +
+			"    }\n" +
+			"  }\n" +
+			"\n" +
+			"  static class StringHolder {\n" +
+			"    String s = \"some string\";\n" +
+			"  }\n" +
+			"}\n"
+			},
+		"some string"
+	);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=540063
+// VerifyError with nested static templated instance
+public void test540063_2() {
+	this.runConformTest(
+		new String[] {
+			"SomeClass.java",
+			"public class SomeClass {\n" +
+			"  public static void main(String[] args) {\n" +
+			"    String s = t.contained.s;\n" +
+			"    System.out.println(s);\n" +
+			"  }\n" +
+			"\n" +
+			"  static Templated<StringHolder> t = new Templated<StringHolder>(new StringHolder());\n" +
+			"\n" +
+			"  static class Templated<T> {\n" +
+			"    T contained;\n" +
+			"\n" +
+			"    Templated(T contained) {\n" +
+			"      this.contained = contained;\n" +
+			"    }\n" +
+			"  }\n" +
+			"\n" +
+			"  static class StringHolder {\n" +
+			"    String s = \"some string\";\n" +
+			"  }\n" +
+			"}\n"
+		},
+		"some string"
+	);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=540063
+// VerifyError with nested static templated instance
+public void test540063_3() {
+	this.runConformTest(
+		new String[] {
+			"SomeClass.java",
+			"public class SomeClass {\n" +
+			"  public static void main(String[] args) {\n" +
+			"    String s = Namespace_O.Namespace_M.Namespace_I.t.contained.s;\n" +
+			"    System.out.println(s);\n" +
+			"  }\n" +
+			"\n" +
+			" static class Namespace_O {\n" +
+			"	static class Namespace_M {\n" +
+			"		static class Namespace_I {\n" +
+			"			static Templated<StringHolder> t = new Templated<StringHolder>(new StringHolder());\n" +
+			"		}\n" +
+			"	}\n" +
+			"  }\n" +
+			"\n" +
+			"  static class Templated<T> {\n" +
+			"    T contained;\n" +
+			"\n" +
+			"    Templated(T contained) {\n" +
+			"      this.contained = contained;\n" +
+			"    }\n" +
+			"  }\n" +
+			"\n" +
+			"  static class StringHolder {\n" +
+			"    String s = \"some string\";\n" +
+			"  }\n" +
+			"}\n"
+		},
+		"some string"
+	);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=570022
+// QualifiedNameReference.setGenericCast(...) throws ArrayIndexOutOfBoundsException
+public void test570022() {
+	this.runNegativeTest(
+			new String[] {
+					"p000/aazh.java",
+					"package p000;\n" +
+					"\n" +
+					"public class aazh {\n" +
+					"    public static p000.abyz<p000.aazh.EnumC0166a> f2789a = p000.abyz.m1243c(p000.aazh.EnumC0166a.DISABLED);\n" +
+					"\n" +
+					"    public enum EnumC0166a {\n" +
+					"        DISABLED;\n" +
+					"        \n" +
+					"        public boolean f2796f;\n" +
+					"    }\n" +
+					"}\n",
+					"p000/abam.java",
+					"package p000;\n" +
+					"\n" +
+					"public class abam {\n" +
+					"    public Object mo369h() {\n" +
+					"        return p000.aazh.f2789a.f4668a.f2796f;\n" +
+					"    }\n" +
+					"}\n",
+					"p000/abyz.java",
+					"package p000;\n" +
+					"\n" +
+					"public class abyz<T> {\n" +
+					"    public volatile T f4668a;\n" +
+					"}\n",
+			},
+			"----------\n" +
+			"1. ERROR in p000\\aazh.java (at line 4)\n" +
+			"	public static p000.abyz<p000.aazh.EnumC0166a> f2789a = p000.abyz.m1243c(p000.aazh.EnumC0166a.DISABLED);\n" +
+			"	                                                                 ^^^^^^\n" +
+			"The method m1243c(aazh.EnumC0166a) is undefined for the type abyz\n" +
+			"----------\n");
+}
+//https://github.com/eclipse-jdt/eclipse.jdt.core/issues/656
+//Compilation error with multiple bounds and package protected abstract method
+public void testBugGH656() {
+		this.runConformTest(
+			new String[] {
+				"package1/MyGenericClass.java",
+				"package package1;\n" +
+				"import package2.MyAbstract;\n" +
+				"import package2.MyInterface;\n" +
+				"public class MyGenericClass<T extends MyAbstract & MyInterface> { // removing MyInterface works\n" +
+				"}\n",
+				"package2/MyInterface.java",
+				"package package2;\n" +
+				"public interface MyInterface {\n" +
+				"     void myMethod();\n" +
+				"}\n",
+				"package2/MyAbstract.java",
+				"package package2;\n" +
+				"public abstract class MyAbstract {\n" +
+				"	/* package protected! */ abstract void someAbstractMethod();\n" +
+				"}\n"
+			}
+		);
+}
+//https://github.com/eclipse-jdt/eclipse.jdt.core/issues/656
+//Compilation error with multiple bounds and package protected abstract method
+public void testBugGH656_2() {
+		this.runNegativeTest(
+			new String[] {
+				"package1/MyGenericClass.java",
+				"package package1;\n" +
+				"import package2.MyAbstract;\n" +
+				"import package2.MyInterface;\n" +
+				"public class MyGenericClass<T extends MyAbstract & MyInterface> { // removing MyInterface works\n" +
+				"}\n" +
+				"class JavacWillAlsoError extends MyAbstract implements MyInterface {\n" +
+				"\n" +
+				"	public void myMethod() {\n" +
+				"	}\n" +
+				"\n" +
+				"	public void someAbstractMethod() {\n" +
+				"	}\n" +
+				"}\n",
+				"package2/MyInterface.java",
+				"package package2;\n" +
+				"public interface MyInterface {\n" +
+				"     void myMethod();\n" +
+				"}\n",
+				"package2/MyAbstract.java",
+				"package package2;\n" +
+				"public abstract class MyAbstract {\n" +
+				"	/* package protected! */ abstract void someAbstractMethod();\n" +
+				"}\n"
+			},
+			"----------\n" +
+			"1. ERROR in package1\\MyGenericClass.java (at line 6)\n" +
+			"	class JavacWillAlsoError extends MyAbstract implements MyInterface {\n" +
+			"	      ^^^^^^^^^^^^^^^^^^\n" +
+			"This class must implement the inherited abstract method MyAbstract.someAbstractMethod(), but cannot override it since it is not visible from JavacWillAlsoError. Either make the type abstract or make the inherited method visible\n" +
+			"----------\n" +
+			"2. WARNING in package1\\MyGenericClass.java (at line 11)\n" +
+			"	public void someAbstractMethod() {\n" +
+			"	            ^^^^^^^^^^^^^^^^^^^^\n" +
+			"The method JavacWillAlsoError.someAbstractMethod() does not override the inherited method from MyAbstract since it is private to a different package\n" +
+			"----------\n");
+}
 }
 

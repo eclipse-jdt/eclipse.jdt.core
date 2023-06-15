@@ -319,6 +319,7 @@ public static int getIrritant(int problemID) {
 		case IProblem.NeedToEmulateFieldWriteAccess :
 		case IProblem.NeedToEmulateMethodAccess :
 		case IProblem.NeedToEmulateConstructorAccess :
+		case IProblem.SyntheticAccessorNotEnclosingMethod :
 			return CompilerOptions.AccessEmulation;
 
 		case IProblem.NonExternalizedStringLiteral :
@@ -2024,6 +2025,13 @@ public void disallowedTargetForAnnotation(Annotation annotation) {
 		new String[] {new String(annotation.resolvedType.shortReadableName())},
 		annotation.sourceStart,
 		annotation.sourceEnd);
+}
+public void explitAnnotationTargetRequired(Annotation annotation) {
+	this.handle(IProblem.ExplicitAnnotationTargetRequired,
+			NoArgument,
+			NoArgument,
+			annotation.sourceStart,
+			annotation.sourceEnd);
 }
 public void polymorphicMethodNotBelow17(ASTNode node) {
 	this.handle(
@@ -7082,6 +7090,27 @@ public void needToEmulateMethodAccess(
 		location.sourceStart,
 		location.sourceEnd);
 }
+public void checkSyntheticAccessor(MethodBinding method, ASTNode location) {
+    if (!method.isSynthetic()) {
+        int severity = computeSeverity(IProblem.SyntheticAccessorNotEnclosingMethod);
+        if (severity == ProblemSeverities.Ignore) return;
+        this.handle(
+            IProblem.SyntheticAccessorNotEnclosingMethod,
+            new String[] {
+                new String(method.declaringClass.readableName()),
+                new String(method.selector),
+                typesAsString(method, false)
+            },
+            new String[] {
+                new String(method.declaringClass.shortReadableName()),
+                new String(method.selector),
+                typesAsString(method, true)
+            },
+            severity,
+            location.sourceStart,
+            location.sourceEnd);
+    }
+}
 public void noAdditionalBoundAfterTypeVariable(TypeReference boundReference) {
 	this.handle(
 		IProblem.NoAdditionalBoundAfterTypeVariable,
@@ -11666,6 +11695,7 @@ public void switchExpressionMixedCase(ASTNode statement) {
 		statement.sourceStart,
 		statement.sourceEnd);
 }
+// Is this redundant ?? See switchExpressionsBreakOutOfSwitchExpression
 public void switchExpressionBreakNotAllowed(ASTNode statement) {
 	this.handle(
 		IProblem.SwitchExpressionsYieldBreakNotAllowed,

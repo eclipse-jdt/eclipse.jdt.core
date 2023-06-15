@@ -56,7 +56,6 @@ import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
-import org.eclipse.jdt.internal.compiler.lookup.RecordComponentBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
@@ -100,7 +99,6 @@ static class AnnotationCollector extends ASTVisitor {
 	Annotation[][] annotationsOnDimensions;
 	int dimensions;
 	Wildcard currentWildcard;
-	RecordComponentBinding recordComponentBinding;
 
 	public AnnotationCollector(
 			TypeParameter typeParameter,
@@ -189,14 +187,17 @@ static class AnnotationCollector extends ASTVisitor {
 		this.annotationContexts = annotationContexts;
 		this.typeReference = recordComponent.type;
 		this.targetType = targetType;
-		this.recordComponentBinding = recordComponent.binding;
 	}
 
+	private boolean targetingTypeParameter() {
+		return this.targetType == AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER || this.targetType == AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER;
+	}
+	
 	private boolean internalVisit(Annotation annotation) {
 		AnnotationContext annotationContext = null;
-		if (annotation.isRuntimeTypeInvisible()) {
+		if (annotation.isRuntimeTypeInvisible(targetingTypeParameter())) {
 			annotationContext = new AnnotationContext(annotation, this.typeReference, this.targetType, AnnotationContext.INVISIBLE);
-		} else if (annotation.isRuntimeTypeVisible()) {
+		} else if (annotation.isRuntimeTypeVisible(targetingTypeParameter())) {
 			annotationContext = new AnnotationContext(annotation, this.typeReference, this.targetType, AnnotationContext.VISIBLE);
 		}
 		if (annotationContext != null) {

@@ -4225,6 +4225,8 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		this.runConformTest(
 			new String[] {
 				"X.java",
+				"import java.lang.annotation.*;\n" +
+				"@Target({ElementType.METHOD, ElementType.TYPE_USE})\n" +
 				"@interface Annot {\r\n" +
 				"	int value() default 0;\r\n" +
 				"}\r\n" +
@@ -4241,7 +4243,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"  public void foo();\n" +
 			"    0  return\n" +
 			"      Line numbers:\n" +
-			"        [pc: 0, line: 7]\n" +
+			"        [pc: 0, line: 9]\n" +
 			"      Local variable table:\n" +
 			"        [pc: 0, pc: 1] local: this index: 0 type: X\n" +
 			"    RuntimeInvisibleAnnotations: \n" +
@@ -4258,6 +4260,8 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		runner.testFiles =
 			new String[] {
 				"X.java",
+				"import java.lang.annotation.*;\n" +
+				"@Target({ElementType.METHOD, ElementType.TYPE_USE})\n" +
 				"@interface Annot {\n" +
 				"	int value() default 0;\n" +
 				"}\n" +
@@ -4268,7 +4272,6 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"}\n",
 			};
 		runner.expectedCompilerLog = "";
-		runner.javacTestOptions = JavacTestOptions.JavacHasABug.JavacBug8231436;
 		runner.runConformTest();
 
 		String expectedOutput =
@@ -4287,7 +4290,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"    1  invokespecial java.lang.Object() [14]\n" +
 				"    4  return\n" +
 				"      Line numbers:\n" +
-				"        [pc: 0, line: 4]\n" +
+				"        [pc: 0, line: 6]\n" +
 				"      Local variable table:\n" +
 				"        [pc: 0, pc: 5] local: this index: 0 type: X\n" +
 				"      Local variable type table:\n" +
@@ -4298,7 +4301,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"  public void foo(java.lang.String[] args);\n" +
 				"    0  return\n" +
 				"      Line numbers:\n" +
-				"        [pc: 0, line: 7]\n" +
+				"        [pc: 0, line: 9]\n" +
 				"      Local variable table:\n" +
 				"        [pc: 0, pc: 1] local: this index: 0 type: X\n" +
 				"        [pc: 0, pc: 1] local: args index: 1 type: java.lang.String[]\n" +
@@ -6964,4 +6967,155 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		assertEquals(1, annos.length);
 		assertEquals("java.lang.Deprecated", annos[0].getAnnotationType().debugName());
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1096
+	// ECJ out of sync with JLS 9.6.4.1
+	public void testGH1096() throws Exception {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"import java.lang.annotation.*;\n" +
+					"@interface MTPA {}\n" +
+					"@Retention(RetentionPolicy.RUNTIME)\n"+
+					"@interface CTPA {}\n" +
+					"public class X<@CTPA K, T> {\n" +
+					"    <U, @MTPA V> void m(U arg1) {}\n" +
+					"}\n",
+				},
+				"");
+		String expectedOutput =
+				"RuntimeInvisibleTypeAnnotations: \n" +
+				"      #24 @MTPA(\n" +
+				"        target type = 0x1 METHOD_TYPE_PARAMETER\n" +
+				"        type parameter index = 1\n" +
+				"      )\n";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+
+		expectedOutput =
+				"  RuntimeVisibleTypeAnnotations: \n" +
+				"    #29 @CTPA(\n" +
+				"      target type = 0x0 CLASS_TYPE_PARAMETER\n" +
+				"      type parameter index = 0\n" +
+				"    )\n" +
+				"}";
+		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=568240
+	// Method's annotation attribute is compiled as annotation on return type
+	public void testBug568240() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.ElementType;\n" +
+				"import java.lang.annotation.Retention;\n" +
+				"import java.lang.annotation.RetentionPolicy;\n" +
+				"import java.lang.annotation.Target;\n" +
+				"import java.lang.reflect.AnnotatedType;\n" +
+				"import java.util.Arrays;\n" +
+				"\n" +
+				"public class X {\n" +
+				"\n" +
+				"    public void test() {\n" +
+				"\n" +
+				"        AnnotatedType annotatedReturnType = Foo.class.getMethods()[0].getAnnotatedReturnType();\n" +
+				"\n" +
+				"        // @Child is an attribute of the @Ann annotation. Not a TYPE_USE annotation on the return type.\n" +
+				"        if (!Arrays.asList(annotatedReturnType.getAnnotations()).isEmpty()) {\n" +
+				"        	throw new Error(\"Broken\");\n" +
+				"        }\n" +
+				"\n" +
+				"    }\n" +
+				"    \n" +
+				"    public static void main(String[] args) {\n" +
+				"		new X().test();\n" +
+				"	}\n" +
+				"\n" +
+				"	public static interface Foo {\n" +
+				"\n" +
+				"        @Ann(value = @Ann.Child(value = \"foo\"))\n" +
+				"        String get();\n" +
+				"\n" +
+				"    }\n" +
+				"\n" +
+				"    @Target(ElementType.METHOD)\n" +
+				"    @Retention(RetentionPolicy.RUNTIME)\n" +
+				"    public static @interface Ann {\n" +
+				"\n" +
+				"        Child value();\n" +
+				"\n" +
+				"        @Retention(RetentionPolicy.RUNTIME)\n" +
+				"        public static @interface Child {\n" +
+				"            String value();\n" +
+				"        }\n" +
+				"    }\n" +
+				"}\n",
+			},
+			"");
+		}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=566803
+	// field.getAnnotatedType().getAnnotations() broken in the latest ECJ version
+	public void testBug566803() throws Exception {
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.lang.annotation.*;\n" +
+				"import java.lang.reflect.AnnotatedType;\n" +
+				"import java.lang.reflect.Field;\n" +
+				"\n" +
+				"public class X  {\n" +
+				"\n" +
+				"  @TestAnn1(\"1-1\")\n" +
+				"  @TestAnn1(\"1-2\")\n" +
+				"  public static final @TestAnnFirst long aaa = 1;\n" +
+				"\n" +
+				"  public void broken() {\n" +
+				"	  throw new Error(\"Broken\");\n" +
+				"  }\n" +
+				"  \n" +
+				"  public static void main(String[] args) throws NoSuchFieldException, SecurityException {\n" +
+				"	new X().test();\n" +
+				"}\n" +
+				"  public void test() throws NoSuchFieldException, SecurityException {\n" +
+				"    Field f = X.class.getDeclaredField(\"aaa\");\n" +
+				"    AnnotatedType s = f.getAnnotatedType();\n" +
+				"\n" +
+				"    if (long.class != s.getType()) {\n" +
+				"    	broken();\n" +
+				"    }\n" +
+				"\n" +
+				"    Annotation[] as = s.getAnnotations();\n" +
+				"    for (int i = 0; i < as.length; i++) {\n" +
+				"      System.out.println(i + \" @\" + as[i].annotationType().getCanonicalName() + \"()\");\n" +
+				"    }\n" +
+				"\n" +
+				"    if (1 != as.length) {\n" +
+				"    	broken();\n" +
+				"    }\n" +
+				"    as = s.getAnnotationsByType(TestAnnFirst.class);\n" +
+				"    if (1 != as.length) {\n" +
+				"    	broken();\n" +
+				"    }\n" +
+				"  }\n" +
+				"\n" +
+				"  @Retention(RetentionPolicy.RUNTIME)\n" +
+				"  @java.lang.annotation.Target(ElementType.TYPE_USE)\n" +
+				"  public @interface TestAnnFirst {\n" +
+				"  }\n" +
+				"\n" +
+				"  @Retention(value = RetentionPolicy.RUNTIME)\n" +
+				"  @Inherited\n" +
+				"  @Repeatable(TestAnn1s.class)\n" +
+				"  public @interface TestAnn1 {\n" +
+				"    String value() default \"1\";\n" +
+				"  }\n" +
+				"\n" +
+				"  @Retention(value = RetentionPolicy.RUNTIME)\n" +
+				"  @Inherited\n" +
+				"  public @interface TestAnn1s {\n" +
+				"    TestAnn1[] value();\n" +
+				"  }\n" +
+				"}\n",
+			},
+			"0 @X.TestAnnFirst()");
+		}
 }

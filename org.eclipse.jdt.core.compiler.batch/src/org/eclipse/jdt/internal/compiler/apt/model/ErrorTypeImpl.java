@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2015 IBM Corporation and others.
+ * Copyright (c) 2007, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -46,7 +46,7 @@ public class ErrorTypeImpl extends DeclaredTypeImpl implements ErrorType {
 	 */
 	@Override
 	public Element asElement() {
-		return this._env.getFactory().newElement((ReferenceBinding) this._binding);
+		return this._env.getFactory().newElement(this._binding);
 	}
 
 	/* (non-Javadoc)

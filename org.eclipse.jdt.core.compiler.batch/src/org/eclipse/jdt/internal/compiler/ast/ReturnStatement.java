@@ -153,6 +153,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		} else if (traversedContext instanceof InitializationFlowContext) {
 				currentScope.problemReporter().cannotReturnInInitializer(this);
 				return FlowInfo.DEAD_END;
+		} else if (traversedContext.associatedNode instanceof SwitchExpression) {
+				currentScope.problemReporter().switchExpressionsReturnWithinSwitchExpression(this);
+				return FlowInfo.DEAD_END;
 		}
 	} while ((traversedContext = traversedContext.getLocalParent()) != null);
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2015 BEA Systems, Inc.
+ * Copyright (c) 2006, 2023 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -81,7 +81,7 @@ public class BatchProcessingEnvImpl extends BaseProcessingEnvImpl {
 		if (javaFileManager != null) {
 			this._fileManager = javaFileManager;
 		} else {
-			String encoding = (String) batchCompiler.options.get(CompilerOptions.OPTION_Encoding);
+			String encoding = batchCompiler.options.get(CompilerOptions.OPTION_Encoding);
 			Charset charset = encoding != null ? Charset.forName(encoding) : null;
 			JavaFileManager manager = new EclipseFileManager(batchCompiler.compilerLocale, charset);
 			ArrayList<String> options = new ArrayList<>();

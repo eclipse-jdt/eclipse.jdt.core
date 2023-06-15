@@ -33,6 +33,7 @@ import org.eclipse.jdt.core.util.ILocalVariableTypeTableAttribute;
 import org.eclipse.jdt.core.util.ILocalVariableTypeTableEntry;
 import org.eclipse.jdt.core.util.IMethodInfo;
 import org.eclipse.jdt.core.util.ISignatureAttribute;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.IBinaryField;
@@ -1326,4 +1327,55 @@ public class GenericTypeSignatureTest extends AbstractRegressionTest {
 		}
 	}
 
+	public void testGenericVarargsMethodReferenceLambdasHaveNoSignature() {
+		// uses lambdas
+		if (this.complianceLevel < ClassFileConstants.JDK1_8)
+			return;
+		final String[] testsSource = new String[] {
+				"X.java",
+				"import java.util.Optional;\n" +
+				"import java.util.stream.Stream;\n" +
+				"public interface X {\n" +
+				"  static void m1() {\n" +
+				"    Optional.<Stream<String>>empty().orElseGet(Stream::of);\n" +
+				"  }\n" +
+                "\n" +
+				"  static <T> Stream<T> m2() {\n" +
+				"    return Optional.<Stream<T>>empty().orElseGet(Stream::of);\n" +
+				"  }\n" +
+				"}\n",
+			};
+			this.runConformTest(
+				testsSource,
+				"");
+
+			try {
+				ClassFileReader classFileReader = ClassFileReader.read(OUTPUT_DIR + File.separator + "X.class");
+				IBinaryMethod[] methods = classFileReader.getMethods();
+				assertNotNull("No methods", methods);
+				assertEquals("Wrong size", 4, methods.length);
+
+				IBinaryMethod m1 = methods[0];
+				assertEquals("Wrong name", "m1", new String(m1.getSelector()));
+				assertNull("Unexpected signature, m1 itself is not generic", m1.getGenericSignature());
+
+				IBinaryMethod m2 = methods[1];
+				assertEquals("Wrong name", "m2", new String(m2.getSelector()));
+				String signature = String.valueOf(m2.getGenericSignature());
+				assertEquals("Unexpected signature, m2 itself is generic",
+						"<T:Ljava/lang/Object;>()Ljava/util/stream/Stream<TT;>;", signature);
+
+				IBinaryMethod m1Lambda = methods[2];
+				assertEquals("Wrong name", "lambda$2", new String(m1Lambda.getSelector()));
+				assertNull("Wrong signature - non denotable should have been suppressed", m1Lambda.getGenericSignature());
+
+				IBinaryMethod m2Lambda = methods[3];
+				assertEquals("Wrong name", "lambda$3", new String(m2Lambda.getSelector()));
+				assertNull("Wrong signature - non denotable should have been suppressed", m2Lambda.getGenericSignature());
+			} catch (ClassFormatException e) {
+				assertTrue(false);
+			} catch (IOException e) {
+				assertTrue(false);
+			}
+		}
 }
