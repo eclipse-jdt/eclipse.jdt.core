@@ -609,18 +609,7 @@ public class CaptureBinding extends TypeVariableBinding {
 		if (this.firstBound instanceof ArrayBinding) {
 			this.signature = constantPoolName();
 		} else {
-			char [] poolName;
-			if (this.wildcard == null) {
-				if (!(this instanceof CaptureBinding18)) {
-					throw new AssertionError("Unexpected absence of wildcard in capture"); //$NON-NLS-1$
-				}
-				poolName = constantPoolName();
-			} else {
-				if (this instanceof CaptureBinding18) {
-					throw new AssertionError("Unexpected wildcard in capture18"); //$NON-NLS-1$
-				}
-				poolName = this.wildcard.constantPoolName();
-			}
+			char[] poolName = this.wildcard != null ? this.wildcard.constantPoolName() : constantPoolName();
 			this.signature = CharOperation.concat('L', poolName, ';');
 		}
 		return this.signature;
