@@ -16,6 +16,7 @@ package org.eclipse.jdt.internal.compiler.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -238,35 +239,67 @@ public class JRTUtil {
 	 * @throws IOException
 	 */
 	public static void walkModuleImage(File image, final JRTUtil.JrtFileVisitor<java.nio.file.Path> visitor, int notify) throws IOException {
-		getJrtSystem(image, null).walkModuleImage(visitor, notify);
+		JrtFileSystem system = getJrtSystem(image, null);
+		if (system == null) {
+			return;
+		}
+		system.walkModuleImage(visitor, notify);
 	}
 
 	public static void walkModuleImage(File image, String release, final JRTUtil.JrtFileVisitor<java.nio.file.Path> visitor, int notify) throws IOException {
-		getJrtSystem(image, release).walkModuleImage(visitor, notify);
+		JrtFileSystem system = getJrtSystem(image, release);
+		if (system == null) {
+			return;
+		}
+		system.walkModuleImage(visitor, notify);
 	}
 
 	public static InputStream getContentFromJrt(File jrt, String fileName, String module) throws IOException {
-		return getJrtSystem(jrt).getContentFromJrt(fileName, module);
+		JrtFileSystem system = getJrtSystem(jrt);
+		if (system == null) {
+			throw new FileNotFoundException(String.valueOf(jrt));
+		}
+		return system.getContentFromJrt(fileName, module);
 	}
 
 	public static byte[] getClassfileContent(File jrt, String fileName, String module) throws IOException {
-		return getJrtSystem(jrt).getClassfileContent(fileName, module);
+		JrtFileSystem system = getJrtSystem(jrt);
+		if (system == null) {
+			throw new FileNotFoundException(String.valueOf(jrt));
+		}
+		return system.getClassfileContent(fileName, module);
 	}
 
 	public static ClassFileReader getClassfile(File jrt, String fileName, String module) throws IOException, ClassFormatException {
-		return getJrtSystem(jrt).getClassfile(fileName, module);
+		JrtFileSystem system = getJrtSystem(jrt);
+		if (system == null) {
+			throw new FileNotFoundException(String.valueOf(jrt));
+		}
+		return system.getClassfile(fileName, module);
 	}
 
 	public static ClassFileReader getClassfile(File jrt, String fileName, String module, Predicate<String> moduleNameFilter) throws IOException, ClassFormatException {
-		return getJrtSystem(jrt).getClassfile(fileName, module, moduleNameFilter);
+		JrtFileSystem system = getJrtSystem(jrt);
+		if (system == null) {
+			throw new FileNotFoundException(String.valueOf(jrt));
+		}
+		return system.getClassfile(fileName, module, moduleNameFilter);
 	}
 
 	public static List<String> getModulesDeclaringPackage(File jrt, String qName, String moduleName) {
-		return getJrtSystem(jrt).getModulesDeclaringPackage(qName, moduleName);
+		JrtFileSystem system = getJrtSystem(jrt);
+		if (system == null) {
+			return List.of();
+		}
+		return system.getModulesDeclaringPackage(qName, moduleName);
 	}
 
 	public static boolean hasCompilationUnit(File jrt, String qualifiedPackageName, String moduleName) {
-		return getJrtSystem(jrt).hasClassFile(qualifiedPackageName, moduleName);
+		JrtFileSystem system = getJrtSystem(jrt);
+		if (system == null) {
+			return false;
+		}
+		return system.hasClassFile(qualifiedPackageName, moduleName);
 	}
 
 	/*
