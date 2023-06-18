@@ -40,7 +40,10 @@
       	  	<include>org/eclipse/jdt/core/tests/dom/RunAllTestsTracing.class</include>
       	  	<include>org/eclipse/jdt/core/tests/RunFormatterTests.class</include>
       	  </includes>
-      	</configuration>
+           <systemProperties>
+             <DetectVMInstallationsJob.disabled>true</DetectVMInstallationsJob.disabled>
+           </systemProperties>
+         </configuration>
       </plugin>
     </plugins>
   </build>
