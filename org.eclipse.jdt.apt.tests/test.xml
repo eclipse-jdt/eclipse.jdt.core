@@ -44,6 +44,7 @@
   	      <property name="data-dir" value="${apt-folder}"/>
   	      <property name="plugin-name" value="${plugin-name}"/>
   	      <property name="classname" value="org.eclipse.jdt.apt.tests.TestAll"/>
+		  <property name="vmargs" value="-DDetectVMInstallationsJob.disabled=true"/>
   	</ant>
   	
   </target>
