@@ -2180,7 +2180,7 @@ void setSourceStart(int sourceStart);
 	int VarIsNotAllowedHere = Syntax + 1511; // ''var'' is not allowed here
 	/** @since 3.16 */
 	int VarCannotBeMixedWithNonVarParams = Syntax + 1512; // ''var'' cannot be mixed with explicit or implicit parameters
-	/** @since 3.33 */
+	/** @since 3.35 */
 	int VarCannotBeUsedWithTypeArguments = Syntax + 1513; // ''var'' cannot be used with type arguments (e.g. as in ''var<Integer> x = List.of(42)'')
 
 	/** @since 3.18
