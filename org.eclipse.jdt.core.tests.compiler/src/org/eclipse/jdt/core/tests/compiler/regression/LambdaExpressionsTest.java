@@ -8174,6 +8174,82 @@ public void testBug570511() {
 			);
 }
 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=577719
+// BootstrapMethodError: call site initialization exception
+public void testBug577719() {
+	this.runConformTest(
+			new String[] {
+				"WeirdCleanupAndCallSiteInitializationException.java",
+				"import java.util.stream.Stream;\n" +
+				"\n" +
+				"public class WeirdCleanupAndCallSiteInitializationException {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		B b = () -> new A() {\n" +
+				"		};\n" +
+				"		A a = get();\n" +
+				"		System.out.println(\"done\");\n" +
+				"	}\n" +
+				"\n" +
+				"	public static A get(B<?>... sources) {\n" +
+				"		return Stream.of(sources) //\n" +
+				"				.map(B::getT) //\n" +
+				"				.filter(A::exists_testOpen) //\n" +
+				"				.findFirst() //\n" +
+				"				.orElse(null);\n" +
+				"	}\n" +
+				"\n" +
+				"	public interface B<T extends A> extends A {\n" +
+				"		T getT();\n" +
+				"	}\n" +
+				"\n" +
+				"	public interface A {\n" +
+				"		default boolean exists_testOpen() {\n" +
+				"			return true;\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n"},
+			"done"
+			);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=577719
+// BootstrapMethodError: call site initialization exception
+public void testBug577719_2() {
+	this.runConformTest(
+			new String[] {
+				"WeirdCleanupAndCallSiteInitializationException.java",
+				"import java.util.stream.Stream;\n" +
+				"\n" +
+				"public class WeirdCleanupAndCallSiteInitializationException {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		B b = () -> new A() {\n" +
+				"		};\n" +
+				"		A a = get();\n" +
+				"		System.out.println(\"done\");\n" +
+				"	}\n" +
+				"\n" +
+				"	public static A get(B<?>... sources) {\n" +
+				"		return Stream.of(sources) //\n" +
+				"				.map(B::getT) //\n" +
+				"				.filter(x -> x.exists_testOpen()) //\n" +
+				"				.findFirst() //\n" +
+				"				.orElse(null);\n" +
+				"	}\n" +
+				"\n" +
+				"	public interface B<T extends A> extends A {\n" +
+				"		T getT();\n" +
+				"	}\n" +
+				"\n" +
+				"	public interface A {\n" +
+				"		default boolean exists_testOpen() {\n" +
+				"			return true;\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n"},
+			"done"
+			);
+}
+
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
