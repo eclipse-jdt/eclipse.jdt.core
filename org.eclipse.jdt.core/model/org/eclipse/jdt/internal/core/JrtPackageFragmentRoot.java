@@ -89,7 +89,7 @@ public class JrtPackageFragmentRoot extends JarPackageFragmentRoot implements IM
 				}
 			}, JRTUtil.NOTIFY_ALL);
 		} catch (IOException e) {
-			Util.log(IStatus.ERROR, "Error reading modules" + toStringWithAncestors()); //$NON-NLS-1$
+			Util.log(e, "Error reading modules" + toStringWithAncestors()); //$NON-NLS-1$
 		}
 
 		info.setChildren(createChildren(rawPackageInfo));

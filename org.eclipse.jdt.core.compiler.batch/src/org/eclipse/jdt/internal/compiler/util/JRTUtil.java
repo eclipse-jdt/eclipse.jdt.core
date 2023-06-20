@@ -120,50 +120,48 @@ public class JRTUtil {
 		}
 	}
 
+	/**
+	 * @param image the path to the root of the JRE whose libraries we are interested in.
+	 * @return may return {@code null}
+	 * @deprecated use {@link JRTUtil#getJrtSystem(File, String)} instead
+	 */
 	public static JrtFileSystem getJrtSystem(File image) {
-		return getJrtSystem(image, null);
+		try {
+			return getJrtSystem(image, null);
+		} catch (IOException e) {
+			if(PROPAGATE_IO_ERRORS) {
+				throw new IllegalStateException(e);
+			}
+			return null;
+		}
 	}
 
 	/**
 	 * @param image the path to the root of the JRE whose libraries we are interested in.
 	 * @param release <code>--release</code> version
 	 */
-	public static JrtFileSystem getJrtSystem(File image, String release) {
+	public static JrtFileSystem getJrtSystem(File image, String release) throws IOException {
 		String key = image.toString();
-		Jdk jdk;
-		try {
-			jdk = new Jdk(image);
-		} catch (IOException e) {
-			// Needs better error handling downstream? But for now, make sure
-			// a dummy JrtFileSystem is not created.
-			String errorMessage = "Error: failed to create JrtFileSystem from " + image; //$NON-NLS-1$
-			if (PROPAGATE_IO_ERRORS) {
-				throw new IllegalStateException(errorMessage, e);
-			}
-			System.err.println(errorMessage);
-			e.printStackTrace();
-			return null;
-		}
+		Jdk jdk = new Jdk(image);
+
 		if (release != null && !jdk.sameRelease(release)) {
 			key = key + "|" + release; //$NON-NLS-1$
 		}
-		JrtFileSystem system = images.computeIfAbsent(key, x -> {
-			try {
-				return JrtFileSystem.getNewJrtFileSystem(jdk, release);
-			} catch (IOException e) {
-				// Needs better error handling downstream? But for now, make sure
-				// a dummy JrtFileSystem is not created.
-				String errorMessage = "Error: failed to create JrtFileSystem from " + image; //$NON-NLS-1$
-				if (PROPAGATE_IO_ERRORS) {
-					throw new IllegalStateException(errorMessage, e);
+		try {
+			JrtFileSystem system = images.computeIfAbsent(key, x -> {
+				try {
+					return JrtFileSystem.getNewJrtFileSystem(jdk, release);
+				} catch (IOException e) {
+					// Needs better error handling downstream? But for now, make sure
+					// a dummy JrtFileSystem is not created.
+					String errorMessage = "Error: failed to create JrtFileSystem from " + image; //$NON-NLS-1$
+					throw new RuntimeIOException(errorMessage, e);
 				}
-				System.err.println(errorMessage);
-				e.printStackTrace();
-				// Don't save value in the map, may be we can recover later
-				return null;
-			}
-		});
-		return system;
+			});
+			return system;
+		} catch (RuntimeIOException e) {
+				throw e.getCause();
+		}
 	}
 
 	/**
@@ -255,7 +253,7 @@ public class JRTUtil {
 	}
 
 	public static InputStream getContentFromJrt(File jrt, String fileName, String module) throws IOException {
-		JrtFileSystem system = getJrtSystem(jrt);
+		JrtFileSystem system = getJrtSystem(jrt, null);
 		if (system == null) {
 			throw new FileNotFoundException(String.valueOf(jrt));
 		}
@@ -263,7 +261,7 @@ public class JRTUtil {
 	}
 
 	public static byte[] getClassfileContent(File jrt, String fileName, String module) throws IOException {
-		JrtFileSystem system = getJrtSystem(jrt);
+		JrtFileSystem system = getJrtSystem(jrt, null);
 		if (system == null) {
 			throw new FileNotFoundException(String.valueOf(jrt));
 		}
@@ -271,7 +269,7 @@ public class JRTUtil {
 	}
 
 	public static ClassFileReader getClassfile(File jrt, String fileName, String module) throws IOException, ClassFormatException {
-		JrtFileSystem system = getJrtSystem(jrt);
+		JrtFileSystem system = getJrtSystem(jrt, null);
 		if (system == null) {
 			throw new FileNotFoundException(String.valueOf(jrt));
 		}
@@ -279,7 +277,7 @@ public class JRTUtil {
 	}
 
 	public static ClassFileReader getClassfile(File jrt, String fileName, String module, Predicate<String> moduleNameFilter) throws IOException, ClassFormatException {
-		JrtFileSystem system = getJrtSystem(jrt);
+		JrtFileSystem system = getJrtSystem(jrt, null);
 		if (system == null) {
 			throw new FileNotFoundException(String.valueOf(jrt));
 		}
@@ -344,8 +342,8 @@ public class JRTUtil {
 	 * @param image jrt file path
 	 * @return JDK release corresponding to given jrt file, read from "release" file, if available. May return null.
 	 */
-	public static String getJdkRelease(File image) {
-		JrtFileSystem jrt = getJrtSystem(image);
+	public static String getJdkRelease(File image) throws IOException {
+		JrtFileSystem jrt = getJrtSystem(image, null);
 		return jrt == null ? null : jrt.getJdkRelease();
 	}
 }
@@ -422,6 +420,10 @@ class JrtFileSystemWithOlderRelease extends JrtFileSystem {
 
 final class RuntimeIOException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
+
+	public RuntimeIOException(String message, IOException cause) {
+		super(message, cause);
+	}
 
 	public RuntimeIOException(IOException cause) {
 		super(cause);
