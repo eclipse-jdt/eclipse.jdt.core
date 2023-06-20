@@ -560,9 +560,17 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		boolean oldAnalyseResources = compilerOptions.analyseResourceLeaks;
 		compilerOptions.analyseResourceLeaks = false;
 		try {
+			int firstLocalLocal = this.scope.outerMostMethodScope().analysisIndex;
+			LocalVariableBinding[] locals = this.scope.locals;
+			if (locals != null) {
+				for (LocalVariableBinding local : locals) {
+					if (local != null && local.isParameter())
+						firstLocalLocal = local.id + 1;
+				}
+			}
 			this.body.analyseCode(this.scope,
 									 ehfc = new ExceptionInferenceFlowContext(null, this, Binding.NO_EXCEPTIONS, null, this.scope, FlowInfo.DEAD_END),
-									 UnconditionalFlowInfo.fakeInitializedFlowInfo(this.scope.outerMostMethodScope().analysisIndex, this.scope.referenceType().maxFieldCount));
+									 UnconditionalFlowInfo.fakeInitializedFlowInfo(firstLocalLocal, this.scope.referenceType().maxFieldCount));
 			this.thrownExceptions = ehfc.extendedExceptions == null ? Collections.emptySet() : new HashSet<TypeBinding>(ehfc.extendedExceptions);
 		} catch (Exception e) {
 			// drop silently.
