@@ -564,8 +564,14 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 			LocalVariableBinding[] locals = this.scope.locals;
 			if (locals != null) {
 				for (LocalVariableBinding local : locals) {
-					if (local != null && local.isParameter())
-						firstLocalLocal = local.id + 1;
+					if (local != null) {
+						if (local.isParameter()) {
+							firstLocalLocal = local.id + 1;
+						} else {
+							firstLocalLocal = local.id;
+							break;
+						}
+					}
 				}
 			}
 			this.body.analyseCode(this.scope,

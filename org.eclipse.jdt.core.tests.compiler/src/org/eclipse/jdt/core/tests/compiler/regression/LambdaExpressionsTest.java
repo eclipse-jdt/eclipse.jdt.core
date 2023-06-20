@@ -7951,6 +7951,7 @@ public void testBug511958() {
 			);
 }
 
+<<<<<<< Upstream, based on branch 'master' of git@github.com:srikanth-sankaran/eclipse.jdt.core.git
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1060
 // NPE when inspecting scrapbook expression that uses Java 8 features
 public void testGH1060() {
@@ -8250,6 +8251,8 @@ public void testBug577719_2() {
 			);
 }
 
+=======
+>>>>>>> b8be702 Handle lambdas with no parameters
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1162
 // Eclipse incorrectly requires catch for nested sneaky throws; OpenJDK compiles with no problem
 public void testGH1162() {
