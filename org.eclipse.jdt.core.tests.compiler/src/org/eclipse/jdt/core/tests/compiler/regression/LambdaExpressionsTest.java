@@ -7918,6 +7918,40 @@ public void testBug551882() {
 			);
 }
 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=511958
+// [1.8][compiler] Discrepancy with javac behavior when handling inner classes and lambdas
+public void testBug511958() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.function.Consumer;\n" +
+				"@SuppressWarnings(\"all\")\n" +
+				"public class X {\n" +
+				"  private final String text = \"Bug?\";\n" +
+				"  public static void main(String[] args) {\n" +
+				"    new X().doIt();\n" +
+				"  }\n" +
+				"  \n" +
+				"  private void doIt() {\n" +
+				"    new Sub();\n" +
+				"  }\n" +
+				"  private class Super<T> {\n" +
+				"	  public Super(String s) {}\n" +
+				"    public Super(Consumer<T> consumer) {\n" +
+				"    }\n" +
+				"  }\n" +
+				"  private class Sub extends Super<String> {\n" +
+				"    public Sub() {\n" +
+				"      super(s -> System.out.println(text));  \n" +
+				"    }\n" +
+				"    \n" +
+				"  }\n" +
+				"}\n"},
+			""
+			);
+}
+
+
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
