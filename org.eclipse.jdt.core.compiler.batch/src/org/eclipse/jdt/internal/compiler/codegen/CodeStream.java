@@ -2615,24 +2615,24 @@ public void generateReturnBytecode(Expression expression) {
  * @param oper2 the second expression
  */
 public void generateStringConcatenationAppend(BlockScope blockScope, Expression oper1, Expression oper2) {
-	if (this.targetLevel >= ClassFileConstants.JDK9) {
+	if (this.targetLevel >= ClassFileConstants.JDK9 && blockScope.compilerOptions().useStringConcatFactory) {
 		this.countLabels = 0;
 		this.stackDepth++;
 		if (this.stackDepth > this.stackMax) {
 			this.stackMax = this.stackDepth;
 		}
-		StringBuilder builder = new StringBuilder();
+		StringBuilder recipe = new StringBuilder();
 		List<TypeBinding> arguments = new ArrayList<>();
 		if (oper1 == null) {
 			// Operand is already on the stack
 			invokeStringValueOf(TypeIds.T_JavaLangObject);
 			arguments.add(blockScope.getJavaLangString());
-			builder.append(TypeConstants.STRING_CONCAT_MARKER_1);
+			recipe.append(TypeConstants.STRING_CONCAT_MARKER_1);
 		} else {
-			oper1.buildStringForConcatation(blockScope, this, oper1.implicitConversion & TypeIds.COMPILE_TYPE_MASK, builder, arguments);
+			oper1.buildStringForConcatation(blockScope, this, oper1.implicitConversion & TypeIds.COMPILE_TYPE_MASK, recipe, arguments);
 		}
-		oper2.buildStringForConcatation(blockScope, this, oper2.implicitConversion & TypeIds.COMPILE_TYPE_MASK, builder, arguments);
-		int invokeDynamicNumber = this.classFile.recordBootstrapMethod(oper2);
+		oper2.buildStringForConcatation(blockScope, this, oper2.implicitConversion & TypeIds.COMPILE_TYPE_MASK, recipe, arguments);
+		int invokeDynamicNumber = this.classFile.recordBootstrapMethod(recipe);
 		StringBuilder signature = new StringBuilder("("); //$NON-NLS-1$
 		for(int i = 0; i < arguments.size(); i++) {
 			signature.append(arguments.get(i).signature());
@@ -2645,7 +2645,6 @@ public void generateStringConcatenationAppend(BlockScope blockScope, Expression 
 				signature.toString().toCharArray(),
 				TypeIds.T_JavaLangObject,
 				getPopularBinding(ConstantPool.JavaLangStringConstantPoolName));
-		oper2.concatenatedLiteral = builder;
 	} else {
 		int pc;
 		if (oper1 == null) {

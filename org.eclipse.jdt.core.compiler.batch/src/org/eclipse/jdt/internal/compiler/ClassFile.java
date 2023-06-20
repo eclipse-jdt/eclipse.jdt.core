@@ -167,7 +167,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 	public int headerOffset;
 	public Map<TypeBinding, Boolean> innerClassesBindings;
 	public Set<SourceTypeBinding> nestMembers;
-	public List<ASTNode> bootstrapMethods = null;
+	public List<Object> bootstrapMethods = null;
 	public int methodCount;
 	public int methodCountOffset;
 	// pool managment
@@ -3603,7 +3603,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		}
 		return fPtr;
 	}
-	private int generateBootstrapMethods(List<ASTNode> bootStrapMethodsList) {
+	private int generateBootstrapMethods(List<Object> bootStrapMethodsList) {
 		/* See JVM spec 4.7.21
 		   The BootstrapMethods attribute has the following format:
 		   BootstrapMethods_attribute {
@@ -3658,8 +3658,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 				} else {
 					localContentsOffset = addBootStrapTypeSwitchEntry(localContentsOffset, stmt, fPtr);
 				}
-			} else if (o instanceof Expression) {
-				localContentsOffset = addBootStrapStringConcatEntry(localContentsOffset, (Expression) o, fPtr);
+			} else if (o instanceof StringBuilder) {
+				localContentsOffset = addBootStrapStringConcatEntry(localContentsOffset, (StringBuilder) o, fPtr);
 			}
 		}
 
@@ -3933,15 +3933,15 @@ public class ClassFile implements TypeConstants, TypeIds {
 
 		return localContentsOffset;
 	}
-	private int addBootStrapStringConcatEntry(int localContentsOffset, Expression expression, Map<String, Integer> fPtr) {
+	private int addBootStrapStringConcatEntry(int localContentsOffset, StringBuilder recipe, Map<String, Integer> fPtr) {
 		final int contentsEntries = 10;
 		int indexForStringConcat = fPtr.get(ClassFile.CONCAT_CONSTANTS);
 		if (contentsEntries + localContentsOffset >= this.contents.length) {
 			resizeContents(contentsEntries);
 		}
 		if (indexForStringConcat == 0) {
-			ReferenceBinding javaLangRuntimeSwitchBootstraps = this.referenceBinding.scope.getJavaLangInvokeStringConcatFactory();
-			indexForStringConcat = this.constantPool.literalIndexForMethodHandle(ClassFileConstants.MethodHandleRefKindInvokeStatic, javaLangRuntimeSwitchBootstraps,
+			ReferenceBinding stringConcatBootstrap = this.referenceBinding.scope.getJavaLangInvokeStringConcatFactory();
+			indexForStringConcat = this.constantPool.literalIndexForMethodHandle(ClassFileConstants.MethodHandleRefKindInvokeStatic, stringConcatBootstrap,
 					ConstantPool.ConcatWithConstants, ConstantPool.JAVA_LANG_INVOKE_STRING_CONCAT_FACTORY_SIGNATURE, false);
 			fPtr.put(ClassFile.CONCAT_CONSTANTS, indexForStringConcat);
 		}
@@ -3949,13 +3949,11 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.contents[localContentsOffset++] = (byte) indexForStringConcat;
 
 		// u2 num_bootstrap_arguments
-		int numArgsLocation = localContentsOffset;
-		this.contents[numArgsLocation++] = 0;
-		this.contents[numArgsLocation] = (byte) 1;
-		localContentsOffset += 2;
+		this.contents[localContentsOffset++] = 0;
+		this.contents[localContentsOffset++] = (byte) 1;
 
 		int intValIdx =
-				this.constantPool.literalIndex(expression.concatenatedLiteral.toString());
+				this.constantPool.literalIndex(recipe.toString());
 		this.contents[localContentsOffset++] = (byte) (intValIdx >> 8);
 		this.contents[localContentsOffset++] = (byte) intValIdx;
 
@@ -6242,7 +6240,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		}
 		if (expression instanceof ReferenceExpression) {
 			for (int i = 0; i < this.bootstrapMethods.size(); i++) {
-				ASTNode node = this.bootstrapMethods.get(i);
+				Object node = this.bootstrapMethods.get(i);
 				if (node instanceof FunctionalExpression) {
 					FunctionalExpression fexp = (FunctionalExpression) node;
 					if (fexp.binding == expression.binding
@@ -6263,7 +6261,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.bootstrapMethods.add(switchStatement);
 		return this.bootstrapMethods.size() - 1;
 	}
-	public int recordBootstrapMethod(Expression expression) {
+	public int recordBootstrapMethod(StringBuilder expression) {
 		if (this.bootstrapMethods == null) {
 			this.bootstrapMethods = new ArrayList<>();
 		}

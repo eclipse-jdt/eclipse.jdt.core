@@ -69,7 +69,6 @@ import org.eclipse.jdt.internal.compiler.util.Messages;
 public abstract class Expression extends Statement {
 
 	public Constant constant;
-	public StringBuilder concatenatedLiteral;
 	public int statementEnd = -1;
 
 	//Some expression may not be used - from a java semantic point
@@ -932,7 +931,7 @@ public void generateOptimizedStringConcatenationCreation(BlockScope blockScope, 
 	}
 	codeStream.invokeStringConcatenationStringConstructor();
 }
-public void buildStringForConcatation(BlockScope blockScope, CodeStream codeStream, int typeID, StringBuilder builder, List<TypeBinding> argTypes) {
+public void buildStringForConcatation(BlockScope blockScope, CodeStream codeStream, int typeID, StringBuilder recipe, List<TypeBinding> argTypes) {
 	if (this.constant == Constant.NotAConstant) {
 		switch (typeID) {
 			case T_JavaLangString :
@@ -946,17 +945,17 @@ public void buildStringForConcatation(BlockScope blockScope, CodeStream codeStre
 			case TypeIds.T_boolean :
 				generateCode(blockScope, codeStream, true);
 				argTypes.add(this.resolvedType);
-				builder.append(STRING_CONCAT_MARKER_1);
+				recipe.append(STRING_CONCAT_MARKER_1);
 				break;
 			default :
 				if (this.resolvedType.id == TypeIds.T_null) {
 					// Optimize it, avoid aconst_null, simply append the String Literal
-					builder.append(new String(NullLiteral.source));
+					recipe.append((String) null);
 				} else {
 					generateCode(blockScope, codeStream, true);
 					codeStream.invokeStringValueOf(typeID);
 					argTypes.add(blockScope.getJavaLangString());
-					builder.append(STRING_CONCAT_MARKER_1);
+					recipe.append(STRING_CONCAT_MARKER_1);
 				}
 				break;
 		}
@@ -964,10 +963,10 @@ public void buildStringForConcatation(BlockScope blockScope, CodeStream codeStre
 		// StringLiteral and CharLiteral may contain special characters
 		if (this.constant.stringValue().indexOf('\u0001') != -1 || this.constant.stringValue().indexOf('\u0002') != -1) {
 			codeStream.ldc(this.constant.stringValue());
-			builder.append(STRING_CONCAT_MARKER_1);
+			recipe.append(STRING_CONCAT_MARKER_1);
 			argTypes.add(blockScope.getJavaLangString());
 		} else {
-			builder.append(this.constant.stringValue());
+			recipe.append(this.constant.stringValue());
 		}
 	}
 }

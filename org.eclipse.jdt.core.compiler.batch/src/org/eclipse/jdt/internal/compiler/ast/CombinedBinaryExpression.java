@@ -239,9 +239,9 @@ public void generateOptimizedStringConcatenation(BlockScope blockScope,
 }
 
 @Override
-public void buildStringForConcatation(BlockScope blockScope, CodeStream codeStream, int typeID, StringBuilder builder, List<TypeBinding> argTypes) {
+public void buildStringForConcatation(BlockScope blockScope, CodeStream codeStream, int typeID, StringBuilder recipe, List<TypeBinding> argTypes) {
 	if (this.referencesTable == null) {
-		super.buildStringForConcatation(blockScope, codeStream,	typeID, builder, argTypes);
+		super.buildStringForConcatation(blockScope, codeStream,	typeID, recipe, argTypes);
 	} else {
 		// copied from below method
 		if ((((this.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT) ==
@@ -258,27 +258,27 @@ public void buildStringForConcatation(BlockScope blockScope, CodeStream codeStre
 						((cursor.bits & ASTNode.ReturnTypeIDMASK) ==
 							TypeIds.T_JavaLangString)) {
 					if (cursor.constant != Constant.NotAConstant) {
-						super.buildStringForConcatation(blockScope, codeStream, typeID, builder, argTypes);
+						super.buildStringForConcatation(blockScope, codeStream, typeID, recipe, argTypes);
 						break;
 					}
 				} else {
 					cursor.buildStringForConcatation(blockScope, codeStream, cursor.implicitConversion &
-							TypeIds.COMPILE_TYPE_MASK, builder, argTypes);
+							TypeIds.COMPILE_TYPE_MASK, recipe, argTypes);
 					break;
 				}
 			}
 			restart++;
 			if (restart == 0) { // reached the leftmost expression
-				cursor.left.buildStringForConcatation(blockScope, codeStream, cursor.left.implicitConversion & TypeIds.COMPILE_TYPE_MASK, builder, argTypes);
+				cursor.left.buildStringForConcatation(blockScope, codeStream, cursor.left.implicitConversion & TypeIds.COMPILE_TYPE_MASK, recipe, argTypes);
 			}
 			for (int i = restart; i < this.arity; i++) {
 				cursor = this.referencesTable[i];
 				cursor.right.buildStringForConcatation(blockScope, codeStream, cursor.right.implicitConversion &
-						TypeIds.COMPILE_TYPE_MASK, builder, argTypes);
+						TypeIds.COMPILE_TYPE_MASK, recipe, argTypes);
 			}
-			this.right.buildStringForConcatation(blockScope, codeStream, this.right.implicitConversion & TypeIds.COMPILE_TYPE_MASK, builder, argTypes);
+			this.right.buildStringForConcatation(blockScope, codeStream, this.right.implicitConversion & TypeIds.COMPILE_TYPE_MASK, recipe, argTypes);
 		} else {
-			super.buildStringForConcatation(blockScope, codeStream,	typeID, builder, argTypes);
+			super.buildStringForConcatation(blockScope, codeStream,	typeID, recipe, argTypes);
 		}
 	}
 }

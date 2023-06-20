@@ -1566,17 +1566,17 @@ public void generateOptimizedLogicalXor(BlockScope currentScope, CodeStream code
 }
 
 @Override
-public void buildStringForConcatation(BlockScope blockScope, CodeStream codeStream, int typeID, StringBuilder builder, List<TypeBinding> argTypes) {
+public void buildStringForConcatation(BlockScope blockScope, CodeStream codeStream, int typeID, StringBuilder recipe, List<TypeBinding> argTypes) {
 	if ((((this.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT) == OperatorIds.PLUS)
 			&& ((this.bits & ASTNode.ReturnTypeIDMASK) == TypeIds.T_JavaLangString)) {
 			if (this.constant != Constant.NotAConstant) {
-				super.buildStringForConcatation(blockScope, codeStream, typeID, builder, argTypes);
+				super.buildStringForConcatation(blockScope, codeStream, typeID, recipe, argTypes);
 			} else {
-				this.left.buildStringForConcatation(blockScope, codeStream, this.left.implicitConversion & TypeIds.COMPILE_TYPE_MASK, builder, argTypes);
-				this.right.buildStringForConcatation(blockScope, codeStream, this.right.implicitConversion & TypeIds.COMPILE_TYPE_MASK, builder, argTypes);
+				this.left.buildStringForConcatation(blockScope, codeStream, this.left.implicitConversion & TypeIds.COMPILE_TYPE_MASK, recipe, argTypes);
+				this.right.buildStringForConcatation(blockScope, codeStream, this.right.implicitConversion & TypeIds.COMPILE_TYPE_MASK, recipe, argTypes);
 			}
 		} else {
-			super.buildStringForConcatation(blockScope, codeStream, typeID, builder, argTypes);
+			super.buildStringForConcatation(blockScope, codeStream, typeID, recipe, argTypes);
 		}
 }
 @Override
