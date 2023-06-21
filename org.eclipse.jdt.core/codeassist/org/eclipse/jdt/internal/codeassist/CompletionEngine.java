@@ -9842,15 +9842,14 @@ public final class CompletionEngine
 					.map(m -> new MethodBinding[] { m }).orElse(new MethodBinding[0]);
 		} else if (this.parser.assistNodeParent instanceof AllocationExpression ae) {
 			arguments = ae.arguments;
-			if (ae.type != null) {
-				ReferenceBinding binding = (ReferenceBinding) ae.type.resolvedType;
-				findConstructors(binding, computeTypes(arguments), scope, ae, false, null, null, null, false,
+			if (ae.type != null && ae.type.resolvedType instanceof ReferenceBinding rb) {
+				findConstructors(rb, computeTypes(arguments), scope, ae, false, null, null, null, false,
 						methodsFound);
 			}
 			candidates = StreamSupport.stream(methodsFound.spliterator(), false).filter(Objects::nonNull)
 					.filter(o -> o instanceof Object[]).map(o -> (Object[]) o).map(o -> o[0])
 					.filter(o -> o instanceof MethodBinding).map(b -> (MethodBinding) b).filter(b -> b.isConstructor())
-					.findFirst().map(m -> new MethodBinding[] { m }).orElse(new MethodBinding[0]);
+					.toArray(MethodBinding[]::new);
 		} else {
 			return parameterName;
 		}
