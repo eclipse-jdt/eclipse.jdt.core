@@ -9375,4 +9375,40 @@ public void testGH1092() throws Exception {
 			"    )\n";
 	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Record.class", ClassFileBytesDisassembler.SYSTEM);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=576719
+// Useless warning in compact constructor of a record
+public void testBug576719() {
+	Map<String, String> options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportParameterAssignment, CompilerOptions.ERROR);
+	runNegativeTest(
+		// test directory preparation
+		true /* flush output directory */,
+		new String[] { /* test files */
+			"Rational.java",
+			"public record Rational(int num, int denom) {\n" +
+			"    public Rational {\n" +
+			"        int gcd = gcd(num, denom);\n" +
+			"        num /= gcd;\n" +
+			"        denom /= gcd;\n" +
+			"    }\n" +
+			"    \n" +
+			"    private static int gcd(int a, int b) {\n" +
+			"        a = 10;\n" +
+			"        throw new UnsupportedOperationException();\n" +
+			"    }\n" +
+			"}\n",
+		},
+		// compiler options
+		null /* no class libraries */,
+		options /* custom options */,
+		// compiler results
+		"----------\n"
+		+ "1. ERROR in Rational.java (at line 9)\n"
+		+ "	a = 10;\n"
+		+ "	^\n"
+		+ "The parameter a should not be assigned\n"
+		+ "----------\n",
+		// javac options
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
+}
 }
