@@ -7951,6 +7951,27 @@ public void testBug511958() {
 			);
 }
 
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1060
+// NPE when inspecting scrapbook expression that uses Java 8 features
+public void testGH1060() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		System.out.println(new X().foo());\n" +
+				"	}\n" +
+				"	\n" +
+				"	String foo() {\n" +
+				"		return java.time.format.DateTimeFormatter\n" +
+				"				.ofPattern(\"yyyyMMddHHmmss.SSS000\")\n" +
+				"				.format(java.time.format.DateTimeFormatter.ofPattern(\"dd.MM.yyyy HHmmss\").parse(\"30.03.2021 112430\", java.time.LocalDateTime::from));\n" +
+				"	}\n" +
+				"}\n"},
+			"20210330112430.000000"
+			);
+}
+
 
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
