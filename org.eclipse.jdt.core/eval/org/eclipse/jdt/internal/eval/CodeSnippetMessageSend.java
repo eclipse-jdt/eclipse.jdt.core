@@ -261,8 +261,13 @@ public TypeBinding resolveType(BlockScope scope) {
 			return null;
 		}
 	}
-	findMethodBinding(scope);
 
+	TypeBinding methodType = findMethodBinding(scope);
+	if (methodType != null && methodType.isPolyType()) {
+		this.resolvedType = this.binding.returnType.capture(scope, this.sourceStart, this.sourceEnd);
+		return methodType;
+	}
+	
 	if (!this.binding.isValidBinding()) {
 		if (this.binding instanceof ProblemMethodBinding
 			&& ((ProblemMethodBinding) this.binding).problemId() == ProblemReasons.NotVisible) {
