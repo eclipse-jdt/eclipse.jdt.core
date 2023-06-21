@@ -172,7 +172,7 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 					currentScope.problemReporter().cannotAssignToFinalOuterLocal(localBinding, this);
 				}
 			}
-			else /* avoid double diagnostic */ if ((localBinding.tagBits & TagBits.IsArgument) != 0) {
+			else /* avoid double diagnostic */ if ((localBinding.tagBits & TagBits.IsArgument) != 0 && !localBinding.getEnclosingMethod().isCompactConstructor()) {
 				currentScope.problemReporter().parameterAssignment(localBinding, this);
 			}
 			flowInfo.markAsDefinitelyAssigned(localBinding);
