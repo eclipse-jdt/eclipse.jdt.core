@@ -20714,6 +20714,115 @@ public void testBug519070() {
 			},
 			"SUCCESS");
 }
+public void testIssue1171_1() {
+	if (this.complianceLevel != ClassFileConstants.JDK16)
+		return;
+	int length = 3 * 54 * 100;
+	StringBuilder veryLongString = new StringBuilder(length + 20);
+	StringBuilder veryLongString2 = new StringBuilder(length + 20);
+	veryLongString.append('"');
+	veryLongString2.append('"');
+	Random random = new Random();
+	for( int i = 0; i < length; i++) {
+		veryLongString.append("\"+ (a instanceof String s" + i +  ") +\"");
+		veryLongString2.append("\"+ true +\"");
+		long nextLong = random.nextLong();
+		veryLongString.append(nextLong);
+		veryLongString2.append(nextLong);
+	}
+	veryLongString.append('"');
+	veryLongString2.append('"');
+	this.runNegativeTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"  public static void main(String[] args) {\n" +
+			"    foo(\"dummy\");\n" +
+			"  }\n" +
+			"  public static void foo(String a) {\n" +
+			"    String s = \n" +
+				veryLongString.toString() + ";\n" +
+			"    String s1 = " + veryLongString2.toString() + ";\n" +
+			"    System.out.println(s.equals(s1));\n" +
+			"    }\n" +
+			"}"
+		},
+		"----------\n" +
+		"1. ERROR in X.java (at line 5)\n" +
+		"	public static void foo(String a) {\n" +
+		"	                   ^^^^^^^^^^^^^\n" +
+		"The code of method foo(String) is exceeding the 65535 bytes limit\n" +
+		"----------\n");
+}
+public void testIssue1171_2() {
+	if (this.complianceLevel != ClassFileConstants.JDK16)
+		return;
+	int length = 3 * 54 * 10;
+	StringBuilder veryLongString = new StringBuilder(length + 20);
+	StringBuilder veryLongString2 = new StringBuilder(length + 20);
+	veryLongString.append('"');
+	veryLongString2.append('"');
+	Random random = new Random();
+	for( int i = 0; i < length; i++) {
+		veryLongString.append("\"+ (a instanceof String s" + i +  ") +\"");
+		veryLongString2.append("\"+ true +\"");
+		long nextLong = random.nextLong();
+		veryLongString.append(nextLong);
+		veryLongString2.append(nextLong);
+	}
+	veryLongString.append('"');
+	veryLongString2.append('"');
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"  public static void main(String[] args) {\n" +
+			"    foo(\"dummy\");\n" +
+			"  }\n" +
+			"  public static void foo(String a) {\n" +
+			"    String s = \n" +
+				veryLongString.toString() + ";\n" +
+			"    String s1 = " + veryLongString2.toString() + ";\n" +
+			"    System.out.println(s.equals(s1));\n" +
+			"    }\n" +
+			"}"
+		},
+		"true");
+}
+public void testIssue1171_3() {
+	if (this.complianceLevel != ClassFileConstants.JDK16)
+		return;
+	int length = 1;
+	StringBuilder veryLongString = new StringBuilder(length + 20);
+	StringBuilder veryLongString2 = new StringBuilder(length + 20);
+	veryLongString.append('"');
+	veryLongString2.append('"');
+	Random random = new Random();
+	for( int i = 0; i < length; i++) {
+		veryLongString.append("\"+ (a instanceof String s" + i +  ")");
+		veryLongString2.append("\"+ true +\"");
+		long nextLong = random.nextLong();
+//		veryLongString.append(nextLong);
+		veryLongString2.append(nextLong);
+	}
+//	veryLongString.append('"');
+	veryLongString2.append('"');
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n" +
+			"  public static void main(String[] args) {\n" +
+			"    foo(\"dummy\");\n" +
+			"  }\n" +
+			"  public static void foo(String a) {\n" +
+			"    if ( (" + veryLongString.toString() + ") == ( "+ veryLongString2.toString() +")) {\n" +
+			"      System.out.println(s0);\n" +
+			"    }\n" +
+			"  }\n" +
+			"}"
+		},
+		"true");
+}
 public static Class testClass() {
 	return XLargeTest.class;
 }

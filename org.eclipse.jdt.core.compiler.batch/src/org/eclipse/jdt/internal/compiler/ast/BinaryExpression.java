@@ -1816,8 +1816,13 @@ public void collectPatternVariablesToScope(LocalVariableBinding[] variables, Blo
 	this.addPatternVariablesWhenTrue(variables);
 	this.left.addPatternVariablesWhenTrue(variables);
 	this.left.collectPatternVariablesToScope(variables, scope);
+	LocalVariableBinding[] newOnes = this.left.getPatternVariablesWhenTrue();
+	this.addPatternVariablesWhenTrue(newOnes);
+
 	this.right.addPatternVariablesWhenTrue(variables);
 	this.right.collectPatternVariablesToScope(variables, scope);
+	newOnes = this.right.getPatternVariablesWhenTrue();
+	this.addPatternVariablesWhenTrue(newOnes);
 }
 @Override
 public void addPatternVariables(BlockScope scope, CodeStream codeStream) {
@@ -1832,8 +1837,9 @@ public boolean containsPatternVariable() {
 public TypeBinding resolveType(BlockScope scope) {
 	// keep implementation in sync with CombinedBinaryExpression#resolveType
 	// and nonRecursiveResolveTypeUpwards
+	// Avoid unnecessary call to containsPatternVariable below Java 16 as it may lead to recursive calls
 	if(this.patternVarsWhenFalse == null && this.patternVarsWhenTrue == null &&
-			this.containsPatternVariable()) {
+			scope.compilerOptions().complianceLevel > ClassFileConstants.JDK15 && this.containsPatternVariable()) {
 		// the null check is to guard against a second round of collection.
 		// This usually doesn't happen,
 		// except when we call collectPatternVariablesToScope() from here

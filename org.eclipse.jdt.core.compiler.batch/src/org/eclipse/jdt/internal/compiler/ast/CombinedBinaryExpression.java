@@ -21,6 +21,7 @@ import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 
@@ -120,6 +121,63 @@ public CombinedBinaryExpression(CombinedBinaryExpression expression) {
 	initArity(expression.left, expression.arity);
 }
 
+@Override
+public void collectPatternVariablesToScope(LocalVariableBinding[] variables, BlockScope scope) {
+	this.addPatternVariablesWhenTrue(variables);
+	if (this.referencesTable == null) {
+		super.collectPatternVariablesToScope(variables, scope);
+	} else {
+		BinaryExpression cursor = this.referencesTable[0];
+		cursor.left.addPatternVariablesWhenTrue(variables);
+		cursor.left.collectPatternVariablesToScope(variables, scope);
+		LocalVariableBinding[] newOnes = cursor.left.getPatternVariablesWhenTrue();
+		cursor.addPatternVariablesWhenTrue(newOnes);
+		this.addPatternVariablesWhenTrue(newOnes);
+		for (int i = 0, end = this.arity; i < end; i ++) {
+			cursor = this.referencesTable[i];
+			cursor.right.addPatternVariablesWhenTrue(variables);
+			cursor.right.collectPatternVariablesToScope(variables, scope);
+			newOnes = cursor.right.getPatternVariablesWhenTrue();
+			cursor.addPatternVariablesWhenTrue(newOnes);
+			this.addPatternVariablesWhenTrue(newOnes);
+		}
+		this.right.addPatternVariablesWhenTrue(variables);
+		this.right.collectPatternVariablesToScope(variables, scope);
+		newOnes = this.right.getPatternVariablesWhenTrue();
+		this.addPatternVariablesWhenTrue(newOnes);
+	}
+}
+@Override
+public void addPatternVariables(BlockScope scope, CodeStream codeStream) {
+	if (this.referencesTable == null) {
+		super.addPatternVariables(scope, codeStream);
+	} else {
+		BinaryExpression cursor = this.referencesTable[0];
+		cursor.left.addPatternVariables(scope, codeStream);
+		for (int i = 0, end = this.arity; i < end; i ++) {
+			cursor = this.referencesTable[i];
+			cursor.right.addPatternVariables(scope, codeStream);
+		}
+		this.right.addPatternVariables(scope, codeStream);
+	}
+}
+@Override
+public boolean containsPatternVariable() {
+	if (this.referencesTable == null) {
+		return super.containsPatternVariable();
+	} else {
+		BinaryExpression cursor = this.referencesTable[0];
+		boolean result = cursor.left.containsPatternVariable();
+		if (result)
+			return true;
+		for (int i = 0, end = this.arity; i < end; i ++) {
+			cursor = this.referencesTable[i];
+			if (cursor.right.containsPatternVariable())
+				return true;
+		}
+		return this.right.containsPatternVariable();
+	}
+}
 @Override
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		FlowInfo flowInfo) {
