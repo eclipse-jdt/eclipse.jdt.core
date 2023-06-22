@@ -1300,7 +1300,7 @@ public abstract class Annotation extends Expression {
 
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391201
 		if ((metaTagBits & TagBits.AnnotationForDeclarationMASK) == 0
-				&& (metaTagBits & (TagBits.AnnotationForTypeUse | TagBits.AnnotationForTypeParameter)) != 0) {
+				&& (metaTagBits & TagBits.AnnotationForTypeUse) != 0) {
 			if (scope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_8) {
 				switch (kind) {
 					case Binding.PACKAGE :
