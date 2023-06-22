@@ -5881,8 +5881,12 @@ public final class JavaCore extends Plugin {
 	public static void rebuildIndex(IProgressMonitor monitor) throws CoreException {
 		SubMonitor subMonitor = SubMonitor.convert(monitor, 100);
 		IndexManager manager = JavaModelManager.getIndexManager();
-		manager.deleteIndexFiles(subMonitor.split(1));
-		manager.reset();
+		// Cleanup index
+		synchronized(manager) {
+			manager.deleteIndexFiles(subMonitor.split(1));
+			manager.reset();
+		}
+		// Trigger rebuild
 		updateLegacyIndex(subMonitor.split(4));
 	}
 
