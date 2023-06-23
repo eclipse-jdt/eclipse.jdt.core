@@ -21,7 +21,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -40,7 +39,6 @@ import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
-import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObjectToInt;
@@ -69,13 +67,6 @@ import org.eclipse.jdt.internal.core.util.Util;
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class IndexBasedHierarchyBuilder extends HierarchyBuilder implements SuffixConstants {
 	public static final int MAXTICKS = 800; // heuristic so that there still progress for deep hierachies
-	/**
-	 * A temporary cache of compilation units to handles to speed info
-	 * to handle translation - it only contains the entries
-	 * for the types in the region (in other words, it contains no supertypes outside
-	 * the region).
-	 */
-	protected Map cuToHandle;
 
 	/**
 	 * The scope this hierarchy builder should restrain results to.
@@ -134,7 +125,6 @@ public class IndexBasedHierarchyBuilder extends HierarchyBuilder implements Suff
 
 public IndexBasedHierarchyBuilder(TypeHierarchy hierarchy, IJavaSearchScope scope) throws JavaModelException {
 	super(hierarchy);
-	this.cuToHandle = new HashMap(5);
 	this.binariesFromIndexMatches = new HashMap(10);
 	this.scope = scope;
 }
@@ -404,12 +394,7 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes, HashSet l
 		SubMonitor.done(monitor);
 	}
 }
-@Override
-protected ICompilationUnit createCompilationUnitFromPath(Openable handle, IFile file, char[] moduleName) {
-	ICompilationUnit unit = super.createCompilationUnitFromPath(handle, file, moduleName);
-	this.cuToHandle.put(unit, handle);
-	return unit;
-}
+
 @Override
 protected IBinaryType createInfoFromClassFile(Openable classFile, IResource file) {
 	String documentPath = classFile.getPath().toString();
