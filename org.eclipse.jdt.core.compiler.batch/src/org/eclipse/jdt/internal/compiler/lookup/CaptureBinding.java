@@ -263,6 +263,12 @@ public class CaptureBinding extends TypeVariableBinding {
 			case Wildcard.UNBOUND :
 				this.setSuperClass(substitutedVariableSuperclass);
 				this.setSuperInterfaces(substitutedVariableInterfaces);
+				if (substitutedVariableSuperclass != null && substitutedVariableInterfaces != null) {
+					if (substitutedVariableSuperclass.id == TypeIds.T_JavaLangObject
+							&& substitutedVariableInterfaces.length > 0) {
+						this.setFirstBound(substitutedVariableInterfaces[0]);
+					}
+				}
 				this.tagBits &= ~TagBits.HasTypeVariable;
 				break;
 			case Wildcard.SUPER :
@@ -587,19 +593,6 @@ public class CaptureBinding extends TypeVariableBinding {
 		return super.toString();
 	}
 
-	@Override
-	public char[] constantPoolName() {
-		// What is the right thing here? Can we do better than defaulting to
-		// org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding.constantPoolName()
-		return super.constantPoolName();
-	}
-
-	@Override
-	public TypeBinding erasure() {
-		// What is the right thing here? Can we do better than defaulting to
-		// org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding.erasure()??
-		return super.erasure();
-	}
 
 	@Override
 	public char[] signature() /* Ljava/lang/Object; */ {
@@ -609,8 +602,7 @@ public class CaptureBinding extends TypeVariableBinding {
 		if (this.firstBound instanceof ArrayBinding) {
 			this.signature = constantPoolName();
 		} else {
-			char[] poolName = this.wildcard != null ? this.wildcard.constantPoolName() : constantPoolName();
-			this.signature = CharOperation.concat('L', poolName, ';');
+			this.signature = CharOperation.concat('L', constantPoolName(), ';');
 		}
 		return this.signature;
 
