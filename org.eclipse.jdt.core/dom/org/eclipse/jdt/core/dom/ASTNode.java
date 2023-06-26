@@ -2544,7 +2544,7 @@ public abstract class ASTNode {
      * </p>
      *
 	 * @exception UnsupportedOperationException if this operation is not used in JLS21
-	 * @since 3.34 BETA_JAVA21
+	 * @since 3.35 BETA_JAVA21
 	 */
 	final void supportedOnlyIn21() {
 		if (this.ast.apiLevel < AST.JLS21_INTERNAL) {
