@@ -7132,7 +7132,7 @@ public final class CompletionEngine
 			}
 		}
 
-		char[] boostMatches = findParameterNameAtLocationFromAssistParent(new ObjectVector());
+		char[] boostMatches = findParameterNameAtLocationFromAssistParent(new ObjectVector(), scope);
 
 		// Inherited fields which are hidden by subclasses are filtered out
 		// No visibility checks can be performed without the scope & invocationSite
@@ -9463,7 +9463,7 @@ public final class CompletionEngine
 		int minArgLength = argTypes == null ? 0 : argTypes.length;
 
 		char[][] boostMatches = new char[0][];
-		char[] parameterName = findParameterNameAtLocationFromAssistParent(new ObjectVector());
+		char[] parameterName = findParameterNameAtLocationFromAssistParent(new ObjectVector(), scope);
 		if(parameterName.length > 0) {
 			char[] nameForMethods = capitalize(parameterName);
 			boostMatches = new char[][] { parameterName, CharOperation.concat(GET, nameForMethods),
@@ -9823,32 +9823,42 @@ public final class CompletionEngine
 		return result;
 	}
 
-	private char[] findParameterNameAtLocationFromAssistParent(ObjectVector methodsFound) {
+	private char[] findParameterNameAtLocationFromAssistParent(ObjectVector methodsFound, Scope scope) {
 		char[] parameterName = new char[0];
 		MethodBinding[] candidates;
-		final MessageSend parent;
-		if (this.parser.assistNodeParent instanceof MessageSend) {
-			parent = (MessageSend) this.parser.assistNodeParent;
-			candidates = Optional.ofNullable(parent.actualReceiverType)
-					.or(() -> Optional.ofNullable(parent.receiver).map(r -> r.resolvedType))
-					.map(t -> t.getMethods(parent.selector)).orElse(new MethodBinding[0]);
-		} else if (this.parser.assistNode instanceof MessageSend) {
-			parent = (MessageSend) this.parser.assistNode;
+		final Expression[] arguments;
+		if (this.parser.assistNodeParent instanceof MessageSend ms) {
+			arguments = ms.arguments;
+			candidates = Optional.ofNullable(ms.actualReceiverType)
+					.or(() -> Optional.ofNullable(ms.receiver).map(r -> r.resolvedType))
+					.map(t -> t.getMethods(ms.selector)).orElse(new MethodBinding[0]);
+		} else if (this.parser.assistNode instanceof MessageSend ms) {
+			arguments = ms.arguments;
 			candidates = StreamSupport.stream(methodsFound.spliterator(), false)
 					.filter(Objects::nonNull)
 					.filter(o -> o instanceof Object[]).map(o -> (Object[]) o)
 					.map(o -> o[0]).filter(o -> o instanceof MethodBinding).map(b -> (MethodBinding) b)
-					.filter(b -> CharOperation.equals(parent.selector, b.selector)).findFirst()
+					.filter(b -> CharOperation.equals(ms.selector, b.selector)).findFirst()
 					.map(m -> new MethodBinding[] { m }).orElse(new MethodBinding[0]);
+		} else if (this.parser.assistNodeParent instanceof AllocationExpression ae) {
+			arguments = ae.arguments;
+			if (ae.type != null && ae.type.resolvedType instanceof ReferenceBinding rb) {
+				findConstructors(rb, computeTypes(arguments), scope, ae, false, null, null, null, false,
+						methodsFound);
+			}
+			candidates = StreamSupport.stream(methodsFound.spliterator(), false).filter(Objects::nonNull)
+					.filter(o -> o instanceof Object[]).map(o -> (Object[]) o).map(o -> o[0])
+					.filter(o -> o instanceof MethodBinding).map(b -> (MethodBinding) b).filter(b -> b.isConstructor())
+					.toArray(MethodBinding[]::new);
 		} else {
 			return parameterName;
 		}
 
-		final int argumentLength = (parent.arguments != null) ? parent.arguments.length : 1;
+		final int argumentLength = (arguments != null) ? arguments.length : 1;
 		for (MethodBinding binding : candidates) {
 			if (binding.parameterNames.length >= argumentLength) {
 				for (int i = 0; i < argumentLength; i++) {
-					if (parent.arguments == null || parent.arguments[i] == this.parser.assistNode) {
+					if (arguments == null || arguments[i] == this.parser.assistNode) {
 						parameterName = binding.parameterNames[i];
 					}
 				}
@@ -13265,7 +13275,7 @@ public final class CompletionEngine
 
 		Scope currentScope = scope;
 
-		char[]	boostMatches = findParameterNameAtLocationFromAssistParent(methodsFound);
+		char[]	boostMatches = findParameterNameAtLocationFromAssistParent(methodsFound, scope);
 
 		if (!this.requestor.isIgnored(CompletionProposal.LOCAL_VARIABLE_REF)) {
 			done1 : while (true) { // done when a COMPILATION_UNIT_SCOPE is found
