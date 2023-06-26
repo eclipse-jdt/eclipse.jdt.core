@@ -11488,7 +11488,7 @@ public void test0356() throws JavaModelException {
 
 	assertResults(
 			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}\n" +
-			"get[METHOD_REF]{get(), Ltest.util.List<Ljava.lang.Object;>;, (I)Ljava.lang.Object;, get, (i), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+			"get[METHOD_REF]{get(), Ltest.util.List<Ltest.util.List<TT;>;>;, (I)Ltest.util.List<TT;>;, get, (i), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_STATIC + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=96604

@@ -537,7 +537,12 @@ public void testBug424710() {
 			"				.forEach(System.out::println);\n" +
 			"    }\n" +
 			"}\n"
-		});
+		},
+		"abc\n" +
+		"a\n" +
+		"123\n" +
+		"1"
+		);
 }
 
 public void testBug424075() {
