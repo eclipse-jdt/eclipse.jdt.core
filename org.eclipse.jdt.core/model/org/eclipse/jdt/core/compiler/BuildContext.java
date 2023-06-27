@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2018 IBM Corporation and others.
+ * Copyright (c) 2006, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,7 +10,7 @@
  *
  * Contributors:
  *    IBM Corporation - initial API and implementation
- *
+ *    Christoph Läubrich -  Enhance the BuildContext with the discovered annotations #674
  *******************************************************************************/
 
 package org.eclipse.jdt.core.compiler;
@@ -57,6 +57,18 @@ public IFile getFile() {
  * @return whether the compilation unit contained any annotations when it was compiled
  */
 public boolean hasAnnotations() {
+	return false; // default overridden by concrete implementation
+}
+
+/**
+ * Returns whether the compilation unit contained any annotations with a given type when it was compiled.
+ *
+ * NOTE: This is only valid during {@link CompilationParticipant#processAnnotations(BuildContext[])}.
+ * @param fqn the fully qualified name of the annotation to check for presence
+ * @return whether the compilation unit contained any annotations of the given type when it was compiled
+ * @since 3.35
+ */
+public boolean hasAnnotations(String fqn) {
 	return false; // default overridden by concrete implementation
 }
 

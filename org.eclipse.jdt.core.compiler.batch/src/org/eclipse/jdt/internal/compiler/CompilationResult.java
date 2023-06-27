@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2017 IBM Corporation and others.
+ * Copyright (c) 2000, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,9 +10,11 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Christoph Läubrich -  Enhance the BuildContext with the discovered annotations #674
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler;
 
+import java.util.ArrayList;
 /**
  * A compilation result consists of all information returned by the compiler for
  * a single compiled compilation source unit.  This includes:
@@ -39,6 +41,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -48,6 +51,7 @@ import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
+import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScannerData;
@@ -81,6 +85,7 @@ public class CompilationResult {
 	public boolean checkSecondaryTypes = false; // check for secondary types which were created after the initial buildTypeBindings call
 	private int numberOfErrors;
 	private boolean hasMandatoryErrors;
+	public List<AnnotationBinding[]> annotations = new ArrayList<>(1);
 
 	private static final int[] EMPTY_LINE_ENDS = Util.EMPTY_INT_ARRAY;
 	private static final Comparator PROBLEM_COMPARATOR = new Comparator() {
