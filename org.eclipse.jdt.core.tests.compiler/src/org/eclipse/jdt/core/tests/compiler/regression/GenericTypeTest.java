@@ -56,7 +56,7 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// Static initializer to specify tests subset using TESTS_* static variables
 	// All specified tests which does not belong to the class are skipped...
 	static {
-		TESTS_NAMES = new String[] { "test1066" };
+//		TESTS_NAMES = new String[] { "test0593" };
 //		TESTS_NUMBERS = new int[] { 470, 627 };
 //		TESTS_RANGE = new int[] { 1097, -1 };
 	}

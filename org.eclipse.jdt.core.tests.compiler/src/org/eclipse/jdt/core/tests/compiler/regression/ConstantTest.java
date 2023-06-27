@@ -432,7 +432,7 @@ public void test009() throws Exception {
 			"        [pc: 63, pc: 87] local: s index: 2 type: java.lang.String\n" +
 			"        [pc: 78, pc: 87] local: s2 index: 3 type: java.lang.String\n";
 
-	String expectedOutputPost9 =
+	String expectedOutput9OrLater =
 			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" +
 			"  // Stack: 2, Locals: 4\n" +
 			"  public static void main(java.lang.String[] args);\n" +
@@ -485,12 +485,12 @@ public void test009() throws Exception {
 			+ "        [pc: 47, pc: 71] local: s index: 2 type: java.lang.String\n"
 			+ "        [pc: 62, pc: 71] local: s2 index: 3 type: java.lang.String\n";
 	if (this.complianceLevel >= ClassFileConstants.JDK9) {
-		int index = actualOutput.indexOf(expectedOutputPost9);
-		if (index == -1 || expectedOutputPost9.length() == 0) {
+		int index = actualOutput.indexOf(expectedOutput9OrLater);
+		if (index == -1 || expectedOutput9OrLater.length() == 0) {
 			System.out.println(Util.displayString(actualOutput, 2));
 		}
 		if (index == -1) {
-			assertEquals("Wrong contents", expectedOutputPost9, actualOutput);
+			assertEquals("Wrong contents", expectedOutput9OrLater, actualOutput);
 		}
 	} else {
 		int index = actualOutput.indexOf(expectedOutput);

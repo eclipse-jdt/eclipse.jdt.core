@@ -1564,7 +1564,6 @@ public void generateOptimizedLogicalXor(BlockScope currentScope, CodeStream code
 	}
 	codeStream.recordPositionsFrom(codeStream.position, this.sourceEnd);
 }
-
 @Override
 public void buildStringForConcatation(BlockScope blockScope, CodeStream codeStream, int typeID, StringBuilder recipe, List<TypeBinding> argTypes) {
 	if ((((this.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT) == OperatorIds.PLUS)

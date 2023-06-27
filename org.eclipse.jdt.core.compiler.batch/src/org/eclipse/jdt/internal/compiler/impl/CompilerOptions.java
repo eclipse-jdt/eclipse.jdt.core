@@ -2294,6 +2294,7 @@ public class CompilerOptions {
 		buf.append("\n\t- unstable auto module name: ").append(getSeverityString(UnstableAutoModuleName)); //$NON-NLS-1$
 		buf.append("\n\t- SuppressWarnings not fully analysed: ").append(getSeverityString(SuppressWarningsNotAnalysed)); //$NON-NLS-1$
 		buf.append("\n\t- ignore package from unnamed module: ").append(this.ignoreUnnamedModuleForSplitPackage ? ENABLED : DISABLED); //$NON-NLS-1$
+		buf.append("\n\t- use StringConcatFactory for String concatenation expressions: ").append(this.useStringConcatFactory ? ENABLED : DISABLED); //$NON-NLS-1$
 		return buf.toString();
 	}
 

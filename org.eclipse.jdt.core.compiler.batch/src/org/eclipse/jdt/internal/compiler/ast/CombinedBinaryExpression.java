@@ -243,7 +243,7 @@ public void buildStringForConcatation(BlockScope blockScope, CodeStream codeStre
 	if (this.referencesTable == null) {
 		super.buildStringForConcatation(blockScope, codeStream,	typeID, recipe, argTypes);
 	} else {
-		// copied from below method
+		// copied from below method generateOptimizedStringConcatenationCreation(BlockScope, CodeStream, int)
 		if ((((this.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT) ==
 				OperatorIds.PLUS) &&
 					((this.bits & ASTNode.ReturnTypeIDMASK) ==
