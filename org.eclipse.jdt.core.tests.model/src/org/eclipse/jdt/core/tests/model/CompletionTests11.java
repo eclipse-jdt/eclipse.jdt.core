@@ -276,6 +276,8 @@ public void test_members_matching_constructors_parameter_name() throws JavaModel
 	String completeBehind = "task.";
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertEquals("No constructor", 0, requestor.getResults().lines()
+			.filter(line -> line.startsWith("SmartObject[METHOD_REF<CONSTRUCTOR>]")).count());
 	assertTrue(requestor.getResults(),
 			requestor.getResults()
 					.contains(
