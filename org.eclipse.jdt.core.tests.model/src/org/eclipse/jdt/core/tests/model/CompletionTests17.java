@@ -654,4 +654,34 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 				requestor.getResults());
 
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1100
+	// ContentAssist / CompletionScanner running into deadlock
+	public void testGH1100() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/X.java",
+				"import java.lang.StackWalker.Option;\n" +
+				"public class X {\n" +
+				"	private void test() {\n" +
+				"		Option opt = Option.RETAIN_CLASS_REFERENCE;\n" +
+				"		boolean testswitch (opt) { // <- remove pipe and press CTRL+Space\n" +
+				"			case RETAIN_CLASS_REFERENCE -> {\n" +
+				"			}\n" +
+				"			case SHOW_HIDDEN_FRAMES -> {\n" +
+				"			}\n" +
+				"			case SHOW_REFLECT_FRAMES -> throw new UnsupportedOperationException(\"Unimplemented case: \");\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n"
+				);
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "test";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults("",
+				requestor.getResults());
+
+	}
 }

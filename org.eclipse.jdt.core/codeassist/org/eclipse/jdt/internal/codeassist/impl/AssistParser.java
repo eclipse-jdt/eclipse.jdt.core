@@ -35,6 +35,7 @@ import org.eclipse.jdt.internal.compiler.ast.Block;
 import org.eclipse.jdt.internal.compiler.ast.CaseStatement;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.EmptyStatement;
 import org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
@@ -137,7 +138,14 @@ public abstract class AssistParser extends Parser {
 	AssistParser[] snapShotStack = new AssistParser[3];
 	int[] snapShotPositions = new int[3];
 	int snapShotPtr = -1;
-	AssistParser lastResumeState;
+
+	static class ResumeState {
+		AssistParser parser;
+		int scannerCurrentPosition;
+		int currentToken;
+	}
+
+	ResumeState lastResumeState;
 	int resumeCount = 0;
 
 	public int cursorLocation = Integer.MAX_VALUE;
@@ -2413,7 +2421,7 @@ protected int fallBackToSpringForward(Statement unused) {
 		if (nextToken == TokenNameRBRACE)
 			ignoreNextClosingBrace(); // having ungotten it, recoveryTokenCheck will see this again.
 	}
-	// OK, next token is no good to resume "in place", attempt some local repair. FIXME: need to make sure we don't get stuck keep reducing empty statements !!
+	// OK, next token is no good to resume "in place", attempt some local repair.
 	for (int i = 0, length = RECOVERY_TOKENS.length; i < length; i++) {
 		if (automatonWillShift(RECOVERY_TOKENS[i], automatonState)) {
 			this.currentToken = RECOVERY_TOKENS[i];
@@ -2546,18 +2554,33 @@ private boolean safeToResume() {
 	} else {
 		this.resumeCount = 0;
 	}
-	this.lastResumeState = createSnapShotParser();
-	this.lastResumeState.copyState(this);
+	if (this.lastResumeState == null)
+		this.lastResumeState = new ResumeState();
+	this.lastResumeState.parser = createSnapShotParser();
+	this.lastResumeState.parser.copyState(this);
+	this.lastResumeState.scannerCurrentPosition = this.scanner.currentPosition;
+	this.lastResumeState.currentToken = this.currentToken;
 	return true;
 }
-private boolean noProgressSince(AssistParser previous) {
+private boolean noProgressSince(ResumeState previous) {
 	int stateTop = this.stateStackTop;
 	int astTop = this.astPtr;
 	int exprTop = this.expressionPtr;
-	return stateTop == previous.stateStackTop && astTop == previous.astPtr && exprTop == previous.expressionPtr
-			&& Arrays.equals(this.stack, 0, stateTop, previous.stack, 0, stateTop)
-			&& (astTop == -1 || Arrays.equals(this.astStack, 0, astTop, previous.astStack, 0, astTop))
-			&& (exprTop == -1 || Arrays.equals(this.expressionStack, 0, exprTop, previous.expressionStack, 0, exprTop));
+	if (stateTop == previous.parser.stateStackTop && astTop == previous.parser.astPtr && exprTop == previous.parser.expressionPtr
+			&& Arrays.equals(this.stack, 0, stateTop, previous.parser.stack, 0, stateTop)
+			&& (astTop == -1 || Arrays.equals(this.astStack, 0, astTop, previous.parser.astStack, 0, astTop))
+			&& (exprTop == -1 || Arrays.equals(this.expressionStack, 0, exprTop, previous.parser.expressionStack, 0, exprTop)))
+		return true; // Parser didn't budge.
+
+	ASTNode node;
+	if (previous.scannerCurrentPosition == this.scanner.currentPosition &&
+			previous.currentToken == this.currentToken &&
+			astTop == previous.parser.astPtr + 1 &&
+			((node = this.astStack[this.astPtr]) instanceof EmptyStatement) &&
+			(node.bits & ASTNode.IsUsefulEmptyStatement) == 0)
+		return true; // scanner didn't advance either, attempts to nudge recovery along, merely is producing useless empty statements ...
+
+	return false;
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=292087
