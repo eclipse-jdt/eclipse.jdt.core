@@ -20,7 +20,7 @@ import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
-public class CompletionOnMarkerAnnotationName extends MarkerAnnotation {
+public class CompletionOnMarkerAnnotationName extends MarkerAnnotation implements CompletionNode {
 	public CompletionOnMarkerAnnotationName(TypeReference type, int sourceStart){
 		super(type, sourceStart);
 	}

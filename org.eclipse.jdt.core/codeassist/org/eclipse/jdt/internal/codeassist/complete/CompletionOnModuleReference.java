@@ -18,7 +18,7 @@ import org.eclipse.jdt.internal.compiler.ast.ModuleReference;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 
-public class CompletionOnModuleReference extends ModuleReference {
+public class CompletionOnModuleReference extends ModuleReference implements CompletionNode {
 
 	public CompletionOnModuleReference(char[] ident, long pos) {
 		this(new char[][]{ident}, new long[]{pos});

@@ -28,7 +28,7 @@ import org.eclipse.jdt.internal.compiler.ast.MemberValuePair;
  *		 class X {
  *       }
  */
-public class CompletionOnMemberValueName extends MemberValuePair {
+public class CompletionOnMemberValueName extends MemberValuePair implements CompletionNode {
 	public CompletionOnMemberValueName(char[] token, int sourceStart, int sourceEnd) {
 		super(token, sourceStart, sourceEnd, null);
 	}

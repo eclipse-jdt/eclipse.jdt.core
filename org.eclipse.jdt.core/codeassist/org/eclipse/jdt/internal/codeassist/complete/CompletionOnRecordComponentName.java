@@ -18,7 +18,7 @@ import org.eclipse.jdt.internal.compiler.ast.RecordComponent;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 
-public class CompletionOnRecordComponentName extends RecordComponent {
+public class CompletionOnRecordComponentName extends RecordComponent implements CompletionNode {
 
 	public CompletionOnRecordComponentName(char[] name, long posNom, TypeReference tr, int modifiers) {
 		super(CharOperation.concat(name, FAKENAMESUFFIX), posNom, tr, modifiers);

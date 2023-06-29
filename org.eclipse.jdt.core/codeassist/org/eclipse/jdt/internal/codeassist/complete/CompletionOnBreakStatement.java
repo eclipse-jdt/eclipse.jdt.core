@@ -18,7 +18,7 @@ import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 
-public class CompletionOnBreakStatement extends BreakStatement {
+public class CompletionOnBreakStatement extends BreakStatement implements CompletionNode {
 
 	public char[][] possibleLabels;
 

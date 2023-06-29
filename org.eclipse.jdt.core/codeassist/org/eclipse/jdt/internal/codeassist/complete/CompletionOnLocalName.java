@@ -18,7 +18,7 @@ import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 
 
-public class CompletionOnLocalName extends LocalDeclaration {
+public class CompletionOnLocalName extends LocalDeclaration implements CompletionNode {
 	private static final char[] FAKENAMESUFFIX = " ".toCharArray(); //$NON-NLS-1$
 	public char[] realName;
 

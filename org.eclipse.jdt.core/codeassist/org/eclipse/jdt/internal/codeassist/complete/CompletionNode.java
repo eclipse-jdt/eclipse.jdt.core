@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2016 IBM Corporation and others.
+ * Copyright (c) 2023 Gayan Perera and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -9,18 +9,12 @@
  * SPDX-License-Identifier: EPL-2.0
  *
  * Contributors:
- *     IBM Corporation - initial API and implementation
- *
+ *     Gayan Perera - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist.complete;
-
-import org.eclipse.jdt.internal.compiler.CompilationResult;
-import org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration;
-
-public class CompletionOnModuleDeclaration extends ModuleDeclaration implements CompletionNode {
-
-	public CompletionOnModuleDeclaration(CompilationResult compilationResult, char[][] tokens, long[] positions) {
-		super(compilationResult, tokens, positions);
-	}
+/**
+ * Marker interface for all completion nodes
+ */
+public interface CompletionNode {
 
 }

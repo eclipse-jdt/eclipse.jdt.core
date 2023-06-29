@@ -21,7 +21,7 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
-public class CompletionOnAnnotationMemberValuePair extends NormalAnnotation {
+public class CompletionOnAnnotationMemberValuePair extends NormalAnnotation implements CompletionNode {
 	public MemberValuePair completedMemberValuePair;
 	public CompletionOnAnnotationMemberValuePair(TypeReference type, int sourceStart, MemberValuePair[] memberValuePairs, MemberValuePair completedMemberValuePair) {
 		super(type, sourceStart);
