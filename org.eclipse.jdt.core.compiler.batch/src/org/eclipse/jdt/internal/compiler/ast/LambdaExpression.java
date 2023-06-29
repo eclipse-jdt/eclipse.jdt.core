@@ -567,9 +567,6 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 					if (local != null) {
 						if (local.isParameter()) {
 							firstLocalLocal = local.id + 1;
-						} else {
-							firstLocalLocal = local.id;
-							break;
 						}
 					}
 				}
