@@ -370,6 +370,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				copy[this.deltas.length]= event.getDelta();
 				this.deltas= copy;
 				StringBuilder message = new StringBuilder();
+				Job currentJob = Job.getJobManager().currentJob();
+				if (currentJob != null) {
+					message.append(currentJob.getName()).append(' ');
+				}
 				message.append('[').append(Thread.currentThread().getName());
 				message.append("] Caller of IElementChangedListener#elementChanged with delta ");
 				message.append(event.getDelta());
