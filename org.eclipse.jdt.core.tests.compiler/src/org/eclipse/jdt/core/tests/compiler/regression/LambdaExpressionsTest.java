@@ -8250,6 +8250,72 @@ public void testBug577719_2() {
 			);
 }
 
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1162
+// Eclipse incorrectly requires catch for nested sneaky throws; OpenJDK compiles with no problem
+public void testGH1162() {
+	this.runNegativeTest(
+			new String[] {
+				"X11.java",
+				"import java.io.IOException;\n" +
+				"import java.nio.file.Path;\n" +
+				"import java.util.function.Consumer;\n" +
+				"import java.util.stream.Stream;\n" +
+				"\n" +
+				"public class X11 {\n" +
+				"\n" +
+				"	public X11 parse() throws IOException {\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"	\n" +
+				"	Stream<Path> list() throws IOException {\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"\n" +
+				"	public void foo() throws IOException {\n" +
+				"\n" +
+				"		throwingConsumer((Path barDir) -> {\n" +
+				"			try (final Stream<Path> files = list()) {\n" +
+				"				throwingConsumer((Path file) -> {\n" +
+				"					final X11 document;// = parse();\n" +
+				"					document = parse();\n" +
+				"				});\n" +
+				"			}\n" +
+				"		});\n" +
+				"	}\n" +
+				"	public void goo() throws IOException {\n" +
+				"\n" +
+				"		throwingConsumer((Path barDir) -> {\n" +
+				"			try (final Stream<Path> files = list()) {\n" +
+				"				throwingConsumer((Path file) -> {\n" +
+				"					final X11 document = parse();\n" +
+				"				});\n" +
+				"			}\n" +
+				"		});\n" +
+				"	}\n" +
+				"\n" +
+				"	public static <T, X extends Throwable> ThrowingConsumer<T, X> throwingConsumer(\n" +
+				"			final ThrowingConsumer<T, X> consumer) {\n" +
+				"		return consumer;\n" +
+				"	}\n" +
+				"}\n" +
+				"\n" +
+				"\n" +
+				"interface ThrowingConsumer<T, X extends Throwable> extends Consumer<T> {\n" +
+				"\n" +
+				"	void tryAccept(T t) throws X;\n" +
+				"\n" +
+				"	default void accept(final T t) {\n" +
+				"		tryAccept(t);\n" +
+				"	}\n" +
+				"}\n"},
+			"----------\n" +
+			"1. ERROR in X11.java (at line 50)\n" +
+			"	tryAccept(t);\n" +
+			"	^^^^^^^^^^^^\n" +
+			"Unhandled exception type X\n" +
+			"----------\n");
+}
+
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }
