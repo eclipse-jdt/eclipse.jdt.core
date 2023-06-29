@@ -369,8 +369,11 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 				System.arraycopy(this.deltas, 0, copy, 0, this.deltas.length);
 				copy[this.deltas.length]= event.getDelta();
 				this.deltas= copy;
-
-				new Throwable("Caller of IElementChangedListener#elementChanged with delta " + event.getDelta()).printStackTrace(new PrintStream(this.stackTraces));
+				StringBuilder message = new StringBuilder();
+				message.append('[').append(Thread.currentThread().getName());
+				message.append("] Caller of IElementChangedListener#elementChanged with delta ");
+				message.append(event.getDelta());
+				new Throwable(message.toString()).printStackTrace(new PrintStream(this.stackTraces));
 			}
 		}
 		public synchronized CompilationUnit getCompilationUnitAST(ICompilationUnit workingCopy) {
