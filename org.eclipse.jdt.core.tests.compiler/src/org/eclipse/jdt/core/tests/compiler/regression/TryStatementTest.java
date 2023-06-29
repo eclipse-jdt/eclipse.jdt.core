@@ -1499,6 +1499,7 @@ public void test033() throws Exception {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=124853
 public void test034() throws Exception {
+	String builder = this.complianceLevel >= ClassFileConstants.JDK1_5 ? "StringBuilder" : "StringBuffer";
 	this.runConformTest(
 			new String[] {
 				"X.java",
@@ -1506,7 +1507,7 @@ public void test034() throws Exception {
 				"	private static int scenario(){\n" +
 				"		try {\n" +
 				"			int i = 1;\n" +
-				"			System.out.print(\"[i: \" + i+\"]\");\n" +
+				"			System.out.print(new " + builder + "(\"[i: \").append(i).append(\"]\").toString());\n" +
 				"			if (i > 5) {\n" +
 				"				return i;\n" +
 				"			}\n" +
@@ -2501,6 +2502,7 @@ public void test042_not_shared() throws Exception {
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=128705 - variation
 public void test043() throws Exception {
+	String builder = this.complianceLevel >= ClassFileConstants.JDK1_5 ? "StringBuilder" : "StringBuffer";
 	this.runConformTest(
 			new String[] {
 				"X.java",
@@ -2517,13 +2519,13 @@ public void test043() throws Exception {
 				"				System.out.print(contexts);\n" +
 				"				return;\n" +
 				"			} finally {\n" +
-				"				System.out.print(\"#inner -> \" + a);\n" +
+				"				System.out.print(new " + builder + "(\"#inner -> \").append(a).toString());\n" +
 				"			}\n" +
 				"		} catch (Exception e) {\n" +
 				"			return;\n" +
 				"		} finally {\n" +
 				"			int var = 0;\n" +
-				"			System.out.println(\"#save -> \" + a);\n" +
+				"			System.out.println(new " + builder + "(\"#save -> \").append(a).toString());\n" +
 				"		}\n" +
 				"	}\n" +
 				"	public static void main(String[] args) {\n" +
@@ -4708,12 +4710,13 @@ public void test050() throws Exception {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=114894 - variation
 public void test051() throws Exception {
+	String builder = this.complianceLevel >= ClassFileConstants.JDK1_5 ? "StringBuilder" : "StringBuffer";
 	this.runConformTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" +
 				"	public static void main(String argv[]) {\n" +
-				"		System.out.println(\"[count=\" + count() + \"]\");\n" +
+				"		System.out.print(new " + builder + "(\"[count=\").append(count()).append(\"]\").toString());\n" +
 				"	}\n" +
 				"	static int count() {\n" +
 				"		int count = 0;\n" +

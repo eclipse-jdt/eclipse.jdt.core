@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2022 IBM Corporation and others.
+ * Copyright (c) 2000, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -118,6 +118,8 @@ public interface TypeConstants {
     char[] UPPER_MODULE = "MODULE".toCharArray(); //$NON-NLS-1$
     char[] UPPER_RECORD_COMPONENT = "RECORD_COMPONENT".toCharArray(); //$NON-NLS-1$
     char[] YIELD = "yield".toCharArray(); //$NON-NLS-1$
+    // Duplicated since java.lang.invoke.StringConcatFactory.TAG_ARG isn't public
+    char[] STRING_CONCAT_MARKER_1 = new char[] {'\u0001'};
 
     // JEP 286
 	char[] VAR = "var".toCharArray(); //$NON-NLS-1$
@@ -248,6 +250,7 @@ public interface TypeConstants {
 	char[][] JAVA_LANG_INVOKE_METHODHANDLES = {JAVA, LANG, INVOKE, "MethodHandles".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_INVOKE_METHODHANDLE = {JAVA, LANG, INVOKE, "MethodHandle".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_INVOKE_VARHANDLE = {JAVA, LANG, INVOKE, "VarHandle".toCharArray()}; //$NON-NLS-1$
+	char[][] JAVA_LANG_INVOKE_STRING_CONCAT_FACTORY = {JAVA, LANG, INVOKE, "StringConcatFactory".toCharArray()}; //$NON-NLS-1$
 
 	char[][] JAVA_LANG_AUTOCLOSEABLE =  {JAVA, LANG, "AutoCloseable".toCharArray()}; //$NON-NLS-1$
 	char[] CLOSE = "close".toCharArray(); //$NON-NLS-1$
