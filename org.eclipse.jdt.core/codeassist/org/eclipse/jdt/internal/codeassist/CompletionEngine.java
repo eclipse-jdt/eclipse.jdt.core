@@ -3670,7 +3670,8 @@ public final class CompletionEngine
 						null,
 						null,
 						false, 
-						constructorsFound);
+						constructorsFound,
+						false);
 			}
 
 			checkCancel();
@@ -5954,7 +5955,7 @@ public final class CompletionEngine
 			InvocationSite invocationSite, boolean forAnonymousType, Binding[] missingElements,
 			int[] missingElementsStarts, int[] missingElementsEnds, boolean missingElementsHaveProblems) {
 		findConstructors(currentType, argTypes, scope, invocationSite, forAnonymousType, missingElements,
-				missingElementsStarts, missingElementsEnds, missingElementsHaveProblems, new ObjectVector());
+				missingElementsStarts, missingElementsEnds, missingElementsHaveProblems, new ObjectVector(), false);
 	}
 
 	void findConstructors(
@@ -5967,7 +5968,8 @@ public final class CompletionEngine
 		int[] missingElementsStarts,
 		int[] missingElementsEnds,
 		boolean missingElementsHaveProblems, 
-		ObjectVector foundConstructors) {
+		ObjectVector foundConstructors,
+		boolean noCollection) {
 
 		int relevance = computeBaseRelevance();
 		relevance += computeRelevanceForResolution();
@@ -5991,7 +5993,8 @@ public final class CompletionEngine
 				true,
 				false,
 				relevance, 
-				foundConstructors);
+				foundConstructors,
+				noCollection);
 	}
 
 
@@ -6054,7 +6057,7 @@ public final class CompletionEngine
 			boolean exactMatch, boolean isQualified, int relevance) {
 		findConstructors(currentType, argTypes, scope, invocationSite, forAnonymousType, missingElements,
 				missingElementsStarts, missingElementsEnds, missingElementsHaveProblems, exactMatch, isQualified,
-				relevance, new ObjectVector());
+				relevance, new ObjectVector(), false);
 	}
 
 	private void findConstructors(
@@ -6070,7 +6073,8 @@ public final class CompletionEngine
 		boolean exactMatch,
 		boolean isQualified,
 		int relevance, 
-		ObjectVector constructorsFound) {
+		ObjectVector constructorsFound,
+		boolean noCollection) {
 
 		// No visibility checks can be performed without the scope & invocationSite
 		MethodBinding[] methods = null;
@@ -6120,7 +6124,11 @@ public final class CompletionEngine
 								continue next;
 						}
 
-					constructorsFound.add(new Object[]{constructor, currentType});
+					constructorsFound.add(new Object[] { constructor, currentType });
+					if (noCollection) {
+						continue next;
+					}
+
 					char[][] parameterPackageNames = new char[paramLength][];
 					char[][] parameterTypeNames = new char[paramLength][];
 					for (int i = 0; i < paramLength; i++) {
@@ -9843,8 +9851,8 @@ public final class CompletionEngine
 		} else if (this.parser.assistNodeParent instanceof AllocationExpression ae) {
 			arguments = ae.arguments;
 			if (ae.type != null && ae.type.resolvedType instanceof ReferenceBinding rb) {
-				findConstructors(rb, computeTypes(arguments), scope, ae, false, null, null, null, false,
-						methodsFound);
+				findConstructors(rb, computeTypes(arguments), scope, ae, false, null, null, null, false, methodsFound,
+						true);
 			}
 			candidates = StreamSupport.stream(methodsFound.spliterator(), false).filter(Objects::nonNull)
 					.filter(o -> o instanceof Object[]).map(o -> (Object[]) o).map(o -> o[0])
