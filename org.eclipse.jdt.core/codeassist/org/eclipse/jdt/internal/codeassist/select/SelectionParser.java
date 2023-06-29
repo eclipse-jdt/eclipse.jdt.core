@@ -801,7 +801,7 @@ protected void consumeCaseLabelElement(CaseLabelKind kind) {
 	super.consumeCaseLabelElement(kind);
 	switch (kind) {
 		case CASE_PATTERN: {
-			ASTNode[] ps = this.patternStack;
+			ASTNode[] ps = this.astStack;
 			if (ps[0] instanceof RecordPattern) {
 				pushLocalVariableFromRecordPatternOnAstStack((RecordPattern) ps[0]);
 			}
@@ -833,10 +833,9 @@ private void pushLocalVariableFromRecordPatternOnAstStack(RecordPattern rp) {
 
 @Override
 protected void consumeInstanceOfExpressionWithName() {
-	int length = this.patternLengthPtr >= 0 ?
-			this.patternLengthStack[this.patternLengthPtr--] : 0;
+	int length = this.astLengthStack[this.astLengthPtr--];
 	if (length > 0) {
-		Pattern pattern = (Pattern) this.patternStack[this.patternPtr--];
+		Pattern pattern = (Pattern) this.astStack[this.astPtr--];
 		pushOnExpressionStack(getUnspecifiedReferenceOptimized());
 		if (this.expressionStack[this.expressionPtr] != this.assistNode) {
 			// Push only when the selection node is not the expression of this

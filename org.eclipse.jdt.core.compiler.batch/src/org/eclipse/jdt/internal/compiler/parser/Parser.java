@@ -858,11 +858,6 @@ public class Parser implements TerminalTokens, ParserBasicInformation, Conflicte
 	protected int astPtr;
 	protected ASTNode[] astStack = new ASTNode[AstStackIncrement];
 
-	protected int patternLengthPtr;
-
-	protected int[] patternLengthStack;
-	protected int patternPtr;
-	protected ASTNode[] patternStack = new ASTNode[AstStackIncrement];
 	public CompilationUnitDeclaration compilationUnit; /*the result from parse()*/
 
 	protected RecoveredElement currentElement;
@@ -1021,7 +1016,6 @@ public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals) {
 	this.parsingJava18Plus = this.options.sourceLevel >= ClassFileConstants.JDK18;
 	this.previewEnabled = this.options.sourceLevel == ClassFileConstants.getLatestJDKLevel() && this.options.enablePreviewFeatures;
 	this.astLengthStack = new int[50];
-	this.patternLengthStack = new int[20];
 	this.expressionLengthStack = new int[30];
 	this.typeAnnotationLengthStack = new int[30];
 	this.intStack = new int[50];
@@ -4591,12 +4585,11 @@ protected void consumeInsideCastExpressionWithQualifiedGenerics() {
 	// InsideCastExpressionWithQualifiedGenerics ::= $empty
 }
 protected void consumeInstanceOfExpression() {
-	int length = this.patternLengthPtr >= 0 ?
-			this.patternLengthStack[this.patternLengthPtr--] : 0;
+	int length = this.astLengthStack[this.astLengthPtr--];
 	Expression exp;
 	// consume annotations
 	if (length > 0) {
-		Pattern pattern = (Pattern) this.patternStack[this.patternPtr--];
+		Pattern pattern = (Pattern) this.astStack[this.astPtr--];
 		exp = consumePatternInsideInstanceof(pattern);
 	} else {
 		TypeReference typeRef = (TypeReference) this.expressionStack[this.expressionPtr--];
@@ -4661,11 +4654,9 @@ protected void consumeInstanceOfRHS() {
 }
 protected void consumeInstanceOfClassic() {
 	consumeTypeReferenceWithModifiersAndAnnotations();
+	pushOnAstLengthStack(0);
 }
 protected void consumeInstanceofPattern() {
-	this.astLengthPtr--;
-	Pattern pattern = (Pattern) this.astStack[this.astPtr--];
-	pushOnPatternStack(pattern);
 	// Only if we are not inside a block
 	if (this.realBlockPtr != -1)
 		blockReal();
@@ -4688,11 +4679,10 @@ protected void consumeInstanceOfExpressionWithName() {
 	// RelationalExpression_NotName ::= Name instanceof ReferenceType
 	//optimize the push/pop
 
-	int length = this.patternLengthPtr >= 0 ?
-			this.patternLengthStack[this.patternLengthPtr--] : 0;
+	int length = this.astLengthStack[this.astLengthPtr--];
 	Expression exp;
 	if (length != 0) {
-		Pattern pattern = (Pattern) this.patternStack[this.patternPtr--];
+		Pattern pattern = (Pattern) this.astStack[this.astPtr--];
 		pushOnExpressionStack(getUnspecifiedReferenceOptimized());
 		exp = consumePatternInsideInstanceof(pattern);
 	} else {
@@ -12647,8 +12637,6 @@ public void initialize(boolean parsingCompilationUnit) {
 	this.javadoc = null;
 	this.astPtr = -1;
 	this.astLengthPtr = -1;
-	this.patternPtr = -1;
-	this.patternLengthPtr = -1;
 	this.expressionPtr = -1;
 	this.expressionLengthPtr = -1;
 	this.typeAnnotationLengthPtr = -1;
@@ -13936,29 +13924,7 @@ protected void pushOnAstLengthStack(int pos) {
 	}
 	this.astLengthStack[this.astLengthPtr] = pos;
 }
-protected void pushOnPatternStack(ASTNode pattern) {
-	/*add a new obj on top of the ast stack
-	astPtr points on the top*/
 
-	int stackLength = this.patternStack.length;
-	if (++this.patternPtr >= stackLength) {
-		System.arraycopy(
-			this.patternStack, 0,
-			this.patternStack = new ASTNode[stackLength + AstStackIncrement], 0,
-			stackLength);
-		this.patternPtr = stackLength;
-	}
-	this.patternStack[this.patternPtr] = pattern;
-
-	stackLength = this.patternLengthStack.length;
-	if (++this.patternLengthPtr >= stackLength) {
-		System.arraycopy(
-			this.patternLengthStack, 0,
-			this.patternLengthStack = new int[stackLength + AstStackIncrement], 0,
-			stackLength);
-	}
-	this.patternLengthStack[this.patternLengthPtr] = 1;
-}
 protected void pushOnAstStack(ASTNode node) {
 	/*add a new obj on top of the ast stack
 	astPtr points on the top*/
@@ -14469,8 +14435,6 @@ protected void resetStacks() {
 
 	this.astPtr = -1;
 	this.astLengthPtr = -1;
-	this.patternPtr = -1;
-	this.patternLengthPtr = -1;
 	this.expressionPtr = -1;
 	this.expressionLengthPtr = -1;
 	this.typeAnnotationLengthPtr = -1;
@@ -14710,8 +14674,6 @@ public void copyState(Parser from) {
 	this.identifierLengthPtr = parser.identifierLengthPtr;
 	this.astPtr = parser.astPtr;
 	this.astLengthPtr = parser.astLengthPtr;
-	this.patternPtr = parser.patternPtr;
-	this.patternLengthPtr = parser.patternLengthPtr;
 	this.expressionPtr = parser.expressionPtr;
 	this.expressionLengthPtr = parser.expressionLengthPtr;
 	this.genericsPtr = parser.genericsPtr;
