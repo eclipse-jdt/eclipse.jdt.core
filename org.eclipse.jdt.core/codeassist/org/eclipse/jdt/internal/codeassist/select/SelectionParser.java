@@ -833,8 +833,9 @@ private void pushLocalVariableFromRecordPatternOnAstStack(RecordPattern rp) {
 
 @Override
 protected void consumeInstanceOfExpressionWithName() {
-	int length = this.astLengthStack[this.astLengthPtr--];
+	int length = this.astLengthStack[this.astLengthPtr];
 	if (length > 0) {
+		this.astLengthPtr--;
 		Pattern pattern = (Pattern) this.astStack[this.astPtr--];
 		pushOnExpressionStack(getUnspecifiedReferenceOptimized());
 		if (this.expressionStack[this.expressionPtr] != this.assistNode) {
