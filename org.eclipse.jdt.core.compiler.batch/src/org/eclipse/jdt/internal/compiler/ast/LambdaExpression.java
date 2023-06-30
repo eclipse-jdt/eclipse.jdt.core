@@ -138,6 +138,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 	public InferenceContext18 inferenceContext; // when performing tentative resolve keep a back reference to the driving context
 	private Map<Integer/*sourceStart*/, LocalTypeBinding> localTypes; // support look-up of a local type from this lambda copy
 	public boolean argumentsTypeVar = false;
+	int firstLocalLocal; // analysis index of first local variable (if any) post parameter(s) in the lambda; ("local local" as opposed to "outer local")
 
 
 	public LambdaExpression(CompilationResult compilationResult, boolean assistNode, boolean requiresGenericSignature) {
@@ -461,6 +462,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 
 		this.binding.modifiers &= ~ExtraCompilerModifiers.AccUnresolved;
 
+		this.firstLocalLocal = this.scope.outerMostMethodScope().analysisIndex;
 		if (this.body instanceof Expression && ((Expression) this.body).isTrulyExpression()) {
 			Expression expression = (Expression) this.body;
 			new ReturnStatement(expression, expression.sourceStart, expression.sourceEnd, true).resolve(this.scope); // :-) ;-)
@@ -560,20 +562,9 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		boolean oldAnalyseResources = compilerOptions.analyseResourceLeaks;
 		compilerOptions.analyseResourceLeaks = false;
 		try {
-			int firstLocalLocal = this.scope.outerMostMethodScope().analysisIndex;
-			LocalVariableBinding[] locals = this.scope.locals;
-			if (locals != null) {
-				for (LocalVariableBinding local : locals) {
-					if (local != null) {
-						if (local.isParameter()) {
-							firstLocalLocal = local.id + 1;
-						}
-					}
-				}
-			}
 			this.body.analyseCode(this.scope,
 									 ehfc = new ExceptionInferenceFlowContext(null, this, Binding.NO_EXCEPTIONS, null, this.scope, FlowInfo.DEAD_END),
-									 UnconditionalFlowInfo.fakeInitializedFlowInfo(firstLocalLocal, this.scope.referenceType().maxFieldCount));
+									 UnconditionalFlowInfo.fakeInitializedFlowInfo(this.firstLocalLocal, this.scope.referenceType().maxFieldCount));
 			this.thrownExceptions = ehfc.extendedExceptions == null ? Collections.emptySet() : new HashSet<TypeBinding>(ehfc.extendedExceptions);
 		} catch (Exception e) {
 			// drop silently.
