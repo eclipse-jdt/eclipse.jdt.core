@@ -5089,12 +5089,11 @@ protected boolean mayBeAtGuard(int token) {
 	/*
 	 * A simple elimination optimization for some common possible cases. According to the JLS 19 including
 	 * patterns-switch and record-patterns Section 14.30.1, a guard may only be preceded by either right parentheses or
-	 * an identifier. However, we may still encounter comments, whitespace or the not-a-token token.
+	 * an identifier. However, we may still encounter comments or whitespace, but those are not pushed to the lookBack.
 	 */
 	switch (this.lookBack[1]) {
 		case TokenNameRPAREN:
 		case TokenNameIdentifier:
-		case TokenNameNotAToken: // TODO is this useful? Some tests start scanning at "when", but this makes no sense as a Pattern is required by the JLS
 			return true;
 	}
 	return false;
