@@ -1162,7 +1162,7 @@ public PlainPackageBinding createPlainPackage(char[][] compoundName) {
 				// parent.getPackage0() may have been too shy, so drill into the split:
 				packageBinding = singleParent.getPackage0(compoundName[i]);
 			}
-			if (packageBinding == null) {
+			if (packageBinding == null || packageBinding == TheNotFoundPackage) {
 				packageBinding = this.module.createDeclaredPackage(CharOperation.subarray(compoundName, 0, i + 1), parent);
 				packageBinding = parent.addPackage(packageBinding, this.module);
 			}

@@ -403,11 +403,11 @@ void initialize(boolean reuseExistingFile) throws IOException {
 			}
 			this.streamBuffer = new byte[BUFFER_READ_SIZE];
 			this.bufferIndex = 0;
-			this.bufferEnd = stream.read(this.streamBuffer, 0, 128);
 			try {
+				this.bufferEnd = stream.read(this.streamBuffer, 0, 128);
 				char[] signature = readStreamChars(stream);
 				if (!CharOperation.equals(signature, SIGNATURE_CHARS)) {
-					throw new IOException(Messages.exception_wrongFormat);
+					throw new IOException(NLS.bind(Messages.exception_wrongFormat, String.valueOf(signature), SIGNATURE));
 				}
 				this.headerInfoOffset = readStreamInt(stream);
 				if (this.headerInfoOffset > 0) { // file is empty if its not set

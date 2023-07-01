@@ -30,7 +30,6 @@ import java.util.zip.ZipFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaElement;
@@ -177,9 +176,9 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 				children[index++] = getPackageFragment(pkgName);
 			}
 		} catch (CoreException e) {
-			if (e.getCause() instanceof ZipException) {
+			if (e.getCause() instanceof ZipException zipex) {
 				// not a ZIP archive, leave the children empty
-				Util.log(IStatus.ERROR, "Invalid ZIP archive: " + toStringWithAncestors()); //$NON-NLS-1$
+				Util.log(zipex, "Invalid ZIP archive: " + toStringWithAncestors()); //$NON-NLS-1$
 				children = NO_ELEMENTS;
 			} else if (e instanceof JavaModelException) {
 				throw (JavaModelException)e;

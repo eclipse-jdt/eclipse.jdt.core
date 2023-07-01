@@ -173,7 +173,9 @@ public FlowInfo analyseAssignment(BlockScope currentScope, FlowContext flowConte
 				}
 			}
 			else /* avoid double diagnostic */ if ((localBinding.tagBits & TagBits.IsArgument) != 0) {
-				currentScope.problemReporter().parameterAssignment(localBinding, this);
+				MethodBinding owner = localBinding.getEnclosingMethod();
+				if (owner == null /*lambda */ || !owner.isCompactConstructor())
+					currentScope.problemReporter().parameterAssignment(localBinding, this);
 			}
 			flowInfo.markAsDefinitelyAssigned(localBinding);
 	}

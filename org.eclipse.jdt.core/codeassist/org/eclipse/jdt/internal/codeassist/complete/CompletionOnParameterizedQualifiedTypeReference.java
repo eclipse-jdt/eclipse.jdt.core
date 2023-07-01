@@ -36,7 +36,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 
-public class CompletionOnParameterizedQualifiedTypeReference extends ParameterizedQualifiedTypeReference {
+public class CompletionOnParameterizedQualifiedTypeReference extends ParameterizedQualifiedTypeReference implements CompletionNode {
 	public static final int K_TYPE = 0;
 	public static final int K_CLASS = 1;
 	public static final int K_INTERFACE = 2;

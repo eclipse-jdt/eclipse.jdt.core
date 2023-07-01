@@ -19,7 +19,7 @@
     <relativePath>../tests-pom/</relativePath>
   </parent>
   <artifactId>org.eclipse.jdt.core.tests.model</artifactId>
-  <version>3.12.50-SNAPSHOT</version>
+  <version>3.12.100-SNAPSHOT</version>
   <packaging>eclipse-test-plugin</packaging>
 
   <properties>
@@ -34,13 +34,13 @@
       	<artifactId>tycho-surefire-plugin</artifactId>
       	<version>${tycho.version}</version>
       	<configuration>
-      	  <argLine>-Xmx1G -Djdt.default.test.compliance=1.8 ${tycho.surefire.argLine}</argLine>
+      	  <argLine>-Xmx1G -Djdt.default.test.compliance=1.8 -DDetectVMInstallationsJob.disabled=true ${tycho.surefire.argLine}</argLine>
       	  <includes>
       	  	<include>org/eclipse/jdt/core/tests/model/AllJavaModelTestsTracing.class</include>
       	  	<include>org/eclipse/jdt/core/tests/dom/RunAllTestsTracing.class</include>
       	  	<include>org/eclipse/jdt/core/tests/RunFormatterTests.class</include>
       	  </includes>
-      	</configuration>
+         </configuration>
       </plugin>
     </plugins>
   </build>

@@ -3924,59 +3924,57 @@ public class PatternMatching16Test extends AbstractRegressionTest {
     			"    public static void main(String[] args) {" +
     			"        @Var @Type String y = \"OK: \";\n" +
     			"        if (((Object)\"local\") instanceof @Var @Type String x) {\n" +
-    			"            System.out.println(y + x);\n" +
+    			"            System.out.println(new StringBuilder(y).append(x));\n" +
     			"        }\n" +
     		    "    }\n" +
     			"}";
-    	String expectedOutput =  "  public static void main(String[] args);\n" +
-    					"     0  ldc <String \"OK: \"> [16]\n" +
-    					"     2  astore_1 [y]\n" +
-    					"     3  ldc <String \"local\"> [18]\n" +
-    					"     5  astore 4\n" +
-    					"     7  aload 4\n" +
-    					"     9  instanceof String [20]\n" +
-    					"    12  ifeq 52\n" +
-    					"    15  aload 4\n" +
-    					"    17  checkcast String [20]\n" +
-    					"    20  dup\n" +
-    					"    21  astore_2\n" +
-    					"    22  aload 4\n" +
-    					"    24  checkcast String [20]\n" +
-    					"    27  pop2\n" +
-    					"    28  getstatic System.out : PrintStream [22]\n" +
-    					"    31  new StringBuilder [28]\n" +
-    					"    34  dup\n" +
-    					"    35  aload_1 [y]\n" +
-    					"    36  invokestatic String.valueOf(Object) : String [30]\n" +
-    					"    39  invokespecial StringBuilder(String) [34]\n" +
-    					"    42  aload_2 [x]\n" +
-    					"    43  invokevirtual StringBuilder.append(String) : StringBuilder [37]\n" +
-    					"    46  invokevirtual StringBuilder.toString() : String [41]\n" +
-    					"    49  invokevirtual PrintStream.println(String) : void [45]\n" +
-    					"    52  return\n" +
-    					"      Line numbers:\n" +
-    					"        [pc: 0, line: 13]\n" +
-    					"        [pc: 3, line: 14]\n" +
-    					"        [pc: 28, line: 15]\n" +
-    					"        [pc: 52, line: 17]\n" +
-    					"      Local variable table:\n" +
-    					"        [pc: 0, pc: 53] local: args index: 0 type: String[]\n" +
-    					"        [pc: 3, pc: 53] local: y index: 1 type: String\n" +
-    					"        [pc: 28, pc: 52] local: x index: 2 type: String\n" +
-    					"      Stack map table: number of frames 1\n" +
-    					"        [pc: 52, append: {String}]\n" +
-    					"    RuntimeVisibleTypeAnnotations: \n" +
-    					"      #57 @Type(\n" +
-    					"        target type = 0x40 LOCAL_VARIABLE\n" +
-    					"        local variable entries:\n" +
-    					"          [pc: 3, pc: 53] index: 1\n" +
-    					"      )\n" +
-    					"      #57 @Type(\n" +
-    					"        target type = 0x40 LOCAL_VARIABLE\n" +
-    					"        local variable entries:\n" +
-    					"          [pc: 28, pc: 52] index: 2\n" +
-    					"      )\n" +
-    					"\n";
+    	String expectedOutput =  "  // Stack: 4, Locals: 5\n" +
+    			"  public static void main(String[] args);\n" +
+    			"     0  ldc <String \"OK: \"> [16]\n" +
+    			"     2  astore_1 [y]\n" +
+    			"     3  ldc <String \"local\"> [18]\n" +
+    			"     5  astore 4\n" +
+    			"     7  aload 4\n" +
+    			"     9  instanceof String [20]\n" +
+    			"    12  ifeq 46\n" +
+    			"    15  aload 4\n" +
+    			"    17  checkcast String [20]\n" +
+    			"    20  dup\n" +
+    			"    21  astore_2\n" +
+    			"    22  aload 4\n" +
+    			"    24  checkcast String [20]\n" +
+    			"    27  pop2\n" +
+    			"    28  getstatic System.out : PrintStream [22]\n" +
+    			"    31  new StringBuilder [28]\n" +
+    			"    34  dup\n" +
+    			"    35  aload_1 [y]\n" +
+    			"    36  invokespecial StringBuilder(String) [30]\n" +
+    			"    39  aload_2 [x]\n" +
+    			"    40  invokevirtual StringBuilder.append(String) : StringBuilder [33]\n" +
+    			"    43  invokevirtual PrintStream.println(Object) : void [37]\n" +
+    			"    46  return\n" +
+    			"      Line numbers:\n" +
+    			"        [pc: 0, line: 13]\n" +
+    			"        [pc: 3, line: 14]\n" +
+    			"        [pc: 28, line: 15]\n" +
+    			"        [pc: 46, line: 17]\n" +
+    			"      Local variable table:\n" +
+    			"        [pc: 0, pc: 47] local: args index: 0 type: String[]\n" +
+    			"        [pc: 3, pc: 47] local: y index: 1 type: String\n" +
+    			"        [pc: 28, pc: 46] local: x index: 2 type: String\n" +
+    			"      Stack map table: number of frames 1\n" +
+    			"        [pc: 46, append: {String}]\n" +
+    			"    RuntimeVisibleTypeAnnotations: \n" +
+    			"      #50 @Type(\n" +
+    			"        target type = 0x40 LOCAL_VARIABLE\n" +
+    			"        local variable entries:\n" +
+    			"          [pc: 3, pc: 47] index: 1\n" +
+    			"      )\n" +
+    			"      #50 @Type(\n" +
+    			"        target type = 0x40 LOCAL_VARIABLE\n" +
+    			"        local variable entries:\n" +
+    			"          [pc: 28, pc: 46] index: 2\n" +
+    			"      )\n";
     	checkClassFile("Test", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
         runConformTest(
                 new String[] {

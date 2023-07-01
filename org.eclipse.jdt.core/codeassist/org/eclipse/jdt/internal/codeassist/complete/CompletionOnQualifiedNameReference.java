@@ -39,7 +39,7 @@ package org.eclipse.jdt.internal.codeassist.complete;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
-public class CompletionOnQualifiedNameReference extends QualifiedNameReference {
+public class CompletionOnQualifiedNameReference extends QualifiedNameReference implements CompletionNode {
 	public char[] completionIdentifier;
 	public boolean isInsideAnnotationAttribute;
 public CompletionOnQualifiedNameReference(char[][] previousIdentifiers, char[] completionIdentifier, long[] positions, boolean isInsideAnnotationAttribute) {

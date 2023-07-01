@@ -264,7 +264,7 @@ public char[][] listPackages() {
 	try {
 		this.binaryFolder.accept(r -> {
 			String extension = r.getFileExtension();
-			if (r instanceof IFile && extension != null && SuffixConstants.EXTENSION_class.equals(extension.toLowerCase())) {
+			if (r instanceof IFile && extension != null && SuffixConstants.EXTENSION_class.equalsIgnoreCase(extension)) {
 				packageNames.add(r.getParent().getFullPath().makeRelativeTo(basePath).toString().replace('/', '.'));
 			}
 			return true;

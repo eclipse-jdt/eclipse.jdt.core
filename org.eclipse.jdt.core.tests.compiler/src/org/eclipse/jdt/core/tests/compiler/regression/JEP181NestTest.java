@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 @SuppressWarnings({ "rawtypes" })
@@ -431,8 +432,13 @@ public void testBug535918_001b() throws Exception {
 
 	String expectedPartialOutput = "getstatic pack1.X$Y.priv_int";
 	verifyClassFile(expectedPartialOutput, "pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
-	expectedPartialOutput = "Nest Members:\n" +
-			"   #50 pack1/X$Y\n";
+	expectedPartialOutput =
+			(this.complianceLevel < ClassFileConstants.JDK9 ?
+					"Nest Members:\n" +
+					"   #50 pack1/X$Y\n"
+				:
+					"Nest Members:\n" +
+					"   #40 pack1/X$Y\n");
 	verifyClassFile(expectedPartialOutput, "pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	expectedPartialOutput = "Nest Host: #25 pack1/X\n";
 	verifyClassFile(expectedPartialOutput, "pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
@@ -548,9 +554,14 @@ public void testBug535918_003a() throws Exception {
 	String XFile = getClassFileContents("pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
 	String XZFile = getClassFileContents("pack1/X$Z.class", ClassFileBytesDisassembler.SYSTEM);
-	String partialOutput = "Nest Members:\n" +
+	String partialOutput = (this.complianceLevel < ClassFileConstants.JDK9 ?
+			"Nest Members:\n" +
 			"   #55 pack1/X$Y,\n" +
-			"   #17 pack1/X$Z";
+			"   #17 pack1/X$Z"
+		:
+			"Nest Members:\n"
+			+ "   #59 pack1/X$Y,\n"
+			+ "   #17 pack1/X$Z");
 	verifyOutputPositive(XFile, partialOutput);
 	verifyOutputPositive(XYFile, "Nest Host: #22 pack1/X");
 	verifyOutputPositive(XZFile, "Nest Host: #26 pack1/X");
@@ -594,9 +605,14 @@ public void testBug535918_003b() throws Exception {
 	String XFile = getClassFileContents("pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
 	String XZFile = getClassFileContents("pack1/X$Z.class", ClassFileBytesDisassembler.SYSTEM);
-	String partialOutput = "Nest Members:\n" +
+	String partialOutput = (this.complianceLevel < ClassFileConstants.JDK9 ?
+			"Nest Members:\n" +
 			"   #55 pack1/X$Y,\n" +
-			"   #17 pack1/X$Z";
+			"   #17 pack1/X$Z"
+		:
+			"Nest Members:\n"
+			+ "   #59 pack1/X$Y,\n"
+			+ "   #17 pack1/X$Z");
 	verifyOutputPositive(XFile, partialOutput);
 	verifyOutputPositive(XYFile, "Nest Host: #21 pack1/X");
 	verifyOutputPositive(XZFile, "Nest Host: #29 pack1/X");
@@ -640,9 +656,14 @@ public void testBug535918_003c() throws Exception {
 	String XFile = getClassFileContents("pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
 	String XZFile = getClassFileContents("pack1/X$Z.class", ClassFileBytesDisassembler.SYSTEM);
-	String partialOutput = "Nest Members:\n" +
+	String partialOutput = (this.complianceLevel < ClassFileConstants.JDK9 ?
+			"Nest Members:\n" +
 			"   #55 pack1/X$Y,\n" +
-			"   #17 pack1/X$Z";
+			"   #17 pack1/X$Z"
+		:
+			"Nest Members:\n"
+			+ "   #59 pack1/X$Y,\n"
+			+ "   #17 pack1/X$Z");
 	verifyOutputPositive(XFile, partialOutput);
 	verifyOutputPositive(XYFile, "Nest Host: #21 pack1/X");
 	verifyOutputPositive(XZFile, "Nest Host: #27 pack1/X");
@@ -686,9 +707,14 @@ public void testBug535918_003d() throws Exception {
 	String XFile = getClassFileContents("pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
 	String XZFile = getClassFileContents("pack1/X$Z.class", ClassFileBytesDisassembler.SYSTEM);
-	String partialOutput = "Nest Members:\n" +
+	String partialOutput = (this.complianceLevel < ClassFileConstants.JDK9 ?
+			"Nest Members:\n" +
 			"   #55 pack1/X$Y,\n" +
-			"   #17 pack1/X$Z";
+			"   #17 pack1/X$Z"
+		:
+			"Nest Members:\n"
+			+ "   #59 pack1/X$Y,\n"
+			+ "   #17 pack1/X$Z");
 	verifyOutputPositive(XFile, partialOutput);
 	verifyOutputPositive(XYFile, "Nest Host: #22 pack1/X");
 	verifyOutputPositive(XZFile, "Nest Host: #24 pack1/X");
@@ -733,9 +759,14 @@ public void testBug535918_003e() throws Exception {
 	String XFile = getClassFileContents("pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
 	String XZFile = getClassFileContents("pack1/X$Z.class", ClassFileBytesDisassembler.SYSTEM);
-	String partialOutput = "Nest Members:\n" +
+	String partialOutput = (this.complianceLevel < ClassFileConstants.JDK9 ?
+			"Nest Members:\n" +
 			"   #55 pack1/X$Y,\n" +
-			"   #17 pack1/X$Z";
+			"   #17 pack1/X$Z"
+		:
+			"Nest Members:\n"
+			+ "   #59 pack1/X$Y,\n"
+			+ "   #17 pack1/X$Z");
 	verifyOutputPositive(XFile, partialOutput);
 	verifyOutputPositive(XYFile, "Nest Host: #21 pack1/X");
 	verifyOutputPositive(XZFile, "Nest Host: #26 pack1/X");
@@ -779,9 +810,14 @@ public void testBug535918_003f() throws Exception {
 	String XFile = getClassFileContents("pack1/X.class", ClassFileBytesDisassembler.SYSTEM);
 	String XYFile = getClassFileContents("pack1/X$Y.class", ClassFileBytesDisassembler.SYSTEM);
 	String XZFile = getClassFileContents("pack1/X$Z.class", ClassFileBytesDisassembler.SYSTEM);
-	String partialOutput = "Nest Members:\n" +
-			"   #56 pack1/X$Y,\n" +
-			"   #16 pack1/X$Z";
+	String partialOutput = (this.complianceLevel < ClassFileConstants.JDK9 ?
+			"Nest Members:\n" +
+			"   #55 pack1/X$Y,\n" +
+			"   #17 pack1/X$Z"
+		:
+			"Nest Members:\n"
+			+ "   #60 pack1/X$Y,\n"
+			+ "   #16 pack1/X$Z");
 	verifyOutputPositive(XFile, partialOutput);
 	verifyOutputPositive(XYFile, "Nest Host: #21 pack1/X");
 	verifyOutputPositive(XZFile, "Nest Host: #24 pack1/X");

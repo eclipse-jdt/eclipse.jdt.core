@@ -37,7 +37,7 @@ package org.eclipse.jdt.internal.codeassist.complete;
 
 import org.eclipse.jdt.internal.compiler.ast.*;
 
-public class CompletionOnImportReference extends ImportReference {
+public class CompletionOnImportReference extends ImportReference implements CompletionNode {
 
 public CompletionOnImportReference(char[][] tokens , long[] positions, int modifiers) {
 	super(tokens, positions, false, modifiers);

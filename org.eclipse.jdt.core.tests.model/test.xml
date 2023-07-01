@@ -43,7 +43,7 @@
     <ant target="core-test" antfile="${library-file}" dir="${eclipse-home}">
       <!-- Use a subdir 'data' so that the JCL jars are put in jdt-model-folder and are deleted at the end of the tests. -->
       <property name="data-dir" value="${jdt-model-folder}/data"/>
-      <property name="vmargs" value="-Xmx800M -XX:+HeapDumpOnOutOfMemoryError -DstoreMemory=jdtcoremodel_mem_trace,dir=${basedir}/../.. -Djdt.default.test.compliance=1.8"/>
+      <property name="vmargs" value="-Xmx800M -XX:+HeapDumpOnOutOfMemoryError -DDetectVMInstallationsJob.disabled=true -DstoreMemory=jdtcoremodel_mem_trace,dir=${basedir}/../.. -Djdt.default.test.compliance=1.8"/>
       <property name="plugin-name" value="${plugin-name}"/>
       <property name="classname" 
                 value="org.eclipse.jdt.core.tests.model.AllJavaModelTests"/>
@@ -56,7 +56,7 @@
     <ant target="core-test" antfile="${library-file}" dir="${eclipse-home}">
 	  <!-- Use a subdir 'data' so that the JCL jars are put in jdt-model-folder and are deleted at the end of the tests. -->
       <property name="data-dir" value="${jdt-dom-folder}/data"/>
-      <property name="vmargs" value="-Djdt.default.test.compliance=1.8"/>
+      <property name="vmargs" value="-DDetectVMInstallationsJob.disabled=true -Djdt.default.test.compliance=1.8"/>
       <property name="plugin-name" value="${plugin-name}"/>
       <property name="classname" 
                 value="org.eclipse.jdt.core.tests.dom.RunAllTests"/>
@@ -68,7 +68,7 @@
     <delete dir="${formatter-folder}" quiet="true"/>
     <ant target="core-test" antfile="${library-file}" dir="${eclipse-home}">
       <property name="data-dir" value="${formatter-folder}"/>
-      <property name="vmargs" value="-Djdt.default.test.compliance=1.8"/>
+      <property name="vmargs" value="-DDetectVMInstallationsJob.disabled=true -Djdt.default.test.compliance=1.8"/>
       <property name="plugin-name" value="${plugin-name}"/>
       <property name="classname" 
                 value="org.eclipse.jdt.core.tests.RunFormatterTests"/>

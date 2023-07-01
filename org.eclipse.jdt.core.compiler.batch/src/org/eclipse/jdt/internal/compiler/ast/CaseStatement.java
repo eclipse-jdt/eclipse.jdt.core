@@ -204,7 +204,7 @@ public static class ResolvedCase {
 		this.t= t;
 		this.index = index;
 		if (c.typeID() == TypeIds.T_JavaLangString) {
-			c.stringValue().hashCode();
+			this.intValue = c.stringValue().hashCode();
 		} else {
 			this.intValue = c.intValue();
 		}

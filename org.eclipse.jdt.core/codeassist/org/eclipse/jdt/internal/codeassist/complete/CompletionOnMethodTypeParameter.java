@@ -18,7 +18,7 @@ import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 
-public class CompletionOnMethodTypeParameter extends MethodDeclaration {
+public class CompletionOnMethodTypeParameter extends MethodDeclaration implements CompletionNode {
 	public CompletionOnMethodTypeParameter(TypeParameter[] typeParameters, CompilationResult compilationResult){
 		super(compilationResult);
 		this.selector = CharOperation.NO_CHAR;

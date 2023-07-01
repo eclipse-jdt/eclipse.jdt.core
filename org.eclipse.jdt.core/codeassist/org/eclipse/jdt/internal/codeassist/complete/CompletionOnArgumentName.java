@@ -24,7 +24,7 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 
-public class CompletionOnArgumentName extends Argument {
+public class CompletionOnArgumentName extends Argument implements CompletionNode {
 
 	private static final char[] FAKENAMESUFFIX = " ".toCharArray(); //$NON-NLS-1$
 	public char[] realName;

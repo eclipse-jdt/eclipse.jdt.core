@@ -1658,6 +1658,14 @@ public class ClassScope extends Scope {
 			env.missingClassFileLocation = typeReference;
 			typeReference.aboutToResolve(this); // allows us to trap completion & selection nodes
 			unitScope.recordQualifiedReference(typeReference.getTypeName());
+			if (typeReference.isParameterizedTypeReference()) {
+				for (TypeReference [] typeArguments : typeReference.getTypeArguments()) {
+					if (typeArguments != null && typeArguments.length > 0) {
+						problemReporter().invalidTypeArguments(typeArguments);
+					}
+				}
+			}
+			typeReference.bits |= ASTNode.IgnoreRawTypeCheck;
 			ReferenceBinding permittedType = (ReferenceBinding) typeReference.resolveType(this);
 			return permittedType;
 		} catch (AbortCompilation e) {

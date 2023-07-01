@@ -247,4 +247,43 @@ public void test_members_matching_paramater_name_on_local_variable() throws Java
 									+ R_UNQUALIFIED)
 							+ "}"));
 }
+
+public void test_members_matching_constructors_parameter_name() throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[0] = getWorkingCopy("/Completion/src/test/Smart.java", """
+			package test;
+			public class Smart {
+				public static void persist(Task task) {\t
+					new SmartObject(task.);
+				}
+				public static class Task {
+					public String getName() {return null;}
+					public boolean isCompleted() {return false;}
+					public String details() {return null;}
+				}
+			}
+			""");
+	this.workingCopies[1] = getWorkingCopy("/Completion/src/test/SmartObject.java", """
+			package test;
+			public class SmartObject {
+				public SmartObject(String name, String details) {}
+			}
+			""");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "task.";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+	assertEquals("No constructor", 0, requestor.getResults().lines()
+			.filter(line -> line.startsWith("SmartObject[METHOD_REF<CONSTRUCTOR>]")).count());
+	assertTrue(requestor.getResults(),
+			requestor.getResults()
+					.contains(
+							"getName[METHOD_REF]{getName(), Ltest.Smart$Task;, ()Ljava.lang.String;, getName, null, "
+									+ (R_DEFAULT + R_INTERESTING + R_EXACT_NAME + R_CASE + R_CASE
+											+ R_EXACT_EXPECTED_TYPE + R_NON_STATIC + R_NON_RESTRICTED + R_RESOLVED)
+									+ "}"));
+}
 }

@@ -195,7 +195,7 @@ static class AnnotationCollector extends ASTVisitor {
 	private boolean targetingTypeParameter() {
 		return this.targetType == AnnotationTargetTypeConstants.CLASS_TYPE_PARAMETER || this.targetType == AnnotationTargetTypeConstants.METHOD_TYPE_PARAMETER;
 	}
-	
+
 	private boolean internalVisit(Annotation annotation) {
 		AnnotationContext annotationContext = null;
 		if (annotation.isRuntimeTypeInvisible(targetingTypeParameter())) {
@@ -297,6 +297,12 @@ static class AnnotationCollector extends ASTVisitor {
 				return true;
 			}
 		}
+		return false;
+	}
+	@Override
+	public boolean visit(TypeParameter typeParameter, BlockScope scope) {
+		// never implicitly traverse type parameters
+		// their annotations are explicitly handled in TypeParameter.getAllAnnotationContexts(int, int, List<AnnotationContext>)
 		return false;
 	}
 	@Override
