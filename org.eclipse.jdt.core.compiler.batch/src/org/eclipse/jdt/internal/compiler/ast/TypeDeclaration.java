@@ -1894,12 +1894,12 @@ public void updateSupertypesWithAnnotations(Map<ReferenceBinding,ReferenceBindin
 	}
 	Map<ReferenceBinding,ReferenceBinding> updates = new HashMap<>();
 	if (this.superclass != null) {
-		this.binding.superclass = updateWithAnnotations(this.superclass, 0, outerUpdates, updates);
+		this.binding.superclass = updateWithAnnotations(this.superclass, outerUpdates, updates);
 	}
 	if (this.superInterfaces != null && this.binding.superInterfaces != null && this.superInterfaces.length == this.binding.superInterfaces.length) {
 		for (int i = 0; i < this.superInterfaces.length; i++) {
 			// correspondence between arrays this.binding.superInterfaces and this.superInterfaces is ensured by !this.binding.isHierarchyInconsistent()
-			this.binding.superInterfaces[i] = updateWithAnnotations(this.superInterfaces[i], 0, outerUpdates, updates);
+			this.binding.superInterfaces[i] = updateWithAnnotations(this.superInterfaces[i], outerUpdates, updates);
 		}
 	}
 	if (this.memberTypes != null) {
@@ -1909,11 +1909,11 @@ public void updateSupertypesWithAnnotations(Map<ReferenceBinding,ReferenceBindin
 	}
 }
 
-protected ReferenceBinding updateWithAnnotations(TypeReference typeRef, int location,
-		Map<ReferenceBinding, ReferenceBinding> outerUpdates, Map<ReferenceBinding, ReferenceBinding> updates)
+protected ReferenceBinding updateWithAnnotations(TypeReference typeRef, Map<ReferenceBinding, ReferenceBinding> outerUpdates,
+		Map<ReferenceBinding, ReferenceBinding> updates)
 {
 	ReferenceBinding previousType = (ReferenceBinding) typeRef.resolvedType;
-	typeRef.updateWithAnnotations(this.scope, location);
+	typeRef.updateWithAnnotations(this.scope, 0);
 	ReferenceBinding updatedType = (ReferenceBinding) typeRef.resolvedType;
 	if (updatedType instanceof ParameterizedTypeBinding) {
 		ParameterizedTypeBinding ptb = (ParameterizedTypeBinding) updatedType;
