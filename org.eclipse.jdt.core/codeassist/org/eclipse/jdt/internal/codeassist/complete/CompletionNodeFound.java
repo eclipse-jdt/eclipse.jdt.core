@@ -54,7 +54,7 @@ public <T> T throwOrDeferAndReturn(Supplier<T> value) {
 		ReferenceBinding enclosingReceiverType = this.scope.enclosingReceiverType();
 		if (enclosingReceiverType != null && !enclosingReceiverType.isLocalType()
 				&& (enclosingReceiverType.original().tagBits & TagBits.AreFieldsComplete) != TagBits.AreFieldsComplete) {
-			this.scope.compilationUnitScope().deferredException = this;
+			this.scope.compilationUnitScope().deferException(this);
 			return value.get();
 		}
 	}

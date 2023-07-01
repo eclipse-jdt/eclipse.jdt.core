@@ -2331,13 +2331,9 @@ public final class CompletionEngine
 
 						if ((this.unitScope = parsedUnit.scope) != null) {
 							this.lookupEnvironment.completeTypeBindings(parsedUnit, true);
-							if (this.unitScope.deferredException != null) {
-								throw this.unitScope.deferredException;
-							}
+							this.unitScope.throwDeferredException();
 							parsedUnit.scope.faultInTypes();
-							if (this.unitScope.deferredException != null) {
-								throw this.unitScope.deferredException;
-							}
+							this.unitScope.throwDeferredException();
 							parseBlockStatements(parsedUnit, this.actualCompletionPosition);
 							if(DEBUG) {
 								System.out.println("COMPLETION - AST :"); //$NON-NLS-1$
@@ -3675,7 +3671,7 @@ public final class CompletionEngine
 						null,
 						null,
 						null,
-						false, 
+						false,
 						constructorsFound);
 			}
 
@@ -5972,7 +5968,7 @@ public final class CompletionEngine
 		Binding[] missingElements,
 		int[] missingElementsStarts,
 		int[] missingElementsEnds,
-		boolean missingElementsHaveProblems, 
+		boolean missingElementsHaveProblems,
 		ObjectVector foundConstructors) {
 
 		int relevance = computeBaseRelevance();
@@ -5996,7 +5992,7 @@ public final class CompletionEngine
 				missingElementsHaveProblems,
 				true,
 				false,
-				relevance, 
+				relevance,
 				foundConstructors);
 	}
 
@@ -6075,7 +6071,7 @@ public final class CompletionEngine
 		boolean missingElementsHaveProblems,
 		boolean exactMatch,
 		boolean isQualified,
-		int relevance, 
+		int relevance,
 		ObjectVector constructorsFound) {
 
 		// No visibility checks can be performed without the scope & invocationSite
@@ -6790,7 +6786,6 @@ public final class CompletionEngine
 				Expression caseExpression = caseExpressions != null && caseExpressions.length > 0 ?
 						caseExpressions[0] : null;
 				if((caseExpression instanceof SingleNameReference)
-						&& !(caseExpression instanceof CompletionOnSingleNameReference)
 						&& (caseExpression.resolvedType != null && caseExpression.resolvedType.isEnum())) {
 					alreadyUsedConstants[alreadyUsedConstantCount++] = ((SingleNameReference)caseExpression).token;
 				}

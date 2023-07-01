@@ -78,6 +78,6 @@ public TypeBinding resolveType(BlockScope scope) {
 		throw new CompletionNodeFound();
 	}
 
-	throw new CompletionNodeFound(this, this.binding, scope);
+	return new CompletionNodeFound(this, this.binding, scope).throwOrDeferAndReturn(() -> super.resolveType(scope));
 }
 }
