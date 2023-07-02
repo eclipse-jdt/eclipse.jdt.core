@@ -258,7 +258,7 @@ public void buildStringForConcatation(BlockScope blockScope, CodeStream codeStre
 						((cursor.bits & ASTNode.ReturnTypeIDMASK) ==
 							TypeIds.T_JavaLangString)) {
 					if (cursor.constant != Constant.NotAConstant) {
-						super.buildStringForConcatation(blockScope, codeStream, typeID, recipe, argTypes);
+						cursor.buildStringForConcatation(blockScope, codeStream, typeID, recipe, argTypes);
 						break;
 					}
 				} else {

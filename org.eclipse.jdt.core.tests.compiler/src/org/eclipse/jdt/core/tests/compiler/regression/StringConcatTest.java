@@ -252,4 +252,49 @@ public class StringConcatTest extends AbstractComparableTest {
 				"    11  areturn\n";
 		verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM, true);
 	}
+
+	// Test for https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1201
+	public void test005() throws Exception {
+		this.runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"
+						+ "	public static void main(String[] args) {\n"
+						+ "		int first = 11;\n"
+						+ "		int second = 42;\n"
+						+ "		String actual =\n"
+						+ "				\"X \" + 0 + \" \" +\n"
+						+ "				\"a \" + first + \" \" +\n"
+						+ "				\"a \" + first + \" \" +\n"
+						+ "				\"X \" + 1 + \" \" +\n"
+						+ "				\"b \" + second + \" \" +\n"
+						+ "				\"b \" + second + \" \" +\n"
+						+ "				\"b \" + second + \" \" +\n"
+						+ "				\"b \" + second;\n"
+						+ "		System.out.println(actual);\n"
+						+ "	}\n"
+						+ "}\n",
+				},
+				"X 0 a 11 a 11 X 1 b 42 b 42 b 42 b 42"
+				);
+		String expectedOutput = "  // Stack: 7, Locals: 4\n"
+				+ "  public static void main(java.lang.String[] args);\n"
+				+ "     0  bipush 11\n"
+				+ "     2  istore_1 [first]\n"
+				+ "     3  bipush 42\n"
+				+ "     5  istore_2 [second]\n"
+				+ "     6  iload_1 [first]\n"
+				+ "     7  iload_1 [first]\n"
+				+ "     8  iload_2 [second]\n"
+				+ "     9  iload_2 [second]\n"
+				+ "    10  iload_2 [second]\n"
+				+ "    11  iload_2 [second]\n"
+				+ "    12  invokedynamic 0 makeConcatWithConstants(int, int, int, int, int, int) : java.lang.String [16]\n"
+				+ "    17  astore_3 [actual]\n"
+				+ "    18  getstatic java.lang.System.out : java.io.PrintStream [20]\n"
+				+ "    21  aload_3 [actual]\n"
+				+ "    22  invokevirtual java.io.PrintStream.println(java.lang.String) : void [26]\n"
+				+ "    25  return\n";
+		verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM, true);
+	}
 }

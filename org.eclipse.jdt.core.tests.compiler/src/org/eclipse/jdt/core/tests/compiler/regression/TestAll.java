@@ -159,6 +159,7 @@ public static Test suite() {
 	since_1_8.add(GenericsRegressionTest_1_8.class);
 	since_1_8.add(Unicode18Test.class);
 	since_1_8.add(LambdaShapeTests.class);
+	since_1_8.add(StringConcatTest.class);
 
 	ArrayList since_9 = new ArrayList();
 	since_9.add(Unicode9Test.class);
