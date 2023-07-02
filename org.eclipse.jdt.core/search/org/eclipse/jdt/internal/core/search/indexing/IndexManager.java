@@ -1677,7 +1677,16 @@ void updateMetaIndex(Index index) {
 	if (DISABLE_META_INDEX) {
 		return;
 	}
-	scheduleForMetaIndexUpdate(index);
+
+	synchronized (this.metaIndexUpdates) {
+		if (this.metaIndexUpdates.contains(index)) {
+			if (VERBOSE) {
+				Util.verbose("-> already waiting for meta-index update for " + index); //$NON-NLS-1$
+			}
+			return;
+		}
+		this.metaIndexUpdates.add(index);
+	}
 }
 
 void updateMetaIndex(String indexFileName, List<IndexQualifier> qualifications) {
@@ -1736,106 +1745,62 @@ public Optional<MetaIndex> getMetaIndex() {
 	}
 }
 
-void scheduleForMetaIndexUpdate(Index index) {
-	synchronized(this.metaIndexUpdates){
-		if (this.metaIndexUpdates.contains(index)) {
-			if (VERBOSE) {
-				Util.verbose("-> already waiting for meta-index update for " + index); //$NON-NLS-1$
-			}
-			return;
-		}
-		this.metaIndexUpdates.add(index);
+private void writeIntoMetaIndex() {
+	if (DISABLE_META_INDEX) {
+		return;
 	}
-	requestIfNotWaiting(new MetaIndexUpdateRequest());
+
+	Index index = null;
+	int metaIndexUpdatesSize;
+	boolean hasMoreIndexes = true;
+
+	while (hasMoreIndexes) {
+		synchronized (IndexManager.this.metaIndexUpdates) {
+			Iterator<Index> iterator = IndexManager.this.metaIndexUpdates.iterator();
+			if (iterator.hasNext()) {
+				index = iterator.next();
+				iterator.remove();
+			}
+			metaIndexUpdatesSize = IndexManager.this.metaIndexUpdates.size();
+		}
+		if (index == null) {
+			break;
+		}
+		if (index.monitor == null) {
+			// index got deleted since acquired
+			continue;
+		}
+		File indexFile = index.getIndexFile();
+		if (indexFile == null) {
+			continue;
+		}
+		if (VERBOSE) {
+			Util.verbose("-> meta-index update from queue with size " + metaIndexUpdatesSize); //$NON-NLS-1$
+		}
+		try {
+			updateMetaIndex(indexFile.getName(), index.getMetaIndexQualifications());
+		} catch (IOException e) {
+			Throwable cause = e.getCause();
+			if (cause != null) {
+				Util.log(e, "Failed to update meta index"); //$NON-NLS-1$
+			} else {
+				if (JobManager.VERBOSE) {
+					Util.verbose("-> failed to update meta index for index " + indexFile.getName() //$NON-NLS-1$
+							+ " because of the following exception:"); //$NON-NLS-1$
+					e.printStackTrace();
+				}
+			}
+		}
+		synchronized (IndexManager.this.metaIndexUpdates) {
+			hasMoreIndexes = !IndexManager.this.metaIndexUpdates.isEmpty();
+		}
+	}
 }
 
-class MetaIndexUpdateRequest implements IJob {
-	volatile boolean isCancelled;
-
-	@Override
-	public boolean belongsTo(String jobFamily) {
-		return false;
+@Override
+protected void onJobQueueEmpty() {
+	if (this.needToSave) {
+		writeIntoMetaIndex();
 	}
-
-	@Override
-	public void cancel() {
-		this.isCancelled = true;
-	}
-
-	@Override
-	public void ensureReadyToRun() {
-		// no op
-	}
-
-	@Override
-	public boolean execute(IProgressMonitor progress) {
-		while((progress == null || !progress.isCanceled()) && !this.isCancelled) {
-			Index index = null;
-			int metaIndexUpdatesSize;
-			synchronized(IndexManager.this.metaIndexUpdates){
-				Iterator<Index> iterator = IndexManager.this.metaIndexUpdates.iterator();
-				if (iterator.hasNext()) {
-					index = iterator.next();
-					iterator.remove();
-				}
-				metaIndexUpdatesSize = IndexManager.this.metaIndexUpdates.size();
-			}
-			if (index == null) {
-				return true;
-			}
-			if (index.monitor == null) {
-				// index got deleted since acquired
-				continue;
-			}
-			File indexFile = index.getIndexFile();
-			if (indexFile == null) {
-				continue;
-			}
-			if (VERBOSE) {
-				Util.verbose("-> meta-index update from queue with size " + metaIndexUpdatesSize); //$NON-NLS-1$
-			}
-			try {
-				updateMetaIndex(indexFile.getName(), index.getMetaIndexQualifications());
-			} catch (IOException e) {
-				Throwable cause = e.getCause();
-				if (cause != null) {
-					Util.log(e, "Failed to update meta index"); //$NON-NLS-1$
-				} else {
-					if (JobManager.VERBOSE) {
-						Util.verbose("-> failed to update meta index for index " + indexFile.getName() //$NON-NLS-1$
-								+ " because of the following exception:"); //$NON-NLS-1$
-						e.printStackTrace();
-					}
-				}
-			}
-		}
-		return true;
-	}
-
-	@Override
-	public String getJobFamily() {
-		return ""; //$NON-NLS-1$
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (!(obj instanceof MetaIndexUpdateRequest)) {
-			return false;
-		}
-		MetaIndexUpdateRequest other = (MetaIndexUpdateRequest) obj;
-		if (this.isCancelled != other.isCancelled) {
-			return false;
-		}
-		return true;
-	}
-
-	@Override
-	public int hashCode() {
-		return super.hashCode();
-	}
-
 }
 }

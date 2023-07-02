@@ -476,6 +476,7 @@ public abstract class JobManager {
 
 						// must check for new job inside this sync block to avoid timing hole
 						if ((job = currentJob()) == null) {
+							onJobQueueEmpty();
 							Job pJob = this.progressJob;
 							if (pJob != null) {
 								pJob.cancel();
@@ -548,6 +549,13 @@ public abstract class JobManager {
 			throw e;
 		}
 	}
+
+	/**
+	 * Notified when the when queue is found to be empty by the indexer loop.
+	 */
+	protected void onJobQueueEmpty() {
+	}
+
 	/**
 	 * Stop background processing, and wait until the current job is completed before returning
 	 */
