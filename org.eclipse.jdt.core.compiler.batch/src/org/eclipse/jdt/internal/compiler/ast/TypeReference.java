@@ -39,6 +39,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -58,10 +59,12 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
+import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Substitution;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
@@ -562,13 +565,20 @@ protected TypeBinding internalResolveType(Scope scope, int location) {
 			&& scope.compilerOptions().getSeverity(CompilerOptions.RawTypeReference) != ProblemSeverities.Ignore) {
 		scope.problemReporter().rawTypeReference(this, type);
 	}
+	boolean readyForAnnotations = true;
+	ReferenceBinding receiverType = scope.enclosingReceiverType();
+	if (receiverType instanceof SourceTypeBinding && (receiverType.tagBits & TagBits.EndHierarchyCheck) == 0) {
+		readyForAnnotations = false;
+	}
 	if (hasError) {
-		resolveAnnotations(scope, 0); // don't apply null defaults to buggy type
+		if (readyForAnnotations)
+			resolveAnnotations(scope, 0); // don't apply null defaults to buggy type
 		return type;
 	} else {
 		// store the computed type only if no error, otherwise keep the problem type instead
 		this.resolvedType = type;
-		resolveAnnotations(scope, location);
+		if (readyForAnnotations)
+			resolveAnnotations(scope, location);
 		return this.resolvedType; // pick up value that may have been changed in resolveAnnotations(..)
 	}
 }
@@ -669,6 +679,40 @@ public abstract void traverse(ASTVisitor visitor, BlockScope scope);
 
 @Override
 public abstract void traverse(ASTVisitor visitor, ClassScope scope);
+
+public void updateWithAnnotations(Scope scope, int location) {
+	// resolving annotations now is needed and safe because during connectTypeHierarchy()
+	// resolving via internalResolveType() we had readyForAnnotations = false.
+	resolveAnnotations(scope, location);
+}
+/* shared part of Parameterized{Single,Qualified}TypeReference: */
+protected TypeBinding updateParameterizedTypeWithAnnotations(Scope scope, TypeBinding type, TypeReference[] argRefs) {
+	if (argRefs != null) {
+		for (TypeReference argRef : argRefs) {
+			argRef.updateWithAnnotations(scope, Binding.DefaultLocationTypeArgument);
+		}
+		if (type instanceof ParameterizedTypeBinding) {
+			ParameterizedTypeBinding parameterizedType = (ParameterizedTypeBinding) type;
+			TypeBinding[] argumentBindings = parameterizedType.arguments;
+			TypeBinding[] updatedArgs = null;
+			if (argumentBindings.length == argRefs.length) {
+				for (int i = 0; i < argRefs.length; i++) {
+					TypeReference argRef = argRefs[i];
+					TypeBinding argBinding = argumentBindings[i];
+					if (argRef.resolvedType != null && argRef.resolvedType.isValidBinding() && argRef.resolvedType != argBinding) { //$IDENTITY-COMPARISON$
+						if (updatedArgs == null)
+							updatedArgs = Arrays.copyOf(argumentBindings, argumentBindings.length);
+						updatedArgs[i] = argRef.resolvedType;
+					}
+				}
+			}
+			if (updatedArgs != null) {
+				return scope.environment().createParameterizedType(parameterizedType.genericType(), updatedArgs, parameterizedType.enclosingType());
+			}
+		}
+	}
+	return type;
+}
 
 protected void resolveAnnotations(Scope scope, int location) {
 	Annotation[][] annotationsOnDimensions = getAnnotationsOnDimensions();

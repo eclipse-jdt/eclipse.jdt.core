@@ -5185,12 +5185,6 @@ public abstract class Scope {
 		return null;
 	}
 
-	public boolean deferCheck(Runnable check) {
-		if (this.parent != null)
-			return this.parent.deferCheck(check); // only ClassScope potentially records this
-		return false;
-	}
-
 	public void deferBoundCheck(TypeReference typeRef) {
 		// TODO: use dynamic binding rather than explicit type check
 		if (this.kind == CLASS_SCOPE) {
@@ -5441,6 +5435,9 @@ public abstract class Scope {
 	}
 
 	public boolean hasDefaultNullnessForType(TypeBinding type, int location, int sourceStart) {
+		TypeBinding enclosingType = enclosingReceiverType();
+		if (enclosingType != null && (enclosingType.original().tagBits & TagBits.EndHierarchyCheck) == 0)
+			return false;
 		if (environment().usesNullTypeAnnotations() && type != null && !type.acceptsNonNullDefault())
 			return false;
 		return hasDefaultNullnessFor(location, sourceStart);

@@ -2332,7 +2332,9 @@ public final class CompletionEngine
 
 						if ((this.unitScope = parsedUnit.scope) != null) {
 							this.lookupEnvironment.completeTypeBindings(parsedUnit, true);
+							this.unitScope.throwDeferredException();
 							parsedUnit.scope.faultInTypes();
+							this.unitScope.throwDeferredException();
 							parseBlockStatements(parsedUnit, this.actualCompletionPosition);
 							if(DEBUG) {
 								System.out.println("COMPLETION - AST :"); //$NON-NLS-1$
@@ -3686,7 +3688,7 @@ public final class CompletionEngine
 						null,
 						null,
 						null,
-						false, 
+						false,
 						constructorsFound,
 						false);
 			}
@@ -5984,7 +5986,7 @@ public final class CompletionEngine
 		Binding[] missingElements,
 		int[] missingElementsStarts,
 		int[] missingElementsEnds,
-		boolean missingElementsHaveProblems, 
+		boolean missingElementsHaveProblems,
 		ObjectVector foundConstructors,
 		boolean noCollection) {
 
@@ -6009,7 +6011,7 @@ public final class CompletionEngine
 				missingElementsHaveProblems,
 				true,
 				false,
-				relevance, 
+				relevance,
 				foundConstructors,
 				noCollection);
 	}
@@ -6089,7 +6091,7 @@ public final class CompletionEngine
 		boolean missingElementsHaveProblems,
 		boolean exactMatch,
 		boolean isQualified,
-		int relevance, 
+		int relevance,
 		ObjectVector constructorsFound,
 		boolean noCollection) {
 

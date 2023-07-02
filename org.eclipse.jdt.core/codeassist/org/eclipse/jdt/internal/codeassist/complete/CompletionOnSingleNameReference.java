@@ -64,9 +64,17 @@ public class CompletionOnSingleNameReference extends SingleNameReference impleme
 
 	@Override
 	public TypeBinding resolveType(BlockScope scope) {
+		CompletionNodeFound exception;
 		if(scope instanceof MethodScope) {
-			throw new CompletionNodeFound(this, scope, ((MethodScope)scope).insideTypeAnnotation);
+			exception = new CompletionNodeFound(this, scope, ((MethodScope)scope).insideTypeAnnotation);
+		} else {
+			exception = new CompletionNodeFound(this, scope);
 		}
-		throw new CompletionNodeFound(this, scope);
+		return exception.throwOrDeferAndReturn(() -> {
+			// probably not in the position to do useful resolution, just provide some bindings
+			char[][] compoundName = new char[][] { this.token };
+			this.binding = new ProblemBinding(compoundName, ProblemReasons.NotFound);
+			return new ProblemReferenceBinding(compoundName, null, ProblemReasons.NotFound);
+		});
 	}
 }

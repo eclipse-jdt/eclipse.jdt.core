@@ -33,11 +33,13 @@ public class CompletionOnAnnotationMemberValuePair extends NormalAnnotation impl
 	public TypeBinding resolveType(BlockScope scope) {
 		super.resolveType(scope);
 
+		CompletionNodeFound exception;
 		if (this.resolvedType == null || !this.resolvedType.isValidBinding()) {
-			throw new CompletionNodeFound();
+			exception = new CompletionNodeFound();
 		} else {
-			throw new CompletionNodeFound(this.completedMemberValuePair, scope);
+			exception = new CompletionNodeFound(this.completedMemberValuePair, scope);
 		}
+		return exception.throwOrDeferAndReturn(() -> this.resolvedType);
 	}
 
 	@Override

@@ -428,10 +428,10 @@ public void test007(){
         + " -verbose -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "[parsing    ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" +
 		"[reading    java/lang/Object.class]\n" +
-		"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" +
-		"[reading    java/util/List.class]\n" +
 		"[reading    java/lang/SuppressWarnings.class]\n" +
 		"[reading    java/lang/String.class]\n" +
+		"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" +
+		"[reading    java/util/List.class]\n" +
 		"[writing    X.class - #1]\n" +
 		"[completed  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" +
 		"[1 unit compiled]\n" +
@@ -560,10 +560,10 @@ public void test010(){
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "[parsing    ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" +
 		"[reading    java/lang/Object.class]\n" +
-		"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" +
-		"[reading    java/util/List.class]\n" +
 		"[reading    java/lang/SuppressWarnings.class]\n" +
 		"[reading    java/lang/String.class]\n" +
+		"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" +
+		"[reading    java/util/List.class]\n" +
 		"[writing    X.class - #1]\n" +
 		"[completed  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" +
 		"[1 unit compiled]\n" +

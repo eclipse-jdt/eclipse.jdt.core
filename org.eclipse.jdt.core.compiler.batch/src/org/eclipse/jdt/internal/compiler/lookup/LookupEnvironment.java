@@ -151,7 +151,8 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	final static int BUILD_FIELDS_AND_METHODS = 4;
 	final static int BUILD_TYPE_HIERARCHY = 1;
 	final static int CHECK_AND_SET_IMPORTS = 2;
-	final static int CONNECT_TYPE_HIERARCHY = 3;
+	final static int CONNECT_TYPE_HIERARCHY1 = 3;
+	final static int CONNECT_TYPE_HIERARCHY2 = 4;
 
 	static final ProblemPackageBinding TheNotFoundPackage = new ProblemPackageBinding(CharOperation.NO_CHAR, NotFound, null/*not perfect*/);
 	static final ProblemReferenceBinding TheNotFoundType = new ProblemReferenceBinding(CharOperation.NO_CHAR_CHAR, null, NotFound);
@@ -518,9 +519,13 @@ public void completeTypeBindings() {
 	this.stepCompleted = CHECK_AND_SET_IMPORTS;
 
 	for (int i = this.lastCompletedUnitIndex + 1; i <= this.lastUnitIndex; i++) {
-	    (this.unitBeingCompleted = this.units[i]).scope.connectTypeHierarchy();
+	    (this.unitBeingCompleted = this.units[i]).scope.connectTypeHierarchy1();
 	}
-	this.stepCompleted = CONNECT_TYPE_HIERARCHY;
+	this.stepCompleted = CONNECT_TYPE_HIERARCHY1;
+	for (int i = this.lastCompletedUnitIndex + 1; i <= this.lastUnitIndex; i++) {
+	    (this.unitBeingCompleted = this.units[i]).scope.connectTypeHierarchy2();
+	}
+	this.stepCompleted = CONNECT_TYPE_HIERARCHY2;
 
 	for (int i = this.lastCompletedUnitIndex + 1; i <= this.lastUnitIndex; i++) {
 		CompilationUnitScope unitScope = (this.unitBeingCompleted = this.units[i]).scope;
@@ -561,8 +566,11 @@ public void completeTypeBindings(CompilationUnitDeclaration parsedUnit) {
 		if (this.stepCompleted >= CHECK_AND_SET_IMPORTS)
 			(this.unitBeingCompleted = parsedUnit).scope.checkAndSetImports();
 
-		if (this.stepCompleted >= CONNECT_TYPE_HIERARCHY)
-			(this.unitBeingCompleted = parsedUnit).scope.connectTypeHierarchy();
+		if (this.stepCompleted >= CONNECT_TYPE_HIERARCHY1)
+			(this.unitBeingCompleted = parsedUnit).scope.connectTypeHierarchy1();
+
+		if (this.stepCompleted >= CONNECT_TYPE_HIERARCHY2)
+			(this.unitBeingCompleted = parsedUnit).scope.connectTypeHierarchy2();
 
 		this.unitBeingCompleted = null;
 	}
@@ -586,7 +594,8 @@ public void completeTypeBindings(CompilationUnitDeclaration parsedUnit, boolean 
 	LookupEnvironment rootEnv = this.root;
 	CompilationUnitDeclaration previousUnitBeingCompleted = rootEnv.unitBeingCompleted;
 	(rootEnv.unitBeingCompleted = parsedUnit).scope.checkAndSetImports();
-	parsedUnit.scope.connectTypeHierarchy();
+	parsedUnit.scope.connectTypeHierarchy1();
+	parsedUnit.scope.connectTypeHierarchy2();
 	parsedUnit.scope.checkParameterizedTypes();
 	if (buildFieldsAndMethods)
 		parsedUnit.scope.buildFieldsAndMethods();
@@ -612,7 +621,12 @@ public void completeTypeBindings(CompilationUnitDeclaration[] parsedUnits, boole
 	for (int i = 0; i < unitCount; i++) {
 		CompilationUnitDeclaration parsedUnit = parsedUnits[i];
 		if (parsedUnit.scope != null)
-			(rootEnv.unitBeingCompleted = parsedUnit).scope.connectTypeHierarchy();
+			(rootEnv.unitBeingCompleted = parsedUnit).scope.connectTypeHierarchy1();
+	}
+	for (int i = 0; i < unitCount; i++) {
+		CompilationUnitDeclaration parsedUnit = parsedUnits[i];
+		if (parsedUnit.scope != null)
+			(rootEnv.unitBeingCompleted = parsedUnit).scope.connectTypeHierarchy2();
 	}
 
 	for (int i = 0; i < unitCount; i++) {

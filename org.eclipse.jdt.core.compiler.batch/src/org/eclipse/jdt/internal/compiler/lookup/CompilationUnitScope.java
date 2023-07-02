@@ -20,6 +20,7 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -66,10 +67,11 @@ public class CompilationUnitScope extends Scope {
 	 */
 	private boolean skipCachingImports;
 
-	boolean connectingHierarchy;
 	private ArrayList<Invocation> inferredInvocations;
 	/** Cache of interned inference variables. Access only via {@link InferenceVariable#get(TypeBinding, int, InvocationSite, Scope, ReferenceBinding, boolean)}. */
 	Map<InferenceVariable.InferenceVarKey, InferenceVariable> uniqueInferenceVariables = new HashMap<>();
+
+	private RuntimeException deferredException; // enables deferring a CompletionNodeFound exception, not used during normal compilation
 
 public CompilationUnitScope(CompilationUnitDeclaration unit, LookupEnvironment environment) {
 	this(unit, environment.globalOptions);
@@ -389,11 +391,16 @@ public char[] computeConstantPoolName(LocalTypeBinding localType) {
 	return candidateName;
 }
 
-void connectTypeHierarchy() {
+void connectTypeHierarchy1() {
 	for (int i = 0, length = this.topLevelTypes.length; i < length; i++)
 		this.topLevelTypes[i].scope.connectTypeHierarchy();
-	// Wait for all hierarchy information to be built before
-	// checking on permitted types
+}
+void connectTypeHierarchy2() {
+	// Only now that all hierarchy information is built we're ready for ...
+	// ... integrating annotations
+	for (int i = 0, length = this.topLevelTypes.length; i < length; i++)
+		this.topLevelTypes[i].scope.referenceType().updateSupertypesWithAnnotations(Collections.emptyMap());
+	// ... checking on permitted types
 	for (int i = 0, length = this.topLevelTypes.length; i < length; i++)
 		this.topLevelTypes[i].scope.connectImplicitPermittedTypes();
 }
@@ -1143,5 +1150,15 @@ public void cleanUpInferenceContexts() {
 	for (Invocation invocation : this.inferredInvocations)
 		invocation.cleanUpInferenceContexts();
 	this.inferredInvocations = null;
+}
+public void deferException(RuntimeException exception) {
+	this.deferredException = exception;
+}
+public void throwDeferredException() {
+	if (this.deferredException != null) {
+		RuntimeException throwMe = this.deferredException;
+		this.deferredException = null;
+		throw throwMe;
+	}
 }
 }
