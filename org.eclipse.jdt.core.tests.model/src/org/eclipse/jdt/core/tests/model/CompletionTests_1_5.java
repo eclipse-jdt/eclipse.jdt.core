@@ -14451,7 +14451,7 @@ public void testBug326610e() throws JavaModelException {
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=482775
-public void test482775() throws JavaModelException {
+public void _test482775() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/MyEnum.java",

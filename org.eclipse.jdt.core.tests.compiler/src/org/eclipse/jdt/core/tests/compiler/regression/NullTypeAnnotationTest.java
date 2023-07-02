@@ -18798,7 +18798,7 @@ public void testGH854() {
 	runner.runConformTest();
 }
 // duplicate of #1077
-public void testGH475() {
+public void testGH476() {
 	Runner runner = new Runner();
 	runner.testFiles =
 		new String[] {
@@ -18873,7 +18873,7 @@ public void testVSCodeIssue3076() {
 		};
 	runner.runConformTest();
 }
-public void testGH969() {
+public void testGH986() {
 	Runner runner = new Runner();
 	runner.testFiles =
 		new String[] {
@@ -18890,6 +18890,46 @@ public void testGH969() {
 			"	private T target;\n" +
 			"\n" +
 			"}"
+		};
+	runner.runConformTest();
+}
+public void testGHjdtls2386() {
+	Runner runner = new Runner();
+	runner.testFiles =
+		new String[] {
+			"ConfigurableApplicationContext.java",
+			"public class ConfigurableApplicationContext { }\n",
+			"ApplicationContextInitializer.java",
+			"public interface ApplicationContextInitializer<T> {\n" +
+			"	void initialize(T context);\n" +
+			"}\n",
+			"ContextConfiguration.java",
+			"""
+			import static java.lang.annotation.ElementType.*;
+			import static java.lang.annotation.RetentionPolicy.*;
+			import java.lang.annotation.*;
+
+			@Target(TYPE)
+			@Retention(RUNTIME)
+			public @interface ContextConfiguration {
+				Class<? extends ApplicationContextInitializer<?>>[] initializers();
+			}
+			""",
+			"AbstractTest.java",
+			"""
+			@ContextConfiguration(initializers = {AbstractTest.Initializer.class})
+			public abstract class AbstractTest {
+
+			  static class Initializer
+			      implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+
+			    @Override
+			    public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
+
+			    }
+			  }
+			}
+			"""
 		};
 	runner.runConformTest();
 }
