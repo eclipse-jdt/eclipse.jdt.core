@@ -1755,14 +1755,15 @@ private void writeIntoMetaIndex() {
 	boolean hasMoreIndexes = true;
 
 	while (hasMoreIndexes) {
-		synchronized (IndexManager.this.metaIndexUpdates) {
-			Iterator<Index> iterator = IndexManager.this.metaIndexUpdates.iterator();
-			if (iterator.hasNext()) {
-				index = iterator.next();
-				iterator.remove();
-			}
-			metaIndexUpdatesSize = IndexManager.this.metaIndexUpdates.size();
+		// the metaIndexUpdates is already a synchronized collection, so no need to synchronized following operations
+		// since this method is called by the index loop thread.
+		Iterator<Index> iterator = IndexManager.this.metaIndexUpdates.iterator();
+		if (iterator.hasNext()) {
+			index = iterator.next();
+			iterator.remove();
 		}
+		metaIndexUpdatesSize = IndexManager.this.metaIndexUpdates.size();
+
 		if (index == null) {
 			break;
 		}
@@ -1791,9 +1792,7 @@ private void writeIntoMetaIndex() {
 				}
 			}
 		}
-		synchronized (IndexManager.this.metaIndexUpdates) {
-			hasMoreIndexes = !IndexManager.this.metaIndexUpdates.isEmpty();
-		}
+		hasMoreIndexes = !IndexManager.this.metaIndexUpdates.isEmpty();
 	}
 }
 
