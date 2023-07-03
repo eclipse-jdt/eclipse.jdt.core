@@ -5093,8 +5093,27 @@ protected boolean mayBeAtGuard(int token) {
 	 */
 	switch (this.lookBack[1]) {
 		case TokenNameRPAREN:
+			// This must be a record pattern, so check for suffixes of: ReferenceType "(" [ Pattern { , Pattern } ]
+			switch (this.lookBack[0]) {
+				case TokenNameLPAREN: // record pattern with no record components, e.g., Record()
+				case TokenNameRPAREN: // nested record patterns, e.g., Rec1(Rec2(Rec3(...)))
+				case TokenNameIdentifier: // type pattern in record pattern, e.g., Record(int x)
+					return true;
+				default:
+					return false;
+			}
 		case TokenNameIdentifier:
-			return true;
+			// This must be a type pattern, so check for suffixes of: UnannReferenceType
+			switch (this.lookBack[0]) {
+				case TokenNameRBRACKET: // array type , e.g., int[] a
+				case TokenNameGREATER: // 1-level generic type, e.g., List<Long> a
+				case TokenNameRIGHT_SHIFT: // 2-level generic type, e.g., List<Set<Long>> a
+				case TokenNameUNSIGNED_RIGHT_SHIFT: // 3-level generic type, e.g., List<List<Set<Long>>> a
+				case TokenNameIdentifier: // "regular" type, e.g., String s
+					return true;
+				default:
+					return false;
+			}
 	}
 	return false;
 }
