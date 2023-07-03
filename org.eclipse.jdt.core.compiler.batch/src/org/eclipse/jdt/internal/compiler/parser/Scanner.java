@@ -1411,6 +1411,7 @@ public int getNextToken() throws InvalidInputException {
 	if (this.nextToken != TokenNameNotAToken) {
 		token = this.nextToken;
 		this.nextToken = TokenNameNotAToken;
+		addTokenToLookBack(token);
 		return token; // presumed to be unambiguous.
 	}
 	if (this.scanContext == null) { // init lazily, since isInModuleDeclaration needs the parser to be known
@@ -4735,6 +4736,7 @@ private static final class VanguardScanner extends Scanner {
 		if (this.nextToken != TokenNameNotAToken) {
 			token = this.nextToken;
 			this.nextToken = TokenNameNotAToken;
+			this.addTokenToLookBack(token);
 			return token; // presumed to be unambiguous.
 		}
 		if (this.scanContext == null) { // init lazily, since isInModuleDeclaration may need the parser to be known
