@@ -3298,7 +3298,7 @@ public void testBug529349a() throws JavaModelException {
 			"SuperSuper[TYPE_REF]{SuperSuper, p, Lp.SuperSuper;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_CLASS) + "}",
 			requestor.getResults());
 }
-public void _testBug473654() throws Exception {
+public void testBug473654() throws Exception {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/Foo.java",
@@ -3345,7 +3345,7 @@ public void _testBug473654() throws Exception {
 			"toString[METHOD_DECLARATION]{public String toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, "+overrideRelevance+"}",
 			requestor.getResults());
 }
-public void _testBug537679() throws JavaModelException {
+public void testBug537679() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/p/SuperSuper.java",
