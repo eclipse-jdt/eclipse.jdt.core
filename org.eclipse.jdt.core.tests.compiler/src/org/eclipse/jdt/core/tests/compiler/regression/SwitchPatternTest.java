@@ -6224,4 +6224,23 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1\n" +
 				"0");
 	}
+	public void testIssue456a() {
+		runConformTest(
+				new String[] {
+					"when.java",
+					"public class when {\n"+
+					"	static int when(Object o) {\n"+
+					"		return switch (o) {\n"+
+					"			case when when when when(null) < 1 -> 1;\n"+
+					"			case null, default -> 0;\n"+
+					"		};\n"+
+					"	}\n"+
+					"	public static void main(String[] args) {\n"+
+					"		when(new when());"+
+					"		System.out.println(when(new when()));\n"+
+					"	}\n"+
+					"}",
+				},
+				"1");
+	}
 }
