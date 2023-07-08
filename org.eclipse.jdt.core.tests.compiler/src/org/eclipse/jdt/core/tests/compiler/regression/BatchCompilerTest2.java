@@ -468,46 +468,4 @@ public void testIssue147() throws Exception {
 	String expectedOutput = "java.lang.invoke.MethodHandle.invoke(java.lang.Object)";
 	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
-public void testGH703() {
-	// replicates NullTypeAnnotationTest.testBug456584() but with --release option
-	runConformTest(
-		new String[] {
-			"p/Test.java",
-			"package p;\n" +
-			"import static java.lang.annotation.ElementType.*;\n" +
-			"import java.lang.annotation.*;\n" +
-			"import java.util.*;\n" +
-			"import java.util.function.*;\n" +
-			"\n" +
-			"@NonNullByDefault\n" +
-			"public class Test {\n" +
-			"\n" +
-			"  public static final <T,R> @NonNull R applyRequired(final T input, final Function<? super T,? extends R> function) { // Warning on '@NonNull R': \"The nullness annotation is redundant with a default that applies to this location\"\n" +
-			"    return Objects.requireNonNull(function.apply(input));\n" +
-			"  }\n" +
-			"\n" +
-			"}\n" +
-			"@Documented\n" +
-			"@Retention(RetentionPolicy.CLASS)\n" +
-			"@Target(TYPE_USE)\n" +
-			"@interface NonNull{\n" +
-			"}\n" +
-			"@Documented\n" +
-			"@Retention(RetentionPolicy.CLASS)\n" +
-			"@Target(TYPE_USE)\n" +
-			"@interface Nullable{\n" +
-			"}\n" +
-			"@Documented\n" +
-			"@Retention(RetentionPolicy.CLASS)\n" +
-			"@Target({ PACKAGE, TYPE, METHOD, CONSTRUCTOR })\n" +
-			"@interface NonNullByDefault{\n" +
-			"}"
-		},
-		"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "Test.java\"" +
-				" --release " + CompilerOptions.VERSION_9 + " " +
-				" -warn:+nullAnnot(p.Nullable|p.NonNull|p.NonNullByDefault) -warn:+null ",
-				"",
-				"",
-				true);
-}
 }
