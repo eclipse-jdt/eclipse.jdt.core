@@ -107,8 +107,8 @@ public class GuardedPattern extends Pattern {
 		return cst != Constant.NotAConstant && cst.booleanValue() == true;
 	}
 	@Override
-	public boolean isTotalForType(TypeBinding type) {
-		return this.primaryPattern.isTotalForType(type) && isAlwaysTrue();
+	public boolean coversType(TypeBinding type) {
+		return this.primaryPattern.coversType(type) && isAlwaysTrue();
 	}
 	@Override
 	public Pattern primary() {
@@ -157,7 +157,7 @@ public class GuardedPattern extends Pattern {
 	public TypeBinding resolveAtType(BlockScope scope, TypeBinding u) {
 		if (this.resolvedType == null || this.primaryPattern == null)
 			return null;
-		if (this.primaryPattern.isTotalForType(u))
+		if (this.primaryPattern.coversType(u))
 			return this.primaryPattern.resolveAtType(scope, u);
 
 		return this.resolvedType; //else leave the pattern untouched for now.

@@ -153,7 +153,7 @@ public class TypePattern extends Pattern {
 		this.resolveType(scope);
 	}
 	@Override
-	public boolean isTotalForType(TypeBinding type) {
+	public boolean coversType(TypeBinding type) {
 		if (type == null || this.resolvedType == null)
 			return false;
 		return (type.isSubtypeOf(this.resolvedType, false));

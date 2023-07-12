@@ -385,6 +385,12 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"	case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n" +
 				"				ColoredPoint(Point(int x1, int y1), Color c1)) -> {\n" +
 				"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"The switch statement cannot have more than one unconditional pattern\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 8)\n" +
+				"	case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n" +
+				"				ColoredPoint(Point(int x1, int y1), Color c1)) -> {\n" +
+				"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
@@ -2704,5 +2710,205 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 
 				},
 				"true");
+	}
+	public void testIssue1224_1() {
+		runNegativeTest(new String[] {
+			"X.java",
+			"interface I {}\n"
+			+ "class Class implements I {}\n"
+			+ "record Record(I s) {}\n"
+			+ "public class X {\n"
+			+ " @SuppressWarnings(\"preview\")\n"
+			+ "    public static void foo(Record exp) {\n"
+			+ "        switch (exp) {\n"
+			+ "            case Record(Class s) -> {break;}\n"
+			+ "        }\n"
+			+ "    }\n"
+			+ "}"
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	switch (exp) {\n" +
+			"	        ^^^\n" +
+			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"----------\n");
+	}
+	public void testIssue1224_2() {
+		runConformTest(new String[] {
+			"X.java",
+			"interface I {}\n"
+			+ "class Class implements I {}\n"
+			+ "record Record(I s) {}\n"
+			+ "public class X {\n"
+			+ " @SuppressWarnings(\"preview\")\n"
+			+ "  public static void foo(Record exp) {\n"
+			+ "    switch (exp) {\n"
+			+ "      case Record(I s) -> {break;}\n"
+			+ "    }\n"
+			+ "  }\n"
+			+ "	public static void main(String[] args) {\n"
+			+ "		foo(new Record(new Class()));\n"
+			+ "	}\n"
+			+ "}"
+			},
+			"");
+	}
+	public void testIssue1224_3() {
+		runNegativeTest(new String[] {
+			"X.java",
+			"interface I {}\n"
+			+ "record Record(long l) {}\n"
+			+ "public class X {\n"
+			+ " @SuppressWarnings(\"preview\")\n"
+			+ "    public void foo(Record exp) {\n"
+			+ "        switch (exp) {\n"
+			+ "            case Record(int i) -> {break;}\n"
+			+ "        }\n"
+			+ "    }\n"
+			+ "}"
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 6)\n" +
+			"	switch (exp) {\n" +
+			"	        ^^^\n" +
+			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 7)\n" +
+			"	case Record(int i) -> {break;}\n" +
+			"	            ^^^^^\n" +
+			"Pattern of type long is not compatible with type int\n" +
+			"----------\n");
+	}
+	public void testIssue1224_4() {
+		runNegativeTest(new String[] {
+			"X.java",
+			"record Record<T>(Object o, T x){}\n"
+			+ "public class X {\n"
+			+ " @SuppressWarnings(\"preview\")\n"
+			+ "    public static void foo(Record<String> rec) {\n"
+			+ "        switch (rec) {\n"
+			+ "            case Record<String>(Object o, StringBuilder s) -> {break;}\n"
+			+ "        }\n"
+			+ "    }\n"
+			+ "}"
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	switch (rec) {\n" +
+			"	        ^^^\n" +
+			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 6)\n" +
+			"	case Record<String>(Object o, StringBuilder s) -> {break;}\n" +
+			"	                              ^^^^^^^^^^^^^^^\n" +
+			"Pattern of type String is not compatible with type java.lang.StringBuilder\n" +
+			"----------\n");
+	}
+	public void testIssue1224_5() {
+		runConformTest(new String[] {
+			"X.java",
+			"record Record<T>(Object o, T x){}\n"
+			+ "public class X {\n"
+			+ " @SuppressWarnings(\"preview\")\n"
+			+ "    public static void foo(Record<String> rec) {\n"
+			+ "        switch (rec) {\n"
+			+ "            case Record<String>(Object o, String s) -> {"
+			+ "                System.out.println(s);"
+			+ "                break;"
+			+ "            }\n"
+			+ "        }\n"
+			+ "    }\n"
+			+ "	public static void main(String[] args) {\n"
+			+ "		foo(new Record<String>(args, \"PASS\"));\n"
+			+ "	}\n"
+			+ "}"
+			},
+			"PASS");
+	}
+	public void testIssue1224_6() {
+		runNegativeTest(new String[] {
+			"X.java",
+			"record Record(String s){}\n"
+			+ "public class X {\n"
+			+ " @SuppressWarnings(\"preview\")\n"
+			+ "    public static void foo(Record rec) {\n"
+			+ "        switch (rec) {\n"
+			+ "            case Record(String s) when true -> {"
+			+ "                System.out.println(s);"
+			+ "                break;"
+			+ "            }\n"
+			+ "            default -> {}"
+			+ "        }\n"
+			+ "    }\n"
+			+ "	public static void main(String[] args) {\n"
+			+ "		foo(new Record(\"PASS\"));\n"
+			+ "	}\n"
+			+ "}"
+			},
+				"----------\n" +
+				"1. ERROR in X.java (at line 7)\n" +
+				"	default -> {}        }\n" +
+				"	^^^^^^^\n" +
+				"Switch case cannot have both unconditional pattern and default label\n" +
+				"----------\n");
+	}
+	public void testIssue1224_7() {
+		runConformTest(new String[] {
+			"X.java",
+			"interface I<T> {\n"
+			+ "    T a();\n"
+			+ "}\n"
+			+ "record Record<T>(T a, T b) implements I<T> {}\n"
+			+ "@SuppressWarnings(\"preview\")\n"
+			+ "public class X {\n"
+			+ "	public static void main(String[] args) {\n"
+			+ "		foo(new Record(2, 3));\n"
+			+ "	}\n"
+			+ "	static void foo(I i) {\n"
+			+ "        int res = 0;\n"
+			+ "        switch (i) {\n"
+			+ "            case Record(Integer a, Integer b) -> {\n"
+			+ "                res = a + b;\n"
+			+ "                break;\n"
+			+ "            }\n"
+			+ "            default -> {\n"
+			+ "                res = 0;\n"
+			+ "                break;\n"
+			+ "            }\n"
+			+ "        }\n"
+			+ "		System.out.println(res);\n"
+			+ "    }\n"
+			+ "}"
+			},
+				"5");
+	}
+	// Fails with VerifyError since we allow the switch now but don't
+	// generate a label/action for implicit default.
+	public void _testIssue1224_8() {
+		runConformTest(new String[] {
+			"X.java",
+			"record Record(int a) {}\n"
+			+ "@SuppressWarnings(\"preview\")\n"
+			+ "public class X {\n"
+			+ " @SuppressWarnings(\"preview\")\n"
+			+ "  public boolean foo(Record rec) {\n"
+			+ "        boolean res = switch (rec) {\n"
+			+ "            case Record(int a) : {\n"
+			+ "                yield a == 0; \n"
+			+ "            }\n"
+			+ "        };\n"
+			+ "        return res;\n"
+			+ "    }\n"
+			+ "    public static void main(String argv[]) {\n"
+			+ "        X t = new X();\n"
+			+ "        if (t.foo(new Record(0))) {\n"
+			+ "            System.out.println(\"SUCCESS\");\n"
+			+ "            return;\n"
+			+ "        }\n"
+			+ "        System.out.println(\"FAIL\");\n"
+			+ "    }\n"
+			+ "}"
+			},
+			"SUCCESS");
 	}
 }
