@@ -31,6 +31,7 @@ import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
@@ -69,7 +70,6 @@ public class ASTConverter_16Test extends ConverterTestSetup {
 	public ASTConverter_16Test(String name) {
 		super(name);
 	}
-
 	public static Test suite() {
 		return buildModelTestSuite(ASTConverter_16Test.class);
 	}
@@ -814,5 +814,37 @@ public class ASTConverter_16Test extends ConverterTestSetup {
 	        return super.visit(node);
 	      }
 	    });
+	}
+	@SuppressWarnings("rawtypes")
+	public void test_RecordSemicolon() throws JavaModelException {
+		if (!isJRE16) {
+			System.err.println("Test "+getName()+" requires a JRE 16");
+			return;
+		}
+		String contents =
+		        "record Point(int x, int y) {\n" +
+		        "    private static final int staticField = 16;\n"+
+		        "}";
+		    this.workingCopy = getWorkingCopy("/Converter_16/src/ASTtree.java", true/*resolve*/);
+		    ASTNode node = buildAST(
+		    		contents,
+		    		this.workingCopy);
+		    assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
+		    CompilationUnit unit = (CompilationUnit) node;
+		    assertProblemsSize(unit, 0);
+		    node = getASTNode(unit, 0);
+		    assertEquals("Not a record declaration", ASTNode.RECORD_DECLARATION, node.getNodeType());
+		    RecordDeclaration recordDeclaration = (RecordDeclaration) node;
+		    final List bodyDeclarations = recordDeclaration.bodyDeclarations();
+		    assertEquals("Wrong size", 1, bodyDeclarations.size());
+		    FieldDeclaration fieldDeclaration = (FieldDeclaration) bodyDeclarations.get(0);
+		    final List fragments = fieldDeclaration.fragments();
+		    assertEquals("Wrong size", 1, fragments.size());
+		    VariableDeclarationFragment fragment = (VariableDeclarationFragment)fragments.get(0);
+		    final Expression initializer = fragment.getInitializer();
+		    assertEquals("Not a number literal", ASTNode.NUMBER_LITERAL, initializer.getNodeType());
+		    checkSourceRange(initializer, "16", contents);
+
+
 	}
 }

@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
+import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.Javadoc;
 import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
@@ -40,6 +41,7 @@ import org.eclipse.jdt.core.dom.TextElement;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeParameter;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 
@@ -1371,6 +1373,60 @@ public class ASTRewritingRecordDeclarationTest extends ASTRewritingTest {
 
 	}
 
+
+	public void testRecord_028() throws Exception {
+		if (checkAPILevel()) {
+			return;
+		}
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuilder buf= new StringBuilder();
+		buf.append("package test1;\n");
+		buf.append("public class Y {\n");
+		buf.append("\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("Y.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+		AST ast= astRoot.getAST();
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		TypeDeclaration type= findTypeDeclaration(astRoot, "Y");
+		ListRewrite declarations = rewrite.getListRewrite(type, TypeDeclaration.BODY_DECLARATIONS_PROPERTY);
+		{
+		    RecordDeclaration record = ast.newRecordDeclaration();
+		    record.setName(ast.newSimpleName("X"));
+
+		    VariableDeclarationFragment variableDeclarationFragment = ast.newVariableDeclarationFragment();
+		    variableDeclarationFragment.setName(ast.newSimpleName("staticField"));
+
+		    FieldDeclaration fieldDeclaration = ast.newFieldDeclaration(variableDeclarationFragment);
+		    fieldDeclaration.setType(ast.newPrimitiveType(PrimitiveType.INT));
+		    fieldDeclaration.modifiers().add(ast.newModifier(Modifier.ModifierKeyword.PRIVATE_KEYWORD));
+		    fieldDeclaration.modifiers().add(ast.newModifier(Modifier.ModifierKeyword.STATIC_KEYWORD));
+		    fieldDeclaration.modifiers().add(ast.newModifier(Modifier.ModifierKeyword.FINAL_KEYWORD));
+
+		    record.bodyDeclarations().add(fieldDeclaration);
+
+		    declarations.insertFirst(record, null);
+		}
+
+		String preview= evaluateRewrite(cu, rewrite);
+
+		buf = new StringBuilder();
+		buf.append("package test1;\n");
+		buf.append("public class Y {\n");
+		buf.append("\n");
+		buf.append("    record X() {\n");
+		buf.append("        private static final int staticField;\n");
+		buf.append("    }\n");
+		buf.append("\n");
+		buf.append("}\n");
+
+		assertEqualString(preview, buf.toString());
+
+	}
 
 }
 
