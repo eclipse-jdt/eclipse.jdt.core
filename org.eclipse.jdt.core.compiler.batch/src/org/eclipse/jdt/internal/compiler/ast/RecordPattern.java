@@ -13,27 +13,42 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Predicate;
+
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.codegen.ExceptionLabel;
 import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.RecordComponentBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 
 public class RecordPattern extends TypePattern {
+
+	public static final String SECRET_RECORD_PATTERN_THROWABLE_VARIABLE_NAME = " secretRecordPatternThrowableVariable"; //$NON-NLS-1$;
 
 	public Pattern[] patterns;
 	public TypeReference type;
 	int thenInitStateIndex1 = -1;
 	int thenInitStateIndex2 = -1;
+	public LocalVariableBinding secretCaughtThrowableVariable = null;
+	/* package */ BranchLabel guardedElseTarget;
 
 	public RecordPattern(LocalDeclaration local) {
 		super(local);
@@ -140,7 +155,7 @@ public class RecordPattern extends TypePattern {
 		if (!this.resolvedType.isValidBinding())
 			return this.resolvedType;
 
-		initSecretPatternVariable(scope);
+		getSecretVariable(scope, this.resolvedType);
 
 		// check whether the give type reference is a record
 		// check whether a raw type is being used in pattern types
@@ -235,9 +250,24 @@ public class RecordPattern extends TypePattern {
 		}
 		return true;
 	}
+	public static LocalVariableBinding getRecPatternCatchVar(int level, BlockScope parentScope) {
+		if (level < 0)
+			return null;
+		String secret_name = RecordPattern.SECRET_RECORD_PATTERN_THROWABLE_VARIABLE_NAME + level;
+		LocalVariableBinding l =
+				new LocalVariableBinding(
+					secret_name.toCharArray(),
+					TypeBinding.wellKnownType(parentScope, TypeIds.T_JavaLangThrowable),
+					ClassFileConstants.AccDefault,
+					false);
+		l.setConstant(Constant.NotAConstant);
+		l.useFlag = LocalVariableBinding.USED;
+		new BlockScope(parentScope).addLocalVariable(l);
+		return l;
+	}
 	@Override
 	public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel) {
-		codeStream.checkcast(this.resolvedType);
+//		codeStream.checkcast(this.resolvedType);
 		initializePatternVariables(currentScope, codeStream);
 		generatePatternVariable(currentScope, codeStream, trueLabel, falseLabel);
 		wrapupGeneration(codeStream);
@@ -254,29 +284,110 @@ public class RecordPattern extends TypePattern {
 //			BranchLabel target = falseLabel != null ? falseLabel : new BranchLabel(codeStream);
 //			codeStream.ifeq(target);
 		}
+		List<ExceptionLabel> labels = new ArrayList<>();
 		for (Pattern p : this.patterns) {
 			if (p.accessorMethod != null) {
 				codeStream.load(this.secretPatternVariable);
 				if (!this.isTotalTypeNode)
 					codeStream.checkcast(this.resolvedType);
+
+				ExceptionLabel exceptionLabel = new ExceptionLabel(codeStream,TypeBinding.wellKnownType(currentScope, T_JavaLangThrowable));
+				exceptionLabel.placeStart();
 				generateArguments(p.accessorMethod, null, currentScope, codeStream);
 				codeStream.invoke(Opcodes.OPC_invokevirtual, p.accessorMethod.original(), this.resolvedType, null);
-				if (!p.accessorMethod.original().equals(p.accessorMethod))
+				exceptionLabel.placeEnd();
+				labels.add(exceptionLabel);
+
+				if (TypeBinding.notEquals(p.accessorMethod.original().returnType.erasure(),
+						p.accessorMethod.returnType.erasure()))
 					codeStream.checkcast(p.accessorMethod.returnType);
 				if (!p.isTotalTypeNode) {
 					if (p instanceof TypePattern) {
+						((TypePattern)p).getSecretVariable(currentScope, p.resolvedType);
 						((TypePattern)p).initializePatternVariables(currentScope, codeStream);
 						codeStream.load(p.secretPatternVariable);
 						codeStream.instance_of(p.resolvedType);
 						BranchLabel target = falseLabel != null ? falseLabel : new BranchLabel(codeStream);
+						List<LocalVariableBinding> deepPatternVars = getDeepPatternVariables(currentScope);
+						recordEndPCDeepPatternVars(deepPatternVars, codeStream.position);
 						codeStream.ifeq(target);
+						recordStartPCDeepPatternVars(deepPatternVars, codeStream.position);
+						p.secretPatternVariable.recordInitializationStartPC(codeStream.position);
 						codeStream.load(p.secretPatternVariable);
+						codeStream.removeVariable(p.secretPatternVariable);
 					}
 				}
 				p.generateOptimizedBoolean(currentScope, codeStream, trueLabel, falseLabel);
 			}
 		}
+		addExceptionToBlockScope(currentScope, codeStream, labels);
 		super.generatePatternVariable(currentScope, codeStream, trueLabel, falseLabel);
+	}
+
+	List<LocalVariableBinding> getDeepPatternVariables(BlockScope blockScope) {
+		class PatternVariableCollector extends ASTVisitor {
+			Set<LocalVariableBinding> deepPatternVariables = new HashSet<>();
+			@Override
+			public boolean visit(Pattern pattern, BlockScope blockScope1) {
+				if (pattern.secretPatternVariable != null)
+					this.deepPatternVariables.add(pattern.secretPatternVariable);
+				return true;
+			}
+			@Override
+			public boolean visit(TypePattern typePattern, BlockScope blockScope1) {
+				if (typePattern.secretPatternVariable != null)
+					this.deepPatternVariables.add(typePattern.secretPatternVariable);
+				LocalVariableBinding local1 = typePattern.local != null ? typePattern.local.binding : null;
+				if (local1 != null && local1.initializationCount > 0)
+					this.deepPatternVariables.add(typePattern.local.binding);
+				return true;
+			}
+		}
+		PatternVariableCollector pvc = new PatternVariableCollector();
+		traverse(pvc, blockScope);
+		pvc.deepPatternVariables.add(this.secretPatternVariable);
+		return new ArrayList<>(pvc.deepPatternVariables);
+	}
+	private void recordEndPCDeepPatternVars(List<LocalVariableBinding> vars, int position) {
+		if (vars == null)
+			return;
+		for (LocalVariableBinding v : vars) {
+			if (v.initializationCount > 0)
+				v.recordInitializationEndPC(position);
+		}
+	}
+	private void recordStartPCDeepPatternVars(List<LocalVariableBinding> vars, int position) {
+		if (vars == null)
+			return;
+		for (LocalVariableBinding v : vars) {
+			v.recordInitializationStartPC(position);
+		}
+	}
+	private void addExceptionToBlockScope(BlockScope currentScope, CodeStream codeStream, List<ExceptionLabel> labels) {
+		if (currentScope == null || labels == null || labels.isEmpty())
+			return;
+		Predicate<Scope> pred = codeStream.patternCatchStack.isEmpty() ?
+			 s -> s instanceof MethodScope :
+				 s -> s == codeStream.patternCatchStack.firstElement();
+
+		Scope scope = currentScope;
+		while (scope != null) {
+			if (pred.test(scope)) {
+				List<ExceptionLabel> eLabels = codeStream.patternAccessorMap.get(scope);
+				if (eLabels == null || eLabels.isEmpty()) {
+					eLabels = labels;
+				} else {
+					eLabels.addAll(labels);
+				}
+				codeStream.patternAccessorMap.put((BlockScope) scope, eLabels);
+				break;
+			}
+			scope = scope.parent;
+		}
+	}
+	@Override
+	public void initializePatternVariables(BlockScope currentScope, CodeStream codeStream) {
+		super.initializePatternVariables(currentScope, codeStream);
 	}
 	@Override
 	public void wrapupGeneration(CodeStream codeStream) {

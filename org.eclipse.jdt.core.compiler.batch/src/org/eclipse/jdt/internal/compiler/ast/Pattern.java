@@ -26,7 +26,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 public abstract class Pattern extends Expression {
 
 	/* package */ boolean isTotalTypeNode = false;
-	static final char[] SECRET_PATTERN_VARIABLE_NAME = "secretPatternVariable".toCharArray(); //$NON-NLS-1$
+	static final String SECRET_PATTERN_VARIABLE_NAME = " secretPatternVariable"; //$NON-NLS-1$
 
 	public LocalVariableBinding secretPatternVariable = null;
 
@@ -37,6 +37,7 @@ public abstract class Pattern extends Expression {
 	/* package */ BranchLabel elseTarget;
 	/* package */ BranchLabel thenTarget;
 
+	public int nestingLevel = 0;
 
 	@Override
 	public boolean containsPatternVariable() {
@@ -70,6 +71,7 @@ public abstract class Pattern extends Expression {
 	 */
 	public void setEnclosingPattern(Pattern enclosingPattern) {
 		this.enclosingPattern = enclosingPattern;
+		this.nestingLevel = enclosingPattern.nestingLevel+1;
 	}
 
 	public boolean isTotalForType(TypeBinding type) {

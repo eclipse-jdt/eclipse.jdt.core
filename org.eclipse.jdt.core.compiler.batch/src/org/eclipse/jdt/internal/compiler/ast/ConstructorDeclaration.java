@@ -454,9 +454,16 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 		}
 		// generate statements
 		if (this.statements != null) {
+			if (this.addPatternAccessorException)
+				codeStream.addPatternCatchExceptionInfo(this.scope, this.recPatCatchVar);
+
 			for (int i = 0, max = this.statements.length; i < max; i++) {
 				this.statements[i].generateCode(this.scope, codeStream);
 			}
+
+			if (this.addPatternAccessorException)
+				codeStream.removePatternCatchExceptionInfo(this.scope, ((this.bits & ASTNode.NeedFreeReturn) != 0));
+
 		}
 		// if a problem got reported during code gen, then trigger problem method creation
 		if (this.ignoreFurtherInvestigation) {

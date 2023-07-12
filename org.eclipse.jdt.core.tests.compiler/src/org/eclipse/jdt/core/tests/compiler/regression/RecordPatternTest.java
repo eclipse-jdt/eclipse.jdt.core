@@ -31,8 +31,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-
-//		TESTS_NAMES = new String[] { "testRecordPatternTypeInference_011" };
+//		TESTS_NAMES = new String[] { "testRecordPatternMatchException_005" };
 	}
 	private String extraLibPath;
 	public static Class<?> testClass() {
@@ -2431,6 +2430,274 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				+ "        System.out.print(match);\n"
 				+ "    }\n"
 				+ "} "
+				},
+				"true");
+	}
+	public void testRecordPatternMatchException_001() {
+		runConformTest(new String[] {
+				"X.java",
+				"public class X  {\n"+
+				"\n"+
+				"    public record R(int x) {\n"+
+				"        public int x() {\n"+
+				"         return x < 10 ? 10/x : x;\n"+
+				"        }\n"+
+				"    }\n"+
+				"\n"+
+				"    @SuppressWarnings(\"preview\")\n"+
+				" private static int foo(Object o) {\n"+
+				"        int ret = -1;\n"+
+				"        try {\n"+
+				"            if (o instanceof R(int x)) {\n"+
+				"                ret = 100;\n"+
+				"            }\n"+
+				"        } catch (MatchException e) {\n"+
+				"            ret += 100;\n"+
+				"        }\n"+
+				"          return ret;\n"+
+				"    } \n"+
+				"    public static void main(String argv[]) { \n"+
+				"        System.out.println(X.foo(new R(0))); \n"+
+				"    } \n"+
+				"}"
+				},
+				"99");
+	}
+	public void testRecordPatternMatchException_002() {
+		runConformTest(new String[] {
+				"X.java",
+				"public class X {\n" +
+				"\n" +
+				" public record R1(int x) {\n" +
+				" }\n" +
+				"\n" +
+				" @SuppressWarnings(\"preview\")\n" +
+				" public static int bar(Object o) {\n" +
+				"   int res = 100;\n" +
+				"   if (o instanceof R1(int x)) {\n" +
+				"     res = x;\n" +
+				"   }\n" +
+				"     return res; \n" +
+				" }            \n" +
+				"\n" +
+				" public static void main(String argv[]) {\n" +
+				"   R1 r = new R1(0);\n" +
+				"   int result = bar(r);   \n" +
+				"   System.out.println(result);  \n" +
+				" }\n" +
+				"}"
+				},
+				"0");
+	}
+	public void testRecordPatternMatchException_003() {
+		runConformTest(new String[] {
+				"X.java",
+				"record R(int x) {}\n"+
+				"\n"+
+				"public class X {\n"+
+				"\n"+
+				" @SuppressWarnings(\"preview\")\n"+
+				" private int foo(Object o) {\n"+
+				"   int ret = 10;\n"+
+				"   try {\n"+
+				"     if (o instanceof R(int x)) {\n"+
+				"       ret = x;\n"+
+				"     }\n"+
+				"   } catch (MatchException e) {\n"+
+				"     ret = -1;\n"+
+				"   }\n"+
+				"   return ret;\n"+
+				" }\n"+
+				"\n"+
+				" public static void main(String argv[]) {\n"+
+				"   int res = new X().foo(new R(100));\n"+
+				"   System.out.println(res);\n"+
+				" }\n"+
+				"}"
+				},
+				"100");
+	}
+	public void testRecordPatternMatchException_004() {
+		runConformTest(new String[] {
+				"X.java",
+				"record R(int x) {}\n"+
+				"\n"+
+				"public class X {\n"+
+				"\n"+
+				" @SuppressWarnings(\"preview\")\n"+
+				" private static int foo(Object o) {\n"+
+				"   int ret = 10;\n"+
+				"   try {\n"+
+				"     if (o instanceof R(int x)) {\n"+
+				"       ret = x;\n"+
+				"     }\n"+
+				"   } catch (MatchException e) {\n"+
+				"     ret = -1;\n"+
+				"   }\n"+
+				"   return ret;\n"+
+				" }\n"+
+				"\n"+
+				" public static void main(String argv[]) {\n"+
+				"   int res = foo(new R(100));\n"+
+				"   System.out.println(res);\n"+
+				" }\n"+
+				"}"
+				},
+				"100");
+	}
+	public void testRecordPatternMatchException_005() {
+		runConformTest(new String[] {
+				"X.java",
+				" public class X {\n" +
+				"\n" +
+				" public record R1(int x) {}\n" +
+				"\n" +
+				" public record R2(int x) {}\n" +
+				"\n" +
+				" public static void main(String argv[]) {\n" +
+				"   R1 r = new R1(0);\n" +
+				"   try {\n" +
+				"     if (r instanceof R1(int x)) {\n" +
+				"       System.out.println(\"matched\");\n" +
+				"     }\n" +
+				"   } catch (MatchException e) {\n" +
+				"     System.out.println(\"caught exception\");\n" +
+				"   }\n" +
+				"\n" +
+				"   if (r instanceof R1(int x)) {\n" +
+				"     System.out.println(\"hello    \");\n" +
+				"   }\n" +
+				"\n" +
+				"   System.out.println(\"done\");\n" +
+				" }\n" +
+				"}"
+				},
+				"matched\n" +
+				"hello    \n" +
+				"done");
+	}
+	public void testRecordPatternMatchException_006() {
+		runConformTest(new String[] {
+				"X.java",
+				"public class X {\n" +
+				"\n" +
+				" public record R1(int x) {\n" +
+				"   public int x(){\n" +
+				"     return x < 10 ? 10 / x : x;\n" +
+				"   }\n" +
+				" }\n" +
+				" public record R2(R1 r1) {\n" +
+				"   \n" +
+				" }\n" +
+				"\n" +
+				" @SuppressWarnings(\"preview\")\n" +
+				" public static int bar(Object o) {\n" +
+				"   int res = 100;\n" +
+				"   if (o instanceof R2(R1 r1)) {\n" +
+				"     res = r1.x();\n" +
+				"   }\n" +
+				"   System.out.print(false);\n" +
+				"     return res; \n" +
+				" }            \n" +
+				"\n" +
+				" public static void main(String argv[]) {\n" +
+				"   R1 r = new R1(0);\n" +
+				"   int result = bar(r);   \n" +
+				"   System.out.println(result);  \n" +
+				" }      \n" +
+				"}"
+				},
+				"false100");
+	}
+	public void testRecordPatternMatchException_007() {
+		runConformTest(new String[] {
+				"X.java",
+				"public class X {\n" +
+				"\n" +
+				" public record R1(int x) {\n" +
+				" }\n" +
+				" public record R2(R1 r1) {\n" +
+				"   \n" +
+				" }\n" +
+				"\n" +
+				" @SuppressWarnings(\"preview\")\n" +
+				" public static int bar(Object o) {\n" +
+				"   int res = 100;\n" +
+				"   if (o instanceof R2(R1 r1)) {\n" +
+				"     res = r1.x();\n" +
+				"   }\n" +
+				"     return res; \n" +
+				" }\n" +
+				"\n" +
+				" public static void main(String argv[]) {\n" +
+				"   R1 r = new R1(0);\n" +
+				"   int result = bar(r);   \n" +
+				"   System.out.println(result);  \n" +
+				" }      \n" +
+				"}"
+				},
+				"100");
+	}
+	public void testRecordPatternMatchException_008() {
+		runConformTest(new String[] {
+				"X.java",
+				"record R(Integer a) {\n" +
+				"    static R newRecord() {\n" +
+				"        return new R(5);\n" +
+				"    }\n" +
+				"}\n" +
+				"\n" +
+				"public class X  {\n" +
+				"\n" +
+				"    @SuppressWarnings(\"preview\")\n" +
+				"       private int test(Object o) {\n" +
+				"        int ret = 0;\n" +
+				"        try {\n" +
+				"            switch (o) {\n" +
+				"                case R(Integer a) -> ret =  a;\n" +
+				"                default -> ret =  8;\n" +
+				"            }\n" +
+				"        } catch (MatchException ex) {\n" +
+				"            ret = -1;\n" +
+				"        }\n" +
+				"        return ret;\n" +
+				"    } \n" +
+				"\n" +
+				"    public static void main(String argv[]) {\n" +
+				"        X test = new X();\n" +
+				"        int res = test.test(R.newRecord());\n" +
+				"        System.out.println(res);\n" +
+				"} \n" +
+				"}"
+				},
+				"5");
+	}
+	public void testRecordPatternMatchException_009() {
+		runConformTest(new String[] {
+				"X.java",
+				"record R(Y s) {}\n"+
+				"class Y{}\n"+
+				"public class X  extends Y{\n"+
+				"\n"+
+				"    @SuppressWarnings({ \"preview\", \"unused\" })\n"+
+				" public boolean foo(R r) {\n"+
+				"        boolean ret = false; // keep this unused variable to see the error. \n"+
+				"        switch (r) {\n"+
+				"            case R(X s) : {\n"+
+				"             return true;\n"+
+				"            }\n"+
+				"            default : {\n"+
+				"                return false;\n"+
+				"            }\n"+
+				"        }\n"+
+				"    }  \n"+
+				"\n"+
+				"    public static void main(String argv[]) {\n"+
+				"        X x = new X();\n"+
+				"        System.out.println(x.foo(new R(x)));\n"+
+				"    }\n"+
+				"}"
+
 				},
 				"true");
 	}

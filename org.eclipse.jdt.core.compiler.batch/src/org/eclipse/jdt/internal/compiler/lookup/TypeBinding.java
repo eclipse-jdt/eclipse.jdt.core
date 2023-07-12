@@ -136,6 +136,8 @@ public static final TypeBinding wellKnownType(Scope scope, int id) {
 		return scope.getJavaLangObject();
 	case TypeIds.T_JavaLangString:
 		return scope.getJavaLangString();
+	case TypeIds.T_JavaLangThrowable:
+		return scope.getJavaLangThrowable();
 	default:
 		return null;
 	}
