@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.CRC32;
@@ -1679,13 +1680,9 @@ void updateMetaIndex(Index index) {
 	}
 
 	synchronized (this.metaIndexUpdates) {
-		if (this.metaIndexUpdates.contains(index)) {
-			if (VERBOSE) {
-				Util.verbose("-> already waiting for meta-index update for " + index); //$NON-NLS-1$
-			}
-			return;
+		if (!this.metaIndexUpdates.add(index) && VERBOSE) {
+			Util.verbose("-> already waiting for meta-index update for " + index); //$NON-NLS-1$
 		}
-		this.metaIndexUpdates.add(index);
 	}
 }
 
@@ -1750,23 +1747,22 @@ private void writeIntoMetaIndex() {
 		return;
 	}
 
-	Index index = null;
-	int metaIndexUpdatesSize;
-	boolean hasMoreIndexes = true;
-
-	while (hasMoreIndexes) {
-		// the metaIndexUpdates is already a synchronized collection, so no need to synchronized following operations
-		// since this method is called by the index loop thread.
+	final int metaIndexUpdatesSize = IndexManager.this.metaIndexUpdates.size();
+	Supplier<Index> nextIndex = () -> {
+		Index i = null;
 		Iterator<Index> iterator = IndexManager.this.metaIndexUpdates.iterator();
 		if (iterator.hasNext()) {
-			index = iterator.next();
+			i = iterator.next();
 			iterator.remove();
 		}
-		metaIndexUpdatesSize = IndexManager.this.metaIndexUpdates.size();
+		return i;
+	};
 
-		if (index == null) {
-			break;
-		}
+	Index index = null;
+	while ((index = nextIndex.get()) != null) {
+		// the metaIndexUpdates is already a synchronized collection, so no need to synchronized following operations
+		// since this method is called by the index loop thread.
+
 		if (index.monitor == null) {
 			// index got deleted since acquired
 			continue;
@@ -1774,9 +1770,6 @@ private void writeIntoMetaIndex() {
 		File indexFile = index.getIndexFile();
 		if (indexFile == null) {
 			continue;
-		}
-		if (VERBOSE) {
-			Util.verbose("-> meta-index update from queue with size " + metaIndexUpdatesSize); //$NON-NLS-1$
 		}
 		try {
 			updateMetaIndex(indexFile.getName(), index.getMetaIndexQualifications());
@@ -1792,7 +1785,9 @@ private void writeIntoMetaIndex() {
 				}
 			}
 		}
-		hasMoreIndexes = !IndexManager.this.metaIndexUpdates.isEmpty();
+	}
+	if (VERBOSE) {
+		Util.verbose("-> meta-index update from queue with size " + metaIndexUpdatesSize); //$NON-NLS-1$
 	}
 }
 
