@@ -17,7 +17,7 @@ pipeline {
 			steps {
 					sh """#!/bin/bash -x
 					
-					/opt/tools/java/openjdk/jdk-11/latest/bin/java -version
+					# /opt/tools/java/openjdk/jdk-11/latest/bin/java -version
 					java -version
 					
 					mkdir -p $WORKSPACE/tmp
@@ -29,7 +29,7 @@ pipeline {
 					# via configuration/argLine property in pom.xml
 					# export MAVEN_OPTS="-Xmx2G"
 					
-					mvn clean install -f org.eclipse.jdt.core.compiler.batch -DlocalEcjVersion=99.99
+					mvn clean install -f org.eclipse.jdt.core.compiler.batch -DlocalEcjVersion=99.99 -Dmaven.repo.local=$WORKSPACE/.m2/repository
 					
 					mvn -U clean verify --batch-mode --fail-at-end -Dmaven.repo.local=$WORKSPACE/.m2/repository \
 					-Ptest-on-javase-20 -Pbree-libs -Papi-check \
