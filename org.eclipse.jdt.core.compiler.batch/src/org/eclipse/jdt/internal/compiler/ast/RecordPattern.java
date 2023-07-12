@@ -87,7 +87,22 @@ public class RecordPattern extends TypePattern {
 	}
 	@Override
 	public boolean isTotalForType(TypeBinding t) {
-		return false;
+		if (TypeBinding.equalsEquals(t, this.resolvedType)) {
+			// return the already computed value
+			return this.isTotalTypeNode;
+		}
+		RecordComponentBinding[] components = t.components();
+		if (components == null || components.length != this.patterns.length) {
+			return false;
+		}
+		for (int i = 0; i < components.length; i++) {
+			Pattern p = this.patterns[i];
+			RecordComponentBinding componentBinding = components[i];
+			if (!p.isTotalForType(componentBinding.type)) {
+				return false;
+			}
+		}
+		return true;
 	}
 	@Override
 	public void resolveWithExpression(BlockScope scope, Expression exp) {
@@ -153,7 +168,7 @@ public class RecordPattern extends TypePattern {
 		return this.resolvedType;
 	}
 	private void setAccessorsPlusInfuseInferredType(BlockScope scope) {
-		this.isTotalTypeNode = isTotalForType(this.resolvedType);
+		this.isTotalTypeNode = super.isTotalForType(this.resolvedType);
 		RecordComponentBinding[] components = this.resolvedType.components();
 		if (components.length != this.patterns.length) {
 			scope.problemReporter().recordPatternSignatureMismatch(this.resolvedType, this);
@@ -178,6 +193,7 @@ public class RecordPattern extends TypePattern {
 						p.accessorMethod = methods[0];
 					}
 				}
+				this.isTotalTypeNode &= p.isTotalTypeNode;
 			}
 		}
 	}
@@ -248,30 +264,21 @@ public class RecordPattern extends TypePattern {
 	}
 	@Override
 	protected void generatePatternVariable(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel) {
-		if (!this.isTotalTypeNode) {
-//			codeStream.load(this.secretPatternVariable);
-//			codeStream.instance_of(this.resolvedType);
-//			BranchLabel target = falseLabel != null ? falseLabel : new BranchLabel(codeStream);
-//			codeStream.ifeq(target);
-		}
 		for (Pattern p : this.patterns) {
 			if (p.accessorMethod != null) {
 				codeStream.load(this.secretPatternVariable);
-				if (!this.isTotalTypeNode)
-					codeStream.checkcast(this.resolvedType);
+				codeStream.checkcast(this.resolvedType);
 				generateArguments(p.accessorMethod, null, currentScope, codeStream);
 				codeStream.invoke(Opcodes.OPC_invokevirtual, p.accessorMethod.original(), this.resolvedType, null);
 				if (!p.accessorMethod.original().equals(p.accessorMethod))
 					codeStream.checkcast(p.accessorMethod.returnType);
-				if (!p.isTotalTypeNode) {
-					if (p instanceof TypePattern) {
-						((TypePattern)p).initializePatternVariables(currentScope, codeStream);
-						codeStream.load(p.secretPatternVariable);
-						codeStream.instance_of(p.resolvedType);
-						BranchLabel target = falseLabel != null ? falseLabel : new BranchLabel(codeStream);
-						codeStream.ifeq(target);
-						codeStream.load(p.secretPatternVariable);
-					}
+				if (p instanceof RecordPattern || !p.isTotalTypeNode) {
+					((TypePattern)p).initializePatternVariables(currentScope, codeStream);
+					codeStream.load(p.secretPatternVariable);
+					codeStream.instance_of(p.resolvedType);
+					BranchLabel target = falseLabel != null ? falseLabel : new BranchLabel(codeStream);
+					codeStream.ifeq(target);
+					codeStream.load(p.secretPatternVariable);
 				}
 				p.generateOptimizedBoolean(currentScope, codeStream, trueLabel, falseLabel);
 			}

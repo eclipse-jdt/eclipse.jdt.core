@@ -507,11 +507,14 @@ private Constant resolveConstantExpression(BlockScope scope,
 					scope.problemReporter().duplicateTotalPattern(e);
 					return IntConstant.fromValue(-1);
 				}
-				switchStatement.switchBits |= (SwitchStatement.TotalPattern | SwitchStatement.Exhaustive);
-				if (switchStatement.defaultCase != null)
-					scope.problemReporter().illegalTotalPatternWithDefault(this);
-				switchStatement.totalPattern = e;
-				e.isTotalTypeNode = true;
+				switchStatement.switchBits |= SwitchStatement.Exhaustive;
+				if (e.isAlwaysTrue()) {
+						switchStatement.switchBits |= SwitchStatement.TotalPattern;
+						if (switchStatement.defaultCase != null && !(e instanceof RecordPattern))
+							scope.problemReporter().illegalTotalPatternWithDefault(this);
+						switchStatement.totalPattern = e;
+						e.isTotalTypeNode = true;
+				}
 				if (switchStatement.nullCase == null)
 					constant = IntConstant.fromValue(-1);
 			}
