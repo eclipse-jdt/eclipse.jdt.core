@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -454,9 +458,16 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 		}
 		// generate statements
 		if (this.statements != null) {
+			if (this.addPatternAccessorException)
+				codeStream.addPatternCatchExceptionInfo(this.scope, this.recPatCatchVar);
+
 			for (int i = 0, max = this.statements.length; i < max; i++) {
 				this.statements[i].generateCode(this.scope, codeStream);
 			}
+
+			if (this.addPatternAccessorException)
+				codeStream.removePatternCatchExceptionInfo(this.scope, ((this.bits & ASTNode.NeedFreeReturn) != 0));
+
 		}
 		// if a problem got reported during code gen, then trigger problem method creation
 		if (this.ignoreFurtherInvestigation) {

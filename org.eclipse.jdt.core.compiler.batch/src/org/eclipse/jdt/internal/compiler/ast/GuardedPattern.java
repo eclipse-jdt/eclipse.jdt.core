@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -67,18 +71,36 @@ public class GuardedPattern extends Pattern {
 		this.primaryPattern.generateOptimizedBoolean(currentScope, codeStream, this.thenTarget, this.elseTarget);
 		Constant cst =  this.condition.optimizedBooleanConstant();
 
+		setGuardedElseTarget(currentScope, this.elseTarget);
 		this.condition.generateOptimizedBoolean(
 				currentScope,
 				codeStream,
 				this.thenTarget,
 				null,
 				cst == Constant.NotAConstant);
+//		codeStream.goto_(this.elseTarget);
 		if (this.thenInitStateIndex2 != -1) {
 			codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.thenInitStateIndex2);
 			codeStream.addDefinitelyAssignedVariables(currentScope, this.thenInitStateIndex2);
 		}
 	}
 
+	private void setGuardedElseTarget(BlockScope currentScope, BranchLabel guardedElseTarget) {
+		class PatternsCollector extends ASTVisitor {
+			BranchLabel guardedElseTarget1;
+
+			public PatternsCollector(BranchLabel guardedElseTarget1) {
+				this.guardedElseTarget1 = guardedElseTarget1;
+			}
+			@Override
+			public boolean visit(RecordPattern recordPattern, BlockScope scope1) {
+				recordPattern.guardedElseTarget = this.guardedElseTarget1;
+				return true;
+			}
+		}
+		PatternsCollector patCollector =  new PatternsCollector(guardedElseTarget);
+		this.condition.traverse(patCollector, currentScope);
+	}
 	@Override
 	public boolean isAlwaysTrue() {
 		Constant cst = this.condition.optimizedBooleanConstant();

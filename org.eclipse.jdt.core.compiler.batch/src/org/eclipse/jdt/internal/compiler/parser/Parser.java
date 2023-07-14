@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Tom Tromey - patch for readTable(String) as described in http://bugs.eclipse.org/bugs/show_bug.cgi?id=32196
@@ -935,6 +939,7 @@ public class Parser implements TerminalTokens, ParserBasicInformation, Conflicte
 	protected int forStartPosition = 0;
 
 	protected int nestedType, dimensions, switchNestingLevel;
+	protected int tryNestingLevel = 0;
 //	/* package */ int caseLevel;
 //	protected int casePtr;
 	protected Map<Integer, Integer> caseStartMap = new HashMap<>();
@@ -1003,6 +1008,8 @@ private Map<TypeDeclaration, Integer[]> recordNestedMethodLevels;
 private Map<Integer, Boolean> recordPatternSwitches;
 private Map<Integer, Boolean> recordNullSwitches;
 
+private Map<Integer, Boolean> recordPatternLevel;
+
 public Parser () {
 	// Caveat Emptor: For inheritance purposes and then only in very special needs. Only minimal state is initialized !
 }
@@ -1035,6 +1042,7 @@ public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals) {
 	this.recordNestedMethodLevels = new HashMap<>();
 	this.recordPatternSwitches = new HashMap<>();
 	this.recordNullSwitches = new HashMap<>();
+	this.recordPatternLevel = new HashMap<>();
 
 	// javadoc support
 	this.javadocParser = createJavadocParser();
@@ -3083,6 +3091,10 @@ protected void consumeConstructorDeclaration() {
 	// a trailing comment behind the end of the method
 	cd.bodyEnd = this.endPosition;
 	cd.declarationSourceEnd = flushCommentsDefinedPriorTo(this.endStatementPosition);
+	if (this.recordPatternLevel.get(this.tryNestingLevel) != null) {
+		cd.addPatternAccessorException = true;
+		this.recordPatternLevel.remove(this.tryNestingLevel);
+	}
 }
 protected void consumeConstructorHeader() {
 	// ConstructorHeader ::= ConstructorHeaderName MethodHeaderParameters MethodHeaderThrowsClauseopt
@@ -5292,6 +5304,10 @@ protected void consumeMethodDeclaration(boolean isNotAbstract, boolean isDefault
 		} else {
 			problemReporter().illegalModifierForMethod(md);
 		}
+	}
+	if (this.recordPatternLevel.get(this.tryNestingLevel) != null) {
+		md.addPatternAccessorException = true;
+		this.recordPatternLevel.remove(this.tryNestingLevel);
 	}
 }
 protected void consumeMethodHeader() {
@@ -9902,6 +9918,13 @@ protected void consumeStatementTry(boolean withFinally, boolean hasResources) {
 	//positions
 	tryStmt.sourceEnd = this.endStatementPosition;
 	tryStmt.sourceStart = this.intStack[this.intPtr--];
+
+	if (this.recordPatternLevel.get(this.tryNestingLevel) != null) {
+		tryStmt.nestingLevel = this.tryNestingLevel;
+		tryStmt.addPatternAccessorException = true;
+		this.recordPatternLevel.remove(this.tryNestingLevel);
+	}
+	--this.tryNestingLevel;
 	pushOnAstStack(tryStmt);
 }
 protected void consumeStatementWhile() {
@@ -10507,7 +10530,6 @@ protected void consumeToken(int type) {
 		case TokenNamethrow :
 		case TokenNamedo :
 		case TokenNameif :
-		case TokenNametry :
 		case TokenNamewhile :
 		case TokenNamebreak :
 		case TokenNamecontinue :
@@ -10519,6 +10541,10 @@ protected void consumeToken(int type) {
 		case TokenNameuses:
 		case TokenNameprovides:
 		case TokenNameRestrictedIdentifierYield:
+			pushOnIntStack(this.scanner.startPosition);
+			break;
+		case TokenNametry :
+			++this.tryNestingLevel;
 			pushOnIntStack(this.scanner.startPosition);
 			break;
 		case TokenNameRestrictedIdentifierpermits:
@@ -10934,6 +10960,7 @@ protected void consumeRecordPattern() {
 				0,
 				length);
 		recPattern.patterns = patterns;
+		this.recordPatternLevel.put(this.tryNestingLevel, true);
 		for (int i = 0; i < length; ++i) {
 			TypePattern pattern = (TypePattern) patterns[i];
 			pattern.setEnclosingPattern(recPattern);
@@ -10959,6 +10986,7 @@ protected void consumeRecordPatternWithId() {
 	local.declarationSourceEnd = local.declarationEnd;
 	local.type = type;
 	RecordPattern recPattern = new RecordPattern(local);
+	this.recordPatternLevel.put(this.tryNestingLevel, true); // at 21 not supported, but future-proofing
 	if (length != 0) {
 		Pattern[] patterns = new Pattern[length];
 		System.arraycopy(
@@ -12667,6 +12695,7 @@ public void initialize(boolean parsingCompilationUnit) {
 	this.referenceContext = null;
 	this.endStatementPosition = 0;
 	this.valueLambdaNestDepth = -1;
+	this.tryNestingLevel = 0;
 
 	//remove objects from stack too, while the same parser/compiler couple is
 	//re-used between two compilations ....
@@ -12722,6 +12751,7 @@ public void initialize(boolean parsingCompilationUnit) {
 	this.genericsIdentifiersLengthPtr = -1;
 	this.genericsLengthPtr = -1;
 	this.genericsPtr = -1;
+
 }
 public void initializeScanner(){
 	this.scanner = new Scanner(
@@ -13573,6 +13603,10 @@ public void parse(MethodDeclaration md, CompilationUnitDeclaration unit) {
 			md.bits |= ASTNode.UndocumentedEmptyBlock;
 		}
 	}
+	if (this.recordPatternLevel.get(this.tryNestingLevel) != null) {
+		md.addPatternAccessorException = true;
+		this.recordPatternLevel.remove(this.tryNestingLevel);
+	}
 }
 public ASTNode[] parseClassBodyDeclarations(char[] source, int offset, int length, CompilationUnitDeclaration unit) {
 	/* automaton initialization */
@@ -13861,6 +13895,7 @@ protected void prepareForBlockStatements() {
 	this.realBlockStack[this.realBlockPtr = 1] = 0;
 	this.switchNestingLevel = 0;
 	this.switchWithTry = false;
+	this.tryNestingLevel = 0;
 }
 /**
  * Returns this parser's problem reporter initialized with its reference context.
@@ -14497,6 +14532,8 @@ protected void resetStacks() {
 	this.recordNestedMethodLevels = new HashMap<>();
 	this.recordPatternSwitches = new HashMap<>();
 	this.recordNullSwitches = new HashMap<>();
+	this.recordPatternLevel = new HashMap<>();
+	this.tryNestingLevel = 0;
 }
 /*
  * Reset context so as to resume to regular parse loop
@@ -14725,6 +14762,7 @@ public void copyState(Parser from) {
 	this.switchWithTry = parser.switchWithTry;
 	this.realBlockPtr = parser.realBlockPtr;
 	this.valueLambdaNestDepth = parser.valueLambdaNestDepth;
+	this.tryNestingLevel = parser.tryNestingLevel;
 
 	// Stacks.
 

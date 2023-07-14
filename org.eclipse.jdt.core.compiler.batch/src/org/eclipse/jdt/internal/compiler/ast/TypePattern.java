@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -224,7 +228,7 @@ public class TypePattern extends Pattern {
 				this.local.binding.useFlag = LocalVariableBinding.USED;
 				this.resolvedType = this.local.binding.type;
 			}
-			initSecretPatternVariable(scope);
+//			initSecretPatternVariable(scope);
 		}
 
 		return this.resolvedType;
@@ -243,17 +247,35 @@ public class TypePattern extends Pattern {
 		if (mentioned.isEmpty()) return null;
 		return mentioned.toArray(new TypeVariableBinding[mentioned.size()]);
 	}
-	protected void initSecretPatternVariable(BlockScope scope) {
+	protected void getSecretVariable(BlockScope scope, TypeBinding type) {
+		if (this.secretPatternVariable != null)
+			return;
+		this.secretPatternVariable = getSecretVariable(scope,
+				SECRET_PATTERN_VARIABLE_NAME, this.nestingLevel,
+				type);
+	}
+
+	private LocalVariableBinding getSecretVariable(BlockScope scope, String name, int nestingLevel1, TypeBinding type) {
+		return TypePattern.getNewLocalVariableBinding(scope,
+				(name + nestingLevel1).toCharArray(),
+				type);
+	}
+	private static LocalVariableBinding getNewLocalVariableBinding(BlockScope scope, char[] name,
+			TypeBinding type) {
 		LocalVariableBinding l =
-				this.secretPatternVariable =
-						new LocalVariableBinding(
-							SECRET_PATTERN_VARIABLE_NAME,
-							this.resolvedType,
-							ClassFileConstants.AccDefault,
-							false);
-				l.setConstant(Constant.NotAConstant);
-				l.useFlag = LocalVariableBinding.USED;
-				scope.addLocalVariable(l);
+				new LocalVariableBinding(
+					name,
+					type,
+					ClassFileConstants.AccDefault,
+					false);
+		l.setConstant(Constant.NotAConstant);
+		l.useFlag = LocalVariableBinding.USED;
+		scope.addLocalVariable(l);
+//		int delta =  ((TypeBinding.equalsEquals(type, TypeBinding.LONG)) ||
+//				(TypeBinding.equalsEquals(type, TypeBinding.DOUBLE))) ?
+//				2 : 1;
+		l.resolvedPosition = scope.localIndex;
+		return l;
 	}
 
 	@Override

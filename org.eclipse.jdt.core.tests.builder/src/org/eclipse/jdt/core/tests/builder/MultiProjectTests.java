@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -991,6 +995,14 @@ public void testCycle6() throws JavaModelException {
 		"}\n"
 		);
 
+	env.addClass(root1, "java/lang", "Throwable",
+		"package java.lang;\n" +
+		"public class Throwable {\n" +
+		"  Class getClass() { return null; }\n" +
+		"  String toString() { return \"\"; }\n" +	// the line that changes
+		"}\n"
+		);
+
 	//----------------------------
 	//         Project2
 	//----------------------------
@@ -1128,6 +1140,11 @@ public void testCycle7() throws JavaModelException {
 		"}\n"
 		);
 
+	env.addClass(root3, "java/lang", "Throwable",
+		"package java.lang;\n" +
+		"public class Throwable {\n" +
+		"}\n"
+			);
 	// Dependencies
 	IPath[] accessiblePaths = new IPath[] {new Path("java/lang/*")};
 	IPath[] forbiddenPaths = new IPath[] {new Path("**/*")};
