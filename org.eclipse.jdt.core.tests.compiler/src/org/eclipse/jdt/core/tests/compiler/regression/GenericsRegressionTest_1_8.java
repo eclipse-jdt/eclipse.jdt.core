@@ -2953,7 +2953,7 @@ public void testBug430296() {
 		"2. ERROR in AnnotationCollector.java (at line 9)\n" +
 		"	return persons.collect(Collectors.toMap((Person p) -> p.getLastName(),\n" +
 		"	                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type mismatch: cannot convert from Function<Person,? extends K> to Function<? super T,? extends K>\n" +
+		"Type mismatch: cannot convert from Function<Person,K> to Function<? super T,? extends K>\n" +
 		"----------\n" +
 		"3. ERROR in AnnotationCollector.java (at line 10)\n" +
 		"	Function::identity,\n" +
