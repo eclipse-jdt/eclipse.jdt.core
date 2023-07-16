@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-17">
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-20">
 		<attributes>
 			<attribute name="module" value="true"/>
-			<attribute name="limit-modules" value="java.base"/>
+			<attribute name="add-exports" value="jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED:jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED:jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED:jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED:jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED:jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED"/>
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>

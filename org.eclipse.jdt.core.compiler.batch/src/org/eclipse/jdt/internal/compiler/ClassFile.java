@@ -128,6 +128,8 @@ import org.eclipse.jdt.internal.compiler.problem.ShouldNotImplement;
 import org.eclipse.jdt.internal.compiler.util.Messages;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
+import com.sun.tools.javac.jvm.ByteCodes;
+
 /**
  * Represents a class file wrapper on bytes, it is aware of its actual
  * type name.
@@ -5885,10 +5887,11 @@ public class ClassFile implements TypeConstants, TypeIds {
 
 	private void initializeHeader(ClassFile parentClassFile, int accessFlags) {
 		// generate the magic numbers inside the header
-		this.header[this.headerOffset++] = (byte) (0xCAFEBABEL >> 24);
-		this.header[this.headerOffset++] = (byte) (0xCAFEBABEL >> 16);
-		this.header[this.headerOffset++] = (byte) (0xCAFEBABEL >> 8);
-		this.header[this.headerOffset++] = (byte) (0xCAFEBABEL >> 0);
+		long magicAsLong = com.sun.tools.javac.jvm.ClassFile.JAVA_MAGIC;
+		this.header[this.headerOffset++] = (byte) (magicAsLong >> 24);
+		this.header[this.headerOffset++] = (byte) (magicAsLong >> 16);
+		this.header[this.headerOffset++] = (byte) (magicAsLong >> 8);
+		this.header[this.headerOffset++] = (byte) (magicAsLong >> 0);
 
 		long targetVersion = this.targetJDK;
 		this.header[this.headerOffset++] = (byte) (targetVersion >> 8); // minor high
