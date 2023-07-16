@@ -10,7 +10,11 @@ pipeline {
 	}
 	tools {
 		maven 'apache-maven-latest'
-		jdk 'temurin-jdk17-latest'
+		jdk 'temurin-jdk20-latest'
+	}
+	environment {
+		MAVEN_OPTS="--add-exports jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED"
+		JAVA_OPTS="--add-exports jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED"
 	}
 	stages {
 		stage('Build') {
@@ -34,7 +38,7 @@ pipeline {
 					mvn -U clean verify --batch-mode --fail-at-end -Dmaven.repo.local=$WORKSPACE/.m2/repository \
 					-Ptest-on-javase-20 -Pbree-libs -Papi-check \
 					-Djava.io.tmpdir=$WORKSPACE/tmp -Dproject.build.sourceEncoding=UTF-8 \
-					-Dtycho.surefire.argLine="--add-modules ALL-SYSTEM -Dcompliance=1.8,11,17,20 -Djdt.performance.asserts=disabled" \
+					-Dtycho.surefire.argLine="--add-modules ALL-SYSTEM --add-exports jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED -Dcompliance=1.8,11,17,20 -Djdt.performance.asserts=disabled" \
 					-Dcbi-ecj-version=99.99
 					"""
 			}
