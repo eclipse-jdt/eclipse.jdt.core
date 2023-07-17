@@ -37,7 +37,7 @@ package org.eclipse.jdt.internal.codeassist.complete;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
-public class CompletionOnClassLiteralAccess extends ClassLiteralAccess {
+public class CompletionOnClassLiteralAccess extends ClassLiteralAccess implements CompletionNode {
 
 	public char[] completionIdentifier;
 	public int classStart;

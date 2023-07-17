@@ -958,7 +958,7 @@ public class EclipseFileManager implements StandardJavaFileManager {
 	}
 
 	private boolean isJrt(File f) {
-		return f.getName().toLowerCase().equals(JrtFileSystem.BOOT_MODULE);
+		return f.getName().equalsIgnoreCase(JrtFileSystem.BOOT_MODULE);
 	}
 
 	/* (non-Javadoc)

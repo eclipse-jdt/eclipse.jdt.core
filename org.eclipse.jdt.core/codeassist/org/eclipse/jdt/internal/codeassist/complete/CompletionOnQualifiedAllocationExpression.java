@@ -40,7 +40,7 @@ package org.eclipse.jdt.internal.codeassist.complete;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
-public class CompletionOnQualifiedAllocationExpression extends QualifiedAllocationExpression {
+public class CompletionOnQualifiedAllocationExpression extends QualifiedAllocationExpression implements CompletionNode {
 @Override
 public TypeBinding resolveType(BlockScope scope) {
 	this.argumentTypes = Binding.NO_PARAMETERS;

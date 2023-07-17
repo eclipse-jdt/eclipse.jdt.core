@@ -167,7 +167,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 	public int headerOffset;
 	public Map<TypeBinding, Boolean> innerClassesBindings;
 	public Set<SourceTypeBinding> nestMembers;
-	public List<ASTNode> bootstrapMethods = null;
+	public List<Object> bootstrapMethods = null;
 	public int methodCount;
 	public int methodCountOffset;
 	// pool managment
@@ -194,7 +194,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 	public static final String BOOTSTRAP_STRING = new String(ConstantPool.BOOTSTRAP);
 	public static final String TYPESWITCH_STRING = new String(ConstantPool.TYPESWITCH);
 	public static final String ENUMSWITCH_STRING = new String(ConstantPool.ENUMSWITCH);
-	public static final String[] BOOTSTRAP_METHODS = {ALTMETAFACTORY_STRING, METAFACTORY_STRING, BOOTSTRAP_STRING, TYPESWITCH_STRING, ENUMSWITCH_STRING};
+	public static final String CONCAT_CONSTANTS = new String(ConstantPool.ConcatWithConstants);
+	public static final String[] BOOTSTRAP_METHODS = {ALTMETAFACTORY_STRING, METAFACTORY_STRING, BOOTSTRAP_STRING, TYPESWITCH_STRING, ENUMSWITCH_STRING, CONCAT_CONSTANTS};
 
 	/**
 	 * INTERNAL USE-ONLY
@@ -419,7 +420,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 					else if (this.referenceBinding.isAnnotationType())
 						targetMask = TagBits.AnnotationForType | TagBits.AnnotationForAnnotationType;
 					else
-						targetMask = TagBits.AnnotationForType | TagBits.AnnotationForTypeUse;
+						targetMask = TagBits.AnnotationForType | TagBits.AnnotationForTypeUse; // 9.7.4 ... applicable to type declarations or in type contexts
 					attributesNumber += generateRuntimeAnnotations(annotations, targetMask);
 				}
 			}
@@ -2431,6 +2432,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 				}
 				Annotation[] annotations = methodDeclaration.annotations;
 				if (annotations != null && !methodDeclaration.isClinit() && (methodDeclaration.isConstructor() || binding.returnType.id != T_void)) {
+					// at source level type annotations have not been moved from declaration to type use position, collect them now:
 					methodDeclaration.getAllAnnotationContexts(AnnotationTargetTypeConstants.METHOD_RETURN, allTypeAnnotationContexts);
 				}
 				if (!methodDeclaration.isConstructor() && !methodDeclaration.isClinit() && binding.returnType.id != T_void) {
@@ -3602,7 +3604,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		}
 		return fPtr;
 	}
-	private int generateBootstrapMethods(List<ASTNode> bootStrapMethodsList) {
+	private int generateBootstrapMethods(List<Object> bootStrapMethodsList) {
 		/* See JVM spec 4.7.21
 		   The BootstrapMethods attribute has the following format:
 		   BootstrapMethods_attribute {
@@ -3657,6 +3659,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 				} else {
 					localContentsOffset = addBootStrapTypeSwitchEntry(localContentsOffset, stmt, fPtr);
 				}
+			} else if (o instanceof StringBuilder) {
+				localContentsOffset = addBootStrapStringConcatEntry(localContentsOffset, (StringBuilder) o, fPtr);
 			}
 		}
 
@@ -3930,7 +3934,32 @@ public class ClassFile implements TypeConstants, TypeIds {
 
 		return localContentsOffset;
 	}
+	private int addBootStrapStringConcatEntry(int localContentsOffset, StringBuilder recipe, Map<String, Integer> fPtr) {
+		final int contentsEntries = 10;
+		int indexForStringConcat = fPtr.get(ClassFile.CONCAT_CONSTANTS);
+		if (contentsEntries + localContentsOffset >= this.contents.length) {
+			resizeContents(contentsEntries);
+		}
+		if (indexForStringConcat == 0) {
+			ReferenceBinding stringConcatBootstrap = this.referenceBinding.scope.getJavaLangInvokeStringConcatFactory();
+			indexForStringConcat = this.constantPool.literalIndexForMethodHandle(ClassFileConstants.MethodHandleRefKindInvokeStatic, stringConcatBootstrap,
+					ConstantPool.ConcatWithConstants, ConstantPool.JAVA_LANG_INVOKE_STRING_CONCAT_FACTORY_SIGNATURE, false);
+			fPtr.put(ClassFile.CONCAT_CONSTANTS, indexForStringConcat);
+		}
+		this.contents[localContentsOffset++] = (byte) (indexForStringConcat >> 8);
+		this.contents[localContentsOffset++] = (byte) indexForStringConcat;
 
+		// u2 num_bootstrap_arguments
+		this.contents[localContentsOffset++] = 0;
+		this.contents[localContentsOffset++] = (byte) 1;
+
+		int intValIdx =
+				this.constantPool.literalIndex(recipe.toString());
+		this.contents[localContentsOffset++] = (byte) (intValIdx >> 8);
+		this.contents[localContentsOffset++] = (byte) intValIdx;
+
+		return localContentsOffset;
+	}
 	private int generateLineNumberAttribute() {
 		int localContentsOffset = this.contentsOffset;
 		int attributesNumber = 0;
@@ -4578,9 +4607,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 			if (annotationMask != 0 && (annotationMask & targetMask) == 0) {
 				if (!jdk16packageInfoAnnotation(annotationMask, targetMask)) continue;
 			}
-			if (annotation.isRuntimeInvisible() || annotation.isRuntimeTypeInvisible(false)) {
+			if (annotation.isRuntimeInvisible()) {
 				invisibleAnnotationsCounter++;
-			} else if (annotation.isRuntimeVisible() || annotation.isRuntimeTypeVisible(false)) {
+			} else if (annotation.isRuntimeVisible()) {
 				visibleAnnotationsCounter++;
 			}
 		}
@@ -4609,7 +4638,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 				if (annotationMask != 0 && (annotationMask & targetMask) == 0) {
 					if (!jdk16packageInfoAnnotation(annotationMask, targetMask)) continue;
 				}
-				if (annotation.isRuntimeInvisible() || annotation.isRuntimeTypeInvisible(false)) {
+				if (annotation.isRuntimeInvisible()) {
 					int currentAnnotationOffset = this.contentsOffset;
 					generateAnnotation(annotation, currentAnnotationOffset);
 					invisibleAnnotationsCounter--;
@@ -4657,7 +4686,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 				if (annotationMask != 0 && (annotationMask & targetMask) == 0) {
 					if (!jdk16packageInfoAnnotation(annotationMask, targetMask)) continue;
 				}
-				if (annotation.isRuntimeVisible() || annotation.isRuntimeTypeVisible(false)) {
+				if (annotation.isRuntimeVisible()) {
 					visibleAnnotationsCounter--;
 					int currentAnnotationOffset = this.contentsOffset;
 					generateAnnotation(annotation, currentAnnotationOffset);
@@ -6212,7 +6241,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		}
 		if (expression instanceof ReferenceExpression) {
 			for (int i = 0; i < this.bootstrapMethods.size(); i++) {
-				ASTNode node = this.bootstrapMethods.get(i);
+				Object node = this.bootstrapMethods.get(i);
 				if (node instanceof FunctionalExpression) {
 					FunctionalExpression fexp = (FunctionalExpression) node;
 					if (fexp.binding == expression.binding
@@ -6233,7 +6262,13 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.bootstrapMethods.add(switchStatement);
 		return this.bootstrapMethods.size() - 1;
 	}
-
+	public int recordBootstrapMethod(StringBuilder expression) {
+		if (this.bootstrapMethods == null) {
+			this.bootstrapMethods = new ArrayList<>();
+		}
+		this.bootstrapMethods.add(expression);
+		return this.bootstrapMethods.size() - 1;
+	}
 	public void reset(/*@Nullable*/SourceTypeBinding typeBinding, CompilerOptions options) {
 		// the code stream is reinitialized for each method
 		if (typeBinding != null) {

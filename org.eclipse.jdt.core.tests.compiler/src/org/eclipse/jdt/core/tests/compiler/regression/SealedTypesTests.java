@@ -5762,4 +5762,87 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"An interface I3 declared as non-sealed should have a sealed direct superinterface\n" +
 				"----------\n");
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=576378
+	// [compiler] Wrong rawtype warning and wrong compilation of generic type reference in permits clause
+	public void testBug576378() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"sealed interface I permits J {}\r\n" +
+						"record J<T>() implements I {}\n" +
+						"public class X {\n" +
+						"    public static void main(String [] args) {\n" +
+						"        J j; K k;\n" +
+						"    }\n" +
+						"}\n"
+				},
+				"----------\n"
+				+ "1. WARNING in X.java (at line 5)\n"
+				+ "	J j; K k;\n"
+				+ "	^\n"
+				+ "J is a raw type. References to generic type J<T> should be parameterized\n"
+				+ "----------\n"
+				+ "2. ERROR in X.java (at line 5)\n"
+				+ "	J j; K k;\n"
+				+ "	     ^\n"
+				+ "K cannot be resolved to a type\n"
+				+ "----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=576378
+	// [compiler] Wrong rawtype warning and wrong compilation of generic type reference in permits clause
+	public void testBug576378_2() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"sealed interface I permits J<Object> {}\r\n" +
+						"record J<T>() implements I {}\n"
+				},
+				"----------\n"
+				+ "1. ERROR in X.java (at line 1)\n"
+				+ "	sealed interface I permits J<Object> {}\n"
+				+ "	                             ^^^^^^\n"
+				+ "Type arguments are not allowed here\n"
+				+ "----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=576378
+	// [compiler] Wrong rawtype warning and wrong compilation of generic type reference in permits clause
+	public void testBug576378_3() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"sealed interface I permits J<Object>.K<String> {}\r\n" +
+						"final class J<T> {\n" +
+						"    final class K<P> implements I {}\n" +
+						"}\n"
+				},
+				"----------\n"
+				+ "1. ERROR in X.java (at line 1)\n"
+				+ "	sealed interface I permits J<Object>.K<String> {}\n"
+				+ "	                             ^^^^^^\n"
+				+ "Type arguments are not allowed here\n"
+				+ "----------\n"
+				+ "2. ERROR in X.java (at line 1)\n"
+				+ "	sealed interface I permits J<Object>.K<String> {}\n"
+				+ "	                                       ^^^^^^\n"
+				+ "Type arguments are not allowed here\n"
+				+ "----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=576378
+	// [compiler] Wrong rawtype warning and wrong compilation of generic type reference in permits clause
+	public void testBug576378_4() {
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"sealed interface I permits J.K<String> {}\r\n" +
+						"final class J<T> {\n" +
+						"    final static class K<P> implements I {}\n" +
+						"}\n"
+				},
+				"----------\n"
+				+ "1. ERROR in X.java (at line 1)\n"
+				+ "	sealed interface I permits J.K<String> {}\n"
+				+ "	                               ^^^^^^\n"
+				+ "Type arguments are not allowed here\n"
+				+ "----------\n");
+	}
 }

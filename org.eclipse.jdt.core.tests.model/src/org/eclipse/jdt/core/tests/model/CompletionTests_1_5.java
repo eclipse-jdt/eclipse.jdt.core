@@ -11488,7 +11488,7 @@ public void test0356() throws JavaModelException {
 
 	assertResults(
 			"getClass[METHOD_REF]{getClass(), Ljava.lang.Object;, ()Ljava.lang.Class<+Ljava.lang.Object;>;, getClass, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED) + "}\n" +
-			"get[METHOD_REF]{get(), Ltest.util.List<Ljava.lang.Object;>;, (I)Ljava.lang.Object;, get, (i), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_STATIC + R_NON_RESTRICTED) + "}",
+			"get[METHOD_REF]{get(), Ltest.util.List<Ltest.util.List<TT;>;>;, (I)Ltest.util.List<TT;>;, get, (i), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME + R_NON_STATIC + R_NON_RESTRICTED) + "}",
 			requestor.getResults());
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=96604
@@ -14860,11 +14860,13 @@ public void testGH969_completeOnArgumentPosition_onMethodWithReceiver() throws E
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	int relevance = R_DEFAULT + R_INTERESTING + R_RESOLVED + R_NON_RESTRICTED;
+	int symbolRelevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED;
 	assertEquals(
 			"GH969.PersonDetails[ANONYMOUS_CLASS_DECLARATION]{, LGH969$PersonDetails;, (LGH969List<Ljava.lang.String;>;I)V, LGH969$PersonDetails;, LGH969$PersonDetails;.(LGH969List<Ljava/lang/String;>;I)V, null, (address, age), replace[119, 119], token[119, 119], "
 					+ relevance + "}\n"
 					+ "PersonDetails[METHOD_REF<CONSTRUCTOR>]{, LGH969$PersonDetails;, (LGH969List<Ljava.lang.String;>;I)V, null, null, PersonDetails, (address, age), replace[119, 119], token[80, 119], "
-					+ relevance + "}",
+					+ relevance + "}\n"
+					+ "emptyList[METHOD_REF]{emptyList(), LGH969;, <T:Ljava.lang.Object;>()LGH969List<TT;>;, null, null, emptyList, null, replace[98, 98], token[98, 98], " + symbolRelevance + "}",
 			requestor.getResults());
 }
 public void testGH969_completeOnArgumentPosition_onMethodInvocation() throws Exception {
@@ -14899,11 +14901,13 @@ public void testGH969_completeOnArgumentPosition_onMethodInvocation() throws Exc
 	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	int relevance = R_DEFAULT + R_INTERESTING + R_RESOLVED + R_NON_RESTRICTED;
+	int symbolRelevance = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED;
 	assertEquals(
 			"GH969.PersonDetails[ANONYMOUS_CLASS_DECLARATION]{, LGH969$PersonDetails;, (LGH969List<Ljava.lang.String;>;I)V, LGH969$PersonDetails;, LGH969$PersonDetails;.(LGH969List<Ljava/lang/String;>;I)V, null, (address, age), replace[113, 113], token[113, 113], "
 					+ relevance + "}\n"
 					+ "PersonDetails[METHOD_REF<CONSTRUCTOR>]{, LGH969$PersonDetails;, (LGH969List<Ljava.lang.String;>;I)V, null, null, PersonDetails, (address, age), replace[113, 113], token[80, 113], "
-					+ relevance + "}",
+					+ relevance + "}\n"
+					+ "emptyList[METHOD_REF]{emptyList(), LGH969;, <T:Ljava.lang.Object;>()LGH969List<TT;>;, null, null, emptyList, null, replace[98, 98], token[98, 98], " + symbolRelevance + "}",
 			requestor.getResults());
 }
 }

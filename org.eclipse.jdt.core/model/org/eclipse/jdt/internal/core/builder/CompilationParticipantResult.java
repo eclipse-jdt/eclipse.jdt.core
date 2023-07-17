@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2018 IBM Corporation and others.
+ * Copyright (c) 2005, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,17 +10,19 @@
  *
  * Contributors:
  *    IBM - rewrote spec
- *
+ *    Christoph Läubrich -  Enhance the BuildContext with the discovered annotations #674
  *******************************************************************************/
 
 package org.eclipse.jdt.internal.core.builder;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.core.compiler.*;
+import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 
 public class CompilationParticipantResult extends BuildContext {
 	protected SourceFile sourceFile;
-	protected boolean hasAnnotations; // only set during processAnnotations
+	protected AnnotationBinding[] annotations; // only set during processAnnotations
 	protected IFile[] addedFiles; // added/changed generated source files that need to be compiled
 	protected IFile[] deletedFiles; // previously generated source files that should be deleted
 	protected CategorizedProblem[] problems; // new problems to report against this compilationUnit
@@ -30,7 +32,7 @@ public class CompilationParticipantResult extends BuildContext {
 protected CompilationParticipantResult(SourceFile sourceFile, boolean isTestCode) {
 	this.sourceFile = sourceFile;
 	this.isTestCode = isTestCode;
-	this.hasAnnotations = false;
+	this.annotations = null;
 	this.addedFiles = null;
 	this.deletedFiles = null;
 	this.problems = null;
@@ -66,7 +68,26 @@ public IFile getFile() {
  */
 @Override
 public boolean hasAnnotations() {
-	return this.hasAnnotations; // only set during processAnnotations
+	return this.annotations != null; // only set during processAnnotations
+}
+
+@Override
+public boolean hasAnnotations(String fqn) {
+	if (this.annotations != null) {
+		for (AnnotationBinding binding : this.annotations) {
+			if (binding == null) {
+				continue;
+			}
+			ReferenceBinding type = binding.getAnnotationType();
+			if (type == null || type.compoundName == null) {
+				continue;
+			}
+			if (fqn.equals(new String(CharOperation.concatWith(type.compoundName, '.')))) {
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
 /**
@@ -143,9 +164,9 @@ public void recordNewProblems(CategorizedProblem[] newProblems) {
 	this.problems = merged;
 }
 
-void reset(boolean detectedAnnotations) {
+void reset(AnnotationBinding[] newAnnotations) {
 	// called prior to processAnnotations
-	this.hasAnnotations = detectedAnnotations;
+	this.annotations = newAnnotations;
 	this.addedFiles = null;
 	this.deletedFiles = null;
 	this.problems = null;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -10,6 +10,7 @@
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
+ *     Christoph Läubrich -  Enhance the BuildContext with the discovered annotations #674
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.builder;
 
@@ -23,6 +24,7 @@ import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
@@ -60,7 +62,7 @@ protected boolean compiledAllAtOnce;
 private boolean inCompiler;
 
 protected boolean keepStoringProblemMarkers;
-protected Set<SourceFile> filesWithAnnotations = null;
+protected Map<SourceFile, AnnotationBinding[]> filesWithAnnotations = null;
 
 //2000 is best compromise between space used and speed
 public static int MAX_AT_ONCE = Integer.getInteger(JavaModelManager.MAX_COMPILED_UNITS_AT_ONCE, 2000).intValue();
@@ -104,7 +106,7 @@ protected AbstractImageBuilder(JavaBuilder javaBuilder, boolean buildStarting, S
 					// initialize this set so the builder knows to gather CUs that define Annotation types
 					// each Annotation processor participant is then asked to process these files AFTER
 					// the compile loop. The normal dependency loop will then recompile all affected types
-					this.filesWithAnnotations = new HashSet<>(1);
+					this.filesWithAnnotations = new HashMap<>(1);
 					break;
 				}
 			}
@@ -219,8 +221,11 @@ public void acceptResult(CompilationResult result) {
 					createProblemFor(compilationUnit.resource, null, Messages.build_inconsistentClassFile, JavaCore.ERROR);
 			}
 		}
-		if (result.hasAnnotations && this.filesWithAnnotations != null) // only initialized if an annotation processor is attached
-			this.filesWithAnnotations.add(compilationUnit);
+		if (result.hasAnnotations && this.filesWithAnnotations != null) {
+			// only initialized if an annotation processor is attached
+			AnnotationBinding[] bindings = result.annotations.stream().flatMap(Arrays::stream).filter(Objects::nonNull).toArray(AnnotationBinding[]::new);
+			this.filesWithAnnotations.put(compilationUnit, bindings);
+		}
 
 		this.compiler.lookupEnvironment.releaseClassFiles(classFiles);
 		finishedWith(typeLocator, result, compilationUnit.getMainTypeName(), definedTypeNames, duplicateTypeNames);
@@ -653,8 +658,9 @@ protected void processAnnotations(CompilationParticipantResult[] results) {
 	if (!hasAnnotationProcessor) return;
 
 	boolean foundAnnotations = this.filesWithAnnotations != null && this.filesWithAnnotations.size() > 0;
-	for (int i = results.length; --i >= 0;)
-		results[i].reset(foundAnnotations && this.filesWithAnnotations.contains(results[i].sourceFile));
+	for (int i = results.length; --i >= 0;) {
+		results[i].reset(foundAnnotations ? this.filesWithAnnotations.get(results[i].sourceFile) : null);
+	}
 
 	// even if no files have annotations, must still tell every annotation processor in case the file used to have them
 	for (int i = 0, l = this.javaBuilder.participants.length; i < l; i++)

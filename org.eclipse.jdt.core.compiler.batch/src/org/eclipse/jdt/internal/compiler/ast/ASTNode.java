@@ -788,7 +788,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		}
 		if (method instanceof ParameterizedGenericMethodBinding) {
 			InferenceContext18 ic18 = invocation.getInferenceContext((ParameterizedMethodBinding) method);
-			if (ic18 != null)
+			if (ic18 != null && !ic18.isInexactVarargsInference())
 				ic18.flushBoundOutbox(); // overload resolution is done, now perform the push of bounds from inner to outer
 		}
 		if (problemMethod != null)

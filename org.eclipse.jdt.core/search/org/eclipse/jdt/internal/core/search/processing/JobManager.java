@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2022 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -26,6 +26,7 @@ import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.SubMonitor;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -434,6 +435,7 @@ public abstract class JobManager {
 	 */
 	void indexerLoop() {
 
+		boolean cacheZipFiles = false;
 		long idlingStart = -1;
 		activateProcessing();
 		try {
@@ -492,6 +494,10 @@ public abstract class JobManager {
 					}
 					if (job == null) {
 						notifyIdle(System.currentTimeMillis() - idlingStart);
+						if (cacheZipFiles) {
+							JavaModelManager.getJavaModelManager().flushZipFiles(this);
+							cacheZipFiles = false;
+						}
 						// just woke up, delay before processing any new jobs, allow some time for the active thread to finish
 						synchronized (this.idleMonitor) {
 							this.idleMonitor.wait(500); // avoid sleep fixed time
@@ -510,6 +516,10 @@ public abstract class JobManager {
 							pJob.setSystem(true);
 							pJob.schedule();
 							this.progressJob = pJob;
+						}
+						if (!cacheZipFiles) {
+							JavaModelManager.getJavaModelManager().cacheZipFiles(this);
+							cacheZipFiles = true;
 						}
 						/*boolean status = */job.execute(null);
 						//if (status == FAILED) request(job);
@@ -546,6 +556,11 @@ public abstract class JobManager {
 				reset(); // this will fork a new thread with no waiting jobs, some indexes will be inconsistent
 			}
 			throw e;
+		} finally {
+			if (cacheZipFiles) {
+				JavaModelManager.getJavaModelManager().flushZipFiles(this);
+				cacheZipFiles = false;
+			}
 		}
 	}
 	/**

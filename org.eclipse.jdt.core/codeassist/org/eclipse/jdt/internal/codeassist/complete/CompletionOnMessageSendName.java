@@ -24,7 +24,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
  * Since https://bugs.eclipse.org/539685 it is also used for non-parameterized invocations,
  * and signals that the selector is to be matched inexactly (in contrast to CompletionOnMessageSend)..
  */
-public class CompletionOnMessageSendName extends MessageSend {
+public class CompletionOnMessageSendName extends MessageSend implements CompletionNode {
 
 	public boolean nextIsCast;
 

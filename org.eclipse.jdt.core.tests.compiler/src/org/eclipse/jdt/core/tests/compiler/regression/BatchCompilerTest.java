@@ -432,10 +432,10 @@ public void test007(){
         + " -verbose -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "[parsing    ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" +
 		"[reading    java/lang/Object.class]\n" +
-		"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" +
-		"[reading    java/util/List.class]\n" +
 		"[reading    java/lang/SuppressWarnings.class]\n" +
 		"[reading    java/lang/String.class]\n" +
+		"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" +
+		"[reading    java/util/List.class]\n" +
 		"[reading    java/lang/Throwable.class]\n" +
 		"[writing    X.class - #1]\n" +
 		"[completed  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" +
@@ -565,10 +565,10 @@ public void test010(){
         + " -proceedOnError -referenceInfo -d \"" + OUTPUT_DIR + "\"",
         "[parsing    ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" +
 		"[reading    java/lang/Object.class]\n" +
-		"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" +
-		"[reading    java/util/List.class]\n" +
 		"[reading    java/lang/SuppressWarnings.class]\n" +
 		"[reading    java/lang/String.class]\n" +
+		"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" +
+		"[reading    java/util/List.class]\n" +
 		"[reading    java/lang/Throwable.class]\n" +
 		"[writing    X.class - #1]\n" +
 		"[completed  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" +
@@ -1047,6 +1047,7 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.shareCommonFinallyBlocks\" value=\"disabled\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.targetPlatform\" value=\"1.5\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.unusedLocal\" value=\"optimize out\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.useStringConcatFactory\" value=\"enabled\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.compliance\" value=\"1.5\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.debug.lineNumber\" value=\"generate\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.debug.localVariable\" value=\"do not generate\"/>\n" +

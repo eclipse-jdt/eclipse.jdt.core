@@ -39,7 +39,7 @@ package org.eclipse.jdt.internal.codeassist.complete;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
-public class CompletionOnQualifiedNameReference extends QualifiedNameReference {
+public class CompletionOnQualifiedNameReference extends QualifiedNameReference implements CompletionNode {
 	public char[] completionIdentifier;
 	public boolean isInsideAnnotationAttribute;
 public CompletionOnQualifiedNameReference(char[][] previousIdentifiers, char[] completionIdentifier, long[] positions, boolean isInsideAnnotationAttribute) {
@@ -78,6 +78,9 @@ public TypeBinding resolveType(BlockScope scope) {
 		throw new CompletionNodeFound();
 	}
 
-	throw new CompletionNodeFound(this, this.binding, scope);
+	return new CompletionNodeFound(this, this.binding, scope).throwOrDeferAndReturn(() -> {
+		// probably not in the position to do useful resolution, just provide some binding
+		return this.resolvedType = new ProblemReferenceBinding(this.tokens, null, ProblemReasons.NotFound);
+	});
 }
 }

@@ -924,7 +924,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		visitList(node, RecordDeclaration.SUPER_INTERFACE_TYPES_PROPERTY, String.valueOf(','), "implements ", Util.EMPTY_STRING); //$NON-NLS-1$
 
 		this.result.append('{');
-		visitList(node, RecordDeclaration.BODY_DECLARATIONS_PROPERTY, Util.EMPTY_STRING, String.valueOf(';'), Util.EMPTY_STRING);
+		visitList(node, RecordDeclaration.BODY_DECLARATIONS_PROPERTY, Util.EMPTY_STRING);
 		this.result.append('}');
 		return false;
 	}

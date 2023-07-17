@@ -7918,6 +7918,457 @@ public void testBug551882() {
 			);
 }
 
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=511958
+// [1.8][compiler] Discrepancy with javac behavior when handling inner classes and lambdas
+public void testBug511958() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"import java.util.function.Consumer;\n" +
+				"@SuppressWarnings(\"all\")\n" +
+				"public class X {\n" +
+				"  private final String text = \"Bug?\";\n" +
+				"  public static void main(String[] args) {\n" +
+				"    new X().doIt();\n" +
+				"  }\n" +
+				"  \n" +
+				"  private void doIt() {\n" +
+				"    new Sub();\n" +
+				"  }\n" +
+				"  private class Super<T> {\n" +
+				"	  public Super(String s) {}\n" +
+				"    public Super(Consumer<T> consumer) {\n" +
+				"    }\n" +
+				"  }\n" +
+				"  private class Sub extends Super<String> {\n" +
+				"    public Sub() {\n" +
+				"      super(s -> System.out.println(text));  \n" +
+				"    }\n" +
+				"    \n" +
+				"  }\n" +
+				"}\n"},
+			""
+			);
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1060
+// NPE when inspecting scrapbook expression that uses Java 8 features
+public void testGH1060() {
+	this.runConformTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		System.out.println(new X().foo());\n" +
+				"	}\n" +
+				"	\n" +
+				"	String foo() {\n" +
+				"		return java.time.format.DateTimeFormatter\n" +
+				"				.ofPattern(\"yyyyMMddHHmmss.SSS000\")\n" +
+				"				.format(java.time.format.DateTimeFormatter.ofPattern(\"dd.MM.yyyy HHmmss\").parse(\"30.03.2021 112430\", java.time.LocalDateTime::from));\n" +
+				"	}\n" +
+				"}\n"},
+			"20210330112430.000000"
+			);
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=546161
+//LambdaConversionException due to invalid instantiated method type argument to LambdaMetafactory::metafactory
+public void testBug546161() {
+	this.runConformTest(
+			new String[] {
+				"Main.java",
+				"public class Main {\n" +
+				"    public static void main(String[] args) {\n" +
+				"    	((Widget<?>) new Widget<>()).addListener(evt -> {});\n" +
+				"    }\n" +
+				"}\n" +
+				"\n" +
+				"class Widget<E extends CharSequence> {\n" +
+				"    void addListener(Listener<? super E> listener) {}\n" +
+				"}\n" +
+				"\n" +
+				"interface Listener<E extends CharSequence> {\n" +
+				"    void m(E event);\n" +
+				"}\n"},
+			""
+			);
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=546161
+//LambdaConversionException due to invalid instantiated method type argument to LambdaMetafactory::metafactory
+public void testBug546161_2() {
+	this.runConformTest(
+			new String[] {
+				"Main.java",
+				"public class Main {\n" +
+				"    public static void main(String[] args) {\n" +
+				"    	new Widget<>().addListener(evt -> {});\n" +
+				"    }\n" +
+				"}\n" +
+				"class Widget<E extends CharSequence> {\n" +
+				"    void addListener(Listener<? super E> listener) {}\n" +
+				"}\n" +
+				"interface Listener<E extends CharSequence> {\n" +
+				"    void m(E event);\n" +
+				"}\n"},
+			""
+			);
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=574269
+//java.lang.invoke.LambdaConversionException: Invalid receiver type class java.lang.Object
+public void testBug574269() {
+	this.runConformTest(
+			new String[] {
+				"Test.java",
+				"import java.util.List;\n" +
+				"\n" +
+				"public class Test {\n" +
+				"\n" +
+				"	public static void main(String[] args) {\n" +
+				"		System.out.println(\"Testing with explicit type\");\n" +
+				"		MyGroup group = new MyGroup();\n" +
+				"\n" +
+				"		System.out.println(\"  Testing lambda\");\n" +
+				"		if (group.getPersons().stream().anyMatch(p -> p.isFoo())) {}\n" +
+				"		System.out.println(\"  Lambda is good\");\n" +
+				"		\n" +
+				"		System.out.println(\"  Testing method reference\");\n" +
+				"		if (group.getPersons().stream().anyMatch(Test.Person::isFoo)) {}\n" +
+				"		System.out.println(\"  Method reference is good\");\n" +
+				"\n" +
+				"		System.out.println(\"Testing with wildcard\");\n" +
+				"		Group<?> group2 = new MyGroup();\n" +
+				"\n" +
+				"		System.out.println(\"  Testing lambda\");\n" +
+				"		if (group2.getPersons().stream().anyMatch(p -> p.isFoo())) {}\n" +
+				"		System.out.println(\"  Lambda is good\");\n" +
+				"		\n" +
+				"		System.out.println(\"  Testing method reference\");\n" +
+				"		if (group2.getPersons().stream().anyMatch(Test.Person::isFoo)) {}\n" +
+				"		System.out.println(\"  Method reference is good\");\n" +
+				"	}\n" +
+				"\n" +
+				"	interface Group<T extends Person> {\n" +
+				"		List<T> getPersons();\n" +
+				"	}\n" +
+				"\n" +
+				"	interface Person {\n" +
+				"		boolean isFoo();\n" +
+				"	}\n" +
+				"\n" +
+				"	static class MyGroup implements Group<MyPerson> {\n" +
+				"\n" +
+				"		@Override\n" +
+				"		public List<MyPerson> getPersons() {\n" +
+				"			return List.of();\n" +
+				"		}\n" +
+				"	}\n" +
+				"\n" +
+				"	static class MyPerson implements Person {\n" +
+				"\n" +
+				"		@Override\n" +
+				"		public boolean isFoo() {\n" +
+				"			return true;\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n"},
+			"Testing with explicit type\n" +
+			"  Testing lambda\n" +
+			"  Lambda is good\n" +
+			"  Testing method reference\n" +
+			"  Method reference is good\n" +
+			"Testing with wildcard\n" +
+			"  Testing lambda\n" +
+			"  Lambda is good\n" +
+			"  Testing method reference\n" +
+			"  Method reference is good"
+			);
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=574269
+//java.lang.invoke.LambdaConversionException: Invalid receiver type class java.lang.Object
+public void testBug574269_2() {
+	this.runConformTest(
+			new String[] {
+				"TestX.java",
+				"import java.util.List;\n" +
+				"\n" +
+				"public class TestX {\n" +
+				"\n" +
+				"	public static void main(String[] args) {\n" +
+				"		Group<MyPerson> group1 = new MyGroup();\n" +
+				"		group1.getPersons().stream().anyMatch(TestX.Person::isFoo);\n" +
+				"		System.out.println(\"Method reference is good\");\n" +
+				"		\n" +
+				"		Group<?> group2 = new MyGroup();\n" +
+				"		group2.getPersons().stream().anyMatch(TestX.Person::isFoo);\n" +
+				"		System.out.println(\"Method reference is not bad\");\n" +
+				"	}\n" +
+				"\n" +
+				"	interface Group<T extends Person> {\n" +
+				"		List<T> getPersons();\n" +
+				"	}\n" +
+				"\n" +
+				"	interface Person {\n" +
+				"		boolean isFoo();\n" +
+				"	}\n" +
+				"\n" +
+				"	static class MyGroup implements Group<MyPerson> {\n" +
+				"		@Override\n" +
+				"		public List<MyPerson> getPersons() {\n" +
+				"			return List.of();\n" +
+				"		}\n" +
+				"	}\n" +
+				"\n" +
+				"	static class MyPerson implements Person {\n" +
+				"		@Override\n" +
+				"		public boolean isFoo() {\n" +
+				"			return true;\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n"},
+			"Method reference is good\n" +
+			"Method reference is not bad"
+			);
+}
+
+//https://bugs.eclipse.org/bugs/show_bug.cgi?id=570511
+//java.lang.BootstrapMethodError in Eclipse compiled code that doesn't happen with javac
+public void testBug570511() {
+	this.runConformTest(
+			new String[] {
+				"T.java",
+				"// ---------------------------------------------------------------\n" +
+				"import java.util.function.Consumer;\n" +
+				"\n" +
+				"public class T {\n" +
+				"    public static void main(String[] args) {\n" +
+				"        new T().test(new X());\n" +
+				"    }\n" +
+				"\n" +
+				"    void test(I<?> i) {\n" +
+				"        i.m(\"a\", \"b\", this::m);\n" +
+				"    }\n" +
+				"\n" +
+				"    void m(I<?> i) {\n" +
+				"        System.out.println(\"T.m\");\n" +
+				"    }\n" +
+				"}\n" +
+				"\n" +
+				"interface I<C extends I<C>> {\n" +
+				"    C m(Object key, Object value, Consumer<? super C> consumer);\n" +
+				"}\n" +
+				"\n" +
+				"class X implements I<X> {\n" +
+				"    @Override\n" +
+				"    public X m(Object key, Object value, Consumer<? super X> consumer) {\n" +
+				"        consumer.accept(this);\n" +
+				"        System.out.println(\"X.m\");\n" +
+				"        return null;\n" +
+				"    }\n" +
+				"}\n"},
+			"T.m\n" +
+			"X.m"
+			);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=577719
+// BootstrapMethodError: call site initialization exception
+public void testBug577719() {
+	this.runConformTest(
+			new String[] {
+				"WeirdCleanupAndCallSiteInitializationException.java",
+				"import java.util.stream.Stream;\n" +
+				"\n" +
+				"public class WeirdCleanupAndCallSiteInitializationException {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		B b = () -> new A() {\n" +
+				"		};\n" +
+				"		A a = get();\n" +
+				"		System.out.println(\"done\");\n" +
+				"	}\n" +
+				"\n" +
+				"	public static A get(B<?>... sources) {\n" +
+				"		return Stream.of(sources) //\n" +
+				"				.map(B::getT) //\n" +
+				"				.filter(A::exists_testOpen) //\n" +
+				"				.findFirst() //\n" +
+				"				.orElse(null);\n" +
+				"	}\n" +
+				"\n" +
+				"	public interface B<T extends A> extends A {\n" +
+				"		T getT();\n" +
+				"	}\n" +
+				"\n" +
+				"	public interface A {\n" +
+				"		default boolean exists_testOpen() {\n" +
+				"			return true;\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n"},
+			"done"
+			);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=577719
+// BootstrapMethodError: call site initialization exception
+public void testBug577719_2() {
+	this.runConformTest(
+			new String[] {
+				"WeirdCleanupAndCallSiteInitializationException.java",
+				"import java.util.stream.Stream;\n" +
+				"\n" +
+				"public class WeirdCleanupAndCallSiteInitializationException {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		B b = () -> new A() {\n" +
+				"		};\n" +
+				"		A a = get();\n" +
+				"		System.out.println(\"done\");\n" +
+				"	}\n" +
+				"\n" +
+				"	public static A get(B<?>... sources) {\n" +
+				"		return Stream.of(sources) //\n" +
+				"				.map(B::getT) //\n" +
+				"				.filter(x -> x.exists_testOpen()) //\n" +
+				"				.findFirst() //\n" +
+				"				.orElse(null);\n" +
+				"	}\n" +
+				"\n" +
+				"	public interface B<T extends A> extends A {\n" +
+				"		T getT();\n" +
+				"	}\n" +
+				"\n" +
+				"	public interface A {\n" +
+				"		default boolean exists_testOpen() {\n" +
+				"			return true;\n" +
+				"		}\n" +
+				"	}\n" +
+				"}\n"},
+			"done"
+			);
+}
+
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1162
+// Eclipse incorrectly requires catch for nested sneaky throws; OpenJDK compiles with no problem
+public void testGH1162() {
+	this.runNegativeTest(
+			new String[] {
+				"X11.java",
+				"import java.io.IOException;\n" +
+				"import java.nio.file.Path;\n" +
+				"import java.util.function.Consumer;\n" +
+				"import java.util.stream.Stream;\n" +
+				"\n" +
+				"public class X11 {\n" +
+				"\n" +
+				"	public X11 parse() throws IOException {\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"	\n" +
+				"	Stream<Path> list() throws IOException {\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"\n" +
+				"	public void foo() throws IOException {\n" +
+				"\n" +
+				"		throwingConsumer((Path barDir) -> {\n" +
+				"			try (final Stream<Path> files = list()) {\n" +
+				"				throwingConsumer((Path file) -> {\n" +
+				"					final X11 document;// = parse();\n" +
+				"					document = parse();\n" +
+				"				});\n" +
+				"			}\n" +
+				"		});\n" +
+				"	}\n" +
+				"	public void goo() throws IOException {\n" +
+				"\n" +
+				"		throwingConsumer((Path barDir) -> {\n" +
+				"			try (final Stream<Path> files = list()) {\n" +
+				"				throwingConsumer((Path file) -> {\n" +
+				"					final X11 document = parse();\n" +
+				"				});\n" +
+				"			}\n" +
+				"		});\n" +
+				"	}\n" +
+				"\n" +
+				"	public static <T, X extends Throwable> ThrowingConsumer<T, X> throwingConsumer(\n" +
+				"			final ThrowingConsumer<T, X> consumer) {\n" +
+				"		return consumer;\n" +
+				"	}\n" +
+				"}\n" +
+				"\n" +
+				"\n" +
+				"interface ThrowingConsumer<T, X extends Throwable> extends Consumer<T> {\n" +
+				"\n" +
+				"	void tryAccept(T t) throws X;\n" +
+				"\n" +
+				"	default void accept(final T t) {\n" +
+				"		tryAccept(t);\n" +
+				"	}\n" +
+				"}\n"},
+			"----------\n" +
+			"1. ERROR in X11.java (at line 50)\n" +
+			"	tryAccept(t);\n" +
+			"	^^^^^^^^^^^^\n" +
+			"Unhandled exception type X\n" +
+			"----------\n");
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1162
+// Eclipse incorrectly requires catch for nested sneaky throws; OpenJDK compiles with no problem
+public void testGH1162_2() {
+	this.runNegativeTest(
+			new String[] {
+				"X11.java",
+				"import java.io.IOException;\n" +
+				"import java.nio.file.Path;\n" +
+				"import java.util.function.Consumer;\n" +
+				"import java.util.stream.Stream;\n" +
+				"\n" +
+				"public class X11 {\n" +
+				"\n" +
+				"	public X11 parse() throws IOException {\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"	\n" +
+				"	Stream<Path> list() throws IOException {\n" +
+				"		return null;\n" +
+				"	}\n" +
+				"\n" +
+				"	public void foo() throws IOException {\n" +
+				"\n" +
+				"		throwingConsumer(() -> {\n" +
+				"			try (final Stream<Path> files = list()) {\n" +
+				"				throwingConsumer(() -> {\n" +
+				"					final X11 document;// = parse();\n" +
+				"					document = parse();\n" +
+				"				});\n" +
+				"			}\n" +
+				"		});\n" +
+				"	}\n" +
+				"	public static <T, X extends Throwable> ThrowingConsumer<T, X> throwingConsumer(\n" +
+				"			final ThrowingConsumer<T, X> consumer) {\n" +
+				"		return consumer;\n" +
+				"	}\n" +
+				"}\n" +
+				"\n" +
+				"\n" +
+				"interface ThrowingConsumer<T, X extends Throwable> extends Consumer<T> {\n" +
+				"\n" +
+				"	void tryAccept() throws X;\n" +
+				"\n" +
+				"	default void accept(final T t) {\n" +
+				"		tryAccept();\n" +
+				"	}\n" +
+				"}\n"},
+			"----------\n" +
+			"1. ERROR in X11.java (at line 39)\n" +
+			"	tryAccept();\n" +
+			"	^^^^^^^^^^^\n" +
+			"Unhandled exception type X\n" +
+			"----------\n");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

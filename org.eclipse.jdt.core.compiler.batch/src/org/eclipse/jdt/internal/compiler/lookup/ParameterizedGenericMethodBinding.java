@@ -243,10 +243,12 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 			final boolean isPolyExpression = invocationSite instanceof Expression &&   ((Expression) invocationSite).isTrulyExpression() &&
 					((Expression)invocationSite).isPolyExpression(originalMethod);
 			boolean isDiamond = isPolyExpression && originalMethod.isConstructor();
+			boolean isInexactVarargsInference = false;
 			if (arguments.length == parameters.length) {
 				infCtx18.inferenceKind = requireBoxing ? InferenceContext18.CHECK_LOOSE : InferenceContext18.CHECK_STRICT; // engine may still slip into loose mode and adjust level.
 				infCtx18.inferInvocationApplicability(originalMethod, arguments, isDiamond);
 				result = infCtx18.solve(true);
+				isInexactVarargsInference = (result != null && originalMethod.isVarargs() && !allArgumentsAreProper);
 			}
 			if (result == null && originalMethod.isVarargs()) {
 				// check for variable-arity applicability
@@ -299,12 +301,11 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 							methodSubstitute = new PolyParameterizedGenericMethodBinding(methodSubstitute);
 						}
 					} finally {
-						if (allArgumentsAreProper) {
-							if (invocationSite instanceof Invocation)
-								((Invocation) invocationSite).registerInferenceContext(methodSubstitute, infCtx18); // keep context so we can finish later
-							else if (invocationSite instanceof ReferenceExpression)
-								((ReferenceExpression) invocationSite).registerInferenceContext(methodSubstitute, infCtx18); // keep context so we can finish later
-						}
+						infCtx18.setInexactVarargsInference(isInexactVarargsInference);
+						if (invocationSite instanceof Invocation)
+							((Invocation) invocationSite).registerInferenceContext(methodSubstitute, infCtx18); // keep context so we can finish later
+						else if (invocationSite instanceof ReferenceExpression)
+							((ReferenceExpression) invocationSite).registerInferenceContext(methodSubstitute, infCtx18); // keep context so we can finish later
 					}
 					return methodSubstitute;
 				}

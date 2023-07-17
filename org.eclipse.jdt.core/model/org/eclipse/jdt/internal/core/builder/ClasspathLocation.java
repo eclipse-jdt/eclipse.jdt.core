@@ -30,6 +30,8 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -160,7 +162,12 @@ static ClasspathLocation forLibrary(String libraryPathname,
 public static ClasspathJrt forJrtSystem(String jrtPath, AccessRuleSet accessRuleSet, IPath annotationsPath, String release) throws CoreException {
 	boolean useRelease = release != null && !release.isEmpty();
 	if(useRelease) {
-		String jrtVersion = JRTUtil.getJdkRelease(new File(jrtPath));
+		String jrtVersion;
+		try {
+			jrtVersion = JRTUtil.getJdkRelease(new File(jrtPath));
+		} catch (IOException e) {
+			throw new CoreException(new Status(IStatus.ERROR, ClasspathLocation.class, "Failed to detect JDK release for: " + jrtPath, e)); //$NON-NLS-1$
+		}
 		boolean sameRelease = JavaCore.compareJavaVersions(jrtVersion, release) == 0;
 		if(sameRelease) {
 			useRelease = false;

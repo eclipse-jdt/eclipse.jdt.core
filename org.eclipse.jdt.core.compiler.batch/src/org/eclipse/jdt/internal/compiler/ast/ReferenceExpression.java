@@ -262,7 +262,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 			implicitLambda.resolveType(lambdaScope, true);
 			implicitLambda.analyseCode(lambdaScope,
 					new FieldInitsFakingFlowContext(null, this, Binding.NO_EXCEPTIONS, null, lambdaScope, FlowInfo.DEAD_END),
-					UnconditionalFlowInfo.fakeInitializedFlowInfo(lambdaScope.outerMostMethodScope().analysisIndex, lambdaScope.referenceType().maxFieldCount));
+					UnconditionalFlowInfo.fakeInitializedFlowInfo(implicitLambda.firstLocalLocal, lambdaScope.referenceType().maxFieldCount));
 		} finally {
 			lambdaScope.problemReporter().switchErrorHandlingPolicy(oldPolicy);
 		}

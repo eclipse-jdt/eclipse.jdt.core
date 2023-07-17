@@ -18773,7 +18773,7 @@ public void testGH1007_srikanth() {
 		};
 	runner.runConformTest();
 }
-public void _testGH854() {
+public void testGH854() {
 	Runner runner = new Runner();
 	runner.testFiles =
 		new String[] {
@@ -18793,6 +18793,36 @@ public void _testGH854() {
 			"@Annot(inits = {App.MyInit.class})\n" +
 			"public class App {\n" +
 			"	static class MyInit extends IImpl<Configuration> {}\n" +
+			"}\n"
+		};
+	runner.runConformTest();
+}
+// duplicate of #1077
+public void testGH476() {
+	Runner runner = new Runner();
+	runner.testFiles =
+		new String[] {
+			"Controller.java",
+			"public class Controller<T> {\n" +
+			"    final static String ENDPOINT = \"controll\";\n" +
+			"}\n",
+			"RequestMapping.java",
+			"import java.lang.annotation.ElementType;\n" +
+			"import java.lang.annotation.Retention;\n" +
+			"import java.lang.annotation.RetentionPolicy;\n" +
+			"import java.lang.annotation.Target;\n" +
+			"\n" +
+			"@Target(ElementType.TYPE)\n" +
+			"@Retention(RetentionPolicy.RUNTIME)\n" +
+			"public @interface RequestMapping {\n" +
+			"	String name() default \"\";\n" +
+			"	String[] value() default {};\n" +
+			"}\n",
+			"CtlImpl.java",
+			"@RequestMapping(CtlImpl.CTL_ENDPOINT)\n" +
+			"public class CtlImpl extends Controller<String> {\n" +
+			"    final static String CTL_ENDPOINT = ENDPOINT + \"/ctl\";\n" +
+			"    static String value;\n" +
 			"}\n"
 		};
 	runner.runConformTest();
@@ -18843,7 +18873,7 @@ public void testVSCodeIssue3076() {
 		};
 	runner.runConformTest();
 }
-public void testGH969() {
+public void testGH986() {
 	Runner runner = new Runner();
 	runner.testFiles =
 		new String[] {
@@ -18860,6 +18890,46 @@ public void testGH969() {
 			"	private T target;\n" +
 			"\n" +
 			"}"
+		};
+	runner.runConformTest();
+}
+public void testGHjdtls2386() {
+	Runner runner = new Runner();
+	runner.testFiles =
+		new String[] {
+			"ConfigurableApplicationContext.java",
+			"public class ConfigurableApplicationContext { }\n",
+			"ApplicationContextInitializer.java",
+			"public interface ApplicationContextInitializer<T> {\n" +
+			"	void initialize(T context);\n" +
+			"}\n",
+			"ContextConfiguration.java",
+			"""
+			import static java.lang.annotation.ElementType.*;
+			import static java.lang.annotation.RetentionPolicy.*;
+			import java.lang.annotation.*;
+
+			@Target(TYPE)
+			@Retention(RUNTIME)
+			public @interface ContextConfiguration {
+				Class<? extends ApplicationContextInitializer<?>>[] initializers();
+			}
+			""",
+			"AbstractTest.java",
+			"""
+			@ContextConfiguration(initializers = {AbstractTest.Initializer.class})
+			public abstract class AbstractTest {
+
+			  static class Initializer
+			      implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+
+			    @Override
+			    public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
+
+			    }
+			  }
+			}
+			"""
 		};
 	runner.runConformTest();
 }

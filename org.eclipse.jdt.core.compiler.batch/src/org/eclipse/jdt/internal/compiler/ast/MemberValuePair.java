@@ -60,7 +60,7 @@ public class MemberValuePair extends ASTNode {
 		return output;
 	}
 
-	public void resolveTypeExpecting(final BlockScope scope, final TypeBinding requiredType) {
+	public void resolveTypeExpecting(BlockScope scope, TypeBinding requiredType) {
 		if (this.compilerElementPair != null) {
 			return;
 		}
@@ -81,7 +81,7 @@ public class MemberValuePair extends ASTNode {
 		}
 
 		this.value.setExpectedType(requiredType); // needed in case of generic method invocation - looks suspect, generic method invocation here ???
-		final TypeBinding valueType;
+		TypeBinding valueType;
 		if (this.value instanceof ArrayInitializer) {
 			ArrayInitializer initializer = (ArrayInitializer) this.value;
 			valueType = initializer.resolveTypeExpecting(scope, this.binding.returnType);
@@ -107,38 +107,25 @@ public class MemberValuePair extends ASTNode {
 		if (valueType == null)
 			return;
 
-		final TypeBinding leafType = requiredType.leafComponentType();
-		// the next check may need deferring:
-		final boolean[] shouldExit = { false };
-		Runnable check = new Runnable() {
-			@Override
-			public void run() {
-				if (!(MemberValuePair.this.value.isConstantValueOfTypeAssignableToType(valueType, requiredType)
-						|| valueType.isCompatibleWith(requiredType))) {
-					if (!(requiredType.isArrayType()
-							&& requiredType.dimensions() == 1
-							&& (MemberValuePair.this.value.isConstantValueOfTypeAssignableToType(valueType, leafType)
-									|| valueType.isCompatibleWith(leafType)))) {
+		TypeBinding leafType = requiredType.leafComponentType();
+		if (!(this.value.isConstantValueOfTypeAssignableToType(valueType, requiredType)
+				|| valueType.isCompatibleWith(requiredType))) {
 
-						if (leafType.isAnnotationType() && !valueType.isAnnotationType()) {
-							scope.problemReporter().annotationValueMustBeAnnotation(MemberValuePair.this.binding.declaringClass,
-									MemberValuePair.this.name, MemberValuePair.this.value, leafType);
-						} else {
-							scope.problemReporter().typeMismatchError(valueType, requiredType, MemberValuePair.this.value, null);
-						}
-						shouldExit[0] = true; // TODO may allow to proceed to find more errors at once
-					}
+			if (!(requiredType.isArrayType()
+					&& requiredType.dimensions() == 1
+					&& (this.value.isConstantValueOfTypeAssignableToType(valueType, leafType)
+							|| valueType.isCompatibleWith(leafType)))) {
+
+				if (leafType.isAnnotationType() && !valueType.isAnnotationType()) {
+					scope.problemReporter().annotationValueMustBeAnnotation(this.binding.declaringClass, this.name, this.value, leafType);
 				} else {
-					scope.compilationUnitScope().recordTypeConversion(requiredType.leafComponentType(), valueType.leafComponentType());
-					MemberValuePair.this.value.computeConversion(scope, requiredType, valueType);
+					scope.problemReporter().typeMismatchError(valueType, requiredType, this.value, null);
 				}
+				return; // may allow to proceed to find more errors at once
 			}
-		};
-		// ... now or later?
-		if (!scope.deferCheck(check)) {
-			check.run();
-			if (shouldExit[0])
-				return;
+		} else {
+			scope.compilationUnitScope().recordTypeConversion(requiredType.leafComponentType(), valueType.leafComponentType());
+			this.value.computeConversion(scope, requiredType, valueType);
 		}
 
 		// annotation methods can only return base types, String, Class, enum type, annotation types and arrays of these

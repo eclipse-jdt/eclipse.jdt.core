@@ -36613,8 +36613,9 @@ public void test1066() throws Exception {
 		},
 		"[ClassCastException:foo(1)][ClassCastException:foo(2)][ClassCastException:bar(1)][ClassCastException:bar(2)]");
 	// 	check presence of checkcast
-	String expectedOutput = this.complianceLevel == ClassFileConstants.JDK1_5
-			?	"  // Stack: 4, Locals: 8\n" +
+	String expectedOutput;
+	if (this.complianceLevel >= ClassFileConstants.JDK9) {
+		expectedOutput = "  // Stack: 3, Locals: 8\n" +
 				"  public static void main(java.lang.String[] args);\n" +
 				"      0  new X [1]\n" +
 				"      3  dup\n" +
@@ -36650,116 +36651,88 @@ public void test1066() throws Exception {
 				"     65  checkcast Foo [38]\n" +
 				"     68  invokeinterface Foo.foo() : java.lang.String [40] [nargs: 1]\n" +
 				"     73  invokevirtual java.io.PrintStream.print(java.lang.String) : void [44]\n" +
-				"     76  goto 115\n" +
+				"     76  goto 100\n" +
 				"     79  astore 7 [e]\n" +
 				"     81  getstatic java.lang.System.out : java.io.PrintStream [28]\n" +
-				"     84  new java.lang.StringBuilder [50]\n" +
-				"     87  dup\n" +
-				"     88  ldc <String \"[\"> [52]\n" +
-				"     90  invokespecial java.lang.StringBuilder(java.lang.String) [54]\n" +
-				"     93  aload 7 [e]\n" +
-				"     95  invokevirtual java.lang.Object.getClass() : java.lang.Class [56]\n" +
-				"     98  invokevirtual java.lang.Class.getSimpleName() : java.lang.String [60]\n" +
-				"    101  invokevirtual java.lang.StringBuilder.append(java.lang.String) : java.lang.StringBuilder [65]\n" +
-				"    104  ldc <String \":foo(1)]\"> [69]\n" +
-				"    106  invokevirtual java.lang.StringBuilder.append(java.lang.String) : java.lang.StringBuilder [65]\n" +
-				"    109  invokevirtual java.lang.StringBuilder.toString() : java.lang.String [71]\n" +
-				"    112  invokevirtual java.io.PrintStream.print(java.lang.String) : void [44]\n" +
-				"    115  getstatic java.lang.System.out : java.io.PrintStream [28]\n" +
-				"    118  iload 6 [f]\n" +
-				"    120  ifeq 136\n" +
-				"    123  aload_3 [la]\n" +
-				"    124  iconst_0\n" +
-				"    125  invokeinterface java.util.List.get(int) : java.lang.Object [34] [nargs: 2]\n" +
-				"    130  checkcast Foo [38]\n" +
-				"    133  goto 147\n" +
-				"    136  aload 4 [lb]\n" +
-				"    138  iconst_0\n" +
-				"    139  invokeinterface java.util.List.get(int) : java.lang.Object [34] [nargs: 2]\n" +
-				"    144  checkcast Foo [38]\n" +
-				"    147  invokeinterface Foo.foo() : java.lang.String [40] [nargs: 1]\n" +
-				"    152  invokevirtual java.io.PrintStream.print(java.lang.String) : void [44]\n" +
-				"    155  goto 194\n" +
-				"    158  astore 7 [e]\n" +
-				"    160  getstatic java.lang.System.out : java.io.PrintStream [28]\n" +
-				"    163  new java.lang.StringBuilder [50]\n" +
-				"    166  dup\n" +
-				"    167  ldc <String \"[\"> [52]\n" +
-				"    169  invokespecial java.lang.StringBuilder(java.lang.String) [54]\n" +
-				"    172  aload 7 [e]\n" +
-				"    174  invokevirtual java.lang.Object.getClass() : java.lang.Class [56]\n" +
-				"    177  invokevirtual java.lang.Class.getSimpleName() : java.lang.String [60]\n" +
-				"    180  invokevirtual java.lang.StringBuilder.append(java.lang.String) : java.lang.StringBuilder [65]\n" +
-				"    183  ldc <String \":foo(2)]\"> [74]\n" +
-				"    185  invokevirtual java.lang.StringBuilder.append(java.lang.String) : java.lang.StringBuilder [65]\n" +
-				"    188  invokevirtual java.lang.StringBuilder.toString() : java.lang.String [71]\n" +
-				"    191  invokevirtual java.io.PrintStream.print(java.lang.String) : void [44]\n" +
-				"    194  getstatic java.lang.System.out : java.io.PrintStream [28]\n" +
-				"    197  iload 5 [t]\n" +
-				"    199  ifeq 215\n" +
-				"    202  aload_3 [la]\n" +
-				"    203  iconst_0\n" +
-				"    204  invokeinterface java.util.List.get(int) : java.lang.Object [34] [nargs: 2]\n" +
-				"    209  checkcast Foo [38]\n" +
-				"    212  goto 226\n" +
-				"    215  aload 4 [lb]\n" +
-				"    217  iconst_0\n" +
-				"    218  invokeinterface java.util.List.get(int) : java.lang.Object [34] [nargs: 2]\n" +
-				"    223  checkcast Foo [38]\n" +
-				"    226  checkcast Bar [76]\n" +
-				"    229  invokeinterface Bar.bar() : java.lang.String [78] [nargs: 1]\n" +
-				"    234  invokevirtual java.io.PrintStream.print(java.lang.String) : void [44]\n" +
-				"    237  goto 276\n" +
-				"    240  astore 7 [e]\n" +
-				"    242  getstatic java.lang.System.out : java.io.PrintStream [28]\n" +
-				"    245  new java.lang.StringBuilder [50]\n" +
-				"    248  dup\n" +
-				"    249  ldc <String \"[\"> [52]\n" +
-				"    251  invokespecial java.lang.StringBuilder(java.lang.String) [54]\n" +
-				"    254  aload 7 [e]\n" +
-				"    256  invokevirtual java.lang.Object.getClass() : java.lang.Class [56]\n" +
-				"    259  invokevirtual java.lang.Class.getSimpleName() : java.lang.String [60]\n" +
-				"    262  invokevirtual java.lang.StringBuilder.append(java.lang.String) : java.lang.StringBuilder [65]\n" +
-				"    265  ldc <String \":bar(1)]\"> [81]\n" +
-				"    267  invokevirtual java.lang.StringBuilder.append(java.lang.String) : java.lang.StringBuilder [65]\n" +
-				"    270  invokevirtual java.lang.StringBuilder.toString() : java.lang.String [71]\n" +
-				"    273  invokevirtual java.io.PrintStream.print(java.lang.String) : void [44]\n" +
-				"    276  getstatic java.lang.System.out : java.io.PrintStream [28]\n" +
-				"    279  iload 6 [f]\n" +
-				"    281  ifeq 297\n" +
-				"    284  aload_3 [la]\n" +
-				"    285  iconst_0\n" +
-				"    286  invokeinterface java.util.List.get(int) : java.lang.Object [34] [nargs: 2]\n" +
-				"    291  checkcast Foo [38]\n" +
-				"    294  goto 308\n" +
-				"    297  aload 4 [lb]\n" +
-				"    299  iconst_0\n" +
-				"    300  invokeinterface java.util.List.get(int) : java.lang.Object [34] [nargs: 2]\n" +
-				"    305  checkcast Foo [38]\n" +
-				"    308  checkcast Bar [76]\n" +
-				"    311  invokeinterface Bar.bar() : java.lang.String [78] [nargs: 1]\n" +
-				"    316  invokevirtual java.io.PrintStream.print(java.lang.String) : void [44]\n" +
-				"    319  goto 358\n" +
-				"    322  astore 7 [e]\n" +
-				"    324  getstatic java.lang.System.out : java.io.PrintStream [28]\n" +
-				"    327  new java.lang.StringBuilder [50]\n" +
-				"    330  dup\n" +
-				"    331  ldc <String \"[\"> [52]\n" +
-				"    333  invokespecial java.lang.StringBuilder(java.lang.String) [54]\n" +
-				"    336  aload 7 [e]\n" +
-				"    338  invokevirtual java.lang.Object.getClass() : java.lang.Class [56]\n" +
-				"    341  invokevirtual java.lang.Class.getSimpleName() : java.lang.String [60]\n" +
-				"    344  invokevirtual java.lang.StringBuilder.append(java.lang.String) : java.lang.StringBuilder [65]\n" +
-				"    347  ldc <String \":bar(2)]\"> [83]\n" +
-				"    349  invokevirtual java.lang.StringBuilder.append(java.lang.String) : java.lang.StringBuilder [65]\n" +
-				"    352  invokevirtual java.lang.StringBuilder.toString() : java.lang.String [71]\n" +
-				"    355  invokevirtual java.io.PrintStream.print(java.lang.String) : void [44]\n" +
-				"    358  return\n" +
+				"     84  aload 7 [e]\n" +
+				"     86  invokevirtual java.lang.Object.getClass() : java.lang.Class [50]\n" +
+				"     89  invokevirtual java.lang.Class.getSimpleName() : java.lang.String [54]\n" +
+				"     92  invokedynamic 0 makeConcatWithConstants(java.lang.String) : java.lang.String [59]\n" +
+				"     97  invokevirtual java.io.PrintStream.print(java.lang.String) : void [44]\n" +
+				"    100  getstatic java.lang.System.out : java.io.PrintStream [28]\n" +
+				"    103  iload 6 [f]\n" +
+				"    105  ifeq 121\n" +
+				"    108  aload_3 [la]\n" +
+				"    109  iconst_0\n" +
+				"    110  invokeinterface java.util.List.get(int) : java.lang.Object [34] [nargs: 2]\n" +
+				"    115  checkcast Foo [38]\n" +
+				"    118  goto 132\n" +
+				"    121  aload 4 [lb]\n" +
+				"    123  iconst_0\n" +
+				"    124  invokeinterface java.util.List.get(int) : java.lang.Object [34] [nargs: 2]\n" +
+				"    129  checkcast Foo [38]\n" +
+				"    132  invokeinterface Foo.foo() : java.lang.String [40] [nargs: 1]\n" +
+				"    137  invokevirtual java.io.PrintStream.print(java.lang.String) : void [44]\n" +
+				"    140  goto 164\n" +
+				"    143  astore 7 [e]\n" +
+				"    145  getstatic java.lang.System.out : java.io.PrintStream [28]\n" +
+				"    148  aload 7 [e]\n" +
+				"    150  invokevirtual java.lang.Object.getClass() : java.lang.Class [50]\n" +
+				"    153  invokevirtual java.lang.Class.getSimpleName() : java.lang.String [54]\n" +
+				"    156  invokedynamic 1 makeConcatWithConstants(java.lang.String) : java.lang.String [63]\n" +
+				"    161  invokevirtual java.io.PrintStream.print(java.lang.String) : void [44]\n" +
+				"    164  getstatic java.lang.System.out : java.io.PrintStream [28]\n" +
+				"    167  iload 5 [t]\n" +
+				"    169  ifeq 185\n" +
+				"    172  aload_3 [la]\n" +
+				"    173  iconst_0\n" +
+				"    174  invokeinterface java.util.List.get(int) : java.lang.Object [34] [nargs: 2]\n" +
+				"    179  checkcast Foo [38]\n" +
+				"    182  goto 196\n" +
+				"    185  aload 4 [lb]\n" +
+				"    187  iconst_0\n" +
+				"    188  invokeinterface java.util.List.get(int) : java.lang.Object [34] [nargs: 2]\n" +
+				"    193  checkcast Foo [38]\n" +
+				"    196  checkcast Bar [64]\n" +
+				"    199  invokeinterface Bar.bar() : java.lang.String [66] [nargs: 1]\n" +
+				"    204  invokevirtual java.io.PrintStream.print(java.lang.String) : void [44]\n" +
+				"    207  goto 231\n" +
+				"    210  astore 7 [e]\n" +
+				"    212  getstatic java.lang.System.out : java.io.PrintStream [28]\n" +
+				"    215  aload 7 [e]\n" +
+				"    217  invokevirtual java.lang.Object.getClass() : java.lang.Class [50]\n" +
+				"    220  invokevirtual java.lang.Class.getSimpleName() : java.lang.String [54]\n" +
+				"    223  invokedynamic 2 makeConcatWithConstants(java.lang.String) : java.lang.String [69]\n" +
+				"    228  invokevirtual java.io.PrintStream.print(java.lang.String) : void [44]\n" +
+				"    231  getstatic java.lang.System.out : java.io.PrintStream [28]\n" +
+				"    234  iload 6 [f]\n" +
+				"    236  ifeq 252\n" +
+				"    239  aload_3 [la]\n" +
+				"    240  iconst_0\n" +
+				"    241  invokeinterface java.util.List.get(int) : java.lang.Object [34] [nargs: 2]\n" +
+				"    246  checkcast Foo [38]\n" +
+				"    249  goto 263\n" +
+				"    252  aload 4 [lb]\n" +
+				"    254  iconst_0\n" +
+				"    255  invokeinterface java.util.List.get(int) : java.lang.Object [34] [nargs: 2]\n" +
+				"    260  checkcast Foo [38]\n" +
+				"    263  checkcast Bar [64]\n" +
+				"    266  invokeinterface Bar.bar() : java.lang.String [66] [nargs: 1]\n" +
+				"    271  invokevirtual java.io.PrintStream.print(java.lang.String) : void [44]\n" +
+				"    274  goto 298\n" +
+				"    277  astore 7 [e]\n" +
+				"    279  getstatic java.lang.System.out : java.io.PrintStream [28]\n" +
+				"    282  aload 7 [e]\n" +
+				"    284  invokevirtual java.lang.Object.getClass() : java.lang.Class [50]\n" +
+				"    287  invokevirtual java.lang.Class.getSimpleName() : java.lang.String [54]\n" +
+				"    290  invokedynamic 3 makeConcatWithConstants(java.lang.String) : java.lang.String [70]\n" +
+				"    295  invokevirtual java.io.PrintStream.print(java.lang.String) : void [44]\n" +
+				"    298  return\n" +
 				"      Exception Table:\n" +
 				"        [pc: 36, pc: 76] -> 79 when : java.lang.Throwable\n" +
-				"        [pc: 115, pc: 155] -> 158 when : java.lang.Throwable\n" +
-				"        [pc: 194, pc: 237] -> 240 when : java.lang.Throwable\n" +
-				"        [pc: 276, pc: 319] -> 322 when : java.lang.Throwable\n" +
+				"        [pc: 100, pc: 140] -> 143 when : java.lang.Throwable\n" +
+				"        [pc: 164, pc: 207] -> 210 when : java.lang.Throwable\n" +
+				"        [pc: 231, pc: 274] -> 277 when : java.lang.Throwable\n" +
 				"      Line numbers:\n" +
 				"        [pc: 0, line: 4]\n" +
 				"        [pc: 8, line: 5]\n" +
@@ -36770,230 +36743,250 @@ public void test1066() throws Exception {
 				"        [pc: 36, line: 11]\n" +
 				"        [pc: 76, line: 12]\n" +
 				"        [pc: 81, line: 13]\n" +
-				"        [pc: 115, line: 16]\n" +
-				"        [pc: 155, line: 17]\n" +
-				"        [pc: 160, line: 18]\n" +
-				"        [pc: 194, line: 21]\n" +
-				"        [pc: 237, line: 22]\n" +
-				"        [pc: 242, line: 23]\n" +
-				"        [pc: 276, line: 26]\n" +
-				"        [pc: 319, line: 27]\n" +
-				"        [pc: 324, line: 28]\n" +
-				"        [pc: 358, line: 30]\n" +
+				"        [pc: 100, line: 16]\n" +
+				"        [pc: 140, line: 17]\n" +
+				"        [pc: 145, line: 18]\n" +
+				"        [pc: 164, line: 21]\n" +
+				"        [pc: 207, line: 22]\n" +
+				"        [pc: 212, line: 23]\n" +
+				"        [pc: 231, line: 26]\n" +
+				"        [pc: 274, line: 27]\n" +
+				"        [pc: 279, line: 28]\n" +
+				"        [pc: 298, line: 30]\n" +
 				"      Local variable table:\n" +
-				"        [pc: 0, pc: 359] local: args index: 0 type: java.lang.String[]\n" +
-				"        [pc: 8, pc: 359] local: x index: 1 type: X\n" +
-				"        [pc: 16, pc: 359] local: l index: 2 type: java.util.List\n" +
-				"        [pc: 27, pc: 359] local: la index: 3 type: java.util.List\n" +
-				"        [pc: 30, pc: 359] local: lb index: 4 type: java.util.List\n" +
-				"        [pc: 33, pc: 359] local: t index: 5 type: boolean\n" +
-				"        [pc: 36, pc: 359] local: f index: 6 type: boolean\n" +
-				"        [pc: 81, pc: 115] local: e index: 7 type: java.lang.Throwable\n" +
-				"        [pc: 160, pc: 194] local: e index: 7 type: java.lang.Throwable\n" +
-				"        [pc: 242, pc: 276] local: e index: 7 type: java.lang.Throwable\n" +
-				"        [pc: 324, pc: 358] local: e index: 7 type: java.lang.Throwable\n" +
+				"        [pc: 0, pc: 299] local: args index: 0 type: java.lang.String[]\n" +
+				"        [pc: 8, pc: 299] local: x index: 1 type: X\n" +
+				"        [pc: 16, pc: 299] local: l index: 2 type: java.util.List\n" +
+				"        [pc: 27, pc: 299] local: la index: 3 type: java.util.List\n" +
+				"        [pc: 30, pc: 299] local: lb index: 4 type: java.util.List\n" +
+				"        [pc: 33, pc: 299] local: t index: 5 type: boolean\n" +
+				"        [pc: 36, pc: 299] local: f index: 6 type: boolean\n" +
+				"        [pc: 81, pc: 100] local: e index: 7 type: java.lang.Throwable\n" +
+				"        [pc: 145, pc: 164] local: e index: 7 type: java.lang.Throwable\n" +
+				"        [pc: 212, pc: 231] local: e index: 7 type: java.lang.Throwable\n" +
+				"        [pc: 279, pc: 298] local: e index: 7 type: java.lang.Throwable\n" +
 				"      Local variable type table:\n" +
-				"        [pc: 27, pc: 359] local: la index: 3 type: java.util.List<A>\n" +
-				"        [pc: 30, pc: 359] local: lb index: 4 type: java.util.List<B>\n"
-			:	"  // Method descriptor #15 ([Ljava/lang/String;)V\n" +
-				"  // Stack: 4, Locals: 8\n" +
-				"  public static void main(java.lang.String[] args);\n" +
-				"      0  new X [1]\n" +
-				"      3  dup\n" +
-				"      4  invokespecial X() [16]\n" +
-				"      7  astore_1 [x]\n" +
-				"      8  new java.util.ArrayList [17]\n" +
-				"     11  dup\n" +
-				"     12  invokespecial java.util.ArrayList() [19]\n" +
-				"     15  astore_2 [l]\n" +
-				"     16  aload_2 [l]\n" +
-				"     17  ldc <String \"zork\"> [20]\n" +
-				"     19  invokeinterface java.util.List.add(java.lang.Object) : boolean [22] [nargs: 2]\n" +
-				"     24  pop\n" +
-				"     25  aload_2 [l]\n" +
-				"     26  astore_3 [la]\n" +
-				"     27  aload_2 [l]\n" +
-				"     28  astore 4 [lb]\n" +
-				"     30  iconst_1\n" +
-				"     31  istore 5 [t]\n" +
-				"     33  iconst_0\n" +
-				"     34  istore 6 [f]\n" +
-				"     36  getstatic java.lang.System.out : java.io.PrintStream [28]\n" +
-				"     39  iload 5 [t]\n" +
-				"     41  ifeq 57\n" +
-				"     44  aload_3 [la]\n" +
-				"     45  iconst_0\n" +
-				"     46  invokeinterface java.util.List.get(int) : java.lang.Object [34] [nargs: 2]\n" +
-				"     51  checkcast Foo [38]\n" +
-				"     54  goto 68\n" +
-				"     57  aload 4 [lb]\n" +
-				"     59  iconst_0\n" +
-				"     60  invokeinterface java.util.List.get(int) : java.lang.Object [34] [nargs: 2]\n" +
-				"     65  checkcast Foo [38]\n" +
-				"     68  invokeinterface Foo.foo() : java.lang.String [40] [nargs: 1]\n" +
-				"     73  invokevirtual java.io.PrintStream.print(java.lang.String) : void [44]\n" +
-				"     76  goto 115\n" +
-				"     79  astore 7 [e]\n" +
-				"     81  getstatic java.lang.System.out : java.io.PrintStream [28]\n" +
-				"     84  new java.lang.StringBuilder [50]\n" +
-				"     87  dup\n" +
-				"     88  ldc <String \"[\"> [52]\n" +
-				"     90  invokespecial java.lang.StringBuilder(java.lang.String) [54]\n" +
-				"     93  aload 7 [e]\n" +
-				"     95  invokevirtual java.lang.Object.getClass() : java.lang.Class [56]\n" +
-				"     98  invokevirtual java.lang.Class.getSimpleName() : java.lang.String [60]\n" +
-				"    101  invokevirtual java.lang.StringBuilder.append(java.lang.String) : java.lang.StringBuilder [65]\n" +
-				"    104  ldc <String \":foo(1)]\"> [69]\n" +
-				"    106  invokevirtual java.lang.StringBuilder.append(java.lang.String) : java.lang.StringBuilder [65]\n" +
-				"    109  invokevirtual java.lang.StringBuilder.toString() : java.lang.String [71]\n" +
-				"    112  invokevirtual java.io.PrintStream.print(java.lang.String) : void [44]\n" +
-				"    115  getstatic java.lang.System.out : java.io.PrintStream [28]\n" +
-				"    118  iload 6 [f]\n" +
-				"    120  ifeq 136\n" +
-				"    123  aload_3 [la]\n" +
-				"    124  iconst_0\n" +
-				"    125  invokeinterface java.util.List.get(int) : java.lang.Object [34] [nargs: 2]\n" +
-				"    130  checkcast Foo [38]\n" +
-				"    133  goto 147\n" +
-				"    136  aload 4 [lb]\n" +
-				"    138  iconst_0\n" +
-				"    139  invokeinterface java.util.List.get(int) : java.lang.Object [34] [nargs: 2]\n" +
-				"    144  checkcast Foo [38]\n" +
-				"    147  invokeinterface Foo.foo() : java.lang.String [40] [nargs: 1]\n" +
-				"    152  invokevirtual java.io.PrintStream.print(java.lang.String) : void [44]\n" +
-				"    155  goto 194\n" +
-				"    158  astore 7 [e]\n" +
-				"    160  getstatic java.lang.System.out : java.io.PrintStream [28]\n" +
-				"    163  new java.lang.StringBuilder [50]\n" +
-				"    166  dup\n" +
-				"    167  ldc <String \"[\"> [52]\n" +
-				"    169  invokespecial java.lang.StringBuilder(java.lang.String) [54]\n" +
-				"    172  aload 7 [e]\n" +
-				"    174  invokevirtual java.lang.Object.getClass() : java.lang.Class [56]\n" +
-				"    177  invokevirtual java.lang.Class.getSimpleName() : java.lang.String [60]\n" +
-				"    180  invokevirtual java.lang.StringBuilder.append(java.lang.String) : java.lang.StringBuilder [65]\n" +
-				"    183  ldc <String \":foo(2)]\"> [74]\n" +
-				"    185  invokevirtual java.lang.StringBuilder.append(java.lang.String) : java.lang.StringBuilder [65]\n" +
-				"    188  invokevirtual java.lang.StringBuilder.toString() : java.lang.String [71]\n" +
-				"    191  invokevirtual java.io.PrintStream.print(java.lang.String) : void [44]\n" +
-				"    194  getstatic java.lang.System.out : java.io.PrintStream [28]\n" +
-				"    197  iload 5 [t]\n" +
-				"    199  ifeq 215\n" +
-				"    202  aload_3 [la]\n" +
-				"    203  iconst_0\n" +
-				"    204  invokeinterface java.util.List.get(int) : java.lang.Object [34] [nargs: 2]\n" +
-				"    209  checkcast Foo [38]\n" +
-				"    212  goto 226\n" +
-				"    215  aload 4 [lb]\n" +
-				"    217  iconst_0\n" +
-				"    218  invokeinterface java.util.List.get(int) : java.lang.Object [34] [nargs: 2]\n" +
-				"    223  checkcast Foo [38]\n" +
-				"    226  checkcast Bar [76]\n" +
-				"    229  invokeinterface Bar.bar() : java.lang.String [78] [nargs: 1]\n" +
-				"    234  invokevirtual java.io.PrintStream.print(java.lang.String) : void [44]\n" +
-				"    237  goto 276\n" +
-				"    240  astore 7 [e]\n" +
-				"    242  getstatic java.lang.System.out : java.io.PrintStream [28]\n" +
-				"    245  new java.lang.StringBuilder [50]\n" +
-				"    248  dup\n" +
-				"    249  ldc <String \"[\"> [52]\n" +
-				"    251  invokespecial java.lang.StringBuilder(java.lang.String) [54]\n" +
-				"    254  aload 7 [e]\n" +
-				"    256  invokevirtual java.lang.Object.getClass() : java.lang.Class [56]\n" +
-				"    259  invokevirtual java.lang.Class.getSimpleName() : java.lang.String [60]\n" +
-				"    262  invokevirtual java.lang.StringBuilder.append(java.lang.String) : java.lang.StringBuilder [65]\n" +
-				"    265  ldc <String \":bar(1)]\"> [81]\n" +
-				"    267  invokevirtual java.lang.StringBuilder.append(java.lang.String) : java.lang.StringBuilder [65]\n" +
-				"    270  invokevirtual java.lang.StringBuilder.toString() : java.lang.String [71]\n" +
-				"    273  invokevirtual java.io.PrintStream.print(java.lang.String) : void [44]\n" +
-				"    276  getstatic java.lang.System.out : java.io.PrintStream [28]\n" +
-				"    279  iload 6 [f]\n" +
-				"    281  ifeq 297\n" +
-				"    284  aload_3 [la]\n" +
-				"    285  iconst_0\n" +
-				"    286  invokeinterface java.util.List.get(int) : java.lang.Object [34] [nargs: 2]\n" +
-				"    291  checkcast Foo [38]\n" +
-				"    294  goto 308\n" +
-				"    297  aload 4 [lb]\n" +
-				"    299  iconst_0\n" +
-				"    300  invokeinterface java.util.List.get(int) : java.lang.Object [34] [nargs: 2]\n" +
-				"    305  checkcast Foo [38]\n" +
-				"    308  checkcast Bar [76]\n" +
-				"    311  invokeinterface Bar.bar() : java.lang.String [78] [nargs: 1]\n" +
-				"    316  invokevirtual java.io.PrintStream.print(java.lang.String) : void [44]\n" +
-				"    319  goto 358\n" +
-				"    322  astore 7 [e]\n" +
-				"    324  getstatic java.lang.System.out : java.io.PrintStream [28]\n" +
-				"    327  new java.lang.StringBuilder [50]\n" +
-				"    330  dup\n" +
-				"    331  ldc <String \"[\"> [52]\n" +
-				"    333  invokespecial java.lang.StringBuilder(java.lang.String) [54]\n" +
-				"    336  aload 7 [e]\n" +
-				"    338  invokevirtual java.lang.Object.getClass() : java.lang.Class [56]\n" +
-				"    341  invokevirtual java.lang.Class.getSimpleName() : java.lang.String [60]\n" +
-				"    344  invokevirtual java.lang.StringBuilder.append(java.lang.String) : java.lang.StringBuilder [65]\n" +
-				"    347  ldc <String \":bar(2)]\"> [83]\n" +
-				"    349  invokevirtual java.lang.StringBuilder.append(java.lang.String) : java.lang.StringBuilder [65]\n" +
-				"    352  invokevirtual java.lang.StringBuilder.toString() : java.lang.String [71]\n" +
-				"    355  invokevirtual java.io.PrintStream.print(java.lang.String) : void [44]\n" +
-				"    358  return\n" +
-				"      Exception Table:\n" +
-				"        [pc: 36, pc: 76] -> 79 when : java.lang.Throwable\n" +
-				"        [pc: 115, pc: 155] -> 158 when : java.lang.Throwable\n" +
-				"        [pc: 194, pc: 237] -> 240 when : java.lang.Throwable\n" +
-				"        [pc: 276, pc: 319] -> 322 when : java.lang.Throwable\n" +
-				"      Line numbers:\n" +
-				"        [pc: 0, line: 4]\n" +
-				"        [pc: 8, line: 5]\n" +
-				"        [pc: 16, line: 6]\n" +
-				"        [pc: 25, line: 7]\n" +
-				"        [pc: 27, line: 8]\n" +
-				"        [pc: 30, line: 9]\n" +
-				"        [pc: 36, line: 11]\n" +
-				"        [pc: 76, line: 12]\n" +
-				"        [pc: 81, line: 13]\n" +
-				"        [pc: 115, line: 16]\n" +
-				"        [pc: 155, line: 17]\n" +
-				"        [pc: 160, line: 18]\n" +
-				"        [pc: 194, line: 21]\n" +
-				"        [pc: 237, line: 22]\n" +
-				"        [pc: 242, line: 23]\n" +
-				"        [pc: 276, line: 26]\n" +
-				"        [pc: 319, line: 27]\n" +
-				"        [pc: 324, line: 28]\n" +
-				"        [pc: 358, line: 30]\n" +
-				"      Local variable table:\n" +
-				"        [pc: 0, pc: 359] local: args index: 0 type: java.lang.String[]\n" +
-				"        [pc: 8, pc: 359] local: x index: 1 type: X\n" +
-				"        [pc: 16, pc: 359] local: l index: 2 type: java.util.List\n" +
-				"        [pc: 27, pc: 359] local: la index: 3 type: java.util.List\n" +
-				"        [pc: 30, pc: 359] local: lb index: 4 type: java.util.List\n" +
-				"        [pc: 33, pc: 359] local: t index: 5 type: boolean\n" +
-				"        [pc: 36, pc: 359] local: f index: 6 type: boolean\n" +
-				"        [pc: 81, pc: 115] local: e index: 7 type: java.lang.Throwable\n" +
-				"        [pc: 160, pc: 194] local: e index: 7 type: java.lang.Throwable\n" +
-				"        [pc: 242, pc: 276] local: e index: 7 type: java.lang.Throwable\n" +
-				"        [pc: 324, pc: 358] local: e index: 7 type: java.lang.Throwable\n" +
-				"      Local variable type table:\n" +
-				"        [pc: 27, pc: 359] local: la index: 3 type: java.util.List<A>\n" +
-				"        [pc: 30, pc: 359] local: lb index: 4 type: java.util.List<B>\n" +
+				"        [pc: 27, pc: 299] local: la index: 3 type: java.util.List<A>\n" +
+				"        [pc: 30, pc: 299] local: lb index: 4 type: java.util.List<B>\n" +
 				"      Stack map table: number of frames 16\n" +
 				"        [pc: 57, full, stack: {java.io.PrintStream}, locals: {java.lang.String[], X, java.util.List, java.util.List, java.util.List, int, int}]\n" +
 				"        [pc: 68, full, stack: {java.io.PrintStream, Foo}, locals: {java.lang.String[], X, java.util.List, java.util.List, java.util.List, int, int}]\n" +
 				"        [pc: 79, same_locals_1_stack_item, stack: {java.lang.Throwable}]\n" +
-				"        [pc: 115, same]\n" +
-				"        [pc: 136, same_locals_1_stack_item, stack: {java.io.PrintStream}]\n" +
-				"        [pc: 147, full, stack: {java.io.PrintStream, Foo}, locals: {java.lang.String[], X, java.util.List, java.util.List, java.util.List, int, int}]\n" +
-				"        [pc: 158, same_locals_1_stack_item, stack: {java.lang.Throwable}]\n" +
-				"        [pc: 194, same]\n" +
-				"        [pc: 215, same_locals_1_stack_item, stack: {java.io.PrintStream}]\n" +
-				"        [pc: 226, full, stack: {java.io.PrintStream, Foo}, locals: {java.lang.String[], X, java.util.List, java.util.List, java.util.List, int, int}]\n" +
-				"        [pc: 240, same_locals_1_stack_item, stack: {java.lang.Throwable}]\n" +
-				"        [pc: 276, same]\n" +
-				"        [pc: 297, same_locals_1_stack_item, stack: {java.io.PrintStream}]\n" +
-				"        [pc: 308, full, stack: {java.io.PrintStream, Foo}, locals: {java.lang.String[], X, java.util.List, java.util.List, java.util.List, int, int}]\n" +
-				"        [pc: 322, same_locals_1_stack_item, stack: {java.lang.Throwable}]\n" +
-				"        [pc: 358, same]\n";
+				"        [pc: 100, same]\n" +
+				"        [pc: 121, same_locals_1_stack_item, stack: {java.io.PrintStream}]\n" +
+				"        [pc: 132, full, stack: {java.io.PrintStream, Foo}, locals: {java.lang.String[], X, java.util.List, java.util.List, java.util.List, int, int}]\n" +
+				"        [pc: 143, same_locals_1_stack_item, stack: {java.lang.Throwable}]\n" +
+				"        [pc: 164, same]\n" +
+				"        [pc: 185, same_locals_1_stack_item, stack: {java.io.PrintStream}]\n" +
+				"        [pc: 196, full, stack: {java.io.PrintStream, Foo}, locals: {java.lang.String[], X, java.util.List, java.util.List, java.util.List, int, int}]\n" +
+				"        [pc: 210, same_locals_1_stack_item, stack: {java.lang.Throwable}]\n" +
+				"        [pc: 231, same]\n" +
+				"        [pc: 252, same_locals_1_stack_item, stack: {java.io.PrintStream}]\n" +
+				"        [pc: 263, full, stack: {java.io.PrintStream, Foo}, locals: {java.lang.String[], X, java.util.List, java.util.List, java.util.List, int, int}]\n" +
+				"        [pc: 277, same_locals_1_stack_item, stack: {java.lang.Throwable}]\n" +
+				"        [pc: 298, same]\n";
+	} else {
+		expectedOutput = "  // Stack: 4, Locals: 8\n" +
+				"  public static void main(java.lang.String[] args);\n" +
+				"      0  new X [1]\n" +
+				"      3  dup\n" +
+				"      4  invokespecial X() [16]\n" +
+				"      7  astore_1 [x]\n" +
+				"      8  new java.util.ArrayList [17]\n" +
+				"     11  dup\n" +
+				"     12  invokespecial java.util.ArrayList() [19]\n" +
+				"     15  astore_2 [l]\n" +
+				"     16  aload_2 [l]\n" +
+				"     17  ldc <String \"zork\"> [20]\n" +
+				"     19  invokeinterface java.util.List.add(java.lang.Object) : boolean [22] [nargs: 2]\n" +
+				"     24  pop\n" +
+				"     25  aload_2 [l]\n" +
+				"     26  astore_3 [la]\n" +
+				"     27  aload_2 [l]\n" +
+				"     28  astore 4 [lb]\n" +
+				"     30  iconst_1\n" +
+				"     31  istore 5 [t]\n" +
+				"     33  iconst_0\n" +
+				"     34  istore 6 [f]\n" +
+				"     36  getstatic java.lang.System.out : java.io.PrintStream [28]\n" +
+				"     39  iload 5 [t]\n" +
+				"     41  ifeq 57\n" +
+				"     44  aload_3 [la]\n" +
+				"     45  iconst_0\n" +
+				"     46  invokeinterface java.util.List.get(int) : java.lang.Object [34] [nargs: 2]\n" +
+				"     51  checkcast Foo [38]\n" +
+				"     54  goto 68\n" +
+				"     57  aload 4 [lb]\n" +
+				"     59  iconst_0\n" +
+				"     60  invokeinterface java.util.List.get(int) : java.lang.Object [34] [nargs: 2]\n" +
+				"     65  checkcast Foo [38]\n" +
+				"     68  invokeinterface Foo.foo() : java.lang.String [40] [nargs: 1]\n" +
+				"     73  invokevirtual java.io.PrintStream.print(java.lang.String) : void [44]\n" +
+				"     76  goto 115\n" +
+				"     79  astore 7 [e]\n" +
+				"     81  getstatic java.lang.System.out : java.io.PrintStream [28]\n" +
+				"     84  new java.lang.StringBuilder [50]\n" +
+				"     87  dup\n" +
+				"     88  ldc <String \"[\"> [52]\n" +
+				"     90  invokespecial java.lang.StringBuilder(java.lang.String) [54]\n" +
+				"     93  aload 7 [e]\n" +
+				"     95  invokevirtual java.lang.Object.getClass() : java.lang.Class [56]\n" +
+				"     98  invokevirtual java.lang.Class.getSimpleName() : java.lang.String [60]\n" +
+				"    101  invokevirtual java.lang.StringBuilder.append(java.lang.String) : java.lang.StringBuilder [65]\n" +
+				"    104  ldc <String \":foo(1)]\"> [69]\n" +
+				"    106  invokevirtual java.lang.StringBuilder.append(java.lang.String) : java.lang.StringBuilder [65]\n" +
+				"    109  invokevirtual java.lang.StringBuilder.toString() : java.lang.String [71]\n" +
+				"    112  invokevirtual java.io.PrintStream.print(java.lang.String) : void [44]\n" +
+				"    115  getstatic java.lang.System.out : java.io.PrintStream [28]\n" +
+				"    118  iload 6 [f]\n" +
+				"    120  ifeq 136\n" +
+				"    123  aload_3 [la]\n" +
+				"    124  iconst_0\n" +
+				"    125  invokeinterface java.util.List.get(int) : java.lang.Object [34] [nargs: 2]\n" +
+				"    130  checkcast Foo [38]\n" +
+				"    133  goto 147\n" +
+				"    136  aload 4 [lb]\n" +
+				"    138  iconst_0\n" +
+				"    139  invokeinterface java.util.List.get(int) : java.lang.Object [34] [nargs: 2]\n" +
+				"    144  checkcast Foo [38]\n" +
+				"    147  invokeinterface Foo.foo() : java.lang.String [40] [nargs: 1]\n" +
+				"    152  invokevirtual java.io.PrintStream.print(java.lang.String) : void [44]\n" +
+				"    155  goto 194\n" +
+				"    158  astore 7 [e]\n" +
+				"    160  getstatic java.lang.System.out : java.io.PrintStream [28]\n" +
+				"    163  new java.lang.StringBuilder [50]\n" +
+				"    166  dup\n" +
+				"    167  ldc <String \"[\"> [52]\n" +
+				"    169  invokespecial java.lang.StringBuilder(java.lang.String) [54]\n" +
+				"    172  aload 7 [e]\n" +
+				"    174  invokevirtual java.lang.Object.getClass() : java.lang.Class [56]\n" +
+				"    177  invokevirtual java.lang.Class.getSimpleName() : java.lang.String [60]\n" +
+				"    180  invokevirtual java.lang.StringBuilder.append(java.lang.String) : java.lang.StringBuilder [65]\n" +
+				"    183  ldc <String \":foo(2)]\"> [74]\n" +
+				"    185  invokevirtual java.lang.StringBuilder.append(java.lang.String) : java.lang.StringBuilder [65]\n" +
+				"    188  invokevirtual java.lang.StringBuilder.toString() : java.lang.String [71]\n" +
+				"    191  invokevirtual java.io.PrintStream.print(java.lang.String) : void [44]\n" +
+				"    194  getstatic java.lang.System.out : java.io.PrintStream [28]\n" +
+				"    197  iload 5 [t]\n" +
+				"    199  ifeq 215\n" +
+				"    202  aload_3 [la]\n" +
+				"    203  iconst_0\n" +
+				"    204  invokeinterface java.util.List.get(int) : java.lang.Object [34] [nargs: 2]\n" +
+				"    209  checkcast Foo [38]\n" +
+				"    212  goto 226\n" +
+				"    215  aload 4 [lb]\n" +
+				"    217  iconst_0\n" +
+				"    218  invokeinterface java.util.List.get(int) : java.lang.Object [34] [nargs: 2]\n" +
+				"    223  checkcast Foo [38]\n" +
+				"    226  checkcast Bar [76]\n" +
+				"    229  invokeinterface Bar.bar() : java.lang.String [78] [nargs: 1]\n" +
+				"    234  invokevirtual java.io.PrintStream.print(java.lang.String) : void [44]\n" +
+				"    237  goto 276\n" +
+				"    240  astore 7 [e]\n" +
+				"    242  getstatic java.lang.System.out : java.io.PrintStream [28]\n" +
+				"    245  new java.lang.StringBuilder [50]\n" +
+				"    248  dup\n" +
+				"    249  ldc <String \"[\"> [52]\n" +
+				"    251  invokespecial java.lang.StringBuilder(java.lang.String) [54]\n" +
+				"    254  aload 7 [e]\n" +
+				"    256  invokevirtual java.lang.Object.getClass() : java.lang.Class [56]\n" +
+				"    259  invokevirtual java.lang.Class.getSimpleName() : java.lang.String [60]\n" +
+				"    262  invokevirtual java.lang.StringBuilder.append(java.lang.String) : java.lang.StringBuilder [65]\n" +
+				"    265  ldc <String \":bar(1)]\"> [81]\n" +
+				"    267  invokevirtual java.lang.StringBuilder.append(java.lang.String) : java.lang.StringBuilder [65]\n" +
+				"    270  invokevirtual java.lang.StringBuilder.toString() : java.lang.String [71]\n" +
+				"    273  invokevirtual java.io.PrintStream.print(java.lang.String) : void [44]\n" +
+				"    276  getstatic java.lang.System.out : java.io.PrintStream [28]\n" +
+				"    279  iload 6 [f]\n" +
+				"    281  ifeq 297\n" +
+				"    284  aload_3 [la]\n" +
+				"    285  iconst_0\n" +
+				"    286  invokeinterface java.util.List.get(int) : java.lang.Object [34] [nargs: 2]\n" +
+				"    291  checkcast Foo [38]\n" +
+				"    294  goto 308\n" +
+				"    297  aload 4 [lb]\n" +
+				"    299  iconst_0\n" +
+				"    300  invokeinterface java.util.List.get(int) : java.lang.Object [34] [nargs: 2]\n" +
+				"    305  checkcast Foo [38]\n" +
+				"    308  checkcast Bar [76]\n" +
+				"    311  invokeinterface Bar.bar() : java.lang.String [78] [nargs: 1]\n" +
+				"    316  invokevirtual java.io.PrintStream.print(java.lang.String) : void [44]\n" +
+				"    319  goto 358\n" +
+				"    322  astore 7 [e]\n" +
+				"    324  getstatic java.lang.System.out : java.io.PrintStream [28]\n" +
+				"    327  new java.lang.StringBuilder [50]\n" +
+				"    330  dup\n" +
+				"    331  ldc <String \"[\"> [52]\n" +
+				"    333  invokespecial java.lang.StringBuilder(java.lang.String) [54]\n" +
+				"    336  aload 7 [e]\n" +
+				"    338  invokevirtual java.lang.Object.getClass() : java.lang.Class [56]\n" +
+				"    341  invokevirtual java.lang.Class.getSimpleName() : java.lang.String [60]\n" +
+				"    344  invokevirtual java.lang.StringBuilder.append(java.lang.String) : java.lang.StringBuilder [65]\n" +
+				"    347  ldc <String \":bar(2)]\"> [83]\n" +
+				"    349  invokevirtual java.lang.StringBuilder.append(java.lang.String) : java.lang.StringBuilder [65]\n" +
+				"    352  invokevirtual java.lang.StringBuilder.toString() : java.lang.String [71]\n" +
+				"    355  invokevirtual java.io.PrintStream.print(java.lang.String) : void [44]\n" +
+				"    358  return\n" +
+				"      Exception Table:\n" +
+				"        [pc: 36, pc: 76] -> 79 when : java.lang.Throwable\n" +
+				"        [pc: 115, pc: 155] -> 158 when : java.lang.Throwable\n" +
+				"        [pc: 194, pc: 237] -> 240 when : java.lang.Throwable\n" +
+				"        [pc: 276, pc: 319] -> 322 when : java.lang.Throwable\n" +
+				"      Line numbers:\n" +
+				"        [pc: 0, line: 4]\n" +
+				"        [pc: 8, line: 5]\n" +
+				"        [pc: 16, line: 6]\n" +
+				"        [pc: 25, line: 7]\n" +
+				"        [pc: 27, line: 8]\n" +
+				"        [pc: 30, line: 9]\n" +
+				"        [pc: 36, line: 11]\n" +
+				"        [pc: 76, line: 12]\n" +
+				"        [pc: 81, line: 13]\n" +
+				"        [pc: 115, line: 16]\n" +
+				"        [pc: 155, line: 17]\n" +
+				"        [pc: 160, line: 18]\n" +
+				"        [pc: 194, line: 21]\n" +
+				"        [pc: 237, line: 22]\n" +
+				"        [pc: 242, line: 23]\n" +
+				"        [pc: 276, line: 26]\n" +
+				"        [pc: 319, line: 27]\n" +
+				"        [pc: 324, line: 28]\n" +
+				"        [pc: 358, line: 30]\n" +
+				"      Local variable table:\n" +
+				"        [pc: 0, pc: 359] local: args index: 0 type: java.lang.String[]\n" +
+				"        [pc: 8, pc: 359] local: x index: 1 type: X\n" +
+				"        [pc: 16, pc: 359] local: l index: 2 type: java.util.List\n" +
+				"        [pc: 27, pc: 359] local: la index: 3 type: java.util.List\n" +
+				"        [pc: 30, pc: 359] local: lb index: 4 type: java.util.List\n" +
+				"        [pc: 33, pc: 359] local: t index: 5 type: boolean\n" +
+				"        [pc: 36, pc: 359] local: f index: 6 type: boolean\n" +
+				"        [pc: 81, pc: 115] local: e index: 7 type: java.lang.Throwable\n" +
+				"        [pc: 160, pc: 194] local: e index: 7 type: java.lang.Throwable\n" +
+				"        [pc: 242, pc: 276] local: e index: 7 type: java.lang.Throwable\n" +
+				"        [pc: 324, pc: 358] local: e index: 7 type: java.lang.Throwable\n" +
+				"      Local variable type table:\n" +
+				"        [pc: 27, pc: 359] local: la index: 3 type: java.util.List<A>\n" +
+				"        [pc: 30, pc: 359] local: lb index: 4 type: java.util.List<B>\n";
+			if (this.complianceLevel != ClassFileConstants.JDK1_5) {
+				expectedOutput += "      Stack map table: number of frames 16\n" +
+						"        [pc: 57, full, stack: {java.io.PrintStream}, locals: {java.lang.String[], X, java.util.List, java.util.List, java.util.List, int, int}]\n" +
+						"        [pc: 68, full, stack: {java.io.PrintStream, Foo}, locals: {java.lang.String[], X, java.util.List, java.util.List, java.util.List, int, int}]\n" +
+						"        [pc: 79, same_locals_1_stack_item, stack: {java.lang.Throwable}]\n" +
+						"        [pc: 115, same]\n" +
+						"        [pc: 136, same_locals_1_stack_item, stack: {java.io.PrintStream}]\n" +
+						"        [pc: 147, full, stack: {java.io.PrintStream, Foo}, locals: {java.lang.String[], X, java.util.List, java.util.List, java.util.List, int, int}]\n" +
+						"        [pc: 158, same_locals_1_stack_item, stack: {java.lang.Throwable}]\n" +
+						"        [pc: 194, same]\n" +
+						"        [pc: 215, same_locals_1_stack_item, stack: {java.io.PrintStream}]\n" +
+						"        [pc: 226, full, stack: {java.io.PrintStream, Foo}, locals: {java.lang.String[], X, java.util.List, java.util.List, java.util.List, int, int}]\n" +
+						"        [pc: 240, same_locals_1_stack_item, stack: {java.lang.Throwable}]\n" +
+						"        [pc: 276, same]\n" +
+						"        [pc: 297, same_locals_1_stack_item, stack: {java.io.PrintStream}]\n" +
+						"        [pc: 308, full, stack: {java.io.PrintStream, Foo}, locals: {java.lang.String[], X, java.util.List, java.util.List, java.util.List, int, int}]\n" +
+						"        [pc: 322, same_locals_1_stack_item, stack: {java.lang.Throwable}]\n" +
+						"        [pc: 358, same]\n";
+			}
+	}
 
 	File f = new File(OUTPUT_DIR + File.separator + "X.class");
 	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);

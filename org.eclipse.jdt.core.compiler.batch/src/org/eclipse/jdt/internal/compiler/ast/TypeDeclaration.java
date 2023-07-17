@@ -26,8 +26,10 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -1883,5 +1885,45 @@ public boolean isPackageInfo() {
 public boolean isSecondary() {
 	return (this.bits & ASTNode.IsSecondaryType) != 0;
 }
+public void updateSupertypesWithAnnotations(Map<ReferenceBinding,ReferenceBinding> outerUpdates) {
+	if (this.binding == null || this.binding.isHierarchyInconsistent())
+		return;
+	this.binding.getAnnotationTagBits();
+	if (this.binding instanceof MemberTypeBinding) {
+		((MemberTypeBinding) this.binding).updateDeprecationFromEnclosing();
+	}
+	Map<ReferenceBinding,ReferenceBinding> updates = new HashMap<>();
+	if (this.superclass != null) {
+		this.binding.superclass = updateWithAnnotations(this.superclass, outerUpdates, updates);
+	}
+	if (this.superInterfaces != null && this.binding.superInterfaces != null && this.superInterfaces.length == this.binding.superInterfaces.length) {
+		for (int i = 0; i < this.superInterfaces.length; i++) {
+			// correspondence between arrays this.binding.superInterfaces and this.superInterfaces is ensured by !this.binding.isHierarchyInconsistent()
+			this.binding.superInterfaces[i] = updateWithAnnotations(this.superInterfaces[i], outerUpdates, updates);
+		}
+	}
+	if (this.memberTypes != null) {
+		for (TypeDeclaration memberTypesDecl : this.memberTypes) {
+			memberTypesDecl.updateSupertypesWithAnnotations(updates);
+		}
+	}
+}
 
+protected ReferenceBinding updateWithAnnotations(TypeReference typeRef, Map<ReferenceBinding, ReferenceBinding> outerUpdates,
+		Map<ReferenceBinding, ReferenceBinding> updates)
+{
+	ReferenceBinding previousType = (ReferenceBinding) typeRef.resolvedType;
+	typeRef.updateWithAnnotations(this.scope, 0);
+	ReferenceBinding updatedType = (ReferenceBinding) typeRef.resolvedType;
+	if (updatedType instanceof ParameterizedTypeBinding) {
+		ParameterizedTypeBinding ptb = (ParameterizedTypeBinding) updatedType;
+		if (updatedType.enclosingType() != null && outerUpdates.containsKey(ptb.enclosingType())) {
+			updatedType = this.scope.environment().createParameterizedType(ptb.genericType(), ptb.typeArguments(), outerUpdates.get(ptb.enclosingType()));
+		}
+	}
+	if (previousType != updatedType) { //$IDENTITY-COMPARISON$
+		updates.put(previousType, updatedType);
+	}
+	return updatedType;
+}
 }

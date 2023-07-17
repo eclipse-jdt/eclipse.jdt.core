@@ -12,10 +12,12 @@ package org.eclipse.jdt.apt.tests.annotations.generic;
 
 import java.util.Collection;
 
-import junit.framework.AssertionFailedError;
+import com.sun.mirror.apt.AnnotationProcessor;
+import com.sun.mirror.apt.AnnotationProcessorEnvironment;
+import com.sun.mirror.declaration.AnnotationTypeDeclaration;
+import com.sun.mirror.declaration.Declaration;
 
-import com.sun.mirror.apt.*;
-import com.sun.mirror.declaration.*;
+import junit.framework.AssertionFailedError;
 
 public abstract class AbstractGenericProcessor implements AnnotationProcessor {
 	protected AnnotationProcessorEnvironment env;
@@ -28,20 +30,27 @@ public abstract class AbstractGenericProcessor implements AnnotationProcessor {
 		decls = env.getDeclarationsAnnotatedWith(genericAnnotation);
 	}
 
-	public abstract void _process();
-
 	/**
 	 * This method is abstract, so that subclasses need to implement
 	 * _process. We'll handle catching any errant throwables
 	 * and fail any junit tests.
 	 */
+	public abstract void _process();
+
+	@Override
 	public final void process() {
 		try {
 			_process();
 		}
 		catch (Throwable t) {
+			if (t instanceof AssertionFailedError) {
+				throw t;
+			}
 			t.printStackTrace();
-			throw new AssertionFailedError("Processor threw an exception during processing");
+			AssertionFailedError assertionFailedError = new AssertionFailedError(
+					"Processor threw an exception during processing: " + t);
+			assertionFailedError.initCause(t);
+			throw assertionFailedError;
 		}
 	}
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2012 IBM Corporation and others.
+ * Copyright (c) 2006, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -14,6 +14,8 @@
  *								bug 345305 - [compiler][null] Compiler misidentifies a case of "variable can only be null"
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
+
+import java.util.List;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
@@ -236,6 +238,50 @@ public void generateOptimizedStringConcatenation(BlockScope blockScope,
 	}
 }
 
+@Override
+public void buildStringForConcatation(BlockScope blockScope, CodeStream codeStream, int typeID, StringBuilder recipe, List<TypeBinding> argTypes) {
+	if (this.referencesTable == null) {
+		super.buildStringForConcatation(blockScope, codeStream,	typeID, recipe, argTypes);
+	} else {
+		// copied from below method generateOptimizedStringConcatenationCreation(BlockScope, CodeStream, int)
+		if ((((this.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT) ==
+				OperatorIds.PLUS) &&
+					((this.bits & ASTNode.ReturnTypeIDMASK) ==
+						TypeIds.T_JavaLangString) &&
+					this.constant == Constant.NotAConstant) {
+			BinaryExpression cursor = this.referencesTable[this.arity - 1];
+			int restart = 0;
+			for (restart = this.arity - 1; restart >= 0; restart--) {
+				if (((((cursor = this.referencesTable[restart]).bits &
+						ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT) ==
+							OperatorIds.PLUS) &&
+						((cursor.bits & ASTNode.ReturnTypeIDMASK) ==
+							TypeIds.T_JavaLangString)) {
+					if (cursor.constant != Constant.NotAConstant) {
+						cursor.buildStringForConcatation(blockScope, codeStream, typeID, recipe, argTypes);
+						break;
+					}
+				} else {
+					cursor.buildStringForConcatation(blockScope, codeStream, cursor.implicitConversion &
+							TypeIds.COMPILE_TYPE_MASK, recipe, argTypes);
+					break;
+				}
+			}
+			restart++;
+			if (restart == 0) { // reached the leftmost expression
+				cursor.left.buildStringForConcatation(blockScope, codeStream, cursor.left.implicitConversion & TypeIds.COMPILE_TYPE_MASK, recipe, argTypes);
+			}
+			for (int i = restart; i < this.arity; i++) {
+				cursor = this.referencesTable[i];
+				cursor.right.buildStringForConcatation(blockScope, codeStream, cursor.right.implicitConversion &
+						TypeIds.COMPILE_TYPE_MASK, recipe, argTypes);
+			}
+			this.right.buildStringForConcatation(blockScope, codeStream, this.right.implicitConversion & TypeIds.COMPILE_TYPE_MASK, recipe, argTypes);
+		} else {
+			super.buildStringForConcatation(blockScope, codeStream,	typeID, recipe, argTypes);
+		}
+	}
+}
 @Override
 public void generateOptimizedStringConcatenationCreation(BlockScope blockScope,
 		CodeStream codeStream, int typeID) {

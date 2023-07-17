@@ -17,7 +17,7 @@ import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 
-public class CompletionOnMethodName extends MethodDeclaration {
+public class CompletionOnMethodName extends MethodDeclaration implements CompletionNode {
 	public int selectorEnd;
 
 	public CompletionOnMethodName(CompilationResult compilationResult){

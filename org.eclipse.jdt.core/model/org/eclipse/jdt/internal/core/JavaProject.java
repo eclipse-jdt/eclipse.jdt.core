@@ -1002,7 +1002,7 @@ public class JavaProject
 				}
 			}, JRTUtil.NOTIFY_MODULES);
 		} catch (IOException e) {
-			Util.log(IStatus.ERROR, "Error reading modules from " + imagePath.toOSString()); //$NON-NLS-1$
+			Util.log(e, "Error reading modules from " + imagePath.toOSString()); //$NON-NLS-1$
 		}
 	}
 

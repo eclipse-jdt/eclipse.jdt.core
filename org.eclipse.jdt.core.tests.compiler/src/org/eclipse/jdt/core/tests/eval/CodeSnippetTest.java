@@ -1046,4 +1046,16 @@ public void testBug571310_SynthVarReciever() {
 			"new Outer().boo().get();"}),
 			"16".toCharArray());
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1060
+// NPE when inspecting scrapbook expression that uses Java 8 features
+public void testGH1060() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
+		return;
+	}
+	evaluateWithExpectedDisplayString(buildCharArray(new String[] {
+			"return java.time.format.DateTimeFormatter\r\n"
+			+ "				.ofPattern(\"yyyyMMddHHmmss.SSS000\")\r\n"
+			+ "				.format(java.time.format.DateTimeFormatter.ofPattern(\"dd.MM.yyyy HHmmss\").parse(\"30.03.2021 112430\", java.time.LocalDateTime::from));"}),
+			"20210330112430.000000".toCharArray());
+}
 }

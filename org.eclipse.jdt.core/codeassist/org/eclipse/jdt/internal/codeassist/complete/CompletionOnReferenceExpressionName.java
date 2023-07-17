@@ -23,7 +23,7 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.parser.Scanner;
 
-public class CompletionOnReferenceExpressionName extends ReferenceExpression {
+public class CompletionOnReferenceExpressionName extends ReferenceExpression implements CompletionNode {
 
 	public CompletionOnReferenceExpressionName(Scanner scanner) {
 		super(scanner);

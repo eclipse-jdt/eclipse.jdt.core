@@ -3,3 +3,4 @@ Bug 441790 - AnnotationValue.toString is creating incorrect and truncated text t
 BUg 492759 - update jdtcompiler and eclipserun to RC2 level to produce RC3
 Bug 509973 - Comparator errors in I20170105-0320
 Bug 566471 - I20200828-0150 - Comparator Errors Found
+https://github.com/eclipse-platform/eclipse.platform.releng.aggregator/issues/1184

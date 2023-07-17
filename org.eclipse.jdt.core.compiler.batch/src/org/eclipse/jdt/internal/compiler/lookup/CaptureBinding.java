@@ -263,6 +263,12 @@ public class CaptureBinding extends TypeVariableBinding {
 			case Wildcard.UNBOUND :
 				this.setSuperClass(substitutedVariableSuperclass);
 				this.setSuperInterfaces(substitutedVariableInterfaces);
+				if (substitutedVariableSuperclass != null && substitutedVariableInterfaces != null) {
+					if (substitutedVariableSuperclass.id == TypeIds.T_JavaLangObject
+							&& substitutedVariableInterfaces.length > 0) {
+						this.setFirstBound(substitutedVariableInterfaces[0]);
+					}
+				}
 				this.tagBits &= ~TagBits.HasTypeVariable;
 				break;
 			case Wildcard.SUPER :
