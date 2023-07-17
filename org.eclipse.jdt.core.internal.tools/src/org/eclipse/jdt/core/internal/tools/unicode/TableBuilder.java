@@ -42,11 +42,10 @@ public class TableBuilder {
 		List<String> result = new ArrayList<>();
 		SAXParser saxParser = null;
 		try {
-			saxParser = SAXParserFactory.newInstance().newSAXParser();
-		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
-			return null;
-		} catch (SAXException e) {
+			@SuppressWarnings("restriction")
+			SAXParser p = org.eclipse.core.internal.runtime.XmlProcessorFactory.createSAXParserWithErrorOnDOCTYPE();
+			saxParser =p;
+		} catch (SAXException | ParserConfigurationException e) {
 			e.printStackTrace();
 			return null;
 		}

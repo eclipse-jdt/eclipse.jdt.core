@@ -60,7 +60,6 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.core.resources.IFile;
@@ -3566,7 +3565,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				StringReader reader = new StringReader(xmlString);
 				Element cpElement;
 				try {
-					DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+					@SuppressWarnings("restriction")
+					DocumentBuilder parser = org.eclipse.core.internal.runtime.XmlProcessorFactory.createDocumentBuilderWithErrorOnDOCTYPE();
 					cpElement = parser.parse(new InputSource(reader)).getDocumentElement();
 				} catch(SAXException | ParserConfigurationException e){
 					return;

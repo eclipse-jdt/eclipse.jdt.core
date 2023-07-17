@@ -165,8 +165,7 @@ public class XMLComparer implements IXMLNames {
 			"</model>\n";
 
 		// create "actual" model
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		Document actualModel = factory.newDocumentBuilder().newDocument();
+		Document actualModel = org.eclipse.core.internal.runtime.XmlProcessorFactory.createDocumentBuilderWithErrorOnDOCTYPE().newDocument();
 		Element modelNode = actualModel.createElement(MODEL_TAG);
 		// primary type
 		Element typeNode = actualModel.createElement(TYPE_ELEMENT_TAG);
@@ -204,7 +203,7 @@ public class XMLComparer implements IXMLNames {
 
 		// load reference model
     	InputSource source = new InputSource(new StringReader(XML_FRAMEWORK_TEST_MODEL));
-        Document expectedModel = factory.newDocumentBuilder().parse(source);
+        Document expectedModel = org.eclipse.core.internal.runtime.XmlProcessorFactory.createDocumentBuilderWithErrorOnDOCTYPE().parse(source);
 
         // compare actual and reference
         ByteArrayOutputStream out = new ByteArrayOutputStream();

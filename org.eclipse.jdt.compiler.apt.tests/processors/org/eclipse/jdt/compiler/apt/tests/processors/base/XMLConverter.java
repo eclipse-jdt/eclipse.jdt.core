@@ -65,7 +65,7 @@ public class XMLConverter extends ElementScanner6<Void, Node> implements IXMLNam
 		StringWriter s = new StringWriter();
 		DOMSource domSource = new DOMSource(model);
 		StreamResult streamResult = new StreamResult(s);
-		TransformerFactory tf = TransformerFactory.newInstance();
+		TransformerFactory tf = org.eclipse.core.internal.runtime.XmlProcessorFactory.createTransformerFactoryWithErrorOnDOCTYPE();
 		Transformer serializer;
 		try {
 			serializer = tf.newTransformer();
@@ -146,8 +146,7 @@ public class XMLConverter extends ElementScanner6<Void, Node> implements IXMLNam
 	 * @throws ParserConfigurationException
 	 */
 	public static Document convertModel(Iterable<? extends javax.lang.model.element.Element> declarations) throws ParserConfigurationException {
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		Document model = factory.newDocumentBuilder().newDocument();
+		Document model = org.eclipse.core.internal.runtime.XmlProcessorFactory.createDocumentBuilderWithErrorOnDOCTYPE().newDocument();
 		org.w3c.dom.Element modelNode = model.createElement(MODEL_TAG);
 
 		XMLConverter converter = new XMLConverter(model);
