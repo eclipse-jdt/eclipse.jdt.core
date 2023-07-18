@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -626,7 +630,16 @@ public class SwitchStatement extends Expression {
 							&& this.expression.resolvedType instanceof ReferenceBinding
 							&& ((ReferenceBinding) this.expression.resolvedType).isSealed();
 
-			if (isEnumSwitchWithoutDefaultCase || isPatternSwitchSealedWithoutDefaultCase) {
+			boolean isRecordPatternSwitchWithoutDefault = this.defaultCase == null
+					&& compilerOptions != null
+					&& this.containsPatterns
+					&& JavaFeature.RECORD_PATTERNS.isSupported(compilerOptions)
+					&& JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(compilerOptions)
+					&& this.expression.resolvedType instanceof ReferenceBinding
+					&& this.expression.resolvedType.isRecord();
+			if (isEnumSwitchWithoutDefaultCase
+					|| isPatternSwitchSealedWithoutDefaultCase
+					|| isRecordPatternSwitchWithoutDefault) {
 				// we want to force an line number entry to get an end position after the switch statement
 				if (this.preSwitchInitStateIndex != -1) {
 					codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.preSwitchInitStateIndex);
@@ -665,7 +678,9 @@ public class SwitchStatement extends Expression {
 			}
 			// place the trailing labels (for break and default case)
 			this.breakLabel.place();
-			if (this.defaultCase == null && !(enumInSwitchExpression || isPatternSwitchSealedWithoutDefaultCase)) {
+			if (this.defaultCase == null && !(enumInSwitchExpression
+					|| isPatternSwitchSealedWithoutDefaultCase
+					|| isRecordPatternSwitchWithoutDefault)) {
 				// we want to force an line number entry to get an end position after the switch statement
 				codeStream.recordPositionsFrom(codeStream.position, this.sourceEnd, true);
 				defaultLabel.place();
