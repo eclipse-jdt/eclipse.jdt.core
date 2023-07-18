@@ -1005,7 +1005,7 @@ public class SwitchStatement extends Expression {
 											if (type.isBaseType()) {
 												type = this.scope.environment().computeBoxingType(type);
 											}
-											if (p1.primary().isTotalForType(type))
+											if (p1.primary().coversType(type))
 												this.scope.problemReporter().patternDominatedByAnother(c.e);
 										}
 									}

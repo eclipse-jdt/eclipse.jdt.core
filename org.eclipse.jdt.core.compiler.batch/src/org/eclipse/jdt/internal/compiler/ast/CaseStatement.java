@@ -502,15 +502,18 @@ private Constant resolveConstantExpression(BlockScope scope,
 					return Constant.NotAConstant;
 				}
 			}
-			if (e.isTotalForType(expressionType)) {
+			if (e.coversType(expressionType)) {
 				if ((switchStatement.switchBits & SwitchStatement.TotalPattern) != 0) {
 					scope.problemReporter().duplicateTotalPattern(e);
 					return IntConstant.fromValue(-1);
 				}
-				switchStatement.switchBits |= (SwitchStatement.TotalPattern | SwitchStatement.Exhaustive);
-				if (switchStatement.defaultCase != null)
-					scope.problemReporter().illegalTotalPatternWithDefault(this);
-				switchStatement.totalPattern = e;
+				switchStatement.switchBits |= SwitchStatement.Exhaustive;
+				if (e.isAlwaysTrue()) {
+					switchStatement.switchBits |= SwitchStatement.TotalPattern;
+					if (switchStatement.defaultCase != null && !(e instanceof RecordPattern))
+						scope.problemReporter().illegalTotalPatternWithDefault(this);
+					switchStatement.totalPattern = e;
+				}
 				e.isTotalTypeNode = true;
 				if (switchStatement.nullCase == null)
 					constant = IntConstant.fromValue(-1);

@@ -77,8 +77,13 @@ public abstract class Pattern extends Expression {
 		this.enclosingPattern = enclosingPattern;
 		this.nestingLevel = enclosingPattern.nestingLevel+1;
 	}
-
-	public boolean isTotalForType(TypeBinding type) {
+	/**
+	 * Implement the rules in the spec under 14.11.1.1 Exhaustive Switch Blocks
+	 *
+	 * @param type
+	 * @return whether pattern covers the given type or not
+	 */
+	public boolean coversType(TypeBinding type) {
 		return false;
 	}
 	public TypeBinding resolveAtType(BlockScope scope, TypeBinding type) {

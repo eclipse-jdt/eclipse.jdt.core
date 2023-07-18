@@ -105,8 +105,25 @@ public class RecordPattern extends TypePattern {
 		return flowInfo;
 	}
 	@Override
-	public boolean isTotalForType(TypeBinding t) {
-		return false;
+	public boolean coversType(TypeBinding t) {
+		if (TypeBinding.equalsEquals(t, this.resolvedType)) {
+			// return the already computed value
+			return this.isTotalTypeNode;
+		}
+		if (!t.isRecord())
+			return false;
+		RecordComponentBinding[] components = t.components();
+		if (components == null || components.length != this.patterns.length) {
+			return false;
+		}
+		for (int i = 0; i < components.length; i++) {
+			Pattern p = this.patterns[i];
+			RecordComponentBinding componentBinding = components[i];
+			if (!p.coversType(componentBinding.type)) {
+				return false;
+			}
+		}
+		return true;
 	}
 	@Override
 	public void resolveWithExpression(BlockScope scope, Expression exp) {
@@ -172,7 +189,7 @@ public class RecordPattern extends TypePattern {
 		return this.resolvedType;
 	}
 	private void setAccessorsPlusInfuseInferredType(BlockScope scope) {
-		this.isTotalTypeNode = isTotalForType(this.resolvedType);
+		this.isTotalTypeNode = super.coversType(this.resolvedType);
 		RecordComponentBinding[] components = this.resolvedType.components();
 		if (components.length != this.patterns.length) {
 			scope.problemReporter().recordPatternSignatureMismatch(this.resolvedType, this);
@@ -191,12 +208,13 @@ public class RecordPattern extends TypePattern {
 				p.resolveType(scope, true);
 				TypeBinding expressionType = componentBinding.type;
 				if (p.isPatternTypeCompatible(expressionType, scope)) {
-					p.isTotalTypeNode = p.isTotalForType(componentBinding.type);
+					p.isTotalTypeNode = p.coversType(componentBinding.type);
 					MethodBinding[] methods = this.resolvedType.getMethods(componentBinding.name);
 					if (methods != null && methods.length > 0) {
 						p.accessorMethod = methods[0];
 					}
 				}
+				this.isTotalTypeNode &= p.isTotalTypeNode;
 			}
 		}
 	}
@@ -239,7 +257,7 @@ public class RecordPattern extends TypePattern {
 	public boolean dominates(Pattern p) {
 		if (!this.resolvedType.isValidBinding())
 			return false;
-		if (!super.isTotalForType(p.resolvedType)) {
+		if (!super.coversType(p.resolvedType)) {
 			return false;
 		}
 		if (p instanceof RecordPattern) {
@@ -282,18 +300,11 @@ public class RecordPattern extends TypePattern {
 	}
 	@Override
 	protected void generatePatternVariable(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel) {
-		if (!this.isTotalTypeNode) {
-//			codeStream.load(this.secretPatternVariable);
-//			codeStream.instance_of(this.resolvedType);
-//			BranchLabel target = falseLabel != null ? falseLabel : new BranchLabel(codeStream);
-//			codeStream.ifeq(target);
-		}
 		List<ExceptionLabel> labels = new ArrayList<>();
 		for (Pattern p : this.patterns) {
 			if (p.accessorMethod != null) {
 				codeStream.load(this.secretPatternVariable);
-				if (!this.isTotalTypeNode)
-					codeStream.checkcast(this.resolvedType);
+				codeStream.checkcast(this.resolvedType);
 
 				ExceptionLabel exceptionLabel = new ExceptionLabel(codeStream,TypeBinding.wellKnownType(currentScope, T_JavaLangThrowable));
 				exceptionLabel.placeStart();
@@ -305,21 +316,19 @@ public class RecordPattern extends TypePattern {
 				if (TypeBinding.notEquals(p.accessorMethod.original().returnType.erasure(),
 						p.accessorMethod.returnType.erasure()))
 					codeStream.checkcast(p.accessorMethod.returnType);
-				if (!p.isTotalTypeNode) {
-					if (p instanceof TypePattern) {
-						((TypePattern)p).getSecretVariable(currentScope, p.resolvedType);
-						((TypePattern)p).initializePatternVariables(currentScope, codeStream);
-						codeStream.load(p.secretPatternVariable);
-						codeStream.instance_of(p.resolvedType);
-						BranchLabel target = falseLabel != null ? falseLabel : new BranchLabel(codeStream);
-						List<LocalVariableBinding> deepPatternVars = getDeepPatternVariables(currentScope);
-						recordEndPCDeepPatternVars(deepPatternVars, codeStream.position);
-						codeStream.ifeq(target);
-						recordStartPCDeepPatternVars(deepPatternVars, codeStream.position);
-						p.secretPatternVariable.recordInitializationStartPC(codeStream.position);
-						codeStream.load(p.secretPatternVariable);
-						codeStream.removeVariable(p.secretPatternVariable);
-					}
+				if (p instanceof RecordPattern || !p.isTotalTypeNode) {
+					((TypePattern)p).getSecretVariable(currentScope, p.resolvedType);
+					((TypePattern)p).initializePatternVariables(currentScope, codeStream);
+					codeStream.load(p.secretPatternVariable);
+					codeStream.instance_of(p.resolvedType);
+					BranchLabel target = falseLabel != null ? falseLabel : new BranchLabel(codeStream);
+					List<LocalVariableBinding> deepPatternVars = getDeepPatternVariables(currentScope);
+					recordEndPCDeepPatternVars(deepPatternVars, codeStream.position);
+					codeStream.ifeq(target);
+					recordStartPCDeepPatternVars(deepPatternVars, codeStream.position);
+					p.secretPatternVariable.recordInitializationStartPC(codeStream.position);
+					codeStream.load(p.secretPatternVariable);
+					codeStream.removeVariable(p.secretPatternVariable);
 				}
 				p.generateOptimizedBoolean(currentScope, codeStream, trueLabel, falseLabel);
 			}
