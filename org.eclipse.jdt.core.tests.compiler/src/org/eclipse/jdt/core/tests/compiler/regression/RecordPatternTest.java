@@ -2884,7 +2884,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	}
 	// Fails with VerifyError since we allow the switch now but don't
 	// generate a label/action for implicit default.
-	public void _testIssue1224_8() {
+	public void testIssue1224_8() {
 		runConformTest(new String[] {
 			"X.java",
 			"record Record(int a) {}\n"
