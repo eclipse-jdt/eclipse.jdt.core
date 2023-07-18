@@ -37,7 +37,7 @@ package org.eclipse.jdt.internal.codeassist.complete;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.*;
 
-public class CompletionOnFieldType extends FieldDeclaration {
+public class CompletionOnFieldType extends FieldDeclaration implements CompletionNode {
 	public boolean isLocalVariable;
 
 public CompletionOnFieldType(TypeReference type, boolean isLocalVariable){

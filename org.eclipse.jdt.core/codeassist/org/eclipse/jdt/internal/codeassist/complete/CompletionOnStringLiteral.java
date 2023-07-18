@@ -36,7 +36,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
  *       }
  */
 
-public class CompletionOnStringLiteral extends StringLiteral {
+public class CompletionOnStringLiteral extends StringLiteral implements CompletionNode {
 	public int contentStart;
 	public int contentEnd;
 	public CompletionOnStringLiteral(char[] token, int s, int e, int cs, int ce, int lineNumber) {

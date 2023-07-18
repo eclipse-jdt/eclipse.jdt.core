@@ -39,7 +39,7 @@ import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
-public class CompletionOnMessageSend extends MessageSend {
+public class CompletionOnMessageSend extends MessageSend implements CompletionNode {
 
 	@Override
 	public TypeBinding resolveType(BlockScope scope) {

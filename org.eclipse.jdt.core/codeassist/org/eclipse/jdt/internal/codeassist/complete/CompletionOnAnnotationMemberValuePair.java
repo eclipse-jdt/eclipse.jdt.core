@@ -21,7 +21,7 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
-public class CompletionOnAnnotationMemberValuePair extends NormalAnnotation {
+public class CompletionOnAnnotationMemberValuePair extends NormalAnnotation implements CompletionNode {
 	public MemberValuePair completedMemberValuePair;
 	public CompletionOnAnnotationMemberValuePair(TypeReference type, int sourceStart, MemberValuePair[] memberValuePairs, MemberValuePair completedMemberValuePair) {
 		super(type, sourceStart);
@@ -33,11 +33,13 @@ public class CompletionOnAnnotationMemberValuePair extends NormalAnnotation {
 	public TypeBinding resolveType(BlockScope scope) {
 		super.resolveType(scope);
 
+		CompletionNodeFound exception;
 		if (this.resolvedType == null || !this.resolvedType.isValidBinding()) {
-			throw new CompletionNodeFound();
+			exception = new CompletionNodeFound();
 		} else {
-			throw new CompletionNodeFound(this.completedMemberValuePair, scope);
+			exception = new CompletionNodeFound(this.completedMemberValuePair, scope);
 		}
+		return exception.throwOrDeferAndReturn(() -> this.resolvedType);
 	}
 
 	@Override

@@ -537,7 +537,12 @@ public void testBug424710() {
 			"				.forEach(System.out::println);\n" +
 			"    }\n" +
 			"}\n"
-		});
+		},
+		"abc\n" +
+		"a\n" +
+		"123\n" +
+		"1"
+		);
 }
 
 public void testBug424075() {
@@ -2948,7 +2953,7 @@ public void testBug430296() {
 		"2. ERROR in AnnotationCollector.java (at line 9)\n" +
 		"	return persons.collect(Collectors.toMap((Person p) -> p.getLastName(),\n" +
 		"	                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Type mismatch: cannot convert from Function<Person,? extends K> to Function<? super T,? extends K>\n" +
+		"Type mismatch: cannot convert from Function<Person,K> to Function<? super T,? extends K>\n" +
 		"----------\n" +
 		"3. ERROR in AnnotationCollector.java (at line 10)\n" +
 		"	Function::identity,\n" +
@@ -10383,5 +10388,64 @@ public void testBug508834_comment0() {
 				"	}\n" +
 				"}\n"
 			});
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/506
+	// Verify that ECJ can infer the case including nested generic method invocation.
+	public void testGH506_a() {
+		this.runConformTest(
+			new String[] {
+				"Convert.java",
+				"import java.util.function.Function;\n"
+				+ "class Convert<A> {\n"
+				+ "    public static <B> void test(final B a) {\n"
+				+ "        Convert<B> res1 = convert(arg -> create(arg), a); // ok\n"
+				+ "\n"
+				+ "        Convert<B> res2 = convert(arg -> wrap(create(arg)), a); // error: Type mismatch\n"
+				+ "    }\n"
+				+ "\n"
+				+ "    public static <C, D> Convert<D> convert(final Function<C, Convert<D>> func, final C value) {\n"
+				+ "        return null;\n"
+				+ "    }\n"
+				+ "\n"
+				+ "    public static <E> E wrap(final E a) {\n"
+				+ "        return null;\n"
+				+ "    }\n"
+				+ "\n"
+				+ "    public static <F> Convert<F> create(final F initial) {\n"
+				+ "        return null;\n"
+				+ "    }\n"
+				+ "}"
+			}
+		);
+	}
+
+	// Verify that ECJ still infers well when the nested method invocation is a varargs method.
+	public void testGH506_b() {
+		this.runConformTest(
+			new String[] {
+				"Convert.java",
+				"import java.util.function.Function;\n"
+				+ "class Convert<A> {\n"
+				+ "    public static <B> void test(final B a) {\n"
+				+ "        Convert<B> res1 = convert(arg -> create(arg), a); // ok\n"
+				+ "\n"
+				+ "        Convert<B> res2 = convert(arg -> wrap(create(arg)), a); // error: Type mismatch\n"
+				+ "    }\n"
+				+ "\n"
+				+ "    public static <C, D> Convert<D> convert(final Function<C, Convert<D>> func, final C value) {\n"
+				+ "        return null;\n"
+				+ "    }\n"
+				+ "\n"
+				+ "    public static <E> E wrap(final E a) {\n"
+				+ "        return null;\n"
+				+ "    }\n"
+				+ "\n"
+				+ "    public static <F> Convert<F> create(final F... initial) {\n"
+				+ "        return null;\n"
+				+ "    }\n"
+				+ "}"
+			}
+		);
 	}
 }

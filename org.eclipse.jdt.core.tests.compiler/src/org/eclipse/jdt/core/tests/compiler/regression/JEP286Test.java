@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2018, 2020 Jesper Steen Møller and others.
+ * Copyright (c) 2018, 2023 Jesper Steen Møller and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1394,5 +1394,82 @@ public void testBug567183_4() {
 			"	            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"The type Item is not visible\n" +
 			"----------\n");
+}
+public void testIssue600_1() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"import java.util.List;\n" +
+				"public class X {\n" +
+				"	public static void main(String [] args) {\n" +
+				"		var<Integer> x = List.of(42);\n" +
+				"	}\n" +
+				"}\n"
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	var<Integer> x = List.of(42);\n" +
+			"	^^^\n" +
+			"\'var\' cannot be used with type arguments\n" +
+			"----------\n");
+}
+public void testIssue600_2() {
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	public static void main(String [] args) {\n" +
+				"		for (var<Integer> i = 0; i < 5; i++) {\n"
+				+ "			System.out.println(i);\n"
+				+ "		}" +
+				"	}\n" +
+				"}\n"
+			},
+			"----------\n"
+			+ "1. ERROR in X.java (at line 3)\n"
+			+ "	for (var<Integer> i = 0; i < 5; i++) {\n"
+			+ "	     ^^^\n"
+			+ "'var' cannot be used with type arguments\n"
+			+ "----------\n");
+}
+public void testIssue600_3() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"import java.util.List;\n" +
+					"public class X {\n" +
+					"	public static void main(String [] args) {\n" +
+					"		for (var<Integer> i : List.of(2, 3, 5)) {\n"
+					+ "			System.out.println(i);\n"
+					+ "		}" +
+					"	}\n" +
+					"}\n"
+			},
+			"----------\n"
+			+ "1. ERROR in X.java (at line 4)\n"
+			+ "	for (var<Integer> i : List.of(2, 3, 5)) {\n"
+			+ "	     ^^^\n"
+			+ "'var' cannot be used with type arguments\n"
+			+ "----------\n");
+}
+public void testIssue600_4() {
+	this.runNegativeTest(
+			new String[] {
+					"X.java",
+					"public class X {\n" +
+					"    public static void main(String [] args) throws Exception {\n" +
+					"		try(var<String> w = new java.io.StringWriter()) {\n" +
+					"			w.write(\"SUCCESS\\n\");" +
+					"			System.out.println(w.toString());\n" +
+					"       }\n" +
+					"    }\n" +
+					"}\n"
+			},
+			"----------\n"
+			+ "1. ERROR in X.java (at line 3)\n"
+			+ "	try(var<String> w = new java.io.StringWriter()) {\n"
+			+ "	    ^^^\n"
+			+ "'var' cannot be used with type arguments\n"
+			+ "----------\n");
 }
 }

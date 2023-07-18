@@ -6990,4 +6990,53 @@ public void testGH979_onAnonClassConstructorWith_expectOnlyAnonClassCompletion()
 	assertResults("Serial[ANONYMOUS_CLASS_DECLARATION]{, LSerial;, ()V, null, null, "
 			+ (R_DEFAULT + R_INTERESTING + R_RESOLVED + R_NON_RESTRICTED) + "}", result);
 }
+
+public void testGH979_on1stConstructorArgumentWithFilledArgumentNames_expectCompletionsMatchinType()
+		throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[2];
+	this.workingCopies[1] = getWorkingCopy("/Completion/src/GH979List.java", """
+			public class GH979List<T> {
+
+			}
+			""");
+	this.workingCopies[0] = getWorkingCopy("/Completion/src/GH979.java", """
+			public class GH979 {
+				public GH979(GH979List<String> names, int age, boolean valid) {}
+
+				public static void foo() {
+					GH979.instance().boo(new GH979(, 20, false));
+				}
+
+				public GH979 instance() {
+					return null;
+				}
+
+				public void boo(GH979 g) {
+
+				}
+
+				public static GH979List<String> newInstance() {
+					return null;
+				}
+			}
+			""");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "new GH979(";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+	String result = requestor.getResults();
+	assertResults(
+			"GH979[ANONYMOUS_CLASS_DECLARATION]{, LGH979;, (LGH979List<Ljava.lang.String;>;IZ)V, null, (names, age, valid), "
+					+ (R_DEFAULT + R_INTERESTING + R_RESOLVED + R_NON_RESTRICTED) + "}\n"
+					+ "GH979[METHOD_REF<CONSTRUCTOR>]{, LGH979;, (LGH979List<Ljava.lang.String;>;IZ)V, GH979, (names, age, valid), "
+					+ (R_DEFAULT + R_INTERESTING + R_RESOLVED + R_NON_RESTRICTED) + "}\n"
+					+ "newInstance[METHOD_REF]{newInstance(), LGH979;, ()LGH979List<Ljava.lang.String;>;, newInstance, null, "
+					+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			result);
+}
 }

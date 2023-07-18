@@ -58,7 +58,7 @@ public class JrtUtilTest extends TestCase {
 	}
 
 	@Test
-	public void testGetNewJrtFileSystem() {
+	public void testGetNewJrtFileSystem() throws Exception {
 		int majorVersionSegment = getMajorVersionSegment(this.jdkRelease);
 		Object jrtSystem = JRTUtil.getJrtSystem(this.image);
 		Object jrtSystem2 = JRTUtil.getJrtSystem(this.image, String.valueOf(majorVersionSegment));

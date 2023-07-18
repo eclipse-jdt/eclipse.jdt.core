@@ -378,6 +378,45 @@ public class ParticipantBuildTests extends BuilderTests {
 		expectingNoProblems();
 	}
 
+	/**
+	 * Test that a build participant can inspect the declared annotations by name
+	 * @throws JavaModelException
+	 */
+	public void testProcessAnnotationHasAnnotation() throws JavaModelException {
+		IPath projectPath = env.addProject("Project", "1.5"); //$NON-NLS-1$ //$NON-NLS-2$
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+
+		env.addClass(root, "p1", "Test", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n" + //$NON-NLS-1$
+			"@GeneratedAnnotation\n" + //$NON-NLS-1$
+			"public class Test { public void method() {  } }\n" //$NON-NLS-1$
+			);
+		env.addClass(root, "p1", "GeneratedAnnotation", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n" + //$NON-NLS-1$
+			"@interface GeneratedAnnotation{}\n" //$NON-NLS-1$
+			);
+
+		// install compilationParticipant
+		TestCompilationParticipant1.PARTICIPANT = new CompilationParticipant() {
+			public boolean isAnnotationProcessor() {
+				return true;
+			}
+			public void processAnnotations(BuildContext[] files) {
+				Optional<BuildContext> testFileContext = Arrays.stream(files).filter(bc->bc.getFile().getName().equals("Test.java")).findFirst();
+				assertTrue("Testfile not found in build context!", testFileContext.isPresent());
+				assertTrue(testFileContext.get().hasAnnotations());
+				assertTrue(testFileContext.get().hasAnnotations("p1.GeneratedAnnotation"));
+				assertFalse(testFileContext.get().hasAnnotations("gibts.nicht.Hier"));
+			}
+		};
+
+		fullBuild(projectPath);
+		expectingNoProblems();
+	}
+
 	public void testProcessAnnotationReferences() throws JavaModelException {
 		IPath projectPath = env.addProject("Project", "1.5"); //$NON-NLS-1$ //$NON-NLS-2$
 		env.addExternalJars(projectPath, Util.getJavaClassLibs());

@@ -30,7 +30,7 @@ package org.eclipse.jdt.internal.codeassist.complete;
 import org.eclipse.jdt.internal.compiler.ast.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
-public class CompletionOnQualifiedTypeReference extends QualifiedTypeReference {
+public class CompletionOnQualifiedTypeReference extends QualifiedTypeReference implements CompletionNode {
 	public static final int K_TYPE = 0;
 	public static final int K_CLASS = 1;
 	public static final int K_INTERFACE = 2;

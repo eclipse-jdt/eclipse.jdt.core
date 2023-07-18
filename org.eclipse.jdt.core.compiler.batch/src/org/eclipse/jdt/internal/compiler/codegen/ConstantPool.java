@@ -317,7 +317,9 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	public static final char[] TYPESWITCH = "typeSwitch".toCharArray(); //$NON-NLS-1$
 	public static final char[] ENUMSWITCH = "enumSwitch".toCharArray(); //$NON-NLS-1$
 	public static final char[] JAVA_LANG_RUNTIME_SWITCHBOOTSTRAPS_SWITCH_SIGNATURE = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;".toCharArray(); //$NON-NLS-1$
-
+	public static final char[] ConcatWithConstants = "makeConcatWithConstants".toCharArray(); //$NON-NLS-1$
+	public static final char[] JAVA_LANG_INVOKE_STRING_CONCAT_FACTORY_SIGNATURE =
+			"(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;".toCharArray(); //$NON-NLS-1$
 	/**
 	 * ConstantPool constructor comment.
 	 */

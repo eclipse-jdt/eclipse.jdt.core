@@ -1186,4 +1186,51 @@ public class NullAnnotationModelTests extends ReconcilerTests {
 			deleteProject(project);
 		}
 	}
+	public void testGH875() throws CoreException, InterruptedException {
+		// first fixed by commit da0a6d8d5088b92dbc3602cdccff8d667b6d5e8b
+		IJavaProject project = createJavaProject("GH875", new String[] {"src"}, new String[] {"JCL17_LIB", this.ANNOTATION_LIB_V1}, "bin", "1.7");
+		try {
+			project.setOption(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
+			createFile("GH875/src/ICheckValidatorImpl.java",
+					"public interface ICheckValidatorImpl { }\n");
+			createFile("GH875/src/DefaultCheckImpl.java",
+					"public class DefaultCheckImpl implements ICheckValidatorImpl { }\n");
+			createFile("GH875/src/XCheck.java",
+					"public class XCheck extends DefaultCheckImpl { }\n");
+			createFile("GH875/src/DefaultCheckValidator.java",
+					"public class DefaultCheckValidator { }\n");
+			createFile("GH875/src/AcfCheckValidator.java",
+					"public class AcfCheckValidator extends DefaultCheckValidator { }\n");
+			createFile("GH875/src/CompilerCatalog.java",
+					"""
+					import java.lang.annotation.ElementType;
+					import java.lang.annotation.Retention;
+					import java.lang.annotation.RetentionPolicy;
+					import java.lang.annotation.Target;
+
+					@Retention(RetentionPolicy.RUNTIME)
+					@Target({ElementType.TYPE})
+					public @interface CompilerCatalog {
+					  Class<? extends ICheckValidatorImpl>[] compilers();
+					}
+					""");
+			String testSourcePath = "GH875/src/AvqBaseCheckValidator.java";
+			String testContent =
+					"""
+					@CompilerCatalog(compilers = {XCheck.class})
+					public class AvqBaseCheckValidator extends AcfCheckValidator { }
+					""";
+			createFile(testSourcePath, testContent);
+			getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+
+			ICompilationUnit unit = getCompilationUnit(testSourcePath).getWorkingCopy(this.wcOwner, null);
+			assertNoProblem(testContent.toCharArray(), unit);
+
+			getWorkspace().build(IncrementalProjectBuilder.INCREMENTAL_BUILD, null);
+			IMarker[] markers = project.getProject().findMarkers(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, true, IResource.DEPTH_INFINITE);
+			assertMarkers("Unexpected markers", "", markers);
+		} finally {
+			deleteProject(project);
+		}
+	}
 }

@@ -4841,6 +4841,7 @@ public void testBug276890_03() throws Exception {
  */
 public void testChangeInternalJar() throws CoreException, IOException {
 	String jarName = "b162621.jar";
+	String sourceZipName = "b162621_src.zip";
 	try {
 		// Create jar file with a class with 2 methods doXXX
 		String[] pathAndContents = new String[] {
@@ -4851,7 +4852,7 @@ public void testChangeInternalJar() throws CoreException, IOException {
 			"    public void doit2B(int x) { }\n" +
 			"}\n"
 		};
-		addLibrary(jarName, "b162621_src.zip", pathAndContents, JavaCore.VERSION_1_4);
+		addLibrary(jarName, sourceZipName, pathAndContents, JavaCore.VERSION_1_4);
 
 		// Wait a little bit to be sure file system is aware of zip file creation
 		try {
@@ -4915,8 +4916,7 @@ public void testChangeInternalJar() throws CoreException, IOException {
 			"doit2C[METHOD_REF]{doit2C, Lpack.Util;, (I)V, doit2C, "+(R_DEFAULT + R_RESOLVED + R_CASE + R_INTERESTING + R_NON_RESTRICTED + R_NON_STATIC) + "}",
 			requestor.getResults());
 	} finally {
-		removeClasspathEntry(this.currentProject, new Path(jarName));
-		deleteResource(new File(jarName));
+		removeLibrary(this.currentProject, jarName, sourceZipName);
 	}
 }
 public void testBug237469a() throws Exception {

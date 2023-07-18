@@ -158,4 +158,22 @@ public class SingleTypeReference extends TypeReference {
 		}
 		visitor.endVisit(this, scope);
 	}
+
+	@Override
+	public void updateWithAnnotations(Scope scope, int location) {
+		super.updateWithAnnotations(scope, location);
+		if (this.resolvedType instanceof TypeVariableBinding && !this.resolvedType.hasNullTypeAnnotations()) {
+			// refresh this binding in case a decorated binding was created during ClassScope.connectTypeVariables()
+			TypeVariableBinding tvb = (TypeVariableBinding) this.resolvedType;
+			Binding declaringElement = tvb.declaringElement;
+			if (declaringElement instanceof ReferenceBinding) {
+				TypeVariableBinding[] typeVariables = ((ReferenceBinding) declaringElement).typeVariables();
+				if (typeVariables != null && tvb.rank < typeVariables.length) {
+					TypeVariableBinding refreshed = typeVariables[tvb.rank];
+					if (refreshed != null && refreshed.id == this.resolvedType.id)
+						this.resolvedType = refreshed;
+				}
+			}
+		}
+	}
 }

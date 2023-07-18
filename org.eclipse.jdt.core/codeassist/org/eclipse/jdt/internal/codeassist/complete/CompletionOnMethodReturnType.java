@@ -17,7 +17,7 @@ import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 
-public class CompletionOnMethodReturnType extends MethodDeclaration {
+public class CompletionOnMethodReturnType extends MethodDeclaration implements CompletionNode {
 	public CompletionOnMethodReturnType(TypeReference returnType, CompilationResult compilationResult){
 		super(compilationResult);
 		this.returnType = returnType;

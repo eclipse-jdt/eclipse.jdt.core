@@ -529,6 +529,38 @@ public void testBug425035_method_c() throws CoreException {
 		deleteProject("P");
 	}
 }
+public void testBug425035_method_c2() throws CoreException {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
+		this.workingCopies = new ICompilationUnit[3];
+		this.workingCopies[0] = getWorkingCopy(
+				"/P/src/b/Test.java",
+				"import a.Annotation;\n" +
+				"import a.Values;\n" +
+				"package b;\n" +
+				"@Annotation({Values.SOME_})\n" +
+				"public class Test {\n" +
+				"}\n" +
+				"public enum Values {\n" +
+				"	SOME_VALUE, OTHER_VALUE\n" +
+				"}\n" +
+				"@interface Annotation {\n" +
+				"	Values[] value();\n" +
+				"}\n");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.setAllowsRequiredProposals(CompletionProposal.FIELD_REF, CompletionProposal.TYPE_IMPORT, true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = ".SOME_";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"SOME_VALUE[FIELD_REF]{SOME_VALUE, Lb.Values;, Lb.Values;, SOME_VALUE, null, 81}",
+				requestor.getResults());
+	} finally {
+		deleteProject("P");
+	}
+}
 public void testBug425035_method_d() throws CoreException {
 	try {
 		createJavaProject("P", new String[] {"src"}, new String[]{"JCL17_LIB"}, "bin", "1.7");
@@ -1512,9 +1544,11 @@ public void testBug575631_comment3d() throws Exception {
 		String completeAfter = "bar(";
 		int cursorLocation = str.indexOf(completeAfter) + completeAfter.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-		assertResults(
-			"bar[METHOD_REF]{, LX;, (ZI)V, bar, (b, j), 56}", // select overload with int as 2nd arg
-			requestor.getResults());
+		assertResults("""
+				bool[LOCAL_VARIABLE_REF]{bool, null, Z, bool, null, 52}
+				equals[METHOD_REF]{equals(), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), 52}
+				bar[METHOD_REF]{, LX;, (ZI)V, bar, (b, j), 56}""", // select overload with int as 2nd arg
+				requestor.getResults());
 	} finally {
 		deleteProject("P");
 	}

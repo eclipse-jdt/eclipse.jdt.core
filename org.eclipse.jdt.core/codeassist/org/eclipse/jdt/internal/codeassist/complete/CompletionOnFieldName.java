@@ -17,7 +17,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 
-public class CompletionOnFieldName extends FieldDeclaration {
+public class CompletionOnFieldName extends FieldDeclaration implements CompletionNode {
 	private static final char[] FAKENAMESUFFIX = " ".toCharArray(); //$NON-NLS-1$
 	public char[] realName;
 	public CompletionOnFieldName(char[] name, int sourceStart, int sourceEnd) {

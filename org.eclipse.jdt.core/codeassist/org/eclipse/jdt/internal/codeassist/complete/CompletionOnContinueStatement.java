@@ -18,7 +18,7 @@ import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 
-public class CompletionOnContinueStatement extends ContinueStatement {
+public class CompletionOnContinueStatement extends ContinueStatement implements CompletionNode {
 
 	public char[][] possibleLabels;
 

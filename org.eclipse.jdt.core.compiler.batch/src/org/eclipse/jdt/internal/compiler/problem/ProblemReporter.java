@@ -10026,6 +10026,14 @@ public void varCannotBeMixedWithNonVarParams(ASTNode astNode) {
 		astNode.sourceStart,
 		astNode.sourceEnd);
 }
+public void varCannotBeUsedWithTypeArguments(ASTNode astNode) {
+	this.handle(
+			IProblem.VarCannotBeUsedWithTypeArguments,
+			NoArgument,
+			NoArgument,
+			astNode.sourceStart,
+			astNode.sourceEnd);
+}
 public void variableTypeCannotBeVoidArray(AbstractVariableDeclaration varDecl) {
 	this.handle(
 		IProblem.CannotAllocateVoidArray,

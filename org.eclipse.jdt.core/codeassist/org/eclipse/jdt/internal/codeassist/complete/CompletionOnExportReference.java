@@ -35,7 +35,7 @@ import org.eclipse.jdt.internal.compiler.ast.ImportReference;
  * before the cursor.
  */
 
-public class CompletionOnExportReference extends ExportsStatement {
+public class CompletionOnExportReference extends ExportsStatement implements CompletionNode {
 
 	public CompletionOnExportReference(ImportReference ref) {
 		super(ref, null);

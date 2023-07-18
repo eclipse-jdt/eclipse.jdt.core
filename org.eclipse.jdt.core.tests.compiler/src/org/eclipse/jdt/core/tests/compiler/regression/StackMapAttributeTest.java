@@ -922,6 +922,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 					ClassFileBytesDisassembler.DETAILED);
 
 			String expectedOutput =
+					this.complianceLevel < ClassFileConstants.JDK9 ?
 				"  // Method descriptor #8 ()V\n" +
 				"  // Stack: 4, Locals: 2\n" +
 				"  X();\n" +
@@ -963,7 +964,43 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 				"        [pc: 6, pc: 55] local: i index: 1 type: int\n" +
 				"      Stack map table: number of frames 2\n" +
 				"        [pc: 24, full, stack: {}, locals: {X, int}]\n" +
-				"        [pc: 32, same]\n";
+				"        [pc: 32, same]\n"
+				:
+					"  X();\n" +
+					"     0  aload_0 [this]\n" +
+					"     1  invokespecial java.lang.Object() [10]\n" +
+					"     4  iconst_0\n" +
+					"     5  istore_1 [i]\n" +
+					"     6  aload_0 [this]\n" +
+					"     7  getfield X.s : java.lang.String [12]\n" +
+					"    10  ifnonnull 24\n" +
+					"    13  getstatic java.lang.System.out : java.io.PrintStream [14]\n" +
+					"    16  ldc <String \"PASSED\"> [20]\n" +
+					"    18  invokevirtual java.io.PrintStream.print(java.lang.String) : void [22]\n" +
+					"    21  goto 32\n" +
+					"    24  getstatic java.lang.System.out : java.io.PrintStream [14]\n" +
+					"    27  ldc <String \"FAILED\"> [28]\n" +
+					"    29  invokevirtual java.io.PrintStream.print(java.lang.String) : void [22]\n" +
+					"    32  getstatic java.lang.System.out : java.io.PrintStream [14]\n" +
+					"    35  iload_1 [i]\n" +
+					"    36  invokedynamic 0 makeConcatWithConstants(int) : java.lang.String [30]\n" +
+					"    41  invokevirtual java.io.PrintStream.print(java.lang.String) : void [22]\n" +
+					"    44  return\n" +
+					"      Line numbers:\n" +
+					"        [pc: 0, line: 3]\n" +
+					"        [pc: 4, line: 4]\n" +
+					"        [pc: 6, line: 5]\n" +
+					"        [pc: 13, line: 6]\n" +
+					"        [pc: 21, line: 7]\n" +
+					"        [pc: 24, line: 8]\n" +
+					"        [pc: 32, line: 10]\n" +
+					"        [pc: 44, line: 11]\n" +
+					"      Local variable table:\n" +
+					"        [pc: 0, pc: 45] local: this index: 0 type: X\n" +
+					"        [pc: 6, pc: 45] local: i index: 1 type: int\n" +
+					"      Stack map table: number of frames 2\n" +
+					"        [pc: 24, full, stack: {}, locals: {X, int}]\n" +
+					"        [pc: 32, same]\n";
 
 			int index = actualOutput.indexOf(expectedOutput);
 			if (index == -1 || expectedOutput.length() == 0) {

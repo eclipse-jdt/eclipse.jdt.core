@@ -1692,7 +1692,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	@Override
 	protected MethodBinding[] getInterfaceAbstractContracts(Scope scope, boolean replaceWildcards, boolean filterDefaultMethods) throws InvalidInputException {
 		if (replaceWildcards) {
-			TypeBinding[] types = getNonWildcardParameterization(scope);
+			TypeBinding[] types = getNonWildcardParameters(scope);
 			if (types == null)
 				return new MethodBinding[] { new ProblemMethodBinding(TypeConstants.ANONYMOUS_METHOD, null, ProblemReasons.NotAWellFormedParameterizedType) };
 			for (int i = 0; i < types.length; i++) {
@@ -1732,7 +1732,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		ParameterizedTypeBinding declaringType = null;
 		TypeBinding [] types = this.arguments;
 		if (replaceWildcards) {
-			types = getNonWildcardParameterization(scope);
+			types = getNonWildcardParameters(scope);
 			if (types == null)
 				return this.singleAbstractMethod[index] = new ProblemMethodBinding(TypeConstants.ANONYMOUS_METHOD, null, ProblemReasons.NotAWellFormedParameterizedType);
 		} else if (types == null) {
@@ -1764,8 +1764,8 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		return this.singleAbstractMethod[index];
 	}
 
-	// from JLS 9.8
-	public TypeBinding[] getNonWildcardParameterization(Scope scope) {
+	// from JLS 9.9
+	public TypeBinding[] getNonWildcardParameters(Scope scope) {
 		// precondition: isValidBinding()
 		TypeBinding[] typeArguments = this.arguments; 							// A1 ... An
 		if (typeArguments == null)
@@ -1833,6 +1833,16 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		}
 		return types;
 	}
+
+	public ReferenceBinding getNonWildcardParameterization(BlockScope blockScope) {
+		// non-wildcard parameterization (9.9) of the target type
+		TypeBinding[] types = getNonWildcardParameters(blockScope);
+		if (types == null)
+			return null;
+		ReferenceBinding genericType = genericType();
+		return blockScope.environment().createParameterizedType(genericType, types, enclosingType());
+	}
+
 	@Override
 	public long updateTagBits() {
 		if (this.arguments != null)

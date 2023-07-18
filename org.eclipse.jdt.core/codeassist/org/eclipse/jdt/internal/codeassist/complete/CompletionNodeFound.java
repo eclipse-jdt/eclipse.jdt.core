@@ -13,9 +13,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist.complete;
 
+import java.util.function.Supplier;
+
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 
 public class CompletionNodeFound extends RuntimeException {
 
@@ -43,5 +47,17 @@ public CompletionNodeFound(ASTNode astNode, Scope scope) {
 }
 public CompletionNodeFound(ASTNode astNode, Scope scope, boolean insideTypeAnnotation) {
 	this(astNode, null, scope, insideTypeAnnotation);
+}
+public <T> T throwOrDeferAndReturn(Supplier<T> value) {
+	// don't yet throw this CompletionNodeFound if fields are not yet present
+	if (this.scope != null) {
+		ReferenceBinding enclosingReceiverType = this.scope.enclosingReceiverType();
+		if (enclosingReceiverType != null && !enclosingReceiverType.isLocalType()
+				&& (enclosingReceiverType.original().tagBits & TagBits.AreFieldsComplete) != TagBits.AreFieldsComplete) {
+			this.scope.compilationUnitScope().deferException(this);
+			return value.get();
+		}
+	}
+	throw this;
 }
 }

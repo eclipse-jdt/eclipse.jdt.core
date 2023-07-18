@@ -500,7 +500,7 @@ public void computeId() {
 
 		case 3 :
 			char[] packageName = this.compoundName[0];
-			// expect only java.*.* and javax.*.* and junit.*.* and org.junit.*
+			// expect only java.*.* and javax.*.* and jakarta.*.* and junit.*.* and org.junit.*
 			switch (packageName.length) {
 				case 3: // only one type in this group, yet:
 					if (CharOperation.equals(TypeConstants.ORG_JUNIT_ASSERT, this.compoundName))
@@ -513,7 +513,7 @@ public void computeId() {
 					if (!CharOperation.equals(TypeConstants.JAVA, packageName))
 						return;
 					break; // continue below ...
-				case 5:
+				case 5: // javax
 					switch (packageName[1]) {
 						case 'a':
 							if (CharOperation.equals(TypeConstants.JAVAX_ANNOTATION_INJECT_INJECT, this.compoundName))
@@ -522,6 +522,14 @@ public void computeId() {
 						case 'u':
 							if (CharOperation.equals(TypeConstants.JUNIT_FRAMEWORK_ASSERT, this.compoundName))
 								this.id = TypeIds.T_JunitFrameworkAssert;
+							return;
+					}
+					return;
+				case 7: // jakarta
+					switch (packageName[1]) {
+						case 'a':
+							if (CharOperation.equals(TypeConstants.JAKARTA_ANNOTATION_INJECT_INJECT, this.compoundName))
+								this.id = TypeIds.T_JavaxInjectInject;
 							return;
 					}
 					return;

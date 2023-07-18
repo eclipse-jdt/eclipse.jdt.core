@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2022 IBM Corporation and others.
+ * Copyright (c) 2000, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -2933,6 +2933,11 @@ public abstract class Scope {
 		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_RUNTIME_SWITCHBOOTSTRAPS);
 		return unitScope.environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_RUNTIME_SWITCHBOOTSTRAPS, this);
 	}
+	public final ReferenceBinding getJavaLangInvokeStringConcatFactory() {
+		CompilationUnitScope unitScope = compilationUnitScope();
+		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_INVOKE_STRING_CONCAT_FACTORY);
+		return unitScope.environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_INVOKE_STRING_CONCAT_FACTORY, this);
+	}
 	public final ReferenceBinding getJavaLangInvokeLambdaMetafactory() {
 		CompilationUnitScope unitScope = compilationUnitScope();
 		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_INVOKE_LAMBDAMETAFACTORY);
@@ -5180,12 +5185,6 @@ public abstract class Scope {
 		return null;
 	}
 
-	public boolean deferCheck(Runnable check) {
-		if (this.parent != null)
-			return this.parent.deferCheck(check); // only ClassScope potentially records this
-		return false;
-	}
-
 	public void deferBoundCheck(TypeReference typeRef) {
 		// TODO: use dynamic binding rather than explicit type check
 		if (this.kind == CLASS_SCOPE) {
@@ -5436,6 +5435,9 @@ public abstract class Scope {
 	}
 
 	public boolean hasDefaultNullnessForType(TypeBinding type, int location, int sourceStart) {
+		TypeBinding enclosingType = enclosingReceiverType();
+		if (enclosingType != null && (enclosingType.original().tagBits & TagBits.EndHierarchyCheck) == 0)
+			return false;
 		if (environment().usesNullTypeAnnotations() && type != null && !type.acceptsNonNullDefault())
 			return false;
 		return hasDefaultNullnessFor(location, sourceStart);

@@ -3928,7 +3928,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
     			"    public static void main(String[] args) {" +
     			"        @Var @Type String y = \"OK: \";\n" +
     			"        if (((Object)\"local\") instanceof @Var @Type String x) {\n" +
-    			"            System.out.println(y + x);\n" +
+    			"            System.out.println(new StringBuilder(y).append(x));\n" +
     			"        }\n" +
     		    "    }\n" +
     			"}";
@@ -3939,7 +3939,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
     			"     5  astore_3\n" +
     			"     6  aload_3\n" +
     			"     7  instanceof String [20]\n" +
-    			"    10  ifeq 48\n" +
+    			"    10  ifeq 42\n" +
     			"    13  aload_3\n" +
     			"    14  checkcast String [20]\n" +
     			"    17  dup\n" +
@@ -3951,45 +3951,43 @@ public class PatternMatching16Test extends AbstractRegressionTest {
     			"    27  new StringBuilder [28]\n" +
     			"    30  dup\n" +
     			"    31  aload_1 [y]\n" +
-    			"    32  invokestatic String.valueOf(Object) : String [30]\n" +
-    			"    35  invokespecial StringBuilder(String) [34]\n" +
-    			"    38  aload_2 [x]\n" +
-    			"    39  invokevirtual StringBuilder.append(String) : StringBuilder [37]\n" +
-    			"    42  invokevirtual StringBuilder.toString() : String [41]\n" +
-    			"    45  invokevirtual PrintStream.println(String) : void [45]\n" +
-    			"    48  return\n" +
+    			"    32  invokespecial StringBuilder(String) [30]\n" +
+    			"    35  aload_2 [x]\n" +
+    			"    36  invokevirtual StringBuilder.append(String) : StringBuilder [33]\n" +
+    			"    39  invokevirtual PrintStream.println(Object) : void [37]\n" +
+    			"    42  return\n" +
     			"      Line numbers:\n" +
     			"        [pc: 0, line: 13]\n" +
     			"        [pc: 3, line: 14]\n" +
     			"        [pc: 24, line: 15]\n" +
-    			"        [pc: 48, line: 17]\n" +
+    			"        [pc: 42, line: 17]\n" +
     			"      Local variable table:\n" +
-    			"        [pc: 0, pc: 49] local: args index: 0 type: String[]\n" +
-    			"        [pc: 3, pc: 49] local: y index: 1 type: String\n" +
-    			"        [pc: 24, pc: 48] local: x index: 2 type: String\n" +
+    			"        [pc: 0, pc: 43] local: args index: 0 type: String[]\n" +
+    			"        [pc: 3, pc: 43] local: y index: 1 type: String\n" +
+    			"        [pc: 24, pc: 42] local: x index: 2 type: String\n" +
     			"      Stack map table: number of frames 1\n" +
-    			"        [pc: 48, append: {String}]\n" +
+    			"        [pc: 42, append: {String}]\n" +
     			"    RuntimeVisibleTypeAnnotations: \n" +
-    			"      #57 @Type(\n" +
+    			"      #50 @Type(\n" +
     			"        target type = 0x40 LOCAL_VARIABLE\n" +
     			"        local variable entries:\n" +
-    			"          [pc: 3, pc: 49] index: 1\n" +
+    			"          [pc: 3, pc: 43] index: 1\n" +
     			"      )\n" +
-    			"      #57 @Type(\n" +
+    			"      #50 @Type(\n" +
     			"        target type = 0x40 LOCAL_VARIABLE\n" +
     			"        local variable entries:\n" +
-    			"          [pc: 24, pc: 48] index: 2\n" +
+    			"          [pc: 24, pc: 42] index: 2\n" +
     			"      )\n" +
     			"\n" +
     			"  Inner classes:\n" +
-    			"    [inner class info: #61 Test$Type, outer class info: #1 Test\n" +
-    			"     inner name: #63 Type, accessflags: 9736 abstract static],\n" +
-    			"    [inner class info: #64 Test$Var, outer class info: #1 Test\n" +
-    			"     inner name: #66 Var, accessflags: 9736 abstract static]\n" +
+    			"    [inner class info: #54 Test$Type, outer class info: #1 Test\n" +
+    			"     inner name: #56 Type, accessflags: 9736 abstract static],\n" +
+    			"    [inner class info: #57 Test$Var, outer class info: #1 Test\n" +
+    			"     inner name: #59 Var, accessflags: 9736 abstract static]\n" +
     			"\n" +
     			"Nest Members:\n" +
-    			"   #61 Test$Type,\n" +
-    			"   #64 Test$Var\n" +
+    			"   #54 Test$Type,\n" +
+    			"   #57 Test$Var\n" +
     			"}";
     	checkClassFile("Test", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
         runConformTest(

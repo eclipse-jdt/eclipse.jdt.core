@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2017 IBM Corporation and others.
+ * Copyright (c) 2005, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -3736,7 +3736,7 @@ public void test010() {
 // need to use a computed string (else this source file will get blown away
 // as well)
 public void test011() {
-	int length = 3 * 54 * 1000;
+	int length = 3 * 54 * 500;
 		// the longer the slower, but still needs to reach the limit...
 	StringBuilder veryLongString = new StringBuilder(length + 20);
 	veryLongString.append('"');
@@ -3746,6 +3746,20 @@ public void test011() {
 		veryLongString.append(random.nextLong());
 	}
 	veryLongString.append('"');
+	String expectedError = this.complianceLevel >= ClassFileConstants.JDK9 ?
+			"----------\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	public class X {\n" +
+			"	             ^\n" +
+			"The type generates a string that requires more than 65535 bytes to encode in Utf8 format in the constant pool\n" +
+			"----------\n" :
+				"----------\n" +
+				"1. ERROR in X.java (at line 2)\n" +
+				"	void foo(String a, String b, String c, String d, String e) {\n" +
+				"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"The code of method foo(String, String, String, String, String) is " +
+					"exceeding the 65535 bytes limit\n" +
+				"----------\n";
 	this.runNegativeTest(
 		new String[] {
 			"X.java",
@@ -3754,16 +3768,14 @@ public void test011() {
 			"    String s = \n" +
 			veryLongString.toString() +
 			"    	+ \"abcdef\" + a + b + c + d + e + \" ghiABCDEFGHIJKLMNOPQRSTUVWXYZjklmnopqrstuvwxyzabcdefghiABCDEFGHIJKLMNOPQRSTUVWXYZjklmnopqrstuvwxyzabcdefghiABCDEFGHIJKLMNOPQRSTUVWXYZjklmnopqrstuvwxyzabcdefghiABCDEFGHIJKLMNOPQRSTUVWXYZjklmnopqrstuvwxy12\";\n" +
+			"    for(int i = 0; i < 100; i++) {\n" +
+			"      s += " + veryLongString.toString() + ";\n" +
 			"    }\n" +
+			"  }\n" +
 			"}"
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
-		"	void foo(String a, String b, String c, String d, String e) {\n" +
-		"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"The code of method foo(String, String, String, String, String) is " +
-			"exceeding the 65535 bytes limit\n" +
-		"----------\n");
+		expectedError
+		);
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102728
@@ -3773,7 +3785,7 @@ public void test012() {
 			"public class X {\n" +
 			"  void foo(String a, String b, String c, String d, String e) {\n" +
 			"    String s = a + (\n");
-	for (int i = 0; i < 1000; i++) {
+	for (int i = 0; i < 500; i++) {
 		sourceCode.append(
 			"    	\"abcdef\" + a + b + c + d + e + " +
 			"\" ghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyzabcdefghijklmno" +
