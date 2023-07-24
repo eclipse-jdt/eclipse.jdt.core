@@ -69,6 +69,10 @@ public enum JavaFeature {
 			Messages.bind(Messages.record_patterns),
 			new char[][] {},
 			true),
+	UNNAMMED_PATTERNS_AND_VARS(ClassFileConstants.JDK21,
+			Messages.bind(Messages.unnammed_patterns_and_vars),
+			new char[][] {},
+			true),
     ;
 
 	final long compliance;
