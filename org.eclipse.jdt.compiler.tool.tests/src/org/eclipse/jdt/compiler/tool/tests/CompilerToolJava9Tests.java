@@ -58,6 +58,8 @@ import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
 import org.junit.FixMethodOrder;
 import org.junit.runners.MethodSorters;
 
+import com.sun.tools.javac.jvm.ClassFile;
+
 import junit.framework.TestCase;
 
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
@@ -497,7 +499,7 @@ public class CompilerToolJava9Tests extends TestCase {
 	 		int[] offsets = reader.getConstantPoolOffsets();
 	 		for (int i = 0; i < offsets.length; i++) {
 	 			int tag = reader.u1At(offsets[i]);
-	 			if (tag == ClassFileConstants.MethodRefTag || tag ==  ClassFileConstants.InterfaceMethodRefTag) {
+	 			if (tag == ClassFile.CONSTANT_Methodref || tag ==  ClassFile.CONSTANT_InterfaceMethodref) {
 	 				char[] name = extractName(offsets, reader, i);
 	 				char[] className = extractClassName(offsets, reader, i);
 	 				String fullName = new String(className) + '.' + new String(name);

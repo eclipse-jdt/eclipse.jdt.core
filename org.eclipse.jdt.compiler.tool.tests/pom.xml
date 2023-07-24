@@ -40,6 +40,12 @@
               <exclude>**/package.html</exclude>
             </excludeResources>
             <useProjectSettings>false</useProjectSettings>
+            <deriveReleaseCompilerArgumentFromTargetLevel>false</deriveReleaseCompilerArgumentFromTargetLevel>
+				<release></release>
+				<compilerArgs>
+					<arg>--add-exports</arg>
+					<arg>jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED</arg>
+				</compilerArgs>
           </configuration>
         </plugin>
     </plugins>

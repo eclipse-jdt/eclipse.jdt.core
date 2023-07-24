@@ -25,6 +25,8 @@ import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
+import com.sun.tools.javac.jvm.ClassFile;
+
 @SuppressWarnings("rawtypes")
 public class FieldInfo extends ClassFileStruct implements IBinaryField, Comparable {
 	protected int accessFlags;
@@ -341,7 +343,7 @@ private void readConstantAttribute() {
 			// read the right constant
 			int relativeOffset = this.constantPoolOffsets[u2At(readOffset + 6)] - this.structOffset;
 			switch (u1At(relativeOffset)) {
-				case ClassFileConstants.IntegerTag :
+				case ClassFile.CONSTANT_Integer:
 					char[] sign = getTypeName();
 					if (sign.length == 1) {
 						switch (sign[0]) {
@@ -367,16 +369,16 @@ private void readConstantAttribute() {
 						this.constant = Constant.NotAConstant;
 					}
 					break;
-				case ClassFileConstants.FloatTag :
+				case ClassFile.CONSTANT_Float :
 					this.constant = FloatConstant.fromValue(floatAt(relativeOffset + 1));
 					break;
-				case ClassFileConstants.DoubleTag :
+				case ClassFile.CONSTANT_Double :
 					this.constant = DoubleConstant.fromValue(doubleAt(relativeOffset + 1));
 					break;
-				case ClassFileConstants.LongTag :
+				case ClassFile.CONSTANT_Long :
 					this.constant = LongConstant.fromValue(i8At(relativeOffset + 1));
 					break;
-				case ClassFileConstants.StringTag :
+				case ClassFile.CONSTANT_String :
 					utf8Offset = this.constantPoolOffsets[u2At(relativeOffset + 1)] - this.structOffset;
 					this.constant =
 						StringConstant.fromValue(

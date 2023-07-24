@@ -73,24 +73,6 @@ public interface ClassFileConstants {
 	int AccAnnotationDefault = ASTNode.Bit18; // indicate presence of an attribute  "DefaultValue" (annotation method)
 	int AccDeprecated = ASTNode.Bit21; // indicate presence of an attribute "Deprecated"
 
-	int Utf8Tag = 1;
-	int IntegerTag = 3;
-	int FloatTag = 4;
-	int LongTag = 5;
-	int DoubleTag = 6;
-	int ClassTag = 7;
-	int StringTag = 8;
-	int FieldRefTag = 9;
-	int MethodRefTag = 10;
-	int InterfaceMethodRefTag = 11;
-	int NameAndTypeTag = 12;
-	int MethodHandleTag = 15;
-	int MethodTypeTag = 16;
-	int DynamicTag = 17;
-	int InvokeDynamicTag = 18;
-	int ModuleTag = 19;
-	int PackageTag = 20;
-
 	int ConstantMethodRefFixedSize = 5;
 	int ConstantClassFixedSize = 3;
 	int ConstantDoubleFixedSize = 9;

@@ -50,6 +50,8 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
+import com.sun.tools.javac.jvm.ClassFile;
+
 public class ClassFileReader extends ClassFileStruct implements IBinaryType {
 
 	private int accessFlags;
@@ -231,74 +233,74 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 		for (int i = 1; i < this.constantPoolCount; i++) {
 			int tag = u1At(readOffset);
 			switch (tag) {
-				case ClassFileConstants.Utf8Tag :
+				case ClassFile.CONSTANT_Utf8 :
 					this.constantPoolOffsets[i] = readOffset;
 					readOffset += u2At(readOffset + 1);
 					readOffset += ClassFileConstants.ConstantUtf8FixedSize;
 					break;
-				case ClassFileConstants.IntegerTag :
+				case ClassFile.CONSTANT_Integer :
 					this.constantPoolOffsets[i] = readOffset;
 					readOffset += ClassFileConstants.ConstantIntegerFixedSize;
 					break;
-				case ClassFileConstants.FloatTag :
+				case ClassFile.CONSTANT_Float :
 					this.constantPoolOffsets[i] = readOffset;
 					readOffset += ClassFileConstants.ConstantFloatFixedSize;
 					break;
-				case ClassFileConstants.LongTag :
+				case ClassFile.CONSTANT_Long :
 					this.constantPoolOffsets[i] = readOffset;
 					readOffset += ClassFileConstants.ConstantLongFixedSize;
 					i++;
 					break;
-				case ClassFileConstants.DoubleTag :
+				case ClassFile.CONSTANT_Double :
 					this.constantPoolOffsets[i] = readOffset;
 					readOffset += ClassFileConstants.ConstantDoubleFixedSize;
 					i++;
 					break;
-				case ClassFileConstants.ClassTag :
+				case ClassFile.CONSTANT_Class :
 					this.constantPoolOffsets[i] = readOffset;
 					readOffset += ClassFileConstants.ConstantClassFixedSize;
 					break;
-				case ClassFileConstants.StringTag :
+				case ClassFile.CONSTANT_String :
 					this.constantPoolOffsets[i] = readOffset;
 					readOffset += ClassFileConstants.ConstantStringFixedSize;
 					break;
-				case ClassFileConstants.FieldRefTag :
+				case ClassFile.CONSTANT_Fieldref :
 					this.constantPoolOffsets[i] = readOffset;
 					readOffset += ClassFileConstants.ConstantFieldRefFixedSize;
 					break;
-				case ClassFileConstants.MethodRefTag :
+				case ClassFile.CONSTANT_Methodref :
 					this.constantPoolOffsets[i] = readOffset;
 					readOffset += ClassFileConstants.ConstantMethodRefFixedSize;
 					break;
-				case ClassFileConstants.InterfaceMethodRefTag :
+				case ClassFile.CONSTANT_InterfaceMethodref :
 					this.constantPoolOffsets[i] = readOffset;
 					readOffset += ClassFileConstants.ConstantInterfaceMethodRefFixedSize;
 					break;
-				case ClassFileConstants.NameAndTypeTag :
+				case ClassFile.CONSTANT_NameandType :
 					this.constantPoolOffsets[i] = readOffset;
 					readOffset += ClassFileConstants.ConstantNameAndTypeFixedSize;
 					break;
-				case ClassFileConstants.MethodHandleTag :
+				case ClassFile.CONSTANT_MethodHandle :
 					this.constantPoolOffsets[i] = readOffset;
 					readOffset += ClassFileConstants.ConstantMethodHandleFixedSize;
 					break;
-				case ClassFileConstants.MethodTypeTag :
+				case ClassFile.CONSTANT_MethodType :
 					this.constantPoolOffsets[i] = readOffset;
 					readOffset += ClassFileConstants.ConstantMethodTypeFixedSize;
 					break;
-				case ClassFileConstants.DynamicTag :
+				case ClassFile.CONSTANT_Dynamic :
 					this.constantPoolOffsets[i] = readOffset;
 					readOffset += ClassFileConstants.ConstantDynamicFixedSize;
 					break;
-				case ClassFileConstants.InvokeDynamicTag :
+				case ClassFile.CONSTANT_InvokeDynamic :
 					this.constantPoolOffsets[i] = readOffset;
 					readOffset += ClassFileConstants.ConstantInvokeDynamicFixedSize;
 					break;
-				case ClassFileConstants.ModuleTag:
+				case ClassFile.CONSTANT_Module:
 					this.constantPoolOffsets[i] = readOffset;
 					readOffset += ClassFileConstants.ConstantModuleFixedSize;
 					break;
-				case ClassFileConstants.PackageTag:
+				case ClassFile.CONSTANT_Package:
 					this.constantPoolOffsets[i] = readOffset;
 					readOffset += ClassFileConstants.ConstantPackageFixedSize;
 					break;

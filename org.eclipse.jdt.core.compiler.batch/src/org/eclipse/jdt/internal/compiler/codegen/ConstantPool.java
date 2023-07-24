@@ -21,6 +21,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.codegen;
 
+import static com.sun.tools.javac.jvm.ClassFile.*;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -364,7 +366,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 				System.arraycopy(this.offsets, 0, (this.offsets = new int[index * 2]), 0, length);
 			}
 			this.offsets[index] = this.currentOffset;
-			writeU1(Utf8Tag);
+			writeU1(CONSTANT_Utf8);
 			int utf8encodingLength = utf8encoding.length;
 			if (this.currentOffset + 2 + utf8encodingLength >= this.poolContent.length) {
 				// we need to resize the poolContent array because we won't have
@@ -406,7 +408,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 				System.arraycopy(this.offsets, 0, (this.offsets = new int[index * 2]), 0, length);
 			}
 			this.offsets[index] = this.currentOffset;
-			writeU1(Utf8Tag);
+			writeU1(CONSTANT_Utf8);
 			// Then the size of the stringName array
 			int savedCurrentOffset = this.currentOffset;
 			if (this.currentOffset + 2 >= this.poolContent.length) {
@@ -468,7 +470,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 				System.arraycopy(this.offsets, 0, (this.offsets = new int[index * 2]), 0, length);
 			}
 			this.offsets[index] = this.currentOffset;
-			writeU1(StringTag);
+			writeU1(CONSTANT_String);
 			// Then the string index
 			int stringIndexOffset = this.currentOffset;
 			if (this.currentOffset + 2 >= this.poolContent.length) {
@@ -513,7 +515,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 				System.arraycopy(this.offsets, 0, (this.offsets = new int[index * 2]), 0, length);
 			}
 			this.offsets[index] = this.currentOffset;
-			writeU1(DoubleTag);
+			writeU1(CONSTANT_Double);
 			// Then add the 8 bytes representing the double
 			long temp = java.lang.Double.doubleToLongBits(key);
 			length = this.poolContent.length;
@@ -560,7 +562,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 				System.arraycopy(this.offsets, 0, (this.offsets = new int[index * 2]), 0, length);
 			}
 			this.offsets[index] = this.currentOffset;
-			writeU1(FloatTag);
+			writeU1(CONSTANT_Float);
 			// Then add the 4 bytes representing the float
 			int temp = java.lang.Float.floatToIntBits(key);
 			if (this.currentOffset + 4 >= this.poolContent.length) {
@@ -602,7 +604,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 				System.arraycopy(this.offsets, 0, (this.offsets = new int[index * 2]), 0, length);
 			}
 			this.offsets[index] = this.currentOffset;
-			writeU1(IntegerTag);
+			writeU1(CONSTANT_Integer);
 			// Then add the 4 bytes representing the int
 			if (this.currentOffset + 4 >= this.poolContent.length) {
 				resizePoolContents(4);
@@ -645,7 +647,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 				System.arraycopy(this.offsets, 0, (this.offsets = new int[index * 2]), 0, length);
 			}
 			this.offsets[index] = this.currentOffset;
-			writeU1(LongTag);
+			writeU1(CONSTANT_Long);
 			// Then add the 8 bytes representing the long
 			if (this.currentOffset + 8 >= this.poolContent.length) {
 				resizePoolContents(8);
@@ -683,7 +685,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 				System.arraycopy(this.offsets, 0, (this.offsets = new int[index * 2]), 0, length);
 			}
 			this.offsets[index] = this.currentOffset;
-			writeU1(StringTag);
+			writeU1(CONSTANT_String);
 			// Then the string index
 			int stringIndexOffset = this.currentOffset;
 			if (this.currentOffset + 2 >= this.poolContent.length) {
@@ -711,7 +713,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 				System.arraycopy(this.offsets, 0, (this.offsets = new int[index * 2]), 0, length);
 			}
 			this.offsets[index] = this.currentOffset;
-			writeU1(ModuleTag);
+			writeU1(CONSTANT_Module);
 			// Then the string index
 			int stringIndexOffset = this.currentOffset;
 			if (this.currentOffset + 2 >= this.poolContent.length) {
@@ -740,7 +742,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 				System.arraycopy(this.offsets, 0, (this.offsets = new int[index * 2]), 0, length);
 			}
 			this.offsets[index] = this.currentOffset;
-			writeU1(PackageTag);
+			writeU1(CONSTANT_Package);
 			// Then the string index
 			int stringIndexOffset = this.currentOffset;
 			if (this.currentOffset + 2 >= this.poolContent.length) {
@@ -768,7 +770,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 				System.arraycopy(this.offsets, 0, (this.offsets = new int[index * 2]), 0, length);
 			}
 			this.offsets[index] = this.currentOffset;
-			writeU1(ClassTag);
+			writeU1(CONSTANT_Class);
 
 			// Then the name index
 			int nameIndexOffset = this.currentOffset;
@@ -810,7 +812,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 				System.arraycopy(this.offsets, 0, (this.offsets = new int[index * 2]), 0, length);
 			}
 			this.offsets[index] = this.currentOffset;
-			writeU1(isInterface ? InterfaceMethodRefTag : MethodRefTag);
+			writeU1(isInterface ? CONSTANT_InterfaceMethodref : CONSTANT_Methodref);
 
 			int classIndexOffset = this.currentOffset;
 			if (this.currentOffset + 4 >= this.poolContent.length) {
@@ -848,7 +850,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 				System.arraycopy(this.offsets, 0, (this.offsets = new int[index * 2]), 0, length);
 			}
 			this.offsets[index] = this.currentOffset;
-			writeU1(NameAndTypeTag);
+			writeU1(CONSTANT_NameandType);
 			int nameIndexOffset = this.currentOffset;
 			if (this.currentOffset + 4 >= this.poolContent.length) {
 				resizePoolContents(4);
@@ -887,7 +889,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 		}
 
 		this.offsets[index] = this.currentOffset;
-		writeU1(MethodHandleTag);
+		writeU1(CONSTANT_MethodHandle);
 		writeU1(referenceKind);
 		writeU2(indexForMethod);
 
@@ -905,7 +907,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 		}
 
 		this.offsets[index] = this.currentOffset;
-		writeU1(MethodHandleTag);
+		writeU1(CONSTANT_MethodHandle);
 		writeU1(referenceKind);
 		writeU2(indexForField);
 
@@ -922,7 +924,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 			System.arraycopy(this.offsets, 0, (this.offsets = new int[index * 2]), 0, length);
 		}
 		this.offsets[index] = this.currentOffset;
-		writeU1(MethodTypeTag);
+		writeU1(CONSTANT_MethodType);
 		writeU2(signatureIndex);
 
 		return index;
@@ -959,10 +961,10 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	}
 	// CONSTANT_Dynamic_info JVMS 4.4.10 /jep 309
 	public int literalIndexForDynamic(int bootStrapIndex, char[] selector, char[] descriptor) {
-		return literalIndexForInvokeAndConstantDynamic(bootStrapIndex, selector, descriptor, DynamicTag);
+		return literalIndexForInvokeAndConstantDynamic(bootStrapIndex, selector, descriptor, CONSTANT_Dynamic);
 	}
 	public int literalIndexForInvokeDynamic(int bootStrapIndex, char[] selector, char[] descriptor) {
-		return literalIndexForInvokeAndConstantDynamic(bootStrapIndex, selector, descriptor, InvokeDynamicTag);
+		return literalIndexForInvokeAndConstantDynamic(bootStrapIndex, selector, descriptor, CONSTANT_InvokeDynamic);
 	}
 	public int literalIndexForField(char[] declaringClass, char[] name, char[] signature) {
 		int index;
@@ -980,7 +982,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 				System.arraycopy(this.offsets, 0, (this.offsets = new int[index * 2]), 0, length);
 			}
 			this.offsets[index] = this.currentOffset;
-			writeU1(FieldRefTag);
+			writeU1(CONSTANT_Fieldref);
 			int classIndexOffset = this.currentOffset;
 			if (this.currentOffset + 4 >= this.poolContent.length) {
 				resizePoolContents(4);
@@ -1020,7 +1022,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 				System.arraycopy(this.offsets, 0, (this.offsets = new int[index * 2]), 0, length);
 			}
 			this.offsets[index] = this.currentOffset;
-			writeU1(StringTag);
+			writeU1(CONSTANT_String);
 
 			// Then the string index
 			int stringIndexOffset = this.currentOffset;
@@ -1043,7 +1045,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 					System.arraycopy(this.offsets, 0, (this.offsets = new int[stringIndex * 2]), 0, length);
 				}
 				this.offsets[stringIndex] = this.currentOffset;
-				writeU1(Utf8Tag);
+				writeU1(CONSTANT_Utf8);
 				// Then the size of the stringName array
 				int lengthOffset = this.currentOffset;
 				if (this.currentOffset + 2 >= this.poolContent.length) {

@@ -24,7 +24,6 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchDocument;
 import org.eclipse.jdt.internal.compiler.ExtraFlags;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.classfmt.FieldInfo;
@@ -598,14 +597,14 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 			char[] name = null;
 			char[] type = null;
 			switch (tag) {
-				case ClassFileConstants.FieldRefTag :
+				case com.sun.tools.javac.jvm.ClassFile.CONSTANT_Fieldref :
 					// add reference to the class/interface and field name and type
 					name = extractName(constantPoolOffsets, reader, i);
 					addFieldReference(name);
 					break;
-				case ClassFileConstants.MethodRefTag :
+				case com.sun.tools.javac.jvm.ClassFile.CONSTANT_Methodref :
 					// add reference to the class and method name and type
-				case ClassFileConstants.InterfaceMethodRefTag :
+				case com.sun.tools.javac.jvm.ClassFile.CONSTANT_InterfaceMethodref :
 					// add reference to the interface and method name and type
 					name = extractName(constantPoolOffsets, reader, i);
 					type = extractType(constantPoolOffsets, reader, i);
@@ -633,7 +632,7 @@ public class BinaryIndexer extends AbstractIndexer implements SuffixConstants {
 						addMethodReference(name, extractArgCount(type, null));
 					}
 					break;
-				case ClassFileConstants.ClassTag :
+				case com.sun.tools.javac.jvm.ClassFile.CONSTANT_Class :
 					// add a type reference
 					name = extractClassReference(constantPoolOffsets, reader, i);
 					if (name.length > 0 && name[0] == '[')

@@ -6750,17 +6750,17 @@ public class ClassFile implements TypeConstants, TypeIds {
 				case ByteCodes.ldc1:
 					index = u1At(bytecodes, 1, pc);
 					switch (u1At(poolContents, 0, constantPoolOffsets[index])) {
-						case ClassFileConstants.StringTag:
+						case com.sun.tools.javac.jvm.ClassFile.CONSTANT_String:
 							frame
 									.addStackItem(new VerificationTypeInfo(scope.getJavaLangString()));
 							break;
-						case ClassFileConstants.IntegerTag:
+						case com.sun.tools.javac.jvm.ClassFile.CONSTANT_Integer:
 							frame.addStackItem(new VerificationTypeInfo(TypeBinding.INT));
 							break;
-						case ClassFileConstants.FloatTag:
+						case com.sun.tools.javac.jvm.ClassFile.CONSTANT_Float:
 							frame.addStackItem(new VerificationTypeInfo(TypeBinding.FLOAT));
 							break;
-						case ClassFileConstants.ClassTag:
+						case com.sun.tools.javac.jvm.ClassFile.CONSTANT_Class:
 							frame.addStackItem(new VerificationTypeInfo(scope.getJavaLangClass()));
 					}
 					pc += 2;
@@ -6768,17 +6768,17 @@ public class ClassFile implements TypeConstants, TypeIds {
 				case ByteCodes.ldc2:
 					index = u2At(bytecodes, 1, pc);
 					switch (u1At(poolContents, 0, constantPoolOffsets[index])) {
-						case ClassFileConstants.StringTag:
+						case com.sun.tools.javac.jvm.ClassFile.CONSTANT_String:
 							frame
 									.addStackItem(new VerificationTypeInfo(scope.getJavaLangString()));
 							break;
-						case ClassFileConstants.IntegerTag:
+						case com.sun.tools.javac.jvm.ClassFile.CONSTANT_Integer:
 							frame.addStackItem(new VerificationTypeInfo(TypeBinding.INT));
 							break;
-						case ClassFileConstants.FloatTag:
+						case com.sun.tools.javac.jvm.ClassFile.CONSTANT_Float:
 							frame.addStackItem(new VerificationTypeInfo(TypeBinding.FLOAT));
 							break;
-						case ClassFileConstants.ClassTag:
+						case com.sun.tools.javac.jvm.ClassFile.CONSTANT_Class :
 							frame.addStackItem(new VerificationTypeInfo(scope.getJavaLangClass()));
 					}
 					pc += 3;
@@ -6786,10 +6786,10 @@ public class ClassFile implements TypeConstants, TypeIds {
 				case ByteCodes.ldc2w:
 					index = u2At(bytecodes, 1, pc);
 					switch (u1At(poolContents, 0, constantPoolOffsets[index])) {
-						case ClassFileConstants.DoubleTag:
+						case com.sun.tools.javac.jvm.ClassFile.CONSTANT_Double:
 							frame.addStackItem(new VerificationTypeInfo(TypeBinding.DOUBLE));
 							break;
-						case ClassFileConstants.LongTag:
+						case com.sun.tools.javac.jvm.ClassFile.CONSTANT_Long:
 							frame.addStackItem(new VerificationTypeInfo(TypeBinding.LONG));
 							break;
 					}
