@@ -1464,7 +1464,7 @@ protected ParameterizedQualifiedTypeReference computeQualifiedGenericsFromRightS
 	System.arraycopy(this.genericsStack, this.genericsPtr + 1, currentTypeArguments, 0, currentTypeArgumentsLength);
 
 	if (nameSize == 1) {
-		tokens[0] = this.identifierStack[this.identifierPtr];
+		tokens[0] = peekIdentifierStack();
 		positions[0] = this.identifierPositionStack[this.identifierPtr--];
 		typeArguments[0] = currentTypeArguments;
 	} else {
@@ -2496,7 +2496,7 @@ protected void consumeCatches() {
 protected void consumeCatchFormalParameter() {
 	// CatchFormalParameter ::= Modifiersopt CatchType VariableDeclaratorId
 	this.identifierLengthPtr--;
-	char[] identifierName = this.identifierStack[this.identifierPtr];
+	char[] identifierName = peekIdentifierStack();
 	long namePositions = this.identifierPositionStack[this.identifierPtr--];
 	int extendedDimensions = this.intStack[this.intPtr--]; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=348369
 	TypeReference type = (TypeReference) this.astStack[this.astPtr--];
@@ -3132,7 +3132,7 @@ protected void consumeConstructorHeaderName() {
 	ConstructorDeclaration cd = new ConstructorDeclaration(this.compilationUnit.compilationResult);
 
 	//name -- this is not really revelant but we do .....
-	cd.selector = this.identifierStack[this.identifierPtr];
+	cd.selector = peekIdentifierStack();
 	long selectorSource = this.identifierPositionStack[this.identifierPtr--];
 	this.identifierLengthPtr--;
 
@@ -3173,7 +3173,7 @@ protected void consumeConstructorHeaderName() {
 // TODO: Refactor code for constructor and compact one once records are standardized.
 private void populateCompactConstructor(CompactConstructorDeclaration ccd) {
 	//name -- this is not really revelant but we do .....
-	ccd.selector = this.identifierStack[this.identifierPtr];
+	ccd.selector = peekIdentifierStack();
 	long selectorSource = this.identifierPositionStack[this.identifierPtr--];
 	this.identifierLengthPtr--;
 
@@ -3230,7 +3230,7 @@ protected void consumeConstructorHeaderNameWithTypeParameters() {
 }
 private void helperConstructorHeaderNameWithTypeParameters(ConstructorDeclaration cd) {
 	//name -- this is not really revelant but we do .....
-	cd.selector = this.identifierStack[this.identifierPtr];
+	cd.selector = peekIdentifierStack();
 	long selectorSource = this.identifierPositionStack[this.identifierPtr--];
 	this.identifierLengthPtr--;
 
@@ -3505,7 +3505,7 @@ protected void consumeEnhancedForStatementHeaderInitRecord(boolean hasModifiers)
 protected void consumeEnhancedForStatementHeaderInit(boolean hasModifiers) {
 	TypeReference type;
 
-	char[] identifierName = this.identifierStack[this.identifierPtr];
+	char[] identifierName = peekIdentifierStack();
 	long namePosition = this.identifierPositionStack[this.identifierPtr];
 
 	LocalDeclaration localDeclaration = createLocalDeclaration(identifierName, (int) (namePosition >>> 32), (int) namePosition);
@@ -3679,7 +3679,7 @@ protected void consumeEnterVariable() {
 	// EnterVariable ::= $empty
 	// do nothing by default
 
-	char[] identifierName = this.identifierStack[this.identifierPtr];
+	char[] identifierName = peekIdentifierStack();
 	long namePosition = this.identifierPositionStack[this.identifierPtr];
 	int extendedDimensions = this.intStack[this.intPtr--];
 	// pop any annotations on extended dimensions now, so they don't pollute the base dimensions.
@@ -3880,7 +3880,7 @@ protected void consumeEnumConstantHeaderName() {
 		}
 	}
    long namePosition = this.identifierPositionStack[this.identifierPtr];
-   char[] constantName = this.identifierStack[this.identifierPtr];
+   char[] constantName = peekIdentifierStack();
    final int sourceEnd = (int) namePosition;
    FieldDeclaration enumConstant = createFieldDeclaration(constantName, (int) (namePosition >>> 32), sourceEnd);
    this.identifierPtr--;
@@ -4318,7 +4318,7 @@ protected void consumeFieldAccess(boolean isSuperAccess) {
 
 	FieldReference fr =
 		new FieldReference(
-			this.identifierStack[this.identifierPtr],
+			peekIdentifierStack(),
 			this.identifierPositionStack[this.identifierPtr--]);
 	this.identifierLengthPtr--;
 	if (isSuperAccess) {
@@ -4418,7 +4418,7 @@ protected void consumeFormalParameter(boolean isVarArgs) {
     	this.expressionLengthPtr --;
     }
 	this.identifierLengthPtr--;
-	char[] identifierName = this.identifierStack[this.identifierPtr];
+	char[] identifierName = peekIdentifierStack();
 	long namePositions = this.identifierPositionStack[this.identifierPtr--];
 	int extendedDimensions = this.intStack[this.intPtr--];
 	Annotation [][] annotationsOnExtendedDimensions = extendedDimensions == 0 ? null : getAnnotationsOnDimensions(extendedDimensions);
@@ -5214,7 +5214,7 @@ protected void consumeMemberValueAsName() {
 }
 protected void consumeMemberValuePair() {
 	// MemberValuePair ::= SimpleName '=' MemberValue
-	char[] simpleName = this.identifierStack[this.identifierPtr];
+	char[] simpleName = peekIdentifierStack();
 	long position = this.identifierPositionStack[this.identifierPtr--];
 	this.identifierLengthPtr--;
 	int end = (int) position;
@@ -5404,7 +5404,7 @@ protected void consumeMethodHeaderName(boolean isAnnotationMethod) {
 	}
 
 	//name
-	md.selector = this.identifierStack[this.identifierPtr];
+	md.selector = peekIdentifierStack();
 	long selectorSource = this.identifierPositionStack[this.identifierPtr--];
 	this.identifierLengthPtr--;
 	//type
@@ -5462,7 +5462,7 @@ protected void consumeMethodHeaderNameWithTypeParameters(boolean isAnnotationMet
 	}
 
 	//name
-	md.selector = this.identifierStack[this.identifierPtr];
+	md.selector = peekIdentifierStack();
 	long selectorSource = this.identifierPositionStack[this.identifierPtr--];
 	this.identifierLengthPtr--;
 	//type
@@ -9206,7 +9206,7 @@ private void stashTextualRepresentation(FunctionalExpression fnExp) {
 
 protected Argument typeElidedArgument() {
 	this.identifierLengthPtr--;
-	char[] identifierName = this.identifierStack[this.identifierPtr];
+	char[] identifierName = peekIdentifierStack(true /* flagUnderscoreError */);
 	long namePositions = this.identifierPositionStack[this.identifierPtr--];
 
 	Argument arg =
@@ -9767,7 +9767,7 @@ protected void consumeStatementLabel() {
 	Statement statement = (Statement) this.astStack[this.astPtr];
 	this.astStack[this.astPtr] =
 		new LabeledStatement(
-			this.identifierStack[this.identifierPtr],
+			peekIdentifierStack(),
 			statement,
 			this.identifierPositionStack[this.identifierPtr--],
 			this.endStatementPosition);
@@ -10917,7 +10917,7 @@ protected void consumeGuard() {
 }
 protected void consumeTypePattern() {
 	//name
-	char[] identifierName = this.identifierStack[this.identifierPtr];
+	char[] identifierName = peekIdentifierStack();
 	long namePosition = this.identifierPositionStack[this.identifierPtr];
 
 	LocalDeclaration local = createLocalDeclaration(identifierName, (int) (namePosition >>> 32), (int) namePosition);
@@ -10943,6 +10943,17 @@ protected void consumeTypePattern() {
 
 	problemReporter().validateJavaFeatureSupport(JavaFeature.PATTERN_MATCHING_IN_INSTANCEOF, type.sourceStart, local.declarationEnd);
 	pushOnAstStack(aTypePattern);
+}
+private char[] peekIdentifierStack() {
+	return peekIdentifierStack(!this.processingLambdaParameterList);
+}
+private char[] peekIdentifierStack(boolean flagUnderscoreError) {
+	char[] identifier = this.identifierStack[this.identifierPtr];
+	long position = this.identifierPositionStack[this.identifierPtr];
+	if (this.parsingJava8Plus && identifier.length == 1 && identifier[0] == '_' && flagUnderscoreError) {
+		problemReporter().illegalUseOfUnderscoreAsAnIdentifier((int) (position >>> 32), (int) position, this.parsingJava9Plus);
+	}
+	return identifier;
 }
 protected void consumeRecordPattern() {
 	int length = this.astLengthPtr == -1 ? 0 : this.astLengthStack[this.astLengthPtr--];
@@ -10978,7 +10989,7 @@ protected void consumeRecordPatternWithId() {
 	int length = this.astLengthStack[this.astLengthPtr--];
 	this.astPtr -= length;
 	// Identifier
-	char[] identifierName = this.identifierStack[this.identifierPtr];
+	char[] identifierName = peekIdentifierStack();
 	long namePositions = this.identifierPositionStack[this.identifierPtr];
 	LocalDeclaration local = createLocalDeclaration(identifierName, (int) (namePositions >>> 32), (int) namePositions);
     this.identifierPtr--;
@@ -11413,7 +11424,7 @@ protected void consumeRecordComponent(boolean isVarArgs) {
 // Note that there is a difference wrt VariableDeclaratorId wrt to the JLS 8.10.1 specification which specifies
 // 'identifier' - however this is identical to consumeFormalParameter where this error is caught and reported.
 	this.identifierLengthPtr--;
-	char[] identifierName = this.identifierStack[this.identifierPtr];
+	char[] identifierName = peekIdentifierStack();
 	long namePositions = this.identifierPositionStack[this.identifierPtr--];
 	int extendedDimensions = this.intStack[this.intPtr--];
 	Annotation [][] annotationsOnExtendedDimensions = extendedDimensions == 0 ? null : getAnnotationsOnDimensions(extendedDimensions);
@@ -12115,7 +12126,7 @@ protected TypeReference getAnnotationType() {
 	int length = this.identifierLengthStack[this.identifierLengthPtr--];
 	if (length == 1) {
 		return new SingleTypeReference(
-				this.identifierStack[this.identifierPtr],
+				peekIdentifierStack(),
 				this.identifierPositionStack[this.identifierPtr--]);
 	} else {
 		char[][] tokens = new char[length][];
@@ -12311,13 +12322,13 @@ protected TypeReference getTypeReference(int dim) {
 			if (dim == 0) {
 				ref =
 					new SingleTypeReference(
-						this.identifierStack[this.identifierPtr],
+						peekIdentifierStack(),
 						this.identifierPositionStack[this.identifierPtr--]);
 			} else {
 				annotationsOnDimensions = getAnnotationsOnDimensions(dim);
 				ref =
 					new ArrayTypeReference(
-						this.identifierStack[this.identifierPtr],
+						peekIdentifierStack(),
 						dim,
 						annotationsOnDimensions,
 						this.identifierPositionStack[this.identifierPtr--]);
@@ -12382,7 +12393,7 @@ protected TypeReference getTypeReferenceForGenericType(int dim, int identifierLe
 			this.genericsPtr -= currentTypeArgumentsLength;
 			System.arraycopy(this.genericsStack, this.genericsPtr + 1, typeArguments, 0, currentTypeArgumentsLength);
 		}
-		ParameterizedSingleTypeReference parameterizedSingleTypeReference = new ParameterizedSingleTypeReference(this.identifierStack[this.identifierPtr], typeArguments, dim, annotationsOnDimensions, this.identifierPositionStack[this.identifierPtr--]);
+		ParameterizedSingleTypeReference parameterizedSingleTypeReference = new ParameterizedSingleTypeReference(peekIdentifierStack(), typeArguments, dim, annotationsOnDimensions, this.identifierPositionStack[this.identifierPtr--]);
 		if (dim != 0) {
 			parameterizedSingleTypeReference.sourceEnd = this.endStatementPosition;
 		}
@@ -12410,7 +12421,7 @@ protected TypeReference getTypeReferenceForGenericType(int dim, int identifierLe
 			switch(currentIdentifiersLength) {
 				case 1 :
 					// we are in a case A<B>.C<D> or A<B>.C<D>
-					tokens[index - 1] = this.identifierStack[this.identifierPtr];
+					tokens[index - 1] = peekIdentifierStack();
 					positions[index - 1] = this.identifierPositionStack[this.identifierPtr--];
 					break;
 				default:
@@ -12450,7 +12461,7 @@ protected NameReference getUnspecifiedReference(boolean rejectTypeAnnotations) {
 		// single variable reference
 		ref =
 			new SingleNameReference(
-				this.identifierStack[this.identifierPtr],
+				peekIdentifierStack(),
 				this.identifierPositionStack[this.identifierPtr--]);
 	else
 		//Qualified variable reference
@@ -12482,7 +12493,7 @@ protected NameReference getUnspecifiedReferenceOptimized() {
 		// single variable reference
 		ref =
 			new SingleNameReference(
-				this.identifierStack[this.identifierPtr],
+				peekIdentifierStack(),
 				this.identifierPositionStack[this.identifierPtr--]);
 		ref.bits &= ~ASTNode.RestrictiveFlagMASK;
 		ref.bits |= Binding.LOCAL | Binding.FIELD;
@@ -13934,9 +13945,9 @@ protected void pushIdentifier(char [] identifier, long position) {
 			stackLength);
 	}
 	this.identifierLengthStack[this.identifierLengthPtr] = 1;
-	if (this.parsingJava8Plus && identifier.length == 1 && identifier[0] == '_' && !this.processingLambdaParameterList) {
-		problemReporter().illegalUseOfUnderscoreAsAnIdentifier((int) (position >>> 32), (int) position, this.parsingJava9Plus);
-	}
+//	if (this.parsingJava8Plus && identifier.length == 1 && identifier[0] == '_' && !this.processingLambdaParameterList) {
+//		problemReporter().illegalUseOfUnderscoreAsAnIdentifier((int) (position >>> 32), (int) position, this.parsingJava9Plus);
+//	}
 }
 protected void pushIdentifier() {
 	/*push the consumeToken on the identifier stack.
