@@ -56,6 +56,8 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObjectToInt;
 
+import com.sun.tools.javac.code.Flags;
+
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class SourceElementNotifier {
 	/**
@@ -306,7 +308,7 @@ protected void notifySourceElementRequestor(AbstractMethodDeclaration methodDecl
 			int currentModifiers = methodDeclaration.modifiers;
 			currentModifiers &= ExtraCompilerModifiers.AccJustFlag | ClassFileConstants.AccDeprecated;
 			if (isVarArgs)
-				currentModifiers |= ClassFileConstants.AccVarargs;
+				currentModifiers |= Flags.ACC_VARARGS;
 			if (hasDeprecatedAnnotation(methodDeclaration.annotations))
 				currentModifiers |= ClassFileConstants.AccDeprecated;
 
@@ -362,7 +364,7 @@ protected void notifySourceElementRequestor(AbstractMethodDeclaration methodDecl
 		int currentModifiers = methodDeclaration.modifiers;
 		currentModifiers &= ExtraCompilerModifiers.AccJustFlag | ClassFileConstants.AccDeprecated | ClassFileConstants.AccAnnotationDefault | ExtraCompilerModifiers.AccDefaultMethod;
 		if (isVarArgs)
-			currentModifiers |= ClassFileConstants.AccVarargs;
+			currentModifiers |= Flags.ACC_VARARGS;
 		if (hasDeprecatedAnnotation(methodDeclaration.annotations))
 			currentModifiers |= ClassFileConstants.AccDeprecated;
 
@@ -531,7 +533,7 @@ protected void notifySourceElementRequestor(FieldDeclaration fieldDeclaration, T
 				if (fieldDeclaration.type == null) {
 					// enum constant
 					typeName = declaringType.name;
-					currentModifiers |= ClassFileConstants.AccEnum;
+					currentModifiers |= Flags.ENUM;
 				} else {
 					// regular field
 					typeName = CharOperation.concatWith(fieldDeclaration.type.getParameterizedTypeName(), '.');
@@ -696,7 +698,7 @@ protected void notifySourceElementRequestor(TypeDeclaration typeDeclaration, boo
 			boolean isEnumInit = typeDeclaration.allocation != null && typeDeclaration.allocation.enumConstant != null;
 			char[] superclassName;
 			if (isEnumInit) {
-				currentModifiers |= ClassFileConstants.AccEnum;
+				currentModifiers |= Flags.ENUM;
 				superclassName = declaringType.name;
 			} else {
 				superclassName = getSuperclassName(typeDeclaration);

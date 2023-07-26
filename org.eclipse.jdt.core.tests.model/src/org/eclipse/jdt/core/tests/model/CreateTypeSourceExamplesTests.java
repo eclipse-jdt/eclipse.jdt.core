@@ -107,7 +107,7 @@ public void testCreateClassWithImplements4() {
 public void testCreateClassWithModifiers() {
 	IDOMType type= this.domFactory.createType();
 	type.setName("Foo");
-	type.setFlags(ClassFileConstants.AccPublic | ClassFileConstants.AccFinal);
+	type.setFlags(Flags.PUBLIC | Flags.FINAL);
 	assertSourceEquals(
 		"source code incorrect",
 		"public final class Foo {\n" +

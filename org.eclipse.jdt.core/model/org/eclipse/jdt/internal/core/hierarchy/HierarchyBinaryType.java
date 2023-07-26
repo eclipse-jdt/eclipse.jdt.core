@@ -20,7 +20,6 @@ package org.eclipse.jdt.internal.core.hierarchy;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryField;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
@@ -32,6 +31,8 @@ import org.eclipse.jdt.internal.compiler.env.ITypeAnnotationWalker;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding.ExternalAnnotationStatus;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
+
+import com.sun.tools.javac.code.Flags;
 
 public class HierarchyBinaryType implements IBinaryType {
 	private int modifiers;
@@ -293,7 +294,7 @@ public char[] sourceFileName() {
 @Override
 public String toString() {
 	StringBuilder buffer = new StringBuilder();
-	if (this.modifiers == ClassFileConstants.AccPublic) {
+	if (this.modifiers == Flags.PUBLIC) {
 		buffer.append("public "); //$NON-NLS-1$
 	}
 	switch (TypeDeclaration.kind(this.modifiers)) {

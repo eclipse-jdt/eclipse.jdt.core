@@ -27,10 +27,11 @@ import org.eclipse.jdt.internal.compiler.SourceElementParser;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
+
+import com.sun.tools.javac.code.Flags;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class SourceElementParserTest extends AbstractCompilerTest implements ISourceElementRequestor {
@@ -181,21 +182,21 @@ public void dietParse(String s, String testName, boolean recordLocalDeclaration)
 public static String displayModifiers(int modifiers) {
 	StringBuilder buffer = new StringBuilder();
 
-	if ((modifiers & ClassFileConstants.AccPublic) != 0)
+	if ((modifiers & Flags.PUBLIC) != 0)
 		buffer.append("public ");
-	if ((modifiers & ClassFileConstants.AccProtected) != 0)
+	if ((modifiers & Flags.PROTECTED) != 0)
 		buffer.append("protected ");
-	if ((modifiers & ClassFileConstants.AccPrivate) != 0)
+	if ((modifiers & Flags.PRIVATE) != 0)
 		buffer.append("private ");
-	if ((modifiers & ClassFileConstants.AccFinal) != 0)
+	if ((modifiers & Flags.FINAL) != 0)
 		buffer.append("final ");
-	if ((modifiers & ClassFileConstants.AccStatic) != 0)
+	if ((modifiers & Flags.STATIC) != 0)
 		buffer.append("static ");
-	if ((modifiers & ClassFileConstants.AccAbstract) != 0)
+	if ((modifiers & Flags.ABSTRACT) != 0)
 		buffer.append("abstract ");
-	if ((modifiers & ClassFileConstants.AccNative) != 0)
+	if ((modifiers & Flags.NATIVE) != 0)
 		buffer.append("native ");
-	if ((modifiers & ClassFileConstants.AccSynchronized) != 0)
+	if ((modifiers & Flags.SYNCHRONIZED) != 0)
 		buffer.append("synchronized ");
 	return buffer.toString();
 }

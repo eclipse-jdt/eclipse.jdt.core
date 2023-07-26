@@ -13,7 +13,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import com.sun.tools.javac.code.Flags;
 
 public class SourceInitializer extends SourceField {
 public SourceInitializer(
@@ -29,7 +29,7 @@ public void setDeclarationSourceEnd(int declarationSourceEnd) {
 
 @Override
 public String toString(int tab) {
-	if (this.modifiers == ClassFileConstants.AccStatic) {
+	if (this.modifiers == Flags.STATIC) {
 		return tabString(tab) + "static {}";
 	}
 	return tabString(tab) + "{}";

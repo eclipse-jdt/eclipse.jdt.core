@@ -44,6 +44,8 @@ import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
+import com.sun.tools.javac.code.Flags;
+
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class CompilerOptions {
 
@@ -1423,11 +1425,11 @@ public class CompilerOptions {
 	}
 	public String getVisibilityString(int level) {
 		switch (level & ExtraCompilerModifiers.AccVisibilityMASK) {
-			case ClassFileConstants.AccPublic:
+			case Flags.PUBLIC:
 				return PUBLIC;
-			case ClassFileConstants.AccProtected:
+			case Flags.PROTECTED:
 				return PROTECTED;
-			case ClassFileConstants.AccPrivate:
+			case Flags.PRIVATE:
 				return PRIVATE;
 			default:
 				return DEFAULT;
@@ -1515,19 +1517,19 @@ public class CompilerOptions {
 		this.reportUnavoidableGenericTypeProblems = true;
 
 		// check javadoc comments tags
-		this.reportInvalidJavadocTagsVisibility = ClassFileConstants.AccPublic;
+		this.reportInvalidJavadocTagsVisibility = Flags.PUBLIC;
 		this.reportInvalidJavadocTags = false;
 		this.reportInvalidJavadocTagsDeprecatedRef = false;
 		this.reportInvalidJavadocTagsNotVisibleRef = false;
 		this.reportMissingJavadocTagDescription = RETURN_TAG;
 
 		// check missing javadoc tags
-		this.reportMissingJavadocTagsVisibility = ClassFileConstants.AccPublic;
+		this.reportMissingJavadocTagsVisibility = Flags.PUBLIC;
 		this.reportMissingJavadocTagsOverriding = false;
 		this.reportMissingJavadocTagsMethodTypeParameters = false;
 
 		// check missing javadoc comments
-		this.reportMissingJavadocCommentsVisibility = ClassFileConstants.AccPublic;
+		this.reportMissingJavadocCommentsVisibility = Flags.PUBLIC;
 		this.reportMissingJavadocCommentsOverriding = false;
 
 		// JSR bytecode inlining and sharing
@@ -1984,13 +1986,13 @@ public class CompilerOptions {
 		}
 		if ( (optionValue = optionsMap.get(OPTION_ReportInvalidJavadocTagsVisibility)) != null) {
 			if (PUBLIC.equals(optionValue)) {
-				this.reportInvalidJavadocTagsVisibility = ClassFileConstants.AccPublic;
+				this.reportInvalidJavadocTagsVisibility = Flags.PUBLIC;
 			} else if (PROTECTED.equals(optionValue)) {
-				this.reportInvalidJavadocTagsVisibility = ClassFileConstants.AccProtected;
+				this.reportInvalidJavadocTagsVisibility = Flags.PROTECTED;
 			} else if (DEFAULT.equals(optionValue)) {
-				this.reportInvalidJavadocTagsVisibility = ClassFileConstants.AccDefault;
+				this.reportInvalidJavadocTagsVisibility = 0;
 			} else if (PRIVATE.equals(optionValue)) {
-				this.reportInvalidJavadocTagsVisibility = ClassFileConstants.AccPrivate;
+				this.reportInvalidJavadocTagsVisibility = Flags.PRIVATE;
 			}
 		}
 		if ((optionValue = optionsMap.get(OPTION_ReportInvalidJavadocTags)) != null) {
@@ -2019,13 +2021,13 @@ public class CompilerOptions {
 		}
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingJavadocTagsVisibility)) != null) {
 			if (PUBLIC.equals(optionValue)) {
-				this.reportMissingJavadocTagsVisibility = ClassFileConstants.AccPublic;
+				this.reportMissingJavadocTagsVisibility = Flags.PUBLIC;
 			} else if (PROTECTED.equals(optionValue)) {
-				this.reportMissingJavadocTagsVisibility = ClassFileConstants.AccProtected;
+				this.reportMissingJavadocTagsVisibility = Flags.PROTECTED;
 			} else if (DEFAULT.equals(optionValue)) {
-				this.reportMissingJavadocTagsVisibility = ClassFileConstants.AccDefault;
+				this.reportMissingJavadocTagsVisibility = 0;
 			} else if (PRIVATE.equals(optionValue)) {
-				this.reportMissingJavadocTagsVisibility = ClassFileConstants.AccPrivate;
+				this.reportMissingJavadocTagsVisibility = Flags.PRIVATE;
 			}
 		}
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingJavadocTagsOverriding)) != null) {
@@ -2050,13 +2052,13 @@ public class CompilerOptions {
 		}
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingJavadocCommentsVisibility)) != null) {
 			if (PUBLIC.equals(optionValue)) {
-				this.reportMissingJavadocCommentsVisibility = ClassFileConstants.AccPublic;
+				this.reportMissingJavadocCommentsVisibility = Flags.PUBLIC;
 			} else if (PROTECTED.equals(optionValue)) {
-				this.reportMissingJavadocCommentsVisibility = ClassFileConstants.AccProtected;
+				this.reportMissingJavadocCommentsVisibility = Flags.PROTECTED;
 			} else if (DEFAULT.equals(optionValue)) {
-				this.reportMissingJavadocCommentsVisibility = ClassFileConstants.AccDefault;
+				this.reportMissingJavadocCommentsVisibility = 0;
 			} else if (PRIVATE.equals(optionValue)) {
-				this.reportMissingJavadocCommentsVisibility = ClassFileConstants.AccPrivate;
+				this.reportMissingJavadocCommentsVisibility = Flags.PRIVATE;
 			}
 		}
 		if ((optionValue = optionsMap.get(OPTION_ReportMissingJavadocCommentsOverriding)) != null) {

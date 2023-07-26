@@ -38,7 +38,6 @@ import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.CastExpression;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
@@ -187,16 +186,16 @@ public void acceptModule(char[] moduleName, char[] uniqueKey, int start, int end
 @Override
 public void acceptType(char[] packageName, char[] typeName, int modifiers, boolean isDeclaration, char[] uniqueKey, int start, int end) {
 	int acceptFlags = 0;
-	int kind = modifiers & (ClassFileConstants.AccInterface|ClassFileConstants.AccEnum|ClassFileConstants.AccAnnotation);
+	int kind = modifiers & (com.sun.tools.javac.code.Flags.INTERFACE|com.sun.tools.javac.code.Flags.ENUM|com.sun.tools.javac.code.Flags.ANNOTATION);
 	switch (kind) {
-		case ClassFileConstants.AccAnnotation:
-		case ClassFileConstants.AccAnnotation|ClassFileConstants.AccInterface:
+		case com.sun.tools.javac.code.Flags.ANNOTATION:
+		case com.sun.tools.javac.code.Flags.ANNOTATION|com.sun.tools.javac.code.Flags.INTERFACE:
 			acceptFlags = NameLookup.ACCEPT_ANNOTATIONS;
 			break;
-		case ClassFileConstants.AccEnum:
+		case com.sun.tools.javac.code.Flags.ENUM:
 			acceptFlags = NameLookup.ACCEPT_ENUMS;
 			break;
-		case ClassFileConstants.AccInterface:
+		case com.sun.tools.javac.code.Flags.INTERFACE:
 			acceptFlags = NameLookup.ACCEPT_INTERFACES;
 			break;
 		default:

@@ -19,6 +19,8 @@ import org.eclipse.jdt.internal.compiler.ast.RecordComponent;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
+import com.sun.tools.javac.code.Flags;
+
 public class RecordComponentBinding extends VariableBinding {
 
 	public ReferenceBinding declaringRecord;
@@ -103,7 +105,7 @@ public class RecordComponentBinding extends VariableBinding {
 
 	// TODO: check
 	public final boolean isPublic() {
-		return (this.modifiers & ClassFileConstants.AccPublic) != 0;
+		return (this.modifiers & Flags.PUBLIC) != 0;
 	}
 	/**
 	 * Returns the original RecordComponent (as opposed to parameterized instances)

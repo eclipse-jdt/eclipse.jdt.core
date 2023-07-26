@@ -53,9 +53,10 @@ import org.eclipse.jdt.internal.compiler.ast.NullAnnotationMatching.CheckMode;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants.BoundCheckStatus;
+
+import com.sun.tools.javac.code.Flags;
 
 /**
  * Binding for a type parameter, held by source/binary type or method.
@@ -81,7 +82,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 		this.sourceName = sourceName;
 		this.declaringElement = declaringElement;
 		this.rank = rank;
-		this.modifiers = ClassFileConstants.AccPublic | ExtraCompilerModifiers.AccGenericSignature; // treat type var as public
+		this.modifiers = Flags.PUBLIC | ExtraCompilerModifiers.AccGenericSignature; // treat type var as public
 		this.tagBits |= TagBits.HasTypeVariable;
 		this.environment = environment;
 		this.typeBits = TypeIds.BitUninitialized;
@@ -91,7 +92,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 	// for subclass CaptureBinding
 	protected TypeVariableBinding(char[] sourceName, LookupEnvironment environment) {
 		this.sourceName = sourceName;
-		this.modifiers = ClassFileConstants.AccPublic | ExtraCompilerModifiers.AccGenericSignature; // treat type var as public
+		this.modifiers = Flags.PUBLIC | ExtraCompilerModifiers.AccGenericSignature; // treat type var as public
 		this.tagBits |= TagBits.HasTypeVariable;
 		this.environment = environment;
 		this.typeBits = TypeIds.BitUninitialized;

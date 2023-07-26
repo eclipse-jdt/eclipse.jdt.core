@@ -33,11 +33,10 @@ package org.eclipse.jdt.internal.codeassist.select;
  */
 
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 public class SelectionOnPackageReference extends ImportReference {
 public SelectionOnPackageReference(char[][] tokens , long[] positions) {
-	super(tokens, positions, false, ClassFileConstants.AccDefault);
+	super(tokens, positions, false, 0);
 }
 @Override
 public StringBuffer print(int tab, StringBuffer output, boolean withOnDemand) {

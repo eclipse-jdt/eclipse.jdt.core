@@ -35,12 +35,36 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.codegen.*;
-import org.eclipse.jdt.internal.compiler.flow.*;
+import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
+import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
+import org.eclipse.jdt.internal.compiler.codegen.ExceptionLabel;
+import org.eclipse.jdt.internal.compiler.codegen.MultiCatchExceptionLabel;
+import org.eclipse.jdt.internal.compiler.codegen.StackMapFrameCodeStream;
+import org.eclipse.jdt.internal.compiler.flow.ExceptionHandlingFlowContext;
+import org.eclipse.jdt.internal.compiler.flow.FinallyFlowContext;
+import org.eclipse.jdt.internal.compiler.flow.FlowContext;
+import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.flow.InsideSubRoutineFlowContext;
+import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
+import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
+import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
+import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
+
+import com.sun.tools.javac.code.Flags;
 
 public class TryStatement extends SubRoutineStatement {
 
@@ -1113,11 +1137,11 @@ public void resolve(BlockScope upperScope) {
 	if (resourceCount > 0) {
 		resourceManagementScope = new BlockScope(this.scope);
 		this.primaryExceptionVariable =
-			new LocalVariableBinding(TryStatement.SECRET_PRIMARY_EXCEPTION_VARIABLE_NAME, this.scope.getJavaLangThrowable(), ClassFileConstants.AccDefault, false);
+			new LocalVariableBinding(TryStatement.SECRET_PRIMARY_EXCEPTION_VARIABLE_NAME, this.scope.getJavaLangThrowable(), 0, false);
 		resourceManagementScope.addLocalVariable(this.primaryExceptionVariable);
 		this.primaryExceptionVariable.setConstant(Constant.NotAConstant); // not inlinable
 		this.caughtThrowableVariable =
-			new LocalVariableBinding(TryStatement.SECRET_CAUGHT_THROWABLE_VARIABLE_NAME, this.scope.getJavaLangThrowable(), ClassFileConstants.AccDefault, false);
+			new LocalVariableBinding(TryStatement.SECRET_CAUGHT_THROWABLE_VARIABLE_NAME, this.scope.getJavaLangThrowable(), 0, false);
 		resourceManagementScope.addLocalVariable(this.caughtThrowableVariable);
 		this.caughtThrowableVariable.setConstant(Constant.NotAConstant); // not inlinable
 	}
@@ -1127,7 +1151,7 @@ public void resolve(BlockScope upperScope) {
 			LocalDeclaration node = (LocalDeclaration)this.resources[i];
 			LocalVariableBinding localVariableBinding = node.binding;
 			if (localVariableBinding != null && localVariableBinding.isValidBinding()) {
-				localVariableBinding.modifiers |= ClassFileConstants.AccFinal;
+				localVariableBinding.modifiers |= Flags.FINAL;
 				localVariableBinding.tagBits |= TagBits.IsResource;
 				TypeBinding resourceType = localVariableBinding.type;
 				if (resourceType instanceof ReferenceBinding) {
@@ -1170,14 +1194,14 @@ public void resolve(BlockScope upperScope) {
 			// the type does not matter as long as it is not a base type
 			if (!upperScope.compilerOptions().inlineJsrBytecode) {
 				this.returnAddressVariable =
-					new LocalVariableBinding(TryStatement.SECRET_RETURN_ADDRESS_NAME, upperScope.getJavaLangObject(), ClassFileConstants.AccDefault, false);
+					new LocalVariableBinding(TryStatement.SECRET_RETURN_ADDRESS_NAME, upperScope.getJavaLangObject(), 0, false);
 				finallyScope.addLocalVariable(this.returnAddressVariable);
 				this.returnAddressVariable.setConstant(Constant.NotAConstant); // not inlinable
 			}
 			this.subRoutineStartLabel = new BranchLabel();
 
 			this.anyExceptionVariable =
-				new LocalVariableBinding(TryStatement.SECRET_ANY_HANDLER_NAME, this.scope.getJavaLangThrowable(), ClassFileConstants.AccDefault, false);
+				new LocalVariableBinding(TryStatement.SECRET_ANY_HANDLER_NAME, this.scope.getJavaLangThrowable(), 0, false);
 			finallyScope.addLocalVariable(this.anyExceptionVariable);
 			this.anyExceptionVariable.setConstant(Constant.NotAConstant); // not inlinable
 
@@ -1192,7 +1216,7 @@ public void resolve(BlockScope upperScope) {
 							new LocalVariableBinding(
 								TryStatement.SECRET_RETURN_VALUE_NAME,
 								methodReturnType,
-								ClassFileConstants.AccDefault,
+								0,
 								false);
 						finallyScope.addLocalVariable(this.secretReturnValue);
 						this.secretReturnValue.setConstant(Constant.NotAConstant); // not inlinable

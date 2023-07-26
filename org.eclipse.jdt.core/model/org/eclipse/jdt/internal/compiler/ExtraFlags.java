@@ -16,9 +16,10 @@ package org.eclipse.jdt.internal.compiler;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.env.IBinaryNestedType;
+
+import com.sun.tools.javac.code.Flags;
 
 public final class ExtraFlags {
 	public final static int HasNonPrivateStaticMemberTypes = 0x0001;
@@ -45,7 +46,7 @@ public final class ExtraFlags {
 			done : for (int i = 0; i < memberTypeCounter; i++) {
 				int modifiers = memberTypes[i].getModifiers();
 				// if the member type is static and not private
-				if ((modifiers & ClassFileConstants.AccStatic) != 0 && (modifiers & ClassFileConstants.AccPrivate) == 0) {
+				if ((modifiers & Flags.STATIC) != 0 && (modifiers & Flags.PRIVATE) == 0) {
 					extraFlags |= ExtraFlags.HasNonPrivateStaticMemberTypes;
 					break done;
 				}
@@ -73,7 +74,7 @@ public final class ExtraFlags {
 			done : for (int i = 0; i < memberTypeCounter; i++) {
 				int flags = memberTypes[i].getFlags();
 				// if the member type is static and not private
-				if ((flags & ClassFileConstants.AccStatic) != 0 && (flags & ClassFileConstants.AccPrivate) == 0 ) {
+				if ((flags & Flags.STATIC) != 0 && (flags & Flags.PRIVATE) == 0 ) {
 					extraFlags |= ExtraFlags.HasNonPrivateStaticMemberTypes;
 					break done;
 				}
@@ -95,7 +96,7 @@ public final class ExtraFlags {
 			done : for (int i = 0; i < memberTypeCounter; i++) {
 				int modifiers = memberTypes[i].modifiers;
 				// if the member type is static and not private
-				if ((modifiers & ClassFileConstants.AccStatic) != 0 && (modifiers & ClassFileConstants.AccPrivate) == 0) {
+				if ((modifiers & Flags.STATIC) != 0 && (modifiers & Flags.PRIVATE) == 0) {
 					extraFlags |= ExtraFlags.HasNonPrivateStaticMemberTypes;
 					break done;
 				}

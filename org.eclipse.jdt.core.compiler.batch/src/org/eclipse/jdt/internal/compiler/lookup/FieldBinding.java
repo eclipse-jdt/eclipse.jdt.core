@@ -32,6 +32,8 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
+import com.sun.tools.javac.code.Flags;
+
 public class FieldBinding extends VariableBinding {
 	public ReferenceBinding declaringClass;
 	public int compoundUseFlag = 0; // number or accesses via postIncrement or compoundAssignment
@@ -343,13 +345,13 @@ public final boolean isDeprecated() {
 */
 
 public final boolean isPrivate() {
-	return (this.modifiers & ClassFileConstants.AccPrivate) != 0;
+	return (this.modifiers & Flags.PRIVATE) != 0;
 }
 /* Answer true if the receiver has private visibility or is enclosed by a class that does.
 */
 
 public final boolean isOrEnclosedByPrivateType() {
-	if ((this.modifiers & ClassFileConstants.AccPrivate) != 0)
+	if ((this.modifiers & Flags.PRIVATE) != 0)
 		return true;
 	return this.declaringClass != null && this.declaringClass.isOrEnclosedByPrivateType();
 }
@@ -357,31 +359,31 @@ public final boolean isOrEnclosedByPrivateType() {
 */
 
 public final boolean isProtected() {
-	return (this.modifiers & ClassFileConstants.AccProtected) != 0;
+	return (this.modifiers & Flags.PROTECTED) != 0;
 }
 /* Answer true if the receiver has public visibility
 */
 
 public final boolean isPublic() {
-	return (this.modifiers & ClassFileConstants.AccPublic) != 0;
+	return (this.modifiers & Flags.PUBLIC) != 0;
 }
 /* Answer true if the receiver is a static field
 */
 
 public final boolean isStatic() {
-	return (this.modifiers & ClassFileConstants.AccStatic) != 0;
+	return (this.modifiers & Flags.STATIC) != 0;
 }
 /* Answer true if the receiver is not defined in the source of the declaringClass
 */
 
 public final boolean isSynthetic() {
-	return (this.modifiers & ClassFileConstants.AccSynthetic) != 0;
+	return (this.modifiers & Flags.SYNTHETIC) != 0;
 }
 /* Answer true if the receiver is a transient field
 */
 
 public final boolean isTransient() {
-	return (this.modifiers & ClassFileConstants.AccTransient) != 0;
+	return (this.modifiers & Flags.TRANSIENT) != 0;
 }
 /* Answer true if the receiver's declaring type is deprecated (or any of its enclosing types)
 */
@@ -406,7 +408,7 @@ public final boolean isViewedAsDeprecated() {
 
 @Override
 public final boolean isVolatile() {
-	return (this.modifiers & ClassFileConstants.AccVolatile) != 0;
+	return (this.modifiers & Flags.VOLATILE) != 0;
 }
 
 @Override

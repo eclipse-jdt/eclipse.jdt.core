@@ -28,6 +28,8 @@ import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
+import com.sun.tools.javac.code.Flags;
+
 public class CaptureBinding extends TypeVariableBinding {
 
 	public TypeBinding lowerBound;
@@ -45,7 +47,7 @@ public class CaptureBinding extends TypeVariableBinding {
 	public CaptureBinding(WildcardBinding wildcard, ReferenceBinding sourceType, int start, int end, ASTNode cud, int captureID) {
 		super(TypeConstants.WILDCARD_CAPTURE_NAME_PREFIX, wildcard.environment);
 		this.wildcard = wildcard;
-		this.modifiers = ClassFileConstants.AccPublic | ExtraCompilerModifiers.AccGenericSignature; // treat capture as public
+		this.modifiers = Flags.PUBLIC | ExtraCompilerModifiers.AccGenericSignature; // treat capture as public
 		this.fPackage = wildcard.fPackage;
 		this.sourceType = sourceType;
 		this.start = start;
@@ -76,7 +78,7 @@ public class CaptureBinding extends TypeVariableBinding {
 	// for subclass CaptureBinding18
 	protected CaptureBinding(ReferenceBinding sourceType, char[] sourceName, int start, int end, int captureID, LookupEnvironment environment) {
 		super(sourceName, null, 0, environment);
-		this.modifiers = ClassFileConstants.AccPublic | ExtraCompilerModifiers.AccGenericSignature; // treat capture as public
+		this.modifiers = Flags.PUBLIC | ExtraCompilerModifiers.AccGenericSignature; // treat capture as public
 		this.sourceType = sourceType;
 		this.start = start;
 		this.end = end;

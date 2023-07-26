@@ -36,13 +36,23 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.ast.*;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
+import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.CaseStatement;
+import org.eclipse.jdt.internal.compiler.ast.FakedTrackingVariable;
+import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
+import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.ReturnStatement;
+import org.eclipse.jdt.internal.compiler.ast.Statement;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+
+import com.sun.tools.javac.code.Flags;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class BlockScope extends Scope {
@@ -204,7 +214,7 @@ private void checkAndSetModifiersForVariable(LocalVariableBinding varBinding) {
 	}
 	int realModifiers = modifiers & ExtraCompilerModifiers.AccJustFlag;
 
-	int unexpectedModifiers = ~ClassFileConstants.AccFinal;
+	int unexpectedModifiers = ~Flags.FINAL;
 	if ((realModifiers & unexpectedModifiers) != 0 && varBinding.declaration != null){
 		problemReporter().illegalModifierForVariable(varBinding.declaration, this instanceof MethodScope);
 	}

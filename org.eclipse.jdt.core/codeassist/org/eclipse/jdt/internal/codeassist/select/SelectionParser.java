@@ -1280,7 +1280,7 @@ protected void consumeStaticImportOnDemandDeclarationName() {
 		length);
 
 	/* build specific assist node on import statement */
-	ImportReference reference = createAssistImportReference(subset, positions, ClassFileConstants.AccStatic);
+	ImportReference reference = createAssistImportReference(subset, positions, com.sun.tools.javac.code.Flags.STATIC);
 	reference.bits |= ASTNode.OnDemand;
 	// star end position
 	reference.trailingStarPosition = this.intStack[this.intPtr--];
@@ -1383,7 +1383,7 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 		length);
 
 	/* build specific assist node on import statement */
-	ImportReference reference = createAssistImportReference(subset, positions, ClassFileConstants.AccDefault);
+	ImportReference reference = createAssistImportReference(subset, positions, 0);
 	reference.bits |= ASTNode.OnDemand;
 	// star end position
 	reference.trailingStarPosition = this.intStack[this.intPtr--];
@@ -1757,7 +1757,7 @@ protected Argument typeElidedArgument() {
 			identifierName,
 			namePositions,
 			null, // elided type
-			ClassFileConstants.AccDefault,
+			0,
 			true);
 	argument.declarationSourceStart = (int) (namePositions >>> 32);
 	this.assistNode = argument;

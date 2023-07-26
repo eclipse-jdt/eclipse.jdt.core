@@ -34,6 +34,8 @@ import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
+import com.sun.tools.javac.code.Flags;
+
 public class CodeSnippetClassFile extends ClassFile {
 /**
  * CodeSnippetClassFile constructor comment.
@@ -74,25 +76,25 @@ public CodeSnippetClassFile(
 	int accessFlags = aType.getAccessFlags();
 
 	if (!aType.isInterface()) { // class or enum
-		accessFlags |= ClassFileConstants.AccSuper;
+		accessFlags |= Flags.ACC_SUPER;
 	}
 	if (aType.isNestedType()) {
 		if (aType.isStatic()) {
 			// clear Acc_Static
-			accessFlags &= ~ClassFileConstants.AccStatic;
+			accessFlags &= ~Flags.STATIC;
 		}
 		if (aType.isPrivate()) {
 			// clear Acc_Private and Acc_Public
-			accessFlags &= ~(ClassFileConstants.AccPrivate | ClassFileConstants.AccPublic);
+			accessFlags &= ~(Flags.PRIVATE | Flags.PUBLIC);
 		}
 		if (aType.isProtected()) {
 			// clear Acc_Protected and set Acc_Public
-			accessFlags &= ~ClassFileConstants.AccProtected;
-			accessFlags |= ClassFileConstants.AccPublic;
+			accessFlags &= ~Flags.PROTECTED;
+			accessFlags |= Flags.PUBLIC;
 		}
 	}
 	// clear Acc_Strictfp
-	accessFlags &= ~ClassFileConstants.AccStrictfp;
+	accessFlags &= ~Flags.STRICTFP;
 
 	this.enclosingClassFile = enclosingClassFile;
 	// now we continue to generate the bytes inside the contents array
@@ -205,7 +207,7 @@ public static void createProblemType(TypeDeclaration typeDeclaration, Compilatio
 			MethodBinding method = methodDecl.binding;
 			if (method == null) continue;
 			if (abstractMethodsOnly) {
-				method.modifiers = ClassFileConstants.AccPublic | ClassFileConstants.AccAbstract;
+				method.modifiers = Flags.PUBLIC | Flags.ABSTRACT;
 			}
 			if (method.isConstructor()) {
 				if (typeBinding.isInterface()) continue;

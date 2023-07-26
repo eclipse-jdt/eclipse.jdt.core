@@ -30,6 +30,8 @@ import org.eclipse.jdt.internal.compiler.util.HashtableOfObjectToInt;
 import org.eclipse.jdt.internal.core.util.CommentRecorderParser;
 import org.eclipse.jdt.internal.core.util.Messages;
 
+import com.sun.tools.javac.code.Flags;
+
 /**
  * A source element parser extracts structural and reference information
  * from a piece of source.
@@ -626,9 +628,9 @@ protected void consumeSingleStaticImportDeclarationName() {
 	long[] positions = new long[length];
 	System.arraycopy(this.identifierStack, this.identifierPtr + 1, tokens, 0, length);
 	System.arraycopy(this.identifierPositionStack, this.identifierPtr + 1, positions, 0, length);
-	pushOnAstStack(impt = newImportReference(tokens, positions, false, ClassFileConstants.AccStatic));
+	pushOnAstStack(impt = newImportReference(tokens, positions, false, Flags.STATIC));
 
-	this.modifiers = ClassFileConstants.AccDefault;
+	this.modifiers = 0;
 	this.modifiersSourceStart = -1; // <-- see comment into modifiersFlag(int)
 
 	if (this.currentToken == TokenNameSEMICOLON){
@@ -643,7 +645,7 @@ protected void consumeSingleStaticImportDeclarationName() {
 	if(!this.statementRecoveryActivated &&
 			this.options.sourceLevel < ClassFileConstants.JDK1_5 &&
 			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
-		impt.modifiers = ClassFileConstants.AccDefault; // convert the static import reference to a non-static importe reference
+		impt.modifiers = 0; // convert the static import reference to a non-static importe reference
 		problemReporter().invalidUsageOfStaticImports(impt);
 	}
 
@@ -688,7 +690,7 @@ protected void consumeSingleTypeImportDeclarationName() {
 	long[] positions = new long[length];
 	System.arraycopy(this.identifierStack, this.identifierPtr + 1, tokens, 0, length);
 	System.arraycopy(this.identifierPositionStack, this.identifierPtr + 1, positions, 0, length);
-	pushOnAstStack(impt = newImportReference(tokens, positions, false, ClassFileConstants.AccDefault));
+	pushOnAstStack(impt = newImportReference(tokens, positions, false, 0));
 
 	if (this.currentToken == TokenNameSEMICOLON){
 		impt.declarationSourceEnd = this.scanner.currentPosition - 1;
@@ -723,11 +725,11 @@ protected void consumeStaticImportOnDemandDeclarationName() {
 	long[] positions = new long[length];
 	System.arraycopy(this.identifierStack, this.identifierPtr + 1, tokens, 0, length);
 	System.arraycopy(this.identifierPositionStack, this.identifierPtr + 1, positions, 0, length);
-	pushOnAstStack(impt = new ImportReference(tokens, positions, true, ClassFileConstants.AccStatic));
+	pushOnAstStack(impt = new ImportReference(tokens, positions, true, Flags.STATIC));
 
 	// star end position
 	impt.trailingStarPosition = this.intStack[this.intPtr--];
-	this.modifiers = ClassFileConstants.AccDefault;
+	this.modifiers = 0;
 	this.modifiersSourceStart = -1; // <-- see comment into modifiersFlag(int)
 
 	if (this.currentToken == TokenNameSEMICOLON){
@@ -742,7 +744,7 @@ protected void consumeStaticImportOnDemandDeclarationName() {
 	if(!this.statementRecoveryActivated &&
 			this.options.sourceLevel < ClassFileConstants.JDK1_5 &&
 			this.lastErrorEndPositionBeforeRecovery < this.scanner.currentPosition) {
-		impt.modifiers = ClassFileConstants.AccDefault; // convert the static import reference to a non-static importe reference
+		impt.modifiers = 0; // convert the static import reference to a non-static importe reference
 		problemReporter().invalidUsageOfStaticImports(impt);
 	}
 
@@ -770,7 +772,7 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 	long[] positions = new long[length];
 	System.arraycopy(this.identifierStack, this.identifierPtr + 1, tokens, 0, length);
 	System.arraycopy(this.identifierPositionStack, this.identifierPtr + 1, positions, 0, length);
-	pushOnAstStack(impt = new ImportReference(tokens, positions, true, ClassFileConstants.AccDefault));
+	pushOnAstStack(impt = new ImportReference(tokens, positions, true, 0));
 
 	// star end position
 	impt.trailingStarPosition = this.intStack[this.intPtr--];

@@ -61,7 +61,6 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.ExceptionHandlingFlowContext;
 import org.eclipse.jdt.internal.compiler.flow.ExceptionInferenceFlowContext;
@@ -90,6 +89,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ProblemMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.lookup.Scope.Substitutor;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Substitution;
 import org.eclipse.jdt.internal.compiler.lookup.Substitution.NullSubstitution;
@@ -100,13 +100,14 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.WildcardBinding;
-import org.eclipse.jdt.internal.compiler.lookup.Scope.Substitutor;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
 import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
 import org.eclipse.jdt.internal.compiler.problem.AbortType;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
+
+import com.sun.tools.javac.code.Flags;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class LambdaExpression extends FunctionalExpression implements IPolyExpression, ReferenceContext, ProblemSeverities {
@@ -193,9 +194,9 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 	@Override
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
 		if (this.shouldCaptureInstance) {
-			this.binding.modifiers &= ~ClassFileConstants.AccStatic;
+			this.binding.modifiers &= ~Flags.STATIC;
 		} else {
-			this.binding.modifiers |= ClassFileConstants.AccStatic;
+			this.binding.modifiers |= Flags.STATIC;
 		}
 		SourceTypeBinding sourceType = currentScope.enclosingSourceType();
 		boolean firstSpill = !(this.binding instanceof SyntheticMethodBinding);
@@ -290,7 +291,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		if (!skipKosherCheck && (!haveDescriptor || this.descriptor.typeVariables != Binding.NO_TYPE_VARIABLES)) // already complained in kosher*
 			return this.resolvedType = null;
 
-		this.binding = new MethodBinding(ClassFileConstants.AccPrivate | ClassFileConstants.AccSynthetic | ExtraCompilerModifiers.AccUnresolved,
+		this.binding = new MethodBinding(Flags.PRIVATE | Flags.SYNTHETIC | ExtraCompilerModifiers.AccUnresolved,
 							CharOperation.concat(TypeConstants.ANONYMOUS_METHOD, Integer.toString(this.ordinal).toCharArray()), // will be fixed up later.
 							haveDescriptor ? this.descriptor.returnType : TypeBinding.VOID,
 							Binding.NO_PARAMETERS, // for now.
@@ -319,7 +320,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 			Argument argument = this.arguments[i];
 			if (argument.isVarArgs()) {
 				if (i == argumentsLength - 1) {
-					this.binding.modifiers |= ClassFileConstants.AccVarargs;
+					this.binding.modifiers |= Flags.ACC_VARARGS;
 				} else {
 					this.scope.problemReporter().illegalVarargInLambda(argument);
 					argumentsHaveErrors = true;

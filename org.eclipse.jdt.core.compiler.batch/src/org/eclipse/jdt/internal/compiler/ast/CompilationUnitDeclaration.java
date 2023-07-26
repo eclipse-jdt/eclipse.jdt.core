@@ -32,7 +32,6 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression.LocalTypeSubstitutor;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
@@ -46,9 +45,9 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.lookup.Substitution.NullSubstitution;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
-import org.eclipse.jdt.internal.compiler.lookup.Substitution.NullSubstitution;
 import org.eclipse.jdt.internal.compiler.parser.NLSTag;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
 import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
@@ -56,6 +55,8 @@ import org.eclipse.jdt.internal.compiler.problem.AbortType;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.HashSetOfInt;
+
+import com.sun.tools.javac.code.Flags;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class CompilationUnitDeclaration extends ASTNode implements ProblemSeverities, ReferenceContext {
@@ -223,7 +224,7 @@ public CompilationResult compilationResult() {
 public void createPackageInfoType() {
 	TypeDeclaration declaration = new TypeDeclaration(this.compilationResult);
 	declaration.name = TypeConstants.PACKAGE_INFO_NAME;
-	declaration.modifiers = ClassFileConstants.AccDefault | ClassFileConstants.AccInterface;
+	declaration.modifiers = 0 | Flags.INTERFACE;
 	declaration.javadoc = this.javadoc;
 	this.types[0] = declaration; // Assumes the first slot is meant for this type
 }

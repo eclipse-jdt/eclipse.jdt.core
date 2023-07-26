@@ -16,7 +16,8 @@ package org.eclipse.jdt.internal.core.search.matching;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.internal.compiler.ExtraFlags;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+
+import com.sun.tools.javac.code.Flags;
 
 public class ConstructorDeclarationPattern extends ConstructorPattern {
 	public int extraFlags;
@@ -126,7 +127,7 @@ public void decodeIndexKey(char[] key) {
 
 			this.modifiers = key[last-1] + (key[last]<<16);
 		} else {
-			this.modifiers = ClassFileConstants.AccPublic;
+			this.modifiers = Flags.PUBLIC;
 		}
 	}
 

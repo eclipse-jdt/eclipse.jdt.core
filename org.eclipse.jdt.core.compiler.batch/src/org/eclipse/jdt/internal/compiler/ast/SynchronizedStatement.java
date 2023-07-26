@@ -15,11 +15,16 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.codegen.*;
-import org.eclipse.jdt.internal.compiler.flow.*;
+import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
+import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.flow.FlowContext;
+import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.flow.InsideSubRoutineFlowContext;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 
 public class SynchronizedStatement extends SubRoutineStatement {
 
@@ -207,7 +212,7 @@ public void resolve(BlockScope upperScope) {
 				}
 			}
 			//continue even on errors in order to have the TC done into the statements
-			this.synchroVariable = new LocalVariableBinding(SecretLocalDeclarationName, type, ClassFileConstants.AccDefault, false);
+			this.synchroVariable = new LocalVariableBinding(SecretLocalDeclarationName, type, 0, false);
 			this.scope.addLocalVariable(this.synchroVariable);
 			this.synchroVariable.setConstant(Constant.NotAConstant); // not inlinable
 			this.expression.computeConversion(this.scope, type, type);

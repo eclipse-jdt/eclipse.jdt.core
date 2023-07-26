@@ -57,6 +57,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
+import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.jvm.ByteCodes;
 
 public class QualifiedNameReference extends NameReference {
@@ -790,7 +791,7 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 			}
 
 			if (field.isStatic()) {
-				if ((field.modifiers & ClassFileConstants.AccEnum) != 0 && scope.kind != Scope.MODULE_SCOPE) {
+				if ((field.modifiers & Flags.ENUM) != 0 && scope.kind != Scope.MODULE_SCOPE) {
 					// enum constants are checked even when qualified -- modules don't contain field declarations
 					ReferenceBinding declaringClass = field.original().declaringClass;
 					MethodScope methodScope = scope.methodScope();
@@ -1064,7 +1065,7 @@ public TypeBinding resolveType(BlockScope scope) {
 					}
 					// check for forward references
 					if (scope.kind != Scope.MODULE_SCOPE) {
-						if ((this.indexOfFirstFieldBinding == 1 || (fieldBinding.modifiers & ClassFileConstants.AccEnum) != 0 || (!fieldBinding.isFinal() && declaringClass.isEnum())) // enum constants are checked even when qualified
+						if ((this.indexOfFirstFieldBinding == 1 || (fieldBinding.modifiers & Flags.ENUM) != 0 || (!fieldBinding.isFinal() && declaringClass.isEnum())) // enum constants are checked even when qualified
 								&& TypeBinding.equalsEquals(sourceType, declaringClass)
 								&& methodScope.lastVisibleFieldID >= 0
 								&& fieldBinding.id >= methodScope.lastVisibleFieldID

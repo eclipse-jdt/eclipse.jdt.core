@@ -36,11 +36,10 @@ package org.eclipse.jdt.internal.codeassist.complete;
  */
 
 import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 public class CompletionOnPackageReference extends ImportReference implements CompletionNode {
 public CompletionOnPackageReference(char[][] tokens , long[] positions) {
-	super(tokens, positions, false, ClassFileConstants.AccDefault);
+	super(tokens, positions, false, 0);
 }
 @Override
 public StringBuffer print(int indent, StringBuffer output, boolean withOnDemand) {

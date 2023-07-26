@@ -25,6 +25,8 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.env.IBinaryTypeAnnotation;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 
+import com.sun.tools.javac.code.Flags;
+
 @SuppressWarnings("rawtypes")
 public class MethodInfo extends ClassFileStruct implements IBinaryMethod, Comparable {
 	static private final char[][] noException = CharOperation.NO_CHAR_CHAR;
@@ -371,7 +373,7 @@ public boolean isConstructor() {
  * @return boolean
  */
 public boolean isSynthetic() {
-	return (getModifiers() & ClassFileConstants.AccSynthetic) != 0;
+	return (getModifiers() & Flags.SYNTHETIC) != 0;
 }
 private synchronized void readExceptionAttributes() {
 	int attributesCount = u2At(6);
@@ -424,7 +426,7 @@ private synchronized void readModifierRelatedAttributes() {
 					break;
 				case 'S' :
 					if (CharOperation.equals(attributeName, AttributeNamesConstants.SyntheticName))
-						flags |= ClassFileConstants.AccSynthetic;
+						flags |= Flags.SYNTHETIC;
 					break;
 				case 'A' :
 					if (CharOperation.equals(attributeName, AttributeNamesConstants.AnnotationDefaultName))
@@ -432,7 +434,7 @@ private synchronized void readModifierRelatedAttributes() {
 					break;
 				case 'V' :
 					if (CharOperation.equals(attributeName, AttributeNamesConstants.VarargsName))
-						flags |= ClassFileConstants.AccVarargs;
+						flags |= Flags.ACC_VARARGS;
 			}
 		}
 		readOffset += (6 + u4At(readOffset + 2));

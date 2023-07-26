@@ -56,6 +56,8 @@ import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
+import com.sun.tools.javac.code.Flags;
+
 public class MethodDeclaration extends AbstractMethodDeclaration {
 
 	public TypeReference returnType;
@@ -274,9 +276,9 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 			if (this.typeParameters != null)
 				this.scope.problemReporter().recordAccessorMethodShouldNotBeGeneric(this);
 			if (this.binding != null) {
-				if ((this.binding.modifiers & ClassFileConstants.AccPublic) == 0)
+				if ((this.binding.modifiers & Flags.PUBLIC) == 0)
 					this.scope.problemReporter().recordAccessorMethodShouldBePublic(this);
-				if ((this.binding.modifiers & ClassFileConstants.AccStatic) != 0)
+				if ((this.binding.modifiers & Flags.STATIC) != 0)
 					this.scope.problemReporter().recordAccessorMethodShouldNotBeStatic(this);
 			}
 			if (this.thrownExceptions != null)
@@ -314,12 +316,12 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 			boolean hasUnresolvedArguments = (this.binding.tagBits & TagBits.HasUnresolvedArguments) != 0;
 			if (hasOverrideAnnotation  && !hasUnresolvedArguments) {
 				// no static method is considered overriding
-				if ((bindingModifiers & (ClassFileConstants.AccStatic|ExtraCompilerModifiers.AccOverriding)) == ExtraCompilerModifiers.AccOverriding)
+				if ((bindingModifiers & (Flags.STATIC|ExtraCompilerModifiers.AccOverriding)) == ExtraCompilerModifiers.AccOverriding)
 					break checkOverride;
 				//	in 1.5, strictly for overriding superclass method
 				//	in 1.6 and above, also tolerate implementing interface method
 				if (complianceLevel >= ClassFileConstants.JDK1_6
-						&& ((bindingModifiers & (ClassFileConstants.AccStatic|ExtraCompilerModifiers.AccImplementing)) == ExtraCompilerModifiers.AccImplementing))
+						&& ((bindingModifiers & (Flags.STATIC|ExtraCompilerModifiers.AccImplementing)) == ExtraCompilerModifiers.AccImplementing))
 					break checkOverride;
 				// claims to override, and doesn't actually do so
 				this.scope.problemReporter().methodMustOverride(this, complianceLevel);
@@ -327,7 +329,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 				//In case of  a concrete class method, we have to check if it overrides(in 1.5 and above) OR implements a method(1.6 and above).
 				//Also check if the method has a signature that is override-equivalent to that of any public method declared in Object.
 				if (!this.binding.declaringClass.isInterface()){
-						if((bindingModifiers & (ClassFileConstants.AccStatic|ExtraCompilerModifiers.AccOverriding)) == ExtraCompilerModifiers.AccOverriding) {
+						if((bindingModifiers & (Flags.STATIC|ExtraCompilerModifiers.AccOverriding)) == ExtraCompilerModifiers.AccOverriding) {
 							this.scope.problemReporter().missingOverrideAnnotation(this);
 						} else {
 							if(complianceLevel >= ClassFileConstants.JDK1_6
@@ -344,7 +346,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 					//Also check if the method has a signature that is override-equivalent to that of any public method declared in Object.
 					if(complianceLevel >= ClassFileConstants.JDK1_6
 							&& compilerOptions.reportMissingOverrideAnnotationForInterfaceMethodImplementation
-							&& (((bindingModifiers & (ClassFileConstants.AccStatic|ExtraCompilerModifiers.AccOverriding)) == ExtraCompilerModifiers.AccOverriding) || this.binding.isImplementing())){
+							&& (((bindingModifiers & (Flags.STATIC|ExtraCompilerModifiers.AccOverriding)) == ExtraCompilerModifiers.AccOverriding) || this.binding.isImplementing())){
 						// actually overrides, but did not claim to do so
 						this.scope.problemReporter().missingOverrideAnnotationForInterfaceMethodImplementation(this);
 					}
@@ -362,12 +364,12 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 				// if a method has an semicolon body and is not declared as abstract==>error
 				// native methods may have a semicolon body
 				if ((this.modifiers & ExtraCompilerModifiers.AccSemicolonBody) != 0) {
-					if ((this.modifiers & ClassFileConstants.AccNative) == 0)
-						if ((this.modifiers & ClassFileConstants.AccAbstract) == 0)
+					if ((this.modifiers & Flags.NATIVE) == 0)
+						if ((this.modifiers & Flags.ABSTRACT) == 0)
 							this.scope.problemReporter().methodNeedBody(this);
 				} else {
 					// the method HAS a body --> abstract native modifiers are forbidden
-					if (((this.modifiers & ClassFileConstants.AccNative) != 0) || ((this.modifiers & ClassFileConstants.AccAbstract) != 0))
+					if (((this.modifiers & Flags.NATIVE) != 0) || ((this.modifiers & Flags.ABSTRACT) != 0))
 						this.scope.problemReporter().methodNeedingNoBody(this);
 					else if (this.binding == null || this.binding.isStatic() || (this.binding.declaringClass instanceof LocalTypeBinding) || returnsUndeclTypeVar) {
 						// Cannot be static for one of the reasons stated above
@@ -377,9 +379,9 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 				break;
 			case TypeDeclaration.INTERFACE_DECL :
 				if (compilerOptions.sourceLevel >= ClassFileConstants.JDK1_8
-						&& (this.modifiers & (ExtraCompilerModifiers.AccSemicolonBody | ClassFileConstants.AccAbstract)) == ExtraCompilerModifiers.AccSemicolonBody) {
-					boolean isPrivateMethod = compilerOptions.sourceLevel >= ClassFileConstants.JDK9 && (this.modifiers & ClassFileConstants.AccPrivate) != 0;
-					if (isPrivateMethod || ((this.modifiers & (ClassFileConstants.AccStatic | ExtraCompilerModifiers.AccDefaultMethod)) != 0)) {
+						&& (this.modifiers & (ExtraCompilerModifiers.AccSemicolonBody | Flags.ABSTRACT)) == ExtraCompilerModifiers.AccSemicolonBody) {
+					boolean isPrivateMethod = compilerOptions.sourceLevel >= ClassFileConstants.JDK9 && (this.modifiers & Flags.PRIVATE) != 0;
+					if (isPrivateMethod || ((this.modifiers & (Flags.STATIC | ExtraCompilerModifiers.AccDefaultMethod)) != 0)) {
 							this.scope.problemReporter().methodNeedBody(this);
 					}
 				}

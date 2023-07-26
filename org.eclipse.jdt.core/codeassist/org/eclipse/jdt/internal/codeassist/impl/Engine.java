@@ -19,7 +19,6 @@ import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.*;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.*;
 
 import org.eclipse.jdt.internal.compiler.ast.*;
@@ -32,6 +31,8 @@ import org.eclipse.jdt.internal.core.NameLookup;
 import org.eclipse.jdt.internal.core.SearchableEnvironment;
 import org.eclipse.jdt.internal.core.SourceType;
 import org.eclipse.jdt.internal.core.SourceTypeElementInfo;
+
+import com.sun.tools.javac.code.Flags;
 
 public abstract class Engine implements ITypeRequestor {
 
@@ -247,7 +248,7 @@ public abstract class Engine implements ITypeRequestor {
 					}
 					if(CharOperation.equals(fullyQualifiedEnclosingTypeName, importFlatName)) {
 						if(importBinding.isStatic()) {
-							isFound = (modifiers & ClassFileConstants.AccStatic) != 0;
+							isFound = (modifiers & Flags.STATIC) != 0;
 						} else {
 							isFound = true;
 						}
@@ -257,7 +258,7 @@ public abstract class Engine implements ITypeRequestor {
 				if(enclosingTypeNames == null || enclosingTypeNames.length == 0) {
 					if(CharOperation.equals(packageName, importFlatName)) {
 						if(importBinding.isStatic()) {
-							isFound = (modifiers & ClassFileConstants.AccStatic) != 0;
+							isFound = (modifiers & Flags.STATIC) != 0;
 						} else {
 							isFound = true;
 						}

@@ -19,6 +19,8 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 
+import com.sun.tools.javac.code.Flags;
+
 @SuppressWarnings({ "rawtypes" })
 public class ClassFileReaderTest_17 extends AbstractRegressionTest {
 	static {
@@ -113,7 +115,7 @@ public class ClassFileReaderTest_17 extends AbstractRegressionTest {
 		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = getInternalClassFile("", "X", "X", source);
 
 		int modifiers = classFileReader.getModifiers();
-		assertTrue("strictfp modifier not expected", (modifiers & ClassFileConstants.AccStrictfp) == 0);
+		assertTrue("strictfp modifier not expected", (modifiers & Flags.STRICTFP) == 0);
 	}
 	public void testBug545510_2() throws Exception {
 		String source =
@@ -125,7 +127,7 @@ public class ClassFileReaderTest_17 extends AbstractRegressionTest {
 		IBinaryMethod[] methods = classFileReader.getMethods();
 		IBinaryMethod method = methods[1];
 		int modifiers = method.getModifiers();
-		assertTrue("strictfp modifier not expected", (modifiers & ClassFileConstants.AccStrictfp) == 0);
+		assertTrue("strictfp modifier not expected", (modifiers & Flags.STRICTFP) == 0);
 	}
 	public void testBug545510_3() throws Exception {
 		String source =
@@ -137,7 +139,7 @@ public class ClassFileReaderTest_17 extends AbstractRegressionTest {
 		IBinaryMethod[] methods = classFileReader.getMethods();
 		IBinaryMethod method = methods[1];
 		int modifiers = method.getModifiers();
-		assertTrue("strictfp modifier not expected", (modifiers & ClassFileConstants.AccStrictfp) == 0);
+		assertTrue("strictfp modifier not expected", (modifiers & Flags.STRICTFP) == 0);
 	}
 	public void testWildcardBinding() throws Exception {
 		String source =

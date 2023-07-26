@@ -64,7 +64,7 @@ public void testCodeSnippetAssistForClassFile() throws JavaModelException {
 
 	char[][] typeNames = {"SuperClass".toCharArray(), "int".toCharArray()};
 	char[][] names = {"varsc".toCharArray(), "var".toCharArray()};
-	int[] modifiers = {ClassFileConstants.AccDefault, ClassFileConstants.AccFinal};
+	int[] modifiers = {0, Flags.FINAL};
 
 	type.codeComplete(snippet.toCharArray(), -1, snippet.length()-2, typeNames, names, modifiers, false, requestor);
 
@@ -90,7 +90,7 @@ public void testCodeSnippetAssistForCompilationUnit() throws JavaModelException 
 
 	char[][] typeNames = {"SuperClass".toCharArray(), "int".toCharArray()};
 	char[][] names = {"varsc".toCharArray(), "var".toCharArray()};
-	int[] modifiers = {ClassFileConstants.AccDefault, ClassFileConstants.AccFinal};
+	int[] modifiers = {0, Flags.FINAL};
 
 	String insertAftrer = "Victory{}";
 	String s = cu.getSource();
@@ -123,7 +123,7 @@ public void testCodeSnippetAssistForClassFileWithSource() throws JavaModelExcept
 
 	char[][] typeNames = {"SuperClass".toCharArray(), "int".toCharArray()};
 	char[][] names = {"varsc".toCharArray(), "var".toCharArray()};
-	int[] modifiers = {ClassFileConstants.AccDefault, ClassFileConstants.AccFinal};
+	int[] modifiers = {0, Flags.FINAL};
 
 	String insertAftrer = "Victory{}";
 	String s = cf.getSource();
@@ -157,7 +157,7 @@ public void testCodeSnippetAssistForCompilationUnitWithoutSource() throws JavaMo
 
 	char[][] typeNames = {"SuperClass".toCharArray(), "int".toCharArray()};
 	char[][] names = {"varsc".toCharArray(), "var".toCharArray()};
-	int[] modifiers = {ClassFileConstants.AccDefault, ClassFileConstants.AccFinal};
+	int[] modifiers = {0, Flags.FINAL};
 
 	int insertion = -1;
 
@@ -186,7 +186,7 @@ public void testCodeSnippetAssistForClassFileInInnerClass() throws JavaModelExce
 
 	char[][] typeNames = {"SuperClass".toCharArray(), "int".toCharArray()};
 	char[][] names = {"varsc".toCharArray(), "var".toCharArray()};
-	int[] modifiers = {ClassFileConstants.AccDefault, ClassFileConstants.AccFinal};
+	int[] modifiers = {0, Flags.FINAL};
 
 	String insertAftrer = "Victory{}";
 	String s = cf.getSource();
@@ -220,7 +220,7 @@ public void testCodeSnippetAssistForClassFileInInterface() throws JavaModelExcep
 
 	char[][] typeNames = {"SuperClass".toCharArray(), "int".toCharArray()};
 	char[][] names = {"varsc".toCharArray(), "var".toCharArray()};
-	int[] modifiers = {ClassFileConstants.AccDefault, ClassFileConstants.AccFinal};
+	int[] modifiers = {0, Flags.FINAL};
 
 	type.codeComplete(snippet.toCharArray(), -1, snippet.length()-2, typeNames, names, modifiers, false, requestor);
 
@@ -248,7 +248,7 @@ public void testCodeSnippetAssistForClassFileInInterface2() throws JavaModelExce
 
 	char[][] typeNames = {"SuperClass".toCharArray(), "int".toCharArray()};
 	char[][] names = {"varsc".toCharArray(), "var".toCharArray()};
-	int[] modifiers = {ClassFileConstants.AccDefault, ClassFileConstants.AccFinal};
+	int[] modifiers = {0, Flags.FINAL};
 
 	type.codeComplete(snippet.toCharArray(), -1, snippet.length()-2, typeNames, names, modifiers, false, requestor);
 
@@ -296,7 +296,7 @@ public void testCodeSnippetAssistInsideNumber() throws JavaModelException {
 
 	char[][] typeNames = {"SuperClass".toCharArray(), "int".toCharArray()};
 	char[][] names = {"varsc".toCharArray(), "var".toCharArray()};
-	int[] modifiers = {ClassFileConstants.AccDefault, ClassFileConstants.AccFinal};
+	int[] modifiers = {0, Flags.FINAL};
 
 	type.codeComplete(snippet.toCharArray(), -1, snippet.length()-2, typeNames, names, modifiers, false, requestor);
 

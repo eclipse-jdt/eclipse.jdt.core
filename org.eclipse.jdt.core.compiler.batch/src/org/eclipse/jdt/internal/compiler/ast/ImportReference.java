@@ -17,9 +17,13 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
+import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
+import org.eclipse.jdt.internal.compiler.lookup.PackageBinding;
+import org.eclipse.jdt.internal.compiler.lookup.SplitPackageBinding;
+
+import com.sun.tools.javac.code.Flags;
 
 public class ImportReference extends ASTNode {
 
@@ -50,7 +54,7 @@ public class ImportReference extends ASTNode {
 	}
 
 	public boolean isStatic() {
-		return (this.modifiers & ClassFileConstants.AccStatic) != 0;
+		return (this.modifiers & Flags.STATIC) != 0;
 	}
 
 	public char[][] getImportName() {

@@ -18,7 +18,6 @@ import java.util.Set;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
@@ -249,7 +248,7 @@ public class TypePattern extends Pattern {
 						new LocalVariableBinding(
 							SECRET_PATTERN_VARIABLE_NAME,
 							this.resolvedType,
-							ClassFileConstants.AccDefault,
+							0,
 							false);
 				l.setConstant(Constant.NotAConstant);
 				l.useFlag = LocalVariableBinding.USED;

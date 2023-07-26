@@ -50,6 +50,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
+import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.jvm.ClassFile;
 
 public class ClassFileReader extends ClassFileStruct implements IBinaryType {
@@ -96,12 +97,12 @@ private static String printTypeModifiers(int modifiers) {
 	java.io.StringWriter out = new java.io.StringWriter();
 	java.io.PrintWriter print = new java.io.PrintWriter(out);
 
-	if ((modifiers & ClassFileConstants.AccPublic) != 0) print.print("public "); //$NON-NLS-1$
-	if ((modifiers & ClassFileConstants.AccPrivate) != 0) print.print("private "); //$NON-NLS-1$
-	if ((modifiers & ClassFileConstants.AccFinal) != 0) print.print("final "); //$NON-NLS-1$
-	if ((modifiers & ClassFileConstants.AccSuper) != 0) print.print("super "); //$NON-NLS-1$
-	if ((modifiers & ClassFileConstants.AccInterface) != 0) print.print("interface "); //$NON-NLS-1$
-	if ((modifiers & ClassFileConstants.AccAbstract) != 0) print.print("abstract "); //$NON-NLS-1$
+	if ((modifiers & Flags.PUBLIC) != 0) print.print("public "); //$NON-NLS-1$
+	if ((modifiers & Flags.PRIVATE) != 0) print.print("private "); //$NON-NLS-1$
+	if ((modifiers & Flags.FINAL) != 0) print.print("final "); //$NON-NLS-1$
+	if ((modifiers & Flags.ACC_SUPER) != 0) print.print("super "); //$NON-NLS-1$
+	if ((modifiers & Flags.INTERFACE) != 0) print.print("interface "); //$NON-NLS-1$
+	if ((modifiers & Flags.ABSTRACT) != 0) print.print("abstract "); //$NON-NLS-1$
 	if ((modifiers & ExtraCompilerModifiers.AccSealed) != 0) print.print("sealed "); //$NON-NLS-1$
 	print.flush();
 	return out.toString();
@@ -356,7 +357,7 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 		readOffset += 2;
 		if (this.methodsCount != 0) {
 			this.methods = new MethodInfo[this.methodsCount];
-			boolean isAnnotationType = (this.accessFlags & ClassFileConstants.AccAnnotation) != 0;
+			boolean isAnnotationType = (this.accessFlags & Flags.ANNOTATION) != 0;
 			for (int i = 0; i < this.methodsCount; i++) {
 				this.methods[i] = isAnnotationType
 					? AnnotationMethodInfo.createAnnotationMethod(this.reference, this.constantPoolOffsets, readOffset, this.version)
@@ -427,7 +428,7 @@ public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInit
 								break;
 							case 'y' :
 								if (CharOperation.equals(attributeName, AttributeNamesConstants.SyntheticName)) {
-									this.accessFlags |= ClassFileConstants.AccSynthetic;
+									this.accessFlags |= Flags.SYNTHETIC;
 								}
 								break;
 							case 'i' :
@@ -899,7 +900,7 @@ public int getModifiers() {
 	if (this.innerInfo != null) {
 		modifiers = this.innerInfo.getModifiers()
 			| (this.accessFlags & ClassFileConstants.AccDeprecated)
-			| (this.accessFlags & ClassFileConstants.AccSynthetic);
+			| (this.accessFlags & Flags.SYNTHETIC);
 	} else {
 		modifiers = this.accessFlags;
 	}
@@ -1487,7 +1488,7 @@ public boolean isStaticInner(char[] innerTypeName) {
 	if (this.innerInfos != null) {
 		for (InnerClassInfo innerClassInfo : this.innerInfos) {
 			if (Arrays.equals(innerTypeName, innerClassInfo.getName())) {
-				return (innerClassInfo.getModifiers() & ClassFileConstants.AccStatic) != 0;
+				return (innerClassInfo.getModifiers() & Flags.STATIC) != 0;
 			}
 		}
 	}

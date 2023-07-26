@@ -30,7 +30,6 @@ import javax.lang.model.element.VariableElement;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.AptBinaryLocalVariableBinding;
@@ -41,6 +40,8 @@ import org.eclipse.jdt.internal.compiler.lookup.RecordComponentBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
+
+import com.sun.tools.javac.code.Flags;
 
 /**
  * Implementation of VariableElement, which represents a a field, enum constant,
@@ -119,7 +120,7 @@ public class VariableElementImpl extends ElementImpl implements VariableElement 
 	@Override
 	public ElementKind getKind() {
 		if (this._binding instanceof FieldBinding) {
-			if ((((FieldBinding) this._binding).modifiers & ClassFileConstants.AccEnum) != 0) {
+			if ((((FieldBinding) this._binding).modifiers & Flags.ENUM) != 0) {
 				return ElementKind.ENUM_CONSTANT;
 			}
 			else {

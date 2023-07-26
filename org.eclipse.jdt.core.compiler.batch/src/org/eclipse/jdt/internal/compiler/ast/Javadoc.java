@@ -20,8 +20,25 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
+import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
+import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
+import org.eclipse.jdt.internal.compiler.lookup.ImportBinding;
+import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
+import org.eclipse.jdt.internal.compiler.lookup.ModuleBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ModuleScope;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.parser.JavadocTagConstants;
+
+import com.sun.tools.javac.code.Flags;
 
 /**
  * Node representing a structured Javadoc comment
@@ -58,14 +75,14 @@ public class Javadoc extends ASTNode {
 	boolean canBeSeen(int visibility, int modifiers) {
 		if (modifiers < 0) return true;
 		switch (modifiers & ExtraCompilerModifiers.AccVisibilityMASK) {
-			case ClassFileConstants.AccPublic :
+			case Flags.PUBLIC :
 				return true;
-			case ClassFileConstants.AccProtected:
-				return (visibility != ClassFileConstants.AccPublic);
-			case ClassFileConstants.AccDefault:
-				return (visibility == ClassFileConstants.AccDefault || visibility == ClassFileConstants.AccPrivate);
-			case ClassFileConstants.AccPrivate:
-				return (visibility == ClassFileConstants.AccPrivate);
+			case Flags.PROTECTED:
+				return (visibility != Flags.PUBLIC);
+			case 0:
+				return (visibility == 0 || visibility == Flags.PRIVATE);
+			case Flags.PRIVATE:
+				return (visibility == Flags.PRIVATE);
 		}
 		return true;
 	}

@@ -19,9 +19,10 @@ import java.util.regex.Pattern;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.SearchPattern;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.core.index.*;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
+
+import com.sun.tools.javac.code.Flags;
 
 public class TypeDeclarationPattern extends JavaSearchPattern {
 
@@ -253,15 +254,15 @@ public void decodeIndexKey(char[] key) {
 protected void decodeModifiers() {
 
 	// Extract suffix from modifiers instead of index key
-	switch (this.modifiers & (ClassFileConstants.AccInterface|ClassFileConstants.AccEnum|ClassFileConstants.AccAnnotation)) {
-		case ClassFileConstants.AccAnnotation:
-		case ClassFileConstants.AccAnnotation+ClassFileConstants.AccInterface:
+	switch (this.modifiers & (Flags.INTERFACE|Flags.ENUM|Flags.ANNOTATION)) {
+		case Flags.ANNOTATION:
+		case Flags.ANNOTATION+Flags.INTERFACE:
 			this.typeSuffix = ANNOTATION_TYPE_SUFFIX;
 			break;
-		case ClassFileConstants.AccEnum:
+		case Flags.ENUM:
 			this.typeSuffix = ENUM_SUFFIX;
 			break;
-		case ClassFileConstants.AccInterface:
+		case Flags.INTERFACE:
 			this.typeSuffix = INTERFACE_SUFFIX;
 			break;
 		default:

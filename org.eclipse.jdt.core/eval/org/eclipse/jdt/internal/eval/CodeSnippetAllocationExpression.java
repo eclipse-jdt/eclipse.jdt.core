@@ -45,6 +45,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 
+import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.jvm.ByteCodes;
 
 public class CodeSnippetAllocationExpression extends AllocationExpression implements ProblemReasons, EvaluationConstants {
@@ -149,7 +150,7 @@ public TypeBinding resolveType(BlockScope scope) {
 			if (currentType == null) return currentType;
 			do {
 				// isStatic() is answering true for toplevel types
-				if ((currentType.modifiers & ClassFileConstants.AccStatic) != 0) break checkParameterizedAllocation;
+				if ((currentType.modifiers & Flags.STATIC) != 0) break checkParameterizedAllocation;
 				if (currentType.isRawType()) break checkParameterizedAllocation;
 			} while ((currentType = currentType.enclosingType())!= null);
 			ParameterizedQualifiedTypeReference qRef = (ParameterizedQualifiedTypeReference) this.type;

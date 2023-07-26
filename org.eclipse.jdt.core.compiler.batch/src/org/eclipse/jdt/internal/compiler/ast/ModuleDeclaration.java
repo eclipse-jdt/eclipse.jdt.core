@@ -14,7 +14,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import static org.eclipse.jdt.internal.compiler.problem.ProblemSeverities.*;
+import static org.eclipse.jdt.internal.compiler.problem.ProblemSeverities.AbortCompilation;
+import static org.eclipse.jdt.internal.compiler.problem.ProblemSeverities.AbortCompilationUnit;
+import static org.eclipse.jdt.internal.compiler.problem.ProblemSeverities.AbortMethod;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -46,6 +48,8 @@ import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
 import org.eclipse.jdt.internal.compiler.problem.AbortType;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 
+import com.sun.tools.javac.code.Flags;
+
 public class ModuleDeclaration extends ASTNode implements ReferenceContext {
 
 	public ExportsStatement[] exports;
@@ -69,7 +73,7 @@ public class ModuleDeclaration extends ASTNode implements ReferenceContext {
 	public char[][] tokens;
 	public char[] moduleName;
 	public long[] sourcePositions;
-	public int modifiers = ClassFileConstants.AccDefault;
+	public int modifiers = 0;
 	boolean ignoreFurtherInvestigation;
 	boolean hasResolvedModuleDirectives;
 	boolean hasResolvedPackageDirectives;
@@ -94,12 +98,12 @@ public class ModuleDeclaration extends ASTNode implements ReferenceContext {
 
 	public void checkAndSetModifiers() {
 		int realModifiers = this.modifiers & ExtraCompilerModifiers.AccJustFlag;
-		int expectedModifiers = ClassFileConstants.ACC_OPEN | ClassFileConstants.ACC_SYNTHETIC;
+		int expectedModifiers = ClassFileConstants.ACC_OPEN | Flags.SYNTHETIC;
 		if ((realModifiers & ~(expectedModifiers)) != 0) {
 			this.scope.problemReporter().illegalModifierForModule(this);
 			realModifiers &= expectedModifiers;
 		}
-		int effectiveModifiers = ClassFileConstants.AccModule | realModifiers;
+		int effectiveModifiers = Flags.ACC_MODULE | realModifiers;
 		this.modifiers = this.binding.modifiers = effectiveModifiers;
 	}
 

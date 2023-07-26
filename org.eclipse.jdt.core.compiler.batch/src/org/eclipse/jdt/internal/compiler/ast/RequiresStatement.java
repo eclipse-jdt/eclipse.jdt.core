@@ -22,7 +22,7 @@ public class RequiresStatement extends ModuleStatement {
 
 	public ModuleReference module;
 	public ModuleBinding resolvedBinding;
-	public int modifiers = ClassFileConstants.AccDefault;
+	public int modifiers = 0;
 	public int modifiersSourceStart;
 
 	public RequiresStatement(ModuleReference module) {

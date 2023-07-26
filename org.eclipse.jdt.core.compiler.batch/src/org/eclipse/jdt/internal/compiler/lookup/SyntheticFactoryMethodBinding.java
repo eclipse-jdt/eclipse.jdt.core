@@ -13,7 +13,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import com.sun.tools.javac.code.Flags;
 
 /**
  * Encodes a synthetic &lt;factory&gt; method used for resolving a diamond constructor.
@@ -25,7 +25,7 @@ public class SyntheticFactoryMethodBinding extends MethodBinding {
 	private ReferenceBinding enclosingType;
 
 	public SyntheticFactoryMethodBinding(MethodBinding method, LookupEnvironment environment, ReferenceBinding enclosingType) {
-		super(method.modifiers | ClassFileConstants.AccStatic, TypeConstants.SYNTHETIC_STATIC_FACTORY,
+		super(method.modifiers | Flags.STATIC, TypeConstants.SYNTHETIC_STATIC_FACTORY,
 				null, null, null, method.declaringClass);
 		this.environment = environment;
 		this.staticFactoryFor = method;

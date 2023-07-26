@@ -50,6 +50,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
+import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.jvm.ByteCodes;
 
 @SuppressWarnings("rawtypes")
@@ -907,7 +908,7 @@ public class SwitchStatement extends Expression {
 				// the secret variable should be created before iterating over the switch's statements that could
 				// create more locals. This must be done to prevent overlapping of locals
 				// See https://bugs.eclipse.org/bugs/show_bug.cgi?id=356002
-				this.dispatchStringCopy  = new LocalVariableBinding(SecretStringVariableName, upperScope.getJavaLangString(), ClassFileConstants.AccDefault, false);
+				this.dispatchStringCopy  = new LocalVariableBinding(SecretStringVariableName, upperScope.getJavaLangString(), 0, false);
 				upperScope.addLocalVariable(this.dispatchStringCopy);
 				this.dispatchStringCopy.setConstant(Constant.NotAConstant);
 				this.dispatchStringCopy.useFlag = LocalVariableBinding.USED;
@@ -1076,7 +1077,7 @@ public class SwitchStatement extends Expression {
 						FieldBinding[] enumFields = ((ReferenceBinding)expressionType.erasure()).fields();
 						for (int i = 0, max = enumFields.length; i <max; i++) {
 							FieldBinding enumConstant = enumFields[i];
-							if ((enumConstant.modifiers & ClassFileConstants.AccEnum) == 0) continue;
+							if ((enumConstant.modifiers & Flags.ENUM) == 0) continue;
 							findConstant : {
 								for (int j = 0; j < constantCount; j++) {
 									if ((enumConstant.id + 1) == this.otherConstants[j].c.intValue()) // zero should not be returned see bug 141810
@@ -1255,11 +1256,11 @@ public class SwitchStatement extends Expression {
 	private void addSecretPatternSwitchVariables(BlockScope upperScope) {
 		if (this.containsPatterns || isNullAndNeedsPatternVar()) {
 			this.scope = new BlockScope(upperScope);
-			this.dispatchPatternCopy  = new LocalVariableBinding(SecretPatternVariableName, this.expression.resolvedType, ClassFileConstants.AccDefault, false);
+			this.dispatchPatternCopy  = new LocalVariableBinding(SecretPatternVariableName, this.expression.resolvedType, 0, false);
 			this.scope.addLocalVariable(this.dispatchPatternCopy);
 			this.dispatchPatternCopy.setConstant(Constant.NotAConstant);
 			this.dispatchPatternCopy.useFlag = LocalVariableBinding.USED;
-			this.restartIndexLocal  = new LocalVariableBinding(SecretPatternRestartIndexName, TypeBinding.INT, ClassFileConstants.AccDefault, false);
+			this.restartIndexLocal  = new LocalVariableBinding(SecretPatternRestartIndexName, TypeBinding.INT, 0, false);
 			this.scope.addLocalVariable(this.restartIndexLocal);
 			this.restartIndexLocal.setConstant(Constant.NotAConstant);
 			this.restartIndexLocal.useFlag = LocalVariableBinding.USED;

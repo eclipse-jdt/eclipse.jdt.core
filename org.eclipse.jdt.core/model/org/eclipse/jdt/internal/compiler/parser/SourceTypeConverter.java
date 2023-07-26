@@ -51,6 +51,8 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.util.Util;
 
+import com.sun.tools.javac.code.Flags;
+
 public class SourceTypeConverter extends TypeConverter {
 
 	/*
@@ -165,7 +167,7 @@ public class SourceTypeConverter extends TypeConverter {
 		if (packageName.length > 0)
 			// if its null then it is defined in the default package
 			this.unit.currentPackage =
-				createImportReference(packageName, start, end, false, ClassFileConstants.AccDefault);
+				createImportReference(packageName, start, end, false, 0);
 		IImportDeclaration[] importDeclarations = topLevelTypeInfo.getHandle().getCompilationUnit().getImports();
 		int importCount = importDeclarations.length;
 		this.unit.imports = new ImportReference[importCount];
@@ -217,7 +219,7 @@ public class SourceTypeConverter extends TypeConverter {
 	private Initializer convert(InitializerElementInfo initializerInfo, CompilationResult compilationResult) throws JavaModelException {
 
 		Block block = new Block(0);
-		Initializer initializer = new Initializer(block, ClassFileConstants.AccDefault);
+		Initializer initializer = new Initializer(block, 0);
 
 		int start = initializerInfo.getDeclarationSourceStart();
 		int end = initializerInfo.getDeclarationSourceEnd();
@@ -292,9 +294,9 @@ public class SourceTypeConverter extends TypeConverter {
 		field.declarationSourceStart = fieldInfo.getDeclarationSourceStart();
 		field.declarationSourceEnd = fieldInfo.getDeclarationSourceEnd();
 		int modifiers = fieldInfo.getModifiers();
-		boolean isEnumConstant = (modifiers & ClassFileConstants.AccEnum) != 0;
+		boolean isEnumConstant = (modifiers & Flags.ENUM) != 0;
 		if (isEnumConstant) {
-			field.modifiers = modifiers & ~ClassFileConstants.AccEnum; // clear AccEnum bit onto AST (binding will add it)
+			field.modifiers = modifiers & ~Flags.ENUM; // clear AccEnum bit onto AST (binding will add it)
 		} else {
 			field.modifiers = modifiers;
 			field.type = createTypeReference(fieldInfo.getTypeName(), start, end);
@@ -344,7 +346,7 @@ public class SourceTypeConverter extends TypeConverter {
 		anonymousLocalTypeDeclaration.superInterfaces = null;
 		anonymousLocalTypeDeclaration.allocation = expression;
 		if (enumConstant != null) {
-			anonymousLocalTypeDeclaration.modifiers &= ~ClassFileConstants.AccEnum;
+			anonymousLocalTypeDeclaration.modifiers &= ~Flags.ENUM;
 			expression.enumConstant = enumConstant;
 			expression.type = null;
 		}
@@ -425,8 +427,8 @@ public class SourceTypeConverter extends TypeConverter {
 			method = decl;
 		}
 		method.selector = methodHandle.getElementName().toCharArray();
-		boolean isVarargs = (modifiers & ClassFileConstants.AccVarargs) != 0;
-		method.modifiers = modifiers & ~ClassFileConstants.AccVarargs;
+		boolean isVarargs = (modifiers & Flags.ACC_VARARGS) != 0;
+		method.modifiers = modifiers & ~Flags.ACC_VARARGS;
 		method.sourceStart = start;
 		method.sourceEnd = end;
 		method.declarationSourceStart = methodInfo.getDeclarationSourceStart();
@@ -456,7 +458,7 @@ public class SourceTypeConverter extends TypeConverter {
 						argumentNames[i],
 						position,
 						typeReference,
-						ClassFileConstants.AccDefault);
+						0);
 				// do not care whether was final or not
 				// convert 1.5 specific constructs only if compliance is 1.5 or above
 				if (this.has1_5Compliance) {
@@ -665,7 +667,7 @@ public class SourceTypeConverter extends TypeConverter {
 				SourceMethod sourceMethod = sourceMethods[i];
 				SourceMethodElementInfo methodInfo = (SourceMethodElementInfo)sourceMethod.getElementInfo();
 				boolean isConstructor = methodInfo.isConstructor();
-				if ((methodInfo.getModifiers() & ClassFileConstants.AccAbstract) != 0) {
+				if ((methodInfo.getModifiers() & Flags.ABSTRACT) != 0) {
 					hasAbstractMethods = true;
 				}
 				if ((isConstructor ? needConstructor : needMethod)) {

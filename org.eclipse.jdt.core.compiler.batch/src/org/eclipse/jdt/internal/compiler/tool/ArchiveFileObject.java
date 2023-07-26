@@ -30,10 +30,11 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.NestingKind;
 import javax.tools.JavaFileObject;
 
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
+
+import com.sun.tools.javac.code.Flags;
 
 /**
  * Implementation of a Java file object that corresponds to an entry in a zip/jar file
@@ -64,13 +65,13 @@ public class ArchiveFileObject implements JavaFileObject {
 			return null;
 		}
 		final int accessFlags = reader.accessFlags();
-		if ((accessFlags & ClassFileConstants.AccPublic) != 0) {
+		if ((accessFlags & Flags.PUBLIC) != 0) {
 			return Modifier.PUBLIC;
 		}
-		if ((accessFlags & ClassFileConstants.AccAbstract) != 0) {
+		if ((accessFlags & Flags.ABSTRACT) != 0) {
 			return Modifier.ABSTRACT;
 		}
-		if ((accessFlags & ClassFileConstants.AccFinal) != 0) {
+		if ((accessFlags & Flags.FINAL) != 0) {
 			return Modifier.FINAL;
 		}
 		return null;

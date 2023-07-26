@@ -23,6 +23,8 @@ import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
+import com.sun.tools.javac.code.Flags;
+
 public class DocumentElementParser extends Parser {
 	IDocumentElementRequestor requestor;
 	private int lastFieldEndPosition;
@@ -906,7 +908,7 @@ protected void consumeInterfaceHeaderName1() {
 	this.intPtr--;
 	int declSourceStart = this.intStack[this.intPtr--];
 	typeDecl.modifiersSourceStart = this.intStack[this.intPtr--];
-	typeDecl.modifiers = this.intStack[this.intPtr--] | ClassFileConstants.AccInterface;
+	typeDecl.modifiers = this.intStack[this.intPtr--] | Flags.INTERFACE;
 	if (typeDecl.declarationSourceStart > declSourceStart) {
 		typeDecl.declarationSourceStart = declSourceStart;
 	}
@@ -1216,7 +1218,7 @@ protected void consumeSingleStaticImportDeclarationName() {
 		CharOperation.concatWith(importReference.getImportName(), '.'),
 		importReference.sourceStart,
 		false,
-		ClassFileConstants.AccStatic);
+		Flags.STATIC);
 }
 /*
  *
@@ -1238,7 +1240,7 @@ protected void consumeSingleTypeImportDeclarationName() {
 		CharOperation.concatWith(importReference.getImportName(), '.'),
 		importReference.sourceStart,
 		false,
-		ClassFileConstants.AccDefault);
+		0);
 }
 @Override
 protected void consumeStaticImportOnDemandDeclarationName() {
@@ -1256,7 +1258,7 @@ protected void consumeStaticImportOnDemandDeclarationName() {
 		CharOperation.concatWith(importReference.getImportName(), '.'),
 		importReference.sourceStart,
 		true,
-		ClassFileConstants.AccStatic);
+		Flags.STATIC);
 }
 /*
  *
@@ -1273,7 +1275,7 @@ protected void consumeStaticInitializer() {
 		initializer.declarationSourceStart,
 		initializer.declarationSourceEnd,
 		this.intArrayStack[this.intArrayPtr--],
-		ClassFileConstants.AccStatic,
+		Flags.STATIC,
 		this.intStack[this.intPtr--],
 		initializer.block.sourceStart,
 		initializer.declarationSourceEnd);
@@ -1310,7 +1312,7 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 		CharOperation.concatWith(importReference.getImportName(), '.'),
 		importReference.sourceStart,
 		true,
-		ClassFileConstants.AccDefault);
+		0);
 }
 /*
  * Flush javadocs defined prior to a given positions.

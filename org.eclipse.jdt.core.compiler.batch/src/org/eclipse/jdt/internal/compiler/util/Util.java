@@ -59,6 +59,8 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.WildcardBinding;
 
+import com.sun.tools.javac.code.Flags;
+
 public class Util implements SuffixConstants {
 
 	/**
@@ -381,17 +383,17 @@ public class Util implements SuffixConstants {
 	public static int computeOuterMostVisibility(TypeDeclaration typeDeclaration, int visibility) {
 		while (typeDeclaration != null) {
 			switch (typeDeclaration.modifiers & ExtraCompilerModifiers.AccVisibilityMASK) {
-				case ClassFileConstants.AccPrivate:
-					visibility = ClassFileConstants.AccPrivate;
+				case Flags.PRIVATE:
+					visibility = Flags.PRIVATE;
 					break;
-				case ClassFileConstants.AccDefault:
-					if (visibility != ClassFileConstants.AccPrivate) {
-						visibility = ClassFileConstants.AccDefault;
+				case 0:
+					if (visibility != Flags.PRIVATE) {
+						visibility = 0;
 					}
 					break;
-				case ClassFileConstants.AccProtected:
-					if (visibility == ClassFileConstants.AccPublic) {
-						visibility = ClassFileConstants.AccProtected;
+				case Flags.PROTECTED:
+					if (visibility == Flags.PUBLIC) {
+						visibility = 0;
 					}
 					break;
 			}

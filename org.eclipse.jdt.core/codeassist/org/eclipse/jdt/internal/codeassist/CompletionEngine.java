@@ -617,7 +617,7 @@ public final class CompletionEngine
 				continue next;
 			}
 
-			if ((memberType.modifiers & ClassFileConstants.AccStatic) != 0) {
+			if ((memberType.modifiers & com.sun.tools.javac.code.Flags.STATIC) != 0) {
 				return true;
 			}
 		}
@@ -943,13 +943,13 @@ public final class CompletionEngine
 		if ((this.foundConstructorsCount % (CHECK_CANCEL_FREQUENCY)) == 0) checkCancel();
 		this.foundConstructorsCount++;
 
-		if ((typeModifiers & ClassFileConstants.AccEnum) != 0) return;
+		if ((typeModifiers & com.sun.tools.javac.code.Flags.ENUM) != 0) return;
 
 		if (this.options.checkDeprecation && (typeModifiers & ClassFileConstants.AccDeprecated) != 0) return;
 
 		if (this.options.checkVisibility) {
-			if((typeModifiers & ClassFileConstants.AccPublic) == 0) {
-				if((typeModifiers & ClassFileConstants.AccPrivate) != 0) return;
+			if((typeModifiers & com.sun.tools.javac.code.Flags.PUBLIC) == 0) {
+				if((typeModifiers & com.sun.tools.javac.code.Flags.PRIVATE) != 0) return;
 
 				if (this.currentPackageName == null) {
 					initializePackageCache();
@@ -1049,8 +1049,8 @@ public final class CompletionEngine
 				boolean proposeConstructor = true;
 
 				if (this.options.checkVisibility) {
-					if((modifiers & ClassFileConstants.AccPublic) == 0) {
-						if((modifiers & ClassFileConstants.AccPrivate) != 0) {
+					if((modifiers & com.sun.tools.javac.code.Flags.PUBLIC) == 0) {
+						if((modifiers & com.sun.tools.javac.code.Flags.PRIVATE) != 0) {
 							if (!proposeType) continue next;
 							proposeConstructor = false;
 						} else {
@@ -1060,8 +1060,8 @@ public final class CompletionEngine
 
 							if(!CharOperation.equals(packageName, this.currentPackageName)) {
 
-								if((typeModifiers & ClassFileConstants.AccAbstract) == 0 ||
-										(modifiers & ClassFileConstants.AccProtected) == 0) {
+								if((typeModifiers & com.sun.tools.javac.code.Flags.ABSTRACT) == 0 ||
+										(modifiers & com.sun.tools.javac.code.Flags.PROTECTED) == 0) {
 									if (!proposeType) continue next;
 									proposeConstructor = false;
 								}
@@ -1173,7 +1173,7 @@ public final class CompletionEngine
 							}
 							if(CharOperation.equals(fullyQualifiedEnclosingTypeOrPackageName, importFlatName)) {
 								if(importBinding.isStatic()) {
-									if((typeModifiers & ClassFileConstants.AccStatic) != 0) {
+									if((typeModifiers & com.sun.tools.javac.code.Flags.STATIC) != 0) {
 										onDemandFound.put(
 												simpleTypeName,
 												acceptedConstructor);
@@ -1199,7 +1199,7 @@ public final class CompletionEngine
 							}
 							if(CharOperation.equals(fullyQualifiedEnclosingTypeOrPackageName, importFlatName)) {
 								if(importBinding.isStatic()) {
-									if((typeModifiers & ClassFileConstants.AccStatic) != 0) {
+									if((typeModifiers & com.sun.tools.javac.code.Flags.STATIC) != 0) {
 										foundConstructor.mustBeQualified = true;
 										break done;
 									}
@@ -1256,7 +1256,7 @@ public final class CompletionEngine
 							}
 							if(CharOperation.equals(fullyQualifiedEnclosingTypeOrPackageName, importFlatName)) {
 								if(importBinding.isStatic()) {
-									if((value.modifiers & ClassFileConstants.AccStatic) != 0) {
+									if((value.modifiers & com.sun.tools.javac.code.Flags.STATIC) != 0) {
 										value.mustBeQualified = true;
 										break done;
 									}
@@ -1456,12 +1456,12 @@ public final class CompletionEngine
 		this.foundTypesCount++;
 
 		if (this.options.checkDeprecation && (modifiers & ClassFileConstants.AccDeprecated) != 0) return;
-		if (this.assistNodeIsExtendedType && (modifiers & ClassFileConstants.AccFinal) != 0) return;
+		if (this.assistNodeIsExtendedType && (modifiers & com.sun.tools.javac.code.Flags.FINAL) != 0) return;
 		if (this.assistNodeIsExtendedType && (modifiers & ExtraCompilerModifiers.AccRecord) != 0) return;
 
 		if (this.options.checkVisibility) {
-			if((modifiers & ClassFileConstants.AccPublic) == 0) {
-				if((modifiers & ClassFileConstants.AccPrivate) != 0) return;
+			if((modifiers & com.sun.tools.javac.code.Flags.PUBLIC) == 0) {
+				if((modifiers & com.sun.tools.javac.code.Flags.PRIVATE) != 0) return;
 				if (this.moduleDeclaration == null) {
 					char[] currentPackage = CharOperation.concatWith(this.unitScope.fPackage.compoundName, '.');
 					if(!CharOperation.equals(packageName, currentPackage)) return;
@@ -1546,7 +1546,7 @@ public final class CompletionEngine
 					if(this.resolvingStaticImports) {
 						if(enclosingTypeNames == null || enclosingTypeNames.length == 0) {
 							completionName = CharOperation.concat(completionName, new char[] { '.' });
-						} else if ((modifiers & ClassFileConstants.AccStatic) == 0) {
+						} else if ((modifiers & com.sun.tools.javac.code.Flags.STATIC) == 0) {
 							continue next;
 						} else {
 							completionName = appendUnlessNextToken(completionName, new char[] { ';' }, TerminalTokens.TokenNameSEMICOLON);
@@ -1623,7 +1623,7 @@ public final class CompletionEngine
 								}
 								if(CharOperation.equals(fullyQualifiedEnclosingTypeOrPackageName, importFlatName)) {
 									if(importBinding.isStatic()) {
-										if((modifiers & ClassFileConstants.AccStatic) != 0) {
+										if((modifiers & com.sun.tools.javac.code.Flags.STATIC) != 0) {
 											acceptedType.qualifiedTypeName = typeName;
 											acceptedType.fullyQualifiedName = fullyQualifiedName;
 											onDemandFound.put(
@@ -1662,7 +1662,7 @@ public final class CompletionEngine
 								}
 								if(CharOperation.equals(fullyQualifiedEnclosingTypeOrPackageName, importFlatName)) {
 									if(importBinding.isStatic()) {
-										if((modifiers & ClassFileConstants.AccStatic) != 0) {
+										if((modifiers & com.sun.tools.javac.code.Flags.STATIC) != 0) {
 											foundType.mustBeQualified = true;
 											break done;
 										}
@@ -1907,13 +1907,13 @@ public final class CompletionEngine
 		if (astNode instanceof CompletionOnFieldType) {
 			CompletionOnFieldType field = (CompletionOnFieldType) astNode;
 			if (!field.isLocalVariable &&
-					field.modifiers == ClassFileConstants.AccDefault &&
+					field.modifiers == 0 &&
 					(field.annotations == null || field.annotations.length == 0)) {
 				context.setTokenLocation(CompletionContext.TL_MEMBER_START);
 			}
 		} else if (astNode instanceof CompletionOnMethodReturnType) {
 			CompletionOnMethodReturnType method = (CompletionOnMethodReturnType) astNode;
-			if (method.modifiers == ClassFileConstants.AccDefault &&
+			if (method.modifiers == 0 &&
 					(method.annotations == null || method.annotations.length == 0)) {
 				context.setTokenLocation(CompletionContext.TL_MEMBER_START);
 			}
@@ -2717,9 +2717,9 @@ public final class CompletionEngine
 
 
 			int kind =
-				 (field.modifiers & ClassFileConstants.AccStatic) == 0 ?
+				 (field.modifiers & com.sun.tools.javac.code.Flags.STATIC) == 0 ?
 						InternalNamingConventions.VK_INSTANCE_FIELD :
-							(field.modifiers & ClassFileConstants.AccFinal) == 0 ?
+							(field.modifiers & com.sun.tools.javac.code.Flags.FINAL) == 0 ?
 									InternalNamingConventions.VK_STATIC_FIELD :
 										InternalNamingConventions.VK_STATIC_FINAL_FIELD;
 
@@ -2753,7 +2753,7 @@ public final class CompletionEngine
 			findKeywordsForMember(this.completionToken, field.modifiers, astNode);
 		}
 
-		if (!field.isLocalVariable && field.modifiers == ClassFileConstants.AccDefault) {
+		if (!field.isLocalVariable && field.modifiers == 0) {
 			SourceTypeBinding enclosingType = scope.enclosingSourceType();
 			if (!enclosingType.isAnnotationType()) {
 				if (!this.requestor.isIgnored(CompletionProposal.METHOD_DECLARATION)) {
@@ -3513,9 +3513,9 @@ public final class CompletionEngine
 
 
 			int kind =
-				 (method.modifiers & ClassFileConstants.AccStatic) == 0 ?
+				 (method.modifiers & com.sun.tools.javac.code.Flags.STATIC) == 0 ?
 						InternalNamingConventions.VK_INSTANCE_FIELD :
-							(method.modifiers & ClassFileConstants.AccFinal) == 0 ?
+							(method.modifiers & com.sun.tools.javac.code.Flags.FINAL) == 0 ?
 									InternalNamingConventions.VK_STATIC_FIELD :
 										InternalNamingConventions.VK_STATIC_FINAL_FIELD;
 
@@ -3533,7 +3533,7 @@ public final class CompletionEngine
 			findKeywordsForMember(this.completionToken, method.modifiers, null);
 		}
 
-		if (method.modifiers == ClassFileConstants.AccDefault) {
+		if (method.modifiers == 0) {
 			SourceTypeBinding enclosingType = scope.enclosingSourceType();
 			if (!enclosingType.isAnnotationType()) {
 				if (!this.requestor.isIgnored(CompletionProposal.METHOD_DECLARATION)) {
@@ -4113,7 +4113,7 @@ public final class CompletionEngine
 				else if ( astNodeParent instanceof InstanceOfExpression) {
 					// propose final keyword
 					if (!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
-						findKeywordsForMember(this.completionToken, (~ClassFileConstants.AccFinal  & 0xFF), astNode);
+						findKeywordsForMember(this.completionToken, (~com.sun.tools.javac.code.Flags.FINAL  & 0xFF), astNode);
 					}
 				}
 
@@ -5293,8 +5293,8 @@ public final class CompletionEngine
 	private void createMethod(MethodBinding method, char[][] parameterPackageNames, char[][] parameterTypeNames, char[][] parameterNames, Scope scope, StringBuffer completion) {
 		//// Modifiers
 		// flush uninteresting modifiers
-		int insertedModifiers = method.modifiers & ~(ClassFileConstants.AccNative | ClassFileConstants.AccAbstract);
-		if(insertedModifiers != ClassFileConstants.AccDefault){
+		int insertedModifiers = method.modifiers & ~(com.sun.tools.javac.code.Flags.NATIVE | com.sun.tools.javac.code.Flags.ABSTRACT);
+		if(insertedModifiers != 0){
 			ASTNode.printModifiers(insertedModifiers, completion);
 		}
 
@@ -9194,12 +9194,12 @@ public final class CompletionEngine
 		int count = 0;
 
 		// visibility
-		if((modifiers & ClassFileConstants.AccPrivate) == 0
-			&& (modifiers & ClassFileConstants.AccProtected) == 0
-			&& (modifiers & ClassFileConstants.AccPublic) == 0) {
+		if((modifiers & com.sun.tools.javac.code.Flags.PRIVATE) == 0
+			&& (modifiers & com.sun.tools.javac.code.Flags.PROTECTED) == 0
+			&& (modifiers & com.sun.tools.javac.code.Flags.PUBLIC) == 0) {
 			keywords[count++] = Keywords.PROTECTED;
 			keywords[count++] = Keywords.PUBLIC;
-			if((modifiers & ClassFileConstants.AccAbstract) == 0) {
+			if((modifiers & com.sun.tools.javac.code.Flags.ABSTRACT) == 0) {
 				keywords[count++] = Keywords.PRIVATE;
 			}
 		}
@@ -9211,63 +9211,63 @@ public final class CompletionEngine
 	        if (declaringClass != null && declaringClass.isInterface() && !declaringClass.isAnnotationType())
 	            keywords[count++] = Keywords.DEFAULT;
 	    }
-		if((modifiers & ClassFileConstants.AccAbstract) == 0) {
+		if((modifiers & com.sun.tools.javac.code.Flags.ABSTRACT) == 0) {
 			// abtract
-			if((modifiers & ~(ExtraCompilerModifiers.AccVisibilityMASK | ClassFileConstants.AccStatic)) == 0) {
+			if((modifiers & ~(ExtraCompilerModifiers.AccVisibilityMASK | com.sun.tools.javac.code.Flags.STATIC)) == 0) {
 				keywords[count++] = Keywords.ABSTRACT;
 			}
 
 			// final
-			if((modifiers & ClassFileConstants.AccFinal) == 0) {
+			if((modifiers & com.sun.tools.javac.code.Flags.FINAL) == 0) {
 				keywords[count++] = Keywords.FINAL;
 			}
 
 			// static
-			if((modifiers & ClassFileConstants.AccStatic) == 0) {
+			if((modifiers & com.sun.tools.javac.code.Flags.STATIC) == 0) {
 				keywords[count++] = Keywords.STATIC;
 			}
 
 			boolean canBeField = true;
 			boolean canBeMethod = true;
 			boolean canBeType = true;
-			if((modifiers & ClassFileConstants.AccNative) != 0
-				|| (modifiers & ClassFileConstants.AccStrictfp) != 0
-				|| (modifiers & ClassFileConstants.AccSynchronized) != 0) {
+			if((modifiers & com.sun.tools.javac.code.Flags.NATIVE) != 0
+				|| (modifiers & com.sun.tools.javac.code.Flags.STRICTFP) != 0
+				|| (modifiers & com.sun.tools.javac.code.Flags.SYNCHRONIZED) != 0) {
 				canBeField = false;
 				canBeType = false;
 			}
 
-			if((modifiers & ClassFileConstants.AccTransient) != 0
-				|| (modifiers & ClassFileConstants.AccVolatile) != 0) {
+			if((modifiers & com.sun.tools.javac.code.Flags.TRANSIENT) != 0
+				|| (modifiers & com.sun.tools.javac.code.Flags.VOLATILE) != 0) {
 				canBeMethod = false;
 				canBeType = false;
 			}
 
 			if(canBeField) {
 				// transient
-				if((modifiers & ClassFileConstants.AccTransient) == 0) {
+				if((modifiers & com.sun.tools.javac.code.Flags.TRANSIENT) == 0) {
 					keywords[count++] = Keywords.TRANSIENT;
 				}
 
 				// volatile
-				if((modifiers & ClassFileConstants.AccVolatile) == 0) {
+				if((modifiers & com.sun.tools.javac.code.Flags.VOLATILE) == 0) {
 					keywords[count++] = Keywords.VOLATILE;
 				}
 			}
 
 			if(canBeMethod) {
 				// native
-				if((modifiers & ClassFileConstants.AccNative) == 0) {
+				if((modifiers & com.sun.tools.javac.code.Flags.NATIVE) == 0) {
 					keywords[count++] = Keywords.NATIVE;
 				}
 
 				// strictfp
-				if((modifiers & ClassFileConstants.AccStrictfp) == 0) {
+				if((modifiers & com.sun.tools.javac.code.Flags.STRICTFP) == 0) {
 					keywords[count++] = Keywords.STRICTFP;
 				}
 
 				// synchronized
-				if((modifiers & ClassFileConstants.AccSynchronized) == 0) {
+				if((modifiers & com.sun.tools.javac.code.Flags.SYNCHRONIZED) == 0) {
 					keywords[count++] = Keywords.SYNCHRONIZED;
 				}
 			}
@@ -9276,7 +9276,7 @@ public final class CompletionEngine
 				keywords[count++] = Keywords.CLASS;
 				keywords[count++] = Keywords.INTERFACE;
 
-				if((modifiers & ClassFileConstants.AccFinal) == 0) {
+				if((modifiers & com.sun.tools.javac.code.Flags.FINAL) == 0) {
 					keywords[count++] = Keywords.ENUM;
 				}
 			}
@@ -13653,7 +13653,7 @@ public final class CompletionEngine
 						compoundName,
 						new long[compoundName.length],
 						onDemand,
-						isStatic ? ClassFileConstants.AccStatic : ClassFileConstants.AccDefault);
+						isStatic ? com.sun.tools.javac.code.Flags.STATIC : 0);
 
 			Binding importBinding = this.unitScope.findImport(compoundName, isStatic, onDemand);
 
@@ -14211,18 +14211,18 @@ public final class CompletionEngine
 		}
 
 		boolean isInterface = false;
-		int kind = typeModifiers & (ClassFileConstants.AccInterface | ClassFileConstants.AccEnum | ClassFileConstants.AccAnnotation);
+		int kind = typeModifiers & (com.sun.tools.javac.code.Flags.INTERFACE | com.sun.tools.javac.code.Flags.ENUM | com.sun.tools.javac.code.Flags.ANNOTATION);
 		switch (kind) {
-			case ClassFileConstants.AccAnnotation:
-			case ClassFileConstants.AccAnnotation | ClassFileConstants.AccInterface:
+			case com.sun.tools.javac.code.Flags.ANNOTATION:
+			case com.sun.tools.javac.code.Flags.ANNOTATION | com.sun.tools.javac.code.Flags.INTERFACE:
 				relevance += computeRelevanceForAnnotation();
 				relevance += computeRelevanceForInterface();
 				isInterface = true;
 				break;
-			case ClassFileConstants.AccEnum:
+			case com.sun.tools.javac.code.Flags.ENUM:
 				relevance += computeRelevanceForEnum();
 				break;
-			case ClassFileConstants.AccInterface:
+			case com.sun.tools.javac.code.Flags.INTERFACE:
 				relevance += computeRelevanceForInterface();
 				isInterface = true;
 				break;
@@ -14263,7 +14263,7 @@ public final class CompletionEngine
 					flags |= Flags.AccDeprecated;
 				}
 
-				if (isInterface || (typeModifiers & ClassFileConstants.AccAbstract) != 0) {
+				if (isInterface || (typeModifiers & com.sun.tools.javac.code.Flags.ABSTRACT) != 0) {
 					this.noProposal = false;
 					if(!isIgnored(CompletionProposal.ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION, CompletionProposal.TYPE_REF)) {
 						InternalCompletionProposal proposal = createProposal(CompletionProposal.ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION, this.actualCompletionPosition);
@@ -14320,7 +14320,7 @@ public final class CompletionEngine
 				break;
 			case 0: // constructor with no parameter
 
-				if ((typeModifiers & ClassFileConstants.AccAbstract) != 0) {
+				if ((typeModifiers & com.sun.tools.javac.code.Flags.ABSTRACT) != 0) {
 					this.noProposal = false;
 					if(!isIgnored(CompletionProposal.ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION, CompletionProposal.TYPE_REF)) {
 						InternalCompletionProposal proposal = createProposal(CompletionProposal.ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION, this.actualCompletionPosition);
@@ -14389,7 +14389,7 @@ public final class CompletionEngine
 					parameterNames = null;
 				}
 
-				if ((typeModifiers & ClassFileConstants.AccAbstract) != 0) {
+				if ((typeModifiers & com.sun.tools.javac.code.Flags.ABSTRACT) != 0) {
 					this.noProposal = false;
 					if(!isIgnored(CompletionProposal.ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION, CompletionProposal.TYPE_REF)) {
 						InternalCompletionProposal proposal = createProposal(CompletionProposal.ANONYMOUS_CLASS_CONSTRUCTOR_INVOCATION, this.actualCompletionPosition);
@@ -14513,7 +14513,7 @@ public final class CompletionEngine
 			return;
 		}
 		TypeBinding guessedType = null;
-		if ((modifiers & ClassFileConstants.AccAnnotation) != 0 &&
+		if ((modifiers & com.sun.tools.javac.code.Flags.ANNOTATION) != 0 &&
 				this.assistNodeIsAnnotation &&
 				(this.targetedElement & TagBits.AnnotationTargetMASK) != 0) {
 			char[][] cn = CharOperation.splitOn('.', fullyQualifiedName);
@@ -14548,18 +14548,18 @@ public final class CompletionEngine
 		relevance += computeRelevanceForExpectingType(packageName, simpleTypeName);
 		relevance += computeRelevanceForQualification(isQualified);
 
-		int kind = modifiers & (ClassFileConstants.AccInterface | ClassFileConstants.AccEnum | ClassFileConstants.AccAnnotation);
+		int kind = modifiers & (com.sun.tools.javac.code.Flags.INTERFACE | com.sun.tools.javac.code.Flags.ENUM | com.sun.tools.javac.code.Flags.ANNOTATION);
 		switch (kind) {
-			case ClassFileConstants.AccAnnotation:
-			case ClassFileConstants.AccAnnotation | ClassFileConstants.AccInterface:
+			case com.sun.tools.javac.code.Flags.ANNOTATION:
+			case com.sun.tools.javac.code.Flags.ANNOTATION | com.sun.tools.javac.code.Flags.INTERFACE:
 				relevance += computeRelevanceForAnnotation();
 				if (guessedType != null) relevance += computeRelevanceForAnnotationTarget(guessedType);
 				relevance += computeRelevanceForInterface();
 				break;
-			case ClassFileConstants.AccEnum:
+			case com.sun.tools.javac.code.Flags.ENUM:
 				relevance += computeRelevanceForEnum();
 				break;
-			case ClassFileConstants.AccInterface:
+			case com.sun.tools.javac.code.Flags.INTERFACE:
 				relevance += computeRelevanceForInterface();
 				break;
 			default:

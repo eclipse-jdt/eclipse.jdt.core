@@ -26,7 +26,6 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
@@ -207,7 +206,7 @@ public int getElementType() {
 public int getFlags() throws JavaModelException {
 	IBinaryMethod info = (IBinaryMethod) getElementInfo();
 	int modifiers = info.getModifiers();
-	if (((IType) this.getParent()).isInterface() && (modifiers & (ClassFileConstants.AccAbstract | ClassFileConstants.AccStatic)) == 0)
+	if (((IType) this.getParent()).isInterface() && (modifiers & (com.sun.tools.javac.code.Flags.ABSTRACT | com.sun.tools.javac.code.Flags.STATIC)) == 0)
 		modifiers |= ExtraCompilerModifiers.AccDefaultMethod;
 	return modifiers;
 }
@@ -301,7 +300,7 @@ public String[] getParameterNames() throws JavaModelException {
 	if (paramCount != 0) {
 		// don't try to look for javadoc for synthetic methods
 		int modifiers = getFlags();
-		if ((modifiers & ClassFileConstants.AccSynthetic) != 0) {
+		if ((modifiers & com.sun.tools.javac.code.Flags.SYNTHETIC) != 0) {
 			return this.parameterNames = getRawParameterNames(paramCount);
 		}
 		JavadocContents javadocContents = null;

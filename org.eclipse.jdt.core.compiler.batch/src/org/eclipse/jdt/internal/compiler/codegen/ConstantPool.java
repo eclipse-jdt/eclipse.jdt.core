@@ -21,7 +21,23 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.codegen;
 
-import static com.sun.tools.javac.jvm.ClassFile.*;
+import static com.sun.tools.javac.jvm.ClassFile.CONSTANT_Class;
+import static com.sun.tools.javac.jvm.ClassFile.CONSTANT_Double;
+import static com.sun.tools.javac.jvm.ClassFile.CONSTANT_Dynamic;
+import static com.sun.tools.javac.jvm.ClassFile.CONSTANT_Fieldref;
+import static com.sun.tools.javac.jvm.ClassFile.CONSTANT_Float;
+import static com.sun.tools.javac.jvm.ClassFile.CONSTANT_Integer;
+import static com.sun.tools.javac.jvm.ClassFile.CONSTANT_InterfaceMethodref;
+import static com.sun.tools.javac.jvm.ClassFile.CONSTANT_InvokeDynamic;
+import static com.sun.tools.javac.jvm.ClassFile.CONSTANT_Long;
+import static com.sun.tools.javac.jvm.ClassFile.CONSTANT_MethodHandle;
+import static com.sun.tools.javac.jvm.ClassFile.CONSTANT_MethodType;
+import static com.sun.tools.javac.jvm.ClassFile.CONSTANT_Methodref;
+import static com.sun.tools.javac.jvm.ClassFile.CONSTANT_Module;
+import static com.sun.tools.javac.jvm.ClassFile.CONSTANT_NameandType;
+import static com.sun.tools.javac.jvm.ClassFile.CONSTANT_Package;
+import static com.sun.tools.javac.jvm.ClassFile.CONSTANT_String;
+import static com.sun.tools.javac.jvm.ClassFile.CONSTANT_Utf8;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ClassFile;

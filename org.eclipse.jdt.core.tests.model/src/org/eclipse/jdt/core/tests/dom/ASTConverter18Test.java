@@ -1591,7 +1591,7 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		assertTrue(lambdaExpression.parameters().size() == 1);
 		IMethodBinding binding = lambdaExpression.resolveMethodBinding();
 		assertEquals("public int foo(int) ", binding.toString());
-		assertEquals("real modifiers", ClassFileConstants.AccPublic, binding.getModifiers());
+		assertEquals("real modifiers", Flags.PUBLIC, binding.getModifiers());
 		VariableDeclaration variableDeclaration = (VariableDeclaration) lambdaExpression.parameters().get(0);
 		assertTrue(variableDeclaration instanceof VariableDeclarationFragment);
 		fragment = (VariableDeclarationFragment)variableDeclaration;
@@ -1627,7 +1627,7 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		assertEquals("vlambda -> 200", lambdaExpression.toString());
 		IMethodBinding binding = lambdaExpression.resolveMethodBinding();
 		assertEquals("public int foo(int) ", binding.toString());
-		assertEquals("real modifiers", ClassFileConstants.AccPublic, binding.getModifiers());
+		assertEquals("real modifiers", Flags.PUBLIC, binding.getModifiers());
 		assertTrue(lambdaExpression.parameters().size() == 1);
 		VariableDeclaration variableDeclaration = (VariableDeclaration) lambdaExpression.parameters().get(0);
 		assertTrue(variableDeclaration instanceof VariableDeclarationFragment);
@@ -1662,7 +1662,7 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		assertEquals("(int[] ia) -> {\n  return ia.clone();\n}\n", lambdaExpression.toString());
 		IMethodBinding binding = lambdaExpression.resolveMethodBinding();
 		assertEquals("public java.lang.Object foo(int[]) ", binding.toString());
-		assertEquals("real modifiers", ClassFileConstants.AccPublic, binding.getModifiers());
+		assertEquals("real modifiers", Flags.PUBLIC, binding.getModifiers());
 		assertTrue(lambdaExpression.parameters().size() == 1);
 		VariableDeclaration variableDeclaration = (VariableDeclaration) lambdaExpression.parameters().get(0);
 		assertTrue(variableDeclaration instanceof SingleVariableDeclaration);
@@ -1705,7 +1705,7 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		assertEquals("() -> {\n  System.out.println(this);\n  I j=() -> {\n    System.out.println(this);\n    I k=() -> {\n      System.out.println(this);\n    }\n;\n  }\n;\n}\n", lambdaExpression.toString());
 		IMethodBinding binding = lambdaExpression.resolveMethodBinding();
 		assertEquals("public void doit() ", binding.toString());
-		assertEquals("real modifiers", ClassFileConstants.AccPublic, binding.getModifiers());
+		assertEquals("real modifiers", Flags.PUBLIC, binding.getModifiers());
 		assertTrue(lambdaExpression.parameters().size() == 0);
 	}
 
@@ -1959,7 +1959,7 @@ public class ASTConverter18Test extends ConverterTestSetup {
 		assertEquals("() -> () -> 10", lambdaExpression.toString());
 		IMethodBinding binding = lambdaExpression.resolveMethodBinding();
 		assertEquals("public test399793.J foo() ", binding.toString());
-		assertEquals("real modifiers", ClassFileConstants.AccPublic, binding.getModifiers());
+		assertEquals("real modifiers", Flags.PUBLIC, binding.getModifiers());
 		assertTrue(lambdaExpression.parameters().size() == 0);
 	}
 

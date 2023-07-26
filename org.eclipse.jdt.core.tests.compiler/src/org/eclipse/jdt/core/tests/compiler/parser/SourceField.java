@@ -13,8 +13,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.parser;
 
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.ISourceField;
+
+import com.sun.tools.javac.code.Flags;
 
 public class SourceField implements ISourceField {
 	protected int modifiers;
@@ -47,21 +48,21 @@ public String displayModifiers() {
 
 	if (this.modifiers == 0)
 		return null;
-	if ((this.modifiers & ClassFileConstants.AccPublic) != 0)
+	if ((this.modifiers & Flags.PUBLIC) != 0)
 		buffer.append("public ");
-	if ((this.modifiers & ClassFileConstants.AccProtected) != 0)
+	if ((this.modifiers & Flags.PROTECTED) != 0)
 		buffer.append("protected ");
-	if ((this.modifiers & ClassFileConstants.AccPrivate) != 0)
+	if ((this.modifiers & Flags.PRIVATE) != 0)
 		buffer.append("private ");
-	if ((this.modifiers & ClassFileConstants.AccFinal) != 0)
+	if ((this.modifiers & Flags.FINAL) != 0)
 		buffer.append("final ");
-	if ((this.modifiers & ClassFileConstants.AccStatic) != 0)
+	if ((this.modifiers & Flags.STATIC) != 0)
 		buffer.append("static ");
-	if ((this.modifiers & ClassFileConstants.AccAbstract) != 0)
+	if ((this.modifiers & Flags.ABSTRACT) != 0)
 		buffer.append("abstract ");
-	if ((this.modifiers & ClassFileConstants.AccNative) != 0)
+	if ((this.modifiers & Flags.NATIVE) != 0)
 		buffer.append("native ");
-	if ((this.modifiers & ClassFileConstants.AccSynchronized) != 0)
+	if ((this.modifiers & Flags.SYNCHRONIZED) != 0)
 		buffer.append("synchronized ");
 	return buffer.toString();
 }

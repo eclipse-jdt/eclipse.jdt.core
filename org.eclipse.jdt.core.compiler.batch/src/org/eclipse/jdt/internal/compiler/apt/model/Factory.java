@@ -60,6 +60,8 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.WildcardBinding;
 
+import com.sun.tools.javac.code.Flags;
+
 /**
  * Creates javax.lang.model wrappers around JDT internal compiler bindings.
  */
@@ -164,16 +166,16 @@ public class Factory {
 		if (checkBits == null) return;
 		for (int i = 0, max = checkBits.length; i < max; i++) {
 			switch(checkBits[i]) {
-				case ClassFileConstants.AccPublic :
+				case Flags.PUBLIC :
 					appendModifier(result, modifiers, checkBits[i], Modifier.PUBLIC);
 					break;
-				case ClassFileConstants.AccProtected:
+				case Flags.PROTECTED:
 					appendModifier(result, modifiers, checkBits[i], Modifier.PROTECTED);
 					break;
-				case ClassFileConstants.AccPrivate :
+				case Flags.PRIVATE :
 					appendModifier(result, modifiers, checkBits[i], Modifier.PRIVATE);
 					break;
-				case ClassFileConstants.AccAbstract :
+				case Flags.ABSTRACT :
 					appendModifier(result, modifiers, checkBits[i], Modifier.ABSTRACT);
 					break;
 				case ExtraCompilerModifiers.AccDefaultMethod :
@@ -183,25 +185,25 @@ public class Factory {
 						// Don't have JDK 1.8, just ignore and proceed.
 					}
 					break;
-				case ClassFileConstants.AccStatic :
+				case Flags.STATIC :
 					appendModifier(result, modifiers, checkBits[i], Modifier.STATIC);
 					break;
-				case ClassFileConstants.AccFinal :
+				case Flags.FINAL :
 					appendModifier(result, modifiers, checkBits[i], Modifier.FINAL);
 					break;
-				case ClassFileConstants.AccSynchronized :
+				case Flags.SYNCHRONIZED :
 					appendModifier(result, modifiers, checkBits[i], Modifier.SYNCHRONIZED);
 					break;
-				case ClassFileConstants.AccNative :
+				case Flags.NATIVE :
 					appendModifier(result, modifiers, checkBits[i], Modifier.NATIVE);
 					break;
-				case ClassFileConstants.AccStrictfp :
+				case Flags.STRICTFP :
 					appendModifier(result, modifiers, checkBits[i], Modifier.STRICTFP);
 					break;
-				case ClassFileConstants.AccTransient :
+				case Flags.TRANSIENT :
 					appendModifier(result, modifiers, checkBits[i], Modifier.TRANSIENT);
 					break;
-				case ClassFileConstants.AccVolatile :
+				case Flags.VOLATILE :
 					appendModifier(result, modifiers, checkBits[i], Modifier.VOLATILE);
 					break;
 				case ExtraCompilerModifiers.AccNonSealed :
@@ -275,15 +277,15 @@ public class Factory {
 			case METHOD :
 				// modifiers for methods
 				decodeModifiers(result, modifiers, new int[] {
-					ClassFileConstants.AccPublic,
-					ClassFileConstants.AccProtected,
-					ClassFileConstants.AccPrivate,
-					ClassFileConstants.AccAbstract,
-					ClassFileConstants.AccStatic,
-					ClassFileConstants.AccFinal,
-					ClassFileConstants.AccSynchronized,
-					ClassFileConstants.AccNative,
-					ClassFileConstants.AccStrictfp,
+					Flags.PUBLIC,
+					Flags.PROTECTED,
+					Flags.PRIVATE,
+					Flags.ABSTRACT,
+					Flags.STATIC,
+					Flags.FINAL,
+					Flags.SYNCHRONIZED,
+					Flags.NATIVE,
+					Flags.STRICTFP,
 					ExtraCompilerModifiers.AccDefaultMethod
 				});
 				break;
@@ -291,36 +293,36 @@ public class Factory {
 			case ENUM_CONSTANT :
 				// for fields
 				decodeModifiers(result, modifiers, new int[] {
-					ClassFileConstants.AccPublic,
-					ClassFileConstants.AccProtected,
-					ClassFileConstants.AccPrivate,
-					ClassFileConstants.AccStatic,
-					ClassFileConstants.AccFinal,
-					ClassFileConstants.AccTransient,
-					ClassFileConstants.AccVolatile
+					Flags.PUBLIC,
+					Flags.PROTECTED,
+					Flags.PRIVATE,
+					Flags.STATIC,
+					Flags.FINAL,
+					Flags.TRANSIENT,
+					Flags.VOLATILE
 				});
 				break;
 			case ENUM :
 				if (isFromBinary) {
 					decodeModifiers(result, modifiers, new int[] {
-						ClassFileConstants.AccPublic,
-						ClassFileConstants.AccProtected,
-						ClassFileConstants.AccFinal,
-						ClassFileConstants.AccPrivate,
-						ClassFileConstants.AccAbstract,
-						ClassFileConstants.AccStatic,
-						ClassFileConstants.AccStrictfp,
+						Flags.PUBLIC,
+						Flags.PROTECTED,
+						Flags.FINAL,
+						Flags.PRIVATE,
+						Flags.ABSTRACT,
+						Flags.STATIC,
+						Flags.STRICTFP,
 						ExtraCompilerModifiers.AccSealed,
 					});
 				} else {
 					// enum from source cannot be explicitly abstract
 					decodeModifiers(result, modifiers, new int[] {
-						ClassFileConstants.AccPublic,
-						ClassFileConstants.AccProtected,
-						ClassFileConstants.AccFinal,
-						ClassFileConstants.AccPrivate,
-						ClassFileConstants.AccStatic,
-						ClassFileConstants.AccStrictfp,
+						Flags.PUBLIC,
+						Flags.PROTECTED,
+						Flags.FINAL,
+						Flags.PRIVATE,
+						Flags.STATIC,
+						Flags.STRICTFP,
 						ExtraCompilerModifiers.AccSealed,
 					});
 				}
@@ -331,13 +333,13 @@ public class Factory {
 			case RECORD :
 				// for type
 				decodeModifiers(result, modifiers, new int[] {
-					ClassFileConstants.AccPublic,
-					ClassFileConstants.AccProtected,
-					ClassFileConstants.AccAbstract,
-					ClassFileConstants.AccFinal,
-					ClassFileConstants.AccPrivate,
-					ClassFileConstants.AccStatic,
-					ClassFileConstants.AccStrictfp,
+					Flags.PUBLIC,
+					Flags.PROTECTED,
+					Flags.ABSTRACT,
+					Flags.FINAL,
+					Flags.PRIVATE,
+					Flags.STATIC,
+					Flags.STRICTFP,
 					ExtraCompilerModifiers.AccSealed,
 					ExtraCompilerModifiers.AccNonSealed
 				});

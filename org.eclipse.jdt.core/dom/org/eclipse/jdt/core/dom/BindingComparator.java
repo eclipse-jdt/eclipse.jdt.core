@@ -16,7 +16,6 @@ package org.eclipse.jdt.core.dom;
 import java.util.HashSet;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.CaptureBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
@@ -27,6 +26,8 @@ import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.WildcardBinding;
+
+import com.sun.tools.javac.code.Flags;
 
 /**
  * Internal helper class for comparing bindings.
@@ -221,8 +222,8 @@ class BindingComparator {
 				ParameterizedTypeBinding parameterizedTypeBinding = (ParameterizedTypeBinding) typeBinding;
 				ParameterizedTypeBinding parameterizedTypeBinding2 = (ParameterizedTypeBinding) typeBinding2;
 				return CharOperation.equals(parameterizedTypeBinding.compoundName, parameterizedTypeBinding2.compoundName)
-					&& (parameterizedTypeBinding.modifiers & (ExtraCompilerModifiers.AccJustFlag | ClassFileConstants.AccInterface | ClassFileConstants.AccEnum | ClassFileConstants.AccAnnotation))
-							== (parameterizedTypeBinding2.modifiers & (ExtraCompilerModifiers.AccJustFlag | ClassFileConstants.AccInterface | ClassFileConstants.AccEnum | ClassFileConstants.AccAnnotation))
+					&& (parameterizedTypeBinding.modifiers & (ExtraCompilerModifiers.AccJustFlag | Flags.INTERFACE | Flags.ENUM | Flags.ANNOTATION))
+							== (parameterizedTypeBinding2.modifiers & (ExtraCompilerModifiers.AccJustFlag | Flags.INTERFACE | Flags.ENUM | Flags.ANNOTATION))
 					&& isEqual(parameterizedTypeBinding.arguments, parameterizedTypeBinding2.arguments, visitedTypes)
 					&& isEqual(parameterizedTypeBinding.enclosingType(), parameterizedTypeBinding2.enclosingType(), visitedTypes);
 
@@ -281,8 +282,8 @@ class BindingComparator {
 				ReferenceBinding referenceBinding = (ReferenceBinding) typeBinding;
 				ReferenceBinding referenceBinding2 = (ReferenceBinding) typeBinding2;
 				return CharOperation.equals(referenceBinding.compoundName, referenceBinding2.compoundName)
-					&& (referenceBinding.modifiers & (ExtraCompilerModifiers.AccJustFlag | ClassFileConstants.AccInterface | ClassFileConstants.AccEnum | ClassFileConstants.AccAnnotation))
-							== (referenceBinding2.modifiers & (ExtraCompilerModifiers.AccJustFlag | ClassFileConstants.AccInterface | ClassFileConstants.AccEnum | ClassFileConstants.AccAnnotation))
+					&& (referenceBinding.modifiers & (ExtraCompilerModifiers.AccJustFlag | Flags.INTERFACE | Flags.ENUM | Flags.ANNOTATION))
+							== (referenceBinding2.modifiers & (ExtraCompilerModifiers.AccJustFlag | Flags.INTERFACE | Flags.ENUM | Flags.ANNOTATION))
 					&& isEqual(referenceBinding.typeVariables(), referenceBinding2.typeVariables(), visitedTypes)
 					&& isEqual(referenceBinding.enclosingType(), referenceBinding2.enclosingType(), visitedTypes);
 
@@ -314,8 +315,8 @@ class BindingComparator {
 				return CharOperation.equals(referenceBinding.compoundName, referenceBinding2.compoundName)
 					&& (!referenceBinding2.isGenericType())
 					&& (referenceBinding.isRawType() == referenceBinding2.isRawType())
-					&& ((referenceBinding.modifiers & ~ClassFileConstants.AccSuper) & (ExtraCompilerModifiers.AccJustFlag | ClassFileConstants.AccInterface | ClassFileConstants.AccEnum | ClassFileConstants.AccAnnotation))
-							== ((referenceBinding2.modifiers & ~ClassFileConstants.AccSuper) & (ExtraCompilerModifiers.AccJustFlag | ClassFileConstants.AccInterface | ClassFileConstants.AccEnum | ClassFileConstants.AccAnnotation))
+					&& ((referenceBinding.modifiers & ~Flags.ACC_SUPER) & (ExtraCompilerModifiers.AccJustFlag | Flags.INTERFACE | Flags.ENUM | Flags.ANNOTATION))
+							== ((referenceBinding2.modifiers & ~Flags.ACC_SUPER) & (ExtraCompilerModifiers.AccJustFlag | Flags.INTERFACE | Flags.ENUM | Flags.ANNOTATION))
 					&& isEqual(referenceBinding.enclosingType(), referenceBinding2.enclosingType(), visitedTypes);
 		}
 	}

@@ -18,11 +18,11 @@ package org.eclipse.jdt.internal.compiler.parser;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.eclipse.jdt.core.compiler.*;
+import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
-import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.Block;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall;
@@ -35,9 +35,10 @@ import org.eclipse.jdt.internal.compiler.ast.SuperReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.util.Util;
+
+import com.sun.tools.javac.code.Flags;
 
 /**
  * Internal method structure for parsing recovery
@@ -117,7 +118,7 @@ public RecoveredElement add(FieldDeclaration fieldDeclaration, int bracketBalanc
 
 	/* local variables inside method can only be final and non void */
 	char[][] fieldTypeName;
-	if ((fieldDeclaration.modifiers & ~ClassFileConstants.AccFinal) != 0 // local var can only be final
+	if ((fieldDeclaration.modifiers & ~Flags.FINAL) != 0 // local var can only be final
 		|| (fieldDeclaration.type == null) // initializer
 		|| ((fieldTypeName = fieldDeclaration.type.getTypeName()).length == 1 // non void
 			&& CharOperation.equals(fieldTypeName[0], TypeBinding.VOID.sourceName()))){
@@ -494,7 +495,7 @@ public void updateFromParserState(){
 						Argument argument = (Argument)aNode;
 						/* cannot be an argument if non final */
 						char[][] argTypeName = argument.type.getTypeName();
-						if ((argument.modifiers & ~ClassFileConstants.AccFinal) != 0
+						if ((argument.modifiers & ~Flags.FINAL) != 0
 							|| (argTypeName.length == 1
 								&& CharOperation.equals(argTypeName[0], TypeBinding.VOID.sourceName()))){
 							parser.astLengthStack[parser.astLengthPtr] = count;
@@ -647,7 +648,7 @@ public void addModifier(int flag, int modifiersSourceStart) {
 	}
 }
 void attach(TypeParameter[] parameters, int startPos) {
-	if(this.methodDeclaration.modifiers != ClassFileConstants.AccDefault) return;
+	if(this.methodDeclaration.modifiers != 0) return;
 
 	int lastParameterEnd = parameters[parameters.length - 1].sourceEnd;
 

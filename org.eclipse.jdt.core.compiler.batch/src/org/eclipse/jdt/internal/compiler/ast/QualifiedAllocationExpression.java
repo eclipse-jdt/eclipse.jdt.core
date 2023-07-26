@@ -73,6 +73,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
+import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.jvm.ByteCodes;
 
 /**
@@ -383,7 +384,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 							ReferenceBinding currentType = (ReferenceBinding)receiverType;
 							do {
 								// isStatic() is answering true for toplevel types
-								if ((currentType.modifiers & ClassFileConstants.AccStatic) != 0) break checkParameterizedAllocation;
+								if ((currentType.modifiers & Flags.STATIC) != 0) break checkParameterizedAllocation;
 								if (currentType.isRawType()) break checkParameterizedAllocation;
 							} while ((currentType = currentType.enclosingType())!= null);
 							ParameterizedQualifiedTypeReference qRef = (ParameterizedQualifiedTypeReference) this.type;

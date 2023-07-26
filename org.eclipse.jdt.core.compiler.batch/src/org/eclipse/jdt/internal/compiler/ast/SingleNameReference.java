@@ -55,6 +55,7 @@ import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
 import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 
+import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.jvm.ByteCodes;
 
 public class SingleNameReference extends NameReference implements OperatorIds {
@@ -1080,7 +1081,7 @@ public TypeBinding resolveType(BlockScope scope) {
 
 private void checkLocalStaticClassVariables(BlockScope scope, VariableBinding variable) {
 	if (this.actualReceiverType.isStatic() && this.actualReceiverType.isLocalType()) {
-		if ((variable.modifiers & ClassFileConstants.AccStatic) == 0 &&
+		if ((variable.modifiers & Flags.STATIC) == 0 &&
 				(this.bits & ASTNode.IsCapturedOuterLocal) != 0) {
 			BlockScope declaringScope = ((LocalVariableBinding) this.binding).declaringScope;
 			MethodScope declaringMethodScope = declaringScope instanceof MethodScope ? (MethodScope)declaringScope :

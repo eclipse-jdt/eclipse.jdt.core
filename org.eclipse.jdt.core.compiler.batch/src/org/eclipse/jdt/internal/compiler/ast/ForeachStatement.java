@@ -700,18 +700,18 @@ public class ForeachStatement extends Statement {
 			switch(this.kind) {
 				case ARRAY :
 					// allocate #index secret variable (of type int)
-					this.indexVariable = new LocalVariableBinding(SecretIndexVariableName, TypeBinding.INT, ClassFileConstants.AccDefault, false);
+					this.indexVariable = new LocalVariableBinding(SecretIndexVariableName, TypeBinding.INT, 0, false);
 					this.scope.addLocalVariable(this.indexVariable);
 					this.indexVariable.setConstant(Constant.NotAConstant); // not inlinable
 					// allocate #max secret variable
-					this.maxVariable = new LocalVariableBinding(SecretMaxVariableName, TypeBinding.INT, ClassFileConstants.AccDefault, false);
+					this.maxVariable = new LocalVariableBinding(SecretMaxVariableName, TypeBinding.INT, 0, false);
 					this.scope.addLocalVariable(this.maxVariable);
 					this.maxVariable.setConstant(Constant.NotAConstant); // not inlinable
 					// add #array secret variable (of collection type)
 					if (expectedCollectionType == null) {
-						this.collectionVariable = new LocalVariableBinding(SecretCollectionVariableName, collectionType, ClassFileConstants.AccDefault, false);
+						this.collectionVariable = new LocalVariableBinding(SecretCollectionVariableName, collectionType, 0, false);
 					} else {
-						this.collectionVariable = new LocalVariableBinding(SecretCollectionVariableName, expectedCollectionType, ClassFileConstants.AccDefault, false);
+						this.collectionVariable = new LocalVariableBinding(SecretCollectionVariableName, expectedCollectionType, 0, false);
 					}
 					this.scope.addLocalVariable(this.collectionVariable);
 					this.collectionVariable.setConstant(Constant.NotAConstant); // not inlinable
@@ -719,7 +719,7 @@ public class ForeachStatement extends Statement {
 				case RAW_ITERABLE :
 				case GENERIC_ITERABLE :
 					// allocate #index secret variable (of type Iterator)
-					this.indexVariable = new LocalVariableBinding(SecretIteratorVariableName, this.scope.getJavaUtilIterator(), ClassFileConstants.AccDefault, false);
+					this.indexVariable = new LocalVariableBinding(SecretIteratorVariableName, this.scope.getJavaUtilIterator(), 0, false);
 					this.scope.addLocalVariable(this.indexVariable);
 					this.indexVariable.setConstant(Constant.NotAConstant); // not inlinable
 					break;

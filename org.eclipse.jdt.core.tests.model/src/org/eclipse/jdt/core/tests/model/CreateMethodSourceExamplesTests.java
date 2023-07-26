@@ -68,7 +68,7 @@ public void testCreateMethodWithAbstractModifier() {
 
 	IDOMMethod method= this.domFactory.createMethod();
 	method.setName("foo");
-	method.setFlags(ClassFileConstants.AccPublic| ClassFileConstants.AccAbstract);
+	method.setFlags(Flags.PUBLIC| Flags.ABSTRACT);
 	assertSourceEquals(
 		"source code incorrect",
 		"public abstract void foo() {\n" +
@@ -102,7 +102,7 @@ public void testCreateMethodWithModifiers() {
 
 	IDOMMethod method= this.domFactory.createMethod();
 	method.setName("foo");
-	method.setFlags(ClassFileConstants.AccPublic| ClassFileConstants.AccStatic);
+	method.setFlags(Flags.PUBLIC| Flags.STATIC);
 	assertSourceEquals(
 		"source code incorrect",
 		"public static void foo() {\n" +
@@ -117,7 +117,7 @@ public void testCreateMethodWithModifiersAndExceptions() {
 
 	IDOMMethod method= this.domFactory.createMethod();
 	method.setName("foo");
-	method.setFlags(ClassFileConstants.AccPrivate);
+	method.setFlags(Flags.PRIVATE);
 	method.setExceptions(new String[]
 		{"java.lang.IllegalArgumentException",
 		 "java.io.FileNotFoundExcpetion"});

@@ -15,7 +15,7 @@ package org.eclipse.jdt.internal.compiler.parser;
 
 import java.util.Set;
 
-import org.eclipse.jdt.core.compiler.*;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.Block;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
@@ -23,8 +23,9 @@ import org.eclipse.jdt.internal.compiler.ast.Initializer;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+
+import com.sun.tools.javac.code.Flags;
 
 public class RecoveredInitializer extends RecoveredField implements TerminalTokens {
 
@@ -82,7 +83,7 @@ public RecoveredElement add(FieldDeclaration newFieldDeclaration, int bracketBal
 
 	/* local variables inside initializer can only be final and non void */
 	char[][] fieldTypeName;
-	if ((newFieldDeclaration.modifiers & ~ClassFileConstants.AccFinal) != 0 /* local var can only be final */
+	if ((newFieldDeclaration.modifiers & ~Flags.FINAL) != 0 /* local var can only be final */
 			|| (newFieldDeclaration.type == null) // initializer
 			|| ((fieldTypeName = newFieldDeclaration.type.getTypeName()).length == 1 // non void
 				&& CharOperation.equals(fieldTypeName[0], TypeBinding.VOID.sourceName()))){

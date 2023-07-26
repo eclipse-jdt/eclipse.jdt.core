@@ -73,7 +73,6 @@ import org.eclipse.jdt.internal.compiler.ast.PackageVisibilityStatement;
 import org.eclipse.jdt.internal.compiler.ast.SingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
@@ -130,6 +129,8 @@ import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
 import org.eclipse.jdt.internal.core.search.TypeNameMatchRequestorWrapper;
 import org.eclipse.jdt.internal.core.util.ASTNodeFinder;
 import org.eclipse.jdt.internal.core.util.HashSetOfCharArrayArray;
+
+import com.sun.tools.javac.code.Flags;
 
 /**
  * The selection engine is intended to infer the nature of a selected name in some
@@ -392,10 +393,10 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 							CharOperation.concatWith(enclosingTypeNames, '.');
 			if(mustQualifyType(packageName, simpleTypeName, flatEnclosingTypeNames, modifiers)) {
 				int length = 0;
-				int kind = modifiers & (ClassFileConstants.AccInterface | ClassFileConstants.AccEnum | ClassFileConstants.AccAnnotation);
+				int kind = modifiers & (Flags.INTERFACE | Flags.ENUM | Flags.ANNOTATION);
 				switch (kind) {
-					case ClassFileConstants.AccAnnotation:
-					case ClassFileConstants.AccAnnotation | ClassFileConstants.AccInterface:
+					case Flags.ANNOTATION:
+					case Flags.ANNOTATION | Flags.INTERFACE:
 						char[][] acceptedAnnotation = new char[2][];
 						acceptedAnnotation[0] = packageName;
 						acceptedAnnotation[1] = typeName;
@@ -414,7 +415,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						this.acceptedAnnotationsModifiers[this.acceptedAnnotationsCount] = modifiers;
 						this.acceptedAnnotations[this.acceptedAnnotationsCount++] = acceptedAnnotation;
 						break;
-					case ClassFileConstants.AccEnum:
+					case Flags.ENUM:
 						char[][] acceptedEnum = new char[2][];
 						acceptedEnum[0] = packageName;
 						acceptedEnum[1] = typeName;
@@ -433,7 +434,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 						this.acceptedEnumsModifiers[this.acceptedEnumsCount] = modifiers;
 						this.acceptedEnums[this.acceptedEnumsCount++] = acceptedEnum;
 						break;
-					case ClassFileConstants.AccInterface:
+					case Flags.INTERFACE:
 						char[][] acceptedInterface= new char[2][];
 						acceptedInterface[0] = packageName;
 						acceptedInterface[1] = typeName;

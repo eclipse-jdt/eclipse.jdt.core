@@ -21,7 +21,6 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.util.IModifierConstants;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
@@ -32,6 +31,8 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.LocalVariable;
 import org.eclipse.jdt.internal.core.util.Util;
+
+import com.sun.tools.javac.code.Flags;
 
 /**
  * Internal implementation of variable bindings.
@@ -333,7 +334,7 @@ class VariableBinding implements IVariableBinding {
 
 	@Override
 	public boolean isEnumConstant() {
-		return (this.binding.modifiers & ClassFileConstants.AccEnum) != 0;
+		return (this.binding.modifiers & Flags.ENUM) != 0;
 	}
 
 	@Override

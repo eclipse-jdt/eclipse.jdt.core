@@ -19,7 +19,6 @@ package org.eclipse.jdt.core.dom;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
@@ -32,6 +31,8 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.util.Util;
+
+import com.sun.tools.javac.code.Flags;
 
 /**
  * Internal implementation of method bindings.
@@ -551,7 +552,7 @@ class MethodBinding implements IMethodBinding {
 		 */
 		@Override
 		public int getModifiers() {
-			return super.getModifiers() & ~ClassFileConstants.AccAbstract;
+			return super.getModifiers() & ~Flags.ABSTRACT;
 		}
 
 		/**

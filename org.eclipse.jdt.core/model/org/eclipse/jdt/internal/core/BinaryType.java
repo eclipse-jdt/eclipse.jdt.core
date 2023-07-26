@@ -351,7 +351,7 @@ public IField getRecordComponent(String compName) {
 @Override
 public int getFlags() throws JavaModelException {
 	IBinaryType info = (IBinaryType) getElementInfo();
-	return info.getModifiers() & ~ClassFileConstants.AccSuper;
+	return info.getModifiers() & ~com.sun.tools.javac.code.Flags.ACC_SUPER;
 }
 
 @Override

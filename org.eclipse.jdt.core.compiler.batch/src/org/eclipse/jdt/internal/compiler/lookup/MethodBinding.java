@@ -53,6 +53,8 @@ import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
+import com.sun.tools.javac.code.Flags;
+
 public class MethodBinding extends Binding {
 
 	public int modifiers;
@@ -91,7 +93,7 @@ public MethodBinding(int modifiers, char[] selector, TypeBinding returnType, Typ
 	if (this.declaringClass != null) {
 		if (this.declaringClass.isStrictfp())
 			if (!(isNative() || isAbstract()))
-				this.modifiers |= ClassFileConstants.AccStrictfp;
+				this.modifiers |= Flags.STRICTFP;
 	}
 }
 public MethodBinding(int modifiers, TypeBinding[] parameters, ReferenceBinding[] thrownExceptions, ReferenceBinding declaringClass) {
@@ -786,13 +788,13 @@ public boolean hasSubstitutedReturnType() {
 /* Answer true if the receiver is an abstract method
 */
 public final boolean isAbstract() {
-	return (this.modifiers & ClassFileConstants.AccAbstract) != 0;
+	return (this.modifiers & Flags.ABSTRACT) != 0;
 }
 
 /* Answer true if the receiver is a bridge method
 */
 public final boolean isBridge() {
-	return (this.modifiers & ClassFileConstants.AccBridge) != 0;
+	return (this.modifiers & Flags.ACC_BRIDGE) != 0;
 }
 
 /* Answer true if the receiver is a constructor
@@ -839,7 +841,7 @@ public final boolean isDeprecated() {
 /* Answer true if the receiver is final and cannot be overridden
 */
 public final boolean isFinal() {
-	return (this.modifiers & ClassFileConstants.AccFinal) != 0;
+	return (this.modifiers & Flags.FINAL) != 0;
 }
 
 /* Answer true if the receiver is implementing another method
@@ -863,7 +865,7 @@ public final boolean isImplicit() {
  */
 public final boolean isMain() {
 	if (this.selector.length == 4 && CharOperation.equals(this.selector, TypeConstants.MAIN)
-			&& ((this.modifiers & (ClassFileConstants.AccPublic | ClassFileConstants.AccStatic)) != 0)
+			&& ((this.modifiers & (Flags.PUBLIC | Flags.STATIC)) != 0)
 			&& TypeBinding.VOID == this.returnType
 			&& this.parameters.length == 1) {
 		TypeBinding paramType = this.parameters[0];
@@ -877,7 +879,7 @@ public final boolean isMain() {
 /* Answer true if the receiver is a native method
 */
 public final boolean isNative() {
-	return (this.modifiers & ClassFileConstants.AccNative) != 0;
+	return (this.modifiers & Flags.NATIVE) != 0;
 }
 
 /* Answer true if the receiver is overriding another method
@@ -889,13 +891,13 @@ public final boolean isOverriding() {
 /* Answer true if the receiver has private visibility
 */
 public final boolean isPrivate() {
-	return (this.modifiers & ClassFileConstants.AccPrivate) != 0;
+	return (this.modifiers & Flags.PRIVATE) != 0;
 }
 
 /* Answer true if the receiver has private visibility or if any of its enclosing types do.
 */
 public final boolean isOrEnclosedByPrivateType() {
-	if ((this.modifiers & ClassFileConstants.AccPrivate) != 0)
+	if ((this.modifiers & Flags.PRIVATE) != 0)
 		return true;
 	return this.declaringClass != null && this.declaringClass.isOrEnclosedByPrivateType();
 }
@@ -903,37 +905,37 @@ public final boolean isOrEnclosedByPrivateType() {
 /* Answer true if the receiver has protected visibility
 */
 public final boolean isProtected() {
-	return (this.modifiers & ClassFileConstants.AccProtected) != 0;
+	return (this.modifiers & Flags.PROTECTED) != 0;
 }
 
 /* Answer true if the receiver has public visibility
 */
 public final boolean isPublic() {
-	return (this.modifiers & ClassFileConstants.AccPublic) != 0;
+	return (this.modifiers & Flags.PUBLIC) != 0;
 }
 
 /* Answer true if the receiver is a static method
 */
 public final boolean isStatic() {
-	return (this.modifiers & ClassFileConstants.AccStatic) != 0;
+	return (this.modifiers & Flags.STATIC) != 0;
 }
 
 /* Answer true if all float operations must adher to IEEE 754 float/double rules
 */
 public final boolean isStrictfp() {
-	return (this.modifiers & ClassFileConstants.AccStrictfp) != 0;
+	return (this.modifiers & Flags.STRICTFP) != 0;
 }
 
 /* Answer true if the receiver is a synchronized method
 */
 public final boolean isSynchronized() {
-	return (this.modifiers & ClassFileConstants.AccSynchronized) != 0;
+	return (this.modifiers & Flags.SYNCHRONIZED) != 0;
 }
 
 /* Answer true if the receiver has public visibility
 */
 public final boolean isSynthetic() {
-	return (this.modifiers & ClassFileConstants.AccSynthetic) != 0;
+	return (this.modifiers & Flags.SYNTHETIC) != 0;
 }
 
 /* Answer true if the receiver has private visibility and is used locally
@@ -945,7 +947,7 @@ public final boolean isUsed() {
 /* Answer true if the receiver method has varargs
 */
 public boolean isVarargs() {
-	return (this.modifiers & ClassFileConstants.AccVarargs) != 0;
+	return (this.modifiers & Flags.ACC_VARARGS) != 0;
 }
 public boolean isParameterizedGeneric() {
 	return false;

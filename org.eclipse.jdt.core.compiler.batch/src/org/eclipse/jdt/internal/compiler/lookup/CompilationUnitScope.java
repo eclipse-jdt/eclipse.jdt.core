@@ -29,13 +29,22 @@ import java.util.Set;
 import java.util.function.Predicate;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.ast.*;
+import org.eclipse.jdt.internal.compiler.ast.ASTNode;
+import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.ImportReference;
+import org.eclipse.jdt.internal.compiler.ast.Invocation;
+import org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.IUpdatableModule;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
-import org.eclipse.jdt.internal.compiler.util.*;
+import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
+import org.eclipse.jdt.internal.compiler.util.HashtableOfType;
+import org.eclipse.jdt.internal.compiler.util.ObjectVector;
+
+import com.sun.tools.javac.code.Flags;
 
 public class CompilationUnitScope extends Scope {
 
@@ -178,7 +187,7 @@ void buildTypeBindings(AccessRestriction accessRestriction) {
 			continue nextType;
 		}
 
-		if ((typeDecl.modifiers & ClassFileConstants.AccPublic) != 0) {
+		if ((typeDecl.modifiers & Flags.PUBLIC) != 0) {
 			char[] mainTypeName;
 			if ((mainTypeName = this.referenceContext.getMainTypeName()) != null // mainTypeName == null means that implementor of ICompilationUnit decided to return null
 					&& !CharOperation.equals(mainTypeName, typeDecl.name)) {
@@ -190,7 +199,7 @@ void buildTypeBindings(AccessRestriction accessRestriction) {
 		ClassScope child = new ClassScope(this, typeDecl);
 		SourceTypeBinding type = child.buildType(null, this.fPackage, accessRestriction);
 		if (firstIsSynthetic && i == 0)
-			type.modifiers |= ClassFileConstants.AccSynthetic;
+			type.modifiers |= Flags.SYNTHETIC;
 		if (type != null)
 			this.topLevelTypes[count++] = type;
 	}

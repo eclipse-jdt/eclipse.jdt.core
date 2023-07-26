@@ -33,8 +33,9 @@ import java.util.Set;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+
+import com.sun.tools.javac.code.Flags;
 
 /*
  * A wildcard acts as an argument for parameterized types, allowing to
@@ -60,7 +61,7 @@ public class WildcardBinding extends ReferenceBinding {
 	public WildcardBinding(ReferenceBinding genericType, int rank, TypeBinding bound, TypeBinding[] otherBounds, int boundKind, LookupEnvironment environment) {
 		this.rank = rank;
 	    this.boundKind = boundKind;
-		this.modifiers = ClassFileConstants.AccPublic | ExtraCompilerModifiers.AccGenericSignature; // treat wildcard as public
+		this.modifiers = Flags.PUBLIC | ExtraCompilerModifiers.AccGenericSignature; // treat wildcard as public
 		this.environment = environment;
 		initialize(genericType, bound, otherBounds);
 		if (genericType instanceof UnresolvedReferenceBinding)

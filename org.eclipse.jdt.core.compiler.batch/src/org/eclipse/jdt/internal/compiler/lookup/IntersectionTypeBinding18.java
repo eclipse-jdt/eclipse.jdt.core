@@ -27,7 +27,8 @@ import java.util.Set;
 
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+
+import com.sun.tools.javac.code.Flags;
 
 /**
  * Abstraction used for intersection casts in Java 8 + and inferred types:
@@ -50,7 +51,7 @@ public class IntersectionTypeBinding18 extends ReferenceBinding {
 		this.length = intersectingTypes.length;
 		if (!intersectingTypes[0].isClass()) {
 			this.javaLangObject = environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_OBJECT, null);
-			this.modifiers |= ClassFileConstants.AccInterface;
+			this.modifiers |= Flags.INTERFACE;
 		}
 	}
 
@@ -59,7 +60,7 @@ public class IntersectionTypeBinding18 extends ReferenceBinding {
 		this.length = prototype.length;
 		if (!this.intersectingTypes[0].isClass()) {
 			this.javaLangObject = prototype.javaLangObject;
-			this.modifiers |= ClassFileConstants.AccInterface;
+			this.modifiers |= Flags.INTERFACE;
 		}
 	}
 

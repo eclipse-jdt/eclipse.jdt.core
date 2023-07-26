@@ -75,6 +75,8 @@ import org.eclipse.jdt.internal.core.dom.SourceRangeVerifier;
 import org.eclipse.jdt.internal.core.dom.util.DOMASTUtil;
 import org.eclipse.jdt.internal.core.util.Util;
 
+import com.sun.tools.javac.code.Flags;
+
 /**
  * Internal class for converting internal compiler ASTs into public ASTs.
  */
@@ -756,10 +758,10 @@ class ASTConverter {
 				}
 			}
 			if (block != null) {
-				if ((methodDeclaration.modifiers & (ClassFileConstants.AccAbstract | ClassFileConstants.AccNative)) != 0
+				if ((methodDeclaration.modifiers & (Flags.ABSTRACT | Flags.NATIVE)) != 0
 						|| (isInterface && (this.ast.apiLevel < AST.JLS8_INTERNAL ||
-							(methodDeclaration.modifiers & (ClassFileConstants.AccStatic | ExtraCompilerModifiers.AccDefaultMethod |
-									(this.ast.apiLevel > AST.JLS8_INTERNAL ? ClassFileConstants.AccPrivate : 0))) == 0))) {
+							(methodDeclaration.modifiers & (Flags.STATIC | ExtraCompilerModifiers.AccDefaultMethod |
+									(this.ast.apiLevel > AST.JLS8_INTERNAL ? Flags.PRIVATE : 0))) == 0))) {
 					methodDecl.setFlags(methodDecl.getFlags() | ASTNode.MALFORMED);
 				}
 			}
@@ -3593,13 +3595,13 @@ class ASTConverter {
 		importDeclaration.setSourceRange(importReference.declarationSourceStart, importReference.declarationEnd - importReference.declarationSourceStart + 1);
 		importDeclaration.setOnDemand(onDemand);
 		int modifiers = importReference.modifiers;
-		if (modifiers != ClassFileConstants.AccDefault) {
+		if (modifiers != 0) {
 			switch(this.ast.apiLevel) {
 				case AST.JLS2_INTERNAL :
 					importDeclaration.setFlags(importDeclaration.getFlags() | ASTNode.MALFORMED);
 					break;
 				default :
-					if (modifiers == ClassFileConstants.AccStatic) {
+					if (modifiers == Flags.STATIC) {
 						importDeclaration.setStatic(true);
 					} else {
 						importDeclaration.setFlags(importDeclaration.getFlags() | ASTNode.MALFORMED);
@@ -6175,7 +6177,7 @@ class ASTConverter {
 		switch(this.ast.apiLevel) {
 			case AST.JLS2_INTERNAL :
 				int modifiers = typeDeclaration.modifiers;
-				modifiers &= ~ClassFileConstants.AccInterface; // remove AccInterface flags
+				modifiers &= ~Flags.INTERFACE; // remove AccInterface flags
 				modifiers &= ExtraCompilerModifiers.AccJustFlag;
 				typeDecl.internalSetModifiers(modifiers);
 				if (typeDeclaration.annotations != null) {

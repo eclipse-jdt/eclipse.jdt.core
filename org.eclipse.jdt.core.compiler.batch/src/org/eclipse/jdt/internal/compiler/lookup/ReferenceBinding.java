@@ -66,6 +66,8 @@ import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 
+import com.sun.tools.javac.code.Flags;
+
 /*
 Not all fields defined by this type (& its subclasses) are initialized when it is created.
 Some are initialized only when needed.
@@ -305,7 +307,7 @@ protected boolean isFieldInitializationFinished() {
  */
 @Override
 public boolean canBeInstantiated() {
-	return (this.modifiers & (ClassFileConstants.AccAbstract | ClassFileConstants.AccInterface | ClassFileConstants.AccEnum | ClassFileConstants.AccAnnotation)) == 0;
+	return (this.modifiers & (Flags.ABSTRACT | Flags.INTERFACE | Flags.ENUM | Flags.ANNOTATION)) == 0;
 }
 
 /**
@@ -1061,7 +1063,7 @@ public int enumConstantCount() {
 	int count = 0;
 	FieldBinding[] fields = fields();
 	for (int i = 0, length = fields.length; i < length; i++) {
-		if ((fields[i].modifiers & ClassFileConstants.AccEnum) != 0) count++;
+		if ((fields[i].modifiers & Flags.ENUM) != 0) count++;
 	}
 	return count;
 }
@@ -1389,12 +1391,12 @@ boolean implementsMethod(MethodBinding method) {
  * Answer true if the receiver is an abstract type
 */
 public final boolean isAbstract() {
-	return (this.modifiers & ClassFileConstants.AccAbstract) != 0;
+	return (this.modifiers & Flags.ABSTRACT) != 0;
 }
 
 @Override
 public boolean isAnnotationType() {
-	return (this.modifiers & ClassFileConstants.AccAnnotation) != 0;
+	return (this.modifiers & Flags.ANNOTATION) != 0;
 }
 
 public final boolean isBinaryBinding() {
@@ -1403,7 +1405,7 @@ public final boolean isBinaryBinding() {
 
 @Override
 public boolean isClass() {
-	return (this.modifiers & (ClassFileConstants.AccInterface | ClassFileConstants.AccAnnotation | ClassFileConstants.AccEnum)) == 0;
+	return (this.modifiers & (Flags.INTERFACE | Flags.ANNOTATION | Flags.ENUM)) == 0;
 }
 
 private static SourceTypeBinding getSourceTypeBinding(ReferenceBinding ref) {
@@ -1617,7 +1619,7 @@ protected boolean isSubTypeOfRTL(TypeBinding other) {
  * Answer true if the receiver has default visibility
  */
 public final boolean isDefault() {
-	return (this.modifiers & (ClassFileConstants.AccPublic | ClassFileConstants.AccProtected | ClassFileConstants.AccPrivate)) == 0;
+	return (this.modifiers & (Flags.PUBLIC | Flags.PROTECTED | Flags.PRIVATE)) == 0;
 }
 
 /**
@@ -1629,14 +1631,14 @@ public final boolean isDeprecated() {
 
 @Override
 public boolean isEnum() {
-	return (this.modifiers & ClassFileConstants.AccEnum) != 0;
+	return (this.modifiers & Flags.ENUM) != 0;
 }
 
 /**
  * Answer true if the receiver is final and cannot be subclassed
  */
 public final boolean isFinal() {
-	return (this.modifiers & ClassFileConstants.AccFinal) != 0;
+	return (this.modifiers & Flags.FINAL) != 0;
 }
 
 /**
@@ -1663,7 +1665,7 @@ public boolean isHierarchyConnected() {
 @Override
 public boolean isInterface() {
 	// consider strict interfaces and annotation types
-	return (this.modifiers & ClassFileConstants.AccInterface) != 0;
+	return (this.modifiers & Flags.INTERFACE) != 0;
 }
 
 @Override
@@ -1676,7 +1678,7 @@ public boolean isFunctionalInterface(Scope scope) {
  * Answer true if the receiver has private visibility
  */
 public final boolean isPrivate() {
-	return (this.modifiers & ClassFileConstants.AccPrivate) != 0;
+	return (this.modifiers & Flags.PRIVATE) != 0;
 }
 
 /**
@@ -1686,7 +1688,7 @@ public final boolean isOrEnclosedByPrivateType() {
 	if (isLocalType()) return true; // catch all local types
 	ReferenceBinding type = this;
 	while (type != null) {
-		if ((type.modifiers & ClassFileConstants.AccPrivate) != 0)
+		if ((type.modifiers & Flags.PRIVATE) != 0)
 			return true;
 		type = type.enclosingType();
 	}
@@ -1697,14 +1699,14 @@ public final boolean isOrEnclosedByPrivateType() {
  * Answer true if the receiver has protected visibility
  */
 public final boolean isProtected() {
-	return (this.modifiers & ClassFileConstants.AccProtected) != 0;
+	return (this.modifiers & Flags.PROTECTED) != 0;
 }
 
 /**
  * Answer true if the receiver has public visibility
  */
 public final boolean isPublic() {
-	return (this.modifiers & ClassFileConstants.AccPublic) != 0;
+	return (this.modifiers & Flags.PUBLIC) != 0;
 }
 
 /**
@@ -1712,14 +1714,14 @@ public final boolean isPublic() {
  */
 @Override
 public final boolean isStatic() {
-	return (this.modifiers & (ClassFileConstants.AccStatic | ClassFileConstants.AccInterface)) != 0 || (this.tagBits & TagBits.IsNestedType) == 0;
+	return (this.modifiers & (Flags.STATIC | Flags.INTERFACE)) != 0 || (this.tagBits & TagBits.IsNestedType) == 0;
 }
 
 /**
  * Answer true if all float operations must adher to IEEE 754 float/double rules
  */
 public final boolean isStrictfp() {
-	return (this.modifiers & ClassFileConstants.AccStrictfp) != 0;
+	return (this.modifiers & Flags.STRICTFP) != 0;
 }
 
 /**
@@ -2441,7 +2443,7 @@ public MethodBinding getSingleAbstractMethod(Scope scope, boolean replaceWildcar
 		if (exceptionsCount != exceptionsLength) {
 			System.arraycopy(exceptions, 0, exceptions = new ReferenceBinding[exceptionsCount], 0, exceptionsCount);
 		}
-		this.singleAbstractMethod[index] = new MethodBinding(theAbstractMethod.modifiers | ClassFileConstants.AccSynthetic,
+		this.singleAbstractMethod[index] = new MethodBinding(theAbstractMethod.modifiers | Flags.SYNTHETIC,
 				theAbstractMethod.selector,
 				returnType,
 				parameters,

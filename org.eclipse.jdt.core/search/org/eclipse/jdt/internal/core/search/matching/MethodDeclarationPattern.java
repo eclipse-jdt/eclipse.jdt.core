@@ -18,7 +18,8 @@ import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.SearchPattern;
 import org.eclipse.jdt.internal.compiler.ExtraFlags;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+
+import com.sun.tools.javac.code.Flags;
 
 public class MethodDeclarationPattern extends MethodPattern {
 
@@ -256,7 +257,7 @@ public void decodeIndexKey(char[] key) {
 
 		this.modifiers = key[last-1] + (key[last]<<16);
 	} else {
-		this.modifiers = ClassFileConstants.AccPublic;
+		this.modifiers = Flags.PUBLIC;
 	}
 
 	start = slash + 1;

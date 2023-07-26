@@ -28,6 +28,20 @@
 
   <build>
   	<plugins>
+		<plugin>
+			<groupId>org.eclipse.tycho</groupId>
+			<artifactId>tycho-compiler-plugin</artifactId>
+			<configuration>
+				<deriveReleaseCompilerArgumentFromTargetLevel>false</deriveReleaseCompilerArgumentFromTargetLevel>
+				<release></release>
+				<compilerArgs>
+					<arg>--add-exports</arg>
+					<arg>jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
+					<arg>--add-exports</arg>
+					<arg>jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED</arg>
+				</compilerArgs>
+			</configuration>
+		</plugin>
   		<plugin>
   			<groupId>org.eclipse.tycho</groupId>
 	  		<artifactId>tycho-surefire-plugin</artifactId>

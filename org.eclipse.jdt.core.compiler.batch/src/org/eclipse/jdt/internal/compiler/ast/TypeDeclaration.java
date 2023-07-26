@@ -33,17 +33,54 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.eclipse.jdt.core.compiler.*;
-import org.eclipse.jdt.internal.compiler.*;
-import org.eclipse.jdt.internal.compiler.impl.*;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
+import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.compiler.IProblem;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
+import org.eclipse.jdt.internal.compiler.ClassFile;
+import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.codegen.*;
-import org.eclipse.jdt.internal.compiler.flow.*;
-import org.eclipse.jdt.internal.compiler.lookup.*;
-import org.eclipse.jdt.internal.compiler.parser.*;
-import org.eclipse.jdt.internal.compiler.problem.*;
+import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.flow.FlowContext;
+import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.flow.InitializationFlowContext;
+import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.impl.ReferenceContext;
+import org.eclipse.jdt.internal.compiler.impl.StringConstant;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
+import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
+import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
+import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
+import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MemberTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
+import org.eclipse.jdt.internal.compiler.lookup.NestedTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.RecordComponentBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.SyntheticArgumentBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
+import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
+import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
+import org.eclipse.jdt.internal.compiler.parser.Parser;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
+import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
+import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
+import org.eclipse.jdt.internal.compiler.problem.AbortType;
+import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.SimpleSetOfCharArray;
 import org.eclipse.jdt.internal.compiler.util.Util;
+
+import com.sun.tools.javac.code.Flags;
 
 public class TypeDeclaration extends Statement implements ProblemSeverities, ReferenceContext {
 	// Type decl kinds
@@ -56,7 +93,7 @@ public class TypeDeclaration extends Statement implements ProblemSeverities, Ref
 	 */
 	public static final int RECORD_DECL = 5;
 
-	public int modifiers = ClassFileConstants.AccDefault;
+	public int modifiers = 0;
 	public int modifiersSourceStart;
 	public int functionalExpressionsCount = 0;
 	public Annotation[] annotations;
@@ -180,13 +217,13 @@ public MethodDeclaration addMissingAbstractMethodFor(MethodBinding methodBinding
 	methodDeclaration.selector = methodBinding.selector;
 	methodDeclaration.sourceStart = this.sourceStart;
 	methodDeclaration.sourceEnd = this.sourceEnd;
-	methodDeclaration.modifiers = methodBinding.getAccessFlags() & ~ClassFileConstants.AccAbstract;
+	methodDeclaration.modifiers = methodBinding.getAccessFlags() & ~Flags.ABSTRACT;
 
 	if (argumentsLength > 0) {
 		String baseName = "arg";//$NON-NLS-1$
 		Argument[] arguments = (methodDeclaration.arguments = new Argument[argumentsLength]);
 		for (int i = argumentsLength; --i >= 0;) {
-			arguments[i] = new Argument((baseName + i).toCharArray(), 0L, null /*type ref*/, ClassFileConstants.AccDefault);
+			arguments[i] = new Argument((baseName + i).toCharArray(), 0L, null /*type ref*/, 0);
 		}
 	}
 
@@ -207,7 +244,7 @@ public MethodDeclaration addMissingAbstractMethodFor(MethodBinding methodBinding
 
 	//============BINDING UPDATE==========================
 	methodDeclaration.binding = new MethodBinding(
-			methodDeclaration.modifiers | ClassFileConstants.AccSynthetic, //methodDeclaration
+			methodDeclaration.modifiers | Flags.SYNTHETIC, //methodDeclaration
 			methodBinding.selector,
 			methodBinding.returnType,
 			argumentsLength == 0 ? Binding.NO_PARAMETERS : argumentTypes, //arguments bindings
@@ -365,8 +402,8 @@ public ConstructorDeclaration createDefaultConstructorForRecord(boolean needExpl
 	constructor.bits |= ASTNode.IsCanonicalConstructor | ASTNode.IsImplicit;
 	constructor.selector = this.name;
 	constructor.modifiers = this.modifiers & ExtraCompilerModifiers.AccVisibilityMASK;
-//	constructor.modifiers = this.modifiers & ClassFileConstants.AccPublic;
-//	constructor.modifiers |= ClassFileConstants.AccPublic; // JLS 14 8.10.5
+//	constructor.modifiers = this.modifiers & Flags.PUBLIC;
+//	constructor.modifiers |= Flags.PUBLIC; // JLS 14 8.10.5
 	constructor.arguments = getArgumentsFromComponents(this.recordComponents);
 
 	for (int i = 0, max = constructor.arguments.length; i < max; i++) {
@@ -499,7 +536,7 @@ public MethodBinding createDefaultConstructorWithBinding(MethodBinding inherited
 	constructor.sourceEnd = this.sourceEnd;
 	int newModifiers = this.modifiers & ExtraCompilerModifiers.AccVisibilityMASK;
 	if (inheritedConstructorBinding.isVarargs()) {
-		newModifiers |= ClassFileConstants.AccVarargs;
+		newModifiers |= Flags.ACC_VARARGS;
 	}
 	constructor.modifiers = newModifiers;
 	constructor.bits |= ASTNode.IsDefaultConstructor;
@@ -507,7 +544,7 @@ public MethodBinding createDefaultConstructorWithBinding(MethodBinding inherited
 	if (argumentsLength > 0) {
 		Argument[] arguments = (constructor.arguments = new Argument[argumentsLength]);
 		for (int i = argumentsLength; --i >= 0;) {
-			arguments[i] = new Argument((baseName + i).toCharArray(), 0L, null /*type ref*/, ClassFileConstants.AccDefault);
+			arguments[i] = new Argument((baseName + i).toCharArray(), 0L, null /*type ref*/, 0);
 		}
 	}
 	//the super call inside the constructor
@@ -1011,12 +1048,12 @@ private char[] getValueAsChars(Expression value) {
 }
 
 public final static int kind(int flags) {
-	switch (flags & (ClassFileConstants.AccInterface|ClassFileConstants.AccAnnotation|ClassFileConstants.AccEnum|ExtraCompilerModifiers.AccRecord)) {
-		case ClassFileConstants.AccInterface :
+	switch (flags & (Flags.INTERFACE|Flags.ANNOTATION|Flags.ENUM|ExtraCompilerModifiers.AccRecord)) {
+		case Flags.INTERFACE :
 			return TypeDeclaration.INTERFACE_DECL;
-		case ClassFileConstants.AccInterface|ClassFileConstants.AccAnnotation :
+		case Flags.INTERFACE|Flags.ANNOTATION :
 			return TypeDeclaration.ANNOTATION_TYPE_DECL;
-		case ClassFileConstants.AccEnum :
+		case Flags.ENUM :
 			return TypeDeclaration.ENUM_DECL;
 		case ExtraCompilerModifiers.AccRecord :
 			return TypeDeclaration.RECORD_DECL;
@@ -1115,7 +1152,7 @@ public final boolean needClassInitMethod() {
 		for (int i = this.fields.length; --i >= 0;) {
 			FieldDeclaration field = this.fields[i];
 			//need to test the modifier directly while there is no binding yet
-			if ((field.modifiers & ClassFileConstants.AccStatic) != 0)
+			if ((field.modifiers & Flags.STATIC) != 0)
 				return true; // TODO (philippe) shouldn't it check whether field is initializer or has some initial value ?
 		}
 	}
@@ -1355,7 +1392,7 @@ public void resolve() {
 					methodBinding = sourceType.getExactMethod(TypeConstants.WRITEOBJECT, new TypeBinding[] { argumentTypeBinding }, compilationUnitScope);
 					hasWriteObjectMethod = methodBinding != null
 							&& methodBinding.isValidBinding()
-							&& methodBinding.modifiers == ClassFileConstants.AccPrivate
+							&& methodBinding.modifiers == Flags.PRIVATE
 							&& methodBinding.returnType == TypeBinding.VOID
 							&& (throwsExceptions = methodBinding.thrownExceptions).length == 1
 							&& throwsExceptions[0].id == TypeIds.T_JavaIoException;
@@ -1365,7 +1402,7 @@ public void resolve() {
 					methodBinding = sourceType.getExactMethod(TypeConstants.READOBJECT, new TypeBinding[] { argumentTypeBinding }, compilationUnitScope);
 					hasReadObjectMethod = methodBinding != null
 							&& methodBinding.isValidBinding()
-							&& methodBinding.modifiers == ClassFileConstants.AccPrivate
+							&& methodBinding.modifiers == Flags.PRIVATE
 							&& methodBinding.returnType == TypeBinding.VOID
 							&& (throwsExceptions = methodBinding.thrownExceptions).length == 1
 							&& throwsExceptions[0].id == TypeIds.T_JavaIoException;
@@ -1425,7 +1462,7 @@ public void resolve() {
 							continue;
 						}
 						if (needSerialVersion
-								&& ((fieldBinding.modifiers & (ClassFileConstants.AccStatic | ClassFileConstants.AccFinal)) == (ClassFileConstants.AccStatic | ClassFileConstants.AccFinal))
+								&& ((fieldBinding.modifiers & (Flags.STATIC | Flags.FINAL)) == (Flags.STATIC | Flags.FINAL))
 								&& CharOperation.equals(TypeConstants.SERIALVERSIONUID, fieldBinding.name)
 								&& TypeBinding.equalsEquals(TypeBinding.LONG, fieldBinding.type)) {
 							needSerialVersion = false;

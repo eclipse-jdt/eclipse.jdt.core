@@ -135,6 +135,8 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObjectToInt;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
+import com.sun.tools.javac.code.Flags;
+
 public class CompletionParser extends AssistParser {
 	// OWNER
 	protected static final int COMPLETION_PARSER = 1024;
@@ -1658,20 +1660,20 @@ private boolean checkKeywordAndRestrictedIdentifiers() {
 			int count = 0;
 			if(unit.typeCount == 0
 				&& (!this.compilationUnit.isPackageInfo() || this.compilationUnit.currentPackage != null)
-				&& this.lastModifiers == ClassFileConstants.AccDefault) {
+				&& this.lastModifiers == 0) {
 				keywordsAndRestrictedIndentifiers[count++] = Keywords.IMPORT;
 			}
 			if(unit.typeCount == 0
 				&& unit.importCount == 0
-				&& this.lastModifiers == ClassFileConstants.AccDefault
+				&& this.lastModifiers == 0
 				&& this.compilationUnit.currentPackage == null) {
 				keywordsAndRestrictedIndentifiers[count++] = Keywords.PACKAGE;
 			}
 			if (!this.compilationUnit.isPackageInfo()) {
-				if((this.lastModifiers & ClassFileConstants.AccPublic) == 0) {
+				if((this.lastModifiers & Flags.PUBLIC) == 0) {
 					boolean hasNoPublicType = true;
 					for (int i = 0; i < unit.typeCount; i++) {
-						if((unit.types[i].typeDeclaration.modifiers & ClassFileConstants.AccPublic) != 0) {
+						if((unit.types[i].typeDeclaration.modifiers & Flags.PUBLIC) != 0) {
 							hasNoPublicType = false;
 							break;
 						}
@@ -1680,12 +1682,12 @@ private boolean checkKeywordAndRestrictedIdentifiers() {
 						keywordsAndRestrictedIndentifiers[count++] = Keywords.PUBLIC;
 					}
 				}
-				if((this.lastModifiers & ClassFileConstants.AccAbstract) == 0
-					&& (this.lastModifiers & ClassFileConstants.AccFinal) == 0) {
+				if((this.lastModifiers & Flags.ABSTRACT) == 0
+					&& (this.lastModifiers & Flags.FINAL) == 0) {
 					keywordsAndRestrictedIndentifiers[count++] = Keywords.ABSTRACT;
 				}
-				if((this.lastModifiers & ClassFileConstants.AccAbstract) == 0
-					&& (this.lastModifiers & ClassFileConstants.AccFinal) == 0) {
+				if((this.lastModifiers & Flags.ABSTRACT) == 0
+					&& (this.lastModifiers & Flags.FINAL) == 0) {
 					keywordsAndRestrictedIndentifiers[count++] = Keywords.FINAL;
 				}
 
@@ -1693,7 +1695,7 @@ private boolean checkKeywordAndRestrictedIdentifiers() {
 				if (this.options.complianceLevel >= ClassFileConstants.JDK1_5) {
 					keywordsAndRestrictedIndentifiers[count++] = Keywords.ENUM;
 				}
-				if((this.lastModifiers & ClassFileConstants.AccFinal) == 0) {
+				if((this.lastModifiers & Flags.FINAL) == 0) {
 					keywordsAndRestrictedIndentifiers[count++] = Keywords.INTERFACE;
 				}
 				if (JavaFeature.RECORDS.isSupported(this.options)) {
@@ -2686,7 +2688,7 @@ protected void consumeCompilationUnit() {
 			this.compilationUnit.types = new TypeDeclaration[1];
 			TypeDeclaration declaration = new TypeDeclaration(this.compilationUnit.compilationResult);
 			declaration.name = FAKE_TYPE_NAME;
-			declaration.modifiers = ClassFileConstants.AccDefault | ClassFileConstants.AccInterface;
+			declaration.modifiers = 0 | Flags.INTERFACE;
 			this.compilationUnit.types[0] = declaration;
 		}
 	}
@@ -4832,7 +4834,7 @@ protected void consumeTypeHeaderNameWithTypeParameters() {
 	super.consumeTypeHeaderNameWithTypeParameters();
 
 	TypeDeclaration typeDecl = (TypeDeclaration)this.astStack[this.astPtr];
-	classHeaderExtendsOrImplements((typeDecl.modifiers & ClassFileConstants.AccInterface) != 0, false);
+	classHeaderExtendsOrImplements((typeDecl.modifiers & Flags.INTERFACE) != 0, false);
 }
 @Override
 protected void consumeTypeImportOnDemandDeclarationName() {
@@ -5225,7 +5227,7 @@ public NameReference createSingleAssistNameReference(char[] assistName, long pos
 boolean computeKeywords(int kind, List<char[]> keywords) {
 	boolean canBeExplicitConstructorCall = false;
 
-	if((this.lastModifiers & ClassFileConstants.AccStatic) == 0) {
+	if((this.lastModifiers & Flags.STATIC) == 0) {
 		keywords.add(Keywords.SUPER);
 		keywords.add(Keywords.THIS);
 	}

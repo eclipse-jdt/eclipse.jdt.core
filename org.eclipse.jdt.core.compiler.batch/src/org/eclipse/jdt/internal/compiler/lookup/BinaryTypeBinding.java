@@ -80,6 +80,8 @@ import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
+import com.sun.tools.javac.code.Flags;
+
 /*
 Not all fields defined by this type are initialized when it is created.
 Some are initialized only when needed.
@@ -338,7 +340,7 @@ public BinaryTypeBinding(PackageBinding packageBinding, IBinaryType binaryType, 
 		this.tagBits |= TagBits.MemberTypeMask;   // must be a member type not a top-level or local type
 		this.tagBits |= TagBits.HasUnresolvedEnclosingType;
 		if (enclosingType().isStrictfp())
-			this.modifiers |= ClassFileConstants.AccStrictfp;
+			this.modifiers |= Flags.STRICTFP;
 		if (enclosingType().isDeprecated())
 			this.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
 	}
@@ -930,11 +932,11 @@ private MethodBinding createMethod(IBinaryMethod method, IBinaryType binaryType,
 	if (!isPrototype()) throw new IllegalStateException();
 	int methodModifiers = method.getModifiers() | ExtraCompilerModifiers.AccUnresolved;
 	if (sourceLevel < ClassFileConstants.JDK1_5)
-		methodModifiers &= ~ClassFileConstants.AccVarargs; // vararg methods are not recognized until 1.5
-	if (isInterface() && (methodModifiers & ClassFileConstants.AccAbstract) == 0) {
+		methodModifiers &= ~Flags.ACC_VARARGS; // vararg methods are not recognized until 1.5
+	if (isInterface() && (methodModifiers & Flags.ABSTRACT) == 0) {
 		// see https://bugs.eclipse.org/388954 superseded by https://bugs.eclipse.org/390889
-		if (((methodModifiers & ClassFileConstants.AccStatic) == 0
-				&& (methodModifiers & ClassFileConstants.AccPrivate) == 0)) {
+		if (((methodModifiers & Flags.STATIC) == 0
+				&& (methodModifiers & Flags.PRIVATE) == 0)) {
 			// i.e. even at 1.7- we record AccDefaultMethod when reading a 1.8+ interface to avoid errors caused by default methods added to a library
 			methodModifiers |= ExtraCompilerModifiers.AccDefaultMethod;
 		}
@@ -1190,8 +1192,8 @@ private IBinaryMethod[] createMethods(IBinaryMethod[] iMethods, IBinaryType bina
 			boolean keepBridgeMethods = sourceLevel < ClassFileConstants.JDK1_5; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=330347
 			for (int i = total; --i >= 0;) {
 				IBinaryMethod method = iMethods[i];
-				if ((method.getModifiers() & ClassFileConstants.AccSynthetic) != 0) {
-					if (keepBridgeMethods && (method.getModifiers() & ClassFileConstants.AccBridge) != 0)
+				if ((method.getModifiers() & Flags.SYNTHETIC) != 0) {
+					if (keepBridgeMethods && (method.getModifiers() & Flags.ACC_BRIDGE) != 0)
 						continue; // want to see bridge methods as real methods
 					// discard synthetics methods
 					if (toSkip == null) toSkip = new int[iMethods.length];
@@ -2013,7 +2015,7 @@ SimpleLookupTable storedAnnotations(boolean forceInitialize, boolean forceStore)
 private void scanFieldForNullAnnotation(IBinaryField field, VariableBinding fieldBinding, boolean isEnum, ITypeAnnotationWalker externalAnnotationWalker) {
 	if (!isPrototype()) throw new IllegalStateException();
 
-	if (isEnum && (field.getModifiers() & ClassFileConstants.AccEnum) != 0) {
+	if (isEnum && (field.getModifiers() & Flags.ENUM) != 0) {
 		fieldBinding.tagBits |= TagBits.AnnotationNonNull;
 		return; // we know it's nonnull, no need to look for null *annotations* on enum constants.
 	}

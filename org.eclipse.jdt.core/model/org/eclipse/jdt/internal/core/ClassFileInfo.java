@@ -18,7 +18,6 @@ import java.util.HashMap;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryElementValuePair;
 import org.eclipse.jdt.internal.compiler.env.IBinaryField;
@@ -168,7 +167,7 @@ private void generateFieldInfos(IType type, IBinaryType typeInfo, HashMap newEle
 		IBinaryField fieldInfo = fields[i];
 		// If the type is a record and this is an instance field, it can only be a record component
 		// Filter out
-		if (typeInfo.isRecord() && (fieldInfo.getModifiers() & ClassFileConstants.AccStatic) == 0)
+		if (typeInfo.isRecord() && (fieldInfo.getModifiers() & com.sun.tools.javac.code.Flags.STATIC) == 0)
 			continue;
 		BinaryField field = new BinaryField((JavaElement)type, manager.intern(new String(fieldInfo.getName())));
 		newElements.put(field, fieldInfo);

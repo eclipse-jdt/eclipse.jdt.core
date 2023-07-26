@@ -40,7 +40,6 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseProcessingEnvImpl;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
@@ -50,6 +49,8 @@ import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
+
+import com.sun.tools.javac.code.Flags;
 
 public class TypeElementImpl extends ElementImpl implements TypeElement {
 
@@ -283,7 +284,7 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 		ReferenceBinding refBinding = (ReferenceBinding)this._binding;
 		int modifiers = refBinding.modifiers;
 		if (refBinding.isInterface() && refBinding.isNestedType()) {
-			modifiers |= ClassFileConstants.AccStatic;
+			modifiers |= Flags.STATIC;
 		}
 
 		return Factory.getModifiers(modifiers, getKind(), refBinding.isBinaryBinding());

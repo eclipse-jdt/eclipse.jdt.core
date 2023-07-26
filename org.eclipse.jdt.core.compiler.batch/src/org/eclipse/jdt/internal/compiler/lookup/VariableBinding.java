@@ -18,8 +18,9 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+
+import com.sun.tools.javac.code.Flags;
 
 public abstract class VariableBinding extends Binding {
 
@@ -64,7 +65,7 @@ public abstract class VariableBinding extends Binding {
 	 * marked as implicitly final.
 	*/
 	public final boolean isFinal() {
-		return (this.modifiers & ClassFileConstants.AccFinal) != 0;
+		return (this.modifiers & Flags.FINAL) != 0;
 	}
 
 	public final boolean isEffectivelyFinal() {

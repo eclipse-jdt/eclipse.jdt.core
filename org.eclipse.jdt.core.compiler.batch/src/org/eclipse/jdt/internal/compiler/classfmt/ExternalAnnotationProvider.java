@@ -15,6 +15,26 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.classfmt;
 
+import static org.eclipse.jdt.internal.compiler.util.Util.C_ARRAY;
+import static org.eclipse.jdt.internal.compiler.util.Util.C_BOOLEAN;
+import static org.eclipse.jdt.internal.compiler.util.Util.C_BYTE;
+import static org.eclipse.jdt.internal.compiler.util.Util.C_CAPTURE;
+import static org.eclipse.jdt.internal.compiler.util.Util.C_CHAR;
+import static org.eclipse.jdt.internal.compiler.util.Util.C_DOUBLE;
+import static org.eclipse.jdt.internal.compiler.util.Util.C_EXTENDS;
+import static org.eclipse.jdt.internal.compiler.util.Util.C_FLOAT;
+import static org.eclipse.jdt.internal.compiler.util.Util.C_GENERIC_END;
+import static org.eclipse.jdt.internal.compiler.util.Util.C_GENERIC_START;
+import static org.eclipse.jdt.internal.compiler.util.Util.C_INT;
+import static org.eclipse.jdt.internal.compiler.util.Util.C_LONG;
+import static org.eclipse.jdt.internal.compiler.util.Util.C_RESOLVED;
+import static org.eclipse.jdt.internal.compiler.util.Util.C_SHORT;
+import static org.eclipse.jdt.internal.compiler.util.Util.C_STAR;
+import static org.eclipse.jdt.internal.compiler.util.Util.C_SUPER;
+import static org.eclipse.jdt.internal.compiler.util.Util.C_TYPE_VARIABLE;
+import static org.eclipse.jdt.internal.compiler.util.Util.C_UNRESOLVED;
+import static org.eclipse.jdt.internal.compiler.util.Util.C_VOID;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -31,8 +51,6 @@ import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.SignatureWrapper;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.util.Util;
-
-import static org.eclipse.jdt.internal.compiler.util.Util.*;
 
 public class ExternalAnnotationProvider {
 

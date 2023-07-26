@@ -59,6 +59,8 @@ import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
 
+import com.sun.tools.javac.code.Flags;
+
 @SuppressWarnings({"rawtypes"})
 public class ClassScope extends Scope {
 
@@ -162,7 +164,7 @@ public class ClassScope extends Scope {
 					sz);
 			permTypes[sz] = anonymousType;
 		}
-		anonymousType.modifiers |= ClassFileConstants.AccFinal; // JLS 15 / sealed preview/Sec 8.9.1
+		anonymousType.modifiers |= Flags.FINAL; // JLS 15 / sealed preview/Sec 8.9.1
 		sourceSuperType.setPermittedTypes(permTypes);
 	}
 
@@ -594,7 +596,7 @@ public class ClassScope extends Scope {
 				(modifiers & (ExtraCompilerModifiers.AccSealed | ExtraCompilerModifiers.AccNonSealed)) != 0;
 		if (sourceType.isRecord()) {
 			/* JLS 14 Records Sec 8.10 - A record declaration is implicitly final. */
-			modifiers |= ClassFileConstants.AccFinal;
+			modifiers |= Flags.FINAL;
 		}
 		if ((modifiers & ExtraCompilerModifiers.AccAlternateModifierProblem) != 0)
 			problemReporter().duplicateModifierForType(sourceType);
@@ -603,20 +605,20 @@ public class ClassScope extends Scope {
 		if (isMemberType) {
 			if (sourceType.hasEnclosingInstanceContext())
 				modifiers |= (enclosingType.modifiers & ExtraCompilerModifiers.AccGenericSignature);
-			modifiers |= (enclosingType.modifiers & ClassFileConstants.AccStrictfp);
+			modifiers |= (enclosingType.modifiers & Flags.STRICTFP);
 			// checks for member types before local types to catch local members
 			if (enclosingType.isInterface())
-				modifiers |= ClassFileConstants.AccPublic;
+				modifiers |= Flags.PUBLIC;
 			if (sourceType.isEnum()) {
 				if (!is16Plus && !enclosingType.isStatic())
 					problemReporter().nonStaticContextForEnumMemberType(sourceType);
 				else
-					modifiers |= ClassFileConstants.AccStatic;
+					modifiers |= Flags.STATIC;
 			} else if (sourceType.isInterface()) {
-				modifiers |= ClassFileConstants.AccStatic; // 8.5.1
+				modifiers |= Flags.STATIC; // 8.5.1
 			} else if (sourceType.isRecord()) {
 				/* JLS 14 Records Sec 8.10 A nested record type is implicitly static */
-				modifiers |= ClassFileConstants.AccStatic;
+				modifiers |= Flags.STATIC;
 			}
 		} else if (sourceType.isLocalType()) {
 			if (sourceType.isEnum()) {
@@ -625,36 +627,36 @@ public class ClassScope extends Scope {
 					sourceType.modifiers = 0;
 					return;
 				}
-				final int UNEXPECTED_MODIFIERS =~(ClassFileConstants.AccEnum | ClassFileConstants.AccStrictfp);
+				final int UNEXPECTED_MODIFIERS =~(Flags.ENUM | Flags.STRICTFP);
 				if ((modifiers & ExtraCompilerModifiers.AccJustFlag & UNEXPECTED_MODIFIERS) != 0
 						|| flagSealedNonModifiers) {
 					problemReporter().illegalModifierForLocalEnumDeclaration(sourceType);
 					return;
 				}
-				modifiers |= ClassFileConstants.AccStatic;
+				modifiers |= Flags.STATIC;
 			} else if (sourceType.isRecord()) {
 //				if (enclosingType != null && enclosingType.isLocalType()) {
 //					problemReporter().illegalLocalTypeDeclaration(this.referenceContext);
 //					return;
 //				}
-				if ((modifiers & ClassFileConstants.AccStatic) != 0) {
+				if ((modifiers & Flags.STATIC) != 0) {
 					if (!(this.parent instanceof ClassScope))
 						problemReporter().recordIllegalStaticModifierForLocalClassOrInterface(sourceType);
 					return;
 				}
-				modifiers |= ClassFileConstants.AccStatic;
+				modifiers |= Flags.STATIC;
 			}
 			if (sourceType.isAnonymousType()) {
 				if (compilerOptions().complianceLevel < ClassFileConstants.JDK9)
-					modifiers |= ClassFileConstants.AccFinal;
+					modifiers |= Flags.FINAL;
 			    // set AccEnum flag for anonymous body of enum constants
 			    if (this.referenceContext.allocation.type == null)
-			    	modifiers |= ClassFileConstants.AccEnum;
+			    	modifiers |= Flags.ENUM;
 			} else if (this.parent.referenceContext() instanceof TypeDeclaration) {
 				TypeDeclaration typeDecl = (TypeDeclaration) this.parent.referenceContext();
 				if (TypeDeclaration.kind(typeDecl.modifiers) == TypeDeclaration.INTERFACE_DECL) {
 					// Sec 8.1.3 applies for local types as well
-					modifiers |= ClassFileConstants.AccStatic;
+					modifiers |= Flags.STATIC;
 				}
 			}
 			Scope scope = this;
@@ -674,7 +676,7 @@ public class ClassScope extends Scope {
 									modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
 							} else {
 								if (type.isStrictfp())
-									modifiers |= ClassFileConstants.AccStrictfp;
+									modifiers |= Flags.STRICTFP;
 								if (type.isViewedAsDeprecated() && !sourceType.isDeprecated())
 									modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
 							}
@@ -682,7 +684,7 @@ public class ClassScope extends Scope {
 							MethodBinding method = ((AbstractMethodDeclaration) methodScope.referenceContext).binding;
 							if (method != null) {
 								if (method.isStrictfp())
-									modifiers |= ClassFileConstants.AccStrictfp;
+									modifiers |= Flags.STRICTFP;
 								if (method.isViewedAsDeprecated() && !sourceType.isDeprecated())
 									modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
 							}
@@ -691,7 +693,7 @@ public class ClassScope extends Scope {
 					case CLASS_SCOPE :
 						// local member
 						if (enclosingType.isStrictfp())
-							modifiers |= ClassFileConstants.AccStrictfp;
+							modifiers |= Flags.STRICTFP;
 						if (enclosingType.isViewedAsDeprecated() && !sourceType.isDeprecated()) {
 							modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
 							sourceType.tagBits |= enclosingType.tagBits & TagBits.AnnotationTerminallyDeprecated;
@@ -705,13 +707,13 @@ public class ClassScope extends Scope {
 		// after this point, tests on the 16 bits reserved.
 		int realModifiers = modifiers & ExtraCompilerModifiers.AccJustFlag;
 
-		if ((realModifiers & ClassFileConstants.AccInterface) != 0) { // interface and annotation type
+		if ((realModifiers & Flags.INTERFACE) != 0) { // interface and annotation type
 			// detect abnormal cases for interfaces
 			if (isMemberType) {
 				final int UNEXPECTED_MODIFIERS =
-					~(ClassFileConstants.AccPublic | ClassFileConstants.AccPrivate | ClassFileConstants.AccProtected | ClassFileConstants.AccStatic | ClassFileConstants.AccAbstract | ClassFileConstants.AccInterface | ClassFileConstants.AccStrictfp | ClassFileConstants.AccAnnotation);
+					~(Flags.PUBLIC | Flags.PRIVATE | Flags.PROTECTED | Flags.STATIC | Flags.ABSTRACT | Flags.INTERFACE | Flags.STRICTFP | Flags.ANNOTATION);
 				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0) {
-					if ((realModifiers & ClassFileConstants.AccAnnotation) != 0)
+					if ((realModifiers & Flags.ANNOTATION) != 0)
 						problemReporter().illegalModifierForAnnotationMemberType(sourceType);
 					else
 						problemReporter().illegalModifierForMemberInterface(sourceType);
@@ -723,20 +725,20 @@ public class ClassScope extends Scope {
 						problemReporter().illegalModifierForLocalInterface(sourceType);
 				*/
 			} else 	if (sourceType.isLocalType()) {
-				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccAbstract | ClassFileConstants.AccInterface
-						| ClassFileConstants.AccStrictfp | ClassFileConstants.AccAnnotation
-						| ((is16Plus && this.parent instanceof ClassScope) ? ClassFileConstants.AccStatic : 0));
+				final int UNEXPECTED_MODIFIERS = ~(Flags.ABSTRACT | Flags.INTERFACE
+						| Flags.STRICTFP | Flags.ANNOTATION
+						| ((is16Plus && this.parent instanceof ClassScope) ? Flags.STATIC : 0));
 				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0
 						|| flagSealedNonModifiers)
 					problemReporter().localStaticsIllegalVisibilityModifierForInterfaceLocalType(sourceType);
-//				if ((modifiers & ClassFileConstants.AccStatic) != 0) {
+//				if ((modifiers & Flags.STATIC) != 0) {
 //					problemReporter().recordIllegalStaticModifierForLocalClassOrInterface(sourceType);
 //				}
-				modifiers |= ClassFileConstants.AccStatic;
+				modifiers |= Flags.STATIC;
 			} else {
-				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccAbstract | ClassFileConstants.AccInterface | ClassFileConstants.AccStrictfp | ClassFileConstants.AccAnnotation);
+				final int UNEXPECTED_MODIFIERS = ~(Flags.PUBLIC | Flags.ABSTRACT | Flags.INTERFACE | Flags.STRICTFP | Flags.ANNOTATION);
 				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0) {
-					if ((realModifiers & ClassFileConstants.AccAnnotation) != 0)
+					if ((realModifiers & Flags.ANNOTATION) != 0)
 						problemReporter().illegalModifierForAnnotationType(sourceType);
 					else
 						problemReporter().illegalModifierForInterface(sourceType);
@@ -746,17 +748,17 @@ public class ClassScope extends Scope {
 			 * AccSynthetic must be set if the target is greater than 1.5. 1.5 VM don't support AccSynthetics flag.
 			 */
 			if (sourceType.sourceName == TypeConstants.PACKAGE_INFO_NAME && compilerOptions().targetJDK > ClassFileConstants.JDK1_5) {
-				modifiers |= ClassFileConstants.AccSynthetic;
+				modifiers |= Flags.SYNTHETIC;
 			}
-			modifiers |= ClassFileConstants.AccAbstract;
-			} else if ((realModifiers & ClassFileConstants.AccEnum) != 0) {
+			modifiers |= Flags.ABSTRACT;
+			} else if ((realModifiers & Flags.ENUM) != 0) {
 			// detect abnormal cases for enums
 			if (isMemberType) { // includes member types defined inside local types
-				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccPrivate | ClassFileConstants.AccProtected | ClassFileConstants.AccStatic | ClassFileConstants.AccStrictfp | ClassFileConstants.AccEnum);
+				final int UNEXPECTED_MODIFIERS = ~(Flags.PUBLIC | Flags.PRIVATE | Flags.PROTECTED | Flags.STATIC | Flags.STRICTFP | Flags.ENUM);
 				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0 || flagSealedNonModifiers) {
 					problemReporter().illegalModifierForMemberEnum(sourceType);
-					modifiers &= ~ClassFileConstants.AccAbstract; // avoid leaking abstract modifier
-					realModifiers &= ~ClassFileConstants.AccAbstract;
+					modifiers &= ~Flags.ABSTRACT; // avoid leaking abstract modifier
+					realModifiers &= ~Flags.ABSTRACT;
 //					modifiers &= ~(realModifiers & UNEXPECTED_MODIFIERS);
 //					realModifiers = modifiers & ExtraCompilerModifiers.AccJustFlag;
 				}
@@ -765,7 +767,7 @@ public class ClassScope extends Scope {
 //					problemReporter().illegalModifierForLocalEnum(sourceType);
 				// each enum constant is an anonymous local type and its modifiers were already checked as an enum constant field
 			} else {
-				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccStrictfp | ClassFileConstants.AccEnum);
+				final int UNEXPECTED_MODIFIERS = ~(Flags.PUBLIC | Flags.STRICTFP | Flags.ENUM);
 				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0 || flagSealedNonModifiers)
 					problemReporter().illegalModifierForEnum(sourceType);
 			}
@@ -773,7 +775,7 @@ public class ClassScope extends Scope {
 				checkAbstractEnum: {
 					// does define abstract methods ?
 					if ((this.referenceContext.bits & ASTNode.HasAbstractMethods) != 0) {
-						modifiers |= ClassFileConstants.AccAbstract;
+						modifiers |= Flags.ABSTRACT;
 						break checkAbstractEnum;
 					}
 					// body of enum constant must implement any inherited abstract methods
@@ -803,7 +805,7 @@ public class ClassScope extends Scope {
 					// tag this enum as abstract since an abstract method must be implemented AND all enum constants define an anonymous body
 					// as a result, each of its anonymous constants will see it as abstract and must implement each inherited abstract method
 					if (needAbstractBit) {
-						modifiers |= ClassFileConstants.AccAbstract;
+						modifiers |= Flags.ABSTRACT;
 					}
 				}
 				// final if no enum constant with anonymous body
@@ -820,23 +822,23 @@ public class ClassScope extends Scope {
 							}
 						}
 					}
-					modifiers |= ClassFileConstants.AccFinal;
+					modifiers |= Flags.FINAL;
 				}
-				if (isSealedSupported && (modifiers & ClassFileConstants.AccFinal) == 0)
+				if (isSealedSupported && (modifiers & Flags.FINAL) == 0)
 					modifiers |= ExtraCompilerModifiers.AccSealed;
 			}
 		} else if (sourceType.isRecord()) {
 			int UNEXPECTED_MODIFIERS = ExtraCompilerModifiers.AccNonSealed | ExtraCompilerModifiers.AccSealed;
 			if (isMemberType) {
-				final int EXPECTED_MODIFIERS = (ClassFileConstants.AccPublic | ClassFileConstants.AccPrivate | ClassFileConstants.AccProtected | ClassFileConstants.AccStatic | ClassFileConstants.AccFinal | ClassFileConstants.AccStrictfp);
+				final int EXPECTED_MODIFIERS = (Flags.PUBLIC | Flags.PRIVATE | Flags.PROTECTED | Flags.STATIC | Flags.FINAL | Flags.STRICTFP);
 				if ((realModifiers & ~EXPECTED_MODIFIERS) != 0 || (modifiers & UNEXPECTED_MODIFIERS) != 0)
 					problemReporter().illegalModifierForInnerRecord(sourceType);
 			} else if (sourceType.isLocalType()) {
-				final int EXPECTED_MODIFIERS = (ClassFileConstants.AccFinal | ClassFileConstants.AccStrictfp | ClassFileConstants.AccStatic);
+				final int EXPECTED_MODIFIERS = (Flags.FINAL | Flags.STRICTFP | Flags.STATIC);
 				if ((realModifiers & ~EXPECTED_MODIFIERS) != 0 || (modifiers & UNEXPECTED_MODIFIERS) != 0)
 					problemReporter().illegalModifierForLocalRecord(sourceType);
 			} else {
-				final int EXPECTED_MODIFIERS = (ClassFileConstants.AccPublic |  ClassFileConstants.AccFinal | ClassFileConstants.AccStrictfp);
+				final int EXPECTED_MODIFIERS = (Flags.PUBLIC |  Flags.FINAL | Flags.STRICTFP);
 				if ((realModifiers & ~EXPECTED_MODIFIERS) != 0 || (modifiers & UNEXPECTED_MODIFIERS) != 0)
 					problemReporter().illegalModifierForRecord(sourceType);
 			}
@@ -860,59 +862,59 @@ public class ClassScope extends Scope {
 		} else {
 			// detect abnormal cases for classes
 			if (isMemberType) { // includes member types defined inside local types
-				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccPrivate | ClassFileConstants.AccProtected | ClassFileConstants.AccStatic | ClassFileConstants.AccAbstract | ClassFileConstants.AccFinal | ClassFileConstants.AccStrictfp);
+				final int UNEXPECTED_MODIFIERS = ~(Flags.PUBLIC | Flags.PRIVATE | Flags.PROTECTED | Flags.STATIC | Flags.ABSTRACT | Flags.FINAL | Flags.STRICTFP);
 				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0)
 					problemReporter().illegalModifierForMemberClass(sourceType);
 			} else if (sourceType.isLocalType()) {
-				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccAbstract | ClassFileConstants.AccFinal | ClassFileConstants.AccStrictfp
-						| ((is16Plus && this.parent instanceof ClassScope) ? ClassFileConstants.AccStatic : 0));
+				final int UNEXPECTED_MODIFIERS = ~(Flags.ABSTRACT | Flags.FINAL | Flags.STRICTFP
+						| ((is16Plus && this.parent instanceof ClassScope) ? Flags.STATIC : 0));
 				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0 || flagSealedNonModifiers)
 					problemReporter().illegalModifierForLocalClass(sourceType);
 			} else {
-				final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccAbstract | ClassFileConstants.AccFinal | ClassFileConstants.AccStrictfp);
+				final int UNEXPECTED_MODIFIERS = ~(Flags.PUBLIC | Flags.ABSTRACT | Flags.FINAL | Flags.STRICTFP);
 
 				if ((realModifiers & UNEXPECTED_MODIFIERS) != 0)
 					problemReporter().illegalModifierForClass(sourceType);
 			}
 
 			// check that Final and Abstract are not set together
-			if ((realModifiers & (ClassFileConstants.AccFinal | ClassFileConstants.AccAbstract)) == (ClassFileConstants.AccFinal | ClassFileConstants.AccAbstract))
+			if ((realModifiers & (Flags.FINAL | Flags.ABSTRACT)) == (Flags.FINAL | Flags.ABSTRACT))
 				problemReporter().illegalModifierCombinationFinalAbstractForClass(sourceType);
 		}
 
 		if (isMemberType) {
 			// test visibility modifiers inconsistency, isolate the accessors bits
 			if (enclosingType.isInterface()) {
-				if ((realModifiers & (ClassFileConstants.AccProtected | ClassFileConstants.AccPrivate)) != 0) {
+				if ((realModifiers & (Flags.PROTECTED | Flags.PRIVATE)) != 0) {
 					problemReporter().illegalVisibilityModifierForInterfaceMemberType(sourceType);
 
 					// need to keep the less restrictive
-					if ((realModifiers & ClassFileConstants.AccProtected) != 0)
-						modifiers &= ~ClassFileConstants.AccProtected;
-					if ((realModifiers & ClassFileConstants.AccPrivate) != 0)
-						modifiers &= ~ClassFileConstants.AccPrivate;
+					if ((realModifiers & Flags.PROTECTED) != 0)
+						modifiers &= ~Flags.PROTECTED;
+					if ((realModifiers & Flags.PRIVATE) != 0)
+						modifiers &= ~Flags.PRIVATE;
 				}
 			} else {
-				int accessorBits = realModifiers & (ClassFileConstants.AccPublic | ClassFileConstants.AccProtected | ClassFileConstants.AccPrivate);
+				int accessorBits = realModifiers & (Flags.PUBLIC | Flags.PROTECTED | Flags.PRIVATE);
 				if ((accessorBits & (accessorBits - 1)) > 1) {
 					problemReporter().illegalVisibilityModifierCombinationForMemberType(sourceType);
 
 					// need to keep the less restrictive so disable Protected/Private as necessary
-					if ((accessorBits & ClassFileConstants.AccPublic) != 0) {
-						if ((accessorBits & ClassFileConstants.AccProtected) != 0)
-							modifiers &= ~ClassFileConstants.AccProtected;
-						if ((accessorBits & ClassFileConstants.AccPrivate) != 0)
-							modifiers &= ~ClassFileConstants.AccPrivate;
-					} else if ((accessorBits & ClassFileConstants.AccProtected) != 0 && (accessorBits & ClassFileConstants.AccPrivate) != 0) {
-						modifiers &= ~ClassFileConstants.AccPrivate;
+					if ((accessorBits & Flags.PUBLIC) != 0) {
+						if ((accessorBits & Flags.PROTECTED) != 0)
+							modifiers &= ~Flags.PROTECTED;
+						if ((accessorBits & Flags.PRIVATE) != 0)
+							modifiers &= ~Flags.PRIVATE;
+					} else if ((accessorBits & Flags.PROTECTED) != 0 && (accessorBits & Flags.PRIVATE) != 0) {
+						modifiers &= ~Flags.PRIVATE;
 					}
 				}
 			}
 
 			// static modifier test
-			if ((realModifiers & ClassFileConstants.AccStatic) == 0) {
+			if ((realModifiers & Flags.STATIC) == 0) {
 				if (enclosingType.isInterface())
-					modifiers |= ClassFileConstants.AccStatic;
+					modifiers |= Flags.STATIC;
 			} else if (!enclosingType.isStatic()) {
 //				if (sourceType.isRecord())
 //					problemReporter().recordNestedRecordInherentlyStatic(sourceType);
@@ -940,13 +942,13 @@ public class ClassScope extends Scope {
 			problemReporter().duplicateModifierForField(declaringClass, fieldDecl);
 
 		if (declaringClass.isInterface()) {
-			final int IMPLICIT_MODIFIERS = ClassFileConstants.AccPublic | ClassFileConstants.AccStatic | ClassFileConstants.AccFinal;
+			final int IMPLICIT_MODIFIERS = Flags.PUBLIC | Flags.STATIC | Flags.FINAL;
 			// set the modifiers
 			modifiers |= IMPLICIT_MODIFIERS;
 
 			// and then check that they are the only ones
 			if ((modifiers & ExtraCompilerModifiers.AccJustFlag) != IMPLICIT_MODIFIERS) {
-				if ((declaringClass.modifiers  & ClassFileConstants.AccAnnotation) != 0)
+				if ((declaringClass.modifiers  & Flags.ANNOTATION) != 0)
 					problemReporter().illegalModifierForAnnotationField(fieldDecl);
 				else
 					problemReporter().illegalModifierForInterfaceField(fieldDecl);
@@ -963,38 +965,38 @@ public class ClassScope extends Scope {
 			// as used locally. We are unable to track the usage of these reliably as they could be used
 			// in non obvious ways via the synthesized methods values() and valueOf(String) or by using
 			// Enum.valueOf(Class<T>, String).
-			final int IMPLICIT_MODIFIERS = ClassFileConstants.AccPublic | ClassFileConstants.AccStatic | ClassFileConstants.AccFinal | ClassFileConstants.AccEnum | ExtraCompilerModifiers.AccLocallyUsed;
+			final int IMPLICIT_MODIFIERS = Flags.PUBLIC | Flags.STATIC | Flags.FINAL | Flags.ENUM | ExtraCompilerModifiers.AccLocallyUsed;
 			fieldBinding.modifiers|= IMPLICIT_MODIFIERS;
 			return;
 		}
 
 		// after this point, tests on the 16 bits reserved.
 		int realModifiers = modifiers & ExtraCompilerModifiers.AccJustFlag;
-		final int UNEXPECTED_MODIFIERS = ~(ClassFileConstants.AccPublic | ClassFileConstants.AccPrivate | ClassFileConstants.AccProtected | ClassFileConstants.AccFinal | ClassFileConstants.AccStatic | ClassFileConstants.AccTransient | ClassFileConstants.AccVolatile);
+		final int UNEXPECTED_MODIFIERS = ~(Flags.PUBLIC | Flags.PRIVATE | Flags.PROTECTED | Flags.FINAL | Flags.STATIC | Flags.TRANSIENT | Flags.VOLATILE);
 		if ((realModifiers & UNEXPECTED_MODIFIERS) != 0) {
 			problemReporter().illegalModifierForField(declaringClass, fieldDecl);
 			modifiers &= ~ExtraCompilerModifiers.AccJustFlag | ~UNEXPECTED_MODIFIERS;
 		}
 
-		int accessorBits = realModifiers & (ClassFileConstants.AccPublic | ClassFileConstants.AccProtected | ClassFileConstants.AccPrivate);
+		int accessorBits = realModifiers & (Flags.PUBLIC | Flags.PROTECTED | Flags.PRIVATE);
 		if ((accessorBits & (accessorBits - 1)) > 1) {
 			problemReporter().illegalVisibilityModifierCombinationForField(declaringClass, fieldDecl);
 
 			// need to keep the less restrictive so disable Protected/Private as necessary
-			if ((accessorBits & ClassFileConstants.AccPublic) != 0) {
-				if ((accessorBits & ClassFileConstants.AccProtected) != 0)
-					modifiers &= ~ClassFileConstants.AccProtected;
-				if ((accessorBits & ClassFileConstants.AccPrivate) != 0)
-					modifiers &= ~ClassFileConstants.AccPrivate;
-			} else if ((accessorBits & ClassFileConstants.AccProtected) != 0 && (accessorBits & ClassFileConstants.AccPrivate) != 0) {
-				modifiers &= ~ClassFileConstants.AccPrivate;
+			if ((accessorBits & Flags.PUBLIC) != 0) {
+				if ((accessorBits & Flags.PROTECTED) != 0)
+					modifiers &= ~Flags.PROTECTED;
+				if ((accessorBits & Flags.PRIVATE) != 0)
+					modifiers &= ~Flags.PRIVATE;
+			} else if ((accessorBits & Flags.PROTECTED) != 0 && (accessorBits & Flags.PRIVATE) != 0) {
+				modifiers &= ~Flags.PRIVATE;
 			}
 		}
 
-		if ((realModifiers & (ClassFileConstants.AccFinal | ClassFileConstants.AccVolatile)) == (ClassFileConstants.AccFinal | ClassFileConstants.AccVolatile))
+		if ((realModifiers & (Flags.FINAL | Flags.VOLATILE)) == (Flags.FINAL | Flags.VOLATILE))
 			problemReporter().illegalModifierCombinationFinalVolatileForField(declaringClass, fieldDecl);
 
-		if (fieldDecl.initialization == null && (modifiers & ClassFileConstants.AccFinal) != 0)
+		if (fieldDecl.initialization == null && (modifiers & Flags.FINAL) != 0)
 			modifiers |= ExtraCompilerModifiers.AccBlankFinal;
 		fieldBinding.modifiers = modifiers;
 	}

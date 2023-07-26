@@ -23,7 +23,8 @@ import org.eclipse.jdt.core.util.IAttributeNamesConstants;
 import org.eclipse.jdt.core.util.IClassFileAttribute;
 import org.eclipse.jdt.core.util.IClassFileReader;
 import org.eclipse.jdt.core.util.IModuleAttribute;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+
+import com.sun.tools.javac.code.Flags;
 
 import junit.framework.Test;
 
@@ -134,7 +135,7 @@ public class ModuleAttributeTests extends AbstractRegressionTest9 {
 		IClassFileReader cfr = ToolFactory.createDefaultClassFileReader(OUTPUT_DIR + File.separator + "module-info.class", IClassFileReader.CLASSFILE_ATTRIBUTES);
 		assertNotNull("Error reading module-info.class", cfr);
 		int flags = cfr.getAccessFlags();
-		assertTrue("Invalid access flags", (flags & ~ClassFileConstants.AccModule) == 0);
+		assertTrue("Invalid access flags", (flags & ~Flags.ACC_MODULE) == 0);
 	}
 	public void testBug521521a() throws Exception {
 		this.runConformTest(
@@ -146,7 +147,7 @@ public class ModuleAttributeTests extends AbstractRegressionTest9 {
 		IClassFileReader cfr = ToolFactory.createDefaultClassFileReader(OUTPUT_DIR + File.separator + "module-info.class", IClassFileReader.CLASSFILE_ATTRIBUTES);
 		assertNotNull("Error reading module-info.class", cfr);
 		int flags = cfr.getAccessFlags();
-		assertTrue("Invalid access flags", (flags & ~ClassFileConstants.AccModule) == 0);
+		assertTrue("Invalid access flags", (flags & ~Flags.ACC_MODULE) == 0);
 	}
 
 	public void testModuleCompile() throws Exception {

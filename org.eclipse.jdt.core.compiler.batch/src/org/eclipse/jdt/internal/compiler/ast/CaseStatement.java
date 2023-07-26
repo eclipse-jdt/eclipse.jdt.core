@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
@@ -33,6 +32,8 @@ import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
+
+import com.sun.tools.javac.code.Flags;
 
 public class CaseStatement extends Statement {
 
@@ -447,7 +448,7 @@ public Constant resolveConstantExpression(BlockScope scope,
 					&& (expression.bits & ASTNode.RestrictiveFlagMASK) == Binding.FIELD) {
 				NameReference reference = (NameReference) expression;
 				FieldBinding field = reference.fieldBinding();
-				if ((field.modifiers & ClassFileConstants.AccEnum) == 0) {
+				if ((field.modifiers & Flags.ENUM) == 0) {
 					 scope.problemReporter().enumSwitchCannotTargetField(reference, field);
 				} else 	if (reference instanceof QualifiedNameReference) {
 					 scope.problemReporter().cannotUseQualifiedEnumConstantInCaseLabel(reference, field);

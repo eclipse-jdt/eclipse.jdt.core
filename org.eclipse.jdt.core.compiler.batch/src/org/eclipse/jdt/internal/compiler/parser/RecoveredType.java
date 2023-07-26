@@ -19,8 +19,8 @@ package org.eclipse.jdt.internal.compiler.parser;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
+import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.Block;
@@ -31,7 +31,8 @@ import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+
+import com.sun.tools.javac.code.Flags;
 
 /**
  * Internal type structure for parsing recovery
@@ -144,9 +145,9 @@ public RecoveredElement add(Block nestedBlockDeclaration,int bracketBalanceValue
 	this.pendingTypeParameters = null;
 	resetPendingModifiers();
 
-	int mods = ClassFileConstants.AccDefault;
+	int mods = 0;
 	if(parser().recoveredStaticInitializerStart != 0) {
-		mods = ClassFileConstants.AccStatic;
+		mods = Flags.STATIC;
 	}
 	return this.add(new Initializer(nestedBlockDeclaration, mods), bracketBalanceValue);
 }
@@ -820,9 +821,9 @@ public RecoveredElement updateOnOpeningBrace(int braceStart, int braceEnd){
 		block.sourceStart = parser.scanner.startPosition;
 		Initializer init;
 		if (parser.recoveredStaticInitializerStart == 0){
-			init = new Initializer(block, ClassFileConstants.AccDefault);
+			init = new Initializer(block, 0);
 		} else {
-			init = new Initializer(block, ClassFileConstants.AccStatic);
+			init = new Initializer(block, Flags.STATIC);
 			init.declarationSourceStart = parser.recoveredStaticInitializerStart;
 		}
 		init.bodyStart = parser.scanner.currentPosition;

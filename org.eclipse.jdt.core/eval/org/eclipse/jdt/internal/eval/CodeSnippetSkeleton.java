@@ -21,7 +21,6 @@ package org.eclipse.jdt.internal.eval;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryField;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
@@ -33,6 +32,8 @@ import org.eclipse.jdt.internal.compiler.env.ITypeAnnotationWalker;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding.ExternalAnnotationStatus;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.core.util.Util;
+
+import com.sun.tools.javac.code.Flags;
 
 /**
  * The skeleton of the class 'org.eclipse.jdt.internal.eval.target.CodeSnippet'
@@ -79,7 +80,7 @@ public class CodeSnippetSkeleton implements IBinaryType, EvaluationConstants {
 		}
 		@Override
 		public int getModifiers() {
-			return ClassFileConstants.AccPublic;
+			return Flags.PUBLIC;
 		}
 		@Override
 		public IBinaryAnnotation[] getParameterAnnotations(int index, char[] classFileName) {
@@ -189,7 +190,7 @@ public IBinaryMethod[] getMethods() {
 }
 @Override
 public int getModifiers() {
-	return ClassFileConstants.AccPublic;
+	return Flags.PUBLIC;
 }
 @Override
 public char[][][] getMissingTypeNames() {

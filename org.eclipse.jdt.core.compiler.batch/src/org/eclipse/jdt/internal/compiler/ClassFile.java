@@ -127,6 +127,7 @@ import org.eclipse.jdt.internal.compiler.problem.ShouldNotImplement;
 import org.eclipse.jdt.internal.compiler.util.Messages;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
+import com.sun.tools.javac.code.Flags;
 import com.sun.tools.javac.jvm.ByteCodes;
 
 /**
@@ -270,7 +271,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 				MethodBinding method = methodDecl.binding;
 				if (method == null) continue;
 				if (abstractMethodsOnly) {
-					method.modifiers = ClassFileConstants.AccPublic | ClassFileConstants.AccAbstract;
+					method.modifiers = Flags.PUBLIC | Flags.ABSTRACT;
 				}
 				if (method.isConstructor()) {
 					if (typeBinding.isInterface()) continue;
@@ -725,7 +726,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		int accessFlags = fieldBinding.getAccessFlags();
 		if (this.targetJDK < ClassFileConstants.JDK1_5) {
 			// pre 1.5, synthetic was an attribute, not a modifier
-			accessFlags &= ~ClassFileConstants.AccSynthetic;
+			accessFlags &= ~Flags.SYNTHETIC;
 		}
 		this.contents[this.contentsOffset++] = (byte) (accessFlags >> 8);
 		this.contents[this.contentsOffset++] = (byte) accessFlags;
@@ -795,7 +796,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 
 	private void addMissingAbstractProblemMethod(MethodDeclaration methodDeclaration, MethodBinding methodBinding, CategorizedProblem problem, CompilationResult compilationResult) {
 		// always clear the strictfp/native/abstract bit for a problem method
-		generateMethodInfoHeader(methodBinding, methodBinding.modifiers & ~(ClassFileConstants.AccStrictfp | ClassFileConstants.AccNative | ClassFileConstants.AccAbstract));
+		generateMethodInfoHeader(methodBinding, methodBinding.modifiers & ~(Flags.STRICTFP | Flags.NATIVE | Flags.ABSTRACT));
 		int methodAttributeOffset = this.contentsOffset;
 		int attributeNumber = generateMethodInfoAttributes(methodBinding);
 
@@ -899,7 +900,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		}
 
 		// always clear the strictfp/native/abstract bit for a problem method
-		generateMethodInfoHeader(methodBinding, methodBinding.modifiers & ~(ClassFileConstants.AccStrictfp | ClassFileConstants.AccNative | ClassFileConstants.AccAbstract));
+		generateMethodInfoHeader(methodBinding, methodBinding.modifiers & ~(Flags.STRICTFP | Flags.NATIVE | Flags.ABSTRACT));
 		int methodAttributeOffset = this.contentsOffset;
 		int attributesNumber = generateMethodInfoAttributes(methodBinding);
 
@@ -982,7 +983,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 			method.abort(ProblemSeverities.AbortType, null);
 		}
 		// always clear the strictfp/native/abstract bit for a problem method
-		generateMethodInfoHeader(methodBinding, methodBinding.modifiers & ~(ClassFileConstants.AccStrictfp | ClassFileConstants.AccNative | ClassFileConstants.AccAbstract));
+		generateMethodInfoHeader(methodBinding, methodBinding.modifiers & ~(Flags.STRICTFP | Flags.NATIVE | Flags.ABSTRACT));
 		int methodAttributeOffset = this.contentsOffset;
 		int attributesNumber = generateMethodInfoAttributes(methodBinding);
 
@@ -2996,7 +2997,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 				this.constantPool.literalIndexForModule(binding.moduleName);
 		this.contents[localContentsOffset++] = (byte) (moduleNameIndex >> 8);
 		this.contents[localContentsOffset++] = (byte) moduleNameIndex;
-		int flags = module.modifiers & ~(ClassFileConstants.AccModule);
+		int flags = module.modifiers & ~(Flags.ACC_MODULE);
 		this.contents[localContentsOffset++] = (byte) (flags >> 8);
 		this.contents[localContentsOffset++] = (byte) flags;
 		String moduleVersion = module.getModuleVersion();
@@ -3044,7 +3045,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 			int javabase_index = this.constantPool.literalIndexForModule(javaBaseBinding.moduleName);
 			this.contents[localContentsOffset++] = (byte) (javabase_index >> 8);
 			this.contents[localContentsOffset++] = (byte) (javabase_index);
-			flags = ClassFileConstants.AccMandated;
+			flags = Flags.MANDATED;
 			this.contents[localContentsOffset++] = (byte) (flags >> 8);
 			this.contents[localContentsOffset++] = (byte) flags;
 			int required_version = 0;
@@ -3587,9 +3588,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 			if (innerClass.isAnonymousType()) {
 				ReferenceBinding superClass = innerClass.superclass();
 				if (superClass == null || !(superClass.isEnum() && superClass.isSealed()))
-					accessFlags &= ~ClassFileConstants.AccFinal;
+					accessFlags &= ~Flags.FINAL;
 			} else if (innerClass.isMemberType() && innerClass.isInterface()) {
-				accessFlags |= ClassFileConstants.AccStatic; // implicitely static
+				accessFlags |= Flags.STATIC; // implicitely static
 			}
 			this.contents[localContentsOffset++] = (byte) (accessFlags >> 8);
 			this.contents[localContentsOffset++] = (byte) accessFlags;
@@ -4428,13 +4429,13 @@ public class ClassFile implements TypeConstants, TypeIds {
 		if (this.targetJDK < ClassFileConstants.JDK1_5) {
 			// pre 1.5, synthetic is an attribute, not a modifier
 			// pre 1.5, varargs is an attribute, not a modifier (-target jsr14 mode)
-			accessFlags &= ~(ClassFileConstants.AccSynthetic | ClassFileConstants.AccVarargs);
+			accessFlags &= ~(Flags.SYNTHETIC | Flags.ACC_VARARGS);
 		}
 		if ((methodBinding.tagBits & TagBits.ClearPrivateModifier) != 0) {
-			accessFlags &= ~ClassFileConstants.AccPrivate;
+			accessFlags &= ~Flags.PRIVATE;
 		}
 		if (this.targetJDK >= ClassFileConstants.JDK17) {
-			accessFlags &= ~(ClassFileConstants.AccStrictfp);
+			accessFlags &= ~(Flags.STRICTFP);
 		}
 		this.contents[this.contentsOffset++] = (byte) (accessFlags >> 8);
 		this.contents[this.contentsOffset++] = (byte) accessFlags;
@@ -4489,8 +4490,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 		if (this.contentsOffset + 10 >= this.contents.length) {
 			resizeContents(10);
 		}
-		this.contents[this.contentsOffset++] = (byte) ((ClassFileConstants.AccDefault | ClassFileConstants.AccStatic) >> 8);
-		this.contents[this.contentsOffset++] = (byte) (ClassFileConstants.AccDefault | ClassFileConstants.AccStatic);
+		this.contents[this.contentsOffset++] = (byte) ((0 | Flags.STATIC) >> 8);
+		this.contents[this.contentsOffset++] = (byte) (0 | Flags.STATIC);
 		int nameIndex = this.constantPool.literalIndex(ConstantPool.Clinit);
 		this.contents[this.contentsOffset++] = (byte) (nameIndex >> 8);
 		this.contents[this.contentsOffset++] = (byte) nameIndex;
@@ -4988,11 +4989,11 @@ public class ClassFile implements TypeConstants, TypeIds {
 
 		if (declaringClass.isEnum()) {
 			if (isConstructor) { // insert String name,int ordinal
-				length = writeArgumentName(ConstantPool.EnumName, ClassFileConstants.AccSynthetic, length);
-				length = writeArgumentName(ConstantPool.EnumOrdinal, ClassFileConstants.AccSynthetic, length);
+				length = writeArgumentName(ConstantPool.EnumName, Flags.SYNTHETIC, length);
+				length = writeArgumentName(ConstantPool.EnumOrdinal, Flags.SYNTHETIC, length);
 			} else if (binding instanceof SyntheticMethodBinding
 					&& CharOperation.equals(ConstantPool.ValueOf, binding.selector)) { // insert String name
-				length = writeArgumentName(ConstantPool.Name, ClassFileConstants.AccMandated, length);
+				length = writeArgumentName(ConstantPool.Name, Flags.MANDATED, length);
 				targetParameters =  Binding.NO_PARAMETERS; // Override "unknown" synthetics below
 			}
 		}
@@ -5012,11 +5013,11 @@ public class ClassFile implements TypeConstants, TypeIds {
 					// isn't the first. The practical relevance of this is questionable, since the constructor call will be
 					// generated by the same constructor.
 					boolean couldForwardToMandated = anonymousWithNestedSuper ? declaringClass.superclass().enclosingType().equals(syntheticArgumentTypes[i]) : true;
-					int modifier = couldForwardToMandated && isImplicitlyDeclared ? ClassFileConstants.AccMandated : ClassFileConstants.AccSynthetic;
+					int modifier = couldForwardToMandated && isImplicitlyDeclared ? Flags.MANDATED : Flags.SYNTHETIC;
 					char[] name = CharOperation.concat(
 							TypeConstants.SYNTHETIC_ENCLOSING_INSTANCE_PREFIX,
 							String.valueOf(i).toCharArray()); // cannot use depth, can be identical
-					length = writeArgumentName(name, modifier | ClassFileConstants.AccFinal, length);
+					length = writeArgumentName(name, modifier | Flags.FINAL, length);
 				}
 			}
 			if (binding instanceof SyntheticMethodBinding) {
@@ -5034,7 +5035,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 					Argument argument = arguments[i];
 					length = writeArgumentName(argument.name, argument.binding.modifiers, length);
 				} else {
-					length = writeArgumentName(null, ClassFileConstants.AccSynthetic, length);
+					length = writeArgumentName(null, Flags.SYNTHETIC, length);
 				}
 			}
 		}
@@ -5042,12 +5043,12 @@ public class ClassFile implements TypeConstants, TypeIds {
 			SyntheticArgumentBinding[] syntheticOuterArguments = declaringClass.syntheticOuterLocalVariables();
 			int count = syntheticOuterArguments == null ? 0 : syntheticOuterArguments.length;
 			for (int i = 0; i < count; i++) {
-				length = writeArgumentName(syntheticOuterArguments[i].name, syntheticOuterArguments[i].modifiers  | ClassFileConstants.AccSynthetic, length);
+				length = writeArgumentName(syntheticOuterArguments[i].name, syntheticOuterArguments[i].modifiers  | Flags.SYNTHETIC, length);
 			}
 			// move the extra padding arguments of the synthetic constructor invocation to the end
 			for (int i = targetParameters.length, extraLength = binding.parameters.length; i < extraLength; i++) {
 				TypeBinding parameter = binding.parameters[i];
-				length = writeArgumentName(parameter.constantPoolName(), ClassFileConstants.AccSynthetic, length);
+				length = writeArgumentName(parameter.constantPoolName(), Flags.SYNTHETIC, length);
 			}
 		}
 
@@ -5084,7 +5085,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		int parameterNameIndex = name == null ? 0 : this.constantPool.literalIndex(name);
 		this.contents[this.contentsOffset++] = (byte) (parameterNameIndex >> 8);
 		this.contents[this.contentsOffset++] = (byte) parameterNameIndex;
-		int flags = modifiers & (ClassFileConstants.AccFinal | ClassFileConstants.AccSynthetic | ClassFileConstants.AccMandated);
+		int flags = modifiers & (Flags.FINAL | Flags.SYNTHETIC | Flags.MANDATED);
 		this.contents[this.contentsOffset++] = (byte) (flags >> 8);
 		this.contents[this.contentsOffset++] = (byte) flags;
 		return oldLength + 1;
@@ -5913,31 +5914,31 @@ public class ClassFile implements TypeConstants, TypeIds {
 		// Modifier manipulations for classfile
 		int accessFlags = aType.getAccessFlags();
 		if (aType.isPrivate()) { // rewrite private to non-public
-			accessFlags &= ~ClassFileConstants.AccPublic;
+			accessFlags &= ~Flags.PUBLIC;
 		}
 		if (aType.isProtected()) { // rewrite protected into public
-			accessFlags |= ClassFileConstants.AccPublic;
+			accessFlags |= Flags.PUBLIC;
 		}
 		// clear all bits that are illegal for a class or an interface
 		accessFlags
 			&= ~(
-				ClassFileConstants.AccStrictfp
-					| ClassFileConstants.AccProtected
-					| ClassFileConstants.AccPrivate
-					| ClassFileConstants.AccStatic
-					| ClassFileConstants.AccSynchronized
-					| ClassFileConstants.AccNative);
+				Flags.STRICTFP
+					| Flags.PROTECTED
+					| Flags.PRIVATE
+					| Flags.STATIC
+					| Flags.SYNCHRONIZED
+					| Flags.NATIVE);
 
 		// set the AccSuper flag (has to be done after clearing AccSynchronized - since same value)
 		if (!aType.isInterface()) { // class or enum
-			accessFlags |= ClassFileConstants.AccSuper;
+			accessFlags |= Flags.ACC_SUPER;
 		}
 		if (aType.isAnonymousType()) {
 			ReferenceBinding superClass = aType.superclass;
 			if (superClass == null || !(superClass.isEnum() && superClass.isSealed()))
-			accessFlags &= ~ClassFileConstants.AccFinal;
+			accessFlags &= ~Flags.FINAL;
 		}
-		int finalAbstract = ClassFileConstants.AccFinal | ClassFileConstants.AccAbstract;
+		int finalAbstract = Flags.FINAL | Flags.ABSTRACT;
 		if ((accessFlags & finalAbstract) == finalAbstract) {
 			accessFlags &= ~finalAbstract;
 		}
@@ -5991,7 +5992,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 	}
 
 	public void initializeForModule(ModuleBinding module) {
-		initializeHeader(null, ClassFileConstants.AccModule);
+		initializeHeader(null, Flags.ACC_MODULE);
 		int classNameIndex = this.constantPool.literalIndexForType(TypeConstants.MODULE_INFO_NAME);
 		this.contents[this.contentsOffset++] = (byte) (classNameIndex >> 8);
 		this.contents[this.contentsOffset++] = (byte) classNameIndex;

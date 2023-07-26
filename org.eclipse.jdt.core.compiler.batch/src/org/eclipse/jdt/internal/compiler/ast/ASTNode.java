@@ -89,6 +89,8 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.WildcardBinding;
 
+import com.sun.tools.javac.code.Flags;
+
 @SuppressWarnings({"rawtypes", "unchecked"})
 public abstract class ASTNode implements TypeConstants, TypeIds {
 
@@ -689,25 +691,25 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 
 	public static StringBuffer printModifiers(int modifiers, StringBuffer output) {
 
-		if ((modifiers & ClassFileConstants.AccPublic) != 0)
+		if ((modifiers & Flags.PUBLIC) != 0)
 			output.append("public "); //$NON-NLS-1$
-		if ((modifiers & ClassFileConstants.AccPrivate) != 0)
+		if ((modifiers & Flags.PRIVATE) != 0)
 			output.append("private "); //$NON-NLS-1$
-		if ((modifiers & ClassFileConstants.AccProtected) != 0)
+		if ((modifiers & Flags.PROTECTED) != 0)
 			output.append("protected "); //$NON-NLS-1$
-		if ((modifiers & ClassFileConstants.AccStatic) != 0)
+		if ((modifiers & Flags.STATIC) != 0)
 			output.append("static "); //$NON-NLS-1$
-		if ((modifiers & ClassFileConstants.AccFinal) != 0)
+		if ((modifiers & Flags.FINAL) != 0)
 			output.append("final "); //$NON-NLS-1$
-		if ((modifiers & ClassFileConstants.AccSynchronized) != 0)
+		if ((modifiers & Flags.SYNCHRONIZED) != 0)
 			output.append("synchronized "); //$NON-NLS-1$
-		if ((modifiers & ClassFileConstants.AccVolatile) != 0)
+		if ((modifiers & Flags.VOLATILE) != 0)
 			output.append("volatile "); //$NON-NLS-1$
-		if ((modifiers & ClassFileConstants.AccTransient) != 0)
+		if ((modifiers & Flags.TRANSIENT) != 0)
 			output.append("transient "); //$NON-NLS-1$
-		if ((modifiers & ClassFileConstants.AccNative) != 0)
+		if ((modifiers & Flags.NATIVE) != 0)
 			output.append("native "); //$NON-NLS-1$
-		if ((modifiers & ClassFileConstants.AccAbstract) != 0)
+		if ((modifiers & Flags.ABSTRACT) != 0)
 			output.append("abstract "); //$NON-NLS-1$
 		if ((modifiers & ExtraCompilerModifiers.AccDefaultMethod) != 0)
 			output.append("default "); //$NON-NLS-1$

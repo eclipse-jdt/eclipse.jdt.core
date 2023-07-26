@@ -15,9 +15,16 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
-import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.ast.Annotation;
+import org.eclipse.jdt.internal.compiler.ast.ArrayInitializer;
+import org.eclipse.jdt.internal.compiler.ast.ClassLiteralAccess;
+import org.eclipse.jdt.internal.compiler.ast.Expression;
+import org.eclipse.jdt.internal.compiler.ast.FieldReference;
+import org.eclipse.jdt.internal.compiler.ast.NameReference;
+import org.eclipse.jdt.internal.compiler.ast.Reference;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+
+import com.sun.tools.javac.code.Flags;
 
 public class ElementValuePair {
 	char[] name;
@@ -77,7 +84,7 @@ public static Object getValue(Expression expression) {
 			if (binding != null && binding.kind() == Binding.FIELD)
 				fieldBinding = (FieldBinding) binding;
 		}
-		if (fieldBinding != null && (fieldBinding.modifiers & ClassFileConstants.AccEnum) > 0)
+		if (fieldBinding != null && (fieldBinding.modifiers & Flags.ENUM) > 0)
 			return fieldBinding;
 	}
 	// something that isn't a compile time constant.

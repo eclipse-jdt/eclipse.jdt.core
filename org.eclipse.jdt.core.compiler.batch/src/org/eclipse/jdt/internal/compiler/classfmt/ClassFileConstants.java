@@ -25,47 +25,12 @@ import com.sun.tools.javac.jvm.ClassFile.Version;
 
 public interface ClassFileConstants {
 
-	int AccDefault = 0;
-	/*
-	 * Modifiers
-	 */
-	int AccPublic       = 0x0001;
-	int AccPrivate      = 0x0002;
-	int AccProtected    = 0x0004;
-	int AccStatic       = 0x0008;
-	int AccFinal        = 0x0010;
-	int AccSynchronized = 0x0020;
-	int AccVolatile     = 0x0040;
-	int AccBridge       = 0x0040;
-	int AccTransient    = 0x0080;
-	int AccVarargs      = 0x0080;
-	int AccNative       = 0x0100;
-	int AccInterface    = 0x0200;
-	int AccAbstract     = 0x0400;
-	int AccStrictfp     = 0x0800;
-	int AccSynthetic    = 0x1000;
-	int AccAnnotation   = 0x2000;
-	int AccEnum         = 0x4000;
-	int AccModule		= 0x8000;
-
-	/**
-	 * From classfile version 52 (compliance 1.8 up), meaning that a formal parameter is mandated
-	 * by a language specification, so all compilers for the language must emit it.
-	 */
-	int AccMandated     = 0x8000;
-
 	/**
 	 * Flags in module declaration - since java9
 	 */
 	int ACC_OPEN			= 0x0020;
 	int ACC_TRANSITIVE 		= 0x0020;
 	int ACC_STATIC_PHASE	= 0x0040;
-	int ACC_SYNTHETIC 		= 0x1000;
-
-	/**
-	 * Other VM flags.
-	 */
-	int AccSuper = 0x0020;
 
 	/**
 	 * Extra flags for types and members attributes (not from the JVMS, should have been defined in ExtraCompilerModifiers).

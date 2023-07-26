@@ -49,6 +49,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.INVOCATION_CONTEXT;
 
 import java.util.HashMap;
+
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
@@ -662,7 +663,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 			if (isMethodReference() && this.haveReceiver && (this.original == this)) {
 				this.receiverVariable = new LocalVariableBinding(
 						(SecretReceiverVariableName + this.nameSourceStart).toCharArray(), this.lhs.resolvedType,
-						ClassFileConstants.AccDefault, false);
+						0, false);
 				scope.addLocalVariable(this.receiverVariable);
 				this.receiverVariable.setConstant(Constant.NotAConstant); // not inlinable
 				this.receiverVariable.useFlag = LocalVariableBinding.USED;

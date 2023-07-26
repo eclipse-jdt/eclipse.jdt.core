@@ -16,9 +16,14 @@ package org.eclipse.jdt.internal.compiler.ast;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
-import org.eclipse.jdt.internal.compiler.flow.*;
+import org.eclipse.jdt.internal.compiler.flow.FlowContext;
+import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.flow.InsideSubRoutineFlowContext;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class YieldStatement extends BranchStatement {
 
@@ -110,7 +115,7 @@ protected void addSecretYieldResultValue(BlockScope scope1) {
 	LocalVariableBinding local = new LocalVariableBinding(
 			YieldStatement.SECRET_YIELD_RESULT_VALUE_NAME,
 			se.resolvedType,
-			ClassFileConstants.AccDefault,
+			0,
 			false);
 	local.setConstant(Constant.NotAConstant);
 	local.useFlag = LocalVariableBinding.USED;

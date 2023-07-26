@@ -19,6 +19,8 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
+import com.sun.tools.javac.code.Flags;
+
 // TODO (philippe) these should be moved to tagbits
 public interface ExtraCompilerModifiers { // modifier constant
 	/**
@@ -32,7 +34,7 @@ public interface ExtraCompilerModifiers { // modifier constant
 
 	final int AccDefaultMethod = ASTNode.Bit17;
 	final int AccCompactConstructor = ASTNode.Bit24;
-	// bit18 - use by ClassFileConstants.AccAnnotationDefault
+	// bit18 - use by Flags.ANNOTATIONDefault
 	final int AccRestrictedAccess = ASTNode.Bit19;
 	final int AccFromClassFile = ASTNode.Bit20;
 	final int AccDefaultAbstract = ASTNode.Bit20;
@@ -50,7 +52,7 @@ public interface ExtraCompilerModifiers { // modifier constant
 											  // generally set when actual usage has been detected
 											  // or, (b) when member of a private class is exposed via a non-private subclass
 											  //     see https://bugs.eclipse.org/bugs/show_bug.cgi?id=328281
-	final int AccVisibilityMASK = ClassFileConstants.AccPublic | ClassFileConstants.AccProtected | ClassFileConstants.AccPrivate;
+	final int AccVisibilityMASK = Flags.PUBLIC | Flags.PROTECTED | Flags.PRIVATE;
 
 	final int AccSealed = ASTNode.Bit29; // used for class/interface to set sealed
 	final int AccOverriding = ASTNode.Bit29; // record fact a method overrides another one

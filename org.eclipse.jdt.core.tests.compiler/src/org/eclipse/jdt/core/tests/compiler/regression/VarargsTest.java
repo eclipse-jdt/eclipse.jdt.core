@@ -27,6 +27,8 @@ import org.eclipse.jdt.core.util.IMethodInfo;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
+import com.sun.tools.javac.code.Flags;
+
 import junit.framework.Test;
 
 @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -2270,7 +2272,7 @@ public class VarargsTest extends AbstractComparableTest {
 		} else if (CharOperation.equals(methodInfos[1].getName(), "varargMethod".toCharArray())) {
 			methodInfo = methodInfos[1];
 		}
-		assertTrue("ACC_VARARGS is not set", (methodInfo.getAccessFlags() & ClassFileConstants.AccVarargs) == 0);
+		assertTrue("ACC_VARARGS is not set", (methodInfo.getAccessFlags() & Flags.ACC_VARARGS) == 0);
 		assertNotNull("Method varargMethodshould be there", methodInfo);
 		assertEquals("2", 2, methodInfo.getAttributeCount());
 		IClassFileAttribute[] attributes = methodInfo.getAttributes();

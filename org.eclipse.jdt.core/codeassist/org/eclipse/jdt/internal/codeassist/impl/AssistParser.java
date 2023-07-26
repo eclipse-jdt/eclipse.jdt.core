@@ -57,7 +57,6 @@ import org.eclipse.jdt.internal.compiler.ast.SuperReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypePattern;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
@@ -74,12 +73,14 @@ import org.eclipse.jdt.internal.compiler.parser.RecoveredType;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredUnit;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
+
+import com.sun.tools.javac.code.Flags;
 public abstract class AssistParser extends Parser {
 	public ASTNode assistNode;
 	public boolean isOrphanCompletionNode;
 	private boolean resumedAfterRepair = false;
 	// last modifiers info
-	protected int lastModifiers = ClassFileConstants.AccDefault;
+	protected int lastModifiers = 0;
 	protected int lastModifiersStart = -1;
 	/* recovery */
 	int[] blockStarts = new int[30];
@@ -1136,7 +1137,7 @@ protected void consumeSingleStaticImportDeclarationName() {
 		length);
 
 	/* build specific assist node on import statement */
-	ImportReference reference = createAssistImportReference(subset, positions, ClassFileConstants.AccStatic);
+	ImportReference reference = createAssistImportReference(subset, positions, Flags.STATIC);
 	this.assistNode = reference;
 	this.lastCheckPoint = reference.sourceEnd + 1;
 
@@ -1289,7 +1290,7 @@ protected void consumeSingleTypeImportDeclarationName() {
 		length);
 
 	/* build specific assist node on import statement */
-	ImportReference reference = createAssistImportReference(subset, positions, ClassFileConstants.AccDefault);
+	ImportReference reference = createAssistImportReference(subset, positions, 0);
 	this.assistNode = reference;
 	this.lastCheckPoint = reference.sourceEnd + 1;
 
@@ -1341,7 +1342,7 @@ protected void consumeStaticImportOnDemandDeclarationName() {
 		length);
 
 	/* build specific assist node on import statement */
-	ImportReference reference = createAssistImportReference(subset, positions, ClassFileConstants.AccStatic);
+	ImportReference reference = createAssistImportReference(subset, positions, Flags.STATIC);
 	reference.bits |= ASTNode.OnDemand;
 	// star end position
 	reference.trailingStarPosition = this.intStack[this.intPtr--];
@@ -1477,7 +1478,7 @@ protected void consumeTypeImportOnDemandDeclarationName() {
 		length);
 
 	/* build specific assist node on import statement */
-	ImportReference reference = createAssistImportReference(subset, positions, ClassFileConstants.AccDefault);
+	ImportReference reference = createAssistImportReference(subset, positions, 0);
 	reference.bits |= ASTNode.OnDemand;
 	// star end position
 	reference.trailingStarPosition = this.intStack[this.intPtr--];
@@ -2490,7 +2491,7 @@ protected int resumeAfterRecovery() {
 
 	this.valueLambdaNestDepth = -1;
 
-	this.modifiers = ClassFileConstants.AccDefault;
+	this.modifiers = 0;
 	this.modifiersSourceStart = -1;
 
 	// if in diet mode, reset the diet counter because we're going to restart outside an initializer.

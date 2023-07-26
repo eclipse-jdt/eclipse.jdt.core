@@ -17,7 +17,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+
+import com.sun.tools.javac.code.Flags;
 
 public class MissingTypeBinding extends BinaryTypeBinding {
 
@@ -35,7 +36,7 @@ public MissingTypeBinding(PackageBinding packageBinding, char[][] compoundName, 
 	this.fPackage = packageBinding;
 	this.fileName = CharOperation.concatWith(compoundName, '/');
 	this.sourceName = compoundName[compoundName.length - 1]; // [java][util][Map$Entry]
-	this.modifiers = ClassFileConstants.AccPublic;
+	this.modifiers = Flags.PUBLIC;
 	this.superclass = null; // will be fixed up using #setMissingSuperclass(...)
 	this.superInterfaces = Binding.NO_SUPERINTERFACES;
 	this.permittedSubtypes = Binding.NO_PERMITTEDTYPES;

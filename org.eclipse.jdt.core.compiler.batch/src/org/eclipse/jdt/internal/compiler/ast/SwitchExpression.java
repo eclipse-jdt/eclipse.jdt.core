@@ -28,7 +28,6 @@ import java.util.stream.Collectors;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
@@ -250,7 +249,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 				new LocalVariableBinding(
 					name,
 					type,
-					ClassFileConstants.AccDefault,
+					0,
 					false);
 		lvb.setConstant(Constant.NotAConstant);
 		lvb.useFlag = LocalVariableBinding.USED;
@@ -643,7 +642,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 					new LocalVariableBinding(
 						SwitchExpression.SECRET_YIELD_VALUE_NAME,
 						null,
-						ClassFileConstants.AccDefault,
+						0,
 						false);
 			this.hiddenYield.setConstant(Constant.NotAConstant);
 			this.hiddenYield.useFlag = LocalVariableBinding.USED;

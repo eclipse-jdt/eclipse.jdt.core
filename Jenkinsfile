@@ -38,7 +38,7 @@ pipeline {
 					mvn -U clean verify --batch-mode --fail-at-end -Dmaven.repo.local=$WORKSPACE/.m2/repository \
 					-Ptest-on-javase-20 -Pbree-libs -Papi-check \
 					-Djava.io.tmpdir=$WORKSPACE/tmp -Dproject.build.sourceEncoding=UTF-8 \
-					-Dtycho.surefire.argLine="--add-modules ALL-SYSTEM --add-exports jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED -Dcompliance=1.8,11,17,20 -Djdt.performance.asserts=disabled" \
+					-Dtycho.surefire.argLine="--add-modules ALL-SYSTEM --add-exports jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED --add-exports jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED  -Dcompliance=1.8,11,17,20 -Djdt.performance.asserts=disabled" \
 					-Dcbi-ecj-version=99.99
 					"""
 			}

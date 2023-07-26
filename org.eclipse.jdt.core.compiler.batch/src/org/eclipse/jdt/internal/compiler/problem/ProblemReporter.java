@@ -86,8 +86,8 @@ import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -218,6 +218,8 @@ import org.eclipse.jdt.internal.compiler.parser.Scanner;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.compiler.util.Messages;
 import org.eclipse.jdt.internal.compiler.util.Util;
+
+import com.sun.tools.javac.code.Flags;
 
 @SuppressWarnings("rawtypes")
 public class ProblemReporter extends ProblemHandler {
@@ -2933,11 +2935,11 @@ public void illegalLocalTypeDeclaration(TypeDeclaration typeDeclaration) {
 	if (isRecoveredName(typeDeclaration.name)) return;
 
 	int problemID = 0;
-	if ((typeDeclaration.modifiers & ClassFileConstants.AccEnum) != 0) {
+	if ((typeDeclaration.modifiers & Flags.ENUM) != 0) {
 		problemID = IProblem.CannotDefineEnumInLocalType;
-	} else if ((typeDeclaration.modifiers & ClassFileConstants.AccAnnotation) != 0) {
+	} else if ((typeDeclaration.modifiers & Flags.ANNOTATION) != 0) {
 		problemID = IProblem.CannotDefineAnnotationInLocalType;
-	} else if ((typeDeclaration.modifiers & ClassFileConstants.AccInterface) != 0) {
+	} else if ((typeDeclaration.modifiers & Flags.INTERFACE) != 0) {
 		problemID = IProblem.CannotDefineInterfaceInLocalType;
 	} else if (typeDeclaration.isRecord()) {
 		problemID = IProblem.RecordCannotDefineRecordInLocalType;
@@ -6196,14 +6198,14 @@ public void javadocUnterminatedInlineTag(int sourceStart, int sourceEnd) {
 private boolean javadocVisibility(int visibility, int modifiers) {
 	if (modifiers < 0) return true;
 	switch (modifiers & ExtraCompilerModifiers.AccVisibilityMASK) {
-		case ClassFileConstants.AccPublic :
+		case Flags.PUBLIC:
 			return true;
-		case ClassFileConstants.AccProtected:
-			return (visibility != ClassFileConstants.AccPublic);
-		case ClassFileConstants.AccDefault:
-			return (visibility == ClassFileConstants.AccDefault || visibility == ClassFileConstants.AccPrivate);
-		case ClassFileConstants.AccPrivate:
-			return (visibility == ClassFileConstants.AccPrivate);
+		case Flags.PROTECTED:
+			return (visibility != Flags.PUBLIC);
+		case 0:
+			return (visibility == 0 || visibility == Flags.PRIVATE);
+		case Flags.PRIVATE:
+			return (visibility == Flags.PRIVATE);
 	}
 	return true;
 }
@@ -6211,21 +6213,21 @@ private boolean javadocVisibility(int visibility, int modifiers) {
 private String javadocVisibilityArgument(int visibility, int modifiers) {
 	String argument = null;
 	switch (modifiers & ExtraCompilerModifiers.AccVisibilityMASK) {
-		case ClassFileConstants.AccPublic :
+		case Flags.PUBLIC:
 			argument = CompilerOptions.PUBLIC;
 			break;
-		case ClassFileConstants.AccProtected:
-			if (visibility != ClassFileConstants.AccPublic) {
+		case Flags.PROTECTED:
+			if (visibility != Flags.PUBLIC) {
 				argument = CompilerOptions.PROTECTED;
 			}
 			break;
-		case ClassFileConstants.AccDefault:
-			if (visibility == ClassFileConstants.AccDefault || visibility == ClassFileConstants.AccPrivate) {
+		case 0:
+			if (visibility == 0 || visibility == Flags.PRIVATE) {
 				argument = CompilerOptions.DEFAULT;
 			}
 			break;
-		case ClassFileConstants.AccPrivate:
-			if (visibility == ClassFileConstants.AccPrivate) {
+		case Flags.PRIVATE:
+			if (visibility == Flags.PRIVATE) {
 				argument = CompilerOptions.PRIVATE;
 			}
 			break;
@@ -6701,7 +6703,7 @@ public void methodNeedBody(AbstractMethodDeclaration methodDecl) {
 
 public void methodNeedingNoBody(MethodDeclaration methodDecl) {
 	this.handle(
-		((methodDecl.modifiers & ClassFileConstants.AccNative) != 0) ? IProblem.BodyForNativeMethod : IProblem.BodyForAbstractMethod,
+		((methodDecl.modifiers & Flags.NATIVE) != 0) ? IProblem.BodyForNativeMethod : IProblem.BodyForAbstractMethod,
 		NoArgument,
 		NoArgument,
 		methodDecl.sourceStart,
