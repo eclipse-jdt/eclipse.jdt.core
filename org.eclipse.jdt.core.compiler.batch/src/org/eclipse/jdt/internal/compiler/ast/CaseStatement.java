@@ -22,9 +22,11 @@ import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.IntConstant;
 import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
+import org.eclipse.jdt.internal.compiler.impl.StringConstant;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
@@ -198,7 +200,10 @@ public static class ResolvedCase {
 	public int index;
 	private int intValue;
 	private boolean isPattern;
-	ResolvedCase(Constant c, Expression e, TypeBinding t, int index) {
+	private boolean isQualifiedEnum;
+	public int enumDescIdx;
+	public int classDescIdx;
+	ResolvedCase(Constant c, Expression e, TypeBinding t, int index, boolean isQualifiedEnum) {
 		this.c = c;
 		this.e = e;
 		this.t= t;
@@ -209,12 +214,16 @@ public static class ResolvedCase {
 			this.intValue = c.intValue();
 		}
 		this.isPattern = e instanceof Pattern;
+		this.isQualifiedEnum = isQualifiedEnum;
 	}
 	public int intValue() {
 		return this.intValue;
 	}
 	public boolean isPattern() {
 		return this.isPattern;
+	}
+	public boolean isQualifiedEnum() {
+		return this.isQualifiedEnum;
 	}
 	@Override
 	public String toString() {
@@ -367,11 +376,11 @@ private ResolvedCase[] resolveCasePrivate(BlockScope scope, TypeBinding switchEx
 			return ResolvedCase.UnresolvedCase;
 		 // Avoid further resolution and secondary errors
 		if (caseType.isValidBinding()) {
-			Constant con = resolveConstantExpression(scope, caseType, switchExpressionType, switchStatement, e);
+			Constant con = resolveConstantExpression(scope, caseType, switchExpressionType, switchStatement, e, cases);
 			if (con != Constant.NotAConstant) {
 				int index = this == switchStatement.nullCase && e instanceof NullLiteral ?
 						-1 : switchStatement.constantIndex++;
-				cases.add(new ResolvedCase(con, e, caseType, index));
+				cases.add(new ResolvedCase(con, e, caseType, index, false));
 			}
 		}
 	}
@@ -408,9 +417,11 @@ public Constant resolveConstantExpression(BlockScope scope,
 											TypeBinding caseType,
 											TypeBinding switchType,
 											SwitchStatement switchStatement,
-											Expression expression) {
+											Expression expression,
+											List<ResolvedCase> cases) {
 
-	boolean patternSwitchAllowed = JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(scope.compilerOptions());
+	CompilerOptions options = scope.compilerOptions();
+	boolean patternSwitchAllowed = JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(options);
 	if (patternSwitchAllowed) {
 		if (expression instanceof Pattern) {
 			return resolveConstantExpression(scope, caseType, switchType,
@@ -450,7 +461,14 @@ public Constant resolveConstantExpression(BlockScope scope,
 				if ((field.modifiers & ClassFileConstants.AccEnum) == 0) {
 					 scope.problemReporter().enumSwitchCannotTargetField(reference, field);
 				} else 	if (reference instanceof QualifiedNameReference) {
-					 scope.problemReporter().cannotUseQualifiedEnumConstantInCaseLabel(reference, field);
+					if (options.complianceLevel < ClassFileConstants.JDK21) {
+						scope.problemReporter().cannotUseQualifiedEnumConstantInCaseLabel(reference, field);
+					} else if (!TypeBinding.equalsEquals(caseType, switchType)) {
+						switchStatement.switchBits |= SwitchStatement.QualifiedEnum;
+						StringConstant constant = (StringConstant) StringConstant.fromValue(new String(field.name));
+						cases.add(new ResolvedCase(constant, expression, caseType, -1, true));
+						return Constant.NotAConstant;
+					}
 				}
 				return IntConstant.fromValue(field.original().id + 1); // (ordinal value + 1) zero should not be returned see bug 141810
 			}

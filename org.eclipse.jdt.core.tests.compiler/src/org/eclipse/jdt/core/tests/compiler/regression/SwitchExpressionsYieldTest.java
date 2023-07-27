@@ -1080,6 +1080,8 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	 * Switch multi-constant with illegal qualified enum constant
 	 */
 	public void testBug544073_032() {
+		if (this.complianceLevel >= ClassFileConstants.JDK21)
+			return;
 		String[] testFiles = new String[] {
 				"X.java",
 				"public class X {\n" +

@@ -2933,6 +2933,21 @@ public abstract class Scope {
 		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_RUNTIME_SWITCHBOOTSTRAPS);
 		return unitScope.environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_RUNTIME_SWITCHBOOTSTRAPS, this);
 	}
+	public final ReferenceBinding getJavaLangInvokeConstantBootstraps() {
+		CompilationUnitScope unitScope = compilationUnitScope();
+		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_INVOKE_CONSTANTBOOTSTRAP);
+		return unitScope.environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_INVOKE_CONSTANTBOOTSTRAP, this);
+	}
+	public final ReferenceBinding getJavaLangEnumDesc() {
+		CompilationUnitScope unitScope = compilationUnitScope();
+		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_ENUM_ENUMDESC);
+		return unitScope.environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_ENUM_ENUMDESC, this);
+	}
+	public final ReferenceBinding getJavaLangClassDesc() {
+		CompilationUnitScope unitScope = compilationUnitScope();
+		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_CONSTANT_CLASSDESC);
+		return unitScope.environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_CONSTANT_CLASSDESC, this);
+	}
 	public final ReferenceBinding getJavaLangInvokeStringConcatFactory() {
 		CompilationUnitScope unitScope = compilationUnitScope();
 		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_INVOKE_STRING_CONCAT_FACTORY);
