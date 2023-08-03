@@ -967,13 +967,12 @@ public void buildStringForConcatation(BlockScope blockScope, CodeStream codeStre
 				break;
 			default :
 				if (this.resolvedType.id == TypeIds.T_null) {
-					// Optimize it, avoid aconst_null, simply append the String Literal
-					recipe.append((String) null);
+					codeStream.aconst_null();
 				} else {
 					generateCode(blockScope, codeStream, true);
 					codeStream.invokeStringValueOf(typeID);
-					addArgumentToRecipe(blockScope, codeStream, recipe, blockScope.getJavaLangString(), argTypes);
 				}
+				addArgumentToRecipe(blockScope, codeStream, recipe, blockScope.getJavaLangString(), argTypes);
 				break;
 		}
 	} else {
