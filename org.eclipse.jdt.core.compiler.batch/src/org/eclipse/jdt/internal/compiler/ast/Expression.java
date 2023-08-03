@@ -969,6 +969,7 @@ public void buildStringForConcatation(BlockScope blockScope, CodeStream codeStre
 				if (this.resolvedType.id == TypeIds.T_null) {
 					// Optimize it, avoid aconst_null, simply append the String Literal
 					recipe.append((String) null);
+					codeStream.stackDepth++;
 				} else {
 					generateCode(blockScope, codeStream, true);
 					codeStream.invokeStringValueOf(typeID);

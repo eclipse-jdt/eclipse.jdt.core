@@ -1625,4 +1625,19 @@ public void testBug569498() {
 public static Class testClass() {
 	return ConstantTest.class;
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1256
+public void testGH1256() throws Exception {
+	this.runConformTest(
+		new String[] {
+			"X.java",
+			"public class X {\n"
+			+ "	public static void main(String[] args) {\n"
+			+ "		String value = \"12345\";\n"
+			+ "		value.equalsIgnoreCase(\"\" + null);\n"
+			+ "		System.out.println(value.substring(1));\n"
+			+ "	}\n"
+			+ "}",
+		 },
+	"2345");
+}
 }
