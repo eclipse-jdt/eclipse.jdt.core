@@ -36,11 +36,11 @@ public interface OperatorIds {
 	public static final int UNSIGNED_RIGHT_SHIFT= 19;
 	public static final int NumberOfTables = 20;
 
-	public static final int QUESTIONCOLON = 23;
+	public static final int QUESTIONCOLON = 21;
 
-	public static final int NOT_EQUAL = 29;
-	public static final int EQUAL = 30;
-	public static final int INSTANCEOF = 31;
-	public static final int PLUS_PLUS = 32;
-	public static final int MINUS_MINUS = 33;
+	public static final int NOT_EQUAL = 22;
+	public static final int EQUAL = 23;
+	public static final int INSTANCEOF = 24;
+	public static final int PLUS_PLUS = 25;
+	public static final int MINUS_MINUS = 26;
 }
