@@ -2990,7 +2990,7 @@ public void testGH1264() throws Exception {
 	IJavaElement[] elements = this.wc.codeSelect(start, length);
 	assertElementsEqual(
 		"Unexpected elements",
-		"apply(T) [in Function [in Function.class [in java.util.function [in C:\\Users\\Srikanth\\jclFull1.8.jar]]]]",
+		"apply(T) [in Function [in Function.class [in java.util.function [in " + getExternalPath() + "jclFull1.8.jar]]]]",
 		elements
 	);
 }
