@@ -108,8 +108,8 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public final static int Bit11 = 0x400;				// depth (name ref, msg) | operator (operator) | is member type (type decl)
 	public final static int Bit12 = 0x800;				// depth (name ref, msg) | operator (operator) | has abstract methods (type decl)
 	public final static int Bit13 = 0x1000;			// depth (name ref, msg) | operator (operator) | is secondary type (type decl)
-	public final static int Bit14 = 0x2000;			// strictly assigned (reference lhs) | operator (operator) | discard enclosing instance (explicit constr call) | hasBeenGenerated (type decl)
-	public final static int Bit15 = 0x4000;			// is unnecessary cast (expression) | is varargs (type ref) | isSubRoutineEscaping (try statement) | superAccess (javadoc allocation expression/javadoc message send/javadoc return statement)
+	public final static int Bit14 = 0x2000;			// operator (operator) | discard enclosing instance (explicit constr call) | hasBeenGenerated (type decl)
+	public final static int Bit15 = 0x4000;			// strictly assigned (reference lhs) | is unnecessary cast (expression) | is varargs (type ref) | isSubRoutineEscaping (try statement) | superAccess (javadoc allocation expression/javadoc message send/javadoc return statement)
 	public final static int Bit16 = 0x8000;			// in javadoc comment (name ref, type ref, msg)
 	public final static int Bit17 = 0x10000;			// compound assigned (reference lhs) | unchecked (msg, alloc, explicit constr call)
 	public final static int Bit18 = 0x20000;			// non null (expression) | onDemand (import reference)
@@ -167,7 +167,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	// for operators
 	public static final int ReturnTypeIDMASK = Bit1|Bit2|Bit3|Bit4;
 	public static final int OperatorSHIFT = 8;	// Bit9 -> Bit14
-	public static final int OperatorMASK = Bit9|Bit10|Bit11|Bit12|Bit13|Bit14; // 6 bits for operator ID
+	public static final int OperatorMASK = Bit9|Bit10|Bit11|Bit12|Bit13|Bit14; // 6 bits for operator ID - see org.eclipse.jdt.internal.compiler.ast.OperatorIds
 
 	// for binary expressions
 	public static final int IsReturnedValue = Bit5;
@@ -235,7 +235,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public static final int IgnoreNoEffectAssignCheck = Bit30;
 
 	// for references on lhs of assignment
-	public static final int IsStrictlyAssigned = Bit14; // set only for true assignments, as opposed to compound ones
+	public static final int IsStrictlyAssigned = Bit15; // set only for true assignments, as opposed to compound ones
 	public static final int IsCompoundAssigned = Bit17; // set only for compound assignments, as opposed to other ones
 
 	// for explicit constructor call

@@ -1881,4 +1881,50 @@ public class StandAloneASTParserTest extends AbstractRegressionTest {
 			packDir.delete();
 		}
 	}
+
+	public void testGitHub316() throws JavaModelException {
+		String contents =
+				"public class X {\n" +
+						"void m() {"
+//						+ " 1 = 3;"// did work
+						+ " (1+2) = 3;"// was IllegalArgumentException in InfixExpression#setOperator
+						+ " }"+
+				"}";
+
+			ASTParser parser = ASTParser.newParser(AST_JLS_LATEST);
+			parser.setSource(contents.toCharArray());
+			parser.setEnvironment(null, null, null, true);
+			parser.setResolveBindings(true);
+			parser.setUnitName("X.java");
+
+			ASTNode node = parser.createAST(null);
+			assertTrue("Should be a compilation unit", node instanceof CompilationUnit);
+			CompilationUnit cu = (CompilationUnit) node;
+			assertEquals("Problems in compilation", 1,cu.getProblems().length);
+			assertEquals("The left-hand side of an assignment must be a variable",cu.getProblems()[0].getMessage());
+	}
+	public void testGitHub1122() throws JavaModelException {
+		String contents =
+				"public class X {\n" +
+						"void m() {"
+						+ ".a() >0);"// was IllegalArgumentException in InfixExpression#setOperator
+						+ " }"+
+				"}";
+
+			ASTParser parser = ASTParser.newParser(AST_JLS_LATEST);
+			parser.setSource(contents.toCharArray());
+			parser.setEnvironment(null, null, null, true);
+			parser.setResolveBindings(true);
+			parser.setUnitName("X.java");
+			parser.setStatementsRecovery(true);
+			parser.setBindingsRecovery(true);
+
+			ASTNode node = parser.createAST(null);
+			assertTrue("Should be a compilation unit", node instanceof CompilationUnit);
+			CompilationUnit cu = (CompilationUnit) node;
+			assertEquals("Problems in compilation", 3,cu.getProblems().length);
+			assertEquals("Syntax error on token \".\", invalid (",cu.getProblems()[0].getMessage());
+			// XXX BatchCompiler instead reports 'Syntax error, insert "AssignmentOperator Expression" to complete Expression':
+			assertEquals("The left-hand side of an assignment must be a variable",cu.getProblems()[1].getMessage());
+	}
 }
