@@ -110,6 +110,8 @@ import org.eclipse.jdt.internal.compiler.util.Sorting;
  */
 public class InferenceContext18 {
 
+	public final static boolean DEBUG = false;
+
 	/** to conform with javac regarding https://bugs.openjdk.java.net/browse/JDK-8026527 */
 	static final boolean SIMULATE_BUG_JDK_8026527 = true;
 
@@ -1086,6 +1088,9 @@ public class InferenceContext18 {
 				return false;
 		}
 		this.initialConstraints = null;
+		if (DEBUG) {
+			System.out.println("reduced to\n"+this); //$NON-NLS-1$
+		}
 		return true;
 	}
 
