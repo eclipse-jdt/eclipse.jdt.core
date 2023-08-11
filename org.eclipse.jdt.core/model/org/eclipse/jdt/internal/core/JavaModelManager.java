@@ -4543,20 +4543,43 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 		private void saveAttributes(IClasspathAttribute[] attributes)
 				throws IOException {
-			int count = attributes == null ? 0 : attributes.length;
+			int count = 0;
+			if (attributes != null) {
+				for (IClasspathAttribute attr : attributes) {
+					if (attr != null) {
+						count ++;
+					}
+				}
+			}
 
 			saveInt(count);
-			for (int i = 0; i < count; ++i)
-				saveAttribute(attributes[i]);
+
+			for (IClasspathAttribute attribute : attributes) {
+				if (attribute != null) {
+					saveAttribute(attribute);
+				}
+			}
 		}
 
 		private void saveClasspathEntries(IClasspathEntry[] entries)
 				throws IOException {
-			int count = entries == null ? 0 : entries.length;
+
+			int count = 0;
+			if (entries != null) {
+				for (IClasspathEntry entry : entries) {
+					if (entry != null) {
+						count ++;
+					}
+				}
+			}
 
 			saveInt(count);
-			for (int i = 0; i < count; ++i)
-				saveClasspathEntry(entries[i]);
+
+			for (IClasspathEntry entry : entries) {
+				if (entry != null) {
+					saveClasspathEntry(entry);
+				}
+			}
 		}
 
 		private void saveClasspathEntry(IClasspathEntry entry)
