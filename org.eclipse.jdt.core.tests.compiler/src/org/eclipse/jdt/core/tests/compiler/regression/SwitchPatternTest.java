@@ -7,6 +7,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -29,7 +33,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testIssueDefaultDominance"};
+//		TESTS_NAMES = new String[] { "testRecPatExhaust"};
 	}
 
 	private static String previewLevel = "21";
@@ -6223,5 +6227,304 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"1\n" +
 				"0");
+	}
+	public void testRecPatExhaust001() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"sealed interface I permits A, B, C {}\n"+
+				"final class A   implements I {}\n"+
+				"final class B   implements I {}\n"+
+				"final class C implements I {}\n"+
+				"record Box(I i) {}\n"+
+				"\n"+
+				"\n"+
+				"public class X {\n"+
+				"\n"+
+				" @SuppressWarnings(\"preview\")\n"+
+				" public static int testExhaustiveRecordPatterns(Box box) {\n"+
+				"     return switch (box) {     // Exhaustive!\n"+
+				"         case Box(A a) -> 0;\n"+
+				"         case Box(B b) -> 1;\n"+
+				"         case Box(C c) -> 2;\n"+
+				"    };\n"+
+				" } \n"+
+				" \n"+
+				"    public static void main(String argv[]) {\n"+
+				"     Box b = new Box(new A());\n"+
+				"        System.out.println(testExhaustiveRecordPatterns(b));\n"+
+				"    }\n"+
+				"}",
+			},
+			"0");
+	}
+	public void testRecPatExhaust002() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"sealed interface I permits A, B, C {}\n"+
+				"final class A   implements I {}\n"+
+				"final class B   implements I {}\n"+
+				"final class C implements I {}\n"+
+				"record Box(I i) {}\n"+
+				"\n"+
+				"\n"+
+				"public class X {\n"+
+				"\n"+
+				" @SuppressWarnings(\"preview\")\n"+
+				" public static int testExhaustiveRecordPatterns(Box box) {\n"+
+				"     return switch (box) {     // Not Exhaustive!\n"+
+				"         case Box(A a) -> 0;\n"+
+				"         case Box(B b) -> 1;\n"+
+				"    };\n"+
+				" } \n"+
+				" \n"+
+				"    public static void main(String argv[]) {\n"+
+				"     Box b = new Box(new A());\n"+
+				"        System.out.println(testExhaustiveRecordPatterns(b));\n"+
+				"    }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 12)\n" +
+			"	return switch (box) {     // Not Exhaustive!\n" +
+			"	               ^^^\n" +
+			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"----------\n");
+	}
+	public void testRecPatExhaust003() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"sealed interface I permits A, B, C {}\n"+
+				"final class A   implements I {}\n"+
+				"final class B   implements I {}\n"+
+				"final class C implements I {}\n"+
+				"sealed interface J permits D, E, F {}\n"+
+				"final class D   implements J {}\n"+
+				"final class E   implements J {}\n"+
+				"final class F implements J {}\n"+
+				"record Box(I i, J j) {}\n"+
+				"\n"+
+				"\n"+
+				"public class X {\n"+
+				"\n"+
+				" @SuppressWarnings(\"preview\")\n"+
+				" public static int testExhaustiveRecordPatterns(Box box) {\n"+
+				"     return switch (box) {     // Not Exhaustive!\n"+
+				"         case Box(A a, D d) -> 0;\n"+
+				"         case Box(A a, E e) -> 10;\n"+
+				"         case Box(A a, F f) -> 20;\n"+
+				"         case Box(B b, D d) -> 1;\n"+
+				"         case Box(B b, E e) -> 11;\n"+
+				"         case Box(B b, F f) -> 21;\n"+
+				"         case Box(C c, D d) -> 2;\n"+
+				"         case Box(C c, E e) -> 12;\n"+
+				"         case Box(C c, F f) -> 22;\n"+
+				"    };\n"+
+				" } \n"+
+				" \n"+
+				"    public static void main(String argv[]) {\n"+
+				"     Box b = new Box(new A(), new D());\n"+
+				"        System.out.println(testExhaustiveRecordPatterns(b));\n"+
+				"    }\n"+
+				"}",
+			},
+			"0");
+	}
+	public void testRecPatExhaust004() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"sealed interface I permits A, B, C {}\n"+
+				"final class A   implements I {}\n"+
+				"final class B   implements I {}\n"+
+				"final class C implements I {}\n"+
+				"sealed interface J permits D, E, F {}\n"+
+				"final class D   implements J {}\n"+
+				"final class E   implements J {}\n"+
+				"final class F implements J {}\n"+
+				"record Box(I i, J j) {}\n"+
+				"\n"+
+				"\n"+
+				"public class X {\n"+
+				"\n"+
+				" @SuppressWarnings(\"preview\")\n"+
+				" public static int testExhaustiveRecordPatterns(Box box) {\n"+
+				"     return switch (box) {     // Not Exhaustive!\n"+
+				"         case Box(A a, D d) -> 0;\n"+
+				"         case Box(A a, E e) -> 0;\n"+
+				"         case Box(A a, F f) -> 0;\n"+
+				"         case Box(B b, D d) -> 1;\n"+
+				"         case Box(B b, E e) -> 1;\n"+
+				"         case Box(B b, F f) -> 1;\n"+
+				"         case Box(C c, D d) -> 2;\n"+
+				"         case Box(C c, F f) -> 2;\n"+
+				"    };\n"+
+				" } \n"+
+				" \n"+
+				"    public static void main(String argv[]) {\n"+
+				"     Box b = new Box(new A(), new D());\n"+
+				"        System.out.println(testExhaustiveRecordPatterns(b));\n"+
+				"    }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 16)\n" +
+			"	return switch (box) {     // Not Exhaustive!\n" +
+			"	               ^^^\n" +
+			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"----------\n");
+	}
+	public void testRecPatExhaust005() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"sealed interface I permits A, B, C {}\n"+
+				"final class A   implements I {}\n"+
+				"final class B   implements I {}\n"+
+				"record C(int j) implements I {}  // Implicitly final\n"+
+				"record Box(I i) {}\n"+
+				"\n"+
+				"\n"+
+				"public class X {\n"+
+				"\n"+
+				" @SuppressWarnings(\"preview\")\n"+
+				" public static int testExhaustiveRecordPatterns(Box box) {\n"+
+				"     return switch (box) {     // Exhaustive!\n"+
+				"         case Box(A a) -> 0;\n"+
+				"         case Box(B b) -> 1;\n"+
+				"         case Box(C c) -> 2;\n"+
+				"    };\n"+
+				" } \n"+
+				" \n"+
+				"    public static void main(String argv[]) {\n"+
+				"     Box b = new Box(new A());\n"+
+				"        System.out.println(testExhaustiveRecordPatterns(b));\n"+
+				"    }\n"+
+				"}",
+			},
+			"0");
+	}
+	public void testRecPatExhaust006() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"sealed interface I permits A, B, C {}\n"+
+				"final class A   implements I {}\n"+
+				"final class B   implements I {}\n"+
+				"record C(int j) implements I {}  // Implicitly final\n"+
+				"record Box(I i) {}\n"+
+				"\n"+
+				"public class X {\n"+
+				"\n"+
+				" @SuppressWarnings(\"preview\")\n"+
+				" public static int testExhaustiveRecordPatterns(Box box) {\n"+
+				"     return switch (box) {     // Not Exhaustive!\n"+
+				"         case Box(A a) -> 0;\n"+
+				"         case Box(B b) -> 1;\n"+
+				"    };\n"+
+				" } \n"+
+				" \n"+
+				"    public static void main(String argv[]) {\n"+
+				"     Box b = new Box(new A());\n"+
+				"        System.out.println(testExhaustiveRecordPatterns(b));\n"+
+				"    }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 11)\n" +
+			"	return switch (box) {     // Not Exhaustive!\n" +
+			"	               ^^^\n" +
+			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"----------\n");
+	}
+	public void testRecPatExhaust007() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"sealed interface I permits A, B, C {}\n"+
+				"final class A   implements I {}\n"+
+				"final class B   implements I {}\n"+
+				"record C(int j) implements I {}  // Implicitly final\n"+
+				"record R(I i, I j) {}\n"+
+				"\n"+
+				"\n"+
+				"public class X {\n"+
+				"\n"+
+				" @SuppressWarnings(\"preview\")\n"+
+				" private static int testNonExhaustiveRecordPatterns(R p) {\n"+
+				"     return switch (p) {     // Not Exhaustive!\n"+
+				"         case R(A a1, A a2) -> 0;\n"+
+				"         case R(B b1, B b2) -> 1;\n"+
+				"    };\n"+
+				" } \n"+
+				"    public static void main(String argv[]) {\n"+
+				"     R b = new R(new A(), new B());\n"+
+				"        System.out.println(testNonExhaustiveRecordPatterns(b));\n"+
+				"    }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 12)\n" +
+			"	return switch (p) {     // Not Exhaustive!\n" +
+			"	               ^\n" +
+			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"----------\n");
+	}
+	public void testRecPatExhaust008() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"sealed interface I permits A, B, C {}\n"+
+				"final class A   implements I {}\n"+
+				"final class B   implements I {}\n"+
+				"record C(int j) implements I {}  // Implicitly final\n"+
+				"record R(I i, I j) {}\n"+
+				"\n"+
+				"\n"+
+				"public class X {\n"+
+				"\n"+
+				" @SuppressWarnings(\"preview\")\n"+
+				" private static int testNonExhaustiveRecordPatterns(R p) {\n"+
+				"     return switch (p) {     // Not Exhaustive!\n"+
+				"         case R(A a1, A a2) -> 0;\n"+
+				"         case R(B b1, B b2) -> 1;\n"+
+				"         case R(C c1, C c2) -> 2;\n"+
+				"    };\n"+
+				" } \n"+
+				"    public static void main(String argv[]) {\n"+
+				"     R b = new R(new A(), new B());\n"+
+				"        System.out.println(testNonExhaustiveRecordPatterns(b));\n"+
+				"    }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 12)\n" +
+			"	return switch (p) {     // Not Exhaustive!\n" +
+			"	               ^\n" +
+			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"----------\n");
+	}
+	public void testRecPatExhaust009() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"record Test<T>(Object o, T x) {}\n"+
+				"\n"+
+				"public class X {\n"+
+				" @SuppressWarnings(\"preview\")\n"+
+				" static int testExhaustiveRecordPattern(Test<String> r) {\n"+
+				"   return switch (r) { // Exhaustive!\n"+
+				"   case Test<String>(Object o, String s) -> 0;\n"+
+				"   };\n"+
+				" }\n"+
+				"\n"+
+				" public static void main(String[] args) {\n"+
+				"   System.out.println(testExhaustiveRecordPattern(new Test<String>(args, null)));\n"+
+				" }\n"+
+				"}"
+			},
+			"0");
 	}
 }

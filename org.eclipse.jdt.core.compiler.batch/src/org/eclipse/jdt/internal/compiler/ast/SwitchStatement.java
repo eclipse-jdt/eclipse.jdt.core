@@ -30,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.IntPredicate;
-
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.CaseStatement.ResolvedCase;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -47,6 +46,7 @@ import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.RecordComponentBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SyntheticMethodBinding;
@@ -118,6 +118,229 @@ public class SwitchStatement extends Expression {
 	/* package */ List<Pattern> caseLabelElements = new ArrayList<>(0);//TODO: can we remove this?
 	public List<TypeBinding> caseLabelElementTypes = new ArrayList<>(0);
 	int constantIndex = 0;
+
+	class Node {
+		TypeBinding type;
+		public void traverse(NodeVisitor visitor) {
+			visitor.visit(this);
+			visitor.endVisit(this);
+		}
+	}
+	class RNode extends Node {
+		TNode firstComponent;
+
+		RNode(TypeBinding rec) {
+			this.type = rec;
+			RecordComponentBinding[] comps = rec.components();
+			int len = comps != null ? comps.length : 0;
+			if (len > 0) {
+				RecordComponentBinding comp = comps[0];
+				if (comp != null && comp.type != null)
+					this.firstComponent = new TNode(comp.type);
+			}
+		}
+		void addPattern(Pattern p) {
+			if (p instanceof RecordPattern)
+				addPattern((RecordPattern)p);
+		}
+		void addPattern(RecordPattern rp) {
+			if (!TypeBinding.equalsEquals(this.type, rp.type.resolvedType))
+				return;
+			if (this.firstComponent == null)
+				return;
+			this.firstComponent.addPattern(rp, 0);
+		}
+		@Override
+		public String toString() {
+	        StringBuilder sb = new StringBuilder();
+	        sb.append("[RNode] {\n"); //$NON-NLS-1$
+	        sb.append("    type:"); //$NON-NLS-1$
+	        sb.append(this.type != null ? this.type.toString() : "null"); //$NON-NLS-1$
+	        sb.append("    firstComponent:"); //$NON-NLS-1$
+	        sb.append(this.firstComponent != null ? this.firstComponent.toString() : "null"); //$NON-NLS-1$
+	        sb.append("\n}\n"); //$NON-NLS-1$
+	        return sb.toString();
+		}
+		@Override
+		public void traverse(NodeVisitor visitor) {
+			if (this.firstComponent != null) {
+				visitor.visit(this.firstComponent);
+			}
+			visitor.endVisit(this);
+		}
+	}
+	class TNode extends Node {
+		List<PatternNode> children;
+
+		TNode(TypeBinding type) {
+			this.type = type;
+			this.children = new ArrayList<>();
+		}
+
+		public void addPattern(RecordPattern rp, int i) {
+			TypeBinding childType = rp.patterns[i].resolvedType;
+			PatternNode child = null;
+			for (PatternNode c : this.children) {
+				if (TypeBinding.equalsEquals(childType, c.type)) {
+					child = c;
+					break;
+				}
+			}
+			if (child == null) {
+				child = childType.isRecord() ?
+					new RecordPatternNode(childType) : new PatternNode(childType);
+				this.children.add(child);
+			}
+			if ((i+1) < rp.patterns.length) {
+				child.addPattern(rp, i + 1);
+			}
+		}
+		@Override
+		public String toString() {
+	        StringBuilder sb = new StringBuilder();
+	        sb.append("[TNode] {\n"); //$NON-NLS-1$
+	        sb.append("    type:"); //$NON-NLS-1$
+	        sb.append(this.type != null ? this.type.toString() : "null"); //$NON-NLS-1$
+	        sb.append("    children:"); //$NON-NLS-1$
+	        if (this.children == null) {
+	        	sb.append("null"); //$NON-NLS-1$
+	        } else {
+	        	for (Node child : this.children) {
+	        		sb.append(child.toString());
+	        	}
+	        }
+	        sb.append("\n}\n"); //$NON-NLS-1$
+	        return sb.toString();
+		}
+		@Override
+		public void traverse(NodeVisitor visitor) {
+			if (visitor.visit(this)) {
+				if (this.children != null) {
+					for (PatternNode child : this.children) {
+						if (!visitor.visit(child)) {
+							break;
+						}
+					}
+				}
+			}
+			visitor.endVisit(this);
+		}
+	}
+	class PatternNode extends Node {
+		TNode next; // next component
+
+		PatternNode(TypeBinding type) {
+			this.type = type;
+		}
+
+		public void addPattern(RecordPattern rp, int i) {
+			RecordComponentBinding[] comps = rp.resolvedType.components();
+			if (this.next == null)
+				this.next = new TNode(comps[i].type);
+			this.next.addPattern(rp, i);
+		}
+		@Override
+		public String toString() {
+	        StringBuilder sb = new StringBuilder();
+	        sb.append("[Pattern node] {\n"); //$NON-NLS-1$
+	        sb.append("    type:"); //$NON-NLS-1$
+	        sb.append(this.type != null ? this.type.toString() : "null"); //$NON-NLS-1$
+	        sb.append("    next:"); //$NON-NLS-1$
+	        sb.append(this.next != null ? this.next.toString() : "null"); //$NON-NLS-1$
+	        sb.append("\n}\n"); //$NON-NLS-1$
+	        return sb.toString();
+		}
+		@Override
+		public void traverse(NodeVisitor visitor) {
+			if (visitor.visit(this)) {
+				if (this.next != null) {
+					visitor.visit(this.next);
+				}
+			}
+			visitor.endVisit(this);
+		}
+	}
+	class RecordPatternNode extends PatternNode {
+		RNode rNode;
+		RecordPatternNode(TypeBinding type) {
+			super(type);
+		}
+		@Override
+		public String toString() {
+	        StringBuilder sb = new StringBuilder();
+	        sb.append("[RecordPattern node] {\n"); //$NON-NLS-1$
+	        sb.append("    type:"); //$NON-NLS-1$
+	        sb.append(this.type != null ? this.type.toString() : "null"); //$NON-NLS-1$
+	        sb.append("    next:"); //$NON-NLS-1$
+	        sb.append(this.next != null ? this.next.toString() : "null"); //$NON-NLS-1$
+	        sb.append("    rNode:"); //$NON-NLS-1$
+	        sb.append(this.rNode != null ? this.rNode.toString() : "null"); //$NON-NLS-1$
+	        sb.append("\n}\n"); //$NON-NLS-1$
+	        return sb.toString();
+		}
+		@Override
+		public void traverse(NodeVisitor visitor) {
+			if (visitor.visit(this)) {
+				if (visitor.visit(this.rNode)) {
+					if (this.next != null) {
+						visitor.visit(this.next);
+					}
+				}
+			}
+			visitor.endVisit(this);
+		}
+	}
+
+	abstract class NodeVisitor {
+		public void endVisit(Node node) {
+			// do nothing by default
+		}
+		public void endVisit(PatternNode node) {
+			// do nothing by default
+		}
+		public void endVisit(RecordPatternNode node) {
+			// do nothing by default
+		}
+		public void endVisit(RNode node) {
+			// do nothing by default
+		}
+		public void endVisit(TNode node) {
+			// do nothing by default
+		}
+		public boolean visit(Node node) {
+			return true;
+		}
+		public boolean visit(PatternNode node) {
+			return true;
+		}
+		public boolean visit(RecordPatternNode node) {
+			return true;
+		}
+		public boolean visit(RNode node) {
+			return true;
+		}
+		public boolean visit(TNode node) {
+			return true;
+		}
+	}
+	class CoverageCheckerVisitor extends NodeVisitor {
+		public boolean covers = true;
+		@Override
+		public boolean visit(TNode node) {
+			List<ReferenceBinding> permittedTypes = new ArrayList<>(Arrays.asList(node.type.permittedTypes()));
+			List<TypeBinding> availableTypes = new ArrayList<>();
+			if (node.children != null) {
+				for (Node child : node.children) {
+					child.traverse(this);
+					if (!this.covers)
+						return false;
+					availableTypes.add(child.type);
+				}
+			}
+			this.covers &= isExhaustiveWithCaseTypes(permittedTypes, availableTypes);
+			return this.covers;
+		}
+	}
 
 	protected int getFallThroughState(Statement stmt, BlockScope blockScope) {
 		if ((this.switchBits & LabeledRules) != 0) {
@@ -1171,6 +1394,8 @@ public class SwitchStatement extends Expression {
 			TypeVariableBinding tvb = (TypeVariableBinding) ref;
 			ref = tvb.firstBound instanceof ReferenceBinding ? (ReferenceBinding) tvb.firstBound : ref;
 		}
+		if (ref.isRecord())
+			return checkAndFlagDefaultRecord(skope, compilerOptions, ref);
 		if (!ref.isSealed()) return false;
 		List<ReferenceBinding> allallowedTypes = new ArrayList<>();
 		if (ref.isClass() && !ref.isAbstract())
@@ -1183,6 +1408,32 @@ public class SwitchStatement extends Expression {
 				return false;
 			skope.problemReporter().enhancedSwitchMissingDefaultCase(this.expression);
 			return true;
+		}
+		this.switchBits |= SwitchStatement.Exhaustive;
+		return false;
+	}
+
+	private boolean checkAndFlagDefaultRecord(BlockScope skope, CompilerOptions compilerOptions, ReferenceBinding ref) {
+		RecordComponentBinding[] comps = ref.components();
+		List<ReferenceBinding> allallowedTypes = new ArrayList<>();
+		allallowedTypes.add(ref);
+		if (comps == null || comps.length == 0) {
+			if (!isExhaustiveWithCaseTypes(allallowedTypes, this.caseLabelElementTypes)) {
+				skope.problemReporter().enhancedSwitchMissingDefaultCase(this.expression);
+				return true;
+			}
+			return false;
+		}
+		// non-zero components
+		RNode head = new RNode(ref);
+		for (int i = 0; i < this.caseLabelElements.size(); ++i) {
+			head.addPattern(this.caseLabelElements.get(i));
+		}
+		CoverageCheckerVisitor ccv = new CoverageCheckerVisitor();
+		head.traverse(ccv);
+		if (!ccv.covers) {
+			skope.problemReporter().enhancedSwitchMissingDefaultCase(this.expression);
+			return true; // not exhaustive, error flagged
 		}
 		this.switchBits |= SwitchStatement.Exhaustive;
 		return false;
