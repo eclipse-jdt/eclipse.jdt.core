@@ -327,7 +327,6 @@ public class SwitchStatement extends Expression {
 		public boolean covers = true;
 		@Override
 		public boolean visit(TNode node) {
-			List<ReferenceBinding> permittedTypes = new ArrayList<>(Arrays.asList(node.type.permittedTypes()));
 			List<TypeBinding> availableTypes = new ArrayList<>();
 			if (node.children != null) {
 				for (Node child : node.children) {
@@ -337,8 +336,17 @@ public class SwitchStatement extends Expression {
 					availableTypes.add(child.type);
 				}
 			}
-			this.covers &= isExhaustiveWithCaseTypes(permittedTypes, availableTypes);
-			return this.covers;
+			if (node.type instanceof ReferenceBinding && ((ReferenceBinding) node.type) .isSealed()) {
+				List<ReferenceBinding> permittedTypes = new ArrayList<>(Arrays.asList(node.type.permittedTypes()));
+				this.covers &= isExhaustiveWithCaseTypes(permittedTypes, availableTypes);
+				return this.covers;
+			}
+			for (TypeBinding availableType : availableTypes) {
+				if (TypeBinding.equalsEquals(availableType, node.type)) {
+					return this.covers = true;
+				}
+			}
+			return this.covers = false;
 		}
 	}
 
