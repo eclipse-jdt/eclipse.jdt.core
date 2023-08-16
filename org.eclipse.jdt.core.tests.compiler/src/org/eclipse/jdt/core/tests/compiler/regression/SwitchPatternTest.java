@@ -33,7 +33,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testRecPatExhaust"};
+//		TESTS_NAMES = new String[] { "testIssue587_001"};
 	}
 
 	private static String previewLevel = "21";
@@ -6227,5 +6227,27 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"1\n" +
 				"0");
+	}
+	public void testIssue587_001() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"  sealed interface I<T> permits A, B {}\n"+
+					"  final static class A<T> implements I<String> {}\n"+
+					"  final static class B<Y> implements I<Y> {}\n"+
+					"\n"+
+					"  static int testGenericSealedExhaustive(I<Integer> i) {\n"+
+					"    return switch (i) {\n"+
+					"      // Exhaustive as no A case possible!\n"+
+					"      case B<Integer> bi -> 42;\n"+
+					"    };\n"+
+					"  }\n"+
+					"  public static void main(String[] args) {\n"+
+					"       System.out.println(testGenericSealedExhaustive(new B<Integer>()));\n"+
+					"  }\n"+
+					"}",
+				},
+				"42");
 	}
 }
