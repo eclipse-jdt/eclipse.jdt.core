@@ -342,7 +342,8 @@ public class SwitchStatement extends Expression {
 				return this.covers;
 			}
 			for (TypeBinding availableType : availableTypes) {
-				if (TypeBinding.equalsEquals(availableType, node.type)) {
+				if (TypeBinding.equalsEquals(availableType, node.type)
+					|| node.type.isSubtypeOf(availableType, false)) {
 					return this.covers = true;
 				}
 			}
@@ -1402,8 +1403,17 @@ public class SwitchStatement extends Expression {
 			TypeVariableBinding tvb = (TypeVariableBinding) ref;
 			ref = tvb.firstBound instanceof ReferenceBinding ? (ReferenceBinding) tvb.firstBound : ref;
 		}
-		if (ref.isRecord())
-			return checkAndFlagDefaultRecord(skope, compilerOptions, ref);
+		if (ref.isRecord()) {
+			boolean isRecordPattern = false;
+			for (int i = 0; i < this.caseLabelElements.size(); ++i) {
+				if (this.caseLabelElements.get(i) instanceof RecordPattern) {
+					isRecordPattern = true;
+					break;
+				}
+			}
+			if (isRecordPattern)
+				return checkAndFlagDefaultRecord(skope, compilerOptions, ref);
+		}
 		if (!ref.isSealed()) return false;
 		List<ReferenceBinding> allallowedTypes = new ArrayList<>();
 		if (ref.isClass() && !ref.isAbstract())

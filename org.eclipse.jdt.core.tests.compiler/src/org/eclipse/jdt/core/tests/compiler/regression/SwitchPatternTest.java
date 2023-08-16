@@ -33,7 +33,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testIssue587_001"};
+//		TESTS_NAMES = new String[] { "testIssueExhaustiveness_003"};
 	}
 
 	private static String previewLevel = "21";
@@ -6247,6 +6247,70 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"       System.out.println(testGenericSealedExhaustive(new B<Integer>()));\n"+
 					"  }\n"+
 					"}",
+				},
+				"42");
+	}
+	public void testIssueExhaustiveness_001() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					" public static void main(String argv[]) {\n"+
+					"   System.out.println(foo());\n"+
+					" }\n"+
+					"\n"+
+					" public static int foo() {\n"+
+					"   return switch (I.getIC()) {\n"+
+					"     case IC c -> 42;\n"+
+					"   };\n"+
+					" }\n"+
+					"}\n"+
+					"\n"+
+					"sealed interface I<T> permits IC {\n"+
+					" public static I getIC() {\n"+
+					"   return new IC(){};\n"+
+					" }\n"+
+					"}\n"+
+					"\n"+
+					"non-sealed interface IC<T> extends I {}",
+				},
+				"42");
+	}
+	public void testIssueExhaustiveness_002() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"record R(int i) {}\n"+
+					"public class X {\n"+
+					"\n"+
+					"    public static int foo(R exp) {\n"+
+					"        return switch (exp) {\n"+
+					"            case R r -> 42;\n"+
+					"        };\n"+
+					"    }\n"+
+					"    public static void main(String argv[]) {\n"+
+					"       System.out.println(foo(new R(10)));\n"+
+					"    }\n"+
+					"}"
+				},
+				"42");
+	}
+	public void testIssueExhaustiveness_003() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"record R(X x) {}\n"+
+					"public class X {\n"+
+					"\n"+
+					"    public static int foo(R exp) {\n"+
+					"        return switch (exp) {\n"+
+					"            case R(Object o) -> 42;\n"+
+					"        };\n"+
+					"    }\n"+
+					"    public static void main(String argv[]) {\n"+
+					"       System.out.println(foo(new R(new X())));\n"+
+					"    }\n"+
+					"}"
 				},
 				"42");
 	}
