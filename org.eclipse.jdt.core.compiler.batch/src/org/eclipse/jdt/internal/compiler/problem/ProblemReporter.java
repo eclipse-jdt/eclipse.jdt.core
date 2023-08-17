@@ -514,6 +514,7 @@ public static int getIrritant(int problemID) {
 		case IProblem.RequiredNonNullButProvidedPotentialNull:
 			return CompilerOptions.NullAnnotationInferenceConflict;
 		case IProblem.RequiredNonNullButProvidedUnknown:
+		case IProblem.NullityUncheckedTypeAnnotation:
 		case IProblem.NullityUncheckedTypeAnnotationDetail:
 		case IProblem.NullityUncheckedTypeAnnotationDetailSuperHint:
 		case IProblem.ReferenceExpressionParameterNullityUnchecked:
@@ -11011,13 +11012,7 @@ public void nullityMismatchingTypeAnnotation(Expression expression, TypeBinding 
 		superHint = status.superTypeHintName(this.options, false);
 		superHintShort = status.superTypeHintName(this.options, true);
 	} else {
-		problemId = (status.isAnnotatedToUnannotated()
-					? IProblem.AnnotatedTypeArgumentToUnannotated
-					: (status.isUnchecked()
-						? IProblem.NullityUncheckedTypeAnnotationDetail
-						: (requiredType.isTypeVariable() && !requiredType.hasNullTypeAnnotations())
-							? IProblem.NullityMismatchAgainstFreeTypeVariable
-							: IProblem.NullityMismatchingTypeAnnotation));
+		problemId = status.getProblemId(requiredType);
 		if (problemId == IProblem.NullityMismatchAgainstFreeTypeVariable) {
 			arguments      = new String[] { null, null, new String(requiredType.sourceName()) }; // don't show bounds here
 			shortArguments = new String[] { null, null, new String(requiredType.sourceName()) };

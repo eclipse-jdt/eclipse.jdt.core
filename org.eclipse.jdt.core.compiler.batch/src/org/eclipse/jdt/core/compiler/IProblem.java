@@ -1877,7 +1877,7 @@ void setSourceStart(int sourceStart);
 	/** @since 3.10 */
 	int NullityMismatchingTypeAnnotationSuperHint = Internal + 954;
 	/** @since 3.10 */
-	int NullityUncheckedTypeAnnotationDetail = Internal + 955;
+	int NullityUncheckedTypeAnnotationDetail = Internal + 955; // see also NullityUncheckedTypeAnnotation
 	/** @since 3.10 */
 	int NullityUncheckedTypeAnnotationDetailSuperHint = Internal + 956;
 	/** @since 3.10 */
@@ -1938,6 +1938,8 @@ void setSourceStart(int sourceStart);
 	int AnnotatedTypeArgumentToUnannotatedSuperHint = Internal + 984;
 	/** @since 3.32 */
 	int NonNullArrayContentNotInitialized = Internal + 985;
+	/** @since 3.35 */
+	int NullityUncheckedTypeAnnotation = Internal + 986;
 
 
 	// Java 8 work

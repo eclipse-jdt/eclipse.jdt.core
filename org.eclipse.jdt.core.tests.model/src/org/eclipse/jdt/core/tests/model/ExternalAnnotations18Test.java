@@ -690,8 +690,8 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 		CompilationUnit reconciled = unit.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 		IProblem[] problems = reconciled.getProblems();
 		assertProblems(problems, new String[] {
-			"Pb(955) Null type safety (type annotations): The expression of type 'String[]' needs unchecked conversion to conform to '@Nullable String @Nullable[]'",
-			"Pb(955) Null type safety (type annotations): The expression of type 'String[][]' needs unchecked conversion to conform to '@Nullable String @Nullable[] @NonNull[]'",
+			"Pb(986) Null type safety (type annotations): The expression of type 'String[]' needs unchecked conversion to conform to '@Nullable String @Nullable[]'",
+			"Pb(986) Null type safety (type annotations): The expression of type 'String[][]' needs unchecked conversion to conform to '@Nullable String @Nullable[] @NonNull[]'",
 		}, new int[] { 12, 16 });
 	}
 
@@ -1015,7 +1015,7 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 				true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
 		CompilationUnit reconciled = cu.reconcile(getJLS8(), true, null, new NullProgressMonitor());
 		assertProblems(reconciled.getProblems(), new String[] {
-				"Pb(955) Null type safety (type annotations): The expression of type 'String' needs unchecked conversion to conform to '@NonNull String'",
+				"Pb(986) Null type safety (type annotations): The expression of type 'String' needs unchecked conversion to conform to '@NonNull String'",
 		}, new int[] { 8 });
 
 		// acquire library AST:
