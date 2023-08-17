@@ -35,7 +35,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testRecPatExhaust001" };
+//		TESTS_NAMES = new String[] { "testIssue1224_1" };
 	}
 	private String extraLibPath;
 	public static Class<?> testClass() {
@@ -3209,5 +3209,29 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"}"
 			},
 			"0");
+	}
+	public void testRecPatExhaust010() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"record R(Object t, Object u) {}\n"+
+				"\n"+
+				"public class X {\n"+
+				"\n"+
+				"    public static int foo(R r) {\n"+
+				"        return \n"+
+				"          switch (r) {\n"+
+				"            case R(String x, Integer y) -> 1;\n"+
+				"            case R(Object x, Integer y) -> 2;\n"+
+				"            case R(Object x, Object y) -> 42;\n"+
+				"        };\n"+
+				"    }\n"+
+				"\n"+
+				"    public static void main(String argv[]) {\n"+
+				"     System.out.println(foo(new R(new String(), new Object())));\n"+
+				"    }\n"+
+				"}"
+			},
+			"42");
 	}
 }

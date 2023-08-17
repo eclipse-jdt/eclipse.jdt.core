@@ -189,7 +189,10 @@ public class SwitchStatement extends Expression {
 			if (child == null) {
 				child = childType.isRecord() ?
 					new RecordPatternNode(childType) : new PatternNode(childType);
-				this.children.add(child);
+				if (this.type.isSubtypeOf(childType, false))
+					this.children.add(0, child);
+				else
+					this.children.add(child);
 			}
 			if ((i+1) < rp.patterns.length) {
 				child.addPattern(rp, i + 1);
@@ -235,6 +238,8 @@ public class SwitchStatement extends Expression {
 
 		public void addPattern(RecordPattern rp, int i) {
 			RecordComponentBinding[] comps = rp.resolvedType.components();
+			if (comps == null || comps.length <= i) // safety-net for incorrect code.
+				return;
 			if (this.next == null)
 				this.next = new TNode(comps[i].type);
 			this.next.addPattern(rp, i);
@@ -330,24 +335,21 @@ public class SwitchStatement extends Expression {
 			List<TypeBinding> availableTypes = new ArrayList<>();
 			if (node.children != null) {
 				for (Node child : node.children) {
+					if (node.type.isSubtypeOf(child.type, false))
+						this.covers = true;
 					child.traverse(this);
-					if (!this.covers)
-						return false;
+					if (node.type.isSubtypeOf(child.type, false) && this.covers)
+						return false; // no further visit required - covering!
 					availableTypes.add(child.type);
 				}
 			}
-			if (node.type instanceof ReferenceBinding && ((ReferenceBinding) node.type) .isSealed()) {
+			if (node.type instanceof ReferenceBinding && ((ReferenceBinding) node.type).isSealed()) {
 				List<ReferenceBinding> permittedTypes = new ArrayList<>(Arrays.asList(node.type.permittedTypes()));
 				this.covers &= isExhaustiveWithCaseTypes(permittedTypes, availableTypes);
 				return this.covers;
 			}
-			for (TypeBinding availableType : availableTypes) {
-				if (TypeBinding.equalsEquals(availableType, node.type)
-					|| node.type.isSubtypeOf(availableType, false)) {
-					return this.covers = true;
-				}
-			}
-			return this.covers = false;
+			this.covers = false;
+			return false; // no need to visit further
 		}
 	}
 
