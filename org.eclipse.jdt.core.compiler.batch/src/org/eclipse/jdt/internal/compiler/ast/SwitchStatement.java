@@ -343,13 +343,15 @@ public class SwitchStatement extends Expression {
 					availableTypes.add(child.type);
 				}
 			}
-			if (node.type instanceof ReferenceBinding && ((ReferenceBinding) node.type).isSealed()) {
-				List<ReferenceBinding> permittedTypes = new ArrayList<>(Arrays.asList(node.type.permittedTypes()));
-				this.covers &= isExhaustiveWithCaseTypes(permittedTypes, availableTypes);
+			if (node.type instanceof ReferenceBinding && ((ReferenceBinding)node.type).isSealed()) {
+				List<ReferenceBinding> requiredTypes = new ArrayList<>(Arrays.asList(node.type.permittedTypes()));
+				if (node.type.isClass() && (!(((ReferenceBinding) node.type)).isAbstract()))
+					requiredTypes.add((ReferenceBinding) node.type);
+				this.covers &= isExhaustiveWithCaseTypes(requiredTypes, availableTypes);
 				return this.covers;
 			}
 			this.covers = false;
-			return false; // no need to visit further
+			return false; // no need to visit further.
 		}
 	}
 
