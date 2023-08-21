@@ -35,7 +35,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testRecPatExhaust001" };
+//		TESTS_NAMES = new String[] { "testRecPatExhaust018" };
 	}
 	private String extraLibPath;
 	public static Class<?> testClass() {
@@ -3209,5 +3209,278 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"}"
 			},
 			"0");
+	}
+	public void testRecPatExhaust010() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"record R(Object t, Object u) {}\n"+
+				"\n"+
+				"public class X {\n"+
+				"\n"+
+				"    public static int foo(R r) {\n"+
+				"        return \n"+
+				"          switch (r) {\n"+
+				"            case R(String x, Integer y) -> 1;\n"+
+				"            case R(Object x, Integer y) -> 2;\n"+
+				"            case R(Object x, Object y) -> 42;\n"+
+				"        };\n"+
+				"    }\n"+
+				"\n"+
+				"    public static void main(String argv[]) {\n"+
+				"     System.out.println(foo(new R(new String(), new Object())));\n"+
+				"    }\n"+
+				"}"
+			},
+			"42");
+	}
+	// implicit permitted - interface
+	public void testRecPatExhaust011() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"sealed interface I {}\n"+
+				"\n"+
+				"final class A implements I {}\n"+
+				"final class B implements I {}\n"+
+				"\n"+
+				"record R(I d) {}\n"+
+				"\n"+
+				"public class X {\n"+
+				"\n"+
+				"    @SuppressWarnings(\"preview\")\n"+
+				"       public static int foo(R r) {\n"+
+				"        return switch (r) {\n"+
+				"            case R(A x) -> 1;\n"+
+				"        };\n"+
+				"    } \n"+
+				"\n"+
+				"    public static void main(String argv[]) {\n"+
+				"       System.out.println(X.foo(new R(new A())));\n"+
+				"    } \n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 12)\n" +
+			"	return switch (r) {\n" +
+			"	               ^\n" +
+			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"----------\n");
+	}
+	// implicit permitted - class
+	public void testRecPatExhaust012() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"sealed class C {}\n"+
+				"\n"+
+				"final class A extends C {}\n"+
+				"final class B extends C {}\n"+
+				"\n"+
+				"record R(C c) {}\n"+
+				"\n"+
+				"public class X {\n"+
+				"\n"+
+				"    @SuppressWarnings(\"preview\")\n"+
+				"       public static int foo(R r) {\n"+
+				"        return switch (r) {\n"+
+				"            case R(A x) -> 1;\n"+
+				"        };\n"+
+				"    } \n"+
+				"\n"+
+				"    public static void main(String argv[]) {\n"+
+				"       System.out.println(X.foo(new R(new A())));\n"+
+				"    } \n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 12)\n" +
+			"	return switch (r) {\n" +
+			"	               ^\n" +
+			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"----------\n");
+	}
+	// implicit permitted - class - the class C missing
+	public void testRecPatExhaust013() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"sealed class C {}\n"+
+				"\n"+
+				"final class A extends C {}\n"+
+				"final class B extends C {}\n"+
+				"\n"+
+				"record R(C c) {}\n"+
+				"\n"+
+				"public class X {\n"+
+				"\n"+
+				"    @SuppressWarnings(\"preview\")\n"+
+				"       public static int foo(R r) {\n"+
+				"        return switch (r) {\n"+
+				"            case R(A x) -> 1;\n"+
+				"            case R(B x) -> 1;\n"+
+				"        };\n"+
+				"    } \n"+
+				"\n"+
+				"    public static void main(String argv[]) {\n"+
+				"       System.out.println(X.foo(new R(new A())));\n"+
+				"    } \n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 12)\n" +
+			"	return switch (r) {\n" +
+			"	               ^\n" +
+			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"----------\n");
+	}
+	public void testRecPatExhaust014() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"sealed interface I {}\n"+
+				"sealed class C {}\n"+
+				"final class A extends C implements I {}\n"+
+				"final class B extends C implements I {}\n"+
+				"\n"+
+				"record R(C c, I i){}\n"+
+				"public class X { \n"+
+				"\n"+
+				" @SuppressWarnings(\"preview\")\n"+
+				" public static int foo(R r) {\n"+
+				"       return switch (r) {\n"+
+				"            case R(A x, A y) -> 1;\n"+
+				"            case R(A x, B y) -> 42;\n"+
+				"            case R(B x, A y)-> 3;\n"+
+				"            case R(B x, B y)-> 4;\n"+
+				"        };\n"+
+				"    }\n"+
+				"    public static void main(String argv[]) {\n"+
+				"     System.out.println(X.foo(new R(new A(), new B())));\n"+
+				"    }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 11)\n" +
+			"	return switch (r) {\n" +
+			"	               ^\n" +
+			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"----------\n");
+	}
+	public void testRecPatExhaust015() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"sealed interface I {}\n"+
+				"sealed class C {}\n"+
+				"final class A extends C implements I {}\n"+
+				"final class B extends C implements I {}\n"+
+				"\n"+
+				"record R(C c, I i){}\n"+
+				"public class X { \n"+
+				"\n"+
+				"    @SuppressWarnings(\"preview\")\n"+
+				" public static int foo(R r) {\n"+
+				"       return switch (r) {\n"+
+				"            case R(A x, A y) -> 1;\n"+
+				"            case R(A x, B y) -> 42;\n"+
+				"            case R(B x, A y) -> 3;\n"+
+				"            case R(B x, B y) -> 4;\n"+
+				"            case R(C x, A y) -> 5;\n"+
+				"            case R(C x, B y) -> 6;\n"+
+				"       };\n"+
+				"    }\n"+
+				"    public static void main(String argv[]) {\n"+
+				"     System.out.println(X.foo(new R(new A(), new B())));\n"+
+				"    }\n"+
+				"}",
+			},
+			"42");
+	}
+	public void testRecPatExhaust016() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"sealed abstract class C permits A, B {}\n"+
+				"final class A extends C {}\n"+
+				"final class B extends C {}\n"+
+				"record R(C x, A y) {}\n"+
+				"\n"+
+				"public class X {\n"+
+				"    public static int foo(R r) {\n"+
+				"        return switch (r) {\n"+
+				"            case R(A x, A y) -> 42;\n"+
+				"            case R(B y, A x) -> 2;\n"+
+				"        };\n"+
+				"    }\n"+
+				"\n"+
+				"    public static void main(String argv[]) {\n"+
+				"       System.out.println(X.foo(new R(new A(), new A())));\n"+
+				"    }\n"+
+				"}",
+			},
+			"42");
+	}
+	public void testRecPatExhaust017() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"sealed interface I permits A, B {}\n"+
+				"sealed interface B extends I {}\n"+
+				"\n"+
+				"final class A implements I {}\n"+
+				"\n"+
+				"record R1() implements B {}\n"+
+				"record R2(I i) {}\n"+
+				"\n"+
+				"public class X {\n"+
+				"\n"+
+				"    public static int foo(R2 r) {\n"+
+				"        return switch (r) {\n"+
+				"            case R2(A a) -> 42;\n"+
+				"        };\n"+
+				"    }\n"+
+				"\n"+
+				"    public static void main(String argv[]) {\n"+
+				"        System.out.println(X.foo(new R2(new A())));;\n"+
+				"    }\n"+
+				"\n"+
+				"}",
+			},
+			"42");
+	}
+	// TODO : To FIX
+	public void _testRecPatExhaust018() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"sealed interface I permits A, B {}\n"+
+				"sealed interface B extends I {}\n"+
+				"\n"+
+				"final class A implements I {}\n"+
+				"\n"+
+				"record R1() implements B {}\n"+
+				"record R2(I i) {}\n"+
+				"\n"+
+				"public class X {\n"+
+				"\n"+
+				"    public static int foo(R2 r) {\n"+
+				"        return switch (r) {\n"+
+				"            case R2(A a) -> 42;\n"+
+				"        };\n"+
+				"    }\n"+
+				"\n"+
+				"    public static void main(String argv[]) {\n"+
+				"        System.out.println(X.foo(new R2(new A())));;\n"+
+				"    }\n"+
+				"\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 11)\n" +
+			"	return switch (r) {\n" +
+			"	               ^\n" +
+			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"----------\n");
 	}
 }

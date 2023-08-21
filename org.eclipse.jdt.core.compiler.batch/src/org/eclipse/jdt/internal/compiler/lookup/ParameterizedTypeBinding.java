@@ -1114,11 +1114,14 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			ReferenceBinding permittedTypeAvatar = pt;
 			if (pt.isRawType()) {
 				ReferenceBinding ptRef = pt.actualType();
-				// don't use TypeSystem.getParameterizedType below as this is just for temporary check.
-				ParameterizedTypeBinding ptb = new ParameterizedTypeBinding(ptRef, this.arguments, ptRef.enclosingType(), this.environment);
-				ptb.superclass();
-				ptb.superInterfaces();
-				permittedTypeAvatar = ptb;
+				ReferenceBinding enclosingType1 = ptRef.enclosingType();
+				if (enclosingType1 != null) {
+					// don't use TypeSystem.getParameterizedType below as this is just for temporary check.
+					ParameterizedTypeBinding ptb = new ParameterizedTypeBinding(ptRef, this.arguments, ptRef.enclosingType(), this.environment);
+					ptb.superclass();
+					ptb.superInterfaces();
+					permittedTypeAvatar = ptb;
+				}
 			}
 			if (permittedTypeAvatar.isCompatibleWith(this))
 				applicablePermTypes.add(pt);
