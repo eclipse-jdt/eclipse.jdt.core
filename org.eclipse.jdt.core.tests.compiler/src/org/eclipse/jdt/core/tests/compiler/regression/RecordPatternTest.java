@@ -3438,6 +3438,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"    public static int foo(R2 r) {\n"+
 				"        return switch (r) {\n"+
 				"            case R2(A a) -> 42;\n"+
+				"            case R2(B a) -> 1;\n"+
 				"        };\n"+
 				"    }\n"+
 				"\n"+
@@ -3450,7 +3451,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"42");
 	}
 	// TODO : To FIX
-	public void _testRecPatExhaust018() {
+	public void testRecPatExhaust018() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
@@ -3462,6 +3463,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"record R1() implements B {}\n"+
 				"record R2(I i) {}\n"+
 				"\n"+
+				"@SuppressWarnings(\"preview\")\n"+
 				"public class X {\n"+
 				"\n"+
 				"    public static int foo(R2 r) {\n"+
@@ -3477,7 +3479,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"}",
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 11)\n" +
+			"1. ERROR in X.java (at line 13)\n" +
 			"	return switch (r) {\n" +
 			"	               ^\n" +
 			"An enhanced switch statement should be exhaustive; a default label expected\n" +
