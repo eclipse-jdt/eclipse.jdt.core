@@ -97,7 +97,7 @@ public class SwitchStatement extends Expression {
 	public final static int Enhanced = ASTNode.Bit5;
 	// Indicates this switch statement is fabricated by the compiler, for e.g. in ForeachStatement
 	public final static int Synthetic = ASTNode.Bit6;
-	public final static int QualifiedEnum = ASTNode.Bit17;
+	public final static int QualifiedEnum = ASTNode.Bit7;
 
 	// for switch on strings
 	private static final char[] SecretStringVariableName = " switchDispatchString".toCharArray(); //$NON-NLS-1$

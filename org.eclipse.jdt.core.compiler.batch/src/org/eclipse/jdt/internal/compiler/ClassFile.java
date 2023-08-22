@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Jesper S Moller - Contributions for
@@ -3861,79 +3865,96 @@ public class ClassFile implements TypeConstants, TypeIds {
 	}
 	private int addBootStrapTypeCaseConstantEntry(int localContentsOffset, ResolvedCase caseConstant, Map<String, Integer> fPtr) {
 		final int contentsEntries = 10;
-		int indexForBootstrap = fPtr.get(ClassFile.INVOKE_STRING);
 		if (contentsEntries + localContentsOffset >= this.contents.length) {
 			resizeContents(contentsEntries);
 		}
-		if (indexForBootstrap == 0) {
+		int idx = fPtr.get(ClassFile.INVOKE_STRING);
+		if (idx == 0) {
 			ReferenceBinding constantBootstrap = this.referenceBinding.scope.getJavaLangInvokeConstantBootstraps();
-			indexForBootstrap = this.constantPool.literalIndexForMethodHandle(ClassFileConstants.MethodHandleRefKindInvokeStatic, constantBootstrap,
-					ConstantPool.INVOKE_METHOD_METHOD_NAME, ConstantPool.JAVA_LANG_INVOKE_CONSTANTBOOTSTRAP_SIGNATURE, false);
-			fPtr.put(ClassFile.INVOKE_STRING, indexForBootstrap);
+			idx = this.constantPool.literalIndexForMethodHandle(
+					ClassFileConstants.MethodHandleRefKindInvokeStatic,
+					constantBootstrap,
+					ConstantPool.INVOKE_METHOD_METHOD_NAME,
+					ConstantPool.JAVA_LANG_INVOKE_CONSTANTBOOTSTRAP_SIGNATURE,
+					false);
+			fPtr.put(ClassFile.INVOKE_STRING, idx);
 		}
-		this.contents[localContentsOffset++] = (byte) (indexForBootstrap >> 8);
-		this.contents[localContentsOffset++] = (byte) indexForBootstrap;
+		this.contents[localContentsOffset++] = (byte) (idx >> 8);
+		this.contents[localContentsOffset++] = (byte) idx;
 
 		// u2 num_bootstrap_arguments
 		this.contents[localContentsOffset++] = 0;
 		this.contents[localContentsOffset++] = (byte) 3;
 
-		indexForBootstrap = fPtr.get(ClassFile.ENUMDESC_OF);
-		if (indexForBootstrap == 0) {
+		idx = fPtr.get(ClassFile.ENUMDESC_OF);
+		if (idx == 0) {
 			ReferenceBinding enumDesc = this.referenceBinding.scope.getJavaLangEnumDesc();
-			indexForBootstrap = this.constantPool.literalIndexForMethodHandle(ClassFileConstants.MethodHandleRefKindInvokeStatic, enumDesc,
-					"of".toCharArray(), ConstantPool.JAVA_LANG_ENUMDESC_OF_SIGNATURE, false); //$NON-NLS-1$
-			fPtr.put(ClassFile.ENUMDESC_OF, indexForBootstrap);
+			idx = this.constantPool.literalIndexForMethodHandle(
+						ClassFileConstants.MethodHandleRefKindInvokeStatic,
+						enumDesc,
+						"of".toCharArray(), //$NON-NLS-1$
+						ConstantPool.JAVA_LANG_ENUMDESC_OF_SIGNATURE,
+						false);
+			fPtr.put(ClassFile.ENUMDESC_OF, idx);
 		}
 
-		this.contents[localContentsOffset++] = (byte) (indexForBootstrap >> 8);
-		this.contents[localContentsOffset++] = (byte) indexForBootstrap;
+		this.contents[localContentsOffset++] = (byte) (idx >> 8);
+		this.contents[localContentsOffset++] = (byte) idx;
 
-		int typeIndex = this.constantPool.literalIndexForDynamic(caseConstant.classDescIdx, ConstantPool.INVOKE_METHOD_METHOD_NAME, ConstantPool.JAVA_LANG_CONST_CLASSDESC);
-		this.contents[localContentsOffset++] = (byte) (typeIndex >> 8);
-		this.contents[localContentsOffset++] = (byte) typeIndex;
+		idx = this.constantPool.literalIndexForDynamic(
+										caseConstant.classDescIdx,
+										ConstantPool.INVOKE_METHOD_METHOD_NAME,
+										ConstantPool.JAVA_LANG_CONST_CLASSDESC);
+		this.contents[localContentsOffset++] = (byte) (idx >> 8);
+		this.contents[localContentsOffset++] = (byte) idx;
 
-		int intValIdx =
-				this.constantPool.literalIndex(caseConstant.c.stringValue());
-		this.contents[localContentsOffset++] = (byte) (intValIdx >> 8);
-		this.contents[localContentsOffset++] = (byte) intValIdx;
+		idx = this.constantPool.literalIndex(caseConstant.c.stringValue());
+		this.contents[localContentsOffset++] = (byte) (idx >> 8);
+		this.contents[localContentsOffset++] = (byte) idx;
 
 		return localContentsOffset;
 	}
 	private int addClassDescBootstrap(int localContentsOffset, TypeBinding type, Map<String, Integer> fPtr) {
 		final int contentsEntries = 10;
-		int indexForBootstrap = fPtr.get(ClassFile.INVOKE_STRING);
+		int idx = fPtr.get(ClassFile.INVOKE_STRING);
 		if (contentsEntries + localContentsOffset >= this.contents.length) {
 			resizeContents(contentsEntries);
 		}
-		if (indexForBootstrap == 0) {
+		if (idx == 0) {
 			ReferenceBinding constantBootstrap = this.referenceBinding.scope.getJavaLangInvokeConstantBootstraps();
-			indexForBootstrap = this.constantPool.literalIndexForMethodHandle(ClassFileConstants.MethodHandleRefKindInvokeStatic, constantBootstrap,
-					ConstantPool.INVOKE_METHOD_METHOD_NAME, ConstantPool.JAVA_LANG_INVOKE_CONSTANTBOOTSTRAP_SIGNATURE, false);
-			fPtr.put(ClassFile.INVOKE_STRING, indexForBootstrap);
+			idx = this.constantPool.literalIndexForMethodHandle(
+									ClassFileConstants.MethodHandleRefKindInvokeStatic,
+									constantBootstrap,
+									ConstantPool.INVOKE_METHOD_METHOD_NAME,
+									ConstantPool.JAVA_LANG_INVOKE_CONSTANTBOOTSTRAP_SIGNATURE,
+									false);
+			fPtr.put(ClassFile.INVOKE_STRING, idx);
 		}
-		this.contents[localContentsOffset++] = (byte) (indexForBootstrap >> 8);
-		this.contents[localContentsOffset++] = (byte) indexForBootstrap;
+		this.contents[localContentsOffset++] = (byte) (idx >> 8);
+		this.contents[localContentsOffset++] = (byte) idx;
 
 		// u2 num_bootstrap_arguments
 		this.contents[localContentsOffset++] = 0;
 		this.contents[localContentsOffset++] = (byte) 2;
 
-		int indexForType = fPtr.get(ClassFile.CLASSDESC);
-		if (indexForType == 0) {
+		idx = fPtr.get(ClassFile.CLASSDESC);
+		if (idx == 0) {
 			ReferenceBinding classDesc = this.referenceBinding.scope.getJavaLangClassDesc();
-			indexForType = this.constantPool.literalIndexForMethodHandle(ClassFileConstants.MethodHandleRefKindInvokeStatic, classDesc,
-					"of".toCharArray(), ConstantPool.JAVA_LANG_CLASSDESC_OF_SIGNATURE, true); //$NON-NLS-1$
-			fPtr.put(ClassFile.CLASSDESC_OF, indexForType);
+			idx = this.constantPool.literalIndexForMethodHandle(
+					ClassFileConstants.MethodHandleRefKindInvokeStatic,
+					classDesc,
+					"of".toCharArray(),  //$NON-NLS-1$
+					ConstantPool.JAVA_LANG_CLASSDESC_OF_SIGNATURE,
+					true);
+			fPtr.put(ClassFile.CLASSDESC_OF, idx);
 		}
 
-		this.contents[localContentsOffset++] = (byte) (indexForType >> 8);
-		this.contents[localContentsOffset++] = (byte) indexForType;
+		this.contents[localContentsOffset++] = (byte) (idx >> 8);
+		this.contents[localContentsOffset++] = (byte) idx;
 
-		int intValIdx =
-				this.constantPool.literalIndex(new String(type.constantPoolName()));
-		this.contents[localContentsOffset++] = (byte) (intValIdx >> 8);
-		this.contents[localContentsOffset++] = (byte) intValIdx;
+		idx = this.constantPool.literalIndex(new String(type.constantPoolName()));
+		this.contents[localContentsOffset++] = (byte) (idx >> 8);
+		this.contents[localContentsOffset++] = (byte) idx;
 
 		return localContentsOffset;
 	}
@@ -3967,7 +3988,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 				this.contents[localContentsOffset++] = (byte) (typeIndex >> 8);
 				this.contents[localContentsOffset++] = (byte) typeIndex;
 			} else if (c.isQualifiedEnum()){
-				int typeIndex = this.constantPool.literalIndexForDynamic(c.enumDescIdx, ConstantPool.INVOKE_METHOD_METHOD_NAME, ConstantPool.JAVA_LANG_ENUM_ENUMDESC);
+				int typeIndex = this.constantPool.literalIndexForDynamic(c.enumDescIdx,
+						ConstantPool.INVOKE_METHOD_METHOD_NAME,
+						ConstantPool.JAVA_LANG_ENUM_ENUMDESC);
 				this.contents[localContentsOffset++] = (byte) (typeIndex >> 8);
 				this.contents[localContentsOffset++] = (byte) typeIndex;
 			} else if ((c.e instanceof StringLiteral)||(c.c instanceof StringConstant)) {
