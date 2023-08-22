@@ -26,8 +26,10 @@ package org.eclipse.jdt.internal.compiler.ast;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.IntPredicate;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
@@ -344,17 +346,32 @@ public class SwitchStatement extends Expression {
 				}
 			}
 			if (node.type instanceof ReferenceBinding && ((ReferenceBinding)node.type).isSealed()) {
-				List<ReferenceBinding> requiredTypes = new ArrayList<>(Arrays.asList(node.type.permittedTypes()));
-				if (node.type.isClass() && (!(((ReferenceBinding) node.type)).isAbstract()))
-					requiredTypes.add((ReferenceBinding) node.type);
-				this.covers &= isExhaustiveWithCaseTypes(requiredTypes, availableTypes);
+				List<ReferenceBinding> allAllowedTypes = getAllPermittedTypes((ReferenceBinding) node.type);
+				this.covers &= isExhaustiveWithCaseTypes(allAllowedTypes, availableTypes);
 				return this.covers;
 			}
 			this.covers = false;
 			return false; // no need to visit further.
 		}
-	}
+		List<ReferenceBinding> getAllPermittedTypes(ReferenceBinding ref) {
+			if (!ref.isSealed())
+				return new ArrayList<>(0);
 
+			Set<ReferenceBinding> permSet = new HashSet<>(Arrays.asList(ref.permittedTypes()));
+			if (ref.isClass() && (!ref.isAbstract()))
+				permSet.add(ref);
+			Set<ReferenceBinding> oldSet = new HashSet<>(permSet);
+			do {
+				for (ReferenceBinding type : permSet) {
+					oldSet.addAll(Arrays.asList(type.permittedTypes()));
+				}
+				Set<ReferenceBinding> tmp = oldSet;
+				oldSet = permSet;
+				permSet = tmp;
+			} while (oldSet.size() != permSet.size());
+			return Arrays.asList(permSet.toArray(new ReferenceBinding[0]));
+		}
+	}
 	protected int getFallThroughState(Statement stmt, BlockScope blockScope) {
 		if ((this.switchBits & LabeledRules) != 0) {
 			if ((stmt instanceof Expression && ((Expression) stmt).isTrulyExpression()) || stmt instanceof ThrowStatement)
