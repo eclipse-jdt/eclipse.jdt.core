@@ -6,8 +6,6 @@ concurrency:
 on:
   push:
     branches: '**'
-  pull_request:
-    branches: [ master ]
 
 jobs:
   build:
@@ -30,7 +28,7 @@ jobs:
           JavaSE-20
         distribution: 'temurin'
     - name: Set up Maven
-      uses: stCarolas/setup-maven@v4.5
+      uses: stCarolas/setup-maven@07fbbe97d97ef44336b7382563d66743297e442f # v4.5
       with:
         maven-version: 3.9.3
     - name: Build with Maven 🏗️
