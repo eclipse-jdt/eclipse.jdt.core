@@ -10,7 +10,7 @@ pipeline {
 	}
 	tools {
 		maven 'apache-maven-latest'
-		jdk 'temurin-jdk21-latest'
+		jdk 'openjdk-jdk21-latest'
 	}
 	stages {
 		stage('Build') {
