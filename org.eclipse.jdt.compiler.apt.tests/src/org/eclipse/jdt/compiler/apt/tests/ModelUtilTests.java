@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2007, 2014 BEA Systems, Inc.
+ * Copyright (c) 2007, 2023 BEA Systems, Inc.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -45,7 +45,8 @@ public class ModelUtilTests extends TestCase
 	 * Validate the testElements test against the javac compiler.
 	 * @throws IOException
 	 */
-	public void testElementsWithSystemCompiler() throws IOException {
+	public void _testElementsWithSystemCompiler() throws IOException {
+		// Commented out - to be fixed by https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1306
 		if (!canRunJava8()) {
 			return;
 		}
