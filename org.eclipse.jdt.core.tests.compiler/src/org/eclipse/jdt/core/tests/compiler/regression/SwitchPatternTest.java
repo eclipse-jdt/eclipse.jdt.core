@@ -6603,4 +6603,66 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"A1");
 	}
+	public void testIssue1250_8() {
+		if (this.complianceLevel < ClassFileConstants.JDK21) {
+			return;
+		}
+		this.runConformTest(
+				new String[] {
+					"p/q/X.java",
+					"package p.q;\n"
+					+ "interface I {\n"
+					+ "}\n"
+					+ "enum E implements I {\n"
+					+ "	A0, A1, A2, A3, A4;\n"
+					+ "}\n"
+					+ "enum E1 implements I {\n"
+					+ "	B0, B1;\n"
+					+ "}\n"
+					+ "public class X {\n"
+					+ "	public String foo(I exp) {\n"
+					+ "		String res = \"\";\n"
+					+ "		switch (exp) {\n"
+					+ "			case E.A0 -> {\n"
+					+ "				res = \"const A0\";\n"
+					+ "				break;\n"
+					+ "			}\n"
+					+ "			case E.A1 -> {\n"
+					+ "				res = \"const A1\";\n"
+					+ "				break;\n"
+					+ "			}\n"
+					+ "			case E1.B0 -> {\n"
+					+ "				res = \"const B0\";\n"
+					+ "				break;\n"
+					+ "			}\n"
+					+ "			case E e -> {\n"
+					+ "				res = e.toString();\n"
+					+ "			}\n"
+					+ "			case E1 e1 -> {\n"
+					+ "				res = e1.toString();\n"
+					+ "			}\n"
+					+ "			default -> {\n"
+					+ "				res = \"default\";\n"
+					+ "			}\n"
+					+ "		}\n"
+					+ "		return res;\n"
+					+ "	}\n"
+					+ "	public static void main(String[] args) {\n"
+					+ "		System.out.println((new X()).foo(E.A0));\n"
+					+ "		System.out.println((new X()).foo(E.A1));\n"
+					+ "		System.out.println((new X()).foo(E.A2));\n"
+					+ "		System.out.println((new X()).foo(E1.B0));\n"
+					+ "		System.out.println((new X()).foo(E1.B1));\n"
+					+ "		System.out.println((new X()).foo(new I() {\n"
+					+ "		}));\n"
+					+ "	}\n"
+					+ "}",
+				},
+				"const A0\n"
+				+ "const A1\n"
+				+ "A2\n"
+				+ "const B0\n"
+				+ "B1\n"
+				+ "default");
+	}
 }

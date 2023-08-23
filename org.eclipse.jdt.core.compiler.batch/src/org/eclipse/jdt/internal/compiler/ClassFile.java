@@ -3952,7 +3952,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.contents[localContentsOffset++] = (byte) (idx >> 8);
 		this.contents[localContentsOffset++] = (byte) idx;
 
-		idx = this.constantPool.literalIndex(new String(type.constantPoolName()));
+		ReferenceBinding refBinding = (ReferenceBinding) type;
+		idx = this.constantPool.literalIndex(CharOperation.toString(refBinding.compoundName));
 		this.contents[localContentsOffset++] = (byte) (idx >> 8);
 		this.contents[localContentsOffset++] = (byte) idx;
 
