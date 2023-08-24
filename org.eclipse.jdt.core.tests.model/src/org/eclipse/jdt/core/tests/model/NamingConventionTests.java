@@ -53,7 +53,9 @@ public void setUp() throws Exception {
  */
 @Override
 public void tearDown() throws Exception {
-	JavaCore.setOptions(this.oldOptions);
+	if (this.oldOptions != null) {
+		JavaCore.setOptions(this.oldOptions);
+	}
 
 	this.deleteProject("P"); //$NON-NLS-1$
 
