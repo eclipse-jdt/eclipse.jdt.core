@@ -409,7 +409,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	private final static int VALID_OPTION = 2;
 	HashSet<String> optionNames = new HashSet<>(20);
 	Map<String, String[]> deprecatedOptions = new HashMap<>();
-	Hashtable<String, String> optionsCache;
+	volatile Hashtable<String, String> optionsCache;
 
 	// Preferences
 	public final IEclipsePreferences[] preferencesLookup = new IEclipsePreferences[2];
@@ -2435,8 +2435,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			return new Hashtable<>(cachedOptions);
 		}
 		if (!Platform.isRunning()) {
-			this.optionsCache = getDefaultOptionsNoInitialization();
-			return new Hashtable<>(this.optionsCache);
+			Hashtable<String, String> defaults = getDefaultOptionsNoInitialization();
+			this.optionsCache = defaults;
+			return new Hashtable<>(defaults);
 		}
 		// init
 		Hashtable<String, String> options = new Hashtable<>(10);
@@ -5390,9 +5391,14 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				// ignore
 			}
 		}
-		// update cache
-		Util.fixTaskTags(cachedValue);
-		this.optionsCache = cachedValue;
+		if (cachedValue == null) {
+			// reset all options, optionsCache & fixTaskTags will be updated there
+			getOptions();
+		} else {
+			Util.fixTaskTags(cachedValue);
+			// update cache
+			this.optionsCache = cachedValue;
+		}
 	}
 
 	public void startup() throws CoreException {
