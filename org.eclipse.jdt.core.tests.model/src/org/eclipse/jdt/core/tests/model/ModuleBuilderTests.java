@@ -7059,7 +7059,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			waitForAutoBuild();
 			p1.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p1.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
-			assertMarkers("Unexpected markers", "The type Compiler has been deprecated since version 9 and marked for removal", markers);
+			assertMarkers("Unexpected markers", "java.lang.Compiler cannot be resolved to a type", markers);
 		} finally {
 			deleteProject(p1);
 		}
