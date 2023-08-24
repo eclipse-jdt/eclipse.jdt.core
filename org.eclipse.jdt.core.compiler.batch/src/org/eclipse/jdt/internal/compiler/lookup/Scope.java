@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -2932,6 +2936,21 @@ public abstract class Scope {
 		CompilationUnitScope unitScope = compilationUnitScope();
 		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_RUNTIME_SWITCHBOOTSTRAPS);
 		return unitScope.environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_RUNTIME_SWITCHBOOTSTRAPS, this);
+	}
+	public final ReferenceBinding getJavaLangInvokeConstantBootstraps() {
+		CompilationUnitScope unitScope = compilationUnitScope();
+		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_INVOKE_CONSTANTBOOTSTRAP);
+		return unitScope.environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_INVOKE_CONSTANTBOOTSTRAP, this);
+	}
+	public final ReferenceBinding getJavaLangEnumDesc() {
+		CompilationUnitScope unitScope = compilationUnitScope();
+		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_ENUM_ENUMDESC);
+		return unitScope.environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_ENUM_ENUMDESC, this);
+	}
+	public final ReferenceBinding getJavaLangClassDesc() {
+		CompilationUnitScope unitScope = compilationUnitScope();
+		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_CONSTANT_CLASSDESC);
+		return unitScope.environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_CONSTANT_CLASSDESC, this);
 	}
 	public final ReferenceBinding getJavaLangInvokeStringConcatFactory() {
 		CompilationUnitScope unitScope = compilationUnitScope();

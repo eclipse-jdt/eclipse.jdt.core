@@ -459,42 +459,42 @@ public class Java9ElementsTests extends TestCase {
 			return;
 		}
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		internalTest4(compiler, "20", MODULE_PROC, "testGetFileObjectOfRecords", null, true);
+		internalTest4(compiler, "20", MODULE_PROC, "testGetFileObjectOfRecords", null, false);
 	}
 	public void testGetFileObjectOfRecords() throws IOException {
 		if (!canRunJava20()) {
 			return;
 		}
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTest4(compiler, "20", MODULE_PROC, "testGetFileObjectOfRecords", null, true);
+		internalTest4(compiler, "20", MODULE_PROC, "testGetFileObjectOfRecords", null, false);
 	}
 	public void testElementsInTypeJavac() throws IOException {
 		if (!canRunJava20()) {
 			return;
 		}
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		internalTest4(compiler, "20", MODULE_PROC, "testElementsInType", null, true);
+		internalTest4(compiler, "20", MODULE_PROC, "testElementsInType", null, false);
 	}
 	public void testElementsInType() throws IOException {
 		if (!canRunJava20()) {
 			return;
 		}
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTest4(compiler, "20", MODULE_PROC, "testElementsInType", null, true);
+		internalTest4(compiler, "20", MODULE_PROC, "testElementsInType", null, false);
 	}
 	public void testDeeplyNestedTypesJavac() throws IOException {
 		if (!canRunJava20()) {
 			return;
 		}
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		internalTest4(compiler, "20", MODULE_PROC, "testDeeplyNestedTypes", null, true);
+		internalTest4(compiler, "20", MODULE_PROC, "testDeeplyNestedTypes", null, false);
 	}
 	public void testDeeplyNestedTypes() throws IOException {
 		if (!canRunJava20()) {
 			return;
 		}
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTest4(compiler, "20", MODULE_PROC, "testDeeplyNestedTypes", null, true);
+		internalTest4(compiler, "20", MODULE_PROC, "testDeeplyNestedTypes", null, false);
 	}
 	protected void internalTestWithBinary(JavaCompiler compiler, String processor, String compliance, String testMethod, String testClass, String resourceArea) throws IOException {
 		if (!canRunJava9()) {
@@ -657,7 +657,6 @@ public class Java9ElementsTests extends TestCase {
 		} else {
 			options.add("-source");
 			options.add(compliance);
-			options.add("--enable-preview");
 		}
 		BatchTestUtils.compileInModuleMode(compiler, options, processor, srcRoot, null, true, binaryMode);
 		assertEquals("succeeded", System.getProperty(processor));

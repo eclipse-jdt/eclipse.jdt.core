@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -256,6 +260,10 @@ public interface TypeConstants {
 	char[] CLOSE = "close".toCharArray(); //$NON-NLS-1$
 	char[][] JAVA_LANG_RUNTIME_OBJECTMETHODS = {JAVA, LANG, RUNTIME, "ObjectMethods".toCharArray()}; //$NON-NLS-1$
 	char[][] JAVA_LANG_RUNTIME_SWITCHBOOTSTRAPS = {JAVA, LANG, RUNTIME, "SwitchBootstraps".toCharArray()}; //$NON-NLS-1$
+	char[][] JAVA_LANG_INVOKE_CONSTANTBOOTSTRAP = {JAVA, LANG, INVOKE, "ConstantBootstraps".toCharArray()}; //$NON-NLS-1$
+	char[][] JAVA_LANG_ENUM_ENUMDESC = {JAVA, LANG, "Enum$EnumDesc".toCharArray()}; //$NON-NLS-1$
+	char[][] JAVA_LANG_CONSTANT_CLASSDESC = {JAVA, LANG, "constant".toCharArray(), "ClassDesc".toCharArray()}; //$NON-NLS-1$ //$NON-NLS-2$
+
 	// known helper functions for closing a Closeable (all receive a Closeable as their first argument):
 	public static class CloseMethodRecord {
 		public char[][] typeName;

@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Jesper S Moller - Contributions for
@@ -320,6 +324,13 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 	public static final char[] ConcatWithConstants = "makeConcatWithConstants".toCharArray(); //$NON-NLS-1$
 	public static final char[] JAVA_LANG_INVOKE_STRING_CONCAT_FACTORY_SIGNATURE =
 			"(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;".toCharArray(); //$NON-NLS-1$
+	public static final char[] JAVA_LANG_ENUM_ENUMDESC = "Ljava/lang/Enum$EnumDesc;".toCharArray(); //$NON-NLS-1$
+	public static final char[] JAVA_LANG_CONST_CLASSDESC = "Ljava/lang/constant/ClassDesc;".toCharArray(); //$NON-NLS-1$
+	public static final char[] JAVA_LANG_INVOKE_CONSTANTBOOTSTRAP_SIGNATURE =
+			"(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/Class;Ljava/lang/invoke/MethodHandle;[Ljava/lang/Object;)Ljava/lang/Object;".toCharArray(); //$NON-NLS-1$
+	public static final char[] JAVA_LANG_ENUMDESC_OF_SIGNATURE = "(Ljava/lang/constant/ClassDesc;Ljava/lang/String;)Ljava/lang/Enum$EnumDesc;".toCharArray(); //$NON-NLS-1$
+	public static final char[] JAVA_LANG_CLASSDESC_OF_SIGNATURE = "(Ljava/lang/String;)Ljava/lang/constant/ClassDesc;".toCharArray(); //$NON-NLS-1$
+
 	/**
 	 * ConstantPool constructor comment.
 	 */

@@ -7,6 +7,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -1080,6 +1084,8 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	 * Switch multi-constant with illegal qualified enum constant
 	 */
 	public void testBug544073_032() {
+		if (this.complianceLevel >= ClassFileConstants.JDK21)
+			return;
 		String[] testFiles = new String[] {
 				"X.java",
 				"public class X {\n" +

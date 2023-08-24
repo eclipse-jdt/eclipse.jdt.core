@@ -24,6 +24,7 @@ import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
@@ -6313,5 +6314,355 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"}"
 				},
 				"42");
+	}
+	public void testIssue1250_1() {
+		if (this.complianceLevel < ClassFileConstants.JDK21) {
+			return;
+		}
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"enum E {\n"
+					+ "	A1, A2;\n"
+					+ "}\n"
+					+ "public class X {\n"
+					+ "	public static void foo(E e) {\n"
+					+ "		switch (e) {\n"
+					+ "			case E.A1 -> {\n"
+					+ "				System.out.println(\"A1\");\n"
+					+ "			}\n"
+					+ "			case E.A2 -> {\n"
+					+ "				System.out.println(\"A2\");\n"
+					+ "			}\n"
+					+ "		}\n"
+					+ "	}\n"
+					+ "	public static void main(String[] args) {\n"
+					+ "		foo(E.A1);\n"
+					+ "	}\n"
+					+ "}",
+				},
+				"A1");
+	}
+	public void testIssue1250_2() {
+		if (this.complianceLevel < ClassFileConstants.JDK21) {
+			return;
+		}
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"enum E {\n"
+					+ "	A1, A2;\n"
+					+ "	enum InnerE {\n"
+					+ "		B1, B2;\n"
+					+ "	}\n"
+					+ "}\n"
+					+ "public class X {\n"
+					+ "	public static void foo(E.InnerE e) {\n"
+					+ "		switch (e) {\n"
+					+ "			case E.InnerE.B1 -> {\n"
+					+ "				System.out.println(\"B1\"); //$NON-NLS-1$\n"
+					+ "			} \n"
+					+ "			default -> {}\n"
+					+ "		}\n"
+					+ "	}\n"
+					+ "	public static void main(String[] args) { \n"
+					+ "		foo(E.InnerE.B1);\n"
+					+ "	}\n"
+					+ "}",
+				},
+				"B1");
+	}
+	public void testIssue1250_3() {
+		if (this.complianceLevel < ClassFileConstants.JDK21) {
+			return;
+		}
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"enum E {\n"
+					+ "	A1, A2;\n"
+					+ "	enum InnerE {\n"
+					+ "		B1, B2;\n"
+					+ "	}\n"
+					+ "}\n"
+					+ "public class X {\n"
+					+ "	public static void foo(E.InnerE e) {\n"
+					+ "		switch (e) {\n"
+					+ "			case E.A1 -> {\n"
+					+ "				System.out.println(\"B1\"); //$NON-NLS-1$\n"
+					+ "			} \n"
+					+ "			default -> {}\n"
+					+ "		}\n"
+					+ "	}\n"
+					+ "	public static void main(String[] args) { \n"
+					+ "		foo(E.InnerE.B1);\n"
+					+ "	}\n"
+					+ "}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 10)\n" +
+				"	case E.A1 -> {\n" +
+				"	     ^^^^\n" +
+				"Type mismatch: cannot convert from E to E.InnerE\n" +
+				"----------\n");
+	}
+	public void testIssue1250_4() {
+		if (this.complianceLevel < ClassFileConstants.JDK21) {
+			return;
+		}
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"interface I {}\n"
+					+ "enum E implements I {\n"
+					+ "	A0, A1, A2, A3, A4;\n"
+					+ "}\n"
+					+ "public class X {\n"
+					+ "	public String testMethod(I exp) {\n"
+					+ "		String res = \"\";\n"
+					+ "		switch (exp) {\n"
+					+ "			case E.A0 -> {\n"
+					+ "				res = \"const A0\";\n"
+					+ "				break;\n"
+					+ "			}\n"
+					+ "			case E.A1 -> {\n"
+					+ "				res = \"const A1\";\n"
+					+ "				break;\n"
+					+ "			}\n"
+					+ "			case E.A2 -> {\n"
+					+ "				res = \"const A2\";\n"
+					+ "				break;\n"
+					+ "			}\n"
+					+ "			case E.A3 -> {\n"
+					+ "				res = \"const A3\";\n"
+					+ "				break;\n"
+					+ "			}\n"
+					+ "			case E.A4 -> {\n"
+					+ "				res = \"const A4\";\n"
+					+ "				break;\n"
+					+ "			}\n"
+					+ "			default -> {\n"
+					+ "				res = \"default\";\n"
+					+ "			}\n"
+					+ "		}\n"
+					+ "		return res;\n"
+					+ "	}\n"
+					+ "	public static void main(String[] args) {\n"
+					+ "		System.out.println((new X()).testMethod(E.A2));\n"
+					+ "		System.out.println((new X()).testMethod(E.A3));\n"
+					+ "		System.out.println((new X()).testMethod(E.A4));\n"
+					+ "		System.out.println((new X()).testMethod(E.A0));\n"
+					+ "		System.out.println((new X()).testMethod(E.A1));\n"
+					+ "		System.out.println((new X()).testMethod(new I() {\n"
+					+ "		}));\n"
+					+ "	}\n"
+					+ "}",
+				},
+				"const A2\n" +
+				"const A3\n" +
+				"const A4\n" +
+				"const A0\n" +
+				"const A1\n" +
+				"default");
+	}
+	public void testIssue1250_5() {
+		if (this.complianceLevel < ClassFileConstants.JDK21) {
+			return;
+		}
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"interface I {\n"
+					+ "}\n"
+					+ "enum E implements I {\n"
+					+ "	A0, A1, A2, A3, A4;\n"
+					+ "}\n"
+					+ "enum E1 implements I {\n"
+					+ "	B0, B1;\n"
+					+ "}\n"
+					+ "public class X {\n"
+					+ "	public String foo(I exp) {\n"
+					+ "		String res = \"\";\n"
+					+ "		switch (exp) {\n"
+					+ "			case E.A0 -> {\n"
+					+ "				res = \"const A0\";\n"
+					+ "				break;\n"
+					+ "			}\n"
+					+ "			case E.A1 -> {\n"
+					+ "				res = \"const A1\";\n"
+					+ "				break;\n"
+					+ "			}\n"
+					+ "			case E1.B0 -> {\n"
+					+ "				res = \"const B0\";\n"
+					+ "				break;\n"
+					+ "			}\n"
+					+ "			case E e -> {\n"
+					+ "				res = e.toString();\n"
+					+ "			}\n"
+					+ "			case E1 e1 -> {\n"
+					+ "				res = e1.toString();\n"
+					+ "			}\n"
+					+ "			default -> {\n"
+					+ "				res = \"default\";\n"
+					+ "			}\n"
+					+ "		}\n"
+					+ "		return res;\n"
+					+ "	}\n"
+					+ "	public static void main(String[] args) {\n"
+					+ "		System.out.println((new X()).foo(E.A0));\n"
+					+ "		System.out.println((new X()).foo(E.A1));\n"
+					+ "		System.out.println((new X()).foo(E.A2));\n"
+					+ "		System.out.println((new X()).foo(E1.B0));\n"
+					+ "		System.out.println((new X()).foo(E1.B1));\n"
+					+ "		System.out.println((new X()).foo(new I() {\n"
+					+ "		}));\n"
+					+ "	}\n"
+					+ "}",
+				},
+				"const A0\n"
+				+ "const A1\n"
+				+ "A2\n"
+				+ "const B0\n"
+				+ "B1\n"
+				+ "default");
+	}
+	public void testIssue1250_6() {
+		if (this.complianceLevel < ClassFileConstants.JDK21) {
+			return;
+		}
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"interface I {\n"
+					+ "}\n"
+					+ "enum XEnum {\n"
+					+ "    A, B;\n"
+					+ "    interface I {}\n"
+					+ "    enum E implements I {\n"
+					+ "        A0, A1;\n"
+					+ "    }\n"
+					+ "}\n"
+					+ "public class X {\n"
+					+ "    public String foo(XEnum.I exp) {\n"
+					+ "        String res = \"\";\n"
+					+ "        switch (exp) {\n"
+					+ "            case XEnum.E.A0 -> {\n"
+					+ "                res = \"A0\";\n"
+					+ "                break;\n"
+					+ "            }\n"
+					+ "            case XEnum.E.A1 -> {\n"
+					+ "                res = \"A1\";\n"
+					+ "                break;\n"
+					+ "            }\n"
+					+ "            default -> {\n"
+					+ "                res = \"Ad\";\n"
+					+ "            }\n"
+					+ "        }\n"
+					+ "        return res;\n"
+					+ "    }\n"
+					+ "	public static void main(String[] args) {\n"
+					+ "		System.out.println((new X()).foo(XEnum.E.A1));\n"
+					+ "	}\n"
+					+ "}",
+				},
+				"A1");
+	}
+	public void testIssue1250_7() {
+		if (this.complianceLevel < ClassFileConstants.JDK21) {
+			return;
+		}
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"interface I {\n"
+					+ "    interface InnerI {}\n"
+					+ "    enum E implements InnerI {\n"
+					+ "        A0, A1;\n"
+					+ "    }\n"
+					+ "}\n"
+					+ "public class X {\n"
+					+ "    public String foo(I.InnerI exp) {\n"
+					+ "        String res = \"\";\n"
+					+ "        res = switch (exp) {\n"
+					+ "            case I.E.A0 -> {\n"
+					+ "                yield \"A0\";\n"
+					+ "            }\n"
+					+ "            case I.E.A1 -> {\n"
+					+ "                yield \"A1\";\n"
+					+ "            }\n"
+					+ "            default -> {\n"
+					+ "                yield \"Ad\";\n"
+					+ "            }\n"
+					+ "        };\n"
+					+ "        return res;\n"
+					+ "    }\n"
+					+ "	public static void main(String[] args) {\n"
+					+ "		System.out.println((new X()).foo(I.E.A1));\n"
+					+ "	}\n"
+					+ "}",
+				},
+				"A1");
+	}
+	public void testIssue1250_8() {
+		if (this.complianceLevel < ClassFileConstants.JDK21) {
+			return;
+		}
+		this.runConformTest(
+				new String[] {
+					"p/q/X.java",
+					"package p.q;\n"
+					+ "interface I {\n"
+					+ "}\n"
+					+ "enum E implements I {\n"
+					+ "	A0, A1, A2, A3, A4;\n"
+					+ "}\n"
+					+ "enum E1 implements I {\n"
+					+ "	B0, B1;\n"
+					+ "}\n"
+					+ "public class X {\n"
+					+ "	public String foo(I exp) {\n"
+					+ "		String res = \"\";\n"
+					+ "		switch (exp) {\n"
+					+ "			case E.A0 -> {\n"
+					+ "				res = \"const A0\";\n"
+					+ "				break;\n"
+					+ "			}\n"
+					+ "			case E.A1 -> {\n"
+					+ "				res = \"const A1\";\n"
+					+ "				break;\n"
+					+ "			}\n"
+					+ "			case E1.B0 -> {\n"
+					+ "				res = \"const B0\";\n"
+					+ "				break;\n"
+					+ "			}\n"
+					+ "			case E e -> {\n"
+					+ "				res = e.toString();\n"
+					+ "			}\n"
+					+ "			case E1 e1 -> {\n"
+					+ "				res = e1.toString();\n"
+					+ "			}\n"
+					+ "			default -> {\n"
+					+ "				res = \"default\";\n"
+					+ "			}\n"
+					+ "		}\n"
+					+ "		return res;\n"
+					+ "	}\n"
+					+ "	public static void main(String[] args) {\n"
+					+ "		System.out.println((new X()).foo(E.A0));\n"
+					+ "		System.out.println((new X()).foo(E.A1));\n"
+					+ "		System.out.println((new X()).foo(E.A2));\n"
+					+ "		System.out.println((new X()).foo(E1.B0));\n"
+					+ "		System.out.println((new X()).foo(E1.B1));\n"
+					+ "		System.out.println((new X()).foo(new I() {\n"
+					+ "		}));\n"
+					+ "	}\n"
+					+ "}",
+				},
+				"const A0\n"
+				+ "const A1\n"
+				+ "A2\n"
+				+ "const B0\n"
+				+ "B1\n"
+				+ "default");
 	}
 }

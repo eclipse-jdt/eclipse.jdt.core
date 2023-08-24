@@ -38,6 +38,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CaseLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
@@ -96,6 +97,7 @@ public class SwitchStatement extends Expression {
 	public final static int Enhanced = ASTNode.Bit5;
 	// Indicates this switch statement is fabricated by the compiler, for e.g. in ForeachStatement
 	public final static int Synthetic = ASTNode.Bit6;
+	public final static int QualifiedEnum = ASTNode.Bit7;
 
 	// for switch on strings
 	private static final char[] SecretStringVariableName = " switchDispatchString".toCharArray(); //$NON-NLS-1$
@@ -782,7 +784,7 @@ public class SwitchStatement extends Expression {
 
 			final TypeBinding resolvedType1 = this.expression.resolvedType;
 			boolean valueRequired = false;
-			if (this.containsPatterns || isNullAndNeedsPatternVar()) {
+			if (needPatternDispatchCopy()) {
 				generateCodeSwitchPatternPrologue(currentScope, codeStream);
 				valueRequired = true;
 				transformConstants();
@@ -967,7 +969,7 @@ public class SwitchStatement extends Expression {
 		}
 	}
 	private void generateCodeSwitchPatternEpilogue(CodeStream codeStream) {
-		if ((this.containsPatterns && this.caseLabelElements.size() > 0) || isNullAndNeedsPatternVar()) {
+		if (needPatternDispatchCopy()) {
 			codeStream.removeVariable(this.dispatchPatternCopy);
 			codeStream.removeVariable(this.restartIndexLocal);
 		}
@@ -985,8 +987,6 @@ public class SwitchStatement extends Expression {
 				&& caseStatement.patternIndex != -1 // for null
 				) {
 			Pattern pattern = (Pattern) caseStatement.constantExpressions[caseStatement.patternIndex];
-//			if (!pattern.containsPatternVariable())
-//				return;
 			pattern.elseTarget.place();
 			pattern.suspendVariables(codeStream, this.scope);
 			if (!pattern.isAlwaysTrue()) {
@@ -1024,12 +1024,25 @@ public class SwitchStatement extends Expression {
 		} else {
 			generateTypeSwitchPatternPrologue(codeStream, invokeDynamicNumber);
 		}
+		boolean hasQualifiedEnums = (this.switchBits & QualifiedEnum) != 0;
+		for (int i = 0; i < this.otherConstants.length; i++) {
+			ResolvedCase c = this.otherConstants[i];
+			if (hasQualifiedEnums) {
+				c.index = i;
+			}
+			if (!c.isQualifiedEnum())
+				continue;
+			int classdescIdx = codeStream.classFile.recordBootstrapMethod(c.t);
+			invokeDynamicNumber = codeStream.classFile.recordBootstrapMethod(c);
+			c.enumDescIdx = invokeDynamicNumber;
+			c.classDescIdx = classdescIdx;
+		}
 	}
 	private void generateTypeSwitchPatternPrologue(CodeStream codeStream, int invokeDynamicNumber) {
 		codeStream.invokeDynamic(invokeDynamicNumber,
 				2, // Object, restartIndex
 				1, // int
-				"typeSwitch".toCharArray(), //$NON-NLS-1$
+				ConstantPool.TYPESWITCH,
 				"(Ljava/lang/Object;I)I".toCharArray(), //$NON-NLS-1$
 				TypeIds.T_int,
 				TypeBinding.INT);
@@ -1313,6 +1326,10 @@ public class SwitchStatement extends Expression {
 					upperScope.problemReporter().undocumentedEmptyBlock(this.blockStart, this.sourceEnd);
 				}
 			}
+			// Try it again in case we found any qualified enums.
+			if (this.dispatchPatternCopy == null) {
+				addSecretPatternSwitchVariables(upperScope);
+			}
 			reportMixingCaseTypes();
 
 			// check default case for all kinds of switch:
@@ -1546,9 +1563,9 @@ public class SwitchStatement extends Expression {
 		}
 		return remainingTypes.isEmpty();
 	}
-	private boolean isNullAndNeedsPatternVar() {
-		if (this.containsPatterns)
-			return false; // don't bother - already taken care
+	private boolean needPatternDispatchCopy() {
+		if (this.containsPatterns || (this.switchBits & QualifiedEnum) != 0)
+			return true;
 		if (!this.containsNull)
 			return false;
 		TypeBinding eType = this.expression != null ? this.expression.resolvedType : null;
@@ -1557,7 +1574,7 @@ public class SwitchStatement extends Expression {
 		return !(eType.isPrimitiveOrBoxedPrimitiveType() || eType.isEnum());
 	}
 	private void addSecretPatternSwitchVariables(BlockScope upperScope) {
-		if (this.containsPatterns || isNullAndNeedsPatternVar()) {
+		if (needPatternDispatchCopy()) {
 			this.scope = new BlockScope(upperScope);
 			this.dispatchPatternCopy  = new LocalVariableBinding(SecretPatternVariableName, this.expression.resolvedType, ClassFileConstants.AccDefault, false);
 			this.scope.addLocalVariable(this.dispatchPatternCopy);
