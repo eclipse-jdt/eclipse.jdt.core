@@ -54,7 +54,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_21);
 		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_21);
 		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_21);
-		defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		defaultOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
 		return defaultOptions;
@@ -78,7 +78,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runner.expectedErrorString = expectedErrorOutput;
 		runner.vmArguments = new String[] {"--enable-preview"};
 		runner.customOptions = customOptions;
-		runner.javacTestOptions = JavacTestOptions.forReleaseWithPreview(SwitchPatternTest.previewLevel);
 		runner.runConformTest();
 	}
 	@Override
@@ -90,9 +89,8 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runner.testFiles = testFiles;
 		runner.expectedCompilerLog = expectedCompilerLog;
 		runner.expectedJavacOutputString = expectedCompilerLog;
-		runner.vmArguments = new String[] {"--enable-preview"};
+		runner.vmArguments = null;
 		runner.customOptions = getCompilerOptions();
-		runner.javacTestOptions = JavacTestOptions.forReleaseWithPreview(SwitchPatternTest.previewLevel);
 		runner.runNegativeTest();
 		runNegativeTest(testFiles, expectedCompilerLog, JavacTestOptions.forReleaseWithPreview(SwitchPatternTest.previewLevel));
 	}
@@ -109,9 +107,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runner.testFiles = testFiles;
 		runner.expectedCompilerLog = expectedCompilerLog;
 		runner.customOptions = customOptions;
-		runner.vmArguments = new String[] {"--enable-preview"};
-		runner.javacTestOptions = javacAdditionalTestOptions == null ? JavacTestOptions.forReleaseWithPreview(SwitchPatternTest.previewLevel) :
-			JavacTestOptions.forReleaseWithPreview(SwitchPatternTest.previewLevel, javacAdditionalTestOptions);
+		runner.vmArguments = new String[] {""};
 		runner.runWarningTest();
 	}
 
@@ -2218,7 +2214,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	public void testBug574564_010() {
 		Map<String, String> options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
+		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_20);
 		runNegativeTest(
 			new String[] {
 				"X.java",
@@ -2240,59 +2236,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"	case String s, default, Integer i  -> System.out.println(0);\n" +
 			"	                                ^\n" +
 			"Syntax error on token \"i\", delete this token\n" +
-			"----------\n",
-			null,
-			true,
-			options);
-	}
-	public void testBug574564_011() {
-		Map<String, String> options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		runNegativeTest(
-			new String[] {
-				"X.java",
-				"public class X {\n"+
-				" private static void foo(Integer o) {\n"+
-				"   switch (o) {\n"+
-				"     case null  -> System.out.println(0);\n"+
-				"   }\n"+
-				" }\n"+
-				"}",
-			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	case null  -> System.out.println(0);\n" +
-			"	     ^^^^\n" +
-			"Pattern Matching in Switch is a preview feature and disabled by default. Use --enable-preview to enable\n" +
-			"----------\n",
-			null,
-			true,
-			options);
-	}
-	public void testBug574564_012() {
-		Map<String, String> options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		runNegativeTest(
-			new String[] {
-				"X.java",
-				"public class X {\n"+
-				" private static void foo(Integer o) {\n"+
-				"   switch (o) {\n"+
-				"     case 1, default, null  -> System.out.println(0);\n"+
-				"   }\n"+
-				" }\n"+
-				"}",
-			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	case 1, default, null  -> System.out.println(0);\n" +
-			"	        ^^^^^^^\n" +
-			"Pattern Matching in Switch is a preview feature and disabled by default. Use --enable-preview to enable\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 4)\n" +
-			"	case 1, default, null  -> System.out.println(0);\n" +
-			"	                 ^^^^\n" +
-			"Pattern Matching in Switch is a preview feature and disabled by default. Use --enable-preview to enable\n" +
 			"----------\n",
 			null,
 			true,
@@ -4143,86 +4086,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
-	public void testBug575737_001() {
-		Map<String, String> options =getCompilerOptions();
-		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.WARNING);
-
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"public class X {\n"+
-				" static void foo1(String o) {\n"+
-				"   switch (o) {\n"+
-				"   case null -> System.out.println(\"null\");\n"+
-				"   case String s -> String.format(\"String %s\", s);\n"+
-				"   }\n"+
-				" }\n"+
-				" public static void main(String[] args) {\n"+
-				"   Zork();\n"+
-				" }\n"+
-				"}",
-			},
-			"----------\n" +
-			"1. WARNING in X.java (at line 4)\n" +
-			"	case null -> System.out.println(\"null\");\n" +
-			"	     ^^^^\n" +
-			"You are using a preview language feature that may or may not be supported in a future release\n" +
-			"----------\n" +
-			"2. WARNING in X.java (at line 5)\n" +
-			"	case String s -> String.format(\"String %s\", s);\n" +
-			"	     ^^^^^^^^\n" +
-			"You are using a preview language feature that may or may not be supported in a future release\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 9)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n",
-			null,
-			true,
-			options
-		);
-	}
-	public void testBug575737_002() {
-		Map<String, String> options =getCompilerOptions();
-		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.INFO);
-
-		this.runNegativeTest(
-			new String[] {
-				"X.java",
-				"public class X {\n"+
-				" static void foo1(String o) {\n"+
-				"   switch (o) {\n"+
-				"   case null -> System.out.println(\"null\");\n"+
-				"   case String s -> String.format(\"String %s\", s);\n"+
-				"   }\n"+
-				" }\n"+
-				" public static void main(String[] args) {\n"+
-				"   Zork();\n"+
-				" }\n"+
-				"}",
-			},
-			"----------\n" +
-			"1. INFO in X.java (at line 4)\n" +
-			"	case null -> System.out.println(\"null\");\n" +
-			"	     ^^^^\n" +
-			"You are using a preview language feature that may or may not be supported in a future release\n" +
-			"----------\n" +
-			"2. INFO in X.java (at line 5)\n" +
-			"	case String s -> String.format(\"String %s\", s);\n" +
-			"	     ^^^^^^^^\n" +
-			"You are using a preview language feature that may or may not be supported in a future release\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 9)\n" +
-			"	Zork();\n" +
-			"	^^^^\n" +
-			"The method Zork() is undefined for the type X\n" +
-			"----------\n",
-			null,
-			true,
-			options
-		);
-	}
 	public void testBug575738_001() {
 		runNegativeTest(
 				new String[] {
@@ -4341,7 +4204,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"final class F<T> implements J<T> {}\n"+
 				"\n"+
 				"public class X {\n"+
-				"@SuppressWarnings(\"preview\")\n" +
 				" static int testExhaustive2(J<Integer> ji) {\n"+
 				"   return switch (ji) { // Exhaustive!\n"+
 				"   case E<Integer> e -> 42;\n"+
@@ -4355,12 +4217,12 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"}"
 				},
 				"----------\n" +
-				"1. ERROR in X.java (at line 10)\n" +
+				"1. ERROR in X.java (at line 9)\n" +
 				"	return switch (ji) { // Exhaustive!\n" +
 				"	               ^^\n" +
 				"A switch expression should have a default case\n" +
 				"----------\n" +
-				"2. ERROR in X.java (at line 17)\n" +
+				"2. ERROR in X.java (at line 16)\n" +
 				"	Zork();\n" +
 				"	^^^^\n" +
 				"The method Zork() is undefined for the type X\n" +
@@ -4394,7 +4256,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"sealed class C permits D {}\n"+
 				"final class D extends C {}\n"+
 				"public class X {\n"+
-				"       @SuppressWarnings(\"preview\")\n"+
 				"       static  void foo(C ji) {\n"+
 				"                switch (ji) { // non-exhaustive\n"+
 				"                  case D d : System.out.println(\"D\"); break;\n"+
@@ -4407,12 +4268,12 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"}",
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 6)\n" +
+			"1. ERROR in X.java (at line 5)\n" +
 			"	switch (ji) { // non-exhaustive\n" +
 			"	        ^^\n" +
 			"An enhanced switch statement should be exhaustive; a default label expected\n" +
 			"----------\n" +
-			"2. ERROR in X.java (at line 12)\n" +
+			"2. ERROR in X.java (at line 11)\n" +
 			"	Zork();\n" +
 			"	^^^^\n" +
 			"The method Zork() is undefined for the type X\n" +
@@ -4425,7 +4286,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"abstract sealed class C permits D {}\n"+
 				"final class D extends C {}\n"+
 				"public class X {\n"+
-				"       @SuppressWarnings(\"preview\")\n"+
 				"       static  void foo(C ji) {\n"+
 				"                switch (ji) { // non-exhaustive\n"+
 				"                  case D d : System.out.println(\"D\"); break;\n"+
@@ -4438,7 +4298,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"}",
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 12)\n" +
+			"1. ERROR in X.java (at line 11)\n" +
 			"	Zork();\n" +
 			"	^^^^\n" +
 			"The method Zork() is undefined for the type X\n" +
@@ -4451,7 +4311,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"sealed interface C permits D {}\n"+
 				"final class D implements C {}\n"+
 				"public class X {\n"+
-				"       @SuppressWarnings(\"preview\")\n"+
 				"       static  void foo(C ji) {\n"+
 				"                switch (ji) { // non-exhaustive\n"+
 				"                  case D d : System.out.println(\"D\"); break;\n"+
@@ -4464,7 +4323,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"}",
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 12)\n" +
+			"1. ERROR in X.java (at line 11)\n" +
 			"	Zork();\n" +
 			"	^^^^\n" +
 			"The method Zork() is undefined for the type X\n" +
@@ -4477,7 +4336,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"sealed abstract class C permits D {}\n"+
 				"final class D extends C {}\n"+
 				"public class X {\n"+
-				" @SuppressWarnings(\"preview\")\n"+
 				" static <T extends C> void foo(T  ji) {\n"+
 				"    switch (ji) { // exhaustive because C is sealed and abstract\n"+
 				"      case D d : System.out.println(\"D\"); break;\n"+
@@ -4490,7 +4348,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"}",
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 12)\n" +
+			"1. ERROR in X.java (at line 11)\n" +
 			"	Zork();\n" +
 			"	^^^^\n" +
 			"The method Zork() is undefined for the type X\n" +
@@ -4503,7 +4361,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"sealed interface C permits D {}\n"+
 				"final class D implements C {}\n"+
 				"public class X {\n"+
-				" @SuppressWarnings(\"preview\")\n"+
 				" static <T extends C> void foo(T  ji) {\n"+
 				"    switch (ji) { // exhaustive because C is sealed and abstract\n"+
 				"      case D d : System.out.println(\"D\"); break;\n"+
@@ -4516,7 +4373,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"}",
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 12)\n" +
+			"1. ERROR in X.java (at line 11)\n" +
 			"	Zork();\n" +
 			"	^^^^\n" +
 			"The method Zork() is undefined for the type X\n" +
@@ -4527,7 +4384,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			new String[] {
 				"X.java",
 				"public class X {\n"+
-				" @SuppressWarnings(\"preview\")\n"+
 				" static  int foo(Object o) {\n"+
 				"   return switch (o) { \n"+
 				"      case X x when true -> 0;\n"+
@@ -4548,7 +4404,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			new String[] {
 				"X.java",
 				"public class X {\n"+
-				" @SuppressWarnings(\"preview\")\n"+
 				" public static void main(String[] args) {\n"+
 				"     Boolean input = false;\n"+
 				"     int result = switch(input) {\n"+
@@ -4678,7 +4533,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	private String getTestCaseForBug578504 (String caseConstant) {
 		return "public class X {\n"
 				+ "    public Object literal = \"a\";\n"
-				+ "    @SuppressWarnings(\"preview\")\n"
 				+ "	public boolean foo() {\n"
 				+ "        String s = switch(literal) {\n"
 				+ "            " + caseConstant
@@ -4768,7 +4622,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				new String[] {
 					"X.java",
 					"public class X {\n"
-					+ "	@SuppressWarnings(\"preview\")\n"
 					+ "	static Long foo(Number n) {\n"
 					+ "		return switch (n) {\n"
 					+ "	     case (Long l) when l.toString().equals(\"0\") -> {\n"
@@ -4789,7 +4642,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				new String[] {
 					"X.java",
 					"public class X {\n"
-					+ "		@SuppressWarnings(\"preview\")\n"
 					+ "	static Long foo(Number n) {  \n"
 					+ "		return switch (n) { \n"
 					+ "	     case (Long l) when l.toString().equals(\"0\") -> {\n"
@@ -4815,7 +4667,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				new String[] {
 					"X.java",
 					"public class X {\n"
-					+ "	@SuppressWarnings(\"preview\")\n"
 					+ "	static Long foo(Number n) {  \n"
 					+ "		return switch (n) { \n"
 					+ "	     case (Long l) when l.toString().equals(\"0\") -> {\n"
@@ -4832,7 +4683,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					+ "}",
 				},
 				"----------\n" +
-				"1. ERROR in X.java (at line 7)\n" +
+				"1. ERROR in X.java (at line 6)\n" +
 				"	case Long l1 when l.toString().equals(l1.toString()) -> {\n" +
 				"	                  ^\n" +
 				"Local variable l referenced from a guard must be final or effectively final\n" +
@@ -4843,7 +4694,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				new String[] {
 					"X.java",
 					"public class X {\n"
-					+ "	@SuppressWarnings(\"preview\")\n"
 					+ "	static Long foo(Number n) {  \n"
 					+ "	int i = 0;\n"
 					+ "	return switch(n) {\n"
@@ -4859,7 +4709,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					+ "}",
 				},
 				"----------\n" +
-				"1. ERROR in X.java (at line 9)\n" +
+				"1. ERROR in X.java (at line 8)\n" +
 				"	yield (i++);\n" +
 				"	       ^\n" +
 				"Local variable i referenced from a guard must be final or effectively final\n" +
@@ -4870,7 +4720,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				new String[] {
 					"X.java",
 					"public class X {\n"
-					+ "	@SuppressWarnings(\"preview\")\n"
 					+ "	static Long foo(Number n) {  \n"
 					+ "	int i = 0;\n"
 					+ "	return switch(n) {\n"
@@ -4886,7 +4735,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					+ "}",
 				},
 				"----------\n" +
-				"1. ERROR in X.java (at line 9)\n" +
+				"1. ERROR in X.java (at line 8)\n" +
 				"	yield ++i;\n" +
 				"	        ^\n" +
 				"Local variable i referenced from a guard must be final or effectively final\n" +
@@ -4897,7 +4746,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				new String[] {
 					"X.java",
 					"public class X {\n"
-					+ "	@SuppressWarnings(\"preview\")\n"
 					+ "	static Long foo(Number n) {  \n"
 					+ "	int i = 0;\n"
 					+ "	return switch(n) {\n"
@@ -4913,7 +4761,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					+ "}",
 				},
 				"----------\n" +
-				"1. ERROR in X.java (at line 9)\n" +
+				"1. ERROR in X.java (at line 8)\n" +
 				"	yield (i=i+1);\n" +
 				"	       ^\n" +
 				"Local variable i referenced from a guard must be final or effectively final\n" +
@@ -4927,7 +4775,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"X.java",
 					"public class X {\n"
 					+ " static int bar() { return 1; }\n"
-					+ "	@SuppressWarnings(\"preview\")\n"
 					+ "	static Long foo(Number n) {  \n"
 					+ "	int i = 0;\n"
 					+ "	return switch(n) {\n"
@@ -4943,7 +4790,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					+ "}",
 				},
 				"----------\n" +
-				"1. ERROR in X.java (at line 10)\n" +
+				"1. ERROR in X.java (at line 9)\n" +
 				"	yield (i = bar());\n" +
 				"	       ^\n" +
 				"Local variable i referenced from a guard must be final or effectively final\n" +
@@ -4954,7 +4801,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				new String[] {
 						"X.java",
 						"public class X {\n"
-								+ "    @SuppressWarnings(\"preview\")\n"
 								+ "	public static int foo(Number arg0) {\n"
 								+ "        int result = 0;\n"
 								+ "        result = \n"
@@ -4981,7 +4827,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				new String[] {
 						"X.java",
 						"public class X {\n"
-								+ " @SuppressWarnings(\"preview\")\n"
 								+ "	public static int foo(Number arg0) {\n"
 								+ "        return switch (arg0) {\n"
 								+ "            case Object p : {\n"
@@ -5005,7 +4850,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				new String[] {
 						"X.java",
 						"public class X {\n"
-								+ " @SuppressWarnings(\"preview\")\n"
 								+ "	public static int foo(Object arg0) {\n"
 								+ "        return switch (arg0) {\n"
 								+ "            case Object p : {\n"
@@ -5022,7 +4866,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 								+ "}",
 				},
 				"----------\n" +
-				"1. ERROR in X.java (at line 12)\n" +
+				"1. ERROR in X.java (at line 11)\n" +
 				"	}\n" +
 				"	^^\n" +
 				"A switch labeled block in a switch expression should not complete normally\n" +
@@ -5162,7 +5006,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(new String[] {
 				"X.java",
 				"public class X {\n"
-				+ "   @SuppressWarnings({ \"preview\", \"rawtypes\" })\n"
 				+ "	public static boolean foo(Integer n) {\n"
 				+ "    	return switch (n) {\n"
 				+ "	    	case Integer x when x.equals(10) -> {\n"
@@ -5185,7 +5028,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runNegativeTest(new String[] {
 				"X.java",
 				"public class X {\n"
-				+ " @SuppressWarnings({ \"preview\", \"rawtypes\" })\n"
+				+ "   @SuppressWarnings({ \"rawtypes\" })\n"
 				+ "	public static boolean foo(Integer n) {\n"
 				+ "    	return switch (n) {\n"
 				+ "	    	case Integer x when x.equals(10) -> {\n"
@@ -5215,7 +5058,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runNegativeTest(new String[] {
 				"X.java",
 				"public class X {\n"
-				+ " @SuppressWarnings({ \"preview\", \"rawtypes\" })\n"
+				+ "   @SuppressWarnings({ \"rawtypes\" })\n"
 				+ "	public static boolean foo(Integer n) {\n"
 				+ "    	return switch (n) {\n"
 				+ "	    	case Integer x when x.equals(10) -> {\n"
@@ -5245,7 +5088,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(new String[] {
 				"X.java",
 				"public class X {\n"
-				+ "   @SuppressWarnings({ \"preview\", \"rawtypes\" })\n"
 				+ "    static final String CONSTANT = \"abc\";\n"
 				+ "    static String CON2 = \"abc\";\n"
 				+ "    public static int foo() {\n"
@@ -5273,7 +5115,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				new String[] {
 					"X.java",
 					"public class X {\n"+
-					" @SuppressWarnings(\"preview\")\n"+
 					" static  int foo(Object o, boolean b) {\n"+
 					"   return switch (o) { \n"+
 					"      case X x when b -> 0; // compilation error\n"+
@@ -5294,7 +5135,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				new String[] {
 					"X.java",
 					"public class X {\n"+
-					" @SuppressWarnings(\"preview\")\n"+
 					"     public static void foo1(Object o) {\n"
 					+ "    	boolean b = switch (o) {\n"
 					+ "    		case String s -> {\n"
@@ -5526,7 +5366,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				new String[] {
 					"X.java",
 					"public class X {\n"+
-					" @SuppressWarnings(\"preview\")\n"+
 					"     public static void foo1(Object o) {\n"
 					+ "    	boolean b = switch (o) {\n"
 					+ "    		case String s, null -> {\n"
@@ -5543,7 +5382,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"}"
 				},
 				"----------\n" +
-				"1. ERROR in X.java (at line 5)\n" +
+				"1. ERROR in X.java (at line 4)\n" +
 				"	case String s, null -> {\n" +
 				"	               ^^^^\n" +
 				"A null case label has to be either the only expression in a case label or the first expression followed only by a default\n" +
@@ -5797,8 +5636,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runConformTest(
 				new String[] {
 					"X.java",
-					"@SuppressWarnings(\"preview\")\n"
-					+ "public class X {\n"
+					"public class X {\n"
 					+ "	public static void main(String argv[]) {\n"
 					+ "		(new X()).foo(\"abc\");\n"
 					+ "	}\n"
@@ -5825,9 +5663,8 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					"import java.util.*;\n" +
-					"public class X {\n" +
-					"@SuppressWarnings(\"preview\")\n"
+					"import java.util.*;\n"
+					+ "public class X {\n"
 					+ "public static void foo(List<Number> l) {\n"
 					+ "	switch (l) {\n"
 					+ "	    case ArrayList<Number> al -> \n"
@@ -5841,7 +5678,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"}",
 				},
 				"----------\n" +
-				"1. ERROR in X.java (at line 8)\n" +
+				"1. ERROR in X.java (at line 7)\n" +
 				"	case ArrayList<? extends Number> aln -> // Error - dominated case label\n" +
 				"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 				"This case label is dominated by one of the preceding case labels\n" +
@@ -5851,9 +5688,8 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					"import java.util.*;\n" +
-					"public class X {\n" +
-					"@SuppressWarnings(\"preview\")\n"
+					"import java.util.*;\n"
+					+ "public class X {\n"
 					+ "public static void foo(List<Number> l) {\n"
 					+ "	switch (l) {\n"
 					+ "	    case ArrayList<? extends Number> aln ->\n"
@@ -5867,7 +5703,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"}",
 				},
 				"----------\n" +
-				"1. ERROR in X.java (at line 8)\n" +
+				"1. ERROR in X.java (at line 7)\n" +
 				"	case ArrayList<Number> al ->  // Error - dominated case label\n" +
 				"	     ^^^^^^^^^^^^^^^^^^^^\n" +
 				"This case label is dominated by one of the preceding case labels\n" +
@@ -5878,8 +5714,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				new String[] {
 					"X.java",
 					"import java.util.*;\n" +
-					"public class X {\n" +
-					"@SuppressWarnings(\"preview\")\n"
+					"public class X {\n"
 					+ "public static void foo(Integer n) {\n"
 					+ "  switch (n) {\n"
 					+ "    case Integer i when true -> // Allowed but why write this?\n"
@@ -5891,12 +5726,12 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"}",
 				},
 				"----------\n" +
-				"1. ERROR in X.java (at line 8)\n" +
+				"1. ERROR in X.java (at line 7)\n" +
 				"	case Integer i ->                     // Error - dominated case label\n" +
 				"	     ^^^^^^^^^\n" +
 				"The switch statement cannot have more than one unconditional pattern\n" +
 				"----------\n" +
-				"2. ERROR in X.java (at line 8)\n" +
+				"2. ERROR in X.java (at line 7)\n" +
 				"	case Integer i ->                     // Error - dominated case label\n" +
 				"	     ^^^^^^^^^\n" +
 				"This case label is dominated by one of the preceding case labels\n" +
@@ -5906,9 +5741,8 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runNegativeTest(
 				new String[] {
 					"X.java",
-					"import java.util.*;\n" +
-					"public class X {\n" +
-					"@SuppressWarnings(\"preview\")\n"
+					"import java.util.*;\n"
+					+ "public class X {\n"
 					+ "public static void foo(Integer n) {\n"
 					+ "  switch (n) {\n"
 					+ "    case Integer i -> // Allowed but why write this?\n"
@@ -5920,12 +5754,12 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"}",
 				},
 				"----------\n" +
-				"1. ERROR in X.java (at line 8)\n" +
+				"1. ERROR in X.java (at line 7)\n" +
 				"	case Integer i when true ->                     // Error - dominated case label\n" +
 				"	     ^^^^^^^^^^^^^^^^^^^\n" +
 				"The switch statement cannot have more than one unconditional pattern\n" +
 				"----------\n" +
-				"2. ERROR in X.java (at line 8)\n" +
+				"2. ERROR in X.java (at line 7)\n" +
 				"	case Integer i when true ->                     // Error - dominated case label\n" +
 				"	     ^^^^^^^^^^^^^^^^^^^\n" +
 				"This case label is dominated by one of the preceding case labels\n" +
@@ -5941,7 +5775,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"               Object o = \"Hello World\";\n"+
 					"               foo(o);\n"+
 					"       }\n"+
-					"       @SuppressWarnings(\"preview\")\n"+
 					"       public static void foo(Object o) {\n"+
 					"         switch (o) {\n"+
 					"           case String s:\n"+
@@ -5971,7 +5804,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"   Object o = new R();\n"+
 					"   foo(o);\n"+
 					" }\n"+
-					" @SuppressWarnings(\"preview\")\n"+
 					" public static void foo(Object o) {\n"+
 					"   switch (o) {\n"+
 					"     case R():\n"+
@@ -5999,7 +5831,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"   Object o = null;\n"+
 					"   foo(o);\n"+
 					" }\n"+
-					" @SuppressWarnings(\"preview\")\n"+
 					" public static void foo(Object o) {\n"+
 					"   switch (o) {\n"+
 					"     case null:\n"+
@@ -6022,7 +5853,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"X.java",
 					"public class X {\n" +
 					" \n" +
-					" @SuppressWarnings(\"preview\")\n" +
 					" public static void foo(Object o) {\n" +
 					"   switch (o) {\n" +
 					"     case Integer i :\n" +
@@ -6036,7 +5866,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"record R() {}"
 				},
 				"----------\n" +
-				"1. ERROR in X.java (at line 6)\n" +
+				"1. ERROR in X.java (at line 5)\n" +
 				"	case Integer i :\n" +
 				"	^^^^^^^^^^^^^^\n" +
 				"Illegal fall-through from a case label pattern\n" +
@@ -6048,7 +5878,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"X.java",
 					" public class X {\n" +
 					" \n" +
-					" @SuppressWarnings(\"preview\")\n" +
 					" public static void foo(Object o) {\n" +
 					"   switch (o) {\n" +
 					"   case Float f: System.out.println(\"integer\"); break;\n" +
@@ -6059,7 +5888,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"}"
 				},
 				"----------\n" +
-				"1. ERROR in X.java (at line 8)\n" +
+				"1. ERROR in X.java (at line 7)\n" +
 				"	case Integer i: System.out.println(\"integer\"); break;\n" +
 				"	     ^^^^^^^^^\n" +
 				"This case label is dominated by one of the preceding case labels\n" +
@@ -6071,7 +5900,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"X.java",
 					" public class X {\n" +
 					" \n" +
-					" @SuppressWarnings(\"preview\")\n" +
 					" public static void foo(Object o) {\n" +
 					"   switch (o) {\n" +
 					"   default: System.out.println(\"default\"); break;\n" +
@@ -6081,7 +5909,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"}"
 				},
 				"----------\n" +
-				"1. ERROR in X.java (at line 7)\n" +
+				"1. ERROR in X.java (at line 6)\n" +
 				"	case Integer i: System.out.println(\"integer\"); break;\n" +
 				"	     ^^^^^^^^^\n" +
 				"This case label is dominated by one of the preceding case labels\n" +
@@ -6093,9 +5921,30 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"X.java",
 					" public class X {\n" +
 					" \n" +
-					" @SuppressWarnings(\"preview\")\n" +
 					" public static void foo(Object o) {\n" +
 					"   switch (o) {\n" +
+					"   default: System.out.println(\"default\"); break;\n" +
+					"   case null: System.out.println(\"null\"); break;\n" +
+					"   }      \n" +
+					" }\n" +
+					"}"
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 6)\n" +
+				"	case null: System.out.println(\"null\"); break;\n" +
+				"	     ^^^^\n" +
+				"This case label is dominated by one of the preceding case labels\n" +
+				"----------\n");
+	}
+	public void testIssueDefaultDominance_004() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					" public class X {\n" +
+					" \n" +
+					" public static void foo(Object o) {\n" +
+					"   switch (o) {\n" +
+					"   case Float f: System.out.println(\"integer\"); break;\n" +
 					"   default: System.out.println(\"default\"); break;\n" +
 					"   case null: System.out.println(\"null\"); break;\n" +
 					"   }      \n" +
@@ -6109,35 +5958,11 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
-	public void testIssueDefaultDominance_004() {
-		runNegativeTest(
-				new String[] {
-					"X.java",
-					" public class X {\n" +
-					" \n" +
-					" @SuppressWarnings(\"preview\")\n" +
-					" public static void foo(Object o) {\n" +
-					"   switch (o) {\n" +
-					"   case Float f: System.out.println(\"integer\"); break;\n" +
-					"   default: System.out.println(\"default\"); break;\n" +
-					"   case null: System.out.println(\"null\"); break;\n" +
-					"   }      \n" +
-					" }\n" +
-					"}"
-				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 8)\n" +
-				"	case null: System.out.println(\"null\"); break;\n" +
-				"	     ^^^^\n" +
-				"This case label is dominated by one of the preceding case labels\n" +
-				"----------\n");
-	}
 	public void testIssue919() {
 		runNegativeTest(
 			new String[] {
 				"X.java",
 				" public class X {\n"
-				+ " @SuppressWarnings(\"preview\")\n"
 				+ "   static void defaultCanAppearBeforePattern(Integer i) {\n"
 				+ "	  switch (i) {\n"
 				+ "	  case null -> System.out.println(\"value unavailable: \" + i);\n"
@@ -6165,22 +5990,22 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				+ "}"
 			},
 			"----------\n" +
-			"1. ERROR in X.java (at line 8)\n" +
+			"1. ERROR in X.java (at line 7)\n" +
 			"	case Integer value when value > 0 -> System.out.println(\"positive integer: \" + i);\n" +
 			"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"This case label is dominated by one of the preceding case labels\n" +
 			"----------\n" +
-			"2. ERROR in X.java (at line 15)\n" +
+			"2. ERROR in X.java (at line 14)\n" +
 			"	case null -> System.out.println(\"value unavailable: \" + i);\n" +
 			"	     ^^^^\n" +
 			"This case label is dominated by one of the preceding case labels\n" +
 			"----------\n" +
-			"3. ERROR in X.java (at line 16)\n" +
+			"3. ERROR in X.java (at line 15)\n" +
 			"	case Integer value when value > 0 -> System.out.println(\"positive integer: \" + i);\n" +
 			"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"This case label is dominated by one of the preceding case labels\n" +
 			"----------\n" +
-			"4. ERROR in X.java (at line 24)\n" +
+			"4. ERROR in X.java (at line 23)\n" +
 			"	case Integer value when value > 0 -> System.out.println(\"positive integer: \" + i);\n" +
 			"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"This case label is dominated by one of the preceding case labels\n" +
