@@ -26,6 +26,11 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 	private static int unqualified_Rel = R_DEFAULT+R_RESOLVED+ R_CASE+ R_INTERESTING +R_UNQUALIFIED+R_NON_RESTRICTED;
 	private static int unqualifiedExact_Rel = R_DEFAULT+R_RESOLVED+R_EXACT_EXPECTED_TYPE+ R_CASE+ R_INTERESTING +R_UNQUALIFIED+R_NON_RESTRICTED;
 	private static int keyword_Rel= R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED;
+	private static int qualifiedExpected_Rel = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXPECTED_TYPE + R_UNQUALIFIED
+			+ R_NON_RESTRICTED;
+	private static int qualifiedExpectedNonCase_Rel = R_DEFAULT + R_RESOLVED + R_INTERESTING + R_EXPECTED_TYPE
+			+ R_UNQUALIFIED + R_NON_RESTRICTED;
+	private static int unqualifiedRestricted_Rel = R_DEFAULT + R_RESOLVED + R_CASE + R_INTERESTING + R_UNQUALIFIED;
 	static {
 		// TESTS_NAMES = new String[]{"test034"};
 	}
@@ -437,7 +442,9 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults("default[KEYWORD]{default, null, null, default, null, "+keyword_Rel+"}\n"
-				+ "null[KEYWORD]{null, null, null, null, null, "+keyword_Rel+"}",
+				+ "null[KEYWORD]{null, null, null, null, null, "+keyword_Rel+"}\n"
+				+ "X[TYPE_REF]{X, , LX;, null, null, "+ qualifiedExpected_Rel +"}\n" 
+				+ "Object[TYPE_REF]{Object, java.lang, Ljava.lang.Object;, null, null, "+unqualifiedExact_Rel+"}",
 				requestor.getResults());
 
 	}
@@ -463,8 +470,9 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 		String completeBehind = "case nu";
 		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-		assertResults("null[KEYWORD]{null, null, null, null, null, "+keyword_Rel+"}",
-				requestor.getResults());
+		assertResults("null[KEYWORD]{null, null, null, null, null, " + keyword_Rel + "}\n"
+				+ "NullPointerException[TYPE_REF]{NullPointerException, java.lang, Ljava.lang.NullPointerException;, null, null, "
+				+ qualifiedExpectedNonCase_Rel + "}", requestor.getResults());
 
 	}
 	public void test013() throws JavaModelException {
@@ -489,8 +497,11 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 		String completeBehind = "case de";
 		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-		assertResults("default[KEYWORD]{default, null, null, default, null, "+keyword_Rel+"}",
-				requestor.getResults());
+		assertResults("default[KEYWORD]{default, null, null, default, null, " + keyword_Rel + "}\n"
+				+ "deprecation[PACKAGE_REF]{deprecation, deprecation, null, null, null, " + unqualifiedRestricted_Rel
+				+ "}\n" + "Default[TYPE_REF]{Default, , LDefault;, null, null, " + qualifiedExpectedNonCase_Rel + "}\n"
+				+ "Deprecated[TYPE_REF]{Deprecated, java.lang, Ljava.lang.Deprecated;, null, null, "
+				+ qualifiedExpectedNonCase_Rel + "}", requestor.getResults());
 
 	}
 	public void test014() throws JavaModelException {
@@ -516,7 +527,9 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 		String completeBehind = "/*here*/case nu";
 		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-		assertResults("",
+		assertResults(
+				"NullPointerException[TYPE_REF]{NullPointerException, java.lang, Ljava.lang.NullPointerException;, null, null, "
+						+ qualifiedExpectedNonCase_Rel + "}",
 				requestor.getResults());
 
 	}
@@ -543,7 +556,11 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 		String completeBehind = "/*here*/case de";
 		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-		assertResults("",
+		assertResults(
+				"deprecation[PACKAGE_REF]{deprecation, deprecation, null, null, null, " + unqualifiedRestricted_Rel
+						+ "}\n" + "Default[TYPE_REF]{Default, , LDefault;, null, null, " + qualifiedExpectedNonCase_Rel
+						+ "}\n" + "Deprecated[TYPE_REF]{Deprecated, java.lang, Ljava.lang.Deprecated;, null, null, "
+						+ qualifiedExpectedNonCase_Rel + "}",
 				requestor.getResults());
 
 	}
@@ -569,8 +586,9 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 		String completeBehind = "case nu";
 		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-		assertResults("null[KEYWORD]{null, null, null, null, null, "+keyword_Rel+"}",
-				requestor.getResults());
+		assertResults("null[KEYWORD]{null, null, null, null, null, " + keyword_Rel + "}\n"
+				+ "NullPointerException[TYPE_REF]{NullPointerException, java.lang, Ljava.lang.NullPointerException;, null, null, "
+				+ qualifiedExpectedNonCase_Rel + "}", requestor.getResults());
 
 	}
 	public void test017() throws JavaModelException {
@@ -595,8 +613,11 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 		String completeBehind = "case de";
 		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-		assertResults("default[KEYWORD]{default, null, null, default, null, "+keyword_Rel+"}",
-				requestor.getResults());
+		assertResults("default[KEYWORD]{default, null, null, default, null, " + keyword_Rel + "}\n"
+				+ "deprecation[PACKAGE_REF]{deprecation, deprecation, null, null, null, " + unqualifiedRestricted_Rel
+				+ "}\n" + "Default[TYPE_REF]{Default, , LDefault;, null, null, " + qualifiedExpectedNonCase_Rel + "}\n"
+				+ "Deprecated[TYPE_REF]{Deprecated, java.lang, Ljava.lang.Deprecated;, null, null, "
+				+ qualifiedExpectedNonCase_Rel + "}", requestor.getResults());
 
 	}
 	public void test018() throws JavaModelException {
@@ -622,8 +643,11 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 		String completeBehind = "case de";
 		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-		assertResults("default[KEYWORD]{default, null, null, default, null, "+keyword_Rel+"}",
-				requestor.getResults());
+		assertResults("default[KEYWORD]{default, null, null, default, null, " + keyword_Rel + "}\n"
+				+ "deprecation[PACKAGE_REF]{deprecation, deprecation, null, null, null, " + unqualifiedRestricted_Rel
+				+ "}\n" + "Default[TYPE_REF]{Default, , LDefault;, null, null, " + qualifiedExpectedNonCase_Rel + "}\n"
+				+ "Deprecated[TYPE_REF]{Deprecated, java.lang, Ljava.lang.Deprecated;, null, null, "
+				+ qualifiedExpectedNonCase_Rel + "}", requestor.getResults());
 
 	}
 	public void test019() throws JavaModelException {
@@ -649,8 +673,15 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 		String completeBehind = "case n";
 		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-		assertResults("null[KEYWORD]{null, null, null, null, null, "+keyword_Rel+"}",
-				requestor.getResults());
+		assertResults("null[KEYWORD]{null, null, null, null, null, " + keyword_Rel + "}\n"
+				+ "NoClassDefFoundError[TYPE_REF]{NoClassDefFoundError, java.lang, Ljava.lang.NoClassDefFoundError;, null, null, "
+				+ qualifiedExpectedNonCase_Rel + "}\n"
+				+ "NoSuchFieldError[TYPE_REF]{NoSuchFieldError, java.lang, Ljava.lang.NoSuchFieldError;, null, null, "
+				+ qualifiedExpectedNonCase_Rel + "}\n"
+				+ "NoSuchMethodException[TYPE_REF]{NoSuchMethodException, java.lang, Ljava.lang.NoSuchMethodException;, null, null, "
+				+ qualifiedExpectedNonCase_Rel + "}\n"
+				+ "NullPointerException[TYPE_REF]{NullPointerException, java.lang, Ljava.lang.NullPointerException;, null, null, "
+				+ qualifiedExpectedNonCase_Rel + "}", requestor.getResults());
 
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1100
@@ -683,4 +714,34 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 				requestor.getResults());
 
 	}
+
+	public void testGH1301_CompletionOnSwitchCaseWhenUsingString_ExpectVisibleCompletions() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[3];
+		this.workingCopies[1] = getWorkingCopy(
+				"/Completion/src/Values.java",
+				"public class Values {\n"
+						+ "	pubic static final String ONE = \"one\";"
+						+ "}\n");
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/SwitchCase.java",
+				"public class SwitchCase {\n"
+						+ "public String foo(String v) {\n"
+						+ " 	return switch(v) { \n"
+						+ " 		case V\n"
+					+ " 		};\n"
+						+ "}\n"
+						+ "}\n");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "case V";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"Values[TYPE_REF]{Values, , LValues;, null, null, null, null, [86, 87], "
+						+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE
+								+ R_UNQUALIFIED + R_NON_RESTRICTED)
+						+ "}",
+				requestor.getResults());
+	}
+
 }

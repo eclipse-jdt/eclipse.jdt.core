@@ -3989,6 +3989,8 @@ public final class CompletionEngine
 					}
 					System.arraycopy(keywords, 0, keywords = new char[count][], 0, count);
 					findKeywords(this.completionToken, keywords, false, false);
+					// complete types as it is done for version < J17
+					findTypesAndPackages(this.completionToken, scope, false, false, new ObjectVector());
 				}
 
 		} else if (this.expectedTypesPtr > -1 && this.expectedTypes[0].isAnnotationType()) {
