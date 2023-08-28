@@ -65,7 +65,6 @@ public class TypePattern extends Pattern {
 	TypePattern(AST ast) {
 		super(ast);
 		supportedOnlyIn21();
-		unsupportedWithoutPreviewError();
 	}
 
 
@@ -127,7 +126,6 @@ public class TypePattern extends Pattern {
 
 	public List<SingleVariableDeclaration> patternVariables() {
 		supportedOnlyIn20();
-		unsupportedWithoutPreviewError();
 		return new ArrayList<SingleVariableDeclaration>(Arrays.asList(getPatternVariable()));
 	}
 
@@ -147,7 +145,6 @@ public class TypePattern extends Pattern {
 	 */
 	public void setPatternVariable(SingleVariableDeclaration patternVariable) {
 		supportedOnlyIn20();
-		unsupportedWithoutPreviewError();
 		if (patternVariable == null) {
 			throw new IllegalArgumentException();
 		}
@@ -167,7 +164,6 @@ public class TypePattern extends Pattern {
 	 */
 	public SingleVariableDeclaration getPatternVariable() {
 		supportedOnlyIn20();
-		unsupportedWithoutPreviewError();
 		if (this.patternVariable  == null) {
 			// lazy init must be thread-safe for readers
 			synchronized (this) {

@@ -44,7 +44,6 @@ public abstract class Pattern extends Expression {
 	Pattern(AST ast) {
 		super(ast);
 		supportedOnlyIn21();
-		unsupportedWithoutPreviewError();
 
 	}
 

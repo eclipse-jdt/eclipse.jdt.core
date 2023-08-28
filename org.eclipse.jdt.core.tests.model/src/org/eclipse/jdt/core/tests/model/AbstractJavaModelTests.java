@@ -2355,8 +2355,13 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_17);
 					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_17);
 					javaProject.setOptions(options);
+				} else if ("21".equals(compliance)) {
+					Map options = new HashMap();
+					options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_21);
+					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_21);
+					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_21);
+					javaProject.setOptions(options);
 				}
-
 				result[0] = javaProject;
 			}
 		};

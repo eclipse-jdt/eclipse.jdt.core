@@ -9797,7 +9797,6 @@ private SwitchStatement createSwitchStatementOrExpression(boolean isStmt) {
 	Boolean isNullSwitch = this.recordNullSwitches.remove(this.switchNestingLevel);
 	this.nestedType--;
 	this.switchNestingLevel--;
-	this.scanner.breakPreviewAllowed = this.switchNestingLevel > 0;
 	int length;
 	SwitchStatement switchStatement = isStmt ? new SwitchStatement() : new SwitchExpression();
 	this.expressionLengthPtr--;
