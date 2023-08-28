@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IModuleDescription;
@@ -172,9 +173,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	 */
 	@Override
 	public TextEdit format(int kind, String source, IRegion[] regions, int indentationLevel, String lineSeparator) {
-		if (!regionsSatisfiesPreconditions(regions, source.length())) {
-			throw new IllegalArgumentException();
-		}
+		assertRegionPreconditions(regions, source.length());
 		this.formatRegions = Arrays.asList(regions);
 
 		updateWorkingOptions(indentationLevel, lineSeparator, kind);
@@ -464,38 +463,36 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	}
 
 	/**
-	 * True if
+	 * Passes if
 	 * <li>1. All regions are within maxLength
 	 * <li>2. regions are sorted
 	 * <li>3. regions are not overlapping
 	 */
-	private boolean regionsSatisfiesPreconditions(IRegion[] regions, int maxLength) {
+	private void assertRegionPreconditions(IRegion[] regions, int maxLength) {
 		int regionsLength = regions == null ? 0 : regions.length;
 		if (regionsLength == 0) {
-			return false;
+			throw new IllegalArgumentException("no regions"); //$NON-NLS-1$
 		}
 
 		IRegion first = regions[0];
 		if (first.getOffset() < 0 || first.getLength() < 0 || first.getOffset() + first.getLength() > maxLength) {
-			return false;
+			throw new IllegalArgumentException("range exceeded:"+maxLength+ Arrays.asList(regions).stream().map(r->"[off:"+ r.getOffset()+"length:"+r.getLength()+"]").collect(Collectors.joining(", ")));  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 		}
 
 		int lastOffset = first.getOffset() + first.getLength() - 1;
 		for (int i = 1; i < regionsLength; i++) {
 			IRegion current = regions[i];
 			if (lastOffset > current.getOffset()) {
-				return false;
+				throw new IllegalArgumentException("regions not sorted:"+Arrays.asList(regions).stream().map(r->"[off:"+ r.getOffset()+"length:"+r.getLength()+"]").collect(Collectors.joining(", ")));  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 			}
 
 			if (current.getOffset() < 0 || current.getLength() < 0
 					|| current.getOffset() + current.getLength() > maxLength) {
-				return false;
+				throw new IllegalArgumentException("range exceeded:"+maxLength+ Arrays.asList(regions).stream().map(r->"[off:"+ r.getOffset()+"length:"+r.getLength()+"]").collect(Collectors.joining(", ")));  //$NON-NLS-1$//$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$ //$NON-NLS-5$
 			}
 
 			lastOffset = current.getOffset() + current.getLength() - 1;
 		}
-
-		return true;
 	}
 
 	private void updateWorkingOptions(int indentationLevel, String lineSeparator, int kind) {
