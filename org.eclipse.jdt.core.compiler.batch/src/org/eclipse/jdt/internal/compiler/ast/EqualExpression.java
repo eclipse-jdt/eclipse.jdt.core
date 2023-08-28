@@ -98,6 +98,30 @@ public class EqualExpression extends BinaryExpression {
 			}
 		}
 	}
+	public void syntacticFieldAnalysisForFalseBranch(FlowInfo flowInfo, FlowContext flowContext) {
+		// extracted slice of checkNullComparison concerning syntactic null analysis for fields:
+		// now compute the effect on the false branch and record it in flowContext:
+		int rightStatus = this.right.nullStatus(flowInfo, flowContext);
+		if (rightStatus == FlowInfo.NULL
+				&& this.left instanceof Reference
+				&& this.left.localVariableBinding() == null)
+		{
+			FieldBinding field = ((Reference)this.left).lastFieldBinding();
+			if (field != null && (field.type.tagBits & TagBits.IsBaseType) == 0) {
+				flowContext.recordNullCheckedFieldReference((Reference) this.left, 1);
+			}
+		}
+		int leftStatus = this.left.nullStatus(flowInfo, flowContext);
+		if (leftStatus == FlowInfo.NULL
+				&& this.right instanceof Reference
+				&& this.right.localVariableBinding() == null)
+		{
+			FieldBinding field = ((Reference)this.right).lastFieldBinding();
+			if (field != null && (field.type.tagBits & TagBits.IsBaseType) == 0) {
+				flowContext.recordNullCheckedFieldReference((Reference) this.right, 1);
+			}
+		}
+	}
 	private void checkVariableComparison(BlockScope scope, FlowContext flowContext, FlowInfo flowInfo, FlowInfo initsWhenTrue, FlowInfo initsWhenFalse, LocalVariableBinding local, int nullStatus, Expression reference) {
 		switch (nullStatus) {
 			case FlowInfo.NULL :

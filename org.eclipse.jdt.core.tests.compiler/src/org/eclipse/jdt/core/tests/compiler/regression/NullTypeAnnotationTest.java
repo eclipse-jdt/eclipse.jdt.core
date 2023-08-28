@@ -18933,4 +18933,92 @@ public void testGHjdtls2386() {
 		};
 	runner.runConformTest();
 }
+public void testGH1311() {
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(CompilerOptions.OPTION_SyntacticNullAnalysisForFields, CompilerOptions.ENABLED);
+	runner.testFiles = new String[] {
+		"nullable/Foo.java",
+		"""
+		package nullable;
+
+		import org.eclipse.jdt.annotation.Nullable;
+
+		public class Foo {
+
+			@Nullable
+			private String text;
+
+			public Foo(String text) {
+				this.text = text;
+			}
+
+			public int getTextSize() {
+				return (text == null)? 0: text.length();
+			}
+		}
+		"""
+		};
+	runner.classLibraries = this.LIBS;
+	runner.runConformTest();
+}
+public void testGH1311_expiry() {
+	Runner runner = new Runner();
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(CompilerOptions.OPTION_SyntacticNullAnalysisForFields, CompilerOptions.ENABLED);
+	runner.testFiles = new String[] {
+		"nullable/Foo.java",
+		"""
+		package nullable;
+
+		import org.eclipse.jdt.annotation.Nullable;
+
+		public class Foo {
+
+			@Nullable
+			private String text;
+
+			public Foo(String text) {
+				this.text = text;
+			}
+
+			public int getTextSize1() {
+				int length = (text == null)? 0: text.length();
+				return text.length();
+			}
+			public int getTextSize2() {
+				int length = (text != null)? text.length() : 0;
+				return text.length();
+			}
+			public int getTextSize3() {
+				return (text == null)? 0:
+							b() ? text.length() : -1;
+			}
+			boolean b() { return true; }
+		}
+		"""
+		};
+	runner.expectedCompilerLog =
+		"""
+		----------
+		1. ERROR in nullable\\Foo.java (at line 16)
+			return text.length();
+			       ^^^^
+		Potential null pointer access: this expression has a \'@Nullable\' type
+		----------
+		2. ERROR in nullable\\Foo.java (at line 20)
+			return text.length();
+			       ^^^^
+		Potential null pointer access: this expression has a \'@Nullable\' type
+		----------
+		3. ERROR in nullable\\Foo.java (at line 24)
+			b() ? text.length() : -1;
+			      ^^^^
+		Potential null pointer access: this expression has a \'@Nullable\' type
+		----------
+		""";
+
+	runner.classLibraries = this.LIBS;
+	runner.runNegativeTest();
+}
 }
