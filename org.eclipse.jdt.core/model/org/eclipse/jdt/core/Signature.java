@@ -603,8 +603,8 @@ private static int appendCaptureTypeSignature(char[] string, int start, boolean 
  * @see Util#scanClassTypeSignature(char[], int)
  */
 private static int appendClassTypeSignature(char[] string, int start, boolean fullyQualifyTypeNames, StringBuffer buffer) {
-	// need a minimum 3 chars "Lx;"
-	if (start >= string.length - 2) {
+	// need a minimum 2 chars "L;" (Anonymous Class) but normally at least 3 chars: "Lx;"
+	if (start >= string.length - 1) {
 		throw newIllegalArgumentException(string, start);
 	}
 	// must start in "L" or "Q"
