@@ -4022,8 +4022,8 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"----------\n" +
 				"1. ERROR in X.java (at line 4)\n" +
 				"	if (str instanceof (String a && a == null)) {\n" +
-				"	                           ^\n" +
-				"Syntax error, insert \")\" to complete ParenthesizedPattern\n" +
+				"	                   ^\n" +
+				"Syntax error on token \"(\", delete this token\n" +
 				"----------\n" +
 				"2. ERROR in X.java (at line 4)\n" +
 				"	if (str instanceof (String a && a == null)) {\n" +
