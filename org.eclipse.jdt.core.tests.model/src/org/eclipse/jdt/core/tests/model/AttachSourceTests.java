@@ -386,7 +386,9 @@ public void testClassFileGetElementAt04() throws JavaModelException {
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=398490
  */
 public void testClassFileInOutput() throws CoreException {
-	IClassFile classFile = getClassFile("AttachSourceTests/src/A.class");
+	IClassFile classFile = getClassFile("AttachSourceTests/src/A.class"); // the file content is not used
+	IResource resource = classFile.getResource();
+	assertTrue(resource.exists());
 	String source = classFile.getSource();
 	assertNull("Unexpected source", source);
 }
