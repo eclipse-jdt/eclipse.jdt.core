@@ -26,7 +26,7 @@ import org.eclipse.jdt.internal.core.util.Messages;
 public class BuildNotifier {
 
 protected IProgressMonitor monitor;
-protected boolean cancelling;
+protected volatile boolean cancelling;
 protected float percentComplete;
 protected float progressPerCompilationUnit;
 protected int newErrorCount;
@@ -89,6 +89,9 @@ public void begin() {
  * Check whether the build has been canceled.
  */
 public void checkCancel() {
+	if (this.cancelling) {
+		throw new OperationCanceledException();
+	}
 	if (this.monitor != null && this.monitor.isCanceled()) {
 		// User requested cancel.
 		if (this.buildKind == IncrementalProjectBuilder.AUTO_BUILD) {
@@ -122,12 +125,16 @@ private long getBuildDurationInMs() {
  * Must use this call instead of checkCancel() when within the compiler.
  */
 public void checkCancelWithinCompiler() {
-	if (this.monitor != null && this.monitor.isCanceled() && !this.cancelling) {
-		// Once the compiler has been canceled, don't check again.
-		setCancelling(true);
-		// Only AbortCompilation can stop the compiler cleanly.
-		// We check cancelation again following the call to compile.
-		throw new AbortCompilation(true, null);
+	if (!this.cancelling) {
+		try {
+			checkCancel();
+		} catch (OperationCanceledException cancelRequest) {
+			// Once the compiler has been canceled, don't check again.
+			setCancelling(true);
+			// Only AbortCompilation can stop the compiler cleanly.
+			// We check cancelation again following the call to compile.
+			throw new AbortCompilation(true, null);
+		}
 	}
 }
 
