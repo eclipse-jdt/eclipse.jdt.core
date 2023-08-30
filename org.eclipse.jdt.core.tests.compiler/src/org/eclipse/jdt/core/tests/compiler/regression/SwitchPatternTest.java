@@ -2927,7 +2927,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"	at X.main(X.java:10)");
 	}
 	public void testBug575249_01() {
-		runConformTest(
+		runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -2942,7 +2942,17 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"	}\n"+
 				"}",
 			},
-			"0");
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	case (String s) : yield 0;\n" +
+			"	             ^\n" +
+			"Syntax error on token \"s\", delete this token\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 4)\n" +
+			"	case (String s) : yield 0;\n" +
+			"	                  ^^^^^\n" +
+			"Syntax error on token \"yield\", AssignmentOperator expected after this token\n" +
+			"----------\n");
 	}
 	public void _testBug575249_02() {
 		runConformTest(
@@ -2963,7 +2973,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"0");
 	}
 	public void testBug575249_03() {
-		runConformTest(
+		runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -2978,7 +2988,12 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"	}\n"+
 				"}",
 			},
-			"0");
+			"----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	case (String s) -> 0;\n" +
+			"	                   ^\n" +
+			"Syntax error, insert \":\" to complete SwitchLabel\n" +
+			"----------\n");
 	}
 	public void _testBug575249_04() {
 		runConformTest(
@@ -4619,7 +4634,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"false");
 	}
 	public void testBug578553_1() {
-		runConformTest(
+		runNegativeTest(
 				new String[] {
 					"X.java",
 					"public class X {\n"
@@ -4636,10 +4651,25 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					+ "	}\n"
 					+ "}",
 				},
-				"1");
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	case (Long l) when l.toString().equals(\"0\") -> {\n" +
+				"	      ^^^^\n" +
+				"Syntax error on token(s), misplaced construct(s)\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 4)\n" +
+				"	case (Long l) when l.toString().equals(\"0\") -> {\n" +
+				"	              ^^^^\n" +
+				"Syntax error on token \"RestrictedIdentifierWhen\", delete this token\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 4)\n" +
+				"	case (Long l) when l.toString().equals(\"0\") -> {\n" +
+				"	                                          ^\n" +
+				"Syntax error on token \")\", -> expected after this token\n" +
+				"----------\n");
 	}
 	public void testBug578553_2() {
-		runConformTest(
+		runNegativeTest(
 				new String[] {
 					"X.java",
 					"public class X {\n"
@@ -4661,7 +4691,22 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					+ "	}\n"
 					+ "}",
 				},
-				"2");
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	case (Long l) when l.toString().equals(\"0\") -> {\n" +
+				"	      ^^^^\n" +
+				"Syntax error on token(s), misplaced construct(s)\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 4)\n" +
+				"	case (Long l) when l.toString().equals(\"0\") -> {\n" +
+				"	              ^^^^\n" +
+				"Syntax error on token \"RestrictedIdentifierWhen\", delete this token\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 4)\n" +
+				"	case (Long l) when l.toString().equals(\"0\") -> {\n" +
+				"	                                          ^\n" +
+				"Syntax error on token \")\", -> expected after this token\n" +
+				"----------\n");
 	}
 	public void testBug578553_3() {
 		runNegativeTest(
@@ -4684,10 +4729,20 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					+ "}",
 				},
 				"----------\n" +
-				"1. ERROR in X.java (at line 6)\n" +
-				"	case Long l1 when l.toString().equals(l1.toString()) -> {\n" +
-				"	                  ^\n" +
-				"Local variable l referenced from a guard must be final or effectively final\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	case (Long l) when l.toString().equals(\"0\") -> {\n" +
+				"	      ^^^^\n" +
+				"Syntax error on token(s), misplaced construct(s)\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 4)\n" +
+				"	case (Long l) when l.toString().equals(\"0\") -> {\n" +
+				"	              ^^^^\n" +
+				"Syntax error on token \"RestrictedIdentifierWhen\", delete this token\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 4)\n" +
+				"	case (Long l) when l.toString().equals(\"0\") -> {\n" +
+				"	                                          ^\n" +
+				"Syntax error on token \")\", -> expected after this token\n" +
 				"----------\n");
 	}
 	public void testBug578553_4() {
@@ -5241,42 +5296,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"special case:1\n" +
 				"positive integer: 10\n"+
 				"null");
-	}
-	public void testBug579355_003() {
-		runNegativeTest(
-				new String[] {
-					"X.java",
-					"public class X {\n"+
-					"           public int foo(Integer i) {\n"
-					+ "        int result = 0;\n"
-					+ "        switch (i) {\n"
-					+ "            case 0 -> {\n"
-					+ "                result = 3;\n"
-					+ "                break;\n"
-					+ "            }\n"
-					+ "            case null -> {\n"
-					+ "                result = 5;\n"
-					+ "                break;\n"
-					+ "            }\n"
-					+ "            case (Integer p) -> {\n"
-					+ "                result = 6;\n"
-					+ "                break;\n"
-					+ "            }\n"
-					+ "            case 10 -> {\n"
-					+ "                result = 9;\n"
-					+ "                break;\n"
-					+ "            }\n"
-					+ "        }   \n"
-					+ "        return result;\n"
-					+ "    }\n"+
-					"}"
-				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 17)\n" +
-				"	case 10 -> {\n" +
-				"	     ^^\n" +
-				"This case label is dominated by one of the preceding case labels\n" +
-				"----------\n");
 	}
 	public void testBug579355_004() {
 		runConformTest(

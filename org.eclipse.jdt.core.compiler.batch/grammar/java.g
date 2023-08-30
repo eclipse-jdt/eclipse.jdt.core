@@ -1253,14 +1253,9 @@ InstanceofPattern ::=  'instanceof' Pattern
 
 
 Pattern -> TypePattern
-Pattern -> ParenthesizedPattern
 Pattern -> RecordPattern
 /.$putCase consumePattern(); $break ./
 /:$readableName Pattern:/
-
-ParenthesizedPattern ::= PushLPAREN Pattern PushRPAREN
-/.$putCase consumeParenthesizedPattern(); $break ./
-/:$readableName ParenthesizedPattern:/
 
 TypePattern ::= Modifiersopt Type 'Identifier'
 /.$putCase consumeTypePattern(); $break ./

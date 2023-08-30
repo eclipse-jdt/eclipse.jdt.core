@@ -210,47 +210,6 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 	}
 
 	@SuppressWarnings("rawtypes")
-	public void testParenthesizedExpressionPattern() throws CoreException {
-		if (!isJRE21) {
-			printJREError();
-			return;
-		}
-		String contents = "public class X {\n" +
-				"void foo(Object o) {\n" +
-				"	switch (o) {\n" +
-			    "		case (Integer i)  : System.out.println(i.toString());\n" +
-			    "		default       	  : System.out.println(o.toString());\n" +
-			    "	}\n" +
-			    "}\n" +
-				"\n" +
-				"}\n";
-		this.workingCopy = getWorkingCopy("/Converter_19/src/X.java", true/*resolve*/);
-		ASTNode node = buildAST(
-			contents,
-			this.workingCopy);
-		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
-		CompilationUnit compilationUnit = (CompilationUnit) node;
-		assertProblemsSize(compilationUnit, 0);
-		node = getASTNode(compilationUnit, 0, 0, 0);
-		assertEquals("Switch statement", node.getNodeType(), ASTNode.SWITCH_STATEMENT);
-		List statements = ((SwitchStatement)node).statements();
-		assertEquals("incorrect no of statements", 4, statements.size());
-		SwitchCase caseInteger = (SwitchCase) statements.get(0);
-		Expression parenthesizedExpression = (Expression)caseInteger.expressions().get(0);
-		assertEquals("Parenthesized Expression", parenthesizedExpression.getNodeType(), ASTNode.PARENTHESIZED_EXPRESSION);
-		Expression targetPattern = ((ParenthesizedExpression)parenthesizedExpression).getExpression();
-		assertEquals("Type Pattern", targetPattern.getNodeType(), ASTNode.TYPE_PATTERN);
-		SingleVariableDeclaration patternVariable = ((TypePattern)targetPattern).getPatternVariable();
-		assertEquals("Type Pattern Integer", "Integer", patternVariable.getType().toString());
-		SingleVariableDeclaration patternVariable2 = ((TypePattern)targetPattern).patternVariables().get(0);
-		assertEquals(patternVariable, patternVariable2);
-
-		SwitchCase caseDefault = (SwitchCase) statements.get(2);
-		assertTrue("Default case", caseDefault.isDefault());
-
-	}
-
-	@SuppressWarnings("rawtypes")
 	public void testNullPattern() throws CoreException {
 		if (!isJRE21) {
 			printJREError();
