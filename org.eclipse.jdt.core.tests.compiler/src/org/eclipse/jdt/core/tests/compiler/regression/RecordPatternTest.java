@@ -3454,4 +3454,52 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"An enhanced switch statement should be exhaustive; a default label expected\n" +
 			"----------\n");
 	}
+	public void testIssue1328() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"    public int foo(Object o) {\n"+
+					"        return switch (o) {\n"+
+					"            case String s when false -> 1;\n"+
+					"            case String s when true != true -> 2;\n"+
+					"            case String s when false == true -> 3;\n"+
+					"            case String s when 0 != 0 -> 3;\n"+
+					"            default -> 0;\n"+
+					"        };\n"+
+					"    }\n"+
+					"}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	case String s when false -> 1;\n" +
+				"	                   ^^^^^\n" +
+				"A case label guard cannot have a constant expression with value as \'false\'\n" +
+				"----------\n" +
+				"2. WARNING in X.java (at line 5)\n" +
+				"	case String s when true != true -> 2;\n" +
+				"	                   ^^^^^^^^^^^^\n" +
+				"Comparing identical expressions\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 5)\n" +
+				"	case String s when true != true -> 2;\n" +
+				"	                   ^^^^^^^^^^^^\n" +
+				"A case label guard cannot have a constant expression with value as \'false\'\n" +
+				"----------\n" +
+				"4. ERROR in X.java (at line 6)\n" +
+				"	case String s when false == true -> 3;\n" +
+				"	                   ^^^^^^^^^^^^^\n" +
+				"A case label guard cannot have a constant expression with value as \'false\'\n" +
+				"----------\n" +
+				"5. WARNING in X.java (at line 7)\n" +
+				"	case String s when 0 != 0 -> 3;\n" +
+				"	                   ^^^^^^\n" +
+				"Comparing identical expressions\n" +
+				"----------\n" +
+				"6. ERROR in X.java (at line 7)\n" +
+				"	case String s when 0 != 0 -> 3;\n" +
+				"	                   ^^^^^^\n" +
+				"A case label guard cannot have a constant expression with value as \'false\'\n" +
+				"----------\n");
+	}
 }

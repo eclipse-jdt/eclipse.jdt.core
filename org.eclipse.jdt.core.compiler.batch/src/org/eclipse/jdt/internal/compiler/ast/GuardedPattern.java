@@ -26,6 +26,7 @@ import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 
 public class GuardedPattern extends Pattern {
 
@@ -78,7 +79,6 @@ public class GuardedPattern extends Pattern {
 				this.thenTarget,
 				null,
 				cst == Constant.NotAConstant);
-//		codeStream.goto_(this.elseTarget);
 		if (this.thenInitStateIndex2 != -1) {
 			codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.thenInitStateIndex2);
 			codeStream.addDefinitelyAssignedVariables(currentScope, this.thenInitStateIndex2);
@@ -108,7 +108,7 @@ public class GuardedPattern extends Pattern {
 	}
 	@Override
 	public boolean coversType(TypeBinding type) {
-		return this.primaryPattern.coversType(type) && isAlwaysTrue();
+		return this.primaryPattern.coversType(type);
 	}
 	@Override
 	public Pattern primary() {
@@ -136,6 +136,10 @@ public class GuardedPattern extends Pattern {
 		// the implicitConversion code is set properly and thus the correct
 		// unboxing calls are generated.
 		this.condition.resolveTypeExpecting(scope, TypeBinding.BOOLEAN);
+		Constant cst = this.condition.optimizedBooleanConstant();
+		if (cst.typeID() == TypeIds.T_boolean && cst.booleanValue() == false) {
+			scope.problemReporter().falseLiteralInGuard(this.condition);
+		}
 		LocalDeclaration PatternVar = this.primaryPattern.getPatternVariable();
 		LocalVariableBinding lvb = PatternVar == null ? null : PatternVar.binding;
 		this.condition.traverse(new ASTVisitor() {

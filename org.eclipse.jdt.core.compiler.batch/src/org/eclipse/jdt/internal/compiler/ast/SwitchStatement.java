@@ -1293,12 +1293,9 @@ public class SwitchStatement extends Expression {
 								} else {
 									if (!c.isPattern() && check.test(j)) {
 										if (this.isNonTraditional) {
-											boolean reportDup = true;
-											if (c.e instanceof NullLiteral || this.otherConstants[j].e instanceof NullLiteral) {
-												reportDup = c.e instanceof NullLiteral && this.otherConstants[j].e instanceof NullLiteral;
+											if (c.e instanceof NullLiteral && this.otherConstants[j].e instanceof NullLiteral) {
+												reportDuplicateCase(c.e, this.otherConstants[j].e, length);
 											}
-											if (reportDup)
-											reportDuplicateCase(c.e, this.otherConstants[j].e, length);
 										} else {
 											reportDuplicateCase(caseStmt, this.cases[caseIndex[j]], length);
 										}
