@@ -1659,7 +1659,7 @@ public void testBug501162_034() throws Exception {
 				"    public ITwo i2;\n" +
 				"    public XOne X1;\n" +
 				"}\n");
-		addLibraryEntry(project1, "/JavaSearchBugs/lib/bzero.src.501162.jar", false);
+		addModularLibraryEntry(project1, new Path("/JavaSearchBugs/lib/bzero.src.501162.jar"), null);
 		project1.close(); // sync
 		project1.open(null);
 		SearchPattern pattern = SearchPattern.createPattern("pack.two",
@@ -1699,7 +1699,7 @@ public void testBug501162_035() throws Exception {
 				"    public ITwo i2;\n" +
 				"    public XOne X1;\n" +
 				"}\n");
-		addLibraryEntry(project1, "/JavaSearchBugs/lib/bzero.src.501162.jar", false);
+		addModularLibraryEntry(project1, new Path("/JavaSearchBugs/lib/bzero.src.501162.jar"), null);
 		project1.close(); // sync
 		project1.open(null);
 		SearchPattern pattern = SearchPattern.createPattern("pack.three",
@@ -1964,7 +1964,7 @@ public void testBug501162_042() throws Exception {
 				"    public ITwo i2;\n" +
 				"    public XOne X1;\n" +
 				"}\n");
-		addLibraryEntry(project1, "/JavaSearchBugs/lib/bzero.src.501162.jar", false);
+		addModularLibraryEntry(project1, new Path("/JavaSearchBugs/lib/bzero.src.501162.jar"), null);
 		project1.close(); // sync
 		project1.open(null);
 		SearchPattern pattern = SearchPattern.createPattern("XFourOne",
@@ -2043,7 +2043,7 @@ public void testBug501162_044() throws Exception {
 				"    public ITwo i2;\n" +
 				"    public XOne X1;\n" +
 				"}\n");
-		addLibraryEntry(project1, "/JavaSearchBugs/lib/bzero.src.501162.jar", false);
+		addModularLibraryEntry(project1, new Path("/JavaSearchBugs/lib/bzero.src.501162.jar"), null);
 		project1.close(); // sync
 		project1.open(null);
 		SearchPattern pattern = SearchPattern.createPattern("IThreeOne",
@@ -4952,6 +4952,63 @@ public void testModuleContainerSearchBugGh1039() throws Exception {
 	} finally {
 		deleteProject(projectName);
 		deleteProject(jarProjectName);
+	}
+}
+
+/*
+ * The fix for GitHub issue 675 results in not finding search matches
+ * within a modular jar on the classpath.
+ * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/935
+ * See also: https://github.com/eclipse-jdt/eclipse.jdt.core/issues/675
+ */
+public void testNoMatchesInModularJarOnClasspathBugGh935() throws Exception {
+	String projectName = "gh935NoMatchesInModularJarOnClasspath";
+	try {
+		IJavaProject project = createJavaProject(projectName, new String[] {"src"}, new String[] {"JCL11_LIB"}, "bin", "11");
+		String snippet1 =
+				"""
+				package test;
+				public class Test1 {
+				  public void testMethod() {
+				  }
+				}
+				""";
+		String snippet2 =
+				"""
+				package test;
+				public class Test2 {
+				  public void testCaller() {
+				      Test1 test1 = new Test1();
+				      test1.testMethod();
+				  }
+				}
+				""";
+
+		addLibrary(project,
+				"libGh935.jar",
+				"libGh935.src.zip",
+				new String[]  {
+						"module-info.java",
+						"module testmodule {\n" +
+						"  exports test;\n" +
+						"}",
+						"test/Test1.java",
+						snippet1,
+						"test/Test2.java",
+						snippet2, },
+				JavaCore.VERSION_11);
+
+		buildAndExpectNoProblems(project);
+		waitUntilIndexesReady();
+
+		IType type = project.findType("test.Test1");
+
+		IMethod method = type.getMethod("testMethod", new String[0]);
+		search(method, REFERENCES, EXACT_RULE, SearchEngine.createWorkspaceScope(), this.resultCollector);
+		assertSearchResults(
+				"libGh935.jar void test.Test2.testCaller() EXACT_MATCH");
+	} finally {
+		deleteProject(projectName);
 	}
 }
 // Add more tests here

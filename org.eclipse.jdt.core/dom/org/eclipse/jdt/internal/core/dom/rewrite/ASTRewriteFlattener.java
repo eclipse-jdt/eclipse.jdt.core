@@ -1640,15 +1640,14 @@ public class ASTRewriteFlattener extends ASTVisitor {
 
 	@Override
 	public boolean visit(YieldStatement node) {
-		if (node.getAST().apiLevel() >= JLS14_INTERNAL && node.isImplicit()  && node.getExpression() == null) {
-			return false;
+		if (!node.isImplicit()) {
+			this.result.append("yield"); //$NON-NLS-1$
 		}
-
-		this.result.append("yield"); //$NON-NLS-1$
-
 		ASTNode expression = getChildNode(node, YieldStatement.EXPRESSION_PROPERTY);
-		if (expression != null ) {
-			this.result.append(' ');
+		if (expression != null) {
+			if (!node.isImplicit()) {
+				this.result.append(' ');
+			}
 			expression.accept(this);
 		}
 		this.result.append(';');

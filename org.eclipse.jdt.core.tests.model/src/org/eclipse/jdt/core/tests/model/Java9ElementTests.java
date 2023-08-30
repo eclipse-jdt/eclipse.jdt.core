@@ -50,6 +50,7 @@ import org.eclipse.jdt.core.util.IModuleMainClassAttribute;
 import org.eclipse.jdt.core.util.IModulePackagesAttribute;
 import org.eclipse.jdt.internal.compiler.env.IModule.IPackageExport;
 import org.eclipse.jdt.internal.core.BinaryModule;
+import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 
 import junit.framework.Test;
 
@@ -1632,7 +1633,8 @@ public class Java9ElementTests extends AbstractJavaModelTests {
 			assertTrue("Invalid selection result", (elements[0] instanceof BinaryModule));
 			IModuleDescription mod = (IModuleDescription) elements[0];
 			String id = mod.getHandleIdentifier();
-			assertEquals("identifier", "=Java9Elements/"+jdkRootPath.toString().replace("/", "\\/")+"\\/jmods\\/java.base.jmod=/module=/true=/<'`java.base", id);
+			assertEquals("identifier", "=Java9Elements/" + MementoTokenizer.escape(jdkRootPath.toString())
+					+ "\\/jmods\\/java.base.jmod=/module=/true=/<'`java.base", id);
 			ISourceRange ir =mod.getNameRange();
 			assertTrue("positive offset", ir.getOffset() > 0);
 			assertEquals("length", 9, ir.getLength());

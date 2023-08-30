@@ -2965,4 +2965,33 @@ public void testBug515758() throws JavaModelException {
 		elements
 	);
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1264
+// NPE below LambdaExpression.copy()
+public void testGH1264() throws Exception {
+	this.wc = getWorkingCopy(
+			"Resolve/src/Snippet.java",
+			"import java.io.File;\n"
+			 + "import java.util.ArrayList;\n"
+			 + "import java.util.Collection;\n"
+			 + "import java.util.stream.Stream;\n"
+			 + "\n"
+			 + "public class Snippet {\n"
+			 + "	public static void main(String[] args) {\n"
+			 + "		Collection<File> rootDirectories = new ArrayList<>();\n"
+			 + "		Stream<Object> directories = rootDirectories.stream()\n"
+			 + "				.map(dir -> dir.listFiles(File::isDirectory));\n"
+			 + "		System.out.println(directories);\n"
+			 + "	}\n"
+			 + "}");
+	String str = this.wc.getSource();
+	String selection = "->";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"apply(T) [in Function [in Function.class [in java.util.function [in " + getExternalPath() + "jclFull1.8.jar]]]]",
+		elements
+	);
+}
 }

@@ -26,8 +26,8 @@ import java.util.zip.ZipFile;
 import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 
+import org.eclipse.core.internal.runtime.XmlProcessorFactory;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -63,7 +63,7 @@ public class DecodeCodeFormatterPreferences extends DefaultHandler {
 
 	public static Map decodeCodeFormatterOptions(String fileName, String profileName) {
 		try {
-			SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
+			SAXParser saxParser = XmlProcessorFactory.createSAXParserWithErrorOnDOCTYPE();
 			final DecodeCodeFormatterPreferences preferences = new DecodeCodeFormatterPreferences(profileName);
 			saxParser.parse(new File(fileName), preferences);
 			return preferences.getEntries();
@@ -89,7 +89,7 @@ public class DecodeCodeFormatterPreferences extends DefaultHandler {
 				return null;
 			}
 			inputStream = new BufferedInputStream(zipFile.getInputStream(zipEntry));
-			SAXParser saxParser = SAXParserFactory.newInstance().newSAXParser();
+			SAXParser saxParser = XmlProcessorFactory.createSAXParserWithErrorOnDOCTYPE();
 			final DecodeCodeFormatterPreferences preferences = new DecodeCodeFormatterPreferences(profileName);
 			saxParser.parse(inputStream, preferences);
 			return preferences.getEntries();

@@ -988,6 +988,9 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 				copy = copy();
 				if (copy == null)
 					throw new CopyFailureException();
+				if (InferenceContext18.DEBUG) {
+					System.out.println("Copy lambda "+this+" for target "+targetType.debugName()); //$NON-NLS-1$ //$NON-NLS-2$
+				}
 
 				copy.setExpressionContext(this.expressionContext);
 				copy.setExpectedType(targetType);

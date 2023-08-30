@@ -10448,4 +10448,51 @@ public void testBug508834_comment0() {
 			}
 		);
 	}
+	public void testGH1261() {
+		runConformTest(
+			new String[] {
+				"GH1261.java",
+				"""
+				import java.io.IOException;
+				import java.util.AbstractMap;
+				import java.util.function.BiConsumer;
+				import java.util.Collections;
+				import java.util.Map;
+
+				class Matcher<T extends Object> {}
+
+				public class GH1261 {
+					private static final Map<String, String> PARAMETER_VALUE_STRINGS_BY_VALUE = Collections.emptyMap();
+
+					public void testParameterAppendValueTo() throws IOException {
+						PARAMETER_VALUE_STRINGS_BY_VALUE.forEach(throwingBiConsumer((value, valueString) -> {
+							assertThat(Parameter.appendValueTo(new StringBuilder(), value).toString(), is(valueString));
+						}));
+					}
+					public static <T, R, X extends Throwable> ThrowingBiConsumer<T, R, X> throwingBiConsumer(
+							final ThrowingBiConsumer<T, R, X> consumer) {
+						return consumer;
+					}
+					public static <T extends java.lang.Object> Matcher<T> is(Matcher<T> m) { return null; }
+					public static <T extends java.lang.Object> Matcher<T> is(T t) { return null; }
+
+					public static <T extends java.lang.Object> void assertThat(T t, Matcher<? super T> m) { }
+					// original has overloads of assertThat, which are not relevant here
+				}
+				interface ThrowingBiConsumer<T, U, X extends Throwable> extends BiConsumer<T, U> {
+					void tryAccept(T t, U u) throws X;
+					default void accept(final T t, final U u) { }
+				}
+				@SuppressWarnings("serial")
+				final class Parameter extends AbstractMap.SimpleImmutableEntry<String, String> {
+					public static <A extends Appendable> A appendValueTo(final A appendable, CharSequence parameterValue) throws IOException {
+						return appendable;
+					}
+					public Parameter(final String name, final String value) {
+						super("", "");
+					}
+				}
+				"""
+			});
+	}
 }

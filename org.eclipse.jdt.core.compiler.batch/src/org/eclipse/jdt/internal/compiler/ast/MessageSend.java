@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -831,6 +831,9 @@ public TypeBinding resolveType(BlockScope scope) {
 			return null;
 		}
 	}
+	if (this.argumentsHaveErrors) {
+		return null;
+	}
 
 	TypeBinding methodType = findMethodBinding(scope);
 	if (methodType != null && methodType.isPolyType()) {
@@ -1191,6 +1194,9 @@ public MethodBinding binding() {
 
 @Override
 public void registerInferenceContext(ParameterizedGenericMethodBinding method, InferenceContext18 infCtx18) {
+	if (InferenceContext18.DEBUG) {
+		System.out.println("Register inference context of "+this+" for "+method+":\n"+infCtx18); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	}
 	if (this.inferenceContexts == null)
 		this.inferenceContexts = new SimpleLookupTable();
 	this.inferenceContexts.put(method, infCtx18);
@@ -1198,6 +1204,10 @@ public void registerInferenceContext(ParameterizedGenericMethodBinding method, I
 
 @Override
 public void registerResult(TypeBinding targetType, MethodBinding method) {
+	if (InferenceContext18.DEBUG) {
+		System.out.println("Register inference result for "+this+" with target "+ //$NON-NLS-1$ //$NON-NLS-2$
+				(targetType == null ? "<no type>" : targetType.debugName())+": "+method); //$NON-NLS-1$ //$NON-NLS-2$
+	}
 	if (this.solutionsPerTargetType == null)
 		this.solutionsPerTargetType = new HashMap<TypeBinding, MethodBinding>();
 	this.solutionsPerTargetType.put(targetType, method);
@@ -1205,9 +1215,13 @@ public void registerResult(TypeBinding targetType, MethodBinding method) {
 
 @Override
 public InferenceContext18 getInferenceContext(ParameterizedMethodBinding method) {
-	if (this.inferenceContexts == null)
-		return null;
-	return (InferenceContext18) this.inferenceContexts.get(method);
+	InferenceContext18 context = null;
+	if (this.inferenceContexts != null)
+		context = (InferenceContext18) this.inferenceContexts.get(method);
+	if (InferenceContext18.DEBUG) {
+		System.out.println("Retrieve inference context of "+this+" for "+method+":\n"+context); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	}
+	return context;
 }
 @Override
 public void cleanUpInferenceContexts() {

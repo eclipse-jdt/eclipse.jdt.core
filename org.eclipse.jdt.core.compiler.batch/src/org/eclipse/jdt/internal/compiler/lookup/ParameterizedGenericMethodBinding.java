@@ -247,7 +247,13 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 			if (arguments.length == parameters.length) {
 				infCtx18.inferenceKind = requireBoxing ? InferenceContext18.CHECK_LOOSE : InferenceContext18.CHECK_STRICT; // engine may still slip into loose mode and adjust level.
 				infCtx18.inferInvocationApplicability(originalMethod, arguments, isDiamond);
+				if (InferenceContext18.DEBUG) {
+					System.out.println("Infer applicability for "+invocationSite+":\n"+infCtx18); //$NON-NLS-1$ //$NON-NLS-2$
+				}
 				result = infCtx18.solve(true);
+				if (InferenceContext18.DEBUG) {
+					System.out.println("Result=\n"+result); //$NON-NLS-1$
+				}
 				isInexactVarargsInference = (result != null && originalMethod.isVarargs() && !allArgumentsAreProper);
 			}
 			if (result == null && originalMethod.isVarargs()) {
@@ -255,7 +261,13 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 				infCtx18 = invocationSite.freshInferenceContext(scope); // start over
 				infCtx18.inferenceKind = InferenceContext18.CHECK_VARARG;
 				infCtx18.inferInvocationApplicability(originalMethod, arguments, isDiamond);
+				if (InferenceContext18.DEBUG) {
+					System.out.println("Infer varargs applicability for "+invocationSite+":\n"+infCtx18); //$NON-NLS-1$ //$NON-NLS-2$
+				}
 				result = infCtx18.solve(true);
+				if (InferenceContext18.DEBUG) {
+					System.out.println("Result=\n"+result); //$NON-NLS-1$
+				}
 			}
 			if (result == null)
 				return null;
@@ -271,6 +283,11 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 				// ---- 18.5.2 (Invocation type): ----
 				provisionalResult = result;
 				result = infCtx18.inferInvocationType(expectedType, invocationSite, originalMethod);
+				if (InferenceContext18.DEBUG) {
+					System.out.println("Infer invocation type for "+invocationSite+ " with target " //$NON-NLS-1$ //$NON-NLS-2$
+							+(expectedType == null ? "<no type>" : expectedType.debugName())); //$NON-NLS-1$
+					System.out.println("Result=\n"+result); //$NON-NLS-1$
+				}
 				invocationTypeInferred = infCtx18.stepCompleted == InferenceContext18.TYPE_INFERRED_FINAL;
 				hasReturnProblem |= result == null;
 				if (hasReturnProblem)
@@ -281,12 +298,18 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 				TypeBinding[] solutions = infCtx18.getSolutions(typeVariables, invocationSite, result);
 				if (solutions != null) {
 					methodSubstitute = scope.environment().createParameterizedGenericMethod(originalMethod, solutions, infCtx18.usesUncheckedConversion, hasReturnProblem, expectedType);
+					if (InferenceContext18.DEBUG) {
+						System.out.println("Method substitute: "+methodSubstitute); //$NON-NLS-1$
+					}
 					if (invocationSite instanceof Invocation && allArgumentsAreProper && (expectedType == null || expectedType.isProperType(true)))
 						infCtx18.forwardResults(result, (Invocation) invocationSite, methodSubstitute, expectedType);
 					try {
 						if (hasReturnProblem) { // illegally working from the provisional result?
 							MethodBinding problemMethod = infCtx18.getReturnProblemMethodIfNeeded(expectedType, methodSubstitute);
 							if (problemMethod instanceof ProblemMethodBinding) {
+								if (InferenceContext18.DEBUG) {
+									System.out.println("Inference reports problem method "+problemMethod); //$NON-NLS-1$
+								}
 								return problemMethod;
 							}
 						}
@@ -295,17 +318,25 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 								NullAnnotationMatching.checkForContradictions(methodSubstitute, invocationSite, scope);
 							MethodBinding problemMethod = methodSubstitute.boundCheck18(scope, arguments, invocationSite);
 							if (problemMethod != null) {
+								if (InferenceContext18.DEBUG) {
+									System.out.println("Bound check after inference failed: "+problemMethod); //$NON-NLS-1$
+								}
 								return problemMethod;
 							}
 						} else {
 							methodSubstitute = new PolyParameterizedGenericMethodBinding(methodSubstitute);
+							if (InferenceContext18.DEBUG) {
+								System.out.println("PolyParameterizedGenericMethodBinding: "+methodSubstitute); //$NON-NLS-1$
+							}
 						}
 					} finally {
 						infCtx18.setInexactVarargsInference(isInexactVarargsInference);
-						if (invocationSite instanceof Invocation)
-							((Invocation) invocationSite).registerInferenceContext(methodSubstitute, infCtx18); // keep context so we can finish later
-						else if (invocationSite instanceof ReferenceExpression)
-							((ReferenceExpression) invocationSite).registerInferenceContext(methodSubstitute, infCtx18); // keep context so we can finish later
+						if (!infCtx18.hasPrematureOverloadResolution()) {
+							if (invocationSite instanceof Invocation)
+								((Invocation) invocationSite).registerInferenceContext(methodSubstitute, infCtx18); // keep context so we can finish later
+							else if (invocationSite instanceof ReferenceExpression)
+								((ReferenceExpression) invocationSite).registerInferenceContext(methodSubstitute, infCtx18); // keep context so we can finish later
+						}
 					}
 					return methodSubstitute;
 				}
