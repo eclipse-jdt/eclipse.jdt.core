@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019, 2020 IBM Corporation and others.
+ * Copyright (c) 2019, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -37,6 +37,8 @@ import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.YieldStatement;
+import org.eclipse.jdt.internal.core.dom.rewrite.ASTRewriteFlattener;
+import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore;
 
 import junit.framework.AssertionFailedError;
 import junit.framework.Test;
@@ -483,4 +485,27 @@ public class ASTConverter14Test extends ConverterTestSetup {
 
 	}
 
+	public void testBugGH949() throws JavaModelException {
+		if (!isJRE14) {
+			System.err.println("Test "+getName()+" requires a JRE 14");
+			return;
+		}
+		String sourceCode =
+				"public class GH949 {" +
+				"public void test(String s){" +
+				"switch (s){" +
+				"case \"1\" ->System.out.println(\"One\");" +
+				"case \"2\" ->System.out.println(\"Two\");" +
+				"case \"3\" ->System.out.println(\"Three\");" +
+				"}" +
+				"}" +
+				"}";
+
+		this.workingCopies = new ICompilationUnit[] {
+				getWorkingCopy("/Converter14/src/GH949.java", sourceCode, true/* resolve */)
+		};
+		CompilationUnit cu = (CompilationUnit) buildAST(this.workingCopies[0]);
+		String flattened = ASTRewriteFlattener.asString(cu, new RewriteEventStore());
+		assertEquals("Flattened AST", sourceCode, flattened);
+	}
 }

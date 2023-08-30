@@ -23,6 +23,7 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.LocalVariable;
+import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 
 import junit.framework.Test;
 
@@ -82,13 +83,7 @@ String getEscapedJrtJarPath() {
 	return getEscapedPath(path);
 }
 protected String getEscapedPath(String path) {
-	StringBuilder buffer = new StringBuilder();
-	for (int i = 0; i < path.length(); i++) {
-		char character = path.charAt(i);
-		if (character == '/') buffer.append('\\');
-		buffer.append(character);
-	}
-	return buffer.toString();
+	return MementoTokenizer.escape(path);
 }
 @Override
 public void setUpSuite() throws Exception {

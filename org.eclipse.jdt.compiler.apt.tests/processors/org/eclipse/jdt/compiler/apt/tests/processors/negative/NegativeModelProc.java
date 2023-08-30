@@ -41,7 +41,6 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.eclipse.jdt.compiler.apt.tests.processors.base.XMLComparer;
 import org.eclipse.jdt.compiler.apt.tests.processors.base.XMLConverter;
@@ -844,8 +843,7 @@ public class NegativeModelProc extends AbstractProcessor
 		Document actualModel = XMLConverter.convertModel(rootElements);
 
     	InputSource source = new InputSource(new StringReader(expected));
-    	DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        Document expectedModel = factory.newDocumentBuilder().parse(source);
+        Document expectedModel = org.eclipse.core.internal.runtime.XmlProcessorFactory.createDocumentBuilderWithErrorOnDOCTYPE().parse(source);
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         StringBuilder summary = new StringBuilder();

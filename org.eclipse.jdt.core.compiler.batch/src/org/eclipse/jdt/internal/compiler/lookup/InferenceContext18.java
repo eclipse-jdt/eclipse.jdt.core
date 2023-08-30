@@ -110,6 +110,8 @@ import org.eclipse.jdt.internal.compiler.util.Sorting;
  */
 public class InferenceContext18 {
 
+	public final static boolean DEBUG = false;
+
 	/** to conform with javac regarding https://bugs.openjdk.java.net/browse/JDK-8026527 */
 	static final boolean SIMULATE_BUG_JDK_8026527 = true;
 
@@ -173,7 +175,9 @@ public class InferenceContext18 {
 	private boolean directlyAcceptingInnerBounds = false;
 	/** Not per JLS: pushing bounds from inner to outer may have to be deferred till after overload resolution, store here a runnable to perform the push. */
 	private Runnable pushToOuterJob = null;
+	// the following two flags control to what degree we continue with incomplete information:
 	private boolean isInexactVarargsInference = false;
+	boolean prematureOverloadResolution = false;
 
 	public static boolean isSameSite(InvocationSite site1, InvocationSite site2) {
 		if (site1 == site2)
@@ -1086,6 +1090,9 @@ public class InferenceContext18 {
 				return false;
 		}
 		this.initialConstraints = null;
+		if (DEBUG) {
+			System.out.println("reduced to\n"+this); //$NON-NLS-1$
+		}
 		return true;
 	}
 
@@ -2198,5 +2205,17 @@ public class InferenceContext18 {
 
 	public void setInexactVarargsInference(boolean isInexactVarargsInference) {
 		this.isInexactVarargsInference = isInexactVarargsInference;
+	}
+
+	public boolean hasPrematureOverloadResolution() {
+		if (this.prematureOverloadResolution)
+			return true;
+		if (this.seenInnerContexts != null) {
+			for (InferenceContext18 inner : this.seenInnerContexts) {
+				if (inner.hasPrematureOverloadResolution())
+					return true;
+			}
+		}
+		return false;
 	}
 }

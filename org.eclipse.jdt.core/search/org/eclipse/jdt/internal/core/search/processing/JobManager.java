@@ -238,9 +238,8 @@ public abstract class JobManager {
 	/**
 	 * When idle, give chance to do something
 	 */
-	protected void notifyIdle(long idlingTime) {
-		// do nothing
-	}
+	protected abstract void notifyIdle(long idlingMilliSeconds);
+
 	/**
 	 * This API is allowing to run one job in concurrence with background processing.
 	 * Indeed since other jobs are performed in background, resource sharing might be
@@ -436,7 +435,7 @@ public abstract class JobManager {
 	void indexerLoop() {
 
 		boolean cacheZipFiles = false;
-		long idlingStart = -1;
+		Long idlingStart = null;
 		activateProcessing();
 		try {
 			class ProgressJob extends Job {
@@ -483,17 +482,20 @@ public abstract class JobManager {
 								pJob.cancel();
 								this.progressJob = null;
 							}
-							if (idlingStart < 0)
-								idlingStart = System.currentTimeMillis();
-							else
-								notifyIdle(System.currentTimeMillis() - idlingStart);
-							this.wait(); // wait until a new job is posted (or reenabled:38901)
-						} else {
-							idlingStart = -1;
+							if (idlingStart == null) {
+								idlingStart = System.nanoTime();
+							} else {
+								this.wait(); // wait until a new job is posted or disabled indexer is enabled again
+							}
 						}
 					}
 					if (job == null) {
-						notifyIdle(System.currentTimeMillis() - idlingStart);
+						// don't call notifyIdle() within synchronized block or it may deadlock:
+						notifyIdle((System.nanoTime() - idlingStart) / 1_000_000);
+						if (currentJob() != null) {
+							// notifyIdle() may have requested new job
+							continue;
+						}
 						if (cacheZipFiles) {
 							JavaModelManager.getJavaModelManager().flushZipFiles(this);
 							cacheZipFiles = false;
@@ -504,6 +506,7 @@ public abstract class JobManager {
 						}
 						continue;
 					}
+					idlingStart = null;
 					if (VERBOSE) {
 						Util.verbose(awaitingJobsCount() + " awaiting jobs"); //$NON-NLS-1$
 						Util.verbose("STARTING background job - " + job); //$NON-NLS-1$
@@ -521,8 +524,7 @@ public abstract class JobManager {
 							JavaModelManager.getJavaModelManager().cacheZipFiles(this);
 							cacheZipFiles = true;
 						}
-						/*boolean status = */job.execute(null);
-						//if (status == FAILED) request(job);
+						job.execute(null); // may enqueue a new job
 					} finally {
 						this.executing = false;
 						if (VERBOSE)

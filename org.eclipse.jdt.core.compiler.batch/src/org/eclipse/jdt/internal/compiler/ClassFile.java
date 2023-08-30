@@ -3669,8 +3669,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 				} else {
 					localContentsOffset = addBootStrapTypeSwitchEntry(localContentsOffset, stmt, fPtr);
 				}
-			} else if (o instanceof StringBuilder) {
-				localContentsOffset = addBootStrapStringConcatEntry(localContentsOffset, (StringBuilder) o, fPtr);
+			} else if (o instanceof String) {
+				localContentsOffset = addBootStrapStringConcatEntry(localContentsOffset, (String) o, fPtr);
 			} else if (o instanceof ResolvedCase) {
 				localContentsOffset = addBootStrapTypeCaseConstantEntry(localContentsOffset, (ResolvedCase) o, fPtr);
 			} else if (o instanceof TypeBinding) {
@@ -4049,7 +4049,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 
 		return localContentsOffset;
 	}
-	private int addBootStrapStringConcatEntry(int localContentsOffset, StringBuilder recipe, Map<String, Integer> fPtr) {
+	private int addBootStrapStringConcatEntry(int localContentsOffset, String recipe, Map<String, Integer> fPtr) {
 		final int contentsEntries = 10;
 		int indexForStringConcat = fPtr.get(ClassFile.CONCAT_CONSTANTS);
 		if (contentsEntries + localContentsOffset >= this.contents.length) {
@@ -4069,7 +4069,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.contents[localContentsOffset++] = (byte) 1;
 
 		int intValIdx =
-				this.constantPool.literalIndex(recipe.toString());
+				this.constantPool.literalIndex(recipe);
 		this.contents[localContentsOffset++] = (byte) (intValIdx >> 8);
 		this.contents[localContentsOffset++] = (byte) intValIdx;
 
@@ -6396,7 +6396,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.bootstrapMethods.add(type);
 		return this.bootstrapMethods.size() - 1;
 	}
-	public int recordBootstrapMethod(StringBuilder expression) {
+	public int recordBootstrapMethod(String expression) {
 		if (this.bootstrapMethods == null) {
 			this.bootstrapMethods = new ArrayList<>();
 		}
