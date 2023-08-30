@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -74,8 +78,7 @@ public class RecordPattern extends Pattern {
 
 	RecordPattern(AST ast) {
 		super(ast);
-		supportedOnlyIn20();
-		unsupportedWithoutPreviewError();
+		supportedOnlyIn21();
 	}
 
 
@@ -184,8 +187,7 @@ public class RecordPattern extends Pattern {
 	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
 	 */
 	public void setPatternName(SimpleName patternName) {
-		supportedOnlyIn20();
-		unsupportedWithoutPreviewError();
+		supportedOnlyIn21();
 		if (patternName == null) {
 			throw new IllegalArgumentException();
 		}
@@ -210,8 +212,7 @@ public class RecordPattern extends Pattern {
 	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
 	 */
 	public void setPatternType(Type patternType) {
-		supportedOnlyIn20();
-		unsupportedWithoutPreviewError();
+		supportedOnlyIn21();
 		if (patternType == null) {
 			throw new IllegalArgumentException();
 		}
@@ -230,8 +231,7 @@ public class RecordPattern extends Pattern {
 	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
 	 */
 	public SimpleName getPatternName() {
-		supportedOnlyIn20();
-		unsupportedWithoutPreviewError();
+		supportedOnlyIn21();
 		return this.optionalPatternName;
 	}
 
@@ -244,8 +244,7 @@ public class RecordPattern extends Pattern {
 	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
 	 */
 	public Type getPatternType() {
-		supportedOnlyIn20();
-		unsupportedWithoutPreviewError();
+		supportedOnlyIn21();
 		if (this.patternType  == null) {
 			// lazy init must be thread-safe for readers
 			synchronized (this) {
@@ -270,8 +269,7 @@ public class RecordPattern extends Pattern {
 	 */
 	@SuppressWarnings("unchecked")
 	public List<Pattern> patterns() {
-		supportedOnlyIn20();
-		unsupportedWithoutPreviewError();
+		supportedOnlyIn21();
 		return this.patterns;
 	}
 

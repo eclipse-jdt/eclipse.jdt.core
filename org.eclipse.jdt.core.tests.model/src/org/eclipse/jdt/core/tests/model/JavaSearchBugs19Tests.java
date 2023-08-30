@@ -7,6 +7,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -130,7 +134,7 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 	@Override
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		JAVA_PROJECT = setUpJavaProject("JavaSearchBugs", "19");
+		JAVA_PROJECT = setUpJavaProject("JavaSearchBugs", "21");
 	}
 
 	public void tearDownSuite() throws Exception {
@@ -151,8 +155,8 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
 				"public class X {\n"
 						+ "  static void print(Rectangle r) {\n"
-						+ "    if (r instanceof (Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
-						+ "                               ColoredPoint lr) /*here*/r11)) {\n"
+						+ "    if (r instanceof Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
+						+ "                               ColoredPoint lr) /*here*/r11) {\n"
 						+ "        System.out.println(\"Upper-left corner: \" + r11);\n"
 						+ "    }\n"
 						+ "  }\n"
@@ -170,7 +174,7 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 		// working copies
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
 		try {
-			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
 			String str = this.workingCopies[0].getSource();
 			String selection = "/*here*/r11";
 			int start = str.indexOf(selection);
@@ -192,8 +196,8 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
 				"public class X {\n"
 						+ "  static void print(Rectangle r) {\n"
-						+ "    if (r instanceof (Rectangle(ColoredPoint(Point(int /*here*/xyz, int y), Color c),\n"
-						+ "                               ColoredPoint lr))) {\n"
+						+ "    if (r instanceof Rectangle(ColoredPoint(Point(int /*here*/xyz, int y), Color c),\n"
+						+ "                               ColoredPoint lr)) {\n"
 						+ "        System.out.println(\"Upper-left corner: \" + xyz);\n"
 						+ "    }\n"
 						+ "  }\n"
@@ -211,7 +215,7 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 		// working copies
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
 		try {
-			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
 			String str = this.workingCopies[0].getSource();
 			String selection = "/*here*/xyz";
 			int start = str.indexOf(selection);
@@ -251,7 +255,7 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 		// working copies
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
 		try {
-			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
 			String str = this.workingCopies[0].getSource();
 			String selection = "/*here*/r11";
 			int start = str.indexOf(selection);
@@ -295,7 +299,7 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 		// working copies
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
 		try {
-			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
 			String str = this.workingCopies[0].getSource();
 			String selection = "/*here*/xyz";
 			int start = str.indexOf(selection);
@@ -343,7 +347,7 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 		// working copies
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
 		try {
-			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
 			String str = this.workingCopies[0].getSource();
 			String selection = "/*here*/r11";
 			int start = str.indexOf(selection);
@@ -389,7 +393,7 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 		// working copies
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
 		try {
-			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
 			String str = this.workingCopies[0].getSource();
 			String selection = "/*here*/xyz";
 			int start = str.indexOf(selection);
@@ -435,7 +439,7 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 		// working copies
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
 		try {
-			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
 			String str = this.workingCopies[0].getSource();
 			String selection = "/*here*/c1";
 			int start = str.indexOf(selection);
@@ -480,7 +484,7 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 		// working copies
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
 		try {
-			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
 			String str = this.workingCopies[0].getSource();
 			String selection = "/*here*/Point";
 			int start = str.indexOf(selection);
@@ -528,7 +532,7 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 		// working copies
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
 		try {
-			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
 			String str = this.workingCopies[0].getSource();
 			String selection = "/*here*/ColoredPoint";
 			int start = str.indexOf(selection);
@@ -579,7 +583,7 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 		// working copies
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
 		try {
-			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
 			String str = this.workingCopies[0].getSource();
 			String selection = "/*here*/Color";
 			int start = str.indexOf(selection);
@@ -638,7 +642,7 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 		// working copies
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
 		try {
-			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
 			String str = this.workingCopies[0].getSource();
 			String selection = "/*here*/lr";
 			int start = str.indexOf(selection);
@@ -689,7 +693,7 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 		// working copies
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
 		try {
-			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
 			String str = this.workingCopies[0].getSource();
 			String selection = "/*here*/r1";
 			int start = str.indexOf(selection);
@@ -729,7 +733,7 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 		// working copies
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
 		try {
-			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
 			String str = this.workingCopies[0].getSource();
 			String selection = "/*here*/lr";
 			int start = str.indexOf(selection);
@@ -770,7 +774,7 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 		// working copies
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
 		try {
-			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
 			String str = this.workingCopies[0].getSource();
 			String selection = "/*here*/upperLeft2";
 			int start = str.indexOf(selection);
@@ -812,7 +816,7 @@ public class JavaSearchBugs19Tests extends AbstractJavaSearchTests {
 		IJavaProject javaProject = this.workingCopies[0].getJavaProject(); // assuming single project for all
 		String old = javaProject.getOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, true);
 		try {
-			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+			javaProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
 			String str = this.workingCopies[0].getSource();
 			String selection = "Type.openDeclarationFails";
 			int start = str.indexOf(selection);

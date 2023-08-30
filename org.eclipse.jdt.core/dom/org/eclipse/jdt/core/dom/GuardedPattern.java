@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -37,7 +41,6 @@ public class GuardedPattern extends Pattern{
 	GuardedPattern(AST ast) {
 		super(ast);
 		supportedOnlyIn20();
-		unsupportedWithoutPreviewError();
 	}
 
 	/**
@@ -200,7 +203,6 @@ public class GuardedPattern extends Pattern{
 	 */
 	public Expression getExpression() {
 		supportedOnlyIn20();
-		unsupportedWithoutPreviewError();
 		return this.conditonalExpression;
 	}
 
@@ -215,7 +217,6 @@ public class GuardedPattern extends Pattern{
 	 */
 	public Pattern getPattern() {
 		supportedOnlyIn20();
-		unsupportedWithoutPreviewError();
 		return this.pattern;
 	}
 
@@ -234,7 +235,6 @@ public class GuardedPattern extends Pattern{
 	 */
 	public void setExpression(Expression expression) {
 		supportedOnlyIn20();
-		unsupportedWithoutPreviewError();
 		ASTNode oldChild = this.conditonalExpression;
 		preReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
 		this.conditonalExpression = expression;
@@ -250,7 +250,6 @@ public class GuardedPattern extends Pattern{
 	 */
 	public void setPattern(Pattern pattern) {
 		supportedOnlyIn20();
-		unsupportedWithoutPreviewError();
 		ASTNode oldChild = this.pattern;
 		preReplaceChild(oldChild, pattern, PATTERN_PROPERTY);
 		this.pattern = pattern;

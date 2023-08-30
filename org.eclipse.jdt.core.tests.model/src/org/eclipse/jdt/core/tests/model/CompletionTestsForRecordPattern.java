@@ -31,12 +31,12 @@ public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletion
 
 	public void setUpSuite() throws Exception {
 		if (COMPLETION_PROJECT == null) {
-			COMPLETION_PROJECT = setUpJavaProject("Completion", "20");
+			COMPLETION_PROJECT = setUpJavaProject("Completion", "21");
 		} else {
-			setUpProjectCompliance(COMPLETION_PROJECT, "20");
+			setUpProjectCompliance(COMPLETION_PROJECT, "21");
 		}
 		super.setUpSuite();
-		COMPLETION_PROJECT.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+		COMPLETION_PROJECT.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
 	}
 
 	public static Test suite() {
@@ -461,8 +461,7 @@ public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletion
 			this.workingCopies = new ICompilationUnit[1];
 			this.workingCopies[0] = getWorkingCopy(
 					"/Completion/src/X.java",
-					"@SuppressWarnings(\"preview\")"
-					+ "public class X {\n"
+					"public class X {\n"
 					+ "    public static boolean foo(Object o) {\n"
 					+ "        boolean ret = false;\n"
 					+ "        R[] recArray = {new R(0)};\n"
@@ -481,15 +480,14 @@ public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletion
 			String completeBehind = "x_";
 			int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 			this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-			assertResults("x_1[LOCAL_VARIABLE_REF]{x_1, null, I, x_1, null, 52}",
+			assertResults("x_1[LOCAL_VARIABLE_REF]{x_1, null, I, x_1, null, 82}",
 					requestor.getResults());
 		}
 		public void test013() throws JavaModelException {
 			this.workingCopies = new ICompilationUnit[1];
 			this.workingCopies[0] = getWorkingCopy(
 					"/Completion/src/X.java",
-					"@SuppressWarnings(\"preview\")\n"
-					+ "public class X {\n"
+					"public class X {\n"
 					+ "    public static void foo(ColoredRectangle[] array) {\n"
 					+ "       for(ColoredRectangle(int x_1, int y_1, Color col) : array) {\n"
 					+ "    	  int per = 2 * x_ + 2 * y_1;\n"
@@ -514,8 +512,7 @@ public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletion
 			this.workingCopies = new ICompilationUnit[1];
 			this.workingCopies[0] = getWorkingCopy(
 					"/Completion/src/X.java",
-					"@SuppressWarnings(\"preview\")\n"
-					+ "public class X {\n"
+					"public class X {\n"
 					+ "    public static void foo(ColoredRectangle[] array) {\n"
 					+ "       for(ColoredRectangle(int x_1, int y_1, Color col) : array) {\n"
 					+ "    	  int per = 2 * x_1 + 2 * y_;\n"
@@ -540,8 +537,7 @@ public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletion
 			this.workingCopies = new ICompilationUnit[1];
 			this.workingCopies[0] = getWorkingCopy(
 					"/Completion/src/X.java",
-					"@SuppressWarnings(\"preview\")\n"
-					+ "public class X {\n"
+					"public class X {\n"
 					+ "    public static void foo(ColoredRectangle[] ar_ray) {\n"
 					+ "       for(ColoredRectangle(int x_1, int y_1, Color col) : ar_) {\n"
 					+ "    	  int per = 2 * x_1 + 2 * y_1;\n"

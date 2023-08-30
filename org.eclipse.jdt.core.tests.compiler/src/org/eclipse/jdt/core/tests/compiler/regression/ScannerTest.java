@@ -1792,7 +1792,7 @@ public class ScannerTest extends AbstractRegressionTest {
 	}
 	public void testWhenOK() {
 		String source = ("public void foo(Object obj) {\n switch(obj) {\n case String s when s.length() > 0 -> {}\n}\n}");
-		IScanner scanner = ToolFactory.createScanner(false, true, false, "19", "19", true);
+		IScanner scanner = ToolFactory.createScanner(false, true, false, "21", "21", false);
 		scanner.setSource(source.toCharArray());
 		scanner.resetTo(source.indexOf("when")-1, source.length() - 1); // start directly at "when"
 		try {

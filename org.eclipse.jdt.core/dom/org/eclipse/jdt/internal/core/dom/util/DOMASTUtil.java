@@ -70,7 +70,7 @@ public class DOMASTUtil {
 			case ASTNode.PATTERN_INSTANCEOF_EXPRESSION:
 				return apiLevel >= AST.JLS16;
 			case ASTNode.TYPE_PATTERN:
-				return apiLevel == AST.getJLSLatest() && previewEnabled;
+				return apiLevel == AST.getJLSLatest();
 			case ASTNode.TAG_PROPERTY:
 				return apiLevel >= AST.JLS18;
 		}
