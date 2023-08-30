@@ -1414,8 +1414,8 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"hello");
 	}
-	public void _testBug574719_001() {
-		runConformTest(
+	public void testBug574719_001() {
+		runNegativeTest(
 			new String[] {
 				"X.java",
 				"public class X {\n"+
@@ -1431,91 +1431,12 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				" }\n"+
 				"}",
 			},
-			"1");
-	}
-	public void _testBug574719_002() {
-		runConformTest(
-			new String[] {
-				"X.java",
-				"public class X {\n"+
-				" public static int foo(Integer o) {\n"+
-				"   int k = 0;\n"+
-				"   switch (o) {\n"+
-				"     case 0, default, 1   : k = 1;\n"+
-				"   }\n"+
-				"   return k;\n"+
-				" } \n"+
-				" public static void main(String[] args) {\n"+
-				"   System.out.println(foo(100 ));\n"+
-				" }\n"+
-				"}",
-			},
-			"1");
-	}
-	public void _testBug574719_003() {
-		runConformTest(
-			new String[] {
-				"X.java",
-				"public class X {\n"+
-				" public static int foo(Integer o) {\n"+
-				"   int k = 0;\n"+
-				"   switch (o) {\n"+
-				"     case default, 1   : k = 1;\n"+
-				"   }\n"+
-				"   return k;\n"+
-				" } \n"+
-				" public static void main(String[] args) {\n"+
-				"   System.out.println(foo(100));\n"+
-				"   System.out.println(foo(0));\n"+
-				" }\n"+
-				"}",
-			},
-			"1\n" +
-			"1");
-	}
-	public void _testBug574719_004() {
-		runConformTest(
-			new String[] {
-				"X.java",
-				"public class X {\n"+
-				" public static int foo(Integer o) {\n"+
-				"   int k = 0;\n"+
-				"   switch (o) {\n"+
-				"     case 0  : k = 2; break;\n"+
-				"     case default, 1   : k = 1;\n"+
-				"   }\n"+
-				"   return k;\n"+
-				" } \n"+
-				" public static void main(String[] args) {\n"+
-				"   System.out.println(foo(100));\n"+
-				"   System.out.println(foo(0));\n"+
-				" }\n"+
-				"}",
-			},
-			"1\n" +
-			"2");
-	}
-	public void _testBug574719_005() {
-		runConformTest(
-			new String[] {
-				"X.java",
-				"public class X {\n"+
-				" public static int foo(Integer o) {\n"+
-				"   int k = 0;\n"+
-				"   switch (o) {\n"+
-				"     case 0  : k = 2; break;\n"+
-				"     case 1, default   : k = 1;\n"+
-				"   }\n"+
-				"   return k;\n"+
-				" } \n"+
-				" public static void main(String[] args) {\n"+
-				"   System.out.println(foo(100));\n"+
-				"   System.out.println(foo(0));\n"+
-				" }\n"+
-				"}",
-			},
-			"1\n" +
-			"2");
+			"----------\n" +
+			"1. ERROR in X.java (at line 5)\n" +
+			"	case 0, default   : k = 1;\n" +
+			"	        ^^^^^^^\n" +
+			"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
+			"----------\n");
 	}
 	public void testBug574719_006() {
 		runNegativeTest(
@@ -1552,30 +1473,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"	                 ^^^^^^^\n" +
 			"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
 			"----------\n");
-	}
-	public void _testBug574719_007() {
-		runConformTest(
-			new String[] {
-				"X.java",
-				"public class X {\n"+
-				" public static int foo(Integer o) {\n"+
-				"   int k = 0;\n"+
-				"   switch (o) {\n"+
-				"     case 10, default: k = 1;break;\n"+
-				"     case 0  : k = 2; break;\n"+
-				"   }\n"+
-				"   return k;\n"+
-				" } \n"+
-				" public static void main(String[] args) {\n"+
-				"   System.out.println(foo(100));\n"+
-				"   System.out.println(foo(0));\n"+
-				"   System.out.println(foo(10));\n"+
-				" }\n"+
-				"}",
-			},
-			"1\n"+
-			"2\n"+
-			"1");
 	}
 	public void testBug574561_001() {
 		runNegativeTest(
@@ -2954,14 +2851,14 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"Syntax error on token \"yield\", AssignmentOperator expected after this token\n" +
 			"----------\n");
 	}
-	public void _testBug575249_02() {
+	public void testBug575249_02() {
 		runConformTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" +
 				"	public static int foo(Object o) {\n" +
 				"		return switch (o) {\n" +
-				"		  case (String s when s.length() < 10) : yield 0;\n" +
+				"		  case String s when s.length() < 10 : yield 0;\n" +
 				"		  default : yield 1;\n" +
 				"		};\n" +
 				"	}\n" +
@@ -2995,14 +2892,14 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"Syntax error, insert \":\" to complete SwitchLabel\n" +
 			"----------\n");
 	}
-	public void _testBug575249_04() {
+	public void testBug575249_04() {
 		runConformTest(
 			new String[] {
 				"X.java",
 				"public class X {\n" +
 				"	public static int foo(Object o) {\n" +
 				"		return switch (o) {\n" +
-				"		  case (String s && s.length() < 10) -> 0;\n" +
+				"		  case String s when s.length() < 10 -> 0;\n" +
 				"		  default -> 1;\n" +
 				"		};\n" +
 				"	}\n" +
@@ -3182,8 +3079,8 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"Hello\n" +
 			"NPE");
 	}
-	public void _testBug575356_01() {
-		this.runConformTest(
+	public void testBug575356_01() {
+		this.runNegativeTest(
 				new String[] {
 					"X.java",
 					"public class X {\n"+
@@ -3198,7 +3095,12 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					" } \n"+
 					"}",
 				},
-				"hello");
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	case default -> System.out.println(\"hello\");\n" +
+				"	     ^^^^^^^\n" +
+				"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
+				"----------\n");
 	}
 	public void testBug575356_02() {
 		this.runConformTest(
@@ -3218,8 +3120,8 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"hello");
 	}
-	public void _testBug575356_03() {
-		this.runConformTest(
+	public void testBug575356_03() {
+		this.runNegativeTest(
 				new String[] {
 					"X.java",
 					"public class X {\n"+
@@ -3234,7 +3136,17 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					" } \n"+
 					"}",
 				},
-				"hello");
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	case default, null -> System.out.println(\"hello\");\n" +
+				"	     ^^^^^^^\n" +
+				"A \'default\' can occur after \'case\' only as a second case label expression and that too only if \'null\' precedes  in \'case null, default\' \n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 4)\n" +
+				"	case default, null -> System.out.println(\"hello\");\n" +
+				"	              ^^^^\n" +
+				"A null case label has to be either the only expression in a case label or the first expression followed only by a default\n" +
+				"----------\n");
 	}
 	public void testBug575356_04() {
 		this.runConformTest(
@@ -3778,8 +3690,8 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	}
 	// Fails with Javac as it prints Javac instead of throwing NPE
 	// https://bugs.openjdk.java.net/browse/JDK-8272776
-	public void _testBug575051_1() {
-		runConformTest(
+	public void testBug575051_1() {
+		runNegativeTest(
 				new String[] {
 					"X.java",
 					"public class X {\n" +
@@ -3800,10 +3712,12 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"	}\n" +
 					"}",
 				},
-				"java.lang.NullPointerException\n"
-				+ "	at java.base/java.util.Objects.requireNonNull(Objects.java:233)\n"
-				+ "	at X.foo(X.java:4)\n"
-				+ "	at X.main(X.java:15)");
+				"----------\n" +
+				"1. ERROR in X.java (at line 7)\n" +
+				"	case String s :\n" +
+				"	     ^^^^^^^^\n" +
+				"This case label is dominated by one of the preceding case labels\n" +
+				"----------\n");
 	}
 	// Test we don't report any illegal fall-through to null case
 	public void testBug575051_2() {
@@ -3855,31 +3769,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n",
 				"");
-	}
-	public void _testBug575571_1() {
-		Map<String, String> options = getCompilerOptions();
-		options.put(CompilerOptions.OPTION_ReportMissingDefaultCase, CompilerOptions.WARNING);
-		runWarningTest(
-				new String[] {
-						"X.java",
-						"public class X {\n" +
-						"	public void foo(Color o) {\n" +
-						"		switch (o) {\n" +
-						"		  case Blue:\n" +
-						"			break;\n" +
-						"		}\n" +
-						"	}\n" +
-						"	public static void main(String[] args) {}\n" +
-						"}\n" +
-						"enum Color {	Blue;  }\n",
-				},
-				"----------\n" +
-				"1. WARNING in X.java (at line 3)\n" +
-				"	switch (o) {\n" +
-				"	        ^\n" +
-				"The switch over the enum type Color should have a default case\n" +
-				"----------\n",
-				options);
 	}
 	public void testBug575571_2() {
 		runNegativeTest(
@@ -4554,7 +4443,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				+ "            " + caseConstant
 				+ "                yield \"a\";\n"
 				+ "            }\n"
-				+ "            case default -> { \n"
+				+ "            default -> { \n"
 				+ "                yield \"b\";\n"
 				+ "            }\n"
 				+ "        }; \n"
@@ -4566,70 +4455,44 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				+ "    }\n"
 				+ "}";
 	}
-	public void _testBug578504_1() {
+	public void testBug578504_1() {
 		runConformTest(
 				new String[] {
 					"X.java",
-					getTestCaseForBug578504("case ((String a && a.equals(\"a\")) && a != null)  -> { \n")
+					getTestCaseForBug578504("case String a when (a.equals(\"a\") && a != null)  -> { \n")
 					,
 				},
 				"true");
 	}
-	public void _testBug578504_2() {
+	public void testBug578504_2() {
 		runConformTest(
 				new String[] {
 					"X.java",
-					getTestCaseForBug578504("case ((CharSequence a && a instanceof String ss && ss == null) && ss != null)  -> {\n"),
+					getTestCaseForBug578504("case CharSequence a when (a instanceof String ss && (ss == null && ss != null))  -> {\n"),
 				},
 				"false");
 	}
-	public void _testBug578504_3() {
+	public void testBug578504_3() {
 		runConformTest(
 				new String[] {
 					"X.java",
-					getTestCaseForBug578504("case (CharSequence a && (a instanceof String ss && ss != null) && ss != null)  -> {\n"),
+					getTestCaseForBug578504("case CharSequence a when (a instanceof String ss && ss != null) && ss != null  -> {\n"),
 				},
 				"true");
 	}
-	public void _testBug578504_4() {
-		runNegativeTest(
-				new String[] {
-					"X.java",
-					getTestCaseForBug578504("case ((CharSequence a && (a == null || a instanceof String ss)) && ss != null)  -> {\n"),
-				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 6)\n" +
-				"	case ((CharSequence a && (a == null || a instanceof String ss)) && ss != null)  -> {\n" +
-				"	                                                                   ^^\n" +
-				"ss cannot be resolved to a variable\n" +
-				"----------\n");
-	}
-	public void _testBug578504_5() {
-		runNegativeTest(
-				new String[] {
-					"X.java",
-					getTestCaseForBug578504("case ((CharSequence a && (a instanceof String ss || a == null)) && ss != null)  -> {\n"),
-				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 6)\n" +
-				"	case ((CharSequence a && (a instanceof String ss || a == null)) && ss != null)  -> {\n" +
-				"	                                                                   ^^\n" +
-				"ss cannot be resolved to a variable\n" +
-				"----------\n");
-	}
-	public void _testBug578504_6() {
+	public void testBug578504_6() {
 		runConformTest(
 				new String[] {
 					"X.java",
-					getTestCaseForBug578504("case ((CharSequence a && (a instanceof String ss && a instanceof String sss)) && ss == sss)  -> {\n"),
+					getTestCaseForBug578504("case CharSequence a when (a instanceof String ss && a instanceof String sss) && ss == sss  -> {\n"),
 				},
 				"true");
 	}
-	public void _testBug578504_7() {
+	public void testBug578504_7() {
 		runConformTest(
 				new String[] {
 					"X.java",
-					getTestCaseForBug578504("case ((CharSequence a && (a instanceof String ss && a instanceof String sss)) && ss != sss)  -> {\n"),
+					getTestCaseForBug578504("case CharSequence a when (a instanceof String ss && a instanceof String sss) && ss != sss  -> {\n"),
 				},
 				"false");
 	}
