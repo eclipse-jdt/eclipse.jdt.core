@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     IBM Corporation - added the following constants
@@ -2538,8 +2542,14 @@ void setSourceStart(int sourceStart);
 	/**
 	 * @since 3.32
 	 * @noreference preview feature
+	 * @deprecated
 	 */
 	int RawTypeInRecordPattern =  PreviewRelated + 1915;
+	/**
+	 * @since 3.35
+	 * @noreference preview feature
+	 */
+	int FalseConstantInGuard =  PreviewRelated + 1916;
 	/**
 	 * @since 3.34
 	 * @noreference preview feature
