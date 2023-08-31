@@ -3454,7 +3454,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"An enhanced switch statement should be exhaustive; a default label expected\n" +
 			"----------\n");
 	}
-	public void testIssue1328() {
+	public void testIssue1328_1() {
 		runNegativeTest(
 				new String[] {
 					"X.java",
@@ -3500,6 +3500,29 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"	case String s when 0 != 0 -> 3;\n" +
 				"	                   ^^^^^^\n" +
 				"A case label guard cannot have a constant expression with value as \'false\'\n" +
+				"----------\n");
+	}
+	public void testIssue1328_2() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"
+					+ "    public int foo(Character c) {\n"
+					+ "        int result = 0;\n"
+					+ "        switch (c) {\n"
+					+ "            case Character p when p.equals(\"c\") -> {\n"
+					+ "                result = 6;\n"
+					+ "            }\n"
+					+ "        };\n"
+					+ "        return result;\n"
+					+ "    }\n"
+					+ "}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 4)\n" +
+				"	switch (c) {\n" +
+				"	        ^\n" +
+				"An enhanced switch statement should be exhaustive; a default label expected\n" +
 				"----------\n");
 	}
 }

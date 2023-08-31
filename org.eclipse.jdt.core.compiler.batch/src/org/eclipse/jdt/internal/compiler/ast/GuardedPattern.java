@@ -108,7 +108,7 @@ public class GuardedPattern extends Pattern {
 	}
 	@Override
 	public boolean coversType(TypeBinding type) {
-		return this.primaryPattern.coversType(type);
+		return this.primaryPattern.coversType(type) && isAlwaysTrue();
 	}
 	@Override
 	public Pattern primary() {
