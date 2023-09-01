@@ -355,24 +355,6 @@ public class SwitchStatement extends Expression {
 			this.covers = false;
 			return false; // no need to visit further.
 		}
-		List<ReferenceBinding> getAllPermittedTypes(ReferenceBinding ref) {
-			if (!ref.isSealed())
-				return new ArrayList<>(0);
-
-			Set<ReferenceBinding> permSet = new HashSet<>(Arrays.asList(ref.permittedTypes()));
-			if (ref.isClass() && (!ref.isAbstract()))
-				permSet.add(ref);
-			Set<ReferenceBinding> oldSet = new HashSet<>(permSet);
-			do {
-				for (ReferenceBinding type : permSet) {
-					oldSet.addAll(Arrays.asList(type.permittedTypes()));
-				}
-				Set<ReferenceBinding> tmp = oldSet;
-				oldSet = permSet;
-				permSet = tmp;
-			} while (oldSet.size() != permSet.size());
-			return Arrays.asList(permSet.toArray(new ReferenceBinding[0]));
-		}
 	}
 	protected int getFallThroughState(Statement stmt, BlockScope blockScope) {
 		if ((this.switchBits & LabeledRules) != 0) {
@@ -1450,13 +1432,7 @@ public class SwitchStatement extends Expression {
 				return checkAndFlagDefaultRecord(skope, compilerOptions, ref);
 		}
 		if (!ref.isSealed()) return false;
-		List<ReferenceBinding> allallowedTypes = new ArrayList<>();
-		if (ref.isClass() && !ref.isAbstract())
-			allallowedTypes.add(ref);
-
-		List<ReferenceBinding> permittedTypes = new ArrayList<>(Arrays.asList(ref.permittedTypes()));
-		allallowedTypes.addAll(permittedTypes);
-		if (!isExhaustiveWithCaseTypes(allallowedTypes, this.caseLabelElementTypes)) {
+		if (!isExhaustiveWithCaseTypes(getAllPermittedTypes(ref), this.caseLabelElementTypes)) {
 			if (this instanceof SwitchExpression) // non-exhaustive switch expressions will be flagged later.
 				return false;
 			skope.problemReporter().enhancedSwitchMissingDefaultCase(this.expression);
@@ -1464,6 +1440,24 @@ public class SwitchStatement extends Expression {
 		}
 		this.switchBits |= SwitchStatement.Exhaustive;
 		return false;
+	}
+	List<ReferenceBinding> getAllPermittedTypes(ReferenceBinding ref) {
+		if (!ref.isSealed())
+			return new ArrayList<>(0);
+
+		Set<ReferenceBinding> permSet = new HashSet<>(Arrays.asList(ref.permittedTypes()));
+		if (ref.isClass() && (!ref.isAbstract()))
+			permSet.add(ref);
+		Set<ReferenceBinding> oldSet = new HashSet<>(permSet);
+		do {
+			for (ReferenceBinding type : permSet) {
+				oldSet.addAll(Arrays.asList(type.permittedTypes()));
+			}
+			Set<ReferenceBinding> tmp = oldSet;
+			oldSet = permSet;
+			permSet = tmp;
+		} while (oldSet.size() != permSet.size());
+		return Arrays.asList(permSet.toArray(new ReferenceBinding[0]));
 	}
 
 	private boolean checkAndFlagDefaultRecord(BlockScope skope, CompilerOptions compilerOptions, ReferenceBinding ref) {
