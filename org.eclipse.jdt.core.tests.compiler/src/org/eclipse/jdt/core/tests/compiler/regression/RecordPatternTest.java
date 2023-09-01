@@ -3525,4 +3525,26 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"An enhanced switch statement should be exhaustive; a default label expected\n" +
 				"----------\n");
 	}
+	public void testIssue1336() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"""
+					record R<T> ( T t) {}
+					public final class X {
+					private static boolean foo(R<?> r) {
+						if (r instanceof R(String s)) {
+							return true;
+						}
+						return false;
+					}
+
+					public static void main(String argv[]) {
+						System.out.println(foo(new R<>(new String("hello"))));
+					}
+
+					}
+					"""
+			});
+	}
 }
