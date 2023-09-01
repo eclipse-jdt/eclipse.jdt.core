@@ -34,7 +34,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testIssueExhaustiveness_003"};
+//		TESTS_NAMES = new String[] { "testIssueExhaustiveness_004"};
 	}
 
 	private static String previewLevel = "21";
@@ -6021,6 +6021,42 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					"}"
 				},
 				"42");
+	}
+	public void testIssueExhaustiveness_004() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"sealed interface I permits A, J {}\n"+
+					"sealed interface J extends I {}\n"+
+					"\n"+
+					"final class A implements I {}\n"+
+					"final record R() implements J {}\n"+
+					"\n"+
+					"public class X {\n"+
+					"\n"+
+					"    public static int foo(I i) {\n"+
+					"        return switch (i) {\n"+
+					"            case A a -> 0;\n"+
+					"        };\n"+
+					"    }\n"+
+					"\n"+
+					"    public static void main(String argv[]) {\n"+
+					"       Zork();\n"+
+					"    }\n"+
+					"}"
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 10)\n" +
+				"	return switch (i) {\n" +
+				"	               ^\n" +
+				"A switch expression should have a default case\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 16)\n" +
+				"	Zork();\n" +
+				"	^^^^\n" +
+				"The method Zork() is undefined for the type X\n" +
+				"----------\n"
+);
 	}
 	public void testIssue1250_1() {
 		if (this.complianceLevel < ClassFileConstants.JDK21) {
