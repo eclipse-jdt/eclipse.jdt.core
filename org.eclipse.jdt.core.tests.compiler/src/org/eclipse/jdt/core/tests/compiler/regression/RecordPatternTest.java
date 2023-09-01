@@ -3532,19 +3532,20 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 					"""
 					record R<T> ( T t) {}
 					public final class X {
-					private static boolean foo(R<?> r) {
-						if (r instanceof R(String s)) {
-							return true;
+						private static boolean foo(R<String> r) {
+							if (r instanceof R(String s)) {
+								return !s.isEmpty();
+							}
+							return false;
 						}
-						return false;
-					}
 
-					public static void main(String argv[]) {
-						System.out.println(foo(new R<>(new String("hello"))));
-					}
+						public static void main(String argv[]) {
+							System.out.println(foo(new R<>(new String("hello"))));
+						}
 
 					}
 					"""
-			});
+			},
+			"true");
 	}
 }

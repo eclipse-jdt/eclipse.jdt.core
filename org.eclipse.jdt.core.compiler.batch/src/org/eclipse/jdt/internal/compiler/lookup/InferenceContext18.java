@@ -32,9 +32,11 @@ import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.FunctionalExpression;
 import org.eclipse.jdt.internal.compiler.ast.Invocation;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
+import org.eclipse.jdt.internal.compiler.ast.Pattern;
 import org.eclipse.jdt.internal.compiler.ast.RecordPattern;
 import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
 import org.eclipse.jdt.internal.compiler.ast.SwitchExpression;
+import org.eclipse.jdt.internal.compiler.ast.TypePattern;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants.BoundCheckStatus;
 import org.eclipse.jdt.internal.compiler.util.Sorting;
@@ -1977,6 +1979,9 @@ public class InferenceContext18 {
 		if (tPrime == null)
 			return null;
 
+		// not in JLS:
+		addConstraintsFromNestedPatterns(recordPattern);
+
 		/* 4. => 18_5_5_item_4 */
 		if (!findRPrimeAndResultingBounds(typeBinding, alphas, tPrime))
 			return null;
@@ -2003,6 +2008,25 @@ public class InferenceContext18 {
 
 		//6. => 18_5_5_item_6
 		return getRecordPatternTypeFromUpwardsProjection(typeBinding, alphas, solution);
+	}
+
+	public void addConstraintsFromNestedPatterns(RecordPattern recordPattern) {
+		if (recordPattern.patterns != null) {
+			Pattern[] patterns = recordPattern.patterns;
+			RecordComponentBinding[] components = ((ReferenceBinding) recordPattern.resolvedType.original()).components();
+			List<ConstraintFormula> extendedConstraints = new ArrayList<>();
+			if (this.initialConstraints != null)
+				extendedConstraints.addAll(Arrays.asList(this.initialConstraints));
+			for (int i = 0; i < patterns.length; i++) {
+				Pattern pattern = patterns[i];
+				if (pattern instanceof TypePattern && pattern.resolvedType != null && pattern.resolvedType.isValidBinding()) {
+					TypeBinding compTypeSubst = substitute(components[i].type);
+					if (!compTypeSubst.isProperType(true))
+						extendedConstraints.add(ConstraintTypeFormula.create(compTypeSubst, pattern.resolvedType, ReductionResult.SUBTYPE));
+				} // FIXME: else nested RecordPattern? recursively infer?
+			}
+			this.initialConstraints = extendedConstraints.toArray(ConstraintFormula[]::new);
+		}
 	}
 
 	/* 6. => 18_5_5_item_6

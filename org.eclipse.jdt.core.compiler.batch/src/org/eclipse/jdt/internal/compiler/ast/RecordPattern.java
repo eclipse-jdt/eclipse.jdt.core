@@ -234,7 +234,7 @@ public class RecordPattern extends TypePattern {
 		if (this.resolvedType.isParameterizedType())
 			return false;
 		if (this.containsTypeElidedPatternVar == null) {
-			this.containsPatternVariable();
+			return this.containsPatternVariable(); // FIXME: check if 'return' is correct here. Perhaps typeElidedVar and hasPatternVar should be or-ed?
 		}
 		return this.containsTypeElidedPatternVar;
 	}
