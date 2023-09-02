@@ -337,8 +337,11 @@ public class InferenceContext18 {
 		}
 	}
 
-	/** Add new inference variables for the given type arguments. */
-	public InferenceVariable[] addTypeVariableSubstitutions(TypeBinding[] typeArguments) {
+	/**
+	 * Add new inference variables for the given type arguments.
+	 * CAVEAT: when passing capturesOnly as true, then the result array may contain nulls!
+	 */
+	public InferenceVariable[] addTypeVariableSubstitutions(TypeBinding[] typeArguments, boolean capturesOnly) {
 		int len2 = typeArguments.length;
 		InferenceVariable[] newVariables = new InferenceVariable[len2];
 		InferenceVariable[] toAdd = new InferenceVariable[len2];
@@ -346,7 +349,7 @@ public class InferenceContext18 {
 		for (int i = 0; i < typeArguments.length; i++) {
 			if (typeArguments[i] instanceof InferenceVariable)
 				newVariables[i] = (InferenceVariable) typeArguments[i]; // prevent double substitution of an already-substituted inferenceVariable
-			else if (typeArguments[i] instanceof CaptureBinding)
+			else if (!capturesOnly || typeArguments[i] instanceof CaptureBinding)
 				toAdd[numToAdd++] =
 					newVariables[i] = InferenceVariable.get(typeArguments[i], i, this.currentInvocation, this.scope, this.object, false);
 		}
@@ -2092,7 +2095,7 @@ public class InferenceContext18 {
 			 * And hence the name notJust18_5_5_item_3_bullet_1Betas
 			 * TODO: a Just18_5_5_item_3_bullet_1Betas utility?
 			 */
-			InferenceVariable[] notJust18_5_5_item_3_bullet_1Betas = addTypeVariableSubstitutions(arguments);
+			InferenceVariable[] notJust18_5_5_item_3_bullet_1Betas = addTypeVariableSubstitutions(arguments, true);
 			TypeVariableBinding[] typeVariables = getTPrimeArgumentsAndCreateBounds(parameterizedType,
 					notJust18_5_5_item_3_bullet_1Betas);
 			tPrime = this.environment.createParameterizedType(
@@ -2129,7 +2132,7 @@ public class InferenceContext18 {
 		TypeBinding[] aArr = tPrime.typeArguments();
 		for (int i = 0, l = notJust18_5_5_item_3_bullet_1Betas.length; i < l; ++i) {
 			InferenceVariable beta = notJust18_5_5_item_3_bullet_1Betas[i];
-			if (!beta.equals(typeVariables[i])) continue; //not an expected inference variable.
+			if (beta == null || !beta.equals(typeVariables[i])) continue; //not an expected inference variable.
 
 			TypeBinding[] uArr = typeParams[i]!= null ? typeParams[i].allUpperBounds() : null;
 			if (uArr == null || uArr.length == 0) {
@@ -2169,7 +2172,7 @@ public class InferenceContext18 {
 		TypeBound bound;
 		for (int i = 0, l = arguments.length; i < l; ++i) {
 			bound = null;
-			if (arguments[i].kind() == Binding.WILDCARD_TYPE) {
+			if (arguments[i].kind() == Binding.WILDCARD_TYPE && beta[i] != null) {
 				WildcardBinding wildcard = (WildcardBinding) arguments[i];
 				switch(wildcard.boundKind) {
 					case Wildcard.EXTENDS :
