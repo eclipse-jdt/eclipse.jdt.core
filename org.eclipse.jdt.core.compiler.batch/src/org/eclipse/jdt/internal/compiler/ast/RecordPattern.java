@@ -190,7 +190,7 @@ public class RecordPattern extends TypePattern {
 	}
 	private void setAccessorsPlusInfuseInferredType(BlockScope scope) {
 		this.isTotalTypeNode = super.coversType(this.resolvedType);
-		RecordComponentBinding[] components = this.resolvedType.components();
+		RecordComponentBinding[] components = this.resolvedType.capture(scope, this.sourceStart, this.sourceEnd).components();
 		if (components.length != this.patterns.length) {
 			scope.problemReporter().recordPatternSignatureMismatch(this.resolvedType, this);
 		} else {
@@ -227,16 +227,7 @@ public class RecordPattern extends TypePattern {
 		}
 	}
 	private boolean shouldInitiateRecordTypeInference() {
-		ReferenceBinding binding = this.resolvedType != null ? this.resolvedType.actualType() : null;
-		if (binding == null || !binding.isGenericType())
-			return false;
-
-		if (this.resolvedType.isParameterizedType())
-			return false;
-		if (this.containsTypeElidedPatternVar == null) {
-			this.containsPatternVariable();
-		}
-		return this.containsTypeElidedPatternVar;
+		return this.resolvedType != null && this.resolvedType.isRawType();
 	}
 	private void infuseInferredType(TypePattern tp, RecordComponentBinding componentBinding) {
 		SingleTypeReference ref = new SingleTypeReference(tp.local.type.getTypeName()[0],

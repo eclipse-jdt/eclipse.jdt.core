@@ -337,18 +337,18 @@ public class InferenceContext18 {
 		}
 	}
 
-	/** Add new inference variables for the given type variables. */
-	public InferenceVariable[] addTypeVariableSubstitutions(TypeBinding[] typeVariables) {
-		int len2 = typeVariables.length;
+	/** Add new inference variables for the given type arguments. */
+	public InferenceVariable[] addTypeVariableSubstitutions(TypeBinding[] typeArguments) {
+		int len2 = typeArguments.length;
 		InferenceVariable[] newVariables = new InferenceVariable[len2];
 		InferenceVariable[] toAdd = new InferenceVariable[len2];
 		int numToAdd = 0;
-		for (int i = 0; i < typeVariables.length; i++) {
-			if (typeVariables[i] instanceof InferenceVariable)
-				newVariables[i] = (InferenceVariable) typeVariables[i]; // prevent double substitution of an already-substituted inferenceVariable
-			else
+		for (int i = 0; i < typeArguments.length; i++) {
+			if (typeArguments[i] instanceof InferenceVariable)
+				newVariables[i] = (InferenceVariable) typeArguments[i]; // prevent double substitution of an already-substituted inferenceVariable
+			else if (typeArguments[i] instanceof CaptureBinding)
 				toAdd[numToAdd++] =
-					newVariables[i] = InferenceVariable.get(typeVariables[i], i, this.currentInvocation, this.scope, this.object, false);
+					newVariables[i] = InferenceVariable.get(typeArguments[i], i, this.currentInvocation, this.scope, this.object, false);
 		}
 		if (numToAdd > 0) {
 			int start = 0;
@@ -1973,7 +1973,7 @@ public class InferenceContext18 {
 		InferenceVariable[] alphas = createInitialBoundSet(typeVariables); // creates initial bound set B
 
 		// 3. A type T' is derived from T, as follows:
-		TypeBinding tPrime = deriveTPrime(candidateT, alphas, typeBinding);
+		TypeBinding tPrime = deriveTPrime(recordPattern, candidateT, alphas, typeBinding);
 		if (tPrime == null)
 			return null;
 
@@ -2078,14 +2078,14 @@ public class InferenceContext18 {
 		} /* else part: Otherwise, B2 is the same as B1.*/
 		return true;
 	}
-	private TypeBinding deriveTPrime(TypeBinding candidateT, InferenceVariable[] alphas, TypeBinding typeBinding) {
+	private TypeBinding deriveTPrime(RecordPattern recordPattern, TypeBinding candidateT, InferenceVariable[] alphas, TypeBinding typeBinding) {
 		ParameterizedTypeBinding parameterizedType = null;
 		TypeBinding tPrime = null;
 		if (candidateT.isParameterizedType()) {
 			parameterizedType = InferenceContext18.parameterizedWithWildcard(candidateT);
 		}
 		if (parameterizedType != null && parameterizedType.arguments != null) {
-			TypeBinding[] arguments = parameterizedType.arguments;
+			TypeBinding[] arguments = parameterizedType.capture(this.scope, recordPattern.sourceStart, recordPattern.sourceEnd).arguments;
 			/* addTypeVariableSubstitutions() gives a beta for every argument which is
 			 * a super set of betas required by 18_5_5_item_3_bullet_1 betas.
 			 * this happens since we are just reusing 18.5.2.1 utility
@@ -2111,7 +2111,7 @@ public class InferenceContext18 {
 
 			if (allBoundCandidates != null) {
 				for (TypeBinding t : allBoundCandidates) {
-					TypeBinding ttPrime = deriveTPrime(t, alphas, typeBinding);
+					TypeBinding ttPrime = deriveTPrime(recordPattern, t, alphas, typeBinding);
 					if (!findRPrimeAndResultingBounds(typeBinding, alphas, ttPrime))
 						return null;
 				}
@@ -2165,6 +2165,7 @@ public class InferenceContext18 {
 			InferenceVariable[] beta) {
 		TypeBinding[] arguments = parameterizedType.typeArguments();
 		TypeVariableBinding[] typeVariables = new TypeVariableBinding[arguments.length];
+		InferenceSubstitution theta = new InferenceSubstitution(this.environment, beta, this.currentInvocation);
 		TypeBound bound;
 		for (int i = 0, l = arguments.length; i < l; ++i) {
 			bound = null;
@@ -2172,10 +2173,12 @@ public class InferenceContext18 {
 				WildcardBinding wildcard = (WildcardBinding) arguments[i];
 				switch(wildcard.boundKind) {
 					case Wildcard.EXTENDS :
-						bound = new TypeBound(beta[i], wildcard.allBounds(), ReductionResult.SUBTYPE);
+						TypeBinding uTheta = Scope.substitute(theta, wildcard.allBounds());
+						bound = new TypeBound(beta[i], uTheta, ReductionResult.SUBTYPE);
 						break;
 					case Wildcard.SUPER :
-						bound = new TypeBound(beta[i], wildcard.bound, ReductionResult.SUPERTYPE);
+						TypeBinding lTheta = Scope.substitute(theta, wildcard.bound);
+						bound = new TypeBound(beta[i], lTheta, ReductionResult.SUPERTYPE);
 						break;
 					case Wildcard.UNBOUND :
 						bound = new TypeBound(beta[i], this.object, ReductionResult.SUBTYPE);
