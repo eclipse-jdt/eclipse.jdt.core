@@ -166,7 +166,7 @@ public class TypePattern extends Pattern {
 				scope.problemReporter().incompatiblePatternType(this, other, patternType);
 				return false;
 			}
-		} else if (!checkCastTypesCompatibility(scope, other, patternType, this.expression, true)) {
+		} else if (!checkCastTypesCompatibility(scope, patternType, other, this.expression, true)) {
 			scope.problemReporter().incompatiblePatternType(this, other, patternType);
 			return false;
 		}
