@@ -506,7 +506,7 @@ private Constant resolveConstantExpression(BlockScope scope,
 			// The following code is copied from InstanceOfExpression#resolve()
 			// But there are enough differences to warrant a copy
 			if (!pb.isReifiable()) {
-				if (expressionType != TypeBinding.NULL) {
+				if (expressionType != TypeBinding.NULL && !(e instanceof RecordPattern)) {
 					boolean isLegal = e.checkCastTypesCompatibility(scope, pb, expressionType, e, false);
 					if (!isLegal || (e.bits & ASTNode.UnsafeCast) != 0) {
 						scope.problemReporter().unsafeCastInInstanceof(e, pb, expressionType);
