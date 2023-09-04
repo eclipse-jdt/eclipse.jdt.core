@@ -305,12 +305,12 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 3)\n" +
 				"	if (r instanceof Rectangle(ColoredPoint(Point(String o1, String o2), Color c),\n" +
 				"	                                              ^^^^^^^^^\n" +
-				"Pattern of type int is not compatible with type java.lang.String\n" +
+				"Record component with type int is not compatible with type java.lang.String\n" +
 				"----------\n" +
 				"2. ERROR in X.java (at line 3)\n" +
 				"	if (r instanceof Rectangle(ColoredPoint(Point(String o1, String o2), Color c),\n" +
 				"	                                                         ^^^^^^^^^\n" +
-				"Pattern of type int is not compatible with type java.lang.String\n" +
+				"Record component with type int is not compatible with type java.lang.String\n" +
 				"----------\n");
 	}
 	// Test that pattern types that don't match record component's types are reported
@@ -1495,7 +1495,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 5)\n" +
 			"	case Rectangle(ColoredPoint(Point(var x, long y), Color c), \n" +
 			"	                                         ^^^^^^\n" +
-			"Pattern of type int is not compatible with type long\n" +
+			"Record component with type int is not compatible with type long\n" +
 			"----------\n");
 	}
 	public void test44() {
@@ -1529,7 +1529,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"1. ERROR in X.java (at line 5)\n" +
 			"	case Rectangle(ColoredPoint(Point(var x, int y), Color c), \n" +
 			"	                                         ^^^^^\n" +
-			"Pattern of type long is not compatible with type int\n" +
+			"Record component with type long is not compatible with type int\n" +
 			"----------\n");
 	}
 	public void test45() {
@@ -2748,7 +2748,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"2. ERROR in X.java (at line 7)\n" +
 			"	case Record(int i) -> {break;}\n" +
 			"	            ^^^^^\n" +
-			"Pattern of type long is not compatible with type int\n" +
+			"Record component with type long is not compatible with type int\n" +
 			"----------\n");
 	}
 	public void testIssue1224_4() {
@@ -2773,7 +2773,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"2. ERROR in X.java (at line 6)\n" +
 			"	case Record<String>(Object o, StringBuilder s) -> {break;}\n" +
 			"	                              ^^^^^^^^^^^^^^^\n" +
-			"Pattern of type String is not compatible with type java.lang.StringBuilder\n" +
+			"Record component with type String is not compatible with type java.lang.StringBuilder\n" +
 			"----------\n");
 	}
 	public void testIssue1224_5() {
@@ -3420,7 +3420,6 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			},
 			"42");
 	}
-	// TODO : To FIX
 	public void testRecPatExhaust018() {
 		runNegativeTest(
 			new String[] {
@@ -3452,6 +3451,145 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"	return switch (r) {\n" +
 			"	               ^\n" +
 			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"----------\n");
+	}
+	public void testRecordPatternTypeInference_012() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {}\n"+
+				"record R<T>(T t) {}\n"+
+				"\n"+
+				"public final class X implements I {\n"+
+				"\n"+
+				"    private static boolean test(R<? extends I> r) {\n"+
+				"        if (r instanceof R(X x)) {\n"+
+				"             return (x instanceof X);\n"+
+				"        }\n"+
+				"        return true;\n"+
+				"    }\n"+
+				"\n"+
+				"    public static void main(String argv[]) {\n"+
+				"        System.out.println(test(new R<>(null)));\n"+
+				"    }\n"+
+				"}",
+			},
+			"true");
+	}
+	public void testRecordPatternTypeInference_013() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {}\n"+
+				"record R<T>(T t) {}\n"+
+				"\n"+
+				"public class X implements I {\n"+
+				"\n"+
+				"    private static boolean test(R<? extends I> r) {\n"+
+				"        if (r instanceof R(X x)) {\n"+
+				"             return (x instanceof X);\n"+
+				"        }\n"+
+				"        return true;\n"+
+				"    }\n"+
+				"\n"+
+				"    public static void main(String argv[]) {\n"+
+				"        System.out.println(test(new R<>(null)));\n"+
+				"    }\n"+
+				"}",
+			},
+			"true");
+	}
+
+	// a subclass of X could implement I - positive test case
+	public void testRecordPatternTypeInference_014() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"interface I {}\n"+
+				"record R<T>(T t) {}\n"+
+				"\n"+
+				"public class X {\n"+
+				"\n"+
+				"    private static boolean test(R<? extends I> r) {\n"+
+				"        if (r instanceof R(X x)) {\n"+
+				"             return (x instanceof X);\n"+
+				"        }\n"+
+				"        return true;\n"+
+				"    }\n"+
+				"\n"+
+				"    public static void main(String argv[]) {\n"+
+				"        System.out.println(test(new R<>(null)));\n"+
+				"    }\n"+
+				"}",
+			},
+			"true");
+	}
+	public void testRecordPatternTypeInference_015() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {}\n"+
+				"record R<T>(T t) {}\n"+
+				"\n"+
+				"public final class X {\n"+
+				"\n"+
+				"    private static boolean test(R<? extends I> r) {\n"+
+				"        if (r instanceof R(X x)) {\n"+
+				"             return (x instanceof X);\n"+
+				"        }\n"+
+				"        return true;\n"+
+				"    }\n"+
+				"\n"+
+				"    public static void main(String argv[]) {\n"+
+				"        System.out.println(test(new R<>(null)));\n"+
+				"        Zork();\n"+
+				"    }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 7)\n" +
+			"	if (r instanceof R(X x)) {\n" +
+			"	                   ^^^\n" +
+			"Record component with type capture#2-of ? extends I is not compatible with type X\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 15)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
+			"----------\n");
+	}
+	public void testRecordPatternTypeInference_016() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"interface I {}\n"+
+				"record R<T>(T t) {}\n"+
+				"\n"+
+				"public final class X {\n"+
+				"\n"+
+				"    private static boolean bar(R<? extends I> r) {\n"+
+				"       return switch(r) {\n"+
+				"               case R(X x) -> false;\n"+
+				"               default -> true;\n"+
+				"       };\n"+
+				"    } \n"+
+				"\n"+
+				"    public static void main(String argv[]) {\n"+
+				"        System.out.println(bar(new R<>(null)));\n"+
+				"        Zork();\n"+
+				"    }\n"+
+				"}",
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 8)\n" +
+			"	case R(X x) -> false;\n" +
+			"	       ^^^\n" +
+			"Record component with type capture#2-of ? extends I is not compatible with type X\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 15)\n" +
+			"	Zork();\n" +
+			"	^^^^\n" +
+			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
 	public void testIssue1328_1() {
@@ -3524,5 +3662,53 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"	        ^\n" +
 				"An enhanced switch statement should be exhaustive; a default label expected\n" +
 				"----------\n");
+	}
+	public void testIssue1336_1() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"""
+					record R<T> ( T t) {}
+					public final class X {
+					private static boolean foo(R<?> r) {
+						if (r instanceof R(String s)) {
+							return true;
+						}
+						return false;
+					}
+
+					public static void main(String argv[]) {
+						System.out.println(foo(new R<>(new String("hello"))));
+					}
+
+					}
+					"""
+			});
+	}
+	public void testIssue1336_2() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"""
+					sealed interface I<TI> {}
+					sealed interface J<TJ> {}
+					class A {}
+					record R<TR>(TR t) implements I<TR>, J<TR>{}
+
+					public class X<TX extends I<? extends A> & J<? extends A>> {
+
+						public boolean foo(TX t) {
+							return switch(t) {
+								case R(A a) -> true;
+								default -> false;
+							};
+						}
+
+						public static void main(String argv[]) {
+						   System.out.println(new X<R<? extends A>>().foo(new R<>(new A())));
+						}
+					}
+					"""
+				});
 	}
 }
