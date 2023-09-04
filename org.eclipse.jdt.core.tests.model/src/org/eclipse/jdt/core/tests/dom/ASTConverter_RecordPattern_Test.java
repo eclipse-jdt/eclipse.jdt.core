@@ -373,13 +373,11 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 		assertNotNull("Pattern should not be null", pattern);
 		assertEquals("Should be a record pattern", "org.eclipse.jdt.core.dom.RecordPattern", pattern.getClass().getName());
 		RecordPattern recPattern = (RecordPattern) pattern;
-		assertNull("Pattern name should be null", recPattern.getPatternName());
 		List<Pattern> patterns = recPattern.patterns();
 		assertEquals("Incorrect nested pattern size", 2, patterns.size());
 		pattern = patterns.get(0);
 		assertEquals("Should be a type pattern", "org.eclipse.jdt.core.dom.RecordPattern", pattern.getClass().getName());
 		recPattern = (RecordPattern) pattern;
-		assertNull("Pattern name should be null", recPattern.getPatternName());
 		pattern = patterns.get(1);
 		assertEquals("Should be a type pattern", "org.eclipse.jdt.core.dom.TypePattern", pattern.getClass().getName());
 		TypePattern tPattern = (TypePattern) pattern;
@@ -441,7 +439,6 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 		assertEquals("Type of RecordPattern variable is not Record","Record" , recordPattern.getPatternType().toString());
 		assertEquals("StartPosition of Type variable is not 94",94 , recordPattern.getPatternType().getStartPosition());
 		assertEquals("Length of Record Pattern is not 6",6 , recordPattern.getPatternType().getLength());
-		assertNull("Name of RecordPattern variableis not null", recordPattern.getPatternName());
 		assertEquals("Type of Nested pattern in RecordPattern is not TypePattern",ASTNode.TYPE_PATTERN , recordPattern.patterns().get(0).getNodeType());
 	}
 
@@ -501,19 +498,16 @@ public class ASTConverter_RecordPattern_Test extends ConverterTestSetup {
 		assertEquals("incorrect type", ASTNode.RECORD_PATTERN, ((Expression)caseStmt.expressions().get(0)).getNodeType());
 		RecordPattern recordPattern = (RecordPattern)caseStmt.expressions().get(0);
 		assertEquals("Type of RecordPattern variable is not Rectangle","Rectangle" , recordPattern.getPatternType().toString());
-		assertNull("Name of RecordPattern variable is not null", recordPattern.getPatternName());
 		assertEquals("There should be 2 nested Patterns in Rectangle", 2 , recordPattern.patterns().size());
 		assertEquals("Type of Nested pattern in Rectangle is not RecordPattern",ASTNode.RECORD_PATTERN , recordPattern.patterns().get(0).getNodeType());
 		assertEquals("Type of Nested pattern in Rectangle is not TypePattern",ASTNode.TYPE_PATTERN , recordPattern.patterns().get(1).getNodeType());
 		RecordPattern recordPattern1 = (RecordPattern)recordPattern.patterns().get(0);
 		assertEquals("Type of RecordPattern variable is not ColoredPoint","ColoredPoint" , recordPattern1.getPatternType().toString());
-		assertEquals("Name of RecordPattern variable is not null", null , recordPattern1.getPatternName());
 		assertEquals("There should be 2 nested Patterns in ColoredPoint", 2 , recordPattern1.patterns().size());
 		assertEquals("Type of Nested pattern in ColoredPoint is not RecordPattern",ASTNode.RECORD_PATTERN , recordPattern1.patterns().get(0).getNodeType());
 		assertEquals("Type of Nested pattern in ColoredPoint is not TypePattern",ASTNode.TYPE_PATTERN , recordPattern1.patterns().get(1).getNodeType());
 		RecordPattern recordPattern2 = (RecordPattern)recordPattern1.patterns().get(0);
 		assertEquals("Type of RecordPattern variable is not Point","Point" , recordPattern2.getPatternType().toString());
-		assertEquals("Name of RecordPattern variable is not null", null , recordPattern2.getPatternName());
 		assertEquals("There should be 2 nested Patterns in Point", 2 , recordPattern2.patterns().size());
 		assertEquals("Type of Nested pattern in Point is not TypePattern",ASTNode.TYPE_PATTERN , recordPattern2.patterns().get(0).getNodeType());
 		assertEquals("Type of Nested pattern in Point is not TypePattern",ASTNode.TYPE_PATTERN , recordPattern2.patterns().get(1).getNodeType());

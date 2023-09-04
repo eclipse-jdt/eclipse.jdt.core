@@ -295,7 +295,7 @@ public class PatternInstanceofExpression extends Expression {
 	 * @since 3.34
 	 */
 	public Pattern getPattern() {
-		supportedOnlyIn20();
+		supportedOnlyIn21();
 		if (this.pattern  == null) {
 			// lazy init must be thread-safe for readers
 			synchronized (this) {

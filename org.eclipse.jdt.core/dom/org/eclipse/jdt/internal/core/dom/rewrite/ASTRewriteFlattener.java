@@ -951,10 +951,6 @@ public class ASTRewriteFlattener extends ASTVisitor {
 			if (addBraces) {
 				this.result.append(")");//$NON-NLS-1$
 			}
-			if (node.getPatternName() != null) {
-				this.result.append(" ");//$NON-NLS-1$
-				node.getPatternName().accept(this);
-			}
 		}
 		return false;
 	}

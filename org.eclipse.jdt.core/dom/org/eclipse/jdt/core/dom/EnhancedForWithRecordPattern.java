@@ -108,7 +108,7 @@ public class EnhancedForWithRecordPattern extends Statement {
 	 */
 	EnhancedForWithRecordPattern(AST ast) {
 		super(ast);
-	    supportedOnlyIn20();
+	    supportedOnlyIn21();
 	}
 
 	@Override

@@ -2329,7 +2329,6 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 
 		int pos = rewriteRequiredNode(node, RecordPattern.PATTERN_TYPE_PROPERTY);
 		rewriteNodeList(node, RecordPattern.PATTERNS_PROPERTY, pos, Util.EMPTY_STRING, ", "); //$NON-NLS-1$
-		rewriteRequiredNode(node, RecordPattern.PATTERN_NAME_PROPERTY);
 		return false;
 	}
 
