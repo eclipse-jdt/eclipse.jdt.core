@@ -140,15 +140,13 @@ public class GuardedPattern extends Pattern {
 		if (cst.typeID() == TypeIds.T_boolean && cst.booleanValue() == false) {
 			scope.problemReporter().falseLiteralInGuard(this.condition);
 		}
-		LocalDeclaration PatternVar = this.primaryPattern.getPatternVariable();
-		LocalVariableBinding lvb = PatternVar == null ? null : PatternVar.binding;
 		this.condition.traverse(new ASTVisitor() {
 			@Override
 			public boolean visit(
 					SingleNameReference ref,
 					BlockScope skope) {
 				LocalVariableBinding local = ref.localVariableBinding();
-				if (local != null && local != lvb) {
+				if (local != null) {
 					ref.bits |= ASTNode.IsUsedInPatternGuard;
 				}
 				return false;
