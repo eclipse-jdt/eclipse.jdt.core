@@ -34,7 +34,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testIssueExhaustiveness_004"};
+//		TESTS_NAMES = new String[] { "testIssueExhaustiveness_005"};
 	}
 
 	private static String previewLevel = "21";
@@ -6057,6 +6057,30 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"The method Zork() is undefined for the type X\n" +
 				"----------\n"
 );
+	}
+	public void testIssueExhaustiveness_005() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"sealed interface I {}\n" +
+					"final class A implements I {}\n" +
+					"\n" +
+					"record R<T extends I>(T x, T  y) {}\n" +
+					"\n" +
+					"public class X {\n" +
+					"    public static int foo(R r) {\n" +
+					"       return  switch (r) {\n" +
+					"            case R(A a1, A a2) -> 0;\n" +
+					"        };\n" +
+					"    }\n" +
+					"\n" +
+					"    @SuppressWarnings(\"unchecked\")\n" +
+					"       public static void main(String argv[]) {\n" +
+					"       System.out.println(X.foo(new R(new A(), new A())));\n" +
+					"    }\n" +
+					"}"
+				},
+				"0");
 	}
 	public void testIssue1250_1() {
 		if (this.complianceLevel < ClassFileConstants.JDK21) {

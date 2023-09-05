@@ -241,7 +241,10 @@ public class SwitchStatement extends Expression {
 		}
 
 		public void addPattern(RecordPattern rp, int i) {
-			RecordComponentBinding[] comps = rp.resolvedType.components();
+			TypeBinding ref = SwitchStatement.this.expression.resolvedType;
+			if (!(ref instanceof ReferenceBinding))
+				return;
+			RecordComponentBinding[] comps = ((ReferenceBinding)ref).components();
 			if (comps == null || comps.length <= i) // safety-net for incorrect code.
 				return;
 			if (this.next == null)
