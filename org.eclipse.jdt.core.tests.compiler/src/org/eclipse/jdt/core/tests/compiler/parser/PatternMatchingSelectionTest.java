@@ -282,4 +282,68 @@ public class PatternMatchingSelectionTest extends AbstractSelectionTest {
 		checkMethodParse(string.toCharArray(), selectionStart, selectionEnd, expectedSelection, expectedUnitDisplayString,
 				selectionIdentifier, expectedReplacedSource, testName);
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/769
+	// Open Declaration(F3) broken in pattern instanceof #769
+	public void testGH769() throws JavaModelException {
+		String source =
+				"import java.util.Random;\n" +
+				"public class TestBug {\n" +
+				"	private static final void bugDemonstration() {\n" +
+				"		new Object() {					\n" +
+				"			private void methodA(Object object) {\n" +
+				"				if (!(object instanceof Random varX))\n" +
+				"					return;\n" +
+				"			}\n" +
+				"		\n" +
+				"			private void methodB(Object object) {\n" +
+				"				if (object instanceof String var1) {\n" +
+				"				}\n" +
+				"			}\n" +
+				"		};\n" +
+				"	}\n" +
+				"}\n";
+
+		String selection = "String";
+		String selectKey = "<SelectOnType:";
+		String expectedCompletionNodeToString = selectKey + selection + ">";
+
+		String completionIdentifier = "String";
+		String expectedUnitDisplayString =
+				"import java.util.Random;\n" +
+				"public class TestBug {\n" +
+				"  public TestBug() {\n" +
+				"  }\n" +
+				"  private static final void bugDemonstration() {\n" +
+				"    new Object() {\n" +
+				"      private void methodA(Object object) {\n" +
+				"        if ((! (object instanceof Random varX)))\n" +
+				"            return ;\n" +
+				"      }\n" +
+				"      private void methodB(Object object) {\n" +
+				"        if ((object instanceof <SelectOnType:String> var1))\n" +
+				"            {\n" +
+				"            }\n" +
+				"      }\n" +
+				"    };\n" +
+				"  }\n" +
+				"}\n";
+
+
+
+		String expectedReplacedSource = "String";
+		String testName = "TestBug.java";
+
+		int selectionStart = source.lastIndexOf(selection);
+		int selectionEnd = source.lastIndexOf(selection) + selection.length() - 1;
+
+		checkMethodParse(
+				source.toCharArray(),
+				selectionStart,
+				selectionEnd,
+				expectedCompletionNodeToString,
+				expectedUnitDisplayString,
+				completionIdentifier,
+				expectedReplacedSource,
+				testName);
+	}
 }
