@@ -74,7 +74,7 @@ public class DOMASTUtil {
 			case ASTNode.TAG_PROPERTY:
 				return apiLevel >= AST.JLS18;
 			case ASTNode.RECORD_PATTERN:
-				return apiLevel >= AST.getJLSLatest();
+				return apiLevel >= AST.JLS21;
 		}
 		return false;
 	}
