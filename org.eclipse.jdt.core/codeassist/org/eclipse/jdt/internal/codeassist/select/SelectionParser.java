@@ -28,6 +28,7 @@ package org.eclipse.jdt.internal.codeassist.select;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.codeassist.impl.AssistParser;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.ast.AND_AND_Expression;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AllocationExpression;
@@ -37,10 +38,12 @@ import org.eclipse.jdt.internal.compiler.ast.ArrayAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.CaseStatement;
 import org.eclipse.jdt.internal.compiler.ast.CastExpression;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.EmptyStatement;
 import org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.FieldReference;
 import org.eclipse.jdt.internal.compiler.ast.GuardedPattern;
+import org.eclipse.jdt.internal.compiler.ast.IfStatement;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
@@ -51,6 +54,7 @@ import org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ModuleReference;
 import org.eclipse.jdt.internal.compiler.ast.NameReference;
 import org.eclipse.jdt.internal.compiler.ast.NormalAnnotation;
+import org.eclipse.jdt.internal.compiler.ast.OR_OR_Expression;
 import org.eclipse.jdt.internal.compiler.ast.Pattern;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.RecordPattern;
@@ -84,6 +88,10 @@ public class SelectionParser extends AssistParser {
 	protected static final int K_BETWEEN_CASE_AND_COLONORARROW = SELECTION_PARSER + 1; // whether we are inside a block
 	protected static final int K_INSIDE_RETURN_STATEMENT = SELECTION_PARSER + 2; // whether we are between the keyword 'return' and the end of a return statement
 	protected static final int K_CAST_STATEMENT = SELECTION_PARSER + 3; // whether we are between ')' and the end of a cast statement
+	protected static final int K_INSIDE_THEN_STATEMENT = SELECTION_PARSER + 4; // whether we are in the then statement
+	protected static final int K_INSIDE_ELSE_STATEMENT = SELECTION_PARSER + 5; // whether we are in the else statement
+	protected static final int K_POST_AND_AND = SELECTION_PARSER + 6;
+	protected static final int K_POST_OR_OR = SELECTION_PARSER + 7;
 
 	/* https://bugs.eclipse.org/bugs/show_bug.cgi?id=476693
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=515758
@@ -207,6 +215,42 @@ private void buildMoreCompletionContext(Expression expression) {
 				break nextElement;
 		}
 	}
+	int i = this.elementPtr;
+	Statement orphan = expression;
+	Statement thenStat = null;
+	Statement elseStat = null;
+	Expression right = expression;
+	Expression left = null;
+	boolean wrapInIf = false;
+	while(i > -1) {
+		if (this.elementKindStack[i] == K_POST_AND_AND) {
+			left = this.expressionStack[this.elementInfoStack[i]];
+			right = new AND_AND_Expression(
+					left,
+					right,
+					AND_AND);
+			wrapInIf = true;
+		} else if (this.elementKindStack[i] == K_POST_OR_OR) {
+			left = this.expressionStack[this.elementInfoStack[i]];
+			right = new OR_OR_Expression(
+					left,
+					right,
+					OR_OR);
+			wrapInIf = true;
+		} else if (this.elementKindStack[i] == K_INSIDE_ELSE_STATEMENT) {
+			thenStat = (Statement) this.astStack[this.elementInfoStack[i]];
+			elseStat = orphan;
+		} else if (this.elementKindStack[i] == K_INSIDE_THEN_STATEMENT) {
+			Expression e = this.expressionStack[this.elementInfoStack[i]];
+			if (thenStat == null) thenStat = orphan;
+			parentNode = orphan = new IfStatement(e, thenStat, elseStat, 0, 0);
+		}
+		i--;
+	}
+	if (wrapInIf) {
+		parentNode = orphan = new IfStatement(right, new EmptyStatement(0, 0), null, 0, 0);
+	}
+
 	// Do not add assist node/parent into the recovery system if we are inside a lambda. The lambda will be fully recovered including the containing statement and added.
 	if (lastIndexOfElement(K_LAMBDA_EXPRESSION_DELIMITER) < 0) {
 		if(parentNode != null) {
@@ -769,6 +813,31 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 	}
 }
 @Override
+protected void consumePostIfExpression() {
+	super.consumePostIfExpression();
+	pushOnElementStack(K_INSIDE_THEN_STATEMENT, this.expressionPtr);
+}
+
+@Override
+protected void consumeStatementIfNoElse() {
+	super.consumeStatementIfNoElse();
+	if (topKnownElementKind(SELECTION_OR_ASSIST_PARSER) == K_INSIDE_THEN_STATEMENT){
+		popElement(K_INSIDE_THEN_STATEMENT);
+	}
+}
+
+@Override
+protected void consumeStatementIfWithElse() {
+	super.consumeStatementIfWithElse();
+	if (topKnownElementKind(SELECTION_OR_ASSIST_PARSER) == K_INSIDE_ELSE_STATEMENT){
+		popElement(K_INSIDE_ELSE_STATEMENT);
+	}
+	if (topKnownElementKind(SELECTION_OR_ASSIST_PARSER) == K_INSIDE_THEN_STATEMENT){
+		popElement(K_INSIDE_THEN_STATEMENT);
+	}
+}
+
+@Override
 protected void consumeInsideCastExpression() {
 	super.consumeInsideCastExpression();
 	pushOnElementStack(K_CAST_STATEMENT);
@@ -838,20 +907,11 @@ protected void consumeInstanceOfExpressionWithName() {
 	if (length > 0) {
 		Pattern pattern = (Pattern) this.patternStack[this.patternPtr--];
 		pushOnExpressionStack(getUnspecifiedReferenceOptimized());
+		consumePatternInsideInstanceof(pattern);
 		if (this.expressionStack[this.expressionPtr] != this.assistNode) {
-			// Push only when the selection node is not the expression of this
-			// pattern matching instanceof expression
-			LocalDeclaration patternVariableIntroduced = pattern.getPatternVariable();
-			if (patternVariableIntroduced != null) {
-				// filter out patternVariableIntroduced based on current selection if there is an assist node
-				if (this.assistNode == null || (this.selectionStart <= patternVariableIntroduced.sourceStart
-						&& this.selectionEnd >= patternVariableIntroduced.sourceEnd)) {
-					if(!(pattern instanceof RecordPattern))
-						pushOnAstStack(patternVariableIntroduced);
-				}
-			}
 			if ((this.selectionStart >= pattern.sourceStart)
 					&&  (this.selectionEnd <= pattern.sourceEnd)) {
+				this.isOrphanCompletionNode = true;
 				this.restartRecovery	= true;
 				this.lastIgnoredToken = -1;
 			}
@@ -921,6 +981,25 @@ protected void consumeAssignment() {
 	super.consumeAssignment();
 	checkRestartRecovery();
 }
+
+@Override
+protected void consumeBinaryExpression(int op) {
+	super.consumeBinaryExpression(op);
+	if (op == AND_AND)
+		popElement(K_POST_AND_AND);
+	else if (op == OR_OR)
+		popElement(K_POST_OR_OR);
+}
+
+@Override
+protected void consumeBinaryExpressionWithName(int op) {
+	super.consumeBinaryExpressionWithName(op);
+	if (op == AND_AND)
+		popElement(K_POST_AND_AND);
+	else if (op == OR_OR)
+		popElement(K_POST_OR_OR);
+}
+
 @Override
 protected void consumeBlockStatement() {
 	super.consumeBlockStatement();
@@ -1351,6 +1430,17 @@ protected void consumeToken(int token) {
 						}
 						break;
 				}
+				break;
+			case TokenNameelse:
+				if (topKnownElementKind(SELECTION_OR_ASSIST_PARSER) == K_INSIDE_THEN_STATEMENT) {
+					pushOnElementStack(K_INSIDE_ELSE_STATEMENT, this.astPtr);
+				}
+				break;
+			case TokenNameAND_AND:
+				pushOnElementStack(K_POST_AND_AND, this.expressionPtr);
+				break;
+			case TokenNameOR_OR:
+				pushOnElementStack(K_POST_OR_OR, this.expressionPtr);
 				break;
 		}
 	}

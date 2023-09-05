@@ -1452,15 +1452,18 @@ StatementExpression ::= MethodInvocation
 StatementExpression ::= ClassInstanceCreationExpression
 /:$readableName Expression:/
 
-IfThenStatement ::= 'if' '(' Expression ')' Statement
+PostIfExpression ::= $empty
+/.$putCase consumePostIfExpression(); $break ./
+
+IfThenStatement ::= 'if' '(' Expression ')' PostIfExpression Statement
 /.$putCase consumeStatementIfNoElse(); $break ./
 /:$readableName IfStatement:/
 
-IfThenElseStatement ::= 'if' '(' Expression ')' StatementNoShortIf 'else' Statement
+IfThenElseStatement ::= 'if' '(' Expression ')' PostIfExpression StatementNoShortIf 'else' Statement
 /.$putCase consumeStatementIfWithElse(); $break ./
 /:$readableName IfStatement:/
 
-IfThenElseStatementNoShortIf ::= 'if' '(' Expression ')' StatementNoShortIf 'else' StatementNoShortIf
+IfThenElseStatementNoShortIf ::= 'if' '(' Expression ')' PostIfExpression StatementNoShortIf 'else' StatementNoShortIf
 /.$putCase consumeStatementIfWithElse(); $break ./
 /:$readableName IfStatement:/
 

@@ -2994,4 +2994,27 @@ public void testGH1264() throws Exception {
 		elements
 	);
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1195
+// Open declaration results in ClassCastException: LocalDeclaration cannot be cast to LambdaExpression
+public void testGH1195() throws Exception {
+	this.wc = getWorkingCopy(
+			"Resolve/src/Reproducer.java",
+			"import java.util.function.Predicate;\n" +
+			"\n" +
+			"public class Reproducer {\n" +
+			"\n" +
+			"    private final Predicate<Object> predicate =\n" +
+			"            input -> (input instanceof String withoutThisVariableNameThereIsNoError);\n" +
+			"}\n");
+	String str = this.wc.getSource();
+	String selection = "predicate";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"predicate [in Reproducer [in [Working copy] Reproducer.java [in <default> [in src [in Resolve]]]]]",
+		elements
+	);
+}
 }
