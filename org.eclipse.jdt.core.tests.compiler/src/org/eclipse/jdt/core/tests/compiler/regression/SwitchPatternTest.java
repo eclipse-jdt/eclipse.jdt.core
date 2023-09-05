@@ -3595,11 +3595,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"	return switch (o) {\n" +
 				"	               ^\n" +
 				"A Switch expression should cover all possible values\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 5)\n" +
-				"	case Red -> \"Red\";\n" +
-				"	     ^^^\n" +
-				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
 	public void testBug575047_14() {
@@ -3623,11 +3618,6 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"	return switch (o) {\n" +
 				"	               ^\n" +
 				"A Switch expression should cover all possible values\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 5)\n" +
-				"	case Red -> \"Red\";\n" +
-				"	     ^^^\n" +
-				"This case label is dominated by one of the preceding case labels\n" +
 				"----------\n");
 	}
 	public void testBug575047_15() {
@@ -6431,5 +6421,104 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				+ "const B0\n"
 				+ "B1\n"
 				+ "default");
+	}
+	public void testIssue1351_1() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"
+								+ "	public static void foo() {\n"
+								+ "		Object o = new String(\"\");\n"
+								+ "		int len = 2;\n"
+								+ "		switch (o) {\n"
+								+ "		case String o1 when ((String) o).length() == o1.length() :\n"
+								+ "			o = null;\n"
+								+ "			o1 = null;\n"
+								+ "			break;\n"
+								+ "		default:\n"
+								+ "			break;\n"
+								+ "		}\n"
+								+ "	}\n"
+								+ "} ",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 6)\n" +
+				"	case String o1 when ((String) o).length() == o1.length() :\n" +
+				"	                              ^\n" +
+				"Local variable o referenced from a guard must be final or effectively final\n" +
+				"----------\n");
+	}
+	public void testIssue1351_2() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"
+								+ "	public static void foo() {\n"
+								+ "		Object o = new String(\"\");\n"
+								+ "		int len = 2;\n"
+								+ "		switch (o) {\n"
+								+ "		case String o1 when o1.length() == ((String) o).length():\n"
+								+ "			o = null;\n"
+								+ "			o1 = null;\n"
+								+ "			break;\n"
+								+ "		default:\n"
+								+ "			break;\n"
+								+ "		}\n"
+								+ "	}\n"
+								+ "} ",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 6)\n" +
+				"	case String o1 when o1.length() == ((String) o).length():\n" +
+				"	                    ^^\n" +
+				"Local variable o1 referenced from a guard must be final or effectively final\n" +
+				"----------\n");
+	}
+	public void testIssue1351_3() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"
+								+ "	public static void foo() {\n"
+								+ "		Integer in = 0;\n"
+								+ "		switch (in) {\n"
+								+ "		    case Integer i ->\n"
+								+ "		        System.out.println(\"Boxed\");\n"
+								+ "		    case 95 ->\n"
+								+ "		        System.out.println(\"Literal!\");\n"
+								+ "		}\n"
+								+ "	}\n"
+								+ "} ",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 7)\n" +
+				"	case 95 ->\n" +
+				"	     ^^\n" +
+				"This case label is dominated by one of the preceding case labels\n" +
+				"----------\n");
+	}
+	public void testIssue1351_4() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"+
+					"	static String foo(Color o) {\n" +
+					"		return switch (o) {\n" +
+					"	     case Color s when true  -> s.toString();\n" +
+					"	     case Red -> \"Red\";\n" +
+					"	     case null -> \"\";\n" +
+					"	   };\n" +
+					"	}\n" +
+					"} \n" +
+					"enum Color {\n" +
+					"	Red; \n" +
+					"}",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 5)\n" +
+				"	case Red -> \"Red\";\n" +
+				"	     ^^^\n" +
+				"This case label is dominated by one of the preceding case labels\n" +
+				"----------\n");
 	}
 }
