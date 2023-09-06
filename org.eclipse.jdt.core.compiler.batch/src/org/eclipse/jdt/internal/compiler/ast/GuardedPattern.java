@@ -23,6 +23,7 @@ import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
@@ -147,6 +148,15 @@ public class GuardedPattern extends Pattern {
 					BlockScope skope) {
 				LocalVariableBinding local = ref.localVariableBinding();
 				if (local != null) {
+					ref.bits |= ASTNode.IsUsedInPatternGuard;
+				}
+				return false;
+			}
+			@Override
+			public boolean visit(
+					QualifiedNameReference ref,
+					BlockScope skope) {
+				if ((ref.bits & ASTNode.RestrictiveFlagMASK) == Binding.LOCAL) {
 					ref.bits |= ASTNode.IsUsedInPatternGuard;
 				}
 				return false;

@@ -269,8 +269,6 @@ public ResolvedCase[] resolveWithPatternVariablesInScope(LocalVariableBinding[] 
 private Expression getFirstValidExpression(BlockScope scope, SwitchStatement switchStatement) {
 	assert this.constantExpressions != null;
 	Expression ret = null;
-	int patternCaseLabelCount = 0;
-	int defaultCaseLabelCount = 0;
 	int nullCaseLabelCount = 0;
 
 	boolean patternSwitchAllowed = JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(scope.compilerOptions());
@@ -286,41 +284,23 @@ private Expression getFirstValidExpression(BlockScope scope, SwitchStatement swi
 				 if (exprCount != 2 || nullCaseLabelCount < 1) {
 					 scope.problemReporter().patternSwitchCaseDefaultOnlyAsSecond(e);
 				 }
-				 if (patternCaseLabelCount > 0) {
-					 scope.problemReporter().switchPatternBothPatternAndDefaultCaseLabelsNotAllowed(e);
-				 }
-				 ++defaultCaseLabelCount;
 				 continue;
 			}
 			if (e instanceof Pattern) {
 				scope.problemReporter().validateJavaFeatureSupport(JavaFeature.PATTERN_MATCHING_IN_SWITCH,
 						e.sourceStart, e.sourceEnd);
-				if (patternCaseLabelCount++ > 0) {
-					scope.problemReporter().switchPatternOnlyOnePatternCaseLabelAllowed(e);
-					return e; // Return and avoid secondary errors
-				} else if (defaultCaseLabelCount > 0) {
-					scope.problemReporter().switchPatternBothPatternAndDefaultCaseLabelsNotAllowed(e);
-					return e; // Return and avoid secondary errors
-				}
-				if (nullCaseLabelCount > 0 ) {
-					scope.problemReporter().cannotMixNullAndNonTypePattern(e);
-					return e; // Return and avoid secondary errors
+				if (this.constantExpressions.length > 1) {
+					scope.problemReporter().illegalCaseConstantCombination(e);
+					return e;
 				}
 			} else if (e instanceof NullLiteral) {
 				scope.problemReporter().validateJavaFeatureSupport(JavaFeature.PATTERN_MATCHING_IN_SWITCH,
 						e.sourceStart, e.sourceEnd);
 				if (switchStatement.nullCase == null) {
 					switchStatement.nullCase = this;
-//					if ((switchStatement.switchBits & SwitchStatement.TotalPattern) != 0) {
-//						scope.problemReporter().patternDominatedByAnother(this.constantExpressions[0]);
-//						return e; // Return and avoid secondary errors
-//					}
 				}
 
-				if (nullCaseLabelCount++ > 0) {
-					// TODO: Decide whether we need to have a more fine-grain element level error flagging for null specifically
-//					continue;
-				}
+				nullCaseLabelCount++;
 				// note: case null or case null, default are the only constructs allowed with null
 				//  second condition added since duplicate case label will anyway be flagged
 				if (exprCount > 1 && nullCaseLabelCount < 2) {
