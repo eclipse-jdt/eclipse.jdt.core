@@ -57,7 +57,6 @@ import org.eclipse.jdt.internal.compiler.ast.NormalAnnotation;
 import org.eclipse.jdt.internal.compiler.ast.OR_OR_Expression;
 import org.eclipse.jdt.internal.compiler.ast.Pattern;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
-import org.eclipse.jdt.internal.compiler.ast.RecordPattern;
 import org.eclipse.jdt.internal.compiler.ast.Reference;
 import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
 import org.eclipse.jdt.internal.compiler.ast.ReturnStatement;
@@ -857,47 +856,21 @@ protected void consumeInsideCastExpressionWithQualifiedGenerics() {
 	super.consumeInsideCastExpressionWithQualifiedGenerics();
 	pushOnElementStack(K_CAST_STATEMENT);
 }
-@Override
-protected Expression consumePatternInsideInstanceof(Pattern pattern) {
-	if(pattern instanceof RecordPattern) {
-		pushLocalVariableFromRecordPatternOnAstStack((RecordPattern)pattern);
-	}
-	return super.consumePatternInsideInstanceof(pattern);
-}
 
 @Override
 protected void consumeCaseLabelElement(CaseLabelKind kind) {
 	super.consumeCaseLabelElement(kind);
 	switch (kind) {
-		case CASE_PATTERN: {
-			ASTNode[] ps = this.patternStack;
-			if (ps[0] instanceof RecordPattern) {
-				pushLocalVariableFromRecordPatternOnAstStack((RecordPattern) ps[0]);
-			}
-		}
+		case CASE_PATTERN:
 			break;
 		default:
 			break;
-
 	}
 }
 @Override
 protected void consumeSwitchLabeledExpression() {
 	super.consumeSwitchLabeledExpression();
 	popElement(K_SWITCH_EXPRESSION_DELIMITTER);
-}
-private void pushLocalVariableFromRecordPatternOnAstStack(RecordPattern rp) {
-	Pattern[] patterns = rp.patterns;
-	for (Pattern pattern : patterns) {
-		if (pattern instanceof RecordPattern)
-			pushLocalVariableFromRecordPatternOnAstStack((RecordPattern) pattern);
-		else {
-			LocalDeclaration patternVariable = pattern.getPatternVariable();
-			if (patternVariable != null)
-				pushOnAstStack(patternVariable);
-
-		}
-	}
 }
 
 @Override
