@@ -23,6 +23,7 @@ import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
@@ -140,15 +141,22 @@ public class GuardedPattern extends Pattern {
 		if (cst.typeID() == TypeIds.T_boolean && cst.booleanValue() == false) {
 			scope.problemReporter().falseLiteralInGuard(this.condition);
 		}
-		LocalDeclaration PatternVar = this.primaryPattern.getPatternVariable();
-		LocalVariableBinding lvb = PatternVar == null ? null : PatternVar.binding;
 		this.condition.traverse(new ASTVisitor() {
 			@Override
 			public boolean visit(
 					SingleNameReference ref,
 					BlockScope skope) {
 				LocalVariableBinding local = ref.localVariableBinding();
-				if (local != null && local != lvb) {
+				if (local != null) {
+					ref.bits |= ASTNode.IsUsedInPatternGuard;
+				}
+				return false;
+			}
+			@Override
+			public boolean visit(
+					QualifiedNameReference ref,
+					BlockScope skope) {
+				if ((ref.bits & ASTNode.RestrictiveFlagMASK) == Binding.LOCAL) {
 					ref.bits |= ASTNode.IsUsedInPatternGuard;
 				}
 				return false;

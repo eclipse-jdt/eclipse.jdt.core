@@ -2484,15 +2484,6 @@ void setSourceStart(int sourceStart);
 
 	/** @since 3.28
 	 * @noreference preview feature error */
-	int OnlyOnePatternCaseLabelAllowed = PreviewRelated + 1903;
-	/** @since 3.28
-	 * @noreference preview feature error */
-	int CannotMixPatternAndDefault = PreviewRelated + 1904;
-	/** @since 3.28
-	 * @noreference preview feature error */
-	int CannotMixNullAndNonTypePattern = PreviewRelated + 1905;
-	/** @since 3.28
-	 * @noreference preview feature error */
 	int PatternDominated = PreviewRelated + 1906;
 	/** @since 3.28
 	 * @noreference preview feature error */

@@ -593,6 +593,8 @@ public FieldBinding generateReadSequence(BlockScope currentScope, CodeStream cod
 			lastGenericCast = null;
 			LocalVariableBinding localBinding = (LocalVariableBinding) this.binding;
 			lastReceiverType = localBinding.type;
+			// checkEffectiveFinality() returns if it's outer local
+			boolean capturedInOuter = checkEffectiveFinality(localBinding, currentScope);
 			if (!needValue) break; // no value needed
 			// regular local variable read
 			Constant localConstant = localBinding.constant();
@@ -600,8 +602,7 @@ public FieldBinding generateReadSequence(BlockScope currentScope, CodeStream cod
 				codeStream.generateConstant(localConstant, 0);
 				// no implicit conversion
 			} else {
-				// checkEffectiveFinality() returns if it's outer local
-				if (checkEffectiveFinality(localBinding, currentScope)) {
+				if (capturedInOuter) {
 					// outer local can be reached either through a synthetic arg or a synthetic field
 					VariableBinding[] path = currentScope.getEmulationPath(localBinding);
 					codeStream.generateOuterAccess(path, this, localBinding, currentScope);
