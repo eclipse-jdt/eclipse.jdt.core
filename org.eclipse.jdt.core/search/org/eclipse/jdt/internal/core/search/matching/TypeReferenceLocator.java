@@ -33,10 +33,11 @@ import org.eclipse.jdt.internal.core.JavaElement;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class TypeReferenceLocator extends PatternLocator {
 
-protected TypeReferencePattern pattern;
-protected boolean isDeclarationOfReferencedTypesPattern;
+protected final TypeReferencePattern pattern;
+protected final boolean isDeclarationOfReferencedTypesPattern;
 
 private final int fineGrain;
+private final Map<QualifiedTypeReference, List<TypeBinding>> recordedResolutions = new HashMap();
 
 public TypeReferenceLocator(TypeReferencePattern pattern) {
 
@@ -45,6 +46,10 @@ public TypeReferenceLocator(TypeReferencePattern pattern) {
 	this.pattern = pattern;
 	this.fineGrain = pattern == null ? 0 : pattern.fineGrain;
 	this.isDeclarationOfReferencedTypesPattern = this.pattern instanceof DeclarationOfReferencedTypesPattern;
+}
+@Override
+protected void clear() {
+	this.recordedResolutions.clear();
 }
 protected IJavaElement findElement(IJavaElement element, int accuracy) {
 	// need exact match to be able to open on type ref
@@ -819,10 +824,10 @@ protected int resolveLevelForTypeOrEnclosingTypes(char[] simpleNamePattern, char
 	}
 	return IMPOSSIBLE_MATCH;
 }
-private Map/*<QualifiedTypeReference, List<TypeBinding>>*/ recordedResolutions = new HashMap();
+
 int resolveLevelForTypeOrQualifyingTypes(TypeReference typeRef, TypeBinding typeBinding) {
 	if (typeBinding == null || !typeBinding.isValidBinding()) return INACCURATE_MATCH;
-	List resolutionsList = (List) this.recordedResolutions.get(typeRef);
+	List resolutionsList = this.recordedResolutions.get(typeRef);
 	if (resolutionsList != null) {
 		for (Iterator i = resolutionsList.iterator(); i.hasNext();) {
 			TypeBinding resolution = (TypeBinding) i.next();
@@ -834,7 +839,7 @@ int resolveLevelForTypeOrQualifyingTypes(TypeReference typeRef, TypeBinding type
 }
 @Override
 public void recordResolution(QualifiedTypeReference typeReference, TypeBinding resolution) {
-	List/*<TypeBinding>*/ resolutionsForTypeReference = (List) this.recordedResolutions.get(typeReference);
+	List<TypeBinding> resolutionsForTypeReference = this.recordedResolutions.get(typeReference);
 	if (resolutionsForTypeReference == null) {
 		resolutionsForTypeReference = new ArrayList();
 	}
