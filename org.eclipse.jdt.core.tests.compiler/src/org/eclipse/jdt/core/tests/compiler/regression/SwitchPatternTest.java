@@ -6482,7 +6482,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 						+ "			break;\n"
 						+ "		}\n"
 						+ "	}\n"
-						+ "} ",
+						+ "}",
 				},
 				"----------\n" +
 				"1. ERROR in X.java (at line 9)\n" +
@@ -6516,6 +6516,69 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"	case C c1 when c1.value() == c1.v:\n" +
 				"	               ^^\n" +
 				"Local variable c1 referenced from a guard must be final or effectively final\n" +
+				"----------\n");
+	}
+	public void testIssue1351_3b() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"interface I {\n"
+						+ "	int v = 0;\n"
+						+ "	public default int val() {\n"
+						+ "		return v;\n"
+						+ "	}\n"
+						+ "}\n"
+						+ "public class X {\n"
+						+ "	public void foo(I intf) {\n"
+						+ "		switch (intf) {\n"
+						+ "		case I i1 when i1.v > i1.val():\n"
+						+ "			i1 = null;\n"
+						+ "			break;\n"
+						+ "		default:\n"
+						+ "			break;\n"
+						+ "		}\n"
+						+ "	}\n"
+						+ "} ",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 10)\n" +
+				"	case I i1 when i1.v > i1.val():\n" +
+				"	               ^^\n" +
+				"Local variable i1 referenced from a guard must be final or effectively final\n" +
+				"----------\n" +
+				"2. WARNING in X.java (at line 10)\n" +
+				"	case I i1 when i1.v > i1.val():\n" +
+				"	                  ^\n" +
+				"The static field I.v should be accessed in a static way\n" +
+				"----------\n");
+	}
+	public void testIssue1351_3c() {
+		this.runNegativeTest(
+				new String[] {
+						"X.java",
+						"interface I {\n"
+						+ "	int v = 1;\n"
+						+ "	public default int val() {\n"
+						+ "		return 0;\n"
+						+ "	}\n"
+						+ "}\n"
+						+ "public class X {\n"
+						+ "	public void foo(I intf) {\n"
+						+ "		switch (intf) {\n"
+						+ "		case I i1 when I.v > i1.val():\n"
+						+ "			i1 = null;\n"
+						+ "			break;\n"
+						+ "		default:\n"
+						+ "			break;\n"
+						+ "		}\n"
+						+ "	}\n"
+						+ "} ",
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 10)\n" +
+				"	case I i1 when I.v > i1.val():\n" +
+				"	                     ^^\n" +
+				"Local variable i1 referenced from a guard must be final or effectively final\n" +
 				"----------\n");
 	}
 	public void testIssue1351_4() {
