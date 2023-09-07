@@ -2065,6 +2065,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		final IJavaProject[] result = new IJavaProject[1];
 		IWorkspaceRunnable create = new IWorkspaceRunnable() {
 			public void run(IProgressMonitor monitor) throws CoreException {
+
+				// Always delete first, in case there is a leftover from some broken test
+				deleteProject(projectName);
+
 				// create project
 				if (locationURI != null)
 					createExternalProject(projectName, locationURI);

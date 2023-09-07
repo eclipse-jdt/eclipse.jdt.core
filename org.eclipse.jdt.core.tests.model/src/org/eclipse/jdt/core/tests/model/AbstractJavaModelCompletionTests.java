@@ -181,7 +181,9 @@ protected void setUp() throws Exception {
 }
 @Override
 public void tearDownSuite() throws Exception {
-	JavaCore.setOptions(this.oldOptions);
+	if (this.oldOptions != null) {
+		JavaCore.setOptions(this.oldOptions);
+	}
 	this.oldOptions = null;
 	if (COMPLETION_SUITES == null) {
 		deleteProject("Completion");

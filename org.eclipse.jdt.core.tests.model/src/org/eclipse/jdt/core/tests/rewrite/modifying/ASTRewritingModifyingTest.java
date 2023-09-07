@@ -92,9 +92,14 @@ public abstract class ASTRewritingModifyingTest extends AbstractJavaModelTests {
 
 	@Override
 	public void tearDownSuite() throws Exception {
-		deleteProject("P");
-		JavaCore.setOptions(this.oldOptions);
-		super.tearDownSuite();
+		try {
+			deleteProject("P");
+		} finally {
+			if (this.oldOptions != null) {
+				JavaCore.setOptions(this.oldOptions);
+			}
+			super.tearDownSuite();
+		}
 	}
 
 	@Override
