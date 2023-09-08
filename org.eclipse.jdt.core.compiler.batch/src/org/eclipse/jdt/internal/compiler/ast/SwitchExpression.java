@@ -52,7 +52,7 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 	private boolean isPolyExpression = false;
 	private TypeBinding[] originalValueResultExpressionTypes;
 	private TypeBinding[] finalValueResultExpressionTypes;
-	/* package */ Map<Expression, TypeBinding> originalTypeMap;
+	/* package */ Map<Expression, TypeBinding> originalTypeMap = new HashMap<>();
 
 
 	private int nullStatus = FlowInfo.UNKNOWN;

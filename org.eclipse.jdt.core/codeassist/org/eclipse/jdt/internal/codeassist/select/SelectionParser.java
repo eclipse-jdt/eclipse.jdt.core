@@ -70,7 +70,6 @@ import org.eclipse.jdt.internal.compiler.ast.ThisReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypePattern;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
-import org.eclipse.jdt.internal.compiler.ast.YieldStatement;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -230,12 +229,12 @@ private void buildMoreCompletionContext(Expression expression) {
 			if (exprSwitch)
 				collectResultExpressionsYield((SwitchExpression) switchStatement);
 		} else if (this.elementKindStack[i] == K_SWITCH_EXPRESSION_DELIMITTER) {
-			YieldStatement yieldStatement = new YieldStatement(
-					expression,
-					expression.sourceStart,
-					expression.sourceEnd);
-			yieldStatement.isImplicit = true;
-			parentNode = orphan = yieldStatement;
+//			YieldStatement yieldStatement = new YieldStatement(
+//					expression,
+//					expression.sourceStart,
+//					expression.sourceEnd);
+//			yieldStatement.isImplicit = true;
+			parentNode = orphan = expression;
 		} else if (this.elementKindStack[i] == K_POST_AND_AND) {
 			left = this.expressionStack[this.elementInfoStack[i]];
 			right = new AND_AND_Expression(
