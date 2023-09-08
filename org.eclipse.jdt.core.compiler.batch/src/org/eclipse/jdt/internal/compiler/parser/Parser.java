@@ -10065,7 +10065,7 @@ protected void consumeDefaultLabelExpr() {
 	}
 	defaultStatement.isExpr = true;
 }
-/* package */ void collectResultExpressionsYield(SwitchExpression s) {
+protected void collectResultExpressionsYield(SwitchExpression s) {
 	if (s.resultExpressions != null)
 		return; // already calculated.
 

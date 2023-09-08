@@ -64,6 +64,7 @@ import org.eclipse.jdt.internal.compiler.ast.SingleMemberAnnotation;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.ast.SuperReference;
+import org.eclipse.jdt.internal.compiler.ast.SwitchExpression;
 import org.eclipse.jdt.internal.compiler.ast.SwitchStatement;
 import org.eclipse.jdt.internal.compiler.ast.ThisReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
@@ -205,19 +206,29 @@ private void buildMoreCompletionContext(Expression expression) {
 	boolean wrapInIf = false;
 	while(i > -1) {
 		if (this.elementKindStack[i] == K_INSIDE_SWITCH) {
-			SwitchStatement switchStatement = new SwitchStatement();
-			switchStatement.expression = this.expressionStack[this.elementInfoStack[i]];
 			int newAstPtr = (int) this.elementObjectInfoStack[i];
 			pushOnAstStack(orphan);
 			int length = this.astPtr - newAstPtr;
-			switchStatement.statements = new Statement[length];
+			Statement[] statements = new Statement[length];
 			System.arraycopy(
 				this.astStack,
 				newAstPtr + 1,
-				switchStatement.statements,
+				statements,
 				0,
 				length);
+			boolean exprSwitch = false;
+			for (Statement s: statements) {
+				if (s instanceof CaseStatement cs && cs.isExpr) {
+					exprSwitch = true;
+					break;
+				}
+			}
+			SwitchStatement switchStatement = exprSwitch ? new SwitchExpression() : new SwitchStatement();
+			switchStatement.expression = this.expressionStack[this.elementInfoStack[i]];
+			switchStatement.statements = statements;
 			parentNode = orphan = switchStatement;
+			if (exprSwitch)
+				collectResultExpressionsYield((SwitchExpression) switchStatement);
 		} else if (this.elementKindStack[i] == K_SWITCH_EXPRESSION_DELIMITTER) {
 			YieldStatement yieldStatement = new YieldStatement(
 					expression,
