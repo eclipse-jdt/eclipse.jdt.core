@@ -69,6 +69,7 @@ import org.eclipse.jdt.internal.compiler.ast.ThisReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypePattern;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
+import org.eclipse.jdt.internal.compiler.ast.YieldStatement;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -91,6 +92,8 @@ public class SelectionParser extends AssistParser {
 	protected static final int K_INSIDE_ELSE_STATEMENT = SELECTION_PARSER + 5; // whether we are in the else statement
 	protected static final int K_POST_AND_AND = SELECTION_PARSER + 6;
 	protected static final int K_POST_OR_OR = SELECTION_PARSER + 7;
+	protected static final int K_INSIDE_SWITCH = SELECTION_PARSER + 8; // whether we are in the switch statement/expression
+
 
 	/* https://bugs.eclipse.org/bugs/show_bug.cgi?id=476693
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=515758
@@ -154,7 +157,7 @@ protected void attachOrphanCompletionNode(){
 	}
 }
 private void buildMoreCompletionContext(Expression expression) {
-	ASTNode parentNode = null;
+	Statement parentNode = null;
 
 	int kind = topKnownElementKind(SELECTION_OR_ASSIST_PARSER);
 	if(kind != 0) {
@@ -162,22 +165,7 @@ private void buildMoreCompletionContext(Expression expression) {
 		nextElement : switch (kind) {
 			case K_BETWEEN_CASE_AND_COLONORARROW :
 				if(this.expressionPtr >= info && info > -1) {
-					SwitchStatement switchStatement = new SwitchStatement();
-					switchStatement.expression = this.expressionStack[info]; // info is pointer to top expr when encountering 'case'
-					if(this.astLengthPtr > -1 && this.astPtr > -1) {
-						int length = this.astLengthStack[this.astLengthPtr];
-						int newAstPtr = this.astPtr - length;
-						ASTNode firstNode = this.astStack[newAstPtr + 1];
-						if(length != 0 && firstNode instanceof Statement && firstNode.sourceStart > switchStatement.expression.sourceEnd) {
-							switchStatement.statements = new Statement[length + 1];
-							System.arraycopy(
-								this.astStack,
-								newAstPtr + 1,
-								switchStatement.statements,
-								0,
-								length);
-						}
-					}
+
 					if(this.astPtr >=0) {
 						if( this.astStack[this.astPtr] instanceof TypePattern && expression instanceof NameReference) {
 							expression = new GuardedPattern((Pattern)this.astStack[this.astPtr], expression);
@@ -185,13 +173,7 @@ private void buildMoreCompletionContext(Expression expression) {
 					}
 
 					CaseStatement caseStatement = new CaseStatement(expression, expression.sourceStart, expression.sourceEnd);
-					if(switchStatement.statements == null) {
-						switchStatement.statements = new Statement[]{caseStatement};
-					} else {
-						switchStatement.statements[switchStatement.statements.length - 1] = caseStatement;
-					}
-					parentNode = switchStatement;
-					this.assistNodeParent = parentNode;
+					parentNode = caseStatement;
 				}
 				break nextElement;
 			case K_INSIDE_RETURN_STATEMENT :
@@ -215,14 +197,35 @@ private void buildMoreCompletionContext(Expression expression) {
 		}
 	}
 	int i = this.elementPtr;
-	Statement orphan = expression;
+	Statement orphan = parentNode != null ? parentNode : expression;
 	Statement thenStat = null;
 	Statement elseStat = null;
 	Expression right = expression;
 	Expression left = null;
 	boolean wrapInIf = false;
 	while(i > -1) {
-		if (this.elementKindStack[i] == K_POST_AND_AND) {
+		if (this.elementKindStack[i] == K_INSIDE_SWITCH) {
+			SwitchStatement switchStatement = new SwitchStatement();
+			switchStatement.expression = this.expressionStack[this.elementInfoStack[i]];
+			int newAstPtr = (int) this.elementObjectInfoStack[i];
+			pushOnAstStack(orphan);
+			int length = this.astPtr - newAstPtr;
+			switchStatement.statements = new Statement[length];
+			System.arraycopy(
+				this.astStack,
+				newAstPtr + 1,
+				switchStatement.statements,
+				0,
+				length);
+			parentNode = orphan = switchStatement;
+		} else if (this.elementKindStack[i] == K_SWITCH_EXPRESSION_DELIMITTER) {
+			YieldStatement yieldStatement = new YieldStatement(
+					expression,
+					expression.sourceStart,
+					expression.sourceEnd);
+			yieldStatement.isImplicit = true;
+			parentNode = orphan = yieldStatement;
+		} else if (this.elementKindStack[i] == K_POST_AND_AND) {
 			left = this.expressionStack[this.elementInfoStack[i]];
 			right = new AND_AND_Expression(
 					left,
@@ -811,10 +814,29 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 		this.listLength++;
 	}
 }
+
 @Override
 protected void consumePostIfExpression() {
 	super.consumePostIfExpression();
 	pushOnElementStack(K_INSIDE_THEN_STATEMENT, this.expressionPtr);
+}
+
+@Override
+protected void consumePostSwitchExpression() {
+	super.consumePostSwitchExpression();
+	pushOnElementStack(K_INSIDE_SWITCH, this.expressionPtr, this.astPtr);
+}
+
+@Override
+protected void consumeStatementSwitch() {
+	super.consumeStatementSwitch();
+	popElement(K_INSIDE_SWITCH);
+}
+
+@Override
+protected void consumeSwitchExpression() {
+	super.consumeSwitchExpression();
+	popElement(K_INSIDE_SWITCH);
 }
 
 @Override
@@ -1387,9 +1409,14 @@ protected void consumeToken(int token) {
 			case TokenNameCOLON:
 				if(topKnownElementKind(SELECTION_OR_ASSIST_PARSER) == K_BETWEEN_CASE_AND_COLONORARROW) {
 					popElement(K_BETWEEN_CASE_AND_COLONORARROW);
+					if (token == TokenNameARROW)
+						pushOnElementStack(K_SWITCH_EXPRESSION_DELIMITTER);
 				}
 				break;
 			case TokenNameBeginCaseExpr:
+				if(topKnownElementKind(SELECTION_OR_ASSIST_PARSER) == K_BETWEEN_CASE_AND_COLONORARROW) {
+					popElement(K_BETWEEN_CASE_AND_COLONORARROW);
+				}
 				pushOnElementStack(K_SWITCH_EXPRESSION_DELIMITTER);
 				break;
 			case TokenNamereturn:
@@ -1853,5 +1880,13 @@ public ModuleReference createAssistModuleReference(int index) {
 	System.arraycopy(this.identifierStack, this.identifierPtr + 1, tokens, 0, length);
 	System.arraycopy(this.identifierPositionStack, this.identifierPtr + 1, positions, 0, length);
 	return new SelectionOnModuleReference(tokens, positions);
+}
+@Override
+protected int astPtr() {
+	for (int i = 0; i <= this.elementPtr; i++) {
+		if (this.elementKindStack[i] == K_INSIDE_SWITCH)
+			return (int) this.elementObjectInfoStack[i];
+	}
+	return super.astPtr();
 }
 }

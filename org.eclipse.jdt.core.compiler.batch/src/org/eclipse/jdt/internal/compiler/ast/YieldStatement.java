@@ -259,8 +259,12 @@ public StringBuffer printStatement(int tab, StringBuffer output) {
 	if (!this.isImplicit)
 		printIndent(tab, output).append("yield"); //$NON-NLS-1$
 	if (this.expression != null) {
-		output.append(' ');
-		this.expression.printExpression(tab, output);
+		if (this.isImplicit) {
+			this.expression.print(tab, output);
+		} else {
+			output.append(' ');
+			this.expression.printExpression(tab, output);
+		}
 	}
 	return output.append(';');
 }

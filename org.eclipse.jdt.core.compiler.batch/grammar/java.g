@@ -1452,6 +1452,9 @@ StatementExpression ::= MethodInvocation
 StatementExpression ::= ClassInstanceCreationExpression
 /:$readableName Expression:/
 
+PostSwitchExpression ::= $empty
+/.$putCase consumePostSwitchExpression(); $break ./
+
 PostIfExpression ::= $empty
 /.$putCase consumePostIfExpression(); $break ./
 
@@ -1467,7 +1470,7 @@ IfThenElseStatementNoShortIf ::= 'if' '(' Expression ')' PostIfExpression Statem
 /.$putCase consumeStatementIfWithElse(); $break ./
 /:$readableName IfStatement:/
 
-SwitchStatement ::= 'switch' '(' Expression ')' OpenBlock SwitchBlock
+SwitchStatement ::= 'switch' '(' Expression ')' PostSwitchExpression OpenBlock SwitchBlock
 /.$putCase consumeStatementSwitch() ; $break ./
 /:$readableName SwitchStatement:/
 
@@ -1507,7 +1510,7 @@ SwitchLabel ::= 'default' ':'
 UnaryExpressionNotPlusMinus -> SwitchExpression
 UnaryExpressionNotPlusMinus_NotName -> SwitchExpression
 
-SwitchExpression ::= 'switch' '(' Expression ')' OpenBlock SwitchBlock
+SwitchExpression ::= 'switch' '(' Expression ')' PostSwitchExpression OpenBlock SwitchBlock
 /.$putCase consumeSwitchExpression() ; $break ./
 /:$readableName SwitchExpression:/
 
