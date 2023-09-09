@@ -16,7 +16,6 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.ILocalVariable;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.search.IJavaSearchScope;
@@ -131,70 +130,7 @@ public class JavaSearchBugs13Tests extends AbstractJavaSearchTests {
 
 	// all preview related Java 13 switch expression tests deleted
 	// enabled preview and moved to JavaSearchBugs14SwitchExpressionTests
-
-	public void testBug549413_017() throws CoreException {
-		//select local variable and find the declaration
-		this.workingCopies = new ICompilationUnit[1];
-		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public class X {\n"+
-						"\n"+
-						"	@SuppressWarnings(\"preview\")\n"+
-						"	public  static int foo(int i) {\n"+
-						"		int yield = 100;\n"+
-						"		int r = switch(i) {\n"+
-						"			default -> {yield /* here*/ yield + yield + yield * yield;}\n"+
-						"		};\n"+
-						"		return r;\n"+
-						"	}\n"+
-						"	public static void main(String[] args) {\n"+
-						"		System.out.println(X.foo(0));\n"+
-						"	}\n"+
-						"}\n"
-				);
-
-		String str = this.workingCopies[0].getSource();
-		String selection = "/* here*/ yield";
-		int start = str.indexOf(selection);
-		int length = selection.length();
-
-		IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
-		ILocalVariable local = (ILocalVariable) elements[0];
-		search(local, DECLARATIONS, EXACT_RULE);
-		assertSearchResults(
-				"src/X.java int X.foo(int).yield [yield] EXACT_MATCH");
-	}
-
-
-	public void testBug549413_018() throws CoreException {
-		//select local variable and find the declaration
-		this.workingCopies = new ICompilationUnit[1];
-		this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/X.java",
-				"public class X {\n"+
-						"	@SuppressWarnings(\"preview\")\n"+
-						"	public  static int foo(int i) {\n"+
-						"		int localVar = 100;\n"+
-						"		int r = switch(i) {\n"+
-						"			default -> {yield /* here*/ localVar + localVar + localVar * localVar;}\n"+
-						"		};\n"+
-						"		return r;\n"+
-						"	}\n"+
-						"	public static void main(String[] args) {\n"+
-						"		System.out.println(X.foo(0));\n"+
-						"	}\n"+
-						"}\n"
-				);
-
-		String str = this.workingCopies[0].getSource();
-		String selection = "/* here*/ localVar";
-		int start = str.indexOf(selection);
-		int length = selection.length();
-
-		IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
-		ILocalVariable local = (ILocalVariable) elements[0];
-		search(local, DECLARATIONS, EXACT_RULE);
-		assertSearchResults(
-				"src/X.java int X.foo(int).localVar [localVar] EXACT_MATCH");
-	}
+    // Not quite: testBug549413_017 && testBug549413_018 were lingering around despite being moved and got deleted separately.
 
 	// add non-preview stuff involving yield field and method
 	public void testBug549413_019() throws CoreException {

@@ -1396,9 +1396,10 @@ protected void consumeToken(int token) {
 				break;
 			case TokenNameLBRACE:
 				if (this.previousToken == TokenNameARROW) {
-					popElement(K_LAMBDA_EXPRESSION_DELIMITER);
-					if (topKnownElementKind(ASSIST_PARSER) != K_SWITCH_EXPRESSION_DELIMITTER)
+					if (topKnownElementKind(ASSIST_PARSER) == K_LAMBDA_EXPRESSION_DELIMITER) {
+						popElement(K_LAMBDA_EXPRESSION_DELIMITER);
 						pushOnElementStack(K_LAMBDA_EXPRESSION_DELIMITER, BLOCK_BODY, this.previousObjectInfo);
+					}
 				}
 				break;
 		}
