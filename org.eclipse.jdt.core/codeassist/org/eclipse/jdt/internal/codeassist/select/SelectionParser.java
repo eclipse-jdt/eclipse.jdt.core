@@ -68,7 +68,6 @@ import org.eclipse.jdt.internal.compiler.ast.SwitchExpression;
 import org.eclipse.jdt.internal.compiler.ast.SwitchStatement;
 import org.eclipse.jdt.internal.compiler.ast.ThisReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.TypePattern;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
@@ -93,6 +92,7 @@ public class SelectionParser extends AssistParser {
 	protected static final int K_POST_AND_AND = SELECTION_PARSER + 6;
 	protected static final int K_POST_OR_OR = SELECTION_PARSER + 7;
 	protected static final int K_INSIDE_SWITCH = SELECTION_PARSER + 8; // whether we are in the switch statement/expression
+	protected static final int K_INSIDE_WHEN = SELECTION_PARSER + 9; // whether we are in the guard
 
 
 	/* https://bugs.eclipse.org/bugs/show_bug.cgi?id=476693
@@ -163,19 +163,6 @@ private void buildMoreCompletionContext(Expression expression) {
 	if(kind != 0) {
 		int info = topKnownElementInfo(SELECTION_OR_ASSIST_PARSER);
 		nextElement : switch (kind) {
-			case K_BETWEEN_CASE_AND_COLONORARROW :
-				if(this.expressionPtr >= info && info > -1) {
-
-					if(this.astPtr >=0) {
-						if( this.astStack[this.astPtr] instanceof TypePattern && expression instanceof NameReference) {
-							expression = new GuardedPattern((Pattern)this.astStack[this.astPtr], expression);
-						}
-					}
-
-					CaseStatement caseStatement = new CaseStatement(expression, expression.sourceStart, expression.sourceEnd);
-					parentNode = caseStatement;
-				}
-				break nextElement;
 			case K_INSIDE_RETURN_STATEMENT :
 				if(info == this.bracketDepth) {
 					ReturnStatement returnStatement = new ReturnStatement(expression, expression.sourceStart, expression.sourceEnd);
@@ -204,7 +191,16 @@ private void buildMoreCompletionContext(Expression expression) {
 	Expression left = null;
 	boolean wrapInIf = false;
 	while(i > -1) {
-		if (this.elementKindStack[i] == K_INSIDE_SWITCH) {
+		if (this.elementKindStack[i] == K_BETWEEN_CASE_AND_COLONORARROW) {
+			parentNode = orphan = new CaseStatement((Expression) orphan, orphan.sourceStart, orphan.sourceEnd);
+		} else if (this.elementKindStack[i] == K_INSIDE_WHEN) {
+			if(this.astPtr >=0 && this.astStack[this.astPtr] instanceof Pattern && orphan instanceof Expression) {
+				this.astLengthPtr--;
+				Pattern pattern = (Pattern) this.astStack[this.astPtr--];
+				parentNode = orphan = new GuardedPattern(pattern, (Expression) orphan);
+			}
+			wrapInIf = false;
+		} else if (this.elementKindStack[i] == K_INSIDE_SWITCH) {
 			int newAstPtr = (int) this.elementObjectInfoStack[i];
 			int length = this.astPtr - newAstPtr;
 			Statement[] statements = new Statement[length+1];
@@ -242,6 +238,7 @@ private void buildMoreCompletionContext(Expression expression) {
 					right,
 					AND_AND);
 			wrapInIf = true;
+			orphan = right;
 		} else if (this.elementKindStack[i] == K_POST_OR_OR) {
 			left = this.expressionStack[this.elementInfoStack[i]];
 			right = new OR_OR_Expression(
@@ -249,6 +246,7 @@ private void buildMoreCompletionContext(Expression expression) {
 					right,
 					OR_OR);
 			wrapInIf = true;
+			orphan = right;
 		} else if (this.elementKindStack[i] == K_INSIDE_ELSE_STATEMENT) {
 			thenStat = (Statement) this.astStack[this.elementInfoStack[i]];
 			elseStat = orphan;
@@ -823,6 +821,13 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 			indicating that some arguments are available on the stack */
 		this.listLength++;
 	}
+}
+
+@Override
+protected void consumeGuard() {
+	super.consumeGuard();
+	popUntilElement(K_INSIDE_WHEN);
+	popElement(K_INSIDE_WHEN);
 }
 
 @Override
@@ -1451,6 +1456,9 @@ protected void consumeToken(int token) {
 				break;
 			case TokenNameOR_OR:
 				pushOnElementStack(K_POST_OR_OR, this.expressionPtr);
+				break;
+			case TokenNameRestrictedIdentifierWhen:
+				pushOnElementStack(K_INSIDE_WHEN);
 				break;
 		}
 	}
