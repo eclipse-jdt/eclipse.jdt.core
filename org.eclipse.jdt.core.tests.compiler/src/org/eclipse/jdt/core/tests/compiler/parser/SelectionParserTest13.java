@@ -1083,7 +1083,7 @@ public void test022() throws JavaModelException {
 			"  void testSw(int ijk) {\n" +
 			"    m(switch (ijk) {\n" +
 			"default ->\n" +
-			" () -> n_1(<SelectOnName:ijk>);\n" +
+			"    () -> n_1(<SelectOnName:ijk>);\n" +
 			"});\n" +
 			"  }\n" +
 			"}\n";
@@ -1192,7 +1192,19 @@ public void testIssue708_2() throws JavaModelException {
 			"    {\n" +
 			"      {\n" +
 			"        {\n" +
-			"          <SelectOnName:Type.anotherValue>;\n" +
+			"          switch (type) {\n" +
+			"          case openDeclarationFails ->\n" +
+			"              {\n" +
+			"                switch (string) {\n" +
+			"                case \"Test\" ->\n" +
+			"                    method(Type.openDeclarationFails);\n" +
+			"                }\n" +
+			"              }\n" +
+			"          case anotherValue ->\n" +
+			"          case \"Test\" ->\n" +
+			"              <SelectOnName:Type.anotherValue>;\n" +
+			"          }\n" +
+
 			"        }\n" +
 			"      }\n" +
 			"    }\n" +

@@ -225,12 +225,12 @@ private void buildMoreCompletionContext(Expression expression) {
 			if (exprSwitch)
 				collectResultExpressionsYield((SwitchExpression) switchStatement);
 		} else if (this.elementKindStack[i] == K_SWITCH_EXPRESSION_DELIMITTER) {
-//			YieldStatement yieldStatement = new YieldStatement(
-//					expression,
-//					expression.sourceStart,
-//					expression.sourceEnd);
-//			yieldStatement.isImplicit = true;
-			parentNode = orphan = expression;
+////			YieldStatement yieldStatement = new YieldStatement(
+////					expression,
+////					expression.sourceStart,
+////					expression.sourceEnd);
+////			yieldStatement.isImplicit = true;
+//			parentNode = orphan = orphan;
 		} else if (this.elementKindStack[i] == K_POST_AND_AND) {
 			left = this.expressionStack[this.elementInfoStack[i]];
 			right = new AND_AND_Expression(
@@ -264,7 +264,7 @@ private void buildMoreCompletionContext(Expression expression) {
 	// Do not add assist node/parent into the recovery system if we are inside a lambda. The lambda will be fully recovered including the containing statement and added.
 	if (lastIndexOfElement(K_LAMBDA_EXPRESSION_DELIMITER) < 0) {
 		if(parentNode != null) {
-			this.currentElement = this.currentElement.add((Statement)parentNode, 0);
+			this.currentElement = this.currentElement.add(parentNode, 0);
 		} else {
 			this.currentElement = this.currentElement.add((Statement)wrapWithExplicitConstructorCallIfNeeded(expression), 0);
 			if(this.lastCheckPoint < expression.sourceEnd) {
