@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist.impl;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 /*
@@ -21,13 +22,17 @@ import java.util.Arrays;
  */
 
 import java.util.HashSet;
+import java.util.List;
+
 import org.eclipse.jdt.core.compiler.InvalidInputException;
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.Block;
+import org.eclipse.jdt.internal.compiler.ast.CaseStatement;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.EmptyStatement;
@@ -44,13 +49,16 @@ import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ModuleReference;
 import org.eclipse.jdt.internal.compiler.ast.NameReference;
+import org.eclipse.jdt.internal.compiler.ast.RecordPattern;
 import org.eclipse.jdt.internal.compiler.ast.RequiresStatement;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.ast.SuperReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.TypePattern;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.RecoveredBlock;
@@ -360,7 +368,38 @@ public RecoveredElement buildInitialRecoveryState(){
 					element = element.add(stmt, 0);
 					this.lastCheckPoint = stmt.sourceEnd + 1;
 				} else if (stmt.containsPatternVariable()) {
-					element = element.add(stmt, 0);
+					if(stmt instanceof CaseStatement) {
+						// Kludge, for the unfortunate case where recovery can't
+						// construct a switch expression but simply creates a case statement (with type patterns)
+						// and leaves it in the astStack
+						final List<LocalDeclaration> locals = new ArrayList<>();
+						node.traverse(new ASTVisitor() {
+							@SuppressWarnings("synthetic-access")
+							@Override
+							public boolean visit(RecordPattern pattern, BlockScope scope) {
+								LocalDeclaration local = pattern.local;
+								if (local == null)
+									return true;
+								locals.add(local);
+								AssistParser.this.lastCheckPoint = local.declarationSourceEnd + 1;
+								return true;
+							}
+							@SuppressWarnings("synthetic-access")
+							@Override
+							public boolean visit(TypePattern pattern, BlockScope scope) {
+								LocalDeclaration local = pattern.local;
+								if (local == null)
+									return true;
+								locals.add(local);
+								AssistParser.this.lastCheckPoint = local.declarationSourceEnd + 1;
+								return true;
+							}
+						}, null);
+						for (LocalDeclaration local : locals) {
+							element.add(local, 0);
+						}
+					}
+					element.add(stmt, 0);
 					this.lastCheckPoint = stmt.sourceEnd + 1;
 				}
 			}
