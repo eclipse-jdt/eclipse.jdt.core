@@ -206,15 +206,15 @@ private void buildMoreCompletionContext(Expression expression) {
 	while(i > -1) {
 		if (this.elementKindStack[i] == K_INSIDE_SWITCH) {
 			int newAstPtr = (int) this.elementObjectInfoStack[i];
-			pushOnAstStack(orphan);
 			int length = this.astPtr - newAstPtr;
-			Statement[] statements = new Statement[length];
+			Statement[] statements = new Statement[length+1];
 			System.arraycopy(
 				this.astStack,
 				newAstPtr + 1,
 				statements,
 				0,
 				length);
+			statements[length] = orphan;
 			boolean exprSwitch = false;
 			for (Statement s: statements) {
 				if (s instanceof CaseStatement cs && cs.isExpr) {
