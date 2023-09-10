@@ -211,6 +211,7 @@ private void buildMoreCompletionContext(Expression expression) {
 				0,
 				length);
 			statements[length] = orphan;
+			this.astPtr = newAstPtr;
 			boolean exprSwitch = false;
 			for (Statement s: statements) {
 				if (s instanceof CaseStatement cs && cs.isExpr) {
@@ -948,6 +949,7 @@ protected void consumeLambdaExpression() {
 	if (this.selectionStart == arrowStart || this.selectionStart == arrowEnd) {
 		if (this.selectionEnd == arrowStart || this.selectionEnd == arrowEnd) {
 			this.expressionStack[this.expressionPtr] = new SelectionOnLambdaExpression(expression);
+			this.assistNode = expression;
 		}
 	} else if (this.selectionStart == expression.sourceStart && this.selectionEnd == expression.sourceEnd) {
 		SelectionOnLambdaExpression lambdaExpression = new SelectionOnLambdaExpression(expression);
@@ -955,8 +957,13 @@ protected void consumeLambdaExpression() {
 		this.assistNode = lambdaExpression;
 		this.lastCheckPoint = lambdaExpression.sourceEnd + 1;
 	}
-	if (!(this.selectionStart >= expression.sourceStart && this.selectionEnd <= expression.sourceEnd))
-		popElement(K_LAMBDA_EXPRESSION_DELIMITER);
+
+	popElement(K_LAMBDA_EXPRESSION_DELIMITER);
+	if (this.selectionStart >= expression.sourceStart && this.selectionEnd <= expression.sourceEnd) {
+		if (!isIndirectlyInsideLambdaExpression()) {
+			this.selectionNodeFoundLevel = 1;
+		}
+	}
 }
 @Override
 protected void consumeReferenceExpression(ReferenceExpression referenceExpression) {
@@ -989,7 +996,7 @@ protected void consumeLocalVariableDeclarationStatement() {
 @Override
 protected void consumeAssignment() {
 	super.consumeAssignment();
-	checkRestartRecovery();
+	//checkRestartRecovery();
 }
 
 @Override
@@ -1016,9 +1023,9 @@ protected void consumeBlockStatement() {
 	checkRestartRecovery();
 }
 protected void checkRestartRecovery() {
-	if (this.selectionNodeFoundLevel > 0) {
-		if (--this.selectionNodeFoundLevel == 0)
-			this.restartRecovery = true;
+	if (this.selectionNodeFoundLevel == 1) {
+		this.selectionNodeFoundLevel = 0;
+		this.restartRecovery = true;
 	}
 }
 
@@ -1816,6 +1823,19 @@ protected int resumeAfterRecovery() {
 		}
 	}
 	return super.resumeAfterRecovery();
+}
+
+@Override
+protected boolean restartRecovery() {
+	boolean ret = requireExtendedRecovery() ?
+			false :
+			super.restartRecovery();
+	return ret;
+}
+
+@Override
+public boolean requireExtendedRecovery() {
+	return lastIndexOfElement(K_LAMBDA_EXPRESSION_DELIMITER) >= 0 || this.selectionNodeFoundLevel > 0;
 }
 
 public void selectionIdentifierCheck(){

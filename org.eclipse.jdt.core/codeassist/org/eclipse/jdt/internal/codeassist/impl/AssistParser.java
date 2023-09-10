@@ -716,15 +716,15 @@ protected boolean isAssistParser() {
 @Override
 protected void consumeBlockStatement() {
 	super.consumeBlockStatement();
-	if (triggerRecoveryUponLambdaClosure((Statement) this.astStack[this.astPtr], true) && this.currentElement != null)
-		this.restartRecovery = true;
+//	if (triggerRecoveryUponLambdaClosure((Statement) this.astStack[this.astPtr], true) && this.currentElement != null)
+//		this.restartRecovery = true;
 }
 @Override
 protected void consumeBlockStatements() {
 	super.consumeBlockStatements();
-	if (triggerRecoveryUponLambdaClosure((Statement) this.astStack[this.astPtr], true) && this.currentElement != null) {
-		this.restartRecovery = true;
-	}
+//	if (triggerRecoveryUponLambdaClosure((Statement) this.astStack[this.astPtr], true) && this.currentElement != null) {
+//		this.restartRecovery = true;
+//	}
 }
 @Override
 protected void consumeBlock() {

@@ -13052,7 +13052,7 @@ try {
 		}
 		this.stack[this.stateStackTop] = act;
 		this.unstackedAct = act = actFromTokenOrSynthetic(act);
-		if (act == ERROR_ACTION || this.restartRecovery) {
+		if (act == ERROR_ACTION || this.restartRecovery()) {
 			if (DEBUG_AUTOMATON) {
 				if (this.restartRecovery) {
 					System.out.println("Restart      - "); //$NON-NLS-1$
@@ -13236,6 +13236,9 @@ try {
 	}
 	this.problemReporter.referenceContext = null; // Null this so we won't escalate problems needlessly (bug 393192)
 	if (DEBUG) System.out.println("-- EXIT FROM PARSE METHOD --");  //$NON-NLS-1$
+}
+protected boolean restartRecovery() {
+	return this.restartRecovery;
 }
 protected int fetchNextToken() throws InvalidInputException {
 	return this.scanner.getNextToken();

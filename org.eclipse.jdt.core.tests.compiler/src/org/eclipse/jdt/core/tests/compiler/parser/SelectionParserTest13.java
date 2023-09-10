@@ -1201,10 +1201,11 @@ public void testIssue708_2() throws JavaModelException {
 			"                }\n" +
 			"              }\n" +
 			"          case anotherValue ->\n" +
-			"          case \"Test\" ->\n" +
-			"              <SelectOnName:Type.anotherValue>;\n" +
+			"              switch (string) {\n" +
+			"              case \"Test\" ->\n" +
+			"                  <SelectOnName:Type.anotherValue>;\n" +
+			"              }\n" +
 			"          }\n" +
-
 			"        }\n" +
 			"      }\n" +
 			"    }\n" +

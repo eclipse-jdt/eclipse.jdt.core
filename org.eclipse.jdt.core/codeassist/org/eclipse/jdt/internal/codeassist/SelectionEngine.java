@@ -48,6 +48,7 @@ import org.eclipse.jdt.internal.codeassist.select.SelectionJavadocParser;
 import org.eclipse.jdt.internal.codeassist.select.SelectionNodeFound;
 import org.eclipse.jdt.internal.codeassist.select.SelectionOnPackageVisibilityReference;
 import org.eclipse.jdt.internal.codeassist.select.SelectionOnImportReference;
+import org.eclipse.jdt.internal.codeassist.select.SelectionOnLambdaExpression;
 import org.eclipse.jdt.internal.codeassist.select.SelectionOnLocalName;
 import org.eclipse.jdt.internal.codeassist.select.SelectionOnMessageSend;
 import org.eclipse.jdt.internal.codeassist.select.SelectionOnPackageReference;
@@ -1283,7 +1284,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 
 			// when a full lambda expression is selected we will find the paser.assistedNode to represent that
 			// lambda expression. So we use that state to differentiate hover over "->" vs full lambda expression selection.
-			if(this.parser.assistNode instanceof LambdaExpression) {
+			if(this.parser.assistNode instanceof SelectionOnLambdaExpression) {
 				LambdaExpression lambdaExpr = (LambdaExpression) this.parser.assistNode;
 				SyntheticMethodBinding methodBinding = new SyntheticMethodBinding(lambdaExpr,
 						CharOperation.concat(TypeConstants.ANONYMOUS_METHOD, Integer.toString(lambdaExpr.ordinal).toCharArray()), (SourceTypeBinding)lambdaExpr.binding.declaringClass);
