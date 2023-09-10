@@ -88,7 +88,9 @@ public class PatternMatchingSelectionTest extends AbstractSelectionTest {
 						"  public @SuppressWarnings(\"preview\") void f(Object obj, boolean b) {\n" +
 					    "    {\n" +
 						"      if (((x_ instanceof String y_) && (y_.length() > 0)))\n" +
-						"          <SelectOnName:y_>;\n" +
+						"          {\n" +
+						"            <SelectOnName:y_>;\n" +
+						"          }\n" +
 						"    }\n" +
 						"  }\n" +
 						"}\n";
