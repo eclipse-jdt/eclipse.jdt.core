@@ -1017,11 +1017,18 @@ protected void consumeBinaryExpressionWithName(int op) {
 		popElement(K_POST_OR_OR);
 }
 
+
 @Override
-protected void consumeBlockStatement() {
-	super.consumeBlockStatement();
+protected void consumeBlockStatements() {
+	concatNodeLists();
 	checkRestartRecovery();
 }
+
+@Override
+protected void consumeBlockStatement() {
+	checkRestartRecovery();
+}
+
 protected void checkRestartRecovery() {
 	if (this.selectionNodeFoundLevel == 1) {
 		this.selectionNodeFoundLevel = 0;
@@ -1803,6 +1810,11 @@ protected int resumeAfterRecovery() {
 	if (this.assistNode != null
 		&& !(this.referenceContext instanceof CompilationUnitDeclaration)){
 		this.currentElement.preserveEnclosingBlocks();
+		if (this.selectionNodeFoundLevel > 0) {
+			if (this.unstackedAct != ERROR_ACTION) {
+				return RESUME;
+			}
+		}
 		if (requireExtendedRecovery()) {
 			if (this.unstackedAct != ERROR_ACTION) {
 				return RESUME;
@@ -1827,7 +1839,7 @@ protected int resumeAfterRecovery() {
 
 @Override
 protected boolean restartRecovery() {
-	boolean ret = requireExtendedRecovery() ?
+	boolean ret = requireExtendedRecovery() || this.selectionNodeFoundLevel > 0 ?
 			false :
 			super.restartRecovery();
 	return ret;
@@ -1835,7 +1847,7 @@ protected boolean restartRecovery() {
 
 @Override
 public boolean requireExtendedRecovery() {
-	return lastIndexOfElement(K_LAMBDA_EXPRESSION_DELIMITER) >= 0 || this.selectionNodeFoundLevel > 0;
+	return lastIndexOfElement(K_LAMBDA_EXPRESSION_DELIMITER) >= 0; // || this.selectionNodeFoundLevel > 0;
 }
 
 public void selectionIdentifierCheck(){
