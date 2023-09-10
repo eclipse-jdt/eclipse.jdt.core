@@ -916,4 +916,43 @@ public void testBug577508_4() throws JavaModelException {
 		elements
 	);
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1278
+// Wrong method redirect
+public void testGH1278() throws JavaModelException {
+	this.wc = getWorkingCopy("/Resolve15/src/TestSelect.java",
+					"public class TestSelect {\n" +
+	                "    class Integer {}\n" +
+					"    class Double {}\n" +
+					"\n" +
+					"	public void foo(String s) {\n" +
+					"\n" +
+					"	}\n" +
+					"\n" +
+					"	public void foo(Integer i) {\n" +
+					"\n" +
+					"	}\n" +
+					"\n" +
+					"	public void foo(Double d) {\n" +
+					"\n" +
+					"	}\n" +
+					"\n" +
+					"	public void foo2(Integer i) {\n" +
+					"		Object test = 1d;\n" +
+					"		if (test instanceof Double test2) {\n" +
+					"			foo(test2);\n" +
+					"		}\n" +
+					"	}\n" +
+					"\n" +
+					"}\n");
+	String str = this.wc.getSource();
+	String selection = "foo";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"foo(Double) [in TestSelect [in [Working copy] TestSelect.java [in <default> [in src [in Resolve15]]]]]",
+		elements
+	);
+}
 }

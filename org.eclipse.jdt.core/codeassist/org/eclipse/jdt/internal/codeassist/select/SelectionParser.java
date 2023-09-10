@@ -35,6 +35,7 @@ import org.eclipse.jdt.internal.compiler.ast.AllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.ArrayAllocationExpression;
+import org.eclipse.jdt.internal.compiler.ast.Block;
 import org.eclipse.jdt.internal.compiler.ast.CaseStatement;
 import org.eclipse.jdt.internal.compiler.ast.CastExpression;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
@@ -249,11 +250,38 @@ private void buildMoreCompletionContext(Expression expression) {
 			wrapInIf = true;
 			orphan = right;
 		} else if (this.elementKindStack[i] == K_INSIDE_ELSE_STATEMENT) {
+			int newAstPtr = this.elementInfoStack[i];
+			int length = this.astPtr - newAstPtr;
+			Statement[] statements = new Statement[length+1];
+			System.arraycopy(
+				this.astStack,
+				newAstPtr + 1,
+				statements,
+				0,
+				length);
+			statements[length] = orphan;
+			this.astPtr = newAstPtr;
+			Block b = new Block(0);
+			b.statements = statements;
+			elseStat = b;
 			thenStat = (Statement) this.astStack[this.elementInfoStack[i]];
-			elseStat = orphan;
+			this.astPtr--;
 		} else if (this.elementKindStack[i] == K_INSIDE_THEN_STATEMENT) {
 			Expression e = this.expressionStack[this.elementInfoStack[i]];
-			if (thenStat == null) thenStat = orphan;
+			int newAstPtr = (int) this.elementObjectInfoStack[i];
+			int length = this.astPtr - newAstPtr;
+			Statement[] statements = new Statement[length+1];
+			System.arraycopy(
+				this.astStack,
+				newAstPtr + 1,
+				statements,
+				0,
+				length);
+			statements[length] = orphan;
+			this.astPtr = newAstPtr;
+			Block b = new Block(0);
+			b.statements = statements;
+			if (thenStat == null) thenStat = b;
 			parentNode = orphan = new IfStatement(e, thenStat, elseStat, 0, 0);
 		}
 		i--;
@@ -834,7 +862,7 @@ protected void consumeGuard() {
 @Override
 protected void consumePostIfExpression() {
 	super.consumePostIfExpression();
-	pushOnElementStack(K_INSIDE_THEN_STATEMENT, this.expressionPtr);
+	pushOnElementStack(K_INSIDE_THEN_STATEMENT, this.expressionPtr, this.astPtr);
 }
 
 @Override
@@ -1935,6 +1963,8 @@ public ModuleReference createAssistModuleReference(int index) {
 protected int astPtr() {
 	for (int i = 0; i <= this.elementPtr; i++) {
 		if (this.elementKindStack[i] == K_INSIDE_SWITCH)
+			return (int) this.elementObjectInfoStack[i];
+		else if (this.elementKindStack[i] == K_INSIDE_THEN_STATEMENT)
 			return (int) this.elementObjectInfoStack[i];
 	}
 	return super.astPtr();
