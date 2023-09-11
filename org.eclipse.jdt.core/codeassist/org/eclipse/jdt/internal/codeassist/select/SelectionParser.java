@@ -1034,6 +1034,7 @@ protected void consumeLambdaExpression() {
 		if (this.selectionEnd == arrowStart || this.selectionEnd == arrowEnd) {
 			this.expressionStack[this.expressionPtr] = new SelectionOnLambdaExpression(expression);
 			this.assistNode = expression;
+			this.isOrphanCompletionNode = true;
 		}
 	} else if (this.selectionStart == expression.sourceStart && this.selectionEnd == expression.sourceEnd) {
 		SelectionOnLambdaExpression lambdaExpression = new SelectionOnLambdaExpression(expression);
