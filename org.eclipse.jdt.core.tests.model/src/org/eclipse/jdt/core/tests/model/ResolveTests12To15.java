@@ -1005,4 +1005,38 @@ public void testGH1288() throws JavaModelException {
 		elements
 	);
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1288
+// Open Declaration (F3) sometimes not working for "Pattern Matching for instanceof
+public void testGH1288_2() throws JavaModelException {
+	this.wc = getWorkingCopy("/Resolve15/src/X.java",
+			"import java.util.ArrayList;\n" +
+					"\n" +
+					"public class X {\n" +
+					"	public void foo(ArrayList<Object> alo) {\n" +
+					"		int i = 0;\n" +
+					"		do {\n" +
+					"		}	while (!(alo.get(i) instanceof String patVar) || /*here*/patVar.length() > 0);\n" +
+					"		patVar.hashCode();\n" +
+					"	}\n" +
+					"}\n" );
+	String str = this.wc.getSource();
+	String selection = "/*here*/patVar";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"patVar [in foo(ArrayList<Object>) [in X [in [Working copy] X.java [in <default> [in src [in Resolve15]]]]]]",
+		elements
+	);
+	selection = "patVar";
+	start = str.lastIndexOf(selection);
+	length = selection.length();
+	elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"patVar [in foo(ArrayList<Object>) [in X [in [Working copy] X.java [in <default> [in src [in Resolve15]]]]]]",
+		elements
+	);
+}
 }

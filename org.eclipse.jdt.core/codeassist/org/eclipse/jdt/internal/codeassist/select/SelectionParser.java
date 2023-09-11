@@ -162,167 +162,166 @@ protected void attachOrphanCompletionNode(){
 	}
 }
 private void buildMoreCompletionContext(Expression expression) {
-	Statement parentNode = null;
 
-	int kind = topKnownElementKind(SELECTION_OR_ASSIST_PARSER);
-	if(kind != 0) {
-		int info = topKnownElementInfo(SELECTION_OR_ASSIST_PARSER);
-		nextElement : switch (kind) {
-			case K_INSIDE_RETURN_STATEMENT :
-				if(info == this.bracketDepth) {
-					ReturnStatement returnStatement = new ReturnStatement(expression, expression.sourceStart, expression.sourceEnd);
-					parentNode = returnStatement;
-					this.assistNodeParent = parentNode;
-				}
-				break nextElement;
-			case K_CAST_STATEMENT :
-				Expression castType;
-				if(this.expressionPtr > 0
-					&& ((castType = this.expressionStack[this.expressionPtr-1]) instanceof TypeReference)) {
-					CastExpression cast = new CastExpression(expression, (TypeReference) castType);
-					cast.sourceStart = castType.sourceStart;
-					cast.sourceEnd= expression.sourceEnd;
-					parentNode = cast;
-					this.assistNodeParent = parentNode;
-				}
-				break nextElement;
-		}
-	}
-	int i = this.elementPtr;
-	Statement orphan = parentNode != null ? parentNode : expression;
+	Statement parentNode = null;
+	Statement orphan = expression;
 	Statement thenStat = null;
 	Statement elseStat = null;
 	Expression right = expression;
 	Expression left = null;
 	Statement body = null;
-	while(i > -1) {
-		if (this.elementKindStack[i] == K_INSIDE_WHILE_EXPRESSION) {
-			// precondition: orphan must be the the WhileStatement.condition
-		    if (body == null) { // selection inside while (<here>)
-		    	body = new EmptyStatement(orphan.sourceEnd,  orphan.sourceEnd);
-		    } else {
-		    	// body is what was obtained in the bottom up context building
-		    }
-		    parentNode = orphan = new WhileStatement((Expression) orphan, body, 0, 0);
-		} else if (this.elementKindStack[i] == K_POST_WHILE_EXPRESSION) {
-			// precondition: orphan must be the while's body
-			int newAstPtr = (int) this.elementObjectInfoStack[i];
-			int length = this.astPtr - newAstPtr;
-			Statement[] statements = new Statement[length+1];
-			System.arraycopy(
-				this.astStack,
-				newAstPtr + 1,
-				statements,
-				0,
-				length);
-			statements[length] = orphan;
-			this.astPtr = newAstPtr;
-			Block b = new Block(0);
-			b.statements = statements;
-			this.expressionPtr = this.elementInfoStack[i];
-			orphan = this.expressionStack[this.expressionPtr--];
-			parentNode = body = b;
-		} else if (this.elementKindStack[i] == K_INSIDE_IF_EXPRESSION) {
-			// precondition: orphan must be the the IfStatement.condition
-		    if (thenStat == null) { // selection inside if (<here>)
-		    	thenStat = new EmptyStatement(orphan.sourceEnd,  orphan.sourceEnd);
-		    	elseStat = null;
-		    } else {
-		    	// thenStat and elseStat are what they are obtained in the bottom up context building
-		    }
-		    parentNode = orphan = new IfStatement((Expression) orphan, thenStat, elseStat, 0, 0);
-		} else if (this.elementKindStack[i] == K_BETWEEN_CASE_AND_COLONORARROW) {
-			parentNode = orphan = new CaseStatement((Expression) orphan, orphan.sourceStart, orphan.sourceEnd);
-		} else if (this.elementKindStack[i] == K_INSIDE_WHEN) {
-			if(this.astPtr >=0 && this.astStack[this.astPtr] instanceof Pattern && orphan instanceof Expression) {
-				this.astLengthPtr--;
-				Pattern pattern = (Pattern) this.astStack[this.astPtr--];
-				parentNode = orphan = new GuardedPattern(pattern, (Expression) orphan);
-			}
-		} else if (this.elementKindStack[i] == K_INSIDE_SWITCH) {
-			int newAstPtr = (int) this.elementObjectInfoStack[i];
-			int length = this.astPtr - newAstPtr;
-			Statement[] statements = new Statement[length+1];
-			System.arraycopy(
-				this.astStack,
-				newAstPtr + 1,
-				statements,
-				0,
-				length);
-			statements[length] = orphan;
-			this.astPtr = newAstPtr;
-			boolean exprSwitch = false;
-			for (Statement s: statements) {
-				if (s instanceof CaseStatement cs && cs.isExpr) {
-					exprSwitch = true;
-					break;
+
+	for (int i = this.elementPtr; i > -1; i--) {
+		switch (this.elementKindStack[i]) {
+			case K_INSIDE_WHILE_EXPRESSION:
+				// precondition: orphan must be the the WhileStatement.condition
+				if (body == null) { // selection inside while (<here>)
+					body = new EmptyStatement(orphan.sourceEnd,  orphan.sourceEnd);
+				} else {
+					// body is what was obtained in the bottom up context building
 				}
-			}
-			SwitchStatement switchStatement = exprSwitch ? new SwitchExpression() : new SwitchStatement();
-			switchStatement.expression = this.expressionStack[this.elementInfoStack[i]];
-			switchStatement.statements = statements;
-			parentNode = orphan = switchStatement;
-			if (exprSwitch)
-				collectResultExpressionsYield((SwitchExpression) switchStatement);
-		} else if (this.elementKindStack[i] == K_SWITCH_EXPRESSION_DELIMITTER) {
-////			YieldStatement yieldStatement = new YieldStatement(
-////					expression,
-////					expression.sourceStart,
-////					expression.sourceEnd);
-////			yieldStatement.isImplicit = true;
-//			parentNode = orphan = orphan;
-		} else if (this.elementKindStack[i] == K_POST_AND_AND) {
-			left = this.expressionStack[this.elementInfoStack[i]];
-			right = new AND_AND_Expression(
-					left,
-					right,
-					AND_AND);
-			parentNode = orphan = right;
-		} else if (this.elementKindStack[i] == K_POST_OR_OR) {
-			left = this.expressionStack[this.elementInfoStack[i]];
-			right = new OR_OR_Expression(
-					left,
-					right,
-					OR_OR);
-			parentNode = orphan = right;
-		} else if (this.elementKindStack[i] == K_INSIDE_ELSE_STATEMENT) {
-			int newAstPtr = this.elementInfoStack[i];
-			int length = this.astPtr - newAstPtr;
-			Statement[] statements = new Statement[length+1];
-			System.arraycopy(
-				this.astStack,
-				newAstPtr + 1,
-				statements,
-				0,
-				length);
-			statements[length] = orphan;
-			this.astPtr = newAstPtr;
-			Block b = new Block(0);
-			b.statements = statements;
-			elseStat = b;
-			orphan = null;
-//			thenStat = (Statement) this.astStack[this.elementInfoStack[i]];
-//			this.astPtr--;
-		} else if (this.elementKindStack[i] == K_INSIDE_THEN_STATEMENT) {
-			int newAstPtr = (int) this.elementObjectInfoStack[i];
-			int length = this.astPtr - newAstPtr;
-			Statement[] statements = new Statement[length + (orphan != null ? 1 : 0)];
-			System.arraycopy(
-				this.astStack,
-				newAstPtr + 1,
-				statements,
-				0,
-				length);
-			if (orphan != null)
+				parentNode = orphan = new WhileStatement((Expression) orphan, body, 0, 0);
+				break;
+			case K_POST_WHILE_EXPRESSION:
+				// precondition: orphan must be the while's body
+				int newAstPtr = (int) this.elementObjectInfoStack[i];
+				int length = this.astPtr - newAstPtr;
+				Statement[] statements = new Statement[length+1];
+				System.arraycopy(
+					this.astStack,
+					newAstPtr + 1,
+					statements,
+					0,
+					length);
 				statements[length] = orphan;
-			this.astPtr = newAstPtr;
-			Block b = new Block(0);
-			b.statements = statements;
-			thenStat = b;
-			this.expressionPtr = this.elementInfoStack[i];
-			orphan = this.expressionStack[this.expressionPtr--];
+				this.astPtr = newAstPtr;
+				Block b = new Block(0);
+				b.statements = statements;
+				this.expressionPtr = this.elementInfoStack[i];
+				orphan = this.expressionStack[this.expressionPtr--];
+				parentNode = body = b;
+				break;
+			case K_INSIDE_IF_EXPRESSION:
+				// precondition: orphan must be the the IfStatement.condition
+				if (thenStat == null) { // selection inside if (<here>)
+					thenStat = new EmptyStatement(orphan.sourceEnd,  orphan.sourceEnd);
+					elseStat = null;
+				} else {
+					// thenStat and elseStat are what they are obtained in the bottom up context building
+				}
+				parentNode = orphan = new IfStatement((Expression) orphan, thenStat, elseStat, 0, 0);
+				break;
+			case K_BETWEEN_CASE_AND_COLONORARROW:
+				parentNode = orphan = new CaseStatement((Expression) orphan, orphan.sourceStart, orphan.sourceEnd);
+				break;
+			case K_INSIDE_WHEN:
+				if(this.astPtr >=0 && this.astStack[this.astPtr] instanceof Pattern && orphan instanceof Expression) {
+					this.astLengthPtr--;
+					Pattern pattern = (Pattern) this.astStack[this.astPtr--];
+					parentNode = orphan = new GuardedPattern(pattern, (Expression) orphan);
+				}
+				break;
+			case K_INSIDE_SWITCH:
+				newAstPtr = (int) this.elementObjectInfoStack[i];
+				length = this.astPtr - newAstPtr;
+				statements = new Statement[length+1];
+				System.arraycopy(
+					this.astStack,
+					newAstPtr + 1,
+					statements,
+					0,
+					length);
+				statements[length] = orphan;
+				this.astPtr = newAstPtr;
+				boolean exprSwitch = false;
+				for (Statement s: statements) {
+					if (s instanceof CaseStatement cs && cs.isExpr) {
+						exprSwitch = true;
+						break;
+					}
+				}
+				SwitchStatement switchStatement = exprSwitch ? new SwitchExpression() : new SwitchStatement();
+				switchStatement.expression = this.expressionStack[this.elementInfoStack[i]];
+				switchStatement.statements = statements;
+				parentNode = orphan = switchStatement;
+				if (exprSwitch)
+					collectResultExpressionsYield((SwitchExpression) switchStatement);
+				break;
+			case K_SWITCH_EXPRESSION_DELIMITTER:
+				break;
+			case K_INSIDE_RETURN_STATEMENT :
+				int elementInfo = this.elementInfoStack[i];
+				if (elementInfo == this.bracketDepth) {
+					ReturnStatement returnStatement = new ReturnStatement(expression, expression.sourceStart, expression.sourceEnd);
+					parentNode = returnStatement;
+					this.assistNodeParent = parentNode;
+					orphan = returnStatement;
+				}
+				break;
+			case K_POST_AND_AND:
+				left = this.expressionStack[this.elementInfoStack[i]];
+				right = new AND_AND_Expression(
+						left,
+						right,
+						AND_AND);
+				parentNode = orphan = right;
+				break;
+			case K_POST_OR_OR:
+				left = this.expressionStack[this.elementInfoStack[i]];
+				right = new OR_OR_Expression(
+						left,
+						right,
+						OR_OR);
+				parentNode = orphan = right;
+				break;
+			case K_INSIDE_ELSE_STATEMENT:
+				newAstPtr = this.elementInfoStack[i];
+				length = this.astPtr - newAstPtr;
+				statements = new Statement[length+1];
+				System.arraycopy(
+					this.astStack,
+					newAstPtr + 1,
+					statements,
+					0,
+					length);
+				statements[length] = orphan;
+				this.astPtr = newAstPtr;
+				b = new Block(0);
+				b.statements = statements;
+				elseStat = b;
+				orphan = null;
+				break;
+			case K_INSIDE_THEN_STATEMENT:
+				newAstPtr = (int) this.elementObjectInfoStack[i];
+				length = this.astPtr - newAstPtr;
+				statements = new Statement[length + (orphan != null ? 1 : 0)];
+				System.arraycopy(
+					this.astStack,
+					newAstPtr + 1,
+					statements,
+					0,
+					length);
+				if (orphan != null)
+					statements[length] = orphan;
+				this.astPtr = newAstPtr;
+				b = new Block(0);
+				b.statements = statements;
+				thenStat = b;
+				this.expressionPtr = this.elementInfoStack[i];
+				orphan = this.expressionStack[this.expressionPtr--];
+				break;
+			case K_CAST_STATEMENT :
+				Expression castType;
+				if (this.expressionPtr > 0
+					&& ((castType = this.expressionStack[this.expressionPtr-1]) instanceof TypeReference)) {
+					CastExpression cast = new CastExpression(expression, (TypeReference) castType);
+					cast.sourceStart = castType.sourceStart;
+					cast.sourceEnd= expression.sourceEnd;
+					parentNode = orphan = cast;
+					this.assistNodeParent = parentNode;
+				}
+				break;
 		}
-		i--;
 	}
 
 	// Do not add assist node/parent into the recovery system if we are inside a lambda. The lambda will be fully recovered including the containing statement and added.
@@ -936,6 +935,13 @@ protected void consumeStatementWhile() {
 		popUntilElement(K_INSIDE_WHILE_EXPRESSION);
 		popElement(K_INSIDE_WHILE_EXPRESSION);
 	}
+}
+
+@Override
+protected void consumeStatementDo() {
+	popUntilElement(K_INSIDE_WHILE_EXPRESSION);
+	popElement(K_INSIDE_WHILE_EXPRESSION);
+	super.consumeStatementWhile();
 }
 
 @Override
