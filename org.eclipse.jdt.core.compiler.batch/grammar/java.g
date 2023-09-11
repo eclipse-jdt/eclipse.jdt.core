@@ -1458,6 +1458,9 @@ PostSwitchExpression ::= $empty
 PostIfExpression ::= $empty
 /.$putCase consumePostIfExpression(); $break ./
 
+PostWhileExpression ::= $empty
+/.$putCase consumePostWhileExpression(); $break ./
+
 IfThenStatement ::= 'if' '(' Expression ')' PostIfExpression Statement
 /.$putCase consumeStatementIfNoElse(); $break ./
 /:$readableName IfStatement:/
@@ -1584,11 +1587,11 @@ YieldStatement ::= RestrictedIdentifierYield Expression ;
 /.$putCase consumeStatementYield() ; $break ./
 /:$readableName YieldStatement:/
 
-WhileStatement ::= 'while' '(' Expression ')' Statement
+WhileStatement ::= 'while' '(' Expression ')' PostWhileExpression Statement
 /.$putCase consumeStatementWhile() ; $break ./
 /:$readableName WhileStatement:/
 
-WhileStatementNoShortIf ::= 'while' '(' Expression ')' StatementNoShortIf
+WhileStatementNoShortIf ::= 'while' '(' Expression ')' PostWhileExpression StatementNoShortIf
 /.$putCase consumeStatementWhile() ; $break ./
 /:$readableName WhileStatement:/
 

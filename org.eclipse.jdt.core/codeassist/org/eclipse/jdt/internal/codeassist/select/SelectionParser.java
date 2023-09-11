@@ -70,6 +70,7 @@ import org.eclipse.jdt.internal.compiler.ast.SwitchStatement;
 import org.eclipse.jdt.internal.compiler.ast.ThisReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
+import org.eclipse.jdt.internal.compiler.ast.WhileStatement;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -95,6 +96,7 @@ public class SelectionParser extends AssistParser {
 	protected static final int K_INSIDE_SWITCH = SELECTION_PARSER + 8; // whether we are in the switch statement/expression
 	protected static final int K_INSIDE_WHEN = SELECTION_PARSER + 9; // whether we are in the guard
 	protected static final int K_INSIDE_IF = SELECTION_PARSER + 10; // whether we are in an if statement
+	protected static final int K_POST_WHILE_EXPRESSION = SELECTION_PARSER + 11; // whether we are in an while statement's body
 
 
 	/* https://bugs.eclipse.org/bugs/show_bug.cgi?id=476693
@@ -192,7 +194,24 @@ private void buildMoreCompletionContext(Expression expression) {
 	Expression right = expression;
 	Expression left = null;
 	while(i > -1) {
-		if (this.elementKindStack[i] == K_INSIDE_IF) {
+		if (this.elementKindStack[i] == K_POST_WHILE_EXPRESSION) {
+			// precondition: orphan must be the while's body
+			int newAstPtr = (int) this.elementObjectInfoStack[i];
+			int length = this.astPtr - newAstPtr;
+			Statement[] statements = new Statement[length+1];
+			System.arraycopy(
+				this.astStack,
+				newAstPtr + 1,
+				statements,
+				0,
+				length);
+			statements[length] = orphan;
+			this.astPtr = newAstPtr;
+			Block b = new Block(0);
+			b.statements = statements;
+			this.expressionPtr = this.elementInfoStack[i];
+			parentNode = orphan = new WhileStatement(this.expressionStack[this.expressionPtr--], b, 0, 0);
+		} else if (this.elementKindStack[i] == K_INSIDE_IF) {
 			// precondition: orphan must be the the IfStatement.condition
 		    if (thenStat == null) { // selection inside if (<here>)
 		    	thenStat = new EmptyStatement(orphan.sourceEnd,  orphan.sourceEnd);
@@ -877,6 +896,13 @@ protected void consumePostSwitchExpression() {
 }
 
 @Override
+protected void consumePostWhileExpression() {
+	super.consumePostWhileExpression();
+	if (this.expressionStack[this.expressionPtr].containsPatternVariable())
+		pushOnElementStack(K_POST_WHILE_EXPRESSION, this.expressionPtr, this.astPtr);
+}
+
+@Override
 protected void consumeStatementSwitch() {
 	super.consumeStatementSwitch();
 	popElement(K_INSIDE_SWITCH);
@@ -886,6 +912,15 @@ protected void consumeStatementSwitch() {
 protected void consumeSwitchExpression() {
 	super.consumeSwitchExpression();
 	popElement(K_INSIDE_SWITCH);
+}
+
+@Override
+protected void consumeStatementWhile() {
+	super.consumeStatementWhile();
+	if (((WhileStatement) this.astStack[this.astPtr]).condition.containsPatternVariable()) {
+		popUntilElement(K_POST_WHILE_EXPRESSION);
+		popElement(K_POST_WHILE_EXPRESSION);
+	}
 }
 
 @Override
@@ -1971,6 +2006,8 @@ protected int astPtr() {
 		if (this.elementKindStack[i] == K_INSIDE_SWITCH)
 			return (int) this.elementObjectInfoStack[i];
 		else if (this.elementKindStack[i] == K_INSIDE_THEN_STATEMENT)
+			return (int) this.elementObjectInfoStack[i];
+		else if (this.elementKindStack[i] == K_POST_WHILE_EXPRESSION)
 			return (int) this.elementObjectInfoStack[i];
 	}
 	return super.astPtr();

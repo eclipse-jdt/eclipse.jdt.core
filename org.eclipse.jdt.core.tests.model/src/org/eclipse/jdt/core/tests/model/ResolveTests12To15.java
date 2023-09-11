@@ -955,4 +955,33 @@ public void testGH1278() throws JavaModelException {
 		elements
 	);
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1288
+// Open Declaration (F3) sometimes not working for "Pattern Matching for instanceof
+public void testGH1288() throws JavaModelException {
+	this.wc = getWorkingCopy("/Resolve15/src/X.java",
+					"public class X {" +
+					"	public void test(Object s) {" +
+					"		while(s instanceof String x) {" +
+					"			x.hashCode();\n" +
+					"		}" +
+					"		while(s.hashCode()) {" +
+					"			System.out.println();\n" +
+					"		}" +
+					"		while(s instanceof String x) {" +
+					"			System.out.println();\n" +
+					"			x.length(); // F3 on length fails" +
+					"		}" +
+					"	}" +
+					"}" );
+	String str = this.wc.getSource();
+	String selection = "length";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"length() [in String [in String.class [in java.lang [in "+ getExternalPath() + "jclMin14.jar]]]]",
+		elements
+	);
+}
 }
