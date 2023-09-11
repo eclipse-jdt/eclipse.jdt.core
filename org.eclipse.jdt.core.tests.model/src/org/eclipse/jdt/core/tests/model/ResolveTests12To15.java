@@ -1039,4 +1039,48 @@ public void testGH1288_2() throws JavaModelException {
 		elements
 	);
 }
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=573257
+// Errors when using instanceof pattern inside enum
+public void testBug573257() throws JavaModelException {
+	this.wc = getWorkingCopy("/Resolve15/src/X.java",
+					"public enum ASD {\n" +
+					"\n" +
+					"	A1 {\n" +
+					"		void f(Object o) {\n" +
+					"			if (o instanceof String s) {\n" +
+					"				System.out.println(s);\n" +
+					"			}\n" +
+					"		}\n" +
+					"	}\n" +
+					"}\n");
+	String str = this.wc.getSource();
+	String selection = "System";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"System [in System.class [in java.lang [in " + getExternalPath() + "jclMin14.jar]]]",
+		elements
+	);
+	selection = "out";
+	start = str.indexOf(selection);
+	length = selection.length();
+	elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"out [in System [in System.class [in java.lang [in " + getExternalPath() + "jclMin14.jar]]]]",
+		elements
+	);
+	selection = "println";
+	start = str.indexOf(selection);
+	length = selection.length();
+	elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"println(java.lang.String) [in PrintStream [in PrintStream.class [in java.io [in " + getExternalPath() + "jclMin14.jar]]]]",
+		elements
+	);
+}
 }
