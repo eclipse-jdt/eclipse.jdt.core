@@ -1084,6 +1084,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 								System.out.println("SELECTION - AST :"); //$NON-NLS-1$
 								System.out.println(parsedUnit.toString());
 							}
+							inspectParseTree(parsedUnit);
 							parsedUnit.resolve();
 							if (node != null) {
 								selectLocalDeclaration(node);
@@ -1127,6 +1128,11 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		} finally {
 			reset(true);
 		}
+	}
+
+	private void inspectParseTree(CompilationUnitDeclaration parsedUnit) {
+		// Plant a breakpoint here to view the built parse tree
+		return;
 	}
 
 	private void acceptPackageVisibilityStatements(PackageVisibilityStatement[] pvs, Scope scope) {

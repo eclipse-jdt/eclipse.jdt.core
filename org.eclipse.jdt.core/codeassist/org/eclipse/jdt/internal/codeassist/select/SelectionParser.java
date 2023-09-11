@@ -94,6 +94,7 @@ public class SelectionParser extends AssistParser {
 	protected static final int K_POST_OR_OR = SELECTION_PARSER + 7;
 	protected static final int K_INSIDE_SWITCH = SELECTION_PARSER + 8; // whether we are in the switch statement/expression
 	protected static final int K_INSIDE_WHEN = SELECTION_PARSER + 9; // whether we are in the guard
+	protected static final int K_INSIDE_IF = SELECTION_PARSER + 10; // whether we are in an if statement
 
 
 	/* https://bugs.eclipse.org/bugs/show_bug.cgi?id=476693
@@ -190,9 +191,17 @@ private void buildMoreCompletionContext(Expression expression) {
 	Statement elseStat = null;
 	Expression right = expression;
 	Expression left = null;
-	boolean wrapInIf = false;
 	while(i > -1) {
-		if (this.elementKindStack[i] == K_BETWEEN_CASE_AND_COLONORARROW) {
+		if (this.elementKindStack[i] == K_INSIDE_IF) {
+			// precondition: orphan must be the the IfStatement.condition
+		    if (thenStat == null) { // selection inside if (<here>)
+		    	thenStat = new EmptyStatement(orphan.sourceEnd,  orphan.sourceEnd);
+		    	elseStat = null;
+		    } else {
+		    	// thenStat and elseStat are what they are obtained in the bottom up context building
+		    }
+		    parentNode = orphan = new IfStatement((Expression) orphan, thenStat, elseStat, 0, 0);
+		} else if (this.elementKindStack[i] == K_BETWEEN_CASE_AND_COLONORARROW) {
 			parentNode = orphan = new CaseStatement((Expression) orphan, orphan.sourceStart, orphan.sourceEnd);
 		} else if (this.elementKindStack[i] == K_INSIDE_WHEN) {
 			if(this.astPtr >=0 && this.astStack[this.astPtr] instanceof Pattern && orphan instanceof Expression) {
@@ -200,7 +209,6 @@ private void buildMoreCompletionContext(Expression expression) {
 				Pattern pattern = (Pattern) this.astStack[this.astPtr--];
 				parentNode = orphan = new GuardedPattern(pattern, (Expression) orphan);
 			}
-			wrapInIf = false;
 		} else if (this.elementKindStack[i] == K_INSIDE_SWITCH) {
 			int newAstPtr = (int) this.elementObjectInfoStack[i];
 			int length = this.astPtr - newAstPtr;
@@ -239,7 +247,6 @@ private void buildMoreCompletionContext(Expression expression) {
 					left,
 					right,
 					AND_AND);
-			wrapInIf = true;
 			orphan = right;
 		} else if (this.elementKindStack[i] == K_POST_OR_OR) {
 			left = this.expressionStack[this.elementInfoStack[i]];
@@ -247,7 +254,6 @@ private void buildMoreCompletionContext(Expression expression) {
 					left,
 					right,
 					OR_OR);
-			wrapInIf = true;
 			orphan = right;
 		} else if (this.elementKindStack[i] == K_INSIDE_ELSE_STATEMENT) {
 			int newAstPtr = this.elementInfoStack[i];
@@ -264,30 +270,29 @@ private void buildMoreCompletionContext(Expression expression) {
 			Block b = new Block(0);
 			b.statements = statements;
 			elseStat = b;
-			thenStat = (Statement) this.astStack[this.elementInfoStack[i]];
-			this.astPtr--;
+			orphan = null;
+//			thenStat = (Statement) this.astStack[this.elementInfoStack[i]];
+//			this.astPtr--;
 		} else if (this.elementKindStack[i] == K_INSIDE_THEN_STATEMENT) {
-			Expression e = this.expressionStack[this.elementInfoStack[i]];
 			int newAstPtr = (int) this.elementObjectInfoStack[i];
 			int length = this.astPtr - newAstPtr;
-			Statement[] statements = new Statement[length+1];
+			Statement[] statements = new Statement[length + (orphan != null ? 1 : 0)];
 			System.arraycopy(
 				this.astStack,
 				newAstPtr + 1,
 				statements,
 				0,
 				length);
-			statements[length] = orphan;
+			if (orphan != null)
+				statements[length] = orphan;
 			this.astPtr = newAstPtr;
 			Block b = new Block(0);
 			b.statements = statements;
-			if (thenStat == null) thenStat = b;
-			parentNode = orphan = new IfStatement(e, thenStat, elseStat, 0, 0);
+			thenStat = b;
+			this.expressionPtr = this.elementInfoStack[i];
+			orphan = this.expressionStack[this.expressionPtr--];
 		}
 		i--;
-	}
-	if (wrapInIf) {
-		parentNode = orphan = new IfStatement(right, new EmptyStatement(0, 0), null, 0, 0);
 	}
 
 	// Do not add assist node/parent into the recovery system if we are inside a lambda. The lambda will be fully recovered including the containing statement and added.
@@ -886,20 +891,15 @@ protected void consumeSwitchExpression() {
 @Override
 protected void consumeStatementIfNoElse() {
 	super.consumeStatementIfNoElse();
-	if (topKnownElementKind(SELECTION_OR_ASSIST_PARSER) == K_INSIDE_THEN_STATEMENT){
-		popElement(K_INSIDE_THEN_STATEMENT);
-	}
+	popUntilElement(K_INSIDE_IF);
+	popElement(K_INSIDE_IF);
 }
 
 @Override
 protected void consumeStatementIfWithElse() {
 	super.consumeStatementIfWithElse();
-	if (topKnownElementKind(SELECTION_OR_ASSIST_PARSER) == K_INSIDE_ELSE_STATEMENT){
-		popElement(K_INSIDE_ELSE_STATEMENT);
-	}
-	if (topKnownElementKind(SELECTION_OR_ASSIST_PARSER) == K_INSIDE_THEN_STATEMENT){
-		popElement(K_INSIDE_THEN_STATEMENT);
-	}
+	popUntilElement(K_INSIDE_IF);
+	popElement(K_INSIDE_IF);
 }
 
 @Override
@@ -1440,6 +1440,7 @@ protected void consumeStaticImportOnDemandDeclarationName() {
 }
 @Override
 protected void consumeToken(int token) {
+	boolean justSeenIf = this.previousToken == TokenNameif; // before super.consumeToken tramples on it
 	super.consumeToken(token);
 
 	// if in a method or if in a field initializer
@@ -1501,6 +1502,11 @@ protected void consumeToken(int token) {
 				break;
 			case TokenNameRestrictedIdentifierWhen:
 				pushOnElementStack(K_INSIDE_WHEN);
+				break;
+			case TokenNameLPAREN:
+				if (justSeenIf) {
+					pushOnElementStack(K_INSIDE_IF);
+				}
 				break;
 		}
 	}
