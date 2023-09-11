@@ -959,20 +959,23 @@ public void testGH1278() throws JavaModelException {
 // Open Declaration (F3) sometimes not working for "Pattern Matching for instanceof
 public void testGH1288() throws JavaModelException {
 	this.wc = getWorkingCopy("/Resolve15/src/X.java",
-					"public class X {" +
-					"	public void test(Object s) {" +
-					"		while(s instanceof String x) {" +
+					"public class X {\n" +
+					"	public void test(Object s) {\n" +
+					"		while(s instanceof String x) {\n" +
 					"			x.hashCode();\n" +
-					"		}" +
-					"		while(s.hashCode()) {" +
+					"		}\n" +
+					"		while(s.hashCode()) {\n" +
 					"			System.out.println();\n" +
-					"		}" +
-					"		while(s instanceof String x) {" +
+					"		}\n" +
+					"		while(s instanceof String x && x.length() > 0) {\n" +
 					"			System.out.println();\n" +
-					"			x.length(); // F3 on length fails" +
-					"		}" +
-					"	}" +
-					"}" );
+					"			x.length();\n" +
+					"		}\n" +
+					"		while(s instanceof String xyz && xyz == \"abc\") {\n" +
+					"			System.out.println();\n" +
+					"		}\n" +
+					"	}\n" +
+					"}\n" );
 	String str = this.wc.getSource();
 	String selection = "length";
 	int start = str.indexOf(selection);
@@ -981,6 +984,24 @@ public void testGH1288() throws JavaModelException {
 	assertElementsEqual(
 		"Unexpected elements",
 		"length() [in String [in String.class [in java.lang [in "+ getExternalPath() + "jclMin14.jar]]]]",
+		elements
+	);
+	start = str.lastIndexOf(selection);
+	length = selection.length();
+	elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"length() [in String [in String.class [in java.lang [in "+ getExternalPath() + "jclMin14.jar]]]]",
+		elements
+	);
+
+	selection = "xyz";
+	start = str.lastIndexOf(selection);
+	length = selection.length();
+	elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"xyz [in test(Object) [in X [in [Working copy] X.java [in <default> [in src [in Resolve15]]]]]]",
 		elements
 	);
 }

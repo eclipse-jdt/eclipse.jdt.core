@@ -52,7 +52,8 @@ public class PatternMatchingSelectionTest extends AbstractSelectionTest {
 						"  public X() {\n" +
 						"  }\n" +
 						"  public @SuppressWarnings(\"preview\") void f(Object obj, boolean b) {\n" +
-						"    <SelectOnName:x_>;\n" +
+						"    if (<SelectOnName:x_>)\n" +
+						"        ;\n" +
 						"  }\n" +
 						"}\n";
 		String expectedReplacedSource = "x_";
@@ -123,8 +124,7 @@ public class PatternMatchingSelectionTest extends AbstractSelectionTest {
 						"  public X() {\n" +
 						"  }\n" +
 						"  public @SuppressWarnings(\"preview\") void f(Object obj, boolean b) {\n" +
-						"    if (((x_ instanceof String y_) && <SelectOnName:y_>))\n" +
-						"        ;\n" +
+						"    ((x_ instanceof String y_) && <SelectOnName:y_>);\n" +
 						"  }\n" +
 						"}\n";
 		String expectedReplacedSource = "y_";

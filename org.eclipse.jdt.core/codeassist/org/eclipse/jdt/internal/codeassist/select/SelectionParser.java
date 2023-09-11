@@ -95,8 +95,9 @@ public class SelectionParser extends AssistParser {
 	protected static final int K_POST_OR_OR = SELECTION_PARSER + 7;
 	protected static final int K_INSIDE_SWITCH = SELECTION_PARSER + 8; // whether we are in the switch statement/expression
 	protected static final int K_INSIDE_WHEN = SELECTION_PARSER + 9; // whether we are in the guard
-	protected static final int K_INSIDE_IF = SELECTION_PARSER + 10; // whether we are in an if statement
+	protected static final int K_INSIDE_IF_EXPRESSION = SELECTION_PARSER + 10; // whether we are in an if statement
 	protected static final int K_POST_WHILE_EXPRESSION = SELECTION_PARSER + 11; // whether we are in an while statement's body
+	protected static final int K_INSIDE_WHILE_EXPRESSION = SELECTION_PARSER + 12; // whether we are in an while's condition
 
 
 	/* https://bugs.eclipse.org/bugs/show_bug.cgi?id=476693
@@ -193,8 +194,17 @@ private void buildMoreCompletionContext(Expression expression) {
 	Statement elseStat = null;
 	Expression right = expression;
 	Expression left = null;
+	Statement body = null;
 	while(i > -1) {
-		if (this.elementKindStack[i] == K_POST_WHILE_EXPRESSION) {
+		if (this.elementKindStack[i] == K_INSIDE_WHILE_EXPRESSION) {
+			// precondition: orphan must be the the WhileStatement.condition
+		    if (body == null) { // selection inside while (<here>)
+		    	body = new EmptyStatement(orphan.sourceEnd,  orphan.sourceEnd);
+		    } else {
+		    	// body is what was obtained in the bottom up context building
+		    }
+		    parentNode = orphan = new WhileStatement((Expression) orphan, body, 0, 0);
+		} else if (this.elementKindStack[i] == K_POST_WHILE_EXPRESSION) {
 			// precondition: orphan must be the while's body
 			int newAstPtr = (int) this.elementObjectInfoStack[i];
 			int length = this.astPtr - newAstPtr;
@@ -210,8 +220,9 @@ private void buildMoreCompletionContext(Expression expression) {
 			Block b = new Block(0);
 			b.statements = statements;
 			this.expressionPtr = this.elementInfoStack[i];
-			parentNode = orphan = new WhileStatement(this.expressionStack[this.expressionPtr--], b, 0, 0);
-		} else if (this.elementKindStack[i] == K_INSIDE_IF) {
+			orphan = this.expressionStack[this.expressionPtr--];
+			parentNode = body = b;
+		} else if (this.elementKindStack[i] == K_INSIDE_IF_EXPRESSION) {
 			// precondition: orphan must be the the IfStatement.condition
 		    if (thenStat == null) { // selection inside if (<here>)
 		    	thenStat = new EmptyStatement(orphan.sourceEnd,  orphan.sourceEnd);
@@ -266,14 +277,14 @@ private void buildMoreCompletionContext(Expression expression) {
 					left,
 					right,
 					AND_AND);
-			orphan = right;
+			parentNode = orphan = right;
 		} else if (this.elementKindStack[i] == K_POST_OR_OR) {
 			left = this.expressionStack[this.elementInfoStack[i]];
 			right = new OR_OR_Expression(
 					left,
 					right,
 					OR_OR);
-			orphan = right;
+			parentNode = orphan = right;
 		} else if (this.elementKindStack[i] == K_INSIDE_ELSE_STATEMENT) {
 			int newAstPtr = this.elementInfoStack[i];
 			int length = this.astPtr - newAstPtr;
@@ -898,8 +909,12 @@ protected void consumePostSwitchExpression() {
 @Override
 protected void consumePostWhileExpression() {
 	super.consumePostWhileExpression();
-	if (this.expressionStack[this.expressionPtr].containsPatternVariable())
+	if (this.expressionStack[this.expressionPtr].containsPatternVariable()) {
 		pushOnElementStack(K_POST_WHILE_EXPRESSION, this.expressionPtr, this.astPtr);
+	} else {
+		popUntilElement(K_INSIDE_WHILE_EXPRESSION);
+		popElement(K_INSIDE_WHILE_EXPRESSION);
+	}
 }
 
 @Override
@@ -918,23 +933,23 @@ protected void consumeSwitchExpression() {
 protected void consumeStatementWhile() {
 	super.consumeStatementWhile();
 	if (((WhileStatement) this.astStack[this.astPtr]).condition.containsPatternVariable()) {
-		popUntilElement(K_POST_WHILE_EXPRESSION);
-		popElement(K_POST_WHILE_EXPRESSION);
+		popUntilElement(K_INSIDE_WHILE_EXPRESSION);
+		popElement(K_INSIDE_WHILE_EXPRESSION);
 	}
 }
 
 @Override
 protected void consumeStatementIfNoElse() {
 	super.consumeStatementIfNoElse();
-	popUntilElement(K_INSIDE_IF);
-	popElement(K_INSIDE_IF);
+	popUntilElement(K_INSIDE_IF_EXPRESSION);
+	popElement(K_INSIDE_IF_EXPRESSION);
 }
 
 @Override
 protected void consumeStatementIfWithElse() {
 	super.consumeStatementIfWithElse();
-	popUntilElement(K_INSIDE_IF);
-	popElement(K_INSIDE_IF);
+	popUntilElement(K_INSIDE_IF_EXPRESSION);
+	popElement(K_INSIDE_IF_EXPRESSION);
 }
 
 @Override
@@ -1475,7 +1490,7 @@ protected void consumeStaticImportOnDemandDeclarationName() {
 }
 @Override
 protected void consumeToken(int token) {
-	boolean justSeenIf = this.previousToken == TokenNameif; // before super.consumeToken tramples on it
+	int lastToken = this.previousToken; // before super.consumeToken tramples on it
 	super.consumeToken(token);
 
 	// if in a method or if in a field initializer
@@ -1539,8 +1554,10 @@ protected void consumeToken(int token) {
 				pushOnElementStack(K_INSIDE_WHEN);
 				break;
 			case TokenNameLPAREN:
-				if (justSeenIf) {
-					pushOnElementStack(K_INSIDE_IF);
+				if (lastToken == TokenNameif) {
+					pushOnElementStack(K_INSIDE_IF_EXPRESSION);
+				} else if (lastToken == TokenNamewhile) {
+					pushOnElementStack(K_INSIDE_WHILE_EXPRESSION);
 				}
 				break;
 		}
