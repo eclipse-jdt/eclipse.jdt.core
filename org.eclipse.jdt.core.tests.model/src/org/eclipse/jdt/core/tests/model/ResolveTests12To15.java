@@ -1083,4 +1083,36 @@ public void testBug573257() throws JavaModelException {
 		elements
 	);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=576794
+// Class rename fails with ClassCastException
+public void testBug576794() throws JavaModelException {
+	this.wc = getWorkingCopy("/Resolve15/src/RenameFails.java",
+					"import java.lang.annotation.Annotation;\n" +
+					"\n" +
+					"public class RenameFails {\n" +
+					"\n" +
+					"    private final static ClassValue<RenameFails> STUFF = new ClassValue<>() {\n" +
+					"\n" +
+					"        @Override\n" +
+					"        protected RenameFails computeValue(Class<?> type) {\n" +
+					"            for (Annotation a : type.getAnnotations()) {\n" +
+					"                if (a instanceof Deprecated h) {\n" +
+					"                	\n" +
+					"                }\n" +
+					"            }\n" +
+					"            return null;\n" +
+					"        }\n" +
+					"    };\n" +
+					"}\n");
+	String str = this.wc.getSource();
+	String selection = "Deprecated";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"Deprecated [in Deprecated.class [in java.lang [in " + getExternalPath() + "jclMin14.jar]]]",
+		elements
+	);
+}
 }
