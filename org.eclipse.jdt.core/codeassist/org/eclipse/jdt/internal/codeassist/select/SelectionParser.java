@@ -1034,7 +1034,6 @@ protected void consumeLambdaExpression() {
 		if (this.selectionEnd == arrowStart || this.selectionEnd == arrowEnd) {
 			this.expressionStack[this.expressionPtr] = new SelectionOnLambdaExpression(expression);
 			this.assistNode = expression;
-			this.isOrphanCompletionNode = true;
 		}
 	} else if (this.selectionStart == expression.sourceStart && this.selectionEnd == expression.sourceEnd) {
 		SelectionOnLambdaExpression lambdaExpression = new SelectionOnLambdaExpression(expression);
@@ -1562,7 +1561,7 @@ protected void consumeToken(int token) {
 				break;
 			case TokenNameLPAREN:
 				if (lastToken == TokenNameif) {
-					pushOnElementStack(K_INSIDE_IF_EXPRESSION);
+					pushOnElementStack(K_INSIDE_IF_EXPRESSION, this.expressionPtr, this.astPtr);
 				} else if (lastToken == TokenNamewhile) {
 					pushOnElementStack(K_INSIDE_WHILE_EXPRESSION);
 				}
@@ -2025,15 +2024,17 @@ public ModuleReference createAssistModuleReference(int index) {
 	return new SelectionOnModuleReference(tokens, positions);
 }
 @Override
-protected int astPtr() {
+protected int cookedAstPtr() {
 	for (int i = 0; i <= this.elementPtr; i++) {
-		if (this.elementKindStack[i] == K_INSIDE_SWITCH)
-			return (int) this.elementObjectInfoStack[i];
-		else if (this.elementKindStack[i] == K_INSIDE_THEN_STATEMENT)
-			return (int) this.elementObjectInfoStack[i];
-		else if (this.elementKindStack[i] == K_POST_WHILE_EXPRESSION)
-			return (int) this.elementObjectInfoStack[i];
+		switch (this.elementKindStack[i]) {
+			case K_INSIDE_SWITCH:
+			case K_INSIDE_IF_EXPRESSION:
+			case K_POST_WHILE_EXPRESSION:
+				if (this.assistNode != null)
+					this.isOrphanCompletionNode = true; // buried deep, needs to be dug up and attached.
+				return (int) this.elementObjectInfoStack[i];
+		}
 	}
-	return super.astPtr();
+	return super.cookedAstPtr();
 }
 }

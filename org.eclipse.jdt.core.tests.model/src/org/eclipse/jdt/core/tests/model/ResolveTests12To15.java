@@ -1115,4 +1115,58 @@ public void testBug576794() throws JavaModelException {
 		elements
 	);
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1263
+// CCE: LocalDeclaration cannot be cast to class ForeachStatement
+public void testGH1263() throws JavaModelException {
+	this.wc = getWorkingCopy("/Resolve15/src/DetectVMInstallationsJob.java",
+					"import java.util.Set;\n" +
+					"import java.util.function.Predicate;\n" +
+					"\n" +
+					"public class DetectVMInstallationsJob  {\n" +
+					"	\n" +
+					"	interface Collection<E> extends Iterable<E> {\n" +
+					"		default boolean removeIf(Predicate<? super E> filter) {\n" +
+					"			return true;\n" +
+					"	    }\n" +
+					"	}\n" +
+					"	public interface Predicate<T> {\n" +
+					"	    boolean test(T t);\n" +
+					"	}\n" +
+					"\n" +
+					"	protected void run() {\n" +
+					"		Collection<String> candidates = null;\n" +
+					"		Set<Object> knownVMs = null;\n" +
+					"		Collection<Object> systemVMs = null;\n" +
+					"		if (\"\".equals(\"\")) {\n" +
+					"				systemVMs = null;\n" +
+					"				systemVMs.removeIf(t -> knownVMs.contains(null));\n" +
+					"				for (int systemVM : new int[] { 10 }) {\n" +
+					"					candidates.removeIf(t -> t.equals(null));\n" +
+					"				}\n" +
+					"		}\n" +
+					"		for (int f : new int [] {}) {\n" +
+					"			String install = null;\n" +
+					"			if (!(install instanceof String vm && vm.hashCode() != 0)) {\n" +
+					"			}\n" +
+					"		}\n" +
+					"	}\n" +
+					"}\n");
+	String str = this.wc.getSource();
+	String selection = "->";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"test(T) [in Predicate [in DetectVMInstallationsJob [in [Working copy] DetectVMInstallationsJob.java [in <default> [in src [in Resolve15]]]]]]",
+		elements
+	);
+	start = str.lastIndexOf(selection);
+	elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"test(T) [in Predicate [in DetectVMInstallationsJob [in [Working copy] DetectVMInstallationsJob.java [in <default> [in src [in Resolve15]]]]]]",
+		elements
+	);
+}
 }

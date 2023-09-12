@@ -262,7 +262,7 @@ public RecoveredElement buildInitialRecoveryState(){
 	int blockIndex = 1;	// ignore first block start, since manually rebuilt here
 
 	ASTNode node = null, lastNode = null;
-	for (int i = 0; i <= this.astPtr(); i++, lastNode = node) {
+	for (int i = 0, end = this.cookedAstPtr(); i <= end; i++, lastNode = node) {
 		node = this.astStack[i];
 		/* check for intermediate block creation, so recovery can properly close them afterwards */
 		int nodeStart = node.sourceStart;
@@ -369,6 +369,7 @@ public RecoveredElement buildInitialRecoveryState(){
 					this.lastCheckPoint = stmt.sourceEnd + 1;
 				} else if (stmt.containsPatternVariable()) {
 					if(stmt instanceof CaseStatement) {
+						// Only relevant for Completion{Engine/ParSer}
 						// Kludge, for the unfortunate case where recovery can't
 						// construct a switch expression but simply creates a case statement (with type patterns)
 						// and leaves it in the astStack
@@ -399,6 +400,9 @@ public RecoveredElement buildInitialRecoveryState(){
 							element.add(local, 0);
 						}
 					}
+					// We add full statement below, opportunities exist for pruning bodies in some cases
+					// but care needs to be exercised to account for bodies ending with throw; adding full
+					// body is wasteful, but is not incorrect, so ...
 					element.add(stmt, 0);
 					this.lastCheckPoint = stmt.sourceEnd + 1;
 				}
@@ -443,7 +447,7 @@ public RecoveredElement buildInitialRecoveryState(){
 	return element;
 }
 
-protected int astPtr() {
+protected int cookedAstPtr() {
 	return this.astPtr;
 }
 
