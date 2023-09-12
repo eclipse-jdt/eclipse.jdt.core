@@ -1987,4 +1987,62 @@ public class JavaSearchBugs15Tests extends AbstractJavaSearchTests {
 						"src/pack/test.java void pack.test.apply() [pack.test] EXACT_MATCH\n"+
 						"src/pack/test.java void pack.test.evaluate() [pack.test] EXACT_MATCH");
 			}
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=572975
+			// An error is occurring that prevents hover to work
+			public void testBug572975() throws JavaModelException {
+				this.workingCopies = new ICompilationUnit[1];
+				this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/TestInstanceOf.java",
+						"public class TestInstanceOf {\n" +
+								"	public interface WithValue {\n" +
+								"		String value();\n" +
+								"	}\n" +
+								"\n" +
+								"	public record Key1(String value, int num) implements WithValue {\n" +
+								"	}\n" +
+								"\n" +
+								"	interface TestIt {\n" +
+								"		boolean test(WithValue k1, WithValue k2);\n" +
+								"	}\n" +
+								"	private static final String AAA = \"AAA\";\n" +
+								"\n" +
+								"	private static final TestIt TESTIT_LAMBDA = (o1, o2) -> {\n" +
+								"		if (o1 instanceof Key1 k1 && o2 instanceof Key1 k2) {\n" +
+								"			return k1./*here1*/value().equals(AAA);\n" +
+								"		} else\n" +
+								"			return false;\n" +
+								"	};\n" +
+								"\n" +
+								"	private static final TestIt TESTIT_METHOD = new TestIt() {\n" +
+								"		@Override\n" +
+								"		public boolean test(WithValue o1, WithValue o2) {\n" +
+								"			if (o1 instanceof Key1 k1 && o2 instanceof Key1 k2) {\n" +
+								"				return k1./*here2*/value().equals(AAA);\n" +
+								"			} else\n" +
+								"				return false;\n" +
+								"		}\n" +
+								"	};\n" +
+								"\n" +
+								"	public static void main(String[] args) {\n" +
+								"		System.out.println(AAA);\n" +
+								"	}\n" +
+								"}\n");
+				String str = this.workingCopies[0].getSource();
+				String selection = "/*here1*/value";
+				int start = str.indexOf(selection);
+				int length = selection.length();
+				IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+				assertElementsEqual(
+					"Unexpected elements",
+					"value [in Key1 [in TestInstanceOf [in [Working copy] TestInstanceOf.java [in <default> [in src [in JavaSearchBugs]]]]]]",
+					elements
+				);
+				selection = "/*here2*/value";
+				start = str.lastIndexOf(selection);
+				elements = this.workingCopies[0].codeSelect(start, length);
+				assertElementsEqual(
+					"Unexpected elements",
+					"value [in Key1 [in TestInstanceOf [in [Working copy] TestInstanceOf.java [in <default> [in src [in JavaSearchBugs]]]]]]",
+					elements
+				);
+			}
 }
