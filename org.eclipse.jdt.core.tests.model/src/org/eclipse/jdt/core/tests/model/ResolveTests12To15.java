@@ -1290,4 +1290,40 @@ public void testGH1263() throws JavaModelException {
 		elements
 	);
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1364
+// SelectionParser behavior erratic wrt to live pattern variables upon loop exit
+public void testGH1364() throws JavaModelException {
+	this.wc = getWorkingCopy("/Resolve15/src/X.java",
+					"public class X {\n" +
+					"	String xx = \"Hello\";\n" +
+					"	void foo(Object o) {\n" +
+					"		do {\n" +
+					"			\n" +
+					"		} while (!(o instanceof X xxx));\n" +
+					"		xxx.foo(o); // F3 on xxx fails\n" +
+					"		while (!(o instanceof X yyy)) {\n" +
+					"			\n" +
+					"		}\n" +
+					"		yyy.foo(o); // F3 on yyy works ok\n" +
+					"	}\n" +
+					"}\n");
+	String str = this.wc.getSource();
+	String selection = "xxx.foo";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"foo(Object) [in X [in [Working copy] X.java [in <default> [in src [in Resolve15]]]]]",
+		elements
+	);
+	selection = "yyy.foo";
+	start = str.lastIndexOf(selection);
+	elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"foo(Object) [in X [in [Working copy] X.java [in <default> [in src [in Resolve15]]]]]",
+		elements
+	);
+}
 }
