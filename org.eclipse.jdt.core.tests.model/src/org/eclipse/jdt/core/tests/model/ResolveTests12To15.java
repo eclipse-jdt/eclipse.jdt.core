@@ -958,6 +958,127 @@ public void testGH1278() throws JavaModelException {
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1288
 // Open Declaration (F3) sometimes not working for "Pattern Matching for instanceof
 public void testGH1288() throws JavaModelException {
+	this.wc = getWorkingCopy("/Resolve15/src/DetectVMInstallationsJob.java",
+					"public class X {\n" +
+					"	public void test(Object s) {\n" +
+					"		if(s instanceof String x) {\n" +
+					"			x./*fails1*/length();\n" +
+					"		}\n" +
+					"	}\n" +
+					"	public void test2(Object s) {\n" +
+					"		if(s instanceof String x)\n" +
+					"			x./*works1*/length();\n" +
+					"	}\n" +
+					"	\n" +
+					"	public void foo(Object s) {\n" +
+					"		\n" +
+					"		if (s instanceof String x) {\n" +
+					"			x./*fails2*/length(); x./*works2*/length();\n" +
+					"		}\n" +
+					"\n" +
+					"		if (s instanceof String x) {\n" +
+					"			x./*fails3*/length(); x./*works3*/length(); x./*works4*/length();\n" +
+					"		}\n" +
+					"\n" +
+					"		if (s instanceof String x) {\n" +
+					"			int i; x./*works5*/length(); // works\n" +
+					"		}\n" +
+					"\n" +
+					"		if (s instanceof String x) {\n" +
+					"			int i; x./*fails4*/length(); int j; // fails\n" +
+					"		}\n" +
+					"\n" +
+					"		if (s instanceof String x) {\n" +
+					"			x./*fails5*/length(); int j; // fails\n" +
+					"		}\n" +
+					"	}\n" +
+					"}\n");
+	String str = this.wc.getSource();
+	String selection = "/*fails1*/length";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"length() [in String [in String.class [in java.lang [in "+ getExternalPath() + "jclMin14.jar]]]]",
+		elements
+	);
+	selection = "/*fails2*/length";
+	start = str.indexOf(selection);
+	elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"length() [in String [in String.class [in java.lang [in "+ getExternalPath() + "jclMin14.jar]]]]",
+		elements
+	);
+	selection = "/*fails3*/length";
+	start = str.indexOf(selection);
+	elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"length() [in String [in String.class [in java.lang [in "+ getExternalPath() + "jclMin14.jar]]]]",
+		elements
+	);
+	selection = "/*fails4*/length";
+	start = str.indexOf(selection);
+	elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"length() [in String [in String.class [in java.lang [in "+ getExternalPath() + "jclMin14.jar]]]]",
+		elements
+	);
+	selection = "/*fails5*/length";
+	start = str.indexOf(selection);
+	elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"length() [in String [in String.class [in java.lang [in "+ getExternalPath() + "jclMin14.jar]]]]",
+		elements
+	);
+	selection = "/*works1*/length";
+	start = str.indexOf(selection);
+	elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"length() [in String [in String.class [in java.lang [in "+ getExternalPath() + "jclMin14.jar]]]]",
+		elements
+	);
+	selection = "/*works2*/length";
+	start = str.indexOf(selection);
+	elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"length() [in String [in String.class [in java.lang [in "+ getExternalPath() + "jclMin14.jar]]]]",
+		elements
+	);
+	selection = "/*works3*/length";
+	start = str.indexOf(selection);
+	elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"length() [in String [in String.class [in java.lang [in "+ getExternalPath() + "jclMin14.jar]]]]",
+		elements
+	);
+	selection = "/*works4*/length";
+	start = str.indexOf(selection);
+	elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"length() [in String [in String.class [in java.lang [in "+ getExternalPath() + "jclMin14.jar]]]]",
+		elements
+	);
+	selection = "/*works5*/length";
+	start = str.indexOf(selection);
+	elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"length() [in String [in String.class [in java.lang [in "+ getExternalPath() + "jclMin14.jar]]]]",
+		elements
+	);
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1288
+// Open Declaration (F3) sometimes not working for "Pattern Matching for instanceof
+public void testGH1288_while() throws JavaModelException {
 	this.wc = getWorkingCopy("/Resolve15/src/X.java",
 					"public class X {\n" +
 					"	public void test(Object s) {\n" +
@@ -1007,7 +1128,7 @@ public void testGH1288() throws JavaModelException {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1288
 // Open Declaration (F3) sometimes not working for "Pattern Matching for instanceof
-public void testGH1288_2() throws JavaModelException {
+public void testGH1288_do_while() throws JavaModelException {
 	this.wc = getWorkingCopy("/Resolve15/src/X.java",
 			"import java.util.ArrayList;\n" +
 					"\n" +
