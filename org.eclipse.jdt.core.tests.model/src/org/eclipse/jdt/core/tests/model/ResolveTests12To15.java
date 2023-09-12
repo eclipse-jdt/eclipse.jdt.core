@@ -1326,4 +1326,38 @@ public void testGH1364() throws JavaModelException {
 		elements
 	);
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1360
+// SelectionParser miscomputes type of variable
+public void testGH1360() throws JavaModelException {
+	this.wc = getWorkingCopy("/Resolve15/src/X.java",
+					"public class X {\n" +
+					"	String xx = \"Hello\";\n" +
+					"	void foo(Object o) {\n" +
+					"		if (o instanceof X xx) {\n" +
+					"			/*pattern*/xx.foo(o);\n" +
+					"		} else {\n" +
+					"			System.out.println(/*field*/xx);  // F3 on xx jumps wrongly to to o instanceof X xx\n" +
+					"		}\n" +
+					"	}\n" +
+					"}\n");
+	String str = this.wc.getSource();
+	String selection = "/*pattern*/xx";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"xx [in foo(Object) [in X [in [Working copy] X.java [in <default> [in src [in Resolve15]]]]]]",
+		elements
+	);
+	selection = "/*field*/xx";
+	start = str.indexOf(selection);
+	length = selection.length();
+	elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"xx [in X [in [Working copy] X.java [in <default> [in src [in Resolve15]]]]]",
+		elements
+	);
+}
 }
