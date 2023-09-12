@@ -1360,4 +1360,28 @@ public void testGH1360() throws JavaModelException {
 		elements
 	);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=567497
+//  [15] Search for declaration of pattern variable not working
+public void testBug567497() throws JavaModelException {
+	this.wc = getWorkingCopy("/Resolve15/src/X.java",
+			"public class X {\n" +
+					"    protected Object y = \"FIELD X\";\n" +
+					"    @SuppressWarnings(\"preview\")\n" +
+					"	public void f(Object obj, boolean b) {\n" +
+					"        if ((y instanceof String /*not selecting */x) && /* selecting*/x.length() > 0) {\n" +
+					"            System.out.println(x.toLowerCase());\n" +
+					"        }\n" +
+					"    }\n" +
+					"}\n");
+	String str = this.wc.getSource();
+	String selection = "/* selecting*/x";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"x [in f(Object, boolean) [in X [in [Working copy] X.java [in <default> [in src [in Resolve15]]]]]]",
+		elements
+	);
+}
 }
