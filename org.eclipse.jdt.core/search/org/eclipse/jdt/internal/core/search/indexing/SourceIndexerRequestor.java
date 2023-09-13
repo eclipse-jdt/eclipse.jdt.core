@@ -13,10 +13,14 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.indexing;
 
+import static org.eclipse.jdt.internal.core.JavaModelManager.traceDumpStack;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import org.eclipse.jdt.core.Signature;
-import org.eclipse.jdt.core.compiler.*;
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ExtraFlags;
 import org.eclipse.jdt.internal.compiler.ISourceElementRequestor;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
@@ -522,11 +526,7 @@ public void popTypeName() {
 		this.enclosingTypeNames[--this.depth] = null;
 	} else if (JobManager.VERBOSE) {
 		// dump a trace so it can be tracked down
-		try {
-			this.enclosingTypeNames[-1] = null;
-		} catch (ArrayIndexOutOfBoundsException e) {
-			e.printStackTrace();
-		}
+		traceDumpStack();
 	}
 }
 public void pushTypeName(char[] typeName) {

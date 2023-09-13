@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.indexing;
 
+import static org.eclipse.jdt.internal.core.JavaModelManager.trace;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -114,7 +115,7 @@ public class SourceIndexer extends AbstractIndexer implements ITypeRequestor, Su
 				this.document.requireIndexingResolvedDocument();
 		} catch (Exception e) {
 			if (JobManager.VERBOSE) {
-				e.printStackTrace();
+				trace("", e); //$NON-NLS-1$
 			}
 		}
 	}
@@ -172,7 +173,7 @@ public class SourceIndexer extends AbstractIndexer implements ITypeRequestor, Su
 			this.cud.resolve();
 		} catch (Exception e) {
 			if (JobManager.VERBOSE) {
-				e.printStackTrace();
+				trace("", e); //$NON-NLS-1$
 			}
 		}
 	}
@@ -260,7 +261,7 @@ public class SourceIndexer extends AbstractIndexer implements ITypeRequestor, Su
 			}
 		} catch (Exception e) {
 			if (JobManager.VERBOSE) {
-				e.printStackTrace();
+				trace("", e); //$NON-NLS-1$
 			}
 		}
 	}

@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.indexing;
 
+import static org.eclipse.jdt.internal.core.JavaModelManager.trace;
+
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -340,7 +342,7 @@ public synchronized IndexLocation computeIndexLocation(IPath containerPath) {
 		checksumCalculator.update(pathString.getBytes());
 		String fileName = Long.toString(checksumCalculator.getValue()) + ".index"; //$NON-NLS-1$
 		if (VERBOSE)
-			Util.verbose("-> index name for " + pathString + " is " + fileName); //$NON-NLS-1$ //$NON-NLS-2$
+			trace("-> index name for " + pathString + " is " + fileName); //$NON-NLS-1$ //$NON-NLS-2$
 		// to share the indexLocation between the indexLocations and indexStates tables, get the key from the indexStates table
 		indexLocation = (IndexLocation) getIndexStates().getKey(new FileIndexLocation(new File(getSavedIndexesDirectory(), fileName)));
 		this.indexLocations.put(containerPath, indexLocation);
@@ -355,7 +357,7 @@ public final void deleteIndexFiles() {
 }
 public synchronized void deleteIndexFiles(IProgressMonitor monitor) {
 	if (DEBUG)
-		Util.verbose("Deleting index files"); //$NON-NLS-1$
+		trace("Deleting index files"); //$NON-NLS-1$
 	this.nameRegistry.delete(); // forget saved indexes & delete each index file
 	deleteIndexFiles(null, monitor);
 	this.metaIndex = null;
@@ -372,7 +374,7 @@ private void deleteIndexFiles(SimpleSet pathsToKeep, IProgressMonitor monitor) {
 		String suffix = ".index"; //$NON-NLS-1$
 		if (fileName.regionMatches(true, fileName.length() - suffix.length(), suffix, 0, suffix.length())) {
 			if (VERBOSE || DEBUG)
-				Util.verbose("Deleting index file " + indexesFiles[i]); //$NON-NLS-1$
+				trace("Deleting index file " + indexesFiles[i]); //$NON-NLS-1$
 			indexesFiles[i].delete();
 		}
 	}
@@ -464,7 +466,7 @@ public synchronized Index getIndex(IPath containerPath, IndexLocation indexLocat
 					// failed to read the existing file or its no longer compatible
 					if (currentIndexState != REBUILDING_STATE && currentIndexState != REUSE_STATE) { // rebuild index if existing file is corrupt, unless the index is already being rebuilt
 						if (VERBOSE)
-							Util.verbose("-> cannot reuse existing index: "+indexLocation+" path: "+containerPathString); //$NON-NLS-1$ //$NON-NLS-2$
+							trace("-> cannot reuse existing index: "+indexLocation+" path: "+containerPathString); //$NON-NLS-1$ //$NON-NLS-2$
 						rebuildIndex(indexLocation, containerPath);
 						return null;
 					}
@@ -478,7 +480,7 @@ public synchronized Index getIndex(IPath containerPath, IndexLocation indexLocat
 			if (currentIndexState == REUSE_STATE) {
 				// supposed to be in reuse state but error in the index file, so reindex.
 				if (VERBOSE)
-					Util.verbose("-> cannot reuse given index: "+indexLocation+" path: "+containerPathString); //$NON-NLS-1$ //$NON-NLS-2$
+					trace("-> cannot reuse given index: "+indexLocation+" path: "+containerPathString); //$NON-NLS-1$ //$NON-NLS-2$
 				if(!IS_MANAGING_PRODUCT_INDEXES_PROPERTY) {
 					this.indexLocations.put(containerPath, null);
 					indexLocation = computeIndexLocation(containerPath);
@@ -494,13 +496,13 @@ public synchronized Index getIndex(IPath containerPath, IndexLocation indexLocat
 		if (createIfMissing) {
 			try {
 				if (VERBOSE)
-					Util.verbose("-> create empty index: "+indexLocation+" path: "+containerPathString); //$NON-NLS-1$ //$NON-NLS-2$
+					trace("-> create empty index: "+indexLocation+" path: "+containerPathString); //$NON-NLS-1$ //$NON-NLS-2$
 				index = new Index(indexLocation, containerPathString, false /*do not reuse index file*/);
 				this.indexes.put(indexLocation, index);
 				return index;
 			} catch (IOException e) {
 				if (VERBOSE)
-					Util.verbose("-> unable to create empty index: "+indexLocation+" path: "+containerPathString); //$NON-NLS-1$ //$NON-NLS-2$
+					trace("-> unable to create empty index: "+indexLocation+" path: "+containerPathString); //$NON-NLS-1$ //$NON-NLS-2$
 				// The file could not be created. Possible reason: the project has been deleted.
 				return null;
 			}
@@ -544,7 +546,7 @@ public synchronized Index[] getIndexes(IndexLocation[] locations, IProgressMonit
 					File indexFile = index.getIndexFile();
 					if (indexFile.exists()) {
 						if (DEBUG)
-							Util.verbose("Change in javaLikeNames - removing index file for " + containerPath ); //$NON-NLS-1$
+							trace("Change in javaLikeNames - removing index file for " + containerPath ); //$NON-NLS-1$
 						indexFile.delete();
 					}
 					this.indexes.put(indexLocation, null);
@@ -596,7 +598,7 @@ private SimpleLookupTable getIndexStates() {
 			if (savedName.length > 0) {
 				IndexLocation indexLocation = new FileIndexLocation(new File(indexesDirectoryPath, String.valueOf(savedName))); // shares indexesDirectoryPath's segments
 				if (VERBOSE)
-					Util.verbose("Reading saved index file " + indexLocation); //$NON-NLS-1$
+					trace("Reading saved index file " + indexLocation); //$NON-NLS-1$
 				this.indexStates.put(indexLocation, SAVED_STATE);
 			}
 		}
@@ -641,13 +643,13 @@ private boolean hasJavaLikeNamesChanged() {
 	char[][] prevNames = readJavaLikeNamesFile();
 	if (prevNames == null) {
 		if (VERBOSE && current != 1)
-			Util.verbose("No Java like names found and there is atleast one non-default javaLikeName", System.err); //$NON-NLS-1$
+			trace("No Java like names found and there is atleast one non-default javaLikeName"); //$NON-NLS-1$
 		return (current != 1); //Ignore if only java
 	}
 	int prev = prevNames.length;
 	if (current != prev) {
 		if (VERBOSE)
-			Util.verbose("Java like names have changed", System.err); //$NON-NLS-1$
+			trace("Java like names have changed"); //$NON-NLS-1$
 		return true;
 	}
 	if (current > 1) {
@@ -662,7 +664,7 @@ private boolean hasJavaLikeNamesChanged() {
 	for (int i = 0; i < current; i++) {
 		if (!CharOperation.equals(currentNames[i],prevNames[i])) {
 			if (VERBOSE)
-				Util.verbose("Java like names have changed", System.err); //$NON-NLS-1$
+				trace("Java like names have changed"); //$NON-NLS-1$
 			return true;
 		}
 	}
@@ -855,7 +857,7 @@ private char[][] readJavaLikeNamesFile() {
 		}
 	} catch (IOException ignored) {
 		if (VERBOSE)
-			Util.verbose("Failed to read javaLikeNames file"); //$NON-NLS-1$
+			trace("Failed to read javaLikeNames file"); //$NON-NLS-1$
 	}
 	return null;
 }
@@ -869,7 +871,7 @@ private void rebuildIndex(IndexLocation indexLocation, IPath containerPath, fina
 	if (target == null) return;
 
 	if (VERBOSE)
-		Util.verbose("-> request to rebuild index: "+indexLocation+" path: "+containerPath); //$NON-NLS-1$ //$NON-NLS-2$
+		trace("-> request to rebuild index: "+indexLocation+" path: "+containerPath); //$NON-NLS-1$ //$NON-NLS-2$
 
 	updateIndexState(indexLocation, REBUILDING_STATE);
 	IndexRequest request = null;
@@ -904,7 +906,7 @@ public synchronized Index recreateIndex(IPath containerPath) {
 		ReadWriteMonitor monitor = index == null ? null : index.monitor;
 
 		if (VERBOSE)
-			Util.verbose("-> recreating index: "+indexLocation+" for path: "+containerPathString); //$NON-NLS-1$ //$NON-NLS-2$
+			trace("-> recreating index: "+indexLocation+" for path: "+containerPathString); //$NON-NLS-1$ //$NON-NLS-2$
 		index = new Index(indexLocation, containerPathString, false /*do not reuse index file*/);
 		this.indexes.put(indexLocation, index);
 		index.monitor = monitor;
@@ -912,8 +914,7 @@ public synchronized Index recreateIndex(IPath containerPath) {
 	} catch (IOException e) {
 		// The file could not be created. Possible reason: the project has been deleted.
 		if (VERBOSE) {
-			Util.verbose("-> failed to recreate index for path: "+containerPathString); //$NON-NLS-1$
-			e.printStackTrace();
+			trace("-> failed to recreate index for path: "+containerPathString, e); //$NON-NLS-1$
 		}
 		return null;
 	}
@@ -936,7 +937,7 @@ public void removeIndex(IPath containerPath) {
 	Index index = null;
 	synchronized (this) {
 		if (VERBOSE || DEBUG)
-			Util.verbose("removing index " + containerPath); //$NON-NLS-1$
+			trace("removing index " + containerPath); //$NON-NLS-1$
 		// New index is disabled, see bug 544898
 		// this.indexer.makeWorkspacePathDirty(containerPath);
 		IndexLocation indexLocation = computeIndexLocation(containerPath);
@@ -952,7 +953,7 @@ public void removeIndex(IPath containerPath) {
 			this.indexLocations.put(containerPath, null);
 		} else if (indexFile != null && indexFile.exists()) {
 			if (DEBUG)
-				Util.verbose("removing index file " + indexFile); //$NON-NLS-1$
+				trace("removing index file " + indexFile); //$NON-NLS-1$
 			indexFile.delete();
 		}
 		this.indexes.removeKey(indexLocation);
@@ -976,9 +977,8 @@ void removeFromMetaIndex(Index index, File indexFile, IPath containerPath) {
 		updateMetaIndex(indexFile.getName(), Collections.emptyList());
 	} else {
 		if (VERBOSE) {
-			Util.verbose(
-					String.format("Unable to update meta index for container path %s because index file is null", //$NON-NLS-1$
-							containerPath));
+			trace(String.format("Unable to update meta index for container path %s because index file is null", //$NON-NLS-1$
+					containerPath));
 		}
 	}
 }
@@ -990,7 +990,7 @@ public void removeIndexPath(IPath path) {
 
 	synchronized (this) {
 		if (VERBOSE || DEBUG)
-			Util.verbose("removing index path " + path); //$NON-NLS-1$
+			trace("removing index path " + path); //$NON-NLS-1$
 		// New index is disabled, see bug 544898
 		// this.indexer.makeWorkspacePathDirty(path);
 		Object[] keyTable = this.indexes.keyTable;
@@ -1016,7 +1016,7 @@ public void removeIndexPath(IPath path) {
 					indexLocation.close();
 				} else {
 					if (DEBUG)
-						Util.verbose("removing index file " + indexLocation); //$NON-NLS-1$
+						trace("removing index file " + indexLocation); //$NON-NLS-1$
 					indexLocation.delete();
 				}
 			} else {
@@ -1108,7 +1108,7 @@ public synchronized boolean resetIndex(IPath containerPath) {
 		IndexLocation indexLocation = computeIndexLocation(containerPath);
 		Index index = getIndex(indexLocation);
 		if (VERBOSE) {
-			Util.verbose("-> reseting index: "+indexLocation+" for path: "+containerPathString); //$NON-NLS-1$ //$NON-NLS-2$
+			trace("-> reseting index: "+indexLocation+" for path: "+containerPathString); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		if (index == null) {
 			// the index does not exist, try to recreate it
@@ -1119,8 +1119,7 @@ public synchronized boolean resetIndex(IPath containerPath) {
 	} catch (IOException e) {
 		// The file could not be created. Possible reason: the project has been deleted.
 		if (VERBOSE) {
-			Util.verbose("-> failed to reset index for path: "+containerPathString); //$NON-NLS-1$
-			e.printStackTrace();
+			trace("-> failed to reset index for path: "+containerPathString, e); //$NON-NLS-1$
 		}
 		return false;
 	}
@@ -1135,7 +1134,7 @@ public synchronized boolean resetIndex(IPath containerPath) {
 public void savePreBuiltIndex(Index index) throws IOException {
 	if (index.hasChanged()) {
 		if (VERBOSE)
-			Util.verbose("-> saving pre-build index " + index.getIndexLocation()); //$NON-NLS-1$
+			trace("-> saving pre-build index " + index.getIndexLocation()); //$NON-NLS-1$
 		index.save();
 		updateMetaIndex(index);
 	}
@@ -1150,12 +1149,12 @@ public void saveIndex(Index index) throws IOException {
 	// must have permission to write from the write monitor
 	if (index.hasChanged()) {
 		if (VERBOSE)
-			Util.verbose("-> saving index " + index.getIndexLocation()); //$NON-NLS-1$
+			trace("-> saving index " + index.getIndexLocation()); //$NON-NLS-1$
 		if (index.save()) {
 			updateMetaIndex(index);
 		} else {
 			if (VERBOSE)
-				Util.verbose("-> saving index cancelled " + index.getIndexLocation()); //$NON-NLS-1$
+				trace("-> saving index cancelled " + index.getIndexLocation()); //$NON-NLS-1$
 			return;
 		}
 	}
@@ -1340,7 +1339,7 @@ private void readIndexMap() {
 		}
 	} catch (IOException ignored) {
 		if (VERBOSE)
-			Util.verbose("Failed to read saved index file names"); //$NON-NLS-1$
+			trace("Failed to read saved index file names"); //$NON-NLS-1$
 	}
 	return;
 }
@@ -1362,7 +1361,7 @@ private void readParticipantsIndexNamesFile() {
 		}
 	} catch (IOException ignored) {
 		if (VERBOSE)
-			Util.verbose("Failed to read participant index file names"); //$NON-NLS-1$
+			trace("Failed to read participant index file names"); //$NON-NLS-1$
 	}
 	this.participantsContainers = containers;
 	return;
@@ -1376,7 +1375,7 @@ private synchronized void removeIndexesState(IndexLocation[] locations) {
 		if ((this.indexStates.removeKey(locations[i]) != null)) {
 			changed = true;
 			if (VERBOSE) {
-				Util.verbose("-> index state updated to: ? for: "+locations[i]); //$NON-NLS-1$
+				trace("-> index state updated to: ? for: "+locations[i]); //$NON-NLS-1$
 			}
 		}
 	}
@@ -1402,7 +1401,7 @@ private synchronized void updateIndexState(IndexLocation indexLocation, Integer 
 
 	if (VERBOSE) {
 		if (indexState == null) {
-			Util.verbose("-> index state removed for: "+indexLocation); //$NON-NLS-1$
+			trace("-> index state removed for: "+indexLocation); //$NON-NLS-1$
 		} else {
 			String state = "?"; //$NON-NLS-1$
 			if (indexState == SAVED_STATE) state = "SAVED"; //$NON-NLS-1$
@@ -1410,7 +1409,7 @@ private synchronized void updateIndexState(IndexLocation indexLocation, Integer 
 			else if (indexState == UNKNOWN_STATE) state = "UNKNOWN"; //$NON-NLS-1$
 			else if (indexState == REBUILDING_STATE) state = "REBUILDING"; //$NON-NLS-1$
 			else if (indexState == REUSE_STATE) state = "REUSE"; //$NON-NLS-1$
-			Util.verbose("-> index state updated to: " + state + " for: "+indexLocation); //$NON-NLS-1$ //$NON-NLS-2$
+			trace("-> index state updated to: " + state + " for: "+indexLocation); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 
@@ -1448,7 +1447,7 @@ private void writeJavaLikeNamesFile() {
 
 	} catch (IOException ignored) {
 		if (VERBOSE)
-			Util.verbose("Failed to write javaLikeNames file", System.err); //$NON-NLS-1$
+			trace("Failed to write javaLikeNames file"); //$NON-NLS-1$
 	} finally {
 		if (writer != null) {
 			try {
@@ -1481,7 +1480,7 @@ private void writeIndexMapFile() {
 		}
 	} catch (IOException ignored) {
 		if (VERBOSE)
-			Util.verbose("Failed to write saved index file names", System.err); //$NON-NLS-1$
+			trace("Failed to write saved index file names"); //$NON-NLS-1$
 	} finally {
 		if (writer != null) {
 			try {
@@ -1511,7 +1510,7 @@ private void writeParticipantsIndexNamesFile() {
 		}
 	} catch (IOException ignored) {
 		if (VERBOSE)
-			Util.verbose("Failed to write participant index file names", System.err); //$NON-NLS-1$
+			trace("Failed to write participant index file names"); //$NON-NLS-1$
 	} finally {
 		if (writer != null) {
 			try {
@@ -1599,7 +1598,7 @@ public Optional<Set<String>> findMatchingIndexNames(QualifierQuery query) {
 				indexesNotInMeta = mindex.getIndexesNotInMeta(this.indexes);
 			}
 			if (VERBOSE) {
-				Util.verbose("-> not in meta-index: " + indexesNotInMeta.size() + ", in: "+results.size() + " for query " + query); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				trace("-> not in meta-index: " + indexesNotInMeta.size() + ", in: "+results.size() + " for query " + query); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			}
 			final Index i = mindex.getIndex();
 			return Optional.of(Stream.concat(indexesNotInMeta.stream(), results.stream().flatMap(r -> {
@@ -1619,7 +1618,7 @@ public Optional<Set<String>> findMatchingIndexNames(QualifierQuery query) {
 	} finally {
 		if (VERBOSE) {
 			long wallClockTime = System.currentTimeMillis() - startTime;
-			Util.verbose("-> execution time: " + wallClockTime + "ms - IndexManager#findMatchingIndexNames");//$NON-NLS-1$//$NON-NLS-2$
+			trace("-> execution time: " + wallClockTime + "ms - IndexManager#findMatchingIndexNames");//$NON-NLS-1$//$NON-NLS-2$
 		}
 	}
 }
@@ -1644,21 +1643,21 @@ private MetaIndex loadMetaIndexIfNeeded() throws IOException {
 			Integer currentIndexState = state == null ? UNKNOWN_STATE : (Integer) state;
 			if(UNKNOWN_STATE.equals(currentIndexState)) {
 				if (VERBOSE) {
-					Util.verbose("-> create empty meta-index: "+indexLocation+" path: "+INDEX_META_CONTAINER); //$NON-NLS-1$ //$NON-NLS-2$
+					trace("-> create empty meta-index: "+indexLocation+" path: "+INDEX_META_CONTAINER); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 				this.metaIndex = new MetaIndex(new Index(indexLocation, INDEX_META_CONTAINER, false));
 				updateIndexState(indexLocation, REUSE_STATE);
 			} else if(indexLocation.exists()) {
 				if (VERBOSE) {
-					Util.verbose("-> load existing meta-index: "+indexLocation+" path: "+INDEX_META_CONTAINER); //$NON-NLS-1$ //$NON-NLS-2$
+					trace("-> load existing meta-index: "+indexLocation+" path: "+INDEX_META_CONTAINER); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 				try {
 					this.metaIndex = new MetaIndex(new Index(indexLocation, INDEX_META_CONTAINER, true));
 				} catch (IOException e) {
 					Util.log(e, "Failed to read saved meta index, re-creating"); //$NON-NLS-1$
 					if (VERBOSE) {
-						Util.verbose("-> failed to read saved meta-index: "+indexLocation+" path: "+INDEX_META_CONTAINER); //$NON-NLS-1$ //$NON-NLS-2$
-						Util.verbose("-> re-create meta-index: "+indexLocation+" path: "+INDEX_META_CONTAINER); //$NON-NLS-1$ //$NON-NLS-2$
+						trace("-> failed to read saved meta-index: "+indexLocation+" path: "+INDEX_META_CONTAINER); //$NON-NLS-1$ //$NON-NLS-2$
+						trace("-> re-create meta-index: "+indexLocation+" path: "+INDEX_META_CONTAINER); //$NON-NLS-1$ //$NON-NLS-2$
 					}
 					indexLocation.delete();
 					this.metaIndex = new MetaIndex(new Index(indexLocation, INDEX_META_CONTAINER, false));
@@ -1699,7 +1698,7 @@ void updateMetaIndex(String indexFileName, List<IndexQualifier> qualifications) 
 		}
 		if (VERBOSE) {
 			int qsize = qualifications.size();
-			Util.verbose("-> updating meta-index with " + qsize + " elements for " + indexFileName); //$NON-NLS-1$ //$NON-NLS-2$
+			trace("-> updating meta-index with " + qsize + " elements for " + indexFileName); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		monitor.enterWrite();
 		// clean existing entries for current document
@@ -1709,12 +1708,11 @@ void updateMetaIndex(String indexFileName, List<IndexQualifier> qualifications) 
 			mindex.addIndexEntry(qualifier.getCategory(), qualifier.getKey(), indexFileName);
 		}
 		if (VERBOSE) {
-			Util.verbose("-> meta-index updated for " + indexFileName); //$NON-NLS-1$
+			trace("-> meta-index updated for " + indexFileName); //$NON-NLS-1$
 		}
 	} catch (IOException e) {
 		if (JobManager.VERBOSE) {
-			Util.verbose("-> failed to update meta index for index " + indexFileName + " because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
-			e.printStackTrace();
+			trace("-> failed to update meta index for index " + indexFileName + " because of the following exception:", e); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	} finally {
 		if(monitor != null) {
@@ -1739,7 +1737,7 @@ public Optional<MetaIndex> getMetaIndex() {
 void scheduleForMetaIndexUpdate(Index index) {
 	synchronized(this.metaIndexUpdates){
 		if (!this.metaIndexUpdates.add(index) && VERBOSE) {
-			Util.verbose("-> already waiting for meta-index update for " + index); //$NON-NLS-1$
+			trace("-> already waiting for meta-index update for " + index); //$NON-NLS-1$
 		}
 	}
 	requestIfNotWaiting(new MetaIndexUpdateRequest());
@@ -1788,7 +1786,7 @@ class MetaIndexUpdateRequest implements IJob {
 				continue;
 			}
 			if (VERBOSE) {
-				Util.verbose("-> meta-index update from queue with size " + metaIndexUpdatesSize); //$NON-NLS-1$
+				trace("-> meta-index update from queue with size " + metaIndexUpdatesSize); //$NON-NLS-1$
 			}
 			try {
 				updateMetaIndex(indexFile.getName(), index.getMetaIndexQualifications());
@@ -1798,9 +1796,8 @@ class MetaIndexUpdateRequest implements IJob {
 					Util.log(e, "Failed to update meta index"); //$NON-NLS-1$
 				} else {
 					if (JobManager.VERBOSE) {
-						Util.verbose("-> failed to update meta index for index " + indexFile.getName() //$NON-NLS-1$
-								+ " because of the following exception:"); //$NON-NLS-1$
-						e.printStackTrace();
+						trace("-> failed to update meta index for index " + indexFile.getName() //$NON-NLS-1$
+								+ " because of the following exception:", e); //$NON-NLS-1$
 					}
 				}
 			}
