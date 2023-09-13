@@ -25,6 +25,7 @@ import org.eclipse.jdt.internal.core.search.matching.MethodPattern;
 import org.eclipse.jdt.internal.core.search.matching.ModulePattern;
 import org.eclipse.jdt.internal.core.search.matching.SuperTypeReferencePattern;
 import org.eclipse.jdt.internal.core.search.matching.TypeDeclarationPattern;
+import org.eclipse.jdt.internal.core.util.Util;
 
 public abstract class AbstractIndexer implements IIndexConstants {
 
@@ -209,7 +210,7 @@ public abstract class AbstractIndexer implements IIndexConstants {
 							typeModifiers,
 							extraFlags));
 		} catch (Exception e) {
-			e.printStackTrace();
+			Util.log(e);
 		}
 	}
 
