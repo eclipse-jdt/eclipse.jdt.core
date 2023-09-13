@@ -1080,13 +1080,8 @@ protected void consumeLocalVariableDeclarationStatement() {
 			this.lastIgnoredToken = -1;
 		}
 	}
-	checkRestartRecovery();
 }
-@Override
-protected void consumeAssignment() {
-	super.consumeAssignment();
-	// checkRestartRecovery();
-}
+
 @Override
 protected void consumeBlockStatement() {
 	// Super implementation unsuitable, so no chaining.
