@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.URI;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -552,7 +553,26 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	}
 	protected DeltaListener deltaListener = new DeltaListener();
 
-	protected ILogListener logListener;
+	public static class LogListenerWithHistory implements ILogListener {
+		private StringBuffer buffer = new StringBuffer();
+		private List<IStatus> logs = new ArrayList<>();
+
+		public void logging(IStatus status, String plugin) {
+			this.logs.add(status);
+			this.buffer.append(status);
+			this.buffer.append('\n');
+		}
+
+		public String toString() {
+			return this.buffer.toString();
+		}
+
+		public List<IStatus> getLogs() {
+			return this.logs;
+		}
+	}
+
+	protected LogListenerWithHistory logListener;
 	protected ILog log;
 
 	protected static boolean systemConfigReported;
@@ -3900,16 +3920,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected void startLogListening(ILog logToListen) {
 		stopLogListening(); // cleanup if we forgot to stop listening
 		this.log = logToListen;
-		this.logListener = new ILogListener(){
-			private StringBuffer buffer = new StringBuffer();
-			public void logging(IStatus status, String plugin) {
-				this.buffer.append(status);
-				this.buffer.append('\n');
-			}
-			public String toString() {
-				return this.buffer.toString();
-			}
-		};
+		this.logListener = new LogListenerWithHistory();
 		if (logToListen == null) {
 			Platform.addLogListener(this.logListener);
 		} else {

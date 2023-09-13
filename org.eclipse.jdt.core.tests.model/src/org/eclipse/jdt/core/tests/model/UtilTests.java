@@ -13,6 +13,13 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.model;
 
+import java.util.List;
+
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.jdt.core.IJavaModelStatusConstants;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.JavaModelStatus;
 import org.eclipse.jdt.internal.core.util.Util;
 
 import junit.framework.Test;
@@ -77,5 +84,26 @@ public class UtilTests extends AbstractJavaModelTests {
 		String[] arguments = new String[] {"foo#test", "bar"};
 		String[] result = Util.getProblemArgumentsFromMarker(Util.getProblemArgumentsForMarker(arguments));
 		assertStringsEqual("Wrong arguments", arguments, result);
+	}
+
+	public void testLogWithStackTrace() {
+		startLogListening();
+		try {
+			Util.log(new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST,
+					JavaModelManager.getJavaModelManager().getJavaModel())));
+			List<IStatus> logs = this.logListener.getLogs();
+			while (logs.isEmpty()) {
+				try {
+					Thread.sleep(50);
+				} catch (InterruptedException e) {
+					break;
+				}
+			}
+			assertEquals("More errors as expected", 1, logs.size());
+			IStatus status = logs.get(0);
+			assertNotNull("No exception on logged status", status.getException());
+		} finally {
+			stopLogListening();
+		}
 	}
 }
