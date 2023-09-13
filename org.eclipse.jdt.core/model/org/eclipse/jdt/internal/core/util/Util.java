@@ -1897,8 +1897,8 @@ public class Util {
 	}
 
 	public static void log(Throwable e) {
-		if (e instanceof CoreException) {
-			log(((CoreException)e).getStatus());
+		if (e instanceof CoreException ce && ce.getStatus().getException() != null) {
+			log(ce.getStatus());
 		} else {
 			log(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, Messages.internal_error, e));
 		}

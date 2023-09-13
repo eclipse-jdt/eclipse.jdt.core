@@ -932,7 +932,9 @@ private IModuleDescription getSourceModuleDescription() {
 			}
 		}
 	} catch (JavaModelException e) {
-		Util.log(e);
+		if (!e.isDoesNotExist()) {
+			Util.log(e);
+		}
 	}
 	return null;
 }
