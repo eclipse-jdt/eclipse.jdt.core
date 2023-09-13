@@ -1288,8 +1288,8 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		} else if (binding instanceof MethodBinding) {
 			this.noProposal = false;
 
-			// when a full lambda expression is selected we will find the paser.assistedNode to represent that
-			// lambda expression. So we use that state to differentiate hover over "->" vs full lambda expression selection.
+			// when a full lambda expression is selected we will find the assistNode to be a SelectionOnLambdaExpression while
+			// for a hover over "->" it will be a LambdaExpression. So we use that to discriminate
 			if(this.parser.assistNode instanceof SelectionOnLambdaExpression) {
 				LambdaExpression lambdaExpr = (LambdaExpression) this.parser.assistNode;
 				SyntheticMethodBinding methodBinding = new SyntheticMethodBinding(lambdaExpr,
