@@ -99,7 +99,6 @@ public class SelectionParser extends AssistParser {
 	protected static final int K_POST_WHILE_EXPRESSION = SELECTION_PARSER + 11; // whether we are in an while statement's body
 	protected static final int K_INSIDE_WHILE_EXPRESSION = SELECTION_PARSER + 12; // whether we are in an while's condition
 
-
 	/* https://bugs.eclipse.org/bugs/show_bug.cgi?id=476693
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=515758
 	 * Records whether and when we found an invocation being selected:
@@ -885,7 +884,6 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 		this.listLength++;
 	}
 }
-
 @Override
 protected void consumeGuard() {
 	super.consumeGuard();
@@ -938,6 +936,24 @@ protected void consumeStatementWhile() {
 }
 
 @Override
+protected void consumeBinaryExpression(int op) {
+	super.consumeBinaryExpression(op);
+	if (op == AND_AND)
+		popElement(K_POST_AND_AND);
+	else if (op == OR_OR)
+		popElement(K_POST_OR_OR);
+}
+
+@Override
+protected void consumeBinaryExpressionWithName(int op) {
+	super.consumeBinaryExpressionWithName(op);
+	if (op == AND_AND)
+		popElement(K_POST_AND_AND);
+	else if (op == OR_OR)
+		popElement(K_POST_OR_OR);
+}
+
+@Override
 protected void consumeStatementDo() {
 	popUntilElement(K_INSIDE_WHILE_EXPRESSION);
 	popElement(K_INSIDE_WHILE_EXPRESSION);
@@ -977,17 +993,6 @@ protected void consumeInsideCastExpressionLL1WithBounds() {
 protected void consumeInsideCastExpressionWithQualifiedGenerics() {
 	super.consumeInsideCastExpressionWithQualifiedGenerics();
 	pushOnElementStack(K_CAST_STATEMENT);
-}
-
-@Override
-protected void consumeCaseLabelElement(CaseLabelKind kind) {
-	super.consumeCaseLabelElement(kind);
-	switch (kind) {
-		case CASE_PATTERN:
-			break;
-		default:
-			break;
-	}
 }
 @Override
 protected void consumeSwitchLabeledExpression() {
@@ -1080,36 +1085,18 @@ protected void consumeLocalVariableDeclarationStatement() {
 @Override
 protected void consumeAssignment() {
 	super.consumeAssignment();
-	//checkRestartRecovery();
+	// checkRestartRecovery();
 }
-
 @Override
-protected void consumeBinaryExpression(int op) {
-	super.consumeBinaryExpression(op);
-	if (op == AND_AND)
-		popElement(K_POST_AND_AND);
-	else if (op == OR_OR)
-		popElement(K_POST_OR_OR);
-}
-
-@Override
-protected void consumeBinaryExpressionWithName(int op) {
-	super.consumeBinaryExpressionWithName(op);
-	if (op == AND_AND)
-		popElement(K_POST_AND_AND);
-	else if (op == OR_OR)
-		popElement(K_POST_OR_OR);
-}
-
-
-@Override
-protected void consumeBlockStatements() {
-	concatNodeLists();
+protected void consumeBlockStatement() {
+	// Super implementation unsuitable, so no chaining.
 	checkRestartRecovery();
 }
 
 @Override
-protected void consumeBlockStatement() {
+protected void consumeBlockStatements() {
+	// Super implementation unsuitable, so no chaining.
+	concatNodeLists();
 	checkRestartRecovery();
 }
 
@@ -1887,6 +1874,28 @@ public CompilationUnitDeclaration parse(ICompilationUnit sourceUnit, Compilation
 	return super.parse(sourceUnit, compilationResult, -1, -1/*parse without reseting the scanner*/);
 }
 
+@Override
+protected boolean restartRecovery() {
+	return requireExtendedRecovery() || this.selectionNodeFoundLevel > 0 ?
+			false :
+			super.restartRecovery();
+}
+
+@Override
+protected int cookedAstPtr() {
+	for (int i = 0; i <= this.elementPtr; i++) {
+		switch (this.elementKindStack[i]) {
+			case K_INSIDE_SWITCH:
+			case K_INSIDE_IF_EXPRESSION:
+			case K_POST_WHILE_EXPRESSION:
+				if (this.assistNode != null)
+					this.isOrphanCompletionNode = true; // buried deep, needs to be dug up and attached.
+				return (int) this.elementObjectInfoStack[i];
+		}
+	}
+	return super.cookedAstPtr();
+}
+
 /*
  * Reset context so as to resume to regular parse loop
  * If unable to reset for resuming, answers false.
@@ -1927,19 +1936,6 @@ protected int resumeAfterRecovery() {
 		}
 	}
 	return super.resumeAfterRecovery();
-}
-
-@Override
-protected boolean restartRecovery() {
-	boolean ret = requireExtendedRecovery() || this.selectionNodeFoundLevel > 0 ?
-			false :
-			super.restartRecovery();
-	return ret;
-}
-
-@Override
-public boolean requireExtendedRecovery() {
-	return lastIndexOfElement(K_LAMBDA_EXPRESSION_DELIMITER) >= 0; // || this.selectionNodeFoundLevel > 0;
 }
 
 public void selectionIdentifierCheck(){
@@ -2022,19 +2018,5 @@ public ModuleReference createAssistModuleReference(int index) {
 	System.arraycopy(this.identifierStack, this.identifierPtr + 1, tokens, 0, length);
 	System.arraycopy(this.identifierPositionStack, this.identifierPtr + 1, positions, 0, length);
 	return new SelectionOnModuleReference(tokens, positions);
-}
-@Override
-protected int cookedAstPtr() {
-	for (int i = 0; i <= this.elementPtr; i++) {
-		switch (this.elementKindStack[i]) {
-			case K_INSIDE_SWITCH:
-			case K_INSIDE_IF_EXPRESSION:
-			case K_POST_WHILE_EXPRESSION:
-				if (this.assistNode != null)
-					this.isOrphanCompletionNode = true; // buried deep, needs to be dug up and attached.
-				return (int) this.elementObjectInfoStack[i];
-		}
-	}
-	return super.cookedAstPtr();
 }
 }
