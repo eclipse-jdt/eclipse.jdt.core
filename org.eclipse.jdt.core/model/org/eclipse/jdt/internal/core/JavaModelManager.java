@@ -161,6 +161,7 @@ import org.eclipse.jdt.internal.core.util.Util;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
 import org.eclipse.osgi.service.debug.DebugOptions;
 import org.eclipse.osgi.service.debug.DebugOptionsListener;
+import org.eclipse.osgi.service.debug.DebugTrace;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.prefs.BackingStoreException;
@@ -417,6 +418,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	static final int PREF_DEFAULT = 1;
 
 	static final Object[][] NO_PARTICIPANTS = new Object[0][];
+
+	private static DebugTrace DEBUG_TRACE;
 
 	public static class CompilationParticipants {
 
@@ -1919,8 +1922,11 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		Hashtable<String, String> properties = new Hashtable<>(2);
 		properties.put(DebugOptions.LISTENER_SYMBOLICNAME, JavaCore.PLUGIN_ID);
 		DEBUG_REGISTRATION = context.registerService(DebugOptionsListener.class, new DebugOptionsListener() {
+
+
 			@Override
 			public void optionsChanged(DebugOptions options) {
+				DEBUG_TRACE = options.newDebugTrace(JavaCore.PLUGIN_ID, JavaModelManager.class);
 				boolean debug = options.getBooleanOption(DEBUG, false);
 				BufferManager.VERBOSE = debug && options.getBooleanOption(BUFFER_MANAGER_DEBUG, false);
 				JavaBuilder.DEBUG = debug && options.getBooleanOption(BUILDER_DEBUG, false);
@@ -4717,6 +4723,18 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		String message = MessageFormat.format(pattern, new Object[]{action, length, delta});
 
 		System.out.println(message);
+	}
+
+	public static void trace(String msg) {
+		DEBUG_TRACE.trace(null, msg);
+	}
+
+	public static void trace(String msg, Exception e) {
+		DEBUG_TRACE.trace(null, msg, e);
+	}
+
+	public static void traceDumpStack() {
+		DEBUG_TRACE.traceDumpStack(null);
 	}
 
 	/**
