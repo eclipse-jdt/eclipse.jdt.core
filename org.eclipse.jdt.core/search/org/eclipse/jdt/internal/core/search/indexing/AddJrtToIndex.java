@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.indexing;
 
+import static org.eclipse.jdt.internal.compiler.util.Util.isClassFileName;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -29,12 +31,12 @@ import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchParticipant;
 import org.eclipse.jdt.internal.compiler.util.JRTUtil;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
-import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.index.Index;
 import org.eclipse.jdt.internal.core.index.IndexLocation;
 import org.eclipse.jdt.internal.core.search.JavaSearchDocument;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
+import org.eclipse.jdt.internal.core.util.Util;
 
 public class AddJrtToIndex extends BinaryContainer {
 
@@ -98,7 +100,7 @@ public class AddJrtToIndex extends BinaryContainer {
 		public FileVisitResult visitFile(java.nio.file.Path path, java.nio.file.Path mod, BasicFileAttributes attrs)
 				throws IOException {
 			String name = JRTUtil.sanitizedFileName(path);
-			if (Util.isClassFileName(name) &&
+			if (isClassFileName(name) &&
 					isValidPackageNameForClassOrisModule(name)) {
 				this.indexedFileNames.put(name, FILE_INDEX_STATE.EXISTS);
 			}
@@ -132,7 +134,7 @@ public class AddJrtToIndex extends BinaryContainer {
 		public FileVisitResult visitFile(java.nio.file.Path path, java.nio.file.Path mod, BasicFileAttributes attrs)
 				throws IOException {
 			String name = JRTUtil.sanitizedFileName(path);
-			if (Util.isClassFileName(name) &&
+			if (isClassFileName(name) &&
 					isValidPackageNameForClassOrisModule(name)) {
 				try {
 					String fullPath = path.toString();
@@ -142,7 +144,7 @@ public class AddJrtToIndex extends BinaryContainer {
 					JavaSearchDocument entryDocument = new JavaSearchDocument(docFullPath, classFileBytes, this.participant);
 					this.indexManager.indexDocument(entryDocument, this.participant, this.index, this.indexPath);
 				} catch (IOException e) {
-					e.printStackTrace();
+					Util.log(e);
 				}
 			}
 			return FileVisitResult.CONTINUE;
@@ -165,21 +167,21 @@ public class AddJrtToIndex extends BinaryContainer {
 			// MUST reset the IndexManager if a jar file is changed
 			if (this.manager.getIndexForUpdate(this.containerPath, false, /*do not reuse index file*/ false /*do not create if none*/) != null) {
 				if (JobManager.VERBOSE)
-					org.eclipse.jdt.internal.core.util.Util.verbose("-> no indexing required (index already exists) for " + this.containerPath); //$NON-NLS-1$
+					Util.verbose("-> no indexing required (index already exists) for " + this.containerPath); //$NON-NLS-1$
 				return true;
 			}
 
 			final Index index = this.manager.getIndexForUpdate(this.containerPath, true, /*reuse index file*/ true /*create if none*/);
 			if (index == null) {
 				if (JobManager.VERBOSE)
-					org.eclipse.jdt.internal.core.util.Util.verbose("-> index could not be created for " + this.containerPath); //$NON-NLS-1$
+					Util.verbose("-> index could not be created for " + this.containerPath); //$NON-NLS-1$
 				return true;
 			}
 			index.separator = JAR_SEPARATOR;
 			ReadWriteMonitor monitor = index.monitor;
 			if (monitor == null) {
 				if (JobManager.VERBOSE)
-					org.eclipse.jdt.internal.core.util.Util.verbose("-> index for " + this.containerPath + " just got deleted"); //$NON-NLS-1$//$NON-NLS-2$
+					Util.verbose("-> index for " + this.containerPath + " just got deleted"); //$NON-NLS-1$//$NON-NLS-2$
 				return true; // index got deleted since acquired
 			}
 			try {
@@ -194,16 +196,16 @@ public class AddJrtToIndex extends BinaryContainer {
 						System.out.println("(" + Thread.currentThread() + ") [AddJrtFileToIndex.execute()] Creating ZipFile on " + location.getPath()); //$NON-NLS-1$	//$NON-NLS-2$
 					File file = null;
 					try {
-						file = org.eclipse.jdt.internal.core.util.Util.toLocalFile(location, progressMonitor);
+						file = Util.toLocalFile(location, progressMonitor);
 					} catch (CoreException e) {
 						if (JobManager.VERBOSE) {
-							org.eclipse.jdt.internal.core.util.Util.verbose("-> failed to index " + location.getPath() + " because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
+							Util.verbose("-> failed to index " + location.getPath() + " because of the following exception:"); //$NON-NLS-1$ //$NON-NLS-2$
 							e.printStackTrace();
 						}
 					}
 					if (file == null) {
 						if (JobManager.VERBOSE)
-							org.eclipse.jdt.internal.core.util.Util.verbose("-> failed to index " + location.getPath() + " because the file could not be fetched"); //$NON-NLS-1$ //$NON-NLS-2$
+							Util.verbose("-> failed to index " + location.getPath() + " because the file could not be fetched"); //$NON-NLS-1$ //$NON-NLS-2$
 						return false;
 					}
 					fileName = file.getAbsolutePath();
@@ -217,7 +219,7 @@ public class AddJrtToIndex extends BinaryContainer {
 
 
 				if (JobManager.VERBOSE)
-					org.eclipse.jdt.internal.core.util.Util.verbose("-> indexing " + fileName); //$NON-NLS-1$
+					Util.verbose("-> indexing " + fileName); //$NON-NLS-1$
 				long initialTime = System.currentTimeMillis();
 				String[] paths = index.queryDocumentNames(""); // all file names //$NON-NLS-1$
 				if (paths != null) {
@@ -246,7 +248,7 @@ public class AddJrtToIndex extends BinaryContainer {
 						}
 						if (!needToReindex) {
 							if (JobManager.VERBOSE)
-								org.eclipse.jdt.internal.core.util.Util.verbose("-> no indexing required (index is consistent with library) for " //$NON-NLS-1$
+								Util.verbose("-> no indexing required (index is consistent with library) for " //$NON-NLS-1$
 								+ fileName + " (" //$NON-NLS-1$
 								+ (System.currentTimeMillis() - initialTime) + "ms)"); //$NON-NLS-1$
 							this.manager.saveIndex(index); // to ensure its placed into the saved state
@@ -274,14 +276,14 @@ public class AddJrtToIndex extends BinaryContainer {
 					this.manager.saveIndex(index);
 				}
 				if (JobManager.VERBOSE)
-					org.eclipse.jdt.internal.core.util.Util.verbose("-> done indexing of " //$NON-NLS-1$
+					Util.verbose("-> done indexing of " //$NON-NLS-1$
 						+ fileName + " (" //$NON-NLS-1$
 						+ (System.currentTimeMillis() - initialTime) + "ms)"); //$NON-NLS-1$
 			} finally {
 				monitor.exitWrite();
 			}
 		} catch (IOException e ) {
-			org.eclipse.jdt.internal.core.util.Util.log(e, "Failed to index " + this.containerPath); //$NON-NLS-1$
+			Util.log(e, "Failed to index " + this.containerPath); //$NON-NLS-1$
 			this.manager.removeIndex(this.containerPath);
 			return false;
 		}
