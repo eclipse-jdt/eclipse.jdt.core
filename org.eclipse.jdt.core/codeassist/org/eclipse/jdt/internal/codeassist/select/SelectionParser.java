@@ -89,15 +89,22 @@ public class SelectionParser extends AssistParser {
 	protected static final int K_BETWEEN_CASE_AND_COLONORARROW = SELECTION_PARSER + 1; // whether we are inside a block
 	protected static final int K_INSIDE_RETURN_STATEMENT = SELECTION_PARSER + 2; // whether we are between the keyword 'return' and the end of a return statement
 	protected static final int K_CAST_STATEMENT = SELECTION_PARSER + 3; // whether we are between ')' and the end of a cast statement
-	protected static final int K_INSIDE_THEN_STATEMENT = SELECTION_PARSER + 4; // whether we are in the then statement
-	protected static final int K_INSIDE_ELSE_STATEMENT = SELECTION_PARSER + 5; // whether we are in the else statement
-	protected static final int K_POST_AND_AND = SELECTION_PARSER + 6;
-	protected static final int K_POST_OR_OR = SELECTION_PARSER + 7;
-	protected static final int K_INSIDE_SWITCH = SELECTION_PARSER + 8; // whether we are in the switch statement/expression
-	protected static final int K_INSIDE_WHEN = SELECTION_PARSER + 9; // whether we are in the guard
-	protected static final int K_INSIDE_IF_EXPRESSION = SELECTION_PARSER + 10; // whether we are in an if statement
-	protected static final int K_POST_WHILE_EXPRESSION = SELECTION_PARSER + 11; // whether we are in an while statement's body
-	protected static final int K_INSIDE_WHILE_EXPRESSION = SELECTION_PARSER + 12; // whether we are in an while's condition
+
+	protected static final int K_POST_AND_AND = SELECTION_PARSER + 4; // whether we are in: expression && <here>
+	protected static final int K_POST_OR_OR = SELECTION_PARSER + 5;   // whether we are in: expression || <here>
+
+	protected static final int K_INSIDE_IF = SELECTION_PARSER + 6; // whether we are in an if statement
+	protected static final int K_INSIDE_THEN = SELECTION_PARSER + 7; // whether we are in the then portion of an if statement
+	protected static final int K_INSIDE_ELSE = SELECTION_PARSER + 8; // whether we are in the else portion of an if statement
+
+	protected static final int K_INSIDE_WHILE = SELECTION_PARSER + 9; // whether we are in a while statement
+	protected static final int K_POST_WHILE_EXPRESSION = SELECTION_PARSER + 10; // whether we are in an while statement's body
+
+	protected static final int K_INSIDE_STATEMENT_SWITCH = SELECTION_PARSER + 11; // whether we are in a switch statement
+	protected static final int K_INSIDE_EXPRESSION_SWITCH = SELECTION_PARSER + 12; // whether we are in an expression switch
+	protected static final int K_INSIDE_WHEN = SELECTION_PARSER + 13; // whether we are in the guard
+
+
 
 	/* https://bugs.eclipse.org/bugs/show_bug.cgi?id=476693
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=515758
@@ -169,10 +176,11 @@ private void buildMoreCompletionContext(Expression expression) {
 	Expression right = expression;
 	Expression left = null;
 	Statement body = null;
+	int kind;
 
 	for (int i = this.elementPtr; i > -1; i--) {
-		switch (this.elementKindStack[i]) {
-			case K_INSIDE_WHILE_EXPRESSION:
+		switch (kind = this.elementKindStack[i]) {
+			case K_INSIDE_WHILE:
 				// precondition: orphan must be the the WhileStatement.condition
 				if (body == null) { // selection inside while (<here>)
 					body = new EmptyStatement(orphan.sourceEnd,  orphan.sourceEnd);
@@ -200,7 +208,7 @@ private void buildMoreCompletionContext(Expression expression) {
 				orphan = this.expressionStack[this.expressionPtr--];
 				parentNode = body = b;
 				break;
-			case K_INSIDE_IF_EXPRESSION:
+			case K_INSIDE_IF:
 				// precondition: orphan must be the the IfStatement.condition
 				if (thenStat == null) { // selection inside if (<here>)
 					thenStat = new EmptyStatement(orphan.sourceEnd,  orphan.sourceEnd);
@@ -220,7 +228,8 @@ private void buildMoreCompletionContext(Expression expression) {
 					parentNode = orphan = new GuardedPattern(pattern, (Expression) orphan);
 				}
 				break;
-			case K_INSIDE_SWITCH:
+			case K_INSIDE_STATEMENT_SWITCH:
+			case K_INSIDE_EXPRESSION_SWITCH:
 				newAstPtr = (int) this.elementObjectInfoStack[i];
 				length = this.astPtr - newAstPtr;
 				statements = new Statement[length+1];
@@ -232,13 +241,7 @@ private void buildMoreCompletionContext(Expression expression) {
 					length);
 				statements[length] = orphan;
 				this.astPtr = newAstPtr;
-				boolean exprSwitch = false;
-				for (Statement s: statements) {
-					if (s instanceof CaseStatement cs && cs.isExpr) {
-						exprSwitch = true;
-						break;
-					}
-				}
+				boolean exprSwitch = kind == K_INSIDE_EXPRESSION_SWITCH;
 				SwitchStatement switchStatement = exprSwitch ? new SwitchExpression() : new SwitchStatement();
 				switchStatement.expression = this.expressionStack[this.elementInfoStack[i]];
 				switchStatement.statements = statements;
@@ -273,7 +276,7 @@ private void buildMoreCompletionContext(Expression expression) {
 						OR_OR);
 				parentNode = orphan = right;
 				break;
-			case K_INSIDE_ELSE_STATEMENT:
+			case K_INSIDE_ELSE:
 				newAstPtr = this.elementInfoStack[i];
 				length = this.astPtr - newAstPtr;
 				statements = new Statement[length+1];
@@ -290,7 +293,7 @@ private void buildMoreCompletionContext(Expression expression) {
 				elseStat = b;
 				orphan = null;
 				break;
-			case K_INSIDE_THEN_STATEMENT:
+			case K_INSIDE_THEN:
 				newAstPtr = (int) this.elementObjectInfoStack[i];
 				length = this.astPtr - newAstPtr;
 				statements = new Statement[length + (orphan != null ? 1 : 0)];
@@ -892,46 +895,48 @@ protected void consumeGuard() {
 }
 
 @Override
-protected void consumePostIfExpression() {
-	super.consumePostIfExpression();
-	pushOnElementStack(K_INSIDE_THEN_STATEMENT, this.expressionPtr, this.astPtr);
+protected void consumePostExpressionInIf() {
+	super.consumePostExpressionInIf();
+	pushOnElementStack(K_INSIDE_THEN, this.expressionPtr, this.astPtr);
 }
 
 @Override
-protected void consumePostSwitchExpression() {
-	super.consumePostSwitchExpression();
-	pushOnElementStack(K_INSIDE_SWITCH, this.expressionPtr, this.astPtr);
+protected void consumePostExpressionInSwitch(boolean statSwitch) {
+	super.consumePostExpressionInSwitch(statSwitch);
+	pushOnElementStack(statSwitch ? K_INSIDE_STATEMENT_SWITCH : K_INSIDE_EXPRESSION_SWITCH, this.expressionPtr, this.astPtr);
 }
 
 @Override
-protected void consumePostWhileExpression() {
-	super.consumePostWhileExpression();
+protected void consumePostExpressionInWhile() {
+	super.consumePostExpressionInWhile();
 	if (this.expressionStack[this.expressionPtr].containsPatternVariable()) {
 		pushOnElementStack(K_POST_WHILE_EXPRESSION, this.expressionPtr, this.astPtr);
 	} else {
-		popUntilElement(K_INSIDE_WHILE_EXPRESSION);
-		popElement(K_INSIDE_WHILE_EXPRESSION);
+		popUntilElement(K_INSIDE_WHILE);
+		popElement(K_INSIDE_WHILE);
 	}
 }
 
 @Override
 protected void consumeStatementSwitch() {
 	super.consumeStatementSwitch();
-	popElement(K_INSIDE_SWITCH);
+	popUntilElement(K_INSIDE_STATEMENT_SWITCH);
+	popElement(K_INSIDE_STATEMENT_SWITCH);
 }
 
 @Override
 protected void consumeSwitchExpression() {
 	super.consumeSwitchExpression();
-	popElement(K_INSIDE_SWITCH);
+	popUntilElement(K_INSIDE_EXPRESSION_SWITCH);
+	popElement(K_INSIDE_EXPRESSION_SWITCH);
 }
 
 @Override
 protected void consumeStatementWhile() {
 	super.consumeStatementWhile();
 	if (((WhileStatement) this.astStack[this.astPtr]).condition.containsPatternVariable()) {
-		popUntilElement(K_INSIDE_WHILE_EXPRESSION);
-		popElement(K_INSIDE_WHILE_EXPRESSION);
+		popUntilElement(K_INSIDE_WHILE);
+		popElement(K_INSIDE_WHILE);
 	}
 }
 
@@ -955,23 +960,23 @@ protected void consumeBinaryExpressionWithName(int op) {
 
 @Override
 protected void consumeStatementDo() {
-	popUntilElement(K_INSIDE_WHILE_EXPRESSION);
-	popElement(K_INSIDE_WHILE_EXPRESSION);
-	super.consumeStatementWhile();
+	popUntilElement(K_INSIDE_WHILE);
+	popElement(K_INSIDE_WHILE);
+	super.consumeStatementDo();
 }
 
 @Override
 protected void consumeStatementIfNoElse() {
 	super.consumeStatementIfNoElse();
-	popUntilElement(K_INSIDE_IF_EXPRESSION);
-	popElement(K_INSIDE_IF_EXPRESSION);
+	popUntilElement(K_INSIDE_IF);
+	popElement(K_INSIDE_IF);
 }
 
 @Override
 protected void consumeStatementIfWithElse() {
 	super.consumeStatementIfWithElse();
-	popUntilElement(K_INSIDE_IF_EXPRESSION);
-	popElement(K_INSIDE_IF_EXPRESSION);
+	popUntilElement(K_INSIDE_IF);
+	popElement(K_INSIDE_IF);
 }
 
 @Override
@@ -1528,8 +1533,8 @@ protected void consumeToken(int token) {
 				}
 				break;
 			case TokenNameelse:
-				if (topKnownElementKind(SELECTION_OR_ASSIST_PARSER) == K_INSIDE_THEN_STATEMENT) {
-					pushOnElementStack(K_INSIDE_ELSE_STATEMENT, this.astPtr);
+				if (topKnownElementKind(SELECTION_OR_ASSIST_PARSER) == K_INSIDE_THEN) {
+					pushOnElementStack(K_INSIDE_ELSE, this.astPtr);
 				}
 				break;
 			case TokenNameAND_AND:
@@ -1543,9 +1548,9 @@ protected void consumeToken(int token) {
 				break;
 			case TokenNameLPAREN:
 				if (lastToken == TokenNameif) {
-					pushOnElementStack(K_INSIDE_IF_EXPRESSION, this.expressionPtr, this.astPtr);
+					pushOnElementStack(K_INSIDE_IF, this.expressionPtr, this.astPtr);
 				} else if (lastToken == TokenNamewhile) {
-					pushOnElementStack(K_INSIDE_WHILE_EXPRESSION);
+					pushOnElementStack(K_INSIDE_WHILE, this.expressionPtr, this.astPtr);
 				}
 				break;
 		}
@@ -1880,9 +1885,10 @@ protected boolean restartRecovery() {
 protected int cookedAstPtr() {
 	for (int i = 0; i <= this.elementPtr; i++) {
 		switch (this.elementKindStack[i]) {
-			case K_INSIDE_SWITCH:
-			case K_INSIDE_IF_EXPRESSION:
-			case K_POST_WHILE_EXPRESSION:
+			case K_INSIDE_STATEMENT_SWITCH:
+			case K_INSIDE_EXPRESSION_SWITCH:
+			case K_INSIDE_IF:
+			case K_INSIDE_WHILE:
 				if (this.assistNode != null)
 					this.isOrphanCompletionNode = true; // buried deep, needs to be dug up and attached.
 				return (int) this.elementObjectInfoStack[i];

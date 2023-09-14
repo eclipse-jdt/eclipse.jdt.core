@@ -1452,28 +1452,31 @@ StatementExpression ::= MethodInvocation
 StatementExpression ::= ClassInstanceCreationExpression
 /:$readableName Expression:/
 
-PostSwitchExpression ::= $empty
-/.$putCase consumePostSwitchExpression(); $break ./
+PostExpressionInSwitchStatement ::= $empty
+/.$putCase consumePostExpressionInSwitch(true); $break ./
 
-PostIfExpression ::= $empty
-/.$putCase consumePostIfExpression(); $break ./
+PostExpressionInSwitchExpression ::= $empty
+/.$putCase consumePostExpressionInSwitch(false); $break ./
 
-PostWhileExpression ::= $empty
-/.$putCase consumePostWhileExpression(); $break ./
+PostExpressionInIf ::= $empty
+/.$putCase consumePostExpressionInIf(); $break ./
 
-IfThenStatement ::= 'if' '(' Expression ')' PostIfExpression Statement
+PostExpressionInWhile ::= $empty
+/.$putCase consumePostExpressionInWhile(); $break ./
+
+IfThenStatement ::= 'if' '(' Expression ')' PostExpressionInIf Statement
 /.$putCase consumeStatementIfNoElse(); $break ./
 /:$readableName IfStatement:/
 
-IfThenElseStatement ::= 'if' '(' Expression ')' PostIfExpression StatementNoShortIf 'else' Statement
+IfThenElseStatement ::= 'if' '(' Expression ')' PostExpressionInIf StatementNoShortIf 'else' Statement
 /.$putCase consumeStatementIfWithElse(); $break ./
 /:$readableName IfStatement:/
 
-IfThenElseStatementNoShortIf ::= 'if' '(' Expression ')' PostIfExpression StatementNoShortIf 'else' StatementNoShortIf
+IfThenElseStatementNoShortIf ::= 'if' '(' Expression ')' PostExpressionInIf StatementNoShortIf 'else' StatementNoShortIf
 /.$putCase consumeStatementIfWithElse(); $break ./
 /:$readableName IfStatement:/
 
-SwitchStatement ::= 'switch' '(' Expression ')' PostSwitchExpression OpenBlock SwitchBlock
+SwitchStatement ::= 'switch' '(' Expression ')' PostExpressionInSwitchStatement OpenBlock SwitchBlock
 /.$putCase consumeStatementSwitch() ; $break ./
 /:$readableName SwitchStatement:/
 
@@ -1513,7 +1516,7 @@ SwitchLabel ::= 'default' ':'
 UnaryExpressionNotPlusMinus -> SwitchExpression
 UnaryExpressionNotPlusMinus_NotName -> SwitchExpression
 
-SwitchExpression ::= 'switch' '(' Expression ')' PostSwitchExpression OpenBlock SwitchBlock
+SwitchExpression ::= 'switch' '(' Expression ')' PostExpressionInSwitchExpression OpenBlock SwitchBlock
 /.$putCase consumeSwitchExpression() ; $break ./
 /:$readableName SwitchExpression:/
 
@@ -1587,11 +1590,11 @@ YieldStatement ::= RestrictedIdentifierYield Expression ;
 /.$putCase consumeStatementYield() ; $break ./
 /:$readableName YieldStatement:/
 
-WhileStatement ::= 'while' '(' Expression ')' PostWhileExpression Statement
+WhileStatement ::= 'while' '(' Expression ')' PostExpressionInWhile Statement
 /.$putCase consumeStatementWhile() ; $break ./
 /:$readableName WhileStatement:/
 
-WhileStatementNoShortIf ::= 'while' '(' Expression ')' PostWhileExpression StatementNoShortIf
+WhileStatementNoShortIf ::= 'while' '(' Expression ')' PostExpressionInWhile StatementNoShortIf
 /.$putCase consumeStatementWhile() ; $break ./
 /:$readableName WhileStatement:/
 
