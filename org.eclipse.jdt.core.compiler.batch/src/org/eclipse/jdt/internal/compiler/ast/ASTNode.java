@@ -358,7 +358,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		if (argument instanceof AllocationExpression) {
 			AllocationExpression allocExp = (AllocationExpression) argument;
 			// we need this only when the error is not reported in AllocationExpression#checkTypeArgumentRedundancy()
-			if (allocExp.typeExpected == null) {
+			if (allocExp.typeExpected == null && !allocExp.expectedTypeWasInferred) {
 				final boolean isDiamond = allocExp.type != null && (allocExp.type.bits & ASTNode.IsDiamond) != 0;
 				allocExp.typeExpected = parameterType;
 				if (!isDiamond && allocExp.resolvedType.isParameterizedTypeWithActualArguments()) {
