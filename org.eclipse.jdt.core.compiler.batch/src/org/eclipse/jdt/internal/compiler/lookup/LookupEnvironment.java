@@ -148,11 +148,11 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 
 	public String moduleVersion; 	// ROOT_ONLY
 
-	final static int BUILD_FIELDS_AND_METHODS = 4;
 	final static int BUILD_TYPE_HIERARCHY = 1;
 	final static int CHECK_AND_SET_IMPORTS = 2;
 	final static int CONNECT_TYPE_HIERARCHY1 = 3;
-	final static int CONNECT_TYPE_HIERARCHY2 = 4;
+	final static int BUILD_FIELDS_AND_METHODS = 4;
+	final static int CONNECT_TYPE_HIERARCHY2 = 5;
 
 	static final ProblemPackageBinding TheNotFoundPackage = new ProblemPackageBinding(CharOperation.NO_CHAR, NotFound, null/*not perfect*/);
 	static final ProblemReferenceBinding TheNotFoundType = new ProblemReferenceBinding(CharOperation.NO_CHAR_CHAR, null, NotFound);
