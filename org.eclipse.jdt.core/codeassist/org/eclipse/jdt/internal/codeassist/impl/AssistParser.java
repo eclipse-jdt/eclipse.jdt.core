@@ -42,7 +42,6 @@ import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ForeachStatement;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.ast.Initializer;
-import org.eclipse.jdt.internal.compiler.ast.InstanceOfExpression;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.MessageSend;
@@ -263,7 +262,7 @@ public RecoveredElement buildInitialRecoveryState(){
 	int blockIndex = 1;	// ignore first block start, since manually rebuilt here
 
 	ASTNode node = null, lastNode = null;
-	for (int i = 0; i <= this.astPtr; i++, lastNode = node) {
+	for (int i = 0, end = this.cookedAstPtr(); i <= end; i++, lastNode = node) {
 		node = this.astStack[i];
 		/* check for intermediate block creation, so recovery can properly close them afterwards */
 		int nodeStart = node.sourceStart;
@@ -370,6 +369,7 @@ public RecoveredElement buildInitialRecoveryState(){
 					this.lastCheckPoint = stmt.sourceEnd + 1;
 				} else if (stmt.containsPatternVariable()) {
 					if(stmt instanceof CaseStatement) {
+						// Only relevant for Completion{Engine/ParSer}
 						// Kludge, for the unfortunate case where recovery can't
 						// construct a switch expression but simply creates a case statement (with type patterns)
 						// and leaves it in the astStack
@@ -400,6 +400,9 @@ public RecoveredElement buildInitialRecoveryState(){
 							element.add(local, 0);
 						}
 					}
+					// We add full statement below, opportunities exist for pruning bodies in some cases
+					// but care needs to be exercised to account for bodies ending with throw; adding full
+					// body is wasteful, but is not incorrect, so ...
 					element.add(stmt, 0);
 					this.lastCheckPoint = stmt.sourceEnd + 1;
 				}
@@ -412,41 +415,7 @@ public RecoveredElement buildInitialRecoveryState(){
 			this.lastCheckPoint = importRef.declarationSourceEnd + 1;
 		}
 	}
-	// This is  copy of the code that processes astStack early in this method
-	for (int i = 0; i <= this.expressionPtr; i++, lastNode = node) {
-		node = this.expressionStack[i];
-		if (node == null || !(node instanceof InstanceOfExpression)) continue;
-		/* check for intermediate block creation, so recovery can properly close them afterwards */
-		int nodeStart = node.sourceStart;
-		for (int j = blockIndex; j <= this.realBlockPtr; j++){
-			if (this.blockStarts[j] >= 0) {
-				if (this.blockStarts[j] > nodeStart){
-					blockIndex = j; // shift the index to the new block
-					break;
-				}
-				if (this.blockStarts[j] != lastStart){ // avoid multiple block if at same position
-					block = new Block(0);
-					block.sourceStart = lastStart = this.blockStarts[j];
-					element = element.add(block, 1);
-				}
-			} else {
-				if (-this.blockStarts[j] > nodeStart){
-					blockIndex = j; // shift the index to the new block
-					break;
-				}
-				block = new Block(0);
-				block.sourceStart = lastStart = -this.blockStarts[j];
-				element = element.add(block, 1);
-			}
-			blockIndex = j+1; // shift the index to the new block
-		}
 
-		InstanceOfExpression pattern = (InstanceOfExpression) node;
-		LocalDeclaration local = pattern.elementVariable;
-		if (local != null)
-			element = element.add(local, 0);
-		continue;
-	}
 	if (this.currentToken == TokenNameRBRACE) {
 		 if (isIndirectlyInsideLambdaExpression())
 			 this.ignoreNextClosingBrace = true;
@@ -476,6 +445,10 @@ public RecoveredElement buildInitialRecoveryState(){
 	}
 
 	return element;
+}
+
+protected int cookedAstPtr() {
+	return this.astPtr;
 }
 
 private void initModuleInfo(RecoveredElement element) {
@@ -1427,9 +1400,10 @@ protected void consumeToken(int token) {
 				break;
 			case TokenNameLBRACE:
 				if (this.previousToken == TokenNameARROW) {
-					popElement(K_LAMBDA_EXPRESSION_DELIMITER);
-					if (topKnownElementKind(ASSIST_PARSER) != K_SWITCH_EXPRESSION_DELIMITTER)
+					if (topKnownElementKind(ASSIST_PARSER) == K_LAMBDA_EXPRESSION_DELIMITER) {
+						popElement(K_LAMBDA_EXPRESSION_DELIMITER);
 						pushOnElementStack(K_LAMBDA_EXPRESSION_DELIMITER, BLOCK_BODY, this.previousObjectInfo);
+					}
 				}
 				break;
 		}

@@ -916,4 +916,472 @@ public void testBug577508_4() throws JavaModelException {
 		elements
 	);
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1278
+// Wrong method redirect
+public void testGH1278() throws JavaModelException {
+	this.wc = getWorkingCopy("/Resolve15/src/TestSelect.java",
+					"public class TestSelect {\n" +
+	                "    class Integer {}\n" +
+					"    class Double {}\n" +
+					"\n" +
+					"	public void foo(String s) {\n" +
+					"\n" +
+					"	}\n" +
+					"\n" +
+					"	public void foo(Integer i) {\n" +
+					"\n" +
+					"	}\n" +
+					"\n" +
+					"	public void foo(Double d) {\n" +
+					"\n" +
+					"	}\n" +
+					"\n" +
+					"	public void foo2(Integer i) {\n" +
+					"		Object test = 1d;\n" +
+					"		if (test instanceof Double test2) {\n" +
+					"			foo(test2);\n" +
+					"		}\n" +
+					"	}\n" +
+					"\n" +
+					"}\n");
+	String str = this.wc.getSource();
+	String selection = "foo";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"foo(Double) [in TestSelect [in [Working copy] TestSelect.java [in <default> [in src [in Resolve15]]]]]",
+		elements
+	);
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1288
+// Open Declaration (F3) sometimes not working for "Pattern Matching for instanceof
+public void testGH1288() throws JavaModelException {
+	this.wc = getWorkingCopy("/Resolve15/src/DetectVMInstallationsJob.java",
+					"public class X {\n" +
+					"	public void test(Object s) {\n" +
+					"		if(s instanceof String x) {\n" +
+					"			x./*fails1*/length();\n" +
+					"		}\n" +
+					"	}\n" +
+					"	public void test2(Object s) {\n" +
+					"		if(s instanceof String x)\n" +
+					"			x./*works1*/length();\n" +
+					"	}\n" +
+					"	\n" +
+					"	public void foo(Object s) {\n" +
+					"		\n" +
+					"		if (s instanceof String x) {\n" +
+					"			x./*fails2*/length(); x./*works2*/length();\n" +
+					"		}\n" +
+					"\n" +
+					"		if (s instanceof String x) {\n" +
+					"			x./*fails3*/length(); x./*works3*/length(); x./*works4*/length();\n" +
+					"		}\n" +
+					"\n" +
+					"		if (s instanceof String x) {\n" +
+					"			int i; x./*works5*/length(); // works\n" +
+					"		}\n" +
+					"\n" +
+					"		if (s instanceof String x) {\n" +
+					"			int i; x./*fails4*/length(); int j; // fails\n" +
+					"		}\n" +
+					"\n" +
+					"		if (s instanceof String x) {\n" +
+					"			x./*fails5*/length(); int j; // fails\n" +
+					"		}\n" +
+					"	}\n" +
+					"}\n");
+	String str = this.wc.getSource();
+	String selection = "/*fails1*/length";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"length() [in String [in String.class [in java.lang [in "+ getExternalPath() + "jclMin14.jar]]]]",
+		elements
+	);
+	selection = "/*fails2*/length";
+	start = str.indexOf(selection);
+	elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"length() [in String [in String.class [in java.lang [in "+ getExternalPath() + "jclMin14.jar]]]]",
+		elements
+	);
+	selection = "/*fails3*/length";
+	start = str.indexOf(selection);
+	elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"length() [in String [in String.class [in java.lang [in "+ getExternalPath() + "jclMin14.jar]]]]",
+		elements
+	);
+	selection = "/*fails4*/length";
+	start = str.indexOf(selection);
+	elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"length() [in String [in String.class [in java.lang [in "+ getExternalPath() + "jclMin14.jar]]]]",
+		elements
+	);
+	selection = "/*fails5*/length";
+	start = str.indexOf(selection);
+	elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"length() [in String [in String.class [in java.lang [in "+ getExternalPath() + "jclMin14.jar]]]]",
+		elements
+	);
+	selection = "/*works1*/length";
+	start = str.indexOf(selection);
+	elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"length() [in String [in String.class [in java.lang [in "+ getExternalPath() + "jclMin14.jar]]]]",
+		elements
+	);
+	selection = "/*works2*/length";
+	start = str.indexOf(selection);
+	elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"length() [in String [in String.class [in java.lang [in "+ getExternalPath() + "jclMin14.jar]]]]",
+		elements
+	);
+	selection = "/*works3*/length";
+	start = str.indexOf(selection);
+	elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"length() [in String [in String.class [in java.lang [in "+ getExternalPath() + "jclMin14.jar]]]]",
+		elements
+	);
+	selection = "/*works4*/length";
+	start = str.indexOf(selection);
+	elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"length() [in String [in String.class [in java.lang [in "+ getExternalPath() + "jclMin14.jar]]]]",
+		elements
+	);
+	selection = "/*works5*/length";
+	start = str.indexOf(selection);
+	elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"length() [in String [in String.class [in java.lang [in "+ getExternalPath() + "jclMin14.jar]]]]",
+		elements
+	);
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1288
+// Open Declaration (F3) sometimes not working for "Pattern Matching for instanceof
+public void testGH1288_while() throws JavaModelException {
+	this.wc = getWorkingCopy("/Resolve15/src/X.java",
+					"public class X {\n" +
+					"	public void test(Object s) {\n" +
+					"		while(s instanceof String x) {\n" +
+					"			x.hashCode();\n" +
+					"		}\n" +
+					"		while(s.hashCode()) {\n" +
+					"			System.out.println();\n" +
+					"		}\n" +
+					"		while(s instanceof String x && x.length() > 0) {\n" +
+					"			System.out.println();\n" +
+					"			x.length();\n" +
+					"		}\n" +
+					"		while(s instanceof String xyz && xyz == \"abc\") {\n" +
+					"			System.out.println();\n" +
+					"		}\n" +
+					"	}\n" +
+					"}\n" );
+	String str = this.wc.getSource();
+	String selection = "length";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"length() [in String [in String.class [in java.lang [in "+ getExternalPath() + "jclMin14.jar]]]]",
+		elements
+	);
+	start = str.lastIndexOf(selection);
+	length = selection.length();
+	elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"length() [in String [in String.class [in java.lang [in "+ getExternalPath() + "jclMin14.jar]]]]",
+		elements
+	);
+
+	selection = "xyz";
+	start = str.lastIndexOf(selection);
+	length = selection.length();
+	elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"xyz [in test(Object) [in X [in [Working copy] X.java [in <default> [in src [in Resolve15]]]]]]",
+		elements
+	);
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1288
+// Open Declaration (F3) sometimes not working for "Pattern Matching for instanceof
+public void testGH1288_do_while() throws JavaModelException {
+	this.wc = getWorkingCopy("/Resolve15/src/X.java",
+			"import java.util.ArrayList;\n" +
+					"\n" +
+					"public class X {\n" +
+					"	public void foo(ArrayList<Object> alo) {\n" +
+					"		int i = 0;\n" +
+					"		do {\n" +
+					"		}	while (!(alo.get(i) instanceof String patVar) || /*here*/patVar.length() > 0);\n" +
+					"		patVar.hashCode();\n" +
+					"	}\n" +
+					"}\n" );
+	String str = this.wc.getSource();
+	String selection = "/*here*/patVar";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"patVar [in foo(ArrayList<Object>) [in X [in [Working copy] X.java [in <default> [in src [in Resolve15]]]]]]",
+		elements
+	);
+	selection = "patVar";
+	start = str.lastIndexOf(selection);
+	length = selection.length();
+	elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"patVar [in foo(ArrayList<Object>) [in X [in [Working copy] X.java [in <default> [in src [in Resolve15]]]]]]",
+		elements
+	);
+}
+
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=573257
+// Errors when using instanceof pattern inside enum
+public void testBug573257() throws JavaModelException {
+	this.wc = getWorkingCopy("/Resolve15/src/X.java",
+					"public enum ASD {\n" +
+					"\n" +
+					"	A1 {\n" +
+					"		void f(Object o) {\n" +
+					"			if (o instanceof String s) {\n" +
+					"				System.out.println(s);\n" +
+					"			}\n" +
+					"		}\n" +
+					"	}\n" +
+					"}\n");
+	String str = this.wc.getSource();
+	String selection = "System";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"System [in System.class [in java.lang [in " + getExternalPath() + "jclMin14.jar]]]",
+		elements
+	);
+	selection = "out";
+	start = str.indexOf(selection);
+	length = selection.length();
+	elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"out [in System [in System.class [in java.lang [in " + getExternalPath() + "jclMin14.jar]]]]",
+		elements
+	);
+	selection = "println";
+	start = str.indexOf(selection);
+	length = selection.length();
+	elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"println(java.lang.String) [in PrintStream [in PrintStream.class [in java.io [in " + getExternalPath() + "jclMin14.jar]]]]",
+		elements
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=576794
+// Class rename fails with ClassCastException
+public void testBug576794() throws JavaModelException {
+	this.wc = getWorkingCopy("/Resolve15/src/RenameFails.java",
+					"import java.lang.annotation.Annotation;\n" +
+					"\n" +
+					"public class RenameFails {\n" +
+					"\n" +
+					"    private final static ClassValue<RenameFails> STUFF = new ClassValue<>() {\n" +
+					"\n" +
+					"        @Override\n" +
+					"        protected RenameFails computeValue(Class<?> type) {\n" +
+					"            for (Annotation a : type.getAnnotations()) {\n" +
+					"                if (a instanceof Deprecated h) {\n" +
+					"                	\n" +
+					"                }\n" +
+					"            }\n" +
+					"            return null;\n" +
+					"        }\n" +
+					"    };\n" +
+					"}\n");
+	String str = this.wc.getSource();
+	String selection = "Deprecated";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"Deprecated [in Deprecated.class [in java.lang [in " + getExternalPath() + "jclMin14.jar]]]",
+		elements
+	);
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1263
+// CCE: LocalDeclaration cannot be cast to class ForeachStatement
+public void testGH1263() throws JavaModelException {
+	this.wc = getWorkingCopy("/Resolve15/src/DetectVMInstallationsJob.java",
+					"import java.util.Set;\n" +
+					"import java.util.function.Predicate;\n" +
+					"\n" +
+					"public class DetectVMInstallationsJob  {\n" +
+					"	\n" +
+					"	interface Collection<E> extends Iterable<E> {\n" +
+					"		default boolean removeIf(Predicate<? super E> filter) {\n" +
+					"			return true;\n" +
+					"	    }\n" +
+					"	}\n" +
+					"	public interface Predicate<T> {\n" +
+					"	    boolean test(T t);\n" +
+					"	}\n" +
+					"\n" +
+					"	protected void run() {\n" +
+					"		Collection<String> candidates = null;\n" +
+					"		Set<Object> knownVMs = null;\n" +
+					"		Collection<Object> systemVMs = null;\n" +
+					"		if (\"\".equals(\"\")) {\n" +
+					"				systemVMs = null;\n" +
+					"				systemVMs.removeIf(t -> knownVMs.contains(null));\n" +
+					"				for (int systemVM : new int[] { 10 }) {\n" +
+					"					candidates.removeIf(t -> t.equals(null));\n" +
+					"				}\n" +
+					"		}\n" +
+					"		for (int f : new int [] {}) {\n" +
+					"			String install = null;\n" +
+					"			if (!(install instanceof String vm && vm.hashCode() != 0)) {\n" +
+					"			}\n" +
+					"		}\n" +
+					"	}\n" +
+					"}\n");
+	String str = this.wc.getSource();
+	String selection = "->";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"test(T) [in Predicate [in DetectVMInstallationsJob [in [Working copy] DetectVMInstallationsJob.java [in <default> [in src [in Resolve15]]]]]]",
+		elements
+	);
+	start = str.lastIndexOf(selection);
+	elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"test(T) [in Predicate [in DetectVMInstallationsJob [in [Working copy] DetectVMInstallationsJob.java [in <default> [in src [in Resolve15]]]]]]",
+		elements
+	);
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1364
+// SelectionParser behavior erratic wrt to live pattern variables upon loop exit
+public void testGH1364() throws JavaModelException {
+	this.wc = getWorkingCopy("/Resolve15/src/X.java",
+					"public class X {\n" +
+					"	String xx = \"Hello\";\n" +
+					"	void foo(Object o) {\n" +
+					"		do {\n" +
+					"			\n" +
+					"		} while (!(o instanceof X xxx));\n" +
+					"		xxx.foo(o); // F3 on xxx fails\n" +
+					"		while (!(o instanceof X yyy)) {\n" +
+					"			\n" +
+					"		}\n" +
+					"		yyy.foo(o); // F3 on yyy works ok\n" +
+					"	}\n" +
+					"}\n");
+	String str = this.wc.getSource();
+	String selection = "xxx.foo";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"foo(Object) [in X [in [Working copy] X.java [in <default> [in src [in Resolve15]]]]]",
+		elements
+	);
+	selection = "yyy.foo";
+	start = str.lastIndexOf(selection);
+	elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"foo(Object) [in X [in [Working copy] X.java [in <default> [in src [in Resolve15]]]]]",
+		elements
+	);
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1360
+// SelectionParser miscomputes type of variable
+public void testGH1360() throws JavaModelException {
+	this.wc = getWorkingCopy("/Resolve15/src/X.java",
+					"public class X {\n" +
+					"	String xx = \"Hello\";\n" +
+					"	void foo(Object o) {\n" +
+					"		if (o instanceof X xx) {\n" +
+					"			/*pattern*/xx.foo(o);\n" +
+					"		} else {\n" +
+					"			System.out.println(/*field*/xx);  // F3 on xx jumps wrongly to to o instanceof X xx\n" +
+					"		}\n" +
+					"	}\n" +
+					"}\n");
+	String str = this.wc.getSource();
+	String selection = "/*pattern*/xx";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"xx [in foo(Object) [in X [in [Working copy] X.java [in <default> [in src [in Resolve15]]]]]]",
+		elements
+	);
+	selection = "/*field*/xx";
+	start = str.indexOf(selection);
+	length = selection.length();
+	elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"xx [in X [in [Working copy] X.java [in <default> [in src [in Resolve15]]]]]",
+		elements
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=567497
+//  [15] Search for declaration of pattern variable not working
+public void testBug567497() throws JavaModelException {
+	this.wc = getWorkingCopy("/Resolve15/src/X.java",
+			"public class X {\n" +
+					"    protected Object y = \"FIELD X\";\n" +
+					"    @SuppressWarnings(\"preview\")\n" +
+					"	public void f(Object obj, boolean b) {\n" +
+					"        if ((y instanceof String /*not selecting */x) && /* selecting*/x.length() > 0) {\n" +
+					"            System.out.println(x.toLowerCase());\n" +
+					"        }\n" +
+					"    }\n" +
+					"}\n");
+	String str = this.wc.getSource();
+	String selection = "/* selecting*/x";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"x [in f(Object, boolean) [in X [in [Working copy] X.java [in <default> [in src [in Resolve15]]]]]]",
+		elements
+	);
+}
 }

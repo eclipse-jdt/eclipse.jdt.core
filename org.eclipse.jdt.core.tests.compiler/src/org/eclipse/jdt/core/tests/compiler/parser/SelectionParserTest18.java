@@ -20,7 +20,7 @@ import junit.framework.Test;
 public class SelectionParserTest18 extends AbstractSelectionTest {
 static {
 //		TESTS_NUMBERS = new int[] { 53 };
-		TESTS_NAMES = new String[] { "testBug486264_selectionOnLambda_expectLambdaMethod" };
+//		TESTS_NAMES = new String[] { "testBug486264_selectionOnLambda_expectLambdaMethod" };
 }
 public static Test suite() {
 	return buildMinimalComplianceTestSuite(SelectionParserTest18.class, F_1_8);
@@ -279,19 +279,17 @@ public void test495912() {
 					"package xy;\n" +
 					"public class Test {\n" +
 					"  {\n" +
-					"    {\n" +
-					"      Runnable r = () ->       {\n" +
-					"        Integer i;\n" +
-					"        byte b = <SelectOnMessageSend:i.byteValue()>;\n" +
-					"        if (true)\n" +
-					"            {\n" +
-					"              if (false)\n" +
-					"                  {\n" +
-					"                  }\n" +
-					"            }\n" +
-					"        String s;\n" +
-					"      };\n" +
-					"    }\n" +
+					"    Runnable r = () ->     {\n" +
+					"      Integer i;\n" +
+					"      byte b = <SelectOnMessageSend:i.byteValue()>;\n" +
+					"      if (true)\n" +
+					"          {\n" +
+					"            if (false)\n" +
+					"                {\n" +
+					"                }\n" +
+					"          }\n" +
+					"      String s;\n" +
+					"    };\n" +
 					"  }\n" +
 					"  public Test() {\n" +
 					"  }\n" +
@@ -341,21 +339,19 @@ public void test495912a() {
 					"package xy;\n" +
 					"public class Test {\n" +
 					"  {\n" +
-					"    {\n" +
-					"      Runnable r = () ->       {\n" +
-					"        Integer i;\n" +
-					"        byte b = <SelectOnMessageSend:i.byteValue()>;\n" +
-					"        if (true)\n" +
-					"            {\n" +
-					"              if (false)\n" +
-					"                  {\n" +
-					"                  }\n" +
-					"            }\n" +
-					"        for (int i1;; (i1 < 42); i1 ++) \n" +
+					"    Runnable r = () ->     {\n" +
+					"      Integer i;\n" +
+					"      byte b = <SelectOnMessageSend:i.byteValue()>;\n" +
+					"      if (true)\n" +
 					"          {\n" +
+					"            if (false)\n" +
+					"                {\n" +
+					"                }\n" +
 					"          }\n" +
-					"      };\n" +
-					"    }\n" +
+					"      for (int i1;; (i1 < 42); i1 ++) \n" +
+					"        {\n" +
+					"        }\n" +
+					"    };\n" +
 					"  }\n" +
 					"  public Test() {\n" +
 					"  }\n" +

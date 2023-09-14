@@ -6317,9 +6317,9 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"	^^^\n" +
 			"The method foo(T) in the type X is not applicable for the arguments (switch (i) {\n" +
 			"case 0 ->\n" +
-			" m.call();\n" +
+			"    m.call();\n" +
 			"default ->\n" +
-			" null;\n" +
+			"    null;\n" +
 			"})\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 4)\n" +

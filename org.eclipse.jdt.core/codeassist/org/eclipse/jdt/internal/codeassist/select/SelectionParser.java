@@ -28,19 +28,23 @@ package org.eclipse.jdt.internal.codeassist.select;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.codeassist.impl.AssistParser;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
+import org.eclipse.jdt.internal.compiler.ast.AND_AND_Expression;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.Annotation;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.ArrayAllocationExpression;
+import org.eclipse.jdt.internal.compiler.ast.Block;
 import org.eclipse.jdt.internal.compiler.ast.CaseStatement;
 import org.eclipse.jdt.internal.compiler.ast.CastExpression;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.EmptyStatement;
 import org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.FieldReference;
 import org.eclipse.jdt.internal.compiler.ast.GuardedPattern;
+import org.eclipse.jdt.internal.compiler.ast.IfStatement;
 import org.eclipse.jdt.internal.compiler.ast.ImportReference;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.LocalDeclaration;
@@ -51,9 +55,9 @@ import org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ModuleReference;
 import org.eclipse.jdt.internal.compiler.ast.NameReference;
 import org.eclipse.jdt.internal.compiler.ast.NormalAnnotation;
+import org.eclipse.jdt.internal.compiler.ast.OR_OR_Expression;
 import org.eclipse.jdt.internal.compiler.ast.Pattern;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
-import org.eclipse.jdt.internal.compiler.ast.RecordPattern;
 import org.eclipse.jdt.internal.compiler.ast.Reference;
 import org.eclipse.jdt.internal.compiler.ast.ReferenceExpression;
 import org.eclipse.jdt.internal.compiler.ast.ReturnStatement;
@@ -61,11 +65,12 @@ import org.eclipse.jdt.internal.compiler.ast.SingleMemberAnnotation;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.ast.SuperReference;
+import org.eclipse.jdt.internal.compiler.ast.SwitchExpression;
 import org.eclipse.jdt.internal.compiler.ast.SwitchStatement;
 import org.eclipse.jdt.internal.compiler.ast.ThisReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
-import org.eclipse.jdt.internal.compiler.ast.TypePattern;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
+import org.eclipse.jdt.internal.compiler.ast.WhileStatement;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -84,6 +89,22 @@ public class SelectionParser extends AssistParser {
 	protected static final int K_BETWEEN_CASE_AND_COLONORARROW = SELECTION_PARSER + 1; // whether we are inside a block
 	protected static final int K_INSIDE_RETURN_STATEMENT = SELECTION_PARSER + 2; // whether we are between the keyword 'return' and the end of a return statement
 	protected static final int K_CAST_STATEMENT = SELECTION_PARSER + 3; // whether we are between ')' and the end of a cast statement
+
+	protected static final int K_POST_AND_AND = SELECTION_PARSER + 4; // whether we are in: expression && <here>
+	protected static final int K_POST_OR_OR = SELECTION_PARSER + 5;   // whether we are in: expression || <here>
+
+	protected static final int K_INSIDE_IF = SELECTION_PARSER + 6; // whether we are in an if statement
+	protected static final int K_INSIDE_THEN = SELECTION_PARSER + 7; // whether we are in the then portion of an if statement
+	protected static final int K_INSIDE_ELSE = SELECTION_PARSER + 8; // whether we are in the else portion of an if statement
+
+	protected static final int K_INSIDE_WHILE = SELECTION_PARSER + 9; // whether we are in a while statement
+	protected static final int K_POST_WHILE_EXPRESSION = SELECTION_PARSER + 10; // whether we are in an while statement's body
+
+	protected static final int K_INSIDE_STATEMENT_SWITCH = SELECTION_PARSER + 11; // whether we are in a switch statement
+	protected static final int K_INSIDE_EXPRESSION_SWITCH = SELECTION_PARSER + 12; // whether we are in an expression switch
+	protected static final int K_INSIDE_WHEN = SELECTION_PARSER + 13; // whether we are in the guard
+
+
 
 	/* https://bugs.eclipse.org/bugs/show_bug.cgi?id=476693
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=515758
@@ -147,70 +168,136 @@ protected void attachOrphanCompletionNode(){
 	}
 }
 private void buildMoreCompletionContext(Expression expression) {
-	ASTNode parentNode = null;
 
-	int kind = topKnownElementKind(SELECTION_OR_ASSIST_PARSER);
-	if(kind != 0) {
-		int info = topKnownElementInfo(SELECTION_OR_ASSIST_PARSER);
-		nextElement : switch (kind) {
-			case K_BETWEEN_CASE_AND_COLONORARROW :
-				if(this.expressionPtr >= info && info > -1) {
-					SwitchStatement switchStatement = new SwitchStatement();
-					switchStatement.expression = this.expressionStack[info]; // info is pointer to top expr when encountering 'case'
-					if(this.astLengthPtr > -1 && this.astPtr > -1) {
-						int length = this.astLengthStack[this.astLengthPtr];
-						int newAstPtr = this.astPtr - length;
-						ASTNode firstNode = this.astStack[newAstPtr + 1];
-						if(length != 0 && firstNode instanceof Statement && firstNode.sourceStart > switchStatement.expression.sourceEnd) {
-							switchStatement.statements = new Statement[length + 1];
-							System.arraycopy(
-								this.astStack,
-								newAstPtr + 1,
-								switchStatement.statements,
-								0,
-								length);
-						}
-					}
-					if(this.astPtr >=0) {
-						if( this.astStack[this.astPtr] instanceof TypePattern && expression instanceof NameReference) {
-							expression = new GuardedPattern((Pattern)this.astStack[this.astPtr], expression);
-						}
-					}
+	Statement parentNode = null;
+	Statement orphan = expression;
 
-					CaseStatement caseStatement = new CaseStatement(expression, expression.sourceStart, expression.sourceEnd);
-					if(switchStatement.statements == null) {
-						switchStatement.statements = new Statement[]{caseStatement};
-					} else {
-						switchStatement.statements[switchStatement.statements.length - 1] = caseStatement;
-					}
-					parentNode = switchStatement;
-					this.assistNodeParent = parentNode;
+	Statement thenStat = null;
+	Statement elseStat = null;
+
+	Expression right = expression;
+	Expression left = null;
+
+	Statement whileBody = null;
+
+	int kind;
+
+	for (int i = this.elementPtr; i > -1; i--) {
+		switch (kind = this.elementKindStack[i]) {
+			case K_INSIDE_WHILE:
+				if (whileBody == null) // selection inside while (<here>)
+					whileBody = new EmptyStatement(orphan.sourceEnd,  orphan.sourceEnd);
+				// else whileBody is what was obtained in the bottom up context building
+				parentNode = orphan = new WhileStatement((Expression) orphan, whileBody, 0, 0);
+				whileBody = null;
+				break;
+			case K_INSIDE_IF:
+				if (thenStat == null) // selection inside if (<here>)
+					thenStat = new EmptyStatement(orphan.sourceEnd,  orphan.sourceEnd);
+				// else thenStat and elseStat are what they are obtained in the bottom up context building
+				parentNode = orphan = new IfStatement((Expression) orphan, thenStat, elseStat, 0, 0);
+				thenStat = elseStat = null;
+				break;
+			case K_BETWEEN_CASE_AND_COLONORARROW:
+				parentNode = orphan = new CaseStatement((Expression) orphan, orphan.sourceStart, orphan.sourceEnd);
+				break;
+			case K_INSIDE_WHEN:
+				if (this.astPtr >=0 && this.astStack[this.astPtr] instanceof Pattern && orphan instanceof Expression) {
+					this.astLengthPtr--;
+					Pattern pattern = (Pattern) this.astStack[this.astPtr--];
+					parentNode = orphan = new GuardedPattern(pattern, (Expression) orphan);
 				}
-				break nextElement;
+				break;
+			case K_POST_WHILE_EXPRESSION:
+			case K_INSIDE_THEN:
+			case K_INSIDE_ELSE:
+			case K_INSIDE_STATEMENT_SWITCH:
+			case K_INSIDE_EXPRESSION_SWITCH:
+				int newAstPtr = (int) this.elementObjectInfoStack[i];
+				int length = this.astPtr - newAstPtr;
+				Statement[] statements = new Statement[length + (orphan != null ? 1 : 0)];
+				System.arraycopy(
+					this.astStack,
+					newAstPtr + 1,
+					statements,
+					0,
+					length);
+				if (orphan != null)
+					statements[length] = orphan;
+				this.astPtr = newAstPtr;
+				Block b = new Block(0);
+				b.statements = statements;
+				switch (kind) {
+					case K_INSIDE_THEN:
+						thenStat = b;
+						this.expressionPtr = this.elementInfoStack[i];
+						orphan = this.expressionStack[this.expressionPtr--];
+						break;
+					case K_INSIDE_ELSE:
+						elseStat = b;
+						orphan = null; // orphan subsumed into the dangling else
+						break;
+					case K_POST_WHILE_EXPRESSION:
+						whileBody = b;
+						this.expressionPtr = this.elementInfoStack[i];
+						orphan = this.expressionStack[this.expressionPtr--];
+						break;
+					case K_INSIDE_STATEMENT_SWITCH:
+					case K_INSIDE_EXPRESSION_SWITCH:
+						boolean exprSwitch = kind == K_INSIDE_EXPRESSION_SWITCH;
+						SwitchStatement switchStatement = exprSwitch ? new SwitchExpression() : new SwitchStatement();
+						this.expressionPtr = this.elementInfoStack[i];
+						switchStatement.expression = this.expressionStack[this.expressionPtr--];
+						switchStatement.statements = statements;
+						parentNode = orphan = switchStatement;
+						if (exprSwitch)
+							collectResultExpressionsYield((SwitchExpression) switchStatement);
+						break;
+				}
+				break;
 			case K_INSIDE_RETURN_STATEMENT :
-				if(info == this.bracketDepth) {
+				int elementInfo = this.elementInfoStack[i];
+				if (elementInfo == this.bracketDepth) {
 					ReturnStatement returnStatement = new ReturnStatement(expression, expression.sourceStart, expression.sourceEnd);
 					parentNode = returnStatement;
 					this.assistNodeParent = parentNode;
+					orphan = returnStatement;
 				}
-				break nextElement;
+				break;
+			case K_POST_AND_AND:
+				left = this.expressionStack[this.elementInfoStack[i]];
+				right = new AND_AND_Expression(
+						left,
+						right,
+						AND_AND);
+				parentNode = orphan = right;
+				break;
+			case K_POST_OR_OR:
+				left = this.expressionStack[this.elementInfoStack[i]];
+				right = new OR_OR_Expression(
+						left,
+						right,
+						OR_OR);
+				parentNode = orphan = right;
+				break;
 			case K_CAST_STATEMENT :
 				Expression castType;
-				if(this.expressionPtr > 0
+				if (this.expressionPtr > 0
 					&& ((castType = this.expressionStack[this.expressionPtr-1]) instanceof TypeReference)) {
 					CastExpression cast = new CastExpression(expression, (TypeReference) castType);
 					cast.sourceStart = castType.sourceStart;
 					cast.sourceEnd= expression.sourceEnd;
-					parentNode = cast;
+					parentNode = orphan = cast;
 					this.assistNodeParent = parentNode;
 				}
-				break nextElement;
+				break;
 		}
 	}
+
 	// Do not add assist node/parent into the recovery system if we are inside a lambda. The lambda will be fully recovered including the containing statement and added.
 	if (lastIndexOfElement(K_LAMBDA_EXPRESSION_DELIMITER) < 0) {
 		if(parentNode != null) {
-			this.currentElement = this.currentElement.add((Statement)parentNode, 0);
+			this.currentElement = this.currentElement.add(parentNode, 0);
 		} else {
 			this.currentElement = this.currentElement.add((Statement)wrapWithExplicitConstructorCallIfNeeded(expression), 0);
 			if(this.lastCheckPoint < expression.sourceEnd) {
@@ -769,6 +856,106 @@ protected void consumeFormalParameter(boolean isVarArgs) {
 	}
 }
 @Override
+protected void consumeGuard() {
+	super.consumeGuard();
+	popUntilElement(K_INSIDE_WHEN);
+	popElement(K_INSIDE_WHEN);
+}
+
+@Override
+protected void consumePostExpressionInIf() {
+	super.consumePostExpressionInIf();
+	pushOnElementStack(K_INSIDE_THEN, this.expressionPtr, this.astPtr);
+}
+
+@Override
+protected void consumePostExpressionInSwitch(boolean statSwitch) {
+	super.consumePostExpressionInSwitch(statSwitch);
+	pushOnElementStack(statSwitch ? K_INSIDE_STATEMENT_SWITCH : K_INSIDE_EXPRESSION_SWITCH, this.expressionPtr, this.astPtr);
+}
+
+@Override
+protected void consumePostExpressionInWhile() {
+	super.consumePostExpressionInWhile();
+	if (this.expressionStack[this.expressionPtr].containsPatternVariable()) {
+		pushOnElementStack(K_POST_WHILE_EXPRESSION, this.expressionPtr, this.astPtr);
+	} else {
+		popUntilElement(K_INSIDE_WHILE);
+		popElement(K_INSIDE_WHILE);
+	}
+}
+
+@Override
+protected void consumeStatementSwitch() {
+	super.consumeStatementSwitch();
+	popUntilElement(K_INSIDE_STATEMENT_SWITCH);
+	popElement(K_INSIDE_STATEMENT_SWITCH);
+}
+
+@Override
+protected void consumeSwitchExpression() {
+	super.consumeSwitchExpression();
+	popUntilElement(K_INSIDE_EXPRESSION_SWITCH);
+	popElement(K_INSIDE_EXPRESSION_SWITCH);
+}
+
+@Override
+protected void consumeStatementWhile() {
+	super.consumeStatementWhile();
+	if (((WhileStatement) this.astStack[this.astPtr]).condition.containsPatternVariable()) {
+		popUntilElement(K_INSIDE_WHILE);
+		popElement(K_INSIDE_WHILE);
+	}
+}
+
+@Override
+protected void consumeBinaryExpression(int op) {
+	super.consumeBinaryExpression(op);
+	if (op == AND_AND) {
+		popUntilElement(K_POST_AND_AND);
+		popElement(K_POST_AND_AND);
+	}
+	else if (op == OR_OR) {
+		popUntilElement(K_POST_OR_OR);
+		popElement(K_POST_OR_OR);
+	}
+}
+
+@Override
+protected void consumeBinaryExpressionWithName(int op) {
+	super.consumeBinaryExpressionWithName(op);
+	if (op == AND_AND) {
+		popUntilElement(K_POST_AND_AND);
+		popElement(K_POST_AND_AND);
+	}
+	else if (op == OR_OR) {
+		popUntilElement(K_POST_OR_OR);
+		popElement(K_POST_OR_OR);
+	}
+}
+
+@Override
+protected void consumeStatementDo() {
+	super.consumeStatementDo();
+	popUntilElement(K_INSIDE_WHILE);
+	popElement(K_INSIDE_WHILE);
+}
+
+@Override
+protected void consumeStatementIfNoElse() {
+	super.consumeStatementIfNoElse();
+	popUntilElement(K_INSIDE_IF);
+	popElement(K_INSIDE_IF);
+}
+
+@Override
+protected void consumeStatementIfWithElse() {
+	super.consumeStatementIfWithElse();
+	popUntilElement(K_INSIDE_IF);
+	popElement(K_INSIDE_IF);
+}
+
+@Override
 protected void consumeInsideCastExpression() {
 	super.consumeInsideCastExpression();
 	pushOnElementStack(K_CAST_STATEMENT);
@@ -789,46 +976,9 @@ protected void consumeInsideCastExpressionWithQualifiedGenerics() {
 	pushOnElementStack(K_CAST_STATEMENT);
 }
 @Override
-protected Expression consumePatternInsideInstanceof(Pattern pattern) {
-	if(pattern instanceof RecordPattern) {
-		pushLocalVariableFromRecordPatternOnAstStack((RecordPattern)pattern);
-	}
-	return super.consumePatternInsideInstanceof(pattern);
-}
-
-@Override
-protected void consumeCaseLabelElement(CaseLabelKind kind) {
-	super.consumeCaseLabelElement(kind);
-	switch (kind) {
-		case CASE_PATTERN: {
-			ASTNode[] ps = this.patternStack;
-			if (ps[0] instanceof RecordPattern) {
-				pushLocalVariableFromRecordPatternOnAstStack((RecordPattern) ps[0]);
-			}
-		}
-			break;
-		default:
-			break;
-
-	}
-}
-@Override
 protected void consumeSwitchLabeledExpression() {
 	super.consumeSwitchLabeledExpression();
 	popElement(K_SWITCH_EXPRESSION_DELIMITTER);
-}
-private void pushLocalVariableFromRecordPatternOnAstStack(RecordPattern rp) {
-	Pattern[] patterns = rp.patterns;
-	for (Pattern pattern : patterns) {
-		if (pattern instanceof RecordPattern)
-			pushLocalVariableFromRecordPatternOnAstStack((RecordPattern) pattern);
-		else {
-			LocalDeclaration patternVariable = pattern.getPatternVariable();
-			if (patternVariable != null)
-				pushOnAstStack(patternVariable);
-
-		}
-	}
 }
 
 @Override
@@ -838,20 +988,11 @@ protected void consumeInstanceOfExpressionWithName() {
 	if (length > 0) {
 		Pattern pattern = (Pattern) this.patternStack[this.patternPtr--];
 		pushOnExpressionStack(getUnspecifiedReferenceOptimized());
+		consumePatternInsideInstanceof(pattern);
 		if (this.expressionStack[this.expressionPtr] != this.assistNode) {
-			// Push only when the selection node is not the expression of this
-			// pattern matching instanceof expression
-			LocalDeclaration patternVariableIntroduced = pattern.getPatternVariable();
-			if (patternVariableIntroduced != null) {
-				// filter out patternVariableIntroduced based on current selection if there is an assist node
-				if (this.assistNode == null || (this.selectionStart <= patternVariableIntroduced.sourceStart
-						&& this.selectionEnd >= patternVariableIntroduced.sourceEnd)) {
-					if(!(pattern instanceof RecordPattern))
-						pushOnAstStack(patternVariableIntroduced);
-				}
-			}
 			if ((this.selectionStart >= pattern.sourceStart)
 					&&  (this.selectionEnd <= pattern.sourceEnd)) {
+				this.isOrphanCompletionNode = true;
 				this.restartRecovery	= true;
 				this.lastIgnoredToken = -1;
 			}
@@ -878,6 +1019,7 @@ protected void consumeLambdaExpression() {
 	if (this.selectionStart == arrowStart || this.selectionStart == arrowEnd) {
 		if (this.selectionEnd == arrowStart || this.selectionEnd == arrowEnd) {
 			this.expressionStack[this.expressionPtr] = new SelectionOnLambdaExpression(expression);
+			this.assistNode = expression;
 		}
 	} else if (this.selectionStart == expression.sourceStart && this.selectionEnd == expression.sourceEnd) {
 		SelectionOnLambdaExpression lambdaExpression = new SelectionOnLambdaExpression(expression);
@@ -885,8 +1027,14 @@ protected void consumeLambdaExpression() {
 		this.assistNode = lambdaExpression;
 		this.lastCheckPoint = lambdaExpression.sourceEnd + 1;
 	}
-	if (!(this.selectionStart >= expression.sourceStart && this.selectionEnd <= expression.sourceEnd))
-		popElement(K_LAMBDA_EXPRESSION_DELIMITER);
+
+	popUntilElement(K_LAMBDA_EXPRESSION_DELIMITER);
+	popElement(K_LAMBDA_EXPRESSION_DELIMITER);
+	if (this.selectionStart >= expression.sourceStart && this.selectionEnd <= expression.sourceEnd) {
+		if (!isIndirectlyInsideLambdaExpression()) {
+			this.selectionNodeFoundLevel = 1;
+		}
+	}
 }
 @Override
 protected void consumeReferenceExpression(ReferenceExpression referenceExpression) {
@@ -914,22 +1062,25 @@ protected void consumeLocalVariableDeclarationStatement() {
 			this.lastIgnoredToken = -1;
 		}
 	}
-	checkRestartRecovery();
 }
-@Override
-protected void consumeAssignment() {
-	super.consumeAssignment();
-	checkRestartRecovery();
-}
+
 @Override
 protected void consumeBlockStatement() {
-	super.consumeBlockStatement();
+	// Super implementation unsuitable, so no chaining.
 	checkRestartRecovery();
 }
+
+@Override
+protected void consumeBlockStatements() {
+	// Super implementation unsuitable, so no chaining.
+	concatNodeLists();
+	checkRestartRecovery();
+}
+
 protected void checkRestartRecovery() {
-	if (this.selectionNodeFoundLevel > 0) {
-		if (--this.selectionNodeFoundLevel == 0)
-			this.restartRecovery = true;
+	if (this.selectionNodeFoundLevel == 1) {
+		this.selectionNodeFoundLevel = 0;
+		this.restartRecovery = true;
 	}
 }
 
@@ -1309,6 +1460,7 @@ protected void consumeStaticImportOnDemandDeclarationName() {
 }
 @Override
 protected void consumeToken(int token) {
+	int lastToken = this.previousToken; // before super.consumeToken tramples on it
 	super.consumeToken(token);
 
 	// if in a method or if in a field initializer
@@ -1335,9 +1487,14 @@ protected void consumeToken(int token) {
 			case TokenNameCOLON:
 				if(topKnownElementKind(SELECTION_OR_ASSIST_PARSER) == K_BETWEEN_CASE_AND_COLONORARROW) {
 					popElement(K_BETWEEN_CASE_AND_COLONORARROW);
+					if (token == TokenNameARROW)
+						pushOnElementStack(K_SWITCH_EXPRESSION_DELIMITTER);
 				}
 				break;
 			case TokenNameBeginCaseExpr:
+				if(topKnownElementKind(SELECTION_OR_ASSIST_PARSER) == K_BETWEEN_CASE_AND_COLONORARROW) {
+					popElement(K_BETWEEN_CASE_AND_COLONORARROW);
+				}
 				pushOnElementStack(K_SWITCH_EXPRESSION_DELIMITTER);
 				break;
 			case TokenNamereturn:
@@ -1350,6 +1507,25 @@ protected void consumeToken(int token) {
 							popElement(K_INSIDE_RETURN_STATEMENT);
 						}
 						break;
+				}
+				break;
+			case TokenNameelse:
+				pushOnElementStack(K_INSIDE_ELSE, this.expressionPtr, this.astPtr);
+				break;
+			case TokenNameAND_AND:
+				pushOnElementStack(K_POST_AND_AND, this.expressionPtr);
+				break;
+			case TokenNameOR_OR:
+				pushOnElementStack(K_POST_OR_OR, this.expressionPtr);
+				break;
+			case TokenNameRestrictedIdentifierWhen:
+				pushOnElementStack(K_INSIDE_WHEN);
+				break;
+			case TokenNameLPAREN:
+				if (lastToken == TokenNameif) {
+					pushOnElementStack(K_INSIDE_IF, this.expressionPtr, this.astPtr);
+				} else if (lastToken == TokenNamewhile) {
+					pushOnElementStack(K_INSIDE_WHILE, this.expressionPtr, this.astPtr);
 				}
 				break;
 		}
@@ -1673,6 +1849,29 @@ public CompilationUnitDeclaration parse(ICompilationUnit sourceUnit, Compilation
 	return super.parse(sourceUnit, compilationResult, -1, -1/*parse without reseting the scanner*/);
 }
 
+@Override
+protected boolean restartRecovery() {
+	return requireExtendedRecovery() || this.selectionNodeFoundLevel > 0 ?
+			false :
+			super.restartRecovery();
+}
+
+@Override
+protected int cookedAstPtr() {
+	for (int i = 0; i <= this.elementPtr; i++) {
+		switch (this.elementKindStack[i]) {
+			case K_INSIDE_STATEMENT_SWITCH:
+			case K_INSIDE_EXPRESSION_SWITCH:
+			case K_INSIDE_IF:
+			case K_INSIDE_WHILE:
+				if (this.assistNode != null)
+					this.isOrphanCompletionNode = true; // buried deep, needs to be dug up and attached.
+				return (int) this.elementObjectInfoStack[i];
+		}
+	}
+	return super.cookedAstPtr();
+}
+
 /*
  * Reset context so as to resume to regular parse loop
  * If unable to reset for resuming, answers false.
@@ -1688,6 +1887,11 @@ protected int resumeAfterRecovery() {
 	if (this.assistNode != null
 		&& !(this.referenceContext instanceof CompilationUnitDeclaration)){
 		this.currentElement.preserveEnclosingBlocks();
+		if (this.selectionNodeFoundLevel > 0) {
+			if (this.unstackedAct != ERROR_ACTION) {
+				return RESUME;
+			}
+		}
 		if (requireExtendedRecovery()) {
 			if (this.unstackedAct != ERROR_ACTION) {
 				return RESUME;
