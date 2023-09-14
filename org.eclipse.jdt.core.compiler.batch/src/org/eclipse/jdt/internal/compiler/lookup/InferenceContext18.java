@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ast.AllocationExpression;
 import org.eclipse.jdt.internal.compiler.ast.ConditionalExpression;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.FunctionalExpression;
@@ -1895,6 +1896,14 @@ public class InferenceContext18 {
 			invocation.registerResult(targetType, pmb);
 		Expression[] arguments = invocation.arguments();
 		for (int i = 0, length = arguments == null ? 0 : arguments.length; i < length; i++) {
+			if (arguments[i] instanceof AllocationExpression) {
+				// do we need to suppress "Redundant specification of type arguments" warnings?
+				TypeBinding pmbParam = getParameter(pmb.parameters, i, pmb.isVarargs());
+				TypeBinding origParam = getParameter(pmb.originalMethod.parameters, i, pmb.isVarargs());
+				if (TypeBinding.notEquals(pmbParam, origParam)) {
+					((AllocationExpression) arguments[i]).expectedTypeWasInferred = true;
+				}
+			}
 			Expression [] expressions = arguments[i].getPolyExpressions();
 			for (int j = 0, jLength = expressions.length; j < jLength; j++) {
 				Expression expression = expressions[j];
