@@ -13,12 +13,15 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.dom;
 
+import java.io.IOException;
 import java.util.List;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -1070,5 +1073,44 @@ public void testBug527351() throws JavaModelException {
 			"String value;" +
 			"}",
 			flattened);
+}
+public void testGH1376() throws CoreException, IOException {
+	try {
+		IJavaProject project = createJavaProject("P", new String[] { "" }, new String[] { "CONVERTER_JCL_LIB" }, "", "1.8", true);
+		createFolder("P/p");
+		createFile("P/p/A.java",
+			"package p;\n" +
+			"public class A<T extends java.util.List> {\n" +
+			"}"
+		);
+		createFile("P/p/B.java",
+			"package p;\n" +
+			"public class B extends A<C> {\n" + // for C we branch into binaries, which get resolved lazily
+			"}"
+		);
+		createFile("P/p/D.java",
+			"package p;\n" +
+			"public interface D {\n" +
+			"}"
+		);
+		addLibrary(project, "lib.jar", null,
+				new String[] {
+					"p/D.java",
+					"package p;\n" +
+					"public interface D {\n" + // duplicate just so we can create the jar
+					"}",
+					"p/C.java",
+					"package p;\n" +
+					"public interface C extends java.util.List<D> {\n" + // for D we will branch back to source
+					"}"
+				},
+				"1.8");
+		ICompilationUnit cuA = getCompilationUnit("P/p/A.java"); // compiles cleanly
+		ICompilationUnit cuB = getCompilationUnit("P/p/B.java"); // during checkParameterizedTypes() we re-enter LE.completeTypeBinding(..)
+		// just ensure that bound check during completion doesn't trigger NPE:
+		resolveASTs(new ICompilationUnit[] {cuA, cuB}, new String[0], new BindingRequestor(), project, this.wcOwner);
+	} finally {
+		deleteProject("P");
+	}
 }
 }
