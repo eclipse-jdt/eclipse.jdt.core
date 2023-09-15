@@ -5593,6 +5593,9 @@ public final class CompletionEngine
 			proposal.completionEngine = this;
 			proposal.setDeclarationSignature(refBinding.qualifiedPackageName());
 			proposal.setSignature(getCompletedTypeSignature(refBinding));
+			if (proposal.getSignature() == null) {
+				return;
+			}
 			proposal.setPackageName(refBinding.qualifiedPackageName());
 			proposal.setTypeName(typeName);
 			if (missingElements != null) {
@@ -5626,6 +5629,9 @@ public final class CompletionEngine
 			proposal.completionEngine = this;
 			proposal.setDeclarationSignature(refBinding.qualifiedPackageName());
 			proposal.setSignature(getCompletedTypeSignature(refBinding));
+			if (proposal.getSignature() == null) {
+				return;
+			}
 			proposal.setPackageName(refBinding.qualifiedPackageName());
 			proposal.setTypeName(typeName);
 			proposal.setCompletion(javadocCompletion);
@@ -13608,6 +13614,9 @@ public final class CompletionEngine
 		result = new char[sigLength];
 		sig.getChars(0, sigLength, result, 0);
 		result = CharOperation.replaceOnCopy(result, '/', Signature.C_DOT);
+		if (Engine.isAnonymousClassSignature(result)) {
+			result = null;
+		}
 		return result;
 	}
 
