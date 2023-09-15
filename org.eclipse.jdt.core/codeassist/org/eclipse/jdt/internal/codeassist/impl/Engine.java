@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.codeassist.impl;
 
+import java.util.Arrays;
 import java.util.Map;
 
 import org.eclipse.jdt.core.IType;
@@ -34,6 +35,8 @@ import org.eclipse.jdt.internal.core.SourceType;
 import org.eclipse.jdt.internal.core.SourceTypeElementInfo;
 
 public abstract class Engine implements ITypeRequestor {
+
+	private static final char[] ANONYMOUS_CLASS_SIGNATURE = "L;".toCharArray(); //$NON-NLS-1$
 
 	public LookupEnvironment lookupEnvironment;
 
@@ -408,6 +411,13 @@ public abstract class Engine implements ITypeRequestor {
 		if (result != null) {
 			result = CharOperation.replaceOnCopy(result, '/', '.');
 		}
+		if (isAnonymousClassSignature(result)) {
+			result = null;
+		}
 		return result;
+	}
+
+	public static boolean isAnonymousClassSignature(char[] result) {
+		return Arrays.equals(ANONYMOUS_CLASS_SIGNATURE, result);
 	}
 }
