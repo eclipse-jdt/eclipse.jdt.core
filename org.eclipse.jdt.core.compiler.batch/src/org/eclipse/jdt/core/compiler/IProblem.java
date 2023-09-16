@@ -1938,7 +1938,16 @@ void setSourceStart(int sourceStart);
 	int AnnotatedTypeArgumentToUnannotatedSuperHint = Internal + 984;
 	/** @since 3.32 */
 	int NonNullArrayContentNotInitialized = Internal + 985;
-	/** @since 3.35 */
+	/**
+	 * Both {@link #NullityUncheckedTypeAnnotationDetail} and {@link #NullityUncheckedTypeAnnotation}
+	 * signal that unchecked conversion is needed to pass a value between annotated and un-annotated code.
+	 * In the case of {@link #NullityUncheckedTypeAnnotationDetail} the mismatch was observed only on some
+	 * detail of the types involved (type arguments or array components), for which the UI does not (yet)
+	 * offer a quick fix, whereas {@link #NullityUncheckedTypeAnnotation} affects the toplevel type and thus
+	 * can be easily fixed by adding the appropriate null annotation.
+	 *
+	 * @since 3.36
+	 */
 	int NullityUncheckedTypeAnnotation = Internal + 986;
 
 
