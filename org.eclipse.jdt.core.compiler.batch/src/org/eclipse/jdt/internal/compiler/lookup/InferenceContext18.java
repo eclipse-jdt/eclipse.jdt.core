@@ -1895,15 +1895,8 @@ public class InferenceContext18 {
 		if (targetType != null)
 			invocation.registerResult(targetType, pmb);
 		Expression[] arguments = invocation.arguments();
+		updateInnerDiamonds(pmb, arguments);
 		for (int i = 0, length = arguments == null ? 0 : arguments.length; i < length; i++) {
-			if (arguments[i] instanceof AllocationExpression) {
-				// do we need to suppress "Redundant specification of type arguments" warnings?
-				TypeBinding pmbParam = getParameter(pmb.parameters, i, pmb.isVarargs());
-				TypeBinding origParam = getParameter(pmb.originalMethod.parameters, i, pmb.isVarargs());
-				if (TypeBinding.notEquals(pmbParam, origParam)) {
-					((AllocationExpression) arguments[i]).expectedTypeWasInferred = true;
-				}
-			}
 			Expression [] expressions = arguments[i].getPolyExpressions();
 			for (int j = 0, jLength = expressions.length; j < jLength; j++) {
 				Expression expression = expressions[j];
@@ -1948,6 +1941,19 @@ public class InferenceContext18 {
 				}
 				TypeBinding parameterType = InferenceContext18.getParameter(parameters, i, variableArity);
 				forwardResults(result, polyInvocation, methodSubstitute, parameterType);
+			}
+		}
+	}
+
+	public static void updateInnerDiamonds(ParameterizedMethodBinding pmb, Expression[] arguments) {
+		for (int i = 0, length = arguments == null ? 0 : arguments.length; i < length; i++) {
+			if (arguments[i] instanceof AllocationExpression) {
+				// do we need to suppress "Redundant specification of type arguments" warnings?
+				TypeBinding pmbParam = getParameter(pmb.parameters, i, pmb.isVarargs());
+				TypeBinding origParam = getParameter(pmb.originalMethod.parameters, i, pmb.isVarargs());
+				if (TypeBinding.notEquals(pmbParam, origParam)) {
+					((AllocationExpression) arguments[i]).expectedTypeWasInferred = true;
+				}
 			}
 		}
 	}
