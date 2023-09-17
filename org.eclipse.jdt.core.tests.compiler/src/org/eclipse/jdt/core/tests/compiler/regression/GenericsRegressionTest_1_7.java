@@ -3155,12 +3155,28 @@ public void testGH1326_alt() {
 		"""
 	};
 	runner.expectedCompilerLog =
+			this.complianceLevel >= ClassFileConstants.JDK1_8
+			?
 			"""
 			----------
 			1. ERROR in Foo.java (at line 8)
 				Outer<Inner<String>> x = new Outer<>(new Inner<String>(), inner).self();
 				                                         ^^^^^
 			Redundant specification of type arguments <String>
+			----------
+			"""
+			: // 1.7 inference is less capable:
+			"""
+			----------
+			1. ERROR in Foo.java (at line 8)
+				Outer<Inner<String>> x = new Outer<>(new Inner<String>(), inner).self();
+				                                         ^^^^^
+			Redundant specification of type arguments <String>
+			----------
+			2. ERROR in Foo.java (at line 9)
+				Outer<Inner<String>> xok = new Outer<>(new Inner<>(), inner).self();
+				                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+			Cannot infer type arguments for Outer<>
 			----------
 			""";
 	runner.runNegativeTest();

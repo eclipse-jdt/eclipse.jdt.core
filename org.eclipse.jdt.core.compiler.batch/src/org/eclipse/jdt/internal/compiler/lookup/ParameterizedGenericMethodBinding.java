@@ -195,6 +195,9 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 					break;
 			}
 		}
+		if (invocationSite instanceof Invocation) {
+			InferenceContext18.updateInnerDiamonds(methodSubstitute, ((Invocation) invocationSite).arguments());
+		}
 		// check presence of unchecked argument conversion a posteriori (15.12.2.6)
 		return methodSubstitute;
 	}
