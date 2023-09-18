@@ -3017,4 +3017,113 @@ public void testGH1195() throws Exception {
 		elements
 	);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=576252
+// Open declaration / Javadoc popup is confused by overloaded method with method reference
+public void testBug576252() throws Exception {
+	this.wc = getWorkingCopy(
+			"Resolve/src/LambdaTest.java",
+			"public class LambdaTest {\n" +
+			"	public static void method(String value) {\n" +
+			"		System.out.print(\"para\");\n" +
+			"	}\n" +
+			"\n" +
+			"	public static void method(java.util.function.Supplier<String> supplier) {\n" +
+			"		System.out.print(supplier.get());\n" +
+			"	}\n" +
+			"\n" +
+			"	public static void main(String[] args) {\n" +
+			"		LambdaTest.method(LambdaTest.class::toString);\n" +
+			"		System.out.print(\"extra\");\n" +
+			"	}\n" +
+			"}\n");
+	String str = this.wc.getSource();
+	String selection = "method";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"method(java.util.function.Supplier<String>) [in LambdaTest [in [Working copy] LambdaTest.java [in <default> [in src [in Resolve]]]]]",
+		elements
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=578011
+// Open Declaration (F3) not navigating to static method in same class
+public void testBug578011() throws Exception {
+	this.wc = getWorkingCopy(
+			"Resolve/src/EclipseOpenDeclarationBug.java",
+			"import java.lang.reflect.Constructor;\n" +
+			"import java.util.HashSet;\n" +
+			"import java.util.Optional;\n" +
+			"import java.util.Set;\n" +
+			"\n" +
+			"public class EclipseOpenDeclarationBug {\n" +
+			"  public EclipseOpenDeclarationBug(Class<?> cls) {\n" +
+			"    Set<Constructor<?>> constructors = new HashSet<>();\n" +
+			"\n" +
+			"    getPublicEmptyConstructor(cls).ifPresent(c -> {\n" +
+			"      if(constructors.isEmpty()) {\n" +
+			"        constructors.add(c);\n" +
+			"      }\n" +
+			"    });\n" +
+			"\n" +
+			"    if(constructors.size() < 1) {\n" +
+			"      throw new IllegalArgumentException(\"No suitable constructor found; provide an empty constructor or annotate one with @Inject: \" + cls);\n" +
+			"    }\n" +
+			"  }\n" +
+			"\n" +
+			"  private static <T> Optional<Constructor<T>> getPublicEmptyConstructor(Class<T> cls) {\n" +
+			"    try {\n" +
+			"      return Optional.of(cls.getConstructor());\n" +
+			"    }\n" +
+			"    catch(NoSuchMethodException e) {\n" +
+			"      return Optional.empty();\n" +
+			"    }\n" +
+			"  }\n" +
+			"}\n");
+	String str = this.wc.getSource();
+	String selection = "getPublicEmptyConstructor";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"getPublicEmptyConstructor(Class<T>) [in EclipseOpenDeclarationBug [in [Working copy] EclipseOpenDeclarationBug.java [in <default> [in src [in Resolve]]]]]",
+		elements
+	);
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=546563
+// [navigation] Open Declaration not working
+public void testBug546563() throws Exception {
+	this.wc = getWorkingCopy(
+			"Resolve/src/Test.java",
+			"import java.util.Optional;\n" +
+			"\n" +
+			"public class Test {\n" +
+			"\n" +
+			"  public void xyz() {\n" +
+			"    getOptionalValue().ifPresent(val -> {\n" +
+			"      int i = 1;\n" +
+			"      System.out.print(val);\n" +
+			"    });\n" +
+			"    try {\n" +
+			"    } catch (Exception e) {\n" +
+			"    }\n" +
+			"  }\n" +
+			"\n" +
+			"  public Optional<String> getOptionalValue() {\n" +
+			"    return Optional.empty();\n" +
+			"  }\n" +
+			"}\n");
+	String str = this.wc.getSource();
+	String selection = "getOptionalValue";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"getOptionalValue() [in Test [in [Working copy] Test.java [in <default> [in src [in Resolve]]]]]",
+		elements
+	);
+}
 }

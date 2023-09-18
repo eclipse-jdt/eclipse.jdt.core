@@ -5509,7 +5509,7 @@ protected NameReference getUnspecifiedReference(boolean rejectTypeAnnotations) {
 		char[] token = this.identifierStack[this.identifierPtr];
 		long position = this.identifierPositionStack[this.identifierPtr--];
 		int start = (int) (position >>> 32), end = (int) position;
-		// in expression like new Foo(<completion>Collection.emptyList(), 1), the token becomes empty, 
+		// in expression like new Foo(<completion>Collection.emptyList(), 1), the token becomes empty,
 		// but the positions represents the static type name identifier.
 		int adjustedStart = ((token.length == 0) ? start - 1 : start);
 		if (this.assistNode == null && adjustedStart <= this.cursorLocation && end >= this.cursorLocation) {
@@ -5811,9 +5811,9 @@ private boolean checkIfAtFirstArgumentOfConstructor() {
 		return true;
 	}
 	// We try to handle the situation where lParenPos represents a argument MessageSend's left paren in the AllocationExpression like
-	// Foo(|null, Collections.empty(), null). Here we try to calculate the constructor's left paren and match it with the 
+	// Foo(|null, Collections.empty(), null). Here we try to calculate the constructor's left paren and match it with the
 	// assistNode position if the assistNode is a CompletionOnSingleNameReference or CompletionOnMessageSendName.
-	
+
 	// following int literals represents
 	// 1 -> '('
 	// 3 -> 'new'
@@ -5898,18 +5898,6 @@ public MethodDeclaration parseSomeStatements(int start, int end, int fakeBlocksC
 	} finally {
 		this.nestedMethod[this.nestedType]--;
 	}
-	if (!this.hasError) {
-		int length;
-		if (this.astLengthPtr > -1 && (length = this.astLengthStack[this.astLengthPtr--]) != 0) {
-			System.arraycopy(
-				this.astStack,
-				(this.astPtr -= length) + 1,
-				fakeMethod.statements = new Statement[length],
-				0,
-				length);
-		}
-	}
-
 	return fakeMethod;
 }
 protected void popUntilCompletedAnnotationIfNecessary() {
