@@ -3092,4 +3092,38 @@ public void testBug578011() throws Exception {
 		elements
 	);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=546563
+// [navigation] Open Declaration not working
+public void testBug546563() throws Exception {
+	this.wc = getWorkingCopy(
+			"Resolve/src/Test.java",
+			"import java.util.Optional;\n" +
+			"\n" +
+			"public class Test {\n" +
+			"\n" +
+			"  public void xyz() {\n" +
+			"    getOptionalValue().ifPresent(val -> {\n" +
+			"      int i = 1;\n" +
+			"      System.out.print(val);\n" +
+			"    });\n" +
+			"    try {\n" +
+			"    } catch (Exception e) {\n" +
+			"    }\n" +
+			"  }\n" +
+			"\n" +
+			"  public Optional<String> getOptionalValue() {\n" +
+			"    return Optional.empty();\n" +
+			"  }\n" +
+			"}\n");
+	String str = this.wc.getSource();
+	String selection = "getOptionalValue";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"getOptionalValue() [in Test [in [Working copy] Test.java [in <default> [in src [in Resolve]]]]]",
+		elements
+	);
+}
 }
