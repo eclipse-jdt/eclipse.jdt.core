@@ -13081,7 +13081,7 @@ try {
 			int previousToken = this.currentToken;
 			switch (resumeOnSyntaxError()) {
 				case HALT:
-					act = ERROR_ACTION;
+					act = ERROR_ACTION; // this is suspect, but goes quite some way back in time ...
 					break ProcessTerminals;
 				case RESTART:
 					if (act == ERROR_ACTION && previousToken != 0) this.lastErrorEndPosition = errorPos;

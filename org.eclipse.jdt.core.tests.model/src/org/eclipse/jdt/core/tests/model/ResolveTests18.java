@@ -3047,4 +3047,49 @@ public void testBug576252() throws Exception {
 		elements
 	);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=578011
+// Open Declaration (F3) not navigating to static method in same class
+public void testBug578011() throws Exception {
+	this.wc = getWorkingCopy(
+			"Resolve/src/EclipseOpenDeclarationBug.java",
+			"import java.lang.reflect.Constructor;\n" +
+			"import java.util.HashSet;\n" +
+			"import java.util.Optional;\n" +
+			"import java.util.Set;\n" +
+			"\n" +
+			"public class EclipseOpenDeclarationBug {\n" +
+			"  public EclipseOpenDeclarationBug(Class<?> cls) {\n" +
+			"    Set<Constructor<?>> constructors = new HashSet<>();\n" +
+			"\n" +
+			"    getPublicEmptyConstructor(cls).ifPresent(c -> {\n" +
+			"      if(constructors.isEmpty()) {\n" +
+			"        constructors.add(c);\n" +
+			"      }\n" +
+			"    });\n" +
+			"\n" +
+			"    if(constructors.size() < 1) {\n" +
+			"      throw new IllegalArgumentException(\"No suitable constructor found; provide an empty constructor or annotate one with @Inject: \" + cls);\n" +
+			"    }\n" +
+			"  }\n" +
+			"\n" +
+			"  private static <T> Optional<Constructor<T>> getPublicEmptyConstructor(Class<T> cls) {\n" +
+			"    try {\n" +
+			"      return Optional.of(cls.getConstructor());\n" +
+			"    }\n" +
+			"    catch(NoSuchMethodException e) {\n" +
+			"      return Optional.empty();\n" +
+			"    }\n" +
+			"  }\n" +
+			"}\n");
+	String str = this.wc.getSource();
+	String selection = "getPublicEmptyConstructor";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"getPublicEmptyConstructor(Class<T>) [in EclipseOpenDeclarationBug [in [Working copy] EclipseOpenDeclarationBug.java [in <default> [in src [in Resolve]]]]]",
+		elements
+	);
+}
 }
