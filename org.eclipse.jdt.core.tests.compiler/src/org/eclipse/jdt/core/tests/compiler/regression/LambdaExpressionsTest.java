@@ -8369,6 +8369,27 @@ public void testGH1162_2() {
 			"Unhandled exception type X\n" +
 			"----------\n");
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=576252
+// Open declaration / Javadoc popup is confused by overloaded method with method reference
+public void testBug576252() {
+	this.runConformTest(
+			new String[] {
+				"LambdaTest.java",
+				"public class LambdaTest {\n" +
+				"	public static void method(String value) {\n" +
+				"		System.out.print(\"para\");\n" +
+				"	}\n" +
+				"\n" +
+				"	public static void method(java.util.function.Supplier<String> supplier) {\n" +
+				"		System.out.print(supplier.get());\n" +
+				"	}\n" +
+				"\n" +
+				"	public static void main(String[] args) {\n" +
+				"		LambdaTest.method(LambdaTest.class::toString);\n" +
+				"	}\n" +
+				"}\n"},
+			"class LambdaTest");
+}
 public static Class testClass() {
 	return LambdaExpressionsTest.class;
 }

@@ -916,7 +916,7 @@ public class Parser implements TerminalTokens, ParserBasicInformation, Conflicte
 	protected int intPtr;
 
 	protected int[] intStack;
-	public int lastAct ; //handle for multiple parsing goals
+	public int lastAct;
 	//error recovery management
 	protected int lastCheckPoint;
 	protected int lastErrorEndPosition;
@@ -7488,7 +7488,7 @@ protected void consumeRule(int act) {
 			break;
 
     case 369 : if (DEBUG) { System.out.println("PatternList ::= PatternList COMMA Pattern"); }  //$NON-NLS-1$
-		    consumePatternList(); 
+		    consumePatternList();
 			break;
 
     case 371 : if (DEBUG) { System.out.println("PushLeftBrace ::="); }  //$NON-NLS-1$
@@ -13075,7 +13075,8 @@ try {
 
 			int errorPos = this.scanner.currentPosition - 1;
 			if (!this.hasReportedError) {
-				this.hasError = true;
+				if (act == ERROR_ACTION)
+					this.hasError = true;
 			}
 			int previousToken = this.currentToken;
 			switch (resumeOnSyntaxError()) {

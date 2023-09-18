@@ -3017,4 +3017,34 @@ public void testGH1195() throws Exception {
 		elements
 	);
 }
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=576252
+// Open declaration / Javadoc popup is confused by overloaded method with method reference
+public void testBug576252() throws Exception {
+	this.wc = getWorkingCopy(
+			"Resolve/src/LambdaTest.java",
+			"public class LambdaTest {\n" +
+			"	public static void method(String value) {\n" +
+			"		System.out.print(\"para\");\n" +
+			"	}\n" +
+			"\n" +
+			"	public static void method(java.util.function.Supplier<String> supplier) {\n" +
+			"		System.out.print(supplier.get());\n" +
+			"	}\n" +
+			"\n" +
+			"	public static void main(String[] args) {\n" +
+			"		LambdaTest.method(LambdaTest.class::toString);\n" +
+			"		System.out.print(\"extra\");\n" +
+			"	}\n" +
+			"}\n");
+	String str = this.wc.getSource();
+	String selection = "method";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"method(java.util.function.Supplier<String>) [in LambdaTest [in [Working copy] LambdaTest.java [in <default> [in src [in Resolve]]]]]",
+		elements
+	);
+}
 }
