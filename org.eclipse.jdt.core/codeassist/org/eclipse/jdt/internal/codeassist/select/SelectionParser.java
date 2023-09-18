@@ -983,10 +983,9 @@ protected void consumeSwitchLabeledExpression() {
 
 @Override
 protected void consumeInstanceOfExpressionWithName() {
-	int length = this.patternLengthPtr >= 0 ?
-			this.patternLengthStack[this.patternLengthPtr--] : 0;
+	int length = this.astLengthStack[this.astLengthPtr--];
 	if (length > 0) {
-		Pattern pattern = (Pattern) this.patternStack[this.patternPtr--];
+		Pattern pattern = (Pattern) this.astStack[this.astPtr--];
 		pushOnExpressionStack(getUnspecifiedReferenceOptimized());
 		consumePatternInsideInstanceof(pattern);
 		if (this.expressionStack[this.expressionPtr] != this.assistNode) {
