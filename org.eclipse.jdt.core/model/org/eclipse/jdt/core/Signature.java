@@ -463,7 +463,7 @@ public final class Signature {
 	public static final int WILDCARD_TYPE_SIGNATURE = 5;
 
 // <x.y.z, a.b<c>.d<e.f>> --> <z,d<f>>
-private static void appendArgumentSimpleNames(char[] name, int start, int end, StringBuffer buffer) {
+private static void appendArgumentSimpleNames(char[] name, int start, int end, StringBuilder buffer) {
 	buffer.append('<');
 	int depth = 0;
 	int argumentStart = -1;
@@ -510,7 +510,7 @@ private static void appendArgumentSimpleNames(char[] name, int start, int end, S
  * @exception IllegalArgumentException if this is not an array type signature
  * @see Util#scanArrayTypeSignature(char[], int)
  */
-private static int appendArrayTypeSignature(char[] string, int start, boolean fullyQualifyTypeNames, StringBuffer buffer) {
+private static int appendArrayTypeSignature(char[] string, int start, boolean fullyQualifyTypeNames, StringBuilder buffer) {
 	return appendArrayTypeSignature(string, start, fullyQualifyTypeNames, buffer, false);
 }
 
@@ -529,7 +529,7 @@ private static int appendArrayTypeSignature(char[] string, int start, boolean fu
  * @exception IllegalArgumentException if this is not an array type signature
  * @see Util#scanArrayTypeSignature(char[], int)
  */
-private static int appendArrayTypeSignature(char[] string, int start, boolean fullyQualifyTypeNames, StringBuffer buffer, boolean isVarArgs) {
+private static int appendArrayTypeSignature(char[] string, int start, boolean fullyQualifyTypeNames, StringBuilder buffer, boolean isVarArgs) {
 	int length = string.length;
 	// need a minimum 2 char
 	if (start >= length - 1) {
@@ -576,7 +576,7 @@ private static int appendArrayTypeSignature(char[] string, int start, boolean fu
  * @exception IllegalArgumentException if this is not an array type signature
  * @see Util#scanArrayTypeSignature(char[], int)
  */
-private static int appendCaptureTypeSignature(char[] string, int start, boolean fullyQualifyTypeNames, StringBuffer buffer) {
+private static int appendCaptureTypeSignature(char[] string, int start, boolean fullyQualifyTypeNames, StringBuilder buffer) {
 	// need a minimum 2 char
 	if (start >= string.length - 1) {
 		throw newIllegalArgumentException(string, start);
@@ -602,7 +602,7 @@ private static int appendCaptureTypeSignature(char[] string, int start, boolean 
  * @exception IllegalArgumentException if this is not a class type signature
  * @see Util#scanClassTypeSignature(char[], int)
  */
-private static int appendClassTypeSignature(char[] string, int start, boolean fullyQualifyTypeNames, StringBuffer buffer) {
+private static int appendClassTypeSignature(char[] string, int start, boolean fullyQualifyTypeNames, StringBuilder buffer) {
 	// need a minimum 3 chars "Lx;"
 	if (start >= string.length - 2) {
 		throw newIllegalArgumentException(string, start);
@@ -695,7 +695,7 @@ private static int appendClassTypeSignature(char[] string, int start, boolean fu
  * @exception IllegalArgumentException if this is not an array type signature
  * @see Util#scanArrayTypeSignature(char[], int)
  */
-private static int appendIntersectionTypeSignature(char[] string, int start, boolean fullyQualifyTypeNames, StringBuffer buffer) {
+private static int appendIntersectionTypeSignature(char[] string, int start, boolean fullyQualifyTypeNames, StringBuilder buffer) {
 	// need a minimum 2 char
 	if (start >= string.length - 1) {
 		throw newIllegalArgumentException(string, start);
@@ -723,7 +723,7 @@ private static int appendIntersectionTypeSignature(char[] string, int start, boo
 	}
 	return start;
 }
-private static void appendSimpleName(char[] name, int start, int end, StringBuffer buffer) {
+private static void appendSimpleName(char[] name, int start, int end, StringBuilder buffer) {
 	int lastDot = -1, lastGenericStart = -1, lastGenericEnd = -1;
 	int depth = 0;
 	if (name[start] == '?') { // wildcard
@@ -792,7 +792,7 @@ private static void appendSimpleName(char[] name, int start, int end, StringBuff
  * @exception IllegalArgumentException if this is not a type argument signature
  * @see Util#scanTypeArgumentSignature(char[], int)
  */
-private static int appendTypeArgumentSignature(char[] string, int start, boolean fullyQualifyTypeNames, StringBuffer buffer) {
+private static int appendTypeArgumentSignature(char[] string, int start, boolean fullyQualifyTypeNames, StringBuilder buffer) {
 	// need a minimum 1 char
 	if (start >= string.length) {
 		throw newIllegalArgumentException(string, start);
@@ -828,7 +828,7 @@ private static int appendTypeArgumentSignature(char[] string, int start, boolean
  * signatures
  * @see Util#scanTypeArgumentSignatures(char[], int)
  */
-private static int appendTypeArgumentSignatures(char[] string, int start, boolean fullyQualifyTypeNames, StringBuffer buffer) {
+private static int appendTypeArgumentSignatures(char[] string, int start, boolean fullyQualifyTypeNames, StringBuilder buffer) {
 	// need a minimum 2 char "<>"
 	if (start >= string.length - 1) {
 		throw newIllegalArgumentException(string, start);
@@ -871,7 +871,7 @@ private static int appendTypeArgumentSignatures(char[] string, int start, boolea
  * @exception IllegalArgumentException if this is not a type signature
  * @see Util#scanTypeSignature(char[], int)
  */
-private static int appendTypeSignature(char[] string, int start, boolean fullyQualifyTypeNames, StringBuffer buffer) {
+private static int appendTypeSignature(char[] string, int start, boolean fullyQualifyTypeNames, StringBuilder buffer) {
 	return appendTypeSignature(string, start, fullyQualifyTypeNames, buffer, false);
 }
 
@@ -892,7 +892,7 @@ private static int appendTypeSignature(char[] string, int start, boolean fullyQu
  * and the type is not an array type signature.
  * @see Util#scanTypeSignature(char[], int)
  */
-private static int appendTypeSignature(char[] string, int start, boolean fullyQualifyTypeNames, StringBuffer buffer, boolean isVarArgs) {
+private static int appendTypeSignature(char[] string, int start, boolean fullyQualifyTypeNames, StringBuilder buffer, boolean isVarArgs) {
 	// need a minimum 1 char
 	if (start >= string.length) {
 		throw newIllegalArgumentException(string, start);
@@ -1091,7 +1091,7 @@ public static char[] createCharArrayTypeSignature(char[] typeName, boolean isRes
 	if (typeName == null) throw new IllegalArgumentException("null"); //$NON-NLS-1$
 	int length = typeName.length;
 	if (length == 0) throw new IllegalArgumentException(String.valueOf(typeName));
-	StringBuffer buffer = new StringBuffer(5);
+	StringBuilder buffer = new StringBuilder(5);
 	int pos = encodeTypeSignature(typeName, 0, isResolved, length, buffer);
 	pos = consumeWhitespace(typeName, pos, length);
 	if (pos < length) throw new IllegalArgumentException(String.valueOf(typeName));
@@ -1110,7 +1110,7 @@ public static char[] createCharArrayTypeSignature(char[] typeName, boolean isRes
  * @since 3.7.1
  */
 public static String createIntersectionTypeSignature(char[][] typeSignatures) {
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	buffer.append(Signature.C_INTERSECTION);
 	for (int i = 0, max = typeSignatures.length; i < max; i++) {
 		if (i > 0) {
@@ -1130,7 +1130,7 @@ public static String createIntersectionTypeSignature(char[][] typeSignatures) {
  * @since 3.7.1
  */
 private static String createUnionTypeSignature(char[][] typeSignatures) {
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	buffer.append(Signature.C_UNION);
 	for (int i = 0, max = typeSignatures.length; i < max; i++) {
 		if (i > 0) {
@@ -1320,7 +1320,7 @@ public static String createTypeSignature(String typeName, boolean isResolved) {
 	return createTypeSignature(typeName == null ? null : typeName.toCharArray(), isResolved);
 }
 
-private static int encodeArrayDimension(char[] typeName, int pos, int length, StringBuffer buffer) {
+private static int encodeArrayDimension(char[] typeName, int pos, int length, StringBuilder buffer) {
     int checkPos;
     while (pos < length && (checkPos = checkNextChar(typeName, '[', pos, length, true)) > 0) {
         pos = checkNextChar(typeName, ']', checkPos, length, false);
@@ -1329,7 +1329,7 @@ private static int encodeArrayDimension(char[] typeName, int pos, int length, St
     return pos;
 }
 
-private static int encodeQualifiedName(char[] typeName, int pos, int length, StringBuffer buffer) {
+private static int encodeQualifiedName(char[] typeName, int pos, int length, StringBuilder buffer) {
     int count = 0;
     char lastAppendedChar = 0;
     nameLoop: while (pos < length) {
@@ -1374,7 +1374,7 @@ private static int encodeQualifiedName(char[] typeName, int pos, int length, Str
 	return pos;
 }
 
-private static int encodeTypeSignature(char[] typeName, int start, boolean isResolved, int length, StringBuffer buffer) {
+private static int encodeTypeSignature(char[] typeName, int start, boolean isResolved, int length, StringBuilder buffer) {
     int pos = start;
     pos = consumeWhitespace(typeName, pos, length);
     if (pos >= length) throw new IllegalArgumentException(String.valueOf(typeName));
@@ -2069,7 +2069,7 @@ public static char[] getSimpleName(char[] name) {
 		}
 		return  CharOperation.subarray(name, lastDot + 1, length);
 	}
-	StringBuffer buffer = new StringBuffer(10);
+	StringBuilder buffer = new StringBuilder(10);
 	int nameStart = lastDot < 0 ? 0 : lastDot+1;
 	buffer.append(name, nameStart, lastGenericStart - nameStart);
 	appendArgumentSimpleNames(name, lastGenericStart, lastGenericEnd, buffer);
@@ -2124,7 +2124,7 @@ public static String getSimpleName(String name) {
 		}
 		return name.substring(lastDot + 1, length);
 	}
-	StringBuffer buffer = new StringBuffer(10);
+	StringBuilder buffer = new StringBuilder(10);
 	char[] nameChars = name.toCharArray();
 	int nameStart = lastDot < 0 ? 0 : lastDot+1;
 	buffer.append(nameChars, nameStart, lastGenericStart - nameStart);
@@ -2749,7 +2749,7 @@ public static char[] toCharArray(char[] signature) throws IllegalArgumentExcepti
 			return toCharArray(signature, CharOperation.NO_CHAR, null, true, true);
 		}
 
-		StringBuffer buffer = new StringBuffer(signature.length + 10);
+		StringBuilder buffer = new StringBuilder(signature.length + 10);
 		appendTypeSignature(signature, 0, true, buffer);
 		char[] result = new char[buffer.length()];
 		buffer.getChars(0, buffer.length(), result, 0);
@@ -2818,7 +2818,7 @@ public static char[] toCharArray(char[] methodSignature, char[] methodName, char
 		throw new IllegalArgumentException(String.valueOf(methodSignature));
 	}
 
-	StringBuffer buffer = new StringBuffer(methodSignature.length + 10);
+	StringBuilder buffer = new StringBuilder(methodSignature.length + 10);
 
 	// return type
 	if (includeReturnType) {

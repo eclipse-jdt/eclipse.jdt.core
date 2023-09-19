@@ -360,7 +360,7 @@ public final class ExternalAnnotationUtil {
 			// assemble full annotatedSignature (don't bother merging since no previous signature exists):
 			annotatedSignature = updateSignature(originalSignature, annotatedSignature, updatePosition, MergeStrategy.REPLACE_SIGNATURE);
 
-			StringBuffer newContent= new StringBuffer();
+			StringBuilder newContent= new StringBuilder();
 			// header:
 			newContent.append(ExternalAnnotationProvider.CLASS_PREFIX);
 			newContent.append(typeName).append('\n');
@@ -374,7 +374,7 @@ public final class ExternalAnnotationUtil {
 			createNewFile(file, newContent.toString(), monitor);
 		} else {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(file.getContents()));
-			StringBuffer newContent = new StringBuffer();
+			StringBuilder newContent = new StringBuilder();
 			try {
 				// type references get the previous signature from the existing type binding:
 				String previousSignature = originalSignature;
@@ -410,8 +410,7 @@ public final class ExternalAnnotationUtil {
 						continue;
 					}
 					if (relation == 0) {
-						StringBuffer pending = new StringBuffer(line).append('\n');
-						pending.append(line = reader.readLine());
+						String pending = line + '\n' + (line = reader.readLine());
 						if (line == null) {
 							break; // found only the selector at EOF, append right here, ignoring 'pending'
 						}
@@ -419,7 +418,7 @@ public final class ExternalAnnotationUtil {
 						relation = line.trim().compareTo(originalSignature);
 						if (relation > 0) { // past the insertion point
 							// add new entry (below)
-							line = pending.toString(); // push back
+							line = pending; // push back
 							break;
 						}
 						newContent.append(pending).append('\n');
@@ -464,7 +463,7 @@ public final class ExternalAnnotationUtil {
 	}
 
 	private static String updateSignature(String originalSignature, String annotatedSignature, int updatePosition, MergeStrategy mergeStrategy) {
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 		String signatureToReplace;
 		String postfix = null;
 		if (updatePosition <= POSITION_TYPE_PARAMETER) {
@@ -538,7 +537,7 @@ public final class ExternalAnnotationUtil {
 	 * Update 'oldType' with annotations from 'newType' guided by 'mergeStrategy'.
 	 * The result is written into 'buf' as we go.
 	 */
-	private static boolean updateType(StringBuffer buf, char[] oldType, char[] newType, MergeStrategy mergeStrategy) {
+	private static boolean updateType(StringBuilder buf, char[] oldType, char[] newType, MergeStrategy mergeStrategy) {
 		if (mergeStrategy == MergeStrategy.REPLACE_SIGNATURE) {
 			buf.append(newType);
 			return false;
@@ -584,7 +583,7 @@ public final class ExternalAnnotationUtil {
 	 * similar to updateType() but for type parameters, syntax:
 	 * 		[Annot] Identifier ClassBound {InterfaceBound}
 	 */
-	private static boolean updateTypeParameter(StringBuffer buf, char[] oldType, char[] newType, MergeStrategy mergeStrategy) {
+	private static boolean updateTypeParameter(StringBuilder buf, char[] oldType, char[] newType, MergeStrategy mergeStrategy) {
 		if (mergeStrategy == MergeStrategy.REPLACE_SIGNATURE) {
 			buf.append(newType);
 			return false;
@@ -641,7 +640,7 @@ public final class ExternalAnnotationUtil {
 	 * If yes, print it into 'buf' and answer true.
 	 * If no, if 'force' raise an exception, else quietly answer false without updating 'buf'.
 	 */
-	private static boolean match(StringBuffer buf, SignatureWrapper sig1, SignatureWrapper sig2, char expected, boolean force) {
+	private static boolean match(StringBuilder buf, SignatureWrapper sig1, SignatureWrapper sig2, char expected, boolean force) {
 		boolean match1 = sig1.signature[sig1.start] == expected;
 		boolean match2 = sig2.signature[sig2.start] == expected;
 		if (match1 != match2) {
@@ -665,7 +664,7 @@ public final class ExternalAnnotationUtil {
 	 * If a current char of 'oldS' and/or 'newS' represents a null annotation, insert it into 'buf' guided by 'mergeStrategy'.
 	 * If the new char is NO_ANNOTATION and strategy is OVERWRITE_ANNOTATIONS, silently skip over any null annotations in 'oldS'.
 	 */
-	private static void mergeAnnotation(StringBuffer buf, SignatureWrapper oldS, SignatureWrapper newS, MergeStrategy mergeStrategy) {
+	private static void mergeAnnotation(StringBuilder buf, SignatureWrapper oldS, SignatureWrapper newS, MergeStrategy mergeStrategy) {
 		 // if atEnd use a char that's different from NULLABLE, NONNULL and NO_ANNOTATION:
 		char oldAnn = !oldS.atEnd() ? oldS.signature[oldS.start] : '\0';
 		char newAnn = !newS.atEnd() ? newS.signature[newS.start] : '\0';
@@ -710,7 +709,7 @@ public final class ExternalAnnotationUtil {
 	 * - nextLines (optionally, may be null)
 	 * - the still unconsumed content of tailReader
 	 */
-	private static void writeFile(IFile annotationFile, StringBuffer head, String annotatedSignature,
+	private static void writeFile(IFile annotationFile, StringBuilder head, String annotatedSignature,
 									String nextLines, BufferedReader tailReader, IProgressMonitor monitor)
 			throws CoreException, IOException
 	{
@@ -802,9 +801,8 @@ public final class ExternalAnnotationUtil {
 	public static String[] annotateType(String originalSignature, String annotatedType, MergeStrategy mergeStrategy)
 	{
 		String[] result = new String[4]; // prefix, orig, replacement, postfix
-		StringBuffer buf;
 		result[0] = ""; //$NON-NLS-1$
-		buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 		result[1] = originalSignature;
 		updateType(buf, originalSignature.toCharArray(), annotatedType.toCharArray(), mergeStrategy);
 		result[2] = buf.toString();
@@ -829,11 +827,10 @@ public final class ExternalAnnotationUtil {
 	public static String[] annotateReturnType(String originalSignature, String annotatedType, MergeStrategy mergeStrategy)
 	{
 		String[] result = new String[4]; // prefix, orig, replacement, postfix
-		StringBuffer buf;
 		assert originalSignature.charAt(0) == '(' || originalSignature.charAt(0) == '<': "signature must start with '(' or '<'"; //$NON-NLS-1$
 		int close = originalSignature.indexOf(')');
 		result[0] = originalSignature.substring(0, close+1);
-		buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 		result[1] = originalSignature.substring(close+1);
 		updateType(buf, result[1].toCharArray(), annotatedType.toCharArray(), mergeStrategy);
 		result[2] = buf.toString();
@@ -860,7 +857,6 @@ public final class ExternalAnnotationUtil {
 	public static String[] annotateParameterType(String originalSignature, String annotatedType, int paramIdx, MergeStrategy mergeStrategy)
 	{
 		String[] result = new String[4]; // prefix, orig, replacement, postfix
-		StringBuffer buf;
 		SignatureWrapper wrapper = new SignatureWrapper(originalSignature.toCharArray(), true, true); // may already contain annotations
 		wrapper.start = CharOperation.indexOf('(', wrapper.signature) + 1; // possibly skip type parameters
 		for (int i = 0; i < paramIdx; i++)
@@ -868,7 +864,7 @@ public final class ExternalAnnotationUtil {
 		int start = wrapper.start;
 		int end = wrapper.skipAngleContents(wrapper.computeEnd());
 		result[0] = originalSignature.substring(0, start);
-		buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 		result[1] = originalSignature.substring(start, end+1);
 		updateType(buf, result[1].toCharArray(), annotatedType.toCharArray(), mergeStrategy);
 		result[2] = buf.toString();
@@ -895,7 +891,7 @@ public final class ExternalAnnotationUtil {
 	public static String[] annotateTypeParameter(String originalSignature, String annotatedType, int rank, MergeStrategy mergeStrategy)
 	{
 		String[] result = new String[4]; // prefix, orig, replacement, postfix
-		StringBuffer buf = new StringBuffer();
+		StringBuilder buf = new StringBuilder();
 		SignatureWrapper wrapper = new SignatureWrapper(originalSignature.toCharArray(), true, true); // may already contain annotations
 		wrapper.start = 1; // skip '<'
 		// prefix:
