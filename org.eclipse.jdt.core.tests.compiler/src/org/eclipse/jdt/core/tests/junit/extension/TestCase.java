@@ -256,25 +256,17 @@ public static void assertStringEquals(String message, String expected, String ac
 		formatted = new StringBuffer();
 	}
 	if (showLineSeparators) {
-		final String expectedWithLineSeparators = showLineSeparators(expected);
-		final String actualWithLineSeparators = showLineSeparators(actual);
-		formatted.append("\n----------- Expected ------------\n"); //$NON-NLS-1$
-		formatted.append(expectedWithLineSeparators);
-		formatted.append("\n------------ but was ------------\n"); //$NON-NLS-1$
-		formatted.append(actualWithLineSeparators);
-		formatted.append("\n--------- Difference is ----------\n"); //$NON-NLS-1$
-		throw new ComparisonFailure(formatted.toString(),
-			    expectedWithLineSeparators,
-			    actualWithLineSeparators);
-	} else {
-		formatted.append("\n----------- Expected ------------\n"); //$NON-NLS-1$
-		formatted.append(expected);
-		formatted.append("\n------------ but was ------------\n"); //$NON-NLS-1$
-		formatted.append(actual);
-		formatted.append("\n--------- Difference is ----------\n"); //$NON-NLS-1$
-		throw new ComparisonFailure(formatted.toString(),  expected, actual);
+		expected = showLineSeparators(expected);
+		actual = showLineSeparators(actual);
 	}
+	formatted.append("\n----------- Expected ------------\n"); //$NON-NLS-1$
+	formatted.append(expected);
+	formatted.append("\n------------ but was ------------\n"); //$NON-NLS-1$
+	formatted.append(actual);
+	formatted.append("\n---------------------- ----------\n"); //$NON-NLS-1$
+	throw new ComparisonFailure(formatted.toString(), expected, actual);
 }
+
 /**
  * Same method as {@link #assertEquals(Object, Object)} if the flag
  * {@link #abortOnFailure} has been set to <code>true</code>.
