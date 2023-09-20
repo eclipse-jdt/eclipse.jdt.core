@@ -3928,53 +3928,63 @@ public class PatternMatching16Test extends AbstractRegressionTest {
     			"        }\n" +
     		    "    }\n" +
     			"}";
-    	String expectedOutput =  "  // Stack: 4, Locals: 5\n" +
-    			"  public static void main(String[] args);\n" +
+    	String expectedOutput =  "  public static void main(String[] args);\n" +
     			"     0  ldc <String \"OK: \"> [16]\n" +
     			"     2  astore_1 [y]\n" +
     			"     3  ldc <String \"local\"> [18]\n" +
-    			"     5  astore 4\n" +
-    			"     7  aload 4\n" +
-    			"     9  instanceof String [20]\n" +
-    			"    12  ifeq 46\n" +
-    			"    15  aload 4\n" +
-    			"    17  checkcast String [20]\n" +
-    			"    20  dup\n" +
-    			"    21  astore_2\n" +
-    			"    22  aload 4\n" +
-    			"    24  checkcast String [20]\n" +
-    			"    27  pop2\n" +
-    			"    28  getstatic System.out : PrintStream [22]\n" +
-    			"    31  new StringBuilder [28]\n" +
-    			"    34  dup\n" +
-    			"    35  aload_1 [y]\n" +
-    			"    36  invokespecial StringBuilder(String) [30]\n" +
-    			"    39  aload_2 [x]\n" +
-    			"    40  invokevirtual StringBuilder.append(String) : StringBuilder [33]\n" +
-    			"    43  invokevirtual PrintStream.println(Object) : void [37]\n" +
-    			"    46  return\n" +
+    			"     5  astore_3\n" +
+    			"     6  aload_3\n" +
+    			"     7  instanceof String [20]\n" +
+    			"    10  ifeq 42\n" +
+    			"    13  aload_3\n" +
+    			"    14  checkcast String [20]\n" +
+    			"    17  dup\n" +
+    			"    18  astore_2\n" +
+    			"    19  aload_3\n" +
+    			"    20  checkcast String [20]\n" +
+    			"    23  pop2\n" +
+    			"    24  getstatic System.out : PrintStream [22]\n" +
+    			"    27  new StringBuilder [28]\n" +
+    			"    30  dup\n" +
+    			"    31  aload_1 [y]\n" +
+    			"    32  invokespecial StringBuilder(String) [30]\n" +
+    			"    35  aload_2 [x]\n" +
+    			"    36  invokevirtual StringBuilder.append(String) : StringBuilder [33]\n" +
+    			"    39  invokevirtual PrintStream.println(Object) : void [37]\n" +
+    			"    42  return\n" +
     			"      Line numbers:\n" +
     			"        [pc: 0, line: 13]\n" +
     			"        [pc: 3, line: 14]\n" +
-    			"        [pc: 28, line: 15]\n" +
-    			"        [pc: 46, line: 17]\n" +
+    			"        [pc: 24, line: 15]\n" +
+    			"        [pc: 42, line: 17]\n" +
     			"      Local variable table:\n" +
-    			"        [pc: 0, pc: 47] local: args index: 0 type: String[]\n" +
-    			"        [pc: 3, pc: 47] local: y index: 1 type: String\n" +
-    			"        [pc: 28, pc: 46] local: x index: 2 type: String\n" +
+    			"        [pc: 0, pc: 43] local: args index: 0 type: String[]\n" +
+    			"        [pc: 3, pc: 43] local: y index: 1 type: String\n" +
+    			"        [pc: 24, pc: 42] local: x index: 2 type: String\n" +
     			"      Stack map table: number of frames 1\n" +
-    			"        [pc: 46, append: {String}]\n" +
+    			"        [pc: 42, append: {String}]\n" +
     			"    RuntimeVisibleTypeAnnotations: \n" +
     			"      #50 @Type(\n" +
     			"        target type = 0x40 LOCAL_VARIABLE\n" +
     			"        local variable entries:\n" +
-    			"          [pc: 3, pc: 47] index: 1\n" +
+    			"          [pc: 3, pc: 43] index: 1\n" +
     			"      )\n" +
     			"      #50 @Type(\n" +
     			"        target type = 0x40 LOCAL_VARIABLE\n" +
     			"        local variable entries:\n" +
-    			"          [pc: 28, pc: 46] index: 2\n" +
-    			"      )\n";
+    			"          [pc: 24, pc: 42] index: 2\n" +
+    			"      )\n" +
+    			"\n" +
+    			"  Inner classes:\n" +
+    			"    [inner class info: #54 Test$Type, outer class info: #1 Test\n" +
+    			"     inner name: #56 Type, accessflags: 9736 abstract static],\n" +
+    			"    [inner class info: #57 Test$Var, outer class info: #1 Test\n" +
+    			"     inner name: #59 Var, accessflags: 9736 abstract static]\n" +
+    			"\n" +
+    			"Nest Members:\n" +
+    			"   #54 Test$Type,\n" +
+    			"   #57 Test$Var\n" +
+    			"}";
     	checkClassFile("Test", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
         runConformTest(
                 new String[] {
@@ -4008,8 +4018,8 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"----------\n" +
 				"1. ERROR in X.java (at line 4)\n" +
 				"	if (str instanceof (String a && a == null)) {\n" +
-				"	                           ^\n" +
-				"Syntax error, insert \")\" to complete ParenthesizedPattern\n" +
+				"	                   ^\n" +
+				"Syntax error on token \"(\", delete this token\n" +
 				"----------\n" +
 				"2. ERROR in X.java (at line 4)\n" +
 				"	if (str instanceof (String a && a == null)) {\n" +
@@ -4090,7 +4100,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				compilerOptions);
 	}
 	public void testBug578628_4() {
-		if (this.complianceLevel < ClassFileConstants.JDK20)
+		if (this.complianceLevel < ClassFileConstants.JDK21)
 			return;
 		Map<String, String> compilerOptions = getCompilerOptions(true);
 		runConformTest(

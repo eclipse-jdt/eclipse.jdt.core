@@ -2161,9 +2161,6 @@ class ASTConverter {
 				return createFakeEmptyStatement(statement);
 			default :
 				if (statement.pattern != null) {
-					if (!this.ast.isPreviewEnabled()) {
-						return createFakeEmptyStatement(statement);
-					}
 					EnhancedForWithRecordPattern enhancedFor = new EnhancedForWithRecordPattern(this.ast);
 					enhancedFor.setPattern((RecordPattern) convert(statement.pattern));
 					org.eclipse.jdt.internal.compiler.ast.Expression collection = statement.collection;
@@ -2268,7 +2265,6 @@ class ASTConverter {
 			SimpleName patternName = new SimpleName(this.ast);
 			patternName.internalSetIdentifier(new String(pattern.local.name));
 			patternName.setSourceRange(pattern.local.nameSourceStart(), pattern.local.nameSourceEnd() - pattern.local.nameSourceStart() + 1);
-			recordPattern.setPatternName(patternName);
 		} else if (pattern.type != null) {
 			recordPattern.setPatternType(convertType(pattern.type));
 		}
@@ -2323,7 +2319,7 @@ class ASTConverter {
 		}
 		Expression leftExpression = convert(expression.expression);
 		patternInstanceOfExpression.setLeftOperand(leftExpression);
-		if (this.ast.apiLevel == AST.JLS20 && this.ast.isPreviewEnabled()) {
+		if (this.ast.apiLevel >= AST.JLS21) {
 			patternInstanceOfExpression.setPattern(convert(expression.pattern));
 		} else {
 			if (expression.elementVariable != null) {

@@ -66,9 +66,11 @@ public class DOMASTUtil {
 			case ASTNode.PATTERN_INSTANCEOF_EXPRESSION:
 				return apiLevel >= AST.JLS16;
 			case ASTNode.TYPE_PATTERN:
-				return apiLevel == AST.getJLSLatest() && previewEnabled;
+				return apiLevel >= AST.JLS20;
 			case ASTNode.TAG_PROPERTY:
 				return apiLevel >= AST.JLS18;
+			case ASTNode.RECORD_PATTERN:
+				return apiLevel >= AST.JLS21;
 		}
 		return false;
 	}
@@ -204,7 +206,7 @@ public class DOMASTUtil {
 	private static final String[] AST_COMPLIANCE_MAP = {"-1","-1",JavaCore.VERSION_1_2, JavaCore.VERSION_1_3, JavaCore.VERSION_1_7, //$NON-NLS-1$ //$NON-NLS-2$
 			JavaCore.VERSION_1_7, JavaCore.VERSION_1_7, JavaCore.VERSION_1_7, JavaCore.VERSION_1_8, JavaCore.VERSION_9, JavaCore.VERSION_10,
 			JavaCore.VERSION_11, JavaCore.VERSION_12, JavaCore.VERSION_13, JavaCore.VERSION_14, JavaCore.VERSION_15, JavaCore.VERSION_16, JavaCore.VERSION_17, JavaCore.VERSION_18,
-			JavaCore.VERSION_19, JavaCore.VERSION_20};
+			JavaCore.VERSION_19, JavaCore.VERSION_20, JavaCore.VERSION_21};
 
 	/**
 	 * Calculates the JavaCore Option value string corresponding to the input ast level.

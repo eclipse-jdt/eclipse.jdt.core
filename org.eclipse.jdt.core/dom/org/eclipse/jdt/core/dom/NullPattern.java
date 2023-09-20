@@ -64,8 +64,7 @@ public class NullPattern extends Pattern {
 	 */
 	NullPattern(AST ast) {
 		super(ast);
-		supportedOnlyIn20();
-		unsupportedWithoutPreviewError();
+		supportedOnlyIn21();
 	}
 
 	@Override

@@ -39,6 +39,7 @@ import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.LoopingFlowContext;
 import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -536,10 +537,7 @@ public class ForeachStatement extends Statement {
 		this.elementVariable.resolve(this.scope); // collection expression can see itemVariable
 		LocalVariableBinding[] patternVariablesInTrueScope = null;
 
-		if (this.pattern != null) {
-			if (!upperScope.compilerOptions().enablePreviewFeatures) {
-				return;
-			}
+		if (this.pattern != null && JavaFeature.RECORD_PATTERNS.isSupported(upperScope.compilerOptions())) {
 			this.pattern.collectPatternVariablesToScope(null, this.scope);
 			patternVariablesInTrueScope = this.pattern.getPatternVariablesWhenTrue();
 			this.pattern.resolve(this.scope);

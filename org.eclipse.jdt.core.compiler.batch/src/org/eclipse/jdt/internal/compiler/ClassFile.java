@@ -56,6 +56,7 @@ import org.eclipse.jdt.internal.compiler.ast.AnnotationMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.Argument;
 import org.eclipse.jdt.internal.compiler.ast.ArrayInitializer;
 import org.eclipse.jdt.internal.compiler.ast.CaseStatement;
+import org.eclipse.jdt.internal.compiler.ast.CaseStatement.ResolvedCase;
 import org.eclipse.jdt.internal.compiler.ast.ClassLiteralAccess;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ExportsStatement;
@@ -195,7 +196,12 @@ public class ClassFile implements TypeConstants, TypeIds {
 	public static final String TYPESWITCH_STRING = new String(ConstantPool.TYPESWITCH);
 	public static final String ENUMSWITCH_STRING = new String(ConstantPool.ENUMSWITCH);
 	public static final String CONCAT_CONSTANTS = new String(ConstantPool.ConcatWithConstants);
-	public static final String[] BOOTSTRAP_METHODS = {ALTMETAFACTORY_STRING, METAFACTORY_STRING, BOOTSTRAP_STRING, TYPESWITCH_STRING, ENUMSWITCH_STRING, CONCAT_CONSTANTS};
+	public static final String INVOKE_STRING = new String(ConstantPool.INVOKE_METHOD_METHOD_NAME);
+	public static final String ENUMDESC_OF = "EnumDesc.of"; //$NON-NLS-1$
+	public static final String CLASSDESC = "ClassDesc"; //$NON-NLS-1$
+	public static final String CLASSDESC_OF = "ClassDesc.of"; //$NON-NLS-1$
+	public static final String[] BOOTSTRAP_METHODS = { ALTMETAFACTORY_STRING, METAFACTORY_STRING, BOOTSTRAP_STRING,
+			TYPESWITCH_STRING, ENUMSWITCH_STRING, CONCAT_CONSTANTS, INVOKE_STRING, ENUMDESC_OF, CLASSDESC, CLASSDESC_OF };
 
 	/**
 	 * INTERNAL USE-ONLY
@@ -3661,6 +3667,10 @@ public class ClassFile implements TypeConstants, TypeIds {
 				}
 			} else if (o instanceof String) {
 				localContentsOffset = addBootStrapStringConcatEntry(localContentsOffset, (String) o, fPtr);
+			} else if (o instanceof ResolvedCase) {
+				localContentsOffset = addBootStrapTypeCaseConstantEntry(localContentsOffset, (ResolvedCase) o, fPtr);
+			} else if (o instanceof TypeBinding) {
+				localContentsOffset = addClassDescBootstrap(localContentsOffset, (TypeBinding) o, fPtr);
 			}
 		}
 
@@ -3849,6 +3859,102 @@ public class ClassFile implements TypeConstants, TypeIds {
 		}
 		return localContentsOffset;
 	}
+	private int addBootStrapTypeCaseConstantEntry(int localContentsOffset, ResolvedCase caseConstant, Map<String, Integer> fPtr) {
+		final int contentsEntries = 10;
+		if (contentsEntries + localContentsOffset >= this.contents.length) {
+			resizeContents(contentsEntries);
+		}
+		int idx = fPtr.get(ClassFile.INVOKE_STRING);
+		if (idx == 0) {
+			ReferenceBinding constantBootstrap = this.referenceBinding.scope.getJavaLangInvokeConstantBootstraps();
+			idx = this.constantPool.literalIndexForMethodHandle(
+					ClassFileConstants.MethodHandleRefKindInvokeStatic,
+					constantBootstrap,
+					ConstantPool.INVOKE_METHOD_METHOD_NAME,
+					ConstantPool.JAVA_LANG_INVOKE_CONSTANTBOOTSTRAP_SIGNATURE,
+					false);
+			fPtr.put(ClassFile.INVOKE_STRING, idx);
+		}
+		this.contents[localContentsOffset++] = (byte) (idx >> 8);
+		this.contents[localContentsOffset++] = (byte) idx;
+
+		// u2 num_bootstrap_arguments
+		this.contents[localContentsOffset++] = 0;
+		this.contents[localContentsOffset++] = (byte) 3;
+
+		idx = fPtr.get(ClassFile.ENUMDESC_OF);
+		if (idx == 0) {
+			ReferenceBinding enumDesc = this.referenceBinding.scope.getJavaLangEnumDesc();
+			idx = this.constantPool.literalIndexForMethodHandle(
+						ClassFileConstants.MethodHandleRefKindInvokeStatic,
+						enumDesc,
+						"of".toCharArray(), //$NON-NLS-1$
+						ConstantPool.JAVA_LANG_ENUMDESC_OF_SIGNATURE,
+						false);
+			fPtr.put(ClassFile.ENUMDESC_OF, idx);
+		}
+
+		this.contents[localContentsOffset++] = (byte) (idx >> 8);
+		this.contents[localContentsOffset++] = (byte) idx;
+
+		idx = this.constantPool.literalIndexForDynamic(
+										caseConstant.classDescIdx,
+										ConstantPool.INVOKE_METHOD_METHOD_NAME,
+										ConstantPool.JAVA_LANG_CONST_CLASSDESC);
+		this.contents[localContentsOffset++] = (byte) (idx >> 8);
+		this.contents[localContentsOffset++] = (byte) idx;
+
+		idx = this.constantPool.literalIndex(caseConstant.c.stringValue());
+		this.contents[localContentsOffset++] = (byte) (idx >> 8);
+		this.contents[localContentsOffset++] = (byte) idx;
+
+		return localContentsOffset;
+	}
+	private int addClassDescBootstrap(int localContentsOffset, TypeBinding type, Map<String, Integer> fPtr) {
+		final int contentsEntries = 10;
+		int idx = fPtr.get(ClassFile.INVOKE_STRING);
+		if (contentsEntries + localContentsOffset >= this.contents.length) {
+			resizeContents(contentsEntries);
+		}
+		if (idx == 0) {
+			ReferenceBinding constantBootstrap = this.referenceBinding.scope.getJavaLangInvokeConstantBootstraps();
+			idx = this.constantPool.literalIndexForMethodHandle(
+									ClassFileConstants.MethodHandleRefKindInvokeStatic,
+									constantBootstrap,
+									ConstantPool.INVOKE_METHOD_METHOD_NAME,
+									ConstantPool.JAVA_LANG_INVOKE_CONSTANTBOOTSTRAP_SIGNATURE,
+									false);
+			fPtr.put(ClassFile.INVOKE_STRING, idx);
+		}
+		this.contents[localContentsOffset++] = (byte) (idx >> 8);
+		this.contents[localContentsOffset++] = (byte) idx;
+
+		// u2 num_bootstrap_arguments
+		this.contents[localContentsOffset++] = 0;
+		this.contents[localContentsOffset++] = (byte) 2;
+
+		idx = fPtr.get(ClassFile.CLASSDESC);
+		if (idx == 0) {
+			ReferenceBinding classDesc = this.referenceBinding.scope.getJavaLangClassDesc();
+			idx = this.constantPool.literalIndexForMethodHandle(
+					ClassFileConstants.MethodHandleRefKindInvokeStatic,
+					classDesc,
+					"of".toCharArray(),  //$NON-NLS-1$
+					ConstantPool.JAVA_LANG_CLASSDESC_OF_SIGNATURE,
+					true);
+			fPtr.put(ClassFile.CLASSDESC_OF, idx);
+		}
+
+		this.contents[localContentsOffset++] = (byte) (idx >> 8);
+		this.contents[localContentsOffset++] = (byte) idx;
+
+		ReferenceBinding refBinding = (ReferenceBinding) type;
+		idx = this.constantPool.literalIndex(CharOperation.toString(refBinding.compoundName));
+		this.contents[localContentsOffset++] = (byte) (idx >> 8);
+		this.contents[localContentsOffset++] = (byte) idx;
+
+		return localContentsOffset;
+	}
 	private int addBootStrapTypeSwitchEntry(int localContentsOffset, SwitchStatement switchStatement, Map<String, Integer> fPtr) {
 		CaseStatement.ResolvedCase[] constants = switchStatement.otherConstants;
 		int numArgs = constants.length;
@@ -3872,11 +3978,16 @@ public class ClassFile implements TypeConstants, TypeIds {
 		this.contents[numArgsLocation++] = (byte) (numArgs >> 8);
 		this.contents[numArgsLocation] = (byte) numArgs;
 		localContentsOffset += 2;
-
 		for (CaseStatement.ResolvedCase c : constants) {
 			if (c.isPattern()) {
 				char[] typeName = c.t.constantPoolName();
 				int typeIndex = this.constantPool.literalIndexForType(typeName);
+				this.contents[localContentsOffset++] = (byte) (typeIndex >> 8);
+				this.contents[localContentsOffset++] = (byte) typeIndex;
+			} else if (c.isQualifiedEnum()){
+				int typeIndex = this.constantPool.literalIndexForDynamic(c.enumDescIdx,
+						ConstantPool.INVOKE_METHOD_METHOD_NAME,
+						ConstantPool.JAVA_LANG_ENUM_ENUMDESC);
 				this.contents[localContentsOffset++] = (byte) (typeIndex >> 8);
 				this.contents[localContentsOffset++] = (byte) typeIndex;
 			} else if ((c.e instanceof StringLiteral)||(c.c instanceof StringConstant)) {
@@ -6260,6 +6371,25 @@ public class ClassFile implements TypeConstants, TypeIds {
 			this.bootstrapMethods = new ArrayList<>();
 		}
 		this.bootstrapMethods.add(switchStatement);
+		return this.bootstrapMethods.size() - 1;
+	}
+	public int recordBootstrapMethod(ResolvedCase resolvedCase) {
+		if (this.bootstrapMethods == null) {
+			this.bootstrapMethods = new ArrayList<>();
+		}
+		this.bootstrapMethods.add(resolvedCase);
+		return this.bootstrapMethods.size() - 1;
+	}
+	public int recordBootstrapMethod(TypeBinding type) {
+		if (this.bootstrapMethods == null) {
+			this.bootstrapMethods = new ArrayList<>();
+		} else {
+			int idx = this.bootstrapMethods.indexOf(type);
+			if (idx != -1) {
+				return idx;
+			}
+		}
+		this.bootstrapMethods.add(type);
 		return this.bootstrapMethods.size() - 1;
 	}
 	public int recordBootstrapMethod(String expression) {

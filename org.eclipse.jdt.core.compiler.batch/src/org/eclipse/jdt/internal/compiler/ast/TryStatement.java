@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2018 IBM Corporation and others.
+ * Copyright (c) 2000, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -59,6 +59,8 @@ public class TryStatement extends SubRoutineStatement {
 	public Block finallyBlock;
 	BlockScope scope;
 
+	public LocalVariableBinding recPatCatchVar = null;
+
 	public UnconditionalFlowInfo subRoutineInits;
 	ReferenceBinding[] caughtExceptionTypes;
 	boolean[] catchExits;
@@ -94,6 +96,8 @@ public class TryStatement extends SubRoutineStatement {
 	private int[] caughtExceptionsCatchBlocks;
 
 	public SwitchExpression enclosingSwitchExpression = null;
+	public boolean addPatternAccessorException = false;
+	public int nestingLevel = -1;
 @Override
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 
@@ -583,7 +587,14 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 				}
 			}
 		}
+		if (this.addPatternAccessorException)
+			codeStream.addPatternCatchExceptionInfo(this.tryBlock.scope, this.recPatCatchVar);
+
 		this.tryBlock.generateCode(this.scope, codeStream);
+
+		if (this.addPatternAccessorException)
+			codeStream.removePatternCatchExceptionInfo(this.tryBlock.scope, true);
+
 		if (resourceCount > 0) {
 			for (int i = resourceCount; i >= 0; i--) {
 				BranchLabel exitLabel = new BranchLabel(codeStream);
@@ -1206,6 +1217,7 @@ public void resolve(BlockScope upperScope) {
 			finallyScope.shiftScopes[0] = tryScope;
 		}
 	}
+	this.recPatCatchVar = RecordPattern.getRecPatternCatchVar(this.nestingLevel, this.scope);
 	this.tryBlock.resolveUsing(tryScope);
 
 	// arguments type are checked against JavaLangThrowable in resolveForCatch(..)

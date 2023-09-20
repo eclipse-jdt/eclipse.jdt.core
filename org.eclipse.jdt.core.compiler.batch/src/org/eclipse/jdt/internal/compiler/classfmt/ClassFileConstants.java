@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2022 IBM Corporation and others.
+ * Copyright (c) 2000, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -137,9 +137,10 @@ public interface ClassFileConstants {
 	int MAJOR_VERSION_18 = 62;
 	int MAJOR_VERSION_19 = 63;
 	int MAJOR_VERSION_20 = 64;
+	int MAJOR_VERSION_21 = 65;
 
 	int MAJOR_VERSION_0 = 44;
-	int MAJOR_LATEST_VERSION = MAJOR_VERSION_20;
+	int MAJOR_LATEST_VERSION = MAJOR_VERSION_21;
 
 	int MINOR_VERSION_0 = 0;
 	int MINOR_VERSION_1 = 1;
@@ -170,6 +171,7 @@ public interface ClassFileConstants {
 	long JDK18 = ((long)ClassFileConstants.MAJOR_VERSION_18 << 16) + ClassFileConstants.MINOR_VERSION_0;
 	long JDK19 = ((long)ClassFileConstants.MAJOR_VERSION_19 << 16) + ClassFileConstants.MINOR_VERSION_0;
 	long JDK20 = ((long)ClassFileConstants.MAJOR_VERSION_20 << 16) + ClassFileConstants.MINOR_VERSION_0;
+	long JDK21 = ((long)ClassFileConstants.MAJOR_VERSION_21 << 16) + ClassFileConstants.MINOR_VERSION_0;
 
 	public static long getLatestJDKLevel() {
 		return ((long)ClassFileConstants.MAJOR_LATEST_VERSION << 16) + ClassFileConstants.MINOR_VERSION_0;

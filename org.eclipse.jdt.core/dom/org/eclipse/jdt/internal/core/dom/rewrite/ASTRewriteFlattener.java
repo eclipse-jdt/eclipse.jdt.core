@@ -7,6 +7,7 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -658,7 +659,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	public boolean visit(PatternInstanceofExpression node) {
 		getChildNode(node, PatternInstanceofExpression.LEFT_OPERAND_PROPERTY).accept(this);
 		this.result.append(" instanceof "); //$NON-NLS-1$
-		if (node.getAST().apiLevel() >= AST.JLS20 && node.getAST().isPreviewEnabled()) {
+		if (node.getAST().apiLevel() >= AST.JLS20) {
 			getChildNode(node, PatternInstanceofExpression.PATTERN_PROPERTY).accept(this);
 		} else {
 			getChildNode(node, PatternInstanceofExpression.RIGHT_OPERAND_PROPERTY).accept(this);
@@ -945,10 +946,6 @@ public class ASTRewriteFlattener extends ASTVisitor {
 			}
 			if (addBraces) {
 				this.result.append(")");//$NON-NLS-1$
-			}
-			if (node.getPatternName() != null) {
-				this.result.append(" ");//$NON-NLS-1$
-				node.getPatternName().accept(this);
 			}
 		}
 		return false;

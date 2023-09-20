@@ -45,12 +45,6 @@ public class RecordPattern extends Pattern {
 	public static final ChildPropertyDescriptor PATTERN_TYPE_PROPERTY =
 		new ChildPropertyDescriptor(RecordPattern.class, "patternType", Type.class, MANDATORY, CYCLE_RISK); //$NON-NLS-1$
 
-	/**
-	 * The "patternName" structural property of this node type (child type: {@link SimpleName}).
-	 */
-	public static final ChildPropertyDescriptor PATTERN_NAME_PROPERTY =
-			new ChildPropertyDescriptor(RecordPattern.class, "patternName", SimpleName.class, OPTIONAL, CYCLE_RISK); //$NON-NLS-1$
-
 		/**
 	 * A list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor}),
@@ -63,7 +57,6 @@ public class RecordPattern extends Pattern {
 		createPropertyList(RecordPattern.class, properyList);
 		addProperty(PATTERN_TYPE_PROPERTY, properyList);
 		addProperty(PATTERNS_PROPERTY, properyList);
-		addProperty(PATTERN_NAME_PROPERTY, properyList);
 		PROPERTY_DESCRIPTORS = reapPropertyList(properyList);
 	}
 
@@ -74,15 +67,8 @@ public class RecordPattern extends Pattern {
 
 	RecordPattern(AST ast) {
 		super(ast);
-		supportedOnlyIn20();
-		unsupportedWithoutPreviewError();
+		supportedOnlyIn21();
 	}
-
-
-	/**
-	 * The pattern name;
-	 */
-	private SimpleName optionalPatternName = null;
 
 	/**
 	 * The pattern type;
@@ -148,13 +134,6 @@ public class RecordPattern extends Pattern {
 				setPatternType((Type) child);
 				return null;
 			}
-		} else if (property == PATTERN_NAME_PROPERTY ) {
-			if (get) {
-				return getPatternName();
-			} else {
-				setPatternName((SimpleName) child);
-				return null;
-			}
 		}
 		// allow default implementation to flag the error
 		return super.internalGetSetChildProperty(property, get, child);
@@ -167,32 +146,6 @@ public class RecordPattern extends Pattern {
 		}
 		// allow default implementation to flag the error
 		return super.internalGetChildListProperty(property);
-	}
-
-	/**
-	 * Sets the pattern name.
-	 *
-	 * @param patternName the right operand node
-	 * @exception IllegalArgumentException if:
-	 * <ul>
-	 * <li>the node belongs to a different AST</li>
-	 * <li>the node already has a parent</li>
-	 * <li>a cycle in would be created</li>
-	 * </ul>
-	 * @exception UnsupportedOperationException if this operation is used other than JLS19
-	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
-	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
-	 */
-	public void setPatternName(SimpleName patternName) {
-		supportedOnlyIn20();
-		unsupportedWithoutPreviewError();
-		if (patternName == null) {
-			throw new IllegalArgumentException();
-		}
-		ASTNode oldChild = this.optionalPatternName;
-		preReplaceChild(oldChild, patternName, PATTERN_NAME_PROPERTY);
-		this.optionalPatternName = patternName;
-		postReplaceChild(oldChild, patternName, PATTERN_NAME_PROPERTY);
 	}
 
 	/**
@@ -210,8 +163,7 @@ public class RecordPattern extends Pattern {
 	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
 	 */
 	public void setPatternType(Type patternType) {
-		supportedOnlyIn20();
-		unsupportedWithoutPreviewError();
+		supportedOnlyIn21();
 		if (patternType == null) {
 			throw new IllegalArgumentException();
 		}
@@ -219,20 +171,6 @@ public class RecordPattern extends Pattern {
 		preReplaceChild(oldChild, patternType, PATTERN_TYPE_PROPERTY);
 		this.patternType = patternType;
 		postReplaceChild(oldChild, patternType, PATTERN_TYPE_PROPERTY);
-	}
-
-	/**
-	 * Returns the pattern Name of Types Pattern.
-	 *
-	 * @return the pattern Name
-	 * @exception UnsupportedOperationException if this operation is used other than JLS19
-	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
-	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
-	 */
-	public SimpleName getPatternName() {
-		supportedOnlyIn20();
-		unsupportedWithoutPreviewError();
-		return this.optionalPatternName;
 	}
 
 	/**
@@ -244,8 +182,7 @@ public class RecordPattern extends Pattern {
 	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
 	 */
 	public Type getPatternType() {
-		supportedOnlyIn20();
-		unsupportedWithoutPreviewError();
+		supportedOnlyIn21();
 		if (this.patternType  == null) {
 			// lazy init must be thread-safe for readers
 			synchronized (this) {
@@ -270,8 +207,7 @@ public class RecordPattern extends Pattern {
 	 */
 	@SuppressWarnings("unchecked")
 	public List<Pattern> patterns() {
-		supportedOnlyIn20();
-		unsupportedWithoutPreviewError();
+		supportedOnlyIn21();
 		return this.patterns;
 	}
 
@@ -287,7 +223,6 @@ public class RecordPattern extends Pattern {
 		result.setSourceRange(getStartPosition(), getLength());
 		result.patterns().addAll(ASTNode.copySubtrees(target, patterns()));
 		result.setPatternType((Type) getPatternType().clone(target));
-		result.setPatternName((SimpleName) getPatternName().clone(target));
 		return result;
 	}
 
@@ -298,10 +233,8 @@ public class RecordPattern extends Pattern {
 			// visit children in normal left to right reading order
 			acceptChildren(visitor, this.patterns);
 			acceptChild(visitor, getPatternType());
-			acceptChild(visitor, getPatternName());
 		}
 		visitor.endVisit(this);
-
 	}
 
 	@Override
@@ -314,9 +247,7 @@ public class RecordPattern extends Pattern {
 		return
 				memSize()
 				+ (this.patternType == null ? 0 : getPatternType().treeSize())
-				+ (this.optionalPatternName == null ? 0 : getPatternName().treeSize())
 				+ this.patterns.listSize();
 	}
-
 
 }

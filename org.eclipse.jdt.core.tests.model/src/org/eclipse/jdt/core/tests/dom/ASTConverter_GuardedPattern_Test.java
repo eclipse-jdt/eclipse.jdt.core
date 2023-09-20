@@ -36,12 +36,12 @@ public class ASTConverter_GuardedPattern_Test extends ConverterTestSetup {
 
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
-		this.ast = AST.newAST(getAST20(), true);
+		this.ast = AST.newAST(getAST21(), true);
 		this.currentProject = getJavaProject("Converter_19");
-		if (this.ast.apiLevel() == AST.JLS20 ) {
-			this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_20);
-			this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_20);
-			this.currentProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_20);
+		if (this.ast.apiLevel() == AST.JLS21 ) {
+			this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_21);
+			this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_21);
+			this.currentProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_21);
 			this.currentProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 			this.currentProject.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
 		}
@@ -55,8 +55,8 @@ public class ASTConverter_GuardedPattern_Test extends ConverterTestSetup {
 		return buildModelTestSuite(ASTConverter_GuardedPattern_Test.class);
 	}
 
-	static int getAST20() {
-		return AST.JLS20;
+	static int getAST21() {
+		return AST.JLS21;
 	}
 	protected void tearDown() throws Exception {
 		super.tearDown();
@@ -67,30 +67,26 @@ public class ASTConverter_GuardedPattern_Test extends ConverterTestSetup {
 	}
 
 	public void testGuardedPattern001() throws CoreException {
-		if (!isJRE20) {
-			System.err.println("Test "+getName()+" requires a JRE 19");
+		if (!isJRE21) {
+			System.err.println("Test "+getName()+" requires a JRE 21");
 			return;
 		}
 		String contents = "" +
 						"public class X {\n" +
-						"\n" +
 						"	interface Shape {\n" +
 						"		public double calculateArea();\n" +
 						"	}\n" +
-						"	\n" +
 						"	record Triangle(double base, double height) implements Shape {\n" +
 						"		public double calculateArea() {\n" +
 						"			return (0.5 * base * height);\n" +
 						"		}\n" +
 						"	}\n" +
-						"	\n" +
 						"	public static void main(String[] args) {\n" +
 						"		Shape s= new Triangle(10, 10);\n" +
 						"		testTriangle(s);\n" +
 						"		s= new Triangle(10, 100);\n" +
 						"		testTriangle(s);\n" +
 						"	}\n" +
-						"	\n" +
 						"	static void testTriangle(Shape s) {\n" +
 						"	    switch (s) {\n" +
 						"	        case Triangle t \n" +
@@ -133,6 +129,6 @@ public class ASTConverter_GuardedPattern_Test extends ConverterTestSetup {
 		assertEquals("Not a Guarded Pattern", ASTNode.GUARDED_PATTERN, exp.getNodeType());
 		GuardedPattern gPattern = (GuardedPattern) exp;
 		int restrictedWhenStartPos = gPattern.getRestrictedIdentifierStartPosition();
-		assertEquals("Not correct restricted start position", 451, restrictedWhenStartPos);
+		assertEquals("Not correct restricted start position", 444, restrictedWhenStartPos);
 	}
 }

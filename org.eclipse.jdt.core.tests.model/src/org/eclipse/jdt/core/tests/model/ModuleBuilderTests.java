@@ -7045,6 +7045,9 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	}
 	public void testBug527569d() throws CoreException {
 		IJavaProject p1 = createJava9Project("Bug527569", "9");
+		String problem = isJRE21 ?
+				"java.lang.Compiler cannot be resolved to a type" :
+				"The type Compiler has been deprecated since version 9 and marked for removal";
 		try {
 			createFolder("/Bug527569/src/p1");
 			createFile("/Bug527569/src/p1/X.java",
@@ -7059,7 +7062,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			waitForAutoBuild();
 			p1.getProject().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p1.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
-			assertMarkers("Unexpected markers", "The type Compiler has been deprecated since version 9 and marked for removal", markers);
+			assertMarkers("Unexpected markers", problem, markers);
 		} finally {
 			deleteProject(p1);
 		}

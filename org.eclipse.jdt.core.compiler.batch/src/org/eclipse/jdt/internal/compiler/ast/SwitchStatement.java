@@ -22,17 +22,19 @@ package org.eclipse.jdt.internal.compiler.ast;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.IntPredicate;
-
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.CaseStatement.ResolvedCase;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CaseLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
@@ -43,6 +45,7 @@ import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.RecordComponentBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.SyntheticMethodBinding;
@@ -90,6 +93,7 @@ public class SwitchStatement extends Expression {
 	public final static int Enhanced = ASTNode.Bit5;
 	// Indicates this switch statement is fabricated by the compiler, for e.g. in ForeachStatement
 	public final static int Synthetic = ASTNode.Bit6;
+	public final static int QualifiedEnum = ASTNode.Bit7;
 
 	// for switch on strings
 	private static final char[] SecretStringVariableName = " switchDispatchString".toCharArray(); //$NON-NLS-1$
@@ -115,6 +119,242 @@ public class SwitchStatement extends Expression {
 	public List<TypeBinding> caseLabelElementTypes = new ArrayList<>(0);
 	int constantIndex = 0;
 
+	class Node {
+		TypeBinding type;
+		public void traverse(NodeVisitor visitor) {
+			visitor.visit(this);
+			visitor.endVisit(this);
+		}
+	}
+	class RNode extends Node {
+		TNode firstComponent;
+
+		RNode(TypeBinding rec) {
+			this.type = rec;
+			RecordComponentBinding[] comps = rec.components();
+			int len = comps != null ? comps.length : 0;
+			if (len > 0) {
+				RecordComponentBinding comp = comps[0];
+				if (comp != null && comp.type != null)
+					this.firstComponent = new TNode(comp.type);
+			}
+		}
+		void addPattern(Pattern p) {
+			if (p instanceof RecordPattern)
+				addPattern((RecordPattern)p);
+		}
+		void addPattern(RecordPattern rp) {
+			if (!TypeBinding.equalsEquals(this.type, rp.type.resolvedType))
+				return;
+			if (this.firstComponent == null)
+				return;
+			this.firstComponent.addPattern(rp, 0);
+		}
+		@Override
+		public String toString() {
+	        StringBuilder sb = new StringBuilder();
+	        sb.append("[RNode] {\n"); //$NON-NLS-1$
+	        sb.append("    type:"); //$NON-NLS-1$
+	        sb.append(this.type != null ? this.type.toString() : "null"); //$NON-NLS-1$
+	        sb.append("    firstComponent:"); //$NON-NLS-1$
+	        sb.append(this.firstComponent != null ? this.firstComponent.toString() : "null"); //$NON-NLS-1$
+	        sb.append("\n}\n"); //$NON-NLS-1$
+	        return sb.toString();
+		}
+		@Override
+		public void traverse(NodeVisitor visitor) {
+			if (this.firstComponent != null) {
+				visitor.visit(this.firstComponent);
+			}
+			visitor.endVisit(this);
+		}
+	}
+	class TNode extends Node {
+		List<PatternNode> children;
+
+		TNode(TypeBinding type) {
+			this.type = type;
+			this.children = new ArrayList<>();
+		}
+
+		public void addPattern(RecordPattern rp, int i) {
+			TypeBinding childType = rp.patterns[i].resolvedType;
+			PatternNode child = null;
+			for (PatternNode c : this.children) {
+				if (TypeBinding.equalsEquals(childType, c.type)) {
+					child = c;
+					break;
+				}
+			}
+			if (child == null) {
+				child = childType.isRecord() ?
+					new RecordPatternNode(childType) : new PatternNode(childType);
+				if (this.type.isSubtypeOf(childType, false))
+					this.children.add(0, child);
+				else
+					this.children.add(child);
+			}
+			if ((i+1) < rp.patterns.length) {
+				child.addPattern(rp, i + 1);
+			}
+		}
+		@Override
+		public String toString() {
+	        StringBuilder sb = new StringBuilder();
+	        sb.append("[TNode] {\n"); //$NON-NLS-1$
+	        sb.append("    type:"); //$NON-NLS-1$
+	        sb.append(this.type != null ? this.type.toString() : "null"); //$NON-NLS-1$
+	        sb.append("    children:"); //$NON-NLS-1$
+	        if (this.children == null) {
+	        	sb.append("null"); //$NON-NLS-1$
+	        } else {
+	        	for (Node child : this.children) {
+	        		sb.append(child.toString());
+	        	}
+	        }
+	        sb.append("\n}\n"); //$NON-NLS-1$
+	        return sb.toString();
+		}
+		@Override
+		public void traverse(NodeVisitor visitor) {
+			if (visitor.visit(this)) {
+				if (this.children != null) {
+					for (PatternNode child : this.children) {
+						if (!visitor.visit(child)) {
+							break;
+						}
+					}
+				}
+			}
+			visitor.endVisit(this);
+		}
+	}
+	class PatternNode extends Node {
+		TNode next; // next component
+
+		PatternNode(TypeBinding type) {
+			this.type = type;
+		}
+
+		public void addPattern(RecordPattern rp, int i) {
+			TypeBinding ref = SwitchStatement.this.expression.resolvedType;
+			if (!(ref instanceof ReferenceBinding))
+				return;
+			RecordComponentBinding[] comps = ((ReferenceBinding)ref).components();
+			if (comps == null || comps.length <= i) // safety-net for incorrect code.
+				return;
+			if (this.next == null)
+				this.next = new TNode(comps[i].type);
+			this.next.addPattern(rp, i);
+		}
+		@Override
+		public String toString() {
+	        StringBuilder sb = new StringBuilder();
+	        sb.append("[Pattern node] {\n"); //$NON-NLS-1$
+	        sb.append("    type:"); //$NON-NLS-1$
+	        sb.append(this.type != null ? this.type.toString() : "null"); //$NON-NLS-1$
+	        sb.append("    next:"); //$NON-NLS-1$
+	        sb.append(this.next != null ? this.next.toString() : "null"); //$NON-NLS-1$
+	        sb.append("\n}\n"); //$NON-NLS-1$
+	        return sb.toString();
+		}
+		@Override
+		public void traverse(NodeVisitor visitor) {
+			if (visitor.visit(this)) {
+				if (this.next != null) {
+					visitor.visit(this.next);
+				}
+			}
+			visitor.endVisit(this);
+		}
+	}
+	class RecordPatternNode extends PatternNode {
+		RNode rNode;
+		RecordPatternNode(TypeBinding type) {
+			super(type);
+		}
+		@Override
+		public String toString() {
+	        StringBuilder sb = new StringBuilder();
+	        sb.append("[RecordPattern node] {\n"); //$NON-NLS-1$
+	        sb.append("    type:"); //$NON-NLS-1$
+	        sb.append(this.type != null ? this.type.toString() : "null"); //$NON-NLS-1$
+	        sb.append("    next:"); //$NON-NLS-1$
+	        sb.append(this.next != null ? this.next.toString() : "null"); //$NON-NLS-1$
+	        sb.append("    rNode:"); //$NON-NLS-1$
+	        sb.append(this.rNode != null ? this.rNode.toString() : "null"); //$NON-NLS-1$
+	        sb.append("\n}\n"); //$NON-NLS-1$
+	        return sb.toString();
+		}
+		@Override
+		public void traverse(NodeVisitor visitor) {
+			if (visitor.visit(this)) {
+				if (visitor.visit(this.rNode)) {
+					if (this.next != null) {
+						visitor.visit(this.next);
+					}
+				}
+			}
+			visitor.endVisit(this);
+		}
+	}
+
+	abstract class NodeVisitor {
+		public void endVisit(Node node) {
+			// do nothing by default
+		}
+		public void endVisit(PatternNode node) {
+			// do nothing by default
+		}
+		public void endVisit(RecordPatternNode node) {
+			// do nothing by default
+		}
+		public void endVisit(RNode node) {
+			// do nothing by default
+		}
+		public void endVisit(TNode node) {
+			// do nothing by default
+		}
+		public boolean visit(Node node) {
+			return true;
+		}
+		public boolean visit(PatternNode node) {
+			return true;
+		}
+		public boolean visit(RecordPatternNode node) {
+			return true;
+		}
+		public boolean visit(RNode node) {
+			return true;
+		}
+		public boolean visit(TNode node) {
+			return true;
+		}
+	}
+	class CoverageCheckerVisitor extends NodeVisitor {
+		public boolean covers = true;
+		@Override
+		public boolean visit(TNode node) {
+			List<TypeBinding> availableTypes = new ArrayList<>();
+			if (node.children != null) {
+				for (Node child : node.children) {
+					if (node.type.isSubtypeOf(child.type, false))
+						this.covers = true;
+					child.traverse(this);
+					if (node.type.isSubtypeOf(child.type, false) && this.covers)
+						return false; // no further visit required - covering!
+					availableTypes.add(child.type);
+				}
+			}
+			if (node.type instanceof ReferenceBinding && ((ReferenceBinding)node.type).isSealed()) {
+				List<ReferenceBinding> allAllowedTypes = getAllPermittedTypes((ReferenceBinding) node.type);
+				this.covers &= isExhaustiveWithCaseTypes(allAllowedTypes, availableTypes);
+				return this.covers;
+			}
+			this.covers = false;
+			return false; // no need to visit further.
+		}
+	}
 	protected int getFallThroughState(Statement stmt, BlockScope blockScope) {
 		if ((this.switchBits & LabeledRules) != 0) {
 			if ((stmt instanceof Expression && ((Expression) stmt).isTrulyExpression()) || stmt instanceof ThrowStatement)
@@ -525,7 +765,7 @@ public class SwitchStatement extends Expression {
 
 			final TypeBinding resolvedType1 = this.expression.resolvedType;
 			boolean valueRequired = false;
-			if (this.containsPatterns || isNullAndNeedsPatternVar()) {
+			if (needPatternDispatchCopy()) {
 				generateCodeSwitchPatternPrologue(currentScope, codeStream);
 				valueRequired = true;
 				transformConstants();
@@ -626,7 +866,16 @@ public class SwitchStatement extends Expression {
 							&& this.expression.resolvedType instanceof ReferenceBinding
 							&& ((ReferenceBinding) this.expression.resolvedType).isSealed();
 
-			if (isEnumSwitchWithoutDefaultCase || isPatternSwitchSealedWithoutDefaultCase) {
+			boolean isRecordPatternSwitchWithoutDefault = this.defaultCase == null
+					&& compilerOptions != null
+					&& this.containsPatterns
+					&& JavaFeature.RECORD_PATTERNS.isSupported(compilerOptions)
+					&& JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(compilerOptions)
+					&& this.expression.resolvedType instanceof ReferenceBinding
+					&& this.expression.resolvedType.isRecord();
+			if (isEnumSwitchWithoutDefaultCase
+					|| isPatternSwitchSealedWithoutDefaultCase
+					|| isRecordPatternSwitchWithoutDefault) {
 				// we want to force an line number entry to get an end position after the switch statement
 				if (this.preSwitchInitStateIndex != -1) {
 					codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.preSwitchInitStateIndex);
@@ -665,7 +914,9 @@ public class SwitchStatement extends Expression {
 			}
 			// place the trailing labels (for break and default case)
 			this.breakLabel.place();
-			if (this.defaultCase == null && !(enumInSwitchExpression || isPatternSwitchSealedWithoutDefaultCase)) {
+			if (this.defaultCase == null && !(enumInSwitchExpression
+					|| isPatternSwitchSealedWithoutDefaultCase
+					|| isRecordPatternSwitchWithoutDefault)) {
 				// we want to force an line number entry to get an end position after the switch statement
 				codeStream.recordPositionsFrom(codeStream.position, this.sourceEnd, true);
 				defaultLabel.place();
@@ -699,7 +950,7 @@ public class SwitchStatement extends Expression {
 		}
 	}
 	private void generateCodeSwitchPatternEpilogue(CodeStream codeStream) {
-		if ((this.containsPatterns && this.caseLabelElements.size() > 0) || isNullAndNeedsPatternVar()) {
+		if (needPatternDispatchCopy()) {
 			codeStream.removeVariable(this.dispatchPatternCopy);
 			codeStream.removeVariable(this.restartIndexLocal);
 		}
@@ -717,8 +968,6 @@ public class SwitchStatement extends Expression {
 				&& caseStatement.patternIndex != -1 // for null
 				) {
 			Pattern pattern = (Pattern) caseStatement.constantExpressions[caseStatement.patternIndex];
-//			if (!pattern.containsPatternVariable())
-//				return;
 			pattern.elseTarget.place();
 			pattern.suspendVariables(codeStream, this.scope);
 			if (!pattern.isAlwaysTrue()) {
@@ -756,12 +1005,25 @@ public class SwitchStatement extends Expression {
 		} else {
 			generateTypeSwitchPatternPrologue(codeStream, invokeDynamicNumber);
 		}
+		boolean hasQualifiedEnums = (this.switchBits & QualifiedEnum) != 0;
+		for (int i = 0; i < this.otherConstants.length; i++) {
+			ResolvedCase c = this.otherConstants[i];
+			if (hasQualifiedEnums) {
+				c.index = i;
+			}
+			if (!c.isQualifiedEnum())
+				continue;
+			int classdescIdx = codeStream.classFile.recordBootstrapMethod(c.t);
+			invokeDynamicNumber = codeStream.classFile.recordBootstrapMethod(c);
+			c.enumDescIdx = invokeDynamicNumber;
+			c.classDescIdx = classdescIdx;
+		}
 	}
 	private void generateTypeSwitchPatternPrologue(CodeStream codeStream, int invokeDynamicNumber) {
 		codeStream.invokeDynamic(invokeDynamicNumber,
 				2, // Object, restartIndex
 				1, // int
-				"typeSwitch".toCharArray(), //$NON-NLS-1$
+				ConstantPool.TYPESWITCH,
 				"(Ljava/lang/Object;I)I".toCharArray(), //$NON-NLS-1$
 				TypeIds.T_int,
 				TypeBinding.INT);
@@ -1005,19 +1267,16 @@ public class SwitchStatement extends Expression {
 											if (type.isBaseType()) {
 												type = this.scope.environment().computeBoxingType(type);
 											}
-											if (p1.primary().isTotalForType(type))
+											if (p1.coversType(type))
 												this.scope.problemReporter().patternDominatedByAnother(c.e);
 										}
 									}
 								} else {
 									if (!c.isPattern() && check.test(j)) {
 										if (this.isNonTraditional) {
-											boolean reportDup = true;
-											if (c.e instanceof NullLiteral || this.otherConstants[j].e instanceof NullLiteral) {
-												reportDup = c.e instanceof NullLiteral && this.otherConstants[j].e instanceof NullLiteral;
+											if (c.e instanceof NullLiteral && this.otherConstants[j].e instanceof NullLiteral) {
+												reportDuplicateCase(c.e, this.otherConstants[j].e, length);
 											}
-											if (reportDup)
-											reportDuplicateCase(c.e, this.otherConstants[j].e, length);
 										} else {
 											reportDuplicateCase(caseStmt, this.cases[caseIndex[j]], length);
 										}
@@ -1044,6 +1303,10 @@ public class SwitchStatement extends Expression {
 				if ((this.bits & UndocumentedEmptyBlock) != 0) {
 					upperScope.problemReporter().undocumentedEmptyBlock(this.blockStart, this.sourceEnd);
 				}
+			}
+			// Try it again in case we found any qualified enums.
+			if (this.dispatchPatternCopy == null) {
+				addSecretPatternSwitchVariables(upperScope);
 			}
 			reportMixingCaseTypes();
 
@@ -1156,18 +1419,67 @@ public class SwitchStatement extends Expression {
 			TypeVariableBinding tvb = (TypeVariableBinding) ref;
 			ref = tvb.firstBound instanceof ReferenceBinding ? (ReferenceBinding) tvb.firstBound : ref;
 		}
+		if (ref.isRecord()) {
+			boolean isRecordPattern = false;
+			for (int i = 0; i < this.caseLabelElements.size(); ++i) {
+				if (this.caseLabelElements.get(i) instanceof RecordPattern) {
+					isRecordPattern = true;
+					break;
+				}
+			}
+			if (isRecordPattern)
+				return checkAndFlagDefaultRecord(skope, compilerOptions, ref);
+		}
 		if (!ref.isSealed()) return false;
-		List<ReferenceBinding> allallowedTypes = new ArrayList<>();
-		if (ref.isClass() && !ref.isAbstract())
-			allallowedTypes.add(ref);
-
-		List<ReferenceBinding> permittedTypes = new ArrayList<>(Arrays.asList(ref.permittedTypes()));
-		allallowedTypes.addAll(permittedTypes);
-		if (!isExhaustiveWithCaseTypes(allallowedTypes, this.caseLabelElementTypes)) {
+		if (!isExhaustiveWithCaseTypes(getAllPermittedTypes(ref), this.caseLabelElementTypes)) {
 			if (this instanceof SwitchExpression) // non-exhaustive switch expressions will be flagged later.
 				return false;
 			skope.problemReporter().enhancedSwitchMissingDefaultCase(this.expression);
 			return true;
+		}
+		this.switchBits |= SwitchStatement.Exhaustive;
+		return false;
+	}
+	List<ReferenceBinding> getAllPermittedTypes(ReferenceBinding ref) {
+		if (!ref.isSealed())
+			return new ArrayList<>(0);
+
+		Set<ReferenceBinding> permSet = new HashSet<>(Arrays.asList(ref.permittedTypes()));
+		if (ref.isClass() && (!ref.isAbstract()))
+			permSet.add(ref);
+		Set<ReferenceBinding> oldSet = new HashSet<>(permSet);
+		do {
+			for (ReferenceBinding type : permSet) {
+				oldSet.addAll(Arrays.asList(type.permittedTypes()));
+			}
+			Set<ReferenceBinding> tmp = oldSet;
+			oldSet = permSet;
+			permSet = tmp;
+		} while (oldSet.size() != permSet.size());
+		return Arrays.asList(permSet.toArray(new ReferenceBinding[0]));
+	}
+
+	private boolean checkAndFlagDefaultRecord(BlockScope skope, CompilerOptions compilerOptions, ReferenceBinding ref) {
+		RecordComponentBinding[] comps = ref.components();
+		List<ReferenceBinding> allallowedTypes = new ArrayList<>();
+		allallowedTypes.add(ref);
+		if (comps == null || comps.length == 0) {
+			if (!isExhaustiveWithCaseTypes(allallowedTypes, this.caseLabelElementTypes)) {
+				skope.problemReporter().enhancedSwitchMissingDefaultCase(this.expression);
+				return true;
+			}
+			return false;
+		}
+		// non-zero components
+		RNode head = new RNode(ref);
+		for (int i = 0; i < this.caseLabelElements.size(); ++i) {
+			head.addPattern(this.caseLabelElements.get(i));
+		}
+		CoverageCheckerVisitor ccv = new CoverageCheckerVisitor();
+		head.traverse(ccv);
+		if (!ccv.covers) {
+			skope.problemReporter().enhancedSwitchMissingDefaultCase(this.expression);
+			return true; // not exhaustive, error flagged
 		}
 		this.switchBits |= SwitchStatement.Exhaustive;
 		return false;
@@ -1241,9 +1553,9 @@ public class SwitchStatement extends Expression {
 		}
 		return remainingTypes.isEmpty();
 	}
-	private boolean isNullAndNeedsPatternVar() {
-		if (this.containsPatterns)
-			return false; // don't bother - already taken care
+	private boolean needPatternDispatchCopy() {
+		if (this.containsPatterns || (this.switchBits & QualifiedEnum) != 0)
+			return true;
 		if (!this.containsNull)
 			return false;
 		TypeBinding eType = this.expression != null ? this.expression.resolvedType : null;
@@ -1252,7 +1564,7 @@ public class SwitchStatement extends Expression {
 		return !(eType.isPrimitiveOrBoxedPrimitiveType() || eType.isEnum());
 	}
 	private void addSecretPatternSwitchVariables(BlockScope upperScope) {
-		if (this.containsPatterns || isNullAndNeedsPatternVar()) {
+		if (needPatternDispatchCopy()) {
 			this.scope = new BlockScope(upperScope);
 			this.dispatchPatternCopy  = new LocalVariableBinding(SecretPatternVariableName, this.expression.resolvedType, ClassFileConstants.AccDefault, false);
 			this.scope.addLocalVariable(this.dispatchPatternCopy);

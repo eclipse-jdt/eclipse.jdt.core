@@ -12348,25 +12348,9 @@ public void illegalFallthroughFromAPattern(Statement statement) {
 		statement.sourceStart,
 		statement.sourceEnd);
 	}
-public void switchPatternOnlyOnePatternCaseLabelAllowed(Expression element) {
+public void illegalCaseConstantCombination(Expression element) {
 	this.handle(
-			IProblem.OnlyOnePatternCaseLabelAllowed,
-			NoArgument,
-			NoArgument,
-			element.sourceStart,
-			element.sourceEnd);
-}
-public void switchPatternBothPatternAndDefaultCaseLabelsNotAllowed(Expression element) {
-	this.handle(
-			IProblem.CannotMixPatternAndDefault,
-			NoArgument,
-			NoArgument,
-			element.sourceStart,
-			element.sourceEnd);
-}
-public void cannotMixNullAndNonTypePattern(Expression element) {
-	this.handle(
-			IProblem.CannotMixNullAndNonTypePattern,
+			IProblem.ConstantWithPatternIncompatible,
 			NoArgument,
 			NoArgument,
 			element.sourceStart,
@@ -12460,5 +12444,13 @@ public void cannotInferRecordPatternTypes(RecordPattern pattern) {
 			arguments,
 			pattern.sourceStart,
 			pattern.sourceEnd);
+}
+public void falseLiteralInGuard(Expression exp) {
+	this.handle(
+			IProblem.FalseConstantInGuard,
+			NoArgument,
+			NoArgument,
+			exp.sourceStart,
+			exp.sourceEnd);
 }
 }

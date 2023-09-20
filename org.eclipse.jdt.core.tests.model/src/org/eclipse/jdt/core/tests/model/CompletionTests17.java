@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021, 2022 IBM Corporation and others.
+ * Copyright (c) 2021, 2023 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -36,13 +36,12 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 
 	public void setUpSuite() throws Exception {
 		if (COMPLETION_PROJECT == null) {
-
-			COMPLETION_PROJECT = setUpJavaProject("Completion", "17");
+			COMPLETION_PROJECT = setUpJavaProject("Completion", "21");
 		} else {
-			setUpProjectCompliance(COMPLETION_PROJECT, "17");
+			setUpProjectCompliance(COMPLETION_PROJECT, "21");
 		}
 		super.setUpSuite();
-		COMPLETION_PROJECT.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+		COMPLETION_PROJECT.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
 	}
 
 	public static Test suite() {

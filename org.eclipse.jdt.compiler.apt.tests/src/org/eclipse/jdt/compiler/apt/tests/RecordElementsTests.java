@@ -143,22 +143,22 @@ public class RecordElementsTests extends TestCase {
 		internalTestWithPreview(compiler, MODULE_PROC, "16", "testRecords10", null, "records", false);
 	}
 	public void testRecordsConstructorsJavac() throws IOException {
-		if (!canRunJava20()) {
+		if (!canRunJava21()) {
 			return;
 		}
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "20", "testRecordsConstructors", null, "records", true, true);
+		internalTestWithPreview(compiler, MODULE_PROC, "21", "testRecordsConstructors", null, "records", true, true);
 	}
 	public void testRecordsConstructors() throws IOException {
-		if (!canRunJava20()) {
+		if (!canRunJava21()) {
 			return;
 		}
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		internalTestWithPreview(compiler, MODULE_PROC, "20", "testRecordsConstructors", null, "records", true, true);
+		internalTestWithPreview(compiler, MODULE_PROC, "21", "testRecordsConstructors", null, "records", true, true);
 	}
-	public boolean canRunJava20() {
+	public boolean canRunJava21() {
 		try {
-			SourceVersion.valueOf("RELEASE_20");
+			SourceVersion.valueOf("RELEASE_21");
 		} catch(IllegalArgumentException iae) {
 			return false;
 		}
