@@ -154,7 +154,7 @@ public class PatternMatchingSelectionTest extends AbstractSelectionTest {
 						"  public X() {\n" +
 						"  }\n" +
 						"  public @SuppressWarnings(\"preview\") void f(Object obj, boolean b) {\n" +
-						"    <SelectionOnLocalName:String y_>;\n" +
+						"    b = ((x_ instanceof <SelectionOnLocalName:String y_>) && (y_.length() > 0));\n" +
 						"  }\n" +
 						"}\n";
 		String expectedReplacedSource = "y_";
