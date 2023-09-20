@@ -18,6 +18,8 @@ import java.util.Arrays;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 
+import com.sun.tools.javac.jvm.ByteCodes;
+
 public class BranchLabel extends Label {
 
 	private int[] forwardReferences = new int[10]; // Add an overflow check here.
@@ -196,7 +198,7 @@ public void place() { // Currently lacking wide support.
 		int oldPosition = this.position;
 		boolean isOptimizedBranch = false;
 		if (this.forwardReferenceCount != 0) {
-			isOptimizedBranch = (this.forwardReferences[this.forwardReferenceCount - 1] + 2 == this.position) && (this.codeStream.bCodeStream[this.codeStream.classFileOffset - 3] == Opcodes.OPC_goto);
+			isOptimizedBranch = (this.forwardReferences[this.forwardReferenceCount - 1] + 2 == this.position) && (Byte.toUnsignedInt(this.codeStream.bCodeStream[this.codeStream.classFileOffset - 3]) == ByteCodes.goto_);
 			if (isOptimizedBranch) {
 				if (this.codeStream.lastAbruptCompletion == this.position) {
 					this.codeStream.lastAbruptCompletion = -1;

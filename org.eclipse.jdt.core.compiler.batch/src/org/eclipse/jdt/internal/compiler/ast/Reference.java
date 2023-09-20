@@ -23,7 +23,6 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
-import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
@@ -37,6 +36,8 @@ import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
+
+import com.sun.tools.javac.jvm.ByteCodes;
 
 public abstract class Reference extends Expression  {
 /**
@@ -103,9 +104,9 @@ public void fieldStore(Scope currentScope, CodeStream codeStream, FieldBinding f
 		}
 		if (syntheticWriteAccessor == null) {
 			TypeBinding constantPoolDeclaringClass = CodeStream.getConstantPoolDeclaringClass(currentScope, fieldBinding, receiverType, isImplicitThisReceiver);
-			codeStream.fieldAccess(Opcodes.OPC_putstatic, fieldBinding, constantPoolDeclaringClass);
+			codeStream.fieldAccess(ByteCodes.putstatic, fieldBinding, constantPoolDeclaringClass);
 		} else {
-			codeStream.invoke(Opcodes.OPC_invokestatic, syntheticWriteAccessor, null /* default declaringClass */);
+			codeStream.invoke(ByteCodes.invokestatic, syntheticWriteAccessor, null /* default declaringClass */);
 		}
 	} else { // Stack:  [owner][new field value]  ---> [new field value][owner][new field value]
 		if (valueRequired) {
@@ -121,9 +122,9 @@ public void fieldStore(Scope currentScope, CodeStream codeStream, FieldBinding f
 		}
 		if (syntheticWriteAccessor == null) {
 			TypeBinding constantPoolDeclaringClass = CodeStream.getConstantPoolDeclaringClass(currentScope, fieldBinding, receiverType, isImplicitThisReceiver);
-			codeStream.fieldAccess(Opcodes.OPC_putfield, fieldBinding, constantPoolDeclaringClass);
+			codeStream.fieldAccess(ByteCodes.putfield, fieldBinding, constantPoolDeclaringClass);
 		} else {
-			codeStream.invoke(Opcodes.OPC_invokestatic, syntheticWriteAccessor, null /* default declaringClass */);
+			codeStream.invoke(ByteCodes.invokestatic, syntheticWriteAccessor, null /* default declaringClass */);
 		}
 	}
 	codeStream.recordPositionsFrom(pc, this.sourceStart);

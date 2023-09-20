@@ -32,7 +32,6 @@ import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.ast.Wildcard;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
-import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
@@ -45,6 +44,8 @@ import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
+
+import com.sun.tools.javac.jvm.ByteCodes;
 
 public class CodeSnippetAllocationExpression extends AllocationExpression implements ProblemReasons, EvaluationConstants {
 	EvaluationContext evaluationContext;
@@ -91,7 +92,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, 	boolea
 				this);
 		}
 		// invoke constructor
-		codeStream.invoke(Opcodes.OPC_invokespecial, codegenBinding, null /* default declaringClass */, this.typeArguments);
+		codeStream.invoke(ByteCodes.invokespecial, codegenBinding, null /* default declaringClass */, this.typeArguments);
 	} else {
 		// private emulation using reflect
 		codeStream.generateEmulationForConstructor(currentScope, codegenBinding);

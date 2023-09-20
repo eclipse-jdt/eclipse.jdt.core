@@ -24,7 +24,6 @@ import org.eclipse.jdt.internal.compiler.ast.IntLiteral;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
-import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
@@ -40,6 +39,8 @@ import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
+
+import com.sun.tools.javac.jvm.ByteCodes;
 
 public class CodeSnippetQualifiedNameReference extends QualifiedNameReference implements EvaluationConstants, ProblemReasons {
 
@@ -389,12 +390,12 @@ public FieldBinding generateReadSequence(BlockScope currentScope, CodeStream cod
 							if (accessor == null) {
 								TypeBinding constantPoolDeclaringClass = CodeStream.getConstantPoolDeclaringClass(currentScope, lastFieldBinding, lastReceiverType, i == 0 && this.indexOfFirstFieldBinding == 1);
 								if (lastFieldBinding.isStatic()) {
-									codeStream.fieldAccess(Opcodes.OPC_getstatic, lastFieldBinding, constantPoolDeclaringClass);
+									codeStream.fieldAccess(ByteCodes.getstatic, lastFieldBinding, constantPoolDeclaringClass);
 								} else {
-									codeStream.fieldAccess(Opcodes.OPC_getfield, lastFieldBinding, constantPoolDeclaringClass);
+									codeStream.fieldAccess(ByteCodes.getfield, lastFieldBinding, constantPoolDeclaringClass);
 								}
 							} else {
-								codeStream.invoke(Opcodes.OPC_invokestatic, accessor, null /* default declaringClass */);
+								codeStream.invoke(ByteCodes.invokestatic, accessor, null /* default declaringClass */);
 							}
 						} else {
 							codeStream.generateEmulatedReadAccessForField(lastFieldBinding);
@@ -415,9 +416,9 @@ public FieldBinding generateReadSequence(BlockScope currentScope, CodeStream cod
 										MethodBinding accessor = this.syntheticReadAccessors == null ? null : this.syntheticReadAccessors[i];
 										if (accessor == null) {
 											TypeBinding constantPoolDeclaringClass = CodeStream.getConstantPoolDeclaringClass(currentScope, lastFieldBinding, lastReceiverType, i == 0 && this.indexOfFirstFieldBinding == 1);
-											codeStream.fieldAccess(Opcodes.OPC_getstatic, lastFieldBinding, constantPoolDeclaringClass);
+											codeStream.fieldAccess(ByteCodes.getstatic, lastFieldBinding, constantPoolDeclaringClass);
 										} else {
-											codeStream.invoke(Opcodes.OPC_invokestatic, accessor, null /* default declaringClass */);
+											codeStream.invoke(ByteCodes.invokestatic, accessor, null /* default declaringClass */);
 										}
 									} else {
 										codeStream.generateEmulatedReadAccessForField(lastFieldBinding);
@@ -454,7 +455,7 @@ public FieldBinding generateReadSequence(BlockScope currentScope, CodeStream cod
 public void generateReceiver(CodeStream codeStream) {
 	codeStream.aload_0();
 	if (this.delegateThis != null) {
-		codeStream.fieldAccess(Opcodes.OPC_getfield, this.delegateThis, null /* default declaringClass */); // delegated field access
+		codeStream.fieldAccess(ByteCodes.getfield, this.delegateThis, null /* default declaringClass */); // delegated field access
 	}
 }
 

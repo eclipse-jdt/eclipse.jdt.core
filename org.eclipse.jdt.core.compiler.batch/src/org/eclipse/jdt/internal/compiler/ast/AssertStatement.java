@@ -24,6 +24,9 @@ import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
+
+import com.sun.tools.javac.jvm.ByteCodes;
+
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 
 public class AssertStatement extends Statement {
@@ -115,7 +118,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 
 	if (this.assertionSyntheticFieldBinding != null) {
 		BranchLabel assertionActivationLabel = new BranchLabel(codeStream);
-		codeStream.fieldAccess(Opcodes.OPC_getstatic, this.assertionSyntheticFieldBinding, null /* default declaringClass */);
+		codeStream.fieldAccess(ByteCodes.getstatic, this.assertionSyntheticFieldBinding, null /* default declaringClass */);
 		codeStream.ifne(assertionActivationLabel);
 
 		BranchLabel falseLabel;

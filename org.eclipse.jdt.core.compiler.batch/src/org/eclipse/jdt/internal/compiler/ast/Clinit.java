@@ -23,7 +23,6 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
-import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.ExceptionHandlingFlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.InitializationFlowContext;
@@ -36,6 +35,8 @@ import org.eclipse.jdt.internal.compiler.lookup.SyntheticMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
+
+import com.sun.tools.javac.jvm.ByteCodes;
 
 public class Clinit extends AbstractMethodDeclaration {
 	private static int ENUM_CONSTANTS_THRESHOLD = 2000;
@@ -214,7 +215,7 @@ public class Clinit extends AbstractMethodDeclaration {
 			falseLabel.place();
 			codeStream.iconst_0();
 			jumpLabel.place();
-			codeStream.fieldAccess(Opcodes.OPC_putstatic, this.assertionSyntheticFieldBinding, null /* default declaringClass */);
+			codeStream.fieldAccess(ByteCodes.putstatic, this.assertionSyntheticFieldBinding, null /* default declaringClass */);
 		}
 		boolean isJava9 = classScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK9;
 		// generate static fields/initializers/enum constants
@@ -239,7 +240,7 @@ public class Clinit extends AbstractMethodDeclaration {
 								count++;
 								if (count > ENUM_CONSTANTS_THRESHOLD) {
 									SyntheticMethodBinding syntheticMethod = declaringType.binding.addSyntheticMethodForEnumInitialization(begin, i);
-									codeStream.invoke(Opcodes.OPC_invokestatic, syntheticMethod, null /* default declaringClass */);
+									codeStream.invoke(ByteCodes.invokestatic, syntheticMethod, null /* default declaringClass */);
 									begin = i;
 									count = 1;
 								}
@@ -251,7 +252,7 @@ public class Clinit extends AbstractMethodDeclaration {
 					if (count != 0) {
 						// add last synthetic method
 						SyntheticMethodBinding syntheticMethod = declaringType.binding.addSyntheticMethodForEnumInitialization(begin, max);
-						codeStream.invoke(Opcodes.OPC_invokestatic, syntheticMethod, null /* default declaringClass */);
+						codeStream.invoke(ByteCodes.invokestatic, syntheticMethod, null /* default declaringClass */);
 					}
 				}
 			} else if (fieldDeclarations != null) {
@@ -278,13 +279,13 @@ public class Clinit extends AbstractMethodDeclaration {
 						if (fieldDecl.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT) {
 							codeStream.dup();
 							codeStream.generateInlinedValue(fieldDecl.binding.id);
-							codeStream.fieldAccess(Opcodes.OPC_getstatic, fieldDecl.binding, null /* default declaringClass */);
+							codeStream.fieldAccess(ByteCodes.getstatic, fieldDecl.binding, null /* default declaringClass */);
 							codeStream.aastore();
 						}
 					}
 				}
 			}
-			codeStream.fieldAccess(Opcodes.OPC_putstatic, declaringType.enumValuesSyntheticfield, null /* default declaringClass */);
+			codeStream.fieldAccess(ByteCodes.putstatic, declaringType.enumValuesSyntheticfield, null /* default declaringClass */);
 			if (remainingFieldCount != 0) {
 				// if fields that are not enum constants need to be generated (static initializer/static field)
 				for (int i = 0, max = fieldDeclarations.length; i < max && remainingFieldCount >= 0; i++) {

@@ -6159,85 +6159,73 @@ public final class JavaCore extends Plugin {
 	public static void setComplianceOptions(String compliance, Map options) {
 		long jdkLevel = CompilerOptions.versionToJdkLevel(compliance);
 		int major = (int) (jdkLevel >>> 16);
-		switch(major) {
-			case ClassFileConstants.MAJOR_VERSION_1_3:
-				options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_3);
-				options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
-				options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_1);
-				options.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.IGNORE);
-				options.put(JavaCore.COMPILER_PB_ENUM_IDENTIFIER, JavaCore.IGNORE);
-				break;
-			case ClassFileConstants.MAJOR_VERSION_1_4:
-				options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
-				options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
-				options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_2);
-				options.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.WARNING);
-				options.put(JavaCore.COMPILER_PB_ENUM_IDENTIFIER, JavaCore.WARNING);
-				break;
-			case ClassFileConstants.MAJOR_VERSION_1_5:
-				options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
-				options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-				options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
-				options.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR);
-				options.put(JavaCore.COMPILER_PB_ENUM_IDENTIFIER, JavaCore.ERROR);
-				options.put(JavaCore.COMPILER_CODEGEN_INLINE_JSR_BYTECODE, JavaCore.ENABLED);
-				break;
-			case ClassFileConstants.MAJOR_VERSION_1_6:
-				options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_6);
-				options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_6);
-				options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_6);
-				options.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR);
-				options.put(JavaCore.COMPILER_PB_ENUM_IDENTIFIER, JavaCore.ERROR);
-				options.put(JavaCore.COMPILER_CODEGEN_INLINE_JSR_BYTECODE, JavaCore.ENABLED);
-				break;
-			case ClassFileConstants.MAJOR_VERSION_1_7:
-				options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_7);
-				options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_7);
-				options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_7);
-				options.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR);
-				options.put(JavaCore.COMPILER_PB_ENUM_IDENTIFIER, JavaCore.ERROR);
-				options.put(JavaCore.COMPILER_CODEGEN_INLINE_JSR_BYTECODE, JavaCore.ENABLED);
-				break;
-			case ClassFileConstants.MAJOR_VERSION_1_8:
-				options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_8);
-				options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_8);
-				options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_8);
-				options.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR);
-				options.put(JavaCore.COMPILER_PB_ENUM_IDENTIFIER, JavaCore.ERROR);
-				options.put(JavaCore.COMPILER_CODEGEN_INLINE_JSR_BYTECODE, JavaCore.ENABLED);
-				break;
-			case ClassFileConstants.MAJOR_VERSION_9:
-				options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_9);
-				options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_9);
-				options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_9);
-				options.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR);
-				options.put(JavaCore.COMPILER_PB_ENUM_IDENTIFIER, JavaCore.ERROR);
-				options.put(JavaCore.COMPILER_CODEGEN_INLINE_JSR_BYTECODE, JavaCore.ENABLED);
-				options.put(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
-				break;
-			case ClassFileConstants.MAJOR_VERSION_10:
-				options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_10);
-				options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_10);
-				options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_10);
-				options.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR);
-				options.put(JavaCore.COMPILER_PB_ENUM_IDENTIFIER, JavaCore.ERROR);
-				options.put(JavaCore.COMPILER_CODEGEN_INLINE_JSR_BYTECODE, JavaCore.ENABLED);
-				options.put(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
-				break;
-			default:
-				if(major > ClassFileConstants.MAJOR_VERSION_10) {
-					String version = CompilerOptions.versionFromJdkLevel(jdkLevel);
-					options.put(JavaCore.COMPILER_COMPLIANCE, version);
-					options.put(JavaCore.COMPILER_SOURCE, version);
-					options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, version);
-					options.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR);
-					options.put(JavaCore.COMPILER_PB_ENUM_IDENTIFIER, JavaCore.ERROR);
-					options.put(JavaCore.COMPILER_CODEGEN_INLINE_JSR_BYTECODE, JavaCore.ENABLED);
-					options.put(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
-					options.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
-					options.put(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.WARNING);
-				}
-				break;
+		if (major == ClassFileConstants.MAJOR_VERSION_1_3) {
+			options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_3);
+			options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
+			options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_1);
+			options.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.IGNORE);
+			options.put(JavaCore.COMPILER_PB_ENUM_IDENTIFIER, JavaCore.IGNORE);
+		} else if (major == ClassFileConstants.MAJOR_VERSION_1_4) {
+			options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
+			options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
+			options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_2);
+			options.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.WARNING);
+			options.put(JavaCore.COMPILER_PB_ENUM_IDENTIFIER, JavaCore.WARNING);
+		} else if (major == ClassFileConstants.MAJOR_VERSION_1_5) {
+			options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
+			options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
+			options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
+			options.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR);
+			options.put(JavaCore.COMPILER_PB_ENUM_IDENTIFIER, JavaCore.ERROR);
+			options.put(JavaCore.COMPILER_CODEGEN_INLINE_JSR_BYTECODE, JavaCore.ENABLED);
+		} else if (major == ClassFileConstants.MAJOR_VERSION_1_6) {
+			options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_6);
+			options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_6);
+			options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_6);
+			options.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR);
+			options.put(JavaCore.COMPILER_PB_ENUM_IDENTIFIER, JavaCore.ERROR);
+			options.put(JavaCore.COMPILER_CODEGEN_INLINE_JSR_BYTECODE, JavaCore.ENABLED);
+		} else if (major == ClassFileConstants.MAJOR_VERSION_1_7) {
+			options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_7);
+			options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_7);
+			options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_7);
+			options.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR);
+			options.put(JavaCore.COMPILER_PB_ENUM_IDENTIFIER, JavaCore.ERROR);
+			options.put(JavaCore.COMPILER_CODEGEN_INLINE_JSR_BYTECODE, JavaCore.ENABLED);
+		} else if (major == ClassFileConstants.MAJOR_VERSION_1_8) {
+			options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_8);
+			options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_8);
+			options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_8);
+			options.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR);
+			options.put(JavaCore.COMPILER_PB_ENUM_IDENTIFIER, JavaCore.ERROR);
+			options.put(JavaCore.COMPILER_CODEGEN_INLINE_JSR_BYTECODE, JavaCore.ENABLED);
+		} else if (major == ClassFileConstants.MAJOR_VERSION_9) {
+			options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_9);
+			options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_9);
+			options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_9);
+			options.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR);
+			options.put(JavaCore.COMPILER_PB_ENUM_IDENTIFIER, JavaCore.ERROR);
+			options.put(JavaCore.COMPILER_CODEGEN_INLINE_JSR_BYTECODE, JavaCore.ENABLED);
+			options.put(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
+		} else if (major == ClassFileConstants.MAJOR_VERSION_10) {
+			options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_10);
+			options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_10);
+			options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_10);
+			options.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR);
+			options.put(JavaCore.COMPILER_PB_ENUM_IDENTIFIER, JavaCore.ERROR);
+			options.put(JavaCore.COMPILER_CODEGEN_INLINE_JSR_BYTECODE, JavaCore.ENABLED);
+			options.put(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
+		} else if(major > ClassFileConstants.MAJOR_VERSION_10) {
+			String version = CompilerOptions.versionFromJdkLevel(jdkLevel);
+			options.put(JavaCore.COMPILER_COMPLIANCE, version);
+			options.put(JavaCore.COMPILER_SOURCE, version);
+			options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, version);
+			options.put(JavaCore.COMPILER_PB_ASSERT_IDENTIFIER, JavaCore.ERROR);
+			options.put(JavaCore.COMPILER_PB_ENUM_IDENTIFIER, JavaCore.ERROR);
+			options.put(JavaCore.COMPILER_CODEGEN_INLINE_JSR_BYTECODE, JavaCore.ENABLED);
+			options.put(JavaCore.COMPILER_RELEASE, JavaCore.ENABLED);
+			options.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
+			options.put(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.WARNING);
 		}
 	}
 

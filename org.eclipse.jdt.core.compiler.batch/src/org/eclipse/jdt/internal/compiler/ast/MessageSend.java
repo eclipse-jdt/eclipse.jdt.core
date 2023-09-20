@@ -74,7 +74,6 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
-import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
@@ -112,6 +111,8 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
+
+import com.sun.tools.javac.jvm.ByteCodes;
 
 public class MessageSend extends Expression implements IPolyExpression, Invocation {
 
@@ -552,17 +553,17 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	if (this.syntheticAccessor == null){
 		TypeBinding constantPoolDeclaringClass = CodeStream.getConstantPoolDeclaringClass(currentScope, codegenBinding, this.actualReceiverType, this.receiver.isImplicitThis());
 		if (isStatic){
-			codeStream.invoke(Opcodes.OPC_invokestatic, codegenBinding, constantPoolDeclaringClass, this.typeArguments);
+			codeStream.invoke(ByteCodes.invokestatic, codegenBinding, constantPoolDeclaringClass, this.typeArguments);
 		} else if((this.receiver.isSuper()) ||
 				(!currentScope.enclosingSourceType().isNestmateOf(this.binding.declaringClass) && codegenBinding.isPrivate())){
-			codeStream.invoke(Opcodes.OPC_invokespecial, codegenBinding, constantPoolDeclaringClass, this.typeArguments);
+			codeStream.invoke(ByteCodes.invokespecial, codegenBinding, constantPoolDeclaringClass, this.typeArguments);
 		} else if (constantPoolDeclaringClass.isInterface()) { // interface or annotation type
-			codeStream.invoke(Opcodes.OPC_invokeinterface, codegenBinding, constantPoolDeclaringClass, this.typeArguments);
+			codeStream.invoke(ByteCodes.invokeinterface, codegenBinding, constantPoolDeclaringClass, this.typeArguments);
 		} else {
-			codeStream.invoke(Opcodes.OPC_invokevirtual, codegenBinding, constantPoolDeclaringClass, this.typeArguments);
+			codeStream.invoke(ByteCodes.invokevirtual, codegenBinding, constantPoolDeclaringClass, this.typeArguments);
 		}
 	} else {
-		codeStream.invoke(Opcodes.OPC_invokestatic, this.syntheticAccessor, null /* default declaringClass */, this.typeArguments);
+		codeStream.invoke(ByteCodes.invokestatic, this.syntheticAccessor, null /* default declaringClass */, this.typeArguments);
 	}
 	// required cast must occur even if no value is required
 	if (this.valueCast != null) codeStream.checkcast(this.valueCast);

@@ -89,13 +89,14 @@ import org.eclipse.jdt.internal.compiler.ast.TypeReference.AnnotationPosition;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationProvider;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
-import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.Util;
+
+import com.sun.tools.javac.jvm.ByteCodes;
 
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class SourceTypeBinding extends ReferenceBinding {
@@ -1972,8 +1973,8 @@ public void generateSyntheticFinalFieldInitialization(CodeStream codeStream) {
 			MethodBinding[] accessors = (MethodBinding[]) this.synthetics[SourceTypeBinding.METHOD_EMUL].get(new String(field.name));
 			if (accessors == null || accessors[0] == null) // not a field for switch enum
 				continue;
-			codeStream.invoke(Opcodes.OPC_invokestatic, accessors[0], null /* default declaringClass */);
-			codeStream.fieldAccess(Opcodes.OPC_putstatic, field, null /* default declaringClass */);
+			codeStream.invoke(ByteCodes.invokestatic, accessors[0], null /* default declaringClass */);
+			codeStream.fieldAccess(ByteCodes.putstatic, field, null /* default declaringClass */);
 		}
 	}
 }

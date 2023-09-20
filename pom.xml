@@ -25,6 +25,7 @@
 
   <properties>
     <tycho.scmUrl>scm:git:https://github.com/eclipse-jdt/eclipse.jdt.core.git</tycho.scmUrl>
+    <tycho.surefire.argLine>--add-exports jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED</tycho.surefire.argLine>
   </properties>
 
   <!-- 
@@ -72,6 +73,20 @@
   <build>
     <pluginManagement>
       <plugins>
+        <plugin>
+          <groupId>org.eclipse.tycho</groupId>
+          <artifactId>target-platform-configuration</artifactId>
+          <configuration>
+            <executionEnvironment>JavaSE-20</executionEnvironment>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.eclipse.tycho</groupId>
+          <artifactId>tycho-surefire-plugin</artifactId>
+          <configuration>
+            <argLine>${tycho.surefire.argLine}</argLine>
+          </configuration>
+        </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-toolchains-plugin</artifactId>

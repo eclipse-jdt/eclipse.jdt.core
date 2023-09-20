@@ -117,7 +117,7 @@ public class TypeAnnotationCodeStream extends StackMapFrameCodeStream {
 	}
 
 	@Override
-	public void invoke(byte opcode, MethodBinding methodBinding, TypeBinding declaringClass, TypeReference[] typeArguments) {
+	public void invoke(int opcode, MethodBinding methodBinding, TypeBinding declaringClass, TypeReference[] typeArguments) {
 		if (typeArguments != null) {
 			int targetType = methodBinding.isConstructor()
 					? AnnotationTargetTypeConstants.CONSTRUCTOR_INVOCATION_TYPE_ARGUMENT

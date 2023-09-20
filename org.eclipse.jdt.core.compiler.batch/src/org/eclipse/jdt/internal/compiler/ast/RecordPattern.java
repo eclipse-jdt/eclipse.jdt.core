@@ -16,7 +16,6 @@ package org.eclipse.jdt.internal.compiler.ast;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
-import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -27,6 +26,8 @@ import org.eclipse.jdt.internal.compiler.lookup.RecordComponentBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+
+import com.sun.tools.javac.jvm.ByteCodes;
 
 public class RecordPattern extends TypePattern {
 
@@ -260,7 +261,7 @@ public class RecordPattern extends TypePattern {
 				if (!this.isTotalTypeNode)
 					codeStream.checkcast(this.resolvedType);
 				generateArguments(p.accessorMethod, null, currentScope, codeStream);
-				codeStream.invoke(Opcodes.OPC_invokevirtual, p.accessorMethod.original(), this.resolvedType, null);
+				codeStream.invoke(ByteCodes.invokevirtual, p.accessorMethod.original(), this.resolvedType, null);
 				if (!p.accessorMethod.original().equals(p.accessorMethod))
 					codeStream.checkcast(p.accessorMethod.returnType);
 				if (!p.isTotalTypeNode) {

@@ -151,7 +151,7 @@ public void place() { // Currently lacking wide support.
 		boolean isOptimizedBranch = false;
 		// TURNED OFF since fail on 1F4IRD9
 		if (forwardReferenceCount != 0) {
-			isOptimizedBranch = (forwardReferences[forwardReferenceCount - 1] + 2 == position) && (codeStream.bCodeStream[codeStream.classFileOffset - 3] == Opcodes.OPC_goto);
+			isOptimizedBranch = (forwardReferences[forwardReferenceCount - 1] + 2 == position) && (codeStream.bCodeStream[codeStream.classFileOffset - 3] == ByteCodes.goto_);
 			if (isOptimizedBranch) {
 				codeStream.position = (position -= 3);
 				codeStream.classFileOffset -= 3;

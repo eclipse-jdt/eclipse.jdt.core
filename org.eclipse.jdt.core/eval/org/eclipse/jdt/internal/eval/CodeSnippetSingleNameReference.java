@@ -23,7 +23,6 @@ import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.IntLiteral;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
-import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
@@ -43,6 +42,8 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.VariableBinding;
 import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
+
+import com.sun.tools.javac.jvm.ByteCodes;
 
 /**
  * A single name reference inside a code snippet can denote a field of a remote
@@ -217,7 +218,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 						TypeBinding someReceiverType = this.delegateThis != null ? this.delegateThis.type : this.actualReceiverType;
 						TypeBinding constantPoolDeclaringClass = CodeStream.getConstantPoolDeclaringClass(currentScope, codegenField, someReceiverType, true /* implicit this */);
 						if (codegenField.isStatic()) {
-							codeStream.fieldAccess(Opcodes.OPC_getstatic, codegenField, constantPoolDeclaringClass);
+							codeStream.fieldAccess(ByteCodes.getstatic, codegenField, constantPoolDeclaringClass);
 						} else {
 							if ((this.bits & DepthMASK) != 0) {
 								ReferenceBinding targetType = currentScope.enclosingSourceType().enclosingTypeAt((this.bits & DepthMASK) >> DepthSHIFT);
@@ -226,7 +227,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 							} else {
 								generateReceiver(codeStream);
 							}
-							codeStream.fieldAccess(Opcodes.OPC_getfield, codegenField, constantPoolDeclaringClass);
+							codeStream.fieldAccess(ByteCodes.getfield, codegenField, constantPoolDeclaringClass);
 						}
 					} else {
 						// managing private access
@@ -290,7 +291,7 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 				if (codegenField.canBeSeenBy(getReceiverType(currentScope), this, currentScope)) {
 					TypeBinding someReceiverType = this.delegateThis != null ? this.delegateThis.type : this.actualReceiverType;
 					TypeBinding constantPoolDeclaringClass = CodeStream.getConstantPoolDeclaringClass(currentScope, codegenField, someReceiverType, true /* implicit this */);
-					codeStream.fieldAccess(Opcodes.OPC_getstatic, codegenField, constantPoolDeclaringClass);
+					codeStream.fieldAccess(ByteCodes.getstatic, codegenField, constantPoolDeclaringClass);
 				} else {
 					// used to store the value
 					codeStream.generateEmulationForField(codegenField);
@@ -312,7 +313,7 @@ public void generateCompoundAssignment(BlockScope currentScope, CodeStream codeS
 					codeStream.dup();
 					TypeBinding someReceiverType = this.delegateThis != null ? this.delegateThis.type : this.actualReceiverType;
 					TypeBinding constantPoolDeclaringClass = CodeStream.getConstantPoolDeclaringClass(currentScope, codegenField, someReceiverType, true /* implicit this */);
-					codeStream.fieldAccess(Opcodes.OPC_getfield, codegenField, constantPoolDeclaringClass);
+					codeStream.fieldAccess(ByteCodes.getfield, codegenField, constantPoolDeclaringClass);
 				} else {
 					if ((this.bits & DepthMASK) != 0) {
 						// internal error, per construction we should have found it
@@ -535,7 +536,7 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 public void generateReceiver(CodeStream codeStream) {
 	codeStream.aload_0();
 	if (this.delegateThis != null) {
-		codeStream.fieldAccess(Opcodes.OPC_getfield, this.delegateThis, null /* default declaringClass */); // delegate field access
+		codeStream.fieldAccess(ByteCodes.getfield, this.delegateThis, null /* default declaringClass */); // delegate field access
 	}
 }
 /**

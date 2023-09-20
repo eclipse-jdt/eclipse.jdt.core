@@ -809,55 +809,40 @@ public class CompilerOptions {
 
 	public static String versionFromJdkLevel(long jdkLevel) {
 		int major = (int)(jdkLevel>>16);
-		switch (major) {
-			case ClassFileConstants.MAJOR_VERSION_1_1 :
-				if (jdkLevel == ClassFileConstants.JDK1_1)
-					return VERSION_1_1;
-				break;
-			case ClassFileConstants.MAJOR_VERSION_1_2 :
-				if (jdkLevel == ClassFileConstants.JDK1_2)
-					return VERSION_1_2;
-				break;
-			case ClassFileConstants.MAJOR_VERSION_1_3 :
-				if (jdkLevel == ClassFileConstants.JDK1_3)
-					return VERSION_1_3;
-				break;
-			case ClassFileConstants.MAJOR_VERSION_1_4 :
-				if (jdkLevel == ClassFileConstants.JDK1_4)
-					return VERSION_1_4;
-				break;
-			case ClassFileConstants.MAJOR_VERSION_1_5 :
-				if (jdkLevel == ClassFileConstants.JDK1_5)
-					return VERSION_1_5;
-				break;
-			case ClassFileConstants.MAJOR_VERSION_1_6 :
-				if (jdkLevel == ClassFileConstants.JDK1_6)
-					return VERSION_1_6;
-				break;
-			case ClassFileConstants.MAJOR_VERSION_1_7 :
-				if (jdkLevel == ClassFileConstants.JDK1_7)
-					return VERSION_1_7;
-				break;
-			case ClassFileConstants.MAJOR_VERSION_1_8 :
-				if (jdkLevel == ClassFileConstants.JDK1_8)
-					return VERSION_1_8;
-				break;
-			case ClassFileConstants.MAJOR_VERSION_9 :
-				if (jdkLevel == ClassFileConstants.JDK9)
-					return VERSION_9;
-				break;
-			case ClassFileConstants.MAJOR_VERSION_10 :
-				if (jdkLevel == ClassFileConstants.JDK10)
-					return VERSION_10;
-				break;
-			default:
-				if(major > ClassFileConstants.MAJOR_VERSION_10) {
-					return "" + (major - ClassFileConstants.MAJOR_VERSION_0); //$NON-NLS-1$
-				}
-				return  Util.EMPTY_STRING; // unknown version
-
+		if (major ==  ClassFileConstants.MAJOR_VERSION_1_1) {
+			if (jdkLevel == ClassFileConstants.JDK1_1)
+				return VERSION_1_1;
+		} else if (major == ClassFileConstants.MAJOR_VERSION_1_2) {
+			if (jdkLevel == ClassFileConstants.JDK1_2)
+				return VERSION_1_2;
+		} else if (major == ClassFileConstants.MAJOR_VERSION_1_3) {
+			if (jdkLevel == ClassFileConstants.JDK1_3)
+				return VERSION_1_3;
+		} else if (major == ClassFileConstants.MAJOR_VERSION_1_4) {
+			if (jdkLevel == ClassFileConstants.JDK1_4)
+				return VERSION_1_4;
+		} else if (major == ClassFileConstants.MAJOR_VERSION_1_5) {
+			if (jdkLevel == ClassFileConstants.JDK1_5)
+				return VERSION_1_5;
+		} else if (major == ClassFileConstants.MAJOR_VERSION_1_6) {
+			if (jdkLevel == ClassFileConstants.JDK1_6)
+				return VERSION_1_6;
+		} else if (major == ClassFileConstants.MAJOR_VERSION_1_7) {
+			if (jdkLevel == ClassFileConstants.JDK1_7)
+				return VERSION_1_7;
+		} else if (major == ClassFileConstants.MAJOR_VERSION_1_8) {
+			if (jdkLevel == ClassFileConstants.JDK1_8)
+				return VERSION_1_8;
+		} else if (major == ClassFileConstants.MAJOR_VERSION_9) {
+			if (jdkLevel == ClassFileConstants.JDK9)
+				return VERSION_9;
+		} else if (major == ClassFileConstants.MAJOR_VERSION_10) {
+			if (jdkLevel == ClassFileConstants.JDK10)
+				return VERSION_10;
+		} else if(major > ClassFileConstants.MAJOR_VERSION_10) {
+			return "" + (major - ClassFileConstants.MAJOR_VERSION_0); //$NON-NLS-1$
 		}
-		return Util.EMPTY_STRING; // unknown version
+		return  Util.EMPTY_STRING; // unknown version
 	}
 
 	public static long releaseToJDKLevel(String release) {

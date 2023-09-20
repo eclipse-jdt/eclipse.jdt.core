@@ -33,7 +33,6 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CaseLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
-import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.SwitchFlowContext;
@@ -50,6 +49,8 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
+
+import com.sun.tools.javac.jvm.ByteCodes;
 
 @SuppressWarnings("rawtypes")
 public class SwitchStatement extends Expression {
@@ -531,7 +532,7 @@ public class SwitchStatement extends Expression {
 				transformConstants();
 			} else if (resolvedType1.isEnum()) {
 				// go through the translation table
-				codeStream.invoke(Opcodes.OPC_invokestatic, this.synthetic, null /* default declaringClass */);
+				codeStream.invoke(ByteCodes.invokestatic, this.synthetic, null /* default declaringClass */);
 				this.expression.generateCode(currentScope, codeStream, true);
 				// get enum constant ordinal()
 				codeStream.invokeEnumOrdinal(resolvedType1.constantPoolName());
