@@ -983,10 +983,13 @@ protected void consumeSwitchLabeledExpression() {
 
 @Override
 protected void consumeInstanceOfExpressionWithName() {
-	int length = this.patternLengthPtr >= 0 ?
-			this.patternLengthStack[this.patternLengthPtr--] : 0;
+	if (indexOfAssistIdentifier() < 0) {
+		super.consumeInstanceOfExpressionWithName();
+		return;
+	}
+	int length = this.astLengthStack[this.astLengthPtr--];
 	if (length > 0) {
-		Pattern pattern = (Pattern) this.patternStack[this.patternPtr--];
+		Pattern pattern = (Pattern) this.astStack[this.astPtr--];
 		pushOnExpressionStack(getUnspecifiedReferenceOptimized());
 		consumePatternInsideInstanceof(pattern);
 		if (this.expressionStack[this.expressionPtr] != this.assistNode) {
@@ -1001,8 +1004,6 @@ protected void consumeInstanceOfExpressionWithName() {
 			this.restartRecovery = true;
 			this.lastIgnoredToken = -1;
 		}
-	} else if (indexOfAssistIdentifier() < 0) {
-		super.consumeInstanceOfExpressionWithName();
 	} else {
 		getTypeReference(this.intStack[this.intPtr--]);
 		this.isOrphanCompletionNode = true;
