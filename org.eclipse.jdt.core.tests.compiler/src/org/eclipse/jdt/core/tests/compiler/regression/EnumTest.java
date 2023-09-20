@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -726,6 +726,8 @@ public void test021() {
 }
 // 77151 - cannot use qualified name to denote enum constants in switch case label
 public void test022() {
+	if (this.complianceLevel >= ClassFileConstants.JDK21)
+		return;
 	this.runNegativeTest(
 		new String[] {
 			"X.java",

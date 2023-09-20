@@ -102,9 +102,14 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 	/** @deprecated using deprecated code */
 	private final static int JLS19_INTERNAL = AST.JLS19;
 
+	/** @deprecated using deprecated code */
 	private final static int JLS20_INTERNAL = AST.JLS20;
 
-	private final static int[] JLS_LEVELS = { JLS2_INTERNAL, JLS3_INTERNAL, JLS4_INTERNAL, JLS8_INTERNAL, JLS9_INTERNAL, JLS10_INTERNAL, JLS14_INTERNAL, JLS15_INTERNAL, JLS16_INTERNAL, JLS17_INTERNAL, JLS18_INTERNAL, JLS19_INTERNAL, JLS20_INTERNAL};
+	private final static int JLS21_INTERNAL = AST.JLS21;
+
+	private final static int[] JLS_LEVELS = { JLS2_INTERNAL, JLS3_INTERNAL, JLS4_INTERNAL, JLS8_INTERNAL, JLS9_INTERNAL,
+			JLS10_INTERNAL, JLS14_INTERNAL, JLS15_INTERNAL, JLS16_INTERNAL, JLS17_INTERNAL, JLS18_INTERNAL,
+			JLS19_INTERNAL, JLS20_INTERNAL, JLS21_INTERNAL };
 
 	private static final String ONLY_AST_STRING = "_only";
 	private static final String SINCE_AST_STRING = "_since";
@@ -303,6 +308,14 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 			this.project1.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_20);
 			this.project1.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_20);
 			this.project1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_20);
+		}
+		setUpProjectAbove21();
+	}
+	protected void setUpProjectAbove21() throws Exception {
+		if (this.apiLevel == AST_INTERNAL_JLS21) {
+			this.project1.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_21);
+			this.project1.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_21);
+			this.project1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_21);
 		}
 	}
 

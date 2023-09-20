@@ -128,6 +128,27 @@
 			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.4,1.7,1.8,17,20</tycho.surefire.argLine>
 		</properties>
 	</profile>
-  </profiles>
+	<profile>
+		<id>test-on-javase-21</id>
+		<build>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-toolchains-plugin</artifactId>
+					<configuration>
+						<toolchains>
+							<jdk>
+								<id>JavaSE-21</id>
+							</jdk>
+						</toolchains>
+					</configuration>
+				</plugin>
+			</plugins>
+		</build>
+		<properties>
+			<tycho.surefire.argLine>--add-modules ALL-SYSTEM -Dcompliance=1.4,1.8,17,19,21</tycho.surefire.argLine>
+		</properties>
+	</profile>
+	</profiles>
 
 </project>

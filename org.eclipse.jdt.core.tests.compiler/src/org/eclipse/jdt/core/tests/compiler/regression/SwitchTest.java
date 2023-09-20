@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2022 IBM Corporation and others.
+ * Copyright (c) 2005, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -276,6 +276,32 @@ public void test010() {
 			"	^^^^\n" +
 			"Zork cannot be resolved to a type\n" +
 			"----------\n";
+	String java21Plus = "----------\n" +
+			"1. ERROR in X.java (at line 4)\n" +
+			"	switch(this){\n" +
+			"	       ^^^^\n" +
+			"An enhanced switch statement should be exhaustive; a default label expected\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 5)\n" +
+			"	case 0 : \n" +
+			"	     ^\n" +
+			"Type mismatch: cannot convert from int to X\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 6)\n" +
+			"	Zork z;\n" +
+			"	^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
+			"----------\n" +
+			"4. ERROR in X.java (at line 11)\n" +
+			"	switch(x){\n" +
+			"	       ^\n" +
+			"x cannot be resolved to a variable\n" +
+			"----------\n" +
+			"5. ERROR in X.java (at line 13)\n" +
+			"	Zork z;\n" +
+			"	^^^^\n" +
+			"Zork cannot be resolved to a type\n" +
+			"----------\n";
 	this.runNegativeTest(new String[] {
 		"X.java",
 		"public class X {\n" +
@@ -295,7 +321,7 @@ public void test010() {
 		"	}	\n" +
 		"}\n",
 	},
-	this.complianceLevel >= JDKLevelSupportingStringSwitch ? newMessage : oldMessage);
+	this.complianceLevel >= JDKLevelSupportingStringSwitch ? (this.complianceLevel >= ClassFileConstants.JDK21 ? java21Plus : newMessage) : oldMessage);
 
 }
 public void test011() {

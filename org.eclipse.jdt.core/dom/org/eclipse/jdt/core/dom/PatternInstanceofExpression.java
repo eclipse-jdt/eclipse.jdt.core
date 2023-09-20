@@ -8,10 +8,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
- * This is an implementation of an early-draft specification developed under the Java
- * Community Process (JCP) and is made available for testing and evaluation purposes
- * only. The code is not compatible with any specification of the JCP.
- *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -111,7 +107,7 @@ public class PatternInstanceofExpression extends Expression {
 	 * @since 3.34
 	 */
 	public static List propertyDescriptors(int apiLevel, boolean isPreview) {
-		if (apiLevel >= AST.JLS20_INTERNAL && isPreview) {
+		if (apiLevel >= AST.JLS21_INTERNAL) {
 			return PROPERTY_DESCRIPTORS_20;
 		}
 		return PROPERTY_DESCRIPTORS_16;
@@ -176,8 +172,6 @@ public class PatternInstanceofExpression extends Expression {
 			}
 		}
 		if (property == PATTERN_PROPERTY) {
-			if (!this.ast.isPreviewEnabled())
-				return null;
 			if (get) {
 				return getPattern();
 			} else {
@@ -219,7 +213,7 @@ public class PatternInstanceofExpression extends Expression {
 		if (visitChildren) {
 			// visit children in normal left to right reading order
 			acceptChild(visitor, getLeftOperand());
-			if (this.ast.apiLevel >= AST.JLS20_INTERNAL && this.ast.isPreviewEnabled()) {
+			if (this.ast.apiLevel >= AST.JLS21_INTERNAL) {
 				acceptChild(visitor, getPattern());
 			} else {
 				acceptChild(visitor, getRightOperand());
@@ -297,7 +291,7 @@ public class PatternInstanceofExpression extends Expression {
 	 * @since 3.34
 	 */
 	public Pattern getPattern() {
-		supportedOnlyIn20();
+		supportedOnlyIn21();
 		if (this.pattern  == null) {
 			// lazy init must be thread-safe for readers
 			synchronized (this) {

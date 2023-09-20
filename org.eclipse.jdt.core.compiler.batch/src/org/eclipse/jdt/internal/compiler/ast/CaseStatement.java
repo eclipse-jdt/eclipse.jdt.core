@@ -22,9 +22,11 @@ import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.impl.IntConstant;
 import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
+import org.eclipse.jdt.internal.compiler.impl.StringConstant;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
@@ -198,7 +200,10 @@ public static class ResolvedCase {
 	public int index;
 	private int intValue;
 	private boolean isPattern;
-	ResolvedCase(Constant c, Expression e, TypeBinding t, int index) {
+	private boolean isQualifiedEnum;
+	public int enumDescIdx;
+	public int classDescIdx;
+	ResolvedCase(Constant c, Expression e, TypeBinding t, int index, boolean isQualifiedEnum) {
 		this.c = c;
 		this.e = e;
 		this.t= t;
@@ -209,12 +214,16 @@ public static class ResolvedCase {
 			this.intValue = c.intValue();
 		}
 		this.isPattern = e instanceof Pattern;
+		this.isQualifiedEnum = isQualifiedEnum;
 	}
 	public int intValue() {
 		return this.intValue;
 	}
 	public boolean isPattern() {
 		return this.isPattern;
+	}
+	public boolean isQualifiedEnum() {
+		return this.isQualifiedEnum;
 	}
 	@Override
 	public String toString() {
@@ -256,8 +265,6 @@ public ResolvedCase[] resolveWithPatternVariablesInScope(LocalVariableBinding[] 
 private Expression getFirstValidExpression(BlockScope scope, SwitchStatement switchStatement) {
 	assert this.constantExpressions != null;
 	Expression ret = null;
-	int patternCaseLabelCount = 0;
-	int defaultCaseLabelCount = 0;
 	int nullCaseLabelCount = 0;
 
 	boolean patternSwitchAllowed = JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(scope.compilerOptions());
@@ -273,41 +280,23 @@ private Expression getFirstValidExpression(BlockScope scope, SwitchStatement swi
 				 if (exprCount != 2 || nullCaseLabelCount < 1) {
 					 scope.problemReporter().patternSwitchCaseDefaultOnlyAsSecond(e);
 				 }
-				 if (patternCaseLabelCount > 0) {
-					 scope.problemReporter().switchPatternBothPatternAndDefaultCaseLabelsNotAllowed(e);
-				 }
-				 ++defaultCaseLabelCount;
 				 continue;
 			}
 			if (e instanceof Pattern) {
 				scope.problemReporter().validateJavaFeatureSupport(JavaFeature.PATTERN_MATCHING_IN_SWITCH,
 						e.sourceStart, e.sourceEnd);
-				if (patternCaseLabelCount++ > 0) {
-					scope.problemReporter().switchPatternOnlyOnePatternCaseLabelAllowed(e);
-					return e; // Return and avoid secondary errors
-				} else if (defaultCaseLabelCount > 0) {
-					scope.problemReporter().switchPatternBothPatternAndDefaultCaseLabelsNotAllowed(e);
-					return e; // Return and avoid secondary errors
-				}
-				if (nullCaseLabelCount > 0 ) {
-					scope.problemReporter().cannotMixNullAndNonTypePattern(e);
-					return e; // Return and avoid secondary errors
+				if (this.constantExpressions.length > 1) {
+					scope.problemReporter().illegalCaseConstantCombination(e);
+					return e;
 				}
 			} else if (e instanceof NullLiteral) {
 				scope.problemReporter().validateJavaFeatureSupport(JavaFeature.PATTERN_MATCHING_IN_SWITCH,
 						e.sourceStart, e.sourceEnd);
 				if (switchStatement.nullCase == null) {
 					switchStatement.nullCase = this;
-//					if ((switchStatement.switchBits & SwitchStatement.TotalPattern) != 0) {
-//						scope.problemReporter().patternDominatedByAnother(this.constantExpressions[0]);
-//						return e; // Return and avoid secondary errors
-//					}
 				}
 
-				if (nullCaseLabelCount++ > 0) {
-					// TODO: Decide whether we need to have a more fine-grain element level error flagging for null specifically
-//					continue;
-				}
+				nullCaseLabelCount++;
 				// note: case null or case null, default are the only constructs allowed with null
 				//  second condition added since duplicate case label will anyway be flagged
 				if (exprCount > 1 && nullCaseLabelCount < 2) {
@@ -367,11 +356,11 @@ private ResolvedCase[] resolveCasePrivate(BlockScope scope, TypeBinding switchEx
 			return ResolvedCase.UnresolvedCase;
 		 // Avoid further resolution and secondary errors
 		if (caseType.isValidBinding()) {
-			Constant con = resolveConstantExpression(scope, caseType, switchExpressionType, switchStatement, e);
+			Constant con = resolveConstantExpression(scope, caseType, switchExpressionType, switchStatement, e, cases);
 			if (con != Constant.NotAConstant) {
 				int index = this == switchStatement.nullCase && e instanceof NullLiteral ?
 						-1 : switchStatement.constantIndex++;
-				cases.add(new ResolvedCase(con, e, caseType, index));
+				cases.add(new ResolvedCase(con, e, caseType, index, false));
 			}
 		}
 	}
@@ -408,9 +397,11 @@ public Constant resolveConstantExpression(BlockScope scope,
 											TypeBinding caseType,
 											TypeBinding switchType,
 											SwitchStatement switchStatement,
-											Expression expression) {
+											Expression expression,
+											List<ResolvedCase> cases) {
 
-	boolean patternSwitchAllowed = JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(scope.compilerOptions());
+	CompilerOptions options = scope.compilerOptions();
+	boolean patternSwitchAllowed = JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(options);
 	if (patternSwitchAllowed) {
 		if (expression instanceof Pattern) {
 			return resolveConstantExpression(scope, caseType, switchType,
@@ -450,7 +441,14 @@ public Constant resolveConstantExpression(BlockScope scope,
 				if ((field.modifiers & ClassFileConstants.AccEnum) == 0) {
 					 scope.problemReporter().enumSwitchCannotTargetField(reference, field);
 				} else 	if (reference instanceof QualifiedNameReference) {
-					 scope.problemReporter().cannotUseQualifiedEnumConstantInCaseLabel(reference, field);
+					if (options.complianceLevel < ClassFileConstants.JDK21) {
+						scope.problemReporter().cannotUseQualifiedEnumConstantInCaseLabel(reference, field);
+					} else if (!TypeBinding.equalsEquals(caseType, switchType)) {
+						switchStatement.switchBits |= SwitchStatement.QualifiedEnum;
+						StringConstant constant = (StringConstant) StringConstant.fromValue(new String(field.name));
+						cases.add(new ResolvedCase(constant, expression, caseType, -1, true));
+						return Constant.NotAConstant;
+					}
 				}
 				return IntConstant.fromValue(field.original().id + 1); // (ordinal value + 1) zero should not be returned see bug 141810
 			}
@@ -484,7 +482,7 @@ private Constant resolveConstantExpression(BlockScope scope,
 			// The following code is copied from InstanceOfExpression#resolve()
 			// But there are enough differences to warrant a copy
 			if (!pb.isReifiable()) {
-				if (expressionType != TypeBinding.NULL) {
+				if (expressionType != TypeBinding.NULL && !(e instanceof RecordPattern)) {
 					boolean isLegal = e.checkCastTypesCompatibility(scope, pb, expressionType, e, false);
 					if (!isLegal || (e.bits & ASTNode.UnsafeCast) != 0) {
 						scope.problemReporter().unsafeCastInInstanceof(e, pb, expressionType);
@@ -502,15 +500,18 @@ private Constant resolveConstantExpression(BlockScope scope,
 					return Constant.NotAConstant;
 				}
 			}
-			if (e.isTotalForType(expressionType)) {
+			if (e.coversType(expressionType)) {
 				if ((switchStatement.switchBits & SwitchStatement.TotalPattern) != 0) {
 					scope.problemReporter().duplicateTotalPattern(e);
 					return IntConstant.fromValue(-1);
 				}
-				switchStatement.switchBits |= (SwitchStatement.TotalPattern | SwitchStatement.Exhaustive);
-				if (switchStatement.defaultCase != null)
-					scope.problemReporter().illegalTotalPatternWithDefault(this);
-				switchStatement.totalPattern = e;
+				switchStatement.switchBits |= SwitchStatement.Exhaustive;
+				if (e.isAlwaysTrue()) {
+					switchStatement.switchBits |= SwitchStatement.TotalPattern;
+					if (switchStatement.defaultCase != null && !(e instanceof RecordPattern))
+						scope.problemReporter().illegalTotalPatternWithDefault(this);
+					switchStatement.totalPattern = e;
+				}
 				e.isTotalTypeNode = true;
 				if (switchStatement.nullCase == null)
 					constant = IntConstant.fromValue(-1);
