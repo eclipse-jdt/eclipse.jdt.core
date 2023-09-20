@@ -451,7 +451,7 @@ public final class AST {
 	 * up to and including Java SE 21(aka JDK 21).
 	 * </p>
 	 *
-	 * @since 3.35
+	 * @since 3.36
 	 */
 	public static final int JLS21 = 21;
 	/**
