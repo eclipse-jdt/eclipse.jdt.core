@@ -32,7 +32,7 @@ public class RecordElementsTests extends TestCase {
 	private static final String MODULE_PROC = "org.eclipse.jdt.compiler.apt.tests.processors.elements.RecordElementProcessor";
 
 	public void testPreviewFlagTrue() throws IOException {
-		if (!isRunning17()) {
+		if (!isRunning21()) {
 			return;
 		}
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
@@ -198,6 +198,14 @@ public class RecordElementsTests extends TestCase {
 		// If it succeeded, the processor will have set this property to "succeeded";
 		// if not, it will set it to an error value.
 		assertEquals("succeeded", System.getProperty(processor));
+	}
+	public boolean isRunning21() {
+		try {
+			SourceVersion.valueOf("RELEASE_21");
+		} catch(IllegalArgumentException iae) {
+			return false;
+		}
+		return true;
 	}
 	public boolean isRunning17() {
 		try {
