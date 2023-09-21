@@ -1893,6 +1893,11 @@ public void updateSupertypesWithAnnotations(Map<ReferenceBinding,ReferenceBindin
 		((MemberTypeBinding) this.binding).updateDeprecationFromEnclosing();
 	}
 	Map<ReferenceBinding,ReferenceBinding> updates = new HashMap<>();
+	if (this.typeParameters != null) {
+		for (TypeParameter typeParameter : this.typeParameters) {
+			typeParameter.updateWithAnnotations(this.scope); // TODO: need to integrate with outerUpdates/updates?
+		}
+	}
 	if (this.superclass != null) {
 		this.binding.superclass = updateWithAnnotations(this.superclass, outerUpdates, updates);
 	}

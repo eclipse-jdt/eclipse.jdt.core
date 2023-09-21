@@ -134,6 +134,8 @@ public class TypeParameter extends AbstractVariableDeclaration {
 	}
 
 	public void resolveAnnotations(Scope scope) {
+		if (!TypeReference.hasCompletedHierarchyCheckWithMembers(scope.enclosingReceiverType()))
+			return;
 		BlockScope resolutionScope = Scope.typeAnnotationsResolutionScope(scope);
 		if (resolutionScope != null) {
 			AnnotationBinding [] annotationBindings = resolveAnnotations(resolutionScope, this.annotations, this.binding, false);
@@ -172,6 +174,8 @@ public class TypeParameter extends AbstractVariableDeclaration {
 					this.binding.evaluateNullAnnotations(scope, this);
 				}
 			}
+			if (this.binding != null)
+				this.binding.tagBits |= TagBits.AnnotationResolved;
 		}
 	}
 
@@ -239,5 +243,20 @@ public class TypeParameter extends AbstractVariableDeclaration {
 			}
 		}
 		visitor.endVisit(this, scope);
+	}
+
+	public void updateWithAnnotations(ClassScope scope) {
+		if (this.binding != null && (this.binding.tagBits & TagBits.AnnotationResolved) != 0)
+			return;
+		if (this.type != null) {
+			this.type.updateWithAnnotations(scope, Binding.DefaultLocationTypeBound);
+		}
+		if (this.bounds != null) {
+			for (int i = 0; i < this.bounds.length; i++) {
+				this.bounds[i].updateWithAnnotations(scope, Binding.DefaultLocationTypeBound);
+			}
+		}
+		// TODO: do we need to update anything else for null-annotated types?
+		resolveAnnotations(scope);
 	}
 }
