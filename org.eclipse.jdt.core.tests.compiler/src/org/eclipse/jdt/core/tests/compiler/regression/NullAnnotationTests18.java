@@ -880,4 +880,34 @@ public class NullAnnotationTests18 extends AbstractNullAnnotationTest {
 				"----------\n";
 		runner.runNegativeTest();
 	}
+
+	public void testGH1399() {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+				"C.java",
+				"""
+				@interface Ann { Class<? extends A> value(); }
+				class A {}
+				@Ann(C.B.class) // <- ERROR: Type mismatch: cannot convert from Class<C.B> to Class<? extends A>
+				class C<T extends Number> {
+				    class B extends A {}
+				}
+				"""};
+		runner.runConformTest();
+	}
+
+	public void testGH1399_2() {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+				"C.java",
+				"""
+				@interface Ann { Class<? extends A> value(); }
+				class A {}
+				@Ann(C.B.class)
+				class C<T extends java.util.List<Number>> {
+				    class B extends A {}
+				}
+				"""};
+		runner.runConformTest();
+	}
 }

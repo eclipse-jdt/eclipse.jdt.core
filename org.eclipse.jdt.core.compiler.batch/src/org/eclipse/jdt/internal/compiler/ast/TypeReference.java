@@ -565,20 +565,13 @@ protected TypeBinding internalResolveType(Scope scope, int location) {
 			&& scope.compilerOptions().getSeverity(CompilerOptions.RawTypeReference) != ProblemSeverities.Ignore) {
 		scope.problemReporter().rawTypeReference(this, type);
 	}
-	boolean readyForAnnotations = true;
-	ReferenceBinding receiverType = scope.enclosingReceiverType();
-	if (receiverType instanceof SourceTypeBinding && (receiverType.tagBits & TagBits.EndHierarchyCheck) == 0) {
-		readyForAnnotations = false;
-	}
 	if (hasError) {
-		if (readyForAnnotations)
-			resolveAnnotations(scope, 0); // don't apply null defaults to buggy type
+		resolveAnnotations(scope, 0); // don't apply null defaults to buggy type
 		return type;
 	} else {
 		// store the computed type only if no error, otherwise keep the problem type instead
 		this.resolvedType = type;
-		if (readyForAnnotations)
-			resolveAnnotations(scope, location);
+		resolveAnnotations(scope, location);
 		return this.resolvedType; // pick up value that may have been changed in resolveAnnotations(..)
 	}
 }
@@ -715,6 +708,8 @@ protected TypeBinding updateParameterizedTypeWithAnnotations(Scope scope, TypeBi
 }
 
 protected void resolveAnnotations(Scope scope, int location) {
+	if (!hasCompletedHierarchyCheckWithMembers(scope.enclosingReceiverType()))
+		return;
 	Annotation[][] annotationsOnDimensions = getAnnotationsOnDimensions();
 	if (this.annotations != null || annotationsOnDimensions != null) {
 		BlockScope resolutionScope = Scope.typeAnnotationsResolutionScope(scope);
@@ -769,6 +764,23 @@ protected void resolveAnnotations(Scope scope, int location) {
 		}
 	}
 }
+
+protected static boolean hasCompletedHierarchyCheckWithMembers(TypeBinding type) {
+ 	if (type != null && (type.original() instanceof SourceTypeBinding stb)) {
+		if ((stb.tagBits & TagBits.EndHierarchyCheck) == 0) {
+			return false;
+		}
+		ReferenceBinding[] memberTypes = stb.memberTypes;
+		if (memberTypes != null) {
+			for (ReferenceBinding member : memberTypes) {
+				if (!hasCompletedHierarchyCheckWithMembers(member))
+					return false;
+			}
+		}
+	}
+ 	return true;
+}
+
 public Annotation[] getTopAnnotations() {
 	if (this.annotations != null)
 		return this.annotations[getAnnotatableLevels()-1];

@@ -1886,20 +1886,29 @@ public boolean isSecondary() {
 	return (this.bits & ASTNode.IsSecondaryType) != 0;
 }
 public void updateSupertypesWithAnnotations(Map<ReferenceBinding,ReferenceBinding> outerUpdates) {
-	if (this.binding == null || this.binding.isHierarchyInconsistent())
+	if (this.binding == null)
 		return;
 	this.binding.getAnnotationTagBits();
 	if (this.binding instanceof MemberTypeBinding) {
 		((MemberTypeBinding) this.binding).updateDeprecationFromEnclosing();
 	}
 	Map<ReferenceBinding,ReferenceBinding> updates = new HashMap<>();
-	if (this.superclass != null) {
-		this.binding.superclass = updateWithAnnotations(this.superclass, outerUpdates, updates);
+	if (this.typeParameters != null) {
+		for (TypeParameter typeParameter : this.typeParameters) {
+			typeParameter.updateWithAnnotations(this.scope); // TODO: need to integrate with outerUpdates/updates?
+		}
 	}
-	if (this.superInterfaces != null && this.binding.superInterfaces != null && this.superInterfaces.length == this.binding.superInterfaces.length) {
+	if (this.superclass != null) {
+		this.binding.superclass = updateWithAnnotations(this.superclass, this.binding.superclass, outerUpdates, updates);
+	}
+	if (this.superInterfaces != null) {
+		ReferenceBinding[] superIfcBindings = this.binding.superInterfaces;
+		boolean areBindingsConsistent = superIfcBindings != null && superIfcBindings.length == this.superInterfaces.length;
 		for (int i = 0; i < this.superInterfaces.length; i++) {
-			// correspondence between arrays this.binding.superInterfaces and this.superInterfaces is ensured by !this.binding.isHierarchyInconsistent()
-			this.binding.superInterfaces[i] = updateWithAnnotations(this.superInterfaces[i], outerUpdates, updates);
+			ReferenceBinding previous = areBindingsConsistent ? superIfcBindings[i] : null;
+			ReferenceBinding updated = updateWithAnnotations(this.superInterfaces[i], previous, outerUpdates, updates);
+			if (areBindingsConsistent)
+				superIfcBindings[i] = updated;
 		}
 	}
 	if (this.memberTypes != null) {
@@ -1909,10 +1918,9 @@ public void updateSupertypesWithAnnotations(Map<ReferenceBinding,ReferenceBindin
 	}
 }
 
-protected ReferenceBinding updateWithAnnotations(TypeReference typeRef, Map<ReferenceBinding, ReferenceBinding> outerUpdates,
-		Map<ReferenceBinding, ReferenceBinding> updates)
+protected ReferenceBinding updateWithAnnotations(TypeReference typeRef, ReferenceBinding previousType,
+		Map<ReferenceBinding, ReferenceBinding> outerUpdates, Map<ReferenceBinding, ReferenceBinding> updates)
 {
-	ReferenceBinding previousType = (ReferenceBinding) typeRef.resolvedType;
 	typeRef.updateWithAnnotations(this.scope, 0);
 	ReferenceBinding updatedType = (ReferenceBinding) typeRef.resolvedType;
 	if (updatedType instanceof ParameterizedTypeBinding) {
@@ -1921,8 +1929,13 @@ protected ReferenceBinding updateWithAnnotations(TypeReference typeRef, Map<Refe
 			updatedType = this.scope.environment().createParameterizedType(ptb.genericType(), ptb.typeArguments(), outerUpdates.get(ptb.enclosingType()));
 		}
 	}
-	if (previousType != updatedType) { //$IDENTITY-COMPARISON$
-		updates.put(previousType, updatedType);
+	if (updatedType == null || !updatedType.isValidBinding())
+		return previousType;
+	if (previousType != null) {
+		if (previousType.id == TypeIds.T_JavaLangObject && ((this.binding.tagBits & TagBits.HierarchyHasProblems) != 0))
+			return previousType; // keep this cycle breaker
+		if (previousType != updatedType) //$IDENTITY-COMPARISON$
+			updates.put(previousType, updatedType);
 	}
 	return updatedType;
 }
