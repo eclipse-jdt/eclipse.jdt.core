@@ -1516,7 +1516,213 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 			}
 		}
 
+		// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/968
+		// JavaElementHyperlinkDetector: Parser runs into NegativeArraySizeException in some cases
+		public void testGH968() throws CoreException {
+			try {
+				IJavaProject project = createJavaProject("p", new String[] {"src"}, new String[] {"JCL17_LIB"}, "bin", "17");
+				project.open(null);
+				createFile("/p/src/TestEcl.java",
+						"import java.lang.StackWalker.Option;\n" +
+						"\n" +
+						"public class TestEcl {\n" +
+						"\n" +
+						"	@FunctionalInterface\n" +
+						"	public interface Callable<V> {\n" +
+						"	    /**\n" +
+						"	     * Computes a result, or throws an exception if unable to do so.\n" +
+						"	     *\n" +
+						"	     * @return computed result\n" +
+						"	     * @throws Exception if unable to compute a result\n" +
+						"	     */\n" +
+						"	    V call() throws Exception;\n" +
+						"	}\n" +
+						"	\n" +
+						"	@FunctionalInterface\n" +
+						"	public interface Function<T, R> {\n" +
+						"\n" +
+						"	    /**\n" +
+						"	     * Applies this function to the given argument.\n" +
+						"	     *\n" +
+						"	     * @param t the function argument\n" +
+						"	     * @return the function result\n" +
+						"	     */\n" +
+						"	    R apply(T t);\n" +
+						"	}\n" +
+						"	\n" +
+						"	public static final Callable<Void> test = new Callable<>() {\n" +
+						"		@Override\n" +
+						"		public Void call() throws Exception {\n" +
+						"			Option opt = Option.RETAIN_CLASS_REFERENCE;\n" +
+						"			\n" +
+						"			boolean a = switch (/*here*/opt) {\n" +
+						"				case RETAIN_CLASS_REFERENCE -> true;\n" +
+						"				// Enabling this line breaks eclipse\n" +
+						"				// CTRL+SHIFT+G Will throw exception Code resolve error 'java.lang.NegativeArraySizeException: -1'\n" +
+						"				case SHOW_HIDDEN_FRAMES -> true; \n" +
+						"				default -> throw new IllegalArgumentException(\"Unexpected value\");\n" +
+						"			};\n" +
+						"	\n" +
+						"			boolean b = switch (opt) {\n" +
+						"				case RETAIN_CLASS_REFERENCE -> true;\n" +
+						"				default -> throw new IllegalArgumentException(\"Unexpected value\");\n" +
+						"			};\n" +
+						"			return null;\n" +
+						"		}\n" +
+						"	};\n" +
+						"	\n" +
+						"	public static final Function<Object, Object> test2 = new Function<>() {\n" +
+						"		@Override\n" +
+						"		public Object apply(Object t) {\n" +
+						"			return null;\n" +
+						"		}\n" +
+						"	};\n" +
+						"}\n");
+				project.close();
+				project.open(null);
+				waitUntilIndexesReady();
+				SearchPattern pattern = SearchPattern.createPattern("Callable", IJavaSearchConstants.TYPE, REFERENCES, SearchPattern.R_EXACT_MATCH | SearchPattern.R_ERASURE_MATCH);
+				IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaProject[]
+						{project});
+				search(pattern, scope, this.resultCollector);
+				assertSearchResults(
+						"src/TestEcl.java TestEcl.test:<anonymous>#1 [Callable] EXACT_MATCH\n" +
+						"src/TestEcl.java TestEcl.test [Callable] EXACT_MATCH",
+						this.resultCollector);
+			}
+			finally {
+				deleteProject("p");
+			}
+		}
 
+		public void testGH968_2() throws CoreException {
+			try {
+				this.workingCopies = new ICompilationUnit[1];
+				this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/OptionActions.java",
+						"public class OptionActions {\n" +
+						"\n" +
+						"	public enum TestEnum {\n" +
+						"		X\n" +
+						"	}\n" +
+						"	\n" +
+						"	@FunctionalInterface\n" +
+						"	public interface Callable<V> {\n" +
+						"	    /**\n" +
+						"	     * Computes a result, or throws an exception if unable to do so.\n" +
+						"	     *\n" +
+						"	     * @return computed result\n" +
+						"	     * @throws Exception if unable to compute a result\n" +
+						"	     */\n" +
+						"	    V call() throws Exception;\n" +
+						"	}\n" +
+						"	public final record TestDraft<T >() {}\n" +
+						"	public final record TestDraft2<T, U >() {}\n" +
+						"	\n" +
+						"	public static final /*here*/Callable<Void> test = new Callable<>() {\n" +
+						"		@Override\n" +
+						"		public Void call() throws Exception {\n" +
+						"			TestEnum p = TestEnum.X;\n" +
+						"			\n" +
+						"			Object v = switch (p) {\n" +
+						"				case X -> null;\n" +
+						"			};\n" +
+						"	\n" +
+						"			/*here*/TestDraft<Integer> draft = new TestDraft(); // This line is fine\n" +
+						"			TestDraft2<Integer, Integer> draft2 = new TestDraft2(); \n" +
+						"			return null;\n" +
+						"		}\n" +
+						"	};\n" +
+						"}\n");
+
+				String str = this.workingCopies[0].getSource();
+				String selection = "/*here*/Callable";
+				int start = str.indexOf(selection);
+				int length = selection.length();
+				IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+				assertElementsEqual(
+					"Unexpected elements",
+					"Callable [in OptionActions [in [Working copy] OptionActions.java [in <default> [in src [in JavaSearchBugs]]]]]",
+					elements
+				);
+			}
+			finally {
+				deleteProject("p");
+			}
+		}
+		// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/968
+		// JavaElementHyperlinkDetector: Parser runs into NegativeArraySizeException in some cases
+		public void testGH968_3() throws CoreException {
+			this.workingCopies = new ICompilationUnit[1];
+			this.workingCopies[0] = getWorkingCopy("/JavaSearchBugs/src/TestEcl.java",
+					"import java.lang.StackWalker.Option;\n" +
+					"\n" +
+					"public class TestEcl {\n" +
+					"\n" +
+					"	@FunctionalInterface\n" +
+					"	public interface Callable {\n" +
+					"	    /**\n" +
+					"	     * Computes a result, or throws an exception if unable to do so.\n" +
+					"	     *\n" +
+					"	     * @return computed result\n" +
+					"	     * @throws Exception if unable to compute a result\n" +
+					"	     */\n" +
+					"	    void call() throws Exception;\n" +
+					"	}\n" +
+					"	\n" +
+					"	@FunctionalInterface\n" +
+					"	public interface Function<T, R> {\n" +
+					"\n" +
+					"	    /**\n" +
+					"	     * Applies this function to the given argument.\n" +
+					"	     *\n" +
+					"	     * @param t the function argument\n" +
+					"	     * @return the function result\n" +
+					"	     */\n" +
+					"	    R apply(T t);\n" +
+					"	}\n" +
+					"	\n" +
+					"	public static final Callable test = new Callable() {\n" +
+					"		@Override\n" +
+					"		public Void call() throws Exception {\n" +
+					"			Option opt = Option.RETAIN_CLASS_REFERENCE;\n" +
+					"			\n" +
+					"			boolean a = switch (/*here*/opt) {\n" +
+					"				case RETAIN_CLASS_REFERENCE -> true;\n" +
+					"				// Enabling this line breaks eclipse\n" +
+					"				// CTRL+SHIFT+G Will throw exception Code resolve error 'java.lang.NegativeArraySizeException: -1'\n" +
+					"				case SHOW_HIDDEN_FRAMES -> true; \n" +
+					"				default -> throw new IllegalArgumentException(\"Unexpected value\");\n" +
+					"			};\n" +
+					"	\n" +
+					"			boolean b = switch (opt) {\n" +
+					"				case RETAIN_CLASS_REFERENCE -> true;\n" +
+					"				default -> throw new IllegalArgumentException(\"Unexpected value\");\n" +
+					"			};\n" +
+					"			return;\n" +
+					"		}\n" +
+					"	};\n" +
+					"	\n" +
+					"	public static final Function<Object, Object> test2 = new Function<>() {\n" +
+					"		@Override\n" +
+					"		public Object apply(Object t) {\n" +
+					"			return null;\n" +
+					"		}\n" +
+					"	};\n" +
+					"}\n");
+
+			String str = this.workingCopies[0].getSource();
+			String selection =  "/*here*/opt";
+			int start = str.indexOf(selection);
+			int length = selection.length();
+
+			IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
+			assertTrue(elements.length ==1);
+			assertTrue(elements[0] instanceof LocalVariable);
+			search(elements[0], REFERENCES, EXACT_RULE);
+			assertSearchResults(
+					"src/TestEcl.java Void TestEcl.test:<anonymous>#1.call() [opt] EXACT_MATCH\n" +
+					"src/TestEcl.java Void TestEcl.test:<anonymous>#1.call() [opt] EXACT_MATCH");
+		}
 }
 
 
