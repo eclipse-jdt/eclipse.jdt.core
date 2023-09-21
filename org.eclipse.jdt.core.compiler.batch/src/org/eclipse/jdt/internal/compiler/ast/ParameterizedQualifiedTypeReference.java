@@ -543,7 +543,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 	public void updateWithAnnotations(Scope scope, int location) {
 		int lastToken = this.tokens.length - 1;
 		TypeBinding updatedLeaf;
-		if (this.typesPerToken[lastToken] != null) {
+		if (this.typesPerToken != null && this.typesPerToken[lastToken] != null) {
 			for (int i = 0; i <= lastToken; i++) {
 				this.typesPerToken[i] = (ReferenceBinding) updateParameterizedTypeWithAnnotations(scope, this.typesPerToken[i], this.typeArguments[i]);
 			}
