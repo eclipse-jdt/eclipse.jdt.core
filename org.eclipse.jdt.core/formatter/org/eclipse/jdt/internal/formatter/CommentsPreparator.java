@@ -833,6 +833,11 @@ public class CommentsPreparator extends ASTVisitor {
 					handleSeparateLineTag(startPos, endPos);
 				} else if (matcher.start(4) < matcher.end(4)) {
 					handleBreakBeforeTag(startPos, endPos, isOpeningTag);
+					if (this.options.comment_javadoc_do_not_separate_block_tags) {
+						if (!isOpeningTag) {
+							handleBreakAfterTag(startPos, endPos);
+						}
+					}
 				} else if (matcher.start(5) < matcher.end(5)) {
 					handleBreakAfterTag(startPos, endPos);
 				} else if (matcher.start(6) < matcher.end(6)) {
@@ -840,6 +845,9 @@ public class CommentsPreparator extends ASTVisitor {
 				} else if (matcher.start(7) < matcher.end(7)) {
 					if (this.options.comment_javadoc_do_not_separate_block_tags) {
 						handleBreakBeforeTag(startPos, endPos, isOpeningTag);
+						if (!isOpeningTag) {
+							handleBreakAfterTag(startPos, endPos);
+						}
 					} else {
 						handleSeparateLineTag(startPos, endPos);
 					}
@@ -972,12 +980,8 @@ public class CommentsPreparator extends ASTVisitor {
 			return;
 		}
 
-		if (this.options.comment_javadoc_do_not_separate_block_tags) {
-			handleBreakBeforeTag(startPos, endPos, isOpeningTag);
-		} else {
-			// add empty lines before opening and after closing token
-			handleSeparateLineTag(startPos, endPos);
-		}
+		// add empty lines before opening and after closing token
+		handleSeparateLineTag(startPos, endPos);
 
 		int startIndex = tokenStartingAt(startPos);
 		int endTagIndex = tokenEndingAt(endPos);
@@ -1045,6 +1049,11 @@ public class CommentsPreparator extends ASTVisitor {
 			this.formatCodeOpenTagEndIndex = -1;
 			this.lastFormatCodeClosingTagIndex = this.ctm.findIndex(startPos, -1, true);
 		}
+//		if (!isOpeningTag) {
+//			if (this.options.comment_javadoc_do_not_separate_block_tags) {
+//				handleBreakAfterTag(startIndex, endTagIndex);
+//			}
+//		}
 	}
 
 	private void handleSnippet(TagElement node, int startIndex, int endIndex) {
