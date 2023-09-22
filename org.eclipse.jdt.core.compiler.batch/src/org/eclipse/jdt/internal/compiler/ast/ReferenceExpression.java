@@ -1310,9 +1310,13 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 		TypeBinding[] sParams = sSam.parameters;
 		TypeBinding[] tParams = tSam.parameters;
 		// Both must have the same number of parameters if we got this far
-		for (int i = 0; i < sParams.length; i++) {
-			if (TypeBinding.notEquals(sParams[i], tParams[i]))
-				return false;
+		if(sParams.length == tParams.length) {
+			for (int i = 0; i < sParams.length; i++) {
+				if (TypeBinding.notEquals(sParams[i], tParams[i]))
+					return false;
+			}
+		} else {
+			return false;
 		}
 		if (r2.id == TypeIds.T_void)
 			return true;
