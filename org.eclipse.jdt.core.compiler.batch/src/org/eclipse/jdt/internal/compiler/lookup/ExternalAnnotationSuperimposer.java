@@ -66,6 +66,12 @@ class ExternalAnnotationSuperimposer extends TypeBindingVisitor {
 					// nothing
 				}
 		}
+		if (typeBinding.memberTypes != null) {
+			for (ReferenceBinding memberType : typeBinding.memberTypes) {
+				if (memberType instanceof SourceTypeBinding)
+					apply((SourceTypeBinding) memberType, externalAnnotationPath);
+			}
+		}
 	}
 
 	static void annotateType(SourceTypeBinding binding, ExternalAnnotationProvider provider, LookupEnvironment environment) {
@@ -78,7 +84,7 @@ class ExternalAnnotationSuperimposer extends TypeBindingVisitor {
 					typeParameters[i] = visitor.superimpose(typeParameters[i], TypeVariableBinding.class);
 			}
 		}
-		binding.externalAnnotationProvider = provider; // for superimposing method signatures
+		binding.externalAnnotationProvider = provider; // for superimposing method & field signatures
 	}
 
 	public static void annotateComponentBinding(RecordComponentBinding componentBinding, ExternalAnnotationProvider provider, LookupEnvironment environment) {
