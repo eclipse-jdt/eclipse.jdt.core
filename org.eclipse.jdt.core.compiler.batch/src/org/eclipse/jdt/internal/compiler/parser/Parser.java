@@ -12527,7 +12527,6 @@ public void goForHeaders(){
 		this.firstToken = TokenNameUNSIGNED_RIGHT_SHIFT;
 	}
 	this.scanner.recordLineSeparator = true; // recovery goals must record line separators
-	this.scanner.scanContext = null;
 }
 public void goForImportDeclaration(){
 	//tells the scanner to go for import declaration parsing
@@ -13264,11 +13263,33 @@ protected int fetchNextToken() throws InvalidInputException {
 			token = TokenNameBeginCaseExpr;
 		}
 	} else if (token == TokenNameIdentifier) {
-		char [] id = this.scanner.peekCurrentIdentifierSource();
-		if (id.length == 4 && id[0] == 'w' && id[1] == 'h' && id[2] == 'e' && id[3] == 'n') {
-			if (automatonWillShift(TokenNameRestrictedIdentifierWhen, this.unstackedAct)) {
+		String text = new String(this.scanner.peekCurrentIdentifierSource());
+		int altToken = token;
+		if (isParsingModuleDeclaration()) {
+			altToken = switch(text) {
+				case "open"       -> TokenNameopen; //$NON-NLS-1$
+				case "module"     -> TokenNamemodule; //$NON-NLS-1$
+				case "requires"   -> TokenNamerequires; //$NON-NLS-1$
+				case "transitive" -> TokenNametransitive; //$NON-NLS-1$
+				case "exports"    -> TokenNameexports; //$NON-NLS-1$
+				case "to"         -> TokenNameto; //$NON-NLS-1$
+				case "opens"      -> TokenNameopens; //$NON-NLS-1$
+				case "uses"       -> TokenNameuses; //$NON-NLS-1$
+				case "provides"   -> TokenNameprovides; //$NON-NLS-1$
+				case "with"       -> TokenNamewith; //$NON-NLS-1$
+				default           -> token;
+			};
+		}
+		if (altToken == TokenNameIdentifier) {
+			altToken = switch (text) {
+				case "when" -> TokenNameRestrictedIdentifierWhen; //$NON-NLS-1$
+				default -> token;
+			};
+		}
+		if (altToken != TokenNameIdentifier) {
+			if (automatonWillShift(altToken, this.unstackedAct)) {
 				boolean b = automatonWillShift(token, this.unstackedAct);
-				token = TokenNameRestrictedIdentifierWhen;
+				token = altToken;
 			}
 		}
 	}

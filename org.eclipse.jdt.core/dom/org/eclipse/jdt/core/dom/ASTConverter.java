@@ -17,6 +17,7 @@
 package org.eclipse.jdt.core.dom;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -3872,20 +3873,26 @@ class ASTConverter {
 	}
 
 	private void setModuleModifiers(org.eclipse.jdt.internal.compiler.ast.RequiresStatement req,	RequiresDirective stmt) {
-		boolean fakeInModule = this.scanner.fakeInModule;
-		this.scanner.fakeInModule = true;
 		this.scanner.resetTo(req.declarationSourceStart, req.sourceEnd);
 		try {
 			int token;
 			ModuleModifier modifier;
+			boolean transitive = req.isTransitive();
 			while ((token = this.scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				switch(token) {
 					case TerminalTokens.TokenNamestatic:
 						modifier = createModuleModifier(ModuleModifier.ModuleModifierKeyword.STATIC_KEYWORD);
 						break;
-					case TerminalTokens.TokenNametransitive:
-						modifier = createModuleModifier(ModuleModifier.ModuleModifierKeyword.TRANSITIVE_KEYWORD);
-						break;
+					case TerminalTokens.TokenNameIdentifier:
+						if (transitive) {
+							char [] id = this.scanner.getCurrentIdentifierSource();
+							if (id.length == 10 && Arrays.equals(id, "transitive".toCharArray())) { //$NON-NLS-1$
+								modifier = createModuleModifier(ModuleModifier.ModuleModifierKeyword.TRANSITIVE_KEYWORD);
+								transitive = false;
+								break;
+							}
+						}
+						//$FALL-THROUGH$
 					default :
 						continue;
 				}
@@ -3895,8 +3902,6 @@ class ASTConverter {
 			}
 		} catch(InvalidInputException e) {
 			// ignore
-		} finally {
-			this.scanner.fakeInModule = fakeInModule;
 		}
 	}
 
