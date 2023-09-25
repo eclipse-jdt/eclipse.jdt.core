@@ -1204,7 +1204,7 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 	// find all references on a class in switch pattern - without select
 	public void testBug573943_030() throws Exception {
 		try {
-			IJavaProject project = createJavaProject("first", new String[] {"src"}, new String[] {"JCL17_LIB"}, "bin", "17");
+			IJavaProject project = createJavaProject("first", new String[] {"src"}, new String[] {"JCL17_LIB"}, "bin", "21");
 			project.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);
 			project.open(null);
 			createFolder("/first/src/p1");
@@ -1216,15 +1216,15 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 			createFile("/first/src/p1/X.java",
 					"package p1;\n" +
 							"public class X {\n" +
-							" public int field_j17; "+
+							" public int field_j17;\n"+
 							"public static void main(String[] args) {\n" +
 							"foo(Integer.valueOf(5));\n" +
 							"foo(new Object());\n" +
 							"}\n" +
 							"private static void foo(Object o) {\n" +
 							" switch (o) {\n" +
-							"	case BClass i && field_j17>0  -> System.out.println(\"Integer:\" + i);\n" +
-							"	default       -> System.out.println(\"Object\" + o);\n" +
+							"	case BClass i when field_j17 > 0  -> System.out.println(\"Integer:\" + i);\n" +
+							"	default -> System.out.println(\"Object\" + o);\n" +
 							" 	}\n" +
 							"}\n" +
 							"}\n"
@@ -1413,7 +1413,7 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 						"}\n" +
 						"private static int  foo(Object o) {\n" +
 						" return switch (o) {\n" +
-						"	case String strGP && (o instanceof String c3 && c3.length() > 0) -> 0;\n" +
+						"	case String strGP when (o instanceof String c3 when c3.length() > 0) -> 0;\n" +
 						"	default       -> 0;\n" +
 						" 	};\n" +
 						" 	}\n" +
