@@ -1733,12 +1733,14 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"record Rectangle(int x, int y) {\n" +
 				"}"
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	case Rectangle(int x, int y) r -> 1;\n" +
-				"	                             ^\n" +
-				"Syntax error on token \"r\", delete this token\n" +
-				"----------\n");
+				"""
+				----------
+				1. ERROR in X.java (at line 4)
+					case Rectangle(int x, int y) r -> 1;
+					                             ^
+				Syntax error on token "r", -> expected
+				----------
+				""");
 	}
 	public void testEnhancedForWithRecordPattern_001() {
 		runConformTest(new String[] {

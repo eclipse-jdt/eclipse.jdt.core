@@ -16,7 +16,6 @@
 package org.eclipse.jdt.internal.compiler.parser;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -458,7 +457,11 @@ public void checkTaskTag(int commentStart, int commentEnd) throws InvalidInputEx
 	}
 }
 
-public char[] getCurrentIdentifierSource() {
+public char[] getCurrentIdentifierSource() { // has side effects in overrides
+	return peekCurrentIdentifierSource();
+}
+
+public char[] peekCurrentIdentifierSource() { // side effect free
 	//return the token REAL source (aka unicodes are precomputed)
 	if (this.withoutUnicodePtr != 0) {
 		//0 is used as a fast test flag so the real first char is in position 1
@@ -3916,10 +3919,10 @@ private int internalScanIdentifierOrKeyword(int index, int length, char[] data) 
 						&& (data[++index] == 't')
 						&& (data[++index] == 'h'))
 						return TokenNamewith;
-					else if ((data[++index] == 'h')
-							&& (data[++index] == 'e')
-							&& (data[++index] == 'n'))
-							return disambiguatedRestrictedIdentifierWhen(TokenNameRestrictedIdentifierWhen);
+//					else if ((data[++index] == 'h')
+//							&& (data[++index] == 'e')
+//							&& (data[++index] == 'n'))
+//							return disambiguatedRestrictedIdentifierWhen(TokenNameRestrictedIdentifierWhen);
 					else
 						return TokenNameIdentifier;
 				case 5 :
@@ -4747,13 +4750,6 @@ private static final class VanguardScanner extends Scanner {
 			updateScanContext(token);
 		} else if (mayBeAtCasePattern(token)) {
 			token = disambiguateCasePattern(token, this);
-		} else if (token == TokenNameARROW  &&
-				mayBeAtCaseLabelExpr() &&  this.caseStartPosition < this.startPosition) {
-				// this.caseStartPosition > this.startPositionpossible on recovery - bother only about correct ones.
-				// add fake token of TokenNameCOLON, call vanguard on this modified source
-				// TODO: Inefficient method due to redoing of the same source, investigate alternate
-				// Can we do a dup of parsing/check the transition of the state?
-				token = disambiguateArrowWithCaseExpr(this, token);
 		} else	if (token == TokenNameAT && atTypeAnnotation()) {
 			if (((VanguardParser) this.activeParser).currentGoal == Goal.LambdaParameterListGoal) {
 				token = disambiguatedToken(token, this);
@@ -4778,12 +4774,8 @@ private static class Goal {
 	static int ReferenceExpressionRule = 0;
 	static int VarargTypeAnnotationsRule  = 0;
 	static int BlockStatementoptRule = 0;
-	static int YieldStatementRule = 0;
-	static int SwitchLabelCaseLhsRule = 0;
-	static int GuardRule = 0;
 	static int[] RestrictedIdentifierSealedRule;
 	static int[] RestrictedIdentifierPermitsRule;
-	static int[] RestrictedIdentifierWhenRule;
 	static int[] PatternRules;
 	static int RecordPatternRule = 0;
 
@@ -4792,20 +4784,16 @@ private static class Goal {
 	static Goal VarargTypeAnnotationGoal;
 	static Goal ReferenceExpressionGoal;
 	static Goal BlockStatementoptGoal;
-	static Goal YieldStatementGoal;
-	static Goal SwitchLabelCaseLhsGoal;
+
 	static Goal RestrictedIdentifierSealedGoal;
 	static Goal RestrictedIdentifierPermitsGoal;
-	static Goal RestrictedIdentifierWhenGoal;
 	static Goal PatternGoal;
 	static Goal RecordPatternGoal;
 
-	static int[] EMPTY_FOLLOW_SET = new int[0];
 	static int[] RestrictedIdentifierSealedFollow =  { TokenNameclass, TokenNameinterface,
 			TokenNameenum, TokenNameRestrictedIdentifierrecord };// Note: enum/record allowed as error flagging rules.
 	static int[] RestrictedIdentifierPermitsFollow =  { TokenNameLBRACE };
 	static int[] PatternCaseLabelFollow = {TokenNameCOLON, TokenNameARROW, TokenNameCOMMA, TokenNameBeginCaseExpr, TokenNameRestrictedIdentifierWhen};
-	static int[] GuardFollow = EMPTY_FOLLOW_SET;
 	static int[] RecordPatternFollow = {TokenNameCOLON}; // disambiguate only for enh for
 
 	static {
@@ -4830,34 +4818,18 @@ private static class Goal {
 			if ("BlockStatementopt".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
 				BlockStatementoptRule = i;
 			else
-			if ("YieldStatement".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
-				YieldStatementRule = i;
-			else
 			if ("Modifiersopt".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
 				ridSealed.add(i);
 			else
 			if ("PermittedSubclasses".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
 				ridPermits.add(i);
 			else
-			if ("SwitchLabelCaseLhs".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
-				SwitchLabelCaseLhsRule = i;
-			else
-			if ("TypePattern".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
-				patternStates.add(i);
-			else
 			if ("Pattern".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
 				patternStates.add(i);
 			else
-			if ("ParenthesizedPattern".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
-				patternStates.add(i);
-			else
 			if ("RecordPattern".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) {//$NON-NLS-1$
-				patternStates.add(i);
 				RecordPatternRule = i;
-			} else
-			if ("Expression".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
-				GuardRule = i;
-
+			}
 		}
 		RestrictedIdentifierSealedRule = ridSealed.stream().mapToInt(Integer :: intValue).toArray(); // overkill but future-proof
 		RestrictedIdentifierPermitsRule = ridPermits.stream().mapToInt(Integer :: intValue).toArray();
@@ -4868,11 +4840,8 @@ private static class Goal {
 		VarargTypeAnnotationGoal = new Goal(TokenNameAT, new int[] { TokenNameELLIPSIS }, VarargTypeAnnotationsRule);
 		ReferenceExpressionGoal =  new Goal(TokenNameLESS, new int[] { TokenNameCOLON_COLON }, ReferenceExpressionRule);
 		BlockStatementoptGoal =    new Goal(TokenNameLBRACE, new int [0], BlockStatementoptRule);
-		YieldStatementGoal =       new Goal(TokenNameARROW, new int [0], YieldStatementRule);
-		SwitchLabelCaseLhsGoal =   new Goal(TokenNameARROW, new int [0], SwitchLabelCaseLhsRule);
 		RestrictedIdentifierSealedGoal = new Goal(TokenNameRestrictedIdentifiersealed, RestrictedIdentifierSealedFollow, RestrictedIdentifierSealedRule);
 		RestrictedIdentifierPermitsGoal = new Goal(TokenNameRestrictedIdentifierpermits, RestrictedIdentifierPermitsFollow, RestrictedIdentifierPermitsRule);
-		RestrictedIdentifierWhenGoal = new Goal(TokenNameRestrictedIdentifierWhen, GuardFollow, GuardRule);
 		PatternGoal = new Goal(TokenNameBeginCaseElement, PatternCaseLabelFollow, PatternRules);
 		RecordPatternGoal =  new Goal(TokenNameQUESTION, RecordPatternFollow, RecordPatternRule);
 	}
@@ -4963,7 +4932,7 @@ private static class VanguardParser extends Parser {
 				} else if (act > ERROR_ACTION) { /* shift-reduce */
 					this.unstackedAct = act;
 					try {
-					this.currentToken = this.scanner.getNextToken();
+					this.currentToken = fetchNextToken();
 					} finally {
 						this.unstackedAct = ERROR_ACTION;
 					}
@@ -4972,7 +4941,7 @@ private static class VanguardParser extends Parser {
 				    if (act < ACCEPT_ACTION) { /* shift */
 				    	this.unstackedAct = act;
 						try {
-				    	this.currentToken = this.scanner.getNextToken();
+				    	this.currentToken = fetchNextToken();
 						} finally {
 							this.unstackedAct = ERROR_ACTION;
 						}
@@ -4985,6 +4954,13 @@ private static class VanguardParser extends Parser {
 				do { /* reduce */
 					if (goal.hasBeenReached(act, this.currentToken))
 						return SUCCESS;
+					if (this.currentToken == TokenNameIdentifier) {
+						char [] id = this.scanner.getCurrentIdentifierSource();
+						if (id.length == 4 && id[0] == 'w' && id[1] == 'h' && id[2] == 'e' && id[3] == 'n') {
+						    if (goal.hasBeenReached(act, TokenNameRestrictedIdentifierWhen))
+						    		return SUCCESS;
+						}
+					}
 					this.stateStackTop -= (Parser.rhs[act] - 1);
 					act = Parser.ntAction(this.stack[this.stateStackTop], Parser.lhs[act]);
 				} while (act <= NUM_RULES);
@@ -5080,25 +5056,6 @@ protected final boolean mayBeAtCasePattern(int token) {
 	return (!isInModuleDeclaration() && JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(this.complianceLevel, this.previewEnabled))
 			&& (token == TokenNamecase || this.multiCaseLabelComma);
 }
-protected boolean mayBeAtGuard(int token) {
-	if (isInModuleDeclaration())
-		return false;
-	if (!JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(this.complianceLevel, this.previewEnabled))
-		return false;
-	/*
-	 * A simple elimination optimization for some common possible cases. According to the JLS 19 including
-	 * patterns-switch and record-patterns Section 14.30.1, a guard may only be preceded by either right parentheses or
-	 * an identifier. However, we may still encounter comments, whitespace or the not-a-token token.
-	 */
-	switch (this.lookBack[1]) {
-		case TokenNameRPAREN:
-		case TokenNameIdentifier:
-		case TokenNameNotAToken: // TODO is this useful? Some tests start scanning at "when", but this makes no sense as a Pattern is required by the JLS
-			return true;
-	}
-	return false;
-}
-
 protected final boolean maybeAtLambdaOrCast() { // Could the '(' we saw just now herald a lambda parameter list or a cast expression ? (the possible locations for both are identical.)
 
 	if (isInModuleDeclaration())
@@ -5112,6 +5069,7 @@ protected final boolean maybeAtLambdaOrCast() { // Could the '(' we saw just now
 		case TokenNameswitch:
 		case TokenNamewhile:
 		case TokenNamefor:
+		case TokenNamecase:
 		case TokenNamesynchronized:
 		case TokenNametry:
 			return false; // not a viable prefix for cast or lambda.
@@ -5400,16 +5358,6 @@ int disambiguatedRestrictedIdentifiersealed(int restrictedIdentifierToken) {
 	return disambiguatesRestrictedIdentifierWithLookAhead(this::mayBeAtASealedRestricedIdentifier,
 			restrictedIdentifierToken, Goal.RestrictedIdentifierSealedGoal);
 }
-int disambiguatedRestrictedIdentifierWhen(int restrictedIdentifierToken) {
-	// and here's the kludge
-	if (restrictedIdentifierToken != TokenNameRestrictedIdentifierWhen)
-		return restrictedIdentifierToken;
-	if (!JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(this.complianceLevel, this.previewEnabled))
-		return TokenNameIdentifier;
-
-	return disambiguatesRestrictedIdentifierWithLookAhead(this::mayBeAtGuard,
-			restrictedIdentifierToken, Goal.RestrictedIdentifierWhenGoal);
-}
 int disambiguatedRestrictedIdentifierYield(int restrictedIdentifierToken) {
 	// and here's the kludge
 	if (restrictedIdentifierToken != TokenNameRestrictedIdentifierYield)
@@ -5468,28 +5416,10 @@ int disambiguatesRestrictedIdentifierWithLookAhead(Predicate<Integer> checkPreco
 	return TokenNameIdentifier;
 }
 
-private VanguardScanner getNewVanguardScanner(char[] src) {
-	VanguardScanner vs = new VanguardScanner(this.sourceLevel, this.complianceLevel, this.previewEnabled);
-	vs.setSource(src);
-	vs.resetTo(0, src.length, isInModuleDeclaration(), this.scanContext);
-	return vs;
-}
-private VanguardParser getNewVanguardParser(char[] src) {
-	VanguardScanner vs = getNewVanguardScanner(src);
-	VanguardParser vp = new VanguardParser(vs);
-	vs.setActiveParser(vp);
-	return vp;
-}
 int disambiguatedToken(int token, Scanner scanner) {
 	final VanguardParser parser = getVanguardParser();
 	parser.scanner.caseStartPosition = this.caseStartPosition;
-	if (token == TokenNameARROW  &&  mayBeAtCaseLabelExpr() &&  scanner.caseStartPosition < scanner.startPosition) {
-		// this.caseStartPosition > this.startPositionpossible on recovery - bother only about correct ones.
-		// add fake token of TokenNameCOLON, call vanguard on this modified source
-		// TODO: Inefficient method due to redoing of the same source, investigate alternate
-		// Can we do a dup of parsing/check the transition of the state?
-		return disambiguateArrowWithCaseExpr(scanner, token);
-	} else	if (token == TokenNameLPAREN  && maybeAtLambdaOrCast()) {
+	if (token == TokenNameLPAREN  && maybeAtLambdaOrCast()) {
 		if (parser.parse(Goal.LambdaParameterListGoal) == VanguardParser.SUCCESS) {
 			scanner.nextToken = TokenNameLPAREN;
 			return TokenNameBeginLambda;
@@ -5521,17 +5451,6 @@ int disambiguatedToken(int token, Scanner scanner) {
 	}
 	return token;
 }
-
-protected int disambiguateArrowWithCaseExpr(Scanner scanner, int retToken) {
-	char[] nSource = CharOperation.append(Arrays.copyOfRange(scanner.source, scanner.caseStartPosition, scanner.startPosition), ':');
-	VanguardParser vp = getNewVanguardParser(nSource);
-	if (vp.parse(Goal.SwitchLabelCaseLhsGoal) == VanguardParser.SUCCESS) {
-		scanner.nextToken = TokenNameARROW;
-		retToken = TokenNameBeginCaseExpr;
-//		scanner.caseStartPosition = scanner.caseStartStack.isEmpty() ? -1 : scanner.caseStartStack.pop();
-	}
-	return retToken;
-}
 /*
  * Assumption: mayBeAtCasePattern(token) is true before calling this method.
  */
@@ -5549,17 +5468,6 @@ int disambiguateCasePattern(int token, Scanner scanner) {
 		}
 	}
 	return token;
-}
-
-protected boolean mayBeAtCaseLabelExpr() {
-	if (isInModuleDeclaration() || this.caseStartPosition <= 0)
-		return false;
-	if (this.lookBack[1] == TokenNamedefault) {
-		return JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(this.complianceLevel, this.previewEnabled) ?
-				(this.lookBack[0] == TerminalTokens.TokenNamecase || this.lookBack[0] == TerminalTokens.TokenNameCOMMA)
-				: false;
-	}
-	return true;
 }
 
 protected boolean isAtAssistIdentifier() {

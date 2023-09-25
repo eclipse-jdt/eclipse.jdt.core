@@ -4038,7 +4038,7 @@ protected void consumeSwitchLabeledBlock() {
 }
 @Override
 protected int fetchNextToken() throws InvalidInputException {
-	int token = this.scanner.getNextToken();
+	int token = super.fetchNextToken();
 	if (token != TerminalTokens.TokenNameEOF && this.scanner.currentPosition > this.cursorLocation) {
 		if (!this.diet || this.dietInt != 0) { // do this also when parsing field initializers:
 			if (this.currentToken == TerminalTokens.TokenNameIdentifier
