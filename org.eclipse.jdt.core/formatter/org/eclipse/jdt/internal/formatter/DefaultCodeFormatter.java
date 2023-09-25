@@ -314,7 +314,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		kind = kind & K_MASK;
 		if (kind != K_UNKNOWN) {
 			ASTNode astNode = createParser(kind).createAST(null);
-			if (kind == K_COMPILATION_UNIT || kind == K_MODULE_INFO)
+			if (kind == K_MODULE_INFO)
 				return astNode;
 			return hasErrors(astNode) ? null : astNode;
 		}
