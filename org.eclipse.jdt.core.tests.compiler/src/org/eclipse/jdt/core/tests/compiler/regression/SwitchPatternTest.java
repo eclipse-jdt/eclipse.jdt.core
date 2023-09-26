@@ -2886,12 +2886,20 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"	}\n"+
 				"}",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 4)\n" +
-			"	case (String s) -> 0;\n" +
-			"	                   ^\n" +
-			"Syntax error, insert \":\" to complete SwitchLabel\n" +
-			"----------\n");
+			"""
+			----------
+			1. ERROR in X.java (at line 4)
+				case (String s) -> 0;
+				^^^^
+			Syntax error on token "case", ( expected after this token
+			----------
+			2. ERROR in X.java (at line 4)
+				case (String s) -> 0;
+				                   ^
+			Syntax error, insert ":" to complete SwitchLabel
+			----------
+			"""
+				);
 	}
 	public void testBug575249_04() {
 		runConformTest(
@@ -4490,22 +4498,29 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					+ "	}\n"
 					+ "}",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	case (Long l) when l.toString().equals(\"0\") -> {\n" +
-				"	      ^^^^\n" +
-				"Syntax error on token(s), misplaced construct(s)\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 4)\n" +
-				"	case (Long l) when l.toString().equals(\"0\") -> {\n" +
-				"	              ^^^^\n" +
-				"Syntax error on token \"RestrictedIdentifierWhen\", delete this token\n" +
-				"----------\n" +
-				"3. ERROR in X.java (at line 4)\n" +
-				"	case (Long l) when l.toString().equals(\"0\") -> {\n" +
-				"	                                          ^\n" +
-				"Syntax error on token \")\", -> expected after this token\n" +
-				"----------\n");
+				"""
+				----------
+				1. ERROR in X.java (at line 4)
+					case (Long l) when l.toString().equals("0") -> {
+					           ^
+				Syntax error on token "l", delete this token
+				----------
+				2. ERROR in X.java (at line 4)
+					case (Long l) when l.toString().equals("0") -> {
+					              ^^^^
+				Syntax error, insert ":: IdentifierOrNew" to complete ReferenceExpression
+				----------
+				3. ERROR in X.java (at line 4)
+					case (Long l) when l.toString().equals("0") -> {
+					              ^^^^
+				Syntax error, insert ":" to complete SwitchLabel
+				----------
+				4. ERROR in X.java (at line 4)
+					case (Long l) when l.toString().equals("0") -> {
+					                                            ^^
+				Syntax error on token "->", ; expected
+				----------
+				""");
 	}
 	public void testBug578553_2() {
 		runNegativeTest(
@@ -4530,22 +4545,34 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					+ "	}\n"
 					+ "}",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	case (Long l) when l.toString().equals(\"0\") -> {\n" +
-				"	      ^^^^\n" +
-				"Syntax error on token(s), misplaced construct(s)\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 4)\n" +
-				"	case (Long l) when l.toString().equals(\"0\") -> {\n" +
-				"	              ^^^^\n" +
-				"Syntax error on token \"RestrictedIdentifierWhen\", delete this token\n" +
-				"----------\n" +
-				"3. ERROR in X.java (at line 4)\n" +
-				"	case (Long l) when l.toString().equals(\"0\") -> {\n" +
-				"	                                          ^\n" +
-				"Syntax error on token \")\", -> expected after this token\n" +
-				"----------\n");
+				"""
+				----------
+				1. ERROR in X.java (at line 4)
+					case (Long l) when l.toString().equals("0") -> {
+					           ^
+				Syntax error on token "l", delete this token
+				----------
+				2. ERROR in X.java (at line 4)
+					case (Long l) when l.toString().equals("0") -> {
+					              ^^^^
+				Syntax error, insert ":: IdentifierOrNew" to complete ReferenceExpression
+				----------
+				3. ERROR in X.java (at line 4)
+					case (Long l) when l.toString().equals("0") -> {
+					              ^^^^
+				Syntax error, insert ":" to complete SwitchLabel
+				----------
+				4. ERROR in X.java (at line 4)
+					case (Long l) when l.toString().equals("0") -> {
+					                                            ^^
+				Syntax error on token "->", ; expected
+				----------
+				5. ERROR in X.java (at line 6)
+					case Long l1 when l1.toString().equals(l1.toString()) -> {
+					             ^^^^
+				Syntax error on token "when", , expected
+				----------
+				""");
 	}
 	public void testBug578553_3() {
 		runNegativeTest(
@@ -4567,22 +4594,34 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					+ "	}\n"
 					+ "}",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	case (Long l) when l.toString().equals(\"0\") -> {\n" +
-				"	      ^^^^\n" +
-				"Syntax error on token(s), misplaced construct(s)\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 4)\n" +
-				"	case (Long l) when l.toString().equals(\"0\") -> {\n" +
-				"	              ^^^^\n" +
-				"Syntax error on token \"RestrictedIdentifierWhen\", delete this token\n" +
-				"----------\n" +
-				"3. ERROR in X.java (at line 4)\n" +
-				"	case (Long l) when l.toString().equals(\"0\") -> {\n" +
-				"	                                          ^\n" +
-				"Syntax error on token \")\", -> expected after this token\n" +
-				"----------\n");
+				"""
+				----------
+				1. ERROR in X.java (at line 4)
+					case (Long l) when l.toString().equals("0") -> {
+					           ^
+				Syntax error on token "l", delete this token
+				----------
+				2. ERROR in X.java (at line 4)
+					case (Long l) when l.toString().equals("0") -> {
+					              ^^^^
+				Syntax error, insert ":: IdentifierOrNew" to complete ReferenceExpression
+				----------
+				3. ERROR in X.java (at line 4)
+					case (Long l) when l.toString().equals("0") -> {
+					              ^^^^
+				Syntax error, insert ":" to complete SwitchLabel
+				----------
+				4. ERROR in X.java (at line 4)
+					case (Long l) when l.toString().equals("0") -> {
+					                                            ^^
+				Syntax error on token "->", ; expected
+				----------
+				5. ERROR in X.java (at line 6)
+					case Long l1 when l.toString().equals(l1.toString()) -> {
+					             ^^^^
+				Syntax error on token "when", , expected
+				----------
+				""");
 	}
 	public void testBug578553_4() {
 		runNegativeTest(

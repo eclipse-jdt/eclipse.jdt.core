@@ -18,6 +18,8 @@ import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameC
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameNotAToken;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameStringLiteral;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameTextBlock;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameIdentifier;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameRestrictedIdentifierWhen;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -167,7 +169,11 @@ public class TokenManager implements Iterable<Token> {
 			index--;
 		if (forward && get(index).originalEnd < positionInSource)
 			index++;
-		while (tokenType >= 0 && get(index).tokenType != tokenType) {
+		Token t;
+		while (tokenType >= 0 && (t = get(index)).tokenType != tokenType) {
+			if (tokenType == TokenNameRestrictedIdentifierWhen && t.tokenType == TokenNameIdentifier)
+				if (toString(t).equals("when")) //$NON-NLS-1$
+					break;
 			index += forward ? 1 : -1;
 		}
 		return index;
