@@ -52,7 +52,7 @@ public class TokenManager implements Iterable<Token> {
 	final CommentWrapExecutor commentWrapper;
 
 	private HashMap<Integer, Integer> tokenIndexToNLSAlign;
-	private List<Token[]> formatOffTagPairs = new ArrayList<>();
+	private final List<Token[]> formatOffTagPairs;
 	private int headerEndIndex = 0;
 
 	public TokenManager(List<Token> tokens, String source, DefaultCodeFormatterOptions options) {
@@ -61,6 +61,7 @@ public class TokenManager implements Iterable<Token> {
 		this.tabSize = options.tab_size;
 		this.tabChar = options.tab_char;
 		this.wrapWithSpaces = options.use_tabs_only_for_leading_indentations;
+		this.formatOffTagPairs = new ArrayList<>();
 		this.commentWrapper = new CommentWrapExecutor(this, options);
 	}
 
@@ -71,6 +72,7 @@ public class TokenManager implements Iterable<Token> {
 		this.tabChar = parent.tabChar;
 		this.wrapWithSpaces = parent.wrapWithSpaces;
 		this.commentWrapper = parent.commentWrapper;
+		this.formatOffTagPairs = new ArrayList<>();
 	}
 
 	public Token get(int index) {
