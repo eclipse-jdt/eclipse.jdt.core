@@ -2612,6 +2612,11 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens, C
 	}
 
 	@Override
+	public boolean automatonWillShift(int token) {
+		return false; // Some day we will understand the world well enough, for now say no and deal with it (sigh)
+	}
+
+	@Override
 	public boolean isParsingModuleDeclaration() {
 		//
 		return this.parser.isParsingModuleDeclaration();

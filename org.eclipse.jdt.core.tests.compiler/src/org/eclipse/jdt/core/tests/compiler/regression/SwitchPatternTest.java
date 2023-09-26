@@ -6779,4 +6779,93 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"Cannot mix pattern with other case labels\n" +
 			"----------\n");
 	}
+
+	public void testDisambiguatedRestrictedIdentifierWhenAsFirstMethodInvokation() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"
+					+ "	public static void main(String argv[]) {\n"
+					+ "		when(\"Pass\");\n"
+					+ "	}\n"
+					+ "	static void when(String arg) {\n"
+					+ "		System.out.println(arg);\n"
+					+ "	}\n"
+					+ "}"
+				},
+				"Pass");
+	}
+
+	public void testDisambiguatedRestrictedIdentifierWhenAsFirstVariableDeclaration() {
+		runConformTest(
+				new String[] {
+					"when.java",
+					"public class when {\n"
+					+ "	public static void main(String argv[]) {\n"
+					+ "		when x = new when();\n"
+					+ "		System.out.println(x);\n"
+					+ "	}\n"
+					+ "	public String toString() {\n"
+					+ "		return \"Pass\";\n"
+					+ "	}\n"
+					+ "}"
+				},
+				"Pass");
+	}
+
+	public void testDisambiguatedRestrictedIdentifierWhenAsTypeInACase() {
+		runConformTest(
+				new String[] {
+					"when.java",
+					"public class when {\n"
+					+ "	public String toString() {\n"
+					+ "		return switch((Object) this) {\n"
+					+ "			case when x -> \"Pass\";\n"
+					+ "			default -> \"Fail\";\n"
+					+ "		};\n"
+					+ "	}\n"
+					+ "	public static void main(String argv[]) {\n"
+					+ "		System.out.println(new when());\n"
+					+ "	}\n"
+					+ "}"
+				},
+				"Pass");
+	}
+
+	public void testDisambiguatedRestrictedIdentifierWhenAfterAParenthesis() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"public class X {\n"
+					+ "	public static void main(String argv[]) {\n"
+					+ "		System.out.println( (Boolean) when(true) );\n"
+					+ "	}\n"
+					+ "	static Object when(Object arg) {\n"
+					+ "		return arg;\n"
+					+ "	}\n"
+					+ "}"
+				},
+				"true");
+	}
+
+	public void testValidCodeWithVeryAmbiguousUsageOfWhen() {
+		runConformTest(
+				new String[] {
+					"when.java",
+					"class when {\n"
+					+ "  boolean when = true;\n"
+					+ "  static boolean when(when arg) {\n"
+					+ "    return switch(arg) {\n"
+					+ "      case when when when when.when && when.when(null) -> when.when;\n"
+					+ "      case null -> true;\n"
+					+ "      default -> false;\n"
+					+ "    };\n"
+					+ "  }\n"
+					+ "  public static void main(String[] args) {\n"
+					+ "    System.out.println(when(new when()));\n"
+					+ "  }\n"
+					+ "}"
+				},
+				"true");
+	}
 }

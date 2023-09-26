@@ -4780,10 +4780,8 @@ private static class Goal {
 	static int BlockStatementoptRule = 0;
 	static int YieldStatementRule = 0;
 	static int SwitchLabelCaseLhsRule = 0;
-	static int GuardRule = 0;
 	static int[] RestrictedIdentifierSealedRule;
 	static int[] RestrictedIdentifierPermitsRule;
-	static int[] RestrictedIdentifierWhenRule;
 	static int[] PatternRules;
 	static int RecordPatternRule = 0;
 
@@ -4796,16 +4794,13 @@ private static class Goal {
 	static Goal SwitchLabelCaseLhsGoal;
 	static Goal RestrictedIdentifierSealedGoal;
 	static Goal RestrictedIdentifierPermitsGoal;
-	static Goal RestrictedIdentifierWhenGoal;
 	static Goal PatternGoal;
 	static Goal RecordPatternGoal;
 
-	static int[] EMPTY_FOLLOW_SET = new int[0];
 	static int[] RestrictedIdentifierSealedFollow =  { TokenNameclass, TokenNameinterface,
 			TokenNameenum, TokenNameRestrictedIdentifierrecord };// Note: enum/record allowed as error flagging rules.
 	static int[] RestrictedIdentifierPermitsFollow =  { TokenNameLBRACE };
 	static int[] PatternCaseLabelFollow = {TokenNameCOLON, TokenNameARROW, TokenNameCOMMA, TokenNameBeginCaseExpr, TokenNameRestrictedIdentifierWhen};
-	static int[] GuardFollow = EMPTY_FOLLOW_SET;
 	static int[] RecordPatternFollow = {TokenNameCOLON}; // disambiguate only for enh for
 
 	static {
@@ -4854,10 +4849,7 @@ private static class Goal {
 			if ("RecordPattern".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) {//$NON-NLS-1$
 				patternStates.add(i);
 				RecordPatternRule = i;
-			} else
-			if ("Expression".equals(Parser.name[Parser.non_terminal_index[Parser.lhs[i]]])) //$NON-NLS-1$
-				GuardRule = i;
-
+			}
 		}
 		RestrictedIdentifierSealedRule = ridSealed.stream().mapToInt(Integer :: intValue).toArray(); // overkill but future-proof
 		RestrictedIdentifierPermitsRule = ridPermits.stream().mapToInt(Integer :: intValue).toArray();
@@ -4872,7 +4864,6 @@ private static class Goal {
 		SwitchLabelCaseLhsGoal =   new Goal(TokenNameARROW, new int [0], SwitchLabelCaseLhsRule);
 		RestrictedIdentifierSealedGoal = new Goal(TokenNameRestrictedIdentifiersealed, RestrictedIdentifierSealedFollow, RestrictedIdentifierSealedRule);
 		RestrictedIdentifierPermitsGoal = new Goal(TokenNameRestrictedIdentifierpermits, RestrictedIdentifierPermitsFollow, RestrictedIdentifierPermitsRule);
-		RestrictedIdentifierWhenGoal = new Goal(TokenNameRestrictedIdentifierWhen, GuardFollow, GuardRule);
 		PatternGoal = new Goal(TokenNameBeginCaseElement, PatternCaseLabelFollow, PatternRules);
 		RecordPatternGoal =  new Goal(TokenNameQUESTION, RecordPatternFollow, RecordPatternRule);
 	}
@@ -4985,6 +4976,13 @@ private static class VanguardParser extends Parser {
 				do { /* reduce */
 					if (goal.hasBeenReached(act, this.currentToken))
 						return SUCCESS;
+					if (this.currentToken == TokenNameIdentifier) {
+						char [] id = this.scanner.getCurrentIdentifierSource();
+						if (id.length == 4 && id[0] == 'w' && id[1] == 'h' && id[2] == 'e' && id[3] == 'n') {
+						    if (goal.hasBeenReached(act, TokenNameRestrictedIdentifierWhen))
+						    		return SUCCESS;
+						}
+					}
 					this.stateStackTop -= (Parser.rhs[act] - 1);
 					act = Parser.ntAction(this.stack[this.stateStackTop], Parser.lhs[act]);
 				} while (act <= NUM_RULES);
@@ -5080,25 +5078,6 @@ protected final boolean mayBeAtCasePattern(int token) {
 	return (!isInModuleDeclaration() && JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(this.complianceLevel, this.previewEnabled))
 			&& (token == TokenNamecase || this.multiCaseLabelComma);
 }
-protected boolean mayBeAtGuard(int token) {
-	if (isInModuleDeclaration())
-		return false;
-	if (!JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(this.complianceLevel, this.previewEnabled))
-		return false;
-	/*
-	 * A simple elimination optimization for some common possible cases. According to the JLS 19 including
-	 * patterns-switch and record-patterns Section 14.30.1, a guard may only be preceded by either right parentheses or
-	 * an identifier. However, we may still encounter comments, whitespace or the not-a-token token.
-	 */
-	switch (this.lookBack[1]) {
-		case TokenNameRPAREN:
-		case TokenNameIdentifier:
-		case TokenNameNotAToken: // TODO is this useful? Some tests start scanning at "when", but this makes no sense as a Pattern is required by the JLS
-			return true;
-	}
-	return false;
-}
-
 protected final boolean maybeAtLambdaOrCast() { // Could the '(' we saw just now herald a lambda parameter list or a cast expression ? (the possible locations for both are identical.)
 
 	if (isInModuleDeclaration())
@@ -5112,6 +5091,7 @@ protected final boolean maybeAtLambdaOrCast() { // Could the '(' we saw just now
 		case TokenNameswitch:
 		case TokenNamewhile:
 		case TokenNamefor:
+		case TokenNamecase:
 		case TokenNamesynchronized:
 		case TokenNametry:
 			return false; // not a viable prefix for cast or lambda.
@@ -5407,8 +5387,8 @@ int disambiguatedRestrictedIdentifierWhen(int restrictedIdentifierToken) {
 	if (!JavaFeature.PATTERN_MATCHING_IN_SWITCH.isSupported(this.complianceLevel, this.previewEnabled))
 		return TokenNameIdentifier;
 
-	return disambiguatesRestrictedIdentifierWithLookAhead(this::mayBeAtGuard,
-			restrictedIdentifierToken, Goal.RestrictedIdentifierWhenGoal);
+	return this.activeParser == null || !this.activeParser.automatonWillShift(TokenNameRestrictedIdentifierWhen) ?
+					TokenNameIdentifier : TokenNameRestrictedIdentifierWhen;
 }
 int disambiguatedRestrictedIdentifierYield(int restrictedIdentifierToken) {
 	// and here's the kludge
