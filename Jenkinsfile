@@ -29,7 +29,7 @@ pipeline {
 					# via configuration/argLine property in pom.xml
 					# export MAVEN_OPTS="-Xmx2G"
 					
-					mvn clean install -f org.eclipse.jdt.core.compiler.batch -DlocalEcjVersion=99.99 -Dmaven.repo.local=$WORKSPACE/.m2/repository
+					mvn clean install -f org.eclipse.jdt.core.compiler.batch -DlocalEcjVersion=99.99 -Dmaven.repo.local=$WORKSPACE/.m2/repository -DcompilerBaselineMode=disable -DcompilerBaselineReplace=none
 					
 					mvn -U clean verify --batch-mode --fail-at-end -Dmaven.repo.local=$WORKSPACE/.m2/repository \
 					-Ptest-on-javase-21 -Pbree-libs -Papi-check \
