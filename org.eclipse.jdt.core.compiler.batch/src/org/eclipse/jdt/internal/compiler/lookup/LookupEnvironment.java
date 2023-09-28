@@ -535,6 +535,7 @@ public void completeTypeBindings() {
 		return;
 	}
 
+	this.stepCompleted = CompleteTypeBindingsSteps.NONE;
 	for (CompleteTypeBindingsSteps step : CompleteTypeBindingsSteps.values()) {
 		CompleteTypeBindingsSteps next = step.next();
 		for (int i = this.lastCompletedUnitIndex + 1; i <= this.lastUnitIndex; i++) {
