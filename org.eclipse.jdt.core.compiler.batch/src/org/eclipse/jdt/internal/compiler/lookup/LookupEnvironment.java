@@ -162,6 +162,9 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 			return this; // no-change to signal "at end"
 		}
 
+		/** values without NONE */
+		static final CompleteTypeBindingsSteps[] realValues = Arrays.copyOfRange(values(), 1, values().length-1);
+
 		void perform(CompilationUnitScope scope) {
 			switch (this) {
 				case CHECK_AND_SET_IMPORTS -> scope.checkAndSetImports();
@@ -571,7 +574,7 @@ public void completeTypeBindings(CompilationUnitDeclaration parsedUnit) {
 	} else {
 		if (parsedUnit.scope == null) return; // parsing errors were too severe
 
-		for (CompleteTypeBindingsSteps step : CompleteTypeBindingsSteps.values()) {
+		for (CompleteTypeBindingsSteps step : CompleteTypeBindingsSteps.realValues) {
 			if (this.stepCompleted.compareTo(step) >= 0)
 				step.perform((this.unitBeingCompleted = parsedUnit).scope);
 		}
@@ -596,7 +599,7 @@ public void completeTypeBindings(CompilationUnitDeclaration parsedUnit, boolean 
 	if (parsedUnit.scope == null) return; // parsing errors were too severe
 	LookupEnvironment rootEnv = this.root;
 	CompilationUnitDeclaration previousUnitBeingCompleted = rootEnv.unitBeingCompleted;
-	for (CompleteTypeBindingsSteps step : CompleteTypeBindingsSteps.values()) {
+	for (CompleteTypeBindingsSteps step : CompleteTypeBindingsSteps.realValues) {
 		if (step != CompleteTypeBindingsSteps.BUILD_FIELDS_AND_METHODS || buildFieldsAndMethods)
 			step.perform((rootEnv.unitBeingCompleted = parsedUnit).scope);
 	}
@@ -614,7 +617,7 @@ public void completeTypeBindings(CompilationUnitDeclaration parsedUnit, boolean 
 */
 public void completeTypeBindings(CompilationUnitDeclaration[] parsedUnits, boolean[] buildFieldsAndMethods, int unitCount) {
 	LookupEnvironment rootEnv = this.root;
-	for (CompleteTypeBindingsSteps step : CompleteTypeBindingsSteps.values()) {
+	for (CompleteTypeBindingsSteps step : CompleteTypeBindingsSteps.realValues) {
 		for (int i = 0; i < unitCount; i++) {
 			CompilationUnitDeclaration parsedUnit = parsedUnits[i];
 			if (parsedUnit.scope != null)
