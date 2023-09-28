@@ -1957,6 +1957,8 @@ public void deprecatedType(TypeBinding type, ASTNode location) {
 public void deprecatedType(TypeBinding type, ASTNode location, int index) {
 	if (location == null) return; // 1G828DN - no type ref for synthetic arguments
 	final TypeBinding leafType = type.leafComponentType();
+	if (!leafType.isReadyForAnnotations() && scheduleProblemForContext(() -> deprecatedType(type, location, index)))
+		return;
 	int sourceStart = -1;
 	if (location instanceof QualifiedTypeReference) { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=300031
 		QualifiedTypeReference ref = (QualifiedTypeReference) location;
@@ -12452,5 +12454,22 @@ public void falseLiteralInGuard(Expression exp) {
 			NoArgument,
 			exp.sourceStart,
 			exp.sourceEnd);
+}
+public boolean scheduleProblemForContext(Runnable problemComputation) {
+	if (this.referenceContext != null) {
+		CompilationResult result = this.referenceContext.compilationResult();
+		if (result != null) {
+			result.scheduleProblem(() -> {
+				ReferenceContext save = this.referenceContext;
+				try {
+					problemComputation.run();
+				} finally {
+					this.referenceContext = save;
+				}
+			});
+			return true;
+		}
+	}
+	return false;
 }
 }

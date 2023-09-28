@@ -86,6 +86,7 @@ public class CompilationResult {
 	private int numberOfErrors;
 	private boolean hasMandatoryErrors;
 	public List<AnnotationBinding[]> annotations = new ArrayList<>(1);
+	private List<Runnable> scheduledProblems;
 
 	private static final int[] EMPTY_LINE_ENDS = Util.EMPTY_INT_ARRAY;
 	private static final Comparator PROBLEM_COMPARATOR = new Comparator() {
@@ -475,5 +476,19 @@ public String toString(){
 		buffer.append("No PROBLEM\n"); //$NON-NLS-1$
 	}
 	return buffer.toString();
+}
+
+public void scheduleProblem(Runnable task) {
+	if (this.scheduledProblems == null)
+		this.scheduledProblems = new ArrayList<>();
+	this.scheduledProblems.add(task);
+}
+
+public void materializeProblems() {
+	if (this.scheduledProblems != null) {
+		for (Runnable task : this.scheduledProblems) {
+			task.run();
+		}
+	}
 }
 }

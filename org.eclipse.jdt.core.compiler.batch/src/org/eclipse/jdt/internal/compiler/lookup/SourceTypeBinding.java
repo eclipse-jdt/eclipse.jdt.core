@@ -1649,6 +1649,17 @@ public long getAnnotationTagBits() {
 	}
 	return this.tagBits;
 }
+@Override
+public boolean isReadyForAnnotations() {
+	if ((this.tagBits & TagBits.AnnotationResolved) != 0)
+		return true;
+	TypeDeclaration type;
+	if (this.scope != null && (type = this.scope.referenceType()) != null) {
+		if (type.annotations == null)
+			return true; // nothing here to resolve
+	}
+	return false;
+}
 public MethodBinding[] getDefaultAbstractMethods() {
 	if (!isPrototype())
 		return this.prototype.getDefaultAbstractMethods();
