@@ -52,7 +52,7 @@ public class AptCompilationParticipant extends CompilationParticipant
 	 * and hence cause APT rounding.
 	 * The set is an order preserving. The order is determined by their first invocation.
 	 */
-	private Set<AnnotationProcessorFactory> _previousRoundsBatchFactories = new LinkedHashSet<>();
+	private final Set<AnnotationProcessorFactory> _previousRoundsBatchFactories = new LinkedHashSet<>();
 	private int _buildRound = 0;
 	private boolean _isBatch = false;
 	private static final AptCompilationParticipant INSTANCE = new AptCompilationParticipant();

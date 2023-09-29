@@ -24,7 +24,7 @@ import org.eclipse.jdt.core.util.IInnerClassesAttributeEntry;
 public class InnerClassesAttribute extends ClassFileAttribute implements IInnerClassesAttribute {
 	private static final IInnerClassesAttributeEntry[] NO_ENTRIES = new IInnerClassesAttributeEntry[0];
 
-	private int numberOfClasses;
+	private final int numberOfClasses;
 	private IInnerClassesAttributeEntry[] entries;
 	/**
 	 * Constructor for InnerClassesAttribute.

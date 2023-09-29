@@ -204,8 +204,8 @@ public class SearchTests extends ModifyingResourceTests implements IJavaSearchCo
 	}
 	static class WaitingJob implements IJob {
 		private static final int MAX_WAIT = 30000; // wait 30s max
-		private Semaphore startingSem = new Semaphore();
-		private Semaphore runningSem = new Semaphore();
+		private final Semaphore startingSem = new Semaphore();
+		private final Semaphore runningSem = new Semaphore();
 		public boolean belongsTo(String jobFamily) {
 			return false;
 		}

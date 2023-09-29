@@ -264,7 +264,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	protected static String RUN_ID;
 
 	// Format to store/display numbers
-	private NumberFormat percentFormat = NumberFormat.getPercentInstance();
+	private final NumberFormat percentFormat = NumberFormat.getPercentInstance();
 	private final NumberFormat d2Format = NumberFormat.getNumberInstance();
 	{
 		this.percentFormat.setMaximumFractionDigits(1);

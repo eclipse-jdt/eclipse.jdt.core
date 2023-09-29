@@ -350,8 +350,8 @@ public class JRTUtil {
 
 class JrtFileSystemWithOlderRelease extends JrtFileSystem {
 
-	private List<Path> releaseRoots;
-	private CtSym ctSym;
+	private final List<Path> releaseRoots;
+	private final CtSym ctSym;
 
 	/**
 	 * The jrt file system is based on the location of the JRE home whose libraries

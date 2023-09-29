@@ -119,7 +119,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 	boolean voidCompatible = true;
 	boolean valueCompatible = false;
 	boolean returnsValue;
-	private boolean requiresGenericSignature;
+	private final boolean requiresGenericSignature;
 	boolean returnsVoid;
 	public LambdaExpression original = this;
 	private boolean committed = false;

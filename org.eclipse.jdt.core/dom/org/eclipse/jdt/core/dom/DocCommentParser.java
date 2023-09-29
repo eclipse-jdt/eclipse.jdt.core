@@ -35,7 +35,7 @@ import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 class DocCommentParser extends AbstractCommentParser {
 
 	private Javadoc docComment;
-	private AST ast;
+	private final AST ast;
 
 	DocCommentParser(AST ast, Scanner scanner, boolean check) {
 		super(null);

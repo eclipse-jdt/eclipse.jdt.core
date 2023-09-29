@@ -47,7 +47,7 @@ public class MirroredTypeException extends RuntimeException {
     private static final long serialVersionUID = 1;
 
     private transient TypeMirror type;		// cannot be serialized
-    private String name;			// type's qualified "name"
+    private final String name;			// type's qualified "name"
 
     /**
      * Constructs a new MirroredTypeException for the specified type.

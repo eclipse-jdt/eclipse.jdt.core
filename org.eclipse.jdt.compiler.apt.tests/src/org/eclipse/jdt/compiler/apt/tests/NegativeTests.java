@@ -45,7 +45,7 @@ public class NegativeTests extends TestCase {
 		public static final int WARNING = 4;
 
 		public int errorCounter;
-		private PrintWriter writer;
+		private final PrintWriter writer;
 
 		public TestDiagnosticListener(PrintWriter writer) {
 			this.writer = writer;

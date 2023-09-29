@@ -18,8 +18,8 @@ import org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration;
 
 public class CompletionOnKeywordModuleDeclaration extends ModuleDeclaration implements CompletionOnKeyword {
 
-	private char[] token;
-	private char[][] possibleKeywords;
+	private final char[] token;
+	private final char[][] possibleKeywords;
 
 	public CompletionOnKeywordModuleDeclaration(char[] token, long pos, char[][] possibleKeywords) {
 		super(null, new char[][]{token}, new long[]{pos});

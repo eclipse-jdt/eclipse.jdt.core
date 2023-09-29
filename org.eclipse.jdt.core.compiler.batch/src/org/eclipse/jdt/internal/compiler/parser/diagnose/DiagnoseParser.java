@@ -28,7 +28,7 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class DiagnoseParser implements ParserBasicInformation, TerminalTokens, ConflictedParser {
 	private static final boolean DEBUG = false;
-	private boolean DEBUG_PARSECHECK = false;
+	private final boolean DEBUG_PARSECHECK = false;
 
 	private static final int STACK_INCREMENT = 256;
 
@@ -49,9 +49,9 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens, C
 	private static final int MAX_DISTANCE = 30;
 	private static final int MIN_DISTANCE = 3;
 
-	private CompilerOptions options;
+	private final CompilerOptions options;
 
-	private LexStream lexStream;
+	private final LexStream lexStream;
 	private int errorToken;
 	private int errorTokenStart;
 
@@ -85,9 +85,9 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens, C
 	int statePoolTop;
 	StateInfo[] statePool;
 
-	private Parser parser;
+	private final Parser parser;
 
-	private RecoveryScanner recoveryScanner;
+	private final RecoveryScanner recoveryScanner;
 
 	private boolean reportProblem;
 	private int deferredErrorStart;

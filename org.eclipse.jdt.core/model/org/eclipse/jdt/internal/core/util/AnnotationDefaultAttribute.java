@@ -27,7 +27,7 @@ public class AnnotationDefaultAttribute extends ClassFileAttribute
 		implements
 			IAnnotationDefaultAttribute {
 
-	private IAnnotationComponentValue memberValue;
+	private final IAnnotationComponentValue memberValue;
 
 	/**
 	 * Constructor for AnnotationDefaultAttribute.

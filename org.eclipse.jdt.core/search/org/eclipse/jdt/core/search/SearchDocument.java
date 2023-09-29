@@ -29,8 +29,8 @@ public abstract class SearchDocument {
 	private Index index;
 	private String containerRelativePath;
 	private SourceElementParser parser;
-	private String documentPath;
-	private SearchParticipant participant;
+	private final String documentPath;
+	private final SearchParticipant participant;
 	private boolean shouldIndexResolvedDocument = false;
 
 	/**

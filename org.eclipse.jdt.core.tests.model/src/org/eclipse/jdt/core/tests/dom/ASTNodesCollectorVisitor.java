@@ -23,7 +23,7 @@ import org.eclipse.jdt.core.dom.ASTVisitor;
 @SuppressWarnings({"rawtypes", "unchecked"})
 class ASTNodesCollectorVisitor extends ASTVisitor {
 
-	private Set detachedAstNodes;
+	private final Set detachedAstNodes;
 
 	/**
 	 *

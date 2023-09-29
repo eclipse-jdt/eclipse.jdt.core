@@ -28,7 +28,7 @@ public class StackMapTableAttribute
 	private static final IStackMapFrame[] NO_FRAMES = new IStackMapFrame[0];
 	private static final byte[] NO_ENTRIES = new byte[0];
 
-	private int numberOfEntries;
+	private final int numberOfEntries;
 	private IStackMapFrame[] frames;
 
 	private byte[] bytes;

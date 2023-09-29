@@ -35,7 +35,7 @@ import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore.CopySourceInf
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public final class NodeInfoStore {
-	private AST ast;
+	private final AST ast;
 
 	private Map placeholderNodes;
 	private Set collapsedNodes;

@@ -24,11 +24,11 @@ import org.eclipse.jdt.internal.core.util.Util;
 
 public class LambdaMethod extends SourceMethod {
 
-	private int sourceStart; // cached for ease of use in hashcode/equals.
-	private String [] parameterNameStrings;
-	private String returnTypeString;
+	private final int sourceStart; // cached for ease of use in hashcode/equals.
+	private final String [] parameterNameStrings;
+	private final String returnTypeString;
 	SourceMethodElementInfo elementInfo;
-	private String key;
+	private final String key;
 
 	LambdaMethod(JavaElement parent, String name, String key, int sourceStart, String [] parameterTypes, String [] parameterNames, String returnType, SourceMethodElementInfo elementInfo) {
 		super(parent, name, parameterTypes);

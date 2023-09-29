@@ -1009,10 +1009,10 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		 * Indicates whether this property is compulsory, in that every node
 		 * must have a value at all times.
 		 */
-		private boolean compulsory;
+		private final boolean compulsory;
 
-		private Class nodeType;
-		private String propertyName;
+		private final Class nodeType;
+		private final String propertyName;
 
 		/**
 		 * Creates a new property with the given name.

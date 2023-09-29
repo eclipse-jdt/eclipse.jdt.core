@@ -54,7 +54,7 @@ class MemberDeclarationVisitor extends ASTVisitor {
 	IJavaElement[][] allOtherElements;
 	int ptr = -1;
 	int[] ptrs;
-	private boolean typeInHierarchy;
+	private final boolean typeInHierarchy;
 
 public MemberDeclarationVisitor(IJavaElement element, ASTNode[] nodes, MatchingNodeSet set, MatchLocator locator, boolean typeInHierarchy) {
 	this.enclosingElement = element;

@@ -24,8 +24,8 @@ import org.eclipse.jdt.internal.compiler.ast.ImportReference;
  * be any module keyword completion and not necessarily related to exports statement.
  */
 public class CompletionOnKeywordModuleInfo extends ExportsStatement implements CompletionOnKeyword {
-	private char[] token;
-	private char[][] possibleKeywords;
+	private final char[] token;
+	private final char[][] possibleKeywords;
 
 	public CompletionOnKeywordModuleInfo(char[] token, long pos, char[][] possibleKeywords) {
 		super(new ImportReference(new char[][] {token}, new long[] {pos}, false, 0), null); // dummy

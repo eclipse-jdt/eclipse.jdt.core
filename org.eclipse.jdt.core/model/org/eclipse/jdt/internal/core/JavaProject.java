@@ -3746,7 +3746,7 @@ public class JavaProject
 	/** internal structure for detected build path cycles. */
 	static class CycleInfo {
 
-		private List<IPath> pathToCycle;
+		private final List<IPath> pathToCycle;
 		public final List<IPath> cycle;
 
 		public CycleInfo(List<IPath> pathToCycle, List<IPath> cycle) {

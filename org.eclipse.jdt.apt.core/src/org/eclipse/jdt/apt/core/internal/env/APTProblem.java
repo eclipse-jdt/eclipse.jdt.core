@@ -26,7 +26,7 @@ class APTProblem extends CategorizedProblem
 	private int _startingOffset;
 	private int _endingOffset;
 	private int _line;
-	private IFile _resource;
+	private final IFile _resource;
 	private final String _message;
 	private final String _markerType;
 

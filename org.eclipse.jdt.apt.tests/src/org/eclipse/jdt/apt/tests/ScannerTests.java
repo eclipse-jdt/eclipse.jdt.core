@@ -123,6 +123,6 @@ public class ScannerTests extends APTTestBase {
 		assertFalse("Expected no annotation instance", ScannerUtil.hasAnnotationInstance(code.toCharArray()));
 	}
 
-	private String P = File.separator;
+	private final String P = File.separator;
 
 }

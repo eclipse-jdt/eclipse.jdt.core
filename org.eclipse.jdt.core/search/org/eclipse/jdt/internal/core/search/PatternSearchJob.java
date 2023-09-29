@@ -336,7 +336,7 @@ static class IndexMatch {
 
 static class ParallelSearchMonitor extends NullProgressMonitor {
 	private volatile boolean canceled;
-	private IProgressMonitor original;
+	private final IProgressMonitor original;
 
 	public ParallelSearchMonitor(IProgressMonitor original) {
 		this.original = original;

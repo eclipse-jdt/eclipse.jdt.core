@@ -39,7 +39,7 @@ public class SearchParticipantTests extends ModifyingResourceTests implements IJ
 
 		class WrapperDocument  extends SearchDocument {
 
-			private SearchDocument document;
+			private final SearchDocument document;
 
 			WrapperDocument(SearchDocument document, SearchParticipant participant) {
 				super(document.getPath().replaceAll(".test", ".java"), participant);
@@ -59,7 +59,7 @@ public class SearchParticipantTests extends ModifyingResourceTests implements IJ
 			}
 		}
 
-		private SearchParticipant defaultSearchParticipant = SearchEngine.getDefaultSearchParticipant();
+		private final SearchParticipant defaultSearchParticipant = SearchEngine.getDefaultSearchParticipant();
 
 		public SearchDocument getDocument(String documentPath) {
 			return new TestSearchDocument(documentPath, this);
@@ -91,7 +91,7 @@ public class SearchParticipantTests extends ModifyingResourceTests implements IJ
 	public class TestSearchDocument extends SearchDocument {
 
 		public boolean indexingRequested;
-		private String fileSystemPath;
+		private final String fileSystemPath;
 
 		protected TestSearchDocument(String documentPath, SearchParticipant participant) {
 			super(documentPath, participant);

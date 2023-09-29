@@ -26,7 +26,7 @@ import org.eclipse.jdt.core.util.IModulePackagesAttribute;
  */
 public class ModulePackagesAttribute extends ClassFileAttribute implements IModulePackagesAttribute {
 
-	private int packagesCount;
+	private final int packagesCount;
 	private int[] packageIndices;
 	private char[][] packageNames;
 

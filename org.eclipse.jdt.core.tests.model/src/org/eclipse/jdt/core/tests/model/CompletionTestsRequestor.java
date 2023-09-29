@@ -26,11 +26,11 @@ import org.eclipse.jdt.core.Signature;
  */
 //TODO all instances of CompletionTestsRequestor should be replaced by an instance of CompletionTestsRequestor2
 public class CompletionTestsRequestor extends CompletionRequestor {
-	private List<String> elements = new ArrayList<>();
-	private List<String> completions = new ArrayList<>();
-	private List<String> relevances = new ArrayList<>();
-	private List<String> completionStart = new ArrayList<>();
-	private List<String> completionEnd = new ArrayList<>();
+	private final List<String> elements = new ArrayList<>();
+	private final List<String> completions = new ArrayList<>();
+	private final List<String> relevances = new ArrayList<>();
+	private final List<String> completionStart = new ArrayList<>();
+	private final List<String> completionEnd = new ArrayList<>();
 
 	public boolean debug = false;
 

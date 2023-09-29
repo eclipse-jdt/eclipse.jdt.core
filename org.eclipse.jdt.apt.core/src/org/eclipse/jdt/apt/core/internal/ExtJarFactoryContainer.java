@@ -21,8 +21,8 @@ import java.io.File;
  * outside the workspace, referenced by absolute path.
  */
 public class ExtJarFactoryContainer extends JarFactoryContainer {
-	private String _id;
-	private File _jarFile;
+	private final String _id;
+	private final File _jarFile;
 
 	/**
 	 * @param jar must not be null

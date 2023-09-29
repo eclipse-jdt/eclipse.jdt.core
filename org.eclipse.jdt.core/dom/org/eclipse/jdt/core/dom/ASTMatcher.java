@@ -55,7 +55,7 @@ public class ASTMatcher {
 	 * Indicates whether doc tags should be matched.
 	 * @since 3.0
 	 */
-	private boolean matchDocTags;
+	private final boolean matchDocTags;
 
 	/**
 	 * Creates a new AST matcher instance.

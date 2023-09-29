@@ -213,7 +213,7 @@ public class Scanner implements TerminalTokens {
 	//Java 15 - first _ keyword appears
 	Map<String, Integer> _Keywords = null;
 
-	private CharDeduplication deduplication = CharDeduplication.getThreadLocalInstance();
+	private final CharDeduplication deduplication = CharDeduplication.getThreadLocalInstance();
 
 public Scanner() {
 	this(false /*comment*/, false /*whitespace*/, false /*nls*/, ClassFileConstants.JDK1_3 /*sourceLevel*/, null/*taskTag*/, null/*taskPriorities*/, true /*taskCaseSensitive*/);

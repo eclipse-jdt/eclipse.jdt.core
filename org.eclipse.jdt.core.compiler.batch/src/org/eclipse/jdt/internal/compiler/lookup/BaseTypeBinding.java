@@ -125,7 +125,7 @@ public class BaseTypeBinding extends TypeBinding {
 
 	public char[] simpleName;
 
-	private char[] constantPoolName;
+	private final char[] constantPoolName;
 
 	BaseTypeBinding(int id, char[] name, char[] constantPoolName) {
 		this.tagBits |= TagBits.IsBaseType;

@@ -22,7 +22,7 @@ import org.eclipse.jdt.core.IOpenable;
 public class VerboseElementCache<K extends IJavaElement & IOpenable> extends ElementCache<K> {
 
 	private K beingAdded;
-	private String name;
+	private final String name;
 
 	public VerboseElementCache(int size, String name) {
 		super(size);

@@ -31,7 +31,7 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class AnnotatableTypeSystem extends TypeSystem {
 
-	private boolean isAnnotationBasedNullAnalysisEnabled;
+	private final boolean isAnnotationBasedNullAnalysisEnabled;
 
 	public AnnotatableTypeSystem(LookupEnvironment environment) {
 		super(environment);

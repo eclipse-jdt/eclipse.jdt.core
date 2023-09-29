@@ -28,8 +28,8 @@ import org.eclipse.jdt.core.dom.*;
 @SuppressWarnings({"rawtypes", "unchecked"})
 class BindingsCollectorVisitor extends ASTVisitor {
 
-	private HashMap hashMap;
-	private HashSet set;
+	private final HashMap hashMap;
+	private final HashSet set;
 
 	BindingsCollectorVisitor() {
 		// visit Javadoc.tags() as well

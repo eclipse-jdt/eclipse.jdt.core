@@ -109,7 +109,7 @@ public class BinaryTypeBinding extends ReferenceBinding {
 	protected ReferenceBinding[] memberTypes;
 	protected TypeVariableBinding[] typeVariables;
 	protected ModuleBinding module;
-	private BinaryTypeBinding prototype;
+	private final BinaryTypeBinding prototype;
 	public URI path;
 
 	// For the link with the principle structure

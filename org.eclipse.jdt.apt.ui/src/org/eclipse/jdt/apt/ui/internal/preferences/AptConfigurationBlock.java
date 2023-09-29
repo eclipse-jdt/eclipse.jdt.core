@@ -95,10 +95,10 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	private final IJavaProject fJProj;
 
 	private SelectionButtonDialogField fAptEnabledField;
-	private SelectionButtonDialogField fReconcileEnabledField;
-	private StringDialogField fGenSrcDirField;
-	private StringDialogField fGenTestSrcDirField;
-	private ListDialogField<ProcessorOption> fProcessorOptionsField;
+	private final SelectionButtonDialogField fReconcileEnabledField;
+	private final StringDialogField fGenSrcDirField;
+	private final StringDialogField fGenTestSrcDirField;
+	private final ListDialogField<ProcessorOption> fProcessorOptionsField;
 
 	private PixelConverter fPixelConverter;
 	private Composite fBlockControl;

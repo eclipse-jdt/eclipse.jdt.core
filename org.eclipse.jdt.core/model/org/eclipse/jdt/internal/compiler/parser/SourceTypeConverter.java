@@ -71,7 +71,7 @@ public class SourceTypeConverter extends TypeConverter {
 	public static final int LOCAL_TYPE = 0x20;
 	public static final int NONE = 0;
 
-	private int flags;
+	private final int flags;
 	private CompilationUnitDeclaration unit;
 	private Parser parser;
 	private ICompilationUnit cu;

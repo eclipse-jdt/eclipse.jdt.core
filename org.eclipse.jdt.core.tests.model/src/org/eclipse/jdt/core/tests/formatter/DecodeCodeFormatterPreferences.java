@@ -39,7 +39,7 @@ public class DecodeCodeFormatterPreferences extends DefaultHandler {
 
 	private boolean record;
 	private Map entries;
-	private String profileName;
+	private final String profileName;
 
 	public static Map decodeCodeFormatterOptions(String fileName) {
 		try {

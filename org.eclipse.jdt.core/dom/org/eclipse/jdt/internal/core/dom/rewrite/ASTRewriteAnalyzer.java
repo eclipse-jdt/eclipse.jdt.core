@@ -160,7 +160,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 
 	Map options;
 
-	private RecoveryScannerData recoveryScannerData;
+	private final RecoveryScannerData recoveryScannerData;
 
 	/**
 	 * Constructor for ASTRewriteAnalyzer.
@@ -1104,8 +1104,8 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 
 		public final static int DEFAULT_SPACING= 1;
 
-		private int initialIndent;
-		private int separatorLines;
+		private final int initialIndent;
+		private final int separatorLines;
 
 		public ParagraphListRewriter(int initialIndent, int separator) {
 			this.initialIndent= initialIndent;

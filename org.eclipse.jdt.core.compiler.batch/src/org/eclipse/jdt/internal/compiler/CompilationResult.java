@@ -67,7 +67,7 @@ public class CompilationResult {
 	public ICompilationUnit compilationUnit;
 	private Map<CategorizedProblem, ReferenceContext> problemsMap;
 	private Set firstErrors;
-	private int maxProblemPerUnit;
+	private final int maxProblemPerUnit;
 	public char[][][] qualifiedReferences;
 	public char[][] simpleNameReferences;
 	public char[][] rootReferences;

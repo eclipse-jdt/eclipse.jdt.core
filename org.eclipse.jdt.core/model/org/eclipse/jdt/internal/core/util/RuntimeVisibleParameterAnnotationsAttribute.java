@@ -26,7 +26,7 @@ public class RuntimeVisibleParameterAnnotationsAttribute
 	implements IRuntimeVisibleParameterAnnotationsAttribute {
 
 	private static final IParameterAnnotation[] NO_ENTRIES = new IParameterAnnotation[0];
-	private int parametersNumber;
+	private final int parametersNumber;
 	private IParameterAnnotation[] parameterAnnotations;
 
 	/**

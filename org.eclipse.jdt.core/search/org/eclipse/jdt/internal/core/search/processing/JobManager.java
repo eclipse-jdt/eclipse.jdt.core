@@ -37,7 +37,7 @@ public abstract class JobManager {
 	 * <br>
 	 * synchronized by JobManager.this
 	 */
-	private List<IJob> awaitingJobs = new LinkedList<>();
+	private final List<IJob> awaitingJobs = new LinkedList<>();
 
 	private volatile boolean executing;
 
@@ -67,7 +67,7 @@ public abstract class JobManager {
 	 */
 	private boolean activated;
 
-	private AtomicInteger awaitingClients = new AtomicInteger();
+	private final AtomicInteger awaitingClients = new AtomicInteger();
 
 	private final Object idleMonitor = new Object();
 

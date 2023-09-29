@@ -25,7 +25,7 @@ import org.eclipse.jdt.internal.core.util.Util;
  */
 public class UserLibraryClasspathContainer implements IClasspathContainer {
 
-	private String name;
+	private final String name;
 
 	public UserLibraryClasspathContainer(String name) {
 		this.name = name;

@@ -22,9 +22,9 @@ import org.eclipse.jdt.core.util.ILocalVariableReferenceInfo;
 
 public class LocalVariableReferenceInfo extends ClassFileStruct implements ILocalVariableReferenceInfo {
 
-	private int startPC;
-	private int length;
-	private int index;
+	private final int startPC;
+	private final int length;
+	private final int index;
 
 	/**
 	 * Constructor for LocalVariableTableEntry.

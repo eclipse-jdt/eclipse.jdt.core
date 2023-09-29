@@ -110,7 +110,7 @@ public class TypeParameter extends ASTNode {
 	 * The type bounds (element type: {@link Type}).
 	 * Defaults to an empty list.
 	 */
-	private ASTNode.NodeList typeBounds =
+	private final ASTNode.NodeList typeBounds =
 		new ASTNode.NodeList(TYPE_BOUNDS_PROPERTY);
 
 	/**

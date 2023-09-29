@@ -45,7 +45,7 @@ package com.sun.mirror.apt;
  */
 @SuppressWarnings("serial")
 public abstract class RoundCompleteEvent extends java.util.EventObject {
-    private RoundState rs;
+    private final RoundState rs;
 
     /**
      * The current <code>AnnotationProcessorEnvironment</code> is regarded

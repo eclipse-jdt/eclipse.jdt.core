@@ -36,7 +36,7 @@ import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class StackMapFrameCodeStream extends CodeStream {
 	public static class ExceptionMarker implements Comparable {
-		private TypeBinding binding;
+		private final TypeBinding binding;
 		public int pc;
 
 		public ExceptionMarker(int pc, TypeBinding typeBinding) {

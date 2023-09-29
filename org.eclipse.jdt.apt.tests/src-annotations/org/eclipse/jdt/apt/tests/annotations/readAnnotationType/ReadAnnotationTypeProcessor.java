@@ -22,7 +22,7 @@ import com.sun.mirror.declaration.Declaration;
 
 public class ReadAnnotationTypeProcessor extends BaseProcessor {
 
-    private AnnotationTypeDeclaration _annotationType;
+    private final AnnotationTypeDeclaration _annotationType;
 
     public ReadAnnotationTypeProcessor(Set<AnnotationTypeDeclaration> declarationTypes, AnnotationProcessorEnvironment env) {
         super(env);

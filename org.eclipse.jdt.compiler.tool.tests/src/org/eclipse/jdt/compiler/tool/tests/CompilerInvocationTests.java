@@ -111,7 +111,7 @@ void runTest(
 	}
 }
 class GetLocationDetector extends ForwardingStandardJavaFileManager<StandardJavaFileManager>  {
-	private Location match;
+	private final Location match;
 	private boolean matchFound;
 	GetLocationDetector(StandardJavaFileManager javaFileManager, Location location) {
 		super(javaFileManager);
@@ -178,7 +178,7 @@ abstract class GetJavaFileDetector extends ForwardingStandardJavaFileManager<Sta
 	}
 }
 class GetJavaFileForInputDetector extends GetJavaFileDetector  {
-	private Kind discriminatingKind;
+	private final Kind discriminatingKind;
 	GetJavaFileForInputDetector(StandardJavaFileManager javaFileManager) {
 		super(javaFileManager);
 		this.discriminatingKind = Kind.SOURCE;
@@ -283,7 +283,7 @@ class GetJavaFileForOutputDetector extends GetJavaFileDetector  {
 	}
 }
 class SetLocationDetector extends ForwardingStandardJavaFileManager<StandardJavaFileManager>  {
-	private Location match;
+	private final Location match;
 	private boolean matchFound;
 	SetLocationDetector(StandardJavaFileManager javaFileManager, Location location) {
 		super(javaFileManager);
@@ -302,7 +302,7 @@ class SetLocationDetector extends ForwardingStandardJavaFileManager<StandardJava
 	}
 }
 class SubstringDetector extends java.util.logging.Logger {
-	private String match;
+	private final String match;
 	private boolean matchFound;
 	SubstringDetector(String match) {
 		super("SubstringDetector", null);

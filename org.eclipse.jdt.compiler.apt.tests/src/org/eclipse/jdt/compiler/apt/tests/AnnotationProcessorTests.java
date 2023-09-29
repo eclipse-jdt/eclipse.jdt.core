@@ -33,7 +33,7 @@ public class AnnotationProcessorTests extends TestCase {
 	public final class DiagnosticReport<S> implements DiagnosticListener<S> {
 		public int count;
 		public StringBuffer buffer;
-		private List<Diagnostic<? extends S>> warnings = new ArrayList<>();
+		private final List<Diagnostic<? extends S>> warnings = new ArrayList<>();
 		DiagnosticReport() {
 			this.count = 0;
 			this.buffer = new StringBuffer();

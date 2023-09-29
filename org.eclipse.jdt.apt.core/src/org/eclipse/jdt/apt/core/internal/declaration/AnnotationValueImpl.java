@@ -37,7 +37,7 @@ public class AnnotationValueImpl implements EclipseMirrorObject, AnnotationValue
 	 * Either the annotation that directly contains this annotation value
 	 * or an annotation method, which indicates that this is its default value.
 	 */
-	private EclipseMirrorObject _parent;
+	private final EclipseMirrorObject _parent;
 	private final BaseProcessorEnv _env;
 	/** the annotation value */
 	private final Object _value;

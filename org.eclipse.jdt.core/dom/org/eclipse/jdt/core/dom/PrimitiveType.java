@@ -64,7 +64,7 @@ public class PrimitiveType extends AnnotatableType {
 		/**
 		 * The name of the type.
 		 */
-		private String name;
+		private final String name;
 
 		/**
 		 * Creates a new primitive type code with the given name.

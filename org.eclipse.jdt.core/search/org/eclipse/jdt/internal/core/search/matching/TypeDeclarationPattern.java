@@ -29,7 +29,7 @@ public char[] simpleName;
 public char[] pkg;
 public char[][] enclosingTypeNames;
 public char[][] moduleNames = null;
-private boolean allowModuleRegex = false; // enable to try experimental Module Regex Match
+private final boolean allowModuleRegex = false; // enable to try experimental Module Regex Match
 /* package */ Pattern[] modulePatterns = null;
 public boolean moduleGraph = false;
 /* package */ char[][] moduleGraphElements = null;

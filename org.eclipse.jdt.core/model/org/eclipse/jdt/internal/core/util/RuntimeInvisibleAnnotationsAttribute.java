@@ -26,7 +26,7 @@ public class RuntimeInvisibleAnnotationsAttribute
 	implements IRuntimeInvisibleAnnotationsAttribute {
 
 	private static final IAnnotation[] NO_ENTRIES = new IAnnotation[0];
-	private int annotationsNumber;
+	private final int annotationsNumber;
 	private IAnnotation[] annotations;
 
 	/**

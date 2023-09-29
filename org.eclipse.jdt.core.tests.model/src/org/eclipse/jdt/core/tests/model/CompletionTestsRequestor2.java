@@ -41,13 +41,13 @@ public class CompletionTestsRequestor2 extends CompletionRequestor {
 	private CompletionProposal[] proposals = new CompletionProposal[PROPOSALS_INCREMENT];
 	private IProblem problem;
 
-	private boolean showParameterNames;
-	private boolean showUniqueKeys;
-	private boolean showPositions;
-	private boolean showTokenPositions;
-	private boolean shortContext;
-	private boolean showMissingTypes;
-	private boolean showModifiers;
+	private final boolean showParameterNames;
+	private final boolean showUniqueKeys;
+	private final boolean showPositions;
+	private final boolean showTokenPositions;
+	private final boolean shortContext;
+	private final boolean showMissingTypes;
+	private final boolean showModifiers;
 
 	private boolean computeVisibleElements;
 	private boolean computeEnclosingElement;

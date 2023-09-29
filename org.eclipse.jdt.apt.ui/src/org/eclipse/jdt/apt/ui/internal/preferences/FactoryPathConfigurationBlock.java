@@ -212,7 +212,7 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	 * The GUI control representing the factory path.  Its data items
 	 * are of type FactoryPathEntry.
 	 */
-	private CheckedListDialogField<FactoryPathEntry> fFactoryPathList;
+	private final CheckedListDialogField<FactoryPathEntry> fFactoryPathList;
 
 	/**
 	 * True while inside setListContents().  Used in order to efficiently

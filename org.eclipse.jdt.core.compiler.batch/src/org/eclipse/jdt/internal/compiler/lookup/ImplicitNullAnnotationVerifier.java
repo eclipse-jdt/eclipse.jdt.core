@@ -59,7 +59,7 @@ public class ImplicitNullAnnotationVerifier {
 	// delegate which to ask for recursive analysis of super methods
 	// can be 'this', but is never a MethodVerifier (to avoid infinite recursion).
 	ImplicitNullAnnotationVerifier buddyImplicitNullAnnotationsVerifier;
-	private boolean inheritNullAnnotations;
+	private final boolean inheritNullAnnotations;
 	protected LookupEnvironment environment;
 
 

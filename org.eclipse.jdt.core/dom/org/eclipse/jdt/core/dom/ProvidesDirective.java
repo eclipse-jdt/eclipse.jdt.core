@@ -82,7 +82,7 @@ public class ProvidesDirective extends ModuleDirective {
 	 * (element type: {@link Name}).
 	 * Defaults to an empty list.
 	 */
-	private ASTNode.NodeList implementations =
+	private final ASTNode.NodeList implementations =
 		new ASTNode.NodeList(IMPLEMENTATIONS_PROPERTY);
 
 	/**

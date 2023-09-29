@@ -75,7 +75,7 @@ public class Dimension extends ASTNode {
 	 * The list of annotations for this dimension (element type: {@link Annotation}).
 	 * Defaults to an empty list.
 	 */
-	private ASTNode.NodeList annotations = new ASTNode.NodeList(ANNOTATIONS_PROPERTY);
+	private final ASTNode.NodeList annotations = new ASTNode.NodeList(ANNOTATIONS_PROPERTY);
 
 	/**
 	 * Creates a new dimension node (supported only in level JLS8 or above).

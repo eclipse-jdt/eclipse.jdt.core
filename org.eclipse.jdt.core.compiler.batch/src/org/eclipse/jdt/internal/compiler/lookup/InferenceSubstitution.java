@@ -18,7 +18,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
  */
 public class InferenceSubstitution extends Scope.Substitutor implements Substitution {
 
-	private LookupEnvironment environment;
+	private final LookupEnvironment environment;
 	private InferenceVariable[] variables;
 	private InvocationSite[] sites;
 

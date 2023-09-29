@@ -28,7 +28,7 @@ import org.eclipse.jdt.internal.compiler.env.IModulePathEntry;
 
 public class ModulePathContainer implements IClasspathContainer{
 
-	private IJavaProject project;
+	private final IJavaProject project;
 
 	public ModulePathContainer(IJavaProject project) {
 		this.project = project;

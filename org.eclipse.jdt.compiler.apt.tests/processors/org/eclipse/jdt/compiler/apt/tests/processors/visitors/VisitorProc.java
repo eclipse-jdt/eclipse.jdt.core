@@ -56,7 +56,7 @@ public class VisitorProc extends BaseProcessor
 
 		public enum Visited { TYPE, EXECUTABLE, VARIABLE, TYPEPARAM, PACKAGE, UNKNOWN }
 
-		private EnumSet<Visited> _visited = EnumSet.noneOf(Visited.class);
+		private final EnumSet<Visited> _visited = EnumSet.noneOf(Visited.class);
 
 		public boolean checkVisits() {
 			boolean asExpected = true;
@@ -139,7 +139,7 @@ public class VisitorProc extends BaseProcessor
 
 		public enum Visited { ANNOTATION, ARRAY, BOOLEAN, BYTE, CHAR, DOUBLE, ENUMCONSTANT, FLOAT, INT, LONG, SHORT, STRING, TYPE }
 
-		private EnumSet<Visited> _visited = EnumSet.noneOf(Visited.class);
+		private final EnumSet<Visited> _visited = EnumSet.noneOf(Visited.class);
 
 		public boolean checkVisits() {
 			boolean asExpected = true;

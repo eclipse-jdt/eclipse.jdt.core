@@ -161,16 +161,16 @@ public class ClasspathEntry implements IClasspathEntry {
 	/**
 	 * Patterns allowing to include/exclude portions of the resource tree denoted by this entry path.
 	 */
-	private IPath[] inclusionPatterns;
+	private final IPath[] inclusionPatterns;
 	private volatile char[][] fullInclusionPatternChars;
-	private IPath[] exclusionPatterns;
+	private final IPath[] exclusionPatterns;
 	private volatile char[][] fullExclusionPatternChars;
 	private final static char[][] UNINIT_PATTERNS = new char[][] { "Non-initialized yet".toCharArray() }; //$NON-NLS-1$
 	public final static ClasspathEntry[] NO_ENTRIES = new ClasspathEntry[0];
 	private final static IPath[] NO_PATHS = new IPath[0];
 	private final static IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 
-	private boolean combineAccessRules;
+	private final boolean combineAccessRules;
 
 	private String rootID;
 	private AccessRuleSet accessRuleSet;
