@@ -127,7 +127,7 @@ public class CommentsPreparator extends ASTVisitor {
 	private int noFormatOpenTagStartIndex = -1;
 	private int formatCodeOpenTagEndIndex = -1;
 	private int lastFormatCodeClosingTagIndex = -1;
-	private ArrayList<Integer> commonAttributeAnnotations = new ArrayList<Integer>();
+	private final ArrayList<Integer> commonAttributeAnnotations = new ArrayList<Integer>();
 	private DefaultCodeFormatter preTagCodeFormatter;
 	private DefaultCodeFormatter snippetCodeFormatter;
 

@@ -238,7 +238,7 @@ public class NameLookup implements SuffixConstants {
 	public long timeSpentInIsPackageWithModuleContext;
 	public long timeSpentInSeekTypesInType;
 
-	private JavaProject rootProject;
+	private final JavaProject rootProject;
 
 	public NameLookup(
 			JavaProject rootProject, IPackageFragmentRoot[] packageFragmentRoots,

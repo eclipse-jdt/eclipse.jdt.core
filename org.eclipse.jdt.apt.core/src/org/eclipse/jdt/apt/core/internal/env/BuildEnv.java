@@ -56,7 +56,7 @@ public class BuildEnv extends AbstractCompilationEnv
 	 * Set of strings that indicate new type dependencies introduced on the file
 	 * each string is a fully-qualified type name.
 	 */
-	private Set<String> _typeDependencies = new HashSet<>();
+	private final Set<String> _typeDependencies = new HashSet<>();
 
 	/**
 	 * Indicates whether we are in batch mode or not. This gets flipped only

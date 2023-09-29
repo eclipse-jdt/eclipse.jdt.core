@@ -26,7 +26,7 @@ import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.core.search.indexing.ReadWriteMonitor;
 
 public class MetaIndex {
-	private Index decoratee;
+	private final Index decoratee;
 	private Set<String> indexesNotInMeta = null;
 
 	public MetaIndex(Index decoratee) {

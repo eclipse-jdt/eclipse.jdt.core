@@ -102,7 +102,7 @@ public class LambdaExpression extends Expression {
 	 * (element type: {@link VariableDeclaration}).
 	 * Defaults to an empty list.
 	 */
-	private ASTNode.NodeList parameters =
+	private final ASTNode.NodeList parameters =
 		new ASTNode.NodeList(PARAMETERS_PROPERTY);
 
 	/**

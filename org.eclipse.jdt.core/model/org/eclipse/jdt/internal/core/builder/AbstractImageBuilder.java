@@ -83,7 +83,7 @@ public final static Integer S_INFO = Integer.valueOf(IMarker.SEVERITY_INFO);
 public final static Integer P_HIGH = Integer.valueOf(IMarker.PRIORITY_HIGH);
 public final static Integer P_NORMAL = Integer.valueOf(IMarker.PRIORITY_NORMAL);
 public final static Integer P_LOW = Integer.valueOf(IMarker.PRIORITY_LOW);
-private CompilationGroup compilationGroup;
+private final CompilationGroup compilationGroup;
 
 protected AbstractImageBuilder(JavaBuilder javaBuilder, boolean buildStarting, State newState, CompilationGroup compilationGroup) {
 	// local copies

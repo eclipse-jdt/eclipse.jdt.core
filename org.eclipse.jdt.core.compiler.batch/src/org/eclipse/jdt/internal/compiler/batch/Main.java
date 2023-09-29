@@ -122,10 +122,10 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 public class Main implements ProblemSeverities, SuffixConstants {
 
 	public static class Logger {
-		private PrintWriter err;
+		private final PrintWriter err;
 		private PrintWriter log;
-		private Main main;
-		private PrintWriter out;
+		private final Main main;
+		private final PrintWriter out;
 		int tagBits;
 		private static final String CLASS = "class"; //$NON-NLS-1$
 		private static final String CLASS_FILE = "classfile"; //$NON-NLS-1$

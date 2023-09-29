@@ -122,8 +122,8 @@ public class IndexManager extends JobManager implements IIndexConstants {
 	 * synchronized by IndexManager.this
 	*/
 	private SimpleLookupTable indexStates;
-	private File indexNamesMapFile = new File(getSavedIndexesDirectory(), "indexNamesMap.txt"); //$NON-NLS-1$
-	private File participantIndexNamesFile = new File(getSavedIndexesDirectory(), "participantsIndexNames.txt"); //$NON-NLS-1$
+	private final File indexNamesMapFile = new File(getSavedIndexesDirectory(), "indexNamesMap.txt"); //$NON-NLS-1$
+	private final File participantIndexNamesFile = new File(getSavedIndexesDirectory(), "participantsIndexNames.txt"); //$NON-NLS-1$
 	private boolean javaLikeNamesChanged = true;
 	public static final Integer SAVED_STATE = 0;
 	public static final Integer UPDATING_STATE = 1;

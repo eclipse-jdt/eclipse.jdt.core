@@ -109,7 +109,7 @@ public class SearchEngine {
 	}
 
 	// Search engine now uses basic engine functionalities
-	private BasicSearchEngine basicEngine;
+	private final BasicSearchEngine basicEngine;
 
 	/**
 	 * Creates a new search engine.

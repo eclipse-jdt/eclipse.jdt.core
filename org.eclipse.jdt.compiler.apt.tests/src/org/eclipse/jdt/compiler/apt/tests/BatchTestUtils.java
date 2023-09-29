@@ -76,7 +76,7 @@ public class BatchTestUtils {
 
 	public static final class DiagnosticReport<S> implements DiagnosticListener<S> {
 		public StringBuffer buffer;
-		private List<Diagnostic<? extends S>> diagnostics = new ArrayList<>();
+		private final List<Diagnostic<? extends S>> diagnostics = new ArrayList<>();
 		DiagnosticReport() {
 			this.buffer = new StringBuffer();
 		}

@@ -70,7 +70,7 @@ public class JavadocParser extends AbstractCommentParser {
 	// see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=222900"
 	private int tagWaitingForDescription;
 
-	private ArrayList<String> regionNames = new ArrayList<>();
+	private final ArrayList<String> regionNames = new ArrayList<>();
 	private int regionPosition = -1;
 
 	public JavadocParser(Parser sourceParser) {

@@ -43,9 +43,9 @@ import org.eclipse.jdt.internal.core.util.Util;
  */
 public class ModuleUpdater {
 
-	private JavaProject javaProoject;
+	private final JavaProject javaProoject;
 
-	private Map<String,UpdatesByKind> moduleUpdates = new HashMap<>();
+	private final Map<String,UpdatesByKind> moduleUpdates = new HashMap<>();
 
 	public ModuleUpdater(JavaProject javaProject) {
 		this.javaProoject = javaProject;

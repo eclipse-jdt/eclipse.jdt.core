@@ -70,9 +70,9 @@ class DefaultJavaElementComparator implements Comparator {
 	private static final int CONSTRUCTOR_CATEGORY = 7;
 	private static final int METHOD_CATEGORY = 8;
 
-	private Collator collator;
+	private final Collator collator;
 
-	private int[] categories;
+	private final int[] categories;
 
 	/**
 	 * Creates an instance that sorts the various categories of body

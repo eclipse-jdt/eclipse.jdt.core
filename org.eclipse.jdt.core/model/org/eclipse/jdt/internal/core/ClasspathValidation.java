@@ -27,7 +27,7 @@ import org.eclipse.jdt.internal.core.builder.JavaBuilder;
  */
 public class ClasspathValidation {
 
-	private JavaProject project;
+	private final JavaProject project;
 
 	public ClasspathValidation(JavaProject project) {
 		this.project = project;

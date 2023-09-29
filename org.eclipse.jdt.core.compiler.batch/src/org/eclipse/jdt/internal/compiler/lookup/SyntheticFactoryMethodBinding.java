@@ -20,9 +20,9 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
  */
 public class SyntheticFactoryMethodBinding extends MethodBinding {
 
-	private MethodBinding staticFactoryFor;
-	private LookupEnvironment environment;
-	private ReferenceBinding enclosingType;
+	private final MethodBinding staticFactoryFor;
+	private final LookupEnvironment environment;
+	private final ReferenceBinding enclosingType;
 
 	public SyntheticFactoryMethodBinding(MethodBinding method, LookupEnvironment environment, ReferenceBinding enclosingType) {
 		super(method.modifiers | ClassFileConstants.AccStatic, TypeConstants.SYNTHETIC_STATIC_FACTORY,

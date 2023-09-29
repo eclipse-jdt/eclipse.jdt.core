@@ -1049,7 +1049,7 @@ public class CompilerToolJava9Tests extends TestCase {
 	}
 
 	static private final class DiagListener extends CompilerInvocationDiagnosticListener {
-		private List<Diagnostic<? extends JavaFileObject>> errorList = new ArrayList<>();
+		private final List<Diagnostic<? extends JavaFileObject>> errorList = new ArrayList<>();
 
 		DiagListener(PrintWriter err) {
 			super(err);

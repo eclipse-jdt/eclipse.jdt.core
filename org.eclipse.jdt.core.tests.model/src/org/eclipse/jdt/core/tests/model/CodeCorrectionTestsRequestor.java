@@ -48,7 +48,7 @@ public class CodeCorrectionTestsRequestor implements ICorrectionRequestor {
 	}
 
 
-	private List<Suggestion> suggestions = new ArrayList<>(5);
+	private final List<Suggestion> suggestions = new ArrayList<>(5);
 
 	public void acceptClass(char[] packageName,char[] className,char[] correctionName,int modifiers,int correctionStart,int correctionEnd){
 		this.suggestions.add(new Suggestion(correctionName, correctionStart, correctionEnd));

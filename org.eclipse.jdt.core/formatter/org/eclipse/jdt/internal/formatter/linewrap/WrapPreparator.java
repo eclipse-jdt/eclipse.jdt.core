@@ -239,10 +239,10 @@ public class WrapPreparator extends ASTVisitor {
 	 * temporary values used when calling {@link #handleWrap(int)} to avoid ArrayList initialization and long lists of
 	 * parameters
 	 */
-	private List<Integer> wrapIndexes = new ArrayList<>();
+	private final List<Integer> wrapIndexes = new ArrayList<>();
 	/** Indexes for wraps that shouldn't happen but should be indented if cannot be removed */
-	private List<Integer> secondaryWrapIndexes = new ArrayList<>();
-	private List<Float> wrapPenalties = new ArrayList<>();
+	private final List<Integer> secondaryWrapIndexes = new ArrayList<>();
+	private final List<Float> wrapPenalties = new ArrayList<>();
 	private int wrapParentIndex = -1;
 	private int wrapGroupEnd = -1;
 

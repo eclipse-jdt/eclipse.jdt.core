@@ -17,9 +17,9 @@ import org.eclipse.jdt.core.tests.model.Semaphore.TimeOutException;
 
 public class BPThread {
 	public static int TIMEOUT = 1000;
-	private String name;
+	private final String name;
 	private Thread thread;
-	private Semaphore sem = new Semaphore();
+	private final Semaphore sem = new Semaphore();
 	private int breakppoint = -1;
 
 	public BPThread(String name) {

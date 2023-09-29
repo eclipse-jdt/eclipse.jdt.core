@@ -167,7 +167,7 @@ public class TryStatement extends Statement {
 	 * The catch clauses (element type: {@link CatchClause}).
 	 * Defaults to an empty list.
 	 */
-	private ASTNode.NodeList catchClauses =
+	private final ASTNode.NodeList catchClauses =
 		new ASTNode.NodeList(CATCH_CLAUSES_PROPERTY);
 
 	/**

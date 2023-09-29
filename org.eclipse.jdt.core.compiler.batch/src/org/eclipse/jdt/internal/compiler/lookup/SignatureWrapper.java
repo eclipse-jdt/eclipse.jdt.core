@@ -23,7 +23,7 @@ public class SignatureWrapper {
 	public int start;
 	public int end;
 	public int bracket;
-	private boolean use15specifics;
+	private final boolean use15specifics;
 	private boolean useExternalAnnotations;
 
 	public SignatureWrapper(char[] signature, boolean use15specifics) {

@@ -61,13 +61,13 @@ public class ExtendedAnnotation extends ClassFileStruct implements IExtendedAnno
 	private final static int[][] NO_TYPEPATH = new int[0][0];
 	private final static ILocalVariableReferenceInfo[] NO_LOCAL_VARIABLE_TABLE_ENTRIES = new ILocalVariableReferenceInfo[0];
 
-	private int targetType;
+	private final int targetType;
 	private int annotationTypeIndex;
 	private int[][] typePath;
 
-	private int typeIndex;
+	private final int typeIndex;
 	private char[] typeName;
-	private int componentsNumber;
+	private final int componentsNumber;
 	private IAnnotationComponent[] components;
 	private int readOffset;
 	private int offset;

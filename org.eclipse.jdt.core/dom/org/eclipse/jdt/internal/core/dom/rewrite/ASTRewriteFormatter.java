@@ -52,7 +52,7 @@ public final class ASTRewriteFormatter {
 
 	private class ExtendedFlattener extends ASTRewriteFlattener {
 
-		private ArrayList positions;
+		private final ArrayList positions;
 
 		public ExtendedFlattener(RewriteEventStore store) {
 			super(store);
@@ -455,7 +455,7 @@ public final class ASTRewriteFormatter {
 	}
 
 	public static class ConstPrefix implements Prefix {
-		private String prefix;
+		private final String prefix;
 
 		public ConstPrefix(String prefix) {
 			this.prefix= prefix;
@@ -468,10 +468,10 @@ public final class ASTRewriteFormatter {
 	}
 
 	private class FormattingPrefix implements Prefix {
-		private int kind;
-		private String string;
-		private int start;
-		private int length;
+		private final int kind;
+		private final String string;
+		private final int start;
+		private final int length;
 
 		public FormattingPrefix(String string, String sub, int kind) {
 			this.start= string.indexOf(sub);
@@ -493,8 +493,8 @@ public final class ASTRewriteFormatter {
 	}
 
 	private class BlockFormattingPrefix implements BlockContext {
-		private String prefix;
-		private int start;
+		private final String prefix;
+		private final int start;
 
 		public BlockFormattingPrefix(String prefix, int start) {
 			this.start= start;
@@ -516,9 +516,9 @@ public final class ASTRewriteFormatter {
 	}
 
 	private class BlockFormattingPrefixSuffix implements BlockContext {
-		private String prefix;
-		private String suffix;
-		private int start;
+		private final String prefix;
+		private final String suffix;
+		private final int start;
 
 		public BlockFormattingPrefixSuffix(String prefix, String suffix, int start) {
 			this.start= start;

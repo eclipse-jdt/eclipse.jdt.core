@@ -21,7 +21,7 @@ import org.eclipse.jdt.core.util.INestMembersAttribute;
 public class NestMembersAttribute extends ClassFileAttribute implements INestMembersAttribute {
 	private static final INestMemberAttributeEntry[] NO_ENTRIES = new INestMemberAttributeEntry[0];
 
-	private int nestMembers;
+	private final int nestMembers;
 	private INestMemberAttributeEntry[] entries;
 
 	/**

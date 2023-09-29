@@ -79,7 +79,7 @@ public class SearchableEnvironment
 	protected boolean checkAccessRestrictions;
 	// moduleName -> IPackageFragmentRoot[](lazily populated)
 	private Map<String,IPackageFragmentRoot[]> knownModuleLocations; // null indicates: not using JPMS
-	private boolean excludeTestCode;
+	private final boolean excludeTestCode;
 
 	private ModuleUpdater moduleUpdater;
 	private Map<IPackageFragmentRoot,IModuleDescription> rootToModule;

@@ -77,8 +77,8 @@ import org.osgi.service.prefs.BackingStoreException;
 public abstract class BaseConfigurationBlock {
 
 	protected static class ControlData {
-		private Key fKey;
-		private String[] fValues;
+		private final Key fKey;
+		private final String[] fValues;
 
 		public ControlData(Key key, String[] values) {
 			fKey= key;
@@ -112,8 +112,8 @@ public abstract class BaseConfigurationBlock {
 
 	public static final class Key {
 
-		private String fKey;
-		private String fQualifier;
+		private final String fKey;
+		private final String fQualifier;
 
 		public Key(String qualifier, String key) {
 			fQualifier= qualifier;
@@ -196,7 +196,7 @@ public abstract class BaseConfigurationBlock {
 	protected final IProject fProject; // project or null
 	protected final AptProject fAptProject; // null for workspace prefs
 
-	private IWorkbenchPreferenceContainer fContainer;
+	private final IWorkbenchPreferenceContainer fContainer;
 	private Shell fShell;
 
 	private Control fBlockControl;

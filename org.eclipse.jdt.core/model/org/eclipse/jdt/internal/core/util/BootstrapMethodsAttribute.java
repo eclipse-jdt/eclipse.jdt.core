@@ -25,7 +25,7 @@ public class BootstrapMethodsAttribute extends ClassFileAttribute implements IBo
 	private static final IBootstrapMethodsEntry[] NO_ENTRIES = new IBootstrapMethodsEntry[0];
 
 	private IBootstrapMethodsEntry[] entries;
-	private int numberOfBootstrapMethods;
+	private final int numberOfBootstrapMethods;
 
 	/**
 	 * Constructor for BootstrapMethodsAttribute.

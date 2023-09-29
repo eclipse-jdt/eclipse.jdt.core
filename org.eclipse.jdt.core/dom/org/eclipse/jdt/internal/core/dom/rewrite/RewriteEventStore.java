@@ -248,7 +248,7 @@ public final class RewriteEventStore {
 	 */
 	private class ParentIterator implements Iterator {
 
-		private Iterator eventIter;
+		private final Iterator eventIter;
 		private Iterator sourceNodeIter;
 		private Iterator rangeNodeIter;
 		private Iterator trackedNodeIter;

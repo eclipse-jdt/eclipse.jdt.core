@@ -357,7 +357,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		 */
 		private IJavaElementDelta[] deltas;
 
-		private int eventType;
+		private final int eventType;
 
 		private ByteArrayOutputStream stackTraces;
 
@@ -562,8 +562,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected DeltaListener deltaListener = new DeltaListener();
 
 	public static class LogListenerWithHistory implements ILogListener {
-		private StringBuffer buffer = new StringBuffer();
-		private List<IStatus> logs = new ArrayList<>();
+		private final StringBuffer buffer = new StringBuffer();
+		private final List<IStatus> logs = new ArrayList<>();
 
 		public void logging(IStatus status, String plugin) {
 			this.logs.add(status);

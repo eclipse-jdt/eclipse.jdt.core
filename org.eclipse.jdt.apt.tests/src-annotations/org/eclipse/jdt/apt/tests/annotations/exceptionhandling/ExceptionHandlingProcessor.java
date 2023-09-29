@@ -27,7 +27,7 @@ import org.eclipse.jdt.apt.tests.annotations.exceptionhandling.ExceptionHandling
 
 public class ExceptionHandlingProcessor extends BaseProcessor {
 
-	private AnnotationTypeDeclaration _annotationType;
+	private final AnnotationTypeDeclaration _annotationType;
 
     public ExceptionHandlingProcessor(Set<AnnotationTypeDeclaration> declarationTypes, AnnotationProcessorEnvironment env) {
         super(env);

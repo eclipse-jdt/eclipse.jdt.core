@@ -79,7 +79,7 @@ public class HierarchyResolver implements ITypeRequestor {
 	private CompilerOptions options;
 	HierarchyBuilder builder;
 	private ReferenceBinding[] typeBindings;
-	private BindingMap<IGenericType> bindingMap = new BindingMap<>();
+	private final BindingMap<IGenericType> bindingMap = new BindingMap<>();
 
 	private int typeIndex;
 	private IGenericType[] typeModels;

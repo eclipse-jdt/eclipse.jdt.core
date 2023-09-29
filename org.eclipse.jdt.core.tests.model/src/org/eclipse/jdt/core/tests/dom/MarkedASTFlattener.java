@@ -49,7 +49,7 @@ import org.eclipse.jdt.internal.core.dom.NaiveASTFlattener;
 public class MarkedASTFlattener extends NaiveASTFlattener {
 	public static class DefaultMarkedNodeLabelProvider extends MarkedNodeLabelProvider implements DefaultMarkedNodeLabelProviderOptions {
 
-		private int options;
+		private final int options;
 
 		public DefaultMarkedNodeLabelProvider(int options) {
 			this.options = options;
@@ -483,8 +483,8 @@ public class MarkedASTFlattener extends NaiveASTFlattener {
 	private static final String NO_CORRESPONDING_NODE = "No corresponding node";
 
 	// options
-	private boolean reportAST;
-	private boolean reportProblems;
+	private final boolean reportAST;
+	private final boolean reportProblems;
 
 	private String source;
 	private CompilationUnit unit;
@@ -495,9 +495,9 @@ public class MarkedASTFlattener extends NaiveASTFlattener {
 	private Map markerPositonInBuffer;
 
 	private boolean[] foundNodeFromMarker;
-	private StringBuffer markedNodesBuffer;
+	private final StringBuffer markedNodesBuffer;
 
-	private MarkedNodeLabelProvider labelProvider;
+	private final MarkedNodeLabelProvider labelProvider;
 
 	public MarkedASTFlattener(
 			boolean reportAST,

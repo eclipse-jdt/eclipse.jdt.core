@@ -44,10 +44,10 @@ public class ProcessorOptionInputDialog extends StatusDialog {
 		}
 	}
 
-	private StringDialogField fKeyField;
-	private StringDialogField fValueField;
+	private final StringDialogField fKeyField;
+	private final StringDialogField fValueField;
 
-	private List<String> fExistingNames;
+	private final List<String> fExistingNames;
 
 	public ProcessorOptionInputDialog(Shell parent, ProcessorOption option, List<ProcessorOption> existingEntries) {
 		super(parent);

@@ -27,7 +27,7 @@ public class RuntimeInvisibleParameterAnnotationsAttribute
 
 	private static final IParameterAnnotation[] NO_ENTRIES = new IParameterAnnotation[0];
 	private IParameterAnnotation[] parameterAnnotations;
-	private int parametersNumber;
+	private final int parametersNumber;
 
 	/**
 	 * Constructor for RuntimeVisibleParameterAnnotations.

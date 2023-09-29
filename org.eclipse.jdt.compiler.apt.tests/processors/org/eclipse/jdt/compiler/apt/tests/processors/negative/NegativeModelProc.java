@@ -463,7 +463,7 @@ public class NegativeModelProc extends AbstractProcessor
 	private int _oneTest;
 
 	// Report failures on tests that are already known to be unsupported
-	private boolean _reportFailingCases = true;
+	private final boolean _reportFailingCases = true;
 
 	// If processor options don't include this processor's classname, don't run the proc at all.
 	private boolean _processorEnabled;

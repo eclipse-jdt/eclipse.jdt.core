@@ -30,11 +30,11 @@ import org.eclipse.jdt.internal.core.SearchableEnvironment;
 class ModuleBinding implements IModuleBinding {
 
 	protected static final ITypeBinding[] NO_TYPE_BINDINGS = new ITypeBinding[0];
-	private String name = null;
+	private final String name = null;
 	private volatile String key;
 	private boolean isOpen = false;
 
-	private org.eclipse.jdt.internal.compiler.lookup.ModuleBinding binding;
+	private final org.eclipse.jdt.internal.compiler.lookup.ModuleBinding binding;
 	protected BindingResolver resolver;
 
 	private IAnnotationBinding[] annotations;

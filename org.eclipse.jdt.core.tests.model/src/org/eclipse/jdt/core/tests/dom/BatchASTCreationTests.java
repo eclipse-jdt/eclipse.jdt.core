@@ -59,9 +59,9 @@ public class BatchASTCreationTests extends AbstractASTTests {
 	}
 
 	class BindingResolver extends TestASTRequestor {
-		private ArrayList bindingKeys = new ArrayList();
+		private final ArrayList bindingKeys = new ArrayList();
 		int index = -1;
-		private ArrayList foundKeys = new ArrayList();
+		private final ArrayList foundKeys = new ArrayList();
 		MarkerInfo[] markerInfos;
 		public BindingResolver(MarkerInfo[] markerInfos) {
 			this.markerInfos = markerInfos;

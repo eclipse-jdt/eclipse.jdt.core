@@ -26,7 +26,7 @@ import org.eclipse.jdt.internal.compiler.env.IModulePathEntry;
 
 public class ModuleSourcePathManager {
 
-	private Map<String, IModulePathEntry> knownModules = new HashMap<String, IModulePathEntry>(11);
+	private final Map<String, IModulePathEntry> knownModules = new HashMap<String, IModulePathEntry>(11);
 
 	private IModulePathEntry getModuleRoot0(String name) {
 		return this.knownModules.get(name);

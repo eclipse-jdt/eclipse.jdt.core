@@ -63,9 +63,9 @@ public class HandleFactory {
 	 */
 	private HashtableOfArrayToObject packageHandles;
 
-	private JavaModel javaModel;
+	private final JavaModel javaModel;
 
-	private HashtableOfObjectToInt localOccurrenceCounts = new HashtableOfObjectToInt(5);
+	private final HashtableOfObjectToInt localOccurrenceCounts = new HashtableOfObjectToInt(5);
 
 	public HandleFactory() {
 		this.javaModel = JavaModelManager.getJavaModelManager().getJavaModel();

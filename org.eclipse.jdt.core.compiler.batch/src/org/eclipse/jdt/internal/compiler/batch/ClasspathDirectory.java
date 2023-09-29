@@ -57,9 +57,9 @@ import java.util.stream.Stream;
 public class ClasspathDirectory extends ClasspathLocation {
 
 private Hashtable directoryCache;
-private String[] missingPackageHolder = new String[1];
-private int mode; // ability to only consider one kind of files (source vs. binaries), by default use both
-private String encoding; // only useful if referenced in the source path
+private final String[] missingPackageHolder = new String[1];
+private final int mode; // ability to only consider one kind of files (source vs. binaries), by default use both
+private final String encoding; // only useful if referenced in the source path
 private Hashtable<String, Hashtable<String, String>> packageSecondaryTypes = null;
 Map options;
 

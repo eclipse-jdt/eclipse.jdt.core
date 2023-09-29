@@ -36,7 +36,7 @@ public interface AbstractModule extends IModuleDescription {
 	 */
 	static class AutoModule extends NamedMember implements AbstractModule {
 
-		private boolean nameFromManifest;
+		private final boolean nameFromManifest;
 
 		public AutoModule(JavaElement parent, String name, boolean nameFromManifest) {
 			super(parent, name);

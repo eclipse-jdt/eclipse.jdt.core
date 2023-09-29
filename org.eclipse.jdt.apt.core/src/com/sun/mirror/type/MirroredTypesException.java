@@ -51,7 +51,7 @@ public class MirroredTypesException extends RuntimeException {
     private static final long serialVersionUID = 1;
 
     private transient Collection<TypeMirror> types;	// cannot be serialized
-    private Collection<String> names;		// types' qualified "names"
+    private final Collection<String> names;		// types' qualified "names"
 
     /**
      * Constructs a new MirroredTypesException for the specified types.

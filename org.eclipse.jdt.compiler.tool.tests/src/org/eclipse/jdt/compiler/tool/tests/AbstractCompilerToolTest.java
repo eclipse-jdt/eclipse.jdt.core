@@ -63,7 +63,7 @@ public class AbstractCompilerToolTest extends BatchCompilerTest {
 		public static final int INFO = 2;
 		public static final int WARNING = 4;
 
-		private PrintWriter err;
+		private final PrintWriter err;
 		public int kind;
 
 		public CompilerInvocationDiagnosticListener(PrintWriter err) {

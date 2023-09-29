@@ -26,7 +26,7 @@ public class LocalVariableAttribute
 	implements ILocalVariableAttribute {
 
 	private static final ILocalVariableTableEntry[] NO_ENTRIES = new ILocalVariableTableEntry[0];
-	private int localVariableTableLength;
+	private final int localVariableTableLength;
 	private ILocalVariableTableEntry[] localVariableTable;
 
 	/**
