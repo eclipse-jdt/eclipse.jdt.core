@@ -56,10 +56,12 @@ import java.util.stream.Stream;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ClasspathDirectory extends ClasspathLocation {
 
+/** key is File.separatorChar-separated package name */
 private Hashtable directoryCache;
 private String[] missingPackageHolder = new String[1];
 private int mode; // ability to only consider one kind of files (source vs. binaries), by default use both
 private String encoding; // only useful if referenced in the source path
+/** key is File.separatorChar-separated package name */
 private Hashtable<String, Hashtable<String, String>> packageSecondaryTypes = null;
 Map options;
 
@@ -80,6 +82,8 @@ ClasspathDirectory(File directory, String encoding, int mode,
 	this.encoding = encoding;
 }
 String[] directoryList(String qualifiedPackageName) {
+	qualifiedPackageName = toPlatformQualifiedName(qualifiedPackageName);
+	// beyond this point qualifiedPackageName is platform dependent
 	String[] dirList = (String[]) this.directoryCache.get(qualifiedPackageName);
 	if (dirList == this.missingPackageHolder) return null; // package exists in another classpath directory or jar
 	if (dirList != null) return dirList;
@@ -128,14 +132,15 @@ private NameEnvironmentAnswer findClassInternal(char[] typeName, String qualifie
 	String fileName = new String(typeName);
 	boolean binaryExists = ((this.mode & BINARY) != 0) && doesFileExist(fileName + SUFFIX_STRING_class, qualifiedPackageName);
 	boolean sourceExists = ((this.mode & SOURCE) != 0) && doesFileExist(fileName + SUFFIX_STRING_java, qualifiedPackageName);
+	String platformBinaryPath = toPlatformQualifiedName(qualifiedBinaryFileName);
 	if (sourceExists && !asBinaryOnly) {
-		String fullSourcePath = this.path + qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - 6)  + SUFFIX_STRING_java;
+		String fullSourcePath = this.path + platformBinaryPath.substring(0, platformBinaryPath.length() - 6)  + SUFFIX_STRING_java;
 		CompilationUnit unit = new CompilationUnit(null, fullSourcePath, this.encoding, this.destinationPath);
 		unit.module = this.module == null ? null : this.module.name();
 		if (!binaryExists)
 			return new NameEnvironmentAnswer(unit,
 					fetchAccessRestriction(qualifiedBinaryFileName));
-		String fullBinaryPath = this.path + qualifiedBinaryFileName;
+		String fullBinaryPath = this.path + platformBinaryPath;
 		long binaryModified = new File(fullBinaryPath).lastModified();
 		long sourceModified = new File(fullSourcePath).lastModified();
 		if (sourceModified > binaryModified)
@@ -144,10 +149,10 @@ private NameEnvironmentAnswer findClassInternal(char[] typeName, String qualifie
 	}
 	if (binaryExists) {
 		try {
-			ClassFileReader reader = ClassFileReader.read(this.path + qualifiedBinaryFileName);
+			ClassFileReader reader = ClassFileReader.read(this.path + platformBinaryPath);
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=321115, package names are to be treated case sensitive.
 			String typeSearched = qualifiedPackageName.length() > 0 ?
-					qualifiedPackageName.replace(File.separatorChar, '/') + "/" + fileName //$NON-NLS-1$
+					qualifiedPackageName + "/" + fileName //$NON-NLS-1$
 					: fileName;
 			if (!CharOperation.equals(reader.getName(), typeSearched.toCharArray())) {
 				reader = null;
@@ -165,7 +170,8 @@ private NameEnvironmentAnswer findClassInternal(char[] typeName, String qualifie
 	}
 	return null;
 }
-public NameEnvironmentAnswer findSecondaryInClass(char[] typeName, String qualifiedPackageName, String qualifiedBinaryFileName) {
+/** platformPackageName should be File.separatorChar-separated */
+public NameEnvironmentAnswer findSecondaryInClass(char[] typeName, String platformPackageName, String qualifiedBinaryFileName) {
 	//"package-info" is a reserved class name and can never be a secondary type (it is much faster to stop the search here).
 	if(CharOperation.equals(TypeConstants.PACKAGE_INFO_NAME, typeName)) {
 		return null;
@@ -173,8 +179,9 @@ public NameEnvironmentAnswer findSecondaryInClass(char[] typeName, String qualif
 
 	String typeNameString = new String(typeName);
 	String moduleName = this.module != null ? String.valueOf(this.module.name()) : null; // TODO(SHMOD): test for ModuleBinding.ANY & UNNAMED
-	boolean prereqs = this.options != null && isPackage(qualifiedPackageName, moduleName) && ((this.mode & SOURCE) != 0) && doesFileExist(typeNameString + SUFFIX_STRING_java, qualifiedPackageName);
-	return prereqs ? null : findSourceSecondaryType(typeNameString, qualifiedPackageName, qualifiedBinaryFileName); /* only secondary types */
+	String logicalPackageName = (File.separatorChar != '/') ? platformPackageName.replace(File.separatorChar, '/') : platformPackageName;
+	boolean prereqs = this.options != null && isPackage(logicalPackageName, moduleName) && ((this.mode & SOURCE) != 0) && doesFileExist(typeNameString + SUFFIX_STRING_java, platformPackageName);
+	return prereqs ? null : findSourceSecondaryType(typeNameString, platformPackageName, qualifiedBinaryFileName); /* only secondary types */
 }
 
 @Override
@@ -192,24 +199,20 @@ public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageN
 }
 @Override
 public NameEnvironmentAnswer findClass(char[] typeName, String qualifiedPackageName, String moduleName, String qualifiedBinaryFileName, boolean asBinaryOnly) {
-	if (File.separatorChar == '/')
-      return findClassInternal(typeName, qualifiedPackageName, qualifiedBinaryFileName, asBinaryOnly);
-
-	return findClassInternal(typeName, qualifiedPackageName.replace('/', File.separatorChar),
-				qualifiedBinaryFileName.replace('/', File.separatorChar), asBinaryOnly);
+	return findClassInternal(typeName, qualifiedPackageName, qualifiedBinaryFileName, asBinaryOnly);
 }
 /**
- *  Add all the secondary types in the package
+ *  Add all the secondary types in the package (File.separatorChar-separated)
  */
-private Hashtable<String, String> getSecondaryTypes(String qualifiedPackageName) {
+private Hashtable<String, String> getSecondaryTypes(String platformPackageName) {
 	Hashtable<String, String> packageEntry = new Hashtable<>();
 
-	String[] dirList = (String[]) this.directoryCache.get(qualifiedPackageName);
+	String[] dirList = (String[]) this.directoryCache.get(platformPackageName);
 	if (dirList == this.missingPackageHolder // package exists in another classpath directory or jar
 			|| dirList == null)
 		return packageEntry;
 
-	File dir = new File(this.path + qualifiedPackageName);
+	File dir = new File(this.path + platformPackageName);
 	File[] listFiles = dir.isDirectory() ? dir.listFiles() : null;
 	if (listFiles == null) return packageEntry;
 
@@ -241,13 +244,14 @@ private Hashtable<String, String> getSecondaryTypes(String qualifiedPackageName)
 	}
 	return packageEntry;
 }
-private NameEnvironmentAnswer findSourceSecondaryType(String typeName, String qualifiedPackageName, String qualifiedBinaryFileName) {
+/** qualifiedPackageName should be File.separatorChar-separated */
+private NameEnvironmentAnswer findSourceSecondaryType(String typeName, String platformPackageName, String qualifiedBinaryFileName) {
 
 	if (this.packageSecondaryTypes == null) this.packageSecondaryTypes = new Hashtable<>();
-	Hashtable<String, String> packageEntry = this.packageSecondaryTypes.get(qualifiedPackageName);
+	Hashtable<String, String> packageEntry = this.packageSecondaryTypes.get(platformPackageName);
 	if (packageEntry == null) {
-		packageEntry = 	getSecondaryTypes(qualifiedPackageName);
-		this.packageSecondaryTypes.put(qualifiedPackageName, packageEntry);
+		packageEntry = 	getSecondaryTypes(platformPackageName);
+		this.packageSecondaryTypes.put(platformPackageName, packageEntry);
 	}
 	String fileName = packageEntry.get(typeName);
 	return fileName != null ? new NameEnvironmentAnswer(new CompilationUnit(null,
@@ -261,7 +265,8 @@ public char[][][] findTypeNames(String qualifiedPackageName, String moduleName) 
 	if (!isPackage(qualifiedPackageName, moduleName)) {
 		return null; // most common case
 	}
-	File dir = new File(this.path + qualifiedPackageName);
+	String platformPackageName = toPlatformQualifiedName(qualifiedPackageName);
+	File dir = new File(this.path + platformPackageName);
 	if (!dir.exists() || !dir.isDirectory()) {
 		return null;
 	}
@@ -276,9 +281,9 @@ public char[][][] findTypeNames(String qualifiedPackageName, String moduleName) 
 	if (listFiles == null || (length = listFiles.length) == 0) {
 		return null;
 	}
-	Set<String> secondary = getSecondaryTypes(qualifiedPackageName).keySet();
+	Set<String> secondary = getSecondaryTypes(platformPackageName).keySet();
 	char[][][] result = new char[length + secondary.size()][][];
-	char[][] packageName = CharOperation.splitOn(File.separatorChar, qualifiedPackageName.toCharArray());
+	char[][] packageName = CharOperation.splitOn('/', qualifiedPackageName.toCharArray());
 	for (int i = 0; i < length; i++) {
 		String fileName = listFiles[i];
 		int indexOfLastDot = fileName.indexOf('.');
@@ -299,13 +304,11 @@ public void initialize() throws IOException {
 }
 @Override
 public char[][] getModulesDeclaringPackage(String qualifiedPackageName, /*@Nullable*/String moduleName) {
-	String qp2 = File.separatorChar == '/' ? qualifiedPackageName : qualifiedPackageName.replace('/', File.separatorChar);
-	return singletonModuleNameIf(directoryList(qp2) != null);
+	return singletonModuleNameIf(directoryList(qualifiedPackageName) != null);
 }
 @Override
 public boolean hasCompilationUnit(String qualifiedPackageName, String moduleName) {
-	String qp2 = File.separatorChar == '/' ? qualifiedPackageName : qualifiedPackageName.replace('/', File.separatorChar);
-	String[] dirList = directoryList(qp2);
+	String[] dirList = directoryList(qualifiedPackageName);
 	if (dirList != null) {
 		for (String entry : dirList) {
 			String entryLC = entry.toLowerCase();
@@ -317,14 +320,14 @@ public boolean hasCompilationUnit(String qualifiedPackageName, String moduleName
 }
 @Override
 public boolean hasCUDeclaringPackage(String qualifiedPackageName, Function<CompilationUnit, String> pkgNameExtractor) {
-	String qp2 = File.separatorChar == '/' ? qualifiedPackageName : qualifiedPackageName.replace('/', File.separatorChar);
-	String[] directoryList = directoryList(qp2);
+	String[] directoryList = directoryList(qualifiedPackageName);
 	if(directoryList == null)
 		return false;
+	String platformPackageName = toPlatformQualifiedName(qualifiedPackageName);
 	return Stream.of(directoryList).anyMatch(entry -> {
 		String entryLC = entry.toLowerCase();
 		boolean hasDeclaration = false;
-		String fullPath = this.path + qp2 + "/" + entry; //$NON-NLS-1$
+		String fullPath = this.path + platformPackageName + "/" + entry; //$NON-NLS-1$
 		String pkgName = null;
 		if (entryLC.endsWith(SUFFIX_STRING_class)) {
 			return true;
@@ -332,7 +335,7 @@ public boolean hasCUDeclaringPackage(String qualifiedPackageName, Function<Compi
 			CompilationUnit cu = new CompilationUnit(null, fullPath, this.encoding);
 			pkgName = pkgNameExtractor.apply(cu);
 		}
-		if (pkgName != null && pkgName.equals(qp2.replace(File.separatorChar, '.')))
+		if (pkgName != null && pkgName.equals(platformPackageName.replace(File.separatorChar, '.')))
 			hasDeclaration = true;
 		return hasDeclaration;
 	});
@@ -376,6 +379,11 @@ public char[] normalizedPath() {
 		}
 	}
 	return this.normalizedPath;
+}
+static String toPlatformQualifiedName(String qualifiedPackageName) {
+	if (File.separatorChar != '/')
+		return qualifiedPackageName.replace('/', File.separatorChar);
+	return qualifiedPackageName;
 }
 @Override
 public String getPath() {
