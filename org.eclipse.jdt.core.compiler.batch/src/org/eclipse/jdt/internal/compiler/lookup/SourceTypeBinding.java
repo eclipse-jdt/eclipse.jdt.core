@@ -3343,7 +3343,8 @@ SimpleLookupTable storedAnnotations(boolean forceInitialize, boolean forceStore)
 @Override
 void storeAnnotations(Binding binding, AnnotationBinding[] annotations, boolean forceStore) {
 	super.storeAnnotations(binding, annotations, forceStore);
-	this.scope.referenceCompilationUnit().compilationResult.annotations.add(annotations);
+	if (this.scope != null)
+		this.scope.referenceCompilationUnit().compilationResult.annotations.add(annotations);
 }
 
 @Override
