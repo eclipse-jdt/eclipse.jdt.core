@@ -390,7 +390,6 @@ public class DefaultCodeFormatter extends CodeFormatter {
 		Scanner scanner = new Scanner(true, false, false/* nls */, CompilerOptions.versionToJdkLevel(this.sourceLevel),
 				null/* taskTags */, null/* taskPriorities */, false/* taskCaseSensitive */, this.previewEnabled);
 		scanner.setSource(this.sourceArray);
-		scanner.fakeInModule = (kind & K_MODULE_INFO) != 0;
 		while (true) {
 			try {
 				int tokenType = scanner.getNextToken();

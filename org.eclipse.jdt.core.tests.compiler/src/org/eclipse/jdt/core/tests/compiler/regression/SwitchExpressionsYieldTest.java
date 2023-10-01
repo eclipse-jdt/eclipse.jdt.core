@@ -512,12 +512,19 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"}\n"
 		};
 		runner.expectedCompilerLog =
-				"----------\n" +
-				"1. ERROR in X.java (at line 6)\n" +
-				"	}.toLowerCase());\n" +
-				"	 ^\n" +
-				"Syntax error on token \".\", , expected\n" +
-				"----------\n";
+				"""
+				----------
+				1. ERROR in X.java (at line 4)
+					case 1 -> "one";
+					     ^
+				Syntax error on token "1", -> expected after this token
+				----------
+				2. ERROR in X.java (at line 6)
+					}.toLowerCase());
+					 ^
+				Syntax error on token ".", , expected
+				----------
+                """;
 		runner.runNegativeTest();
 	}
 	public void testBug544073_016() {
@@ -4671,12 +4678,19 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 					"    }\n"+
 					"}\n",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 5)\n" +
-				"	case 0 -> {yield switch(0) {}\n" +
-				"	                            ^\n" +
-				"Syntax error, insert \";\" to complete BlockStatements\n" +
-				"----------\n");
+				"""
+				----------
+				1. ERROR in X.java (at line 5)
+					case 0 -> {yield switch(0) {}
+					     ^
+				Syntax error on token "0", -> expected after this token
+				----------
+				2. ERROR in X.java (at line 5)
+					case 0 -> {yield switch(0) {}
+					                            ^
+				Syntax error, insert ";" to complete BlockStatements
+				----------
+				""");
 
 	}
 	public void testBug561766_002() {
@@ -4703,27 +4717,35 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 					"    }\n"+
 					"}\n",
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 9)\n" +
-				"	}\n" +
-				"	^\n" +
-				"Syntax error, insert \";\" to complete YieldStatement\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 9)\n" +
-				"	}\n" +
-				"	^\n" +
-				"Syntax error, insert \"}\" to complete Block\n" +
-				"----------\n" +
-				"3. ERROR in X.java (at line 18)\n" +
-				"	}\n" +
-				"	^\n" +
-				"Syntax error on token \"}\", delete this token\n" +
-				"----------\n" +
-				"4. ERROR in X.java (at line 19)\n" +
-				"	}\n" +
-				"	^\n" +
-				"Syntax error, insert \"}\" to complete ClassBody\n" +
-				"----------\n");
+				"""
+				----------
+				1. ERROR in X.java (at line 5)
+					case 0 -> {yield 100;}
+					     ^
+				Syntax error on token "0", -> expected after this token
+				----------
+				2. ERROR in X.java (at line 9)
+					}
+					^
+				Syntax error, insert ";" to complete YieldStatement
+				----------
+				3. ERROR in X.java (at line 9)
+					}
+					^
+				Syntax error, insert "}" to complete Block
+				----------
+				4. ERROR in X.java (at line 18)
+					}
+					^
+				Syntax error on token "}", delete this token
+				----------
+				5. ERROR in X.java (at line 19)
+					}
+					^
+				Syntax error, insert "}" to complete ClassBody
+				----------
+				"""
+				);
 
 	}
 
@@ -5134,12 +5156,19 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
     			" }\n"+
     			"}\n"
     		},
-        "----------\n" +
-		"1. ERROR in X.java (at line 9)\n" +
-		"	default -> yield 0;\n" +
-		"	                 ^\n" +
-		"Syntax error on token \"0\", delete this token\n" +
-        "----------\n");
+    		"""
+			----------
+			1. ERROR in X.java (at line 6)
+				case 0 -> {
+				     ^
+			Syntax error on token "0", -> expected after this token
+			----------
+			2. ERROR in X.java (at line 9)
+				default -> yield 0;
+				                 ^
+			Syntax error on token "0", delete this token
+			----------
+    		""");
 }
     public void testBug563023_005() {
         this.runNegativeTest(
@@ -5726,27 +5755,35 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 					"       void apply();\n"+
 					"}"
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 5)\n" +
-				"	case AAABBB -> 1;\n" +
-				"	                ^\n" +
-				"Syntax error on token \";\", case expected after this token\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 6)\n" +
-				"	(I)()->();\n" +
-				"	  ^^^^^\n" +
-				"Syntax error on token(s), misplaced construct(s)\n" +
-				"----------\n" +
-				"3. ERROR in X.java (at line 6)\n" +
-				"	(I)()->();\n" +
-				"	        ^\n" +
-				"Syntax error, insert \")\" to complete Expression\n" +
-				"----------\n" +
-				"4. ERROR in X.java (at line 6)\n" +
-				"	(I)()->();\n" +
-				"	        ^\n" +
-				"Syntax error, insert \":\" to complete SwitchLabel\n" +
-				"----------\n");
+				"""
+				----------
+				1. ERROR in X.java (at line 5)
+					case AAABBB -> 1;
+					                ^
+				Syntax error on token ";", [ expected
+				----------
+				2. ERROR in X.java (at line 6)
+					(I)()->();
+					  ^^^^^
+				Syntax error on token(s), misplaced construct(s)
+				----------
+				3. ERROR in X.java (at line 6)
+					(I)()->();
+					        ^
+				Syntax error, insert ")" to complete Expression
+				----------
+				4. ERROR in X.java (at line 6)
+					(I)()->();
+					        ^
+				Syntax error, insert "]" to complete ArrayAccess
+				----------
+				5. ERROR in X.java (at line 6)
+					(I)()->();
+					        ^
+				Syntax error, insert ":" to complete SwitchLabel
+				----------
+				"""
+				);
 	}
 	public void _testBug565844SwitchConst_07() {
 		runConformTest(
@@ -6218,12 +6255,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"	             ^\n" +
 			"The public type X must be defined in its own file\n" +
 			"----------\n" +
-			"2. ERROR in module-info.java (at line 5)\n" +
-			"	yield i.toString();\n" +
-			"	       ^\n" +
-			"Syntax error on token \".\", ; expected\n" +
-			"----------\n" +
-			"3. ERROR in module-info.java (at line 7)\n" +
+			"2. ERROR in module-info.java (at line 7)\n" +
 			"	}\n" +
 			"	^\n" +
 			"Syntax error, insert \";\" to complete BlockStatements\n" +

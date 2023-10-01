@@ -1202,7 +1202,7 @@ public class JavaSearchBugs17Tests extends AbstractJavaSearchTests {
 		}
 	}
 	// find all references on a class in switch pattern - without select
-	public void testBug573943_030() throws Exception {
+	public void testBug573943_030() throws Exception { // fails.
 		try {
 			IJavaProject project = createJavaProject("first", new String[] {"src"}, new String[] {"JCL17_LIB"}, "bin", "21");
 			project.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.DISABLED);

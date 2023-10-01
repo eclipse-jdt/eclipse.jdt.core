@@ -8632,12 +8632,14 @@ public void testBug571765_001() {
 					"module-info.java",
 					"public record R() {}\n",
 				},
-	        "----------\n" +
-			"1. ERROR in module-info.java (at line 1)\n" +
-			"	public record R() {}\n" +
-			"	       ^^^^^^\n" +
-			"Syntax error on token \"record\", record expected\n" +
-	        "----------\n");
+			"""
+			----------
+			1. ERROR in module-info.java (at line 1)
+				public record R() {}
+				              ^
+			The public type R must be defined in its own file
+			----------
+			""");
 }
 public void testBug571905_01() throws Exception {
 	runConformTest(

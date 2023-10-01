@@ -657,7 +657,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 			}
 
 			// compute start and end of the last token
-			scanner.resetTo(nextCharacterPosition, end, isModuleInfo);
+			scanner.resetTo(nextCharacterPosition, end);
 			isolateLastName: do {
 				try {
 					token = scanner.getNextToken();
@@ -707,7 +707,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					}
 				}
 			} // there could be some innocuous widening, shouldn't matter.
-			scanner.resetTo(selectionStart, selectionEnd, isModuleInfo);
+			scanner.resetTo(selectionStart, selectionEnd);
 
 			boolean expectingIdentifier = true;
 			do {

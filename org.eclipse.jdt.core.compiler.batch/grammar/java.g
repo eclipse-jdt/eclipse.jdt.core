@@ -226,14 +226,11 @@ Goal ::= '<' ReferenceExpressionTypeArgumentsAndTrunk
 -- JSR 308 Reconnaissance mission.
 Goal ::= '@' TypeAnnotations
 -- JSR 354 Reconnaissance mission.
-Goal ::= '->' YieldStatement
-Goal ::= '->' SwitchLabelCaseLhs
 -- JSR 360 Restricted
 Goal ::= RestrictedIdentifiersealed Modifiersopt
 Goal ::= RestrictedIdentifierpermits PermittedSubclasses
 -- jsr 427 --
 Goal ::= BeginCaseElement Pattern
-Goal ::= RestrictedIdentifierWhen Expression
 /:$readableName Goal:/
 
 Goal ::= '?' '(' RecordPattern
@@ -1252,8 +1249,11 @@ InstanceofPattern ::=  'instanceof' Pattern
 /:$readableName InstanceofPattern:/
 
 
-Pattern -> TypePattern
-Pattern -> RecordPattern
+Pattern ::= TypePattern
+/.$putCase consumePattern(); $break ./
+/:$readableName Pattern:/
+
+Pattern ::= RecordPattern
 /.$putCase consumePattern(); $break ./
 /:$readableName Pattern:/
 
@@ -3176,3 +3176,4 @@ COLON_COLON ::= '::'
 
 $end
 -- need a carriage return after the $end
+
