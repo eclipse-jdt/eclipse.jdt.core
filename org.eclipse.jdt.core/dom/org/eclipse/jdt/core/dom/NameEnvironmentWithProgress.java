@@ -15,6 +15,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.dom;
 
+import java.io.File;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -54,7 +56,7 @@ class NameEnvironmentWithProgress extends FileSystem implements INameEnvironment
 		NameEnvironmentAnswer answer = super.findType(typeName, packageName, moduleName);
 		if (answer == null && searchWithSecondaryTypes) {
 			NameEnvironmentAnswer suggestedAnswer = null;
-			String qualifiedPackageName = new String(CharOperation.concatWith(packageName, '/'));
+			String platformPackageName = new String(CharOperation.concatWith(packageName, File.separatorChar));
 			String qualifiedTypeName = new String(CharOperation.concatWith(packageName, typeName, '/'));
 			String qualifiedBinaryFileName = qualifiedTypeName + SUFFIX_STRING_class;
 			for (int i = 0, length = this.classpaths.length; i < length; i++) {
@@ -66,7 +68,7 @@ class NameEnvironmentWithProgress extends FileSystem implements INameEnvironment
 						loc -> loc.servesModule(moduleName))) {
 					continue;
 				}
-				answer = classpathDirectory.findSecondaryInClass(typeName, qualifiedPackageName, qualifiedBinaryFileName);
+				answer = classpathDirectory.findSecondaryInClass(typeName, platformPackageName, qualifiedBinaryFileName);
 				if (answer != null) {
 					if (!answer.ignoreIfBetter()) {
 						if (answer.isBetter(suggestedAnswer))

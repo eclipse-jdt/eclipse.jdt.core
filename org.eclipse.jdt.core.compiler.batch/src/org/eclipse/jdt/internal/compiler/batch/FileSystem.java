@@ -484,43 +484,20 @@ private NameEnvironmentAnswer internalFindClass(String qualifiedTypeName, char[]
 		}
 		return null;
 	}
-	String qp2 = File.separatorChar == '/' ? qualifiedPackageName : qualifiedPackageName.replace('/', File.separatorChar);
 	NameEnvironmentAnswer suggestedAnswer = null;
-	if (qualifiedPackageName == qp2) {
-		for (int i = 0, length = this.classpaths.length; i < length; i++) {
-			if (!strategy.matches(this.classpaths[i], Classpath::hasModule))
-				continue;
-			NameEnvironmentAnswer answer = this.classpaths[i].findClass(typeName, qualifiedPackageName, null, qualifiedBinaryFileName, asBinaryOnly);
-			if (answer != null) {
-				if (answer.moduleName() != null && !this.moduleLocations.containsKey(String.valueOf(answer.moduleName())))
-					continue; // type belongs to an unobservable module
-				if (!answer.ignoreIfBetter()) {
-					if (answer.isBetter(suggestedAnswer))
-						return answer;
-				} else if (answer.isBetter(suggestedAnswer))
-					// remember suggestion and keep looking
-					suggestedAnswer = answer;
-			}
-		}
-	} else {
-		String qb2 = qualifiedBinaryFileName.replace('/', File.separatorChar);
-		for (int i = 0, length = this.classpaths.length; i < length; i++) {
-			Classpath p = this.classpaths[i];
-			if (!strategy.matches(p, Classpath::hasModule))
-				continue;
-			NameEnvironmentAnswer answer = !(p instanceof ClasspathDirectory)
-				? p.findClass(typeName, qualifiedPackageName, null, qualifiedBinaryFileName, asBinaryOnly)
-				: p.findClass(typeName, qp2, null, qb2, asBinaryOnly);
-			if (answer != null) {
-				if (answer.moduleName() != null && !this.moduleLocations.containsKey(String.valueOf(answer.moduleName())))
-					continue; // type belongs to an unobservable module
-				if (!answer.ignoreIfBetter()) {
-					if (answer.isBetter(suggestedAnswer))
-						return answer;
-				} else if (answer.isBetter(suggestedAnswer))
-					// remember suggestion and keep looking
-					suggestedAnswer = answer;
-			}
+	for (int i = 0, length = this.classpaths.length; i < length; i++) {
+		if (!strategy.matches(this.classpaths[i], Classpath::hasModule))
+			continue;
+		NameEnvironmentAnswer answer = this.classpaths[i].findClass(typeName, qualifiedPackageName, null, qualifiedBinaryFileName, asBinaryOnly);
+		if (answer != null) {
+			if (answer.moduleName() != null && !this.moduleLocations.containsKey(String.valueOf(answer.moduleName())))
+				continue; // type belongs to an unobservable module
+			if (!answer.ignoreIfBetter()) {
+				if (answer.isBetter(suggestedAnswer))
+					return answer;
+			} else if (answer.isBetter(suggestedAnswer))
+				// remember suggestion and keep looking
+				suggestedAnswer = answer;
 		}
 	}
 	return suggestedAnswer;
@@ -540,38 +517,17 @@ public char[][][] findTypeNames(char[][] packageName) {
 	char[][][] result = null;
 	if (packageName != null) {
 		String qualifiedPackageName = new String(CharOperation.concatWith(packageName, '/'));
-		String qualifiedPackageName2 = File.separatorChar == '/' ? qualifiedPackageName : qualifiedPackageName.replace('/', File.separatorChar);
-		if (qualifiedPackageName == qualifiedPackageName2) {
-			for (int i = 0, length = this.classpaths.length; i < length; i++) {
-				char[][][] answers = this.classpaths[i].findTypeNames(qualifiedPackageName, null);
-				if (answers != null) {
-					// concat with previous answers
-					if (result == null) {
-						result = answers;
-					} else {
-						int resultLength = result.length;
-						int answersLength = answers.length;
-						System.arraycopy(result, 0, (result = new char[answersLength + resultLength][][]), 0, resultLength);
-						System.arraycopy(answers, 0, result, resultLength, answersLength);
-					}
-				}
-			}
-		} else {
-			for (int i = 0, length = this.classpaths.length; i < length; i++) {
-				Classpath p = this.classpaths[i];
-				char[][][] answers = !(p instanceof ClasspathDirectory) ? p.findTypeNames(qualifiedPackageName, null)
-						: p.findTypeNames(qualifiedPackageName2, null);
-				if (answers != null) {
-					// concat with previous answers
-					if (result == null) {
-						result = answers;
-					} else {
-						int resultLength = result.length;
-						int answersLength = answers.length;
-						System.arraycopy(result, 0, (result = new char[answersLength + resultLength][][]), 0,
-								resultLength);
-						System.arraycopy(answers, 0, result, resultLength, answersLength);
-					}
+		for (int i = 0, length = this.classpaths.length; i < length; i++) {
+			char[][][] answers = this.classpaths[i].findTypeNames(qualifiedPackageName, null);
+			if (answers != null) {
+				// concat with previous answers
+				if (result == null) {
+					result = answers;
+				} else {
+					int resultLength = result.length;
+					int answersLength = answers.length;
+					System.arraycopy(result, 0, (result = new char[answersLength + resultLength][][]), 0, resultLength);
+					System.arraycopy(answers, 0, result, resultLength, answersLength);
 				}
 			}
 		}
