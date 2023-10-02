@@ -58,6 +58,62 @@ public void test412555() {
 		true,
 		options);
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1370
+// Deprecation warnings are not suppressed in lambdas of deprecated methods
+public void testGH1370() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
+	this.runNegativeTest(
+		false /* skipJavac */,
+		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError,
+		new String[] {
+			"X.java",
+			"""
+			public class X {
+			  @Deprecated
+			  static void deprecatedMethod(Object o) {}
+			}
+			""",
+			"Y.java",
+			"""
+			import java.util.List;
+			public class Y {
+			  @Deprecated
+			  void callDeprecated() {
+			    X.deprecatedMethod(null);                   // no warning
+			    List.of().forEach(X::deprecatedMethod);     // no warning
+			    List.of().forEach(o -> X.deprecatedMethod(o)); // warning
+			  }
+			  void callDeprecated2() {
+  			    X.deprecatedMethod(null);
+			    List.of().forEach(X::deprecatedMethod);
+			    List.of().forEach(o -> X.deprecatedMethod(o));
+			  }
+			}
+			""",
+		},
+		"""
+		----------
+		1. ERROR in Y.java (at line 10)
+			X.deprecatedMethod(null);
+			  ^^^^^^^^^^^^^^^^^^^^^^
+		The method deprecatedMethod(Object) from the type X is deprecated
+		----------
+		2. ERROR in Y.java (at line 11)
+			List.of().forEach(X::deprecatedMethod);
+			                  ^^^^^^^^^^^^^^^^^^^
+		The method deprecatedMethod(Object) from the type X is deprecated
+		----------
+		3. ERROR in Y.java (at line 12)
+			List.of().forEach(o -> X.deprecatedMethod(o));
+			                         ^^^^^^^^^^^^^^^^^^^
+		The method deprecatedMethod(Object) from the type X is deprecated
+		----------
+		""",
+		null,
+		true,
+		options);
+}
 public static Class testClass() {
 	return Deprecated18Test.class;
 }
