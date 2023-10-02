@@ -19,7 +19,6 @@ import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameN
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameStringLiteral;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameTextBlock;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameIdentifier;
-import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameRestrictedIdentifierWhen;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,6 +33,7 @@ import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.StringLiteral;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.InfixExpression.Operator;
+import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 import org.eclipse.jdt.internal.formatter.Token.WrapMode;
 import org.eclipse.jdt.internal.formatter.linewrap.CommentWrapExecutor;
 
@@ -171,9 +171,10 @@ public class TokenManager implements Iterable<Token> {
 			index++;
 		Token t;
 		while (tokenType >= 0 && (t = get(index)).tokenType != tokenType) {
-			if (tokenType == TokenNameRestrictedIdentifierWhen && t.tokenType == TokenNameIdentifier)
-				if (toString(t).equals("when")) //$NON-NLS-1$
+			if (TerminalTokens.isRestrictedKeyword(tokenType) && t.tokenType == TokenNameIdentifier) {
+				if (tokenType == TerminalTokens.getRestrictedKeyword(toString(t)))
 					break;
+			}
 			index += forward ? 1 : -1;
 		}
 		return index;

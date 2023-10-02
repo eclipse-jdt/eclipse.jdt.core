@@ -1835,4 +1835,24 @@ public class ScannerTest extends AbstractRegressionTest {
 			assertTrue(false);
 		}
 	}
+
+	public void testTerminalTokensAPIs() {
+		char [][] ids = { "when".toCharArray(), "record".toCharArray(), "sealed".toCharArray(),
+				"permits".toCharArray(), "yield".toCharArray()};
+		int [] reskw = { TerminalTokens.TokenNameRestrictedIdentifierWhen,
+							TerminalTokens.TokenNameRestrictedIdentifierrecord,
+							TerminalTokens.TokenNameRestrictedIdentifiersealed,
+							TerminalTokens.TokenNameRestrictedIdentifierpermits,
+							TerminalTokens.TokenNameRestrictedIdentifierYield,};
+		int i = -1;
+		for (char [] id : ids) {
+			i++;
+			int t = TerminalTokens.getRestrictedKeyword(id);
+			assertTrue(t != TerminalTokens.TokenNameNotAToken);
+			assertTrue(TerminalTokens.isRestrictedKeyword(t));
+			assertTrue(t == reskw[i]);
+		}
+		assertTrue(TerminalTokens.getRestrictedKeyword("When".toCharArray()) == TerminalTokens.TokenNameNotAToken);
+		assertTrue(TerminalTokens.getRestrictedKeyword("blah".toCharArray()) == TerminalTokens.TokenNameNotAToken);
+	}
 }

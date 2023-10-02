@@ -4977,11 +4977,9 @@ private static class VanguardParser extends Parser {
 					if (goal.hasBeenReached(act, this.currentToken))
 						return SUCCESS;
 					if (this.currentToken == TokenNameIdentifier) {
-						char [] id = this.scanner.getCurrentIdentifierSource();
-						if (id.length == 4 && id[0] == 'w' && id[1] == 'h' && id[2] == 'e' && id[3] == 'n') {
-						    if (goal.hasBeenReached(act, TokenNameRestrictedIdentifierWhen))
-						    		return SUCCESS;
-						}
+						int reskw = TerminalTokens.getRestrictedKeyword(this.scanner.getCurrentIdentifierSource());
+						if (reskw != TokenNameNotAToken && goal.hasBeenReached(act, reskw))
+							return SUCCESS;
 					}
 					this.stateStackTop -= (Parser.rhs[act] - 1);
 					act = Parser.ntAction(this.stack[this.stateStackTop], Parser.lhs[act]);
