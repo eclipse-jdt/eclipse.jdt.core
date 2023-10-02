@@ -16223,4 +16223,46 @@ public void testBug564052() {
 		"		C3 {\n" +
 		"}");
 }
+
+/**
+ * https://github.com/eclipse-jdt/eclipse.jdt/issues/59 - Formatter support for guard expressions
+ */
+public void testGH59() {
+	setComplianceLevel(CompilerOptions.VERSION_21);
+
+	String source =
+		"""
+		public class JunkClass {
+		    Object myObj;
+
+		    void foo() {
+		            when(myObj);
+		        foo(myObj);
+		        foo(myObj);
+		    }
+
+		    void foo( Object stuff ) {}
+		    void when( Object methodCall ) {}
+		}
+		""";
+	formatSource(source,
+		"""
+		public class JunkClass {
+			Object myObj;
+
+			void foo() {
+				when(myObj);
+				foo(myObj);
+				foo(myObj);
+			}
+
+			void foo(Object stuff) {
+			}
+
+			void when(Object methodCall) {
+			}
+		}
+		""");
+}
+
 }
