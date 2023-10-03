@@ -1425,7 +1425,8 @@ public RecordComponentBinding[] components() {
 		for (MethodBinding method : this.methods) {
 			if (method instanceof SyntheticMethodBinding) {
 				SyntheticMethodBinding smb = (SyntheticMethodBinding) method;
-				if (smb.purpose == SyntheticMethodBinding.RecordCanonicalConstructor) {
+				if (smb.purpose == SyntheticMethodBinding.RecordCanonicalConstructor
+						&& smb.parameters.length == this.components.length) {
 					for (int i = 0, l = smb.parameters.length; i < l; ++i) {
 						smb.parameters[i] = this.components[i].type;
 					}
