@@ -2750,7 +2750,7 @@ public FieldBinding resolveTypeFor(FieldBinding field) {
 public MethodBinding resolveTypesFor(MethodBinding method) {
 	ProblemReporter problemReporter = this.scope.problemReporter();
 	IErrorHandlingPolicy suspendedPolicy = problemReporter.suspendTempErrorHandlingPolicy();
-	try {
+	try (problemReporter) {
 		return resolveTypesWithSuspendedTempErrorHandlingPolicy(method);
 	} finally {
 		problemReporter.resumeTempErrorHandlingPolicy(suspendedPolicy);
