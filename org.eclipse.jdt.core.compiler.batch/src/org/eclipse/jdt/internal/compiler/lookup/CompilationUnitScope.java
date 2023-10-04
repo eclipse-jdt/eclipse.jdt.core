@@ -401,19 +401,14 @@ void connectTypeHierarchy2() {
 	for (int i = 0, length = this.topLevelTypes.length; i < length; i++)
 		this.topLevelTypes[i].scope.referenceType().updateSupertypesWithAnnotations(Collections.emptyMap());
 	// ... checking on permitted types
-	connectDeepPermittedTypes();
+	connectPermittedTypes();
 	for (int i = 0, length = this.topLevelTypes.length; i < length; i++)
 		this.topLevelTypes[i].scope.connectImplicitPermittedTypes();
 }
-private void connectDeepPermittedTypes() {
+private void connectPermittedTypes() {
 	for (int i = 0, length = this.topLevelTypes.length; i < length; i++) {
 		SourceTypeBinding sourceType = this.topLevelTypes[i];
 		sourceType.scope.connectPermittedTypes();
-		ReferenceBinding[] memberTypes = sourceType.memberTypes;
-		if (memberTypes != null && memberTypes != Binding.NO_MEMBER_TYPES) {
-			for (int j = 0, size = memberTypes.length; j < size; j++)
-				 ((SourceTypeBinding) memberTypes[j]).scope.connectPermittedTypes();
-		}
 	}
 }
 void faultInImports() {
