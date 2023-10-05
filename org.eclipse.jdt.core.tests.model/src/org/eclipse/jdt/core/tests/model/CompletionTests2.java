@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2016 IBM Corporation and others.
+ * Copyright (c) 2000, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -17,7 +17,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Map;
 import java.util.StringTokenizer;
 
@@ -53,7 +52,7 @@ import org.eclipse.jdt.internal.core.SourceType;
 
 import junit.framework.Test;
 
-@SuppressWarnings({"rawtypes", "unchecked", "hiding"})
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class CompletionTests2 extends AbstractJavaModelCompletionTests {
 
 	static {
@@ -471,7 +470,6 @@ public void testBug33560() throws Exception {
 	}
 }
 public void testBug6930_01() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
 
 	try {
 		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
@@ -533,20 +531,17 @@ public void testBug6930_01() throws Exception {
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
-
-		JavaCore.setOptions(oldOptions);
 	}
 }
+private String getSetCodeAssistProperty(IJavaProject project, String property, String value) {
+	String old = project.getOption(property, true);
+	project.setOption(property, value);
+	return old;
+}
 public void testBug6930_02() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
-
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib6930.jar"}, "bin");
+	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib6930.jar"}, "bin");
-
 		createJar(new String[] {
 			"p6930/AllConstructors02.java",
 			"package p6930;\n" +
@@ -600,20 +595,12 @@ public void testBug6930_02() throws Exception {
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
-
-		JavaCore.setOptions(oldOptions);
 	}
 }
 public void testBug6930_03() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
-
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
+	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
-
 		createFolder("/P/src/p6930");
 
 		createFile(
@@ -669,20 +656,12 @@ public void testBug6930_03() throws Exception {
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
-
-		JavaCore.setOptions(oldOptions);
 	}
 }
 public void testBug6930_04() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
-
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
+	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
-
 		refresh(p);
 
 		waitUntilIndexesReady();
@@ -739,20 +718,12 @@ public void testBug6930_04() throws Exception {
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
-
-		JavaCore.setOptions(oldOptions);
 	}
 }
 public void testBug6930_05() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
-
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
+	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
-
 		refresh(p);
 
 		waitUntilIndexesReady();
@@ -806,20 +777,12 @@ public void testBug6930_05() throws Exception {
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
-
-		JavaCore.setOptions(oldOptions);
 	}
 }
 public void testBug6930_06() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
-
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib6930.jar"}, "bin");
+	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib6930.jar"}, "bin");
-
 		createFolder("/P/src/p6930");
 
 		createFile(
@@ -879,20 +842,12 @@ public void testBug6930_06() throws Exception {
 
 	} finally {
 		deleteProject("P");
-
-		JavaCore.setOptions(oldOptions);
 	}
 }
 public void testBug6930_07() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
-
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib6930.jar"}, "bin");
+	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib6930.jar"}, "bin");
-
 		createFolder("/P/src/p6930");
 
 		createFile(
@@ -950,20 +905,12 @@ public void testBug6930_07() throws Exception {
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
-
-		JavaCore.setOptions(oldOptions);
 	}
 }
 public void testBug6930_08() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
-
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL15_LIB", "/P/lib6930.jar"}, "bin", "1.5");
+	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL15_LIB", "/P/lib6930.jar"}, "bin", "1.5");
-
 		createFolder("/P/src/p6930");
 
 		createFile(
@@ -1021,21 +968,13 @@ public void testBug6930_08() throws Exception {
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
-
-		JavaCore.setOptions(oldOptions);
 	}
 }
 
 public void testBug6930_09() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
-
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL15_LIB", "/P/lib6930.jar"}, "bin", "1.5");
+	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL15_LIB", "/P/lib6930.jar"}, "bin", "1.5");
-
 		createFolder("/P/src/p6930");
 
 		createFile(
@@ -1099,20 +1038,12 @@ public void testBug6930_09() throws Exception {
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
-
-		JavaCore.setOptions(oldOptions);
 	}
 }
 public void testBug6930_10() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
-
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL15_LIB", "/P/lib6930.jar"}, "bin", "1.5");
+	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL15_LIB", "/P/lib6930.jar"}, "bin", "1.5");
-
 		createFolder("/P/src/p6930");
 
 		createFile(
@@ -1187,20 +1118,12 @@ public void testBug6930_10() throws Exception {
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
-
-		JavaCore.setOptions(oldOptions);
 	}
 }
 public void testBug6930_11() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
-
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib6930.jar"}, "bin");
+	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib6930.jar"}, "bin");
-
 		createFolder("/P/src/p6930");
 
 		createFile(
@@ -1242,20 +1165,12 @@ public void testBug6930_11() throws Exception {
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
-
-		JavaCore.setOptions(oldOptions);
 	}
 }
 public void testBug6930_12() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
-
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib6930.jar"}, "bin");
+	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib6930.jar"}, "bin");
-
 		createFolder("/P/src/p6930");
 
 		createFile(
@@ -1299,20 +1214,12 @@ public void testBug6930_12() throws Exception {
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
-
-		JavaCore.setOptions(oldOptions);
 	}
 }
 public void testBug6930_13() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
-
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib6930.jar"}, "bin");
+	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib6930.jar"}, "bin");
-
 		createFolder("/P/src/p6930");
 
 		createFile(
@@ -1352,20 +1259,12 @@ public void testBug6930_13() throws Exception {
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
-
-		JavaCore.setOptions(oldOptions);
 	}
 }
 public void testBug6930_14() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
-
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib6930.jar"}, "bin");
+	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib6930.jar"}, "bin");
-
 		createFolder("/P/src/p6930");
 
 		createFile(
@@ -1407,20 +1306,12 @@ public void testBug6930_14() throws Exception {
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
-
-		JavaCore.setOptions(oldOptions);
 	}
 }
 public void testBug6930_15() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
-
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL15_LIB", "/P/lib6930.jar"}, "bin", "1.5");
+	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL15_LIB", "/P/lib6930.jar"}, "bin", "1.5");
-
 		createFolder("/P/src/p6930");
 
 		createFile(
@@ -1480,20 +1371,12 @@ public void testBug6930_15() throws Exception {
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
-
-		JavaCore.setOptions(oldOptions);
 	}
 }
 public void testBug6930_16() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
-
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL15_LIB", "/P/lib6930.jar"}, "bin", "1.5");
+	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL15_LIB", "/P/lib6930.jar"}, "bin", "1.5");
-
 		createFolder("/P/src/p6930");
 
 		createFile(
@@ -1556,19 +1439,12 @@ public void testBug6930_16() throws Exception {
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
-
-		JavaCore.setOptions(oldOptions);
 	}
 }
 public void testBug6930_17() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
-
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL15_LIB", "/P/lib6930.jar"}, "bin", "1.5");
+	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL15_LIB", "/P/lib6930.jar"}, "bin", "1.5");
 
 		createFolder("/P/src/p6930");
 
@@ -1632,20 +1508,12 @@ public void testBug6930_17() throws Exception {
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
-
-		JavaCore.setOptions(oldOptions);
 	}
 }
 public void testBug6930_18() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
-
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib6930.jar"}, "bin");
+	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib6930.jar"}, "bin");
-
 		createFolder("/P/src/p6930");
 
 		createFile(
@@ -1701,20 +1569,12 @@ public void testBug6930_18() throws Exception {
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
-
-		JavaCore.setOptions(oldOptions);
 	}
 }
 public void testBug6930_19() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
-
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib6930.jar"}, "bin");
+	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib6930.jar"}, "bin");
-
 		createFolder("/P/src/p6930");
 
 		createFile(
@@ -1773,20 +1633,12 @@ public void testBug6930_19() throws Exception {
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
-
-		JavaCore.setOptions(oldOptions);
 	}
 }
 public void testBug6930_20() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
-
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL15_LIB", "/P/lib6930.jar"}, "bin", "1.5");
+	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL15_LIB", "/P/lib6930.jar"}, "bin", "1.5");
-
 		createFolder("/P/src/p6930");
 
 		createFile(
@@ -1843,20 +1695,12 @@ public void testBug6930_20() throws Exception {
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
-
-		JavaCore.setOptions(oldOptions);
 	}
 }
 public void testBug6930_21() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
-
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL15_LIB", "/P/lib6930.jar"}, "bin", "1.5");
+	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL15_LIB", "/P/lib6930.jar"}, "bin", "1.5");
-
 		createFolder("/P/src/p6930");
 
 		createFile(
@@ -1917,19 +1761,12 @@ public void testBug6930_21() throws Exception {
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
-
-		JavaCore.setOptions(oldOptions);
 	}
 }
 public void testBug6930_22() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
-
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib6930.jar"}, "bin");
+	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib6930.jar"}, "bin");
 
 		createFolder("/P/src/p6930");
 
@@ -1989,19 +1826,12 @@ public void testBug6930_22() throws Exception {
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
-
-		JavaCore.setOptions(oldOptions);
 	}
 }
 public void testBug6930_23() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
-
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib6930.jar"}, "bin");
+	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib6930.jar"}, "bin");
 
 		createFolder("/P/src/p6930");
 
@@ -2064,19 +1894,12 @@ public void testBug6930_23() throws Exception {
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
-
-		JavaCore.setOptions(oldOptions);
 	}
 }
 public void testBug6930_24() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
-
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib6930.jar"}, "bin");
+	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib6930.jar"}, "bin");
 
 		createFolder("/P/src/p6930");
 
@@ -2139,19 +1962,12 @@ public void testBug6930_24() throws Exception {
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
-
-		JavaCore.setOptions(oldOptions);
 	}
 }
 public void testBug6930_25() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
-
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib6930.jar"}, "bin");
+	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib6930.jar"}, "bin");
 
 		createFolder("/P/src/p6930");
 
@@ -2217,19 +2033,12 @@ public void testBug6930_25() throws Exception {
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
-
-		JavaCore.setOptions(oldOptions);
 	}
 }
 public void testBug6930_26() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
-
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
+	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
 
 		refresh(p);
 
@@ -2270,19 +2079,12 @@ public void testBug6930_26() throws Exception {
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
-
-		JavaCore.setOptions(oldOptions);
 	}
 }
 public void testBug6930_27() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
-
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
+	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
 
 		refresh(p);
 
@@ -2323,22 +2125,13 @@ public void testBug6930_27() throws Exception {
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
-
-		JavaCore.setOptions(oldOptions);
 	}
 }
 public void testBug6930_28() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
-
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
+	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
-
 		refresh(p);
-
 		waitUntilIndexesReady();
 
 		this.workingCopies = new ICompilationUnit[3];
@@ -2386,19 +2179,12 @@ public void testBug6930_28() throws Exception {
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
-
-		JavaCore.setOptions(oldOptions);
 	}
 }
 public void testBug6930_29() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
-
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib6930.jar"}, "bin");
+	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib6930.jar"}, "bin");
 
 		createJar(new String[] {
 			"p6930/AllConstructors29.java",
@@ -2444,22 +2230,13 @@ public void testBug6930_29() throws Exception {
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
-
-		JavaCore.setOptions(oldOptions);
 	}
 }
 public void testBug6930_30() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
-
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
+	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
-
 		refresh(p);
-
 		waitUntilIndexesReady();
 
 		this.workingCopies = new ICompilationUnit[1];
@@ -2495,22 +2272,13 @@ public void testBug6930_30() throws Exception {
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
-
-		JavaCore.setOptions(oldOptions);
 	}
 }
 public void testBug6930_31() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
-
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
+	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
-
 		refresh(p);
-
 		waitUntilIndexesReady();
 
 		this.workingCopies = new ICompilationUnit[1];
@@ -2547,22 +2315,13 @@ public void testBug6930_31() throws Exception {
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
-
-		JavaCore.setOptions(oldOptions);
 	}
 }
 public void testBug6930_32() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
-
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
+	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
-
 		refresh(p);
-
 		waitUntilIndexesReady();
 
 		this.workingCopies = new ICompilationUnit[1];
@@ -2600,20 +2359,12 @@ public void testBug6930_32() throws Exception {
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
-
-		JavaCore.setOptions(oldOptions);
 	}
 }
 public void testBug6930_33() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
-
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
+	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
-
 		createFolder("/P/src/p6930");
 		createFolder("/P/src/p6930_1");
 		createFolder("/P/src/p6930_2");
@@ -2671,20 +2422,12 @@ public void testBug6930_33() throws Exception {
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
-
-		JavaCore.setOptions(oldOptions);
 	}
 }
 public void testBug6930_34() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
-
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
+	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
-
 		Map compileOptions = new HashMap();
 		compileOptions.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.DO_NOT_GENERATE);
 
@@ -2733,19 +2476,12 @@ public void testBug6930_34() throws Exception {
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
-
-		JavaCore.setOptions(oldOptions);
 	}
 }
 public void testBug6930_35() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
-
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
+	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
 
 		Map compileOptions = new HashMap();
 		compileOptions.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.DO_NOT_GENERATE);
@@ -2799,8 +2535,6 @@ public void testBug6930_35() throws Exception {
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
-
-		JavaCore.setOptions(oldOptions);
 	}
 }
 public void testBug79288() throws Exception {
@@ -2963,14 +2697,7 @@ public void testBug91772() throws Exception {
 	}
 }
 public void testBug93891() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
-		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
-		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
-		JavaCore.setOptions(options);
-
 		// create variable
 //		JavaCore.setClasspathVariables(
 //			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
@@ -2978,11 +2705,14 @@ public void testBug93891() throws Exception {
 //			null);
 
 		// create P1
-		this.createJavaProject(
+		IJavaProject project = this.createJavaProject(
 			"P1",
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
 			 "bin");
+		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
+		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 
 		this.createFolder("/P1/src/a");
 		this.createFile(
@@ -3005,11 +2735,14 @@ public void testBug93891() throws Exception {
 		String[] lib = new String[classLibLength + 1];
 		System.arraycopy(classLib, 0, lib, 0, classLibLength);
 		lib[classLibLength] = "org.eclipse.jdt.core.tests.model.TEST_CONTAINER";
-		this.createJavaProject(
+		project = this.createJavaProject(
 			"P2",
 			new String[]{"src"},
 			lib,
 			"bin");
+		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
+		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 
 		this.createFolder("/P2/src/b");
 		this.createFile(
@@ -3044,19 +2777,10 @@ public void testBug93891() throws Exception {
 		manager.containers = new HashMap(5);
 		manager.variables = new HashMap(5);
 
-		JavaCore.setOptions(oldOptions);
 	}
 }
 public void testAccessRestriction1() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.IGNORE);
-		options.put(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, JavaCore.IGNORE);
-		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
-		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
-		JavaCore.setOptions(options);
-
 		// create variable
 //		JavaCore.setClasspathVariables(
 //			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
@@ -3064,11 +2788,15 @@ public void testAccessRestriction1() throws Exception {
 //			null);
 
 		// create P1
-		this.createJavaProject(
+		IJavaProject project = this.createJavaProject(
 			"P1",
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
 			 "bin");
+		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.IGNORE);
+		project.setOption(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, JavaCore.IGNORE);
+		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
+		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 
 		this.createFolder("/P1/src/a");
 		this.createFile(
@@ -3085,12 +2813,17 @@ public void testAccessRestriction1() throws Exception {
 				"}");
 
 		// create P2
-		this.createJavaProject(
+		project = this.createJavaProject(
 			"P2",
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
 			new String[]{"/P1"},
 			"bin");
+		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.IGNORE);
+		project.setOption(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, JavaCore.IGNORE);
+		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
+		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
+
 		this.createFile(
 			"/P2/src/YY.java",
 			"public class YY {\n"+
@@ -3117,20 +2850,11 @@ public void testAccessRestriction1() throws Exception {
 	} finally {
 		this.deleteProject("P1");
 		this.deleteProject("P2");
-		JavaCore.setOptions(oldOptions);
 	}
 }
 
 public void testAccessRestriction2() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.IGNORE);
-		options.put(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, JavaCore.IGNORE);
-		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
-		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
-		JavaCore.setOptions(options);
-
 		// create variable
 //		JavaCore.setClasspathVariables(
 //			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
@@ -3138,11 +2862,15 @@ public void testAccessRestriction2() throws Exception {
 //			null);
 
 		// create P1
-		this.createJavaProject(
+		IJavaProject project = this.createJavaProject(
 			"P1",
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
 			 "bin");
+		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.IGNORE);
+		project.setOption(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, JavaCore.IGNORE);
+		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
+		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 
 		this.createFolder("/P1/src/a");
 		this.createFile(
@@ -3159,7 +2887,7 @@ public void testAccessRestriction2() throws Exception {
 				"}");
 
 		// create P2
-		this.createJavaProject(
+		project = this.createJavaProject(
 			"P2",
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
@@ -3174,6 +2902,11 @@ public void testAccessRestriction2() throws Exception {
 			null,
 			null,
 			"1.4");
+		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.IGNORE);
+		project.setOption(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, JavaCore.IGNORE);
+		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
+		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
+
 		this.createFile(
 			"/P2/src/YY.java",
 			"public class YY {\n"+
@@ -3200,18 +2933,10 @@ public void testAccessRestriction2() throws Exception {
 	} finally {
 		this.deleteProject("P1");
 		this.deleteProject("P2");
-		JavaCore.setOptions(oldOptions);
 	}
 }
 public void testAccessRestriction3() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
-		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
-		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
-		JavaCore.setOptions(options);
-
 		// create variable
 //		JavaCore.setClasspathVariables(
 //			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
@@ -3219,11 +2944,14 @@ public void testAccessRestriction3() throws Exception {
 //			null);
 
 		// create P1
-		this.createJavaProject(
+		IJavaProject project = this.createJavaProject(
 			"P1",
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
 			 "bin");
+		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
+		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
+		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 
 		this.createFolder("/P1/src/a");
 		this.createFile(
@@ -3240,7 +2968,7 @@ public void testAccessRestriction3() throws Exception {
 				"}");
 
 		// create P2
-		this.createJavaProject(
+		project = this.createJavaProject(
 			"P2",
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
@@ -3255,6 +2983,10 @@ public void testAccessRestriction3() throws Exception {
 			null,
 			null,
 			"1.4");
+		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
+		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
+		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
+
 		this.createFile(
 			"/P2/src/YY.java",
 			"public class YY {\n"+
@@ -3281,19 +3013,10 @@ public void testAccessRestriction3() throws Exception {
 	} finally {
 		this.deleteProject("P1");
 		this.deleteProject("P2");
-		JavaCore.setOptions(oldOptions);
 	}
 }
 public void testAccessRestriction4() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.IGNORE);
-		options.put(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, JavaCore.IGNORE);
-		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
-		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
-		JavaCore.setOptions(options);
-
 		// create variable
 //		JavaCore.setClasspathVariables(
 //			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
@@ -3301,11 +3024,15 @@ public void testAccessRestriction4() throws Exception {
 //			null);
 
 		// create P1
-		this.createJavaProject(
+		IJavaProject project = this.createJavaProject(
 			"P1",
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
 			 "bin");
+		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.IGNORE);
+		project.setOption(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, JavaCore.IGNORE);
+		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 
 		this.createFolder("/P1/src/a");
 		this.createFile(
@@ -3322,7 +3049,7 @@ public void testAccessRestriction4() throws Exception {
 				"}");
 
 		// create P2
-		this.createJavaProject(
+		project = this.createJavaProject(
 			"P2",
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
@@ -3337,6 +3064,11 @@ public void testAccessRestriction4() throws Exception {
 			null,
 			null,
 			"1.4");
+		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.IGNORE);
+		project.setOption(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, JavaCore.IGNORE);
+		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
+
 		this.createFile(
 			"/P2/src/YY.java",
 			"public class YY {\n"+
@@ -3363,18 +3095,10 @@ public void testAccessRestriction4() throws Exception {
 	} finally {
 		this.deleteProject("P1");
 		this.deleteProject("P2");
-		JavaCore.setOptions(oldOptions);
 	}
 }
 public void testAccessRestriction5() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
-		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
-		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
-		JavaCore.setOptions(options);
-
 		// create variable
 //		JavaCore.setClasspathVariables(
 //			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
@@ -3382,11 +3106,14 @@ public void testAccessRestriction5() throws Exception {
 //			null);
 
 		// create P1
-		this.createJavaProject(
+		IJavaProject project = this.createJavaProject(
 			"P1",
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
 			 "bin");
+		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
+		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 
 		this.createFolder("/P1/src/a");
 		this.createFile(
@@ -3403,7 +3130,7 @@ public void testAccessRestriction5() throws Exception {
 				"}");
 
 		// create P2
-		this.createJavaProject(
+		project = this.createJavaProject(
 			"P2",
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
@@ -3418,6 +3145,10 @@ public void testAccessRestriction5() throws Exception {
 			null,
 			null,
 			"1.4");
+		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
+		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
+
 		this.createFile(
 			"/P2/src/YY.java",
 			"public class YY {\n"+
@@ -3443,18 +3174,10 @@ public void testAccessRestriction5() throws Exception {
 	} finally {
 		this.deleteProject("P1");
 		this.deleteProject("P2");
-		JavaCore.setOptions(oldOptions);
 	}
 }
 public void testAccessRestriction6() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
-		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
-		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
-		JavaCore.setOptions(options);
-
 		// create variable
 //		JavaCore.setClasspathVariables(
 //			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
@@ -3462,11 +3185,14 @@ public void testAccessRestriction6() throws Exception {
 //			null);
 
 		// create P1
-		this.createJavaProject(
+		IJavaProject project = this.createJavaProject(
 			"P1",
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
 			 "bin");
+		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
+		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 
 		this.createFolder("/P1/src/a");
 		this.createFile(
@@ -3490,7 +3216,7 @@ public void testAccessRestriction6() throws Exception {
 				"}");
 
 		// create P2
-		this.createJavaProject(
+		project = this.createJavaProject(
 			"P2",
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
@@ -3505,9 +3231,12 @@ public void testAccessRestriction6() throws Exception {
 			null,
 			null,
 			"1.4");
+		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
+		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 
 		// create P3
-		this.createJavaProject(
+		project = this.createJavaProject(
 			"P3",
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
@@ -3522,6 +3251,9 @@ public void testAccessRestriction6() throws Exception {
 			null,
 			null,
 			"1.4");
+		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
+		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 
 		this.createFile(
 			"/P3/src/YY.java",
@@ -3549,18 +3281,11 @@ public void testAccessRestriction6() throws Exception {
 		this.deleteProject("P1");
 		this.deleteProject("P2");
 		this.deleteProject("P3");
-		JavaCore.setOptions(oldOptions);
+
 	}
 }
 public void testAccessRestriction7() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
-		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
-		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
-		JavaCore.setOptions(options);
-
 		// create variable
 //		JavaCore.setClasspathVariables(
 //			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
@@ -3568,11 +3293,14 @@ public void testAccessRestriction7() throws Exception {
 //			null);
 
 		// create P1
-		this.createJavaProject(
+		IJavaProject project = this.createJavaProject(
 			"P1",
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
 			 "bin");
+		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
+		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 
 		this.createFolder("/P1/src/a");
 		this.createFile(
@@ -3589,7 +3317,7 @@ public void testAccessRestriction7() throws Exception {
 				"}");
 
 		// create P2
-		this.createJavaProject(
+		project = this.createJavaProject(
 			"P2",
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
@@ -3604,6 +3332,10 @@ public void testAccessRestriction7() throws Exception {
 			null,
 			null,
 			"1.4");
+		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
+		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
+
 		this.createFile(
 				"/P2/src/YY.java",
 				"public class YY {\n"+
@@ -3613,7 +3345,7 @@ public void testAccessRestriction7() throws Exception {
 				"}");
 
 		// create P3
-		this.createJavaProject(
+		project = this.createJavaProject(
 			"P3",
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
@@ -3628,6 +3360,9 @@ public void testAccessRestriction7() throws Exception {
 			null,
 			null,
 			"1.4");
+		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
+		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 
 		waitUntilIndexesReady();
 
@@ -3647,18 +3382,11 @@ public void testAccessRestriction7() throws Exception {
 		this.deleteProject("P1");
 		this.deleteProject("P2");
 		this.deleteProject("P3");
-		JavaCore.setOptions(oldOptions);
+
 	}
 }
 public void testAccessRestriction8() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
-		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
-		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
-		JavaCore.setOptions(options);
-
 		// create variable
 //		JavaCore.setClasspathVariables(
 //			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
@@ -3666,11 +3394,14 @@ public void testAccessRestriction8() throws Exception {
 //			null);
 
 		// create P1
-		this.createJavaProject(
+		IJavaProject project = this.createJavaProject(
 			"P1",
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
 			 "bin");
+		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
+		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 
 		this.createFolder("/P1/src/a");
 		this.createFile(
@@ -3687,7 +3418,7 @@ public void testAccessRestriction8() throws Exception {
 				"}");
 
 		// create P2
-		this.createJavaProject(
+		project = this.createJavaProject(
 			"P2",
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
@@ -3702,6 +3433,10 @@ public void testAccessRestriction8() throws Exception {
 			null,
 			null,
 			"1.4");
+		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
+		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
+
 		this.createFile(
 				"/P2/src/YY.java",
 				"public class YY {\n"+
@@ -3711,7 +3446,7 @@ public void testAccessRestriction8() throws Exception {
 				"}");
 
 		// create P3
-		this.createJavaProject(
+		project = this.createJavaProject(
 			"P3",
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
@@ -3726,6 +3461,9 @@ public void testAccessRestriction8() throws Exception {
 			null,
 			null,
 			"1.4");
+		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
+		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 
 		waitUntilIndexesReady();
 
@@ -3746,18 +3484,11 @@ public void testAccessRestriction8() throws Exception {
 		this.deleteProject("P1");
 		this.deleteProject("P2");
 		this.deleteProject("P3");
-		JavaCore.setOptions(oldOptions);
+
 	}
 }
 public void testAccessRestriction9() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
-		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
-		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
-		JavaCore.setOptions(options);
-
 		// create variable
 //		JavaCore.setClasspathVariables(
 //			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
@@ -3765,11 +3496,14 @@ public void testAccessRestriction9() throws Exception {
 //			null);
 
 		// create P1
-		this.createJavaProject(
+		IJavaProject project = this.createJavaProject(
 			"P1",
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
 			 "bin");
+		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
+		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 
 		this.createFolder("/P1/src/p11");
 		this.createFile(
@@ -3786,7 +3520,7 @@ public void testAccessRestriction9() throws Exception {
 				"}");
 
 		// create P2
-		this.createJavaProject(
+		project = this.createJavaProject(
 			"P2",
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
@@ -3801,6 +3535,9 @@ public void testAccessRestriction9() throws Exception {
 			null,
 			null,
 			"1.4");
+		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
+		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 
 		this.createFolder("/P2/src/p21");
 		this.createFile(
@@ -3817,7 +3554,7 @@ public void testAccessRestriction9() throws Exception {
 				"}");
 
 		// create P3
-		this.createJavaProject(
+		project = this.createJavaProject(
 			"P3",
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
@@ -3832,6 +3569,9 @@ public void testAccessRestriction9() throws Exception {
 			null,
 			null,
 			"1.4");
+		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
+		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 
 		this.createFolder("/P3/src/p31");
 		this.createFile(
@@ -3848,7 +3588,7 @@ public void testAccessRestriction9() throws Exception {
 				"}");
 
 		// create PX
-		this.createJavaProject(
+		project = this.createJavaProject(
 				"PX",
 				new String[]{"src"},
 				new String[]{"JCL_LIB"},
@@ -3863,6 +3603,9 @@ public void testAccessRestriction9() throws Exception {
 				null,
 				null,
 				"1.4");
+		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
+		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 
 		this.createFile(
 				"/PX/src/X.java",
@@ -3894,18 +3637,11 @@ public void testAccessRestriction9() throws Exception {
 		this.deleteProject("P2");
 		this.deleteProject("P3");
 		this.deleteProject("PX");
-		JavaCore.setOptions(oldOptions);
+
 	}
 }
 public void testAccessRestriction10() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
-		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
-		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
-		JavaCore.setOptions(options);
-
 		// create variable
 //		JavaCore.setClasspathVariables(
 //			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
@@ -3913,11 +3649,14 @@ public void testAccessRestriction10() throws Exception {
 //			null);
 
 		// create P1
-		this.createJavaProject(
+		IJavaProject project = this.createJavaProject(
 			"P1",
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
 			 "bin");
+		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
+		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
+		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 
 		this.createFolder("/P1/src/p11");
 		this.createFile(
@@ -3934,7 +3673,7 @@ public void testAccessRestriction10() throws Exception {
 				"}");
 
 		// create P2
-		this.createJavaProject(
+		project = this.createJavaProject(
 			"P2",
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
@@ -3949,6 +3688,9 @@ public void testAccessRestriction10() throws Exception {
 			null,
 			null,
 			"1.4");
+		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
+		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
+		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 
 		this.createFolder("/P2/src/p21");
 		this.createFile(
@@ -3965,7 +3707,7 @@ public void testAccessRestriction10() throws Exception {
 				"}");
 
 		// create P3
-		this.createJavaProject(
+		project = this.createJavaProject(
 			"P3",
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
@@ -3980,6 +3722,9 @@ public void testAccessRestriction10() throws Exception {
 			null,
 			null,
 			"1.4");
+		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
+		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
+		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 
 		this.createFolder("/P3/src/p31");
 		this.createFile(
@@ -3996,7 +3741,7 @@ public void testAccessRestriction10() throws Exception {
 				"}");
 
 		// create PX
-		this.createJavaProject(
+		project = this.createJavaProject(
 				"PX",
 				new String[]{"src"},
 				new String[]{"JCL_LIB"},
@@ -4011,6 +3756,9 @@ public void testAccessRestriction10() throws Exception {
 				null,
 				null,
 				"1.4");
+		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
+		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
+		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 
 		this.createFile(
 				"/PX/src/X.java",
@@ -4044,18 +3792,11 @@ public void testAccessRestriction10() throws Exception {
 		this.deleteProject("P2");
 		this.deleteProject("P3");
 		this.deleteProject("PX");
-		JavaCore.setOptions(oldOptions);
+
 	}
 }
 public void testAccessRestriction11() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
-		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
-		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
-		JavaCore.setOptions(options);
-
 		// create variable
 //		JavaCore.setClasspathVariables(
 //			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
@@ -4063,11 +3804,14 @@ public void testAccessRestriction11() throws Exception {
 //			null);
 
 		// create P1
-		this.createJavaProject(
+		IJavaProject project = this.createJavaProject(
 			"P1",
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
 			 "bin");
+		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
+		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 
 		this.createFolder("/P1/src/x/y/z/p11");
 		this.createFile(
@@ -4084,7 +3828,7 @@ public void testAccessRestriction11() throws Exception {
 				"}");
 
 		// create P2
-		this.createJavaProject(
+		project = this.createJavaProject(
 			"P2",
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
@@ -4099,6 +3843,9 @@ public void testAccessRestriction11() throws Exception {
 			null,
 			null,
 			"1.4");
+		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
+		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 
 		this.createFolder("/P2/src/x/y/z/p21");
 		this.createFile(
@@ -4115,7 +3862,7 @@ public void testAccessRestriction11() throws Exception {
 				"}");
 
 		// create P3
-		this.createJavaProject(
+		project = this.createJavaProject(
 			"P3",
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
@@ -4130,6 +3877,9 @@ public void testAccessRestriction11() throws Exception {
 			null,
 			null,
 			"1.4");
+		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
+		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 
 		this.createFolder("/P3/src/x/y/z/p31");
 		this.createFile(
@@ -4146,7 +3896,7 @@ public void testAccessRestriction11() throws Exception {
 				"}");
 
 		// create PX
-		this.createJavaProject(
+		project = this.createJavaProject(
 				"PX",
 				new String[]{"src"},
 				new String[]{"JCL_LIB"},
@@ -4161,6 +3911,9 @@ public void testAccessRestriction11() throws Exception {
 				null,
 				null,
 				"1.4");
+		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
+		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 
 		this.createFile(
 				"/PX/src/X.java",
@@ -4192,18 +3945,10 @@ public void testAccessRestriction11() throws Exception {
 		this.deleteProject("P2");
 		this.deleteProject("P3");
 		this.deleteProject("PX");
-		JavaCore.setOptions(oldOptions);
 	}
 }
 public void testAccessRestriction12() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
-		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
-		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
-		JavaCore.setOptions(options);
-
 		// create variable
 //		JavaCore.setClasspathVariables(
 //			new String[] {"JCL_LIB", "JCL_SRC", "JCL_SRCROOT"},
@@ -4211,11 +3956,14 @@ public void testAccessRestriction12() throws Exception {
 //			null);
 
 		// create P1
-		this.createJavaProject(
+		IJavaProject project = this.createJavaProject(
 			"P1",
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
 			 "bin");
+		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
+		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
+		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 
 		this.createFolder("/P1/src/p11");
 		this.createFile(
@@ -4232,7 +3980,7 @@ public void testAccessRestriction12() throws Exception {
 				"}");
 
 		// create P2
-		this.createJavaProject(
+		project = this.createJavaProject(
 			"P2",
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
@@ -4247,6 +3995,9 @@ public void testAccessRestriction12() throws Exception {
 			null,
 			null,
 			"1.4");
+		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
+		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
+		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 
 		this.createFolder("/P2/src/p21");
 		this.createFile(
@@ -4263,7 +4014,7 @@ public void testAccessRestriction12() throws Exception {
 				"}");
 
 		// create P3
-		this.createJavaProject(
+		project = this.createJavaProject(
 			"P3",
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
@@ -4278,6 +4029,9 @@ public void testAccessRestriction12() throws Exception {
 			null,
 			null,
 			"1.4");
+		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
+		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
+		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 
 		this.createFolder("/P3/src/p31");
 		this.createFile(
@@ -4294,7 +4048,7 @@ public void testAccessRestriction12() throws Exception {
 				"}");
 
 		// create PX
-		this.createJavaProject(
+		project = this.createJavaProject(
 				"PX",
 				new String[]{"src"},
 				new String[]{"JCL_LIB"},
@@ -4309,6 +4063,9 @@ public void testAccessRestriction12() throws Exception {
 				null,
 				null,
 				"1.4");
+		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
+		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
+		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 
 		this.createFile(
 				"/PX/src/X.java",
@@ -4342,17 +4099,10 @@ public void testAccessRestriction12() throws Exception {
 		this.deleteProject("P2");
 		this.deleteProject("P3");
 		this.deleteProject("PX");
-		JavaCore.setOptions(oldOptions);
 	}
 }
 public void testAccessRestriction13() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.WARNING);
-		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
-		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
-		JavaCore.setOptions(options);
 
 		// create variable
 //		JavaCore.setClasspathVariables(
@@ -4361,11 +4111,14 @@ public void testAccessRestriction13() throws Exception {
 //			null);
 
 		// create P1
-		this.createJavaProject(
+		IJavaProject project = this.createJavaProject(
 			"P1",
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
 			 "bin");
+		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.WARNING);
+		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 
 		this.createFolder("/P1/src/a");
 		this.createFile(
@@ -4382,7 +4135,7 @@ public void testAccessRestriction13() throws Exception {
 				"}");
 
 		// create P2
-		this.createJavaProject(
+		project = this.createJavaProject(
 			"P2",
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
@@ -4397,6 +4150,10 @@ public void testAccessRestriction13() throws Exception {
 			null,
 			null,
 			"1.4");
+		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.WARNING);
+		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
+
 		this.createFile(
 			"/P2/src/YY.java",
 			"public class YY {\n"+
@@ -4422,17 +4179,10 @@ public void testAccessRestriction13() throws Exception {
 	} finally {
 		this.deleteProject("P1");
 		this.deleteProject("P2");
-		JavaCore.setOptions(oldOptions);
 	}
 }
 public void testAccessRestriction14() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.WARNING);
-		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
-		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
 
 		// create variable
 //		JavaCore.setClasspathVariables(
@@ -4441,11 +4191,14 @@ public void testAccessRestriction14() throws Exception {
 //			null);
 
 		// create P1
-		this.createJavaProject(
+		IJavaProject project = this.createJavaProject(
 			"P1",
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
 			 "bin");
+		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.WARNING);
+		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.ENABLED);
 
 		this.createFolder("/P1/src/a");
 		this.createFile(
@@ -4462,7 +4215,7 @@ public void testAccessRestriction14() throws Exception {
 				"}");
 
 		// create P2
-		this.createJavaProject(
+		project = this.createJavaProject(
 			"P2",
 			new String[]{"src"},
 			new String[]{"JCL_LIB"},
@@ -4477,6 +4230,11 @@ public void testAccessRestriction14() throws Exception {
 			null,
 			null,
 			"1.4");
+
+		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.WARNING);
+		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.ENABLED);
+
 		this.createFile(
 			"/P2/src/YY.java",
 			"public class YY {\n"+
@@ -4502,7 +4260,6 @@ public void testAccessRestriction14() throws Exception {
 	} finally {
 		this.deleteProject("P1");
 		this.deleteProject("P2");
-		JavaCore.setOptions(oldOptions);
 	}
 }
 //public void testAccessRestrictionX() throws Exception {
@@ -4642,14 +4399,9 @@ public void testBug96950() throws Exception {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=276890
 public void testBug276890_01() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
-
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL15_LIB"}, "bin", "1.5");
+	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL15_LIB"}, "bin", "1.5");
 
 		createFolder("/P/src/p276890");
 
@@ -4699,21 +4451,13 @@ public void testBug276890_01() throws Exception {
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
-
-		JavaCore.setOptions(oldOptions);
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=276890
 public void testBug276890_02() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
-
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL15_LIB"}, "bin", "1.5");
+	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL15_LIB"}, "bin", "1.5");
-
 		createFolder("/P/src/p276890");
 
 		refresh(p);
@@ -4762,21 +4506,13 @@ public void testBug276890_02() throws Exception {
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
-
-		JavaCore.setOptions(oldOptions);
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=276890
 public void testBug276890_03() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
-
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL15_LIB", "/P/lib276890.jar"}, "bin", "1.5");
+	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL15_LIB", "/P/lib276890.jar"}, "bin", "1.5");
-
 		createFolder("/P/src/p276890");
 
 		createJar(
@@ -4830,8 +4566,6 @@ public void testBug276890_03() throws Exception {
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
-
-		JavaCore.setOptions(oldOptions);
 	}
 }
 /**
@@ -5130,14 +4864,9 @@ public void testBug237469b() throws Exception {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=270113
 public void testBug270113_01() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
-
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib270113.jar"}, "bin");
+	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib270113.jar"}, "bin");
 
 		createJar(new String[] {
 			"p270113/AllConstructors01.java",
@@ -5177,8 +4906,6 @@ public void testBug270113_01() throws Exception {
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
-
-		JavaCore.setOptions(oldOptions);
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=281598
@@ -6360,15 +6087,9 @@ public void testBug418011() throws CoreException {
 // Content Assist / Quick Fix import suggestion for nested annotations with argument list
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=376977
 public void testBug376977() throws CoreException {
-	Hashtable oldOptions = JavaCore.getOptions();
-
+	IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
+	getSetCodeAssistProperty(p, JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB"}, "bin");
-
 		refresh(p);
 
 		waitUntilIndexesReady();
@@ -6411,8 +6132,6 @@ public void testBug376977() throws CoreException {
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
-
-		JavaCore.setOptions(oldOptions);
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=442868
@@ -6488,15 +6207,10 @@ public void test479656() throws Exception {
 	}
 }
 public void testBug575562_AccessRestrictionCheck_ENABLED() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
-		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
-		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
-		JavaCore.setOptions(options);
+
 		setUpJavaProject("AccessRestrictions", "1.4", false);
-		createJavaProject(
+		IJavaProject project = createJavaProject(
 				"P1",
 				new String[] {"src"},
 				new String[] {"JCL_LIB", "/AccessRestrictions/lib.jar"},
@@ -6511,6 +6225,9 @@ public void testBug575562_AccessRestrictionCheck_ENABLED() throws Exception {
 				null/*no inclusion pattern*/,
 				null/*no exclusion pattern*/,
 				"1.4");
+		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
+		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.ENABLED);
+		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 		this.createFolder("/P1/src/p11");
 		this.createFile(
 				"/P1/src/p11/Y11.java",
@@ -6537,19 +6254,12 @@ public void testBug575562_AccessRestrictionCheck_ENABLED() throws Exception {
 	} finally {
 		this.deleteProject("AccessRestrictions");
 		this.deleteProject("P1");
-		JavaCore.setOptions(oldOptions);
 	}
 }
 public void testBug575562_AccessRestrictionCheck_DISABLED() throws Exception {
-	Hashtable oldOptions = JavaCore.getOptions();
 	try {
-		Hashtable options = new Hashtable(oldOptions);
-		options.put(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
-		options.put(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
-		options.put(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
-		JavaCore.setOptions(options);
 		setUpJavaProject("AccessRestrictions", "1.4", false);
-		createJavaProject(
+		IJavaProject project = createJavaProject(
 				"P1",
 				new String[] {"src"},
 				new String[] {"JCL_LIB", "/AccessRestrictions/lib.jar"},
@@ -6564,6 +6274,9 @@ public void testBug575562_AccessRestrictionCheck_DISABLED() throws Exception {
 				null/*no inclusion pattern*/,
 				null/*no exclusion pattern*/,
 				"1.4");
+		project.setOption(JavaCore.COMPILER_PB_FORBIDDEN_REFERENCE, JavaCore.ERROR);
+		project.setOption(JavaCore.CODEASSIST_FORBIDDEN_REFERENCE_CHECK, JavaCore.DISABLED);
+		project.setOption(JavaCore.CODEASSIST_DISCOURAGED_REFERENCE_CHECK, JavaCore.DISABLED);
 		this.createFolder("/P1/src/p11");
 		this.createFile(
 				"/P1/src/p11/Y11.java",
@@ -6590,7 +6303,6 @@ public void testBug575562_AccessRestrictionCheck_DISABLED() throws Exception {
 	} finally {
 		this.deleteProject("AccessRestrictions");
 		this.deleteProject("P1");
-		JavaCore.setOptions(oldOptions);
 	}
 }
 }
