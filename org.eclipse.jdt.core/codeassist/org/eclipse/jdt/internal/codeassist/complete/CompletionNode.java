@@ -16,5 +16,5 @@ package org.eclipse.jdt.internal.codeassist.complete;
  * Marker interface for all completion nodes
  */
 public interface CompletionNode {
-
+	// Nothing to declare
 }
