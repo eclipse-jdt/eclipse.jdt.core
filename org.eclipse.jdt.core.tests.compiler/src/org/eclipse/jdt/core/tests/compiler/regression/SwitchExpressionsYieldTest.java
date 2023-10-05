@@ -6330,4 +6330,32 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"m cannot be resolved\n" +
 			"----------\n");
 	}
+	public void testIssue1394() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_UseStringConcatFactory, CompilerOptions.ENABLED);
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"public class X {\n"
+				+ "	protected static int switchWithYield() {\n"
+				+ "		String myStringNumber = \"1\";\n"
+				+ "		return switch (myStringNumber) {\n"
+				+ "		case \"1\" -> {\n"
+				+ "			try {\n"
+				+ "				yield Integer.parseInt(myStringNumber);\n"
+				+ "			} catch (NumberFormatException e) {\n"
+				+ "				throw new RuntimeException(\"Failed parsing number\", e); //$NON-NLS-1$\n"
+				+ "			}\n"
+				+ "		}\n"
+				+ "		default -> throw new IllegalArgumentException(\"Unexpected value: \" + myStringNumber);\n"
+				+ "		};\n"
+				+ "	}\n"
+				+ "	public static void main(String[] args) {\n"
+				+ "		System.out.println(switchWithYield());\n"
+				+ "	}\n"
+				+ "} "
+				},
+				"1",
+				options);
+	}
 }

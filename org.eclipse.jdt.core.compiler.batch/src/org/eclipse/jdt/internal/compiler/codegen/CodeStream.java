@@ -2618,6 +2618,9 @@ public void invokeDynamicForStringConcat(StringBuilder recipe, List<TypeBinding>
 		signature.append(arguments.get(i).signature());
 	}
 	signature.append(")Ljava/lang/String;"); //$NON-NLS-1$
+	boolean switchTracking = isSwitchStackTrackingActive();// this.methodDeclaration.containsSwitchWithTry;
+	if (switchTracking)
+		this.methodDeclaration.containsSwitchWithTry = false;
 	this.invokeDynamic(invokeDynamicNumber,
 			2,
 			1, // int
@@ -2625,6 +2628,8 @@ public void invokeDynamicForStringConcat(StringBuilder recipe, List<TypeBinding>
 			signature.toString().toCharArray(),
 			TypeIds.T_JavaLangObject,
 			getPopularBinding(ConstantPool.JavaLangStringConstantPoolName));
+	if (switchTracking)
+		this.methodDeclaration.containsSwitchWithTry = true;
 }
 /**
  * The equivalent code performs a string conversion:
