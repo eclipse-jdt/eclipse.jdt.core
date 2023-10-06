@@ -242,6 +242,12 @@ public boolean isConstructor() throws JavaModelException {
 public boolean isMainMethod() throws JavaModelException {
 	return this.isMainMethod(this);
 }
+
+@Override
+public boolean isMainMethodCandidate() throws JavaModelException {
+	return this.isMainMethodCandidate(this);
+}
+
 /**
  * @see IMethod#isLambdaMethod()
  */
