@@ -5157,6 +5157,7 @@ public abstract class Scope {
 		return NOT_COMPATIBLE;
 	}
 
+	/** See also the contract of {@link ProblemReporter#close()}. */
 	public abstract ProblemReporter problemReporter();
 
 	public final CompilationUnitDeclaration referenceCompilationUnit() {

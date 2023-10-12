@@ -1175,6 +1175,9 @@ private boolean isProvablyDistinctTypeArgument(TypeBinding otherArgument, final 
 	}
 }
 
+public boolean isReadyForAnnotations() {
+	return true;
+}
 /**
  * Answer true if the receiver is an annotation which may be repeatable. Overridden as appropriate.
  */

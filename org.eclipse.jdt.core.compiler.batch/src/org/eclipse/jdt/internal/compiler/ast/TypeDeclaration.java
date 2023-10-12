@@ -1517,14 +1517,15 @@ public void resolve() {
 		} else if (!sourceType.isLocalType()) {
 			// Set javadoc visibility
 			int visibility = sourceType.modifiers & ExtraCompilerModifiers.AccVisibilityMASK;
-			ProblemReporter reporter = this.scope.problemReporter();
-			int severity = reporter.computeSeverity(IProblem.JavadocMissing);
-			if (severity != ProblemSeverities.Ignore) {
-				if (this.enclosingType != null) {
-					visibility = Util.computeOuterMostVisibility(this.enclosingType, visibility);
+			try (ProblemReporter reporter = this.scope.problemReporter()) {
+				int severity = reporter.computeSeverity(IProblem.JavadocMissing);
+				if (severity != ProblemSeverities.Ignore) {
+					if (this.enclosingType != null) {
+						visibility = Util.computeOuterMostVisibility(this.enclosingType, visibility);
+					}
+					int javadocModifiers = (this.binding.modifiers & ~ExtraCompilerModifiers.AccVisibilityMASK) | visibility;
+					reporter.javadocMissing(this.sourceStart, this.sourceEnd, severity, javadocModifiers);
 				}
-				int javadocModifiers = (this.binding.modifiers & ~ExtraCompilerModifiers.AccVisibilityMASK) | visibility;
-				reporter.javadocMissing(this.sourceStart, this.sourceEnd, severity, javadocModifiers);
 			}
 		}
 		updateNestHost();
