@@ -102,6 +102,11 @@ public enum JavaFeature {
 			return preview;
 		return this.getCompliance() <= comp;
 	}
+	public boolean isSupported(String comp, boolean preview) {
+		if (this.isPreview)
+			return preview;
+		return this.getCompliance() <= CompilerOptions.versionToJdkLevel(comp);
+	}
 
 	JavaFeature(long compliance, String name, char[][] restrictedKeywords, boolean isPreview) {
         this.compliance = compliance;

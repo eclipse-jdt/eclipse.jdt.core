@@ -264,6 +264,31 @@ boolean isConstructor() throws JavaModelException;
 boolean isMainMethod() throws JavaModelException;
 
 /**
+ * Returns whether this method is a main method candidate.
+ * It is a main method if:
+ * <ul>
+ * <li>its name is equal to <code>"main"</code></li>
+ * <li>its return type is <code>void</code></li>
+ * <li>it is <code>static</code> and <code>public</code></li>
+ * <li>it defines one parameter whose type's simple name is <code>String[]</code></li>
+ * </ul>
+ * Starting with Java 21 there is "preview feature" that allows <a href="https://openjdk.org/jeps/445">instance main methods</a>.
+ * It is a main method according to this JEP if:
+ * <ul>
+ * <li>its name is equal to <code>"main"</code></li>
+ * <li>its return type is <code>void</code></li>
+ * <li>it is non-<code>private</code></li>
+ * <li>it defines one parameter whose type's simple name is <code>String[]</code> or no parameter at all</li>
+ * </ul>
+ *
+ * @exception JavaModelException if this element does not exist or if an
+ *      exception occurs while accessing its corresponding resource.
+ * @since 3.36
+ * @return true if this method is a main method, false otherwise
+ */
+boolean isMainMethodCandidate() throws JavaModelException;
+
+/**
  * Returns whether this method represents a lambda expression.
  *
  * @since 3.10
