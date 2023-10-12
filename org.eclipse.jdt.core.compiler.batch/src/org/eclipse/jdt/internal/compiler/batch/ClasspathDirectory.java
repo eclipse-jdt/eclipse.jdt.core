@@ -80,6 +80,9 @@ ClasspathDirectory(File directory, String encoding, int mode,
 	this.encoding = encoding;
 }
 String[] directoryList(String qualifiedPackageName) {
+	if (File.separatorChar != '/' && qualifiedPackageName.indexOf('/') != -1) {
+		qualifiedPackageName = qualifiedPackageName.replace('/', File.separatorChar);
+	}
 	String[] dirList = (String[]) this.directoryCache.get(qualifiedPackageName);
 	if (dirList == this.missingPackageHolder) return null; // package exists in another classpath directory or jar
 	if (dirList != null) return dirList;

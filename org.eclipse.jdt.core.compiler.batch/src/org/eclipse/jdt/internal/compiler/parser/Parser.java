@@ -14768,6 +14768,12 @@ public boolean automatonWillShift(int token, int lastAction) {
 		return lastAction != ERROR_ACTION;
 	}
 }
+
+@Override
+public boolean automatonWillShift(int token) {
+	return automatonWillShift(token, this.unstackedAct);
+}
+
 @Override
 public boolean isParsingJava14() {
 	return this.parsingJava14Plus;

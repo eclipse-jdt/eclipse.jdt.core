@@ -32,7 +32,6 @@
       <plugin>
       	<groupId>org.eclipse.tycho</groupId>
       	<artifactId>tycho-surefire-plugin</artifactId>
-      	<version>${tycho.version}</version>
       	<configuration>
       	  <argLine>-Xmx1G -Djdt.default.test.compliance=1.8 -DDetectVMInstallationsJob.disabled=true ${tycho.surefire.argLine}</argLine>
       	  <includes>

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2022 IBM Corporation and others.
+ * Copyright (c) 2000, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -14,7 +14,6 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.io.IOException;
-import java.util.Hashtable;
 import java.util.Map;
 
 import junit.framework.Test;
@@ -46,7 +45,7 @@ static {
 //	TESTS_NAMES = new String[] { "testCompletionMethodDeclaration17"};
 }
 public static Test suite() {
-	return buildModelTestSuite(CompletionTests.class, BYTECODE_DECLARATION_ORDER);
+	return buildModelTestSuite(CompletionTests.class, ALPHABETICAL_SORT);
 }
 public CompletionTests(String name) {
 	super(name);
@@ -584,11 +583,8 @@ public void testBug275518c() throws JavaModelException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102572
 public void testCamelCaseField1() throws JavaModelException {
-	this.oldOptions = JavaCore.getOptions();
+	String old = getSetCodeAssistProperty(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
 	try {
-		Hashtable<String, String> options = new Hashtable<>(this.oldOptions);
-		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
 
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
@@ -613,17 +609,13 @@ public void testCamelCaseField1() throws JavaModelException {
 				"oTTField[FIELD_REF]{oTTField, Lcamelcase.Test;, I, oTTField, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
-		JavaCore.setOptions(this.oldOptions);
+		COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, old);
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102572
 public void testCamelCaseLocalVariable1() throws JavaModelException {
-	this.oldOptions = JavaCore.getOptions();
+	String old = getSetCodeAssistProperty(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
-		Hashtable<String, String> options = new Hashtable<>(this.oldOptions);
-		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/camelcase/Test.java",
@@ -647,17 +639,13 @@ public void testCamelCaseLocalVariable1() throws JavaModelException {
 				"oTTLocal[LOCAL_VARIABLE_REF]{oTTLocal, null, I, oTTLocal, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
-		JavaCore.setOptions(this.oldOptions);
+		COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, old);
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102572
 public void testCamelCaseMethod1() throws JavaModelException {
-	this.oldOptions = JavaCore.getOptions();
+	String old = getSetCodeAssistProperty(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
 	try {
-		Hashtable<String, String> options = new Hashtable<>(this.oldOptions);
-		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
 	this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/camelcase/Test.java",
@@ -681,17 +669,13 @@ public void testCamelCaseMethod1() throws JavaModelException {
 				"oTTMethod[METHOD_REF]{oTTMethod(), Lcamelcase.Test;, ()V, oTTMethod, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
-		JavaCore.setOptions(this.oldOptions);
+		COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, old);
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102572
 public void testCamelCaseMethodDeclaration1() throws JavaModelException {
-	this.oldOptions = JavaCore.getOptions();
+	String old = getSetCodeAssistProperty(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
 	try {
-		Hashtable<String, String> options = new Hashtable<>(this.oldOptions);
-		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/camelcase/Test.java",
@@ -720,17 +704,13 @@ public void testCamelCaseMethodDeclaration1() throws JavaModelException {
 				"oTTMethod[METHOD_DECLARATION]{public void oTTMethod(), Lcamelcase.SuperClass;, ()V, oTTMethod, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
-		JavaCore.setOptions(this.oldOptions);
+		COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, old);
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102572
 public void testCamelCaseType1() throws JavaModelException {
-	this.oldOptions = JavaCore.getOptions();
+	String old = getSetCodeAssistProperty(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
 	try {
-		Hashtable<String, String> options = new Hashtable<>(this.oldOptions);
-		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/camelcase/Test.java",
@@ -763,17 +743,13 @@ public void testCamelCaseType1() throws JavaModelException {
 				"FFFTest[TYPE_REF]{FFFTest, camelcase, Lcamelcase.FFFTest;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
-		JavaCore.setOptions(this.oldOptions);
+		COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, old);
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102572
 public void testCamelCaseType2() throws JavaModelException {
-	this.oldOptions = JavaCore.getOptions();
+	String old = getSetCodeAssistProperty(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
 	try {
-		Hashtable<String, String> options = new Hashtable<>(this.oldOptions);
-		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/camelcase/Test.java",
@@ -805,17 +781,13 @@ public void testCamelCaseType2() throws JavaModelException {
 				"FFFTest[TYPE_REF]{FFFTest, camelcase, Lcamelcase.FFFTest;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
-		JavaCore.setOptions(this.oldOptions);
+		COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, old);
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102572
 public void testCamelCaseType3() throws JavaModelException {
-	this.oldOptions = JavaCore.getOptions();
+	String old = getSetCodeAssistProperty(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
 	try {
-		Hashtable<String, String> options = new Hashtable<>(this.oldOptions);
-		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/camelcase/Test.java",
@@ -840,18 +812,14 @@ public void testCamelCaseType3() throws JavaModelException {
 				"FFFTest[TYPE_REF]{FFFTest, camelcase, Lcamelcase.FFFTest;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
-		JavaCore.setOptions(this.oldOptions);
+		COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, old);
 	}
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102572
 public void testCamelCaseType4() throws JavaModelException {
-	this.oldOptions = JavaCore.getOptions();
+	String old = getSetCodeAssistProperty(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
 	try {
-		Hashtable<String, String> options = new Hashtable<>(this.oldOptions);
-		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
 		this.workingCopies = new ICompilationUnit[3];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/camelcase/Test.java",
@@ -888,17 +856,13 @@ public void testCamelCaseType4() throws JavaModelException {
 				"Member2.FFFTest[TYPE_REF]{camelcase.Member2.FFFTest, camelcase, Lcamelcase.Member2$FFFTest;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
-		JavaCore.setOptions(this.oldOptions);
+		COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, old);
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=102572
 public void testCamelCaseType5() throws JavaModelException {
-	this.oldOptions = JavaCore.getOptions();
+	String old = getSetCodeAssistProperty(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
 	try {
-		Hashtable<String, String> options = new Hashtable<>(this.oldOptions);
-		options.put(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/camelcase/Test.java",
@@ -923,7 +887,7 @@ public void testCamelCaseType5() throws JavaModelException {
 				"Test.FoFoFo.FFFTest[TYPE_REF]{FFFTest, camelcase, Lcamelcase.Test$FoFoFo$FFFTest;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
-		JavaCore.setOptions(this.oldOptions);
+		COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, old);
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=157584
@@ -1597,7 +1561,7 @@ public void testCatchClauseExceptionRef14() throws JavaModelException {
 		"}\n");
 
 	IJavaProject project = this.workingCopies[0].getJavaProject();
-
+	String old = project.getOption(JavaCore.CODEASSIST_VISIBILITY_CHECK, true);
 	try {
 		project.setOption(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 
@@ -1611,7 +1575,7 @@ public void testCatchClauseExceptionRef14() throws JavaModelException {
 				"IZZException[TYPE_REF]{IZZException, test, Ltest.IZZException;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_UNQUALIFIED + R_EXCEPTION + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
-		project.setOption(JavaCore.CODEASSIST_VISIBILITY_CHECK, null);
+		project.setOption(JavaCore.CODEASSIST_VISIBILITY_CHECK, old);
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=173907
@@ -3457,6 +3421,8 @@ public void testCompletionAfterInstanceof24_1() throws JavaModelException {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=193909
 // supported case
 public void testCompletionAfterInstanceof24_2() throws JavaModelException {
+	String old = getSetCodeAssistProperty(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.DISABLED);
+	try {
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 		"/Completion/src/test/CompletionAfterInstanceOf.java",
@@ -3487,6 +3453,9 @@ public void testCompletionAfterInstanceof24_2() throws JavaModelException {
 			"clone[METHOD_REF]{clone(), Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, replace["+start1+", "+end1+"], token["+start1+", "+end1+"], " + (relevance1) + "}\n" +
 			"clone[METHOD_REF_WITH_CASTED_RECEIVER]{((CompletionAfterInstanceOf)a).clone(), [Ltest.CompletionAfterInstanceOf;, ()Ljava.lang.Object;, [Ltest.CompletionAfterInstanceOf;, clone, null, replace["+start2+", "+end2+"], token["+start1+", "+end1+"], receiver["+start3+", "+end3+"], " + (relevance1) + "}",
 			requestor.getResults());
+	} finally {
+		COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_VISIBILITY_CHECK, old);
+	}
 }
 public void testCompletionAfterSupercall1() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -3707,12 +3676,8 @@ public void testCompletionAllMemberTypes4() throws JavaModelException {
 
 public void testCompletionAllMemberTypes5() throws JavaModelException {
 	ICompilationUnit aType = null;
-	Hashtable<String, String> oldCurrentOptions = JavaCore.getOptions();
+	String old = getSetCodeAssistProperty(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
-		Hashtable<String, String> options = new Hashtable<>(oldCurrentOptions);
-		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
 		aType = getWorkingCopy(
 	            "/Completion/src/test/AType.java",
 	            "package test;\n" +
@@ -3754,16 +3719,13 @@ public void testCompletionAllMemberTypes5() throws JavaModelException {
 		if(aType != null) {
 			aType.discardWorkingCopy();
 		}
-		JavaCore.setOptions(oldCurrentOptions);
+		COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_VISIBILITY_CHECK, old);
 	}
 }
 
 public void testCompletionAllMemberTypes6() throws JavaModelException {
-	Hashtable<String, String> oldCurrentOptions = JavaCore.getOptions();
+	String old = getSetCodeAssistProperty(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
-		Hashtable<String, String> options = new Hashtable<>(oldCurrentOptions);
-		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
 
 	    this.wc = getWorkingCopy(
 	            "/Completion/src/test/CompletionAllMemberTypes6.java",
@@ -3793,17 +3755,13 @@ public void testCompletionAllMemberTypes6() throws JavaModelException {
 	            "AType.Member1[TYPE_REF]{test.AType.Member1, test, Ltest.AType$Member1;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 	            requestor.getResults());
 	} finally {
-		JavaCore.setOptions(oldCurrentOptions);
+		COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_VISIBILITY_CHECK, old);
 	}
 }
 
 public void testCompletionAllMemberTypes7() throws JavaModelException {
-	Hashtable<String, String> oldCurrentOptions = JavaCore.getOptions();
+	String old = getSetCodeAssistProperty(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
-		Hashtable<String, String> options = new Hashtable<>(oldCurrentOptions);
-		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
 	    this.wc = getWorkingCopy(
 	            "/Completion/src/test/AType.java",
 	            "package test;\n" +
@@ -3832,7 +3790,7 @@ public void testCompletionAllMemberTypes7() throws JavaModelException {
 				"AType.Member1[TYPE_REF]{Member1, test, Ltest.AType$Member1;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 	            requestor.getResults());
 	} finally {
-		JavaCore.setOptions(oldCurrentOptions);
+		COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_VISIBILITY_CHECK, old);
 	}
 }
 
@@ -4810,14 +4768,11 @@ public void testCompletionCatchArgumentName() throws JavaModelException {
 }
 
 public void testCompletionCatchArgumentName2() throws JavaModelException {
-	Hashtable<String, String> options = JavaCore.getOptions();
 
-	String argumentPrefixPreviousValue = options.get(JavaCore.CODEASSIST_ARGUMENT_PREFIXES);
-	options.put(JavaCore.CODEASSIST_ARGUMENT_PREFIXES,"arg"); //$NON-NLS-1$
-	String localPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_PREFIXES);
-	options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,"loc"); //$NON-NLS-1$
-
-	JavaCore.setOptions(options);
+	String argumentPrefixPreviousValue = COMPLETION_PROJECT.getOption(JavaCore.CODEASSIST_ARGUMENT_PREFIXES, true);
+	COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_ARGUMENT_PREFIXES,"arg");
+	String localPrefixPreviousValue = COMPLETION_PROJECT.getOption(JavaCore.CODEASSIST_LOCAL_PREFIXES, true);
+	COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_LOCAL_PREFIXES,"loc");
 
 	try {
 		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
@@ -4833,9 +4788,8 @@ public void testCompletionCatchArgumentName2() throws JavaModelException {
 			"element:locException    completion:locException    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE + R_NAME_FIRST_PREFIX+ R_NON_RESTRICTED),
 			requestor.getResults());
 	} finally {
-		options.put(JavaCore.CODEASSIST_ARGUMENT_PREFIXES,argumentPrefixPreviousValue);
-		options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,localPrefixPreviousValue);
-		JavaCore.setOptions(options);
+		COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_ARGUMENT_PREFIXES, argumentPrefixPreviousValue);
+		COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_LOCAL_PREFIXES, localPrefixPreviousValue);
 	}
 }
 
@@ -14153,6 +14107,8 @@ public void testCompletionToplevelType1() throws JavaModelException {
 			requestor.getResults());
 }
 public void testCompletionType1() throws JavaModelException {
+	String old = getSetCodeAssistProperty(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, JavaCore.ENABLED);
+	try {
 	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
 	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionType1.java");
 
@@ -14166,6 +14122,9 @@ public void testCompletionType1() throws JavaModelException {
 		"element:CT1    completion:q2.CT1    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_EXACT_NAME+ R_NON_RESTRICTED)+"\n"+
 		"element:CompletionType1    completion:CompletionType1    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CAMEL_CASE + R_UNQUALIFIED  + R_NON_RESTRICTED),
 		requestor.getResults());
+	} finally {
+		COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_CAMEL_CASE_MATCH, old);
+	}
 }
 public void testCompletionUnaryOperator1() throws JavaModelException {
 		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
@@ -14435,14 +14394,20 @@ public void testCompletionVariableName1() throws JavaModelException {
 		"element:test_FOO_MyClass    completion:test_FOO_MyClass    relevance:"+(R_DEFAULT + R_INTERESTING + R_CASE+ R_NON_RESTRICTED),
 		requestor.getResults());
 }
+private String[] getSetCodeAssistProperties(String pre, String suf) {
+	String argumentPrefixPreviousValue = COMPLETION_PROJECT.getOption(JavaCore.CODEASSIST_LOCAL_PREFIXES, true);
+	COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_LOCAL_PREFIXES, pre);
+	String localPrefixPreviousValue = COMPLETION_PROJECT.getOption(JavaCore.CODEASSIST_LOCAL_SUFFIXES, true);
+	COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_LOCAL_SUFFIXES, suf);
+	return new String[] {argumentPrefixPreviousValue, localPrefixPreviousValue};
+}
+private void resetCodeAssistProperties(String[] old) {
+	COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_LOCAL_PREFIXES, old[0]);
+	COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_LOCAL_SUFFIXES, old[1]);
+}
 public void testCompletionVariableName10() throws JavaModelException {
-	Hashtable<String, String> options = JavaCore.getOptions();
-	String argumentPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_PREFIXES);
-	options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,"pre"); //$NON-NLS-1$
-	String localPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_SUFFIXES);
-	options.put(JavaCore.CODEASSIST_LOCAL_SUFFIXES,"suf"); //$NON-NLS-1$
 
-	JavaCore.setOptions(options);
+	String[] old = getSetCodeAssistProperties("pre", "suf");
 
 	try {
 		this.wc = getWorkingCopy(
@@ -14469,19 +14434,11 @@ public void testCompletionVariableName10() throws JavaModelException {
 				"fooBarsuf[VARIABLE_DECLARATION]{fooBarsuf, null, LFooBar;, fooBarsuf, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NAME_LESS_NEW_CHARACTERS + R_NAME_FIRST_SUFFIX + R_NON_RESTRICTED)+"}",
 				requestor.getResults());
 	} finally {
-		options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,argumentPrefixPreviousValue);
-		options.put(JavaCore.CODEASSIST_LOCAL_SUFFIXES,localPrefixPreviousValue);
-		JavaCore.setOptions(options);
+		resetCodeAssistProperties(old);
 	}
 }
 public void testCompletionVariableName11() throws JavaModelException {
-	Hashtable<String, String> options = JavaCore.getOptions();
-	String argumentPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_PREFIXES);
-	options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,"pre"); //$NON-NLS-1$
-	String localPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_SUFFIXES);
-	options.put(JavaCore.CODEASSIST_LOCAL_SUFFIXES,"suf"); //$NON-NLS-1$
-
-	JavaCore.setOptions(options);
+	String[] old = getSetCodeAssistProperties("pre", "suf");
 
 	try {
 		this.wc = getWorkingCopy(
@@ -14508,19 +14465,11 @@ public void testCompletionVariableName11() throws JavaModelException {
 				"preFooBarsuf[VARIABLE_DECLARATION]{preFooBarsuf, null, LFooBar;, preFooBarsuf, null, "+(R_DEFAULT + R_INTERESTING + R_CASE + R_NAME_FIRST_PREFIX + R_NAME_FIRST_SUFFIX + R_NON_RESTRICTED)+"}",
 				requestor.getResults());
 	} finally {
-		options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,argumentPrefixPreviousValue);
-		options.put(JavaCore.CODEASSIST_LOCAL_SUFFIXES,localPrefixPreviousValue);
-		JavaCore.setOptions(options);
+		resetCodeAssistProperties(old);
 	}
 }
 public void testCompletionVariableName12() throws JavaModelException {
-	Hashtable<String, String> options = JavaCore.getOptions();
-	String argumentPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_PREFIXES);
-	options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,"pre"); //$NON-NLS-1$
-	String localPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_SUFFIXES);
-	options.put(JavaCore.CODEASSIST_LOCAL_SUFFIXES,"suf"); //$NON-NLS-1$
-
-	JavaCore.setOptions(options);
+	String[] old = getSetCodeAssistProperties("pre", "suf");
 
 	try {
 		this.wc = getWorkingCopy(
@@ -14547,19 +14496,11 @@ public void testCompletionVariableName12() throws JavaModelException {
 				"preTheFooBarsuf[VARIABLE_DECLARATION]{preTheFooBarsuf, null, LFooBar;, preTheFooBarsuf, null, "+(R_DEFAULT + R_INTERESTING + R_NAME_FIRST_PREFIX + R_NAME_FIRST_SUFFIX + R_NON_RESTRICTED)+"}",
 				requestor.getResults());
 	} finally {
-		options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,argumentPrefixPreviousValue);
-		options.put(JavaCore.CODEASSIST_LOCAL_SUFFIXES,localPrefixPreviousValue);
-		JavaCore.setOptions(options);
+		resetCodeAssistProperties(old);
 	}
 }
 public void testCompletionVariableName13() throws JavaModelException {
-	Hashtable<String, String> options = JavaCore.getOptions();
-	String argumentPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_PREFIXES);
-	options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,"pre"); //$NON-NLS-1$
-	String localPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_SUFFIXES);
-	options.put(JavaCore.CODEASSIST_LOCAL_SUFFIXES,"suf"); //$NON-NLS-1$
-
-	JavaCore.setOptions(options);
+	String[] old = getSetCodeAssistProperties("pre", "suf");
 
 	try {
 		this.wc = getWorkingCopy(
@@ -14586,19 +14527,11 @@ public void testCompletionVariableName13() throws JavaModelException {
 				"preFooBarsuf[VARIABLE_DECLARATION]{preFooBarsuf, null, LFooBar;, preFooBarsuf, null, "+(R_DEFAULT  + R_INTERESTING + R_NAME_FIRST_PREFIX + R_NAME_FIRST_SUFFIX + R_NAME_LESS_NEW_CHARACTERS + R_NON_RESTRICTED)+"}",
 				requestor.getResults());
 	} finally {
-		options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,argumentPrefixPreviousValue);
-		options.put(JavaCore.CODEASSIST_LOCAL_SUFFIXES,localPrefixPreviousValue);
-		JavaCore.setOptions(options);
+		resetCodeAssistProperties(old);
 	}
 }
 public void testCompletionVariableName14() throws JavaModelException {
-	Hashtable<String, String> options = JavaCore.getOptions();
-	String argumentPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_PREFIXES);
-	options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,"pre"); //$NON-NLS-1$
-	String localPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_SUFFIXES);
-	options.put(JavaCore.CODEASSIST_LOCAL_SUFFIXES,"suf"); //$NON-NLS-1$
-
-	JavaCore.setOptions(options);
+	String[] old = getSetCodeAssistProperties("pre", "suf");
 
 	try {
 		this.wc = getWorkingCopy(
@@ -14625,20 +14558,12 @@ public void testCompletionVariableName14() throws JavaModelException {
 				"preTheFooBarsuf[VARIABLE_DECLARATION]{preTheFooBarsuf, null, LFooBar;, preTheFooBarsuf, null, "+(R_DEFAULT  + R_INTERESTING + R_NAME_FIRST_PREFIX + R_NAME_FIRST_SUFFIX + R_NAME_LESS_NEW_CHARACTERS + R_NON_RESTRICTED)+"}",
 				requestor.getResults());
 	} finally {
-		options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,argumentPrefixPreviousValue);
-		options.put(JavaCore.CODEASSIST_LOCAL_SUFFIXES,localPrefixPreviousValue);
-		JavaCore.setOptions(options);
+		resetCodeAssistProperties(old);
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=215975
 public void testCompletionVariableName14_2() throws JavaModelException {
-	Hashtable<String, String> options = JavaCore.getOptions();
-	String argumentPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_PREFIXES);
-	options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,"pre"); //$NON-NLS-1$
-	String localPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_SUFFIXES);
-	options.put(JavaCore.CODEASSIST_LOCAL_SUFFIXES,"suf"); //$NON-NLS-1$
-
-	JavaCore.setOptions(options);
+	String[] old = getSetCodeAssistProperties("pre", "suf");
 
 	try {
 		this.wc = getWorkingCopy(
@@ -14665,20 +14590,12 @@ public void testCompletionVariableName14_2() throws JavaModelException {
 				"preThefoFooBarsuf[VARIABLE_DECLARATION]{preThefoFooBarsuf, null, LFooBar;, preThefoFooBarsuf, null, "+(R_DEFAULT  + R_INTERESTING + R_NAME_FIRST_PREFIX + R_NAME_FIRST_SUFFIX + R_NON_RESTRICTED)+"}",
 				requestor.getResults());
 	} finally {
-		options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,argumentPrefixPreviousValue);
-		options.put(JavaCore.CODEASSIST_LOCAL_SUFFIXES,localPrefixPreviousValue);
-		JavaCore.setOptions(options);
+		resetCodeAssistProperties(old);
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=128045
 public void testCompletionVariableName15() throws JavaModelException {
-	Hashtable<String, String> options = JavaCore.getOptions();
-	String argumentPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_PREFIXES);
-	options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,"pre"); //$NON-NLS-1$
-	String localPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_SUFFIXES);
-	options.put(JavaCore.CODEASSIST_LOCAL_SUFFIXES,"suf"); //$NON-NLS-1$
-
-	JavaCore.setOptions(options);
+	String[] old = getSetCodeAssistProperties("pre", "suf");
 
 	try {
 		this.wc = getWorkingCopy(
@@ -14705,9 +14622,7 @@ public void testCompletionVariableName15() throws JavaModelException {
 				"proFooBarsuf[VARIABLE_DECLARATION]{proFooBarsuf, null, LFooBar;, proFooBarsuf, null, "+(R_DEFAULT  + R_INTERESTING + R_NAME_FIRST_SUFFIX + R_CASE + R_NON_RESTRICTED)+"}",
 				requestor.getResults());
 	} finally {
-		options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,argumentPrefixPreviousValue);
-		options.put(JavaCore.CODEASSIST_LOCAL_SUFFIXES,localPrefixPreviousValue);
-		JavaCore.setOptions(options);
+		resetCodeAssistProperties(old);
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=150228
@@ -15131,13 +15046,7 @@ public void testCompletionVariableName29() throws JavaModelException {
 			requestor.getResults());
 }
 public void testCompletionVariableName3() throws JavaModelException {
-	Hashtable<String, String> options = JavaCore.getOptions();
-	String argumentPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_PREFIXES);
-	options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,"p1,p2"); //$NON-NLS-1$
-	String localPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_SUFFIXES);
-	options.put(JavaCore.CODEASSIST_LOCAL_SUFFIXES,"s1,s2"); //$NON-NLS-1$
-
-	JavaCore.setOptions(options);
+	String[] old = getSetCodeAssistProperties("p1,p2", "s1,s2");
 
 	try {
 		CompletionTestsRequestor requestor = new CompletionTestsRequestor();
@@ -15169,9 +15078,7 @@ public void testCompletionVariableName3() throws JavaModelException {
 			"element:p2OneNames2    completion:p2OneNames2    relevance:"+(R_DEFAULT  + R_INTERESTING + R_CASE + R_NAME_PREFIX + R_NAME_SUFFIX+ R_NON_RESTRICTED),
 			requestor.getResults());
 	} finally {
-		options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,argumentPrefixPreviousValue);
-		options.put(JavaCore.CODEASSIST_LOCAL_SUFFIXES,localPrefixPreviousValue);
-		JavaCore.setOptions(options);
+		resetCodeAssistProperties(old);
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=150228
@@ -15569,14 +15476,7 @@ public void testCompletionVariableName7() throws JavaModelException {
 }
 
 public void testCompletionVariableName8() throws JavaModelException {
-	Hashtable<String, String> options = JavaCore.getOptions();
-	String argumentPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_PREFIXES);
-	options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,"pre"); //$NON-NLS-1$
-	String localPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_SUFFIXES);
-	options.put(JavaCore.CODEASSIST_LOCAL_SUFFIXES,"suf"); //$NON-NLS-1$
-
-	JavaCore.setOptions(options);
-
+	String[] old = getSetCodeAssistProperties("pre", "suf");
 	try {
 		this.wc = getWorkingCopy(
 	            "/Completion/src/CompletionVariableName8.java",
@@ -15602,19 +15502,11 @@ public void testCompletionVariableName8() throws JavaModelException {
 				"theFooBarsuf[VARIABLE_DECLARATION]{theFooBarsuf, null, LFooBar;, theFooBarsuf, null, "+(R_DEFAULT  + R_INTERESTING + R_NAME_FIRST_SUFFIX + R_CASE + R_NON_RESTRICTED)+"}",
 				requestor.getResults());
 	} finally {
-		options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,argumentPrefixPreviousValue);
-		options.put(JavaCore.CODEASSIST_LOCAL_SUFFIXES,localPrefixPreviousValue);
-		JavaCore.setOptions(options);
+		resetCodeAssistProperties(old);
 	}
 }
 public void testCompletionVariableName9() throws JavaModelException {
-	Hashtable<String, String> options = JavaCore.getOptions();
-	String argumentPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_PREFIXES);
-	options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,"pre"); //$NON-NLS-1$
-	String localPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_SUFFIXES);
-	options.put(JavaCore.CODEASSIST_LOCAL_SUFFIXES,"suf"); //$NON-NLS-1$
-
-	JavaCore.setOptions(options);
+	String[] old = getSetCodeAssistProperties("pre", "suf");
 
 	try {
 		this.wc = getWorkingCopy(
@@ -15641,20 +15533,12 @@ public void testCompletionVariableName9() throws JavaModelException {
 				"theFooBarsuf[VARIABLE_DECLARATION]{theFooBarsuf, null, LFooBar;, theFooBarsuf, null, "+(R_DEFAULT  + R_INTERESTING + R_CASE + R_NAME_LESS_NEW_CHARACTERS + R_NAME_FIRST_SUFFIX + R_NON_RESTRICTED)+"}",
 				requestor.getResults());
 	} finally {
-		options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,argumentPrefixPreviousValue);
-		options.put(JavaCore.CODEASSIST_LOCAL_SUFFIXES,localPrefixPreviousValue);
-		JavaCore.setOptions(options);
+		resetCodeAssistProperties(old);
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=215975
 public void testCompletionVariableName9_2() throws JavaModelException {
-	Hashtable<String, String> options = JavaCore.getOptions();
-	String argumentPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_PREFIXES);
-	options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,"pre"); //$NON-NLS-1$
-	String localPrefixPreviousValue = options.get(JavaCore.CODEASSIST_LOCAL_SUFFIXES);
-	options.put(JavaCore.CODEASSIST_LOCAL_SUFFIXES,"suf"); //$NON-NLS-1$
-
-	JavaCore.setOptions(options);
+	String[] old = getSetCodeAssistProperties("pre", "suf");
 
 	try {
 		this.wc = getWorkingCopy(
@@ -15681,9 +15565,7 @@ public void testCompletionVariableName9_2() throws JavaModelException {
 				"thefoFooBarsuf[VARIABLE_DECLARATION]{thefoFooBarsuf, null, LFooBar;, thefoFooBarsuf, null, "+(R_DEFAULT  + R_INTERESTING + R_CASE + R_NAME_FIRST_SUFFIX + R_NON_RESTRICTED)+"}",
 				requestor.getResults());
 	} finally {
-		options.put(JavaCore.CODEASSIST_LOCAL_PREFIXES,argumentPrefixPreviousValue);
-		options.put(JavaCore.CODEASSIST_LOCAL_SUFFIXES,localPrefixPreviousValue);
-		JavaCore.setOptions(options);
+		resetCodeAssistProperties(old);
 	}
 }
 public void testCompletionVariableNameOfArray1() throws JavaModelException {
@@ -15773,11 +15655,7 @@ public void testCompletionVariableNameUnresolvedType() throws JavaModelException
 		requestor.getResults());
 }
 public void testCompletionVisibilityCheckDisabled() throws JavaModelException {
-	String visibilityCheckID = "org.eclipse.jdt.core.codeComplete.visibilityCheck";
-	Hashtable<String, String> options = JavaCore.getOptions();
-	String visibilityCheckPreviousValue = options.get(visibilityCheckID);
-	options.put(visibilityCheckID,"disabled");
-	JavaCore.setOptions(options);
+	String old = getSetCodeAssistProperty("org.eclipse.jdt.core.codeComplete.visibilityCheck", JavaCore.DISABLED);
 
 	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
 	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionVisibilityCheck.java");
@@ -15787,8 +15665,7 @@ public void testCompletionVisibilityCheckDisabled() throws JavaModelException {
 	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
 	cu.codeComplete(cursorLocation, requestor);
 
-	options.put(visibilityCheckID,visibilityCheckPreviousValue);
-	JavaCore.setOptions(options);
+	getSetCodeAssistProperty("org.eclipse.jdt.core.codeComplete.visibilityCheck", old);
 	assertEquals(
 		"should have three methods",
 		"element:privateFoo    completion:privateFoo()    relevance:"+(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_STATIC + R_NON_RESTRICTED)+"\n" +
@@ -15797,11 +15674,7 @@ public void testCompletionVisibilityCheckDisabled() throws JavaModelException {
 		requestor.getResults());
 }
 public void testCompletionVisibilityCheckEnabled() throws JavaModelException {
-	String visibilityCheckID = "org.eclipse.jdt.core.codeComplete.visibilityCheck";
-	Hashtable<String, String> options = JavaCore.getOptions();
-	String visibilityCheckPreviousValue = options.get(visibilityCheckID);
-	options.put(visibilityCheckID,"enabled");
-	JavaCore.setOptions(options);
+	String old = getSetCodeAssistProperty("org.eclipse.jdt.core.codeComplete.visibilityCheck", JavaCore.ENABLED);
 	CompletionTestsRequestor requestor = new CompletionTestsRequestor();
 
 	try {
@@ -15812,8 +15685,7 @@ public void testCompletionVisibilityCheckEnabled() throws JavaModelException {
 		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
 		cu.codeComplete(cursorLocation, requestor);
 	} finally {
-		options.put(visibilityCheckID,visibilityCheckPreviousValue);
-		JavaCore.setOptions(options);
+		COMPLETION_PROJECT.setOption("org.eclipse.jdt.core.codeComplete.visibilityCheck", old);
 	}
 	assertEquals(
 		"should have two methods",
@@ -16129,11 +16001,7 @@ public void testConstructor7() throws JavaModelException {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
 public void testDeprecationCheck1() throws JavaModelException {
-	Hashtable<String, String> options = JavaCore.getOptions();
-	String optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
-	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED); //$NON-NLS-1$
-
-	JavaCore.setOptions(options);
+	String optionValue = getSetCodeAssistProperty(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED);
 
 	try {
 		this.workingCopies = new ICompilationUnit[3];
@@ -16169,17 +16037,12 @@ public void testDeprecationCheck1() throws JavaModelException {
 				"ZZZType2[TYPE_REF]{ZZZType2, deprecation, Ldeprecation.ZZZType2;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
-		JavaCore.setOptions(options);
+		COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
 public void testDeprecationCheck10() throws JavaModelException {
-	Hashtable<String, String> options = JavaCore.getOptions();
-	String optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
-	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED); //$NON-NLS-1$
-
-	JavaCore.setOptions(options);
+	String optionValue = getSetCodeAssistProperty(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
 
 	try {
 
@@ -16207,17 +16070,12 @@ public void testDeprecationCheck10() throws JavaModelException {
 				"bar2[METHOD_REF]{bar2(), Ldeprecation.Test;, ()V, bar2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
-		JavaCore.setOptions(options);
+		COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
 public void testDeprecationCheck11() throws JavaModelException {
-	Hashtable<String, String> options = JavaCore.getOptions();
-	String optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
-	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED); //$NON-NLS-1$
-
-	JavaCore.setOptions(options);
+	String optionValue = getSetCodeAssistProperty(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
 
 	try {
 
@@ -16245,17 +16103,12 @@ public void testDeprecationCheck11() throws JavaModelException {
 				"bar2[FIELD_REF]{bar2, Ldeprecation.Test;, I, bar2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
-		JavaCore.setOptions(options);
+		COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
 public void testDeprecationCheck12() throws JavaModelException {
-	Hashtable<String, String> options = JavaCore.getOptions();
-	String optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
-	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED); //$NON-NLS-1$
-
-	JavaCore.setOptions(options);
+	String optionValue = getSetCodeAssistProperty(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
 
 	try {
 
@@ -16283,17 +16136,12 @@ public void testDeprecationCheck12() throws JavaModelException {
 				"bar2[FIELD_REF]{bar2, Ldeprecation.Test;, I, bar2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
-		JavaCore.setOptions(options);
+		COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
 public void testDeprecationCheck13() throws JavaModelException {
-	Hashtable<String, String> options = JavaCore.getOptions();
-	String optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
-	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED); //$NON-NLS-1$
-
-	JavaCore.setOptions(options);
+	String optionValue = getSetCodeAssistProperty(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED);
 
 	try {
 
@@ -16321,17 +16169,12 @@ public void testDeprecationCheck13() throws JavaModelException {
 				"Test.Inner2[TYPE_REF]{Inner2, deprecation, Ldeprecation.Test$Inner2;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
-		JavaCore.setOptions(options);
+		COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
 public void testDeprecationCheck14() throws JavaModelException {
-	Hashtable<String, String> options = JavaCore.getOptions();
-	String optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
-	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED); //$NON-NLS-1$
-
-	JavaCore.setOptions(options);
+	String optionValue = getSetCodeAssistProperty(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
 
 	try {
 
@@ -16359,17 +16202,17 @@ public void testDeprecationCheck14() throws JavaModelException {
 				"Test.Inner2[TYPE_REF]{Inner2, deprecation, Ldeprecation.Test$Inner2;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
-		JavaCore.setOptions(options);
+		COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
 	}
+}
+private String getSetCodeAssistProperty(String property, String value) {
+	String old = COMPLETION_PROJECT.getOption(property, true);
+	COMPLETION_PROJECT.setOption(property, value);
+	return old;
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
 public void testDeprecationCheck15() throws JavaModelException {
-	Hashtable<String, String> options = JavaCore.getOptions();
-	String optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
-	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED); //$NON-NLS-1$
-
-	JavaCore.setOptions(options);
+	String optionValue = getSetCodeAssistProperty(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
 
 	try {
 
@@ -16402,17 +16245,12 @@ public void testDeprecationCheck15() throws JavaModelException {
 				"",
 				requestor.getResults());
 	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
-		JavaCore.setOptions(options);
+		COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
 public void testDeprecationCheck16() throws JavaModelException {
-	Hashtable<String, String> options = JavaCore.getOptions();
-	String optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
-	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED); //$NON-NLS-1$
-
-	JavaCore.setOptions(options);
+	String optionValue = getSetCodeAssistProperty(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
 
 	try {
 
@@ -16439,17 +16277,12 @@ public void testDeprecationCheck16() throws JavaModelException {
 				"ZZZType1[TYPE_REF]{ZZZType1, deprecation, Ldeprecation.ZZZType1;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
-		JavaCore.setOptions(options);
+		COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127628
 public void testDeprecationCheck17() throws JavaModelException {
-	Hashtable<String, String> options = JavaCore.getOptions();
-	String optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
-	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED); //$NON-NLS-1$
-
-	JavaCore.setOptions(options);
+	String optionValue = getSetCodeAssistProperty(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
 
 	try {
 
@@ -16474,17 +16307,12 @@ public void testDeprecationCheck17() throws JavaModelException {
 				"Bug127628Type1[TYPE_REF]{Bug127628Type1, deprecation, Ldeprecation.Bug127628Type1;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
-		JavaCore.setOptions(options);
+		COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
 public void testDeprecationCheck2() throws JavaModelException {
-	Hashtable<String, String> options = JavaCore.getOptions();
-	String optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
-	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED); //$NON-NLS-1$
-
-	JavaCore.setOptions(options);
+	String optionValue = getSetCodeAssistProperty(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
 
 	try {
 		this.workingCopies = new ICompilationUnit[3];
@@ -16519,61 +16347,12 @@ public void testDeprecationCheck2() throws JavaModelException {
 				"ZZZType1[TYPE_REF]{ZZZType1, deprecation, Ldeprecation.ZZZType1;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
-		JavaCore.setOptions(options);
+		COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
 public void testDeprecationCheck3() throws JavaModelException {
-	Hashtable<String, String> options = JavaCore.getOptions();
-	String optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
-	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED); //$NON-NLS-1$
-
-	JavaCore.setOptions(options);
-
-	try {
-
-		this.workingCopies = new ICompilationUnit[2];
-		this.workingCopies[0] = getWorkingCopy(
-			"/Completion/src/deprecation/Test.java",
-			"package deprecation;"+
-			"public class Test {\n"+
-			"  void foo() {"+
-			"    ZZZType1.fo\n"+
-			"  }"+
-			"}");
-
-		this.workingCopies[1] = getWorkingCopy(
-			"/Completion/src/deprecation/ZZZType1.java",
-			"package deprecation;"+
-			"public class ZZZType1 {\n"+
-			"  public static void foo1(){}\n"+
-			"  /** @deprecated */\n"+
-			"  public static void foo2(){}\n"+
-			"}");
-
-		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
-		String str = this.workingCopies[0].getSource();
-		String completeBehind = "ZZZType1.fo";
-		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
-		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-
-		assertResults(
-				"foo1[METHOD_REF]{foo1(), Ldeprecation.ZZZType1;, ()V, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_INHERITED + R_NON_RESTRICTED) + "}\n" +
-				"foo2[METHOD_REF]{foo2(), Ldeprecation.ZZZType1;, ()V, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_INHERITED + R_NON_RESTRICTED) + "}",
-				requestor.getResults());
-	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
-		JavaCore.setOptions(options);
-	}
-}
-// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
-public void testDeprecationCheck4() throws JavaModelException {
-	Hashtable<String, String> options = JavaCore.getOptions();
-	String optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
-	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED); //$NON-NLS-1$
-
-	JavaCore.setOptions(options);
+	String optionValue = getSetCodeAssistProperty(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
 
 	try {
 
@@ -16606,17 +16385,12 @@ public void testDeprecationCheck4() throws JavaModelException {
 				"foo1[METHOD_REF]{foo1(), Ldeprecation.ZZZType1;, ()V, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_INHERITED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
-		JavaCore.setOptions(options);
+		COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
-public void testDeprecationCheck5() throws JavaModelException {
-	Hashtable<String, String> options = JavaCore.getOptions();
-	String optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
-	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED); //$NON-NLS-1$
-
-	JavaCore.setOptions(options);
+public void testDeprecationCheck4() throws JavaModelException {
+	String optionValue = getSetCodeAssistProperty(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
 
 	try {
 
@@ -16625,40 +16399,36 @@ public void testDeprecationCheck5() throws JavaModelException {
 			"/Completion/src/deprecation/Test.java",
 			"package deprecation;"+
 			"public class Test {\n"+
-			"  ZZZType1.Inn\n"+
+			"  void foo() {"+
+			"    ZZZType1.fo\n"+
+			"  }"+
 			"}");
 
 		this.workingCopies[1] = getWorkingCopy(
 			"/Completion/src/deprecation/ZZZType1.java",
 			"package deprecation;"+
 			"public class ZZZType1 {\n"+
-			"  public class Inner1 {}\n"+
+			"  public static void foo1(){}\n"+
 			"  /** @deprecated */\n"+
-			"  public class Inner2 {}\n"+
+			"  public static void foo2(){}\n"+
 			"}");
 
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
 		String str = this.workingCopies[0].getSource();
-		String completeBehind = "ZZZType1.Inn";
+		String completeBehind = "ZZZType1.fo";
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 		assertResults(
-				"ZZZType1.Inner1[TYPE_REF]{Inner1, deprecation, Ldeprecation.ZZZType1$Inner1;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
-				"ZZZType1.Inner2[TYPE_REF]{Inner2, deprecation, Ldeprecation.ZZZType1$Inner2;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+				"foo1[METHOD_REF]{foo1(), Ldeprecation.ZZZType1;, ()V, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_INHERITED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
-		JavaCore.setOptions(options);
+		COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
-public void testDeprecationCheck6() throws JavaModelException {
-	Hashtable<String, String> options = JavaCore.getOptions();
-	String optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
-	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED); //$NON-NLS-1$
-
-	JavaCore.setOptions(options);
+public void testDeprecationCheck5() throws JavaModelException {
+	String optionValue = getSetCodeAssistProperty(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
 
 	try {
 
@@ -16689,17 +16459,48 @@ public void testDeprecationCheck6() throws JavaModelException {
 				"ZZZType1.Inner1[TYPE_REF]{Inner1, deprecation, Ldeprecation.ZZZType1$Inner1;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
-		JavaCore.setOptions(options);
+		COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
+	}
+}
+// https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
+public void testDeprecationCheck6() throws JavaModelException {
+	String optionValue = getSetCodeAssistProperty(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
+
+	try {
+
+		this.workingCopies = new ICompilationUnit[2];
+		this.workingCopies[0] = getWorkingCopy(
+			"/Completion/src/deprecation/Test.java",
+			"package deprecation;"+
+			"public class Test {\n"+
+			"  ZZZType1.Inn\n"+
+			"}");
+
+		this.workingCopies[1] = getWorkingCopy(
+			"/Completion/src/deprecation/ZZZType1.java",
+			"package deprecation;"+
+			"public class ZZZType1 {\n"+
+			"  public class Inner1 {}\n"+
+			"  /** @deprecated */\n"+
+			"  public class Inner2 {}\n"+
+			"}");
+
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "ZZZType1.Inn";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+
+		assertResults(
+				"ZZZType1.Inner1[TYPE_REF]{Inner1, deprecation, Ldeprecation.ZZZType1$Inner1;, null, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	} finally {
+		COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
 public void testDeprecationCheck7() throws JavaModelException {
-	Hashtable<String, String> options = JavaCore.getOptions();
-	String optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
-	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED); //$NON-NLS-1$
-
-	JavaCore.setOptions(options);
+	String optionValue = getSetCodeAssistProperty(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED);
 
 	try {
 
@@ -16733,17 +16534,12 @@ public void testDeprecationCheck7() throws JavaModelException {
 				"foo2[FIELD_REF]{foo2, Ldeprecation.ZZZType1;, I, foo2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_INHERITED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
-		JavaCore.setOptions(options);
+		COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
 public void testDeprecationCheck8() throws JavaModelException {
-	Hashtable<String, String> options = JavaCore.getOptions();
-	String optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
-	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED); //$NON-NLS-1$
-
-	JavaCore.setOptions(options);
+	String optionValue = getSetCodeAssistProperty(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
 
 	try {
 
@@ -16776,17 +16572,12 @@ public void testDeprecationCheck8() throws JavaModelException {
 				"foo1[FIELD_REF]{foo1, Ldeprecation.ZZZType1;, I, foo1, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_INHERITED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
-		JavaCore.setOptions(options);
+		COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=127296
 public void testDeprecationCheck9() throws JavaModelException {
-	Hashtable<String, String> options = JavaCore.getOptions();
-	String optionValue = options.get(JavaCore.CODEASSIST_DEPRECATION_CHECK);
-	options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.DISABLED); //$NON-NLS-1$
-
-	JavaCore.setOptions(options);
+	String optionValue = getSetCodeAssistProperty(JavaCore.CODEASSIST_DEPRECATION_CHECK, JavaCore.ENABLED);
 
 	try {
 
@@ -16814,8 +16605,7 @@ public void testDeprecationCheck9() throws JavaModelException {
 				"bar2[METHOD_REF]{bar2(), Ldeprecation.Test;, ()V, bar2, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 				requestor.getResults());
 	} finally {
-		options.put(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
-		JavaCore.setOptions(options);
+		COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_DEPRECATION_CHECK, optionValue);
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=144858
@@ -18057,13 +17847,8 @@ public void testFavoriteImports028() throws JavaModelException {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=152123
 public void testFavoriteImports030() throws JavaModelException {
-	this.oldOptions = JavaCore.getOptions();
-
+	String old = getSetCodeAssistProperty(JavaCore.CODEASSIST_SUGGEST_STATIC_IMPORTS, JavaCore.DISABLED);
 	try {
-		Hashtable<String, String> options = new Hashtable<>(this.oldOptions);
-		options.put(JavaCore.CODEASSIST_SUGGEST_STATIC_IMPORTS, JavaCore.DISABLED);
-		JavaCore.setOptions(options);
-
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src3/test/Test.java",
@@ -18100,18 +17885,13 @@ public void testFavoriteImports030() throws JavaModelException {
 				"   ZZZ[TYPE_IMPORT]{import test.p.ZZZ;\n, test.p, Ltest.p.ZZZ;, null, null, ["+start2+", "+end2+"], " + (relevance1) + "}",
 				requestor.getResults());
 	} finally {
-		JavaCore.setOptions(this.oldOptions);
+		COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_SUGGEST_STATIC_IMPORTS, old);
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=152123
 public void testFavoriteImports031() throws JavaModelException {
-	this.oldOptions = JavaCore.getOptions();
-
+	String old = getSetCodeAssistProperty(JavaCore.CODEASSIST_SUGGEST_STATIC_IMPORTS, JavaCore.DISABLED);
 	try {
-		Hashtable<String, String> options = new Hashtable<>(this.oldOptions);
-		options.put(JavaCore.CODEASSIST_SUGGEST_STATIC_IMPORTS, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
 		this.workingCopies = new ICompilationUnit[2];
 		this.workingCopies[0] = getWorkingCopy(
 				"/Completion/src3/test/Test.java",
@@ -18148,7 +17928,7 @@ public void testFavoriteImports031() throws JavaModelException {
 				"   ZZZ[TYPE_IMPORT]{import test.p.ZZZ;\n, test.p, Ltest.p.ZZZ;, null, null, ["+start2+", "+end2+"], " + (relevance1) + "}",
 				requestor.getResults());
 	} finally {
-		JavaCore.setOptions(this.oldOptions);
+		COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_SUGGEST_STATIC_IMPORTS, old);
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=219099
@@ -19221,11 +19001,7 @@ public void testNameWithUnresolvedReferences018() throws JavaModelException {
 			requestor.getResults());
 }
 public void testParameterNames1() throws CoreException, IOException {
-	Hashtable<String, String> options = JavaCore.getOptions();
-	String timeout = options.get(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC);
-	options.put(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC,"2000"); //$NON-NLS-1$
-
-	JavaCore.setOptions(options);
+	String old = getSetCodeAssistProperty(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC, "2000");
 
 	try {
 		this.workingCopies = new ICompilationUnit[1];
@@ -19260,8 +19036,7 @@ public void testParameterNames1() throws CoreException, IOException {
 			removeLibrary("Completion", "tmpDoc.jar");
 		}
 	} finally {
-		options.put(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC, timeout);
-		JavaCore.setOptions(options);
+		COMPLETION_PROJECT.setOption(JavaCore.TIMEOUT_FOR_PARAMETER_NAME_FROM_ATTACHED_JAVADOC, old);
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=22072
@@ -20665,8 +20440,10 @@ public void test285379d() throws JavaModelException {
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=270436
-public void test270436a() throws JavaModelException {
+public void test270436a() throws CoreException {
 	// This test is to ensure that an interface is not offered as a choice when expecting a class.
+	deleteFolder(new Path("/Completion/src/test"));
+	waitUntilIndexesReady();
 	this.workingCopies = new ICompilationUnit[1];
 	this.workingCopies[0] = getWorkingCopy(
 			"/Completion/src/test/Test270436a.java",
@@ -20674,7 +20451,6 @@ public void test270436a() throws JavaModelException {
 			"public final class TestClass {}\n" +
 			"interface TestInterface {}\n" +
 			"class Subclass extends test.Test {}\n");
-
 	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2();
 	String str = this.workingCopies[0].getSource();
 	String completeBehind = "test.Test";
@@ -25404,14 +25180,11 @@ public void testBug402574() throws JavaModelException {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=402812
 //Bug 402812 - [1.8][completion] Code Completion problems with static/default interface methods.
 public void testBug402812a() throws Exception {
-	Hashtable<String, String> javaCoreOldOptions = JavaCore.getOptions();
 	Map<String, String> completionProjectOptions = COMPLETION_PROJECT.getOptions(true);
 	String savedOptionCompliance = completionProjectOptions.get(CompilerOptions.OPTION_Compliance);
 	String savedOptionSource = completionProjectOptions.get(CompilerOptions.OPTION_Source);
 	try {
-		Hashtable<String, String> options = new Hashtable<>(javaCoreOldOptions);
-		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
+		COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 
 		completionProjectOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
 		completionProjectOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
@@ -25449,29 +25222,16 @@ public void testBug402812a() throws Exception {
 	} finally {
 		deleteProject("P");
 
-		JavaCore.setOptions(javaCoreOldOptions);
-		completionProjectOptions.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
-		completionProjectOptions.put(CompilerOptions.OPTION_Source, savedOptionSource);
-		COMPLETION_PROJECT.setOptions(completionProjectOptions);
+		COMPLETION_PROJECT.setOption(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		COMPLETION_PROJECT.setOption(CompilerOptions.OPTION_Source, savedOptionSource);
 	}
 }
 public void testBug402812b() throws Exception {
-	Hashtable<String, String> javaCoreOldOptions = JavaCore.getOptions();
-	Map<String, String> completionProjectOptions = COMPLETION_PROJECT.getOptions(true);
-	String savedOptionCompliance = completionProjectOptions.get(CompilerOptions.OPTION_Compliance);
-	String savedOptionSource = completionProjectOptions.get(CompilerOptions.OPTION_Source);
+	String savedOptionCompliance = getSetCodeAssistProperty(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
+	String savedOptionSource = getSetCodeAssistProperty(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
+	String old = getSetCodeAssistProperty(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
-		Hashtable<String, String> options = new Hashtable<>(javaCoreOldOptions);
-		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
-		completionProjectOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
-		completionProjectOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
-		COMPLETION_PROJECT.setOptions(completionProjectOptions);
-
-		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib402812.jar"}, "bin");
-
-		refresh(p);
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib402812.jar"}, "bin");
 
 		waitUntilIndexesReady();
 
@@ -25503,27 +25263,17 @@ public void testBug402812b() throws Exception {
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
-
-		JavaCore.setOptions(javaCoreOldOptions);
-		completionProjectOptions.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
-		completionProjectOptions.put(CompilerOptions.OPTION_Source, savedOptionSource);
-		COMPLETION_PROJECT.setOptions(completionProjectOptions);
+		COMPLETION_PROJECT.setOption(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		COMPLETION_PROJECT.setOption(CompilerOptions.OPTION_Source, savedOptionSource);
+		COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_VISIBILITY_CHECK, old);
 	}
 }
 public void testBug402812c() throws Exception {
-	Hashtable<String, String> javaCoreOldOptions = JavaCore.getOptions();
-	Map<String, String> completionProjectOptions = COMPLETION_PROJECT.getOptions(true);
-	String savedOptionCompliance = completionProjectOptions.get(CompilerOptions.OPTION_Compliance);
-	String savedOptionSource = completionProjectOptions.get(CompilerOptions.OPTION_Source);
+	String savedOptionCompliance = getSetCodeAssistProperty(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
+	String savedOptionSource = getSetCodeAssistProperty(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
+	String old = getSetCodeAssistProperty(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
+
 	try {
-		Hashtable<String, String> options = new Hashtable<>(javaCoreOldOptions);
-		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
-		completionProjectOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
-		completionProjectOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
-		COMPLETION_PROJECT.setOptions(completionProjectOptions);
-
 		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib402812.jar"}, "bin");
 
 		refresh(p);
@@ -25559,26 +25309,16 @@ public void testBug402812c() throws Exception {
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
-
-		JavaCore.setOptions(javaCoreOldOptions);
-		completionProjectOptions.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
-		completionProjectOptions.put(CompilerOptions.OPTION_Source, savedOptionSource);
-		COMPLETION_PROJECT.setOptions(completionProjectOptions);
+		COMPLETION_PROJECT.setOption(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		COMPLETION_PROJECT.setOption(CompilerOptions.OPTION_Source, savedOptionSource);
+		COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_VISIBILITY_CHECK, old);
 	}
 }
 public void testBug402812d() throws Exception {
-	Hashtable<String, String> javaCoreOldOptions = JavaCore.getOptions();
-	Map<String, String> completionProjectOptions = COMPLETION_PROJECT.getOptions(true);
-	String savedOptionCompliance = completionProjectOptions.get(CompilerOptions.OPTION_Compliance);
-	String savedOptionSource = completionProjectOptions.get(CompilerOptions.OPTION_Source);
+	String savedOptionCompliance = getSetCodeAssistProperty(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
+	String savedOptionSource = getSetCodeAssistProperty(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
+	String old = getSetCodeAssistProperty(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
 	try {
-		Hashtable<String, String> options = new Hashtable<>(javaCoreOldOptions);
-		options.put(JavaCore.CODEASSIST_VISIBILITY_CHECK, JavaCore.ENABLED);
-		JavaCore.setOptions(options);
-
-		completionProjectOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_8);
-		completionProjectOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_8);
-		COMPLETION_PROJECT.setOptions(completionProjectOptions);
 
 		IJavaProject p = createJavaProject("P", new String[] {"src"}, new String[]{"JCL_LIB", "/P/lib402812.jar"}, "bin");
 
@@ -25614,11 +25354,9 @@ public void testBug402812d() throws Exception {
 			requestor.getResults());
 	} finally {
 		deleteProject("P");
-
-		JavaCore.setOptions(javaCoreOldOptions);
-		completionProjectOptions.put(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
-		completionProjectOptions.put(CompilerOptions.OPTION_Source, savedOptionSource);
-		COMPLETION_PROJECT.setOptions(completionProjectOptions);
+		COMPLETION_PROJECT.setOption(CompilerOptions.OPTION_Compliance, savedOptionCompliance);
+		COMPLETION_PROJECT.setOption(CompilerOptions.OPTION_Source, savedOptionSource);
+		COMPLETION_PROJECT.setOption(JavaCore.CODEASSIST_VISIBILITY_CHECK, old);
 	}
 }
 //Bug 370971 - Content Assist autocomplete broken within an array of anonymous classes instances

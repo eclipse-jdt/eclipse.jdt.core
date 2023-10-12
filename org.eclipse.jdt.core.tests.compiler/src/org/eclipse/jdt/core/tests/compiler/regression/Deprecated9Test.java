@@ -1032,6 +1032,34 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 			};
 		runner.runConformTest();
 	}
+	public void testGH1412() {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+			"AbstractClass.java",
+			"""
+			public abstract class AbstractClass<T> {}
+			""",
+			"AnnotationWithClassValue.java",
+			"""
+			public @interface AnnotationWithClassValue {
+				Class<? extends AbstractClass<?>> value();
+			}
+			""",
+			"ConcreteClass.java",
+			"""
+			//Adding @Deprecated here fixes the bug
+			//@Deprecated
+			public class ConcreteClass extends AbstractClass<AnnotatedClass> {}
+			""",
+			"AnnotatedClass.java",
+			"""
+			@Deprecated
+			@AnnotationWithClassValue(ConcreteClass.class) //Type mismatch: cannot convert from Class<ConcreteClass> to Class<? extends AbstractClass<?>>
+			public class AnnotatedClass {}
+			"""
+		};
+		runner.runConformTest();
+	}
 	public static Class<?> testClass() {
 		return Deprecated9Test.class;
 	}
