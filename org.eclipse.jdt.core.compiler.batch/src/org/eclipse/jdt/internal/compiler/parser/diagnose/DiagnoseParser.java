@@ -198,12 +198,14 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens, C
 			this.deferredErrorStart = this.deferredErrorEnd = -1;
 			diagnoseParse0(record);
 		} finally {
-			ReferenceContext referenceContext = this.problemReporter().referenceContext;
-			CompilationResult compilationResult = referenceContext != null ? referenceContext.compilationResult() : null;
-			if (compilationResult != null && !compilationResult.hasSyntaxError) {
-				reportMisplacedConstruct(this.deferredErrorStart, this.deferredErrorEnd, true);
+			try (ProblemReporter problemReporter = this.problemReporter()) {
+				ReferenceContext referenceContext = problemReporter.referenceContext;
+				CompilationResult compilationResult = referenceContext != null ? referenceContext.compilationResult() : null;
+				if (compilationResult != null && !compilationResult.hasSyntaxError) {
+					reportMisplacedConstruct(this.deferredErrorStart, this.deferredErrorEnd, true);
+				}
+				this.deferredErrorStart = this.deferredErrorEnd = -1;
 			}
-			this.deferredErrorStart = this.deferredErrorEnd = -1;
 		}
 	}
 
@@ -404,9 +406,11 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens, C
 						return;
 					}
 
-					if(this.parser.problemReporter().options.maxProblemsPerUnit < this.parser.compilationUnit.compilationResult.problemCount) {
-						if(this.recoveryScanner == null || !this.recoveryScanner.record) return;
-						this.reportProblem = false;
+					try (ProblemReporter problemReporter = this.parser.problemReporter()) {
+						if(problemReporter.options.maxProblemsPerUnit < this.parser.compilationUnit.compilationResult.problemCount) {
+							if(this.recoveryScanner == null || !this.recoveryScanner.record) return;
+							this.reportProblem = false;
+						}
 					}
 
 					act = this.stack[this.stateStackTop];
