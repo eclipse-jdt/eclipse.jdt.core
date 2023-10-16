@@ -3449,6 +3449,7 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IJavaProject p1= setupModuleProject("debugger_project", sources, new IClasspathEntry[]{dep});
 			p1.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
 			IMarker[] markers = p1.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			sortMarkers(markers);
 			assertMarkers("unexpected markers",
 					"The package java.util conflicts with a package accessible from another module: java.base\n" +
 					"The package java.util is accessible from more than one module: <unnamed>, java.base\n" +
