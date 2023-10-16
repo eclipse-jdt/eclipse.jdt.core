@@ -52,6 +52,8 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 				suite.addTest(new ASTMatcherTest(methods[i].getName(), JLS3_INTERNAL));
 				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=391898
 				suite.addTest(new ASTMatcherTest(methods[i].getName(), getJLS8()));
+				suite.addTest(new ASTMatcherTest(methods[i].getName(), AST.JLS17));
+				suite.addTest(new ASTMatcherTest(methods[i].getName(), AST.JLS21));
 			}
 		}
 		return suite;
@@ -273,7 +275,16 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 			case JLS3_INTERNAL:
 				name = "JLS3 - " + name;
 				break;
-		}
+			case AST.JLS8:
+				name = "JLS8 - " + name;
+				break;
+			case AST.JLS17:
+				name = "JLS17 - " + name;
+				break;
+			case AST.JLS21:
+				name = "JLS21 - " + name;
+				break;
+	}
 		return name;
 	}
 
@@ -584,6 +595,12 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 			return standardBody(node, other, this.superMatch ? super.match(node, other) : false);
 		}
 		public boolean match(IntersectionType node, Object other) {
+			return standardBody(node, other, this.superMatch ? super.match(node, other) : false);
+		}
+		public boolean match(TypePattern node, Object other) {
+			return standardBody(node, other, this.superMatch ? super.match(node, other) : false);
+		}
+		public boolean match(PatternInstanceofExpression node, Object other) {
 			return standardBody(node, other, this.superMatch ? super.match(node, other) : false);
 		}
 	}
@@ -1135,6 +1152,25 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	}
 	public void testParenthesizedExpression() {
 		ParenthesizedExpression x1 = this.ast.newParenthesizedExpression();
+		basicMatch(x1);
+	}
+	public void testPatternInstanceofExpression() {
+		if (this.ast.apiLevel() < AST.JLS17) {
+			return;
+		}
+		PatternInstanceofExpression x1 = this.ast.newPatternInstanceofExpression();
+		x1.setLeftOperand(this.N1);
+		SingleVariableDeclaration svd = this.ast.newSingleVariableDeclaration();
+		svd.setType(this.T1);
+		svd.setName(this.N2);
+
+		if (this.ast.apiLevel() <= AST.JLS20) {
+			x1.setRightOperand(svd);
+		} else {
+			TypePattern tp = this.ast.newTypePattern();
+			tp.setPatternVariable(svd);
+			x1.setPattern(tp);
+		}
 		basicMatch(x1);
 	}
 	public void testPostfixExpression() {
