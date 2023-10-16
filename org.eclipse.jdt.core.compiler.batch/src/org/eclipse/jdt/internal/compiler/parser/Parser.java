@@ -3470,6 +3470,9 @@ protected void consumeEnhancedForStatementHeaderInitRecord(boolean hasModifiers)
 				this.intStack[this.intPtr--]);
 		pushOnAstStack(forEachWithPattern);
 		this.forStartPosition = 0;
+		if (recordPattern != null) {
+			problemReporter().illegalRecordPattern(recordPattern.sourceStart, recordPattern.sourceEnd);
+		}
 }
 protected void consumeEnhancedForStatementHeaderInit(boolean hasModifiers) {
 	TypeReference type;
