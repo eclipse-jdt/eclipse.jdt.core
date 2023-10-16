@@ -41,6 +41,20 @@ public char[] getContents() {
 }
 
 /**
+ * Returns the compiled results of the compilation unit
+ *
+ * NOTE: This is only valid during {@link CompilationParticipant#processClasses(BuildContext[])} and
+ * {@link CompilationParticipant#processAnnotations(BuildContext[])}.
+ *
+ * @return an array of results or an empty arry if no results where produced (yet).
+ *
+ * @since 3.35
+ */
+public IClassContent[] getClassContent() {
+	return new IClassContent[0]; // default overridden by concrete implementation
+}
+
+/**
  * Returns the <code>IFile</code> representing the compilation unit.
  *
  * @return the <code>IFile</code> representing the compilation unit

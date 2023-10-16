@@ -18,6 +18,8 @@ import static org.junit.Assert.assertArrayEquals;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import junit.framework.*;
 
 import org.eclipse.core.runtime.*;
@@ -415,6 +417,42 @@ public class ParticipantBuildTests extends BuilderTests {
 
 		fullBuild(projectPath);
 		expectingNoProblems();
+	}
+
+	public void testProcessAnnotationClasses() throws JavaModelException {
+		IPath projectPath = env.addProject("Project", "1.5"); //$NON-NLS-1$ //$NON-NLS-2$
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+		env.removePackageFragmentRoot(projectPath, ""); //$NON-NLS-1$
+		IPath root = env.addPackageFragmentRoot(projectPath, "src"); //$NON-NLS-1$
+		env.setOutputFolder(projectPath, "bin"); //$NON-NLS-1$
+
+		env.addClass(root, "p1", "Test", //$NON-NLS-1$ //$NON-NLS-2$
+			"package p1;\n" + //$NON-NLS-1$
+			"public class Test { public void method() {  } @SuppressWarnings(\"unused\") private static final class Inner{}}\n" //$NON-NLS-1$
+			);
+		AtomicBoolean called = new AtomicBoolean();
+		// install compilationParticipant
+		TestCompilationParticipant1.PARTICIPANT = new CompilationParticipant() {
+
+			@Override
+			public boolean isClassProcessor() {
+				return true;
+			}
+
+			public void processAnnotations(BuildContext[] files) {
+				for (BuildContext context : files) {
+					IClassContent[] classContent = context.getClassContent();
+					for (IClassContent cc : classContent) {
+						System.out.println(cc.getFileName());
+					}
+				}
+				called.set(true);
+			}
+		};
+
+		fullBuild(projectPath);
+		expectingNoProblems();
+		assertTrue("processAnnotations was not called", called.get());
 	}
 
 	public void testProcessAnnotationReferences() throws JavaModelException {

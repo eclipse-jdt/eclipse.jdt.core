@@ -29,7 +29,6 @@ import org.eclipse.jdt.internal.core.CompilationGroup;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 
-import java.io.*;
 import java.net.URI;
 import java.util.*;
 import java.util.Map.Entry;
@@ -873,30 +872,25 @@ protected void updateTasksFor(SourceFile sourceFile, CompilationResult result) t
 }
 
 /**
- * @see org.eclipse.jdt.internal.core.builder.AbstractImageBuilder#writeClassFileContents(org.eclipse.jdt.internal.compiler.ClassFile, org.eclipse.core.resources.IFile, java.lang.String, boolean, org.eclipse.jdt.internal.core.builder.SourceFile)
+ * @see org.eclipse.jdt.internal.core.builder.AbstractImageBuilder#writeClassFileContents(org.eclipse.jdt.internal.compiler.ClassFile, org.eclipse.core.resources.IFile, java.lang.String, boolean, org.eclipse.jdt.internal.core.builder.SourceFile, org.eclipse.jdt.internal.core.builder.ClassContent)
  */
 @Override
-protected void writeClassFileContents(ClassFile classfile, IFile file, String qualifiedFileName, boolean isTopLevelType, SourceFile compilationUnit) throws CoreException {
+protected void writeClassFileContents(ClassFile classfile, IFile file, String qualifiedFileName, boolean isTopLevelType, SourceFile compilationUnit, ClassContent classContent) throws CoreException {
 	// Before writing out the class file, compare it to the previous file
 	// If structural changes occurred then add dependent source files
 	byte[] bytes = classfile.getBytes();
 	if (file.exists()) {
 		if (writeClassFileCheck(file, qualifiedFileName, bytes) || compilationUnit.updateClassFile) { // see 46093
-			if (JavaBuilder.DEBUG)
-				System.out.println("Writing changed class file " + file.getName());//$NON-NLS-1$
-			if (!file.isDerived())
-				file.setDerived(true, null);
-			file.setContents(new ByteArrayInputStream(bytes), true, false, null);
+			classContent.setBytes(bytes);
 		} else if (JavaBuilder.DEBUG) {
 			System.out.println("Skipped over unchanged class file " + file.getName());//$NON-NLS-1$
+			classContent.setBytesInternal(bytes);
 		}
 	} else {
 		if (isTopLevelType)
 			addDependentsOf(new Path(qualifiedFileName), true); // new type
-		if (JavaBuilder.DEBUG)
-			System.out.println("Writing new class file " + file.getName());//$NON-NLS-1$
 		try {
-			file.create(new ByteArrayInputStream(bytes), IResource.FORCE | IResource.DERIVED, null);
+			classContent.setBytes(bytes);
 		} catch (CoreException e) {
 			if (e.getStatus().getCode() == IResourceStatus.CASE_VARIANT_EXISTS) {
 				IStatus status = e.getStatus();
@@ -921,7 +915,7 @@ protected void writeClassFileContents(ClassFile classfile, IFile file, String qu
 						collision.delete(true, false, null);
 						boolean success = false;
 						try {
-							file.create(new ByteArrayInputStream(bytes), IResource.FORCE | IResource.DERIVED, null);
+							classContent.setBytes(bytes);
 							success = true;
 						} catch (CoreException ignored) {
 							// ignore the second exception

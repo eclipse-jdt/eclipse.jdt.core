@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2019 IBM Corporation and others.
+ * Copyright (c) 2005, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -12,6 +12,7 @@
  *    mkaufman@bea.com - initial API as ICompilationParticipant
  *    IBM - changed from interface ICompilationParticipant to abstract class CompilationParticipant
  *    IBM - rewrote specification
+ *    Christoph Läubrich - add methods for classfile processing
  *
  *******************************************************************************/
 
@@ -142,6 +143,23 @@ public boolean isAnnotationProcessor() {
 }
 
 /**
+ * Returns whether this participant is interested in the generated classes.
+ * <p>
+ * Returning <code>true</code> enables the callback {@link #processClasses(BuildContext[])}, where this
+ * participant can inspect build results.
+ * </p>
+ * <p>
+ * Default is to return <code>false</code>.
+ * </p>
+ *
+ * @return whether this participant is interested in class files
+ * @since 3.35
+ */
+public boolean isClassProcessor() {
+	return false;
+}
+
+/**
  * Notifies this participant that a compile operation has found source files using Annotations.
  * Only sent to participants interested in the current build project that answer true to {@link #isAnnotationProcessor()}.
  * Each BuildContext was informed whether its source file currently hasAnnotations().
@@ -149,6 +167,17 @@ public boolean isAnnotationProcessor() {
  * @param files is an array of BuildContext
   */
 public void processAnnotations(BuildContext[] files) {
+	// do nothing by default
+}
+
+/**
+ * Notifies this participant that a compile operation has completed.
+ * Only sent to participants interested in the current build project that answer true to {@link #isAnnotationProcessor()}.
+ *
+ * @param files is an array of BuildContext
+ * @since 3.35
+  */
+public void processClasses(BuildContext[] files) {
 	// do nothing by default
 }
 

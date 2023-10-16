@@ -28,6 +28,7 @@ public class CompilationParticipantResult extends BuildContext {
 	protected CategorizedProblem[] problems; // new problems to report against this compilationUnit
 	protected String[] dependencies; // fully-qualified type names of any new dependencies, each name is of the form 'p1.p2.A.B'
 	private boolean isTestCode;
+	private ClassContent[] classfiles;
 
 protected CompilationParticipantResult(SourceFile sourceFile, boolean isTestCode) {
 	this.sourceFile = sourceFile;
@@ -47,6 +48,14 @@ protected CompilationParticipantResult(SourceFile sourceFile, boolean isTestCode
 @Override
 public char[] getContents() {
 	return this.sourceFile.getContents();
+}
+
+@Override
+public IClassContent[] getClassContent() {
+	if (this.classfiles == null) {
+		return super.getClassContent();
+	}
+	return this.classfiles.clone();
 }
 
 /**
@@ -171,6 +180,10 @@ void reset(AnnotationBinding[] newAnnotations) {
 	this.deletedFiles = null;
 	this.problems = null;
 	this.dependencies = null;
+}
+
+void setClassFiles(ClassContent[] classfiles) {
+	this.classfiles = classfiles;
 }
 
 @Override
