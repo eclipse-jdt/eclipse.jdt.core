@@ -12450,6 +12450,14 @@ public void cannotInferRecordPatternTypes(RecordPattern pattern) {
 			pattern.sourceStart,
 			pattern.sourceEnd);
 }
+public void illegalRecordPattern(int recordPatternSourceStart, int recordPatternSourceEnd) {
+	this.handle(
+			IProblem.IllegalRecordPattern,
+			NoArgument,
+			NoArgument,
+			recordPatternSourceStart,
+			recordPatternSourceEnd);
+}
 public void falseLiteralInGuard(Expression exp) {
 	this.handle(
 			IProblem.FalseConstantInGuard,
