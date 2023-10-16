@@ -3430,6 +3430,34 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			JavaCore.setOptions(javaCoreOptions);
 		}
 	}
+	// copy from test_no_conflicting_packages_for_debugger_global but using default semantics
+	public void test_conflicting_packages_for_debugger_global_no_tweak() throws CoreException {
+		try {
+			String[] sources = new String[] {
+					"src/java/util/Map___.java",
+					"package java.util;\n" +
+					"abstract class Map___ implements java.util.Map {\n" +
+					"  Map___() {\n" +
+					"    super();\n" +
+					"  }\n" +
+					"  Object[] ___run() throws Throwable {\n" +
+					"    return entrySet().toArray();\n" +
+					"  }\n" +
+					"}"
+			};
+			IClasspathEntry dep = JavaCore.newContainerEntry(new Path(JavaCore.MODULE_PATH_CONTAINER_ID));
+			IJavaProject p1= setupModuleProject("debugger_project", sources, new IClasspathEntry[]{dep});
+			p1.getProject().getWorkspace().build(IncrementalProjectBuilder.FULL_BUILD, null);
+			IMarker[] markers = p1.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
+			assertMarkers("unexpected markers",
+					"The package java.util conflicts with a package accessible from another module: java.base\n" +
+					"The package java.util is accessible from more than one module: <unnamed>, java.base\n" +
+					"The method entrySet() is undefined for the type Map___",
+					markers);
+		} finally {
+			deleteProject("debugger_project");
+		}
+	}
 
 	// test that a package declared in a module conflicts with an accessible package
 	// of the same name declared in another required module

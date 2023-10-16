@@ -64,6 +64,10 @@ public class ImportReference extends ASTNode {
 		ModuleBinding module = scope.module();
 		PackageBinding visiblePackage = module.getVisiblePackage(this.tokens);
 		if (visiblePackage instanceof SplitPackageBinding) {
+			// attempt normalization (filter out packages w/o compilation units, optionally ignore named<->unnamed conflict):
+			visiblePackage = visiblePackage.getVisibleFor(module, false);
+		}
+		if (visiblePackage instanceof SplitPackageBinding) {
 			Set<ModuleBinding> declaringMods = new HashSet<>();
 			for (PackageBinding incarnation : ((SplitPackageBinding) visiblePackage).incarnations) {
 				if (incarnation.enclosingModule != module && module.canAccess(incarnation))
