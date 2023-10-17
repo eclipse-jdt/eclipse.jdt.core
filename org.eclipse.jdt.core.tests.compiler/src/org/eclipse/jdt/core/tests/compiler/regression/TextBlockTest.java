@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020, 2022 IBM Corporation and others.
+ * Copyright (c) 2020, 2023 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -217,6 +217,25 @@ public class TextBlockTest extends AbstractRegressionTest {
 						"}\n"
 				},
 				"abc\\def",
+				null);
+	}
+	/*
+	 * positive - escaped '\'
+	 */
+	public void test006a() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"	public static String textb = \"\"\"\n" +
+						"\\u007Babc\\\\def" +
+						"\"\"\";\n" +
+						"	public static void main(String[] args) {\n" +
+						"		System.out.print(textb);\n" +
+						"	}\n" +
+						"}\n"
+				},
+				"{abc\\def",
 				null);
 	}
 	/*
@@ -1675,5 +1694,98 @@ public class TextBlockTest extends AbstractRegressionTest {
 				text.translateEscapes().stripIndent(),
 				null,
 				new String[] {"--enable-preview"});
+	}
+	public void testIssue544_1() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n"
+						+ "    public static void main(String argv[]) {\n"
+						+ "      String outer = \"\"\"\n"
+						+ "                String inner = \\\"\"\"\n"
+						+ "                       \\\"\"\";\"\"\";\n"
+						+ "      System.out.println(outer.length());\n"
+						+ "    }\n"
+						+ "}\n"
+				},
+				"30",
+				getCompilerOptions());
+	}
+	public void testIssue544_2() {
+		runConformTest(
+			new String[] {
+					"X.java",
+					"""
+					public class X {
+					  public static void main(String argv[]) {
+					  String outer = \"""
+String text = \\\"""
+          String text = \\\"""
+                  String text = \\\"""
+                          A text block inside a text block at level 3
+                      \\\""";
+              \\\""";
+      \\\""";\""";
+  System.out.println(outer.equals(
+              "String text = \\"\\"\\"\\n" +
+              "          String text = \\"\\"\\"\\n" +
+              "                  String text = \\"\\"\\"\\n" +
+              "                          A text block inside a text block at level 3\\n" +
+              "                      \\"\\"\\";\\n" +
+              "              \\"\\"\\";\\n" +
+              "      \\"\\"\\";"
+              ));
+					}
+					}"""
+			},
+			"true",
+			getCompilerOptions());
+	}
+	public void testIssue544_3() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+public class X {
+    public static void main(String argv[]) {
+        String s = \"""
+\
+\""";
+        System.out.println(compare(s));
+    }
+    private static boolean compare(String s) {
+        return s.equals(\"\");
+    }
+}
+						"""
+				},
+				"true",
+				getCompilerOptions());
+	}
+	public void testIssue544_4() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+public class X {
+    public static void main(String argv[]) {
+        String s = \"""
+\
+some \
+newline
+string\
+.\""";
+        System.out.println(compare(s));
+    }
+    private static boolean compare(String s) {
+        return s.equals(\"""
+some newline
+string.\""");
+    }
+}
+						"""
+				},
+				"true",
+				getCompilerOptions());
 	}
 }

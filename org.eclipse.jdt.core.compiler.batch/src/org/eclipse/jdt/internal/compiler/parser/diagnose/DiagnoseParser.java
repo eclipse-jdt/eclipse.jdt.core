@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -2129,7 +2129,9 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens, C
 		int currentKind = this.lexStream.kind(token);
 		String errorTokenName = Parser.name[Parser.terminal_index[this.lexStream.kind(token)]];
 		char[] errorTokenSource = this.lexStream.name(token);
-		if (currentKind == TerminalTokens.TokenNameStringLiteral) {
+		if (currentKind == TerminalTokens.TokenNameStringLiteral ||
+				currentKind == TerminalTokens.TokenNameStringTemplate ||
+				currentKind == TerminalTokens.TokenNameTextBlockTemplate) {
 			errorTokenSource = displayEscapeCharacters(errorTokenSource, 1, errorTokenSource.length - 1);
 		}
 
