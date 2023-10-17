@@ -116,10 +116,9 @@ public class Java11ElementProcessor extends BaseProcessor {
 		Object obj = null;
 		try {
 			obj = _filer.createSourceFile("mod.a/" + typeName);
-			obj = typeName;
 		} catch (IOException e) {
 		}
-		assertNull("Source should not be created", obj);
+		assertNotNull("Source should have been created", obj);
 	}
 	public void testFiler2() throws IOException {
 		String typeName = "abc.internal.TypeInAModule";
@@ -128,10 +127,9 @@ public class Java11ElementProcessor extends BaseProcessor {
 		Object obj = null;
 		try {
 			obj = _filer.createSourceFile(typeName);
-			obj = typeName;
 		} catch (IOException e) {
 		}
-		assertNull("Source should not be created", obj);
+		assertNotNull("Source should have been created", obj);
 	}
 	public void testFiler3() throws IOException {
 		String typeName = "mod.a/abc.internal.AnotherTypeInAModule";
