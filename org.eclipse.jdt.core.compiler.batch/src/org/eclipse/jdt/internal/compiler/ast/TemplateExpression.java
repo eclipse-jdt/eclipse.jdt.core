@@ -1,16 +1,27 @@
+/*******************************************************************************
+ * Copyright (c) 2023 IBM Corporation and others.
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 
 public class TemplateExpression extends Expression {
 	Expression processor;
 	public StringTemplate template;
-	MessageSend invocation;
+	private MessageSend invocation;
 	public TemplateExpression(Expression processor, StringTemplate template) {
 		this.processor = processor;
 		this.template = template;
@@ -30,43 +41,24 @@ public class TemplateExpression extends Expression {
 		if (this.constant != Constant.NotAConstant) {
 			this.constant = Constant.NotAConstant;
 		}
-		//this.literal.resolve(scope);
-		//this.resolvedType = this.literal.resolvedType;
-		//this.processor.resolve(scope);
-//		if (this.processor.resolvedType.isValidBinding()) {
-//			if (!CharOperation.equals(TypeConstants.CharArray_JAVA_LANG_PROCESSOR, this.processor.resolvedType.readableName())) {
-//				// Report an error
-//				return this.resolvedType;
-//			}
+		this.template.resolve(scope);
+		if (this.processor != null) {
 			this.invocation = new MessageSend();
 			this.invocation.receiver = this.processor;
 			this.invocation.selector = "process".toCharArray(); // TODO make a constant //$NON-NLS-1$
 			this.invocation.arguments = new Expression[] {this.template};
 			this.invocation.resolve(scope);
-			this.resolvedType = this.invocation.resolvedType;
-//		}
+			if (this.invocation.binding != null)
+				this.resolvedType = this.invocation.binding.returnType;
+		}
 		// Validate processor is of expected type (java.lang.StringTemplate.Processor)
 		// Create
 		return this.resolvedType;
 	}
-	@Override
-	public void computeConversion(Scope scope, TypeBinding runtimeTimeType, TypeBinding compileTimeType) {
-		this.invocation.computeConversion(scope, runtimeTimeType, compileTimeType);
-	}
-	private void generateNewTemplateBootstrap(CodeStream codeStream) {
-		int index = codeStream.classFile.recordBootstrapMethod(this);
-		codeStream.invokeDynamic(index,
-				2, //
-				1, // int
-				"typeSwitch".toCharArray(), //$NON-NLS-1$
-				"(Ljava/lang/Object;I)I".toCharArray(), //$NON-NLS-1$
-				TypeIds.T_int,
-				TypeBinding.INT);
-	}
+
 	@Override
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
-		this.template.generateCode(currentScope, codeStream, true); // Just the generation of the string literal
-
 		this.invocation.generateCode(currentScope, codeStream, true);
+		codeStream.checkcast(this.invocation.binding.returnType);
 	}
 }
