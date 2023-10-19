@@ -250,6 +250,7 @@ Literal -> StringLiteral
 Literal -> TextBlock
 Literal -> null
 Literal -> BooleanLiteral
+Literal -> StringTemplateExpression
 /:$readableName Literal:/
 BooleanLiteral -> true
 BooleanLiteral -> false
@@ -838,7 +839,6 @@ VariableDeclaratorId ::= 'Identifier' Dimsopt
 
 VariableInitializer -> Expression
 VariableInitializer -> ArrayInitializer
-VariableInitializer -> StringTemplateExpression
 /:$readableName VariableInitializer:/
 /:$recovery_template Identifier:/
 
