@@ -49,7 +49,7 @@ public class CompletionOnClassLiteralAccess extends ClassLiteralAccess implement
 	}
 
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output) {
+	public StringBuilder printExpression(int indent, StringBuilder output) {
 
 		output.append("<CompleteOnClassLiteralAccess:"); //$NON-NLS-1$
 		return this.type.print(0, output).append('.').append(this.completionIdentifier).append('>');

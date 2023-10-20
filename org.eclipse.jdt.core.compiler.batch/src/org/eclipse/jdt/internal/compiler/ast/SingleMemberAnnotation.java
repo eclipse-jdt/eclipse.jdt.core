@@ -56,7 +56,7 @@ public class SingleMemberAnnotation extends Annotation {
 	}
 
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output) {
+	public StringBuilder printExpression(int indent, StringBuilder output) {
 		super.printExpression(indent, output);
 		output.append('(');
 		this.memberValue.printExpression(indent, output);

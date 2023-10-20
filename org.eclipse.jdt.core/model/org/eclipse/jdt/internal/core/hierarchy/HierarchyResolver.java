@@ -146,7 +146,7 @@ public void accept(ICompilationUnit sourceUnit, AccessRestriction accessRestrict
 		this.lookupEnvironment.completeTypeBindings(parsedUnit, true); // work done inside checkAndSetImports()
 	} else {
 		this.lookupEnvironment.problemReporter.abortDueToInternalError(
-			new StringBuffer(Messages.accept_cannot)
+			new StringBuilder(Messages.accept_cannot)
 				.append(sourceUnit.getFileName())
 				.toString());
 	}

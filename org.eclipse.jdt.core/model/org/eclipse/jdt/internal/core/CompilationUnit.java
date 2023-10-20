@@ -1377,7 +1377,7 @@ public void save(IProgressMonitor pm, boolean force) throws JavaModelException {
  * Debugging purposes
  */
 @Override
-protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean showResolvedInfo) {
+protected void toStringInfo(int tab, StringBuilder buffer, Object info, boolean showResolvedInfo) {
 	if (!isPrimary()) {
 		buffer.append(tabString(tab));
 		buffer.append("[Working copy] "); //$NON-NLS-1$

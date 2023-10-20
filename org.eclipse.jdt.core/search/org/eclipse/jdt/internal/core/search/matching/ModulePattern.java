@@ -131,7 +131,7 @@ public class ModulePattern extends JavaSearchPattern {
 		return true;
 	}
 	@Override
-	protected StringBuffer print(StringBuffer output) {
+	protected StringBuilder print(StringBuilder output) {
 		if (this.findDeclarations) {
 			output.append(this.findReferences
 				? "ModuleCombinedPattern: " //$NON-NLS-1$

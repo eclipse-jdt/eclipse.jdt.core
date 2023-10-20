@@ -96,7 +96,7 @@ public abstract class AbstractBatchCompilerTest extends AbstractRegressionTest {
 	protected static class TestCompilationProgress extends CompilationProgress {
 		boolean isCanceled = false;
 		int workedSoFar = 0;
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		public void begin(int remainingWork) {
 			this.buffer.append("----------\n[worked: 0 - remaining: ").append(remainingWork).append("]\n");
 		}
@@ -438,7 +438,7 @@ public abstract class AbstractBatchCompilerTest extends AbstractRegressionTest {
 
 	protected String getLibraryClassesAsQuotedString() {
 		String[] paths = Util.getJavaClassLibs();
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append('"');
 		for (int i = 0, max = paths.length; i < max; i++) {
 			if (i != 0) {

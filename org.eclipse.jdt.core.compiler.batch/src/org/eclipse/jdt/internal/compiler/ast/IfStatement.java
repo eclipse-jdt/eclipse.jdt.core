@@ -272,7 +272,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 
 
 @Override
-public StringBuffer printStatement(int indent, StringBuffer output) {
+public StringBuilder printStatement(int indent, StringBuilder output) {
 	printIndent(indent, output).append("if ("); //$NON-NLS-1$
 	this.condition.printExpression(0, output).append(")\n");	//$NON-NLS-1$
 	this.thenStatement.printStatement(indent + 2, output);

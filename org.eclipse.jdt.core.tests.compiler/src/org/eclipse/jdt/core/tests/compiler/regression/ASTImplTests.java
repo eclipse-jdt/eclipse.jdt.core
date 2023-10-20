@@ -887,7 +887,7 @@ public void test0019() {
 
 // Helper classes: define visitors leveraged by some tests
 class ASTCollector extends ASTVisitor {
-	StringBuffer collector = new StringBuffer();
+	StringBuilder collector = new StringBuilder();
 public String result() {
 	return this.collector.toString();
 }

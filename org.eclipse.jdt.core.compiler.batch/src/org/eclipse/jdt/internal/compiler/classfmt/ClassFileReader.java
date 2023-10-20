@@ -677,7 +677,7 @@ public char[] getEnclosingMethod() {
 	}
 	if (this.enclosingMethod == null) {
 		// read the name
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 
 		int nameAndTypeOffset = this.constantPoolOffsets[this.enclosingNameAndTypeIndex];
 		int utf8Offset = this.constantPoolOffsets[u2At(nameAndTypeOffset + 1)];

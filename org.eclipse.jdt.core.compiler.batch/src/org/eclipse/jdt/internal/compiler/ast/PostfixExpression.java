@@ -61,7 +61,7 @@ public String operatorToString() {
 }
 
 @Override
-public StringBuffer printExpressionNoParenthesis(int indent, StringBuffer output) {
+public StringBuilder printExpressionNoParenthesis(int indent, StringBuilder output) {
 	return this.lhs.printExpression(indent, output).append(' ').append(operatorToString());
 }
 

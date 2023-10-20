@@ -91,7 +91,7 @@ public class JavadocModuleReference extends Expression implements IJavadocTypeRe
 	}
 
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output) {
+	public StringBuilder printExpression(int indent, StringBuilder output) {
 		if (this.moduleReference != null) {
 			output.append(this.moduleReference.moduleName);
 		}

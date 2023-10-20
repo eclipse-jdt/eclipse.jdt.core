@@ -94,7 +94,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	throw new CompletionNodeFound(this, this.resolvedType, scope);
 }
 @Override
-public StringBuffer printExpression(int indent, StringBuffer output) {
+public StringBuilder printExpression(int indent, StringBuilder output) {
 	if (this.enclosingInstance == null)
 		output.append("<CompleteOnAllocationExpression:" );  //$NON-NLS-1$
 	else

@@ -120,7 +120,7 @@ public class LabeledStatement extends Statement {
 	}
 
 	@Override
-	public StringBuffer printStatement(int tab, StringBuffer output) {
+	public StringBuilder printStatement(int tab, StringBuilder output) {
 
 		printIndent(tab, output).append(this.label).append(": "); //$NON-NLS-1$
 		if (this.statement == null)

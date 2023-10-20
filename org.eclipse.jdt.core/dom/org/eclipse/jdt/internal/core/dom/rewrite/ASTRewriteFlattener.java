@@ -104,12 +104,12 @@ public class ASTRewriteFlattener extends ASTVisitor {
 		return flattener.getResult();
 	}
 
-	protected StringBuffer result;
+	protected StringBuilder result;
 	private final RewriteEventStore store;
 
 	public ASTRewriteFlattener(RewriteEventStore store) {
 		this.store= store;
-		this.result= new StringBuffer();
+		this.result= new StringBuilder();
 	}
 
 	/**
@@ -134,7 +134,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	 * @param modifiers the modifiers
 	 * @param buf The <code>StringBuffer</code> to write the result to.
 	 */
-	public static void printModifiers(int modifiers, StringBuffer buf) {
+	public static void printModifiers(int modifiers, StringBuilder buf) {
 		if (Modifier.isPublic(modifiers)) {
 			buf.append("public "); //$NON-NLS-1$
 		}

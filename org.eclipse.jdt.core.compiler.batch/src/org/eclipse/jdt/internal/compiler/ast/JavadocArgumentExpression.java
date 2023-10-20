@@ -82,7 +82,7 @@ public class JavadocArgumentExpression extends Expression {
 	}
 
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output) {
+	public StringBuilder printExpression(int indent, StringBuilder output) {
 		if (this.argument == null) {
 			if (this.token != null) {
 				output.append(this.token);

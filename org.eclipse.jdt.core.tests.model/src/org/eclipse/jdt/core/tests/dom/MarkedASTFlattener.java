@@ -55,7 +55,7 @@ public class MarkedASTFlattener extends NaiveASTFlattener {
 			this.options = options;
 		}
 
-		private void appendBinding(ASTNode node, StringBuffer buffer) {
+		private void appendBinding(ASTNode node, StringBuilder buffer) {
 			buffer.append('[');
 			try {
 				IBinding binding = resolveBinding(node);
@@ -89,7 +89,7 @@ public class MarkedASTFlattener extends NaiveASTFlattener {
 			buffer.append(']');
 		}
 
-		private void appendBindingFlags(IBinding binding, StringBuffer buffer) {
+		private void appendBindingFlags(IBinding binding, StringBuilder buffer) {
 			boolean firstFlag = true;
 			if (binding.isDeprecated()) {
 				if (!firstFlag) buffer.append('|');
@@ -111,11 +111,11 @@ public class MarkedASTFlattener extends NaiveASTFlattener {
 			}
 		}
 
-		private void appendBindingKey(IBinding binding, StringBuffer buffer) {
+		private void appendBindingKey(IBinding binding, StringBuilder buffer) {
 			buffer.append(binding.getKey());
 		}
 
-		private void appendBindingKind(IBinding binding, StringBuffer buffer) {
+		private void appendBindingKind(IBinding binding, StringBuilder buffer) {
 			switch (binding.getKind()) {
 				case IBinding.ANNOTATION:
 					buffer.append("ANNOTATION");break;
@@ -134,7 +134,7 @@ public class MarkedASTFlattener extends NaiveASTFlattener {
 			}
 		}
 
-		private void appendFlags(ASTNode node, StringBuffer buffer) {
+		private void appendFlags(ASTNode node, StringBuilder buffer) {
 			boolean firstFlag = true;
 			int flags = node.getFlags();
 			if ((flags & ASTNode.MALFORMED) != 0) {
@@ -165,7 +165,7 @@ public class MarkedASTFlattener extends NaiveASTFlattener {
 			}
 		}
 
-		private void appendNodeExtendedPosition(ASTNode node, StringBuffer buffer) {
+		private void appendNodeExtendedPosition(ASTNode node, StringBuilder buffer) {
 			ASTNode root = node.getRoot();
 
 			if (root.getNodeType() == ASTNode.COMPILATION_UNIT) {
@@ -188,7 +188,7 @@ public class MarkedASTFlattener extends NaiveASTFlattener {
 
 		}
 
-		private void appendNodePosition(ASTNode node, StringBuffer buffer) {
+		private void appendNodePosition(ASTNode node, StringBuilder buffer) {
 			buffer.append('[');
 			buffer.append(node.getStartPosition());
 			buffer.append(',');
@@ -196,7 +196,7 @@ public class MarkedASTFlattener extends NaiveASTFlattener {
 			buffer.append(']');
 		}
 
-		private void appendNodeType(ASTNode node, StringBuffer buffer) {
+		private void appendNodeType(ASTNode node, StringBuilder buffer) {
 			switch (node.getNodeType()) {
 				case ASTNode.ANNOTATION_TYPE_DECLARATION :
 					buffer.append("ANNOTATION_TYPE_DECLARATION");break;
@@ -383,7 +383,7 @@ public class MarkedASTFlattener extends NaiveASTFlattener {
 
 		@Override
 		public String getText(ASTNode node) {
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 
 			boolean first = true;
 
@@ -495,7 +495,7 @@ public class MarkedASTFlattener extends NaiveASTFlattener {
 	private Map markerPositonInBuffer;
 
 	private boolean[] foundNodeFromMarker;
-	private final StringBuffer markedNodesBuffer;
+	private final StringBuilder markedNodesBuffer;
 
 	private final MarkedNodeLabelProvider labelProvider;
 
@@ -507,12 +507,12 @@ public class MarkedASTFlattener extends NaiveASTFlattener {
 		this.reportAST = reportAST;
 		this.reportProblems = reportProblems;
 
-		this.markedNodesBuffer = new StringBuffer();
+		this.markedNodesBuffer = new StringBuilder();
 		this.labelProvider = labelProvider;
 	}
 
 	public String getResult() {
-		StringBuffer resultBuffer = new StringBuffer();
+		StringBuilder resultBuffer = new StringBuilder();
 
 		if (this.reportAST) {
 			resultBuffer.append(AST_DELIMITER);
@@ -529,7 +529,7 @@ public class MarkedASTFlattener extends NaiveASTFlattener {
 			resultBuffer.append(PROBLEMS_DELIMITER);
 			resultBuffer.append('\n');
 
-			StringBuffer problemBuffer = new StringBuffer();
+			StringBuilder problemBuffer = new StringBuilder();
 			IProblem[] problems = this.unit.getProblems();
 			int problemCount = problems.length;
 			if (problemCount != 0) {

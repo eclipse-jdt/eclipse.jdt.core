@@ -253,7 +253,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 	}
 
 	@Override
-	public StringBuffer printReturnType(int indent, StringBuffer output) {
+	public StringBuilder printReturnType(int indent, StringBuilder output) {
 		if (this.returnType == null) return output;
 		return this.returnType.printExpression(0, output).append(' ');
 	}

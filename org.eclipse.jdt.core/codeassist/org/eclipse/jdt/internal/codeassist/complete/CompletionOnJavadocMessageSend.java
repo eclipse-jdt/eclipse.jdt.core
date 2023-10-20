@@ -60,7 +60,7 @@ public class CompletionOnJavadocMessageSend extends JavadocMessageSend implement
 	}
 
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output) {
+	public StringBuilder printExpression(int indent, StringBuilder output) {
 		output.append("<CompleteOnJavadocMessageSend:"); //$NON-NLS-1$
 		super.printExpression(indent, output);
 		indent++;

@@ -131,7 +131,7 @@ public class UnionTypeReference extends TypeReference {
 	}
 
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output) {
+	public StringBuilder printExpression(int indent, StringBuilder output) {
 		int length = this.typeReferences == null ? 0 : this.typeReferences.length;
 		printIndent(indent, output);
 		for (int i = 0; i < length; i++) {

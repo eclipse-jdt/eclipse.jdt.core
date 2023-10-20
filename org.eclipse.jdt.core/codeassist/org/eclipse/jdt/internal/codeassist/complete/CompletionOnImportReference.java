@@ -43,7 +43,7 @@ public CompletionOnImportReference(char[][] tokens , long[] positions, int modif
 	super(tokens, positions, false, modifiers);
 }
 @Override
-public StringBuffer print(int indent, StringBuffer output, boolean withOnDemand) {
+public StringBuilder print(int indent, StringBuilder output, boolean withOnDemand) {
 
 	printIndent(indent, output).append("<CompleteOnImport:"); //$NON-NLS-1$
 	for (int i = 0; i < this.tokens.length; i++) {

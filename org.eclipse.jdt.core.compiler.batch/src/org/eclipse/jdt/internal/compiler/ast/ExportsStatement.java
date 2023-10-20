@@ -24,7 +24,7 @@ public class ExportsStatement extends PackageVisibilityStatement {
 	}
 
 	@Override
-	public StringBuffer print(int indent, StringBuffer output) {
+	public StringBuilder print(int indent, StringBuilder output) {
 		printIndent(indent, output);
 		output.append("exports "); //$NON-NLS-1$
 		super.print(0, output);

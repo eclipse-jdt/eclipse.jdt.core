@@ -48,7 +48,7 @@ public class CompletionOnArgumentName extends Argument implements CompletionNode
 	}
 
 	@Override
-	public StringBuffer print(int indent, StringBuffer output) {
+	public StringBuilder print(int indent, StringBuilder output) {
 
 		printIndent(indent, output);
 		output.append("<CompleteOnArgumentName:"); //$NON-NLS-1$

@@ -69,7 +69,7 @@ public JavaElement getPrimaryElement(boolean checkOwner) {
  * @private Debugging purposes
  */
 @Override
-protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean showResolvedInfo) {
+protected void toStringInfo(int tab, StringBuilder buffer, Object info, boolean showResolvedInfo) {
 	buffer.append(tabString(tab));
 	buffer.append("package "); //$NON-NLS-1$
 	toStringName(buffer);

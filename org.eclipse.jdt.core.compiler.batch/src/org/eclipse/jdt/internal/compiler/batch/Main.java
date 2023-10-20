@@ -404,7 +404,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			while ((c = unitSource[end]) == ' ' || c == '\t') end--;
 
 			// copy source
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			buffer.append(unitSource, begin, end - begin + 1);
 			HashMap<String, Object> parameters = new HashMap<>();
 			parameters.put(Logger.VALUE, String.valueOf(buffer));
@@ -3240,7 +3240,7 @@ private static String getAllEncodings(Set<String> encodings) {
 	String[] allEncodings = new String[size];
 	encodings.toArray(allEncodings);
 	Arrays.sort(allEncodings);
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	for (int i = 0; i < size; i++) {
 		if (i > 0) {
 			buffer.append(", "); //$NON-NLS-1$

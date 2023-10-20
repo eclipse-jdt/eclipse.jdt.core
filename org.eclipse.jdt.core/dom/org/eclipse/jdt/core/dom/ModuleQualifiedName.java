@@ -227,7 +227,7 @@ public class ModuleQualifiedName extends Name {
 	}
 
 	@Override
-	void appendName(StringBuffer buffer) {
+	void appendName(StringBuilder buffer) {
 		getModuleQualifier().appendName(buffer);
 		buffer.append('/');
 		if (getName() != null) {

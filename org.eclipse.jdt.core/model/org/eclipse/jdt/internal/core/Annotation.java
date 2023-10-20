@@ -146,7 +146,7 @@ public class Annotation extends SourceRefElement implements IAnnotation {
 	}
 
 	@Override
-	protected void toStringName(StringBuffer buffer) {
+	protected void toStringName(StringBuilder buffer) {
 		buffer.append('@');
 		buffer.append(getElementName());
 	}

@@ -373,7 +373,7 @@ public class ForStatement extends Statement {
 	}
 
 	@Override
-	public StringBuffer printStatement(int tab, StringBuffer output) {
+	public StringBuilder printStatement(int tab, StringBuilder output) {
 
 		printIndent(tab, output).append("for ("); //$NON-NLS-1$
 		//inits

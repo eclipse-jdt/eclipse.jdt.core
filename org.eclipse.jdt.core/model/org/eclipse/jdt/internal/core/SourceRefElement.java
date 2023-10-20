@@ -150,7 +150,7 @@ public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento,
 	return this;
 }
 @Override
-protected void getHandleMemento(StringBuffer buff) {
+protected void getHandleMemento(StringBuilder buff) {
 	super.getHandleMemento(buff);
 	if (this.occurrenceCount > 1) {
 		buff.append(JEM_COUNT);
@@ -288,7 +288,7 @@ public void rename(String newName, boolean force, IProgressMonitor monitor) thro
 	getJavaModel().rename(elements, dests, renamings, force, monitor);
 }
 @Override
-protected void toStringName(StringBuffer buffer) {
+protected void toStringName(StringBuilder buffer) {
 	super.toStringName(buffer);
 	if (this.occurrenceCount > 1) {
 		buffer.append("#"); //$NON-NLS-1$

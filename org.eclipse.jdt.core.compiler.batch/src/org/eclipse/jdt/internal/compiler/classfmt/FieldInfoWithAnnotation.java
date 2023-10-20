@@ -52,7 +52,7 @@ protected void reset() {
 }
 @Override
 public String toString() {
-	StringBuffer buffer = new StringBuffer(getClass().getName());
+	StringBuilder buffer = new StringBuilder(getClass().getName());
 	if (this.annotations != null) {
 		buffer.append('\n');
 		for (int i = 0; i < this.annotations.length; i++) {

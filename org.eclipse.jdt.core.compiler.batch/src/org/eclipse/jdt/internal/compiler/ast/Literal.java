@@ -40,7 +40,7 @@ public abstract class Literal extends Expression {
 	public abstract TypeBinding literalType(BlockScope scope);
 
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output){
+	public StringBuilder printExpression(int indent, StringBuilder output){
 
 		return output.append(source());
 	 }

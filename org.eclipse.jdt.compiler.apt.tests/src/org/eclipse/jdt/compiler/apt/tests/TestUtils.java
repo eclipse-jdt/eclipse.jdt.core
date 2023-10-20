@@ -39,7 +39,7 @@ public class TestUtils {
 
 	public static String convertToIndependentLineDelimiter(String source) {
 		if (source.indexOf('\n') == -1 && source.indexOf('\r') == -1) return source;
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		for (int i = 0, length = source.length(); i < length; i++) {
 			char car = source.charAt(i);
 			if (car == '\r') {

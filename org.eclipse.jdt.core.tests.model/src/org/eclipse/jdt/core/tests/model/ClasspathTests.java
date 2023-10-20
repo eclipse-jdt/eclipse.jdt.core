@@ -5027,7 +5027,7 @@ public void testNoResourceChange05() throws CoreException {
  */
 public void testNoResourceChange06() throws CoreException {
 	ILogListener listener = new ILogListener(){
-		private final StringBuffer buffer = new StringBuffer();
+		private final StringBuilder buffer = new StringBuilder();
 		public void logging(IStatus status, String plugin) {
 			this.buffer.append(status);
 			this.buffer.append('\n');

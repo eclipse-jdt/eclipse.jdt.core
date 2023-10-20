@@ -101,7 +101,7 @@ public class LocalVariableBinding extends VariableBinding {
 	 */
 	@Override
 	public char[] computeUniqueKey(boolean isLeaf) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 
 		// declaring method or type
 		BlockScope scope = this.declaringScope;
@@ -212,7 +212,7 @@ public class LocalVariableBinding extends VariableBinding {
 		return sourceType.retrieveAnnotations(this);
 	}
 
-	private void getScopeKey(BlockScope scope, StringBuffer buffer) {
+	private void getScopeKey(BlockScope scope, StringBuilder buffer) {
 		int scopeIndex = scope.scopeIndex();
 		if (scopeIndex != -1) {
 			getScopeKey((BlockScope)scope.parent, buffer);

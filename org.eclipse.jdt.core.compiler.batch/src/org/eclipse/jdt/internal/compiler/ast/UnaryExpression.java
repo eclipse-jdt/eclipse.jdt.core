@@ -219,7 +219,7 @@ public class UnaryExpression extends OperatorExpression {
 	}
 
 	@Override
-	public StringBuffer printExpressionNoParenthesis(int indent, StringBuffer output) {
+	public StringBuilder printExpressionNoParenthesis(int indent, StringBuilder output) {
 
 		output.append(operatorToString()).append(' ');
 		return this.expression.printExpression(0, output);

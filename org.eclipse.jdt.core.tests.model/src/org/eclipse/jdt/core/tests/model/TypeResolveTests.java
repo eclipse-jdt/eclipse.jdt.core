@@ -442,7 +442,7 @@ public void testParamAnnotations3() throws CoreException {
 		assertEquals(annotationString2, iAnnotation.toString());
 		IMemberValuePair[] memberValuePairs = iAnnotation.getMemberValuePairs();
 		assertEquals("Wrong number of pairs", 1, memberValuePairs.length);
-		StringBuffer output = new StringBuffer();
+		StringBuilder output = new StringBuilder();
 		output.append(memberValuePairs[0].getMemberName());
 		output.append(' ');
 		output.append(memberValuePairs[0].getValue());
@@ -496,7 +496,7 @@ public void testParamAnnotations4() throws CoreException, IOException {
 		assertEquals("@p.Marker [in Test(int, java.lang.String, int) [in X [in X.class [in p [in lib334783_2.jar [in P]]]]]]", annotation.toString());
 		IMemberValuePair[] memberValuePairs = annotation.getMemberValuePairs();
 		assertEquals("Wrong number of pairs", 1, memberValuePairs.length);
-		StringBuffer output = new StringBuffer();
+		StringBuilder output = new StringBuilder();
 		output.append(memberValuePairs[0].getMemberName());
 		output.append(' ');
 		output.append(memberValuePairs[0].getValue());
@@ -515,7 +515,7 @@ public void testParamAnnotations4() throws CoreException, IOException {
 		assertEquals(annotationString2, annotation.toString());
 		memberValuePairs = annotation.getMemberValuePairs();
 		assertEquals("Wrong number of pairs", 1, memberValuePairs.length);
-		output = new StringBuffer();
+		output = new StringBuilder();
 		output.append(memberValuePairs[0].getMemberName());
 		output.append(' ');
 		output.append(memberValuePairs[0].getValue());
@@ -571,7 +571,7 @@ public void testParamAnnotations5() throws CoreException, IOException {
 		assertEquals("@p.Marker [in Test(int, java.lang.String, int) [in X [in X.class [in p [in lib334783_3.jar [in P]]]]]]", annotation.toString());
 		IMemberValuePair[] memberValuePairs = annotation.getMemberValuePairs();
 		assertEquals("Wrong number of pairs", 1, memberValuePairs.length);
-		StringBuffer output = new StringBuffer();
+		StringBuilder output = new StringBuilder();
 		output.append(memberValuePairs[0].getMemberName());
 		output.append(' ');
 		output.append(memberValuePairs[0].getValue());
@@ -583,7 +583,7 @@ public void testParamAnnotations5() throws CoreException, IOException {
 		assertEquals(annotationString2, annotation.toString());
 		memberValuePairs = annotation.getMemberValuePairs();
 		assertEquals("Wrong number of pairs", 1, memberValuePairs.length);
-		output = new StringBuffer();
+		output = new StringBuilder();
 		output.append(memberValuePairs[0].getMemberName());
 		output.append(' ');
 		output.append(memberValuePairs[0].getValue());
@@ -692,7 +692,7 @@ public void testParamAnnotations8() throws CoreException, IOException {
 		assertEquals("@p.Marker [in X(int, java.lang.String, int) [in X [in X.class [in p [in lib334783_3.jar [in P]]]]]]", annotation.toString());
 		IMemberValuePair[] memberValuePairs = annotation.getMemberValuePairs();
 		assertEquals("Wrong number of pairs", 1, memberValuePairs.length);
-		StringBuffer output = new StringBuffer();
+		StringBuilder output = new StringBuilder();
 		output.append(memberValuePairs[0].getMemberName());
 		output.append(' ');
 		output.append(memberValuePairs[0].getValue());
@@ -704,7 +704,7 @@ public void testParamAnnotations8() throws CoreException, IOException {
 		assertEquals(annotationString2, annotation.toString());
 		memberValuePairs = annotation.getMemberValuePairs();
 		assertEquals("Wrong number of pairs", 1, memberValuePairs.length);
-		output = new StringBuffer();
+		output = new StringBuilder();
 		output.append(memberValuePairs[0].getMemberName());
 		output.append(' ');
 		output.append(memberValuePairs[0].getValue());

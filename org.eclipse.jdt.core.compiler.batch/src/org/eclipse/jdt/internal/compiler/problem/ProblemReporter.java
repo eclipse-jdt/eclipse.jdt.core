@@ -3216,7 +3216,7 @@ public void illegalStaticModifierForMemberType(SourceTypeBinding type) {
 		type.sourceEnd());
 }
 public void illegalUsageOfQualifiedTypeReference(QualifiedTypeReference qualifiedTypeReference) {
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	char[][] tokens = qualifiedTypeReference.tokens;
 	for (int i = 0; i < tokens.length; i++) {
 		if (i > 0) buffer.append('.');
@@ -10548,11 +10548,11 @@ public void referenceExpressionArgumentNullityMismatch(ReferenceExpression locat
 }
 public void illegalReturnRedefinition(ASTNode location, MethodBinding descriptorMethod,
 			boolean isUnchecked, TypeBinding providedType) {
-	StringBuffer methodSignature = new StringBuffer()
+	StringBuilder methodSignature = new StringBuilder()
 		.append(descriptorMethod.declaringClass.readableName())
 		.append('.')
 		.append(descriptorMethod.readableName());
-	StringBuffer shortSignature = new StringBuffer()
+	StringBuilder shortSignature = new StringBuilder()
 		.append(descriptorMethod.declaringClass.shortReadableName())
 		.append('.')
 		.append(descriptorMethod.shortReadableName());

@@ -168,7 +168,7 @@ public class ModelTests extends TestCase {
 
 		List<String> options = new ArrayList<String>();
 		options.add("-A" + processorClass);
-		final StringBuffer reported = new StringBuffer();
+		final StringBuilder reported = new StringBuilder();
 		BatchTestUtils.compileTree(compiler, options, targetFolder, new DiagnosticListener () {
 			@Override
 			public void report(Diagnostic diag) {

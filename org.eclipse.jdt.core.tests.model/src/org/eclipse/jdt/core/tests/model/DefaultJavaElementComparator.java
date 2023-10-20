@@ -257,7 +257,7 @@ class DefaultJavaElementComparator implements Comparator {
 		switch(node.getNodeType()) {
 			case ASTNode.METHOD_DECLARATION :
 				MethodDeclaration methodDeclaration = (MethodDeclaration) node;
-				StringBuffer buffer = new StringBuffer();
+				StringBuilder buffer = new StringBuilder();
 				buffer.append(methodDeclaration.getName().getIdentifier());
 				final List parameters = methodDeclaration.parameters();
 				int length1 = parameters.size();

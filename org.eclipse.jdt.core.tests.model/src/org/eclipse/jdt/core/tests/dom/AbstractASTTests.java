@@ -337,7 +337,7 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 		CompilationUnit unit = (CompilationUnit) parser.createAST(null);
 
 		if (reportErrors) {
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			IProblem[] problems = unit.getProblems();
 			for (int i = 0, length = problems.length; i < length; i++)
 				Util.appendProblem(buffer, problems[i], markerInfo.source.toCharArray(), i+1);
@@ -418,7 +418,7 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 		}
 
 		if ((flags & ICompilationUnit.FORCE_PROBLEM_DETECTION) != 0) {
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			IProblem[] problems = unit.getProblems();
 			for (int i = 0, length = problems.length; i < length; i++)
 				Util.appendProblem(buffer, problems[i], newContents.toCharArray(), i+1);
@@ -476,7 +476,7 @@ public class AbstractASTTests extends ModifyingResourceTests implements DefaultM
 		}
 
 		if (reportErrors) {
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			IProblem[] problems = unit.getProblems();
 			for (int i = 0, length = problems.length; i < length; i++)
 				Util.appendProblem(buffer, problems[i], newContents.toCharArray(), i+1);

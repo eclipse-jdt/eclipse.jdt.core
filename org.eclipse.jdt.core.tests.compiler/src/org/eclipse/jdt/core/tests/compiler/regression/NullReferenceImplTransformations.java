@@ -1684,20 +1684,20 @@ void printTruthTables(File outputDirectory) {
 					((State) transitionsSet.getValue()).printableBitsField.charAt(bit);
 			}
 		}
-		StringBuffer line;
-		line = new StringBuffer(140);
+		StringBuilder line;
+		line = new StringBuilder(140);
 		line.append("         ");
 		for (int i = 1; i <= State.stateWidth; i++) {
 			line.append(i);
 			line.append(' ');
 		}
 		out.println(line);
-		line = new StringBuffer(140);
+		line = new StringBuilder(140);
 		line.append("       ---------------------");
 		out.println(line);
 		for (row = 0; row < State.statesNb; row++) {
 			if (keepRow[row]) {
-				line = new StringBuffer(140);
+				line = new StringBuilder(140);
 				line.append(truthTableRowNames[row]);
 				line.append(" | ");
 				for (int i = 0; i < State.stateWidth; i++) {
@@ -2357,9 +2357,9 @@ void printTruthTables(File outputDirectory) {
 					keepColumn[row] = true;
 				}
 			}
-			StringBuffer line;
+			StringBuilder line;
 			for (int i = 0; i < State.stateWidth; i++) {
-				line = new StringBuffer(140);
+				line = new StringBuilder(140);
 				line.append("         ");
 				for (column = 0; column < State.statesNb; column++) {
 					if (keepColumn[column]) {
@@ -2369,7 +2369,7 @@ void printTruthTables(File outputDirectory) {
 				}
 				out.println(line);
 			}
-			line = new StringBuffer(140);
+			line = new StringBuilder(140);
 			line.append("       --");
 			for (column = 0; column < State.statesNb; column++) {
 				if (keepColumn[column]) {
@@ -2380,7 +2380,7 @@ void printTruthTables(File outputDirectory) {
 			out.println(line);
 			for (row = 0; row < State.statesNb; row++) {
 				if (keepRow[row]) {
-					line = new StringBuffer(140);
+					line = new StringBuilder(140);
 					line.append(truthTableRowNames[row]);
 					line.append(" | ");
 					for (column = 0; column < State.statesNb; column++) {

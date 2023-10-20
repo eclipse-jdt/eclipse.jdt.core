@@ -97,7 +97,7 @@ public int sourceEnd(){
 }
 @Override
 public String toString(int tab) {
-	return tabString(tab) + "Recovered local variable:\n" + this.localDeclaration.print(tab + 1, new StringBuffer(10)); //$NON-NLS-1$
+	return tabString(tab) + "Recovered local variable:\n" + this.localDeclaration.print(tab + 1, new StringBuilder(10)); //$NON-NLS-1$
 }
 @Override
 public Statement updatedStatement(int depth, Set knownTypes){

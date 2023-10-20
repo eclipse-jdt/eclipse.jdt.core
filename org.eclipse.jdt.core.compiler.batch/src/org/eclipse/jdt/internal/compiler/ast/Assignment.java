@@ -170,25 +170,25 @@ public int nullStatus(FlowInfo flowInfo, FlowContext flowContext) {
 }
 
 @Override
-public StringBuffer print(int indent, StringBuffer output) {
+public StringBuilder print(int indent, StringBuilder output) {
 	//no () when used as a statement
 	printIndent(indent, output);
 	return printExpressionNoParenthesis(indent, output);
 }
 @Override
-public StringBuffer printExpression(int indent, StringBuffer output) {
+public StringBuilder printExpression(int indent, StringBuilder output) {
 	//subclass redefine printExpressionNoParenthesis()
 	output.append('(');
 	return printExpressionNoParenthesis(0, output).append(')');
 }
 
-public StringBuffer printExpressionNoParenthesis(int indent, StringBuffer output) {
+public StringBuilder printExpressionNoParenthesis(int indent, StringBuilder output) {
 	this.lhs.printExpression(indent, output).append(" = "); //$NON-NLS-1$
 	return this.expression.printExpression(0, output);
 }
 
 @Override
-public StringBuffer printStatement(int indent, StringBuffer output) {
+public StringBuilder printStatement(int indent, StringBuilder output) {
 	//no () when used as a statement
 	return print(indent, output).append(';');
 }

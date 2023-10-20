@@ -1078,7 +1078,7 @@ public boolean isSubRoutineEscaping() {
 }
 
 @Override
-public StringBuffer printStatement(int indent, StringBuffer output) {
+public StringBuilder printStatement(int indent, StringBuilder output) {
 	int length = this.resources.length;
 	printIndent(indent, output).append("try" + (length == 0 ? "\n" : " (")); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	for (int i = 0; i < length; i++) {

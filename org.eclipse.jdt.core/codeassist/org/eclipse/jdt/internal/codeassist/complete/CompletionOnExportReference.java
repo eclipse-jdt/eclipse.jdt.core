@@ -41,7 +41,7 @@ public class CompletionOnExportReference extends ExportsStatement implements Com
 		super(ref, null);
 	}
 	@Override
-	public StringBuffer print(int indent, StringBuffer output) {
+	public StringBuilder print(int indent, StringBuilder output) {
 
 		printIndent(indent, output).append("<CompleteOnExport:"); //$NON-NLS-1$
 		output.append(this.pkgName);

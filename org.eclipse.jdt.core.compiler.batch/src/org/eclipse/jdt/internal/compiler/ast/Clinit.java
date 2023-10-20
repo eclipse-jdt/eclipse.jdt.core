@@ -383,7 +383,7 @@ public class Clinit extends AbstractMethodDeclaration {
 	}
 
 	@Override
-	public StringBuffer print(int tab, StringBuffer output) {
+	public StringBuilder print(int tab, StringBuilder output) {
 
 		printIndent(tab, output).append("<clinit>()"); //$NON-NLS-1$
 		printBody(tab + 1, output);

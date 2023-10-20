@@ -85,7 +85,7 @@ public class XMLConverter extends ElementScanner6<Void, Node> implements IXMLNam
 	public static String xmlToCutAndPasteString(Document model, int indent, boolean shift) {
 		String modelAsString = xmlToString(model);
 	    int length = modelAsString.length();
-	    StringBuffer buffer = new StringBuffer(length);
+	    StringBuilder buffer = new StringBuilder(length);
 	    java.util.StringTokenizer tokenizer = new java.util.StringTokenizer(modelAsString, "\n\r", true);
 	    for (int i = 0; i < indent; i++) buffer.append("\t");
 	    if (shift) indent++;
@@ -101,7 +101,7 @@ public class XMLConverter extends ElementScanner6<Void, Node> implements IXMLNam
 	            }
 	            continue;
 	        }
-	        StringBuffer tokenBuffer = new StringBuffer();
+	        StringBuilder tokenBuffer = new StringBuilder();
 	        for (int i = 0; i < token.length(); i++){
 	            char c = token.charAt(i);
 	            switch (c) {

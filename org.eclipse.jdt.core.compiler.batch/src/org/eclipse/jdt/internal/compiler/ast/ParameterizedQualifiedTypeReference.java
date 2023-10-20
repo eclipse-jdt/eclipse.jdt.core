@@ -389,7 +389,7 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 	}
 
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output) {
+	public StringBuilder printExpression(int indent, StringBuilder output) {
 		int length = this.tokens.length;
 		for (int i = 0; i < length - 1; i++) {
 			if (this.annotations != null && this.annotations[i] != null) {

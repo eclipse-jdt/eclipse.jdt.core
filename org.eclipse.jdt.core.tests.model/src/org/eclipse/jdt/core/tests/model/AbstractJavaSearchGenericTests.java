@@ -43,7 +43,7 @@ public class AbstractJavaSearchGenericTests extends JavaSearchTests {
 	/*
 	 * Add given line to given buffer.
 	 */
-	void addResultLine(StringBuffer buffer, char[] line) {
+	void addResultLine(StringBuilder buffer, char[] line) {
 		if (buffer.length() > 0) buffer.append('\n');
 		buffer.append(line);
 	}
@@ -53,7 +53,7 @@ public class AbstractJavaSearchGenericTests extends JavaSearchTests {
 	 */
 	final String cleanResults(String expected) {
 		char[][] lines = CharOperation.splitOn('\n', expected.toCharArray());
-		StringBuffer buffer = new StringBuffer(expected.length());
+		StringBuilder buffer = new StringBuilder(expected.length());
 		for (int i=0, n=lines.length; i<n; i++) {
 			addResultLine(buffer, lines[i]);
 		}

@@ -115,7 +115,7 @@ public class CommentFormatterUtil {
 	 * @since 3.1
 	 */
 	private static int inferIndentationLevel(String reference, int tabSize) {
-		StringBuffer expanded= expandTabs(reference, tabSize);
+		StringBuilder expanded= expandTabs(reference, tabSize);
 
 		int spaceWidth, referenceWidth;
 		spaceWidth= 1;
@@ -135,8 +135,8 @@ public class CommentFormatterUtil {
 	 * @return the expanded string
 	 * @since 3.1
 	 */
-	private static StringBuffer expandTabs(String string, int tabSize) {
-		StringBuffer expanded= new StringBuffer();
+	private static StringBuilder expandTabs(String string, int tabSize) {
+		StringBuilder expanded= new StringBuilder();
 		for (int i= 0, n= string.length(), chars= 0; i < n; i++) {
 			char ch= string.charAt(i);
 			if (ch == '\t') {

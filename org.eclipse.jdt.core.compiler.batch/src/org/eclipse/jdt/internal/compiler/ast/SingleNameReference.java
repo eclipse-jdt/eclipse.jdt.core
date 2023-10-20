@@ -995,7 +995,7 @@ public TypeBinding postConversionType(Scope scope) {
 }
 
 @Override
-public StringBuffer printExpression(int indent, StringBuffer output){
+public StringBuilder printExpression(int indent, StringBuilder output){
 	return output.append(this.token);
 }
 public TypeBinding reportError(BlockScope scope) {

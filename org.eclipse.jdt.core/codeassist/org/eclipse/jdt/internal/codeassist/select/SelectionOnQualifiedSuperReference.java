@@ -45,7 +45,7 @@ public SelectionOnQualifiedSuperReference(TypeReference name, int pos, int sourc
 	super(name, pos, sourceEnd);
 }
 @Override
-public StringBuffer printExpression(int indent, StringBuffer output) {
+public StringBuilder printExpression(int indent, StringBuilder output) {
 
 	output.append("<SelectOnQualifiedSuper:"); //$NON-NLS-1$
 	return super.printExpression(0, output).append('>');

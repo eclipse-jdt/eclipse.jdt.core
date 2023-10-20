@@ -302,7 +302,7 @@ public class WhileStatement extends Statement {
 	}
 
 	@Override
-	public StringBuffer printStatement(int tab, StringBuffer output) {
+	public StringBuilder printStatement(int tab, StringBuilder output) {
 
 		printIndent(tab, output).append("while ("); //$NON-NLS-1$
 		this.condition.printExpression(0, output).append(')');

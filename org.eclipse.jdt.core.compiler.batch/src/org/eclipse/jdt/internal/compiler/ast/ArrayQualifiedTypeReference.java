@@ -128,7 +128,7 @@ public class ArrayQualifiedTypeReference extends QualifiedTypeReference {
 	}
 
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output){
+	public StringBuilder printExpression(int indent, StringBuilder output){
 
 		super.printExpression(indent, output);
 		if ((this.bits & IsVarArgs) != 0) {

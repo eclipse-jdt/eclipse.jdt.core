@@ -81,7 +81,7 @@ public class SimpleDelta {
 		changed(IJavaElementDelta.F_SUPER_TYPES);
 	}
 
-	protected void toDebugString(StringBuffer buffer) {
+	protected void toDebugString(StringBuilder buffer) {
 		buffer.append("["); //$NON-NLS-1$
 		switch (getKind()) {
 			case IJavaElementDelta.ADDED :
@@ -102,7 +102,7 @@ public class SimpleDelta {
 		buffer.append("}"); //$NON-NLS-1$
 	}
 
-	protected boolean toDebugString(StringBuffer buffer, int flags) {
+	protected boolean toDebugString(StringBuilder buffer, int flags) {
 		boolean prev = false;
 		if ((flags & IJavaElementDelta.F_MODIFIERS) != 0) {
 			if (prev)
@@ -121,7 +121,7 @@ public class SimpleDelta {
 
 	@Override
 	public String toString() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		toDebugString(buffer);
 		return buffer.toString();
 	}

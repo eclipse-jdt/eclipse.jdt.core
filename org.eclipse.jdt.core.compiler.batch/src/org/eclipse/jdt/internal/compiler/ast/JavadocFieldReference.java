@@ -120,7 +120,7 @@ public class JavadocFieldReference extends FieldReference {
 	}
 
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output) {
+	public StringBuilder printExpression(int indent, StringBuilder output) {
 
 		if (this.receiver != null) {
 			this.receiver.printExpression(0, output);

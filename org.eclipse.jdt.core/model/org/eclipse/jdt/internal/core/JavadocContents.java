@@ -307,7 +307,7 @@ public class JavadocContents {
 			computeChildrenSections();
 		}
 
-		StringBuffer buffer = new StringBuffer(field.getElementName());
+		StringBuilder buffer = new StringBuilder(field.getElementName());
 		buffer.append(JavadocConstants.ANCHOR_PREFIX_END);
 		char[] anchor = String.valueOf(buffer).toCharArray();
 

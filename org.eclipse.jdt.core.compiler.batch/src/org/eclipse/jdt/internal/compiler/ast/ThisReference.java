@@ -121,7 +121,7 @@ public class ThisReference extends Reference {
 	}
 
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output){
+	public StringBuilder printExpression(int indent, StringBuilder output){
 
 		if (isImplicitThis()) return output;
 		return output.append("this"); //$NON-NLS-1$

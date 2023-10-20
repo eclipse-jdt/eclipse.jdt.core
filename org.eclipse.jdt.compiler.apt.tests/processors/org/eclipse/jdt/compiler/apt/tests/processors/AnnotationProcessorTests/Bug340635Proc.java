@@ -52,7 +52,7 @@ public class Bug340635Proc extends AbstractProcessor {
 					DeclaredType genericType = element.asType().accept(new GenericTypeVisitor(types), null);
 					DeclaredType erasedType = (DeclaredType) types.erasure(genericType);
 
-					StringBuffer message = new StringBuffer();
+					StringBuilder message = new StringBuilder();
 					message.append("Erased type: " + erasedType);
 					message.append(" - type arguments: ");
 					for (TypeMirror typeArgument : erasedType.getTypeArguments()) {

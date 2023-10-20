@@ -59,7 +59,7 @@ public class CompletionOnMessageSendName extends MessageSend implements Completi
 	}
 
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output) {
+	public StringBuilder printExpression(int indent, StringBuilder output) {
 
 		output.append("<CompleteOnMessageSendName:"); //$NON-NLS-1$
 		if (!this.receiver.isImplicitThis()) this.receiver.printExpression(0, output).append('.');

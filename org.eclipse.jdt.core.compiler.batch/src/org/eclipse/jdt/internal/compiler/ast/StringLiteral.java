@@ -80,7 +80,7 @@ public class StringLiteral extends Literal {
 	}
 
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output) {
+	public StringBuilder printExpression(int indent, StringBuilder output) {
 
 		// handle some special char.....
 		output.append('\"');

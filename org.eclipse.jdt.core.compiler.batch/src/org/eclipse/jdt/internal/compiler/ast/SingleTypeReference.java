@@ -98,7 +98,7 @@ public class SingleTypeReference extends TypeReference {
 	}
 
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output){
+	public StringBuilder printExpression(int indent, StringBuilder output){
 		if (this.annotations != null && this.annotations[0] != null) {
 			printAnnotations(this.annotations[0], output);
 			output.append(' ');

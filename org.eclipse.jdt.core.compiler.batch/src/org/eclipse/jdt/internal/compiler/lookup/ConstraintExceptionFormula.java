@@ -158,7 +158,7 @@ public class ConstraintExceptionFormula extends ConstraintFormula {
 
 	@Override
 	public String toString() {
-		StringBuffer buf = new StringBuffer().append(LEFT_ANGLE_BRACKET);
+		StringBuilder buf = new StringBuilder().append(LEFT_ANGLE_BRACKET);
 		this.left.printExpression(4, buf);
 		buf.append(" \u2286throws "); //$NON-NLS-1$
 		appendTypeName(buf, this.right);

@@ -72,7 +72,7 @@ public class StackMapFrameCodeStream extends CodeStream {
 
 		@Override
 		public String toString() {
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			buffer.append('(').append(this.pc).append(',').append(this.binding.constantPoolName()).append(')');
 			return String.valueOf(buffer);
 		}

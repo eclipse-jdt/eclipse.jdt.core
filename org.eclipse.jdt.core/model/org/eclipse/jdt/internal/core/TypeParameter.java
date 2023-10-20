@@ -156,7 +156,7 @@ public class TypeParameter extends SourceRefElement implements ITypeParameter {
 	}
 
 	@Override
-	protected void toStringName(StringBuffer buffer) {
+	protected void toStringName(StringBuilder buffer) {
 		buffer.append('<');
 		buffer.append(getElementName());
 		buffer.append('>');

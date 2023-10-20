@@ -357,7 +357,7 @@ public class SimpleName extends Name {
 	}
 
 	@Override
-	void appendName(StringBuffer buffer) {
+	void appendName(StringBuilder buffer) {
 		buffer.append(getIdentifier());
 	}
 

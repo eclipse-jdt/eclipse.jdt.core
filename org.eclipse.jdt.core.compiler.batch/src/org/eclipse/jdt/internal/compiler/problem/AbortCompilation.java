@@ -61,7 +61,7 @@ public class AbortCompilation extends RuntimeException {
 	@Override
 	public String getMessage() {
 		String message = super.getMessage();
-		StringBuffer buffer = new StringBuffer(message == null ? Util.EMPTY_STRING : message);
+		StringBuilder buffer = new StringBuilder(message == null ? Util.EMPTY_STRING : message);
 		if (this.problem != null) {
 			buffer.append(this.problem);
 		} else if (this.exception != null) {
@@ -94,7 +94,7 @@ public class AbortCompilation extends RuntimeException {
 	}
 
 	public String getKey() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		if (this.problem != null) {
 			buffer.append(this.problem);
 		}

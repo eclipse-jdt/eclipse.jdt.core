@@ -128,7 +128,7 @@ public class TypeAnnotationSyntaxTest extends AbstractSyntaxTreeTest {
 				return;
 			}
 
-			StringBuffer buffer = new StringBuffer("[");
+			StringBuilder buffer = new StringBuilder("[");
 			for (int i = 0, max = tab.length; i < max; i += 2) {
 				if (i > 0) {
 					buffer.append(", ");

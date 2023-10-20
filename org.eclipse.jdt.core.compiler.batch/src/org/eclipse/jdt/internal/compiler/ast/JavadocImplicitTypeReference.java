@@ -139,7 +139,7 @@ public class JavadocImplicitTypeReference extends TypeReference {
 	}
 
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output) {
-		return new StringBuffer();
+	public StringBuilder printExpression(int indent, StringBuilder output) {
+		return new StringBuilder();
 	}
 }

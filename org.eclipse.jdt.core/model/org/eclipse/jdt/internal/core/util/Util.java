@@ -1046,7 +1046,7 @@ public class Util {
 	 * Put all the arguments in one String.
 	 */
 	public static String getProblemArgumentsForMarker(String[] arguments){
-		StringBuffer args = new StringBuffer(10);
+		StringBuilder args = new StringBuilder(10);
 
 		args.append(arguments.length);
 		args.append(':');
@@ -1074,7 +1074,7 @@ public class Util {
 	 * @param argument the given argument
 	 * @param buffer the buffer in which the encoded argument is stored
 	 */
-	private static void encodeArgument(String argument, StringBuffer buffer) {
+	private static void encodeArgument(String argument, StringBuilder buffer) {
 		for (int i = 0, max = argument.length(); i < max; i++) {
 			char charAt = argument.charAt(i);
 			switch(charAt) {
@@ -1120,7 +1120,7 @@ public class Util {
 		}
 		String[] result = new String[length];
 		int count = 0;
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		for (int i = 0, max = argumentsString.length(); i < max; i++) {
 			char current = argumentsString.charAt(i);
 			switch(current) {
@@ -1230,7 +1230,7 @@ public class Util {
 	 * Returns the signature of the given type.
 	 */
 	public static String getSignature(Type type) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		getFullyQualifiedName(type, buffer);
 		return Signature.createTypeSignature(buffer.toString(), false/*not resolved in source*/);
 	}
@@ -1293,7 +1293,7 @@ public class Util {
 	/*
 	 * Appends to the given buffer the fully qualified name (as it appears in the source) of the given type
 	 */
-	private static void getFullyQualifiedName(Type type, StringBuffer buffer) {
+	private static void getFullyQualifiedName(Type type, StringBuilder buffer) {
 		switch (type.getNodeType()) {
 			case ASTNode.ARRAY_TYPE:
 				ArrayType arrayType = (ArrayType) type;
@@ -2500,7 +2500,7 @@ public class Util {
 		int length = signature.length;
 		if (length <= 1)
 			return signature;
-		StringBuffer buffer = new StringBuffer(length);
+		StringBuilder buffer = new StringBuilder(length);
 		toUnresolvedTypeSignature(signature, 0, length, buffer);
 		int bufferLength = buffer.length();
 		char[] result = new char[bufferLength];
@@ -2508,7 +2508,7 @@ public class Util {
 		return result;
 	}
 
-	private static int toUnresolvedTypeSignature(char[] signature, int start, int length, StringBuffer buffer) {
+	private static int toUnresolvedTypeSignature(char[] signature, int start, int length, StringBuilder buffer) {
 		if (signature[start] == Signature.C_RESOLVED)
 			buffer.append(Signature.C_UNRESOLVED);
 		else
@@ -2534,7 +2534,7 @@ public class Util {
 		}
 		return length;
 	}
-	private static void appendArrayTypeSignature(char[] string, int start, StringBuffer buffer, boolean compact) {
+	private static void appendArrayTypeSignature(char[] string, int start, StringBuilder buffer, boolean compact) {
 		int length = string.length;
 		// need a minimum 2 char
 		if (start >= length - 1) {
@@ -2561,7 +2561,7 @@ public class Util {
 			buffer.append('[').append(']');
 		}
 	}
-	private static void appendClassTypeSignature(char[] string, int start, StringBuffer buffer, boolean compact) {
+	private static void appendClassTypeSignature(char[] string, int start, StringBuilder buffer, boolean compact) {
 		char c = string[start];
 		if (c != Signature.C_RESOLVED) {
 			return;
@@ -2598,7 +2598,7 @@ public class Util {
 			p++;
 		}
 	}
-	static void appendTypeSignature(char[] string, int start, StringBuffer buffer, boolean compact) {
+	static void appendTypeSignature(char[] string, int start, StringBuilder buffer, boolean compact) {
 		char c = string[start];
 		switch (c) {
 			case Signature.C_ARRAY :
@@ -2647,7 +2647,7 @@ public class Util {
 			return ""; //$NON-NLS-1$
 		}
 
-		StringBuffer buffer = new StringBuffer(methodSignature.length + 10);
+		StringBuilder buffer = new StringBuilder(methodSignature.length + 10);
 
 		// decode declaring class name
 		// it can be either an array signature or a type signature
@@ -3035,7 +3035,7 @@ public class Util {
 			throw new IllegalArgumentException(String.valueOf(methodSignature));
 		}
 
-		StringBuffer buffer = new StringBuffer(methodSignature.length + 10);
+		StringBuilder buffer = new StringBuilder(methodSignature.length + 10);
 
 		// selector
 		if (methodName != null) {
@@ -3062,7 +3062,7 @@ public class Util {
 		return result;
 	}
 
-	private static int appendTypeSignatureForAnchor(char[] string, int start, StringBuffer buffer, boolean isVarArgs) {
+	private static int appendTypeSignatureForAnchor(char[] string, int start, StringBuilder buffer, boolean isVarArgs) {
 		// need a minimum 1 char
 		if (start >= string.length) {
 			throw newIllegalArgumentException(string, start);
@@ -3140,7 +3140,7 @@ public class Util {
 		}
 	}
 
-	private static int appendTypeArgumentSignatureForAnchor(char[] string, int start, StringBuffer buffer) {
+	private static int appendTypeArgumentSignatureForAnchor(char[] string, int start, StringBuilder buffer) {
 		// need a minimum 1 char
 		if (start >= string.length) {
 			throw newIllegalArgumentException(string, start);
@@ -3157,7 +3157,7 @@ public class Util {
 				return appendTypeSignatureForAnchor(string, start, buffer, false);
 		}
 	}
-	private static int appendCaptureTypeSignatureForAnchor(char[] string, int start, StringBuffer buffer) {
+	private static int appendCaptureTypeSignatureForAnchor(char[] string, int start, StringBuilder buffer) {
 		// need a minimum 2 char
 		if (start >= string.length - 1) {
 			throw newIllegalArgumentException(string, start);
@@ -3168,7 +3168,7 @@ public class Util {
 		}
 		return appendTypeArgumentSignatureForAnchor(string, start + 1, buffer);
 	}
-	private static int appendArrayTypeSignatureForAnchor(char[] string, int start, StringBuffer buffer, boolean isVarArgs) {
+	private static int appendArrayTypeSignatureForAnchor(char[] string, int start, StringBuilder buffer, boolean isVarArgs) {
 		int length = string.length;
 		// need a minimum 2 char
 		if (start >= length - 1) {
@@ -3202,7 +3202,7 @@ public class Util {
 		}
 		return e;
 	}
-	private static int appendClassTypeSignatureForAnchor(char[] string, int start, StringBuffer buffer) {
+	private static int appendClassTypeSignatureForAnchor(char[] string, int start, StringBuilder buffer) {
 		// need a minimum 3 chars "Lx;"
 		if (start >= string.length - 2) {
 			throw newIllegalArgumentException(string, start);

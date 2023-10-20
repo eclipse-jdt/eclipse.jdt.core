@@ -1106,7 +1106,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 	}
 
 	@Override
-	public StringBuffer printExpression(int tab, StringBuffer output) {
+	public StringBuilder printExpression(int tab, StringBuilder output) {
 
 		this.lhs.print(0, output);
 		output.append("::"); //$NON-NLS-1$

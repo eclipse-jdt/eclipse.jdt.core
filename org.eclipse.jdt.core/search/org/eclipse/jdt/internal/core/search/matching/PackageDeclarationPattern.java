@@ -29,7 +29,7 @@ public EntryResult[] queryIn(Index index) {
 	return null;
 }
 @Override
-protected StringBuffer print(StringBuffer output) {
+protected StringBuilder print(StringBuilder output) {
 	output.append("PackageDeclarationPattern: <"); //$NON-NLS-1$
 	if (this.pkgName != null)
 		output.append(this.pkgName);

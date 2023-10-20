@@ -26,7 +26,7 @@ public class CompletionOnFieldName extends FieldDeclaration implements Completio
 	}
 
 	@Override
-	public StringBuffer printStatement(int tab, StringBuffer output) {
+	public StringBuilder printStatement(int tab, StringBuilder output) {
 
 		printIndent(tab, output).append("<CompleteOnFieldName:"); //$NON-NLS-1$
 		if (this.type != null) this.type.print(0, output).append(' ');

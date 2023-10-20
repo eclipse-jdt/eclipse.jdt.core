@@ -179,7 +179,7 @@ public Object removeTrustedMatch(ASTNode node) {
 @Override
 public String toString() {
 	// TODO (jerome) should show both tables
-	StringBuffer result = new StringBuffer();
+	StringBuilder result = new StringBuilder();
 	result.append("Exact matches:"); //$NON-NLS-1$
 	Object[] keyTable = this.matchingNodes.keyTable;
 	Object[] valueTable = this.matchingNodes.valueTable;

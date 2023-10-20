@@ -138,7 +138,7 @@ public class ExternalPackageFragmentRoot extends PackageFragmentRoot {
 	}
 
 	@Override
-	protected void toStringAncestors(StringBuffer buffer) {
+	protected void toStringAncestors(StringBuilder buffer) {
 		// don't show project as it is irrelevant for external folders.
 	}
 }

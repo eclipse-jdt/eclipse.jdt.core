@@ -60,7 +60,7 @@ protected TypeBinding getTypeBinding(Scope scope) {
 	throw new SelectionNodeFound(binding);
 }
 @Override
-public StringBuffer printExpression(int indent, StringBuffer output) {
+public StringBuilder printExpression(int indent, StringBuilder output) {
 
 	return output.append("<SelectOnType:").append(this.token).append('>');//$NON-NLS-1$
 }

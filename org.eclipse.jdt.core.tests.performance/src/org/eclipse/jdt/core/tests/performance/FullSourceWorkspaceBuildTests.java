@@ -209,7 +209,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 		// Assert result
 		int size = messages.size();
 		if (size > 0) {
-			StringBuffer debugBuffer = new StringBuffer();
+			StringBuilder debugBuffer = new StringBuilder();
 			for (int i=0; i<size; i++) {
 				debugBuffer.append(resources.get(i));
 				debugBuffer.append(":\n\t");
@@ -232,7 +232,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 			System.out.println("\t- "+warnings+" warnings found while performing build.");
 		}
 		if (this.scenarioComment == null) {
-			this.scenarioComment = new StringBuffer("["+TEST_POSITION+"]");
+			this.scenarioComment = new StringBuilder("["+TEST_POSITION+"]");
 		} else {
 			this.scenarioComment.append(' ');
 		}
@@ -348,7 +348,7 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 			System.out.println("\t- "+warnings+" warnings found while performing batch compilation.");
 		}
 		if (this.scenarioComment == null) {
-			this.scenarioComment = new StringBuffer("["+TEST_POSITION+"]");
+			this.scenarioComment = new StringBuilder("["+TEST_POSITION+"]");
 		} else {
 			this.scenarioComment.append(' ');
 		}

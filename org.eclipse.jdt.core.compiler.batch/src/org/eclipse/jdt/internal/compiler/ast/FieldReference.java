@@ -645,7 +645,7 @@ public TypeBinding postConversionType(Scope scope) {
 }
 
 @Override
-public StringBuffer printExpression(int indent, StringBuffer output) {
+public StringBuilder printExpression(int indent, StringBuilder output) {
 	return this.receiver.printExpression(0, output).append('.').append(this.token);
 }
 

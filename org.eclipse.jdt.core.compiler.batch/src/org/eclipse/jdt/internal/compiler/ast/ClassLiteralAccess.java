@@ -73,7 +73,7 @@ public class ClassLiteralAccess extends Expression {
 	}
 
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output) {
+	public StringBuilder printExpression(int indent, StringBuilder output) {
 
 		return this.type.print(0, output).append(".class"); //$NON-NLS-1$
 	}

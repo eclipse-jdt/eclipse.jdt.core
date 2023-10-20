@@ -95,7 +95,7 @@ public class Initializer extends FieldDeclaration {
 	}
 
 	@Override
-	public StringBuffer printStatement(int indent, StringBuffer output) {
+	public StringBuilder printStatement(int indent, StringBuilder output) {
 
 		if (this.modifiers != 0) {
 			printIndent(indent, output);

@@ -529,7 +529,7 @@ public class ASTConverterBindingsTest extends ConverterTestSetup {
 			if (DEBUG) {
 				if (unit.types().size() > 0 ) {
 					AbstractTypeDeclaration typeDeclaration = (AbstractTypeDeclaration) unit.types().get(0);
-					StringBuffer buffer = new StringBuffer();
+					StringBuilder buffer = new StringBuilder();
 					PackageDeclaration packageDeclaration = unit.getPackage();
 					if (packageDeclaration != null) {
 						buffer.append(unit.getPackage().getName()).append(".").append(typeDeclaration.getName());

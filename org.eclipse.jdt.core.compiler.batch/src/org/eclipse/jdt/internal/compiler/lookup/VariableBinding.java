@@ -94,7 +94,7 @@ public abstract class VariableBinding extends Binding {
 	}
 	@Override
 	public String toString() {
-		StringBuffer output = new StringBuffer(10);
+		StringBuilder output = new StringBuilder(10);
 		ASTNode.printModifiers(this.modifiers, output);
 		if ((this.modifiers & ExtraCompilerModifiers.AccUnresolved) != 0) {
 			output.append("[unresolved] "); //$NON-NLS-1$

@@ -234,11 +234,11 @@ protected IFile editFile(String path, String content) throws CoreException {
  * of the tree.
  */
 protected String expandAll(IJavaElement element) throws CoreException {
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	this.expandAll(element, 0, buffer);
 	return buffer.toString();
 }
-private void expandAll(IJavaElement element, int tab, StringBuffer buffer) throws CoreException {
+private void expandAll(IJavaElement element, int tab, StringBuilder buffer) throws CoreException {
 	IJavaElement[] children = null;
 	// force opening of element by getting its children
 	if (element instanceof IParent) {

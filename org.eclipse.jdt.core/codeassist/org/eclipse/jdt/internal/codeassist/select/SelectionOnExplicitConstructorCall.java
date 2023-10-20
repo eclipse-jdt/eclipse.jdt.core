@@ -42,7 +42,7 @@ public class SelectionOnExplicitConstructorCall extends ExplicitConstructorCall 
 	}
 
 	@Override
-	public StringBuffer printStatement(int tab, StringBuffer output) {
+	public StringBuilder printStatement(int tab, StringBuilder output) {
 
 		printIndent(tab, output);
 		output.append("<SelectOnExplicitConstructorCall:"); //$NON-NLS-1$

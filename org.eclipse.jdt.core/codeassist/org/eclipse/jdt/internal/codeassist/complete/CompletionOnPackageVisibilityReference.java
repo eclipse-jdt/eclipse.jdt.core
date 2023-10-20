@@ -46,7 +46,7 @@ public class CompletionOnPackageVisibilityReference extends CompletionOnImportRe
 	}
 
 	@Override
-	public StringBuffer print(int indent, StringBuffer output) {
+	public StringBuilder print(int indent, StringBuilder output) {
 		printIndent(indent, output).append("<CompleteOnPackageVisibilityReference:"); //$NON-NLS-1$
 		output.append(this.pkgName);
 		return output.append('>');

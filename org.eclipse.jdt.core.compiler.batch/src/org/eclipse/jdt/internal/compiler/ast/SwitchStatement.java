@@ -1052,7 +1052,7 @@ public class SwitchStatement extends Expression {
 		generateCode(currentScope, codeStream); // redirecting to statement part
 	}
 	@Override
-	public StringBuffer printStatement(int indent, StringBuffer output) {
+	public StringBuilder printStatement(int indent, StringBuilder output) {
 
 		printIndent(indent, output).append("switch ("); //$NON-NLS-1$
 		this.expression.printExpression(0, output).append(") {"); //$NON-NLS-1$
@@ -1740,7 +1740,7 @@ public class SwitchStatement extends Expression {
 	}
 
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output) {
+	public StringBuilder printExpression(int indent, StringBuilder output) {
 		return printStatement(indent, output);
 	}
 }

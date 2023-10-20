@@ -53,7 +53,7 @@ public class SelectionOnQualifiedAllocationExpression extends QualifiedAllocatio
 	}
 
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output) {
+	public StringBuilder printExpression(int indent, StringBuilder output) {
 		if (this.enclosingInstance == null)
 			output.append("<SelectOnAllocationExpression:");  //$NON-NLS-1$
 		else

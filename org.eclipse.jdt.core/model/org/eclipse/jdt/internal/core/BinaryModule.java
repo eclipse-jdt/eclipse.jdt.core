@@ -116,7 +116,7 @@ public class BinaryModule extends BinaryMember implements AbstractModule {
 		if (baseLocation == null) {
 			return null;
 		}
-		StringBuffer pathBuffer = new StringBuffer(baseLocation.toExternalForm());
+		StringBuilder pathBuffer = new StringBuilder(baseLocation.toExternalForm());
 
 		if (!(pathBuffer.charAt(pathBuffer.length() - 1) == '/')) {
 			pathBuffer.append('/');
@@ -132,7 +132,7 @@ public class BinaryModule extends BinaryMember implements AbstractModule {
 	}
 	@Override
 	public String toString(String lineDelimiter) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		try {
 			toStringContent(buffer, lineDelimiter);
 		} catch (JavaModelException e) {

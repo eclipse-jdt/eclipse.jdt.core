@@ -72,7 +72,7 @@ public class ExtendedStringLiteral extends StringLiteral {
 	}
 
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output) {
+	public StringBuilder printExpression(int indent, StringBuilder output) {
 
 		return output.append("ExtendedStringLiteral{").append(this.source).append('}'); //$NON-NLS-1$
 	}

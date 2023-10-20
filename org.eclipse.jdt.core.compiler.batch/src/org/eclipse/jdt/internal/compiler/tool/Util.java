@@ -57,7 +57,7 @@ public final class Util {
 				|| unitSource.length == 0)
 				return "No source available"; //$NON-NLS-1$
 
-			StringBuffer errorBuffer = new StringBuffer();
+			StringBuilder errorBuffer = new StringBuilder();
 			errorBuffer.append('\t');
 
 			char c;

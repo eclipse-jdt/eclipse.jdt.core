@@ -179,7 +179,7 @@ public class Argument extends LocalDeclaration {
 	}
 
 	@Override
-	public StringBuffer print(int indent, StringBuffer output) {
+	public StringBuilder print(int indent, StringBuilder output) {
 
 		printIndent(indent, output);
 		printModifiers(this.modifiers, output);
@@ -197,7 +197,7 @@ public class Argument extends LocalDeclaration {
 	}
 
 	@Override
-	public StringBuffer printStatement(int indent, StringBuffer output) {
+	public StringBuilder printStatement(int indent, StringBuilder output) {
 
 		return print(indent, output).append(';');
 	}

@@ -25,7 +25,7 @@ public class CompletionOnMethodName extends MethodDeclaration implements Complet
 	}
 
 	@Override
-	public StringBuffer print(int indent, StringBuffer output) {
+	public StringBuilder print(int indent, StringBuilder output) {
 
 		printIndent(indent, output);
 		output.append("<CompletionOnMethodName:"); //$NON-NLS-1$

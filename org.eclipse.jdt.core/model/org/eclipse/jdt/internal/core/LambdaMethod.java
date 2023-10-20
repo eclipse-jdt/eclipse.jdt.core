@@ -78,7 +78,7 @@ public class LambdaMethod extends SourceMethod {
 		return this.elementInfo;
 	}
 
-	public void getHandleMemento(StringBuffer buff, boolean serializeParent) {
+	public void getHandleMemento(StringBuilder buff, boolean serializeParent) {
 		if (serializeParent) {
 			((LambdaExpression) getParent()).getHandleMemento(buff, true, false);
 		}
@@ -103,7 +103,7 @@ public class LambdaMethod extends SourceMethod {
 		}
 	}
 	@Override
-	public void getHandleMemento(StringBuffer buff) {
+	public void getHandleMemento(StringBuilder buff) {
 		getHandleMemento(buff, true);
 		// lambda method and lambda expression cannot share the same memento - add a trailing discriminator.
 		appendEscapedDelimiter(buff, getHandleMementoDelimiter());

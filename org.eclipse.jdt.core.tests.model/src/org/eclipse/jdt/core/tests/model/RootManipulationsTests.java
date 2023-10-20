@@ -33,7 +33,7 @@ public RootManipulationsTests(String name) {
 	super(name);
 }
 protected void assertJavaProject(String expected, IJavaProject project) throws CoreException {
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	populate(buffer, project, 0);
 
 	String actual = buffer.toString();
@@ -79,7 +79,7 @@ protected void move(IPackageFragmentRoot root, IPath destination, IClasspathEntr
 		sibling,
 		null);
 }
-protected void populate(StringBuffer buffer, IJavaElement element, int indent) throws CoreException {
+protected void populate(StringBuilder buffer, IJavaElement element, int indent) throws CoreException {
 	if (!(element instanceof IParent) || !(element instanceof IOpenable)) return;
 
 	if (buffer.length() != 0) {
@@ -117,7 +117,7 @@ protected void populate(StringBuffer buffer, IJavaElement element, int indent) t
 		}
 	}
 }
-protected void populate(StringBuffer buffer, Object nonJavaResource, int indent) {
+protected void populate(StringBuilder buffer, Object nonJavaResource, int indent) {
 	if (buffer.length() != 0) {
 		buffer.append("\n");
 	}

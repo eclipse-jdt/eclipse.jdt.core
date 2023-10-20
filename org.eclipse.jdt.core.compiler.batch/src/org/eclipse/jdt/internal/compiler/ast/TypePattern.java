@@ -284,7 +284,7 @@ public class TypePattern extends Pattern {
 	}
 
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output) {
+	public StringBuilder printExpression(int indent, StringBuilder output) {
 		return this.local != null ? this.local.printAsExpression(indent, output) : output;
 	}
 }

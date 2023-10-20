@@ -212,7 +212,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 }
 
 @Override
-public StringBuffer printStatement(int indent, StringBuffer output) {
+public StringBuilder printStatement(int indent, StringBuilder output) {
 	printIndent(indent, output).append("do"); //$NON-NLS-1$
 	if (this.action == null)
 		output.append(" ;\n"); //$NON-NLS-1$

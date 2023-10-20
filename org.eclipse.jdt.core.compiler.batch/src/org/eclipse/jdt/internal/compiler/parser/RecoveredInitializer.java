@@ -266,7 +266,7 @@ public void resetPendingModifiers() {
 }
 @Override
 public String toString(int tab) {
-	StringBuffer result = new StringBuffer(tabString(tab));
+	StringBuilder result = new StringBuilder(tabString(tab));
 	result.append("Recovered initializer:\n"); //$NON-NLS-1$
 	this.fieldDeclaration.print(tab + 1, result);
 	if (this.annotations != null) {
