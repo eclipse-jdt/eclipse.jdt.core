@@ -81,13 +81,11 @@
 package org.eclipse.jdt.internal.compiler.problem;
 
 import java.io.CharConversionException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -1454,18 +1452,10 @@ public void cannotReadSource(CompilationUnitDeclaration unit, AbortCompilationUn
 				0);
 		return;
 	}
-	StringWriter stringWriter = new StringWriter();
-	PrintWriter writer = new PrintWriter(stringWriter);
 	if (verbose) {
-		abortException.exception.printStackTrace(writer);
-		System.err.println(stringWriter.toString());
-		stringWriter = new StringWriter();
-		writer = new PrintWriter(stringWriter);
+		System.err.println(Util.getStackTrace(abortException.exception));
 	}
-	writer.print(abortException.exception.getClass().getName());
-	writer.print(':');
-	writer.print(abortException.exception.getMessage());
-	String exceptionTrace = stringWriter.toString();
+	String exceptionTrace = abortException.exception.getClass().getName() + ':' + abortException.exception.getMessage();
 	String[] arguments = new String[]{ fileName, exceptionTrace };
 	this.handle(
 			IProblem.CannotReadSource,
