@@ -20,8 +20,10 @@ import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
+import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 
 import junit.framework.Test;
 
@@ -9455,5 +9457,32 @@ public void testIssue1218_001() {
 			"	            ^\n" +
 			"Syntax error, insert \"RecordBody\" to complete ClassBodyDeclarations\n" +
 			"----------\n");
+}
+public void testBugGH1497readFromRecordWithGenericInterface() {
+	runConformTest(
+		new String[] {
+			"testGH1497/OuterRecord.java",
+			"""
+			package testGH1497;
+			interface GenericInterface<T> {}
+			public record OuterRecord() implements GenericInterface<java.lang.String> {
+				public static record InnerRecord()
+				implements GenericInterface<java.lang.String> /* the culprit line */
+				{}
+			}
+			"""
+		}
+	);
+	// get compiled type via binarytypebinding
+	Requestor requestor = new Requestor(false, null /*no custom requestor*/, false, /* show category */ false /* show warning token*/);
+	Map<String, String> customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
+	Compiler compiler = new Compiler(getNameEnvironment(new String[0], null), getErrorHandlingPolicy(),
+			new CompilerOptions(customOptions), requestor, getProblemFactory());
+	char[][] compoundName = new char[][] { "testGH1497".toCharArray(), "OuterRecord$InnerRecord".toCharArray()};
+	ReferenceBinding type = compiler.lookupEnvironment.askForType(compoundName, compiler.lookupEnvironment.UnNamedModule);
+	assertNotNull("resolved type is null", type);
+	assertTrue("must be binary binding", type.isBinaryBinding());
+	assertTrue("type is not record", type.isRecord());
 }
 }
