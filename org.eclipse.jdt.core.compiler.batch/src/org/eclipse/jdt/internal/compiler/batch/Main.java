@@ -46,7 +46,6 @@ import java.io.LineNumberReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -571,12 +570,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		 * @param e the given exception to log
 		 */
 		public void logException(Exception e) {
-			StringWriter writer = new StringWriter();
-			PrintWriter printWriter = new PrintWriter(writer);
-			e.printStackTrace(printWriter);
-			printWriter.flush();
-			printWriter.close();
-			final String stackTrace = writer.toString();
+			final String stackTrace = Util.getStackTrace(e).toString();
 			if ((this.tagBits & Logger.XML) != 0) {
 				LineNumberReader reader = new LineNumberReader(new StringReader(stackTrace));
 				String line;
