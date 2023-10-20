@@ -95,7 +95,7 @@ public String[] getCommandLine() {
 	List<String> commandLine = new ArrayList<>();
 
 	// VM binary
-	StringBuffer vmLocation = new StringBuffer(this.vmPath);
+	StringBuilder vmLocation = new StringBuilder(this.vmPath);
 	vmLocation
 		.append(this.vmPath.endsWith(File.separator) ? "" : File.separator)
 		.append("bin")

@@ -33,7 +33,7 @@ public class SelectionJavadoc extends Javadoc {
 	}
 
 	@Override
-	public StringBuffer print(int indent, StringBuffer output) {
+	public StringBuilder print(int indent, StringBuilder output) {
 		super.print(indent, output);
 		if (this.selectedNode != null) {
 			String selectedString = null;

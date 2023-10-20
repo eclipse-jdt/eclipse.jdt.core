@@ -71,7 +71,7 @@ public abstract class PackageVisibilityStatement extends ModuleStatement {
 	}
 
 	@Override
-	public StringBuffer print(int indent, StringBuffer output) {
+	public StringBuilder print(int indent, StringBuilder output) {
 		this.pkgRef.print(indent, output);
 		if (this.isQualified()) {
 			output.append(" to "); //$NON-NLS-1$

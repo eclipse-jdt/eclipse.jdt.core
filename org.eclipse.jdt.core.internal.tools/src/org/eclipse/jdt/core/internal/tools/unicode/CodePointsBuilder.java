@@ -85,7 +85,7 @@ public class CodePointsBuilder {
 	private static void printRange(int counter, int bound, int increment, int totalCounter, int length,
 			int numberOfFiguresForRange, int numberOfFiguresForCounters) {
 		if (counter != 0) {
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			int low = bound - increment;
 			if (low != 0) {
 				low++;
@@ -105,7 +105,7 @@ public class CodePointsBuilder {
 		if ((value % 10) == 0) {
 			numberOfFigures = (int) (Math.log(value + 1) / Math.log(10));
 		}
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		switch (radix) {
 		case 10:
 			while (numberOfFigures < numberOfFiguresForRange) {

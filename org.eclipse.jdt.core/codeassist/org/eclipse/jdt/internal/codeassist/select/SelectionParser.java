@@ -1256,7 +1256,7 @@ protected void consumeMethodInvocationName() {
 				return null;
 			}
 			@Override
-			public StringBuffer printExpression(int indent, StringBuffer output) {
+			public StringBuilder printExpression(int indent, StringBuilder output) {
 				return output;
 			}
 		});
@@ -1308,7 +1308,7 @@ protected void consumeMethodInvocationPrimary() {
 				return null;
 			}
 			@Override
-			public StringBuffer printExpression(int indent, StringBuffer output) {
+			public StringBuilder printExpression(int indent, StringBuilder output) {
 				return output;
 			}
 		});

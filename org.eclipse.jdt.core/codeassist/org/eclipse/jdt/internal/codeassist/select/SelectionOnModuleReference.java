@@ -35,7 +35,7 @@ public class SelectionOnModuleReference extends ModuleReference {
 	}
 
 	@Override
-	public StringBuffer print(int tab, StringBuffer output) {
+	public StringBuilder print(int tab, StringBuilder output) {
 		printIndent(tab, output).append("<SelectOnModuleReference:"); //$NON-NLS-1$
 		for (int i = 0; i < this.tokens.length; i++) {
 			if (i > 0) output.append('.');

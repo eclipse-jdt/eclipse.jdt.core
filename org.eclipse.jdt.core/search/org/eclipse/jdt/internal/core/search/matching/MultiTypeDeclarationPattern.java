@@ -168,7 +168,7 @@ public EntryResult[] queryIn(Index index) throws IOException {
 	return allEntries;
 }
 @Override
-protected StringBuffer print(StringBuffer output) {
+protected StringBuilder print(StringBuilder output) {
 	switch (this.typeSuffix){
 		case CLASS_SUFFIX :
 			output.append("MultiClassDeclarationPattern: "); //$NON-NLS-1$

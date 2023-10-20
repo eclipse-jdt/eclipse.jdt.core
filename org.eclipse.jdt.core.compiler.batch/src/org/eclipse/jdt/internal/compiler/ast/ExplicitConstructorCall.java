@@ -270,7 +270,7 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 	}
 
 	@Override
-	public StringBuffer printStatement(int indent, StringBuffer output) {
+	public StringBuilder printStatement(int indent, StringBuilder output) {
 		printIndent(indent, output);
 		if (this.qualification != null) this.qualification.printExpression(0, output).append('.');
 		if (this.typeArguments != null) {

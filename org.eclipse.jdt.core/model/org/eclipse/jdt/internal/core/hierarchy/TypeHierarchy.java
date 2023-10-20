@@ -1546,7 +1546,7 @@ boolean subtypesIncludeSupertypeOf(IType type) {
  */
 @Override
 public String toString() {
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	buffer.append("Focus: "); //$NON-NLS-1$
 	if (this.focusType == null) {
 		buffer.append("<NONE>\n"); //$NON-NLS-1$
@@ -1590,7 +1590,7 @@ public String toString() {
  * beginning with the specified indentation level.
  * If ascendant, shows the super types, otherwise show the sub types.
  */
-private void toString(StringBuffer buffer, IJavaElement type, int indent, boolean ascendant) {
+private void toString(StringBuilder buffer, IJavaElement type, int indent, boolean ascendant) {
 	IType[] types= ascendant ? getSupertypes((IType) type) : getSubtypes((IType) type);
 	IJavaElement[] sortedTypes = Util.sortCopy(types);
 	for (int i= 0; i < sortedTypes.length; i++) {
@@ -1598,7 +1598,7 @@ private void toString(StringBuffer buffer, IJavaElement type, int indent, boolea
 		toString(buffer, sortedTypes[i], indent + 1, ascendant);
 	}
 }
-private void toString(StringBuffer buffer, IJavaElement type, int indent) {
+private void toString(StringBuilder buffer, IJavaElement type, int indent) {
 	for (int j= 0; j < indent; j++) {
 		buffer.append("  "); //$NON-NLS-1$
 	}

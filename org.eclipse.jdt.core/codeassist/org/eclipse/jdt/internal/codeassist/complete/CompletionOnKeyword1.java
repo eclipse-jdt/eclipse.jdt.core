@@ -44,7 +44,7 @@ public class CompletionOnKeyword1 extends SingleTypeReference implements Complet
 		throw new CompletionNodeFound(this, scope);
 	}
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output){
+	public StringBuilder printExpression(int indent, StringBuilder output){
 
 		return output.append("<CompleteOnKeyword:").append(this.token).append('>');  //$NON-NLS-1$
 	}

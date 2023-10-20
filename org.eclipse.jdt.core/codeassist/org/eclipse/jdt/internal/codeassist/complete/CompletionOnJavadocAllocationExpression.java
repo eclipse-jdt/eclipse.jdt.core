@@ -61,7 +61,7 @@ public class CompletionOnJavadocAllocationExpression extends JavadocAllocationEx
 	}
 
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output) {
+	public StringBuilder printExpression(int indent, StringBuilder output) {
 		output.append("<CompleteOnJavadocAllocationExpression:"); //$NON-NLS-1$
 		super.printExpression(indent, output);
 		indent++;

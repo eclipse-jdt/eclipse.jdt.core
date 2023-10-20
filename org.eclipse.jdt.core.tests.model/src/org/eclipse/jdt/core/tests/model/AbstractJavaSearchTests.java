@@ -158,7 +158,7 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 		}
 	}
 
-	static void checkAndAddtoBuffer(StringBuffer buffer, char[] precond, char c) {
+	static void checkAndAddtoBuffer(StringBuilder buffer, char[] precond, char c) {
 		if (precond == null || precond.length == 0) return;
 		buffer.append(precond);
 		buffer.append(c);
@@ -183,7 +183,7 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 				AccessRestriction access,
 				int methodIndex) {
 
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			char c = '.';
 			char[] noname = new String("<NONAME>").toCharArray();
 			buffer.append(path);
@@ -280,7 +280,7 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 	public static class JavaSearchResultCollector extends SearchRequestor {
 		int flags = SHOW_POTENTIAL; // default
 		protected SearchMatch match;
-		public StringBuffer results = new StringBuffer(), line;
+		public StringBuilder results = new StringBuilder(), line;
 		public int showFlavors = 0;
 		public int count = 0;
 		List lines = new ArrayList();
@@ -306,7 +306,7 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 			try {
 				IResource resource = this.match.getResource();
 				IJavaElement element = getElement(this.match);
-				this.line = new StringBuffer();
+				this.line = new StringBuilder();
 				if ((this.flags & SHOW_MATCH_KIND) != 0) {
 					String matchClassName = this.match.getClass().getName();
 					this.line.append(matchClassName.substring(matchClassName.lastIndexOf('.')+1));

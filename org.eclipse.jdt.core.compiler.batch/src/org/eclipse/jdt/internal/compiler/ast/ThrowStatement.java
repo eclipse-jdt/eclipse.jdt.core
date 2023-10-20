@@ -66,7 +66,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 }
 
 @Override
-public StringBuffer printStatement(int indent, StringBuffer output) {
+public StringBuilder printStatement(int indent, StringBuilder output) {
 	printIndent(indent, output).append("throw "); //$NON-NLS-1$
 	this.exception.printExpression(0, output);
 	return output.append(';');

@@ -245,7 +245,7 @@ public class QualifiedName extends Name {
 	}
 
 	@Override
-	void appendName(StringBuffer buffer) {
+	void appendName(StringBuilder buffer) {
 		getQualifier().appendName(buffer);
 		buffer.append('.');
 		getName().appendName(buffer);

@@ -36,7 +36,7 @@ public class CompletionOnLocalName extends LocalDeclaration implements Completio
 	}
 
 	@Override
-	public StringBuffer printAsExpression(int indent, StringBuffer output) {
+	public StringBuilder printAsExpression(int indent, StringBuilder output) {
 		printIndent(indent, output);
 		output.append("<CompleteOnLocalName:"); //$NON-NLS-1$
 		if (this.type != null)  this.type.print(0, output).append(' ');
@@ -49,7 +49,7 @@ public class CompletionOnLocalName extends LocalDeclaration implements Completio
 	}
 
 	@Override
-	public StringBuffer printStatement(int indent, StringBuffer output) {
+	public StringBuilder printStatement(int indent, StringBuilder output) {
 		printAsExpression(indent, output);
 		return output.append(';');
 	}

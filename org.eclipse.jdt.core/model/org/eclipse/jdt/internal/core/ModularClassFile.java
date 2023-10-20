@@ -228,7 +228,7 @@ public class ModularClassFile extends AbstractClassFile implements IModularClass
 		return JavaElement.JEM_MODULAR_CLASSFILE;
 	}
 	@Override
-	protected void escapeMementoName(StringBuffer buffer, String mementoName) {
+	protected void escapeMementoName(StringBuilder buffer, String mementoName) {
 		// nop, name is irrelevant
 	}
 	@Override

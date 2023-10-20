@@ -33,7 +33,7 @@ public class CompletionOnKeyword2 extends ImportReference implements CompletionO
 		return this.possibleKeywords;
 	}
 	@Override
-	public StringBuffer print(int indent, StringBuffer output, boolean withOnDemand) {
+	public StringBuilder print(int indent, StringBuilder output, boolean withOnDemand) {
 
 		return printIndent(indent, output).append("<CompleteOnKeyword:").append(this.token).append('>'); //$NON-NLS-1$
 	}

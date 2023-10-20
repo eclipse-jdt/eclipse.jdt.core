@@ -83,7 +83,7 @@ public class CompletionOnParameterizedQualifiedTypeReference extends Parameteriz
 	}
 
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output) {
+	public StringBuilder printExpression(int indent, StringBuilder output) {
 		switch (this.kind) {
 			case K_CLASS :
 				output.append("<CompleteOnClass:");//$NON-NLS-1$

@@ -198,7 +198,7 @@ class RecoveredTypeBinding implements ITypeBinding {
 			brackets[i] = ']';
 			brackets[i - 1] = '[';
 		}
-		StringBuffer buffer = new StringBuffer(getInternalName());
+		StringBuilder buffer = new StringBuilder(getInternalName());
 		buffer.append(brackets);
 		return String.valueOf(buffer);
 	}
@@ -264,7 +264,7 @@ class RecoveredTypeBinding implements ITypeBinding {
 	public String getQualifiedName() {
 		ReferenceBinding referenceBinding = getReferenceBinding();
 		if (referenceBinding != null) {
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			char[] brackets = new char[this.dimensions * 2];
 			for (int i = this.dimensions * 2 - 1; i >= 0; i -= 2) {
 				brackets[i] = ']';
@@ -515,7 +515,7 @@ class RecoveredTypeBinding implements ITypeBinding {
 
 	@Override
 	public String getKey() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("Recovered#"); //$NON-NLS-1$
 		if (this.innerTypeBinding != null) {
 			buffer.append("innerTypeBinding") //$NON-NLS-1$
@@ -582,7 +582,7 @@ class RecoveredTypeBinding implements ITypeBinding {
 				return getTypeNameFrom(type);
 			case ASTNode.PARAMETERIZED_TYPE :
 				ParameterizedType parameterizedType = (ParameterizedType) type;
-				StringBuffer buffer = new StringBuffer(getTypeNameFrom(parameterizedType.getType()));
+				StringBuilder buffer = new StringBuilder(getTypeNameFrom(parameterizedType.getType()));
 				ITypeBinding[] tArguments = getTypeArguments();
 				final int typeArgumentsLength = tArguments.length;
 				if (typeArgumentsLength != 0) {

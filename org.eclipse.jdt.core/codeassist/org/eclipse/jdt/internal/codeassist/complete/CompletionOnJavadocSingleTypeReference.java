@@ -53,7 +53,7 @@ public class CompletionOnJavadocSingleTypeReference extends JavadocSingleTypeRef
 	}
 
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output) {
+	public StringBuilder printExpression(int indent, StringBuilder output) {
 		output.append("<CompletionOnJavadocSingleTypeReference:"); //$NON-NLS-1$
 		super.printExpression(indent, output);
 		indent++;

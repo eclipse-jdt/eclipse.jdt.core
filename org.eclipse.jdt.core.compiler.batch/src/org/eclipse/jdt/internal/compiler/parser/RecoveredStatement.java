@@ -51,7 +51,7 @@ public int sourceEnd(){
 }
 @Override
 public String toString(int tab){
-	return tabString(tab) + "Recovered statement:\n" + this.statement.print(tab + 1, new StringBuffer(10)); //$NON-NLS-1$
+	return tabString(tab) + "Recovered statement:\n" + this.statement.print(tab + 1, new StringBuilder(10)); //$NON-NLS-1$
 }
 public Statement updatedStatement(int depth, Set<TypeDeclaration> knownTypes){
 	if (this.nestedBlock != null) {

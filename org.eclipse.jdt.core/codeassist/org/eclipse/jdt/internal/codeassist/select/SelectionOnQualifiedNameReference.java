@@ -53,7 +53,7 @@ public SelectionOnQualifiedNameReference(char[][] previousIdentifiers, char[] se
 		(int) positions[positions.length - 1]);
 }
 @Override
-public StringBuffer printExpression(int indent, StringBuffer output) {
+public StringBuilder printExpression(int indent, StringBuilder output) {
 
 	output.append("<SelectOnName:"); //$NON-NLS-1$
 	for (int i = 0, length = this.tokens.length; i < length; i++) {

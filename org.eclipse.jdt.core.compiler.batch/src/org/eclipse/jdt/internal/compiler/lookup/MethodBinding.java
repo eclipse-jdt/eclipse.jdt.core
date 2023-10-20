@@ -1308,7 +1308,7 @@ public MethodBinding tiebreakMethod() {
 }
 @Override
 public String toString() {
-	StringBuffer output = new StringBuffer(10);
+	StringBuilder output = new StringBuilder(10);
 	if ((this.modifiers & ExtraCompilerModifiers.AccUnresolved) != 0) {
 		output.append("[unresolved] "); //$NON-NLS-1$
 	}

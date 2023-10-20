@@ -39,7 +39,7 @@ public class SelectionOnParameterizedSingleTypeReference extends ParameterizedSi
 	}
 
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output){
+	public StringBuilder printExpression(int indent, StringBuilder output){
 		output.append("<SelectOnType:");//$NON-NLS-1$
 		output.append(this.token);
 		output.append('<');

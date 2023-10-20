@@ -51,7 +51,7 @@ public class SelectionOnLocalName extends LocalDeclaration{
 	}
 
 	@Override
-	public StringBuffer printAsExpression(int indent, StringBuffer output) {
+	public StringBuilder printAsExpression(int indent, StringBuilder output) {
 		printIndent(indent, output);
 		output.append("<SelectionOnLocalName:"); //$NON-NLS-1$
 		printModifiers(this.modifiers, output);
@@ -64,7 +64,7 @@ public class SelectionOnLocalName extends LocalDeclaration{
 	}
 
 	@Override
-	public StringBuffer printStatement(int indent, StringBuffer output) {
+	public StringBuilder printStatement(int indent, StringBuilder output) {
 		printAsExpression(indent, output);
 		return output.append(';');
 	}

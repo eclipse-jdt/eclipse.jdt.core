@@ -1972,7 +1972,7 @@ public class InferenceContext18 {
 			return null; // should not happen.
 		// 1.If T is not downcast convertible (5.5) to the raw type R, inference fails.
 		Expression synthExpr = new Expression() {
-			@Override public StringBuffer printExpression(int indent, StringBuffer output) {
+			@Override public StringBuilder printExpression(int indent, StringBuilder output) {
 				return output;
 			}
 		};

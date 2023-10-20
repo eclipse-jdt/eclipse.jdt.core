@@ -56,7 +56,7 @@ public class CompletionOnSingleNameReference extends SingleNameReference impleme
 	}
 
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output) {
+	public StringBuilder printExpression(int indent, StringBuilder output) {
 
 		output.append("<CompleteOnName:"); //$NON-NLS-1$
 		return super.printExpression(0, output).append('>');

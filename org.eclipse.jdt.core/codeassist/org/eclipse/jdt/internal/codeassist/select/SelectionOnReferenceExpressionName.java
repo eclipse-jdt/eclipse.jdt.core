@@ -29,7 +29,7 @@ public class SelectionOnReferenceExpressionName extends ReferenceExpression {
 	}
 
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output) {
+	public StringBuilder printExpression(int indent, StringBuilder output) {
 		output.append("<SelectionOnReferenceExpressionName:"); //$NON-NLS-1$
 		super.printExpression(indent, output);
 		return output.append('>');

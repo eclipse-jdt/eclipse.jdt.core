@@ -45,7 +45,7 @@ public SelectionOnSuperReference(int pos, int sourceEnd) {
 	super(pos, sourceEnd);
 }
 @Override
-public StringBuffer printExpression(int indent, StringBuffer output){
+public StringBuilder printExpression(int indent, StringBuilder output){
 
 	output.append("<SelectOnSuper:"); //$NON-NLS-1$
 	return super.printExpression(0, output).append('>');

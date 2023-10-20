@@ -49,7 +49,7 @@ public class NormalAnnotation extends Annotation {
 		return this.memberValuePairs == null ? NoValuePairs : this.memberValuePairs;
 	}
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output) {
+	public StringBuilder printExpression(int indent, StringBuilder output) {
 		super.printExpression(indent, output);
 		output.append('(');
 		if (this.memberValuePairs != null) {

@@ -114,7 +114,7 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	EnumConstantDeclaration EC2;
 	Type T3;
 	Type T4;
-	final StringBuffer b = new StringBuffer();
+	final StringBuilder b = new StringBuilder();
 
 	int API_LEVEL;
 

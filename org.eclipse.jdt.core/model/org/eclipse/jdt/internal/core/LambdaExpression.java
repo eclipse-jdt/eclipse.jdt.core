@@ -180,13 +180,13 @@ public class LambdaExpression extends SourceType {
 	}
 
 	@Override
-	protected void getHandleMemento(StringBuffer buff) {
+	protected void getHandleMemento(StringBuilder buff) {
 		getHandleMemento(buff, true, true);
 		// lambda method and lambda expression cannot share the same memento - add a trailing discriminator.
 		appendEscapedDelimiter(buff, getHandleMementoDelimiter());
 	}
 
-	protected void getHandleMemento(StringBuffer buff, boolean serializeParent, boolean serializeChild) {
+	protected void getHandleMemento(StringBuilder buff, boolean serializeParent, boolean serializeChild) {
 		if (serializeParent)
 			getParent().getHandleMemento(buff);
 		appendEscapedDelimiter(buff, getHandleMementoDelimiter());
@@ -277,7 +277,7 @@ public class LambdaExpression extends SourceType {
 	}
 
 	@Override
-	public void toStringName(StringBuffer buffer) {
+	public void toStringName(StringBuilder buffer) {
 		super.toStringName(buffer);
 		buffer.append("<lambda #"); //$NON-NLS-1$
 		buffer.append(this.occurrenceCount);
@@ -293,7 +293,7 @@ public class LambdaExpression extends SourceType {
 		IJavaElement primaryParent = this.getParent().getPrimaryElement(false);
 		if (primaryParent instanceof JavaElement) {
 			JavaElement ancestor = (JavaElement) primaryParent;
-			StringBuffer buffer = new StringBuffer(32);
+			StringBuilder buffer = new StringBuilder(32);
 			getHandleMemento(buffer, false, true);
 			String memento = buffer.toString();
 			return (JavaElement) ancestor.getHandleFromMemento(new MementoTokenizer(memento), DefaultWorkingCopyOwner.PRIMARY).getParent();

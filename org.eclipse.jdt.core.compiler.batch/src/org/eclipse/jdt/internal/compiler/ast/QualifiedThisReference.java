@@ -151,7 +151,7 @@ public class QualifiedThisReference extends ThisReference {
 	}
 
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output) {
+	public StringBuilder printExpression(int indent, StringBuilder output) {
 
 		return this.qualification.print(0, output).append(".this"); //$NON-NLS-1$
 	}

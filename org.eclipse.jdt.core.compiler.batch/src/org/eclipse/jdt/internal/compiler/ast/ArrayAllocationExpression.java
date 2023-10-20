@@ -97,7 +97,7 @@ public class ArrayAllocationExpression extends Expression {
 
 
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output) {
+	public StringBuilder printExpression(int indent, StringBuilder output) {
 		output.append("new "); //$NON-NLS-1$
 		this.type.print(0, output);
 		for (int i = 0; i < this.dimensions.length; i++) {

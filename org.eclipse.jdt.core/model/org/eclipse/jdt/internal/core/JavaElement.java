@@ -112,7 +112,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 * the following escape character is being introduced and all the new delimiters must
 	 * be escaped with this. So, a lambda expression would be written as: "=)..."
 	 *
-	 * @see JavaElement#appendEscapedDelimiter(StringBuffer, char)
+	 * @see JavaElement#appendEscapedDelimiter(StringBuilder, char)
 	 */
 	public static final char JEM_DELIMITER_ESCAPE = JEM_JAVAPROJECT;
 
@@ -186,14 +186,14 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	/**
 	 * @see #JEM_DELIMITER_ESCAPE
 	 */
-	protected void appendEscapedDelimiter(StringBuffer buffer, char delimiter) {
+	protected void appendEscapedDelimiter(StringBuilder buffer, char delimiter) {
 		buffer.append(JEM_DELIMITER_ESCAPE);
 		buffer.append(delimiter);
 	}
 	/*
 	 * Do not add new delimiters here
 	 */
-	protected void escapeMementoName(StringBuffer buffer, String mementoName) {
+	protected void escapeMementoName(StringBuilder buffer, String mementoName) {
 		MementoTokenizer.escape(buffer, mementoName);
 	}
 	/**
@@ -335,11 +335,11 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 * @see JavaElement#getHandleMemento()
 	 */
 	public String getHandleMemento(){
-		StringBuffer buff = new StringBuffer();
+		StringBuilder buff = new StringBuilder();
 		getHandleMemento(buff);
 		return buff.toString();
 	}
-	protected void getHandleMemento(StringBuffer buff) {
+	protected void getHandleMemento(StringBuilder buff) {
 		getParent().getHandleMemento(buff);
 		buff.append(getHandleMementoDelimiter());
 		escapeMementoName(buff, getElementName());
@@ -620,7 +620,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 * Debugging purposes
 	 */
 	public String toDebugString() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		this.toStringInfo(0, buffer, NO_INFO, true/*show resolved info*/);
 		return buffer.toString();
 	}
@@ -629,14 +629,14 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 */
 	@Override
 	public String toString() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		toString(0, buffer);
 		return buffer.toString();
 	}
 	/**
 	 *  Debugging purposes
 	 */
-	protected void toString(int tab, StringBuffer buffer) {
+	protected void toString(int tab, StringBuilder buffer) {
 		Object info = this.toStringInfo(tab, buffer);
 		if (tab == 0) {
 			toStringAncestors(buffer);
@@ -653,7 +653,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 *  Debugging purposes
 	 */
 	public String toStringWithAncestors(boolean showResolvedInfo) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		this.toStringInfo(0, buffer, NO_INFO, showResolvedInfo);
 		toStringAncestors(buffer);
 		return buffer.toString();
@@ -661,7 +661,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	/**
 	 *  Debugging purposes
 	 */
-	protected void toStringAncestors(StringBuffer buffer) {
+	protected void toStringAncestors(StringBuilder buffer) {
 		JavaElement parentElement = getParent();
 		if (parentElement != null && parentElement.getParent() != null) {
 			buffer.append(" [in "); //$NON-NLS-1$
@@ -673,7 +673,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	/**
 	 *  Debugging purposes
 	 */
-	protected void toStringChildren(int tab, StringBuffer buffer, Object info) {
+	protected void toStringChildren(int tab, StringBuilder buffer, Object info) {
 		if (info == null || !(info instanceof JavaElementInfo)) return;
 		IJavaElement[] children = ((JavaElementInfo)info).getChildren();
 		for (int i = 0; i < children.length; i++) {
@@ -684,7 +684,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	/**
 	 *  Debugging purposes
 	 */
-	public Object toStringInfo(int tab, StringBuffer buffer) {
+	public Object toStringInfo(int tab, StringBuilder buffer) {
 		Object info = JavaModelManager.getJavaModelManager().peekAtInfo(this);
 		this.toStringInfo(tab, buffer, info, true/*show resolved info*/);
 		return info;
@@ -693,7 +693,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 *  Debugging purposes
 	 * @param showResolvedInfo TODO
 	 */
-	protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean showResolvedInfo) {
+	protected void toStringInfo(int tab, StringBuilder buffer, Object info, boolean showResolvedInfo) {
 		buffer.append(tabString(tab));
 		toStringName(buffer);
 		if (info == null) {
@@ -703,7 +703,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	/**
 	 *  Debugging purposes
 	 */
-	protected void toStringName(StringBuffer buffer) {
+	protected void toStringName(StringBuilder buffer) {
 		buffer.append(getElementName());
 	}
 

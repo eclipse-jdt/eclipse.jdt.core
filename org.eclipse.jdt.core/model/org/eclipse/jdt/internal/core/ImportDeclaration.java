@@ -65,11 +65,11 @@ public int getFlags() throws JavaModelException {
 	return info.getModifiers();
 }
 /**
- * @see JavaElement#getHandleMemento(StringBuffer)
+ * @see JavaElement#getHandleMemento(StringBuilder)
  * For import declarations, the handle delimiter is associated to the import container already
  */
 @Override
-protected void getHandleMemento(StringBuffer buff) {
+protected void getHandleMemento(StringBuilder buff) {
 	getParent().getHandleMemento(buff);
 	escapeMementoName(buff, getElementName());
 	if (this.occurrenceCount > 1) {
@@ -114,7 +114,7 @@ public String readableName() {
  * @private Debugging purposes
  */
 @Override
-protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean showResolvedInfo) {
+protected void toStringInfo(int tab, StringBuilder buffer, Object info, boolean showResolvedInfo) {
 	buffer.append(tabString(tab));
 	buffer.append("import "); //$NON-NLS-1$
 	toStringName(buffer);

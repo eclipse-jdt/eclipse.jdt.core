@@ -70,7 +70,7 @@ public interface AbstractModule extends IModuleDescription {
 			return ModuleDescriptionInfo.NO_REQUIRES;
 		}
 		@Override
-		public void toStringContent(StringBuffer buffer, String lineDelimiter) throws JavaModelException {
+		public void toStringContent(StringBuilder buffer, String lineDelimiter) throws JavaModelException {
 			buffer.append("automatic module "); //$NON-NLS-1$
 			buffer.append(this.name);
 		}
@@ -156,7 +156,7 @@ public interface AbstractModule extends IModuleDescription {
 	}
 
 	default String toString(String lineDelimiter) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		try {
 			toStringContent(buffer, lineDelimiter);
 		} catch (JavaModelException e) {
@@ -166,7 +166,7 @@ public interface AbstractModule extends IModuleDescription {
 		}
 		return buffer.toString();
 	}
-	default void toStringContent(StringBuffer buffer, String lineDelimiter) throws JavaModelException {
+	default void toStringContent(StringBuilder buffer, String lineDelimiter) throws JavaModelException {
 		IPackageExport[] exports = getExportedPackages();
 		IModuleReference[] requires = getRequiredModules();
 		buffer.append("module "); //$NON-NLS-1$

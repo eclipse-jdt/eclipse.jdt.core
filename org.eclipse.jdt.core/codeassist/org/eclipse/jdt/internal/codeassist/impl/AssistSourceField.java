@@ -69,7 +69,7 @@ public class AssistSourceField extends ResolvedSourceField {
 	}
 
 	@Override
-	protected void toStringInfo(int tab, StringBuffer buffer, Object info,boolean showResolvedInfo) {
+	protected void toStringInfo(int tab, StringBuilder buffer, Object info,boolean showResolvedInfo) {
 		super.toStringInfo(tab, buffer, info, showResolvedInfo && isResolved());
 	}
 

@@ -150,7 +150,7 @@ public final class HashtableOfObjectToIntArray implements Cloneable {
 
 	@Override
 	public String toString() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		Object key;
 		for (int i = 0, length = this.keyTable.length; i < length; i++) {
 			if ((key = this.keyTable[i]) != null) {

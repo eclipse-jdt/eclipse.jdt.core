@@ -216,7 +216,7 @@ public class RecoveredAnnotation extends RecoveredElement {
 	@Override
 	public String toString(int tab) {
 		if (this.annotation != null) {
-			return tabString(tab) + "Recovered annotation:\n" + this.annotation.print(tab + 1, new StringBuffer(10)); //$NON-NLS-1$
+			return tabString(tab) + "Recovered annotation:\n" + this.annotation.print(tab + 1, new StringBuilder(10)); //$NON-NLS-1$
 		} else {
 			return tabString(tab) + "Recovered annotation: identiferPtr=" + this.identifierPtr + " identiferlengthPtr=" + this.identifierLengthPtr + "\n"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		}

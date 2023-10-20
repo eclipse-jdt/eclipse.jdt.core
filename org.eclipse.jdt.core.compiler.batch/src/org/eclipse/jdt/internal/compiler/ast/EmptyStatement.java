@@ -49,7 +49,7 @@ public class EmptyStatement extends Statement {
 	}
 
 	@Override
-	public StringBuffer printStatement(int tab, StringBuffer output) {
+	public StringBuilder printStatement(int tab, StringBuilder output) {
 		return printIndent(tab, output).append(';');
 	}
 

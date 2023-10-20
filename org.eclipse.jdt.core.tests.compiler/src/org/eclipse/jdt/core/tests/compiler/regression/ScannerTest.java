@@ -549,7 +549,7 @@ public class ScannerTest extends AbstractRegressionTest {
 		scanner.resetTo(0, source.length - 1);
 		try {
 			int token;
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				try {
 					switch(token) {
@@ -578,7 +578,7 @@ public class ScannerTest extends AbstractRegressionTest {
 		scanner.resetTo(0, source.length - 1);
 		try {
 			int token;
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				try {
 					switch(token) {
@@ -610,7 +610,7 @@ public class ScannerTest extends AbstractRegressionTest {
 		scanner.resetTo(0, source.length - 1);
 		try {
 			int token;
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				try {
 					switch(token) {
@@ -864,7 +864,7 @@ public class ScannerTest extends AbstractRegressionTest {
 		IScanner scanner = ToolFactory.createScanner(true, true, true, "1.5", "1.5");
 		final char[] source = "\"a\\u000D\"".toCharArray();
 		scanner.setSource(source);
-		final StringBuffer buffer = new StringBuffer();
+		final StringBuilder buffer = new StringBuilder();
 		try {
 			int token;
 			while ((token = scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
@@ -893,7 +893,7 @@ public class ScannerTest extends AbstractRegressionTest {
 		IScanner scanner = ToolFactory.createScanner(true, true, true, "1.5", "1.5");
 		final char[] source = "\"\\u004Ca\\u000D\"".toCharArray();
 		scanner.setSource(source);
-		final StringBuffer buffer = new StringBuffer();
+		final StringBuilder buffer = new StringBuilder();
 		try {
 			int token;
 			while ((token = scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
@@ -921,7 +921,7 @@ public class ScannerTest extends AbstractRegressionTest {
 		IScanner scanner = ToolFactory.createScanner(true, true, true, "1.5", "1.5");
 		final char[] source = "\"\\u004Ca\\u000D\\u0022".toCharArray();
 		scanner.setSource(source);
-		final StringBuffer buffer = new StringBuffer();
+		final StringBuilder buffer = new StringBuilder();
 		try {
 			int token;
 			while ((token = scanner.getNextToken()) != ITerminalSymbols.TokenNameEOF) {
@@ -1483,7 +1483,7 @@ public class ScannerTest extends AbstractRegressionTest {
 		scanner.resetTo(0, source.length - 1);
 		try {
 			int token;
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				try {
 					switch(token) {
@@ -1516,7 +1516,7 @@ public class ScannerTest extends AbstractRegressionTest {
 		scanner.resetTo(0, source.length - 1);
 		try {
 			int token;
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			while ((token = scanner.getNextToken()) != TerminalTokens.TokenNameEOF) {
 				try {
 					switch(token) {

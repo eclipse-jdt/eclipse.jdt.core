@@ -117,7 +117,7 @@ public class Java9ModuleProcessor extends BaseProcessor {
 		throw new AssertionFailedError(msg);
 	}
 	private String getExceptionStackTrace(Throwable t) {
-		StringBuffer buf = new StringBuffer(t.getMessage());
+		StringBuilder buf = new StringBuilder(t.getMessage());
 		StackTraceElement[] traces = t.getStackTrace();
 		for (int i = 0; i < traces.length; i++) {
 			StackTraceElement trace = traces[i];

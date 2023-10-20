@@ -34,7 +34,7 @@ public class KeyToSignature extends BindingKeyParser {
 	public static final int DECLARING_TYPE = 2;
 	public static final int THROWN_EXCEPTIONS = 3;
 
-	public StringBuffer signature = new StringBuffer();
+	public StringBuilder signature = new StringBuilder();
 	private final int kind;
 	private boolean asBinarySignature = false; // '.' vs. '/' and '$'
 	private ArrayList arguments = new ArrayList();
@@ -88,7 +88,7 @@ public class KeyToSignature extends BindingKeyParser {
 
 	@Override
 	public void consumeLocalType(char[] uniqueKey) {
-		this.signature = new StringBuffer();
+		this.signature = new StringBuilder();
 		// remove trailing semi-colon as it is added later in comsumeType()
 		uniqueKey = CharOperation.subarray(uniqueKey, 0, uniqueKey.length-1);
 		if (!this.asBinarySignature)
@@ -104,7 +104,7 @@ public class KeyToSignature extends BindingKeyParser {
 			CharOperation.replace(methodSignature, '/', '.');
 		switch(this.kind) {
 			case SIGNATURE:
-				this.signature = new StringBuffer();
+				this.signature = new StringBuilder();
 				this.signature.append(methodSignature);
 				break;
 			case THROWN_EXCEPTIONS:
@@ -141,7 +141,7 @@ public class KeyToSignature extends BindingKeyParser {
 			char[][] typeParameterSigs = Signature.getTypeParameters(methodSignature);
 			if (typeParameterSigs.length != typeParametersSize)
 				return;
-			this.signature = new StringBuffer();
+			this.signature = new StringBuilder();
 
 			// type parameters
 			for (int i = 0; i < typeParametersSize; i++)
@@ -319,7 +319,7 @@ public class KeyToSignature extends BindingKeyParser {
 
 	@Override
 	public void consumeTypeVariable(char[] position, char[] typeVariableName) {
-		this.signature = new StringBuffer();
+		this.signature = new StringBuilder();
 		this.signature.append('T');
 		this.signature.append(typeVariableName);
 		this.signature.append(';');
@@ -337,7 +337,7 @@ public class KeyToSignature extends BindingKeyParser {
 	@Override
 	public void consumeWildCard(int wildCardKind) {
 		// don't put generic type in signature
-		this.signature = new StringBuffer();
+		this.signature = new StringBuilder();
 		switch (wildCardKind) {
 			case Wildcard.UNBOUND:
 				this.signature.append('*');

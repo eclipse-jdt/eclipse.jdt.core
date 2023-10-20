@@ -70,7 +70,7 @@ public class JavaSearchGenericMethodTests extends AbstractJavaSearchGenericTests
 	}
 
 	@Override
-	void addResultLine(StringBuffer buffer, char[] line) {
+	void addResultLine(StringBuilder buffer, char[] line) {
 		long positions = removeFirstTypeArgument(line);
 		if (buffer.length() > 0) buffer.append('\n');
 		if (positions != -1) {

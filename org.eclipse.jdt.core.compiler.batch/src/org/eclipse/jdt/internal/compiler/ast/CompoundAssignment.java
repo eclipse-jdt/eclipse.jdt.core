@@ -121,7 +121,7 @@ public int nullStatus(FlowInfo flowInfo, FlowContext flowContext) {
 	}
 
 	@Override
-	public StringBuffer printExpressionNoParenthesis(int indent, StringBuffer output) {
+	public StringBuilder printExpressionNoParenthesis(int indent, StringBuilder output) {
 
 		this.lhs.printExpression(indent, output).append(' ').append(operatorToString()).append(' ');
 		return this.expression.printExpression(0, output) ;

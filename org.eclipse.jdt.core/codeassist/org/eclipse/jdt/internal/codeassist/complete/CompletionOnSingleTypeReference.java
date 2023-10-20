@@ -91,7 +91,7 @@ public boolean isSuperType(){
 	return this.kind == K_CLASS || this.kind == K_INTERFACE;
 }
 @Override
-public StringBuffer printExpression(int indent, StringBuffer output){
+public StringBuilder printExpression(int indent, StringBuilder output){
 	switch (this.kind) {
 		case K_CLASS :
 			output.append("<CompleteOnClass:");//$NON-NLS-1$

@@ -1568,11 +1568,11 @@ public abstract class OperatorExpression extends Expression implements OperatorI
 	}
 
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output){
+	public StringBuilder printExpression(int indent, StringBuilder output){
 
 		output.append('(');
 		return printExpressionNoParenthesis(0, output).append(')');
 	}
 
-	public abstract StringBuffer printExpressionNoParenthesis(int indent, StringBuffer output);
+	public abstract StringBuilder printExpressionNoParenthesis(int indent, StringBuilder output);
 }

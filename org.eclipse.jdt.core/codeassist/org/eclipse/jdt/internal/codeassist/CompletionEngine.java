@@ -5279,7 +5279,7 @@ public final class CompletionEngine
 		return CharOperation.concat(result, IMPORT_END);
 	}
 
-	private void createMethod(MethodBinding method, char[][] parameterPackageNames, char[][] parameterTypeNames, char[][] parameterNames, Scope scope, StringBuffer completion) {
+	private void createMethod(MethodBinding method, char[][] parameterPackageNames, char[][] parameterTypeNames, char[][] parameterNames, Scope scope, StringBuilder completion) {
 		//// Modifiers
 		// flush uninteresting modifiers
 		int insertedModifiers = method.modifiers & ~(ClassFileConstants.AccNative | ClassFileConstants.AccAbstract);
@@ -5392,7 +5392,7 @@ public final class CompletionEngine
 		return proposal;
 	}
 
-	private void createType(TypeBinding type, Scope scope, StringBuffer completion) {
+	private void createType(TypeBinding type, Scope scope, StringBuilder completion) {
 		switch (type.kind()) {
 			case Binding.BASE_TYPE :
 				completion.append(type.sourceName());
@@ -5635,7 +5635,7 @@ public final class CompletionEngine
 			}
 		}
 	}
-	private void createTypeVariable(TypeVariableBinding typeVariable, Scope scope, StringBuffer completion) {
+	private void createTypeVariable(TypeVariableBinding typeVariable, Scope scope, StringBuilder completion) {
 		completion.append(typeVariable.sourceName);
 
 		if (typeVariable.superclass != null && TypeBinding.equalsEquals(typeVariable.firstBound, typeVariable.superclass)) {
@@ -5660,7 +5660,7 @@ public final class CompletionEngine
 		   }
 		}
 	}
-	private void createVargsType(TypeBinding type, Scope scope, StringBuffer completion) {
+	private void createVargsType(TypeBinding type, Scope scope, StringBuilder completion) {
 		if (type.isArrayType()) {
 			createType(type.leafComponentType(), scope, completion);
 			int dim = type.dimensions() - 1;
@@ -6278,7 +6278,7 @@ public final class CompletionEngine
 								receiver = modRef.typeReference;
 							}
 							if (receiver != null) {
-								StringBuffer javadocCompletion = new StringBuffer();
+								StringBuilder javadocCompletion = new StringBuilder();
 								if (receiver.isThis()) {
 									selector = (((JavadocImplicitTypeReference)receiver).token);
 									if ((this.assistNodeInJavadoc & CompletionOnJavadoc.TEXT) != 0) {
@@ -9404,7 +9404,7 @@ public final class CompletionEngine
 				}
 			}
 
-			StringBuffer completion = new StringBuffer(10);
+			StringBuilder completion = new StringBuilder(10);
 			if (!exactMatch) {
 				createMethod(method, parameterPackageNames, parameterFullTypeNames, parameterNames, scope, completion);
 			}
@@ -9617,7 +9617,7 @@ public final class CompletionEngine
 					receiver = fieldRef.receiver;
 				}
 				if (receiver != null) {
-					StringBuffer javadocCompletion = new StringBuffer();
+					StringBuilder javadocCompletion = new StringBuilder();
 					if (receiver.isThis()) {
 						if ((this.assistNodeInJavadoc & CompletionOnJavadoc.TEXT) != 0) {
 							javadocCompletion.append('#');
@@ -13944,7 +13944,7 @@ public final class CompletionEngine
 		return true;
 	}
 	private Initializer parseSnippeInitializer(char[] snippet, int position, char[][] localVariableTypeNames, char[][] localVariableNames, int[] localVariableModifiers, boolean isStatic){
-		StringBuffer prefix = new StringBuffer();
+		StringBuilder prefix = new StringBuilder();
 		prefix.append("public class FakeType {\n "); //$NON-NLS-1$
 		if(isStatic) {
 			prefix.append("static "); //$NON-NLS-1$
@@ -13985,12 +13985,12 @@ public final class CompletionEngine
 		}
 	}
 	protected void printDebug(CompletionProposal proposal){
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		printDebug(proposal, 0, buffer);
 		trace(buffer.toString());
 	}
 
-	private void printDebug(CompletionProposal proposal, int tab, StringBuffer buffer){
+	private void printDebug(CompletionProposal proposal, int tab, StringBuilder buffer){
 		printDebugTab(tab, buffer);
 		buffer.append("COMPLETION - "); //$NON-NLS-1$
 		switch(proposal.getKind()) {
@@ -14129,7 +14129,7 @@ public final class CompletionEngine
 		buffer.append("}\n");//$NON-NLS-1$
 	}
 
-	private void printDebugTab(int tab, StringBuffer buffer) {
+	private void printDebugTab(int tab, StringBuilder buffer) {
 		for (int i = 0; i < tab; i++) {
 			buffer.append('\t');
 		}

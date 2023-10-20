@@ -1014,7 +1014,7 @@ public String sourceFileName(IBinaryType info) {
  * @private Debugging purposes
  */
 @Override
-protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean showResolvedInfo) {
+protected void toStringInfo(int tab, StringBuilder buffer, Object info, boolean showResolvedInfo) {
 	buffer.append(tabString(tab));
 	if (info == null) {
 		toStringName(buffer);
@@ -1041,7 +1041,7 @@ protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean s
 	}
 }
 @Override
-protected void toStringName(StringBuffer buffer) {
+protected void toStringName(StringBuilder buffer) {
 	if (getElementName().length() > 0)
 		super.toStringName(buffer);
 	else
@@ -1067,7 +1067,7 @@ public JavadocContents getJavadocContents(IProgressMonitor monitor) throws JavaM
 	if (baseLocation == null) {
 		return null;
 	}
-	StringBuffer pathBuffer = new StringBuffer(baseLocation.toExternalForm());
+	StringBuilder pathBuffer = new StringBuilder(baseLocation.toExternalForm());
 
 	if (!(pathBuffer.charAt(pathBuffer.length() - 1) == '/')) {
 		pathBuffer.append('/');
@@ -1076,7 +1076,7 @@ public JavadocContents getJavadocContents(IProgressMonitor monitor) throws JavaM
 	String typeQualifiedName = null;
 	if (isMember()) {
 		IType currentType = this;
-		StringBuffer typeName = new StringBuffer();
+		StringBuilder typeName = new StringBuilder();
 		while (currentType != null) {
 			typeName.insert(0, currentType.getElementName());
 			currentType = currentType.getDeclaringType();
@@ -1104,7 +1104,7 @@ public boolean isLambda() {
 	return false;
 }
 
-private static void appendModulePath(IPackageFragment pack, StringBuffer buf) {
+private static void appendModulePath(IPackageFragment pack, StringBuilder buf) {
 	IModuleDescription moduleDescription= getModuleDescription(pack);
 	if (moduleDescription != null) {
 		String moduleName= moduleDescription.getElementName();

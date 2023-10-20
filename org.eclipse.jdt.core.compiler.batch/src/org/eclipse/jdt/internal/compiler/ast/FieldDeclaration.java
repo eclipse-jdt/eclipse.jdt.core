@@ -182,14 +182,14 @@ public boolean isFinal() {
 	return (this.modifiers & ClassFileConstants.AccFinal) != 0;
 }
 @Override
-public StringBuffer print(int indent, StringBuffer output) {
+public StringBuilder print(int indent, StringBuilder output) {
 	if (this.isARecordComponent)
 		output.append("/* Implicit */"); //$NON-NLS-1$
 	return super.print(indent, output);
 }
 
 @Override
-public StringBuffer printStatement(int indent, StringBuffer output) {
+public StringBuilder printStatement(int indent, StringBuilder output) {
 	if (this.javadoc != null) {
 		this.javadoc.print(indent, output);
 	}

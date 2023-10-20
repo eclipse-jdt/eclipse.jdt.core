@@ -92,7 +92,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 	}
 
 	class Runner extends AbstractRegressionTest.Runner {
-		StringBuffer commandLine = new StringBuffer();
+		StringBuilder commandLine = new StringBuilder();
 		String outputDir = OUTPUT_DIR + File.separator + "javac";
 		List<String> fileNames = new ArrayList<>();
 		/** will replace any -8, -9 ... option for javac */
@@ -125,7 +125,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		}
 	}
 
-	void runConformModuleTest(List<String> testFileNames, StringBuffer commandLine,
+	void runConformModuleTest(List<String> testFileNames, StringBuilder commandLine,
 			String expectedFailureOutOutputString, String expectedFailureErrOutputString,
 			boolean shouldFlushOutputDirectory)
 	{
@@ -133,7 +133,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				expectedFailureOutOutputString, expectedFailureErrOutputString, shouldFlushOutputDirectory, OUTPUT_DIR + File.separator + "javac");
 	}
 
-	void runConformModuleTest(List<String> testFileNames, StringBuffer commandLine,
+	void runConformModuleTest(List<String> testFileNames, StringBuilder commandLine,
 			String expectedFailureOutOutputString, String expectedFailureErrOutputString,
 			boolean shouldFlushOutputDirectory, String output)
 	{
@@ -175,7 +175,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 					System.err.println("Skip testing javac in "+testName());
 					continue;
 				}
-				StringBuffer log = new StringBuffer();
+				StringBuilder log = new StringBuilder();
 				try {
 					long compileResult = javacCompiler.compile(
 											outputDir, /* directory */
@@ -201,21 +201,21 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		return null;
 	}
 
-	void runNegativeModuleTest(List<String> testFileNames, StringBuffer commandLine,
+	void runNegativeModuleTest(List<String> testFileNames, StringBuilder commandLine,
 			String expectedFailureOutOutputString, String expectedFailureErrOutputString,
 			boolean shouldFlushOutputDirectory, String javacErrorMatch) {
 		runNegativeModuleTest(testFileNames, commandLine, expectedFailureOutOutputString,
 				expectedFailureErrOutputString, shouldFlushOutputDirectory, javacErrorMatch, OUTPUT_DIR + File.separator + "javac");
 	}
 
-	void runNegativeModuleTest(List<String> testFileNames, StringBuffer commandLine,
+	void runNegativeModuleTest(List<String> testFileNames, StringBuilder commandLine,
 			String expectedFailureOutOutputString, String expectedFailureErrOutputString,
 			boolean shouldFlushOutputDirectory, String javacErrorMatch, String output)
 	{
 		runNegativeModuleTest(testFileNames, commandLine, expectedFailureOutOutputString, expectedFailureErrOutputString,
 				shouldFlushOutputDirectory, javacErrorMatch, output, JavacTestOptions.DEFAULT);
 	}
-	void runNegativeModuleTest(List<String> testFileNames, StringBuffer commandLine,
+	void runNegativeModuleTest(List<String> testFileNames, StringBuilder commandLine,
 			String expectedFailureOutOutputString, String expectedFailureErrOutputString,
 			boolean shouldFlushOutputDirectory, String javacErrorMatch, String output, JavacTestOptions options)
 	{
@@ -251,7 +251,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				JavacTestOptions.Excuse excuse = options.excuseFor(javacCompiler);
 
 				commandLine = adjustForJavac(commandLine, null);
-				StringBuffer log = new StringBuffer();
+				StringBuilder log = new StringBuilder();
 				int mismatch = 0;
 				try {
 					long compileResult = javacCompiler.compile(
@@ -506,7 +506,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"   java.awt.Image image;\n" +
 						"}");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -546,7 +546,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"   java.sql.Connection con = p.X.getConnection();\n" +
 						"}");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -599,7 +599,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"   public static java.sql.Connection con = null;\n" +
 						"}");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -649,7 +649,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		String systemDirectory = OUTPUT_DIR+File.separator+"system";
 		writeFile(systemDirectory, "readme.txt", "Not a valid system");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append("--system ").append(systemDirectory)
@@ -697,7 +697,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"   java.sql.Connection con = p.X.getConnection();\n" +
 						"}");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" --module-source-path " + "\"" + directory + "\"");
@@ -824,7 +824,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"	q.Y y = null;\n" +
 						"}");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 			buffer.append("-d " + outDir )
 			.append(" -9 ")
 			.append(" -p \"")
@@ -879,7 +879,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"public class Z extends Object {\n" +
 						"}");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 			buffer.append("-d " + outDir )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -925,7 +925,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"	q.Y y = null;\n" +
 						"}");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 			buffer.append("-d " + outDir )
 			.append(" -9")
 			.append(" -classpath \"")
@@ -1026,7 +1026,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"   java.sql.Connection con = p.X.getConnection();\n" +
 						"}");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -1072,7 +1072,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"   java.sql.Connection con = p.X.getConnection();\n" +
 						"}");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -1125,7 +1125,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"   java.sql.Connection con = p.X.getConnection();\n" +
 						"}");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -1171,7 +1171,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"   java.sql.Connection con = p.X.getConnection();\n" +
 						"}");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -1236,7 +1236,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"}");
 
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -1308,7 +1308,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"	s.t.Tester t;\n" +
 						"}");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -1352,7 +1352,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"public abstract class X {\n" +
 						"}");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -1396,7 +1396,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"	}\n" +
 						"}");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -1460,7 +1460,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"	}\n" +
 						"}");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -1496,7 +1496,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"	}\n" +
 						"}");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -1532,7 +1532,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"	}\n" +
 						"}");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -1562,7 +1562,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"	requires transitive java.sql;\n" +
 						"}");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -1591,7 +1591,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"	requires transitive java.sql;\n" +
 						"}");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -1620,7 +1620,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"	requires transitive java.sql;\n" +
 						"}");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -1680,7 +1680,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"	p1.X1 x1 = null;\n" +
 						"}");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + outDir )
 		.append(" -9 ")
 		.append(" -p \"")
@@ -1733,7 +1733,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"   java.sql.Connection con = p.X.getConnection();\n" +
 						"}");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -1793,7 +1793,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"   Connection con = null;\n" +
 						"}");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -1854,7 +1854,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"   Connection con = null;\n" +
 						"}");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -1901,7 +1901,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"	}\n" +
 						"}");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -1952,7 +1952,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"public class X extends a.A {\n" +
 						"}");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -2009,7 +2009,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"public class X extends a.A {\n" +
 						"}");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -2068,7 +2068,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"public class X extends a.A {\n" +
 						"}");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -2120,7 +2120,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"    }\n" +
 						"}\n");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -2176,7 +2176,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"    }\n" +
 						"}\n");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -2251,7 +2251,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"    }\n" +
 						"}\n");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -2344,7 +2344,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"	requires transitive mod.y;\n" +
 						"}");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -2431,7 +2431,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"	 p2.sub.C4 f4;\n" + // no conflict mod.one/p2 <-> mod.two/p2.sub
 						"}\n");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -2501,7 +2501,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"public class C3 {\n" +
 						"}\n");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -2551,7 +2551,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"public class C1 {\n" +
 						"}\n");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -2569,7 +2569,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		writeFileCollecting(files, directory + File.separator + "p", "X.java",
 						"public class X extends pm.C1 { \n" +
 						"}");
-		buffer = new StringBuffer();
+		buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -2611,7 +2611,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"public class C1 {\n" +
 						"}\n");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -2629,7 +2629,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		writeFileCollecting(files, directory + File.separator + "p", "X.java",
 						"public class X extends pm.C1 { \n" +
 						"}");
-		buffer = new StringBuffer();
+		buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -2677,7 +2677,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"public class C1 {\n" +
 						"}\n");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -2695,7 +2695,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		writeFileCollecting(files, directory + File.separator + "p", "X.java",
 						"public class X extends pm.C1 { \n" +
 						"}");
-		buffer = new StringBuffer();
+		buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -2709,7 +2709,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 				"The package pm is accessible from more than one module: mod.y, mod.x\n",
 				false,
 				"reads package pm from both");
-		buffer = new StringBuffer();
+		buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -2752,7 +2752,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"public class C1 {\n" +
 						"}\n");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -2770,7 +2770,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		writeFileCollecting(files, directory + File.separator + "p", "X.java",
 						"public class X extends pm.C1 { \n" +
 						"}");
-		buffer = new StringBuffer();
+		buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -2819,7 +2819,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"public class C1 {\n" +
 						"}\n");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -2837,7 +2837,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 		writeFileCollecting(files, directory + File.separator + "p", "X.java",
 						"public class X { \n" +
 						"}");
-		buffer = new StringBuffer();
+		buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -2890,7 +2890,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"	 p1.p2.t3.t4 f;\n" + // no conflict mod.one/p1.p2.t3 <-> mod.two/p1.p2.t3
 						"}\n");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -2918,7 +2918,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"public class Test implements org.eclipse.SomeInterface {\n" +
 						"}\n");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -2951,7 +2951,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"	exports p.q;\n" +
 						"}");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -3004,7 +3004,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"public class C2 {\n" +
 						"}\n");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -3065,7 +3065,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"	public C0[] f2;\n" +
 						"}\n");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -3118,7 +3118,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"	public C0[] f2;\n" +
 						"}\n");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -3157,7 +3157,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"	public C3.C4 f2;\n" +
 						"}\n");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -3226,7 +3226,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"	public void m2(p.exp2.C2 arg) {}\n" +
 						"}\n");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -3273,7 +3273,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"	public @ANN String test(@ANN String arg, @ANN C0 c) { return \"\"; }\n" +
 						"}\n");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -3319,7 +3319,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"	X, Y, Z;\n" +
 						"}\n");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -3349,7 +3349,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"	List<?> l;\n" +
 						"}\n");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -3438,7 +3438,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"	requires mod.two;\n" +
 						"}");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + outDir )
 		.append(" -9 ")
 		.append(" -p \"")
@@ -3470,7 +3470,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"public class X {\n" +
 						"}");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -3518,7 +3518,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"	p.a.X f;\n" +
 						"}");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -3554,7 +3554,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"	requires mod.two;\n" +
 						"}");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + outDir )
 		.append(" -9 ")
 		.append(" -p \"")
@@ -3588,7 +3588,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 						"	requires mod.two;\n" +
 						"}");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + outDir )
 		.append(" -9 ")
 		.append(" -p \"")
@@ -3619,7 +3619,7 @@ public void testBug521362_emptyFile() {
 		writeFileCollecting(files, moduleLoc + File.separator + "p1", "X.java",
 						"");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -3655,7 +3655,7 @@ public void testBug521362_emptyFile() {
 		writeFileCollecting(files, moduleLoc + File.separator + "p1", "X.java",
 						"package q;\n");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -3696,7 +3696,7 @@ public void testBug521362_emptyFile() {
 				"package q2;\n");
 		writeFileCollecting(files, moduleLoc + File.separator + "p3", "X.java",
 				"package p3;\n");
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -3742,7 +3742,7 @@ public void testBug521362_emptyFile() {
 				"package q2;\n");
 		writeFileCollecting(files, moduleLoc + File.separator + "p3" + File.separator + "p4" + File.separator + "p5", "X.java",
 				"package p3.p4.p5;\n");
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -3816,7 +3816,7 @@ public void testBug521362_emptyFile() {
 						"module mod.one { \n" +
 						"	requires java.sql;\n" +
 						"}");
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -8")
 			.append(" -classpath \"")
@@ -3883,7 +3883,7 @@ public void testBug521362_emptyFile() {
 				"X.java",
 				"package x.y.z;\n" +
 				"public class X {}\n");
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -3914,7 +3914,7 @@ public void testBug521362_emptyFile() {
 				"@SuppressWarnings(\"unused\")\n" +
 				"public class Main {"
 				+ "}");
-		buffer = new StringBuffer();
+		buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -4476,7 +4476,7 @@ public void testBug521362_emptyFile() {
 						"}\n");
 
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -4515,7 +4515,7 @@ public void testBug521362_emptyFile() {
 						"}\n");
 
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -4553,7 +4553,7 @@ public void testBug521362_emptyFile() {
 						"}\n");
 
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -4581,7 +4581,7 @@ public void testBug521362_emptyFile() {
 						"}");
 
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + outDir )
 			.append(" -9 ")
 			.append(" --module-path \"")
@@ -4610,7 +4610,7 @@ public void testBug521362_emptyFile() {
 						"}");
 
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + outDir )
 			.append(" -9 ")
 			.append(" --module-path \"")
@@ -4693,7 +4693,7 @@ public void testBug521362_emptyFile() {
 						"package pack1;\n" +
 						"public class X11 {\n" +
 						"}");
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -4919,7 +4919,7 @@ public void testBug521362_emptyFile() {
 			"		return \"\";\n" +
 			"	}\n" +
 			"}");
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + outDir )
 			.append(" -source 9 ")
 			.append(" --module-source-path " + "\"" + srcDir + "\" ");
@@ -4954,7 +4954,7 @@ public void testBug521362_emptyFile() {
 			"		return \"\";\n" +
 			"	}\n" +
 			"}");
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + outDir )
 			.append(" -source 9 ")
 			.append(" --module-source-path " + "\"" + srcDir + "\" ")
@@ -4991,7 +4991,7 @@ public void testBug521362_emptyFile() {
 			"		return \"\";\n" +
 			"	}\n" +
 			"}");
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + outDir )
 			.append(" -source 9 ")
 			.append(" --module-source-path " + "\"" + srcDir + "\" ")
@@ -5032,7 +5032,7 @@ public void testBug521362_emptyFile() {
 						"public class C1 {\n" +
 						"}\n");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -5058,7 +5058,7 @@ public void testBug521362_emptyFile() {
 						"public class X extends px.C1 { \n" +
 						"	py.C1 c = null;\n" +
 						"}");
-		buffer = new StringBuffer();
+		buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -5345,7 +5345,7 @@ public void testBug521362_emptyFile() {
 				"public class X {\n" +
 				"}");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		String binDir = OUTPUT_DIR + File.separator + out;
 		buffer.append("-d " + binDir )
 			.append(" -9 ")
@@ -5388,7 +5388,7 @@ public void testBug521362_emptyFile() {
 				"public class X {\n" +
 				"}");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		String binDir = OUTPUT_DIR + File.separator + out;
 		buffer.append("-d " + binDir )
 			.append(" -9 ")
@@ -5432,7 +5432,7 @@ public void testBug521362_emptyFile() {
 						"public class t4 {\n" +
 						"}\n");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -5468,7 +5468,7 @@ public void testBug521362_emptyFile() {
 						"}");
 
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + outDir )
 			.append(" -9 ")
 			.append(" --module-path \"")
@@ -5660,7 +5660,7 @@ public void testBug521362_emptyFile() {
 				"A.java",
 				"package a.b.c;\n" +
 				"public class A {}");
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -5689,7 +5689,7 @@ public void testBug521362_emptyFile() {
 				"import x.y.z.*;\n" +
 				"public class Main {"
 				+ "}");
-		buffer = new StringBuffer();
+		buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -5749,7 +5749,7 @@ public void testBug521362_emptyFile() {
 		writeFileCollecting(files, moduleLoc + File.separator + "x" + File.separator + "y" + File.separator + "z",
 				"X.java",
 				"package x.y.z;\n");
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -5779,7 +5779,7 @@ public void testBug521362_emptyFile() {
 				"import x.y.z.*;\n" +
 				"public class Main {"
 				+ "}");
-		buffer = new StringBuffer();
+		buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -5841,7 +5841,7 @@ public void testBug521362_emptyFile() {
 		writeFileCollecting(files, moduleLoc + File.separator + "x" + File.separator + "y" + File.separator + "z",
 				"X.java",
 				"package x.y.z;\n");
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")

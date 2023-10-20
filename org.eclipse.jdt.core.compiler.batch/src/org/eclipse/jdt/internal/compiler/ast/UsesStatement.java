@@ -21,7 +21,7 @@ public class UsesStatement extends ModuleStatement {
 		this.serviceInterface = serviceInterface;
 	}
 	@Override
-	public StringBuffer print(int indent, StringBuffer output) {
+	public StringBuilder print(int indent, StringBuilder output) {
 		printIndent(indent, output);
 		output.append("uses "); //$NON-NLS-1$
 		this.serviceInterface.print(0, output);

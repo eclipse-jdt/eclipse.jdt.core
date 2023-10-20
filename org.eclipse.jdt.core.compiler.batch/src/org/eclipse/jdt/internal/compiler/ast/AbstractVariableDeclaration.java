@@ -87,7 +87,7 @@ public abstract class AbstractVariableDeclaration extends Statement implements I
 	}
 
 	@Override
-	public StringBuffer printStatement(int indent, StringBuffer output) {
+	public StringBuilder printStatement(int indent, StringBuilder output) {
 		printAsExpression(indent, output);
 		switch(getKind()) {
 			case ENUM_CONSTANT:
@@ -97,7 +97,7 @@ public abstract class AbstractVariableDeclaration extends Statement implements I
 		}
 	}
 
-	public StringBuffer printAsExpression(int indent, StringBuffer output) {
+	public StringBuilder printAsExpression(int indent, StringBuilder output) {
 		printIndent(indent, output);
 		printModifiers(this.modifiers, output);
 		if (this.annotations != null) {

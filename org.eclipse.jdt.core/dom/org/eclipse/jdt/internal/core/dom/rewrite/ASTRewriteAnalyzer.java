@@ -1587,13 +1587,13 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 				if (startPos != nextStart) {
 					int visibilityModifiers= addedModifiers & (Modifier.PUBLIC | Modifier.PRIVATE | Modifier.PROTECTED);
 					if (visibilityModifiers != 0) {
-						StringBuffer buf= new StringBuffer();
+						StringBuilder buf= new StringBuilder();
 						ASTRewriteFlattener.printModifiers(visibilityModifiers, buf);
 						doTextInsert(startPos, buf.toString(), editGroup);
 						addedModifiers &= ~visibilityModifiers;
 					}
 				}
-				StringBuffer buf= new StringBuffer();
+				StringBuilder buf= new StringBuilder();
 				ASTRewriteFlattener.printModifiers(addedModifiers, buf);
 				doTextInsert(nextStart, buf.toString(), editGroup);
 			}

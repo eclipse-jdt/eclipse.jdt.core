@@ -94,7 +94,7 @@ public class SearchTests extends ModifyingResourceTests implements IJavaSearchCo
 				int modifiers,
 				String path,
 				int methodIndex) {
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			char c = '.';
 			char[] noname = new String("<NONAME>").toCharArray();
 			buffer.append(path);
@@ -138,7 +138,7 @@ public class SearchTests extends ModifyingResourceTests implements IJavaSearchCo
 			buffer.append(')');
 			this.results.add(buffer.toString());
 		}
-		static void checkAndAddtoBuffer(StringBuffer buffer, char[] precond, char c) {
+		static void checkAndAddtoBuffer(StringBuilder buffer, char[] precond, char c) {
 			if (precond == null || precond.length == 0) return;
 			buffer.append(precond);
 			buffer.append(c);

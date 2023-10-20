@@ -1159,7 +1159,7 @@ public void parseMethods(Parser parser, CompilationUnitDeclaration unit) {
 }
 
 @Override
-public StringBuffer print(int indent, StringBuffer output) {
+public StringBuilder print(int indent, StringBuilder output) {
 	if (this.javadoc != null) {
 		this.javadoc.print(indent, output);
 	}
@@ -1170,7 +1170,7 @@ public StringBuffer print(int indent, StringBuffer output) {
 	return printBody(indent, output);
 }
 
-public StringBuffer printBody(int indent, StringBuffer output) {
+public StringBuilder printBody(int indent, StringBuilder output) {
 	output.append(" {"); //$NON-NLS-1$
 	if (this.memberTypes != null) {
 		for (int i = 0; i < this.memberTypes.length; i++) {
@@ -1200,7 +1200,7 @@ public StringBuffer printBody(int indent, StringBuffer output) {
 	return printIndent(indent, output).append('}');
 }
 
-public StringBuffer printHeader(int indent, StringBuffer output) {
+public StringBuilder printHeader(int indent, StringBuilder output) {
 	printModifiers(this.modifiers, output);
 	if (this.annotations != null) {
 		printAnnotations(this.annotations, output);
@@ -1278,7 +1278,7 @@ public StringBuffer printHeader(int indent, StringBuffer output) {
 }
 
 @Override
-public StringBuffer printStatement(int tab, StringBuffer output) {
+public StringBuilder printStatement(int tab, StringBuilder output) {
 	return print(tab, output);
 }
 

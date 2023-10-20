@@ -152,7 +152,7 @@ public class VerificationTypeInfo {
 
 	@Override
 	public String toString() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		switch (this.tag) {
 			case VerificationTypeInfo.ITEM_UNINITIALIZED_THIS:
 				buffer.append("uninitialized_this(").append(readableName()).append(")"); //$NON-NLS-1$//$NON-NLS-2$

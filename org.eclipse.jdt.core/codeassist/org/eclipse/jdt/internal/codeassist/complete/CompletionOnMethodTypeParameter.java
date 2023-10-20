@@ -33,7 +33,7 @@ public class CompletionOnMethodTypeParameter extends MethodDeclaration implement
 	}
 
 	@Override
-	public StringBuffer print(int tab, StringBuffer output) {
+	public StringBuilder print(int tab, StringBuilder output) {
 		printIndent(tab, output);
 		output.append('<');
 		int max = this.typeParameters.length - 1;

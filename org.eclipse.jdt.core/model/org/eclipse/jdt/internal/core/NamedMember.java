@@ -45,7 +45,7 @@ public abstract class NamedMember extends Member {
 		this.name = name;
 	}
 
-	private void appendTypeParameters(StringBuffer buffer) throws JavaModelException {
+	private void appendTypeParameters(StringBuilder buffer) throws JavaModelException {
 		ITypeParameter[] typeParameters = getTypeParameters();
 		int length = typeParameters.length;
 		if (length == 0) return;
@@ -207,7 +207,7 @@ public abstract class NamedMember extends Member {
 		switch (this.getParent().getElementType()) {
 			case IJavaElement.COMPILATION_UNIT:
 				if (showParameters) {
-					StringBuffer buffer = new StringBuffer(this.name);
+					StringBuilder buffer = new StringBuilder(this.name);
 					appendTypeParameters(buffer);
 					return buffer.toString();
 				}
@@ -225,7 +225,7 @@ public abstract class NamedMember extends Member {
 					typeName = classFileName.substring(0, classFileName.lastIndexOf('.'))/*remove .class*/.replace('$', enclosingTypeSeparator);
 				}
 				if (showParameters) {
-					StringBuffer buffer = new StringBuffer(typeName);
+					StringBuilder buffer = new StringBuilder(typeName);
 					appendTypeParameters(buffer);
 					return buffer.toString();
 				}
@@ -241,7 +241,7 @@ public abstract class NamedMember extends Member {
 			default:
 				return null;
 		}
-		StringBuffer buffer = new StringBuffer(declaringType.getTypeQualifiedName(enclosingTypeSeparator, showParameters));
+		StringBuilder buffer = new StringBuilder(declaringType.getTypeQualifiedName(enclosingTypeSeparator, showParameters));
 		buffer.append(enclosingTypeSeparator);
 		String simpleName = this.name.length() == 0 ? getOccurrenceCountSignature() : this.name;
 		buffer.append(simpleName);

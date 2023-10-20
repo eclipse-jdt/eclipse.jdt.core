@@ -57,7 +57,7 @@ public class CompletionOnJavadocModuleReference extends JavadocModuleReference i
 	}
 
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output) {
+	public StringBuilder printExpression(int indent, StringBuilder output) {
 		output.append("<CompletionOnJavadocModuleReference:"); //$NON-NLS-1$
 		super.printExpression(indent, output);
 		indent++;

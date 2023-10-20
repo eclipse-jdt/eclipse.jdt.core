@@ -68,7 +68,7 @@ public class CompletionOnMessageSend extends MessageSend implements CompletionNo
 	}
 
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output) {
+	public StringBuilder printExpression(int indent, StringBuilder output) {
 
 		output.append("<CompleteOnMessageSend:"); //$NON-NLS-1$
 		if (!this.receiver.isImplicitThis()) this.receiver.printExpression(0, output).append('.');

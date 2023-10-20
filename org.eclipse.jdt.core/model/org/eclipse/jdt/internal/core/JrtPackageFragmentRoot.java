@@ -139,7 +139,7 @@ public class JrtPackageFragmentRoot extends JarPackageFragmentRoot implements IM
 		return hash;
 	}
 	@Override
-	protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean showResolvedInfo) {
+	protected void toStringInfo(int tab, StringBuilder buffer, Object info, boolean showResolvedInfo) {
 		buffer.append(tabString(tab));
 		buffer.append("<module:").append(this.moduleName).append(">"); //$NON-NLS-1$ //$NON-NLS-2$
 		if (info == null) {

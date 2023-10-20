@@ -59,7 +59,7 @@ public class AnnotationMethodDeclaration extends MethodDeclaration {
 	}
 
 	@Override
-	public StringBuffer print(int tab, StringBuffer output) {
+	public StringBuilder print(int tab, StringBuilder output) {
 
 		printIndent(tab, output);
 		printModifiers(this.modifiers, output);

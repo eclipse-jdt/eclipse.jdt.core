@@ -1073,7 +1073,7 @@ private static class DummyTypeReference extends TypeReference {
 	}
 
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output) {
+	public StringBuilder printExpression(int indent, StringBuilder output) {
 		return output.append(this.token);
 	}
 	@Override

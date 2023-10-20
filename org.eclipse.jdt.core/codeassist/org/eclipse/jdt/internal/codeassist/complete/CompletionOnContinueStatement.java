@@ -39,7 +39,7 @@ public class CompletionOnContinueStatement extends ContinueStatement implements 
 		throw new CompletionNodeFound(this, scope);
 	}
 	@Override
-	public StringBuffer printStatement(int indent, StringBuffer output) {
+	public StringBuilder printStatement(int indent, StringBuilder output) {
 		printIndent(indent, output);
 		output.append("continue "); //$NON-NLS-1$
 		output.append("<CompleteOnLabel:"); //$NON-NLS-1$

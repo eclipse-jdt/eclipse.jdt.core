@@ -41,7 +41,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	private static final int T_INT = 10;
 	private static final int T_LONG = 11;
 
-	private final StringBuffer buffer;
+	private final StringBuilder buffer;
 	private final String lineSeparator;
 	private final int tabNumber;
 	private final int digitNumberForPC;
@@ -52,7 +52,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 	private final boolean isStatic;
 	private int[] argumentSizes;
 
-	public DefaultBytecodeVisitor(ICodeAttribute codeAttribute, char[][] parameterNames, char[] methodDescriptor, boolean isStatic, StringBuffer buffer, String lineSeparator, int tabNumber, int mode) {
+	public DefaultBytecodeVisitor(ICodeAttribute codeAttribute, char[][] parameterNames, char[] methodDescriptor, boolean isStatic, StringBuilder buffer, String lineSeparator, int tabNumber, int mode) {
 		ILocalVariableAttribute localVariableAttribute = codeAttribute.getLocalVariableAttribute();
 		this.localVariableAttributeLength = localVariableAttribute == null ? 0 : localVariableAttribute.getLocalVariableTableLength();
 		if (this.localVariableAttributeLength != 0) {
@@ -267,7 +267,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 			final ILocalVariableTableEntry entry = this.localVariableTableEntries[i];
 			final int startPC = entry.getStartPC();
 			if (entry.getIndex() == index && (startPC <= nextPC) && ((startPC + entry.getLength()) > nextPC)) {
-				final StringBuffer stringBuffer = new StringBuffer();
+				final StringBuilder stringBuffer = new StringBuilder();
 				if (showIndex) {
 					stringBuffer.append(' ').append(index);
 				}
@@ -278,7 +278,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		if (this.parameterNames != null) {
 			if (index == 0) {
 				if (!this.isStatic) {
-					final StringBuffer stringBuffer = new StringBuffer();
+					final StringBuilder stringBuffer = new StringBuilder();
 					stringBuffer.append(' ').append('[').append("this").append(']'); //$NON-NLS-1$
 					return String.valueOf(stringBuffer);
 				}
@@ -300,7 +300,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 			}
 			if (indexInParameterNames < this.parameterNames.length
 					&& this.parameterNames[indexInParameterNames] != null) {
-				final StringBuffer stringBuffer = new StringBuffer();
+				final StringBuilder stringBuffer = new StringBuilder();
 				if (showIndex) {
 					stringBuffer.append(' ').append(index);
 				}
@@ -309,7 +309,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 			}
 		}
 		if (showIndex) {
-			final StringBuffer stringBuffer = new StringBuffer();
+			final StringBuilder stringBuffer = new StringBuilder();
 			stringBuffer.append(' ').append(index);
 			return String.valueOf(stringBuffer);
 		}
@@ -2107,7 +2107,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		writeNewLine();
 	}
 
-	private StringBuffer appendConstantMethodType(StringBuffer s, String messageKind, int opcode,
+	private StringBuilder appendConstantMethodType(StringBuilder s, String messageKind, int opcode,
 			int index, IConstantPoolEntry constantPoolEntry) {
 		return s.append(Messages.bind(messageKind, new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[opcode],
@@ -2116,7 +2116,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 			}));
 	}
 
-	private StringBuffer appendConstantMethodHandle(StringBuffer s, String messageKind, int opcode,
+	private StringBuilder appendConstantMethodHandle(StringBuilder s, String messageKind, int opcode,
 			int index, IConstantPoolEntry constantPoolEntry) {
 		return s.append(Messages.bind(messageKind, new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[opcode],
@@ -2125,7 +2125,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 				Integer.toString(((IConstantPoolEntry2) constantPoolEntry).getReferenceIndex())
 			}));
 	}
-	private StringBuffer appendConstantDynamic(StringBuffer s, String messageKind, int opcode,
+	private StringBuilder appendConstantDynamic(StringBuilder s, String messageKind, int opcode,
 			int index, IConstantPoolEntry entry) {
 		return s.append(Messages.bind(messageKind, new String[] {
 				OpcodeStringValues.BYTECODE_NAMES[opcode],
@@ -2792,7 +2792,7 @@ public class DefaultBytecodeVisitor implements IBytecodeVisitor {
 		}
 		switch(className[0]) {
 			case '[' :
-				StringBuffer classNameBuffer = new StringBuffer();
+				StringBuilder classNameBuffer = new StringBuilder();
 				Util.appendTypeSignature(className, 0, classNameBuffer, isCompact());
 				return classNameBuffer.toString();
 			default:

@@ -123,7 +123,7 @@ protected IBuffer openBuffer(IProgressMonitor pm, Object info) throws JavaModelE
 }
 
 @Override
-protected void toStringName(StringBuffer buffer) {
+protected void toStringName(StringBuilder buffer) {
 	buffer.append(this.classFile.getElementName());
 }
 

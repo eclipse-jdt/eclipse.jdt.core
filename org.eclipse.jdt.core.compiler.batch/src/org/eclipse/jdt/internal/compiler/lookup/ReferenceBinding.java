@@ -1866,7 +1866,7 @@ public char[] readableName(boolean showGenerics) /*java.lang.Object,  p.X<T> */ 
 	return readableName;
 }
 
-protected void appendNullAnnotation(StringBuffer nameBuffer, CompilerOptions options) {
+protected void appendNullAnnotation(StringBuilder nameBuffer, CompilerOptions options) {
 	if (options.isAnnotationBasedNullAnalysisEnabled) {
 		if (options.usesNullTypeAnnotations()) {
 			for (AnnotationBinding annotation : this.typeAnnotations) {
@@ -1921,7 +1921,7 @@ public char[] nullAnnotatedReadableName(CompilerOptions options, boolean shortNa
 }
 
 char[] nullAnnotatedReadableName(CompilerOptions options) {
-    StringBuffer nameBuffer = new StringBuffer(10);
+    StringBuilder nameBuffer = new StringBuilder(10);
 	if (isMemberType()) {
 		nameBuffer.append(enclosingType().nullAnnotatedReadableName(options, false));
 		nameBuffer.append('.');
@@ -1960,7 +1960,7 @@ char[] nullAnnotatedReadableName(CompilerOptions options) {
 }
 
 char[] nullAnnotatedShortReadableName(CompilerOptions options) {
-    StringBuffer nameBuffer = new StringBuffer(10);
+    StringBuilder nameBuffer = new StringBuilder(10);
 	if (isMemberType()) {
 		nameBuffer.append(enclosingType().nullAnnotatedReadableName(options, true));
 		nameBuffer.append('.');

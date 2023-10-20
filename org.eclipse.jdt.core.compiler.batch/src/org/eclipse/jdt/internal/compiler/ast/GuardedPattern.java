@@ -172,7 +172,7 @@ public class GuardedPattern extends Pattern {
 	}
 
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output) {
+	public StringBuilder printExpression(int indent, StringBuilder output) {
 		this.primaryPattern.print(indent, output).append(" when "); //$NON-NLS-1$
 		return this.condition.print(indent, output);
 	}

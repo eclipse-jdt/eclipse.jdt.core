@@ -1819,7 +1819,7 @@ public void optimizedBooleanConstant(int leftId, int operator, int rightId) {
 }
 
 @Override
-public StringBuffer printExpressionNoParenthesis(int indent, StringBuffer output) {
+public StringBuilder printExpressionNoParenthesis(int indent, StringBuilder output) {
 	// keep implementation in sync with
 	// CombinedBinaryExpression#printExpressionNoParenthesis
 	this.left.printExpression(indent, output).append(' ').append(operatorToString()).append(' ');

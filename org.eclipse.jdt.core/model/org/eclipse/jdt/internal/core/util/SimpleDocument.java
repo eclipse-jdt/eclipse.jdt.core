@@ -27,11 +27,11 @@ import org.eclipse.jface.text.Position;
  */
 public class SimpleDocument implements IDocument {
 
-	private final StringBuffer buffer;
+	private final StringBuilder buffer;
 
 
 	public SimpleDocument(String source) {
-		this.buffer = new StringBuffer(source);
+		this.buffer = new StringBuilder(source);
 	}
 
 	@Override

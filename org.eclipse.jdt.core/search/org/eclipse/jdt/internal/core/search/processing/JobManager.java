@@ -461,7 +461,7 @@ public abstract class JobManager {
 				protected IStatus run(IProgressMonitor monitor) {
 					IJob job = currentJob();
 					while (!monitor.isCanceled() && job != null) {
-						 String taskName = new StringBuffer(Messages.jobmanager_indexing)
+						 String taskName = new StringBuilder(Messages.jobmanager_indexing)
 							.append(Messages.bind(Messages.jobmanager_filesToIndex, job.getJobFamily(), Integer.toString(awaitingJobsCount())))
 							.toString();
 						monitor.subTask(taskName);

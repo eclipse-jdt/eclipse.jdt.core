@@ -338,7 +338,7 @@ public class Parser implements TerminalTokens, ParserBasicInformation, Conflicte
 		for (int i = 0; i < tokens.length; i = i + 3) {
 			if("1".equals(tokens[i])) { //$NON-NLS-1$
 				int index = newNonTerminalIndex[newLhs[Integer.parseInt(tokens[i + 1])]];
-				StringBuffer buffer = new StringBuffer();
+				StringBuilder buffer = new StringBuilder();
 				if(!alreadyAdded[index]) {
 					alreadyAdded[index] = true;
 					buffer.append(newName[index]);

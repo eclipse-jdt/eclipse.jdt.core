@@ -250,7 +250,7 @@ private void addAssignment(BlockScope currentScope, CodeStream codeStream, Local
 }
 
 @Override
-public StringBuffer printExpressionNoParenthesis(int indent, StringBuffer output) {
+public StringBuilder printExpressionNoParenthesis(int indent, StringBuilder output) {
 	this.expression.printExpression(indent, output).append(" instanceof "); //$NON-NLS-1$
 	return this.pattern == null ? this.type.print(0, output) : this.pattern.printExpression(0, output);
 }

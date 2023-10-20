@@ -77,7 +77,7 @@ protected void resetQuery() {
 	this.currentSegment = this.segments.length - 1;
 }
 @Override
-protected StringBuffer print(StringBuffer output) {
+protected StringBuilder print(StringBuilder output) {
 	output.append("PackageReferencePattern: <"); //$NON-NLS-1$
 	if (this.pkgName != null)
 		output.append(this.pkgName);

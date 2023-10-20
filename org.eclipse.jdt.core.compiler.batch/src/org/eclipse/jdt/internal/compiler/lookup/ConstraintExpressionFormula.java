@@ -557,7 +557,7 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 	// debugging:
 	@Override
 	public String toString() {
-		StringBuffer buf = new StringBuffer().append(LEFT_ANGLE_BRACKET);
+		StringBuilder buf = new StringBuilder().append(LEFT_ANGLE_BRACKET);
 		this.left.printExpression(4, buf);
 		buf.append(relationToString(this.relation));
 		appendTypeName(buf, this.right);

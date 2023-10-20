@@ -103,7 +103,7 @@ public class CodeSnippetThisReference extends ThisReference implements Evaluatio
 	}
 
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output){
+	public StringBuilder printExpression(int indent, StringBuilder output){
 
 		char[] declaringType = this.evaluationContext.declaringTypeName;
 		output.append('(');

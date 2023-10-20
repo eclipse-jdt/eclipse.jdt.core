@@ -45,7 +45,7 @@ public class CompletionOnJavadocTag extends JavadocSingleNameReference implement
 	}
 
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output) {
+	public StringBuilder printExpression(int indent, StringBuilder output) {
 		output.append("<CompleteOnJavadocTag:"); //$NON-NLS-1$
 		output.append('@');
 		if (this.token != null) super.printExpression(indent, output);

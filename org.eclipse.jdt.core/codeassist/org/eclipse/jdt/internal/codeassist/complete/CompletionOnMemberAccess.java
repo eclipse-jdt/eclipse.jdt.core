@@ -49,7 +49,7 @@ public class CompletionOnMemberAccess extends FieldReference implements Completi
 	}
 
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output) {
+	public StringBuilder printExpression(int indent, StringBuilder output) {
 
 		output.append("<CompleteOnMemberAccess:"); //$NON-NLS-1$
 		return super.printExpression(0, output).append('>');

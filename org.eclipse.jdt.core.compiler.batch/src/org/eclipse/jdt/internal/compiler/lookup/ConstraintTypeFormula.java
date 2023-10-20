@@ -424,7 +424,7 @@ class ConstraintTypeFormula extends ConstraintFormula {
 	// debugging
 	@Override
 	public String toString() {
-		StringBuffer buf = new StringBuffer("Type Constraint:\n"); //$NON-NLS-1$
+		StringBuilder buf = new StringBuilder("Type Constraint:\n"); //$NON-NLS-1$
 		buf.append('\t').append(LEFT_ANGLE_BRACKET);
 		appendTypeName(buf, this.left);
 		buf.append(relationToString(this.relation));

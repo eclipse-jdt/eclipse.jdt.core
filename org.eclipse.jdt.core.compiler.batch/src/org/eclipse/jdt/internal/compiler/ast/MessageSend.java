@@ -701,7 +701,7 @@ public TypeBinding postConversionType(Scope scope) {
 }
 
 @Override
-public StringBuffer printExpression(int indent, StringBuffer output){
+public StringBuilder printExpression(int indent, StringBuilder output){
 
 	if (!this.receiver.isImplicitThis()) this.receiver.printExpression(0, output).append('.');
 	if (this.typeArguments != null) {

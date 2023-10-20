@@ -456,7 +456,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 	}
 
 	@Override
-	public StringBuffer printExpressionNoParenthesis(int indent, StringBuffer output) {
+	public StringBuilder printExpressionNoParenthesis(int indent, StringBuilder output) {
 
 		this.condition.printExpression(indent, output).append(" ? "); //$NON-NLS-1$
 		this.valueIfTrue.printExpression(0, output).append(" : "); //$NON-NLS-1$

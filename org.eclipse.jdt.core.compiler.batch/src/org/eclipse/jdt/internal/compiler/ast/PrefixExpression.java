@@ -45,7 +45,7 @@ public String operatorToString() {
 }
 
 @Override
-public StringBuffer printExpressionNoParenthesis(int indent, StringBuffer output) {
+public StringBuilder printExpressionNoParenthesis(int indent, StringBuilder output) {
 
 	output.append(operatorToString()).append(' ');
 	return this.lhs.printExpression(0, output);

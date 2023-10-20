@@ -52,12 +52,12 @@ public class MementoTokenizer {
 	}
 
 	public static String escape( String mementoName) {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		escape(sb,mementoName);
 		return sb.toString();
 	}
 
-	public static void escape(StringBuffer buffer, String mementoName) {
+	public static void escape(StringBuilder buffer, String mementoName) {
 		for (int i = 0, length = mementoName.length(); i < length; i++) {
 			char character = mementoName.charAt(i);
 			switch (character) {

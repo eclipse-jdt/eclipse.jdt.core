@@ -155,7 +155,7 @@ public class TypeReferencePattern extends IntersectingPattern {
 			this.currentSegment = this.segments.length - 1;
 	}
 	@Override
-	protected StringBuffer print(StringBuffer output) {
+	protected StringBuilder print(StringBuilder output) {
 		String patternClassName = getClass().getName();
 		output.append(patternClassName.substring(patternClassName.lastIndexOf('.')+1));
 		output.append(": qualification<"); //$NON-NLS-1$

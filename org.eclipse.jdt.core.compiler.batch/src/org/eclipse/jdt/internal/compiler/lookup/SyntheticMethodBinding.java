@@ -329,7 +329,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 	public SyntheticMethodBinding(SourceTypeBinding declaringEnum, int startIndex, int endIndex) {
 		this.declaringClass = declaringEnum;
 		this.index = nextSmbIndex();
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append(TypeConstants.SYNTHETIC_ENUM_CONSTANT_INITIALIZATION_METHOD_PREFIX).append(this.index);
 		this.selector = String.valueOf(buffer).toCharArray();
 		this.modifiers = ClassFileConstants.AccPrivate | ClassFileConstants.AccStatic;

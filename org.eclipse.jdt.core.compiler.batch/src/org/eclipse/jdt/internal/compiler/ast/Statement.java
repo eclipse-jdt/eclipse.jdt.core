@@ -478,11 +478,11 @@ public boolean isValidJavaStatement() {
 }
 
 @Override
-public StringBuffer print(int indent, StringBuffer output) {
+public StringBuilder print(int indent, StringBuilder output) {
 	return printStatement(indent, output);
 }
 
-public abstract StringBuffer printStatement(int indent, StringBuffer output);
+public abstract StringBuilder printStatement(int indent, StringBuilder output);
 
 public abstract void resolve(BlockScope scope);
 public LocalVariableBinding[] getPatternVariablesWhenTrue() {

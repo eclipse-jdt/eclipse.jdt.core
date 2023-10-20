@@ -303,7 +303,7 @@ public class CharacterLiteral extends Expression {
 	 * @param value the character value
 	 */
 	public void setCharValue(char value) {
-		StringBuffer b = new StringBuffer(3);
+		StringBuilder b = new StringBuilder(3);
 
 		b.append('\''); // opening delimiter
 		Util.appendEscapedChar(b, value, false);

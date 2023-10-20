@@ -104,7 +104,7 @@ public class TestCase extends PerformanceTestCase {
 						try {
 							// https://bugs.eclipse.org/bugs/show_bug.cgi?id=384531
 							// compiler.version is a timestamp since the the above fix (of the format: v20120725-181921)
-							StringBuffer buffer = new StringBuffer();
+							StringBuilder buffer = new StringBuilder();
 							for (int i = 0; i < version.length(); i++) {
 								if (Character.isDigit(version.charAt(i))) {
 									buffer.append(version.charAt(i));
@@ -249,11 +249,11 @@ public static void assertStringEquals(String message, String expected, String ac
 		return;
 	if (expected != null && expected.equals(actual))
 		return;
-	final StringBuffer formatted;
+	final StringBuilder formatted;
 	if (message != null) {
-		formatted = new StringBuffer(message).append('.');
+		formatted = new StringBuilder(message).append('.');
 	} else {
-		formatted = new StringBuffer();
+		formatted = new StringBuilder();
 	}
 	if (showLineSeparators) {
 		expected = showLineSeparators(expected);
@@ -960,7 +960,7 @@ static public void assertSame(String message, int expected, int actual) {
 	failNotSame(message, expected, actual);
 }
 static public void failNotSame(String message, int expected, int actual) {
-	StringBuffer formatted= new StringBuffer();
+	StringBuilder formatted= new StringBuilder();
 	if (message != null) {
 		formatted.append(message).append(' ');
 	}

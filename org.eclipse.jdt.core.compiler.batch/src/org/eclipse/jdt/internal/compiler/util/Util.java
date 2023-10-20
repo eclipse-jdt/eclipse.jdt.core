@@ -558,7 +558,7 @@ public class Util implements SuffixConstants {
 	 */
 	public static String getExceptionSummary(Throwable exception) {
 		CharSequence buffer = getStackTrace(exception);
-		StringBuffer exceptionBuffer = new StringBuffer(50);
+		StringBuilder exceptionBuffer = new StringBuilder(50);
 		exceptionBuffer.append(exception.toString());
 		// only keep leading frame portion of the trace (i.e. line no. 2 from the stacktrace)
 		lookupLine2: for (int i = 0, lineSep = 0, max = buffer.length(), line2Start = 0; i < max; i++) {
@@ -1636,7 +1636,7 @@ public class Util implements SuffixConstants {
 		return true;
 	}
 
-	public static void appendEscapedChar(StringBuffer buffer, char c, boolean stringLiteral) {
+	public static void appendEscapedChar(StringBuilder buffer, char c, boolean stringLiteral) {
 		switch (c) {
 			case '\b' :
 				buffer.append("\\b"); //$NON-NLS-1$

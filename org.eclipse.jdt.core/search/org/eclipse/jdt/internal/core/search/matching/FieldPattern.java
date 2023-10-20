@@ -107,7 +107,7 @@ protected boolean mustResolve() {
 	return super.mustResolve();
 }
 @Override
-protected StringBuffer print(StringBuffer output) {
+protected StringBuilder print(StringBuilder output) {
 	if (this.findDeclarations) {
 		output.append(this.findReferences
 			? "FieldCombinedPattern: " //$NON-NLS-1$

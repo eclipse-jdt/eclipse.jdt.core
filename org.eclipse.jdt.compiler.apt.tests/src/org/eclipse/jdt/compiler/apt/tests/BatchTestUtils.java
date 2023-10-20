@@ -75,10 +75,10 @@ public class BatchTestUtils {
 	private static File _tmpGenDir;
 
 	public static final class DiagnosticReport<S> implements DiagnosticListener<S> {
-		public StringBuffer buffer;
+		public StringBuilder buffer;
 		private final List<Diagnostic<? extends S>> diagnostics = new ArrayList<>();
 		DiagnosticReport() {
-			this.buffer = new StringBuffer();
+			this.buffer = new StringBuilder();
 		}
 		public void report(Diagnostic<? extends S> diagnostic) {
 			diagnostics.add(diagnostic);

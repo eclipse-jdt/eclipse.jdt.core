@@ -423,7 +423,7 @@ public class RecordPattern extends TypePattern {
 	}
 
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output) {
+	public StringBuilder printExpression(int indent, StringBuilder output) {
 		output.append(this.type).append('(');
 		if (this.patterns != null) {
 			for (int i = 0; i < this.patterns.length; i++) {

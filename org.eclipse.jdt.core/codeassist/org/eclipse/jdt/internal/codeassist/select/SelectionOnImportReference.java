@@ -39,7 +39,7 @@ public SelectionOnImportReference(char[][] tokens , long[] positions, int modifi
 	super(tokens, positions, false, modifiers);
 }
 @Override
-public StringBuffer print(int indent, StringBuffer output, boolean withOnDemand) {
+public StringBuilder print(int indent, StringBuilder output, boolean withOnDemand) {
 
 	printIndent(indent, output).append("<SelectOnImport:"); //$NON-NLS-1$
 	for (int i = 0; i < this.tokens.length; i++) {

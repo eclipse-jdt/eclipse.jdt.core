@@ -180,7 +180,7 @@ public class TypeParameter extends AbstractVariableDeclaration {
 	}
 
 	@Override
-	public StringBuffer printStatement(int indent, StringBuffer output) {
+	public StringBuilder printStatement(int indent, StringBuilder output) {
 		if (this.annotations != null) {
 			printAnnotations(this.annotations, output);
 			output.append(' ');

@@ -81,12 +81,12 @@ public class ImportReference extends ASTNode {
 	}
 
 	@Override
-	public StringBuffer print(int indent, StringBuffer output) {
+	public StringBuilder print(int indent, StringBuilder output) {
 
 		return print(indent, output, true);
 	}
 
-	public StringBuffer print(int tab, StringBuffer output, boolean withOnDemand) {
+	public StringBuilder print(int tab, StringBuilder output, boolean withOnDemand) {
 
 		/* when withOnDemand is false, only the name is printed */
 		for (int i = 0; i < this.tokens.length; i++) {

@@ -65,7 +65,7 @@ public Statistics(DataPoint[] dataPoints) {
 
 @Override
 public String toString() {
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	int length = DIMENSIONS.length;
 	for (int idx=0; idx<length; idx++) {
 		dimToString(idx, buffer);
@@ -74,18 +74,18 @@ public String toString() {
 }
 
 public String toString(int dimIndex) {
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	dimToString(dimIndex, buffer);
 	return buffer.toString();
 }
 
 public String elapsedProcessToString() {
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	dimToString(1, buffer);
 	return buffer.toString();
 }
 
-void dimToString(int idx, StringBuffer buffer) {
+void dimToString(int idx, StringBuilder buffer) {
 	Dim dim = DIMENSIONS[idx];
 	buffer.append(dim.getName());
 	buffer.append(": n=");

@@ -181,7 +181,7 @@ public int sourceEnd(){
 }
 @Override
 public String toString(int tab){
-	StringBuffer buffer = new StringBuffer(tabString(tab));
+	StringBuilder buffer = new StringBuilder(tabString(tab));
 	buffer.append("Recovered field:\n"); //$NON-NLS-1$
 	this.fieldDeclaration.print(tab + 1, buffer);
 	if (this.annotations != null) {
