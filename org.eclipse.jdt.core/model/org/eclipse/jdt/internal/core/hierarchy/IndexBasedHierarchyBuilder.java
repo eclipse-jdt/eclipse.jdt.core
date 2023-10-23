@@ -596,7 +596,7 @@ private static void legacySearchAllPossibleSubTypes(
 		job.finished();
 		if (JobManager.VERBOSE) {
 			long wallClockTime = System.currentTimeMillis() - startTime;
-			Util.verbose("-> execution time: " + wallClockTime + "ms - " + IndexBasedHierarchyBuilder.class.getSimpleName());//$NON-NLS-1$//$NON-NLS-2$
+			JavaModelManager.trace("-> execution time: " + wallClockTime + "ms - " + IndexBasedHierarchyBuilder.class.getSimpleName());//$NON-NLS-1$//$NON-NLS-2$
 		}
 	}
 }

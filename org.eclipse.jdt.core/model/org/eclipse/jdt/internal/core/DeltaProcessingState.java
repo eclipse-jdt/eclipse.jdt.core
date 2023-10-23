@@ -373,7 +373,9 @@ public class DeltaProcessingState implements IResourceChangeListener {
 				try {
 					propertyString = Util.getSourceAttachmentProperty(path);
 				} catch (JavaModelException e) {
-					e.printStackTrace();
+					if (JavaModelManager.VERBOSE) {
+						JavaModelManager.trace("", e); //$NON-NLS-1$
+					}
 				}
 				IPath sourceAttachmentPath;
 				if (propertyString != null) {

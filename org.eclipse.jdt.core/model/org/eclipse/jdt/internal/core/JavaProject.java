@@ -16,6 +16,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import static org.eclipse.jdt.internal.core.JavaModelManager.trace;
+
 import java.io.*;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -447,7 +449,6 @@ public class JavaProject
 				}
 			}
 		}
-		//System.out.println("updateAllCycleMarkers: " + (System.currentTimeMillis() - start) + " ms");
 
 		for (int i = 0; i < length; i++){
 			JavaProject project = projects[i];
@@ -1290,7 +1291,7 @@ public class JavaProject
 		} catch (CoreException e) {
 			// could not create marker: cannot do much
 			if (JavaModelManager.VERBOSE) {
-				e.printStackTrace();
+				trace("", e); //$NON-NLS-1$
 			}
 		}
 	}
@@ -1829,7 +1830,7 @@ public class JavaProject
 		} catch (CoreException e) {
 			// could not flush markers: not much we can do
 			if (JavaModelManager.VERBOSE) {
-				e.printStackTrace();
+				trace("", e); //$NON-NLS-1$
 			}
 		}
 	}
@@ -2571,11 +2572,10 @@ public class JavaProject
 	}
 
 	private void verbose_reentering_classpath_resolution() {
-		Util.verbose(
+		trace(
 			"CPResolution: reentering raw classpath resolution, will use empty classpath instead" + //$NON-NLS-1$
 			"	project: " + getElementName() + '\n' + //$NON-NLS-1$
-			"	invocation stack trace:"); //$NON-NLS-1$
-		new Exception("<Fake exception>").printStackTrace(System.out); //$NON-NLS-1$
+			"	invocation stack trace:", new Exception("<Fake exception>")); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/**

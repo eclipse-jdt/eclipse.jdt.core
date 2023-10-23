@@ -15,6 +15,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.dom;
 
+import static org.eclipse.jdt.internal.core.JavaModelManager.trace;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -39,7 +41,7 @@ class NameEnvironmentWithProgress extends FileSystem implements INameEnvironment
 	private void checkCanceled() {
 		if (this.monitor != null && this.monitor.isCanceled()) {
 			if (NameLookup.VERBOSE) {
-				System.out.println(Thread.currentThread() + " CANCELLING LOOKUP "); //$NON-NLS-1$
+				trace(Thread.currentThread() + " CANCELLING LOOKUP "); //$NON-NLS-1$
 			}
 			throw new AbortCompilation(true/*silent*/, new OperationCanceledException());
 		}

@@ -165,8 +165,10 @@ private HashSet<String> getModuleGraph(String mName, TypeDeclarationPattern type
 	final SearchRequestor requestor = new SearchRequestor() {
 		@Override
 		public void acceptSearchMatch(SearchMatch searchMatch) throws CoreException {
-			System.out.println(searchMatch.toString());
 			// do nothing
+			if (JavaModelManager.VERBOSE) {
+				JavaModelManager.trace(searchMatch.toString());
+			}
 		}
 	};
 	try {

@@ -136,7 +136,7 @@ class AddJarFileToIndex extends BinaryContainer {
 					URI location = this.resource.getLocationURI();
 					if (location == null) return false;
 					if (JavaModelManager.ZIP_ACCESS_VERBOSE)
-						System.out.println("(" + Thread.currentThread() + ") [AddJarFileToIndex.execute()] Creating ZipFile on " + location.getPath()); //$NON-NLS-1$	//$NON-NLS-2$
+						trace("(" + Thread.currentThread() + ") [AddJarFileToIndex.execute()] Creating ZipFile on " + location.getPath()); //$NON-NLS-1$	//$NON-NLS-2$
 					File file = null;
 					try {
 						file = org.eclipse.jdt.internal.core.util.Util.toLocalFile(location, progressMonitor);
@@ -151,13 +151,13 @@ class AddJarFileToIndex extends BinaryContainer {
 						return false;
 					}
 					if (JavaModelManager.ZIP_ACCESS_VERBOSE)
-						System.out.println("(" + Thread.currentThread() + ") [AddJarFileToIndex.execute()] Creating ZipFile on " + this.containerPath); //$NON-NLS-1$	//$NON-NLS-2$
+						trace("(" + Thread.currentThread() + ") [AddJarFileToIndex.execute()] Creating ZipFile on " + this.containerPath); //$NON-NLS-1$	//$NON-NLS-2$
 					zip = new ZipFile(file);
 					zipFilePath = (Path) this.resource.getFullPath().makeRelative();
 					// absolute path relative to the workspace
 				} else {
 					if (JavaModelManager.ZIP_ACCESS_VERBOSE)
-						System.out.println("(" + Thread.currentThread() + ") [AddJarFileToIndex.execute()] Creating ZipFile on " + this.containerPath); //$NON-NLS-1$	//$NON-NLS-2$
+						trace("(" + Thread.currentThread() + ") [AddJarFileToIndex.execute()] Creating ZipFile on " + this.containerPath); //$NON-NLS-1$	//$NON-NLS-2$
 					// external file -> it is ok to use toFile()
 					zip = new ZipFile(this.containerPath.toFile());
 					zipFilePath = (Path) this.containerPath;
@@ -261,8 +261,9 @@ class AddJarFileToIndex extends BinaryContainer {
 						JavaSearchDocument entryDocument = new JavaSearchDocument(ze, zipFilePath, new String(contents).getBytes(Charset.defaultCharset()), participant);
 						this.manager.indexDocument(entryDocument, participant, index, indexPath);
 					} catch (CoreException e) {
-						// TODO Auto-generated catch block
-//						e.printStackTrace();
+						if (JobManager.VERBOSE) {
+							JavaModelManager.trace("", e); //$NON-NLS-1$
+						}
 					}
 				}
 				if(this.forceIndexUpdate) {
@@ -277,8 +278,9 @@ class AddJarFileToIndex extends BinaryContainer {
 						+ (System.currentTimeMillis() - initialTime) + "ms)"); //$NON-NLS-1$
 			} finally {
 				if (zip != null) {
-					if (JavaModelManager.ZIP_ACCESS_VERBOSE)
-						System.out.println("(" + Thread.currentThread() + ") [AddJarFileToIndex.execute()] Closing ZipFile " + this.containerPath); //$NON-NLS-1$	//$NON-NLS-2$
+					if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
+						trace("(" + Thread.currentThread() + ") [AddJarFileToIndex.execute()] Closing ZipFile " + this.containerPath); //$NON-NLS-1$	//$NON-NLS-2$
+					}
 					zip.close();
 				}
 				monitor.exitWrite(); // free write lock

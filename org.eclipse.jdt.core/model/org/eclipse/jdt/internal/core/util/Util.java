@@ -15,6 +15,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.util;
 
+import static org.eclipse.jdt.internal.core.JavaModelManager.trace;
+
 import java.io.*;
 import java.net.URI;
 import java.util.*;
@@ -445,7 +447,9 @@ public class Util {
 			edit.apply(document, TextEdit.NONE);
 			return document.get();
 		} catch (MalformedTreeException | BadLocationException e) {
-			e.printStackTrace();
+			if (JavaModelManager.VERBOSE) {
+				trace("", e); //$NON-NLS-1$
+			}
 		}
 		return original;
 	}
@@ -1268,7 +1272,9 @@ public class Util {
 		try {
 			ResourcesPlugin.getWorkspace().getRoot().setPersistentProperty(getSourceAttachmentPropertyName(path), property);
 		} catch (CoreException e) {
-			e.printStackTrace();
+			if (JavaModelManager.VERBOSE) {
+				trace("", e); //$NON-NLS-1$
+			}
 		}
 	}
 
@@ -2758,20 +2764,6 @@ public class Util {
 	 */
 	public static void validateTypeSignature(String sig, boolean allowVoid) {
 		Assert.isTrue(isValidTypeSignature(sig, allowVoid));
-	}
-	public static void verbose(String log) {
-		verbose(log, System.out);
-	}
-	public static synchronized void verbose(String log, PrintStream printStream) {
-		int start = 0;
-		do {
-			int end = log.indexOf('\n', start);
-			printStream.print(Thread.currentThread());
-			printStream.print(" "); //$NON-NLS-1$
-			printStream.print(log.substring(start, end == -1 ? log.length() : end+1));
-			start = end+1;
-		} while (start != 0);
-		printStream.println();
 	}
 
 	/**

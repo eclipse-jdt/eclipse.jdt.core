@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import static org.eclipse.jdt.internal.core.JavaModelManager.trace;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -108,9 +110,7 @@ private void acceptBinaryMethod(
 
 			addElement(method);
 			if(SelectionEngine.DEBUG){
-				System.out.print("SELECTION - accept method("); //$NON-NLS-1$
-				System.out.print(method.toString());
-				System.out.println(")"); //$NON-NLS-1$
+				trace("SELECTION - accept method(" + method.toString() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		} else {
 			ISourceRange range = method.getSourceRange();
@@ -126,17 +126,13 @@ private void acceptBinaryMethod(
 				}
 				addElement(method);
 				if(SelectionEngine.DEBUG){
-					System.out.print("SELECTION - accept method("); //$NON-NLS-1$
-					System.out.print(method.toString());
-					System.out.println(")"); //$NON-NLS-1$
+					trace("SELECTION - accept method(" + method.toString() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 			} else {
 				// no range was actually found, but a method was originally given -> default constructor
 				addElement(type);
 				if(SelectionEngine.DEBUG){
-					System.out.print("SELECTION - accept type("); //$NON-NLS-1$
-					System.out.print(type.toString());
-					System.out.println(")"); //$NON-NLS-1$
+					trace("SELECTION - accept type(" + type.toString()+ ")"); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 			}
 		}
@@ -225,9 +221,7 @@ public void acceptType(char[] packageName, char[] typeName, int modifiers, boole
 	if (type != null) {
 		addElement(type);
 		if(SelectionEngine.DEBUG){
-			System.out.print("SELECTION - accept type("); //$NON-NLS-1$
-			System.out.print(type.toString());
-			System.out.println(")"); //$NON-NLS-1$
+			trace("SELECTION - accept type(" + type.toString() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 }
@@ -248,9 +242,7 @@ public void acceptType(IType type) {
 
 	addElement(type);
 	if(SelectionEngine.DEBUG){
-		System.out.print("SELECTION - accept type("); //$NON-NLS-1$
-		System.out.print(type.toString());
-		System.out.println(")"); //$NON-NLS-1$
+		trace("SELECTION - accept type(" + type.toString() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 }
 /**
@@ -288,9 +280,7 @@ public void acceptField(char[] declaringTypePackageName, char[] declaringTypeNam
 							&& field.getElementName().equals(new String(name))) {
 						addElement(fields[i]);
 						if(SelectionEngine.DEBUG){
-							System.out.print("SELECTION - accept field("); //$NON-NLS-1$
-							System.out.print(field.toString());
-							System.out.println(")"); //$NON-NLS-1$
+							trace("SELECTION - accept field(" + field.toString() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 						}
 						return; // only one method is possible
 					}
@@ -323,9 +313,7 @@ public void acceptField(char[] declaringTypePackageName, char[] declaringTypeNam
 				}
 				addElement(field);
 				if(SelectionEngine.DEBUG){
-					System.out.print("SELECTION - accept field("); //$NON-NLS-1$
-					System.out.print(field.toString());
-					System.out.println(")"); //$NON-NLS-1$
+					trace("SELECTION - accept field(" + field.toString() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 			}
 		}
@@ -362,9 +350,7 @@ public void acceptLocalField(FieldBinding fieldBinding) {
 			}
 			addElement(field);
 			if(SelectionEngine.DEBUG){
-				System.out.print("SELECTION - accept field("); //$NON-NLS-1$
-				System.out.print(field.toString());
-				System.out.println(")"); //$NON-NLS-1$
+				trace("SELECTION - accept field(" + field.toString() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
 	}
@@ -395,18 +381,14 @@ public void acceptLocalMethod(MethodBinding methodBinding) {
 			}
 			addElement(res);
 			if(SelectionEngine.DEBUG){
-				System.out.print("SELECTION - accept method("); //$NON-NLS-1$
-				System.out.print(res.toString());
-				System.out.println(")"); //$NON-NLS-1$
+				trace("SELECTION - accept method(" + res.toString() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		} else if(methodBinding.selector == TypeConstants.INIT && res.getElementType() == IJavaElement.TYPE) {
 			// it's a default constructor
 			res = ((JavaElement)res).resolved(methodBinding.declaringClass);
 			addElement(res);
 			if(SelectionEngine.DEBUG){
-				System.out.print("SELECTION - accept type("); //$NON-NLS-1$
-				System.out.print(res.toString());
-				System.out.println(")"); //$NON-NLS-1$
+				trace("SELECTION - accept type(" + res.toString() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
 	}
@@ -423,9 +405,7 @@ public void acceptLocalType(TypeBinding typeBinding) {
 		res = ((JavaElement)res).resolved(typeBinding);
 		addElement(res);
 		if(SelectionEngine.DEBUG){
-			System.out.print("SELECTION - accept type("); //$NON-NLS-1$
-			System.out.print(res.toString());
-			System.out.println(")"); //$NON-NLS-1$
+			trace("SELECTION - accept type(" + res.toString() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 }
@@ -444,9 +424,7 @@ public void acceptLocalTypeParameter(TypeVariableBinding typeVariableBinding) {
 		if (typeParameter.exists()) {
 			addElement(typeParameter);
 			if(SelectionEngine.DEBUG){
-				System.out.print("SELECTION - accept type parameter("); //$NON-NLS-1$
-				System.out.print(typeParameter.toString());
-				System.out.println(")"); //$NON-NLS-1$
+				trace("SELECTION - accept type parameter(" + typeParameter.toString() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
 	}
@@ -461,9 +439,7 @@ public void acceptLocalMethodTypeParameter(TypeVariableBinding typeVariableBindi
 		if (typeParameter.exists()) {
 			addElement(typeParameter);
 			if(SelectionEngine.DEBUG){
-				System.out.print("SELECTION - accept type parameter("); //$NON-NLS-1$
-				System.out.print(typeParameter.toString());
-				System.out.println(")"); //$NON-NLS-1$
+				trace("SELECTION - accept type parameter(" + typeParameter.toString() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
 	}
@@ -505,9 +481,7 @@ public void acceptLocalVariable(LocalVariableBinding binding, org.eclipse.jdt.in
 	if (localVar != null) {
 		addElement(localVar);
 		if(SelectionEngine.DEBUG){
-			System.out.print("SELECTION - accept local variable("); //$NON-NLS-1$
-			System.out.print(localVar.toString());
-			System.out.println(")"); //$NON-NLS-1$
+			trace("SELECTION - accept local variable(" + localVar.toString() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	}
 }
@@ -608,9 +582,7 @@ public void acceptPackage(char[] packageName) {
 		for (int i = 0, length = pkgs.length; i < length; i++) {
 			addElement(pkgs[i]);
 			if(SelectionEngine.DEBUG){
-				System.out.print("SELECTION - accept package("); //$NON-NLS-1$
-				System.out.print(pkgs[i].toString());
-				System.out.println(")"); //$NON-NLS-1$
+				trace("SELECTION - accept package(" + pkgs[i].toString() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
 	}
@@ -669,9 +641,7 @@ protected void acceptSourceMethod(
 						// no match was actually found, but a method was originally given -> default accessor
 						 addElement(comp);
 						 if(SelectionEngine.DEBUG){
-								System.out.print("SELECTION - accept field("); //$NON-NLS-1$
-								System.out.print(comp.toString());
-								System.out.println(")"); //$NON-NLS-1$
+								trace("SELECTION - accept field(" + comp.toString() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 						 }
 					 }
 				}
@@ -683,9 +653,7 @@ protected void acceptSourceMethod(
 			// no match was actually found, but a method was originally given -> default constructor
 			addElement(type);
 			if(SelectionEngine.DEBUG){
-				System.out.print("SELECTION - accept type("); //$NON-NLS-1$
-				System.out.print(type.toString());
-				System.out.println(")"); //$NON-NLS-1$
+				trace("SELECTION - accept type(" + type.toString() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
 		return;
@@ -694,9 +662,7 @@ protected void acceptSourceMethod(
 	// if there is only one match, we've got it
 	if (this.elementIndex == 0) {
 		if(SelectionEngine.DEBUG){
-			System.out.print("SELECTION - accept method("); //$NON-NLS-1$
-			System.out.print(this.elements[0].toString());
-			System.out.println(")"); //$NON-NLS-1$
+			trace("SELECTION - accept method(" + this.elements[0].toString() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return;
 	}
@@ -726,9 +692,7 @@ protected void acceptSourceMethod(
 		if (match) {
 			addElement(method);
 			if(SelectionEngine.DEBUG){
-				System.out.print("SELECTION - accept method("); //$NON-NLS-1$
-				System.out.print(method.toString());
-				System.out.println(")"); //$NON-NLS-1$
+				trace("SELECTION - accept method(" + method.toString() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
 	}
@@ -746,9 +710,7 @@ protected void acceptMethodDeclaration(IType type, char[] selector, int start, i
 					&& methods[i].getElementName().equals(name)) {
 				addElement(methods[i]);
 				if(SelectionEngine.DEBUG){
-					System.out.print("SELECTION - accept method("); //$NON-NLS-1$
-					System.out.print(this.elements[0].toString());
-					System.out.println(")"); //$NON-NLS-1$
+					trace("SELECTION - accept method(" + this.elements[0].toString() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 				return; // only one method is possible
 			}
@@ -760,9 +722,7 @@ protected void acceptMethodDeclaration(IType type, char[] selector, int start, i
 	// no match was actually found
 	addElement(type);
 	if(SelectionEngine.DEBUG){
-		System.out.print("SELECTION - accept type("); //$NON-NLS-1$
-		System.out.print(type.toString());
-		System.out.println(")"); //$NON-NLS-1$
+		trace("SELECTION - accept type(" + type.toString()+ ")"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	return;
 }
@@ -783,16 +743,12 @@ public void acceptTypeParameter(char[] declaringTypePackageName, char[] declarin
 		if(typeParameter == null) {
 			addElement(type);
 			if(SelectionEngine.DEBUG){
-				System.out.print("SELECTION - accept type("); //$NON-NLS-1$
-				System.out.print(type.toString());
-				System.out.println(")"); //$NON-NLS-1$
+				trace("SELECTION - accept type(" + type.toString() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		} else {
 			addElement(typeParameter);
 			if(SelectionEngine.DEBUG){
-				System.out.print("SELECTION - accept type parameter("); //$NON-NLS-1$
-				System.out.print(typeParameter.toString());
-				System.out.println(")"); //$NON-NLS-1$
+				trace("SELECTION - accept type parameter(" + typeParameter.toString() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
 	}
@@ -827,25 +783,19 @@ public void acceptMethodTypeParameter(char[] declaringTypePackageName, char[] de
 		if(method == null) {
 			addElement(type);
 			if(SelectionEngine.DEBUG){
-				System.out.print("SELECTION - accept type("); //$NON-NLS-1$
-				System.out.print(type.toString());
-				System.out.println(")"); //$NON-NLS-1$
+				trace("SELECTION - accept type(" + type.toString() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		} else {
 			ITypeParameter typeParameter = method.getTypeParameter(new String(typeParameterName));
 			if(typeParameter == null) {
 				addElement(method);
 				if(SelectionEngine.DEBUG){
-					System.out.print("SELECTION - accept method("); //$NON-NLS-1$
-					System.out.print(method.toString());
-					System.out.println(")"); //$NON-NLS-1$
+					trace("SELECTION - accept method(" + method.toString() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 			} else {
 				addElement(typeParameter);
 				if(SelectionEngine.DEBUG){
-					System.out.print("SELECTION - accept method type parameter("); //$NON-NLS-1$
-					System.out.print(typeParameter.toString());
-					System.out.println(")"); //$NON-NLS-1$
+					trace("SELECTION - accept method type parameter(" + typeParameter.toString() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 			}
 		}

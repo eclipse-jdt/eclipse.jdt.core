@@ -148,7 +148,6 @@ public void accept(ICompilationUnit sourceUnit, AccessRestriction accessRestrict
 		this.lookupEnvironment.buildTypeBindings(parsedUnit, accessRestriction);
 		this.lookupEnvironment.completeTypeBindings(parsedUnit, true); // work done inside checkAndSetImports()
 	} else {
-		//System.out.println("Cannot accept compilation units inside the HierarchyResolver.");
 		this.lookupEnvironment.problemReporter.abortDueToInternalError(
 			new StringBuffer(Messages.accept_cannot)
 				.append(sourceUnit.getFileName())
@@ -895,8 +894,9 @@ public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor m
 
 	} catch (ClassCastException e){ // work-around for 1GF5W1S - can happen in case duplicates are fed to the hierarchy with binaries hiding sources
 	} catch (AbortCompilation e) { // ignore this exception for now since it typically means we cannot find java.lang.Object
-		if (TypeHierarchy.DEBUG)
-			e.printStackTrace();
+		if (TypeHierarchy.DEBUG) {
+			JavaModelManager.trace("", e); //$NON-NLS-1$
+		}
 	} finally {
 		reset();
 	}

@@ -508,7 +508,6 @@ public synchronized Index getIndex(IPath containerPath, IndexLocation indexLocat
 			}
 		}
 	}
-	//System.out.println(" index name: " + path.toOSString() + " <----> " + index.getIndexFile().getName());
 	return index;
 }
 /**
