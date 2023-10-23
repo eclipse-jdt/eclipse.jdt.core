@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.hierarchy;
 
+import static org.eclipse.jdt.internal.core.JavaModelManager.trace;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -150,22 +152,21 @@ public abstract class HierarchyBuilder {
 		if (typeHandle == null)
 			return;
 		if (TypeHierarchy.DEBUG) {
-			System.out.println(
+			trace(
 				"Connecting: " + ((JavaElement) typeHandle).toStringWithAncestors()); //$NON-NLS-1$
-			System.out.println(
+			trace(
 				"  to superclass: " //$NON-NLS-1$
 					+ (superclassHandle == null
 						? "<None>" //$NON-NLS-1$
 						: ((JavaElement) superclassHandle).toStringWithAncestors()));
-			System.out.print("  and superinterfaces:"); //$NON-NLS-1$
+			trace("  and superinterfaces:"); //$NON-NLS-1$
 			if (superinterfaceHandles == null || superinterfaceHandles.length == 0) {
-				System.out.println(" <None>"); //$NON-NLS-1$
+				trace(" <None>"); //$NON-NLS-1$
 			} else {
-				System.out.println();
+				trace(""); //$NON-NLS-1$
 				for (int i = 0, length = superinterfaceHandles.length; i < length; i++) {
 					if (superinterfaceHandles[i] == null) continue;
-					System.out.println(
-						"    " + ((JavaElement) superinterfaceHandles[i]).toStringWithAncestors()); //$NON-NLS-1$
+					trace("    " + ((JavaElement) superinterfaceHandles[i]).toStringWithAncestors()); //$NON-NLS-1$
 				}
 			}
 		}
@@ -299,7 +300,7 @@ protected IBinaryType createInfoFromClassFile(Openable handle, IResource file) {
 		info = Util.newClassFileReader(file);
 	} catch (org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException | java.io.IOException | CoreException e) {
 		if (TypeHierarchy.DEBUG) {
-			e.printStackTrace();
+			trace("", e); //$NON-NLS-1$
 		}
 		return null;
 	}
@@ -316,7 +317,7 @@ protected IBinaryType createInfoFromClassFileInJar(Openable classFile) {
 		info = BinaryTypeFactory.create(cf, null);
 	} catch (JavaModelException | ClassFormatException e) {
 		if (TypeHierarchy.DEBUG) {
-			e.printStackTrace();
+			trace("", e); //$NON-NLS-1$
 		}
 		return null;
 	}

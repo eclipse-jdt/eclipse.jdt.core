@@ -36,6 +36,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.SearchableEnvironment;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -192,7 +193,10 @@ public void complete(
 			try {
 				binary = new ClassFileReader(classFile.getBytes(), null);
 			} catch (ClassFormatException e) {
-				e.printStackTrace(); // Should never happen since we compiled this type
+				if (JavaModelManager.VERBOSE) {
+					JavaModelManager.trace("", e); //$NON-NLS-1$
+				}
+				// Should never happen since we compiled this type
 			}
 			engine.lookupEnvironment.cacheBinaryType(binary, null /*no access restriction*/);
 		}

@@ -1285,9 +1285,9 @@ private void findPackagesFromRequires(char[] prefix, boolean isMatchAllPrefix, I
 		if(!NameLookup.VERBOSE)
 			return;
 
-		Util.verbose(" TIME SPENT SearchableEnvironment");  //$NON-NLS-1$
-		Util.verbose(" -> getModulesDeclaringPackage..." +  this.timeSpentInGetModulesDeclaringPackage + "ms");  //$NON-NLS-1$ //$NON-NLS-2$
-		Util.verbose(" -> findTypes...................." +  this.timeSpentInFindTypes + "ms");  //$NON-NLS-1$ //$NON-NLS-2$
+		JavaModelManager.trace(" TIME SPENT SearchableEnvironment");  //$NON-NLS-1$
+		JavaModelManager.trace(" -> getModulesDeclaringPackage..." +  this.timeSpentInGetModulesDeclaringPackage + "ms");  //$NON-NLS-1$ //$NON-NLS-2$
+		JavaModelManager.trace(" -> findTypes...................." +  this.timeSpentInFindTypes + "ms");  //$NON-NLS-1$ //$NON-NLS-2$
 
 		this.nameLookup.printTimeSpent();
 	}

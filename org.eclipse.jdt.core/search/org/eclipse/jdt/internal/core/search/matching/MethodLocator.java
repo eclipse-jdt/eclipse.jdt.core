@@ -16,6 +16,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
+import static org.eclipse.jdt.internal.core.JavaModelManager.trace;
+
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -132,7 +134,7 @@ public void initializePolymorphicSearch(MatchLocator locator) {
 		// inaccurate matches will be found
 	}
 	if (BasicSearchEngine.VERBOSE) {
-		System.out.println("Time to initialize polymorphic search: "+(System.currentTimeMillis()-start)); //$NON-NLS-1$
+		trace("Time to initialize polymorphic search: "+(System.currentTimeMillis()-start)); //$NON-NLS-1$
 	}
 }
 /*

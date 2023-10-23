@@ -18,7 +18,6 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.internal.core.util.Util;
 
 /**
  *
@@ -68,7 +67,7 @@ public class UserLibraryClasspathContainer implements IClasspathContainer {
 	}
 
 	private void verbose_no_user_library_found(String userLibraryName) {
-		Util.verbose(
+		JavaModelManager.trace(
 			"UserLibrary INIT - FAILED (no user library found)\n" + //$NON-NLS-1$
 			"	userLibraryName: " + userLibraryName); //$NON-NLS-1$
 	}

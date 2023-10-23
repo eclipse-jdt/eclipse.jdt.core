@@ -22,6 +22,7 @@ package org.eclipse.jdt.internal.core;
 
 import static org.eclipse.jdt.internal.compiler.util.Util.UTF_8;
 import static org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharArray;
+import static org.eclipse.jdt.internal.core.JavaModelManager.trace;
 
 import java.io.File;
 import java.io.IOException;
@@ -983,14 +984,14 @@ public class ClasspathEntry implements IClasspathEntry {
 				String calledFileName = (String) calledFilesIterator.next();
 				if (!directoryPath.isValidPath(calledFileName)) {
 					if (JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE) {
-						Util.verbose("Invalid Class-Path entry " + calledFileName + " in manifest of jar file: " + jarPath.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
+						trace("Invalid Class-Path entry " + calledFileName + " in manifest of jar file: " + jarPath.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
 					}
 				} else {
 					IPath calledJar = directoryPath.append(new Path(calledFileName));
 					// Ignore if segment count is Zero (https://bugs.eclipse.org/bugs/show_bug.cgi?id=308150)
 					if (calledJar.segmentCount() == 0) {
 						if (JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE) {
-							Util.verbose("Invalid Class-Path entry " + calledFileName + " in manifest of jar file: " + jarPath.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
+							trace("Invalid Class-Path entry " + calledFileName + " in manifest of jar file: " + jarPath.toOSString()); //$NON-NLS-1$ //$NON-NLS-2$
 						}
 						continue;
 					}
@@ -1042,20 +1043,19 @@ public class ClasspathEntry implements IClasspathEntry {
 			calledFileNames = analyzer.getCalledFileNames();
 			if (!success || analyzer.getClasspathSectionsCount() == 1 && calledFileNames == null) {
 				if (JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE) {
-					Util.verbose("Invalid Class-Path header in manifest of jar file: " + jarPath.toOSString()); //$NON-NLS-1$
+					trace("Invalid Class-Path header in manifest of jar file: " + jarPath.toOSString()); //$NON-NLS-1$
 				}
 				return null;
 			} else if (analyzer.getClasspathSectionsCount() > 1) {
 				if (JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE) {
-					Util.verbose("Multiple Class-Path headers in manifest of jar file: " + jarPath.toOSString()); //$NON-NLS-1$
+					trace("Multiple Class-Path headers in manifest of jar file: " + jarPath.toOSString()); //$NON-NLS-1$
 				}
 				return null;
 			}
 		} catch (CoreException | IOException e) {
 			// not a zip file
 			if (JavaModelManager.CP_RESOLVE_VERBOSE_FAILURE) {
-				Util.verbose("Could not read Class-Path header in manifest of jar file: " + jarPath.toOSString()); //$NON-NLS-1$
-				e.printStackTrace();
+				trace("Could not read Class-Path header in manifest of jar file: " + jarPath.toOSString(), e); //$NON-NLS-1$
 			}
 		}
 		return calledFileNames;

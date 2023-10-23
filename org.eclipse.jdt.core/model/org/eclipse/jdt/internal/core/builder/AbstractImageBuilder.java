@@ -35,6 +35,8 @@ import org.eclipse.jdt.internal.core.PackageFragment;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 
+import static org.eclipse.jdt.internal.core.JavaModelManager.trace;
+
 import java.io.*;
 import java.util.*;
 
@@ -332,9 +334,11 @@ protected void compile(SourceFile[] units) {
 	this.compiledAllAtOnce = MAX_AT_ONCE == 0 || unitsLength <= MAX_AT_ONCE;
 	if (this.compiledAllAtOnce) {
 		// do them all now
-		if (JavaBuilder.DEBUG)
-			for (int i = 0; i < unitsLength; i++)
-				System.out.println("About to compile " + units[i].typeLocator()); //$NON-NLS-1$
+		if (JavaBuilder.DEBUG) {
+			for (int i = 0; i < unitsLength; i++) {
+				trace("About to compile " + units[i].typeLocator()); //$NON-NLS-1$
+			}
+		}
 		compile(units, null, true);
 	} else {
 		SourceFile[] remainingUnits = new SourceFile[unitsLength]; // copy of units, removing units when about to compile
@@ -350,8 +354,9 @@ protected void compile(SourceFile[] units) {
 				// already been compiled when it was referenced by another unit.
 				SourceFile unit = remainingUnits[remainingIndex];
 				if (unit != null && (compilingFirstGroup || this.workQueue.isWaiting(unit))) {
-					if (JavaBuilder.DEBUG)
-						System.out.println("About to compile #" + remainingIndex + " : "+ unit.typeLocator()); //$NON-NLS-1$ //$NON-NLS-2$
+					if (JavaBuilder.DEBUG) {
+						trace("About to compile #" + remainingIndex + " : "+ unit.typeLocator()); //$NON-NLS-1$ //$NON-NLS-2$
+					}
 					toCompile[count++] = unit;
 				}
 				remainingUnits[remainingIndex++] = null;
@@ -732,8 +737,9 @@ protected void storeProblemsFor(SourceFile sourceFile, CategorizedProblem[] prob
 				break;
 		}
 		if (buildPathProblemMessage != null) {
-			if (JavaBuilder.DEBUG)
-				System.out.println(buildPathProblemMessage);
+			if (JavaBuilder.DEBUG) {
+				trace(buildPathProblemMessage);
+			}
 			boolean isInvalidClasspathError = JavaCore.ERROR.equals(this.javaBuilder.javaProject.getOption(JavaCore.CORE_INCOMPLETE_CLASSPATH, true));
 			// insert extra classpath problem, and make it the only problem for this project (optional)
 			if (isInvalidClasspathError && JavaCore.ABORT.equals(this.javaBuilder.javaProject.getOption(JavaCore.CORE_JAVA_BUILD_INVALID_CLASSPATH, true))) {
@@ -779,7 +785,7 @@ protected void storeProblemsFor(SourceFile sourceFile, CategorizedProblem[] prob
 					} catch (CoreException e) {
 						// marker retrieval failed, cannot do much
 						if (JavaModelManager.VERBOSE) {
-							e.printStackTrace();
+							trace("", e); //$NON-NLS-1$
 						}
 					}
 					IResource tempRes = pkg.resource();
@@ -909,15 +915,18 @@ protected void writeClassFileContents(ClassFile classFile, IFile file, String qu
 	InputStream input = new ByteArrayInputStream(classFile.getBytes());
 	if (file.exists()) {
 		// Deal with shared output folders... last one wins... no collision cases detected
-		if (JavaBuilder.DEBUG)
-			System.out.println("Writing changed class file " + file.getName());//$NON-NLS-1$
-		if (!file.isDerived())
+		if (JavaBuilder.DEBUG) {
+			trace("Writing changed class file " + file.getName());//$NON-NLS-1$
+		}
+		if (!file.isDerived()) {
 			file.setDerived(true, null);
+		}
 		file.setContents(input, true, false, null);
 	} else {
 		// Default implementation just writes out the bytes for the new class file...
-		if (JavaBuilder.DEBUG)
-			System.out.println("Writing new class file " + file.getName());//$NON-NLS-1$
+		if (JavaBuilder.DEBUG) {
+			trace("Writing new class file " + file.getName());//$NON-NLS-1$
+		}
 		file.create(input, IResource.FORCE | IResource.DERIVED, null);
 	}
 }

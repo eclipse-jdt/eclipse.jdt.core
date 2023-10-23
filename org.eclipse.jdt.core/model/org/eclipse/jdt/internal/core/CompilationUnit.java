@@ -500,8 +500,9 @@ public void destroy() {
 	try {
 		discardWorkingCopy();
 	} catch (JavaModelException e) {
-		if (JavaModelManager.VERBOSE)
-			e.printStackTrace();
+		if (JavaModelManager.VERBOSE) {
+			JavaModelManager.trace("", e); //$NON-NLS-1$
+		}
 	}
 }
 
@@ -1448,8 +1449,9 @@ public char[] getModuleName() {
 		if (module != null)
 			return module.getElementName().toCharArray();
 	} catch (JavaModelException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
+		if (JavaModelManager.VERBOSE) {
+			JavaModelManager.trace("", e); //$NON-NLS-1$
+		}
 	}
 	return null;
 }
