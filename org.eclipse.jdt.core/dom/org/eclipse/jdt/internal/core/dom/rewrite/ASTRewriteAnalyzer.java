@@ -4663,7 +4663,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 
 		try {
-			int offset= node.isImplicit() ? node.getStartPosition() : getScanner().getTokenEndOffset(TerminalTokens.TokenNamebreak, node.getStartPosition());
+			int offset= node.isImplicit() ? node.getStartPosition() : getScanner().getTokenEndOffset(TerminalTokens.TokenNameSEMICOLON, node.getStartPosition());
 			if ((node.getAST().apiLevel() >= JLS14_INTERNAL)) {
 				rewriteNode(node, YieldStatement.EXPRESSION_PROPERTY, offset, ASTRewriteFormatter.SPACE); // space between yield and label
 			}

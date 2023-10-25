@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019, 2022 IBM Corporation and others.
+ * Copyright (c) 2019, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -877,6 +877,72 @@ public class ASTRewritingSwitchExpressionsTest extends ASTRewritingTest {
 				"		return ret;");
 		builder.append("    }\n");
 		builder.append("}\n");
+		assertEqualString(preview, builder.toString());
+	}
+
+	@SuppressWarnings("rawtypes")
+	public void testSwitchExpressions_06_since_12() throws Exception {
+		if (checkAPILevel()) {
+			return;
+		}
+		// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1508
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuilder builder= new StringBuilder();
+		builder.append(
+				"package test1;\n" +
+				"public class X {\n" +
+				"    public String foo(int i) {\n" +
+				"		String ret = switch(i) {\n" +
+				"		case 0 -> {\n" +
+				"           yield \"abc\";\n" +
+				"       }\n" +
+				"		default -> \"\";\n" +
+				"		};\n" +
+				"		return ret;" +
+				"    }\n" +
+				"}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", builder.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(this.apiLevel, cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		TypeDeclaration type= findTypeDeclaration(astRoot, "X");
+		MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+		Block block= methodDecl.getBody();
+		List blockStatements= block.statements();
+		{
+			VariableDeclarationStatement varStatement= (VariableDeclarationStatement) blockStatements.get(0);
+			List fragments = varStatement.fragments();
+			assertEquals("Incorrect no of fragments", 1, fragments.size());
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(0);
+			SwitchExpression initializer = (SwitchExpression) fragment.getInitializer();
+			List statements= initializer.statements();
+			assertEquals("incorrect Number of statements", 4, statements.size());
+
+			Block block2 = (Block) statements.get(1);
+			List statements2 = block2.statements();
+			// replace the yield expression to exercise the fix
+			YieldStatement yieldStmt = (YieldStatement) statements2.get(0);
+			Expression exp = yieldStmt.getExpression();
+			ASTNode newLiteral = rewrite.createStringPlaceholder("\"def\"", ASTNode.STRING_LITERAL);
+			rewrite.replace(exp, newLiteral, null);
+		}
+		String preview= evaluateRewrite(cu, rewrite);
+		builder= new StringBuilder();
+		builder.append(
+				"package test1;\n" +
+				"public class X {\n" +
+				"    public String foo(int i) {\n" +
+				"		String ret = switch(i) {\n" +
+				"		case 0 -> {\n" +
+				"           yield \"def\";\n" +
+				"       }\n" +
+				"		default -> \"\";\n" +
+				"		};\n" +
+				"		return ret;" +
+				"    }\n" +
+				"}\n");
 		assertEqualString(preview, builder.toString());
 	}
 
