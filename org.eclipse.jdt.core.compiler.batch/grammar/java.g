@@ -1,7 +1,15 @@
 --main options
-%options ACTION, AN=JavaAction.java, GP=java, 
-%options FILE-PREFIX=java, ESCAPE=$, PREFIX=TokenName, OUTPUT-SIZE=125 ,
-%options NOGOTO-DEFAULT, SINGLE-PRODUCTIONS, LALR=1 , TABLE, 
+%options ACTION
+%options AN=JavaAction.java
+%options GP=java, 
+%options FILE-PREFIX=java
+%options ESCAPE=$
+%options PREFIX=TokenName
+%options OUTPUT-SIZE=125
+%options NOGOTO-DEFAULT
+%options SINGLE-PRODUCTIONS
+%options LALR=1
+%options TABLE
 
 --error recovering options.....
 %options ERROR_MAPS 
