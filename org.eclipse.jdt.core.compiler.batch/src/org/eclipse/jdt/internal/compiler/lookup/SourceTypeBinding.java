@@ -85,6 +85,7 @@ import org.eclipse.jdt.internal.compiler.ast.SwitchStatement;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeParameter;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
+import org.eclipse.jdt.internal.compiler.ast.UnnamedClass;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference.AnnotationPosition;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationProvider;
@@ -138,9 +139,13 @@ public class SourceTypeBinding extends ReferenceBinding {
 	public boolean isVarArgs =  false; // for record declaration
 	private FieldBinding[] implicitComponentFields; // cache
 	private MethodBinding[] recordComponentAccessors = null; // hash maybe an overkill
+	public final boolean unnamedClass;
 
 public SourceTypeBinding(char[][] compoundName, PackageBinding fPackage, ClassScope scope) {
-	this.compoundName = compoundName;
+	this.unnamedClass = scope.referenceContext instanceof UnnamedClass;
+	this.compoundName = scope.referenceContext instanceof UnnamedClass unnamed
+		? new char[][] { unnamed.getCompilationUnitDeclaration().getMainTypeName() }
+		: compoundName;
 	this.fPackage = fPackage;
 	this.fileName = scope.referenceCompilationUnit().getFileName();
 	this.modifiers = scope.referenceContext.modifiers;
@@ -163,6 +168,7 @@ public SourceTypeBinding(SourceTypeBinding prototype) {
 	this.prototype = prototype.prototype;
 	this.prototype.tagBits |= TagBits.HasAnnotatedVariants;
 	this.tagBits &= ~TagBits.HasAnnotatedVariants;
+	this.unnamedClass = prototype.unnamedClass;
 
 	this.superclass = prototype.superclass;
 	this.superInterfaces = prototype.superInterfaces;

@@ -2042,6 +2042,9 @@ public abstract class Scope {
 			if (declarationPackage != invocationPackage && !typeBinding.canBeSeenBy(invocationPackage))
 				return new ProblemReferenceBinding(new char[][]{typeName}, typeBinding, ProblemReasons.NotVisible);
 		}
+		if (typeBinding instanceof SourceTypeBinding sourceType && sourceType.scope != null && sourceType.scope.referenceContext instanceof UnnamedClass) {
+			return null; // make unnamed not resolvable by name
+		}
 		return typeBinding;
 	}
 
@@ -3529,9 +3532,10 @@ public abstract class Scope {
 			PackageBinding currentPackage = unitScope.fPackage;
 			unitScope.recordReference(currentPackage.compoundName, name);
 			Binding binding = currentPackage.getTypeOrPackage(name, module(), false);
-			if (binding instanceof ReferenceBinding) {
-				ReferenceBinding referenceType = (ReferenceBinding) binding;
-				if ((referenceType.tagBits & TagBits.HasMissingType) == 0) {
+			if (binding instanceof ReferenceBinding referenceType) {
+				if (referenceType instanceof SourceTypeBinding sourceType && sourceType.unnamedClass) {
+					return new ProblemReferenceBinding(new char[][] {name}, null, ProblemReasons.NotAccessible);
+				} else if ((referenceType.tagBits & TagBits.HasMissingType) == 0) {
 					if (typeOrPackageCache != null)
 						typeOrPackageCache.put(name, referenceType);
 					return referenceType; // type is always visible to its own package

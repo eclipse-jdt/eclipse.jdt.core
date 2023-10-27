@@ -12502,4 +12502,22 @@ public boolean scheduleProblemForContext(Runnable problemComputation) {
 public void close() {
 	this.referenceContext = null;
 }
+
+public void unnamedClassMustHaveMainMethod() {
+		this.handle(
+			IProblem.unnamedIsMissingMainMethod,
+			NoArgument,
+			NoArgument,
+			0,
+			0);
+}
+
+public void cannotDefineTopLevelTypesWithUnnamed() {
+	this.handle(
+			IProblem.topLevelWithUnnamed,
+			NoArgument,
+			NoArgument,
+			0,
+			0);
+}
 }

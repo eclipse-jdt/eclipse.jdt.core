@@ -29,6 +29,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiPredicate;
 
@@ -442,5 +443,14 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 	@Override
 	public TypeParameter[] typeParameters() {
 	    return this.typeParameters;
+	}
+
+	public boolean isMainMethodCandidate() {
+		return "main".equals(new String(this.selector)) && //$NON-NLS-1$
+				(this.arguments == null || this.arguments.length == 0 ||
+					(this.arguments.length == 1 &&
+					this.arguments[0].type.getTypeBinding(this.scope) instanceof ReferenceBinding typeRef &&
+					typeRef.dimensions() == 1 &&
+					Arrays.deepEquals(TypeConstants.JAVA_LANG_STRING, typeRef.compoundName)));
 	}
 }

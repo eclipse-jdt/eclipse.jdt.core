@@ -10,8 +10,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import java.util.Arrays;
+
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
 
 /**
  * Represents an unnamed class as defined in JEP 445
@@ -22,6 +25,21 @@ public class UnnamedClass extends TypeDeclaration {
 		super(result);
 		this.modifiers = ClassFileConstants.AccDefault | ClassFileConstants.AccFinal;
 		this.name = "<unnamed class>".toCharArray(); //$NON-NLS-1$
+	}
+
+
+	@Override
+	public void analyseCode(CompilationUnitScope unitScope) {
+		super.analyseCode(unitScope);
+		if (this.ignoreFurtherInvestigation)
+			return;
+		if (Arrays.stream(this.methods)
+				.filter(MethodDeclaration.class::isInstance)
+				.map(MethodDeclaration.class::cast)
+				.noneMatch(MethodDeclaration::isMainMethodCandidate)) {
+			unitScope.problemReporter().unnamedClassMustHaveMainMethod();
+			this.ignoreFurtherInvestigation = true;
+		}
 	}
 
 }

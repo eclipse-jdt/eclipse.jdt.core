@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -133,6 +134,10 @@ public void analyseCode() {
 		return;
 	try {
 		if (this.types != null) {
+			if (this.types.length > 1 &&
+			    Stream.of(this.types).anyMatch(UnnamedClass.class::isInstance)) {
+				this.problemReporter.cannotDefineTopLevelTypesWithUnnamed();
+			}
 			for (int i = 0, count = this.types.length; i < count; i++) {
 				this.types[i].analyseCode(this.scope);
 			}

@@ -2553,11 +2553,22 @@ void setSourceStart(int sourceStart);
 	 * @noreference preview feature
 	 */
 	int CannotInferRecordPatternTypes = PreviewRelated + 1940;
+	
+	/**
+	 * @since 3.36
+	 * @noreference preview feature
+	 */
+	int unnamedIsMissingMainMethod = PreviewRelated + 1950;
+	/**
+	 * @since 3.36
+	 * @noreference preview feature
+	 */
+	int topLevelWithUnnamed = PreviewRelated + 1951;
 
 	/**
 	 * @since 3.36
 	 */
-	int IllegalRecordPattern = TypeRelated + 1941;
+	int IllegalRecordPattern = TypeRelated + 1952;
 
 
 	/**
