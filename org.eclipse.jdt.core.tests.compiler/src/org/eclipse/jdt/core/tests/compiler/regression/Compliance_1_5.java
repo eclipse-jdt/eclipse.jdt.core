@@ -2724,60 +2724,39 @@ public void test078() {
 // TODO: Enable after Bug 552769 is fixed
 public void test079() {
 
-	String expectedErrorLog = 		"----------\n" +
-			"1. ERROR in Hello.java (at line 1)\n" +
-			"	void ___eval() {\n" +
-			"	^^^^\n" +
-			"Syntax error on token \"void\", @ expected\n" +
-			"----------\n" +
-			"2. ERROR in Hello.java (at line 1)\n" +
-			"	void ___eval() {\n" +
-			"	             ^\n" +
-			"Syntax error on token \")\", delete this token\n" +
-			"----------\n" +
-			"3. ERROR in Hello.java (at line 9)\n" +
-			"	};\n" +
-			"}\n" +
-			"	^^^^\n" +
-			"Syntax error on tokens, delete these tokens\n" +
-			"----------\n" +
-			"4. ERROR in Hello.java (at line 23)\n" +
-			"	}\n" +
-			"	^\n" +
-			"Syntax error, insert \"}\" to complete ClassBody\n" +
-			"----------\n" +
-			"5. ERROR in Hello.java (at line 23)\n" +
-			"	}\n" +
-			"	^\n" +
-			"Syntax error, insert \"}\" to complete MemberValue\n" +
-			"----------\n" +
-			"6. ERROR in Hello.java (at line 23)\n" +
-			"	}\n" +
-			"	^\n" +
-			"Syntax error, insert \")\" to complete Modifiers\n" +
-			"----------\n" +
-			"7. ERROR in Hello.java (at line 23)\n" +
-			"	}\n" +
-			"	^\n" +
-			"Syntax error, insert \"enum Identifier\" to complete EnumHeader\n" +
-			"----------\n" +
-			"8. ERROR in Hello.java (at line 23)\n" +
-			"	}\n" +
-			"	^\n" +
-			"Syntax error, insert \"EnumBody\" to complete CompilationUnit\n" +
-			"----------\n";
-	String expectedErrorLog_J14 = "----------\n" +
-			"1. ERROR in Hello.java (at line 1)\n" +
-			"	void ___eval() {\n" +
-			"	^^^^\n" +
-			"Syntax error on token \"void\", record expected\n" +
-			"----------\n" +
-			"2. ERROR in Hello.java (at line 2)\n" +
-			"	new Runnable() {\n" +
-			"	^^^\n" +
-			"Syntax error on token \"new\", record expected\n" +
-			"----------\n";
-
+	String expectedErrorLog = "----------\n"
+			+ "1. ERROR in Hello.java (at line 1)\n"
+			+ "	void ___eval() {\n"
+			+ "	^\n"
+			+ "The preview feature Unnamed Classes and Instance Main Methods is only available with source level 21 and above\n"
+			+ "----------\n"
+			+ "2. ERROR in Hello.java (at line 4)\n"
+			+ "	return blah;\n"
+			+ "	       ^^^^\n"
+			+ "blah cannot be resolved to a variable\n"
+			+ "----------\n";
+	if (this.complianceLevel < ClassFileConstants.JDK16) {
+		expectedErrorLog += "3. ERROR in Hello.java (at line 14)\n"
+			+ "	public static void main(String[] args) {\n"
+			+ "	                   ^^^^^^^^^^^^^^^^^^^\n"
+			+ "The method main cannot be declared static; static methods can only be declared in a static or top level type\n"
+			+ "----------\n";
+	}
+	if (this.complianceLevel == ClassFileConstants.JDK21) {
+		expectedErrorLog = """
+				----------
+				1. ERROR in Hello.java (at line 1)
+					void ___eval() {
+					^
+				Unnamed Classes and Instance Main Methods is a preview feature and disabled by default. Use --enable-preview to enable
+				----------
+				2. ERROR in Hello.java (at line 4)
+					return blah;
+					       ^^^^
+				blah cannot be resolved to a variable
+				----------
+				""";
+	}
 	this.runNegativeTest(
 		new String[] {
 			"Hello.java",
@@ -2805,8 +2784,7 @@ public void test079() {
 			"	}\n" +
 			"}\n"
 		},
-		this.complianceLevel < ClassFileConstants.JDK14 ?
-		expectedErrorLog :expectedErrorLog_J14
+		expectedErrorLog
 	);
 }
 /*

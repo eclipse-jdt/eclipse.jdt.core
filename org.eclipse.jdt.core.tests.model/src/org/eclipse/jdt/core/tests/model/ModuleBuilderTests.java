@@ -8608,10 +8608,11 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 			IMarker[] markers = p.getProject().findMarkers(null, true, IResource.DEPTH_INFINITE);
 			sortMarkers(markers);
 			String expected =
-					"Syntax error on token \"module\", package expected\n" +
-					"Syntax error on token(s), misplaced construct(s)\n" +
-					"Syntax error on token \".\", , expected\n" +
-					"Syntax error on token \"}\", delete this token";
+					"""
+					Syntax error on token(s), misplaced construct(s)
+					Syntax error on token(s), misplaced construct(s)
+					Syntax error on token ".", , expected
+					Syntax error on token "}", delete this token""";
 			assertMarkers("Unexpected markers",
 							expected,  markers);
 
