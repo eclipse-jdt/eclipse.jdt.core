@@ -970,7 +970,8 @@ public class SwitchStatement extends Expression {
 			Pattern pattern = (Pattern) caseStatement.constantExpressions[caseStatement.patternIndex];
 			pattern.elseTarget.place();
 			pattern.suspendVariables(codeStream, this.scope);
-			if (!pattern.isAlwaysTrue()) {
+			boolean withinIndex = this.containsNull ? caseIndex < this.constants.length : true;
+			if (!pattern.isAlwaysTrue() && withinIndex) {
 				codeStream.loadInt(caseIndex);
 				codeStream.store(this.restartIndexLocal, false);
 				codeStream.goto_(this.switchPatternRestartTarget);
