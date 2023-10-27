@@ -186,18 +186,21 @@ public void test0002() {
 // TODO: Fix this and Enable
 public void test0003() {
 	String[] testFiles = new String[] {
-		"X.java",
-		"public enum X {\n" +
-		"}\n"
+		"x/X.java", """
+			package x;
+			public enum X {
+			}
+			"""
 	};
 
-	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	public enum X {\n" +
-		"	       ^^^^\n" +
-		"Syntax error on token \"enum\", class expected\n" +
-		"----------\n";
+	String expected13ProblemLog = """
+		----------
+		1. ERROR in x\\X.java (at line 2)
+			public enum X {
+			       ^^^^
+		Syntax error on token "enum", class expected
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
@@ -655,14 +658,19 @@ public void test0014() {
 		"}\n"
 	};
 
-	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	public enum X \n" +
-		"}\n" +
-		"	       ^^^^^^^^^\n" +
-		"Syntax error on tokens, delete these tokens\n" +
-		"----------\n";
+	String expected13ProblemLog = """
+		----------
+		1. WARNING in X.java (at line 1)
+			public enum X\s
+			       ^^^^
+		'enum' should not be used as an identifier, since it is a reserved keyword from source level 1.5 on
+		----------
+		2. ERROR in X.java (at line 2)
+			}
+			^
+		Syntax error on token "}", ; expected
+		----------
+		""";
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
@@ -1154,16 +1162,18 @@ public void _test0024() {
 }
 public void test0025() {
 	String[] testFiles = new String[] {
-		"X.java",
-		"static aaa.*;\n" +
-		"public class X {\n" +
-		"}\n" +
-		"\n"
+		"x/X.java", """
+			package x;
+			static aaa.*;
+			public class X {
+			}
+			
+			"""
 	};
 
 	String expected13ProblemLog =
 		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
+		"1. ERROR in x\\X.java (at line 2)\n" +
 		"	static aaa.*;\n" +
 		"	^^^^^^\n" +
 		"Syntax error on token \"static\", import expected\n" +
@@ -1173,10 +1183,10 @@ public void test0025() {
 
 	String expected15ProblemLog =
 		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	static aaa.*;\n" +
-		"	^^^^^^\n" +
-		"Syntax error on token \"static\", import expected before this token\n" +
+		"1. ERROR in x\\X.java (at line 1)\n" +
+		"	package x;\n" +
+		"	         ^\n" +
+		"Syntax error on token \";\", import expected after this token\n" +
 		"----------\n";
 
 	runComplianceParserTest(
@@ -1604,33 +1614,25 @@ public void test0034() {
 		"}\n"
 	};
 
-	String expected13ProblemLog =
-		"----------\n" +
-		"1. ERROR in X.java (at line 1)\n" +
-		"	public class X <T1 extnds String, T2> extends Y {\n" +
-		"	               ^\n" +
-		"Syntax error on token \"<\", { expected\n" +
-		"----------\n" +
-		"2. ERROR in X.java (at line 1)\n" +
-		"	public class X <T1 extnds String, T2> extends Y {\n" +
-		"	                ^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Syntax error on tokens, InterfaceHeaderName expected instead\n" +
-		"----------\n" +
-		"3. ERROR in X.java (at line 1)\n" +
-		"	public class X <T1 extnds String, T2> extends Y {\n" +
-		"	                   ^^^^^^\n" +
-		"extnds cannot be resolved to a type\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 1)\n" +
-		"	public class X <T1 extnds String, T2> extends Y {\n" +
-		"	                          ^^^^^^\n" +
-		"Syntax error on token \"String\", delete this token\n" +
-		"----------\n" +
-		"5. ERROR in X.java (at line 3)\n" +
-		"	}\n" +
-		"	^\n" +
-		"Syntax error, insert \"}\" to complete ClassBody\n" +
-		"----------\n";
+	String expected13ProblemLog = """
+		----------
+		1. ERROR in X.java (at line 1)
+			public class X <T1 extnds String, T2> extends Y {
+			^^^^^^^^^^^^^^^^^^
+		Syntax error on token(s), misplaced construct(s)
+		----------
+		2. ERROR in X.java (at line 1)
+			public class X <T1 extnds String, T2> extends Y {
+			                   ^^^^^^^^^^^^^^^^^^
+		Syntax error on tokens, ClassHeaderName expected instead
+		----------
+		3. ERROR in X.java (at line 1)
+			public class X <T1 extnds String, T2> extends Y {
+			                   ^^^^^^
+		extnds cannot be resolved to a type
+		----------
+		""";
+
 	String expected14ProblemLog =
 		expected13ProblemLog;
 
@@ -1967,90 +1969,24 @@ public void test0042() {
 		"}\n"
 	};
 
-	String expected13ProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	void ___eval() {\n" +
-			"	^^^^^^^^^^^^^^\n" +
-			"Syntax error on tokens, delete these tokens\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 2)\n" +
-			"	new Runnable() {\n" +
-			"		int ___run() throws Throwable {\n" +
-			"			return blah;\n" +
-			"		}\n" +
-			"		private String blarg;\n" +
-			"		public void run() {\n" +
-			"		}\n" +
-			"	};\n" +
-			"}\n" +
-			"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-			"Syntax error on tokens, delete these tokens\n" +
-			"----------\n";
-	String expected14ProblemLog =
-		expected13ProblemLog;
-
-	String expected15ProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	void ___eval() {\n" +
-			"	^^^^\n" +
-			"Syntax error on token \"void\", @ expected\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 1)\n" +
-			"	void ___eval() {\n" +
-			"	             ^\n" +
-			"Syntax error on token \")\", delete this token\n" +
-			"----------\n" +
-			"3. ERROR in X.java (at line 9)\n" +
-			"	};\n" +
-			"}\n" +
-			"	^^^^\n" +
-			"Syntax error on tokens, delete these tokens\n" +
-			"----------\n" +
-			"4. ERROR in X.java (at line 23)\n" +
-			"	}\n" +
-			"	^\n" +
-			"Syntax error, insert \"}\" to complete ClassBody\n" +
-			"----------\n" +
-			"5. ERROR in X.java (at line 23)\n" +
-			"	}\n" +
-			"	^\n" +
-			"Syntax error, insert \"}\" to complete MemberValue\n" +
-			"----------\n" +
-			"6. ERROR in X.java (at line 23)\n" +
-			"	}\n" +
-			"	^\n" +
-			"Syntax error, insert \")\" to complete Modifiers\n" +
-			"----------\n" +
-			"7. ERROR in X.java (at line 23)\n" +
-			"	}\n" +
-			"	^\n" +
-			"Syntax error, insert \"enum Identifier\" to complete EnumHeader\n" +
-			"----------\n" +
-			"8. ERROR in X.java (at line 23)\n" +
-			"	}\n" +
-			"	^\n" +
-			"Syntax error, insert \"EnumBody\" to complete CompilationUnit\n" +
-			"----------\n";
-
-	String expectedJ14ProblemLog =
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	void ___eval() {\n" +
-			"	^^^^\n" +
-			"Syntax error on token \"void\", record expected\n" +
-			"----------\n" +
-			"2. ERROR in X.java (at line 2)\n" +
-			"	new Runnable() {\n" +
-			"	^^^\n" +
-			"Syntax error on token \"new\", record expected\n" +
-			"----------\n";
+	String expected13ProblemLog = """
+			----------
+			1. ERROR in X.java (at line 1)
+				void ___eval() {
+				^
+			The preview feature Unnamed Classes and Instance Main Methods is only available with source level 21 and above
+			----------
+			2. ERROR in X.java (at line 4)
+				return blah;
+				       ^^^^
+			blah cannot be resolved to a variable
+			----------
+			""";
 	runComplianceParserTest(
 		testFiles,
 		expected13ProblemLog,
-		expected14ProblemLog,
-		(this.complianceLevel < ClassFileConstants.JDK14 ? expected15ProblemLog : expectedJ14ProblemLog)
+		expected13ProblemLog,
+		expected13ProblemLog
 	);
 }
 /*
@@ -2058,21 +1994,23 @@ public void test0042() {
  */
 public void test0043() {
 	String[] testFiles = new String[] {
-		"X.java",
-		"public class X {\n" +
-		"}\n" +
-		"public static void foo(){}\n" +
-		"\n"
+		"x/X.java", """
+			package x; 
+			public class X {
+			}
+			public static void foo(){}
+			
+			"""
 	};
 
 	String expected13ProblemLog =
 		"----------\n" +
-		"1. ERROR in X.java (at line 2)\n" +
+		"1. ERROR in x\\X.java (at line 3)\n" +
 		"	}\n" +
 		"	^\n" +
 		"Syntax error on token \"}\", delete this token\n" +
 		"----------\n" +
-		"2. ERROR in X.java (at line 3)\n" +
+		"2. ERROR in x\\X.java (at line 4)\n" +
 		"	public static void foo(){}\n" +
 		"	                         ^\n" +
 		"Syntax error, insert \"}\" to complete ClassBody\n" +
@@ -2125,11 +2063,6 @@ public void test0044() {
 		"Syntax error on token \"}\", delete this token\n" +
 		"----------\n" +
 		"3. ERROR in X.java (at line 9)\n" +
-		"	<String>super(\"SUCCESS\");\n" +
-		"	 ^^^^^^\n" +
-		"Syntax error, type parameters are only available if source level is 1.5 or greater\n" +
-		"----------\n" +
-		"4. ERROR in X.java (at line 9)\n" +
 		"	<String>super(\"SUCCESS\");\n" +
 		"	 ^^^^^^\n" +
 		"Syntax error, parameterized types are only available if source level is 1.5 or greater\n" +

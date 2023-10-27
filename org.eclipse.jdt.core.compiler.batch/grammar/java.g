@@ -434,10 +434,6 @@ InternalCompilationUnit ::= PackageDeclaration TypeDeclarations
 /.$putCase consumeInternalCompilationUnitWithTypes(); $break ./
 InternalCompilationUnit ::= ImportDeclarations ReduceImports
 /.$putCase consumeInternalCompilationUnit(); $break ./
-InternalCompilationUnit ::= TypeDeclarations
-/.$putCase consumeInternalCompilationUnitWithTypes(); $break ./
-InternalCompilationUnit ::= ImportDeclarations ReduceImports TypeDeclarations
-/.$putCase consumeInternalCompilationUnitWithTypes(); $break ./
 InternalCompilationUnit ::= $empty
 /.$putCase consumeEmptyInternalCompilationUnit(); $break ./
 /:$readableName CompilationUnit:/
@@ -452,6 +448,14 @@ InternalCompilationUnit ::= ModuleDeclaration
 ModuleDeclaration ::= ModuleHeader ModuleBody
 /:$compliance 9:/
 /.$putCase consumeModuleDeclaration(); $break ./
+
+-- JEP 445: unnamed class, this may capture type declarations without unnamed class, this case is fixed/reduced upon completioon of parsing
+InternalCompilationUnit ::= UnnamedClassBodyDeclarations
+/.$putCase consumeInternalCompilationUnitWithPotentialUnnamedClass(); $break ./
+/:$compliance 21:/
+InternalCompilationUnit ::= ImportDeclarations ReduceImports UnnamedClassBodyDeclarations
+/.$putCase consumeInternalCompilationUnitWithPotentialUnnamedClass(); $break ./
+/:$compliance 21:/
 
 -- to work around shift/reduce conflicts, we allow Modifiersopt in order to support annotations
 -- in a module declaration, and then report errors if any modifiers other than annotations are
@@ -746,6 +750,13 @@ ClassBodyDeclarations ::= ClassBodyDeclarations ClassBodyDeclaration
 ClassBodyDeclaration -> ClassMemberDeclaration
 ClassBodyDeclaration -> StaticInitializer
 ClassBodyDeclaration -> ConstructorDeclaration
+
+UnnamedClassBodyDeclarations -> ClassMemberDeclaration
+/:$compliance 21:/
+UnnamedClassBodyDeclarations ::= ClassMemberDeclaration UnnamedClassBodyDeclarations
+/.$putCase consumeUnnamedClassBodyDeclarations(); $break ./
+/:$compliance 21:/
+/:$readableName UnnamedClassBodyDeclarations:/
 --1.1 feature
 ClassBodyDeclaration ::= Diet NestedMethod CreateInitializer Block
 /.$putCase consumeClassBodyDeclaration(); $break ./
