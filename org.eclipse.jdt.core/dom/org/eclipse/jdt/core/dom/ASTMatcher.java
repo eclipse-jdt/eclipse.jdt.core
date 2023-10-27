@@ -3249,4 +3249,19 @@ public class ASTMatcher {
 		}
 		return false;
 	}
+	/**
+	 * Returns whether the given node and the other object match.
+	 * @param node the node to check
+	 * @param other the other object
+	 * @since 3.37
+	 */
+	public boolean match(UnnamedClass node, Object other) {
+		if (!(other instanceof UnnamedClass)) {
+			return false;
+		}
+		UnnamedClass o = (UnnamedClass) other;
+		return (safeSubtreeMatch(node.getJavadoc(), o.getJavadoc())
+				&& safeSubtreeListMatch(node.bodyDeclarations(), o.bodyDeclarations()));
+	}
+
 }

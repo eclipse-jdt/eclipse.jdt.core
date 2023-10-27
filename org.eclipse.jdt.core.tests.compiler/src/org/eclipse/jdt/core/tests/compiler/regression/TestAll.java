@@ -29,6 +29,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.ArrayList;
 
+import org.eclipse.jdt.core.tests.compiler.parser.UnnamedClassTest;
 import org.eclipse.jdt.core.tests.compiler.util.HashtableOfObjectTest;
 import org.eclipse.jdt.core.tests.compiler.util.JrtUtilTest;
 import org.eclipse.jdt.core.tests.dom.StandAloneASTParserTest;
@@ -243,6 +244,7 @@ public static Test suite() {
 	 since_21.add(NullAnnotationTests21.class);
 	 since_21.add(StringTemplateTest.class);
 	 since_21.add(BatchCompilerTest_21.class);
+	 since_21.add(UnnamedClassTest.class);
 
 	 // add 21 specific test here (check duplicates)
 	 ArrayList since_22 = new ArrayList();
