@@ -226,6 +226,8 @@ public interface JavadocTagConstants {
 		{},
 		// since 20
 		{},
+		// since 21
+		{}
 	};
 	public static final char[][][] INLINE_TAGS = {
 		// since 1.0
@@ -270,6 +272,8 @@ public interface JavadocTagConstants {
 		{},
 		// since 20
 		{},
+		//since 21
+		{}
 	};
 	public static final char[][][] IN_SNIPPET_TAGS = {
 		//since 18
