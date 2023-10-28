@@ -20,6 +20,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.ref.SoftReference;
 import java.net.URI;
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.file.DirectoryStream;
@@ -70,7 +71,7 @@ public class JRTUtil {
 	public static final int NOTIFY_ALL = NOTIFY_FILES | NOTIFY_PACKAGES | NOTIFY_MODULES;
 
 	// TODO: Java 9 Think about clearing the cache too.
-	private static Map<String, JrtFileSystem> images = new ConcurrentHashMap<>();
+	private static Map<String, JrtFileSystemReference> images = new ConcurrentHashMap<>();
 
 	/**
 	 * Map from JDK home path to ct.sym file (located in /lib in the JDK)
@@ -147,21 +148,9 @@ public class JRTUtil {
 		if (release != null && !jdk.sameRelease(release)) {
 			key = key + "|" + release; //$NON-NLS-1$
 		}
-		try {
-			JrtFileSystem system = images.computeIfAbsent(key, x -> {
-				try {
-					return JrtFileSystem.getNewJrtFileSystem(jdk, release);
-				} catch (IOException e) {
-					// Needs better error handling downstream? But for now, make sure
-					// a dummy JrtFileSystem is not created.
-					String errorMessage = "Error: failed to create JrtFileSystem from " + image; //$NON-NLS-1$
-					throw new RuntimeIOException(errorMessage, e);
-				}
-			});
-			return system;
-		} catch (RuntimeIOException e) {
-				throw e.getCause();
-		}
+		JrtFileSystemReference reference = images.computeIfAbsent(key, x -> new JrtFileSystemReference(jdk,release));
+		return reference.getJrtFileSystem();
+
 	}
 
 	/**
@@ -346,6 +335,31 @@ public class JRTUtil {
 		JrtFileSystem jrt = getJrtSystem(image, null);
 		return jrt == null ? null : jrt.getJdkRelease();
 	}
+}
+
+class JrtFileSystemReference {
+
+	private Jdk jdk;
+	private String release;
+	private SoftReference<JrtFileSystem> system;
+
+	public JrtFileSystemReference(Jdk jdk, String release) {
+		this.jdk = jdk;
+		this.release = release;
+	}
+
+	public synchronized JrtFileSystem getJrtFileSystem() throws IOException {
+		if (this.system != null) {
+			JrtFileSystem cached = this.system.get();
+			if (cached != null) {
+				return cached;
+			}
+		}
+		JrtFileSystem newJrtFileSystem = JrtFileSystem.getNewJrtFileSystem(this.jdk, this.release);
+		this.system = new SoftReference<JrtFileSystem>(newJrtFileSystem);
+		return newJrtFileSystem;
+	}
+
 }
 
 class JrtFileSystemWithOlderRelease extends JrtFileSystem {
