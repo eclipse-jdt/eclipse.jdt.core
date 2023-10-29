@@ -40,7 +40,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
@@ -76,6 +75,8 @@ public class JRTUtil {
 	 * Map from JDK home path to ct.sym file (located in /lib in the JDK)
 	 */
 	private static final Map<Path, CtSym> ctSymFiles = new ConcurrentHashMap<>();
+
+	static final SoftClassCache classCache = new SoftClassCache();
 
 	public interface JrtFileVisitor<T> {
 
@@ -216,6 +217,7 @@ public class JRTUtil {
 	/** TEST ONLY (use when changing the "modules.to.load" property). */
 	public static void reset() {
 		images.clear();
+		classCache.clear();
 		MODULE_TO_LOAD = System.getProperty("modules.to.load"); //$NON-NLS-1$
 	}
 
@@ -510,9 +512,6 @@ class JrtFileSystem {
 
 	private final Map<String, List<String>> packageToModules = new HashMap<String, List<String>>();
 
-
-	private final Map<Path, Optional<byte[]>> classCache = new ConcurrentHashMap<>(10007);
-
 	FileSystem fs;
 	Path modRoot;
 	Jdk jdk;
@@ -663,18 +662,7 @@ class JrtFileSystem {
 		if(JRTUtil.DISABLE_CACHE) {
 			return JRTUtil.safeReadBytes(path);
 		} else {
-			try {
-				Optional<byte[]> bytes = this.classCache.computeIfAbsent(path, key -> {
-					try {
-						return Optional.ofNullable(JRTUtil.safeReadBytes(key));
-					} catch (IOException e) {
-						throw new RuntimeIOException(e);
-					}
-				});
-				return bytes.orElse(null);
-			} catch (RuntimeIOException rio) {
-				throw rio.getCause();
-			}
+			return JRTUtil.classCache.getClassBytes(this.jdk, path);
 		}
 	}
 
@@ -684,18 +672,7 @@ class JrtFileSystem {
 		if(JRTUtil.DISABLE_CACHE) {
 			content = JRTUtil.safeReadBytes(path);
 		} else {
-			try {
-				Optional<byte[]> bytes = this.classCache.computeIfAbsent(path, key -> {
-					try {
-						return Optional.ofNullable(JRTUtil.safeReadBytes(key));
-					} catch (IOException e) {
-						throw new RuntimeIOException(e);
-					}
-				});
-				content = bytes.orElse(null);
-			} catch (RuntimeIOException rio) {
-				throw rio.getCause();
-			}
+			content = JRTUtil.classCache.getClassBytes(this.jdk, path);
 		}
 		if (content != null) {
 			ClassFileReader reader = new ClassFileReader(path.toUri(), content, fileName.toCharArray());
