@@ -142,8 +142,8 @@ public class JRTUtil {
 	 * @param release <code>--release</code> version
 	 */
 	public static JrtFileSystem getJrtSystem(File image, String release) throws IOException {
-		String key = image.toString();
 		Jdk jdk = new Jdk(image);
+		String key = jdk.path;
 
 		if (release != null && !jdk.sameRelease(release)) {
 			key = key + "|" + release; //$NON-NLS-1$
