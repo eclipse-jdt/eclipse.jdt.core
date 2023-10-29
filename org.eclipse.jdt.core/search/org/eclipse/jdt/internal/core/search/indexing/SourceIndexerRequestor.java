@@ -534,4 +534,12 @@ public void pushTypeName(char[] typeName) {
 		System.arraycopy(this.enclosingTypeNames, 0, this.enclosingTypeNames = new char[this.depth*2][], 0, this.depth);
 	this.enclosingTypeNames[this.depth++] = typeName;
 }
+@Override
+public void enterCompactConstructor(MethodInfo methodInfo) {
+	this.enterConstructor(methodInfo);
+}
+@Override
+public void exitCompactConstructor(int declarationEnd) {
+	this.exitConstructor(declarationEnd);
+}
 }
