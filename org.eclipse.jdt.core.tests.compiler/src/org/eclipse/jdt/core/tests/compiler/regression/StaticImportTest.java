@@ -3418,4 +3418,178 @@ public class StaticImportTest extends AbstractComparableTest {
 				"The import p.Bar is never used\n" +
 				"----------\n");
 	}
+	public void testGH809_field_a() {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+			"p2/Client.java",
+			"""
+			package p2;
+			import static p1.Sub.*;
+			public class Client {
+				public static void main(String... args) {
+					System.out.println(ONE);
+				}
+			}
+			""",
+			"p1/Super.java",
+			"""
+			package p1;
+			class Super {
+				public static int ONE = 1;
+			}
+			""",
+			"p1/Sub.java",
+			"""
+			package p1;
+			public class Sub extends Super {}
+			"""
+		};
+		runner.expectedOutputString = "1";
+		runner.runConformTest();
+	}
+	public void testGH809_field_b() {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+			"p2/Client.java",
+			"""
+			package p2;
+			import static p1.Sub.ONE;
+			public class Client {
+				public static void main(String... args) {
+					System.out.println(ONE);
+				}
+			}
+			""",
+			"p1/Super.java",
+			"""
+			package p1;
+			class Super {
+				public static int ONE = 1;
+			}
+			""",
+			"p1/Sub.java",
+			"""
+			package p1;
+			public class Sub extends Super {}
+			"""
+		};
+		runner.expectedOutputString = "1";
+		runner.runConformTest();
+	}
+	public void testGH809_field_c() {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+			"p2/Client.java",
+			"""
+			package p2;
+			import p1.Sub;
+			public class Client {
+				public static void main(String... args) {
+					System.out.println(Sub.ONE);
+				}
+			}
+			""",
+			"p1/Super.java",
+			"""
+			package p1;
+			class Super {
+				public static int ONE = 1;
+			}
+			""",
+			"p1/Sub.java",
+			"""
+			package p1;
+			public class Sub extends Super {}
+			"""
+		};
+		runner.expectedOutputString = "1";
+		runner.runConformTest();
+	}
+	public void testGH809_method_a() {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+			"p2/Client.java",
+			"""
+			package p2;
+			import static p1.Sub.*;
+			public class Client {
+				public static void main(String... args) {
+					System.out.println(ONE());
+				}
+			}
+			""",
+			"p1/Super.java",
+			"""
+			package p1;
+			class Super {
+				public static int ONE() { return 1; }
+			}
+			""",
+			"p1/Sub.java",
+			"""
+			package p1;
+			public class Sub extends Super {}
+			"""
+		};
+		runner.expectedOutputString = "1";
+		runner.runConformTest();
+	}
+	public void testGH809_method_b() {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+			"p2/Client.java",
+			"""
+			package p2;
+			import static p1.Sub.ONE;
+			public class Client {
+				public static void main(String... args) {
+					System.out.println(ONE());
+				}
+			}
+			""",
+			"p1/Super.java",
+			"""
+			package p1;
+			class Super {
+				public static int ONE() { return 1; }
+			}
+			""",
+			"p1/Sub.java",
+			"""
+			package p1;
+			public class Sub extends Super {}
+			"""
+		};
+		runner.expectedOutputString = "1";
+		runner.runConformTest();
+	}
+	public void testGH809_method_c() {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+			"p2/Client.java",
+			"""
+			package p2;
+			import p1.Sub;
+			public class Client {
+				public static void main(String... args) {
+					System.out.println(Sub.ONE());
+				}
+			}
+			""",
+			"p1/Super.java",
+			"""
+			package p1;
+			class Super {
+				public static int ONE() { return 1; }
+			}
+			""",
+			"p1/Sub.java",
+			"""
+			package p1;
+			public class Sub extends Super {}
+			"""
+		};
+		runner.expectedOutputString = "1";
+		runner.runConformTest();
+	}
 }
