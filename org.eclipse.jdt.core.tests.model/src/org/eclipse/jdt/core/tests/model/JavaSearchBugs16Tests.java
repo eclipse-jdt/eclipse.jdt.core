@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c)  2021, 2022 IBM Corporation and others.
+ * Copyright (c)  2021, 2023 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -658,6 +658,77 @@ public class JavaSearchBugs16Tests extends AbstractJavaSearchTests {
 					"src/test/Test.java test.Test() [internal] EXACT_MATCH");
 		} finally {
 			deleteProject(testProjectName);
+		}
+	}
+
+	/*
+	 * unit test for https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1297
+	 */
+	public void testBug1297_01() throws Exception {
+		IJavaProject project = null;
+		try
+		{
+			project = createJavaProject("P", new String[] {""}, new String[] { "/P/lib1297.jar", "JCL15_LIB" }, "", "1.5");
+			org.eclipse.jdt.core.tests.util.Util.createJar(new String[] {
+					"p1/AnnotationTypes.java",
+					"package p1;\n" +
+					"import java.lang.annotation.*;\n" +
+					"@Retention(RetentionPolicy.RUNTIME)\n" +
+					"@Target(ElementType.METHOD)\n" +
+					"@interface MyCustomAnnotation {\n" +
+					"	String value();\n" +
+					"}\n" +
+					"public class AnnotationTypes {\n" +
+					"	@MyCustomAnnotation(value = \"Eclipse\")\n" +
+					"	public void myMethod() {\n" +
+					"		System.out.println(\"Annotated method called\");\n" +
+					"	}\n" +
+					"	@MyCustomAnnotation(value = \"Eclipse1\")\n" +
+					"	public void newAnnotation() { }\n" +
+					"}\n" },
+					project.getProject().getLocation().append("lib1297.jar").toOSString(), "1.5");
+
+
+			refresh(project);
+
+
+			createFolder("/P/p1");
+			String testSource =
+				"package p1;\n" +
+				"import java.lang.annotation.*;\n" +
+				"@Retention(RetentionPolicy.RUNTIME)\n" +
+				"@Target(ElementType.METHOD)\n" +
+				"public class Test {\n" +
+				"	@MyCustomAnnotation(value = \"Custom Annotation Example\")\n" +
+				"	public void annotatedMethod() {" +
+				"		System.out.println(\"Annotated method called\");\n" +
+				"	}\n" +
+				"	@MyCustomAnnotation(value = \"Custom Annotation Example1\")\n" +
+				"	public void test123() {" +
+				"		System.out.println(\"Annotated method called\");\n" +
+				"	}\n" +
+				"	public static void main(String[] args) throws NoSuchMethodException {\n" +
+				"	}\n" +
+			    "}\n";
+			createFile("/P/p1/Test.java", testSource);
+
+			SearchPattern pattern = SearchPattern.createPattern(
+					"p1.MyCustomAnnotation",
+					ANNOTATION_TYPE,
+					ANNOTATION_TYPE_REFERENCE,
+					SearchPattern.R_EXACT_MATCH);
+
+			IJavaSearchScope scope = SearchEngine.createJavaSearchScope(new IJavaElement[] {project}, true);
+
+			search(pattern, scope, this.resultCollector);
+			assertSearchResults(
+					"p1/Test.java void p1.Test.annotatedMethod() [MyCustomAnnotation] EXACT_MATCH\n" +
+					"p1/Test.java void p1.Test.test123() [MyCustomAnnotation] EXACT_MATCH\n" +
+					"lib1297.jar void p1.AnnotationTypes.myMethod() [No source] EXACT_MATCH\n" +
+					"lib1297.jar void p1.AnnotationTypes.newAnnotation() [No source] EXACT_MATCH"
+					);
+		} finally {
+			deleteProject(project);
 		}
 	}
 
