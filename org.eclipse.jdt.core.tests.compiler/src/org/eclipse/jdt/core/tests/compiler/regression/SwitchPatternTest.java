@@ -30,7 +30,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testIssueExhaustiveness_005"};
+//		TESTS_NAMES = new String[] { "testIssue1466"};
 	}
 
 	private static String previewLevel = "21";
@@ -6906,5 +6906,64 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					+ "}"
 				},
 				"true");
+	}
+	public void testIssue1466_01() {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"""
+					public class X {
+
+						  private static String foo(Integer i) {
+						    return switch (i) {
+						      case null -> "null";
+						      case Integer value when value > 0 -> value.toString();
+						      default -> i.toString();
+						    };
+						  }
+
+						  public static void main(String[] args) {
+						    System.out.println(foo(0));
+						  }
+						}
+
+					""",
+				},
+				"0");
+	}
+	public void testIssue1466_02() {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"""
+					public class X {
+					  public static void main(String[] args) {
+					    constantLabelMustAppearBeforePatternInteger(-1);
+					    constantLabelMustAppearBeforePatternInteger(0);
+					    constantLabelMustAppearBeforePatternInteger(42);
+					    constantLabelMustAppearBeforePatternInteger(-99);
+					    constantLabelMustAppearBeforePatternInteger(Integer.valueOf(123));
+					    constantLabelMustAppearBeforePatternInteger(null);
+					  }
+					  static String constantLabelMustAppearBeforePatternInteger(Integer i) {
+					    switch (i) {
+					      case null -> System.out.println("value unavailable: " + i);
+					      case -1, 1 -> System.out.println("absolute value 1: " + i);
+					      case Integer value when value > 0 -> System.out.println("positive integer: " + i);
+					      default -> System.out.println("other integer: " + i);
+					    }
+					    return i == null ? "null" : i.toString();
+					  }
+					}
+
+					""",
+				},
+				"absolute value 1: -1\n" +
+				"positive integer: 0\n" +
+				"positive integer: 42\n" +
+				"positive integer: -99\n" +
+				"positive integer: 123\n" +
+				"value unavailable: null"
+);
 	}
 }
