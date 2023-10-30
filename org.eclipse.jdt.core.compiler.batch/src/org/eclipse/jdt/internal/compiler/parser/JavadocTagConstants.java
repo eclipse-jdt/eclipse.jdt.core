@@ -183,32 +183,19 @@ public interface JavadocTagConstants {
 	public final static char[] HREF_TAG = {'h', 'r', 'e', 'f'};
 
 	/**
-	 * A class representing additional tags to be made available at specific
-	 * java version levels.
+	 * A record class representing additional tags to be made
+	 * available at specific java version levels.
 	 *
-	 * This class is intended to minimize the necessary metadata updates
-	 * that are currently required when adding new versions of Java.
+	 * This class is intended to prevent maintainers from having to add
+	 * empty arrays for each new java version that is released.
 	 */
-	public static class LevelTags {
-		int level;
-		char[][] tags;
-		/**
-		 * Constructor representing a level paired with new tags
-		 * @param level The level of the class version
-		 * @param tags  The tags to be added at that level
-		 */
-		public LevelTags(int level, char[][] tags) {
-			this.level = level;
-			this.tags = tags;
-		}
-	}
-
+	record LevelTags(int level, char[][] tags) { }
 	/**
 	 * Convert an array of LevelTags into the char[][][] structure that is currently used to
 	 * discover the additional tags available at a given java version.
 	 *
-	 * @param input A LevelTags array representing tag additions for each java version
-	 * @return a char[][][] array representing newly available tags for each java version
+	 * @param input A LevelTags array representing additional tags available for each java version
+	 * @return a char[][][] array representing newly available tags for all java class version
 	 */
 	public static char[][][] levelTagsToChar3d(LevelTags[] input) {
 		int expectedLength = ClassFileConstants.MAJOR_LATEST_VERSION - ClassFileConstants.MAJOR_VERSION_0 + 1;
@@ -225,6 +212,8 @@ public interface JavadocTagConstants {
 
 	/*
 	 * Tags versions
+	 *
+	 * Maintainers should add a new LevelTag only for versions in which new tags are made available
 	 */
 	public static final LevelTags[] BLOCK_TAGS_RAW = {
 		new LevelTags(ClassFileConstants.MAJOR_VERSION_0, new char[][]{ TAG_AUTHOR, TAG_DEPRECATED, TAG_EXCEPTION, TAG_PARAM, TAG_RETURN, TAG_SEE, TAG_VERSION, TAG_CATEGORY /* 1.6 tag but put here as we support it for all compliances */ }),
@@ -235,6 +224,11 @@ public interface JavadocTagConstants {
 	};
 	public static final char[][][] BLOCK_TAGS = levelTagsToChar3d(BLOCK_TAGS_RAW);
 
+	/*
+	 * Inline Tags versions
+	 *
+	 * Maintainers should add a new LevelTag only for versions in which new tags are made available
+	 */
 	public static final LevelTags[] INLINE_TAGS_RAW = {
 			new LevelTags(ClassFileConstants.MAJOR_VERSION_1_2, new char[][]{ TAG_LINK }),
 			new LevelTags(ClassFileConstants.MAJOR_VERSION_1_3, new char[][]{ TAG_DOC_ROOT }),
