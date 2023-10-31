@@ -104,6 +104,7 @@ public class SelectionParser extends AssistParser {
 	protected static final int K_INSIDE_EXPRESSION_SWITCH = SELECTION_PARSER + 12; // whether we are in an expression switch
 	protected static final int K_INSIDE_WHEN = SELECTION_PARSER + 13; // whether we are in the guard
 
+	protected static final int K_INSIDE_LOCAL_VARIABLE_DECLARATION = SELECTION_PARSER + 14; // whether we are in a local variable declaration
 
 
 	/* https://bugs.eclipse.org/bugs/show_bug.cgi?id=476693
@@ -717,6 +718,9 @@ protected void consumeEnterVariable() {
 		}
 		this.isOrphanCompletionNode = false; // already attached inside variable decl
 	}
+	if (variable instanceof LocalDeclaration && this.variablesCounter[this.nestedType] == 1) {
+		pushOnElementStack(K_INSIDE_LOCAL_VARIABLE_DECLARATION); // first variable among the declarator(s)
+	}
 }
 
 @Override
@@ -1064,7 +1068,12 @@ protected void consumeLocalVariableDeclarationStatement() {
 		}
 	}
 }
-
+@Override
+protected void consumeLocalVariableDeclaration() {
+	super.consumeLocalVariableDeclaration();
+	popUntilElement(K_INSIDE_LOCAL_VARIABLE_DECLARATION);
+	popElement(K_INSIDE_LOCAL_VARIABLE_DECLARATION);
+}
 @Override
 protected void consumeBlockStatement() {
 	// Super implementation unsuitable, so no chaining.
@@ -1852,9 +1861,25 @@ public CompilationUnitDeclaration parse(ICompilationUnit sourceUnit, Compilation
 
 @Override
 protected boolean restartRecovery() {
-	return requireExtendedRecovery() || this.selectionNodeFoundLevel > 0 ?
-			false :
-			super.restartRecovery();
+	if (requireExtendedRecovery() || this.selectionNodeFoundLevel > 0)
+		return false;
+	boolean deferRestartOnLocalDecl = false;
+	for (int i = 0; i <= this.elementPtr; i++) {
+		switch (this.elementKindStack[i]) {
+			case K_INSIDE_STATEMENT_SWITCH:
+			case K_INSIDE_EXPRESSION_SWITCH:
+			case K_INSIDE_IF:
+			case K_INSIDE_WHILE:
+				deferRestartOnLocalDecl = true;
+				break;
+			case K_INSIDE_LOCAL_VARIABLE_DECLARATION:
+				if (deferRestartOnLocalDecl)
+					return false;
+				break;
+		}
+	}
+
+	return super.restartRecovery();
 }
 
 @Override
