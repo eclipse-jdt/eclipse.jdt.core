@@ -104,7 +104,6 @@ public class SelectionParser extends AssistParser {
 	protected static final int K_INSIDE_EXPRESSION_SWITCH = SELECTION_PARSER + 12; // whether we are in an expression switch
 	protected static final int K_INSIDE_WHEN = SELECTION_PARSER + 13; // whether we are in the guard
 
-	protected static final int K_INSIDE_LOCAL_VARIABLE_DECLARATION = SELECTION_PARSER + 14; // whether we are in a local variable declaration
 
 
 	/* https://bugs.eclipse.org/bugs/show_bug.cgi?id=476693
@@ -387,6 +386,12 @@ protected void classInstanceCreation(boolean hasClassBody) {
 		this.isOrphanCompletionNode = true;
 	} else {
 		super.classInstanceCreation(hasClassBody);
+		if (this.assistNode != null) {
+			QualifiedAllocationExpression alloc = (QualifiedAllocationExpression) this.expressionStack[this.expressionPtr];
+			if (this.assistNode.sourceStart >= alloc.sourceStart && this.assistNode.sourceEnd <= alloc.sourceEnd)
+				this.selectionNodeFoundLevel = 1; // continue to parse until containing block statement is reduced, so as to
+			    // ensure the type declaration makes it to the astStack (possibly as a subexpression or as an expression statement
+		}
 	}
 }
 @Override
@@ -717,9 +722,6 @@ protected void consumeEnterVariable() {
 			this.lastIgnoredToken = -1;
 		}
 		this.isOrphanCompletionNode = false; // already attached inside variable decl
-	}
-	if (variable instanceof LocalDeclaration && this.variablesCounter[this.nestedType] == 1) {
-		pushOnElementStack(K_INSIDE_LOCAL_VARIABLE_DECLARATION); // first variable among the declarator(s)
 	}
 }
 
@@ -1068,12 +1070,7 @@ protected void consumeLocalVariableDeclarationStatement() {
 		}
 	}
 }
-@Override
-protected void consumeLocalVariableDeclaration() {
-	super.consumeLocalVariableDeclaration();
-	popUntilElement(K_INSIDE_LOCAL_VARIABLE_DECLARATION);
-	popElement(K_INSIDE_LOCAL_VARIABLE_DECLARATION);
-}
+
 @Override
 protected void consumeBlockStatement() {
 	// Super implementation unsuitable, so no chaining.
@@ -1863,17 +1860,17 @@ public CompilationUnitDeclaration parse(ICompilationUnit sourceUnit, Compilation
 protected boolean restartRecovery() {
 	if (requireExtendedRecovery() || this.selectionNodeFoundLevel > 0)
 		return false;
-	boolean deferRestartOnLocalDecl = false;
+	boolean deferRestartOnLocalType = false;
 	for (int i = 0; i <= this.elementPtr; i++) {
 		switch (this.elementKindStack[i]) {
 			case K_INSIDE_STATEMENT_SWITCH:
 			case K_INSIDE_EXPRESSION_SWITCH:
 			case K_INSIDE_IF:
 			case K_INSIDE_WHILE:
-				deferRestartOnLocalDecl = true;
+				deferRestartOnLocalType = true;
 				break;
-			case K_INSIDE_LOCAL_VARIABLE_DECLARATION:
-				if (deferRestartOnLocalDecl)
+			case K_TYPE_DELIMITER:
+				if (deferRestartOnLocalType)
 					return false;
 				break;
 		}
