@@ -390,7 +390,7 @@ protected void classInstanceCreation(boolean hasClassBody) {
 			QualifiedAllocationExpression alloc = (QualifiedAllocationExpression) this.expressionStack[this.expressionPtr];
 			if (this.assistNode.sourceStart >= alloc.sourceStart && this.assistNode.sourceEnd <= alloc.sourceEnd)
 				this.selectionNodeFoundLevel = 1; // continue to parse until containing block statement is reduced, so as to
-			    // ensure the type declaration makes it to the astStack (possibly as a subexpression or as an expression statement
+			    // ensure the type declaration makes it to the astStack (possibly as a subexpression or as an expression statement)
 		}
 	}
 }
