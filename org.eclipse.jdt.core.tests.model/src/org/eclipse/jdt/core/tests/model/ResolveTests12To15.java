@@ -1384,4 +1384,110 @@ public void testBug567497() throws JavaModelException {
 		elements
 	);
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1420
+// Sporadic errors reported for Java hover or Ctrl+Click
+public void testGH1420() throws JavaModelException {
+	this.wc = getWorkingCopy("/Resolve15/src/X.java",
+					"""
+                    public class X {\n" +
+
+					    class Job {}
+
+						public void foo(boolean b) {
+							if (!b) {
+							} else {
+								Job j = new Job() {
+									protected void run() {
+										/*here*/getTarget();
+									}
+									void getTarget() {
+									}
+								};
+							}
+						}
+					}
+					""");
+	String str = this.wc.getSource();
+	String selection = "/*here*/getTarget";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"getTarget() [in <anonymous #1> [in foo(boolean) [in X [in [Working copy] X.java [in <default> [in src [in Resolve15]]]]]]]",
+		elements
+	);
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1420
+// Sporadic errors reported for Java hover or Ctrl+Click
+public void testGH1420_2() throws JavaModelException {
+	this.wc = getWorkingCopy("/Resolve15/src/X.java",
+					"""
+                 public class X {\n" +
+
+					    class Job {}
+
+						public void foo(Job j) {}
+
+						public void foo(boolean b) {
+							if (!b) {
+							} else {
+								foo(new Job() {
+									protected void run() {
+										/*here*/getTarget();
+									}
+									void getTarget() {
+									}
+								});
+							}
+						}
+					}
+					""");
+	String str = this.wc.getSource();
+	String selection = "/*here*/getTarget";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"getTarget() [in <anonymous #1> [in foo(boolean) [in X [in [Working copy] X.java [in <default> [in src [in Resolve15]]]]]]]",
+		elements
+	);
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1420
+// Sporadic errors reported for Java hover or Ctrl+Click
+public void testGH1420_3() throws JavaModelException {
+	this.wc = getWorkingCopy("/Resolve15/src/X.java",
+					"""
+              public class X {\n" +
+
+					    class Job {}
+
+						public void foo(Job j) {}
+
+						public void foo(boolean b) {
+							if (!b) {
+							} else {
+								class LocalClass {
+									protected void run() {
+										/*here*/getTarget();
+									}
+									void getTarget() {
+									}
+								};
+							}
+						}
+					}
+					""");
+	String str = this.wc.getSource();
+	String selection = "/*here*/getTarget";
+	int start = str.indexOf(selection);
+	int length = selection.length();
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"getTarget() [in LocalClass [in foo(boolean) [in X [in [Working copy] X.java [in <default> [in src [in Resolve15]]]]]]]",
+		elements
+	);
+}
 }
