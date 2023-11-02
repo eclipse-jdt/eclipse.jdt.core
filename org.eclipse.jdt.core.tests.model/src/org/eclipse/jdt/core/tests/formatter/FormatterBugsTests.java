@@ -10555,7 +10555,7 @@ public void testBug332877() throws Exception {
 	formatSource(source,
 		"public enum Environment {\n" +
 		"	PROD, // Production level environments\n" +
-		"	STAGING // Staging\n" +
+		"	STAGING// Staging\n" +
 		"}\n"
 	);
 }
@@ -13337,5 +13337,20 @@ public void testIssue369() {
 		"@JsonPropertyOrder({ \"position\", \"value\" })\n" +
 		"public record ValueWithPosition( String position, String value ) {\n" +
 		"}");
+}
+/**
+ * Format a snippet with a JavaDoc comment after an enum constant,
+ * expect the formatter to finish without exceptions.
+ * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/33
+ */
+public void testEnumJavaDocGh33() {
+	setComplianceLevel(CompilerOptions.VERSION_17);
+	formatSource(
+			"""
+			public enum Test {
+				FOO/** random javadoc */
+				, BAR
+			}
+			""");
 }
 }
