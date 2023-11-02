@@ -671,7 +671,7 @@ public void checkTypeArgumentRedundancy(ParameterizedTypeBinding allocationType,
 					break;
 			}
 			if (i == allocationType.arguments.length) {
-				scope.problemReporter().redundantSpecificationOfTypeArguments(this.type, allocationType.arguments);
+				reportTypeArgumentRedundancyProblem(allocationType, scope);
 				return;
 			}
 		}
