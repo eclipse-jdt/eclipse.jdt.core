@@ -66,7 +66,7 @@ public enum JavaFeature {
 			new char[][] {},
 			false),
 	UNNAMMED_PATTERNS_AND_VARS(ClassFileConstants.JDK21,
-			Messages.bind(Messages.unnammed_patterns_and_vars),
+			Messages.bind(Messages.unnamed_patterns_and_vars),
 			new char[][] {},
 			true),
 	UNNAMMED_CLASSES_AND_INSTANCE_MAIN_METHODS(ClassFileConstants.JDK21,

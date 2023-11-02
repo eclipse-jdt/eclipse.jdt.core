@@ -296,7 +296,8 @@ void computeLocalVariablePositions(int ilocal, int initOffset, CodeStream codeSt
 			// do not report fake used variable
 			if (local.useFlag == LocalVariableBinding.UNUSED
 				&& (local.declaration != null) // unused (and non secret) local
-				&& ((local.declaration.bits & ASTNode.IsLocalDeclarationReachable) != 0)) { // declaration is reachable
+				&& ((local.declaration.bits & ASTNode.IsLocalDeclarationReachable) != 0) // declaration is reachable
+				&& !local.declaration.isUnnamed(local.declaringScope)) {
 
 				if (local.isCatchParameter()) {
 					problemReporter().unusedExceptionParameter(local.declaration); // report unused catch arguments

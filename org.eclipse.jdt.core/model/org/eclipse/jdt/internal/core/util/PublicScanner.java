@@ -267,6 +267,7 @@ public class PublicScanner implements IScanner, ITerminalSymbols {
 			case TerminalTokens.TokenNamevolatile : nextToken = ITerminalSymbols.TokenNamevolatile; break;
 			case TerminalTokens.TokenNamewhile : nextToken = ITerminalSymbols.TokenNamewhile; break;
 			case TerminalTokens.TokenNameRestrictedIdentifierWhen : nextToken = ITerminalSymbols.TokenNameRestrictedIdentifierWhen; break;
+			case TerminalTokens.TokenNameUNDERSCORE : nextToken = ITerminalSymbols.TokenNameUNDERSCORE; break;
 			default:
 				throw Scanner.invalidToken(nextToken);
 		}

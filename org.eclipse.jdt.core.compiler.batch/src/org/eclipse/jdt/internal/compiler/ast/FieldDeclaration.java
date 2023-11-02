@@ -207,6 +207,10 @@ public StringBuilder printStatement(int indent, StringBuilder output) {
 }
 
 public void resolve(MethodScope initializationScope) {
+	if (this.isUnnamed(initializationScope)) {
+		initializationScope.problemReporter().illegalUseOfUnderscoreAsAnIdentifier(this.sourceStart, this.sourceEnd, initializationScope.compilerOptions().sourceLevel > ClassFileConstants.JDK1_8, true);
+	}
+
 	// the two <constant = Constant.NotAConstant> could be regrouped into
 	// a single line but it is clearer to have two lines while the reason of their
 	// existence is not at all the same. See comment for the second one.

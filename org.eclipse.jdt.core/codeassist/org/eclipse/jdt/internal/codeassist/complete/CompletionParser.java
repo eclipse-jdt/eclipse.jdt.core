@@ -4232,6 +4232,7 @@ protected void consumeToken(int token) {
 					case TokenNamesuper: // e.g. super[.]fred()
 						this.invocationType = SUPER_RECEIVER;
 						break;
+					case TokenNameUNDERSCORE:
 					case TokenNameIdentifier: // e.g. bar[.]fred()
 						if (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) != K_BETWEEN_NEW_AND_LEFT_BRACKET) {
 							if (this.identifierPtr != prevIdentifierPtr) { // if identifier has been consumed, e.g. this.x[.]fred()
@@ -4246,6 +4247,7 @@ protected void consumeToken(int token) {
 			case TokenNameCOLON_COLON:
 				this.inReferenceExpression = true;
 				break;
+			case TokenNameUNDERSCORE:
 			case TokenNameIdentifier:
 				if (this.inReferenceExpression)
 					break;
@@ -4317,6 +4319,7 @@ protected void consumeToken(int token) {
 					this.qualifier = this.expressionPtr; // remenber the last expression so that arguments are correctly computed
 				}
 				switch (previous) {
+					case TokenNameUNDERSCORE:
 					case TokenNameIdentifier: // e.g. fred[(]) or foo.fred[(])
 						if (topKnownElementKind(COMPLETION_OR_ASSIST_PARSER) == K_SELECTOR) {
 							int info = 0;
@@ -4436,6 +4439,7 @@ protected void consumeToken(int token) {
 					pushOnElementStack(K_BETWEEN_LEFT_AND_RIGHT_BRACKET);
 				} else {
 					switch (previous) {
+						case TokenNameUNDERSCORE:
 						case TokenNameIdentifier:
 						case TokenNameboolean:
 						case TokenNamebyte:

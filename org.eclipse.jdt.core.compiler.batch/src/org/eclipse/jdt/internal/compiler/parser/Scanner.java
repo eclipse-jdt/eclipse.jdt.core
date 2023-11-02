@@ -3082,13 +3082,20 @@ public int scanIdentifierOrKeyword() {
 		//have a length which is <= 12...but there are lots of identifier with
 		//only one char....
 		if ((length = this.currentPosition - this.startPosition) == 1) {
+			if (this.source[this.startPosition] == '_') {
+				return TokenNameUNDERSCORE;
+			}
 			return TokenNameIdentifier;
 		}
 		data = this.source;
 		index = this.startPosition;
 	} else {
-		if ((length = this.withoutUnicodePtr) == 1)
+		if ((length = this.withoutUnicodePtr) == 1) {
+			if (this.withoutUnicodeBuffer[0] == '_') {
+				return TokenNameUNDERSCORE;
+			}
 			return TokenNameIdentifier;
+		}
 		data = this.withoutUnicodeBuffer;
 		index = 1;
 	}
