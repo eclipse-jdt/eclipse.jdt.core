@@ -23,6 +23,7 @@ import org.eclipse.jdt.internal.compiler.Compiler;
  * ProcessingEnvironment for build phase in IDE.
  * @since 3.3
  */
+@SuppressWarnings("restriction")
 public class IdeBuildProcessingEnvImpl extends IdeProcessingEnvImpl {
 
 	public IdeBuildProcessingEnvImpl(IdeAnnotationProcessorManager dispatchManager,

@@ -50,6 +50,7 @@ import org.eclipse.jdt.internal.compiler.apt.model.IElementInfo;
  * {@link IdeAnnotationProcessorManager} that owns it.
  * @see org.eclipse.jdt.internal.compiler.apt.dispatch.BatchProcessingEnvImpl
  */
+@SuppressWarnings("restriction")
 public abstract class IdeProcessingEnvImpl extends BaseProcessingEnvImpl {
 
 	private final IdeAnnotationProcessorManager _dispatchManager;
