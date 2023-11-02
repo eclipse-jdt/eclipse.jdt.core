@@ -2037,7 +2037,7 @@ public char[] sourceName() {
  * Perform an upwards type projection as per JLS 4.10.5
  * @param scope Relevant scope for evaluating type projection
  * @param mentionedTypeVariables Filter for mentioned type variabled
- * @returns Upwards type projection of 'this', or null if downwards projection is undefined
+ * @return Upwards type projection of 'this', or null if downwards projection is undefined
 */
 @Override
 public ReferenceBinding upwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
@@ -2048,7 +2048,7 @@ public ReferenceBinding upwardsProjection(Scope scope, TypeBinding[] mentionedTy
  * Perform a downwards type projection as per JLS 4.10.5
  * @param scope Relevant scope for evaluating type projection
  * @param mentionedTypeVariables Filter for mentioned type variabled
- * @returns Downwards type projection of 'this', or null if downwards projection is undefined
+ * @return Downwards type projection of 'this', or null if downwards projection is undefined
 */
 @Override
 public ReferenceBinding downwardsProjection(Scope scope, TypeBinding[] mentionedTypeVariables) {
