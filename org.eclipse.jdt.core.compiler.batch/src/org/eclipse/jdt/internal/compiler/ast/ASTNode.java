@@ -1051,7 +1051,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	    By construction the bindings associated with QTR, PQTR etc get resolved first and then annotations for different levels get resolved
 	    and applied at one go. Likewise for multidimensional arrays.
 
-	    @Returns the annotated type binding.
+	    @return the annotated type binding.
 	*/
 	public static TypeBinding resolveAnnotations(BlockScope scope, Annotation[][] sourceAnnotations, TypeBinding type) {
 		int levels = sourceAnnotations == null ? 0 : sourceAnnotations.length;
