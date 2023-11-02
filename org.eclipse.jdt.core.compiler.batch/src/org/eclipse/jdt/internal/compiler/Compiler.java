@@ -29,7 +29,6 @@ import org.eclipse.jdt.internal.compiler.util.*;
 import java.io.*;
 import java.util.*;
 
-@SuppressWarnings("rawtypes")
 public class Compiler implements ITypeRequestor, ProblemSeverities {
 	public Parser parser;
 	public ICompilerRequestor requestor;
@@ -161,7 +160,7 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 	public Compiler(
 			INameEnvironment environment,
 			IErrorHandlingPolicy policy,
-			Map settings,
+			Map<String, String> settings,
 			final ICompilerRequestor requestor,
 			IProblemFactory problemFactory,
 			boolean parseLiteralExpressionsAsConstants) {

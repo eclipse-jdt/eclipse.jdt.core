@@ -44,7 +44,6 @@ import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.problem.ProblemSeverities;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public class CompilerOptions {
 
 	/**
@@ -611,7 +610,7 @@ public class CompilerOptions {
 	/**
 	 * @deprecated used to preserve 3.1 and 3.2M4 compatibility of some Compiler constructors
 	 */
-	public CompilerOptions(Map settings, boolean parseLiteralExpressionsAsConstants){
+	public CompilerOptions(Map<String, String> settings, boolean parseLiteralExpressionsAsConstants){
 		this(settings);
 		this.parseLiteralExpressionsAsConstants = parseLiteralExpressionsAsConstants;
 	}
