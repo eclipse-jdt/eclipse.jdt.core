@@ -201,7 +201,7 @@ public class JavadocParser extends AbstractCommentParser {
 			return new JavadocArgumentExpression(name, argTypeRef.sourceStart, argEnd, argTypeRef);
 		}
 		catch (ClassCastException ex) {
-			throw new InvalidInputException();
+			throw Scanner.invalidInput();
 		}
 	}
 
@@ -233,7 +233,7 @@ public class JavadocParser extends AbstractCommentParser {
 			return field;
 		}
 		catch (ClassCastException ex) {
-			throw new InvalidInputException();
+			throw Scanner.invalidInput();
 		}
 	}
 
@@ -284,7 +284,7 @@ public class JavadocParser extends AbstractCommentParser {
 						}
 					}
 				} else {
-					throw new InvalidInputException();
+					throw Scanner.invalidInput();
 				}
 			}
 			// Create node
@@ -336,7 +336,7 @@ public class JavadocParser extends AbstractCommentParser {
 			}
 		}
 		catch (ClassCastException ex) {
-			throw new InvalidInputException();
+			throw Scanner.invalidInput();
 		}
 	}
 
