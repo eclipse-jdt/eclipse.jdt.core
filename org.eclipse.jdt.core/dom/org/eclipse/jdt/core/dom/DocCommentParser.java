@@ -155,7 +155,7 @@ class DocCommentParser extends AbstractCommentParser {
 			return argument;
 		}
 		catch (ClassCastException ex) {
-				throw new InvalidInputException();
+				throw Scanner.invalidInput();
 		}
 	}
 
@@ -182,7 +182,7 @@ class DocCommentParser extends AbstractCommentParser {
 			return fieldRef;
 		}
 		catch (ClassCastException ex) {
-				throw new InvalidInputException();
+				throw Scanner.invalidInput();
 		}
 	}
 
@@ -219,7 +219,7 @@ class DocCommentParser extends AbstractCommentParser {
 			return methodRef;
 		}
 		catch (ClassCastException ex) {
-				throw new InvalidInputException();
+				throw Scanner.invalidInput();
 		}
 	}
 

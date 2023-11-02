@@ -56,7 +56,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.ast.LambdaExpression;
 import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.NullAnnotationMatching;
@@ -2221,10 +2220,10 @@ protected int applyCloseableInterfaceWhitelists() {
 	return 0;
 }
 
-protected MethodBinding [] getInterfaceAbstractContracts(Scope scope, boolean replaceWildcards, boolean filterDefaultMethods) throws InvalidInputException {
+protected MethodBinding [] getInterfaceAbstractContracts(Scope scope, boolean replaceWildcards, boolean filterDefaultMethods) throws InvalidBindingException {
 
 	if (!isInterface() || !isValidBinding()) {
-		throw new InvalidInputException("Not a functional interface"); //$NON-NLS-1$
+		throw new InvalidBindingException("Not a functional interface"); //$NON-NLS-1$
 	}
 
 	MethodBinding [] methods = methods();
@@ -2251,7 +2250,7 @@ protected MethodBinding [] getInterfaceAbstractContracts(Scope scope, boolean re
 		if (method == null || method.isStatic() || method.redeclaresPublicObjectMethod(scope) || method.isPrivate())
 			continue;
 		if (!method.isValidBinding())
-			throw new InvalidInputException("Not a functional interface"); //$NON-NLS-1$
+			throw new InvalidBindingException("Not a functional interface"); //$NON-NLS-1$
 		for (int j = 0; j < contractsCount;) {
 			if ( contracts[j] != null && MethodVerifier.doesMethodOverride(method, contracts[j], environment)) {
 				contractsCount--;
@@ -2344,7 +2343,7 @@ public MethodBinding getSingleAbstractMethod(Scope scope, boolean replaceWildcar
 					return this.singleAbstractMethod[index] = samProblemBinding;
 			}
 		}
-	} catch (InvalidInputException e) {
+	} catch (InvalidBindingException e) {
 		return this.singleAbstractMethod[index] = samProblemBinding;
 	}
 	if (methods.length == 1)
@@ -2491,5 +2490,12 @@ public boolean hasEnclosingInstanceContext() {
 	if (enclosingMethod != null)
 		return !enclosingMethod.isStatic();
 	return false;
+}
+static class InvalidBindingException extends Exception {
+	private static final long serialVersionUID = 1L;
+
+	InvalidBindingException(String message) {
+		super(message);
+	}
 }
 }
