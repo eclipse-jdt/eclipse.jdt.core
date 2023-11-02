@@ -22,6 +22,7 @@ import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameC
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameCOMMENT_LINE;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameNotAToken;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameStringLiteral;
+import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameTextBlock;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameWHITESPACE;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNamepackage;
 
@@ -358,7 +359,7 @@ public class CommentsPreparator extends ASTVisitor {
 			Token token = this.tm.get(i);
 			if (this.tm.countLineBreaksBetween(token, previous) > 0)
 				break;
-			if (token.tokenType == TokenNameStringLiteral)
+			if (token.tokenType == TokenNameStringLiteral || token.tokenType == TokenNameTextBlock)
 				stringLiterals.add(token);
 			previous = token;
 		}
