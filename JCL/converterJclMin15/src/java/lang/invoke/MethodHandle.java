@@ -16,7 +16,6 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
-import java.lang.invoke.MethodType;
 
 public abstract class MethodHandle {
 	@Target(METHOD)
