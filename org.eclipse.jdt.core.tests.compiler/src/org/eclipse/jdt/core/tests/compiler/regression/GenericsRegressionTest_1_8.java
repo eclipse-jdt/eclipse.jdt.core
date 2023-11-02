@@ -10495,4 +10495,34 @@ public void testBug508834_comment0() {
 				"""
 			});
 	}
+	public void testGH973() {
+		runConformTest(
+			new String[] {
+				"Seq.java",
+				"""
+				import java.util.List;
+				import java.util.function.Consumer;
+				import java.util.function.Function;
+
+				public interface Seq<T> {
+
+					void consume(Consumer<T> consumer);
+
+					default <R> Seq<R> map(Function<T, R> mapFunction) {
+						return c -> consume(t -> c.accept(mapFunction.apply(t)));
+					}
+
+					default <R> Seq<R> flatMap(Function<T, Seq<R>> mapFunction) {
+						return c -> consume(t -> mapFunction.apply(t).consume(c));
+					}
+
+					static void main(String[] args) {
+						Seq<Integer> seq = List.of(1, 2, 3)::forEach;
+						seq.map(e -> e * 2).flatMap(e -> List.of(e - 1, e)::forEach).consume(System.out::println);
+					}
+
+				}
+				"""
+			});
+	}
 }
