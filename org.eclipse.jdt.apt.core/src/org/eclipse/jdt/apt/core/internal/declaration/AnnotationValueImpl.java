@@ -31,6 +31,7 @@ import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
+@SuppressWarnings("restriction")
 public class AnnotationValueImpl implements EclipseMirrorObject, AnnotationValue
 {
 	/**

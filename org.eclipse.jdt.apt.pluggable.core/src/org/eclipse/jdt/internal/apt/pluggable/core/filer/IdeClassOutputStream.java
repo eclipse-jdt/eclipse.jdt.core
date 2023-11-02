@@ -35,6 +35,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 /**
  * @see IdeClassOutputStream
  */
+@SuppressWarnings("restriction")
 public class IdeClassOutputStream  extends ByteArrayOutputStream
 {
 	private final IdeProcessingEnvImpl _env;

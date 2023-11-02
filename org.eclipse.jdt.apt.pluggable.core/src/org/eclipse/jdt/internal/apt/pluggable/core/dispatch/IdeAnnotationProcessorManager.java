@@ -43,6 +43,7 @@ import org.eclipse.jdt.internal.core.builder.ICompilationUnitLocator;
  * Java 6 annotation processor manager used when compiling within the IDE.
  * @see org.eclipse.jdt.internal.compiler.apt.dispatch.BatchAnnotationProcessorManager
  */
+@SuppressWarnings("restriction")
 public class IdeAnnotationProcessorManager extends BaseAnnotationProcessorManager {
 
 	private IJavaProject _javaProject;
