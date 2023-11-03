@@ -1490,4 +1490,39 @@ public void testGH1420_3() throws JavaModelException {
 		elements
 	);
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/860
+// Field assignment to anonymous type breaks selection
+public void testGH860() throws JavaModelException {
+	this.wc = getWorkingCopy("/Resolve15/src/eclipse_bug/CurrentTextSelectionCannotBeOpened.java",
+					"""
+           			package eclipse_bug;
+
+					public class CurrentTextSelectionCannotBeOpened {
+						public static class Super {
+							public boolean boolMethod(){return true;}
+						}
+
+						Object obj;
+						public boolean somecode(){
+							obj=new Object(){
+								public boolean somecode(){
+									Super sup=new Super();
+									return sup.boolMethod();
+								}
+							};
+							return false;
+						}
+					}
+					""");
+	String str = this.wc.getSource();
+	String selection = "boolMethod";
+	int start = str.lastIndexOf(selection);
+	int length = selection.length();
+	IJavaElement[] elements = this.wc.codeSelect(start, length);
+	assertElementsEqual(
+		"Unexpected elements",
+		"boolMethod() [in Super [in CurrentTextSelectionCannotBeOpened [in [Working copy] CurrentTextSelectionCannotBeOpened.java [in eclipse_bug [in src [in Resolve15]]]]]]",
+		elements
+	);
+}
 }
