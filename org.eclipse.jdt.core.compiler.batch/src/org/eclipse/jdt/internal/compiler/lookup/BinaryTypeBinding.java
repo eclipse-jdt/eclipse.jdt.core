@@ -518,15 +518,15 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 				this.typeVariables = addMethodTypeVariables(typeVars);
 			}
 		}
+		char[] superclassName = binaryType.getSuperclassName();
+		if (CharOperation.equals(superclassName, TypeConstants.CharArray_JAVA_LANG_RECORD_SLASH)){
+			this.modifiers |= ExtraCompilerModifiers.AccRecord;
+		}
 		if (typeSignature == null)  {
-			char[] superclassName = binaryType.getSuperclassName();
 			if (superclassName != null) {
 				// attempt to find the superclass if it exists in the cache (otherwise - resolve it when requested)
 				this.superclass = this.environment.getTypeFromConstantPoolName(superclassName, 0, -1, false, missingTypeNames, toplevelWalker.toSupertype((short) -1, superclassName));
 				this.tagBits |= TagBits.HasUnresolvedSuperclass;
-				if (CharOperation.equals(superclassName, TypeConstants.CharArray_JAVA_LANG_RECORD_SLASH)){
-					this.modifiers |= ExtraCompilerModifiers.AccRecord;
-				}
 			}
 
 			this.superInterfaces = Binding.NO_SUPERINTERFACES;

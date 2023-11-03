@@ -31,6 +31,9 @@ import org.eclipse.jdt.core.tests.util.Util;
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class IncrementalTests extends BuilderTests {
 
+	static {
+//		TESTS_NAMES = new String [] { "testBinaryInnerRecordClass" };
+	}
 	public IncrementalTests(String name) {
 		super(name);
 	}
@@ -1285,4 +1288,111 @@ public class IncrementalTests extends BuilderTests {
 		env.removeProject(projectPath);
 	}
 
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1497
+	public void testBinaryRecordClass() throws JavaModelException {
+		IPath projectPath = env.addProject("Project", "16");
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(projectPath, "");
+
+		IPath root = env.addPackageFragmentRoot(projectPath, "src");
+		env.setOutputFolder(projectPath, "bin");
+
+		env.addClass(root, "", "R",
+			"public record R(int x, int y) {}\n");
+
+		fullBuild(projectPath);
+		expectingNoProblems();
+
+		IPath aPath = env.addClass(root, "", "X",
+			"public class X extends R {}\n");
+
+		incrementalBuild(projectPath);
+		expectingSpecificProblemFor(aPath, new Problem("X", "The record R cannot be the superclass of X; a record is final and cannot be extended", aPath, 23, 24, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+
+		env.removeProject(projectPath);
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1497
+	public void testBinaryRecordClassWithGenericSuper() throws JavaModelException {
+		IPath projectPath = env.addProject("Project", "16");
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(projectPath, "");
+
+		IPath root = env.addPackageFragmentRoot(projectPath, "src");
+		env.setOutputFolder(projectPath, "bin");
+
+		env.addClass(root, "", "R",
+			"interface I<T> {}\n" +
+			"public record R(int x, int y) implements I<String> {}\n");
+
+		fullBuild(projectPath);
+		expectingNoProblems();
+
+		IPath aPath = env.addClass(root, "", "X",
+			"public class X extends R {}\n");
+
+		incrementalBuild(projectPath);
+		expectingSpecificProblemFor(aPath, new Problem("X", "The record R cannot be the superclass of X; a record is final and cannot be extended", aPath, 23, 24, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+
+		env.removeProject(projectPath);
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1497
+	public void testBinaryInnerRecordClass() throws JavaModelException {
+		IPath projectPath = env.addProject("Project", "16");
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(projectPath, "");
+
+		IPath root = env.addPackageFragmentRoot(projectPath, "src");
+		env.setOutputFolder(projectPath, "bin");
+
+		env.addClass(root, "", "O",
+				"public class O {\n" +
+			    "    public static record R(int x, int y) {}\n" +
+				"}\n");
+
+		fullBuild(projectPath);
+		expectingNoProblems();
+
+		IPath aPath = env.addClass(root, "", "X",
+			"public class X extends O.R {}\n");
+
+		incrementalBuild(projectPath);
+		expectingSpecificProblemFor(aPath, new Problem("X", "The record O.R cannot be the superclass of X; a record is final and cannot be extended", aPath, 23, 26, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+
+		env.removeProject(projectPath);
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1497
+	public void testBinaryInnerRecordClassWithGenericSuper() throws JavaModelException {
+		IPath projectPath = env.addProject("Project", "16");
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+
+		// remove old package fragment root so that names don't collide
+		env.removePackageFragmentRoot(projectPath, "");
+
+		IPath root = env.addPackageFragmentRoot(projectPath, "src");
+		env.setOutputFolder(projectPath, "bin");
+
+		env.addClass(root, "", "O",
+				"public class O {\n" +
+		        "    interface I<T> {}\n" +
+		        "    public static record R(int x, int y) implements I<String> {}\n" +
+				"}\n");
+
+		fullBuild(projectPath);
+		expectingNoProblems();
+
+		IPath aPath = env.addClass(root, "", "X",
+			"public class X extends O.R {}\n");
+
+		incrementalBuild(projectPath);
+		expectingSpecificProblemFor(aPath, new Problem("X", "The record O.R cannot be the superclass of X; a record is final and cannot be extended", aPath, 23, 26, CategorizedProblem.CAT_TYPE, IMarker.SEVERITY_ERROR)); //$NON-NLS-1$ //$NON-NLS-2$
+
+		env.removeProject(projectPath);
+	}
 }
