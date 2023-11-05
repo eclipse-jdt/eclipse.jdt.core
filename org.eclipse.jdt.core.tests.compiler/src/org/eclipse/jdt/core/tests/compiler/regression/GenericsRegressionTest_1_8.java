@@ -10525,4 +10525,22 @@ public void testBug508834_comment0() {
 				"""
 			});
 	}
+	public void testGH1427_class() {
+		runConformTest(
+			new String[] {
+				"Main.java",
+				"""
+				import java.util.List;
+				import java.util.function.Supplier;
+
+				public class Main {
+				    private static final List<Pair<Supplier<String>>> ATTRIBUTE = List.of(new Pair<>(String::new));
+
+				    static class Pair<T> { Pair(T first) {} }
+
+				    public static void main(String[] args) {}
+				}
+				"""
+			});
+	}
 }
