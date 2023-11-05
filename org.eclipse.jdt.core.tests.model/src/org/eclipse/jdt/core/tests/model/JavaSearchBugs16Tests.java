@@ -660,6 +660,24 @@ public class JavaSearchBugs16Tests extends AbstractJavaSearchTests {
 			deleteProject(testProjectName);
 		}
 	}
+	public void testGH1519_ImplicitRecordConstructors() throws CoreException {
+		String testProjectName = "testGH1519_ImplicitRecordConstructors";
+		try {
+			IJavaProject project = createJava16Project(testProjectName, new String[] {"src"});
+			String packageFolder = "/" + testProjectName + "/src";
+			createFolder(packageFolder);
+			String source = "public record Person (String name, int age) {}";
+			createFile(packageFolder + "/Person.java", source);
+			buildAndExpectNoProblems(project);
+
+			ConstructorDeclarationsCollector requestor = new ConstructorDeclarationsCollector();
+			searchAllConstructorDeclarations("Perso", SearchPattern.R_PREFIX_MATCH, requestor);
+			assertSearchResults(
+					".Person#Person(String name,int age)", requestor);
+		} finally {
+			deleteProject(testProjectName);
+		}
+	}
 
 	/*
 	 * unit test for https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1297
