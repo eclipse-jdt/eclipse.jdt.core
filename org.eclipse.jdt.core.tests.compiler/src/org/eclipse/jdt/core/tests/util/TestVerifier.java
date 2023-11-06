@@ -561,7 +561,7 @@ private void launchVerifyTestsIfNeeded(String[] classpaths, String[] vmArguments
 			}
 			if (this.socket == null) {
 				try {
-					Thread.sleep(100);
+					Thread.sleep(1);
 				} catch (InterruptedException e) {
 				}
 				isVMRunning = this.vm.isRunning();
@@ -615,9 +615,9 @@ public void shutDown() {
 	if (this.vm != null) {
 		try {
 			int retry = 0;
-			while (this.vm.isRunning() && (++retry < 20)) {
+			while (this.vm.isRunning() && (++retry < 2000)) {
 				try {
-					Thread.sleep(100);
+					Thread.sleep(1);
 				} catch (InterruptedException e) {
 				}
 			}
@@ -664,15 +664,12 @@ public boolean verifyClassFiles(String sourceFilePath, String className, String 
 private void waitForFullBuffers() {
 	String endString = VerifyTests.class.getName();
 	int count = 60;
-	int waitMs = 1;
 	int errorEndStringStart = this.errorBuffer.toString().indexOf(endString);
 	int outputEndStringStart = this.outputBuffer.toString().indexOf(endString);
 	while (errorEndStringStart == -1 || outputEndStringStart == -1) {
 		try {
-			Thread.sleep(waitMs);
+			Thread.sleep(1);
 		} catch (InterruptedException e) {
-		} finally {
-			if(waitMs < 100) waitMs *= 2;
 		}
 		if (--count == 0) return;
 		errorEndStringStart = this.errorBuffer.toString().indexOf(endString);
