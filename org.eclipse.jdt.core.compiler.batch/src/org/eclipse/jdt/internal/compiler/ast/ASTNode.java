@@ -361,9 +361,9 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 			if (allocExp.typeExpected == null && !allocExp.expectedTypeWasInferred) {
 				final boolean isDiamond = allocExp.type != null && (allocExp.type.bits & ASTNode.IsDiamond) != 0;
 				allocExp.typeExpected = parameterType;
-				if (!isDiamond && allocExp.type.resolvedType.isParameterizedTypeWithActualArguments()) {
-					ParameterizedTypeBinding ptb = (ParameterizedTypeBinding) allocExp.type.resolvedType;
-					allocExp.reportTypeArgumentRedundancyProblem(ptb, scope);
+				if (!isDiamond && allocExp.resolvedType.isParameterizedTypeWithActualArguments()) {
+					ParameterizedTypeBinding pbinding = (ParameterizedTypeBinding) allocExp.resolvedType;
+					scope.problemReporter().redundantSpecificationOfTypeArguments(allocExp.type, pbinding.arguments);
 				}
 			}
 		}
