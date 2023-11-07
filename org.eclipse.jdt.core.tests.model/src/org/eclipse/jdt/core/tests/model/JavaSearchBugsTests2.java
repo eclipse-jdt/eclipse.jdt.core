@@ -670,7 +670,6 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 	 * @bug 342393: Anonymous class' occurrence count is incorrect when two methods in a class have the same name.
 	 * @test Search for Enumerators with anonymous types
 	 *
-	 * @throws CoreException
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=342393"
 	 */
 	public void testBug342393() throws CoreException {

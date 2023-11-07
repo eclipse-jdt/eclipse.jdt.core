@@ -142,7 +142,6 @@ public class XMLConverter extends ElementScanner6<Void, Node> implements IXMLNam
 	 * Recursively convert a collection of language elements (declarations) into an XML representation.
 	 * @param declarations the collection of language elements to convert
 	 * @return an XML document whose root node is named &lt;model&gt;.
-	 * @throws ParserConfigurationException
 	 */
 	public static Document convertModel(Iterable<? extends javax.lang.model.element.Element> declarations) throws ParserConfigurationException {
 		Document model = org.eclipse.core.internal.runtime.XmlProcessorFactory.createDocumentBuilderWithErrorOnDOCTYPE().newDocument();
@@ -311,8 +310,6 @@ public class XMLConverter extends ElementScanner6<Void, Node> implements IXMLNam
 
 	/**
 	 * Create a node representing a class declaration's superclass
-	 * @param tmSuper
-	 * @param target
 	 */
 	private void convertSuperclass(TypeElement e, Node target) {
 		TypeMirror tmSuper = e.getSuperclass();

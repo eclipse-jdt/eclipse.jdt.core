@@ -759,7 +759,6 @@ public class AptConfig {
 	 * setting; the older setting is still set (and read) in order to preserve backward
 	 * compatibility.
 	 * @param jproject an IJavaProject, or null to set workspace preferences.
-	 * @param enabled
 	 */
 	public static void setEnabled(IJavaProject jproject, boolean enabled) {
 		if (jproject == null && enabled == true) {

@@ -283,19 +283,12 @@ public BinaryTypeBinding(BinaryTypeBinding prototype) {
 
 /**
  * Standard constructor for creating binary type bindings from binary models (classfiles)
- * @param packageBinding
- * @param binaryType
- * @param environment
  */
 public BinaryTypeBinding(PackageBinding packageBinding, IBinaryType binaryType, LookupEnvironment environment) {
 	this(packageBinding, binaryType, environment, false);
 }
 /**
  * Standard constructor for creating binary type bindings from binary models (classfiles)
- * @param packageBinding
- * @param binaryType
- * @param environment
- * @param needFieldsAndMethods
  */
 public BinaryTypeBinding(PackageBinding packageBinding, IBinaryType binaryType, LookupEnvironment environment, boolean needFieldsAndMethods) {
 

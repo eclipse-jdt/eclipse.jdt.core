@@ -237,7 +237,6 @@ public MethodDeclaration addMissingAbstractMethodFor(MethodBinding methodBinding
 
 /**
  *	Flow analysis for a local innertype
- *
  */
 @Override
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
@@ -260,7 +259,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 
 /**
  *	Flow analysis for a member innertype
- *
  */
 public void analyseCode(ClassScope enclosingClassScope) {
 	if (this.ignoreFurtherInvestigation)
@@ -276,7 +274,6 @@ public void analyseCode(ClassScope enclosingClassScope) {
 
 /**
  *	Flow analysis for a local member innertype
- *
  */
 public void analyseCode(ClassScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 	if (this.ignoreFurtherInvestigation)
@@ -297,7 +294,6 @@ public void analyseCode(ClassScope currentScope, FlowContext flowContext, FlowIn
 
 /**
  *	Flow analysis for a package member type
- *
  */
 public void analyseCode(CompilationUnitScope unitScope) {
 	if (this.ignoreFurtherInvestigation)
@@ -1647,7 +1643,6 @@ public void tagAsHavingIgnoredMandatoryErrors(int problemId) {
 
 /**
  *	Iteration for a package member type
- *
  */
 public void traverse(ASTVisitor visitor, CompilationUnitScope unitScope) {
 	try {
@@ -1779,7 +1774,6 @@ public void traverse(ASTVisitor visitor, BlockScope blockScope) {
 
 /**
  *	Iteration for a member innertype
- *
  */
 public void traverse(ASTVisitor visitor, ClassScope classScope) {
 	try {

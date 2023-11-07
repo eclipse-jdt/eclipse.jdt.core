@@ -131,7 +131,6 @@ public class PreferencesTests extends APTTestBase {
 
 	/**
 	 * Test the config API for settings other than factory path
-	 * @throws Exception
 	 */
 	public void testSimpleConfigApi() throws Exception {
 		IJavaProject jproj = env.getJavaProject( getProjectName() );
@@ -261,7 +260,6 @@ public class PreferencesTests extends APTTestBase {
 	 * with and without apt enabled.
 	 *
 	 * See comments in method body for detail testing scenarios
-	 * @throws Exception
 	 */
 	public void testConfigGenSrcDir() throws Exception {
 

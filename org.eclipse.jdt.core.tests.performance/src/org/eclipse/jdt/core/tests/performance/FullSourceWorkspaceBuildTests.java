@@ -117,9 +117,6 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 		"search"
 	};
 
-	/**
-	 * @param name
-	 */
 	public FullSourceWorkspaceBuildTests(String name) {
 		super(name);
 	}
@@ -434,9 +431,6 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * Test performance for a parser on one file.
 	 * Parse is executed many times ({@link #ITERATIONS_COUNT}) to have significant time for execution.
 	 * This test is repeated several times ({@link #MEASURES_COUNT}) to average time measuring.
-	 *
-	 * @throws InvalidInputException
-	 * @throws IOException
 	 */
 	void parseParserFile(final int kind) throws InvalidInputException, IOException, CoreException {
 
@@ -586,9 +580,6 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * Test performance for Scanner on one file.
 	 * Scan is executed many times ({@link #SCAN_REPEAT}) to have significant time for execution.
 	 * This test is repeated several times ({@link #ITERATIONS_COUNT}) to average time measuring.
-	 *
-	 * @throws InvalidInputException
-	 * @throws IOException
 	 */
 	public void testScanner() throws InvalidInputException, IOException, CoreException {
 
@@ -624,9 +615,6 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * Test performance for Parser on one file.
 	 * Parse is executed many times ({@link #ITERATIONS_COUNT}) to have significant time for execution.
 	 * This test is repeated several times ({@link #MEASURES_COUNT}) to average time measuring.
-	 *
-	 * @throws InvalidInputException
-	 * @throws IOException
 	 */
 	public void testParser() throws InvalidInputException, IOException, CoreException {
 		parseParserFile(0); // Parser kind
@@ -640,9 +628,6 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * Note: This test has been temporarily removed as there's unexplicable difference between
 	 * HEAD and 3.0 versions for CPU Time results (10% faster) and Elapsed process (25% slower)...
 	 * TODO (frederic) Put back when platform-releng will have stabilized performance results process.
-	 *
-	 * @throws InvalidInputException
-	 * @throws IOException
 	 */
 	public void _testSourceParser() throws InvalidInputException, IOException, CoreException {
 		parseParserFile(1); // SourceElementParser kind
@@ -655,9 +640,6 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 * 	This test must be and _ever_ stay at first position as it build the entire workspace.
 	 * 	It also cannot be removed as it's a Global fingerprint!
 	 * 	Move it would have great consequence on all other tests results...
-	 *
-	 * @throws CoreException
-	 * @throws IOException
 	 */
 	public void testFullBuildDefault() throws CoreException, IOException {
 		tagAsSummary("Build entire workspace", false); // do NOT put in fingerprint
@@ -667,8 +649,6 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	/**
 	 * JDT/Core project full build with no warning.
 	 *
-	 * @throws CoreException
-	 * @throws IOException
 	 * @since 3.2 M6
 	 */
 	public void testFullBuildProjectNoWarning() throws CoreException, IOException {
@@ -679,8 +659,6 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	/**
 	 * JDT/Core project full build with JavaCore default options.
 	 *
-	 * @throws CoreException
-	 * @throws IOException
 	 * @since 3.2 M6
 	 */
 	public void testFullBuildProjectDefault() throws CoreException, IOException {
@@ -691,8 +669,6 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	/**
 	 * JDT/Core project full build with all warnings.
 	 *
-	 * @throws CoreException
-	 * @throws IOException
 	 * @since 3.2 M6
 	 */
 	public void testFullBuildProjectAllWarnings() throws CoreException, IOException {
@@ -705,8 +681,6 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	 *
 	 * Not calling tagAsSummary means that this test is currently evaluated
 	 * before put it in builds performance results.
-	 *
-	 * @throws IOException
 	 */
 	public void testBatchCompilerNoWarning() throws IOException, CoreException {
 		tagAsSummary("Compile folders using cmd line (no warn)", false); // do NOT put in fingerprint
@@ -715,8 +689,6 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 
 	/**
 	 * Compile JDT/Core project with default warnings
-	 *
-	 * @throws IOException
 	 */
 	public void testCompileJDTCoreProjectNoWarning() throws IOException, CoreException {
 		tagAsSummary("Compile JDT/Core with cmd line (no warn)", false); // do NOT put in fingerprint
@@ -725,8 +697,6 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 
 	/**
 	 * Compile JDT/Core project with default warnings
-	 *
-	 * @throws IOException
 	 */
 	public void testCompileJDTCoreProjectDefault() throws IOException, CoreException {
 		tagAsSummary("Compile JDT/Core with command line", true); // put in fingerprint
@@ -735,8 +705,6 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 
 	/**
 	 * Compile JDT/Core project with default javadoc warnings
-	 *
-	 * @throws IOException
 	 */
 	public void testCompileJDTCoreProjectJavadoc() throws IOException, CoreException {
 		tagAsSummary("Compile JDT/Core with cmd line (javadoc)", false); // do NOT put in fingerprint
@@ -746,7 +714,6 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	/**
 	 * Compile JDT/Core project with all warnings
 	 *
-	 * @throws IOException
 	 * @since 3.2 M6
 	 */
 	public void testCompileJDTCoreProjectAllWarnings() throws IOException, CoreException {
@@ -757,7 +724,6 @@ public class FullSourceWorkspaceBuildTests extends FullSourceWorkspaceTests {
 	/**
 	 * Compile JDT/Core project with default warnings
 	 *
-	 * @throws IOException
 	 * @since 3.2 M6
 	 */
 	public void testCompileSWTProjectDefault() throws IOException, CoreException {

@@ -253,9 +253,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			}
 		}
 
-		/**
-		 *
-		 */
 		public void compiling() {
 			printlnOut(this.main.bind("progress.compiling")); //$NON-NLS-1$
 		}
@@ -718,9 +715,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			this.printlnErr(this.main.bind("configure.incorrectVMVersionforAPT")); //$NON-NLS-1$
 		}
 
-		/**
-		 *
-		 */
 		public void logNoClassFileCreated(String outputDir, String relativeFileName, IOException e) {
 			if ((this.tagBits & Logger.XML) != 0) {
 				HashMap<String, Object> parameters = new HashMap<>();
@@ -740,9 +734,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 				}));
 		}
 
-		/**
-		 * @param exportedClassFilesCounter
-		 */
 		public void logNumberOfClassFilesGenerated(int exportedClassFilesCounter) {
 			if ((this.tagBits & Logger.XML) != 0) {
 				HashMap<String, Object> parameters = new HashMap<>();
@@ -909,11 +900,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			return localErrorCount;
 		}
 
-		/**
-		 * @param globalProblemsCount
-		 * @param globalErrorsCount
-		 * @param globalWarningsCount
-		 */
 		public void logProblemsSummary(int globalProblemsCount,
 			int globalErrorsCount, int globalWarningsCount, int globalInfoCount, int globalTasksCount) {
 			if ((this.tagBits & Logger.XML) != 0) {
@@ -1002,9 +988,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			}
 		}
 
-		/**
-		 *
-		 */
 		public void logProgress() {
 			printOut('.');
 		}
@@ -1019,9 +1002,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			printlnOut(this.main.bind("compile.repetition", //$NON-NLS-1$
 				String.valueOf(i + 1), String.valueOf(repetitions)));
 		}
-		/**
-		 * @param compilerStats
-		 */
 		public void logTiming(CompilerStats compilerStats) {
 			long time = compilerStats.elapsedTime();
 			long lineCount = compilerStats.lineCount;
@@ -1065,7 +1045,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 
 		/**
 		 * Print the usage of the compiler
-		 * @param usage
 		 */
 		public void logUsage(String usage) {
 			printlnOut(usage);
@@ -1221,9 +1200,6 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			}
 		}
 
-		/**
-		 *
-		 */
 		public void printNewLine() {
 			this.out.println();
 		}

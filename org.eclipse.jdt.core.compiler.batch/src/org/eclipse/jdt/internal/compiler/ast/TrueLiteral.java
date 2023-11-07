@@ -67,9 +67,6 @@ public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStr
 public TypeBinding literalType(BlockScope scope) {
 	return TypeBinding.BOOLEAN;
 }
-/**
- *
- */
 @Override
 public char[] source() {
 	return source;

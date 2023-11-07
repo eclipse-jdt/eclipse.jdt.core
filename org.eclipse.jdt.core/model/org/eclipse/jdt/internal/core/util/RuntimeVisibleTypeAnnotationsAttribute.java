@@ -33,10 +33,6 @@ public class RuntimeVisibleTypeAnnotationsAttribute
 
 	/**
 	 * Constructor for RuntimeVisibleTypeAnnotations.
-	 * @param classFileBytes
-	 * @param constantPool
-	 * @param offset
-	 * @throws ClassFormatException
 	 */
 	public RuntimeVisibleTypeAnnotationsAttribute(
 			byte[] classFileBytes,

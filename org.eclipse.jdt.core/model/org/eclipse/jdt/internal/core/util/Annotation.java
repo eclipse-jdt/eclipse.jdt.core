@@ -35,11 +35,6 @@ public class Annotation extends ClassFileStruct implements IAnnotation {
 
 	/**
 	 * Constructor for Annotation.
-	 *
-	 * @param classFileBytes
-	 * @param constantPool
-	 * @param offset
-	 * @throws ClassFormatException
 	 */
 	public Annotation(
 			byte[] classFileBytes,

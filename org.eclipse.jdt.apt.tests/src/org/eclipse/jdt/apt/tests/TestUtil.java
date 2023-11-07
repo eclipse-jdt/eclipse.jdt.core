@@ -293,7 +293,6 @@ public class TestUtil
 	 * @param input a map of root directories and corresponding filters.  Each
 	 * root directory will be searched, and any files that pass the filter will
 	 * be added to the zip file.
-	 * @throws IOException
 	 */
 	public static void zip(String zipPath, Map<File, FileFilter> input)
 		throws IOException

@@ -103,8 +103,6 @@ import org.eclipse.jdt.core.dom.WhileStatement;
 
 import junit.framework.Test;
 
-/**
- */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 	/**
@@ -122,9 +120,6 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
     // Log files
     private static PrintStream[] LOG_STREAMS = new PrintStream[DIM_NAMES.length];
 
-	/**
-	 * @param name
-	 */
 	public FullSourceWorkspaceASTTests(String name) {
 		super(name);
 	}
@@ -817,8 +812,6 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 
 	/**
 	 * Create AST nodes tree for all compilation units in JUnit project.
-	 *
-	 * @throws JavaModelException
 	 */
 	public void testDomAstCreationProjectJLS3() throws JavaModelException {
 		tagAsSummary("DOM AST tree for project files (JLS3)", true); // put in fingerprint

@@ -1071,7 +1071,6 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	/**
 	 * "early" handling of NonNullByDefault because for local variables annotations are resolved after their type because of bug
 	 * 96991.
-	 * @param localDeclaration
 	 */
 	public static void handleNonNullByDefault(BlockScope scope, Annotation[] sourceAnnotations, LocalDeclaration localDeclaration) {
 		if (sourceAnnotations == null || sourceAnnotations.length == 0) {

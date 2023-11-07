@@ -104,7 +104,6 @@ public class ModuleDeclaration extends ASTNode {
 	/**
 	 * The annotations (element type: {@link Annotation}).
 	 * Defaults to an empty list.
-	 *
 	 */
 	private final ASTNode.NodeList annotations = new ASTNode.NodeList(ANNOTATIONS_PROPERTY);
 

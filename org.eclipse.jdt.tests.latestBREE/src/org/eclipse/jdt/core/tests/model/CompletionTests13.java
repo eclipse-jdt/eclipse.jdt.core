@@ -1130,7 +1130,6 @@ public class CompletionTests13 extends AbstractJavaModelCompletionTests {
 	}
 	/*
 	 * Try completion for yield with value inside switch - positive
-	 * 
 	 */
 	public void test025() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];

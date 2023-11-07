@@ -690,7 +690,6 @@ public class AnnotationProcessorFactoryLoader {
 
 	/**
 	 * When a project is deleted, remove its factory path information from the loader.
-	 * @param jproj
 	 */
     private void uncacheProject(IJavaProject jproj) {
     	ClassLoader c;

@@ -33,11 +33,6 @@ public class DefaultStackMapFrame extends ClassFileStruct implements IStackMapFr
 
 	/**
 	 * Constructor for StackMapFrame.
-	 *
-	 * @param classFileBytes
-	 * @param constantPool
-	 * @param offset
-	 * @throws ClassFormatException
 	 */
 	public DefaultStackMapFrame(
 			byte[] classFileBytes,

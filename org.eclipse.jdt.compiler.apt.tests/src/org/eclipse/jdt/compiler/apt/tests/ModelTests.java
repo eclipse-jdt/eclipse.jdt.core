@@ -57,7 +57,6 @@ public class ModelTests extends TestCase {
 
 	/**
 	 * Validate the testElement test against the javac compiler.
-	 * @throws IOException
 	 */
 	public void testElementWithSystemCompiler() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
@@ -70,7 +69,6 @@ public class ModelTests extends TestCase {
 
 	/**
 	 * Attempt to read various elements of the Element hierarchy.
-	 * @throws IOException
 	 */
 	public void testElementWithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
@@ -79,7 +77,6 @@ public class ModelTests extends TestCase {
 
 	/**
 	 * Validate the testTypeMirror test against the javac compiler.
-	 * @throws IOException
 	 */
 	public void testTypeMirrorWithSystemCompiler() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
@@ -92,7 +89,6 @@ public class ModelTests extends TestCase {
 
 	/**
 	 * Attempt to read various elements of the TypeMirror hierarchy.
-	 * @throws IOException
 	 */
 	public void testTypeMirrorWithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
@@ -101,7 +97,6 @@ public class ModelTests extends TestCase {
 
 	/**
 	 * Validate the generics test against the javac compiler.
-	 * @throws IOException
 	 */
 	public void testGenericsWithSystemCompiler() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
@@ -114,7 +109,6 @@ public class ModelTests extends TestCase {
 
 	/**
 	 * Test handling of generic types.
-	 * @throws IOException
 	 */
 	public void testGenericsWithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
@@ -123,7 +117,6 @@ public class ModelTests extends TestCase {
 
 	/**
 	 * Validate the visitors test against the javac compiler.
-	 * @throws IOException
 	 */
 	public void testVisitorsWithSystemCompiler() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
@@ -136,7 +129,6 @@ public class ModelTests extends TestCase {
 
 	/**
 	 * Test the Visitor method implementations.
-	 * @throws IOException
 	 */
 	public void testVisitorsWithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
@@ -153,7 +145,6 @@ public class ModelTests extends TestCase {
 	 * Test functionality by running a particular processor against the types in
 	 * resources/targets.  The processor must support "*" (the set of all annotations)
 	 * and must report its errors or success via the methods in BaseProcessor.
-	 * @throws IOException
 	 */
 	private void internalTest(JavaCompiler compiler, String processorClass) throws IOException {
 		System.clearProperty(processorClass);

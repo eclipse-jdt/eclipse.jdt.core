@@ -1380,7 +1380,6 @@ public void testOwner() throws CoreException {
  * result in a type hierarchy changed event.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=316654"
- * @throws CoreException
  */
 public void testBug316654() throws CoreException {
 	IJavaProject project = getJavaProject("TypeHierarchyNotification");
@@ -1402,7 +1401,6 @@ public void testBug316654() throws CoreException {
  * change event.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=316654"
- * @throws CoreException
  */
 public void testBug316654_a() throws CoreException {
 	IJavaProject project = getJavaProject("TypeHierarchyNotification");
@@ -1427,7 +1425,6 @@ public void testBug316654_a() throws CoreException {
  * change event.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=316654"
- * @throws CoreException
  */
 public void testBug316654_b() throws CoreException {
 	IJavaProject project = getJavaProject("TypeHierarchyNotification");
@@ -1456,7 +1453,6 @@ public void testBug316654_b() throws CoreException {
  * change event.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=316654"
- * @throws CoreException
  */
 public void testBug316654_c() throws CoreException {
 	IJavaProject project = getJavaProject("TypeHierarchyNotification");

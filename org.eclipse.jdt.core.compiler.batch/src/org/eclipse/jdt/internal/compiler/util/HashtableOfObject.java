@@ -19,7 +19,6 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 
 /**
  * Hashtable of {char[] --> Object }
- *
  */
 public final class HashtableOfObject {
 

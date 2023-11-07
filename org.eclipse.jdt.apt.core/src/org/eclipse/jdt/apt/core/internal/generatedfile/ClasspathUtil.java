@@ -39,7 +39,6 @@ public class ClasspathUtil {
 	 * @param jp - the java project
 	 * @param folder - the folder that you want to see if it is a classpath entry for the java project
 	 * @return the IClasspathEntry corresponding to folder, or null if none was found.
-	 * @throws JavaModelException
 	 */
 	public static IClasspathEntry findProjectSourcePath( IJavaProject jp, IFolder folder )
 		throws JavaModelException
@@ -61,9 +60,7 @@ public class ClasspathUtil {
 	 * @param jp if non-null, get this project's classpath and ignore cp
 	 * @param cp if non-null, use this classpath and ignore jp
 	 * @param path the entry to look for on the classpath
-	 * @param progressMonitor
 	 * @return true if classpath contains the path specified.
-	 * @throws JavaModelException
 	 */
 	public static boolean doesClasspathContainEntry(
 			IJavaProject jp,
@@ -148,7 +145,6 @@ public class ClasspathUtil {
 
 	/**
 	 * returns true if we updated the classpath, false otherwise
-	 * @param specificOutputLocation
 	 */
 	public static boolean updateProjectClasspath( IJavaProject jp, IFolder folder, IProgressMonitor progressMonitor, boolean isTestCode, IPath specificOutputLocation )
 		throws JavaModelException

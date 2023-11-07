@@ -19,7 +19,6 @@ import org.eclipse.jdt.core.search.MethodNameMatch;
 
 /**
  * Java Search concrete class for a method name match.
- *
  */
 public class JavaSearchMethodNameMatch extends MethodNameMatch {
 

@@ -140,7 +140,6 @@ public class XMLComparer implements IXMLNames {
 	 * this class to compare it to a known reference model.  The models
 	 * should match.
 	 * @return true if the models matched, i.e., if the test passed
-	 * @throws Exception
 	 */
 	public static boolean test() throws Exception {
 		final String XML_FRAMEWORK_TEST_MODEL =

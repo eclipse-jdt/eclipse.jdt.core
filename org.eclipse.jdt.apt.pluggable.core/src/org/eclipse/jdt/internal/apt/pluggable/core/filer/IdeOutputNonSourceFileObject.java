@@ -43,9 +43,6 @@ public class IdeOutputNonSourceFileObject extends IdeOutputFileObject
 	 * Create a new IdeOutputFileObject for writing.  The file will not actually be written until the Writer or OutputStream is closed.
 	 * @param env among other roles, the ProcessingEnvironment tracks what files have been generated in a given build.
 	 * @param location must be an output location (see {@link Location#isOutputLocation()}).
-	 * @param pkg
-	 * @param relativeName
-	 * @param parentFiles
 	 * @see javax.tools.StandardLocation
 	 */
 	public IdeOutputNonSourceFileObject(IdeProcessingEnvImpl env, IFile file, Set<IFile> parentFiles) {

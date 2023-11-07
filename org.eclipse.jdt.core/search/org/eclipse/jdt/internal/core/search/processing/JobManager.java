@@ -260,7 +260,6 @@ public abstract class JobManager {
 	 * 		IJobConstants.ForceImmediateSearch
 	 * 		IJobConstants.CancelIfNotReadyToSearch
 	 * 		IJobConstants.WaitUntilReadyToSearch
-	 *
 	 */
 	public boolean performConcurrentJob(IJob searchJob, int waitingPolicy, IProgressMonitor monitor) {
 		if (VERBOSE) {

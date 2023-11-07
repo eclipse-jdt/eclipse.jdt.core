@@ -19,9 +19,6 @@ import org.eclipse.jdt.core.IClasspathContainer;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.JavaCore;
 
-/**
- *
- */
 public class UserLibraryClasspathContainer implements IClasspathContainer {
 
 	private final String name;

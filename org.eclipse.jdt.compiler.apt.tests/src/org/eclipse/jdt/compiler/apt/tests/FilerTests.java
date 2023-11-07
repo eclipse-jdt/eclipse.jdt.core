@@ -36,7 +36,6 @@ public class FilerTests extends TestCase {
 
 	/**
 	 * Validate the testElement test against the javac compiler.
-	 * @throws IOException
 	 */
 	public void testElementWithSystemCompiler() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
@@ -49,7 +48,6 @@ public class FilerTests extends TestCase {
 
 	/**
 	 * Attempt to read various elements of the Element hierarchy.
-	 * @throws IOException
 	 */
 	public void _testElementWithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
@@ -59,7 +57,6 @@ public class FilerTests extends TestCase {
 	/**
 	 * Test the createResource() by processing resources/targets/filer/FilerTarget1.java
 	 * and verifying the existence and content of the resulting files.
-	 * @throws IOException
 	 */
 	private void internalTestCreateResource(JavaCompiler compiler, boolean isSystemCommpiler) throws IOException {
 		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "filer");

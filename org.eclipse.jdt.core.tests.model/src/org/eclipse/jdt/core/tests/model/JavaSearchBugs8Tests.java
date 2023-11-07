@@ -1686,7 +1686,6 @@ public void testBug427677() throws CoreException {
  * @test tests search for Reference expression - super:: form, without type arguments
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400904"
- *
  */
 public void testBug400904_0001() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -1751,7 +1750,6 @@ public void testBug400904_0001a() throws CoreException {
  * @test tests search for Reference expression - super:: form, with type arguments
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400904"
- *
  */
 public void testBug400904_0002() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -1787,7 +1785,6 @@ public void testBug400904_0002() throws CoreException {
  * @test tests search for Reference expression - SimpleName:: form, without type arguments.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400904"
- *
  */
 public void testBug400904_0003() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -1826,7 +1823,6 @@ public void testBug400904_0003() throws CoreException {
  * @test tests search for Reference expression - SimpleName:: form, with type arguments.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400904"
- *
  */
 public void testBug400904_0004() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -1859,7 +1855,6 @@ public void testBug400904_0004() throws CoreException {
  * @test tests search for Reference expression - QualifiedName:: form, without type arguments.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400904"
- *
  */
 public void testBug400904_0005() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -1894,7 +1889,6 @@ public void testBug400904_0005() throws CoreException {
  * @test tests search for Reference expression - QualifiedName:: form, with type arguments.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400904"
- *
  */
 public void testBug400904_0006() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -1929,7 +1923,6 @@ public void testBug400904_0006() throws CoreException {
  * @test tests search for Reference expression - Primary:: form, without type arguments.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400904"
- *
  */
 public void testBug400904_0007() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -1962,7 +1955,6 @@ public void testBug400904_0007() throws CoreException {
  * @test tests search for Reference expression - Primary:: form, with type arguments.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400904"
- *
  */
 public void testBug400904_0008() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -1995,7 +1987,6 @@ public void testBug400904_0008() throws CoreException {
  * @test tests search for Reference expression - X<T>:: form, without type arguments
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400904"
- *
  */
 public void testBug400904_0009() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -2035,7 +2026,6 @@ public void testBug400904_0009() throws CoreException {
  * @test tests search for Reference expression - X<T>:: form, with type arguments
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400904"
- *
  */
 public void testBug400904_0010() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -2074,7 +2064,6 @@ public void testBug400904_0010() throws CoreException {
  * @test tests search for Reference expression - X<T>.Name :: form, without type arguments
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400904"
- *
  */
 public void testBug400904_0011() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -2112,7 +2101,6 @@ public void testBug400904_0011() throws CoreException {
  * @test tests search for Reference expression - X<T>.Name :: form, with type arguments
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400904"
- *
  */
 public void testBug400904_0012() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -2150,7 +2138,6 @@ public void testBug400904_0012() throws CoreException {
  * @test tests search for Reference expression - X<T>.Y<K> :: form, without type arguments
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400904"
- *
  */
 public void testBug400904_0013() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -2187,7 +2174,6 @@ public void testBug400904_0013() throws CoreException {
  * @test tests search for Reference expression - X<T>.Y<K> :: form, with type arguments
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400904"
- *
  */
 public void testBug400904_0014() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -2224,7 +2210,6 @@ public void testBug400904_0014() throws CoreException {
  * @test tests search for Reference expression - X<T>.Y<K> :: new form, with type arguments
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400904"
- *
  */
 public void testBug400904_0015() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -2262,7 +2247,6 @@ public void testBug400904_0015() throws CoreException {
  * @test lambda expression search on a) field b)parameter
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400905"
- *
  */
 public void testBug400905_0001() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -2294,7 +2278,6 @@ public void testBug400905_0001() throws CoreException {
  * interface declaration and usage being in different files.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400905"
- *
  */
 public void testBug400905_0002() throws CoreException {
 	this.workingCopies = new ICompilationUnit[3];
@@ -2337,7 +2320,6 @@ public void testBug400905_0002() throws CoreException {
  * interface declaration and usage being in different files.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400905"
- *
  */
 public void testBug400905_0003() throws CoreException {
 	this.workingCopies = new ICompilationUnit[3];
@@ -2374,7 +2356,6 @@ public void testBug400905_0003() throws CoreException {
  * interface declaration and usage being in different files.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400905"
- *
  */
 public void testBug400905_0004() throws CoreException {
 	this.workingCopies = new ICompilationUnit[3];
@@ -2412,7 +2393,6 @@ public void testBug400905_0004() throws CoreException {
  * interface declaration and usage being in different files.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400905"
- *
  */
 public void testBug400905_0005() throws CoreException {
 	this.workingCopies = new ICompilationUnit[3];
@@ -2446,7 +2426,6 @@ public void testBug400905_0005() throws CoreException {
  * interface declaration and usage being in different files.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400905"
- *
  */
 public void testBug400905_0006() throws CoreException {
 	boolean indexState = isIndexDisabledForTest();
@@ -2493,7 +2472,6 @@ public void testBug400905_0006() throws CoreException {
  * interface declaration and usage being in different files.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=400905"
- *
  */
 public void testBug400905_0007() throws CoreException {
 	boolean indexState = isIndexDisabledForTest();
@@ -3701,7 +3679,6 @@ public void test430159d() throws CoreException {
  * @test tests search for Reference expression - super:: form, without type arguments
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012"
- *
  */
 public void testBug429012_0001() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -3738,7 +3715,6 @@ public void testBug429012_0001() throws CoreException {
  * @test tests search for Reference expression - super:: form, with type arguments
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012"
- *
  */
 public void testBug429012_0002() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -3775,7 +3751,6 @@ public void testBug429012_0002() throws CoreException {
  * @test tests search for Reference expression - SimpleName:: form, without type arguments.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012"
- *
  */
 public void testBug429012_0003() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -3813,7 +3788,6 @@ public void testBug429012_0003() throws CoreException {
  * @test tests search for Reference expression - SimpleName:: form, with type arguments.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012"
- *
  */
 public void testBug429012_0004() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -3847,7 +3821,6 @@ public void testBug429012_0004() throws CoreException {
  * @test tests search for Reference expression - QualifiedName:: form, without type arguments.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012"
- *
  */
 public void testBug429012_0005() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -3883,7 +3856,6 @@ public void testBug429012_0005() throws CoreException {
  * @test tests search for Reference expression - QualifiedName:: form, with type arguments.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012"
- *
  */
 public void testBug429012_0006() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -3919,7 +3891,6 @@ public void testBug429012_0006() throws CoreException {
  * @test tests search for Reference expression - Primary:: form, without type arguments.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012"
- *
  */
 public void testBug429012_0007() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -3953,7 +3924,6 @@ public void testBug429012_0007() throws CoreException {
  * @test tests search for Reference expression - Primary:: form, with type arguments.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012"
- *
  */
 public void testBug429012_0008() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -3987,7 +3957,6 @@ public void testBug429012_0008() throws CoreException {
  * @test tests search for Reference expression - X<T>:: form, without type arguments
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012"
- *
  */
 public void testBug429012_0009() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -4028,7 +3997,6 @@ public void testBug429012_0009() throws CoreException {
  * @test tests search for Reference expression - X<T>:: form, with type arguments
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012"
- *
  */
 public void testBug429012_0010() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -4068,7 +4036,6 @@ public void testBug429012_0010() throws CoreException {
  * @test tests search for Reference expression - X<T>.Name :: form, without type arguments
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012"
- *
  */
 public void testBug429012_0011() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -4107,7 +4074,6 @@ public void testBug429012_0011() throws CoreException {
  * @test tests search for Reference expression - X<T>.Name :: form, with type arguments
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012"
- *
  */
 public void testBug429012_0012() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -4146,7 +4112,6 @@ public void testBug429012_0012() throws CoreException {
  * @test tests search for Reference expression - X<T>.Y<K> :: form, without type arguments
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012"
- *
  */
 public void testBug429012_0013() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -4184,7 +4149,6 @@ public void testBug429012_0013() throws CoreException {
  * @test tests search for Reference expression - X<T>.Y<K> :: form, with type arguments
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012"
- *
  */
 public void testBug429012_0014() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -4222,7 +4186,6 @@ public void testBug429012_0014() throws CoreException {
  * @test tests search for Reference expression - X<T>.Y<K> :: new form, with type arguments
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=429012"
- *
  */
 public void testBug429012_0015() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];

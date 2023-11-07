@@ -458,8 +458,6 @@ public class GeneratedFileManager
 	 * Removes any files parented by this file, and removes the file from dependency maps
 	 * if it is generated. This does not remove working copies parented by the file; that
 	 * will happen when the working copy corresponding to the parent file is discarded.
-	 *
-	 * @param f
 	 */
 	public void fileDeleted(IFile f)
 	{
@@ -492,7 +490,6 @@ public class GeneratedFileManager
 	 * @param progressMonitor
 	 *            a progress monitor. This may be null.
 	 * @return - the newly created IFile along with whether it was modified
-	 * @throws CoreException
 	 */
 	public FileGenerationResult generateFileDuringBuild(Collection<IFile> parentFiles, String typeName, String contents,
 			boolean clearDuringReconcile, IProgressMonitor progressMonitor) throws CoreException
@@ -600,7 +597,6 @@ public class GeneratedFileManager
 	 * @return The FileGenerationResult. This will return null if the generated source
 	 *         folder is not configured, or if there is some other error during type
 	 *         generation.
-	 *
 	 */
 	public FileGenerationResult generateFileDuringReconcile(ICompilationUnit parentCompilationUnit, String typeName,
 			String contents) throws CoreException
@@ -728,7 +724,6 @@ public class GeneratedFileManager
 	 *
 	 * @param wc
 	 *            must not be null, but does not have to be a parent.
-	 * @throws CoreException
 	 */
 	public void workingCopyDiscarded(ICompilationUnit wc) throws CoreException
 	{
@@ -1500,7 +1495,6 @@ public class GeneratedFileManager
 	 *            the simple name of the type, with extension, such as 'Obj.java'
 	 * @param contents
 	 *            the text of the compilation unit
-	 * @param progressMonitor
 	 */
 	private void saveCompilationUnit(IPackageFragment pkgFrag, final String cuName, String contents,
 			IProgressMonitor progressMonitor)

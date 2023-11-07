@@ -88,12 +88,6 @@ public class BuildEnv extends AbstractCompilationEnv
 
     /**
      * Constructor for creating a processor environment used during build.
-     * @param filesWithAnnotations
-     * @param additionalFiles
-     * @param units
-     * @param javaProj
-     * @param isTestCode
-     * @param phase
      */
     BuildEnv(
 			final BuildContext[] filesWithAnnotations,
@@ -498,7 +492,6 @@ public class BuildEnv extends AbstractCompilationEnv
 	/**
 	 * Go through the list of compilation unit in this environment and looking for
 	 * the declaration node of the given binding.
-	 * @param binding
 	 * @return the compilation unit that defines the given binding or null if no
 	 * match is found.
 	 */
@@ -519,7 +512,6 @@ public class BuildEnv extends AbstractCompilationEnv
 	/**
 	 * Go through the list of compilation unit in this environment and looking for
 	 * the declaration node of the given binding.
-	 * @param binding
 	 * @return the compilation unit that defines the given binding or null if no
 	 * match is found.
 	 */
@@ -538,7 +530,6 @@ public class BuildEnv extends AbstractCompilationEnv
 	}
 
 	/**
-     * @param file
      * @return the compilation unit associated with the given file.
      * If the file is not one of those that this environment is currently processing,
      * return null;

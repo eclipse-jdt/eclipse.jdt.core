@@ -272,8 +272,6 @@ public boolean isSimilar(IMethod method) {
 			null);
 }
 
-/**
- */
 @Override
 public String readableName() {
 

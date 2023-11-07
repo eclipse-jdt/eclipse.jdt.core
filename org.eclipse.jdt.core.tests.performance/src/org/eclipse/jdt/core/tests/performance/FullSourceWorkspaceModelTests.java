@@ -70,8 +70,6 @@ import org.eclipse.test.performance.Performance;
 
 import junit.framework.Test;
 
-/**
- */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class FullSourceWorkspaceModelTests extends FullSourceWorkspaceTests implements IJavaSearchConstants {
 
@@ -96,9 +94,6 @@ public class FullSourceWorkspaceModelTests extends FullSourceWorkspaceTests impl
 	static IPath BIG_PROJECT_TYPE_PATH;
 	static ICompilationUnit WORKING_COPY;
 
-/**
- * @param name
- */
 public FullSourceWorkspaceModelTests(String name) {
 	super(name);
 }
@@ -651,7 +646,6 @@ public void testProjectFindUnknownType() throws CoreException {
 /*
  * Performance tests for model: Find Unknown type after resetting the classpath
  * (regression test for https://bugs.eclipse.org/bugs/show_bug.cgi?id=217059 )
- *
  */
 public void testProjectFindUnknownTypeAfterSetClasspath() throws CoreException {
 	tagAsSummary("Find unknown type in project after resetting classpath", false); // do NOT put in fingerprint

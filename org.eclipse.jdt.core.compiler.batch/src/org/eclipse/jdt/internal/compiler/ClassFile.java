@@ -2039,9 +2039,6 @@ public class ClassFile implements TypeConstants, TypeIds {
 	}
 
 
-	/**
-	 *
-	 */
 	public void completeCodeAttributeForMissingAbstractProblemMethod(
 			MethodBinding binding,
 			int codeAttributeOffset,
@@ -3311,9 +3308,6 @@ public class ClassFile implements TypeConstants, TypeIds {
 			}
 		}
 	}
-	/**
-	 * @param attributeOffset
-	 */
 	private void generateElementValue(int attributeOffset, Expression defaultValue, Constant constant, TypeBinding binding) {
 		if (this.contentsOffset + 3 >= this.contents.length) {
 			resizeContents(3);
@@ -4704,7 +4698,6 @@ public class ClassFile implements TypeConstants, TypeIds {
 		return false;
 	}
 	/**
-	 * @param annotations
 	 * @param targetMask allowed targets
 	 * @return the number of attributes created while dumping the annotations in the .class file
 	 */

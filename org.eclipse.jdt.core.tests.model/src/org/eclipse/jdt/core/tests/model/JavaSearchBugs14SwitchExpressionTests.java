@@ -32,7 +32,6 @@ import junit.framework.Test;
  * Moved from JavaSearchBugs13Tests
  * All preview option disabled
  * @author vikchand
- *
  */
 public class JavaSearchBugs14SwitchExpressionTests extends AbstractJavaSearchTests {
 

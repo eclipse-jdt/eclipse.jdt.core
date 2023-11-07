@@ -176,7 +176,6 @@ public class JRTUtil {
 	 * @param path
 	 *            absolute file path to a jar archive
 	 * @return never null
-	 * @throws IOException
 	 */
 	public static FileSystem getJarFileSystem(Path path) throws IOException {
 		URI uri = URI.create("jar:file:" + path.toUri().getRawPath()); //$NON-NLS-1$
@@ -236,7 +235,6 @@ public class JRTUtil {
 	 * @param image a java.io.File handle to the JRT image.
 	 * @param visitor an instance of JrtFileVisitor to be notified of the entries in the JRT image.
 	 * @param notify flag indicating the notifications the client is interested in.
-	 * @throws IOException
 	 */
 	public static void walkModuleImage(File image, final JRTUtil.JrtFileVisitor<java.nio.file.Path> visitor, int notify) throws IOException {
 		JrtFileSystem system = getJrtSystem(image, null);
@@ -316,7 +314,6 @@ public class JRTUtil {
 	/**
 	 * Tries to read all bytes of the file denoted by path,
 	 * returns null if the file could not be found or if the read was interrupted.
-	 * @param path
 	 * @return bytes or null
 	 * @throws IOException any IO exception other than NoSuchFileException
 	 */
@@ -360,7 +357,6 @@ class JrtFileSystemWithOlderRelease extends JrtFileSystem {
 	 * need to be loaded.
 	 *
 	 * @param release the older release where classes and modules should be searched for.
-	 * @throws IOException
 	 */
 	JrtFileSystemWithOlderRelease(Jdk jdkHome, String release) throws IOException {
 		super(jdkHome, release);
@@ -528,9 +524,6 @@ class JrtFileSystem {
 	/**
 	 * The jrt file system is based on the location of the JRE home whose libraries
 	 * need to be loaded.
-	 *
-	 * @param jdkHome
-	 * @throws IOException
 	 */
 	JrtFileSystem(Jdk jdkHome, String release) throws IOException {
 		this.jdk = jdkHome;

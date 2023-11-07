@@ -25,7 +25,6 @@ import org.eclipse.jdt.core.IJavaProject;
 /**
  * Stores project-specific data for APT. Analagous to JavaProject
  * @author jgarms
- *
  */
 public class AptProject {
 

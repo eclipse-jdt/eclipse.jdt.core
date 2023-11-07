@@ -24,7 +24,6 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
  * Implementation of this annotation processor is treated just like
  * the regular annotation processor during build and reconcile.
  * @author tyeung
- *
  */
 public interface EclipseAnnotationProcessorFactory extends
 		AnnotationProcessorFactory

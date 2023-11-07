@@ -150,7 +150,6 @@ public StringBuffer printStatement(int tab, StringBuffer output) {
 
 /**
  * Case code generation
- *
  */
 @Override
 public void generateCode(BlockScope currentScope, CodeStream codeStream) {

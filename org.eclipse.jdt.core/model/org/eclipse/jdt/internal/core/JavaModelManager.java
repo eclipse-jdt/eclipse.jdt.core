@@ -1468,7 +1468,6 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		 * Reads the classpath and caches the entries. Returns a two-dimensional array, where the number of elements in the row is fixed to 2.
 		 * The first element is an array of raw classpath entries and the second element is an array of referenced entries that may have been stored
 		 * by the client earlier. See {@link IJavaProject#getReferencedClasspathEntries()} for more details.
-		 *
 		 */
 		public synchronized IClasspathEntry[][] readAndCacheClasspath(JavaProject javaProject) {
 			// read file entries and update status

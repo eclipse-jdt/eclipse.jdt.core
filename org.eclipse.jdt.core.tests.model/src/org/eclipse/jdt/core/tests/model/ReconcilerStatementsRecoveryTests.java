@@ -55,8 +55,6 @@ public class ReconcilerStatementsRecoveryTests extends ModifyingResourceTests {
 		}
 	}
 
-/**
- */
 public ReconcilerStatementsRecoveryTests(String name) {
 	super(name);
 }

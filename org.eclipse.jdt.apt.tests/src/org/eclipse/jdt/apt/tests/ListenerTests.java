@@ -21,9 +21,6 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.tests.annotations.listener.ListenerProcessor;
 
-/**
- *
- */
 public class ListenerTests extends APTTestBase
 {
 

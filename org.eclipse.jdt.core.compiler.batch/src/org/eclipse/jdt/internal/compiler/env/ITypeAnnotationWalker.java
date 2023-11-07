@@ -91,7 +91,6 @@ public interface ITypeAnnotationWalker {
 	/**
 	 * Detail of {@link #toTypeParameterBounds(boolean, int)}: walk to the bounds
 	 * of the previously selected type parameter.
-	 * @param boundIndex
 	 */
 	public abstract ITypeAnnotationWalker toTypeBound(short boundIndex);
 

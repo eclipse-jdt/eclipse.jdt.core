@@ -235,7 +235,6 @@ public TypeBinding closestMatch() {
 
 /**
  * Iterate through the type components to collect instances of leaf missing types
- * @param missingTypes
  * @return missing types
  */
 public List<TypeBinding> collectMissingTypes(List<TypeBinding> missingTypes) {

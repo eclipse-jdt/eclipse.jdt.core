@@ -275,9 +275,6 @@ public class BasicSearchEngine {
 		return new JavaSearchParticipant();
 	}
 
-	/**
-	 * @param matchRule
-	 */
 	public static String getMatchRuleString(final int matchRule) {
 		if (matchRule == 0) {
 			return "R_EXACT_MATCH"; //$NON-NLS-1$
@@ -321,8 +318,6 @@ public class BasicSearchEngine {
 
 	/**
 	 * Return kind of search corresponding to given value.
-	 *
-	 * @param searchFor
 	 */
 	public static String getSearchForString(final int searchFor) {
 		switch (searchFor) {

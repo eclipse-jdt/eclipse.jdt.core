@@ -444,8 +444,6 @@ private boolean isStringArrayParameter(String paramType) {
 public boolean isReadOnly() {
 	return getClassFile() != null;
 }
-/**
- */
 @Override
 public String readableName() {
 

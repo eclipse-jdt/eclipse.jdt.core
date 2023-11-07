@@ -424,7 +424,6 @@ public class JavaProject
 	 * Detect cycles in the classpath of the workspace's projects
 	 * and create markers if necessary.
 	 * @param preferredClasspaths Map
-	 * @throws JavaModelException
 	 */
 	public static void validateCycles(Map preferredClasspaths) throws JavaModelException {
 		//long start = System.currentTimeMillis();
@@ -580,7 +579,6 @@ public class JavaProject
 	/**
 	 * Internal computation of an expanded classpath. It will eliminate duplicates, and produce copies
 	 * of exported or restricted classpath entries to avoid possible side-effects ever after.
-	 * @param excludeTestCode
 	 */
 	private void computeExpandedClasspath(
 		ClasspathEntry referringEntry,
@@ -699,7 +697,6 @@ public class JavaProject
 	 * @param rootIDs HashSet
 	 * @param referringEntry the CP entry (project) referring to this entry, or null if initial project
 	 * @param retrieveExportedRoots boolean
-	 * @throws JavaModelException
 	 */
 	public void computePackageFragmentRoots(
 		IClasspathEntry resolvedEntry,
@@ -723,7 +720,6 @@ public class JavaProject
 	 * @param filterModuleRoots if true, roots corresponding to modules will be filtered if applicable:
 	 *    if a limit-modules attribute exists, this is used, otherwise system modules will be filtered
 	 *    according to the rules of root modules per JEP 261.
-	 * @throws JavaModelException
 	 */
 	public void computePackageFragmentRoots(
 		IClasspathEntry resolvedEntry,
@@ -1035,7 +1031,6 @@ public class JavaProject
 	 *    if a limit-modules attribute exists, this is used, otherwise system modules will be filtered
 	 *    according to the rules of root modules per JEP 261.
 	 * @return IPackageFragmentRoot[]
-	 * @throws JavaModelException
 	 */
 	public IPackageFragmentRoot[] computePackageFragmentRoots(
 					IClasspathEntry[] resolvedClasspath,
@@ -1084,7 +1079,6 @@ public class JavaProject
 	 * @param filterModuleRoots if true, roots corresponding to modules will be filtered if applicable:
 	 *    if a limit-modules attribute exists, this is used, otherwise system modules will be filtered
 	 *    according to the rules of root modules per JEP 261.
-	 * @throws JavaModelException
 	 */
 	public void computePackageFragmentRoots(
 		IClasspathEntry[] resolvedClasspath,
@@ -1308,7 +1302,6 @@ public class JavaProject
 	 * Reads and decode an XML classpath string. Returns a two-dimensional array, where the number of elements in the row is fixed to 2.
 	 * The first element is an array of raw classpath entries and the second element is an array of referenced entries that may have been stored
 	 * by the client earlier. See {@link IJavaProject#getReferencedClasspathEntries()} for more details.
-	 *
 	 */
 	public IClasspathEntry[][] decodeClasspath(String xmlClasspath, Map unknownElements) throws IOException, ClasspathEntry.AssertionFailedException {
 
@@ -2041,7 +2034,6 @@ public class JavaProject
 	 * where all classpath variable entries have been resolved and substituted with their final target entries.
 	 * All project exports have been appended to project entries.
 	 * @return IClasspathEntry[]
-	 * @throws JavaModelException
 	 */
 	public IClasspathEntry[] getExpandedClasspath()	throws JavaModelException {
 		return getExpandedClasspath(false);
@@ -2595,7 +2587,6 @@ public class JavaProject
 	 * @param key String
 	 * @see JavaProject#setSharedProperty(String, String)
 	 * @return String
-	 * @throws CoreException
 	 */
 	public String getSharedProperty(String key) throws CoreException {
 
@@ -3465,7 +3456,6 @@ public class JavaProject
 	 * @param newClasspath IClasspathEntry[]
 	 * @param newOutputLocation IPath
 	 * @return boolean Return whether the .classpath file was modified.
-	 * @throws JavaModelException
 	 */
 	public boolean writeFileEntries(IClasspathEntry[] newClasspath, IClasspathEntry[] referencedEntries, IPath newOutputLocation) throws JavaModelException {
 
@@ -3717,7 +3707,6 @@ public class JavaProject
 	 * @param key String
 	 * @param value String
 	 * @see JavaProject#getSharedProperty(String key)
-	 * @throws CoreException
 	 */
 	public void setSharedProperty(String key, String value) throws CoreException {
 

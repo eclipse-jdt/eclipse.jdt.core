@@ -324,7 +324,6 @@ abstract public void markAsDefinitelyUnknown(LocalVariableBinding local);
 
 /**
  * Mark the null status of the given local according to the given status
- * @param local
  * @param nullStatus bitset of FLowInfo.UNKNOWN ... FlowInfo.POTENTIALLY_NON_NULL
  */
 public void markNullStatus(LocalVariableBinding local, int nullStatus) {
@@ -355,7 +354,6 @@ public void markNullStatus(LocalVariableBinding local, int nullStatus) {
 
 /**
  * Answer the null status of the given local
- * @param local
  * @return bitset of FlowInfo.UNKNOWN ... FlowInfo.POTENTIALLY_NON_NULL
  */
 public int nullStatus(LocalVariableBinding local) {
@@ -674,7 +672,6 @@ abstract public UnconditionalFlowInfo unconditionalInitsWithoutSideEffect();
 
 /**
  * Resets the definite and potential initialization info for the given local variable
- * @param local
  */
 abstract public void resetAssignmentInfo(LocalVariableBinding local);
 

@@ -59,7 +59,6 @@ public class AnnotationValueImpl implements EclipseMirrorObject, AnnotationValue
 	 * @param element the annotation element declaration.
 	 * @param index zero-based index into the array if the this value is an array element.
 	 *        <code>-1</code> otherwise.
-	 * @param env
 	 */
     public AnnotationValueImpl( final Object value,
 								final int index,
@@ -83,7 +82,6 @@ public class AnnotationValueImpl implements EclipseMirrorObject, AnnotationValue
 	 * @param index zero-based index into the array if the this value is an array element.
 	 *        <code>-1</code> otherwise.
 	 * @param annotation the annotation containing this value
-	 * @param env
 	 */
 	public AnnotationValueImpl( final Object value,
 								final String name,

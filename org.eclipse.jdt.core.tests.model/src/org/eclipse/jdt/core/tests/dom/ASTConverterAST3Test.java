@@ -45,8 +45,6 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 	/**
 	 * Internal access method to VariableDeclarationFragment#setExtraDimensions() for avoiding deprecated warnings.
 	 *
-	 * @param node
-	 * @param dimensions
 	 * @deprecated
 	 */
 	private void internalSetExtraDimensions(VariableDeclarationFragment node, int dimensions) {

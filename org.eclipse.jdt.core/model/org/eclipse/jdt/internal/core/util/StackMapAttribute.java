@@ -35,10 +35,6 @@ public class StackMapAttribute
 
 	/**
 	 * Constructor for LineNumberAttribute.
-	 * @param classFileBytes
-	 * @param constantPool
-	 * @param offset
-	 * @throws ClassFormatException
 	 */
 	public StackMapAttribute(
 			byte[] classFileBytes,
@@ -79,8 +75,6 @@ public class StackMapAttribute
 		return this.frames;
 	}
 
-	/**
-	 */
 	public byte[] getBytes() {
 		return this.bytes;
 	}

@@ -473,12 +473,6 @@ private String[] determinePossibleSubTypes(final HashSet localTypes, IProgressMo
  * hierarchy.
  * The match locator is not used here to narrow down the results, the type hierarchy
  * resolver is rather used to compute the whole hierarchy at once.
- * @param type
- * @param scope
- * @param binariesFromIndexMatches
- * @param pathRequestor
- * @param waitingPolicy
- * @param monitor
  */
 public static void searchAllPossibleSubTypes(
 	IType type,

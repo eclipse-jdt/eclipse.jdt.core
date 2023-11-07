@@ -120,8 +120,6 @@ public class FileSystem implements IModuleAwareNameEnvironment, SuffixConstants 
 		boolean hasAnnotationFileFor(String qualifiedTypeName);
 		/**
 		 * Accepts to represent a module location with the given module description.
-		 *
-		 * @param module
 		 */
 		public void acceptModule(IModule module);
 		public String getDestinationPath();

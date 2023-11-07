@@ -67,7 +67,6 @@ import org.eclipse.jdt.internal.core.util.Util;
  * package.  The other set of methods all begin with <code>seek*</code>.  These methods
  * do comprehensive searches of the <code>IJavaProject</code> returning hits
  * in real time through an <code>IJavaElementRequestor</code>.
- *
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class NameLookup implements SuffixConstants {

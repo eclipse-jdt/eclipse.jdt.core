@@ -27,9 +27,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.apt.core.util.AptConfig;
 import org.eclipse.jdt.core.IJavaProject;
 
-/**
- *
- */
 public class ScalingTests extends TestBase
 {
 	private final boolean VERBOSE = true;

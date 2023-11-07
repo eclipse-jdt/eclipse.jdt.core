@@ -30,10 +30,6 @@ public class LineNumberAttribute
 
 	/**
 	 * Constructor for LineNumberAttribute.
-	 * @param classFileBytes
-	 * @param constantPool
-	 * @param offset
-	 * @throws ClassFormatException
 	 */
 	public LineNumberAttribute(
 		byte[] classFileBytes,

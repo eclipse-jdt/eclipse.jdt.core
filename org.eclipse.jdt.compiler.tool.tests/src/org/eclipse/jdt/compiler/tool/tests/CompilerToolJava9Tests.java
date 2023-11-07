@@ -1091,7 +1091,6 @@ public class CompilerToolJava9Tests extends TestCase {
 	 * This is not optimized to handle very large or deep directory trees efficiently.
 	 * @param f is either a normal file (which will be deleted) or a directory
 	 * (which will be emptied and then deleted).
-	 * @throws IOException
 	 */
 	public static void deleteTree(File f) throws IOException
 	{
@@ -1117,7 +1116,6 @@ public class CompilerToolJava9Tests extends TestCase {
 	 *            the full path to the resource location.
 	 * @param destFolder
 	 *            the full path to the destination location.
-	 * @throws IOException
 	 */
 	public static void copyResource(File src, File dest) throws IOException {
 		if (dest.exists() &&
@@ -1158,7 +1156,6 @@ public class CompilerToolJava9Tests extends TestCase {
 	 *            the absolute path of the folder under which the resource will be copied. Folder
 	 *            and subfolders will be created if necessary.
 	 * @return a file representing the copied resource
-	 * @throws IOException
 	 */
 	public static File copyResource(String resourcePath, File targetFolder) throws IOException {
 		File resDir = new File(getPluginDirectoryPath(), RESOURCES_DIR);
@@ -1178,7 +1175,6 @@ public class CompilerToolJava9Tests extends TestCase {
 	 * @param resourceFolderName the name of the source folder, relative to
 	 * <code>[plugin-root]/resources</code>
 	 * @param the absolute path of the destination folder
-	 * @throws IOException
 	 */
 	public static void copyResources(String resourceFolderName, File destFolder) throws IOException {
 		File resDir = new File(getPluginDirectoryPath(), RESOURCES_DIR);

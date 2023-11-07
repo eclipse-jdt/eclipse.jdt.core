@@ -31,10 +31,6 @@ public class RuntimeInvisibleParameterAnnotationsAttribute
 
 	/**
 	 * Constructor for RuntimeVisibleParameterAnnotations.
-	 * @param classFileBytes
-	 * @param constantPool
-	 * @param offset
-	 * @throws ClassFormatException
 	 */
 	public RuntimeInvisibleParameterAnnotationsAttribute(
 		byte[] classFileBytes,

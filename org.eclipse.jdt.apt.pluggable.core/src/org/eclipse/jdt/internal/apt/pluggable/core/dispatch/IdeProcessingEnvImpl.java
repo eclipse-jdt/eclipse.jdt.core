@@ -140,7 +140,6 @@ public abstract class IdeProcessingEnvImpl extends BaseProcessingEnvImpl {
 	 * of some sort (nested type, method, etc.) then get the IFile corresponding
 	 * to the containing top-level type.
 	 * If the element is not a source type at all, then return null.
-	 * @param elem
 	 * @return may be null
 	 */
 	public IFile getEnclosingIFile(Element elem) {

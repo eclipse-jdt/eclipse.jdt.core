@@ -18,7 +18,6 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 /**
  * Represents an entry on the module path of a project. Could be a single module or a collection of
  * modules (like a jimage or an exploded module directory structure)
- *
  */
 public interface IModulePathEntry {
 

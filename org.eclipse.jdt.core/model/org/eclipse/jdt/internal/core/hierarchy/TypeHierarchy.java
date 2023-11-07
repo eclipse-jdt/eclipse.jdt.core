@@ -451,8 +451,6 @@ private IType[] getAllSubtypesForType(IType type) {
 	subTypes.toArray(subClasses);
 	return subClasses;
 }
-/**
- */
 private void getAllSubtypesForType0(IType type, ArrayList<IType> subs) {
 	IType[] subTypes = getSubtypesForType(type);
 	if (subTypes.length != 0) {

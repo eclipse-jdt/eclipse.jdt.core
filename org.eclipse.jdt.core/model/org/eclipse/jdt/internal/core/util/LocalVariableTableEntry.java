@@ -34,11 +34,6 @@ public class LocalVariableTableEntry extends ClassFileStruct implements ILocalVa
 
 	/**
 	 * Constructor for LocalVariableTableEntry.
-	 *
-	 * @param classFileBytes
-	 * @param constantPool
-	 * @param offset
-	 * @throws ClassFormatException
 	 */
 	public LocalVariableTableEntry(
 		byte[] classFileBytes,

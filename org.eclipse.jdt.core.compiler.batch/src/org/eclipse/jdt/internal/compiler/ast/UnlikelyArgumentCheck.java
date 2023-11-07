@@ -39,7 +39,6 @@ public class UnlikelyArgumentCheck {
 
 	/**
 	 * Check if the invocation is likely a bug.
-	 * @param currentScope
 	 * @return false, if the typeToCheck does not seem to related to the expectedType
 	 */
 	public boolean isDangerous(BlockScope currentScope) {

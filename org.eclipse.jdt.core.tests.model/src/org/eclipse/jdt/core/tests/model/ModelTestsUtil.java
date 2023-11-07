@@ -123,9 +123,6 @@ static public IClassFile getClassFile(IJavaProject project, String rootPath, Str
 
 /**
  * Returns compilation unit with given name in given project and package.
- * @param javaProject
- * @param packageName
- * @param unitName
  * @return org.eclipse.jdt.core.ICompilationUnit
  */
 static public ICompilationUnit getCompilationUnit(IJavaProject javaProject, String packageName, String unitName) throws JavaModelException {

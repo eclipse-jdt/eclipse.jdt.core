@@ -279,7 +279,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	/*
 	 * Two Java projects, each with one module. P2 has P1 in its build path but
 	 * module M2 has no 'requires' M1. Should report unresolved type, import etc.
-	 *
 	 */
 	public void test007() throws Exception {
 		try {
@@ -310,7 +309,6 @@ public class ModuleBuilderTests extends ModifyingResourceTests {
 	 * module M2 'requires' M1. Should report unresolved type, import etc. But M1
 	 * does not export the package that is used by M2. Test that M2 does not see
 	 * the types in unexported packages.
-	 *
 	 */
 	public void test008() throws Exception {
 		try {

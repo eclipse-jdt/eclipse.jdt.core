@@ -41,7 +41,6 @@ public interface EclipseMessager extends Messager
 	/**
 	 * Print an error message on the given AST node.
 	 * The AST node must came from the AST that is associated with the environment.
-	 * @param node
 	 * @param msg the error message
 	 * @throws IllegalArgumentException if <code>node</code> or <code>msg</code> is null.
 	 *         Also, if the node did not come from the ast in the environment.
@@ -51,7 +50,6 @@ public interface EclipseMessager extends Messager
 	/**
 	 * Print a warning on the given AST node.
 	 * The AST node must came from the AST that is associated with the environment.
-	 * @param node
 	 * @param msg the warning message
 	 * @throws IllegalArgumentException if <code>node</code> or <code>msg</code> is null.
 	 * 		   Also, if the node did not come from the ast in the environment.
@@ -61,7 +59,6 @@ public interface EclipseMessager extends Messager
 	/**
 	 * Print a notice on the given AST node.
 	 * The AST node must came from the AST that is associated with the environment.
-	 * @param node
 	 * @param msg the warning message
 	 * @throws IllegalArgumentException if <code>node</code> or <code>msg</code> is null.
 	 *         Also, if the node did not come from the ast in the environment.

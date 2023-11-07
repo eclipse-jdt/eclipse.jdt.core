@@ -1472,7 +1472,6 @@ public abstract class Constant implements TypeIds, OperatorIds {
 
 	/**
 	 * Returns true if both constants have the same type and the same actual value
-	 * @param otherConstant
 	 */
 	public boolean hasSameValue(Constant otherConstant) {
 		if (this == otherConstant)

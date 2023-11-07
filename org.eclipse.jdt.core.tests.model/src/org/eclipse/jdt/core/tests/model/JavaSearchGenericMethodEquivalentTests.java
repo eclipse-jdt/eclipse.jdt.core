@@ -27,9 +27,6 @@ import junit.framework.TestSuite;
 @SuppressWarnings("rawtypes")
 public class JavaSearchGenericMethodEquivalentTests extends JavaSearchGenericMethodTests {
 
-	/**
-	 * @param name
-	 */
 	public JavaSearchGenericMethodEquivalentTests(String name) {
 		super(name, EQUIVALENT_RULE);
 	}

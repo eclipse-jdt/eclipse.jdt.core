@@ -31,10 +31,6 @@ public class SourceFileAttribute
 
 	/**
 	 * Constructor for SourceFileAttribute.
-	 * @param classFileBytes
-	 * @param constantPool
-	 * @param offset
-	 * @throws ClassFormatException
 	 */
 	public SourceFileAttribute(
 		byte[] classFileBytes,

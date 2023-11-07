@@ -257,8 +257,6 @@ public abstract class AbstractMethodDeclaration
 
 	/**
 	 * Bytecode generation for a method
-	 * @param classScope
-	 * @param classFile
 	 */
 	public void generateCode(ClassScope classScope, ClassFile classFile) {
 
@@ -487,8 +485,6 @@ public abstract class AbstractMethodDeclaration
 
 	/**
 	 * Fill up the method body with statement
-	 * @param parser
-	 * @param unit
 	 */
 	public abstract void parseStatements(Parser parser, CompilationUnitDeclaration unit);
 

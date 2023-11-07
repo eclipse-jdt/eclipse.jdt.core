@@ -109,7 +109,6 @@ public class ASTConverter_16Test extends ConverterTestSetup {
 
 	/**
 	 * Added for Bug 561193 - [14]record keyword inside method not colored correctly
-	 * @throws CoreException
 	 */
 	public void testRecord002() throws CoreException {
 		if (!isJRE16) {

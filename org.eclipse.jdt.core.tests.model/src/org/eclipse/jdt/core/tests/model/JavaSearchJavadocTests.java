@@ -32,9 +32,6 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 
 	Map<String, String> originalOptions;
 
-	/**
-	 * @param name
-	 */
 	public JavaSearchJavadocTests(String name) {
 		super(name);
 	}
@@ -648,7 +645,6 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	/**
 	 * Test fix for bug 47909.
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=47909">47909</a>
-	 * @throws CoreException
 	 */
 	public void testBug47909() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "j3", "Y.java").getType("Y");
@@ -667,7 +663,6 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	/**
 	 * Test fix for bug 47968.
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=47968">47968</a>
-	 * @throws CoreException
 	 */
 	public void testBug47968type() throws CoreException {
 		IType type = getCompilationUnit("JavaSearch", "src", "j2", "Bug47968.java").getType("Bug47968");
@@ -750,7 +745,6 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	/**
 	 * Test fix for bug 47209.
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=47209">47209</a>
-	 * @throws CoreException
 	 */
 	public void testBug47209type() throws CoreException {
 		setJavadocOptions();
@@ -824,7 +818,6 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	/**
 	 * Test fix for bug 49994.
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=49994">49994</a>
-	 * @throws CoreException
 	 */
 	public void testBug49994() throws CoreException {
 		setJavadocOptions();
@@ -890,7 +883,6 @@ public class JavaSearchJavadocTests extends JavaSearchTests {
 	/**
 	 * Test fix for bug 71267: [Search][Javadoc] SearchMatch in class javadoc reported with element of type IImportDeclaration
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=71267">71267</a>
-	 * @throws CoreException
 	 */
 	public void testBug71267() throws CoreException {
 		setJavadocOptions();

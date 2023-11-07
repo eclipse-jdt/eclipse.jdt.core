@@ -20,7 +20,6 @@ import org.eclipse.jdt.apt.core.internal.env.MessagerImpl.Severity;
 
 /**
  * Simple container class for attributes of IMarker
- *
  */
 public class MarkerInfo {
 

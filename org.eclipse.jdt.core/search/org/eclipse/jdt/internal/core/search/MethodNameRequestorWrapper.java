@@ -46,7 +46,6 @@ import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
  * MethodNameRequestor methodRequestor,
  * int waitingPolicy,
  * IProgressMonitor progressMonitor)}.
- *
  */
 public class MethodNameRequestorWrapper implements IRestrictedAccessMethodRequestor {
 

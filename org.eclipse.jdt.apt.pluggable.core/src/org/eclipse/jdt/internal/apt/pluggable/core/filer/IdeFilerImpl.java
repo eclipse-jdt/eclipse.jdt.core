@@ -251,7 +251,6 @@ public class IdeFilerImpl implements Filer {
     /**
      * Validate that a path fits the rules for being created.
      * @see IWorkspace#validatePath()
-     * @throws IOException
      */
     private void validatePath(IFile file) throws IOException
 	{

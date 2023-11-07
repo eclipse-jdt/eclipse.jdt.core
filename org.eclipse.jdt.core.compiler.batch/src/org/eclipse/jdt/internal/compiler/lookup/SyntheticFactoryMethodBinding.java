@@ -38,7 +38,6 @@ public class SyntheticFactoryMethodBinding extends MethodBinding {
 
 	/** Apply the given type arguments on the (declaring class of the) actual constructor being represented by this factory method and
 	    if method type arguments is not empty materialize the parameterized generic constructor
-	 * @param targetType
 	*/
 	public ParameterizedMethodBinding applyTypeArgumentsOnConstructor(TypeBinding[] typeArguments, TypeBinding[] constructorTypeArguments, boolean inferredWithUncheckedConversion, TypeBinding targetType) {
 		ReferenceBinding parameterizedType = typeArguments == null

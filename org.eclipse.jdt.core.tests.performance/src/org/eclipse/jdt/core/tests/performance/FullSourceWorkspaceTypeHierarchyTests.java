@@ -22,8 +22,6 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.test.performance.Performance;
 
-/**
- */
 @SuppressWarnings("rawtypes")
 public class FullSourceWorkspaceTypeHierarchyTests extends FullSourceWorkspaceTests implements IJavaSearchConstants {
 
@@ -37,9 +35,6 @@ public class FullSourceWorkspaceTypeHierarchyTests extends FullSourceWorkspaceTe
 	// Formats
 	private final static NumberFormat INT_FORMAT = NumberFormat.getIntegerInstance();
 
-	/**
-	 * @param name
-	 */
 	public FullSourceWorkspaceTypeHierarchyTests(String name) {
 		super(name);
 	}

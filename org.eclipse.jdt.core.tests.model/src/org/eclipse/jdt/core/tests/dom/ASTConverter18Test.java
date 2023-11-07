@@ -166,8 +166,6 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=395886 tests annotations on
 	 * QTR in multiple scenarios of occurrence.
-	 *
-	 * @throws JavaModelException
 	 */
 	public void test0002() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test0002/X.java",
@@ -268,8 +266,6 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=395886 tests the
 	 * representation of type annotations on a possible JAVA 7 and 8 place.
-	 *
-	 * @throws JavaModelException
 	 */
 	public void test0003() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test0003/X.java",
@@ -306,8 +302,6 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=395886 tests QTR with
 	 * annotations
-	 *
-	 * @throws JavaModelException
 	 */
 	public void test0004() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test0004/X.java",
@@ -355,8 +349,6 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=395886 tests QTR with
 	 * annotations
-	 *
-	 * @throws JavaModelException
 	 */
 	public void test0005() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test0005/X.java",
@@ -455,8 +447,6 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=395886 tests PQTR with
 	 * annotations part
-	 *
-	 * @throws JavaModelException
 	 */
 	public void test0006() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test0006/X.java",
@@ -1290,8 +1280,6 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	}
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=399768
-	 *
-	 * @throws JavaModelException
 	 */
 	public void test0013() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test0010/X.java",
@@ -1336,8 +1324,6 @@ public class ASTConverter18Test extends ConverterTestSetup {
 
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=399768
-	 *
-	 * @throws JavaModelException
 	 */
 	public void test0014() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test0011/X.java",
@@ -1392,8 +1378,6 @@ public class ASTConverter18Test extends ConverterTestSetup {
 
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=399768
-	 *
-	 * @throws JavaModelException
 	 */
 	public void test0015() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test0012/X.java",
@@ -1567,8 +1551,6 @@ public class ASTConverter18Test extends ConverterTestSetup {
 
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=399793
-	 *
-	 * @throws JavaModelException
 	 */
 	public void test399793a() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test399793/X.java",
@@ -1604,8 +1586,6 @@ public class ASTConverter18Test extends ConverterTestSetup {
 
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=399793
-	 *
-	 * @throws JavaModelException
 	 */
 	public void test399793b() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test399793/X.java",
@@ -1637,8 +1617,6 @@ public class ASTConverter18Test extends ConverterTestSetup {
 
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=399793
-	 *
-	 * @throws JavaModelException
 	 */
 	public void test399793c() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test399793/X.java",
@@ -1672,8 +1650,6 @@ public class ASTConverter18Test extends ConverterTestSetup {
 
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=399793
-	 *
-	 * @throws JavaModelException
 	 */
 	public void test399793d() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test399793/X.java",
@@ -1712,8 +1688,6 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=399794
 	 * ReferenceExpression Family Tests
-	 *
-	 * @throws JavaModelException
 	 */
 	public void test399794() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test399794/X.java",
@@ -1932,8 +1906,6 @@ public class ASTConverter18Test extends ConverterTestSetup {
 
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=399793
-	 *
-	 * @throws JavaModelException
 	 */
 	public void test399793e() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test399793/X.java",
@@ -1965,8 +1937,6 @@ public class ASTConverter18Test extends ConverterTestSetup {
 
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=402665
-	 *
-	 * @throws JavaModelException
 	 */
 	public void test402665a() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test402665/X.java",
@@ -2152,8 +2122,6 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	}
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=402674
-	 *
-	 * @throws JavaModelException
 	 */
 	public void test402674() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test402674/X.java",
@@ -2687,8 +2655,6 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=406505
 	 * tests the source range issue that resulted in bad ast node.
-	 *
-	 * @throws JavaModelException
 	 */
 	public void testBug406505() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test406505/X.java",
@@ -2759,8 +2725,6 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	}
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=417017
-	 *
-	 * @throws JavaModelException
 	 */
 	public void test417017a() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test417017/X.java",
@@ -2791,8 +2755,6 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	}
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=417017
-	 *
-	 * @throws JavaModelException
 	 */
 	public void test417017b() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test417017/X.java",
@@ -2823,8 +2785,6 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	}
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=417017
-	 *
-	 * @throws JavaModelException
 	 */
 	public void test417017c() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test417017/X.java",
@@ -2855,8 +2815,6 @@ public class ASTConverter18Test extends ConverterTestSetup {
 	}
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=417017
-	 *
-	 * @throws JavaModelException
 	 */
 	public void test417017d() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test399794/X.java",
@@ -2887,8 +2845,6 @@ public class ASTConverter18Test extends ConverterTestSetup {
 
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=417017
-	 *
-	 * @throws JavaModelException
 	 */
 	public void test417017e() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test399794/X.java",
@@ -2914,8 +2870,6 @@ public class ASTConverter18Test extends ConverterTestSetup {
 
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=417017
-	 *
-	 * @throws JavaModelException
 	 */
 	public void test417017f() throws JavaModelException {
 		this.workingCopy = getWorkingCopy("/Converter18/src/test399794/X.java",
@@ -4346,8 +4300,6 @@ public void testBug425183a() throws JavaModelException {
 }
 /**
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=432051
- *
- * @throws JavaModelException
  */
 public void testBug432051() throws JavaModelException {
 	String contents =
@@ -4382,8 +4334,6 @@ public void testBug432051() throws JavaModelException {
 }
 /**
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=426977
- *
- * @throws JavaModelException
  */
 public void testBug426977() throws JavaModelException {
 	String contents =
@@ -4919,8 +4869,6 @@ public void testBug432614() throws JavaModelException {
 }
 /**
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=447062
- *
- * @throws JavaModelException
  */
 public void testBug447062() throws JavaModelException {
 	String contents =
@@ -4951,8 +4899,6 @@ public void testBug447062() throws JavaModelException {
 }
 /**
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=399793
- *
- * @throws JavaModelException
  */
 public void testBug425601_001() throws JavaModelException {
 	this.workingCopy = getWorkingCopy("/Converter18/src/testBug425601_001/Outer.java",
@@ -4996,8 +4942,6 @@ public void testBug425601_001() throws JavaModelException {
 
 /**
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=399793
- *
- * @throws JavaModelException
  */
 public void testBug425601_002() throws JavaModelException {
 	this.workingCopy = getWorkingCopy("/Converter18/src/testBug425601_002/Outer.java",
@@ -5043,7 +4987,6 @@ public void testBug425601_002() throws JavaModelException {
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=44000
  *
  * @bug Bug 440000 [1.8][dom] MethodReference#resolveMethodBinding() API should return null for CreationReference of an ArrayType
- * @throws JavaModelException
  */
 public void testBug440000_001() throws JavaModelException {
 	String contents =
@@ -5067,8 +5010,6 @@ public void testBug440000_001() throws JavaModelException {
 }
 /**
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=459344
- *
- * @throws JavaModelException
  */
 public void testBug459344_001() throws JavaModelException {
 	this.workingCopy = getWorkingCopy("/Converter18/src/test459344/X.java",
@@ -5097,7 +5038,6 @@ public void testBug459344_001() throws JavaModelException {
 /**
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=460186
  * @bug Bug 460186 IAE in ASTNode.setSourceRange with broken code case 2
- * @throws JavaModelException
  */
 public void testBug460186() throws JavaModelException {
 	String contents =
@@ -5120,7 +5060,6 @@ public void testBug460186() throws JavaModelException {
 /**
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=443232
  * @bug Bug 443232 IAE in ASTNode.setSourceRange with broken code
- * @throws JavaModelException
  */
 public void testBug443232() throws JavaModelException {
 	String contents =
@@ -5147,8 +5086,6 @@ public void testBug443232() throws JavaModelException {
 }
 /**
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=429813
- *
- * @throws JavaModelException
  */
 public void test429813() throws JavaModelException {
 	this.workingCopy = getWorkingCopy("/Converter18/src/test429813/Snippet.java",

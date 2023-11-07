@@ -1643,7 +1643,6 @@ public void testUserLibraryInitializer1() throws Exception {
 }
 /**
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=346002"
- * @throws Exception
  */
 public void testBug346002() throws Exception {
 	ClasspathContainerInitializer initializer = JavaCore.getClasspathContainerInitializer(JavaCore.USER_LIBRARY_CONTAINER_ID);

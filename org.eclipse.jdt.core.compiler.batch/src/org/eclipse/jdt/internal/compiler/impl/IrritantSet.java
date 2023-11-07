@@ -236,8 +236,6 @@ public class IrritantSet {
 
 	/**
 	 * Initialize a set of irritants in one group
-	 *
-	 * @param singleGroupIrritants
 	 */
 	public void initialize(int singleGroupIrritants) {
 		if (singleGroupIrritants == 0)
@@ -254,7 +252,6 @@ public class IrritantSet {
 
 	/**
 	 * Returns true if any of the irritants in given other set is positionned in receiver
-	 * @param other
 	 */
 	public boolean isAnySet(IrritantSet other) {
 		if (other == null)
@@ -295,8 +292,6 @@ public class IrritantSet {
 
 	/**
 	 * Return updated irritantSet or null if it was a no-op
-	 *
-	 * @param other
 	 */
 	public IrritantSet set(IrritantSet other) {
 		if (other == null)

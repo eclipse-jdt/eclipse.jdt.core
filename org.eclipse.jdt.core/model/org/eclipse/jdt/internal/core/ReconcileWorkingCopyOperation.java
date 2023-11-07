@@ -125,9 +125,6 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 
 	/**
 	 * Report working copy problems to a given requestor.
-	 *
-	 * @param workingCopy
-	 * @param problemRequestor
 	 */
 	private void reportProblems(CompilationUnit workingCopy, IProblemRequestor problemRequestor) {
 		try {

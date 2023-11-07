@@ -865,7 +865,6 @@ public final class CompletionEngine
 	 * all elements found matches the expected type, the completion proposals will not contains the calculated expected type
 	 * relevance. This is done to keep the overloaded method suggestions always on top in this mode as a fix for
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=575149
-	 *
 	 */
 	private boolean strictMatchForExtepectedType = false;
 
@@ -13737,7 +13736,6 @@ public final class CompletionEngine
 	}
 	/**
 	 * Returns completion string inserted inside a specified inline tag.
-	 * @param completionName
 	 * @return char[] Completion text inclunding specified inline tag
 	 */
 	private char[] inlineTagCompletion(char[] completionName, char[] inlineTag) {

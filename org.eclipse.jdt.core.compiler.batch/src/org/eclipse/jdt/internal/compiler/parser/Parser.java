@@ -2949,9 +2949,6 @@ protected void consumeConditionalExpression(int op) {
 			this.expressionStack[this.expressionPtr + 1],
 			this.expressionStack[this.expressionPtr + 2]);
 }
-/**
- * @param op
- */
 protected void consumeConditionalExpressionWithName(int op) {
 	// ConditionalExpression ::= Name '?' Expression ':' ConditionalExpression
 	this.intPtr -= 2;//consume position of the question mark
@@ -4144,7 +4141,6 @@ protected void consumeEqualityExpression(int op) {
 			op);
 }
 /*
- * @param op
  */
 protected void consumeEqualityExpressionWithName(int op) {
 	// EqualityExpression ::= Name '==' RelationalExpression

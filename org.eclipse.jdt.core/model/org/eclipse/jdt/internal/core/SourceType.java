@@ -357,7 +357,6 @@ public String getFullyQualifiedParameterizedName() throws JavaModelException {
 }
 /*
  * For source types, the occurrence count is the one computed in the context of the immediately enclosing type.
- *
  */
 @Override
 protected String getOccurrenceCountSignature() {

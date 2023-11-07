@@ -605,7 +605,6 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 	 * to that entry
 	 *
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=304394"
-	 * @throws Exception
 	 */
 	public void testBug304394() throws Exception {
 		setJavadocLocationAttribute("specialDoc");
@@ -658,7 +657,6 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 	 * contain the javadoc location attrribute.
 	 *
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=304394"
-	 * @throws Exception
 	 */
 	public void testBug304394a() throws Exception {
 		setJavadocLocationAttribute("specialDoc");

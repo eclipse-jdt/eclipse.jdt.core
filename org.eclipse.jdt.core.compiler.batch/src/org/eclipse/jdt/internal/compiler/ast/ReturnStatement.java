@@ -251,7 +251,6 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 
 /**
  * Dump the suitable return bytecode for a return statement
- *
  */
 public void generateReturnBytecode(CodeStream codeStream) {
 	codeStream.generateReturnBytecode(this.expression);

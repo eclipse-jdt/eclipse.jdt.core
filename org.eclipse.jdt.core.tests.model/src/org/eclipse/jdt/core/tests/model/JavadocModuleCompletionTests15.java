@@ -41,7 +41,6 @@ public class JavadocModuleCompletionTests15 extends AbstractJavaModelCompletionT
 
 	/**
 	 * ContentAssist for Module Javadoc support is available for java 15 and above Modular projects
-	 * @throws Exception
 	 */
 	public void test566060_001() throws Exception {
 		IJavaProject project1 = createJavaProject("Completion15_0", new String[] {"src"}, new String[] {"JCL14_LIB"}, "bin", "15");
@@ -113,7 +112,6 @@ public class JavadocModuleCompletionTests15 extends AbstractJavaModelCompletionT
 
 	/**
 	 * ContentAssist for Module Javadoc support is available for java 15 and above Modular projects
-	 * @throws Exception
 	 */
 	public void test566060_002() throws Exception {
 		IJavaProject project1 = createJavaProject("Completion15_1", new String[] {"src"}, new String[] {"JCL14_LIB"}, "bin", "15");
@@ -199,7 +197,6 @@ public class JavadocModuleCompletionTests15 extends AbstractJavaModelCompletionT
 
 	/**
 	 * ContentAssist for Module Javadoc support is available for java 15 and above Modular projects for jre modules
-	 * @throws Exception
 	 */
 	public void test566060_003() throws Exception {
 		IJavaProject project1 = createJavaProject("Completion15_0", new String[] {"src"}, new String[] {"JCL14_LIB"}, "bin", "15");
@@ -253,7 +250,6 @@ public class JavadocModuleCompletionTests15 extends AbstractJavaModelCompletionT
 
 	/**
 	 * ContentAssist for Module Javadoc support is available for java 15 and above non-modular projects for default modules provided by jre.
-	 * @throws Exception
 	 */
 	public void test566060_004() throws Exception {
 		IJavaProject project1 = createJavaProject("Completion15_0", new String[] {"src"}, new String[] {"JCL14_LIB"}, "bin", "15");
@@ -300,7 +296,6 @@ public class JavadocModuleCompletionTests15 extends AbstractJavaModelCompletionT
 
 	/**
 	 * Negative case. Module Javadoc support is not available for java 14 and below modular projects.
-	 * @throws Exception
 	 */
 	public void test566060_005() throws Exception {
 		IJavaProject project1 = createJavaProject("Completion14_0", new String[] {"src"}, new String[] {"JCL14_LIB"}, "bin", "14");
@@ -370,7 +365,6 @@ public class JavadocModuleCompletionTests15 extends AbstractJavaModelCompletionT
 
 	/**
 	 * Negative case. Module Javadoc support is not available for java 14 and below non-modular projects.
-	 * @throws Exception
 	 */
 	public void test566060_006() throws Exception {
 		IJavaProject project1 = createJavaProject("Completion14_2", new String[] {"src"}, new String[] {"JCL14_LIB"}, "bin", "14");
@@ -412,7 +406,6 @@ public class JavadocModuleCompletionTests15 extends AbstractJavaModelCompletionT
 
 	/**
 	 * ContentAssist for Module Javadoc support is available for java 15 and above Modular projects
-	 * @throws Exception
 	 */
 	public void test566060_007() throws Exception {
 		IJavaProject project1 = createJavaProject("Completion15_1", new String[] {"src"}, new String[] {"JCL14_LIB"}, "bin", "15");
@@ -499,7 +492,6 @@ public class JavadocModuleCompletionTests15 extends AbstractJavaModelCompletionT
 
 	/**
 	 * ContentAssist for Module Javadoc support is available for java 15 and above Modular projects
-	 * @throws Exception
 	 */
 	public void test566060_008() throws Exception {
 		IJavaProject project1 = createJavaProject("Completion15_1", new String[] {"src"}, new String[] {"JCL14_LIB"}, "bin", "15");
@@ -585,7 +577,6 @@ public class JavadocModuleCompletionTests15 extends AbstractJavaModelCompletionT
 
 	/**
 	 * ContentAssist for Module Javadoc support is available for java 15 and above Modular projects
-	 * @throws Exception
 	 */
 	public void test566060_009() throws Exception {
 		IJavaProject project1 = createJavaProject("Completion15_0", new String[] {"src"}, new String[] {"JCL14_LIB"}, "bin", "15");
@@ -657,7 +648,6 @@ public class JavadocModuleCompletionTests15 extends AbstractJavaModelCompletionT
 
 	/**
 	 * ContentAssist for Module Javadoc support is available for java 15 and above Modular projects
-	 * @throws Exception
 	 */
 	public void test566060_010() throws Exception {
 		IJavaProject project1 = createJavaProject("Completion15_0", new String[] {"src"}, new String[] {"JCL14_LIB"}, "bin", "15");
@@ -727,7 +717,6 @@ public class JavadocModuleCompletionTests15 extends AbstractJavaModelCompletionT
 
 	/**
 	 * ContentAssist for Module Javadoc support is available for java 15 and above Modular projects
-	 * @throws Exception
 	 */
 	public void test566060_011() throws Exception {
 		IJavaProject project1 = createJavaProject("Completion15_1", new String[] {"src"}, new String[] {"JCL14_LIB"}, "bin", "15");

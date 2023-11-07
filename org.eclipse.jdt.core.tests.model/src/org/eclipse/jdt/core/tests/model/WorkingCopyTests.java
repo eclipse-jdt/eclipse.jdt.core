@@ -110,8 +110,6 @@ public void testCancelMakeConsistent() throws JavaModelException {
 	assertTrue("Working copy should be opened", this.copy.isOpen());
 }
 
-/**
- */
 public void testChangeContent() throws CoreException {
 	String newContents =
 		"package x.y;\n" +
@@ -437,24 +435,18 @@ public void testGetPrimaryInitializer() {
 	IJavaElement primary= type.getInitializer(1).getPrimaryElement();
 	assertTrue("Element should exist", primary.exists());
 }
-/**
- */
 public void testGetPrimaryInnerField() {
 	IType innerType = this.copy.getType("A").getType("Inner");
 	IJavaElement primary = innerType.getField("innerField").getPrimaryElement();
 	assertTrue("Element is not a field", primary instanceof IField);
 	assertTrue("Element should exist", primary.exists());
 }
-/**
- */
 public void testGetPrimaryInnerMethod() throws JavaModelException {
 	IType innerType = this.copy.getType("A").getType("Inner");
 	IJavaElement primary = innerType.getMethods()[0].getPrimaryElement();
 	assertTrue("Element is not a method", primary instanceof IMethod);
 	assertTrue("Element should exist", primary.exists());
 }
-/**
- */
 public void testGetPrimaryInnerType() {
 	IType innerInnerType = this.copy.getType("A").getType("Inner").getType("InnerInner");
 	IJavaElement primary = innerInnerType.getPrimaryElement();

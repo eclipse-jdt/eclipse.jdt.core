@@ -805,7 +805,6 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 	/**
 	 * Internal access method to VariableDeclarationFragment#setExtraDimensions for avoiding deprecated warnings.
 	 *
-	 * @param node
 	 * @deprecated
 	 */
 	private void setExtraDimensions(VariableDeclarationFragment node, int dimensions) {

@@ -91,9 +91,7 @@ public abstract class APTTestBase extends BuilderTests{
 	 * (compiler level is 1.5). Use "src" as source folder and "bin" as output folder.
 	 * APT is not enabled.
 	 *
-	 * @param projectName
 	 * @return a java project that has been added to the current workspace.
-	 * @throws Exception
 	 */
 	protected IJavaProject createJavaProject(final String projectName )
 		throws Exception
@@ -112,7 +110,6 @@ public abstract class APTTestBase extends BuilderTests{
 	/**
 	 * Add a test source folder to the current project and return it
 	 * @return IPath
-	 * @throws JavaModelException
 	 */
 	protected IPath addTestSourceFolder() throws JavaModelException {
 		IJavaProject currentJavaProject = getCurrentJavaProject();

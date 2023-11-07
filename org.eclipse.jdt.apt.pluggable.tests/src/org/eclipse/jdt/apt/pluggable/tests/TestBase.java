@@ -89,9 +89,7 @@ public class TestBase extends BuilderTests
 	 * (compiler level is 1.6). Use "src" as source folder and "bin" as output folder. APT
 	 * is not enabled.
 	 *
-	 * @param projectName
 	 * @return a java project that has been added to the current workspace.
-	 * @throws Exception
 	 */
 	protected static IJavaProject createJavaProject(final String projectName) throws Exception
 	{
@@ -111,9 +109,7 @@ public class TestBase extends BuilderTests
 	 * (compiler level is 1.8). Use "src" as source folder and "bin" as output folder. APT
 	 * is not enabled.
 	 *
-	 * @param projectName
 	 * @return a java project that has been added to the current workspace.
-	 * @throws Exception
 	 */
 	protected static IJavaProject createJava8Project(final String projectName) throws Exception {
 		// Note, make sure this is run only with a JRE 8 and above.
@@ -137,9 +133,7 @@ public class TestBase extends BuilderTests
 	 * (compiler level is 1.9). Use "src" as source folder and "bin" as output folder. APT
 	 * is not enabled.
 	 *
-	 * @param projectName
 	 * @return a java project that has been added to the current workspace.
-	 * @throws Exception
 	 */
 	protected static IJavaProject createJava9Project(final String projectName) throws Exception {
 		// Note, make sure this is run only with a JRE 9 and above.
@@ -159,7 +153,6 @@ public class TestBase extends BuilderTests
 	 * units to be multiply compiled, which can mess up tests that expect a certain number
 	 * of compilations to occur.
 	 * @param jproj the project whose factory path will be edited
-	 * @throws CoreException
 	 */
 	protected void disableJava5Factories(IJavaProject jproj) throws CoreException {
 		FactoryPath fp = (FactoryPath) AptConfig.getFactoryPath(jproj);

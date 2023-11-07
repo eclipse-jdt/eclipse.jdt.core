@@ -79,11 +79,6 @@ public class ExtendedAnnotation extends ClassFileStruct implements IExtendedAnno
 
 	/**
 	 * Constructor for ExtendedAnnotation, builds an annotation from the supplied bytestream.
-	 *
-	 * @param classFileBytes
-	 * @param constantPool
-	 * @param offset
-	 * @throws ClassFormatException
 	 */
 	public ExtendedAnnotation(
 			byte[] classFileBytes,

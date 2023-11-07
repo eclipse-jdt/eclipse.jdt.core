@@ -15,7 +15,6 @@ public class NullPointerException extends RuntimeException {
 
 	/**
 	 * Constructor for NullPointerException.
-	 * @param s
 	 */
 	public NullPointerException(String s) {
 		super(s);

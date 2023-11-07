@@ -144,8 +144,6 @@ public class MirrorDeclarationTests extends APTTestBase {
 	 * (iii) field declaration with unresolvable type.
 	 *
 	 * This test focus on declarations from file in context.
-	 *
-	 * @throws Exception
 	 */
 	public void testUnresolvableDeclarations0()
 		throws Exception
@@ -189,8 +187,6 @@ public class MirrorDeclarationTests extends APTTestBase {
 	 *
 	 * This test focus on declarations from file outside of processor
 	 * environment context.
-	 *
-	 * @throws Exception
 	 */
 	public void testUnresolvableDeclarations1()
 		throws Exception

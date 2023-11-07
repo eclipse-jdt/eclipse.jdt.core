@@ -26,10 +26,6 @@ public class NestMembersAttribute extends ClassFileAttribute implements INestMem
 
 	/**
 	 * Constructor for NestMembersAttribute.
-	 * @param classFileBytes
-	 * @param constantPool
-	 * @param offset
-	 * @throws ClassFormatException
 	 */
 	public NestMembersAttribute(
 		byte[] classFileBytes,

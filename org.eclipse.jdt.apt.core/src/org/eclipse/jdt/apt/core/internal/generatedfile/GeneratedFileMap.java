@@ -194,7 +194,6 @@ public class GeneratedFileMap extends ManyToMany<IFile, IFile> {
 	/**
 	 * Returns the File to use for saving and restoring the last built state for the given project.
 	 * Returns null if the project does not exists (e.g. has been deleted)
-	 * @param isTestCode
 	 */
 	private File getStateFile(IProject project, boolean isTestCode) {
 		if (!project.exists()) return null;

@@ -133,7 +133,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 
 	/**
 	 * Test conversion on short.
-	 * @throws Exception
 	 */
 	public void testShortConversion() throws Exception {
 		IProject project = setupTest();
@@ -191,7 +190,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 
 	/**
 	 * Test conversion on char.
-	 * @throws Exception
 	 */
 	public void testCharConversion() throws Exception {
 		IProject project = setupTest();
@@ -222,7 +220,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 
 	/**
 	 * Test conversion on char through reflection
-	 * @throws Exception
 	 */
 	public void testCharConversion_Reflection() throws Exception {
 		IProject project = setupTest();
@@ -253,7 +250,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 
 	/**
 	 * Test conversion on int.
-	 * @throws Exception
 	 */
 	public void testIntConversion() throws Exception {
 		IProject project = setupTest();
@@ -284,7 +280,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 
 	/**
 	 * Test conversion on int through reflection
-	 * @throws Exception
 	 */
 	public void testIntConversion_Reflection() throws Exception {
 		IProject project = setupTest();
@@ -315,7 +310,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 
 	/**
 	 * Test conversion on long.
-	 * @throws Exception
 	 */
 	public void testLongConversion() throws Exception {
 		IProject project = setupTest();
@@ -354,7 +348,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 
 	/**
 	 * Test conversion on long.
-	 * @throws Exception
 	 */
 	public void testLongConversion_Reflection() throws Exception {
 		IProject project = setupTest();
@@ -393,7 +386,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 
 	/**
 	 * Test conversion on Float.
-	 * @throws Exception
 	 */
 	public void testFloatConversion() throws Exception {
 		IProject project = setupTest();
@@ -438,7 +430,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 
 	/**
 	 * Test conversion on Float.
-	 * @throws Exception
 	 */
 	public void testFloatConversion_Reflection() throws Exception {
 		IProject project = setupTest();
@@ -483,7 +474,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 
 	/**
 	 * Test conversion on double. No arrayification.
-	 * @throws Exception
 	 */
 	public void testDoubleConversion() throws Exception {
 		IProject project = setupTest();
@@ -526,7 +516,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 
 	/**
 	 * Test conversion on double. No arrayification.
-	 * @throws Exception
 	 */
 	public void testDoubleConversion_Reflection() throws Exception {
 		IProject project = setupTest();
@@ -569,7 +558,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 
 	/**
 	 * Convert "singleton" instance to array of the correct type
-	 * @throws Exception
 	 */
 	public void testArrayification() throws Exception {
 		IProject project = setupTest();
@@ -597,7 +585,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 
 	/**
 	 * Convert "singleton" instance to array of the correct type
-	 * @throws Exception
 	 */
 	public void testArrayification_Reflection() throws Exception {
 		IProject project = setupTest();
@@ -625,7 +612,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 
 	/**
 	 * Test conversion on array elements.
-	 * @throws Exception
 	 */
 	public void testArrayElementConversion() throws Exception {
 		IProject project = setupTest();
@@ -657,7 +643,6 @@ public class AnnotationValueConversionTests extends APTTestBase
 
 	/**
 	 * Test conversion on array elements.
-	 * @throws Exception
 	 */
 	public void testArrayElementConversion_Reflection() throws Exception {
 		IProject project = setupTest();

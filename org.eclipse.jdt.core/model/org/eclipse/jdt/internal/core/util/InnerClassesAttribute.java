@@ -28,10 +28,6 @@ public class InnerClassesAttribute extends ClassFileAttribute implements IInnerC
 	private IInnerClassesAttributeEntry[] entries;
 	/**
 	 * Constructor for InnerClassesAttribute.
-	 * @param classFileBytes
-	 * @param constantPool
-	 * @param offset
-	 * @throws ClassFormatException
 	 */
 	public InnerClassesAttribute(
 		byte[] classFileBytes,

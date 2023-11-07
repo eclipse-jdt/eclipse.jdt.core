@@ -4001,7 +4001,6 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Returns deprecation message of a given classpath variable.
 	 *
-	 * @param variableName
 	 * @return A string if the classpath variable is deprecated, <code>null</code> otherwise.
 	 * @since 3.3
 	 */
@@ -4784,7 +4783,6 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Returns whether a given classpath variable is read-only or not.
 	 *
-	 * @param variableName
 	 * @return <code>true</code> if the classpath variable is read-only,
 	 * 	<code>false</code> otherwise.
 	 * @since 3.3
@@ -5884,7 +5882,6 @@ public final class JavaCore extends Plugin {
 	 *
 	 * @param monitor a progress monitor, or <code>null</code> if progress
 	 *    reporting and cancellation are not desired
-	 * @throws CoreException
 	 * @since 3.13
 	 */
 	public static void rebuildIndex(IProgressMonitor monitor) throws CoreException {
@@ -6019,7 +6016,6 @@ public final class JavaCore extends Plugin {
 	 * @param affectedProjects - the set of projects for which this container is being bound
 	 * @param respectiveContainers - the set of respective containers for the affected projects
 	 * @param monitor a monitor to report progress
-	 * @throws JavaModelException
 	 * @see ClasspathContainerInitializer
 	 * @see #getClasspathContainer(IPath, IJavaProject)
 	 * @see IClasspathContainer
@@ -6057,7 +6053,6 @@ public final class JavaCore extends Plugin {
 	 *
 	 * @param variableName the name of the classpath variable
 	 * @param path the path
-	 * @throws JavaModelException
 	 * @see #getClasspathVariable(String)
 	 *
 	 * @deprecated Use {@link #setClasspathVariable(String, IPath, IProgressMonitor)} instead
@@ -6086,7 +6081,6 @@ public final class JavaCore extends Plugin {
 	 * @param variableName the name of the classpath variable
 	 * @param path the path
 	 * @param monitor a monitor to report progress
-	 * @throws JavaModelException
 	 * @see #getClasspathVariable(String)
 	 */
 	public static void setClasspathVariable(
@@ -6125,7 +6119,6 @@ public final class JavaCore extends Plugin {
 	 * @param paths an array of path updates for the modified classpath variables (null
 	 *       meaning that the corresponding value will be removed
 	 * @param monitor a monitor to report progress
-	 * @throws JavaModelException
 	 * @see #getClasspathVariable(String)
 	 * @since 2.0
 	 */
@@ -6314,7 +6307,6 @@ public final class JavaCore extends Plugin {
 	 * @param project
 	 *            the project whose referenced modules to be computed
 	 * @return an array of String containing module names
-	 * @throws CoreException
 	 * @since 3.14
 	 */
 	public static String[] getReferencedModules(IJavaProject project) throws CoreException {
@@ -6332,7 +6324,6 @@ public final class JavaCore extends Plugin {
 	 *
 	 * @return the <code>IModuleDescription</code> representing this java element as an automatic module,
 	 * 		never <code>null</code>.
-	 * @throws JavaModelException
 	 * @throws IllegalArgumentException if the provided element is neither <code>IPackageFragmentRoot</code>
 	 * 	nor <code>IJavaProject</code>
 	 * @since 3.14
@@ -6382,7 +6373,6 @@ public final class JavaCore extends Plugin {
 	 * @param classFileAttributes map of attribute names and values to be used during class file generation
 	 * @return the compiled byte code
 	 *
-	 * @throws JavaModelException
 	 * @throws IllegalArgumentException if the map of classFileAttributes contains an unsupported key.
 	 * @since 3.14
 	 */
@@ -6481,7 +6471,6 @@ public final class JavaCore extends Plugin {
 	 * Registers the JavaModelManager as a resource changed listener and save participant.
 	 * Starts the background indexing, and restore saved classpath variable values.
 	 * </p>
-	 * @throws Exception
 	 * @see org.eclipse.core.runtime.Plugin#start(BundleContext)
 	 */
 	@Override

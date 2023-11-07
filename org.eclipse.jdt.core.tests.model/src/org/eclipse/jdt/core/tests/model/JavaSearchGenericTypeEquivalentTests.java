@@ -29,9 +29,6 @@ public class JavaSearchGenericTypeEquivalentTests extends JavaSearchGenericTypeT
 
 //	static char[] RESULT_ERASURE_MATCH = "*] ERASURE_*".toCharArray();
 
-	/**
-	 * @param name
-	 */
 	public JavaSearchGenericTypeEquivalentTests(String name) {
 		super(name, EQUIVALENT_RULE);
 	}

@@ -28,9 +28,6 @@ public class VarJarFactoryContainer extends JarFactoryContainer {
 	private final String _id;
 	private final File _jarFile;
 
-	/**
-	 * @param jarPath
-	 */
 	public VarJarFactoryContainer(IPath jarPath) {
 		_id = jarPath.toString();
 		IPath resolved = JavaCore.getResolvedVariablePath(jarPath);

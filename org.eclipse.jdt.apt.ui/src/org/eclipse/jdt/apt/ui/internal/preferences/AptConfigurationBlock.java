@@ -73,7 +73,6 @@ import org.eclipse.jdt.internal.ui.wizards.dialogfields.StringDialogField;
  * see org.eclipse.jdt.ui.internal.preferences.TodoTaskConfigurationBlock
  * for the conceptual source of some of this code.
  * <p>
- *
  */
 public class AptConfigurationBlock extends BaseConfigurationBlock {
 
@@ -418,7 +417,6 @@ public class AptConfigurationBlock extends BaseConfigurationBlock {
 	 * but we continue to set both values in order to ensure backward
 	 * compatibility with prior versions.
 	 * the aptEnabled setting.
-	 * @param enable
 	 */
 	private void setJDTProcessAnnotationsSetting(boolean enable) {
 		IScopeContext context = (null != fJProj) ?

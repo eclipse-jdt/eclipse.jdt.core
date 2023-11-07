@@ -90,9 +90,6 @@ public class FilerProc extends BaseProcessor {
 		}
 	}
 
-	/**
-	 * @param genResourceMirror
-	 */
 	private void generateType(GenResource genResourceMirror, Element annotatedEl) {
 		// Collect and validate the parameters of the annotation
 		String pkg = null;

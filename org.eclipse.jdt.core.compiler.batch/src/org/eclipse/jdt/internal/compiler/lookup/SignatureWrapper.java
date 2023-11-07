@@ -106,7 +106,6 @@ public class SignatureWrapper {
 	 * <p>
 	 * But for the signature <code>(Lp18/Klass&lt;TT;&gt;.MethodInfo&lt;Ljava/lang/String;&gt;.InnerMethodInfo&lt;Ljava/lang/String;&gt;;)V</code>
 	 * it produces <code>(Lp18/Klass.MethodInfo.InnerMethodInfo;)V</code>
-	 *
 	 */
 	private void removeTypeArguments() {
 		StringBuilder buffer = new StringBuilder();

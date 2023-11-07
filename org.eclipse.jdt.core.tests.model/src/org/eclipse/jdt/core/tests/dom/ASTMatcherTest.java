@@ -133,7 +133,6 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	/**
 	 * @deprecated (not really - just suppressing the warnings
 	 * that come from testing Javadoc.getComment())
-	 *
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();
@@ -1047,7 +1046,6 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	/**
 	 * @deprecated (not really - just suppressing the warnings
 	 * that come from testing Javadoc.getComment())
-	 *
 	 */
 	public void testJavadoc() {
 		Javadoc x1 = this.ast.newJavadoc();

@@ -716,7 +716,6 @@ public void testParamAnnotations8() throws CoreException, IOException {
 	}
 }
 /**
- * @throws IOException
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=375568"
  */
 public void testParamAnnotations9() throws CoreException, IOException {
