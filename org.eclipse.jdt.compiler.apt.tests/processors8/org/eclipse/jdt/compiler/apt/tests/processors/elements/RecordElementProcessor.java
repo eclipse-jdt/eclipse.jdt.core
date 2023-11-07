@@ -325,7 +325,7 @@ public class RecordElementProcessor extends BaseElementProcessor {
 				if (!isBinaryMode) {
 					verifyAnnotations(method, new String[]{"@MyAnnot3()"});
 					TypeMirror asType = method.asType();
-					verifyAnnotations(asType, new String[]{});
+					verifyAnnotations(asType, new String[]{"@MyAnnot5()"}); // retained TYPE_USE annotation
 				}
 			} else if (method.getSimpleName().toString().equals("comp4_")) {
 				verifyAnnotations(method, new String[]{});
@@ -336,7 +336,7 @@ public class RecordElementProcessor extends BaseElementProcessor {
 				if (!isBinaryMode) {
 					verifyAnnotations(method, new String[]{});
 					TypeMirror asType = method.asType();
-					verifyAnnotations(asType, new String[]{});
+					verifyAnnotations(asType, new String[]{"@MyAnnot5()"});
 				}
 			} else if (method.getSimpleName().toString().equals("comp6_")) {
 				List<? extends AnnotationMirror> annots = method.getAnnotationMirrors();
