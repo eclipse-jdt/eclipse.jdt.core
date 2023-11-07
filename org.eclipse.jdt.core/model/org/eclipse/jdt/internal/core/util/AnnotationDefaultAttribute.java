@@ -31,10 +31,6 @@ public class AnnotationDefaultAttribute extends ClassFileAttribute
 
 	/**
 	 * Constructor for AnnotationDefaultAttribute.
-	 * @param classFileBytes
-	 * @param constantPool
-	 * @param offset
-	 * @throws ClassFormatException
 	 */
 	public AnnotationDefaultAttribute(
 			byte[] classFileBytes,

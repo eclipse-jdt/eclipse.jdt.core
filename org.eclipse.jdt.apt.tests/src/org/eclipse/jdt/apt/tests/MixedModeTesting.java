@@ -96,7 +96,6 @@ public class MixedModeTesting extends APTTestBase{
 	/**
 	 * What this tests test.
 	 * This makes sure the internal apt rounding occurs correctly in batch mode.
-	 * @throws CoreException
 	 */
 	public void testAPTRoundingInMixedMode0()
 	{

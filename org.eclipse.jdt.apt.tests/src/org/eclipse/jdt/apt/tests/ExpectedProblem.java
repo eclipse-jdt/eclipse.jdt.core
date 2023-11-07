@@ -19,7 +19,6 @@ import org.eclipse.jdt.core.tests.builder.Problem;
 /**
  * Represents a problem expected to be found by the test.
  * Similar to an IProblem, but allows skipping of offset and category
- *
  */
 public class ExpectedProblem {
 

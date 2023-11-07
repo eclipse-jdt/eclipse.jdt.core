@@ -64,7 +64,6 @@ import org.eclipse.jdt.core.JavaModelException;
  * <p>
  * GeneratedSourceFolderManager is responsible only for the folder itself, not
  * its contents.  Contents are managed by @see GeneratedFileManager.
- *
  */
 public class GeneratedSourceFolderManager {
 
@@ -125,7 +124,6 @@ public class GeneratedSourceFolderManager {
 	/**
 	 * Add the folder to the classpath, unless it's already there.
 	 * @param srcFolder the folder to add to the classpath.  Must not be null.
-	 * @param specificOutputLocation
 	 * @return true if, at the end of the routine, the folder is on the classpath.
 	 */
 	private boolean addToClasspath(IFolder srcFolder, IPath specificOutputLocation) {
@@ -445,7 +443,6 @@ public class GeneratedSourceFolderManager {
 
 	/**
 	 * Remove a folder from disk and from the classpath.
-	 * @param srcFolder
 	 */
 	private void removeFolder(boolean waitForWorkspaceEvents) {
 		final IFolder srcFolder = _generatedSourceFolder;

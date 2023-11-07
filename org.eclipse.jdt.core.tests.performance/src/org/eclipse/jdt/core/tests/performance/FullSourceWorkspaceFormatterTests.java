@@ -24,8 +24,6 @@ import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.formatter.DefaultCodeFormatter;
 
-/**
- */
 @SuppressWarnings("rawtypes")
 public class FullSourceWorkspaceFormatterTests extends FullSourceWorkspaceTests {
 
@@ -41,9 +39,6 @@ public class FullSourceWorkspaceFormatterTests extends FullSourceWorkspaceTests 
 	static IPath FORMAT_TYPE_PATH;
 	static String FORMAT_TYPE_SOURCE;
 
-/**
- * @param name
- */
 public FullSourceWorkspaceFormatterTests(String name) {
 	super(name);
 }

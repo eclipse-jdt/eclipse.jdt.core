@@ -34,11 +34,6 @@ public class LocalVariableTypeTableEntry extends ClassFileStruct implements ILoc
 
 	/**
 	 * Constructor for LocalVariableTypeTableEntry.
-	 *
-	 * @param classFileBytes
-	 * @param constantPool
-	 * @param offset
-	 * @throws ClassFormatException
 	 */
 	public LocalVariableTypeTableEntry(
 		byte[] classFileBytes,

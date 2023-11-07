@@ -9024,7 +9024,6 @@ public void testBug195489d() throws CoreException {
  * @test 1) That potential match are now well found while searching for implementors
  * 			2) That there's a workaround for this problem
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=196339"
- * @throws CoreException
  */
 public void testBug196339() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];
@@ -9113,7 +9112,6 @@ public void testBug196339b() throws CoreException {
  * 			2) That only match outside system libraries are returned when SYSTEM_LIBRARIES is NOT used in scope
  * 			3) That match in system libraries are returned when no mask is used in scope
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=199004"
- * @throws CoreException
  */
 public void testBug199004_SystemLibraries() throws CoreException {
 	DefaultContainerInitializer intializer = new DefaultContainerInitializer(new String[] {"JavaSearchBugs", "/JavaSearchBugs/lib/b199004.jar"}) {
@@ -12577,8 +12575,6 @@ public void testBug324109() throws CoreException {
  * that IMethod#isContructor returns correct value
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=329727"
- * @throws CoreException
- * @throws IOException
  */
 public void testBug329727() throws CoreException, IOException {
 	IJavaProject project = getJavaProject("JavaSearchBugs");

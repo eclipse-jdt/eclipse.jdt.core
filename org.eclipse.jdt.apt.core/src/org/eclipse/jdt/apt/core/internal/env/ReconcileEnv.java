@@ -38,7 +38,6 @@ public class ReconcileEnv extends AbstractCompilationEnv implements EclipseAnnot
 
 	/**
 	 * Create a reconcile environment from the given context.
-	 * @param reconcileContext
 	 * @return the reconcile environment or null if creation failed.
 	 */
 	static ReconcileEnv newEnv(ReconcileContext context)

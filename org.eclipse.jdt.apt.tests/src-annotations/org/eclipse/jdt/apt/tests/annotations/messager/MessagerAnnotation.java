@@ -14,9 +14,6 @@
 
 package org.eclipse.jdt.apt.tests.annotations.messager;
 
-/**
- *
- */
 public @interface MessagerAnnotation {
 	enum Severity { ERROR, WARNING, INFO, OK }
 

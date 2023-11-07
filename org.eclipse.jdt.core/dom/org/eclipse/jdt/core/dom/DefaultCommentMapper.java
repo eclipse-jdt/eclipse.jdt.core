@@ -187,7 +187,6 @@ class DefaultCommentMapper {
 	/**
 	 * Return index of first leading comment of a given node.
 	 *
-	 * @param node
 	 * @return index of first leading comment or -1 if node has no leading comment
 	 */
 	int firstLeadingCommentIndex(ASTNode node) {
@@ -204,7 +203,6 @@ class DefaultCommentMapper {
 	/**
 	 * Return index of last trailing comment of a given node.
 	 *
-	 * @param node
 	 * @return index of last trailing comment or -1 if node has no trailing comment
 	 */
 	int lastTrailingCommentIndex(ASTNode node) {

@@ -31,10 +31,6 @@ public class LocalVariableAttribute
 
 	/**
 	 * Constructor for LocalVariableAttribute.
-	 * @param classFileBytes
-	 * @param constantPool
-	 * @param offset
-	 * @throws ClassFormatException
 	 */
 	public LocalVariableAttribute(
 		byte[] classFileBytes,

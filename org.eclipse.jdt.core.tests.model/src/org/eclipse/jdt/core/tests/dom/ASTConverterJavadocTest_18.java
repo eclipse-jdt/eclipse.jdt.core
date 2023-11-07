@@ -110,9 +110,6 @@ public class ASTConverterJavadocTest_18 extends ConverterTestSetup {
 
 	private static String SNIPPET_TAG = '@' + new String(JavadocTagConstants.TAG_SNIPPET);
 
-	/**
-	 * @param name
-	 */
 	public ASTConverterJavadocTest_18(String name) {
 		super(name);
 	}

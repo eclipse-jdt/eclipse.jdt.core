@@ -67,9 +67,6 @@ public class MirrorUtilTests extends APTTestBase {
 		}
 	}
 
-	/**
-	 *
-	 */
 	private void assertNoUnexpectedProblems() {
 		Problem[] problems = env.getProblems();
 		for (Problem problem : problems) {

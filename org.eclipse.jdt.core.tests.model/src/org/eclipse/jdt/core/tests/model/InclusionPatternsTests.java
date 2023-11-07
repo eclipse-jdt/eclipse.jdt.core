@@ -630,7 +630,6 @@ public void testMoveFolderContainingPackage2() throws CoreException {
 }
 /*
  * Ensures that a non-included nested source folder doesn't appear as a non-java resource of the outer folder.
- *
  */
 public void testNestedSourceFolder1() throws CoreException {
 	setClasspath(new String[] {"/P/src1", "**/A.java", "/P/src1/src2", ""});

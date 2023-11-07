@@ -47,7 +47,6 @@ import junit.framework.Test;
  * This test, although originally was created for AST Level 14,
  * during the second iteration of preview feature Records,
  * being migrated to AST 15.
- *
  */
 @SuppressWarnings("rawtypes")
 public class ASTConverter14Test extends ConverterTestSetup {

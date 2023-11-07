@@ -1818,9 +1818,6 @@ public class ASTConverter15Test extends ConverterTestSetup {
 		assertNotNull("No javadoc", annotationTypeDeclaration.getJavadoc());
 	}
 
-	/**
-	 *
-	 */
 	public void test0056() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter15" , "src", "test0056", "X.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runJLS3Conversion(sourceUnit, true, true);

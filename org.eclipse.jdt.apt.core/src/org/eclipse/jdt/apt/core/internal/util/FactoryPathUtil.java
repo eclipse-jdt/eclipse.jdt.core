@@ -163,7 +163,6 @@ public final class FactoryPathUtil {
 
 	/**
 	 * Returns an XML string encoding all of the factories.
-	 * @param factories
 	 */
 	public static String encodeFactoryPath(Map<FactoryContainer, FactoryPath.Attributes> factories) {
 		StringBuilder sb = new StringBuilder();

@@ -14,7 +14,6 @@ public class AssertionError extends Error {
 	private static final long serialVersionUID = 3910378697039934416L;
 	/**
 	 * Constructor for AssertionError.
-	 * @param s
 	 */
 	public AssertionError(String s) {
 		super(s);

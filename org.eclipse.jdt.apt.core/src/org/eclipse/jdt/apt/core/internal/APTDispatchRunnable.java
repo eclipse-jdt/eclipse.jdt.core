@@ -321,7 +321,6 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 	}
 
 	/**
-	 * @param factories
 	 * @return <code>true</code> iff there are factories that can only be run in batch mode.
 	 */
 	private boolean hasBatchFactory()
@@ -336,8 +335,6 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 
 	/**
 	 * Batch processor should only be invoked during a clean build.
-	 * @param factories
-	 * @param processorEnv
 	 * @return <code>true</code> iff batch processors should be dispatched.
 	 * Return <code>false</code> otherwise. Return <code>false</code> if
 	 * there are no batch processors.
@@ -368,15 +365,11 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 	}
 
 	/**
-	 * @param curResult
 	 * @param lastGeneratedFiles files generated from previous apt run.
 	 * @param generatedFiles all files generated from current apt run.
 	 * @param modifiedGeneratedFiles new generated files or files differs from those from
 	 *        previous run.
 	 * @param problems problems from current apt run.
-	 * @param deps
-	 * @param gfm
-	 * @param processorEnv
 	 */
 	private void reportResult(
 			BuildContext curResult,
@@ -452,7 +445,6 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 
 	/**
 	 * mixed mode - allow batch processor to be run as well as filed based ones.
-	 * @param processorEnv
 	 * @param currentRoundDispatchedBatchFactories output parameter. At return contains the
 	 * set of batch factories that has been dispatched.
 	 */
@@ -679,9 +671,6 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 	}
 
 	/**
-	 * @param processorEnv
-	 * @param filesWithMissingType
-	 * @param internalRound
 	 * @param result output parameter
 	 */
 	private Set<AnnotationProcessorFactory> build(final BuildEnv processorEnv)
@@ -732,8 +721,6 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 	}
 
 	/**
-	 * @param one
-	 * @param two
 	 * @return the set intersect of the two given sets
 	 */
 	private Set<AnnotationTypeDeclaration> setIntersect(Set<AnnotationTypeDeclaration> one, Set<AnnotationTypeDeclaration> two ){
@@ -792,9 +779,6 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 	 * on the current build; typically stored in the BuildEnv, but
 	 * an empty set can be passed in to remove all generated files
 	 * of this parent.
-	 * @param gfm
-	 * @param processorEnv
-	 * @param deleted
 	 */
 	private void cleanupNoLongerGeneratedFiles(
 			IFile parentFile,

@@ -16,9 +16,6 @@ package org.eclipse.jdt.apt.ui.internal;
 
 import org.eclipse.osgi.util.NLS;
 
-/**
- *
- */
 public class Messages extends NLS {
 	private static final String BUNDLE_NAME = "org.eclipse.jdt.apt.ui.messages"; //$NON-NLS-1$
 

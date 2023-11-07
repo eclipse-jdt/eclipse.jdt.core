@@ -477,8 +477,6 @@ public final class RewriteEventStore {
 
 	/**
 	 * Kind is either ORIGINAL, NEW, or BOTH
-	 * @param value
-	 * @param kind
 	 * @return Returns the event with the given value of <code>null</code>.
 	 */
 	public RewriteEvent findEvent(Object value, int kind) {

@@ -140,7 +140,6 @@ public class AptPlugin extends Plugin implements DebugOptionsListener {
 
 	/**
 	 * Log a status message to the platform log.  Use this for reporting exceptions.
-	 * @param status
 	 */
 	public static void log(IStatus status) {
 		thePlugin.getLog().log(status);

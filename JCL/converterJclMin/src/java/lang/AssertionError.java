@@ -14,7 +14,6 @@ public class AssertionError extends Error {
 
 	/**
 	 * Constructor for AssertionError.
-	 * @param s
 	 */
 	public AssertionError(String s) {
 		super(s);

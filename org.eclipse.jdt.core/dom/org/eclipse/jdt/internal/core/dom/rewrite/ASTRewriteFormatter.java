@@ -247,7 +247,6 @@ public final class ASTRewriteFormatter {
 	 * Creates edits that describe how to format the given string. Returns <code>null</code> if the code could not be formatted for the given kind.
 	 * @param node Node describing the type of the string
 	 * @param str The unformatted string
-	 * @param indentationLevel
 	 * @return Returns the edit representing the result of the formatter
 	 * @throws IllegalArgumentException If the offset and length are not inside the string, a
 	 *  IllegalArgumentException is thrown.

@@ -830,14 +830,12 @@ public class NegativeModelProc extends AbstractProcessor
 	 * Compare a set of elements to a reference model, and output error information if there is a
 	 * mismatch.
 	 *
-	 * @param rootElements
 	 * @param expected
 	 *            a string representation of the XML reference model, as it would be serialized by
 	 *            XMLConverter
 	 * @param name
 	 *            the name of the test, which is used for human-readable output
 	 * @return true if the actual and expected models were equivalent
-	 * @throws Exception
 	 */
 	private boolean checkModel(List<TypeElement> rootElements, String expected, String name) throws Exception {
 		Document actualModel = XMLConverter.convertModel(rootElements);

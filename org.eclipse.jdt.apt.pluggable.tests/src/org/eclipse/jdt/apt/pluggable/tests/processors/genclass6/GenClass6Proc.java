@@ -93,9 +93,6 @@ public class GenClass6Proc extends AbstractProcessor {
 		}
 	}
 
-	/**
-	 * @param genClassMirror
-	 */
 	private void processType(GenClass6 genClassMirror, Element annotatedEl) {
 		// Collect and validate the parameters of the annotation
 		String pkg = null;

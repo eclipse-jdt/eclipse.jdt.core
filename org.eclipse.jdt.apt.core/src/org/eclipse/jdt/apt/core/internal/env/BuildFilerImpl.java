@@ -32,7 +32,6 @@ import com.sun.mirror.apt.Filer;
 
 /**
  * @author wharley
- *
  */
 public class BuildFilerImpl extends FilerImpl {
 

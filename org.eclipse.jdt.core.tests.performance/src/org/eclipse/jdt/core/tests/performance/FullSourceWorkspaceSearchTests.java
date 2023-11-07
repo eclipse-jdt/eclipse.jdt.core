@@ -28,8 +28,6 @@ import org.eclipse.jdt.internal.core.search.processing.IJob;
 
 import junit.framework.Test;
 
-/**
- */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests implements IJavaSearchConstants {
 
@@ -44,9 +42,6 @@ public class FullSourceWorkspaceSearchTests extends FullSourceWorkspaceTests imp
 	// Formats
 	private final static NumberFormat INT_FORMAT = NumberFormat.getIntegerInstance();
 
-	/**
-	 * @param name
-	 */
 	public FullSourceWorkspaceSearchTests(String name) {
 		super(name);
 	}

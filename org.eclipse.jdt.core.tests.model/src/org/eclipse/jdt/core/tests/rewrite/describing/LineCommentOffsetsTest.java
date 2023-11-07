@@ -42,9 +42,6 @@ import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
 import org.eclipse.jdt.internal.core.dom.rewrite.LineCommentEndOffsets;
 
-/**
- *
- */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class LineCommentOffsetsTest extends ASTRewritingTest {
 

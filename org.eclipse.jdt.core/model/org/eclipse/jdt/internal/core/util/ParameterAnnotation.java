@@ -31,11 +31,6 @@ public class ParameterAnnotation extends ClassFileStruct implements IParameterAn
 
 	/**
 	 * Constructor for Annotation.
-	 *
-	 * @param classFileBytes
-	 * @param constantPool
-	 * @param offset
-	 * @throws ClassFormatException
 	 */
 	public ParameterAnnotation(
 			byte[] classFileBytes,

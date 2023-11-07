@@ -29,10 +29,6 @@ public class PermittedSubclassesAttribute extends ClassFileAttribute implements 
 
 	/**
 	 * Constructor for PermittedSubclassesAttribute.
-	 * @param classFileBytes
-	 * @param constantPool
-	 * @param offset
-	 * @throws ClassFormatException
 	 */
 	public PermittedSubclassesAttribute(
 		byte[] classFileBytes,

@@ -74,7 +74,6 @@ protected boolean isAtAssistIdentifier() {
 /*
  * Truncate the current identifier if it is containing the cursor location. Since completion is performed
  * on an identifier prefix.
- *
  */
 @Override
 public char[] getCurrentIdentifierSource() {

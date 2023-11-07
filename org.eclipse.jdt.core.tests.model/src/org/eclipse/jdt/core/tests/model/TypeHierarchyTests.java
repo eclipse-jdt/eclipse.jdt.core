@@ -2493,8 +2493,6 @@ public void testBug288698() throws JavaModelException {
  * @bug  329663:[type hierarchy] Interfaces duplicated in type hierarchy on two packages from multiple projects
  * @test that when two selected regions contains the same interface, it's not reported twice in the hierarchy.
  *
- * @throws JavaModelException
- * @throws CoreException
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=329663"
  */
 public void _testBug329663() throws JavaModelException, CoreException {
@@ -2540,8 +2538,6 @@ public void _testBug329663() throws JavaModelException, CoreException {
  * @test that when two selected regions contains interfaces with same name but different, they are reported individually
  * in the hierarchy.
  *
- * @throws JavaModelException
- * @throws CoreException
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=329663"
  */
 public void _testBug329663a() throws JavaModelException, CoreException {

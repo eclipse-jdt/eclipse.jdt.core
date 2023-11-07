@@ -18,7 +18,6 @@ import org.eclipse.jdt.apt.core.internal.env.BaseProcessorEnv;
 /**
  * The base of all eclipse type system object
  * @author tyeung
- *
  */
 public interface EclipseMirrorObject {
 

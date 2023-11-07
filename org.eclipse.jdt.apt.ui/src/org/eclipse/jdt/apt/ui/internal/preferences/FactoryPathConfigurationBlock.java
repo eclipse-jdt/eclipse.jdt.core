@@ -262,7 +262,6 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 	 * Respond to a button in the button bar.
 	 * Most buttons are handled by code in CheckedListDialogField;
 	 * this method is for the rest, e.g., Add External Jar.
-	 * @param index
 	 */
 	public void customButtonPressed(int index) {
 		FactoryPathEntry[] newEntries = null;

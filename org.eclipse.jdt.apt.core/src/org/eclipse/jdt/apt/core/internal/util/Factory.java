@@ -210,7 +210,6 @@ public class Factory
     /**
      * @param annotation the ast node.
      * @param annotated the declaration that <code>annotation</code> annotated
-     * @param env
      * @return a newly created {@link AnnotationMirror} object
      */
     public static AnnotationMirror createAnnotationMirror(final IAnnotationBinding annotation,
@@ -238,7 +237,6 @@ public class Factory
 	 * @param decl the element declaration whose default value is <code>domValue</code>
 	 * 			   if domValue is an annotation, then this is the declaration it annotated.
 	 * 			   In all other case, this parameter is ignored.
-	 * @param env
 	 * @return an annotation value
 	 */
     public static AnnotationValue createDefaultValue(Object domValue,
@@ -257,7 +255,6 @@ public class Factory
 	 * @param domValue annotation member value according to the DOM API.
 	 * @param elementName the name of the member value
 	 * @param anno the annotation that directly contains <code>domValue</code>
-	 * @param env
 	 * @return an annotation value
 	 */
 	public static AnnotationValue createAnnotationMemberValue(Object domValue,
@@ -279,7 +276,6 @@ public class Factory
 	 * @param index the number indicate the source order of the annotation member value
 	 *              in the annotation instance.
 	 * @param mirror either {@link AnnotationMirrorImpl } or {@link AnnotationElementDeclarationImpl}
-	 * @param env
 	 */
 	public static AnnotationValue createAnnotationValueFromDOMValue(Object convertedValue,
 																	String name,
@@ -444,7 +440,6 @@ public class Factory
      * see CR260743 and 260563.
      * @param value the current value from the annotation instance.
      * @param expectedType the expected type of the value.
-     *
      */
     public static Object performNecessaryPrimitiveTypeConversion(
     		final Class<?> expectedType,
@@ -654,7 +649,6 @@ public class Factory
      * @param value the value where conversion may be applied to
      * @param name name of the member value
      * @param parent the of the annotation of the member value
-     * @param env
      * @return the value matching the expected type or itself if no conversion can be applied.
      */
     private static Object performNecessaryTypeConversion(final TypeMirror expectedType,

@@ -153,8 +153,6 @@ public class ReconcilerTests extends ModifyingResourceTests {
 			}
 		}
 	}
-/**
- */
 public ReconcilerTests(String name) {
 	super(name);
 }
@@ -2906,7 +2904,6 @@ public void testNoChanges2() throws JavaModelException {
  * to reconcile is the same as the current contents,
  * no ast is requested, no problem is requested and problem requestor is not active.
  * (regression test for bug 179258 simple reconcile starts problem finder - main thread waiting)
- *
  */
 public void testNoChanges3() throws JavaModelException {
 	setWorkingCopyContents(this.workingCopy.getSource());
@@ -3892,7 +3889,6 @@ public void testVarargs() throws CoreException {
 /**
  * Bug 114338:[javadoc] Reconciler reports wrong javadoc warning (missing return type)
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=114338"
- *
  */
 public void testBug114338() throws CoreException {
 	// Set initial CU content

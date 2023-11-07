@@ -60,7 +60,6 @@ import org.eclipse.jdt.internal.core.util.Messages;
  *
  *    <li>This operation only copies elements contained within compilation units.
  * </ul>
- *
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class CopyElementsOperation extends MultiOperation implements SuffixConstants {

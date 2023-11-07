@@ -2849,8 +2849,6 @@ public class ASTConverterTestAST4_2 extends ConverterTestSetup {
 		checkSourceRange(componentType, "Class", source);
 	}
 
-	/**
-	 */
 	public void test0498() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0498", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(getJLS4(), sourceUnit, true);
@@ -2890,7 +2888,6 @@ public class ASTConverterTestAST4_2 extends ConverterTestSetup {
 	 * Test for bug 45436 fix.
 	 * When this bug happened, the first assertion was false (2 problems found).
 	 * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=45436">bug 45436</a>
-	 * @throws JavaModelException
 	 */
 	public void test0500() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0500", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$

@@ -21,7 +21,6 @@ package org.eclipse.jdt.internal.compiler.env;
  *
  * This name environment adds a method to switch on/off the search for secondary types.
  * Refer {@link #findType(char[], char[][], boolean)}.
- *
  */
 public interface INameEnvironmentExtension extends INameEnvironment {
 	/**

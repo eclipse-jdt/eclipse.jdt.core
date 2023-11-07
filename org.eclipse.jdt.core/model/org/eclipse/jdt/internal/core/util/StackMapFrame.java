@@ -34,11 +34,6 @@ public class StackMapFrame extends ClassFileStruct implements IStackMapFrame {
 
 	/**
 	 * Constructor for StackMapFrame.
-	 *
-	 * @param classFileBytes
-	 * @param constantPool
-	 * @param offset
-	 * @throws ClassFormatException
 	 */
 	public StackMapFrame(
 			byte[] classFileBytes,

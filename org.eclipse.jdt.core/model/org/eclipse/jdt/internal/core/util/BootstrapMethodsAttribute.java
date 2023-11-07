@@ -29,10 +29,6 @@ public class BootstrapMethodsAttribute extends ClassFileAttribute implements IBo
 
 	/**
 	 * Constructor for BootstrapMethodsAttribute.
-	 * @param classFileBytes
-	 * @param constantPool
-	 * @param offset
-	 * @throws ClassFormatException
 	 */
 	public BootstrapMethodsAttribute(
 			byte[] classFileBytes,

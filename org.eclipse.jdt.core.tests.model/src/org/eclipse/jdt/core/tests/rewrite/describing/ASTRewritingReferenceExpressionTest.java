@@ -41,7 +41,6 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 
 	/**
 	 * tests various aspects of CreationReference (Constructor Method Reference) with ClassType as lhs
-	 * @throws Exception
 	 */
 	public void testReferenceExpressions_test001_since_8() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test407131", false, null);
@@ -180,7 +179,6 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 
 	/**
 	 * tests various aspects of CreationReference (Constructor Method Reference) with ArrayType as lhs
-	 * @throws Exception
 	 */
 	public void testReferenceExpressions_test002_since_8() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test407131", false, null);
@@ -230,7 +228,6 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 
 	/**
 	 * tests various aspects of {@link ExpressionMethodReference}
-	 * @throws Exception
 	 */
 	public void testReferenceExpressions_test003_since_8() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test407131", false, null);
@@ -311,7 +308,6 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 
 	/**
 	 * tests various aspects of {@link TypeMethodReference}
-	 * @throws Exception
 	 */
 	public void testReferenceExpressions_test004_since_8() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test407131", false, null);
@@ -401,7 +397,6 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 
 	/**
 	 * tests various aspects of SuperMethodReference
-	 * @throws Exception
 	 */
 	public void testReferenceExpressions_test005_since_8() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test407131", false, null);
@@ -477,7 +472,6 @@ public class ASTRewritingReferenceExpressionTest extends ASTRewritingTest {
 	}
 	/**
 	 * tests cross rewriting - changing from one member of reference expressions to another type.
-	 * @throws Exception
 	 */
 	public void testReferenceExpressions_test006_since_8() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test407131", false, null);

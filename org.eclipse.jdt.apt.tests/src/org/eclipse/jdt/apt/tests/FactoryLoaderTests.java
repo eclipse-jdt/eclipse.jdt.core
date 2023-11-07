@@ -33,9 +33,6 @@ import org.eclipse.jdt.apt.tests.external.annotations.loadertest.LoaderTestCodeE
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 
-/**
- *
- */
 public class FactoryLoaderTests extends APTTestBase {
 
 	private File _extJar; // external annotation jar

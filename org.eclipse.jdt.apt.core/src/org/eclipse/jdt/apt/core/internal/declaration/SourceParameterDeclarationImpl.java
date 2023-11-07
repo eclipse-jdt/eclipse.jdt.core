@@ -36,7 +36,6 @@ public class SourceParameterDeclarationImpl
      * Parameter declaration from source files
      * @param astNode the ast node that defines this parameter
      * @param file the file where the ast node originates
-     * @param env
      */
     public SourceParameterDeclarationImpl(SingleVariableDeclaration astNode,
     									  IFile file,

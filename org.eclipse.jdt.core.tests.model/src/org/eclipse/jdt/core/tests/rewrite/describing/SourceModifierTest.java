@@ -23,9 +23,6 @@ import org.eclipse.jface.text.Document;
 import org.eclipse.text.edits.MultiTextEdit;
 import org.eclipse.text.edits.ReplaceEdit;
 
-/**
- *
- */
 public class SourceModifierTest extends AbstractJavaModelTests {
 
 	public SourceModifierTest(String name) {

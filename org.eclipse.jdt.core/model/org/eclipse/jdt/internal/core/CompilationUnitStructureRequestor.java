@@ -179,7 +179,6 @@ public void acceptImport(int declarationStart, int declarationEnd, int nameSourc
  * of the parse action, so as to allow computation of normalized ranges.
  *
  * A line separator might corresponds to several characters in the source,
- *
  */
 @Override
 public void acceptLineSeparatorPositions(int[] positions) {

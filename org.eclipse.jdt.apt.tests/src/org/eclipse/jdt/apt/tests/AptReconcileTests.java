@@ -124,7 +124,6 @@ public class AptReconcileTests extends ModifyingResourceTests
 	 *   This tests an annotation that generates a file with an annotation that
 	 *   generates a file that should fix an error in the parent file.
 	 *   TODO: re-enable this test - it seems sporadically flaky, need to find out why.
-	 * @throws Throwable
 	 */
 	public void testNestedGeneratedFile() throws Throwable
 	{
@@ -512,7 +511,6 @@ public class AptReconcileTests extends ModifyingResourceTests
 	/***************************************************************************
 	 *
 	 * copied from ReconcilerTests...
-	 *
 	 */
 
 	private void setWorkingCopyContents(String contents)

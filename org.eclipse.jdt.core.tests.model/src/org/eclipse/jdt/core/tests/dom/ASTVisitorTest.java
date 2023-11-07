@@ -155,7 +155,6 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	/**
 	 * @deprecated (not really - just suppressing the warnings
 	 * that come from testing Javadoc.getComment())
-	 *
 	 */
 	protected void setUp() throws Exception {
 		super.setUp();
@@ -687,7 +686,6 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		/**
 		 * @deprecated (not really - just suppressing the warnings
 		 * that come from testing Javadoc.getComment())
-		 *
 		 */
 		public boolean visit(Javadoc node) {
 			ASTVisitorTest.this.b.append("(JD"); //$NON-NLS-1$
@@ -704,7 +702,6 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		/**
 		 * @deprecated (not really - just suppressing the warnings
 		 * that come from testing Javadoc.getComment())
-		 *
 		 */
 		public void endVisit(Javadoc node) {
 			ASTVisitorTest.this.b.append("JD)"); //$NON-NLS-1$
@@ -1697,7 +1694,6 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	/**
 	 * @deprecated (not really - just suppressing the warnings
 	 * that come from testing Javadoc.getComment())
-	 *
 	 */
 	public void testJavadoc() {
 		Javadoc x1 = this.ast.newJavadoc();

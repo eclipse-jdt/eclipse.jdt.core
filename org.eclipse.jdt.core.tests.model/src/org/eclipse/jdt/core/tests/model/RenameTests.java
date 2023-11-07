@@ -26,8 +26,6 @@ import org.eclipse.jdt.core.*;
 
 public class RenameTests extends CopyMoveTests {
 	ICompilationUnit cu;
-/**
- */
 public RenameTests(String name) {
 	super(name);
 }
@@ -322,9 +320,6 @@ public void testRenameConstructor() {
 	renameNegative(constructor, "newName", false, IJavaModelStatusConstants.NAME_COLLISION);
 }
 
-/**
- *
- */
 public void testRenameCU1() throws CoreException {
 	this.cu.rename("NewX.java", false, null);
 	assertTrue("Original CU should not exist", !this.cu.exists());

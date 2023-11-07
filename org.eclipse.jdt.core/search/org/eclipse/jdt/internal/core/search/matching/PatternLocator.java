@@ -278,8 +278,6 @@ protected boolean matchesName(char[] pattern, char[] name) {
  * Return how the given name matches the given pattern.
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=79866"
  *
- * @param pattern
- * @param name
  * @return Possible values are:
  * <ul>
  * 	<li> {@link #ACCURATE_MATCH}</li>

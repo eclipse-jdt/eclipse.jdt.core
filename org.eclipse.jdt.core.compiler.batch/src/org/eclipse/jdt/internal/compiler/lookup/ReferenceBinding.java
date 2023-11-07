@@ -173,8 +173,6 @@ public static FieldBinding binarySearch(char[] name, FieldBinding[] sortedFields
  * (remember methods are sorted alphabetically on selectors), and end is the index of last contiguous methods with same
  * selector.
  * -1 means no method got found
- * @param selector
- * @param sortedMethods
  * @return (start + (end<<32)) or -1 if no method found
  */
 public static long binarySearch(char[] selector, MethodBinding[] sortedMethods) {

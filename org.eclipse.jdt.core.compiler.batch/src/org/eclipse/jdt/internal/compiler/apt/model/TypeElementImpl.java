@@ -56,7 +56,6 @@ public class TypeElementImpl extends ElementImpl implements TypeElement {
 	/**
 	 * Compares Element instances possibly returned by
 	 * {@link TypeElement#getEnclosedElements()} based on their source location, if available.
-	 *
 	 */
 	private static final class SourceLocationComparator implements Comparator<Element> {
 		private final IdentityHashMap<ElementImpl, Integer> sourceStartCache = new IdentityHashMap<>();

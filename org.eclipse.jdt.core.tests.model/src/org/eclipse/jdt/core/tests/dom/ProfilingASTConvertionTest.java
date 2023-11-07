@@ -99,10 +99,6 @@ public class ProfilingASTConvertionTest extends AbstractJavaModelTests {
 		return String.valueOf(buffer);
 	}
 
-	/**
-	 * @param array
-	 * @param increment
-	 */
 	private void printDistribution(long[] array, int increment) {
 		int bound = increment;
 		int counter = 0;
@@ -132,10 +128,6 @@ public class ProfilingASTConvertionTest extends AbstractJavaModelTests {
 		printRange(counter, bound, increment, totalCounter, length, numberOfFiguresForRange, numberOfFiguresForCounter);
 	}
 
-	/**
-	 * @param counter
-	 * @param bound
-	 */
 	private void printRange(int counter, int bound, int increment, int totalCounter, int length, int numberOfFiguresForRange, int numberOfFiguresForCounters) {
 		if (counter != 0) {
 			StringBuffer buffer = new StringBuffer();
@@ -157,10 +149,6 @@ public class ProfilingASTConvertionTest extends AbstractJavaModelTests {
 	}
 
 	/**
-	 * @param totalTime
-	 * @param length
-	 * @param times
-	 * @param arrayList
 	 * @deprecated using deprecated code
 	 */
 	private void reportResults(int apiLevel, long totalTime, int length, long[] times, ArrayList arrayList) {

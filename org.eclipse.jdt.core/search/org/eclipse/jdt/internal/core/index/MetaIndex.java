@@ -68,7 +68,6 @@ public class MetaIndex {
 	 *
 	 * @param indexes all indexes as a {@link SimpleLookupTable} where key is {@link IndexLocation} and value is {@link Index}
 	 * @return index names which are not part of or empty.
-	 * @throws IOException
 	 */
 	public Set<String> getIndexesNotInMeta(SimpleLookupTable indexes) throws IOException {
 		// this method is accessed in a single thread

@@ -27,9 +27,6 @@ import junit.framework.TestSuite;
 @SuppressWarnings("rawtypes")
 public class JavaSearchGenericTypeExactTests extends JavaSearchGenericTypeTests {
 
-	/**
-	 * @param name
-	 */
 	public JavaSearchGenericTypeExactTests(String name) {
 		super(name, EXACT_RULE);
 	}

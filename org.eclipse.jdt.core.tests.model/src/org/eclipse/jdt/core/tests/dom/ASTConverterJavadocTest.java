@@ -141,18 +141,11 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	protected boolean stopOnFailure = true;
 	Map savedOptions = null;
 
-	/**
-	 * @param name
-	 * @param support
-	 */
 	public ASTConverterJavadocTest(String name, String support, String unix) {
 		super(name);
 		this.docCommentSupport = support;
 		this.unix = "true".equals(unix);
 	}
-	/**
-	 * @param name
-	 */
 	public ASTConverterJavadocTest(String name) {
 		this(name.substring(0, name.indexOf(" - ")),
 				name.substring(name.indexOf(" - Doc ") + 7, name.lastIndexOf("abled") + 5),
@@ -3503,7 +3496,6 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	}
 	/**
 	 *
-	 * @throws JavaModelException
 	 * @deprecated
 	 */
 	public void testBug206345b() throws JavaModelException {

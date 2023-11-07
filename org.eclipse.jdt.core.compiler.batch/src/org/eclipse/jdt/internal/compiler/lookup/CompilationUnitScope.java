@@ -987,10 +987,6 @@ private void recordImportBinding(ImportBinding bindingToAdd) {
  * Checks additional bindings (methods or types) imported from a single static import.
  * Method is tried first, followed by type. If found, records them.
  * If in the process, import is flagged as duplicate, -1 is returned.
- * @param compoundName
- * @param typesBySimpleNames
- * @param mask
- * @param importReference
  */
 private void checkMoreStaticBindings(
 		char[][] compoundName,
@@ -1020,10 +1016,6 @@ private void checkMoreStaticBindings(
 /**
  * Checks for duplicates. If all ok, records the importBinding
  * returns -1 when this import is flagged as duplicate.
- * @param importBinding
- * @param typesBySimpleNames
- * @param importReference
- * @param compoundName
  * @return -1 when this import is flagged as duplicate, importPtr otherwise.
  */
 private int checkAndRecordImportBinding(

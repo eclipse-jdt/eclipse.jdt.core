@@ -504,9 +504,6 @@ public class ASTConverterBindingsTest extends ConverterTestSetup {
 		checkBindingEqualityForProject("Converter15");
 	}
 
-	/**
-	 * @throws JavaModelException
-	 */
 	private void checkBindingEqualityForProject(String projectName) throws JavaModelException {
 		IJavaProject javaProject = getJavaProject(projectName);
 		IPackageFragment[] packageFragments = javaProject.getPackageFragments();

@@ -96,7 +96,6 @@ public class MirrorDeclarationTestAnnotationProcessor extends BaseProcessor {
 	 * AnnotationValue
 	 *
 	 * @param testClass TypeDeclaration
-	 *
 	 */
 	private void testAnnotationImplementations(TypeDeclaration testClass) {
 
@@ -148,8 +147,6 @@ public class MirrorDeclarationTestAnnotationProcessor extends BaseProcessor {
 	 * Tests for:
 	 * ClassDeclaration
 	 * ConstructorDeclaration
-	 *
-	 * @param testClass
 	 */
 	private void testClassDeclaration(ClassDeclaration testClassDec) {
 
@@ -189,8 +186,6 @@ public class MirrorDeclarationTestAnnotationProcessor extends BaseProcessor {
 	 * Tests for:
 	 * EnumConstantDeclaration
 	 * EnumDeclaration
-	 *
-	 * @param testClass
 	 */
 	private void testEnumImplementations(TypeDeclaration testClass) {
 		//EnumDeclaration tests
@@ -243,8 +238,6 @@ public class MirrorDeclarationTestAnnotationProcessor extends BaseProcessor {
 	/**
 	 * Tests for:
 	 * FieldDeclaration
-	 *
-	 * @param testClassDec
 	 */
 	private void testFieldDeclaration(ClassDeclaration testClassDec) {
 		//FieldDeclaration tests
@@ -286,8 +279,6 @@ public class MirrorDeclarationTestAnnotationProcessor extends BaseProcessor {
 	 * Tests for:
 	 * MethodDeclaration
 	 * ParameterDeclaration
-	 *
-	 * @param testClassDec
 	 */
 	private void testMethodDeclaration(ClassDeclaration testClassDec) {
 		//Tests for MethodDeclaration

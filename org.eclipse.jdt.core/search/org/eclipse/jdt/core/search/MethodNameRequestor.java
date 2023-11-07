@@ -23,7 +23,6 @@ package org.eclipse.jdt.core.search;
   * This class may be subclassed by clients
   * </p>
  * @since 3.12
-  *
   */
 public abstract class MethodNameRequestor {
 

@@ -1421,7 +1421,6 @@ public class ASTConverter9Test extends ConverterTestSetup {
 	}
 	/**
 	 * @deprecated
-	 * @throws Exception
 	 */
 	public void testBug542795() throws Exception {
 		IJavaProject p =  createJavaProject("Foo", new String[] {"src"}, new String[] {jcl9lib}, "bin", "11");

@@ -48,7 +48,6 @@ public class MessagerTests extends TestCase {
 
 	/**
 	 * Validate the testMessager test against the javac compiler.
-	 * @throws IOException
 	 */
 	public void testMessagerWithSystemCompiler() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
@@ -69,7 +68,6 @@ public class MessagerTests extends TestCase {
 
 	/**
 	 * Attempt to report errors on various elements, using the Eclipse compiler.
-	 * @throws IOException
 	 */
 	public void testMessagerWithEclipseCompiler() throws IOException {
 		internalTestMessagerEclipse(2, 2);
@@ -106,7 +104,6 @@ public class MessagerTests extends TestCase {
 
 	/**
 	 * Attempt to report errors on various elements.
-	 * @throws IOException
 	 */
 	private void internalTestMessager(JavaCompiler compiler, DiagnosticListener<? super JavaFileObject> diagnosticListener, String... extraOptions ) throws IOException {
 		System.clearProperty(MESSAGERPROCNAME);

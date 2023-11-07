@@ -596,7 +596,6 @@ private static boolean isComplianceJava9OrHigher(IJavaProject javaProject) {
 
 /**
  * Computes matching module for given {@link PackageFragmentRoot}
- * @param root
  * @param defaultModule project module or {@code null}
  * @return may return {@code null}
  */

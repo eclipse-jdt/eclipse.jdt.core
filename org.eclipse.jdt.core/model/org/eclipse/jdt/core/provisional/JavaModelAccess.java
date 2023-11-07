@@ -48,7 +48,6 @@ public class JavaModelAccess {
 	 *
 	 * @return the <code>IModuleDescription</code> representing this java element as an automatic module,
 	 * 		never <code>null</code>.
-	 * @throws JavaModelException
 	 * @throws IllegalArgumentException if the provided element is neither <code>IPackageFragmentRoot</code>
 	 * 	nor <code>IJavaProject</code>
 	 * @since 3.14

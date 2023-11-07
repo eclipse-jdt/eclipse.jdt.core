@@ -32,8 +32,6 @@ public class PluginFactoryContainer extends FactoryContainer
 	/**
 	 * In general clients should not construct this object.  This c'tor should
 	 * only be called from @see FactoryPathUtil#loadPluginFactories().
-	 * @param pluginId
-	 * @param enableDefault
 	 */
 	public PluginFactoryContainer(final String pluginId, boolean enableDefault) {
 		this.id = pluginId;

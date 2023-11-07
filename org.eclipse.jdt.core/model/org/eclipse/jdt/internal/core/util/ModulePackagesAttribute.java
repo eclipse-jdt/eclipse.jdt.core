@@ -32,10 +32,6 @@ public class ModulePackagesAttribute extends ClassFileAttribute implements IModu
 
 	/**
 	 * Constructor for ModulePackagesAttribute.
-	 * @param classFileBytes
-	 * @param constantPool
-	 * @param offset
-	 * @throws ClassFormatException
 	 */
 	public ModulePackagesAttribute(	byte[] classFileBytes,	IConstantPool constantPool,	int offset)	throws ClassFormatException {
 		super(classFileBytes, constantPool, offset);

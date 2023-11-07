@@ -659,7 +659,6 @@ public SyntheticMethodBinding addSyntheticMethod(LambdaExpression lambda) {
 /*
  * Add a synthetic method for the reference expression as a place holder for code generation
  * only if the reference expression's target is serializable
- *
  */
 public SyntheticMethodBinding addSyntheticMethod(ReferenceExpression ref) {
 	if (!isPrototype()) throw new IllegalStateException();

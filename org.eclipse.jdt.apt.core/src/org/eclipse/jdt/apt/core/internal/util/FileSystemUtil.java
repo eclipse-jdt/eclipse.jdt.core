@@ -45,9 +45,7 @@ public final class FileSystemUtil
 	 * and if itself is also a derived resource.
 	 * If the given resource is a file, delete it iff it is a derived resource.
 	 * The resource is left untouched if it is no a folder or a file.
-	 * @param resource
 	 * @return <code>true</code> iff the resource has been deleted.
-	 * @throws CoreException
 	 */
 	public static boolean deleteDerivedResources(final IResource resource)
 		throws CoreException
@@ -179,7 +177,6 @@ public final class FileSystemUtil
     /**
      * Stores a string into an ordinary workspace file in UTF8 format.
      * The file will be created if it does not already exist.
-     * @throws IOException
      */
     public static void writeStringToFile(File file, String contents) throws IOException {
     	byte[] data = contents.getBytes("UTF8"); //$NON-NLS-1$

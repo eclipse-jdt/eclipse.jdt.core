@@ -36,7 +36,6 @@ public class CompilationUnitHelper
 
 	/**
 	 * Update the contents of a working copy and commit it to disk.
-	 * @throws JavaModelException
 	 */
 	public void commitNewContents(ICompilationUnit wc, String contents, IProgressMonitor monitor) throws JavaModelException {
 		IBuffer b = wc.getBuffer();
@@ -138,7 +137,6 @@ public class CompilationUnitHelper
 	 * Create a package fragment on disk.
 	 * @param pkgName the name of the package.
 	 * @param root the package fragment root under which to place the package.
-	 * @param progressMonitor
 	 * @return a package fragment, or null if there was an error.
 	 */
 	public IPackageFragment createPackageFragment(String pkgName, IPackageFragmentRoot root, IProgressMonitor progressMonitor) {

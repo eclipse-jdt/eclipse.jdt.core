@@ -78,7 +78,6 @@ public class NegativeTests extends TestCase {
 	/**
 	 * Validate the testNegativeModel test against the javac compiler.
 	 * All test routines are executed.
-	 * @throws IOException
 	 */
 	public void testNegativeModelWithSystemCompiler() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
@@ -97,7 +96,6 @@ public class NegativeTests extends TestCase {
 	/**
 	 * Inspect model of resources/targets.negative.pa.Negative1,
 	 * using the Eclipse compiler.
-	 * @throws IOException
 	 */
 	public void testNegativeModel1WithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
@@ -107,7 +105,6 @@ public class NegativeTests extends TestCase {
 	/**
 	 * Inspect model of resources/targets.negative.pa.Negative2,
 	 * using the Eclipse compiler.
-	 * @throws IOException
 	 */
 	public void testNegativeModel2WithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
@@ -117,7 +114,6 @@ public class NegativeTests extends TestCase {
 	/**
 	 * Inspect model of resources/targets.negative.pa.Negative3,
 	 * using the Eclipse compiler.
-	 * @throws IOException
 	 */
 	public void testNegativeModel3WithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
@@ -127,7 +123,6 @@ public class NegativeTests extends TestCase {
 	/**
 	 * Inspect model of resources/targets.negative.pa.Negative4,
 	 * using the Eclipse compiler.
-	 * @throws IOException
 	 */
 	public void testNegativeModel4WithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
@@ -137,7 +132,6 @@ public class NegativeTests extends TestCase {
 	/**
 	 * Inspect model of resources/targets.negative.pa.Negative5,
 	 * using the Eclipse compiler.
-	 * @throws IOException
 	 */
 	public void testNegativeModel5WithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
@@ -147,7 +141,6 @@ public class NegativeTests extends TestCase {
 	/**
 	 * Inspect model of resources/targets.negative.pa.Negative6,
 	 * using the Eclipse compiler.
-	 * @throws IOException
 	 */
 	public void testNegativeModel6WithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
@@ -157,7 +150,6 @@ public class NegativeTests extends TestCase {
 	/**
 	 * Inspect model of resources/targets.negative.pa.Negative7,
 	 * using the Eclipse compiler.
-	 * @throws IOException
 	 */
 	public void testNegativeModel7WithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
@@ -167,7 +159,6 @@ public class NegativeTests extends TestCase {
 	/**
 	 * Inspect model of resources/targets.negative.pa.Negative8,
 	 * using the Eclipse compiler.
-	 * @throws IOException
 	 */
 	public void testNegativeModel8WithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
@@ -177,7 +168,6 @@ public class NegativeTests extends TestCase {
 	/**
 	 * Inspect model of resources/targets.negative.pa.Negative9,
 	 * using the Eclipse compiler.
-	 * @throws IOException
 	 */
 	public void testNegativeModel9WithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
@@ -246,7 +236,6 @@ public class NegativeTests extends TestCase {
 
 	/**
 	 * Attempt to report errors on various elements.
-	 * @throws IOException
 	 */
 	private void internalTestNegativeModel(JavaCompiler compiler, int test, Collection<String> extraOptions) throws IOException {
 		System.clearProperty(NEGATIVEMODELPROCNAME);

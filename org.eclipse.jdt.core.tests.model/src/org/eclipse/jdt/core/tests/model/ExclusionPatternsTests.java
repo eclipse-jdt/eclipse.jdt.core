@@ -483,7 +483,6 @@ public void testIsOnClasspath4() throws CoreException {
 /*
  * Ensures that an excluded nested source folder doesn't appear as a non-java resource of the outer folder.
  * (regression test for bug 28115 Ubiquitous resource in the JavaModel)
- *
  */
 public void testNestedSourceFolder1() throws CoreException {
 	setClasspath(new String[] {"/P/src1", "src2/**", "/P/src1/src2", ""});

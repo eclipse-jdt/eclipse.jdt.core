@@ -297,7 +297,6 @@ public class TypesUtil implements Types
     /**
      * @return the binding correspond to the given type.
      *         Return null if the type is an error marker.
-     * @throws NonEclipseImplementationException
      */
 
     private static ITypeBinding getTypeBinding(TypeMirror type)
@@ -314,7 +313,6 @@ public class TypesUtil implements Types
 
     /**
      * @return the binding correspond to the given type.
-     * @throws NonEclipseImplementationException
      */
     public static ITypeBinding getTypeBinding(TypeDeclaration type)
         throws NonEclipseImplementationException

@@ -83,7 +83,6 @@ public class IdeTestUtils {
 	 *            the full path to the resource location.
 	 * @param destFolder
 	 *            the full path to the destination location.
-	 * @throws IOException
 	 */
 	private static void copyResource(File src, File dest) throws IOException {
 		if (dest.exists() &&

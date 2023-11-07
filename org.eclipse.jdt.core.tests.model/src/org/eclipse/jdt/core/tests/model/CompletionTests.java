@@ -20294,7 +20294,6 @@ public void test201762() throws JavaModelException {
 
 /**
  * An inner/member class should not be offered as completion suggestion.
- * @throws JavaModelException
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=270437"
  */
 public void test270437a() throws JavaModelException {
@@ -20322,7 +20321,6 @@ public void test270437a() throws JavaModelException {
 
 /**
  * An inner/member interface should not be offered as completion suggestion.
- * @throws JavaModelException
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=270437"
  */
 public void test270437b() throws JavaModelException {
@@ -20350,7 +20348,6 @@ public void test270437b() throws JavaModelException {
 
 /**
  * An inner/member interface should not be offered as completion suggestion.
- * @throws JavaModelException
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=270437"
  */
 public void test270437c() throws JavaModelException {
@@ -26231,7 +26228,6 @@ public void testBug574982() throws JavaModelException {
 }
 /**
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=578815
- * @throws IOException
  */
 public void testCompletionConstructorsForSubTypes() throws JavaModelException, IOException {
 	ICompilationUnit cu= getCompilationUnit("Completion", "src", "", "CompletionConstructorsForSubTypes.java");

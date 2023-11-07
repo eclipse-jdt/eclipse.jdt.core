@@ -28,11 +28,6 @@ public class LocalVariableReferenceInfo extends ClassFileStruct implements ILoca
 
 	/**
 	 * Constructor for LocalVariableTableEntry.
-	 *
-	 * @param classFileBytes
-	 * @param constantPool
-	 * @param offset
-	 * @throws ClassFormatException
 	 */
 	public LocalVariableReferenceInfo(
 			byte[] classFileBytes,

@@ -84,9 +84,6 @@ public boolean contains(IType element) {
 			return true;
 	return false;
 }
-/**
- *
- */
 private void constructElementSetIfNecessary() {
 	if (this.elementSet == null && this.size >= MIN_ELEMENTS_FOR_HASHSET) {
 		this.elementSet = new HashMap<>();

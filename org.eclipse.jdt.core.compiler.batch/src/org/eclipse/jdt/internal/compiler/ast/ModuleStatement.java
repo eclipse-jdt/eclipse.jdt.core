@@ -16,7 +16,6 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 /**
  * Just a marker class to represent statements that can occur in a module declaration
- *
  */
 public abstract class ModuleStatement extends ASTNode {
 

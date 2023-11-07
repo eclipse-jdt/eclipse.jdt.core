@@ -480,7 +480,6 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
     }
 
     /**
-     * @param key
      * @param unit the unit that contains the definition of type whose type key is <code>key</code>
      * if <code>key</code> is a wild card, primitive, array type or parameterized type, this should be null.
      * @return return the type binding for the given key or null if none is found.
@@ -665,7 +664,6 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 	/**
 	 * Retrieve the <code>ICompilationUnit</code> whose top-level type has
 	 * <code>topTypeQName</code> as its fully qualified name.
-	 * @param topTypeQName
 	 * @return the <code>ICompilationUnit</code> matching <code>topTypeQName</code> or
 	 * <code>null</code> if one doesn't exist.
 	 */
@@ -855,7 +853,6 @@ public class BaseProcessorEnv implements AnnotationProcessorEnvironment
 
 	/**
 	 * Parse and fully resolve all files.
-	 * @param javaProject
 	 * @param parseUnits the files to be parsed and resolved.
 	 */
 	static void createASTs(

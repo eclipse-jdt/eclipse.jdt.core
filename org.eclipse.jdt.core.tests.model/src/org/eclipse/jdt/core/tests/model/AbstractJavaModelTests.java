@@ -301,7 +301,6 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected static final int AST_INTERNAL_JLS21 = AST.JLS21;
 	/**
 	 * Internal synonym for the latest AST level.
-	 *
 	 */
 	protected static final int AST_INTERNAL_LATEST = AST.getJLSLatest();
 
@@ -598,7 +597,6 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	/**
 	 * See buildModelTestSuite(Class evaluationTestClass) for more information.
 	 *
-	 * @param evaluationTestClass
 	 * @param minCompliance minimum compliance level required to run this test suite
 	 * @return a test suite ({@link Test})
 	 */
@@ -618,7 +616,6 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 * This test suite differ from this computed in {@link TestCase} in the fact that this is
 	 * a {@link SuiteOfTestCases.Suite} instead of a simple framework {@link TestSuite}.
 	 *
-	 * @param evaluationTestClass
 	 * @return a test suite ({@link Test})
 	 */
 	public static Test buildModelTestSuite(Class evaluationTestClass) {
@@ -635,7 +632,6 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 * This test suite differ from this computed in {@link TestCase} in the fact that this is
 	 * a {@link SuiteOfTestCases.Suite} instead of a simple framework {@link TestSuite}.
 	 *
-	 * @param evaluationTestClass
 	 * @param ordering kind of sort use for the list (see {@link #ORDERING} for possible values)
 	 * @return a test suite ({@link Test})
 	 */
@@ -3203,10 +3199,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 
 	/**
 	 * Select a field in a compilation unit identified with the first occurence in the source of a given selection.
-	 * @param unit
-	 * @param selection
 	 * @return IField
-	 * @throws JavaModelException
 	 */
 	protected IField selectField(ICompilationUnit unit, String selection) throws JavaModelException {
 		return selectField(unit, selection, 1);
@@ -3214,11 +3207,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 
 	/**
 	 * Select a field in a compilation unit identified with the nth occurence in the source of a given selection.
-	 * @param unit
-	 * @param selection
-	 * @param occurences
 	 * @return IField
-	 * @throws JavaModelException
 	 */
 	protected IField selectField(ICompilationUnit unit, String selection, int occurences) throws JavaModelException {
 		return (IField) selectJavaElement(unit, selection, occurences, IJavaElement.FIELD);
@@ -3226,10 +3215,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 
 	/**
 	 * Select a local variable in a compilation unit identified with the first occurence in the source of a given selection.
-	 * @param unit
-	 * @param selection
 	 * @return IType
-	 * @throws JavaModelException
 	 */
 	protected ILocalVariable selectLocalVariable(ICompilationUnit unit, String selection) throws JavaModelException {
 		return selectLocalVariable(unit, selection, 1);
@@ -3237,11 +3223,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 
 	/**
 	 * Select a local variable in a compilation unit identified with the nth occurence in the source of a given selection.
-	 * @param unit
-	 * @param selection
-	 * @param occurences
 	 * @return IType
-	 * @throws JavaModelException
 	 */
 	protected ILocalVariable selectLocalVariable(ICompilationUnit unit, String selection, int occurences) throws JavaModelException {
 		return (ILocalVariable) selectJavaElement(unit, selection, occurences, IJavaElement.LOCAL_VARIABLE);
@@ -3249,10 +3231,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 
 	/**
 	 * Select a method in a compilation unit identified with the first occurence in the source of a given selection.
-	 * @param unit
-	 * @param selection
 	 * @return IMethod
-	 * @throws JavaModelException
 	 */
 	protected IMethod selectMethod(ICompilationUnit unit, String selection) throws JavaModelException {
 		return selectMethod(unit, selection, 1);
@@ -3260,11 +3239,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 
 	/**
 	 * Select a method in a compilation unit identified with the nth occurence in the source of a given selection.
-	 * @param unit
-	 * @param selection
-	 * @param occurences
 	 * @return IMethod
-	 * @throws JavaModelException
 	 */
 	protected IMethod selectMethod(ICompilationUnit unit, String selection, int occurences) throws JavaModelException {
 		return (IMethod) selectJavaElement(unit, selection, occurences, IJavaElement.METHOD);
@@ -3272,10 +3247,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 
 	/**
 	 * Select a parameterized source method in a compilation unit identified with the first occurence in the source of a given selection.
-	 * @param unit
-	 * @param selection
 	 * @return ParameterizedSourceMethod
-	 * @throws JavaModelException
 	 */
 	protected ResolvedSourceMethod selectParameterizedMethod(ICompilationUnit unit, String selection) throws JavaModelException {
 		return selectParameterizedMethod(unit, selection, 1);
@@ -3283,11 +3255,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 
 	/**
 	 * Select a parameterized source method in a compilation unit identified with the nth occurence in the source of a given selection.
-	 * @param unit
-	 * @param selection
-	 * @param occurences
 	 * @return ParameterizedSourceMethod
-	 * @throws JavaModelException
 	 */
 	protected ResolvedSourceMethod selectParameterizedMethod(ICompilationUnit unit, String selection, int occurences) throws JavaModelException {
 		IMethod type = selectMethod(unit, selection, occurences);
@@ -3297,10 +3265,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 
 	/**
 	 * Select a parameterized source type in a compilation unit identified with the first occurence in the source of a given selection.
-	 * @param unit
-	 * @param selection
 	 * @return ParameterizedSourceType
-	 * @throws JavaModelException
 	 */
 	protected ResolvedSourceType selectParameterizedType(ICompilationUnit unit, String selection) throws JavaModelException {
 		return selectParameterizedType(unit, selection, 1);
@@ -3308,11 +3273,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 
 	/**
 	 * Select a parameterized source type in a compilation unit identified with the nth occurence in the source of a given selection.
-	 * @param unit
-	 * @param selection
-	 * @param occurences
 	 * @return ParameterizedSourceType
-	 * @throws JavaModelException
 	 */
 	protected ResolvedSourceType selectParameterizedType(ICompilationUnit unit, String selection, int occurences) throws JavaModelException {
 		IType type = selectType(unit, selection, occurences);
@@ -3322,10 +3283,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 
 	/**
 	 * Select a type in a compilation unit identified with the first occurence in the source of a given selection.
-	 * @param unit
-	 * @param selection
 	 * @return IType
-	 * @throws JavaModelException
 	 */
 	protected IType selectType(ICompilationUnit unit, String selection) throws JavaModelException {
 		return selectType(unit, selection, 1);
@@ -3333,11 +3291,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 
 	/**
 	 * Select a type in a compilation unit identified with the nth occurence in the source of a given selection.
-	 * @param unit
-	 * @param selection
-	 * @param occurences
 	 * @return IType
-	 * @throws JavaModelException
 	 */
 	protected IType selectType(ICompilationUnit unit, String selection, int occurences) throws JavaModelException {
 		return (IType) selectJavaElement(unit, selection, occurences, IJavaElement.TYPE);
@@ -3345,10 +3299,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 
 	/**
 	 * Select a type parameter in a compilation unit identified with the first occurence in the source of a given selection.
-	 * @param unit
-	 * @param selection
 	 * @return IType
-	 * @throws JavaModelException
 	 */
 	protected ITypeParameter selectTypeParameter(ICompilationUnit unit, String selection) throws JavaModelException {
 		return selectTypeParameter(unit, selection, 1);
@@ -3356,11 +3307,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 
 	/**
 	 * Select a type parameter in a compilation unit identified with the nth occurence in the source of a given selection.
-	 * @param unit
-	 * @param selection
-	 * @param occurences
 	 * @return IType
-	 * @throws JavaModelException
 	 */
 	protected ITypeParameter selectTypeParameter(ICompilationUnit unit, String selection, int occurences) throws JavaModelException {
 		return (ITypeParameter) selectJavaElement(unit, selection, occurences, IJavaElement.TYPE_PARAMETER);

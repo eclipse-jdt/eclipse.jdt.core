@@ -54,8 +54,6 @@ protected void setUp() throws Exception {
 	super.setUp();
 }
 
-/**
- */
 public void testSimpleSubTypeHierarchy() throws CoreException {
 	String newContents =
 		"package x.y;\n" +
@@ -88,8 +86,6 @@ public void testSimpleSubTypeHierarchy() throws CoreException {
 		}
 	}
 }
-/**
- */
 public void testSimpleSuperTypeHierarchy() throws CoreException {
 	String newContents =
 		"package x.y;\n" +

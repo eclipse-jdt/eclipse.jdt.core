@@ -99,7 +99,6 @@ public class RecordDeclaration extends AbstractTypeDeclaration {
 	private int restrictedIdentifierStartPosition = -1;
 
 	/**
-	 * @param restrictedIdentifierStartPosition
 	 * @since 3.26
 	 */
 	public void setRestrictedIdentifierStartPosition(int restrictedIdentifierStartPosition) {

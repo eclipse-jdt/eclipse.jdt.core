@@ -19,17 +19,11 @@ import org.eclipse.jdt.apt.ui.internal.util.IAptHelpContextIds;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.preferences.IWorkbenchPreferenceContainer;
 
-/**
- *
- */
 public class FactoryPathPreferencePage extends BasePreferencePage {
 
 	private static final String PREF_ID= "org.eclipse.jdt.apt.ui.preferences.factoryPathPreferences"; //$NON-NLS-1$
 	private static final String PROP_ID= "org.eclipse.jdt.apt.ui.propertyPages.factoryPathPreferences"; //$NON-NLS-1$
 
-	/**
-	 *
-	 */
 	public FactoryPathPreferencePage() {
 		setPreferenceStore(AptUIPlugin.getDefault().getPreferenceStore());
 		//setDescription(Messages.FactoryPathPreferencePage_factoryPath);

@@ -598,7 +598,6 @@ public class CompilerOptions {
 
 	/**
 	 * Initializing the compiler options with external settings
-	 * @param settings
 	 */
 	public CompilerOptions(Map<String, String> settings){
 		resetDefaults();

@@ -1406,7 +1406,6 @@ public void testCUNotOnClasspath() throws CoreException {
  * Ensure that deleting a jar that is in a folder and that is on the classpath reports
  * a removed  pkg fragment root delta.
  * (regression test for bug 27068 Elements in the Package Explorer are displayed but don't more exist [package explorer])
- *
  */
 public void testDeleteInnerJar() throws CoreException {
 	try {

@@ -891,8 +891,6 @@ public abstract class Scope {
 
 	/**
 	 * Connect type variable supertypes, and returns true if no problem was detected
-	 * @param typeParameters
-	 * @param checkForErasedCandidateCollisions
 	 */
 	protected boolean connectTypeVariables(TypeParameter[] typeParameters, boolean checkForErasedCandidateCollisions) {
 		/* https://bugs.eclipse.org/bugs/show_bug.cgi?id=305259 - We used to not bother with connecting
@@ -5466,7 +5464,6 @@ public abstract class Scope {
 	/**
 	 * Check whether the given null default is redundant at the given position inside this scope.
 	 * @param nullBits locally defined nullness default, see Binding.NullnessDefaultMASK
-	 * @param sourceStart
 	 * @return enclosing binding that already has a matching NonNullByDefault annotation,
 	 * 		or the special binding {@link #NOT_REDUNDANT}, indicating that a different enclosing nullness default was found,
 	 * 		or null to indicate that no enclosing nullness default was found.

@@ -125,18 +125,11 @@ public class ASTConverterJavadocTest_15 extends ConverterTestSetup {
 
 
 
-	/**
-	 * @param name
-	 * @param support
-	 */
 	public ASTConverterJavadocTest_15(String name, String support, String unix) {
 		super(name);
 		this.docCommentSupport = support;
 		this.unix = "true".equals(unix);
 	}
-	/**
-	 * @param name
-	 */
 	public ASTConverterJavadocTest_15(String name) {
 		this(name.substring(0, name.indexOf(" - ")),
 				name.substring(name.indexOf(" - Doc ") + 7, name.lastIndexOf("abled") + 5),

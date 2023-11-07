@@ -3001,7 +3001,6 @@ public void test492947b() throws JavaModelException {
 }
 /**
  * Bug - No proposal yet for types on lambda arguments
- * @throws JavaModelException
  */
 public void _test492947c() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[1];

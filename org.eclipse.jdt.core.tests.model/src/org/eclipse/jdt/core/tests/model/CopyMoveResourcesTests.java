@@ -26,8 +26,6 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public class CopyMoveResourcesTests extends CopyMoveTests {
-/**
- */
 public CopyMoveResourcesTests(String name) {
 	super(name);
 }

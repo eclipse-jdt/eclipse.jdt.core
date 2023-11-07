@@ -23,8 +23,6 @@ import org.eclipse.jdt.core.JavaModelException;
 
 import junit.framework.Test;
 
-/**
- */
 @SuppressWarnings("rawtypes")
 public class FullSourceWorkspaceCompletionTests extends FullSourceWorkspaceTests {
 

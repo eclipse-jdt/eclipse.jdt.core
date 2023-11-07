@@ -44,8 +44,6 @@ public class ReconcilerTests9 extends ModifyingResourceTests {
 
 	/*package*/ static final int JLS_LATEST = AST.getJLSLatest();
 
-/**
- */
 public ReconcilerTests9(String name) {
 	super(name);
 }

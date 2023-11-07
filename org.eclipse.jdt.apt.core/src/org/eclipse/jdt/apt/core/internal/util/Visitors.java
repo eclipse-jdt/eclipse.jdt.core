@@ -252,7 +252,6 @@ public class Visitors {
      * Given an annotation locate the declaration that its annotates.
      * This visitor only operates at the declaration level. Method body
      * and field initializers and static block will be ignored.
-     *
      */
     public static final class DeclarationFinder extends ASTVisitor
     {

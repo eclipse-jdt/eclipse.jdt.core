@@ -22,7 +22,6 @@ import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 
 /**
  * Record conditional initialization status during definite assignment analysis
- *
  */
 public class ConditionalFlowInfo extends FlowInfo {
 

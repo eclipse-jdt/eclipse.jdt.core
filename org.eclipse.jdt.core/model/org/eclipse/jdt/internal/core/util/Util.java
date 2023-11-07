@@ -1656,7 +1656,6 @@ public class Util {
 
 	/**
 	 * Returns whether the given resource is read-only or not.
-	 * @param resource
 	 * @return <code>true</code> if the resource is read-only, <code>false</code> if it is not or
 	 * 	if the file system does not support the read-only attribute.
 	 */
@@ -3329,7 +3328,6 @@ public class Util {
 	 * @param paramTypeSignatures the type signatures of the method arguments
 	 * @param isConstructor whether we're looking for a constructor
 	 * @return an IMethod if found, otherwise null
-	 * @throws JavaModelException
 	 */
 	public static IMethod findMethod(IType type, char[] selector, String[] paramTypeSignatures, boolean isConstructor) throws JavaModelException {
 		IMethod method = null;

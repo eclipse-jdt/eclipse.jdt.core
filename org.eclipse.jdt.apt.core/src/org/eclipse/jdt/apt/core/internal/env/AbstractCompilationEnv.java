@@ -329,8 +329,6 @@ public abstract class AbstractCompilationEnv
 
 	/**
 	 * Check typeName to ensure it doesn't contain any bogus characters.
-	 * @param typeName
-	 * @throws CoreException
 	 */
 	public void validateTypeName(String typeName) throws CoreException
 	{

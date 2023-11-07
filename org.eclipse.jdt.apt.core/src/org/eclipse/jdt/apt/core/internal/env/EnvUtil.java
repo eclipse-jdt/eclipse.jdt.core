@@ -89,12 +89,10 @@ import org.eclipse.jdt.core.dom.SimpleName;
     }
 
     /**
-     * @param file
      * @return length 3 int array with the following information.
      * at index 0: contains the starting offset, always >= 0
      * at index 1: contains the ending offset, may be a negative number.
      * at index 2: the line number
-     *
      */
     private static int[] getClassNameRange(final CompilationUnit astUnit){
     	int[] startAndEnd = null;

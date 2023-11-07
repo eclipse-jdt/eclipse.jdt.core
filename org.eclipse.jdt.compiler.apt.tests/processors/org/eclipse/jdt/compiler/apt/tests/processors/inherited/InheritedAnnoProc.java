@@ -166,7 +166,6 @@ public class InheritedAnnoProc extends BaseProcessor
 
 	/**
 	 * Test the getRootElements implementation.
-	 * @param roundEnv
 	 * @return true if tests passed
 	 */
 	private boolean examineGetRootElements(RoundEnvironment roundEnv)

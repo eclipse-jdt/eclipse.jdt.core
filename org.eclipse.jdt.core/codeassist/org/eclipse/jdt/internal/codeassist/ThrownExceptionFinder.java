@@ -45,8 +45,6 @@ public class ThrownExceptionFinder extends ASTVisitor {
 	 * Exception is already caught even if its super type is being caught. Also computes, separately,
 	 * a list comprising of (a)those exceptions that have been caught already and (b)those exceptions that are thrown
 	 * by the method and whose super type has been caught already.
-	 * @param tryStatement
-	 * @param scope
 	 */
 	public void processThrownExceptions(TryStatement tryStatement, BlockScope scope) {
 		this.thrownExceptions = new SimpleSet();

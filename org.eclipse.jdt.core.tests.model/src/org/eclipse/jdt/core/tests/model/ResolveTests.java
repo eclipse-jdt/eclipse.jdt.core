@@ -2322,7 +2322,6 @@ public void testSingleNameInImport() throws JavaModelException {
 }
 /**
  * Bug 120350: [model] Secondary type not found by code resolve
- * @throws JavaModelException
  */
 public void testSecondaryTypes() throws JavaModelException {
 	waitUntilIndexesReady();

@@ -19,7 +19,6 @@ package org.eclipse.jdt.apt.tests.annotations.mirrortest;
 /**
  * Annotation for testing the Mirror API implementation.
  * Work takes place in the MirrorTestAnnotationProcessor.
- *
  */
 public @interface MirrorTestAnnotation {
 

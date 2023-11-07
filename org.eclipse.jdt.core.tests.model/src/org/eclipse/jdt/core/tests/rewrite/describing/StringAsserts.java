@@ -21,14 +21,8 @@ import java.util.Arrays;
 
 import junit.framework.TestCase;
 
-/**
- *
- */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class StringAsserts {
-	/**
-	 *
-	 */
 	public StringAsserts() {
 		super();
 	}

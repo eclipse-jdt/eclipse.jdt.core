@@ -99,9 +99,6 @@ private static void verifyVmArguments() {
 	}
 }
 
-/**
- * @param name
- */
 public FullSourceWorkspaceCompleteSearchTests(String name) {
 	super(name);
 }

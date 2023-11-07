@@ -29,9 +29,6 @@ import org.eclipse.jdt.apt.core.util.IFactoryPath;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.tests.util.Util;
 
-/**
- *
- */
 public class RegressionTests extends APTTestBase {
 
 	public RegressionTests(String name) {
@@ -244,7 +241,6 @@ public class RegressionTests extends APTTestBase {
 
     /**
      * Test the Types.isAssignable() API, in various inheritance scenarios
-     * @throws Exception
      */
     public void testBugzilla206591B() throws Exception {
     	final String projName = RegressionTests.class.getName() + "206591.Project"; //$NON-NLS-1$
@@ -298,8 +294,6 @@ public class RegressionTests extends APTTestBase {
 	 * {@link AptConfig#hasProjectSpecificFactoryPath(IJavaProject)} checks if
 	 * the project's factory path is equivalent to the default factory path, not
 	 * just that it has created a factory path.
-	 *
-	 * @throws Exception
 	 */
 	public void testBugzilla423254() throws Exception {
 		final String projName = RegressionTests.class.getName()

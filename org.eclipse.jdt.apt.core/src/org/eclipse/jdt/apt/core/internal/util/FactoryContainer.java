@@ -67,7 +67,6 @@ public abstract class FactoryContainer
 	/**
 	 * Subclasses must return a map of implementation name to service
 	 * name, for all the processor services this container provides.
-	 * @throws IOException
 	 */
 	protected abstract Map<String, String> loadFactoryNames() throws IOException;
 

@@ -550,7 +550,6 @@ public abstract class BaseConfigurationBlock {
 
 	/**
 	 * Retuens the value as actually stored in the preference store.
-	 * @param key
 	 * @return the value as actually stored in the preference store.
 	 */
 	protected String getStoredValue(Key key) {

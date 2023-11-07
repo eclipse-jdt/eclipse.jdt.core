@@ -43,7 +43,6 @@ public class ModelUtilTests extends TestCase
 
 	/**
 	 * Validate the testElements test against the javac compiler.
-	 * @throws IOException
 	 */
 	public void _testElementsWithSystemCompiler() throws IOException {
 		// Commented out - to be fixed by https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1306
@@ -60,7 +59,6 @@ public class ModelUtilTests extends TestCase
 
 	/**
 	 * Test the Elements utility implementation.
-	 * @throws IOException
 	 */
 	public void testElementsWithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
@@ -69,7 +67,6 @@ public class ModelUtilTests extends TestCase
 
 	/**
 	 * Validate the testTypes test against the javac compiler.
-	 * @throws IOException
 	 */
 	public void testTypesWithSystemCompiler() throws IOException {
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
@@ -82,7 +79,6 @@ public class ModelUtilTests extends TestCase
 
 	/**
 	 * Test the Types utility implementation.
-	 * @throws IOException
 	 */
 	public void testTypesWithEclipseCompiler() throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
@@ -93,7 +89,6 @@ public class ModelUtilTests extends TestCase
 	 * Test functionality by running a particular processor against the types in
 	 * resources/targets.  The processor must support "*" (the set of all annotations)
 	 * and must report its errors or success via the methods in BaseProcessor.
-	 * @throws IOException
 	 */
 	private void internalTest(JavaCompiler compiler, String processorClass) throws IOException {
 		System.clearProperty(processorClass);

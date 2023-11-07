@@ -35,8 +35,6 @@ public class ReconcilerTests16 extends ModifyingResourceTests {
 	/*package*/ @SuppressWarnings("deprecation")
 	static final int JLS_LATEST = AST.JLS16;
 
-/**
- */
 public ReconcilerTests16(String name) {
 	super(name);
 }

@@ -135,7 +135,6 @@ public class InternalCompletionProposal extends CompletionProposal {
 	 * in the context.
 	 *
 	 * Defaults to null if not set.
-	 *
 	 */
 	private char[][] declarationTypeVariables = null;
 

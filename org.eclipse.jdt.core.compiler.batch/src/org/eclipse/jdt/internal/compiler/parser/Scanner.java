@@ -122,7 +122,6 @@ public class Scanner implements TerminalTokens {
 	boolean breakPreviewAllowed = false;
 	/**
 	 * The current context of the scanner w.r.t restricted keywords
-	 *
 	 */
 	enum ScanContext {
 		EXPECTING_KEYWORD, EXPECTING_IDENTIFIER, AFTER_REQUIRES, INACTIVE
