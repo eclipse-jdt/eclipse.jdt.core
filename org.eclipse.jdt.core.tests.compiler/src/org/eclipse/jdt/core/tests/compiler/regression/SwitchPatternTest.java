@@ -30,7 +30,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testIssue1466"};
+//		TESTS_NAMES = new String[] { "testIssue1466_02"};
 	}
 
 	private static String previewLevel = "21";
@@ -6959,9 +6959,9 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					""",
 				},
 				"absolute value 1: -1\n" +
-				"positive integer: 0\n" +
+				"other integer: 0\n" +
 				"positive integer: 42\n" +
-				"positive integer: -99\n" +
+				"other integer: -99\n" +
 				"positive integer: 123\n" +
 				"value unavailable: null"
 );
