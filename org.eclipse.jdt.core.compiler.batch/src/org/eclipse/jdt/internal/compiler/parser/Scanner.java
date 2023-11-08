@@ -2395,110 +2395,11 @@ public final void jumpOverMethodBody() {
 						break NextToken;
 					}
 				case '"' :
-					scanForStringLiteral();
-//					boolean isTextBlock = false;
-//					int firstClosingBrace = 0;
-//					try {
-//						try { // consume next character
-//							isTextBlock = scanForTextBlockBeginning();
-//							if (!isTextBlock) {
-//								this.unicodeAsBackSlash = false;
-//								if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
-//										&& (this.source[this.currentPosition] == 'u')) {
-//									getNextUnicodeChar();
-//								} else {
-//									if (this.withoutUnicodePtr != 0) {
-//										unicodeStore();
-//									}
-//								}
-//							}
-//						} catch (InvalidInputException ex) {
-//								// ignore
-//						}
-//
-//						Inner: while (this.currentPosition <= this.eofPosition) {
-//							if (isTextBlock) {
-//								switch (this.currentCharacter) {
-//									case '"':
-//										// look for text block delimiter
-//										if (scanForTextBlockClose()) {
-//											this.currentPosition += 2;
-//											this.currentCharacter = this.source[this.currentPosition];
-//											isTextBlock = false;
-//											break Inner;
-//										}
-//										break;
-//									case '}':
-//										if (firstClosingBrace == 0)
-//											firstClosingBrace = this.currentPosition;
-//										break;
-//									case '\r' :
-//										if (this.source[this.currentPosition] == '\n')
-//											this.currentPosition++;
-//										//$FALL-THROUGH$
-//									case '\n' :
-//										pushLineSeparator();
-//										//$FALL-THROUGH$
-//									default:
-//										if (this.currentCharacter == '\\' && this.source[this.currentPosition] == '"') {
-//											this.currentPosition++;
-//										}
-//										this.currentCharacter = this.source[this.currentPosition++];
-//										continue Inner;
-//								}
-//							} else if (this.currentCharacter == '"') {
-//								break Inner;
-//							}
-//							if (this.currentCharacter == '\r'){
-//								if (this.source[this.currentPosition] == '\n') this.currentPosition++;
-//								break NextToken; // the string cannot go further that the line
-//							}
-//							if (this.currentCharacter == '\n'){
-//								break; // the string cannot go further that the line
-//							}
-//							if (this.currentCharacter == '\\') {
-//								try {
-//									if (this.unicodeAsBackSlash) {
-//										// consume next character
-//										this.unicodeAsBackSlash = false;
-//										if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\') && (this.source[this.currentPosition] == 'u')) {
-//											getNextUnicodeChar();
-//										} else {
-//											if (this.withoutUnicodePtr != 0) {
-//												unicodeStore();
-//											}
-//										}
-//									} else {
-//										this.currentCharacter = this.source[this.currentPosition++];
-//									}
-//									scanEscapeCharacter();
-//								} catch (InvalidInputException ex) {
-//									// ignore
-//								}
-//							}
-//							try { // consume next character
-//								this.unicodeAsBackSlash = false;
-//								if (((this.currentCharacter = this.source[this.currentPosition++]) == '\\')
-//										&& (this.source[this.currentPosition] == 'u')) {
-//									getNextUnicodeChar();
-//								} else {
-//									if (this.withoutUnicodePtr != 0) {
-//										unicodeStore();
-//									}
-//								}
-//							} catch (InvalidInputException ex) {
-//								// ignore
-//							}
-//						}
-//					} catch (IndexOutOfBoundsException e) {
-//						if(isTextBlock) {
-//							// Pull it back to the first closing brace after the beginning
-//							// of the unclosed text block and let recovery take over.
-//							if (firstClosingBrace > 0) {
-//								this.currentPosition = firstClosingBrace - 1;
-//							}
-//						}
-//					}
+					try {
+						scanForStringLiteral();
+					} catch (InvalidInputException ex) {
+						// ignore
+					}
 					break NextToken;
 				case '/' :
 					{
@@ -2730,6 +2631,7 @@ public final void jumpOverMethodBody() {
 		}
 		//-----------------end switch while try--------------------
 	} catch (IndexOutOfBoundsException | InvalidInputException e) {
+		System.out.println();
 		// ignore
 	}
 	return;
