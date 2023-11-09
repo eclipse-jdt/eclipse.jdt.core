@@ -77,7 +77,7 @@ public class BatchAnnotationProcessorManager extends BaseAnnotationProcessorMana
 		}
 		BatchProcessingEnvImpl processingEnv = new BatchProcessingEnvImpl(this, (Main) batchCompiler, commandLineArguments);
 		this._processingEnv = processingEnv;
-		@SuppressWarnings("resource") // fileManager is not opened here
+		// @SuppressWarnings("resource") // fileManager is not opened here
 		JavaFileManager fileManager = processingEnv.getFileManager();
 		if (fileManager instanceof StandardJavaFileManager) {
 			Iterable<? extends File> location = null;
