@@ -195,7 +195,7 @@ public class PatternMatchingSelectionTest extends AbstractSelectionTest {
 									"    for (ColoredRectangle(int x_1, int y_1, Color col) : ar_ray) \n" +
 									"      {\n" +
 									"        int;\n" +
-									"        int per;\n" +
+									"        int per = <SelectionOnName:x_1>;\n" +
 									"        <SelectOnName:x_1>;\n" +
 									"      }\n" +
 									"  }\n" +
