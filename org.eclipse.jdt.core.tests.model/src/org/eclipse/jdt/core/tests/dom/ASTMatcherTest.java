@@ -1152,6 +1152,8 @@ public class ASTMatcherTest extends org.eclipse.jdt.core.tests.junit.extension.T
 		ParenthesizedExpression x1 = this.ast.newParenthesizedExpression();
 		basicMatch(x1);
 	}
+
+	@SuppressWarnings("deprecation")
 	public void testPatternInstanceofExpression() {
 		if (this.ast.apiLevel() < AST.JLS17) {
 			return;
