@@ -1328,7 +1328,7 @@ StringTemplateMidList -> StringTemplateMid
 StringTemplateMidList ::= StringTemplateMidList StringTemplateMid
 /:$compliance 21:/
 
-StringTemplate ::= StringTemplateBegin EmbeddedExpression StringTemplateMidListOpt '}' StringTemplateEnd
+StringTemplate ::= StringTemplateBegin EmbeddedExpression StringTemplateMidListOpt '}' StringFragment StringTemplateEnd
 /.$putCase consumeStringTemplate(); $break ./
 /:$compliance 21:/
 
