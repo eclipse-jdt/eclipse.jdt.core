@@ -1,5 +1,4 @@
 package java.lang.invoke;
-import java.lang.invoke.MethodType;
 
 public class MethodHandles {
 	public static final class Lookup {
