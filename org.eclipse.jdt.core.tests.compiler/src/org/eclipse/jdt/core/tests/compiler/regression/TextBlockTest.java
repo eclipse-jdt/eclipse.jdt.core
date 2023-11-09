@@ -19,21 +19,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
 
-/**
- * This is almost a copy of the one in org.eclipse.jdt.tests.latestBREE.
- * The other one also includes tests that are coded using the latest language
- * features and API. However, the bundle is not yet setup to run with the build
- * hence this is a temporary arrangement to keep the tests being run. The recommended
- * strategy is to keep this one updated and when the time comes, move this over
- * to the other bundle after synch-up of tests from both.
- * @author jay
- */
 public class TextBlockTest extends AbstractRegressionTest {
-
-	static {
-//		TESTS_NUMBERS = new int [] { 40 };
-//		TESTS_NAMES = new String[] { "testCompliances_13" };
-	}
 
 	public static Class<?> testClass() {
 		return TextBlockTest.class;
@@ -1616,5 +1602,78 @@ public class TextBlockTest extends AbstractRegressionTest {
 				},
 				"123\b45",
 				getCompilerOptions());
+	}
+
+
+	/*
+	 * positive - html code with indentation with empty lines
+	 * output compared with String API
+	 */
+	public void test016b() {
+		String text = "<html>\n" +
+					"    <body>\n" +
+					"      <p>Hello, world</p>\n" +
+					"    </body>\n" +
+					"  </html>";
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"	static String html = \"\"\"\n" +
+						text + "\\n" +
+						"\"\"\";\n" +
+						"	public static void main(String[] args) {\n" +
+						"		System.out.println(html);\n" +
+						"	}\n" +
+						"}\n"
+				},
+				text.stripIndent().translateEscapes(),
+				null,
+				new String[] {"--enable-preview"});
+
+	}
+	/*
+	 * positive - escaped '\', compare with String::translateEscapes
+	 */
+	public void test022() {
+		String text = "abc\\\\def";
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"	public static String textb = \"\"\"\n" +
+						text +
+						"\"\"\";\n" +
+						"	public static void main(String[] args) {\n" +
+						"		System.out.print(textb);\n" +
+						"	}\n" +
+						"}\n"
+				},
+				text.translateEscapes(),
+				null,
+				new String[] {"--enable-preview"});
+	}
+	/*
+	 * positive - escaped """, compare output with
+	 * 							String::translateEscapes
+	 * 							String::stripIndent
+	 */
+	public void test023() {
+		String text = "abc\\\"\"\"def\"  ";
+		runConformTest(
+				new String[] {
+						"X.java",
+						"public class X {\n" +
+						"	public static String textb = \"\"\"\n" +
+						text +
+						"\"\"\";\n" +
+						"	public static void main(String[] args) {\n" +
+						"		System.out.println(textb);\n" +
+						"	}\n" +
+						"}\n"
+				},
+				text.translateEscapes().stripIndent(),
+				null,
+				new String[] {"--enable-preview"});
 	}
 }
