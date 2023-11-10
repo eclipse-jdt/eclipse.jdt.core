@@ -126,6 +126,8 @@ public class SelectionParser extends AssistParser {
 	public static final char[] SUPER = "super".toCharArray(); //$NON-NLS-1$
 	public static final char[] THIS = "this".toCharArray(); //$NON-NLS-1$
 
+	public boolean lastIfHasPattern = false;
+
 public SelectionParser(ProblemReporter problemReporter) {
 	super(problemReporter);
 	this.javadocParser.checkDocComment = true;
@@ -882,8 +884,10 @@ protected void consumeGuard() {
 protected void consumePostExpressionInIf() {
 	super.consumePostExpressionInIf();
 	if (this.expressionStack[this.expressionPtr].containsPatternVariable()) {
+		this.lastIfHasPattern = true;
 		pushOnElementStack(K_INSIDE_THEN, this.expressionPtr, this.astPtr);
 	} else {
+		this.lastIfHasPattern = false;
 		popUntilElement(K_INSIDE_IF);
 		popElement(K_INSIDE_IF);
 	}
@@ -1539,7 +1543,9 @@ protected void consumeToken(int token) {
 				}
 				break;
 			case TokenNameelse:
-				pushOnElementStack(K_INSIDE_ELSE, this.expressionPtr, this.astPtr);
+				if (this.lastIfHasPattern) {
+					pushOnElementStack(K_INSIDE_ELSE, this.expressionPtr, this.astPtr);
+				}
 				break;
 			case TokenNameAND_AND:
 				pushOnElementStack(K_POST_AND_AND, this.expressionPtr);
