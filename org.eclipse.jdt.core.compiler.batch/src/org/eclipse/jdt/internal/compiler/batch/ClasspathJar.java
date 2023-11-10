@@ -89,7 +89,7 @@ public List<Classpath> fetchLinkedJars(FileSystem.ClasspathSectionProblemReporte
 				directoryPath = directoryPath.substring(0, lastSeparator + 1); // potentially empty (see bug 214731)
 				while (calledFilesIterator.hasNext()) {
 					File linkedFile = new File(directoryPath + (String) calledFilesIterator.next());
-					if (linkedFile.isFile()) {
+					if (linkedFile.isFile() && linkedFile.getName().toLowerCase().endsWith(".jar")) { //$NON-NLS-1$
 						result.add(new ClasspathJar(linkedFile, this.closeZipFileAtEnd, this.accessRuleSet, this.destinationPath));
 					}
 				}
