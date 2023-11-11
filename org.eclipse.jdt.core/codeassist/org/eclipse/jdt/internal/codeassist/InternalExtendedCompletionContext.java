@@ -280,6 +280,13 @@ public class InternalExtendedCompletionContext {
 		}
 		if (parent == null) return null;
 
+		String typeSig;
+ 		if (local.type == null || local.type.isTypeNameVar(binding.declaringScope)) {
+ 			typeSig = Signature.createTypeSignature(binding.type.signableName(), true);
+ 		} else {
+ 			typeSig = Util.typeSignature(local.type);
+ 		}
+
 		return new LocalVariable(
 				parent,
 				new String(local.name),
@@ -287,7 +294,7 @@ public class InternalExtendedCompletionContext {
 				local.declarationSourceEnd,
 				local.sourceStart,
 				local.sourceEnd,
-				local.type == null ? Signature.createTypeSignature(binding.type.signableName(), true) : Util.typeSignature(local.type),
+				typeSig,
 				binding.declaration.annotations,
 				local.modifiers,
 				local.getKind() == AbstractVariableDeclaration.PARAMETER);
