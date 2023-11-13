@@ -4853,37 +4853,55 @@ protected void consumeInternalCompilationUnitWithPotentialUnnamedClass() {
 		LinkedList<AbstractMethodDeclaration> methods = new LinkedList<>();
 		LinkedList<FieldDeclaration> fields = new LinkedList<>();
 		LinkedList<TypeDeclaration> types = new LinkedList<>();
-		TypeDeclaration topLevelType = null;
+		int sourceStart = Integer.MAX_VALUE;
+		int sourceEnd = -1;
 		// here are length declarations
 		for (int i = length - 1; i >= 0; i--) {
 			ASTNode astNode = this.astStack[this.astPtr--];
 			if (astNode instanceof MethodDeclaration method) {
+				if (method.declarationSourceStart < sourceStart) {
+					sourceStart = method.declarationSourceStart;
+				}
+				if (method.declarationSourceEnd > sourceEnd) {
+					sourceEnd = method.declarationSourceEnd;
+				}
 				//methods and constructors have been regrouped into one single list
 				methods.addFirst(method);
 			} else if (astNode instanceof TypeDeclaration type) {
-				if (!Arrays.equals(this.compilationUnit.getMainTypeName(), type.name)) {
-					types.addFirst(type);
-				} else {
-					topLevelType = type;
+				if (type.declarationSourceStart < sourceStart) {
+					sourceStart = type.declarationSourceStart;
 				}
+				if (type.declarationSourceEnd > sourceEnd) {
+					sourceEnd = type.declarationSourceEnd;
+				}
+				types.addFirst(type);
 			} else if (astNode instanceof FieldDeclaration field) {
+				if (field.declarationSourceStart < sourceStart) {
+					sourceStart = field.declarationSourceStart;
+				}
+				if (field.declarationSourceEnd > sourceEnd) {
+					sourceEnd = field.declarationSourceEnd;
+				}
 				fields.addFirst(field);
 			}
 		}
-		if ((!methods.isEmpty() || !fields.isEmpty()) && problemReporter().validateJavaFeatureSupport(JavaFeature.UNNAMMED_CLASSES_AND_INSTANCE_MAIN_METHODS, 0, 0)) {
+		if (!methods.isEmpty() || !fields.isEmpty()) {
+			problemReporter().validateJavaFeatureSupport(JavaFeature.UNNAMMED_CLASSES_AND_INSTANCE_MAIN_METHODS, 0, 0);
 			UnnamedClass unnamedClass = new UnnamedClass(this.compilationUnit.compilationResult);
 			unnamedClass.methods = methods.toArray(AbstractMethodDeclaration[]::new);
 			unnamedClass.createDefaultConstructor(false, true);
 			unnamedClass.fields = fields.toArray(FieldDeclaration[]::new);
 			unnamedClass.memberTypes = types.toArray(TypeDeclaration[]::new);
+
+			unnamedClass.declarationSourceStart = sourceStart;
+			unnamedClass.declarationSourceEnd = sourceEnd;
+			unnamedClass.bodyStart = sourceStart;
+			unnamedClass.bodyEnd = sourceEnd;
+			unnamedClass.sourceStart = sourceStart;
+			unnamedClass.sourceEnd = sourceEnd;
 			types.forEach(type -> type.enclosingType = unnamedClass);
-			this.compilationUnit.types = topLevelType == null
-				? new TypeDeclaration[] { unnamedClass }
-				: new TypeDeclaration[] { unnamedClass, topLevelType };
-		} else if (fields.isEmpty()) {
-			if (topLevelType != null) {
-				types.add(topLevelType);
-			}
+			this.compilationUnit.types =  new TypeDeclaration[] { unnamedClass };
+		} else if (types.size() > 0) {
 			// add types to compilation unit
 			this.compilationUnit.types = types.toArray(TypeDeclaration[]::new);
 		} else {

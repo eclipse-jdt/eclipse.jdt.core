@@ -91,8 +91,9 @@ public class UnnamedClassTest extends AbstractRegressionTest9 {
 			void main() {}
 			""", "A.java");
 		assertFalse(res.compilationResult.hasErrors());
-		assertEquals(2, unnamedClass(res).methods.length);
+		// hello, main, and the implicit constructor
+		assertEquals(3, unnamedClass(res).methods.length);
 		// should generated A.class (unnamed) and A$B.class
-		//
+		assertEquals(1, res.types[0].memberTypes.length);
 	}
 }
