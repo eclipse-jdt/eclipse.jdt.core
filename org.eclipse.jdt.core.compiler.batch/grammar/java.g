@@ -122,6 +122,7 @@ $Terminals
 	BeginCaseElement
 	RestrictedIdentifierWhen
 	BeginRecordPattern
+	UnderScore
 
 --    BodyMarker
 
@@ -832,6 +833,12 @@ RestoreDiet ::= $empty
 VariableDeclaratorId ::= 'Identifier' Dimsopt
 /:$readableName VariableDeclaratorId:/
 /:$recovery_template Identifier:/
+
+VariableDeclaratorId ::= 'UnderScore'
+/:$readableName VariableDeclaratorId:/
+/.$putCase consumeVariableDeclaratorIdWithUnderscore(); $break ./
+/:$recovery_template Identifier:/
+/:$compliance 21:/
 
 VariableInitializer -> Expression
 VariableInitializer -> ArrayInitializer
@@ -1869,6 +1876,11 @@ NestedLambda ::= $empty
 /:$readableName NestedLambda:/
 
 LambdaParameters ::= Identifier NestedLambda
+/.$putCase consumeTypeElidedLambdaParameter(false); $break ./
+/:$readableName TypeElidedFormalParameter:/
+/:$compliance 1.8:/
+
+LambdaParameters ::= UnderScore NestedLambda
 /.$putCase consumeTypeElidedLambdaParameter(false); $break ./
 /:$readableName TypeElidedFormalParameter:/
 /:$compliance 1.8:/
