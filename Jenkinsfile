@@ -35,7 +35,7 @@ pipeline {
 					-Ptest-on-javase-21 -Pbree-libs -Papi-check \
 					-Dcompare-version-with-baselines.skip=false \
 					-Djava.io.tmpdir=$WORKSPACE/tmp -Dproject.build.sourceEncoding=UTF-8 \
-					-Dtycho.surefire.argLine="--add-modules ALL-SYSTEM -Dcompliance=1.8,11,17,19,21 -Djdt.performance.asserts=disabled" \
+					-Dtycho.surefire.argLine="--add-modules ALL-SYSTEM -Dcompliance=1.8,11,17,20,21 -Djdt.performance.asserts=disabled" \
 					-DDetectVMInstallationsJob.disabled=true \
 					-Dtycho.apitools.debug \
 					-Dcbi-ecj-version=99.99
