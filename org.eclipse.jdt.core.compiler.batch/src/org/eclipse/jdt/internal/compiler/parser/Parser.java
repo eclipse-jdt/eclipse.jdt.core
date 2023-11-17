@@ -4854,7 +4854,6 @@ protected void consumeInternalCompilationUnitWithPotentialUnnamedClass() {
 		LinkedList<FieldDeclaration> fields = new LinkedList<>();
 		LinkedList<TypeDeclaration> types = new LinkedList<>();
 		int sourceStart = Integer.MAX_VALUE;
-		int sourceEnd = -1;
 		// here are length declarations
 		for (int i = length - 1; i >= 0; i--) {
 			ASTNode astNode = this.astStack[this.astPtr--];
@@ -4862,25 +4861,16 @@ protected void consumeInternalCompilationUnitWithPotentialUnnamedClass() {
 				if (method.declarationSourceStart < sourceStart) {
 					sourceStart = method.declarationSourceStart;
 				}
-				if (method.declarationSourceEnd > sourceEnd) {
-					sourceEnd = method.declarationSourceEnd;
-				}
 				//methods and constructors have been regrouped into one single list
 				methods.addFirst(method);
 			} else if (astNode instanceof TypeDeclaration type) {
 				if (type.declarationSourceStart < sourceStart) {
 					sourceStart = type.declarationSourceStart;
 				}
-				if (type.declarationSourceEnd > sourceEnd) {
-					sourceEnd = type.declarationSourceEnd;
-				}
 				types.addFirst(type);
 			} else if (astNode instanceof FieldDeclaration field) {
 				if (field.declarationSourceStart < sourceStart) {
 					sourceStart = field.declarationSourceStart;
-				}
-				if (field.declarationSourceEnd > sourceEnd) {
-					sourceEnd = field.declarationSourceEnd;
 				}
 				fields.addFirst(field);
 			}
@@ -4894,11 +4884,11 @@ protected void consumeInternalCompilationUnitWithPotentialUnnamedClass() {
 			unnamedClass.memberTypes = types.toArray(TypeDeclaration[]::new);
 
 			unnamedClass.declarationSourceStart = sourceStart;
-			unnamedClass.declarationSourceEnd = sourceEnd;
+			unnamedClass.declarationSourceEnd = this.scanner.eofPosition - 1;
 			unnamedClass.bodyStart = sourceStart;
-			unnamedClass.bodyEnd = sourceEnd;
+			unnamedClass.bodyEnd = this.scanner.eofPosition - 1;
 			unnamedClass.sourceStart = sourceStart;
-			unnamedClass.sourceEnd = sourceEnd;
+			unnamedClass.sourceEnd = this.scanner.eofPosition - 1;
 			types.forEach(type -> type.enclosingType = unnamedClass);
 			this.compilationUnit.types =  new TypeDeclaration[] { unnamedClass };
 		} else if (types.size() > 0) {

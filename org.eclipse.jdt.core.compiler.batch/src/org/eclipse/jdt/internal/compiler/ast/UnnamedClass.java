@@ -30,7 +30,14 @@ public class UnnamedClass extends TypeDeclaration {
 
 		Path p = Paths.get(new String(result.fileName));
 		String basename = p.getFileName().toString();
-		String nameString = MessageFormat.format(NAME_TEMPLATE, basename.length() > 0 ? basename.substring(0, basename.length() - 5) : basename);
+		String classSuffix;
+		if (basename.endsWith(".java")) {
+			classSuffix = basename.substring(0, basename.length() - 5);
+		} else {
+			classSuffix = basename;
+		}
+
+		String nameString = MessageFormat.format(NAME_TEMPLATE, classSuffix);
 		this.name = nameString.toCharArray();
 	}
 

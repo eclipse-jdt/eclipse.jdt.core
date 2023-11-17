@@ -5187,12 +5187,17 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"X.java",
 				"record X;\n",
 			},
-			"----------\n" +
-			"1. ERROR in X.java (at line 1)\n" +
-			"	record X;\n" +
-			"	^^^^^^\n" +
-			"Syntax error on token \"record\", package expected\n" +
-			"----------\n",
+			"----------\n"
+			+ "1. ERROR in X.java (at line 1)\n"
+			+ "	record X;\n"
+			+ "	^\n"
+			+ "The preview feature Unnamed Classes and Instance Main Methods is only available with source level 21 and above\n"
+			+ "----------\n"
+			+ "2. ERROR in X.java (at line 1)\n"
+			+ "	record X;\n"
+			+ "	^^^^^^\n"
+			+ "'record' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n"
+			+ "----------\n",
 			null,
 			true,
 			options
