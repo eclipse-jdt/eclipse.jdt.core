@@ -888,7 +888,7 @@ public class DeltaProcessor {
 				}
 				if (projectsToTouch.length > 0) {
 					if (asynchronous){
-						this.manager.touchProjects(projectsToTouch, monitor);
+						this.manager.touchProjectsAsync(projectsToTouch);
 					}
 					else {
 						// touch the projects to force them to be recompiled while taking the workspace lock

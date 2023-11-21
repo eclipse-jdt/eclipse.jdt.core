@@ -53,6 +53,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinWorkerThread;
@@ -422,6 +423,35 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	static final Object[][] NO_PARTICIPANTS = new Object[0][];
 
 	private static DebugTrace DEBUG_TRACE;
+
+	private final Set<IProject> touchQueue = ConcurrentHashMap.newKeySet();
+	private final WorkspaceJob touchJob = new WorkspaceJob(Messages.synchronizing_projects_job) {
+		@Override
+		public IStatus runInWorkspace(IProgressMonitor monitor) throws CoreException {
+			SubMonitor subMonitor = SubMonitor.convert(monitor, JavaModelManager.this.touchQueue.size());
+			JavaModelManager.this.touchQueue.removeIf(iProject->{
+				// remaining work may change in background - update it:
+				subMonitor.setWorkRemaining(JavaModelManager.this.touchQueue.size());
+				if (JavaBuilder.DEBUG) {
+					trace("Touching project " + iProject.getName()); //$NON-NLS-1$
+				}
+				if (iProject.isAccessible()) {
+					try {
+						iProject.touch(subMonitor.split(1));
+					} catch (CoreException e) {
+						Util.log(e, "Could not touch project "+iProject.getName()); //$NON-NLS-1$
+					}
+				}
+				return true;
+			});
+			return Status.OK_STATUS;
+		}
+
+		@Override
+		public boolean belongsTo(Object family) {
+			return ResourcesPlugin.FAMILY_MANUAL_REFRESH == family;
+		}
+	};
 
 	public static class CompilationParticipants {
 
@@ -1771,7 +1801,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 							projects[i] = javaProject.getProject();
 							manager.deltaState.addClasspathValidation(javaProject);
 						}
-						manager.touchProjects(projects, null);
+						manager.touchProjectsAsync(projects);
 					} catch (JavaModelException e) {
 						// skip
 					}
@@ -3396,28 +3426,11 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		return DeduplicationUtil.intern(s);
 	}
 
-	void touchProjects(final IProject[] projectsToTouch, IProgressMonitor progressMonitor) throws JavaModelException {
-		WorkspaceJob touchJob = new WorkspaceJob(Messages.synchronizing_projects_job) {
-			@Override
-			public IStatus runInWorkspace(IProgressMonitor monitor) throws CoreException {
-				SubMonitor subMonitor = SubMonitor.convert(monitor, projectsToTouch.length);
-				for (IProject iProject : projectsToTouch) {
-					if (JavaBuilder.DEBUG) {
-						trace("Touching project " + iProject.getName()); //$NON-NLS-1$
-					}
-					if (iProject.isAccessible()) {
-						iProject.touch(subMonitor.split(1));
-					}
-				}
-				return Status.OK_STATUS;
-			}
-
-			@Override
-			public boolean belongsTo(Object family) {
-				return ResourcesPlugin.FAMILY_MANUAL_REFRESH == family;
-			}
-		};
-		touchJob.schedule();
+	void touchProjectsAsync(final IProject[] projectsToTouch) throws JavaModelException {
+		for (IProject iProject : projectsToTouch) {
+			this.touchQueue.add(iProject);
+		}
+		this.touchJob.schedule();
 	}
 
 	private Set<IJavaProject> getClasspathBeingResolved() {
