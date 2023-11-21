@@ -1268,6 +1268,14 @@ TypePattern ::= Modifiersopt Type 'Identifier'
 /.$putCase consumeTypePattern(); $break ./
 /:$readableName TypePattern:/
 
+TypePattern ::= Modifiersopt Type UnderScore
+/.$putCase consumeTypePattern(true); $break ./
+/:$readableName TypePattern:/
+
+TypePattern ::= UnderScore
+/.$putCase consumeTypePattern(false); $break ./
+/:$readableName TypePattern:/
+
 -----------------------------------------------
 -- 16 feature : end of instanceof pattern matching
 -----------------------------------------------
