@@ -93,7 +93,6 @@ import org.eclipse.jdt.internal.core.util.Util;
  * threads, the methods are synchronized on the DefaultBindingResolver instance.
  * </p>
  */
-@SuppressWarnings({ "rawtypes", "unchecked" })
 class DefaultBindingResolver extends BindingResolver {
 
 	/*
@@ -104,36 +103,36 @@ class DefaultBindingResolver extends BindingResolver {
 		/**
 		 * This map is used to get a binding from its binding key.
 		 */
-		Map bindingKeysToBindings;
+		Map<String, IBinding> bindingKeysToBindings;
 		/**
 		 * This map is used to keep the correspondence between new bindings and the
 		 * compiler bindings to their internal counterpart.
 		 * This is an identity map. We should only create one object for one binding.
 		 */
-		Map compilerBindingsToASTBindings;
+		Map<Object, IBinding> compilerBindingsToASTBindings;
 
 		/**
 		 * This map is used to keep the correspondence between new annotation instances to their internal counterpart.
 		 * This is an identity map. We should only create one object for one annotation.
 		 */
-		Map compilerAnnotationBindingsToASTBindings;
+		Map<AnnotationIdentityBinding, IAnnotationBinding> compilerAnnotationBindingsToASTBindings;
 
 		BindingTables() {
-			this.compilerBindingsToASTBindings = new ConcurrentHashMap();
-			this.compilerAnnotationBindingsToASTBindings = new ConcurrentHashMap();
-			this.bindingKeysToBindings = new ConcurrentHashMap();
+			this.compilerBindingsToASTBindings = new ConcurrentHashMap<>();
+			this.compilerAnnotationBindingsToASTBindings = new ConcurrentHashMap<>();
+			this.bindingKeysToBindings = new ConcurrentHashMap<>();
 		}
 
 	}
 	/**
 	 * This map is used to retrieve the corresponding block scope for a ast node
 	 */
-	Map astNodesToBlockScope;
+	Map<ASTNode, BlockScope> astNodesToBlockScope;
 
 	/**
 	 * This map is used to get an ast node from its binding (new binding) or DOM
 	 */
-	Map bindingsToAstNodes;
+	Map<IBinding, ASTNode> bindingsToAstNodes;
 
 	/*
 	 * The shared binding tables accros ASTs.
@@ -147,7 +146,7 @@ class DefaultBindingResolver extends BindingResolver {
 	 * E.g., an ArrayAllocationExpression "new MyType[1]" will appear as the right-hand value
 	 * for the SimpleType "MyType", the ArrayType "MyType[1]", and the ArrayCreation "new MyType[1]".
 	 */
-	Map newAstToOldAst;
+	Map<ASTNode, org.eclipse.jdt.internal.compiler.ast.ASTNode> newAstToOldAst;
 
 	/**
 	 * Compilation unit scope
@@ -173,9 +172,9 @@ class DefaultBindingResolver extends BindingResolver {
 	 * Constructor for DefaultBindingResolver.
 	 */
 	DefaultBindingResolver(CompilationUnitScope scope, WorkingCopyOwner workingCopyOwner, BindingTables bindingTables, boolean isRecoveringBindings, boolean fromJavaProject) {
-		this.newAstToOldAst = new HashMap();
-		this.astNodesToBlockScope = new HashMap();
-		this.bindingsToAstNodes = new HashMap();
+		this.newAstToOldAst = new HashMap<>();
+		this.astNodesToBlockScope = new HashMap<>();
+		this.bindingsToAstNodes = new HashMap<>();
 		this.bindingTables = bindingTables;
 		this.scope = scope;
 		this.workingCopyOwner = workingCopyOwner;
@@ -184,9 +183,9 @@ class DefaultBindingResolver extends BindingResolver {
 	}
 
 	DefaultBindingResolver(LookupEnvironment lookupEnvironment, WorkingCopyOwner workingCopyOwner, BindingTables bindingTables, boolean isRecoveringBindings, boolean fromJavaProject) {
-		this.newAstToOldAst = new HashMap();
-		this.astNodesToBlockScope = new HashMap();
-		this.bindingsToAstNodes = new HashMap();
+		this.newAstToOldAst = new HashMap<>();
+		this.astNodesToBlockScope = new HashMap<>();
+		this.bindingsToAstNodes = new HashMap<>();
 		this.bindingTables = bindingTables;
 		this.scope = new CompilationUnitScope(new CompilationUnitDeclaration(null, null, -1), lookupEnvironment);
 		this.workingCopyOwner = workingCopyOwner;
@@ -199,17 +198,14 @@ class DefaultBindingResolver extends BindingResolver {
 		if (binding == null) {
 			return null;
 		}
-		if (binding instanceof IMethodBinding) {
-			IMethodBinding methodBinding = (IMethodBinding) binding;
-			return (ASTNode) this.bindingsToAstNodes.get(methodBinding.getMethodDeclaration());
-		} else if (binding instanceof ITypeBinding) {
-			ITypeBinding typeBinding = (ITypeBinding) binding;
-			return (ASTNode) this.bindingsToAstNodes.get(typeBinding.getTypeDeclaration());
-		} else if (binding instanceof IVariableBinding) {
-			IVariableBinding variableBinding = (IVariableBinding) binding;
-			return (ASTNode) this.bindingsToAstNodes.get(variableBinding.getVariableDeclaration());
+		if (binding instanceof IMethodBinding methodBinding) {
+			return this.bindingsToAstNodes.get(methodBinding.getMethodDeclaration());
+		} else if (binding instanceof ITypeBinding typeBinding) {
+			return this.bindingsToAstNodes.get(typeBinding.getTypeDeclaration());
+		} else if (binding instanceof IVariableBinding variableBinding) {
+			return this.bindingsToAstNodes.get(variableBinding.getVariableDeclaration());
 		}
-		return (ASTNode) this.bindingsToAstNodes.get(binding);
+		return this.bindingsToAstNodes.get(binding);
 	}
 
 	@Override
@@ -220,7 +216,7 @@ class DefaultBindingResolver extends BindingResolver {
 		Object binding = this.bindingTables.bindingKeysToBindings.get(bindingKey);
 		if (binding == null)
 			return null;
-		return (ASTNode) this.bindingsToAstNodes.get(binding);
+		return this.bindingsToAstNodes.get(binding);
 	}
 
 	IBinding getBinding(org.eclipse.jdt.internal.compiler.lookup.Binding binding) {
@@ -252,15 +248,14 @@ class DefaultBindingResolver extends BindingResolver {
 		return new Util.BindingsToNodesMap() {
 			@Override
 			public org.eclipse.jdt.internal.compiler.ast.ASTNode get(Binding binding) {
-				return (org.eclipse.jdt.internal.compiler.ast.ASTNode)
-					DefaultBindingResolver.this.newAstToOldAst.get(DefaultBindingResolver.this.bindingsToAstNodes.get(binding));
+				return DefaultBindingResolver.this.newAstToOldAst.get(DefaultBindingResolver.this.bindingsToAstNodes.get(binding));
 			}
 		};
 	}
 
 	@Override
 	synchronized org.eclipse.jdt.internal.compiler.ast.ASTNode getCorrespondingNode(ASTNode currentNode) {
-		return (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(currentNode);
+		return this.newAstToOldAst.get(currentNode);
 	}
 
 	@Override
@@ -560,20 +555,16 @@ class DefaultBindingResolver extends BindingResolver {
 				return null;
 			}
 		}
-		Object key =  new AnnotationIdentityBinding(internalInstance);
+		AnnotationIdentityBinding key =  new AnnotationIdentityBinding(internalInstance);
 		IAnnotationBinding newDomInstance = new AnnotationBinding(internalInstance, this);
-		IAnnotationBinding domInstance = (IAnnotationBinding) ((ConcurrentHashMap)this.bindingTables.compilerAnnotationBindingsToASTBindings).putIfAbsent(key, newDomInstance);
+		IAnnotationBinding domInstance = this.bindingTables.compilerAnnotationBindingsToASTBindings.putIfAbsent(key, newDomInstance);
 		return domInstance != null ? domInstance : newDomInstance;
 	}
 
 	@Override
 	boolean isResolvedTypeInferredFromExpectedType(MethodInvocation methodInvocation) {
-		Object oldNode = this.newAstToOldAst.get(methodInvocation);
-		if (oldNode instanceof MessageSend) {
-			MessageSend messageSend = (MessageSend) oldNode;
-			org.eclipse.jdt.internal.compiler.lookup.MethodBinding methodBinding = messageSend.binding;
-			if (methodBinding instanceof ParameterizedGenericMethodBinding) {
-				ParameterizedGenericMethodBinding genericMethodBinding = (ParameterizedGenericMethodBinding) methodBinding;
+		if (this.newAstToOldAst.get(methodInvocation) instanceof MessageSend messageSend) {
+			if (messageSend.binding instanceof ParameterizedGenericMethodBinding genericMethodBinding) {
 				return genericMethodBinding.inferredReturnType;
 			}
 		}
@@ -582,12 +573,8 @@ class DefaultBindingResolver extends BindingResolver {
 
 	@Override
 	boolean isResolvedTypeInferredFromExpectedType(SuperMethodInvocation superMethodInvocation) {
-		Object oldNode = this.newAstToOldAst.get(superMethodInvocation);
-		if (oldNode instanceof MessageSend) {
-			MessageSend messageSend = (MessageSend) oldNode;
-			org.eclipse.jdt.internal.compiler.lookup.MethodBinding methodBinding = messageSend.binding;
-			if (methodBinding instanceof ParameterizedGenericMethodBinding) {
-				ParameterizedGenericMethodBinding genericMethodBinding = (ParameterizedGenericMethodBinding) methodBinding;
+		if (this.newAstToOldAst.get(superMethodInvocation) instanceof MessageSend messageSend) {
+			if (messageSend.binding instanceof ParameterizedGenericMethodBinding genericMethodBinding) {
 				return genericMethodBinding.inferredReturnType;
 			}
 		}
@@ -596,9 +583,7 @@ class DefaultBindingResolver extends BindingResolver {
 
 	@Override
 	boolean isResolvedTypeInferredFromExpectedType(ClassInstanceCreation classInstanceCreation) {
-		Object oldNode = this.newAstToOldAst.get(classInstanceCreation);
-		if (oldNode instanceof AllocationExpression) {
-			AllocationExpression allocationExpression = (AllocationExpression) oldNode;
+		if (this.newAstToOldAst.get(classInstanceCreation) instanceof AllocationExpression allocationExpression) {
 			return allocationExpression.inferredReturnType;
 		}
 		return false;
@@ -619,34 +604,25 @@ class DefaultBindingResolver extends BindingResolver {
 
 	@Override
 	boolean resolveBoxing(Expression expression) {
-		org.eclipse.jdt.internal.compiler.ast.ASTNode node = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(expression);
-		if (node instanceof org.eclipse.jdt.internal.compiler.ast.Expression &&
-				((org.eclipse.jdt.internal.compiler.ast.Expression) node).isTrulyExpression()) {
-			org.eclipse.jdt.internal.compiler.ast.Expression compilerExpression = (org.eclipse.jdt.internal.compiler.ast.Expression) node;
-			return (compilerExpression.implicitConversion & TypeIds.BOXING) != 0;
-		}
-		return false;
+		return this.newAstToOldAst.get(expression) instanceof org.eclipse.jdt.internal.compiler.ast.Expression compilerExpression &&
+				compilerExpression.isTrulyExpression() &&
+				(compilerExpression.implicitConversion & TypeIds.BOXING) != 0;
 	}
 
 	@Override
 	boolean resolveUnboxing(Expression expression) {
-		org.eclipse.jdt.internal.compiler.ast.ASTNode node = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(expression);
-		if (node instanceof org.eclipse.jdt.internal.compiler.ast.Expression) {
-			org.eclipse.jdt.internal.compiler.ast.Expression compilerExpression = (org.eclipse.jdt.internal.compiler.ast.Expression) node;
-			return (compilerExpression.implicitConversion & TypeIds.UNBOXING) != 0;
-		}
-		return false;
+		return this.newAstToOldAst.get(expression) instanceof org.eclipse.jdt.internal.compiler.ast.Expression compilerExpression &&
+				(compilerExpression.implicitConversion & TypeIds.UNBOXING) != 0;
 	}
 
 	@Override
 	Object resolveConstantExpressionValue(Expression expression) {
-		org.eclipse.jdt.internal.compiler.ast.ASTNode node = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(expression);
-		if(node instanceof org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) {
-				node = ((org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) node).initialization;
+		org.eclipse.jdt.internal.compiler.ast.ASTNode node = this.newAstToOldAst.get(expression);
+		if(node instanceof org.eclipse.jdt.internal.compiler.ast.FieldDeclaration field) {
+			node = field.initialization;
 		}
-		if (node instanceof org.eclipse.jdt.internal.compiler.ast.Expression &&
-				((org.eclipse.jdt.internal.compiler.ast.Expression) node).isTrulyExpression()) {
-			org.eclipse.jdt.internal.compiler.ast.Expression compilerExpression = (org.eclipse.jdt.internal.compiler.ast.Expression) node;
+		if (node instanceof org.eclipse.jdt.internal.compiler.ast.Expression compilerExpression &&
+				compilerExpression.isTrulyExpression()) {
 			Constant constant = compilerExpression.constant;
 			if (constant != null && constant != Constant.NotAConstant) {
 				switch (constant.typeID()) {
@@ -668,21 +644,19 @@ class DefaultBindingResolver extends BindingResolver {
 
 	@Override
 	synchronized IMethodBinding resolveConstructor(ClassInstanceCreation expression) {
-		org.eclipse.jdt.internal.compiler.ast.ASTNode node = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(expression);
+		org.eclipse.jdt.internal.compiler.ast.ASTNode node = this.newAstToOldAst.get(expression);
 		if (node != null && (node.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.IsAnonymousType) != 0) {
 			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration anonymousLocalTypeDeclaration = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) node;
 			return getMethodBinding(anonymousLocalTypeDeclaration.allocation.binding);
-		} else if (node instanceof AllocationExpression) {
-			return getMethodBinding(((AllocationExpression)node).binding);
+		} else if (node instanceof AllocationExpression allocation) {
+			return getMethodBinding(allocation.binding);
 		}
 		return null;
 	}
 
 	@Override
 	synchronized IMethodBinding resolveConstructor(ConstructorInvocation expression) {
-		org.eclipse.jdt.internal.compiler.ast.ASTNode node = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(expression);
-		if (node instanceof ExplicitConstructorCall) {
-			ExplicitConstructorCall explicitConstructorCall = (ExplicitConstructorCall) node;
+		if (this.newAstToOldAst.get(expression) instanceof ExplicitConstructorCall explicitConstructorCall) {
 			return getMethodBinding(explicitConstructorCall.binding);
 		}
 		return null;
@@ -690,9 +664,7 @@ class DefaultBindingResolver extends BindingResolver {
 
 	@Override
 	IMethodBinding resolveConstructor(EnumConstantDeclaration enumConstantDeclaration) {
-		org.eclipse.jdt.internal.compiler.ast.ASTNode node = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(enumConstantDeclaration);
-		if (node instanceof org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) {
-			org.eclipse.jdt.internal.compiler.ast.FieldDeclaration fieldDeclaration = (org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) node;
+		if (this.newAstToOldAst.get(enumConstantDeclaration) instanceof org.eclipse.jdt.internal.compiler.ast.FieldDeclaration fieldDeclaration) {
 			if (fieldDeclaration.getKind() == AbstractVariableDeclaration.ENUM_CONSTANT && fieldDeclaration.initialization != null) {
 				AllocationExpression allocationExpression = (AllocationExpression) fieldDeclaration.initialization;
 				return getMethodBinding(allocationExpression.binding);
@@ -703,9 +675,7 @@ class DefaultBindingResolver extends BindingResolver {
 
 	@Override
 	synchronized IMethodBinding resolveConstructor(SuperConstructorInvocation expression) {
-		org.eclipse.jdt.internal.compiler.ast.ASTNode node = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(expression);
-		if (node instanceof ExplicitConstructorCall) {
-			ExplicitConstructorCall explicitConstructorCall = (ExplicitConstructorCall) node;
+		if (this.newAstToOldAst.get(expression) instanceof ExplicitConstructorCall explicitConstructorCall) {
 			return getMethodBinding(explicitConstructorCall.binding);
 		}
 		return null;
@@ -716,17 +686,14 @@ class DefaultBindingResolver extends BindingResolver {
 		try {
 			switch(expression.getNodeType()) {
 				case ASTNode.CLASS_INSTANCE_CREATION :
-					org.eclipse.jdt.internal.compiler.ast.ASTNode astNode = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(expression);
-					if (astNode instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) {
+					org.eclipse.jdt.internal.compiler.ast.ASTNode astNode = this.newAstToOldAst.get(expression);
+					if (astNode instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration) {
 						// anonymous type case
-						org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) astNode;
 						ITypeBinding typeBinding = this.getTypeBinding(typeDeclaration.binding);
 						if (typeBinding != null) {
 							return typeBinding;
 						}
-					} else if (astNode instanceof AllocationExpression) {
-						// should be an AllocationExpression
-						AllocationExpression allocationExpression = (AllocationExpression) astNode;
+					} else if (astNode instanceof AllocationExpression allocationExpression) {
 						return this.getTypeBinding(allocationExpression.resolvedType);
 					}
 					break;
@@ -785,7 +752,7 @@ class DefaultBindingResolver extends BindingResolver {
 					break;
 				case ASTNode.THIS_EXPRESSION :
 					ThisReference thisReference = (ThisReference) this.newAstToOldAst.get(expression);
-					BlockScope blockScope = (BlockScope) this.astNodesToBlockScope.get(expression);
+					BlockScope blockScope = this.astNodesToBlockScope.get(expression);
 					if (blockScope != null) {
 						return this.getTypeBinding(thisReference.resolveType(blockScope));
 					}
@@ -809,9 +776,7 @@ class DefaultBindingResolver extends BindingResolver {
 
 	@Override
 	synchronized IVariableBinding resolveField(FieldAccess fieldAccess) {
-		Object oldNode = this.newAstToOldAst.get(fieldAccess);
-		if (oldNode instanceof FieldReference) {
-			FieldReference fieldReference = (FieldReference) oldNode;
+		if (this.newAstToOldAst.get(fieldAccess) instanceof FieldReference fieldReference) {
 			return this.getVariableBinding(fieldReference.binding);
 		}
 		return null;
@@ -819,9 +784,7 @@ class DefaultBindingResolver extends BindingResolver {
 
 	@Override
 	synchronized IVariableBinding resolveField(SuperFieldAccess fieldAccess) {
-		Object oldNode = this.newAstToOldAst.get(fieldAccess);
-		if (oldNode instanceof FieldReference) {
-			FieldReference fieldReference = (FieldReference) oldNode;
+		if (this.newAstToOldAst.get(fieldAccess) instanceof FieldReference fieldReference) {
 			return this.getVariableBinding(fieldReference.binding);
 		}
 		return null;
@@ -831,9 +794,7 @@ class DefaultBindingResolver extends BindingResolver {
 	synchronized IBinding resolveImport(ImportDeclaration importDeclaration) {
 		if (this.scope == null) return null;
 		try {
-			org.eclipse.jdt.internal.compiler.ast.ASTNode node = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(importDeclaration);
-			if (node instanceof ImportReference) {
-				ImportReference importReference = (ImportReference) node;
+			if (this.newAstToOldAst.get(importDeclaration) instanceof ImportReference importReference) {
 				final boolean isStatic = importReference.isStatic();
 				if ((importReference.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.OnDemand) != 0) {
 					Binding binding = this.scope.getImport(CharOperation.subarray(importReference.tokens, 0, importReference.tokens.length), true, isStatic);
@@ -864,17 +825,17 @@ class DefaultBindingResolver extends BindingResolver {
 					Binding binding = this.scope.getImport(importReference.tokens, false, isStatic);
 					if (binding != null) {
 						if (isStatic) {
-							if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding) {
-								ITypeBinding typeBinding = this.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding) binding);
+							if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding lookupBinding) {
+								ITypeBinding typeBinding = this.getTypeBinding(lookupBinding);
 								return typeBinding == null ? null : typeBinding;
-							} else if (binding instanceof FieldBinding) {
-								IVariableBinding variableBinding = this.getVariableBinding((FieldBinding) binding);
+							} else if (binding instanceof FieldBinding fieldBinding) {
+								IVariableBinding variableBinding = this.getVariableBinding(fieldBinding);
 								return variableBinding == null ? null : variableBinding;
-							} else if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.MethodBinding) {
+							} else if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.MethodBinding methodBinding) {
 								// it is a type
-								return getMethodBinding((org.eclipse.jdt.internal.compiler.lookup.MethodBinding)binding);
-							} else if (binding instanceof RecordComponentBinding) {
-								IVariableBinding variableBinding = this.getVariableBinding((RecordComponentBinding) binding);
+								return getMethodBinding(methodBinding);
+							} else if (binding instanceof RecordComponentBinding recordComponentBinding) {
+								IVariableBinding variableBinding = this.getVariableBinding(recordComponentBinding);
 								return variableBinding == null ? null : variableBinding;
 							}
 						} else {
@@ -896,9 +857,7 @@ class DefaultBindingResolver extends BindingResolver {
 
 	@Override
 	IMethodBinding resolveMember(AnnotationTypeMemberDeclaration declaration) {
-		Object oldNode = this.newAstToOldAst.get(declaration);
-		if (oldNode instanceof AbstractMethodDeclaration) {
-			AbstractMethodDeclaration methodDeclaration = (AbstractMethodDeclaration) oldNode;
+		if (this.newAstToOldAst.get(declaration) instanceof AbstractMethodDeclaration methodDeclaration) {
 			IMethodBinding methodBinding = getMethodBinding(methodDeclaration.binding);
 			if (methodBinding == null) {
 				return null;
@@ -923,9 +882,7 @@ class DefaultBindingResolver extends BindingResolver {
 	}
 	@Override
 	synchronized IMethodBinding resolveMethod(LambdaExpression lambda) {
-		Object oldNode = this.newAstToOldAst.get(lambda);
-		if (oldNode instanceof org.eclipse.jdt.internal.compiler.ast.LambdaExpression) {
-			org.eclipse.jdt.internal.compiler.ast.LambdaExpression lambdaExpression = (org.eclipse.jdt.internal.compiler.ast.LambdaExpression) oldNode;
+		if (this.newAstToOldAst.get(lambda) instanceof org.eclipse.jdt.internal.compiler.ast.LambdaExpression lambdaExpression) {
 			IMethodBinding methodBinding = null;
 			if (lambdaExpression.descriptor != null) {
 				IBinding declaringMember = getDeclaringMember(lambdaExpression, lambdaExpression.enclosingScope);
@@ -935,8 +892,8 @@ class DefaultBindingResolver extends BindingResolver {
 			if (methodBinding == null) {
 				return null;
 			}
-			if (methodBinding instanceof LambdaMethod) {
-				((LambdaMethod) methodBinding).setSyntheticOuterLocals(getSyntheticOuterLocalVariables(lambdaExpression));
+			if (methodBinding instanceof LambdaMethod lambdaMethod) {
+				lambdaMethod.setSyntheticOuterLocals(getSyntheticOuterLocalVariables(lambdaExpression));
 			}
 			this.bindingsToAstNodes.put(methodBinding, lambda);
 			String key = methodBinding.getKey();
@@ -956,8 +913,8 @@ class DefaultBindingResolver extends BindingResolver {
 				if (enclosingType.fields != null) {
 					for (FieldDeclaration field : enclosingType.fields) {
 						if (field.declarationSourceStart <= node.sourceStart && node.sourceEnd <= field.declarationSourceEnd) {
-							if (field instanceof org.eclipse.jdt.internal.compiler.ast.Initializer)
-								return getMethodBinding(((org.eclipse.jdt.internal.compiler.ast.Initializer) field).getMethodBinding());
+							if (field instanceof org.eclipse.jdt.internal.compiler.ast.Initializer initializer)
+								return getMethodBinding(initializer.getMethodBinding());
 							else
 								return getVariableBinding(field.binding);
 						}
@@ -990,9 +947,7 @@ class DefaultBindingResolver extends BindingResolver {
 
 	@Override
 	synchronized IMethodBinding resolveMethod(MethodDeclaration method) {
-		Object oldNode = this.newAstToOldAst.get(method);
-		if (oldNode instanceof AbstractMethodDeclaration) {
-			AbstractMethodDeclaration methodDeclaration = (AbstractMethodDeclaration) oldNode;
+		if (this.newAstToOldAst.get(method) instanceof AbstractMethodDeclaration methodDeclaration) {
 			IMethodBinding methodBinding = getMethodBinding(methodDeclaration.binding);
 			if (methodBinding == null) {
 				return null;
@@ -1009,9 +964,7 @@ class DefaultBindingResolver extends BindingResolver {
 
 	@Override
 	synchronized IMethodBinding resolveMethod(MethodInvocation method) {
-		Object oldNode = this.newAstToOldAst.get(method);
-		if (oldNode instanceof MessageSend) {
-			MessageSend messageSend = (MessageSend) oldNode;
+		if (this.newAstToOldAst.get(method) instanceof MessageSend messageSend) {
 			return getMethodBinding(messageSend.binding);
 		}
 		return null;
@@ -1019,9 +972,7 @@ class DefaultBindingResolver extends BindingResolver {
 
 	@Override
 	synchronized IMethodBinding resolveMethod(MethodReference methodReference) {
-		Object oldNode = this.newAstToOldAst.get(methodReference);
-		if (oldNode instanceof org.eclipse.jdt.internal.compiler.ast.ReferenceExpression) {
-			org.eclipse.jdt.internal.compiler.ast.ReferenceExpression referenceExpression = (org.eclipse.jdt.internal.compiler.ast.ReferenceExpression) oldNode;
+		if (this.newAstToOldAst.get(methodReference) instanceof org.eclipse.jdt.internal.compiler.ast.ReferenceExpression referenceExpression) {
 			if (referenceExpression.receiverType != null && referenceExpression.receiverType.isArrayType())
 				return null;
 			IMethodBinding methodBinding = getMethodBinding(referenceExpression.getMethodBinding());
@@ -1035,19 +986,16 @@ class DefaultBindingResolver extends BindingResolver {
 
 	@Override
 	synchronized IMethodBinding resolveMethod(SuperMethodInvocation method) {
-		Object oldNode = this.newAstToOldAst.get(method);
-		if (oldNode instanceof MessageSend) {
-			MessageSend messageSend = (MessageSend) oldNode;
+		if (this.newAstToOldAst.get(method) instanceof MessageSend messageSend) {
 			return getMethodBinding(messageSend.binding);
 		}
 		return null;
 	}
 
 	synchronized ITypeBinding resolveTypeBindingForName(Name name) {
-		org.eclipse.jdt.internal.compiler.ast.ASTNode node = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(name);
+		org.eclipse.jdt.internal.compiler.ast.ASTNode node = this.newAstToOldAst.get(name);
 		int index = name.index;
-		if (node instanceof QualifiedNameReference) {
-			QualifiedNameReference qualifiedNameReference = (QualifiedNameReference) node;
+		if (node instanceof QualifiedNameReference qualifiedNameReference) {
 			final char[][] tokens = qualifiedNameReference.tokens;
 			if (tokens.length == index) {
 				return this.getTypeBinding(qualifiedNameReference.resolvedType);
@@ -1055,7 +1003,7 @@ class DefaultBindingResolver extends BindingResolver {
 			int indexOfFirstFieldBinding = qualifiedNameReference.indexOfFirstFieldBinding; // one-based
 			if (index < indexOfFirstFieldBinding) {
 				// an extra lookup is required
-				BlockScope internalScope = (BlockScope) this.astNodesToBlockScope.get(name);
+				BlockScope internalScope = this.astNodesToBlockScope.get(name);
 				Binding binding = null;
 				try {
 					if (internalScope == null) {
@@ -1071,9 +1019,9 @@ class DefaultBindingResolver extends BindingResolver {
 				}
 				if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.PackageBinding) {
 					return null;
-				} else if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding) {
+				} else if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding) {
 					// it is a type
-					return this.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding)binding);
+					return this.getTypeBinding(typeBinding);
 				}
 			} else if (index == indexOfFirstFieldBinding) {
 				if (qualifiedNameReference.isTypeReference()) {
@@ -1122,14 +1070,12 @@ class DefaultBindingResolver extends BindingResolver {
 				}
 				return this.getTypeBinding(type);
 			}
-		} else if (node instanceof QualifiedTypeReference) {
-			QualifiedTypeReference qualifiedTypeReference = (QualifiedTypeReference) node;
+		} else if (node instanceof QualifiedTypeReference qualifiedTypeReference) {
 			if (qualifiedTypeReference.resolvedType == null) {
 				return null;
 			}
 			if (index == qualifiedTypeReference.tokens.length) {
-				if (!qualifiedTypeReference.resolvedType.isValidBinding() && qualifiedTypeReference instanceof JavadocQualifiedTypeReference) {
-					JavadocQualifiedTypeReference typeRef = (JavadocQualifiedTypeReference) node;
+				if (!qualifiedTypeReference.resolvedType.isValidBinding() && qualifiedTypeReference instanceof JavadocQualifiedTypeReference typeRef) {
 					if (typeRef.packageBinding != null) {
 						return null;
 					}
@@ -1137,7 +1083,7 @@ class DefaultBindingResolver extends BindingResolver {
 				return this.getTypeBinding(qualifiedTypeReference.resolvedType.leafComponentType());
 			} else {
 				if (index >= 0) {
-					BlockScope internalScope = (BlockScope) this.astNodesToBlockScope.get(name);
+					BlockScope internalScope = this.astNodesToBlockScope.get(name);
 					Binding binding = null;
 					try {
 						if (internalScope == null) {
@@ -1151,18 +1097,17 @@ class DefaultBindingResolver extends BindingResolver {
 					}
 					if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.PackageBinding) {
 						return null;
-					} else if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding) {
+					} else if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding) {
 						// it is a type
-						return this.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding)binding);
+						return this.getTypeBinding(typeBinding);
 					} else {
 						return null;
 					}
 				}
 			}
-		} else if (node instanceof ImportReference) {
+		} else if (node instanceof ImportReference importReference) {
 			if ((node.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.inModule) != 0)
 				return null;
-			ImportReference importReference = (ImportReference) node;
 			int importReferenceLength = importReference.tokens.length;
 			if (index >= 0) {
 				Binding binding = null;
@@ -1181,88 +1126,73 @@ class DefaultBindingResolver extends BindingResolver {
 					}
 				}
 				if (binding != null) {
-					if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding) {
+					if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding) {
 						// it is a type
-						return this.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding)binding);
+						return this.getTypeBinding(typeBinding);
 					}
 					return null;
 				}
 			}
-		} else if (node instanceof AbstractMethodDeclaration) {
-			AbstractMethodDeclaration methodDeclaration = (AbstractMethodDeclaration) node;
+		} else if (node instanceof AbstractMethodDeclaration methodDeclaration) {
 			IMethodBinding method = getMethodBinding(methodDeclaration.binding);
 			if (method == null) return null;
 			return method.getReturnType();
-		} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) {
-			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) node;
+		} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration) {
 			ITypeBinding typeBinding = this.getTypeBinding(typeDeclaration.binding);
 			if (typeBinding != null) {
 				return typeBinding;
 			}
-		} if (node instanceof JavadocSingleNameReference) {
-			JavadocSingleNameReference singleNameReference = (JavadocSingleNameReference) node;
+		} if (node instanceof JavadocSingleNameReference singleNameReference) {
 			org.eclipse.jdt.internal.compiler.lookup.VariableBinding localVariable = (org.eclipse.jdt.internal.compiler.lookup.VariableBinding)singleNameReference.binding;
 			if (localVariable != null) {
 				return this.getTypeBinding(localVariable.type);
 			}
-		} if (node instanceof SingleNameReference) {
-			SingleNameReference singleNameReference = (SingleNameReference) node;
+		} if (node instanceof SingleNameReference singleNameReference) {
 			return this.getTypeBinding(singleNameReference.resolvedType);
-		} else if (node instanceof QualifiedSuperReference) {
-			QualifiedSuperReference qualifiedSuperReference = (QualifiedSuperReference) node;
+		} else if (node instanceof QualifiedSuperReference qualifiedSuperReference) {
 			return this.getTypeBinding(qualifiedSuperReference.qualification.resolvedType);
-		} else if (node instanceof Receiver) {
-			org.eclipse.jdt.internal.compiler.lookup.TypeBinding receiver = ((Receiver) node).type.resolvedType;
+		} else if (node instanceof Receiver receiverNode) {
+			org.eclipse.jdt.internal.compiler.lookup.TypeBinding receiver = receiverNode.type.resolvedType;
 			return this.getTypeBinding(receiver);
-		} else if (node instanceof LocalDeclaration) {
-			IVariableBinding variable = this.getVariableBinding(((LocalDeclaration)node).binding);
+		} else if (node instanceof LocalDeclaration declaration) {
+			IVariableBinding variable = this.getVariableBinding(declaration.binding);
 			if (variable == null) return null;
 			return variable.getType();
-		} else if (node instanceof JavadocFieldReference) {
-			JavadocFieldReference fieldRef = (JavadocFieldReference) node;
+		} else if (node instanceof JavadocFieldReference fieldRef) {
 			if (fieldRef.methodBinding != null) {
 				return getMethodBinding(fieldRef.methodBinding).getReturnType();
 			}
 			return getTypeBinding(fieldRef.resolvedType);
-		} else if (node instanceof FieldReference) {
-			return getTypeBinding(((FieldReference) node).resolvedType);
-		} else if (node instanceof SingleTypeReference) {
-			SingleTypeReference singleTypeReference = (SingleTypeReference) node;
+		} else if (node instanceof FieldReference fieldReference) {
+			return getTypeBinding(fieldReference.resolvedType);
+		} else if (node instanceof SingleTypeReference singleTypeReference) {
 			org.eclipse.jdt.internal.compiler.lookup.TypeBinding binding = singleTypeReference.resolvedType;
 			if (binding != null) {
 				return this.getTypeBinding(binding.leafComponentType());
 			}
-		} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) {
-			org.eclipse.jdt.internal.compiler.ast.FieldDeclaration fieldDeclaration = (org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) node;
+		} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.FieldDeclaration fieldDeclaration) {
 			IVariableBinding field = this.getVariableBinding(fieldDeclaration.binding);
 			if (field == null) return null;
 			return field.getType();
-		} else if (node instanceof MessageSend) {
-			MessageSend messageSend = (MessageSend) node;
+		} else if (node instanceof MessageSend messageSend) {
 			IMethodBinding method = getMethodBinding(messageSend.binding);
 			if (method == null) return null;
 			return method.getReturnType();
-		} else if (node instanceof AllocationExpression) {
-			AllocationExpression allocation = (AllocationExpression) node;
+		} else if (node instanceof AllocationExpression allocation) {
 			return getTypeBinding(allocation.resolvedType);
-		} else if (node instanceof JavadocImplicitTypeReference) {
-			JavadocImplicitTypeReference implicitRef = (JavadocImplicitTypeReference) node;
+		} else if (node instanceof JavadocImplicitTypeReference implicitRef) {
 			return getTypeBinding(implicitRef.resolvedType);
-		} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.TypeParameter) {
-			org.eclipse.jdt.internal.compiler.ast.TypeParameter typeParameter = (org.eclipse.jdt.internal.compiler.ast.TypeParameter) node;
+		} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.TypeParameter typeParameter) {
 			return this.getTypeBinding(typeParameter.binding);
-		} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.MemberValuePair) {
-			org.eclipse.jdt.internal.compiler.ast.MemberValuePair memberValuePair = (org.eclipse.jdt.internal.compiler.ast.MemberValuePair) node;
+		} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.MemberValuePair memberValuePair) {
 			IMethodBinding method = getMethodBinding(memberValuePair.binding);
 			if (method == null) return null;
 			return method.getReturnType();
-		} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.ReferenceExpression) {
-			org.eclipse.jdt.internal.compiler.ast.ReferenceExpression referenceExpression = (org.eclipse.jdt.internal.compiler.ast.ReferenceExpression) node;
+		} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.ReferenceExpression referenceExpression) {
 			IMethodBinding method = getMethodBinding(referenceExpression.getMethodBinding());
 			if (method == null) return null;
 			return method.getReturnType();
-		} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.RecordComponent) {
-			org.eclipse.jdt.internal.compiler.ast.RecordComponent recordComponent = (org.eclipse.jdt.internal.compiler.ast.RecordComponent) node;
+		} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.RecordComponent recordComponent) {
 			org.eclipse.jdt.internal.compiler.lookup.TypeBinding recordComponentType = recordComponent.type.resolvedType;
 			return this.getTypeBinding(recordComponentType);
 		}
@@ -1271,15 +1201,14 @@ class DefaultBindingResolver extends BindingResolver {
 
 	@Override
 	synchronized IBinding resolveName(Name name) {
-		org.eclipse.jdt.internal.compiler.ast.ASTNode node = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(name);
+		org.eclipse.jdt.internal.compiler.ast.ASTNode node = this.newAstToOldAst.get(name);
 		int index = name.index;
-		if (node instanceof QualifiedNameReference) {
-			QualifiedNameReference qualifiedNameReference = (QualifiedNameReference) node;
+		if (node instanceof QualifiedNameReference qualifiedNameReference) {
 			final char[][] tokens = qualifiedNameReference.tokens;
 			int indexOfFirstFieldBinding = qualifiedNameReference.indexOfFirstFieldBinding; // one-based
 			if (index < indexOfFirstFieldBinding) {
 				// an extra lookup is required
-				BlockScope internalScope = (BlockScope) this.astNodesToBlockScope.get(name);
+				BlockScope internalScope = this.astNodesToBlockScope.get(name);
 				Binding binding = null;
 				try {
 					if (internalScope == null) {
@@ -1293,11 +1222,11 @@ class DefaultBindingResolver extends BindingResolver {
 					// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=63550
 					// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=64299
 				}
-				if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.PackageBinding) {
-					return getPackageBinding((org.eclipse.jdt.internal.compiler.lookup.PackageBinding)binding);
-				} else if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding) {
+				if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.PackageBinding packageBinding) {
+					return getPackageBinding(packageBinding);
+				} else if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding) {
 					// it is a type
-					return this.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding)binding);
+					return this.getTypeBinding(typeBinding);
 				}
 			} else if (index == indexOfFirstFieldBinding) {
 				if (qualifiedNameReference.isTypeReference()) {
@@ -1307,8 +1236,7 @@ class DefaultBindingResolver extends BindingResolver {
 					if (binding != null) {
 						if (binding.isValidBinding()) {
 							return this.getVariableBinding((org.eclipse.jdt.internal.compiler.lookup.VariableBinding) binding);
-						} else  if (binding instanceof ProblemFieldBinding) {
-							ProblemFieldBinding problemFieldBinding = (ProblemFieldBinding) binding;
+						} else  if (binding instanceof ProblemFieldBinding problemFieldBinding) {
 							switch(problemFieldBinding.problemId()) {
 								case ProblemReasons.NotVisible :
 								case ProblemReasons.NonStaticReferenceInStaticContext :
@@ -1342,8 +1270,7 @@ class DefaultBindingResolver extends BindingResolver {
 					return this.getVariableBinding(qualifiedNameReference.otherBindings[index - indexOfFirstFieldBinding - 1]);
 				}
 			}
-		} else if (node instanceof JavadocModuleReference)  {
-			JavadocModuleReference modRef = (JavadocModuleReference) node;
+		} else if (node instanceof JavadocModuleReference modRef)  {
 			if (modRef.typeReference == null) {
 				ModuleReference moduleReference = modRef.moduleReference;
 				IModuleBinding moduleBinding = getModuleBinding(moduleReference.binding);
@@ -1351,18 +1278,16 @@ class DefaultBindingResolver extends BindingResolver {
 					return moduleBinding;
 				}
 			} else {
-				if (name instanceof ModuleQualifiedName) {
-					return resolveName(((ModuleQualifiedName)name).getName());
+				if (name instanceof ModuleQualifiedName moduleName) {
+					return resolveName(moduleName.getName());
 				}
 			}
-		} else if (node instanceof QualifiedTypeReference) {
-			QualifiedTypeReference qualifiedTypeReference = (QualifiedTypeReference) node;
+		} else if (node instanceof QualifiedTypeReference qualifiedTypeReference) {
 			if (qualifiedTypeReference.resolvedType == null) {
 				return null;
 			}
 			if (index == qualifiedTypeReference.tokens.length) {
-				if (!qualifiedTypeReference.resolvedType.isValidBinding() && qualifiedTypeReference instanceof JavadocQualifiedTypeReference) {
-					JavadocQualifiedTypeReference typeRef = (JavadocQualifiedTypeReference) node;
+				if (!qualifiedTypeReference.resolvedType.isValidBinding() && qualifiedTypeReference instanceof JavadocQualifiedTypeReference typeRef) {
 					if (typeRef.packageBinding != null) {
 						return getPackageBinding(typeRef.packageBinding);
 					}
@@ -1370,7 +1295,7 @@ class DefaultBindingResolver extends BindingResolver {
 				return this.getTypeBinding(qualifiedTypeReference.resolvedType.leafComponentType());
 			} else {
 				if (index >= 0) {
-					BlockScope internalScope = (BlockScope) this.astNodesToBlockScope.get(name);
+					BlockScope internalScope = this.astNodesToBlockScope.get(name);
 					Binding binding = null;
 					try {
 						if (internalScope == null) {
@@ -1382,18 +1307,17 @@ class DefaultBindingResolver extends BindingResolver {
 					} catch (AbortCompilation e) {
 						// see https://bugs.eclipse.org/bugs/show_bug.cgi?id=53357
 					}
-					if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.PackageBinding) {
-						return getPackageBinding((org.eclipse.jdt.internal.compiler.lookup.PackageBinding)binding);
-					} else if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding) {
+					if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.PackageBinding packageBinding) {
+						return getPackageBinding(packageBinding);
+					} else if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding) {
 						// it is a type
-						return this.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding)binding);
+						return this.getTypeBinding(typeBinding);
 					} else {
 						return null;
 					}
 				}
 			}
-		} else if (node instanceof ImportReference) {
-			ImportReference importReference = (ImportReference) node;
+		} else if (node instanceof ImportReference importReference) {
 			int importReferenceLength = importReference.tokens.length;
 			boolean inModule = (importReference.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.inModule) != 0;
 			if (index >= 0) {
@@ -1413,27 +1337,26 @@ class DefaultBindingResolver extends BindingResolver {
 					}
 				}
 				if (binding != null) {
-					if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.PackageBinding) {
-						return getPackageBinding((org.eclipse.jdt.internal.compiler.lookup.PackageBinding)binding);
-					} else if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding) {
+					if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.PackageBinding packageBinding) {
+						return getPackageBinding(packageBinding);
+					} else if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding) {
 						// it is a type
-						return this.getTypeBinding((org.eclipse.jdt.internal.compiler.lookup.TypeBinding)binding);
-					} else if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.FieldBinding) {
+						return this.getTypeBinding(typeBinding);
+					} else if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.FieldBinding fieldBinding) {
 						// it is a type
-						return this.getVariableBinding((org.eclipse.jdt.internal.compiler.lookup.FieldBinding)binding);
-					} else if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.MethodBinding) {
+						return this.getVariableBinding(fieldBinding);
+					} else if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.MethodBinding methodBinding) {
 						// it is a type
-						return getMethodBinding((org.eclipse.jdt.internal.compiler.lookup.MethodBinding)binding);
-					} else if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.RecordComponentBinding) {
+						return getMethodBinding(methodBinding);
+					} else if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.RecordComponentBinding recordComponentBinding) {
 						// it is a type
-						return this.getVariableBinding((org.eclipse.jdt.internal.compiler.lookup.RecordComponentBinding)binding);
+						return this.getVariableBinding(recordComponentBinding);
 					} else {
 						return null;
 					}
 				}
 			}
-		} else if (node instanceof CompilationUnitDeclaration) {
-			CompilationUnitDeclaration compilationUnitDeclaration = (CompilationUnitDeclaration) node;
+		} else if (node instanceof CompilationUnitDeclaration compilationUnitDeclaration) {
 			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] types = compilationUnitDeclaration.types;
 			if (types == null || types.length == 0) {
 				return null;
@@ -1445,32 +1368,27 @@ class DefaultBindingResolver extends BindingResolver {
 					return typeBinding.getPackage();
 				}
 			}
-		} else if (node instanceof AbstractMethodDeclaration) {
-			AbstractMethodDeclaration methodDeclaration = (AbstractMethodDeclaration) node;
+		} else if (node instanceof AbstractMethodDeclaration methodDeclaration) {
 			IMethodBinding methodBinding = getMethodBinding(methodDeclaration.binding);
 			if (methodBinding != null) {
 				return methodBinding;
 			}
-		} else if (node instanceof ModuleReference) {
-			ModuleReference moduleReference = (ModuleReference) node;
+		} else if (node instanceof ModuleReference moduleReference) {
 			IModuleBinding moduleBinding = getModuleBinding(moduleReference.binding);
 			if (moduleBinding != null) {
 				return moduleBinding;
 			}
-		} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration) {
-			org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration moduleDeclaration = (org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration) node;
+		} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration moduleDeclaration) {
 			IModuleBinding moduleBinding = getModuleBinding(moduleDeclaration.binding);
 			if (moduleBinding != null) {
 				return moduleBinding;
 			}
-		} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) {
-			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) node;
+		} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration) {
 			ITypeBinding typeBinding = this.getTypeBinding(typeDeclaration.binding);
 			if (typeBinding != null) {
 				return typeBinding;
 			}
-		} if (node instanceof SingleNameReference) {
-			SingleNameReference singleNameReference = (SingleNameReference) node;
+		} if (node instanceof SingleNameReference singleNameReference) {
 			if (singleNameReference.isTypeReference()) {
 				return this.getTypeBinding(singleNameReference.resolvedType);
 			} else {
@@ -1483,8 +1401,7 @@ class DefaultBindingResolver extends BindingResolver {
 						/*
 						 * http://dev.eclipse.org/bugs/show_bug.cgi?id=24449
 						 */
-						if (binding instanceof ProblemFieldBinding) {
-							ProblemFieldBinding problemFieldBinding = (ProblemFieldBinding) binding;
+						if (binding instanceof ProblemFieldBinding problemFieldBinding) {
 							switch(problemFieldBinding.problemId()) {
 								case ProblemReasons.NotVisible :
 								case ProblemReasons.NonStaticReferenceInStaticContext :
@@ -1508,57 +1425,45 @@ class DefaultBindingResolver extends BindingResolver {
 					}
 				}
 			}
-		} else if (node instanceof QualifiedSuperReference) {
-			QualifiedSuperReference qualifiedSuperReference = (QualifiedSuperReference) node;
+		} else if (node instanceof QualifiedSuperReference qualifiedSuperReference) {
 			return this.getTypeBinding(qualifiedSuperReference.qualification.resolvedType);
-		} else if (node instanceof LocalDeclaration) {
-			return name.getAST().apiLevel() >= AST.JLS10_INTERNAL && name instanceof SimpleName && ((SimpleName) name).isVar()  ?
+		} else if (node instanceof LocalDeclaration localDeclaration) {
+			return name.getAST().apiLevel() >= AST.JLS10_INTERNAL && name instanceof SimpleName simple && simple.isVar()  ?
 					resolveTypeBindingForName(name) :
-					this.getVariableBinding(((LocalDeclaration)node).binding);
-		} else if (node instanceof JavadocFieldReference) {
-			JavadocFieldReference fieldRef = (JavadocFieldReference) node;
+					this.getVariableBinding(localDeclaration.binding);
+		} else if (node instanceof JavadocFieldReference fieldRef) {
 			if (fieldRef.methodBinding != null) {
 				return getMethodBinding(fieldRef.methodBinding);
 			}
 			return getVariableBinding(fieldRef.binding);
-		} else if (node instanceof FieldReference) {
-			return getVariableBinding(((FieldReference) node).binding);
-		} else if (node instanceof SingleTypeReference) {
-			if (node instanceof JavadocSingleTypeReference) {
-				JavadocSingleTypeReference typeRef = (JavadocSingleTypeReference) node;
+		} else if (node instanceof FieldReference fieldReference) {
+			return getVariableBinding(fieldReference.binding);
+		} else if (node instanceof SingleTypeReference singleTypeReference) {
+			if (node instanceof JavadocSingleTypeReference typeRef) {
 				if (typeRef.packageBinding != null) {
 					return getPackageBinding(typeRef.packageBinding);
 				}
 			}
-			SingleTypeReference singleTypeReference = (SingleTypeReference) node;
 			org.eclipse.jdt.internal.compiler.lookup.TypeBinding binding = singleTypeReference.resolvedType;
 			if (binding == null) {
 				return null;
 			}
 			return this.getTypeBinding(binding.leafComponentType());
-		} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) {
-			org.eclipse.jdt.internal.compiler.ast.FieldDeclaration fieldDeclaration = (org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) node;
+		} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.FieldDeclaration fieldDeclaration) {
 			return this.getVariableBinding(fieldDeclaration.binding);
-		} else if (node instanceof MessageSend) {
-			MessageSend messageSend = (MessageSend) node;
+		} else if (node instanceof MessageSend messageSend) {
 			return getMethodBinding(messageSend.binding);
-		} else if (node instanceof AllocationExpression) {
-			AllocationExpression allocation = (AllocationExpression) node;
+		} else if (node instanceof AllocationExpression allocation) {
 			return getMethodBinding(allocation.binding);
-		} else if (node instanceof JavadocImplicitTypeReference) {
-			JavadocImplicitTypeReference implicitRef = (JavadocImplicitTypeReference) node;
+		} else if (node instanceof JavadocImplicitTypeReference implicitRef) {
 			return getTypeBinding(implicitRef.resolvedType);
-		} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.TypeParameter) {
-			org.eclipse.jdt.internal.compiler.ast.TypeParameter typeParameter = (org.eclipse.jdt.internal.compiler.ast.TypeParameter) node;
+		} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.TypeParameter typeParameter) {
 			return this.getTypeBinding(typeParameter.binding);
-		} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.MemberValuePair) {
-			org.eclipse.jdt.internal.compiler.ast.MemberValuePair memberValuePair = (org.eclipse.jdt.internal.compiler.ast.MemberValuePair) node;
+		} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.MemberValuePair memberValuePair) {
 			return getMethodBinding(memberValuePair.binding);
-		} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.ReferenceExpression) {
-			org.eclipse.jdt.internal.compiler.ast.ReferenceExpression referenceExpression = (org.eclipse.jdt.internal.compiler.ast.ReferenceExpression) node;
+		} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.ReferenceExpression referenceExpression) {
 			return getMethodBinding(referenceExpression.getMethodBinding());
-		} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.RecordComponent) {
-			org.eclipse.jdt.internal.compiler.ast.RecordComponent recordComponent = (org.eclipse.jdt.internal.compiler.ast.RecordComponent) node;
+		} else if (node instanceof org.eclipse.jdt.internal.compiler.ast.RecordComponent recordComponent) {
 			return this.getVariableBinding(recordComponent.binding);
 		}
 		return null;
@@ -1568,18 +1473,15 @@ class DefaultBindingResolver extends BindingResolver {
 	synchronized IPackageBinding resolvePackage(PackageDeclaration pkg) {
 		if (this.scope == null) return null;
 		try {
-			org.eclipse.jdt.internal.compiler.ast.ASTNode node = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(pkg);
-			if (node instanceof ImportReference) {
-				ImportReference importReference = (ImportReference) node;
+			if (this.newAstToOldAst.get(pkg) instanceof ImportReference importReference) {
 				Binding binding = this.scope.getOnlyPackage(CharOperation.subarray(importReference.tokens, 0, importReference.tokens.length));
 				if ((binding != null) && (binding.isValidBinding())) {
-					if (binding instanceof ReferenceBinding) {
+					if (binding instanceof ReferenceBinding referenceBinding) {
 						// this only happens if a type name has the same name as its package
-						ReferenceBinding referenceBinding = (ReferenceBinding) binding;
 						binding = referenceBinding.fPackage;
 					}
-					if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.PackageBinding) {
-						IPackageBinding packageBinding = getPackageBinding((org.eclipse.jdt.internal.compiler.lookup.PackageBinding) binding);
+					if (binding instanceof org.eclipse.jdt.internal.compiler.lookup.PackageBinding packBinding) {
+						IPackageBinding packageBinding = getPackageBinding(packBinding);
 						if (packageBinding == null) {
 							return null;
 						}
@@ -1602,11 +1504,10 @@ class DefaultBindingResolver extends BindingResolver {
 
 	@Override
 	synchronized IBinding resolveReference(MemberRef ref) {
-		org.eclipse.jdt.internal.compiler.ast.Expression expression = (org.eclipse.jdt.internal.compiler.ast.Expression) this.newAstToOldAst.get(ref);
-		if (expression instanceof TypeReference) {
-			return getTypeBinding(expression.resolvedType);
-		} else if (expression instanceof JavadocFieldReference) {
-			JavadocFieldReference fieldRef = (JavadocFieldReference) expression;
+		org.eclipse.jdt.internal.compiler.ast.ASTNode expression = this.newAstToOldAst.get(ref);
+		if (expression instanceof TypeReference typeRef) {
+			return getTypeBinding(typeRef.resolvedType);
+		} else if (expression instanceof JavadocFieldReference fieldRef) {
 			if (fieldRef.methodBinding != null) {
 				return getMethodBinding(fieldRef.methodBinding);
 			}
@@ -1630,9 +1531,7 @@ class DefaultBindingResolver extends BindingResolver {
 	 */
 	@Override
 	IModuleBinding resolveModule(ModuleDeclaration module) {
-		Object oldNode = this.newAstToOldAst.get(module);
-		if (oldNode instanceof org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration) {
-			org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration moduleDeclaration = (org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration) oldNode;
+		if (this.newAstToOldAst.get(module) instanceof org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration moduleDeclaration) {
 			IModuleBinding moduleBinding = getModuleBinding(moduleDeclaration.binding);
 			if (moduleBinding == null) {
 				return null;
@@ -1650,21 +1549,19 @@ class DefaultBindingResolver extends BindingResolver {
 
 	@Override
 	synchronized IBinding resolveReference(MethodRef ref) {
-		org.eclipse.jdt.internal.compiler.ast.Expression expression = (org.eclipse.jdt.internal.compiler.ast.Expression) this.newAstToOldAst.get(ref);
-		if (expression instanceof JavadocMessageSend) {
-			return getMethodBinding(((JavadocMessageSend)expression).binding);
+		org.eclipse.jdt.internal.compiler.ast.ASTNode expression = this.newAstToOldAst.get(ref);
+		if (expression instanceof JavadocMessageSend javadocMessageSend) {
+			return getMethodBinding(javadocMessageSend.binding);
 		}
-		else if (expression instanceof JavadocAllocationExpression) {
-			return getMethodBinding(((JavadocAllocationExpression)expression).binding);
+		else if (expression instanceof JavadocAllocationExpression javadocAllocation) {
+			return getMethodBinding(javadocAllocation.binding);
 		}
 		return null;
 	}
 
 	@Override
 	ITypeBinding resolveType(AnnotationTypeDeclaration type) {
-		final Object node = this.newAstToOldAst.get(type);
-		if (node instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) {
-			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) node;
+		if (this.newAstToOldAst.get(type) instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration) {
 			ITypeBinding typeBinding = this.getTypeBinding(typeDeclaration.binding);
 			if (typeBinding == null) {
 				return null;
@@ -1681,7 +1578,7 @@ class DefaultBindingResolver extends BindingResolver {
 
 	@Override
 	synchronized ITypeBinding resolveType(AnonymousClassDeclaration type) {
-		org.eclipse.jdt.internal.compiler.ast.ASTNode node = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(type);
+		org.eclipse.jdt.internal.compiler.ast.ASTNode node = this.newAstToOldAst.get(type);
 		if (node != null && (node.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.IsAnonymousType) != 0) {
 			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration anonymousLocalTypeDeclaration = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) node;
 			IBinding declaringMember = getDeclaringMember(anonymousLocalTypeDeclaration, anonymousLocalTypeDeclaration.scope);
@@ -1701,9 +1598,7 @@ class DefaultBindingResolver extends BindingResolver {
 
 	@Override
 	ITypeBinding resolveType(EnumDeclaration type) {
-		final Object node = this.newAstToOldAst.get(type);
-		if (node instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) {
-			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) node;
+		if (this.newAstToOldAst.get(type) instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration) {
 			ITypeBinding typeBinding = this.getTypeBinding(typeDeclaration.binding);
 			if (typeBinding == null) {
 				return null;
@@ -1720,9 +1615,7 @@ class DefaultBindingResolver extends BindingResolver {
 
 	@Override
 	ITypeBinding resolveType(RecordDeclaration type) {
-		final Object node = this.newAstToOldAst.get(type);
-		if (node instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) {
-			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) node;
+		if (this.newAstToOldAst.get(type) instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration) {
 			ITypeBinding typeBinding = this.getTypeBinding(typeDeclaration.binding);
 			if (typeBinding == null) {
 				return null;
@@ -1742,17 +1635,16 @@ class DefaultBindingResolver extends BindingResolver {
 	@Override
 	synchronized ITypeBinding resolveType(Type type) {
 		// retrieve the old ast node
-		org.eclipse.jdt.internal.compiler.ast.ASTNode node = (org.eclipse.jdt.internal.compiler.ast.ASTNode) this.newAstToOldAst.get(type);
+		org.eclipse.jdt.internal.compiler.ast.ASTNode node = this.newAstToOldAst.get(type);
 		org.eclipse.jdt.internal.compiler.lookup.TypeBinding binding = null;
 		if (type.getAST().apiLevel() >= AST.JLS10_INTERNAL && type.isVar()) {
 			return resolveTypeBindingForName(((SimpleType) type).getName());
 		}
 		if (node != null) {
-			if (node instanceof Receiver) {
-				node = ((Receiver) node).type;
+			if (node instanceof Receiver receiver) {
+				node = receiver.type;
 			}
-			if (node instanceof ParameterizedQualifiedTypeReference) {
- 				ParameterizedQualifiedTypeReference typeReference = (ParameterizedQualifiedTypeReference) node;
+			if (node instanceof ParameterizedQualifiedTypeReference typeReference) {
 				org.eclipse.jdt.internal.compiler.lookup.TypeBinding typeBinding = typeReference.resolvedType;
 				// This unlikely case is possible when for some reason binding resolution has been stopped, like duplicate type declaration (bug 376440)
 				if (typeBinding == null) return null;
@@ -1791,22 +1683,21 @@ class DefaultBindingResolver extends BindingResolver {
 				} else {
 					binding = typeBinding;
 				}
-			} else if (node instanceof TypeReference) {
-				if (type instanceof SimpleType && node instanceof QualifiedTypeReference) {
-					return resolveTypeBindingForName(((SimpleType)type).getName());
-				} else if (type instanceof QualifiedType) {
-					return resolveTypeBindingForName(((QualifiedType)type).getName());
-				} else if (type instanceof NameQualifiedType){
-					return resolveTypeBindingForName(((NameQualifiedType)type).getName());
+			} else if (node instanceof TypeReference typeReference) {
+				if (type instanceof SimpleType simple && node instanceof QualifiedTypeReference) {
+					return resolveTypeBindingForName(simple.getName());
+				} else if (type instanceof QualifiedType qualifiedType) {
+					return resolveTypeBindingForName(qualifiedType.getName());
+				} else if (type instanceof NameQualifiedType nameQualifiedType){
+					return resolveTypeBindingForName(nameQualifiedType.getName());
 				}
-				TypeReference typeReference = (TypeReference) node;
 				binding = typeReference.resolvedType;
-			} else if (node instanceof SingleNameReference && ((SingleNameReference)node).isTypeReference()) {
-				binding = (((SingleNameReference)node).resolvedType);
-			} else if (node instanceof QualifiedNameReference && ((QualifiedNameReference)node).isTypeReference()) {
-				binding = (((QualifiedNameReference)node).resolvedType);
-			} else if (node instanceof ArrayAllocationExpression) {
-				binding = ((ArrayAllocationExpression) node).resolvedType;
+			} else if (node instanceof SingleNameReference singleName && singleName.isTypeReference()) {
+				binding = singleName.resolvedType;
+			} else if (node instanceof QualifiedNameReference qualifiedName && qualifiedName.isTypeReference()) {
+				binding = qualifiedName.resolvedType;
+			} else if (node instanceof ArrayAllocationExpression arrayAllocation) {
+				binding = arrayAllocation.resolvedType;
 			}
 			if (binding != null) {
 				if (type.isArrayType()) {
@@ -1816,7 +1707,7 @@ class DefaultBindingResolver extends BindingResolver {
 					}
 					ArrayBinding arrayBinding = (ArrayBinding) binding;
 					int dimensions = arrayType.getDimensions();
-					boolean isVarargs = node instanceof TypeReference && ((TypeReference) node).isVarargs();
+					boolean isVarargs = node instanceof TypeReference typeRef && typeRef.isVarargs();
 					if (dimensions == arrayBinding.dimensions)
 						return getTypeBinding(arrayBinding); // reuse
 					return getTypeBinding(this.scope.createArrayType(arrayBinding.leafComponentType, dimensions, getTypeAnnotations(dimensions, arrayBinding, isVarargs)));
@@ -1861,9 +1752,7 @@ class DefaultBindingResolver extends BindingResolver {
 
 	@Override
 	synchronized ITypeBinding resolveType(TypeDeclaration type) {
-		final Object node = this.newAstToOldAst.get(type);
-		if (node instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) {
-			org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration = (org.eclipse.jdt.internal.compiler.ast.TypeDeclaration) node;
+		if (this.newAstToOldAst.get(type) instanceof org.eclipse.jdt.internal.compiler.ast.TypeDeclaration typeDeclaration) {
 			IBinding declaringMember = getDeclaringMember(typeDeclaration, typeDeclaration.scope);
 			ITypeBinding typeBinding = internalGetTypeBinding(typeDeclaration.binding, declaringMember);
 			if (typeBinding == null) {
@@ -1881,9 +1770,7 @@ class DefaultBindingResolver extends BindingResolver {
 
 	@Override
 	synchronized ITypeBinding resolveTypeParameter(TypeParameter typeParameter) {
-		final Object node = this.newAstToOldAst.get(typeParameter);
-		if (node instanceof org.eclipse.jdt.internal.compiler.ast.TypeParameter) {
-			org.eclipse.jdt.internal.compiler.ast.TypeParameter typeParameter2 = (org.eclipse.jdt.internal.compiler.ast.TypeParameter) node;
+		if (this.newAstToOldAst.get(typeParameter) instanceof org.eclipse.jdt.internal.compiler.ast.TypeParameter typeParameter2) {
 			ITypeBinding typeBinding = this.getTypeBinding(typeParameter2.binding);
 			if (typeBinding == null) {
 				return null;
@@ -1900,9 +1787,7 @@ class DefaultBindingResolver extends BindingResolver {
 
 	@Override
 	synchronized IVariableBinding resolveVariable(EnumConstantDeclaration enumConstant) {
-		final Object node = this.newAstToOldAst.get(enumConstant);
-		if (node instanceof org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) {
-			org.eclipse.jdt.internal.compiler.ast.FieldDeclaration fieldDeclaration = (org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) node;
+		if (this.newAstToOldAst.get(enumConstant) instanceof org.eclipse.jdt.internal.compiler.ast.FieldDeclaration fieldDeclaration) {
 			IVariableBinding variableBinding = this.getVariableBinding(fieldDeclaration.binding);
 			if (variableBinding == null) {
 				return null;
@@ -1919,15 +1804,11 @@ class DefaultBindingResolver extends BindingResolver {
 
 	@Override
 	synchronized IVariableBinding resolveVariable(VariableDeclaration variable) {
-		final Object node = this.newAstToOldAst.get(variable);
-		if (node instanceof AbstractVariableDeclaration) {
-			AbstractVariableDeclaration abstractVariableDeclaration = (AbstractVariableDeclaration) node;
+		if (this.newAstToOldAst.get(variable) instanceof AbstractVariableDeclaration abstractVariableDeclaration) {
 			IVariableBinding variableBinding = null;
-			if (abstractVariableDeclaration instanceof org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) {
-				org.eclipse.jdt.internal.compiler.ast.FieldDeclaration fieldDeclaration = (org.eclipse.jdt.internal.compiler.ast.FieldDeclaration) abstractVariableDeclaration;
+			if (abstractVariableDeclaration instanceof org.eclipse.jdt.internal.compiler.ast.FieldDeclaration fieldDeclaration) {
 				variableBinding = this.getVariableBinding(fieldDeclaration.binding, variable);
-			} else if (abstractVariableDeclaration instanceof org.eclipse.jdt.internal.compiler.ast.RecordComponent) {
-				org.eclipse.jdt.internal.compiler.ast.RecordComponent recordComponent = (org.eclipse.jdt.internal.compiler.ast.RecordComponent) abstractVariableDeclaration;
+			} else if (abstractVariableDeclaration instanceof org.eclipse.jdt.internal.compiler.ast.RecordComponent recordComponent) {
 				variableBinding = this.getVariableBinding(recordComponent.binding, variable);
 			} else {
 				variableBinding = this.getVariableBinding(((LocalDeclaration) abstractVariableDeclaration).binding, variable);
@@ -2012,10 +1893,7 @@ class DefaultBindingResolver extends BindingResolver {
 
 	@Override
 	synchronized IAnnotationBinding resolveAnnotation(final Annotation domASTNode) {
-		Object oldNode = this.newAstToOldAst.get(domASTNode);
-		if (oldNode instanceof org.eclipse.jdt.internal.compiler.ast.Annotation) {
-			org.eclipse.jdt.internal.compiler.ast.Annotation internalAstNode =
-				(org.eclipse.jdt.internal.compiler.ast.Annotation) oldNode;
+		if (this.newAstToOldAst.get(domASTNode) instanceof org.eclipse.jdt.internal.compiler.ast.Annotation internalAstNode) {
 
 			IAnnotationBinding domAnnotation = getAnnotationInstance(internalAstNode.getCompilerAnnotation());
 			if (domAnnotation == null)
@@ -2038,7 +1916,7 @@ class DefaultBindingResolver extends BindingResolver {
 
 	@Override
 	synchronized void updateKey(ASTNode node, ASTNode newNode) {
-		Object astNode = this.newAstToOldAst.remove(node);
+		org.eclipse.jdt.internal.compiler.ast.ASTNode astNode = this.newAstToOldAst.remove(node);
 		if (astNode != null) {
 			this.newAstToOldAst.put(newNode, astNode);
 		}
