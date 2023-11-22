@@ -363,7 +363,7 @@ public final class IndentManipulation {
 
 	/*
 	 * Returns the index where the indent of the given size ends.
-	 * Returns <code>-1<code> if the line isn't prefixed with an indent of
+	 * Returns <code>-1</code> if the line isn't prefixed with an indent of
 	 * the given number of indents.
 	 */
 	private static int indexOfIndent(CharSequence line, int numberOfIndentUnits, int tabWidth, int indentWidth) {
