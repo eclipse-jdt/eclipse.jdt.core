@@ -975,7 +975,7 @@ public final class AST {
 	private int bits;
 
 	/**
-	 * Default value of <code>flag<code> when a new node is created.
+	 * Default value of <code>flag</code> when a new node is created.
 	 */
 	private int defaultNodeFlag = 0;
 
