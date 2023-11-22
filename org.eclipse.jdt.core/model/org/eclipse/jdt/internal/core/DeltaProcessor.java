@@ -2034,6 +2034,7 @@ public class DeltaProcessor {
 	 * Registers the given delta with this delta processor.
 	 */
 	public void registerJavaModelDelta(IJavaElementDelta delta) {
+		JavaModelManager.assertModelModifiable();
 		this.javaModelDeltas.add(delta);
 	}
 	/*

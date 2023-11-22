@@ -104,7 +104,8 @@ public class SearchableEnvironment
 			|| !JavaCore.IGNORE.equals(project.getOption(JavaCore.COMPILER_PB_DISCOURAGED_REFERENCE, true));
 		this.workingCopies = workingCopies;
 		this.nameLookup = project.newNameLookup(workingCopies, excludeTestCode);
-		boolean java9plus = CompilerOptions.versionToJdkLevel(project.getOption(JavaCore.COMPILER_COMPLIANCE, true)) >= ClassFileConstants.JDK9;
+		boolean java9plus = JavaCore.callReadOnly(() -> CompilerOptions
+				.versionToJdkLevel(project.getOption(JavaCore.COMPILER_COMPLIANCE, true)) >= ClassFileConstants.JDK9);
 		if (java9plus) {
 			this.knownModuleLocations = new HashMap<>();
 
