@@ -47,6 +47,7 @@ import org.eclipse.jdt.internal.core.BasicCompilationUnit;
 import org.eclipse.jdt.internal.core.BinaryType;
 import org.eclipse.jdt.internal.core.ClassFileWorkingCopy;
 import org.eclipse.jdt.internal.core.DefaultWorkingCopyOwner;
+import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.PackageFragment;
 import org.eclipse.jdt.internal.core.dom.util.DOMASTUtil;
 import org.eclipse.jdt.internal.core.util.CodeSnippetParsingUtil;
@@ -1116,6 +1117,9 @@ public class ASTParser {
 	}
 
 	private ASTNode internalCreateAST(IProgressMonitor monitor) {
+		return JavaModelManager.cacheZipFiles(() -> internalCreateASTCached(monitor));
+	}
+	private ASTNode internalCreateASTCached(IProgressMonitor monitor) {
 		boolean needToResolveBindings = (this.bits & CompilationUnitResolver.RESOLVE_BINDING) != 0;
 		switch(this.astKind) {
 			case K_CLASS_BODY_DECLARATIONS :

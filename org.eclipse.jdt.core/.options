@@ -83,6 +83,9 @@ org.eclipse.jdt.core/debug/selection=false
 # Reports access to zip and jar files through the Java model
 org.eclipse.jdt.core/debug/zipaccess=false
 
+# Reports repetitive opening of zip and jar files through the Java model without caching
+org.eclipse.jdt.core/debug/zipaccessWarning=false
+
 # Reports the time to perform code completion.
 org.eclipse.jdt.core/perf/completion=300
 
