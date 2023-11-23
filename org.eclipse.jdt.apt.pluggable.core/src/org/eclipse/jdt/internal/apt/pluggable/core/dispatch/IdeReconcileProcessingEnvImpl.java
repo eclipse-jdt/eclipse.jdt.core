@@ -23,7 +23,6 @@ import org.eclipse.jdt.internal.compiler.Compiler;
  * ProcessingEnvironment for reconciles in IDE.
  * @since 3.3
  */
-@SuppressWarnings("restriction")
 public class IdeReconcileProcessingEnvImpl extends IdeProcessingEnvImpl {
 
 	public IdeReconcileProcessingEnvImpl(IdeAnnotationProcessorManager dispatchManager,
