@@ -150,6 +150,7 @@ import org.eclipse.jdt.internal.compiler.ast.CastExpression;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ConditionalExpression;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.DoStatement;
 import org.eclipse.jdt.internal.compiler.ast.Expression;
 import org.eclipse.jdt.internal.compiler.ast.ExpressionContext;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
@@ -1955,7 +1956,7 @@ public final class CompletionEngine
 				if (expression.body().sourceStart <= astNode.sourceStart &&
 						astNode.sourceEnd <= expression.body().sourceEnd) {
 					// completion is inside a method body
-					if ((astNodeParent == null || astNodeParent == expression || (astNodeParent instanceof Block)) &&
+					if ((astNodeParent == null || astNodeParent == expression || (astNodeParent instanceof Block) || inParentControlStatement(astNodeParent)) &&
 							astNode instanceof CompletionOnSingleNameReference &&
 							!((CompletionOnSingleNameReference)astNode).isPrecededByModifiers) {
 						context.setTokenLocation(CompletionContext.TL_STATEMENT_START);
@@ -1983,6 +1984,11 @@ public final class CompletionEngine
 				}
 			}
 		}
+	}
+
+	private boolean inParentControlStatement(ASTNode parent) {
+		return parent instanceof IfStatement || parent instanceof WhileStatement || parent instanceof ForStatement
+				|| parent instanceof DoStatement || parent instanceof SwitchStatement;
 	}
 
 	void checkCancel() {

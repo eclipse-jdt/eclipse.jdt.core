@@ -172,6 +172,7 @@ public class CompletionNodeDetector extends ASTVisitor {
 	@Override
 	public void endVisit(IfStatement ifStatement, BlockScope scope) {
 		this.interestingEnclosings.pop();
+		endVisit(ifStatement);
 	}
 	@Override
 	public void endVisit(InstanceOfExpression instanceOfExpression, BlockScope scope) {
@@ -297,6 +298,10 @@ public class CompletionNodeDetector extends ASTVisitor {
 	public void endVisit(ConstructorDeclaration constructorDeclaration, ClassScope scope) {
 		if (this.result)
 			throw new StopTraversal(); // don't associate with out-of-scope outer expression
+	}
+	@Override
+	public void endVisit(WhileStatement whileStatement, BlockScope scope) {
+		endVisit(whileStatement);
 	}
 	@Override
 	public boolean visit(AllocationExpression allocationExpression, BlockScope scope) {
