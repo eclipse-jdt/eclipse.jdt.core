@@ -2978,7 +2978,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			return doVisitUnchangedChildren(node);
 		}
 
-		rewriteRequiredNode(node, GuardedPattern.PATTERN_PROPERTY);
+		rewriteRequiredNode(node, GuardedPattern.PATTERNS_PROPERTY);
 		rewriteRequiredNode(node, GuardedPattern.EXPRESSION_PROPERTY);
 
 		return false;

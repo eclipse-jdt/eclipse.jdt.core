@@ -86,7 +86,8 @@ public FlowInfo analyseCode(
 				local.useFlag = LocalVariableBinding.USED; // these are structurally required even if not touched
 			}
 			nullPatternCount +=  e instanceof NullLiteral ? 1 : 0;
-			if (i > 0 && (e instanceof Pattern)) {
+			if (i > 0 && (e instanceof Pattern)
+					&& (currentScope.compilerOptions().sourceLevel < ClassFileConstants.JDK21 || !currentScope.compilerOptions().enablePreviewFeatures)) {
 				if (!(i == nullPatternCount && e instanceof TypePattern))
 					currentScope.problemReporter().IllegalFallThroughToPattern(e);
 			}
@@ -160,18 +161,24 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 }
 
 private void casePatternExpressionGenerateCode(BlockScope currentScope, CodeStream codeStream) {
-	if (this.patternIndex != -1) {
-		Pattern pattern = ((Pattern) this.constantExpressions[this.patternIndex]);
-		if (containsPatternVariable()) {
-			this.trueLabel = new BranchLabel(codeStream);
-			this.falseLabel = new BranchLabel(codeStream);
+	if (this.patternIndex != -1 && containsPatternVariable()) {
+		this.trueLabel = new BranchLabel(codeStream);
+		this.falseLabel = new BranchLabel(codeStream);
+		for (int i = 0; i < this.constantExpressions.length - 1; i++) {
+			BranchLabel nextPatternCheck = new BranchLabel(codeStream);
+			Pattern pattern = ((Pattern)this.constantExpressions[i]);
 			LocalVariableBinding local = currentScope.findVariable(SwitchStatement.SecretPatternVariableName, null);
 			codeStream.load(local);
-			pattern.generateCode(currentScope, codeStream, this.trueLabel, this.falseLabel);
-			// Srikanth, check this goto.
-			if (!(pattern instanceof GuardedPattern))
-				codeStream.goto_(this.trueLabel);
+			pattern.generateCode(currentScope, codeStream, this.trueLabel, nextPatternCheck);
+			codeStream.goto_(this.trueLabel);
+			nextPatternCheck.place();
 		}
+		Pattern pattern = ((Pattern)this.constantExpressions[this.constantExpressions.length - 1]);
+		LocalVariableBinding local = currentScope.findVariable(SwitchStatement.SecretPatternVariableName, null);
+		codeStream.load(local);
+		pattern.generateCode(currentScope, codeStream, this.trueLabel, this.falseLabel);
+		if (!(pattern instanceof GuardedPattern))
+			codeStream.goto_(this.trueLabel);
 	}
 }
 
@@ -249,10 +256,16 @@ private Expression getFirstValidExpression(BlockScope scope, SwitchStatement swi
 			if (e instanceof Pattern) {
 				scope.problemReporter().validateJavaFeatureSupport(JavaFeature.PATTERN_MATCHING_IN_SWITCH,
 						e.sourceStart, e.sourceEnd);
-				if (this.constantExpressions.length > 1) {
-					scope.problemReporter().illegalCaseConstantCombination(e);
-					return e;
+				if (this.constantExpressions.length > 1 || e instanceof GuardedPattern gp && gp.patterns.length > 1) {
+					int count = 0;
+					for (Expression expr : this.constantExpressions) {
+						count += ((Pattern)expr).countNamedVariables(scope);
+					}
+					if (count > 0) {
+						scope.problemReporter().illegalCaseLabelWithMultiplePatterns(this);
+					}
 				}
+				return e;
 			} else if (e instanceof NullLiteral) {
 				scope.problemReporter().validateJavaFeatureSupport(JavaFeature.PATTERN_MATCHING_IN_SWITCH,
 						e.sourceStart, e.sourceEnd);

@@ -1712,12 +1712,29 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"record Rectangle(int x, int y) {\n" +
 				"}"
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 4)\n" +
-				"	case Rectangle(int x, int y) r -> 1;\n" +
-				"	                             ^\n" +
-				"Syntax error on token \"r\", delete this token\n" +
-				"----------\n");
+				"""
+				----------
+				1. ERROR in X.java (at line 4)
+					case Rectangle(int x, int y) r -> 1;
+					               ^^^
+				Syntax error on token "int", delete this token
+				----------
+				2. ERROR in X.java (at line 4)
+					case Rectangle(int x, int y) r -> 1;
+					                      ^^^
+				Syntax error on token "int", invalid (
+				----------
+				3. ERROR in X.java (at line 4)
+					case Rectangle(int x, int y) r -> 1;
+					                                  ^
+				Syntax error, insert ")" to complete MethodInvocation
+				----------
+				4. ERROR in X.java (at line 4)
+					case Rectangle(int x, int y) r -> 1;
+					                                  ^
+				Syntax error, insert ":" to complete SwitchLabel
+				----------
+				""");
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2004
 	// [Patterns] ECJ generates suspect code for switching over patterns

@@ -187,6 +187,9 @@ private void buildMoreCompletionContext(Expression expression) {
 
 	Statement whileBody = null;
 
+	boolean hasGuard = false;
+	int guardPosition = -1;
+
 	int kind;
 
 	for (int i = this.elementPtr; i > -1; i--) {
@@ -206,13 +209,24 @@ private void buildMoreCompletionContext(Expression expression) {
 				thenStat = elseStat = null;
 				break;
 			case K_BETWEEN_CASE_AND_COLONORARROW:
+				if (hasGuard) {
+					int patternListLength = 0;
+					this.expressionPtr = guardPosition;
+					while (this.expressionStack[this.expressionPtr] instanceof Pattern) {
+						patternListLength++;
+						this.expressionPtr--;
+					}
+					Pattern[] patterns = new Pattern[patternListLength];
+					System.arraycopy(this.expressionStack, this.expressionPtr + 1, patterns, 0, patternListLength);
+					parentNode = orphan = new GuardedPattern(patterns, (Expression) orphan);
+				}
 				parentNode = orphan = new CaseStatement((Expression) orphan, orphan.sourceStart, orphan.sourceEnd);
 				break;
 			case K_INSIDE_WHEN:
-				if (this.astPtr >=0 && this.astStack[this.astPtr] instanceof Pattern && orphan instanceof Expression) {
-					this.astLengthPtr--;
-					Pattern pattern = (Pattern) this.astStack[this.astPtr--];
-					parentNode = orphan = new GuardedPattern(pattern, (Expression) orphan);
+				hasGuard = true;
+				guardPosition = this.expressionPtr;
+				while (guardPosition > 0 && !(this.expressionStack[guardPosition] instanceof Pattern)) {
+					guardPosition--;
 				}
 				break;
 			case K_POST_WHILE_EXPRESSION:

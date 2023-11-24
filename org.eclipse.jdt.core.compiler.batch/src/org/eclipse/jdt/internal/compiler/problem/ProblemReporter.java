@@ -12418,6 +12418,14 @@ public void illegalFallthroughFromAPattern(Statement statement) {
 		statement.sourceStart,
 		statement.sourceEnd);
 	}
+public void illegalCaseLabelWithMultiplePatterns(Statement statement) {
+	this.handle(
+		IProblem.CaseLabelWithPatternMustHaveExactlyOnePattern,
+		NoArgument,
+		NoArgument,
+		statement.sourceStart,
+		statement.sourceEnd);
+	}
 public void illegalCaseConstantCombination(Expression element) {
 	this.handle(
 			IProblem.ConstantWithPatternIncompatible,

@@ -579,7 +579,9 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	@Override
 	public boolean visit(GuardedPattern node) {
 		if (DOMASTUtil.isPatternSupported(node.getAST())) {
-			node.getPattern().accept(this);
+			for (Object o : node.patterns()) {
+				((Pattern)o).accept(this);
+			}
 			this.result.append(" when ");//$NON-NLS-1$
 			node.getExpression().accept(this);
 		}

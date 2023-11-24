@@ -235,7 +235,7 @@ Goal ::= '->' SwitchLabelCaseLhs
 Goal ::= RestrictedIdentifiersealed Modifiersopt
 Goal ::= RestrictedIdentifierpermits PermittedSubclasses
 -- jsr 427 --
-Goal ::= BeginCaseElement Pattern
+Goal ::= CaseLabelPatternElements
 Goal ::= RestrictedIdentifierWhen Expression
 /:$readableName Goal:/
 
@@ -1588,33 +1588,41 @@ SwitchLabelCaseLhs ::= 'case' CaseLabelElements
 
 -- END SwitchExpression (JEP 325) --
 
-CaseLabelElements -> CaseLabelElement
-CaseLabelElements ::= CaseLabelElements ',' CaseLabelElement
+CaseLabelElements -> CaseLabelConstantElements
+CaseLabelElements -> CaseLabelPatternElements
+
+CaseLabelConstantElements ::= CaseLabelConstantElement
+CaseLabelConstantElements ::= CaseLabelConstantElements ',' CaseLabelConstantElement
 /.$putCase consumeCaseLabelElements(); $break ./
-/:$readableName CaseLabelElements:/
+/:$readableName CaseLabelConstantElements:/
 
 -- Production name hardcoded in parser. Must be ::= and not -> (need to hook at cCLE)
-CaseLabelElement ::= ConstantExpression
+CaseLabelConstantElement ::= ConstantExpression
 /.$putCase consumeCaseLabelElement(CaseLabelKind.CASE_EXPRESSION); $break ./
 /:$readableName CaseLabelElement:/
 
  -- following 'null' in CASE_EXPRESSION - passes through existing grammar
  -- CaseLabelElement ->  'null'
 
-CaseLabelElement ::= 'default'
+CaseLabelConstantElement ::= 'default'
 /.$putCase consumeCaseLabelElement(CaseLabelKind.CASE_DEFAULT); $break ./
 /:$readableName CaseLabelElement:/
 
-CaseLabelElement ::= CaseLabelElementPattern
-/.$putCase consumeCaseLabelElement(CaseLabelKind.CASE_PATTERN); $break ./
+CaseLabelPatternElements ::= CaseLabelPatternElementsInternal
 /:$readableName CaseLabelElement:/
 
-CaseLabelElement ::=  CaseLabelElementPattern Guard
-/.$putCase consumeCaseLabelElement(CaseLabelKind.CASE_PATTERN); $break ./
-/:$readableName CaseLabelElement:/
+CaseLabelPatternElementsInternal ::= BeginCaseElement CasePatternList
+CaseLabelPatternElementsInternal ::= BeginCaseElement CasePatternList Guard
 
-CaseLabelElementPattern -> BeginCaseElement Pattern
-/:$readableName CaseLabelElementPattern:/
+CasePatternList ::= CasePattern
+/:$readableName CasePatternList :/
+CasePatternList ::= CasePatternList ',' CasePattern
+/.$putCase consumeCaseLabelElements(); $break ./
+/:$readableName CasePatternList :/
+
+CasePattern ::= Pattern
+/.$putCase consumeCaseLabelElement(CaseLabelKind.CASE_PATTERN); $break ./
+/:$readableName CasePattern:/
 
 Guard ::= RestrictedIdentifierWhen Expression
 /.$putCase consumeGuard(); $break ./

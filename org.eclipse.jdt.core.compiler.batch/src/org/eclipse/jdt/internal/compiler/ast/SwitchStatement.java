@@ -977,7 +977,7 @@ public class SwitchStatement extends Expression {
 		if (this.switchPatternRestartTarget != null && caseStatement != null
 				&& caseStatement.patternIndex != -1 // for null
 				) {
-			Pattern pattern = (Pattern) caseStatement.constantExpressions[caseStatement.patternIndex];
+			Pattern pattern = (Pattern) caseStatement.constantExpressions[caseStatement.constantExpressions.length - 1];
 			if (caseStatement.falseLabel != null)
 				caseStatement.falseLabel.place();
 			if (pattern.matchFailurePossible()) {

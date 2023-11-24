@@ -1126,7 +1126,7 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
         buf1.append("public class X {\n");
         buf1.append(        "void foo(Object o) {\n");
         buf1.append(        "   switch (o) {\n");
-        buf1.append(        "       case null when null:\n");
+        buf1.append(        "       case when null:\n");
         buf1.append(        "            System.out.println(\"Greater than 10\");\n");
         buf1.append(        "       default         : System.out.println(\"0\");\n");
         buf1.append(        "   }\n");

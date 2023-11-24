@@ -52,7 +52,7 @@ public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletion
 				+ "  public static void printLowerRight(Rectangle r) {\n"
 				+ "    int res = switch(r) {\n"
 				+ "       case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n"
-				+ "                               ColoredPoint lr) r1  -> {\n"
+				+ "                               ColoredPoint lr)  -> {\n"
 				+ "        		yield 1;  \n"
 				+ "        } \n"
 				+ "        default -> 0;\n"
@@ -89,7 +89,7 @@ public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletion
 				+ "  public static void printLowerRight(Rectangle r) {\n"
 				+ "    int res = switch(r) {\n"
 				+ "       case /*here*/ Rectangl (ColoredPoint(Point(int x, int y), Color c),\n"
-				+ "                               ColoredPoint lr) r1  -> {\n"
+				+ "                               ColoredPoint lr)  -> {\n"
 				+ "        		yield 1;  \n"
 				+ "        } \n"
 				+ "        default -> 0;\n"
@@ -111,7 +111,7 @@ public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletion
 		String completeBehind = "/*here*/ Rectangl";
 		int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
-		assertResults("Rectangle[TYPE_REF]{Rectangle, , LRectangle;, null, null, 52}",
+		assertResults("Rectangle[TYPE_REF]{Rectangle, , LRectangle;, null, null, 82}",
 				requestor.getResults());
 
 	}
@@ -125,7 +125,7 @@ public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletion
 				+ "  public static void printLowerRight(Rectangle r) {\n"
 				+ "    int res = switch(r) {\n"
 				+ "       case  Rectangle(/*here*/ ColoredPoin(Point(int x, int y), Color c),\n"
-				+ "                               ColoredPoint lr) r1  -> {\n"
+				+ "                               ColoredPoint lr)  -> {\n"
 				+ "        		yield 1;  \n"
 				+ "        } \n"
 				+ "        default -> 0;\n"
@@ -161,7 +161,7 @@ public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletion
 				+ "  public static void printLowerRight(Rectangle r) {\n"
 				+ "    int res = switch(r) {\n"
 				+ "       case  Rectangle(ColoredPoint(/*here*/ Poin(int x, int y), Color c),\n"
-				+ "                               ColoredPoint lr) r1  -> {\n"
+				+ "                               ColoredPoint lr)  -> {\n"
 				+ "        		yield 1;  \n"
 				+ "        } \n"
 				+ "        default -> 0;\n"
@@ -197,7 +197,7 @@ public class CompletionTestsForRecordPattern extends AbstractJavaModelCompletion
 				+ "  public static void printLowerRight(Rectangle r) {\n"
 				+ "    int res = switch(r) {\n"
 				+ "       case  Rectangle(ColoredPoint( Point(int x, int y), /*here*/ Colo c),\n"
-				+ "                               ColoredPoint lr) r1  -> {\n"
+				+ "                               ColoredPoint lr)  -> {\n"
 				+ "        		yield 1;  \n"
 				+ "        } \n"
 				+ "        default -> 0;\n"

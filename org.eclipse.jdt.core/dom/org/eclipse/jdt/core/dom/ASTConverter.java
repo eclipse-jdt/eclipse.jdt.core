@@ -2268,7 +2268,9 @@ class ASTConverter {
 		if (this.resolveBindings) {
 			recordNodes(guardedPattern, pattern);
 		}
-		guardedPattern.setPattern(convert(pattern.primaryPattern));
+		for (org.eclipse.jdt.internal.compiler.ast.Pattern nestedPattern : pattern.patterns) {
+			guardedPattern.patterns().add(convert(nestedPattern));
+		}
 		guardedPattern.setExpression(convert(pattern.condition));
 		int startPosition = pattern.sourceStart;
 		int sourceEnd = pattern.sourceEnd;

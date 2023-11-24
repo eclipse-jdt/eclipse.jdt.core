@@ -31,7 +31,7 @@ import org.eclipse.jdt.internal.core.dom.util.DOMASTUtil;
  * @noreference This class is not intended to be referenced by clients.
  */
 
-@SuppressWarnings("rawtypes")
+@SuppressWarnings({"rawtypes", "unchecked"})
 public class GuardedPattern extends Pattern{
 
 	GuardedPattern(AST ast) {
@@ -42,7 +42,9 @@ public class GuardedPattern extends Pattern{
 	/**
 	 * The "pattern" structural property of this node type (child type: {@link Pattern}). (added in JEP 406).
 	 */
-	public static final ChildPropertyDescriptor PATTERN_PROPERTY  = internalPatternPropertyFactory(GuardedPattern.class);
+	public static final ChildPropertyDescriptor PATTERN_PROPERTY = internalPatternPropertyFactory(GuardedPattern.class);
+
+	public static final ChildListPropertyDescriptor PATTERNS_PROPERTY = new ChildListPropertyDescriptor(GuardedPattern.class, "patterns", Pattern.class, CYCLE_RISK); //$NON-NLS-1$
 
 	/**
 	 * The "expression" structural property of this node type (child type: {@link Expression}). (added in JEP 406).
@@ -64,23 +66,23 @@ public class GuardedPattern extends Pattern{
 	private static final List PROPERTY_DESCRIPTORS;
 
 	static {
-		List propertyList = new ArrayList(3);
+		List propertyList = new ArrayList(4);
 		createPropertyList(GuardedPattern.class, propertyList);
-		addProperty(PATTERN_PROPERTY, propertyList);
+		addProperty(PATTERNS_PROPERTY, propertyList);
 		addProperty(EXPRESSION_PROPERTY, propertyList);
 		PROPERTY_DESCRIPTORS = reapPropertyList(propertyList);
 	}
 
 	/**
-	 * The pattern; <code>null</code> for none
+	 * The patterns
 	 */
-	private Pattern pattern = null;
+	private final ASTNode.NodeList patterns = new ASTNode.NodeList(PATTERNS_PROPERTY);
 
 	/**
 	 * The expression; <code>null</code> for none; lazily initialized (but
 	 * does <b>not</b> default to none).
 	 */
-	private Expression conditonalExpression = null;
+	private Expression conditionalExpression = null;
 
 
 
@@ -106,12 +108,21 @@ public class GuardedPattern extends Pattern{
 			if (get) {
 				return getPattern();
 			} else {
-				setPattern((Pattern)child);
+				setPattern((Pattern) child);
 				return null;
 			}
 		}
 		// allow default implementation to flag the error
 		return super.internalGetSetChildProperty(property, get, child);
+	}
+
+	@Override
+	final List internalGetChildListProperty(ChildListPropertyDescriptor property) {
+		if (property == PATTERNS_PROPERTY) {
+			return patterns();
+		}
+		// allow default implementation to flag the error
+		return super.internalGetChildListProperty(property);
 	}
 
 	@Override
@@ -128,7 +139,8 @@ public class GuardedPattern extends Pattern{
 	ASTNode clone0(AST target) {
 		GuardedPattern result = new GuardedPattern(target);
 		result.setSourceRange(getStartPosition(), getLength());
-		result.setPattern((Pattern) getPattern().clone(target));
+		result.patterns.addAll(
+				ASTNode.copySubtrees(target, patterns()));
 		result.setExpression((Expression) getExpression().clone(target));
 		result.setRestrictedIdentifierStartPosition(this.restrictedIdentifierStartPosition);
 		return result;
@@ -139,11 +151,10 @@ public class GuardedPattern extends Pattern{
 		boolean visitChildren = visitor.visit(this);
 		if (visitChildren) {
 			// visit children in normal left to right reading order
-			acceptChild(visitor, getPattern());
+			acceptChildren(visitor, this.patterns);
 			acceptChild(visitor, getExpression());
 		}
 		visitor.endVisit(this);
-
 	}
 
 	@Override
@@ -153,10 +164,9 @@ public class GuardedPattern extends Pattern{
 
 	@Override
 	int treeSize() {
-		return
-				memSize()
-			+ (this.pattern == null ? 0 : getPattern().treeSize())
-			+ (this.conditonalExpression == null ? 0 : getExpression().treeSize());
+		return memSize()
+			+ this.patterns.listSize()
+			+ (this.conditionalExpression == null ? 0 : getExpression().treeSize());
 	}
 
 	/**
@@ -199,41 +209,49 @@ public class GuardedPattern extends Pattern{
 	 */
 	public Expression getExpression() {
 		supportedOnlyIn21();
-		if (this.conditonalExpression == null) {
+		if (this.conditionalExpression == null) {
 			//lazy init must be thread-safe for readers
 			synchronized (this) {
-				if (this.conditonalExpression == null) {
+				if (this.conditionalExpression == null) {
 					preLazyInit();
-					this.conditonalExpression = this.ast.newNullLiteral();
-					postLazyInit(this.pattern, EXPRESSION_PROPERTY);
+					this.conditionalExpression = this.ast.newNullLiteral();
+					postLazyInit(this.conditionalExpression, EXPRESSION_PROPERTY);
 				}
 			}
 		}
-		return this.conditonalExpression;
+		return this.conditionalExpression;
 	}
 
 	/**
-	 * Returns the pattern of this Guarded Pattern, or
+	 * Returns the first pattern of this Guarded Pattern, or
 	 * <code>empty</code> if there is none.
 	 * @return the pattern node
 	 * 			(element type: {@link Pattern})
 	 * @exception UnsupportedOperationException if this operation is used other than JLS18
 	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
+	 * @deprecated use patterns() instead
 	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
 	 */
 	public Pattern getPattern() {
 		supportedOnlyIn21();
-		if (this.pattern == null) {
-			// lazy init must be thread-safe for readers
-			synchronized (this) {
-				if (this.pattern == null) {
-					preLazyInit();
-					this.pattern = this.ast.newNullPattern();
-					postLazyInit(this.pattern, PATTERN_PROPERTY);
-				}
-			}
+		if (this.patterns.size() == 0) {
+			return null;
 		}
-		return this.pattern;
+		return (Pattern) this.patterns.get(0);
+	}
+
+	/**
+	 * Returns the patterns of this Guarded Pattern.
+	 * @return the pattern node
+	 * 			(element type: {@link Pattern})
+	 * @exception UnsupportedOperationException if this operation is used other than JLS18
+	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
+	 * @noreference This method is not intended to be referenced by clients as it is a part of Java preview feature.
+	 * @since 3.37
+	 */
+	public List<Pattern> patterns() {
+		supportedOnlyIn21();
+		return this.patterns;
 	}
 
 	/**
@@ -251,9 +269,9 @@ public class GuardedPattern extends Pattern{
 	 */
 	public void setExpression(Expression expression) {
 		supportedOnlyIn21();
-		ASTNode oldChild = this.conditonalExpression;
+		ASTNode oldChild = this.conditionalExpression;
 		preReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
-		this.conditonalExpression = expression;
+		this.conditionalExpression = expression;
 		postReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
 	}
 
@@ -262,13 +280,15 @@ public class GuardedPattern extends Pattern{
 	 * @noreference This method is not intended to be referenced by clients.
 	 * @exception UnsupportedOperationException if this operation is used not for JLS18
 	 * @exception UnsupportedOperationException if this operation is used without previewEnabled
+	 * @deprecated use patterns() and mutate the list instead
 	 */
 	public void setPattern(Pattern pattern) {
 		supportedOnlyIn21();
-		ASTNode oldChild = this.pattern;
-		preReplaceChild(oldChild, pattern, PATTERN_PROPERTY);
-		this.pattern = pattern;
-		postReplaceChild(oldChild, pattern, PATTERN_PROPERTY);
+		if (this.patterns.size() > 0) {
+			this.patterns.set(0, pattern);
+		} else {
+			this.patterns.add(pattern);
+		}
 	}
 
 	/**

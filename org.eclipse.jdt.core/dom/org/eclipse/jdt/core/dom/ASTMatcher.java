@@ -1108,7 +1108,7 @@ public class ASTMatcher {
 			return false;
 		}
 		GuardedPattern o = (GuardedPattern) other;
-		return  safeSubtreeMatch(node.getPattern(), o.getPattern())
+		return  safeSubtreeListMatch(node.patterns(), o.patterns())
 				&& safeSubtreeMatch(node.getExpression(), o.getExpression());
 	}
 

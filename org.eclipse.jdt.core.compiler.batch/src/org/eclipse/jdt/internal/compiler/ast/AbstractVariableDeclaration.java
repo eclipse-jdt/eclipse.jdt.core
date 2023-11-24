@@ -156,4 +156,5 @@ public abstract class AbstractVariableDeclaration extends Statement implements I
 				&& scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK21
 				&& scope.compilerOptions().enablePreviewFeatures;
 	}
+
 }

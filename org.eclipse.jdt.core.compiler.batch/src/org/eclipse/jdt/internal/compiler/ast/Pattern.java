@@ -13,6 +13,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -105,8 +106,28 @@ public abstract class Pattern extends Expression {
 
 	public abstract boolean dominates(Pattern p);
 
+	public int countNamedVariables(BlockScope scope) {
+		var pvc = new PatternVariableCounter();
+		this.traverse(pvc, scope);
+		return pvc.numVars;
+	}
+
 	@Override
 	public StringBuilder print(int indent, StringBuilder output) {
 		return this.printExpression(indent, output);
+	}
+
+	private class PatternVariableCounter extends ASTVisitor {
+
+		public int numVars = 0;
+
+		@Override
+		public boolean visit(TypePattern pattern, BlockScope scope) {
+			if (!pattern.isUnnamed()) {
+				this.numVars++;
+			}
+			return true;
+		}
+
 	}
 }
