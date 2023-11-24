@@ -40,6 +40,10 @@ public class CompletionNodeDetector extends ASTVisitor {
 			return !this.found;
 		}
 	}
+
+	/** Sentinel that signals when searchNode was found as a child of a potential parent but in an unsupported location of it. */
+	private static final ASTNode NOT_A_PARENT = new NullLiteral(0, 0);
+
 	public static boolean findAny(CompilationUnitDeclaration unit, ASTNode searchFor) {
 		FindAny visitor = new FindAny(searchFor);
 		unit.traverse(visitor, (CompilationUnitScope)null, false);
@@ -82,6 +86,8 @@ public class CompletionNodeDetector extends ASTVisitor {
 	}
 
 	public ASTNode getCompletionNodeParent() {
+		if (this.parent == NOT_A_PARENT)
+			return null;
 		return this.parent;
 	}
 	public Expression getCompletionNodeOuterExpression() {
@@ -172,6 +178,12 @@ public class CompletionNodeDetector extends ASTVisitor {
 	@Override
 	public void endVisit(IfStatement ifStatement, BlockScope scope) {
 		this.interestingEnclosings.pop();
+		endVisit(ifStatement);
+		if (this.parent == ifStatement && this.searchedNode != ifStatement.condition) {
+			// searchNode was found as a child of the ifStatement, but in a wrong position (only condition is supported)
+			// Remove the unwanted parent, but at the same time signal that we should not look for a parent in any enclosing ASTNode:
+			this.parent = NOT_A_PARENT;
+		}
 	}
 	@Override
 	public void endVisit(InstanceOfExpression instanceOfExpression, BlockScope scope) {
@@ -297,6 +309,15 @@ public class CompletionNodeDetector extends ASTVisitor {
 	public void endVisit(ConstructorDeclaration constructorDeclaration, ClassScope scope) {
 		if (this.result)
 			throw new StopTraversal(); // don't associate with out-of-scope outer expression
+	}
+	@Override
+	public void endVisit(WhileStatement whileStatement, BlockScope scope) {
+		endVisit(whileStatement);
+		if (this.parent == whileStatement && this.searchedNode != whileStatement.condition) {
+			// searchNode was found as a child of the whileStatement, but in a wrong position (only condition is supported)
+			// Remove the unwanted parent, but at the same time signal that we should not look for a parent in any enclosing ASTNode:
+			this.parent = NOT_A_PARENT;
+		}
 	}
 	@Override
 	public boolean visit(AllocationExpression allocationExpression, BlockScope scope) {
