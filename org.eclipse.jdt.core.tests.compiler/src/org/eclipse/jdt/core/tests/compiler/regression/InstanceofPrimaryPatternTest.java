@@ -254,4 +254,34 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 			"Syntax error, modifiers are not allowed here\n" +
 			"----------\n");
 	}
+
+	public void testGH1621() {
+		runConformTest(
+			new String[] {
+				"ConsumerEndpointSpec.java",
+				"""
+				import java.util.function.Consumer;
+
+				public class ConsumerEndpointSpec {
+					public void setNotPropagatedHeaders(String... headers) {
+						for (String s: headers) System.out.print(s);
+					}
+					void foo(Object h) {
+						if (h instanceof ConsumerEndpointSpec producingMessageHandler) {
+							acceptIfNotEmpty(new String[] {"OK"}, producingMessageHandler::setNotPropagatedHeaders);
+						}
+					}
+					public <T> void acceptIfNotEmpty(T[] value, Consumer<T[]> consumer) {
+						consumer.accept(value);
+					}
+					public static void main(String... args) {
+						ConsumerEndpointSpec obj = new ConsumerEndpointSpec();
+						obj.foo(obj);
+					}
+				}
+				"""
+			},
+			"OK",
+			getCompilerOptions());
+	}
 }

@@ -252,6 +252,20 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		return super.kosherDescriptor(currentScope, sam, shouldChatter);
 	}
 
+	public void resolveWithPatternVariablesInScope(LocalVariableBinding[] patternVariablesInScope, BlockScope blockScope, boolean skipKosherCheck) {
+		if (patternVariablesInScope != null) {
+			for (LocalVariableBinding local : patternVariablesInScope) {
+				local.modifiers &= ~ExtraCompilerModifiers.AccPatternVariable;
+			}
+			this.resolveType(blockScope, skipKosherCheck);
+			for (LocalVariableBinding local : patternVariablesInScope) {
+				local.modifiers |= ExtraCompilerModifiers.AccPatternVariable;
+			}
+		} else {
+			resolveType(blockScope, skipKosherCheck);
+		}
+	}
+
 	/* This code is arranged so that we can continue with as much analysis as possible while avoiding
 	 * mine fields that would result in a slew of spurious messages. This method is a merger of:
 	 * @see org.eclipse.jdt.internal.compiler.lookup.MethodScope.createMethod(AbstractMethodDeclaration)
