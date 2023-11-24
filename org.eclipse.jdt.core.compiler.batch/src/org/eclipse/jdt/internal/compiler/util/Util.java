@@ -24,12 +24,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
-import java.net.URI;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -48,8 +46,6 @@ import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
 import org.eclipse.jdt.internal.compiler.batch.Main;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
@@ -404,19 +400,7 @@ public class Util implements SuffixConstants {
 	 * @throws IOException if a problem occured reading the file.
 	 */
 	public static byte[] getFileByteContent(File file) throws IOException {
-		InputStream stream = null;
-		try {
-			stream = new BufferedInputStream(new FileInputStream(file));
-			return getInputStreamAsByteArray(stream);
-		} finally {
-			if (stream != null) {
-				try {
-					stream.close();
-				} catch (IOException e) {
-					// ignore
-				}
-			}
-		}
+		return Files.readAllBytes(file.toPath());
 	}
 	/**
 	 * Returns the contents of the given file as a char array.
@@ -652,29 +636,6 @@ public class Util implements SuffixConstants {
 				}
 			}
 		}
-	}
-	/**
-	 * Creates and returns a ClassFileReader.
-	 * @throws IOException if a problem occurred reading the zip entry.
-	 */
-	public static ClassFileReader getZipEntryClassFile(String zipName, String fileName) throws IOException, ClassFormatException {
-		try(ZipFile zip = new ZipFile(zipName)) {
-			ZipEntry entry = zip.getEntry(fileName);
-			if (entry == null) {
-				throw new IOException("Invalid zip entry name : " + fileName + " in " + zipName); //$NON-NLS-1$ //$NON-NLS-2$
-			}
-			try(BufferedInputStream stream = new BufferedInputStream(zip.getInputStream(entry))){
-				URI uri = toJarUri(zipName, fileName);
-				ClassFileReader reader = new ClassFileReader(uri, getInputStreamAsByteArray(stream), fileName.toCharArray());
-				return reader;
-			}
-		}
-	}
-
-	private static URI toJarUri(String zipName, String fileName) {
-		Path zipfile = Paths.get(zipName);
-		URI uri = URI.create("jar:file://" + zipfile.toUri().getRawPath() + "!/" + fileName); //$NON-NLS-1$ //$NON-NLS-2$
-		return uri;
 	}
 
 	public static int hashCode(Object[] array) {

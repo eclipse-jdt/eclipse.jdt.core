@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.function.Predicate;
 
@@ -156,19 +157,38 @@ public static ClassFileReader readFromModule(
 		throws ClassFormatException, java.io.IOException {
 		return JRTUtil.getClassfile(jrt, filename, moduleName, moduleNameFilter);
 }
-public static ClassFileReader read(
-	java.util.zip.ZipFile zip,
-	String filename,
-	boolean fullyInitialize)
-	throws ClassFormatException, java.io.IOException {
+
+public static ClassFileReader read(java.util.zip.ZipFile zip, String filename, boolean fullyInitialize)
+		throws ClassFormatException, java.io.IOException {
 	java.util.zip.ZipEntry ze = zip.getEntry(filename);
-	if (ze == null)
+	if (ze == null) {
 		return null;
-	ClassFileReader classFileReader = Util.getZipEntryClassFile(zip.getName(), filename);
-	if (fullyInitialize) {
-		classFileReader.initialize();
 	}
-	return classFileReader;
+	try (InputStream stream = zip.getInputStream(ze)) {
+		URI uri =  URI.create("jar:file://" + toUri(zip.getName()).getRawPath() + "!/" + filename); //$NON-NLS-1$ //$NON-NLS-2$
+		ClassFileReader classFileReader = new ClassFileReader(uri, Util.getInputStreamAsByteArray(stream),
+				filename.toCharArray());
+		if (fullyInitialize) {
+			classFileReader.initialize();
+		}
+		return classFileReader;
+	}
+}
+
+/**
+ * same as <code>new java.io.File(absoluteNormalFilePath).toURI()</code> if absoluteNormalFilePath is not a directory
+ * but faster because it avoid IO for the isDirectory check.
+ **/
+private static URI toUri(final String absoluteNormalFilePath) {
+	String p = absoluteNormalFilePath.replace(File.separatorChar, '/');
+	if (!p.startsWith("/")) { //$NON-NLS-1$
+		p = "/" + p; //$NON-NLS-1$
+	}
+	try {
+		return new URI("file", null, p, null); //$NON-NLS-1$
+	} catch (URISyntaxException x) {
+		throw new RuntimeException(x);
+	}
 }
 
 public static ClassFileReader read(String fileName) throws ClassFormatException, java.io.IOException {
