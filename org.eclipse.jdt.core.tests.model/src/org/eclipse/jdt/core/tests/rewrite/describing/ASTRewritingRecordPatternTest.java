@@ -41,11 +41,16 @@ import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.YieldStatement;
 import org.eclipse.jdt.core.dom.rewrite.ASTRewrite;
 import org.eclipse.jdt.core.dom.rewrite.ListRewrite;
+//import org.eclipse.jdt.ui.text.java.correction.ASTRewriteCorrectionProposal;
 
 import junit.framework.Test;
 
 @SuppressWarnings({"rawtypes", "deprecation"})
 public class ASTRewritingRecordPatternTest extends ASTRewritingTest {
+
+	static {
+				TESTS_NAMES = new String[] {"testNPEinASTRewriteFlattener"};
+	}
 
 
 	public ASTRewritingRecordPatternTest(String name, int apiLevel) {
@@ -578,6 +583,92 @@ public class ASTRewritingRecordPatternTest extends ASTRewritingTest {
 		buf.append(	    "		case Integer i -> System.out.println(\"Integer\");\n");
 		buf.append(	    "        case null -> System.out.println(\"Null\");\n");
 		buf.append(	    "		default       	-> 0;\n");
+		buf.append(	    "	}\n");
+		buf.append(	    "}\n");
+		buf.append(		"\n");
+		buf.append(		"}\n");
+		assertEqualString(preview, buf.toString());
+	}
+
+	public void testNPEinASTRewriteFlattener() throws Exception {
+		if (checkAPILevel()) {
+			return;
+		}
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuilder buf= new StringBuilder();
+		buf.append("public class X {\n");
+		buf.append(		"void foo(Object o) {\n");
+		buf.append(		"	switch (o) {\n");
+		buf.append(	    "		default       	: System.out.println(\"0\");\n");
+		buf.append(	    "	}\n");
+		buf.append(	    "}\n");
+		buf.append(		"\n");
+		buf.append(		"}\n");
+
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(this.apiLevel, cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+		AST ast= astRoot.getAST();
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		TypeDeclaration type= findTypeDeclaration(astRoot, "X");
+		MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+		Block block= methodDecl.getBody();
+		List blockStatements= block.statements();
+		assertTrue("Number of statements not 1", blockStatements.size() == 1);
+
+		{ // insert Guarded pattern
+			SwitchStatement switchStatement = (SwitchStatement) blockStatements.get(0);
+
+			List statements= switchStatement.statements();
+			assertTrue("Number of statements not 2", statements.size() == 2);
+
+			SwitchCase caseStatement= ast.newSwitchCase();
+			caseStatement.setSwitchLabeledRule(false);
+			GuardedPattern guardedPattern = ast.newGuardedPattern();
+			TypePattern typePattern = ast.newTypePattern();
+			SingleVariableDeclaration patternVariable = ast.newSingleVariableDeclaration();
+			patternVariable.setType(ast.newSimpleType(ast.newSimpleName("Integer")));
+			patternVariable.setName(ast.newSimpleName("i"));
+			typePattern.setPatternVariable(patternVariable);
+			guardedPattern.setPattern(typePattern);
+			InfixExpression infixExpression = ast.newInfixExpression();
+			infixExpression.setOperator(InfixExpression.Operator.GREATER);
+			infixExpression.setLeftOperand(ast.newSimpleName("i"));
+			infixExpression.setRightOperand(ast.newNumberLiteral("10"));//$NON-NLS
+			guardedPattern.setExpression(infixExpression);
+			caseStatement.expressions().add(guardedPattern);
+
+			ListRewrite listRewrite= rewrite.getListRewrite(switchStatement, SwitchStatement.STATEMENTS_PROPERTY);
+			listRewrite.insertAt(caseStatement, 0, null);
+
+			MethodInvocation methodInvocation = ast.newMethodInvocation();
+			QualifiedName name =
+				ast.newQualifiedName(
+				ast.newSimpleName("System"),//$NON-NLS-1$
+				ast.newSimpleName("out"));//$NON-NLS-1$
+			methodInvocation.setExpression(name);
+			methodInvocation.setName(ast.newSimpleName("println")); //$NON-NLS-1$
+			StringLiteral stringLiteral = ast.newStringLiteral();
+			stringLiteral.setLiteralValue("Greater than 10");//$NON-NLS-1$
+			methodInvocation.arguments().add(stringLiteral);//$NON-NLS-1$
+			ExpressionStatement expressionStatement = ast.newExpressionStatement(methodInvocation);
+			listRewrite.insertAt(expressionStatement, 1, null);
+		}
+
+		//ASTRewriteCorrectionProposal proposal= new ASTRewriteCorrectionProposal(label, context.getCompilationUnit(), rewrite, IProposalRelevance.CONVERT_SWITCH_TO_IF_ELSE);
+
+			String preview= evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuilder();
+		buf.append("public class X {\n");
+		buf.append(		"void foo(Object o) {\n");
+		buf.append(		"	switch (o) {\n");
+		buf.append(	    "		case Integer i when i > 10:\n");
+		buf.append(	    "            System.out.println(\"Greater than 10\");\n");
+		buf.append(	    "        default       	: System.out.println(\"0\");\n");
 		buf.append(	    "	}\n");
 		buf.append(	    "}\n");
 		buf.append(		"\n");
