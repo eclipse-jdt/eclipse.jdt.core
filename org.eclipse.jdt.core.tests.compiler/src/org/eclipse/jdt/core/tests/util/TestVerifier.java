@@ -561,7 +561,7 @@ private void launchVerifyTestsIfNeeded(String[] classpaths, String[] vmArguments
 			}
 			if (this.socket == null) {
 				try {
-					Thread.sleep(100);
+					Thread.sleep(1);
 				} catch (InterruptedException e) {
 				}
 				isVMRunning = this.vm.isRunning();
@@ -614,10 +614,10 @@ public void shutDown() {
 	// Wait for the vm to shut down by itself for 2 seconds. If not succesfull, force the shut down.
 	if (this.vm != null) {
 		try {
-			int retry = 0;
-			while (this.vm.isRunning() && (++retry < 20)) {
+			long n0 = System.nanoTime();
+			while (this.vm.isRunning() && (System.nanoTime() - n0 < 2_000_000_000L)) {// 2 sec
 				try {
-					Thread.sleep(100);
+					Thread.sleep(1);
 				} catch (InterruptedException e) {
 				}
 			}
@@ -663,18 +663,18 @@ public boolean verifyClassFiles(String sourceFilePath, String className, String 
  */
 private void waitForFullBuffers() {
 	String endString = VerifyTests.class.getName();
-	int count = 60;
-	int waitMs = 1;
+	long n0 = System.nanoTime();
 	int errorEndStringStart = this.errorBuffer.toString().indexOf(endString);
 	int outputEndStringStart = this.outputBuffer.toString().indexOf(endString);
 	while (errorEndStringStart == -1 || outputEndStringStart == -1) {
 		try {
-			Thread.sleep(waitMs);
+			Thread.sleep(1);
 		} catch (InterruptedException e) {
-		} finally {
-			if(waitMs < 100) waitMs *= 2;
 		}
-		if (--count == 0) return;
+		if (System.nanoTime() - n0 > 5_000_000_000L) {// 5 sec
+			throw new RuntimeException(
+					"Timeout after " + (System.nanoTime() - n0) / 1_000_000L + "ms");
+		}
 		errorEndStringStart = this.errorBuffer.toString().indexOf(endString);
 		outputEndStringStart = this.outputBuffer.toString().indexOf(endString);
 	}
