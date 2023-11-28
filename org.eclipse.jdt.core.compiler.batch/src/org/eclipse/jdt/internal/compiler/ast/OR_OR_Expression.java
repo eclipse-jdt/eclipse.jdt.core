@@ -62,8 +62,7 @@ public class OR_OR_Expression extends BinaryExpression {
 		if ((flowContext.tagBits & FlowContext.INSIDE_NEGATION) == 0)
 			flowContext.expireNullCheckedFieldInfo();
 
-		 // need to be careful of scenario:
-		//		(x || y) || !z, if passing the left info to the right, it would be swapped by the !
+		// rightInfo captures the flow (!left then right):
 		FlowInfo rightInfo = leftInfo.initsWhenFalse().unconditionalCopy();
 		this.rightInitStateIndex =
 			currentScope.methodScope().recordInitializationStates(rightInfo);
@@ -81,13 +80,12 @@ public class OR_OR_Expression extends BinaryExpression {
 			flowContext.expireNullCheckedFieldInfo();
 		this.left.checkNPEbyUnboxing(currentScope, flowContext, flowInfo);
 		this.right.checkNPEbyUnboxing(currentScope, flowContext, leftInfo.initsWhenFalse());
-		// The definitely null variables in right info when true should not be missed out while merging
-		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=299900
-		FlowInfo leftInfoWhenTrueForMerging = leftInfo.initsWhenTrue().unconditionalCopy().addPotentialInitializationsFrom(rightInfo.unconditionalInitsWithoutSideEffect());
+		// tweak reach mode to ensure that inits are considered during merge:
+		UnconditionalFlowInfo rightWhenTrueForMerge = rightInfo.safeInitsWhenTrue().setReachMode(previousMode).unconditionalInits();
 		FlowInfo mergedInfo = FlowInfo.conditional(
-					// merging two true initInfos for such a negative case: if ((t && (b = t)) || f) r = b; // b may not have been initialized
-				leftInfoWhenTrueForMerging.unconditionalInits().mergedWith(
-						rightInfo.safeInitsWhenTrue().setReachMode(previousMode).unconditionalInits()),
+					// then = left or (!left then right):
+					leftInfo.initsWhenTrue().mergedWith(rightWhenTrueForMerge),
+					// else = (!left then !right):
 					rightInfo.initsWhenFalse());
 		this.mergedInitStateIndex =
 			currentScope.methodScope().recordInitializationStates(mergedInfo);
