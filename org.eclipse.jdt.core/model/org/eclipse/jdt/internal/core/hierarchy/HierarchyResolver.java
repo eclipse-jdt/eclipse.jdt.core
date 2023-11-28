@@ -846,26 +846,28 @@ public void resolve(Openable[] openables, HashSet localTypes, IProgressMonitor m
 		// complete type bindings and build fields and methods only for local types
 		// (in this case the constructor is needed when resolving local types)
 		// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=145333)
-		try {
-			SubMonitor completeLoopMonitor = subMonitor.split(1).setWorkRemaining(unitsIndex);
-			this.lookupEnvironment.completeTypeBindings(parsedUnits, hasLocalType, unitsIndex);
-			// remember type bindings
-			for (int i = 0; i < unitsIndex; i++) {
-				completeLoopMonitor.split(1);
-				CompilationUnitDeclaration parsedUnit = parsedUnits[i];
-				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=462158
-				// Certain assist features require type hierarchy even with code with compiler errors.
-				if (parsedUnit != null) {
-					boolean containsLocalType = hasLocalType[i];
-					if (containsLocalType) {
-						parsedUnit.scope.faultInTypes();
-						parsedUnit.resolve();
+		if (!this.superTypesOnly) {
+			try {
+				SubMonitor completeLoopMonitor = subMonitor.split(1).setWorkRemaining(unitsIndex);
+				this.lookupEnvironment.completeTypeBindings(parsedUnits, hasLocalType, unitsIndex);
+				// remember type bindings
+				for (int i = 0; i < unitsIndex; i++) {
+					completeLoopMonitor.split(1);
+					CompilationUnitDeclaration parsedUnit = parsedUnits[i];
+					// https://bugs.eclipse.org/bugs/show_bug.cgi?id=462158
+					// Certain assist features require type hierarchy even with code with compiler errors.
+					if (parsedUnit != null) {
+						boolean containsLocalType = hasLocalType[i];
+						if (containsLocalType) {
+							parsedUnit.scope.faultInTypes();
+							parsedUnit.resolve();
+						}
+						rememberAllTypes(parsedUnit, cus[i], containsLocalType);
 					}
-					rememberAllTypes(parsedUnit, cus[i], containsLocalType);
 				}
+			} catch (AbortCompilation e) {
+				// skip it silently
 			}
-		} catch (AbortCompilation e) {
-			// skip it silently
 		}
 
 		// if no potential subtype was a real subtype of the binary focus type, no need to go further
