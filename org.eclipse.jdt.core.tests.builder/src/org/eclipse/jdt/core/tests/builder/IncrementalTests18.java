@@ -878,7 +878,9 @@ public class IncrementalTests18 extends BuilderTests {
 				"\n" +
 				"  Inner classes:\n" +
 				"    [inner class info: #1 BatchingLock$IFlushOperation, outer class info: #10 BatchingLock\n" +
-				"     inner name: #12 IFlushOperation, accessflags: 1545 public abstract static]\n" +
+				"     inner name: #12 IFlushOperation, accessflags: 1545 public abstract static],\n" +
+				"    [inner class info: #13 BatchingLock$ThreadInfo, outer class info: #10 BatchingLock\n" +
+				"     inner name: #15 ThreadInfo, accessflags: 9 public static]\n" +
 				"}";
 
 		if (!actualOutput.equals(expectedOutput)) {
@@ -919,20 +921,6 @@ public class IncrementalTests18 extends BuilderTests {
 					classFileBytes,
 					"\n",
 					ClassFileBytesDisassembler.DETAILED);
-
-		expectedOutput =
-				"// Compiled from BatchingLock.java (version 1.8 : 52.0, no super bit)\n" +
-				"public abstract static interface BatchingLock$IFlushOperation {\n" +
-				"  \n" +
-				"  // Method descriptor #6 (LBatchingLock$ThreadInfo;LIProgressMonitor;)V\n" +
-				"  public abstract void flush(BatchingLock.ThreadInfo arg0, IProgressMonitor arg1);\n" +
-				"\n" +
-				"  Inner classes:\n" +
-				"    [inner class info: #1 BatchingLock$IFlushOperation, outer class info: #10 BatchingLock\n" +
-				"     inner name: #12 IFlushOperation, accessflags: 1545 public abstract static],\n" +
-				"    [inner class info: #13 BatchingLock$ThreadInfo, outer class info: #10 BatchingLock\n" +
-				"     inner name: #15 ThreadInfo, accessflags: 9 public static]\n" +
-				"}";
 
 		if (!actualOutput.equals(expectedOutput)) {
 			assertEquals("Wrong contents", expectedOutput, actualOutput);

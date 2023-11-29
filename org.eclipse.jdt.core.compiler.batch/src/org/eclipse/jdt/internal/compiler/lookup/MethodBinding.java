@@ -1071,8 +1071,11 @@ public char[] shortReadableName() {
 public final char[] signature() /* (ILjava/lang/Thread;)Ljava/lang/Object; */ {
 	if (this.signature != null)
 		return this.signature;
+	return computeSignature(null);
+}
 
-	StringBuilder buffer = new StringBuilder(this.parameters.length + 1 * 20);
+public final char[] computeSignature(ClassFile classFile) {
+	StringBuilder buffer = new StringBuilder((this.parameters.length + 1) * 20);
 	buffer.append('(');
 
 	TypeBinding[] targetParameters = this.parameters;
@@ -1081,24 +1084,39 @@ public final char[] signature() /* (ILjava/lang/Thread;)Ljava/lang/Object; */ {
 		buffer.append(ConstantPool.JavaLangStringSignature);
 		buffer.append(TypeBinding.INT.signature());
 	}
-	boolean needSynthetics = isConstructor && this.declaringClass.isNestedType();
+	boolean needSynthetics = isConstructor
+			&& this.declaringClass.isNestedType()
+			&& !this.declaringClass.isStatic();
 	if (needSynthetics) {
 		// take into account the synthetic argument type signatures as well
 		ReferenceBinding[] syntheticArgumentTypes = this.declaringClass.syntheticEnclosingInstanceTypes();
 		if (syntheticArgumentTypes != null) {
 			for (int i = 0, count = syntheticArgumentTypes.length; i < count; i++) {
-				buffer.append(syntheticArgumentTypes[i].signature());
+				ReferenceBinding syntheticArgumentType = syntheticArgumentTypes[i];
+				if ((syntheticArgumentType.tagBits & TagBits.ContainsNestedTypeReferences) != 0) {
+					this.tagBits |= TagBits.ContainsNestedTypeReferences;
+					if (classFile != null)
+						Util.recordNestedType(classFile, syntheticArgumentType);
+				}
+				buffer.append(syntheticArgumentType.signature());
 			}
 		}
 
-		if ((this instanceof SyntheticMethodBinding) && (!this.declaringClass.isRecord())) {
+		if (this instanceof SyntheticMethodBinding) {
 			targetParameters = ((SyntheticMethodBinding)this).targetMethod.parameters;
 		}
 	}
 
 	if (targetParameters != Binding.NO_PARAMETERS) {
-		for (int i = 0; i < targetParameters.length; i++) {
-			buffer.append(targetParameters[i].signature());
+		for (int i = 0, max = targetParameters.length; i < max; i++) {
+			TypeBinding targetParameter = targetParameters[i];
+			TypeBinding leafTargetParameterType = targetParameter.leafComponentType();
+			if ((leafTargetParameterType.tagBits & TagBits.ContainsNestedTypeReferences) != 0) {
+				this.tagBits |= TagBits.ContainsNestedTypeReferences;
+				if (classFile != null)
+					Util.recordNestedType(classFile, leafTargetParameterType);
+			}
+			buffer.append(targetParameter.signature());
 		}
 	}
 	if (needSynthetics) {
@@ -1109,18 +1127,33 @@ public final char[] signature() /* (ILjava/lang/Thread;)Ljava/lang/Object; */ {
 		}
 		// move the extra padding arguments of the synthetic constructor invocation to the end
 		for (int i = targetParameters.length, extraLength = this.parameters.length; i < extraLength; i++) {
-			buffer.append(this.parameters[i].signature());
+			TypeBinding parameter = this.parameters[i];
+			TypeBinding leafParameterType = parameter.leafComponentType();
+			if ((leafParameterType.tagBits & TagBits.ContainsNestedTypeReferences) != 0) {
+				this.tagBits |= TagBits.ContainsNestedTypeReferences;
+				if (classFile != null)
+					Util.recordNestedType(classFile, leafParameterType);
+			}
+			buffer.append(parameter.signature());
 		}
 	}
 	buffer.append(')');
-	if (this.returnType != null)
+	if (this.returnType != null) {
+		TypeBinding ret = this.returnType.leafComponentType();
+		if ((ret.tagBits & TagBits.ContainsNestedTypeReferences) != 0) {
+			this.tagBits |= TagBits.ContainsNestedTypeReferences;
+			if (classFile != null)
+				Util.recordNestedType(classFile, ret);
+		}
 		buffer.append(this.returnType.signature());
+	}
 	int nameLength = buffer.length();
 	this.signature = new char[nameLength];
 	buffer.getChars(0, nameLength, this.signature, 0);
 
 	return this.signature;
 }
+
 /*
  * This method is used to record references to nested types inside the method signature.
  * This is the one that must be used during code generation.
@@ -1181,79 +1214,7 @@ public char[] signature(ClassFile classFile) {
 		return this.signature;
 	}
 
-	StringBuilder buffer = new StringBuilder((this.parameters.length + 1) * 20);
-	buffer.append('(');
-
-	TypeBinding[] targetParameters = this.parameters;
-	boolean isConstructor = isConstructor();
-	if (isConstructor && this.declaringClass.isEnum()) { // insert String name,int ordinal
-		buffer.append(ConstantPool.JavaLangStringSignature);
-		buffer.append(TypeBinding.INT.signature());
-	}
-	boolean needSynthetics = isConstructor
-			&& this.declaringClass.isNestedType()
-			&& !this.declaringClass.isStatic();
-	if (needSynthetics) {
-		// take into account the synthetic argument type signatures as well
-		ReferenceBinding[] syntheticArgumentTypes = this.declaringClass.syntheticEnclosingInstanceTypes();
-		if (syntheticArgumentTypes != null) {
-			for (int i = 0, count = syntheticArgumentTypes.length; i < count; i++) {
-				ReferenceBinding syntheticArgumentType = syntheticArgumentTypes[i];
-				if ((syntheticArgumentType.tagBits & TagBits.ContainsNestedTypeReferences) != 0) {
-					this.tagBits |= TagBits.ContainsNestedTypeReferences;
-					Util.recordNestedType(classFile, syntheticArgumentType);
-				}
-				buffer.append(syntheticArgumentType.signature());
-			}
-		}
-
-		if (this instanceof SyntheticMethodBinding) {
-			targetParameters = ((SyntheticMethodBinding)this).targetMethod.parameters;
-		}
-	}
-
-	if (targetParameters != Binding.NO_PARAMETERS) {
-		for (int i = 0, max = targetParameters.length; i < max; i++) {
-			TypeBinding targetParameter = targetParameters[i];
-			TypeBinding leafTargetParameterType = targetParameter.leafComponentType();
-			if ((leafTargetParameterType.tagBits & TagBits.ContainsNestedTypeReferences) != 0) {
-				this.tagBits |= TagBits.ContainsNestedTypeReferences;
-				Util.recordNestedType(classFile, leafTargetParameterType);
-			}
-			buffer.append(targetParameter.signature());
-		}
-	}
-	if (needSynthetics) {
-		SyntheticArgumentBinding[] syntheticOuterArguments = this.declaringClass.syntheticOuterLocalVariables();
-		int count = syntheticOuterArguments == null ? 0 : syntheticOuterArguments.length;
-		for (int i = 0; i < count; i++) {
-			buffer.append(syntheticOuterArguments[i].type.signature());
-		}
-		// move the extra padding arguments of the synthetic constructor invocation to the end
-		for (int i = targetParameters.length, extraLength = this.parameters.length; i < extraLength; i++) {
-			TypeBinding parameter = this.parameters[i];
-			TypeBinding leafParameterType = parameter.leafComponentType();
-			if ((leafParameterType.tagBits & TagBits.ContainsNestedTypeReferences) != 0) {
-				this.tagBits |= TagBits.ContainsNestedTypeReferences;
-				Util.recordNestedType(classFile, leafParameterType);
-			}
-			buffer.append(parameter.signature());
-		}
-	}
-	buffer.append(')');
-	if (this.returnType != null) {
-		TypeBinding ret = this.returnType.leafComponentType();
-		if ((ret.tagBits & TagBits.ContainsNestedTypeReferences) != 0) {
-			this.tagBits |= TagBits.ContainsNestedTypeReferences;
-			Util.recordNestedType(classFile, ret);
-		}
-		buffer.append(this.returnType.signature());
-	}
-	int nameLength = buffer.length();
-	this.signature = new char[nameLength];
-	buffer.getChars(0, nameLength, this.signature, 0);
-
-	return this.signature;
+	return computeSignature(classFile);
 }
 public final int sourceEnd() {
 	AbstractMethodDeclaration method = sourceMethod();
@@ -1495,3 +1456,4 @@ public boolean hasPolymorphicSignature(Scope scope) {
 	return false;
 }
 }
+
