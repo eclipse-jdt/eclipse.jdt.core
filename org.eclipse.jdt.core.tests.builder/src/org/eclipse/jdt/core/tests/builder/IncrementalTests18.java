@@ -14,6 +14,8 @@
 package org.eclipse.jdt.core.tests.builder;
 
 import java.io.File;
+import java.io.IOException;
+
 import junit.framework.Test;
 
 import org.eclipse.core.runtime.FileLocator;
@@ -24,8 +26,11 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.core.tests.util.Util;
+import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
+import org.eclipse.jdt.core.util.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.osgi.framework.Bundle;
 
@@ -808,5 +813,117 @@ public class IncrementalTests18 extends BuilderTests {
 				"}\n");
 		incrementalBuild(projectPath); // was throwing NPE
 		expectingNoProblems();
+	}
+
+	public void testGH1631() throws JavaModelException, IOException, ClassFormatException {
+		IPath projectPath = env.addProject("Project", "1.8");
+		env.addExternalJars(projectPath, Util.getJavaClassLibs());
+		env.setOutputFolder(projectPath, "bin");
+
+		env.addClass(projectPath, "", "AThreeWaySynchronizer",
+				"public class AThreeWaySynchronizer {\n" +
+				"	\n" +
+				"	public final BatchingLock.IFlushOperation flushOperation = (info, monitor) -> {\n" +
+				"		if (info != null && !info.isEmpty()) {\n" +
+				"			broadcastSyncChanges(info.getChangedResources());\n" +
+				"		}\n" +
+				"	};\n" +
+				"\n" +
+				"	private void broadcastSyncChanges(final IResource[] resources) {\n" +
+				"		\n" +
+				"	}\n" +
+				"}\n");
+
+		env.addClass(projectPath, "", "BatchingLock",
+				"interface IResource {}\n" +
+				"interface IProgressMonitor {}\n" +
+				"\n" +
+				"public class BatchingLock {	\n" +
+				"\n" +
+				"	public static class ThreadInfo {\n" +
+				"		\n" +
+				"		public boolean isEmpty() {\n" +
+				"			return true;\n" +
+				"		}\n" +
+				"		public IResource[] getChangedResources() {\n" +
+				"			return null;\n" +
+				"		}    \n" +
+				"	}      \n" +
+				"	 \n" +
+				"	public interface IFlushOperation {\n" +
+				"		public void flush(ThreadInfo info, IProgressMonitor monitor);\n" +
+				"	}\n" +
+				"}\n");
+
+		fullBuild(projectPath);
+		expectingNoProblems();
+
+		IPath classFilePath = env.getOutputLocation(projectPath).append("BatchingLock$IFlushOperation.class");
+
+		File classFile = env.getWorkspaceRootPath().append(classFilePath).toFile();
+		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(classFile);
+		String actualOutput =
+			disassembler.disassemble(
+				classFileBytes,
+				"\n",
+				ClassFileBytesDisassembler.DETAILED);
+
+		String expectedOutput =
+				"// Compiled from BatchingLock.java (version 1.8 : 52.0, no super bit)\n" +
+				"public abstract static interface BatchingLock$IFlushOperation {\n" +
+				"  \n" +
+				"  // Method descriptor #6 (LBatchingLock$ThreadInfo;LIProgressMonitor;)V\n" +
+				"  public abstract void flush(BatchingLock.ThreadInfo arg0, IProgressMonitor arg1);\n" +
+				"\n" +
+				"  Inner classes:\n" +
+				"    [inner class info: #1 BatchingLock$IFlushOperation, outer class info: #10 BatchingLock\n" +
+				"     inner name: #12 IFlushOperation, accessflags: 1545 public abstract static],\n" +
+				"    [inner class info: #13 BatchingLock$ThreadInfo, outer class info: #10 BatchingLock\n" +
+				"     inner name: #15 ThreadInfo, accessflags: 9 public static]\n" +
+				"}";
+
+		if (!actualOutput.equals(expectedOutput)) {
+			assertEquals("Wrong contents", expectedOutput, actualOutput);
+		}
+
+		// introduce a non-material change to trigger incremental build
+
+		env.addClass(projectPath, "", "BatchingLock",
+				"interface IResource {}\n" +
+				"interface IProgressMonitor {}\n" +
+				"\n" +
+				"\n" + // extra line feed
+				"public class BatchingLock {	\n" +
+				"\n" +
+				"	public static class ThreadInfo {\n" +
+				"		\n" +
+				"		public boolean isEmpty() {\n" +
+				"			return true;\n" +
+				"		}\n" +
+				"		public IResource[] getChangedResources() {\n" +
+				"			return null;\n" +
+				"		}    \n" +
+				"	}      \n" +
+				"	 \n" +
+				"	public interface IFlushOperation {\n" +
+				"		public void flush(ThreadInfo info, IProgressMonitor monitor);\n" +
+				"	}\n" +
+				"}\n");
+
+
+		incrementalBuild(projectPath);
+		expectingNoProblems();
+
+		classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(classFile);
+		actualOutput =
+				disassembler.disassemble(
+					classFileBytes,
+					"\n",
+					ClassFileBytesDisassembler.DETAILED);
+
+		if (!actualOutput.equals(expectedOutput)) {
+			assertEquals("Wrong contents", expectedOutput, actualOutput);
+		}
 	}
 }
