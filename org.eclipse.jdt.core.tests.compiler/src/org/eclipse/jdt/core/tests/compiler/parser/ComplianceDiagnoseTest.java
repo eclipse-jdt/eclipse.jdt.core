@@ -107,6 +107,68 @@ public void runComplianceParserTest(
 			this.runNegativeTest(testFiles, expected18ProblemLog);
 		}
 	}
+public void runComplianceParserTest(
+		String[] testFiles,
+		String expected1_3ProblemLog,
+		String expected1_4ProblemLog,
+		String expected1_5ProblemLog,
+		String expected1_6ProblemLog,
+		String expected1_7ProblemLog,
+		String expected1_8ProblemLog,
+		String expected9ProblemLog,
+		String expected10ProblemLog,
+		String expected11ProblemLog,
+		String expected12ProblemLog,
+		String expected13ProblemLog,
+		String expected14ProblemLog,
+		String expected15ProblemLog,
+		String expected16ProblemLog,
+		String expected17ProblemLog,
+		String expected18ProblemLog,
+		String expected19ProblemLog,
+		String expected20ProblemLog,
+		String expected21ProblemLog
+		){
+		if (this.complianceLevel == ClassFileConstants.JDK1_3) {
+			this.runNegativeTest(testFiles, expected1_3ProblemLog);
+		} else if(this.complianceLevel == ClassFileConstants.JDK1_4) {
+			this.runNegativeTest(testFiles, expected1_4ProblemLog);
+		} else if(this.complianceLevel == ClassFileConstants.JDK1_5) {
+			this.runNegativeTest(testFiles, expected1_5ProblemLog);
+		} else if(this.complianceLevel == ClassFileConstants.JDK1_6) {
+			this.runNegativeTest(testFiles, expected1_6ProblemLog);
+		} else if(this.complianceLevel == ClassFileConstants.JDK1_7) {
+			this.runNegativeTest(testFiles, expected1_7ProblemLog);
+		} else if(this.complianceLevel == ClassFileConstants.JDK1_8) {
+			this.runNegativeTest(testFiles, expected1_8ProblemLog);
+		} else if(this.complianceLevel == ClassFileConstants.JDK9) {
+			this.runNegativeTest(testFiles, expected9ProblemLog);
+		} else if(this.complianceLevel == ClassFileConstants.JDK10) {
+			this.runNegativeTest(testFiles, expected10ProblemLog);
+		} else if(this.complianceLevel == ClassFileConstants.JDK11) {
+			this.runNegativeTest(testFiles, expected11ProblemLog);
+		} else if(this.complianceLevel == ClassFileConstants.JDK12) {
+			this.runNegativeTest(testFiles, expected12ProblemLog);
+		} else if(this.complianceLevel == ClassFileConstants.JDK13) {
+			this.runNegativeTest(testFiles, expected13ProblemLog);
+		} else if(this.complianceLevel == ClassFileConstants.JDK14) {
+			this.runNegativeTest(testFiles, expected14ProblemLog);
+		} else if(this.complianceLevel == ClassFileConstants.JDK15) {
+			this.runNegativeTest(testFiles, expected15ProblemLog);
+		} else if(this.complianceLevel == ClassFileConstants.JDK16) {
+			this.runNegativeTest(testFiles, expected16ProblemLog);
+		} else if (this.complianceLevel == ClassFileConstants.JDK17) {
+			this.runNegativeTest(testFiles, expected17ProblemLog);
+		} else if(this.complianceLevel == ClassFileConstants.JDK18) {
+			this.runNegativeTest(testFiles, expected18ProblemLog);
+		} else if(this.complianceLevel == ClassFileConstants.JDK19) {
+			this.runNegativeTest(testFiles, expected19ProblemLog);
+		} else if(this.complianceLevel == ClassFileConstants.JDK20) {
+			this.runNegativeTest(testFiles, expected20ProblemLog);
+		} else {
+			this.runNegativeTest(testFiles, expected21ProblemLog);
+		}
+	}
 public void test0001() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -1167,7 +1229,7 @@ public void test0025() {
 			static aaa.*;
 			public class X {
 			}
-			
+
 			"""
 	};
 
@@ -1969,7 +2031,7 @@ public void test0042() {
 		"}\n"
 	};
 
-	String expected13ProblemLog = """
+	String expected16ProblemLog = """
 			----------
 			1. ERROR in X.java (at line 1)
 				void ___eval() {
@@ -1982,11 +2044,49 @@ public void test0042() {
 			blah cannot be resolved to a variable
 			----------
 			""";
+
+	String expected1_3ProblemLog = expected16ProblemLog + """
+			3. ERROR in X.java (at line 14)
+				public static void main(String[] args) {
+				                   ^^^^^^^^^^^^^^^^^^^
+			The method main cannot be declared static; static methods can only be declared in a static or top level type
+			----------
+			""";
+
+	String expected21ProblemLog = """
+			----------
+			1. ERROR in X.java (at line 1)
+				void ___eval() {
+				^
+			Unnamed Classes and Instance Main Methods is a preview feature and disabled by default. Use --enable-preview to enable
+			----------
+			2. ERROR in X.java (at line 4)
+				return blah;
+				       ^^^^
+			blah cannot be resolved to a variable
+			----------
+			""";
 	runComplianceParserTest(
 		testFiles,
-		expected13ProblemLog,
-		expected13ProblemLog,
-		expected13ProblemLog
+		expected1_3ProblemLog,
+		expected1_3ProblemLog,
+		expected1_3ProblemLog,
+		expected1_3ProblemLog,
+		expected1_3ProblemLog,
+		expected1_3ProblemLog,
+		expected1_3ProblemLog,
+		expected1_3ProblemLog,
+		expected1_3ProblemLog,
+		expected1_3ProblemLog,
+		expected1_3ProblemLog,
+		expected1_3ProblemLog,
+		expected1_3ProblemLog,
+		expected16ProblemLog,
+		expected16ProblemLog,
+		expected16ProblemLog,
+		expected16ProblemLog,
+		expected16ProblemLog,
+		expected21ProblemLog
 	);
 }
 /*
@@ -1995,11 +2095,11 @@ public void test0042() {
 public void test0043() {
 	String[] testFiles = new String[] {
 		"x/X.java", """
-			package x; 
+			package x;
 			public class X {
 			}
 			public static void foo(){}
-			
+
 			"""
 	};
 

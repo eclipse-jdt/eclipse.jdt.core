@@ -2742,6 +2742,21 @@ public void test079() {
 			+ "The method main cannot be declared static; static methods can only be declared in a static or top level type\n"
 			+ "----------\n";
 	}
+	if (this.complianceLevel == ClassFileConstants.JDK21) {
+		expectedErrorLog = """
+				----------
+				1. ERROR in Hello.java (at line 1)
+					void ___eval() {
+					^
+				Unnamed Classes and Instance Main Methods is a preview feature and disabled by default. Use --enable-preview to enable
+				----------
+				2. ERROR in Hello.java (at line 4)
+					return blah;
+					       ^^^^
+				blah cannot be resolved to a variable
+				----------
+				""";
+	}
 	this.runNegativeTest(
 		new String[] {
 			"Hello.java",
