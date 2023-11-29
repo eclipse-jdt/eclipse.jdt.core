@@ -57,7 +57,7 @@ public class SuperReference extends ThisReference {
 	}
 
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output){
+	public StringBuilder printExpression(int indent, StringBuilder output){
 
 		return output.append("super"); //$NON-NLS-1$
 

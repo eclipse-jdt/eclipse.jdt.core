@@ -74,7 +74,7 @@ public class ClasspathJmodTests extends ModuleCompilationTests {
 						"		return null;\n" +
 						"	}\n" +
 						"}");
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" --module-path \"")
@@ -107,7 +107,7 @@ public class ClasspathJmodTests extends ModuleCompilationTests {
 						"		return null;\n" +
 						"	}\n" +
 						"}");
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" --module-path \"")
@@ -151,7 +151,7 @@ public class ClasspathJmodTests extends ModuleCompilationTests {
 						"		return null;\n" +
 						"	}\n" +
 						"}");
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" -classpath \"")
@@ -195,7 +195,7 @@ public class ClasspathJmodTests extends ModuleCompilationTests {
 						"		return null;\n" +
 						"	}\n" +
 						"}");
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" --module-path \"")
@@ -249,7 +249,7 @@ public class ClasspathJmodTests extends ModuleCompilationTests {
 						"   public static java.sql.Connection con = null;\n" +
 						"}");
 
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("-d " + OUTPUT_DIR + File.separator + out )
 			.append(" -9 ")
 			.append(" --module-path \"")

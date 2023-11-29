@@ -48,7 +48,7 @@ public CompletionOnQualifiedNameReference(char[][] previousIdentifiers, char[] c
 	this.isInsideAnnotationAttribute = isInsideAnnotationAttribute;
 }
 @Override
-public StringBuffer printExpression(int indent, StringBuffer output) {
+public StringBuilder printExpression(int indent, StringBuilder output) {
 
 	output.append("<CompleteOnName:"); //$NON-NLS-1$
 	for (int i = 0; i < this.tokens.length; i++) {

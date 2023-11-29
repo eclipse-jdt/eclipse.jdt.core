@@ -37,7 +37,7 @@ public SearchPattern getBlankPattern() {
 	return new SecondaryTypeDeclarationPattern(R_EXACT_MATCH | R_CASE_SENSITIVE);
 }
 @Override
-protected StringBuffer print(StringBuffer output) {
+protected StringBuilder print(StringBuilder output) {
 	output.append("Secondary"); //$NON-NLS-1$
 	return super.print(output);
 }

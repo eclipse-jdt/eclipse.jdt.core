@@ -43,13 +43,13 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 @SuppressWarnings({ "rawtypes" })
 public class GenericTypeSignatureTest extends AbstractRegressionTest {
 	static class Logger extends Thread {
-		StringBuffer buffer;
+		StringBuilder buffer;
 		InputStream inputStream;
 		String type;
 		Logger(InputStream inputStream, String type) {
 			this.inputStream = inputStream;
 			this.type = type;
-			this.buffer = new StringBuffer();
+			this.buffer = new StringBuilder();
 		}
 
 		@Override

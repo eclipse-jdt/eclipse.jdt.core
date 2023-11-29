@@ -163,7 +163,7 @@ public class Util {
 		OUTPUT_DIRECTORY = pathDir;
    }
 
-public static void appendProblem(StringBuffer problems, IProblem problem, char[] source, int problemCount) {
+public static void appendProblem(StringBuilder problems, IProblem problem, char[] source, int problemCount) {
     problems.append(problemCount + (problem.isError() ? ". ERROR" : problem.isWarning() ? ". WARNING" : ". INFO"));
     problems.append(" in " + new String(problem.getOriginatingFileName()));
     if (source != null) {

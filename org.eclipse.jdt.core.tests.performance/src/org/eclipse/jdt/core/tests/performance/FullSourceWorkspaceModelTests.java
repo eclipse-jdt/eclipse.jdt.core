@@ -337,7 +337,7 @@ protected void assertElementsEqual(String message, String expected, IJavaElement
  * @see org.eclipse.jdt.core.tests.model.AbstractJavaModelTests#assertElementsEqual(String, String, IJavaElement[], boolean)
  */
 protected void assertElementsEqual(String message, String expected, IJavaElement[] elements, boolean showResolvedInfo) {
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	if (elements != null) {
 		for (int i = 0, length = elements.length; i < length; i++){
 			JavaElement element = (JavaElement)elements[i];
@@ -760,7 +760,7 @@ public void testPerfReconcileBigFileWithSyntaxError() throws JavaModelException 
 		"	 \"}\\n\"" +
 		"  );\n" +
 		"}\n";
-	StringBuffer bigContents = new StringBuffer();
+	StringBuilder bigContents = new StringBuilder();
 	bigContents.append("public class BigCU {\n");
 	int fooIndex = 0;
 	while (fooIndex < 2000) { // add 2000 methods (so that source is close to 1MB)
@@ -811,7 +811,7 @@ public void testReconcileDuplicates() throws JavaModelException {
 	tagAsSummary("Reconcile editor change on file with lots of duplicates", false); // do NOT put in fingerprint
 
 	// build big file contents
-	StringBuffer contents = new StringBuffer();
+	StringBuilder contents = new StringBuilder();
 	contents.append("public class CUWithDuplicates {\n");
 	int fooIndex = 0;
 	while (fooIndex < 2000) { // add 2000 duplicate methods
@@ -861,7 +861,7 @@ public void testPerfDeleteLotsOfMembersAndReconcile() throws JavaModelException 
 	tagAsSummary("Reconcile editor change after deleting lots of members", false); // do NOT put in fingerprint
 
 	// build big file contents
-	StringBuffer contents = new StringBuffer();
+	StringBuilder contents = new StringBuilder();
 	contents.append("public class LotsOfMembers {\n");
 	int fooIndex = 0;
 	while (fooIndex < 15000) { // add 15000 methods

@@ -30,7 +30,7 @@ public class SourceRangeVerifier extends ASTVisitor {
 	public static boolean DEBUG = false;
 	public static boolean DEBUG_THROW = false;
 
-	private StringBuffer bugs;
+	private StringBuilder bugs;
 
 	/**
 	 * Verifies proper node nesting as specified in {@link ASTParser#setKind(int)}:
@@ -43,7 +43,7 @@ public class SourceRangeVerifier extends ASTVisitor {
 	 * @return <code>null</code> if everything is OK; a list of errors otherwise
 	 */
 	public String process(ASTNode node) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		this.bugs = buffer;
 		node.accept(this);
 		this.bugs = null;

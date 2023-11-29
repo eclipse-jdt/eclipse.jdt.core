@@ -43,7 +43,7 @@ public class SourceModule extends NamedMember implements AbstractModule {
 	}
 	@Override
 	public String toString(String lineDelimiter) {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		try {
 			toStringContent(buffer, lineDelimiter);
 		} catch (JavaModelException e) {

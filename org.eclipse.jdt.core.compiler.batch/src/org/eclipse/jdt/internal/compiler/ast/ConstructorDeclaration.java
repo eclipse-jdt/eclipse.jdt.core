@@ -600,7 +600,7 @@ public void parseStatements(Parser parser, CompilationUnitDeclaration unit) {
 }
 
 @Override
-public StringBuffer printBody(int indent, StringBuffer output) {
+public StringBuilder printBody(int indent, StringBuilder output) {
 	output.append(" {"); //$NON-NLS-1$
 	if (this.constructorCall != null) {
 		output.append('\n');

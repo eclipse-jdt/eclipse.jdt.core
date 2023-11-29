@@ -864,7 +864,7 @@ public abstract class ConverterTestSetup extends AbstractASTTests {
 	private void checkProblemMessages(String expectedOutput, final IProblem[] problems, final int length) {
 		if (length != 0) {
 			if (expectedOutput != null) {
-				StringBuffer buffer = new StringBuffer();
+				StringBuilder buffer = new StringBuilder();
 				for (int i = 0; i < length; i++) {
 					buffer.append(problems[i].getMessage());
 					if (i < length - 1) {

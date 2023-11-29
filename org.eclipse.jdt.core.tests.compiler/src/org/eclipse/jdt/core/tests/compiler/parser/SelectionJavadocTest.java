@@ -48,7 +48,7 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 
 	String source;
 	ICompilationUnit unit;
-	StringBuffer result;
+	StringBuilder result;
 
 	public SelectionJavadocTest(String testName) {
 		super(testName);
@@ -134,7 +134,7 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 	void setUnit(String name, String source) {
 		this.source = source;
 		this.unit = new CompilationUnit(source.toCharArray(), name, null);
-		this.result = new StringBuffer();
+		this.result = new StringBuilder();
 	}
 
 	/*

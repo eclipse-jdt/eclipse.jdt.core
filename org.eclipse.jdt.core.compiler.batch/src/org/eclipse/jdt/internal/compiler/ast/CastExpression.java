@@ -593,7 +593,7 @@ public Constant optimizedBooleanConstant() {
 }
 
 @Override
-public StringBuffer printExpression(int indent, StringBuffer output) {
+public StringBuilder printExpression(int indent, StringBuilder output) {
 	int parenthesesCount = (this.bits & ASTNode.ParenthesizedMASK) >> ASTNode.ParenthesizedSHIFT;
 	String suffix = ""; //$NON-NLS-1$
 	for(int i = 0; i < parenthesesCount; i++) {

@@ -787,7 +787,7 @@ public class FullSourceWorkspaceASTTests extends FullSourceWorkspaceTests {
 					IProblem[] problems = ast.getProblems();
 					int length = problems.length;
 					if (length > 0) {
-						StringBuffer buffer = new StringBuffer();
+						StringBuilder buffer = new StringBuilder();
 						for (int i=0; i<length; i++) {
 							buffer.append(problems[i].getMessage());
 							buffer.append('\n');

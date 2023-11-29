@@ -33,8 +33,8 @@ public class TestVerifier {
 	boolean reuseVM = true;
 	String[] classpathCache;
 	LocalVirtualMachine vm;
-	StringBuffer outputBuffer;
-	StringBuffer errorBuffer;
+	StringBuilder outputBuffer;
+	StringBuilder errorBuffer;
 	Socket socket;
 public TestVerifier(boolean reuseVM) {
 	this.reuseVM = reuseVM;
@@ -114,14 +114,14 @@ private void compileVerifyTests(String verifierDir) {
 	BatchCompiler.compile("\"" + fileName + "\" -d \"" + verifierDir + "\" -warn:-resource -classpath \"" + Util.getJavaClassLibsAsString() + "\"", new PrintWriter(System.out), new PrintWriter(System.err), null/*progress*/);
 }
 public void execute(String className, String[] classpaths) {
-	this.outputBuffer = new StringBuffer();
-	this.errorBuffer = new StringBuffer();
+	this.outputBuffer = new StringBuilder();
+	this.errorBuffer = new StringBuilder();
 
 	launchAndRun(className, classpaths, null, null);
 }
 public void execute(String className, String[] classpaths, String[] programArguments, String[] vmArguments) {
-	this.outputBuffer = new StringBuffer();
-	this.errorBuffer = new StringBuffer();
+	this.outputBuffer = new StringBuilder();
+	this.errorBuffer = new StringBuilder();
 
 	launchAndRun(className, classpaths, programArguments, vmArguments);
 }
@@ -645,8 +645,8 @@ public boolean verifyClassFiles(String sourceFilePath, String className, String 
 }
 public boolean verifyClassFiles(String sourceFilePath, String className, String expectedOutputString,
 		String expectedErrorStringStart, String[] classpaths, String[] programArguments, String[] vmArguments) {
-	this.outputBuffer = new StringBuffer();
-	this.errorBuffer = new StringBuffer();
+	this.outputBuffer = new StringBuilder();
+	this.errorBuffer = new StringBuilder();
 	if (this.reuseVM && programArguments == null) {
 		launchVerifyTestsIfNeeded(classpaths, vmArguments);
 		loadAndRun(className, classpaths);

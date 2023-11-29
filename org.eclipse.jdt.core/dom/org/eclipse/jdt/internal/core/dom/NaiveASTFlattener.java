@@ -95,7 +95,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 	 * The string buffer into which the serialized representation of the AST is
 	 * written.
 	 */
-	protected StringBuffer buffer;
+	protected StringBuilder buffer;
 
 	private int indent = 0;
 
@@ -103,7 +103,7 @@ public class NaiveASTFlattener extends ASTVisitor {
 	 * Creates a new AST printer.
 	 */
 	public NaiveASTFlattener() {
-		this.buffer = new StringBuffer();
+		this.buffer = new StringBuilder();
 	}
 
 	/**

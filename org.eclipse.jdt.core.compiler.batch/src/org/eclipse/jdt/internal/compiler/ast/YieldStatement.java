@@ -255,7 +255,7 @@ public TypeBinding resolveExpressionType(BlockScope scope1) {
 }
 
 @Override
-public StringBuffer printStatement(int tab, StringBuffer output) {
+public StringBuilder printStatement(int tab, StringBuilder output) {
 	if (!this.isImplicit)
 		printIndent(tab, output).append("yield"); //$NON-NLS-1$
 	if (this.expression != null) {

@@ -280,7 +280,7 @@ public EntryResult[] queryIn(Index index) throws IOException {
 	return index.query(getIndexCategories(), key, matchRule); // match rule is irrelevant when the key is null
 }
 @Override
-protected StringBuffer print(StringBuffer output) {
+protected StringBuilder print(StringBuilder output) {
 	switch (this.superRefKind) {
 		case ALL_SUPER_TYPES:
 			output.append("SuperTypeReferencePattern: <"); //$NON-NLS-1$

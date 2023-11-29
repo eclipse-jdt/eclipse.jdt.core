@@ -129,7 +129,7 @@ public class Apt6Plugin extends Plugin implements DebugOptionsListener {
 
 	public static void trace(final String msg) {
 		if (DEBUG) {
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			sb.append('[');
 			// SimpleDateFormat is not thread-safe, according to javadoc
 			synchronized (TRACE_DATE_FORMAT) {

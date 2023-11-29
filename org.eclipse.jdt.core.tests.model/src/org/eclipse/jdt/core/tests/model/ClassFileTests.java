@@ -546,7 +546,7 @@ public void testAnnotations26() throws JavaModelException {
 			"@java.lang.Deprecated\n" +
 			"@test342757.Annot\n" +
 			"@java.lang.Deprecated\n";
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	for (int i = 0, max = methods.length; i < max; i++) {
 		ILocalVariable[] parameters = methods[i].getParameters();
 		for (int j = 0, max2 = parameters.length; j < max2; j++) {
@@ -1452,7 +1452,7 @@ public void testWorkingCopy08() throws CoreException {
 			"  }\n" +
 			"}"
 		);
-		problemRequestor.problems = new StringBuffer();
+		problemRequestor.problems = new StringBuilder();
 		problemRequestor.problemCount = 0;
 		copy.reconcile(ICompilationUnit.NO_AST, false/*don't force problems*/, owner, null/*no progress*/);
 		assertProblems(
@@ -1486,7 +1486,7 @@ public void testWorkingCopy09() throws CoreException {
 			"  workingcopy.X x;\n" +
 			"}"
 		);
-		problemRequestor.problems = new StringBuffer();
+		problemRequestor.problems = new StringBuilder();
 		problemRequestor.problemCount = 0;
 		copy.reconcile(ICompilationUnit.NO_AST, false/*don't force problems*/, owner, null/*no progress*/);
 		assertProblems(

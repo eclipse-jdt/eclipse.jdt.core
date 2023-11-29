@@ -353,7 +353,7 @@ public EntryResult[] queryIn(Index index) throws IOException {
 	return index.query(getIndexCategories(), key, matchRule); // match rule is irrelevant when the key is null
 }
 @Override
-protected StringBuffer print(StringBuffer output) {
+protected StringBuilder print(StringBuilder output) {
 	switch (this.typeSuffix){
 		case CLASS_SUFFIX :
 			output.append("ClassDeclarationPattern: pkg<"); //$NON-NLS-1$

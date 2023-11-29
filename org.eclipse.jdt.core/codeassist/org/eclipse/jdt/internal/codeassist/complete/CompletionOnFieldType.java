@@ -53,7 +53,7 @@ public CompletionOnFieldType(TypeReference type, boolean isLocalVariable){
 }
 
 @Override
-public StringBuffer printStatement(int tab, StringBuffer output) {
+public StringBuilder printStatement(int tab, StringBuilder output) {
 	return this.type.print(tab, output).append(';');
 }
 }

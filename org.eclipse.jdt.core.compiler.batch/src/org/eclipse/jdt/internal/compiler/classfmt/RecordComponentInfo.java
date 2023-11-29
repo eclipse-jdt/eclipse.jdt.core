@@ -253,11 +253,11 @@ public void throwFormatException() throws ClassFormatException {
 }
 @Override
 public String toString() {
-	StringBuffer buffer = new StringBuffer(getClass().getName());
+	StringBuilder buffer = new StringBuilder(getClass().getName());
 	toStringContent(buffer);
 	return buffer.toString();
 }
-protected void toStringContent(StringBuffer buffer) {
+protected void toStringContent(StringBuilder buffer) {
 	buffer
 		.append('{')
 		.append(getTypeName())

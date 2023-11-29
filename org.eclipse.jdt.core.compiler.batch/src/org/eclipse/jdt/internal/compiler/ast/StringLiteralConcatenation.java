@@ -60,7 +60,7 @@ public class StringLiteralConcatenation extends StringLiteral {
 	}
 
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output) {
+	public StringBuilder printExpression(int indent, StringBuilder output) {
 		output.append("StringLiteralConcatenation{"); //$NON-NLS-1$
 		for (int i = 0, max = this.counter; i < max; i++) {
 			this.literals[i].printExpression(indent, output);

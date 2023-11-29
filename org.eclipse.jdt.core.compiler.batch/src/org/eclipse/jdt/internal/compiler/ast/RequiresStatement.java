@@ -35,7 +35,7 @@ public class RequiresStatement extends ModuleStatement {
 		return (this.modifiers & ClassFileConstants.ACC_STATIC_PHASE) != 0;
 	}
 	@Override
-	public StringBuffer print(int indent, StringBuffer output) {
+	public StringBuilder print(int indent, StringBuilder output) {
 		output.append("requires "); //$NON-NLS-1$
 		if (isTransitive())
 			output.append("transitive "); //$NON-NLS-1$

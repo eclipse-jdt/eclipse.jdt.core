@@ -81,13 +81,13 @@ private static Class testClass() {
  * Verify VM arguments when full tests are run (should be -Xmx512M)
  */
 private static void verifyVmArguments() {
-	StringBuffer buffer = null;
+	StringBuilder buffer = null;
 	NumberFormat floatFormat = NumberFormat.getNumberInstance();
 	floatFormat.setMaximumFractionDigits(1);
 	long maxMem = Runtime.getRuntime().maxMemory(); // -Xmx
 	boolean tooMuch = false;
 	if (maxMem < (MAX_MEM*0.98) || (tooMuch = maxMem > (MAX_MEM*1.02))) {
-		if (buffer == null) buffer = new StringBuffer("WARNING: Performance tests results may be invalid !!!\n");
+		if (buffer == null) buffer = new StringBuilder("WARNING: Performance tests results may be invalid !!!\n");
 		buffer.append("	- ");
 		buffer.append(tooMuch ? "too much " : "not enough ");
 		buffer.append("max memory allocated (");

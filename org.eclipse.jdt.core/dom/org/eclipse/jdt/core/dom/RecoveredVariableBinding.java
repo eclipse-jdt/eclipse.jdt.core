@@ -103,7 +103,7 @@ class RecoveredVariableBinding implements IVariableBinding {
 
 	@Override
 	public String getKey() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer.append("Recovered#"); //$NON-NLS-1$
 		if (this.variableDeclaration != null) {
 			buffer

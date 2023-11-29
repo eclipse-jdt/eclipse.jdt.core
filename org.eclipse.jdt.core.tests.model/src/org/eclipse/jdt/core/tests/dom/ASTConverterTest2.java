@@ -5259,7 +5259,7 @@ public class ASTConverterTest2 extends ConverterTestSetup {
 			IOrdinaryClassFile classFile = getClassFile("P", "/P/test0571.jar", "", "X$Y.class");
 			CompilationUnit unit = (CompilationUnit) runConversion(getJLS3(), classFile, 0, true);
 			IProblem[] problems = unit.getProblems();
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			for (int i = 0, length = problems.length; i < length; i++)
 				Util.appendProblem(buffer, problems[i], source.toCharArray(), i);
 			assertEquals("Unexpected problems", "", buffer.toString());

@@ -29,7 +29,7 @@ public class CompletionOnRecordComponentName extends RecordComponent implements 
 	public char[] realName;
 
 	@Override
-	public StringBuffer printStatement(int tab, StringBuffer output) {
+	public StringBuilder printStatement(int tab, StringBuilder output) {
 
 		printIndent(tab, output).append("<CompletionOnRecordComponentName:"); //$NON-NLS-1$
 		if (this.type != null)

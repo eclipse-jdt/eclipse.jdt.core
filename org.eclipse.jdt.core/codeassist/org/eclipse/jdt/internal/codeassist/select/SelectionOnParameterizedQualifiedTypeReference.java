@@ -57,7 +57,7 @@ public class SelectionOnParameterizedQualifiedTypeReference extends Parameterize
 	}
 
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output) {
+	public StringBuilder printExpression(int indent, StringBuilder output) {
 		output.append("<SelectOnType:");//$NON-NLS-1$
 		int length = this.tokens.length;
 		for (int i = 0; i < length; i++) {

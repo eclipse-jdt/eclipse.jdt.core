@@ -60,7 +60,7 @@ public class CompletionOnStringLiteral extends StringLiteral implements Completi
 	}
 
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output) {
+	public StringBuilder printExpression(int indent, StringBuilder output) {
 		output.append("<CompletionOnString:"); //$NON-NLS-1$
 		output = super.printExpression(indent, output);
 		return output.append('>');

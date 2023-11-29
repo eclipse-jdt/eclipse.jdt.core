@@ -1115,7 +1115,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 	}
 
 	private String getExceptionStackTrace(Throwable t) {
-		StringBuffer buf = new StringBuffer(t.getMessage());
+		StringBuilder buf = new StringBuilder(t.getMessage());
 		StackTraceElement[] traces = t.getStackTrace();
 		for (int i = 0; i < traces.length; i++) {
 			StackTraceElement trace = traces[i];
@@ -1147,7 +1147,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 	private String getAnnotationString(AnnotationMirror annot) {
 		DeclaredType annotType = annot.getAnnotationType();
 		TypeElement type = (TypeElement) annotType.asElement();
-		StringBuffer buf = new StringBuffer("@" + type.getSimpleName());
+		StringBuilder buf = new StringBuilder("@" + type.getSimpleName());
 		Map<? extends ExecutableElement, ? extends AnnotationValue> values = annot.getElementValues();
 		Set<? extends ExecutableElement> keys = values.keySet();
 		buf.append('(');
@@ -1244,7 +1244,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 
 	public void assertEquals(String msg, int expected, int actual) {
 		if (expected != actual) {
-			StringBuffer buf = new StringBuffer();
+			StringBuilder buf = new StringBuilder();
 			buf.append(msg);
 			buf.append(", expected " + expected + " but was " + actual);
 			reportError(buf.toString());

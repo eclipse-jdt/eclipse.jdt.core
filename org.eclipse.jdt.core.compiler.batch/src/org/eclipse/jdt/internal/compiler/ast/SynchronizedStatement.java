@@ -216,7 +216,7 @@ public void resolve(BlockScope upperScope) {
 }
 
 @Override
-public StringBuffer printStatement(int indent, StringBuffer output) {
+public StringBuilder printStatement(int indent, StringBuilder output) {
 	printIndent(indent, output);
 	output.append("synchronized ("); //$NON-NLS-1$
 	this.expression.printExpression(0, output).append(')');

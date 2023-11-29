@@ -101,7 +101,7 @@ public String readableName() {
  * @private Debugging purposes
  */
 @Override
-protected void toString(int tab, StringBuffer buffer) {
+protected void toString(int tab, StringBuilder buffer) {
 	Object info = JavaModelManager.getJavaModelManager().peekAtInfo(this);
 	if (info == null || !(info instanceof JavaElementInfo)) return;
 	IJavaElement[] children = ((JavaElementInfo)info).getChildren();
@@ -114,7 +114,7 @@ protected void toString(int tab, StringBuffer buffer) {
  *  Debugging purposes
  */
 @Override
-protected void toStringInfo(int tab, StringBuffer buffer, Object info, boolean showResolvedInfo) {
+protected void toStringInfo(int tab, StringBuilder buffer, Object info, boolean showResolvedInfo) {
 	buffer.append(tabString(tab));
 	buffer.append("<import container>"); //$NON-NLS-1$
 	if (info == null) {

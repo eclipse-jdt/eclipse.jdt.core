@@ -258,7 +258,7 @@ public class StringLiteral extends Expression {
 			throw new IllegalArgumentException();
 		}
 		int len = value.length();
-		StringBuffer b = new StringBuffer(len + 2);
+		StringBuilder b = new StringBuilder(len + 2);
 
 		b.append("\""); // opening delimiter //$NON-NLS-1$
 		for (int i = 0; i < len; i++) {

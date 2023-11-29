@@ -125,7 +125,7 @@ abstract class BaseElementProcessor extends BaseProcessor {
 		throw new AssertionFailedError(msg + " (Binary mode= " + isBinaryMode + ")");
 	}
 	protected String getExceptionStackTrace(Throwable t) {
-		StringBuffer buf = new StringBuffer(t.getMessage());
+		StringBuilder buf = new StringBuilder(t.getMessage());
 		StackTraceElement[] traces = t.getStackTrace();
 		for (int i = 0; i < traces.length; i++) {
 			StackTraceElement trace = traces[i];
@@ -217,7 +217,7 @@ abstract class BaseElementProcessor extends BaseProcessor {
 
 	public void assertEquals(String msg, int expected, int actual) {
 		if (expected != actual) {
-			StringBuffer buf = new StringBuffer();
+			StringBuilder buf = new StringBuilder();
 			buf.append(msg);
 			buf.append(", expected " + expected + " but was " + actual);
 			reportError(buf.toString());
@@ -235,7 +235,7 @@ abstract class BaseElementProcessor extends BaseProcessor {
 	protected String getAnnotationString(AnnotationMirror annot) {
 		DeclaredType annotType = annot.getAnnotationType();
 		TypeElement type = (TypeElement) annotType.asElement();
-		StringBuffer buf = new StringBuffer("@" + type.getSimpleName());
+		StringBuilder buf = new StringBuilder("@" + type.getSimpleName());
 		Map<? extends ExecutableElement, ? extends AnnotationValue> values = annot.getElementValues();
 		Set<? extends ExecutableElement> keys = values.keySet();
 		buf.append('(');

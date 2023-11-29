@@ -179,7 +179,7 @@ public class EvaluationContextWrapperTest extends EvaluationTest {
 			e.printStackTrace();
 			return result;
 		}
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		buffer
 			.append("\"")
 			.append(fileName)

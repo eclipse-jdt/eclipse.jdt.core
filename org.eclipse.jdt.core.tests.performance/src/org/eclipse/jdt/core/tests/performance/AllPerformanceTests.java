@@ -72,9 +72,9 @@ public class AllPerformanceTests extends junit.framework.TestCase {
 
 		// Display warning if one of subset static fields is not null
 		// (this may modify tests run order and make stored results invalid)
-		StringBuffer buffer = null;
+		StringBuilder buffer = null;
 		if (TestCase.TESTS_NAMES != null) {
-			buffer = new StringBuffer("WARNING: Performance tests results may be invalid !!!\n");
+			buffer = new StringBuilder("WARNING: Performance tests results may be invalid !!!\n");
 			buffer.append("	- following subset is still defined and may alter tests order:\n");
 			buffer.append("		+ TESTS_NAMES = new String[] { ");
 			int length = TestCase.TESTS_NAMES.length;
@@ -88,7 +88,7 @@ public class AllPerformanceTests extends junit.framework.TestCase {
 		}
 		if (TestCase.TESTS_PREFIX != null) {
 			if (buffer == null) {
-				buffer = new StringBuffer("WARNING: Performance tests results may be invalid !!!\n");
+				buffer = new StringBuilder("WARNING: Performance tests results may be invalid !!!\n");
 				buffer.append("	- following subset is still defined and may alter tests order:\n");
 			}
 			buffer.append("		+ TESTS_PREFIX = ");
@@ -99,7 +99,7 @@ public class AllPerformanceTests extends junit.framework.TestCase {
 		}
 		if (TestCase.TESTS_NUMBERS != null) {
 			if (buffer == null) {
-				buffer = new StringBuffer("WARNING: Performance tests results may be invalid !!!\n");
+				buffer = new StringBuilder("WARNING: Performance tests results may be invalid !!!\n");
 				buffer.append("	- following subset is still defined and may alter tests order:\n");
 			}
 			buffer.append("		+ TESTS_NUMBERS = new int[] { ");
@@ -112,7 +112,7 @@ public class AllPerformanceTests extends junit.framework.TestCase {
 		}
 		if (TestCase.TESTS_RANGE != null) {
 			if (buffer == null) {
-				buffer = new StringBuffer("WARNING: Performance tests results may be invalid !!!\n");
+				buffer = new StringBuilder("WARNING: Performance tests results may be invalid !!!\n");
 				buffer.append("	- following subset is still defined and may alter tests order:\n");
 			}
 			buffer.append("		+ TESTS_RANGE = new int[] { ");
@@ -128,7 +128,7 @@ public class AllPerformanceTests extends junit.framework.TestCase {
 		long maxMem = Runtime.getRuntime().maxMemory(); // -Xmx
 		boolean tooMuch = false;
 		if (maxMem < (MAX_MEM*0.98) || (tooMuch = maxMem > (MAX_MEM*1.02))) {
-			if (buffer == null) buffer = new StringBuffer("WARNING: Performance tests results may be invalid !!!\n");
+			if (buffer == null) buffer = new StringBuilder("WARNING: Performance tests results may be invalid !!!\n");
 			buffer.append("	- ");
 			buffer.append(tooMuch ? "too much " : "not enough ");
 			buffer.append("max memory allocated (");
@@ -141,7 +141,7 @@ public class AllPerformanceTests extends junit.framework.TestCase {
 		long totalMem = Runtime.getRuntime().totalMemory(); // -Xms
 		tooMuch = false;
 		if (totalMem < (TOTAL_MEM*0.98)|| (tooMuch = totalMem > (TOTAL_MEM*1.02))) {
-			if (buffer == null) buffer = new StringBuffer("WARNING: Performance tests results may be invalid !!!\n");
+			if (buffer == null) buffer = new StringBuilder("WARNING: Performance tests results may be invalid !!!\n");
 			buffer.append("	- ");
 			buffer.append(tooMuch ? "too much " : "not enough ");
 			buffer.append("total memory allocated (");

@@ -135,7 +135,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	// Debug
 	protected String prefix = "";
 	protected boolean debug = false;
-	protected StringBuffer problems;
+	protected StringBuilder problems;
 	protected String compilerOption = JavaCore.IGNORE;
 	protected List failures;
 	protected boolean stopOnFailure = true;
@@ -231,7 +231,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 		super.setUp();
 		TEST_COUNTERS[0]++;
 		this.failures = new ArrayList();
-		this.problems = new StringBuffer();
+		this.problems = new StringBuilder();
 		this.workingCopies = null;
 		this.savedLevel = this.astLevel;
 	}
@@ -1386,7 +1386,7 @@ public class ASTConverterJavadocTest extends ConverterTestSetup {
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=47396"
 	 */
 	public void test011() throws JavaModelException {
-		this.problems = new StringBuffer();
+		this.problems = new StringBuilder();
 		this.sourceUnit = getCompilationUnit("Converter" , "src", "javadoc.test011", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		ASTNode result = runConversion(this.sourceUnit, true);
 		assumeNotNull("No compilation unit", result);

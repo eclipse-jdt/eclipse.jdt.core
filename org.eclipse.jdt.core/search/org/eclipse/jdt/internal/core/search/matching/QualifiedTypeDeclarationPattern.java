@@ -103,7 +103,7 @@ public boolean matchesDecodedKey(SearchPattern decodedPattern) {
 		(this.qualification == null || this.packagePattern == null || this.packagePattern.matchesName(this.qualification, pattern.qualification));
 }
 @Override
-protected StringBuffer print(StringBuffer output) {
+protected StringBuilder print(StringBuilder output) {
 	switch (this.typeSuffix){
 		case CLASS_SUFFIX :
 			output.append("ClassDeclarationPattern: qualification<"); //$NON-NLS-1$

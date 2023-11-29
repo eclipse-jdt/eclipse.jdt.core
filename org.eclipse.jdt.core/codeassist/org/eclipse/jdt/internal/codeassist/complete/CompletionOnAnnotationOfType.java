@@ -33,7 +33,7 @@ public class CompletionOnAnnotationOfType extends TypeDeclaration implements Com
 	}
 
 	@Override
-	public StringBuffer print(int indent, StringBuffer output) {
+	public StringBuilder print(int indent, StringBuilder output) {
 		return this.annotations[0].print(indent, output);
 	}
 }

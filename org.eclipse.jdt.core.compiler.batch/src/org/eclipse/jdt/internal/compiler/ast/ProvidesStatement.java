@@ -118,7 +118,7 @@ public class ProvidesStatement extends ModuleStatement {
 	}
 
 	@Override
-	public StringBuffer print(int indent, StringBuffer output) {
+	public StringBuilder print(int indent, StringBuilder output) {
 		printIndent(indent, output);
 		output.append("provides "); //$NON-NLS-1$
 		this.serviceInterface.print(0, output);

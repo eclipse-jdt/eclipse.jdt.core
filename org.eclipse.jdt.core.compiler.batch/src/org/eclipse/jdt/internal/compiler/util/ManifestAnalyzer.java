@@ -56,7 +56,7 @@ public class ManifestAnalyzer {
 	 */
 	public boolean analyzeManifestContents(char[] chars) {
 		int state = START, substate = 0;
-		StringBuffer currentJarToken = new StringBuffer();
+		StringBuilder currentJarToken = new StringBuilder();
 		int currentChar;
 		this.classpathSectionsCount = 0;
 		this.calledFilesNames = null;
@@ -177,7 +177,7 @@ public class ManifestAnalyzer {
 	}
 
 	// >>>>>>>>>>>>>>>> Method Extracted from analyzeManifestContents in the READING_JAR Block
-	private boolean addCurrentTokenJarWhenNecessary(StringBuffer currentJarToken) {
+	private boolean addCurrentTokenJarWhenNecessary(StringBuilder currentJarToken) {
 		if (currentJarToken != null && currentJarToken.length() > 0) {
 			if (this.calledFilesNames == null) {
 				this.calledFilesNames = new ArrayList();

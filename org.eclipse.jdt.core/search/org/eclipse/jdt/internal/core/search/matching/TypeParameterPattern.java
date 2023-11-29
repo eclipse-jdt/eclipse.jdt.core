@@ -118,7 +118,7 @@ public class TypeParameterPattern extends JavaSearchPattern {
 	}
 
 	@Override
-	protected StringBuffer print(StringBuffer output) {
+	protected StringBuilder print(StringBuilder output) {
 		if (this.findDeclarations) {
 			output.append(this.findReferences
 				? "TypeParamCombinedPattern: " //$NON-NLS-1$

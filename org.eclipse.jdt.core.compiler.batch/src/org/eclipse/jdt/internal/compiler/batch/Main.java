@@ -46,7 +46,6 @@ import java.io.LineNumberReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -405,7 +404,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			while ((c = unitSource[end]) == ' ' || c == '\t') end--;
 
 			// copy source
-			StringBuffer buffer = new StringBuffer();
+			StringBuilder buffer = new StringBuilder();
 			buffer.append(unitSource, begin, end - begin + 1);
 			HashMap<String, Object> parameters = new HashMap<>();
 			parameters.put(Logger.VALUE, String.valueOf(buffer));
@@ -571,12 +570,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		 * @param e the given exception to log
 		 */
 		public void logException(Exception e) {
-			StringWriter writer = new StringWriter();
-			PrintWriter printWriter = new PrintWriter(writer);
-			e.printStackTrace(printWriter);
-			printWriter.flush();
-			printWriter.close();
-			final String stackTrace = writer.toString();
+			final String stackTrace = Util.getStackTrace(e).toString();
 			if ((this.tagBits & Logger.XML) != 0) {
 				LineNumberReader reader = new LineNumberReader(new StringReader(stackTrace));
 				String line;
@@ -3246,7 +3240,7 @@ private static String getAllEncodings(Set<String> encodings) {
 	String[] allEncodings = new String[size];
 	encodings.toArray(allEncodings);
 	Arrays.sort(allEncodings);
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	for (int i = 0; i < size; i++) {
 		if (i > 0) {
 			buffer.append(", "); //$NON-NLS-1$

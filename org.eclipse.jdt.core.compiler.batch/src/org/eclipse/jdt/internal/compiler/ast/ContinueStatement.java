@@ -97,7 +97,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 }
 
 @Override
-public StringBuffer printStatement(int tab, StringBuffer output) {
+public StringBuilder printStatement(int tab, StringBuilder output) {
 	printIndent(tab, output).append("continue "); //$NON-NLS-1$
 	if (this.label != null) output.append(this.label);
 	return output.append(';');

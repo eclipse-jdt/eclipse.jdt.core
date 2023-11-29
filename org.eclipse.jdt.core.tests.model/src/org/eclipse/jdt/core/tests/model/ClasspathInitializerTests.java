@@ -641,7 +641,7 @@ public void testContainerInitializer12() throws CoreException {
  */
 public void testContainerInitializer13() throws CoreException {
 	IResourceChangeListener listener = new IResourceChangeListener() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		public void resourceChanged(IResourceChangeEvent event) {
 			this.buffer.append(event.getDelta().findMember(new Path("/P1")));
 		}
@@ -775,7 +775,7 @@ public void testContainerInitializer16() throws CoreException {
  */
 public void testContainerInitializer17() throws CoreException {
 	IResourceChangeListener listener = new IResourceChangeListener() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		public void resourceChanged(IResourceChangeEvent event) {
 			this.buffer.append(event.getDelta().findMember(new Path("/P2")));
 		}

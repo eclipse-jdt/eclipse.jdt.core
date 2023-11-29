@@ -1384,7 +1384,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 
 	@Override
 	char[] nullAnnotatedReadableName(CompilerOptions options) {
-	    StringBuffer nameBuffer = new StringBuffer(10);
+	    StringBuilder nameBuffer = new StringBuilder(10);
 		if (isMemberType()) {
 			nameBuffer.append(enclosingType().nullAnnotatedReadableName(options, false));
 			nameBuffer.append('.');
@@ -1423,7 +1423,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 
 	@Override
 	char[] nullAnnotatedShortReadableName(CompilerOptions options) {
-	    StringBuffer nameBuffer = new StringBuffer(10);
+	    StringBuilder nameBuffer = new StringBuilder(10);
 		if (isMemberType()) {
 			nameBuffer.append(enclosingType().nullAnnotatedReadableName(options, true));
 			nameBuffer.append('.');

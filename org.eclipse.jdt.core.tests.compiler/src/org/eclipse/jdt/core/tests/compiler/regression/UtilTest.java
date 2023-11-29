@@ -25,7 +25,7 @@ import junit.framework.Test;
 @SuppressWarnings({ "rawtypes" })
 public class UtilTest extends AbstractRegressionTest {
 
-StringBuffer camelCaseErrors;
+StringBuilder camelCaseErrors;
 
 public UtilTest(String name) {
 	super(name);
@@ -50,7 +50,7 @@ void assertCamelCase(String pattern, String name, boolean match) {
 void assertCamelCase(String pattern, String name, boolean prefixMatch, boolean match) {
 	boolean camelCase = CharOperation.camelCaseMatch(pattern==null?null:pattern.toCharArray(), name==null?null:name.toCharArray(), prefixMatch);
 	if (match != camelCase) {
-		StringBuffer line = new StringBuffer("'");
+		StringBuilder line = new StringBuilder("'");
 		line.append(name);
 		line.append("' SHOULD");
 		if (!match) line.append(" NOT");
@@ -72,7 +72,7 @@ void assertCamelCase(String pattern, String name, boolean prefixMatch, boolean m
 @Override
 protected void setUp() throws Exception {
 	super.setUp();
-	this.camelCaseErrors = new StringBuffer();
+	this.camelCaseErrors = new StringBuilder();
 }
 
 public boolean checkPathMatch(char[] pattern, char[] path, boolean isCaseSensitive) {

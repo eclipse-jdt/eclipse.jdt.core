@@ -34,7 +34,7 @@ public class CompletionOnMemberValueName extends MemberValuePair implements Comp
 	}
 
 	@Override
-	public StringBuffer print(int indent, StringBuffer output) {
+	public StringBuilder print(int indent, StringBuilder output) {
 		output.append("<CompleteOnAttributeName:"); //$NON-NLS-1$
 		output.append(this.name);
 		output.append('>');

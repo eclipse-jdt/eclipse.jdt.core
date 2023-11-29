@@ -33,7 +33,7 @@ public class ModuleReference extends ASTNode {
 	}
 
 	@Override
-	public StringBuffer print(int indent, StringBuffer output) {
+	public StringBuilder print(int indent, StringBuilder output) {
 		for (int i = 0; i < this.tokens.length; i++) {
 			if (i > 0) output.append('.');
 			output.append(this.tokens[i]);

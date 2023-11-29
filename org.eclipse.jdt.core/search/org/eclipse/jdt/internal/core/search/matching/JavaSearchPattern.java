@@ -333,7 +333,7 @@ public class JavaSearchPattern extends SearchPattern implements IIndexConstants,
 		return true;
 	}
 
-	protected StringBuffer print(StringBuffer output) {
+	protected StringBuilder print(StringBuilder output) {
 		output.append(", "); //$NON-NLS-1$
 		if (hasTypeArguments() && hasSignatures()) {
 			output.append("signature:\""); //$NON-NLS-1$
@@ -448,7 +448,7 @@ public class JavaSearchPattern extends SearchPattern implements IIndexConstants,
 	}
 	@Override
 	public final String toString() {
-		return print(new StringBuffer(30)).toString();
+		return print(new StringBuilder(30)).toString();
 	}
 
 	@Override

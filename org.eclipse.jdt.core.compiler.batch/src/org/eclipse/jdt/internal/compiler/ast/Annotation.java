@@ -208,7 +208,7 @@ public abstract class Annotation extends Expression {
 
 			@Override
 			public String toString() {
-				StringBuffer buffer = new StringBuffer();
+				StringBuilder buffer = new StringBuilder();
 				buffer
 					.append("search location for ") //$NON-NLS-1$
 					.append(this.searchedAnnotation)
@@ -679,7 +679,7 @@ public abstract class Annotation extends Expression {
 
 		if ((containerAnnotationTypeTargets & ~targets) != 0) {
 			class MissingTargetBuilder {
-				StringBuffer targetBuffer = new StringBuffer();
+				StringBuilder targetBuffer = new StringBuilder();
 				void check(long targetMask, char[] targetName) {
 					if ((containerAnnotationTypeTargets & targetMask & ~targets) != 0) {
 						 // if targetMask equals TagBits.AnnotationForType implies
@@ -814,7 +814,7 @@ public abstract class Annotation extends Expression {
 	public abstract MemberValuePair[] memberValuePairs();
 
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output) {
+	public StringBuilder printExpression(int indent, StringBuilder output) {
 		output.append('@');
 		this.type.printExpression(0, output);
 		return output;

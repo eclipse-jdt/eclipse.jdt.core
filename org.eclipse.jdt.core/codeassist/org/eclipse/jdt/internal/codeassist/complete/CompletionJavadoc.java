@@ -105,7 +105,7 @@ public class CompletionJavadoc extends Javadoc {
 	 * @see org.eclipse.jdt.internal.compiler.ast.ASTNode#print(int, java.lang.StringBuffer)
 	 */
 	@Override
-	public StringBuffer print(int indent, StringBuffer output) {
+	public StringBuilder print(int indent, StringBuilder output) {
 		printIndent(indent, output).append("/**\n"); //$NON-NLS-1$
 		boolean nodePrinted = false;
 		if (this.paramReferences != null) {

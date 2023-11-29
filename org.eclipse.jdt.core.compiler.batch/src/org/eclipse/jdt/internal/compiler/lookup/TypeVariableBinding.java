@@ -901,7 +901,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 
 	@Override
 	public char[] nullAnnotatedReadableName(CompilerOptions options, boolean shortNames) {
-	    StringBuffer nameBuffer = new StringBuffer(10);
+	    StringBuilder nameBuffer = new StringBuilder(10);
 		appendNullAnnotation(nameBuffer, options);
 		nameBuffer.append(this.sourceName());
 		if (!this.inRecursiveFunction) {
@@ -932,7 +932,7 @@ public class TypeVariableBinding extends ReferenceBinding {
 	}
 
 	@Override
-	protected void appendNullAnnotation(StringBuffer nameBuffer, CompilerOptions options) {
+	protected void appendNullAnnotation(StringBuilder nameBuffer, CompilerOptions options) {
 		int oldSize = nameBuffer.length();
 		super.appendNullAnnotation(nameBuffer, options);
 		if (oldSize == nameBuffer.length()) { // nothing appended in super.appendNullAnnotation()?

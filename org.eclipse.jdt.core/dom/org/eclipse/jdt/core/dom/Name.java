@@ -103,7 +103,7 @@ public abstract class Name extends Expression implements IDocElement {
 			// avoid creating garbage for common case
 			return ((SimpleName) this).getIdentifier();
 		} else {
-			StringBuffer buffer = new StringBuffer(50);
+			StringBuilder buffer = new StringBuilder(50);
 			appendName(buffer);
 			return new String(buffer);
 		}
@@ -116,5 +116,5 @@ public abstract class Name extends Expression implements IDocElement {
 	 * @param buffer the buffer
 	 * @since 3.0
 	 */
-	abstract void appendName(StringBuffer buffer);
+	abstract void appendName(StringBuilder buffer);
 }

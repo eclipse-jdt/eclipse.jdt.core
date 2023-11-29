@@ -799,7 +799,7 @@ public class WildcardBinding extends ReferenceBinding {
 
     @Override
 	public char[] nullAnnotatedReadableName(CompilerOptions options, boolean shortNames) {
-    	StringBuffer buffer = new StringBuffer(10);
+    	StringBuilder buffer = new StringBuilder(10);
     	appendNullAnnotation(buffer, options);
         switch (this.boundKind) {
             case Wildcard.UNBOUND :

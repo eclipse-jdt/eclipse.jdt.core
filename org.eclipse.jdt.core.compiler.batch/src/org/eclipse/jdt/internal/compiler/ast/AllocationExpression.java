@@ -318,7 +318,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 }
 
 @Override
-public StringBuffer printExpression(int indent, StringBuffer output) {
+public StringBuilder printExpression(int indent, StringBuilder output) {
 	if (this.type != null) { // type null for enum constant initializations
 		output.append("new "); //$NON-NLS-1$
 	}

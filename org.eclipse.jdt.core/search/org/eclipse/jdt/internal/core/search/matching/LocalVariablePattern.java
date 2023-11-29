@@ -78,7 +78,7 @@ public void findIndexMatches(Index index, IndexQueryRequestor requestor, SearchP
 }
 
 @Override
-protected StringBuffer print(StringBuffer output) {
+protected StringBuilder print(StringBuilder output) {
 	if (this.findDeclarations) {
 		output.append(this.findReferences
 			? "LocalVarCombinedPattern: " //$NON-NLS-1$

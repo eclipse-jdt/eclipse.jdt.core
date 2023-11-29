@@ -453,7 +453,7 @@ public class DiagnoseParser implements ParserBasicInformation, TerminalTokens, C
 	}
 
 	private static char[] displayEscapeCharacters(char[] tokenSource, int start, int end) {
-		StringBuffer tokenSourceBuffer = new StringBuffer();
+		StringBuilder tokenSourceBuffer = new StringBuilder();
 		for (int i = 0; i < start; i++) {
 			tokenSourceBuffer.append(tokenSource[i]);
 		}

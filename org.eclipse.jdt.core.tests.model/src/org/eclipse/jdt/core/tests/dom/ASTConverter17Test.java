@@ -737,7 +737,7 @@ public class ASTConverter17Test extends ConverterTestSetup {
 		CompilationUnit unit = (CompilationUnit) node;
 		assertProblemsSize(unit, 0);
 		class InferredTypeFromExpectedVisitor extends ASTVisitor {
-			StringBuffer buf = new StringBuffer();
+			StringBuilder buf = new StringBuilder();
 			public boolean visit(ClassInstanceCreation creation) {
 				this.buf.append(creation.isResolvedTypeInferredFromExpectedType());
 				return false;

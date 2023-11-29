@@ -559,10 +559,10 @@ static class JavacCompiler {
 	}
 	// returns 0L if everything went fine; else the lower word contains the
 	// exit value and the upper word is non-zero iff the error log has contents
-	long compile(File directory, String options, String[] sourceFileNames, StringBuffer log) throws IOException, InterruptedException {
+	long compile(File directory, String options, String[] sourceFileNames, StringBuilder log) throws IOException, InterruptedException {
 		return compile(directory, options, sourceFileNames, log, true);
 	}
-	long compile(File directory, String options, String[] sourceFileNames, StringBuffer log, boolean extendCommandLine) throws IOException, InterruptedException {
+	long compile(File directory, String options, String[] sourceFileNames, StringBuilder log, boolean extendCommandLine) throws IOException, InterruptedException {
 		Process compileProcess = null;
 		long result = 0L;
 		// WORK classpath should depend on the compiler, not on the default runtime
@@ -589,7 +589,7 @@ static class JavacCompiler {
 			}
 			compileProcess = Runtime.getRuntime().exec(cmdLineAsString, env, directory);
 			Logger errorLogger = new Logger(compileProcess.getErrorStream(),
-					"ERROR", log == null ? new StringBuffer() : log);
+					"ERROR", log == null ? new StringBuilder() : log);
 			errorLogger.start();
 			int compilerResult = compileProcess.waitFor();
 			result |= compilerResult; // caveat: may never terminate under specific conditions
@@ -643,7 +643,7 @@ static class JavaRuntime {
 		this.minor = minor;
 	}
 	// returns 0 if everything went fine
-	int execute(File directory, String options, String className, StringBuffer stdout, StringBuffer stderr) throws IOException, InterruptedException {
+	int execute(File directory, String options, String className, StringBuilder stdout, StringBuilder stderr) throws IOException, InterruptedException {
 		Process executionProcess = null;
 		try {
 			StringBuilder cmdLine = new StringBuilder(this.javaPathName);
@@ -656,10 +656,10 @@ static class JavaRuntime {
 			cmdLine.append(className);
 			executionProcess = Runtime.getRuntime().exec(cmdLine.toString(), env, directory);
 			Logger outputLogger = new Logger(executionProcess.getInputStream(),
-					"RUNTIME OUTPUT", stdout == null ? new StringBuffer() : stdout);
+					"RUNTIME OUTPUT", stdout == null ? new StringBuilder() : stdout);
 			outputLogger.start();
 			Logger errorLogger = new Logger(executionProcess.getErrorStream(),
-					"RUNTIME ERROR", stderr == null ? new StringBuffer() : stderr);
+					"RUNTIME ERROR", stderr == null ? new StringBuilder() : stderr);
 			errorLogger.start();
 			int result = executionProcess.waitFor(); // caveat: may never terminate under specific conditions
 			outputLogger.join(); // make sure we get the whole output
@@ -1238,15 +1238,15 @@ protected static class JavacTestOptions {
 //            documented in Process); however, we could have a single worker
 //            take care of this
 	static class Logger extends Thread {
-		StringBuffer buffer;
+		StringBuilder buffer;
 		InputStream inputStream;
 		String type;
 		Logger(InputStream inputStream, String type) {
 			this.inputStream = inputStream;
 			this.type = type;
-			this.buffer = new StringBuffer();
+			this.buffer = new StringBuilder();
 		}
-		Logger(InputStream inputStream, String type, StringBuffer buffer) {
+		Logger(InputStream inputStream, String type, StringBuilder buffer) {
 			this.inputStream = inputStream;
 			this.type = type;
 			this.buffer = buffer;
@@ -1473,7 +1473,7 @@ protected static class JavacTestOptions {
 			e.printStackTrace();
 			return;
 		}
-		StringBuffer buffer = new StringBuffer()
+		StringBuilder buffer = new StringBuilder()
 			.append("\"")
 			.append(fileName)
 			.append("\" -d \"")
@@ -2550,7 +2550,7 @@ protected void runJavac(
 			//      complianceLevel is not set); consider accepting the compiler
 			//      in such case and see what happens
 			JavacTestOptions.Excuse excuse = options.excuseFor(compiler);
-			StringBuffer compilerLog = new StringBuffer();
+			StringBuilder compilerLog = new StringBuilder();
 			File javacOutputDirectory = null;
 			int mismatch = 0;
 			String sourceFileNames[] = null;
@@ -2637,13 +2637,13 @@ protected void runJavac(
 						!javacTestErrorFlag && mismatch == 0 && sourceFileNames != null &&
 						!className.endsWith(PACKAGE_INFO_NAME) && !className.endsWith(MODULE_INFO_NAME)) {
 					JavaRuntime runtime = JavaRuntime.fromCurrentVM();
-					StringBuffer stderr = new StringBuffer();
-					StringBuffer stdout = new StringBuffer();
+					StringBuilder stderr = new StringBuilder();
+					StringBuilder stdout = new StringBuilder();
 					String vmOptions = "";
 					if (vmArguments != null) {
 						int l = vmArguments.length;
 						if (l > 0) {
-							StringBuffer buffer = new StringBuffer(vmArguments[0]);
+							StringBuilder buffer = new StringBuilder(vmArguments[0]);
 							for (int i = 1; i < l; i++) {
 								buffer.append(' ');
 								buffer.append(vmArguments[i]);
@@ -2722,7 +2722,7 @@ protected String expandFileNameForJavac(String fileName) {
 	return fileName;
 }
 void handleMismatch(JavacCompiler compiler, String testName, String[] testFiles, String expectedCompilerLog,
-		String expectedOutputString, String expectedErrorString, StringBuffer compilerLog, String output, String err,
+		String expectedOutputString, String expectedErrorString, StringBuilder compilerLog, String output, String err,
 		JavacTestOptions.Excuse excuse, int mismatch) {
 	if (mismatch != 0) {
 		if (excuse != null && excuse.clears(mismatch)) {

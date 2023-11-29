@@ -41,7 +41,7 @@ public class CompletionOnJavadocParamNameReference extends JavadocSingleNameRefe
 	}
 
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output) {
+	public StringBuilder printExpression(int indent, StringBuilder output) {
 		output.append("<CompletionOnJavadocParamNameReference:"); //$NON-NLS-1$
 		if (this.token != null) super.printExpression(indent, output);
 		return output.append('>');

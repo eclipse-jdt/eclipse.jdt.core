@@ -75,12 +75,12 @@ public class BinaryTypeFormatter {
 	}
 
 	public static String methodToString(IBinaryMethod method) {
-		StringBuffer result = new StringBuffer();
+		StringBuilder result = new StringBuilder();
 		methodToStringContent(result, method);
 		return result.toString();
 	}
 
-	public static void methodToStringContent(StringBuffer buffer, IBinaryMethod method) {
+	public static void methodToStringContent(StringBuilder buffer, IBinaryMethod method) {
 		int modifiers = method.getModifiers();
 		char[] desc = method.getGenericSignature();
 		if (desc == null)

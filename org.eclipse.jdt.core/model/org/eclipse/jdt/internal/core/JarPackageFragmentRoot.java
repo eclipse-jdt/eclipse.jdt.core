@@ -432,7 +432,7 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 	}
 
 	@Override
-	protected void toStringAncestors(StringBuffer buffer) {
+	protected void toStringAncestors(StringBuilder buffer) {
 		if (isExternal())
 			// don't show project as it is irrelevant for external jar files.
 			// also see https://bugs.eclipse.org/bugs/show_bug.cgi?id=146615

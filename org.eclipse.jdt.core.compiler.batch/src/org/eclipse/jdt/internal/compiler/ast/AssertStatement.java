@@ -211,7 +211,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 }
 
 @Override
-public StringBuffer printStatement(int tab, StringBuffer output) {
+public StringBuilder printStatement(int tab, StringBuilder output) {
 	printIndent(tab, output);
 	output.append("assert "); //$NON-NLS-1$
 	this.assertExpression.printExpression(0, output);

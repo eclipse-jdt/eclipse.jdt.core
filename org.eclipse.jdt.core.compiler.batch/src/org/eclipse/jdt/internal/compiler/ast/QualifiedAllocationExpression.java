@@ -285,7 +285,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 	}
 
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output) {
+	public StringBuilder printExpression(int indent, StringBuilder output) {
 		if (this.enclosingInstance != null)
 			this.enclosingInstance.printExpression(0, output).append('.');
 		super.printExpression(0, output);

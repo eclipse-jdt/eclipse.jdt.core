@@ -123,7 +123,7 @@ public class AnnotationProcessingCompilerToolTest extends AbstractBatchCompilerT
 		}
 		@Override
 		public String toString() {
-			StringBuffer result = new StringBuffer();
+			StringBuilder result = new StringBuilder();
 			for (String option: this.options) {
 				result.append(option);
 				result.append(' ');

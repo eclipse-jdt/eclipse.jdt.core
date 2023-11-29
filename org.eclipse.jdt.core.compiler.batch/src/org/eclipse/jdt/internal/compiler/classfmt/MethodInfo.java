@@ -450,15 +450,15 @@ public int sizeInBytes() {
 
 @Override
 public String toString() {
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	toString(buffer);
 	return buffer.toString();
 }
-void toString(StringBuffer buffer) {
+void toString(StringBuilder buffer) {
 	buffer.append(getClass().getName());
 	toStringContent(buffer);
 }
-protected void toStringContent(StringBuffer buffer) {
+protected void toStringContent(StringBuilder buffer) {
 	BinaryTypeFormatter.methodToStringContent(buffer, this);
 }
 private synchronized void readCodeAttribute() {

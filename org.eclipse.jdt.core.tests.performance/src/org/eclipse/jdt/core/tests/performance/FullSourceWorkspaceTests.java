@@ -218,7 +218,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 
 	// Scenario information
 	String scenarioReadableName, scenarioShortName;
-	StringBuffer scenarioComment;
+	StringBuilder scenarioComment;
 	static Map SCENARII_COMMENT = new HashMap();
 
 	// Time measuring
@@ -510,15 +510,15 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 		}
 
 		// Update comment buffers
-		StringBuffer[] scenarioComments = (StringBuffer[]) SCENARII_COMMENT.get(getClass());
+		StringBuilder[] scenarioComments = (StringBuilder[]) SCENARII_COMMENT.get(getClass());
 		if (scenarioComments == null) {
-			scenarioComments = new StringBuffer[length];
+			scenarioComments = new StringBuilder[length];
 			SCENARII_COMMENT.put(getClass(), scenarioComments);
 		}
 		for (int i=0; i<length; i++) {
 			if (this.scenarioComment != null || comments[i] != null) {
 				if (scenarioComments[i] == null) {
-					scenarioComments[i] = new StringBuffer();
+					scenarioComments[i] = new StringBuilder();
 				} else {
 					scenarioComments[i].append(' ');
 				}

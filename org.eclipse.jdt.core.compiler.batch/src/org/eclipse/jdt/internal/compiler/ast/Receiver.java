@@ -26,7 +26,7 @@ public class Receiver extends Argument {
 	}
 
 	@Override
-	public StringBuffer print(int indent, StringBuffer output) {
+	public StringBuilder print(int indent, StringBuilder output) {
 
 		printIndent(indent, output);
 		printModifiers(this.modifiers, output);

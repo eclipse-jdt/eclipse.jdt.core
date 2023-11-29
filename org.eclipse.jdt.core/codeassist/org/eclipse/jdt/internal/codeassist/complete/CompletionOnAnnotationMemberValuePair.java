@@ -43,7 +43,7 @@ public class CompletionOnAnnotationMemberValuePair extends NormalAnnotation impl
 	}
 
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output) {
+	public StringBuilder printExpression(int indent, StringBuilder output) {
 		output.append('@');
 		this.type.printExpression(0, output);
 		output.append('(');

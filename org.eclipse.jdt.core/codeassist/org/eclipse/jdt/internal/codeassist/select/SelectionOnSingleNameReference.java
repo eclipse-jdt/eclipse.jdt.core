@@ -80,7 +80,7 @@ public TypeBinding resolveType(BlockScope scope) {
 	throw new SelectionNodeFound(this.binding);
 }
 @Override
-public StringBuffer printExpression(int indent, StringBuffer output) {
+public StringBuilder printExpression(int indent, StringBuilder output) {
 	output.append("<SelectOnName:"); //$NON-NLS-1$
 	return super.printExpression(0, output).append('>');
 }

@@ -26,7 +26,7 @@ public class SelectionOnNameOfMemberValuePair extends MemberValuePair {
 	}
 
 	@Override
-	public StringBuffer print(int indent, StringBuffer output) {
+	public StringBuilder print(int indent, StringBuilder output) {
 		output.append("<SelectOnName:"); //$NON-NLS-1$
 		output.append(this.name);
 		output.append(">"); //$NON-NLS-1$

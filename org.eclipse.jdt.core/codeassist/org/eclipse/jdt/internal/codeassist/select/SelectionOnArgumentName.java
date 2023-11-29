@@ -39,7 +39,7 @@ public class SelectionOnArgumentName extends Argument {
 	}
 
 	@Override
-	public StringBuffer print(int indent, StringBuffer output) {
+	public StringBuilder print(int indent, StringBuilder output) {
 
 		printIndent(indent, output);
 		output.append("<SelectionOnArgumentName:"); //$NON-NLS-1$

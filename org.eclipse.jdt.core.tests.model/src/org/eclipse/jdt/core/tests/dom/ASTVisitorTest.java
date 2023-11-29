@@ -131,7 +131,7 @@ public class ASTVisitorTest extends org.eclipse.jdt.core.tests.junit.extension.T
 	Type T4;
 	String T4S;
 
-	final StringBuffer b = new StringBuffer();
+	final StringBuilder b = new StringBuilder();
 
 	int API_LEVEL;
 

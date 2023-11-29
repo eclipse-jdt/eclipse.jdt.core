@@ -3420,7 +3420,7 @@ public abstract class ASTNode {
 	 */
 	@Override
 	public final String toString() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		int p = buffer.length();
 		try {
 			appendDebugString(buffer);
@@ -3453,7 +3453,7 @@ public abstract class ASTNode {
 	 *
 	 * @param buffer the string buffer to append to
 	 */
-	void appendDebugString(StringBuffer buffer) {
+	void appendDebugString(StringBuilder buffer) {
 		// print the subtree by default
 		appendPrintString(buffer);
 	}
@@ -3464,7 +3464,7 @@ public abstract class ASTNode {
 	 *
 	 * @param buffer the string buffer to append to
 	 */
-	final void appendPrintString(StringBuffer buffer) {
+	final void appendPrintString(StringBuilder buffer) {
 		NaiveASTFlattener printer = new NaiveASTFlattener();
 		accept(printer);
 		buffer.append(printer.getResult());

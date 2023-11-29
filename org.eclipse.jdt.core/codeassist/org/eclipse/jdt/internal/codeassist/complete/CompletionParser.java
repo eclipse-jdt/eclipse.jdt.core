@@ -6187,7 +6187,7 @@ protected boolean assistNodeNeedsStacking() {
 
 @Override
 public  String toString() {
-	StringBuffer buffer = new StringBuffer();
+	StringBuilder buffer = new StringBuilder();
 	buffer.append("elementKindStack : int[] = {"); //$NON-NLS-1$
 	for (int i = 0; i <= this.elementPtr; i++) {
 		buffer.append(String.valueOf(this.elementKindStack[i])).append(',');

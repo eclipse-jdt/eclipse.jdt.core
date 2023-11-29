@@ -440,7 +440,7 @@ public class CaptureBinding extends TypeVariableBinding {
 
 	@Override
 	public char[] nullAnnotatedReadableName(CompilerOptions options, boolean shortNames) {
-	    StringBuffer nameBuffer = new StringBuffer(10);
+	    StringBuilder nameBuffer = new StringBuilder(10);
 		appendNullAnnotation(nameBuffer, options);
 		nameBuffer.append(this.sourceName());
 		if (!this.inRecursiveFunction) { // CaptureBinding18 can be recursive indeed

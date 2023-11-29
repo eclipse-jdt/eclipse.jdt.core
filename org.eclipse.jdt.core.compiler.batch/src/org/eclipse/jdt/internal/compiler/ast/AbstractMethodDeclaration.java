@@ -489,7 +489,7 @@ public abstract class AbstractMethodDeclaration
 	public abstract void parseStatements(Parser parser, CompilationUnitDeclaration unit);
 
 	@Override
-	public StringBuffer print(int tab, StringBuffer output) {
+	public StringBuilder print(int tab, StringBuilder output) {
 
 		if (this.javadoc != null) {
 			this.javadoc.print(tab, output);
@@ -535,7 +535,7 @@ public abstract class AbstractMethodDeclaration
 		return output;
 	}
 
-	public StringBuffer printBody(int indent, StringBuffer output) {
+	public StringBuilder printBody(int indent, StringBuilder output) {
 
 		if (isAbstract() || (this.modifiers & ExtraCompilerModifiers.AccSemicolonBody) != 0)
 			return output.append(';');
@@ -552,7 +552,7 @@ public abstract class AbstractMethodDeclaration
 		return output;
 	}
 
-	public StringBuffer printReturnType(int indent, StringBuffer output) {
+	public StringBuilder printReturnType(int indent, StringBuilder output) {
 
 		return output;
 	}

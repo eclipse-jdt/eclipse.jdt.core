@@ -52,7 +52,7 @@ public class MemberValuePair extends ASTNode {
 	}
 
 	@Override
-	public StringBuffer print(int indent, StringBuffer output) {
+	public StringBuilder print(int indent, StringBuilder output) {
 		output
 			.append(this.name)
 			.append(" = "); //$NON-NLS-1$

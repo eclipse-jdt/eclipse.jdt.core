@@ -31,7 +31,7 @@ public class CompletionOnMethodReturnType extends MethodDeclaration implements C
 	}
 
 	@Override
-	public StringBuffer print(int tab, StringBuffer output) {
+	public StringBuilder print(int tab, StringBuilder output) {
 		return this.returnType.print(tab, output);
 	}
 

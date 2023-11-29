@@ -452,7 +452,7 @@ public int sourceEnd(){
 }
 @Override
 public String toString(int tab) {
-	StringBuffer result = new StringBuffer(tabString(tab));
+	StringBuilder result = new StringBuilder(tabString(tab));
 	result.append("Recovered type:\n"); //$NON-NLS-1$
 	if ((this.typeDeclaration.bits & ASTNode.IsAnonymousType) != 0) {
 		result.append(tabString(tab));

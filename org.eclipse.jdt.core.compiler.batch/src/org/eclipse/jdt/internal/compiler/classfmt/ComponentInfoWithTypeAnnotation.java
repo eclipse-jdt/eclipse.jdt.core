@@ -40,7 +40,7 @@ protected void reset() {
 }
 @Override
 public String toString() {
-	StringBuffer buffer = new StringBuffer(getClass().getName());
+	StringBuilder buffer = new StringBuilder(getClass().getName());
 	if (this.typeAnnotations != null) {
 		buffer.append('\n');
 		buffer.append("type annotations:"); //$NON-NLS-1$

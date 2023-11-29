@@ -142,7 +142,7 @@ public class ArrayInitializer extends Expression {
 	}
 
 	@Override
-	public StringBuffer printExpression(int indent, StringBuffer output) {
+	public StringBuilder printExpression(int indent, StringBuilder output) {
 
 		output.append('{');
 		if (this.expressions != null) {

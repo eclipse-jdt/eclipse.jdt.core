@@ -663,9 +663,9 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		return false;
 	}
 
-	public abstract StringBuffer print(int indent, StringBuffer output);
+	public abstract StringBuilder print(int indent, StringBuilder output);
 
-	public static StringBuffer printAnnotations(Annotation[] annotations, StringBuffer output) {
+	public static StringBuilder printAnnotations(Annotation[] annotations, StringBuilder output) {
 		int length = annotations.length;
 		for (int i = 0; i < length; i++) {
 			if (i > 0) {
@@ -681,13 +681,13 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		return output;
 	}
 
-	public static StringBuffer printIndent(int indent, StringBuffer output) {
+	public static StringBuilder printIndent(int indent, StringBuilder output) {
 
 		for (int i = indent; i > 0; i--) output.append("  "); //$NON-NLS-1$
 		return output;
 	}
 
-	public static StringBuffer printModifiers(int modifiers, StringBuffer output) {
+	public static StringBuilder printModifiers(int modifiers, StringBuilder output) {
 
 		if ((modifiers & ClassFileConstants.AccPublic) != 0)
 			output.append("public "); //$NON-NLS-1$
@@ -1496,7 +1496,7 @@ public static void resolveDeprecatedAnnotations(BlockScope scope, Annotation[] a
 	@Override
 	public String toString() {
 
-		return print(0, new StringBuffer(30)).toString();
+		return print(0, new StringBuilder(30)).toString();
 	}
 
 	public void traverse(ASTVisitor visitor, BlockScope scope) {

@@ -196,7 +196,7 @@ public void generatePostIncrement(BlockScope currentScope, CodeStream codeStream
 }
 
 @Override
-public StringBuffer printExpression(int indent, StringBuffer output) {
+public StringBuilder printExpression(int indent, StringBuilder output) {
 	this.receiver.printExpression(0, output).append('[');
 	return this.position.printExpression(0, output).append(']');
 }

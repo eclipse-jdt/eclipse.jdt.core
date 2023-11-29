@@ -251,7 +251,7 @@ public int getLastStart() {
 }
 @Override
 public String toString(int tab) {
-	StringBuffer result = new StringBuffer(tabString(tab));
+	StringBuilder result = new StringBuilder(tabString(tab));
 	result.append("Recovered unit: [\n"); //$NON-NLS-1$
 	this.unitDeclaration.print(tab + 1, result);
 	result.append(tabString(tab + 1));

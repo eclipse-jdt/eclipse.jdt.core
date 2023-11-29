@@ -37,7 +37,7 @@ public class CompletionOnModuleReference extends ModuleReference implements Comp
 		//}
 	}
 	@Override
-	public StringBuffer print(int indent, StringBuffer output) {
+	public StringBuilder print(int indent, StringBuilder output) {
 
 		printIndent(indent, output).append("<CompleteOnModuleReference:"); //$NON-NLS-1$
 		for (int i = 0; i < this.tokens.length; i++) {

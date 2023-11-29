@@ -16,7 +16,6 @@
 package org.eclipse.jdt.core.dom;
 
 import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -1136,11 +1135,8 @@ public class ASTParser {
 								}
 							} catch(JavaModelException e) {
 								// an error occured accessing the java element
-								StringWriter stringWriter = new StringWriter();
-								try (PrintWriter writer = new PrintWriter(stringWriter)) {
-									e.printStackTrace(writer);
-								}
-								throw new IllegalStateException(String.valueOf(stringWriter.getBuffer()));
+								CharSequence stackTrace = org.eclipse.jdt.internal.compiler.util.Util.getStackTrace(e);
+								throw new IllegalStateException(stackTrace.toString());
 							}
 						}
 					}
@@ -1206,11 +1202,8 @@ public class ASTParser {
 							sourceUnit = new BasicCompilationUnit(sourceString.toCharArray(), Util.toCharArrays(packageFragment.names), fileNameString, this.typeRoot);
 						} catch(JavaModelException e) {
 							// an error occured accessing the java element
-							StringWriter stringWriter = new StringWriter();
-							try (PrintWriter writer = new PrintWriter(stringWriter)) {
-								e.printStackTrace(writer);
-							}
-							throw new IllegalStateException(String.valueOf(stringWriter.getBuffer()));
+							CharSequence stackTrace = org.eclipse.jdt.internal.compiler.util.Util.getStackTrace(e);
+							throw new IllegalStateException(stackTrace.toString());
 						}
 					} else if (this.rawSource != null) {
 						needToResolveBindings =
