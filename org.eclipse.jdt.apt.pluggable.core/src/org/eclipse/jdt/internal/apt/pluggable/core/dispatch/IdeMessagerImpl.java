@@ -32,7 +32,6 @@ import org.eclipse.jdt.internal.compiler.apt.dispatch.BaseMessagerImpl;
  *
  * @since 3.3
  */
-@SuppressWarnings("restriction")
 public class IdeMessagerImpl implements Messager {
 
 	private final IdeAnnotationProcessorManager _manager;

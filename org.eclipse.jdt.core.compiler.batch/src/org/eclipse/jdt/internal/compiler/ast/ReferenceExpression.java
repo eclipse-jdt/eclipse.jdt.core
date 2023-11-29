@@ -210,6 +210,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 			argv[i] = new SingleNameReference(name, 0);
 		}
 		boolean generateSecretReceiverVariable = shouldGenerateSecretReceiverVariable();
+		LocalVariableBinding[] patternVariablesInScope = null;
 		if (isMethodReference()) {
 			if (generateSecretReceiverVariable) {
 				this.lhs.generateCode(currentScope, codeStream, true);
@@ -219,6 +220,13 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 			MessageSend message = new MessageSend();
 			message.selector = this.selector;
 			Expression receiver = generateSecretReceiverVariable ? new SingleNameReference(this.receiverVariable.name, 0) : copy.lhs;
+			if (this.lhs instanceof NameReference nr
+					&& nr.binding instanceof LocalVariableBinding receiverLocal
+					&& receiverLocal.isValidBinding()
+					&& (receiverLocal.modifiers & ExtraCompilerModifiers.AccPatternVariable) != 0) {
+				// what was in scope during initial resolve must be in scope during resolve of synthetic AST, too:
+				patternVariablesInScope = new LocalVariableBinding[] { receiverLocal };
+			}
 			message.receiver = this.receiverPrecedesParameters ?
 					new SingleNameReference(CharOperation.append(ImplicitArgName, Integer.toString(0).toCharArray()), 0) : receiver;
 			message.typeArguments = copy.typeArguments;
@@ -259,7 +267,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 		BlockScope lambdaScope = this.receiverVariable != null ? this.receiverVariable.declaringScope : currentScope;
 		IErrorHandlingPolicy oldPolicy = lambdaScope.problemReporter().switchErrorHandlingPolicy(silentErrorHandlingPolicy);
 		try {
-			implicitLambda.resolveType(lambdaScope, true);
+			implicitLambda.resolveWithPatternVariablesInScope(patternVariablesInScope, lambdaScope, true);
 			implicitLambda.analyseCode(lambdaScope,
 					new FieldInitsFakingFlowContext(null, this, Binding.NO_EXCEPTIONS, null, lambdaScope, FlowInfo.DEAD_END),
 					UnconditionalFlowInfo.fakeInitializedFlowInfo(implicitLambda.firstLocalLocal, lambdaScope.referenceType().maxFieldCount));

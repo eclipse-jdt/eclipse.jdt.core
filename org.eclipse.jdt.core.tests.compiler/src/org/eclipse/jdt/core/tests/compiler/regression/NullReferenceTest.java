@@ -18524,4 +18524,19 @@ public void testBug380786() {
 		"----------\n"
 			);
 }
+public void testGH1642_a() {
+	runConformTest(
+		new String[] {
+			"Bug.java",
+			"""
+			public class Bug {
+				void m(Object o) {
+					if (o == null)
+						System.out.println();
+					if (o instanceof String || o instanceof Integer)
+						o.toString();
+				}
+			}
+			"""});
+}
 }
