@@ -604,6 +604,62 @@ public UnconditionalFlowInfo addPotentialNullInfoFrom(
 	return this;
 }
 
+/**
+ * If current info sits within a loop and where (non)nullness is known to reach this point,
+ * then corresponding (non)nullness from other should override existing state.
+ */
+public void acceptIncomingNullnessFrom(UnconditionalFlowInfo other) {
+	if (this.iNNBit != 0 || this.iNBit != 0) {
+		long b1 = other.nullBit1, b2 = other.nullBit2, nb2 = ~b2, b3 = other.nullBit3, nb3 = ~b3, nb4 = ~other.nullBit4;
+		long acceptNN = this.iNNBit & b1 & nb2 & b3 & nb4; // 1010 is def nonnull
+		if (acceptNN != 0) {
+			long nAcceptNN = ~acceptNN;
+			this.nullBit1 |= acceptNN;	// 1
+			this.nullBit2 &= nAcceptNN;	// 0
+			this.nullBit3 |= acceptNN;	// 1
+			this.nullBit4 &= nAcceptNN;	// 0
+		}
+		// the same for iN
+		long acceptN = this.iNBit & b1 & b2 & nb3 & nb4; // 1100 is def null
+		if (acceptN != 0) {
+			long nAcceptN = ~acceptN;
+			this.nullBit1 |= acceptN;	// 1
+			this.nullBit2 |= acceptN;	// 1
+			this.nullBit3 &= nAcceptN;	// 0
+			this.nullBit4 &= nAcceptN;	// 0
+		}
+	}
+	if (this.extra != null && other.extra != null) {
+		int max = Math.max(this.extra[0].length, other.extra[0].length);
+		for (int i = 0; i < max; i++) {
+			long extraIN = this.extra[IN][i], extraINN = this.extra[INN][i];
+			if (extraIN != 0 || extraINN != 0) {
+				long b1  =  other.extra[1+1][i];
+				long b2  =  other.extra[2+1][i], nb2 = ~b2;
+				long b3  =  other.extra[3+1][i], nb3 = ~b3;
+				long nb4 = ~other.extra[4+1][i];
+				long acceptNN = extraINN & b1 & nb2 & b3 & nb4;
+				if (acceptNN != 0) {
+					long nAcceptNN = ~acceptNN;
+					this.extra[1+1][i] |= acceptNN;
+					this.extra[2+1][i] &= nAcceptNN;
+					this.extra[3+1][i] |= acceptNN;
+					this.extra[4+1][i] &= nAcceptNN;
+				}
+				// the same for IN
+				long acceptN = extraIN & b1 & b2 & nb3 & nb4;
+				if (acceptN != 0) {
+					long nAcceptN = ~acceptN;
+					this.extra[1+1][i] |= acceptN;
+					this.extra[2+1][i] |= acceptN;
+					this.extra[3+1][i] &= nAcceptN;
+					this.extra[4+1][i] &= nAcceptN;
+				}
+			}
+		}
+	}
+}
+
 @Override
 final public boolean cannotBeDefinitelyNullOrNonNull(LocalVariableBinding local) {
 	if ((this.tagBits & NULL_FLAG_MASK) == 0 ||
