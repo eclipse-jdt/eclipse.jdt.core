@@ -1675,7 +1675,7 @@ public void test430441() throws JavaModelException {
 
 	Map<String, String> options = javaProject.getOptions(true);
 	try {
-		Map<String, String> customOptions = new HashMap<String, String>(options);
+		Map<String, String> customOptions = new HashMap<>(options);
 		customOptions.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
 		customOptions.put(JavaCore.COMPILER_INHERIT_NULL_ANNOTATIONS, JavaCore.ENABLED);
 		javaProject.setOptions(customOptions);

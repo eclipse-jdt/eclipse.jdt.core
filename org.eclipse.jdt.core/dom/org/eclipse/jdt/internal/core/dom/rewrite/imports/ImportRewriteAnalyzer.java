@@ -95,7 +95,7 @@ public final class ImportRewriteAnalyzer {
 		}
 
 		private String[] extractQualifiedNames(boolean b, Collection<ImportName> imports) {
-			List<String> names = new ArrayList<String>(imports.size());
+			List<String> names = new ArrayList<>(imports.size());
 			for (ImportName importName : imports) {
 				if (importName.isStatic == b) {
 					names.add(importName.qualifiedName);
@@ -165,7 +165,7 @@ public final class ImportRewriteAnalyzer {
 			currentCommentIndex++;
 		}
 
-		List<OriginalImportEntry> imports = new ArrayList<OriginalImportEntry>(importDeclarations.size());
+		List<OriginalImportEntry> imports = new ArrayList<>(importDeclarations.size());
 		int previousExtendedEndPosition = -1;
 		for (ImportDeclaration currentImport : importDeclarations) {
 			int extendedEndPosition = compilationUnit.getExtendedStartPosition(currentImport)
@@ -228,7 +228,7 @@ public final class ImportRewriteAnalyzer {
 			int importDeclarationStartPosition,
 			int commentStartIndex,
 			int commentEndIndex) {
-		List<ImportComment> importComments = new ArrayList<ImportComment>(comments.size());
+		List<ImportComment> importComments = new ArrayList<>(comments.size());
 
 		Iterator<Comment> commentIterator = comments.subList(commentStartIndex, commentEndIndex).iterator();
 		Comment currentComment = commentIterator.hasNext() ? commentIterator.next() : null;
@@ -359,9 +359,9 @@ public final class ImportRewriteAnalyzer {
 	 * keyed by start position.
 	 */
 	private static NavigableMap<Integer, ASTNode> mapTopLevelNodes(CompilationUnit compilationUnit) {
-		NavigableMap<Integer, ASTNode> map = new TreeMap<Integer, ASTNode>();
+		NavigableMap<Integer, ASTNode> map = new TreeMap<>();
 
-		Collection<ASTNode> nodes = new ArrayList<ASTNode>();
+		Collection<ASTNode> nodes = new ArrayList<>();
 		if (compilationUnit.getPackage() != null) {
 			nodes.add(compilationUnit.getPackage());
 		}
@@ -390,7 +390,7 @@ public final class ImportRewriteAnalyzer {
 	 * identical, {@code ImportName}s).
 	 */
 	private static Map<ImportName, OriginalImportEntry> mapImportsByNameIdentity(List<OriginalImportEntry> imports) {
-		Map<ImportName, OriginalImportEntry> importsByName = new IdentityHashMap<ImportName, OriginalImportEntry>();
+		Map<ImportName, OriginalImportEntry> importsByName = new IdentityHashMap<>();
 
 		for (OriginalImportEntry currentImport : imports) {
 			importsByName.put(currentImport.importName, currentImport);
@@ -405,7 +405,7 @@ public final class ImportRewriteAnalyzer {
 	 */
 	private static List<ImportName> subtractImports(
 			Collection<ImportName> existingImports, Set<ImportName> importsToSubtract) {
-		List<ImportName> remainingImports = new ArrayList<ImportName>(existingImports.size());
+		List<ImportName> remainingImports = new ArrayList<>(existingImports.size());
 		for (ImportName existingImport : existingImports) {
 			if (!importsToSubtract.contains(existingImport)) {
 				remainingImports.add(existingImport);
@@ -448,8 +448,8 @@ public final class ImportRewriteAnalyzer {
 			ImportRewriteConfiguration configuration) throws JavaModelException {
 		this.originalImportEntries = Collections.unmodifiableList(readOriginalImports(astRoot));
 
-		List<ImportName> importsList = new ArrayList<ImportName>(this.originalImportEntries.size());
-		Set<ImportName> importsSet = new HashSet<ImportName>();
+		List<ImportName> importsList = new ArrayList<>(this.originalImportEntries.size());
+		Set<ImportName> importsSet = new HashSet<>();
 		for (ImportEntry originalImportEntry : this.originalImportEntries) {
 			ImportName importName = originalImportEntry.importName;
 			importsList.add(importName);
@@ -458,9 +458,9 @@ public final class ImportRewriteAnalyzer {
 		this.originalImportsList = Collections.unmodifiableList(importsList);
 		this.originalImportsSet = Collections.unmodifiableSet(importsSet);
 
-		this.importsToAdd = new LinkedHashSet<ImportName>();
+		this.importsToAdd = new LinkedHashSet<>();
 
-		this.importsToRemove = new LinkedHashSet<ImportName>();
+		this.importsToRemove = new LinkedHashSet<>();
 		if (configuration.originalImportHandling.shouldRemoveOriginalImports()) {
 			this.importsToRemove.addAll(importsSet);
 			this.reportAllResultantImportsAsCreated = true;
@@ -468,8 +468,8 @@ public final class ImportRewriteAnalyzer {
 			this.reportAllResultantImportsAsCreated = false;
 		}
 
-		this.typeExplicitSimpleNames = new HashSet<String>();
-		this.staticExplicitSimpleNames = new HashSet<String>();
+		this.typeExplicitSimpleNames = new HashSet<>();
+		this.staticExplicitSimpleNames = new HashSet<>();
 
 		ImportGroupComparator importGroupComparator = new ImportGroupComparator(configuration.importOrder);
 
@@ -564,7 +564,7 @@ public final class ImportRewriteAnalyzer {
 
 		TextEdit edit = this.importEditor.createTextEdit(resultingImportEntries);
 
-		Set<ImportName> createdImports = new HashSet<ImportName>(computedImportOrder);
+		Set<ImportName> createdImports = new HashSet<>(computedImportOrder);
 		if (!this.reportAllResultantImportsAsCreated) {
 			createdImports.removeAll(this.originalImportsSet);
 		}
@@ -573,7 +573,7 @@ public final class ImportRewriteAnalyzer {
 	}
 
 	private List<ImportName> computeImportOrder(IProgressMonitor progressMonitor) throws JavaModelException {
-		Set<ImportName> importsWithAdditionsAndRemovals = new HashSet<ImportName>(this.originalImportsSet);
+		Set<ImportName> importsWithAdditionsAndRemovals = new HashSet<>(this.originalImportsSet);
 		importsWithAdditionsAndRemovals.addAll(this.importsToAdd);
 		importsWithAdditionsAndRemovals.removeAll(this.importsToRemove);
 
@@ -586,10 +586,10 @@ public final class ImportRewriteAnalyzer {
 				this.staticExplicitSimpleNames,
 				progressMonitor);
 
-		Set<String> allTypeExplicitSimpleNames = new HashSet<String>(this.typeExplicitSimpleNames);
+		Set<String> allTypeExplicitSimpleNames = new HashSet<>(this.typeExplicitSimpleNames);
 		allTypeExplicitSimpleNames.addAll(conflicts.typeConflicts);
 
-		Set<String> allStaticExplicitSimpleNames = new HashSet<String>(this.staticExplicitSimpleNames);
+		Set<String> allStaticExplicitSimpleNames = new HashSet<>(this.staticExplicitSimpleNames);
 		allStaticExplicitSimpleNames.addAll(conflicts.staticConflicts);
 
 		Set<ImportName> implicitImports = identifyImplicitImports(this.importsToAdd, allTypeExplicitSimpleNames);
@@ -597,7 +597,7 @@ public final class ImportRewriteAnalyzer {
 				subtractImports(importsWithAdditionsAndRemovals, implicitImports);
 
 		Collection<OnDemandReduction> onDemandReductions = this.onDemandComputer.identifyPossibleReductions(
-				new HashSet<ImportName>(importsWithoutImplicits),
+				new HashSet<>(importsWithoutImplicits),
 				touchedContainers,
 				allTypeExplicitSimpleNames,
 				allStaticExplicitSimpleNames);
@@ -612,7 +612,7 @@ public final class ImportRewriteAnalyzer {
 	}
 
 	private Set<ImportName> determineTouchedContainers() {
-		Collection<ImportName> touchedContainers = new ArrayList<ImportName>(
+		Collection<ImportName> touchedContainers = new ArrayList<>(
 				this.importsToAdd.size() + this.importsToRemove.size());
 
 		for (ImportName addedImport : this.importsToAdd) {
@@ -622,7 +622,7 @@ public final class ImportRewriteAnalyzer {
 			touchedContainers.add(removedImport.getContainerOnDemand());
 		}
 
-		return Collections.unmodifiableSet(new HashSet<ImportName>(touchedContainers));
+		return Collections.unmodifiableSet(new HashSet<>(touchedContainers));
 	}
 
 	private Set<ImportName> identifyImplicitImports(
@@ -631,7 +631,7 @@ public final class ImportRewriteAnalyzer {
 			return Collections.emptySet();
 		}
 
-		Collection<ImportName> implicits = new ArrayList<ImportName>(addedImports.size());
+		Collection<ImportName> implicits = new ArrayList<>(addedImports.size());
 		for (ImportName addedImport : addedImports) {
 			boolean isImplicit = this.implicitImportContainerNames.contains(addedImport.containerName)
 					&& !allTypeExplicitSimpleNames.contains(addedImport.simpleName);
@@ -644,11 +644,11 @@ public final class ImportRewriteAnalyzer {
 			return Collections.emptySet();
 		}
 
-		return new HashSet<ImportName>(implicits);
+		return new HashSet<>(implicits);
 	}
 
 	private List<ImportEntry> matchExistingOrCreateNew(Collection<ImportName> importNames) {
-		List<ImportEntry> importEntries = new ArrayList<ImportEntry>(importNames.size());
+		List<ImportEntry> importEntries = new ArrayList<>(importNames.size());
 		for (ImportName importName : importNames) {
 			ImportEntry importEntry = this.importsByNameIdentity.get(importName);
 
@@ -663,10 +663,10 @@ public final class ImportRewriteAnalyzer {
 
 	private ImportsDelta computeDelta(
 			Collection<ImportName> implicitImports, Collection<OnDemandReduction> onDemandReductions) {
-		Collection<ImportName> additions = new ArrayList<ImportName>(this.originalImportsList.size());
+		Collection<ImportName> additions = new ArrayList<>(this.originalImportsList.size());
 		additions.addAll(this.importsToAdd);
 
-		Collection<ImportName> removals = new ArrayList<ImportName>(this.originalImportsList.size());
+		Collection<ImportName> removals = new ArrayList<>(this.originalImportsList.size());
 		removals.addAll(this.importsToRemove);
 		removals.addAll(implicitImports);
 

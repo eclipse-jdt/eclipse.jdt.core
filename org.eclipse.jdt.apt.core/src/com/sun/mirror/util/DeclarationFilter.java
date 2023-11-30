@@ -247,7 +247,7 @@ public class DeclarationFilter {
      * @return the declarations matched by this filter
      */
     public <D extends Declaration> Collection<D> filter(Collection<D> decls) {
-	ArrayList<D> res = new ArrayList<D>(decls.size());
+	ArrayList<D> res = new ArrayList<>(decls.size());
 	for (D d : decls) {
 	    if (matches(d)) {
 		res.add(d);
@@ -272,7 +272,7 @@ public class DeclarationFilter {
      */
     public <D extends Declaration> Collection<D>
 	    filter(Collection<? extends Declaration> decls, Class<D> resType) {
-	ArrayList<D> res = new ArrayList<D>(decls.size());
+	ArrayList<D> res = new ArrayList<>(decls.size());
 	for (Declaration d : decls) {
 	    if (resType.isInstance(d) && matches(d)) {
 		res.add(resType.cast(d));

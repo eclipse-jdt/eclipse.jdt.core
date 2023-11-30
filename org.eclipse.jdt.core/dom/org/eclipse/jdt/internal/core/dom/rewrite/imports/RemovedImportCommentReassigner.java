@@ -37,7 +37,7 @@ import java.util.Map;
  */
 final class RemovedImportCommentReassigner {
 	private static Collection<OriginalImportEntry> retainImportsWithComments(Collection<OriginalImportEntry> imports) {
-		Collection<OriginalImportEntry> importsWithComments = new ArrayList<OriginalImportEntry>(imports.size());
+		Collection<OriginalImportEntry> importsWithComments = new ArrayList<>(imports.size());
 		for (OriginalImportEntry currentImport : imports) {
 			if (!currentImport.comments.isEmpty()) {
 				importsWithComments.add(currentImport);
@@ -75,12 +75,12 @@ final class RemovedImportCommentReassigner {
 		Map<ImportEntry, Collection<OriginalImportEntry>> importAssignments = assignRemovedImports(resultantImports);
 
 		Map<ImportEntry, Collection<ImportComment>> commentAssignments =
-				new HashMap<ImportEntry, Collection<ImportComment>>();
+				new HashMap<>();
 
 		for (Map.Entry<ImportEntry, Collection<OriginalImportEntry>> importAssignment : importAssignments.entrySet()) {
 			ImportEntry targetImport = importAssignment.getKey();
 			if (targetImport != null) {
-				Deque<ImportComment> assignedComments = new ArrayDeque<ImportComment>();
+				Deque<ImportComment> assignedComments = new ArrayDeque<>();
 
 				Collection<OriginalImportEntry> assignedImports = importAssignment.getValue();
 
@@ -123,12 +123,12 @@ final class RemovedImportCommentReassigner {
 		Map<ImportName, ImportEntry> firstOccurrences = identifyFirstOccurrenceOfEachImportName(imports);
 
 		Map<ImportEntry, Collection<OriginalImportEntry>> removedImportsForRetainedImport =
-				new HashMap<ImportEntry, Collection<OriginalImportEntry>>();
+				new HashMap<>();
 		for (ImportEntry retainedImport : imports) {
-			removedImportsForRetainedImport.put(retainedImport, new ArrayList<OriginalImportEntry>());
+			removedImportsForRetainedImport.put(retainedImport, new ArrayList<>());
 		}
 		// The null key will map to the removed imports not assigned to any import.
-		removedImportsForRetainedImport.put(null, new ArrayList<OriginalImportEntry>());
+		removedImportsForRetainedImport.put(null, new ArrayList<>());
 
 		for (OriginalImportEntry removedImport : removedImportsWithComments) {
 			ImportName removedImportName = removedImport.importName;
@@ -149,7 +149,7 @@ final class RemovedImportCommentReassigner {
 
 	private Collection<OriginalImportEntry> identifyRemovedImportsWithComments(Collection<ImportEntry> imports) {
 		Collection<OriginalImportEntry> removedImports =
-				new ArrayList<OriginalImportEntry>(this.originalImportsWithComments);
+				new ArrayList<>(this.originalImportsWithComments);
 		removedImports.removeAll(imports);
 		return removedImports;
 	}
@@ -165,7 +165,7 @@ final class RemovedImportCommentReassigner {
 	 * corresponding single imports in {@code imports}.
 	 */
 	private Map<ImportName, ImportEntry> identifyFirstSingleForEachOnDemand(Iterable<ImportEntry> imports) {
-		Map<ImportName, ImportEntry> firstSingleImportForContainer = new HashMap<ImportName, ImportEntry>();
+		Map<ImportName, ImportEntry> firstSingleImportForContainer = new HashMap<>();
 		for (ImportEntry currentImport : imports) {
 			if (!currentImport.importName.isOnDemand()) {
 				ImportName containerOnDemand = currentImport.importName.getContainerOnDemand();
@@ -178,7 +178,7 @@ final class RemovedImportCommentReassigner {
 	}
 
 	private Map<ImportName, ImportEntry> identifyFirstOccurrenceOfEachImportName(Iterable<ImportEntry> imports) {
-		Map<ImportName, ImportEntry> firstOccurrenceOfImport = new HashMap<ImportName, ImportEntry>();
+		Map<ImportName, ImportEntry> firstOccurrenceOfImport = new HashMap<>();
 		for (ImportEntry resultantImport : imports) {
 			if (!firstOccurrenceOfImport.containsKey(resultantImport.importName)) {
 				firstOccurrenceOfImport.put(resultantImport.importName, resultantImport);

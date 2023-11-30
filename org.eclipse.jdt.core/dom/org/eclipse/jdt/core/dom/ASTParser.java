@@ -237,7 +237,7 @@ public class ASTParser {
 
 	private List<Classpath> getClasspath() throws IllegalStateException {
 		Main main = new Main(new PrintWriter(System.out), new PrintWriter(System.err), false/*systemExit*/, null/*options*/, null/*progress*/);
-		ArrayList<Classpath> allClasspaths = new ArrayList<Classpath>();
+		ArrayList<Classpath> allClasspaths = new ArrayList<>();
 		try {
 			if ((this.bits & CompilationUnitResolver.INCLUDE_RUNNING_VM_BOOTCLASSPATH) != 0) {
 				org.eclipse.jdt.internal.compiler.util.Util.collectRunningVMBootclasspath(allClasspaths);

@@ -206,7 +206,7 @@ private LinkedHashSet<ClasspathLocation> computeClasspathLocations(JavaProject j
 		}
 	}
 
-	LinkedHashSet<ClasspathLocation> locations = new LinkedHashSet<ClasspathLocation>();
+	LinkedHashSet<ClasspathLocation> locations = new LinkedHashSet<>();
 	int length = roots.length;
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	for (int i = 0; i < length; i++) {

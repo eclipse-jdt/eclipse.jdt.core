@@ -75,7 +75,7 @@ public class AnnotationProcessorTests extends TestCase {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "AnnotationProcessorTests", "bug443769");
 		BatchTestUtils.copyResources("targets/AnnotationProcessorTests/bug443769", targetFolder);
-		List<String> options = new ArrayList<String>();
+		List<String> options = new ArrayList<>();
 		final String PROC = "org.eclipse.jdt.compiler.apt.tests.processors.AnnotationProcessorTests.Bug443769Proc";
 		options.add("-processorpath");
 		options.add(" ");
@@ -89,7 +89,7 @@ public class AnnotationProcessorTests extends TestCase {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "AnnotationProcessorTests", "bug456986");
 		BatchTestUtils.copyResources("targets/AnnotationProcessorTests/bug456986", targetFolder);
-		List<String> options = new ArrayList<String>();
+		List<String> options = new ArrayList<>();
 		final String PROC = "org.eclipse.jdt.compiler.apt.tests.processors.AnnotationProcessorTests.Bug456986Proc";
 		options.add("-processorpath");
 		options.add(" ");
@@ -103,7 +103,7 @@ public class AnnotationProcessorTests extends TestCase {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "AnnotationProcessorTests", "bug540090");
 		BatchTestUtils.copyResources("targets/AnnotationProcessorTests/bug540090", targetFolder);
-		List<String> options = new ArrayList<String>();
+		List<String> options = new ArrayList<>();
 		final String PROC = "org.eclipse.jdt.compiler.apt.tests.processors.AnnotationProcessorTests.Bug540090Proc";
 		options.add("-processorpath");
 		options.add(" ");
@@ -117,7 +117,7 @@ public class AnnotationProcessorTests extends TestCase {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "AnnotationProcessorTests", "bug415274");
 		BatchTestUtils.copyResources("targets/AnnotationProcessorTests/bug415274", targetFolder);
-		List<String> options = new ArrayList<String>();
+		List<String> options = new ArrayList<>();
 		final String PROC = "org.eclipse.jdt.compiler.apt.tests.processors.AnnotationProcessorTests.Bug415274Proc";
 		options.add("-processorpath");
 		options.add(" ");
@@ -131,7 +131,7 @@ public class AnnotationProcessorTests extends TestCase {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "AnnotationProcessorTests", "bug463062");
 		BatchTestUtils.copyResources("targets/AnnotationProcessorTests/bug463062", targetFolder);
-		List<String> options = new ArrayList<String>();
+		List<String> options = new ArrayList<>();
 		final String PROC = "org.eclipse.jdt.compiler.apt.tests.processors.AnnotationProcessorTests.Bug463062Proc";
 		options.add("-processorpath");
 		options.add(" ");
@@ -144,13 +144,13 @@ public class AnnotationProcessorTests extends TestCase {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "AnnotationProcessorTests", "bug493837");
 		BatchTestUtils.copyResources("targets/AnnotationProcessorTests/bug493837", targetFolder);
-		List<String> options = new ArrayList<String>();
+		List<String> options = new ArrayList<>();
 		final String PROC = "org.eclipse.jdt.compiler.apt.tests.processors.AnnotationProcessorTests.Bug493837Proc";
 		options.add("-processorpath");
 		options.add(" ");
 		options.add("-processor");
 		options.add(PROC);
-		DiagnosticReport<JavaFileObject> diagnosticListener = new DiagnosticReport<JavaFileObject>();
+		DiagnosticReport<JavaFileObject> diagnosticListener = new DiagnosticReport<>();
 		BatchTestUtils.compileTree(compiler, options, targetFolder, false, diagnosticListener);
 		assertNull(System.getProperty(PROC));
 	}
@@ -158,13 +158,13 @@ public class AnnotationProcessorTests extends TestCase {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "AnnotationProcessorTests", "bug340635");
 		BatchTestUtils.copyResources("targets/AnnotationProcessorTests/bug340635", targetFolder);
-		List<String> options = new ArrayList<String>();
+		List<String> options = new ArrayList<>();
 		final String PROC = "org.eclipse.jdt.compiler.apt.tests.processors.AnnotationProcessorTests.Bug340635Proc";
 		options.add("-processorpath");
 		options.add(" ");
 		options.add("-processor");
 		options.add(PROC);
-		DiagnosticReport<JavaFileObject> diagnosticListener = new DiagnosticReport<JavaFileObject>();
+		DiagnosticReport<JavaFileObject> diagnosticListener = new DiagnosticReport<>();
 		BatchTestUtils.compileTreeWithErrors(compiler, options, targetFolder, diagnosticListener, true);
 		assertNull(System.getProperty(PROC));
 		assertEquals("incorrect number of messages", 1, diagnosticListener.count);
@@ -174,7 +174,7 @@ public class AnnotationProcessorTests extends TestCase {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "AnnotationProcessorTests", "bug471995");
 		BatchTestUtils.copyResources("targets/AnnotationProcessorTests/bug471995", targetFolder);
-		List<String> options = new ArrayList<String>();
+		List<String> options = new ArrayList<>();
 		options.add("-proc:only");
 		BatchTestUtils.compileTree(compiler, options, targetFolder, null);
 	}
@@ -182,13 +182,13 @@ public class AnnotationProcessorTests extends TestCase {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "AnnotationProcessorTests", "bug317216");
 		BatchTestUtils.copyResources("targets/AnnotationProcessorTests/bug317216", targetFolder);
-		List<String> options = new ArrayList<String>();
+		List<String> options = new ArrayList<>();
 		final String PROC = "org.eclipse.jdt.compiler.apt.tests.processors.AnnotationProcessorTests.Bug317216Proc";
 		options.add("-processorpath");
 		options.add(" ");
 		options.add("-processor");
 		options.add(PROC);
-		DiagnosticReport<JavaFileObject> diagnosticListener = new DiagnosticReport<JavaFileObject>();
+		DiagnosticReport<JavaFileObject> diagnosticListener = new DiagnosticReport<>();
 		BatchTestUtils.compileTreeWithErrors(compiler, options, targetFolder, diagnosticListener, true);
 		assertNull(System.getProperty(PROC));
 		assertEquals("incorrect number of messages", 0, diagnosticListener.count);
@@ -206,13 +206,13 @@ public class AnnotationProcessorTests extends TestCase {
 		File nonexistsFile = new File(binFolder, "nonexists.txt");
 		assertTrue(!nonexistsFile.exists());
 
-		List<String> options = new ArrayList<String>();
+		List<String> options = new ArrayList<>();
 		final String PROC = "org.eclipse.jdt.compiler.apt.tests.processors.AnnotationProcessorTests.Bug530665Proc";
 		options.add("-processorpath");
 		options.add(" ");
 		options.add("-processor");
 		options.add(PROC);
-		DiagnosticReport<JavaFileObject> diagnosticListener = new DiagnosticReport<JavaFileObject>();
+		DiagnosticReport<JavaFileObject> diagnosticListener = new DiagnosticReport<>();
 		BatchTestUtils.compileTree(compiler, options, srcFolder, false, diagnosticListener);
 		assertEquals("succeeded", System.getProperty(PROC));
 

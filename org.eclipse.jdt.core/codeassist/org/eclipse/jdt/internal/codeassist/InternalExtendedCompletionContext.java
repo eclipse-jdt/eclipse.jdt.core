@@ -135,7 +135,7 @@ public class InternalExtendedCompletionContext {
 			HashMap<JavaElement, Binding> handleToBinding = new HashMap<>();
 			HashMap<Binding, JavaElement> bindingToHandle = new HashMap<>();
 			HashMap<ASTNode, JavaElement> nodeWithProblemToHandle = new HashMap<>();
-			HashMap<ICompilationUnit, CompilationUnitElementInfo> handleToInfo = new HashMap<ICompilationUnit, CompilationUnitElementInfo>();
+			HashMap<ICompilationUnit, CompilationUnitElementInfo> handleToInfo = new HashMap<>();
 
 			org.eclipse.jdt.core.ICompilationUnit handle = new AssistCompilationUnit(original, this.owner, handleToBinding, handleToInfo);
 			CompilationUnitElementInfo info = new CompilationUnitElementInfo();

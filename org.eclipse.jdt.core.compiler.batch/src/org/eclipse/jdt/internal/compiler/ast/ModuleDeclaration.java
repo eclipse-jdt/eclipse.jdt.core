@@ -146,8 +146,8 @@ public class ModuleDeclaration extends ASTNode implements ReferenceContext {
 
 		this.hasResolvedModuleDirectives = true;
 
-		Set<ModuleBinding> requiredModules = new HashSet<ModuleBinding>();
-		Set<ModuleBinding> requiredTransitiveModules = new HashSet<ModuleBinding>();
+		Set<ModuleBinding> requiredModules = new HashSet<>();
+		Set<ModuleBinding> requiredTransitiveModules = new HashSet<>();
 		for(int i = 0; i < this.requiresCount; i++) {
 			RequiresStatement ref = this.requires[i];
 			if (ref != null && ref.resolve(cuScope) != null) {
@@ -248,7 +248,7 @@ public class ModuleDeclaration extends ASTNode implements ReferenceContext {
 		this.hasResolvedTypeDirectives = true;
 		ASTNode.resolveAnnotations(this.scope, this.annotations, this.binding);
 
-		Set<TypeBinding> allTypes = new HashSet<TypeBinding>();
+		Set<TypeBinding> allTypes = new HashSet<>();
 		for(int i = 0; i < this.usesCount; i++) {
 			TypeBinding serviceBinding = this.uses[i].serviceInterface.resolveType(this.scope);
 			if (serviceBinding != null && serviceBinding.isValidBinding()) {

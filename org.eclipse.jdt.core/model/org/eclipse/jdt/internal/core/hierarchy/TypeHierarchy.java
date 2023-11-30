@@ -114,8 +114,8 @@ public class TypeHierarchy implements ITypeHierarchy, IElementChangedListener {
 	protected Map<IType, TypeVector> typeToSubtypes;
 	protected Map<IType, Integer> typeFlags;
 	protected TypeVector rootClasses = new TypeVector();
-	protected ArrayList<IType> interfaces = new ArrayList<IType>(10);
-	public ArrayList<String> missingTypes = new ArrayList<String>(4);
+	protected ArrayList<IType> interfaces = new ArrayList<>(10);
+	public ArrayList<String> missingTypes = new ArrayList<>(4);
 
 	protected static final IType[] NO_TYPE = new IType[0];
 
@@ -493,7 +493,7 @@ private ArrayList<IType> getAllSuperInterfaces0(IType type, ArrayList<IType> sup
 		return supers;
 	if (superinterfaces.length != 0) {
 		if (supers == null)
-			supers = new ArrayList<IType>();
+			supers = new ArrayList<>();
 		for (int i1 = 0; i1 < superinterfaces.length; i1++) {
 			IType element = superinterfaces[i1];
 			if (supers.contains(element)) continue;
@@ -525,7 +525,7 @@ private ArrayList<IType> getAllSupertypes0(IType type, ArrayList<IType> supers) 
 		return supers;
 	if (superinterfaces.length != 0) {
 		if (supers == null)
-			supers = new ArrayList<IType>();
+			supers = new ArrayList<>();
 		for (int i1 = 0; i1 < superinterfaces.length; i1++) {
 			IType element = superinterfaces[i1];
 			if (!supers.contains(element)) {

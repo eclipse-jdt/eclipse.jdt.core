@@ -38,7 +38,7 @@ public class BatchProcessor implements AnnotationProcessor {
 		final Messager msger = _env.getMessager();
 		if( TIMES_CALLED == 0 ){
 
-			final Collection<String> expectedList = new HashSet<String>();
+			final Collection<String> expectedList = new HashSet<>();
 			expectedList.add("p1.A");
 			expectedList.add("p1.B");
 			expectedList.add("p1.C");
@@ -52,7 +52,7 @@ public class BatchProcessor implements AnnotationProcessor {
 				msger.printError("failed to find type " + expectedList);
 			}
 
-			final Collection<String> expectedAnnotated = new HashSet<String>();
+			final Collection<String> expectedAnnotated = new HashSet<>();
 			expectedList.add("p1.A");
 			expectedList.add("p1.C");
 			final AnnotationTypeDeclaration batchAnnoDecl =

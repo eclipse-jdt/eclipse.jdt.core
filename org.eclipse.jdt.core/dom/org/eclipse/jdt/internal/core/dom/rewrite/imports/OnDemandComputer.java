@@ -53,7 +53,7 @@ class OnDemandComputer {
 			Set<ImportName> touchedContainers,
 			Set<String> typeExplicitSimpleNames,
 			Set<String> staticExplicitSimpleNames) {
-		Collection<OnDemandReduction> candidates = new ArrayList<OnDemandReduction>();
+		Collection<OnDemandReduction> candidates = new ArrayList<>();
 
 		Map<ImportName, Collection<ImportName>> importsByContainer = mapByContainer(imports);
 
@@ -84,13 +84,13 @@ class OnDemandComputer {
 	}
 
 	private Map<ImportName, Collection<ImportName>> mapByContainer(Collection<ImportName> imports) {
-		Map<ImportName, Collection<ImportName>> importsByContainer = new HashMap<ImportName, Collection<ImportName>>();
+		Map<ImportName, Collection<ImportName>> importsByContainer = new HashMap<>();
 		for (ImportName importName : imports) {
 			ImportName containerOnDemand = importName.getContainerOnDemand();
 
 			Collection<ImportName> containerImports = importsByContainer.get(containerOnDemand);
 			if (containerImports == null) {
-				containerImports = new ArrayList<ImportName>();
+				containerImports = new ArrayList<>();
 				importsByContainer.put(containerOnDemand, containerImports);
 			}
 
@@ -106,7 +106,7 @@ class OnDemandComputer {
 			int onDemandThreshold,
 			Set<String> explicitSimpleNames) {
 		boolean containerHasOnDemand = false;
-		Collection<ImportName> reducibleImports = new ArrayList<ImportName>();
+		Collection<ImportName> reducibleImports = new ArrayList<>();
 
 		for (ImportName currentImport : containerImports) {
 			if (currentImport.isOnDemand()) {

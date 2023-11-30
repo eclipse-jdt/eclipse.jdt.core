@@ -221,7 +221,7 @@ public class ElementProc extends BaseProcessor {
 		TypeElement elementOrdered = _elementUtils.getTypeElement(className);
 		List<? extends Element> enclosedElements = elementOrdered.getEnclosedElements();
 
-		List<String> elementNames = new ArrayList<String>(enclosedElements.size());
+		List<String> elementNames = new ArrayList<>(enclosedElements.size());
 		for (Element e : enclosedElements) {
 			if (!ignoredKinds.contains(e.getKind())) {
 				elementNames.add(e.getSimpleName().toString());
@@ -397,7 +397,7 @@ public class ElementProc extends BaseProcessor {
 	 * @return true if all tests passed
 	 */
 	private boolean examineABModifiers() {
-		Map<String, Element> contents = new HashMap<String, Element>();
+		Map<String, Element> contents = new HashMap<>();
 		for (Element enclosed : _elementAB.getEnclosedElements()) {
 			contents.put(enclosed.getSimpleName().toString(), enclosed);
 		}
@@ -672,7 +672,7 @@ public class ElementProc extends BaseProcessor {
 			reportError("Type DEnum is not NestingKind.MEMBER");
 			return false;
 		}
-		Map<String, VariableElement> values = new LinkedHashMap<String, VariableElement>();
+		Map<String, VariableElement> values = new LinkedHashMap<>();
 		for (VariableElement enclosedElement : ElementFilter.fieldsIn(_elementDEnum.getEnclosedElements())) {
 			values.put(enclosedElement.getSimpleName().toString(), enclosedElement);
 		}

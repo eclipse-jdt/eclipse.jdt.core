@@ -58,7 +58,7 @@ public class Java8FilerTests extends TestCase {
 		File targetFolder = TestUtils.concatPath(BatchTestUtils.getSrcFolderName(), "targets", "filer8");
 		BatchTestUtils.copyResources("targets/filer8", targetFolder);
 
-		List<String> options = new ArrayList<String>();
+		List<String> options = new ArrayList<>();
 		options.add("-A" + FILER_PROC);
 		// Javac 1.8 doesn't (yet?) support the -1.8 option
 		if (compiler instanceof EclipseCompiler) {

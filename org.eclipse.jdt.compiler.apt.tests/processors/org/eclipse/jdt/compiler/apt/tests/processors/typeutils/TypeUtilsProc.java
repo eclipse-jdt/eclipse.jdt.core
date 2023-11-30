@@ -378,7 +378,7 @@ public class TypeUtilsProc extends BaseProcessor
     private boolean innerTestAsMemberOf(String method, DeclaredType declaredContainer,
             TypeElement containerElement) {
         DeclaredType longType = (DeclaredType)_elementUtils.getTypeElement("java.lang.Long").asType();
-        Map<String, Element> members = new HashMap<String, Element>();
+        Map<String, Element> members = new HashMap<>();
 	    for (Element element : containerElement.getEnclosedElements()) {
 	        members.put(element.getSimpleName().toString(), element);
 	    }

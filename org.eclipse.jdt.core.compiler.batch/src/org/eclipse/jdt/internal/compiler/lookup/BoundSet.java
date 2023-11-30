@@ -1061,7 +1061,7 @@ class BoundSet {
 		Map<InferenceVariable, Set<InferenceVariable>> allEdges = new HashMap<>();
 		for (int i = 0; i < inferenceVariables.length; i++) {
 			InferenceVariable iv1 = inferenceVariables[i];
-			Set<InferenceVariable> targetSet = new LinkedHashSet<InferenceVariable>();
+			Set<InferenceVariable> targetSet = new LinkedHashSet<>();
 			allEdges.put(iv1, targetSet); // eventually ensures: forall iv in inferenceVariables : allEdges.get(iv) != null
 			for (int j = 0; j < i; j++) {
 				InferenceVariable iv2 = inferenceVariables[j];

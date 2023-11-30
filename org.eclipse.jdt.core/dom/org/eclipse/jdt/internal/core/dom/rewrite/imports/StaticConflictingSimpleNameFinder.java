@@ -44,9 +44,9 @@ final class StaticConflictingSimpleNameFinder implements ConflictingSimpleNameFi
 			Set<String> simpleNames,
 			Set<String> onDemandAndImplicitContainerNames,
 			IProgressMonitor monitor) throws JavaModelException {
-		Set<String> memberNamesFoundInMultipleTypes = new HashSet<String>();
+		Set<String> memberNamesFoundInMultipleTypes = new HashSet<>();
 
-		Set<String> foundMemberNames = new HashSet<String>();
+		Set<String> foundMemberNames = new HashSet<>();
 		for (String containerName : onDemandAndImplicitContainerNames) {
 			IType containingType = this.project.findType(containerName, monitor);
 			if (containingType != null) {
@@ -69,7 +69,7 @@ final class StaticConflictingSimpleNameFinder implements ConflictingSimpleNameFi
 	}
 
 	private Set<String> extractStaticMemberNames(IType type) throws JavaModelException {
-		Set<String> memberNames = new HashSet<String>();
+		Set<String> memberNames = new HashSet<>();
 
 		for (IField field : type.getFields()) {
 			if (isStaticImportableMember(field.getFlags())) {

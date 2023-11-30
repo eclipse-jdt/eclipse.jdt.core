@@ -381,7 +381,7 @@ public class DeclarationVisitorTests extends APTTestBase {
 
 	Cases testCaseIdentifier;
 
-	ArrayList<Declaration> declarationsVisited = new ArrayList<Declaration>();
+	ArrayList<Declaration> declarationsVisited = new ArrayList<>();
 
 	void declarationVisited(Declaration d) {
 			declarationsVisited.add(d);

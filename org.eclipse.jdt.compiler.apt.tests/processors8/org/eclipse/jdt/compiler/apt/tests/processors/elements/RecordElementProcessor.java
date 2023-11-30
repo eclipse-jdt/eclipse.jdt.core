@@ -490,16 +490,16 @@ public class RecordElementProcessor extends BaseElementProcessor {
 		assertTrue("Constructors must be within all members", members.containsAll(constructors));
 		assertTrue("Constructors must be within enclosed elements", enclosedElements.containsAll(constructors));
 		assertEquals("Overloaded versions of ElementFilter.constructorsIn() must return equal results",
-				new HashSet<Element>(constructors), constructorsSet);
+				new HashSet<>(constructors), constructorsSet);
 
 		assertTrue("Methods must be within all members", members.containsAll(methods));
 		assertTrue("Methods must be within enclosed elements", enclosedElements.containsAll(methods));
 		assertEquals("Overloaded versions of ElementFilter.methodsIn() must return equal results",
-				new HashSet<Element>(methods), methodsSet);
+				new HashSet<>(methods), methodsSet);
 
 		assertTrue("Fields must be within all members", members.containsAll(fields));
 		assertTrue("Fields must be within enclosed elements", enclosedElements.containsAll(fields));
-		assertEquals("Overloaded versions of ElementFilter.fieldsIn() must return equal results", new HashSet<Element>(fields), fieldsSet);
+		assertEquals("Overloaded versions of ElementFilter.fieldsIn() must return equal results", new HashSet<>(fields), fieldsSet);
 	}
 	public void testRecords7() {
 		TypeElement recordElement = _elementUtils.getTypeElement("records.Record2");

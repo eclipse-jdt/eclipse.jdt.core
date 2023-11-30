@@ -78,7 +78,7 @@ class SoftClassCache {
 				this.empty = true;
 				return null;
 			}
-			this.bytes = new SoftReference<byte[]>(readBytes);
+			this.bytes = new SoftReference<>(readBytes);
 			return readBytes;
 		}
 	}

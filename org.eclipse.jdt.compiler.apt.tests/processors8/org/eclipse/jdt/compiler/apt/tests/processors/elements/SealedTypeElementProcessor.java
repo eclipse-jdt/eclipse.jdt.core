@@ -106,7 +106,7 @@ public class SealedTypeElementProcessor extends BaseElementProcessor {
 	public void test002() {
 		fetchElements();
 		// The collection returned by asList() doesn't support remove(), hence wrap it in another collection.
-		List<String> list = new ArrayList<String>(Arrays.asList("sealed.SealedExample", "sealed.NonSealed1"));
+		List<String> list = new ArrayList<>(Arrays.asList("sealed.SealedExample", "sealed.NonSealed1"));
 		assertNotNull("TypeElement for non sealed type should not be null", nonSealed);
 		assertNotNull("TypeElement for sealed type should not be null", sealed1);
 		List<? extends TypeMirror> permittedSubclasses = sealed1.getPermittedSubclasses();

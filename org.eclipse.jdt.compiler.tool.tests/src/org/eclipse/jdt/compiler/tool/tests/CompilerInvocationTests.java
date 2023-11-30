@@ -152,7 +152,7 @@ abstract class GetJavaFileDetector extends ForwardingStandardJavaFileManager<Sta
 	@Override
 	public Iterable<? extends JavaFileObject> getJavaFileObjectsFromFiles(
 			Iterable<? extends File> files) {
-		ArrayList<JavaFileObject> result = new ArrayList<JavaFileObject>();
+		ArrayList<JavaFileObject> result = new ArrayList<>();
 		for (JavaFileObject file: super.getJavaFileObjectsFromFiles(files)) {
 			result.add(detector(file));
 		}
@@ -161,7 +161,7 @@ abstract class GetJavaFileDetector extends ForwardingStandardJavaFileManager<Sta
 	@Override
 	public Iterable<? extends JavaFileObject> getJavaFileObjectsFromStrings(
 			Iterable<String> names) {
-		ArrayList<JavaFileObject> result = new ArrayList<JavaFileObject>();
+		ArrayList<JavaFileObject> result = new ArrayList<>();
 		for (JavaFileObject file: getJavaFileObjectsFromStrings(names)) {
 			result.add(detector(file));
 		}
@@ -170,7 +170,7 @@ abstract class GetJavaFileDetector extends ForwardingStandardJavaFileManager<Sta
 	@Override
 	public Iterable<JavaFileObject> list(Location location, String packageName,
 			Set<Kind> kinds, boolean recurse) throws IOException {
-		ArrayList<JavaFileObject> result = new ArrayList<JavaFileObject>();
+		ArrayList<JavaFileObject> result = new ArrayList<>();
 		for (JavaFileObject file: super.list(location, packageName, kinds, recurse)) {
 			result.add(detector(file));
 		}

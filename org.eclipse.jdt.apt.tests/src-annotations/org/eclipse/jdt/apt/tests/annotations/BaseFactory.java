@@ -38,7 +38,7 @@ public abstract class BaseFactory implements AnnotationProcessorFactory {
 	 * no extra annotations are supported.
 	 */
 	public BaseFactory(String anno, String... otherAnnos) {
-		_supportedAnnotations = new ArrayList<String>(1 + otherAnnos.length);
+		_supportedAnnotations = new ArrayList<>(1 + otherAnnos.length);
 		_supportedAnnotations.add(anno);
 		_supportedAnnotations.addAll(Arrays.asList(otherAnnos));
 	}
