@@ -22,7 +22,7 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class StringLiteral extends Literal {
 
-	char[] source;
+	public char[] source;
 	int lineNumber;
 
 	public StringLiteral(char[] token, int start, int end, int lineNumber) {

@@ -236,6 +236,7 @@ public static Test suite() {
 	 since_21.add(RecordPatternTest.class);
 //	 since_21.add(UnnammedPatternsAndVarsTest.class); Enable after implementation.
 	 since_21.add(NullAnnotationTests18.class);
+	 since_21.add(StringTemplateTest.class);
 
 	 // Build final test suite
 	TestSuite all = new TestSuite(TestAll.class.getName());
