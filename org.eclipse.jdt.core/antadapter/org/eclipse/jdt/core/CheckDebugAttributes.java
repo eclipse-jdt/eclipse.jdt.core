@@ -60,22 +60,16 @@ public final class CheckDebugAttributes extends Task {
 				IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(this.file, IClassFileReader.ALL);
 				hasDebugAttributes = checkClassFile(classFileReader);
 			} else {
-				ZipFile jarFile = null;
-				try {
-					jarFile = new ZipFile(this.file);
+				try (ZipFile jarFile = new ZipFile(this.file)) {
+					for (Enumeration entries = jarFile.entries(); !hasDebugAttributes && entries.hasMoreElements(); ) {
+						ZipEntry entry = (ZipEntry) entries.nextElement();
+						if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(entry.getName())) {
+							IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(this.file, entry.getName(), IClassFileReader.ALL);
+							hasDebugAttributes = checkClassFile(classFileReader);
+						}
+					}
 				} catch (ZipException e) {
 					throw new BuildException(AntAdapterMessages.getString("checkDebugAttributes.file.argument.must.be.a.classfile.or.a.jarfile"), e); //$NON-NLS-1$
-				} finally {
-					if (jarFile != null) {
-						jarFile.close();
-					}
-				}
-				for (Enumeration entries = jarFile.entries(); !hasDebugAttributes && entries.hasMoreElements(); ) {
-					ZipEntry entry = (ZipEntry) entries.nextElement();
-					if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(entry.getName())) {
-						IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(this.file, entry.getName(), IClassFileReader.ALL);
-						hasDebugAttributes = checkClassFile(classFileReader);
-					}
 				}
 			}
 			if (hasDebugAttributes) {

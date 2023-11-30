@@ -1171,22 +1171,12 @@ public class Util {
 	 * Returns the given file's contents as a byte array.
 	 */
 	public static byte[] getResourceContentsAsByteArray(IFile file) throws JavaModelException {
-		InputStream stream= null;
-		try {
-			stream = file.getContents(true);
+		try (InputStream stream = file.getContents(true)) {
+			return org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsByteArray(stream);
 		} catch (CoreException e) {
 			throw new JavaModelException(e);
-		}
-		try {
-			return org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsByteArray(stream);
 		} catch (IOException e) {
 			throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
-		} finally {
-			try {
-				stream.close();
-			} catch (IOException e) {
-				// ignore
-			}
 		}
 	}
 
@@ -1207,22 +1197,12 @@ public class Util {
 
 	public static char[] getResourceContentsAsCharArray(IFile file, String encoding) throws JavaModelException {
 		// Get resource contents
-		InputStream stream= null;
-		try {
-			stream = file.getContents(true);
-		} catch (CoreException e) {
-			throw new JavaModelException(e, IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST);
-		}
-		try {
+		try (InputStream stream = file.getContents(true)) {
 			return org.eclipse.jdt.internal.compiler.util.Util.getInputStreamAsCharArray(stream, encoding);
 		} catch (IOException e) {
 			throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
-		} finally {
-			try {
-				stream.close();
-			} catch (IOException e) {
-				// ignore
-			}
+		} catch (CoreException e) {
+			throw new JavaModelException(e, IJavaModelStatusConstants.ELEMENT_DOES_NOT_EXIST);
 		}
 	}
 

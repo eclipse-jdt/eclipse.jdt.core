@@ -69,10 +69,11 @@ public class JarIndexLocation extends IndexLocation {
 			if (this.jarFile == null) {
 				JarURLConnection connection = (JarURLConnection) this.localUrl.openConnection();
 				connection.setUseCaches(false);
-				JarFile file = connection.getJarFile();
-				if (file == null)
-					return false;
-				file.close();
+				try (JarFile file = connection.getJarFile()) {
+					if (file == null) {
+						return false;
+					}
+				}
 			}
 		} catch (IOException e) {
 			return false;

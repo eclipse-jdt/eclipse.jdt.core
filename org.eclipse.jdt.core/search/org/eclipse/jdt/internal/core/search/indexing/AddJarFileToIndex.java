@@ -125,6 +125,7 @@ class AddJarFileToIndex extends BinaryContainer {
 				return true; // index got deleted since acquired
 			}
 			index.separator = JAR_SEPARATOR;
+			@SuppressWarnings("resource")
 			ZipFile zip = null;
 			try {
 				// this path will be a relative path to the workspace in case the zipfile in the workspace otherwise it will be a path in the

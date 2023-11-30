@@ -186,23 +186,13 @@ public class Parser implements TerminalTokens, ParserBasicInformation, Conflicte
 		return check_table[i - (NUM_RULES + 1)];
 	}
 	private final static void buildFile(String filename, List listToDump) {
-		BufferedWriter writer = null;
-		try {
-			writer = new BufferedWriter(new FileWriter(filename));
+		try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
 	    	for (Iterator iterator = listToDump.iterator(); iterator.hasNext(); ) {
 	    		writer.write(String.valueOf(iterator.next()));
 	    	}
 	    	writer.flush();
 		} catch(IOException e) {
 			// ignore
-		} finally {
-			if (writer != null) {
-	        	try {
-					writer.close();
-				} catch (IOException e1) {
-					// ignore
-				}
-			}
 		}
 		System.out.println(filename + " creation complete"); //$NON-NLS-1$
 	}
@@ -361,20 +351,10 @@ public class Parser implements TerminalTokens, ParserBasicInformation, Conflicte
 		buildFile(file, entries);
 	}
 	private final static void buildFileForTable(String filename, byte[] bytes) {
-		java.io.FileOutputStream stream = null;
-		try {
-			stream = new java.io.FileOutputStream(filename);
+		try (java.io.FileOutputStream stream = new java.io.FileOutputStream(filename)) {
 			stream.write(bytes);
 		} catch(IOException e) {
 			// ignore
-		} finally {
-			if (stream != null) {
-				try {
-					stream.close();
-				} catch (IOException e) {
-					// ignore
-				}
-			}
 		}
 		System.out.println(filename + " creation complete"); //$NON-NLS-1$
 	}
@@ -385,20 +365,10 @@ public class Parser implements TerminalTokens, ParserBasicInformation, Conflicte
 			bytes[2 * i + 1] = (byte) (chars[i] & 0xFF);
 		}
 
-		java.io.FileOutputStream stream = null;
-		try {
-			stream = new java.io.FileOutputStream(filename);
+		try (java.io.FileOutputStream  stream = new java.io.FileOutputStream(filename)) {
 			stream.write(bytes);
 		} catch(IOException e) {
 			// ignore
-		} finally {
-			if (stream != null) {
-				try {
-					stream.close();
-				} catch (IOException e) {
-					// ignore
-				}
-			}
 		}
 		System.out.println(filename + " creation complete"); //$NON-NLS-1$
 	}
@@ -715,20 +685,12 @@ public class Parser implements TerminalTokens, ParserBasicInformation, Conflicte
 
 		//files are located at Parser.class directory
 
-		InputStream stream = Parser.class.getResourceAsStream(filename);
-		if (stream == null) {
-			throw new java.io.IOException(Messages.bind(Messages.parser_missingFile, filename));
-		}
 		byte[] bytes = null;
-		try {
-			stream = new BufferedInputStream(stream);
-			bytes = Util.getInputStreamAsByteArray(stream);
-		} finally {
-			try {
-				stream.close();
-			} catch (IOException e) {
-				// ignore
+		try (InputStream stream = Parser.class.getResourceAsStream(filename)) {
+			if (stream == null) {
+				throw new java.io.IOException(Messages.bind(Messages.parser_missingFile, filename));
 			}
+			bytes = Util.getInputStreamAsByteArray(new BufferedInputStream(stream));
 		}
 		return bytes;
 	}
@@ -736,20 +698,12 @@ public class Parser implements TerminalTokens, ParserBasicInformation, Conflicte
 
 		//files are located at Parser.class directory
 
-		InputStream stream = Parser.class.getResourceAsStream(filename);
-		if (stream == null) {
-			throw new java.io.IOException(Messages.bind(Messages.parser_missingFile, filename));
-		}
 		byte[] bytes = null;
-		try {
-			stream = new BufferedInputStream(stream);
-			bytes = Util.getInputStreamAsByteArray(stream);
-		} finally {
-			try {
-				stream.close();
-			} catch (IOException e) {
-				// ignore
+		try (InputStream stream = Parser.class.getResourceAsStream(filename)){
+			if (stream == null) {
+				throw new java.io.IOException(Messages.bind(Messages.parser_missingFile, filename));
 			}
+			bytes = Util.getInputStreamAsByteArray(new BufferedInputStream(stream));
 		}
 
 		//minimal integrity check (even size expected)
@@ -816,20 +770,12 @@ public class Parser implements TerminalTokens, ParserBasicInformation, Conflicte
 
 		//files are located at Parser.class directory
 
-		InputStream stream = Parser.class.getResourceAsStream(filename);
-		if (stream == null) {
-			throw new java.io.IOException(Messages.bind(Messages.parser_missingFile, filename));
-		}
 		byte[] bytes = null;
-		try {
-			stream = new BufferedInputStream(stream);
-			bytes = Util.getInputStreamAsByteArray(stream);
-		} finally {
-			try {
-				stream.close();
-			} catch (IOException e) {
-				// ignore
+		try (InputStream stream = Parser.class.getResourceAsStream(filename)) {
+			if (stream == null) {
+				throw new java.io.IOException(Messages.bind(Messages.parser_missingFile, filename));
 			}
+			bytes = Util.getInputStreamAsByteArray(new BufferedInputStream(stream));
 		}
 
 		//minimal integrity check (even size expected)

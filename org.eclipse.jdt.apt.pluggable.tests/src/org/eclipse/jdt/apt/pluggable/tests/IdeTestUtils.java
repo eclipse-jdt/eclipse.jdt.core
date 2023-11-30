@@ -109,15 +109,9 @@ public class IdeTestUtils {
 			}
 		}
 		// write bytes to dest
-		FileOutputStream out = null;
-		try {
-			out = new FileOutputStream(dest);
+		try (FileOutputStream out = new FileOutputStream(dest)) {
 			out.write(srcBytes);
 			out.flush();
-		} finally {
-			if (out != null) {
-				out.close();
-			}
 		}
 	}
 

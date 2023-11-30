@@ -802,10 +802,11 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 		if (invalidURLs != null && invalidURLs.contains(url))
 				throw new JavaModelException(e, IJavaModelStatusConstants.CANNOT_RETRIEVE_ATTACHED_JAVADOC);
 
-		InputStream input = null;
 		try {
 			URLConnection connection = baseLoc.openConnection();
-			input = connection.getInputStream();
+			try (InputStream input = connection.getInputStream()) {
+				// do nothing, only try to read
+			}
 			if (validURLs == null) {
 				validURLs = new HashSet<String>(1);
 			}
@@ -816,14 +817,6 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 			}
 			invalidURLs.add(url);
 			throw new JavaModelException(e, IJavaModelStatusConstants.CANNOT_RETRIEVE_ATTACHED_JAVADOC);
-		} finally {
-			if (input != null) {
-				try {
-					input.close();
-				} catch (Exception e1) {
-					// Ignore
-				}
-			}
 		}
 	}
 
