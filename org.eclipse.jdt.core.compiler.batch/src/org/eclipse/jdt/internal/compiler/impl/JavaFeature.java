@@ -73,6 +73,10 @@ public enum JavaFeature {
 			Messages.bind(Messages.unnamed_classes_and_instance_main_methods),
 			new char[][] {},
 			true),
+	STRING_TEMPLATES(ClassFileConstants.JDK21,
+			Messages.bind(Messages.string_templates),
+			new char[][] {},
+			true),
     ;
 
 	final long compliance;

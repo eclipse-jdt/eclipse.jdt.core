@@ -326,6 +326,10 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 			"(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/Class;Ljava/lang/invoke/MethodHandle;[Ljava/lang/Object;)Ljava/lang/Object;".toCharArray(); //$NON-NLS-1$
 	public static final char[] JAVA_LANG_ENUMDESC_OF_SIGNATURE = "(Ljava/lang/constant/ClassDesc;Ljava/lang/String;)Ljava/lang/Enum$EnumDesc;".toCharArray(); //$NON-NLS-1$
 	public static final char[] JAVA_LANG_CLASSDESC_OF_SIGNATURE = "(Ljava/lang/String;)Ljava/lang/constant/ClassDesc;".toCharArray(); //$NON-NLS-1$
+	public static final char[] JAVA_LANG_RUNTIME_STRING_TEMPLATE_SIGNATURE =
+			"(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/String;)Ljava/lang/invoke/CallSite;".toCharArray(); //$NON-NLS-1$
+
+	public static final char[] PROCESS = "process".toCharArray(); //$NON-NLS-1$
 
 	/**
 	 * ConstantPool constructor comment.

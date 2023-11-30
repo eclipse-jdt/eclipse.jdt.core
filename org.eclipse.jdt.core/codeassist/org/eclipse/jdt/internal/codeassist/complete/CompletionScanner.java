@@ -903,7 +903,7 @@ protected int getNextNotFakedToken() throws InvalidInputException {
 protected int scanForTextBlock() throws InvalidInputException {
 	int lastQuotePos = 0;
 	try {
-		this.rawStart = this.currentPosition - this.startPosition;
+		this.textBlockOffset = this.currentPosition - this.startPosition;
 		while (this.currentPosition <= this.eofPosition) {
 			// The following few lines is the only difference between this method
 			// and the scanForTextBlock() in Scanner()
@@ -999,10 +999,10 @@ protected int scanForTextBlock() throws InvalidInputException {
 		}
 		if (lastQuotePos > 0)
 			this.currentPosition = lastQuotePos;
-		this.currentPosition = (lastQuotePos > 0) ? lastQuotePos : this.startPosition + this.rawStart;
+		this.currentPosition = (lastQuotePos > 0) ? lastQuotePos : this.startPosition + this.textBlockOffset;
 		throw unterminatedTextBlock();
 	} catch (IndexOutOfBoundsException e) {
-		this.currentPosition = (lastQuotePos > 0) ? lastQuotePos : this.startPosition + this.rawStart;
+		this.currentPosition = (lastQuotePos > 0) ? lastQuotePos : this.startPosition + this.textBlockOffset;
 		if(this.startPosition <= this.cursorLocation
 				&& this.cursorLocation < this.currentPosition) {
 				// complete inside a string literal
