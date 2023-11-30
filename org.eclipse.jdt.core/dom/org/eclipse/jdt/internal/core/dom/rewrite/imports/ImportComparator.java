@@ -25,7 +25,7 @@ import java.util.Comparator;
  */
 final class ImportComparator implements Comparator<ImportName> {
 	private static Comparator<ImportName> createQualifiedNameComparator() {
-		return new Comparator<ImportName>() {
+		return new Comparator<>() {
 			@Override
 			public int compare(ImportName o1, ImportName o2) {
 				return o1.qualifiedName.compareTo(o2.qualifiedName);

@@ -61,7 +61,7 @@ public class MirroredTypesException extends RuntimeException {
     public MirroredTypesException(Collection<TypeMirror> types) {
 	super("Attempt to access Class objects for TypeMirrors " + types); //$NON-NLS-1$
 	this.types = types;
-	names = new ArrayList<String>();
+	names = new ArrayList<>();
 	for (TypeMirror t : types) {
 	    names.add(t.toString());
 	}

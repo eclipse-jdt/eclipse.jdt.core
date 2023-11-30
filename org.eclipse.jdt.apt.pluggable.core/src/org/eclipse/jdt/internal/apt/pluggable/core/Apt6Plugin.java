@@ -59,7 +59,7 @@ public class Apt6Plugin extends Plugin implements DebugOptionsListener {
 		thePlugin = this;
 
 		// register debug options listener
-		Hashtable<String, String> properties = new Hashtable<String, String>(2);
+		Hashtable<String, String> properties = new Hashtable<>(2);
 		properties.put(DebugOptions.LISTENER_SYMBOLICNAME, PLUGIN_ID);
 		debugRegistration = context.registerService(DebugOptionsListener.class, this, properties);
 	}

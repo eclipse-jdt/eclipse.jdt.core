@@ -46,8 +46,8 @@ final class TypeConflictingSimpleNameFinder implements ConflictingSimpleNameFind
 		private final Map<String, String> lastContainerFoundForType;
 
 		ConflictAccumulatingTypeRequestor() {
-			this.namesFoundInMultipleContainers = new HashSet<String>();
-			this.lastContainerFoundForType = new HashMap<String, String>();
+			this.namesFoundInMultipleContainers = new HashSet<>();
+			this.lastContainerFoundForType = new HashMap<>();
 		}
 
 		@Override

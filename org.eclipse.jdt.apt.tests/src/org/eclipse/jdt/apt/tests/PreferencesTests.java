@@ -52,7 +52,7 @@ public class PreferencesTests extends APTTestBase {
 
 	public void testFactoryPathEncodingAndDecoding() throws Exception {
 		//encode
-		Map<FactoryContainer, FactoryPath.Attributes> factories = new LinkedHashMap<FactoryContainer, FactoryPath.Attributes>();
+		Map<FactoryContainer, FactoryPath.Attributes> factories = new LinkedHashMap<>();
 		FactoryContainer jarFactory1 = FactoryPathUtil.newExtJarFactoryContainer(new File(JAR_PATH_1)); //$NON-NLS-1$
 		FactoryPath.Attributes jarFPA1 = new FactoryPath.Attributes(true, false);
 		FactoryContainer jarFactory2 = FactoryPathUtil.newExtJarFactoryContainer(new File(JAR_PATH_2)); //$NON-NLS-1$
@@ -144,7 +144,7 @@ public class PreferencesTests extends APTTestBase {
 		assertFalse(AptConfig.isEnabled(null));
 
 		// processorOptions
-		Map<String, String> wkspOpts = new HashMap<String, String>(3);
+		Map<String, String> wkspOpts = new HashMap<>(3);
 		wkspOpts.put("b", "bVal");
 		wkspOpts.put("another option", "and\\more \"punctuation!\"");
 		AptConfig.setProcessorOptions(wkspOpts, null);
@@ -152,7 +152,7 @@ public class PreferencesTests extends APTTestBase {
 		assertTrue("getRawProcessorOptions() should return the values set in setProcessorOptions()",
 				wkspOpts.equals(retrievedWkspOpts));
 
-		Map<String, String> projOpts = new HashMap<String, String>(3);
+		Map<String, String> projOpts = new HashMap<>(3);
 		projOpts.put("a", "aVal");
 		projOpts.put("with spaces", "value also has spaces");
 		projOpts.put("foo", "bar");

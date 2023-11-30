@@ -1458,7 +1458,7 @@ public char[] getModuleName() {
 
 @Override
 public void setOptions(Map<String, String> newOptions) {
-	Map<String, String> customOptions = newOptions == null ? null : new ConcurrentHashMap<String, String>(newOptions);
+	Map<String, String> customOptions = newOptions == null ? null : new ConcurrentHashMap<>(newOptions);
 	try {
 		this.getCompilationUnitElementInfo().setCustomOptions(customOptions);
 	} catch (JavaModelException e) {

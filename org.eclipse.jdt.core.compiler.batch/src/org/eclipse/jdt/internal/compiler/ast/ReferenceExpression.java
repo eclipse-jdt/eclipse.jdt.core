@@ -1001,7 +1001,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 			copy.resolveType(this.enclosingScope);
 
 			if (this.copiesPerTargetType == null)
-				this.copiesPerTargetType = new HashMap<TypeBinding, ReferenceExpression>();
+				this.copiesPerTargetType = new HashMap<>();
 			this.copiesPerTargetType.put(targetType, copy);
 
 			return copy;
@@ -1012,7 +1012,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 
 	public void registerInferenceContext(ParameterizedGenericMethodBinding method, InferenceContext18 context) {
 		if (this.inferenceContexts == null)
-			this.inferenceContexts = new HashMap<ParameterizedGenericMethodBinding, InferenceContext18>();
+			this.inferenceContexts = new HashMap<>();
 		this.inferenceContexts.put(method, context);
 	}
 

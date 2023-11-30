@@ -35,7 +35,7 @@ final class ReorderingImportAdder implements ImportAdder {
 	@Override
 	public List<ImportName> addImports(Collection<ImportName> existingImports, Collection<ImportName> importsToAdd) {
 		int setCapacity = 2 * (existingImports.size() + importsToAdd.size());
-		Set<ImportName> uniqueImportsWithAdditions = new HashSet<ImportName>(setCapacity);
+		Set<ImportName> uniqueImportsWithAdditions = new HashSet<>(setCapacity);
 		uniqueImportsWithAdditions.addAll(existingImports);
 		uniqueImportsWithAdditions.addAll(importsToAdd);
 

@@ -1023,7 +1023,7 @@ protected TypeBinding findMethodBinding(BlockScope scope) {
 				: scope.getMethod(this.actualReceiverType, this.selector, this.argumentTypes, this);
 
 	    if (this.binding instanceof PolyParameterizedGenericMethodBinding) {
-		    this.solutionsPerTargetType = new HashMap<TypeBinding, MethodBinding>();
+		    this.solutionsPerTargetType = new HashMap<>();
 		    return new PolyTypeBinding(this);
 	    }
 	}
@@ -1209,7 +1209,7 @@ public void registerResult(TypeBinding targetType, MethodBinding method) {
 				(targetType == null ? "<no type>" : targetType.debugName())+": "+method); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	if (this.solutionsPerTargetType == null)
-		this.solutionsPerTargetType = new HashMap<TypeBinding, MethodBinding>();
+		this.solutionsPerTargetType = new HashMap<>();
 	this.solutionsPerTargetType.put(targetType, method);
 }
 

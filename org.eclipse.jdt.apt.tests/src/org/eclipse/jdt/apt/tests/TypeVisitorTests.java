@@ -334,7 +334,7 @@ public class TypeVisitorTests extends APTTestBase {
 
 	Cases testCaseIdentifier;
 
-	ArrayList<TypeMirror> typesVisited = new ArrayList<TypeMirror>();
+	ArrayList<TypeMirror> typesVisited = new ArrayList<>();
 
 	void typeVisited(TypeMirror t) {
 			typesVisited.add(t);

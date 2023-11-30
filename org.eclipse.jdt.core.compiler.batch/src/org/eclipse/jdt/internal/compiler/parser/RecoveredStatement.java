@@ -62,7 +62,7 @@ public Statement updatedStatement(int depth, Set<TypeDeclaration> knownTypes){
 }
 @Override
 public void updateParseTree(){
-	updatedStatement(0, new HashSet<TypeDeclaration>());
+	updatedStatement(0, new HashSet<>());
 }
 /*
  * Update the declarationSourceEnd of the corresponding parse node

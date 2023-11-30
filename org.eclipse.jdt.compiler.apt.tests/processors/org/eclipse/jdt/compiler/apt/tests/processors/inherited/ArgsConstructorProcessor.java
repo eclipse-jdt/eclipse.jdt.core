@@ -123,7 +123,7 @@ public class ArgsConstructorProcessor extends BaseProcessor {
 			return;
 		}
 
-		List<TypeMirror> mirrors = new ArrayList<TypeMirror>();
+		List<TypeMirror> mirrors = new ArrayList<>();
 		for (Object val : (List<?>) action.getValue()) {
 			AnnotationValue v = (AnnotationValue) val;
 			TypeMirror m = (TypeMirror) v.getValue();
@@ -165,7 +165,7 @@ public class ArgsConstructorProcessor extends BaseProcessor {
 	/**
 	 * @deprecated
 	 */
-	private final TypeVisitor<Boolean, List<TypeMirror>> argsVisitor = new SimpleTypeVisitor6<Boolean, List<TypeMirror>>() {
+	private final TypeVisitor<Boolean, List<TypeMirror>> argsVisitor = new SimpleTypeVisitor6<>() {
 		@Override
 		public Boolean visitExecutable(ExecutableType t,
 				List<TypeMirror> annotatedTypes) {

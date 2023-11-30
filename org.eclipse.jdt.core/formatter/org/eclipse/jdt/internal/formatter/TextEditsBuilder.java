@@ -43,8 +43,8 @@ public class TextEditsBuilder extends TokenTraverser {
 	private final DefaultCodeFormatterOptions options;
 	private final StringBuilder buffer;
 
-	private final List<Token> stringLiteralsInLine = new ArrayList<Token>();
-	private final List<TextEdit> edits = new ArrayList<TextEdit>();
+	private final List<Token> stringLiteralsInLine = new ArrayList<>();
+	private final List<TextEdit> edits = new ArrayList<>();
 
 	private final List<IRegion> regions;
 	private int currentRegion = 0;
@@ -80,7 +80,7 @@ public class TextEditsBuilder extends TokenTraverser {
 
 	private List<IRegion> adaptRegions(List<IRegion> givenRegions) {
 		// make sure regions don't begin or end inside multiline comments
-		ArrayList<IRegion> result = new ArrayList<IRegion>();
+		ArrayList<IRegion> result = new ArrayList<>();
 		IRegion previous = null;
 		for (IRegion region : givenRegions) {
 			int start = region.getOffset();

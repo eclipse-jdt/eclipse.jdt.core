@@ -151,7 +151,7 @@ public class ModelTesterProc extends AbstractProcessor {
 	public void testFieldType(RoundEnvironment roundEnv, Element e, String arg0, String arg1)
 			throws Exception
 	{
-		Map<String, VariableElement> fields = new HashMap<String, VariableElement>();
+		Map<String, VariableElement> fields = new HashMap<>();
 		Iterable<? extends Element> elements;
 		// With this line uncommented, test would pass:
 		// elements = e.getEnclosedElements();
@@ -210,7 +210,7 @@ public class ModelTesterProc extends AbstractProcessor {
 	public void testMethodType(RoundEnvironment roundEnv, Element e, String arg0, String arg1)
 			throws Exception
 	{
-		Map<String, ExecutableElement> methods = new HashMap<String, ExecutableElement>();
+		Map<String, ExecutableElement> methods = new HashMap<>();
 		Iterable<? extends Element> elements;
 		// With this line uncommented, test would pass:
 		// elements = e.getEnclosedElements();

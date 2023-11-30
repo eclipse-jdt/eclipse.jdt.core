@@ -116,7 +116,7 @@ public class AbstractRegressionTest9 extends AbstractRegressionTest {
 	}
 
 	public Parser createParser() {
-		Map<String,String> opts = new HashMap<String, String>();
+		Map<String,String> opts = new HashMap<>();
 		opts.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_9);
 		return new Parser(
 				new ProblemReporter(getErrorHandlingPolicy(), new CompilerOptions(opts), getProblemFactory()),

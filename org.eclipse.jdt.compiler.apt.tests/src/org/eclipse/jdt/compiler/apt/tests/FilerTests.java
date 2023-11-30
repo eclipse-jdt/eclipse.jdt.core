@@ -63,7 +63,7 @@ public class FilerTests extends TestCase {
 		File inputFile = BatchTestUtils.copyResource("targets/filer/FilerTarget1.java", targetFolder);
 		assertNotNull("No input file", inputFile);
 
-		List<String> options = new ArrayList<String>();
+		List<String> options = new ArrayList<>();
 		BatchTestUtils.compileOneClass(compiler, options, inputFile);
 
 		// check that the resource and class files were generated

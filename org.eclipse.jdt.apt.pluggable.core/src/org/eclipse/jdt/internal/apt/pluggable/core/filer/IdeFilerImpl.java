@@ -130,7 +130,7 @@ public class IdeFilerImpl implements Filer {
 
 		Set<IFile> parentFiles;
 		if (originatingElements != null && originatingElements.length > 0) {
-			parentFiles = new HashSet<IFile>(originatingElements.length);
+			parentFiles = new HashSet<>(originatingElements.length);
 			for (Element elem : originatingElements) {
 				IFile enclosing = _env.getEnclosingIFile(elem);
 				if (null != enclosing) {
@@ -181,7 +181,7 @@ public class IdeFilerImpl implements Filer {
 //		}
 		Set<IFile> parentFiles = Collections.emptySet();
 		if (originatingElements != null && originatingElements.length > 0) {
-			parentFiles = new HashSet<IFile>(originatingElements.length);
+			parentFiles = new HashSet<>(originatingElements.length);
 			for (Element elem : originatingElements) {
 				IFile enclosing = _env.getEnclosingIFile(elem);
 				if (null != enclosing) {

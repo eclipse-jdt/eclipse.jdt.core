@@ -344,7 +344,7 @@ public RecoveredElement updateOnOpeningBrace(int braceStart, int braceEnd){
 }
 @Override
 public void updateParseTree(){
-	updatedFieldDeclaration(0, new HashSet<TypeDeclaration>());
+	updatedFieldDeclaration(0, new HashSet<>());
 }
 /*
  * Update the declarationSourceEnd of the corresponding parse node

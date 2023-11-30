@@ -1022,7 +1022,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 
 				targetType = copy.expectedType; // possibly updated local types
 				if (this.copiesPerTargetType == null)
-					this.copiesPerTargetType = new HashMap<TypeBinding, LambdaExpression>();
+					this.copiesPerTargetType = new HashMap<>();
 				this.copiesPerTargetType.put(targetType, copy);
 			}
 			if (!requireExceptionAnalysis)

@@ -136,7 +136,7 @@ public class TestUtil
 					EXTANNOTATIONS_PKG, getPluginExtClassesDir());
 			FileFilter manifestFilter = new PackageFileFilter(
 					"META-INF", getPluginExtSrcDir()); //$NON-NLS-1$
-			Map<File, FileFilter> files = new HashMap<File, FileFilter>(2);
+			Map<File, FileFilter> files = new HashMap<>(2);
 			files.put(new File( getPluginExtClassesDir() ), classFilter);
 			files.put(new File( getPluginExtSrcDir() ), manifestFilter);
 			zip( classesJarPath, files );

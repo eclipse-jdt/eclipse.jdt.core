@@ -106,7 +106,7 @@ public class BatchTestUtils {
 		StandardJavaFileManager manager = compiler.getStandardFileManager(diagnostics, Locale.getDefault(), Charset.defaultCharset());
 
 		// create new list containing inputfile
-		List<File> files = new ArrayList<File>();
+		List<File> files = new ArrayList<>();
 		files.add(inputFile);
 		Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(files);
 		StringWriter stringWriter = new StringWriter();
@@ -157,7 +157,7 @@ public class BatchTestUtils {
 		StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
 		Iterable<? extends File> location = manager.getLocation(StandardLocation.CLASS_PATH);
 		// create new list containing inputfile
-		List<File> files = new ArrayList<File>();
+		List<File> files = new ArrayList<>();
 		findFilesUnder(targetFolder, files);
 		files.sort(new Comparator<File>() {
 			@Override
@@ -235,7 +235,7 @@ public class BatchTestUtils {
 		StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
 
 		// create new list containing inputfile
-		List<File> files = new ArrayList<File>();
+		List<File> files = new ArrayList<>();
 		findFilesUnder(targetFolder, files);
 		Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(files);
 		StringWriter stringWriter = new StringWriter();
@@ -273,7 +273,7 @@ public class BatchTestUtils {
 		StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
 		Iterable<? extends File> location = manager.getLocation(StandardLocation.CLASS_PATH);
 		// create new list containing inputfile
-		List<File> files = new ArrayList<File>();
+		List<File> files = new ArrayList<>();
 		findFilesUnder(targetFolder, files);
 		Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(files);
 		StringWriter stringWriter = new StringWriter();
@@ -359,7 +359,7 @@ public class BatchTestUtils {
 		StandardJavaFileManager manager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
 
 		// create new list containing inputfile
-		List<File> files = new ArrayList<File>();
+		List<File> files = new ArrayList<>();
 		findFilesUnder(targetFolder, files);
 		Iterable<? extends JavaFileObject> units = manager.getJavaFileObjectsFromFiles(files);
 

@@ -445,7 +445,7 @@ protected Integer getChildIndex(Key key) {
 		return null;
 	}
 	if (this.childIndex == null) {
-		this.childIndex = new HashMap<Key, Integer>();
+		this.childIndex = new HashMap<>();
 		for (int i = 0; i < length; i++) {
 			this.childIndex.put(new Key(this.affectedChildren[i].getElement()), i);
 		}

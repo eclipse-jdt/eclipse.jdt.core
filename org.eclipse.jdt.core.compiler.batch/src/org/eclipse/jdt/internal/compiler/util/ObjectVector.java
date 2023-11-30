@@ -141,7 +141,7 @@ public final class ObjectVector implements Iterable<Object> {
 
 	@Override
 	public Iterator<Object> iterator() {
-		return new Iterator<Object>() {
+		return new Iterator<>() {
 			int i=0;
 			@Override
 			public boolean hasNext() {

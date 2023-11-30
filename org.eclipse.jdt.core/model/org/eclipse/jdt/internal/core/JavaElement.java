@@ -808,12 +808,12 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 				// do nothing, only try to read
 			}
 			if (validURLs == null) {
-				validURLs = new HashSet<String>(1);
+				validURLs = new HashSet<>(1);
 			}
 			validURLs.add(url);
 		} catch (Exception e1) {
 			if (invalidURLs == null) {
-				invalidURLs = new HashSet<String>(1);
+				invalidURLs = new HashSet<>(1);
 			}
 			invalidURLs.add(url);
 			throw new JavaModelException(e, IJavaModelStatusConstants.CANNOT_RETRIEVE_ATTACHED_JAVADOC);

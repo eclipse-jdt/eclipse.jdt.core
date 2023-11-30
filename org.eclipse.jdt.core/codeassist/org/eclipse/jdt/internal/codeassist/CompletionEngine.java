@@ -12872,7 +12872,7 @@ public final class CompletionEngine
 			if (answer.isSourceType()) {
 				IType typeHandle = ((SourceTypeElementInfo) answer.getSourceTypes()[0]).getHandle();
 				try {
-					ArrayList<IType> allTypes = new ArrayList<IType>();
+					ArrayList<IType> allTypes = new ArrayList<>();
 					ITypeHierarchy newTypeHierarchy = typeHandle.newTypeHierarchy(this.javaProject, null);
 					IType[] implementingClasses = newTypeHierarchy.getImplementingClasses(typeHandle);
 					for (IType iClass : implementingClasses) {

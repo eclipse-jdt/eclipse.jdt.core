@@ -271,7 +271,7 @@ public class Java12ElementProcessor extends BaseProcessor {
 	public void testRootElements4() throws IOException {
 		Set<? extends Element> rootElements = this.roundEnv.getRootElements();
 		List<String> names = new ArrayList<>();
-		Set<Element> modules = new HashSet<Element>();
+		Set<Element> modules = new HashSet<>();
 		for (Element element : rootElements) {
 			Element root = getRoot(element);
 			String modName = null;
@@ -300,7 +300,7 @@ public class Java12ElementProcessor extends BaseProcessor {
 	public void testRootElements5() throws IOException {
 		Set<? extends Element> rootElements = this.roundEnv.getRootElements();
 		List<String> names = new ArrayList<>();
-		Set<Element> modules = new HashSet<Element>();
+		Set<Element> modules = new HashSet<>();
 		for (Element element : rootElements) {
 			Element root = getRoot(element);
 			String modName = null;
@@ -375,7 +375,7 @@ public class Java12ElementProcessor extends BaseProcessor {
 	}
 	public void assertModifiers(Set<Modifier> modifiers, String[] expected) {
 		assertEquals("Incorrect no of modifiers", modifiers.size(), expected.length);
-		Set<String> actual = new HashSet<String>(expected.length);
+		Set<String> actual = new HashSet<>(expected.length);
 		for (Modifier modifier : modifiers) {
 			actual.add(modifier.toString());
 		}

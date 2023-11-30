@@ -1285,7 +1285,7 @@ public class TextBlockTest extends AbstractRegressionTest {
 	}
 	public void testBug553252() {
 		Map<String, String> defaultOptions = super.getCompilerOptions();
-		Map<String, String> copy = new HashMap<String, String>(defaultOptions);
+		Map<String, String> copy = new HashMap<>(defaultOptions);
 		copy.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_14);
 		copy.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_14);
 		copy.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_14);

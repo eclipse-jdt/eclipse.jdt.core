@@ -227,7 +227,7 @@ public class VerificationTypeInfo {
 		}
 		if (!this.binding.equals(verificationTypeInfo.binding)) {
 			if (this.bindings == null) {
-				this.bindings = new ArrayList<TypeBinding>();
+				this.bindings = new ArrayList<>();
 				this.bindings.add(this.binding);
 			}
 			this.bindings.add(verificationTypeInfo.binding);

@@ -46,7 +46,7 @@ import org.eclipse.jdt.apt.pluggable.tests.ProcessorTestStatus;
 @SupportedOptions( {})
 public class InheritedAnnoProc extends AbstractProcessor {
 
-	private static final List<String> processedElements = new ArrayList<String>();
+	private static final List<String> processedElements = new ArrayList<>();
 
 	public static List<String> getProcessedElements() {
 		return Collections.unmodifiableList(processedElements);

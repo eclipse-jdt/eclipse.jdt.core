@@ -485,7 +485,7 @@ public class ElementUtilsProc extends BaseProcessor
 	 */
 	private boolean examineGetDocComment() {
 		// Javadoc for element F and its enclosed elements - map of element simple name to javadoc
-		Map<String, String> nameToDoc = new HashMap<String, String>();
+		Map<String, String> nameToDoc = new HashMap<>();
 		nameToDoc.put("F", " Javadoc on element F\n @param <T1> a type parameter\n");
 		nameToDoc.put("FChild", " Javadoc on nested element FChild\n");
 		nameToDoc.put("FEnum", " Javadoc on nested enum FEnum\n Two lines long\n");

@@ -504,9 +504,9 @@ class Jdk {
 
 class JrtFileSystem {
 
-	private final Map<String, String> packageToModule = new HashMap<String, String>();
+	private final Map<String, String> packageToModule = new HashMap<>();
 
-	private final Map<String, List<String>> packageToModules = new HashMap<String, List<String>>();
+	private final Map<String, List<String>> packageToModules = new HashMap<>();
 
 	FileSystem fs;
 	Path modRoot;
@@ -779,7 +779,7 @@ class JrtFileSystem {
 			}
 		} else {
 			// We found a second module => create a list
-			List<String> list = new ArrayList<String>();
+			List<String> list = new ArrayList<>();
 			// Just do this as comparator might be overkill
 			if (JRTUtil.JAVA_BASE == currentModule || JRTUtil.JAVA_BASE.equals(currentModule)) {
 				list.add(currentModule.intern());
