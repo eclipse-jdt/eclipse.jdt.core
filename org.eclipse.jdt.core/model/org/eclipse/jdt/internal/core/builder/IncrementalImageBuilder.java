@@ -294,7 +294,7 @@ protected void addDependentsOf(IPath path, boolean isStructuralChange, Set<Strin
 	int memberIndex = typeName.indexOf('$');
 	if (memberIndex > 0)
 		typeName = typeName.substring(0, memberIndex);
-	wasNew = simpleNames.add(typeName) | wasNew;
+	wasNew = simpleNames.add(typeName) || wasNew;
 	if (wasNew && JavaBuilder.DEBUG)
 		System.out.println("  will look for dependents of " //$NON-NLS-1$
 			+ typeName + " in " + packageName); //$NON-NLS-1$
