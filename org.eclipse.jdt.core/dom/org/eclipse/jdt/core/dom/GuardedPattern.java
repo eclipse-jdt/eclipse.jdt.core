@@ -204,7 +204,7 @@ public class GuardedPattern extends Pattern{
 			synchronized (this) {
 				if(this.conditonalExpression == null) {
 					preLazyInit();
-					this.conditonalExpression = this.ast.newInfixExpression();
+					this.conditonalExpression = this.ast.newNullLiteral();
 					postLazyInit(this.pattern, EXPRESSION_PROPERTY);
                 }
             }
