@@ -168,7 +168,7 @@ public class MirrorDeclarationTestAnnotationProcessor extends BaseProcessor {
 		Collection<MethodDeclaration> methodDecls = testClassDec.getMethods();
 		ProcessorTestStatus.assertEquals("Number of methods", 5, methodDecls.size());
 
-		ArrayList<AnnotationMirror> annotationMirrors = new ArrayList<AnnotationMirror>();
+		ArrayList<AnnotationMirror> annotationMirrors = new ArrayList<>();
 		for (MethodDeclaration methodDeclaration : methodDecls) {
 			Collection<AnnotationMirror> mirrors = methodDeclaration.getAnnotationMirrors();
 			annotationMirrors.addAll(mirrors);

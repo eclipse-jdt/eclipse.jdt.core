@@ -677,9 +677,9 @@ public class CopyResourceElementsOperation extends MultiOperation implements Suf
 	 * keyed by start position.
 	 */
 	private static NavigableMap<Integer, ASTNode> mapTopLevelNodes(CompilationUnit compilationUnit) {
-		NavigableMap<Integer, ASTNode> map = new TreeMap<Integer, ASTNode>();
+		NavigableMap<Integer, ASTNode> map = new TreeMap<>();
 
-		Collection<ASTNode> nodes = new ArrayList<ASTNode>();
+		Collection<ASTNode> nodes = new ArrayList<>();
 		if (compilationUnit.getPackage() != null) {
 			nodes.add(compilationUnit.getPackage());
 		}

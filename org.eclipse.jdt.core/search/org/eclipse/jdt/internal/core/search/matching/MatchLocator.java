@@ -1042,7 +1042,7 @@ private MethodBinding getClosestMatchMethodBinding(MethodPattern methodPattern) 
 }
 
 private List<String> getInverseFullName(char[] qualifier, char[] simpleName) {
-	List <String> result = new ArrayList<String>();
+	List <String> result = new ArrayList<>();
 	if (qualifier != null && qualifier.length > 0) {
 		result.addAll(Arrays.asList(new String(qualifier).split("\\.")));//$NON-NLS-1$
 		Collections.reverse(result);
@@ -1057,7 +1057,7 @@ private List<String> getInverseFullName(char[] qualifier, char[] simpleName) {
 private int  getMaxResult(int[][] resultsMap) {
 	int rows = resultsMap.length;
 	int cols = resultsMap[0].length;
-	List <Integer> candidates = new ArrayList<Integer>();
+	List <Integer> candidates = new ArrayList<>();
 	candidates.add(0); //default row
 
 	for (int j = 0; j < cols; ++j) {
@@ -1104,7 +1104,7 @@ private int[] getResultMap(Map<Integer, List<String>> patternMap, Map<Integer, L
 
 private Map<Integer, List<String>> getSplitNames(char[][] qualifiedNames, char[][] simpleNames) {
 	int paramLength = simpleNames.length;
-	Map <Integer, List<String>> result = new HashMap<Integer, List<String>>();
+	Map <Integer, List<String>> result = new HashMap<>();
 	for (int p = 0; p < paramLength; p++) result.put(p, getInverseFullName(qualifiedNames[p], simpleNames[p]));
 	return result;
 }
@@ -1112,7 +1112,7 @@ private Map<Integer, List<String>> getSplitNames(char[][] qualifiedNames, char[]
 private Map<Integer, List<String>> getSplitNames(MethodBinding method) {
 	TypeBinding[] methodParameters = method.parameters;
 	int paramLength = methodParameters == null ? 0 : methodParameters.length;
-	Map <Integer, List<String>> result = new HashMap<Integer, List<String>>();
+	Map <Integer, List<String>> result = new HashMap<>();
 	for (int p = 0; p < paramLength; p++) result.put(p, getInverseFullName(methodParameters[p].qualifiedSourceName(), null)); // source is part of qualifiedSourceName here);
 	return result;
 }
@@ -1180,7 +1180,7 @@ private MethodBinding getMethodBinding(MethodPattern methodPattern, TypeBinding 
 	int methodsLength = methods.length;
 	TypeVariableBinding[] refTypeVariables = referenceBinding.typeVariables();
 	int typeVarLength = refTypeVariables==null ? 0 : refTypeVariables.length;
-	List <MethodBinding> possibleMethods = new ArrayList<MethodBinding>(methodsLength);
+	List <MethodBinding> possibleMethods = new ArrayList<>(methodsLength);
 	for (int i=0; i<methodsLength; i++) {
 		TypeBinding[] methodParameters = methods[i].parameters;
 		int paramLength = methodParameters==null ? 0 : methodParameters.length;

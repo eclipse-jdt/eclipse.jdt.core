@@ -295,7 +295,7 @@ public void testChangeExternalFolder() throws CoreException {
 				"  }\n" +
 				"}"
 			},
-			new HashMap<String, String>(),
+			new HashMap<>(),
 			externalLib
 		);
 
@@ -331,7 +331,7 @@ public void testChangeExternalFolder() throws CoreException {
 				"public class X {\n" +
 				"}"
 			},
-			new HashMap<String, String>(),
+			new HashMap<>(),
 			externalLib
 		);
 		new java.io.File(externalClassFile).setLastModified(lastModified + 1000); // to be sure its different
@@ -498,7 +498,7 @@ public void testExternalJarChange() throws JavaModelException, IOException {
 			"public class Y {\n" + //$NON-NLS-1$
 			"}" //$NON-NLS-1$
 		},
-		new HashMap<String, String>(),
+		new HashMap<>(),
 		externalJar
 	);
 	env.addExternalJar(projectPath, externalJar);
@@ -520,7 +520,7 @@ public void testExternalJarChange() throws JavaModelException, IOException {
 			"  }\n" + //$NON-NLS-1$
 			"}" //$NON-NLS-1$
 		},
-		new HashMap<String, String>(),
+		new HashMap<>(),
 		externalJar
 	);
 

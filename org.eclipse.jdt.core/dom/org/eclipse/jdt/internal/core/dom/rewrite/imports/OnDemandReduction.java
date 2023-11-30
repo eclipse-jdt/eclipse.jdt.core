@@ -32,7 +32,7 @@ class OnDemandReduction {
 
 	OnDemandReduction(ImportName containerName, Collection<ImportName> reducibleImports) {
 		this.containerOnDemand = containerName;
-		this.reducibleImports = Collections.unmodifiableCollection(new ArrayList<ImportName>(reducibleImports));
+		this.reducibleImports = Collections.unmodifiableCollection(new ArrayList<>(reducibleImports));
 	}
 
 	@Override

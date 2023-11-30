@@ -199,7 +199,7 @@ private void computeClasspathLocations(
 				JavaProject prereqJavaProject = (JavaProject) JavaCore.create(prereqProject);
 				IClasspathEntry[] prereqClasspathEntries = prereqJavaProject.getRawClasspath();
 				ArrayList seen = new ArrayList();
-				List<ClasspathLocation> projectLocations = new ArrayList<ClasspathLocation>();
+				List<ClasspathLocation> projectLocations = new ArrayList<>();
 				nextPrereqEntry: for (int j = 0, m = prereqClasspathEntries.length; j < m; j++) {
 					IClasspathEntry prereqEntry = prereqClasspathEntries[j];
 					if (prereqEntry.getEntryKind() == IClasspathEntry.CPE_SOURCE) {

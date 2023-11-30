@@ -2160,7 +2160,7 @@ public class JavaProject
 	public Map<String, String> getOptions(boolean inheritJavaCoreOptions) {
 
 		// initialize to the defaults from JavaCore options pool
-		Map<String, String> options = inheritJavaCoreOptions ? JavaCore.getOptions() : new Hashtable<String, String>(5);
+		Map<String, String> options = inheritJavaCoreOptions ? JavaCore.getOptions() : new Hashtable<>(5);
 
 		// Get project specific options
 		JavaModelManager.PerProjectInfo perProjectInfo = null;

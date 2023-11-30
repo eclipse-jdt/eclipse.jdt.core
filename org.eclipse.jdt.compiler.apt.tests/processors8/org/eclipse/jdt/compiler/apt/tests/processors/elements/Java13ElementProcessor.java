@@ -170,7 +170,7 @@ public class Java13ElementProcessor extends BaseProcessor {
 	}
 	public void assertModifiers(Set<Modifier> modifiers, String[] expected) {
 		assertEquals("Incorrect no of modifiers", modifiers.size(), expected.length);
-		Set<String> actual = new HashSet<String>(expected.length);
+		Set<String> actual = new HashSet<>(expected.length);
 		for (Modifier modifier : modifiers) {
 			actual.add(modifier.toString());
 		}

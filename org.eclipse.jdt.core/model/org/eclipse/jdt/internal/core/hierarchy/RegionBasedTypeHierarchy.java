@@ -60,11 +60,11 @@ protected void initializeRegions() {
 	for (int i = 0; i < roots.length; i++) {
 		IJavaElement root = roots[i];
 		if (root instanceof IOpenable) {
-			this.files.put((IOpenable) root, new ArrayList<IType>());
+			this.files.put((IOpenable) root, new ArrayList<>());
 		} else {
 			Openable o = (Openable) ((JavaElement) root).getOpenableParent();
 			if (o != null) {
-				this.files.put(o, new ArrayList<IType>());
+				this.files.put(o, new ArrayList<>());
 			}
 		}
 		checkCanceled();

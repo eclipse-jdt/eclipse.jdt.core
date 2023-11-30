@@ -55,7 +55,7 @@ public class MessagerTests extends TestCase {
 			System.out.println("No system java compiler available");
 			return;
 		}
-		DiagnosticReport<JavaFileObject> diagnosticListener = new DiagnosticReport<JavaFileObject>();
+		DiagnosticReport<JavaFileObject> diagnosticListener = new DiagnosticReport<>();
 		internalTestMessager(compiler, diagnosticListener, "-nowarn");
 		List<Diagnostic<? extends JavaFileObject>> infos = diagnosticListener.get(Diagnostic.Kind.NOTE);
 		assertTrue("No reported infos expected", infos.isEmpty());
@@ -87,7 +87,7 @@ public class MessagerTests extends TestCase {
 	 */
 	public void internalTestMessagerEclipse(int numberOfInfos, int numberOfWarnings, String... options) throws IOException {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
-		DiagnosticReport<JavaFileObject> diagnosticListener = new DiagnosticReport<JavaFileObject>();
+		DiagnosticReport<JavaFileObject> diagnosticListener = new DiagnosticReport<>();
 		internalTestMessager(compiler, diagnosticListener, options);
 		List<Diagnostic<? extends JavaFileObject>> infos = diagnosticListener.get(Diagnostic.Kind.NOTE);
 		assertEquals("Wrong number of reported infos", numberOfInfos, infos.size());
@@ -111,7 +111,7 @@ public class MessagerTests extends TestCase {
 		BatchTestUtils.copyResources("targets/errors", targetFolder);
 
 		// Turn on the MessagerProc - without this, it will just return without doing anything
-		List<String> options = new ArrayList<String>();
+		List<String> options = new ArrayList<>();
 		options.add("-A" + MESSAGERPROCNAME);
 		if (extraOptions != null) {
 			options.addAll(Arrays.asList(extraOptions));

@@ -167,7 +167,7 @@ public class ModelTester8Proc extends AbstractProcessor {
 	 * @see #TEST_METHOD_PARAMETERS_TYPE3_SOURCE
 	 */
 	public void testMethodParameters(RoundEnvironment roundEnv, Element e, String arg0, String arg1) throws Exception {
-		Map<String, ExecutableElement> methods = new HashMap<String, ExecutableElement>();
+		Map<String, ExecutableElement> methods = new HashMap<>();
 		Iterable<? extends Element> elements;
 
 		elements = roundEnv.getElementsAnnotatedWith(LookAt.class);
@@ -245,7 +245,7 @@ public class ModelTester8Proc extends AbstractProcessor {
 		DeclaredType myEnumType = (DeclaredType) guessReturnType;
 		TypeElement myEnumClass = (TypeElement) myEnumType.asElement();
 
-		List<ExecutableElement> ctors = new LinkedList<ExecutableElement>();
+		List<ExecutableElement> ctors = new LinkedList<>();
 		for (Element method : myEnumClass.getEnclosedElements()) {
 			if (method.getKind() == ElementKind.CONSTRUCTOR) {
 				ctors.add((ExecutableElement)method);

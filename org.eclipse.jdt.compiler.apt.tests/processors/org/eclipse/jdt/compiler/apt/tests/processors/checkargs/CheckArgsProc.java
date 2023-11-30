@@ -48,7 +48,7 @@ public class CheckArgsProc extends AbstractProcessor {
 		if (roundEnv.processingOver())
 			return true;
 
-		Map<String, String> options = new HashMap<String, String>(processingEnv.getOptions());
+		Map<String, String> options = new HashMap<>(processingEnv.getOptions());
 		options.remove("phase");
 		if (_expected.length/2 != options.size()) {
 			throw new IllegalStateException(

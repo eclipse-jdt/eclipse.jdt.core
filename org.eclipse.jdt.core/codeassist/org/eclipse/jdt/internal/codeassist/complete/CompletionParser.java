@@ -1295,7 +1295,7 @@ private Statement buildMoreCompletionEnclosingContext(Statement statement) {
 						condition.sourceStart < recoveredLocalVariable.localDeclaration.sourceStart) {
 					this.currentElement.add(statement, 0);
 
-					statement = recoveredLocalVariable.updatedStatement(0, new HashSet<TypeDeclaration>());
+					statement = recoveredLocalVariable.updatedStatement(0, new HashSet<>());
 
 					// RecoveredLocalVariable must be removed from its parent because the IfStatement will be added instead
 					RecoveredBlock recoveredBlock =  (RecoveredBlock) recoveredLocalVariable.parent;

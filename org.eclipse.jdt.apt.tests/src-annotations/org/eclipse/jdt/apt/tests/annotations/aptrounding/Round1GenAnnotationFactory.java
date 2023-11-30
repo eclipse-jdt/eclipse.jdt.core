@@ -29,7 +29,7 @@ public class Round1GenAnnotationFactory implements AnnotationProcessorFactory{
 	public static final List<String> SUPPORTED_TYPES;
 
 	static{
-		SUPPORTED_TYPES = new ArrayList<String>();
+		SUPPORTED_TYPES = new ArrayList<>();
 		SUPPORTED_TYPES.add(GenBean.class.getName());
 	}
 

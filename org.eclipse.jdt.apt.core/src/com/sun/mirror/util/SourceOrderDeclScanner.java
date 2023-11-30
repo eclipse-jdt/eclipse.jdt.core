@@ -174,7 +174,7 @@ class SourceOrderDeclScanner extends DeclarationScanner {
 	d.accept(pre);
 
 	SortedSet<Declaration> decls = new
-	    TreeSet<Declaration>(SourceOrderDeclScanner.comparator) ;
+	    TreeSet<>(SourceOrderDeclScanner.comparator) ;
 
 	for(TypeParameterDeclaration tpDecl: d.getFormalTypeParameters()) {
 	    decls.add(tpDecl);
@@ -203,7 +203,7 @@ class SourceOrderDeclScanner extends DeclarationScanner {
 	d.accept(pre);
 
 	SortedSet<Declaration> decls = new
-	    TreeSet<Declaration>(SourceOrderDeclScanner.comparator) ;
+	    TreeSet<>(SourceOrderDeclScanner.comparator) ;
 
 	for(TypeParameterDeclaration tpDecl: d.getFormalTypeParameters()) {
 	    decls.add(tpDecl);
@@ -236,7 +236,7 @@ class SourceOrderDeclScanner extends DeclarationScanner {
 	d.accept(pre);
 
 	SortedSet<Declaration> decls = new
-	    TreeSet<Declaration>(SourceOrderDeclScanner.comparator) ;
+	    TreeSet<>(SourceOrderDeclScanner.comparator) ;
 
 	for(TypeParameterDeclaration tpDecl: d.getFormalTypeParameters())
 	    decls.add(tpDecl);

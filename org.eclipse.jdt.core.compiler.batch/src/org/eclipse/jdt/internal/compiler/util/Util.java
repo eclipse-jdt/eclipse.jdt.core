@@ -460,7 +460,7 @@ public class Util implements SuffixConstants {
 		return input.readNBytes(byteLength);
 	}
 
-	private static Map<String, byte[]> bomByEncoding = new HashMap<String, byte[]>();
+	private static Map<String, byte[]> bomByEncoding = new HashMap<>();
 	static {
 		// org.eclipse.core.runtime.content.IContentDescription.BOM_UTF_8:
 		bomByEncoding.put("UTF-8", new byte[] { (byte) 0xEF, (byte) 0xBB, (byte) 0xBF }); //$NON-NLS-1$

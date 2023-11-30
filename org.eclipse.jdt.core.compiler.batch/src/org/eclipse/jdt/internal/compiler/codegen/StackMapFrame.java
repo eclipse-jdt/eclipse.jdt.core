@@ -103,7 +103,7 @@ public class StackMapFrame {
 	}
 
 	public StackMapFrame duplicate() {
-		Map<VerificationTypeInfo, VerificationTypeInfo> cache = new HashMap<VerificationTypeInfo, VerificationTypeInfo>();
+		Map<VerificationTypeInfo, VerificationTypeInfo> cache = new HashMap<>();
 		int length = this.locals.length;
 		StackMapFrame result = new StackMapFrame(length);
 		result.numberOfLocals = -1;

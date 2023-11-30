@@ -67,9 +67,9 @@ public class XMLComparer implements IXMLNames {
 		Element annotations = null;
 		Element superclass = null;
 		Element interfaces = null;
-		final TreeMap<String, Element> typeDecls = new TreeMap<String, Element>();
-		final TreeMap<String, Element> executableDecls = new TreeMap<String, Element>();
-		final TreeMap<String, Element> variableDecls = new TreeMap<String, Element>();
+		final TreeMap<String, Element> typeDecls = new TreeMap<>();
+		final TreeMap<String, Element> executableDecls = new TreeMap<>();
+		final TreeMap<String, Element> variableDecls = new TreeMap<>();
 		// TODO: PACKAGE, TYPE_PARAMETER, OTHER
 	}
 
@@ -475,8 +475,8 @@ public class XMLComparer implements IXMLNames {
 	 */
 	private boolean compareAnnotationsNodes(Element actualAnnots, Element expectedAnnots) {
 		// Group declarations alphabetically so they can be compared
-		Map<String, Element> actual = new TreeMap<String, Element>();
-		Map<String, Element> expected = new TreeMap<String, Element>();
+		Map<String, Element> actual = new TreeMap<>();
+		Map<String, Element> expected = new TreeMap<>();
 		if (!collectAnnotations(actualAnnots, actual))
 			return false;
 		if (!collectAnnotations(expectedAnnots, expected))
@@ -728,8 +728,8 @@ public class XMLComparer implements IXMLNames {
 	 * @return true if the nodes are equivalent.
 	 */
 	private boolean compareInterfacesNodes(Element actual, Element expected) {
-		Map<String, Element> expectedTypes = new TreeMap<String, Element>();
-		Map<String, Element> actualTypes = new TreeMap<String, Element>();
+		Map<String, Element> expectedTypes = new TreeMap<>();
+		Map<String, Element> actualTypes = new TreeMap<>();
 		if (!collectTypes(expected, expectedTypes)) {
 			return false;
 		}
@@ -842,14 +842,14 @@ public class XMLComparer implements IXMLNames {
 	 */
 	private boolean optionalMatch(Map<String, Element> actual, Map<String, Element> expected) {
 		// Does actual contain anything that is not in expected?
-		Set<String> extraActuals = new HashSet<String>(actual.keySet());
+		Set<String> extraActuals = new HashSet<>(actual.keySet());
 		extraActuals.removeAll(expected.keySet());
 		if (!extraActuals.isEmpty()) {
 			return false;
 		}
 
 		// Does expected contain anything that is not in actual, that is not optional?
-		Set<String> extraExpecteds = new HashSet<String>(expected.keySet());
+		Set<String> extraExpecteds = new HashSet<>(expected.keySet());
 		extraExpecteds.removeAll(actual.keySet());
 		Iterator<String> iter = extraExpecteds.iterator();
 		while (iter.hasNext()) {

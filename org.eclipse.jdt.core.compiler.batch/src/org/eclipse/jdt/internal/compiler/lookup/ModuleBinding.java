@@ -173,7 +173,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		this.requiresTransitive = Binding.NO_MODULES;
 		this.exportedPackages = Binding.NO_PLAIN_PACKAGES;
 		this.openedPackages = Binding.NO_PLAIN_PACKAGES;
-		this.declaredPackages = new HashtableOfPackage<PlainPackageBinding>();
+		this.declaredPackages = new HashtableOfPackage<>();
 		Arrays.fill(this.isComplete, true);
 	}
 	/* For error binding and sub class SourceModuleBinding. */
@@ -185,7 +185,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		this.openedPackages = Binding.NO_PLAIN_PACKAGES;
 		this.uses = Binding.NO_TYPES;
 		this.services = Binding.NO_TYPES;
-		this.declaredPackages = new HashtableOfPackage<PlainPackageBinding>(5);
+		this.declaredPackages = new HashtableOfPackage<>(5);
 	}
 
 	/* For sub class BinaryModuleBinding */
@@ -194,7 +194,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		this.requires = Binding.NO_MODULES;
 		this.requiresTransitive = Binding.NO_MODULES;
 		this.environment = new LookupEnvironment(existingEnvironment.root, this);
-		this.declaredPackages = new HashtableOfPackage<PlainPackageBinding>(5);
+		this.declaredPackages = new HashtableOfPackage<>(5);
 	}
 
 	public PlainPackageBinding[] getExports() {

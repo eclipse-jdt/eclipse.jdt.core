@@ -26,8 +26,8 @@ final class ImportsDelta {
 	final Set<ImportName> importsToRemove;
 
 	ImportsDelta(Collection<ImportName> importsToAdd, Collection<ImportName> importsToRemove) {
-		this.importsToAdd = Collections.unmodifiableSet(new HashSet<ImportName>(importsToAdd));
-		this.importsToRemove = Collections.unmodifiableSet(new HashSet<ImportName>(importsToRemove));
+		this.importsToAdd = Collections.unmodifiableSet(new HashSet<>(importsToAdd));
+		this.importsToRemove = Collections.unmodifiableSet(new HashSet<>(importsToRemove));
 	}
 
 	@Override

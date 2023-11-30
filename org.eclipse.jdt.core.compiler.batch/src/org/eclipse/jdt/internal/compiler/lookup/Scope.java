@@ -1250,7 +1250,7 @@ public abstract class Scope {
 		int startFoundSize = found.size;
 		final boolean sourceLevel18 = this.compilerOptions().sourceLevel >= ClassFileConstants.JDK1_8;
 		ReferenceBinding currentType = classHierarchyStart;
-		List<TypeBinding> visitedTypes = new ArrayList<TypeBinding>();
+		List<TypeBinding> visitedTypes = new ArrayList<>();
 		while (currentType != null) {
 			findMethodInSuperInterfaces(currentType, selector, found, visitedTypes, invocationSite);
 			currentType = currentType.superclass();
@@ -1681,7 +1681,7 @@ public abstract class Scope {
 		ObjectVector found = new ObjectVector(3);
 		CompilationUnitScope unitScope = compilationUnitScope();
 		unitScope.recordTypeReferences(argumentTypes);
-		List<TypeBinding> visitedTypes = new ArrayList<TypeBinding>();
+		List<TypeBinding> visitedTypes = new ArrayList<>();
 		if (receiverTypeIsInterface) {
 			unitScope.recordTypeReference(receiverType);
 			MethodBinding[] receiverMethods = receiverType.getMethods(selector, argumentTypes.length);

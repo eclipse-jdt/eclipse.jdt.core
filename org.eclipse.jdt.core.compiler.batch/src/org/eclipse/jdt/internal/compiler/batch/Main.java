@@ -2887,7 +2887,7 @@ public void configure(String[] argv) {
 					this.annotationsFromClasspath = true;
 				} else {
 					if (this.annotationPaths == null)
-						this.annotationPaths = new ArrayList<String>();
+						this.annotationPaths = new ArrayList<>();
 					StringTokenizer tokens = new StringTokenizer(currentArg, File.pathSeparator);
 					while (tokens.hasMoreTokens())
 						this.annotationPaths.add(tokens.nextToken());
@@ -3176,7 +3176,7 @@ private IModule extractModuleDesc(String fileName) {
 	if (fileName.toLowerCase().endsWith(IModule.MODULE_INFO_JAVA)) {
 		// this.options may not be completely populated yet, and definitely not
 		// validated. Make sure the source level is set for the parser
-		Map<String,String> opts = new HashMap<String, String>(this.options);
+		Map<String,String> opts = new HashMap<>(this.options);
 		opts.put(CompilerOptions.OPTION_Source, this.options.get(CompilerOptions.OPTION_Compliance));
 		Parser parser = new Parser(new ProblemReporter(getHandlingPolicy(),
 				new CompilerOptions(opts), getProblemFactory()), false);
@@ -5228,7 +5228,7 @@ protected void setPaths(ArrayList<String> bootclasspaths,
 
 	if (this.releaseVersion != null && this.complianceLevel < jdkLevel) {
 		// TODO: Revisit for access rules
-		allPaths = new ArrayList<Classpath>();
+		allPaths = new ArrayList<>();
 		allPaths.add(
 				FileSystem.getOlderSystemRelease(this.javaHomeCache.getAbsolutePath(), this.releaseVersion, null));
 	} else {

@@ -120,7 +120,7 @@ protected INameEnvironment getNameEnvironment(final String[] testFiles, String[]
 	return new InMemoryNameEnvironment9(testFiles, this.moduleMap, classLibs);
 }
 Parser createParser() {
-	Map<String,String> opts = new HashMap<String, String>();
+	Map<String,String> opts = new HashMap<>();
 	opts.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_9);
 	return new Parser(
 			new ProblemReporter(getErrorHandlingPolicy(), new CompilerOptions(opts), getProblemFactory()),

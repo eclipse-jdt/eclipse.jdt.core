@@ -105,7 +105,7 @@ public class AbstractCompilerToolTest extends BatchCompilerTest {
 			ownsManager = true;
 		}
 		try {
-			List<File> files = new ArrayList<File>();
+			List<File> files = new ArrayList<>();
 			String[] fileNames = arguments.fileNames;
 			for (int i = 0, l = fileNames.length; i < l; i++) {
 				if (fileNames[i].startsWith(OUTPUT_DIR)) {

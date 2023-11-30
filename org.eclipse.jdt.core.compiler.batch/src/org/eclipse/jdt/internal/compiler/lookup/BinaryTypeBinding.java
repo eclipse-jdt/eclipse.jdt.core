@@ -782,7 +782,7 @@ private abstract static class VariableBindingInitialization<X extends VariableBi
 	abstract void set(BinaryTypeBinding self, X[] result);
 }
 
-private final static VariableBindingInitialization<FieldBinding> FIELD_INITIALIZATION = new VariableBindingInitialization<FieldBinding>() {
+private final static VariableBindingInitialization<FieldBinding> FIELD_INITIALIZATION = new VariableBindingInitialization<>() {
 
 	@Override
 	void setEmptyResult(BinaryTypeBinding self) {
@@ -810,7 +810,7 @@ private final static VariableBindingInitialization<FieldBinding> FIELD_INITIALIZ
 	}
 };
 
-private final static VariableBindingInitialization<RecordComponentBinding> RECORD_INITIALIZATION = new VariableBindingInitialization<RecordComponentBinding>() {
+private final static VariableBindingInitialization<RecordComponentBinding> RECORD_INITIALIZATION = new VariableBindingInitialization<>() {
 
 	@Override
 	void setEmptyResult(BinaryTypeBinding self) {

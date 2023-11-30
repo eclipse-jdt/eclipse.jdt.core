@@ -54,7 +54,7 @@ public class AnnotationValueProcessor extends BaseProcessor {
 					}
 				}
 
-				final Map<String, String> namesToValues = new HashMap<String, String>();
+				final Map<String, String> namesToValues = new HashMap<>();
 				namesToValues.put("name", "\"Foundation\"");
 				namesToValues.put("boolValue", "false");
 				namesToValues.put("byteValue", "16");

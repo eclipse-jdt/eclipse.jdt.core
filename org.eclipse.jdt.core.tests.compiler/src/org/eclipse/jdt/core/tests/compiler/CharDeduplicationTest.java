@@ -138,7 +138,7 @@ public class CharDeduplicationTest extends TestCase {
 
 	public void testMultithreaded() throws Exception {
 		int nThreads = 8;
-		List<FutureTask<Object>> tasks = IntStream.range(0, nThreads * 2).mapToObj(i -> new FutureTask<Object>(() -> {
+		List<FutureTask<Object>> tasks = IntStream.range(0, nThreads * 2).mapToObj(i -> new FutureTask<>(() -> {
 			testAll();
 			return null;
 		})).collect(Collectors.toList());

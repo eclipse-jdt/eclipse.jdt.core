@@ -97,7 +97,7 @@ abstract public class ReferenceBinding extends TypeBinding {
 		public boolean hasTypeBit(int bit) { return false; }
 	};
 
-	private static final Comparator<FieldBinding> FIELD_COMPARATOR = new Comparator<FieldBinding>() {
+	private static final Comparator<FieldBinding> FIELD_COMPARATOR = new Comparator<>() {
 		@Override
 		public int compare(FieldBinding o1, FieldBinding o2) {
 			char[] n1 = o1.name;
@@ -105,7 +105,7 @@ abstract public class ReferenceBinding extends TypeBinding {
 			return ReferenceBinding.compare(n1, n2, n1.length, n2.length);
 		}
 	};
-	private static final Comparator<MethodBinding> METHOD_COMPARATOR = new Comparator<MethodBinding>() {
+	private static final Comparator<MethodBinding> METHOD_COMPARATOR = new Comparator<>() {
 		@Override
 		public int compare(MethodBinding m1, MethodBinding m2) {
 			char[] s1 = m1.selector;

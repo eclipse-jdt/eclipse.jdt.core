@@ -9139,7 +9139,7 @@ public void testBug508834_comment0() {
 	}
 	public void testBug525580() {
 		Runner runner = new Runner();
-		runner.customOptions = new HashMap<String, String>();
+		runner.customOptions = new HashMap<>();
 		runner.customOptions.put(JavaCore.COMPILER_PB_DEPRECATION, JavaCore.IGNORE);
 		runner.testFiles =
 			new String[] {
@@ -9220,7 +9220,7 @@ public void testBug508834_comment0() {
 	}
 	public void testBug525580_comment28() {
 		Runner runner = new Runner();
-		runner.customOptions = new HashMap<String, String>();
+		runner.customOptions = new HashMap<>();
 		runner.customOptions.put(JavaCore.COMPILER_PB_DEPRECATION, JavaCore.IGNORE);
 		runner.testFiles =
 			new String[] {

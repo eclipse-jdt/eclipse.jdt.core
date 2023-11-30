@@ -509,7 +509,7 @@ public class Java9ElementsTests extends TestCase {
 		}
 
 
-		List<String> options = new ArrayList<String>();
+		List<String> options = new ArrayList<>();
 		options.add("-A" + processor);
 		options.add("-A" + testMethod);
 		options.add("-processor");
@@ -539,7 +539,7 @@ public class Java9ElementsTests extends TestCase {
 			BatchTestUtils.writeFile(targetFile, source[i++].getBytes());
 		}
 
-		List<String> options = new ArrayList<String>();
+		List<String> options = new ArrayList<>();
 		options.add("-processor");
 		options.add(MODULE_PROC);
 		options.add("-A" + processor);
@@ -570,7 +570,7 @@ public class Java9ElementsTests extends TestCase {
 		}
 
 
-		List<String> options = new ArrayList<String>();
+		List<String> options = new ArrayList<>();
 		options.add("-A" + processor);
 		options.add("-A" + testMethod);
 		if (compiler instanceof EclipseCompiler) {
@@ -603,7 +603,7 @@ public class Java9ElementsTests extends TestCase {
 		File srcRoot = TestUtils.concatPath(BatchTestUtils.getSrcFolderName());
 		BatchTestUtils.copyResources("mod_locations" + File.separator + modLocation, srcRoot);
 
-		List<String> options = new ArrayList<String>();
+		List<String> options = new ArrayList<>();
 		options.add("-processor");
 		options.add(processor);
 		options.add("-A" + processor);
@@ -625,7 +625,7 @@ public class Java9ElementsTests extends TestCase {
 		File srcRoot = TestUtils.concatPath(BatchTestUtils.getSrcFolderName());
 		BatchTestUtils.copyResources("mod_locations/modules", srcRoot);
 
-		List<String> options = new ArrayList<String>();
+		List<String> options = new ArrayList<>();
 		options.add("-processor");
 		options.add(processor);
 		options.add("-A" + processor);
@@ -647,7 +647,7 @@ public class Java9ElementsTests extends TestCase {
 		File srcRoot = TestUtils.concatPath(BatchTestUtils.getSrcFolderName());
 		BatchTestUtils.copyResources("mod_locations/modules", srcRoot);
 
-		List<String> options = new ArrayList<String>();
+		List<String> options = new ArrayList<>();
 		options.add("-processor");
 		options.add(processor);
 		options.add("-A" + processor);

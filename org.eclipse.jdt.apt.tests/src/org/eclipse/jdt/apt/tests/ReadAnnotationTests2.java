@@ -315,7 +315,7 @@ public class ReadAnnotationTests2 extends BuilderTests {
 		final int expectedLen = expected.length;
 		assertEquals("annotation number mismatch", expected.length, annotations.length); //$NON-NLS-1$
 
-		final HashSet<String> expectedSet = new HashSet<String>(expectedLen * 4 / 3 + 1);
+		final HashSet<String> expectedSet = new HashSet<>(expectedLen * 4 / 3 + 1);
 		for( int i=0; i<expectedLen; i++ )
 			expectedSet.add(expected[i]);
 

@@ -181,7 +181,7 @@ public class RecordElementsTests extends TestCase {
 			BatchTestUtils.copyResource("mod_locations/" + resourceArea + "/" + testClass, targetFolder);
 		}
 
-		List<String> options = new ArrayList<String>();
+		List<String> options = new ArrayList<>();
 		options.add("-A" + processor);
 		options.add("-A" + testMethod);
 		options.add("-processor");

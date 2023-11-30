@@ -434,7 +434,7 @@ public class LRUCache<K, V> implements Cloneable {
 	 * currently in the cache.
 	 */
 	public ICacheEnumeration<K, V> keysAndValues() {
-		return new ICacheEnumeration<K, V>() {
+		return new ICacheEnumeration<>() {
 
 			Enumeration<LRUCacheEntry<K, V>> values = LRUCache.this.entryTable.elements();
 			LRUCacheEntry<K, V> entry;

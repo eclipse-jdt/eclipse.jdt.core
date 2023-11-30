@@ -292,7 +292,7 @@ public static void compile(String[] pathsAndContents, Map options, String[] clas
 	        System.err.print(requestor.problemLog); // problem log empty if no problems
 }
 private static Parser createParser9() {
-	Map<String,String> opts = new HashMap<String, String>();
+	Map<String,String> opts = new HashMap<>();
 	opts.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_9);
 	return new Parser(
 			new ProblemReporter(new IErrorHandlingPolicy() {

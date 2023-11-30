@@ -31,7 +31,7 @@ import com.sun.mirror.declaration.AnnotationTypeDeclaration;
 public class LoaderTestAnnotationProcessorFactory implements
 		AnnotationProcessorFactory {
 
-	private static ArrayList<String> annotations = new ArrayList<String>();
+	private static ArrayList<String> annotations = new ArrayList<>();
 
 	{
 		annotations.add( LoaderTestAnnotation.class.getName() );
