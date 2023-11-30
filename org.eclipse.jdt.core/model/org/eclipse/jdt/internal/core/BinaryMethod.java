@@ -211,9 +211,6 @@ public int getFlags() throws JavaModelException {
 		modifiers |= ExtraCompilerModifiers.AccDefaultMethod;
 	return modifiers;
 }
-/*
- * @see JavaElement#getHandleMemento(StringBuffer)
- */
 @Override
 protected void getHandleMemento(StringBuilder buff) {
 	getParent().getHandleMemento(buff);
