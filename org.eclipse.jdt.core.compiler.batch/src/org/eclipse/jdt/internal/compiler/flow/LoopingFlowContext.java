@@ -451,8 +451,10 @@ public void complainOnDeferredNullChecks(BlockScope scope, FlowInfo callerFlowIn
 	// propagate breaks
 	if(updateInitsOnBreak) {
 		this.initsOnBreak.addPotentialNullInfoFrom(incomingInfo);
+		this.initsOnBreak.acceptIncomingNullnessFrom(incomingInfo);
 		for (int i = 0; i < this.breakTargetsCount; i++) {
 			this.breakTargetContexts[i].initsOnBreak.addPotentialNullInfoFrom(incomingInfo);
+			this.breakTargetContexts[i].initsOnBreak.acceptIncomingNullnessFrom(incomingInfo);
 		}
 	}
 }
