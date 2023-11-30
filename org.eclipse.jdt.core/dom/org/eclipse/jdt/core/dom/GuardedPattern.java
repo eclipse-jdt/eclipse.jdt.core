@@ -226,13 +226,13 @@ public class GuardedPattern extends Pattern{
 		if(this.pattern == null) {
 			// lazy init must be thread-safe for readers
 			synchronized (this) {
-            	if(this.pattern == null) {
-            		preLazyInit();
-            		this.pattern = this.ast.newNullPattern();
-            		postLazyInit(this.pattern, PATTERN_PROPERTY);
-                }
+				if(this.pattern == null) {
+					preLazyInit();
+					this.pattern = this.ast.newNullPattern();
+					postLazyInit(this.pattern, PATTERN_PROPERTY);
+				}
 			}
-        }
+		}
 		return this.pattern;
 	}
 

@@ -584,4 +584,5 @@ public class ASTRewritingRecordPatternTest extends ASTRewritingTest {
 		buf.append(		"}\n");
 		assertEqualString(preview, buf.toString());
 	}
+
 }
