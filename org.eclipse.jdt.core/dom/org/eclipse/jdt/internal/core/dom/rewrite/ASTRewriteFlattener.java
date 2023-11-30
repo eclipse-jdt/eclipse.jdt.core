@@ -132,7 +132,7 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	 * Appends the text representation of the given modifier flags, followed by a single space.
 	 *
 	 * @param modifiers the modifiers
-	 * @param buf The <code>StringBuffer</code> to write the result to.
+	 * @param buf The <code>StringBuilder</code> to write the result to.
 	 */
 	public static void printModifiers(int modifiers, StringBuilder buf) {
 		if (Modifier.isPublic(modifiers)) {
