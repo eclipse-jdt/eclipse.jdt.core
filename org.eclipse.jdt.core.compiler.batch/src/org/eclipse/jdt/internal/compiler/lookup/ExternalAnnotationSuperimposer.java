@@ -34,37 +34,30 @@ import org.eclipse.jdt.internal.compiler.util.Messages;
 class ExternalAnnotationSuperimposer extends TypeBindingVisitor {
 
 	public static void apply(SourceTypeBinding typeBinding, String externalAnnotationPath) {
-		ZipFile zipFile = null;
 		try {
 			File annotationBase = new File(externalAnnotationPath);
 			if (annotationBase.exists()) {
 				String binaryTypeName = String.valueOf(typeBinding.constantPoolName());
 				String relativeFileName = binaryTypeName.replace('.', '/')+ExternalAnnotationProvider.ANNOTATION_FILE_SUFFIX;
 
-				InputStream input;
-				if (annotationBase.isDirectory()) {
-					input = new FileInputStream(externalAnnotationPath+'/'+relativeFileName);
-				} else {
-					zipFile = new ZipFile(externalAnnotationPath);
-					ZipEntry zipEntry = zipFile.getEntry(relativeFileName);
-					if (zipEntry == null)
+				try (ZipFile zipFile = annotationBase.isDirectory() ? null : new ZipFile(externalAnnotationPath)) {
+					ZipEntry zipEntry = (zipFile == null) ? null : zipFile.getEntry(relativeFileName);
+					if (zipFile != null && zipEntry == null) {
 						return;
-					input = zipFile.getInputStream(zipEntry);
+					}
+					try (InputStream input = (zipFile == null)
+							? new FileInputStream(externalAnnotationPath + '/' + relativeFileName)
+							: zipFile.getInputStream(zipEntry)) {
+						annotateType(typeBinding, new ExternalAnnotationProvider(input, binaryTypeName),
+								typeBinding.environment);
+					}
 				}
-				annotateType(typeBinding, new ExternalAnnotationProvider(input, binaryTypeName), typeBinding.environment);
 			}
 		} catch (FileNotFoundException e) {
 			// file not found is expected
 		} catch (IOException e) {
 			typeBinding.scope.problemReporter().abortDueToInternalError(Messages.bind(Messages.abort_externaAnnotationFile,
 						new String[] {String.valueOf(typeBinding.readableName()), externalAnnotationPath, e.getMessage()}));
-		} finally {
-			if (zipFile != null)
-				try {
-					zipFile.close();
-				} catch (IOException e) {
-					// nothing
-				}
 		}
 		if (typeBinding.memberTypes != null) {
 			for (ReferenceBinding memberType : typeBinding.memberTypes) {

@@ -397,13 +397,12 @@ private void copyQueryResults(HashtableOfObject categoryToWords, int newPosition
 void initialize(boolean reuseExistingFile) throws IOException {
 	if (this.indexLocation.exists()) {
 		if (reuseExistingFile) {
-			InputStream stream = this.indexLocation.getInputStream();
-			if (stream == null) {
-				throw new IOException("Failed to use the index file"); //$NON-NLS-1$
-			}
-			this.streamBuffer = new byte[BUFFER_READ_SIZE];
-			this.bufferIndex = 0;
-			try {
+			try (InputStream stream = this.indexLocation.getInputStream()) {
+				if (stream == null) {
+					throw new IOException("Failed to use the index file"); //$NON-NLS-1$
+				}
+				this.streamBuffer = new byte[BUFFER_READ_SIZE];
+				this.bufferIndex = 0;
 				this.bufferEnd = stream.read(this.streamBuffer, 0, 128);
 				char[] signature = readStreamChars(stream);
 				if (!CharOperation.equals(signature, SIGNATURE_CHARS)) {
@@ -417,7 +416,6 @@ void initialize(boolean reuseExistingFile) throws IOException {
 					readHeaderInfo(stream);
 				}
 			} finally {
-				stream.close();
 				this.indexLocation.close();
 			}
 			return;
@@ -429,8 +427,7 @@ void initialize(boolean reuseExistingFile) throws IOException {
 		}
 	}
 	if (this.indexLocation.createNewFile()) {
-		FileOutputStream stream = new FileOutputStream(this.indexLocation.getIndexFile(), false);
-		try (stream) {
+		try (FileOutputStream stream = new FileOutputStream(this.indexLocation.getIndexFile(), false);) {
 			this.streamBuffer = new byte[BUFFER_READ_SIZE];
 			this.bufferIndex = 0;
 			writeStreamChars(stream, SIGNATURE_CHARS);
@@ -556,9 +553,8 @@ DiskIndex mergeWith(MemoryIndex memoryIndex) throws IOException {
 	File newIndexFile = newDiskIndex.indexLocation.getIndexFile();
 	try {
 		newDiskIndex.initializeFrom(this, newIndexFile);
-		FileOutputStream stream = new FileOutputStream(newIndexFile, false);
 		int offsetToHeader = -1;
-		try {
+		try (FileOutputStream stream = new FileOutputStream(newIndexFile, false)) {
 			newDiskIndex.writeAllDocumentNames(docNames, stream);
 			docNames = null; // free up the space
 
@@ -582,7 +578,6 @@ DiskIndex mergeWith(MemoryIndex memoryIndex) throws IOException {
 			newDiskIndex.writeHeaderInfo(stream);
 			positions = null; // free up the space
 		} finally {
-			stream.close();
 			this.streamBuffer = null;
 		}
 		newDiskIndex.writeOffsetToHeader(offsetToHeader);
@@ -667,13 +662,12 @@ private synchronized HashtableOfObject readCategoryTable(char[] categoryName, bo
 		}
 	}
 
-	InputStream stream = this.indexLocation.getInputStream();
 	HashtableOfObject categoryTable = null;
 	char[][] matchingWords = null;
 	int count = 0;
 	int firstOffset = -1;
 	this.streamBuffer = new byte[BUFFER_READ_SIZE];
-	try {
+	try (InputStream stream = this.indexLocation.getInputStream()) {
 		stream.skip(offset);
 		this.bufferIndex = 0;
 		this.bufferEnd = stream.read(this.streamBuffer, 0, this.streamBuffer.length);
@@ -717,13 +711,11 @@ private synchronized HashtableOfObject readCategoryTable(char[] categoryName, bo
 		this.streamBuffer = null;
 		throw ioe;
 	} finally {
-		stream.close();
 		this.indexLocation.close();
 	}
 
 	if (matchingWords != null && count > 0) {
-		stream = this.indexLocation.getInputStream();
-		try {
+		try (InputStream stream = this.indexLocation.getInputStream()) {
 			stream.skip(firstOffset);
 			this.bufferIndex = 0;
 			this.bufferEnd = stream.read(this.streamBuffer, 0, this.streamBuffer.length);
@@ -734,7 +726,6 @@ private synchronized HashtableOfObject readCategoryTable(char[] categoryName, bo
 			this.streamBuffer = null;
 			throw ioe;
 		} finally {
-			stream.close();
 			this.indexLocation.close();
 		}
 	}
@@ -1240,8 +1231,7 @@ private void writeHeaderInfo(FileOutputStream stream) throws IOException {
 }
 private void writeOffsetToHeader(int offsetToHeader) throws IOException {
 	if (offsetToHeader > 0) {
-		RandomAccessFile file = new RandomAccessFile(this.indexLocation.getIndexFile(), "rw"); //$NON-NLS-1$
-		try (file) {
+		try (RandomAccessFile file = new RandomAccessFile(this.indexLocation.getIndexFile(), "rw")) { //$NON-NLS-1$ )
 			file.seek(this.headerInfoOffset); // offset to position in header
 			file.writeInt(offsetToHeader);
 			this.headerInfoOffset = offsetToHeader; // update to reflect the correct offset

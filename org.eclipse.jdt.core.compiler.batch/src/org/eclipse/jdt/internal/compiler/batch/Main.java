@@ -572,20 +572,18 @@ public class Main implements ProblemSeverities, SuffixConstants {
 		public void logException(Exception e) {
 			final String stackTrace = Util.getStackTrace(e).toString();
 			if ((this.tagBits & Logger.XML) != 0) {
-				LineNumberReader reader = new LineNumberReader(new StringReader(stackTrace));
-				String line;
-				int i = 0;
 				StringBuilder buffer = new StringBuilder();
 				String message = e.getMessage();
-				if (message != null) {
-					buffer.append(message).append(Util.LINE_SEPARATOR);
-				}
-				try {
+				try (LineNumberReader reader = new LineNumberReader(new StringReader(stackTrace))) {
+					String line;
+					int i = 0;
+					if (message != null) {
+						buffer.append(message).append(Util.LINE_SEPARATOR);
+					}
 					while ((line = reader.readLine()) != null && i < 4) {
 						buffer.append(line).append(Util.LINE_SEPARATOR);
 						i++;
 					}
-					reader.close();
 				} catch (IOException e1) {
 					// ignore
 				}
@@ -3255,23 +3253,13 @@ private void initializeWarnings(String propertiesFile) {
 	if (!file.exists()) {
 		throw new IllegalArgumentException(this.bind("configure.missingwarningspropertiesfile", propertiesFile)); //$NON-NLS-1$
 	}
-	BufferedInputStream stream = null;
 	Properties properties = null;
-	try {
-		stream = new BufferedInputStream(new FileInputStream(propertiesFile));
+	try (BufferedInputStream stream = new BufferedInputStream(new FileInputStream(propertiesFile))) {
 		properties = new Properties();
 		properties.load(stream);
 	} catch(IOException e) {
 		e.printStackTrace();
 		throw new IllegalArgumentException(this.bind("configure.ioexceptionwarningspropertiesfile", propertiesFile)); //$NON-NLS-1$
-	} finally {
-		if (stream != null) {
-			try {
-				stream.close();
-			} catch(IOException e) {
-				// ignore
-			}
-		}
 	}
 	for(Iterator iterator = properties.entrySet().iterator(); iterator.hasNext(); ) {
 		Map.Entry entry = (Map.Entry) iterator.next();

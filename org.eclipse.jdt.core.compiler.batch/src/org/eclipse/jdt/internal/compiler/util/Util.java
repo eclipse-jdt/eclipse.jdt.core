@@ -14,7 +14,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.util;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -408,18 +407,8 @@ public class Util implements SuffixConstants {
 	 * @throws IOException if a problem occured reading the file.
 	 */
 	public static char[] getFileCharContent(File file, String encoding) throws IOException {
-		InputStream stream = null;
-		try {
-			stream = new FileInputStream(file);
+		try (InputStream stream = new FileInputStream(file)) {
 			return getInputStreamAsCharArray(stream, encoding);
-		} finally {
-			if (stream != null) {
-				try {
-					stream.close();
-				} catch (IOException e) {
-					// ignore
-				}
-			}
 		}
 	}
 	private static FileOutputStream getFileOutputStream(boolean generatePackagesStructure, String outputPath, String relativeFileName) throws IOException {
@@ -618,23 +607,11 @@ public class Util implements SuffixConstants {
 	 * Returns the contents of the given zip entry as a byte array.
 	 * @throws IOException if a problem occurred reading the zip entry.
 	 */
-	public static byte[] getZipEntryByteContent(ZipEntry ze, ZipFile zip)
-		throws IOException {
-
-		InputStream stream = null;
-		try {
-			InputStream inputStream = zip.getInputStream(ze);
-			if (inputStream == null) throw new IOException("Invalid zip entry name : " + ze.getName()); //$NON-NLS-1$
-			stream = new BufferedInputStream(inputStream);
-			return readNBytes(stream, (int) ze.getSize());
-		} finally {
-			if (stream != null) {
-				try {
-					stream.close();
-				} catch (IOException e) {
-					// ignore
-				}
-			}
+	public static byte[] getZipEntryByteContent(ZipEntry ze, ZipFile zip) throws IOException {
+		try (InputStream inputStream = zip.getInputStream(ze)) {
+			if (inputStream == null)
+				throw new IOException("Invalid zip entry name : " + ze.getName()); //$NON-NLS-1$
+			return inputStream.readAllBytes();
 		}
 	}
 
@@ -986,7 +963,7 @@ public class Util implements SuffixConstants {
 			return;
 		}
 		*/
-		try (BufferedOutputStream output = new BufferedOutputStream(file, DEFAULT_WRITING_SIZE);) {
+		try (BufferedOutputStream output = new BufferedOutputStream(file, DEFAULT_WRITING_SIZE)) {
 			// if no IOException occured, output cannot be null
 			output.write(classFile.header, 0, classFile.headerOffset);
 			output.write(classFile.contents, 0, classFile.contentsOffset);

@@ -1307,16 +1307,13 @@ public class JavaProject
 
 		ArrayList paths = new ArrayList();
 		IClasspathEntry defaultOutput = null;
-		StringReader reader = new StringReader(xmlClasspath);
 		Element cpElement;
-		try {
+		try (StringReader reader = new StringReader(xmlClasspath)) {
 			@SuppressWarnings("restriction")
 			DocumentBuilder parser = org.eclipse.core.internal.runtime.XmlProcessorFactory.createDocumentBuilderWithErrorOnDOCTYPE();
 			cpElement = parser.parse(new InputSource(reader)).getDocumentElement();
 		} catch (SAXException | ParserConfigurationException e) {
 			throw new IOException(Messages.file_badFormat, e);
-		} finally {
-			reader.close();
 		}
 
 		if (!cpElement.getNodeName().equalsIgnoreCase("classpath")) { //$NON-NLS-1$
@@ -1368,18 +1365,15 @@ public class JavaProject
 
 		try {
 			if (encodedEntry == null) return null;
-			StringReader reader = new StringReader(encodedEntry);
-			Element node;
 
-			try {
+			Element node;
+			try (StringReader reader = new StringReader(encodedEntry)) {
 				@SuppressWarnings("restriction")
 				DocumentBuilder parser =
 						org.eclipse.core.internal.runtime.XmlProcessorFactory.createDocumentBuilderWithErrorOnDOCTYPE();
 				node = parser.parse(new InputSource(reader)).getDocumentElement();
 			} catch (SAXException | ParserConfigurationException e) {
 				return null;
-			} finally {
-				reader.close();
 			}
 
 			if (!node.getNodeName().equalsIgnoreCase(ClasspathEntry.TAG_CLASSPATHENTRY)
@@ -1429,53 +1423,39 @@ public class JavaProject
 	 * Returns the XML String encoding of the class path.
 	 */
 	protected String encodeClasspath(IClasspathEntry[] classpath, IClasspathEntry[] referencedEntries, IPath outputLocation, boolean indent, Map unknownElements) throws JavaModelException {
-		try {
-			StringWriter writer = new StringWriter();
-			XMLWriter xmlWriter = new XMLWriter(writer, this, true/*print XML version*/);
+		StringWriter writer = new StringWriter();
+		XMLWriter xmlWriter = new XMLWriter(writer, this, true/*print XML version*/);
 
-			xmlWriter.startTag(ClasspathEntry.TAG_CLASSPATH, indent);
-			for (int i = 0; i < classpath.length; ++i) {
-				((ClasspathEntry)classpath[i]).elementEncode(xmlWriter, this.project.getFullPath(), indent, true, unknownElements, false);
-			}
-
-			if (outputLocation != null) {
-				outputLocation = outputLocation.removeFirstSegments(1);
-				outputLocation = outputLocation.makeRelative();
-				HashMap parameters = new HashMap();
-				parameters.put(ClasspathEntry.TAG_KIND, ClasspathEntry.kindToString(ClasspathEntry.K_OUTPUT));
-				parameters.put(ClasspathEntry.TAG_PATH, String.valueOf(outputLocation));
-				xmlWriter.printTag(ClasspathEntry.TAG_CLASSPATHENTRY, parameters, indent, true, true);
-			}
-
-			if (referencedEntries != null) {
-				for (int i = 0; i < referencedEntries.length; ++i) {
-					((ClasspathEntry) referencedEntries[i]).elementEncode(xmlWriter, this.project.getFullPath(), indent, true, unknownElements, true);
-				}
-			}
-
-			xmlWriter.endTag(ClasspathEntry.TAG_CLASSPATH, indent, true/*insert new line*/);
-			writer.flush();
-			writer.close();
-			return writer.toString();
-		} catch (IOException e) {
-			throw new JavaModelException(e, IJavaModelStatusConstants.IO_EXCEPTION);
+		xmlWriter.startTag(ClasspathEntry.TAG_CLASSPATH, indent);
+		for (int i = 0; i < classpath.length; ++i) {
+			((ClasspathEntry)classpath[i]).elementEncode(xmlWriter, this.project.getFullPath(), indent, true, unknownElements, false);
 		}
+
+		if (outputLocation != null) {
+			outputLocation = outputLocation.removeFirstSegments(1);
+			outputLocation = outputLocation.makeRelative();
+			HashMap parameters = new HashMap();
+			parameters.put(ClasspathEntry.TAG_KIND, ClasspathEntry.kindToString(ClasspathEntry.K_OUTPUT));
+			parameters.put(ClasspathEntry.TAG_PATH, String.valueOf(outputLocation));
+			xmlWriter.printTag(ClasspathEntry.TAG_CLASSPATHENTRY, parameters, indent, true, true);
+		}
+
+		if (referencedEntries != null) {
+			for (int i = 0; i < referencedEntries.length; ++i) {
+				((ClasspathEntry) referencedEntries[i]).elementEncode(xmlWriter, this.project.getFullPath(), indent, true, unknownElements, true);
+			}
+		}
+
+		xmlWriter.endTag(ClasspathEntry.TAG_CLASSPATH, indent, true/*insert new line*/);
+		return writer.toString();
 	}
 
 	@Override
 	public String encodeClasspathEntry(IClasspathEntry classpathEntry) {
-		try {
-			StringWriter writer = new StringWriter();
-			XMLWriter xmlWriter = new XMLWriter(writer, this, false/*don't print XML version*/);
-
-			((ClasspathEntry)classpathEntry).elementEncode(xmlWriter, this.project.getFullPath(), true/*indent*/, true/*insert new line*/, null/*not interested in unknown elements*/, (classpathEntry.getReferencingEntry() != null));
-
-			writer.flush();
-			writer.close();
-			return writer.toString();
-		} catch (IOException e) {
-			return null; // never happens since all is done in memory
-		}
+		StringWriter writer = new StringWriter();
+		XMLWriter xmlWriter = new XMLWriter(writer, this, false/*don't print XML version*/);
+		((ClasspathEntry)classpathEntry).elementEncode(xmlWriter, this.project.getFullPath(), true/*indent*/, true/*insert new line*/, null/*not interested in unknown elements*/, (classpathEntry.getReferencingEntry() != null));
+		return writer.toString();
 	}
 
 	/**

@@ -128,9 +128,7 @@ protected String readJarContent(final SimpleSet packageSet) {
 }
 IModule initializeModule() {
 	IModule mod = null;
-	ZipFile file = null;
-	try {
-		file = new ZipFile(this.zipFilename);
+	try (ZipFile file = new ZipFile(this.zipFilename)) {
 		String releasePath = "META-INF/versions/" + this.compliance + '/' + IModule.MODULE_INFO_CLASS; //$NON-NLS-1$
 		ClassFileReader classfile = null;
 		try {
@@ -149,13 +147,6 @@ IModule initializeModule() {
 		}
 	} catch (ClassFormatException | IOException e) {
 		// do nothing
-	} finally {
-		try {
-			if (file != null)
-				file.close();
-		} catch (IOException e) {
-			// do nothing
-		}
 	}
 	return mod;
 }

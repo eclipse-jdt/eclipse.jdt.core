@@ -235,21 +235,15 @@ public final class Messages {
 		final String[] variants = buildVariants(bundleName);
 		// search the dirs in reverse order so the cascading defaults is set correctly
 		for (int i = variants.length; --i >= 0;) {
-			InputStream input = (loader == null)
-				? ClassLoader.getSystemResourceAsStream(variants[i])
-				: loader.getResourceAsStream(variants[i]);
-			if (input == null) continue;
-			try {
+			try (InputStream input = (loader == null) ? ClassLoader.getSystemResourceAsStream(variants[i])
+					: loader.getResourceAsStream(variants[i])) {
+				if (input == null) {
+					continue;
+				}
 				final MessagesProperties properties = new MessagesProperties(fields, bundleName);
 				properties.load(input);
 			} catch (IOException e) {
 				// ignore
-			} finally {
-				try {
-					input.close();
-				} catch (IOException e) {
-					// ignore
-				}
 			}
 		}
 	}

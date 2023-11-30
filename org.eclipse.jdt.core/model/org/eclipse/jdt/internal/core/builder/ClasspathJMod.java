@@ -42,9 +42,7 @@ public class ClasspathJMod extends ClasspathJar {
 	@Override
 	IModule initializeModule() {
 		IModule mod = null;
-		ZipFile file = null;
-		try {
-			file = new ZipFile(this.zipFilename);
+		try (ZipFile file = new ZipFile(this.zipFilename)) {
 			String fileName = new String(CLASSES_FOLDER) + IModule.MODULE_INFO_CLASS;
 			ClassFileReader classfile = ClassFileReader.read(file, fileName);
 			if (classfile != null) {
@@ -52,13 +50,6 @@ public class ClasspathJMod extends ClasspathJar {
 			}
 		} catch (ClassFormatException | IOException e) {
 			// do nothing
-		} finally {
-			try {
-				if (file != null)
-					file.close();
-			} catch (IOException e) {
-				// do nothing
-			}
 		}
 		return mod;
 	}
