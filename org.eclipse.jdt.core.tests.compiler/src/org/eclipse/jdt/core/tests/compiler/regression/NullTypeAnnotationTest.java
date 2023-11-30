@@ -19021,4 +19021,71 @@ public void testGH1311_expiry() {
 	runner.classLibraries = this.LIBS;
 	runner.runNegativeTest();
 }
+public void testBreakInNested_GH1659() {
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+		"Foo.java",
+		"""
+		import org.eclipse.jdt.annotation.NonNull;
+
+		public class Foo {
+			@NonNull String foo(String... strings) {
+				String s = getNonNull();
+				loop: {
+					for (String str : strings)
+						if (str.isEmpty())
+							break loop;
+				}
+				return s; // <<<
+			}
+
+			private @NonNull String getNonNull() {
+				return "";
+			}
+		}
+		"""
+		};
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
+	runner.classLibraries = this.LIBS;
+	runner.runConformTest();
+}
+public void testBreakInNested_GH1659_defNull() {
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+		"Foo.java",
+		"""
+		public class Foo {
+			void foo(String... strings) {
+				String s = null;
+				loop: {
+					for (String str : strings)
+						if (str.isEmpty())
+							break loop;
+				}
+				if (s != null)
+					System.out.println();
+			}
+		}
+		"""
+		};
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
+	runner.classLibraries = this.LIBS;
+	runner.expectedCompilerLog =
+			"""
+			----------
+			1. ERROR in Foo.java (at line 9)
+				if (s != null)
+				    ^
+			Null comparison always yields false: The variable s can only be null at this location
+			----------
+			2. WARNING in Foo.java (at line 10)
+				System.out.println();
+				^^^^^^^^^^^^^^^^^^^^
+			Dead code
+			----------
+			""";
+	runner.runNegativeTest();
+}
 }
