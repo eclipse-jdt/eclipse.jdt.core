@@ -235,16 +235,9 @@ public class CodeFormatterApplication implements IApplication {
 			}
 
 			// write the file
-			final BufferedWriter out = new BufferedWriter(new FileWriter(file));
-			try {
+			try (BufferedWriter out = new BufferedWriter(new FileWriter(file))) {
 				out.write(doc.get());
 				out.flush();
-			} finally {
-				try {
-					out.close();
-				} catch (IOException e) {
-					/* ignore */
-				}
 			}
 		} catch (IOException e) {
 			String errorMessage = Messages.bind(Messages.CaughtException, "IOException", e.getLocalizedMessage()); //$NON-NLS-1$
@@ -355,10 +348,8 @@ public class CodeFormatterApplication implements IApplication {
 	 * specified configuration file.
 	 */
 	private Properties readConfig(String filename) {
-		BufferedInputStream stream = null;
 		File configFile = new File(filename);
-		try {
-			stream = new BufferedInputStream(new FileInputStream(configFile));
+		try (BufferedInputStream stream = new BufferedInputStream(new FileInputStream(configFile))) {
 			final Properties formatterOptions = new Properties();
 			formatterOptions.load(stream);
 			return formatterOptions;
@@ -381,14 +372,6 @@ public class CodeFormatterApplication implements IApplication {
 			}
 			Util.log(e, errorMessage);
 			System.err.println(errorMessage);
-		} finally {
-			if (stream != null) {
-				try {
-					stream.close();
-				} catch (IOException e) {
-					/* ignore */
-				}
-			}
 		}
 		return null;
 	}

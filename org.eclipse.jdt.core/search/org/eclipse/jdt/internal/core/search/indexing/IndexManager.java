@@ -1424,7 +1424,6 @@ public synchronized void updateParticipant(IPath indexPath, IPath containerPath)
 	}
 }
 private void writeJavaLikeNamesFile() {
-	BufferedWriter writer = null;
 	String pathName = getJavaPluginWorkingLocation().toOSString();
 	try {
 		char[][] currentNames = Util.getJavaLikeExtensions();
@@ -1436,31 +1435,22 @@ private void writeJavaLikeNamesFile() {
 			Util.sort(currentNames);
 		}
 		File javaLikeNamesFile = new File(pathName, "javaLikeNames.txt"); //$NON-NLS-1$
-		writer = new BufferedWriter(new FileWriter(javaLikeNamesFile));
-		for (int i = 0; i < length-1; i++) {
-			writer.write(currentNames[i]);
-			writer.write('\n');
+		try (BufferedWriter writer = new BufferedWriter(new FileWriter(javaLikeNamesFile))) {
+			for (int i = 0; i < length-1; i++) {
+				writer.write(currentNames[i]);
+				writer.write('\n');
+			}
+			if (length > 0) {
+				writer.write(currentNames[length-1]);
+			}
 		}
-		if (length > 0)
-			writer.write(currentNames[length-1]);
-
 	} catch (IOException ignored) {
 		if (VERBOSE)
 			trace("Failed to write javaLikeNames file"); //$NON-NLS-1$
-	} finally {
-		if (writer != null) {
-			try {
-				writer.close();
-			} catch (IOException e) {
-				// ignore
-			}
-		}
 	}
 }
 private void writeIndexMapFile() {
-	BufferedWriter writer = null;
-	try {
-		writer = new BufferedWriter(new FileWriter(this.indexNamesMapFile));
+	try (BufferedWriter writer = new BufferedWriter(new FileWriter(this.indexNamesMapFile))) {
 		writer.write(DiskIndex.SIGNATURE);
 		writer.write('\n');
 		Object[] keys = this.indexStates.keyTable;
@@ -1478,22 +1468,13 @@ private void writeIndexMapFile() {
 			}
 		}
 	} catch (IOException ignored) {
-		if (VERBOSE)
+		if (VERBOSE) {
 			trace("Failed to write saved index file names"); //$NON-NLS-1$
-	} finally {
-		if (writer != null) {
-			try {
-				writer.close();
-			} catch (IOException e) {
-				// ignore
-			}
 		}
 	}
 }
 private void writeParticipantsIndexNamesFile() {
-	BufferedWriter writer = null;
-	try {
-		writer = new BufferedWriter(new FileWriter(this.participantIndexNamesFile));
+	try (BufferedWriter writer = new BufferedWriter(new FileWriter(this.participantIndexNamesFile))) {
 		writer.write(DiskIndex.SIGNATURE);
 		writer.write('\n');
 		Object[] indexFiles = this.participantsContainers.keyTable;
@@ -1510,14 +1491,6 @@ private void writeParticipantsIndexNamesFile() {
 	} catch (IOException ignored) {
 		if (VERBOSE)
 			trace("Failed to write participant index file names"); //$NON-NLS-1$
-	} finally {
-		if (writer != null) {
-			try {
-				writer.close();
-			} catch (IOException e) {
-				// ignore
-			}
-		}
 	}
 }
 private void writeSavedIndexNamesFile() {

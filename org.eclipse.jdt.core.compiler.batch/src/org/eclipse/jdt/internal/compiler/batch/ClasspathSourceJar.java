@@ -40,14 +40,9 @@ public class ClasspathSourceJar extends ClasspathJar {
 		ZipEntry sourceEntry = this.zipFile.getEntry(qualifiedBinaryFileName.substring(0, qualifiedBinaryFileName.length() - 6)  + SUFFIX_STRING_java);
 		if (sourceEntry != null) {
 			try {
-				InputStream stream = null;
 				char[] contents = null;
-				try {
-					stream = this.zipFile.getInputStream(sourceEntry);
+				try (InputStream stream = this.zipFile.getInputStream(sourceEntry)) {
 					contents = Util.getInputStreamAsCharArray(stream, this.encoding);
-				} finally {
-					if (stream != null)
-						stream.close();
 				}
 				CompilationUnit compilationUnit = new CompilationUnit(
 					contents,

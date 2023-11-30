@@ -373,9 +373,8 @@ public final class ExternalAnnotationUtil {
 
 			createNewFile(file, newContent.toString(), monitor);
 		} else {
-			BufferedReader reader = new BufferedReader(new InputStreamReader(file.getContents()));
 			StringBuilder newContent = new StringBuilder();
-			try {
+			try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getContents()))) {
 				// type references get the previous signature from the existing type binding:
 				String previousSignature = originalSignature;
 				newContent.append(reader.readLine()).append('\n'); // skip class name
@@ -456,8 +455,6 @@ public final class ExternalAnnotationUtil {
 				newContent.append(' ').append(originalSignature).append('\n');
 				annotatedSignature = updateSignature(previousSignature, annotatedSignature, updatePosition, mergeStrategy);
 				writeFile(file, newContent, annotatedSignature, line, reader, monitor);
-			} finally {
-				reader.close();
 			}
 		}
 	}

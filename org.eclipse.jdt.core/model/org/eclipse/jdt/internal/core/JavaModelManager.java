@@ -214,16 +214,16 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			Thread currentThread = Thread.currentThread();
 			Iterator<ZipFile> iterator = this.map.values().iterator();
 			while (iterator.hasNext()) {
-				ZipFile zipFile = iterator.next();
-				try {
+				String zipFileName = null;
+				try (ZipFile zipFile = iterator.next()) {
+					zipFileName= zipFile.getName();
 					if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
 						trace("(" + currentThread + ") [ZipCache[" + this.owner //$NON-NLS-1$//$NON-NLS-2$
 								+ "].flush()] Closing ZipFile on " + zipFile.getName()); //$NON-NLS-1$
 					}
-					zipFile.close();
 				} catch (IOException e) {
 					// problem occured closing zip file: cannot do much more
-					JavaCore.getPlugin().getLog().log(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, "Error closing " + zipFile.getName(), e)); //$NON-NLS-1$
+					JavaCore.getPlugin().getLog().log(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, "Error closing " + zipFileName, e)); //$NON-NLS-1$
 				}
 			}
 		}
@@ -3576,24 +3576,15 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	private Set<IPath> loadClasspathListCache(String cacheName) {
 		Set<IPath> pathCache = new HashSet<>();
 		File cacheFile = getClasspathListFile(cacheName);
-		DataInputStream in = null;
-		try {
-			in = new DataInputStream(new BufferedInputStream(new FileInputStream(cacheFile)));
+		try (DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(cacheFile)))) {
 			int size = in.readInt();
 			while (size-- > 0) {
 				String path = in.readUTF();
 				pathCache.add(Path.fromPortableString(path));
 			}
 		} catch (IOException e) {
-			if (cacheFile.exists())
+			if (cacheFile.exists()) {
 				Util.log(e, "Unable to read JavaModelManager " + cacheName + " file"); //$NON-NLS-1$ //$NON-NLS-2$
-		} finally {
-			if (in != null) {
-				try {
-					in.close();
-				} catch (IOException e) {
-					// nothing we can do: ignore
-				}
 			}
 		}
 		return Collections.synchronizedSet(pathCache);
@@ -3646,16 +3637,13 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 		try {
 			if (xmlString != null){
-				StringReader reader = new StringReader(xmlString);
 				Element cpElement;
-				try {
+				try (StringReader reader = new StringReader(xmlString)) {
 					@SuppressWarnings("restriction")
 					DocumentBuilder parser = org.eclipse.core.internal.runtime.XmlProcessorFactory.createDocumentBuilderWithErrorOnDOCTYPE();
 					cpElement = parser.parse(new InputSource(reader)).getDocumentElement();
 				} catch(SAXException | ParserConfigurationException e){
 					return;
-				} finally {
-					reader.close();
 				}
 				if (cpElement == null) return;
 				if (!cpElement.getNodeName().equalsIgnoreCase("variables")) { //$NON-NLS-1$
@@ -3691,9 +3679,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 		// load variables and containers from saved file into cache
 		File file = getVariableAndContainersFile();
-		DataInputStream in = null;
-		try {
-			in = new DataInputStream(new BufferedInputStream(new FileInputStream(file)));
+		try (DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(file)))) {
 			switch (in.readInt()) {
 				case 2 :
 					new VariablesAndContainersLoadHelper(in).load();
@@ -3734,14 +3720,6 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		} catch (RuntimeException e) {
 			if (file.exists())
 				Util.log(e, "Unable to read variable and containers file (file is corrupt)"); //$NON-NLS-1$
-		} finally {
-			if (in != null) {
-				try {
-					in.close();
-				} catch (IOException e) {
-					// nothing we can do: ignore
-				}
-			}
 		}
 
 		// override persisted values for variables which have a registered initializer

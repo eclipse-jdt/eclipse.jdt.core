@@ -139,8 +139,6 @@ public class UserLibrary {
 			}
 		}
 		xmlWriter.endTag(TAG_USERLIBRARY, true/*insert tab*/, true/*insert new line*/);
-		writer.flush();
-		writer.close();
 		return writer.toString();
 	}
 
