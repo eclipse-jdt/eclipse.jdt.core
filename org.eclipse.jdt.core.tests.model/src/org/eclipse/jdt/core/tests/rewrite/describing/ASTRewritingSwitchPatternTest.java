@@ -1077,5 +1077,63 @@ public class ASTRewritingSwitchPatternTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 
+	public void testNPEinASTRewriteFlattener() throws Exception {
+        if (checkAPILevel()) {
+            return;
+        }
+        IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+        StringBuilder buf= new StringBuilder();
+        buf.append("public class X {\n");
+        buf.append(     "void foo(Object o) {\n");
+        buf.append(     "   switch (o) {\n");
+        buf.append(     "       case Integer i when i > 10:\n");
+        buf.append(     "            System.out.println(\"Greater than 10\");\n");
+        buf.append(     "       default         : System.out.println(\"0\");\n");
+        buf.append(     "   }\n");
+        buf.append(     "}\n");
+        buf.append(     "\n");
+        buf.append(     "}\n");
+
+        ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+
+        CompilationUnit astRoot= createAST(this.apiLevel, cu);
+        ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+        AST ast= astRoot.getAST();
+
+        assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+        TypeDeclaration type= findTypeDeclaration(astRoot, "X");
+        MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+        Block block= methodDecl.getBody();
+        List blockStatements= block.statements();
+        assertTrue("Number of statements not 1", blockStatements.size() == 1);
+
+        { // Modify Pattern from the Guarded pattern
+
+            SwitchStatement switchStatement = (SwitchStatement) blockStatements.get(0);
+            List statements= switchStatement.statements();
+            assertTrue("Number of statements not 4", statements.size() == 4);
+            SwitchCase caseStatement= (SwitchCase)statements.get(0);
+            GuardedPattern guardedPattern = ast.newGuardedPattern();
+
+            rewrite.replace((ASTNode) caseStatement.expressions().get(0),guardedPattern, null);
+        }
+
+        String preview= evaluateRewrite(cu, rewrite);
+
+        StringBuilder buf1= new StringBuilder();
+        buf1= new StringBuilder();
+        buf1.append("public class X {\n");
+        buf1.append(        "void foo(Object o) {\n");
+        buf1.append(        "   switch (o) {\n");
+        buf1.append(        "       case null when null:\n");
+        buf1.append(        "            System.out.println(\"Greater than 10\");\n");
+        buf1.append(        "       default         : System.out.println(\"0\");\n");
+        buf1.append(        "   }\n");
+        buf1.append(        "}\n");
+        buf1.append(        "\n");
+        buf1.append(        "}\n");
+        assertEqualString(preview, buf1.toString());
+    }
 
 }
