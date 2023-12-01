@@ -99,7 +99,7 @@ public JavaSearchNameEnvironment(IJavaProject javaProject, org.eclipse.jdt.core.
 
 	// if there are working copies, we need to index their packages too
 	if(this.workingCopies.size() > 0) {
-		Optional<ClasspathLocation> firstSrcLocation = this.locationSet.stream().filter(cp -> cp instanceof ClasspathSourceDirectory).findFirst();
+		Optional<ClasspathLocation> firstSrcLocation = this.locationSet.stream().filter(ClasspathSourceDirectory.class::isInstance).findFirst();
 		if(!firstSrcLocation.isPresent()) {
 			/*
 			 * Specifying working copies but not providing a project with a source folder is not supported by the current implementation.
@@ -572,8 +572,8 @@ public IModule getModule(char[] moduleName) {
 public char[][] getAllAutomaticModules() {
 	if (this.moduleLocations == null || this.moduleLocations.size() == 0)
 		return CharOperation.NO_CHAR_CHAR;
-	Set<char[]> set = this.moduleLocations.values().stream().map(e -> e.getModule()).filter(m -> m != null && m.isAutomatic())
-			.map(m -> m.name()).collect(Collectors.toSet());
+	Set<char[]> set = this.moduleLocations.values().stream().map(ClasspathLocation::getModule).filter(m -> m != null && m.isAutomatic())
+			.map(IModule::name).collect(Collectors.toSet());
 	return set.toArray(new char[set.size()][]);
 }
 
