@@ -7861,7 +7861,7 @@ public void addPatternAccessorExceptionHandler(BlockScope scope, boolean addTarg
 		this.exitUserScope(scope);
 	}
 	pushExceptionOnStack(TypeBinding.wellKnownType(scope, TypeIds.T_JavaLangThrowable));
-	patternExceptionLabels.forEach(e -> e.place());
+	patternExceptionLabels.forEach(ExceptionLabel::place);
 
 	LocalVariableBinding catchVar = this.scopeToCatchVar.get(scope);
 

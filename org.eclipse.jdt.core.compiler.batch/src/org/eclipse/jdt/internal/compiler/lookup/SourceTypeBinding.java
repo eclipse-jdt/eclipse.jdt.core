@@ -907,7 +907,7 @@ public List<MethodBinding> checkAndAddSyntheticRecordComponentAccessors(MethodBi
 	// and no accessor should be created (essentially in a recovered code if there are errors) - if there are no
 	// errors then filteredComponents equals components.
 	List<String> filteredComponents = Arrays.stream(this.fields) // initialize with all the record components
-			.filter(f -> f.isRecordComponent())
+			.filter(FieldBinding::isRecordComponent)
 			.map(f -> new String(f.name))
 			.collect(Collectors.toList());
 

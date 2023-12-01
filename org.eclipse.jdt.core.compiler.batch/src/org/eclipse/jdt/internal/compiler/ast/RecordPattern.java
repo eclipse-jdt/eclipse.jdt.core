@@ -367,7 +367,7 @@ public class RecordPattern extends TypePattern {
 		if (currentScope == null || labels == null || labels.isEmpty())
 			return;
 		Predicate<Scope> pred = codeStream.patternCatchStack.isEmpty() ?
-			 s -> s instanceof MethodScope :
+			 MethodScope.class::isInstance :
 				 s -> s == codeStream.patternCatchStack.firstElement();
 
 		Scope scope = currentScope;

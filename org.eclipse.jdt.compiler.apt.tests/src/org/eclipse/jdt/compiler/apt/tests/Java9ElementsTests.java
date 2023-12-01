@@ -434,7 +434,7 @@ public class Java9ElementsTests extends TestCase {
 		JavaCompiler compiler = BatchTestUtils.getEclipseCompiler();
 		final String autoModuleJar = BatchTestUtils.setupProcessorJar("lib/lib.x.jar", BatchTestUtils._tmpFolder);
 		internalTest(compiler, MODULE_PROC, "testBug572673", null, "bug572673", true, 
-				(options) -> {
+				options -> {
 					options.add("--module-path");
 					options.add(BatchTestUtils._jls8ProcessorJarPath + 
 							File.pathSeparator + autoModuleJar);
