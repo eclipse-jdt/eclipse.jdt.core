@@ -199,6 +199,16 @@ public class GuardedPattern extends Pattern{
 	 */
 	public Expression getExpression() {
 		supportedOnlyIn21();
+		if (this.conditonalExpression == null) {
+			//lazy init must be thread-safe for readers
+			synchronized (this) {
+				if (this.conditonalExpression == null) {
+					preLazyInit();
+					this.conditonalExpression = this.ast.newNullLiteral();
+					postLazyInit(this.pattern, EXPRESSION_PROPERTY);
+				}
+			}
+		}
 		return this.conditonalExpression;
 	}
 
@@ -213,6 +223,16 @@ public class GuardedPattern extends Pattern{
 	 */
 	public Pattern getPattern() {
 		supportedOnlyIn21();
+		if (this.pattern == null) {
+			// lazy init must be thread-safe for readers
+			synchronized (this) {
+				if (this.pattern == null) {
+					preLazyInit();
+					this.pattern = this.ast.newNullPattern();
+					postLazyInit(this.pattern, PATTERN_PROPERTY);
+				}
+			}
+		}
 		return this.pattern;
 	}
 
