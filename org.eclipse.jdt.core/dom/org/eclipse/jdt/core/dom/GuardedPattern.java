@@ -230,9 +230,9 @@ public class GuardedPattern extends Pattern{
             		preLazyInit();
             		this.pattern = this.ast.newNullPattern();
             		postLazyInit(this.pattern, PATTERN_PROPERTY);
-                }
-			}
-        }
+        		}
+        	}
+		}
 		return this.pattern;
 	}
 
