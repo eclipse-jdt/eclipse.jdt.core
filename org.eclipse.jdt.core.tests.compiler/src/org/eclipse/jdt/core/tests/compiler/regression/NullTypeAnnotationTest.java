@@ -19088,4 +19088,48 @@ public void testBreakInNested_GH1659_defNull() {
 			""";
 	runner.runNegativeTest();
 }
+public void testBreakInNested_GH1661() {
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+		"Foo.java",
+		"""
+		import org.eclipse.jdt.annotation.NonNull;
+
+		public class Foo {
+			Object f0, f1, f2, f3, f4, f5, f6, f7, f8, f9;
+			Object f10, f11, f12, f13, f14, f15, f16, f17, f18, f19;
+			Object f20, f21, f22, f23, f24, f25, f26, f27, f28, f29;
+			Object f30, f31, f32, f33, f34, f35, f36, f37, f38, f39;
+			Object f40, f41, f42, f43, f44, f45, f46, f47, f48, f49;
+			Object f50, f51, f52, f53, f54, f55, f56, f57, f58, f59;
+			Object f60, f61, f62, f63, f64, f65, f66, f67, f68, f69;
+			Object f70, f71, f72, f73, f74, f75, f76, f77, f78, f79;
+			Object f80, f81, f82, f83, f84, f85, f86, f87, f88, f89;
+			Object f90, f91, f92, f93, f94, f95, f96, f97, f98, f99;
+			Object f100, f101, f102, f103, f104, f105, f106, f107, f108, f109;
+			Object f110, f111, f112, f113, f114, f115, f116, f117, f118, f119;
+			Object f120, f121, f122, f123;
+			void foo(String... strings) {
+				long l0 = 0;
+				long l1 = 1;
+				if (l1 != 0) {
+					long l2 = l1;
+					while (l2 != 0) {
+						long l3 = 3;
+						long l4 = 5;
+						if (l4 == 3) {
+							l0 = l3;
+							break;
+						}
+					}
+				}
+			}
+		}
+		"""
+		};
+	runner.customOptions = getCompilerOptions();
+	runner.customOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
+	runner.classLibraries = this.LIBS;
+	runner.runConformTest();
+}
 }
