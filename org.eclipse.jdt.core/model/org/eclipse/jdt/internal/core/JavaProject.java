@@ -3724,7 +3724,7 @@ public class JavaProject
 		}
 
 		public static Optional<CycleInfo> findCycleContaining(Collection<List<CycleInfo>> infos, IPath path) {
-			return infos.stream().flatMap(l -> l.stream()).filter(c -> c.cycle.contains(path)).findAny();
+			return infos.stream().flatMap(List::stream).filter(c -> c.cycle.contains(path)).findAny();
 		}
 
 		public static void add(IPath project, List<IPath> prefix, List<IPath> cycle, Map<IPath, List<CycleInfo>> cyclesPerProject) {

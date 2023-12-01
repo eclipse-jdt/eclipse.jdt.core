@@ -847,8 +847,8 @@ private void writeBinaryLocations(CompressedWriter out, ClasspathLocation[] loca
 					try {
 						out.writeChars(pkgName.toCharArray());
 						char[][] targetModules = entry.getValue().stream()
-								.map(addExport -> addExport.getTargetModules()).filter(targets -> targets != null)
-								.reduce((f, s) -> CharOperation.arrayConcat(f, s)).orElse(null);
+								.map(AddExports::getTargetModules).filter(targets -> targets != null)
+								.reduce(CharOperation::arrayConcat).orElse(null);
 						writeNames(targetModules, out);
 					} catch (IOException e) {
 						// ignore

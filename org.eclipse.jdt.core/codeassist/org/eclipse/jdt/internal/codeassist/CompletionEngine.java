@@ -9858,8 +9858,8 @@ public final class CompletionEngine
 			arguments = ms.arguments;
 			candidates = StreamSupport.stream(methodsFound.spliterator(), false)
 					.filter(Objects::nonNull)
-					.filter(o -> o instanceof Object[]).map(o -> (Object[]) o)
-					.map(o -> o[0]).filter(o -> o instanceof MethodBinding).map(b -> (MethodBinding) b)
+					.filter(Object[].class::isInstance).map(o -> (Object[]) o)
+					.map(o -> o[0]).filter(MethodBinding.class::isInstance).map(b -> (MethodBinding) b)
 					.filter(b -> CharOperation.equals(ms.selector, b.selector)).findFirst()
 					.map(m -> new MethodBinding[] { m }).orElse(new MethodBinding[0]);
 		} else if (this.parser.assistNodeParent instanceof AllocationExpression ae) {
@@ -9869,8 +9869,8 @@ public final class CompletionEngine
 						true);
 			}
 			candidates = StreamSupport.stream(methodsFound.spliterator(), false).filter(Objects::nonNull)
-					.filter(o -> o instanceof Object[]).map(o -> (Object[]) o).map(o -> o[0])
-					.filter(o -> o instanceof MethodBinding).map(b -> (MethodBinding) b).filter(b -> b.isConstructor())
+					.filter(Object[].class::isInstance).map(o -> (Object[]) o).map(o -> o[0])
+					.filter(MethodBinding.class::isInstance).map(b -> (MethodBinding) b).filter(MethodBinding::isConstructor)
 					.toArray(MethodBinding[]::new);
 		} else {
 			return parameterName;

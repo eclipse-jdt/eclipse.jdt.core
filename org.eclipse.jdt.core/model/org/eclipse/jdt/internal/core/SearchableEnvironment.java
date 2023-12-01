@@ -111,7 +111,7 @@ public class SearchableEnvironment
 			this.moduleUpdater = new ModuleUpdater(project);
 			if (!excludeTestCode) {
 				IClasspathEntry[] expandedClasspath = project.getExpandedClasspath();
-				if(Arrays.stream(expandedClasspath).anyMatch(e -> e.isTest())) {
+				if(Arrays.stream(expandedClasspath).anyMatch(IClasspathEntry::isTest)) {
 					this.moduleUpdater.addReadUnnamedForNonEmptyClasspath(project, expandedClasspath);
 				}
 			}
