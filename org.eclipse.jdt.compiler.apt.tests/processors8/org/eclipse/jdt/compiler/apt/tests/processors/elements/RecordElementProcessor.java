@@ -305,8 +305,8 @@ public class RecordElementProcessor extends BaseElementProcessor {
 		recordComponent = (RecordComponentElement) element;
 		verifyAnnotations(recordComponent, new String[]{});
 		List<ExecutableElement> methodsIn = ElementFilter.methodsIn(enclosedElements);
-		List<String> actualMethodNames = methodsIn.stream().filter((m) -> m.getSimpleName().toString().startsWith("comp"))
-																	.map((m) -> m.getSimpleName().toString())
+		List<String> actualMethodNames = methodsIn.stream().filter(m -> m.getSimpleName().toString().startsWith("comp"))
+																	.map(m -> m.getSimpleName().toString())
 																	.collect(Collectors.toList());
 		assertEquals("incorrect method", 6, actualMethodNames.size());
 		for (ExecutableElement method : methodsIn) {
@@ -428,8 +428,8 @@ public class RecordElementProcessor extends BaseElementProcessor {
             assertEquals("expected enclosed Record Components mismatch", expRecComps.get(key), actRecComp.asType().getKind());
         }
 
-        List<String> actualMethodNames = methods.stream().map((m) -> m.getSimpleName().toString()).collect(Collectors.toList());
-        List<String> actualRecordCompNames = actRecComps.stream().map((m) -> m.getSimpleName().toString()).collect(Collectors.toList());
+        List<String> actualMethodNames = methods.stream().map(m -> m.getSimpleName().toString()).collect(Collectors.toList());
+        List<String> actualRecordCompNames = actRecComps.stream().map(m -> m.getSimpleName().toString()).collect(Collectors.toList());
 
         //checking the size
         assertEquals("expected enclosed Record Components size mismatch", expMethodNames.size(), actualMethodNames.size());
@@ -465,7 +465,7 @@ public class RecordElementProcessor extends BaseElementProcessor {
             assertEquals("expected enclosed Record Components mismatch", expRecComps.get(key), actRecComp.asType().getKind());
         }
 
-        List<String> actualRecordCompNames = actRecComps.stream().map((m) -> m.getSimpleName().toString()).collect(Collectors.toList());
+        List<String> actualRecordCompNames = actRecComps.stream().map(m -> m.getSimpleName().toString()).collect(Collectors.toList());
 
         if (!actualRecordCompNames.containsAll(expRecComppNames)) {
         	fail(" expected enclosed record components mismatch - expected at least : " + expRecComppNames + " " +

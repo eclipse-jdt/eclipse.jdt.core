@@ -652,7 +652,7 @@ public boolean hasCompilationUnit(char[][] qualifiedPackageName, char[] moduleNa
 	String moduleNameString = String.valueOf(moduleName);
 	LookupStrategy strategy = LookupStrategy.get(moduleName);
 	Parser parser = checkCUs ? getParser() : null;
-	Function<CompilationUnit, String> pkgNameExtractor = (sourceUnit) -> {
+	Function<CompilationUnit, String> pkgNameExtractor = sourceUnit -> {
 		String pkgName = null;
 		CompilationResult compilationResult = new CompilationResult(sourceUnit, 0, 0, 1);
 		char[][] name = parser.parsePackageDeclaration(sourceUnit.getContents(), compilationResult);

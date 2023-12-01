@@ -236,8 +236,8 @@ public class Java9ElementProcessor extends BaseProcessor {
 				assertFalse("should be a named module", ((ModuleElement) root).isUnnamed());
 			}
 		}
-		Collections.sort(types, (x, y) -> x.compareTo(y));
-		Collections.sort(modules, (x, y) -> x.compareTo(y));
+		Collections.sort(types, String::compareTo);
+		Collections.sort(modules, String::compareTo);
 		assertEquals("incorrect no of modules in root elements", 2, moduleCount);
 		assertEquals("incorrect modules among root elements", "[mod.a, mod.b]", modules.toString());
 		assertEquals("incorrect no of types in root elements", 5, typeCount);

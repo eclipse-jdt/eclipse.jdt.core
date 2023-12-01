@@ -1241,7 +1241,7 @@ public class SwitchStatement extends Expression {
 								this.scope.problemReporter().patternDominatedByAnother(c.e);
 							}
 							for (int j = 0; j < counter; j++) {
-								IntPredicate check = (idx) -> {
+								IntPredicate check = idx -> {
 									Constant c2 = this.otherConstants[idx].c;
 									if (con.typeID() == TypeIds.T_JavaLangString) {
 										return c2.stringValue().equals(con.stringValue());

@@ -95,7 +95,7 @@ public class InMemoryNameEnvironment9 extends InMemoryNameEnvironment implements
 
 	@Override
 	public char[][] getAllAutomaticModules() {
-		return collect(env -> env.getAllAutomaticModules(), char[][]::new);
+		return collect(IModuleAwareNameEnvironment::getAllAutomaticModules, char[][]::new);
 	}
 
 }

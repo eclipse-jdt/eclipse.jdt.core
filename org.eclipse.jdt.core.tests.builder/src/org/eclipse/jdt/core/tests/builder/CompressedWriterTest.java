@@ -107,10 +107,10 @@ public class CompressedWriterTest extends BuilderTests {
 		String[] strings = new String[] { "nix", "xx", "xxxy", "xyz", "", "xxy", "z", "z", "xyz", "xu", "-".repeat(254),
 				"-".repeat(255), "-".repeat(256), "-".repeat(257), "-".repeat(60000) };
 		char[][] chars = Arrays.stream(strings).map(String::toCharArray).toArray(char[][]::new);
-		assertSame(strings, (w, v) -> w.writeStringUsingDictionary(v), r -> r.readStringUsingDictionary());
-		assertSame(chars, (w, v) -> w.writeChars(v), r -> r.readChars());
-		assertSame(chars, (w, v) -> w.writeCharsUsingLast(v), r -> r.readCharsUsingLast());
-		assertSame(strings, (w, v) -> w.writeStringUsingLast(v), r -> r.readStringUsingLast());
+		assertSame(strings, CompressedWriter::writeStringUsingDictionary, CompressedReader::readStringUsingDictionary);
+		assertSame(chars, CompressedWriter::writeChars, CompressedReader::readChars);
+		assertSame(chars, CompressedWriter::writeCharsUsingLast, CompressedReader::readCharsUsingLast);
+		assertSame(strings, CompressedWriter::writeStringUsingLast, CompressedReader::readStringUsingLast);
 	}
 
 	@FunctionalInterface
