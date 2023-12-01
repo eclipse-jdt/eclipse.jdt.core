@@ -273,7 +273,7 @@ protected Collection<String> selectModules(Set<String> keySet, Collection<String
 		result.retainAll(limitModules);
 		rootModules = result;
 	} else {
-		rootModules = JavaProject.internalDefaultRootModules(keySet, s -> s, m -> getModule(m));
+		rootModules = JavaProject.internalDefaultRootModules(keySet, s -> s, this::getModule);
 	}
 	Set<String> allModules = new HashSet<>(rootModules);
 	for (String mod : rootModules)

@@ -77,10 +77,8 @@ public TypeBinding resolveType(BlockScope scope) {
 
 		throw new CompletionNodeFound();
 	}
-
-	return new CompletionNodeFound(this, this.binding, scope).throwOrDeferAndReturn(() -> {
-		// probably not in the position to do useful resolution, just provide some binding
-		return this.resolvedType = new ProblemReferenceBinding(this.tokens, null, ProblemReasons.NotFound);
-	});
+	
+	// probably not in the position to do useful resolution, just provide some binding
+	return new CompletionNodeFound(this, this.binding, scope).throwOrDeferAndReturn(() -> (this.resolvedType = new ProblemReferenceBinding(this.tokens, null, ProblemReasons.NotFound)));
 }
 }

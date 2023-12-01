@@ -27,7 +27,6 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.env.IUpdatableModule.UpdateKind;
-import org.eclipse.jdt.internal.compiler.env.NameEnvironmentAnswer;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
@@ -786,7 +785,7 @@ public IModule getModule(char[] name) {
 public char[][] getAllAutomaticModules() {
 	if (this.modulePathEntries == null)
 		return CharOperation.NO_CHAR_CHAR;
-	Set<char[]> set = this.modulePathEntries.values().stream().filter(m -> m.isAutomaticModule()).map(e -> e.getModule().name())
+	Set<char[]> set = this.modulePathEntries.values().stream().filter(IModulePathEntry::isAutomaticModule).map(e -> e.getModule().name())
 			.collect(Collectors.toSet());
 	return set.toArray(new char[set.size()][]);
 }
