@@ -630,7 +630,7 @@ public void acceptIncomingNullnessFrom(UnconditionalFlowInfo other) {
 		}
 	}
 	if (this.extra != null && other.extra != null) {
-		int max = Math.max(this.extra[0].length, other.extra[0].length);
+		int max = Math.min(this.extra[0].length, other.extra[0].length);
 		for (int i = 0; i < max; i++) {
 			long extraIN = this.extra[IN][i], extraINN = this.extra[INN][i];
 			if (extraIN != 0 || extraINN != 0) {
