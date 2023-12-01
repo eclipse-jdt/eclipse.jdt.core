@@ -317,11 +317,11 @@ public class ReferenceCollectionTest extends BuilderTests {
 	}
 
 	private static String[] toStringArray(char[][][] qualifiedNameReferences) {
-		return Arrays.stream(qualifiedNameReferences).map(a -> CharOperation.toString(a)).toArray(String[]::new);
+		return Arrays.stream(qualifiedNameReferences).map(CharOperation::toString).toArray(String[]::new);
 	}
 
 	private static String[] toStringArray(char[][] qualifiedNameReferences) {
-		return Arrays.stream(qualifiedNameReferences).map(a -> CharOperation.charToString(a)).toArray(String[]::new);
+		return Arrays.stream(qualifiedNameReferences).map(CharOperation::charToString).toArray(String[]::new);
 	}
 
 	public void testRegression01() {

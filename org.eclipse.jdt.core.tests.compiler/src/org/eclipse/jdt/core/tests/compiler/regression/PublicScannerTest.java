@@ -302,7 +302,7 @@ public class PublicScannerTest extends AbstractRegressionTest {
 
 		Field[] tsFields = ITerminalSymbols.class.getFields();
 		Set<String> ttNames = nameToValue.keySet();
-		Set<String> tsSet = Arrays.asList(tsFields).stream().map(x -> x.getName()).collect(Collectors.toSet());
+		Set<String> tsSet = Arrays.asList(tsFields).stream().map(Field::getName).collect(Collectors.toSet());
 		StringBuilder sb = new StringBuilder();
 		String ident = "\t\t\t";
 		for (String ttName : ttNames) {

@@ -161,8 +161,8 @@ public class Java12ElementProcessor extends BaseProcessor {
 				mod3 = mod;
 			}
 		}
-		Collections.sort(types, (x, y) -> x.compareTo(y)); //unused as of now
-		Collections.sort(modules, (x, y) -> x.compareTo(y));
+		Collections.sort(types, String::compareTo); //unused as of now
+		Collections.sort(modules, String::compareTo);
 		assertEquals("incorrect no of modules in root elements in in "+ this.mode + " mode", 3, modules.size());
 		assertEquals("incorrect modules among root elements in "+ this.mode + " mode", "[module.main, module.readable.one, module.readable.two]", modules.toString());
 		assertNotNull("module should not be null in "+ this.mode + " mode", mod1);
@@ -208,8 +208,8 @@ public class Java12ElementProcessor extends BaseProcessor {
 				mod3 = mod;
 			}
 		}
-		Collections.sort(types, (x, y) -> x.compareTo(y)); //unused as of now
-		Collections.sort(modules, (x, y) -> x.compareTo(y));
+		Collections.sort(types, String::compareTo); //unused as of now
+		Collections.sort(modules, String::compareTo);
 		assertEquals("incorrect no of modules in root elements in "+ this.mode + " mode", this.isBinaryMode ? 2 : 3, modules.size());
 		assertEquals("incorrect modules among root elements in "+ this.mode + " mode", "[module.main, module.readable.one" +
 							(this.isBinaryMode ? "" : ", module.readable.two") + "]", modules.toString());
@@ -257,8 +257,8 @@ public class Java12ElementProcessor extends BaseProcessor {
 				mod3 = mod;
 			}
 		}
-		Collections.sort(types, (x, y) -> x.compareTo(y)); //unused as of now
-		Collections.sort(modules, (x, y) -> x.compareTo(y));
+		Collections.sort(types, String::compareTo); //unused as of now
+		Collections.sort(modules, String::compareTo);
 		assertEquals("incorrect no of modules in root elements in "+ this.mode + " mode", 3, modules.size());
 		assertEquals("incorrect modules among root elements in "+ this.mode + " mode", "[module.main, module.readable.one, module.readable.two]", modules.toString());
 		assertNotNull("module should not be null in "+ this.mode + " mode", mod1);

@@ -6594,9 +6594,7 @@ public void testBug578817() throws JavaModelException {
 	requestor = new CompletionTestsRequestor2(true);
 	requestor.setAllowsRequiredProposals(CompletionProposal.TYPE_REF, CompletionProposal.TYPE_REF, true);
 	requestor.setAllowsRequiredProposals(CompletionProposal.CONSTRUCTOR_INVOCATION, CompletionProposal.TYPE_REF, true);
-	requestor.setTypeProposalFilter((typeName) -> {
-		return typeName.startsWith("java.util.");
-	});
+	requestor.setTypeProposalFilter(typeName -> typeName.startsWith("java.util."));
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
 	result = requestor.getResults();
 	assertResults("", result);

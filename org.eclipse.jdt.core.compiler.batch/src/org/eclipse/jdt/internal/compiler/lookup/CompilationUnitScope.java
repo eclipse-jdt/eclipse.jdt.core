@@ -257,7 +257,7 @@ void checkAndSetImports() {
 		index = 2;
 	}
 
-	Predicate<ImportReference> isStaticImport = i -> i.isStatic();
+	Predicate<ImportReference> isStaticImport = ImportReference::isStatic;
 	Predicate<ImportReference> isNotStaticImport = Predicate.not(isStaticImport);
 
 	// GitHub 269: resolve non-static imports first, so that cyclic static imports can be resolved correctly

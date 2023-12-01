@@ -621,7 +621,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 						int size = allTypeAnnotationContexts.size();
 						attributesNumber = completeRuntimeTypeAnnotations(attributesNumber,
 								null,
-								(node) -> size > 0,
+								node -> size > 0,
 								() -> allTypeAnnotationContexts);
 					}
 				} finally {
@@ -674,7 +674,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 				int size = allTypeAnnotationContexts.size();
 				attributesNumber = completeRuntimeTypeAnnotations(attributesNumber,
 																	null,
-																	(node) -> size > 0,
+																	node -> size > 0,
 																	() -> allTypeAnnotationContexts);
 
 			}
@@ -1763,7 +1763,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		int size = allTypeAnnotationContexts.size();
 		attributesNumber = completeRuntimeTypeAnnotations(attributesNumber,
 															null,
-															(node) -> size > 0,
+															node -> size > 0,
 															() -> allTypeAnnotationContexts);
 		return attributesNumber;
 	}
@@ -2475,7 +2475,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 			int size = allTypeAnnotationContexts.size();
 			attributesNumber = completeRuntimeTypeAnnotations(attributesNumber,
 											null,
-											(node) -> size > 0,
+											node -> size > 0,
 											() -> allTypeAnnotationContexts);
 		}
 		if ((this.produceAttributes & ClassFileConstants.ATTR_METHOD_PARAMETERS) != 0 ||
@@ -3840,7 +3840,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		String names =
 			Arrays.stream(recordComponents)
 			.map(f -> new String(f.name))
-			.reduce((s1, s2) -> { return s1 + ";" + s2;}) //$NON-NLS-1$
+			.reduce((s1, s2) -> (s1 + ";" + s2)) //$NON-NLS-1$
 			.orElse(Util.EMPTY_STRING);
 		int namesIndex = this.constantPool.literalIndex(names);
 		this.contents[localContentsOffset++] = (byte) (namesIndex >> 8);
@@ -4437,7 +4437,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 							int size = allTypeAnnotationContexts.size();
 							attributesNumber = completeRuntimeTypeAnnotations(attributesNumber,
 									null,
-									(node) -> size > 0,
+									node -> size > 0,
 									() -> allTypeAnnotationContexts);
 						}
 					}
@@ -5888,7 +5888,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		int size = allTypeAnnotationContexts.size();
 		attributesNumber = completeRuntimeTypeAnnotations(attributesNumber,
 				null,
-				(node) -> size > 0,
+				node -> size > 0,
 				() -> allTypeAnnotationContexts);
 		return attributesNumber;
 	}

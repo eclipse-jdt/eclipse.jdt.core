@@ -92,7 +92,7 @@ public class JrtFileSystem extends Archive {
     	Path resolve = mPath.resolve(packageName);
     	java.util.List<Path> files = null;
         try (Stream<Path> p = Files.list(resolve)) {
-            files = p.filter((path) -> {
+            files = p.filter(path -> {
             	if (Files.isDirectory(path))
             		return false;
             	else

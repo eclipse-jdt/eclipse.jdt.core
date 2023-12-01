@@ -38,7 +38,7 @@ public final class CharArrayHashMap<V> implements CharArrayMapper<V>, Serializab
 
 	@Override
 	public Collection<char[]> keys() {
-		return this.map.keySet().stream().map(s -> s.getKey()).collect(Collectors.toList());
+		return this.map.keySet().stream().map(CharArray::getKey).collect(Collectors.toList());
 	}
 
 	@Override

@@ -256,7 +256,7 @@ public class CompilerToolJava9Tests extends TestCase {
 		if (this.isJREBelow9) return;
 		JavaCompiler compiler = this.compilers[1];
 		StandardJavaFileManager standardManager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
-		Consumer<JavaFileManager> cons = (manager) -> {
+		Consumer<JavaFileManager> cons = manager -> {
 			String tmpFolder = _tmpFolder;
 			File inputFile = new File(tmpFolder, "X.java");
 			try (Writer writer = new BufferedWriter(new FileWriter(inputFile))) {
@@ -318,7 +318,7 @@ public class CompilerToolJava9Tests extends TestCase {
 		if (this.isJREBelow9) return;
 		JavaCompiler compiler = this.compilers[1];
 		StandardJavaFileManager standardManager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
-		Consumer<JavaFileManager> cons = (manager) -> {
+		Consumer<JavaFileManager> cons = manager -> {
 			String tmpFolder = _tmpFolder;
 			File inputFile = new File(tmpFolder, "X.java");
 			try (Writer writer = new BufferedWriter(new FileWriter(inputFile))){
@@ -381,7 +381,7 @@ public class CompilerToolJava9Tests extends TestCase {
 		if (this.isJREBelow9) return;
 		JavaCompiler compiler = this.compilers[1];
 		StandardJavaFileManager standardManager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
-		Consumer<JavaFileManager> cons = (manager) -> {
+		Consumer<JavaFileManager> cons = manager -> {
 			String tmpFolder = _tmpFolder;
 			File inputFile = new File(tmpFolder, "X.java");
 			try (Writer writer = new BufferedWriter(new FileWriter(inputFile))){
@@ -431,7 +431,7 @@ public class CompilerToolJava9Tests extends TestCase {
 		if (this.isJREBelow9) return;
 		JavaCompiler compiler = this.compilers[1];
 		StandardJavaFileManager standardManager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
-		Consumer<JavaFileManager> cons = (manager) -> {
+		Consumer<JavaFileManager> cons = manager -> {
 			String tmpFolder = _tmpFolder;
 			File inputFile = new File(tmpFolder, "X.java");
 			try (Writer writer = new BufferedWriter(new FileWriter(inputFile))) {
@@ -520,7 +520,7 @@ public class CompilerToolJava9Tests extends TestCase {
 		if (this.isJREBelow12) return;
 		JavaCompiler compiler = this.compilers[1];
 		StandardJavaFileManager standardManager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
-		Consumer<JavaFileManager> cons = (manager) -> {
+		Consumer<JavaFileManager> cons = manager -> {
 			String tmpFolder = _tmpFolder;
 			File inputFile = new File(tmpFolder, "X.java");
 			try (Writer writer = new BufferedWriter(new FileWriter(inputFile))){
@@ -564,7 +564,7 @@ public class CompilerToolJava9Tests extends TestCase {
 		if (this.isJREBelow12) return;
 		JavaCompiler compiler = this.compilers[1];
 		StandardJavaFileManager standardManager = compiler.getStandardFileManager(null, Locale.getDefault(), Charset.defaultCharset());
-		Consumer<JavaFileManager> cons = (manager) -> {
+		Consumer<JavaFileManager> cons = manager -> {
 			String tmpFolder = _tmpFolder;
 			File inputFile = new File(tmpFolder, "X.java");
 			try (Writer writer = new BufferedWriter(new FileWriter(inputFile))){

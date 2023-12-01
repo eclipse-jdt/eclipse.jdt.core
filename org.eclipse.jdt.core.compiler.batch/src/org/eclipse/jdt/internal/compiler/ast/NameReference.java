@@ -111,9 +111,7 @@ public abstract char[][] getName();
      (this.bits & ASTNode.IsCapturedOuterLocal) != 0
 */
 public boolean checkEffectiveFinality(VariableBinding localBinding, Scope scope) {
-	Predicate<VariableBinding> test = (local) -> {
-		return (!localBinding.isFinal() && !localBinding.isEffectivelyFinal());
-	};
+	Predicate<VariableBinding> test = local -> (!localBinding.isFinal() && !localBinding.isEffectivelyFinal());
 	if ((this.bits & ASTNode.IsCapturedOuterLocal) != 0) {
 		if (test.test(localBinding)) {
 			scope.problemReporter().cannotReferToNonEffectivelyFinalOuterLocal(localBinding, this);
