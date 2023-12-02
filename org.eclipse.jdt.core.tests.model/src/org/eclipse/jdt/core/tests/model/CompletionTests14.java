@@ -986,10 +986,19 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 	public void testGH1561_CompletionInIfConditionInsideASwitchStatement() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Completion/src/SwitchIf.java",
-				"public class SwitchIf {\n" + "		final String name = \"test\";\n" + "		enum Type { A }\n"
-						+ "		private void foo(Type input) {\n" + "			switch (input) {\n"
-						+ "			case A:\n" + "				if (nam)\n" + "				break;\n" + "			}\n"
-						+ "		}\n" + "}\n");
+				"""
+					public class SwitchIf {
+							final String name = "test";
+							enum Type { A }
+							private void foo(Type input) {
+								switch (input) {
+								case A:
+									if (nam)
+									break;
+								}
+							}
+					}
+					""");
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 		String str = this.workingCopies[0].getSource();
 		String completeBehind = "if (nam";
@@ -1004,10 +1013,19 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 	public void testGH1561_CompletionInWhileConditionInsideASwitchStatement() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Completion/src/SwitchIf.java",
-				"public class SwitchIf {\n" + "		final String name = \"test\";\n" + "		enum Type { A }\n"
-						+ "		private void foo(Type input) {\n" + "			switch (input) {\n"
-						+ "			case A:\n" + "				while (nam)\n" + "				break;\n"
-						+ "			}\n" + "		}\n" + "}\n");
+				"""
+					public class SwitchIf {
+							final String name = "test";
+							enum Type { A }
+							private void foo(Type input) {
+								switch (input) {
+								case A:
+									while (nam)
+									break;
+								}
+							}
+					}
+					""");
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 		String str = this.workingCopies[0].getSource();
 		String completeBehind = "while (nam";
@@ -1022,10 +1040,19 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 	public void testGH1561_CompletionInForConditionInsideASwitchStatement() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Completion/src/SwitchIf.java",
-				"public class SwitchIf {\n" + "		final String name = \"test\";\n" + "		enum Type { A }\n"
-						+ "		private void foo(Type input) {\n" + "			switch (input) {\n"
-						+ "			case A:\n" + "				for (int i = 0; i < nam)\n" + "				break;\n"
-						+ "			}\n" + "		}\n" + "}\n");
+				"""
+					public class SwitchIf {
+							final String name = "test";
+							enum Type { A }
+							private void foo(Type input) {
+								switch (input) {
+								case A:
+									for (int i = 0; i < nam)
+									break;
+								}
+							}
+					}
+					""");
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 		String str = this.workingCopies[0].getSource();
 		String completeBehind = "for (int i = 0; i < nam";
@@ -1040,10 +1067,19 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 	public void testGH1561_CompletionInSwitchInsideASwitchStatement() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy("/Completion/src/SwitchIf.java",
-				"public class SwitchIf {\n" + "		final String name = \"test\";\n" + "		enum Type { A }\n"
-						+ "		private void foo(Type input) {\n" + "			switch (input) {\n"
-						+ "			case A:\n" + "				switch (nam\n" + "				break;\n"
-						+ "			}\n" + "		}\n" + "}\n");
+				"""
+					public class SwitchIf {
+							final String name = "test";
+							enum Type { A }
+							private void foo(Type input) {
+								switch (input) {
+								case A:
+									switch (nam
+									break;
+								}
+							}
+					}
+					""");
 		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
 		String str = this.workingCopies[0].getSource();
 		String completeBehind = "switch (nam";
