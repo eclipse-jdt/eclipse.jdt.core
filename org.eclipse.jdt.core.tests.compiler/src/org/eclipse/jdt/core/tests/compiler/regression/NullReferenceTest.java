@@ -18539,4 +18539,33 @@ public void testGH1642_a() {
 			}
 			"""});
 }
+public void testGH1667() {
+	runConformTest(
+		new String[] {
+			"Foo.java",
+			"""
+			class EPD {
+				public String getModel() { return null; }
+			}
+			class IPS {
+				public EPD getSupplier() { return null; }
+			}
+			public class Foo {
+				void m(String packageName, IPS[] packages) {
+					String base = null;
+					for (IPS spec : packages) {
+						EPD desc = spec.getSupplier();
+						if (desc != null) {
+							base = desc.getModel();
+						}
+						break;
+					}
+					if (base != null) {
+						System.out.println();
+					}
+				}
+			}
+			"""
+		});
+}
 }

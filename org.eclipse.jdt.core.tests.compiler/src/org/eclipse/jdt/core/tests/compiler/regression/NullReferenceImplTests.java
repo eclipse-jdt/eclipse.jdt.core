@@ -1288,6 +1288,8 @@ static void copy(UnconditionalFlowInfo source, UnconditionalFlowInfo target) {
 	}
 	target.iNBit = source.iNBit;
 	target.iNNBit = source.iNNBit;
+	target.iDefNBit = source.iDefNBit;
+	target.iDefNNBit = source.iDefNNBit;
 	target.tagBits = source.tagBits;
 	target.maxFieldCount = source.maxFieldCount;
 	if (source.extra != null) {
@@ -1351,6 +1353,8 @@ static void init(UnconditionalFlowInfo zis, long [] nullBits, int position) {
 	}
 	zis.iNBit = -1L; // FIXME: nullBits[4] << position;
 	zis.iNNBit = -1L; // FIXME: nullBits[5] << position;
+	zis.iDefNBit = -1L; // FIXME: nullBits[4] << position;
+	zis.iDefNNBit = -1L; // FIXME: nullBits[5] << position;
 	if (nullBits[0] != 0 || nullBits[1] != 0
 	        || nullBits[2] != 0 || nullBits[3] != 0
 	        || nullBits[4] != 0 || nullBits[5] != 0) {
