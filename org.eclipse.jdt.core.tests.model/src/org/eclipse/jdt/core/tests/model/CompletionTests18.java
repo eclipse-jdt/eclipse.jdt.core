@@ -602,8 +602,8 @@ public void test015b() throws JavaModelException {
 			"completion range=[162, 165]\n" +
 			"completion token=\"syso\"\n" +
 			"completion token kind=TOKEN_KIND_NAME\n" +
-			"expectedTypesSignatures={Z}\n" +
-			"expectedTypesKeys={Z}\n" +
+			"expectedTypesSignatures=null\n" +
+			"expectedTypesKeys=null\n" +
 			"completion token location={STATEMENT_START}", requestor.getContext());
 }
 //https://github.com/eclipse-jdt/eclipse.jdt.core/issues/650, Templates not working in Lambda internal block.
@@ -5950,9 +5950,8 @@ public void testBug574823_completeOn_methodInvocationWithParams_inIfConidtion_in
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	String result = requestor.getResults();
-	var relevance = R_RESOLVED + R_DEFAULT + R_INTERESTING + R_CASE + R_VOID + R_NON_STATIC + R_NON_RESTRICTED;
     assertTrue(String.format("Result doesn't contain method forEach (%s)", result),
-    		result.contains("forEach[METHOD_REF]{forEach(), Ljava.lang.Iterable<Ljava.lang.String;>;, (Ljava.util.function.Consumer<-Ljava.lang.String;>;)V, null, null, forEach, (arg0), replace[149, 149], token[149, 149], " + relevance + "}"));
+    		result.contains("forEach[METHOD_REF]{forEach(), Ljava.lang.Iterable<Ljava.lang.String;>;, (Ljava.util.function.Consumer<-Ljava.lang.String;>;)V, null, null, forEach, (arg0), replace[149, 149], token[149, 149], 55}"));
 }
 public void testBug574823_completeOn_methodInvocationWithParams_inIfConidtion_insideIf_followedByChainedStatment() throws Exception {
 	this.workingCopies = new ICompilationUnit[1];
@@ -5975,9 +5974,8 @@ public void testBug574823_completeOn_methodInvocationWithParams_inIfConidtion_in
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	String result = requestor.getResults();
-	var relevance = R_RESOLVED + R_DEFAULT + R_INTERESTING + R_CASE + R_VOID + R_NON_STATIC + R_NON_RESTRICTED;
     assertTrue(String.format("Result doesn't contain method forEach (%s)", result),
-    		result.contains("forEach[METHOD_REF]{forEach(), Ljava.lang.Iterable<Ljava.lang.String;>;, (Ljava.util.function.Consumer<-Ljava.lang.String;>;)V, null, null, forEach, (arg0), replace[149, 149], token[149, 149], " + relevance + "}"));
+    		result.contains("forEach[METHOD_REF]{forEach(), Ljava.lang.Iterable<Ljava.lang.String;>;, (Ljava.util.function.Consumer<-Ljava.lang.String;>;)V, null, null, forEach, (arg0), replace[149, 149], token[149, 149], 55}"));
 }
 public void testBug574823_completeOn_methodInvocationWithParams_inWhileConidtion_insideWhileBlock_followedByChainedStatment() throws Exception {
 	this.workingCopies = new ICompilationUnit[1];
@@ -6001,9 +5999,8 @@ public void testBug574823_completeOn_methodInvocationWithParams_inWhileConidtion
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 
 	String result = requestor.getResults();
-	var relevance = R_RESOLVED + R_DEFAULT + R_INTERESTING + R_CASE + R_VOID + R_NON_STATIC + R_NON_RESTRICTED;
     assertTrue(String.format("Result doesn't contain method forEach (%s)", result),
-    		result.contains("forEach[METHOD_REF]{forEach(), Ljava.lang.Iterable<Ljava.lang.String;>;, (Ljava.util.function.Consumer<-Ljava.lang.String;>;)V, null, null, forEach, (arg0), replace[152, 152], token[152, 152], " + relevance + "}"));
+    		result.contains("forEach[METHOD_REF]{forEach(), Ljava.lang.Iterable<Ljava.lang.String;>;, (Ljava.util.function.Consumer<-Ljava.lang.String;>;)V, null, null, forEach, (arg0), replace[152, 152], token[152, 152], 55}"));
 }
 public void testBug574823_completeOn_methodInvocationWithParams_inIfConidtionWithExpression_insideIfBlock_followedByChainedStatment() throws Exception {
 	this.workingCopies = new ICompilationUnit[1];
@@ -6726,9 +6723,9 @@ public void testGH109_expectCompletionsWithCast_insideLambdaNestedBlocksWithInst
 	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length();
 	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 	String result = requestor.getResults();
-	var relevance = R_RESOLVED + R_DEFAULT + R_INTERESTING + R_CASE + R_EXACT_EXPECTED_TYPE + R_NON_STATIC + R_NON_RESTRICTED;
-	assertTrue(result.contains("startsWith[METHOD_REF_WITH_CASTED_RECEIVER]{((String)name).startsWith(), Ljava.lang.String;, (Ljava.lang.String;)Z, Ljava.lang.String;, startsWith, (arg0), " + relevance + "}\n"
-			+ "startsWith[METHOD_REF_WITH_CASTED_RECEIVER]{((String)name).startsWith(), Ljava.lang.String;, (Ljava.lang.String;I)Z, Ljava.lang.String;, startsWith, (arg0, arg1), " + relevance + "}"));
+	assertTrue(String.format("Result doesn't contain method startsWith (%s)", result), result.contains(
+			"startsWith[METHOD_REF_WITH_CASTED_RECEIVER]{((String)name).startsWith(), Ljava.lang.String;, (Ljava.lang.String;)Z, Ljava.lang.String;, startsWith, (arg0), 60}\n"
+					+ "startsWith[METHOD_REF_WITH_CASTED_RECEIVER]{((String)name).startsWith(), Ljava.lang.String;, (Ljava.lang.String;I)Z, Ljava.lang.String;, startsWith, (arg0, arg1), 60}"));
 }
 
 public void testGH583_onArrayCreationSupplier_expectNewMethodRefCompletions() throws JavaModelException {

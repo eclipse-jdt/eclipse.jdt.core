@@ -14,6 +14,7 @@
 package org.eclipse.jdt.internal.codeassist.complete;
 
 import java.util.Stack;
+import java.util.stream.Stream;
 
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.ast.*;
@@ -504,14 +505,59 @@ public class CompletionNodeDetector extends ASTVisitor {
 			if ((this.parent == null
 					|| (this.parent instanceof ArrayInitializer && astNode instanceof Statement)) // heuristically get more context
 					&& astNode != this.searchedNode) {
-				if(!(astNode instanceof AllocationExpression && ((AllocationExpression) astNode).type == this.searchedNode)
-					&& !(astNode instanceof ConditionalExpression && ((ConditionalExpression) astNode).valueIfTrue == this.searchedNode)
-					&& !(astNode instanceof ConditionalExpression && ((ConditionalExpression) astNode).valueIfFalse == this.searchedNode)) {
+				if ((!(astNode instanceof AllocationExpression
+						&& ((AllocationExpression) astNode).type == this.searchedNode)
+						&& !(astNode instanceof ConditionalExpression
+								&& ((ConditionalExpression) astNode).valueIfTrue == this.searchedNode)
+						&& !(astNode instanceof ConditionalExpression
+								&& ((ConditionalExpression) astNode).valueIfFalse == this.searchedNode))
+						&& satisfyControlStatementCanBeParentCondition(astNode)) {
 					this.parent = astNode;
 				}
 			}
 			checkUpdateOuter(astNode);
 		}
+	}
+
+	/**
+	 * Returns true if the node is a Control Statement and the searchNode is in any of related control condition
+	 * statements, in addition the condition expression must be one matches CompletionOn(*NameReference|MemberAccess).
+	 * If none of the above matches, we still satisfy this condition since if the current node is not a control
+	 * statement, then the current node much be considered as a parent.
+	 */
+	private boolean satisfyControlStatementCanBeParentCondition(ASTNode node) {
+		if ((this.searchedNode instanceof CompletionOnSingleNameReference)
+				|| (this.searchedNode instanceof CompletionOnQualifiedNameReference)
+				|| (this.searchedNode instanceof CompletionOnMemberAccess)) {
+			if (node instanceof IfStatement ifn) {
+				return ifn.condition == this.searchedNode;
+			} else if (node instanceof WhileStatement ws) {
+				return ws.condition == this.searchedNode;
+			} else if (node instanceof DoStatement ds) {
+				return ds.condition == this.searchedNode;
+			} else if (node instanceof ForStatement fs) {
+				return fs.condition == this.searchedNode
+						|| (fs.increments != null && Stream.of(fs.increments).anyMatch(s -> s == this.searchedNode))
+						|| (fs.initializations != null
+								&& Stream.of(fs.initializations).anyMatch(s -> s == this.searchedNode));
+			} else if (node instanceof SwitchStatement ss) {
+				// if its a switch statement, then check for the expression and also each of case statements to see if
+				// the
+				// CompletionOnSingleNameReference is there.
+				return ss.expression == this.searchedNode
+						|| (ss.statements != null
+								&& Stream.of(ss.statements).filter(CaseStatement.class::isInstance)
+										.map(CaseStatement.class::cast)
+										.flatMap(cs -> cs.constantExpressions == null ? Stream.empty()
+												: Stream.of(cs.constantExpressions))
+										.anyMatch(exp -> exp == this.searchedNode));
+			} else {
+				return true; // if we didn't find any control statement then also satisfy the rule.
+			}
+		}
+		// if we didn't find any control statement which contains the CompletionOn(*NameReference|MemberAccess) then
+		// also satisfy the condition.
+		return true;
 	}
 
 	protected void checkUpdateOuter(ASTNode astNode) {
