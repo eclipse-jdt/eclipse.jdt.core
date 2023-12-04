@@ -4672,6 +4672,40 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 		return false;
 	}
+	@Override
+	public boolean visit(StringTemplateExpression node) {
+		if (!hasChildrenChanges(node)) {
+			return doVisitUnchangedChildren(node);
+		}
+		if (node.getAST().isPreviewEnabled()) {
+			int pos = rewriteRequiredNode(node, StringTemplateExpression.TEMPLATE_PROCESSOR);
+			pos = rewriteRequiredNode(node, StringTemplateExpression.FIRST_STRING_FRAGMENT);
+			rewriteNodeList(node, StringTemplateExpression.STRING_TEMPLATE_COMPONENTS, pos, "", "", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		}
+		return false;
+	}
+	@Override
+	public boolean visit(StringTemplateComponent node) {
+		if (!hasChildrenChanges(node)) {
+			return doVisitUnchangedChildren(node);
+		}
+		if (node.getAST().isPreviewEnabled()) {
+			rewriteRequiredNode(node, StringTemplateComponent.EMBEDDED_EXPRESSION_PROPERTY);
+			rewriteRequiredNode(node, StringTemplateComponent.STRING_FRAGMENT_PROPERTY);
+		}
+		return false;
+	}
+	@Override
+	public boolean visit(StringFragment node) {
+		if (!hasChildrenChanges(node)) {
+			return doVisitUnchangedChildren(node);
+		}
+		String escapedSeq= (String) getNewValue(node, StringFragment.ESCAPED_VALUE_PROPERTY);
+		TextEditGroup group = getEditGroup(node, StringFragment.ESCAPED_VALUE_PROPERTY);
+		doTextReplace(node.getStartPosition(), node.getLength(), escapedSeq, group);
+
+		return false;
+	}
 
 	final void handleException(Throwable e) {
 		throw new IllegalArgumentException("Document does not match the AST", e); //$NON-NLS-1$

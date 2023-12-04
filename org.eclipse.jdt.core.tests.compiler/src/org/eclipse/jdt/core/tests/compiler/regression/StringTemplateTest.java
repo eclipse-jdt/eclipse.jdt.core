@@ -1367,7 +1367,7 @@ String s = STR.\"""
 			"----------\n" +
 			"1. ERROR in X.java (at line 4)\n" +
 			"	String template = StringTemplate.RAW.\"\\{name}\";\n" +
-			"	                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+			"	                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 			"Type mismatch: cannot convert from StringTemplate to String\n" +
 			"----------\n"
 );

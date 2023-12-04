@@ -2935,6 +2935,36 @@ public final class AST {
 	public StringLiteral newStringLiteral() {
 		return new StringLiteral(this);
 	}
+	/**
+	 * Creates and returns a new unparented string fragment node for
+	 * the empty string fragment.
+	 *
+	 * @return a new unparented string fragment node
+	 * @since 3.37
+	 */
+	public StringFragment newStringFragment() {
+		return new StringFragment(this);
+	}
+	/**
+	 * Creates and returns a new unparented string template expression node for
+	 * the empty string template expression.
+	 *
+	 * @return a new unparented string literal node
+	 * @since 3.37
+	 */
+	public StringTemplateExpression newStringTemplateExpression() {
+		return new StringTemplateExpression(this);
+	}
+	/**
+	 * Creates and returns a new unparented string template component node for
+	 * the empty string template component.
+	 *
+	 * @return a new unparented string literal node
+	 * @since 3.37
+	 */
+	public StringTemplateComponent newStringTemplateComponent() {
+		return new StringTemplateComponent(this);
+	}
 
 	/**
 	 * Creates an unparented alternate super constructor ("super(...);")

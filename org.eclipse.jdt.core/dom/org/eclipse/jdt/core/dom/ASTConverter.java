@@ -2060,9 +2060,65 @@ class ASTConverter {
 		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.SwitchExpression) {
 			return convert((org.eclipse.jdt.internal.compiler.ast.SwitchExpression) expression);
 		}
+		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.TemplateExpression templateExpr) {
+			return convert(templateExpr);
+		}
+		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.StringTemplate template) {
+			return convert(template);
+		}
 		return null;
 	}
+	public StringTemplateExpression convert(org.eclipse.jdt.internal.compiler.ast.TemplateExpression expression) {
+		StringTemplateExpression templateExpr = new StringTemplateExpression(this.ast);
+		if (this.resolveBindings) {
+			recordNodes(templateExpr, expression);
+		}
+		templateExpr.setProcessor(convert(expression.processor));
+		templateExpr.setIsMultiline(expression.template.isMultiline);
+		populateFragments(expression.template, templateExpr);
 
+		int startPosition = expression.sourceStart;
+		int sourceEnd= expression.sourceEnd;
+		templateExpr.setSourceRange(startPosition, sourceEnd - startPosition + 1);
+		return templateExpr;
+	}
+	private StringFragment convertStringFragment(org.eclipse.jdt.internal.compiler.ast.StringLiteral expression) {
+		StringFragment literal = new StringFragment(this.ast);
+		if (this.resolveBindings) {
+			this.recordNodes(literal, expression);
+		}
+		literal.internalSetEscapedValue(new String(expression.source));
+		literal.setSourceRange(expression.sourceStart, expression.sourceEnd - expression.sourceStart + 1);
+		return literal;
+	}
+	private void populateFragments(org.eclipse.jdt.internal.compiler.ast.StringTemplate template, StringTemplateExpression templateExp) {
+		List<StringTemplateComponent> components = templateExp.components();
+		org.eclipse.jdt.internal.compiler.ast.StringLiteral[] fragments = template.fragments();
+		org.eclipse.jdt.internal.compiler.ast.Expression[] values = template.values();
+		int size = values.length;
+
+		org.eclipse.jdt.internal.compiler.ast.StringLiteral frag = fragments[0];
+		StringFragment fragment = convertStringFragment(fragments[0]);
+		templateExp.setFirstFragment(fragment);
+		int prevFragmentEnd = frag.sourceEnd + 1;
+		for(int i = 0; i < size; i++) {
+			org.eclipse.jdt.internal.compiler.ast.Expression exp = values[i];
+			Expression expression = convert(exp);
+			frag = fragments[i+1];
+			fragment = convertStringFragment(frag);
+			StringTemplateComponent component = new StringTemplateComponent(this.ast);
+			component.setEmbeddedExpression(expression);
+			component.setStringFragment(fragment);
+			components.add(component);
+			int sourceEnd = frag.sourceEnd;
+			component.setSourceRange(prevFragmentEnd, sourceEnd - prevFragmentEnd + 1);
+			prevFragmentEnd = frag.sourceEnd + 1;
+		}
+
+		int startPosition = template.sourceStart;
+		int sourceEnd= template.sourceEnd;
+		templateExp.setSourceRange(startPosition, sourceEnd - startPosition + 1);
+	}
 	public StringLiteral convert(org.eclipse.jdt.internal.compiler.ast.ExtendedStringLiteral expression) {
 		expression.computeConstant();
 		StringLiteral literal = new StringLiteral(this.ast);
@@ -2255,9 +2311,9 @@ class ASTConverter {
 		} else if (pattern.type != null) {
 			recordPattern.setPatternType(convertType(pattern.type));
 		}
+		List<Pattern> patterns = recordPattern.patterns();
 		for (org.eclipse.jdt.internal.compiler.ast.Pattern nestedPattern : pattern.patterns ) {
-			recordPattern.patterns().add(convert(nestedPattern));
-
+			patterns.add(convert(nestedPattern));
 		}
 		return recordPattern;
 	}
