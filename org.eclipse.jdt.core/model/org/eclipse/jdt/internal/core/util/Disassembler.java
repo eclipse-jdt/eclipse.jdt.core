@@ -1927,7 +1927,7 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			ConstantPoolEntry constantPoolEntry =  (ConstantPoolEntry) constantPool.decodeEntry(bootstrapArguments[i]);
 			switch(constantPoolEntry.getKind()) {
 				case IConstantPoolConstant.CONSTANT_Integer:
-					arguments[i] = ((Integer) constantPoolEntry.getIntegerValue()).toString();
+					arguments[i] = Integer.toString(constantPoolEntry.getIntegerValue());
 					break;
 				case IConstantPoolConstant.CONSTANT_MethodHandle:
 					// http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.4.8
