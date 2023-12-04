@@ -7036,4 +7036,134 @@ public void testGH979_on1stConstructorArgumentWithFilledArgumentNames_expectComp
 					+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
 			result);
 }
+
+public void testGH1587_onConstructorWithArgumentsBeforeFirstArgument_withinMethodInvocation_expectConstructorCompletion()
+		throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[2] = getWorkingCopy("/Completion/src/GHXYZObject.java", """
+			public class GHXYZObject {
+				public GHXYZObject(String name, int type){}
+			}
+			""");
+	this.workingCopies[1] = getWorkingCopy("/Completion/src/GHXYZReciever.java", """
+			public class GHXYZReciever {
+				public GHXYZReciever foo(GHXYZObject input) {
+					return this;
+				}
+			}
+			""");
+	this.workingCopies[0] = getWorkingCopy("/Completion/src/GHXYZ.java", """
+			public class GHXYZ {
+				public static void foo() {
+					new GHXYZReciever().foo(new GHXYZObject(null, 0));
+				}
+			}
+			""");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "new GHXYZObject(";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+	String result = requestor.getResults();
+	assertResults(
+			"GHXYZObject[METHOD_REF<CONSTRUCTOR>]{, LGHXYZObject;, (Ljava.lang.String;I)V, GHXYZObject, (name, type), "
+					+ (R_DEFAULT + R_INTERESTING + R_RESOLVED + R_NON_RESTRICTED) + "}\n"
+					+ "foo[METHOD_REF]{foo(), LGHXYZ;, ()V, foo, null, "
+					+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_STATIC) + "}\n"
+					+ "GHXYZ[TYPE_REF]{GHXYZ, , LGHXYZ;, null, null, "
+					+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			result);
+}
+
+public void testGH1587_onConstructorWithArgumentsBeforeNthArgument_withinMethodInvocation_expectConstructorCompletion()
+		throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[2] = getWorkingCopy("/Completion/src/GHXYZObject.java", """
+			public class GHXYZObject {
+				public GHXYZObject(String name, int type){}
+			}
+			""");
+	this.workingCopies[1] = getWorkingCopy("/Completion/src/GHXYZReciever.java", """
+			public class GHXYZReciever {
+				public GHXYZReciever foo(GHXYZObject input) {
+					return this;
+				}
+			}
+			""");
+	this.workingCopies[0] = getWorkingCopy("/Completion/src/GHXYZ.java", """
+			public class GHXYZ {
+				public static void foo() {
+					new GHXYZReciever().foo(new GHXYZObject(null, 0));
+				}
+			}
+			""");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "new GHXYZObject(null,";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+	String result = requestor.getResults();
+	assertResults(
+			"GHXYZObject[METHOD_REF<CONSTRUCTOR>]{, LGHXYZObject;, (Ljava.lang.String;I)V, GHXYZObject, (name, type), "
+					+ (R_DEFAULT + R_INTERESTING + R_RESOLVED + R_NON_RESTRICTED) + "}\n"
+					+ "foo[METHOD_REF]{foo(), LGHXYZ;, ()V, foo, null, "
+					+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_STATIC) + "}\n"
+					+ "GHXYZ[TYPE_REF]{GHXYZ, , LGHXYZ;, null, null, "
+					+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			result);
+}
+
+public void testGH1587_onConstructorWithArgumentsBeforeFirstArgument_withinChainedMethodInvocationExpression_expectConstructorCompletion()
+		throws JavaModelException {
+	this.workingCopies = new ICompilationUnit[3];
+	this.workingCopies[2] = getWorkingCopy("/Completion/src/GHXYZObject.java", """
+			public class GHXYZObject {
+				public GHXYZObject(String name, int type){}
+			}
+			""");
+	this.workingCopies[1] = getWorkingCopy("/Completion/src/GHXYZReciever.java", """
+			public class GHXYZReciever {
+				public GHXYZReciever foo(GHXYZObject input) {
+					return this;
+				}
+				public GHXYZReciever bar(String name) {
+					return this;
+				}
+			}
+			""");
+	this.workingCopies[0] = getWorkingCopy("/Completion/src/GHXYZ.java", """
+			public class GHXYZ {
+				public static void foo() {
+					new GHXYZReciever().name("bar").foo(new GHXYZObject(null, 0));
+				}
+			}
+			""");
+
+	CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+	requestor.allowAllRequiredProposals();
+
+	String str = this.workingCopies[0].getSource();
+	String completeBehind = "new GHXYZObject(";
+	int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+	this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner, new NullProgressMonitor());
+
+	String result = requestor.getResults();
+	assertResults(
+			"GHXYZObject[METHOD_REF<CONSTRUCTOR>]{, LGHXYZObject;, (Ljava.lang.String;I)V, GHXYZObject, (name, type), "
+					+ (R_DEFAULT + R_INTERESTING + R_RESOLVED + R_NON_RESTRICTED) + "}\n"
+					+ "foo[METHOD_REF]{foo(), LGHXYZ;, ()V, foo, null, "
+					+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_STATIC) + "}\n"
+					+ "GHXYZ[TYPE_REF]{GHXYZ, , LGHXYZ;, null, null, "
+					+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+			result);
+}
+
 }
