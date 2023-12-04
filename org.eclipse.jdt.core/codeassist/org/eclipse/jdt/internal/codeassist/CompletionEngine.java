@@ -10396,7 +10396,7 @@ public final class CompletionEngine
 					if (receiverType != null) {
 						receiverSourceName = receiverType.sourceName;
 					}
-					if( enclosingSourceName !=null & receiverSourceName !=null)
+					if( enclosingSourceName !=null && receiverSourceName !=null)
 						isEqual = Arrays.equals(enclosingSourceName, receiverSourceName);
 					if(isEqual) {
 						findKeywords(token, new char[][] { Keywords.THIS }, true, false);
