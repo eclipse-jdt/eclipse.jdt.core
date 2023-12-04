@@ -509,7 +509,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		if (this.original == this) {
 			this.committed = true; // the original has been resolved
 		}
-		return (argumentsHaveErrors|parametersHaveErrors) ? null : this.resolvedType;
+		return (argumentsHaveErrors || parametersHaveErrors) ? null : this.resolvedType;
 	}
 
 	// check if the given types are parameterized types and if their type arguments
