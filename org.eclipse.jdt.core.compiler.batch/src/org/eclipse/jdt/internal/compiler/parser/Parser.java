@@ -12014,7 +12014,7 @@ protected CompilationUnitDeclaration endParse(int act) {
 		}
 		this.currentElement.topElement().updateParseTree();
 	} else {
-		if (this.diet & VERBOSE_RECOVERY){
+		if (this.diet && VERBOSE_RECOVERY){
 			System.out.print(Messages.parser_regularParse);
 			System.out.println("--------------------------");	 //$NON-NLS-1$
 			System.out.println(this.compilationUnit);
