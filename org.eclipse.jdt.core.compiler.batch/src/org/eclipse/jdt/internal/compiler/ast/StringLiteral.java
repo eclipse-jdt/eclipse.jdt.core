@@ -84,8 +84,8 @@ public class StringLiteral extends Literal {
 
 		// handle some special char.....
 		output.append('\"');
-		for (int i = 0; i < this.source.length; i++) {
-			Util.appendEscapedChar(output, this.source[i], true);
+		for (char element : this.source) {
+			Util.appendEscapedChar(output, element, true);
 		}
 		output.append('\"');
 		return output;

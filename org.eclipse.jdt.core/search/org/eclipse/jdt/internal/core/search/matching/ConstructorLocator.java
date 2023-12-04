@@ -299,8 +299,7 @@ public SearchMatch newDeclarationMatch(ASTNode reference, IJavaElement element, 
 			TypeDeclaration type = (TypeDeclaration) reference;
 			AbstractMethodDeclaration[] methods = type.methods;
 			if (methods != null) {
-				for (int i = 0, max = methods.length; i < max; i++) {
-					AbstractMethodDeclaration method = methods[i];
+				for (AbstractMethodDeclaration method : methods) {
 					boolean synthetic = method.isDefaultConstructor() && method.sourceStart < type.bodyStart;
 					this.match = locator.newMethodReferenceMatch(element, binding, accuracy, offset, length, method.isConstructor(), synthetic, method);
 				}
@@ -400,8 +399,7 @@ protected int resolveLevel(TypeDeclaration type) {
 	// find default constructor
 	AbstractMethodDeclaration[] methods = type.methods;
 	if (methods != null) {
-		for (int i = 0, length = methods.length; i < length; i++) {
-			AbstractMethodDeclaration method = methods[i];
+		for (AbstractMethodDeclaration method : methods) {
 			if (method.isDefaultConstructor() && method.sourceStart < type.bodyStart) // if synthetic
 				return resolveLevel((ConstructorDeclaration) method, false);
 		}

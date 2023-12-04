@@ -226,8 +226,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 	 * (element type: <code>IExtendedModifiers</code>)
 	 */
 	void printModifiers(List ext) {
-		for (Iterator it = ext.iterator(); it.hasNext(); ) {
-			ASTNode p = (ASTNode) it.next();
+		for (Object element : ext) {
+			ASTNode p = (ASTNode) element;
 			p.accept(this);
 			this.buffer.append(" ");//$NON-NLS-1$
 		}
@@ -274,8 +274,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 	}
 
 	private void visitAnnotationsList(List annotations) {
-		for (Iterator it = annotations.iterator(); it.hasNext(); ) {
-			Annotation annotation = (Annotation) it.next();
+		for (Object annotation2 : annotations) {
+			Annotation annotation = (Annotation) annotation2;
 			annotation.accept(this);
 			this.buffer.append(' ');
 		}
@@ -308,8 +308,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 		this.buffer.append("@interface ");//$NON-NLS-1$
 		node.getName().accept(this);
 		this.buffer.append(" {");//$NON-NLS-1$
-		for (Iterator it = node.bodyDeclarations().iterator(); it.hasNext(); ) {
-			BodyDeclaration d = (BodyDeclaration) it.next();
+		for (Object element : node.bodyDeclarations()) {
+			BodyDeclaration d = (BodyDeclaration) element;
 			d.accept(this);
 		}
 		this.buffer.append("}\n");//$NON-NLS-1$
@@ -339,8 +339,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 	public boolean visit(AnonymousClassDeclaration node) {
 		this.buffer.append("{\n");//$NON-NLS-1$
 		this.indent++;
-		for (Iterator it = node.bodyDeclarations().iterator(); it.hasNext(); ) {
-			BodyDeclaration b = (BodyDeclaration) it.next();
+		for (Object element : node.bodyDeclarations()) {
+			BodyDeclaration b = (BodyDeclaration) element;
 			b.accept(this);
 		}
 		this.indent--;
@@ -365,9 +365,9 @@ public class NaiveASTFlattener extends ASTVisitor {
 		int dims = at.getDimensions();
 		Type elementType = at.getElementType();
 		elementType.accept(this);
-		for (Iterator it = node.dimensions().iterator(); it.hasNext(); ) {
+		for (Object element : node.dimensions()) {
 			this.buffer.append("[");//$NON-NLS-1$
-			Expression e = (Expression) it.next();
+			Expression e = (Expression) element;
 			e.accept(this);
 			this.buffer.append("]");//$NON-NLS-1$
 			dims--;
@@ -438,8 +438,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 	public boolean visit(Block node) {
 		this.buffer.append("{\n");//$NON-NLS-1$
 		this.indent++;
-		for (Iterator it = node.statements().iterator(); it.hasNext(); ) {
-			Statement s = (Statement) it.next();
+		for (Object element : node.statements()) {
+			Statement s = (Statement) element;
 			s.accept(this);
 		}
 		this.indent--;
@@ -558,12 +558,12 @@ public class NaiveASTFlattener extends ASTVisitor {
 		if (node.getPackage() != null) {
 			node.getPackage().accept(this);
 		}
-		for (Iterator it = node.imports().iterator(); it.hasNext(); ) {
-			ImportDeclaration d = (ImportDeclaration) it.next();
+		for (Object element : node.imports()) {
+			ImportDeclaration d = (ImportDeclaration) element;
 			d.accept(this);
 		}
-		for (Iterator it = node.types().iterator(); it.hasNext(); ) {
-			AbstractTypeDeclaration d = (AbstractTypeDeclaration) it.next();
+		for (Object element : node.types()) {
+			AbstractTypeDeclaration d = (AbstractTypeDeclaration) element;
 			d.accept(this);
 		}
 		return false;
@@ -725,8 +725,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 		}
 		if (!node.bodyDeclarations().isEmpty()) {
 			this.buffer.append("; ");//$NON-NLS-1$
-			for (Iterator it = node.bodyDeclarations().iterator(); it.hasNext(); ) {
-				BodyDeclaration d = (BodyDeclaration) it.next();
+			for (Object element : node.bodyDeclarations()) {
+				BodyDeclaration d = (BodyDeclaration) element;
 				d.accept(this);
 				// other body declarations include trailing punctuation
 			}
@@ -864,9 +864,9 @@ public class NaiveASTFlattener extends ASTVisitor {
 		final List extendedOperands = node.extendedOperands();
 		if (extendedOperands.size() != 0) {
 			this.buffer.append(' ');
-			for (Iterator it = extendedOperands.iterator(); it.hasNext(); ) {
+			for (Object extendedOperand : extendedOperands) {
 				this.buffer.append(node.getOperator().toString()).append(' ');
-				Expression e = (Expression) it.next();
+				Expression e = (Expression) extendedOperand;
 				e.accept(this);
 			}
 		}
@@ -922,8 +922,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 	public boolean visit(Javadoc node) {
 		printIndent();
 		this.buffer.append("/** ");//$NON-NLS-1$
-		for (Iterator it = node.tags().iterator(); it.hasNext(); ) {
-			ASTNode e = (ASTNode) it.next();
+		for (Object element : node.tags()) {
+			ASTNode e = (ASTNode) element;
 			e.accept(this);
 		}
 		this.buffer.append("\n */\n");//$NON-NLS-1$
@@ -1278,8 +1278,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 			if (node.getJavadoc() != null) {
 				node.getJavadoc().accept(this);
 			}
-			for (Iterator it = node.annotations().iterator(); it.hasNext(); ) {
-				Annotation p = (Annotation) it.next();
+			for (Object element : node.annotations()) {
+				Annotation p = (Annotation) element;
 				p.accept(this);
 				this.buffer.append(" ");//$NON-NLS-1$
 			}
@@ -1420,8 +1420,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 		this.buffer.append("{");//$NON-NLS-1$
 		if (!node.bodyDeclarations().isEmpty()) {
 			this.buffer.append("\n");//$NON-NLS-1$
-			for (Iterator it = node.bodyDeclarations().iterator(); it.hasNext(); ) {
-				BodyDeclaration d = (BodyDeclaration) it.next();
+			for (Object element : node.bodyDeclarations()) {
+				BodyDeclaration d = (BodyDeclaration) element;
 				d.accept(this);
 				// other body declarations include trailing punctuation
 			}
@@ -1713,14 +1713,14 @@ public class NaiveASTFlattener extends ASTVisitor {
 		this.buffer.append("{\n");//$NON-NLS-1$
 		this.indent++;
 		if (node instanceof SwitchExpression) {
-			for (Iterator it = ((SwitchExpression)node).statements().iterator(); it.hasNext(); ) {
-				Statement s = (Statement) it.next();
+			for (Object element : ((SwitchExpression)node).statements()) {
+				Statement s = (Statement) element;
 				s.accept(this);
 				this.indent--; // incremented in visit(SwitchCase)
 			}
 		} else if (node instanceof SwitchStatement) {
-			for (Iterator it = ((SwitchStatement)node).statements().iterator(); it.hasNext(); ) {
-				Statement s = (Statement) it.next();
+			for (Object element : ((SwitchStatement)node).statements()) {
+				Statement s = (Statement) element;
 				s.accept(this);
 				this.indent--; // incremented in visit(SwitchCase)
 			}
@@ -1766,8 +1766,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 			previousRequiresWhiteSpace = true;
 		}
 		boolean previousRequiresNewLine = false;
-		for (Iterator it = node.fragments().iterator(); it.hasNext(); ) {
-			ASTNode e = (ASTNode) it.next();
+		for (Object element : node.fragments()) {
+			ASTNode e = (ASTNode) element;
 			// Name, MemberRef, MethodRef, and nested TagElement do not include white space.
 			// TextElements don't always include whitespace, see <https://bugs.eclipse.org/206518>.
 			boolean currentIncludesWhiteSpace = false;
@@ -1789,8 +1789,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 			previousRequiresWhiteSpace = !currentIncludesWhiteSpace && !(e instanceof TagElement);
 		}
 		if (DOMASTUtil.isJavaDocCodeSnippetSupported(node.getAST().apiLevel())) {
-			for (Iterator it = node.tagProperties().iterator(); it.hasNext(); ) {
-				TagProperty tagProperty = (TagProperty) it.next();
+			for (Object element : node.tagProperties()) {
+				TagProperty tagProperty = (TagProperty) element;
 				tagProperty.accept(this);
 			}
 
@@ -1865,8 +1865,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 		}
 		node.getBody().accept(this);
 		this.buffer.append(" ");//$NON-NLS-1$
-		for (Iterator it = node.catchClauses().iterator(); it.hasNext(); ) {
-			CatchClause cc = (CatchClause) it.next();
+		for (Object element : node.catchClauses()) {
+			CatchClause cc = (CatchClause) element;
 			cc.accept(this);
 		}
 		if (node.getFinally() != null) {
@@ -1954,8 +1954,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 		}
 		this.buffer.append("{\n");//$NON-NLS-1$
 		this.indent++;
-		for (Iterator it = node.bodyDeclarations().iterator(); it.hasNext(); ) {
-			BodyDeclaration d = (BodyDeclaration) it.next();
+		for (Object element : node.bodyDeclarations()) {
+			BodyDeclaration d = (BodyDeclaration) element;
 			d.accept(this);
 		}
 		this.indent--;

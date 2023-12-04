@@ -677,9 +677,9 @@ public class ASTRewriteFlattener extends ASTVisitor {
 	public boolean visit(Javadoc node) {
 		this.result.append("/**"); //$NON-NLS-1$
 		List list= getChildList(node, Javadoc.TAGS_PROPERTY);
-		for (int i= 0; i < list.size(); i++) {
+		for (Object element : list) {
 			this.result.append("\n * "); //$NON-NLS-1$
-			((ASTNode) list.get(i)).accept(this);
+			((ASTNode) element).accept(this);
 		}
 		this.result.append("\n */"); //$NON-NLS-1$
 		return false;

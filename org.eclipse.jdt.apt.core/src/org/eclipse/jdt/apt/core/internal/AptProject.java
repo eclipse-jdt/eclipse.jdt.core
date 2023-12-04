@@ -112,8 +112,8 @@ public class AptProject {
 				if (f != null && f.exists()) {
 					try {
 						IResource[] members = f.members();
-						for (int i = 0; i < members.length; i++) {
-							FileSystemUtil.deleteDerivedResources(members[i]);
+						for (IResource member : members) {
+							FileSystemUtil.deleteDerivedResources(member);
 						}
 					} catch (CoreException ce) {
 						AptPlugin.log(ce, "Could not delete generated files"); //$NON-NLS-1$
@@ -125,8 +125,8 @@ public class AptProject {
 				if (f != null && f.exists()) {
 					try {
 						IResource[] members = f.members();
-						for (int i = 0; i < members.length; i++) {
-							FileSystemUtil.deleteDerivedResources(members[i]);
+						for (IResource member : members) {
+							FileSystemUtil.deleteDerivedResources(member);
 						}
 					} catch (CoreException ce) {
 						AptPlugin.log(ce, "Could not delete generated files"); //$NON-NLS-1$

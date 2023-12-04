@@ -201,8 +201,7 @@ public class CodeFormatterApplication implements IApplication {
 		if (files == null)
 			return;
 
-		for (int i = 0; i < files.length; i++) {
-			File file = files[i];
+		for (File file : files) {
 			if (file.isDirectory()) {
 				formatDirTree(file, codeFormatter);
 			} else if (Util.isJavaLikeFileName(file.getPath())) {
@@ -397,8 +396,7 @@ public class CodeFormatterApplication implements IApplication {
 		final CodeFormatter codeFormatter = ToolFactory.createCodeFormatter(this.options,
 				ToolFactory.M_FORMAT_EXISTING);
 		// format the list of files and/or directories
-		for (int i = 0, max = filesToFormat.length; i < max; i++) {
-			final File file = filesToFormat[i];
+		for (final File file : filesToFormat) {
 			if (file.isDirectory()) {
 				formatDirTree(file, codeFormatter);
 			} else if (Util.isJavaLikeFileName(file.getPath())) {

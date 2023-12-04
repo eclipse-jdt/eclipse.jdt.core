@@ -564,10 +564,10 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 				return null;
 			}
 			ArrayList<FactoryPathEntry> res= new ArrayList<>();
-			for (int i= 0; i < results.length; i++) {
-				IResource resource= root.findMember(results[i]);
+			for (IPath result : results) {
+				IResource resource= root.findMember(result);
 				if (resource instanceof IFile) {
-					FactoryContainer fc = FactoryPathUtil.newWkspJarFactoryContainer(results[i]);
+					FactoryContainer fc = FactoryPathUtil.newWkspJarFactoryContainer(result);
 					// assume defaults of enabled=true, runInAptMode=false
 					FactoryPath.Attributes attr = new FactoryPath.Attributes(true, false);
 					FactoryPathEntry fpe = new FactoryPathEntry(fc, attr);
@@ -609,8 +609,8 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 				return null;
 			}
 			ArrayList<FactoryPathEntry> res= new ArrayList<>();
-			for (int i= 0; i < selected.length; i++) {
-				FactoryContainer fc = FactoryPathUtil.newExtJarFactoryContainer(selected[i].toFile());
+			for (IPath element : selected) {
+				FactoryContainer fc = FactoryPathUtil.newExtJarFactoryContainer(element.toFile());
 				// assume defaults of enabled=true, runInAptMode=false
 				FactoryPath.Attributes attr = new FactoryPath.Attributes(true, false);
 				FactoryPathEntry fpe = new FactoryPathEntry(fc, attr);
@@ -645,8 +645,8 @@ public class FactoryPathConfigurationBlock extends BaseConfigurationBlock {
 				return null;
 			}
 			ArrayList<FactoryPathEntry> res= new ArrayList<>();
-			for (int i= 0; i < selected.length; i++) {
-				FactoryContainer fc= FactoryPathUtil.newVarJarFactoryContainer(selected[i]);
+			for (IPath element : selected) {
+				FactoryContainer fc= FactoryPathUtil.newVarJarFactoryContainer(element);
 				// assume defaults of enabled=true, runInAptMode=false
 				FactoryPath.Attributes attr = new FactoryPath.Attributes(true, false);
 				FactoryPathEntry fpe = new FactoryPathEntry(fc, attr);

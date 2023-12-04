@@ -811,8 +811,7 @@ public class APTDispatchRunnable implements IWorkspaceRunnable
 
 		final Set<AnnotationTypeDeclaration> fDecls = new HashSet<>();
 
-		for (Iterator<String> it = supportedTypes.iterator(); it.hasNext();) {
-			final String typeName = it.next();
+		for (String typeName : supportedTypes) {
 			if (typeName.equals("*")) { //$NON-NLS-1$
 				fDecls.addAll(declarations.values());
 				declarations.clear();

@@ -57,8 +57,8 @@ public class ClassDeclarationImpl extends TypeDeclarationImpl implements ClassDe
 
     	final List bodyDecls = typeDecl.bodyDeclarations();
     	IFile file = null;
-    	for( int i=0, len=bodyDecls.size(); i<len; i++ ){
-    		final BodyDeclaration bodyDecl = (BodyDeclaration)bodyDecls.get(i);
+    	for (Object bodyDecl2 : bodyDecls) {
+    		final BodyDeclaration bodyDecl = (BodyDeclaration)bodyDecl2;
     		if( bodyDecl.getNodeType() == ASTNode.METHOD_DECLARATION ){
     			final org.eclipse.jdt.core.dom.MethodDeclaration methodDecl =
     					(org.eclipse.jdt.core.dom.MethodDeclaration)bodyDecl;

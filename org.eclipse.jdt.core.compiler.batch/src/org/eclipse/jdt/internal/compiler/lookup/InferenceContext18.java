@@ -372,8 +372,8 @@ public class InferenceContext18 {
 	public void addThrowsContraints(TypeBinding[] parameters, InferenceVariable[] variables, ReferenceBinding[] thrownExceptions) {
 		for (int i = 0; i < parameters.length; i++) {
 			TypeBinding parameter = parameters[i];
-			for (int j = 0; j < thrownExceptions.length; j++) {
-				if (TypeBinding.equalsEquals(parameter, thrownExceptions[j])) {
+			for (ReferenceBinding thrownException : thrownExceptions) {
+				if (TypeBinding.equalsEquals(parameter, thrownException)) {
 					this.currentBounds.inThrows.add(variables[i].prototype());
 					break;
 				}
@@ -909,8 +909,8 @@ public class InferenceContext18 {
 					return null;							// bullet 4
 					// each element of the intersection is a superinterface of I, or a parameterization of a superinterface of I.
 				}
-				for (int i = 0; i < elements.length; i++)
-					if (siSubI(elements[i], funcI))
+				for (TypeBinding element : elements)
+					if (siSubI(element, funcI))
 						return null;						// bullet 5
 						// some element of the intersection is a subinterface of I, or a parameterization of a subinterface of I.
 			}
@@ -943,8 +943,8 @@ public class InferenceContext18 {
 						&& !(r1.isCompatibleWith(r2) || r2.isCompatibleWith(r1))) {
 					// "these rules are applied recursively to R1 and R2, for each result expression in expi."
 					// (what does "applied .. to R1 and R2" mean? Why mention R1/R2 and not U/V?)
-					for (int i = 0; i < results.length; i++) {
-						if (!checkExpression(results[i], u, r1, v, r2))
+					for (Expression result : results) {
+						if (!checkExpression(result, u, r1, v, r2))
 							return false;
 					}
 					return true;
@@ -1004,8 +1004,8 @@ public class InferenceContext18 {
 			return true;
 		TypeBinding[] superIfcs = funcI.superInterfaces();
 		if (superIfcs == null) return false;
-		for (int i = 0; i < superIfcs.length; i++) {
-			if (siSuperI(si, superIfcs[i].original()))
+		for (TypeBinding superIfc : superIfcs) {
+			if (siSuperI(si, superIfc.original()))
 				return true;
 		}
 		return false;
@@ -1016,8 +1016,8 @@ public class InferenceContext18 {
 			return true;
 		TypeBinding[] superIfcs = si.superInterfaces();
 		if (superIfcs == null) return false;
-		for (int i = 0; i < superIfcs.length; i++) {
-			if (siSubI(superIfcs[i], funcI))
+		for (TypeBinding superIfc : superIfcs) {
+			if (siSubI(superIfc, funcI))
 				return true;
 		}
 		return false;
@@ -1104,8 +1104,8 @@ public class InferenceContext18 {
 	 */
 	public boolean isResolved(BoundSet boundSet) {
 		if (this.inferenceVariables != null) {
-			for (int i = 0; i < this.inferenceVariables.length; i++) {
-				if (!boundSet.isInstantiated(this.inferenceVariables[i]))
+			for (InferenceVariable inferenceVariable : this.inferenceVariables) {
+				if (!boundSet.isInstantiated(inferenceVariable))
 					return false;
 			}
 		}
@@ -1124,8 +1124,7 @@ public class InferenceContext18 {
 		if (this.outerContext != null && this.outerContext.stepCompleted < TYPE_INFERRED)
 			outerVariables = this.outerContext.inferenceVariables;
 		for (int i = 0; i < typeParameters.length; i++) {
-			for (int j = 0; j < this.inferenceVariables.length; j++) {
-				InferenceVariable variable = this.inferenceVariables[j];
+			for (InferenceVariable variable : this.inferenceVariables) {
 				if (isSameSite(variable.site, site) && TypeBinding.equalsEquals(variable.typeParameter, typeParameters[i])) {
 					TypeBinding outerVar = null;
 					if (outerVariables != null && (outerVar = boundSet.getEquivalentOuterVariable(variable, outerVariables)) != null)
@@ -1343,8 +1342,8 @@ public class InferenceContext18 {
 			if (glbs == null)
 				return false;
 			if (typeVariable.lowerBound != null) {
-				for (int i = 0; i < glbs.length; i++) {
-					if (!typeVariable.lowerBound.isCompatibleWith(glbs[i]))
+				for (TypeBinding glb : glbs) {
+					if (!typeVariable.lowerBound.isCompatibleWith(glb))
 						return false; // not well-formed
 				}
 			}
@@ -1409,8 +1408,7 @@ public class InferenceContext18 {
 	private void addDependencies(BoundSet boundSet, Set<InferenceVariable> variableSet, InferenceVariable currentVariable) {
 		if (boundSet.isInstantiated(currentVariable)) return; // not added
 		if (!variableSet.add(currentVariable)) return; // already present
-		for (int j = 0; j < this.inferenceVariables.length; j++) {
-			InferenceVariable nextVariable = this.inferenceVariables[j];
+		for (InferenceVariable nextVariable : this.inferenceVariables) {
 			if (TypeBinding.equalsEquals(nextVariable, currentVariable)) continue;
 			if (boundSet.dependsOnResolutionOf(currentVariable, nextVariable))
 				addDependencies(boundSet, variableSet, nextVariable);
@@ -1628,9 +1626,8 @@ public class InferenceContext18 {
 
 	Set<InferenceVariable> allOutputVariables(Set<ConstraintFormula> constraints) {
 		Set<InferenceVariable> result = new LinkedHashSet<>();
-		Iterator<ConstraintFormula> it = constraints.iterator();
-		while (it.hasNext()) {
-			result.addAll(it.next().outputVariables(this));
+		for (ConstraintFormula constraint : constraints) {
+			result.addAll(constraint.outputVariables(this));
 		}
 		return result;
 	}
@@ -1790,10 +1787,10 @@ public class InferenceContext18 {
 		buf.append('\n');
 		if (this.inferenceVariables != null) {
 			buf.append("Inference Variables:\n"); //$NON-NLS-1$
-			for (int i = 0; i < this.inferenceVariables.length; i++) {
-				buf.append('\t').append(this.inferenceVariables[i].sourceName).append("\t:\t"); //$NON-NLS-1$
-				if (this.currentBounds != null && this.currentBounds.isInstantiated(this.inferenceVariables[i]))
-					buf.append(this.currentBounds.getInstantiation(this.inferenceVariables[i], this.environment).readableName());
+			for (InferenceVariable inferenceVariable : this.inferenceVariables) {
+				buf.append('\t').append(inferenceVariable.sourceName).append("\t:\t"); //$NON-NLS-1$
+				if (this.currentBounds != null && this.currentBounds.isInstantiated(inferenceVariable))
+					buf.append(this.currentBounds.getInstantiation(inferenceVariable, this.environment).readableName());
 				else
 					buf.append("NOT INSTANTIATED"); //$NON-NLS-1$
 				buf.append('\n');
@@ -1801,9 +1798,9 @@ public class InferenceContext18 {
 		}
 		if (this.initialConstraints != null) {
 			buf.append("Initial Constraints:\n"); //$NON-NLS-1$
-			for (int i = 0; i < this.initialConstraints.length; i++)
-				if (this.initialConstraints[i] != null)
-					buf.append('\t').append(this.initialConstraints[i].toString()).append('\n');
+			for (ConstraintFormula initialConstraint : this.initialConstraints)
+				if (initialConstraint != null)
+					buf.append('\t').append(initialConstraint.toString()).append('\n');
 		}
 		if (this.currentBounds != null)
 			buf.append(this.currentBounds.toString());
@@ -1820,8 +1817,8 @@ public class InferenceContext18 {
 		ParameterizedTypeBinding parameterizedType = (ParameterizedTypeBinding) type;
 		TypeBinding[] arguments = parameterizedType.arguments;
 		if (arguments != null) {
-			for (int i = 0; i < arguments.length; i++)
-				if (arguments[i].isWildcard())
+			for (TypeBinding argument : arguments)
+				if (argument.isWildcard())
 					return parameterizedType;
 		}
 		return null;
@@ -1897,8 +1894,7 @@ public class InferenceContext18 {
 		updateInnerDiamonds(pmb, arguments);
 		for (int i = 0, length = arguments == null ? 0 : arguments.length; i < length; i++) {
 			Expression [] expressions = arguments[i].getPolyExpressions();
-			for (int j = 0, jLength = expressions.length; j < jLength; j++) {
-				Expression expression = expressions[j];
+			for (Expression expression : expressions) {
 				if (!(expression instanceof Invocation))
 					continue;
 				Invocation polyInvocation = (Invocation) expression;

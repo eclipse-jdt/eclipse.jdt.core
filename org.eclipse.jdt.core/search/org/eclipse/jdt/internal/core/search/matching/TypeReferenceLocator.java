@@ -15,7 +15,6 @@ package org.eclipse.jdt.internal.core.search.matching;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -92,8 +91,8 @@ public int match(Reference node, MatchingNodeSet nodeSet) { // interested in Nam
 			return nodeSet.addMatch(node, POSSIBLE_MATCH); // resolution is needed to find out if it is a type ref
 	} else {
 		char[][] tokens = ((QualifiedNameReference) node).tokens;
-		for (int i = 0, max = tokens.length; i < max; i++)
-			if (matchesName(this.pattern.simpleName, tokens[i]))
+		for (char[] token : tokens)
+			if (matchesName(this.pattern.simpleName, token))
 				return nodeSet.addMatch(node, POSSIBLE_MATCH); // resolution is needed to find out if it is a type ref
 	}
 
@@ -110,8 +109,8 @@ public int match(TypeReference node, MatchingNodeSet nodeSet) {
 			return nodeSet.addMatch(node, this.pattern.mustResolve ? POSSIBLE_MATCH : ACCURATE_MATCH);
 	} else {
 		char[][] tokens = ((QualifiedTypeReference) node).tokens;
-		for (int i = 0, max = tokens.length; i < max; i++)
-			if (matchesName(this.pattern.simpleName, tokens[i]))
+		for (char[] token : tokens)
+			if (matchesName(this.pattern.simpleName, token))
 				return nodeSet.addMatch(node, POSSIBLE_MATCH); // resolution is needed to find out if it is a type ref
 	}
 
@@ -829,8 +828,8 @@ int resolveLevelForTypeOrQualifyingTypes(TypeReference typeRef, TypeBinding type
 	if (typeBinding == null || !typeBinding.isValidBinding()) return INACCURATE_MATCH;
 	List resolutionsList = this.recordedResolutions.get(typeRef);
 	if (resolutionsList != null) {
-		for (Iterator i = resolutionsList.iterator(); i.hasNext();) {
-			TypeBinding resolution = (TypeBinding) i.next();
+		for (Object element : resolutionsList) {
+			TypeBinding resolution = (TypeBinding) element;
 			int level = resolveLevelForType(resolution);
 			if (level != IMPOSSIBLE_MATCH) return level;
 		}

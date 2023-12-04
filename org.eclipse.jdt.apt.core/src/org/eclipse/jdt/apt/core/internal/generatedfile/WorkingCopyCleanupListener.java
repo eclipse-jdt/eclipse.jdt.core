@@ -46,8 +46,8 @@ public class WorkingCopyCleanupListener implements IElementChangedListener
 		IJavaElementDelta[] deltas = delta.getAffectedChildren();
 		if ( deltas != null && deltas.length > 0 )
 		{
-			for( int i = 0; i<deltas.length; i++ )
-				processElementDelta( deltas[i] );
+			for (IJavaElementDelta element : deltas)
+				processElementDelta( element );
 		}
 		if ( delta.getElement() instanceof ICompilationUnit )
 		{

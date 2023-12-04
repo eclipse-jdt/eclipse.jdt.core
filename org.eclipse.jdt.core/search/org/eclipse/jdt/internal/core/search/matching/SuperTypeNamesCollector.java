@@ -201,9 +201,9 @@ public char[][][] collect() throws JavaModelException {
 	this.result = new char[1][][];
 	this.samePackageSuperTypeName = new char[1][][];
 	this.resultIndex = 0;
-	for (int i = 0, length = paths.length; i < length; i++) {
+	for (String path : paths) {
 		try {
-			Openable openable = this.locator.handleFactory.createOpenable(paths[i], this.locator.scope);
+			Openable openable = this.locator.handleFactory.createOpenable(path, this.locator.scope);
 			if (openable == null) continue; // outside classpath
 
 			IJavaProject project = openable.getJavaProject();
@@ -246,8 +246,7 @@ protected void collectSuperTypeNames(ReferenceBinding binding, char[][] path) {
 
 	ReferenceBinding[] interfaces = binding.superInterfaces();
 	if (interfaces != null) {
-		for (int i = 0; i < interfaces.length; i++) {
-			ReferenceBinding interfaceBinding = interfaces[i];
+		for (ReferenceBinding interfaceBinding : interfaces) {
 			addToResult(interfaceBinding.compoundName);
 			collectSuperTypeNames(interfaceBinding, path);
 		}

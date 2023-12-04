@@ -387,8 +387,8 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 				targetModuleSet = new SimpleSetOfCharArray(targetModules.length);
 				this.exportRestrictions.put(exportedPackage, targetModuleSet);
 			}
-			for (int i = 0; i < targetModules.length; i++) {
-				targetModuleSet.add(targetModules[i]);
+			for (char[] targetModule : targetModules) {
+				targetModuleSet.add(targetModule);
 			}
 		}
 	}
@@ -405,8 +405,8 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 				targetModuleSet = new SimpleSetOfCharArray(targetModules.length);
 				this.openRestrictions.put(openedPackage, targetModuleSet);
 			}
-			for (int i = 0; i < targetModules.length; i++) {
-				targetModuleSet.add(targetModules[i]);
+			for (char[] targetModule : targetModules) {
+				targetModuleSet.add(targetModule);
 			}
 		}
 	}
@@ -516,8 +516,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 				return pkg.enclosingModule == this; // no transitive export
 			}
 			PackageBinding[] initializedExports = getExports();
-			for (int i = 0; i < initializedExports.length; i++) {
-				PackageBinding export = initializedExports[i];
+			for (PackageBinding export : initializedExports) {
 				if (export.subsumes(resolved)) {
 					if (this.exportRestrictions != null) {
 						SimpleSetOfCharArray restrictions = this.exportRestrictions.get(export);
@@ -732,25 +731,24 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		buffer.append("module " + new String(readableName())); //$NON-NLS-1$
 		if (this.requires.length > 0) {
 			buffer.append("\n/*    requires    */\n"); //$NON-NLS-1$
-			for (int i = 0; i < this.requires.length; i++) {
+			for (ModuleBinding require : this.requires) {
 				buffer.append("\n\t"); //$NON-NLS-1$
 				if (this.requiresTransitive != null) {
 					for (ModuleBinding reqTrans : this.requiresTransitive) {
-						if (reqTrans == this.requires[i]) {
+						if (reqTrans == require) {
 							buffer.append("transitive "); //$NON-NLS-1$
 							break;
 						}
 					}
 				}
-				buffer.append(this.requires[i].moduleName);
+				buffer.append(require.moduleName);
 			}
 		} else {
 			buffer.append("\nNo Requires"); //$NON-NLS-1$
 		}
 		if (this.exportedPackages != null && this.exportedPackages.length > 0) {
 			buffer.append("\n/*    exports    */\n"); //$NON-NLS-1$
-			for (int i = 0; i < this.exportedPackages.length; i++) {
-				PackageBinding export = this.exportedPackages[i];
+			for (PlainPackageBinding export : this.exportedPackages) {
 				buffer.append("\n\t"); //$NON-NLS-1$
 				if (export == null) {
 					buffer.append("<unresolved>"); //$NON-NLS-1$
@@ -775,8 +773,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		}
 		if (this.openedPackages != null && this.openedPackages.length > 0) {
 			buffer.append("\n/*    exports    */\n"); //$NON-NLS-1$
-			for (int i = 0; i < this.openedPackages.length; i++) {
-				PackageBinding opens = this.openedPackages[i];
+			for (PlainPackageBinding opens : this.openedPackages) {
 				buffer.append("\n\t"); //$NON-NLS-1$
 				if (opens == null) {
 					buffer.append("<unresolved>"); //$NON-NLS-1$
@@ -801,23 +798,23 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		}
 		if (this.uses != null && this.uses.length > 0) {
 			buffer.append("\n/*    uses    /*\n"); //$NON-NLS-1$
-			for (int i = 0; i < this.uses.length; i++) {
+			for (TypeBinding element : this.uses) {
 				buffer.append("\n\t"); //$NON-NLS-1$
-				buffer.append(this.uses[i].debugName());
+				buffer.append(element.debugName());
 			}
 		} else {
 			buffer.append("\nNo Uses"); //$NON-NLS-1$
 		}
 		if (this.services != null && this.services.length > 0) {
 			buffer.append("\n/*    Services    */\n"); //$NON-NLS-1$
-			for (int i = 0; i < this.services.length; i++) {
+			for (TypeBinding element : this.services) {
 				buffer.append("\n\t"); //$NON-NLS-1$
 				buffer.append("provides "); //$NON-NLS-1$
-				buffer.append(this.services[i].debugName());
+				buffer.append(element.debugName());
 				buffer.append(" with "); //$NON-NLS-1$
-				if (this.implementations != null && this.implementations.containsKey(this.services[i])) {
+				if (this.implementations != null && this.implementations.containsKey(element)) {
 					String sep = ""; //$NON-NLS-1$
-					for (TypeBinding impl : this.implementations.get(this.services[i])) {
+					for (TypeBinding impl : this.implementations.get(element)) {
 						buffer.append(sep).append(impl.debugName());
 						sep = ", "; //$NON-NLS-1$
 					}

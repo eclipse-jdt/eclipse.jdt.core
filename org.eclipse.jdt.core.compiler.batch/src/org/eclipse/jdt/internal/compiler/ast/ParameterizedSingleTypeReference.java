@@ -45,8 +45,8 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 		super(name, dim, pos);
 		this.originalSourceEnd = this.sourceEnd;
 		this.typeArguments = typeArguments;
-		for (int i = 0, max = typeArguments.length; i < max; i++) {
-			if ((typeArguments[i].bits & ASTNode.HasTypeAnnotations) != 0) {
+		for (TypeReference typeArgument : typeArguments) {
+			if ((typeArgument.bits & ASTNode.HasTypeAnnotations) != 0) {
 				this.bits |= ASTNode.HasTypeAnnotations;
 				break;
 			}
@@ -138,8 +138,8 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 	    	if (this.resolvedType != null && !this.resolvedType.hasNullTypeAnnotations())
 	    		return false; // shortcut
 	    	if (this.typeArguments != null) {
-	    		for (int i = 0; i < this.typeArguments.length; i++) {
-					if (this.typeArguments[i].hasNullTypeAnnotation(position))
+	    		for (TypeReference typeArgument : this.typeArguments) {
+					if (typeArgument.hasNullTypeAnnotation(position))
 						return true;
 				}
 	    	}
@@ -417,18 +417,16 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 			}
 			Annotation [][] annotationsOnDimensions = getAnnotationsOnDimensions(true);
 			if (annotationsOnDimensions != null) {
-				for (int i = 0, max = annotationsOnDimensions.length; i < max; i++) {
-					Annotation[] annotations2 = annotationsOnDimensions[i];
+				for (Annotation[] annotations2 : annotationsOnDimensions) {
 					if (annotations2 != null) {
-						for (int j = 0, max2 = annotations2.length; j < max2; j++) {
-							Annotation annotation = annotations2[j];
+						for (Annotation annotation : annotations2) {
 							annotation.traverse(visitor, scope);
 						}
 					}
 				}
 			}
-			for (int i = 0, max = this.typeArguments.length; i < max; i++) {
-				this.typeArguments[i].traverse(visitor, scope);
+			for (TypeReference typeArgument : this.typeArguments) {
+				typeArgument.traverse(visitor, scope);
 			}
 		}
 		visitor.endVisit(this, scope);
@@ -445,16 +443,14 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 			}
 			Annotation [][] annotationsOnDimensions = getAnnotationsOnDimensions(true);
 			if (annotationsOnDimensions != null) {
-				for (int i = 0, max = annotationsOnDimensions.length; i < max; i++) {
-					Annotation[] annotations2 = annotationsOnDimensions[i];
-					for (int j = 0, max2 = annotations2.length; j < max2; j++) {
-						Annotation annotation = annotations2[j];
+				for (Annotation[] annotations2 : annotationsOnDimensions) {
+					for (Annotation annotation : annotations2) {
 						annotation.traverse(visitor, scope);
 					}
 				}
 			}
-			for (int i = 0, max = this.typeArguments.length; i < max; i++) {
-				this.typeArguments[i].traverse(visitor, scope);
+			for (TypeReference typeArgument : this.typeArguments) {
+				typeArgument.traverse(visitor, scope);
 			}
 		}
 		visitor.endVisit(this, scope);

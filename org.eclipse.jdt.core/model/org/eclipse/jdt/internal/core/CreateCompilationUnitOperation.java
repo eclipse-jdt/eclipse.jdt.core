@@ -99,8 +99,8 @@ protected void executeOperation() throws JavaModelException {
 				this.resultElements = new IJavaElement[] {unit};
 				if (!Util.isExcluded(unit)
 						&& unit.getParent().exists()) {
-					for (int i = 0; i < this.resultElements.length; i++) {
-						delta.changed(this.resultElements[i], IJavaElementDelta.F_CONTENT);
+					for (IJavaElement resultElement : this.resultElements) {
+						delta.changed(resultElement, IJavaElementDelta.F_CONTENT);
 					}
 					addDelta(delta);
 				}
@@ -123,8 +123,8 @@ protected void executeOperation() throws JavaModelException {
 				this.resultElements = new IJavaElement[] {unit};
 				if (!Util.isExcluded(unit)
 						&& unit.getParent().exists()) {
-					for (int i = 0; i < this.resultElements.length; i++) {
-						delta.added(this.resultElements[i]);
+					for (IJavaElement resultElement : this.resultElements) {
+						delta.added(resultElement);
 					}
 					addDelta(delta);
 				}

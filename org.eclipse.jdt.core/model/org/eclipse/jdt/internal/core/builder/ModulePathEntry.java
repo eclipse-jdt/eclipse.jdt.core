@@ -95,8 +95,8 @@ public class ModulePathEntry implements IModulePathEntry {
 	// Once we have a mechanism to map a folder to a module path entry, this should no longer be
 	// needed
 	private void initializeModule() {
-		for (int i = 0; i < this.locations.length; i++) {
-			this.locations[i].setModule(this.module);
+		for (ClasspathLocation location : this.locations) {
+			location.setModule(this.module);
 		}
 	}
 	@Override

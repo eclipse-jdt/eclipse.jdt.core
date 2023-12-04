@@ -47,10 +47,9 @@ public class ClasspathUtil {
 		IClasspathEntry searchingFor =
 			JavaCore.newSourceEntry(folder.getFullPath());
 		IPath searchingForPath = searchingFor.getPath();
-		for (int i = 0; i < cp.length; i++)
-		{
-			if (cp[i].getPath().equals( searchingForPath ))
-				return cp[i];
+		for (IClasspathEntry element : cp) {
+			if (element.getPath().equals( searchingForPath ))
+				return element;
 		}
 		return null;
 	}
@@ -71,9 +70,8 @@ public class ClasspathUtil {
 	{
 		if( cp == null )
 			cp = jp.getRawClasspath();
-		for (int i = 0; i < cp.length; i++)
-		{
-			if (cp[i].getPath().equals( path ))
+		for (IClasspathEntry element : cp) {
+			if (element.getPath().equals( path ))
 			{
 				return true;
 			}
@@ -169,8 +167,8 @@ public class ClasspathUtil {
 
 					// don't add if exclusion pattern already contains src dir
 					boolean add = true;
-					for ( int j = 0; j < oldExclusions.length; j++ )
-						if ( oldExclusions[j].equals( projectRelativePath ) )
+					for (IPath oldExclusion : oldExclusions)
+						if ( oldExclusion.equals( projectRelativePath ) )
 							add = false;
 
 					if ( add )

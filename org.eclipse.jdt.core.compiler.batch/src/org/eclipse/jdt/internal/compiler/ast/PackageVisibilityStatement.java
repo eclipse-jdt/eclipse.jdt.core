@@ -45,8 +45,7 @@ public abstract class PackageVisibilityStatement extends ModuleStatement {
 		boolean errorsExist = resolvePackageReference(scope) == null;
 		if (this.isQualified()) {
 			HashtableOfObject modules = new HashtableOfObject(this.targets.length);
-			for (int i = 0; i < this.targets.length; i++) {
-				ModuleReference ref = this.targets[i];
+			for (ModuleReference ref : this.targets) {
 				// targets will be resolved later (during ModuleDeclaration.resolveModuleDirectives())
 				if (modules.containsKey(ref.moduleName)) {
 					scope.problemReporter().duplicateModuleReference(IProblem.DuplicateModuleRef, ref);

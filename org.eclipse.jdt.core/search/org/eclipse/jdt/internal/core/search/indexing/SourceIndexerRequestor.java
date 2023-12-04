@@ -74,8 +74,8 @@ public void acceptConstructorReference(char[] typeName, int argCount, int source
 	int lastDot = CharOperation.lastIndexOf('.', typeName);
 	if (lastDot != -1) {
 		char[][] qualification = CharOperation.splitOn('.', CharOperation.subarray(typeName, 0, lastDot));
-		for (int i = 0, length = qualification.length; i < length; i++) {
-			this.indexer.addNameReference(qualification[i]);
+		for (char[] element : qualification) {
+			this.indexer.addNameReference(element);
 		}
 	}
 }
@@ -143,8 +143,8 @@ public void acceptTypeReference(char[] simpleTypeName, int sourcePosition) {
  */
 @Override
 public void acceptUnknownReference(char[][] name, int sourceStart, int sourceEnd) {
-	for (int i = 0; i < name.length; i++) {
-		acceptUnknownReference(name[i], 0);
+	for (char[] element : name) {
+		acceptUnknownReference(element, 0);
 	}
 }
 /**

@@ -77,8 +77,7 @@ IModule initializeModule() {
 	try {
 		members = this.binaryFolder.members();
 		if (members != null) {
-			for (int i = 0, l = members.length; i < l; i++) {
-				IResource m = members[i];
+			for (IResource m : members) {
 				String name = m.getName();
 				// Note: Look only inside the default package.
 				if (m.getType() == IResource.FILE && org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(name)) {
@@ -114,8 +113,7 @@ String[] directoryList(String qualifiedPackageName) {
 			IResource[] members = ((IContainer) container).members();
 			dirList = new String[members.length];
 			int index = 0;
-			for (int i = 0, l = members.length; i < l; i++) {
-				IResource m = members[i];
+			for (IResource m : members) {
 				String name = m.getName();
 				if (m.getType() == IResource.FOLDER || // include folders so we recognize empty parent packages
 						(m.getType() == IResource.FILE && org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(name))) {

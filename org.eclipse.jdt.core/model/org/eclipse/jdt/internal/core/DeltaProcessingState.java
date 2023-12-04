@@ -27,7 +27,6 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -323,8 +322,8 @@ public class DeltaProcessingState implements IResourceChangeListener {
 			// nothing can be done
 			return null;
 		}
-		for (int i = 0, length = projects.length; i < length; i++) {
-			JavaProject project = (JavaProject) projects[i];
+		for (IJavaProject project2 : projects) {
+			JavaProject project = (JavaProject) project2;
 			IClasspathEntry[] classpath;
 			try {
 				if (usePreviousSession) {
@@ -338,8 +337,7 @@ public class DeltaProcessingState implements IResourceChangeListener {
 				// continue with next project
 				continue;
 			}
-			for (int j= 0, classpathLength = classpath.length; j < classpathLength; j++) {
-				IClasspathEntry entry = classpath[j];
+			for (IClasspathEntry entry : classpath) {
 				if (entry.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
 					IJavaProject key = model.getJavaProject(entry.getPath().segment(0)); // TODO (jerome) reuse handle
 					IJavaProject[] dependents = ri.projectDependencies.get(key);
@@ -554,8 +552,7 @@ public class DeltaProcessingState implements IResourceChangeListener {
 				return this.javaProjectNamesCache;
 			}
 			HashSet<String> result = new LinkedHashSet<>();
-			for (int i = 0, length = projects.length; i < length; i++) {
-				IJavaProject project = projects[i];
+			for (IJavaProject project : projects) {
 				result.add(project.getElementName());
 			}
 			return this.javaProjectNamesCache = result;
@@ -589,9 +586,7 @@ public class DeltaProcessingState implements IResourceChangeListener {
 		File timestamps = getTimeStampsFile();
 		try (DataOutputStream out = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(timestamps)))){
 			out.writeInt(this.externalTimeStamps.size() - toRemove.size());
-			Iterator<Entry<IPath, Long>> entries = this.externalTimeStamps.entrySet().iterator();
-			while (entries.hasNext()) {
-				Entry<IPath, Long> entry = entries.next();
+			for (Entry<IPath, Long> entry : this.externalTimeStamps.entrySet()) {
 				IPath key = entry.getKey();
 				if (!toRemove.contains(key)) {
 					out.writeUTF(key.toPortableString());
@@ -620,9 +615,7 @@ public class DeltaProcessingState implements IResourceChangeListener {
 		}
 		int containerSegmentCount = containerPath.segmentCount();
 		boolean containerIsProject = containerSegmentCount == 1;
-		Iterator<Entry<IPath, RootInfo>> iterator = updatedRoots.entrySet().iterator();
-		while (iterator.hasNext()) {
-			Entry<IPath, RootInfo> entry = iterator.next();
+		for (Entry<IPath, RootInfo> entry : updatedRoots.entrySet()) {
 			IPath path = entry.getKey();
 			if (containerPath.isPrefixOf(path) && !containerPath.equals(path)) {
 				IResourceDelta rootDelta = containerDelta.findMember(path.removeFirstSegments(containerSegmentCount));
@@ -636,9 +629,8 @@ public class DeltaProcessingState implements IResourceChangeListener {
 
 				List<RootInfo> rootList = otherUpdatedRoots.get(path);
 				if (rootList != null) {
-					Iterator<RootInfo> otherProjects = rootList.iterator();
-					while (otherProjects.hasNext()) {
-						rootInfo = otherProjects.next();
+					for (RootInfo element : rootList) {
+						rootInfo = element;
 						if (!containerIsProject
 								|| !rootInfo.project.getPath().isPrefixOf(path)) { // only consider folder roots that are not included in the container
 							deltaProcessor.updateCurrentDeltaAndIndex(rootDelta, IJavaElement.PACKAGE_FRAGMENT_ROOT, rootInfo);

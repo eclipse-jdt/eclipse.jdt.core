@@ -153,8 +153,8 @@ public class KeyToSignature extends BindingKeyParser {
 			// substitute parameters
 			this.signature.append(Signature.C_PARAM_START);
 			char[][] parameters = Signature.getParameterTypes(methodSignature);
-			for (int i = 0, parametersLength = parameters.length; i < parametersLength; i++)
-				substitute(parameters[i], typeParameterSigs, typeParametersSize);
+			for (char[] parameter : parameters)
+				substitute(parameter, typeParameterSigs, typeParametersSize);
 			this.signature.append(Signature.C_PARAM_END);
 
 			// substitute return type
@@ -163,9 +163,9 @@ public class KeyToSignature extends BindingKeyParser {
 
 			// substitute exceptions
 			char[][] exceptions = Signature.getThrownExceptionTypes(methodSignature);
-			for (int i = 0, exceptionsLength = exceptions.length; i < exceptionsLength; i++) {
+			for (char[] exception : exceptions) {
 				this.signature.append(Signature.C_EXCEPTION_START);
-				substitute(exceptions[i], typeParameterSigs, typeParametersSize);
+				substitute(exception, typeParameterSigs, typeParametersSize);
 			}
 
 		}
@@ -189,8 +189,8 @@ public class KeyToSignature extends BindingKeyParser {
 			this.signature.append(CharOperation.subarray(parameter, 0, genericStart));
 			char[][] parameters = Signature.getTypeArguments(parameter);
 			this.signature.append(Signature.C_GENERIC_START);
-			for (int j = 0, paramsLength = parameters.length; j < paramsLength; j++)
-				substitute(parameters[j], typeParameterSigs, typeParametersLength);
+			for (char[] parameter2 : parameters)
+				substitute(parameter2, typeParameterSigs, typeParametersLength);
 			this.signature.append(Signature.C_GENERIC_END);
 			this.signature.append(Signature.C_SEMICOLON);
 		} else {

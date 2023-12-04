@@ -39,15 +39,15 @@ public org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation[] getAnnotations(
 @Override
 protected void initialize() {
 	if (this.annotations != null)
-		for (int i = 0, max = this.annotations.length; i < max; i++)
-			this.annotations[i].initialize();
+		for (AnnotationInfo annotation : this.annotations)
+			annotation.initialize();
 	super.initialize();
 }
 @Override
 protected void reset() {
 	if (this.annotations != null)
-		for (int i = 0, max = this.annotations.length; i < max; i++)
-			this.annotations[i].reset();
+		for (AnnotationInfo annotation : this.annotations)
+			annotation.reset();
 	super.reset();
 }
 @Override
@@ -55,8 +55,8 @@ public String toString() {
 	StringBuilder buffer = new StringBuilder(getClass().getName());
 	if (this.annotations != null) {
 		buffer.append('\n');
-		for (int i = 0; i < this.annotations.length; i++) {
-			buffer.append(this.annotations[i]);
+		for (AnnotationInfo annotation : this.annotations) {
+			buffer.append(annotation);
 			buffer.append('\n');
 		}
 	}
