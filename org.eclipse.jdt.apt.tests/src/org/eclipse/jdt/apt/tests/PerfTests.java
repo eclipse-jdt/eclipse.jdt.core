@@ -69,12 +69,9 @@ public class PerfTests extends BuilderTests
 		File tempPath = fetchFromBinariesProject("perf-test-project.zip", 3_307_492);
 		
 		InputStream in = new FileInputStream(tempPath);
-		ZipInputStream zipIn = new ZipInputStream(in);
-		try {
+		
+		try (ZipInputStream zipIn = new ZipInputStream(in)) {
 			TestUtil.unzip(zipIn, destRoot);
-		}
-		finally {
-			zipIn.close();
 		}
 
 		// project will be deleted by super-class's tearDown() method

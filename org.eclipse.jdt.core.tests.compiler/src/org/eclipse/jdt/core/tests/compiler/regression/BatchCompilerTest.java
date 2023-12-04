@@ -3030,8 +3030,7 @@ public void test052(){
 	try {
 		new File(OUTPUT_DIR).mkdirs();
 		File barFile = new File(OUTPUT_DIR +  File.separator + "Bar.java");
-		FileOutputStream barOutput = new FileOutputStream(barFile);
-		try {
+		try (FileOutputStream barOutput = new FileOutputStream(barFile)) {
 			String barContents =
 				"public class Bar	\n" +
 				"{	\n" +
@@ -3040,8 +3039,6 @@ public void test052(){
 				"  }	\n" +
 				"}\n";
 			barOutput.write(barContents.getBytes());
-		} finally {
-			barOutput.close();
 		}
 	} catch(IOException e) {
 		// do nothing, will fail below
@@ -10011,11 +10008,8 @@ public void test275_jar_ref_in_jar(){
 }
 private boolean analyzeManifestContents(ManifestAnalyzer manifestAnalyzer,
 		String string) throws IOException {
-	InputStream stream = new ByteArrayInputStream(string.getBytes());
-	try {
+	try (InputStream stream = new ByteArrayInputStream(string.getBytes())) {
 		return manifestAnalyzer.analyzeManifestContents(stream);
-	} finally {
-		stream.close();
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=97332 - jars pointed by jars

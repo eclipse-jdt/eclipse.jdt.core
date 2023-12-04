@@ -67,11 +67,8 @@ static public void copy(File src, File dest) throws IOException {
 	}
 
 	// write bytes to dest
-	FileOutputStream out = new FileOutputStream(dest);
-	try {
+	try (FileOutputStream out = new FileOutputStream(dest)) {
 		out.write(srcBytes);
-	} finally {
-		out.close();
 	}
 }
 

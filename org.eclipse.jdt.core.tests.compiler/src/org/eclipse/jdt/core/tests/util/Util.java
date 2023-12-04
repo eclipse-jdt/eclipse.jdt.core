@@ -429,11 +429,8 @@ public static void copy(String sourcePath, String destPath) {
     }
 }
 public static void createFile(String path, String contents) throws IOException {
-    FileOutputStream output = new FileOutputStream(path);
-    try {
+    try (FileOutputStream output = new FileOutputStream(path)) {
         output.write(contents.getBytes());
-    } finally {
-        output.close();
     }
 }
 public static void createClassFolder(String[] pathsAndContents, String folderPath, String compliance) throws IOException {
@@ -1516,8 +1513,7 @@ public static void zipFiles(File[] files, String zipPath) throws IOException {
 	} else {
 		zipFile.getParentFile().mkdirs();
 	}
-	ZipOutputStream zip = new ZipOutputStream(new FileOutputStream(zipFile));
-	try {
+	try (ZipOutputStream zip = new ZipOutputStream(new FileOutputStream(zipFile))) {
 		for (int i = 0, length = files.length; i < length; i++) {
 			File file = files[i];
 			ZipEntry entry = new ZipEntry(file.getName());
@@ -1525,8 +1521,6 @@ public static void zipFiles(File[] files, String zipPath) throws IOException {
 			zip.write(org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(file));
 			zip.closeEntry();
 		}
-	} finally {
-		zip.close();
 	}
 }
 /**

@@ -180,13 +180,8 @@ public class FilerTesterProc extends AbstractProcessor {
 	public void testCreateNonSourceFile(Element e, String pkg, String relName) throws Exception {
 		FileObject fo = _filer.createResource(StandardLocation.SOURCE_OUTPUT,
 				pkg, relName, e);
-		PrintWriter pw = null;
-		try {
-			pw = new PrintWriter(fo.openWriter());
+		try (PrintWriter pw = new PrintWriter(fo.openWriter())) {
 			pw.println("Hello world");
-		} finally {
-			if (pw != null)
-				pw.close();
 		}
 		String name = fo.getName().toString();
 		// JSR269 spec does not make strict requirements about what getName() returns,
@@ -241,52 +236,28 @@ public class FilerTesterProc extends AbstractProcessor {
 
 	public void testBug534979(Element e, String pkg, String relName) throws Exception {
 		JavaFileObject jfo = _filer.createSourceFile(pkg + "." + relName);
-		PrintWriter pw = null;
-		try {
-			pw = new PrintWriter(jfo.openWriter());
+		try (PrintWriter pw = new PrintWriter(jfo.openWriter())) {
 			pw.println("package " + pkg + ";\npublic class " + relName + "{ }");
-		}
-		finally {
-			if (pw != null)
-				pw.close();
 		}
 	}
 	public void testBug542090a(Element e, String pkg, String relName) throws Exception {
 		if (++roundNo > 1)
 			return;
 		JavaFileObject jfo = _filer.createSourceFile(pkg + "." + relName);
-		PrintWriter pw = null;
-		try {
-			pw = new PrintWriter(jfo.openWriter());
+		try (PrintWriter pw = new PrintWriter(jfo.openWriter())) {
 			pw.println("package " + pkg + ";\npublic class " + relName + "{ }");
-		}
-		finally {
-			if (pw != null)
-				pw.close();
 		}
 	}
 	public void testBug542090b(Element e, String pkg, String relName) throws Exception {
 		JavaFileObject jfo = _filer.createSourceFile(pkg + "." + relName);
-		PrintWriter pw = null;
-		try {
-			pw = new PrintWriter(jfo.openWriter());
+		try (PrintWriter pw = new PrintWriter(jfo.openWriter())) {
 			pw.println("package " + pkg + ";\npublic class " + relName + "{ }");
-		}
-		finally {
-			if (pw != null)
-				pw.close();
 		}
 	}
 	public void testBug534979InModule(Element e, String pkg, String relName) throws Exception {
 		JavaFileObject jfo = _filer.createSourceFile(pkg+"."+relName, e.getEnclosingElement());
-		PrintWriter pw = null;
-		try {
-			pw = new PrintWriter(jfo.openWriter());
+		try (PrintWriter pw = new PrintWriter(jfo.openWriter())) {
 			pw.println("package " + pkg + ";\npublic class " + relName + "{ }");
-		}
-		finally {
-			if (pw != null)
-				pw.close();
 		}
 	}
 	public void testCreateClass1(Element e, String pkg, String relName) throws Exception {
@@ -296,28 +267,20 @@ public class FilerTesterProc extends AbstractProcessor {
 				return;
 			if (roundNo == 2) {
 				JavaFileObject jfo = filer.createSourceFile("p/Test", e.getEnclosingElement());
-				PrintWriter pw = null;
-				try {
-					pw = new PrintWriter(jfo.openWriter());
+				try (PrintWriter pw = new PrintWriter(jfo.openWriter())) {
 					pw.write("package p;\n " +
 							"import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;\n" +
 							"@FilerTestTrigger(test = \"testCreateClass1\", arg0 = \"p\", arg1 = \"Test.java\")" +
 							"public class Test {}");
-				} finally {
-					pw.close();
 				}
 			} else if(roundNo == 3) {
 					if (classContent == null) {
 						throw new IOException("Class file should have been present");
 					}
 					IdeOutputClassFileObject jfo = (IdeOutputClassFileObject) filer.createClassFile("p/Trigger");
-					OutputStream out = null;
-					try {
-						out = jfo.openOutputStream();
+					try (OutputStream out = jfo.openOutputStream()) {
 						out.write(classContent);
 					} catch (Exception ex) {
-					} finally {
-						out.close();
 					}
 			}
 		} finally {
@@ -330,28 +293,20 @@ public class FilerTesterProc extends AbstractProcessor {
 				return;
 			if (roundNo == 2) {
 				JavaFileObject jfo = filer.createSourceFile("p/Test", e.getEnclosingElement());
-				PrintWriter pw = null;
-				try {
-					pw = new PrintWriter(jfo.openWriter());
+				try (PrintWriter pw = new PrintWriter(jfo.openWriter())) {
 					pw.write("package p;\n " +
 							"import org.eclipse.jdt.apt.pluggable.tests.annotations.FilerTestTrigger;\n" +
 							"@FilerTestTrigger(test = \"testCreateClass1\", arg0 = \"p\", arg1 = \"Test.java\")" +
 							"public class Test {}");
-				} finally {
-					pw.close();
 				}
 			} else if(roundNo == 3) {
 					if (classContent == null) {
 						throw new IOException("Class file should have been present");
 					}
 					IdeOutputClassFileObject jfo = (IdeOutputClassFileObject) filer.createClassFile("p.Trigger");
-					OutputStream out = null;
-					try {
-						out = jfo.openOutputStream();
+					try (OutputStream out = jfo.openOutputStream()) {
 						out.write(classContent);
 					} catch (Exception ex) {
-					} finally {
-						out.close();
 					}
 			}
 		} finally {
@@ -359,13 +314,8 @@ public class FilerTesterProc extends AbstractProcessor {
 	}
 
 	private void checkGenUri(FileObject fo, String name, String content, String category) throws Exception {
-		PrintWriter pw = null;
-		try {
-			pw = new PrintWriter(fo.openWriter());
+		try (PrintWriter pw = new PrintWriter(fo.openWriter())) {
 			pw.print(content);
-		} finally {
-			if (pw != null)
-				pw.close();
 		}
 		URI uri = fo.toUri();
 		if (!uri.toString().contains(name)) {

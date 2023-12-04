@@ -297,20 +297,11 @@ public class TestUtil
 	public static void zip(String zipPath, Map<File, FileFilter> input)
 		throws IOException
 	{
-		ZipOutputStream zip = null;
-		try
+		try (ZipOutputStream zip = new ZipOutputStream( new FileOutputStream( zipPath ) ))
 		{
-			zip = new ZipOutputStream( new FileOutputStream( zipPath ) );
 			// +1 for last slash
 			for (Map.Entry<File, FileFilter> e : input.entrySet()) {
 				zip( zip, e.getKey(), e.getKey().getPath().length() + 1, e.getValue() );
-			}
-		}
-		finally
-		{
-			if( zip != null )
-			{
-				zip.close();
 			}
 		}
 	}

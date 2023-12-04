@@ -163,11 +163,9 @@ public class SecondaryTypesPerformanceTest extends PerformanceTestCase {
 	}
 
 	private void writeFile(File aFile, String aSource) throws IOException {
-		FileWriter fileWriter = new FileWriter(aFile);
-		try {
+
+		try (FileWriter fileWriter = new FileWriter(aFile)) {
 			fileWriter.write(aSource);
-		} finally {
-			fileWriter.close();
 		}
 	}
 }

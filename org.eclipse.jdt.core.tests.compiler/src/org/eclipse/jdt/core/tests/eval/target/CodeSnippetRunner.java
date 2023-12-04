@@ -502,14 +502,8 @@ private void writeClassOnDisk(String className, byte[] classDefinition) {
 		if (!parent.exists()) {
 			throw new IOException("Could not create directory " + parent.getPath());
 		}
-		FileOutputStream out = null;
-		try {
-			out = new FileOutputStream(classFile);
+		try (FileOutputStream out = new FileOutputStream(classFile)) {
 			out.write(classDefinition);
-		} finally {
-			if (out != null) {
-				out.close();
-			}
 		}
 	} catch (IOException e) {
 		e.printStackTrace();
