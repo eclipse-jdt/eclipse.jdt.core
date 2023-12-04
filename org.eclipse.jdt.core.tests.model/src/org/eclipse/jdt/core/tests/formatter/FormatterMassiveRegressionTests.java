@@ -485,8 +485,7 @@ protected static Test suite(File inputDir, String profile, Map directories) {
 				listFileWriter.newLine();
 			} else {
 				System.out.print("stored list in "+listFile.getPath()+"...");
-				BufferedReader listFileReader = new BufferedReader(new InputStreamReader(new FileInputStream(listFile.getAbsolutePath())));
-				try {
+				try (BufferedReader listFileReader = new BufferedReader(new InputStreamReader(new FileInputStream(listFile.getAbsolutePath())))) {
 					// First line is the number of files
 					String line = listFileReader.readLine();
 					int maxFiles = Integer.parseInt(line);
@@ -506,9 +505,6 @@ protected static Test suite(File inputDir, String profile, Map directories) {
 				catch (IOException ioe) {
 					ioe.printStackTrace();
 					return null;
-				}
-				finally {
-					listFileReader.close();
 				}
 			}
 			directories.put(inputDir, allFiles);

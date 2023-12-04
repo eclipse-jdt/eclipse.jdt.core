@@ -996,14 +996,8 @@ public void test021_output_streams() throws IOException {
 		Arrays.asList("-v"), null, null);
 	assertTrue(task.call());
 	Properties properties = new Properties();
-	InputStream resourceAsStream = null;
-	try {
-		resourceAsStream = Main.class.getResourceAsStream("messages.properties");
+	try (InputStream resourceAsStream = Main.class.getResourceAsStream("messages.properties")) {
 		properties.load(resourceAsStream);
-	} finally {
-		if (resourceAsStream != null) {
-			resourceAsStream.close();
-		}
 	}
 	assertTrue(outBuffer.toString().startsWith(properties.getProperty("compiler.name")));
 	assertTrue(errBuffer.toString().isEmpty());

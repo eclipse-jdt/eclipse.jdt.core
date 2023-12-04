@@ -53,8 +53,7 @@ private static URL[] classPathToURLs(String[] classPath) throws MalformedURLExce
 }
 
 public void loadAndRun(String className, String[] classPath) throws Throwable {
-	URLClassLoader urlClassLoader = new URLClassLoader(classPathToURLs(classPath));
-	try {
+	try (URLClassLoader urlClassLoader = new URLClassLoader(classPathToURLs(classPath))) {
 		//System.out.println("Loading " + className + "...");
 		Class testClass = urlClassLoader.loadClass(className);
 		//System.out.println("Loaded " + className);
@@ -68,8 +67,6 @@ public void loadAndRun(String className, String[] classPath) throws Throwable {
 		} catch (InvocationTargetException e) {
 			throw e.getTargetException();
 		}
-	} finally {
-		urlClassLoader.close();
 	}
 }
 public static void main(String[] args) throws IOException {

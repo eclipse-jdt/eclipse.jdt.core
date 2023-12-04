@@ -707,8 +707,7 @@ public class EncodingTests extends ModifyingResourceTests {
 
 			// Read file using a transformation where a character is read and the next alphabetical character is
 			// automaticaly added
-			final InputStream fileStream = file.getContents();
-			try {
+			try (final InputStream fileStream = file.getContents()) {
 				InputStream in = new InputStream() {
 					int current = -1;
 					@Override
@@ -733,8 +732,6 @@ public class EncodingTests extends ModifyingResourceTests {
 					"abcdefghijklmn",
 					new String(result)
 				);
-			} finally {
-				fileStream.close();
 			}
 		} finally {
 			deleteFile("Encoding/Test34.txt");

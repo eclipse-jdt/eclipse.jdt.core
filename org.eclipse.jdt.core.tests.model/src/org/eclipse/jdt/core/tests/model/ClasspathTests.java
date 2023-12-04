@@ -175,11 +175,8 @@ private void assertEncodeDecodeEntry(String projectName, String expectedEncoded,
 }
 protected File createFile(File parent, String name, String content) throws IOException {
 	File file = new File(parent, name);
-	FileOutputStream out = new FileOutputStream(file);
-	try {
+	try (FileOutputStream out = new FileOutputStream(file)) {
 		out.write(content.getBytes());
-	} finally {
-		out.close();
 	}
 	/*
 	 * Need to change the time stamp to realize that the file has been modified
@@ -2988,15 +2985,10 @@ public void testEncoding2() throws Exception {
 		IJavaProject p = createJavaProject("P", new String[] {"src"}, "bin");
 		IFile file = getFile("/P/.classpath");
 		byte[] contents = org.eclipse.jdt.internal.core.util.Util.getResourceContentsAsByteArray(file);
-		FileOutputStream output = null;
-		try {
-			output = new FileOutputStream(file.getLocation().toFile());
+		try (FileOutputStream output = new FileOutputStream(file.getLocation().toFile())) {
 			output.write(IContentDescription.BOM_UTF_8); // UTF-8 BOM
 			output.write(contents);
 			output.flush();
-		} finally {
-			if (output != null)
-				output.close();
 		}
 		file.refreshLocal(IResource.DEPTH_ONE, null);
 

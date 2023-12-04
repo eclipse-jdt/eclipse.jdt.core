@@ -1639,11 +1639,8 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		}
 
 		// write bytes to dest
-		FileOutputStream out = new FileOutputStream(dest);
-		try {
+		try (FileOutputStream out = new FileOutputStream(dest)) {
 			out.write(srcBytes);
-		} finally {
-			out.close();
 		}
 	}
 
