@@ -63,7 +63,7 @@ public class XMLComparer implements IXMLNames {
 	 *
 	 * @since 3.4
 	 */
-	private class DeclarationContents {
+	private static class DeclarationContents {
 		Element annotations = null;
 		Element superclass = null;
 		Element interfaces = null;
