@@ -150,8 +150,7 @@ public static void generateClassFile(String className, String javaSource) throws
 	String cu = "d:/temp/" + className + ".java";
 	Util.createFile(cu, javaSource);
 	BatchCompiler.compile(cu + " -d d:/temp -classpath " + System.getProperty("java.home") + "/lib/rt.jar", new PrintWriter(System.out), new PrintWriter(System.err), null/*progress*/);
-	FileInputStream input = new FileInputStream("d:/temp/" + className + ".class");
-	try {
+	try (FileInputStream input = new FileInputStream("d:/temp/" + className + ".class")) {
 		System.out.println("{");
 		byte[] buffer = new byte[80];
 		int read = 0;
@@ -165,8 +164,6 @@ public static void generateClassFile(String className, String javaSource) throws
 			if (read != -1) System.out.println();
 		}
 		System.out.print("}");
-	} finally {
-		input.close();
 	}
 }
 

@@ -75,11 +75,8 @@ public static Test suite() {
 
 File createFile(File parent, String name, String content) throws IOException {
 	File file = new File(parent, name);
-	FileOutputStream out = new FileOutputStream(file);
-	try  {
+	try (FileOutputStream out = new FileOutputStream(file))  {
 		out.write(content.getBytes());
-	} finally {
-		out.close();
 	}
 	return file;
 }

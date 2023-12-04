@@ -1094,11 +1094,9 @@ public class Java8ElementProcessor extends BaseProcessor {
 	private void createPackageBinary() throws IOException {
 		String path = packageName.replace('.', '/');
 		ClassLoader loader = getClass().getClassLoader();
-		InputStream in = loader.getResourceAsStream(path + "/package-info.class");
-		try {
+		try (InputStream in = loader.getResourceAsStream(path + "/package-info.class")) {
 			Filer filer = processingEnv.getFiler();
-			OutputStream out = filer.createClassFile(packageName + ".package-info").openOutputStream();
-			try {
+			try (OutputStream out = filer.createClassFile(packageName + ".package-info").openOutputStream()) {
 				if (in != null && out != null) {
 					int c = in.read();
 					while (c != -1) {
@@ -1106,11 +1104,7 @@ public class Java8ElementProcessor extends BaseProcessor {
 						c = in.read();
 					}
 				}
-			} finally {
-				out.close();
 			}
-		} finally {
-			in.close();
 		}
 	}
 
