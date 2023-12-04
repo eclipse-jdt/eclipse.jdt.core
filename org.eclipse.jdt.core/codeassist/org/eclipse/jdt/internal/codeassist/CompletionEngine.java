@@ -4040,6 +4040,15 @@ public final class CompletionEngine
 					findExplicitConstructors(Keywords.SUPER, ref.superclass(), (MethodScope)scope, singleNameReference);
 				}
 			}
+			// if we are inside a constructor and the token is empty, suggest constructor completions to help parameter
+			// hints
+			if (astNodeParent instanceof AllocationExpression && this.completionToken.length == 0) {
+				AllocationExpression expression = ((AllocationExpression) astNodeParent);
+				if (expression.resolvedType instanceof ReferenceBinding) {
+					findConstructors((ReferenceBinding) expression.resolvedType, null, scope, expression, false, null,
+							null, null, false);
+				}
+			}
 		}
 	}
 
