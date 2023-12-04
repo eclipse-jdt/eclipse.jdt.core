@@ -67,7 +67,7 @@ public class Bug340635Proc extends AbstractProcessor {
 		return ALLOW_OTHER_PROCESSORS_TO_PROCESS;
 	}
 
-	private class GenericTypeVisitor extends SimpleTypeVisitor6<DeclaredType, Void> {
+	private static class GenericTypeVisitor extends SimpleTypeVisitor6<DeclaredType, Void> {
 		private final Types types;
 		@Deprecated
 		public GenericTypeVisitor(Types types) {

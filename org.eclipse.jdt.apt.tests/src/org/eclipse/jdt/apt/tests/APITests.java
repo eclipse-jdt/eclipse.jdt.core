@@ -37,7 +37,7 @@ import com.sun.mirror.apt.AnnotationProcessorFactory;
 
 public class APITests extends APTTestBase {
 
-	private class LogListener implements ILogListener {
+	private static class LogListener implements ILogListener {
 		private final List<IStatus> _messages = new ArrayList<>();
 
 		public void logging(IStatus status, String plugin) {
