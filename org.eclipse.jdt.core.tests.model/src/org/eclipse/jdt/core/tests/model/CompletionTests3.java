@@ -1553,4 +1553,55 @@ public void testBug575631_comment3d() throws Exception {
 		deleteProject("P");
 	}
 }
+public void testGH1440() throws Exception {
+	try {
+		createJavaProject("P", new String[] {"src"}, new String[]{"JCL11_LIB"}, "bin", "11");
+		this.workingCopies = new ICompilationUnit[3];
+		this.workingCopies[0] = getWorkingCopy(
+			"/P/src/test/Aspect.java",
+			"""
+			package test;
+
+			import java.lang.annotation.*;
+
+			@Documented
+			@Retention(RetentionPolicy.RUNTIME)
+			@Target(ElementType.TYPE)
+			public @interface Aspect {
+				String id() default "";
+				String[] fetch() default {};
+			}
+			""");
+		this.workingCopies[1] = getWorkingCopy(
+				"/P/src/test/Constants.java",
+				"""
+				package test;
+				public class Constants {
+					public static final class Group1 {
+						public static final String val1 = "val1";
+					}
+					public static final class Group2 {
+						public static final String val2 = "val2";
+					}
+				}
+				""");
+		this.workingCopies[2] = getWorkingCopy(
+				"/P/src/test/Member.java",
+				"""
+				package test;
+
+				@Aspect(id = "test", fetch = { Constants.Group1.val + "." + Constants.Group2.val2 })
+				public class Member { }
+				""");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		String str = this.workingCopies[2].getSource();
+		String completeAfter = ".val";
+		int cursorLocation = str.indexOf(completeAfter) + completeAfter.length();
+		this.workingCopies[2].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults("val1[FIELD_REF]{val1, Ltest.Constants$Group1;, Ljava.lang.String;, val1, null, 81}",
+				requestor.getResults());
+	} finally {
+		deleteProject("P");
+	}
+}
 }
