@@ -33,6 +33,7 @@
 package org.eclipse.jdt.internal.compiler.lookup;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -373,6 +374,7 @@ public class ClassScope extends Scope {
 			checkParameterizedTypeBounds();
 			checkParameterizedSuperTypeCollisions();
 		}
+		this.referenceContext.updateSupertypesWithAnnotations(Collections.emptyMap());
 		buildFieldsAndMethods();
 		localType.faultInTypesForFieldsAndMethods();
 
