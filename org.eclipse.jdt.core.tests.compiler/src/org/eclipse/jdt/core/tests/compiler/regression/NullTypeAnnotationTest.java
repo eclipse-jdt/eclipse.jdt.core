@@ -19132,4 +19132,114 @@ public void testBreakInNested_GH1661() {
 	runner.classLibraries = this.LIBS;
 	runner.runConformTest();
 }
+public void testGH1693_a() {
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+		"X.java",
+		"""
+		import java.util.Iterator;
+		import org.eclipse.jdt.annotation.NonNullByDefault;
+
+		@NonNullByDefault
+		public class X {
+			Iterator<String> getProcessIterator() {
+				abstract class StringIterator implements Iterator<String> { }
+				return new StringIterator() {
+					@Override
+					public boolean hasNext() {
+						return false;
+					}
+					@Override
+					public String next() {
+						return null;
+					}
+				};
+			}
+		}
+		"""
+	};
+	runner.customOptions = getCompilerOptions();
+	runner.classLibraries = this.LIBS;
+	runner.expectedCompilerLog =
+			"----------\n" +
+			"1. ERROR in X.java (at line 15)\n" +
+			"	return null;\n" +
+			"	       ^^^^\n" +
+			"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" +
+			"----------\n";
+	runner.runNegativeTest();
+}
+public void testGH1693_b() {
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+		"X.java",
+		"""
+		import java.util.Iterator;
+		import org.eclipse.jdt.annotation.NonNullByDefault;
+
+		@NonNullByDefault
+		public class X {
+			Iterator<String> getProcessIterator() {
+				class StringIterator implements Iterator<String> {
+					@Override
+					public boolean hasNext() {
+						return false;
+					}
+					@Override
+					public String next() {
+						return null;
+					}
+				}
+				return new StringIterator();
+			}
+		}
+		"""
+	};
+	runner.customOptions = getCompilerOptions();
+	runner.classLibraries = this.LIBS;
+	runner.expectedCompilerLog =
+			"----------\n" +
+			"1. ERROR in X.java (at line 14)\n" +
+			"	return null;\n" +
+			"	       ^^^^\n" +
+			"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" +
+			"----------\n";
+	runner.runNegativeTest();
+}
+public void testGH1693_c() {
+	Runner runner = new Runner();
+	runner.testFiles = new String[] {
+		"X.java",
+		"""
+		import java.util.Iterator;
+		import org.eclipse.jdt.annotation.NonNull;
+
+		public class X {
+			Iterator<@NonNull String> getProcessIterator() {
+				class StringIterator implements Iterator<@NonNull String> {
+					@Override
+					public boolean hasNext() {
+						return false;
+					}
+					@Override
+					public @NonNull String next() {
+						return null;
+					}
+				}
+				return new StringIterator();
+			}
+		}
+		"""
+	};
+	runner.customOptions = getCompilerOptions();
+	runner.classLibraries = this.LIBS;
+	runner.expectedCompilerLog =
+			"----------\n" +
+			"1. ERROR in X.java (at line 13)\n" +
+			"	return null;\n" +
+			"	       ^^^^\n" +
+			"Null type mismatch: required \'@NonNull String\' but the provided value is null\n" +
+			"----------\n";
+	runner.runNegativeTest();
+}
 }
