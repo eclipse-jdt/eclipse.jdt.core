@@ -15,7 +15,6 @@
 package org.eclipse.jdt.core.tests.model;
 
 import java.io.IOException;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 
 import org.eclipse.core.resources.IWorkspaceRunnable;
@@ -362,7 +361,7 @@ public void testFindTypeWithUnrelatedWorkingCopy() throws Exception {
  */
 public void testTransitionFromInvalidToValidJar() throws CoreException, IOException {
 	String transitioningJar = getExternalPath() + "transitioningJar.jar";
-	java.nio.file.Path transitioningJarPath = FileSystems.getDefault().getPath(transitioningJar);
+	java.nio.file.Path transitioningJarPath = java.nio.file.Path.of(transitioningJar);
 	IPath transitioningIPath = Path.fromOSString(transitioningJar);
 
 	try {

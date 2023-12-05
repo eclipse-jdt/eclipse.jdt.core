@@ -39,7 +39,6 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -345,7 +344,7 @@ public boolean hasCUDeclaringPackage(String qualifiedPackageName, Function<Compi
 public char[][] listPackages() {
 	Set<String> packageNames = new HashSet<>();
 	try {
-		Path basePath = FileSystems.getDefault().getPath(this.path);
+		Path basePath = Path.of(this.path);
 		Files.walkFileTree(basePath, new SimpleFileVisitor<Path>() {
 			@Override
 			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {

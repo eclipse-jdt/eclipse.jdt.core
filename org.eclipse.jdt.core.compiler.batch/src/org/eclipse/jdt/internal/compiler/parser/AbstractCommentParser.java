@@ -16,7 +16,6 @@ package org.eclipse.jdt.internal.compiler.parser;
 import static org.eclipse.jdt.internal.compiler.parser.TerminalTokens.TokenNameEOF;
 
 import java.io.IOException;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayDeque;
@@ -1788,7 +1787,7 @@ public abstract class AbstractCommentParser implements JavadocTagConstants {
 		ArrayList<String> sourceClassPaths = (ArrayList<String>) this.srcClasspath;
 		Path filePath = null;
 		for (String iPath : sourceClassPaths) {
-			filePath = FileSystems.getDefault().getPath(this.projectPath, iPath, fileName);
+			filePath = Path.of(this.projectPath, iPath, fileName);
 			if(filePath.toFile().exists())
 				break;
 		}
