@@ -37,6 +37,7 @@ package org.eclipse.jdt.internal.codeassist.complete;
  */
 
 import org.eclipse.jdt.internal.compiler.ast.*;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
 public class CompletionOnQualifiedNameReference extends QualifiedNameReference implements CompletionNode {
@@ -77,8 +78,16 @@ public TypeBinding resolveType(BlockScope scope) {
 
 		throw new CompletionNodeFound();
 	}
-	
-	// probably not in the position to do useful resolution, just provide some binding
-	return new CompletionNodeFound(this, this.binding, scope).throwOrDeferAndReturn(() -> (this.resolvedType = new ProblemReferenceBinding(this.tokens, null, ProblemReasons.NotFound)));
+
+	return new CompletionNodeFound(this, this.binding, scope).throwOrDeferAndReturn(() -> {
+		// probably not in the position to do useful resolution, just provide some binding
+		// but perform minimal setup so downstream resolving doesn't throw exceptions:
+		this.constant = Constant.NotAConstant;
+		if ((this.bits & Binding.FIELD) != 0)
+			this.binding = new ProblemFieldBinding(
+					this.binding instanceof ReferenceBinding ? (ReferenceBinding) this.binding : null,
+					this.completionIdentifier, ProblemReasons.NotFound);
+		return this.resolvedType = new ProblemReferenceBinding(this.tokens, null, ProblemReasons.NotFound);
+	});
 }
 }
