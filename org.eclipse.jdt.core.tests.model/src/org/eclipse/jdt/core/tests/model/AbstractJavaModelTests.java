@@ -34,7 +34,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
-import org.eclipse.core.internal.resources.CharsetDeltaJob;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -3993,9 +3992,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 		return new Path(System.getProperty("java.home") + "/lib/jrt-fs.jar");
 	}
 
+	@SuppressWarnings("restriction")
 	public void waitForCharsetDeltaJob() throws CoreException {
 		try {
-			Job.getJobManager().join(CharsetDeltaJob.FAMILY_CHARSET_DELTA, null);
+			Job.getJobManager().join(org.eclipse.core.internal.resources.CharsetDeltaJob.FAMILY_CHARSET_DELTA, null);
 		} catch (OperationCanceledException | InterruptedException e) {
 			throw new CoreException(new Status(IStatus.ERROR, JavaCore.PLUGIN_ID, e.getMessage(), e));
 		}

@@ -23,7 +23,6 @@ import java.util.Hashtable;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import org.eclipse.core.internal.runtime.RuntimeLog;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -43,6 +42,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.preferences.IEclipsePreferences;
 import org.eclipse.jdt.core.IAccessRule;
 import org.eclipse.jdt.core.IClassFile;
@@ -2723,7 +2723,7 @@ public void testBug462756() throws CoreException {
 		} catch(Exception e) {
 		}
 		final StringBuilder buffer = new StringBuilder();
-		RuntimeLog.addLogListener(new ILogListener() {
+		Platform.addLogListener(new ILogListener() {
 			@Override
 			public void logging(IStatus status, String plugin) {
 				if (status.getSeverity() == IStatus.ERROR && status.toString().contains("java.lang.IllegalArgumentException")) {
