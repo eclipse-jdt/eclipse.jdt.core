@@ -258,6 +258,7 @@ public static TestSuite getTestSuite(boolean addComplianceDiagnoseTest) {
 		ArrayList tests_21 = (ArrayList)testClasses.clone();
 		tests_21.addAll(TEST_CLASSES_1_5);
 		addJava16Tests(tests_21);
+		tests_21.add(EmbeddedExpressionSelectionTest.class);
 		// Reset forgotten subsets tests
 		TestCase.TESTS_PREFIX = null;
 		TestCase.TESTS_NAMES = null;
