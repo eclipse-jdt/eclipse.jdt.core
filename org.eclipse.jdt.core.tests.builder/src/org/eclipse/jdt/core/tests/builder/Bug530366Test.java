@@ -26,8 +26,6 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.tests.util.Util;
-import org.junit.internal.ArrayComparisonFailure;
-
 import junit.framework.Test;
 
 public class Bug530366Test extends BuilderTests {
@@ -138,7 +136,8 @@ public class Bug530366Test extends BuilderTests {
 		expectingOnlySpecificProblemsFor(myClass2, expectedProblems);
 	}
 
-	private void assertEqualContents(byte[] expectedContents, byte[] actualContents) throws ArrayComparisonFailure {
+	@SuppressWarnings("restriction")
+	private void assertEqualContents(byte[] expectedContents, byte[] actualContents) throws org.junit.internal.ArrayComparisonFailure {
 		String failMessage =
 				String.join(System.lineSeparator()
 						, "Java builder overwrote existing class file, but should not have"
