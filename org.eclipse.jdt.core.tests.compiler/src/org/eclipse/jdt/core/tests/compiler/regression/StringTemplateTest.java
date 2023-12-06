@@ -1610,15 +1610,10 @@ s
 						"""
 				},
 				"----------\n" +
-				"1. ERROR in X.java (at line 6)\n" +
+				"1. ERROR in X.java (at line 1)\n" +
 				"	s=\"Jay\";\n" +
 				"	       ^\n" +
 				"Syntax error on token \";\", delete this token\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 7)\n" +
-				"	}\n" +
-				"	^\n" +
-				"Text block is not properly closed with the delimiter\n" +
 				"----------\n"
 		);
 	}
@@ -1712,5 +1707,28 @@ s
 				null,
 				false,
 				options);
+	}
+	public void test0062() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"""
+					public class X {
+						 public static void main(String argv[]) {
+						 	String name = "Jay";
+							String greet = STR."Hello \\{name + foo())}!";
+							System.out.println(greet);
+						}
+						private static String foo() {
+							return "A";
+						}
+					}"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 1)\n" +
+				"	String greet = STR.\"Hello \\{name + foo())}!\";\n" +
+				"	                                        ^\n" +
+				"Syntax error on token \")\", delete this token\n" +
+				"----------\n");
 	}
 }
