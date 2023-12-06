@@ -1004,9 +1004,12 @@ class CompilationUnitResolver extends Compiler {
 						ast.setDefaultNodeFlag(0);
 						ast.setOriginalModificationCount(ast.modificationCount());
 
-						// pass it to requestor
-						astRequestor.acceptAST(source, compilationUnit);
-
+						try {
+							// pass it to requestor
+							astRequestor.acceptAST(source, compilationUnit);
+						} catch (RuntimeException e) {
+							throw new RuntimeException("Error on " + source.getPath(), e); //$NON-NLS-1$
+						}
 						worked(1);
 
 						// remove at the end so that we don't resolve twice if a source and a key for the same file name have been requested
