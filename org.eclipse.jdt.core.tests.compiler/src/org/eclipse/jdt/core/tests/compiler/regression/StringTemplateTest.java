@@ -18,7 +18,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
 
-public class StringTemplateTest extends AbstractRegressionTest {
+public class StringTemplateTest extends AbstractRegressionTest9 {
 
 	static {
 //		TESTS_NAMES = new String[] { "test003" };
@@ -43,7 +43,8 @@ public class StringTemplateTest extends AbstractRegressionTest {
 		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_21);
 		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_21);
 		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_21);
-		defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, previewFlag ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
+		defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		return defaultOptions;
 	}
 	protected void runConformTest(String[] testFiles, String expectedOutput) {
@@ -54,6 +55,16 @@ public class StringTemplateTest extends AbstractRegressionTest {
 		if(!isJRE21Plus)
 			return;
 		runConformTest(testFiles, expectedOutput, customOptions, VMARGS, JAVAC_OPTIONS);
+	}
+	protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
+		Map<String, String> customOptions = getCompilerOptions(true);
+		Runner runner = new Runner();
+		runner.testFiles = testFiles;
+		runner.expectedCompilerLog = expectedCompilerLog;
+		runner.javacTestOptions = JAVAC_OPTIONS;
+		runner.customOptions = customOptions;
+		runner.expectedJavacOutputString = null;
+		runner.runNegativeTest();
 	}
 	protected void runNegativeTest(
 			String[] testFiles,
@@ -749,7 +760,7 @@ public class StringTemplateTest extends AbstractRegressionTest {
 	}
 	// Flow analysis related tests
 	public void test027() {
-		Map<String,String> options = getCompilerOptions(false);
+		Map<String,String> options = getCompilerOptions(true);
 		String old1 = options.get(CompilerOptions.OPTION_ReportUnusedLocal);
 		options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.ERROR);
 		try {
@@ -771,7 +782,7 @@ public class StringTemplateTest extends AbstractRegressionTest {
 		}
 	}
 	public void test027a() {
-		Map<String,String> options = getCompilerOptions(false);
+		Map<String,String> options = getCompilerOptions(true);
 		String old1 = options.get(CompilerOptions.OPTION_ReportUnusedLocal);
 		options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.ERROR);
 		try {
@@ -801,7 +812,7 @@ public class StringTemplateTest extends AbstractRegressionTest {
 		}
 	}
 	public void test028() {
-		Map<String,String> options = getCompilerOptions(false);
+		Map<String,String> options = getCompilerOptions(true);
 		String old1 = options.get(CompilerOptions.OPTION_ReportUnusedPrivateMember);
 		options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 		try {
@@ -831,7 +842,7 @@ public class StringTemplateTest extends AbstractRegressionTest {
 		}
 	}
 	public void test028a() {
-		Map<String,String> options = getCompilerOptions(false);
+		Map<String,String> options = getCompilerOptions(true);
 		String old1 = options.get(CompilerOptions.OPTION_ReportUnusedPrivateMember);
 		options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 		try {
@@ -864,7 +875,7 @@ public class StringTemplateTest extends AbstractRegressionTest {
 		}
 	}
 	public void test028b() {
-		Map<String,String> options = getCompilerOptions(false);
+		Map<String,String> options = getCompilerOptions(true);
 		String old1 = options.get(CompilerOptions.OPTION_ReportUnusedPrivateMember);
 		options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 		try {
@@ -1677,5 +1688,29 @@ s
 				"The local variable greet may not have been initialized\n" +
 				"----------\n"
 		);
+	}
+	public void test0061() {
+		Map<String, String> options = getCompilerOptions(false);
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"""
+					public class X {
+						 public static void main(String argv[]) {
+							String greet = STR."Hello!";
+							System.out.println(greet);
+						}
+					}"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 3)\n" +
+				"	String greet = STR.\"Hello!\";\n" +
+				"	               ^^^^^^^^^^^^\n" +
+				"String Template is a preview feature and disabled by default. Use --enable-preview to enable\n" +
+				"----------\n",
+				"",
+				null,
+				false,
+				options);
 	}
 }

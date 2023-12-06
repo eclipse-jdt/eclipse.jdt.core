@@ -4535,6 +4535,7 @@ private void consumeTemplateExpression(Expression expression, Expression process
 	exp.sourceStart = processor.sourceStart;
 	exp.sourceEnd = expression.sourceEnd;
 	pushOnExpressionStack(exp);
+	problemReporter().validateJavaFeatureSupport(JavaFeature.STRING_TEMPLATES, exp.sourceStart, exp.sourceEnd);
 }
 protected void consumeTemplateExpressionWithPrimary() {
 	Expression template = this.expressionStack[this.expressionPtr--];
