@@ -9984,7 +9984,12 @@ protected void consumeStaticOnly() {
 		this.recoveredStaticInitializerStart = this.intStack[this.intPtr]; // remember start position only for static initializers
 	}
 }
-private void consumeTemplate(int token) {
+
+protected Parser getEmbeddedExpressionParser() {
+	return new Parser(this.problemReporter, false);
+}
+
+protected void consumeTemplate(int token) {
 	List<IStringTemplateComponent> components = this.scanner.getCurrentTemplateComponents();
 	int size = components.size();
 	StringLiteral[] fragments = new StringLiteral[size/2 + 1];
@@ -10005,9 +10010,13 @@ private void consumeTemplate(int token) {
 			textBlockFraments[fi++] = tf.text();
 		} else { // embedded expression coordinates
 			EmbeddedExpression expComp = (EmbeddedExpression) component;
-			final Parser parser = new Parser(this.problemReporter, false);
 			int length = expComp.end() - expComp.start();
-			expressions[ei++] = parser.parseExpression(this.scanner.source, expComp.start(), length, this.compilationUnit, false, true);
+			expressions[ei++] = parseEmbeddedExpression(getEmbeddedExpressionParser(),
+														this.scanner.source,
+														expComp.start(),
+														length,
+														this.compilationUnit,
+														false);
 		}
 	}
 	if (isMultiline) {
@@ -13780,6 +13789,10 @@ public char[][] parsePackageDeclaration(char[] source, CompilationResult result)
 }
 public Expression parseExpression(char[] source, int offset, int length, CompilationUnitDeclaration unit, boolean recordLineSeparators) {
 	return parseExpression(source, offset, length, unit, recordLineSeparators, false);
+}
+
+protected Expression parseEmbeddedExpression(Parser parser, char[] source, int offset, int length, CompilationUnitDeclaration unit, boolean recordLineSeparators) {
+	return parser.parseExpression(source, offset, length, unit, recordLineSeparators, true);
 }
 private Expression parseExpression(char[] source, int offset, int length, CompilationUnitDeclaration unit, boolean recordLineSeparators, boolean embeddedExpression) {
 
