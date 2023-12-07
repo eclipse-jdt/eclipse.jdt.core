@@ -42,11 +42,11 @@ import org.eclipse.jdt.internal.compiler.util.Util;
  * with J2SE 1.4 or earlier, involved only <i>simple</i> signatures.
  * </p>
  * <p>
- * Note that the "Q", "!", "|" and "&" formats are specific to Eclipse; the remainder
+ * Note that the "Q", "!", "|" and "&amp;" formats are specific to Eclipse; the remainder
  * are specified in the JVM spec.
  * </p>
  * <p>
- * Due to historical reasons Eclipse uses "|" format for Intersection and "&" for Union
+ * Due to historical reasons Eclipse uses "|" format for Intersection and "&amp;" for Union
  * which is opposite to their usage in source code.
  * </p>
  * <p>
@@ -150,7 +150,7 @@ import org.eclipse.jdt.internal.compiler.util.Util;
  * <ul>
  *   <li><code>"X:"</code> denotes <code>X</code></li>
  *   <li><code>"X:QReader;"</code> denotes <code>X extends Reader</code> in source code</li>
- *   <li><code>"X:QReader;:QSerializable;"</code> denotes <code>X extends Reader & Serializable</code> in source code</li>
+ *   <li><code>"X:QReader;:QSerializable;"</code> denotes <code>X extends Reader &amp; Serializable</code> in source code</li>
  * </ul>
  * <p>
  * This class provides static methods and constants only.
