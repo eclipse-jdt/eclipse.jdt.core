@@ -182,7 +182,7 @@ public final class IndentManipulation {
 	/**
 	 * Removes the given number of indentation units from a given line. If the line
 	 * has less indent than the given indentUnitsToRemove, all the available indentation is removed.
-	 * If <code>indentsToRemove <= 0 or indent == 0</code> the line is returned.
+	 * If <code>indentsToRemove &lt;= 0 or indent == 0</code> the line is returned.
 	 *
 	 * @param line the line to trim
 	 * @param tabWidth the width of one tab in space equivalents

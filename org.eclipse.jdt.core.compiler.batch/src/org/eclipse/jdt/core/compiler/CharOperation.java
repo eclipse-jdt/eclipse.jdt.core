@@ -4047,11 +4047,13 @@ public static final char[][] splitOn(
  * For example:
  * <ol>
  * <li><pre>
+ * {@code
  *    divider = ','
  *    array = { 'A' , '<', 'B', ',', 'C', '>', ',', 'D' }
  *    start = 0
  *    end = 8
  *    result => { {  'A' , '<', 'B', ',', 'C', '>'}, { 'D' }}
+ * }
  * </pre>
  * </li>
  * </ol>

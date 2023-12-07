@@ -191,7 +191,7 @@ public interface IEvaluationContext {
 	 * assist operation when a specified amount of time is reached could be used.
 	 * </p>
 	 *
-	 * <pre>
+	 * <pre>{@code
 	 * new IProgressMonitor() {
 	 *     private final static int TIMEOUT = 500; //ms
 	 *     private long endTime;
@@ -203,6 +203,7 @@ public interface IEvaluationContext {
 	 *     }
 	 *     ...
 	 * };
+	 * }
 	 * </pre>
 	 *
 	 * @param codeSnippet the code snippet to complete in
@@ -278,7 +279,7 @@ public interface IEvaluationContext {
 	 * assist operation when a specified amount of time is reached could be used.
 	 * </p>
 	 *
-	 * <pre>
+	 * <pre>{@code
 	 * new IProgressMonitor() {
 	 *     private final static int TIMEOUT = 500; //ms
 	 *     private long endTime;
@@ -290,6 +291,7 @@ public interface IEvaluationContext {
 	 *     }
 	 *     ...
 	 * };
+	 * }
 	 * </pre>
 	 *
 	 * @param codeSnippet the code snippet to complete in

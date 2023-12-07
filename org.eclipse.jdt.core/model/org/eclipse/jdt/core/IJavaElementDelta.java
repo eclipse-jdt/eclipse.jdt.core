@@ -378,7 +378,7 @@ public interface IJavaElementDelta {
 	 * Returns flags that describe how an element has changed.
 	 * Such flags should be tested using the <code>&amp;</code> operand. For example:
 	 * <pre>
-	 * if ((delta.getFlags() & IJavaElementDelta.F_CONTENT) != 0) {
+	 * if ((delta.getFlags() &amp; IJavaElementDelta.F_CONTENT) != 0) {
 	 * 	// the delta indicates a content change
 	 * }
 	 * </pre>

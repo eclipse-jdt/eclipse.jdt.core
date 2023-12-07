@@ -100,7 +100,7 @@ public String[] getExceptions();
  * Returns an empty array if this method has no formal type parameters.
  * <p>Formal type parameters are as they appear in the source
  * code; for example:
- * <code>"X extends List&lt;String&gt; & Serializable"</code>.
+ * <code>"X extends List&lt;String&gt; &amp; Serializable"</code>.
  * </p>
  *
  * @return the formal type parameters of this method,
@@ -190,7 +190,7 @@ public void setExceptions(String[] exceptionTypes);
  * Sets the formal type parameters for this method.
  * <p>Formal type parameters are given as they appear in the source
  * code; for example:
- * <code>"X extends List&lt;String&gt; & Serializable"</code>.
+ * <code>"X extends List&lt;String&gt; &amp; Serializable"</code>.
  * </p>
  *
  * @param typeParameters the formal type parameters of this method,

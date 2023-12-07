@@ -35,7 +35,7 @@ public interface ICodeAssist {
 	 *
 	 * @exception JavaModelException if code assist could not be performed. Reasons include:<ul>
 	 *  <li>This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
-	 *  <li> The position specified is < -1 or is greater than this compilation unit's
+	 *  <li> The position specified is &lt; -1 or is greater than this compilation unit's
 	 *      source length (INDEX_OUT_OF_BOUNDS)
 	 * </ul>
 	 *
@@ -55,7 +55,7 @@ public interface ICodeAssist {
 	 * @param requestor the given completion requestor
 	 * @exception JavaModelException if code assist could not be performed. Reasons include:<ul>
 	 *  <li>This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
-	 *  <li> The position specified is < -1 or is greater than this compilation unit's
+	 *  <li> The position specified is &lt; -1 or is greater than this compilation unit's
 	 *      source length (INDEX_OUT_OF_BOUNDS)
 	 * </ul>
 	 *
@@ -77,7 +77,7 @@ public interface ICodeAssist {
 	 * @param requestor the given completion requestor
 	 * @exception JavaModelException if code assist could not be performed. Reasons include:<ul>
 	 *  <li>This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
-	 *  <li> The position specified is < -1 or is greater than this compilation unit's
+	 *  <li> The position specified is &lt; -1 or is greater than this compilation unit's
 	 *      source length (INDEX_OUT_OF_BOUNDS)
 	 * </ul>
 	 *
@@ -100,7 +100,7 @@ public interface ICodeAssist {
 	 * assist operation when a specified amount of time is reached could be used.
 	 * </p>
 	 *
-	 * <pre>
+	 * <pre>{@code
 	 * new IProgressMonitor() {
 	 *     private final static int TIMEOUT = 500; //ms
 	 *     private long endTime;
@@ -112,6 +112,7 @@ public interface ICodeAssist {
 	 *     }
 	 *     ...
 	 * };
+	 * }
 	 * </pre>
 	 *
 	 * @param offset the given offset position
@@ -119,7 +120,7 @@ public interface ICodeAssist {
 	 * @param monitor the progress monitor used to report progress
 	 * @exception JavaModelException if code assist could not be performed. Reasons include:<ul>
 	 *  <li>This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
-	 *  <li> The position specified is < -1 or is greater than this compilation unit's
+	 *  <li> The position specified is &lt; -1 or is greater than this compilation unit's
 	 *      source length (INDEX_OUT_OF_BOUNDS)
 	 * </ul>
 	 *
@@ -148,7 +149,7 @@ public interface ICodeAssist {
 	 * @param owner the owner of working copies that take precedence over their original compilation units
 	 * @exception JavaModelException if code assist could not be performed. Reasons include:<ul>
 	 *  <li>This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
-	 *  <li> The position specified is < -1 or is greater than this compilation unit's
+	 *  <li> The position specified is &lt; -1 or is greater than this compilation unit's
 	 *      source length (INDEX_OUT_OF_BOUNDS)
 	 * </ul>
 	 *
@@ -178,7 +179,7 @@ public interface ICodeAssist {
 	 * @param owner the owner of working copies that take precedence over their original compilation units
 	 * @exception JavaModelException if code assist could not be performed. Reasons include:<ul>
 	 *  <li>This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
-	 *  <li> The position specified is < -1 or is greater than this compilation unit's
+	 *  <li> The position specified is &lt; -1 or is greater than this compilation unit's
 	 *      source length (INDEX_OUT_OF_BOUNDS)
 	 * </ul>
 	 *
@@ -208,7 +209,7 @@ public interface ICodeAssist {
 	 * assist operation when a specified amount of time is reached could be used.
 	 * </p>
 	 *
-	 * <pre>
+	 * <pre>{@code
 	 * new IProgressMonitor() {
 	 *     private final static int TIMEOUT = 500; //ms
 	 *     private long endTime;
@@ -220,6 +221,7 @@ public interface ICodeAssist {
 	 *     }
 	 *     ...
 	 * };
+	 * }
 	 * </pre>
 	 *
 	 * @param offset the given offset position
@@ -228,7 +230,7 @@ public interface ICodeAssist {
 	 * @param monitor the progress monitor used to report progress
 	 * @exception JavaModelException if code assist could not be performed. Reasons include:<ul>
 	 *  <li>This Java element does not exist (ELEMENT_DOES_NOT_EXIST)</li>
-	 *  <li> The position specified is < -1 or is greater than this compilation unit's
+	 *  <li> The position specified is &lt; -1 or is greater than this compilation unit's
 	 *      source length (INDEX_OUT_OF_BOUNDS)
 	 * </ul>
 	 *
