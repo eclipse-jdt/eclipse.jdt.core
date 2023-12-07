@@ -303,7 +303,7 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_ALIGNMENT_FOR_ARGUMENTS_IN_QUALIFIED_ALLOCATION_EXPRESSION = JavaCore.PLUGIN_ID + ".formatter.alignment_for_arguments_in_qualified_allocation_expression";	 //$NON-NLS-1$
 	/**
 	 * <pre>
-	 * FORMATTER / Option for alignment of assignment (=, +=, -=, *=, /=, %=, &=, ^=, |=, <<=, >>=, >>>=)
+	 * FORMATTER / Option for alignment of assignment {@code (=, +=, -=, *=, /=, %=, &=, ^=, |=, <<=, >>=, >>>=) }
 	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_assignment"
 	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int, int)</code> call
 	 *     - default:           createAlignmentValue(false, WRAP_NO_SPLIT, INDENT_DEFAULT)
@@ -358,7 +358,7 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_ALIGNMENT_FOR_STRING_CONCATENATION = JavaCore.PLUGIN_ID + ".formatter.alignment_for_string_concatenation";	 //$NON-NLS-1$
 	/**
 	 * <pre>
-	 * FORMATTER / Option for alignment of expressions with shift operators (<<, >>, >>>)
+	 * FORMATTER / Option for alignment of expressions with shift operators {@code (<<, >>, >>>) }
 	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_shift_operator"
 	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int, int)</code> call
 	 *     - default:           createAlignmentValue(false, WRAP_COMPACT, INDENT_DEFAULT)
@@ -369,7 +369,7 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_ALIGNMENT_FOR_SHIFT_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.alignment_for_shift_operator";	 //$NON-NLS-1$
 	/**
 	 * <pre>
-	 * FORMATTER / Option for alignment of expressions with relational operators (<, >, <=, >=, ==, !=)
+	 * FORMATTER / Option for alignment of expressions with relational operators {@code (<, >, <=, >=, ==, !=)}
 	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_relational_operator"
 	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int, int)</code> call
 	 *     - default:           createAlignmentValue(false, WRAP_COMPACT, INDENT_DEFAULT)
@@ -380,7 +380,7 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_ALIGNMENT_FOR_RELATIONAL_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.alignment_for_relational_operator";	 //$NON-NLS-1$
 	/**
 	 * <pre>
-	 * FORMATTER / Option for alignment of expressions with bitwise operators (&, ^, |)
+	 * FORMATTER / Option for alignment of expressions with bitwise operators (&amp;, ^, |)
 	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_bitwise_operator"
 	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int, int)</code> call
 	 *     - default:           createAlignmentValue(false, WRAP_COMPACT, INDENT_DEFAULT)
@@ -391,7 +391,7 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_ALIGNMENT_FOR_BITWISE_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.alignment_for_bitwise_operator";	 //$NON-NLS-1$
 	/**
 	 * <pre>
-	 * FORMATTER / Option for alignment of expressions with logical operators (&&, ||)
+	 * FORMATTER / Option for alignment of expressions with logical operators (&amp;&amp;, ||)
 	 *     - option id:         "org.eclipse.jdt.core.formatter.alignment_for_logical_operator"
 	 *     - possible values:   values returned by <code>createAlignmentValue(boolean, int, int)</code> call
 	 *     - default:           createAlignmentValue(false, WRAP_COMPACT, INDENT_DEFAULT)
@@ -2647,7 +2647,7 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_INSERT_SPACE_AFTER_STRING_CONCATENATION = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_string_concatenation"; //$NON-NLS-1$
 	/**
 	 * <pre>
-	 * FORMATTER / Option to insert a space after a shift operator (<<, >>, >>>)
+	 * FORMATTER / Option to insert a space after a shift operator {@code (<<, >>, >>>)}
 	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_after_shift_operator"
 	 *     - possible values:   { INSERT, DO_NOT_INSERT }
 	 *     - default:           INSERT
@@ -2659,7 +2659,7 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_INSERT_SPACE_AFTER_SHIFT_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_shift_operator"; //$NON-NLS-1$
 	/**
 	 * <pre>
-	 * FORMATTER / Option to insert a space after a relational operator (<, >, <=, >=, ==, !=)
+	 * FORMATTER / Option to insert a space after a relational operator {@code (<, >, <=, >=, ==, !=)}
 	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_after_relational_operator"
 	 *     - possible values:   { INSERT, DO_NOT_INSERT }
 	 *     - default:           INSERT
@@ -2671,7 +2671,7 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_INSERT_SPACE_AFTER_RELATIONAL_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_relational_operator"; //$NON-NLS-1$
 	/**
 	 * <pre>
-	 * FORMATTER / Option to insert a space after a bitwise operator (&, ^, |)
+	 * FORMATTER / Option to insert a space after a bitwise operator (&amp;, ^, |)
 	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_after_bitwise_operator"
 	 *     - possible values:   { INSERT, DO_NOT_INSERT }
 	 *     - default:           INSERT
@@ -2683,7 +2683,7 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_INSERT_SPACE_AFTER_BITWISE_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.insert_space_after_bitwise_operator"; //$NON-NLS-1$
 	/**
 	 * <pre>
-	 * FORMATTER / Option to insert a space after a logical operator (&&, ||)
+	 * FORMATTER / Option to insert a space after a logical operator (&amp;&amp;, ||)
 	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_after_logical_operator"
 	 *     - possible values:   { INSERT, DO_NOT_INSERT }
 	 *     - default:           INSERT
@@ -3552,7 +3552,7 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_INSERT_SPACE_BEFORE_STRING_CONCATENATION = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_string_concatenation"; //$NON-NLS-1$
 	/**
 	 * <pre>
-	 * FORMATTER / Option to insert a space before a shift operator (<<, >>, >>>)
+	 * FORMATTER / Option to insert a space before a shift operator {@code (<<, >>, >>>)}
 	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_before_shift_operator"
 	 *     - possible values:   { INSERT, DO_NOT_INSERT }
 	 *     - default:           INSERT
@@ -3564,7 +3564,7 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_INSERT_SPACE_BEFORE_SHIFT_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_shift_operator"; //$NON-NLS-1$
 	/**
 	 * <pre>
-	 * FORMATTER / Option to insert a space before a relational operator (<, >, <=, >=, ==, !=)
+	 * FORMATTER / Option to insert a space before a relational operator {@code (<, >, <=, >=, ==, !=)}
 	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_before_relational_operator"
 	 *     - possible values:   { INSERT, DO_NOT_INSERT }
 	 *     - default:           INSERT
@@ -3576,7 +3576,7 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_INSERT_SPACE_BEFORE_RELATIONAL_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_relational_operator"; //$NON-NLS-1$
 	/**
 	 * <pre>
-	 * FORMATTER / Option to insert a space before a bitwise operator (&, ^, |)
+	 * FORMATTER / Option to insert a space before a bitwise operator (&amp;, ^, |)
 	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_before_bitwise_operator"
 	 *     - possible values:   { INSERT, DO_NOT_INSERT }
 	 *     - default:           INSERT
@@ -3588,7 +3588,7 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_INSERT_SPACE_BEFORE_BITWISE_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.insert_space_before_bitwise_operator"; //$NON-NLS-1$
 	/**
 	 * <pre>
-	 * FORMATTER / Option to insert a space before a logical operator (&&, ||)
+	 * FORMATTER / Option to insert a space before a logical operator (&amp;&amp;, ||)
 	 *     - option id:         "org.eclipse.jdt.core.formatter.insert_space_before_logical_operator"
 	 *     - possible values:   { INSERT, DO_NOT_INSERT }
 	 *     - default:           INSERT
@@ -5374,7 +5374,7 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_WRAP_BEFORE_STRING_CONCATENATION = JavaCore.PLUGIN_ID + ".formatter.wrap_before_string_concatenation"; //$NON-NLS-1$
 	/**
 	 * <pre>
-	 * FORMATTER / Option to wrap before the shift operator (<<, >>, >>>)
+	 * FORMATTER / Option to wrap before the shift operator {@code (<<, >>, >>>)}
 	 *     - option id:         "org.eclipse.jdt.core.formatter.wrap_before_shift_operator"
 	 *     - possible values:   { TRUE, FALSE }
 	 *     - default:           TRUE
@@ -5387,7 +5387,7 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_WRAP_BEFORE_SHIFT_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.wrap_before_shift_operator"; //$NON-NLS-1$
 	/**
 	 * <pre>
-	 * FORMATTER / Option to wrap before the relational operator (<, >, <=, >=, ==, !=)
+	 * FORMATTER / Option to wrap before the relational operator {@code (<, >, <=, >=, ==, !=)}
 	 *     - option id:         "org.eclipse.jdt.core.formatter.wrap_before_"
 	 *     - possible values:   { TRUE, FALSE }
 	 *     - default:           TRUE
@@ -5400,7 +5400,7 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_WRAP_BEFORE_RELATIONAL_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.wrap_before_relational_operator"; //$NON-NLS-1$
 	/**
 	 * <pre>
-	 * FORMATTER / Option to wrap before the bitwise operator (&, ^, |)
+	 * FORMATTER / Option to wrap before the bitwise operator (&amp;, ^, |)
 	 *     - option id:         "org.eclipse.jdt.core.formatter.wrap_before_bitwise_operator"
 	 *     - possible values:   { TRUE, FALSE }
 	 *     - default:           TRUE
@@ -5413,7 +5413,7 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_WRAP_BEFORE_BITWISE_OPERATOR = JavaCore.PLUGIN_ID + ".formatter.wrap_before_bitwise_operator"; //$NON-NLS-1$
 	/**
 	 * <pre>
-	 * FORMATTER / Option to wrap before the logical operator (&&, ||)
+	 * FORMATTER / Option to wrap before the logical operator (&amp;&amp;, ||)
 	 *     - option id:         "org.eclipse.jdt.core.formatter.wrap_before_logical_operator"
 	 *     - possible values:   { TRUE, FALSE }
 	 *     - default:           TRUE

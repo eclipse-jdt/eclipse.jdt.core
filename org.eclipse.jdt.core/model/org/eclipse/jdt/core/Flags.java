@@ -511,7 +511,7 @@ public final class Flags {
 	 * unexpected description. Clients should ensure that the AccVarargs is not included in the flags of a method as follows:
 	 * <pre>
 	 * IMethod method = ...
-	 * int flags = method.getFlags() & ~Flags.AccVarargs;
+	 * int flags = method.getFlags() &amp; ~Flags.AccVarargs;
 	 * return Flags.toString(flags);
 	 * </pre>
 	 * <p>

@@ -22,8 +22,10 @@ import org.eclipse.jdt.internal.core.dom.util.DOMASTUtil;
  * TypePattern pattern AST node type.
  *
  * <pre>
+ * {@code
  * RecordPattern:
  *      Pattern<Pattern<Patterns....>> Type SimpleName
+ * }
  * </pre>
  *
  * @since 3.31

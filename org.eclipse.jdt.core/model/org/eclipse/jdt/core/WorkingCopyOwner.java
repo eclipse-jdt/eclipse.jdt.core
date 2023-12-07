@@ -104,7 +104,7 @@ public abstract class WorkingCopyOwner {
 	 * types that would normally be available by returning an empty source for
 	 * the given type and package.</p>
 	 * <p>Example of use:
-	 * <pre>
+	 * <pre>{@code
 	 * WorkingCopyOwner owner = new WorkingCopyOwner() {
 	 *   public String findSource(String typeName, String packageName) {
 	 *     if ("to.be".equals(packageName) && "Generated".equals(typeName)) {
@@ -135,6 +135,7 @@ public abstract class WorkingCopyOwner {
 	 * parser.setWorkingCopyOwner(owner);
 	 * CompilationUnit cu = (CompilationUnit) parser.createAST(null);
 	 * assert cu.getProblems().length == 0;
+	 * }
 	 * </pre>
 	 *
 	 * @param typeName the simple name of the type to lookup
