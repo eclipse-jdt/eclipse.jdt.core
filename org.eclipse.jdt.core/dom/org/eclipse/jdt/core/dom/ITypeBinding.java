@@ -59,7 +59,7 @@ public interface ITypeBinding extends IBinding {
 	 *
 	 * @param dimension the given dimension
 	 * @return an array type binding
-	 * @throws IllegalArgumentException:<ul>
+	 * @throws IllegalArgumentException <ul>
 	 * <li>if the receiver represents the void type</li>
 	 * <li>if the resulting dimensions is lower than one or greater than 255</li>
 	 * </ul>

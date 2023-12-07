@@ -48,7 +48,6 @@ import org.eclipse.text.edits.TextEdit;
  * files first so that a file does not get formatted twice. 2. Use a text based
  * progress monitor for output.</p>
  *
- * @author Ben Konrath <bkonrath@redhat.com>
  * @since 3.2
  * @noinstantiate This class is not intended to be instantiated by clients.
  * @noextend This class is not intended to be subclassed by clients.

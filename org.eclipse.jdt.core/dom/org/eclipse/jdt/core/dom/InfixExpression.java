@@ -110,7 +110,7 @@ public class InfixExpression extends Expression {
 		public static final Operator GREATER = new Operator(">");//$NON-NLS-1$
 		/** Less than or equals "&lt;=" operator. */
 		public static final Operator LESS_EQUALS = new Operator("<=");//$NON-NLS-1$
-		/** Greater than or equals "&gt=;" operator. */
+		/** Greater than or equals "&gt;=" operator. */
 		public static final Operator GREATER_EQUALS = new Operator(">=");//$NON-NLS-1$
 		/** Equals "==" operator. */
 		public static final Operator EQUALS = new Operator("==");//$NON-NLS-1$

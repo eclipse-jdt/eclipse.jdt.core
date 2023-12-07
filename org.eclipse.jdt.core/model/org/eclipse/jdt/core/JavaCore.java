@@ -1514,8 +1514,8 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Compiler option ID: Reporting a resource that is not closed properly.
 	 * <p>When enabled, the compiler will issue an error or a warning if
-	 *    a local variable holds a value of type <code>java.lang.AutoCloseable</code> (compliance>=1.7)
-	 *    or a value of type <code>java.io.Closeable</code> (compliance<=1.6) and if
+	 *    a local variable holds a value of type <code>java.lang.AutoCloseable</code> (compliance&gt;=1.7)
+	 *    or a value of type <code>java.io.Closeable</code> (compliance&lt;=1.6) and if
 	 *    flow analysis shows that the method <code>close()</code> is not invoked locally on that value.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.unclosedCloseable"</code></dd>
@@ -2921,7 +2921,7 @@ public final class JavaCore extends Plugin {
 	 *    one of the proposed suffixes.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.codeComplete.staticFieldSuffixes"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "&lt;suffix&gt;[,&lt;suffix&gt;]*" }</code>< where <code>&lt;suffix&gt;</code> is a String without any wild-card</dd>
+	 * <dt>Possible values:</dt><dd>{@code  "<suffix>[,<suffix>]*" }&lt; where {@code <suffix> } is a String without any wild-card</dd>
 	 * <dt>Default:</dt><dd><code>""</code></dd>
 	 * </dl>
 	 * @since 2.1
@@ -2934,7 +2934,7 @@ public final class JavaCore extends Plugin {
 	 *    one of the proposed suffixes.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.codeComplete.staticFinalFieldSuffixes"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "&lt;suffix&gt;[,&lt;suffix&gt;]*" }</code>< where <code>&lt;suffix&gt;</code> is a String without any wild-card</dd>
+	 * <dt>Possible values:</dt><dd>{@code "<suffix>[<suffix>]*" }< where {@code <suffix>} is a String without any wild-card</dd>
 	 * <dt>Default:</dt><dd><code>""</code></dd>
 	 * </dl>
 	 * @since 3.5
