@@ -452,10 +452,8 @@ ModuleDeclaration ::= ModuleHeader ModuleBody
 -- JEP 445: unnamed class, this may capture type declarations without unnamed class, this case is fixed/reduced upon completioon of parsing
 InternalCompilationUnit ::= UnnamedClassBodyDeclarations
 /.$putCase consumeInternalCompilationUnitWithPotentialUnnamedClass(); $break ./
-/:$compliance 21:/
 InternalCompilationUnit ::= ImportDeclarations ReduceImports UnnamedClassBodyDeclarations
 /.$putCase consumeInternalCompilationUnitWithPotentialUnnamedClass(); $break ./
-/:$compliance 21:/
 
 -- to work around shift/reduce conflicts, we allow Modifiersopt in order to support annotations
 -- in a module declaration, and then report errors if any modifiers other than annotations are
@@ -752,10 +750,8 @@ ClassBodyDeclaration -> StaticInitializer
 ClassBodyDeclaration -> ConstructorDeclaration
 
 UnnamedClassBodyDeclarations -> ClassMemberDeclaration
-/:$compliance 21:/
 UnnamedClassBodyDeclarations ::= ClassMemberDeclaration UnnamedClassBodyDeclarations
 /.$putCase consumeUnnamedClassBodyDeclarations(); $break ./
-/:$compliance 21:/
 /:$readableName UnnamedClassBodyDeclarations:/
 --1.1 feature
 ClassBodyDeclaration ::= Diet NestedMethod CreateInitializer Block
