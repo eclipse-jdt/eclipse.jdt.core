@@ -18,6 +18,7 @@ import java.util.List;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
+import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class TextBlock extends StringLiteral {
 
@@ -295,5 +296,14 @@ public class TextBlock extends StringLiteral {
 		if (chars != null && chars.length > 0)
 			result.append(chars);
 		return (!merge && !lastLine);
+	}
+	@Override
+	public StringBuilder printExpression(int indent, StringBuilder output) {
+		output.append("\"\"\"\n"); //$NON-NLS-1$
+		for (int i = 0; i < this.source.length; i++) {
+			Util.appendEscapedChar(output, this.source[i], true);
+		}
+		output.append("\"\"\""); //$NON-NLS-1$
+		return output;
 	}
 }

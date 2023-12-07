@@ -98,21 +98,22 @@ public class EmbeddedExpressionSelectionTest extends AbstractSelectionTest {
 	}
 	public void test003() throws JavaModelException {
 		String string =
-				"public class X<R> {\n"
-				+ "@SuppressWarnings(\"nls\")\n"
-				+ "public static void main(String[] args) {\n"
-				+ "  String name    = \"Joan Smith\";\n"
-				+ "  String phone   = \"555-123-4567\";\n"
-				+ "  String address = \"1 Maple Drive, Anytown\";\n"
-				+ "  String doc = STR.\"\"\"\n"
-				+ "    {\n"
-				+ "        \"name\":    \"\\{STR.\"\\{name}\"}\",\n"
-				+ "        \"phone\":   \"\\{phone}\",\n"
-				+ "        \"address\": \"\\{address}\" \n"
-				+ "    };\"\"\";\n"
-				+ "  System.out.println(doc);\n"
-				+ "  }   \n"
-				+ "} ";
+				"""
+				public class X<R> {
+					@SuppressWarnings("nls")
+					public static void main(String[] args) {
+						String name    = "Joan Smith";
+						String phone   = "555-123-4567";
+						String address = "1 Maple Drive, Anytown";
+						String doc = STR.\"""
+								{
+								    "name":    "\\{STR."\\{name}"}",
+								    "phone":   "\\{phone}",
+								    "address": "\\{address}"
+								};\""";
+						System.out.println(doc);
+					}
+				}""";
 
 		String selection = "name";
 		String expectedSelection = "<SelectOnName:" + "name" + ">";
@@ -127,7 +128,7 @@ public class EmbeddedExpressionSelectionTest extends AbstractSelectionTest {
                     String name;
                     String phone;
                     String address;
-                    String doc = STR.\"{\\n    \\\"name\\\":    \\\"\\{STR.\"\\{<SelectOnName:name>}\"}\\\",\\n    \\\"phone\\\":   \\\"\\{phone}\\\",\\n    \\\"address\\\": \\\"\\{address}\\\"\\n};";
+                    String doc = STR.\"\"\"\n{\\n    \\\"name\\\":    \\\"\\{STR.\"\\{<SelectOnName:name>}\"}\\\",\\n    \\\"phone\\\":   \\\"\\{phone}\\\",\\n    \\\"address\\\": \\\"\\{address}\\\"\\n};\"\"\";
                   }
                 }
                 """;
@@ -139,5 +140,44 @@ public class EmbeddedExpressionSelectionTest extends AbstractSelectionTest {
 
 		checkMethodParse(string.toCharArray(), selectionStart, selectionEnd, expectedSelection, expectedUnitDisplayString,
 				selectionIdentifier, expectedReplacedSource, testName);
+	}
+	public void test004() throws JavaModelException {
+		String str =
+				"""
+				public class X<R> {
+					public static void main(String[] args) {
+						System.out.println(\"""
+							Hello\""");
+					}
+				}""";
+
+		String selectionStartBehind = "System.out.";
+		String selectionEndBehind = "println";
+
+		String expectedCompletionNodeToString = "<SelectOnMessageSend:System.out.println(\"\"\"\nHello\"\"\")>";
+		String completionIdentifier = "println";
+		String expectedUnitDisplayString =
+			"public class X<R> {\n" +
+			"  public X() {\n" +
+			"  }\n" +
+			"  public static void main(String[] args) {\n" +
+			"    <SelectOnMessageSend:System.out.println(\"\"\"\nHello\"\"\")>;\n" +
+			"  }\n" +
+			"}\n";
+		String expectedReplacedSource = "System.out.println(\"\"\"\n\t\t\tHello\"\"\")";
+		String testName = "<select message send>";
+
+		int selectionStart = str.indexOf(selectionStartBehind) + selectionStartBehind.length();
+		int selectionEnd = str.indexOf(selectionEndBehind) + selectionEndBehind.length() - 1;
+
+		this.checkMethodParse(
+			str.toCharArray(),
+			selectionStart,
+			selectionEnd,
+			expectedCompletionNodeToString,
+			expectedUnitDisplayString,
+			completionIdentifier,
+			expectedReplacedSource,
+			testName);
 	}
 }

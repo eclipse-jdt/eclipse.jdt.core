@@ -97,6 +97,8 @@ public class StringTemplate extends Expression {
 	public StringBuilder printExpression(int indent, StringBuilder output) {
 		int length = this.fragments.length;
 		output.append('\"');
+		if (this.isMultiline)
+			output.append("\"\"\n"); //$NON-NLS-1$
 		for (int i = 0; i < length; i++) {
 			char[] source = this.fragments[i].source;
 			for (int j = 0; j < source.length; j++) {
@@ -111,6 +113,8 @@ public class StringTemplate extends Expression {
 			}
 		}
 		output.append('\"');
+		if (this.isMultiline)
+			output.append("\"\""); //$NON-NLS-1$
 		return output;
 	}
 }

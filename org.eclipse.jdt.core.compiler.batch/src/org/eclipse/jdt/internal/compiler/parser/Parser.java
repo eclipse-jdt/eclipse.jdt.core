@@ -13808,6 +13808,7 @@ private Expression parseExpression(char[] source, int offset, int length, Compil
 	this.scanner.resetTo(offset, offset + length - 1);
 	try {
 		if (embeddedExpression) {
+			this.haltOnSyntaxError = true;
 			int nextToken;
 			try {
 				nextToken = this.scanner.getNextToken();
