@@ -13,8 +13,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler.regression;
 
-import static org.eclipse.jdt.core.tests.util.Util.createJar;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
@@ -25,9 +23,9 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 
 import junit.framework.Test;
 
-public class NullAnnotationTests18 extends AbstractNullAnnotationTest {
+public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 
-	public NullAnnotationTests18(String name) {
+	public NullAnnotationTests21(String name) {
 		super(name);
 	}
 
@@ -42,7 +40,7 @@ public class NullAnnotationTests18 extends AbstractNullAnnotationTest {
 	}
 
 	public static Class<?> testClass() {
-		return NullAnnotationTests18.class;
+		return NullAnnotationTests21.class;
 	}
 
 	@Deprecated // super method is deprecated
@@ -53,74 +51,8 @@ public class NullAnnotationTests18 extends AbstractNullAnnotationTest {
 			int len = defaultLibs.length;
 			this.LIBS = new String[len+1];
 			System.arraycopy(defaultLibs, 0, this.LIBS, 0, len);
-			this.LIBS[len] = createAnnotation_2_2_jar(Util.getOutputDirectory() + File.separator, null);
+			this.LIBS[len] = NullAnnotationTests9.createAnnotation_2_2_jar(Util.getOutputDirectory() + File.separator, null);
 		}
-	}
-
-	public static String createAnnotation_2_2_jar(String dirName, String jcl17Path) throws IOException {
-		// role our own annotation library as long as o.e.j.annotation is still at BREE 1.8:
-		String jarFileName = dirName + "org.eclipse.jdt.annotation_2.2.0.jar";
-		createJar(new String[] {
-				"module-info.java",
-				"module org.eclipse.jdt.annotation {\n" +
-				"	exports org.eclipse.jdt.annotation;\n" +
-				"}\n",
-
-				"org/eclipse/jdt/annotation/DefaultLocation.java",
-				"package org.eclipse.jdt.annotation;\n" +
-				"\n" +
-				"public enum DefaultLocation {\n" +
-				"	\n" +
-				"	PARAMETER, RETURN_TYPE, FIELD, TYPE_PARAMETER, TYPE_BOUND, TYPE_ARGUMENT, ARRAY_CONTENTS\n" +
-				"}\n",
-
-				"org/eclipse/jdt/annotation/NonNullByDefault.java",
-				"package org.eclipse.jdt.annotation;\n" +
-				"\n" +
-				"import java.lang.annotation.ElementType;\n" +
-				"import static org.eclipse.jdt.annotation.DefaultLocation.*;\n" +
-				"\n" +
-				"import java.lang.annotation.*;\n" +
-				" \n" +
-				"@Documented\n" +
-				"@Retention(RetentionPolicy.CLASS)\n" +
-				"@Target({ ElementType.MODULE, ElementType.PACKAGE, ElementType.TYPE, ElementType.METHOD, ElementType.CONSTRUCTOR, ElementType.FIELD, ElementType.LOCAL_VARIABLE })\n" +
-				"public @interface NonNullByDefault {\n" +
-				"	DefaultLocation[] value() default { PARAMETER, RETURN_TYPE, FIELD, TYPE_BOUND, TYPE_ARGUMENT };\n" +
-				"}",
-
-				"org/eclipse/jdt/annotation/NonNull.java",
-				"package org.eclipse.jdt.annotation;\n" +
-				"import static java.lang.annotation.ElementType.TYPE_USE;\n" +
-				"\n" +
-				"import java.lang.annotation.*;\n" +
-				" \n" +
-				"@Documented\n" +
-				"@Retention(RetentionPolicy.CLASS)\n" +
-				"@Target({ TYPE_USE })\n" +
-				"public @interface NonNull {\n" +
-				"	// marker annotation with no members\n" +
-				"}\n",
-
-				"org/eclipse/jdt/annotation/Nullable.java",
-				"package org.eclipse.jdt.annotation;\n" +
-				"\n" +
-				"import static java.lang.annotation.ElementType.TYPE_USE;\n" +
-				"\n" +
-				"import java.lang.annotation.*;\n" +
-				" \n" +
-				"@Documented\n" +
-				"@Retention(RetentionPolicy.CLASS)\n" +
-				"@Target({ TYPE_USE })\n" +
-				"public @interface Nullable {\n" +
-				"	// marker annotation with no members\n" +
-				"}\n"
-			},
-			null,
-			jarFileName,
-			jcl17Path != null ? new String[] { jcl17Path } : null,
-			"18");
-		return jarFileName;
 	}
 
 	// -------- helper ------------
@@ -130,10 +62,7 @@ public class NullAnnotationTests18 extends AbstractNullAnnotationTest {
 		runner.classLibraries = this.LIBS;
 		Map<String,String> opts = getCompilerOptions();
 		opts.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_21);
-		opts.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
-		opts.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		runner.customOptions = opts;
-		runner.vmArguments = new String[] {"--enable-preview"};
 		runner.javacTestOptions =
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError;
 		return runner;
@@ -935,6 +864,84 @@ public class NullAnnotationTests18 extends AbstractNullAnnotationTest {
 			"""
 		};
 		runner.customOptions = getCompilerOptions();
+		runner.classLibraries = this.LIBS;
+		runner.runConformTest();
+	}
+
+	public void testGH1691_a() {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+			"bug/package-info.java",
+			"""
+			@org.eclipse.jdt.annotation.NonNullByDefault
+			package bug;
+			""",
+			"bug/BlahSuper.java",
+			"""
+			package bug;
+
+			import java.io.IOException;
+			import java.io.OutputStream;
+
+			public sealed interface BlahSuper<T, E extends Exception> permits Blah, BlahOther { }
+			abstract non-sealed class BlahOther implements BlahSuper<OutputStream, IOException> { }
+			""",
+			"bug/Blah.java",
+			"""
+			package bug;
+
+			import java.io.IOException;
+			import java.io.OutputStream;
+
+			public abstract non-sealed class Blah<T, E extends Exception> implements BlahSuper<T, E> {
+				public abstract static class InnerBlah extends Blah<OutputStream, IOException> { }
+			}
+			"""
+		};
+		runner.classLibraries = this.LIBS;
+		runner.runConformTest();
+	}
+
+
+	public void testGH1691_b() {
+		// @NonNull on secondary bound is sufficient
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+			"bug/Marker.java",
+			"""
+			package bug;
+			public interface Marker {}
+			""",
+			"bug/MyException.java",
+			"""
+			package bug;
+			import java.io.IOException;
+			public class MyException extends IOException implements Marker {}
+			""",
+			"bug/BlahSuper.java",
+			"""
+			package bug;
+
+			import java.io.OutputStream;
+			import org.eclipse.jdt.annotation.NonNullByDefault;
+
+			@NonNullByDefault
+			public sealed interface BlahSuper<T, E extends Exception & Marker> permits Blah, BlahOther { }
+			@NonNullByDefault
+			abstract non-sealed class BlahOther implements BlahSuper<OutputStream, MyException> { }
+			""",
+			"bug/Blah.java",
+			"""
+			package bug;
+
+			import java.io.OutputStream;
+			import org.eclipse.jdt.annotation.NonNull;
+
+			public abstract non-sealed class Blah<T, E extends Exception & @NonNull Marker> implements BlahSuper<T, E> {
+				public abstract static class InnerBlah extends Blah<OutputStream, @NonNull MyException> { }
+			}
+			"""
+		};
 		runner.classLibraries = this.LIBS;
 		runner.runConformTest();
 	}
