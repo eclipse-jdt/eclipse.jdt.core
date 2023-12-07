@@ -128,7 +128,7 @@ public class EmbeddedExpressionSelectionTest extends AbstractSelectionTest {
                     String name;
                     String phone;
                     String address;
-                    String doc = STR.\"\"\"\n{\\n    \\\"name\\\":    \\\"\\{STR.\"\\{<SelectOnName:name>}\"}\\\",\\n    \\\"phone\\\":   \\\"\\{phone}\\\",\\n    \\\"address\\\": \\\"\\{address}\\\"\\n};\"\"\";
+                    String doc = STR.\"""\n{\\n    \\\"name\\\":    \\\"\\{STR.\"\\{<SelectOnName:name>}\"}\\\",\\n    \\\"phone\\\":   \\\"\\{phone}\\\",\\n    \\\"address\\\": \\\"\\{address}\\\"\\n};\""";
                   }
                 }
                 """;
