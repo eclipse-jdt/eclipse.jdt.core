@@ -80,8 +80,8 @@ public IPath[] enclosingProjectsAndJars() {
 		IJavaProject[] projects = JavaModelManager.getJavaModelManager().getJavaModel().getJavaProjects();
 		// use a linked set to preserve the order during search: see bug 348507
 		Set<IPath> paths = new LinkedHashSet<>(projects.length * 2);
-		for (int i = 0, length = projects.length; i < length; i++) {
-			JavaProject javaProject = (JavaProject) projects[i];
+		for (IJavaProject project : projects) {
+			JavaProject javaProject = (JavaProject) project;
 
 			// Add project full path
 			IPath projectPath = javaProject.getProject().getFullPath();
@@ -92,13 +92,12 @@ public IPath[] enclosingProjectsAndJars() {
 		// to ensure source files always get higher precedence during search.
 		// see bug 348507
 
-		for (int i = 0, length = projects.length; i < length; i++) {
-			JavaProject javaProject = (JavaProject) projects[i];
+		for (IJavaProject project : projects) {
+			JavaProject javaProject = (JavaProject) project;
 
 			// Add project libraries paths
 			IClasspathEntry[] entries = javaProject.getResolvedClasspath();
-			for (int j = 0, eLength = entries.length; j < eLength; j++) {
-				IClasspathEntry entry = entries[j];
+			for (IClasspathEntry entry : entries) {
 				if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
 					IPath path = entry.getPath();
 					Object target = JavaModel.getTarget(path, false/*don't check existence*/);
@@ -175,8 +174,7 @@ public void processDelta(IJavaElementDelta delta, int eventType) {
 	switch (element.getElementType()) {
 		case IJavaElement.JAVA_MODEL:
 			IJavaElementDelta[] children = delta.getAffectedChildren();
-			for (int i = 0, length = children.length; i < length; i++) {
-				IJavaElementDelta child = children[i];
+			for (IJavaElementDelta child : children) {
 				processDelta(child, eventType);
 			}
 			break;
@@ -194,8 +192,7 @@ public void processDelta(IJavaElementDelta delta, int eventType) {
 						this.enclosingPaths = null;
 					} else {
 						children = delta.getAffectedChildren();
-						for (int i = 0, length = children.length; i < length; i++) {
-							IJavaElementDelta child = children[i];
+						for (IJavaElementDelta child : children) {
 							processDelta(child, eventType);
 						}
 					}

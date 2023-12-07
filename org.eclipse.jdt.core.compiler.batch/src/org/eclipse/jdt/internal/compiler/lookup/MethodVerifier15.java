@@ -89,8 +89,7 @@ void checkConcreteInheritedMethod(MethodBinding concreteMethod, MethodBinding[] 
 	boolean hasReturnNonNullDefault = analyseNullAnnotations && concreteMethod.hasNonNullDefaultForReturnType(srcMethod);
 	ParameterNonNullDefaultProvider hasParameterNonNullDefault = analyseNullAnnotations ? concreteMethod.hasNonNullDefaultForParameter(srcMethod): ParameterNonNullDefaultProvider.FALSE_PROVIDER;
 
-	for (int i = 0, l = abstractMethods.length; i < l; i++) {
-		MethodBinding abstractMethod = abstractMethods[i];
+	for (MethodBinding abstractMethod : abstractMethods) {
 		if (concreteMethod.isVarargs() != abstractMethod.isVarargs())
 			problemReporter().varargsConflict(concreteMethod, abstractMethod, this.type);
 
@@ -209,8 +208,8 @@ void checkForNameClash(MethodBinding currentMethod, MethodBinding inheritedMetho
 		superType = superType.superclass(); // now start with its superclass
 		while (superType != null && superType.isValidBinding()) {
 			MethodBinding[] methods = superType.getMethods(currentMethod.selector);
-			for (int m = 0, n = methods.length; m < n; m++) {
-				MethodBinding substitute = computeSubstituteMethod(methods[m], currentMethod);
+			for (MethodBinding method : methods) {
+				MethodBinding substitute = computeSubstituteMethod(method, currentMethod);
 				if (substitute != null && !isSubstituteParameterSubsignature(currentMethod, substitute) && detectNameClash(currentMethod, substitute, true))
 					return;
 			}
@@ -237,8 +236,8 @@ void checkForNameClash(MethodBinding currentMethod, MethodBinding inheritedMetho
 			superType = interfacesToVisit[i];
 			if (superType.isValidBinding()) {
 				MethodBinding[] methods = superType.getMethods(currentMethod.selector);
-				for (int m = 0, n = methods.length; m < n; m++){
-					MethodBinding substitute = computeSubstituteMethod(methods[m], currentMethod);
+				for (MethodBinding method : methods) {
+					MethodBinding substitute = computeSubstituteMethod(method, currentMethod);
 					if (substitute != null && !isSubstituteParameterSubsignature(currentMethod, substitute) && detectNameClash(currentMethod, substitute, true))
 						return;
 				}
@@ -446,8 +445,7 @@ void reportRawReferences() {
 	for (int s = methodArray.length; --s >= 0;) {
 		if (methodArray[s] == null) continue;
 		MethodBinding[] current = (MethodBinding[]) methodArray[s];
-		for (int i = 0, length = current.length; i < length; i++) {
-			MethodBinding currentMethod = current[i];
+		for (MethodBinding currentMethod : current) {
 			if ((currentMethod.modifiers & (ExtraCompilerModifiers.AccImplementing | ExtraCompilerModifiers.AccOverriding)) == 0) {
 				AbstractMethodDeclaration methodDecl = currentMethod.sourceMethod();
 				if (methodDecl == null) return;
@@ -574,8 +572,7 @@ void checkMethods() {
 		boolean[] isInherited = new boolean[inheritedLength];
 		Arrays.fill(isInherited, true);
 		if (current != null) {
-			for (int i = 0, length1 = current.length; i < length1; i++) {
-				MethodBinding currentMethod = current[i];
+			for (MethodBinding currentMethod : current) {
 				MethodBinding[] nonMatchingInherited = null;
 				for (int j = 0; j < inheritedLength; j++) {
 					MethodBinding inheritedMethod = computeSubstituteMethod(inherited[j], currentMethod);
@@ -847,8 +844,7 @@ boolean detectNameClash(MethodBinding current, MethodBinding inherited, boolean 
 		// clash to report to begin with (the common case), no penalty needs to be paid.
 		MethodBinding[] currentNamesakes = (MethodBinding[]) this.currentMethods.get(inherited.selector);
 		if (currentNamesakes.length > 1) { // we know it ought to at least one and that current is NOT the override
-			for (int i = 0, length = currentNamesakes.length; i < length; i++) {
-				MethodBinding currentMethod = currentNamesakes[i];
+			for (MethodBinding currentMethod : currentNamesakes) {
 				if (currentMethod != current && doesMethodOverride(currentMethod, inherited)) {
 					methodToCheck = currentMethod;
 					break;

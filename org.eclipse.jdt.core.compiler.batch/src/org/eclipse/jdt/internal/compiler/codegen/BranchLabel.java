@@ -210,8 +210,8 @@ public void place() { // Currently lacking wide support.
 				// end of new code
 				if ((this.codeStream.generateAttributes & (ClassFileConstants.ATTR_VARS | ClassFileConstants.ATTR_STACK_MAP_TABLE | ClassFileConstants.ATTR_STACK_MAP)) != 0) {
 					LocalVariableBinding locals[] = this.codeStream.locals;
-					for (int i = 0, max = locals.length; i < max; i++) {
-						LocalVariableBinding local = locals[i];
+					for (LocalVariableBinding local2 : locals) {
+						LocalVariableBinding local = local2;
 						if ((local != null) && (local.initializationCount > 0)) {
 							if (local.initializationPCs[((local.initializationCount - 1) << 1) + 1] == oldPosition) {
 								// we want to prevent interval of size 0 to have a negative size.

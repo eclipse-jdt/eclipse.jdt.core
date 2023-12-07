@@ -101,16 +101,16 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 			// process arguments
 			if (this.arguments != null) {
 				boolean analyseResources = currentScope.compilerOptions().analyseResourceLeaks;
-				for (int i = 0, max = this.arguments.length; i < max; i++) {
+				for (Expression argument : this.arguments) {
 					flowInfo =
-						this.arguments[i]
+						argument
 							.analyseCode(currentScope, flowContext, flowInfo)
 							.unconditionalInits();
 					if (analyseResources) {
 						// if argument is an AutoCloseable insert info that it *may* be closed (by the target constructor, i.e.)
-						flowInfo = FakedTrackingVariable.markPassedToOutside(currentScope, this.arguments[i], flowInfo, flowContext, false);
+						flowInfo = FakedTrackingVariable.markPassedToOutside(currentScope, argument, flowInfo, flowContext, false);
 					}
-					this.arguments[i].checkNPEbyUnboxing(currentScope, flowContext, flowInfo);
+					argument.checkNPEbyUnboxing(currentScope, flowContext, flowInfo);
 				}
 				analyseArguments(currentScope, flowContext, flowInfo, this.binding, this.arguments);
 			}
@@ -322,13 +322,13 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 					this.qualification.resolveType(scope);
 				}
 				if (this.typeArguments != null) {
-					for (int i = 0, max = this.typeArguments.length; i < max; i++) {
-						this.typeArguments[i].resolveType(scope, true /* check bounds*/);
+					for (TypeReference typeArgument : this.typeArguments) {
+						typeArgument.resolveType(scope, true /* check bounds*/);
 					}
 				}
 				if (this.arguments != null) {
-					for (int i = 0, max = this.arguments.length; i < max; i++) {
-						this.arguments[i].resolveType(scope);
+					for (Expression argument : this.arguments) {
+						argument.resolveType(scope);
 					}
 				}
 				return;
@@ -384,8 +384,8 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 				}
 				if (argHasError) {
 					if (this.arguments != null) { // still attempt to resolve arguments
-						for (int i = 0, max = this.arguments.length; i < max; i++) {
-							this.arguments[i].resolveType(scope);
+						for (Expression argument : this.arguments) {
+							argument.resolveType(scope);
 						}
 					}
 					return;
@@ -515,13 +515,13 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 				this.qualification.traverse(visitor, scope);
 			}
 			if (this.typeArguments != null) {
-				for (int i = 0, typeArgumentsLength = this.typeArguments.length; i < typeArgumentsLength; i++) {
-					this.typeArguments[i].traverse(visitor, scope);
+				for (TypeReference typeArgument : this.typeArguments) {
+					typeArgument.traverse(visitor, scope);
 				}
 			}
 			if (this.arguments != null) {
-				for (int i = 0, argumentLength = this.arguments.length; i < argumentLength; i++)
-					this.arguments[i].traverse(visitor, scope);
+				for (Expression argument : this.arguments)
+					argument.traverse(visitor, scope);
 			}
 		}
 		visitor.endVisit(this, scope);

@@ -76,8 +76,8 @@ public class MethodNameMatchRequestorWrapper extends NameMatchRequestorWrapper i
 		if (signature != null) {
 			char[][] parTypes = Signature.getParameterTypes(signature);
 			if (parTypes.length > 0) {
-				for (int i = 0, l = parTypes.length; i < l; ++i) {
-					CharOperation.replace(parTypes[i], '/', '.');
+				for (char[] parType : parTypes) {
+					CharOperation.replace(parType, '/', '.');
 				}
 			}
 			paramTypeSigs = CharOperation.toStrings(parTypes);

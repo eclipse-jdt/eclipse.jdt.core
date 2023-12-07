@@ -52,8 +52,8 @@ public CompletionOnQualifiedNameReference(char[][] previousIdentifiers, char[] c
 public StringBuilder printExpression(int indent, StringBuilder output) {
 
 	output.append("<CompleteOnName:"); //$NON-NLS-1$
-	for (int i = 0; i < this.tokens.length; i++) {
-		output.append(this.tokens[i]);
+	for (char[] token : this.tokens) {
+		output.append(token);
 		output.append('.');
 	}
 	output.append(this.completionIdentifier).append('>');

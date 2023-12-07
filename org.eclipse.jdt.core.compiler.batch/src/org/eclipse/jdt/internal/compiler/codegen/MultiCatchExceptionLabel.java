@@ -39,27 +39,27 @@ public class MultiCatchExceptionLabel extends ExceptionLabel {
 	}
 	@Override
 	public void place() {
-		for (int i = 0, max = this.exceptionLabels.length; i < max; i++) {
-			this.exceptionLabels[i].place();
+		for (ExceptionLabel exceptionLabel : this.exceptionLabels) {
+			exceptionLabel.place();
 		}
 	}
 	@Override
 	public void placeEnd() {
-		for (int i = 0, max = this.exceptionLabels.length; i < max; i++) {
-			this.exceptionLabels[i].placeEnd();
+		for (ExceptionLabel exceptionLabel : this.exceptionLabels) {
+			exceptionLabel.placeEnd();
 		}
 	}
 	@Override
 	public void placeStart() {
-		for (int i = 0, max = this.exceptionLabels.length; i < max; i++) {
-			this.exceptionLabels[i].placeStart();
+		for (ExceptionLabel exceptionLabel : this.exceptionLabels) {
+			exceptionLabel.placeStart();
 		}
 	}
 	@Override
 	public int getCount() {
 		int temp = 0;
-		for (int i = 0, max = this.exceptionLabels.length; i < max; i++) {
-			temp += this.exceptionLabels[i].getCount();
+		for (ExceptionLabel exceptionLabel : this.exceptionLabels) {
+			temp += exceptionLabel.getCount();
 		}
 		return temp;
 	}

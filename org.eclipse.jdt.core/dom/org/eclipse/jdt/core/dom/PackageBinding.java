@@ -72,12 +72,12 @@ class PackageBinding implements IPackageBinding {
 			if (pkgs == null)
 				return AnnotationBinding.NoAnnotations;
 
-			for (int i = 0, len = pkgs.length; i < len; i++) {
-				int fragType = pkgs[i].getKind();
+			for (IPackageFragment pkg : pkgs) {
+				int fragType = pkg.getKind();
 				switch(fragType) {
 					case IPackageFragmentRoot.K_SOURCE:
 						String unitName = "package-info.java"; //$NON-NLS-1$
-						ICompilationUnit unit = pkgs[i].getCompilationUnit(unitName);
+						ICompilationUnit unit = pkg.getCompilationUnit(unitName);
 						if (unit != null && unit.exists()) {
 							ASTParser p = ASTParser.newParser(AST.JLS3_INTERNAL);
 							p.setSource(unit);

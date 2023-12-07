@@ -301,8 +301,7 @@ public class BuildEnv extends AbstractCompilationEnv
 			_astRoots[astIndex].accept(visitor);
 			final Set<AnnotationTypeDeclaration> perFileAnnos = new HashSet<>();
 
-			for (int instanceIndex=0, size = instances.size(); instanceIndex < size; instanceIndex++) {
-				final Annotation instance = instances.get(instanceIndex);
+			for (final Annotation instance : instances) {
 				final ITypeBinding annoType = instance.resolveTypeBinding();
 				if (annoType == null)
 					continue;
@@ -435,8 +434,8 @@ public class BuildEnv extends AbstractCompilationEnv
 		if( !_batchMode )
 			return super.searchLocallyForTypeDeclarations();
 		final List<AbstractTypeDeclaration> typeDecls = new ArrayList<>();
-		for( int i=0, len=_astRoots.length; i<len; i++ )
-        	typeDecls.addAll( _astRoots[i].types() );
+		for (CompilationUnit _astRoot2 : _astRoots)
+			typeDecls.addAll( _astRoot2.types() );
 
 		getTypeDeclarationsFromAdditionFiles(typeDecls);
 
@@ -471,8 +470,8 @@ public class BuildEnv extends AbstractCompilationEnv
 			return super.getASTNodesWithAnnotations();
     	final Map<ASTNode, List<Annotation>> astNode2Anno = new HashMap<>();
         final AnnotatedNodeVisitor visitor = new AnnotatedNodeVisitor(astNode2Anno);
-        for( int i=0, len=_astRoots.length; i<len; i++ )
-        	_astRoots[i].accept( visitor );
+        for (CompilationUnit _astRoot2 : _astRoots)
+			_astRoot2.accept( visitor );
         return astNode2Anno;
     }
 
@@ -501,10 +500,10 @@ public class BuildEnv extends AbstractCompilationEnv
 		if( !_batchMode )
 			return super.searchLocallyForBinding(binding);
 
-		for( int i=0, len=_astRoots.length; i<len; i++ ){
-			ASTNode node = _astRoots[i].findDeclaringNode(binding);
+		for (CompilationUnit _astRoot2 : _astRoots) {
+			ASTNode node = _astRoot2.findDeclaringNode(binding);
 			if( node != null)
-				return _astRoots[i];
+				return _astRoot2;
 		}
 		return null;
 	}

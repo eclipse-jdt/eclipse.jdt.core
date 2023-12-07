@@ -548,8 +548,8 @@ public MethodBinding getConstructor(ReferenceBinding receiverType, TypeBinding[]
 	}
 	MethodBinding[] compatible = new MethodBinding[methods.length];
 	int compatibleIndex = 0;
-	for (int i = 0, length = methods.length; i < length; i++) {
-	    MethodBinding compatibleMethod = computeCompatibleMethod(methods[i], argumentTypes, invocationSite);
+	for (MethodBinding method : methods) {
+	    MethodBinding compatibleMethod = computeCompatibleMethod(method, argumentTypes, invocationSite);
 		if (compatibleMethod != null)
 			compatible[compatibleIndex++] = compatibleMethod;
 	}

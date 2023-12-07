@@ -32,8 +32,7 @@ class ASTSyntaxErrorPropagator extends ASTVisitor {
 
 	private boolean checkAndTagAsMalformed(ASTNode node) {
 		boolean tagWithErrors = false;
-		search: for (int i = 0, max = this.problems.length; i < max; i++) {
-			CategorizedProblem problem = this.problems[i];
+		search: for (CategorizedProblem problem : this.problems) {
 			switch(problem.getID()) {
 				case IProblem.ParsingErrorOnKeywordNoSuggestion :
 				case IProblem.ParsingErrorOnKeyword :

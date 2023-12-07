@@ -21,7 +21,6 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -194,8 +193,7 @@ public TypeHierarchy(IType type, ICompilationUnit[] workingCopies, IJavaSearchSc
 protected void initializeRegions() {
 
 	IType[] allTypes = getAllTypes();
-	for (int i = 0; i < allTypes.length; i++) {
-		IType type = allTypes[i];
+	for (IType type : allTypes) {
 		Openable o = (Openable) ((JavaElement) type).getOpenableParent();
 		if (o != null) {
 			ArrayList<IType> types = this.files.get(o);
@@ -294,8 +292,7 @@ protected void cacheSuperclass(IType type, IType superclass) {
  */
 protected void cacheSuperInterfaces(IType type, IType[] superinterfaces) {
 	this.typeToSuperInterfaces.put(type, superinterfaces);
-	for (int i = 0; i < superinterfaces.length; i++) {
-		IType superinterface = superinterfaces[i];
+	for (IType superinterface : superinterfaces) {
 		if (superinterface != null) {
 			addSubtype(superinterface, type);
 		}
@@ -384,8 +381,7 @@ public void fireChange() {
 		}
 	}
 
-	for (int i= 0; i < listeners.size(); i++) {
-		final ITypeHierarchyChangedListener listener= listeners.get(i);
+	for (final ITypeHierarchyChangedListener listener : listeners) {
 		SafeRunner.run(new ISafeRunnable() {
 			@Override
 			public void handleException(Throwable exception) {
@@ -420,8 +416,8 @@ private static byte[] flagsToBytes(Integer flags){
 public IType[] getAllClasses() {
 
 	TypeVector classes = this.rootClasses.copy();
-	for (Iterator<IType> iter = this.classToSuperclass.keySet().iterator(); iter.hasNext();){
-		classes.add(iter.next());
+	for (IType iType : this.classToSuperclass.keySet()) {
+		classes.add(iType);
 	}
 	return classes.elements();
 }
@@ -454,8 +450,7 @@ private IType[] getAllSubtypesForType(IType type) {
 private void getAllSubtypesForType0(IType type, ArrayList<IType> subs) {
 	IType[] subTypes = getSubtypesForType(type);
 	if (subTypes.length != 0) {
-		for (int i = 0; i < subTypes.length; i++) {
-			IType subType = subTypes[i];
+		for (IType subType : subTypes) {
 			if (subs.contains(subType)) continue;
 			subs.add(subType);
 			getAllSubtypesForType0(subType, subs);
@@ -494,8 +489,7 @@ private ArrayList<IType> getAllSuperInterfaces0(IType type, ArrayList<IType> sup
 	if (superinterfaces.length != 0) {
 		if (supers == null)
 			supers = new ArrayList<>();
-		for (int i1 = 0; i1 < superinterfaces.length; i1++) {
-			IType element = superinterfaces[i1];
+		for (IType element : superinterfaces) {
 			if (supers.contains(element)) continue;
 			supers.add(element);
 			supers = getAllSuperInterfaces0(element, supers);
@@ -526,8 +520,7 @@ private ArrayList<IType> getAllSupertypes0(IType type, ArrayList<IType> supers) 
 	if (superinterfaces.length != 0) {
 		if (supers == null)
 			supers = new ArrayList<>();
-		for (int i1 = 0; i1 < superinterfaces.length; i1++) {
-			IType element = superinterfaces[i1];
+		for (IType element : superinterfaces) {
 			if (!supers.contains(element)) {
 				supers.add(element);
 				supers = getAllSuperInterfaces0(element, supers);
@@ -583,18 +576,15 @@ public IType[] getExtendingInterfaces(IType type) {
  * @see #getExtendingInterfaces
  */
 private IType[] getExtendingInterfaces0(IType extendedInterface) {
-	Iterator<Entry<IType, IType[]>> iter = this.typeToSuperInterfaces.entrySet().iterator();
 	ArrayList<IType> interfaceList = new ArrayList<>();
-	while (iter.hasNext()) {
-		Map.Entry<IType, IType[]> entry = iter.next();
+	for (Entry<IType, IType[]> entry : this.typeToSuperInterfaces.entrySet()) {
 		IType type = entry.getKey();
 		if (!isInterface(type)) {
 			continue;
 		}
 		IType[] superInterfaces = entry.getValue();
 		if (superInterfaces != null) {
-			for (int i = 0; i < superInterfaces.length; i++) {
-				IType superInterface = superInterfaces[i];
+			for (IType superInterface : superInterfaces) {
 				if (superInterface.equals(extendedInterface)) {
 					interfaceList.add(type);
 				}
@@ -621,17 +611,14 @@ public IType[] getImplementingClasses(IType type) {
  */
 private IType[] getImplementingClasses0(IType interfce) {
 
-	Iterator<Map.Entry<IType,IType[]>> iter = this.typeToSuperInterfaces.entrySet().iterator();
 	ArrayList<IType> iMenters = new ArrayList<>();
-	while (iter.hasNext()) {
-		Map.Entry<IType, IType[]> entry = iter.next();
+	for (Entry<IType, IType[]> entry : this.typeToSuperInterfaces.entrySet()) {
 		IType type = entry.getKey();
 		if (isInterface(type)) {
 			continue;
 		}
 		IType[] types = entry.getValue();
-		for (int i = 0; i < types.length; i++) {
-			IType iFace = types[i];
+		for (IType iFace : types) {
 			if (iFace.equals(interfce)) {
 				iMenters.add(type);
 			}
@@ -656,10 +643,10 @@ public IType[] getRootInterfaces() {
 	IType[] allInterfaces = getAllInterfaces();
 	IType[] roots = new IType[allInterfaces.length];
 	int rootNumber = 0;
-	for (int i = 0; i < allInterfaces.length; i++) {
-		IType[] superInterfaces = getSuperInterfaces(allInterfaces[i]);
+	for (IType element : allInterfaces) {
+		IType[] superInterfaces = getSuperInterfaces(element);
 		if (superInterfaces == null || superInterfaces.length == 0) {
-			roots[rootNumber++] = allInterfaces[i];
+			roots[rootNumber++] = element;
 		}
 	}
 	IType[] result = new IType[rootNumber];
@@ -789,8 +776,8 @@ private boolean hasSubtypeNamed(String name) {
 		return true;
 	}
 	IType[] types = this.focusType == null ? getAllTypes() : getAllSubtypes(this.focusType);
-	for (int i = 0, length = types.length; i < length; i++) {
-		if (types[i].getElementName().equals(simpleName)) {
+	for (IType type : types) {
+		if (type.getElementName().equals(simpleName)) {
 			return true;
 		}
 	}
@@ -802,8 +789,8 @@ private boolean hasSubtypeNamed(String name) {
  */
 private boolean hasTypeNamed(String simpleName) {
 	IType[] types = getAllTypes();
-	for (int i = 0, length = types.length; i < length; i++) {
-		if (types[i].getElementName().equals(simpleName)) {
+	for (IType type : types) {
+		if (type.getElementName().equals(simpleName)) {
 			return true;
 		}
 	}
@@ -830,8 +817,7 @@ boolean includesTypeOrSupertype(IType type) {
 		// check superinterfaces
 		String[] superinterfaceNames = type.getSuperInterfaceNames();
 		if (superinterfaceNames != null) {
-			for (int i = 0, length = superinterfaceNames.length; i < length; i++) {
-				String superinterfaceName = superinterfaceNames[i];
+			for (String superinterfaceName : superinterfaceNames) {
 				int lastSeparator = superinterfaceName.lastIndexOf('.');
 				String simpleName = superinterfaceName.substring(lastSeparator+1);
 				if (hasTypeNamed(simpleName)) return true;
@@ -892,8 +878,8 @@ public synchronized boolean isAffected(IJavaElementDelta delta, int eventType) {
 private boolean isAffectedByChildren(IJavaElementDelta delta, int eventType) {
 	if ((delta.getFlags() & IJavaElementDelta.F_CHILDREN) > 0) {
 		IJavaElementDelta[] children= delta.getAffectedChildren();
-		for (int i= 0; i < children.length; i++) {
-			if (isAffected(children[i], eventType)) {
+		for (IJavaElementDelta child : children) {
+			if (isAffected(child, eventType)) {
 				return true;
 			}
 		}
@@ -932,9 +918,9 @@ private boolean isAffectedByJavaProject(IJavaElementDelta delta, IJavaElement el
 			try {
 				// if the added project is on the classpath, then the hierarchy has changed
 				IClasspathEntry[] classpath = ((JavaProject)javaProject()).getExpandedClasspath();
-				for (int i = 0; i < classpath.length; i++) {
-					if (classpath[i].getEntryKind() == IClasspathEntry.CPE_PROJECT
-							&& classpath[i].getPath().equals(element.getPath())) {
+				for (IClasspathEntry element2 : classpath) {
+					if (element2.getEntryKind() == IClasspathEntry.CPE_PROJECT
+							&& element2.getPath().equals(element.getPath())) {
 						return true;
 					}
 				}
@@ -942,9 +928,9 @@ private boolean isAffectedByJavaProject(IJavaElementDelta delta, IJavaElement el
 					// if the hierarchy's project is on the added project classpath, then the hierarchy has changed
 					classpath = ((JavaProject)element).getExpandedClasspath();
 					IPath hierarchyProject = javaProject().getPath();
-					for (int i = 0; i < classpath.length; i++) {
-						if (classpath[i].getEntryKind() == IClasspathEntry.CPE_PROJECT
-								&& classpath[i].getPath().equals(hierarchyProject)) {
+					for (IClasspathEntry element2 : classpath) {
+						if (element2.getEntryKind() == IClasspathEntry.CPE_PROJECT
+								&& element2.getPath().equals(hierarchyProject)) {
 							return true;
 						}
 					}
@@ -957,8 +943,8 @@ private boolean isAffectedByJavaProject(IJavaElementDelta delta, IJavaElement el
 			// removed project - if it contains packages we are interested in
 			// then the type hierarchy has changed
 			IJavaElement[] pkgs = this.packageRegion.getElements();
-			for (int i = 0; i < pkgs.length; i++) {
-				IJavaProject javaProject = pkgs[i].getJavaProject();
+			for (IJavaElement pkg : pkgs) {
+				IJavaProject javaProject = pkg.getJavaProject();
 				if (javaProject != null && javaProject.equals(element)) {
 					return true;
 				}
@@ -1005,8 +991,8 @@ private boolean isAffectedByPackageFragmentRoot(IJavaElementDelta delta, IJavaEl
 					IPackageFragmentRoot root = (IPackageFragmentRoot)element;
 					IPath rootPath = root.getPath();
 					IJavaElement[] elements = this.projectRegion.getElements();
-					for (int i = 0; i < elements.length; i++) {
-						JavaProject javaProject = (JavaProject)elements[i];
+					for (IJavaElement element2 : elements) {
+						JavaProject javaProject = (JavaProject)element2;
 						try {
 							IClasspathEntry entry = javaProject.getClasspathEntryFor(rootPath);
 							if (entry != null) {
@@ -1024,8 +1010,8 @@ private boolean isAffectedByPackageFragmentRoot(IJavaElementDelta delta, IJavaEl
 				// 2. content of a jar changed - if it contains packages we are interested in
 				// then the type hierarchy has changed
 				IJavaElement[] pkgs = this.packageRegion.getElements();
-				for (int i = 0; i < pkgs.length; i++) {
-					if (pkgs[i].getParent().equals(element)) {
+				for (IJavaElement pkg : pkgs) {
+					if (pkg.getParent().equals(element)) {
 						return true;
 					}
 				}
@@ -1085,8 +1071,7 @@ protected boolean isAffectedByOpenable(IJavaElementDelta delta, IJavaElement ele
 				break;
 			case IJavaElementDelta.CHANGED:
 				IJavaElementDelta[] children = delta.getAffectedChildren();
-				for (int i = 0, length = children.length; i < length; i++) {
-					IJavaElementDelta child = children[i];
+				for (IJavaElementDelta child : children) {
 					IJavaElement childElement = child.getElement();
 					if (childElement instanceof IType) {
 						type = (IType)childElement;
@@ -1284,8 +1269,8 @@ public static ITypeHierarchy load(IType type, InputStream input, WorkingCopyOwne
  */
 protected boolean packageRegionContainsSamePackageFragment(PackageFragment element) {
 	IJavaElement[] pkgs = this.packageRegion.getElements();
-	for (int i = 0; i < pkgs.length; i++) {
-		PackageFragment pkg = (PackageFragment) pkgs[i];
+	for (IJavaElement pkg2 : pkgs) {
+		PackageFragment pkg = (PackageFragment) pkg2;
 		if (Util.equalArraysOrNull(pkg.names, element.names))
 			return true;
 	}
@@ -1377,8 +1362,8 @@ public void store(OutputStream output, IProgressMonitor monitor) throws JavaMode
 			hashtable2.put(index, this.focusType);
 		}
 		Object[] types = this.classToSuperclass.entrySet().toArray();
-		for (int i = 0; i < types.length; i++) {
-			Map.Entry<IType, IType> entry = (Map.Entry<IType, IType>) types[i];
+		for (Object type : types) {
+			Map.Entry<IType, IType> entry = (Map.Entry<IType, IType>) type;
 			IType t = entry.getKey();
 			if(hashtable.get(t) == null) {
 				Integer index = Integer.valueOf(count++);
@@ -1393,8 +1378,8 @@ public void store(OutputStream output, IProgressMonitor monitor) throws JavaMode
 			}
 		}
 		Object[] intfs = this.typeToSuperInterfaces.entrySet().toArray();
-		for (int i = 0; i < intfs.length; i++) {
-			Map.Entry<IType, IType[]> entry = (Map.Entry<IType, IType[]>) intfs[i];
+		for (Object intf : intfs) {
+			Map.Entry<IType, IType[]> entry = (Map.Entry<IType, IType[]>) intf;
 			IType t = entry.getKey();
 			if(hashtable.get(t) == null) {
 				Integer index = Integer.valueOf(count++);
@@ -1403,9 +1388,8 @@ public void store(OutputStream output, IProgressMonitor monitor) throws JavaMode
 			}
 			IType[] sp = entry.getValue();
 			if(sp != null) {
-				for (int j = 0; j < sp.length; j++) {
-					IType superInterface = sp[j];
-					if(sp[j] != null && hashtable.get(superInterface) == null) {
+				for (IType superInterface : sp) {
+					if(superInterface != null && hashtable.get(superInterface) == null) {
 						Integer index = Integer.valueOf(count++);
 						hashtable.put(superInterface, index);
 						hashtable2.put(index, superInterface);
@@ -1464,8 +1448,8 @@ public void store(OutputStream output, IProgressMonitor monitor) throws JavaMode
 
 		// save superclasses
 		types = this.classToSuperclass.entrySet().toArray();
-		for (int i = 0; i < types.length; i++) {
-			Map.Entry<IType, IType> entry = (Map.Entry<IType, IType>) types[i];
+		for (Object type : types) {
+			Map.Entry<IType, IType> entry = (Map.Entry<IType, IType>) type;
 			IJavaElement key = entry.getKey();
 			IJavaElement value = entry.getValue();
 
@@ -1478,8 +1462,8 @@ public void store(OutputStream output, IProgressMonitor monitor) throws JavaMode
 
 		// save superinterfaces
 		intfs = this.typeToSuperInterfaces.entrySet().toArray();
-		for (int i = 0; i < intfs.length; i++) {
-			Map.Entry<IType, IType[]> entry = (Map.Entry<IType, IType[]>) intfs[i];
+		for (Object intf : intfs) {
+			Map.Entry<IType, IType[]> entry = (Map.Entry<IType, IType[]>) intf;
 			IJavaElement key = entry.getKey();
 			IJavaElement[] values = entry.getValue();
 
@@ -1532,8 +1516,7 @@ boolean subtypesIncludeSupertypeOf(IType type) {
 		}
 		return false;
 	}
-	for (int i = 0, length = interfaceNames.length; i < length; i++) {
-		String interfaceName = interfaceNames[i];
+	for (String interfaceName : interfaceNames) {
 		if (hasSubtypeNamed(interfaceName)) {
 			return true;
 		}
@@ -1593,9 +1576,9 @@ public String toString() {
 private void toString(StringBuilder buffer, IJavaElement type, int indent, boolean ascendant) {
 	IType[] types= ascendant ? getSupertypes((IType) type) : getSubtypes((IType) type);
 	IJavaElement[] sortedTypes = Util.sortCopy(types);
-	for (int i= 0; i < sortedTypes.length; i++) {
-		toString(buffer, sortedTypes[i], indent + 1);
-		toString(buffer, sortedTypes[i], indent + 1, ascendant);
+	for (IJavaElement sortedType : sortedTypes) {
+		toString(buffer, sortedType, indent + 1);
+		toString(buffer, sortedType, indent + 1, ascendant);
 	}
 }
 private void toString(StringBuilder buffer, IJavaElement type, int indent) {
@@ -1610,8 +1593,7 @@ private void toString(StringBuilder buffer, IJavaElement type, int indent) {
  * name is the given simple name.
  */
 boolean hasSupertype(String simpleName) {
-	for(Iterator<IType> iter = this.classToSuperclass.values().iterator(); iter.hasNext();){
-		IType superType = iter.next();
+	for (IType superType : this.classToSuperclass.values()) {
 		if (superType.getElementName().equals(simpleName)) {
 			return true;
 		}

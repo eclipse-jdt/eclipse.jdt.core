@@ -188,8 +188,8 @@ protected void addAffectedChild(JavaElementDelta child) {
 						return;
 					case CHANGED: // child was changed then changed -> it is changed
 						IJavaElementDelta[] children = child.getAffectedChildren();
-						for (int i = 0; i < children.length; i++) {
-							JavaElementDelta childsChild = (JavaElementDelta) children[i];
+						for (IJavaElementDelta child2 : children) {
+							JavaElementDelta childsChild = (JavaElementDelta) child2;
 							existingChild.addAffectedChild(childsChild);
 						}
 
@@ -331,8 +331,8 @@ protected JavaElementDelta createDeltaTree(IJavaElement element, JavaElementDelt
 			this.movedFromHandle = delta.movedFromHandle;
 		}
 	} else {
-		for (int i = 0, size = ancestors.size(); i < size; i++) {
-			IJavaElement ancestor = (IJavaElement) ancestors.get(i);
+		for (Object ancestor2 : ancestors) {
+			IJavaElement ancestor = (IJavaElement) ancestor2;
 			JavaElementDelta ancestorDelta = new JavaElementDelta(ancestor);
 			ancestorDelta.addAffectedChild(childDelta);
 			childDelta = ancestorDelta;
@@ -671,9 +671,9 @@ public String toDebugString(int depth) {
 	toDebugString(buffer);
 	IJavaElementDelta[] children = getAffectedChildren();
 	if (children != null) {
-		for (int i = 0; i < children.length; ++i) {
+		for (IJavaElementDelta child : children) {
 			buffer.append("\n"); //$NON-NLS-1$
-			buffer.append(((JavaElementDelta) children[i]).toDebugString(depth + 1));
+			buffer.append(((JavaElementDelta) child).toDebugString(depth + 1));
 		}
 	}
 	for (int i = 0; i < this.resourceDeltasCounter; i++) {
@@ -702,9 +702,9 @@ public String toDebugString(int depth) {
 	}
 	IJavaElementDelta[] annotations = getAnnotationDeltas();
 	if (annotations != null) {
-		for (int i = 0; i < annotations.length; ++i) {
+		for (IJavaElementDelta annotation : annotations) {
 			buffer.append("\n"); //$NON-NLS-1$
-			buffer.append(((JavaElementDelta) annotations[i]).toDebugString(depth + 1));
+			buffer.append(((JavaElementDelta) annotation).toDebugString(depth + 1));
 		}
 	}
 	IClasspathAttributeDelta[] attributes = getClasspathAttributeDeltas();

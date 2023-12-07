@@ -733,8 +733,8 @@ public class ParameterizedGenericMethodBinding extends ParameterizedMethodBindin
 					if (inferenceContext.status == InferenceContext.FAILED) return null; // impossible substitution
 				}
 			}
-			for (int j = 0, max = originalVariable.superInterfaces.length; j < max; j++) {
-				TypeBinding substitutedBound = Scope.substitute(this, originalVariable.superInterfaces[j]);
+			for (ReferenceBinding element : originalVariable.superInterfaces) {
+				TypeBinding substitutedBound = Scope.substitute(this, element);
 				argument.collectSubstitutes(scope, substitutedBound, inferenceContext, TypeConstants.CONSTRAINT_SUPER);
 				if (inferenceContext.status == InferenceContext.FAILED) return null; // impossible substitution
 				// JLS 15.12.2.8 claims reverse inference shouldn't occur, however it improves inference

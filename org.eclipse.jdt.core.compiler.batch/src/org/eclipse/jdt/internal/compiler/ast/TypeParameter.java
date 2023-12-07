@@ -58,8 +58,8 @@ public class TypeParameter extends AbstractVariableDeclaration {
 			this.type.checkBounds(scope);
 		}
 		if (this.bounds != null) {
-			for (int i = 0, length = this.bounds.length; i < length; i++) {
-				this.bounds[i].checkBounds(scope);
+			for (TypeReference bound : this.bounds) {
+				bound.checkBounds(scope);
 			}
 		}
 	}
@@ -191,9 +191,9 @@ public class TypeParameter extends AbstractVariableDeclaration {
 			this.type.print(0, output);
 		}
 		if (this.bounds != null){
-			for (int i = 0; i < this.bounds.length; i++) {
+			for (TypeReference bound : this.bounds) {
 				output.append(" & "); //$NON-NLS-1$
-				this.bounds[i].print(0, output);
+				bound.print(0, output);
 			}
 		}
 		return output;
@@ -252,8 +252,8 @@ public class TypeParameter extends AbstractVariableDeclaration {
 			this.type.updateWithAnnotations(scope, Binding.DefaultLocationTypeBound);
 		}
 		if (this.bounds != null) {
-			for (int i = 0; i < this.bounds.length; i++) {
-				this.bounds[i].updateWithAnnotations(scope, Binding.DefaultLocationTypeBound);
+			for (TypeReference bound : this.bounds) {
+				bound.updateWithAnnotations(scope, Binding.DefaultLocationTypeBound);
 			}
 		}
 		// TODO: do we need to update anything else for null-annotated types?

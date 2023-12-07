@@ -127,9 +127,9 @@ public class Javadoc extends ASTNode {
 					// if binding is valid then look at arguments
 					if (allocationExpr.binding != null && allocationExpr.binding.isValidBinding()) {
 						if (allocationExpr.arguments != null) {
-							for (int j=0, l=allocationExpr.arguments.length; j<l; j++) {
-								if (allocationExpr.arguments[j].sourceStart == start) {
-									return allocationExpr.arguments[j];
+							for (Expression argument : allocationExpr.arguments) {
+								if (argument.sourceStart == start) {
+									return argument;
 								}
 							}
 						}
@@ -139,9 +139,9 @@ public class Javadoc extends ASTNode {
 					// if binding is valid then look at arguments
 					if (messageSend.binding != null && messageSend.binding.isValidBinding()) {
 						if (messageSend.arguments != null) {
-							for (int j=0, l=messageSend.arguments.length; j<l; j++) {
-								if (messageSend.arguments[j].sourceStart == start) {
-									return messageSend.arguments[j];
+							for (Expression argument : messageSend.arguments) {
+								if (argument.sourceStart == start) {
+									return argument;
 								}
 							}
 						}
@@ -180,15 +180,15 @@ public class Javadoc extends ASTNode {
 	public StringBuilder print(int indent, StringBuilder output) {
 		printIndent(indent, output).append("/**\n"); //$NON-NLS-1$
 		if (this.paramReferences != null) {
-			for (int i = 0, length = this.paramReferences.length; i < length; i++) {
+			for (JavadocSingleNameReference element : this.paramReferences) {
 				printIndent(indent + 1, output).append(" * @param "); //$NON-NLS-1$
-				this.paramReferences[i].print(indent, output).append('\n');
+				element.print(indent, output).append('\n');
 			}
 		}
 		if (this.paramTypeParameters != null) {
-			for (int i = 0, length = this.paramTypeParameters.length; i < length; i++) {
+			for (JavadocSingleTypeReference paramTypeParameter : this.paramTypeParameters) {
 				printIndent(indent + 1, output).append(" * @param <"); //$NON-NLS-1$
-				this.paramTypeParameters[i].print(indent, output).append(">\n"); //$NON-NLS-1$
+				paramTypeParameter.print(indent, output).append(">\n"); //$NON-NLS-1$
 			}
 		}
 		if (this.returnStatement != null) {
@@ -196,15 +196,15 @@ public class Javadoc extends ASTNode {
 			this.returnStatement.print(indent, output).append('\n');
 		}
 		if (this.exceptionReferences != null) {
-			for (int i = 0, length = this.exceptionReferences.length; i < length; i++) {
+			for (TypeReference element : this.exceptionReferences) {
 				printIndent(indent + 1, output).append(" * @throws "); //$NON-NLS-1$
-				this.exceptionReferences[i].print(indent, output).append('\n');
+				element.print(indent, output).append('\n');
 			}
 		}
 		if (this.seeReferences != null) {
-			for (int i = 0, length = this.seeReferences.length; i < length; i++) {
+			for (Expression element : this.seeReferences) {
 				printIndent(indent + 1, output).append(" * @see "); //$NON-NLS-1$
-				this.seeReferences[i].print(indent, output).append('\n');
+				element.print(indent, output).append('\n');
 			}
 		}
 		printIndent(indent, output).append(" */\n"); //$NON-NLS-1$
@@ -843,8 +843,7 @@ public class Javadoc extends ASTNode {
 				}
 				// Look for undocumented arguments
 				if (reportMissing) {
-					for (int i = 0; i < recordParameters.length; i++) {
-						RecordComponent component = recordParameters[i];
+					for (RecordComponent component : recordParameters) {
 						boolean found = false;
 						for (int j = 0; j < paramReferencesLength && !found; j++) {
 							JavadocSingleNameReference param = this.paramReferences[j];
@@ -863,8 +862,7 @@ public class Javadoc extends ASTNode {
 					JavadocSingleNameReference param = this.paramReferences[i];
 					String paramName = new String(param.getName()[0]);
 					boolean found = false;
-					for (int j = 0; j < recordParameters.length; j++) {
-						RecordComponent component = recordParameters[j];
+					for (RecordComponent component : recordParameters) {
 						if (paramName.equals(new String(component.name))) {
 							found = true;
 						}
@@ -1219,26 +1217,26 @@ public class Javadoc extends ASTNode {
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		if (visitor.visit(this, scope)) {
 			if (this.paramReferences != null) {
-				for (int i = 0, length = this.paramReferences.length; i < length; i++) {
-					this.paramReferences[i].traverse(visitor, scope);
+				for (JavadocSingleNameReference element : this.paramReferences) {
+					element.traverse(visitor, scope);
 				}
 			}
 			if (this.paramTypeParameters != null) {
-				for (int i = 0, length = this.paramTypeParameters.length; i < length; i++) {
-					this.paramTypeParameters[i].traverse(visitor, scope);
+				for (JavadocSingleTypeReference paramTypeParameter : this.paramTypeParameters) {
+					paramTypeParameter.traverse(visitor, scope);
 				}
 			}
 			if (this.returnStatement != null) {
 				this.returnStatement.traverse(visitor, scope);
 			}
 			if (this.exceptionReferences != null) {
-				for (int i = 0, length = this.exceptionReferences.length; i < length; i++) {
-					this.exceptionReferences[i].traverse(visitor, scope);
+				for (TypeReference element : this.exceptionReferences) {
+					element.traverse(visitor, scope);
 				}
 			}
 			if (this.seeReferences != null) {
-				for (int i = 0, length = this.seeReferences.length; i < length; i++) {
-					this.seeReferences[i].traverse(visitor, scope);
+				for (Expression element : this.seeReferences) {
+					element.traverse(visitor, scope);
 				}
 			}
 		}
@@ -1247,26 +1245,26 @@ public class Javadoc extends ASTNode {
 	public void traverse(ASTVisitor visitor, ClassScope scope) {
 		if (visitor.visit(this, scope)) {
 			if (this.paramReferences != null) {
-				for (int i = 0, length = this.paramReferences.length; i < length; i++) {
-					this.paramReferences[i].traverse(visitor, scope);
+				for (JavadocSingleNameReference element : this.paramReferences) {
+					element.traverse(visitor, scope);
 				}
 			}
 			if (this.paramTypeParameters != null) {
-				for (int i = 0, length = this.paramTypeParameters.length; i < length; i++) {
-					this.paramTypeParameters[i].traverse(visitor, scope);
+				for (JavadocSingleTypeReference paramTypeParameter : this.paramTypeParameters) {
+					paramTypeParameter.traverse(visitor, scope);
 				}
 			}
 			if (this.returnStatement != null) {
 				this.returnStatement.traverse(visitor, scope);
 			}
 			if (this.exceptionReferences != null) {
-				for (int i = 0, length = this.exceptionReferences.length; i < length; i++) {
-					this.exceptionReferences[i].traverse(visitor, scope);
+				for (TypeReference element : this.exceptionReferences) {
+					element.traverse(visitor, scope);
 				}
 			}
 			if (this.seeReferences != null) {
-				for (int i = 0, length = this.seeReferences.length; i < length; i++) {
-					this.seeReferences[i].traverse(visitor, scope);
+				for (Expression element : this.seeReferences) {
+					element.traverse(visitor, scope);
 				}
 			}
 		}

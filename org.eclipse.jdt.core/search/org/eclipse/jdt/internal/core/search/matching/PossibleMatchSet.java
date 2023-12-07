@@ -51,8 +51,8 @@ public PossibleMatch[] getPossibleMatches(IPackageFragmentRoot[] roots) {
 	PossibleMatch[] result = new PossibleMatch[this.elementCount];
 	int index = 0;
 	HashSet<IPath> processedHash = new HashSet<>();
-	for (int i = 0, length = roots.length; i < length; i++) {
-		IPath path = roots[i].getPath();
+	for (IPackageFragmentRoot root : roots) {
+		IPath path = root.getPath();
 		ObjectVector possibleMatches = (ObjectVector) this.rootsToPossibleMatches.get(path);
 		if (possibleMatches != null && !processedHash.contains(path)) {
 			possibleMatches.copyInto(result, index);

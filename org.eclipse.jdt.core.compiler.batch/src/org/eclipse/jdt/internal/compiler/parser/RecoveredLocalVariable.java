@@ -65,8 +65,8 @@ public void attach(RecoveredAnnotation[] annots, int annotCount, int mods, int m
 			this.annotations = new RecoveredAnnotation[annotCount];
 			this.annotationCount = 0;
 			next : for (int i = 0; i < annotCount; i++) {
-				for (int j = 0; j < existingAnnotations.length; j++) {
-					if (annots[i].annotation == existingAnnotations[j]) continue next;
+				for (Annotation existingAnnotation : existingAnnotations) {
+					if (annots[i].annotation == existingAnnotation) continue next;
 				}
 				this.annotations[this.annotationCount++] = annots[i];
 			}

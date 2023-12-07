@@ -77,8 +77,8 @@ private void rehash() {
 public String toString() {
 	String s = ""; //$NON-NLS-1$
 	String value;
-	for (int i = 0, l = this.values.length; i < l; i++)
-		if ((value = this.values[i]) != null)
+	for (String value2 : this.values)
+		if ((value = value2) != null)
 			s += value + "\n"; //$NON-NLS-1$
 	return s;
 }

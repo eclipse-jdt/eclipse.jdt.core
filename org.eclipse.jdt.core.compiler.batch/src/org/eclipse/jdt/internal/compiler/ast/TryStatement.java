@@ -179,8 +179,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			MethodBinding closeMethod = findCloseMethod(resource, resolvedType);
 			if (closeMethod != null && closeMethod.isValidBinding() && closeMethod.returnType.id == TypeIds.T_void) {
 				ReferenceBinding[] thrownExceptions = closeMethod.thrownExceptions;
-				for (int j = 0, length = thrownExceptions.length; j < length; j++) {
-					handlingContext.checkExceptionHandlers(thrownExceptions[j], this.resources[i], tryInfo, currentScope, true);
+				for (ReferenceBinding thrownException : thrownExceptions) {
+					handlingContext.checkExceptionHandlers(thrownException, this.resources[i], tryInfo, currentScope, true);
 				}
 			}
 		}
@@ -307,8 +307,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			MethodBinding closeMethod = findCloseMethod(resource, resolvedType);
 			if (closeMethod != null && closeMethod.isValidBinding() && closeMethod.returnType.id == TypeIds.T_void) {
 				ReferenceBinding[] thrownExceptions = closeMethod.thrownExceptions;
-				for (int j = 0, length = thrownExceptions.length; j < length; j++) {
-					handlingContext.checkExceptionHandlers(thrownExceptions[j], this.resources[i], tryInfo, currentScope, true);
+				for (ReferenceBinding thrownException : thrownExceptions) {
+					handlingContext.checkExceptionHandlers(thrownException, this.resources[i], tryInfo, currentScope, true);
 				}
 			}
 		}
@@ -1262,8 +1262,8 @@ public void resolve(BlockScope upperScope) {
 public void traverse(ASTVisitor visitor, BlockScope blockScope) {
 	if (visitor.visit(this, blockScope)) {
 		Statement[] statements = this.resources;
-		for (int i = 0, max = statements.length; i < max; i++) {
-			statements[i].traverse(visitor, this.scope);
+		for (Statement statement : statements) {
+			statement.traverse(visitor, this.scope);
 		}
 		this.tryBlock.traverse(visitor, this.scope);
 		if (this.catchArguments != null) {
@@ -1355,8 +1355,8 @@ public boolean doesNotCompleteNormally() {
 		return (this.finallyBlock != null) ? this.finallyBlock.doesNotCompleteNormally() : false;
 	}
 	if (this.catchBlocks != null) {
-		for (int i = 0; i < this.catchBlocks.length; i++) {
-			if (!this.catchBlocks[i].doesNotCompleteNormally()) {
+		for (Block catchBlock : this.catchBlocks) {
+			if (!catchBlock.doesNotCompleteNormally()) {
 				return (this.finallyBlock != null) ? this.finallyBlock.doesNotCompleteNormally() : false;
 			}
 		}
@@ -1370,8 +1370,8 @@ public boolean completesByContinue() {
 			!this.finallyBlock.doesNotCompleteNormally() || this.finallyBlock.completesByContinue();
 	}
 	if (this.catchBlocks != null) {
-		for (int i = 0; i < this.catchBlocks.length; i++) {
-			if (this.catchBlocks[i].completesByContinue()) {
+		for (Block catchBlock : this.catchBlocks) {
+			if (catchBlock.completesByContinue()) {
 				return (this.finallyBlock == null) ? true :
 					!this.finallyBlock.doesNotCompleteNormally() || this.finallyBlock.completesByContinue();
 			}
@@ -1385,8 +1385,8 @@ public boolean canCompleteNormally() {
 		return (this.finallyBlock != null) ? this.finallyBlock.canCompleteNormally() : true;
 	}
 	if (this.catchBlocks != null) {
-		for (int i = 0; i < this.catchBlocks.length; i++) {
-			if (this.catchBlocks[i].canCompleteNormally()) {
+		for (Block catchBlock : this.catchBlocks) {
+			if (catchBlock.canCompleteNormally()) {
 				return (this.finallyBlock != null) ? this.finallyBlock.canCompleteNormally() : true;
 			}
 		}
@@ -1400,8 +1400,8 @@ public boolean continueCompletes() {
 			this.finallyBlock.canCompleteNormally() || this.finallyBlock.continueCompletes();
 	}
 	if (this.catchBlocks != null) {
-		for (int i = 0; i < this.catchBlocks.length; i++) {
-			if (this.catchBlocks[i].continueCompletes()) {
+		for (Block catchBlock : this.catchBlocks) {
+			if (catchBlock.continueCompletes()) {
 				return (this.finallyBlock == null) ? true :
 					this.finallyBlock.canCompleteNormally() || this.finallyBlock.continueCompletes();
 			}

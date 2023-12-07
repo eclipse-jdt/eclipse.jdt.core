@@ -279,8 +279,8 @@ public synchronized void cleanUpIndexes() {
 	IJavaSearchScope scope = BasicSearchEngine.createWorkspaceScope();
 	PatternSearchJob job = new PatternSearchJob(null, SearchEngine.getDefaultSearchParticipant(), scope, null);
 	Index[] selectedIndexes = job.getIndexes(null);
-	for (int i = 0, l = selectedIndexes.length; i < l; i++) {
-		IndexLocation IndexLocation = selectedIndexes[i].getIndexLocation();
+	for (Index element : selectedIndexes) {
+		IndexLocation IndexLocation = element.getIndexLocation();
 		knownPaths.add(IndexLocation);
 	}
 
@@ -288,8 +288,8 @@ public synchronized void cleanUpIndexes() {
 		Object[] keys = this.indexStates.keyTable;
 		IndexLocation[] locations = new IndexLocation[this.indexStates.elementSize];
 		int count = 0;
-		for (int i = 0, l = keys.length; i < l; i++) {
-			IndexLocation key = (IndexLocation) keys[i];
+		for (Object key2 : keys) {
+			IndexLocation key = (IndexLocation) key2;
 			if (key != null && !knownPaths.includes(key))
 				locations[count++] = key;
 		}
@@ -367,15 +367,15 @@ private void deleteIndexFiles(SimpleSet pathsToKeep, IProgressMonitor monitor) {
 	if (indexesFiles == null) return;
 
 	SubMonitor subMonitor = SubMonitor.convert(monitor, indexesFiles.length);
-	for (int i = 0, l = indexesFiles.length; i < l; i++) {
+	for (File indexesFile : indexesFiles) {
 		subMonitor.split(1);
-		String fileName = indexesFiles[i].getAbsolutePath();
-		if (pathsToKeep != null && pathsToKeep.includes(new FileIndexLocation(indexesFiles[i]))) continue;
+		String fileName = indexesFile.getAbsolutePath();
+		if (pathsToKeep != null && pathsToKeep.includes(new FileIndexLocation(indexesFile))) continue;
 		String suffix = ".index"; //$NON-NLS-1$
 		if (fileName.regionMatches(true, fileName.length() - suffix.length(), suffix, 0, suffix.length())) {
 			if (VERBOSE || DEBUG)
-				trace("Deleting index file " + indexesFiles[i]); //$NON-NLS-1$
-			indexesFiles[i].delete();
+				trace("Deleting index file " + indexesFile); //$NON-NLS-1$
+			indexesFile.delete();
 		}
 	}
 }
@@ -713,8 +713,7 @@ public void indexAll(IProject project) {
 			// NOTE: force to resolve CP variables before calling indexer - 19303, so that initializers
 			// will be run in the current thread.
 			IClasspathEntry[] entries = javaProject.getResolvedClasspath();
-			for (int i = 0; i < entries.length; i++) {
-				IClasspathEntry entry= entries[i];
+			for (IClasspathEntry entry : entries) {
 				if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY)
 					indexLibrary(entry.getPath(), project, ((ClasspathEntry)entry).getLibraryIndexLocation());
 			}
@@ -1051,8 +1050,8 @@ public void removeIndexFamily(IPath path) {
 	ArrayList toRemove = null;
 	synchronized (this) {
 		Object[] containerPaths = this.indexLocations.keyTable;
-		for (int i = 0, length = containerPaths.length; i < length; i++) {
-			IPath containerPath = (IPath) containerPaths[i];
+		for (Object containerPath2 : containerPaths) {
+			IPath containerPath = (IPath) containerPath2;
 			if (containerPath == null)
 				continue;
 			if (path.isPrefixOf(containerPath)) {
@@ -1063,8 +1062,8 @@ public void removeIndexFamily(IPath path) {
 		}
 	}
 	if (toRemove != null)
-		for (int i = 0, length = toRemove.size(); i < length; i++)
-			removeIndex((IPath) toRemove.get(i));
+		for (Object element : toRemove)
+			removeIndex((IPath) element);
 }
 /**
  * Remove the content of the given source folder from the index.
@@ -1174,16 +1173,16 @@ public void saveIndexes() {
 	ArrayList toSave = new ArrayList();
 	synchronized(this) {
 		Object[] valueTable = this.indexes.valueTable;
-		for (int i = 0, l = valueTable.length; i < l; i++) {
-			Index index = (Index) valueTable[i];
+		for (Object element : valueTable) {
+			Index index = (Index) element;
 			if (index != null)
 				toSave.add(index);
 		}
 	}
 
 	boolean allSaved = true;
-	for (int i = 0, length = toSave.size(); i < length; i++) {
-		Index index = (Index) toSave.get(i);
+	for (Object element : toSave) {
+		Index index = (Index) element;
 		ReadWriteMonitor monitor = index.monitor;
 		if (monitor == null) continue; // index got deleted since acquired
 		try {
@@ -1312,8 +1311,8 @@ public synchronized String toString() {
 	buffer.append("In-memory indexes:\n"); //$NON-NLS-1$
 	int count = 0;
 	Object[] valueTable = this.indexes.valueTable;
-	for (int i = 0, l = valueTable.length; i < l; i++) {
-		Index index = (Index) valueTable[i];
+	for (Object element : valueTable) {
+		Index index = (Index) element;
 		if (index != null)
 			buffer.append(++count).append(" - ").append(index.toString()).append('\n'); //$NON-NLS-1$
 	}

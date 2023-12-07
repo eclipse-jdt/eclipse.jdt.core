@@ -306,8 +306,8 @@ void checkForRedundantSuperinterfaces(ReferenceBinding superclass, ReferenceBind
 				}
 				redundantInterfaces.add(implementedInterface);
 				TypeReference[] refs = this.type.scope.referenceContext.superInterfaces;
-				for (int r = 0, rl = refs.length; r < rl; r++) {
-					if (TypeBinding.equalsEquals(refs[r].resolvedType, toCheck)) {
+				for (TypeReference ref : refs) {
+					if (TypeBinding.equalsEquals(ref.resolvedType, toCheck)) {
 						problemReporter().redundantSuperInterface(this.type, refs[j], implementedInterface, toCheck);
 						break; // https://bugs.eclipse.org/bugs/show_bug.cgi?id=320911
 					}
@@ -322,8 +322,7 @@ void checkForRedundantSuperinterfaces(ReferenceBinding superclass, ReferenceBind
 	ReferenceBinding superType = superclass;
 	while (superType != null && superType.isValidBinding()) {
 		if ((itsInterfaces = superType.superInterfaces()) != Binding.NO_SUPERINTERFACES) {
-			for (int i = 0, l = itsInterfaces.length; i < l; i++) {
-				ReferenceBinding inheritedInterface = itsInterfaces[i];
+			for (ReferenceBinding inheritedInterface : itsInterfaces) {
 				if (!inheritedInterfaces.includes(inheritedInterface) && inheritedInterface.isValidBinding()) {
 					if (interfacesToCheck.includes(inheritedInterface)) {
 						if (redundantInterfaces == null) {
@@ -333,9 +332,9 @@ void checkForRedundantSuperinterfaces(ReferenceBinding superclass, ReferenceBind
 						}
 						redundantInterfaces.add(inheritedInterface);
 						TypeReference[] refs = this.type.scope.referenceContext.superInterfaces;
-						for (int r = 0, rl = refs.length; r < rl; r++) {
-							if (TypeBinding.equalsEquals(refs[r].resolvedType, inheritedInterface)) {
-								problemReporter().redundantSuperInterface(this.type, refs[r], inheritedInterface, superType);
+						for (TypeReference ref : refs) {
+							if (TypeBinding.equalsEquals(ref.resolvedType, inheritedInterface)) {
+								problemReporter().redundantSuperInterface(this.type, ref, inheritedInterface, superType);
 								break;
 							}
 						}
@@ -369,9 +368,9 @@ void checkForRedundantSuperinterfaces(ReferenceBinding superclass, ReferenceBind
 						}
 						redundantInterfaces.add(inheritedInterface);
 						TypeReference[] refs = this.type.scope.referenceContext.superInterfaces;
-						for (int r = 0, rl = refs.length; r < rl; r++) {
-							if (TypeBinding.equalsEquals(refs[r].resolvedType, inheritedInterface)) {
-								problemReporter().redundantSuperInterface(this.type, refs[r], inheritedInterface, superType);
+						for (TypeReference ref : refs) {
+							if (TypeBinding.equalsEquals(ref.resolvedType, inheritedInterface)) {
+								problemReporter().redundantSuperInterface(this.type, ref, inheritedInterface, superType);
 								break;
 							}
 						}
@@ -550,8 +549,7 @@ void computeInheritedMethods(ReferenceBinding superclass, ReferenceBinding[] sup
 				continue nextMethod;
 			MethodBinding[] existingMethods = (MethodBinding[]) this.inheritedMethods.get(inheritedMethod.selector);
 			if (existingMethods != null) {
-				existing : for (int i = 0, length = existingMethods.length; i < length; i++) {
-					MethodBinding existingMethod = existingMethods[i];
+				existing : for (MethodBinding existingMethod : existingMethods) {
 					// https://bugs.eclipse.org/bugs/show_bug.cgi?id=302358, skip inherited method only if any overriding version
 					// in a subclass is guaranteed to have the same erasure as an existing method.
 					if (TypeBinding.notEquals(existingMethod.declaringClass, inheritedMethod.declaringClass) && areMethodsCompatible(existingMethod, inheritedMethod) && !canOverridingMethodDifferInErasure(existingMethod, inheritedMethod)) {
@@ -584,8 +582,8 @@ void computeInheritedMethods(ReferenceBinding superclass, ReferenceBinding[] sup
 			} else {
 				MethodBinding[] nonVisible = (MethodBinding[]) nonVisibleDefaultMethods.get(inheritedMethod.selector);
 				if (nonVisible != null && inheritedMethod.isAbstract())
-					for (int i = 0, l = nonVisible.length; i < l; i++)
-						if (areMethodsCompatible(nonVisible[i], inheritedMethod))
+					for (MethodBinding element : nonVisible)
+						if (areMethodsCompatible(element, inheritedMethod))
 							continue nextMethod;
 				if (nonVisible == null) {
 					nonVisible = new MethodBinding[] {inheritedMethod};
@@ -932,8 +930,8 @@ static boolean hasGenericParameter(MethodBinding method) {
 
 	// may be only the return type that is generic, need to check parameters
 	TypeBinding[] params = method.parameters;
-	for (int i = 0, l = params.length; i < l; i++) {
-		TypeBinding param = params[i].leafComponentType();
+	for (TypeBinding param2 : params) {
+		TypeBinding param = param2.leafComponentType();
 		if (param instanceof ReferenceBinding) {
 			int modifiers = ((ReferenceBinding) param).modifiers;
 			if ((modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0)

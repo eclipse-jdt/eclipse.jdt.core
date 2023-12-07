@@ -309,9 +309,9 @@ public class ExecutableElementImpl extends ElementImpl implements
 		LookupEnvironment lookupEnvironment = this._env.getLookupEnvironment();
 		if (lookupEnvironment == null) return false;
 		MethodVerifier methodVerifier = lookupEnvironment.methodVerifier();
-		for (int i = 0, length = superMethods.length; i < length; i++) {
-			if (superMethods[i].original() == overriddenBinding) {
-				return methodVerifier.doesMethodOverride(overriderBinding, superMethods[i]);
+		for (MethodBinding superMethod : superMethods) {
+			if (superMethod.original() == overriddenBinding) {
+				return methodVerifier.doesMethodOverride(overriderBinding, superMethod);
 			}
 		}
 		return false;

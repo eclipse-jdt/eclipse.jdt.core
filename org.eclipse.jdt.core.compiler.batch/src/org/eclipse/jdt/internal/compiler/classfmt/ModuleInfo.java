@@ -261,8 +261,8 @@ public class ModuleInfo extends ClassFileStruct implements IBinaryModule {
 		this.annotations = annotationInfos;
 		this.tagBits = tagBits;
 		if (fullyInitialize) {
-			for (int i = 0, max = annotationInfos.length; i < max; i++) {
-				annotationInfos[i].initialize();
+			for (AnnotationInfo element : annotationInfos) {
+				element.initialize();
 			}
 		}
 	}

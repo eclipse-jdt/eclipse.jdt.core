@@ -16,7 +16,6 @@ package org.eclipse.jdt.internal.core;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.util.Iterator;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
@@ -273,9 +272,7 @@ protected void moveAndResizeGap(int position, int size) {
 protected void notifyChanged(final BufferChangedEvent event) {
 	ListenerList<IBufferChangedListener> listeners = this.changeListeners;
 	if (listeners != null) {
-		Iterator<IBufferChangedListener> iterator = listeners.iterator();
-		while (iterator.hasNext()) {
-			final IBufferChangedListener listener = iterator.next();
+		for (IBufferChangedListener listener : listeners) {
 			SafeRunner.run(new ISafeRunnable() {
 				@Override
 				public void handleException(Throwable exception) {

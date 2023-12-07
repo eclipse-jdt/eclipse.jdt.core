@@ -202,8 +202,8 @@ public class TypeVariableBinding extends ReferenceBinding {
 						}
 					}
 					boolean mustImplement = isArrayBound || ((ReferenceBinding)wildcardBound).isFinal();
-					for (int i = 0, length = this.superInterfaces.length; i < length; i++) {
-						TypeBinding substitutedSuperType = hasSubstitution ? Scope.substitute(substitution, this.superInterfaces[i]) : this.superInterfaces[i];
+					for (ReferenceBinding element : this.superInterfaces) {
+						TypeBinding substitutedSuperType = hasSubstitution ? Scope.substitute(substitution, element) : element;
 						if (!checkedAsOK) {
 							if (isArrayBound) {
 								if (!wildcardBound.isCompatibleWith(substitutedSuperType, scope))
@@ -277,8 +277,8 @@ public class TypeVariableBinding extends ReferenceBinding {
 				nullStatus = nullBoundCheck(scope, argumentType, substitutedSuperType, substitution, location, nullStatus);
 			}
 		}
-	    for (int i = 0, length = this.superInterfaces.length; i < length; i++) {
-			TypeBinding substitutedSuperType = hasSubstitution ? Scope.substitute(substitution, this.superInterfaces[i]) : this.superInterfaces[i];
+	    for (ReferenceBinding element : this.superInterfaces) {
+			TypeBinding substitutedSuperType = hasSubstitution ? Scope.substitute(substitution, element) : element;
 	    	if (TypeBinding.notEquals(substitutedSuperType, argumentType)) {
 				if (!argumentType.isCompatibleWith(substitutedSuperType, scope)) {
 				    return BoundCheckStatus.MISMATCH;
@@ -510,8 +510,8 @@ public class TypeVariableBinding extends ReferenceBinding {
         int idx = 0;
         if (!this.firstBound.isInterface())
         	bounds[idx++] = TypeBound.createBoundOrDependency(theta, this.firstBound, variable);
-        for (int i = 0; i < this.superInterfaces.length; i++)
-			bounds[idx++] = TypeBound.createBoundOrDependency(theta, this.superInterfaces[i], variable);
+        for (ReferenceBinding element : this.superInterfaces)
+			bounds[idx++] = TypeBound.createBoundOrDependency(theta, element, variable);
         return bounds;
 	}
 
@@ -521,8 +521,8 @@ public class TypeVariableBinding extends ReferenceBinding {
 				return false;
 
 		if (this.superInterfaces != null)
-			for (int i = 0, l = this.superInterfaces.length; i < l; i++)
-		   		if (!this.superInterfaces[i].isRawType())
+			for (ReferenceBinding element : this.superInterfaces)
+				if (!element.isRawType())
 		   			return false;
 
 		return true;
@@ -536,9 +536,9 @@ public class TypeVariableBinding extends ReferenceBinding {
 			if (this.superclass != null && this.superclass.hasTypeBit(~TypeIds.BitUninitialized))
 				this.typeBits |= (this.superclass.typeBits & TypeIds.InheritableBits);
 			if (this.superInterfaces != null)
-				for (int i = 0, l = this.superInterfaces.length; i < l; i++)
-					if (this.superInterfaces[i].hasTypeBit(~TypeIds.BitUninitialized))
-						this.typeBits |= (this.superInterfaces[i].typeBits & TypeIds.InheritableBits);
+				for (ReferenceBinding element : this.superInterfaces)
+					if (element.hasTypeBit(~TypeIds.BitUninitialized))
+						this.typeBits |= (element.typeBits & TypeIds.InheritableBits);
 		}
 		return (this.typeBits & bit) != 0;
 	}
@@ -549,8 +549,8 @@ public class TypeVariableBinding extends ReferenceBinding {
 	public boolean isErasureBoundTo(TypeBinding type) {
 		if (TypeBinding.equalsEquals(this.superclass.erasure(), type))
 			return true;
-		for (int i = 0, length = this.superInterfaces.length; i < length; i++) {
-			if (TypeBinding.equalsEquals(this.superInterfaces[i].erasure(), type))
+		for (ReferenceBinding element : this.superInterfaces) {
+			if (TypeBinding.equalsEquals(element.erasure(), type))
 				return true;
 		}
 		return false;
@@ -595,8 +595,8 @@ public class TypeVariableBinding extends ReferenceBinding {
 		if (this.superclass != null && this.superclass.isSubtypeOf(other, simulatingBugJDK8026527))
 			return true;
 		if (this.superInterfaces != null)
-			for (int i = 0, l = this.superInterfaces.length; i < l; i++)
-		   		if (this.superInterfaces[i].isSubtypeOf(other, false))
+			for (ReferenceBinding element : this.superInterfaces)
+				if (element.isSubtypeOf(other, false))
 					return true;
 		return other.id == TypeIds.T_JavaLangObject;
 	}
@@ -641,8 +641,8 @@ public class TypeVariableBinding extends ReferenceBinding {
 				return false;
 			}
 			if (this.superInterfaces != null)
-				for (int i = 0, l = this.superInterfaces.length; i < l; i++)
-			   		if (!this.superInterfaces[i].isProperType(admitCapture18)) {
+				for (ReferenceBinding element : this.superInterfaces)
+					if (!element.isProperType(admitCapture18)) {
 						return false;
 					}
 			return true;
@@ -738,8 +738,8 @@ public class TypeVariableBinding extends ReferenceBinding {
 			if (this.superclass != null && this.superclass.mentionsAny(parameters, idx))
 				return true;
 			if (this.superInterfaces != null)
-				for (int j = 0; j < this.superInterfaces.length; j++) {
-					if (this.superInterfaces[j].mentionsAny(parameters, idx))
+				for (ReferenceBinding element : this.superInterfaces) {
+					if (element.mentionsAny(parameters, idx))
 						return true;
 			}
 			return false;
@@ -757,8 +757,8 @@ public class TypeVariableBinding extends ReferenceBinding {
 			if (this.superclass != null)
 				this.superclass.collectInferenceVariables(variables);
 			if (this.superInterfaces != null)
-				for (int j = 0; j < this.superInterfaces.length; j++) {
-					this.superInterfaces[j].collectInferenceVariables(variables);
+				for (ReferenceBinding element : this.superInterfaces) {
+					element.collectInferenceVariables(variables);
 			}
 		} finally {
 			this.inRecursiveFunction = false;
@@ -1044,9 +1044,9 @@ public class TypeVariableBinding extends ReferenceBinding {
 			return parameter.type;
 		TypeReference[] bounds = parameter.bounds;
 		if (bounds != null) {
-			for (int i = 0; i < bounds.length; i++) {
-				if (TypeBinding.equalsEquals(bounds[i].resolvedType, bound))
-					return bounds[i];
+			for (TypeReference bound2 : bounds) {
+				if (TypeBinding.equalsEquals(bound2.resolvedType, bound))
+					return bound2;
 			}
 		}
 		return null;

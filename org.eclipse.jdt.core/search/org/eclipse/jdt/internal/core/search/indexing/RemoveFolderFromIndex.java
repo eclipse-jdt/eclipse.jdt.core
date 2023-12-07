@@ -54,14 +54,14 @@ class RemoveFolderFromIndex extends IndexRequest {
 			// all file names belonging to the folder or its subfolders and that are not excluded (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=32607)
 			if (paths != null) {
 				if (this.exclusionPatterns == null && this.inclusionPatterns == null) {
-					for (int i = 0, max = paths.length; i < max; i++) {
-						this.manager.remove(paths[i], this.containerPath); // write lock will be acquired by the remove operation
+					for (String path : paths) {
+						this.manager.remove(path, this.containerPath); // write lock will be acquired by the remove operation
 					}
 				} else {
-					for (int i = 0, max = paths.length; i < max; i++) {
-						String documentPath =  this.containerPath.toString() + '/' + paths[i];
+					for (String path : paths) {
+						String documentPath =  this.containerPath.toString() + '/' + path;
 						if (!Util.isExcluded(new Path(documentPath), this.inclusionPatterns, this.exclusionPatterns, false))
-							this.manager.remove(paths[i], this.containerPath); // write lock will be acquired by the remove operation
+							this.manager.remove(path, this.containerPath); // write lock will be acquired by the remove operation
 					}
 				}
 			}

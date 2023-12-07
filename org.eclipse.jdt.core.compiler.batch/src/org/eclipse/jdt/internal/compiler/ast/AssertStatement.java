@@ -200,8 +200,7 @@ public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FlowInfo f
 		// find <clinit> and enable assertion support
 		TypeDeclaration typeDeclaration = outerMostClass.scope.referenceType();
 		AbstractMethodDeclaration[] methods = typeDeclaration.methods;
-		for (int i = 0, max = methods.length; i < max; i++) {
-			AbstractMethodDeclaration method = methods[i];
+		for (AbstractMethodDeclaration method : methods) {
 			if (method.isClinit()) {
 				((Clinit) method).setAssertionSupport(this.assertionSyntheticFieldBinding, currentScope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_5);
 				break;

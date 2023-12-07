@@ -358,8 +358,8 @@ public void computeLocalVariablePositions(int initOffset, CodeStream codeStream)
 
 	// sneak in extra argument before other local variables
 	if (this.extraSyntheticArguments != null) {
-		for (int iarg = 0, maxArguments = this.extraSyntheticArguments.length; iarg < maxArguments; iarg++){
-			SyntheticArgumentBinding argument = this.extraSyntheticArguments[iarg];
+		for (SyntheticArgumentBinding extraSyntheticArgument : this.extraSyntheticArguments) {
+			SyntheticArgumentBinding argument = extraSyntheticArgument;
 			argument.resolvedPosition = this.offset;
 			if ((TypeBinding.equalsEquals(argument.type, TypeBinding.LONG)) || (TypeBinding.equalsEquals(argument.type, TypeBinding.DOUBLE))){
 				this.offset += 2;

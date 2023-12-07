@@ -148,8 +148,8 @@ void setResolvedType(ReferenceBinding targetType, LookupEnvironment environment)
 	// must ensure to update any other type bindings that can contain the resolved type
 	// otherwise we could create 2 : 1 for this unresolved type & 1 for the resolved type
 	if (this.wrappers != null)
-		for (int i = 0, l = this.wrappers.length; i < l; i++)
-			this.wrappers[i].swapUnresolved(this, targetType, environment);
+		for (TypeBinding wrapper : this.wrappers)
+			wrapper.swapUnresolved(this, targetType, environment);
 }
 
 @Override
@@ -161,8 +161,8 @@ public void swapUnresolved(UnresolvedReferenceBinding unresolvedType, ReferenceB
 
 	environment.updateCaches(this, annotatedType);
 	if (this.wrappers != null)
-		for (int i = 0, l = this.wrappers.length; i < l; i++)
-			this.wrappers[i].swapUnresolved(this, annotatedType, environment);
+		for (TypeBinding wrapper : this.wrappers)
+			wrapper.swapUnresolved(this, annotatedType, environment);
 }
 
 @Override

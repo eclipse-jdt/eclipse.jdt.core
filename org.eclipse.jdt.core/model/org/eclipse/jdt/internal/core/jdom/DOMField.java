@@ -250,8 +250,8 @@ protected void becomeDetailed() throws DOMException {
 				throw new DOMException(Messages.dom_cannotDetail);
 			} else {
 				node= this;
-				for (int i= 0; i < details.length; i++) {
-					node.shareContents((DOMNode)details[i]);
+				for (IDOMField detail : details) {
+					node.shareContents((DOMNode)detail);
 					node= node.fNextNode;
 				}
 			}

@@ -81,8 +81,7 @@ public class RecordComponent extends AbstractVariableDeclaration {
 
 	public void getAllAnnotationContexts(int targetType, List<AnnotationContext> allAnnotationContexts) {
 		AnnotationCollector collector = new AnnotationCollector(this, targetType, allAnnotationContexts);
-		for (int i = 0, max = this.annotations.length; i < max; i++) {
-			Annotation annotation = this.annotations[i];
+		for (Annotation annotation : this.annotations) {
 			annotation.traverse(collector, (BlockScope) null);
 		}
 	}
@@ -96,8 +95,8 @@ public class RecordComponent extends AbstractVariableDeclaration {
 		resolveAnnotations(scope, this.annotations, this.binding);
 		// Check if this declaration should now have the type annotations bit set
 		if (this.annotations != null) {
-			for (int i = 0, max = this.annotations.length; i < max; i++) {
-				TypeBinding resolvedAnnotationType = this.annotations[i].resolvedType;
+			for (Annotation annotation2 : this.annotations) {
+				TypeBinding resolvedAnnotationType = annotation2.resolvedType;
 				if (resolvedAnnotationType != null && (resolvedAnnotationType.getAnnotationTagBits() & TagBits.AnnotationForTypeUse) != 0) {
 					this.bits |= ASTNode.HasTypeAnnotations;
 					// also update the accessor's return type:

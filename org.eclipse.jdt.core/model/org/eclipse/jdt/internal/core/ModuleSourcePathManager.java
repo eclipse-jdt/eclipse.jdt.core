@@ -77,8 +77,7 @@ public class ModuleSourcePathManager {
 		IPrefixMatcherCharArray prefixMatcher = prefixMatch ? CharOperation.equals(name, CharOperation.ALL_PREFIX) ?
 				(x, y) -> true : CharOperation::prefixEquals : CharOperation :: equals;
 		IJavaProject[] projects = JavaModelManager.getJavaModelManager().getJavaModel().getJavaProjects();
-		for (int i = 0; i < projects.length; i++) {
-			IJavaProject project = projects[i];
+		for (IJavaProject project : projects) {
 			if (!project.getProject().isAccessible())
 				continue;
 			if (project instanceof JavaProject) {

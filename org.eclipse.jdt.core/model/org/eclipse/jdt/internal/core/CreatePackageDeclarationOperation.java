@@ -63,8 +63,8 @@ protected StructuralPropertyDescriptor getChildPropertyDescriptor(ASTNode parent
 protected ASTNode generateElementAST(ASTRewrite rewriter, ICompilationUnit cu) throws JavaModelException {
 	//look for an existing package declaration
 	IJavaElement[] children = getCompilationUnit().getChildren();
-	for (int i = 0; i < children.length; i++) {
-		if (children[i].getElementType() ==  IJavaElement.PACKAGE_DECLARATION && this.name.equals(children[i].getElementName())) {
+	for (IJavaElement child : children) {
+		if (child.getElementType() ==  IJavaElement.PACKAGE_DECLARATION && this.name.equals(child.getElementName())) {
 			//equivalent package declaration already exists
 			this.creationOccurred = false;
 			return null;

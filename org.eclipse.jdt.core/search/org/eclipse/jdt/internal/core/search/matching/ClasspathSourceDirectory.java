@@ -13,7 +13,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.search.matching;
 
-import java.util.Iterator;
 import java.util.Map;
 import java.util.function.Predicate;
 
@@ -64,8 +63,7 @@ SimpleLookupTable directoryTable(String qualifiedPackageName) {
 		if (container instanceof IContainer) {
 			IResource[] members = ((IContainer) container).members();
 			dirTable = new SimpleLookupTable();
-			for (int i = 0, l = members.length; i < l; i++) {
-				IResource m = members[i];
+			for (IResource m : members) {
 				String name;
 				if (m.getType() == IResource.FILE) {
 					int index = Util.indexOfJavaLikeExtension(name = m.getName());
@@ -83,8 +81,7 @@ SimpleLookupTable directoryTable(String qualifiedPackageName) {
 			if (secondaryTypePaths.size() > 0) {
 				Map<String, IType> typesInPackage = secondaryTypePaths.get(qualifiedPackageName.replace('/', '.'));
 				if (typesInPackage != null && typesInPackage.size() > 0) {
-					for (Iterator<String> j = typesInPackage.keySet().iterator(); j.hasNext();) {
-						String secondaryTypeName = j.next();
+					for (String secondaryTypeName : typesInPackage.keySet()) {
 						IType secondaryType = typesInPackage.get(secondaryTypeName);
 						IJavaElement parent = secondaryType.getParent();
 						String fullPath = parent.getResource().getFullPath().toString();

@@ -137,8 +137,8 @@ public class PrimitiveType extends AnnotatableType {
 				DOUBLE,
 				VOID,
 			};
-		for (int i = 0; i < ops.length; i++) {
-			CODES.put(ops[i].toString(), ops[i]);
+		for (Code op : ops) {
+			CODES.put(op.toString(), op);
 		}
 	}
 

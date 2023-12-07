@@ -207,8 +207,8 @@ public class SourceIndexer extends AbstractIndexer implements ITypeRequestor, Su
 
 		TypeDeclaration[] memberTypes = type.memberTypes;
 		if (memberTypes != null)
-			for (int i = 0, l = memberTypes.length; i < l; i++)
-				purgeMethodStatements(memberTypes[i]);
+			for (TypeDeclaration memberType : memberTypes)
+				purgeMethodStatements(memberType);
 	}
 
 	@Override

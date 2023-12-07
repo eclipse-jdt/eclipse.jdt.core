@@ -252,8 +252,8 @@ public void subTask(String message) {
 }
 
 protected void updateProblemCounts(CategorizedProblem[] newProblems) {
-	for (int i = 0, l = newProblems.length; i < l; i++)
-		if (newProblems[i].isError()) this.newErrorCount++; else this.newWarningCount++;
+	for (CategorizedProblem newProblem : newProblems)
+		if (newProblem.isError()) this.newErrorCount++; else this.newWarningCount++;
 }
 
 /**
@@ -262,8 +262,7 @@ protected void updateProblemCounts(CategorizedProblem[] newProblems) {
  */
 protected void updateProblemCounts(IMarker[] oldProblems, CategorizedProblem[] newProblems) {
 	if (newProblems != null) {
-		next : for (int i = 0, l = newProblems.length; i < l; i++) {
-			CategorizedProblem newProblem = newProblems[i];
+		next : for (CategorizedProblem newProblem : newProblems) {
 			if (newProblem.getID() == IProblem.Task) continue; // skip task
 			boolean isError = newProblem.isError();
 			String message = newProblem.getMessage();
@@ -284,16 +283,14 @@ protected void updateProblemCounts(IMarker[] oldProblems, CategorizedProblem[] n
 		}
 	}
 	if (oldProblems != null) {
-		next : for (int i = 0, l = oldProblems.length; i < l; i++) {
-			IMarker oldProblem = oldProblems[i];
+		next : for (IMarker oldProblem : oldProblems) {
 			if (oldProblem == null) continue next; // already matched up with a new problem
 			boolean wasError = IMarker.SEVERITY_ERROR
 				== oldProblem.getAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
 			String message = oldProblem.getAttribute(IMarker.MESSAGE, ""); //$NON-NLS-1$
 
 			if (newProblems != null) {
-				for (int j = 0, m = newProblems.length; j < m; j++) {
-					CategorizedProblem pb = newProblems[j];
+				for (CategorizedProblem pb : newProblems) {
 					if (pb.getID() == IProblem.Task) continue; // skip task
 					if (wasError == pb.isError() && message.equals(pb.getMessage()))
 						continue next;

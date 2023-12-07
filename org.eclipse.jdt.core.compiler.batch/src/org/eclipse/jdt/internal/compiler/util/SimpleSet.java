@@ -138,8 +138,8 @@ private void rehash() {
 public String toString() {
 	String s = ""; //$NON-NLS-1$
 	Object object;
-	for (int i = 0, l = this.values.length; i < l; i++)
-		if ((object = this.values[i]) != null)
+	for (Object value : this.values)
+		if ((object = value) != null)
 			s += object.toString() + "\n"; //$NON-NLS-1$
 	return s;
 }

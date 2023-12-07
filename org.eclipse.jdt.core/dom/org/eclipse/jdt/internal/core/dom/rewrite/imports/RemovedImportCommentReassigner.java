@@ -89,9 +89,7 @@ final class RemovedImportCommentReassigner {
 					nextAssignedImportIterator.next();
 				}
 
-				Iterator<OriginalImportEntry> assignedImportIterator = assignedImports.iterator();
-				while (assignedImportIterator.hasNext()) {
-					OriginalImportEntry currentAssignedImport = assignedImportIterator.next();
+				for (OriginalImportEntry currentAssignedImport : assignedImports) {
 					OriginalImportEntry nextAssignedImport =
 							nextAssignedImportIterator.hasNext() ? nextAssignedImportIterator.next() : null;
 

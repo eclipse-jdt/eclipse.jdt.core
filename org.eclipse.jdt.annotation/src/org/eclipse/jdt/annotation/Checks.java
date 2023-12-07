@@ -276,8 +276,8 @@ public class Checks {
 	 */
 	@SafeVarargs
 	public static <T> boolean isAnyNull(T @NonNull... values) {
-		for (int i = 0; i < values.length; i++) {
-			if (values[i] == null)
+		for (T value : values) {
+			if (value == null)
 				return true;
 		}
 		return false;

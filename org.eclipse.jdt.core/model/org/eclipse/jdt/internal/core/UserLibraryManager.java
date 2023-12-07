@@ -70,8 +70,7 @@ public class UserLibraryManager {
 		}
 
 		boolean preferencesNeedFlush = false;
-		for (int i = 0, length = propertyNames.length; i < length; i++) {
-			String propertyName = propertyNames[i];
+		for (String propertyName : propertyNames) {
 			if (propertyName.startsWith(CP_USERLIBRARY_PREFERENCES_PREFIX)) {
 				String propertyValue = instancePreferences.get(propertyName, null);
 				if (propertyValue != null) {
@@ -105,11 +104,9 @@ public class UserLibraryManager {
 			IPath containerPath = new Path(JavaCore.USER_LIBRARY_CONTAINER_ID).append(libName);
 			IJavaProject[] allJavaProjects = JavaCore.create(ResourcesPlugin.getWorkspace().getRoot()).getJavaProjects();
 			ArrayList affectedProjects = new ArrayList();
-			for (int i= 0; i < allJavaProjects.length; i++) {
-				IJavaProject javaProject = allJavaProjects[i];
+			for (IJavaProject javaProject : allJavaProjects) {
 				IClasspathEntry[] entries= javaProject.getRawClasspath();
-				for (int j= 0; j < entries.length; j++) {
-					IClasspathEntry entry = entries[j];
+				for (IClasspathEntry entry : entries) {
 					if (entry.getEntryKind() == IClasspathEntry.CPE_CONTAINER) {
 						if (containerPath.equals(entry.getPath())) {
 							affectedProjects.add(javaProject);

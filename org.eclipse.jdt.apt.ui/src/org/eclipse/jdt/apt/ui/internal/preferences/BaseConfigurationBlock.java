@@ -240,8 +240,7 @@ public abstract class BaseConfigurationBlock {
 			fDisabledProjectSettings= null;
 		} else {
 			fDisabledProjectSettings= new IdentityHashMap<>();
-			for (int i= 0; i < keys.length; i++) {
-				Key curr= keys[i];
+			for (Key curr : keys) {
 				fDisabledProjectSettings.put(curr, curr.getStoredValue(fLookupOrder, false, fManager));
 			}
 		}
@@ -606,8 +605,8 @@ public abstract class BaseConfigurationBlock {
 		if (project != null) {
 			IScopeContext projectContext= new ProjectScope(project);
 			Key[] allKeys= fAllKeys;
-			for (int i= 0; i < allKeys.length; i++) {
-				if (allKeys[i].getStoredValue(projectContext, null) != null) {
+			for (Key key : allKeys) {
+				if (key.getStoredValue(projectContext, null) != null) {
 					return true;
 				}
 			}
@@ -658,8 +657,7 @@ public abstract class BaseConfigurationBlock {
 			};
 		}
 
-		for (int i= 0; i < fAllKeys.length; i++) {
-			Key curr= fAllKeys[i];
+		for (Key curr : fAllKeys) {
 			String defValue= curr.getStoredValue(lookupOrder, false, null);
 			setValue(curr, defValue);
 		}
@@ -677,8 +675,7 @@ public abstract class BaseConfigurationBlock {
 	 * @since 3.1
 	 */
 	public void performRevert() {
-		for (int i= 0; i < fAllKeys.length; i++) {
-			Key curr= fAllKeys[i];
+		for (Key curr : fAllKeys) {
 			String origValue= curr.getStoredValue(fLookupOrder, false, null);
 			setValue(curr, origValue);
 		}
@@ -779,8 +776,7 @@ public abstract class BaseConfigurationBlock {
 			if (!fExpandedComposites.isEmpty()) {
 				ExpandableComposite expandable= getParentExpandableComposite(control);
 				if (expandable != null) {
-					for (int i= 0; i < fExpandedComposites.size(); i++) {
-						ExpandableComposite curr= fExpandedComposites.get(i);
+					for (ExpandableComposite curr : fExpandedComposites) {
 						curr.setExpanded(curr == expandable);
 					}
 					expandedStateChanged(expandable);
@@ -791,8 +787,7 @@ public abstract class BaseConfigurationBlock {
 	}
 
 	public void selectOption(String key, String qualifier) {
-		for (int i= 0; i < fAllKeys.length; i++) {
-			Key curr= fAllKeys[i];
+		for (Key curr : fAllKeys) {
 			if (curr.getName().equals(key) && curr.getQualifier().equals(qualifier)) {
 				selectOption(curr);
 			}
@@ -818,8 +813,7 @@ public abstract class BaseConfigurationBlock {
 	 */
 	protected boolean settingsChanged(IScopeContext currContext) {
 		boolean needsBuild= false;
-		for (int i= 0; i < fAllKeys.length; i++) {
-			Key key= fAllKeys[i];
+		for (Key key : fAllKeys) {
 			String oldVal= key.getStoredValue(currContext, null);
 			String val= key.getStoredValue(currContext, fManager);
 			if (val == null) {
@@ -857,9 +851,9 @@ public abstract class BaseConfigurationBlock {
 	}
 
 	private void testIfOptionsComplete(Key[] allKeys) {
-		for (int i= 0; i < allKeys.length; i++) {
-			if (allKeys[i].getStoredValue(fLookupOrder, false, fManager) == null) {
-				JavaPlugin.logErrorMessage("preference option missing: " + allKeys[i] + " (" + this.getClass().getName() +')');  //$NON-NLS-1$//$NON-NLS-2$
+		for (Key key : allKeys) {
+			if (key.getStoredValue(fLookupOrder, false, fManager) == null) {
+				JavaPlugin.logErrorMessage("preference option missing: " + key + " (" + this.getClass().getName() +')');  //$NON-NLS-1$//$NON-NLS-2$
 			}
 		}
 	}
@@ -913,8 +907,7 @@ public abstract class BaseConfigurationBlock {
 		boolean hasProjectSpecificOption= fDisabledProjectSettings == null;
 		if (enable != hasProjectSpecificOption && fProject != null) {
 			if (enable) {
-				for (int i= 0; i < fAllKeys.length; i++) {
-					Key curr= fAllKeys[i];
+				for (Key curr : fAllKeys) {
 					String val= fDisabledProjectSettings.get(curr);
 					curr.setStoredValue(fLookupOrder[0], val, fManager);
 				}
@@ -922,8 +915,7 @@ public abstract class BaseConfigurationBlock {
 				updateControls();
 			} else {
 				fDisabledProjectSettings= new IdentityHashMap<>();
-				for (int i= 0; i < fAllKeys.length; i++) {
-					Key curr= fAllKeys[i];
+				for (Key curr : fAllKeys) {
 					String oldSetting= curr.getStoredValue(fLookupOrder, false, fManager);
 					fDisabledProjectSettings.put(curr, oldSetting);
 					curr.setStoredValue(fLookupOrder[0], null, fManager); // clear project settings

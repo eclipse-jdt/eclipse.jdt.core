@@ -85,10 +85,10 @@ private ReferenceBinding getMatchingSuper(ReferenceBinding binding) {
 	// matches interfaces
 	ReferenceBinding[] interfaces = binding.superInterfaces();
 	if (interfaces == null) return null;
-	for (int i = 0; i < interfaces.length; i++) {
-		level = resolveLevelForType(this.pattern.declaringSimpleName, this.pattern.declaringQualification, interfaces[i]);
-		if (level != IMPOSSIBLE_MATCH) return interfaces[i];
-		superBinding = getMatchingSuper(interfaces[i]);
+	for (ReferenceBinding element : interfaces) {
+		level = resolveLevelForType(this.pattern.declaringSimpleName, this.pattern.declaringQualification, element);
+		if (level != IMPOSSIBLE_MATCH) return element;
+		superBinding = getMatchingSuper(element);
 		if (superBinding != null) return superBinding;
 	}
 	return null;
@@ -97,8 +97,8 @@ private ReferenceBinding getMatchingSuper(ReferenceBinding binding) {
 private MethodBinding getMethodBinding(ReferenceBinding type, char[] methodName, TypeBinding[] argumentTypes) {
 	MethodBinding[] methods = type.getMethods(methodName);
 	MethodBinding method = null;
-	methodsLoop: for (int i=0, length=methods.length; i<length; i++) {
-		method = methods[i];
+	methodsLoop: for (MethodBinding method2 : methods) {
+		method = method2;
 		TypeBinding[] parameters = method.parameters;
 		if (argumentTypes.length == parameters.length) {
 			for (int j=0,l=parameters.length; j<l; j++) {
@@ -907,8 +907,8 @@ protected int resolveLevelAsSubtype(char[] simplePattern, char[] qualifiedPatter
 	// matches interfaces
 	ReferenceBinding[] interfaces = type.superInterfaces();
 	if (interfaces == null) return INACCURATE_MATCH;
-	for (int i = 0; i < interfaces.length; i++) {
-		level = resolveLevelAsSubtype(simplePattern, qualifiedPattern, interfaces[i], methodName, null, packageName, isDefault);
+	for (ReferenceBinding element : interfaces) {
+		level = resolveLevelAsSubtype(simplePattern, qualifiedPattern, element, methodName, null, packageName, isDefault);
 		if (level != IMPOSSIBLE_MATCH) {
 			if (!type.isAbstract() && !type.isInterface()) { // if concrete class, then method is overridden
 				level |= OVERRIDDEN_METHOD_FLAVOR;
@@ -925,13 +925,12 @@ protected int resolveLevelAsSubtype(char[] simplePattern, char[] qualifiedPatter
  */
 private boolean resolveLevelAsSuperInvocation(ReferenceBinding type, TypeBinding[] argumentTypes, char[][][] superTypeNames, boolean methodAlreadyVerified) {
 	char[][] compoundName = type.compoundName;
-	for (int i = 0, max = superTypeNames.length; i < max; i++) {
-		if (CharOperation.equals(superTypeNames[i], compoundName)) {
+	for (char[][] superTypeName : superTypeNames) {
+		if (CharOperation.equals(superTypeName, compoundName)) {
 			// need to verify if the type implements the pattern method
 			if (methodAlreadyVerified) return true; // already verified before enter into this method (see resolveLevel(MessageSend))
 			MethodBinding[] methods = type.getMethods(this.pattern.selector);
-			for (int j=0, length=methods.length; j<length; j++) {
-				MethodBinding method = methods[j];
+			for (MethodBinding method : methods) {
 				TypeBinding[] parameters = method.parameters;
 				if (argumentTypes.length == parameters.length) {
 					boolean found = true;
@@ -957,8 +956,8 @@ private boolean resolveLevelAsSuperInvocation(ReferenceBinding type, TypeBinding
 	if (type.isInterface()) {
 		ReferenceBinding[] interfaces = type.superInterfaces();
 		if (interfaces == null) return false;
-		for (int i = 0; i < interfaces.length; i++) {
-			if (resolveLevelAsSuperInvocation(interfaces[i], argumentTypes, superTypeNames, false)) {
+		for (ReferenceBinding element : interfaces) {
+			if (resolveLevelAsSuperInvocation(element, argumentTypes, superTypeNames, false)) {
 				return true;
 			}
 		}

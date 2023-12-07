@@ -16,7 +16,6 @@
 package org.eclipse.jdt.internal.codeassist;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 
@@ -1010,8 +1009,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 				}
 				ImportReference[] imports = parsedUnit.imports;
 				if (imports != null) {
-					for (int i = 0, length = imports.length; i < length; i++) {
-						ImportReference importReference = imports[i];
+					for (ImportReference importReference : imports) {
 						if (importReference instanceof SelectionOnImportReference) {
 							char[][] tokens = ((SelectionOnImportReference) importReference).tokens;
 							this.noProposal = false;
@@ -1148,9 +1146,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	private void selectMemberTypeFromImport(CompilationUnitDeclaration parsedUnit, char[] lastToken, ReferenceBinding ref, boolean staticOnly) {
 		int fieldLength = lastToken.length;
 		ReferenceBinding[] memberTypes = ref.memberTypes();
-		next : for (int j = 0; j < memberTypes.length; j++) {
-			ReferenceBinding memberType = memberTypes[j];
-
+		next : for (ReferenceBinding memberType : memberTypes) {
 			if (fieldLength > memberType.sourceName.length)
 				continue next;
 
@@ -1167,9 +1163,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	private void selectStaticFieldFromStaticImport(CompilationUnitDeclaration parsedUnit, char[] lastToken, ReferenceBinding ref) {
 		int fieldLength = lastToken.length;
 		FieldBinding[] fields = ref.availableFields();
-		next : for (int j = 0; j < fields.length; j++) {
-			FieldBinding field = fields[j];
-
+		next : for (FieldBinding field : fields) {
 			if (fieldLength > field.name.length)
 				continue next;
 
@@ -1189,9 +1183,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 	private void selectStaticMethodFromStaticImport(CompilationUnitDeclaration parsedUnit, char[] lastToken, ReferenceBinding ref) {
 		int methodLength = lastToken.length;
 		MethodBinding[] methods = ref.availableMethods();
-		next : for (int j = 0; j < methods.length; j++) {
-			MethodBinding method = methods[j];
-
+		next : for (MethodBinding method : methods) {
 			if (method.isSynthetic()) continue next;
 
 			if (method.isDefaultAbstract())	continue next;
@@ -1903,9 +1895,9 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		MethodBinding[] overriddenMethods= overriddenType.availableMethods();
 		LookupEnvironment lookupEnv = this.lookupEnvironment;
 		if (lookupEnv != null && overriddenMethods != null) {
-			for (int i= 0; i < overriddenMethods.length; i++) {
-				if (lookupEnv.methodVerifier().isMethodSubsignature(overriding, overriddenMethods[i])) {
-					return overriddenMethods[i];
+			for (MethodBinding overriddenMethod : overriddenMethods) {
+				if (lookupEnv.methodVerifier().isMethodSubsignature(overriding, overriddenMethod)) {
+					return overriddenMethod;
 				}
 			}
 		}
@@ -2042,8 +2034,7 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 		private Object visitInheritDocInterfaces(ArrayList visited, ReferenceBinding currentType) throws JavaModelException {
 			ArrayList toVisitChildren= new ArrayList();
 			ReferenceBinding[] superInterfaces= currentType.superInterfaces();
-			for (int i= 0; i < superInterfaces.length; i++) {
-				ReferenceBinding superInterface= superInterfaces[i];
+			for (ReferenceBinding superInterface : superInterfaces) {
 				if (visited.contains(superInterface))
 					continue;
 				visited.add(superInterface);
@@ -2056,8 +2047,8 @@ public final class SelectionEngine extends Engine implements ISearchRequestor {
 					return result;
 				}
 			}
-			for (Iterator iter= toVisitChildren.iterator(); iter.hasNext(); ) {
-				ReferenceBinding child= (ReferenceBinding) iter.next();
+			for (Object toVisitChild : toVisitChildren) {
+				ReferenceBinding child= (ReferenceBinding) toVisitChild;
 				Object result= visitInheritDocInterfaces(visited, child);
 				if (result != InheritDocVisitor.CONTINUE)
 					return result;

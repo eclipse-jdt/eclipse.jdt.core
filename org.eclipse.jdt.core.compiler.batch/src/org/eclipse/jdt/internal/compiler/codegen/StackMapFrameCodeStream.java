@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -296,8 +295,8 @@ public class StackMapFrameCodeStream extends CodeStream {
 		int size = exceptionMarkerSet.size();
 		ExceptionMarker[] markers = new ExceptionMarker[size];
 		int n = 0;
-		for (Iterator iterator = exceptionMarkerSet.iterator(); iterator.hasNext();) {
-			markers[n++] = (ExceptionMarker) iterator.next();
+		for (Object element : exceptionMarkerSet) {
+			markers[n++] = (ExceptionMarker) element;
 		}
 		Arrays.sort(markers);
 //  System.out.print('[');
@@ -314,8 +313,8 @@ public class StackMapFrameCodeStream extends CodeStream {
 		int size = set.size();
 		int[] positions = new int[size];
 		int n = 0;
-		for (Iterator iterator = set.iterator(); iterator.hasNext();) {
-			positions[n++] = ((Integer) iterator.next()).intValue();
+		for (Object element : set) {
+			positions[n++] = ((Integer) element).intValue();
 		}
 		Arrays.sort(positions);
 //  System.out.print('[');
@@ -511,8 +510,7 @@ public class StackMapFrameCodeStream extends CodeStream {
 	}
 
 	public void resetSecretLocals() {
-		for (int i = 0, max = this.locals.length; i < max; i++) {
-			LocalVariableBinding localVariableBinding = this.locals[i];
+		for (LocalVariableBinding localVariableBinding : this.locals) {
 			if (localVariableBinding != null && localVariableBinding.isSecret()) {
 				// all other locals are reinitialized inside the computation of their resolved positions
 				localVariableBinding.resetInitializations();

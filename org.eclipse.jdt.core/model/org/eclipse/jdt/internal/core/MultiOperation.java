@@ -70,8 +70,8 @@ public abstract class MultiOperation extends JavaModelOperation {
 				this.newParents.put(elementsToProcess[i], parentElements[i]);
 			}
 		} else { //same destination for all elements to be moved/copied/renamed
-			for (int i = 0; i < elementsToProcess.length; i++) {
-				this.newParents.put(elementsToProcess[i], parentElements[0]);
+			for (IJavaElement element : elementsToProcess) {
+				this.newParents.put(element, parentElements[0]);
 			}
 		}
 
@@ -162,10 +162,10 @@ public abstract class MultiOperation extends JavaModelOperation {
 			beginTask(getMainTaskName(), this.elementsToProcess.length);
 			IJavaModelStatus[] errors = new IJavaModelStatus[3];
 			int errorsCounter = 0;
-			for (int i = 0; i < this.elementsToProcess.length; i++) {
+			for (IJavaElement element : this.elementsToProcess) {
 				try {
-					verify(this.elementsToProcess[i]);
-					processElement(this.elementsToProcess[i]);
+					verify(element);
+					processElement(element);
 				} catch (JavaModelException jme) {
 					if (errorsCounter == errors.length) {
 						// resize

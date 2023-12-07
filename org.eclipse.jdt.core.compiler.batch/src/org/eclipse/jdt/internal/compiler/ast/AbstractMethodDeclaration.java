@@ -136,8 +136,8 @@ public abstract class AbstractMethodDeclaration
 		if (this.arguments != null) {
 			// by default arguments in abstract/native methods are considered to be used (no complaint is expected)
 			if (this.binding == null) {
-				for (int i = 0, length = this.arguments.length; i < length; i++) {
-					this.arguments[i].bind(this.scope, null, true);
+				for (Argument argument : this.arguments) {
+					argument.bind(this.scope, null, true);
 				}
 				return;
 			}
@@ -344,9 +344,9 @@ public abstract class AbstractMethodDeclaration
 
 			// arguments initialization for local variable debug attributes
 			if (this.arguments != null) {
-				for (int i = 0, max = this.arguments.length; i < max; i++) {
+				for (Argument argument : this.arguments) {
 					LocalVariableBinding argBinding;
-					codeStream.addVisibleLocalVariable(argBinding = this.arguments[i].binding);
+					codeStream.addVisibleLocalVariable(argBinding = argument.binding);
 					argBinding.recordInitializationStartPC(0);
 				}
 			}
@@ -542,9 +542,9 @@ public abstract class AbstractMethodDeclaration
 
 		output.append(" {"); //$NON-NLS-1$
 		if (this.statements != null) {
-			for (int i = 0; i < this.statements.length; i++) {
+			for (Statement statement : this.statements) {
 				output.append('\n');
-				this.statements[i].printStatement(indent, output);
+				statement.printStatement(indent, output);
 			}
 		}
 		output.append('\n');
@@ -663,8 +663,7 @@ public abstract class AbstractMethodDeclaration
 	public void resolveStatements() {
 
 		if (this.statements != null) {
- 			for (int i = 0, length = this.statements.length; i < length; i++) {
- 				Statement stmt = this.statements[i];
+ 			for (Statement stmt : this.statements) {
  				stmt.resolve(this.scope);
 			}
  			this.recPatCatchVar = RecordPattern.getRecPatternCatchVar(0, this.scope);

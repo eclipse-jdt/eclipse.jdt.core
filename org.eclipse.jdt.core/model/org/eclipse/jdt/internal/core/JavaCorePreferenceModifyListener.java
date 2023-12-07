@@ -52,8 +52,7 @@ public class JavaCorePreferenceModifyListener extends PreferenceModifyListener {
 	void cleanJavaCore(Preferences preferences) {
 		try {
 			String[] keys = preferences.keys();
-			for (int k = 0, kl= keys.length; k<kl; k++) {
-				String key = keys[k];
+			for (String key : keys) {
 				if (key.startsWith(JavaModelManager.CP_CONTAINER_PREFERENCES_PREFIX) && !isJavaProjectAccessible(key)) {
 					preferences.remove(key);
 				}

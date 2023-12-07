@@ -101,9 +101,9 @@ private void buildCUSource(String lineSeparator) {
 
 	// import declarations
 	char[][] imports = this.snippetImports;
-	for (int i = 0; i < imports.length; i++) {
+	for (char[] import1 : imports) {
 		buffer.append("import "); //$NON-NLS-1$
-		buffer.append(imports[i]);
+		buffer.append(import1);
 		buffer.append(';').append(lineSeparator);
 		this.lineNumberOffset++;
 	}

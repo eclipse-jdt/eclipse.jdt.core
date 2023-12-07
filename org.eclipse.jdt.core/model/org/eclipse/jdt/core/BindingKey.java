@@ -89,8 +89,7 @@ public final class BindingKey {
 		StringBuilder buffer = new StringBuilder();
 		buffer.append(Signature.getTypeErasure(genericTypeKey));
 		buffer.insert(buffer.length()-1, '<');
-		for (int i = 0, length = argumentTypeKeys.length; i < length; i++) {
-			String argumentTypeKey = argumentTypeKeys[i];
+		for (String argumentTypeKey : argumentTypeKeys) {
 			buffer.insert(buffer.length()-1, argumentTypeKey);
 		}
 		buffer.insert(buffer.length()-1, '>');

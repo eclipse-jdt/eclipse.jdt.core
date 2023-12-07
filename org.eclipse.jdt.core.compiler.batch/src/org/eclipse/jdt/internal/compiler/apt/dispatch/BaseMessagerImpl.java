@@ -225,8 +225,8 @@ public class BaseMessagerImpl {
 	}
 
 	private static Annotation findAnnotation(Annotation[] elementAnnotations, AnnotationBinding annotationBinding) {
-		for (int i = 0; i < elementAnnotations.length; i++) {
-			Annotation annotation = findAnnotation(elementAnnotations[i], annotationBinding);
+		for (Annotation elementAnnotation : elementAnnotations) {
+			Annotation annotation = findAnnotation(elementAnnotation, annotationBinding);
 			if (annotation != null) {
 				return annotation;
 			}

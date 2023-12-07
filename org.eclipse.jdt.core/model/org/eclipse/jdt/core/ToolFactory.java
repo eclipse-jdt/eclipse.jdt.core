@@ -110,11 +110,11 @@ public class ToolFactory {
 			IExtensionPoint extension = Platform.getExtensionRegistry().getExtensionPoint(JavaCore.PLUGIN_ID, JavaModelManager.FORMATTER_EXTPOINT_ID);
 			if (extension != null) {
 				IExtension[] extensions =  extension.getExtensions();
-				for(int i = 0; i < extensions.length; i++){
-					IConfigurationElement [] configElements = extensions[i].getConfigurationElements();
-					for(int j = 0; j < configElements.length; j++){
+				for (IExtension extension2 : extensions) {
+					IConfigurationElement [] configElements = extension2.getConfigurationElements();
+					for (IConfigurationElement configElement : configElements) {
 						try {
-							Object execExt = configElements[j].createExecutableExtension("class"); //$NON-NLS-1$
+							Object execExt = configElement.createExecutableExtension("class"); //$NON-NLS-1$
 							if (execExt instanceof ICodeFormatter){
 								// use first contribution found
 								return (ICodeFormatter)execExt;
@@ -191,13 +191,13 @@ public class ToolFactory {
 					JavaCore.JAVA_FORMATTER_EXTENSION_POINT_ID);
 			if (extension != null) {
 				IExtension[] extensions = extension.getExtensions();
-				for (int i = 0; i < extensions.length; i++) {
-					IConfigurationElement[] configElements = extensions[i].getConfigurationElements();
-					for (int j = 0; j < configElements.length; j++) {
-						String initializerID = configElements[j].getAttribute("id"); //$NON-NLS-1$
+				for (IExtension extension2 : extensions) {
+					IConfigurationElement[] configElements = extension2.getConfigurationElements();
+					for (IConfigurationElement configElement : configElements) {
+						String initializerID = configElement.getAttribute("id"); //$NON-NLS-1$
 						if (initializerID != null && initializerID.equals(formatterId)) {
 							try {
-								Object execExt = configElements[j].createExecutableExtension("class"); //$NON-NLS-1$
+								Object execExt = configElement.createExecutableExtension("class"); //$NON-NLS-1$
 								if (execExt instanceof CodeFormatter) {
 									CodeFormatter formatter = (CodeFormatter) execExt;
 									formatter.setOptions(currentOptions);

@@ -697,8 +697,8 @@ public class ASTRewrite {
 		}
 		Block res= getNodeStore().createCollapsePlaceholder();
 		ListRewrite listRewrite= getListRewrite(res, Block.STATEMENTS_PROPERTY);
-		for (int i= 0; i < targetNodes.length; i++) {
-			listRewrite.insertLast(targetNodes[i], null);
+		for (ASTNode targetNode : targetNodes) {
+			listRewrite.insertLast(targetNode, null);
 		}
 		return res;
 	}

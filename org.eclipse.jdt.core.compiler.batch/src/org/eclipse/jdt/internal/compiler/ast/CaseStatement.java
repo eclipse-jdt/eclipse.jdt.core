@@ -122,9 +122,9 @@ public boolean containsPatternVariable() {
 			|| !(this.constantExpressions[this.patternIndex] instanceof Pattern)) {
 		return false;
 	}
-	for (int i = 0, l = this.constantExpressions.length; i < l; ++i) {
-		if (this.constantExpressions[i] instanceof Pattern) {
-			Pattern pattern = (Pattern) this.constantExpressions[i];
+	for (Expression constantExpression : this.constantExpressions) {
+		if (constantExpression instanceof Pattern) {
+			Pattern pattern = (Pattern) constantExpression;
 			if (pattern.containsPatternVariable())
 				return true;
 		}
@@ -158,8 +158,8 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	}
 	int pc = codeStream.position;
 	if (this.targetLabels != null) {
-		for (int i = 0, l = this.targetLabels.length; i < l; ++i) {
-			this.targetLabels[i].place();
+		for (BranchLabel targetLabel2 : this.targetLabels) {
+			targetLabel2.place();
 		}
 	}
 	if (this.targetLabel != null)

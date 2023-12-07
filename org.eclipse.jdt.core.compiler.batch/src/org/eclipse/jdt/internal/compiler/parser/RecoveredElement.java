@@ -162,8 +162,8 @@ protected void addBlockStatement(RecoveredBlock recoveredBlock) {
 	Block block = recoveredBlock.blockDeclaration;
 	if(block.statements != null) {
 		Statement[] statements = block.statements;
-		for (int i = 0; i < statements.length; i++) {
-			recoveredBlock.add(statements[i], 0);
+		for (Statement statement : statements) {
+			recoveredBlock.add(statement, 0);
 		}
 	}
 }

@@ -849,8 +849,7 @@ public class InternalExtendedCompletionContext {
 
 		// search in static import
 		ImportBinding[] importBindings = scope.compilationUnitScope().imports;
-		for (int i = 0; i < importBindings.length; i++) {
-			ImportBinding importBinding = importBindings[i];
+		for (ImportBinding importBinding : importBindings) {
 			if(importBinding.isValidBinding() && importBinding.isStatic()) {
 				Binding binding = importBinding.resolvedImport;
 				if(binding != null && binding.isValidBinding()) {
@@ -934,9 +933,9 @@ public class InternalExtendedCompletionContext {
 			// the erasure must be used because guessedType can be a RawTypeBinding
 			guessedType = guessedType.erasure();
 			TypeVariableBinding[] typeVars = guessedType.typeVariables();
-			for (int i = 0; i < parameterTypes.length; i++) {
-				for (int j = 0; j < typeVars.length; j++) {
-					if (CharOperation.equals(parameterTypes[i].toCharArray(), typeVars[j].sourceName))
+			for (String parameterType : parameterTypes) {
+				for (TypeVariableBinding typeVar : typeVars) {
+					if (CharOperation.equals(parameterType.toCharArray(), typeVar.sourceName))
 						return false;
 				}
 			}
@@ -956,9 +955,9 @@ public class InternalExtendedCompletionContext {
 		// Next, find out whether any of the constructor parameters are the same as one of the
 		// class type variables. If yes, diamond cannot be used.
 		if (typeVariables != null) {
-			for (int i = 0; i < parameterTypes.length; i++) {
-				for (int j = 0; j < typeVariables.length; j++) {
-					if (CharOperation.equals(parameterTypes[i].toCharArray(), typeVariables[j]))
+			for (String parameterType : parameterTypes) {
+				for (char[] typeVariable : typeVariables) {
+					if (CharOperation.equals(parameterType.toCharArray(), typeVariable))
 						return false;
 				}
 			}

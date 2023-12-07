@@ -281,8 +281,7 @@ public abstract class AbstractCompilationEnv
 		final AnnotationVisitor visitor = new AnnotationVisitor(instances);
 		_astRoot.accept(visitor);
 
-		for (int instanceIndex=0, size = instances.size(); instanceIndex < size; instanceIndex++) {
-			final Annotation instance = instances.get(instanceIndex);
+		for (final Annotation instance : instances) {
 			final ITypeBinding annoType = instance.resolveTypeBinding();
 			if (annoType == null)
 				continue;

@@ -16,7 +16,6 @@
 package org.eclipse.jdt.internal.core;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.core.runtime.preferences.AbstractPreferenceInitializer;
@@ -87,8 +86,8 @@ public class JavaCorePreferenceInitializer extends AbstractPreferenceInitializer
 
 		// Formatter settings
 		Map codeFormatterOptionsMap = DefaultCodeFormatterConstants.getEclipseDefaultSettings(); // code formatter defaults
-		for (Iterator iter = codeFormatterOptionsMap.entrySet().iterator(); iter.hasNext();) {
-			Map.Entry entry = (Map.Entry) iter.next();
+		for (Object element : codeFormatterOptionsMap.entrySet()) {
+			Map.Entry entry = (Map.Entry) element;
 			String optionName = (String) entry.getKey();
 			defaultOptionsMap.put(optionName, entry.getValue());
 			optionNames.add(optionName);
@@ -121,8 +120,8 @@ public class JavaCorePreferenceInitializer extends AbstractPreferenceInitializer
 
 		// Store default values to default preferences
 	 	IEclipsePreferences defaultPreferences = DefaultScope.INSTANCE.getNode(JavaCore.PLUGIN_ID);
-		for (Iterator iter = defaultOptionsMap.entrySet().iterator(); iter.hasNext();) {
-			Map.Entry entry = (Map.Entry) iter.next();
+		for (Object element : defaultOptionsMap.entrySet()) {
+			Map.Entry entry = (Map.Entry) element;
 			String optionName = (String) entry.getKey();
 			defaultPreferences.put(optionName, (String)entry.getValue());
 			optionNames.add(optionName);

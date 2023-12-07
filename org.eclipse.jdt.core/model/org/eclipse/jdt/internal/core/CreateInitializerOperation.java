@@ -69,8 +69,7 @@ protected IJavaElement generateResultHandle() {
 		} else {
 			IJavaElement[] children = getType().getChildren();
 			int count = 0;
-			for (int i = 0; i < children.length; i++) {
-				IJavaElement child = children[i];
+			for (IJavaElement child : children) {
 				if (child.equals(this.anchorElement)) {
 					if (child .getElementType() == IJavaElement.INITIALIZER && this.insertionPolicy == CreateElementInCUOperation.INSERT_AFTER) {
 						count++;

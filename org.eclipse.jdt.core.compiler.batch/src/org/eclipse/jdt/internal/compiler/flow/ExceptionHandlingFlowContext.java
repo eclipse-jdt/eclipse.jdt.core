@@ -155,11 +155,11 @@ public void complainIfUnusedExceptionHandlers(AbstractMethodDeclaration method) 
 			docCommentReferences[i] = method.javadoc.exceptionReferences[i].resolvedType;
 		}
 	}
-	nextHandledException: for (int i = 0, count = this.handledExceptions.length; i < count; i++) {
-		int index = this.indexes.get(this.handledExceptions[i]);
+	nextHandledException: for (ReferenceBinding handledException : this.handledExceptions) {
+		int index = this.indexes.get(handledException);
 		if ((this.isReached[index / ExceptionHandlingFlowContext.BitCacheSize] & 1 << (index % ExceptionHandlingFlowContext.BitCacheSize)) == 0) {
 			for (int j = 0; j < docCommentReferencesLength; j++) {
-				if (TypeBinding.equalsEquals(docCommentReferences[j], this.handledExceptions[i])) {
+				if (TypeBinding.equalsEquals(docCommentReferences[j], handledException)) {
 					continue nextHandledException;
 				}
 			}
@@ -198,8 +198,7 @@ private ASTNode getExceptionType(int index) {
 	ASTNode node = this.catchArguments[catchBlock].type;
 	if (node instanceof UnionTypeReference) {
 		TypeReference[] typeRefs = ((UnionTypeReference)node).typeReferences;
-		for (int i = 0, len = typeRefs.length; i < len; i++) {
-			TypeReference typeRef = typeRefs[i];
+		for (TypeReference typeRef : typeRefs) {
 			if (TypeBinding.equalsEquals(typeRef.resolvedType, this.handledExceptions[index])) return typeRef;
 		}
 	}

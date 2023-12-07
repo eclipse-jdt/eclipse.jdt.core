@@ -412,8 +412,8 @@ class ASTRecoveryPropagator extends DefaultASTVisitor {
 	public void endVisit(VariableDeclarationStatement node) {
 		endVisitNode(node);
 		List fragments = node.fragments();
-		for (int i = 0, max = fragments.size(); i <max; i++) {
-			VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragments.get(i);
+		for (Object fragment2 : fragments) {
+			VariableDeclarationFragment fragment = (VariableDeclarationFragment) fragment2;
 			Expression expression = fragment.getInitializer();
 			if (expression == null) continue;
 			if ((expression.getFlags() & ASTNode.RECOVERED) == 0) continue;

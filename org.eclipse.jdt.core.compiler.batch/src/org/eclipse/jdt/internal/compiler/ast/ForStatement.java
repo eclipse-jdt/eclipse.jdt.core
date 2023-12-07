@@ -81,8 +81,8 @@ public class ForStatement extends Statement {
 
 		// process the initializations
 		if (this.initializations != null) {
-			for (int i = 0, count = this.initializations.length; i < count; i++) {
-				flowInfo = this.initializations[i].analyseCode(this.scope, flowContext, flowInfo);
+			for (Statement initialization : this.initializations) {
+				flowInfo = initialization.analyseCode(this.scope, flowContext, flowInfo);
 			}
 		}
 		this.preCondInitStateIndex =
@@ -187,8 +187,8 @@ public class ForStatement extends Statement {
 				FlowInfo incrementInfo = actionInfo;
 				this.preIncrementsInitStateIndex =
 					currentScope.methodScope().recordInitializationStates(incrementInfo);
-				for (int i = 0, count = this.increments.length; i < count; i++) {
-					incrementInfo = this.increments[i].
+				for (Statement increment : this.increments) {
+					incrementInfo = increment.
 						analyseCode(this.scope, incrementContext, incrementInfo);
 				}
 				incrementContext.complainOnDeferredFinalChecks(this.scope,
@@ -236,8 +236,7 @@ public class ForStatement extends Statement {
 		// Variables initialized only for the purpose of the for loop can be removed for further flow info
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=359495
 		if (this.initializations != null) {
-			for (int i = 0; i < this.initializations.length; i++) {
-				Statement init = this.initializations[i];
+			for (Statement init : this.initializations) {
 				if (init instanceof LocalDeclaration) {
 					LocalVariableBinding binding = ((LocalDeclaration) init).binding;
 					mergedInfo.resetAssignmentInfo(binding);
@@ -266,8 +265,8 @@ public class ForStatement extends Statement {
 
 		// generate the initializations
 		if (this.initializations != null) {
-			for (int i = 0, max = this.initializations.length; i < max; i++) {
-				this.initializations[i].generateCode(this.scope, codeStream);
+			for (Statement initialization : this.initializations) {
+				initialization.generateCode(this.scope, codeStream);
 			}
 		}
 		if (containsPatternVariable()) {
@@ -335,8 +334,8 @@ public class ForStatement extends Statement {
 			this.continueLabel.place();
 			// generate the increments for next iteration
 			if (this.increments != null) {
-				for (int i = 0, max = this.increments.length; i < max; i++) {
-					this.increments[i].generateCode(this.scope, codeStream);
+				for (Statement increment : this.increments) {
+					increment.generateCode(this.scope, codeStream);
 				}
 			}
 			// May loose some local variable initializations : affecting the local variable attributes
@@ -419,15 +418,15 @@ public class ForStatement extends Statement {
 		// use the scope that will hold the init declarations
 		this.scope = (this.bits & ASTNode.NeededScope) != 0 ? new BlockScope(upperScope) : upperScope;
 		if (this.initializations != null)
-			for (int i = 0, length = this.initializations.length; i < length; i++)
-				this.initializations[i].resolve(this.scope);
+			for (Statement initialization : this.initializations)
+				initialization.resolve(this.scope);
 		if (this.condition != null) {
 			TypeBinding type = this.condition.resolveTypeExpecting(this.scope, TypeBinding.BOOLEAN);
 			this.condition.computeConversion(this.scope, type, type);
 		}
 		if (this.increments != null)
-			for (int i = 0, length = this.increments.length; i < length; i++) {
-				this.increments[i].resolveWithPatternVariablesInScope(patternVariablesInTrueScope, this.scope);
+			for (Statement increment : this.increments) {
+				increment.resolveWithPatternVariablesInScope(patternVariablesInTrueScope, this.scope);
 			}
 
 		if (this.action != null) {

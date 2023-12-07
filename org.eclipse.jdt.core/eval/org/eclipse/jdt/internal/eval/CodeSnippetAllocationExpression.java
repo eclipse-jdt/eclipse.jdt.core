@@ -79,8 +79,8 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, 	boolea
 		}
 		// generate the arguments for constructor
 		if (this.arguments != null) {
-			for (int i = 0, count = this.arguments.length; i < count; i++) {
-				this.arguments[i].generateCode(currentScope, codeStream, true);
+			for (Expression argument : this.arguments) {
+				argument.generateCode(currentScope, codeStream, true);
 			}
 		}
 		// handling innerclass instance allocation - outer local arguments
@@ -181,8 +181,8 @@ public TypeBinding resolveType(BlockScope scope) {
 		}
 		if (this.argumentsHaveErrors) {
 			if (this.arguments != null) { // still attempt to resolve arguments
-				for (int i = 0, max = this.arguments.length; i < max; i++) {
-					this.arguments[i].resolveType(scope);
+				for (Expression argument : this.arguments) {
+					argument.resolveType(scope);
 				}
 			}
 			return null;

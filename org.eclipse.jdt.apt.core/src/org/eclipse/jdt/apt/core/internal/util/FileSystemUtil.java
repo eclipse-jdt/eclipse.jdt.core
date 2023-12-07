@@ -56,8 +56,8 @@ public final class FileSystemUtil
 		if( resource.getType() == IResource.FOLDER ){
 			boolean deleteFolder = resource.isDerived();
 			IResource[] members = ((IFolder)resource).members();
-			for( int i=0, len=members.length; i<len; i++ ){
-				deleteFolder &= deleteDerivedResources(members[i]);
+			for (IResource member : members) {
+				deleteFolder &= deleteDerivedResources(member);
 			}
 			if( deleteFolder ){
 				deleteResource(resource);

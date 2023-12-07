@@ -187,8 +187,7 @@ public void complete(
 		}
 
 		ClassFile[] classFiles = this.installedVars.classFiles;
-		for (int i = 0; i < classFiles.length; i++) {
-			ClassFile classFile = classFiles[i];
+		for (ClassFile classFile : classFiles) {
 			IBinaryType binary = null;
 			try {
 				binary = new ClassFileReader(classFile.getBytes(), null);

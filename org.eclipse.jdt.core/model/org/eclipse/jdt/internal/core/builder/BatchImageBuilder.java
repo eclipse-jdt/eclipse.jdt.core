@@ -110,21 +110,19 @@ protected void cleanOutputFolders(boolean copyBack) throws CoreException {
 			// CompilationGroup.MAIN is done first, so this notifies the participants only once
 			// calling this for CompilationGroup.TEST could cases generated files for CompilationGroup.MAIN to be deleted.
 			if (this.javaBuilder.participants != null)
-				for (int i = 0, l = this.javaBuilder.participants.length; i < l; i++)
-					this.javaBuilder.participants[i].cleanStarting(this.javaBuilder.javaProject);
+				for (CompilationParticipant participant : this.javaBuilder.participants)
+					participant.cleanStarting(this.javaBuilder.javaProject);
 		}
 
 		Set<IContainer> visited = new LinkedHashSet<>(this.sourceLocations.length);
-		for (int i = 0, l = this.sourceLocations.length; i < l; i++) {
+		for (ClasspathMultiDirectory sourceLocation : this.sourceLocations) {
 			this.notifier.subTask(Messages.bind(Messages.build_cleaningOutput, this.javaBuilder.currentProject.getName()));
-			ClasspathMultiDirectory sourceLocation = this.sourceLocations[i];
 			if (sourceLocation.hasIndependentOutputFolder) {
 				IContainer outputFolder = sourceLocation.binaryFolder;
 				if (!visited.contains(outputFolder)) {
 					visited.add(outputFolder);
 					IResource[] members = outputFolder.members();
-					for (int j = 0, m = members.length; j < m; j++) {
-						IResource member = members[j];
+					for (IResource member : members) {
 						if (!member.isDerived()) {
 							member.accept(
 								new IResourceVisitor() {
@@ -190,8 +188,7 @@ protected void cleanOutputFolders(boolean copyBack) throws CoreException {
 			this.notifier.checkCancel();
 		}
 	} else if (copyBack) {
-		for (int i = 0, l = this.sourceLocations.length; i < l; i++) {
-			ClasspathMultiDirectory sourceLocation = this.sourceLocations[i];
+		for (ClasspathMultiDirectory sourceLocation : this.sourceLocations) {
 			if (sourceLocation.hasIndependentOutputFolder)
 				copyExtraResourcesBack(sourceLocation, false);
 			this.notifier.checkCancel();
@@ -275,8 +272,7 @@ protected void copyExtraResourcesBack(ClasspathMultiDirectory sourceLocation, fi
 }
 
 protected IResource findOriginalResource(IPath partialPath) {
-	for (int i = 0, l = this.sourceLocations.length; i < l; i++) {
-		ClasspathMultiDirectory sourceLocation = this.sourceLocations[i];
+	for (ClasspathMultiDirectory sourceLocation : this.sourceLocations) {
 		if (sourceLocation.hasIndependentOutputFolder) {
 			IResource originalResource = sourceLocation.sourceFolder.getFile(partialPath);
 			if (originalResource.exists()) return originalResource;

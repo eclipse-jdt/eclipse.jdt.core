@@ -408,8 +408,8 @@ private void computeClasspathLocations(
 			outputFolders.add(md);
 
 			// also tag each source folder whose output folder is an independent folder & is not also a source folder
-			for (int j = 0, m = this.sourceLocations.length; j < m; j++)
-				if (outputPath.equals(this.sourceLocations[j].sourceFolder.getFullPath()))
+			for (ClasspathMultiDirectory sourceLocation : this.sourceLocations)
+				if (outputPath.equals(sourceLocation.sourceFolder.getFullPath()))
 					continue next;
 			md.hasIndependentOutputFolder = true;
 		}
@@ -418,10 +418,10 @@ private void computeClasspathLocations(
 	// combine the output folders with the binary folders & jars... place the output folders before other .class file folders & jars
 	this.binaryLocations = new ClasspathLocation[outputFolders.size() + bLocations.size()];
 	int index = 0;
-	for (int i = 0, l = outputFolders.size(); i < l; i++)
-		this.binaryLocations[index++] = (ClasspathLocation) outputFolders.get(i);
-	for (int i = 0, l = bLocations.size(); i < l; i++)
-		this.binaryLocations[index++] = bLocations.get(i);
+	for (Object outputFolder : outputFolders)
+		this.binaryLocations[index++] = (ClasspathLocation) outputFolder;
+	for (ClasspathLocation bLocation : bLocations)
+		this.binaryLocations[index++] = bLocation;
 
 	if (moduleEntries != null && !moduleEntries.isEmpty())
 		this.modulePathEntries = moduleEntries;
@@ -490,10 +490,10 @@ protected boolean isOnModulePath(ClasspathEntry entry) {
 public void cleanup() {
 	this.initialTypeNames = null;
 	this.additionalUnits = null;
-	for (int i = 0, l = this.sourceLocations.length; i < l; i++)
-		this.sourceLocations[i].cleanup();
-	for (int i = 0, l = this.binaryLocations.length; i < l; i++)
-		this.binaryLocations[i].cleanup();
+	for (ClasspathMultiDirectory sourceLocation : this.sourceLocations)
+		sourceLocation.cleanup();
+	for (ClasspathLocation binaryLocation : this.binaryLocations)
+		binaryLocation.cleanup();
 	// assume modulePathEntries are cleaned-up via the corresponding source/binaryLocations
 }
 
@@ -696,14 +696,14 @@ public boolean isPackage(String qualifiedPackageName, char[] moduleName) {
 		case Any:
 		case Unnamed:
 			// NOTE: the output folders are added at the beginning of the binaryLocations
-			for (int i = 0, l = this.binaryLocations.length; i < l; i++) {
-				if (strategy.matches(this.binaryLocations[i], ClasspathLocation::hasModule))
-					if (this.binaryLocations[i].isPackage(qualifiedPackageName, null))
+			for (ClasspathLocation binaryLocation : this.binaryLocations) {
+				if (strategy.matches(binaryLocation, ClasspathLocation::hasModule))
+					if (binaryLocation.isPackage(qualifiedPackageName, null))
 						return true;
 			}
-			for (int i = 0, l = this.sourceLocations.length; i < l; i++) {
-				if (strategy.matches(this.sourceLocations[i], ClasspathLocation::hasModule))
-					if (this.sourceLocations[i].isPackage(qualifiedPackageName, null))
+			for (ClasspathMultiDirectory sourceLocation : this.sourceLocations) {
+				if (strategy.matches(sourceLocation, ClasspathLocation::hasModule))
+					if (sourceLocation.isPackage(qualifiedPackageName, null))
 						return true;
 			}
 			return false;
@@ -748,25 +748,24 @@ void setNames(String[] typeNames, SourceFile[] additionalFiles) {
 		this.initialTypeNames = null;
 	} else {
 		this.initialTypeNames = new SimpleSet(typeNames.length);
-		for (int i = 0, l = typeNames.length; i < l; i++)
-			this.initialTypeNames.add(typeNames[i]);
+		for (String typeName : typeNames)
+			this.initialTypeNames.add(typeName);
 	}
 	// map the additional source files by qualified type name
 	if (additionalFiles == null) {
 		this.additionalUnits = null;
 	} else {
 		this.additionalUnits = new SimpleLookupTable(additionalFiles.length);
-		for (int i = 0, l = additionalFiles.length; i < l; i++) {
-			SourceFile additionalUnit = additionalFiles[i];
+		for (SourceFile additionalUnit : additionalFiles) {
 			if (additionalUnit != null)
-				this.additionalUnits.put(additionalUnit.initialTypeName, additionalFiles[i]);
+				this.additionalUnits.put(additionalUnit.initialTypeName, additionalUnit);
 		}
 	}
 
-	for (int i = 0, l = this.sourceLocations.length; i < l; i++)
-		this.sourceLocations[i].reset();
-	for (int i = 0, l = this.binaryLocations.length; i < l; i++)
-		this.binaryLocations[i].reset();
+	for (ClasspathMultiDirectory sourceLocation : this.sourceLocations)
+		sourceLocation.reset();
+	for (ClasspathLocation binaryLocation : this.binaryLocations)
+		binaryLocation.reset();
 }
 
 @Override

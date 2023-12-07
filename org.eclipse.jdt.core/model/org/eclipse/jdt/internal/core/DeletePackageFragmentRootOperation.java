@@ -111,8 +111,7 @@ public class DeletePackageFragmentRootOperation extends JavaModelOperation {
 	protected void updateReferringProjectClasspaths(IPath rootPath, IJavaProject projectOfRoot, Map oldRoots) throws JavaModelException {
 		IJavaModel model = getJavaModel();
 		IJavaProject[] projects = model.getJavaProjects();
-		for (int i = 0, length = projects.length; i < length; i++) {
-			IJavaProject project = projects[i];
+		for (IJavaProject project : projects) {
 			if (project.equals(projectOfRoot)) continue;
 			updateProjectClasspath(rootPath, project, oldRoots);
 		}

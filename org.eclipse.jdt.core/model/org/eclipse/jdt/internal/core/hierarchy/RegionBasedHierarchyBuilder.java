@@ -159,8 +159,7 @@ private void createTypeHierarchyBasedOnRegion(HashMap allOpenablesInRegion, IPro
 			if (devPathRoots == null) {
 				return;
 			}
-			for (int j = 0; j < devPathRoots.length; j++) {
-				IPackageFragmentRoot root = devPathRoots[j];
+			for (IPackageFragmentRoot root : devPathRoots) {
 				injectAllOpenablesForPackageFragmentRoot(root, openables);
 			}
 		} catch (JavaModelException e) {
@@ -183,13 +182,13 @@ private void createTypeHierarchyBasedOnRegion(HashMap allOpenablesInRegion, IPro
 				boolean isSourcePackageFragment = (kind == IPackageFragmentRoot.K_SOURCE);
 				if (isSourcePackageFragment) {
 					ICompilationUnit[] cus = packFrag.getCompilationUnits();
-					for (int i = 0, length = cus.length; i < length; i++) {
-						openables.add(cus[i]);
+					for (ICompilationUnit element : cus) {
+						openables.add(element);
 					}
 				} else {
 					IOrdinaryClassFile[] classFiles = packFrag.getOrdinaryClassFiles();
-					for (int i = 0, length = classFiles.length; i < length; i++) {
-						openables.add(classFiles[i]);
+					for (IOrdinaryClassFile classFile : classFiles) {
+						openables.add(classFile);
 					}
 				}
 			}
@@ -207,8 +206,8 @@ private void createTypeHierarchyBasedOnRegion(HashMap allOpenablesInRegion, IPro
 		ArrayList openables) {
 		try {
 			IJavaElement[] packFrags = root.getChildren();
-			for (int k = 0; k < packFrags.length; k++) {
-				IPackageFragment packFrag = (IPackageFragment) packFrags[k];
+			for (IJavaElement packFrag2 : packFrags) {
+				IPackageFragment packFrag = (IPackageFragment) packFrag2;
 				injectAllOpenablesForPackageFragment(packFrag, openables);
 			}
 		} catch (JavaModelException e) {

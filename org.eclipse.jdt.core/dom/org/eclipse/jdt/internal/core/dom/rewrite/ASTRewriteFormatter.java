@@ -227,8 +227,8 @@ public final class ASTRewriteFormatter {
 			Document doc= createDocument(string, positions);
 			edit.apply(doc, 0);
 			if (positions != null) {
-				for (int i= 0; i < positions.length; i++) {
-					Assert.isTrue(!positions[i].isDeleted, "Position got deleted"); //$NON-NLS-1$
+				for (Position position : positions) {
+					Assert.isTrue(!position.isDeleted, "Position got deleted"); //$NON-NLS-1$
 				}
 			}
 			return doc.get();
@@ -401,8 +401,8 @@ public final class ASTRewriteFormatter {
 			return null; // not supported
 		}
 		TextEdit[] children= oldEdit.getChildren();
-		for (int i= 0; i < children.length; i++) {
-			TextEdit shifted= shifEdit(children[i], diff);
+		for (TextEdit child : children) {
+			TextEdit shifted= shifEdit(child, diff);
 			if (shifted != null) {
 				newEdit.addChild(shifted);
 			}
@@ -429,11 +429,11 @@ public final class ASTRewriteFormatter {
 						return true;
 					}
 				});
-				for (int i= 0; i < positions.length; i++) {
+				for (Position position : positions) {
 					try {
-						doc.addPosition(POS_CATEGORY, positions[i]);
+						doc.addPosition(POS_CATEGORY, position);
 					} catch (BadLocationException e) {
-						throw new IllegalArgumentException("Position outside of string. offset: " + positions[i].offset + ", length: " + positions[i].length + ", string size: " + string.length(), e);   //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
+						throw new IllegalArgumentException("Position outside of string. offset: " + position.offset + ", length: " + position.length + ", string size: " + string.length(), e);   //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$
 					}
 				}
 			}

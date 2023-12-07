@@ -15,7 +15,6 @@ package org.eclipse.jdt.core.dom;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -139,8 +138,8 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 					SEALED_KEYWORD,
 					NON_SEALED_KEYWORD
 				};
-			for (int i = 0; i < ops.length; i++) {
-				KEYWORDS.put(ops[i].toString(), ops[i]);
+			for (ModifierKeyword op : ops) {
+				KEYWORDS.put(op.toString(), op);
 			}
 		}
 
@@ -158,8 +157,8 @@ public final class Modifier extends ASTNode implements IExtendedModifier {
 		 * @see #toFlagValue()
 		 */
 		public static ModifierKeyword fromFlagValue(int flagValue) {
-			for (Iterator it = KEYWORDS.values().iterator(); it.hasNext(); ) {
-				ModifierKeyword k = (ModifierKeyword) it.next();
+			for (Object element : KEYWORDS.values()) {
+				ModifierKeyword k = (ModifierKeyword) element;
 				if (k.toFlagValue() == flagValue) {
 					return k;
 				}

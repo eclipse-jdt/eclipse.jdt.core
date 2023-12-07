@@ -15,7 +15,6 @@
 package org.eclipse.jdt.core.dom;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -295,8 +294,7 @@ public class VariableDeclarationExpression extends Expression {
 			// performance could be improved by caching computed flags
 			// but this would require tracking changes to this.modifiers
 			int computedModifierFlags = Modifier.NONE;
-			for (Iterator it = modifiers().iterator(); it.hasNext(); ) {
-				Object x = it.next();
+			for (Object x : modifiers()) {
 				if (x instanceof Modifier) {
 					computedModifierFlags |= ((Modifier) x).getKeyword().toFlagValue();
 				}

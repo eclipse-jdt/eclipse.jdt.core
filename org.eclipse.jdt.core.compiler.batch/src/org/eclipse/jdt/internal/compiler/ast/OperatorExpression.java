@@ -143,9 +143,7 @@ public abstract class OperatorExpression extends Expression implements OperatorI
 			"\n"; //$NON-NLS-1$
 
 		int error = 0;
-		for (int i=0; i < operators.length; i++)
-		{	int operator = operators[i];
-			for (int left=0; left<16;left++)
+		for (int operator : operators) {	for (int left=0; left<16;left++)
 			for (int right=0; right<16;right++)
 			{	int result = (OperatorSignatures[operator][(left<<4)+right]) & 0x0000F;
 				if (result != T_undefined)

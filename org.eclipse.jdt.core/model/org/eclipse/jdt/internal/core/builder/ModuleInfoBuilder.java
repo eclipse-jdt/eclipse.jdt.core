@@ -82,8 +82,8 @@ public class ModuleInfoBuilder {
 		if (modulePackageNames != null) {
 			SimpleSetOfCharArray namesSet = new SimpleSetOfCharArray();
 			String[] providedNames = modulePackageNames.split(","); //$NON-NLS-1$
-			for (int i = 0; i < providedNames.length; i++) {
-				namesSet.add(providedNames[i].trim().toCharArray());
+			for (String providedName : providedNames) {
+				namesSet.add(providedName.trim().toCharArray());
 			}
 			moduleUpdater.addModuleUpdate(module.getElementName(),  m -> m.setPackageNames(namesSet), UpdateKind.MODULE);
 		}

@@ -46,8 +46,7 @@ public class CaptureBinding18 extends CaptureBinding {
 		int numReferenceInterfaces = 0;
 		if (!isConsistentIntersection(upperBounds))
 			return false;
-		for (int i = 0; i < upperBounds.length; i++) {
-			TypeBinding aBound = upperBounds[i];
+		for (TypeBinding aBound : upperBounds) {
 			if (aBound instanceof ReferenceBinding) {
 				if (this.superclass == null && aBound.isClass())
 					this.superclass = (ReferenceBinding) aBound;
@@ -59,8 +58,7 @@ public class CaptureBinding18 extends CaptureBinding {
 		}
 		this.superInterfaces = new ReferenceBinding[numReferenceInterfaces];
 		int idx = 0;
-		for (int i = 0; i < upperBounds.length; i++) {
-			TypeBinding aBound = upperBounds[i];
+		for (TypeBinding aBound : upperBounds) {
 			if (aBound.isInterface())
 				this.superInterfaces[idx++] = (ReferenceBinding) aBound;
 		}
@@ -117,8 +115,7 @@ public class CaptureBinding18 extends CaptureBinding {
 		if (otherType == null) return false;
 		if (this.upperBounds != null) {
 			// from CaptureBinding:
-			for (int i = 0; i < this.upperBounds.length; i++) {
-				TypeBinding aBound = this.upperBounds[i];
+			for (TypeBinding aBound : this.upperBounds) {
 				// capture of ? extends X[]
 				if (aBound != null && aBound.isArrayType()) {
 					if (!aBound.isCompatibleWith(otherType))
@@ -182,8 +179,8 @@ public class CaptureBinding18 extends CaptureBinding {
 	@Override
 	public TypeBinding findSuperTypeOriginatingFrom(TypeBinding otherType) {
 		if (this.upperBounds != null && this.upperBounds.length > 1) {
-			for (int i = 0; i < this.upperBounds.length; i++) {
-				TypeBinding candidate = this.upperBounds[i].findSuperTypeOriginatingFrom(otherType);
+			for (TypeBinding upperBound : this.upperBounds) {
+				TypeBinding candidate = upperBound.findSuperTypeOriginatingFrom(otherType);
 				if (candidate != null)
 					return candidate;
 				// TODO: maybe we should double check about multiple candidates here,
@@ -286,8 +283,8 @@ public class CaptureBinding18 extends CaptureBinding {
 			if (this.lowerBound != null && !this.lowerBound.isProperType(admitCapture18))
 				return false;
 			if (this.upperBounds != null) {
-				for (int i = 0; i < this.upperBounds.length; i++) {
-					if (!this.upperBounds[i].isProperType(admitCapture18))
+				for (TypeBinding upperBound : this.upperBounds) {
+					if (!upperBound.isProperType(admitCapture18))
 						return false;
 				}
 			}

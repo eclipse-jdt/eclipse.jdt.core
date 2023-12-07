@@ -411,8 +411,7 @@ public class JavadocContents {
 		// fix for bug 432284: [1.8] Javadoc-8-style anchors not found by IMethod#getAttachedJavadoc(..)
 		char[] anchor8 = new char[anchor.length];
 		int i8 = 0;
-		for (int i = 0; i < anchor.length; i++) {
-			char ch = anchor[i];
+		for (char ch : anchor) {
 			switch (ch) {
 				case '(':
 				case ')':

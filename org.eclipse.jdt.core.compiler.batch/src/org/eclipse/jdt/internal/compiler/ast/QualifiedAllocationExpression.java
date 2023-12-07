@@ -127,13 +127,13 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			boolean hasResourceWrapperType = analyseResources
 						&& this.resolvedType instanceof ReferenceBinding
 						&& ((ReferenceBinding)this.resolvedType).hasTypeBit(TypeIds.BitWrapperCloseable);
-			for (int i = 0, count = this.arguments.length; i < count; i++) {
-				flowInfo = this.arguments[i].analyseCode(currentScope, flowContext, flowInfo);
+			for (Expression argument : this.arguments) {
+				flowInfo = argument.analyseCode(currentScope, flowContext, flowInfo);
 				if (analyseResources && !hasResourceWrapperType) { // allocation of wrapped closeables is analyzed specially
 					// if argument is an AutoCloseable insert info that it *may* be closed (by the target method, i.e.)
-					flowInfo = FakedTrackingVariable.markPassedToOutside(currentScope, this.arguments[i], flowInfo, flowContext, false);
+					flowInfo = FakedTrackingVariable.markPassedToOutside(currentScope, argument, flowInfo, flowContext, false);
 				}
-				this.arguments[i].checkNPEbyUnboxing(currentScope, flowContext, flowInfo);
+				argument.checkNPEbyUnboxing(currentScope, flowContext, flowInfo);
 			}
 			analyseArguments(currentScope, flowContext, flowInfo, this.binding, this.arguments);
 		}
@@ -420,8 +420,8 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				}
 				if (this.argumentsHaveErrors) {
 					if (this.arguments != null) { // still attempt to resolve arguments
-						for (int i = 0, max = this.arguments.length; i < max; i++) {
-							this.arguments[i].resolveType(scope);
+						for (Expression argument : this.arguments) {
+							argument.resolveType(scope);
 						}
 					}
 					return null;
@@ -678,8 +678,8 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			if (this.enclosingInstance != null)
 				this.enclosingInstance.traverse(visitor, scope);
 			if (this.typeArguments != null) {
-				for (int i = 0, typeArgumentsLength = this.typeArguments.length; i < typeArgumentsLength; i++) {
-					this.typeArguments[i].traverse(visitor, scope);
+				for (TypeReference typeArgument : this.typeArguments) {
+					typeArgument.traverse(visitor, scope);
 				}
 			}
 			if (this.type != null) // case of enum constant

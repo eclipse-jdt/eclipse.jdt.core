@@ -66,8 +66,7 @@ public class ClasspathChange {
 	}
 
 	private void addClasspathDeltas(JavaElementDelta delta, IPackageFragmentRoot[] roots, int flag) {
-		for (int i = 0; i < roots.length; i++) {
-			IPackageFragmentRoot root = roots[i];
+		for (IPackageFragmentRoot root : roots) {
 			delta.changed(root, flag);
 			if ((flag & IJavaElementDelta.F_REMOVED_FROM_CLASSPATH) != 0
 					|| (flag & IJavaElementDelta.F_SOURCEATTACHED) != 0
@@ -161,8 +160,7 @@ public class ClasspathChange {
 	private void collectAllSubfolders(IFolder folder, ArrayList collection) throws JavaModelException {
 		try {
 			IResource[] members= folder.members();
-			for (int i = 0, max = members.length; i < max; i++) {
-				IResource r= members[i];
+			for (IResource r : members) {
 				if (r.getType() == IResource.FOLDER) {
 					collection.add(r);
 					collectAllSubfolders((IFolder)r, collection);
@@ -192,11 +190,10 @@ public class ClasspathChange {
 			IFolder folder = (IFolder) resource;
 			// only changes if it actually existed
 			IClasspathEntry[] classpath = this.project.getExpandedClasspath();
-			for (int i = 0; i < classpath.length; i++) {
-				IClasspathEntry entry = classpath[i];
-				IPath path = classpath[i].getPath();
+			for (IClasspathEntry entry : classpath) {
+				IPath path = entry.getPath();
 				if (entry.getEntryKind() != IClasspathEntry.CPE_PROJECT && path.isPrefixOf(location) && !path.equals(location)) {
-					IPackageFragmentRoot[] roots = this.project.computePackageFragmentRoots(classpath[i]);
+					IPackageFragmentRoot[] roots = this.project.computePackageFragmentRoots(entry);
 					PackageFragmentRoot root = (PackageFragmentRoot) roots[0];
 					// now the output location becomes a package fragment - along with any subfolders
 					ArrayList folders = new ArrayList();
@@ -272,8 +269,7 @@ public class ClasspathChange {
 
 				// reset containers that are no longer on the classpath
 				// (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=139446)
-				for (int i = 0, length = this.oldRawClasspath.length; i < length; i++) {
-					IClasspathEntry entry = this.oldRawClasspath[i];
+				for (IClasspathEntry entry : this.oldRawClasspath) {
 					if (entry.getEntryKind() == IClasspathEntry.CPE_CONTAINER) {
 						if (classpathContains(newRawClasspath, entry) == -1)
 							manager.containerPut(this.project, entry.getPath(), null);
@@ -314,8 +310,7 @@ public class ClasspathChange {
 		}
 		if (roots != null) {
 			removedRoots = new HashMap();
-			for (int i = 0; i < roots.length; i++) {
-				IPackageFragmentRoot root = roots[i];
+			for (IPackageFragmentRoot root : roots) {
 				removedRoots.put(root.getPath(), root);
 			}
 		}
@@ -409,8 +404,7 @@ public class ClasspathChange {
 						// if source path is specified and no root path, it needs to be recomputed dynamically
 						// force detach source on jar package fragment roots (source will be lazily computed when needed)
 						IPackageFragmentRoot[] computedRoots = this.project.computePackageFragmentRoots(this.oldResolvedClasspath[i]);
-						for (int j = 0; j < computedRoots.length; j++) {
-							IPackageFragmentRoot root = computedRoots[j];
+						for (IPackageFragmentRoot root : computedRoots) {
 							// force detach source on jar package fragment roots (source will be lazily computed when needed)
 							try {
 								root.close();
@@ -605,8 +599,7 @@ public class ClasspathChange {
 		List<IClasspathAttributeDelta> attributeDeltas = ClasspathAttributeDelta.getAttributeDeltas(oldClasspathEntry, newClasspathEntry);
 		if (!attributeDeltas.isEmpty()) {
 			IPackageFragmentRoot[] roots = this.project.computePackageFragmentRoots(oldClasspathEntry);
-			for (int i = 0; i < roots.length; ++i) {
-				IPackageFragmentRoot root = roots[i];
+			for (IPackageFragmentRoot root : roots) {
 				JavaElementDelta childDelta = delta.changed(root, IJavaElementDelta.F_CLASSPATH_ATTRIBUTES);
 				for (IClasspathAttributeDelta attributeDelta : attributeDeltas) {
 					childDelta.addAttributeDelta(attributeDelta);
