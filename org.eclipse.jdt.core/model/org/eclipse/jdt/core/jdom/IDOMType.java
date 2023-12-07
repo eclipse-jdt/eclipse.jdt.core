@@ -163,7 +163,7 @@ public void setAnnotation(boolean b);
  * Sets the formal type parameters for this type.
  * <p>Formal type parameters are given as they appear in the source
  * code; for example:
- * <code>"X extends List&lt;String&gt; &amp Serializable"</code>.
+ * <code>"X extends List&lt;String&gt; &amp; Serializable"</code>.
  * </p>
  *
  * @param typeParameters the formal type parameters of this type,
