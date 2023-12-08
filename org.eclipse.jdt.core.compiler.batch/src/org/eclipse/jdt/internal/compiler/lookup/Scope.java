@@ -986,8 +986,8 @@ public abstract class Scope {
 				nextBound: for (int j = 0, boundLength = boundRefs.length; j < boundLength; j++) {
 					typeRef = boundRefs[j];
 					superType = this.kind == METHOD_SCOPE
-						? typeRef.resolveType((BlockScope)this, false)
-						: typeRef.resolveType((ClassScope)this);
+						? typeRef.resolveType((BlockScope)this, false, Binding.DefaultLocationTypeBound)
+						: typeRef.resolveType((ClassScope)this, Binding.DefaultLocationTypeBound);
 					if (superType == null) {
 						typeVariable.tagBits |= TagBits.HierarchyHasProblems;
 						continue nextBound;
