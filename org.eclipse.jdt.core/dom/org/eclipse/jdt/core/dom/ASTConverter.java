@@ -3418,7 +3418,9 @@ class ASTConverter {
 		final SimpleName typeName = new SimpleName(this.ast);
 		typeName.internalSetIdentifier(new String(typeDeclaration.name));
 		typeName.setSourceRange(typeDeclaration.sourceStart, typeDeclaration.sourceEnd - typeDeclaration.sourceStart + 1);
-		typeDecl.setName(typeName);
+		if (!(typeDeclaration instanceof org.eclipse.jdt.internal.compiler.ast.UnnamedClass)) {
+			typeDecl.setName(typeName);
+		}
 		typeDecl.setSourceRange(typeDeclaration.declarationSourceStart, typeDeclaration.bodyEnd - typeDeclaration.declarationSourceStart + 1);
 
 		// need to set the superclass and super interfaces here since we cannot distinguish them at
