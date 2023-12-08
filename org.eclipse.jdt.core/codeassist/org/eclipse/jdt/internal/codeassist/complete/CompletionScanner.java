@@ -452,6 +452,12 @@ protected int getNextToken0() throws InvalidInputException {
 								// complete inside a string literal
 								return TokenNameStringLiteral;
 							}
+						} else if (Scanner.UNTERMINATED_STRING.equals(e.getMessage())) {
+								if (this.startPosition <= this.cursorLocation
+									&& this.cursorLocation <= this.currentPosition-1) {
+								// complete inside a string literal
+								return TokenNameStringLiteral;
+							}
 						}
 						throw e;
 					}
