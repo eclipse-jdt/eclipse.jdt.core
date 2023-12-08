@@ -10859,7 +10859,7 @@ public void test0164() {
 		"  public X() {\n" +
 		"  }\n" +
 		"}\n";
-	String expectedReplacedSource = "\"\\u005AZZZZ";
+	String expectedReplacedSource = "\"\\u005AZZZZ\\u000D\\u0022";
 	String testName = "<complete inside a string literal>";
 
 	int cursorLocation = str.indexOf(completeBehind) + completeBehind.length() - 1;
