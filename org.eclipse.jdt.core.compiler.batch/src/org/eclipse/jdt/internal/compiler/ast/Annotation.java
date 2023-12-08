@@ -435,7 +435,9 @@ public abstract class Annotation extends Expression {
 		} else if (annotationType.hasNullBit(TypeIds.BitNonNullByDefaultAnnotation)) {
 			tagBits |= determineNonNullByDefaultTagBits(annotationType, valueAttribute);
 		}
-
+		if (annotationType.hasTypeBit(TypeIds.BitOwningAnnotation)) {
+			tagBits |= TagBits.AnnotationOwning;
+		}
 		return tagBits;
 	}
 

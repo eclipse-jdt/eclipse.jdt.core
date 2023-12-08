@@ -60,6 +60,15 @@ private static final String STREAMEX_CONTENT = "package one.util.streamex;\n" +
 	"    public static <T> StreamEx<T> create() { return null; }\n" +
 	"}\n";
 
+private static final String OWNING_JAVA = "org/eclipse/jdt/annotation/Owning.java";
+private static final String OWNING_CONTENT =
+	"""
+	package org.eclipse.jdt.annotation;
+	import java.lang.annotation.*;
+	@Target({ElementType.PARAMETER, ElementType.METHOD})
+	public @interface Owning {}
+	""";
+
 static {
 //	TESTS_NAMES = new String[] { "testBug463320" };
 //	TESTS_NUMBERS = new int[] { 50 };
@@ -6993,6 +7002,106 @@ public void testBug499037_010_since_9() {
 		"	  ^^\n" +
 		"Potential resource leak: \'yy\' may not be closed\n" +
 		"----------\n",
+		options);
+}
+public void testOwning_receiving() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.WARNING);
+	runLeakTest(
+		new String[] {
+			OWNING_JAVA,
+			OWNING_CONTENT,
+			"X.java",
+			"""
+			import org.eclipse.jdt.annotation.Owning;
+			public class X {
+				void nok(@Owning AutoCloseable c) {
+					System.out.print(1);
+				}
+				void ok(@Owning AutoCloseable c) throws Exception {
+					try (c) {
+						System.out.print(2);
+					};
+				}
+			}
+			"""
+		},
+		"""
+		----------
+		1. ERROR in X.java (at line 3)
+			void nok(@Owning AutoCloseable c) {
+			                               ^
+		Resource leak: \'c\' is never closed
+		----------
+		""",
+		options);
+
+}
+public void testOwning_sending() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_AnnotationBasedResourceAnalysis, CompilerOptions.ENABLED);
+	runLeakTest(
+		new String[] {
+			OWNING_JAVA,
+			OWNING_CONTENT,
+			"X.java",
+			"""
+			import org.eclipse.jdt.annotation.Owning;
+			class Rc implements AutoCloseable {
+				@Override public void close() {}
+			}
+			public class X {
+				void consume(@Owning Rc rc1) {
+					try (rc1) {
+						System.out.print(2);
+					};
+				}
+				void nok() {
+					Rc rc2 = new Rc();
+					System.out.print(rc2);
+				}
+				void unsafe(boolean f) {
+					Rc rc3 = new Rc();
+					if (f)
+						consume(rc3);
+				}
+				void leakAtReturn(boolean f) {
+					Rc rc4 = new Rc();
+					if (f)
+						return;
+					consume(rc4);
+				}
+				void ok(boolean f) {
+					Rc rc5 = new Rc();
+					if (f)
+						consume(rc5);
+					else
+						rc5.close();
+				}
+			}
+			"""
+		},
+		"""
+		----------
+		1. ERROR in X.java (at line 12)
+			Rc rc2 = new Rc();
+			   ^^^
+		Potential resource leak: 'rc2' may not be closed
+		----------
+		2. ERROR in X.java (at line 16)
+			Rc rc3 = new Rc();
+			   ^^^
+		Potential resource leak: 'rc3' may not be closed
+		----------
+		3. ERROR in X.java (at line 23)
+			return;
+			^^^^^^^
+		Resource leak: 'rc4' is not closed at this location
+		----------
+		""",
 		options);
 }
 }

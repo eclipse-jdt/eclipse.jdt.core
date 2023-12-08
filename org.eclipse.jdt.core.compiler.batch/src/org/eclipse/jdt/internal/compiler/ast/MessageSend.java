@@ -237,7 +237,14 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			}
 			if (analyseResources) {
 				// if argument is an AutoCloseable insert info that it *may* be closed (by the target method, i.e.)
-				flowInfo = FakedTrackingVariable.markPassedToOutside(currentScope, argument, flowInfo, flowContext, false);
+				if (this.binding.ownsParameter(i)) {
+					FakedTrackingVariable trackVar = FakedTrackingVariable.getCloseTrackingVariable(argument, flowInfo, flowContext);
+					if (trackVar != null) {
+						flowInfo.markAsDefinitelyNonNull(trackVar.binding);
+					}
+				} else {
+					flowInfo = FakedTrackingVariable.markPassedToOutside(currentScope, argument, flowInfo, flowContext, false);
+				}
 			}
 		}
 		analyseArguments(currentScope, flowContext, flowInfo, this.binding, this.arguments);

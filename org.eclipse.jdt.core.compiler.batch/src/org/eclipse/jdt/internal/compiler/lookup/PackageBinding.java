@@ -103,9 +103,9 @@ void addType(ReferenceBinding element) {
 	if (priorType != null && priorType.isUnresolvedType() && !element.isUnresolvedType()) {
 		((UnresolvedReferenceBinding) priorType).setResolvedType(element, this.environment);
 	}
-	if (this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled)
+	if (this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled || this.environment.usesOwningAnnotation())
 		if (element.isAnnotationType() || element instanceof UnresolvedReferenceBinding) // unresolved types don't yet have the modifiers set
-			checkIfNullAnnotationType(element);
+			checkIfAnalysisAnnotationType(element);
 
 	if (!element.isUnresolvedType() && this.wrappingSplitPackageBindings != null) {
 		for (SplitPackageBinding splitPackageBinding : this.wrappingSplitPackageBindings) {
@@ -394,7 +394,7 @@ private boolean isPackageOfQualifiedTypeName(char[][] packageName, char[][] type
 	return true;
 }
 
-void checkIfNullAnnotationType(ReferenceBinding type) {
+void checkIfAnalysisAnnotationType(ReferenceBinding type) {
 	// check if type is one of the configured null annotation types
 	// if so mark as a well known type using the corresponding typeBit:
 	if (this.environment.nullableAnnotationPackage == this
@@ -413,7 +413,7 @@ void checkIfNullAnnotationType(ReferenceBinding type) {
 		if (!(type instanceof UnresolvedReferenceBinding)) // unresolved will need to check back for the resolved type
 			this.environment.nonnullByDefaultAnnotationPackage = null; // don't check again
 	} else {
-		type.typeBits |= this.environment.getNullAnnotationBit(type.compoundName);
+		type.typeBits |= this.environment.getAnalysisAnnotationBit(type.compoundName);
 	}
 }
 

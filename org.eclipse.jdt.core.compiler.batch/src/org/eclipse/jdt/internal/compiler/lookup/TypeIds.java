@@ -283,6 +283,9 @@ public interface TypeIds {
 	/** Mark subtypes of List to analyze dangerous indexOf. */
 	final int BitList = 1024;
 
+	/** Mark the type using as owning-annotation for resource analysis. */
+	final int BitOwningAnnotation = 2048;
+
 	/**
 	 * Set of type bits that should be inherited by any sub types.
 	 */

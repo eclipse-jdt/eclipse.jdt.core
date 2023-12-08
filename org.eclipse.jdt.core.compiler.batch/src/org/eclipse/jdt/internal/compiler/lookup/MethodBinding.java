@@ -73,6 +73,8 @@ public class MethodBinding extends Binding {
 	public Boolean[] parameterNonNullness;  // TRUE means @NonNull declared, FALSE means @Nullable declared, null means nothing declared
 	public int defaultNullness; // for null *type* annotations
 
+	public Boolean[] parameterOwning; // TRUE means @Owning declared, ...
+
 	/** Store parameter names from MethodParameters attribute (incl. applicable default). */
 	public char[][] parameterNames = Binding.NO_PARAMETER_NAMES;
 
@@ -1453,6 +1455,11 @@ public boolean hasPolymorphicSignature(Scope scope) {
 		}
 	}
 
+	return false;
+}
+public boolean ownsParameter(int i) {
+	if (this.parameterOwning != null)
+		return this.parameterOwning[i] == Boolean.TRUE;
 	return false;
 }
 }

@@ -768,7 +768,7 @@ private int getNullDefaultFrom(IBinaryAnnotation[] declAnnotations) {
 	if (declAnnotations != null) {
 		for (IBinaryAnnotation annotation : declAnnotations) {
 			char[][] typeName = signature2qualifiedTypeName(annotation.getTypeName());
-			if (this.environment.getNullAnnotationBit(typeName) == TypeIds.BitNonNullByDefaultAnnotation)
+			if (this.environment.getAnalysisAnnotationBit(typeName) == TypeIds.BitNonNullByDefaultAnnotation)
 				result |= getNonNullByDefaultValue(annotation, this.environment);
 		}
 	}
@@ -2043,7 +2043,7 @@ private void scanFieldForNullAnnotation(IBinaryField field, VariableBinding fiel
 			char[] annotationTypeName = annotations[i].getTypeName();
 			if (annotationTypeName[0] != Util.C_RESOLVED)
 				continue;
-			int typeBit = this.environment.getNullAnnotationBit(signature2qualifiedTypeName(annotationTypeName));
+			int typeBit = this.environment.getAnalysisAnnotationBit(signature2qualifiedTypeName(annotationTypeName));
 			if (typeBit == TypeIds.BitNonNullAnnotation) {
 				fieldBinding.tagBits |= TagBits.AnnotationNonNull;
 				explicitNullness = true;
@@ -2101,7 +2101,7 @@ private void scanMethodForNullAnnotation(IBinaryMethod method, MethodBinding met
 			char[] annotationTypeName = annotations[i].getTypeName();
 			if (annotationTypeName[0] != Util.C_RESOLVED)
 				continue;
-			int typeBit = this.environment.getNullAnnotationBit(signature2qualifiedTypeName(annotationTypeName));
+			int typeBit = this.environment.getAnalysisAnnotationBit(signature2qualifiedTypeName(annotationTypeName));
 			if (typeBit == TypeIds.BitNonNullByDefaultAnnotation) {
 				methodDefaultNullness |= getNonNullByDefaultValue(annotations[i], this.environment);
 			} else if (typeBit == TypeIds.BitNonNullAnnotation) {
@@ -2144,7 +2144,7 @@ private void scanMethodForNullAnnotation(IBinaryMethod method, MethodBinding met
 						char[] annotationTypeName = paramAnnotations[i].getTypeName();
 						if (annotationTypeName[0] != Util.C_RESOLVED)
 							continue;
-						int typeBit = this.environment.getNullAnnotationBit(signature2qualifiedTypeName(annotationTypeName));
+						int typeBit = this.environment.getAnalysisAnnotationBit(signature2qualifiedTypeName(annotationTypeName));
 						if (typeBit == TypeIds.BitNonNullAnnotation) {
 							if (methodBinding.parameterNonNullness == null)
 								methodBinding.parameterNonNullness = new Boolean[numVisibleParams];
@@ -2214,7 +2214,7 @@ private void scanTypeForNullDefaultAnnotation(IBinaryType binaryType, PackageBin
 			char[] annotationTypeName = annotations[i].getTypeName();
 			if (annotationTypeName[0] != Util.C_RESOLVED)
 				continue;
-			int typeBit = this.environment.getNullAnnotationBit(signature2qualifiedTypeName(annotationTypeName));
+			int typeBit = this.environment.getAnalysisAnnotationBit(signature2qualifiedTypeName(annotationTypeName));
 			if (typeBit == TypeIds.BitNonNullByDefaultAnnotation) {
 				// using NonNullByDefault we need to inspect the details of the value() attribute:
 				nullness |= getNonNullByDefaultValue(annotations[i], this.environment);
