@@ -1731,4 +1731,29 @@ s
 				"Syntax error on token \")\", delete this token\n" +
 				"----------\n");
 	}
+	public void test0063() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"""
+					public class X {
+						 public static void main(String argv[]) {
+						 	String name = "Jay";
+							String greet = STR."Hello \\{name + foo())}!";
+							System.out.println(greet);
+						}
+						private static String foo() {
+							return "A";
+						}
+					}
+					interface Intf {
+					}"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 1)\n" +
+				"	String greet = STR.\"Hello \\{name + foo())}!\";\n" +
+				"	                                        ^\n" +
+				"Syntax error on token \")\", delete this token\n" +
+				"----------\n");
+	}
 }
