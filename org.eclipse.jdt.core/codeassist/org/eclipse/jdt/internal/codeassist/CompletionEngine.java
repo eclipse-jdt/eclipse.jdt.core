@@ -10943,6 +10943,8 @@ public final class CompletionEngine
 		MethodBinding[] receiverTypeMethods = receiverType.availableMethods();
 		if (receiverTypeMethods != null){
 			for (int i = 0; i < receiverTypeMethods.length; i++) {
+				if (receiverType.isRecord() && receiverTypeMethods[i].isSynthetic())
+					continue; // allow proposals to override compiler supplied implementations.
 				if(!receiverTypeMethods[i].isDefaultAbstract()) {
 					methodsFound.add(receiverTypeMethods[i]);
 				}
