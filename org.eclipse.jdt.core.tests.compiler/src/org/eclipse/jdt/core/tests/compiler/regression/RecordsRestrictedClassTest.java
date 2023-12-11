@@ -2156,7 +2156,7 @@ public void testBug560496_001() throws Exception {
 		},
 	 "0");
 	String expectedOutput =
-			"public final synthetic int hashCode();\n";
+			"public final int hashCode();\n";
 	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug560496_002() throws Exception {
@@ -2172,7 +2172,7 @@ public void testBug560496_002() throws Exception {
 		},
 	 "0");
 	String expectedOutput =
-			"public final strictfp synthetic int hashCode();\n";
+			"public final strictfp int hashCode();\n";
 	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug560797_001() throws Exception {
@@ -2501,7 +2501,7 @@ public void testBug56180_001() throws Exception {
 		},
 	 "R[]");
 	String expectedOutput =
-			" public final synthetic java.lang.String toString();\n";
+			" public final java.lang.String toString();\n";
 	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "R.class", ClassFileBytesDisassembler.SYSTEM);
 }
 public void testBug561528_001() {
