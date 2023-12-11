@@ -881,4 +881,106 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 				requestor.getResults());
 	}
 
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1095
+	// Content assist does not propose overrides in records
+	public void testBugGH1095() throws Exception {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/Bug_GH1095.java",
+				 "interface BaseInterface {\n" +
+				 "   void implementMe();\n" +
+				"}\n" +
+				"\n" +
+				"class X implements BaseInterface {\n" +
+				"    /*works here*/\n" +
+				"}\n" +
+				"\n" +
+				"record R() implements BaseInterface {\n" +
+				"    /*Fix needed here*/\n" +
+				"}\n");
+		this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "/*Fix needed here*/";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults("[POTENTIAL_METHOD_DECLARATION]{, LR;, ()V, , null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+				"abstract[KEYWORD]{abstract, null, null, abstract, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"class[KEYWORD]{class, null, null, class, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"enum[KEYWORD]{enum, null, null, enum, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"final[KEYWORD]{final, null, null, final, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"interface[KEYWORD]{interface, null, null, interface, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"native[KEYWORD]{native, null, null, native, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"private[KEYWORD]{private, null, null, private, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"protected[KEYWORD]{protected, null, null, protected, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"public[KEYWORD]{public, null, null, public, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"static[KEYWORD]{static, null, null, static, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"strictfp[KEYWORD]{strictfp, null, null, strictfp, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"synchronized[KEYWORD]{synchronized, null, null, synchronized, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"transient[KEYWORD]{transient, null, null, transient, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"volatile[KEYWORD]{volatile, null, null, volatile, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"BaseInterface[TYPE_REF]{BaseInterface, , LBaseInterface;, null, null, " + +(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"R[TYPE_REF]{R, , LR;, null, null, " + +(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"X[TYPE_REF]{X, , LX;, null, null, " + +(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"clone[METHOD_DECLARATION]{protected Object clone() throws CloneNotSupportedException, Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"finalize[METHOD_DECLARATION]{protected void finalize() throws Throwable, Ljava.lang.Object;, ()V, finalize, null, " +(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"hashCode[METHOD_DECLARATION]{public int hashCode(), Ljava.lang.Object;, ()I, hashCode, null, " +(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"toString[METHOD_DECLARATION]{public String toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, " +(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"implementMe[METHOD_DECLARATION]{public void implementMe(), LBaseInterface;, ()V, implementMe, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ABSTRACT_METHOD + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1095
+	// Content assist does not propose overrides in records
+	public void testBugGH1095_2() throws Exception {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/Bug_GH1095.java",
+				 "interface BaseInterface {\n" +
+				 "   void implementMe();\n" +
+				"}\n" +
+				"\n" +
+				"class X implements BaseInterface {\n" +
+				"    /*works here*/\n" +
+				"}\n" +
+				"\n" +
+				"record R() implements BaseInterface {\n" +
+				"    /*Fix needed here*/\n" +
+				"    public int hashCode() {\n" +
+				"        return 0;\n" +
+				"    }\n" +
+				"}\n");
+		this.workingCopies[0].getJavaProject(); // assuming single project for all working copies
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "/*Fix needed here*/";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults("[POTENTIAL_METHOD_DECLARATION]{, LR;, ()V, , null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_NON_RESTRICTED) + "}\n" +
+				"abstract[KEYWORD]{abstract, null, null, abstract, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"class[KEYWORD]{class, null, null, class, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"enum[KEYWORD]{enum, null, null, enum, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"final[KEYWORD]{final, null, null, final, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"interface[KEYWORD]{interface, null, null, interface, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"native[KEYWORD]{native, null, null, native, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"private[KEYWORD]{private, null, null, private, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"protected[KEYWORD]{protected, null, null, protected, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"public[KEYWORD]{public, null, null, public, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"static[KEYWORD]{static, null, null, static, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"strictfp[KEYWORD]{strictfp, null, null, strictfp, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"synchronized[KEYWORD]{synchronized, null, null, synchronized, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"transient[KEYWORD]{transient, null, null, transient, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"volatile[KEYWORD]{volatile, null, null, volatile, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_NON_RESTRICTED) + "}\n" +
+				"BaseInterface[TYPE_REF]{BaseInterface, , LBaseInterface;, null, null, " + +(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"R[TYPE_REF]{R, , LR;, null, null, " + +(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"X[TYPE_REF]{X, , LX;, null, null, " + +(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"clone[METHOD_DECLARATION]{protected Object clone() throws CloneNotSupportedException, Ljava.lang.Object;, ()Ljava.lang.Object;, clone, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"equals[METHOD_DECLARATION]{public boolean equals(Object obj), Ljava.lang.Object;, (Ljava.lang.Object;)Z, equals, (obj), " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"finalize[METHOD_DECLARATION]{protected void finalize() throws Throwable, Ljava.lang.Object;, ()V, finalize, null, " +(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"toString[METHOD_DECLARATION]{public String toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, " +(R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"implementMe[METHOD_DECLARATION]{public void implementMe(), LBaseInterface;, ()V, implementMe, null, " + (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_ABSTRACT_METHOD + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				requestor.getResults());
+	}
 }
