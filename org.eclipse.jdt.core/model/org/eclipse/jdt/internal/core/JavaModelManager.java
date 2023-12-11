@@ -430,13 +430,22 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	private static DebugTrace DEBUG_TRACE;
 
 	private final Set<IProject> touchQueue = ConcurrentHashMap.newKeySet();
-	private final WorkspaceJob touchJob = new WorkspaceJob(Messages.synchronizing_projects_job) {
+	private static final class TouchJob extends WorkspaceJob {
+		// This INSTANCE is intentionally lazy initialized such that for example JavaCore.getOptions() can run without running Platform
+		// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1720
+		private static final WorkspaceJob INSTANCE = new TouchJob();
+
+		private TouchJob() {
+			super(Messages.synchronizing_projects_job);
+		}
+
 		@Override
 		public IStatus runInWorkspace(IProgressMonitor monitor) throws CoreException {
-			SubMonitor subMonitor = SubMonitor.convert(monitor, JavaModelManager.this.touchQueue.size());
-			JavaModelManager.this.touchQueue.removeIf(iProject->{
+			JavaModelManager javaModelManager = JavaModelManager.getJavaModelManager();
+			SubMonitor subMonitor = SubMonitor.convert(monitor, javaModelManager.touchQueue.size());
+			javaModelManager.touchQueue.removeIf(iProject -> {
 				// remaining work may change in background - update it:
-				subMonitor.setWorkRemaining(JavaModelManager.this.touchQueue.size());
+				subMonitor.setWorkRemaining(javaModelManager.touchQueue.size());
 				if (JavaBuilder.DEBUG) {
 					trace("Touching project " + iProject.getName()); //$NON-NLS-1$
 				}
@@ -444,7 +453,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 					try {
 						iProject.touch(subMonitor.split(1));
 					} catch (CoreException e) {
-						Util.log(e, "Could not touch project "+iProject.getName()); //$NON-NLS-1$
+						Util.log(e, "Could not touch project " + iProject.getName()); //$NON-NLS-1$
 					}
 				}
 				return true;
@@ -456,7 +465,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		public boolean belongsTo(Object family) {
 			return ResourcesPlugin.FAMILY_MANUAL_REFRESH == family;
 		}
-	};
+	}
 
 	public static class CompilationParticipants {
 
@@ -3472,7 +3481,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		for (IProject iProject : projectsToTouch) {
 			this.touchQueue.add(iProject);
 		}
-		this.touchJob.schedule();
+		TouchJob.INSTANCE.schedule();
 	}
 
 	private Set<IJavaProject> getClasspathBeingResolved() {
