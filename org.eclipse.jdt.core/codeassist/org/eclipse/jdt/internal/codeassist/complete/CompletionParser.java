@@ -395,7 +395,7 @@ protected void attachOrphanCompletionNode(){
 					}
 
 					CompletionOnFieldType fieldDeclaration = new CompletionOnFieldType(fieldType,
-							isAtRecordType // mark as a local variable
+							!recoveredType.foundOpeningBrace // mark as a local variable
 					);
 
 					// retrieve annotations if any
