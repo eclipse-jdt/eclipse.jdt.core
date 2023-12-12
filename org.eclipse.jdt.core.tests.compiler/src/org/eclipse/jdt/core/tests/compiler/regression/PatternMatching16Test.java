@@ -4125,4 +4125,29 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"true",
 				compilerOptions);
 	}
+	public void testGH1726() {
+		if (this.complianceLevel < ClassFileConstants.JDK21)
+			return;
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+							record A(int x) {
+							}
+
+							public static int foo(Object a) {
+								return a instanceof A(int x) ? x : 1;
+							}
+
+							public static void main(String [] args) {
+								System.out.println("" + foo(new A(1234)) + foo(args));
+							}
+						}
+						""",
+				},
+				"12341",
+				compilerOptions);
+	}
 }
