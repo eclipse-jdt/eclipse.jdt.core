@@ -10031,7 +10031,6 @@ protected void consumeTemplate(int token) {
 	}
 	//	get rid of all the cached values
 	this.scanner.withoutUnicodePtr = 0;
-	this.scanner.textBlockOffset = -1;
 	StringTemplate template = new StringTemplate(fragments, expressions, fragments[0].sourceStart, fragments[expressions.length].sourceEnd, isMultiline);
 	pushOnExpressionStack(template);
 }
