@@ -27,6 +27,7 @@ import org.eclipse.jdt.internal.core.dom.util.DOMASTUtil;
  * </pre>
  *
  * @since 3.27
+ * @noinstantiate This class is not intended to be instantiated by clients.
  */
 
 @SuppressWarnings("rawtypes")
@@ -70,12 +71,12 @@ public class GuardedPattern extends Pattern{
 	}
 
 	/**
-	 * The pattern; <code>{@link NullPattern}</code> for none
+	 * The pattern; <code>null</code> for none
 	 */
 	private Pattern pattern = null;
 
 	/**
-	 * The expression; <code>{@link NullPattern}</code> for none; lazily initialized (but
+	 * The expression; <code>null</code> for none; lazily initialized (but
 	 * does <b>not</b> default to none).
 	 */
 	private Expression conditonalExpression = null;
@@ -195,6 +196,7 @@ public class GuardedPattern extends Pattern{
 	 * <code>{@link NullPattern}</code> if there is none (the "default:" case).
 	 *
 	 * @return the <code>{@link Expression}</code> node, or <code>{@link NullPattern}</code> if there is none
+	 * @exception UnsupportedOperationException if this operation is used other than JLS21
 	 * @since 3.37
 	 */
 	public Expression getExpression() {
@@ -217,6 +219,7 @@ public class GuardedPattern extends Pattern{
 	 * <code>{@link NullPattern}</code> if there is none.
 	 * @return the pattern node
 	 * 			(element type: {@link Pattern})
+	 * @exception UnsupportedOperationException if this operation is used other than JLS21
 	 * @since 3.37
 	 */
 	public Pattern getPattern() {
@@ -246,6 +249,7 @@ public class GuardedPattern extends Pattern{
 	 * <li>the node already has a parent</li>
 	 * <li>a cycle in would be created</li>
 	 * </ul>
+	 * @exception UnsupportedOperationException if this operation is used other than JLS21
 	 * @since 3.37
 	 */
 	public void setExpression(Expression expression) {
@@ -258,6 +262,7 @@ public class GuardedPattern extends Pattern{
 
 	/**
 	 * Sets the pattern of this switch case.
+	 * @exception UnsupportedOperationException if this operation is used other than JLS21
 	 * @since 3.37
 	 */
 	public void setPattern(Pattern pattern) {
