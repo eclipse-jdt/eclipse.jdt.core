@@ -1488,10 +1488,18 @@ public class SwitchStatement extends Expression {
 		this.switchBits |= SwitchStatement.Exhaustive;
 		return false;
 	}
-	private boolean isExhaustiveWithCaseTypes(List<ReferenceBinding> allallowedTypes,  List<TypeBinding> listedTypes) {
+	private boolean isExhaustiveWithCaseTypes(List<ReferenceBinding> allAllowedTypes,  List<TypeBinding> listedTypes) {
 		// first KISS (Keep It Simple Stupid)
-		int pendingTypes = allallowedTypes.size();
-		for (TypeBinding pt : allallowedTypes) {
+		int pendingTypes = allAllowedTypes.size();
+		for (ReferenceBinding pt : allAllowedTypes) {
+			/* Per JLS 14.11.1.1: A type T that names an abstract sealed class or sealed interface is covered
+			   if every permitted direct subclass or subinterface of it is covered. These subtypes are already
+			   added to allAllowedTypes and subject to cover test.
+			*/
+			if (pt.isAbstract() && pt.isSealed()) {
+				--pendingTypes;
+				continue;
+			}
 			for (TypeBinding type : listedTypes) {
 				if (pt.isCompatibleWith(type)) {
 					--pendingTypes;
@@ -1503,7 +1511,7 @@ public class SwitchStatement extends Expression {
 			return true;
 		// else - #KICKME (Keep It Complicated Keep Me Employed)"
 		List<TypeBinding> coveredTypes = new ArrayList<>(listedTypes);
-		List<ReferenceBinding> remainingTypes = new ArrayList<>(allallowedTypes);
+		List<ReferenceBinding> remainingTypes = new ArrayList<>(allAllowedTypes);
 		remainingTypes.removeAll(coveredTypes);
 
 		Map<TypeBinding, List<TypeBinding>> impliedTypes = new HashMap<>();
@@ -1511,7 +1519,7 @@ public class SwitchStatement extends Expression {
 		for (ReferenceBinding type : remainingTypes) {
 			impliedTypes.put(type, new ArrayList<>());
 			List<ReferenceBinding> typesToAdd = new ArrayList<>();
-			for (ReferenceBinding impliedType : allallowedTypes) {
+			for (ReferenceBinding impliedType : allAllowedTypes) {
 				if (impliedType.equals(type)) continue;
 				if (type.isClass()) {
 					if (impliedType.isAbstract() && type.superclass().equals(impliedType)) {
