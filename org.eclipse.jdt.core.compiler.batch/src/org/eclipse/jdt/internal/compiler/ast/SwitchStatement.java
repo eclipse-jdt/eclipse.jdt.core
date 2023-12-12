@@ -1491,9 +1491,9 @@ public class SwitchStatement extends Expression {
 	private boolean isExhaustiveWithCaseTypes(List<ReferenceBinding> allallowedTypes,  List<TypeBinding> listedTypes) {
 		// first KISS (Keep It Simple Stupid)
 		int pendingTypes = allallowedTypes.size();
-		for (TypeBinding pt : allallowedTypes) {
+		for (ReferenceBinding pt : allallowedTypes) {
 			for (TypeBinding type : listedTypes) {
-				if (pt.isCompatibleWith(type)) {
+				if (pt.isAbstract() || pt.isCompatibleWith(type)) {
 					--pendingTypes;
 					break;
 				}
