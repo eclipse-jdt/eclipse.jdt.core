@@ -70,12 +70,12 @@ public class GuardedPattern extends Pattern{
 	}
 
 	/**
-	 * The pattern; <code>this.ast.newNullPattern()</code> for none
+	 * The pattern; <code>{@link NullPattern}</code> for none
 	 */
 	private Pattern pattern = null;
 
 	/**
-	 * The expression; <code>this.ast.newNullLiteral()</code> for none; lazily initialized (but
+	 * The expression; <code>{@link NullPattern}</code> for none; lazily initialized (but
 	 * does <b>not</b> default to none).
 	 */
 	private Expression conditonalExpression = null;
@@ -182,7 +182,6 @@ public class GuardedPattern extends Pattern{
 	 * @return a list of property descriptors (element type:
 	 * {@link StructuralPropertyDescriptor})
 	 * @since 3.37
-
 	 */
 	public static List propertyDescriptors(int apiLevel, boolean previewEnabled) {
 		if (DOMASTUtil.isPatternSupported(apiLevel, previewEnabled)) {
@@ -193,9 +192,9 @@ public class GuardedPattern extends Pattern{
 
 	/**
 	 * Returns the conditional expression of this pattern, or
-	 * <code>this.ast.newNullLiteral()</code> if there is none (the "default:" case).
+	 * <code>{@link NullPattern}</code> if there is none (the "default:" case).
 	 *
-	 * @return the expression node, or <code>this.ast.newNullLiteral()</code> if there is none
+	 * @return the <code>{@link Expression}</code> node, or <code>{@link NullPattern}</code> if there is none
 	 * @since 3.37
 	 */
 	public Expression getExpression() {
@@ -215,11 +214,9 @@ public class GuardedPattern extends Pattern{
 
 	/**
 	 * Returns the pattern of this Guarded Pattern, or
-	 * <code>this.ast.newNullPattern()</code> if there is none.
+	 * <code>{@link NullPattern}</code> if there is none.
 	 * @return the pattern node
 	 * 			(element type: {@link Pattern})
-	 * @exception UnsupportedOperationException if this operation is used other than JLS21
-	 * @exception UnsupportedOperationException if this expression is used with previewEnabled flag as false
 	 * @since 3.37
 	 */
 	public Pattern getPattern() {
@@ -261,8 +258,6 @@ public class GuardedPattern extends Pattern{
 
 	/**
 	 * Sets the pattern of this switch case.
-	 * @exception UnsupportedOperationException if this operation is used not for JLS21
-	 * @exception UnsupportedOperationException if this operation is used without previewEnabled
 	 * @since 3.37
 	 */
 	public void setPattern(Pattern pattern) {
