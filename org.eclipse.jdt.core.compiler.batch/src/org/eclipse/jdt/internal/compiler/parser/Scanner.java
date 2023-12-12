@@ -1888,6 +1888,7 @@ protected int scanForStringLiteral() throws InvalidInputException {
 		this.startPosition = startBkup;
 		return token;
 	} else {
+		this.textBlockOffset = -1; // Make sure that the previous values set by any preceding text block is reset.
 		int textFragmentStart = this.currentPosition - 1;
 		int lastCharPos = this.currentPosition;
 		try {
