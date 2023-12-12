@@ -31,7 +31,7 @@ public class UnnamedClass extends TypeDeclaration {
 		Path p = Paths.get(new String(result.fileName));
 		String basename = p.getFileName().toString();
 		String classSuffix;
-		if (basename.endsWith(".java")) {
+		if (basename.endsWith(".java")) { //$NON-NLS-1$
 			classSuffix = basename.substring(0, basename.length() - 5);
 		} else {
 			classSuffix = basename;
