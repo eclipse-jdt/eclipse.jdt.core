@@ -2614,12 +2614,14 @@ public void generateReturnBytecode(Expression expression) {
 public void invokeDynamicForStringConcat(StringBuilder recipe, List<TypeBinding> arguments) {
 	int invokeDynamicNumber = this.classFile.recordBootstrapMethod(recipe.toString());
 	StringBuilder signature = new StringBuilder("("); //$NON-NLS-1$
-	for(int i = 0; i < arguments.size(); i++) {
-		signature.append(arguments.get(i).signature());
+	int argsSize = 0;
+	for (TypeBinding argument : arguments) {
+		signature.append(argument.signature());
+		argsSize += TypeIds.getCategory(argument.id);
 	}
 	signature.append(")Ljava/lang/String;"); //$NON-NLS-1$
 	this.invokeDynamic(invokeDynamicNumber,
-			2,
+			argsSize,
 			1, // int
 			ConstantPool.ConcatWithConstants,
 			signature.toString().toCharArray(),

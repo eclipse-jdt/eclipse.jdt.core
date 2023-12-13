@@ -144,7 +144,7 @@ public class StringConcatTest extends AbstractComparableTest {
 				},
 				"one=1"
 			);
-		String expectedOutput = "  // Stack: 2, Locals: 3\n" +
+		String expectedOutput = "  // Stack: 3, Locals: 3\n" +
 				"  public void foo();\n" +
 				"     0  iconst_1\n" +
 				"     1  istore_1 [one]\n" +
