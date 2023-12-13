@@ -6412,7 +6412,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"				\n" +
 				"			}\n" +
 				"		}\n" +
-				"		default -> throw new RuntimeException(\"\" + x);\n" +
+				"		default -> throw new RuntimeException(\"\" + x + \" \".toLowerCase());\n" +
 				"		};\n" +
 				"	}\n" +
 				"	public static void main(String[] args) {\n" +
