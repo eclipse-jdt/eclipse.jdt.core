@@ -2615,13 +2615,9 @@ public void invokeDynamicForStringConcat(StringBuilder recipe, List<TypeBinding>
 	int invokeDynamicNumber = this.classFile.recordBootstrapMethod(recipe.toString());
 	StringBuilder signature = new StringBuilder("("); //$NON-NLS-1$
 	int argsSize = 0;
-	for(TypeBinding argument : arguments) {
+	for (TypeBinding argument : arguments) {
 		signature.append(argument.signature());
-		if (TypeIds.getCategory(argument.id) == 2) {
-			argsSize += 2;
-		} else {
-			argsSize++;
-		}
+		argsSize += TypeIds.getCategory(argument.id);
 	}
 	signature.append(")Ljava/lang/String;"); //$NON-NLS-1$
 	this.invokeDynamic(invokeDynamicNumber,
