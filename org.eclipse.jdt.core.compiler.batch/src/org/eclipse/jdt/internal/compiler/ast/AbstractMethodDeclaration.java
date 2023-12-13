@@ -378,9 +378,6 @@ public abstract class AbstractMethodDeclaration
 				throw new AbortMethod(this.scope.referenceCompilationUnit().compilationResult, null);
 			}
 			attributeNumber++;
-			if (!codeStream.switchSaveTypeBindings.isEmpty()) {
-				throw new AssertionError("Stack not drained"); //$NON-NLS-1$
-			}
 		} else {
 			checkArgumentsSize();
 		}
