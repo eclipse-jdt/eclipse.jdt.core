@@ -2619,7 +2619,7 @@ public void invokeDynamicForStringConcat(StringBuilder recipe, List<TypeBinding>
 	}
 	signature.append(")Ljava/lang/String;"); //$NON-NLS-1$
 	this.invokeDynamic(invokeDynamicNumber,
-			2,
+			1,
 			1, // int
 			ConstantPool.ConcatWithConstants,
 			signature.toString().toCharArray(),

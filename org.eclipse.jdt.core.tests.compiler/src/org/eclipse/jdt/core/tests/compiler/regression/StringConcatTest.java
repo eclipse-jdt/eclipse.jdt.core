@@ -89,7 +89,7 @@ public class StringConcatTest extends AbstractComparableTest {
 				},
 				"one=1, two=2.0, three=3.0, four=4, five=5, six=6, seven=, boolean b=false."
 			);
-		String expectedOutput = "  // Stack: 11, Locals: 12\n" +
+		String expectedOutput = "  // Stack: 13, Locals: 12\n" +
 				"  public static void main(java.lang.String[] args);\n" +
 				"     0  iconst_1\n" +
 				"     1  istore_1 [one]\n" +
@@ -144,7 +144,7 @@ public class StringConcatTest extends AbstractComparableTest {
 				},
 				"one=1"
 			);
-		String expectedOutput = "  // Stack: 2, Locals: 3\n" +
+		String expectedOutput = "  // Stack: 3, Locals: 3\n" +
 				"  public void foo();\n" +
 				"     0  iconst_1\n" +
 				"     1  istore_1 [one]\n" +
@@ -277,7 +277,7 @@ public class StringConcatTest extends AbstractComparableTest {
 				},
 				"X 0 a 11 a 11 X 1 b 42 b 42 b 42 b 42"
 				);
-		String expectedOutput = "  // Stack: 7, Locals: 4\n"
+		String expectedOutput = "  // Stack: 8, Locals: 4\n"
 				+ "  public static void main(java.lang.String[] args);\n"
 				+ "     0  bipush 11\n"
 				+ "     2  istore_1 [first]\n"
