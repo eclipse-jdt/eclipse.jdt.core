@@ -1266,7 +1266,7 @@ public class ClassScope extends Scope {
 			// bug xxxx flag Error and return;
 		}
 		if (permSubTypes.size() == 0) {
-			if (!sourceType.isLocalType() && !sourceType.isRecord()) // error flagged already
+			if (!sourceType.isLocalType() && !sourceType.isRecord() && !sourceType.isEnum()) // error flagged already
 				problemReporter().sealedSealedTypeMissingPermits(sourceType, this.referenceContext);
 			return;
 		}
