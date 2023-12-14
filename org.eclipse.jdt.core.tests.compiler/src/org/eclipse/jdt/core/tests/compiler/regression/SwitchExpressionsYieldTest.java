@@ -6448,4 +6448,61 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				},
 				"");
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1686
+	// Switch statement with yield in synchronized and try-catch blocks results in ArrayIndexOutOfBoundsException
+	public void testGHI1686() {
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+
+					public String demo(String input) {
+						return switch (input) {
+							case "red" -> {
+								synchronized (this) {
+									yield "apple";
+								}
+							}
+							default -> {
+								try {
+									yield "banana";
+								}
+								catch (Exception ex) {
+									throw new IllegalStateException(ex);
+							    }
+						    }
+					    };
+				    }
+				}
+				"""
+				},
+				"");
+		}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1686
+	// Switch statement with yield in synchronized and try-catch blocks results in ArrayIndexOutOfBoundsException
+	public void testGHI1686_works() {
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+
+					public String demo(String input) {
+						return switch (input) {
+							case "red" -> {
+								synchronized (this) {
+									yield "apple";
+								}
+							}
+							default -> {
+								yield "banana";
+						    }
+					    };
+				    }
+				}
+				"""
+				},
+				"");
+		}
 }
