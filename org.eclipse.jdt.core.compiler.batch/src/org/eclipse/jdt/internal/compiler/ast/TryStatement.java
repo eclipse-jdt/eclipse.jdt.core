@@ -995,6 +995,8 @@ public boolean generateSubRoutineInvocation(BlockScope currentScope, CodeStream 
 	switch(finallyMode) {
 		case FINALLY_DOES_NOT_COMPLETE :
 			if (this.switchExpression != null) {
+				exitAnyExceptionHandler();
+				exitDeclaredExceptionHandlers(codeStream);
 				this.finallyBlock.generateCode(currentScope, codeStream);
 				return true;
 			}
@@ -1002,9 +1004,7 @@ public boolean generateSubRoutineInvocation(BlockScope currentScope, CodeStream 
 			return true;
 
 		case NO_FINALLY :
-			if (this.switchExpression == null) { // already taken care at Yield
-				exitDeclaredExceptionHandlers(codeStream);
-			}
+			exitDeclaredExceptionHandlers(codeStream);
 			return false;
 	}
 	// optimize subroutine invocation sequences, using the targetLocation (if any)
