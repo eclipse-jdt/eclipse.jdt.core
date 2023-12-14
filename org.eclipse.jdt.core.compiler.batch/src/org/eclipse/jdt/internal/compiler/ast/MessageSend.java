@@ -65,7 +65,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.*;
+import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.ASSIGNMENT_CONTEXT;
+import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.INVOCATION_CONTEXT;
+import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.VANILLA_CONTEXT;
 
 import java.util.HashMap;
 import java.util.function.BiConsumer;
@@ -75,6 +77,7 @@ import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
+import org.eclipse.jdt.internal.compiler.flow.ConditionalFlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
@@ -221,16 +224,22 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 					flowInfo = analyseNullAssertion(currentScope, argument, flowContext, flowInfo, true);
 					break;
 				case ARG_NONNULL_IF_TRUE:
-					recordFlowUpdateOnResult(((SingleNameReference) argument).localVariableBinding(), true, false);
+					LocalVariableBinding localBinding = ((SingleNameReference) argument).localVariableBinding();
+					recordFlowUpdateOnResult(localBinding, true, false);
 					flowInfo = argument.analyseCode(currentScope, flowContext, flowInfo).unconditionalInits();
+					flowInfo = setUnreachable(flowInfo, flowContext, localBinding, AssertUtil.ARG_NONNULL_IF_TRUE);
 					break;
 				case ARG_NONNULL_IF_TRUE_NEGATABLE:
-					recordFlowUpdateOnResult(((SingleNameReference) argument).localVariableBinding(), true, true);
+					localBinding = ((SingleNameReference) argument).localVariableBinding();
+					recordFlowUpdateOnResult(localBinding, true, true);
 					flowInfo = argument.analyseCode(currentScope, flowContext, flowInfo).unconditionalInits();
+					flowInfo = setUnreachable(flowInfo, flowContext, localBinding, AssertUtil.ARG_NONNULL_IF_TRUE_NEGATABLE);
 					break;
 				case ARG_NULL_IF_TRUE:
-					recordFlowUpdateOnResult(((SingleNameReference) argument).localVariableBinding(), false, true);
+					localBinding = ((SingleNameReference) argument).localVariableBinding();
+					recordFlowUpdateOnResult(localBinding, false, true);
 					flowInfo = argument.analyseCode(currentScope, flowContext, flowInfo).unconditionalInits();
+					flowInfo = setUnreachable(flowInfo, flowContext, localBinding, AssertUtil.ARG_NULL_IF_TRUE);
 					break;
 				default:
 					flowInfo = argument.analyseCode(currentScope, flowContext, flowInfo).unconditionalInits();
@@ -262,6 +271,49 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	// account for pot. exceptions thrown by method execution
 	flowContext.recordAbruptExit();
 	flowContext.expireNullCheckedFieldInfo(); // no longer trust this info after any message send
+	return flowInfo;
+}
+
+private FlowInfo setUnreachable(FlowInfo flowInfo, FlowContext flowContext, LocalVariableBinding localBinding,
+		AssertUtil assertUtil) {
+	if ((flowInfo.tagBits & FlowInfo.UNREACHABLE) == 0) {
+		boolean isDefinitellyNull;
+		boolean isDefinitellyNonNull;
+		switch (assertUtil) {
+			case ARG_NONNULL_IF_TRUE: {
+				isDefinitellyNull = flowInfo.isDefinitelyNull(localBinding);
+				if (isDefinitellyNull) {
+					flowInfo = FlowInfo.conditional(flowInfo.copy(), flowInfo.copy());
+					((ConditionalFlowInfo) flowInfo).initsWhenTrue().setReachMode(FlowInfo.UNREACHABLE_BY_NULLANALYSIS);
+				}
+				break;
+			}
+			case ARG_NULL_IF_TRUE: {
+				isDefinitellyNull = flowInfo.isDefinitelyNull(localBinding);
+				isDefinitellyNonNull = flowInfo.isDefinitelyNonNull(localBinding);
+				flowInfo = FlowInfo.conditional(flowInfo.copy(), flowInfo.copy());
+				if (isDefinitellyNull) {
+					((ConditionalFlowInfo) flowInfo).initsWhenFalse().setReachMode(FlowInfo.UNREACHABLE_BY_NULLANALYSIS);
+				} else if (isDefinitellyNonNull) {
+					((ConditionalFlowInfo) flowInfo).initsWhenTrue.setReachMode(FlowInfo.UNREACHABLE_BY_NULLANALYSIS);
+				}
+				break;
+			}
+			case ARG_NONNULL_IF_TRUE_NEGATABLE: {
+				isDefinitellyNull = flowInfo.isDefinitelyNull(localBinding);
+				isDefinitellyNonNull = flowInfo.isDefinitelyNonNull(localBinding);
+				flowInfo = FlowInfo.conditional(flowInfo.copy(), flowInfo.copy());
+				if (isDefinitellyNull) {
+					((ConditionalFlowInfo) flowInfo).initsWhenTrue().setReachMode(FlowInfo.UNREACHABLE_BY_NULLANALYSIS);
+				} else if (isDefinitellyNonNull) {
+					((ConditionalFlowInfo) flowInfo).initsWhenFalse.setReachMode(FlowInfo.UNREACHABLE_BY_NULLANALYSIS);
+				}
+				break;
+			}
+			default:
+				break;
+		}
+	}
 	return flowInfo;
 }
 public void recordFlowUpdateOnResult(LocalVariableBinding local, boolean nonNullIfTrue, boolean negatable) {
