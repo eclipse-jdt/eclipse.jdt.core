@@ -10031,7 +10031,6 @@ protected void consumeTemplate(int token) {
 	}
 	//	get rid of all the cached values
 	this.scanner.withoutUnicodePtr = 0;
-	this.scanner.textBlockOffset = -1;
 	StringTemplate template = new StringTemplate(fragments, expressions, fragments[0].sourceStart, fragments[expressions.length].sourceEnd, isMultiline);
 	pushOnExpressionStack(template);
 }
@@ -10953,12 +10952,36 @@ protected void consumeTypePattern() {
 	pushOnAstStack(aTypePattern);
 }
 protected void consumeRecordPattern() {
-	int length = this.astLengthPtr == -1 ? 0 : this.astLengthStack[this.astLengthPtr--];
-	this.astPtr -= length;
+
+	int length;
+	Annotation[] typeAnnotations = null;
+	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
+		System.arraycopy(
+			this.expressionStack,
+			(this.expressionPtr -= length) + 1,
+			typeAnnotations = new Annotation[length],
+			0,
+			length);
+	}
+
 	TypeReference type = getTypeReference(0);
+
+	if (typeAnnotations != null) {
+		int levels = type.getAnnotatableLevels();
+		if (type.annotations == null)
+			type.annotations = new Annotation[levels][];
+		type.annotations[0] = typeAnnotations;
+		type.sourceStart = type.annotations[0][0].sourceStart;
+		type.bits |= ASTNode.HasTypeAnnotations;
+	}
+
 	int sourceEnd = this.intStack[this.intPtr--];
 	this.intPtr--;
 	RecordPattern recPattern = new RecordPattern(type, type.sourceStart, sourceEnd);
+
+	length = this.astLengthPtr == -1 ? 0 : this.astLengthStack[this.astLengthPtr--];
+	this.astPtr -= length;
+
 	if (length != 0) {
 		Pattern[] patterns = new Pattern[length];
 		System.arraycopy(

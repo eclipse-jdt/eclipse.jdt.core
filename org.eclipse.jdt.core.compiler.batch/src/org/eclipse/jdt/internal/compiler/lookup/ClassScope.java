@@ -1266,7 +1266,7 @@ public class ClassScope extends Scope {
 			// bug xxxx flag Error and return;
 		}
 		if (permSubTypes.size() == 0) {
-			if (!sourceType.isLocalType()) // error flagged already
+			if (!sourceType.isLocalType() && !sourceType.isRecord() && !sourceType.isEnum()) // error flagged already
 				problemReporter().sealedSealedTypeMissingPermits(sourceType, this.referenceContext);
 			return;
 		}
@@ -1278,7 +1278,7 @@ public class ClassScope extends Scope {
 	void connectImplicitPermittedTypes() {
 		TypeDeclaration typeDecl = this.referenceContext;
 		SourceTypeBinding sourceType = typeDecl.binding;
-		if (sourceType.id == TypeIds.T_JavaLangObject || sourceType.isEnum() || sourceType.isRecord()) // already handled
+		if (sourceType.id == TypeIds.T_JavaLangObject) // already handled
 			return;
 		if (sourceType.isSealed() && (typeDecl.permittedTypes == null ||
 				typeDecl.permittedTypes.length == 0)) {

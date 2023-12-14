@@ -1800,7 +1800,7 @@ public class CompletionProposal {
 	}
 
 	/**
-	 * Returns whether it is safe to use the '<>' (diamond) operator in place of explicitly specifying
+	 * Returns whether it is safe to use the {@code '<>'} (diamond) operator in place of explicitly specifying
 	 * type arguments for this proposal.
 	 *
 	 * <p>

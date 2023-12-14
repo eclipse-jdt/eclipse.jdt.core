@@ -1399,7 +1399,7 @@ public final class ImportRewrite {
 	 * <p>
 	 * Note that this list doesn't need to be the same as the added static imports ({@link #getAddedStaticImports()}) as
 	 * implicit imports are not created and some imports are represented by on-demand imports instead.
-	 * </p
+	 * </p>
 	 * @return the created imports
 	 */
 	public String[] getCreatedStaticImports() {

@@ -1514,8 +1514,8 @@ public final class JavaCore extends Plugin {
 	/**
 	 * Compiler option ID: Reporting a resource that is not closed properly.
 	 * <p>When enabled, the compiler will issue an error or a warning if
-	 *    a local variable holds a value of type <code>java.lang.AutoCloseable</code> (compliance>=1.7)
-	 *    or a value of type <code>java.io.Closeable</code> (compliance<=1.6) and if
+	 *    a local variable holds a value of type <code>java.lang.AutoCloseable</code> (compliance&gt;=1.7)
+	 *    or a value of type <code>java.io.Closeable</code> (compliance&lt;=1.6) and if
 	 *    flow analysis shows that the method <code>close()</code> is not invoked locally on that value.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.unclosedCloseable"</code></dd>
@@ -1530,7 +1530,7 @@ public final class JavaCore extends Plugin {
 	 * Compiler option ID: Reporting a resource that may not be closed properly.
 	 * <p>When enabled, the compiler will issue an error or a warning if
 	 *    a local variable holds a value of type <code>java.lang.AutoCloseable</code> (compliance>=1.7)
-	 *    or a value of type <code>java.io.Closeable</code> (compliance<=1.6) and if
+	 *    or a value of type <code>java.io.Closeable</code> (compliance&lt;=1.6) and if
 	 *    flow analysis shows that the method <code>close()</code> is
 	 *    not invoked locally on that value for all execution paths.</p>
 	 * <dl>
@@ -2921,7 +2921,7 @@ public final class JavaCore extends Plugin {
 	 *    one of the proposed suffixes.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.codeComplete.staticFieldSuffixes"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "&lt;suffix&gt;[,&lt;suffix&gt;]*" }</code>< where <code>&lt;suffix&gt;</code> is a String without any wild-card</dd>
+	 * <dt>Possible values:</dt><dd>{@code  "<suffix>[,<suffix>]*" }&lt; where {@code <suffix> } is a String without any wild-card</dd>
 	 * <dt>Default:</dt><dd><code>""</code></dd>
 	 * </dl>
 	 * @since 2.1
@@ -2934,7 +2934,7 @@ public final class JavaCore extends Plugin {
 	 *    one of the proposed suffixes.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.codeComplete.staticFinalFieldSuffixes"</code></dd>
-	 * <dt>Possible values:</dt><dd><code>{ "&lt;suffix&gt;[,&lt;suffix&gt;]*" }</code>< where <code>&lt;suffix&gt;</code> is a String without any wild-card</dd>
+	 * <dt>Possible values:</dt><dd>{@code "<suffix>[<suffix>]*" }&lt; where {@code <suffix>} is a String without any wild-card</dd>
 	 * <dt>Default:</dt><dd><code>""</code></dd>
 	 * </dl>
 	 * @since 3.5
@@ -5963,6 +5963,7 @@ public final class JavaCore extends Plugin {
 	 * @since 3.0
 	 */
 	public static void run(IWorkspaceRunnable action, ISchedulingRule rule, IProgressMonitor monitor) throws CoreException {
+		JavaModelManager.assertModelModifiable();
 		IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		if (workspace.isTreeLocked()) {
 			new BatchOperation(action).run(monitor);
@@ -5971,6 +5972,68 @@ public final class JavaCore extends Plugin {
 			workspace.run(new BatchOperation(action), rule, IWorkspace.AVOID_UPDATE, monitor);
 		}
 	}
+	/**
+	 * @since 3.37
+	 */
+	@FunctionalInterface
+	public static interface JavaCallable<V, E extends Exception> {
+		/**
+		 * Computes a value or throws an exception.
+		 *
+		 * @return the result
+		 * @throws E the Exception of given type
+		 */
+		V call() throws E;
+	}
+	/**
+	 * @since 3.37
+	 */
+	@FunctionalInterface
+	public static interface JavaRunnable<E extends Exception> {
+		/**
+		 * Runs or throws an exception.
+		 *
+		 * @throws E the Exception of given type
+		 */
+		void run() throws E;
+	}
+
+
+	/**
+	 * Calls the argument and returns its result or its Exception. The argument's {@code call()} is supposed to query
+	 * Java model and must not modify it. This method will try to run Java Model queries in optimized way (Using caches
+	 * during the operation). It is safe to nest multiple calls - but not necessary.
+	 *
+	 *
+	 * @param callable
+	 *            A JavaCallable that can throw an Exception
+	 * @return the result
+	 * @exception E
+	 *                An {@link Exception} that is thrown by the {@code callable}.
+	 * @since 3.37
+	 */
+	public static <T, E extends Exception> T callReadOnly(JavaCallable<T, E> callable) throws E {
+		return JavaModelManager.callReadOnly(callable);
+	}
+
+	/**
+	 * Runs the argument and will forward its Exception. The argument's {@code run()} is supposed to query Java model
+	 * and must not modify it. This method will try to run Java Model queries in optimized way (caching things during
+	 * the operation). It is safe to nest multiple calls - but not necessary.
+	 *
+	 * @param runnable
+	 *            A JavaRunnable that can throw an Exception
+	 * @exception E
+	 *                An {@link Exception} that is thrown by the {@code runnable}.
+	 * @since 3.37
+	 */
+	public static <T, E extends Exception> void runReadOnly(JavaRunnable<E> runnable) throws E {
+		callReadOnly(() -> {
+			runnable.run();
+			return null;
+		});
+	}
+
 	/**
 	 * Bind a container reference path to some actual containers (<code>IClasspathContainer</code>).
 	 * This API must be invoked whenever changes in container need to be reflected onto the JavaModel.

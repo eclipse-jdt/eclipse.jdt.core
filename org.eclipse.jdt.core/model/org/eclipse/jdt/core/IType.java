@@ -181,6 +181,7 @@ public interface IType extends IMember, IAnnotatable {
 	 * </p>
 	 *
 	 * <pre>
+	 * {@code
 	 * new IProgressMonitor() {
 	 *     private final static int TIMEOUT = 500; //ms
 	 *     private long endTime;
@@ -192,6 +193,7 @@ public interface IType extends IMember, IAnnotatable {
 	 *     }
 	 *     ...
 	 * };
+	 * }
 	 * </pre>
 	 *
 	 * @param snippet the code snippet
@@ -290,7 +292,7 @@ public interface IType extends IMember, IAnnotatable {
 	 * assist operation when a specified amount of time is reached could be used.
 	 * </p>
 	 *
-	 * <pre>
+	 * <pre>{@code
 	 * new IProgressMonitor() {
 	 *     private final static int TIMEOUT = 500; //ms
 	 *     private long endTime;
@@ -302,6 +304,7 @@ public interface IType extends IMember, IAnnotatable {
 	 *     }
 	 *     ...
 	 * };
+	 * }
 	 * </pre>
 	 *
 	 * @param snippet the code snippet

@@ -4125,4 +4125,113 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"true",
 				compilerOptions);
 	}
+	public void testGH1726() {
+		if (this.complianceLevel < ClassFileConstants.JDK21)
+			return;
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+							record A(int x) {
+							}
+
+							public static int foo(Object a) {
+								return a instanceof A(int x) ? x : 1;
+							}
+
+							public static void main(String [] args) {
+								System.out.println("" + foo(new A(1234)) + foo(args));
+							}
+						}
+						""",
+				},
+				"12341",
+				compilerOptions);
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1725
+	// [21] Wrongly needing a default case for a switch expression
+	public void testGH1725() {
+		if (this.complianceLevel < ClassFileConstants.JDK21)
+			return;
+		Map<String, String> compilerOptions = getCompilerOptions(true);
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+							public abstract sealed class A permits B, C {
+							}
+
+							public final class C extends A {
+							}
+
+							public abstract sealed class B extends A permits D {
+							}
+
+							public final class D extends B {
+							}
+
+							public String foo(A a) {
+								return switch (a) {
+									case D d -> "1234";
+									case C c -> "6789";
+								};
+							}
+							public static void main(String [] args) {
+								System.out.println(new X().foo(new X().new D()) + new X().foo(new X().new C()));
+							}
+						}
+						""",
+				},
+				"12346789",
+				compilerOptions);
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1725
+	// [21] Wrongly needing a default case for a switch expression
+	public void testGH1725_2() {
+		if (this.complianceLevel < ClassFileConstants.JDK21)
+			return;
+
+		runNegativeTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+							public abstract sealed class A permits B, C {
+							}
+
+							public final class C extends A {
+							}
+
+							public sealed class B extends A permits D {
+							}
+
+							public final class D extends B {
+							}
+
+							public String foo(A a) {
+								return switch (a) {
+									case D d -> "1234";
+									// case B b -> "blah";
+									case C c -> "6789";
+								};
+							}
+							public static void main(String [] args) {
+								System.out.println(new X().foo(new X().new D()) + new X().foo(new X().new C()));
+							}
+						}
+						""",
+				},
+				"""
+				----------
+				1. ERROR in X.java (at line 15)
+					return switch (a) {
+					               ^
+				A switch expression should have a default case
+				----------
+				""",
+				false);
+	}
 }

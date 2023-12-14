@@ -30,7 +30,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testIssue1218_001"};
+//		TESTS_NAMES = new String[] { "testIssue1641"};
 	}
 
 	public static Class<?> testClass() {
@@ -9455,5 +9455,233 @@ public void testIssue1218_001() {
 			"	            ^\n" +
 			"Syntax error, insert \"RecordBody\" to complete ClassBodyDeclarations\n" +
 			"----------\n");
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testIssue1641_001() {
+	if (!isJRE17Plus)
+		return;
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_17);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_17);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_17);
+	this.runNegativeTest(
+		new String[] {
+		"X.java",
+		"""
+	record InterfaceInRecord() {
+	    sealed interface I {
+	        enum Empty implements I {
+	            INSTANCE;
+	        }
+	        record Single(double value) implements I {
+	        }
+	    }
+	}
+		class X {
+		void foo() {
+			Zork();
+		}
+	}
+
+		"""},
+		"----------\n" +
+		"1. ERROR in X.java (at line 12)\n" +
+		"	Zork();\n" +
+		"	^^^^\n" +
+		"The method Zork() is undefined for the type X\n" +
+		"----------\n",
+		null,
+		true,
+		options
+	);
+
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testIssue1641_002() {
+	if (!isJRE17Plus)
+		return;
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_17);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_17);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_17);
+	this.runNegativeTest(
+		new String[] {
+		"X.java",
+		"""
+			record InterfaceInRecord() {
+			    sealed interface I  {
+			        final class C implements I {
+			        }
+			    }
+			}
+			class X {
+				void foo() {
+					Zork();
+				}
+			}
+
+		"""},
+		"----------\n" +
+		"1. ERROR in X.java (at line 9)\n" +
+		"	Zork();\n" +
+		"	^^^^\n" +
+		"The method Zork() is undefined for the type X\n" +
+		"----------\n",
+		null,
+		true,
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testIssue1641_003() {
+	if (!isJRE17Plus)
+		return;
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_17);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_17);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_17);
+	this.runNegativeTest(
+		new String[] {
+		"X.java",
+		"""
+		enum InterfaceInEnum {
+        	INSTANCE;
+			sealed interface I  {
+		      	final class C implements I {}
+			}
+			final class D implements I {}
+			final class E implements InterfaceInEnum.I {}
+		}
+		class X {
+			void foo() {
+				Zork();
+			}
+		}
+		"""},
+		"----------\n" +
+		"1. ERROR in X.java (at line 11)\n" +
+		"	Zork();\n" +
+		"	^^^^\n" +
+		"The method Zork() is undefined for the type X\n" +
+		"----------\n",
+		null,
+		true,
+		options
+	);
+}
+@SuppressWarnings({ "rawtypes", "unchecked" })
+public void testIssue1641_004() {
+	if (!isJRE17Plus)
+		return;
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_17);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_17);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_17);
+	this.runNegativeTest(
+		new String[] {
+		"X.java",
+		"""
+		enum InterfaceInEnum {
+        	INSTANCE;
+			sealed interface I  {
+		      	final class C implements I {}
+			}
+			final class D implements I {}
+		}
+		class X {
+			void foo() {
+				Zork();
+			}
+		}
+		"""},
+		"----------\n" +
+		"1. ERROR in X.java (at line 10)\n" +
+		"	Zork();\n" +
+		"	^^^^\n" +
+		"The method Zork() is undefined for the type X\n" +
+		"----------\n",
+		null,
+		true,
+		options
+	);
+}
+@SuppressWarnings({ "unchecked", "rawtypes" })
+public void testIssue1641_005() {
+	if (!isJRE17Plus)
+		return;
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_17);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_17);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_17);
+	this.runNegativeTest(
+		new String[] {
+		"X.java",
+		"""
+		interface I  {
+			enum E {
+				First {}
+			};
+		}
+		class X {
+			void foo() {
+				Zork();
+			}
+		}
+		"""},
+		"----------\n" +
+		"1. ERROR in X.java (at line 8)\n" +
+		"	Zork();\n" +
+		"	^^^^\n" +
+		"The method Zork() is undefined for the type X\n" +
+		"----------\n",
+		null,
+		true,
+		options
+	);
+}
+@SuppressWarnings({ "unchecked", "rawtypes" })
+public void testIssue1641_006() {
+	if (!isJRE17Plus)
+		return;
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_17);
+	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_17);
+	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_17);
+	this.runNegativeTest(
+		new String[] {
+		"X.java",
+		"""
+		interface I  {
+			enum E {
+				First {
+					@SuppressWarnings("unused")
+					enum F {
+						FirstOne {
+							interface J {
+								enum G {
+									FirstTwo {}
+								}
+							}
+						}
+					};
+				}
+			};
+		}
+		class X {
+			void foo() {
+				Zork();
+			}
+		}
+		"""},
+		"----------\n" +
+		"1. ERROR in X.java (at line 19)\n" +
+		"	Zork();\n" +
+		"	^^^^\n" +
+		"The method Zork() is undefined for the type X\n" +
+		"----------\n",
+		null,
+		true,
+		options
+	);
 }
 }

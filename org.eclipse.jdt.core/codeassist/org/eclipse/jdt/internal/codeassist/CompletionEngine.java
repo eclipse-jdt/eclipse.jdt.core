@@ -231,6 +231,7 @@ import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.SourceTypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.SyntheticMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
@@ -10943,6 +10944,12 @@ public final class CompletionEngine
 		MethodBinding[] receiverTypeMethods = receiverType.availableMethods();
 		if (receiverTypeMethods != null){
 			for (int i = 0; i < receiverTypeMethods.length; i++) {
+				if (receiverType.isRecord() && receiverTypeMethods[i] instanceof SyntheticMethodBinding smb) {
+					if (CharOperation.equals(smb.selector, TypeConstants.EQUALS) ||
+							CharOperation.equals(smb.selector, TypeConstants.HASHCODE) ||
+							CharOperation.equals(smb.selector, TypeConstants.TOSTRING))
+					continue; // allow proposals to override compiler supplied implementations.
+				}
 				if(!receiverTypeMethods[i].isDefaultAbstract()) {
 					methodsFound.add(receiverTypeMethods[i]);
 				}

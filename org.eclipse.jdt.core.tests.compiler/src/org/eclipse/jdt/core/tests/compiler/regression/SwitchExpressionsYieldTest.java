@@ -6329,4 +6329,180 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 			"m cannot be resolved\n" +
 			"----------\n");
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1394
+	// switch statement with yield and try/catch produces EmptyStackException
+	public void testGHI1394() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_UseStringConcatFactory, CompilerOptions.ENABLED);
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"public class X {\n"
+				+ "	protected static int switchWithYield() {\n"
+				+ "		String myStringNumber = \"1\";\n"
+				+ "		return switch (myStringNumber) {\n"
+				+ "		case \"1\" -> {\n"
+				+ "			try {\n"
+				+ "				yield Integer.parseInt(myStringNumber);\n"
+				+ "			} catch (NumberFormatException e) {\n"
+				+ "				throw new RuntimeException(\"Failed parsing number\", e); //$NON-NLS-1$\n"
+				+ "			}\n"
+				+ "		}\n"
+				+ "		default -> throw new IllegalArgumentException(\"Unexpected value: \" + myStringNumber);\n"
+				+ "		};\n"
+				+ "	}\n"
+				+ "	public static void main(String[] args) {\n"
+				+ "		System.out.println(switchWithYield());\n"
+				+ "	}\n"
+				+ "} "
+				},
+				"1",
+				options);
+	}
+	public void testGHI1394_2() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_UseStringConcatFactory, CompilerOptions.ENABLED);
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"public class X {\n"
+				+ "	static String myStringNumber = \"1\";\n"
+				+ "	protected static int switchWithYield() {\n"
+				+ "		return switch (myStringNumber) {\n"
+				+ "		case \"10\" -> {\n"
+				+ "			try {\n"
+				+ "				yield Integer.parseInt(myStringNumber);\n"
+				+ "			} catch (NumberFormatException e) {\n"
+				+ "				throw new RuntimeException(\"Failed parsing number\", e); //$NON-NLS-1$\n"
+				+ "			}\n"
+				+ "		}\n"
+				+ "		default -> throw new IllegalArgumentException(\"Unexpected value: \" + myStringNumber);\n"
+				+ "		};\n"
+				+ "	}\n"
+				+ "	public static void main(String[] args) {\n"
+				+ "     try {\n"
+				+ "		    System.out.println(switchWithYield());\n"
+				+ "     } catch(IllegalArgumentException iae) {\n"
+				+ "         if (!iae.getMessage().equals(\"Unexpected value: \" + myStringNumber))\n"
+				+ "             throw iae;\n"
+				+ "     }\n"
+				+ "     System.out.println(\"Done\");\n"
+				+ "	}\n"
+				+ "} "
+				},
+				"Done",
+				options);
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1394
+	// switch statement with yield and try/catch produces EmptyStackException
+	public void testGHI1394_min() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_UseStringConcatFactory, CompilerOptions.ENABLED);
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"public class X {\n" +
+				"	static int foo() {\n" +
+				"		int x = 1;\n" +
+				"		return switch (x) {\n" +
+				"		case 1 -> {\n" +
+				"			try {\n" +
+				"				yield x;\n" +
+				"			} finally  {\n" +
+				"				\n" +
+				"			}\n" +
+				"		}\n" +
+				"		default -> throw new RuntimeException(\"\" + x + \" \".toLowerCase());\n" +
+				"		};\n" +
+				"	}\n" +
+				"	public static void main(String[] args) {\n" +
+				"		System.out.println(foo());\n" +
+				"	}\n" +
+				"}\n"
+				},
+				"1",
+				options);
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1727
+	// Internal compiler error: java.util.EmptyStackException
+	public void testGHI1727() {
+		if (this.complianceLevel < ClassFileConstants.JDK21)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"class X {\n" +
+				"	private Object foo(Object value) {\n" +
+				"		return switch (value) {\n" +
+				"			case String string -> {\n" +
+				"				try {\n" +
+				"					yield string;\n" +
+				"				} catch (IllegalArgumentException exception) {\n" +
+				"					yield string;\n" +
+				"				}\n" +
+				"			}\n" +
+				"			default -> throw new IllegalArgumentException(\"Argument of type \" + value.getClass());\n" +
+				"		};\n" +
+				"	}\n" +
+				"}\n"
+				},
+				"");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1686
+	// Switch statement with yield in synchronized and try-catch blocks results in ArrayIndexOutOfBoundsException
+	public void testGHI1686() {
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+
+					public String demo(String input) {
+						return switch (input) {
+							case "red" -> {
+								synchronized (this) {
+									yield "apple";
+								}
+							}
+							default -> {
+								try {
+									yield "banana";
+								}
+								catch (Exception ex) {
+									throw new IllegalStateException(ex);
+							    }
+						    }
+					    };
+				    }
+				}
+				"""
+				},
+				"");
+		}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1686
+	// Switch statement with yield in synchronized and try-catch blocks results in ArrayIndexOutOfBoundsException
+	public void testGHI1686_works() {
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+
+					public String demo(String input) {
+						return switch (input) {
+							case "red" -> {
+								synchronized (this) {
+									yield "apple";
+								}
+							}
+							default -> {
+								yield "banana";
+						    }
+					    };
+				    }
+				}
+				"""
+				},
+				"");
+		}
 }

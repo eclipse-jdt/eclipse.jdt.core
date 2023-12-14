@@ -42,16 +42,18 @@ import org.eclipse.jdt.internal.compiler.util.Util;
  * with J2SE 1.4 or earlier, involved only <i>simple</i> signatures.
  * </p>
  * <p>
- * Note that the "Q", "!", "|" and "&" formats are specific to Eclipse; the remainder
+ * Note that the "Q", "!", "|" and "&amp;" formats are specific to Eclipse; the remainder
  * are specified in the JVM spec.
  * </p>
  * <p>
- * Due to historical reasons Eclipse uses "|" format for Intersection and "&" for Union
+ * Due to historical reasons Eclipse uses "|" format for Intersection and "&amp;" for Union
  * which is opposite to their usage in source code.
  * </p>
  * <p>
  * The syntax for a type signature is:
+ * </p>
  * <pre>
+ * {@code
  * TypeSignature ::=
  *     "B"  // byte
  *   | "C"  // char
@@ -94,9 +96,11 @@ import org.eclipse.jdt.internal.compiler.util.Util;
  * OptionalTypeParameters ::=
  *     "&lt;" + FormalTypeParameterSignature+ + "&gt;"
  *   |
+ * }
  * </pre>
  * <p>
  * Examples:
+ * </p>
  * <ul>
  *   <li><code>"[[I"</code> denotes <code>int[][]</code></li>
  *   <li><code>"Ljava.lang.String;"</code> denotes <code>java.lang.String</code> in compiled code</li>
@@ -109,13 +113,17 @@ import org.eclipse.jdt.internal.compiler.util.Util;
  * </ul>
  * <p>
  * The syntax for a method signature is:
+ * </p>
  * <pre>
+ * {@code
  * MethodSignature ::= OptionalTypeParameters + "(" + ParamTypeSignature* + ")" + ReturnTypeSignature
  * ParamTypeSignature ::= TypeSignature
  * ReturnTypeSignature ::= TypeSignature
+ * }
  * </pre>
  * <p>
  * Examples:
+ * </p>
  * <ul>
  *   <li><code>"()I"</code> denotes <code>int foo()</code></li>
  *   <li><code>"([Ljava.lang.String;)V"</code> denotes <code>void foo(java.lang.String[])</code> in compiled code</li>
@@ -123,7 +131,9 @@ import org.eclipse.jdt.internal.compiler.util.Util;
  * </ul>
  * <p>
  * The syntax for a formal type parameter signature is:
+ * </p>
  * <pre>
+ * {@code
  * FormalTypeParameterSignature ::=
  *     TypeVariableName + OptionalClassBound + InterfaceBound*
  * TypeVariableName ::= Identifier
@@ -132,13 +142,15 @@ import org.eclipse.jdt.internal.compiler.util.Util;
  *   | ":" + TypeSignature
  * InterfaceBound ::=
  *     ":" + TypeSignature
+ * }
  * </pre>
  * <p>
  * Examples:
+ * </p>
  * <ul>
  *   <li><code>"X:"</code> denotes <code>X</code></li>
  *   <li><code>"X:QReader;"</code> denotes <code>X extends Reader</code> in source code</li>
- *   <li><code>"X:QReader;:QSerializable;"</code> denotes <code>X extends Reader & Serializable</code> in source code</li>
+ *   <li><code>"X:QReader;:QSerializable;"</code> denotes <code>X extends Reader &amp; Serializable</code> in source code</li>
  * </ul>
  * <p>
  * This class provides static methods and constants only.
@@ -275,7 +287,7 @@ public final class Signature {
 
 	/**
 	 * Character constant indicating a union type in a
-	 * signature. Value is <code>'&'</code>.
+	 * signature. Value is <code>'&amp;'</code>.
 	 *
 	 * @since 3.14
 	 */
@@ -1808,11 +1820,11 @@ public static String[] getParameterTypes(String methodSignature) throws IllegalA
  * <p>
  * For example:
  * <pre>
- * <code>
+ * {@code
  * getQualifier({'j', 'a', 'v', 'a', '.', 'l', 'a', 'n', 'g', '.', 'O', 'b', 'j', 'e', 'c', 't'}) -> {'j', 'a', 'v', 'a', '.', 'l', 'a', 'n', 'g'}
  * getQualifier({'O', 'u', 't', 'e', 'r', '.', 'I', 'n', 'n', 'e', 'r'}) -> {'O', 'u', 't', 'e', 'r'}
  * getQualifier({'j', 'a', 'v', 'a', '.', 'u', 't', 'i', 'l', '.', 'L', 'i', 's', 't', '<', 'j', 'a', 'v', 'a', '.', 'l', 'a', 'n', 'g', '.', 'S', 't', 'r', 'i', 'n', 'g', '>'}) -> {'j', 'a', 'v', 'a', '.', 'u', 't', 'i', 'l'}
- * </code>
+ * }
  * </pre>
  *
  * @param name the name
@@ -2139,12 +2151,12 @@ public static String getSimpleName(String name) {
  * <p>
  * For example:
  * <pre>
- * <code>
+ * {@code
  * getSimpleNames({'j', 'a', 'v', 'a', '.', 'l', 'a', 'n', 'g', '.', 'O', 'b', 'j', 'e', 'c', 't'}) -> {{'j', 'a', 'v', 'a'}, {'l', 'a', 'n', 'g'}, {'O', 'b', 'j', 'e', 'c', 't'}}
  * getSimpleNames({'O', 'b', 'j', 'e', 'c', 't'}) -> {{'O', 'b', 'j', 'e', 'c', 't'}}
  * getSimpleNames({}) -> {}
  * getSimpleNames({'j', 'a', 'v', 'a', '.', 'u', 't', 'i', 'l', '.', 'L', 'i', 's', 't', '<', 'j', 'a', 'v', 'a', '.', 'l', 'a', 'n', 'g', '.', 'S', 't', 'r', 'i', 'n', 'g', '>'}) -> {{'j', 'a', 'v', 'a'}, {'l', 'a', 'n', 'g'}, {'L', 'i', 's', 't', '<', 'j', 'a', 'v', 'a', '.', 'l', 'a', 'n', 'g', '.', 'S', 't', 'r', 'i', 'n', 'g'}}
- * </code>
+ * }
  * </pre>
  *
  * @param name the name

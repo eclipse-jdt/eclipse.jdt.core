@@ -52,7 +52,7 @@ public void addSuperInterface(String interfaceName) throws IllegalArgumentExcept
  * Returns an empty array if this method has no formal type parameters.
  * <p>Formal type parameters are as they appear in the source
  * code; for example:
- * <code>"X extends List&lt;String&gt; & Serializable"</code>.
+ * <code>"X extends List&lt;String&gt; &amp; Serializable"</code>.
  * </p>
  *
  * @return the formal type parameters of this type,
@@ -163,7 +163,7 @@ public void setAnnotation(boolean b);
  * Sets the formal type parameters for this type.
  * <p>Formal type parameters are given as they appear in the source
  * code; for example:
- * <code>"X extends List&lt;String&gt; & Serializable"</code>.
+ * <code>"X extends List&lt;String&gt; &amp; Serializable"</code>.
  * </p>
  *
  * @param typeParameters the formal type parameters of this type,

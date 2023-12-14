@@ -1819,6 +1819,7 @@ public abstract class ASTNode {
 	 * Returns the location of this node within its parent,
 	 * or <code>null</code> if this is a root node.
 	 * <pre>
+	 * {@code
 	 * ASTNode node = ...;
 	 * ASTNode parent = node.getParent();
 	 * StructuralPropertyDescriptor location = node.getLocationInParent();
@@ -1827,6 +1828,7 @@ public abstract class ASTNode {
 	 *    assert parent.getStructuralProperty(location) == node;
 	 * if ((location != null) && location.isChildListProperty())
 	 *    assert ((List) parent.getStructuralProperty(location)).contains(node);
+	 * }
 	 * </pre>
 	 * <p>
 	 * Note that the relationship between an AST node and its parent node

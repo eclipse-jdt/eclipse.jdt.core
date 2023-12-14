@@ -39,8 +39,11 @@ import java.io.OutputStream;
 import java.io.StringReader;
 import java.net.URI;
 import java.text.MessageFormat;
+import java.time.Instant;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -126,6 +129,7 @@ import org.eclipse.jdt.core.JavaConventions;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.core.JavaCore.JavaCallable;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.CompilationParticipant;
 import org.eclipse.jdt.core.compiler.IProblem;
@@ -377,6 +381,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	private static final String CP_RESOLVE_ADVANCED_DEBUG = JavaCore.PLUGIN_ID + "/debug/cpresolution/advanced" ; //$NON-NLS-1$
 	private static final String CP_RESOLVE_FAILURE_DEBUG = JavaCore.PLUGIN_ID + "/debug/cpresolution/failure" ; //$NON-NLS-1$
 	private static final String ZIP_ACCESS_DEBUG = JavaCore.PLUGIN_ID + "/debug/zipaccess" ; //$NON-NLS-1$
+	private static final String ZIP_ACCESS_WARNING_DEBUG_ = JavaCore.PLUGIN_ID + "/debug/zipaccessWarning" ; //$NON-NLS-1$
 	private static final String DELTA_DEBUG =JavaCore.PLUGIN_ID + "/debug/javadelta" ; //$NON-NLS-1$
 	private static final String DELTA_DEBUG_VERBOSE =JavaCore.PLUGIN_ID + "/debug/javadelta/verbose" ; //$NON-NLS-1$
 	private static final String DOM_AST_DEBUG = JavaCore.PLUGIN_ID + "/debug/dom/ast" ; //$NON-NLS-1$
@@ -425,13 +430,22 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	private static DebugTrace DEBUG_TRACE;
 
 	private final Set<IProject> touchQueue = ConcurrentHashMap.newKeySet();
-	private final WorkspaceJob touchJob = new WorkspaceJob(Messages.synchronizing_projects_job) {
+	private static final class TouchJob extends WorkspaceJob {
+		// This INSTANCE is intentionally lazy initialized such that for example JavaCore.getOptions() can run without running Platform
+		// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1720
+		private static final WorkspaceJob INSTANCE = new TouchJob();
+
+		private TouchJob() {
+			super(Messages.synchronizing_projects_job);
+		}
+
 		@Override
 		public IStatus runInWorkspace(IProgressMonitor monitor) throws CoreException {
-			SubMonitor subMonitor = SubMonitor.convert(monitor, JavaModelManager.this.touchQueue.size());
-			JavaModelManager.this.touchQueue.removeIf(iProject->{
+			JavaModelManager javaModelManager = JavaModelManager.getJavaModelManager();
+			SubMonitor subMonitor = SubMonitor.convert(monitor, javaModelManager.touchQueue.size());
+			javaModelManager.touchQueue.removeIf(iProject -> {
 				// remaining work may change in background - update it:
-				subMonitor.setWorkRemaining(JavaModelManager.this.touchQueue.size());
+				subMonitor.setWorkRemaining(javaModelManager.touchQueue.size());
 				if (JavaBuilder.DEBUG) {
 					trace("Touching project " + iProject.getName()); //$NON-NLS-1$
 				}
@@ -439,7 +453,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 					try {
 						iProject.touch(subMonitor.split(1));
 					} catch (CoreException e) {
-						Util.log(e, "Could not touch project "+iProject.getName()); //$NON-NLS-1$
+						Util.log(e, "Could not touch project " + iProject.getName()); //$NON-NLS-1$
 					}
 				}
 				return true;
@@ -451,7 +465,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		public boolean belongsTo(Object family) {
 			return ResourcesPlugin.FAMILY_MANUAL_REFRESH == family;
 		}
-	};
+	}
 
 	public static class CompilationParticipants {
 
@@ -1682,6 +1696,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	public static boolean CP_RESOLVE_VERBOSE = false;
 	public static boolean CP_RESOLVE_VERBOSE_ADVANCED = false;
 	public static boolean CP_RESOLVE_VERBOSE_FAILURE = false;
+	public static boolean ZIP_ACCESS_WARNING= false;
 	public static boolean ZIP_ACCESS_VERBOSE = false;
 	public static boolean JRT_ACCESS_VERBOSE = false;
 
@@ -1986,6 +2001,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				BasicSearchEngine.VERBOSE = debug && options.getBooleanOption(SEARCH_DEBUG, false);
 				SelectionEngine.DEBUG = debug && options.getBooleanOption(SELECTION_DEBUG, false);
 				JavaModelManager.ZIP_ACCESS_VERBOSE = debug && options.getBooleanOption(ZIP_ACCESS_DEBUG, false);
+				JavaModelManager.ZIP_ACCESS_WARNING = debug && options.getBooleanOption(ZIP_ACCESS_WARNING_DEBUG_, false);
 				SourceMapper.VERBOSE = debug && options.getBooleanOption(SOURCE_MAPPER_DEBUG_VERBOSE, false);
 				DefaultCodeFormatter.DEBUG = debug && options.getBooleanOption(FORMATTER_DEBUG, false);
 
@@ -2976,19 +2992,54 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 */
 	public static boolean throwIoExceptionsInGetZipFile = false;
 
+	/** for tracing only **/
+	private final ThreadLocal<Map<IPath, Deque<Instant>>> lastAccessByPath = ThreadLocal.withInitial(HashMap::new);
+	/** for tracing only **/
+	private final ThreadLocal<Instant> lastWarning = new ThreadLocal<>();
+
+	private void traceZipAccessWarning(IPath path) {
+		Instant now = Instant.now();
+		Deque<Instant> lastAcesses = this.lastAccessByPath.get().compute(path,
+				(p, l) -> (l == null) ? new ArrayDeque<>() : l);
+		Instant recentAccess = lastAcesses.peekFirst();
+		Instant lastAccess = lastAcesses.peekLast();
+		lastAcesses.offerLast(now);
+		if (lastAccess != null) {
+			long elapsedMs = lastAccess.until(now, java.time.temporal.ChronoUnit.MILLIS);
+			if (elapsedMs <= 100000) {
+				trace(path + " opened again in this thread after " + elapsedMs + "ms"); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+		}
+		// only warn if there have recently multiple accesses, because it's common but not that bad to have 2 of them
+		if (recentAccess != null && lastAcesses.size() > 2) {
+			long elapsedMs = recentAccess.until(now, java.time.temporal.ChronoUnit.MILLIS);
+			lastAcesses.pollFirst();
+			Instant lastInstant = this.lastWarning.get();
+			long elapsedWarningMs = lastInstant == null ? Long.MAX_VALUE
+					: lastInstant.until(now, java.time.temporal.ChronoUnit.MILLIS);
+			if (elapsedMs < 100 && elapsedWarningMs > 1000) {
+				this.lastWarning.set(now);
+				new Exception("Zipfile was opened multiple times wihtin " + elapsedMs + "ms in same thread " //$NON-NLS-1$ //$NON-NLS-2$
+						+ Thread.currentThread() + ", consider caching: " + path) //$NON-NLS-1$
+								.printStackTrace();
+			}
+		}
+	}
+
 	public ZipFile getZipFile(IPath path, boolean checkInvalidArchiveCache) throws CoreException {
 		if (checkInvalidArchiveCache) {
 			isArchiveStateKnownToBeValid(path);
 		}
 		ZipCache zipCache;
 		ZipFile zipFile;
-		if ((zipCache = this.zipFiles.get()) != null
-				&& (zipFile = zipCache.getCache(path)) != null) {
+		if ((zipCache = this.zipFiles.get()) != null && (zipFile = zipCache.getCache(path)) != null) {
 			return zipFile;
 		}
 		File localFile = getLocalFile(path);
-
 		try {
+			if (ZIP_ACCESS_WARNING) {
+				traceZipAccessWarning(path);
+			}
 			if (ZIP_ACCESS_VERBOSE) {
 				trace("(" + Thread.currentThread() + ") [JavaModelManager.getZipFile(IPath)] Creating ZipFile on " + localFile ); //$NON-NLS-1$ //$NON-NLS-2$
 			}
@@ -3430,7 +3481,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		for (IProject iProject : projectsToTouch) {
 			this.touchQueue.add(iProject);
 		}
-		this.touchJob.schedule();
+		TouchJob.INSTANCE.schedule();
 	}
 
 	private Set<IJavaProject> getClasspathBeingResolved() {
@@ -5726,5 +5777,50 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 	private ClasspathAccessRule getFromCache(ClasspathAccessRule rule) {
 		return DeduplicationUtil.internObject(rule);
+	}
+
+	private static ThreadLocal<Boolean> readOnly = ThreadLocal.withInitial(() -> Boolean.FALSE);
+
+	public static void assertModelModifiable() {
+		if (readOnly.get().booleanValue()) {
+			throw new IllegalStateException("Its not allow to modify JavaModel during ReadOnly action."); //$NON-NLS-1$
+		}
+	}
+
+	public static <T, E extends Exception> T callReadOnly(JavaCallable<T, E> callable) throws E {
+		if (readOnly.get().booleanValue()) {
+			// nested
+			return callable.call();
+		} else {
+			try {
+				readOnly.set(Boolean.TRUE);
+				return JavaModelManager.getJavaModelManager().callReadOnlyUnchecked(callable);
+			} finally {
+				readOnly.set(Boolean.FALSE);
+			}
+		}
+	}
+
+	private <T, E extends Exception> T callReadOnlyUnchecked(JavaCallable<T, E> callable) throws E {
+		boolean hadTemporaryCache = hasTemporaryCache();
+		try {
+			getTemporaryCache();
+
+			return cacheZipFiles(callable);
+		} finally {
+			if (!hadTemporaryCache) {
+				resetTemporaryCache();
+			}
+		}
+	}
+
+	public static <T, E extends Exception> T cacheZipFiles(JavaCallable<T, E> callable) throws E {
+		Object instance = new Object();
+		try {
+			getJavaModelManager().cacheZipFiles(instance);
+			return callable.call();
+		} finally {
+			getJavaModelManager().flushZipFiles(instance);
+		}
 	}
 }

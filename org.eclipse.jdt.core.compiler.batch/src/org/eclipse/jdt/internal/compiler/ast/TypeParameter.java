@@ -34,8 +34,10 @@ import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
+import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
@@ -246,17 +248,37 @@ public class TypeParameter extends AbstractVariableDeclaration {
 	}
 
 	public void updateWithAnnotations(ClassScope scope) {
-		if (this.binding != null && (this.binding.tagBits & TagBits.AnnotationResolved) != 0)
+		if (this.binding == null || (this.binding.tagBits & TagBits.AnnotationResolved) != 0)
 			return;
 		if (this.type != null) {
+			TypeBinding prevType = this.type.resolvedType;
 			this.type.updateWithAnnotations(scope, Binding.DefaultLocationTypeBound);
+			if (this.type.resolvedType instanceof ReferenceBinding && prevType != this.type.resolvedType) { //$IDENTITY-COMPARISON$
+				ReferenceBinding newType = (ReferenceBinding) this.type.resolvedType;
+				this.binding.firstBound = newType;
+				if (newType.isClass())
+					this.binding.superclass = newType;
+			}
 		}
 		if (this.bounds != null) {
 			for (int i = 0; i < this.bounds.length; i++) {
-				this.bounds[i].updateWithAnnotations(scope, Binding.DefaultLocationTypeBound);
+				TypeReference bound = this.bounds[i];
+				TypeBinding prevType = bound.resolvedType;
+				bound.updateWithAnnotations(scope, Binding.DefaultLocationTypeBound);
+				if (bound.resolvedType instanceof ReferenceBinding && prevType != bound.resolvedType) { //$IDENTITY-COMPARISON$
+					ReferenceBinding newType = (ReferenceBinding) bound.resolvedType;
+					ReferenceBinding[] superInterfaces = this.binding.superInterfaces;
+					if (superInterfaces != null) {
+						for (int j = 0; j < superInterfaces.length; j++) {
+							if (prevType == superInterfaces[j]) { //$IDENTITY-COMPARISON$
+								superInterfaces[j] = newType;
+								break;
+							}
+						}
+					}
+				}
 			}
 		}
-		// TODO: do we need to update anything else for null-annotated types?
 		resolveAnnotations(scope);
 	}
 }

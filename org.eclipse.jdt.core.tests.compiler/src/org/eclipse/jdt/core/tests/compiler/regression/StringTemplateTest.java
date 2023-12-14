@@ -1731,4 +1731,177 @@ s
 				"Syntax error on token \")\", delete this token\n" +
 				"----------\n");
 	}
+	public void test0063() {
+		runNegativeTest(
+				new String[] {
+					"X.java",
+					"""
+					public class X {
+						 public static void main(String argv[]) {
+						 	String name = "Jay";
+							String greet = STR."Hello \\{name + foo())}!";
+							System.out.println(greet);
+						}
+						private static String foo() {
+							return "A";
+						}
+					}
+					interface Intf {
+					}"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 1)\n" +
+				"	String greet = STR.\"Hello \\{name + foo())}!\";\n" +
+				"	                                        ^\n" +
+				"Syntax error on token \")\", delete this token\n" +
+				"----------\n");
+	}
+	public void testIssue1719() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"""
+					public class X {
+					  public static void main(String[] args) {
+					    String name = "Bill";
+					    System.out.println(STR."\\{name}");
+					    String html = STR.\"""
+					         \\{name}
+					      \""";
+					  }
+					}"""
+				},
+				"Bill");
+	}
+	public void testIssue1722() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"""
+					public class X {
+					  public static void main(String[] args) {
+					    String firstName = "Bill", lastName = "Duck";
+					    System.out.println(STR."\\{firstName} \\{lastName}");
+
+					    String title = "My Web Page";
+
+					    String html = STR.\"""
+					        </head>
+					      \""";
+					    System.out.println(html);
+					  }
+					}"""
+				},
+				"Bill Duck\n" +
+				"  </head>");
+	}
+	public void testJEP430Examples() {
+		runConformTest(
+				new String[] {
+					"X.java",
+					"""
+					import java.io.File;
+					import java.time.LocalTime;
+					import java.time.format.DateTimeFormatter;
+					import java.util.Date;
+					import java.util.List;
+					public class X {
+					  @SuppressWarnings("preview")
+					  public static void main(String[] args) {
+						  String firstName = "Bill";
+						  String lastName  = "Duck";
+						  String fullName  = STR."\\{firstName} \\{lastName}";
+						  System.out.println(fullName); // "Bill Duck"
+						  String sortName  = STR."\\{lastName}, \\{firstName}";
+						  System.out.println(sortName); // "Duck, Bill"
+						  int x = 10, y = 20;
+						  String s = STR."\\{x} + \\{y} = \\{x + y}";
+						  System.out.println(s); // "10 + 20 = 30"
+						  s = STR."You have a \\{getOfferType()} waiting for you!";
+						  System.out.println(s); // "You have a gift waiting for you!"
+						  Request req = new Request();
+						  String t = STR."Access at \\{req.date} \\{req.time} from \\{req.ipAddress}";
+
+						  String filePath = "tmp.dat";
+						  File file = new File(filePath);
+						  String old = "The file " + filePath + " " + (file.exists() ? "does" : "does not") + " exist";
+						  String msg = STR."The file \\{filePath} \\{file.exists() ? "does" : "does not"} exist";
+						  System.out.println(msg); // "The file tmp.dat does exist" or "The file tmp.dat does not exist"
+						  String time = STR."The time is \\{
+								    // The java.time.format package is very useful
+								    DateTimeFormatter
+								      .ofPattern("HH:mm:ss")
+								      .format(LocalTime.NOON)
+								} right now";
+					  		System.out.println(time); // "The time is 12:34:56 right now"
+							int index = 0;
+							String data = STR."\\{index++}, \\{index++}, \\{index++}, \\{index++}";
+							System.out.println(data); //"0, 1, 2, 3"
+							String[] fruit = { "apples", "oranges", "peaches" };
+							s = STR."\\{fruit[0]}, \\{STR."\\{fruit[1]}, \\{fruit[2]}"}";
+							System.out.println(s); //"apples, oranges, peaches"
+							s = STR."\\{fruit[0]}, \\{
+								    STR."\\{fruit[1]}, \\{fruit[2]}"
+								}";
+							System.out.println(s);
+							String tmp = STR."\\{fruit[1]}, \\{fruit[2]}";
+							s = STR."\\{fruit[0]}, \\{tmp}";
+							System.out.println(s);
+							Rectangle[] zone = new Rectangle[] {
+								    new Rectangle("Alfa", 17.8, 31.4),
+								    new Rectangle("Bravo", 9.6, 12.4),
+								    new Rectangle("Charlie", 7.1, 11.23),
+								};
+								String table = STR.\"""
+								    Description  Width  height()  Area
+								    \\{zone[0].name()}  \\{zone[0].width()}  \\{zone[0].height()}     \\{zone[0].area()}
+								    \\{zone[1].name()}  \\{zone[1].width()}  \\{zone[1].height()}     \\{zone[1].area()}
+								    \\{zone[2].name()}  \\{zone[2].width()}  \\{zone[2].height()}     \\{zone[2].area()}
+								    Total \\{zone[0].area() + zone[1].area() + zone[2].area()}
+								    \""";
+								System.out.println(table);
+								x = 10;
+								y = 20;
+								StringTemplate st = StringTemplate.RAW."\\{x} plus \\{y} equals \\{x + y}";
+								List<String> fragments = st.fragments();
+								String result = String.join("\\\\{}", fragments);
+								System.out.println(result); //"\\{} plus \\{} equals \\{}"
+								List<Object> values = st.values();
+								System.out.println(values);//[10, 20, 30]
+							}
+					  static String getOfferType() {
+						  return "gift";
+					  }
+					}
+					record Rectangle(String name, double width, double height) {
+					    double area() {
+					        return width * height;
+					    }
+					}
+					class Request {
+						Date date = new Date(3, 5, 2022);
+						String time = "15:34";
+						String ipAddress = "0.0.0.0";
+					}"""
+				},
+				"""
+				Bill Duck
+				Duck, Bill
+				10 + 20 = 30
+				You have a gift waiting for you!
+				The file tmp.dat does not exist
+				The time is 12:00:00 right now
+				0, 1, 2, 3
+				apples, oranges, peaches
+				apples, oranges, peaches
+				apples, oranges, peaches
+				Description  Width  height()  Area
+				Alfa  17.8  31.4     558.92
+				Bravo  9.6  12.4     119.03999999999999
+				Charlie  7.1  11.23     79.733
+				Total 757.693
+
+				\\{} plus \\{} equals \\{}
+				[10, 20, 30]""");
+	}
 }

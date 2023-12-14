@@ -128,7 +128,7 @@ public class EmbeddedExpressionSelectionTest extends AbstractSelectionTest {
                     String name;
                     String phone;
                     String address;
-                    String doc = STR.\"\"\"\n{\\n    \\\"name\\\":    \\\"\\{STR.\"\\{<SelectOnName:name>}\"}\\\",\\n    \\\"phone\\\":   \\\"\\{phone}\\\",\\n    \\\"address\\\": \\\"\\{address}\\\"\\n};\"\"\";
+                    String doc = STR.\"""\n{\\n    \\\"name\\\":    \\\"\\{STR.\"\\{<SelectOnName:name>}\"}\\\",\\n    \\\"phone\\\":   \\\"\\{phone}\\\",\\n    \\\"address\\\": \\\"\\{address}\\\"\\n};\""";
                   }
                 }
                 """;
@@ -179,5 +179,40 @@ public class EmbeddedExpressionSelectionTest extends AbstractSelectionTest {
 			completionIdentifier,
 			expectedReplacedSource,
 			testName);
+	}
+	// test selection after template
+	public void test005() throws JavaModelException {
+		String string =
+				"public class X {\n"
+				+ "  public static void main(String[] args) {\n"
+				+ "    String[] fruit = { \"apples\", \"oranges\", \"peaches\" };\n"
+				+ "    String s = STR.\"\\{fruit[0]}, \\{STR.\"\\{/*here*/fruit[1]}, \\{fruit[2]}\"}\\u002e\";\n"
+				+ "    System.out.println(s);\n"
+				+ "    System.out.println(s.hashCode());\n"
+				+ "  }\n"
+				+ "}";
+
+		String selection = "hashCode";
+		String expectedSelection = "<SelectOnMessageSend:s.hashCode()>";
+
+		String selectionIdentifier = "hashCode";
+		String expectedUnitDisplayString =
+				"public class X {\n" +
+				"  public X() {\n" +
+				"  }\n" +
+				"  public static void main(String[] args) {\n" +
+				"    String[] fruit;\n" +
+				"    String s;\n" +
+				"    System.out.println(<SelectOnMessageSend:s.hashCode()>);\n" +
+				"  }\n" +
+				"}\n";
+		String expectedReplacedSource = "s.hashCode()";
+		String testName = "X.java";
+
+		int selectionStart = string.lastIndexOf(selection);
+		int selectionEnd = string.lastIndexOf(selection) + selection.length() - 1;
+
+		checkMethodParse(string.toCharArray(), selectionStart, selectionEnd, expectedSelection, expectedUnitDisplayString,
+				selectionIdentifier, expectedReplacedSource, testName);
 	}
 }
