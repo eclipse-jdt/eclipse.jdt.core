@@ -432,8 +432,17 @@ public class FakedTrackingVariable extends LocalDeclaration {
 			return flowInfo;
 		} else { // regular resource
 			FakedTrackingVariable tracker = acquisition.closeTracker;
+			if (isMethodOwningAnnotatedMethod(acquisition)) {
+				if (tracker != null) {
+					flowInfo.markAsDefinitelyNull(tracker.binding);
+				} else {
+					acquisition.closeTracker = new FakedTrackingVariable(scope, acquisition, flowInfo, FlowInfo.NULL); // no local available, closeable is unassigned
+				}
+				return flowInfo;
+			}
 			if (tracker != null) {
 				// pre-connected tracker means: directly assigning the acquisition to a local, forget special treatment:
+				// (in the unannotated case the pre-connected tracker has no valuable information)
 				tracker.withdraw();
 				acquisition.closeTracker = null;
 				return flowInfo;
@@ -674,6 +683,9 @@ public class FakedTrackingVariable extends LocalDeclaration {
 		} else if (expression instanceof MessageSend
 				|| expression instanceof ArrayReference)
 		{
+			if (isMethodOwningAnnotatedMethod(expression)) {
+				return new FakedTrackingVariable(local, location, flowInfo, flowContext, FlowInfo.NULL);
+			}
 			// we *might* be responsible for the resource obtained
 			FakedTrackingVariable tracker = new FakedTrackingVariable(local, location, flowInfo, flowContext, FlowInfo.POTENTIALLY_NULL); // shed some doubt
 			if (!isResourceProducer)
@@ -710,6 +722,11 @@ public class FakedTrackingVariable extends LocalDeclaration {
 				return CharOperation.equals(method.declaringClass.compoundName, TypeConstants.JAVA_NIO_FILE_FILES);
 		}
 		return false;
+	}
+
+	protected static boolean isMethodOwningAnnotatedMethod(Expression expression) {
+		return expression instanceof MessageSend
+				&& (((MessageSend) expression).binding.tagBits & TagBits.AnnotationOwning) != 0;
 	}
 
 	public static void cleanUpAfterAssignment(BlockScope currentScope, int lhsBits, Expression expression) {

@@ -7004,10 +7004,11 @@ public void testBug499037_010_since_9() {
 		"----------\n",
 		options);
 }
-public void testOwning_receiving() {
+public void testOwning_receiving_parameter() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.WARNING);
+	options.put(CompilerOptions.OPTION_AnnotationBasedResourceAnalysis, CompilerOptions.ENABLED);
 	runLeakTest(
 		new String[] {
 			OWNING_JAVA,
@@ -7103,5 +7104,75 @@ public void testOwning_sending() {
 		----------
 		""",
 		options);
+}
+
+public void testOwning_receiving_from_call() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.WARNING);
+	options.put(CompilerOptions.OPTION_AnnotationBasedResourceAnalysis, CompilerOptions.ENABLED);
+	runLeakTest(
+		new String[] {
+			OWNING_JAVA,
+			OWNING_CONTENT,
+			"X.java",
+			"""
+			import org.eclipse.jdt.annotation.Owning;
+			import java.io.*;
+			public class X {
+				void err() {
+					AutoCloseable rc1 = provideOwned();
+					if (rc1 == null) System.out.print("null");
+				}
+				void warn() {
+					AutoCloseable rc2 = provideShared();
+					if (rc2 == null) System.out.print("null");
+				}
+				void err_without_local() {
+					if (provideOwned() == null) System.out.print("null");
+				}
+				String err_wrapped() {
+					BufferedInputStream bis = new BufferedInputStream(provideOwned());
+					return bis.toString();
+				}
+				void ok() throws Exception {
+					try (AutoCloseable c = provideOwned()) {
+						System.out.print(2);
+					};
+				}
+				AutoCloseable provideShared() {
+					return null;
+				}
+				@Owning InputStream provideOwned() {
+					return null;
+				}
+			}
+			"""
+		},
+		"""
+		----------
+		1. ERROR in X.java (at line 5)
+			AutoCloseable rc1 = provideOwned();
+			              ^^^
+		Resource leak: \'rc1\' is never closed
+		----------
+		2. WARNING in X.java (at line 9)
+			AutoCloseable rc2 = provideShared();
+			              ^^^
+		Potential resource leak: \'rc2\' may not be closed
+		----------
+		3. ERROR in X.java (at line 13)
+			if (provideOwned() == null) System.out.print("null");
+			    ^^^^^^^^^^^^^^
+		Resource leak: '<unassigned Closeable value>' is not closed at this location
+		----------
+		4. ERROR in X.java (at line 16)
+			BufferedInputStream bis = new BufferedInputStream(provideOwned());
+			                    ^^^
+		Resource leak: 'bis' is never closed
+		----------
+		""",
+		options);
+
 }
 }

@@ -103,7 +103,7 @@ void addType(ReferenceBinding element) {
 	if (priorType != null && priorType.isUnresolvedType() && !element.isUnresolvedType()) {
 		((UnresolvedReferenceBinding) priorType).setResolvedType(element, this.environment);
 	}
-	if (this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled || this.environment.usesOwningAnnotation())
+	if (this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled || this.environment.globalOptions.isAnnotationBasedResourceAnalysisEnabled)
 		if (element.isAnnotationType() || element instanceof UnresolvedReferenceBinding) // unresolved types don't yet have the modifiers set
 			checkIfAnalysisAnnotationType(element);
 
