@@ -11,3 +11,4 @@ Bug 549687 - Local ecj build has a SHA-256 digest error for org/eclipse/jdt/inte
 Bug 566471 - I20200828-0150 - Comparator Errors Found
 Bug 573283 - don't include javax15api.jar in jdt binaries
 https://github.com/eclipse-platform/eclipse.platform.releng.aggregator/issues/1184
+https://github.com/eclipse-platform/eclipse.platform.releng.aggregator/issues/1659
