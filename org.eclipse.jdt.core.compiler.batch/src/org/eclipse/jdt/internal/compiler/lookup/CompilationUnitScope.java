@@ -412,8 +412,13 @@ void connectTypeHierarchy() {
 void integrateAnnotationsInHierarchy() {
 	// Only now that all hierarchy information is built we're ready for ...
 	// ... integrating annotations
-	for (int i = 0, length = this.topLevelTypes.length; i < length; i++)
-		this.topLevelTypes[i].scope.referenceType().updateSupertypesWithAnnotations(Collections.emptyMap());
+	try {
+		this.environment.suppressImportErrors = true;
+		for (int i = 0, length = this.topLevelTypes.length; i < length; i++)
+			this.topLevelTypes[i].scope.referenceType().updateSupertypesWithAnnotations(Collections.emptyMap());
+	} finally {
+		this.environment.suppressImportErrors = false;
+	}
 	// ... checking on permitted types
 	connectPermittedTypes();
 	for (int i = 0, length = this.topLevelTypes.length; i < length; i++)
