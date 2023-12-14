@@ -64,7 +64,7 @@ public class CompilationResult {
 	public CategorizedProblem tasks[];
 	public int problemCount;
 	public int taskCount;
-	public ICompilationUnit compilationUnit;
+	public final ICompilationUnit compilationUnit;
 	private Map<CategorizedProblem, ReferenceContext> problemsMap;
 	private Set firstErrors;
 	private final int maxProblemPerUnit;
@@ -98,6 +98,7 @@ public class CompilationResult {
 
 public CompilationResult(char[] fileName, int unitIndex, int totalUnitsKnown, int maxProblemPerUnit){
 	this.fileName = fileName;
+	this.compilationUnit = null;
 	this.unitIndex = unitIndex;
 	this.totalUnitsKnown = totalUnitsKnown;
 	this.maxProblemPerUnit = maxProblemPerUnit;

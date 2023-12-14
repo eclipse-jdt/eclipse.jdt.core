@@ -80,7 +80,7 @@ public class CompilationUnitDeclaration extends ASTNode implements ProblemSeveri
 	public boolean ignoreMethodBodies = false;
 	public CompilationUnitScope scope;
 	public ProblemReporter problemReporter;
-	public CompilationResult compilationResult;
+	public final CompilationResult compilationResult;
 
 	public Map<Integer,LocalTypeBinding> localTypes = Collections.emptyMap();
 
@@ -101,6 +101,7 @@ public class CompilationUnitDeclaration extends ASTNode implements ProblemSeveri
 	int suppressWarningsCount;
 	public int functionalExpressionsCount;
 	public FunctionalExpression[] functionalExpressions;
+	private final char[] mainTypeName;
 
 public CompilationUnitDeclaration(ProblemReporter problemReporter, CompilationResult compilationResult, int sourceLength) {
 	this.problemReporter = problemReporter;
@@ -108,6 +109,7 @@ public CompilationUnitDeclaration(ProblemReporter problemReporter, CompilationRe
 	//by definition of a compilation unit....
 	this.sourceStart = 0;
 	this.sourceEnd = sourceLength - 1;
+	this.mainTypeName = computeMainTypeName();
 }
 
 /*
@@ -431,6 +433,13 @@ public char[] getFileName() {
 }
 
 public char[] getMainTypeName() {
+	return this.mainTypeName;
+}
+
+private char[] computeMainTypeName() {
+	if(this.compilationResult == null) {
+		return null;
+	}
 	if (this.compilationResult.compilationUnit == null) {
 		char[] fileName = this.compilationResult.getFileName();
 
