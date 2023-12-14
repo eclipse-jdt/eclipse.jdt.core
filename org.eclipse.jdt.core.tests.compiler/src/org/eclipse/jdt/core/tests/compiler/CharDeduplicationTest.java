@@ -13,8 +13,11 @@
  *******************************************************************************/
 package org.eclipse.jdt.core.tests.compiler;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
@@ -52,7 +55,8 @@ public class CharDeduplicationTest extends TestCase {
 			assertDeduplication("1234");
 			assertDeduplication("12345");
 			assertDeduplication("123456");
-			assertNoDeduplication("1234567");
+			assertDeduplication("1234567");
+			assertDeduplication("eclipse");
 
 			// new:
 			assertDeduplication("0"); // illegal identifier - but who cares.
@@ -63,7 +67,7 @@ public class CharDeduplicationTest extends TestCase {
 			assertDeduplication("" + (char) 0);
 			// ..
 			assertDeduplication("" + (char) 127);
-			assertNoDeduplication("" + (char) 128); // non-Ascii
+			assertDeduplication("" + (char) 128); // non-Ascii
 		}
 	}
 
@@ -71,7 +75,7 @@ public class CharDeduplicationTest extends TestCase {
 		String text = "abcdefghijklmn";
 		for (int start = 0; start < text.length(); start++) {
 			for (int end = start; end < text.length(); end++) {
-				assertDedup(text, (end - start) <= CharDeduplication.OPTIMIZED_LENGTH, start, end);
+				assertDedup(text, true, start, end);
 			}
 		}
 	}
@@ -82,7 +86,7 @@ public class CharDeduplicationTest extends TestCase {
 		deduplication.reset();// to test the overflow we need to start empty
 		for (int overload = 0; overload < 3; overload++) {
 			HashMap<Integer, char[]> expecteds = new HashMap<>();
-			for (int i = 0; i < CharDeduplication.TABLE_SIZE + overload; i++) {
+			for (int i = 0; i < CharDeduplication.SEARCH_SIZE + overload; i++) {
 				int numberWithFixedLength = 10000 + i;
 				String string = "" + numberWithFixedLength;
 				char[] a = string.toCharArray();
@@ -110,23 +114,40 @@ public class CharDeduplicationTest extends TestCase {
 
 	public static void main(String[] args) {
 		CharDeduplicationTest test=new CharDeduplicationTest("");
-		System.out.println("min= ~"+ LongStream.range(0, 100).map(t->test.runPerformanceTest()).min());
-		// min= ~0.36sec
+		System.out.println("min= ~"+ LongStream.range(0, 20).map(t->test.runPerformanceTest()).min().getAsLong()/1_000_000_000d);
+		//.21 s
 	}
 
 	public long runPerformanceTest() {
-		long nanoTime = System.nanoTime();
 		CharDeduplication deduplication = CharDeduplication.getThreadLocalInstance();
-		for (int j = 0; j < 100; j++) {
-			for (int i = 0; i < 100_000; i++) {
-				String hexString = Integer.toHexString(i);
-				char[] chars = hexString.toCharArray();
-				deduplication.sharedCopyOfRange(chars, 0, chars.length);
+		int MAX_LENGTH = 6;
+		int RUNS = 1000;
+		int TOKENS = 1080;
+		Random rnd = new Random(0);
+
+		StringBuilder content = new StringBuilder();
+		for (int i = 0; i < TOKENS + MAX_LENGTH; i++) {
+			content.append(((char) (65 + (Math.round(15.0/rnd.nextDouble()) & 15))));
+		}
+		char[] contents = content.toString().toCharArray();
+		ArrayList<char[]> results = new ArrayList<>(RUNS * TOKENS);
+		long nanoTime = System.nanoTime();
+		for (int l = 1; l < MAX_LENGTH; l++) {
+			for (int j = 0; j < RUNS; j++) {
+					for (int i = 0; i < TOKENS; i++) {
+						char[] result = deduplication.sharedCopyOfRange(contents, i, i + l);
+						results.add(result);
+					}
 			}
 		}
 		long nanoTime2 = System.nanoTime();
 		long durationNanos = nanoTime2 - nanoTime;
 		System.out.println(durationNanos);
+		IdentityHashMap<char[], char[]> identityHashMap = new IdentityHashMap<>();
+		for (char[] r : results) {
+			identityHashMap.put(r, r);
+		}
+		System.out.println("deduplicated " + (results.size() - identityHashMap.size()) * 100f / results.size() + "%"); // 99.9%
 		return durationNanos;
 	}
 
@@ -158,6 +179,7 @@ public class CharDeduplicationTest extends TestCase {
 		assertDedup(string, true, 0, string.length());
 	}
 
+	@SuppressWarnings("unused")
 	private void assertNoDeduplication(String string) {
 		assertDedup(string, false, 0, string.length());
 	}
