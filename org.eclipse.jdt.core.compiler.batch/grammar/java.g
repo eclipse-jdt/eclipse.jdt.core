@@ -113,7 +113,6 @@ $Terminals
 	BeginLambda
 	BeginIntersectionCast
 	BeginTypeArguments
-	ElidedSemicolonAndRightBrace
 	AT308
 	AT308DOTDOTDOT
 	BeginCaseExpr
@@ -1835,7 +1834,6 @@ PrimaryNoNewArray -> ArrayAccess
 --                   Start of rules for JSR 335
 -----------------------------------------------------------------------
 
-PrimaryNoNewArray -> LambdaExpression
 PrimaryNoNewArray -> ReferenceExpression
 /:$readableName Expression:/
 
@@ -1931,15 +1929,10 @@ TypeElidedFormalParameter ::= Modifiersopt Identifier
 /:$readableName TypeElidedFormalParameter:/
 /:$compliance 1.8:/
 
--- A lambda body of the form x is really '{' return x; '}'
-LambdaBody -> ElidedLeftBraceAndReturn Expression ElidedSemicolonAndRightBrace
+LambdaBody ::= Expression
+/.$putCase consumeLambdaBody(false); $break ./
 LambdaBody -> Block
 /:$readableName LambdaBody:/
-/:$compliance 1.8:/
-
-ElidedLeftBraceAndReturn ::= $empty
-/.$putCase consumeElidedLeftBraceAndReturn(); $break ./
-/:$readableName ElidedLeftBraceAndReturn:/
 /:$compliance 1.8:/
 
 -----------------------------------------------------------------------
@@ -2261,6 +2254,7 @@ ConditionalOrExpression ::= ConditionalOrExpression '||' ConditionalAndExpressio
 
 ConditionalExpression -> ConditionalOrExpression
 ConditionalExpression ::= ConditionalOrExpression '?' Expression ':' ConditionalExpression
+ConditionalExpression ::= ConditionalOrExpression '?' Expression ':' LambdaExpression
 /.$putCase consumeConditionalExpression(OperatorIds.QUESTIONCOLON) ; $break ./
 /:$readableName Expression:/
 
@@ -2308,10 +2302,8 @@ AssignmentOperator ::= '|='
 /:$readableName AssignmentOperator:/
 /:$recovery_template =:/
 
--- For handling lambda expressions, we need to know when a full Expression
--- has been reduced.
-Expression ::= AssignmentExpression
-/.$putCase consumeExpression(); $break ./
+Expression -> LambdaExpression
+Expression -> AssignmentExpression
 /:$readableName Expression:/
 /:$recovery_template Identifier:/
 
@@ -3206,3 +3198,5 @@ COLON_COLON ::= '::'
 
 $end
 -- need a carriage return after the $end
+
+
