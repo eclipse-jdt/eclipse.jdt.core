@@ -92,6 +92,10 @@ protected void runLeakTest(String[] testFiles, String expectedCompileError, Map 
 	runNegativeTest(testFiles, expectedCompileError, null, true, options, null, JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
+protected void runLeakTest(String[] testFiles, String expectedCompileError, Map options, boolean shouldFlushOutput) {
+	runNegativeTest(testFiles, expectedCompileError, null, shouldFlushOutput, options, null, JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+}
+
 protected void runLeakWarningTest(String[] testFiles, String expectedCompileError, Map options) {
 	runNegativeTest(testFiles, expectedCompileError, null, true, options, null, JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 }
@@ -507,12 +511,13 @@ public void test056h() {
 			"        final FileReader fileReader = new FileReader(file);\n" +
 			"        char[] in = new char[50];\n" +
 			"        fileReader.read(in);\n" +
-			"        new Runnable() {\n public void run() {\n" +
+			"        new Runnable() {\n" +
+			"          public void run() {\n" +
 			"            try {\n" +
 			"                fileReader.close();\n" +
 			"                FileReader localReader = new FileReader(file);\n" +
 			"            } catch (IOException ex) { /* nop */ }\n" +
-			"        }}.run();\n" +
+			"          }}.run();\n" +
 			"    }\n" +
 			"    public static void main(String[] args) throws IOException {\n" +
 			"        new X().foo();\n" +
@@ -7109,7 +7114,83 @@ public void testOwning_sending() {
 		""",
 		options);
 }
+public void testOwning_sending_toBinary() {
+	if (this.complianceLevel < ClassFileConstants.JDK9)
+		return; // t-w-r with pre-declared local available since 9
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_AnnotationBasedResourceAnalysis, CompilerOptions.ENABLED);
+	runLeakTest(
+		new String[] {
+			OWNING_JAVA,
+			OWNING_CONTENT,
+			"p/Consume.java",
+			"""
+			package p;
+			import org.eclipse.jdt.annotation.Owning;
+			public class Consume {
+				public void consume(@Owning AutoCloseable rc1) {
+					try (rc1) {
+						System.out.print(2);
+					} catch (Exception e) {
+						// nothing
+					}
+				}
+			}
+			"""
+		},
+		"",
+		options);
+	runLeakTest(
+		new String[] {
+			OWNING_JAVA,
+			OWNING_CONTENT,
+			"X.java",
+			"""
+			class Rc implements AutoCloseable {
+				@Override public void close() {}
+			}
+			public class X {
+				p.Consume consumer;
 
+				void unsafe(boolean f) {
+					Rc rc3 = new Rc();
+					if (f)
+						consumer.consume(rc3);
+				}
+				void leakAtReturn(boolean f) {
+					Rc rc4 = new Rc();
+					if (f)
+						return;
+					consumer.consume(rc4);
+				}
+				void ok(boolean f) {
+					Rc rc5 = new Rc();
+					if (f)
+						consumer.consume(rc5);
+					else
+						rc5.close();
+				}
+			}
+			"""
+		},
+		"""
+		----------
+		1. ERROR in X.java (at line 8)
+			Rc rc3 = new Rc();
+			   ^^^
+		Potential resource leak: 'rc3' may not be closed
+		----------
+		2. ERROR in X.java (at line 15)
+			return;
+			^^^^^^^
+		Resource leak: 'rc4' is not closed at this location
+		----------
+		""",
+		options,
+		false);
+}
 public void testOwning_receiving_from_call() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
@@ -7177,6 +7258,91 @@ public void testOwning_receiving_from_call() {
 		----------
 		""",
 		options);
+
+}
+public void testOwning_receiving_from_binaryCall() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.WARNING);
+	options.put(CompilerOptions.OPTION_AnnotationBasedResourceAnalysis, CompilerOptions.ENABLED);
+	runLeakTest(
+		new String[] {
+			OWNING_JAVA,
+			OWNING_CONTENT,
+			"p/Produce.java",
+			"""
+			package p;
+			import org.eclipse.jdt.annotation.Owning;
+			import java.io.*;
+			public class Produce {
+				public AutoCloseable provideShared() {
+					return null;
+				}
+				public @Owning InputStream provideOwned() {
+					return null;
+				}
+			}
+			"""
+		},
+		"",
+		options);
+	runLeakTest(
+		new String[] {
+			OWNING_JAVA,
+			OWNING_CONTENT,
+			"X.java",
+			"""
+			import java.io.*;
+			public class X {
+				p.Produce producer;
+				void err() {
+					AutoCloseable rc1 = producer.provideOwned();
+					if (rc1 == null) System.out.print("null");
+				}
+				void warn() {
+					AutoCloseable rc2 = producer.provideShared();
+					if (rc2 == null) System.out.print("null");
+				}
+				void err_without_local() {
+					if (producer.provideOwned() == null) System.out.print("null");
+				}
+				String err_wrapped() {
+					BufferedInputStream bis = new BufferedInputStream(producer.provideOwned());
+					return bis.toString();
+				}
+				void ok() throws Exception {
+					try (AutoCloseable c = producer.provideOwned()) {
+						System.out.print(2);
+					};
+				}
+			}
+			"""
+		},
+		"""
+		----------
+		1. ERROR in X.java (at line 5)
+			AutoCloseable rc1 = producer.provideOwned();
+			              ^^^
+		Resource leak: \'rc1\' is never closed
+		----------
+		2. WARNING in X.java (at line 9)
+			AutoCloseable rc2 = producer.provideShared();
+			              ^^^
+		Potential resource leak: \'rc2\' may not be closed
+		----------
+		3. ERROR in X.java (at line 13)
+			if (producer.provideOwned() == null) System.out.print("null");
+			    ^^^^^^^^^^^^^^^^^^^^^^^
+		Resource leak: '<unassigned Closeable value>' is not closed at this location
+		----------
+		4. ERROR in X.java (at line 16)
+			BufferedInputStream bis = new BufferedInputStream(producer.provideOwned());
+			                    ^^^
+		Resource leak: 'bis' is never closed
+		----------
+		""",
+		options,
+		false);
 
 }
 public void testOwning_return() {

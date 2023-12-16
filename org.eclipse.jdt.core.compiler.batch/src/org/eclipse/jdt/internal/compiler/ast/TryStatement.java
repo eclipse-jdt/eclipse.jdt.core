@@ -171,7 +171,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 					localVariableBinding = (LocalVariableBinding) ((NameReference) resource).binding;
 				}
 				resolvedType = ((Expression) resource).resolvedType;
-				recordCallingClose(currentScope, flowContext, tryInfo, (Expression)resource);
+				if (currentScope.compilerOptions().analyseResourceLeaks) {
+					recordCallingClose(currentScope, handlingContext, tryInfo, (Expression)resource);
+				}
 			}
 			if (localVariableBinding != null) {
 				localVariableBinding.useFlag = LocalVariableBinding.USED; // Is implicitly used anyways.
