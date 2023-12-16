@@ -1022,6 +1022,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("ServiceImplDefaultConstructorNotPublic", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("ServiceImplNotDefinedByModule", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("ShouldImplementHashcode", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
+		expectedProblemAttributes.put("ShouldMarkMethodAsOwning", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("ShouldReturnValue", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("ShouldReturnValueHintMissingDefault", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("SpecdNonNullLocalVariableComparisonYieldsFalse", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
@@ -2123,6 +2124,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("ServiceImplDefaultConstructorNotPublic", SKIP);
 		expectedProblemAttributes.put("ServiceImplNotDefinedByModule", SKIP);
 		expectedProblemAttributes.put("ShouldImplementHashcode", new ProblemAttributes(JavaCore.COMPILER_PB_MISSING_HASHCODE_METHOD));
+		expectedProblemAttributes.put("ShouldMarkMethodAsOwning", new ProblemAttributes(JavaCore.COMPILER_PB_POTENTIALLY_UNCLOSED_CLOSEABLE));
 		expectedProblemAttributes.put("ShouldReturnValue", SKIP);
 		expectedProblemAttributes.put("ShouldReturnValueHintMissingDefault", SKIP);
 		expectedProblemAttributes.put("SpecdNonNullLocalVariableComparisonYieldsFalse", new ProblemAttributes(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK));

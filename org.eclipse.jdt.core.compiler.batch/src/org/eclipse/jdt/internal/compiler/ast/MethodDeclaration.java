@@ -158,7 +158,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 						methodContext.expireNullCheckedFieldInfo();
 					}
 					if (compilerOptions.analyseResourceLeaks) {
-						FakedTrackingVariable.cleanUpUnassigned(this.scope, stat, flowInfo);
+						FakedTrackingVariable.cleanUpUnassigned(this.scope, stat, flowInfo, null);
 					}
 				}
 			} else {

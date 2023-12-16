@@ -1612,6 +1612,8 @@ public boolean isNullnessAnnotationPackage(PackageBinding pkg) {
 }
 
 public boolean usesNullTypeAnnotations() {
+	if (!this.globalOptions.isAnnotationBasedNullAnalysisEnabled)
+		return false;
 	if(this.root != this) {
 		return this.root.usesNullTypeAnnotations();
 	}
@@ -1663,6 +1665,9 @@ private void initializeUsesNullTypeAnnotation() {
 }
 
 public boolean usesOwningAnnotation() {
+	if (!this.globalOptions.isAnnotationBasedResourceAnalysisEnabled) {
+		return false;
+	}
 	if(this.root != this) {
 		return this.root.usesOwningAnnotation();
 	}

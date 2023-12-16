@@ -1038,6 +1038,8 @@ public void test012b(){
 			"		<option key=\"org.eclipse.jdt.core.compiler.annotation.nullable\" value=\"org.eclipse.jdt.annotation.Nullable\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.annotation.nullable.secondary\" value=\"\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.annotation.nullanalysis\" value=\"disabled\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.annotation.owning\" value=\"org.eclipse.jdt.annotation.Owning\"/>\n" +
+			"		<option key=\"org.eclipse.jdt.core.compiler.annotation.resourceanalysis\" value=\"disabled\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.inlineJsrBytecode\" value=\"disabled\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.lambda.genericSignature\" value=\"do not generate\"/>\n" +
 			"		<option key=\"org.eclipse.jdt.core.compiler.codegen.methodParameters\" value=\"do not generate\"/>\n" +

@@ -2048,6 +2048,9 @@ void setSourceStart(int sourceStart);
 	/** @since 3.14 */
 	int DuplicateResource = Internal + 1251;
 
+	/** @since 3.37 */
+	int ShouldMarkMethodAsOwning = Internal + 1260;
+
 	// terminally
 	/** @since 3.14 */
 	int UsingTerminallyDeprecatedType = TypeRelated + 1400;

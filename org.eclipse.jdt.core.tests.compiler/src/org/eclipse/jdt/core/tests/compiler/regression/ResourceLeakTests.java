@@ -7005,6 +7005,8 @@ public void testBug499037_010_since_9() {
 		options);
 }
 public void testOwning_receiving_parameter() {
+	if (this.complianceLevel < ClassFileConstants.JDK9)
+		return; // t-w-r with pre-declared local available since 9
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.WARNING);
@@ -7040,6 +7042,8 @@ public void testOwning_receiving_parameter() {
 
 }
 public void testOwning_sending() {
+	if (this.complianceLevel < ClassFileConstants.JDK9)
+		return; // t-w-r with pre-declared local available since 9
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -7174,5 +7178,93 @@ public void testOwning_receiving_from_call() {
 		""",
 		options);
 
+}
+public void testOwning_return() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.WARNING);
+	options.put(CompilerOptions.OPTION_AnnotationBasedResourceAnalysis, CompilerOptions.ENABLED);
+	runLeakTest(
+		new String[] {
+			OWNING_JAVA,
+			OWNING_CONTENT,
+			"X.java",
+			"""
+			import java.io.*;
+			import org.eclipse.jdt.annotation.Owning;
+			public class X {
+				@Owning AutoCloseable ok(String fn) throws IOException {
+					return new FileInputStream(fn);
+				}
+				@Owning AutoCloseable somePath(String fn) throws IOException {
+					FileInputStream fis = new FileInputStream(fn);
+					if (fn.length() > 1)
+						return fis;
+					return null;
+				}
+				@Owning AutoCloseable mixed(String fn) throws IOException {
+					FileInputStream fis = new FileInputStream(fn);
+					if (fn.length() > 1)
+						return new FileInputStream(fn);
+					return fis;
+				}
+			}
+			"""
+		},
+		"""
+		----------
+		1. ERROR in X.java (at line 11)
+			return null;
+			^^^^^^^^^^^^
+		Resource leak: \'fis\' is not closed at this location
+		----------
+		2. ERROR in X.java (at line 16)
+			return new FileInputStream(fn);
+			^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+		Resource leak: 'fis' is not closed at this location
+		----------
+		""",
+		options);
+}
+public void testUnannotated_return() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.WARNING);
+	options.put(CompilerOptions.OPTION_AnnotationBasedResourceAnalysis, CompilerOptions.ENABLED);
+	runLeakTest(
+		new String[] {
+			OWNING_JAVA,
+			OWNING_CONTENT,
+			"X.java",
+			"""
+			import java.io.*;
+			public class X {
+				AutoCloseable varReturn(String fn) throws IOException {
+					FileInputStream fis = new FileInputStream(fn);
+					return fis;
+				}
+				AutoCloseable unassignedReturn(String fn) throws IOException {
+					return new FileInputStream(fn);
+				}
+				AutoCloseable passThrough(AutoCloseable rc) {
+					return rc; // silent, since caller did not delegate responsibility to us
+				}
+			}
+			"""
+		},
+		"""
+		----------
+		1. WARNING in X.java (at line 5)
+			return fis;
+			^^^^^^^^^^^
+		Enclosing method should be tagged as '@Owning' to pass the responsibility for the returned resource to the caller
+		----------
+		2. WARNING in X.java (at line 8)
+			return new FileInputStream(fn);
+			       ^^^^^^^^^^^^^^^^^^^^^^^
+		Enclosing method should be tagged as '@Owning' to pass the responsibility for the returned resource to the caller
+		----------
+		""",
+		options);
 }
 }

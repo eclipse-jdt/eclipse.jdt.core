@@ -1681,14 +1681,16 @@ public boolean hasTypeBit(int bit) {
 	if (!isPrototype())
 		return this.prototype.hasTypeBit(bit);
 
-	// ensure hierarchy is resolved, which will propagate bits down to us
-	boolean wasToleratingMissingTypeProcessingAnnotations = this.environment.mayTolerateMissingType;
-	this.environment.mayTolerateMissingType = true;
-	try {
-		superclass();
-		superInterfaces();
-	} finally {
-		this.environment.mayTolerateMissingType = wasToleratingMissingTypeProcessingAnnotations;
+	if ((bit & TypeIds.InheritableBits) != 0) {
+		// ensure hierarchy is resolved, which will propagate bits down to us
+		boolean wasToleratingMissingTypeProcessingAnnotations = this.environment.mayTolerateMissingType;
+		this.environment.mayTolerateMissingType = true;
+		try {
+			superclass();
+			superInterfaces();
+		} finally {
+			this.environment.mayTolerateMissingType = wasToleratingMissingTypeProcessingAnnotations;
+		}
 	}
 	return (this.typeBits & bit) != 0;
 }

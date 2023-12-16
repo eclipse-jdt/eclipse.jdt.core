@@ -432,7 +432,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 			return flowInfo;
 		} else { // regular resource
 			FakedTrackingVariable tracker = acquisition.closeTracker;
-			if (isMethodOwningAnnotatedMethod(acquisition)) {
+			if (isCallingOwningAnnotatedMethod(acquisition)) {
 				if (tracker != null) {
 					flowInfo.markAsDefinitelyNull(tracker.binding);
 				} else {
@@ -683,7 +683,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 		} else if (expression instanceof MessageSend
 				|| expression instanceof ArrayReference)
 		{
-			if (isMethodOwningAnnotatedMethod(expression)) {
+			if (isCallingOwningAnnotatedMethod(expression)) {
 				return new FakedTrackingVariable(local, location, flowInfo, flowContext, FlowInfo.NULL);
 			}
 			// we *might* be responsible for the resource obtained
@@ -724,7 +724,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 		return false;
 	}
 
-	protected static boolean isMethodOwningAnnotatedMethod(Expression expression) {
+	protected static boolean isCallingOwningAnnotatedMethod(Expression expression) {
 		return expression instanceof MessageSend
 				&& (((MessageSend) expression).binding.tagBits & TagBits.AnnotationOwning) != 0;
 	}
@@ -761,23 +761,38 @@ public class FakedTrackingVariable extends LocalDeclaration {
 		}
 	}
 
-	/** Unassigned closeables are not visible beyond their enclosing statement, immediately report & remove after each statement. */
-	public static void cleanUpUnassigned(BlockScope scope, ASTNode location, FlowInfo flowInfo) {
+	/** Unassigned closeables are not visible beyond their enclosing statement, immediately report & remove after each statement.
+	 * @param returnOwning {@code TRUE} signals present {@code @Onwning} annotation on the method, {@code FALSE} absent annotation,
+	 * 	{@code null} signals not currently analysing a return statement (end of block / method).
+	 */
+	public static void cleanUpUnassigned(BlockScope scope, ASTNode location, FlowInfo flowInfo, Boolean returnOwning) {
 		if (!scope.hasResourceTrackers()) return;
 		location.traverse(new ASTVisitor() {
 				@Override
 				public boolean visit(MessageSend messageSend, BlockScope skope) {
 					FakedTrackingVariable closeTracker = messageSend.closeTracker;
+					handle(closeTracker, flowInfo, messageSend, skope);
+					return true;
+				}
+				@Override
+				public boolean visit(AllocationExpression allocation, BlockScope skope) {
+					if (returnOwning != null)
+						handle(allocation.closeTracker, flowInfo, allocation, skope);
+					return true;
+				}
+
+				protected void handle(FakedTrackingVariable closeTracker, FlowInfo flow, ASTNode loc, BlockScope skope) {
 					if (closeTracker != null) {
 						if (closeTracker.originalBinding == null) {
-							int nullStatus = flowInfo.nullStatus(closeTracker.binding);
+							int nullStatus = flow.nullStatus(closeTracker.binding);
 							if ((nullStatus & (FlowInfo.POTENTIALLY_NULL | FlowInfo.NULL)) != 0) {
-								closeTracker.reportError(skope.problemReporter(), messageSend, nullStatus);
+								closeTracker.reportError(skope.problemReporter(), loc, nullStatus);
+							} else if (returnOwning == Boolean.FALSE) {
+								skope.problemReporter().shouldMarkMethodAsOwning(location);
 							}
 							closeTracker.withdraw();
 						}
 					}
-					return true;
 				}
 			},
 			scope);
@@ -1052,12 +1067,15 @@ public class FakedTrackingVariable extends LocalDeclaration {
 	/**
 	 * If current is the same as 'returnedResource' or a wrapper thereof,
 	 * mark as reported and return true, otherwise false.
+	 *
+	 * When using {@code @Owning} annotation, do not mark as reported, to proceed to precise analysis
 	 */
-	public boolean isResourceBeingReturned(FakedTrackingVariable returnedResource) {
+	public boolean isResourceBeingReturned(FakedTrackingVariable returnedResource, boolean useOwningAnnotation) {
 		FakedTrackingVariable current = this;
 		do {
 			if (current == returnedResource) {
-				this.globalClosingState |= REPORTED_DEFINITIVE_LEAK;
+				if (!useOwningAnnotation)
+					this.globalClosingState |= REPORTED_DEFINITIVE_LEAK;
 				return true;
 			}
 			current = current.innerTracker;

@@ -1165,13 +1165,30 @@ public void checkUnclosedCloseables(FlowInfo flowInfo, FlowContext flowContext, 
 	FakedTrackingVariable returnVar = (location instanceof ReturnStatement) ?
 			FakedTrackingVariable.getCloseTrackingVariable(((ReturnStatement)location).expression, flowInfo, flowContext) : null;
 
+	boolean useOwningAnnotation = this.compilerOptions().isAnnotationBasedResourceAnalysisEnabled;
+
 	// iterate variables according to the priorities defined in FakedTrackingVariable.IteratorForReporting.Stage
 	Iterator<FakedTrackingVariable> iterator = new FakedTrackingVariable.IteratorForReporting(this.trackingVariables, this, location != null);
 	while (iterator.hasNext()) {
 		FakedTrackingVariable trackingVar = iterator.next();
 
-		if (returnVar != null && trackingVar.isResourceBeingReturned(returnVar)) {
-			continue;
+		if (returnVar != null && trackingVar.isResourceBeingReturned(returnVar, useOwningAnnotation)) {
+			if (useOwningAnnotation) {
+				if ((methodScope().referenceMethodBinding().tagBits & TagBits.AnnotationOwning) == 0) {
+					// returning resource against unannotated return type
+					LocalVariableBinding original = trackingVar.originalBinding;
+					if (original != null && original.isParameter() && (original.tagBits & TagBits.AnnotationOwning) == 0) {
+						// unannotated pass-through resource, remain quiet
+					} else {
+						// resource is "probably owned", should delegate to caller
+						problemReporter().shouldMarkMethodAsOwning(location);
+						trackingVar.withdraw();
+					}
+					continue;
+				} // else proceed to precise analysis vis-a-vis @Owning below
+			} else {
+				continue; // silent assumption that caller will handle it
+			}
 		}
 
 		if (location != null && trackingVar.hasDefinitelyNoResource(flowInfo)) {
