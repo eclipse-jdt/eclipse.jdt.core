@@ -53,6 +53,7 @@ public class AbstractCompilerTest extends TestCase {
 	public static final int F_19  = 0x10000;
 	public static final int F_20  = 0x20000;
 	public static final int F_21  = 0x40000;
+	public static final int F_22  = 0x80000;
 
 	public static final boolean RUN_JAVAC = CompilerOptions.ENABLED.equals(System.getProperty("run.javac"));
 	public static final boolean PERFORMANCE_ASSERTS = !CompilerOptions.DISABLED.equals(System.getProperty("jdt.performance.asserts"));
