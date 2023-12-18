@@ -122,6 +122,7 @@ public class SwitchStatement extends Expression {
 
 	class Node {
 		TypeBinding type;
+		boolean hasError = false;
 		public void traverse(NodeVisitor visitor) {
 			visitor.visit(this);
 			visitor.endVisit(this);
@@ -179,6 +180,10 @@ public class SwitchStatement extends Expression {
 		}
 
 		public void addPattern(RecordPattern rp, int i) {
+			if (rp.patterns.length <= i) {
+				this.hasError = true;
+				return;
+			}
 			TypeBinding childType = rp.patterns[i].resolvedType;
 			PatternNode child = null;
 			for (PatternNode c : this.children) {
@@ -336,6 +341,9 @@ public class SwitchStatement extends Expression {
 		public boolean covers = true;
 		@Override
 		public boolean visit(TNode node) {
+			if (node.hasError)
+				return false;
+
 			List<TypeBinding> availableTypes = new ArrayList<>();
 			if (node.children != null) {
 				for (Node child : node.children) {
