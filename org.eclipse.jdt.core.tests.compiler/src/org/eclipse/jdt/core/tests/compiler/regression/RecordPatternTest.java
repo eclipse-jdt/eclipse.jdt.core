@@ -3731,4 +3731,76 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 					"""
 				});
 	}
+	public void testIssue1732_01() {
+		runNegativeTest(
+				new String[] {
+				"X.java",
+				"""
+				record R(int x, int y) {}
+
+				public class X {
+
+					public int foo(R r) {
+						return switch (r) {
+							case R() -> 0;
+						};
+					}
+				}
+				"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 7)\n" +
+				"	case R() -> 0;\n" +
+				"	     ^^^\n" +
+				"Record pattern should match the signature of the record declaration\n" +
+				"----------\n");
+	}
+	public void testIssue1732_02() {
+		runNegativeTest(
+				new String[] {
+				"X.java",
+				"""
+				record R(int x, int y) {}
+
+				public class X {
+
+					public int foo(R r) {
+						return switch (r) {
+							case R(int x) -> 0;
+						};
+					}
+				}
+				"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 7)\n" +
+				"	case R(int x) -> 0;\n" +
+				"	     ^^^^^^^^\n" +
+				"Record pattern should match the signature of the record declaration\n" +
+				"----------\n");
+	}
+	public void testIssue1732_03() {
+		runNegativeTest(
+				new String[] {
+				"X.java",
+				"""
+				record R(int x, int y) {}
+
+				public class X {
+
+					public int foo(R r) {
+						return switch (r) {
+							case R(int x, int y, int z) -> 0;
+						};
+					}
+				}
+				"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 7)\n" +
+				"	case R(int x, int y, int z) -> 0;\n" +
+				"	     ^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"Record pattern should match the signature of the record declaration\n" +
+				"----------\n");
+	}
 }
