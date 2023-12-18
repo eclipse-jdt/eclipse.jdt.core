@@ -284,4 +284,28 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 			"OK",
 			getCompilerOptions());
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1759
+	// Pattern variable is not recognized in AND_AND_Expression
+	public void testGH1795() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				import java.util.ArrayList;
+				import java.util.List;
+				public class X {
+					public static void main(String... args) {
+						Object obj = "test";
+						List<String> values = new ArrayList<>();
+						if (obj instanceof String str && values.stream().anyMatch(str::equalsIgnoreCase)) {
+							System.out.println(str);
+						}
+					}
+				}
+				""",
+				},
+				"",
+				getCompilerOptions());
+		}
 }

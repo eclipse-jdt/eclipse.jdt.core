@@ -998,7 +998,20 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 			}
 			copy.setExpressionContext(this.expressionContext);
 			copy.setExpectedType(targetType);
+			// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1759
+			LocalVariableBinding[] locals = this.enclosingScope.locals;
+			if (locals != null) {
+				LocalVariableBinding[] copyLocals = new LocalVariableBinding[locals.length];
+				System.arraycopy(locals, 0, copyLocals, 0, locals.length);
+				this.enclosingScope.locals = copyLocals;
+				for (LocalVariableBinding local: copyLocals) {
+					if (local != null) {
+						local.modifiers = local.modifiers & (1 << ExtraCompilerModifiers.AccPatternVariable);
+					}
+				}
+			}
 			copy.resolveType(this.enclosingScope);
+			this.enclosingScope.locals = locals;
 
 			if (this.copiesPerTargetType == null)
 				this.copiesPerTargetType = new HashMap<>();
