@@ -3486,14 +3486,15 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			}
 		} else {
 			if (compliance.equals("21")) {
-				newJclLibString = "JCL_21_LIB";
-				newJclSrcString = "JCL_21_SRC";
+				// Reuse the same 14 stuff as of now. No real need for a new one
+				newJclLibString = "JCL_17_LIB";
+				newJclSrcString = "JCL_17_SRC";
 			} else if (compliance.equals("19")) {
-				// Reuse the same 17 stuff as of now. No real need for a new one
+				// Reuse the same 14 stuff as of now. No real need for a new one
 				newJclLibString = "JCL_19_LIB";
 				newJclSrcString = "JCL_19_SRC";
 			} else if (compliance.equals("17")) {
-				// Reuse the same 17 stuff as of now. No real need for a new one
+				// Reuse the same 14 stuff as of now. No real need for a new one
 				newJclLibString = "JCL_17_LIB";
 				newJclSrcString = "JCL_17_SRC";
 			} else if (compliance.equals("16")) {
@@ -3692,10 +3693,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			}
 		} else if ("21".equals(compliance)) {
 			if (JavaCore.getClasspathVariable("JCL_21_LIB") == null) {
-				setupExternalJCL("jclMin21");
+				setupExternalJCL("jclMin17");
 				JavaCore.setClasspathVariables(
-					new String[] {"JCL_21_LIB", "JCL_21_SRC", "JCL_SRCROOT"},
-					new IPath[] {getExternalJCLPath("21"), getExternalJCLSourcePath("21"), getExternalJCLRootSourcePath()},
+					new String[] {"JCL_17_LIB", "JCL_17_SRC", "JCL_SRCROOT"},
+					new IPath[] {getExternalJCLPath("17"), getExternalJCLSourcePath("17"), getExternalJCLRootSourcePath()},
 					null);
 			}
 		} else {
