@@ -243,6 +243,7 @@ public class CompilerOptions {
 	public static final String VERSION_19 = "19"; //$NON-NLS-1$
 	public static final String VERSION_20 = "20"; //$NON-NLS-1$
 	public static final String VERSION_21 = "21"; //$NON-NLS-1$
+	public static final String VERSION_22 = "21"; //$NON-NLS-1$
 	/*
 	 * Note: Whenever a new version is added, make sure getLatestVersion()
 	 * is updated with it.
