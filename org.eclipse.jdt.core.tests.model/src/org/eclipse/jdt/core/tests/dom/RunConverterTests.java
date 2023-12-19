@@ -60,6 +60,7 @@ public static Class[] getAllTestClasses() {
 		ASTConverter_17Test.class,
 		ASTConverter_GuardedPattern_Test.class,
 		ASTConverter_RecordPattern_Test.class,
+		ASTConverterStringTemplateTest.class,
 	};
 }
 public static Test suite() {

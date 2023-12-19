@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2022 IBM Corporation and others.
+ * Copyright (c) 2000, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -2147,7 +2147,40 @@ public class NaiveASTFlattener extends ASTVisitor {
 		this.buffer.append(";\n");//$NON-NLS-1$
 		return false;
 	}
-
+	@Override
+	public boolean visit(StringTemplateExpression node) {
+		ASTNode expression = node.getProcessor();
+		if (expression != null) {
+			expression.accept(this);
+		}
+		this.buffer.append('.');
+		this.buffer.append((node.isMultiline() ? "\"\"\"\n" : "\"")); //$NON-NLS-1$ //$NON-NLS-2$
+		expression = node.getFirstFragment();
+		expression.accept(this);
+		List<StringTemplateComponent> components = node.components();
+		int size = components.size();
+		for(int i = 0; i < size; i++) {
+			Expression comp = components.get(i);
+			comp.accept(this);
+		}
+		this.buffer.append((node.isMultiline() ? "\"\"\"" : "\"")); //$NON-NLS-1$ //$NON-NLS-2$
+		return false;
+	}
+	@Override
+	public boolean visit(StringTemplateComponent node) {
+		this.buffer.append("\\{"); //$NON-NLS-1$
+		Expression expression = node.getEmbeddedExpression();
+		expression.accept(this);
+		this.buffer.append('}');
+		StringFragment fragment = node.getStringFragment();
+		fragment.accept(this);
+		return false;
+	}
+	@Override
+	public boolean visit(StringFragment node) {
+		this.buffer.append(node.getEscapedValue());
+		return false;
+	}
 	/**
 	 * @deprecated
 	 */

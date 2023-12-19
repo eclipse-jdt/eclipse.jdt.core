@@ -1889,7 +1889,7 @@ protected int scanForStringLiteral() throws InvalidInputException {
 		return token;
 	} else {
 		this.textBlockOffset = -1; // Make sure that the previous values set by any preceding text block is reset.
-		int textFragmentStart = this.currentPosition - 1;
+		int textFragmentStart = this.currentPosition;
 		int lastCharPos = this.currentPosition;
 		try {
 			// consume next character
@@ -2005,7 +2005,7 @@ protected int scanForStringLiteral() throws InvalidInputException {
 			// mark the ending of the last fragment in the string template (before the closing quote)
             if (this.jumpingOverEmbeddedExpression == 0) {
 			    int textFragmentEnd = this.currentPosition - 2;
-			    addStringTemplateComponent(new TextFragment(textFragmentStart, this.currentPosition - 1 , getCurrentTokenInRange(textFragmentStart - this.startPosition, textFragmentEnd - this.startPosition)));
+			    addStringTemplateComponent(new TextFragment(textFragmentStart, textFragmentEnd, getCurrentTokenInRange(textFragmentStart - this.startPosition, textFragmentEnd - this.startPosition)));
             }
             this.startPosition = startBkup;
 			return TokenNameStringTemplate;

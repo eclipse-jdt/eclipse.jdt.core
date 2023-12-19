@@ -136,5 +136,31 @@ public class EmbeddedExpressionCompletionTests extends AbstractJavaModelCompleti
 				requestor.getResults());
 
 	}
-
+	public void test005() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/X.java",
+				"""
+				public class X {
+					@SuppressWarnings("preview")
+					public static void main(String[] args) {
+						String firstName = "Bill", lastName = "Duck"; //$NON-NLS-1$ //$NON-NLS-2$
+						System.out.println(STR."\\{firstName} \\{lastName}");
+						System.out.println(STR."\\{firstN} \\{lastName}");
+						String title = "My Web Page"; //$NON-NLS-1$
+						String html = STR.\"""
+						//      <title>\\{title}</title>
+				      	\""";
+						System.out.println(html);
+					}
+				}""");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "firstN";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults("firstName[LOCAL_VARIABLE_REF]{firstName, null, Ljava.lang.String;, firstName, null, 52}",
+				requestor.getResults());
+	}
 }
