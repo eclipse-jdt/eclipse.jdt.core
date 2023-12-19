@@ -296,8 +296,13 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected static final int AST_INTERNAL_JLS20 = AST.JLS20;
 	/**
 	 * Internal synonym for constant AST.JSL21
+	 * @deprecated
 	 */
 	protected static final int AST_INTERNAL_JLS21 = AST.JLS21;
+	/**
+	 * Internal synonym for constant AST.JSL22
+	 */
+	protected static final int AST_INTERNAL_JLS22 = AST.JLS22;
 	/**
 	 * Internal synonym for the latest AST level.
 	 */
@@ -2380,6 +2385,12 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 					options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_21);
 					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_21);
 					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_21);
+					javaProject.setOptions(options);
+				} else if ("22".equals(compliance)) {
+					Map options = new HashMap();
+					options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_22);
+					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_22);
+					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_22);
 					javaProject.setOptions(options);
 				}
 				result[0] = javaProject;
