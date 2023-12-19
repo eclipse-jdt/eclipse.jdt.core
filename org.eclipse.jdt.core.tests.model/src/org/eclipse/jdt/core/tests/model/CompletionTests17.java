@@ -134,7 +134,7 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 						"private static void foo(Object o) {\n" +
 						" switch (o) {\n" +
 						"	case Integer i   -> System.out.println(\"Integer:\" + i);\n" +
-						"	case String s when /*here*/fie    -> System.out.println(\"String:\" + s );\n" +
+						"	case String s && /*here*/fie    -> System.out.println(\"String:\" + s );\n" +
 						"	default       -> System.out.println(\"Object\" + o);\n" +
 						" 	}\n" +
 						"}\n" +
@@ -199,7 +199,7 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 						" int local=0;" +
 						" switch (o) {\n" +
 						"	case Integer i   -> System.out.println(\"Integer:\" + i);\n" +
-						"	case String s  when /*here*/loc   -> System.out.println(\"String:\" + s);\n" +
+						"	case String s  && /*here*/loc   -> System.out.println(\"String:\" + s);\n" +
 						"	default       -> System.out.println(\"Object\" + o);\n" +
 						" 	}\n" +
 						"}\n" +
@@ -230,7 +230,7 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 						"private static void foo(Object o) {\n" +
 						" switch (o) {\n" +
 						"	case Integer i   -> System.out.println(\"Integer:\" + i);\n" +
-						"	case String s when /*here*/field.   -> System.out.println(\"String:\" + s );\n" +
+						"	case String s && /*here*/field.   -> System.out.println(\"String:\" + s );\n" +
 						"	default       -> System.out.println(\"Object\" + o);\n" +
 						" 	}\n" +
 						"}\n" +
@@ -304,7 +304,7 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 						"}\n" +
 						"private static void foo(S o) {\n" +
 						" switch (o) {\n" +
-						"	case AClass a when a. :     System.out.println(\"A:\" + a +a); break;\n" +
+						"	case AClass a && a. :     System.out.println(\"A:\" + a +a); break;\n" +
 						"	case B b :     System.out.println(\"B:\" + b);\n" +
 						"	default  : System.out.println(\"Object\" + o);\n" +
 						" 	}\n" +
@@ -386,7 +386,7 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 						"private static void foo(Object o) {\n" +
 						" switch (o) {\n" +
 						"	case Integer i     : System.out.println(\"Integer:\" + i);break;\n" +
-						"	case String /*here*/s  when s.   : System.out.println(\"String:\" + s);break;\n" +
+						"	case String /*here*/s  && s.   : System.out.println(\"String:\" + s);break;\n" +
 						"	default       : System.out.println(\"Object\" + o);\n" +
 						" 	}\n" +
 						"}\n" +
