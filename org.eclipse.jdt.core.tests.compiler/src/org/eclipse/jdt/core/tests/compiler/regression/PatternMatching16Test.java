@@ -4234,4 +4234,77 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				""",
 				false);
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1759
+	// Pattern variable is not recognized in AND_AND_Expression
+	public void testGHI1759() {
+
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						import java.util.Arrays;
+						import java.util.List;
+						public class X {
+							public static void main(String [] args) {
+						        Object obj = "test";
+						        List<String> values = Arrays.asList("fail", "test", "pass");
+						        if (obj instanceof String str && values.stream().anyMatch(str::equalsIgnoreCase)) {
+						            System.out.println(str);
+						        }
+						    }
+
+						}
+						""",
+				},
+				"test");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1759
+	// Pattern variable is not recognized in AND_AND_Expression
+	public void testGHI1759_2() {
+
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						import java.util.Arrays;
+						import java.util.List;
+						public class X {
+							public static void main(String [] args) {
+						        Object obj = "test";
+						        List<String> values = Arrays.asList("fail", "test", "pass");
+						        if (!(obj instanceof String str) || values.stream().anyMatch(str::equalsIgnoreCase)) {
+						            System.out.println(obj);
+						        }
+						    }
+
+						}
+						""",
+				},
+				"test");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1759
+	// Pattern variable is not recognized in AND_AND_Expression
+	public void testGHI1759_3() {
+
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						import java.util.Arrays;
+						import java.util.List;
+						public class X {
+						    public static void main(String [] args) {
+						        Object obj = "test";
+						        List<String> values = Arrays.asList("fail", "test", "pass");
+						        if (obj instanceof String str) {
+						        	if (values.stream().anyMatch(str::equalsIgnoreCase)) {
+						        		System.out.println(str);
+						        	}
+						        }
+						    }
+						}
+						""",
+				},
+				"test");
+	}
 }
