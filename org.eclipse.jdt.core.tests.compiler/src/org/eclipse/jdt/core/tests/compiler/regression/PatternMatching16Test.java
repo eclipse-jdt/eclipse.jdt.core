@@ -4307,4 +4307,44 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				},
 				"test");
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1485
+	// ECJ hangs when pattern matching code is used in a nested conditional expression.
+	public void testGHI1485() {
+
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+						    static class PvsVariable {
+						    }
+
+						    static class PvsVariableNext_1 extends PvsVariable {
+						    }
+
+						    static class PvsVariableNext_2 extends PvsVariableNext_1 {
+						    }
+
+						    static class PvsVariableNext_3 extends PvsVariableNext_2 {
+						    }
+
+						    static class PvsVariableNext_4 extends PvsVariableNext_3 {
+						    }
+
+						    public static void main(String[] args) {
+						        final var pvsVariable = new PvsVariableNext_3();
+						        final Object origVar =
+						                pvsVariable instanceof PvsVariableNext_1 var_first
+						                    ? "PvsVariableNext_1"
+						                    : (pvsVariable instanceof PvsVariableNext_2 var_second &&
+						                       pvsVariable instanceof PvsVariableNext_3 var_three &&
+						                       true) ? "PvsVariableNext_2 && PvsVariableNext_3"
+						                                : "None";
+						        System.out.println(origVar);
+						    }
+						}
+						""",
+				},
+				"PvsVariableNext_1");
+	}
 }
