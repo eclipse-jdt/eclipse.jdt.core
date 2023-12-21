@@ -2186,7 +2186,12 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"----------\n" +
 			"1. ERROR in X.java (at line 5)\n" +
 			"	case null, null  -> System.out.println(o);\n" +
-			"	^^^^^^^^^^^^^^^\n" +
+			"	     ^^^^\n" +
+			"Duplicate case\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 5)\n" +
+			"	case null, null  -> System.out.println(o);\n" +
+			"	           ^^^^\n" +
 			"Duplicate case\n" +
 			"----------\n");
 	}
@@ -6965,5 +6970,97 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"positive integer: 123\n" +
 				"value unavailable: null"
 );
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1767
+	// NPE in switch with case null
+	public void testIssue1767() {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"""
+					public class X {
+					   public static void main(String[] args) {
+						   Integer o = null;
+						   switch (o) {
+						     case null:
+						       System.out.println("NULL");
+						       break;
+						     default : System.out.println(o);
+						   }
+					   }
+					}
+					""",
+				},
+				"NULL");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/277
+	// [19] statement switch with a case null does not compile
+	public void testIssue277() {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"""
+					public class X {
+					  enum Color { RED, BLACK }
+
+					  public static void main(String[] args) {
+					    Color color = null;
+					    switch (color) {
+					      case null -> System.out.println("NULL");
+					      case RED -> System.out.println("RED");
+					      case BLACK -> System.out.println("BLACK");
+					    }
+					  }
+					}
+					""",
+				},
+				"NULL");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/277
+	// [19] statement switch with a case null does not compile
+	public void testIssue277_original() {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"""
+					public class X {
+					  enum Color { RED, BLACK }
+
+					  public static void main(String[] args) {
+					    Color color = Color.RED;
+					    switch (color) {
+					      case null -> throw null;
+					      case RED -> System.out.println("RED");
+					      case BLACK -> System.out.println("BLACK");
+					    }
+					  }
+					}
+					""",
+				},
+				"RED");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/554
+	// [19] statement switch with a case null does not compile
+	public void testIssue554() {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"""
+					public class X {
+					    public static void main(String[] args) {
+					        MyEnum val = null;
+					        switch (val) {
+					        case null:
+					            System.out.println("val is null");
+					            break;
+					        }
+					    }
+					}
+					enum MyEnum {
+					    a
+					}
+					""",
+				},
+				"val is null");
 	}
 }

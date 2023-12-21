@@ -515,6 +515,8 @@ public class SwitchStatement extends Expression {
 		}
 	}
 	private boolean isNullHostile() {
+		if (this.containsNull)
+			return false;
 		if ((this.expression.implicitConversion & TypeIds.UNBOXING) != 0) {
 			return true;
 		} else if (this.expression.resolvedType != null
@@ -1156,7 +1158,7 @@ public class SwitchStatement extends Expression {
 							upperScope.problemReporter().incorrectSwitchType(this.expression, expressionType); // https://bugs.eclipse.org/bugs/show_bug.cgi?id=360317
 						}
 						break checkType;
-					} else if (!this.containsPatterns && upperScope.isBoxingCompatibleWith(expressionType, TypeBinding.INT)) {
+					} else if (!this.containsPatterns && !this.containsNull && upperScope.isBoxingCompatibleWith(expressionType, TypeBinding.INT)) {
 						this.expression.computeConversion(upperScope, TypeBinding.INT, expressionType);
 						break checkType;
 					} else if (compilerOptions.complianceLevel >= ClassFileConstants.JDK1_7 && expressionType.id == TypeIds.T_JavaLangString) {
@@ -1576,8 +1578,8 @@ public class SwitchStatement extends Expression {
 	private boolean needPatternDispatchCopy() {
 		if (this.containsPatterns || (this.switchBits & QualifiedEnum) != 0)
 			return true;
-		if (!this.containsNull)
-			return false;
+		if (this.containsNull)
+			return true;
 		TypeBinding eType = this.expression != null ? this.expression.resolvedType : null;
 		if (eType == null)
 			return false;
