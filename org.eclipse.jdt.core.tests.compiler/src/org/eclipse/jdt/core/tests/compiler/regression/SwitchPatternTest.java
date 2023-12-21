@@ -7039,4 +7039,28 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"RED");
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/554
+	// [19] statement switch with a case null does not compile
+	public void testIssue554() {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"""
+					public class X {
+					    public static void main(String[] args) {
+					        MyEnum val = null;
+					        switch (val) {
+					        case null:
+					            System.out.println("val is null");
+					            break;
+					        }
+					    }
+					}
+					enum MyEnum {
+					    a
+					}
+					""",
+				},
+				"val is null");
+	}
 }
