@@ -71,7 +71,7 @@ public NullReferenceTest(String name) {
 // Only the highest compliance level is run; add the VM argument
 // -Dcompliance=1.4 (for example) to lower it if needed
 static {
-//		TESTS_NAMES = new String[] { "testBug542707_1" };
+		TESTS_NAMES = new String[] { "testGH1667" };
 //		TESTS_NAMES = new String[] { "testBug384380" };
 //		TESTS_NAMES = new String[] { "testBug384380_b" };
 //		TESTS_NAMES = new String[] { "testBug321926a2" };
@@ -18540,6 +18540,8 @@ public void testGH1642_a() {
 			"""});
 }
 public void testGH1667() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return; // uses foreach
 	runConformTest(
 		new String[] {
 			"Foo.java",
