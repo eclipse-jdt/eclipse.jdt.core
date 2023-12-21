@@ -6193,7 +6193,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Type mismatch: cannot convert from E to E.InnerE\n" +
 				"----------\n");
 	}
-	public void testIssue1250_4() { // this test
+	public void testIssue1250_4() {
 		if (this.complianceLevel < ClassFileConstants.JDK21) {
 			return;
 		}

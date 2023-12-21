@@ -6566,6 +6566,45 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				}
 				"""
 				},
+				"Test case 1\n" +
+				"E1\n" +
+				"Enum: default\n" +
+				"Enum: null\n" +
+				"\n" +
+				"Test case 2\n" +
+				"E1\n" +
+				"E2\n" +
+				"Enum: null\n" +
+				"\n" +
+				"Test case 3\n" +
+				"E1\n" +
+				"Enum: default -> E2\n" +
+				"Enum: null\n\n");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1767
+	// NPE in switch with Enum
+	public void testGHI1767_minimal() {
+		if (this.complianceLevel < ClassFileConstants.JDK21)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					enum E {
+						E
+					}
+
+					public static void main(String[] args) {
+						E e = null;
+						switch(e) {
+						case E.E -> {}
+						case null -> {}
+						}
+					}
+				}
+				"""
+				},
 				"");
 	}
 }
