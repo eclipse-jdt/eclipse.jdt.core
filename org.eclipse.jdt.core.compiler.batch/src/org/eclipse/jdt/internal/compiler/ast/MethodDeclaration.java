@@ -114,7 +114,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 					this.scope,
 					FlowInfo.DEAD_END);
 
-			// nullity and mark as assigned
+			// nullity, owning and mark as assigned
 			analyseArguments(classScope.environment(), flowInfo, flowContext, this.arguments, this.binding);
 
 			BiPredicate<TypeBinding, ReferenceBinding> condition = (argType, declClass) -> {

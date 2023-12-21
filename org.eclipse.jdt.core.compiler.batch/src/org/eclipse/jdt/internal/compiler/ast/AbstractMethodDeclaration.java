@@ -32,6 +32,11 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import java.util.List;
 
+import static org.eclipse.jdt.internal.compiler.lookup.MethodBinding.PARAM_NONNULL;
+import static org.eclipse.jdt.internal.compiler.lookup.MethodBinding.PARAM_NULLABLE;
+import static org.eclipse.jdt.internal.compiler.lookup.MethodBinding.PARAM_NULLITY;
+import static org.eclipse.jdt.internal.compiler.lookup.MethodBinding.PARAM_OWNING;
+
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.*;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference.AnnotationPosition;
@@ -115,21 +120,21 @@ public abstract class AbstractMethodDeclaration
 				Argument argument = arguments[i];
 				binding.parameters[i] = argument.createBinding(scope, binding.parameters[i]);
 				if ((argument.binding.tagBits & TagBits.AnnotationOwning) != 0) {
-					if (binding.parameterOwning == null) {
-						binding.parameterOwning = new Boolean[arguments.length];
+					if (binding.parameterFlowBits == null) {
+						binding.parameterFlowBits = new byte[arguments.length];
 					}
-					binding.parameterOwning[i] = Boolean.TRUE;
+					binding.parameterFlowBits[i] |= PARAM_OWNING;
 				}
 				if (useTypeAnnotations)
 					continue; // no business with SE7 null annotations in the 1.8 case.
 				// createBinding() has resolved annotations, now transfer nullness info from the argument to the method:
 				long argTypeTagBits = (argument.binding.tagBits & TagBits.AnnotationNullMASK);
 				if (argTypeTagBits != 0) {
-					if (binding.parameterNonNullness == null) {
-						binding.parameterNonNullness = new Boolean[arguments.length];
+					if (binding.parameterFlowBits == null) {
+						binding.parameterFlowBits = new byte[arguments.length];
 						binding.tagBits |= TagBits.IsNullnessKnown;
 					}
-					binding.parameterNonNullness[i] = Boolean.valueOf(argTypeTagBits == TagBits.AnnotationNonNull);
+					binding.parameterFlowBits[i] = MethodBinding.flowBitFromAnnotationTagBit(argTypeTagBits);
 				}
 			}
 		}
@@ -220,7 +225,13 @@ public abstract class AbstractMethodDeclaration
 	}
 
 	/**
-	 * Feed null information from argument annotations into the analysis and mark arguments as assigned.
+	 * Feed information from certain argument annotations into the analysis and mark arguments as assigned.
+	 * Annotations evaluated here are (if enabled):
+	 * <ul>
+	 * <li>NonNull - for null analysis
+	 * <li>Nullable - for null analysis
+	 * <li>Owning - for resource leak analysis
+	 * </ul>
 	 */
 	static void analyseArguments(LookupEnvironment environment, FlowInfo flowInfo, FlowContext flowContext, Argument[] methodArguments, MethodBinding methodBinding) {
 		if (methodArguments != null) {
@@ -241,15 +252,13 @@ public abstract class AbstractMethodDeclaration
 					else if (parameterBinding.isFreeTypeVariable())
 						flowInfo.markNullStatus(local, FlowInfo.FREE_TYPEVARIABLE);
 				} else {
-					if (methodBinding.parameterNonNullness != null) {
+					if (methodBinding.parameterFlowBits != null) {
 						// leverage null-info from parameter annotations:
-						Boolean nonNullNess = methodBinding.parameterNonNullness[i];
-						if (nonNullNess != null) {
-							if (nonNullNess.booleanValue())
-								flowInfo.markAsDefinitelyNonNull(local);
-							else
-								flowInfo.markPotentiallyNullBit(local);
-						}
+						int nullity = methodBinding.parameterFlowBits[i] & PARAM_NULLITY;
+						if (nullity == PARAM_NONNULL)
+							flowInfo.markAsDefinitelyNonNull(local);
+						else if (nullity == PARAM_NULLABLE)
+							flowInfo.markPotentiallyNullBit(local);
 					}
 				}
 				if (!flowInfo.hasNullInfoFor(local))
@@ -714,14 +723,15 @@ public abstract class AbstractMethodDeclaration
 		if (this.binding == null) return;
 		// null annotations on parameters?
 		if (!useTypeAnnotations) {
-			if (this.binding.parameterNonNullness != null) {
+			if (this.binding.parameterFlowBits != null) {
 				int length = this.binding.parameters.length;
 				for (int i=0; i<length; i++) {
-					if (this.binding.parameterNonNullness[i] != null) {
-						long nullAnnotationTagBit =  this.binding.parameterNonNullness[i].booleanValue()
+					byte nullity = this.binding.parameterFlowBits[i];
+					if (nullity != 0) {
+						long nullAnnotationTagBit =  nullity == PARAM_NONNULL
 								? TagBits.AnnotationNonNull : TagBits.AnnotationNullable;
 						if (!this.scope.validateNullAnnotation(nullAnnotationTagBit, this.arguments[i].type, this.arguments[i].annotations))
-							this.binding.parameterNonNullness[i] = null;
+							this.binding.parameterFlowBits[i] &= ~PARAM_NULLITY;
 					}
 				}
 			}

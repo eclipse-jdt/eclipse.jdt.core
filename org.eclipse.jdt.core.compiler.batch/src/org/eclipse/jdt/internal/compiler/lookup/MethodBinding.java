@@ -69,11 +69,25 @@ public class MethodBinding extends Binding {
 	// Used only for constructors
 	protected AnnotationBinding [] typeAnnotations = Binding.NO_ANNOTATIONS;
 
-	/** Store nullness information from annotation (incl. applicable default). */
-	public Boolean[] parameterNonNullness;  // TRUE means @NonNull declared, FALSE means @Nullable declared, null means nothing declared
 	public int defaultNullness; // for null *type* annotations
 
-	public Boolean[] parameterOwning; // TRUE means @Owning declared, ...
+	/** Store flow-related information from declaration annotations (nullness & owning) (incl. applicable default). */
+	public byte[] parameterFlowBits;
+	// bit constant per each cell of the above:
+	public static byte PARAM_NONNULL = 1;
+	public static byte PARAM_NULLABLE = 2;
+	public static byte PARAM_NULLITY = (byte) (PARAM_NONNULL | PARAM_NULLABLE);
+	public static byte PARAM_OWNING = 4;
+
+	public static byte flowBitFromAnnotationTagBit(long tagBit) {
+		if (tagBit == TagBits.AnnotationNonNull)
+			return PARAM_NONNULL;
+		if (tagBit == TagBits.AnnotationNullable)
+			return PARAM_NULLABLE;
+		if (tagBit == TagBits.AnnotationOwning)
+			return PARAM_OWNING;
+		return 0;
+	}
 
 	/** Store parameter names from MethodParameters attribute (incl. applicable default). */
 	public char[][] parameterNames = Binding.NO_PARAMETER_NAMES;
@@ -505,23 +519,24 @@ public final char[] constantPoolName() {
  * After method verifier has finished, fill in missing @NonNull specification from the applicable default.
  */
 protected void fillInDefaultNonNullness(AbstractMethodDeclaration sourceMethod, boolean needToApplyReturnNonNullDefault, ParameterNonNullDefaultProvider needToApplyParameterNonNullDefault) {
-	if (this.parameterNonNullness == null)
-		this.parameterNonNullness = new Boolean[this.parameters.length];
+	if (this.parameterFlowBits == null)
+		this.parameterFlowBits = new byte[this.parameters.length];
 	boolean added = false;
-	int length = this.parameterNonNullness.length;
+	int length = this.parameterFlowBits.length;
 	for (int i = 0; i < length; i++) {
 		if(!needToApplyParameterNonNullDefault.hasNonNullDefaultForParam(i)) {
 			continue;
 		}
 		if (this.parameters[i].isBaseType())
 			continue;
-		if (this.parameterNonNullness[i] == null) {
+		int nullity = this.parameterFlowBits[i] & PARAM_NULLITY;
+		if (nullity == 0) {
 			added = true;
-			this.parameterNonNullness[i] = Boolean.TRUE;
+			this.parameterFlowBits[i] |= PARAM_NONNULL;
 			if (sourceMethod != null) {
 				sourceMethod.arguments[i].binding.tagBits |= TagBits.AnnotationNonNull;
 			}
-		} else if (sourceMethod != null && this.parameterNonNullness[i].booleanValue()) {
+		} else if (sourceMethod != null && (this.parameterFlowBits[i] & PARAM_NONNULL) != 0) {
 			sourceMethod.scope.problemReporter().nullAnnotationIsRedundant(sourceMethod, i);
 		}
 	}
@@ -1458,9 +1473,20 @@ public boolean hasPolymorphicSignature(Scope scope) {
 	return false;
 }
 public boolean ownsParameter(int i) {
-	if (this.parameterOwning != null)
-		return this.parameterOwning[i] == Boolean.TRUE;
+	if (this.parameterFlowBits != null)
+		return (this.parameterFlowBits[i] & PARAM_OWNING) != 0;
 	return false;
+}
+/** @return TRUE means @NonNull declared, FALSE means @Nullable declared, null means nothing declared */
+public Boolean getParameterNullness(int idx) {
+	if (this.parameterFlowBits != null) {
+		int nullity = this.parameterFlowBits[idx] & PARAM_NULLITY;
+		if (nullity == PARAM_NONNULL)
+			return Boolean.TRUE;
+		else if (nullity == PARAM_NULLABLE)
+			return Boolean.FALSE;
+	}
+	return null;
 }
 }
 

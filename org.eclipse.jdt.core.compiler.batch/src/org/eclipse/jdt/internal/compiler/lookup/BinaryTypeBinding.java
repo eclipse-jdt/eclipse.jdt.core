@@ -2153,9 +2153,9 @@ private void scanMethodForNullAnnotation(IBinaryMethod method, MethodBinding met
 							continue;
 						int typeBit = this.environment.getAnalysisAnnotationBit(signature2qualifiedTypeName(annotationTypeName));
 						if (typeBit == TypeIds.BitNonNullAnnotation) {
-							if (methodBinding.parameterNonNullness == null)
-								methodBinding.parameterNonNullness = new Boolean[numVisibleParams];
-							methodBinding.parameterNonNullness[j] = Boolean.TRUE;
+							if (methodBinding.parameterFlowBits == null)
+								methodBinding.parameterFlowBits = new byte[numVisibleParams];
+							methodBinding.parameterFlowBits[j] |= MethodBinding.PARAM_NONNULL;
 							if (this.environment.usesNullTypeAnnotations()) {
 								if (methodBinding.parameters[j] != null
 										&& !methodBinding.parameters[j].hasNullTypeAnnotations()) {
@@ -2166,9 +2166,9 @@ private void scanMethodForNullAnnotation(IBinaryMethod method, MethodBinding met
 							}
 							break;
 						} else if (typeBit == TypeIds.BitNullableAnnotation) {
-							if (methodBinding.parameterNonNullness == null)
-								methodBinding.parameterNonNullness = new Boolean[numVisibleParams];
-							methodBinding.parameterNonNullness[j] = Boolean.FALSE;
+							if (methodBinding.parameterFlowBits == null)
+								methodBinding.parameterFlowBits = new byte[numVisibleParams];
+							methodBinding.parameterFlowBits[j] |= MethodBinding.PARAM_NULLABLE;
 							if (this.environment.usesNullTypeAnnotations()) {
 								if (methodBinding.parameters[j] != null
 										&& !methodBinding.parameters[j].hasNullTypeAnnotations()) {
@@ -2187,7 +2187,7 @@ private void scanMethodForNullAnnotation(IBinaryMethod method, MethodBinding met
 	if (useNullTypeAnnotations && this.externalAnnotationStatus.isPotentiallyUnannotatedLib()) {
 		if (methodBinding.returnType.hasNullTypeAnnotations()
 				|| (methodBinding.tagBits & TagBits.AnnotationNullMASK) != 0
-				|| methodBinding.parameterNonNullness != null) {
+				|| methodBinding.parameterFlowBits != null) {
 			this.externalAnnotationStatus = ExternalAnnotationStatus.TYPE_IS_ANNOTATED;
 		} else {
 			for (TypeBinding parameter : parameters) {
@@ -2335,9 +2335,9 @@ private void scanMethodForOwningAnnotation(IBinaryMethod method, MethodBinding m
 							continue;
 						int typeBit = this.environment.getAnalysisAnnotationBit(signature2qualifiedTypeName(annotationTypeName));
 						if (typeBit == TypeIds.BitOwningAnnotation) {
-							if (methodBinding.parameterOwning == null)
-								methodBinding.parameterOwning = new Boolean[numVisibleParams];
-							methodBinding.parameterOwning[j] = Boolean.TRUE;
+							if (methodBinding.parameterFlowBits == null)
+								methodBinding.parameterFlowBits = new byte[numVisibleParams];
+							methodBinding.parameterFlowBits[j] |= MethodBinding.PARAM_OWNING;
 							break;
 						}
 					}

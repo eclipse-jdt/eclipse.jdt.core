@@ -543,13 +543,13 @@ public MethodBinding createDefaultConstructorWithBinding(MethodBinding inherited
 			sourceType); //declaringClass
 	constructor.binding.tagBits |= (inheritedConstructorBinding.tagBits & TagBits.HasMissingType);
 	constructor.binding.modifiers |= ExtraCompilerModifiers.AccIsDefaultConstructor;
-	if (inheritedConstructorBinding.parameterNonNullness != null // this implies that annotation based null analysis is enabled
+	if (inheritedConstructorBinding.parameterFlowBits != null // this implies that annotation based null/resource analysis is enabled
 			&& argumentsLength > 0)
 	{
-		// copy nullness info from inherited constructor to the new constructor:
-		int len = inheritedConstructorBinding.parameterNonNullness.length;
-		System.arraycopy(inheritedConstructorBinding.parameterNonNullness, 0,
-				constructor.binding.parameterNonNullness = new Boolean[len], 0, len);
+		// copy flowbits from inherited constructor to the new constructor:
+		int len = inheritedConstructorBinding.parameterFlowBits.length;
+		System.arraycopy(inheritedConstructorBinding.parameterFlowBits, 0,
+				constructor.binding.parameterFlowBits = new byte[len], 0, len);
 	}
 	// TODO(stephan): do argument types already carry sufficient info about type annotations?
 

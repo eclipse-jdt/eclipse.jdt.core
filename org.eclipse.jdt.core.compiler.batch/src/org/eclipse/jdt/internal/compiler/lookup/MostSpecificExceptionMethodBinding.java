@@ -33,7 +33,7 @@ public class MostSpecificExceptionMethodBinding  extends MethodBinding {
 				mostSpecificExceptions,
 				originalMethod.declaringClass);
 		this.originalMethod = originalMethod;
-		this.parameterNonNullness = originalMethod.parameterNonNullness;
+		this.parameterFlowBits = originalMethod.parameterFlowBits;
 		this.defaultNullness = originalMethod.defaultNullness;
 	}
 

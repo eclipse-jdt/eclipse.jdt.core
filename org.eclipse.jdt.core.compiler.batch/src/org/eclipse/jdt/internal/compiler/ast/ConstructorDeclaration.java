@@ -149,7 +149,7 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 			}
 		}
 
-		// nullity and mark as assigned
+		// nullity, owning and mark as assigned
 		analyseArguments(classScope.environment(), flowInfo, initializerFlowContext, this.arguments, this.binding);
 
 		// propagate to constructor call
