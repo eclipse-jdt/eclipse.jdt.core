@@ -442,7 +442,7 @@ public Constant resolveConstantExpression(BlockScope scope,
 				} else 	if (reference instanceof QualifiedNameReference) {
 					if (options.complianceLevel < ClassFileConstants.JDK21) {
 						scope.problemReporter().cannotUseQualifiedEnumConstantInCaseLabel(reference, field);
-					} else if (!TypeBinding.equalsEquals(caseType, switchType)) {
+				/* here*/	} else if (!TypeBinding.equalsEquals(caseType, switchType)) {
 						switchStatement.switchBits |= SwitchStatement.QualifiedEnum;
 						StringConstant constant = (StringConstant) StringConstant.fromValue(new String(field.name));
 						cases.add(new ResolvedCase(constant, expression, caseType, -1, true));

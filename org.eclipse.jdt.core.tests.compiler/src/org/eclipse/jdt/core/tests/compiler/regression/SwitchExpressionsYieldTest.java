@@ -6504,5 +6504,68 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"""
 				},
 				"");
-		}
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1767
+	// NPE in switch with Enum
+	public void testGHI1767() {
+		if (this.complianceLevel < ClassFileConstants.JDK21)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static enum TestEnum {
+						E1,
+						E2,
+						E3
+					}
+
+					public static void main(String[] theArgs) {
+						System.out.println("Test case 1");
+						new X().test1SwitchWithNull(TestEnum.E1);
+						new X().test1SwitchWithNull(TestEnum.E2);
+						new X().test1SwitchWithNull((TestEnum) null);
+						System.out.println("");
+
+						System.out.println("Test case 2");
+						new X().test2SwitchWithNull(TestEnum.E1);
+						new X().test2SwitchWithNull(TestEnum.E2);
+						new X().test2SwitchWithNull((TestEnum) null);
+						System.out.println("");
+
+						System.out.println("Test case 3");
+						new X().test3SwitchWithNull(TestEnum.E1);
+						new X().test3SwitchWithNull(TestEnum.E2);
+						new X().test3SwitchWithNull((TestEnum) null);
+						System.out.println("");
+					}
+
+					private void test1SwitchWithNull(TestEnum theEnum) {
+						switch (theEnum) {
+							case TestEnum e when e == TestEnum.E1 -> System.out.println(e);
+							case null -> System.out.println("Enum: null");
+							default -> System.out.println("Enum: default");
+						}
+					}
+
+					private void test2SwitchWithNull(TestEnum theEnum) {
+						switch (theEnum) {
+							case TestEnum e -> System.out.println(e);
+							case null -> System.out.println("Enum: null");
+						}
+					}
+
+					private void test3SwitchWithNull(TestEnum theEnum) {
+						switch (theEnum) {
+							case TestEnum.E1 -> System.out.println(theEnum);
+							case null -> System.out.println("Enum: null");
+							default -> System.out.println("Enum: default -> " + theEnum);
+						}
+					}
+				}
+				"""
+				},
+				"");
+	}
 }

@@ -2186,7 +2186,12 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"----------\n" +
 			"1. ERROR in X.java (at line 5)\n" +
 			"	case null, null  -> System.out.println(o);\n" +
-			"	^^^^^^^^^^^^^^^\n" +
+			"	     ^^^^\n" +
+			"Duplicate case\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 5)\n" +
+			"	case null, null  -> System.out.println(o);\n" +
+			"	           ^^^^\n" +
 			"Duplicate case\n" +
 			"----------\n");
 	}
@@ -6188,7 +6193,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"Type mismatch: cannot convert from E to E.InnerE\n" +
 				"----------\n");
 	}
-	public void testIssue1250_4() {
+	public void testIssue1250_4() { // this test
 		if (this.complianceLevel < ClassFileConstants.JDK21) {
 			return;
 		}
@@ -6965,5 +6970,27 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"positive integer: 123\n" +
 				"value unavailable: null"
 );
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1767
+	// NPE in switch with case null
+	public void testIssue1767() {
+		this.runConformTest(
+				new String[] {
+					"X.java",
+					"""
+					public class X {
+					   public static void main(String[] args) {
+						   Integer o = null;
+						   switch (o) {
+						     case null:
+						       System.out.println("NULL");
+						       break;
+						     default : System.out.println(o);
+						   }
+					   }
+					}
+					""",
+				},
+				"NULL");
 	}
 }
