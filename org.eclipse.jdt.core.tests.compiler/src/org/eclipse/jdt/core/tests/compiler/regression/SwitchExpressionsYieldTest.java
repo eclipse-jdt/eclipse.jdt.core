@@ -6526,19 +6526,16 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 						new X().test1SwitchWithNull(TestEnum.E1);
 						new X().test1SwitchWithNull(TestEnum.E2);
 						new X().test1SwitchWithNull((TestEnum) null);
-						System.out.println("");
 
 						System.out.println("Test case 2");
 						new X().test2SwitchWithNull(TestEnum.E1);
 						new X().test2SwitchWithNull(TestEnum.E2);
 						new X().test2SwitchWithNull((TestEnum) null);
-						System.out.println("");
 
 						System.out.println("Test case 3");
 						new X().test3SwitchWithNull(TestEnum.E1);
 						new X().test3SwitchWithNull(TestEnum.E2);
 						new X().test3SwitchWithNull((TestEnum) null);
-						System.out.println("");
 					}
 
 					private void test1SwitchWithNull(TestEnum theEnum) {
@@ -6570,16 +6567,14 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"E1\n" +
 				"Enum: default\n" +
 				"Enum: null\n" +
-				"\n" +
 				"Test case 2\n" +
 				"E1\n" +
 				"E2\n" +
 				"Enum: null\n" +
-				"\n" +
 				"Test case 3\n" +
 				"E1\n" +
 				"Enum: default -> E2\n" +
-				"Enum: null\n\n");
+				"Enum: null");
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1767
 	// NPE in switch with Enum
