@@ -18540,6 +18540,8 @@ public void testGH1642_a() {
 			"""});
 }
 public void testGH1667() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_5)
+		return; // uses foreach
 	runConformTest(
 		new String[] {
 			"Foo.java",
