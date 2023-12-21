@@ -71,7 +71,7 @@ public NullReferenceTest(String name) {
 // Only the highest compliance level is run; add the VM argument
 // -Dcompliance=1.4 (for example) to lower it if needed
 static {
-//		TESTS_NAMES = new String[] { "testBug542707_1" };
+		TESTS_NAMES = new String[] { "testGH1667" };
 //		TESTS_NAMES = new String[] { "testBug384380" };
 //		TESTS_NAMES = new String[] { "testBug384380_b" };
 //		TESTS_NAMES = new String[] { "testBug321926a2" };
