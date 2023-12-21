@@ -515,6 +515,8 @@ public class SwitchStatement extends Expression {
 		}
 	}
 	private boolean isNullHostile() {
+		if (this.containsNull)
+			return false;
 		if ((this.expression.implicitConversion & TypeIds.UNBOXING) != 0) {
 			return true;
 		} else if (this.expression.resolvedType != null

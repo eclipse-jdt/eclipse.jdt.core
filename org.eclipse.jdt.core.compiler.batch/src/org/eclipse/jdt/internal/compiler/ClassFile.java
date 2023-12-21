@@ -4025,6 +4025,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 		int numArgsLocation = localContentsOffset;
 		CaseStatement.ResolvedCase[] constants = switchStatement.otherConstants;
 		int numArgs = constants.length;
+		if (switchStatement.containsNull) --numArgs;
 		this.contents[numArgsLocation++] = (byte) (numArgs >> 8);
 		this.contents[numArgsLocation] = (byte) numArgs;
 		localContentsOffset += 2;
@@ -4042,6 +4043,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 //				this.contents[localContentsOffset++] = (byte) (typeIndex >> 8);
 //				this.contents[localContentsOffset++] = (byte) typeIndex;
 			} else {
+				if (c.e instanceof NullLiteral) continue;
 				int intValIdx =
 						this.constantPool.literalIndex(c.e.toString());
 				this.contents[localContentsOffset++] = (byte) (intValIdx >> 8);
