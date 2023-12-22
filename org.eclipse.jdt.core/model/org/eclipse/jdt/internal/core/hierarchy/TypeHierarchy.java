@@ -19,11 +19,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
@@ -62,7 +66,6 @@ import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.Openable;
 import org.eclipse.jdt.internal.core.PackageFragment;
 import org.eclipse.jdt.internal.core.Region;
-import org.eclipse.jdt.internal.core.TypeVector;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -111,11 +114,11 @@ public class TypeHierarchy implements ITypeHierarchy, IElementChangedListener {
 
 	protected Map<IType, IType> classToSuperclass;
 	protected Map<IType, IType[]> typeToSuperInterfaces;
-	protected Map<IType, TypeVector> typeToSubtypes;
+	protected Map<IType, Set<IType>> typeToSubtypes;
 	protected Map<IType, Integer> typeFlags;
-	protected TypeVector rootClasses = new TypeVector();
-	protected ArrayList<IType> interfaces = new ArrayList<>(10);
-	public ArrayList<String> missingTypes = new ArrayList<>(4);
+	protected Set<IType> rootClasses = new LinkedHashSet<>();
+	protected Set<IType> interfaces = new LinkedHashSet<>();
+	public Set<String> missingTypes = new LinkedHashSet<>();
 
 	protected static final IType[] NO_TYPE = new IType[0];
 
@@ -225,21 +228,18 @@ protected void addInterface(IType type) {
  * if the classes is not already present in the collection.
  */
 protected void addRootClass(IType type) {
-	if (this.rootClasses.contains(type)) return;
 	this.rootClasses.add(type);
 }
 /**
  * Adds the given subtype to the type.
  */
 protected void addSubtype(IType type, IType subtype) {
-	TypeVector subtypes = this.typeToSubtypes.get(type);
+	Set<IType> subtypes = this.typeToSubtypes.get(type);
 	if (subtypes == null) {
-		subtypes = new TypeVector();
+		subtypes = new LinkedHashSet<>();
 		this.typeToSubtypes.put(type, subtypes);
 	}
-	if (!subtypes.contains(subtype)) {
-		subtypes.add(subtype);
-	}
+	subtypes.add(subtype);
 }
 /**
  * @see ITypeHierarchy
@@ -418,21 +418,16 @@ private static byte[] flagsToBytes(Integer flags){
  */
 @Override
 public IType[] getAllClasses() {
-
-	TypeVector classes = this.rootClasses.copy();
-	for (Iterator<IType> iter = this.classToSuperclass.keySet().iterator(); iter.hasNext();){
-		classes.add(iter.next());
-	}
-	return classes.elements();
+	Set<IType> classes = new LinkedHashSet<>(this.rootClasses);
+	classes.addAll(this.classToSuperclass.keySet());
+	return classes.toArray(IType[]::new);
 }
 /**
  * @see ITypeHierarchy
  */
 @Override
 public IType[] getAllInterfaces() {
-	IType[] collection= new IType[this.interfaces.size()];
-	this.interfaces.toArray(collection);
-	return collection;
+	return this.interfaces.toArray(IType[]::new);
 }
 /**
  * @see ITypeHierarchy
@@ -445,19 +440,14 @@ public IType[]  getAllSubtypes(IType type) {
  * @see #getAllSubtypes(IType)
  */
 private IType[] getAllSubtypesForType(IType type) {
-	ArrayList<IType> subTypes = new ArrayList<>();
+	Set<IType> subTypes = new HashSet<>();
 	getAllSubtypesForType0(type, subTypes);
-	IType[] subClasses = new IType[subTypes.size()];
-	subTypes.toArray(subClasses);
-	return subClasses;
+	return subTypes.toArray(IType[]::new);
 }
-private void getAllSubtypesForType0(IType type, ArrayList<IType> subs) {
+private void getAllSubtypesForType0(IType type, Set<IType> subs) {
 	IType[] subTypes = getSubtypesForType(type);
-	if (subTypes.length != 0) {
-		for (int i = 0; i < subTypes.length; i++) {
-			IType subType = subTypes[i];
-			if (subs.contains(subType)) continue;
-			subs.add(subType);
+	for (IType subType: subTypes) {
+		if (subs.add(subType)) {
 			getAllSubtypesForType0(subType, subs);
 		}
 	}
@@ -468,36 +458,30 @@ private void getAllSubtypesForType0(IType type, ArrayList<IType> subs) {
 @Override
 public IType[] getAllSuperclasses(IType type) {
 	IType superclass = getSuperclass(type);
-	TypeVector supers = new TypeVector();
+	Set<IType> supers = new LinkedHashSet<>();
 	while (superclass != null) {
 		supers.add(superclass);
 		superclass = getSuperclass(superclass);
 	}
-	return supers.elements();
+	return supers.toArray(IType[]::new);
 }
 /**
  * @see ITypeHierarchy
  */
 @Override
 public IType[] getAllSuperInterfaces(IType type) {
-	ArrayList<IType> supers = getAllSuperInterfaces0(type, null);
-	if (supers == null)
+	Set<IType> supers = getAllSuperInterfaces0(type, new LinkedHashSet<>());
+	if (supers.isEmpty()) {
 		return NO_TYPE;
-	IType[] superinterfaces = new IType[supers.size()];
-	supers.toArray(superinterfaces);
-	return superinterfaces;
+	}
+	return supers.toArray(IType[]::new);
 }
-private ArrayList<IType> getAllSuperInterfaces0(IType type, ArrayList<IType> supers) {
+private Set<IType> getAllSuperInterfaces0(IType type, Set<IType> supers) {
 	IType[] superinterfaces = this.typeToSuperInterfaces.get(type);
 	if (superinterfaces == null) // type is not part of the hierarchy
 		return supers;
-	if (superinterfaces.length != 0) {
-		if (supers == null)
-			supers = new ArrayList<>();
-		for (int i1 = 0; i1 < superinterfaces.length; i1++) {
-			IType element = superinterfaces[i1];
-			if (supers.contains(element)) continue;
-			supers.add(element);
+	for (IType element:superinterfaces) {
+		if (supers.add(element)) {
 			supers = getAllSuperInterfaces0(element, supers);
 		}
 	}
@@ -512,32 +496,25 @@ private ArrayList<IType> getAllSuperInterfaces0(IType type, ArrayList<IType> sup
  */
 @Override
 public IType[] getAllSupertypes(IType type) {
-	ArrayList<IType> supers = getAllSupertypes0(type, null);
-	if (supers == null)
+	Set<IType> supers = getAllSupertypes0(type, new LinkedHashSet<>());
+	if (supers.isEmpty()) {
 		return NO_TYPE;
-	IType[] supertypes = new IType[supers.size()];
-	supers.toArray(supertypes);
-	return supertypes;
+	}
+	return supers.toArray(IType[]::new);
 }
-private ArrayList<IType> getAllSupertypes0(IType type, ArrayList<IType> supers) {
+private Set<IType> getAllSupertypes0(IType type, Set<IType> supers) {
 	IType[] superinterfaces = this.typeToSuperInterfaces.get(type);
-	if (superinterfaces == null) // type is not part of the hierarchy
+	if (superinterfaces == null) {// type is not part of the hierarchy
 		return supers;
-	if (superinterfaces.length != 0) {
-		if (supers == null)
-			supers = new ArrayList<>();
-		for (int i1 = 0; i1 < superinterfaces.length; i1++) {
-			IType element = superinterfaces[i1];
-			if (!supers.contains(element)) {
-				supers.add(element);
-				supers = getAllSuperInterfaces0(element, supers);
-			}
+	}
+	for (int i1 = 0; i1 < superinterfaces.length; i1++) {
+		IType element = superinterfaces[i1];
+		if (supers.add(element)) {
+			supers = getAllSuperInterfaces0(element, supers);
 		}
 	}
 	IType superclass = this.classToSuperclass.get(type);
 	if (superclass != null) {
-		if (supers == null)
-			supers = new ArrayList<>();
 		supers.add(superclass);
 		supers = getAllSupertypes0(superclass, supers);
 	}
@@ -601,9 +578,7 @@ private IType[] getExtendingInterfaces0(IType extendedInterface) {
 			}
 		}
 	}
-	IType[] extendingInterfaces = new IType[interfaceList.size()];
-	interfaceList.toArray(extendingInterfaces);
-	return extendingInterfaces;
+	return interfaceList.toArray(IType[]::new);
 }
 /**
  * @see ITypeHierarchy
@@ -637,16 +612,14 @@ private IType[] getImplementingClasses0(IType interfce) {
 			}
 		}
 	}
-	IType[] implementers = new IType[iMenters.size()];
-	iMenters.toArray(implementers);
-	return implementers;
+	return iMenters.toArray(IType[]::new);
 }
 /**
  * @see ITypeHierarchy
  */
 @Override
 public IType[] getRootClasses() {
-	return this.rootClasses.elements();
+	return this.rootClasses.toArray(IType[]::new);
 }
 /**
  * @see ITypeHierarchy
@@ -676,11 +649,11 @@ public IType[] getSubclasses(IType type) {
 	if (isInterface(type)) {
 		return NO_TYPE;
 	}
-	TypeVector vector = this.typeToSubtypes.get(type);
+	Set<IType> vector = this.typeToSubtypes.get(type);
 	if (vector == null)
 		return NO_TYPE;
 	else
-		return vector.elements();
+		return vector.toArray(IType[]::new);
 }
 /**
  * @see ITypeHierarchy
@@ -693,11 +666,11 @@ public IType[] getSubtypes(IType type) {
  * Returns an array of subtypes for the given type - will never return null.
  */
 private IType[] getSubtypesForType(IType type) {
-	TypeVector vector = this.typeToSubtypes.get(type);
+	Set<IType> vector = this.typeToSubtypes.get(type);
 	if (vector == null)
 		return NO_TYPE;
 	else
-		return vector.elements();
+		return vector.toArray(IType[]::new);
 }
 /**
  * @see ITypeHierarchy
@@ -729,9 +702,9 @@ public IType[] getSupertypes(IType type) {
 	if (superclass == null) {
 		return getSuperInterfaces(type);
 	} else {
-		TypeVector superTypes = new TypeVector(getSuperInterfaces(type));
+		Set<IType> superTypes = new LinkedHashSet<>(Arrays.asList(getSuperInterfaces(type)));
 		superTypes.add(superclass);
-		return superTypes.elements();
+		return superTypes.toArray(IType[]::new);
 	}
 }
 /**
@@ -851,9 +824,9 @@ protected void initialize(int size) {
 	}
 	int smallSize = (size / 2);
 	this.classToSuperclass = new HashMap<>(size);
-	this.interfaces = new ArrayList<>(smallSize);
-	this.missingTypes = new ArrayList<>(smallSize);
-	this.rootClasses = new TypeVector();
+	this.interfaces = new LinkedHashSet<>(smallSize);
+	this.missingTypes = new LinkedHashSet<>(smallSize);
+	this.rootClasses = new LinkedHashSet<>();
 	this.typeToSubtypes = new HashMap<>(smallSize);
 	this.typeToSuperInterfaces = new HashMap<>(smallSize);
 	this.typeFlags = new HashMap<>(smallSize);
@@ -1430,13 +1403,7 @@ public void store(OutputStream output, IProgressMonitor monitor) throws JavaMode
 		output.write(SEPARATOR1);
 
 		// save missing types
-		for (int i = 0; i < this.missingTypes.size(); i++) {
-			if(i != 0) {
-				output.write(SEPARATOR2);
-			}
-			output.write((this.missingTypes.get(i)).getBytes());
-
-		}
+		output.write(String.join(Character.toString(SEPARATOR2), this.missingTypes).getBytes());
 		output.write(SEPARATOR1);
 
 		// save types
@@ -1560,7 +1527,7 @@ public String toString() {
 			buffer.append("Sub types:\n"); //$NON-NLS-1$
 			toString(buffer, this.focusType, 0, false);
 		} else {
-			if (this.rootClasses.size > 0) {
+			if (this.rootClasses.size() > 0) {
 				IJavaElement[] roots = Util.sortCopy(getRootClasses());
 				buffer.append("Super types of root classes:\n"); //$NON-NLS-1$
 				int length = roots.length;
@@ -1575,7 +1542,7 @@ public String toString() {
 					toString(buffer, root, 1);
 					toString(buffer, root, 1, false);
 				}
-			} else if (this.rootClasses.size == 0) {
+			} else if (this.rootClasses.size() == 0) {
 				// see http://bugs.eclipse.org/bugs/show_bug.cgi?id=24691
 				buffer.append("No root classes"); //$NON-NLS-1$
 			}
