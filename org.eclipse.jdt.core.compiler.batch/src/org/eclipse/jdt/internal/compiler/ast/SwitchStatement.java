@@ -1583,7 +1583,7 @@ public class SwitchStatement extends Expression {
 		TypeBinding eType = this.expression != null ? this.expression.resolvedType : null;
 		if (eType == null)
 			return false;
-		return !(eType.isPrimitiveOrBoxedPrimitiveType() || eType.isEnum());
+		return !(eType.isPrimitiveOrBoxedPrimitiveType() || eType.isEnum() || eType.id == TypeIds.T_JavaLangString); // classic selectors
 	}
 	private void addSecretPatternSwitchVariables(BlockScope upperScope) {
 		if (needPatternDispatchCopy()) {

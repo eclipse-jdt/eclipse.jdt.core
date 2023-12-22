@@ -3295,6 +3295,76 @@ public void testBug443576_2() {
 	true,
 	options);
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1782
+// [Follow up of #1773] For classic string switch, emitted code wastes two local variable slots
+public void testGHI1782() throws Exception {
+	if (this.complianceLevel < ClassFileConstants.JDK9)
+		return;
+
+	this.runConformTest(new String[] {
+		"X.java",
+		"""
+		public class X {
+			public static void main(String[] args) {
+				String hello = "Hello";
+				switch (hello) {
+					case "Hello" :
+						String world = "world!";
+						System.out.println("Hello " + world);
+				}
+			}
+		}
+		""",
+	},
+	"Hello world!");
+
+	String expectedOutput =
+			"  // Method descriptor #15 ([Ljava/lang/String;)V\n" +
+			"  // Stack: 3, Locals: 4\n" +
+			"  public static void main(java.lang.String[] args);\n" +
+			"     0  ldc <String \"Hello\"> [16]\n" +
+			"     2  astore_1 [hello]\n" +
+			"     3  aload_1 [hello]\n" +
+			"     4  dup\n" +
+			"     5  astore_2\n" +
+			"     6  invokevirtual java.lang.String.hashCode() : int [18]\n" +
+			"     9  lookupswitch default: 55\n" +
+			"          case 69609650: 28\n" +
+			"    28  aload_2\n" +
+			"    29  ldc <String \"Hello\"> [16]\n" +
+			"    31  invokevirtual java.lang.String.equals(java.lang.Object) : boolean [24]\n" +
+			"    34  ifne 40\n" +
+			"    37  goto 55\n" +
+			"    40  ldc <String \"world!\"> [28]\n" +
+			"    42  astore_3 [world]\n" +
+			"    43  getstatic java.lang.System.out : java.io.PrintStream [30]\n" +
+			"    46  aload_3 [world]\n" +
+			"    47  invokedynamic 0 makeConcatWithConstants(java.lang.String) : java.lang.String [36]\n" +
+			"    52  invokevirtual java.io.PrintStream.println(java.lang.String) : void [40]\n" +
+			"    55  return\n" +
+			"      Line numbers:\n" +
+			"        [pc: 0, line: 3]\n" +
+			"        [pc: 3, line: 4]\n" +
+			"        [pc: 40, line: 6]\n" +
+			"        [pc: 43, line: 7]\n" +
+			"        [pc: 55, line: 9]\n" +
+			"      Local variable table:\n" +
+			"        [pc: 0, pc: 56] local: args index: 0 type: java.lang.String[]\n" +
+			"        [pc: 3, pc: 56] local: hello index: 1 type: java.lang.String\n" +
+			"        [pc: 43, pc: 55] local: world index: 3 type: java.lang.String\n";
+
+	File f = new File(OUTPUT_DIR + File.separator + "X.class");
+	byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(f);
+	ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
+	String result = disassembler.disassemble(classFileBytes, "\n", ClassFileBytesDisassembler.DETAILED);
+	int index = result.indexOf(expectedOutput);
+	if (index == -1 || expectedOutput.length() == 0) {
+		System.out.println(Util.displayString(result, 3));
+	}
+	if (index == -1) {
+		assertEquals("Wrong contents", expectedOutput, result);
+	}
+}
 public static Class testClass() {
 	return SwitchTest.class;
 }
