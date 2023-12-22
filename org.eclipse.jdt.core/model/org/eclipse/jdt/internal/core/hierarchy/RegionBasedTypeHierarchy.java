@@ -14,6 +14,7 @@
 package org.eclipse.jdt.internal.core.hierarchy;
 
 import java.util.ArrayList;
+import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.*;
@@ -22,7 +23,6 @@ import org.eclipse.jdt.internal.core.CompilationUnit;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.Openable;
 import org.eclipse.jdt.internal.core.Region;
-import org.eclipse.jdt.internal.core.TypeVector;
 
 public class RegionBasedTypeHierarchy extends TypeHierarchy {
 	/**
@@ -107,11 +107,11 @@ public void pruneDeadBranches() {
  * Returns whether all subtypes of the given type have been pruned.
  */
 private boolean pruneDeadBranches(IType type) {
-	TypeVector subtypes = this.typeToSubtypes.get(type);
+	Set<IType> subtypes = this.typeToSubtypes.get(type);
 	if (subtypes == null) return true;
-	pruneDeadBranches(subtypes.copy().elements());
+	pruneDeadBranches(subtypes.toArray(IType[]::new));
 	subtypes = this.typeToSubtypes.get(type);
-	return (subtypes == null || subtypes.size == 0);
+	return (subtypes == null || subtypes.size() == 0);
 }
 private void pruneDeadBranches(IType[] types) {
 	for (int i = 0, length = types.length; i < length; i++) {
@@ -135,14 +135,14 @@ protected void removeType(IType type) {
 	}
 	IType superclass = this.classToSuperclass.remove(type);
 	if (superclass != null) {
-		TypeVector types = this.typeToSubtypes.get(superclass);
+		Set<IType> types = this.typeToSubtypes.get(superclass);
 		if (types != null) types.remove(type);
 	}
 	IType[] superinterfaces = this.typeToSuperInterfaces.remove(type);
 	if (superinterfaces != null) {
 		for (int i = 0, length = superinterfaces.length; i < length; i++) {
 			IType superinterface = superinterfaces[i];
-			TypeVector types = this.typeToSubtypes.get(superinterface);
+			Set<IType> types = this.typeToSubtypes.get(superinterface);
 			if (types != null) types.remove(type);
 		}
 	}
