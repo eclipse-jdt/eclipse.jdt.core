@@ -3847,13 +3847,14 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				  public static void main(String[] args) {
 					  Entry<String, I<String>> entry = new Entry<>("KEY", new A<>("VALUE"));
 					  System.out.println(entry);
-					  foo(entry);
+					  System.out.println(foo(entry));
 					  System.out.println(entry);
 				  }
 				}
 				"""
 				},
 				"Key = KEY Value = A[value=VALUE]\n" +
+				"Key = KEY Value = VALUE\n" +
 				"Key = KEY Value = B[value=VALUE]");
 	}
 }
