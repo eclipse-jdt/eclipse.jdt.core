@@ -1404,4 +1404,81 @@ public void testSnippet06() {
 		"}"
 	);
 }
+public void testJoinLineComment01() {
+	this.formatterPrefs.join_line_comments = true;
+	String source =
+		"""
+		class A {
+		int a = 5; // one  two
+		            // three
+		}
+		""";
+	formatSource(source,
+		"""
+		class A {
+			int a = 5; // one two three
+		}
+		""");
+}
+public void testJoinLineComment02() {
+	this.formatterPrefs.join_line_comments = true;
+	String source =
+		"""
+		class A {
+		int a = 5; // one  two
+		// three
+		}
+		""";
+	formatSource(source,
+		"""
+		class A {
+			int a = 5; // one two
+		// three
+		}
+		""");
+}
+public void testJoinLineComment03() {
+	this.formatterPrefs.join_line_comments = true;
+	String source =
+		"""
+		class A {
+		 int a = 5; // one  two
+		 // three
+		}
+		""";
+	formatSource(source,
+		"""
+		class A {
+			int a = 5; // one two
+			// three
+		}
+		""");
+}
+public void testJoinLineComment04() {
+	this.formatterPrefs.join_line_comments = true;
+	String source =
+		"""
+		class A {
+			int a = 5; // one  two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen
+						// one  two three four five six seven
+						// eight nine ten eleven twelve
+						// thirteen fourteen fifteen sixteen
+						// seventeen eighteen nineteen
+						// one  two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen
+			// one  two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen
+		}
+		""";
+	formatSource(source,
+		"""
+		class A {
+			int a = 5; // one two three four five six seven eight nine ten eleven twelve thirteen
+						// fourteen fifteen sixteen seventeen eighteen nineteen one two three four five
+						// six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen
+						// seventeen eighteen nineteen one two three four five six seven eight nine ten
+						// eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen
+			// one two three four five six seven eight nine ten eleven twelve thirteen
+			// fourteen fifteen sixteen seventeen eighteen nineteen
+		}
+		""");
+}
 }

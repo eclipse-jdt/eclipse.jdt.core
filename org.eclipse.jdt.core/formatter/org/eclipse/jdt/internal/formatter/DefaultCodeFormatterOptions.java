@@ -511,6 +511,7 @@ public class DefaultCodeFormatterOptions {
 	public int number_of_empty_lines_to_preserve;
 	public boolean join_wrapped_lines;
 	public boolean join_lines_in_comments;
+	public boolean join_line_comments;
 	public boolean put_empty_statement_on_new_line;
 	public int tab_size;
 	public int page_width;
@@ -945,6 +946,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_NUMBER_OF_EMPTY_LINES_TO_PRESERVE, Integer.toString(this.number_of_empty_lines_to_preserve));
 		options.put(DefaultCodeFormatterConstants.FORMATTER_JOIN_WRAPPED_LINES, this.join_wrapped_lines ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_JOIN_LINES_IN_COMMENTS, this.join_lines_in_comments ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_JOIN_LINE_COMMENTS, this.join_line_comments ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_PUT_EMPTY_STATEMENT_ON_NEW_LINE, this.put_empty_statement_on_new_line ? DefaultCodeFormatterConstants.TRUE : DefaultCodeFormatterConstants.FALSE);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_LINE_SPLIT, Integer.toString(this.page_width));
 		switch(this.tab_char) {
@@ -2514,6 +2516,8 @@ public class DefaultCodeFormatterOptions {
 		if (joinLinesInCommentsOption != null) {
 			this.join_lines_in_comments = DefaultCodeFormatterConstants.TRUE.equals(joinLinesInCommentsOption);
 		}
+		setBoolean(settings, DefaultCodeFormatterConstants.FORMATTER_JOIN_LINE_COMMENTS, DefaultCodeFormatterConstants.TRUE,
+				v -> this.join_line_comments = v);
 		final Object joinWrappedLinesOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_JOIN_WRAPPED_LINES);
 		if (joinWrappedLinesOption != null) {
 			this.join_wrapped_lines = DefaultCodeFormatterConstants.TRUE.equals(joinWrappedLinesOption);
@@ -3333,6 +3337,7 @@ public class DefaultCodeFormatterOptions {
 		this.never_indent_line_comments_on_first_column = false;
 		this.number_of_empty_lines_to_preserve = 1;
 		this.join_lines_in_comments = true;
+		this.join_line_comments = false;
 		this.join_wrapped_lines = true;
 		this.put_empty_statement_on_new_line = false;
 		this.tab_size = 4;
@@ -3735,6 +3740,7 @@ public class DefaultCodeFormatterOptions {
 		this.never_indent_line_comments_on_first_column = false;
 		this.number_of_empty_lines_to_preserve = 1;
 		this.join_lines_in_comments = true;
+		this.join_line_comments = false;
 		this.join_wrapped_lines = true;
 		this.put_empty_statement_on_new_line = true;
 		this.tab_size = 8;
