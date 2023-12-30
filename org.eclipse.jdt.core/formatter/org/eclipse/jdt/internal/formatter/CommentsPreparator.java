@@ -204,10 +204,14 @@ public class CommentsPreparator extends ASTVisitor {
 
 		List<Token> structure = tokenizeLineComment(commentToken);
 		if (isContinuation) {
-			Token first = structure.get(0);
-			first.breakBefore();
-			first.setWrapPolicy(
-					new WrapPolicy(WrapMode.WHERE_NECESSARY, commentIndex - 1, this.lastLineCommentPosition));
+			if (this.options.join_line_comments) {
+				structure.remove(0);
+			} else {
+				Token first = structure.get(0);
+				first.breakBefore();
+				first.setWrapPolicy(
+						new WrapPolicy(WrapMode.WHERE_NECESSARY, commentIndex - 1, this.lastLineCommentPosition));
+			}
 
 			// merge previous and current line comment
 			Token previous = this.lastLineComment;

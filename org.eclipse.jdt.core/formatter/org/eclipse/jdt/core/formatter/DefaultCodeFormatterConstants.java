@@ -5272,6 +5272,16 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_JOIN_LINES_IN_COMMENTS = JavaCore.PLUGIN_ID + ".formatter.join_lines_in_comments";	//$NON-NLS-1$
 	/**
 	 * <pre>
+	 * FORMATTER / Option to specify whether the formatter can join consecutive line comments
+	 *     - option id:         "org.eclipse.jdt.core.formatter.join_line_comments"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           FALSE
+	 * </pre>
+	 * @since 3.37
+	 */
+	public static final String FORMATTER_JOIN_LINE_COMMENTS = JavaCore.PLUGIN_ID + ".formatter.join_line_comments";	//$NON-NLS-1$
+	/**
+	 * <pre>
 	 * FORMATTER / Option to specify whether or not empty statement should be on a new line
 	 *     - option id:         "org.eclipse.jdt.core.formatter.put_empty_statement_on_new_line"
 	 *     - possible values:   { TRUE, FALSE }
