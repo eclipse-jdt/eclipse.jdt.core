@@ -13361,4 +13361,37 @@ public void testIssue1510() {
 		"\t\t\t\t\"\"\"; //$NON-NLS-1$\n" +
 		"\t}\n" +
 		"}");
-}}
+}
+/**
+ * https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1624
+ */
+public void testIssue1624() {
+	this.formatterPrefs.use_tabs_only_for_leading_indentations = true;
+	this.formatterPrefs.alignment_for_logical_operator = Alignment.M_ONE_PER_LINE_SPLIT | Alignment.M_FORCE;
+	String source =
+		"""
+		class A {
+			private void foo(String a) {
+				boolean b = "GET".equals(a) || "POST".equals(a); //$NON-NLS-1$//$NON-NLS-2$
+				if (a == null)
+					a = "W"; //$NON-NLS-1$
+				// foo
+				// bar
+			}
+		}
+		""";
+	formatSource(source,
+		"""
+		class A {
+			private void foo(String a) {
+				boolean b = "GET".equals(a) //$NON-NLS-1$
+				        || "POST".equals(a); //$NON-NLS-1$
+				if (a == null)
+					a = "W"; //$NON-NLS-1$
+				// foo
+				// bar
+			}
+		}
+		""");
+}
+}
