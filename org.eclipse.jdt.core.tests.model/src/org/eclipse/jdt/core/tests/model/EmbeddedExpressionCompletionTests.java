@@ -136,6 +136,7 @@ public class EmbeddedExpressionCompletionTests extends AbstractJavaModelCompleti
 				requestor.getResults());
 
 	}
+	// completion before text block template
 	public void test005() throws JavaModelException {
 		this.workingCopies = new ICompilationUnit[1];
 		this.workingCopies[0] = getWorkingCopy(
@@ -147,9 +148,9 @@ public class EmbeddedExpressionCompletionTests extends AbstractJavaModelCompleti
 						String firstName = "Bill", lastName = "Duck"; //$NON-NLS-1$ //$NON-NLS-2$
 						System.out.println(STR."\\{firstName} \\{lastName}");
 						System.out.println(STR."\\{firstN} \\{lastName}");
-						String title = "My Web Page"; //$NON-NLS-1$
+						String titleStr = "My Web Page"; //$NON-NLS-1$
 						String html = STR.\"""
-						//      <title>\\{title}</title>
+						     <title>\\{titleStr}</title>
 				      	\""";
 						System.out.println(html);
 					}
@@ -161,6 +162,228 @@ public class EmbeddedExpressionCompletionTests extends AbstractJavaModelCompleti
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults("firstName[LOCAL_VARIABLE_REF]{firstName, null, Ljava.lang.String;, firstName, null, 52}",
+				requestor.getResults());
+	}
+	// completion after text block template
+	public void test006() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/X.java",
+				"""
+				public class X {
+					@SuppressWarnings("preview")
+					public static void main(String[] args) {
+						String firstName = "Bill", lastName = "Duck"; //$NON-NLS-1$ //$NON-NLS-2$
+						System.out.println(STR."\\{firstName} \\{lastName}");
+						String titleStr = "My Web Page"; //$NON-NLS-1$
+						String html = STR.\"""
+						      <title>\\{titleS}</title>
+				      	\""";
+						System.out.println(html);
+						System.out.println(STR."\\{firstN} \\{lastName}");
+					}
+				}""");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "firstN";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults("firstName[LOCAL_VARIABLE_REF]{firstName, null, Ljava.lang.String;, firstName, null, 52}",
+				requestor.getResults());
+	}
+	// completion before inside a text block template on the first expression
+	public void test007() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/X.java",
+				"""
+				public class X {
+					@SuppressWarnings("preview")
+					public static void main(String[] args) {
+						String firstName = "Bill", lastName = "Duck"; //$NON-NLS-1$ //$NON-NLS-2$
+						System.out.println(STR."\\{firstName} \\{lastName}");
+						String greeting = "Hello";
+						String title = "Mr";
+						String html = STR.\"""
+						      <title>\\{greet} \\{title}. \\{lastName}!</title>
+				      	\""";
+						System.out.println(html);
+					}
+				}""");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "greet";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults("greeting[LOCAL_VARIABLE_REF]{greeting, null, Ljava.lang.String;, greeting, null, 52}",
+				requestor.getResults());
+	}
+	// completion before inside a text block template on the last expression
+	public void test008() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/X.java",
+				"""
+				public class X {
+					@SuppressWarnings("preview")
+					public static void main(String[] args) {
+						String firstName = "Bill", lastName = "Duck"; //$NON-NLS-1$ //$NON-NLS-2$
+						System.out.println(STR."\\{firstName} \\{lastName}");
+						String greeting = "Hello";
+						String title = "Mr";
+						String html = STR.\"""
+						      <title>\\{greeting} \\{title}. \\{lastN}!</title>
+				      	\""";
+						System.out.println(html);
+					}
+				}""");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "lastN";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults("lastName[LOCAL_VARIABLE_REF]{lastName, null, Ljava.lang.String;, lastName, null, 52}",
+				requestor.getResults());
+	}
+	// completion before inside a text block template on the middle expression
+	public void test009() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/X.java",
+				"""
+				public class X {
+					@SuppressWarnings("preview")
+					public static void main(String[] args) {
+						String firstName = "Bill", lastName = "Duck"; //$NON-NLS-1$ //$NON-NLS-2$
+						System.out.println(STR."\\{firstName} \\{lastName}");
+						String greeting = "Hello";
+						String nameTitle = "Mr";
+						String html = STR.\"""
+						      <title>\\{greeting} \\{nameT}. \\{lastName}!</title>
+				      	\""";
+						System.out.println(html);
+					}
+				}""");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "nameT";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults("nameTitle[LOCAL_VARIABLE_REF]{nameTitle, null, Ljava.lang.String;, nameTitle, null, 52}",
+				requestor.getResults());
+	}
+	// completion on a string template expression
+	public void _test010() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/X.java",
+				"""
+				import java.lang.StringTemplate.STR;
+				public class X {
+					@SuppressWarnings("preview")
+					public static void main(String[] args) {
+						String firstName = "Bill", lastName = "Duck"; //$NON-NLS-1$ //$NON-NLS-2$
+						System.out.println(STR."\\{firstName} \\{lastName}".toStr);
+					}
+				}""");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "toStr";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults("toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 90}",
+				requestor.getResults());
+	}
+	// completion on a textblock template expression
+	public void _test011() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/X.java",
+				"""
+				public class X {
+					@SuppressWarnings("preview")
+					public static void main(String[] args) {
+						String firstName = "Bill", lastName = "Duck"; //$NON-NLS-1$ //$NON-NLS-2$
+						System.out.println(STR."\\{firstName} \\{lastName}");
+						String greeting = "Hello";
+						String nameTitle = "Mr";
+						String html = STR.\"""
+						      <title>\\{greeting} \\{nameT}. \\{lastName}!</title>
+				      	\""".toStr;
+						System.out.println(html);
+					}
+				}""");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "toStr";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults("toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 90}",
+				requestor.getResults());
+	}
+	// completion inside a textblock template expression
+	public void test012() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/X.java",
+				"""
+				public class X {
+					@SuppressWarnings("preview")
+					public static void main(String[] args) {
+						String firstName = "Bill", lastName = "Duck"; //$NON-NLS-1$ //$NON-NLS-2$
+						System.out.println(STR."\\{firstName} \\{lastName}");
+						String greeting = "Hello";
+						String nameTitle = "Mr";
+						String html = STR.\"""
+						      <title>\\{greeting} \\{nameTitle.toStr}. \\{lastName}!</title>
+				      	\""";
+						System.out.println(html);
+					}
+				}""");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "toStr";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults("toString[METHOD_REF]{toString(), Ljava.lang.Object;, ()Ljava.lang.String;, toString, null, 60}",
+				requestor.getResults());
+	}
+	public void test013() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/X.java",
+				"""
+				public class X<R> {
+					@SuppressWarnings("nls")
+					public static void main(String[] args) {
+						String name = "Joan Smith";
+						String phone = "555-123-4567";
+						String address = "1 Maple Drive, Anytown";
+						String doc = STR.\"""
+				    {
+				        "name":    "\\{
+				          STR.\"""
+				          \\{name}\"""}",
+				        "phone":   "\\{phone}",
+				        "address": "\\{addre}"
+				    };\""";
+						System.out.println(doc);
+					}
+				}""");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "addre";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults("address[LOCAL_VARIABLE_REF]{address, null, Ljava.lang.String;, address, null, 52}",
 				requestor.getResults());
 	}
 }

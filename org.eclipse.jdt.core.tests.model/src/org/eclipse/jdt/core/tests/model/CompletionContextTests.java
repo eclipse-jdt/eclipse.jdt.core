@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2005, 2021 IBM Corporation and others.
+ * Copyright (c) 2005, 2023 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -5538,7 +5538,7 @@ public void testBug553097_1() throws JavaModelException {
 		"}");
 
 	String str = this.workingCopies[0].getSource();
-	String token = "\"\"\"\nZZZZ";
+	String token = "ZZZZ";
 	int tokenStart = str.lastIndexOf(token);
 	int tokenEnd = tokenStart + token.length() - 1;
 	int cursorLocation = str.lastIndexOf("ZZZZ") + "ZZZZ".length();
@@ -5547,12 +5547,11 @@ public void testBug553097_1() throws JavaModelException {
 	assertResults(
 		"completion offset="+(cursorLocation)+"\n" +
 		"completion range=["+(tokenStart)+", "+(tokenEnd)+"]\n" +
-		"completion token=\"\"\"\n" +
-		"ZZZZ\"\n" +
-		"completion token kind=TOKEN_KIND_STRING_LITERAL\n" +
-		"expectedTypesSignatures={Ljava.lang.String;}\n" +
-		"expectedTypesKeys={Ljava/lang/String;}\n"+
-		"completion token location=UNKNOWN",
+		"completion token=\"ZZZZ\"\n" +
+		"completion token kind=TOKEN_KIND_NAME\n" +
+		"expectedTypesSignatures=null\n" +
+		"expectedTypesKeys=null\n"+
+		"completion token location={MEMBER_START}",
 		result.context);
 }
 }
