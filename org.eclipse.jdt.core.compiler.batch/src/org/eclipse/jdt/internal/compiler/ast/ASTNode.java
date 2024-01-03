@@ -63,6 +63,7 @@ import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18;
@@ -730,6 +731,16 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	 * @return either the original method or a problem method
 	 */
 	public static MethodBinding resolvePolyExpressionArguments(Invocation invocation, MethodBinding method, TypeBinding[] argumentTypes, BlockScope scope) {
+		ClassScope cScope = scope.enclosingClassScope();
+		boolean resolvingPolyExpressionArguments = cScope.resolvingPolyExpressionArguments;
+		try {
+			cScope.resolvingPolyExpressionArguments = true;
+			return resolvePolyExpressionArguments0(invocation, method, argumentTypes, scope);
+		} finally {
+			cScope.resolvingPolyExpressionArguments = resolvingPolyExpressionArguments;
+		}
+	}
+	private static MethodBinding resolvePolyExpressionArguments0(Invocation invocation, MethodBinding method, TypeBinding[] argumentTypes, BlockScope scope) {
 		MethodBinding candidateMethod = method.isValidBinding() ? method : method instanceof ProblemMethodBinding ? ((ProblemMethodBinding) method).closestMatch : null;
 		if (candidateMethod == null)
 			return method;

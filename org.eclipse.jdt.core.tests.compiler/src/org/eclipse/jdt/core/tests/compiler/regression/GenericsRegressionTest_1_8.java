@@ -10543,4 +10543,143 @@ public void testBug508834_comment0() {
 				"""
 			});
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1794
+	// Remove redundant type arguments in lambda expressions leads to type mismatch error
+	public void testGH1794() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);
+		runNegativeTest(
+			false /*skipJavac */,
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError,
+			new String[] {
+				"TypeArgumentsTest.java",
+				"""
+				import java.util.ArrayList;
+				import java.util.List;
+				import java.util.stream.Collectors;
+
+				public class TypeArgumentsTest {
+					public static void main(String[] args) {
+						List<String> strings = List.of("string1", "string2");
+						ArrayList<ArrayList<String>> collectedStrings = strings.stream()
+								.map(s -> new ArrayList<String>())
+								.collect(Collectors.toCollection(() -> new ArrayList<>(strings.size())));
+						System.out.println(collectedStrings);
+					}
+				}
+				"""
+			},
+			"",
+			null, true, customOptions);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=576002
+	// Mandatory Void Type gets eliminated
+	public void testBug576002() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);
+		runNegativeTest(
+			false /*skipJavac */,
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError,
+			new String[] {
+				"Test.java",
+				"""
+				import java.util.ArrayList;
+				import java.util.List;
+				import java.util.concurrent.FutureTask;
+				import java.util.stream.Collectors;
+
+				public class Test {
+					List<FutureTask<Void>> tasks = new ArrayList<>().stream().map(e -> new FutureTask<Void>(() -> {
+						return null;
+					})).collect(Collectors.toList());
+				}
+				"""
+			},
+			"",
+			null, true, customOptions);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=550864
+	// [1.8][inference] Removing "redundant" type argument results in compile error
+	public void testBug550864() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);
+		runNegativeTest(
+			false /*skipJavac */,
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError,
+			new String[] {
+				"TypeArgBug.java",
+				"""
+				import java.util.Comparator;
+				import java.util.List;
+
+				public class TypeArgBug {
+
+				  public static void main(String[] args) {
+
+				    // Allowed (with type specification in lambda)
+				    List<Order<Descriptor>> x = List.of(
+				      new Order<>(
+				        "best",
+				        Comparator.comparing((Item<Descriptor> item) -> ((Basket)item.getData()).getWeaveCount())
+				      )
+				    );
+
+				    // Allowed, but gives warning (redundant type argument for Order<Descriptor>)
+				    List<Order<Descriptor>> y = List.of(
+				      new Order<Descriptor>(
+				        "best",
+				        Comparator.comparing(item -> ((Basket)item.getData()).getWeaveCount())
+				      )
+				    );
+
+				    // Compiler error after removing redundant argument...
+				    List<Order<Descriptor>> z = List.of(
+				      new Order<>(
+				        "best",
+				        Comparator.comparing(item -> ((Basket)item.getData()).getWeaveCount())
+				      )
+				    );
+				  }
+
+				  public interface Descriptor {
+				  }
+
+				  public static class Order<T extends Descriptor> {
+				    public final String resourceKey;
+				    public final Comparator<Item<T>> comparator;
+
+				    public <G extends Comparable<G>> Order(String resourceKey, Comparator<Item<T>> comparator) {
+				      this.resourceKey = resourceKey;
+				      this.comparator = comparator;
+				    }
+				  }
+
+				  public static class Item<T extends Descriptor> {
+				    private final T data;
+
+				    public Item(T data) {
+				      this.data = data;
+				    }
+
+				    public T getData() {
+				      return data;
+				    }
+				  }
+
+				  public static class Basket implements Descriptor {
+				    public int getWeaveCount() {
+				      return 5;
+				    }
+				  }
+				}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in TypeArgBug.java (at line 18)\n" +
+			"	new Order<Descriptor>(\n" +
+			"	    ^^^^^\n" +
+			"Redundant specification of type arguments <TypeArgBug.Descriptor>\n" +
+			"----------\n",
+			null, true, customOptions);
+	}
 }

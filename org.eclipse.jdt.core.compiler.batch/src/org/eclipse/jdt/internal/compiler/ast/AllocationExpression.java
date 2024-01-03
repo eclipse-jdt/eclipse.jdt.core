@@ -662,6 +662,8 @@ public TypeBinding[] inferElidedTypes(ParameterizedTypeBinding parameterizedType
 }
 
 public void checkTypeArgumentRedundancy(ParameterizedTypeBinding allocationType, final BlockScope scope) {
+	if (scope.enclosingClassScope().resolvingPolyExpressionArguments) // express arguments may end up influencing the target type
+		return;                                                       // so, conservatively shut off diagnostic.
 	if ((scope.problemReporter().computeSeverity(IProblem.RedundantSpecificationOfTypeArguments) == ProblemSeverities.Ignore) || scope.compilerOptions().sourceLevel < ClassFileConstants.JDK1_7) return;
 	if (allocationType.arguments == null) return;  // raw binding
 	if (this.genericTypeArguments != null) return; // diamond can't occur with explicit type args for constructor
