@@ -3457,7 +3457,7 @@ public abstract class Scope {
 								if (memberType.problemId() == ProblemReasons.Ambiguous) {
 									if (foundType == null || foundType.problemId() == ProblemReasons.NotVisible)
 										// supercedes any potential InheritedNameHidesEnclosingName problem
-										return memberType;
+										return checkUsed(name, scope, memberType);
 									// make the user qualify the type, likely wants the first inherited type
 									return new ProblemReferenceBinding(new char[][]{name}, foundType, ProblemReasons.InheritedNameHidesEnclosingName);
 								}
@@ -3468,7 +3468,7 @@ public abstract class Scope {
 										// found a valid type in the 'immediate' scope (i.e. not inherited)
 										// OR in 1.4 mode (inherited visible shadows enclosing)
 										if (foundType == null || (inheritedHasPrecedence && foundType.problemId() == ProblemReasons.NotVisible))
-											return memberType;
+											return checkUsed(name, scope, memberType);
 										// if a valid type was found, complain when another is found in an 'immediate' enclosing type (i.e. not inherited)
 										if (foundType.isValidBinding() && TypeBinding.notEquals(foundType, memberType))
 											return new ProblemReferenceBinding(new char[][]{name}, foundType, ProblemReasons.InheritedNameHidesEnclosingName);
@@ -3654,6 +3654,26 @@ public abstract class Scope {
 				typeOrPackageCache.put(name, foundType);
 		}
 		return foundType;
+	}
+
+	private Binding checkUsed(char[] name, Scope scope, ReferenceBinding memberType) {
+		CompilationUnitScope unitScope = scope.compilationUnitScope();
+		ImportBinding[] imports = unitScope.imports;
+		HashtableOfObject typeOrPackageCache = unitScope.typeOrPackageCache;
+		if (imports != null && typeOrPackageCache == null) { // walk single type imports since faultInImports() has not run yet
+			for (int i = 0, length = imports.length; i < length; i++) {
+				ImportBinding importBinding = imports[i];
+				if (!importBinding.onDemand && CharOperation.equals(importBinding.getSimpleName(), name)) {
+					Binding resolvedImport = unitScope.resolveSingleImport(importBinding, Binding.TYPE);
+					if (resolvedImport instanceof TypeBinding) {
+						ImportReference importReference = importBinding.reference;
+						if (importReference != null && !isUnnecessarySamePackageImport(importBinding.resolvedImport, unitScope))
+							importReference.bits |= ASTNode.Used;
+					}
+				}
+			}
+		}
+		return memberType;
 	}
 
 	private boolean isUnnecessarySamePackageImport(Binding resolvedImport, Scope unitScope) {

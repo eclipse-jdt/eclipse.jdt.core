@@ -47,6 +47,7 @@ import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedAllocationExpression;
+import org.eclipse.jdt.internal.compiler.ast.QualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.RecordComponent;
 import org.eclipse.jdt.internal.compiler.ast.SingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
@@ -1701,6 +1702,28 @@ public class ClassScope extends Scope {
 			}
 			typeReference.bits |= ASTNode.IgnoreRawTypeCheck;
 			ReferenceBinding permittedType = (ReferenceBinding) typeReference.resolveType(this);
+			// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1808#issuecomment-1918455864
+			if ( !(typeReference instanceof QualifiedTypeReference) && permittedType != null && permittedType.isMemberType() && permittedType.enclosingType() != null && permittedType.enclosingType().isInterface()) {
+				String name = CharOperation.toString(permittedType.compoundName);
+				name = name.replace("$", "."); //$NON-NLS-1$ //$NON-NLS-2$
+				char[][] compoundName = CharOperation.splitOn('.', name.toCharArray());
+				ImportBinding[] imports = unitScope.imports;
+				boolean resolved = false;
+				for (ImportBinding importBinding: imports) {
+					if (CharOperation.equals(compoundName, importBinding.compoundName)) {
+						resolved = true;
+						break;
+					}
+				}
+				if (!resolved) {
+					MissingTypeBinding miss = new MissingTypeBinding(permittedType.fPackage, compoundName,
+							env);
+					typeReference.resolvedType = miss;
+					typeReference.resolveType(this);
+					problemReporter().invalidType(typeReference, miss);
+					return miss;
+				}
+			}
 			return permittedType;
 		} catch (AbortCompilation e) {
 			SourceTypeBinding sourceType = this.referenceContext.binding;

@@ -147,4 +147,46 @@ public class BatchCompilerTest_17 extends AbstractBatchCompilerTest {
 
 		return "StdErr: " + error + " StdOut: " + output;
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1808
+	public void testGH1808() {
+		this.runConformTest(
+				new String[] {
+					"p/X.java",
+					"""
+					package foo;
+					import foo.X.B;
+					public sealed interface X permits B {
+					    record B(int data) implements X {}
+					}
+					"""
+				},
+				"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java\""
+				+ " -17 -g -preserveAllLocals -proceedOnError -referenceInfo ",
+				"",
+				"",
+				true);
+	}
+	public void testGH1808a() {
+		this.runNegativeTest(
+				new String[] {
+					"p/X.java",
+					"""
+					package foo;
+					public sealed interface X permits B {
+					    record B(int data) {}
+					}
+					"""
+				},
+				"\"" + OUTPUT_DIR +  File.separator + "p" + File.separator + "X.java\""
+				+ " -17 -g -preserveAllLocals -proceedOnError -referenceInfo ",
+				"",
+				"----------\n"
+				+ "1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/p/X.java (at line 2)\n"
+				+ "	public sealed interface X permits B {\n"
+				+ "	                                  ^\n"
+				+ "B cannot be resolved to a type\n"
+				+ "----------\n"
+				+ "1 problem (1 error)\n",
+				true);
+	}
 }
