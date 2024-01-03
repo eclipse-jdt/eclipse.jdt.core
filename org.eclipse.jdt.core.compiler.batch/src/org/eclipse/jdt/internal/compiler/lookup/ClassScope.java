@@ -67,6 +67,7 @@ public class ClassScope extends Scope {
 	public TypeDeclaration referenceContext;
 	public TypeReference superTypeReference;
 	java.util.ArrayList<TypeReference> deferredBoundChecks;
+	public boolean resolvingPolyExpressionArguments = false;
 
 	public ClassScope(Scope parent, TypeDeclaration context) {
 		super(Scope.CLASS_SCOPE, parent);

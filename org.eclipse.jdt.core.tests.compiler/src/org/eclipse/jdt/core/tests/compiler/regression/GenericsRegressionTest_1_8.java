@@ -10543,4 +10543,59 @@ public void testBug508834_comment0() {
 				"""
 			});
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1794
+	// Remove redundant type arguments in lambda expressions leads to type mismatch error
+	public void testGH1794() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);
+		runNegativeTest(
+			false /*skipJavac */,
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError,
+			new String[] {
+				"TypeArgumentsTest.java",
+				"""
+				import java.util.ArrayList;
+				import java.util.List;
+				import java.util.stream.Collectors;
+
+				public class TypeArgumentsTest {
+					public static void main(String[] args) {
+						List<String> strings = List.of("string1", "string2");
+						ArrayList<ArrayList<String>> collectedStrings = strings.stream()
+								.map(s -> new ArrayList<String>())
+								.collect(Collectors.toCollection(() -> new ArrayList<>(strings.size())));
+						System.out.println(collectedStrings);
+					}
+				}
+				"""
+			},
+			"",
+			null, true, customOptions);
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=576002
+	// Mandatory Void Type gets eliminated
+	public void testBug576002() {
+		Map customOptions = getCompilerOptions();
+		customOptions.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);
+		runNegativeTest(
+			false /*skipJavac */,
+			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError,
+			new String[] {
+				"Test.java",
+				"""
+				import java.util.ArrayList;
+				import java.util.List;
+				import java.util.concurrent.FutureTask;
+				import java.util.stream.Collectors;
+
+				public class Test {
+					List<FutureTask<Void>> tasks = new ArrayList<>().stream().map(e -> new FutureTask<Void>(() -> {
+						return null;
+					})).collect(Collectors.toList());
+				}
+				"""
+			},
+			"",
+			null, true, customOptions);
+	}
 }
