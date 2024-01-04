@@ -126,6 +126,11 @@ public abstract class Pattern extends Expression {
 	protected abstract void generatePatternVariable(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel);
 	protected abstract void wrapupGeneration(CodeStream codeStream);
 
+	/**
+	 * Clean up all variables (actual and secret) used in this pattern and child patterns.
+	 */
+	protected abstract void fullWrapupGeneration(CodeStream codeStream);
+
 	public TypeReference getType() {
 		return null;
 	}

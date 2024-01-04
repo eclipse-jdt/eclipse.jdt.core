@@ -209,6 +209,10 @@ public class GuardedPattern extends Pattern {
 		this.primaryPattern.wrapupGeneration(codeStream);
 	}
 	@Override
+	public void fullWrapupGeneration(CodeStream codeStream) {
+		this.primaryPattern.fullWrapupGeneration(codeStream);
+	}
+	@Override
 	protected void generatePatternVariable(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel,
 			BranchLabel falseLabel) {
 		this.primaryPattern.generatePatternVariable(currentScope, codeStream, trueLabel, falseLabel);

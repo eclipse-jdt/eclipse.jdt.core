@@ -117,6 +117,13 @@ public class TypePattern extends Pattern {
 		codeStream.removeVariable(this.secretPatternVariable);
 	}
 	@Override
+	public void fullWrapupGeneration(CodeStream codeStream) {
+		this.wrapupGeneration(codeStream);
+		if (this.local != null) {
+			codeStream.removeVariable(this.local.binding);
+		}
+	}
+	@Override
 	public LocalDeclaration getPatternVariable() {
 		return this.local;
 	}

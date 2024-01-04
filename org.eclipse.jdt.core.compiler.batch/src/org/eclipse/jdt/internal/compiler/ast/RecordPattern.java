@@ -387,6 +387,13 @@ public class RecordPattern extends TypePattern {
 		super.wrapupGeneration(codeStream);
 	}
 	@Override
+	public void fullWrapupGeneration(CodeStream codeStream) {
+		for (Pattern p : this.patterns) {
+			p.fullWrapupGeneration(codeStream);
+		}
+		super.fullWrapupGeneration(codeStream);
+	}
+	@Override
 	public void suspendVariables(CodeStream codeStream, BlockScope scope) {
 		codeStream.removeNotDefinitelyAssignedVariables(scope, this.thenInitStateIndex1);
 	}

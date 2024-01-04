@@ -117,7 +117,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 
 	int pc = codeStream.position;
 
-	if (this.elementVariable != null) {
+	if (this.elementVariable != null || this.pattern != null) {
 		addAssignment(currentScope, codeStream, this.secretInstanceOfPatternExpressionValue);
 		codeStream.load(this.secretInstanceOfPatternExpressionValue);
 	} else {
@@ -125,7 +125,22 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	}
 
 	codeStream.instance_of(this.type, this.type.resolvedType);
-	if (this.elementVariable != null) {
+	if (this.pattern != null) {
+		BranchLabel trueLabel = new BranchLabel(codeStream);
+		BranchLabel falseLabel = new BranchLabel(codeStream);
+		BranchLabel continueLabel = new BranchLabel(codeStream);
+		codeStream.ifeq(falseLabel);
+		codeStream.load(this.secretInstanceOfPatternExpressionValue);
+		this.pattern.generateOptimizedBoolean(currentScope, codeStream, trueLabel, falseLabel);
+		this.pattern.fullWrapupGeneration(codeStream);
+		codeStream.removeVariable(this.secretInstanceOfPatternExpressionValue);
+		trueLabel.place();
+		codeStream.iconst_1();
+		codeStream.goto_(continueLabel);
+		falseLabel.place();
+		codeStream.iconst_0();
+		continueLabel.place();
+	} else if (this.elementVariable != null) {
 		BranchLabel actionLabel = new BranchLabel(codeStream);
 		codeStream.dup();
 		codeStream.ifeq(actionLabel);
