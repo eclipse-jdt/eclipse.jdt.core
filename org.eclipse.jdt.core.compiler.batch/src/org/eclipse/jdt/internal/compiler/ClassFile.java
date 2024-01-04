@@ -5179,7 +5179,10 @@ public class ClassFile implements TypeConstants, TypeIds {
 			for (int i = 0, max = targetParameters.length, argumentsLength = arguments != null ? arguments.length : 0; i < max; i++) {
 				if (argumentsLength > i && arguments[i] != null) {
 					Argument argument = arguments[i];
-					length = writeArgumentName(argument.name, argument.binding.modifiers, length);
+					int modifiers = argument.binding.modifiers;
+					if (binding.isCompactConstructor())
+						modifiers |= ClassFileConstants.AccMandated;
+					length = writeArgumentName(argument.name, modifiers, length);
 				} else {
 					length = writeArgumentName(null, ClassFileConstants.AccSynthetic, length);
 				}

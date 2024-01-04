@@ -2138,8 +2138,8 @@ public void testBug560569_001() throws Exception {
 			"        [pc: 0, pc: 15] local: model index: 1 type: java.lang.String\n" +
 			"        [pc: 0, pc: 15] local: year index: 2 type: int\n" +
 			"      Method Parameters:\n" +
-			"        model\n" +
-			"        year\n" +
+			"        mandated model\n" +
+			"        mandated year\n" +
 			"  \n";
 	RecordsRestrictedClassTest.verifyClassFile(expectedOutput, "Car.class", ClassFileBytesDisassembler.SYSTEM);
 }
@@ -9683,5 +9683,28 @@ public void testIssue1641_006() {
 		true,
 		options
 	);
+}
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1806
+// Parameters of compact canonical constructor are not marked as mandated
+public void testGH1806() {
+	runConformTest(
+			new String[] {
+					"MyRecord.java",
+					"""
+					public record MyRecord(int a) {
+
+						public static void main(String[] args) {
+							var ctor = MyRecord.class.getConstructors()[0];
+							System.out.println(ctor.getParameters()[0].isImplicit());
+						}
+
+						public MyRecord {
+
+						}
+
+					}
+					"""
+			},
+		"true");
 }
 }
