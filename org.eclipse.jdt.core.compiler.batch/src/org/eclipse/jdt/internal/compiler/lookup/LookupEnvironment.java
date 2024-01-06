@@ -128,6 +128,7 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	AnnotationBinding nullableAnnotation;
 
 	AnnotationBinding owningAnnotation;
+	AnnotationBinding notOwningAnnotation;
 
 	Map<String,Integer> allAnalysisAnnotations = null;
 
@@ -1579,14 +1580,28 @@ public char[][] getOwningAnnotationName() {
 	return this.globalOptions.owningAnnotationName;
 }
 
+public char[][] getNotOwningAnnotationName() {
+	return this.globalOptions.notOwningAnnotationName;
+}
+
 public AnnotationBinding getOwningAnnotation() {
 	if (this.owningAnnotation != null)
 		return this.owningAnnotation;
 	if (this.root != this) {
-		return this.owningAnnotation = this.root.getNonNullAnnotation();
+		return this.owningAnnotation = this.root.getOwningAnnotation();
 	}
 	ReferenceBinding owning = getResolvedType(this.globalOptions.owningAnnotationName, this.UnNamedModule, null, true);
 	return this.owningAnnotation = this.typeSystem.getAnnotationType(owning, true);
+}
+
+public AnnotationBinding getNotOwningAnnotation() {
+	if (this.notOwningAnnotation != null)
+		return this.notOwningAnnotation;
+	if (this.root != this) {
+		return this.notOwningAnnotation = this.root.getNotOwningAnnotation();
+	}
+	ReferenceBinding notOwning = getResolvedType(this.globalOptions.notOwningAnnotationName, this.UnNamedModule, null, true);
+	return this.notOwningAnnotation = this.typeSystem.getAnnotationType(notOwning, true);
 }
 
 int getAnalysisAnnotationBit(char[][] qualifiedTypeName) {
@@ -1596,6 +1611,7 @@ int getAnalysisAnnotationBit(char[][] qualifiedTypeName) {
 		this.allAnalysisAnnotations.put(CharOperation.toString(this.globalOptions.nullableAnnotationName), TypeIds.BitNullableAnnotation);
 		this.allAnalysisAnnotations.put(CharOperation.toString(this.globalOptions.nonNullByDefaultAnnotationName), TypeIds.BitNonNullByDefaultAnnotation);
 		this.allAnalysisAnnotations.put(CharOperation.toString(this.globalOptions.owningAnnotationName), TypeIds.BitOwningAnnotation);
+		this.allAnalysisAnnotations.put(CharOperation.toString(this.globalOptions.notOwningAnnotationName), TypeIds.BitNotOwningAnnotation);
 		for (String name : this.globalOptions.nullableAnnotationSecondaryNames)
 			this.allAnalysisAnnotations.put(name, TypeIds.BitNullableAnnotation);
 		for (String name : this.globalOptions.nonNullAnnotationSecondaryNames)
@@ -1664,17 +1680,17 @@ private void initializeUsesNullTypeAnnotation() {
 	this.globalOptions.useNullTypeAnnotations = Boolean.TRUE;
 }
 
-public boolean usesOwningAnnotation() {
+public boolean usesOwningAnnotations() {
 	if (!this.globalOptions.isAnnotationBasedResourceAnalysisEnabled) {
 		return false;
 	}
 	if(this.root != this) {
-		return this.root.usesOwningAnnotation();
+		return this.root.usesOwningAnnotations();
 	}
-	if (this.globalOptions.useOwningAnnotation != null)
-		return this.globalOptions.useOwningAnnotation;
+	if (this.globalOptions.useOwningAnnotations != null)
+		return this.globalOptions.useOwningAnnotations;
 
-	initializeUsesOwningAnnotation();
+	initializeUsesOwningAnnotations();
 	for (MethodBinding enumMethod : this.deferredEnumMethods) {
 		int purpose = 0;
 		if (CharOperation.equals(enumMethod.selector, TypeConstants.VALUEOF)) {
@@ -1686,25 +1702,31 @@ public boolean usesOwningAnnotation() {
 			SyntheticMethodBinding.markNonNull(enumMethod, purpose, this);
 	}
 	this.deferredEnumMethods.clear();
-	return this.globalOptions.useOwningAnnotation;
+	return this.globalOptions.useOwningAnnotations;
 }
 
-private void initializeUsesOwningAnnotation() {
-	this.globalOptions.useOwningAnnotation = Boolean.FALSE;
+private void initializeUsesOwningAnnotations() {
+	this.globalOptions.useOwningAnnotations = Boolean.FALSE;
 	if (!this.globalOptions.analyseResourceLeaks || this.globalOptions.originalSourceLevel < ClassFileConstants.JDK1_7)
 		return;
 	ReferenceBinding owning;
+	ReferenceBinding notOwning;
 	boolean origMayTolerateMissingType = this.mayTolerateMissingType;
 	this.mayTolerateMissingType = true;
 	try {
 		owning = this.owningAnnotation != null ? this.owningAnnotation.getAnnotationType()
-				: getType(this.getOwningAnnotationName(), this.UnNamedModule); // FIXME(SHMOD) module for null annotations??
+				: getType(this.getOwningAnnotationName(), this.UnNamedModule);
+		notOwning = this.notOwningAnnotation != null ? this.notOwningAnnotation.getAnnotationType()
+				: getType(this.getNotOwningAnnotationName(), this.UnNamedModule);
 	} finally {
 		this.mayTolerateMissingType = origMayTolerateMissingType;
 	}
-	if (owning == null)
+	if (owning == null && notOwning == null)
 		return;
-	this.globalOptions.useOwningAnnotation = Boolean.TRUE;
+	if (owning == null || notOwning == null)
+		return; // TODO should report an error about inconsistent setup
+
+	this.globalOptions.useOwningAnnotations = Boolean.TRUE;
 }
 
 /* Answer the top level package named name if it exists in the cache.

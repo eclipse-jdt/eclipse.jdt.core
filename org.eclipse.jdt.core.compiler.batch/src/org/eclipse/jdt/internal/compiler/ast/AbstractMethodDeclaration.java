@@ -36,6 +36,7 @@ import static org.eclipse.jdt.internal.compiler.lookup.MethodBinding.PARAM_NONNU
 import static org.eclipse.jdt.internal.compiler.lookup.MethodBinding.PARAM_NULLABLE;
 import static org.eclipse.jdt.internal.compiler.lookup.MethodBinding.PARAM_NULLITY;
 import static org.eclipse.jdt.internal.compiler.lookup.MethodBinding.PARAM_OWNING;
+import static org.eclipse.jdt.internal.compiler.lookup.MethodBinding.PARAM_NOTOWNING;
 
 import org.eclipse.jdt.core.compiler.*;
 import org.eclipse.jdt.internal.compiler.*;
@@ -119,16 +120,22 @@ public abstract class AbstractMethodDeclaration
 			for (int i = 0, length = arguments.length; i < length; i++) {
 				Argument argument = arguments[i];
 				binding.parameters[i] = argument.createBinding(scope, binding.parameters[i]);
-				if ((argument.binding.tagBits & TagBits.AnnotationOwning) != 0) {
+				long argumentTagBits = argument.binding.tagBits;
+				if ((argumentTagBits & TagBits.AnnotationOwning) != 0) {
 					if (binding.parameterFlowBits == null) {
 						binding.parameterFlowBits = new byte[arguments.length];
 					}
 					binding.parameterFlowBits[i] |= PARAM_OWNING;
+				} else if ((argumentTagBits & TagBits.AnnotationNotOwning) != 0) {
+					if (binding.parameterFlowBits == null) {
+						binding.parameterFlowBits = new byte[arguments.length];
+					}
+					binding.parameterFlowBits[i] |= PARAM_NOTOWNING;
 				}
 				if (useTypeAnnotations)
 					continue; // no business with SE7 null annotations in the 1.8 case.
 				// createBinding() has resolved annotations, now transfer nullness info from the argument to the method:
-				long argTypeTagBits = (argument.binding.tagBits & TagBits.AnnotationNullMASK);
+				long argTypeTagBits = (argumentTagBits & TagBits.AnnotationNullMASK);
 				if (argTypeTagBits != 0) {
 					if (binding.parameterFlowBits == null) {
 						binding.parameterFlowBits = new byte[arguments.length];
@@ -231,12 +238,13 @@ public abstract class AbstractMethodDeclaration
 	 * <li>NonNull - for null analysis
 	 * <li>Nullable - for null analysis
 	 * <li>Owning - for resource leak analysis
+	 * <li>NotOwning - for resource leak analysis
 	 * </ul>
 	 */
 	static void analyseArguments(LookupEnvironment environment, FlowInfo flowInfo, FlowContext flowContext, Argument[] methodArguments, MethodBinding methodBinding) {
 		if (methodArguments != null) {
 			boolean usesNullTypeAnnotations = environment.usesNullTypeAnnotations();
-			boolean usesOwningAnnotation = environment.usesOwningAnnotation();
+			boolean usesOwningAnnotations = environment.usesOwningAnnotations();
 
 			int length = Math.min(methodBinding.parameters.length, methodArguments.length);
 			for (int i = 0; i < length; i++) {
@@ -266,8 +274,9 @@ public abstract class AbstractMethodDeclaration
 				// tag parameters as being set:
 				flowInfo.markAsDefinitelyAssigned(local);
 
-				if (usesOwningAnnotation && (local.tagBits & TagBits.AnnotationOwning) !=0) {
-					local.closeTracker = new FakedTrackingVariable(local, methodArguments[i], flowInfo, flowContext, FlowInfo.NULL);
+				if (usesOwningAnnotations) {
+					int initialNullStatus = (local.tagBits & TagBits.AnnotationOwning) !=0 ? FlowInfo.NULL : FlowInfo.NON_NULL; // defaulting to not-owning
+					local.closeTracker = new FakedTrackingVariable(local, methodArguments[i], flowInfo, flowContext, initialNullStatus);
 				}
 			}
 		}

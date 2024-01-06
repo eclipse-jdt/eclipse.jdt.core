@@ -172,7 +172,9 @@ public class CompilerOptions {
 	public static final String OPTION_ReportExplicitlyClosedAutoCloseable = "org.eclipse.jdt.core.compiler.problem.explicitlyClosedAutoCloseable"; //$NON-NLS-1$
 	public static final String OPTION_AnnotationBasedResourceAnalysis = "org.eclipse.jdt.core.compiler.annotation.resourceanalysis"; //$NON-NLS-1$
 	public static final String OPTION_OwningAnnotationName = "org.eclipse.jdt.core.compiler.annotation.owning"; //$NON-NLS-1$
+	public static final String OPTION_NotOwningAnnotationName = "org.eclipse.jdt.core.compiler.annotation.notowning"; //$NON-NLS-1$
 	static final char[][] DEFAULT_OWNING_ANNOTATION_NAME = CharOperation.splitOn('.', "org.eclipse.jdt.annotation.Owning".toCharArray()); //$NON-NLS-1$
+	static final char[][] DEFAULT_NOTOWNING_ANNOTATION_NAME = CharOperation.splitOn('.', "org.eclipse.jdt.annotation.NotOwning".toCharArray()); //$NON-NLS-1$
 
 	public static final String OPTION_ReportNullSpecViolation = "org.eclipse.jdt.core.compiler.problem.nullSpecViolation";  //$NON-NLS-1$
 	public static final String OPTION_ReportNullAnnotationInferenceConflict = "org.eclipse.jdt.core.compiler.problem.nullAnnotationInferenceConflict";  //$NON-NLS-1$
@@ -523,6 +525,8 @@ public class CompilerOptions {
 	public boolean isAnnotationBasedResourceAnalysisEnabled;
 	/** Name of the annotation which the resource leak analysis will use as 'owning' */
 	public char[][] owningAnnotationName;
+	/** Name of the annotation which the resource leak analysis will use as 'not-owning' */
+	public char[][] notOwningAnnotationName;
 	/** Should missing enum cases be reported even if a default case exists in the same switch? */
 	public boolean reportMissingEnumCaseDespiteDefault;
 
@@ -551,7 +555,7 @@ public class CompilerOptions {
 	/** Not directly configurable, derived from other options by LookupEnvironment.usesNullTypeAnnotations() */
 	public Boolean useNullTypeAnnotations = null;
 	/** Not directly configurable, derived from other options by LookupEnvironment.usesOwningAnnotation() */
-	public Boolean useOwningAnnotation;
+	public Boolean useOwningAnnotations;
 
 	/** Master flag to enabled/disable all preview features */
 	public boolean enablePreviewFeatures;
@@ -1037,6 +1041,7 @@ public class CompilerOptions {
 			OPTION_ReportExplicitlyClosedAutoCloseable,
 			OPTION_AnnotationBasedResourceAnalysis,
 			OPTION_OwningAnnotationName,
+			OPTION_NotOwningAnnotationName,
 			OPTION_AnnotationBasedNullAnalysis,
 			OPTION_NonNullAnnotationName,
 			OPTION_NullableAnnotationName,
@@ -1387,6 +1392,7 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_ReportExplicitlyClosedAutoCloseable, getSeverityString(ExplicitlyClosedAutoCloseable));
 		optionsMap.put(OPTION_AnnotationBasedResourceAnalysis, this.isAnnotationBasedResourceAnalysisEnabled ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_OwningAnnotationName, String.valueOf(CharOperation.concatWith(this.owningAnnotationName, '.')));
+		optionsMap.put(OPTION_NotOwningAnnotationName, String.valueOf(CharOperation.concatWith(this.notOwningAnnotationName, '.')));
 		optionsMap.put(OPTION_AnnotationBasedNullAnalysis, this.isAnnotationBasedNullAnalysisEnabled ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_ReportNullSpecViolation, getSeverityString(NullSpecViolation));
 		optionsMap.put(OPTION_ReportNullAnnotationInferenceConflict, getSeverityString(NullAnnotationInferenceConflict));
@@ -1613,6 +1619,7 @@ public class CompilerOptions {
 		this.analyseResourceLeaks = true;
 		this.isAnnotationBasedResourceAnalysisEnabled = false;
 		this.owningAnnotationName = DEFAULT_OWNING_ANNOTATION_NAME;
+		this.notOwningAnnotationName = DEFAULT_NOTOWNING_ANNOTATION_NAME;
 
 		this.reportMissingEnumCaseDespiteDefault = false;
 
@@ -1949,6 +1956,9 @@ public class CompilerOptions {
 		}
 		if ((optionValue = optionsMap.get(OPTION_OwningAnnotationName)) != null) {
 			this.owningAnnotationName = CharOperation.splitAndTrimOn('.', optionValue.toCharArray());
+		}
+		if ((optionValue = optionsMap.get(OPTION_NotOwningAnnotationName)) != null) {
+			this.notOwningAnnotationName = CharOperation.splitAndTrimOn('.', optionValue.toCharArray());
 		}
 		if ((optionValue = optionsMap.get(OPTION_ReportAPILeak)) != null) updateSeverity(APILeak, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportUnstableAutoModuleName)) != null) updateSeverity(UnstableAutoModuleName, optionValue);

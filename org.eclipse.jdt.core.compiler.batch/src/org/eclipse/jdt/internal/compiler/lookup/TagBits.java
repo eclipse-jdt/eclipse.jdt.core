@@ -156,9 +156,10 @@ public interface TagBits {
 	long AnnotationNonNull = ASTNode.Bit57L;
 	/** @since 3.37 Owning annotation for resource leak analysis: */
 	long AnnotationOwning = ASTNode.Bit58L;
-	/** @since 3.8 canceling null-default annotation for PackageBinding or TypeBinding or MethodBinding: */
-	@Deprecated
-	long AnnotationNullUnspecifiedByDefault = ASTNode.Bit59L;
+	/** @since 3.37 NotOwning annotation for resource leak analysis */
+	long AnnotationNotOwning = ASTNode.Bit59L;
+	/** @since 3.37 Bit mask for owning  */
+	long AnnotationOwningMASK = AnnotationOwning | AnnotationNotOwning;
 	/** From Java 8 */
 	long AnnotationFunctionalInterface = ASTNode.Bit60L;
 	/** From Java 8 */
@@ -183,7 +184,7 @@ public interface TagBits {
 				| AnnotationNullable
 				| AnnotationNonNull
 				| AnnotationOwning
-				| AnnotationNullUnspecifiedByDefault
+				| AnnotationNotOwning
 				| AnnotationRepeatable;
 
 	long AnnotationNullMASK = AnnotationNullable | AnnotationNonNull;

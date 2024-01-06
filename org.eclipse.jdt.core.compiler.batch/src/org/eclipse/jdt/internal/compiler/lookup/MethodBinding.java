@@ -78,6 +78,7 @@ public class MethodBinding extends Binding {
 	public static byte PARAM_NULLABLE = 2;
 	public static byte PARAM_NULLITY = (byte) (PARAM_NONNULL | PARAM_NULLABLE);
 	public static byte PARAM_OWNING = 4;
+	public static byte PARAM_NOTOWNING = 8;
 
 	public static byte flowBitFromAnnotationTagBit(long tagBit) {
 		if (tagBit == TagBits.AnnotationNonNull)
@@ -86,6 +87,8 @@ public class MethodBinding extends Binding {
 			return PARAM_NULLABLE;
 		if (tagBit == TagBits.AnnotationOwning)
 			return PARAM_OWNING;
+		if (tagBit == TagBits.AnnotationNotOwning)
+			return PARAM_NOTOWNING;
 		return 0;
 	}
 
@@ -1475,6 +1478,11 @@ public boolean hasPolymorphicSignature(Scope scope) {
 public boolean ownsParameter(int i) {
 	if (this.parameterFlowBits != null)
 		return (this.parameterFlowBits[i] & PARAM_OWNING) != 0;
+	return false;
+}
+public boolean notownsParameter(int i) {
+	if (this.parameterFlowBits != null)
+		return (this.parameterFlowBits[i] & PARAM_NOTOWNING) != 0;
 	return false;
 }
 /** @return TRUE means @NonNull declared, FALSE means @Nullable declared, null means nothing declared */

@@ -441,6 +441,8 @@ public abstract class Annotation extends Expression {
 		if (compilerOptions.isAnnotationBasedResourceAnalysisEnabled) {
 			if (annotationType.hasTypeBit(TypeIds.BitOwningAnnotation)) {
 				tagBits |= TagBits.AnnotationOwning;
+			} else if (annotationType.hasTypeBit(TypeIds.BitNotOwningAnnotation)) {
+				tagBits |= TagBits.AnnotationNotOwning;
 			}
 		}
 		return tagBits;
