@@ -532,7 +532,8 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 				}
 			}
 		}
-		if (currentScope.compilerOptions().isAnyEnabled(IrritantSet.UNLIKELY_ARGUMENT_TYPE) && this.binding.isValidBinding()
+		CompilerOptions compilerOptions = currentScope.compilerOptions();
+		if (compilerOptions.isAnyEnabled(IrritantSet.UNLIKELY_ARGUMENT_TYPE) && this.binding.isValidBinding()
 				&& this.binding != null && this.binding.parameters != null) {
 			if (this.binding.parameters.length == 1
 					&& this.descriptor.parameters.length == (this.receiverPrecedesParameters ? 2 : 1)
@@ -559,9 +560,9 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 			}
 		}
 
-		if (currentScope.compilerOptions().analyseResourceLeaks) {
+		if (compilerOptions.analyseResourceLeaks) {
 			if (this.haveReceiver && CharOperation.equals(this.selector, TypeConstants.CLOSE)) {
-				FakedTrackingVariable trackingVariable = FakedTrackingVariable.getCloseTrackingVariable(this.lhs, flowInfo, flowContext);
+				FakedTrackingVariable trackingVariable = FakedTrackingVariable.getCloseTrackingVariable(this.lhs, flowInfo, flowContext, compilerOptions.isAnnotationBasedResourceAnalysisEnabled);
 				if (trackingVariable != null) { // null happens if target is not a local variable or not an AutoCloseable
 					trackingVariable.markClosedInNestedMethod(); // there is a close()-call, but we don't know if it will be invoked
 				}

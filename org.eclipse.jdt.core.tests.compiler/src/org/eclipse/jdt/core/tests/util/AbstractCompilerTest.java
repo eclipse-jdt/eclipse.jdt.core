@@ -193,10 +193,15 @@ public class AbstractCompilerTest extends TestCase {
 		// add tests
 		for (int i=0, m=testClasses.size(); i<m ; i++) {
 			Class testClass = (Class)testClasses.get(i);
-			TestSuite suite = new TestSuite(testClass.getName());
-			List tests = buildTestsList(testClass);
-			for (int index=0, size=tests.size(); index<size; index++) {
-				suite.addTest((Test)tests.get(index));
+			TestSuite suite;
+			try {
+				suite = (TestSuite) testClass.getMethod("suite").invoke(null);
+			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+				suite = new TestSuite(testClass.getName());
+				List tests = buildTestsList(testClass);
+				for (int index=0, size=tests.size(); index<size; index++) {
+					suite.addTest((Test)tests.get(index));
+				}
 			}
 			complianceSuite.addTest(suite);
 		}
@@ -224,7 +229,7 @@ public class AbstractCompilerTest extends TestCase {
 		}
 		return suite;
 	}
-	private static void checkCompliance(Class evaluationTestClass, int minimalCompliance, TestSuite suite,
+	protected static void checkCompliance(Class evaluationTestClass, int minimalCompliance, TestSuite suite,
 			int complianceLevels, int abstractCompilerTestCompliance, int classFileConstantsVersion, String release) {
 		int lev = complianceLevels & abstractCompilerTestCompliance;
 		if (lev != 0) {

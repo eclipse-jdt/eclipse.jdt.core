@@ -1081,7 +1081,8 @@ final public boolean isPotentiallyAssigned(LocalVariableBinding local) {
 // TODO (Ayush) Check why this method does not return true for protected non null (1111)
 @Override
 final public boolean isPotentiallyNonNull(LocalVariableBinding local) {
-	if ((this.tagBits & NULL_FLAG_MASK) == 0 ||
+	if ((this.tagBits & UNREACHABLE) != 0 ||
+			(this.tagBits & NULL_FLAG_MASK) == 0 ||
 			(local.type.tagBits & TagBits.IsBaseType) != 0) {
 		return false;
 	}
@@ -1108,7 +1109,8 @@ final public boolean isPotentiallyNonNull(LocalVariableBinding local) {
 // TODO (Ayush) Check why this method does not return true for protected null
 @Override
 final public boolean isPotentiallyNull(LocalVariableBinding local) {
-	if ((this.tagBits & NULL_FLAG_MASK) == 0 ||
+	if ((this.tagBits & UNREACHABLE) != 0 ||
+			(this.tagBits & NULL_FLAG_MASK) == 0 ||
 			(local.type.tagBits & TagBits.IsBaseType) != 0) {
 		return false;
 	}

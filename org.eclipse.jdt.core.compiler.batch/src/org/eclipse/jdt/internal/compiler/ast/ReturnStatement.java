@@ -92,21 +92,22 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		if (flowInfo.reachMode() == FlowInfo.REACHABLE && currentScope.compilerOptions().isAnnotationBasedNullAnalysisEnabled)
 			checkAgainstNullAnnotation(currentScope, flowContext, flowInfo, this.expression);
 		if (currentScope.compilerOptions().analyseResourceLeaks) {
-			Boolean returnOwning = null;
-			FakedTrackingVariable trackingVariable = FakedTrackingVariable.getCloseTrackingVariable(this.expression, flowInfo, flowContext);
+			boolean returnWithoutOwning = false;
+			boolean useOwningAnnotations = currentScope.compilerOptions().isAnnotationBasedResourceAnalysisEnabled;
+			FakedTrackingVariable trackingVariable = FakedTrackingVariable.getCloseTrackingVariable(this.expression, flowInfo, flowContext, useOwningAnnotations);
 			if (trackingVariable != null) {
 				if (methodScope != trackingVariable.methodScope)
 					trackingVariable.markClosedInNestedMethod();
-				if (currentScope.compilerOptions().isAnnotationBasedResourceAnalysisEnabled) {
+				if (useOwningAnnotations) {
 					flowInfo.markAsDefinitelyNonNull(trackingVariable.binding);
-					returnOwning = (methodScope.referenceMethodBinding().tagBits & TagBits.AnnotationOwning) != 0;
+					returnWithoutOwning = (methodScope.referenceMethodBinding().tagBits & TagBits.AnnotationOwning) == 0;
 				} else {
 					// by returning the method passes the responsibility to the caller:
 					flowInfo = FakedTrackingVariable.markPassedToOutside(currentScope, this.expression, flowInfo, flowContext, true);
 				}
 			}
 			// don't wait till after this statement, because then flowInfo would be DEAD_END & thus cannot serve nullStatus any more:
-			FakedTrackingVariable.cleanUpUnassigned(currentScope, this.expression, flowInfo, returnOwning);
+			FakedTrackingVariable.cleanUpUnassigned(currentScope, this.expression, flowInfo, returnWithoutOwning);
 		}
 	}
 	this.initStateIndex =

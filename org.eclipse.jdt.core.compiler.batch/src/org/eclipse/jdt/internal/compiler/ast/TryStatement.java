@@ -384,7 +384,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	}
 }
 private void recordCallingClose(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo, Expression closeTarget) {
-	FakedTrackingVariable trackingVariable = FakedTrackingVariable.getCloseTrackingVariable(closeTarget, flowInfo, flowContext);
+	FakedTrackingVariable trackingVariable = FakedTrackingVariable.getCloseTrackingVariable(closeTarget, flowInfo, flowContext,
+			currentScope.compilerOptions().isAnnotationBasedResourceAnalysisEnabled);
 	if (trackingVariable != null) { // null happens if target is not a local variable or not an AutoCloseable
 		if (trackingVariable.methodScope == currentScope.methodScope()) {
 			trackingVariable.markClose(flowInfo, flowContext);

@@ -97,8 +97,8 @@ public FlowInfo analyseCode(MethodScope initializationScope, FlowContext flowCon
 				.unconditionalInits();
 		flowInfo.markAsDefinitelyAssigned(this.binding);
 	}
+	CompilerOptions options = initializationScope.compilerOptions();
 	if (this.initialization != null && this.binding != null) {
-		CompilerOptions options = initializationScope.compilerOptions();
 		if (options.isAnnotationBasedNullAnalysisEnabled) {
 			if (this.binding.isNonNull() || options.sourceLevel >= ClassFileConstants.JDK1_8) {
 				int nullStatus = this.initialization.nullStatus(flowInfo, flowContext);
@@ -106,6 +106,16 @@ public FlowInfo analyseCode(MethodScope initializationScope, FlowContext flowCon
 			}
 		}
 		this.initialization.checkNPEbyUnboxing(initializationScope, flowContext, flowInfo);
+	}
+	if (options.isAnnotationBasedResourceAnalysisEnabled
+			&& this.binding != null
+			&& this.binding.type.hasTypeBit(TypeIds.BitAutoCloseable|TypeIds.BitCloseable))
+	{
+		if ((this.binding.tagBits & TagBits.AnnotationOwning) == 0) {
+			initializationScope.problemReporter().shouldMarkFieldAsOwning(this);
+		} else if (!this.binding.declaringClass.hasTypeBit(TypeIds.BitAutoCloseable|TypeIds.BitCloseable)) {
+			initializationScope.problemReporter().shouldImplementAutoCloseable(this);
+		}
 	}
 	return flowInfo;
 }

@@ -44,7 +44,6 @@ import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class BlockScope extends Scope {
 
 	// Local variable management
@@ -1113,7 +1112,7 @@ public String toString(int tab) {
 	return s;
 }
 
-private List trackingVariables; // can be null if no resources are tracked
+private List<FakedTrackingVariable> trackingVariables; // can be null if no resources are tracked
 /** Used only during analyseCode and only for checking if a resource was closed in a finallyBlock. */
 public FlowInfo finallyInfo;
 
@@ -1122,7 +1121,7 @@ public FlowInfo finallyInfo;
  */
 public int registerTrackingVariable(FakedTrackingVariable fakedTrackingVariable) {
 	if (this.trackingVariables == null)
-		this.trackingVariables = new ArrayList(3);
+		this.trackingVariables = new ArrayList<>(3);
 	this.trackingVariables.add(fakedTrackingVariable);
 	MethodScope outerMethodScope = outerMostMethodScope();
 	return outerMethodScope.analysisIndex++;
@@ -1154,7 +1153,9 @@ public boolean hasResourceTrackers() {
  */
 public void checkUnclosedCloseables(FlowInfo flowInfo, FlowContext flowContext, ASTNode location, BlockScope locationScope) {
 	if (!compilerOptions().analyseResourceLeaks) return;
-	if (this.trackingVariables == null) {
+	if (this.trackingVariables == null
+			|| (!(this instanceof MethodScope) && location != null && locationScope != null && locationScope.isLastInMethod(null, location)))
+	{
 		// at a method return we also consider enclosing scopes
 		if (location != null && this.parent instanceof BlockScope && !isLambdaScope())
 			((BlockScope) this.parent).checkUnclosedCloseables(flowInfo, flowContext, location, locationScope);
@@ -1162,30 +1163,35 @@ public void checkUnclosedCloseables(FlowInfo flowInfo, FlowContext flowContext, 
 	}
 	if (location != null && flowInfo.reachMode() != 0) return;
 
-	FakedTrackingVariable returnVar = (location instanceof ReturnStatement) ?
-			FakedTrackingVariable.getCloseTrackingVariable(((ReturnStatement)location).expression, flowInfo, flowContext) : null;
-
-	boolean useOwningAnnotation = this.compilerOptions().isAnnotationBasedResourceAnalysisEnabled;
+	boolean useOwningAnnotations = this.compilerOptions().isAnnotationBasedResourceAnalysisEnabled;
+	FakedTrackingVariable returnVar = (location instanceof ReturnStatement)
+			? FakedTrackingVariable.getCloseTrackingVariable(((ReturnStatement)location).expression, flowInfo, flowContext, useOwningAnnotations)
+			: null;
 
 	// iterate variables according to the priorities defined in FakedTrackingVariable.IteratorForReporting.Stage
 	Iterator<FakedTrackingVariable> iterator = new FakedTrackingVariable.IteratorForReporting(this.trackingVariables, this, location != null);
 	while (iterator.hasNext()) {
 		FakedTrackingVariable trackingVar = iterator.next();
 
-		if (returnVar != null && trackingVar.isResourceBeingReturned(returnVar, useOwningAnnotation)) {
-			if (useOwningAnnotation) {
-				if ((methodScope().referenceMethodBinding().tagBits & TagBits.AnnotationOwning) == 0) {
+		if (returnVar != null && trackingVar.isResourceBeingReturned(returnVar, useOwningAnnotations)) {
+			if (useOwningAnnotations) {
+				long methodTagBits = methodScope().referenceMethodBinding().tagBits;
+				if ((methodTagBits & TagBits.AnnotationOwning) == 0) {
 					// returning resource against unannotated return type
 					LocalVariableBinding original = trackingVar.originalBinding;
 					if (original != null && original.isParameter() && (original.tagBits & TagBits.AnnotationOwning) == 0) {
 						// unannotated pass-through resource, remain quiet
-					} else {
+						trackingVar.markAsShared();
+					} else if ((methodTagBits & TagBits.AnnotationNotOwning) == 0) {
 						// resource is "probably owned", should delegate to caller
 						problemReporter().shouldMarkMethodAsOwning(location);
 						trackingVar.withdraw();
 					}
 					continue;
-				} // else proceed to precise analysis vis-a-vis @Owning below
+				} else {
+					trackingVar.markAsShared();
+				}
+				// else proceed to precise analysis vis-a-vis @Owning below
 			} else {
 				continue; // silent assumption that caller will handle it
 			}
@@ -1195,31 +1201,43 @@ public void checkUnclosedCloseables(FlowInfo flowInfo, FlowContext flowContext, 
 			continue; // reporting against a specific location, there is no resource at this flow, don't complain
 		}
 
-		if (location != null && flowContext != null && flowContext.recordExitAgainstResource(this, flowInfo, trackingVar, location)) {
+		ASTNode locToBlame = location;
+		if (location instanceof ReturnStatement && !trackingVar.isShared() && !trackingVar.closeSeen() && locationScope.isLastInMethod(null, location)) {
+			locToBlame = null; // at end of method there's no point in specifically blaming the final return (unless other returns may have seen a close)
+		}
+
+		if (locToBlame != null && flowContext != null && flowContext.recordExitAgainstResource(this, flowInfo, trackingVar, location)) {
 			continue; // handled by the flow context
+		}
+
+		if (!trackingVar.hasRecordedLocations() && trackingVar.isClosedInFinally()) {
+			continue;
 		}
 
 		// compute the most specific null status for this resource,
 		int status = trackingVar.findMostSpecificStatus(flowInfo, this, locationScope);
 
 		if (status == FlowInfo.NULL) {
-			// definitely unclosed: highest priority
-			reportResourceLeak(trackingVar, location, status);
-			continue;
+			if (trackingVar.isClosedInNestedMethod()) {
+				status = FlowInfo.POTENTIALLY_NULL;
+			} else {
+				// definitely unclosed: highest priority
+				reportResourceLeak(trackingVar, locToBlame, status);
+				continue;
+			}
 		}
-		if (location == null) // at end of block and not definitely unclosed
-		{
+		if (locToBlame == null) { // at end of block and not definitely unclosed
 			// problems at specific locations: medium priority
 			if (trackingVar.reportRecordedErrors(this, status, flowInfo.reachMode() != FlowInfo.REACHABLE)) // ... report previously recorded errors
 				continue;
 		}
 		if (status == FlowInfo.POTENTIALLY_NULL) {
 			// potentially unclosed: lower priority
-			reportResourceLeak(trackingVar, location, status);
+			reportResourceLeak(trackingVar, locToBlame, status);
 		} else if (status == FlowInfo.NON_NULL) {
 			// properly closed but not managed by t-w-r: lowest priority
 			if (environment().globalOptions.complianceLevel >= ClassFileConstants.JDK1_7)
-				trackingVar.reportExplicitClosing(problemReporter());
+				trackingVar.reportExplicitClosing(problemReporter()); // fixme: only for actual close calls, not return in @Owning
 		}
 	}
 	if (location == null) {
@@ -1230,8 +1248,66 @@ public void checkUnclosedCloseables(FlowInfo flowInfo, FlowContext flowContext, 
 	}
 }
 
+private boolean isLastInMethod(Block block, ASTNode location) {
+	Statement[] blockStatements = null;
+	if (block != null) {
+		blockStatements = block.statements;
+	} else if (this.referenceContext() instanceof AbstractMethodDeclaration method) {
+		blockStatements = method.statements;
+	}
+	if (blockStatements != null) {
+		Statement lastStatement = blockStatements[blockStatements.length-1];
+		if (lastStatement == location) {
+			Scope current = this;
+			Scope currentParent;
+			// at each level in the parent chain:
+			while (!(current instanceof MethodScope) && (currentParent = current.parent) instanceof BlockScope) {
+				Scope lastSubScope = ((BlockScope) currentParent).findLastRelevantSubScope();
+				// are we within that arm of the last relevant subScope?
+				if (lastSubScope != null && lastSubScope != current) {
+					return false;
+				}
+				current = currentParent;
+			}
+			return true;
+		} else if (lastStatement instanceof Block aBlock) {
+			return block.scope.isLastInMethod(aBlock, location);
+		} else if (lastStatement instanceof TryStatement tryStatement) {
+			// which block is last (try or finally)?
+			if (tryStatement.finallyBlock == null || tryStatement.finallyBlock.statements == null) {
+				return tryStatement.tryBlock.scope.isLastInMethod(tryStatement.tryBlock, location);
+			} else {
+				return tryStatement.finallyBlock.scope.isLastInMethod(tryStatement.finallyBlock, location);
+			}
+		}
+		// loops are trickier: would need to inspect every potential exit.
+	}
+	return false;
+}
+
+protected Scope findLastRelevantSubScope() {
+	int lastIdx = this.subscopeCount-1;
+	Scope lastSubScope = null;
+	while (lastIdx >= 0) {
+		lastSubScope = this.subscopes[lastIdx];
+		if (lastSubScope instanceof BlockScope blockSub && !blockSub.isSecretScope())
+			break;
+		lastIdx--;
+	}
+	return lastSubScope;
+}
+
+private boolean isSecretScope() {
+	if (this.locals != null && this.locals.length > 0) {
+		LocalVariableBinding local = this.locals[0];
+		if (local != null && CharOperation.prefixEquals(RecordPattern.SECRET_RECORD_PATTERN_THROWABLE_VARIABLE_NAME.toCharArray(), local.name))
+			return true;
+	}
+	return false;
+}
+
 private void reportResourceLeak(FakedTrackingVariable trackingVar, ASTNode location, int nullStatus) {
-	if (location != null)
+	if (location != null && trackingVar.originalBinding != null)
 		trackingVar.recordErrorLocation(location, nullStatus);
 	else
 		trackingVar.reportError(problemReporter(), null, nullStatus);
@@ -1260,7 +1336,7 @@ public void correlateTrackingVarsIfElse(FlowInfo thenFlowInfo, FlowInfo elseFlow
 	if (this.trackingVariables != null) {
 		int trackVarCount = this.trackingVariables.size();
 		for (int i=0; i<trackVarCount; i++) {
-			FakedTrackingVariable trackingVar = (FakedTrackingVariable) this.trackingVariables.get(i);
+			FakedTrackingVariable trackingVar = this.trackingVariables.get(i);
 			if (trackingVar.originalBinding == null) {
 				// avoid problem weakened to 'potential' if unassigned resource exists only in one branch:
 				boolean hasNullInfoInThen = thenFlowInfo.hasNullInfoFor(trackingVar.binding);
@@ -1289,7 +1365,7 @@ public void correlateTrackingVarsIfElse(FlowInfo thenFlowInfo, FlowInfo elseFlow
 					continue; // short cut
 
 				for (int j=i+1; j<trackVarCount; j++) {
-					FakedTrackingVariable var2 = ((FakedTrackingVariable) this.trackingVariables.get(j));
+					FakedTrackingVariable var2 = this.trackingVariables.get(j);
 					if (trackingVar.originalBinding == var2.originalBinding) {
 						// two tracking variables for the same original, merge info from both branches now:
 						boolean var1SeenInThen = thenFlowInfo.hasNullInfoFor(trackingVar.binding);
@@ -1316,6 +1392,20 @@ public void correlateTrackingVarsIfElse(FlowInfo thenFlowInfo, FlowInfo elseFlow
 	}
 	if (this.parent instanceof BlockScope)
 		((BlockScope) this.parent).correlateTrackingVarsIfElse(thenFlowInfo, elseFlowInfo);
+}
+
+/** Retrieve the nearest tracking variable for the given original binding. */
+public FakedTrackingVariable getCloseTrackerFor(LocalVariableBinding localVariable) {
+	if (this.trackingVariables != null) {
+		for (FakedTrackingVariable tracker : this.trackingVariables) {
+			if (tracker.originalBinding == localVariable)
+				return tracker;
+		}
+	}
+	if (this.parent instanceof BlockScope) {
+		return ((BlockScope) this.parent).getCloseTrackerFor(localVariable);
+	}
+	return null;
 }
 
 /** 15.12.3 (Java 8) "Compile-Time Step 3: Is the Chosen Method Appropriate?" */

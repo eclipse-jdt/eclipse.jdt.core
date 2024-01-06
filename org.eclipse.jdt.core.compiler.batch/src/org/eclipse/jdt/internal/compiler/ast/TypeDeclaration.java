@@ -859,6 +859,10 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 		}
 	}
 
+	boolean useOwningAnnotations = this.scope.compilerOptions().isAnnotationBasedResourceAnalysisEnabled;
+	boolean isCloseable = this.binding.hasTypeBit(TypeIds.BitAutoCloseable|TypeIds.BitCloseable);
+	FieldDeclaration fieldNeedingClose = null;
+
 	// for local classes we use the flowContext as our parent, but never use an initialization context for this purpose
 	// see Bug 360328 - [compiler][null] detect null problems in nested code (local class inside a loop)
 	FlowContext parentContext = (flowContext instanceof InitializationFlowContext) ? null : flowContext;
@@ -901,6 +905,9 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 				if (nonStaticFieldInfo == FlowInfo.DEAD_END) {
 					this.initializerScope.problemReporter().initializerMustCompleteNormally(field);
 					nonStaticFieldInfo = FlowInfo.initial(this.maxFieldCount).setReachMode(FlowInfo.UNREACHABLE_OR_DEAD);
+				}
+				if (fieldNeedingClose == null && useOwningAnnotations && isCloseable && (field.binding.tagBits & TagBits.AnnotationOwning) != 0) {
+					fieldNeedingClose = field;
 				}
 			}
 		}
@@ -955,8 +962,14 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 				}
 				// pass down the parentContext (NOT an initializer context, see above):
 				((MethodDeclaration)method).analyseCode(this.scope, parentContext, flowInfo.copy());
+				if (fieldNeedingClose != null && CharOperation.equals(TypeConstants.CLOSE, method.selector) && method.arguments == null) {
+					fieldNeedingClose = null;
+				}
 			}
 		}
+	}
+	if (fieldNeedingClose != null) {
+		this.scope.problemReporter().missingImplementationOfClose(fieldNeedingClose);
 	}
 	// enable enum support ?
 	if (this.binding.isEnum() && !this.binding.isAnonymousType()) {

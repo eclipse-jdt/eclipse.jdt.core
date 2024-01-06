@@ -55,7 +55,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			flowContext.expireNullCheckedFieldInfo();
 		}
 		if (compilerOptions.analyseResourceLeaks) {
-			FakedTrackingVariable.cleanUpUnassigned(this.scope, stat, flowInfo, null);
+			FakedTrackingVariable.cleanUpUnassigned(this.scope, stat, flowInfo, false);
 		}
 	}
 	if (this.scope != currentScope) {

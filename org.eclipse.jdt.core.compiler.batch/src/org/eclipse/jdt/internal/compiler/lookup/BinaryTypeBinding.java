@@ -657,6 +657,9 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 				}
 			}
 			if (this.environment.globalOptions.isAnnotationBasedResourceAnalysisEnabled) {
+				if (iFields != null)
+					for (int i = 0; i < iFields.length; i++)
+						scanFieldForOwningAnnotations(iFields[i], this.fields[i]);
 				if (iMethods != null)
 					for (int i = 0; i < iMethods.length; i++)
 						scanMethodForOwningAnnotations(iMethods[i], this.methods[i]);
@@ -2301,12 +2304,7 @@ static int getNonNullByDefaultValue(IBinaryAnnotation annotation, LookupEnvironm
 	}
 }
 
-private void scanMethodForOwningAnnotations(IBinaryMethod method, MethodBinding methodBinding) {
-	// minimally modelled after scanMethodForNullAnnotation, currently without .eea support
-	if (!isPrototype()) throw new IllegalStateException();
-
-	// return:
-	IBinaryAnnotation[] annotations =  method.getAnnotations();
+protected long scanForOwningAnnotation(IBinaryAnnotation[] annotations) {
 	if (annotations != null) {
 		for (int i = 0; i < annotations.length; i++) {
 			char[] annotationTypeName = annotations[i].getTypeName();
@@ -2314,13 +2312,28 @@ private void scanMethodForOwningAnnotations(IBinaryMethod method, MethodBinding 
 				continue;
 			int typeBit = this.environment.getAnalysisAnnotationBit(signature2qualifiedTypeName(annotationTypeName));
 			switch (typeBit) {
-				case TypeIds.BitOwningAnnotation ->
-					methodBinding.tagBits |= TagBits.AnnotationOwning;
-				case TypeIds.BitNotOwningAnnotation ->
-					methodBinding.tagBits |= TagBits.AnnotationNotOwning;
+				case TypeIds.BitOwningAnnotation:
+					return TagBits.AnnotationOwning;
+				case TypeIds.BitNotOwningAnnotation:
+					return TagBits.AnnotationNotOwning;
 			}
 		}
 	}
+	return 0;
+}
+private void scanFieldForOwningAnnotations(IBinaryField field, FieldBinding fieldBinding) {
+	// currently without .eea support
+	if (!isPrototype()) throw new IllegalStateException();
+
+	fieldBinding.tagBits |= scanForOwningAnnotation(field.getAnnotations());
+}
+
+private void scanMethodForOwningAnnotations(IBinaryMethod method, MethodBinding methodBinding) {
+	// minimally modelled after scanMethodForNullAnnotation, currently without .eea support
+	if (!isPrototype()) throw new IllegalStateException();
+
+	// return:
+	methodBinding.tagBits |= scanForOwningAnnotation(method.getAnnotations());
 
 	// parameters:
 	TypeBinding[] parameters = methodBinding.parameters;

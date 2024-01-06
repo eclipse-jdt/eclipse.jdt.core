@@ -274,9 +274,11 @@ public abstract class AbstractMethodDeclaration
 				// tag parameters as being set:
 				flowInfo.markAsDefinitelyAssigned(local);
 
-				if (usesOwningAnnotations) {
+				if (usesOwningAnnotations && local.type.hasTypeBit(TypeIds.BitAutoCloseable|TypeIds.BitCloseable)) {
+					long owningTagBits = local.tagBits & TagBits.AnnotationOwningMASK;
 					int initialNullStatus = (local.tagBits & TagBits.AnnotationOwning) !=0 ? FlowInfo.NULL : FlowInfo.NON_NULL; // defaulting to not-owning
-					local.closeTracker = new FakedTrackingVariable(local, methodArguments[i], flowInfo, flowContext, initialNullStatus);
+					local.closeTracker = new FakedTrackingVariable(local, methodArguments[i], flowInfo, flowContext, initialNullStatus, usesOwningAnnotations);
+					local.closeTracker.owningState = FakedTrackingVariable.owningStateFromTagBits(owningTagBits, FakedTrackingVariable.NOT_OWNED_PER_DEFAULT);
 				}
 			}
 		}

@@ -45,12 +45,14 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
+import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MemberTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
+import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
@@ -144,9 +146,28 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 				// method of a non-static member type can't be static.
 				this.bits &= ~ASTNode.CanBeStatic;
 			}
+			CompilerOptions compilerOptions = this.scope.compilerOptions();
+			if (compilerOptions.isAnnotationBasedResourceAnalysisEnabled
+					&& this.binding.declaringClass.hasTypeBit(TypeIds.BitAutoCloseable|TypeIds.BitCloseable)
+					&& CharOperation.equals(this.selector, TypeConstants.CLOSE)
+					&& this.arguments == null)
+			{
+				// implementation of AutoCloseable.close() should close all @Owning fields, create the obligation now:
+				ReferenceBinding currentClass = this.binding.declaringClass;
+				while (currentClass != null) {
+					for (FieldBinding fieldBinding : currentClass.fields()) {
+						if (!fieldBinding.isStatic()
+								&& fieldBinding.type.hasTypeBit(TypeIds.BitAutoCloseable|TypeIds.BitCloseable)
+								&& (fieldBinding.tagBits & TagBits.AnnotationOwning) != 0) {
+							fieldBinding.closeTracker = new FakedTrackingVariable(fieldBinding, this.scope, this,
+									flowInfo, flowContext, FlowInfo.NULL, true);
+						}
+					}
+					currentClass = currentClass.superclass();
+				}
+			}
 			// propagate to statements
 			if (this.statements != null) {
-				CompilerOptions compilerOptions = this.scope.compilerOptions();
 				boolean enableSyntacticNullAnalysisForFields = compilerOptions.enableSyntacticNullAnalysisForFields;
 				int complaintLevel = (flowInfo.reachMode() & FlowInfo.UNREACHABLE) == 0 ? Statement.NOT_COMPLAINED : Statement.COMPLAINED_FAKE_REACHABLE;
 				for (int i = 0, count = this.statements.length; i < count; i++) {
@@ -158,7 +179,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 						methodContext.expireNullCheckedFieldInfo();
 					}
 					if (compilerOptions.analyseResourceLeaks) {
-						FakedTrackingVariable.cleanUpUnassigned(this.scope, stat, flowInfo, null);
+						FakedTrackingVariable.cleanUpUnassigned(this.scope, stat, flowInfo, false);
 					}
 				}
 			} else {

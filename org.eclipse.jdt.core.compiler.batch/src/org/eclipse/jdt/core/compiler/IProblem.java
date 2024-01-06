@@ -2050,6 +2050,16 @@ void setSourceStart(int sourceStart);
 
 	/** @since 3.37 */
 	int ShouldMarkMethodAsOwning = Internal + 1260;
+	/** @since 3.37 */
+	int MandatoryCloseNotShown = Internal + 1261;
+	/** @since 3.37 */
+	int MandatoryCloseNotShownAtExit = Internal + 1262;
+	/** @since 3.37 */
+	int NotOwningResourceField = Internal + 1263;
+	/** @since 3.37 */
+	int OwningFieldInNonResourceClass = Internal + 1264;
+	/** @since 3.37 */
+	int OwningFieldShouldImplementClose = Internal + 1265;
 
 	// terminally
 	/** @since 3.14 */

@@ -185,7 +185,7 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 					constructorContext.expireNullCheckedFieldInfo();
 				}
 				if (compilerOptions.analyseResourceLeaks) {
-					FakedTrackingVariable.cleanUpUnassigned(this.scope, stat, flowInfo, null);
+					FakedTrackingVariable.cleanUpUnassigned(this.scope, stat, flowInfo, false);
 				}
 			}
 		}

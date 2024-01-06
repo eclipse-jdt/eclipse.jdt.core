@@ -245,15 +245,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 					flowInfo = argument.analyseCode(currentScope, flowContext, flowInfo).unconditionalInits();
 			}
 			if (analyseResources) {
-				// if argument is an AutoCloseable insert info that it *may* be closed (by the target method, i.e.)
-				if (this.binding.ownsParameter(i)) {
-					FakedTrackingVariable trackVar = FakedTrackingVariable.getCloseTrackingVariable(argument, flowInfo, flowContext);
-					if (trackVar != null) {
-						flowInfo.markAsDefinitelyNonNull(trackVar.binding);
-					}
-				} else {
-					flowInfo = FakedTrackingVariable.markPassedToOutside(currentScope, argument, flowInfo, flowContext, false);
-				}
+				flowInfo = handleResourcePassedToInvocation(currentScope, this.binding, argument, i, flowContext, flowInfo, false);
 			}
 		}
 		analyseArguments(currentScope, flowContext, flowInfo, this.binding, this.arguments);
@@ -348,12 +340,28 @@ private void yieldQualifiedCheck(BlockScope currentScope) {
 	currentScope.problemReporter().switchExpressionsYieldUnqualifiedMethodError(this);
 }
 private void recordCallingClose(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo, Expression closeTarget) {
-	FakedTrackingVariable trackingVariable = FakedTrackingVariable.getCloseTrackingVariable(closeTarget, flowInfo, flowContext);
-	if (trackingVariable != null) { // null happens if target is not a local variable or not an AutoCloseable
-		if (trackingVariable.methodScope == currentScope.methodScope()) {
+	FakedTrackingVariable trackingVariable = FakedTrackingVariable.getCloseTrackingVariable(closeTarget, flowInfo, flowContext,
+			currentScope.compilerOptions().isAnnotationBasedResourceAnalysisEnabled);
+	if (trackingVariable != null) { // null happens if target is not a variable or not an AutoCloseable
+		if (trackingVariable.methodScope == null || trackingVariable.methodScope == currentScope.methodScope()) {
 			trackingVariable.markClose(flowInfo, flowContext);
 		} else {
 			trackingVariable.markClosedInNestedMethod();
+		}
+	} else if (closeTarget instanceof SuperReference) {
+		ReferenceBinding currentClass = this.binding.declaringClass;
+		while (currentClass != null) {
+			for (FieldBinding fieldBinding : currentClass.fields()) {
+				if (fieldBinding.closeTracker != null) {
+					trackingVariable = fieldBinding.closeTracker;
+					if (trackingVariable.methodScope == null || trackingVariable.methodScope == currentScope.methodScope()) {
+						trackingVariable.markClose(flowInfo, flowContext);
+					} else {
+						trackingVariable.markClosedInNestedMethod();
+					}
+				}
+			}
+			currentClass = currentClass.superclass();
 		}
 	}
 }

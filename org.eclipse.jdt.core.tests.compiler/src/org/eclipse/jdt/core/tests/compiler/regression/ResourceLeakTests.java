@@ -60,15 +60,6 @@ private static final String STREAMEX_CONTENT = "package one.util.streamex;\n" +
 	"    public static <T> StreamEx<T> create() { return null; }\n" +
 	"}\n";
 
-private static final String OWNING_JAVA = "org/eclipse/jdt/annotation/Owning.java";
-private static final String OWNING_CONTENT =
-	"""
-	package org.eclipse.jdt.annotation;
-	import java.lang.annotation.*;
-	@Target({ElementType.PARAMETER, ElementType.METHOD})
-	public @interface Owning {}
-	""";
-
 static {
 //	TESTS_NAMES = new String[] { "testBug463320" };
 //	TESTS_NUMBERS = new int[] { 50 };
@@ -98,6 +89,18 @@ protected void runLeakTest(String[] testFiles, String expectedCompileError, Map 
 
 protected void runLeakWarningTest(String[] testFiles, String expectedCompileError, Map options) {
 	runNegativeTest(testFiles, expectedCompileError, null, true, options, null, JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
+}
+
+// === hooks for ResourceLeaksAnnotatedTests: ===
+/** Problem message originally complaining about a potential leak. */
+protected String potentialLeakOrCloseNotShown(String resourceName) {
+	return "Potential resource leak: '"+resourceName+"' may not be closed\n";
+}
+protected String potentialLeakOrCloseNotShownAtExit(String resourceName) {
+	return "Potential resource leak: '"+resourceName+"' may not be closed at this location\n";
+}
+protected String potentialOrDefiniteLeak(String string) {
+	return "Potential resource leak: '"+string+"' may not be closed\n";
 }
 
 // Bug 349326 - [1.7] new warning for missing try-with-resources
@@ -375,13 +378,16 @@ public void test056e() {
 			"    }\n" +
 			"}\n"
 		},
-		"----------\n" +
-		"1. ERROR in X.java (at line 11)\n" +
-		"	FileReader reader = getReader(\"somefile\");\n" +
-		"	           ^^^^^^\n" +
-		"Potential resource leak: \'reader\' may not be closed\n" +
-		"----------\n",
+		getTest056e_log(),
 		options);
+}
+protected String getTest056e_log() {
+	return "----------\n" +
+	"1. ERROR in X.java (at line 11)\n" +
+	"	FileReader reader = getReader(\"somefile\");\n" +
+	"	           ^^^^^^\n" +
+	"Potential resource leak: \'reader\' may not be closed\n" +
+	"----------\n";
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
 // a method explicitly closes its AutoCloseable rather than using t-w-r
@@ -517,7 +523,7 @@ public void test056h() {
 			"                fileReader.close();\n" +
 			"                FileReader localReader = new FileReader(file);\n" +
 			"            } catch (IOException ex) { /* nop */ }\n" +
-			"          }}.run();\n" +
+			"        }}.run();\n" +
 			"    }\n" +
 			"    public static void main(String[] args) throws IOException {\n" +
 			"        new X().foo();\n" +
@@ -699,7 +705,7 @@ public void test056j() {
 		"1. ERROR in X.java (at line 7)\n" +
 		"	FileReader fileReader = new FileReader(file);\n" +
 		"	           ^^^^^^^^^^\n" +
-		"Potential resource leak: 'fileReader' may not be closed\n" +
+		potentialLeakOrCloseNotShown("fileReader") +
 		"----------\n",
 		options);
 }
@@ -733,7 +739,7 @@ public void test056jconditional() {
 		"1. ERROR in X.java (at line 7)\n" +
 		"	FileReader fileReader = new FileReader(file);\n" +
 		"	           ^^^^^^^^^^\n" +
-		"Potential resource leak: 'fileReader' may not be closed\n" +
+		potentialLeakOrCloseNotShown("fileReader") +
 		"----------\n",
 		options);
 }
@@ -860,12 +866,12 @@ public void test056l() {
 				"3. ERROR in X.java (at line 24)\n" +
 				"	FileReader r2 = new FileReader(new File(\"inexist\")); // only potential problem: ctor X below might close r2\n" +
 				"	           ^^\n" +
-				"Potential resource leak: 'r2' may not be closed\n" +
+				potentialLeakOrCloseNotShown("r2") +
 				"----------\n" +
 				"4. ERROR in X.java (at line 25)\n" +
 				"	new X(r2).foo(new FileReader(new File(\"notthere\"))); // potential problem: foo may/may not close the new FileReader\n" +
 				"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Potential resource leak: \'<unassigned Closeable value>\' may not be closed\n" +
+				potentialLeakOrCloseNotShown("<unassigned Closeable value>") +
 				"----------\n"
 			:
 				"----------\n" +
@@ -1075,7 +1081,7 @@ public void test056p() {
 		"1. ERROR in X.java (at line 8)\n" +
 		"	T fileReader = newReader(file);\n" +
 		"	  ^^^^^^^^^^\n" +
-		"Potential resource leak: \'fileReader\' may not be closed\n" +
+		potentialOrDefiniteLeak("fileReader") +
 		"----------\n",
 		options);
 }
@@ -1511,13 +1517,18 @@ public void test056y() {
 			"    }\n" +
 			"}\n"
 		},
-		"----------\n" +
-		"1. WARNING in X.java (at line 4)\n" +
-		"	final FileReader reader31 = new FileReader(\"file\");\n" +
-		"	                 ^^^^^^^^\n" +
-		"Potential resource leak: 'reader31' may not be closed\n" +
-		"----------\n",
+		getTest056y_log(),
 		options);
+}
+protected String getTest056y_log() {
+	return """
+		----------
+		1. WARNING in X.java (at line 4)
+			final FileReader reader31 = new FileReader("file");
+			                 ^^^^^^^^
+		Potential resource leak: 'reader31' may not be closed
+		----------
+		""";
 }
 // Bug 349326 - [1.7] new warning for missing try-with-resources
 // resource assigned to second local and is (potentially) closed on the latter
@@ -1549,7 +1560,7 @@ public void test056z() {
 		"1. ERROR in X.java (at line 9)\n" +
 		"	FileReader reader17a = new FileReader(\"file\");\n" +
 		"	           ^^^^^^^^^\n" +
-		"Potential resource leak: 'reader17a' may not be closed\n" +
+		potentialLeakOrCloseNotShown("reader17a") +
 		"----------\n",
 		options);
 }
@@ -1838,12 +1849,12 @@ public void test056throw5() {
 		"1. ERROR in X.java (at line 7)\n" +
 		"	throw new Exception(); // should warn \'may not\' here\n" +
 		"	^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Potential resource leak: 'reader' may not be closed at this location\n" +
+		potentialLeakOrCloseNotShownAtExit("reader") +
 		"----------\n" +
 		"2. ERROR in X.java (at line 9)\n" +
 		"	throw new Exception(); // should warn \'may not\' here\n" +
 		"	^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Potential resource leak: 'reader' may not be closed at this location\n" +
+		potentialLeakOrCloseNotShownAtExit("reader") +
 		"----------\n",
 		options);
 }
@@ -2175,7 +2186,7 @@ public void test061f3() throws IOException {
 		"1. ERROR in X.java (at line 10)\n" +
 		"	return loadProfile(stream);\n" +
 		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Potential resource leak: \'stream\' may not be closed at this location\n" +
+		potentialLeakOrCloseNotShownAtExit("stream") +
 		"----------\n",
 		options);
 }
@@ -2466,14 +2477,18 @@ public void test061l2() throws IOException {
 			"    static int hashCode(Object o) { return 13; }\n" +
 			"}\n"
 		},
-		"----------\n" +
-		"1. ERROR in xy\\Leaks.java (at line 18)\n" +
-		"	this(new FileInputStream(\"default\")); // potential problem\n" +
-		"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Potential resource leak: \'<unassigned Closeable value>\' may not be closed\n" +
-		"----------\n",
+		getTest061l2_log(),
 		options);
 }
+protected String getTest061l2_log() {
+	return "----------\n" +
+	"1. ERROR in xy\\Leaks.java (at line 18)\n" +
+	"	this(new FileInputStream(\"default\")); // potential problem\n" +
+	"	     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+	"Potential resource leak: '<unassigned Closeable value>' may not be closed\n" +
+	"----------\n";
+}
+
 // Bug 361407 - Resource leak warning when resource is assigned to a field outside of constructor
 // a closeable is not assigned to a field - constructor vs. method
 public void test061l3() throws IOException {
@@ -2509,12 +2524,12 @@ public void test061l3() throws IOException {
 		"1. ERROR in xy\\Leaks.java (at line 9)\n" +
 		"	FileInputStream fileInputStream= new FileInputStream(name);\n" +
 		"	                ^^^^^^^^^^^^^^^\n" +
-		"Potential resource leak: \'fileInputStream\' may not be closed\n" +
+		potentialLeakOrCloseNotShown("fileInputStream") +
 		"----------\n" +
 		"2. ERROR in xy\\Leaks.java (at line 15)\n" +
 		"	FileInputStream fileInputStream= new FileInputStream(name);\n" +
 		"	                ^^^^^^^^^^^^^^^\n" +
-		"Potential resource leak: \'fileInputStream\' may not be closed\n" +
+		potentialLeakOrCloseNotShown("fileInputStream") +
 		"----------\n",
 		options);
 }
@@ -2554,18 +2569,18 @@ public void test061m() throws IOException {
 		"----------\n" +
 		"1. ERROR in X.java (at line 10)\n" +
 		"	return check(new BufferedInputStream(s));\n" +
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Potential resource leak: \'<unassigned Closeable value>\' may not be closed at this location\n" +
+		"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		potentialLeakOrCloseNotShown("<unassigned Closeable value>") +
 		"----------\n" +
 		"2. ERROR in X.java (at line 14)\n" +
 		"	return check(s);\n" +
 		"	^^^^^^^^^^^^^^^^\n" +
-		"Potential resource leak: \'s\' may not be closed at this location\n" +
+		potentialLeakOrCloseNotShownAtExit("s") +
 		"----------\n" +
 		"3. ERROR in X.java (at line 18)\n" +
 		"	return check(s);\n" +
 		"	^^^^^^^^^^^^^^^^\n" +
-		"Potential resource leak: \'s\' may not be closed at this location\n" +
+		potentialLeakOrCloseNotShownAtExit("s") +
 		"----------\n",
 		options);
 }
@@ -2857,7 +2872,7 @@ public void test062c() throws IOException {
 		"1. ERROR in X.java (at line 6)\n" +
 		"	writeIt(new FileOutputStream(new File(\"C:\\temp\\foo.txt\")));\n" +
 		"	        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Potential resource leak: \'<unassigned Closeable value>\' may not be closed\n" +
+		potentialLeakOrCloseNotShown("<unassigned Closeable value>") +
 		"----------\n",
 		options);
 }
@@ -2922,12 +2937,12 @@ public void test063a() throws IOException {
 		"2. ERROR in X.java (at line 9)\n" +
 		"	FileInputStream stream2 = new FileInputStream(file); // unsure since passed to method\n" +
 		"	                ^^^^^^^\n" +
-		"Potential resource leak: \'stream2\' may not be closed\n" +
+		potentialLeakOrCloseNotShown("stream2") +
 		"----------\n" +
 		"3. ERROR in X.java (at line 10)\n" +
 		"	bis = getReader(stream2); // unsure since obtained from method\n" +
 		"	^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Potential resource leak: \'bis\' may not be closed\n" +
+		potentialOrDefiniteLeak("bis") +
 		"----------\n",
 		options);
 }
@@ -2965,7 +2980,7 @@ public void test063c() throws IOException {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
-	this.runConformTest(
+	this.runLeakTest(
 		new String[] {
 			"X.java",
 			"import java.io.FileInputStream;\n" +
@@ -2980,12 +2995,11 @@ public void test063c() throws IOException {
 			"    }\n" +
 			"}\n"
 		},
-		"",
-		null,
-		true,
-		null,
-		options,
-		null);
+		getTest063c_log(),
+		options);
+}
+protected String getTest063c_log() {
+	return "";
 }
 // Bug 362332 - Only report potential leak when closeable not created in the local scope
 // a resource is obtained as a method argument and/or assigned with a cast
@@ -3113,12 +3127,12 @@ public void testBug368709a() {
 		"1. ERROR in X.java (at line 15)\n" +
 		"	return wc.open(getObjectId(), type).openStream();\n" +
 		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Potential resource leak: \'<unassigned Closeable value>\' may not be closed\n" +
+		potentialOrDefiniteLeak("<unassigned Closeable value>") +
 		"----------\n" +
 		"2. ERROR in X.java (at line 18)\n" +
 		"	return new ObjectStream.Filter(type, size, in);\n" +
 		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Potential resource leak: \'in\' may not be closed at this location\n" +
+		potentialLeakOrCloseNotShownAtExit("in") +
 		"----------\n",
 		options);
 }
@@ -3148,7 +3162,7 @@ public void testBug368709b() {
 		"1. ERROR in X.java (at line 5)\n" +
 		"	InputStream in = new FileInputStream(\"somefile\");\n" +
 		"	            ^^\n" +
-		"Potential resource leak: \'in\' may not be closed\n" +
+		potentialLeakOrCloseNotShown("in") +
 		"----------\n",
 		options);
 }
@@ -4021,7 +4035,7 @@ public void testBug381445_1() {
 		"1. ERROR in Bug381445.java (at line 11)\n" +
 		"	InputStream stream4 = new FileInputStream(path);\n" +
 		"	            ^^^^^^^\n" +
-		"Potential resource leak: \'stream4\' may not be closed\n" +
+		potentialLeakOrCloseNotShown("stream4") +
 		"----------\n",
 		options);
 }
@@ -4074,7 +4088,7 @@ public void testBug381445_1b() {
 		"1. ERROR in Bug381445.java (at line 8)\n" +
 		"	ResultSet rset2 = stat.executeQuery(q2);\n" +
 		"	          ^^^^^\n" +
-		"Potential resource leak: \'rset2\' may not be closed\n" +
+		potentialLeakOrCloseNotShown("rset2") +
 		"----------\n",
 		options);
 }
@@ -4362,7 +4376,7 @@ public void testBug395977_1a() {
 		"1. ERROR in WriterTest.java (at line 38)\n" +
 		"	};      m_Writer = new MyBufferedWriter(new OutputStreamWriter(new FileOutputStream(\"file\"), \"UTF-8\"));\n" +
 		"	                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Potential resource leak: \'<unassigned Closeable value>\' may not be closed\n" +
+		potentialLeakOrCloseNotShown("<unassigned Closeable value>") +
 		"----------\n",
 		options);
 }
@@ -4419,13 +4433,15 @@ public void testBug395977_2() {
 		"1. ERROR in WriterTest.java (at line 27)\n" +
 		"	m_Writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(\"file\"), \"UTF-8\"))\n" +
 		"	                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Potential resource leak: \'<unassigned Closeable value>\' may not be closed\n" +
+		potentialLeakOrCloseNotShown("<unassigned Closeable value>") +
 		"----------\n",
 		options);
 }
 
 // Bug 376053 - [compiler][resource] Strange potential resource leak problems
 // include line number when reporting against <unassigned Closeable value>
+// UPDATE: never complain 'at this location' against unassigned Closeable,
+// hence no line number is needed.
 public void testBug376053() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
@@ -4451,15 +4467,10 @@ public void testBug376053() {
 			"}"
 		},
 		"----------\n" +
-		"1. ERROR in Try.java (at line 11)\n" +
-		"	return;\n" +
-		"	^^^^^^^\n" +
-		"Potential resource leak: \'<unassigned Closeable value from line 8>\' may not be closed at this location\n" +
-		"----------\n" +
-		"2. ERROR in Try.java (at line 14)\n" +
-		"	return;\n" +
-		"	^^^^^^^\n" +
-		"Potential resource leak: \'<unassigned Closeable value from line 8>\' may not be closed at this location\n" +
+		"1. ERROR in Try.java (at line 8)\n" +
+		"	System.setOut(new PrintStream(\"log.txt\"));\n" +
+		"	              ^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		potentialLeakOrCloseNotShown("<unassigned Closeable value>") +
 		"----------\n",
 		options);
 }
@@ -4508,7 +4519,7 @@ public void testBug411098_test2() {
 		"1. ERROR in A.java (at line 4)\n" +
 		"	try(FileInputStream in = create(new FileInputStream(\"a\"))){}\n" +
 		"	                                ^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Potential resource leak: '<unassigned Closeable value>' may not be closed\n" +
+		potentialLeakOrCloseNotShown("<unassigned Closeable value>") +
 		"----------\n",
 		options
 		);
@@ -4634,12 +4645,12 @@ public void testBug411098_test7() {
 }
 
 // https://bugs.eclipse.org/411098 - [compiler][resource] Invalid Resource Leak Warning using ternary operator inside try-with-resource
-// should report potential leak only.
+// field read should not trigger a warning.
 public void testBug411098_comment19() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
-	runLeakTest(
+	runConformTest(
 		new String[] {
 			"A.java",
 			"import java.io.PrintWriter;\n" +
@@ -4651,12 +4662,7 @@ public void testBug411098_comment19() {
 			"	}\n" +
 			"}"
 		},
-		"----------\n" +
-		"1. ERROR in A.java (at line 5)\n" +
-		"	PrintWriter bug= useField ? fWriter : null;\n" +
-		"	            ^^^\n" +
-		"Potential resource leak: \'bug\' may not be closed\n" +
-		"----------\n",
+		"",
 		options
 		);
 }
@@ -4938,7 +4944,7 @@ public void testBug371614_comment0() {
 		"1. ERROR in C.java (at line 14)\n" +
 		"	return;\n" +
 		"	^^^^^^^\n" +
-		"Potential resource leak: \'fileInputStream\' may not be closed at this location\n" +
+		potentialLeakOrCloseNotShownAtExit("fileInputStream") +
 		"----------\n",
 		options);
 }
@@ -5341,13 +5347,22 @@ public void testBug440282() {
 			"  }\n" +
 			"}\n"
 		},
+		getTestBug440282_log(),
+		options);
+}
+protected String getTestBug440282_log() {
+	return
 		"----------\n" +
 		"1. ERROR in ResourceLeakFalseNegative.java (at line 39)\n" +
 		"	return new Foo(reader).read();\n" +
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Potential resource leak: 'reader' may not be closed at this location\n" +
+		"----------\n" +
+		"2. ERROR in ResourceLeakFalseNegative.java (at line 39)\n" +
+		"	return new Foo(reader).read();\n" +
 		"	       ^^^^^^^^^^^^^^^\n" +
 		"Resource leak: \'<unassigned Closeable value>\' is never closed\n" +
-		"----------\n",
-		options);
+		"----------\n";
 }
 public void testBug390064() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // generics used
@@ -5705,12 +5720,23 @@ public void testBug542707_002() {
 			"}\n"
 		},
 		"----------\n" +
-		"1. ERROR in X.java (at line 12)\n" +
+		"1. ERROR in X.java (at line 10)\n" +
+		"	x  = switch (i) { \n" +
+		"			  case 1  ->   {\n" +
+		"				 x = new X();\n" +
+		"				 yield x;\n" +
+		"			  }\n" +
+		"			  default -> x;\n" +
+		"			};\n" +
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Resource leak: \'x\' is not closed at this location\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 12)\n" +
 		"	x = new X();\n" +
 		"	^^^^^^^^^^^\n" +
 		"Resource leak: \'x\' is not closed at this location\n" +
 		"----------\n" +
-		"2. ERROR in X.java (at line 32)\n" +
+		"3. ERROR in X.java (at line 32)\n" +
 		"	Zork();\n" +
 		"	^^^^\n" +
 		"The method Zork() is undefined for the type X\n" +
@@ -5847,7 +5873,7 @@ public void testBug463320() {
 		"1. ERROR in Try17.java (at line 5)\n" +
 		"	String name= getZipFile().getName();\n" +
 		"	             ^^^^^^^^^^^^\n" +
-		"Potential resource leak: \'<unassigned Closeable value>\' may not be closed\n" +
+		potentialOrDefiniteLeak("<unassigned Closeable value>") +
 		"----------\n" +
 		"2. ERROR in Try17.java (at line 9)\n" +
 		"	String name= new ZipFile(\"bla.jar\").getName();\n" +
@@ -5857,7 +5883,7 @@ public void testBug463320() {
 		"2. ERROR in Try17.java (at line 13)\n" +
 		"	ZipFile zipFile = getZipFile();\n" +
 		"	        ^^^^^^^\n" +
-		"Potential resource leak: \'zipFile\' may not be closed\n" +
+		potentialOrDefiniteLeak("zipFile") +
 		"----------\n",
 		options);
 }
@@ -5892,7 +5918,7 @@ public void testBug463320_comment8() {
 		"1. ERROR in Try17.java (at line 7)\n" +
 		"	System.out.println(FileSystems.getFileSystem(uri));\n" +
 		"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Potential resource leak: \'<unassigned Closeable value>\' may not be closed\n" +
+		potentialLeakOrCloseNotShown("<unassigned Closeable value>") +
 		"----------\n",
 		options);
 }
@@ -6159,12 +6185,12 @@ public void testBug552521_comment14() {
 		"1. ERROR in X.java (at line 9)\n" +
 		"	for (String string : process(new FileInputStream(fileName))) {\n" +
 		"	                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Potential resource leak: \'<unassigned Closeable value>\' may not be closed\n" +
+		potentialLeakOrCloseNotShown("<unassigned Closeable value>") +
 		"----------\n" +
 		"2. ERROR in X.java (at line 14)\n" +
 		"	for (String string : process(new FileInputStream(fileName)))\n" +
 		"	                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Potential resource leak: \'<unassigned Closeable value>\' may not be closed\n" +
+		potentialLeakOrCloseNotShown("<unassigned Closeable value>") +
 		"----------\n",
 		options);
 }
@@ -6202,17 +6228,17 @@ public void testBug552521_comment14b() {
 		"1. ERROR in X.java (at line 8)\n" +
 		"	while (check(new FileInputStream(fileName)))\n" +
 		"	             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Potential resource leak: \'<unassigned Closeable value>\' may not be closed\n" +
+		potentialLeakOrCloseNotShown("<unassigned Closeable value>") +
 		"----------\n" +
 		"2. ERROR in X.java (at line 14)\n" +
 		"	} while (check(new FileInputStream(fileName)));\n" +
 		"	               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Potential resource leak: \'<unassigned Closeable value>\' may not be closed\n" +
+		potentialLeakOrCloseNotShown("<unassigned Closeable value>") +
 		"----------\n" +
 		"3. ERROR in X.java (at line 17)\n" +
 		"	for (int i=0;check(new FileInputStream(fileName));i++)\n" +
 		"	                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Potential resource leak: \'<unassigned Closeable value>\' may not be closed\n" +
+		potentialLeakOrCloseNotShown("<unassigned Closeable value>") +
 		"----------\n",
 		options);
 }
@@ -6463,7 +6489,7 @@ public void testBug558759() {
 public void testBug559119() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // uses @Override
 	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.WARNING);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.WARNING);
 	runLeakWarningTest(
 		new String[] {
@@ -6489,12 +6515,12 @@ public void testBug559119() {
 		"1. WARNING in SequencerControl.java (at line 7)\n" +
 		"	return ((SequencerControl)obj).getSequencer().equals(getSequencer());\n" +
 		"	       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Potential resource leak: \'<unassigned Closeable value>\' may not be closed\n" +
+		potentialOrDefiniteLeak("<unassigned Closeable value>") +
 		"----------\n" +
 		"2. WARNING in SequencerControl.java (at line 7)\n" +
 		"	return ((SequencerControl)obj).getSequencer().equals(getSequencer());\n" +
 		"	                                                     ^^^^^^^^^^^^^^\n" +
-		"Potential resource leak: \'<unassigned Closeable value>\' may not be closed\n" +
+		potentialLeakOrCloseNotShown("<unassigned Closeable value>") +
 		"----------\n",
 		options);
 }
@@ -7007,430 +7033,6 @@ public void testBug499037_010_since_9() {
 		"	  ^^\n" +
 		"Potential resource leak: \'yy\' may not be closed\n" +
 		"----------\n",
-		options);
-}
-public void testOwning_receiving_parameter() {
-	if (this.complianceLevel < ClassFileConstants.JDK9)
-		return; // t-w-r with pre-declared local available since 9
-	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
-	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.WARNING);
-	options.put(CompilerOptions.OPTION_AnnotationBasedResourceAnalysis, CompilerOptions.ENABLED);
-	runLeakTest(
-		new String[] {
-			OWNING_JAVA,
-			OWNING_CONTENT,
-			"X.java",
-			"""
-			import org.eclipse.jdt.annotation.Owning;
-			public class X {
-				void nok(@Owning AutoCloseable c) {
-					System.out.print(1);
-				}
-				void ok(@Owning AutoCloseable c) throws Exception {
-					try (c) {
-						System.out.print(2);
-					};
-				}
-			}
-			"""
-		},
-		"""
-		----------
-		1. ERROR in X.java (at line 3)
-			void nok(@Owning AutoCloseable c) {
-			                               ^
-		Resource leak: \'c\' is never closed
-		----------
-		""",
-		options);
-
-}
-public void testOwning_sending() {
-	if (this.complianceLevel < ClassFileConstants.JDK9)
-		return; // t-w-r with pre-declared local available since 9
-	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
-	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
-	options.put(CompilerOptions.OPTION_AnnotationBasedResourceAnalysis, CompilerOptions.ENABLED);
-	runLeakTest(
-		new String[] {
-			OWNING_JAVA,
-			OWNING_CONTENT,
-			"X.java",
-			"""
-			import org.eclipse.jdt.annotation.Owning;
-			class Rc implements AutoCloseable {
-				@Override public void close() {}
-			}
-			public class X {
-				void consume(@Owning Rc rc1) {
-					try (rc1) {
-						System.out.print(2);
-					};
-				}
-				void nok() {
-					Rc rc2 = new Rc();
-					System.out.print(rc2);
-				}
-				void unsafe(boolean f) {
-					Rc rc3 = new Rc();
-					if (f)
-						consume(rc3);
-				}
-				void leakAtReturn(boolean f) {
-					Rc rc4 = new Rc();
-					if (f)
-						return;
-					consume(rc4);
-				}
-				void ok(boolean f) {
-					Rc rc5 = new Rc();
-					if (f)
-						consume(rc5);
-					else
-						rc5.close();
-				}
-			}
-			"""
-		},
-		"""
-		----------
-		1. ERROR in X.java (at line 12)
-			Rc rc2 = new Rc();
-			   ^^^
-		Potential resource leak: 'rc2' may not be closed
-		----------
-		2. ERROR in X.java (at line 16)
-			Rc rc3 = new Rc();
-			   ^^^
-		Potential resource leak: 'rc3' may not be closed
-		----------
-		3. ERROR in X.java (at line 23)
-			return;
-			^^^^^^^
-		Resource leak: 'rc4' is not closed at this location
-		----------
-		""",
-		options);
-}
-public void testOwning_sending_toBinary() {
-	if (this.complianceLevel < ClassFileConstants.JDK9)
-		return; // t-w-r with pre-declared local available since 9
-	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
-	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
-	options.put(CompilerOptions.OPTION_AnnotationBasedResourceAnalysis, CompilerOptions.ENABLED);
-	runLeakTest(
-		new String[] {
-			OWNING_JAVA,
-			OWNING_CONTENT,
-			"p/Consume.java",
-			"""
-			package p;
-			import org.eclipse.jdt.annotation.Owning;
-			public class Consume {
-				public void consume(@Owning AutoCloseable rc1) {
-					try (rc1) {
-						System.out.print(2);
-					} catch (Exception e) {
-						// nothing
-					}
-				}
-			}
-			"""
-		},
-		"",
-		options);
-	runLeakTest(
-		new String[] {
-			OWNING_JAVA,
-			OWNING_CONTENT,
-			"X.java",
-			"""
-			class Rc implements AutoCloseable {
-				@Override public void close() {}
-			}
-			public class X {
-				p.Consume consumer;
-
-				void unsafe(boolean f) {
-					Rc rc3 = new Rc();
-					if (f)
-						consumer.consume(rc3);
-				}
-				void leakAtReturn(boolean f) {
-					Rc rc4 = new Rc();
-					if (f)
-						return;
-					consumer.consume(rc4);
-				}
-				void ok(boolean f) {
-					Rc rc5 = new Rc();
-					if (f)
-						consumer.consume(rc5);
-					else
-						rc5.close();
-				}
-			}
-			"""
-		},
-		"""
-		----------
-		1. ERROR in X.java (at line 8)
-			Rc rc3 = new Rc();
-			   ^^^
-		Potential resource leak: 'rc3' may not be closed
-		----------
-		2. ERROR in X.java (at line 15)
-			return;
-			^^^^^^^
-		Resource leak: 'rc4' is not closed at this location
-		----------
-		""",
-		options,
-		false);
-}
-public void testOwning_receiving_from_call() {
-	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
-	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.WARNING);
-	options.put(CompilerOptions.OPTION_AnnotationBasedResourceAnalysis, CompilerOptions.ENABLED);
-	runLeakTest(
-		new String[] {
-			OWNING_JAVA,
-			OWNING_CONTENT,
-			"X.java",
-			"""
-			import org.eclipse.jdt.annotation.Owning;
-			import java.io.*;
-			public class X {
-				void err() {
-					AutoCloseable rc1 = provideOwned();
-					if (rc1 == null) System.out.print("null");
-				}
-				void warn() {
-					AutoCloseable rc2 = provideShared();
-					if (rc2 == null) System.out.print("null");
-				}
-				void err_without_local() {
-					if (provideOwned() == null) System.out.print("null");
-				}
-				String err_wrapped() {
-					BufferedInputStream bis = new BufferedInputStream(provideOwned());
-					return bis.toString();
-				}
-				void ok() throws Exception {
-					try (AutoCloseable c = provideOwned()) {
-						System.out.print(2);
-					};
-				}
-				AutoCloseable provideShared() {
-					return null;
-				}
-				@Owning InputStream provideOwned() {
-					return null;
-				}
-			}
-			"""
-		},
-		"""
-		----------
-		1. ERROR in X.java (at line 5)
-			AutoCloseable rc1 = provideOwned();
-			              ^^^
-		Resource leak: \'rc1\' is never closed
-		----------
-		2. WARNING in X.java (at line 9)
-			AutoCloseable rc2 = provideShared();
-			              ^^^
-		Potential resource leak: \'rc2\' may not be closed
-		----------
-		3. ERROR in X.java (at line 13)
-			if (provideOwned() == null) System.out.print("null");
-			    ^^^^^^^^^^^^^^
-		Resource leak: '<unassigned Closeable value>' is not closed at this location
-		----------
-		4. ERROR in X.java (at line 16)
-			BufferedInputStream bis = new BufferedInputStream(provideOwned());
-			                    ^^^
-		Resource leak: 'bis' is never closed
-		----------
-		""",
-		options);
-
-}
-public void testOwning_receiving_from_binaryCall() {
-	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
-	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.WARNING);
-	options.put(CompilerOptions.OPTION_AnnotationBasedResourceAnalysis, CompilerOptions.ENABLED);
-	runLeakTest(
-		new String[] {
-			OWNING_JAVA,
-			OWNING_CONTENT,
-			"p/Produce.java",
-			"""
-			package p;
-			import org.eclipse.jdt.annotation.Owning;
-			import java.io.*;
-			public class Produce {
-				public AutoCloseable provideShared() {
-					return null;
-				}
-				public @Owning InputStream provideOwned() {
-					return null;
-				}
-			}
-			"""
-		},
-		"",
-		options);
-	runLeakTest(
-		new String[] {
-			OWNING_JAVA,
-			OWNING_CONTENT,
-			"X.java",
-			"""
-			import java.io.*;
-			public class X {
-				p.Produce producer;
-				void err() {
-					AutoCloseable rc1 = producer.provideOwned();
-					if (rc1 == null) System.out.print("null");
-				}
-				void warn() {
-					AutoCloseable rc2 = producer.provideShared();
-					if (rc2 == null) System.out.print("null");
-				}
-				void err_without_local() {
-					if (producer.provideOwned() == null) System.out.print("null");
-				}
-				String err_wrapped() {
-					BufferedInputStream bis = new BufferedInputStream(producer.provideOwned());
-					return bis.toString();
-				}
-				void ok() throws Exception {
-					try (AutoCloseable c = producer.provideOwned()) {
-						System.out.print(2);
-					};
-				}
-			}
-			"""
-		},
-		"""
-		----------
-		1. ERROR in X.java (at line 5)
-			AutoCloseable rc1 = producer.provideOwned();
-			              ^^^
-		Resource leak: \'rc1\' is never closed
-		----------
-		2. WARNING in X.java (at line 9)
-			AutoCloseable rc2 = producer.provideShared();
-			              ^^^
-		Potential resource leak: \'rc2\' may not be closed
-		----------
-		3. ERROR in X.java (at line 13)
-			if (producer.provideOwned() == null) System.out.print("null");
-			    ^^^^^^^^^^^^^^^^^^^^^^^
-		Resource leak: '<unassigned Closeable value>' is not closed at this location
-		----------
-		4. ERROR in X.java (at line 16)
-			BufferedInputStream bis = new BufferedInputStream(producer.provideOwned());
-			                    ^^^
-		Resource leak: 'bis' is never closed
-		----------
-		""",
-		options,
-		false);
-
-}
-public void testOwning_return() {
-	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
-	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.WARNING);
-	options.put(CompilerOptions.OPTION_AnnotationBasedResourceAnalysis, CompilerOptions.ENABLED);
-	runLeakTest(
-		new String[] {
-			OWNING_JAVA,
-			OWNING_CONTENT,
-			"X.java",
-			"""
-			import java.io.*;
-			import org.eclipse.jdt.annotation.Owning;
-			public class X {
-				@Owning AutoCloseable ok(String fn) throws IOException {
-					return new FileInputStream(fn);
-				}
-				@Owning AutoCloseable somePath(String fn) throws IOException {
-					FileInputStream fis = new FileInputStream(fn);
-					if (fn.length() > 1)
-						return fis;
-					return null;
-				}
-				@Owning AutoCloseable mixed(String fn) throws IOException {
-					FileInputStream fis = new FileInputStream(fn);
-					if (fn.length() > 1)
-						return new FileInputStream(fn);
-					return fis;
-				}
-			}
-			"""
-		},
-		"""
-		----------
-		1. ERROR in X.java (at line 11)
-			return null;
-			^^^^^^^^^^^^
-		Resource leak: \'fis\' is not closed at this location
-		----------
-		2. ERROR in X.java (at line 16)
-			return new FileInputStream(fn);
-			^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-		Resource leak: 'fis' is not closed at this location
-		----------
-		""",
-		options);
-}
-public void testUnannotated_return() {
-	Map options = getCompilerOptions();
-	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
-	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.WARNING);
-	options.put(CompilerOptions.OPTION_AnnotationBasedResourceAnalysis, CompilerOptions.ENABLED);
-	runLeakTest(
-		new String[] {
-			OWNING_JAVA,
-			OWNING_CONTENT,
-			"X.java",
-			"""
-			import java.io.*;
-			public class X {
-				AutoCloseable varReturn(String fn) throws IOException {
-					FileInputStream fis = new FileInputStream(fn);
-					return fis;
-				}
-				AutoCloseable unassignedReturn(String fn) throws IOException {
-					return new FileInputStream(fn);
-				}
-				AutoCloseable passThrough(AutoCloseable rc) {
-					return rc; // silent, since caller did not delegate responsibility to us
-				}
-			}
-			"""
-		},
-		"""
-		----------
-		1. WARNING in X.java (at line 5)
-			return fis;
-			^^^^^^^^^^^
-		Enclosing method should be tagged as '@Owning' to pass the responsibility for the returned resource to the caller
-		----------
-		2. WARNING in X.java (at line 8)
-			return new FileInputStream(fn);
-			       ^^^^^^^^^^^^^^^^^^^^^^^
-		Enclosing method should be tagged as '@Owning' to pass the responsibility for the returned resource to the caller
-		----------
-		""",
 		options);
 }
 }
