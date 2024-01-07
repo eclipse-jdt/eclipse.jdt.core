@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2023 Mateusz Matela and others.
+ * Copyright (c) 2014, 2024 Mateusz Matela and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1150,6 +1150,7 @@ public class WrapPreparator extends ASTVisitor {
 		int rParen = this.tm.firstIndexAfter(node.getExpression(), TokenNameRPAREN);
 		handleParenthesesPositions(lParen, rParen, this.options.parenthesis_positions_in_switch_statement);
 		handleOneLineEnforcedSwitchCases(node, node.statements());
+		this.aligner.handleCaseStatementsAlign(node.statements());
 		return true;
 	}
 
@@ -1163,6 +1164,7 @@ public class WrapPreparator extends ASTVisitor {
 		List<Statement> caseStatements = statements.stream().filter(SwitchCase.class::isInstance).collect(toList());
 		handleOneLineEnforced(node, caseStatements);
 		handleOneLineEnforcedSwitchCases(node, statements);
+		this.aligner.handleCaseStatementsAlign(statements);
 		return true;
 	}
 
