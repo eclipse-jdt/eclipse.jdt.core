@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -98,6 +98,19 @@ public class DefaultCodeFormatterConstants {
 	 * @since 3.15
 	 */
 	public static final String FORMATTER_ALIGN_ASSIGNMENT_STATEMENTS_ON_COLUMNS = JavaCore.PLUGIN_ID + ".formatter.align_assignment_statements_on_columns";	 //$NON-NLS-1$
+
+	/**
+	 * <pre>
+	 * FORMATTER / Option to align arrows in switch on column
+	 *     - option id:         "org.eclipse.jdt.core.formatter.align_arrows_in_switch_on_columns"
+	 *     - possible values:   { TRUE, FALSE }
+	 *     - default:           FALSE
+	 * </pre>
+	 * @see #TRUE
+	 * @see #FALSE
+	 * @since 3.37
+	 */
+	public static final String FORMATTER_ALIGN_ARROWS_IN_SWITCH_ON_COLUMNS = JavaCore.PLUGIN_ID + ".formatter.align_arrows_in_switch_on_columns";	 //$NON-NLS-1$
 
 	/**
 	 * <pre>
