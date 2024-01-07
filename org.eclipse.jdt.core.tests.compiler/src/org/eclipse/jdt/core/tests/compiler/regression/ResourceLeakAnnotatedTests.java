@@ -29,6 +29,10 @@ static {
 	TESTS_NAMES = null; // clear forgotten filter from super class
 //	TESTS_NAMES = new String[] { "test056l" };
 }
+
+// marker field that influences the call to buildTestsList():
+public static final int INHERITED_DEPTH = 1;
+
 public ResourceLeakAnnotatedTests(String name) {
 	super(name);
 }

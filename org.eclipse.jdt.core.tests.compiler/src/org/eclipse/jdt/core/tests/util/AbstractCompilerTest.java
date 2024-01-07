@@ -15,6 +15,7 @@ package org.eclipse.jdt.core.tests.util;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -193,15 +194,18 @@ public class AbstractCompilerTest extends TestCase {
 		// add tests
 		for (int i=0, m=testClasses.size(); i<m ; i++) {
 			Class testClass = (Class)testClasses.get(i);
-			TestSuite suite;
+			TestSuite suite = new TestSuite(testClass.getName());
+			int inheritedDepth = 0;
 			try {
-				suite = (TestSuite) testClass.getMethod("suite").invoke(null);
-			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-				suite = new TestSuite(testClass.getName());
-				List tests = buildTestsList(testClass);
-				for (int index=0, size=tests.size(); index<size; index++) {
-					suite.addTest((Test)tests.get(index));
-				}
+				Field depthField = testClass.getDeclaredField("INHERITED_DEPTH");
+				if (depthField != null)
+					inheritedDepth = depthField.getInt(null);
+			} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+				// ignore
+			}
+			List tests = buildTestsList(testClass, inheritedDepth, ORDERING);
+			for (int index=0, size=tests.size(); index<size; index++) {
+				suite.addTest((Test)tests.get(index));
 			}
 			complianceSuite.addTest(suite);
 		}
