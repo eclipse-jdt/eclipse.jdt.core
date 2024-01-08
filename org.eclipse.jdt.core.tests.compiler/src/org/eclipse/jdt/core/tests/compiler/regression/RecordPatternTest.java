@@ -3934,5 +3934,68 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"s = DataY\n" +
 				"s = switch on null\n" +
 				"s = default threw exception");
+	public void testIssue1804_0() {
+		runConformTest(new String[] { "X.java", """
+				public class X {
+					record Paper(int color) {}
+					record Box<T>(T a) {}
+					public static void main(String[] args) {
+						Box<?> b = new Box<>(null);
+						boolean res = b instanceof Box(Paper a);
+						if (res) {
+							System.out.println("res is true");
+						} else {
+							System.out.println("res is false");
+						}
+					}
+				}
+				""" }, "res is false");
+	}
+	public void testIssue1804_1() {
+		runConformTest(new String[] { "X.java", """
+				public class X {
+					record Paper(int color) {}
+					record Box<T>(T a) {}
+					public static void main(String[] args) {
+						Box<?> b = new Box<>(new Paper(0));
+						boolean res = b instanceof Box(Paper a);
+						if (res) {
+							System.out.println("res is true");
+						} else {
+							System.out.println("res is false");
+						}
+					}
+				}
+				""" }, "res is true");
+	}
+	public void testIssue1804_2() {
+		runConformTest(new String[] { "X.java", """
+				public class X {
+					record Paper(int color) {}
+					record Box<T>(T a) {}
+					public static void main(String[] args) {
+						Box<?> b = new Box<>(new Paper(0));
+						boolean res = b instanceof Box(Paper a) && a == null;
+						if (res) {
+							System.out.println("res is true");
+						} else {
+							System.out.println("res is false");
+						}
+					}
+				}
+				""" }, "res is false");
+	}
+	public void testIssue1804_3() {
+		runConformTest(new String[] { "X.java", """
+				public class X {
+					record Paper(int color) {}
+					record Box<T>(T a) {}
+					public static void main(String[] args) {
+						Box b = new Box<>(null);
+						System.out.println(b instanceof Box(Paper a));
+						System.out.println(b instanceof Box(Object a));
+					}
+				}
+				""" }, "false\ntrue");
 	}
 }
