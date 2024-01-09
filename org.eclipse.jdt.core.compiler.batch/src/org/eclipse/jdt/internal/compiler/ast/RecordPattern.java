@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2022, 2023 IBM Corporation and others.
+ * Copyright (c) 2022, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -296,7 +296,9 @@ public class RecordPattern extends TypePattern {
 				ExceptionLabel exceptionLabel = new ExceptionLabel(codeStream,TypeBinding.wellKnownType(currentScope, T_JavaLangThrowable));
 				exceptionLabel.placeStart();
 				generateArguments(p.accessorMethod, null, currentScope, codeStream);
-				codeStream.invoke(Opcodes.OPC_invokevirtual, p.accessorMethod.original(), this.resolvedType, null);
+				List<LocalVariableBinding> localReinits = codeStream.getLocalsToReinit(currentScope);
+ 				codeStream.invoke(Opcodes.OPC_invokevirtual, p.accessorMethod.original(), this.resolvedType, null);
+				codeStream.reinitLocals(currentScope, localReinits);
 				exceptionLabel.placeEnd();
 				labels.add(exceptionLabel);
 

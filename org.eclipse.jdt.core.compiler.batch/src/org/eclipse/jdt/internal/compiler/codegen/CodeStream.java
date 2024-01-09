@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7845,21 +7845,9 @@ public void addPatternAccessorExceptionHandler(BlockScope scope, boolean addTarg
 		target = new BranchLabel(this);
 		goto_(target);
 	}
-	List<LocalVariableBinding> localsToReinit = new ArrayList<>();
-	if (scope instanceof MethodScope) {
-		LocalVariableBinding[] locals1 = scope.locals;
-		int numLocals = scope.localIndex;
-		int pos = this.position;
-		for (int i = 0; i < numLocals; ++i) {
-			LocalVariableBinding local = locals1[i];
-			if (local.initializationCount == 0)
-				continue;
-			if (local.initializationPCs[((local.initializationCount - 1) << 1) + 1] == -1) {
-				locals1[i].recordInitializationEndPC(pos);
-				localsToReinit.add(local);
-			}
-		}
-	} else {
+	List<LocalVariableBinding> localsToReinit = scope instanceof MethodScope ?
+			getLocalsToReinit(scope) : null;
+	if (localsToReinit == null) {
 		this.exitUserScope(scope);
 	}
 	pushExceptionOnStack(TypeBinding.wellKnownType(scope, TypeIds.T_JavaLangThrowable));
@@ -7885,11 +7873,30 @@ public void addPatternAccessorExceptionHandler(BlockScope scope, boolean addTarg
 	if (target != null) {
 		target.place();
 	}
-	if (scope instanceof MethodScope && localsToReinit.size() > 0) {
-		for (LocalVariableBinding local : localsToReinit) {
-			int pos = this.position;
-			local.recordInitializationStartPC(pos);
+	reinitLocals(scope, localsToReinit);
+}
+public void reinitLocals(BlockScope scope, List<LocalVariableBinding> localsToReinit) {
+	if (localsToReinit == null)
+		return;
+	for (LocalVariableBinding local : localsToReinit) {
+		int pos = this.position;
+		local.recordInitializationStartPC(pos);
+	}
+}
+public List<LocalVariableBinding> getLocalsToReinit(BlockScope scope) {
+	List<LocalVariableBinding> localsToReinit = new ArrayList<>();
+	LocalVariableBinding[] locals1 = scope.locals;
+	int numLocals = scope.localIndex;
+	int pos = this.position;
+	for (int i = 0; i < numLocals; ++i) {
+		LocalVariableBinding local = locals1[i];
+		if (local.initializationCount == 0 || local.isParameter())
+			continue;
+		if (local.initializationPCs[((local.initializationCount - 1) << 1) + 1] == -1) {
+			locals1[i].recordInitializationEndPC(pos);
+			localsToReinit.add(local);
 		}
 	}
+	return localsToReinit;
 }
 }

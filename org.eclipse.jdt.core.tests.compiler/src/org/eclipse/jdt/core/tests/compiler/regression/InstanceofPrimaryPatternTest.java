@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2021, 2021 IBM Corporation and others.
+ * Copyright (c) 2021, 2024 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -282,6 +282,33 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 				"""
 			},
 			"OK",
+			getCompilerOptions());
+	}
+	public void testIssue1796_001() {
+		if (this.complianceLevel < ClassFileConstants.JDK21)
+			return;
+		runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				public record X(int i) {
+
+				  public static void main(String[] args) {
+				    new X(0).print(new X(100), null);
+				  }
+
+				  private void print(X e, Y buffer) {
+				      if (e instanceof X(int i)) {
+				      	System.out.println(i);
+				      }
+				    }
+				}
+
+				class Y {}
+
+				"""
+			},
+			"100",
 			getCompilerOptions());
 	}
 }

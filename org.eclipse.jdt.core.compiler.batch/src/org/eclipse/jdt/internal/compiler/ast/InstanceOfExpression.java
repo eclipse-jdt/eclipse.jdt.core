@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -159,26 +159,28 @@ public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStr
 
 	int pc = codeStream.position;
 
-	addAssignment(currentScope, codeStream, this.secretInstanceOfPatternExpressionValue);
-	codeStream.load(this.secretInstanceOfPatternExpressionValue);
+//	addAssignment(currentScope, codeStream, this.secretInstanceOfPatternExpressionValue);
+//	codeStream.load(this.secretInstanceOfPatternExpressionValue);
 
 	BranchLabel nextSibling = falseLabel != null ? falseLabel : new BranchLabel(codeStream);
+	LocalVariableBinding local = this.expression.localVariableBinding();
+	if (local != null) {
+		codeStream.load(local);
+	} else {
+		addAssignment(currentScope, codeStream, this.secretInstanceOfPatternExpressionValue);
+		codeStream.load(this.secretInstanceOfPatternExpressionValue);
+		this.secretInstanceOfPatternExpressionValue.recordInitializationEndPC(codeStream.position);
+	}
 	codeStream.instance_of(this.type, this.type.resolvedType);
 	codeStream.ifeq(nextSibling);
-	codeStream.load(this.secretInstanceOfPatternExpressionValue);
-	if (this.pattern instanceof RecordPattern) {
-		this.pattern.generateOptimizedBoolean(currentScope, codeStream, trueLabel, nextSibling);
-		codeStream.load(this.secretInstanceOfPatternExpressionValue);
-		codeStream.checkcast(this.type, this.type.resolvedType, codeStream.position);
+	if (local != null) {
+		codeStream.load(local);
 	} else {
-		codeStream.checkcast(this.type, this.type.resolvedType, codeStream.position);
-		codeStream.dup();
-		codeStream.store(this.elementVariable.binding, false);
+		this.secretInstanceOfPatternExpressionValue.recordInitializationStartPC(codeStream.position);
+		codeStream.load(this.secretInstanceOfPatternExpressionValue);
+		codeStream.removeVariable(this.secretInstanceOfPatternExpressionValue);
 	}
-
-	codeStream.load(this.secretInstanceOfPatternExpressionValue);
-	codeStream.removeVariable(this.secretInstanceOfPatternExpressionValue);
-	codeStream.checkcast(this.type, this.type.resolvedType, codeStream.position);
+	this.pattern.generateOptimizedBoolean(currentScope, codeStream, trueLabel, nextSibling);
 
 	if (valueRequired && cst == Constant.NotAConstant) {
 		codeStream.generateImplicitConversion(this.implicitConversion);
@@ -218,13 +220,13 @@ public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStr
 			if (falseLabel == null) {
 				if (trueLabel != null) {
 					// Implicit falling through the FALSE case
-					codeStream.pop2();
+//					codeStream.pop2();
 					codeStream.goto_(trueLabel);
 				}
 			} else {
 				if (trueLabel == null) {
 					// Implicit falling through the TRUE case
-					codeStream.pop2();
+//					codeStream.pop2();
 				} else {
 					// No implicit fall through TRUE/FALSE --> should never occur
 				}
