@@ -9575,5 +9575,19 @@ public class ASTTest extends org.eclipse.jdt.core.tests.junit.extension.TestCase
 		AST a = new AST(options);
 		assertEquals("Incorrect ast mapping", a.apiLevel(), AST.getJLSLatest());
 	}
+
+	@SuppressWarnings("deprecation")
+	public void testDimension() {
+		// Introduced with JSL8
+		if (this.ast.apiLevel() < AST.JLS8) {
+			return;
+		}
+		Dimension dimension = this.ast.newDimension();
+		dimension.setSourceRange(1, 2);
+
+		Dimension copy = (Dimension) ASTNode.copySubtree(this.ast, dimension);
+		assertEquals(copy.getStartPosition(), 1);
+		assertEquals(copy.getLength(), 2);
+	}
 }
 
