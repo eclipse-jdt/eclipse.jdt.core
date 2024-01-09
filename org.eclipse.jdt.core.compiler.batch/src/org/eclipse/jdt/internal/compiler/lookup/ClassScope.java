@@ -1459,7 +1459,7 @@ public class ClassScope extends Scope {
 			sourceType.typeBits |= (superInterface.typeBits & TypeIds.InheritableBits);
 			// further analysis against white lists for the unlikely case we are compiling java.util.stream.Stream:
 			if ((sourceType.typeBits & (TypeIds.BitAutoCloseable|TypeIds.BitCloseable)) != 0)
-				sourceType.typeBits |= sourceType.applyCloseableInterfaceWhitelists();
+				sourceType.typeBits |= sourceType.applyCloseableInterfaceWhitelists(compilerOptions());
 			interfaceBindings[count++] = superInterface;
 		}
 		// hold onto all correctly resolved superinterfaces

@@ -1533,7 +1533,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	    		for (int i = this.superInterfaces.length; --i >= 0;) {
 	    			this.typeBits |= (this.superInterfaces[i].typeBits & TypeIds.InheritableBits);
 	    			if ((this.typeBits & (TypeIds.BitAutoCloseable|TypeIds.BitCloseable)) != 0) // avoid the side-effects of hasTypeBit()!
-	    				this.typeBits |= applyCloseableInterfaceWhitelists();
+	    				this.typeBits |= applyCloseableInterfaceWhitelists(this.environment.globalOptions);
 	    		}
     		}
 	    }

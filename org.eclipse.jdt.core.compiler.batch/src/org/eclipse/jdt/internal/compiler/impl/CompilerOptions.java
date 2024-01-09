@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -172,6 +172,7 @@ public class CompilerOptions {
 	public static final String OPTION_ReportPotentiallyUnclosedCloseable = "org.eclipse.jdt.core.compiler.problem.potentiallyUnclosedCloseable"; //$NON-NLS-1$
 	public static final String OPTION_ReportExplicitlyClosedAutoCloseable = "org.eclipse.jdt.core.compiler.problem.explicitlyClosedAutoCloseable"; //$NON-NLS-1$
 	public static final String OPTION_ReportInsufficientResourceManagement = "org.eclipse.jdt.core.compiler.problem.insufficientResourceAnalysis"; //$NON-NLS-1$
+	public static final String OPTION_ReportIncompatibleOwningContract = "org.eclipse.jdt.core.compiler.problem.incompatibleOwningContract"; //$NON-NLS-1$
 	public static final String OPTION_AnnotationBasedResourceAnalysis = "org.eclipse.jdt.core.compiler.annotation.resourceanalysis"; //$NON-NLS-1$
 	public static final String OPTION_OwningAnnotationName = "org.eclipse.jdt.core.compiler.annotation.owning"; //$NON-NLS-1$
 	public static final String OPTION_NotOwningAnnotationName = "org.eclipse.jdt.core.compiler.annotation.notowning"; //$NON-NLS-1$
@@ -374,6 +375,7 @@ public class CompilerOptions {
 
 	// group 3
 	public static final int InsufficientResourceManagement = IrritantSet.GROUP3 | ASTNode.Bit1;
+	public static final int IncompatibleOwningContract = IrritantSet.GROUP3 | ASTNode.Bit2;
 
 
 	// Severity level for handlers
@@ -803,6 +805,8 @@ public class CompilerOptions {
 				return OPTION_ReportExplicitlyClosedAutoCloseable;
 			case InsufficientResourceManagement:
 				return OPTION_ReportInsufficientResourceManagement;
+			case IncompatibleOwningContract:
+				return OPTION_ReportIncompatibleOwningContract;
 
 			// null analysis:
 			case NullSpecViolation :
@@ -1061,6 +1065,7 @@ public class CompilerOptions {
 			OPTION_ReportPotentiallyUnclosedCloseable,
 			OPTION_ReportExplicitlyClosedAutoCloseable,
 			OPTION_ReportInsufficientResourceManagement,
+			OPTION_ReportIncompatibleOwningContract,
 			OPTION_AnnotationBasedResourceAnalysis,
 			OPTION_OwningAnnotationName,
 			OPTION_NotOwningAnnotationName,
@@ -1419,6 +1424,7 @@ public class CompilerOptions {
 		optionsMap.put(OPTION_ReportPotentiallyUnclosedCloseable, getSeverityString(PotentiallyUnclosedCloseable));
 		optionsMap.put(OPTION_ReportExplicitlyClosedAutoCloseable, getSeverityString(ExplicitlyClosedAutoCloseable));
 		optionsMap.put(OPTION_ReportInsufficientResourceManagement, getSeverityString(InsufficientResourceManagement));
+		optionsMap.put(OPTION_ReportIncompatibleOwningContract, getSeverityString(IncompatibleOwningContract));
 		optionsMap.put(OPTION_AnnotationBasedResourceAnalysis, this.isAnnotationBasedResourceAnalysisEnabled ? ENABLED : DISABLED);
 		optionsMap.put(OPTION_OwningAnnotationName, String.valueOf(CharOperation.concatWith(this.owningAnnotationName, '.')));
 		optionsMap.put(OPTION_NotOwningAnnotationName, String.valueOf(CharOperation.concatWith(this.notOwningAnnotationName, '.')));
@@ -1971,6 +1977,7 @@ public class CompilerOptions {
 		if ((optionValue = optionsMap.get(OPTION_ReportPotentiallyUnclosedCloseable)) != null) updateSeverity(PotentiallyUnclosedCloseable, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportExplicitlyClosedAutoCloseable)) != null) updateSeverity(ExplicitlyClosedAutoCloseable, optionValue);
 		if ((optionValue = optionsMap.get(OPTION_ReportInsufficientResourceManagement)) != null) updateSeverity(InsufficientResourceManagement, optionValue);
+		if ((optionValue = optionsMap.get(OPTION_ReportIncompatibleOwningContract)) != null) updateSeverity(IncompatibleOwningContract, optionValue);
 		if (getSeverity(UnclosedCloseable) == ProblemSeverities.Ignore
 				&& getSeverity(PotentiallyUnclosedCloseable) == ProblemSeverities.Ignore
 				&& getSeverity(ExplicitlyClosedAutoCloseable) == ProblemSeverities.Ignore) {

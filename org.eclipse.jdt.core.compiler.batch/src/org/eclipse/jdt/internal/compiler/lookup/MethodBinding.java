@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1495,6 +1495,20 @@ public Boolean getParameterNullness(int idx) {
 			return Boolean.FALSE;
 	}
 	return null;
+}
+public void verifyOverrideCompatibility(MethodBinding inheritedMethod, ClassScope scope) {
+	int len = Math.min(this.parameters.length, inheritedMethod.parameters.length);
+	AbstractMethodDeclaration sourceMethod = sourceMethod();
+	for (int i=0; i<len; i++) {
+		if (inheritedMethod.ownsParameter(i)) {
+			if (!ownsParameter(i))
+				scope.problemReporter().overrideReducingParamterOwning(sourceMethod.arguments[i]);
+		}
+	}
+	if ((this.tagBits & TagBits.AnnotationOwning) != 0) {
+		if ((inheritedMethod.tagBits & TagBits.AnnotationOwning) == 0)
+			scope.problemReporter().overrideAddingReturnOwning(sourceMethod);
+	}
 }
 }
 

@@ -477,6 +477,9 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 			// need annotations on the type before processing null annotations on members respecting any @NonNullByDefault:
 			scanTypeForNullDefaultAnnotation(binaryType, this.fPackage);
 		}
+		if (this.environment.globalOptions.isAnnotationBasedResourceAnalysisEnabled && binaryType.getAnnotations() != null) {
+			this.tagBits |= scanForOwningAnnotation(binaryType.getAnnotations());
+		}
 		ITypeAnnotationWalker walker = getTypeAnnotationWalker(binaryType.getTypeAnnotations(), Binding.NO_NULL_DEFAULT);
 		ITypeAnnotationWalker toplevelWalker = binaryType.enrichWithExternalAnnotationsFor(walker, null, this.environment);
 		this.externalAnnotationStatus = binaryType.getExternalAnnotationStatus();
@@ -2546,7 +2549,7 @@ public ReferenceBinding[] superInterfaces() {
 		}
 		this.typeBits |= (this.superInterfaces[i].typeBits & TypeIds.InheritableBits);
 		if ((this.typeBits & (TypeIds.BitAutoCloseable|TypeIds.BitCloseable)) != 0) // avoid the side-effects of hasTypeBit()!
-			this.typeBits |= applyCloseableInterfaceWhitelists();
+			this.typeBits |= applyCloseableInterfaceWhitelists(this.environment.globalOptions);
 	}
 	this.tagBits &= ~TagBits.HasUnresolvedSuperinterfaces;
 	return this.superInterfaces;

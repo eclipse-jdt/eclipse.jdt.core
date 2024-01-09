@@ -2163,6 +2163,11 @@ protected int applyCloseableClassWhitelists(CompilerOptions options) {
 			return TypeIds.BitWrapperCloseable;
 	}
 	if (options.analyseResourceLeaks) {
+		if (options.isAnnotationBasedResourceAnalysisEnabled) {
+			if ((this.getAnnotationTagBits() & TagBits.AnnotationNotOwning) != 0) {
+				return TypeIds.BitResourceFreeCloseable;
+			}
+		}
 		ReferenceBinding mySuper = this.superclass();
 		if (mySuper != null && mySuper.id != TypeIds.T_JavaLangObject) {
 			if (hasMethodWithNumArgs(TypeConstants.CLOSE, 0))
@@ -2187,7 +2192,7 @@ protected boolean hasMethodWithNumArgs(char[] selector, int numArgs) {
  * If a type - known to be a Closeable - is mentioned in one of our white lists
  * answer the typeBit for the white list (BitWrapperCloseable or BitResourceFreeCloseable).
  */
-protected int applyCloseableInterfaceWhitelists() {
+protected int applyCloseableInterfaceWhitelists(CompilerOptions options) {
 	switch (this.compoundName.length) {
 		case 4:
 			if (CharOperation.equals(this.compoundName[0], TypeConstants.JAVA_UTIL_STREAM[0])) {
@@ -2214,6 +2219,11 @@ protected int applyCloseableInterfaceWhitelists() {
 				}
 			}
 			break;
+	}
+	if (options.isAnnotationBasedResourceAnalysisEnabled) {
+		if ((this.getAnnotationTagBits() & TagBits.AnnotationNotOwning) != 0) {
+			return TypeIds.BitResourceFreeCloseable;
+		}
 	}
 	return 0;
 }

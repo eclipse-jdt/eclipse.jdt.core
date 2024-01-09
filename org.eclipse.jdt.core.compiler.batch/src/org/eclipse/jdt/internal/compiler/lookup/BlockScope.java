@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1153,8 +1153,9 @@ public boolean hasResourceTrackers() {
  */
 public void checkUnclosedCloseables(FlowInfo flowInfo, FlowContext flowContext, ASTNode location, BlockScope locationScope) {
 	if (!compilerOptions().analyseResourceLeaks) return;
+	boolean exitAtEndOfMethod = location != null && locationScope == this && locationScope.isLastInMethod(null, location);
 	if (this.trackingVariables == null
-			|| (!(this instanceof MethodScope) && location != null && locationScope != null && locationScope.isLastInMethod(null, location)))
+			|| (!(this instanceof MethodScope) && exitAtEndOfMethod))
 	{
 		// at a method return we also consider enclosing scopes
 		if (location != null && this.parent instanceof BlockScope && !isLambdaScope())
@@ -1187,7 +1188,8 @@ public void checkUnclosedCloseables(FlowInfo flowInfo, FlowContext flowContext, 
 						problemReporter().shouldMarkMethodAsOwning(location);
 						trackingVar.withdraw();
 					}
-					continue;
+					if (!exitAtEndOfMethod)
+						continue;
 				} else {
 					trackingVar.markAsShared();
 				}
@@ -1202,7 +1204,7 @@ public void checkUnclosedCloseables(FlowInfo flowInfo, FlowContext flowContext, 
 		}
 
 		ASTNode locToBlame = location;
-		if (location instanceof ReturnStatement && !trackingVar.isShared() && !trackingVar.closeSeen() && locationScope.isLastInMethod(null, location)) {
+		if (!trackingVar.isShared() && !trackingVar.closeSeen() && locationScope != null && locationScope.isLastInMethod(null, location)) {
 			locToBlame = null; // at end of method there's no point in specifically blaming the final return (unless other returns may have seen a close)
 		}
 
@@ -1222,25 +1224,25 @@ public void checkUnclosedCloseables(FlowInfo flowInfo, FlowContext flowContext, 
 				status = FlowInfo.POTENTIALLY_NULL;
 			} else {
 				// definitely unclosed: highest priority
-				reportResourceLeak(trackingVar, locToBlame, status);
+				reportResourceLeak(trackingVar, locToBlame, status, exitAtEndOfMethod);
 				continue;
 			}
 		}
-		if (locToBlame == null) { // at end of block and not definitely unclosed
-			// problems at specific locations: medium priority
+		if (locToBlame == null || exitAtEndOfMethod) { // at end of block and not definitely unclosed
+			// look for problems at specific locations: medium priority
 			if (trackingVar.reportRecordedErrors(this, status, flowInfo.reachMode() != FlowInfo.REACHABLE)) // ... report previously recorded errors
 				continue;
 		}
 		if (status == FlowInfo.POTENTIALLY_NULL) {
 			// potentially unclosed: lower priority
-			reportResourceLeak(trackingVar, locToBlame, status);
+			reportResourceLeak(trackingVar, locToBlame, status, exitAtEndOfMethod);
 		} else if (status == FlowInfo.NON_NULL) {
 			// properly closed but not managed by t-w-r: lowest priority
 			if (environment().globalOptions.complianceLevel >= ClassFileConstants.JDK1_7)
-				trackingVar.reportExplicitClosing(problemReporter()); // fixme: only for actual close calls, not return in @Owning
+				trackingVar.reportExplicitClosing(problemReporter());
 		}
 	}
-	if (location == null) {
+	if (location == null || exitAtEndOfMethod) {
 		// when leaving this block dispose off all tracking variables:
 		for (int i=0; i<this.localIndex; i++)
 			this.locals[i].closeTracker = null;
@@ -1271,7 +1273,7 @@ private boolean isLastInMethod(Block block, ASTNode location) {
 			}
 			return true;
 		} else if (lastStatement instanceof Block aBlock) {
-			return block.scope.isLastInMethod(aBlock, location);
+			return block != null && block.scope.isLastInMethod(aBlock, location);
 		} else if (lastStatement instanceof TryStatement tryStatement) {
 			// which block is last (try or finally)?
 			if (tryStatement.finallyBlock == null || tryStatement.finallyBlock.statements == null) {
@@ -1306,11 +1308,12 @@ private boolean isSecretScope() {
 	return false;
 }
 
-private void reportResourceLeak(FakedTrackingVariable trackingVar, ASTNode location, int nullStatus) {
-	if (location != null && trackingVar.originalBinding != null)
+private void reportResourceLeak(FakedTrackingVariable trackingVar, ASTNode location, int nullStatus, boolean reportImmediately) {
+	if (location != null && !reportImmediately && trackingVar.originalBinding != null) {
 		trackingVar.recordErrorLocation(location, nullStatus);
-	else
-		trackingVar.reportError(problemReporter(), null, nullStatus);
+	} else {
+		trackingVar.reportError(problemReporter(), location, nullStatus);
+	}
 }
 
 /**

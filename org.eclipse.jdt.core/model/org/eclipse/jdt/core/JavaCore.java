@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1643,6 +1643,28 @@ public final class JavaCore extends Plugin {
 	 * @category CompilerOptionID
 	 */
 	public static final String COMPILER_PB_RECOMMENDED_RESOURCE_MANAGEMENT = PLUGIN_ID + ".compiler.problem.insufficientResourceAnalysis"; //$NON-NLS-1$
+
+	/**
+	 * Compiler option ID: Reporting when a method override incompatibly changes the owning contract.
+	 * <p>When enabled, the compiler will issue an error or a warning or an info if a method signature is incompatible
+	 *  with an overridden method from a super type in terms of resource ownership.</p>
+	 * <p>Incompatibility occurs if:</p>
+	 * <ul>
+	 * <li>A super parameter is tagged as owning ({@link #COMPILER_OWNING_ANNOTATION_NAME}) but the corresponding
+	 *  parameter of the current method does not repeat this annotation.</li>
+	 * <li>The current method is tagged as owning (affecting the method return), but an overridden super method does not
+	 *  have this annotation.</li>
+	 * </ul>
+	 * <p>This option only has an effect if the option {@link #COMPILER_ANNOTATION_RESOURCE_ANALYSIS} is enabled.</p>
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.incompatibleOwningContract"</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
+	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
+	 * </dl>
+	 * @since 3.37
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_PB_INCOMPATIBLE_OWNING_CONTRACT = PLUGIN_ID + ".compiler.problem.incompatibleOwningContract";  //$NON-NLS-1$
 
 	/**
 	 * Compiler option ID: Reporting a method invocation providing an argument of an unlikely type.

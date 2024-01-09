@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2023 GK Software SE.
+ * Copyright (c) 2024 GK Software SE.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -110,6 +110,7 @@ protected Map<String, String> getCompilerOptions() {
 	Map<String, String> options = super.getCompilerOptions();
 	options.put(CompilerOptions.OPTION_AnnotationBasedResourceAnalysis, CompilerOptions.ENABLED);
 	options.put(CompilerOptions.OPTION_ReportInsufficientResourceManagement, CompilerOptions.IGNORE);
+	options.put(CompilerOptions.OPTION_ReportIncompatibleOwningContract, CompilerOptions.ERROR);
 	return options;
 }
 
@@ -118,7 +119,7 @@ protected static final String OWNING_CONTENT =
 	"""
 	package org.eclipse.jdt.annotation;
 	import java.lang.annotation.*;
-	@Target({ElementType.PARAMETER, ElementType.METHOD, ElementType.FIELD})
+	@Target({ElementType.TYPE, ElementType.PARAMETER, ElementType.METHOD, ElementType.FIELD})
 	public @interface Owning {}
 	""";
 protected static final String NOTOWNING_JAVA = "org/eclipse/jdt/annotation/NotOwning.java";
@@ -126,7 +127,7 @@ protected static final String NOTOWNING_CONTENT =
 	"""
 	package org.eclipse.jdt.annotation;
 	import java.lang.annotation.*;
-	@Target({ElementType.PARAMETER, ElementType.METHOD, ElementType.FIELD})
+	@Target({ElementType.TYPE, ElementType.PARAMETER, ElementType.METHOD, ElementType.FIELD})
 	public @interface NotOwning {}
 	""";
 
@@ -1019,5 +1020,171 @@ public void testUnannotated_return() {
 		""",
 		null);
 }
-
+public void testNotOwning_return() {
+	runLeakTestWithAnnotations(
+		new String[] {
+			"X.java",
+			"""
+			import java.io.*;
+			import org.eclipse.jdt.annotation.*;
+			public class X {
+				@NotOwning AutoCloseable nok(String fn) throws IOException {
+					return new FileInputStream(fn);
+				}
+				@NotOwning AutoCloseable somePath(String fn) throws IOException {
+					FileInputStream fis = new FileInputStream(fn);
+					if (fn.length() > 1)
+						return fis;
+					return null;
+				}
+				@NotOwning AutoCloseable mixed(String fn) throws IOException {
+					FileInputStream fis = new FileInputStream(fn);
+					if (fn.length() > 1)
+						return new FileInputStream(fn);
+					return fis;
+				}
+				@NotOwning AutoCloseable passThrough(@NotOwning AutoCloseable resource, boolean flag) {
+					if (flag)
+						return resource;
+					return null;
+				}
+			}
+			"""
+		},
+		"""
+		----------
+		1. ERROR in X.java (at line 5)
+			return new FileInputStream(fn);
+			       ^^^^^^^^^^^^^^^^^^^^^^^
+		Resource leak: \'<unassigned Closeable value>\' is never closed
+		----------
+		2. ERROR in X.java (at line 8)
+			FileInputStream fis = new FileInputStream(fn);
+			                ^^^
+		Resource leak: \'fis\' is never closed
+		----------
+		3. ERROR in X.java (at line 14)
+			FileInputStream fis = new FileInputStream(fn);
+			                ^^^
+		Resource leak: \'fis\' is never closed
+		----------
+		4. ERROR in X.java (at line 16)
+			return new FileInputStream(fn);
+			       ^^^^^^^^^^^^^^^^^^^^^^^
+		Resource leak: \'<unassigned Closeable value>\' is never closed
+		----------
+		""",
+		null);
+}
+public void testNotOwningCloseableClass() {
+	runLeakTestWithAnnotations(
+		new String[] {
+			"p/A.java",
+			"""
+			package p;
+			import org.eclipse.jdt.annotation.NotOwning;
+			public @NotOwning class A implements AutoCloseable {
+				public void close() { /* nothing */ }
+			}
+			""",
+			"X.java",
+			"""
+			import p.A;
+			public class X {
+				void test() {
+					new A();
+				}
+			}
+			"""
+		},
+		"",
+		null);
+}
+public void testNotOwningCloseableClass_binary() {
+	runLeakTestWithAnnotations(
+		new String[] {
+			"p/A.java",
+			"""
+			package p;
+			import org.eclipse.jdt.annotation.NotOwning;
+			public @NotOwning class A implements AutoCloseable {
+				public void close() { /* nothing */ }
+			}
+			"""
+		},
+		"",
+		null);
+	runLeakTestWithAnnotations(
+			new String[] {
+				"X.java",
+				"""
+				import p.A;
+				public class X {
+					void test() {
+						new A();
+					}
+				}
+				"""
+			},
+			"",
+			null,
+			false);
+}
+public void testInheritance() {
+	runLeakTestWithAnnotations(
+		new String[] {
+			"Super.java",
+			"""
+			import org.eclipse.jdt.annotation.*;
+			public class Super implements AutoCloseable {
+				@Owning AutoCloseable f1;
+				@Owning AutoCloseable f3;
+				@Owning AutoCloseable ok1(@Owning AutoCloseable rc1, @NotOwning AutoCloseable rc2) {
+					return rc1;
+				}
+				AutoCloseable nok1(@Owning AutoCloseable rc1, AutoCloseable rc2, @Owning AutoCloseable rc3) {
+					this.f1 = rc1;
+					this.f3 = rc3;
+					return rc2;
+				}
+				public void close() throws Exception {
+					this.f1.close();
+					if (this.f3 != null)
+						this.f3.close();
+				}
+			}
+			""",
+			"Sub.java",
+			"""
+			import org.eclipse.jdt.annotation.*;
+			public class Sub extends Super {
+				@Override @Owning AutoCloseable ok1(@Owning AutoCloseable rc1, @NotOwning AutoCloseable rc2) {
+					return rc1;
+				}
+				@Override @Owning AutoCloseable nok1(AutoCloseable rc1, @NotOwning AutoCloseable rc2, @NotOwning AutoCloseable rc3) {
+					return rc1;
+				}
+			}
+			"""
+		},
+		"""
+		----------
+		1. ERROR in Sub.java (at line 6)
+			@Override @Owning AutoCloseable nok1(AutoCloseable rc1, @NotOwning AutoCloseable rc2, @NotOwning AutoCloseable rc3) {
+			          ^^^^^^^
+		Unsafe redefinition, super method is not tagged as '@Owning'
+		----------
+		2. ERROR in Sub.java (at line 6)
+			@Override @Owning AutoCloseable nok1(AutoCloseable rc1, @NotOwning AutoCloseable rc2, @NotOwning AutoCloseable rc3) {
+			                                                   ^^^
+		Unsafe redefinition, super method tagged this parameter as '@Owning'
+		----------
+		3. ERROR in Sub.java (at line 6)
+			@Override @Owning AutoCloseable nok1(AutoCloseable rc1, @NotOwning AutoCloseable rc2, @NotOwning AutoCloseable rc3) {
+			                                                                                                               ^^^
+		Unsafe redefinition, super method tagged this parameter as '@Owning'
+		----------
+		""",
+		null);
+}
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -96,12 +96,16 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			boolean useOwningAnnotations = currentScope.compilerOptions().isAnnotationBasedResourceAnalysisEnabled;
 			FakedTrackingVariable trackingVariable = FakedTrackingVariable.getCloseTrackingVariable(this.expression, flowInfo, flowContext, useOwningAnnotations);
 			if (trackingVariable != null) {
-				if (methodScope != trackingVariable.methodScope)
-					trackingVariable.markClosedInNestedMethod();
+				long owningTagBits = 0;
+				boolean delegatingToCaller = true;
 				if (useOwningAnnotations) {
-					flowInfo.markAsDefinitelyNonNull(trackingVariable.binding);
-					returnWithoutOwning = (methodScope.referenceMethodBinding().tagBits & TagBits.AnnotationOwning) == 0;
-				} else {
+					owningTagBits = methodScope.referenceMethodBinding().tagBits & TagBits.AnnotationOwningMASK;
+					returnWithoutOwning = owningTagBits == 0;
+					delegatingToCaller = (owningTagBits & TagBits.AnnotationNotOwning) == 0;
+				}
+				if (methodScope != trackingVariable.methodScope && delegatingToCaller)
+					trackingVariable.markClosedInNestedMethod();
+				if (delegatingToCaller) {
 					// by returning the method passes the responsibility to the caller:
 					flowInfo = FakedTrackingVariable.markPassedToOutside(currentScope, this.expression, flowInfo, flowContext, true);
 				}

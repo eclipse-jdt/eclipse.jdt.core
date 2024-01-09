@@ -1056,10 +1056,8 @@ public class FakedTrackingVariable extends LocalDeclaration {
 				}
 				@Override
 				public boolean visit(AllocationExpression allocation, BlockScope skope) {
-					if (useAnnotations) {
-						if (handle(allocation.closeTracker, flowInfo, allocation, skope))
-							allocation.closeTracker = null;
-					}
+					if (handle(allocation.closeTracker, flowInfo, allocation, skope))
+						allocation.closeTracker = null;
 					return true;
 				}
 
