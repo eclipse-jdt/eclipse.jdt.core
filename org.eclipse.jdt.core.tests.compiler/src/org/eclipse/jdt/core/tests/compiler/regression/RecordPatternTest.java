@@ -3934,6 +3934,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"s = DataY\n" +
 				"s = switch on null\n" +
 				"s = default threw exception");
+	}
 	public void testIssue1804_0() {
 		runConformTest(new String[] { "X.java", """
 				public class X {
