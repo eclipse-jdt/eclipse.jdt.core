@@ -246,7 +246,7 @@ public class TypePattern extends Pattern {
 
 	private LocalVariableBinding getSecretVariable(BlockScope scope, String name, int nestingLevel1, TypeBinding type) {
 		return TypePattern.getNewLocalVariableBinding(scope,
-				(name + nestingLevel1).toCharArray(),
+				(name + (nestingLevel1 + 31 * this.index)).toCharArray(),
 				type);
 	}
 	private static LocalVariableBinding getNewLocalVariableBinding(BlockScope scope, char[] name,
@@ -263,7 +263,7 @@ public class TypePattern extends Pattern {
 //		int delta =  ((TypeBinding.equalsEquals(type, TypeBinding.LONG)) ||
 //				(TypeBinding.equalsEquals(type, TypeBinding.DOUBLE))) ?
 //				2 : 1;
-		l.resolvedPosition = scope.localIndex;
+		l.resolvedPosition = scope.startIndex + scope.localIndex;
 		return l;
 	}
 
