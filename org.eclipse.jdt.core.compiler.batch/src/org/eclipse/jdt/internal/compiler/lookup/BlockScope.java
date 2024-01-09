@@ -1257,7 +1257,7 @@ private boolean isLastInMethod(Block block, ASTNode location) {
 	} else if (this.referenceContext() instanceof AbstractMethodDeclaration method) {
 		blockStatements = method.statements;
 	}
-	if (blockStatements != null) {
+	if (blockStatements != null && blockStatements.length > 0) {
 		Statement lastStatement = blockStatements[blockStatements.length-1];
 		if (lastStatement == location) {
 			Scope current = this;
