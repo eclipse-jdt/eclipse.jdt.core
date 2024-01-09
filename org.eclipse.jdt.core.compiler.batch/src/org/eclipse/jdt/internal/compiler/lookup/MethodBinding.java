@@ -1478,6 +1478,9 @@ public boolean hasPolymorphicSignature(Scope scope) {
 public boolean ownsParameter(int i) {
 	if (this.parameterFlowBits != null)
 		return (this.parameterFlowBits[i] & PARAM_OWNING) != 0;
+	if (i == 0 && this.parameters.length > 0 && this.declaringClass.hasTypeBit(TypeIds.BitWrapperCloseable)) {
+		return this.parameters[0].hasTypeBit(TypeIds.BitAutoCloseable);
+	}
 	return false;
 }
 public boolean notownsParameter(int i) {

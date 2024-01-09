@@ -1289,4 +1289,52 @@ public void testCustomWrapperResource_binary() {
 		false);
 
 }
+public void testSubclassingWrapperResource() {
+	runLeakTestWithAnnotations(
+		new String[] {
+			"p1/C.java",
+			"""
+			package p1;
+			import org.eclipse.jdt.annotation.*;
+			import java.io.*;
+			public class C extends BufferedInputStream {
+				public C(@Owning InputStream input) {
+					super(input); // should not complain, super param is implicilty @Owning
+				}
+				static void test1(@Owning InputStream input) {
+					C c = new C(input);
+				}
+				static void test2(@Owning InputStream input) throws Exception {
+					C c = new C(input);
+					input.close(); // now C is resource-less
+				}
+				static void test3(String name) throws Exception {
+					FileInputStream fis = new FileInputStream(name);
+					C c = new C(fis);
+					if (name == null)
+						fis.close();
+				}
+			}
+			"""
+		},
+		"""
+		----------
+		1. ERROR in p1\\C.java (at line 9)
+			C c = new C(input);
+			  ^
+		Resource leak: 'c' is never closed
+		----------
+		2. INFO in p1\\C.java (at line 12)
+			C c = new C(input);
+			  ^
+		Resource 'c' should be managed by try-with-resource
+		----------
+		3. ERROR in p1\\C.java (at line 17)
+			C c = new C(fis);
+			  ^
+		Potential resource leak: 'c' may not be closed
+		----------
+		""",
+		null);
+}
 }
