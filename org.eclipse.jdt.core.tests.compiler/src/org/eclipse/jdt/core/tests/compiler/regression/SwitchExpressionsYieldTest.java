@@ -6724,4 +6724,37 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				+ "BLAH\n"
 				+ "Done");
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1820
+	// [switch] Switch expression fails with instanceof + ternary operator combo
+	public void testGHI1820_5() {
+		if (this.complianceLevel < ClassFileConstants.JDK16)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					static String method(Object element, int columnIndex) {
+						if (element instanceof String string) {
+							return element instanceof String data ?
+								switch (columnIndex) {
+									case 0 -> data;
+									case 1 -> string.toUpperCase();
+									default -> "Done";
+								} : "";
+						}
+						return null;
+					}
+					public static void main(String[] args) {
+						System.out.println(method("Blah", 0));
+						System.out.println(method("Blah", 1));
+						System.out.println(method("Blah", 10));
+					}
+				}
+				"""
+				},
+				"Blah\n"
+				+ "BLAH\n"
+				+ "Done");
+	}
 }
