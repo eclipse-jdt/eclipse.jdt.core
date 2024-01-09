@@ -107,7 +107,7 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 							.analyseCode(currentScope, flowContext, flowInfo)
 							.unconditionalInits();
 					if (analyseResources) {
-						flowInfo = handleResourcePassedToInvocation(currentScope, this.binding, this.arguments[i], i, flowContext, flowInfo, false);
+						flowInfo = handleResourcePassedToInvocation(currentScope, this.binding, this.arguments[i], i, flowContext, flowInfo);
 					}
 					this.arguments[i].checkNPEbyUnboxing(currentScope, flowContext, flowInfo);
 				}

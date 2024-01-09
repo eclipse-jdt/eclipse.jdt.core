@@ -129,9 +129,8 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 						&& ((ReferenceBinding)this.resolvedType).hasTypeBit(TypeIds.BitWrapperCloseable);
 			for (int i = 0, count = this.arguments.length; i < count; i++) {
 				flowInfo = this.arguments[i].analyseCode(currentScope, flowContext, flowInfo);
-				if (analyseResources) {
-					flowInfo = handleResourcePassedToInvocation(currentScope, this.binding, this.arguments[i], i,
-							flowContext, flowInfo, hasResourceWrapperType);
+				if (analyseResources && !hasResourceWrapperType) { // allocation of wrapped closeables is analyzed specially
+					flowInfo = handleResourcePassedToInvocation(currentScope, this.binding, this.arguments[i], i, flowContext, flowInfo);
 				}
 				this.arguments[i].checkNPEbyUnboxing(currentScope, flowContext, flowInfo);
 			}

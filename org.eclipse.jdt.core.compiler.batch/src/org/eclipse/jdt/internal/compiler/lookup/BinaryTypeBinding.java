@@ -660,12 +660,15 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 				}
 			}
 			if (this.environment.globalOptions.isAnnotationBasedResourceAnalysisEnabled) {
+				boolean hasAnnotatedField = false, hasMethodWithOwningParam = false;
 				if (iFields != null)
 					for (int i = 0; i < iFields.length; i++)
-						scanFieldForOwningAnnotations(iFields[i], this.fields[i]);
+						hasAnnotatedField |= scanFieldForOwningAnnotations(iFields[i], this.fields[i]);
 				if (iMethods != null)
 					for (int i = 0; i < iMethods.length; i++)
-						scanMethodForOwningAnnotations(iMethods[i], this.methods[i]);
+						hasMethodWithOwningParam |= scanMethodForOwningAnnotations(iMethods[i], this.methods[i]);
+				if (hasAnnotatedField && hasMethodWithOwningParam) // detail checks inside detectWrapperResource()
+					detectWrapperResource();
 			}
 		}
 		IBinaryAnnotation[] declAnnotations = binaryType.getAnnotations();
@@ -2324,17 +2327,20 @@ protected long scanForOwningAnnotation(IBinaryAnnotation[] annotations) {
 	}
 	return 0;
 }
-private void scanFieldForOwningAnnotations(IBinaryField field, FieldBinding fieldBinding) {
+private boolean scanFieldForOwningAnnotations(IBinaryField field, FieldBinding fieldBinding) {
 	// currently without .eea support
 	if (!isPrototype()) throw new IllegalStateException();
 
-	fieldBinding.tagBits |= scanForOwningAnnotation(field.getAnnotations());
+	long detectedBits = scanForOwningAnnotation(field.getAnnotations());
+	fieldBinding.tagBits |= detectedBits;
+	return detectedBits != 0;
 }
 
-private void scanMethodForOwningAnnotations(IBinaryMethod method, MethodBinding methodBinding) {
+private boolean scanMethodForOwningAnnotations(IBinaryMethod method, MethodBinding methodBinding) {
 	// minimally modelled after scanMethodForNullAnnotation, currently without .eea support
 	if (!isPrototype()) throw new IllegalStateException();
 
+	boolean sawOwningParam = false;
 	// return:
 	methodBinding.tagBits |= scanForOwningAnnotation(method.getAnnotations());
 
@@ -2358,6 +2364,7 @@ private void scanMethodForOwningAnnotations(IBinaryMethod method, MethodBinding 
 								if (methodBinding.parameterFlowBits == null)
 									methodBinding.parameterFlowBits = new byte[numVisibleParams];
 								methodBinding.parameterFlowBits[j] |= MethodBinding.PARAM_OWNING;
+								sawOwningParam = true;
 								break annotations;
 							case TypeIds.BitNotOwningAnnotation:
 								if (methodBinding.parameterFlowBits == null)
@@ -2370,6 +2377,7 @@ private void scanMethodForOwningAnnotations(IBinaryMethod method, MethodBinding 
 			}
 		}
 	}
+	return sawOwningParam;
 }
 
 public static int evaluateTypeQualifierDefault(ReferenceBinding annotationType) {

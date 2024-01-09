@@ -245,7 +245,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 					flowInfo = argument.analyseCode(currentScope, flowContext, flowInfo).unconditionalInits();
 			}
 			if (analyseResources) {
-				flowInfo = handleResourcePassedToInvocation(currentScope, this.binding, argument, i, flowContext, flowInfo, false);
+				flowInfo = handleResourcePassedToInvocation(currentScope, this.binding, argument, i, flowContext, flowInfo);
 			}
 		}
 		analyseArguments(currentScope, flowContext, flowInfo, this.binding, this.arguments);

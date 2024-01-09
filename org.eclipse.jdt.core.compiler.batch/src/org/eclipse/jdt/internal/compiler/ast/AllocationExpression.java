@@ -115,9 +115,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 					.analyseCode(currentScope, flowContext, flowInfo)
 					.unconditionalInits();
 			// if argument is an AutoCloseable insert info that it *may* be closed (by the target method, i.e.)
-			if (analyseResources) {
-				flowInfo = handleResourcePassedToInvocation(currentScope, this.binding, argument, i, flowContext, flowInfo,
-						hasResourceWrapperType);
+			if (analyseResources && !hasResourceWrapperType) { // allocation of wrapped closeables is analyzed specially
+				flowInfo = handleResourcePassedToInvocation(currentScope, this.binding, argument, i, flowContext, flowInfo);
 			}
 			argument.checkNPEbyUnboxing(currentScope, flowContext, flowInfo);
 		}

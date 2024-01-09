@@ -1924,6 +1924,9 @@ public void updateSupertypesWithAnnotations(Map<ReferenceBinding,ReferenceBindin
 			memberTypesDecl.updateSupertypesWithAnnotations(updates);
 		}
 	}
+	if (this.scope.compilerOptions().isAnnotationBasedResourceAnalysisEnabled) {
+		this.binding.detectWrapperResource(); // needs field an methods built
+	}
 }
 
 protected ReferenceBinding updateWithAnnotations(TypeReference typeRef, ReferenceBinding previousType,

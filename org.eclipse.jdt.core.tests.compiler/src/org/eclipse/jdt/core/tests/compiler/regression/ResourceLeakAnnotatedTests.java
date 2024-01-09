@@ -1056,22 +1056,22 @@ public void testNotOwning_return() {
 		1. ERROR in X.java (at line 5)
 			return new FileInputStream(fn);
 			       ^^^^^^^^^^^^^^^^^^^^^^^
-		Resource leak: \'<unassigned Closeable value>\' is never closed
+		Resource leak: '<unassigned Closeable value>' is never closed
 		----------
 		2. ERROR in X.java (at line 8)
 			FileInputStream fis = new FileInputStream(fn);
 			                ^^^
-		Resource leak: \'fis\' is never closed
+		Resource leak: 'fis' is never closed
 		----------
 		3. ERROR in X.java (at line 14)
 			FileInputStream fis = new FileInputStream(fn);
 			                ^^^
-		Resource leak: \'fis\' is never closed
+		Resource leak: 'fis' is never closed
 		----------
 		4. ERROR in X.java (at line 16)
 			return new FileInputStream(fn);
 			       ^^^^^^^^^^^^^^^^^^^^^^^
-		Resource leak: \'<unassigned Closeable value>\' is never closed
+		Resource leak: '<unassigned Closeable value>' is never closed
 		----------
 		""",
 		null);
@@ -1186,5 +1186,107 @@ public void testInheritance() {
 		----------
 		""",
 		null);
+}
+public void testCustomWrapperResource() {
+	runLeakTestWithAnnotations(
+		new String[] {
+			"p1/C.java",
+			"""
+			package p1;
+			import org.eclipse.jdt.annotation.*;
+			import java.io.*;
+			public class C implements AutoCloseable {
+				@Owning InputStream fInput;
+				public C(@Owning InputStream input) {
+					this.fInput = input;
+				}
+				public void close() throws Exception {
+					this.fInput.close();
+				}
+				static void test1(@Owning InputStream input) {
+					C c = new C(input);
+				}
+				static void test2(@Owning InputStream input) throws Exception {
+					C c = new C(input);
+					input.close(); // now C is resource-less
+				}
+				static void test3(String name) throws Exception {
+					FileInputStream fis = new FileInputStream(name);
+					C c = new C(fis);
+					if (name == null)
+						fis.close();
+				}
+			}
+			"""
+		},
+		"""
+		----------
+		1. ERROR in p1\\C.java (at line 13)
+			C c = new C(input);
+			  ^
+		Resource leak: 'c' is never closed
+		----------
+		2. INFO in p1\\C.java (at line 16)
+			C c = new C(input);
+			  ^
+		Resource 'c' should be managed by try-with-resource
+		----------
+		3. ERROR in p1\\C.java (at line 21)
+			C c = new C(fis);
+			  ^
+		Potential resource leak: 'c' may not be closed
+		----------
+		""",
+		null);
+}
+public void testCustomWrapperResource_binary() {
+	runLeakTestWithAnnotations(
+		new String[] {
+			"p1/C.java",
+			"""
+			package p1;
+			import org.eclipse.jdt.annotation.*;
+			import java.io.*;
+			public class C implements AutoCloseable {
+				@Owning InputStream fInput;
+				public C(@Owning InputStream input) {
+					this.fInput = input;
+				}
+				public void close() throws Exception {
+					this.fInput.close();
+				}
+			}
+			"""
+		},
+		"",
+		null);
+	// challenge C.class
+	runLeakTestWithAnnotations(
+		new String[] {
+			"D.java",
+			"""
+			import java.io.*;
+			import p1.C;
+			class D {
+				void test3(String name) throws Exception {
+					FileInputStream fis = new FileInputStream(name);
+					C c = new C(fis);
+					if (name == null)
+						fis.close();
+				}
+			}
+			"""
+		},
+		"""
+		----------
+		1. ERROR in D.java (at line 6)
+			C c = new C(fis);
+			  ^
+		Potential resource leak: 'c' may not be closed
+		----------
+		""",
+		null,
+		false);
+
 }
 }

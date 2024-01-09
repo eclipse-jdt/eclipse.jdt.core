@@ -56,7 +56,7 @@ public interface Invocation extends InvocationSite {
 
 	/** Resource leak analysis: track the case that a resource is passed as an argument to an invocation. */
 	default FlowInfo handleResourcePassedToInvocation(BlockScope currentScope, MethodBinding methodBinding, Expression argument, int rank,
-			FlowContext flowContext, FlowInfo flowInfo, boolean constructingResourceWrapper) {
+			FlowContext flowContext, FlowInfo flowInfo) {
 		if (currentScope.compilerOptions().isAnnotationBasedResourceAnalysisEnabled) {
 			FakedTrackingVariable trackVar = FakedTrackingVariable.getCloseTrackingVariable(argument, flowInfo, flowContext, true);
 			if (trackVar != null) {
@@ -64,11 +64,11 @@ public interface Invocation extends InvocationSite {
 					trackVar.markOwnedByOutside(flowInfo, flowContext);
 				} else if (methodBinding.notownsParameter(rank)) {
 					// ignore, no relevant change
-				} else if (!constructingResourceWrapper) {
+				} else {
 					trackVar.markAsShared();
 				}
 			}
-		} else if (!constructingResourceWrapper) { // allocation of wrapped closeables is analyzed specially
+		} else {
 			// insert info that it *may* be closed (by the target constructor, i.e.)
 			return FakedTrackingVariable.markPassedToOutside(currentScope, argument, flowInfo, flowContext, false);
 		}
