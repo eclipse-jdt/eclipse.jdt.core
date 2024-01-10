@@ -264,7 +264,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	}
 	// after having analysed exceptions above start tracking newly allocated resource:
 	if (analyseResources && FakedTrackingVariable.isAnyCloseable(this.resolvedType))
-		flowInfo = FakedTrackingVariable.analyseCloseableAcquisition(currentScope, flowInfo, this);
+		flowInfo = FakedTrackingVariable.analyseCloseableAcquisition(currentScope, flowInfo, flowContext, this);
 
 	manageSyntheticAccessIfNecessary(currentScope, flowInfo);
 	// account for pot. exceptions thrown by method execution

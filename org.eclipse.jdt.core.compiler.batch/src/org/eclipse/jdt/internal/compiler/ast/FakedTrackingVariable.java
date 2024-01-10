@@ -499,7 +499,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 	 * Check if a message send acquires a closeable from its receiver, see:
 	 * Bug 463320 - [compiler][resource] potential "resource leak" problem disappears when local variable inlined
 	 */
-	public static FlowInfo analyseCloseableAcquisition(BlockScope scope, FlowInfo flowInfo, MessageSend acquisition) {
+	public static FlowInfo analyseCloseableAcquisition(BlockScope scope, FlowInfo flowInfo, FlowContext flowContext, MessageSend acquisition) {
 		if (isFluentMethod(acquisition.binding)) {
 			// share the existing close tracker of the receiver (if any):
 			acquisition.closeTracker = findCloseTracker(scope, flowInfo, acquisition.receiver);
@@ -542,7 +542,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 			tracker.acquisition = acquisition;
 			FlowInfo outsideInfo = flowInfo.copy();
 			outsideInfo.markAsDefinitelyNonNull(tracker.binding);
-			flowInfo.markAsDefinitelyNull(tracker.binding);
+			tracker.markNullStatus(flowInfo, flowContext, FlowInfo.NULL);
 			return FlowInfo.conditional(outsideInfo, flowInfo);
 		}
 	}
@@ -619,13 +619,13 @@ public class FakedTrackingVariable extends LocalDeclaration {
 						int finallyNullStatus = enclosingFinallyInfo.nullStatus(presetTracker.binding);
 						enclosingFinallyInfo.markNullStatus(local.closeTracker.binding, finallyNullStatus);
 					}
-					presetTracker.markUnknown(flowInfo, flowContext); // no longer relevant in this flow
+					presetTracker.markNullStatus(flowInfo, flowContext, FlowInfo.UNKNOWN); // no longer relevant in this flow
 				}
 			}
 		} else {
 			allocation.closeTracker = new FakedTrackingVariable(scope, allocation, flowInfo, FlowInfo.UNKNOWN); // no local available, closeable is unassigned
 		}
-		flowInfo.markAsDefinitelyNull(allocation.closeTracker.binding);
+		allocation.closeTracker.markNullStatus(flowInfo, flowContext, FlowInfo.NULL);
 	}
 
 	/** Was this FTV created from the finally block of the current context? */
@@ -771,7 +771,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 					// re-assigning from a fresh value, mark as not-closed again:
 					if ((previousTracker.globalClosingState & (SHARED_WITH_OUTSIDE|OWNED_BY_OUTSIDE|FOREACH_ELEMENT_VAR)) == 0
 							&& flowInfo.hasNullInfoFor(previousTracker.binding)) // avoid spilling info into a branch that doesn't see the corresponding resource
-						flowInfo.markAsDefinitelyNull(previousTracker.binding);
+						previousTracker.markNullStatus(flowInfo, flowContext, FlowInfo.NULL);
 					local.closeTracker = analyseCloseableExpression(scope, flowInfo, flowContext, useAnnotations, local, location, rhs, previousTracker);
 				}
 			} else {												// 3. no re-use, create a fresh tracking variable:
@@ -781,7 +781,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 					if (!useAnnotations) {
 						// a fresh resource, mark as not-closed:
 						if ((rhsTrackVar.globalClosingState & (SHARED_WITH_OUTSIDE|OWNED_BY_OUTSIDE|FOREACH_ELEMENT_VAR)) == 0)
-							flowInfo.markAsDefinitelyNull(rhsTrackVar.binding);
+							rhsTrackVar.markNullStatus(flowInfo, flowContext, FlowInfo.NULL);
 					}
 // TODO(stephan): this might be useful, but I could not find a test case for it:
 //					if (flowContext.initsOnFinally != null)
@@ -843,7 +843,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 						}
 						if (field != null) {
 							if (!field.isStatic() && (field.tagBits & TagBits.AnnotationOwning) != 0) {
-								flowInfo.markAsDefinitelyNonNull(rhsTrackVar.binding);
+								rhsTrackVar.markNullStatus(flowInfo, flowContext, FlowInfo.NON_NULL);
 							} else {
 								rhsTrackVar.markAsShared();
 							}
@@ -1186,10 +1186,10 @@ public class FakedTrackingVariable extends LocalDeclaration {
 		});
 	}
 
-	private void markUnknown(FlowInfo flowInfo, FlowContext flowContext) {
+	public void markNullStatus(FlowInfo flowInfo, FlowContext flowContext, int status) {
 		markAllConnected(current -> {
-			flowInfo.markAsDefinitelyUnknown(current.binding);
-			flowContext.markFinallyNullStatus(current.binding, FlowInfo.UNKNOWN);
+			flowInfo.markNullStatus(current.binding, status);
+			flowContext.markFinallyNullStatus(current.binding, status);
 		});
 	}
 
@@ -1245,7 +1245,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 				ftv.globalClosingState |= flag;
 				if (scope.methodScope() != ftv.methodScope)
 					ftv.globalClosingState |= CLOSED_IN_NESTED_METHOD;
-				infoResourceIsClosed.markAsDefinitelyNonNull(ftv.binding);
+				ftv.markNullStatus(flowInfo, flowContext, FlowInfo.NON_NULL);
 			});
 			if (owned) {
 				return infoResourceIsClosed; // don't let downstream signal any problems on this flow

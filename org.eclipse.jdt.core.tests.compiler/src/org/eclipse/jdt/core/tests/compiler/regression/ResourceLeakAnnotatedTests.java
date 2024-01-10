@@ -1337,4 +1337,28 @@ public void testSubclassingWrapperResource() {
 		""",
 		null);
 }
+public void testWrappingTwoResources() {
+	runLeakTestWithAnnotations(
+		new String[] {
+			"X.java",
+			"""
+			import java.io.*;
+			import org.eclipse.jdt.annotation.*;
+			public class X implements AutoCloseable {
+				private final @Owning DataInputStream fDataIn;
+				private final @Owning DataOutputStream fDataOut;
+				public X(@Owning InputStream in, @Owning OutputStream out) {
+					fDataIn = new DataInputStream(new BufferedInputStream(in));
+					fDataOut = new DataOutputStream(new BufferedOutputStream(out));
+				}
+				public void close() throws IOException {
+					fDataIn.close();
+					fDataOut.close();
+				}
+			}
+			"""
+		},
+		"",
+		null);
+}
 }
