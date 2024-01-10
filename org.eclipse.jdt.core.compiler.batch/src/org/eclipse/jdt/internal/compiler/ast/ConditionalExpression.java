@@ -548,6 +548,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		}
 
 		collectPatternVariablesToScope(null, scope);
+		LocalVariableBinding[] patternVariablesInTrueScope = this.condition.getPatternVariablesWhenTrue();
+		LocalVariableBinding[] patternVariablesInFalseScope = this.condition.getPatternVariablesWhenFalse();
 
 		if (this.constant != Constant.NotAConstant) {
 			this.constant = Constant.NotAConstant;
@@ -555,10 +557,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 			this.condition.computeConversion(scope, TypeBinding.BOOLEAN, conditionType);
 
 			if (this.valueIfTrue instanceof CastExpression) this.valueIfTrue.bits |= DisableUnnecessaryCastCheck; // will check later on
-			this.originalValueIfTrueType = this.valueIfTrue.resolveType(scope);
-
+			this.originalValueIfTrueType = this.valueIfTrue.resolveTypeWithPatternVariablesInScope(patternVariablesInTrueScope, scope);
 			if (this.valueIfFalse instanceof CastExpression) this.valueIfFalse.bits |= DisableUnnecessaryCastCheck; // will check later on
-			this.originalValueIfFalseType = this.valueIfFalse.resolveType(scope);
+			this.originalValueIfFalseType = this.valueIfFalse.resolveTypeWithPatternVariablesInScope(patternVariablesInFalseScope, scope);
 
 			if (conditionType == null || this.originalValueIfTrueType == null || this.originalValueIfFalseType == null)
 				return null;
