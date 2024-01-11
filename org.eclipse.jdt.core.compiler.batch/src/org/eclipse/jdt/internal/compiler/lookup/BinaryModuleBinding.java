@@ -160,7 +160,7 @@ public class BinaryModuleBinding extends ModuleBinding {
 				char[] annotationTypeName = annotations[i].getTypeName();
 				if (annotationTypeName[0] != Util.C_RESOLVED)
 					continue;
-				int typeBit = this.environment.getNullAnnotationBit(BinaryTypeBinding.signature2qualifiedTypeName(annotationTypeName));
+				int typeBit = this.environment.getAnalysisAnnotationBit(BinaryTypeBinding.signature2qualifiedTypeName(annotationTypeName));
 				if (typeBit == TypeIds.BitNonNullByDefaultAnnotation) {
 					// using NonNullByDefault we need to inspect the details of the value() attribute:
 					nullness |= BinaryTypeBinding.getNonNullByDefaultValue(annotations[i], this.environment);

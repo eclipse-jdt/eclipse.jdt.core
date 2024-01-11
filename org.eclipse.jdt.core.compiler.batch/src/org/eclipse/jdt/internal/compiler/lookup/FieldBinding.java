@@ -26,6 +26,7 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.IErrorHandlingPolicy;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
+import org.eclipse.jdt.internal.compiler.ast.FakedTrackingVariable;
 import org.eclipse.jdt.internal.compiler.ast.FieldDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -35,6 +36,8 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 public class FieldBinding extends VariableBinding {
 	public ReferenceBinding declaringClass;
 	public int compoundUseFlag = 0; // number or accesses via postIncrement or compoundAssignment
+
+	public FakedTrackingVariable closeTracker;
 
 protected FieldBinding() {
 	super(null, null, 0, null);

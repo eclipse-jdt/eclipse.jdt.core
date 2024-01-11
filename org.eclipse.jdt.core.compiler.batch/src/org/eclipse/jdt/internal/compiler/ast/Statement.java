@@ -137,12 +137,12 @@ protected void analyseArguments(BlockScope currentScope, FlowContext flowContext
 		if (compilerOptions.sourceLevel >= ClassFileConstants.JDK1_7 && methodBinding.isPolymorphic())
 			return;
 		boolean considerTypeAnnotations = currentScope.environment().usesNullTypeAnnotations();
-		boolean hasJDK15NullAnnotations = methodBinding.parameterNonNullness != null;
+		boolean hasJDK15FlowAnnotations = methodBinding.parameterFlowBits != null;
 		int numParamsToCheck = methodBinding.parameters.length;
 		int varArgPos = -1;
 		TypeBinding varArgsType = null;
 		boolean passThrough = false;
-		if (considerTypeAnnotations || hasJDK15NullAnnotations) {
+		if (considerTypeAnnotations || hasJDK15FlowAnnotations) {
 			// check if varargs need special treatment:
 			if (methodBinding.isVarargs()) {
 				varArgPos = numParamsToCheck-1;
@@ -162,21 +162,21 @@ protected void analyseArguments(BlockScope currentScope, FlowContext flowContext
 		if (considerTypeAnnotations) {
 			for (int i=0; i<numParamsToCheck; i++) {
 				TypeBinding expectedType = methodBinding.parameters[i];
-				Boolean specialCaseNonNullness = hasJDK15NullAnnotations ? methodBinding.parameterNonNullness[i] : null;
+				Boolean specialCaseNonNullness = hasJDK15FlowAnnotations? methodBinding.getParameterNullness(i) : null;
 				analyseOneArgument18(currentScope, flowContext, flowInfo, expectedType, arguments[i],
 						specialCaseNonNullness, methodBinding.original().parameters[i]);
 			}
 			if (!passThrough && varArgsType instanceof ArrayBinding) {
 				TypeBinding expectedType = ((ArrayBinding) varArgsType).elementsType();
-				Boolean specialCaseNonNullness = hasJDK15NullAnnotations ? methodBinding.parameterNonNullness[varArgPos] : null;
+				Boolean specialCaseNonNullness = hasJDK15FlowAnnotations? methodBinding.getParameterNullness(varArgPos) : null;
 				for (int i = numParamsToCheck; i < arguments.length; i++) {
 					analyseOneArgument18(currentScope, flowContext, flowInfo, expectedType, arguments[i],
 							specialCaseNonNullness, methodBinding.original().parameters[varArgPos]);
 				}
 			}
-		} else if (hasJDK15NullAnnotations) {
+		} else if (hasJDK15FlowAnnotations) {
 			for (int i = 0; i < numParamsToCheck; i++) {
-				if (methodBinding.parameterNonNullness[i] == Boolean.TRUE) {
+				if ((methodBinding.parameterFlowBits[i] & MethodBinding.PARAM_NONNULL) != 0) {
 					TypeBinding expectedType = methodBinding.parameters[i];
 					Expression argument = arguments[i];
 					int nullStatus = argument.nullStatus(flowInfo, flowContext); // slight loss of precision: should also use the null info from the receiver.

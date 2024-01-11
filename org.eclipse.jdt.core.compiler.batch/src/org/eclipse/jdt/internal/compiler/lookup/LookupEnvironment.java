@@ -127,7 +127,10 @@ public class LookupEnvironment implements ProblemReasons, TypeConstants {
 	AnnotationBinding nonNullAnnotation;
 	AnnotationBinding nullableAnnotation;
 
-	Map<String,Integer> allNullAnnotations = null;
+	AnnotationBinding owningAnnotation;
+	AnnotationBinding notOwningAnnotation;
+
+	Map<String,Integer> allAnalysisAnnotations = null;
 
 	final List<MethodBinding> deferredEnumMethods; // SHARED: during early initialization we cannot mark Enum-methods as nonnull.
 
@@ -1573,21 +1576,51 @@ public char[][] getNonNullByDefaultAnnotationName() {
 	return this.globalOptions.nonNullByDefaultAnnotationName;
 }
 
-int getNullAnnotationBit(char[][] qualifiedTypeName) {
-	if (this.allNullAnnotations == null) {
-		this.allNullAnnotations = new HashMap<>();
-		this.allNullAnnotations.put(CharOperation.toString(this.globalOptions.nonNullAnnotationName), TypeIds.BitNonNullAnnotation);
-		this.allNullAnnotations.put(CharOperation.toString(this.globalOptions.nullableAnnotationName), TypeIds.BitNullableAnnotation);
-		this.allNullAnnotations.put(CharOperation.toString(this.globalOptions.nonNullByDefaultAnnotationName), TypeIds.BitNonNullByDefaultAnnotation);
+public char[][] getOwningAnnotationName() {
+	return this.globalOptions.owningAnnotationName;
+}
+
+public char[][] getNotOwningAnnotationName() {
+	return this.globalOptions.notOwningAnnotationName;
+}
+
+public AnnotationBinding getOwningAnnotation() {
+	if (this.owningAnnotation != null)
+		return this.owningAnnotation;
+	if (this.root != this) {
+		return this.owningAnnotation = this.root.getOwningAnnotation();
+	}
+	ReferenceBinding owning = getResolvedType(this.globalOptions.owningAnnotationName, this.UnNamedModule, null, true);
+	return this.owningAnnotation = this.typeSystem.getAnnotationType(owning, true);
+}
+
+public AnnotationBinding getNotOwningAnnotation() {
+	if (this.notOwningAnnotation != null)
+		return this.notOwningAnnotation;
+	if (this.root != this) {
+		return this.notOwningAnnotation = this.root.getNotOwningAnnotation();
+	}
+	ReferenceBinding notOwning = getResolvedType(this.globalOptions.notOwningAnnotationName, this.UnNamedModule, null, true);
+	return this.notOwningAnnotation = this.typeSystem.getAnnotationType(notOwning, true);
+}
+
+int getAnalysisAnnotationBit(char[][] qualifiedTypeName) {
+	if (this.allAnalysisAnnotations == null) {
+		this.allAnalysisAnnotations = new HashMap<>();
+		this.allAnalysisAnnotations.put(CharOperation.toString(this.globalOptions.nonNullAnnotationName), TypeIds.BitNonNullAnnotation);
+		this.allAnalysisAnnotations.put(CharOperation.toString(this.globalOptions.nullableAnnotationName), TypeIds.BitNullableAnnotation);
+		this.allAnalysisAnnotations.put(CharOperation.toString(this.globalOptions.nonNullByDefaultAnnotationName), TypeIds.BitNonNullByDefaultAnnotation);
+		this.allAnalysisAnnotations.put(CharOperation.toString(this.globalOptions.owningAnnotationName), TypeIds.BitOwningAnnotation);
+		this.allAnalysisAnnotations.put(CharOperation.toString(this.globalOptions.notOwningAnnotationName), TypeIds.BitNotOwningAnnotation);
 		for (String name : this.globalOptions.nullableAnnotationSecondaryNames)
-			this.allNullAnnotations.put(name, TypeIds.BitNullableAnnotation);
+			this.allAnalysisAnnotations.put(name, TypeIds.BitNullableAnnotation);
 		for (String name : this.globalOptions.nonNullAnnotationSecondaryNames)
-			this.allNullAnnotations.put(name, TypeIds.BitNonNullAnnotation);
+			this.allAnalysisAnnotations.put(name, TypeIds.BitNonNullAnnotation);
 		for (String name : this.globalOptions.nonNullByDefaultAnnotationSecondaryNames)
-			this.allNullAnnotations.put(name, TypeIds.BitNonNullByDefaultAnnotation);
+			this.allAnalysisAnnotations.put(name, TypeIds.BitNonNullByDefaultAnnotation);
 	}
 	String qualifiedTypeString = CharOperation.toString(qualifiedTypeName);
-	Integer typeBit = this.allNullAnnotations.get(qualifiedTypeString);
+	Integer typeBit = this.allAnalysisAnnotations.get(qualifiedTypeString);
 	return typeBit == null ? 0 : typeBit;
 }
 public boolean isNullnessAnnotationPackage(PackageBinding pkg) {
@@ -1595,6 +1628,8 @@ public boolean isNullnessAnnotationPackage(PackageBinding pkg) {
 }
 
 public boolean usesNullTypeAnnotations() {
+	if (!this.globalOptions.isAnnotationBasedNullAnalysisEnabled)
+		return false;
 	if(this.root != this) {
 		return this.root.usesNullTypeAnnotations();
 	}
@@ -1643,6 +1678,55 @@ private void initializeUsesNullTypeAnnotation() {
 	if (nullableMetaBits == 0)
 		return;
 	this.globalOptions.useNullTypeAnnotations = Boolean.TRUE;
+}
+
+public boolean usesOwningAnnotations() {
+	if (!this.globalOptions.isAnnotationBasedResourceAnalysisEnabled) {
+		return false;
+	}
+	if(this.root != this) {
+		return this.root.usesOwningAnnotations();
+	}
+	if (this.globalOptions.useOwningAnnotations != null)
+		return this.globalOptions.useOwningAnnotations;
+
+	initializeUsesOwningAnnotations();
+	for (MethodBinding enumMethod : this.deferredEnumMethods) {
+		int purpose = 0;
+		if (CharOperation.equals(enumMethod.selector, TypeConstants.VALUEOF)) {
+			purpose = SyntheticMethodBinding.EnumValueOf;
+		} else if (CharOperation.equals(enumMethod.selector, TypeConstants.VALUES)) {
+			purpose = SyntheticMethodBinding.EnumValues;
+		}
+		if (purpose != 0)
+			SyntheticMethodBinding.markNonNull(enumMethod, purpose, this);
+	}
+	this.deferredEnumMethods.clear();
+	return this.globalOptions.useOwningAnnotations;
+}
+
+private void initializeUsesOwningAnnotations() {
+	this.globalOptions.useOwningAnnotations = Boolean.FALSE;
+	if (!this.globalOptions.analyseResourceLeaks || this.globalOptions.originalSourceLevel < ClassFileConstants.JDK1_7)
+		return;
+	ReferenceBinding owning;
+	ReferenceBinding notOwning;
+	boolean origMayTolerateMissingType = this.mayTolerateMissingType;
+	this.mayTolerateMissingType = true;
+	try {
+		owning = this.owningAnnotation != null ? this.owningAnnotation.getAnnotationType()
+				: getType(this.getOwningAnnotationName(), this.UnNamedModule);
+		notOwning = this.notOwningAnnotation != null ? this.notOwningAnnotation.getAnnotationType()
+				: getType(this.getNotOwningAnnotationName(), this.UnNamedModule);
+	} finally {
+		this.mayTolerateMissingType = origMayTolerateMissingType;
+	}
+	if (owning == null && notOwning == null)
+		return;
+	if (owning == null || notOwning == null)
+		return; // TODO should report an error about inconsistent setup
+
+	this.globalOptions.useOwningAnnotations = Boolean.TRUE;
 }
 
 /* Answer the top level package named name if it exists in the cache.
@@ -2272,7 +2356,7 @@ public boolean containsNullTypeAnnotation(IBinaryAnnotation[] typeAnnotations) {
 		// typeName must be "Lfoo/X;"
 		if (typeName == null || typeName.length < 3 || typeName[0] != 'L') continue;
 		char[][] name = CharOperation.splitOn('/', typeName, 1, typeName.length-1);
-		if (getNullAnnotationBit(name) != 0)
+		if (getAnalysisAnnotationBit(name) != 0)
 			return true;
 	}
 	return false;

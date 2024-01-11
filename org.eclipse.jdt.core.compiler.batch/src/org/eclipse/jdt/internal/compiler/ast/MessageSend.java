@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -160,7 +160,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	if (analyseResources) {
 		if (nonStatic) {
 			// closeable.close()
-			if (CharOperation.equals(TypeConstants.CLOSE, this.selector)) {
+			if (this.binding.isClosingMethod()) {
 				recordCallingClose(currentScope, flowContext, flowInfo, this.receiver);
 			}
 		} else if (this.arguments != null && this.arguments.length > 0 && FakedTrackingVariable.isAnyCloseable(this.arguments[0].resolvedType)) {
@@ -245,8 +245,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 					flowInfo = argument.analyseCode(currentScope, flowContext, flowInfo).unconditionalInits();
 			}
 			if (analyseResources) {
-				// if argument is an AutoCloseable insert info that it *may* be closed (by the target method, i.e.)
-				flowInfo = FakedTrackingVariable.markPassedToOutside(currentScope, argument, flowInfo, flowContext, false);
+				flowInfo = handleResourcePassedToInvocation(currentScope, this.binding, argument, i, flowContext, flowInfo);
 			}
 		}
 		analyseArguments(currentScope, flowContext, flowInfo, this.binding, this.arguments);
@@ -265,7 +264,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	}
 	// after having analysed exceptions above start tracking newly allocated resource:
 	if (analyseResources && FakedTrackingVariable.isAnyCloseable(this.resolvedType))
-		flowInfo = FakedTrackingVariable.analyseCloseableAcquisition(currentScope, flowInfo, this);
+		flowInfo = FakedTrackingVariable.analyseCloseableAcquisition(currentScope, flowInfo, flowContext, this);
 
 	manageSyntheticAccessIfNecessary(currentScope, flowInfo);
 	// account for pot. exceptions thrown by method execution
@@ -341,12 +340,31 @@ private void yieldQualifiedCheck(BlockScope currentScope) {
 	currentScope.problemReporter().switchExpressionsYieldUnqualifiedMethodError(this);
 }
 private void recordCallingClose(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo, Expression closeTarget) {
-	FakedTrackingVariable trackingVariable = FakedTrackingVariable.getCloseTrackingVariable(closeTarget, flowInfo, flowContext);
-	if (trackingVariable != null) { // null happens if target is not a local variable or not an AutoCloseable
-		if (trackingVariable.methodScope == currentScope.methodScope()) {
-			trackingVariable.markClose(flowInfo, flowContext);
-		} else {
-			trackingVariable.markClosedInNestedMethod();
+	if (closeTarget.isThis() || closeTarget.isSuper()) {
+		// this / super calls of closing method take care of all owning fields
+		ReferenceBinding currentClass = this.binding.declaringClass; // responsibility starts at the class and upwards
+		while (currentClass != null) {
+			for (FieldBinding fieldBinding : currentClass.fields()) {
+				if (fieldBinding.closeTracker != null) {
+					FakedTrackingVariable trackingVariable = fieldBinding.closeTracker;
+					if (trackingVariable.methodScope == null || trackingVariable.methodScope == currentScope.methodScope()) {
+						trackingVariable.markClose(flowInfo, flowContext);
+					} else {
+						trackingVariable.markClosedInNestedMethod();
+					}
+				}
+			}
+			currentClass = currentClass.superclass();
+		}
+	} else {
+		FakedTrackingVariable trackingVariable = FakedTrackingVariable.getCloseTrackingVariable(closeTarget, flowInfo, flowContext,
+				currentScope.compilerOptions().isAnnotationBasedResourceAnalysisEnabled);
+		if (trackingVariable != null) { // null happens if target is not a variable or not an AutoCloseable
+			if (trackingVariable.methodScope == null || trackingVariable.methodScope == currentScope.methodScope()) {
+				trackingVariable.markClose(flowInfo, flowContext);
+			} else {
+				trackingVariable.markClosedInNestedMethod();
+			}
 		}
 	}
 }

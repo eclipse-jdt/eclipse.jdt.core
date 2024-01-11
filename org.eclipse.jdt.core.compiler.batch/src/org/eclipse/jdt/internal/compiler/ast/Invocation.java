@@ -13,6 +13,9 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.internal.compiler.flow.FlowContext;
+import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18;
 import org.eclipse.jdt.internal.compiler.lookup.InvocationSite;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
@@ -51,4 +54,24 @@ public interface Invocation extends InvocationSite {
 	/** Record result against target type */
 	void registerResult(TypeBinding targetType, MethodBinding method);
 
+	/** Resource leak analysis: track the case that a resource is passed as an argument to an invocation. */
+	default FlowInfo handleResourcePassedToInvocation(BlockScope currentScope, MethodBinding methodBinding, Expression argument, int rank,
+			FlowContext flowContext, FlowInfo flowInfo) {
+		if (currentScope.compilerOptions().isAnnotationBasedResourceAnalysisEnabled) {
+			FakedTrackingVariable trackVar = FakedTrackingVariable.getCloseTrackingVariable(argument, flowInfo, flowContext, true);
+			if (trackVar != null) {
+				if (methodBinding.ownsParameter(rank)) {
+					trackVar.markOwnedByOutside(flowInfo, flowContext);
+				} else if (methodBinding.notownsParameter(rank)) {
+					// ignore, no relevant change
+				} else {
+					trackVar.markAsShared();
+				}
+			}
+		} else {
+			// insert info that it *may* be closed (by the target constructor, i.e.)
+			return FakedTrackingVariable.markPassedToOutside(currentScope, argument, flowInfo, flowContext, false);
+		}
+		return flowInfo;
+	}
 }

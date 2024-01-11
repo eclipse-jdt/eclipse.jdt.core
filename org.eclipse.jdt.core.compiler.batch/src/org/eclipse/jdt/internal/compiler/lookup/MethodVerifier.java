@@ -146,6 +146,7 @@ void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] m
 				} else {
 					currentMethod.modifiers |= ExtraCompilerModifiers.AccImplementing | ExtraCompilerModifiers.AccOverriding;
 				}
+				currentMethod.verifyOverrideCompatibility(inheritedMethod, this.type.scope);
 //			with the above change an abstract method is tagged as implementing the inherited abstract method
 //			if (!currentMethod.isAbstract() && inheritedMethod.isAbstract()) {
 //				if ((currentMethod.modifiers & CompilerModifiers.AccOverriding) == 0)
@@ -166,6 +167,7 @@ void checkAgainstInheritedMethods(MethodBinding currentMethod, MethodBinding[] m
 						currentMethod.modifiers |= ExtraCompilerModifiers.AccImplementing;
 					else
 						currentMethod.modifiers |= ExtraCompilerModifiers.AccOverriding;
+					currentMethod.verifyOverrideCompatibility(inheritedMethod, this.type.scope);
 				}
 			}
 

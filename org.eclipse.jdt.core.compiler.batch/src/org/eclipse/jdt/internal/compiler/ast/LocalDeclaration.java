@@ -82,14 +82,16 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	this.initialization.checkNPEbyUnboxing(currentScope, flowContext, flowInfo);
 
 	FlowInfo preInitInfo = null;
+	CompilerOptions compilerOptions = currentScope.compilerOptions();
 	boolean shouldAnalyseResource = this.binding != null
 			&& flowInfo.reachMode() == FlowInfo.REACHABLE
-			&& currentScope.compilerOptions().analyseResourceLeaks
+			&& compilerOptions.analyseResourceLeaks
 			&& FakedTrackingVariable.isAnyCloseable(this.initialization.resolvedType);
 	if (shouldAnalyseResource) {
 		preInitInfo = flowInfo.unconditionalCopy();
 		// analysis of resource leaks needs additional context while analyzing the RHS:
-		FakedTrackingVariable.preConnectTrackerAcrossAssignment(this, this.binding, this.initialization, flowInfo);
+		FakedTrackingVariable.preConnectTrackerAcrossAssignment(this, this.binding, this.initialization, flowInfo,
+				compilerOptions.isAnnotationBasedResourceAnalysisEnabled);
 	}
 
 	flowInfo =
@@ -109,7 +111,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		this.bits &= ~FirstAssignmentToLocal;  // int i = (i = 0);
 	}
 	flowInfo.markAsDefinitelyAssigned(this.binding);
-	if (currentScope.compilerOptions().isAnnotationBasedNullAnalysisEnabled) {
+	if (compilerOptions.isAnnotationBasedNullAnalysisEnabled) {
 		nullStatus = NullAnnotationMatching.checkAssignment(currentScope, flowContext, this.binding, flowInfo, nullStatus, this.initialization, this.initialization.resolvedType);
 	}
 	if ((this.binding.type.tagBits & TagBits.IsBaseType) == 0) {

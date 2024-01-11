@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -2047,6 +2047,23 @@ void setSourceStart(int sourceStart);
 
 	/** @since 3.14 */
 	int DuplicateResource = Internal + 1251;
+
+	/** @since 3.37 */
+	int ShouldMarkMethodAsOwning = Internal + 1260;
+	/** @since 3.37 */
+	int MandatoryCloseNotShown = Internal + 1261;
+	/** @since 3.37 */
+	int MandatoryCloseNotShownAtExit = Internal + 1262;
+	/** @since 3.37 */
+	int NotOwningResourceField = Internal + 1263;
+	/** @since 3.37 */
+	int OwningFieldInNonResourceClass = Internal + 1264;
+	/** @since 3.37 */
+	int OwningFieldShouldImplementClose = Internal + 1265;
+	/** @since 3.37 */
+	int OverrideReducingParamterOwning = Internal + 1266;
+	/** @since 3.37 */
+	int OverrideAddingReturnOwning = Internal + 1267;
 
 	// terminally
 	/** @since 3.14 */

@@ -92,6 +92,7 @@ public static Test suite() {
 	standardTests.add(ManifestAnalyzerTest.class);
 	standardTests.add(InitializationTests.class);
 	standardTests.add(ResourceLeakTests.class);
+	standardTests.add(ResourceLeakAnnotatedTests.class);
 	standardTests.add(PackageBindingTest.class);
 
 	// add all javadoc tests

@@ -305,8 +305,6 @@ public interface TypeConstants {
 		"ObjectOutputStream".toCharArray(), //$NON-NLS-1$
 		"FilterInputStream".toCharArray(), //$NON-NLS-1$
 		"FilterOutputStream".toCharArray(), //$NON-NLS-1$
-		"DataInputStream".toCharArray(), //$NON-NLS-1$
-		"DataOutputStream".toCharArray(), //$NON-NLS-1$
 		"PushbackInputStream".toCharArray(), //$NON-NLS-1$
 		"SequenceInputStream".toCharArray(), //$NON-NLS-1$
 		"PrintStream".toCharArray(), //$NON-NLS-1$

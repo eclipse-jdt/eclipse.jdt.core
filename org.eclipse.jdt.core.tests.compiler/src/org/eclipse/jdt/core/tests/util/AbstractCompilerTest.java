@@ -15,6 +15,7 @@ package org.eclipse.jdt.core.tests.util;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -195,7 +196,15 @@ public class AbstractCompilerTest extends TestCase {
 		for (int i=0, m=testClasses.size(); i<m ; i++) {
 			Class testClass = (Class)testClasses.get(i);
 			TestSuite suite = new TestSuite(testClass.getName());
-			List tests = buildTestsList(testClass);
+			int inheritedDepth = 0;
+			try {
+				Field depthField = testClass.getDeclaredField("INHERITED_DEPTH");
+				if (depthField != null)
+					inheritedDepth = depthField.getInt(null);
+			} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+				// ignore
+			}
+			List tests = buildTestsList(testClass, inheritedDepth, ORDERING);
 			for (int index=0, size=tests.size(); index<size; index++) {
 				suite.addTest((Test)tests.get(index));
 			}
@@ -225,7 +234,7 @@ public class AbstractCompilerTest extends TestCase {
 		}
 		return suite;
 	}
-	private static void checkCompliance(Class evaluationTestClass, int minimalCompliance, TestSuite suite,
+	protected static void checkCompliance(Class evaluationTestClass, int minimalCompliance, TestSuite suite,
 			int complianceLevels, int abstractCompilerTestCompliance, int classFileConstantsVersion, String release) {
 		int lev = complianceLevels & abstractCompilerTestCompliance;
 		if (lev != 0) {

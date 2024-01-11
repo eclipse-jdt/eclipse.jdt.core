@@ -109,15 +109,16 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				&& this.resolvedType instanceof ReferenceBinding
 				&& ((ReferenceBinding)this.resolvedType).hasTypeBit(TypeIds.BitWrapperCloseable);
 		for (int i = 0, count = this.arguments.length; i < count; i++) {
+			Expression argument = this.arguments[i];
 			flowInfo =
-				this.arguments[i]
+				argument
 					.analyseCode(currentScope, flowContext, flowInfo)
 					.unconditionalInits();
 			// if argument is an AutoCloseable insert info that it *may* be closed (by the target method, i.e.)
 			if (analyseResources && !hasResourceWrapperType) { // allocation of wrapped closeables is analyzed specially
-				flowInfo = FakedTrackingVariable.markPassedToOutside(currentScope, this.arguments[i], flowInfo, flowContext, false);
+				flowInfo = handleResourcePassedToInvocation(currentScope, this.binding, argument, i, flowContext, flowInfo);
 			}
-			this.arguments[i].checkNPEbyUnboxing(currentScope, flowContext, flowInfo);
+			argument.checkNPEbyUnboxing(currentScope, flowContext, flowInfo);
 		}
 		analyseArguments(currentScope, flowContext, flowInfo, this.binding, this.arguments);
 	}
@@ -139,7 +140,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 
 	// after having analysed exceptions above start tracking newly allocated resource:
 	if (currentScope.compilerOptions().analyseResourceLeaks && FakedTrackingVariable.isAnyCloseable(this.resolvedType))
-		FakedTrackingVariable.analyseCloseableAllocation(currentScope, flowInfo, this);
+		FakedTrackingVariable.analyseCloseableAllocation(currentScope, flowInfo, flowContext, this);
 
 	ReferenceBinding declaringClass = this.binding.declaringClass;
 	MethodScope methodScope = currentScope.methodScope();

@@ -66,6 +66,11 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	FlowInfo conditionFlowInfo = this.condition.analyseCode(currentScope, flowContext, flowInfo);
 	int initialComplaintLevel = (flowInfo.reachMode() & FlowInfo.UNREACHABLE) != 0 ? Statement.COMPLAINED_FAKE_REACHABLE : Statement.NOT_COMPLAINED;
 
+	FieldBinding[] nullCheckedFields = null;
+	if (currentScope.compilerOptions().isAnnotationBasedResourceAnalysisEnabled && this.condition instanceof EqualExpression) { // simple checks only
+		nullCheckedFields = flowContext.nullCheckedFields(); // store before info expires
+	}
+
 	Constant cst = this.condition.optimizedBooleanConstant();
 	this.condition.checkNPEbyUnboxing(currentScope, flowContext, flowInfo);
 	boolean isConditionOptimizedTrue = cst != Constant.NotAConstant && cst.booleanValue() == true;
@@ -141,6 +146,17 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		elseFlowInfo = this.elseStatement.analyseCode(currentScope, flowContext, elseFlowInfo);
 		if (!(this.elseStatement instanceof Block))
 			flowContext.expireNullCheckedFieldInfo();
+	}
+	if (nullCheckedFields != null) {
+		for (FieldBinding fieldBinding : nullCheckedFields) {
+			if (fieldBinding.closeTracker != null) {
+				LocalVariableBinding trackerBinding = fieldBinding.closeTracker.binding;
+				int closeStatus = thenFlowInfo.nullStatus(trackerBinding);
+				if (closeStatus == FlowInfo.NON_NULL || closeStatus == FlowInfo.POTENTIALLY_NON_NULL) {
+					elseFlowInfo.markNullStatus(trackerBinding, closeStatus);
+				}
+			}
+		}
 	}
 	// process AutoCloseable resources closed in only one branch:
 	currentScope.correlateTrackingVarsIfElse(thenFlowInfo, elseFlowInfo);
