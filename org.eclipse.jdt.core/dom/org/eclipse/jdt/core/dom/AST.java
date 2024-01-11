@@ -455,6 +455,21 @@ public final class AST {
 	 */
 	public static final int JLS21 = 21;
 	/**
+	 * Constant for indicating the AST API that handles JLS22.
+	 * <p>
+	 * This API is capable of handling all constructs in the
+	 * Java language as described in the Java Language
+	 * Specification, Java SE 22 Edition (JLS22).
+	 * JLS22 is a superset of all earlier versions of the
+	 * Java language, and the JLS22 API can be used to manipulate
+	 * programs written in all versions of the Java language
+	 * up to and including Java SE 22(aka JDK 22).
+	 * </p>
+	 *
+	 * @since 3.37
+	 */
+	public static final int JLS22 = 22;
+	/**
 	 * Internal synonym for {@link #JLS15}. Use to alleviate
 	 * deprecation warnings once JLS15 is deprecated
 	 */
@@ -490,10 +505,15 @@ public final class AST {
 	 */
 	static final int JLS21_INTERNAL = JLS21;
 	/**
+	 * Internal synonym for {@link #JLS22}. Use to alleviate
+	 * deprecation warnings once JLS21 is deprecated
+	 */
+	static final int JLS22_INTERNAL = JLS22;
+	/**
 	 * Internal property for latest supported JLS level
 	 * This provides the latest JLS level.
 	 */
-	private static final int JLS_INTERNAL_Latest = JLS21;
+	private static final int JLS_INTERNAL_Latest = JLS22;
 
 	/**
 	 * @since 3.26
