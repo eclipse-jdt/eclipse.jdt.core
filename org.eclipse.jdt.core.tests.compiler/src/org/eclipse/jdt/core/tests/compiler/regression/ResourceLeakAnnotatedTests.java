@@ -1379,12 +1379,7 @@ public void testConsumingMethod_nok() {
 		},
 		"""
 		----------
-		1. INFO in F.java (at line 6)
-			public void consume(@Owning F this) throws Exception {
-			            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-		Resource 'rc1' should be managed by try-with-resource
-		----------
-		2. ERROR in F.java (at line 6)
+		1. ERROR in F.java (at line 6)
 			public void consume(@Owning F this) throws Exception {
 			            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 		Resource leak: 'this.rc2' is never closed
