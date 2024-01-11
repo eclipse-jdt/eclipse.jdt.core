@@ -6959,22 +6959,27 @@ public void test0576_try_with_resources() {
 		"	      ^^^^^^^^^^^\n" +
 		"The serializable class MyException does not declare a static final serialVersionUID field of type long\n" +
 		"----------\n" +
-		"2. ERROR in X.java (at line 13)\n" +
+		"2. WARNING in X.java (at line 12)\n" +
+		"	fis = new FileInputStream(\"\");\n" +
+		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+		"Resource leak: \'fis\' is never closed\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 13)\n" +
 		"	fis2.available();\n" +
 		"	^^^^\n" +
 		"Potential null pointer access: The variable fis2 may be null at this location\n" +
 		"----------\n" +
-		"3. ERROR in X.java (at line 14)\n" +
+		"4. ERROR in X.java (at line 14)\n" +
 		"	fis3.close();\n" +
 		"	^^^^\n" +
 		"Potential null pointer access: The variable fis3 may be null at this location\n" +
 		"----------\n" +
-		"4. ERROR in X.java (at line 15)\n" +
+		"5. ERROR in X.java (at line 15)\n" +
 		"	fis4.available();\n" +
 		"	^^^^\n" +
 		"Null pointer access: The variable fis4 can only be null at this location\n" +
 		"----------\n" +
-		"5. ERROR in X.java (at line 18)\n" +
+		"6. ERROR in X.java (at line 18)\n" +
 		"	fis.available();\n" +
 		"	^^^\n" +
 		"Potential null pointer access: The variable fis may be null at this location\n" +
