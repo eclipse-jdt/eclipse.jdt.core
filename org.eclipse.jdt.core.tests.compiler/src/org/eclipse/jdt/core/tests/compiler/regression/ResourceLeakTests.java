@@ -7035,4 +7035,23 @@ public void testBug499037_010_since_9() {
 		"----------\n",
 		options);
 }
+public void testGH1762() {
+	runLeakTest(
+		new String[] {
+			"X.java",
+			"""
+			import java.io.*;
+			public class X {
+				void m(String path, ClassLoader loader) throws IOException {
+					try (InputStream input = loader == null ? new FileInputStream(path) : loader.getResourceAsStream(path)) {
+						// read
+					}
+				}
+			}
+			"""
+		},
+		"",
+		null);
+
+}
 }
