@@ -45,9 +45,9 @@ public class ASTConverterStringTemplateTest extends ConverterTestSetup {
 		this.ast = AST.newAST(getASTLatest(), false);
 		this.currentProject = getJavaProject("Converter_21");
 		if (this.ast.apiLevel() == AST.JLS21) {
-			this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_21);
-			this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_21);
-			this.currentProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_21);
+			this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_22);
+			this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_22);
+			this.currentProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_22);
 			this.currentProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 			this.currentProject.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
 		}

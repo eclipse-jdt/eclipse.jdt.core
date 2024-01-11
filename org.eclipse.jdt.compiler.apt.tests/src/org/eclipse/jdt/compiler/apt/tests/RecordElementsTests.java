@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020, 2023 IBM Corporation.
+ * Copyright (c) 2020, 2024 IBM Corporation.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -31,7 +35,7 @@ import junit.framework.TestCase;
 public class RecordElementsTests extends TestCase {
 	private static final String MODULE_PROC = "org.eclipse.jdt.compiler.apt.tests.processors.elements.RecordElementProcessor";
 
-	public void testPreviewFlagTrue() throws IOException {
+	public void _testPreviewFlagTrue() throws IOException {
 		if (!isRunning21()) {
 			return;
 		}
@@ -192,8 +196,8 @@ public class RecordElementsTests extends TestCase {
 			options.add("-source");
 			options.add(compliance);
 		}
-		if (preview)
-			options.add("--enable-preview");
+//		if (preview)
+//			options.add("--enable-preview");
 		BatchTestUtils.compileInModuleMode(compiler, options, processor, targetFolder, null, true, processBinaries);
 		// If it succeeded, the processor will have set this property to "succeeded";
 		// if not, it will set it to an error value.

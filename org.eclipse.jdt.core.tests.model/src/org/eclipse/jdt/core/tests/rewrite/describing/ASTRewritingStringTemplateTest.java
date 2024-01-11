@@ -49,10 +49,10 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-		if (this.apiLevel == AST.JLS21 ) {
-			this.project1.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_21);
-			this.project1.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_21);
-			this.project1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_21);
+		if (this.apiLevel == AST.JLS22 ) {
+			this.project1.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_22);
+			this.project1.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_22);
+			this.project1.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_22);
 			this.project1.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 		}
 	}
