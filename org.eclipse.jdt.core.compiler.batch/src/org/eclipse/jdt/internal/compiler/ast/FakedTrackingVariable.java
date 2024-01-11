@@ -1518,9 +1518,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 		if ((this.globalClosingState & (TWR_EFFECTIVELY_FINAL|OWNED_BY_OUTSIDE|REPORTED_EXPLICIT_CLOSE|FOREACH_ELEMENT_VAR)) == 0) { // can't use t-w-r for OWNED_BY_OUTSIDE
 			if (this.originalFieldBinding != null && this.blockScope instanceof MethodScope) {
 				AbstractMethodDeclaration method = ((MethodScope) this.blockScope).referenceMethod();
-				if (CharOperation.equals(TypeConstants.CLOSE, method.selector)
-						&& method.binding != null
-						&& method.binding.declaringClass.hasTypeBit(TypeIds.BitCloseable|TypeIds.BitAutoCloseable)) {
+				if (method.binding != null && method.binding.isClosingMethod()) {
 					return; // this is the canonical close method, nothing to warn about.
 				}
 			}
