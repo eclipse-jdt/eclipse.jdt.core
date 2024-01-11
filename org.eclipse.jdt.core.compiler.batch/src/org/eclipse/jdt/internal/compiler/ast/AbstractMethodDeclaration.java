@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -669,6 +669,15 @@ public abstract class AbstractMethodDeclaration
 
 		if (this.receiver.type.hasNullTypeAnnotation(AnnotationPosition.ANY)) {
 			this.scope.problemReporter().nullAnnotationUnsupportedLocation(this.receiver.type);
+		}
+		if (this.scope.compilerOptions().isAnnotationBasedResourceAnalysisEnabled && this.receiver.type.resolvedType != null) {
+			for (AnnotationBinding annotationBinding : this.receiver.type.resolvedType.getTypeAnnotations()) {
+				ReferenceBinding annotationType = annotationBinding.getAnnotationType();
+				if (annotationType != null && annotationType.hasTypeBit(TypeIds.BitOwningAnnotation)) {
+					this.binding.extendedTagBits = ExtendedTagBits.IsClosingMethod;
+					break;
+				}
+			}
 		}
 	}
 	public void resolveJavadoc() {

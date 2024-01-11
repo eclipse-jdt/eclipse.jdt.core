@@ -2344,6 +2344,20 @@ private boolean scanMethodForOwningAnnotations(IBinaryMethod method, MethodBindi
 	// return:
 	methodBinding.tagBits |= scanForOwningAnnotation(method.getAnnotations());
 
+	// check for "@Owning MyType this":
+	IBinaryTypeAnnotation[] methodTypeAnnotations = method.getTypeAnnotations();
+	if (methodTypeAnnotations != null) {
+		ITypeAnnotationWalker walker = new TypeAnnotationWalker(methodTypeAnnotations).toReceiver();
+		IBinaryAnnotation[] receiverTypeAnnotations = walker.getAnnotationsAtCursor(0, false);
+		if (receiverTypeAnnotations != null) {
+			for (IBinaryAnnotation binaryAnnotation : receiverTypeAnnotations) {
+				int typeBit = this.environment.getAnalysisAnnotationBit(signature2qualifiedTypeName(binaryAnnotation.getTypeName()));
+				if ((typeBit & TypeIds.BitOwningAnnotation) != 0)
+					methodBinding.extendedTagBits |= ExtendedTagBits.IsClosingMethod;
+			}
+		}
+	}
+
 	// parameters:
 	TypeBinding[] parameters = methodBinding.parameters;
 	int numVisibleParams = parameters.length;

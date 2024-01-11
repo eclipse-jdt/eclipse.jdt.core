@@ -1475,6 +1475,12 @@ public boolean hasPolymorphicSignature(Scope scope) {
 
 	return false;
 }
+public boolean isClosingMethod() {
+	if (!this.declaringClass.hasTypeBit(TypeIds.BitAutoCloseable))
+		return false;
+	return (this.extendedTagBits & ExtendedTagBits.IsClosingMethod) != 0 // custom closing method with "@Owning MyType this"
+			|| (CharOperation.equals(this.selector, TypeConstants.CLOSE) && this.parameters == NO_PARAMETERS); // AutoCloseable.close()
+}
 public boolean ownsParameter(int i) {
 	if (this.parameterFlowBits != null)
 		return (this.parameterFlowBits[i] & PARAM_OWNING) != 0;

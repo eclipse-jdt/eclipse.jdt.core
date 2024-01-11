@@ -44,6 +44,10 @@ import java.lang.annotation.Target;
  *  enclosing object. In order to allow for precise analysis in this situation, it is recommended that the enclosing
  *  class of such a field implements {@link AutoCloseable}. In that case, it will be the responsibility of the class's
  *  {@code close()} implementation to also close all resources stored in {@code @Owning} fields.
+ * <dt>Method receiver (via {@link ElementType#TYPE_USE})</dt>
+ * <dd>Annotating a method receiver (explicit {@code this} parameter) as owning signals that the method is responsible
+ *  for closing all contained resources. The method will be treated as a "custom close method".<br/>
+ *  The annotation is not evaluated in any other TYPE_USE locations.
  * </dl>
  * <p><strong>Responsibility</strong> to close a resource may <strong>initially arise</strong> from these situations:</p>
  * <ul>
@@ -52,26 +56,27 @@ import java.lang.annotation.Target;
  * <li>Receiving a result from a call to method that is marked as {@code @Owning} and returns {@link AutoCloseable} (or a subtype).
  * 	<ul><li>If the {@code @Owning} annotation is absent in this situation, the receiving method is <em>potentially responsible</em>.</li></ul>
  * </li>
- * <li>Within the {@code close()} method of a class implementing {@link AutoCloseable}, each resource field annotations as {@code @Owning}
- * must be closed.</li>
+ * <li>Within the {@code close()} method of a class implementing {@link AutoCloseable}, and within each "custom close method",
+ *  each resource field annotated as {@code @Owning} must be closed.</li>
  * </ul>
  * <p><strong>Responsibility</strong> to close a resource may be <strong>fulfilled</strong> by ensuring any of these measures on every possible path:</p>
  * <ul>
- * <li>Invoking {@link AutoCloseable#close()}.
+ * <li>Invoking {@link AutoCloseable#close()} or a "custom close method".</li>
  * <li>Passing the resource into a method where the receiving parameter has type {@link AutoCloseable} (or subtype)
  *  and is marked as {@code @Owning}.</li>
  * <li>Returning the resource to the caller, provided that the current method is marked as {@code @Owning} and has a declared return type
  * 	of {@link AutoCloseable} (or a subtype).</li>
  * <li>Assigning the resource to a field annotated as {@code @Owning}.
- * <li>Within the {@code close()} method of a class implementing {@link AutoCloseable} (see above) closing the resource held by a field
- *  tagged as {@code @Owning} can happen either directly, or for inherited fields by invoking {@code super.close()}.
+ * <li>Within the {@code close()} method of a class implementing {@link AutoCloseable} and within a "custom close method"
+ *  closing the resource held by a field tagged as {@code @Owning} can happen either directly, or for inherited fields
+ *  by invoking {@code super.close()}, or the super version of a "custom close method".
  * </ul>
  *
  * @since 2.3
  */
 @Retention(RetentionPolicy.CLASS)
 @Documented
-@Target({ ElementType.PARAMETER, ElementType.METHOD, ElementType.FIELD })
+@Target({ ElementType.PARAMETER, ElementType.METHOD, ElementType.FIELD, ElementType.TYPE_USE })
 public @interface Owning {
 	// no details
 }

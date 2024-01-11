@@ -119,7 +119,7 @@ protected static final String OWNING_CONTENT =
 	"""
 	package org.eclipse.jdt.annotation;
 	import java.lang.annotation.*;
-	@Target({ElementType.TYPE, ElementType.PARAMETER, ElementType.METHOD, ElementType.FIELD})
+	@Target({ElementType.TYPE, ElementType.PARAMETER, ElementType.METHOD, ElementType.FIELD, ElementType.TYPE_USE})
 	public @interface Owning {}
 	""";
 protected static final String NOTOWNING_JAVA = "org/eclipse/jdt/annotation/NotOwning.java";
@@ -1361,4 +1361,102 @@ public void testWrappingTwoResources() {
 		"",
 		null);
 }
+public void testConsumingMethod_nok() {
+	runLeakTestWithAnnotations(
+		new String[] {
+			"F.java",
+			"""
+			import org.eclipse.jdt.annotation.*;
+			public class F implements AutoCloseable {
+				@Owning AutoCloseable rc1;
+				@Owning AutoCloseable rc2;
+				public void close() throws Exception { consume(); }
+				public void consume(@Owning F this) throws Exception {
+					rc1.close();
+				}
+			}
+			"""
+		},
+		"""
+		----------
+		1. INFO in F.java (at line 6)
+			public void consume(@Owning F this) throws Exception {
+			            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+		Resource 'rc1' should be managed by try-with-resource
+		----------
+		2. ERROR in F.java (at line 6)
+			public void consume(@Owning F this) throws Exception {
+			            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+		Resource leak: 'this.rc2' is never closed
+		----------
+		""",
+		null);
+}
+public void testConsumingMethodUse() {
+	runLeakTestWithAnnotations(
+		new String[] {
+			"F.java",
+			"""
+			import org.eclipse.jdt.annotation.*;
+			public class F implements AutoCloseable {
+				public void close() {}
+				public void consume(@Owning F this) {
+				}
+				static void test() {
+					F f = new F();
+					f.consume();
+				}
+			}
+			"""
+		},
+		"""
+		----------
+		1. INFO in F.java (at line 7)
+			F f = new F();
+			  ^
+		Resource 'f' should be managed by try-with-resource
+		----------
+		""",
+		null);
+}
+public void testConsumingMethodUse_binary() {
+	runLeakTestWithAnnotations(
+			new String[] {
+				"p1/F.java",
+				"""
+				package p1;
+				import org.eclipse.jdt.annotation.*;
+				public class F implements AutoCloseable {
+					public void close() {}
+					public void consume(@Owning F this) {
+					}
+				}
+				"""
+			},
+			"",
+			null);
+	runLeakTestWithAnnotations(
+			new String[] {
+				"Test.java",
+				"""
+				import p1.F;
+				public class Test {
+					static void test() {
+						F f = new F();
+						f.consume();
+					}
+				}
+				"""
+			},
+			"""
+			----------
+			1. INFO in Test.java (at line 4)
+				F f = new F();
+				  ^
+			Resource 'f' should be managed by try-with-resource
+			----------
+			""",
+			null,
+			false);
+	}
 }
