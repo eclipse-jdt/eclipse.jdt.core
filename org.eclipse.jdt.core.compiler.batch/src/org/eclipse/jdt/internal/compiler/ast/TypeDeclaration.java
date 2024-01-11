@@ -1012,7 +1012,7 @@ private void addJUnitMethodSourceValues(SimpleSetOfCharArray junitMethodSourceVa
 
 private char[] getValueAsChars(Expression value) {
 	if (value instanceof StringLiteral) { // e.g. "someMethod"
-		return ((StringLiteral) value).source;
+		return ((StringLiteral) value).source();
 	} else if (value.constant instanceof StringConstant) { // e.g. SOME_CONSTANT + "value"
 		return ((StringConstant) value.constant).stringValue().toCharArray();
 	}

@@ -10026,7 +10026,7 @@ protected void consumeTemplate(int token) {
 			StringLiteral literal = fragments[index];
 			char[][] lines = TextBlock.convertTextBlockToLines(fragments[index].source());
 			char[] formattedText = TextBlock.formatTextBlock(lines, textBlockIndent, index > 0, index+1 < fragments.length);
-			literal.source = formattedText;
+			literal.setSource(formattedText);
 		}
 	}
 	//	get rid of all the cached values

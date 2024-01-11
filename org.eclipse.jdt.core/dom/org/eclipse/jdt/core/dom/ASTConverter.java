@@ -1336,10 +1336,10 @@ class ASTConverter {
 				&& ((expression.left.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.ParenthesizedMASK) == 0)
 				&& (OperatorIds.PLUS == expressionOperatorID)) {
 			StringLiteralConcatenation literal = (StringLiteralConcatenation) expression.left;
-			final org.eclipse.jdt.internal.compiler.ast.Expression[] stringLiterals = literal.literals;
+			final org.eclipse.jdt.internal.compiler.ast.Expression[] stringLiterals = literal.getLiterals();
 			infixExpression.setLeftOperand(convert(stringLiterals[0]));
 			infixExpression.setRightOperand(convert(stringLiterals[1]));
-			for (int i = 2; i < literal.counter; i++) {
+			for (int i = 2; i < stringLiterals.length; i++) {
 				infixExpression.extendedOperands().add(convert(stringLiterals[i]));
 			}
 			infixExpression.extendedOperands().add(convert(expression.right));
@@ -2087,7 +2087,7 @@ class ASTConverter {
 		if (this.resolveBindings) {
 			this.recordNodes(literal, expression);
 		}
-		literal.internalSetEscapedValue(new String(expression.source));
+		literal.internalSetEscapedValue(new String(expression.source()));
 		literal.setSourceRange(expression.sourceStart, expression.sourceEnd - expression.sourceStart + 1);
 		return literal;
 	}
@@ -2719,10 +2719,10 @@ class ASTConverter {
 		expression.computeConstant();
 		final InfixExpression infixExpression = new InfixExpression(this.ast);
 		infixExpression.setOperator(InfixExpression.Operator.PLUS);
-		org.eclipse.jdt.internal.compiler.ast.Expression[] stringLiterals = expression.literals;
+		org.eclipse.jdt.internal.compiler.ast.Expression[] stringLiterals = expression.getLiterals();
 		infixExpression.setLeftOperand(convert(stringLiterals[0]));
 		infixExpression.setRightOperand(convert(stringLiterals[1]));
-		for (int i = 2; i < expression.counter; i++) {
+		for (int i = 2; i < stringLiterals.length; i++) {
 			infixExpression.extendedOperands().add(convert(stringLiterals[i]));
 		}
 		if (this.resolveBindings) {

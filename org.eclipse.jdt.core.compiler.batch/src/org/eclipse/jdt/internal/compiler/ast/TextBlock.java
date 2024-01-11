@@ -300,8 +300,8 @@ public class TextBlock extends StringLiteral {
 	@Override
 	public StringBuilder printExpression(int indent, StringBuilder output) {
 		output.append("\"\"\"\n"); //$NON-NLS-1$
-		for (int i = 0; i < this.source.length; i++) {
-			Util.appendEscapedChar(output, this.source[i], true);
+		for (char c:this.source()) {
+			Util.appendEscapedChar(output, c, true);
 		}
 		output.append("\"\"\""); //$NON-NLS-1$
 		return output;
