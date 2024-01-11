@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -712,7 +712,7 @@ private void reportNLSProblems() {
 			int i = 0;
 			stringLiteralsLoop: for (; i < stringLiteralsLength; i++) {
 				literal = this.stringLiterals[i];
-				final int literalLineNumber = literal instanceof TextBlock ? ((TextBlock)literal).endLineNumber : literal.lineNumber;
+				final int literalLineNumber = literal instanceof TextBlock ? ((TextBlock)literal).endLineNumber : literal.getLineNumber();
 				if (lastLineNumber != literalLineNumber) {
 					indexInLine = 1;
 					lastLineNumber = literalLineNumber;

@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import java.util.Arrays;
+
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.impl.StringConstant;
@@ -22,51 +24,52 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class StringLiteral extends Literal {
 
-	public char[] source;
-	int lineNumber;
+	private char[] source;
+	private final int lineNumber;
 
 	public StringLiteral(char[] token, int start, int end, int lineNumber) {
-
-		this(start,end);
+		super(start, end);
 		this.source = token;
 		this.lineNumber = lineNumber - 1; // line number is 1 based
 	}
 
 	public StringLiteral(int s, int e) {
-
-		super(s,e);
+		this(null, s, e, 1);
 	}
 
 	@Override
 	public void computeConstant() {
-
 		this.constant = StringConstant.fromValue(String.valueOf(this.source));
 	}
 
-	public ExtendedStringLiteral extendWith(CharLiteral lit){
-
-		//add the lit source to mine, just as if it was mine
-		return new ExtendedStringLiteral(this,lit);
+	public ExtendedStringLiteral extendWith(CharLiteral lit) {
+		return new ExtendedStringLiteral(append(this.source(), new char[] { lit.value }),
+				this.sourceStart, lit.sourceEnd, this.getLineNumber() + 1);
 	}
 
-	public ExtendedStringLiteral extendWith(StringLiteral lit){
-
-		//add the lit source to mine, just as if it was mine
-		return new ExtendedStringLiteral(this,lit);
+	public ExtendedStringLiteral extendWith(StringLiteral lit) {
+		return new ExtendedStringLiteral(append(this.source(), lit.source()), this.sourceStart,
+				lit.sourceEnd, this.getLineNumber() + 1);
 	}
+	protected static char[] append(char[] source, char[] source2) {
+		char[] result = Arrays.copyOfRange(source, 0, source.length + source2.length);
+		System.arraycopy(source2, 0, result, source.length, source2.length);
+		return result;
+	}
+
 
 	/**
-	 *  Add the lit source to mine, just as if it was mine
+	 * Add the lit source to mine, just as if it was mine
 	 */
 	public StringLiteralConcatenation extendsWith(StringLiteral lit) {
 		return new StringLiteralConcatenation(this, lit);
 	}
+
 	/**
 	 * Code generation for string literal
 	 */
 	@Override
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
-
 		int pc = codeStream.position;
 		if (valueRequired)
 			codeStream.ldc(this.constant.stringValue());
@@ -75,17 +78,15 @@ public class StringLiteral extends Literal {
 
 	@Override
 	public TypeBinding literalType(BlockScope scope) {
-
 		return scope.getJavaLangString();
 	}
 
 	@Override
 	public StringBuilder printExpression(int indent, StringBuilder output) {
-
 		// handle some special char.....
 		output.append('\"');
-		for (int i = 0; i < this.source.length; i++) {
-			Util.appendEscapedChar(output, this.source[i], true);
+		for (char s : source()) {
+			Util.appendEscapedChar(output, s, true);
 		}
 		output.append('\"');
 		return output;
@@ -93,13 +94,20 @@ public class StringLiteral extends Literal {
 
 	@Override
 	public char[] source() {
-
-		return this.source;
+		return Arrays.copyOf(this.source, this.source.length);
 	}
 
 	@Override
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		visitor.visit(this, scope);
 		visitor.endVisit(this, scope);
+	}
+
+	public void setSource(char[] source) {
+		this.source = source;
+	}
+
+	public int getLineNumber() {
+		return this.lineNumber;
 	}
 }
