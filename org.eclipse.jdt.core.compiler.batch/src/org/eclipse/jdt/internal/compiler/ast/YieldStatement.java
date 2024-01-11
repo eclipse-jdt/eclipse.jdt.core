@@ -216,12 +216,9 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		codeStream.addDefinitelyAssignedVariables(currentScope, this.initStateIndex);
 	}
 }
-private boolean isInsideTry() {
-	return this.switchExpression != null && this.switchExpression.containsTry;
-}
 @Override
 public void resolve(BlockScope skope) {
-	this.scope = isInsideTry() ? new BlockScope(skope) : skope;
+	this.scope = skope;
 	super.resolve(this.scope);
 	if (this.expression == null) {
 		return;

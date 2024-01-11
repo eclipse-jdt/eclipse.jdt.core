@@ -3857,8 +3857,44 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"Key = KEY Value = VALUE\n" +
 				"Key = KEY Value = B[value=VALUE]");
 	}
+
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1835
-	// switch expression bug
+	// AssertionError at org.eclipse.jdt.internal.compiler.ast.YieldStatement.addSecretYieldResultValue(YieldStatement.java:120)
+	public void testGH1835_minimal() {
+		runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static void main(String[] args) {
+						try {
+							String s = switch (new Object()) {
+							case Integer i  -> "i";
+							case String y  -> "y";
+							default -> {
+								try {
+									throw new Exception();
+								} catch (Exception e) {
+									throw new RuntimeException("Expected");
+								}
+							}
+							};
+						} catch (RuntimeException e) {
+							System.out.print("Caught runtime Exception ");
+							if (e.getMessage().equals("Expected"))
+								System.out.println ("(expected)");
+							else
+							 	System.out.println ("(unexpected!!!)");
+						}
+					}
+				}
+				"""
+				},
+				"Caught runtime Exception (expected)");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1835
+	// AssertionError at org.eclipse.jdt.internal.compiler.ast.YieldStatement.addSecretYieldResultValue(YieldStatement.java:120)
 	public void testGH1835() {
 		runConformTest(
 				new String[] {
