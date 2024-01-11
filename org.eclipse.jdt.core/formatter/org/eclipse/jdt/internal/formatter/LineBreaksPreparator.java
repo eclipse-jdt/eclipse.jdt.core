@@ -571,7 +571,7 @@ public class LineBreaksPreparator extends ASTVisitor {
 			if (this.options.insert_new_line_before_else_in_if_statement || !(thenNode instanceof Block))
 				this.tm.firstTokenBefore(elseNode, TokenNameelse).breakBefore();
 
-			boolean keepElseOnSameLine = (this.options.keep_else_statement_on_same_line)
+			boolean keepElseOnSameLine = (this.options.keep_else_statement_on_same_line && !(elseNode instanceof Block))
 					|| (this.options.compact_else_if && (elseNode instanceof IfStatement));
 			if (!keepElseOnSameLine)
 				handleLoopBody(elseNode);
@@ -739,11 +739,11 @@ public class LineBreaksPreparator extends ASTVisitor {
 	}
 
 	private void adjustEmptyLineAfter(int tokenIndex, int indentationAdjustment) {
-		if (tokenIndex + 1 >= this.tm.size())
+		if (tokenIndex + 1 >= this.tm.size() || !this.options.indent_empty_lines)
 			return;
 		Token token = this.tm.get(tokenIndex);
 		Token next = this.tm.get(tokenIndex + 1);
-		if (this.tm.countLineBreaksBetween(token, next) < 2 || !this.options.indent_empty_lines)
+		if (this.tm.countLineBreaksBetween(token, next) < 2)
 			return;
 
 		next.setEmptyLineIndentAdjustment(indentationAdjustment * this.options.indentation_size);
