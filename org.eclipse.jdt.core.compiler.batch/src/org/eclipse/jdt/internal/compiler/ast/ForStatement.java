@@ -407,15 +407,17 @@ public class ForStatement extends Statement {
 	}
 
 	@Override
-	public void resolve(BlockScope upperScope) {
-		LocalVariableBinding[] patternVariablesInTrueScope = null;
-		LocalVariableBinding[] patternVariablesInFalseScope = null;
+	public LocalVariableBinding[] getPatternVariablesLiveUponCompletion() {
+		return this.condition.containsPatternVariable() && this.action != null && !this.action.breaksOut(null) ?
+				this.condition.getPatternVariablesWhenFalse() : NO_VARIABLES;
+	}
 
-		if (containsPatternVariable()) {
-			this.condition.collectPatternVariablesToScope(null, upperScope);
-			patternVariablesInTrueScope = this.condition.getPatternVariablesWhenTrue();
-			patternVariablesInFalseScope = this.condition.getPatternVariablesWhenFalse();
-		}
+	@Override
+	public void resolve(BlockScope upperScope) {
+
+		this.condition.collectPatternVariablesToScope(null, upperScope);
+		LocalVariableBinding[] patternVariablesInTrueScope = this.condition.getPatternVariablesWhenTrue();
+
 		// use the scope that will hold the init declarations
 		this.scope = (this.bits & ASTNode.NeededScope) != 0 ? new BlockScope(upperScope) : upperScope;
 		if (this.initializations != null)
@@ -432,8 +434,6 @@ public class ForStatement extends Statement {
 
 		if (this.action != null) {
 			this.action.resolveWithPatternVariablesInScope(patternVariablesInTrueScope, this.scope);
-			this.action.promotePatternVariablesIfApplicable(patternVariablesInFalseScope,
-					() -> !this.action.breaksOut(null));
 		}
 	}
 

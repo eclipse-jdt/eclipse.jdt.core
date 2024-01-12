@@ -1209,7 +1209,7 @@ public class SwitchStatement extends Expression {
 				int caseCounter = 0;
 				Pattern[] patterns = new Pattern[this.nConstants];
 				int[] caseIndex = new int[this.nConstants];
-				LocalVariableBinding[] patternVariables = null;
+				LocalVariableBinding[] patternVariables = NO_VARIABLES;
 				boolean caseNullDefaultFound = false;
 				boolean defaultFound = false;
 				for (int i = 0; i < length; i++) {
@@ -1234,10 +1234,27 @@ public class SwitchStatement extends Expression {
 								}
 							}
 						} else {
-							patternVariables = null; // Probably redundant?
+							patternVariables = NO_VARIABLES;
 						}
 					} else {
 						statement.resolveWithPatternVariablesInScope(patternVariables, this.scope);
+						LocalVariableBinding[] newVariables = statement.getPatternVariablesLiveUponCompletion();
+						if (newVariables.length > 0) {
+							if (newVariables.length > 0) {
+								int livePatternVariableCount = patternVariables.length;
+								System.arraycopy(patternVariables,
+										                            0,
+										         patternVariables = new LocalVariableBinding[livePatternVariableCount + newVariables.length],
+										                            0,
+										         livePatternVariableCount);
+								System.arraycopy(newVariables,
+				                                        0,
+				                             patternVariables,
+				                             livePatternVariableCount,
+				                             newVariables.length);
+							}
+
+						}
 						continue;
 					}
 					CaseStatement caseStmt = (CaseStatement) statement;

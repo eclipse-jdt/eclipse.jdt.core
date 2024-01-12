@@ -707,10 +707,7 @@ public abstract class AbstractMethodDeclaration
 	public void resolveStatements() {
 
 		if (this.statements != null) {
- 			for (int i = 0, length = this.statements.length; i < length; i++) {
- 				Statement stmt = this.statements[i];
- 				stmt.resolve(this.scope);
-			}
+			resolveStatements(this.statements, this.scope);
  			this.recPatCatchVar = RecordPattern.getRecPatternCatchVar(0, this.scope);
 		} else if ((this.bits & UndocumentedEmptyBlock) != 0) {
 			if (!this.isConstructor() || this.arguments != null) { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=319626

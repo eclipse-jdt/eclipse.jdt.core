@@ -790,6 +790,9 @@ public LocalDeclaration getPatternVariable() {
 	return null;
 }
 public void collectPatternVariablesToScope(LocalVariableBinding[] variables, BlockScope scope) {
+	if (variables == null || variables.length == 0)
+		return;
+
 	new ASTVisitor() {
 		LocalVariableBinding[] patternVariablesInScope;
 		@Override
