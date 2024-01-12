@@ -571,12 +571,16 @@ public class LineBreaksPreparator extends ASTVisitor {
 			if (this.options.insert_new_line_before_else_in_if_statement || !(thenNode instanceof Block))
 				this.tm.firstTokenBefore(elseNode, TokenNameelse).breakBefore();
 
-			boolean keepElseOnSameLine = (this.options.keep_else_statement_on_same_line && !(elseNode instanceof Block))
+			// keep_else_statement_on_same_line = true
+			// compact_else_if = true
+			boolean keepElseOnSameLine = this.options.keep_else_statement_on_same_line
 					|| (this.options.compact_else_if && (elseNode instanceof IfStatement));
 			if (!keepElseOnSameLine)
 				handleLoopBody(elseNode);
 		}
 
+		// keep_then_statement_on_same_line = true
+		// keep_simple_if_on_one_line = true
 		boolean keepThenOnSameLine = this.options.keep_then_statement_on_same_line
 				|| (this.options.keep_simple_if_on_one_line && elseNode == null);
 		if (!keepThenOnSameLine)
