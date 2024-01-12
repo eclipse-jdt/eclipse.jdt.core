@@ -1362,6 +1362,8 @@ public void testWrappingTwoResources() {
 		null);
 }
 public void testConsumingMethod_nok() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8)
+		return;
 	runLeakTestWithAnnotations(
 		new String[] {
 			"F.java",
@@ -1388,6 +1390,8 @@ public void testConsumingMethod_nok() {
 		null);
 }
 public void testConsumingMethodUse() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8)
+		return;
 	runLeakTestWithAnnotations(
 		new String[] {
 			"F.java",
@@ -1415,6 +1419,8 @@ public void testConsumingMethodUse() {
 		null);
 }
 public void testConsumingMethodUse_binary() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_8)
+		return;
 	runLeakTestWithAnnotations(
 			new String[] {
 				"p1/F.java",
