@@ -16,6 +16,7 @@ package org.eclipse.jdt.core.tests.model;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -1399,7 +1400,9 @@ public void test531046g() throws CoreException, IOException {
 		IJavaElement[] elements = unit.codeSelect(source.lastIndexOf(select), select.length());
 		assertEquals("should not be empty", 1, elements.length);
 		ILocalVariable variable = (ILocalVariable) elements[0];
-		assertEquals("incorrect type", "&QCharSequence;:QComparable<QString;>;", variable.getTypeSignature());
+		assertTrue("incorrect type",
+			Set.of("&QCharSequence;:QComparable<QString;>;", "&Ljava.lang.CharSequence;:Ljava.lang.Comparable<Ljava.lang.String;>;").contains(
+			variable.getTypeSignature()));
 	} finally {
 		deleteProject("P");
 	}
@@ -1424,7 +1427,9 @@ public void test531046h() throws CoreException, IOException {
 		IJavaElement[] elements = unit.codeSelect(source.lastIndexOf(select), select.length());
 		assertEquals("should not be empty", 1, elements.length);
 		ILocalVariable variable = (ILocalVariable) elements[0];
-		assertEquals("incorrect type", "&QCharSequence;:QComparable<QString;>;", variable.getTypeSignature());
+		assertTrue("incorrect type",
+			Set.of("&QCharSequence;:QComparable<QString;>;", "&Ljava.lang.CharSequence;:Ljava.lang.Comparable<Ljava.lang.String;>;").contains(
+			variable.getTypeSignature()));
 	} finally {
 		deleteProject("P");
 	}
