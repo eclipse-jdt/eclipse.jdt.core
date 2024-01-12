@@ -408,7 +408,7 @@ public class ForStatement extends Statement {
 
 	@Override
 	public LocalVariableBinding[] getPatternVariablesLiveUponCompletion() {
-		return this.condition.containsPatternVariable() && this.action != null && !this.action.breaksOut(null) ?
+		return this.condition != null && this.condition.containsPatternVariable() && this.action != null && !this.action.breaksOut(null) ?
 				this.condition.getPatternVariablesWhenFalse() : NO_VARIABLES;
 	}
 
