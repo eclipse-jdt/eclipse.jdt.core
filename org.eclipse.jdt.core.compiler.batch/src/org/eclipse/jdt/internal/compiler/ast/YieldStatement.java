@@ -31,7 +31,6 @@ public class YieldStatement extends BranchStatement {
 	public boolean isImplicit;
 	static final char[] SECRET_YIELD_RESULT_VALUE_NAME = " secretYieldValue".toCharArray(); //$NON-NLS-1$
 	private LocalVariableBinding secretYieldResultValue = null;
-	public BlockScope scope;
 
 public YieldStatement(Expression exp, int sourceStart, int sourceEnd) {
 	super(null, sourceStart, sourceEnd);
@@ -103,7 +102,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 protected void setSubroutineSwitchExpression(SubRoutineStatement sub) {
 	sub.setSwitchExpression(this.switchExpression);
 }
-protected void addSecretYieldResultValue(BlockScope scope1) {
+protected void addSecretYieldResultValue(BlockScope scope) {
 	SwitchExpression se = this.switchExpression;
 	if (se == null || !se.containsTry)
 		return;
@@ -117,8 +116,8 @@ protected void addSecretYieldResultValue(BlockScope scope1) {
 	local.declaration = new LocalDeclaration(YieldStatement.SECRET_YIELD_RESULT_VALUE_NAME, 0, 0);
 	assert se.yieldResolvedPosition >= 0;
 	local.resolvedPosition = se.yieldResolvedPosition;
-	assert local.resolvedPosition < this.scope.maxOffset;
-	this.scope.addLocalVariable(local);
+	assert local.resolvedPosition < scope.maxOffset;
+	scope.addLocalVariable(local);
 	this.secretYieldResultValue = local;
 }
 
@@ -128,7 +127,7 @@ protected void restartExceptionLabels(CodeStream codeStream) {
 }
 protected void generateExpressionResultCodeExpanded(BlockScope currentScope, CodeStream codeStream) {
 	SwitchExpression se = this.switchExpression;
-	addSecretYieldResultValue(this.scope);
+	addSecretYieldResultValue(currentScope);
 	assert this.secretYieldResultValue != null;
 	codeStream.record(this.secretYieldResultValue);
 	SingleNameReference lhs = new SingleNameReference(this.secretYieldResultValue.name, 0);
@@ -138,7 +137,7 @@ protected void generateExpressionResultCodeExpanded(BlockScope currentScope, Cod
 	lhs.bits |= ASTNode.IsSecretYieldValueUsage;
 	((LocalVariableBinding) lhs.binding).markReferenced(); // TODO : Can be skipped?
 	Assignment assignment = new Assignment(lhs, this.expression, 0);
-	assignment.generateCode(this.scope, codeStream);
+	assignment.generateCode(currentScope, codeStream);
 
 	int pc = codeStream.position;
 	// generation of code responsible for invoking the finally
@@ -184,7 +183,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		generateExpressionResultCodeExpanded(currentScope, codeStream);
 		return;
 	}
-	this.expression.generateCode(this.scope, codeStream, this.switchExpression != null);
+	this.expression.generateCode(currentScope, codeStream, this.switchExpression != null);
 	int pc = codeStream.position;
 
 	// generation of code responsible for invoking the finally
@@ -216,33 +215,29 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		codeStream.addDefinitelyAssignedVariables(currentScope, this.initStateIndex);
 	}
 }
-private boolean isInsideTry() {
-	return this.switchExpression != null && this.switchExpression.containsTry;
-}
 @Override
-public void resolve(BlockScope skope) {
-	this.scope = isInsideTry() ? new BlockScope(skope) : skope;
-	super.resolve(this.scope);
+public void resolve(BlockScope scope) {
+	super.resolve(scope);
 	if (this.expression == null) {
 		return;
 
 	}
 	if (this.switchExpression != null || this.isImplicit) {
 		if (this.switchExpression == null && this.isImplicit && !this.expression.statementExpression()) {
-			if (this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK14) {
+			if (scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK14) {
 				/* JLS 13 14.11.2
 				Switch labeled rules in switch statements differ from those in switch expressions (15.28).
 				In switch statements they must be switch labeled statement expressions, ... */
-				this.scope.problemReporter().invalidExpressionAsStatement(this.expression);
+				scope.problemReporter().invalidExpressionAsStatement(this.expression);
 				return;
 			}
 		}
 	} else {
-		if (this.scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK14) {
-			this.scope.problemReporter().switchExpressionsYieldOutsideSwitchExpression(this);
+		if (scope.compilerOptions().sourceLevel >= ClassFileConstants.JDK14) {
+			scope.problemReporter().switchExpressionsYieldOutsideSwitchExpression(this);
 		}
 	}
-	TypeBinding type = this.expression.resolveType(this.scope);
+	TypeBinding type = this.expression.resolveType(scope);
 	if (this.switchExpression != null && type != null)
 		this.switchExpression.originalTypeMap.put(this.expression, type);
 }

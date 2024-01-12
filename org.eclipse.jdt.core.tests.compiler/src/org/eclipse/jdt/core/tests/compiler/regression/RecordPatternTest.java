@@ -3857,4 +3857,99 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"Key = KEY Value = VALUE\n" +
 				"Key = KEY Value = B[value=VALUE]");
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1835
+	// AssertionError at org.eclipse.jdt.internal.compiler.ast.YieldStatement.addSecretYieldResultValue(YieldStatement.java:120)
+	public void testGH1835_minimal() {
+		runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static void main(String[] args) {
+						try {
+							String s = switch (new Object()) {
+							case Integer i  -> "i";
+							case String y  -> "y";
+							default -> {
+								try {
+									throw new Exception();
+								} catch (Exception e) {
+									throw new RuntimeException("Expected");
+								}
+							}
+							};
+						} catch (RuntimeException e) {
+							System.out.print("Caught runtime Exception ");
+							if (e.getMessage().equals("Expected"))
+								System.out.println ("(expected)");
+							else
+							 	System.out.println ("(unexpected!!!)");
+						}
+					}
+				}
+				"""
+				},
+				"Caught runtime Exception (expected)");
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1835
+	// AssertionError at org.eclipse.jdt.internal.compiler.ast.YieldStatement.addSecretYieldResultValue(YieldStatement.java:120)
+	public void testGH1835() {
+		runConformTest(
+				new String[] {
+				"Reproducer.java",
+				"""
+				public class Reproducer {
+
+				    public class DataX {
+				        String data = "DataX";
+				    }
+
+				    public class DataY {
+				        String data1 = "DataY";
+				    }
+
+				    record X(DataX data) {}
+				    record Y(DataY data) {}
+
+				    Reproducer() {
+				        DataX dataX = new DataX();
+				        DataY dataY = new DataY();
+				        X x = new X(dataX);
+				        Y y = new Y(dataY);
+
+				        foo(x);
+				        foo(y);
+				        foo(null);
+				        foo("");
+				    }
+
+				    void foo(Object obj) {
+				        String s = switch (obj) {
+				            case X(var x) when x != null -> x.data;
+				            case Y(var x) when x != null -> x.data1;
+				            case null, default -> {
+				                try {
+				                    if (obj == null) yield "switch on null";
+				                    throw new Exception();
+				                } catch (Exception e) {
+				                    yield "default threw exception";
+				                }
+				            }
+				        };
+				        System.out.println("s = " + s);
+				    }
+				    public static void main(String[] args) {
+						new Reproducer();
+					}
+
+				}
+				"""
+				},
+				"s = DataX\n" +
+				"s = DataY\n" +
+				"s = switch on null\n" +
+				"s = default threw exception");
+	}
 }
