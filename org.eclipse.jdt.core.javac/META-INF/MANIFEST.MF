@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Javac
+Bundle-SymbolicName: org.eclipse.jdt.core.javac
+Bundle-Version: 1.0.0.qualifier
+Fragment-Host: org.eclipse.jdt.core
+Automatic-Module-Name: org.eclipse.jdt.core.javac
+Require-Capability: osgi.ee; filter:="(&(osgi.ee=JavaSE)(version=21)(!(version=22)))"
+Import-Package: org.eclipse.jdt.core.dom

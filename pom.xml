@@ -60,6 +60,7 @@
     <module>org.eclipse.jdt.annotation</module>
     <module>org.eclipse.jdt.core.compiler.batch</module>
     <module>org.eclipse.jdt.core</module>
+    <module>org.eclipse.jdt.core.javac</module>
     <module>org.eclipse.jdt.core.formatterapp</module>
     <module>org.eclipse.jdt.compiler.tool.tests</module>
     <module>org.eclipse.jdt.core.tests.builder.mockcompiler</module>
@@ -78,6 +79,13 @@
   <build>
     <pluginManagement>
       <plugins>
+        <plugin>
+        	<groupId>org.eclipse.tycho</groupId>
+        	<artifactId>target-platform-configuration</artifactId>
+        	<configuration>
+        		<executionEnvironment>JavaSE-21</executionEnvironment> <!-- Overrides one from .target -->
+        	</configuration>
+        </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-toolchains-plugin</artifactId>
