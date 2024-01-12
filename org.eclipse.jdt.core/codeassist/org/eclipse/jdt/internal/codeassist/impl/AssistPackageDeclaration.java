@@ -17,20 +17,21 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IAnnotation;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.compiler.env.IElementInfo;
 import org.eclipse.jdt.internal.core.CompilationUnit;
 import org.eclipse.jdt.internal.core.PackageDeclaration;
 
-@SuppressWarnings("rawtypes")
 public class AssistPackageDeclaration extends PackageDeclaration {
-	private final Map infoCache;
-	public AssistPackageDeclaration(CompilationUnit parent, String name, Map infoCache) {
+	private final Map<IJavaElement, IElementInfo> infoCache;
+	public AssistPackageDeclaration(CompilationUnit parent, String name, Map<IJavaElement, IElementInfo> infoCache) {
 		super(parent, name);
 		this.infoCache = infoCache;
 	}
 
 	@Override
-	public Object getElementInfo(IProgressMonitor monitor) throws JavaModelException {
+	public IElementInfo getElementInfo(IProgressMonitor monitor) throws JavaModelException {
 		return this.infoCache.get(this);
 	}
 

@@ -23,6 +23,8 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.ITypeRoot;
+import org.eclipse.jdt.internal.compiler.env.IBinaryInfo;
+import org.eclipse.jdt.internal.compiler.env.IElementInfo;
 import org.eclipse.jdt.internal.core.util.LRUCache;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -41,7 +43,7 @@ public class JavaModelCache {
 	public static final String RATIO_PROPERTY = "org.eclipse.jdt.core.javamodelcache.ratio"; //$NON-NLS-1$
 	public static final String JAR_TYPE_RATIO_PROPERTY = "org.eclipse.jdt.core.javamodelcache.jartyperatio"; //$NON-NLS-1$
 
-	public static final Object NON_EXISTING_JAR_TYPE_INFO = new Object();
+	public static final IBinaryInfo NON_EXISTING_JAR_TYPE_INFO = new IBinaryInfo() {/*empty marker instance only*/};
 
 	/*
 	 * The memory ratio that should be applied to the above constants.
@@ -76,13 +78,13 @@ public class JavaModelCache {
 	/**
 	 * Cache of open children of openable Java Model Java elements
 	 */
-	protected Map<IJavaElement, Object> childrenCache;
+	protected Map<IJavaElement, IElementInfo> childrenCache;
 
 	/**
 	 * Cache of open binary type (inside a jar) that have a non-open parent
 	 * Values are either instance of IBinaryType or Object (see {@link #NON_EXISTING_JAR_TYPE_INFO})
 	 */
-	protected LRUCache<IJavaElement, Object> jarTypeCache;
+	protected LRUCache<IJavaElement, IElementInfo> jarTypeCache;
 
 public JavaModelCache() {
 	// set the size of the caches as a function of the maximum amount of memory available
@@ -127,7 +129,7 @@ private double getRatioForProperty(String propertyName) {
 /**
  *  Returns the info for the element.
  */
-public Object getInfo(IJavaElement element) {
+public IElementInfo getInfo(IJavaElement element) {
 	switch (element.getElementType()) {
 		case IJavaElement.JAVA_MODEL:
 			return this.modelInfo;
@@ -141,7 +143,7 @@ public Object getInfo(IJavaElement element) {
 		case IJavaElement.CLASS_FILE:
 			return this.openableCache.get((ITypeRoot) element);
 		case IJavaElement.TYPE:
-			Object result = this.jarTypeCache.get(element);
+			IElementInfo result = this.jarTypeCache.get(element);
 			if (result != null)
 				return result;
 			else
@@ -189,7 +191,7 @@ protected double getMemoryRatio() {
  *  Returns the info for this element without
  *  disturbing the cache ordering.
  */
-protected Object peekAtInfo(IJavaElement element) {
+protected IElementInfo peekAtInfo(IJavaElement element) {
 	switch (element.getElementType()) {
 		case IJavaElement.JAVA_MODEL:
 			return this.modelInfo;
@@ -203,7 +205,7 @@ protected Object peekAtInfo(IJavaElement element) {
 		case IJavaElement.CLASS_FILE:
 			return this.openableCache.peek((ITypeRoot) element);
 		case IJavaElement.TYPE:
-			Object result = this.jarTypeCache.peek(element);
+			IElementInfo result = this.jarTypeCache.peek(element);
 			if (result != null)
 				return result;
 			else
@@ -216,7 +218,7 @@ protected Object peekAtInfo(IJavaElement element) {
 /**
  * Remember the info for the element.
  */
-protected void putInfo(IJavaElement element, Object info) {
+protected void putInfo(IJavaElement element, IElementInfo info) {
 	if (DEBUG_CACHE_INSERTIONS) {
 		JavaModelManager.trace(Thread.currentThread() + " cache putInfo (" + getElementType(element) + " " + element.toString() + ", " + info + ")");  //$NON-NLS-1$//$NON-NLS-2$//$NON-NLS-3$//$NON-NLS-4$
 	}

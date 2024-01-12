@@ -13,7 +13,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
@@ -21,6 +21,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.internal.compiler.env.IElementInfo;
 import org.eclipse.jdt.internal.core.util.DOMFinder;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Messages;
@@ -53,7 +54,7 @@ protected void closing(Object info) throws JavaModelException {
  * Returns a new element info for this element.
  */
 @Override
-protected Object createElementInfo() {
+protected JavaElementInfo createElementInfo() {
 	return null; // not used for source ref elements
 }
 /**
@@ -104,11 +105,11 @@ public ASTNode findNode(CompilationUnit ast) {
 }
 
 @Override
-protected void generateInfos(Object info, HashMap newElements, IProgressMonitor pm) throws JavaModelException {
+protected void generateInfos(IElementInfo info, Map<IJavaElement, IElementInfo> newElements, IProgressMonitor pm) throws JavaModelException {
 	Openable openableParent = (Openable)getOpenableParent();
 	if (openableParent == null) return;
 
-	JavaElementInfo openableParentInfo = (JavaElementInfo) JavaModelManager.getJavaModelManager().getInfo(openableParent);
+	IElementInfo openableParentInfo = JavaModelManager.getJavaModelManager().getInfo(openableParent);
 	if (openableParentInfo == null) {
 		openableParent.generateInfos(openableParent.createElementInfo(), newElements, pm);
 	}

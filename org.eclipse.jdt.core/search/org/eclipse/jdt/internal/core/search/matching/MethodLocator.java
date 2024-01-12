@@ -20,6 +20,7 @@ import static org.eclipse.jdt.internal.core.JavaModelManager.trace;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.*;
@@ -33,7 +34,6 @@ import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 import org.eclipse.jdt.internal.core.BinaryMethod;
 import org.eclipse.jdt.internal.core.search.BasicSearchEngine;
 
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public class MethodLocator extends PatternLocator {
 
 protected MethodPattern pattern;
@@ -51,7 +51,7 @@ private char[][][] samePkgSuperDeclaringTypeNames;
 
 private MatchLocator matchLocator;
 //method declarations which parameters verification fail
-private HashMap methodDeclarationsWithInvalidParam = new HashMap();
+private Map<ASTNode, Boolean> methodDeclarationsWithInvalidParam = new HashMap<>();
 
 
 public MethodLocator(MethodPattern pattern) {
@@ -65,7 +65,7 @@ public MethodLocator(MethodPattern pattern) {
  */
 @Override
 protected void clear() {
-	this.methodDeclarationsWithInvalidParam = new HashMap();
+	this.methodDeclarationsWithInvalidParam = new HashMap<>();
 }
 @Override
 protected int fineGrain() {
@@ -624,7 +624,7 @@ public SearchMatch newDeclarationMatch(ASTNode reference, IJavaElement element, 
 		// If method parameters verification was not valid, then try to see if method arguments can match a method in hierarchy
 		if (this.methodDeclarationsWithInvalidParam.containsKey(reference)) {
 			// First see if this reference has already been resolved => report match if validated
-			Boolean report = (Boolean) this.methodDeclarationsWithInvalidParam.get(reference);
+			Boolean report = this.methodDeclarationsWithInvalidParam.get(reference);
 			if (report != null) {
 				if (report.booleanValue()) {
 					return super.newDeclarationMatch(reference, element, elementBinding, accuracy, length, locator);

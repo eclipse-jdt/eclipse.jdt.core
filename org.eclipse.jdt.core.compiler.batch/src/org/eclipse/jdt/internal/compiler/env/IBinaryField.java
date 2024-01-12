@@ -17,7 +17,7 @@ package org.eclipse.jdt.internal.compiler.env;
 
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 
-public interface IBinaryField extends IGenericField {
+public interface IBinaryField extends IGenericField, IBinaryInfo {
 /**
  * Answer the runtime visible and invisible annotations for this field or null if none.
  */

@@ -15,7 +15,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
-import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
@@ -32,6 +32,7 @@ import org.eclipse.jdt.internal.compiler.ast.OperatorIds;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.UnaryExpression;
+import org.eclipse.jdt.internal.compiler.env.IElementInfo;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
@@ -105,7 +106,7 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 	}
 
 	@Override
-	protected Object createElementInfo() {
+	protected JavaElementInfo createElementInfo() {
 		// a local variable has no info
 		return null;
 	}
@@ -128,7 +129,7 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 	}
 
 	@Override
-	protected void generateInfos(Object info, HashMap newElements, IProgressMonitor pm) {
+	protected void generateInfos(IElementInfo info, Map<IJavaElement, IElementInfo> newElements, IProgressMonitor pm) {
 		// a local variable has no info
 	}
 

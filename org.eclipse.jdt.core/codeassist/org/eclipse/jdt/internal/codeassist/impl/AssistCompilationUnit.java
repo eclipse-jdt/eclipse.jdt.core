@@ -17,28 +17,32 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
+import org.eclipse.jdt.internal.compiler.env.IElementInfo;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.core.CompilationUnit;
+import org.eclipse.jdt.internal.core.CompilationUnitElementInfo;
 import org.eclipse.jdt.internal.core.ImportContainer;
+import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.JavaElementInfo;
 import org.eclipse.jdt.internal.core.PackageDeclaration;
 import org.eclipse.jdt.internal.core.PackageFragment;
 
-@SuppressWarnings("rawtypes")
 public class AssistCompilationUnit extends CompilationUnit {
-	private final Map infoCache;
-	private final Map bindingCache;
-	public AssistCompilationUnit(ICompilationUnit compilationUnit, WorkingCopyOwner owner, Map bindingCache, Map infoCache) {
+	private final Map<IJavaElement, IElementInfo> infoCache;
+	private final Map<JavaElement, Binding> bindingCache;
+	public AssistCompilationUnit(ICompilationUnit compilationUnit, WorkingCopyOwner owner, Map<JavaElement, Binding> bindingCache, Map<IJavaElement, IElementInfo> infoCache) {
 		super((PackageFragment)compilationUnit.getParent(), compilationUnit.getElementName(), owner);
 		this.bindingCache = bindingCache;
 		this.infoCache = infoCache;
 	}
 
 	@Override
-	public Object getElementInfo(IProgressMonitor monitor) throws JavaModelException {
-		return this.infoCache.get(this);
+	public CompilationUnitElementInfo getElementInfo(IProgressMonitor monitor) throws JavaModelException {
+		return (CompilationUnitElementInfo) this.infoCache.get(this);
 	}
 
 	@Override

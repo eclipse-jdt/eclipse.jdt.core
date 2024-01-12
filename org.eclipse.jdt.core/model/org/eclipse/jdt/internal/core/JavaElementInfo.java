@@ -14,12 +14,13 @@
 package org.eclipse.jdt.internal.core;
 
 import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.internal.compiler.env.IElementInfo;
 
 /**
  * Holds cached structure and properties for a Java element.
  * Subclassed to carry properties for specific kinds of elements.
  */
-public class JavaElementInfo implements Cloneable {
+public class JavaElementInfo implements Cloneable, IElementInfo {
 
 	/**
 	 * Shared empty collection used for efficiency.

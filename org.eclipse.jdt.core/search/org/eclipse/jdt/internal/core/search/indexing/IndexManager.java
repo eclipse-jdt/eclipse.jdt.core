@@ -85,7 +85,6 @@ import org.eclipse.jdt.internal.core.search.processing.JobManager;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class IndexManager extends JobManager implements IIndexConstants {
 	/**
 	 * Bug 178816:  In case the meta index is causing issue and needs to disable,
@@ -394,7 +393,7 @@ public synchronized void ensureIndexExists(IndexLocation indexLocation, IPath co
 }
 public SourceElementParser getSourceElementParser(IJavaProject project, ISourceElementRequestor requestor) {
 	// disable task tags to speed up parsing
-	Map options = project.getOptions(true);
+	Map<String, String> options = project.getOptions(true);
 	options.put(JavaCore.COMPILER_TASK_TAGS, ""); //$NON-NLS-1$
 
 	SourceElementParser parser = new IndexingParser(
@@ -1048,7 +1047,7 @@ public void removeIndexFamily(IPath path) {
 	// New index is disabled, see bug 544898
 	// this.indexer.makeWorkspacePathDirty(path);
 	// only finds cached index files... shutdown removes all non-cached index files
-	ArrayList toRemove = null;
+	List<IPath> toRemove = null;
 	synchronized (this) {
 		Object[] containerPaths = this.indexLocations.keyTable;
 		for (int i = 0, length = containerPaths.length; i < length; i++) {
@@ -1057,14 +1056,14 @@ public void removeIndexFamily(IPath path) {
 				continue;
 			if (path.isPrefixOf(containerPath)) {
 				if (toRemove == null)
-					toRemove = new ArrayList();
+					toRemove = new ArrayList<>();
 				toRemove.add(containerPath);
 			}
 		}
 	}
 	if (toRemove != null)
 		for (int i = 0, length = toRemove.size(); i < length; i++)
-			removeIndex((IPath) toRemove.get(i));
+			removeIndex(toRemove.get(i));
 }
 /**
  * Remove the content of the given source folder from the index.
@@ -1171,7 +1170,7 @@ public void saveIndex(Index index) throws IOException {
  */
 public void saveIndexes() {
 	// only save cached indexes... the rest were not modified
-	ArrayList toSave = new ArrayList();
+	List<Index> toSave = new ArrayList<>();
 	synchronized(this) {
 		Object[] valueTable = this.indexes.valueTable;
 		for (int i = 0, l = valueTable.length; i < l; i++) {
@@ -1183,7 +1182,7 @@ public void saveIndexes() {
 
 	boolean allSaved = true;
 	for (int i = 0, length = toSave.size(); i < length; i++) {
-		Index index = (Index) toSave.get(i);
+		Index index = toSave.get(i);
 		ReadWriteMonitor monitor = index.monitor;
 		if (monitor == null) continue; // index got deleted since acquired
 		try {

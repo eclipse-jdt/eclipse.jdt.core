@@ -35,7 +35,6 @@ import org.eclipse.jdt.internal.core.util.Util;
  * If the compilation unit has problems, reports the problems using the
  * requestor.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public abstract class Evaluator {
 	EvaluationContext context;
 	INameEnvironment environment;
@@ -88,7 +87,7 @@ protected EvaluationResult[] evaluationResultsForCompilationProblems(Compilation
  */
 ClassFile[] getClasses() {
 	final char[] source = getSource();
-	final ArrayList classDefinitions = new ArrayList();
+	final ArrayList<ClassFile> classDefinitions = new ArrayList<>();
 
 	// The requestor collects the class definitions and problems
 	class CompilerRequestor implements ICompilerRequestor {

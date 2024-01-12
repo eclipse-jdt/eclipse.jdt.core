@@ -1294,7 +1294,7 @@ public class JavaProject
 	 * Returns a new element info for this element.
 	 */
 	@Override
-	protected Object createElementInfo() {
+	protected JavaProjectElementInfo createElementInfo() {
 		return new JavaProjectElementInfo();
 	}
 

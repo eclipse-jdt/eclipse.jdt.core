@@ -30,14 +30,13 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.util.SimpleSet;
 import org.eclipse.jdt.internal.core.JavaElement;
 
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class TypeReferenceLocator extends PatternLocator {
 
 protected final TypeReferencePattern pattern;
 protected final boolean isDeclarationOfReferencedTypesPattern;
 
 private final int fineGrain;
-private final Map<QualifiedTypeReference, List<TypeBinding>> recordedResolutions = new HashMap();
+private final Map<QualifiedTypeReference, List<TypeBinding>> recordedResolutions = new HashMap<>();
 
 public TypeReferenceLocator(TypeReferencePattern pattern) {
 
@@ -827,10 +826,10 @@ protected int resolveLevelForTypeOrEnclosingTypes(char[] simpleNamePattern, char
 
 int resolveLevelForTypeOrQualifyingTypes(TypeReference typeRef, TypeBinding typeBinding) {
 	if (typeBinding == null || !typeBinding.isValidBinding()) return INACCURATE_MATCH;
-	List resolutionsList = this.recordedResolutions.get(typeRef);
+	List<TypeBinding> resolutionsList = this.recordedResolutions.get(typeRef);
 	if (resolutionsList != null) {
-		for (Iterator i = resolutionsList.iterator(); i.hasNext();) {
-			TypeBinding resolution = (TypeBinding) i.next();
+		for (Iterator<TypeBinding> i = resolutionsList.iterator(); i.hasNext();) {
+			TypeBinding resolution = i.next();
 			int level = resolveLevelForType(resolution);
 			if (level != IMPOSSIBLE_MATCH) return level;
 		}
@@ -841,7 +840,7 @@ int resolveLevelForTypeOrQualifyingTypes(TypeReference typeRef, TypeBinding type
 public void recordResolution(QualifiedTypeReference typeReference, TypeBinding resolution) {
 	List<TypeBinding> resolutionsForTypeReference = this.recordedResolutions.get(typeReference);
 	if (resolutionsForTypeReference == null) {
-		resolutionsForTypeReference = new ArrayList();
+		resolutionsForTypeReference = new ArrayList<>();
 	}
 	resolutionsForTypeReference.add(resolution);
 	this.recordedResolutions.put(typeReference, resolutionsForTypeReference);

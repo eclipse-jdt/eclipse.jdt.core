@@ -308,7 +308,7 @@ public void copy(
  * Returns a new element info for this element.
  */
 @Override
-protected Object createElementInfo() {
+protected PackageFragmentRootInfo createElementInfo() {
 	return new PackageFragmentRootInfo();
 }
 

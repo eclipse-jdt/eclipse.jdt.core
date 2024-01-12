@@ -170,7 +170,7 @@ public class LambdaExpression extends SourceType {
 	}
 
 	@Override
-	public Object getElementInfo(IProgressMonitor monitor) throws JavaModelException {
+	public SourceTypeElementInfo getElementInfo(IProgressMonitor monitor) throws JavaModelException {
 		return this.elementInfo;
 	}
 

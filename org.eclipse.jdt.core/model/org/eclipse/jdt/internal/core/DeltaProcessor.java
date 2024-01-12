@@ -41,6 +41,7 @@ import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
+import org.eclipse.jdt.internal.compiler.env.IElementInfo;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.core.JavaModelManager.PerProjectInfo;
 import org.eclipse.jdt.internal.core.builder.JavaBuilder;
@@ -1802,7 +1803,7 @@ public class DeltaProcessor {
 	private void nonJavaResourcesChanged(Openable element, IResourceDelta delta) 	throws JavaModelException {
 		// reset non-java resources if element was open
 		if (element.isOpen()) {
-			JavaElementInfo info = (JavaElementInfo)element.getElementInfo();
+			IElementInfo info = element.getElementInfo();
 			switch (element.getElementType()) {
 				case IJavaElement.JAVA_MODEL :
 					((JavaModelInfo) info).setNonJavaResources(null);

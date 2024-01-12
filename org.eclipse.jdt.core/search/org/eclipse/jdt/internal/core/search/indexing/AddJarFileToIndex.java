@@ -47,7 +47,6 @@ import org.eclipse.jdt.internal.core.index.IndexLocation;
 import org.eclipse.jdt.internal.core.search.JavaSearchDocument;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
 
-@SuppressWarnings("rawtypes")
 class AddJarFileToIndex extends BinaryContainer {
 
 	private static final char JAR_SEPARATOR = IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR.charAt(0);
@@ -188,9 +187,9 @@ class AddJarFileToIndex extends BinaryContainer {
 					SimpleLookupTable indexedFileNames = new SimpleLookupTable(max == 0 ? 33 : max + 11);
 					for (int i = 0; i < max; i++)
 						indexedFileNames.put(paths[i], DELETED);
-					for (Enumeration e = zip.entries(); e.hasMoreElements();) {
+					for (Enumeration<? extends ZipEntry> e = zip.entries(); e.hasMoreElements();) {
 						// iterate each entry to index it
-						ZipEntry ze = (ZipEntry) e.nextElement();
+						ZipEntry ze = e.nextElement();
 						String zipEntryName = ze.getName();
 						if (Util.isClassFileName(zipEntryName) && isValidPackageNameForClassOrisModule(zipEntryName))
 								// the class file may not be there if the package name is not valid
@@ -231,7 +230,7 @@ class AddJarFileToIndex extends BinaryContainer {
 					indexPath = new Path(indexLocation.getCanonicalFilePath());
 				}
 				boolean hasModuleInfoClass = false;
-				for (Enumeration e = zip.entries(); e.hasMoreElements();) {
+				for (Enumeration<? extends ZipEntry> e = zip.entries(); e.hasMoreElements();) {
 					if (this.isCancelled) {
 						if (JobManager.VERBOSE)
 							trace("-> indexing of " + zip.getName() + " has been cancelled"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -239,7 +238,7 @@ class AddJarFileToIndex extends BinaryContainer {
 					}
 
 					// iterate each entry to index it
-					ZipEntry ze = (ZipEntry) e.nextElement();
+					ZipEntry ze = e.nextElement();
 					String zipEntryName = ze.getName();
 					if (Util.isClassFileName(zipEntryName) &&
 							isValidPackageNameForClassOrisModule(zipEntryName)) {

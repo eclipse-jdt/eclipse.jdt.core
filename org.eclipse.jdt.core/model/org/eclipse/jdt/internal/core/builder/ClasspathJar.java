@@ -55,7 +55,6 @@ import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.util.Util;
 
-@SuppressWarnings("rawtypes")
 public class ClasspathJar extends ClasspathLocation {
 final boolean isOnModulePath;
 
@@ -110,8 +109,8 @@ protected SimpleSet findPackageSet() {
 }
 protected String readJarContent(final SimpleSet packageSet) {
 	String modInfo = null;
-	for (Enumeration e = this.zipFile.entries(); e.hasMoreElements(); ) {
-		String fileName = ((ZipEntry) e.nextElement()).getName();
+	for (Enumeration<? extends ZipEntry> e = this.zipFile.entries(); e.hasMoreElements(); ) {
+		String fileName = e.nextElement().getName();
 		if (fileName.startsWith("META-INF/")) //$NON-NLS-1$
 			continue;
 		if (modInfo == null) {

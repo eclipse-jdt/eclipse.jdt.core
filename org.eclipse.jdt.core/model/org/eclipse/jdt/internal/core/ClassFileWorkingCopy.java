@@ -25,6 +25,7 @@ import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.IClassFileReader;
+import org.eclipse.jdt.internal.compiler.env.IElementInfo;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.core.util.Disassembler;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -91,11 +92,8 @@ public IResource resource(PackageFragmentRoot root) {
 	return this.classFile.resource(root);
 }
 
-/**
- * @see Openable#openBuffer(IProgressMonitor, Object)
- */
 @Override
-protected IBuffer openBuffer(IProgressMonitor pm, Object info) throws JavaModelException {
+protected IBuffer openBuffer(IProgressMonitor pm, IElementInfo info) throws JavaModelException {
 
 	// create buffer
 	IBuffer buffer = BufferManager.createBuffer(this);

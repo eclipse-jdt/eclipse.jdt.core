@@ -58,7 +58,6 @@ import org.eclipse.jdt.internal.core.search.processing.JobManager;
  * Selects the indexes that correspond to projects in a given search scope
  * and that are dependent on a given focus element.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class IndexSelector {
 
 	//TODO: Bug 386113: "Search references" and "Type hierarchy" show inconsistent results with "External Plug-in Libraries" project
@@ -219,7 +218,7 @@ private void initializeIndexLocations() {
 	IPath[] projectsAndJars = this.searchScope.enclosingProjectsAndJars();
 	IndexManager manager = JavaModelManager.getIndexManager();
 	// use a linked set to preserve the order during search: see bug 348507
-	LinkedHashSet locations = new LinkedHashSet();
+	LinkedHashSet<IndexLocation> locations = new LinkedHashSet<>();
 	IJavaElement focus = this.pattern instanceof ModulePattern ? null : MatchLocator.projectOrJarFocus(this.pattern);
 	if (focus == null) {
 		for (int i = 0; i < projectsAndJars.length; i++) {
@@ -306,7 +305,7 @@ private void initializeIndexLocations() {
 	}
 
 	locations.remove(null); // Ensure no nulls
-	this.indexLocations = (IndexLocation[]) locations.toArray(new IndexLocation[locations.size()]);
+	this.indexLocations = locations.toArray(new IndexLocation[locations.size()]);
 }
 
 public IndexLocation[] getIndexLocations() {

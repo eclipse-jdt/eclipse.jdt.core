@@ -16,7 +16,9 @@ package org.eclipse.jdt.internal.core;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Stack;
 
 import org.eclipse.core.runtime.Assert;
@@ -45,6 +47,7 @@ import org.eclipse.jdt.internal.compiler.ast.OperatorIds;
 import org.eclipse.jdt.internal.compiler.ast.QualifiedNameReference;
 import org.eclipse.jdt.internal.compiler.ast.SingleNameReference;
 import org.eclipse.jdt.internal.compiler.ast.UnaryExpression;
+import org.eclipse.jdt.internal.compiler.env.IElementInfo;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
@@ -53,7 +56,6 @@ import org.eclipse.jdt.internal.core.util.Util;
 /**
  * A requestor for the fuzzy parser, used to compute the children of an ICompilationUnit.
  */
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public class CompilationUnitStructureRequestor extends ReferenceInfoAdapter implements ISourceElementRequestor {
 
 	/**
@@ -73,13 +75,12 @@ public class CompilationUnitStructureRequestor extends ReferenceInfoAdapter impl
 	protected ImportContainer importContainer;
 
 	/**
-	 * Hashtable of children elements of the compilation unit.
+	 * Map of children elements of the compilation unit.
 	 * Children are added to the table as they are found by
 	 * the parser. Keys are handles, values are corresponding
 	 * info objects.
 	 */
-	protected Map newElements;
-
+	protected Map<IJavaElement, IElementInfo> newElements;
 	/*
 	 * A table from a handle (with occurenceCount == 1) to the current occurence count for this handle
 	 */
@@ -97,20 +98,20 @@ public class CompilationUnitStructureRequestor extends ReferenceInfoAdapter impl
 	 * For example, when we locate a method, the parent info object
 	 * will be the type the method is contained in.
 	 */
-	protected Stack infoStack;
+	protected Stack<Object> infoStack;
 
 	/*
 	 * Map from info to of ArrayList of IJavaElement representing the children
 	 * of the given info.
 	 */
-	protected HashMap children;
+	protected HashMap<Object, List<IJavaElement>> children;
 
 	/**
 	 * Stack of parent handles, corresponding to the info stack. We
 	 * keep both, since info objects do not have back pointers to
 	 * handles.
 	 */
-	protected Stack handleStack;
+	protected Stack<IJavaElement> handleStack;
 
 	/**
 	 * The number of references reported thus far. Used to
@@ -133,7 +134,7 @@ public class CompilationUnitStructureRequestor extends ReferenceInfoAdapter impl
 	protected HashtableOfObject typeRefCache;
 	protected HashtableOfObject unknownRefCache;
 
-protected CompilationUnitStructureRequestor(ICompilationUnit unit, CompilationUnitElementInfo unitInfo, Map newElements) {
+protected CompilationUnitStructureRequestor(ICompilationUnit unit, CompilationUnitElementInfo unitInfo, Map<IJavaElement, IElementInfo> newElements) {
 	this.unit = unit;
 	this.unitInfo = unitInfo;
 	this.newElements = newElements;
@@ -226,9 +227,9 @@ public void acceptProblem(CategorizedProblem problem) {
 	}
 }
 private void addToChildren(Object parentInfo, JavaElement handle) {
-	ArrayList childrenList = (ArrayList) this.children.get(parentInfo);
+	List<IJavaElement> childrenList = this.children.get(parentInfo);
 	if (childrenList == null)
-		this.children.put(parentInfo, childrenList = new ArrayList());
+		this.children.put(parentInfo, childrenList = new ArrayList<>());
 	childrenList.add(handle);
 }
 protected Annotation createAnnotation(JavaElement parent, String name) {
@@ -331,9 +332,9 @@ protected IAnnotation acceptAnnotation(org.eclipse.jdt.internal.compiler.ast.Ann
  */
 @Override
 public void enterCompilationUnit() {
-	this.infoStack = new Stack();
-	this.children = new HashMap();
-	this.handleStack= new Stack();
+	this.infoStack = new Stack<>();
+	this.children = new HashMap<>();
+	this.handleStack= new Stack<>();
 	this.infoStack.push(this.unitInfo);
 	this.handleStack.push(this.unit);
 }
@@ -614,10 +615,10 @@ private SourceTypeElementInfo createTypeInfo(TypeInfo typeInfo, SourceType handl
 		}
 	}
 	if (typeInfo.childrenCategories != null) {
-		Iterator iterator = typeInfo.childrenCategories.entrySet().iterator();
+		Iterator<Entry<IJavaElement, char[][]>> iterator = typeInfo.childrenCategories.entrySet().iterator();
 		while (iterator.hasNext()) {
-			Map.Entry entry = (Map.Entry) iterator.next();
-			info.addCategories((IJavaElement) entry.getKey(), (char[][]) entry.getValue());
+			Entry<IJavaElement, char[][]> entry = iterator.next();
+			info.addCategories(entry.getKey(), entry.getValue());
 		}
 
 	}
@@ -850,9 +851,9 @@ protected IMemberValuePair[] getMemberValuePairs(MemberValuePair[] memberValuePa
 	return members;
 }
 private IJavaElement[] getChildren(Object info) {
-	ArrayList childrenList = (ArrayList) this.children.get(info);
+	List<IJavaElement> childrenList = this.children.get(info);
 	if (childrenList != null) {
-		return (IJavaElement[]) childrenList.toArray(new IJavaElement[childrenList.size()]);
+		return childrenList.toArray(IJavaElement[]::new);
 	}
 	return JavaElement.NO_ELEMENTS;
 }

@@ -14,7 +14,7 @@
 package org.eclipse.jdt.internal.core;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -25,6 +25,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryField;
 import org.eclipse.jdt.internal.compiler.env.IBinaryMethod;
 import org.eclipse.jdt.internal.compiler.env.IBinaryNestedType;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
+import org.eclipse.jdt.internal.compiler.env.IElementInfo;
 import org.eclipse.jdt.internal.compiler.env.IRecordComponent;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
@@ -34,8 +35,7 @@ import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
  * Element info for <code>ClassFile</code> handles.
  */
 
-@SuppressWarnings({"rawtypes", "unchecked"})
-/* package */ class ClassFileInfo extends OpenableElementInfo implements SuffixConstants {
+class ClassFileInfo extends OpenableElementInfo implements SuffixConstants {
 	/**
 	 * The children of the <code>BinaryType</code> corresponding to our
 	 * <code>ClassFile</code>. These are kept here because we don't have
@@ -47,14 +47,14 @@ import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 	 */
 	protected ITypeParameter[] typeParameters;
 
-private void generateAnnotationsInfos(JavaElement member, IBinaryAnnotation[] binaryAnnotations, long tagBits, HashMap newElements) {
+private void generateAnnotationsInfos(JavaElement member, IBinaryAnnotation[] binaryAnnotations, long tagBits, Map<IJavaElement, IElementInfo> newElements) {
 	generateAnnotationsInfos(member, null, binaryAnnotations, tagBits, newElements);
 }
 /**
  * Creates the handles and infos for the annotations of the given binary member.
  * Adds new handles to the given vector.
  */
-private void generateAnnotationsInfos(JavaElement member, char[] parameterName, IBinaryAnnotation[] binaryAnnotations, long tagBits, HashMap newElements) {
+private void generateAnnotationsInfos(JavaElement member, char[] parameterName, IBinaryAnnotation[] binaryAnnotations, long tagBits, Map<IJavaElement, IElementInfo> newElements) {
 	if (binaryAnnotations != null) {
 		for (int i = 0, length = binaryAnnotations.length; i < length; i++) {
 			IBinaryAnnotation annotationInfo = binaryAnnotations[i];
@@ -63,10 +63,10 @@ private void generateAnnotationsInfos(JavaElement member, char[] parameterName, 
 	}
 	generateStandardAnnotationsInfos(member, parameterName, tagBits, newElements);
 }
-private void generateAnnotationInfo(JavaElement parent, HashMap newElements, IBinaryAnnotation annotationInfo, String memberValuePairName) {
+private void generateAnnotationInfo(JavaElement parent, Map<IJavaElement, IElementInfo> newElements, IBinaryAnnotation annotationInfo, String memberValuePairName) {
 	generateAnnotationInfo(parent, null, newElements, annotationInfo, memberValuePairName);
 }
-private void generateAnnotationInfo(JavaElement parent, char[] parameterName, HashMap newElements, IBinaryAnnotation annotationInfo, String memberValuePairName) {
+private void generateAnnotationInfo(JavaElement parent, char[] parameterName, Map<IJavaElement, IElementInfo> newElements, IBinaryAnnotation annotationInfo, String memberValuePairName) {
 	char[] typeName = org.eclipse.jdt.core.Signature.toCharArray(CharOperation.replaceOnCopy(annotationInfo.getTypeName(), '/', '.'));
 	Annotation annotation = new Annotation(parent, new String(typeName), memberValuePairName);
 	while (newElements.containsKey(annotation)) {
@@ -90,7 +90,7 @@ private void generateAnnotationInfo(JavaElement parent, char[] parameterName, Ha
 		}
 	}
 }
-private void generateStandardAnnotationsInfos(JavaElement javaElement, char[] parameterName, long tagBits, HashMap newElements) {
+private void generateStandardAnnotationsInfos(JavaElement javaElement, char[] parameterName, long tagBits, Map<IJavaElement, IElementInfo> newElements) {
 	if ((tagBits & TagBits.AllStandardAnnotationsMask) == 0)
 		return;
 	if ((tagBits & TagBits.AnnotationRetentionMASK) != 0) {
@@ -114,7 +114,7 @@ private void generateStandardAnnotationsInfos(JavaElement javaElement, char[] pa
 	// note that JAVA_LANG_SUPPRESSWARNINGS and JAVA_LANG_OVERRIDE cannot appear in binaries
 }
 
-private void generateStandardAnnotation(JavaElement javaElement, char[][] typeName, IMemberValuePair[] members, HashMap newElements) {
+private void generateStandardAnnotation(JavaElement javaElement, char[][] typeName, IMemberValuePair[] members, Map<IJavaElement, IElementInfo> newElements) {
 	IAnnotation annotation = new Annotation(javaElement, new String(CharOperation.concatWith(typeName, '.')));
 	AnnotationInfo annotationInfo = new AnnotationInfo();
 	annotationInfo.members = members;
@@ -157,7 +157,7 @@ private IMemberValuePair[] getRetentionPolicy(long tagBits) {
  * Creates the handles and infos for the fields of the given binary type.
  * Adds new handles to the given vector.
  */
-private void generateFieldInfos(IType type, IBinaryType typeInfo, HashMap newElements, ArrayList childrenHandles) {
+private void generateFieldInfos(IType type, IBinaryType typeInfo, Map<IJavaElement, IElementInfo> newElements, ArrayList<JavaElement> childrenHandles) {
 	// Make the fields
 	IBinaryField[] fields = typeInfo.getFields();
 	if (fields == null) {
@@ -180,7 +180,7 @@ private void generateFieldInfos(IType type, IBinaryType typeInfo, HashMap newEle
  * Creates the handles and infos for the fields of the given binary type.
  * Adds new handles to the given vector.
  */
-private void generateRecordComponentInfos(IType type, IBinaryType typeInfo, HashMap newElements, ArrayList childrenHandles) {
+private void generateRecordComponentInfos(IType type, IBinaryType typeInfo, Map<IJavaElement, IElementInfo> newElements, ArrayList<JavaElement> childrenHandles) {
 	// Make the fields
 	IRecordComponent[] components = typeInfo.getRecordComponents();
 	if (components == null) {
@@ -204,7 +204,7 @@ private void generateRecordComponentInfos(IType type, IBinaryType typeInfo, Hash
  * Creates the handles for the inner types of the given binary type.
  * Adds new handles to the given vector.
  */
-private void generateInnerClassHandles(IType type, IBinaryType typeInfo, ArrayList childrenHandles) {
+private void generateInnerClassHandles(IType type, IBinaryType typeInfo, ArrayList<JavaElement> childrenHandles) {
 	// Add inner types
 	// If the current type is an inner type, innerClasses returns
 	// an extra entry for the current type.  This entry must be removed.
@@ -215,7 +215,7 @@ private void generateInnerClassHandles(IType type, IBinaryType typeInfo, ArrayLi
 		for (int i = 0, typeCount = innerTypes.length; i < typeCount; i++) {
 			IBinaryNestedType binaryType = innerTypes[i];
 			IClassFile parentClassFile= pkg.getClassFile(new String(ClassFile.unqualifiedName(binaryType.getName())) + SUFFIX_STRING_class);
-			IType innerType = new BinaryType((JavaElement) parentClassFile, ClassFile.simpleName(binaryType.getName()));
+			BinaryType innerType = new BinaryType((JavaElement) parentClassFile, ClassFile.simpleName(binaryType.getName()));
 			childrenHandles.add(innerType);
 		}
 	}
@@ -224,7 +224,7 @@ private void generateInnerClassHandles(IType type, IBinaryType typeInfo, ArrayLi
  * Creates the handles and infos for the methods of the given binary type.
  * Adds new handles to the given vector.
  */
-private void generateMethodInfos(IType type, IBinaryType typeInfo, HashMap newElements, ArrayList childrenHandles, ArrayList typeParameterHandles) {
+private void generateMethodInfos(IType type, IBinaryType typeInfo, Map<IJavaElement, IElementInfo> newElements, ArrayList<JavaElement> childrenHandles, ArrayList<ITypeParameter> typeParameterHandles) {
 	IBinaryMethod[] methods = typeInfo.getMethods();
 	if (methods == null) {
 		return;
@@ -347,7 +347,7 @@ private void generateMethodInfos(IType type, IBinaryType typeInfo, HashMap newEl
  * Creates the handles and infos for the type parameter of the given binary member.
  * Adds new handles to the given vector.
  */
-private void generateTypeParameterInfos(BinaryMember parent, char[] signature, HashMap newElements, ArrayList typeParameterHandles) {
+private void generateTypeParameterInfos(BinaryMember parent, char[] signature, Map<IJavaElement, IElementInfo> newElements, ArrayList<ITypeParameter> typeParameterHandles) {
 	if (signature == null) return;
 	char[][] typeParameterSignatures = Signature.getTypeParameters(signature);
 	for (int i = 0, typeParameterCount = typeParameterSignatures.length; i < typeParameterCount; i++) {
@@ -379,10 +379,10 @@ private void generateTypeParameterInfos(BinaryMember parent, char[] signature, H
  * <code>ClassFile</code> and adds them to the
  * <code>JavaModelManager</code>'s cache.
  */
-protected void readBinaryChildren(ClassFile classFile, HashMap newElements, IBinaryType typeInfo) {
-	ArrayList childrenHandles = new ArrayList();
+protected void readBinaryChildren(ClassFile classFile, Map<IJavaElement, IElementInfo> newElements, IBinaryType typeInfo) {
+	ArrayList<JavaElement> childrenHandles = new ArrayList<>();
 	BinaryType type = (BinaryType) classFile.getType();
-	ArrayList typeParameterHandles = new ArrayList();
+	ArrayList<ITypeParameter> typeParameterHandles = new ArrayList<>();
 	if (typeInfo != null) { //may not be a valid class file
 		generateAnnotationsInfos(type, typeInfo.getAnnotations(), typeInfo.getTagBits(), newElements);
 		generateTypeParameterInfos(type, typeInfo.getGenericSignature(), newElements, typeParameterHandles);

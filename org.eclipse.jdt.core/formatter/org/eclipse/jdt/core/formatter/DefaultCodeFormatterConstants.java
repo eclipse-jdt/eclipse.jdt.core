@@ -31,7 +31,6 @@ import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions.Alignment;
  * @noinstantiate This class is not intended to be instantiated by clients.
  * @noextend This class is not intended to be subclassed by clients.
  */
-@SuppressWarnings("rawtypes")
 public class DefaultCodeFormatterConstants {
 
 	/**
@@ -5952,7 +5951,7 @@ public class DefaultCodeFormatterConstants {
 	 * @return the Eclipse 2.1 settings
 	 * @since 3.0
 	 */
-	public static Map getEclipse21Settings() {
+	public static Map<String, String> getEclipse21Settings() {
 		DefaultCodeFormatterOptions options = DefaultCodeFormatterOptions.getDefaultSettings();
 		options.page_width = 80; // changed with bug 356841
 		options.comment_count_line_length_from_starting_position = false;
@@ -5966,7 +5965,7 @@ public class DefaultCodeFormatterConstants {
 	 * @return the Eclipse default settings
 	 * @since 3.1
 	 */
-	public static Map getEclipseDefaultSettings() {
+	public static Map<String, String> getEclipseDefaultSettings() {
 		return DefaultCodeFormatterOptions.getEclipseDefaultSettings().getMap();
 	}
 

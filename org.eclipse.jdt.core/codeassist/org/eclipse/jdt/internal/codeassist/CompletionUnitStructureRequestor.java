@@ -17,6 +17,7 @@ import java.util.Map;
 
 import org.eclipse.jdt.core.IAnnotation;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMemberValuePair;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.codeassist.complete.CompletionOnMarkerAnnotationName;
@@ -42,6 +43,7 @@ import org.eclipse.jdt.internal.compiler.ast.MemberValuePair;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedQualifiedTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.ParameterizedSingleTypeReference;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference;
+import org.eclipse.jdt.internal.compiler.env.IElementInfo;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.core.AnnotatableInfo;
@@ -60,7 +62,6 @@ import org.eclipse.jdt.internal.core.SourceMethod;
 import org.eclipse.jdt.internal.core.SourceType;
 import org.eclipse.jdt.internal.core.TypeParameter;
 
-@SuppressWarnings({"rawtypes"})
 public class CompletionUnitStructureRequestor extends CompilationUnitStructureRequestor {
 	private final ASTNode assistNode;
 
@@ -76,7 +77,7 @@ public class CompletionUnitStructureRequestor extends CompilationUnitStructureRe
 			Map<JavaElement, Binding> bindingCache,
 			Map<Binding, JavaElement> elementCache,
 			Map<ASTNode, JavaElement> elementWithProblemCache,
-			Map newElements) {
+			Map<IJavaElement, IElementInfo> newElements) {
 		super(unit, unitInfo, newElements);
 		this.parser = parser;
 		this.assistNode = assistNode;

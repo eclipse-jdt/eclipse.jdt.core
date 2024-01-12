@@ -30,7 +30,6 @@ import org.eclipse.jdt.internal.core.index.Index;
 import org.eclipse.jdt.internal.core.index.IndexLocation;
 import org.eclipse.jdt.internal.core.search.JavaSearchDocument;
 
-@SuppressWarnings("rawtypes")
 public class DefaultJavaIndexer {
 	private static final char JAR_SEPARATOR = IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR.charAt(0);
 
@@ -44,9 +43,9 @@ public class DefaultJavaIndexer {
 		SearchParticipant participant = SearchEngine.getDefaultSearchParticipant();
 		index.separator = JAR_SEPARATOR;
 		try (ZipFile zip = new ZipFile(pathToJar)) {
-			for (Enumeration e = zip.entries(); e.hasMoreElements();) {
+			for (Enumeration<? extends ZipEntry> e = zip.entries(); e.hasMoreElements();) {
 				// iterate each entry to index it
-				ZipEntry ze = (ZipEntry) e.nextElement();
+				ZipEntry ze = e.nextElement();
 				String zipEntryName = ze.getName();
 				if (Util.isClassFileName(zipEntryName)) {
 					final byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getZipEntryByteContent(ze, zip);

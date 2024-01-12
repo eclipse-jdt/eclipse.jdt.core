@@ -118,7 +118,7 @@ public void copy(IJavaElement[] elements, IJavaElement[] containers, IJavaElemen
  * Returns a new element info for this element.
  */
 @Override
-protected Object createElementInfo() {
+protected JavaModelInfo createElementInfo() {
 	return new JavaModelInfo();
 }
 

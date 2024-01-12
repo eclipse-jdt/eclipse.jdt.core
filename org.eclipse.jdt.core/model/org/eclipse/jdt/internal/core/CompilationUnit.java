@@ -27,6 +27,7 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.internal.compiler.IProblemFactory;
 import org.eclipse.jdt.internal.compiler.SourceElementParser;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
+import org.eclipse.jdt.internal.compiler.env.IElementInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
@@ -44,7 +45,6 @@ import org.eclipse.text.edits.UndoEdit;
 /**
  * @see ICompilationUnit
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class CompilationUnit extends Openable implements ICompilationUnit, org.eclipse.jdt.internal.compiler.env.ICompilationUnit, SuffixConstants {
 	/**
 	 * Internal synonym for deprecated constant AST.JSL2
@@ -105,7 +105,7 @@ public void becomeWorkingCopy(IProgressMonitor monitor) throws JavaModelExceptio
 	becomeWorkingCopy(requestor, monitor);
 }
 @Override
-protected boolean buildStructure(OpenableElementInfo info, final IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
+protected boolean buildStructure(OpenableElementInfo info, final IProgressMonitor pm, Map<IJavaElement, IElementInfo> newElements, IResource underlyingResource) throws JavaModelException {
 	CompilationUnitElementInfo unitInfo = (CompilationUnitElementInfo) info;
 
 	// ensure buffer is opened
@@ -122,7 +122,7 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 	boolean createAST;
 	boolean resolveBindings;
 	int reconcileFlags;
-	HashMap problems;
+	Map<String, CategorizedProblem[]> problems;
 	if (info instanceof ASTHolderCUInfo) {
 		ASTHolderCUInfo astHolder = (ASTHolderCUInfo) info;
 		createAST = astHolder.astLevel != NO_AST;
@@ -138,7 +138,7 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 
 	boolean computeProblems = perWorkingCopyInfo != null && perWorkingCopyInfo.isActive() && project != null && JavaProject.hasJavaNature(project.getProject());
 	IProblemFactory problemFactory = new DefaultProblemFactory();
-	Map options = this.getOptions(true);
+	Map<String, String> options = this.getOptions(true);
 	if (!computeProblems) {
 		// disable task tags checking to speed up parsing
 		options.put(JavaCore.COMPILER_TASK_TAGS, ""); //$NON-NLS-1$
@@ -174,12 +174,12 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 		if (computeProblems) {
 			if (problems == null) {
 				// report problems to the problem requestor
-				problems = new HashMap();
+				problems = new HashMap<>();
 				compilationUnitDeclaration = CompilationUnitProblemFinder.process(source, parser, this.owner, problems, createAST, reconcileFlags, pm);
 				try {
 					perWorkingCopyInfo.beginReporting();
-					for (Iterator iteraror = problems.values().iterator(); iteraror.hasNext();) {
-						CategorizedProblem[] categorizedProblems = (CategorizedProblem[]) iteraror.next();
+					for (Iterator<CategorizedProblem[]> iteraror = problems.values().iterator(); iteraror.hasNext();) {
+						CategorizedProblem[] categorizedProblems = iteraror.next();
 						if (categorizedProblems == null) continue;
 						for (int i = 0, length = categorizedProblems.length; i < length; i++) {
 							perWorkingCopyInfo.acceptProblem(categorizedProblems[i]);
@@ -424,7 +424,7 @@ public void copy(IJavaElement container, IJavaElement sibling, String rename, bo
  * Returns a new element info for this element.
  */
 @Override
-protected Object createElementInfo() {
+protected CompilationUnitElementInfo createElementInfo() {
 	return new CompilationUnitElementInfo();
 }
 /**
@@ -538,7 +538,7 @@ public IJavaElement[] findElements(IJavaElement element) {
 	if (element instanceof IType && ((IType) element).isLambda()) {
 		return null;
 	}
-	ArrayList children = new ArrayList();
+	ArrayList<IJavaElement> children = new ArrayList<>();
 	while (element != null && element.getElementType() != IJavaElement.COMPILATION_UNIT) {
 		children.add(element);
 		element = element.getParent();
@@ -639,12 +639,12 @@ public ICompilationUnit findWorkingCopy(WorkingCopyOwner workingCopyOwner) {
  */
 @Override
 public IType[] getAllTypes() throws JavaModelException {
-	IJavaElement[] types = getTypes();
-	ArrayList allTypes = new ArrayList(types.length);
-	ArrayList typesToTraverse = new ArrayList(types.length);
+	IType[] types = getTypes();
+	ArrayList<IType> allTypes = new ArrayList<>(types.length);
+	ArrayList<IType> typesToTraverse = new ArrayList<>(types.length);
 	Collections.addAll(typesToTraverse, types);
 	while (!typesToTraverse.isEmpty()) {
-		IType type = (IType) typesToTraverse.get(0);
+		IType type = typesToTraverse.get(0);
 		typesToTraverse.remove(type);
 		allTypes.add(type);
 		types = type.getTypes();
@@ -893,10 +893,8 @@ public PackageDeclaration getPackageDeclaration(String pkg) {
  */
 @Override
 public IPackageDeclaration[] getPackageDeclarations() throws JavaModelException {
-	ArrayList list = getChildrenOfType(PACKAGE_DECLARATION);
-	IPackageDeclaration[] array= new IPackageDeclaration[list.size()];
-	list.toArray(array);
-	return array;
+	List<IPackageDeclaration> list = getChildrenOfType(PACKAGE_DECLARATION);
+	return list.toArray(IPackageDeclaration[]::new);
 }
 /**
  * @see org.eclipse.jdt.internal.compiler.env.ICompilationUnit#getPackageName()
@@ -973,10 +971,8 @@ public IType getType(String typeName) {
  */
 @Override
 public IType[] getTypes() throws JavaModelException {
-	ArrayList list = getChildrenOfType(TYPE);
-	IType[] array= new IType[list.size()];
-	list.toArray(array);
-	return array;
+	ArrayList<IType> list = getChildrenOfType(TYPE);
+	return list.toArray(IType[]::new);
 }
 /**
  * @see IJavaElement
@@ -1133,7 +1129,7 @@ public boolean isWorkingCopy() {
 public void makeConsistent(IProgressMonitor monitor) throws JavaModelException {
 	makeConsistent(NO_AST, false/*don't resolve bindings*/, 0 /* don't perform statements recovery */, null/*don't collect problems but report them*/, monitor);
 }
-public org.eclipse.jdt.core.dom.CompilationUnit makeConsistent(int astLevel, boolean resolveBindings, int reconcileFlags, HashMap problems, IProgressMonitor monitor) throws JavaModelException {
+public org.eclipse.jdt.core.dom.CompilationUnit makeConsistent(int astLevel, boolean resolveBindings, int reconcileFlags, Map<String, CategorizedProblem[]>  problems, IProgressMonitor monitor) throws JavaModelException {
 	if (isConsistent()) return null;
 
 	try {
@@ -1176,11 +1172,8 @@ public void move(IJavaElement container, IJavaElement sibling, String rename, bo
 	getJavaModel().move(elements, containers, null, renamings, force, monitor);
 }
 
-/**
- * @see Openable#openBuffer(IProgressMonitor, Object)
- */
 @Override
-protected IBuffer openBuffer(IProgressMonitor pm, Object info) throws JavaModelException {
+protected IBuffer openBuffer(IProgressMonitor pm, IElementInfo info) throws JavaModelException {
 
 	// create buffer
 	BufferManager bufManager = getBufferManager();
@@ -1242,7 +1235,7 @@ protected IBuffer openBuffer(IProgressMonitor pm, Object info) throws JavaModelE
 	return buffer;
 }
 @Override
-protected void openAncestors(HashMap newElements, IProgressMonitor monitor) throws JavaModelException {
+protected void openAncestors(Map<IJavaElement, IElementInfo> newElements, IProgressMonitor monitor) throws JavaModelException {
 	if (!isWorkingCopy()) {
 		super.openAncestors(newElements, monitor);
 	}
