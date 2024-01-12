@@ -1585,6 +1585,7 @@ public final class JavaCore extends Plugin {
 	 * 	should close each field thusly annotated.
 	 * 	Conversely, a constructor receiving an unclosed resource may satisfy its responsibility by assigning the resource
 	 * 	to a field marked with this annotation.</dd>
+	 * </dl>
 	 * <p>This option only has an effect if the option {@link #COMPILER_ANNOTATION_RESOURCE_ANALYSIS} is enabled.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.annotation.owning"</code></dd>
@@ -1610,6 +1611,7 @@ public final class JavaCore extends Plugin {
 	 * <dt>Field:</dt><dd>Storing a resource value in a field with this annotation does not affect responsibility to close.
 	 * 	Storing an unclosed resource does not satisfy the responsibility, reading from such field does not create
 	 * 	any responsibility.</dd>
+	 * </dl>
 	 * <p>This option only has an effect if the option {@link #COMPILER_ANNOTATION_RESOURCE_ANALYSIS} is enabled.</p>
 	 * <dl>
 	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.annotation.notowning"</code></dd>
