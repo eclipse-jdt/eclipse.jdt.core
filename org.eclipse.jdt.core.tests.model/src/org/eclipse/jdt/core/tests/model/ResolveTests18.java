@@ -14,8 +14,6 @@
 
 package org.eclipse.jdt.core.tests.model;
 
-import junit.framework.Test;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.BindingKey;
 import org.eclipse.jdt.core.ICodeAssist;
@@ -27,13 +25,15 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.WorkingCopyOwner;
-import org.eclipse.jdt.core.dom.NodeFinder;
-import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.Name;
+import org.eclipse.jdt.core.dom.NodeFinder;
 import org.eclipse.jdt.internal.core.LambdaExpression;
 import org.eclipse.jdt.internal.core.LambdaMethod;
+
+import junit.framework.Test;
 
 public class ResolveTests18 extends AbstractJavaModelTests {
 	ICompilationUnit wc = null;
@@ -2631,7 +2631,7 @@ public void test439234() throws JavaModelException {
 			"    };" +
 			"   i.foo(10);" +
 			"   X x = new X();\n" +
-			"   I i2 = x::bar;\n" +
+			"   I i2 = x:: bar;\n" +
 			"   i2.foo(10);\n" +
 			"  }" +
 			"}");
@@ -3166,7 +3166,7 @@ public void test0027_BindingForLambdaMethod() throws JavaModelException {
 	parser.setStatementsRecovery(true);
 	CompilationUnit dom = (CompilationUnit)parser.createAST(null);
 	Name variable = (Name)new NodeFinder(dom, start, length).getCoveredNode();
-	IJavaElement javaElement = variable.resolveBinding().getJavaElement();	
+	IJavaElement javaElement = variable.resolveBinding().getJavaElement();
 
 	assertElementsEqual(
 		"Unexpected elements",

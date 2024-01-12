@@ -1,0 +1,53 @@
+name: Continuous Integration with DOM/Javac
+concurrency: 
+    group: ${{ github.workflow }}-${{ github.ref }}-dom
+    cancel-in-progress: true
+
+on:
+  push:
+    branches: [ 'dom-based-operations', 'dom-with-javac' ]
+  pull_request:
+    branches: [ 'dom-based-operations', 'dom-with-javac' ]
+
+jobs:
+  build-dom-javac:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Install xmllint
+      shell: bash
+      run: |
+        sudo apt update
+        sudo apt install -y libxml2-utils
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        fetch-depth: 0
+    - name: Enable DOM-first and Javac
+      run: sed -i 's$</argLine>$ -DCompilationUnit.DOM_BASED_OPERATIONS=true -DSourceIndexer.DOM_BASED_INDEXER=false -DICompilationUnitResolver=org.eclipse.jdt.core.dom.JavacCompilationUnitResolver -DAbstractImageBuilder.compiler=org.eclipse.jdt.internal.javac.JavacCompiler_</argLine>$g' */pom.xml
+    - name: Set up JDKs ☕
+      uses: actions/setup-java@v4
+      with:
+        java-version: |
+          8
+          17
+          21
+        mvn-toolchain-id: |
+          JavaSE-1.8
+          JavaSE-17
+          JavaSE-21
+        distribution: 'temurin'
+    - name: Set up Maven
+      uses: stCarolas/setup-maven@d6af6abeda15e98926a57b5aa970a96bb37f97d1 # v5
+      with:
+        maven-version: 3.9.6
+    - name: Build with Maven 🏗️
+      run: |
+        mvn clean install --batch-mode -f org.eclipse.jdt.core.compiler.batch -DlocalEcjVersion=99.99
+        mvn -U clean verify --batch-mode --fail-at-end -Ptest-on-javase-21 -Pbree-libs -Papi-check -Djava.io.tmpdir=$WORKSPACE/tmp -Dproject.build.sourceEncoding=UTF-8 -Dtycho.surefire.argLine="--add-modules ALL-SYSTEM -Dcompliance=1.8,11,20 -Djdt.performance.asserts=disabled" -Dcbi-ecj-version=99.99
+    - name: Test Report
+      if: success() || failure()    # run this step even if previous step failed
+      run: |
+        echo ▶️ TESTS RUN: $(xmllint --xpath 'string(/testsuite/@tests)' */target/surefire-reports/TEST-*.xml | awk '{n += $1}; END{print n}' -)
+        echo ❌ FAILURES: $(xmllint --xpath 'string(/testsuite/@failures)' */target/surefire-reports/TEST-*.xml | awk '{n += $1}; END{print n}' -)
+        echo 💥 ERRORS: $(xmllint --xpath 'string(/testsuite/@errors)' */target/surefire-reports/TEST-*.xml | awk '{n += $1}; END{print n}' -)
+        echo 🛑 SKIPPED: $(xmllint --xpath 'string(/testsuite/@skipped)' */target/surefire-reports/TEST-*.xml | awk '{n += $1}; END{print n}' -)
