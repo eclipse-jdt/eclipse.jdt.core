@@ -1239,21 +1239,18 @@ public class SwitchStatement extends Expression {
 					} else {
 						statement.resolveWithPatternVariablesInScope(patternVariables, this.scope);
 						LocalVariableBinding[] newVariables = statement.getPatternVariablesLiveUponCompletion();
-						if (newVariables.length > 0) {
-							if (newVariables.length > 0) {
-								int livePatternVariableCount = patternVariables.length;
-								System.arraycopy(patternVariables,
-										                            0,
-										         patternVariables = new LocalVariableBinding[livePatternVariableCount + newVariables.length],
-										                            0,
-										         livePatternVariableCount);
-								System.arraycopy(newVariables,
-				                                        0,
-				                             patternVariables,
-				                             livePatternVariableCount,
-				                             newVariables.length);
-							}
-
+						if (newVariables != null && newVariables.length > 0) {
+							int livePatternVariableCount = patternVariables.length;
+							System.arraycopy(patternVariables,
+									                            0,
+									         patternVariables = new LocalVariableBinding[livePatternVariableCount + newVariables.length],
+									                            0,
+									         livePatternVariableCount);
+							System.arraycopy(newVariables,
+			                                        0,
+			                             patternVariables,
+			                             livePatternVariableCount,
+			                             newVariables.length);
 						}
 						continue;
 					}

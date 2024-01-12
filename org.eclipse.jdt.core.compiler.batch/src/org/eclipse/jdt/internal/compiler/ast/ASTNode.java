@@ -726,7 +726,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 			final Statement stmt = statements[i];
 			stmt.resolveWithPatternVariablesInScope(livePatternVariables, scope);
 			LocalVariableBinding[] newVariables = stmt.getPatternVariablesLiveUponCompletion();
-			if (newVariables.length > 0) {
+			if (newVariables != null && newVariables.length > 0) {
 				int livePatternVariableCount = livePatternVariables.length;
 				System.arraycopy(livePatternVariables,
 						                            0,
