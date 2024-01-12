@@ -2819,7 +2819,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"		try{\n" +
 				"		  (new X()).foo(null);\n" +
 				"		} catch(Exception t) {\n" +
-				"		 	System.out.println(\"Null Pointer Exception Thrown\");\n" +
+				"		 	System.err.println(\"Null Pointer Exception Thrown\");\n" +
 				"		}\n" +
 				"	}\n"+
 				"}",
