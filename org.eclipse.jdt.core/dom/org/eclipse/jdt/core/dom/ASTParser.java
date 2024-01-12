@@ -33,7 +33,6 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
-import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ConstructorDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ExplicitConstructorCall;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
@@ -221,6 +220,8 @@ public class ASTParser {
 	 */
 	private int bits;
 
+	private final ICompilationUnitResolver unitResolver;
+
 	/**
 	 * Creates a new AST parser for the given API level.
 	 * <p>
@@ -233,6 +234,7 @@ public class ASTParser {
 	ASTParser(int level) {
 		DOMASTUtil.checkASTLevel(level);
 		this.apiLevel = level;
+		this.unitResolver = ICompilationUnitResolver.getInstance();
 		initializeDefaults();
 	}
 
@@ -245,10 +247,13 @@ public class ASTParser {
 			}
 			if (this.sourcepaths != null) {
 				for (int i = 0, max = this.sourcepaths.length; i < max; i++) {
-					String encoding = this.sourcepathsEncodings == null ? null : this.sourcepathsEncodings[i];
-					main.processPathEntries(
-							Main.DEFAULT_SIZE_CLASSPATH,
-							allClasspaths, this.sourcepaths[i], encoding, true, false);
+					String sourcePath = this.sourcepaths[i];
+					if (sourcePath != null) {
+						String encoding = this.sourcepathsEncodings == null ? null : this.sourcepathsEncodings[i];
+						main.processPathEntries(
+								Main.DEFAULT_SIZE_CLASSPATH,
+								allClasspaths, sourcePath, encoding, true, false);
+					}
 				}
 			}
 			if (this.classpaths != null) {
@@ -957,9 +962,9 @@ public class ASTParser {
 				if ((this.bits & CompilationUnitResolver.BINDING_RECOVERY) != 0) {
 					flags |= ICompilationUnit.ENABLE_BINDINGS_RECOVERY;
 				}
-				CompilationUnitResolver.resolve(compilationUnits, bindingKeys, requestor, this.apiLevel, this.compilerOptions, this.project, this.workingCopyOwner, flags, monitor);
+				this.unitResolver.resolve(compilationUnits, bindingKeys, requestor, this.apiLevel, this.compilerOptions, this.project, this.workingCopyOwner, flags, monitor);
 			} else {
-				CompilationUnitResolver.parse(compilationUnits, requestor, this.apiLevel, this.compilerOptions, flags, monitor);
+				this.unitResolver.parse(compilationUnits, requestor, this.apiLevel, this.compilerOptions, flags, monitor);
 			}
 		} finally {
 			// reset to defaults to allow reuse (and avoid leaking)
@@ -1052,9 +1057,9 @@ public class ASTParser {
 				if ((this.bits & CompilationUnitResolver.BINDING_RECOVERY) != 0) {
 					flags |= ICompilationUnit.ENABLE_BINDINGS_RECOVERY;
 				}
-				CompilationUnitResolver.resolve(sourceFilePaths, encodings, bindingKeys, requestor, this.apiLevel, this.compilerOptions, getClasspath(), flags, monitor);
+				this.unitResolver.resolve(sourceFilePaths, encodings, bindingKeys, requestor, this.apiLevel, this.compilerOptions, getClasspath(), flags, monitor);
 			} else {
-				CompilationUnitResolver.parse(sourceFilePaths, encodings, requestor, this.apiLevel, this.compilerOptions, flags, monitor);
+				this.unitResolver.parse(sourceFilePaths, encodings, requestor, this.apiLevel, this.compilerOptions, flags, monitor);
 			}
 		} finally {
 			// reset to defaults to allow reuse (and avoid leaking)
@@ -1115,7 +1120,7 @@ public class ASTParser {
 			if ((this.bits & CompilationUnitResolver.IGNORE_METHOD_BODIES) != 0) {
 				flags |= ICompilationUnit.IGNORE_METHOD_BODIES;
 			}
-			return CompilationUnitResolver.resolve(elements, this.apiLevel, this.compilerOptions, this.project, this.workingCopyOwner, flags, monitor);
+			return this.unitResolver.resolve(elements, this.apiLevel, this.compilerOptions, this.project, this.workingCopyOwner, flags, monitor);
 		} finally {
 			// reset to defaults to allow reuse (and avoid leaking)
 			initializeDefaults();
@@ -1126,11 +1131,8 @@ public class ASTParser {
 		return JavaModelManager.cacheZipFiles(() -> internalCreateASTCached(monitor));
 	}
 	private ASTNode internalCreateASTCached(IProgressMonitor monitor) {
-		boolean needToResolveBindings = (this.bits & CompilationUnitResolver.RESOLVE_BINDING) != 0;
-		switch(this.astKind) {
-			case K_CLASS_BODY_DECLARATIONS :
-			case K_EXPRESSION :
-			case K_STATEMENTS :
+		return switch(this.astKind) {
+			case K_CLASS_BODY_DECLARATIONS, K_EXPRESSION, K_STATEMENTS -> {
 				if (this.rawSource == null) {
 					if (this.typeRoot != null) {
 						// get the source from the type root
@@ -1155,145 +1157,102 @@ public class ASTParser {
 					if (this.sourceOffset + this.sourceLength > this.rawSource.length) {
 						throw new IllegalStateException();
 					}
-					return internalCreateASTForKind();
+					yield internalCreateASTForKind();
 				}
-				break;
-			case K_COMPILATION_UNIT :
-				CompilationUnitDeclaration compilationUnitDeclaration = null;
-				try {
-					NodeSearcher searcher = null;
-					org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit = null;
-					WorkingCopyOwner wcOwner = this.workingCopyOwner;
-					if (this.typeRoot instanceof ClassFileWorkingCopy) {
-						// special case: class file mimics as compilation unit, but that would use a wrong file name below, so better unwrap now:
-						this.typeRoot = ((ClassFileWorkingCopy) this.typeRoot).classFile;
-					}
-					if (this.typeRoot instanceof ICompilationUnit) {
-							/*
-							 * this.compilationUnitSource is an instance of org.eclipse.jdt.internal.core.CompilationUnit that implements
-							 * both org.eclipse.jdt.core.ICompilationUnit and org.eclipse.jdt.internal.compiler.env.ICompilationUnit
-							 */
-							sourceUnit = (org.eclipse.jdt.internal.compiler.env.ICompilationUnit) this.typeRoot;
-							/*
-							 * use a BasicCompilation that caches the source instead of using the compilationUnitSource directly
-							 * (if it is a working copy, the source can change between the parse and the AST convertion)
-							 * (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=75632)
-							 */
-							sourceUnit = new BasicCompilationUnit(sourceUnit.getContents(), sourceUnit.getPackageName(), new String(sourceUnit.getFileName()), this.project);
-							wcOwner = ((ICompilationUnit) this.typeRoot).getOwner();
-					} else if (this.typeRoot instanceof IClassFile) {
-						try {
-							String sourceString = this.typeRoot.getSource();
-							if (sourceString == null) {
-								throw new IllegalStateException();
-							}
-							PackageFragment packageFragment = (PackageFragment) this.typeRoot.getParent();
-							BinaryType type = (BinaryType) this.typeRoot.findPrimaryType();
-							String fileNameString = null;
-							if (type != null) {
-								IBinaryType binaryType = type.getElementInfo();
-								// file name is used to recreate the Java element, so it has to be the toplevel .class file name
-								char[] fileName = binaryType.getFileName();
+				throw new IllegalStateException();
+			}
+			case K_COMPILATION_UNIT -> internalCreateCompilationUnit(monitor);
+			default -> throw new IllegalStateException();
+		};
+	}
 
-								int firstDollar = CharOperation.indexOf('$', fileName);
-								if (firstDollar != -1) {
-									char[] suffix = SuffixConstants.SUFFIX_class;
-									int suffixLength = suffix.length;
-									char[] newFileName = new char[firstDollar + suffixLength];
-									System.arraycopy(fileName, 0, newFileName, 0, firstDollar);
-									System.arraycopy(suffix, 0, newFileName, firstDollar, suffixLength);
-									fileName = newFileName;
-								}
-								fileNameString = new String(fileName);
-							} else {
-								// assumed to be "module-info.class" (which has no type):
-								fileNameString = this.typeRoot.getElementName();
-							}
-							sourceUnit = new BasicCompilationUnit(sourceString.toCharArray(), Util.toCharArrays(packageFragment.names), fileNameString, this.typeRoot);
-						} catch(JavaModelException e) {
-							// an error occured accessing the java element
-							CharSequence stackTrace = org.eclipse.jdt.internal.compiler.util.Util.getStackTrace(e);
-							throw new IllegalStateException(stackTrace.toString());
-						}
-					} else if (this.rawSource != null) {
-						needToResolveBindings =
-							((this.bits & CompilationUnitResolver.RESOLVE_BINDING) != 0)
-							&& this.unitName != null
-							&& (this.project != null
-									|| this.classpaths != null
-									|| this.sourcepaths != null
-									|| ((this.bits & CompilationUnitResolver.INCLUDE_RUNNING_VM_BOOTCLASSPATH) != 0))
-							&& this.compilerOptions != null;
-						sourceUnit = new BasicCompilationUnit(this.rawSource, null, this.unitName == null ? "" : this.unitName, this.project); //$NON-NLS-1$
-					} else {
-						throw new IllegalStateException();
-					}
-					if ((this.bits & CompilationUnitResolver.PARTIAL) != 0) {
-						searcher = new NodeSearcher(this.focalPointPosition);
-					}
-					int flags = 0;
-					if ((this.bits & CompilationUnitResolver.STATEMENT_RECOVERY) != 0) {
-						flags |= ICompilationUnit.ENABLE_STATEMENTS_RECOVERY;
-					}
-					if (searcher == null && ((this.bits & CompilationUnitResolver.IGNORE_METHOD_BODIES) != 0)) {
-						flags |= ICompilationUnit.IGNORE_METHOD_BODIES;
-					}
-					if (needToResolveBindings) {
-						if ((this.bits & CompilationUnitResolver.BINDING_RECOVERY) != 0) {
-							flags |= ICompilationUnit.ENABLE_BINDINGS_RECOVERY;
-						}
-						try {
-							// parse and resolve
-							compilationUnitDeclaration =
-								CompilationUnitResolver.resolve(
-									sourceUnit,
-									this.project,
-									getClasspath(),
-									searcher,
-									this.compilerOptions,
-									this.workingCopyOwner,
-									flags,
-									monitor);
-						} catch (JavaModelException e) {
-							flags &= ~ICompilationUnit.ENABLE_BINDINGS_RECOVERY;
-							compilationUnitDeclaration = CompilationUnitResolver.parse(
-									sourceUnit,
-									searcher,
-									this.compilerOptions,
-									flags);
-							needToResolveBindings = false;
-						}
-					} else {
-						compilationUnitDeclaration = CompilationUnitResolver.parse(
-								sourceUnit,
-								searcher,
-								this.compilerOptions,
-								flags,
-								this.project);
-						needToResolveBindings = false;
-					}
-					CompilationUnit result = CompilationUnitResolver.convert(
-						compilationUnitDeclaration,
-						sourceUnit.getContents(),
-						this.apiLevel,
-						this.compilerOptions,
-						needToResolveBindings,
-						wcOwner,
-						needToResolveBindings ? new DefaultBindingResolver.BindingTables() : null,
-						flags,
-						monitor,
-						this.project != null,
-						this.project);
-					result.setTypeRoot(this.typeRoot);
-					return result;
-				} finally {
-					if (compilationUnitDeclaration != null
-							&& ((this.bits & CompilationUnitResolver.RESOLVE_BINDING) != 0)) {
-						compilationUnitDeclaration.cleanUp();
-					}
-				}
+	private CompilationUnit internalCreateCompilationUnit(IProgressMonitor monitor) {
+		boolean needToResolveBindings = (this.bits & CompilationUnitResolver.RESOLVE_BINDING) != 0;
+		NodeSearcher searcher = null;
+		org.eclipse.jdt.internal.compiler.env.ICompilationUnit sourceUnit = null;
+		WorkingCopyOwner wcOwner = this.workingCopyOwner;
+		if (this.typeRoot instanceof ClassFileWorkingCopy) {
+			// special case: class file mimics as compilation unit, but that would use a wrong file name below, so better unwrap now:
+			this.typeRoot = ((ClassFileWorkingCopy) this.typeRoot).classFile;
 		}
-		throw new IllegalStateException();
+		if (this.typeRoot instanceof ICompilationUnit) {
+			/*
+			 * this.compilationUnitSource is an instance of org.eclipse.jdt.internal.core.CompilationUnit that implements
+			 * both org.eclipse.jdt.core.ICompilationUnit and org.eclipse.jdt.internal.compiler.env.ICompilationUnit
+			 */
+			sourceUnit = (org.eclipse.jdt.internal.compiler.env.ICompilationUnit) this.typeRoot;
+			/*
+			 * use a BasicCompilation that caches the source instead of using the compilationUnitSource directly
+			 * (if it is a working copy, the source can change between the parse and the AST convertion)
+			 * (see https://bugs.eclipse.org/bugs/show_bug.cgi?id=75632)
+			 */
+			sourceUnit = new BasicCompilationUnit(sourceUnit.getContents(), sourceUnit.getPackageName(), new String(sourceUnit.getFileName()), this.project);
+			wcOwner = ((ICompilationUnit) this.typeRoot).getOwner();
+		} else if (this.typeRoot instanceof IClassFile) {
+			try {
+				String sourceString = this.typeRoot.getSource();
+				if (sourceString == null) {
+					throw new IllegalStateException();
+				}
+				PackageFragment packageFragment = (PackageFragment) this.typeRoot.getParent();
+				BinaryType type = (BinaryType) this.typeRoot.findPrimaryType();
+				String fileNameString = null;
+				if (type != null) {
+					IBinaryType binaryType = type.getElementInfo();
+					// file name is used to recreate the Java element, so it has to be the toplevel .class file name
+					char[] fileName = binaryType.getFileName();
+
+					int firstDollar = CharOperation.indexOf('$', fileName);
+					if (firstDollar != -1) {
+						char[] suffix = SuffixConstants.SUFFIX_class;
+						int suffixLength = suffix.length;
+						char[] newFileName = new char[firstDollar + suffixLength];
+						System.arraycopy(fileName, 0, newFileName, 0, firstDollar);
+						System.arraycopy(suffix, 0, newFileName, firstDollar, suffixLength);
+						fileName = newFileName;
+					}
+					fileNameString = new String(fileName);
+				} else {
+					// assumed to be "module-info.class" (which has no type):
+					fileNameString = this.typeRoot.getElementName();
+				}
+				sourceUnit = new BasicCompilationUnit(sourceString.toCharArray(), Util.toCharArrays(packageFragment.names), fileNameString, this.typeRoot);
+			} catch(JavaModelException e) {
+				// an error occured accessing the java element
+				CharSequence stackTrace = org.eclipse.jdt.internal.compiler.util.Util.getStackTrace(e);
+				throw new IllegalStateException(stackTrace.toString());
+			}
+		} else if (this.rawSource != null) {
+			needToResolveBindings =
+				((this.bits & CompilationUnitResolver.RESOLVE_BINDING) != 0)
+				&& this.unitName != null
+				&& (this.project != null
+						|| this.classpaths != null
+						|| this.sourcepaths != null
+						|| ((this.bits & CompilationUnitResolver.INCLUDE_RUNNING_VM_BOOTCLASSPATH) != 0))
+				&& this.compilerOptions != null;
+			sourceUnit = new BasicCompilationUnit(this.rawSource, null, this.unitName == null ? "" : this.unitName, this.project); //$NON-NLS-1$
+		} else {
+			throw new IllegalStateException();
+		}
+		if ((this.bits & CompilationUnitResolver.PARTIAL) != 0) {
+			searcher = new NodeSearcher(this.focalPointPosition);
+		}
+		int flags = 0;
+		if ((this.bits & CompilationUnitResolver.STATEMENT_RECOVERY) != 0) {
+			flags |= ICompilationUnit.ENABLE_STATEMENTS_RECOVERY;
+		}
+		if (searcher == null && ((this.bits & CompilationUnitResolver.IGNORE_METHOD_BODIES) != 0)) {
+			flags |= ICompilationUnit.IGNORE_METHOD_BODIES;
+		}
+		if (needToResolveBindings && (this.bits & CompilationUnitResolver.BINDING_RECOVERY) != 0) {
+			flags |= ICompilationUnit.ENABLE_BINDINGS_RECOVERY;
+		}
+
+		CompilationUnit result = this.unitResolver.toCompilationUnit(sourceUnit, needToResolveBindings, this.project, getClasspath(), searcher, this.apiLevel, this.compilerOptions, this.workingCopyOwner, wcOwner, flags, monitor);
+
+		result.setTypeRoot(this.typeRoot);
+		return result;
 	}
 
 	/**
@@ -1368,6 +1327,7 @@ public class ASTParser {
 	 * @see ASTNode#getLength()
 	 */
 	private ASTNode internalCreateASTForKind() {
+		// TODO make it independent from ECJ
 		final ASTConverter converter = new ASTConverter(this.compilerOptions, false, null);
 		converter.compilationUnitSource = this.rawSource;
 		converter.compilationUnitSourceLength = this.rawSource.length;
@@ -1552,4 +1512,5 @@ public class ASTParser {
 				}
 		}
 	}
+
 }
