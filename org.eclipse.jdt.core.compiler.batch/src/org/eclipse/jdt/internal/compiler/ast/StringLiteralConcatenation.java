@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13,8 +13,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import java.util.Arrays;
-
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 
@@ -22,25 +20,12 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
  * Flatten string literal
  */
 public class StringLiteralConcatenation extends StringLiteral {
-	private static final int INITIAL_SIZE = 5;
-	private final StringLiteral[] literals;
-	private final int counter;
 
 	/**
 	 * Build a two-strings literal
 	 */
-	public StringLiteralConcatenation(StringLiteral str1, StringLiteral str2) {
-		super(StringLiteral.append(str1.source(), str2.source()), str1.sourceStart, str2.sourceEnd,
-				str1.getLineNumber() + 1);
-		if (str1 instanceof StringLiteralConcatenation s1) {
-			this.literals = Arrays.copyOf(s1.literals, s1.literals.length + 1);
-			this.counter = s1.counter + 1;
-		} else {
-			this.literals = new StringLiteral[INITIAL_SIZE];
-			this.literals[0] = str1;
-			this.counter = 2;
-		}
-		this.literals[this.counter - 1] = str2;
+	public StringLiteralConcatenation(StringLiteral str1, StringLiteral lit) {
+		super(str1, lit, str1.sourceStart, lit.sourceEnd, str1.getLineNumber());
 	}
 
 	@Override
@@ -64,6 +49,38 @@ public class StringLiteralConcatenation extends StringLiteral {
 	}
 
 	public StringLiteral[] getLiterals() {
-		return Arrays.copyOf(this.literals, this.counter);
+		int size = append(null, 0, this);
+		StringLiteral[] result = new StringLiteral[size];
+		append(result, 0, this);
+		return result;
 	}
+
+	private static int append(StringLiteral[] result, int length, StringLiteral o) {
+		do {
+			if (o.tail instanceof StringLiteral l) {
+				if (result != null) {
+					result[result.length - 1 - length] = l;
+				}
+				length += 1;
+			} else {
+				if (result != null) {
+					result[result.length - 1 - length] = o;
+				}
+				length += 1;
+			}
+			o = o.optionalHead;
+		} while (o != null);
+		return length;
+	}
+
+	@Override
+	protected void flatten(char[] result) {
+		// don't store flattened representation: getLiterals() still needs the linked list
+	}
+
+	@Override
+	public void setSource(char[] source) {
+		throw new UnsupportedOperationException();
+	}
+
 }
