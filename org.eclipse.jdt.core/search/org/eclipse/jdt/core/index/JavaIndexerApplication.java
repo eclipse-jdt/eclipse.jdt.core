@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.equinox.app.IApplication;
 import org.eclipse.equinox.app.IApplicationContext;
@@ -36,7 +37,6 @@ import org.eclipse.osgi.util.NLS;
  * @noinstantiate This class is not intended to be instantiated by clients.
  * @noextend This class is not intended to be subclassed by clients.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class JavaIndexerApplication implements IApplication {
 
 	private final static class Messages extends NLS {
@@ -92,7 +92,7 @@ public class JavaIndexerApplication implements IApplication {
 	}
 
 	private boolean processCommandLine(String[] argsArray) {
-		ArrayList args = new ArrayList();
+		List<String> args = new ArrayList<>();
 		for (int i = 0, max = argsArray.length; i < max; i++) {
 			args.add(argsArray[i]);
 		}

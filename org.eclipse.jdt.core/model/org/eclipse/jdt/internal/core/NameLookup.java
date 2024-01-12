@@ -42,7 +42,6 @@ import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
 import org.eclipse.jdt.internal.compiler.env.AccessRuleSet;
-import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IModule;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
@@ -383,7 +382,7 @@ public class NameLookup implements SuffixConstants {
 		try {
 			int kind = isSourceType
 					? TypeDeclaration.kind(((SourceTypeElementInfo) ((SourceType) type).getElementInfo()).getModifiers())
-					: TypeDeclaration.kind(((IBinaryType) ((BinaryType) type).getElementInfo()).getModifiers());
+					: TypeDeclaration.kind(((BinaryType) type).getElementInfo().getModifiers());
 			switch (kind) {
 				case TypeDeclaration.CLASS_DECL :
 					return (acceptFlags & (ACCEPT_CLASSES | ACCEPT_RECORDS)) != 0;

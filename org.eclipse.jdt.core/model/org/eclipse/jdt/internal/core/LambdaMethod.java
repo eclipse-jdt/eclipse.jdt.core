@@ -74,7 +74,7 @@ public class LambdaMethod extends SourceMethod {
 	}
 
 	@Override
-	public Object getElementInfo(IProgressMonitor monitor) throws JavaModelException {
+	public SourceMethodElementInfo getElementInfo(IProgressMonitor monitor) throws JavaModelException {
 		return this.elementInfo;
 	}
 

@@ -218,7 +218,6 @@ import org.eclipse.jdt.internal.compiler.util.Messages;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 /** See contract of {@link #close()}. */
-@SuppressWarnings("rawtypes")
 public class ProblemReporter extends ProblemHandler implements AutoCloseable {
 
 	public ReferenceContext referenceContext;
@@ -4867,12 +4866,12 @@ public void invalidType(ASTNode location, TypeBinding type) {
 		}
 
 		if (type.isParameterizedType()) {
-			List missingTypes = type.collectMissingTypes(null);
+			List<TypeBinding> missingTypes = type.collectMissingTypes(null);
 			if (missingTypes != null) {
 				ReferenceContext savedContext = this.referenceContext;
-				for (Iterator iterator = missingTypes.iterator(); iterator.hasNext(); ) {
+				for (Iterator<TypeBinding> iterator = missingTypes.iterator(); iterator.hasNext(); ) {
 					try {
-						invalidType(location, (TypeBinding) iterator.next());
+						invalidType(location, iterator.next());
 					} finally {
 						this.referenceContext = savedContext; // nested reporting will have reset referenceContext
 					}
@@ -6920,12 +6919,12 @@ public void missingSynchronizedOnInheritedMethod(MethodBinding currentMethod, Me
 			currentMethod.sourceEnd());
 }
 public void missingTypeInConstructor(ASTNode location, MethodBinding constructor) {
-	List missingTypes = constructor.collectMissingTypes(null);
+	List<TypeBinding> missingTypes = constructor.collectMissingTypes(null);
 	if (missingTypes == null) {
 		System.err.println("The constructor " + constructor + " is wrongly tagged as containing missing types"); //$NON-NLS-1$ //$NON-NLS-2$
 		return;
 	}
-	TypeBinding missingType = (TypeBinding) missingTypes.get(0);
+	TypeBinding missingType = missingTypes.get(0);
 	int start = location.sourceStart;
 	int end = location.sourceEnd;
 	if (location instanceof QualifiedAllocationExpression) {
@@ -6953,12 +6952,12 @@ public void missingTypeInConstructor(ASTNode location, MethodBinding constructor
 public void missingTypeInLambda(LambdaExpression lambda, MethodBinding method) {
 	int nameSourceStart = lambda.sourceStart();
 	int nameSourceEnd = lambda.diagnosticsSourceEnd();
-	List missingTypes = method.collectMissingTypes(null);
+	List<TypeBinding> missingTypes = method.collectMissingTypes(null);
 	if (missingTypes == null) {
 		System.err.println("The lambda expression " + method + " is wrongly tagged as containing missing types"); //$NON-NLS-1$ //$NON-NLS-2$
 		return;
 	}
-	TypeBinding missingType = (TypeBinding) missingTypes.get(0);
+	TypeBinding missingType = missingTypes.get(0);
 	this.handle(
 			IProblem.MissingTypeInLambda,
 			new String[] {
@@ -6980,12 +6979,12 @@ public void missingTypeInMethod(ASTNode astNode, MethodBinding method) {
 		nameSourceStart = astNode.sourceStart;
 		nameSourceEnd = astNode.sourceEnd;
 	}
-	List missingTypes = method.collectMissingTypes(null);
+	List<TypeBinding> missingTypes = method.collectMissingTypes(null);
 	if (missingTypes == null) {
 		System.err.println("The method " + method + " is wrongly tagged as containing missing types"); //$NON-NLS-1$ //$NON-NLS-2$
 		return;
 	}
-	TypeBinding missingType = (TypeBinding) missingTypes.get(0);
+	TypeBinding missingType = missingTypes.get(0);
 	this.handle(
 			IProblem.MissingTypeInMethod,
 			new String[] {

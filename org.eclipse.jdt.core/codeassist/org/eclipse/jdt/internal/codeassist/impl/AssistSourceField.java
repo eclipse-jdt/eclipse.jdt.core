@@ -17,35 +17,36 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IAnnotation;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.compiler.env.IElementInfo;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.core.JavaElement;
 import org.eclipse.jdt.internal.core.ResolvedSourceField;
 
-@SuppressWarnings("rawtypes")
 public class AssistSourceField extends ResolvedSourceField {
-	private final Map bindingCache;
-	private final Map infoCache;
+	private final Map<JavaElement, Binding> bindingCache;
+	private final Map<IJavaElement, IElementInfo> infoCache;
 
 	private String uniqueKey;
 	private boolean isResolved;
 
-	public AssistSourceField(JavaElement parent, String name, Map bindingCache, Map infoCache) {
+	public AssistSourceField(JavaElement parent, String name, Map<JavaElement, Binding> bindingCache, Map<IJavaElement, IElementInfo> infoCache) {
 		super(parent, name, null);
 		this.bindingCache = bindingCache;
 		this.infoCache = infoCache;
 	}
 
 	@Override
-	public Object getElementInfo(IProgressMonitor monitor) throws JavaModelException {
+	public IElementInfo getElementInfo(IProgressMonitor monitor) throws JavaModelException {
 		return this.infoCache.get(this);
 	}
 
 	@Override
 	public String getKey() {
 		if (this.uniqueKey == null) {
-			Binding binding = (Binding) this.bindingCache.get(this);
+			Binding binding = this.bindingCache.get(this);
 			if (binding != null) {
 				this.isResolved = true;
 				this.uniqueKey = new String(binding.computeUniqueKey());

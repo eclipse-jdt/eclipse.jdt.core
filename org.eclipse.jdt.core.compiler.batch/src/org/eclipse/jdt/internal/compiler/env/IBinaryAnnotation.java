@@ -16,7 +16,7 @@ package org.eclipse.jdt.internal.compiler.env;
 /**
  * This represents class file information about an annotation instance.
  */
-public interface IBinaryAnnotation {
+public interface IBinaryAnnotation extends IBinaryInfo {
 
 /**
  * @return the signature of the annotation type.

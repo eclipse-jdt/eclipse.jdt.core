@@ -1185,7 +1185,7 @@ public class ASTParser {
 							BinaryType type = (BinaryType) this.typeRoot.findPrimaryType();
 							String fileNameString = null;
 							if (type != null) {
-								IBinaryType binaryType = (IBinaryType) type.getElementInfo();
+								IBinaryType binaryType = type.getElementInfo();
 								// file name is used to recreate the Java element, so it has to be the toplevel .class file name
 								char[] fileName = binaryType.getFileName();
 

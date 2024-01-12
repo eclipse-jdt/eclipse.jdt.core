@@ -170,7 +170,7 @@ public ICompilationUnit createCompilationUnit(String cuName, String contents, bo
  * @see JavaElement
  */
 @Override
-protected Object createElementInfo() {
+protected JarPackageFragmentInfo createElementInfo() {
 	return new JarPackageFragmentInfo();
 }
 /**

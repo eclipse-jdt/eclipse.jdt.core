@@ -140,6 +140,7 @@ import org.eclipse.jdt.internal.compiler.AbstractAnnotationProcessorManager;
 import org.eclipse.jdt.internal.compiler.Compiler;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AccessRestriction;
+import org.eclipse.jdt.internal.compiler.env.IElementInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObjectToInt;
@@ -1262,7 +1263,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	/*
 	 * Temporary cache of newly opened elements
 	 */
-	private final ThreadLocal<HashMap<IJavaElement, Object>> temporaryCache = new ThreadLocal<>();
+	private final ThreadLocal<HashMap<IJavaElement, IElementInfo>> temporaryCache = new ThreadLocal<>();
 
 	/**
 	 * Set of elements which are out of sync with their buffers.
@@ -2269,10 +2270,10 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	/**
 	 *  Returns the info for the element.
 	 */
-	public synchronized Object getInfo(IJavaElement element) {
-		HashMap<IJavaElement, Object> tempCache = this.temporaryCache.get();
+	public synchronized IElementInfo getInfo(IJavaElement element) {
+		HashMap<IJavaElement, IElementInfo> tempCache = this.temporaryCache.get();
 		if (tempCache != null) {
-			Object result = tempCache.get(element);
+			IElementInfo result = tempCache.get(element);
 			if (result != null) {
 				return result;
 			}
@@ -2713,10 +2714,20 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 * Returns the temporary cache for newly opened elements for the current thread.
 	 * Creates it if not already created.
 	 */
-	public HashMap<IJavaElement, Object> getTemporaryCache() {
-		HashMap<IJavaElement, Object> result = this.temporaryCache.get();
+	public HashMap<IJavaElement, IElementInfo> getTemporaryCache() {
+		HashMap<IJavaElement, IElementInfo> result = this.temporaryCache.get();
 		if (result == null) {
-			result = new HashMap<>();
+			result = new HashMap<>() {
+				/**
+				 *
+				 */
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public IElementInfo put(IJavaElement key, IElementInfo value) {
+					return super.put(key, value);
+				}
+			};
 			this.temporaryCache.set(result);
 		}
 		return result;
@@ -4111,10 +4122,10 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 *  Returns the info for this element without
 	 *  disturbing the cache ordering.
 	 */
-	protected synchronized Object peekAtInfo(IJavaElement element) {
-		HashMap<IJavaElement, Object> tempCache = this.temporaryCache.get();
+	protected synchronized IElementInfo peekAtInfo(IJavaElement element) {
+		HashMap<IJavaElement, IElementInfo> tempCache = this.temporaryCache.get();
 		if (tempCache != null) {
-			Object result = tempCache.get(element);
+			IElementInfo result = tempCache.get(element);
 			if (result != null) {
 				return result;
 			}
@@ -4136,9 +4147,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 * If forceAdd is false it just returns the existing info and if true, this element and it's children are closed and then
 	 * this particular info is added to the cache.
 	 */
-	protected synchronized Object putInfos(IJavaElement openedElement, Object newInfo, boolean forceAdd, Map<IJavaElement, Object> newElements) {
+	protected synchronized IElementInfo putInfos(IJavaElement openedElement, IElementInfo newInfo, boolean forceAdd, Map<IJavaElement, IElementInfo> newElements) {
 		// remove existing children as the are replaced with the new children contained in newElements
-		Object existingInfo = this.cache.peekAtInfo(openedElement);
+		IElementInfo existingInfo = this.cache.peekAtInfo(openedElement);
 		if (existingInfo != null && !forceAdd) {
 			// If forceAdd is false, then it could mean that the particular element
 			// wasn't in cache at that point of time, but would have got added through
@@ -4162,19 +4173,19 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		// Subsequent resolution against package in the jar would fail as a result.
 		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102422
 		// (theodora)
-		for(Iterator<Entry<IJavaElement, Object>> it = newElements.entrySet().iterator(); it.hasNext(); ) {
-			Entry<IJavaElement, Object> entry = it.next();
+		for(Iterator<Entry<IJavaElement, IElementInfo>> it = newElements.entrySet().iterator(); it.hasNext(); ) {
+			Entry<IJavaElement, IElementInfo> entry = it.next();
 			IJavaElement element = entry.getKey();
 			if (element instanceof JarPackageFragmentRoot) {
-				JavaElementInfo info = (JavaElementInfo) entry.getValue();
+				IElementInfo info = entry.getValue();
 				it.remove();
 				this.cache.putInfo(element, info);
 			}
 		}
 
-		Iterator<Entry<IJavaElement, Object>> iterator = newElements.entrySet().iterator();
+		Iterator<Entry<IJavaElement, IElementInfo>> iterator = newElements.entrySet().iterator();
 		while (iterator.hasNext()) {
-			Entry<IJavaElement, Object> entry = iterator.next();
+			Entry<IJavaElement, IElementInfo> entry = iterator.next();
 			this.cache.putInfo(entry.getKey(), entry.getValue());
 		}
 		return newInfo;
@@ -4203,7 +4214,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 * Remember the info for the jar binary type
 	 * @param info instanceof IBinaryType or {@link JavaModelCache#NON_EXISTING_JAR_TYPE_INFO}
 	 */
-	protected synchronized void putJarTypeInfo(IJavaElement type, Object info) {
+	protected synchronized void putJarTypeInfo(IJavaElement type, IElementInfo info) {
 		this.cache.jarTypeCache.put(type, info);
 	}
 

@@ -123,7 +123,7 @@ public abstract class AbstractClassFile extends Openable implements IClassFile, 
 	 * Returns a new element info for this element.
 	 */
 	@Override
-	protected Object createElementInfo() {
+	protected ClassFileInfo createElementInfo() {
 		return new ClassFileInfo();
 	}
 	@Override

@@ -46,8 +46,8 @@ public class CompletionNodeDetector extends ASTVisitor {
 		return visitor.found;
 	}
 
-	@SuppressWarnings("serial")
-	static class StopTraversal extends RuntimeException { /* no details */}
+	static class StopTraversal extends RuntimeException {
+		private static final long serialVersionUID = 1L; /* no details */}
 
 	private final ASTNode searchedNode;
 	private ASTNode parent;

@@ -23,7 +23,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.JavaModelException;
 
-@SuppressWarnings("rawtypes")
 public class ExternalFolderChange {
 
 	private final JavaProject project;
@@ -38,13 +37,13 @@ public class ExternalFolderChange {
 	 * Update external folders
 	 */
 	public void updateExternalFoldersIfNecessary(boolean refreshIfExistAlready, IProgressMonitor monitor) throws JavaModelException {
-		Set oldFolders = ExternalFoldersManager.getExternalFolders(this.oldResolvedClasspath);
+		Set<IPath> oldFolders = ExternalFoldersManager.getExternalFolders(this.oldResolvedClasspath);
 		IClasspathEntry[] newResolvedClasspath = this.project.getResolvedClasspath();
-		Set newFolders = ExternalFoldersManager.getExternalFolders(newResolvedClasspath);
+		Set<IPath> newFolders = ExternalFoldersManager.getExternalFolders(newResolvedClasspath);
 		if (newFolders == null)
 			return;
 		ExternalFoldersManager foldersManager = JavaModelManager.getExternalManager();
-		Iterator iterator = newFolders.iterator();
+		Iterator<IPath> iterator = newFolders.iterator();
 		while (iterator.hasNext()) {
 			Object folderPath = iterator.next();
 			if (oldFolders == null || !oldFolders.remove(folderPath) || foldersManager.removePendingFolder(folderPath)) {

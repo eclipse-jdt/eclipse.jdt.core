@@ -18,7 +18,6 @@
 package org.eclipse.jdt.internal.core;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.ZipFile;
 
@@ -52,6 +51,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
 import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationDecorator;
 import org.eclipse.jdt.internal.compiler.classfmt.ExternalAnnotationProvider;
+import org.eclipse.jdt.internal.compiler.env.IElementInfo;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.IDependent;
 import org.eclipse.jdt.internal.compiler.env.IModule;
@@ -65,7 +65,6 @@ import org.eclipse.jdt.internal.core.util.Util;
  * @see IClassFile
  */
 
-@SuppressWarnings({"rawtypes"})
 public class ClassFile extends AbstractClassFile implements IOrdinaryClassFile {
 
 	protected BinaryType binaryType = null;
@@ -88,7 +87,7 @@ protected ClassFile(PackageFragment parent, String nameWithoutExtension) {
  * @see Signature
  */
 @Override
-protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
+protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, Map<IJavaElement, IElementInfo> newElements, IResource underlyingResource) throws JavaModelException {
 	IBinaryType typeInfo = getBinaryTypeInfo();
 	if (typeInfo == null) {
 		// The structure of a class file is unknown if a class file format errors occurred
@@ -102,7 +101,7 @@ protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, 
 	info.setChildren(new IJavaElement[] {type});
 	newElements.put(type, typeInfo);
 	// Read children
-	((ClassFileInfo) info).readBinaryChildren(this, (HashMap) newElements, typeInfo);
+	((ClassFileInfo) info).readBinaryChildren(this, newElements, typeInfo);
 	return true;
 }
 
@@ -115,7 +114,7 @@ public void codeComplete(int offset, CompletionRequestor requestor, WorkingCopyO
 			new BasicCompilationUnit(
 				getSource().toCharArray(),
 				null,
-				type.sourceFileName((IBinaryType) type.getElementInfo()),
+				type.sourceFileName(type.getElementInfo()),
 				getJavaProject()); // use project to retrieve corresponding .java IFile
 		codeComplete(cu, cu, offset, requestor, owner, null/*extended context isn't computed*/, monitor);
 	}
@@ -130,7 +129,7 @@ public IJavaElement[] codeSelect(int offset, int length, WorkingCopyOwner owner)
 	char[] contents;
 	if (buffer != null && (contents = buffer.getCharacters()) != null) {
 	    BinaryType type = (BinaryType) getType();
-		BasicCompilationUnit cu = new BasicCompilationUnit(contents, null, type.sourceFileName((IBinaryType) type.getElementInfo()), this);
+		BasicCompilationUnit cu = new BasicCompilationUnit(contents, null, type.sourceFileName(type.getElementInfo()), this);
 		return super.codeSelect(cu, offset, length, owner);
 	} else {
 		//has no associated souce
@@ -141,7 +140,7 @@ public boolean existsUsingJarTypeCache() {
 	if (getPackageFragmentRoot().isArchive()) {
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		IType type = getType();
-		Object info = manager.getInfo(type);
+		IElementInfo info = manager.getInfo(type);
 		if (info == JavaModelCache.NON_EXISTING_JAR_TYPE_INFO)
 			return false;
 		else if (info != null)
@@ -467,7 +466,7 @@ public boolean isInterface() throws JavaModelException {
  * @see Openable
  */
 @Override
-protected IBuffer openBuffer(IProgressMonitor pm, Object info) throws JavaModelException {
+protected IBuffer openBuffer(IProgressMonitor pm, IElementInfo info) throws JavaModelException {
 	// Check the cache for the top-level type first
 	IType outerMostEnclosingType = getOuterMostEnclosingType();
 	IBuffer buffer = getBufferManager().getBuffer(outerMostEnclosingType.getClassFile());

@@ -32,10 +32,9 @@ import org.eclipse.jdt.internal.core.search.matching.MatchLocator;
  * index queries. It also can map a document path to an actual document (note that documents could live outside
  * the workspace or no exist yet, and thus aren't just resources).
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class JavaSearchParticipant extends SearchParticipant implements IParallelizable {
 
-	private final ThreadLocal indexSelector = new ThreadLocal();
+	private final ThreadLocal<IndexSelector> indexSelector = new ThreadLocal<>();
 
 	/**
 	 * The only reason this field exist is the unfortunate idea to share created source indexer
@@ -147,7 +146,7 @@ public class JavaSearchParticipant extends SearchParticipant implements IParalle
 	}
 
 	private IndexSelector getIndexSelector(SearchPattern pattern, IJavaSearchScope scope) {
-		IndexSelector selector = (IndexSelector) this.indexSelector.get();
+		IndexSelector selector = this.indexSelector.get();
 		if (selector == null) {
 			selector = new IndexSelector(scope, pattern);
 			this.indexSelector.set(selector);

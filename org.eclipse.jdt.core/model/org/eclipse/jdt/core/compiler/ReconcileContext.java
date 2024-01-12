@@ -49,7 +49,6 @@ import org.eclipse.jdt.internal.core.ReconcileWorkingCopyOperation;
  * @noinstantiate This class is not intended to be instantiated by clients.
  * @noextend This class is not intended to be subclassed by clients.
  */
-@SuppressWarnings({"rawtypes"})
 public class ReconcileContext {
 
 	private final ReconcileWorkingCopyOperation operation;
@@ -247,7 +246,7 @@ public IJavaElementDelta getDelta() {
  */
 public CategorizedProblem[] getProblems(String markerType) {
 	if (this.operation.problems == null) return null;
-	return (CategorizedProblem[]) this.operation.problems.get(markerType);
+	return this.operation.problems.get(markerType);
 }
 
 /**
@@ -292,7 +291,7 @@ public void resetAST() {
  */
 public void putProblems(String markerType, CategorizedProblem[] problems) {
 	if (this.operation.problems == null)
-		this.operation.problems = new HashMap();
+		this.operation.problems = new HashMap<>();
 	this.operation.problems.put(markerType, problems);
 }
 

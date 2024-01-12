@@ -25,7 +25,7 @@ import org.eclipse.jdt.internal.compiler.util.Util;
 // member type) is also ignored by the compiler, BUT in this case it must be included
 // in the constructor's signature.
 
-public interface IBinaryMethod extends IGenericMethod {
+public interface IBinaryMethod extends IGenericMethod, IBinaryInfo {
 
 /**
  * Answer the runtime visible and invisible annotations for this method or null if none.

@@ -29,6 +29,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.resources.IResource;
@@ -58,6 +59,7 @@ import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.internal.compiler.env.IElementInfo;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -158,7 +160,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	/*
 	 * Returns a new element info for this element.
 	 */
-	protected abstract Object createElementInfo();
+	protected abstract JavaElementInfo createElementInfo();
 	/**
 	 * Returns true if this handle represents the same Java element
 	 * as the given handle. By default, two handles represent the same
@@ -222,7 +224,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 * Generates the element infos for this element, its ancestors (if they are not opened) and its children (if it is an Openable).
 	 * Puts the newly created element info in the given map.
 	 */
-	protected abstract void generateInfos(Object info, HashMap newElements, IProgressMonitor pm) throws JavaModelException;
+	protected abstract void generateInfos(IElementInfo info, Map<IJavaElement, IElementInfo> newElements, IProgressMonitor pm) throws JavaModelException;
 
 	/**
 	 * @see IJavaElement
@@ -242,8 +244,8 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 */
 	public IJavaElement[] getChildren() throws JavaModelException {
 		Object elementInfo = getElementInfo();
-		if (elementInfo instanceof JavaElementInfo) {
-			return ((JavaElementInfo)elementInfo).getChildren();
+		if (elementInfo instanceof JavaElementInfo ji) {
+			return ji.getChildren();
 		} else {
 			return NO_ELEMENTS;
 		}
@@ -285,7 +287,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 * NOTE: BinaryType infos are NOT rooted under JavaElementInfo.
 	 * @exception JavaModelException if the element is not present or not accessible
 	 */
-	public Object getElementInfo() throws JavaModelException {
+	public IElementInfo getElementInfo() throws JavaModelException {
 		return getElementInfo(null);
 	}
 	/**
@@ -295,10 +297,10 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 * NOTE: BinaryType infos are NOT rooted under JavaElementInfo.
 	 * @exception JavaModelException if the element is not present or not accessible
 	 */
-	public Object getElementInfo(IProgressMonitor monitor) throws JavaModelException {
+	public IElementInfo getElementInfo(IProgressMonitor monitor) throws JavaModelException {
 
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		Object info = manager.getInfo(this);
+		IElementInfo info = manager.getInfo(this);
 		if (info != null) return info;
 		return openWhenClosed(createElementInfo(), false, monitor);
 	}
@@ -564,11 +566,11 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 * Opens an <code>Openable</code> that is known to be closed (no check for <code>isOpen()</code>).
 	 * Returns the created element info.
 	 */
-	protected Object openWhenClosed(Object info, boolean forceAdd, IProgressMonitor monitor) throws JavaModelException {
+	protected IElementInfo openWhenClosed(IElementInfo info, boolean forceAdd, IProgressMonitor monitor) throws JavaModelException {
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		boolean hadTemporaryCache = manager.hasTemporaryCache();
 		try {
-			HashMap<IJavaElement, Object> newElements = manager.getTemporaryCache();
+			HashMap<IJavaElement, IElementInfo> newElements = manager.getTemporaryCache();
 			generateInfos(info, newElements, monitor);
 			if (info == null) {
 				info = newElements.get(this);
