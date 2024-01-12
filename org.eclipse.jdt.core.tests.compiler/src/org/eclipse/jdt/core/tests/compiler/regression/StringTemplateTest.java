@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2024 IBM Corporation and others.
+ * Copyright (c) 2023, 2024 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -27,7 +27,7 @@ public class StringTemplateTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NAMES = new String[] { "test003" };
 	}
-	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("--enable-preview -source 21");
+	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("--enable-preview -source 22");
 	private static final String[] VMARGS = new String[] {"--enable-preview"};
 	public static Class<?> testClass() {
 		return StringTemplateTest.class;

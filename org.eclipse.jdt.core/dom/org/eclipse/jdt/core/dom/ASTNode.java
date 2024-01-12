@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -2576,6 +2580,21 @@ public abstract class ASTNode {
 	final void supportedOnlyIn21() {
 		if (this.ast.apiLevel < AST.JLS21_INTERNAL) {
 			throw new UnsupportedOperationException("Operation only supported in JLS21 AST"); //$NON-NLS-1$
+		}
+	}
+	/**
+ 	 * Checks that this AST operation is only used when
+     * building JLS22 level ASTs.
+     * <p>
+     * Use this method to prevent access to new properties available only in JLS22.
+     * </p>
+     *
+	 * @exception UnsupportedOperationException if this operation is not used in JLS22
+	 * @since 3.37
+	 */
+	final void supportedOnlyIn22() {
+		if (this.ast.apiLevel < AST.JLS22_INTERNAL) {
+			throw new UnsupportedOperationException("Operation only supported in JLS22 AST"); //$NON-NLS-1$
 		}
 	}
 	/**
