@@ -15,13 +15,20 @@ package org.eclipse.jdt.internal.core.search.indexing;
 
 import static org.eclipse.jdt.internal.core.JavaModelManager.trace;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.ILog;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.search.SearchDocument;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.DefaultErrorHandlingPolicies;
@@ -48,12 +55,14 @@ import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.core.ASTHolderCUInfo;
 import org.eclipse.jdt.internal.core.DefaultWorkingCopyOwner;
 import org.eclipse.jdt.internal.core.JavaModel;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.SourceTypeElementInfo;
 import org.eclipse.jdt.internal.core.jdom.CompilationUnit;
+import org.eclipse.jdt.internal.core.search.JavaSearchDocument;
 import org.eclipse.jdt.internal.core.search.matching.JavaSearchNameEnvironment;
 import org.eclipse.jdt.internal.core.search.matching.MethodPattern;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
@@ -88,6 +97,10 @@ public class SourceIndexer extends AbstractIndexer implements ITypeRequestor, Su
 	}
 	@Override
 	public void indexDocument() {
+		if (Boolean.getBoolean(getClass().getSimpleName() + ".DOM_BASED_INDEXER")) { //$NON-NLS-1$
+			indexDocumentFromDOM();
+			return;
+		}
 		// Create a new Parser
 		String documentPath = this.document.getPath();
 		SourceElementParser parser = this.document.getParser();
@@ -270,5 +283,38 @@ public class SourceIndexer extends AbstractIndexer implements ITypeRequestor, Su
 				trace("", e); //$NON-NLS-1$
 			}
 		}
+	}
+
+	/**
+	 * @return whether the operatin was successful
+	 */
+	private boolean indexDocumentFromDOM() {
+		if (this.document instanceof JavaSearchDocument javaSearchDoc) {
+			IFile file = javaSearchDoc.getFile();
+			try {
+				if (JavaProject.hasJavaNature(file.getProject())) {
+					IJavaProject javaProject = JavaCore.create(file.getProject());
+					IClasspathEntry cpEntry = javaProject.findContainingClasspathEntry(file);
+					IJavaElement element = javaProject.findElement(file.getFullPath().makeRelativeTo(cpEntry.getPath()));
+					if (element instanceof org.eclipse.jdt.internal.core.CompilationUnit modelUnit) {
+						// TODO check element info: if has AST and flags are set sufficiently, just reuse instead of rebuilding
+						ASTParser astParser = ASTParser.newParser(modelUnit.getElementInfo() instanceof ASTHolderCUInfo astHolder ? astHolder.astLevel : AST.getJLSLatest());
+						astParser.setSource(modelUnit);
+						astParser.setResolveBindings(false);
+						astParser.setProject(javaProject);
+						astParser.setIgnoreMethodBodies(true);
+						org.eclipse.jdt.core.dom.ASTNode dom = astParser.createAST(null);
+						if (dom != null) {
+							dom.accept(new DOMToIndexVisitor(this));
+							return true;
+						}
+					}
+				}
+			} catch (Exception ex) {
+				ILog.get().error("Failed to index document from DOM for " + this.document.getPath(), ex); //$NON-NLS-1$
+			}
+		}
+		ILog.get().warn("Could not convert DOM to Index for " + this.document.getPath()); //$NON-NLS-1$
+		return false;
 	}
 }
