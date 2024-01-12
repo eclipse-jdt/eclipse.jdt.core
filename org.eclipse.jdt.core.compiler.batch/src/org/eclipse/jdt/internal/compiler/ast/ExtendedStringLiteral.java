@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2009 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -18,8 +18,8 @@ import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 
 public class ExtendedStringLiteral extends StringLiteral {
 
-	public ExtendedStringLiteral(char[] token, int start, int end, int lineNumber) {
-		super(token, start, end, lineNumber);
+	protected ExtendedStringLiteral(StringLiteral optionalHead, Object sourcesTail, int start, int end, int lineNumber) {
+		super(optionalHead, sourcesTail, start,  end,  lineNumber);
 	}
 
 	@Override
