@@ -88,7 +88,7 @@ protected ClassFile(PackageFragment parent, String nameWithoutExtension) {
  * @see Signature
  */
 @Override
-protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
+protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, Map<IJavaElement, Object> newElements, IResource underlyingResource) throws JavaModelException {
 	IBinaryType typeInfo = getBinaryTypeInfo();
 	if (typeInfo == null) {
 		// The structure of a class file is unknown if a class file format errors occurred

@@ -197,7 +197,8 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 			open(null);
 		}
 
-		protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) {
+		@Override
+		protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, Map<IJavaElement, Object> newElements, IResource underlyingResource) {
 			return false;
 		}
 

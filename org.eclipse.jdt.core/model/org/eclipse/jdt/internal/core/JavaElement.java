@@ -67,7 +67,6 @@ import org.eclipse.jdt.internal.core.util.Util;
  *
  * @see IJavaElement
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public abstract class JavaElement extends PlatformObject implements IJavaElement {
 //	private static final QualifiedName PROJECT_JAVADOC= new QualifiedName(JavaCore.PLUGIN_ID, "project_javadoc_location"); //$NON-NLS-1$
 
@@ -222,7 +221,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 * Generates the element infos for this element, its ancestors (if they are not opened) and its children (if it is an Openable).
 	 * Puts the newly created element info in the given map.
 	 */
-	protected abstract void generateInfos(Object info, HashMap newElements, IProgressMonitor pm) throws JavaModelException;
+	protected abstract void generateInfos(Object info, HashMap<IJavaElement, Object> newElements, IProgressMonitor pm) throws JavaModelException;
 
 	/**
 	 * @see IJavaElement
@@ -254,10 +253,10 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 *
 	 * @param type - one of the JEM_* constants defined by JavaElement
 	 */
-	public ArrayList getChildrenOfType(int type) throws JavaModelException {
+	public ArrayList<IJavaElement> getChildrenOfType(int type) throws JavaModelException {
 		IJavaElement[] children = getChildren();
 		int size = children.length;
-		ArrayList list = new ArrayList(size);
+		ArrayList<IJavaElement> list = new ArrayList<>(size);
 		for (int i = 0; i < size; ++i) {
 			JavaElement elt = (JavaElement)children[i];
 			if (elt.getElementType() == type) {

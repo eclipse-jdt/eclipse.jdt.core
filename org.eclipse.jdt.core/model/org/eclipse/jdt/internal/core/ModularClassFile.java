@@ -49,7 +49,7 @@ public class ModularClassFile extends AbstractClassFile implements IModularClass
 	 * @see Signature
 	 */
 	@Override
-	protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
+	protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, Map<IJavaElement, Object> newElements, IResource underlyingResource) throws JavaModelException {
 		IBinaryModule moduleInfo = getBinaryModuleInfo();
 		if (moduleInfo == null) {
 			// The structure of a class file is unknown if a class file format errors occurred

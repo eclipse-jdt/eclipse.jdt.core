@@ -15,13 +15,13 @@ package org.eclipse.jdt.internal.core;
 
 import java.util.HashMap;
 
+import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
-@SuppressWarnings("rawtypes")
 public class ASTHolderCUInfo extends CompilationUnitElementInfo {
 	int astLevel;
 	boolean resolveBindings;
 	int reconcileFlags;
-	HashMap problems = null;
+	HashMap<String, CategorizedProblem[]> problems = null;
 	CompilationUnit ast;
 }

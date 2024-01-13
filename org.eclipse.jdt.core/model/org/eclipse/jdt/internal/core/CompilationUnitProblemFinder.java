@@ -41,7 +41,6 @@ import org.eclipse.jdt.internal.core.util.Util;
  * Responsible for resolving types inside a compilation unit being reconciled,
  * reporting the discovered problems to a given IProblemRequestor.
  */
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public class CompilationUnitProblemFinder extends Compiler {
 
 	/**
@@ -184,7 +183,7 @@ public class CompilationUnitProblemFinder extends Compiler {
 		}
 	}
 
-	protected static CompilerOptions getCompilerOptions(Map settings, boolean creatingAST, boolean statementsRecovery) {
+	protected static CompilerOptions getCompilerOptions(Map<String, String> settings, boolean creatingAST, boolean statementsRecovery) {
 		CompilerOptions compilerOptions = new CompilerOptions(settings);
 		compilerOptions.performMethodsFullRecovery = statementsRecovery;
 		compilerOptions.performStatementsRecovery = statementsRecovery;
@@ -240,7 +239,7 @@ public class CompilationUnitProblemFinder extends Compiler {
 			CompilationUnit unitElement,
 			SourceElementParser parser,
 			WorkingCopyOwner workingCopyOwner,
-			HashMap problems,
+			HashMap<String, CategorizedProblem[]> problems,
 			boolean creatingAST,
 			int reconcileFlags,
 			IProgressMonitor monitor)
@@ -339,7 +338,7 @@ public class CompilationUnitProblemFinder extends Compiler {
 	public static CompilationUnitDeclaration process(
 			CompilationUnit unitElement,
 			WorkingCopyOwner workingCopyOwner,
-			HashMap problems,
+			HashMap<String, CategorizedProblem[]> problems,
 			boolean creatingAST,
 			int reconcileFlags,
 			IProgressMonitor monitor)

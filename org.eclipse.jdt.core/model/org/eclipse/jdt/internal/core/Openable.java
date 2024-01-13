@@ -34,7 +34,6 @@ import org.eclipse.jdt.internal.core.util.Util;
  * @see IJavaElement
  * @see IOpenable
  */
-@SuppressWarnings({"rawtypes"})
 public abstract class Openable extends JavaElement implements IOpenable, IBufferChangedListener {
 
 protected Openable(JavaElement parent) {
@@ -67,7 +66,7 @@ public void bufferChanged(BufferChangedEvent event) {
  * if successful, or false if an error is encountered while determining
  * the structure of this element.
  */
-protected abstract boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException;
+protected abstract boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, Map<IJavaElement, Object> newElements, IResource underlyingResource) throws JavaModelException;
 /*
  * Returns whether this element can be removed from the Java model cache to make space.
  */
@@ -218,7 +217,7 @@ public String findRecommendedLineSeparator() throws JavaModelException {
 	return Util.getLineSeparator(source, getJavaProject());
 }
 @Override
-protected void generateInfos(Object info, HashMap newElements, IProgressMonitor monitor) throws JavaModelException {
+protected void generateInfos(Object info, HashMap<IJavaElement, Object> newElements, IProgressMonitor monitor) throws JavaModelException {
 
 	if (JavaModelCache.VERBOSE){
 		String element;
@@ -391,9 +390,9 @@ public boolean hasUnsavedChanges() throws JavaModelException{
 		elementType == PACKAGE_FRAGMENT_ROOT ||
 		elementType == JAVA_PROJECT ||
 		elementType == JAVA_MODEL) { // fix for 1FWNMHH
-		Enumeration openBuffers= getBufferManager().getOpenBuffers();
+		Enumeration<IBuffer> openBuffers= getBufferManager().getOpenBuffers();
 		while (openBuffers.hasMoreElements()) {
-			IBuffer buffer= (IBuffer)openBuffers.nextElement();
+			IBuffer buffer= openBuffers.nextElement();
 			if (buffer.hasUnsavedChanges()) {
 				IJavaElement owner= (IJavaElement)buffer.getOwner();
 				if (isAncestorOf(owner)) {
@@ -522,7 +521,7 @@ abstract protected IStatus validateExistence(IResource underlyingResource);
 /*
  * Opens the ancestors of this openable that are not yet opened, validating their existence.
  */
-protected void openAncestors(HashMap newElements, IProgressMonitor monitor) throws JavaModelException {
+protected void openAncestors(HashMap<IJavaElement, Object> newElements, IProgressMonitor monitor) throws JavaModelException {
 	Openable openableParent = (Openable)getOpenableParent();
 	if (openableParent != null && !openableParent.isOpen()) {
 		openableParent.generateInfos(openableParent.createElementInfo(), newElements, monitor);

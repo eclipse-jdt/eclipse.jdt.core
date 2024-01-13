@@ -128,7 +128,7 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 	}
 
 	@Override
-	protected void generateInfos(Object info, HashMap newElements, IProgressMonitor pm) {
+	protected void generateInfos(Object info, HashMap<IJavaElement, Object> newElements, IProgressMonitor pm) {
 		// a local variable has no info
 	}
 
