@@ -444,8 +444,11 @@ public class ASTConverter14Test extends ConverterTestSetup {
 		} catch(UnsupportedOperationException e) {
 			fail("Should not throw UnsupportedOperationException");
 		} catch(AssertionFailedError e) {
-			e.printStackTrace();
-			return;
+			if (e.getMessage().contains("The enum constant WEDNESDAY needs a corresponding case label")) {
+				// expected
+				return;
+			}
+			throw e;
 		}
 
 	}
@@ -477,8 +480,11 @@ public class ASTConverter14Test extends ConverterTestSetup {
 		} catch(UnsupportedOperationException e) {
 			fail("Should not throw UnsupportedOperationException");
 		} catch(AssertionFailedError e) {
-			e.printStackTrace();
-			return;
+			if (e.getMessage().contains("The Java feature 'Text Blocks' is only available with source level 15 and above")) {
+				// expected
+				return;
+			}
+			throw e;
 		}
 		fail("Compilation should not succeed");
 
