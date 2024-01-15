@@ -18,6 +18,7 @@ package org.eclipse.jdt.internal.compiler.batch;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.InvalidPathException;
+import java.nio.file.NoSuchFileException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -237,6 +238,9 @@ protected FileSystem(Classpath[] paths, String[] initialFileNames, boolean annot
 		} catch(InvalidPathException exception) {
 			// JRE 9 could throw an IAE if the linked JAR paths have invalid chars, such as ":"
 			// ignore
+		} catch (NoSuchFileException e) {
+			// we don't warn about inexisting jars (javac does the same as us)
+			// see org.eclipse.jdt.core.tests.compiler.regression.BatchCompilerTest.test017b()
 		} catch (IOException e) {
 			String error = "Failed to init " + classpath; //$NON-NLS-1$
 			if (JRTUtil.PROPAGATE_IO_ERRORS) {

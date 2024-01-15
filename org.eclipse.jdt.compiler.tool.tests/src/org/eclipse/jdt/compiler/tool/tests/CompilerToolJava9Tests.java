@@ -551,7 +551,6 @@ public class CompilerToolJava9Tests extends TestCase {
 			Boolean result = task.call();
 			printWriter.flush();
 			printWriter.close();
-			System.err.println(stringWriter.getBuffer().toString());
 			if (result.booleanValue()) {
 				System.err.println("Compilation did not fail as expected: " + stringWriter.getBuffer().toString());
 				assertTrue("Compilation did not fail as expected", false);
