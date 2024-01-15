@@ -409,6 +409,8 @@ public class SwitchStatement extends Expression {
 				new SwitchFlowContext(flowContext, this, (this.breakLabel = new BranchLabel()), true, true);
 			switchContext.isExpression = this instanceof SwitchExpression;
 
+			CompilerOptions compilerOptions = currentScope.compilerOptions();
+
 			// analyse the block by considering specially the case/default statements (need to bind them
 			// to the entry point)
 			FlowInfo caseInits = FlowInfo.DEAD_END;
@@ -467,7 +469,7 @@ public class SwitchStatement extends Expression {
 						fallThroughState = this.containsPatterns ? FALLTHROUGH : CASE;
 					} else {
 						if (!(this instanceof SwitchExpression) &&
-							currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK14 &&
+							compilerOptions.complianceLevel >= ClassFileConstants.JDK14 &&
 							statement instanceof YieldStatement &&
 							((YieldStatement) statement).isImplicit) {
 							YieldStatement y = (YieldStatement) statement;
@@ -486,7 +488,12 @@ public class SwitchStatement extends Expression {
 						if (caseInits == FlowInfo.DEAD_END) {
 							fallThroughState = ESCAPING;
 						}
-						switchContext.expireNullCheckedFieldInfo();
+						if (compilerOptions.enableSyntacticNullAnalysisForFields) {
+							switchContext.expireNullCheckedFieldInfo();
+						}
+						if (compilerOptions.analyseResourceLeaks) {
+							FakedTrackingVariable.cleanUpUnassigned(this.scope, statement, caseInits, false);
+						}
 					}
 				}
 				completeNormallyCheck(currentScope);

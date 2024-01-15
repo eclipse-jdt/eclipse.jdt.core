@@ -7054,4 +7054,59 @@ public void testGH1762() {
 		null);
 
 }
+public void testGH1867() {
+	Map options = getCompilerOptions();
+	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
+	options.put(CompilerOptions.OPTION_ReportExplicitlyClosedAutoCloseable, CompilerOptions.ERROR);
+	runLeakTest(
+		new String[] {
+			"X.java",
+			"""
+			class RC implements AutoCloseable {
+				void m() {}
+				public void close() {}
+			}
+			public class X {
+				RC get() { return null; }
+				void test(int sw) {
+					if (sw != -1) {
+						switch(sw) {
+						case 1:
+							get().m();
+							break;
+						case 2:
+							get().m();
+							System.out.println();
+							return;
+						case 3:
+							get().m();
+							break;
+						}
+						System.out.println();
+					}
+				}
+			}
+			"""
+		},
+		"""
+		----------
+		1. ERROR in X.java (at line 11)
+			get().m();
+			^^^^^
+		Potential resource leak: \'<unassigned Closeable value>\' may not be closed
+		----------
+		2. ERROR in X.java (at line 14)
+			get().m();
+			^^^^^
+		Potential resource leak: \'<unassigned Closeable value>\' may not be closed
+		----------
+		3. ERROR in X.java (at line 18)
+			get().m();
+			^^^^^
+		Potential resource leak: \'<unassigned Closeable value>\' may not be closed
+		----------
+		""",
+		options);
+}
 }
