@@ -593,7 +593,7 @@ public class InternalCompletionProposal extends CompletionProposal {
 	@Override
 	public void setRelevance(int rating) {
 		if (rating <= 0) {
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("rating <=0: " + rating); //$NON-NLS-1$
 		}
 		this.relevance = rating;
 	}
