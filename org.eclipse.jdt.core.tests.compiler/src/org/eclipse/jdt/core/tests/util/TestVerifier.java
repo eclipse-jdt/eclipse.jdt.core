@@ -20,6 +20,7 @@ import org.eclipse.jdt.core.tests.runtime.*;
 import java.io.*;
 import java.net.*;
 import java.util.Arrays;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -33,8 +34,8 @@ public class TestVerifier {
 	boolean reuseVM = true;
 	String[] classpathCache;
 	LocalVirtualMachine vm;
-	StringBuilder outputBuffer;
-	StringBuilder errorBuffer;
+	private StringBuilder outputBuffer;
+	private StringBuilder errorBuffer;
 	Socket socket;
 public TestVerifier(boolean reuseVM) {
 	this.reuseVM = reuseVM;
@@ -114,14 +115,14 @@ private void compileVerifyTests(String verifierDir) {
 	BatchCompiler.compile("\"" + fileName + "\" -d \"" + verifierDir + "\" -warn:-resource -classpath \"" + Util.getJavaClassLibsAsString() + "\"", new PrintWriter(System.out), new PrintWriter(System.err), null/*progress*/);
 }
 public void execute(String className, String[] classpaths) {
-	this.outputBuffer = new StringBuilder();
-	this.errorBuffer = new StringBuilder();
+	setOutputBuffer(new StringBuilder());
+	setErrorBuffer(new StringBuilder());
 
 	launchAndRun(className, classpaths, null, null);
 }
 public void execute(String className, String[] classpaths, String[] programArguments, String[] vmArguments) {
-	this.outputBuffer = new StringBuilder();
-	this.errorBuffer = new StringBuilder();
+	setOutputBuffer(new StringBuilder());
+	setErrorBuffer(new StringBuilder());
 
 	launchAndRun(className, classpaths, programArguments, vmArguments);
 }
@@ -131,11 +132,17 @@ protected void finalize() throws Throwable {
 	shutDown();
 }
 public String getExecutionOutput(){
-	return this.outputBuffer.toString();
+	StringBuilder ob = getOutputBuffer();
+	synchronized (ob) {
+		return ob.toString();
+	}
 }
 
 public String getExecutionError(){
-	return this.errorBuffer.toString();
+	StringBuilder eb = getErrorBuffer();
+	synchronized (eb) {
+		return getErrorBuffer().toString();
+	}
 }
 
 /**
@@ -410,34 +417,10 @@ private void launchAndRun(String className, String[] classpaths, String[] progra
 	Thread errorThread;
 	try {
 		this.vm = launcher.launch();
-		final InputStream input = this.vm.getInputStream();
-		outputThread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					int c = input.read();
-					while (c != -1) {
-						TestVerifier.this.outputBuffer.append((char) c);
-						c = input.read();
-					}
-				} catch(IOException e) {
-				}
-			}
-		});
-		final InputStream errorStream = this.vm.getErrorStream();
-		errorThread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					int c = errorStream.read();
-					while (c != -1) {
-						TestVerifier.this.errorBuffer.append((char) c);
-						c = errorStream.read();
-					}
-				} catch(IOException e) {
-				}
-			}
-		});
+		InputStream input = this.vm.getInputStream();
+		outputThread = new Thread(() -> transferTo(input, this::getOutputBuffer), "stdOutReader");
+		InputStream errorStream = this.vm.getErrorStream();
+		errorThread = new Thread(() -> transferTo(errorStream, this::getErrorBuffer), "stdErrReader");
 		outputThread.start();
 		errorThread.start();
 	} catch(TargetException e) {
@@ -451,6 +434,27 @@ private void launchAndRun(String className, String[] classpaths, String[] progra
 	} catch (InterruptedException e) {
 	}
 }
+
+private static void transferTo(InputStream stream, Supplier<StringBuilder> b) {
+	try {
+		int c = stream.read();
+		while (c != -1) {
+			StringBuilder buffer = b.get();
+			synchronized (buffer) {
+				buffer.append((char) c);
+			}
+			c = stream.read();
+		}
+	} catch (IOException ioEx) {
+		ioEx.printStackTrace();
+	} finally {
+		try {
+			stream.close();
+		} catch (IOException e) {
+		}
+	}
+}
+
 private void launchVerifyTestsIfNeeded(String[] classpaths, String[] vmArguments) {
 	// determine if we can reuse the vm
 	if (this.vm != null && this.vm.isRunning() && this.classpathCache != null) {
@@ -503,44 +507,10 @@ private void launchVerifyTestsIfNeeded(String[] classpaths, String[] vmArguments
 		launcher.setProgramArguments(new String[] {Integer.toString(portNumber)});
 		try {
 			this.vm = launcher.launch();
-			final InputStream input = this.vm.getInputStream();
-			Thread outputThread = new Thread(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						int c = input.read();
-						while (c != -1) {
-							TestVerifier.this.outputBuffer.append((char) c);
-							c = input.read();
-						}
-					} catch(IOException ioEx) {
-						ioEx.printStackTrace();
-					} finally {
-						try {
-							input.close();
-						} catch (IOException e) {}
-					}
-				}
-			});
-			final InputStream errorStream = this.vm.getErrorStream();
-			Thread errorThread = new Thread(new Runnable() {
-				@Override
-				public void run() {
-					try {
-						int c = errorStream.read();
-						while (c != -1) {
-							TestVerifier.this.errorBuffer.append((char) c);
-							c = errorStream.read();
-						}
-					} catch(IOException ioEx) {
-						ioEx.printStackTrace();
-					} finally {
-						try {
-							errorStream.close();
-						} catch (IOException e) {}
-					}
-				}
-			});
+			InputStream input = this.vm.getInputStream();
+			Thread outputThread = new Thread(() -> transferTo(input, this::getOutputBuffer), "stdOutReader");
+			InputStream errorStream = this.vm.getErrorStream();
+			Thread errorThread = new Thread(() -> transferTo(errorStream, this::getErrorBuffer), "stdErrReader");
 			outputThread.start();
 			errorThread.start();
 		} catch(TargetException e) {
@@ -645,8 +615,8 @@ public boolean verifyClassFiles(String sourceFilePath, String className, String 
 }
 public boolean verifyClassFiles(String sourceFilePath, String className, String expectedOutputString,
 		String expectedErrorStringStart, String[] classpaths, String[] programArguments, String[] vmArguments) {
-	this.outputBuffer = new StringBuilder();
-	this.errorBuffer = new StringBuilder();
+	setOutputBuffer(new StringBuilder());
+	setErrorBuffer(new StringBuilder());
 	if (this.reuseVM && programArguments == null) {
 		launchVerifyTestsIfNeeded(classpaths, vmArguments);
 		loadAndRun(className, classpaths);
@@ -655,7 +625,7 @@ public boolean verifyClassFiles(String sourceFilePath, String className, String 
 	}
 
 	this.failureReason = null;
-	return checkBuffers(this.outputBuffer.toString(), this.errorBuffer.toString(), sourceFilePath, expectedOutputString, expectedErrorStringStart);
+	return checkBuffers(getExecutionOutput(), getExecutionError(), sourceFilePath, expectedOutputString, expectedErrorStringStart);
 }
 
 /**
@@ -664,9 +634,14 @@ public boolean verifyClassFiles(String sourceFilePath, String className, String 
 private void waitForFullBuffers() {
 	String endString = VerifyTests.class.getName();
 	long n0 = System.nanoTime();
-	int errorEndStringStart = this.errorBuffer.toString().indexOf(endString);
-	int outputEndStringStart = this.outputBuffer.toString().indexOf(endString);
-	while (errorEndStringStart == -1 || outputEndStringStart == -1) {
+	int errorEndStringStart;
+	int outputEndStringStart;
+	do {
+		errorEndStringStart = getExecutionError().indexOf(endString);
+		outputEndStringStart = getExecutionOutput().indexOf(endString);
+		if (errorEndStringStart != -1 && outputEndStringStart != -1) {
+			break;
+		}
 		try {
 			Thread.sleep(1);
 		} catch (InterruptedException e) {
@@ -675,10 +650,26 @@ private void waitForFullBuffers() {
 			throw new RuntimeException(
 					"Timeout after " + (System.nanoTime() - n0) / 1_000_000L + "ms");
 		}
-		errorEndStringStart = this.errorBuffer.toString().indexOf(endString);
-		outputEndStringStart = this.outputBuffer.toString().indexOf(endString);
+	} while (true);
+	StringBuilder eb = getErrorBuffer();
+	synchronized (eb) {
+		eb.setLength(errorEndStringStart);
 	}
-	this.errorBuffer.setLength(errorEndStringStart);
-	this.outputBuffer.setLength(outputEndStringStart);
+	StringBuilder ob = getOutputBuffer();
+	synchronized (ob) {
+		ob.setLength(outputEndStringStart);
+	}
+}
+public StringBuilder getOutputBuffer() {
+	return this.outputBuffer;
+}
+public void setOutputBuffer(StringBuilder outputBuffer) {
+	this.outputBuffer = outputBuffer;
+}
+public StringBuilder getErrorBuffer() {
+	return this.errorBuffer;
+}
+public void setErrorBuffer(StringBuilder errorBuffer) {
+	this.errorBuffer = errorBuffer;
 }
 }
