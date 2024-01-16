@@ -1,11 +1,15 @@
 /*******************************************************************************
- * Copyright (c) 2023 IBM Corporation and others.
+ * Copyright (c) 2023, 2024 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -23,13 +27,13 @@ public class StringTemplateTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NAMES = new String[] { "test003" };
 	}
-	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("--enable-preview -source 21");
+	private static final JavacTestOptions JAVAC_OPTIONS = new JavacTestOptions("--enable-preview -source 22");
 	private static final String[] VMARGS = new String[] {"--enable-preview"};
 	public static Class<?> testClass() {
 		return StringTemplateTest.class;
 	}
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(testClass(), F_21);
+		return buildMinimalComplianceTestSuite(testClass(), F_22);
 	}
 	public StringTemplateTest(String testName){
 		super(testName);
@@ -40,9 +44,9 @@ public class StringTemplateTest extends AbstractRegressionTest9 {
 	// Enables the tests to run individually
 	protected Map<String, String> getCompilerOptions(boolean previewFlag) {
 		Map<String, String> defaultOptions = super.getCompilerOptions();
-		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_21);
-		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_21);
-		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_21);
+		defaultOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_22);
+		defaultOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_22);
+		defaultOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_22);
 		defaultOptions.put(CompilerOptions.OPTION_EnablePreviews, previewFlag ? CompilerOptions.ENABLED : CompilerOptions.DISABLED);
 		defaultOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
 		return defaultOptions;

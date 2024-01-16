@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2023 IBM Corporation and others.
+ * Copyright (c) 2023, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -43,11 +47,11 @@ public class ASTConverterStringTemplateTest extends ConverterTestSetup {
 	public void setUpSuite() throws Exception {
 		super.setUpSuite();
 		this.ast = AST.newAST(getASTLatest(), false);
-		this.currentProject = getJavaProject("Converter_21");
-		if (this.ast.apiLevel() == AST.JLS21) {
-			this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_21);
-			this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_21);
-			this.currentProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_21);
+		this.currentProject = getJavaProject("Converter_22");
+		if (this.ast.apiLevel() == AST.JLS22) {
+			this.currentProject.setOption(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_22);
+			this.currentProject.setOption(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_22);
+			this.currentProject.setOption(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_22);
 			this.currentProject.setOption(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 			this.currentProject.setOption(JavaCore.COMPILER_PB_REPORT_PREVIEW_FEATURES, JavaCore.IGNORE);
 		}
@@ -73,7 +77,7 @@ public class ASTConverterStringTemplateTest extends ConverterTestSetup {
 	}
 
 	private void printJREError() {
-		System.err.println("Test "+getName()+" requires a JRE 21");
+		System.err.println("Test "+getName()+" requires a JRE 22");
 	}
 	private ASTNode doBasicTestsAndGetNode(org.eclipse.jdt.core.dom.ASTNode node, int typeIndex, int bodyIndex, int statementIndex) {
 		assertEquals("Not a compilation unit", ASTNode.COMPILATION_UNIT, node.getNodeType());
@@ -83,7 +87,7 @@ public class ASTConverterStringTemplateTest extends ConverterTestSetup {
 	}
 	// Test a simple Template expression with String Literal (no embedded expressions)
 	public void test001() throws JavaModelException {
-		if (!isJRE21) {
+		if (!isJRE22) {
 			printJREError();
 			return;
 		}
@@ -95,7 +99,7 @@ public class ASTConverterStringTemplateTest extends ConverterTestSetup {
 				}
 				""";
 
-		this.workingCopy = getWorkingCopy("/Converter_21/src/X.java", true/*resolve*/);
+		this.workingCopy = getWorkingCopy("/Converter_22/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
 			this.workingCopy);
@@ -118,7 +122,7 @@ public class ASTConverterStringTemplateTest extends ConverterTestSetup {
 	}
 	// Test a simple Template expression with text block (no embedded expressions)
 	public void test002() throws JavaModelException {
-		if (!isJRE21) {
+		if (!isJRE22) {
 			printJREError();
 			return;
 		}
@@ -131,7 +135,7 @@ public class ASTConverterStringTemplateTest extends ConverterTestSetup {
 				}
 				""";
 
-		this.workingCopy = getWorkingCopy("/Converter_21/src/X.java", true/*resolve*/);
+		this.workingCopy = getWorkingCopy("/Converter_22/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
 			this.workingCopy);
@@ -154,7 +158,7 @@ public class ASTConverterStringTemplateTest extends ConverterTestSetup {
 	}
 	// Test a simple template expression with empty embedded expression (string literal)
 	public void test003() throws JavaModelException {
-		if (!isJRE21) {
+		if (!isJRE22) {
 			printJREError();
 			return;
 		}
@@ -166,7 +170,7 @@ public class ASTConverterStringTemplateTest extends ConverterTestSetup {
 				}
 				""";
 
-		this.workingCopy = getWorkingCopy("/Converter_21/src/X.java", true/*resolve*/);
+		this.workingCopy = getWorkingCopy("/Converter_22/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
 			this.workingCopy);
@@ -195,7 +199,7 @@ public class ASTConverterStringTemplateTest extends ConverterTestSetup {
 	}
 	// Test a simple template expression with empty embedded expression (text block)
 	public void test004() throws JavaModelException {
-		if (!isJRE21) {
+		if (!isJRE22) {
 			printJREError();
 			return;
 		}
@@ -208,7 +212,7 @@ public class ASTConverterStringTemplateTest extends ConverterTestSetup {
 				}
 				""";
 
-		this.workingCopy = getWorkingCopy("/Converter_21/src/X.java", true/*resolve*/);
+		this.workingCopy = getWorkingCopy("/Converter_22/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
 			this.workingCopy);
@@ -237,7 +241,7 @@ public class ASTConverterStringTemplateTest extends ConverterTestSetup {
 	}
 	// test a template expression with null literal as embedded expression (string)
 	public void test005() throws JavaModelException {
-		if (!isJRE21) {
+		if (!isJRE22) {
 			printJREError();
 			return;
 		}
@@ -249,7 +253,7 @@ public class ASTConverterStringTemplateTest extends ConverterTestSetup {
 				}
 				""";
 
-		this.workingCopy = getWorkingCopy("/Converter_21/src/X.java", true/*resolve*/);
+		this.workingCopy = getWorkingCopy("/Converter_22/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
 			this.workingCopy);
@@ -278,7 +282,7 @@ public class ASTConverterStringTemplateTest extends ConverterTestSetup {
 	}
 	// test a template expression with null literal as embedded expression (text block)
 	public void test006() throws JavaModelException {
-		if (!isJRE21) {
+		if (!isJRE22) {
 			printJREError();
 			return;
 		}
@@ -291,7 +295,7 @@ public class ASTConverterStringTemplateTest extends ConverterTestSetup {
 				}
 				""";
 
-		this.workingCopy = getWorkingCopy("/Converter_21/src/X.java", true/*resolve*/);
+		this.workingCopy = getWorkingCopy("/Converter_22/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
 			this.workingCopy);
@@ -320,7 +324,7 @@ public class ASTConverterStringTemplateTest extends ConverterTestSetup {
 	}
 	// Test a simple Template expression with string literal and single embedded expression
 	public void test007() throws JavaModelException {
-		if (!isJRE21) {
+		if (!isJRE22) {
 			printJREError();
 			return;
 		}
@@ -333,7 +337,7 @@ public class ASTConverterStringTemplateTest extends ConverterTestSetup {
 				}
 				""";
 
-		this.workingCopy = getWorkingCopy("/Converter_21/src/X.java", true/*resolve*/);
+		this.workingCopy = getWorkingCopy("/Converter_22/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
 			this.workingCopy);
@@ -369,7 +373,7 @@ public class ASTConverterStringTemplateTest extends ConverterTestSetup {
 	}
 	// Test a simple Template expression with text block and single embedded expression
 	public void test008() throws JavaModelException {
-		if (!isJRE21) {
+		if (!isJRE22) {
 			printJREError();
 			return;
 		}
@@ -383,7 +387,7 @@ public class ASTConverterStringTemplateTest extends ConverterTestSetup {
 				}
 				""";
 
-		this.workingCopy = getWorkingCopy("/Converter_21/src/X.java", true/*resolve*/);
+		this.workingCopy = getWorkingCopy("/Converter_22/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
 			this.workingCopy);
@@ -419,7 +423,7 @@ public class ASTConverterStringTemplateTest extends ConverterTestSetup {
 	}
 	// Test a simple Template expression with String literal and multiple embedded expressions
 	public void test009() throws JavaModelException {
-		if (!isJRE21) {
+		if (!isJRE22) {
 			printJREError();
 			return;
 		}
@@ -435,7 +439,7 @@ public class ASTConverterStringTemplateTest extends ConverterTestSetup {
 				}
 				""";
 
-		this.workingCopy = getWorkingCopy("/Converter_21/src/X.java", true/*resolve*/);
+		this.workingCopy = getWorkingCopy("/Converter_22/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
 			this.workingCopy);
@@ -473,7 +477,7 @@ public class ASTConverterStringTemplateTest extends ConverterTestSetup {
 	}
 	// Test a simple Template expression with text block and multiple embedded expressions
 	public void test0010() throws JavaModelException {
-		if (!isJRE21) {
+		if (!isJRE22) {
 			printJREError();
 			return;
 		}
@@ -488,7 +492,7 @@ public class ASTConverterStringTemplateTest extends ConverterTestSetup {
 				}
 				""";
 
-		this.workingCopy = getWorkingCopy("/Converter_21/src/X.java", true/*resolve*/);
+		this.workingCopy = getWorkingCopy("/Converter_22/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
 			this.workingCopy);
@@ -526,7 +530,7 @@ public class ASTConverterStringTemplateTest extends ConverterTestSetup {
 	}
 	// Test a simple Template expression with text block and multiple embedded expressions
 	public void test0011() throws JavaModelException {
-		if (!isJRE21) {
+		if (!isJRE22) {
 			printJREError();
 			return;
 		}
@@ -542,7 +546,7 @@ public class ASTConverterStringTemplateTest extends ConverterTestSetup {
 				}
 				""";
 
-		this.workingCopy = getWorkingCopy("/Converter_21/src/X.java", true/*resolve*/);
+		this.workingCopy = getWorkingCopy("/Converter_22/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
 			this.workingCopy);
@@ -593,7 +597,7 @@ public class ASTConverterStringTemplateTest extends ConverterTestSetup {
 	}
 	// Test a simple Template expression with text block and multiple embedded expressions
 	public void test0012() throws JavaModelException {
-		if (!isJRE21) {
+		if (!isJRE22) {
 			printJREError();
 			return;
 		}
@@ -609,7 +613,7 @@ public class ASTConverterStringTemplateTest extends ConverterTestSetup {
 				}
 				""";
 
-		this.workingCopy = getWorkingCopy("/Converter_21/src/X.java", true/*resolve*/);
+		this.workingCopy = getWorkingCopy("/Converter_22/src/X.java", true/*resolve*/);
 		ASTNode node = buildAST(
 			contents,
 			this.workingCopy);

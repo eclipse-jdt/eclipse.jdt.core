@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -169,6 +173,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	protected static boolean isJRE19 = false;
 	protected static boolean isJRE20 = false;
 	protected static boolean isJRE21 = false;
+	protected static boolean isJRE22 = false;
 	static {
 		String javaVersion = System.getProperty("java.version");
 		String vmName = System.getProperty("java.vm.name");
@@ -181,6 +186,9 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 			}
 		}
 		long jdkLevel = CompilerOptions.versionToJdkLevel(javaVersion.length() > 3 ? javaVersion.substring(0, 3) : javaVersion);
+		if (jdkLevel >= ClassFileConstants.JDK22) {
+			isJRE22 = true;
+		}
 		if (jdkLevel >= ClassFileConstants.JDK21) {
 			isJRE21 = true;
 		}
@@ -298,6 +306,10 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	 * Internal synonym for constant AST.JSL21
 	 */
 	protected static final int AST_INTERNAL_JLS21 = AST.JLS21;
+	/**
+	 * Internal synonym for constant AST.JSL22
+	 */
+	protected static final int AST_INTERNAL_JLS22 = AST.JLS22;
 	/**
 	 * Internal synonym for the latest AST level.
 	 */
@@ -2380,6 +2392,12 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 					options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_21);
 					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_21);
 					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_21);
+					javaProject.setOptions(options);
+				} else if ("22".equals(compliance)) {
+					Map options = new HashMap();
+					options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_22);
+					options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_22);
+					options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_22);
 					javaProject.setOptions(options);
 				}
 				result[0] = javaProject;
