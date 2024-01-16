@@ -7089,24 +7089,22 @@ public void testGH1867() {
 			}
 			"""
 		},
-		"""
-		----------
-		1. ERROR in X.java (at line 11)
-			get().m();
-			^^^^^
-		Potential resource leak: \'<unassigned Closeable value>\' may not be closed
-		----------
-		2. ERROR in X.java (at line 14)
-			get().m();
-			^^^^^
-		Potential resource leak: \'<unassigned Closeable value>\' may not be closed
-		----------
-		3. ERROR in X.java (at line 18)
-			get().m();
-			^^^^^
-		Potential resource leak: \'<unassigned Closeable value>\' may not be closed
-		----------
-		""",
+		"----------\n" +
+		"1. ERROR in X.java (at line 11)\n" +
+		"	get().m();\n" +
+		"	^^^^^\n" +
+		potentialOrDefiniteLeak("<unassigned Closeable value>") +
+		"----------\n" +
+		"2. ERROR in X.java (at line 14)\n" +
+		"	get().m();\n" +
+		"	^^^^^\n" +
+		potentialOrDefiniteLeak("<unassigned Closeable value>") +
+		"----------\n" +
+		"3. ERROR in X.java (at line 18)\n" +
+		"	get().m();\n" +
+		"	^^^^^\n" +
+		potentialOrDefiniteLeak("<unassigned Closeable value>") +
+		"----------\n",
 		options);
 }
 }
