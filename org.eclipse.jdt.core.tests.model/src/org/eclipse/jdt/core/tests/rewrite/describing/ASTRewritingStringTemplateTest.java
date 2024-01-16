@@ -43,7 +43,7 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 	}
 
 	public static Test suite() {
-		return createSuite(ASTRewritingStringTemplateTest.class, 21);
+		return createSuite(ASTRewritingStringTemplateTest.class, 22);
 	}
 
 	@Override
@@ -59,8 +59,8 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 	// Insert a newly created string template expression
 	@SuppressWarnings({ "rawtypes", "deprecation" })
 	public void test001() throws Exception {
-		if (this.apiLevel != 21) {
-			System.err.println("Test "+getName()+" requires a JRE 21");
+		if (this.apiLevel != 22) {
+			System.err.println("Test "+getName()+" requires a JRE 22");
 			return;
 		}
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
