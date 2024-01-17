@@ -91,7 +91,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"        target type = 0x13 FIELD\n" +
 				"        location = [TYPE_ARGUMENT(1), TYPE_ARGUMENT(0)]\n" +
 				"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// note, javac 8b100 emits offset incorrectly.
 	public void test002() throws Exception {
@@ -122,7 +122,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"        offset = 3\n" +
 				"        type argument index = 0\n" +
 				"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test003() throws Exception {
@@ -169,7 +169,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"      target type = 0x11 CLASS_TYPE_PARAMETER_BOUND\n" +
 				"      type parameter index = 0 type parameter bound index = 0\n" +
 				"    )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void test004() throws Exception {
 		this.runConformTest(
@@ -200,7 +200,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"      type index = 0\n" +
 				"      location = [TYPE_ARGUMENT(0)]\n" +
 				"    )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void test005() throws Exception {
 		this.runConformTest(
@@ -227,7 +227,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"        target type = 0x17 THROWS\n" +
 				"        throws index = 0\n" +
 				"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void test006() throws Exception {
 		this.runConformTest(
@@ -275,7 +275,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"        offset = 12\n" +
 				"        location = [INNER_TYPE]\n" +
 				"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void test007() throws Exception {
 		this.runConformTest(
@@ -306,7 +306,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"      #8 @NonNull(\n" +
 				"        target type = 0x13 FIELD\n" +
 				"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void test008() throws Exception {
 		this.runConformTest(
@@ -354,7 +354,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"        type argument index = 0\n" +
 				"      )\n" +
 				"}";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void test009() throws Exception {
 		this.runConformTest(
@@ -389,7 +389,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"        target type = 0x43 INSTANCEOF\n" +
 				"        offset = 1\n" +
 				"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void test010() throws Exception {
 		this.runConformTest(
@@ -446,7 +446,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"        offset = 12\n" +
 				"        type argument index = 0\n" +
 				"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test011() throws Exception {
@@ -582,7 +582,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"      Local variable table:\n" +
 				"        [pc: 0, pc: 5] local: this index: 0 type: X\n" +
 				"}";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void test012() throws Exception {
 		this.runConformTest(
@@ -667,7 +667,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"        offset = 30\n" +
 				"        location = [ARRAY]\n" +
 				"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void test013() throws Exception {
 		this.runConformTest(
@@ -725,7 +725,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"        target type = 0x14 METHOD_RETURN\n" +
 				"      )\n" +
 				"}";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void test014() throws Exception {
 		this.runNegativeTest(
@@ -822,7 +822,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"        target type = 0x15 METHOD_RECEIVER\n" +
 				"        location = [INNER_TYPE]\n" +
 				"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X$Y.class", "Y", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X$Y.class", "Y", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void test016() throws Exception {
 		this.runConformTest(
@@ -859,7 +859,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"        target type = 0x15 METHOD_RECEIVER\n" +
 				"        location = [INNER_TYPE, INNER_TYPE]\n" +
 				"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "Outer$Middle$Inner.class", "Inner", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "Outer$Middle$Inner.class", "Inner", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void test017() throws Exception {
 		this.runConformTest(
@@ -887,7 +887,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"      #22 @Receiver(\n" +
 				"        target type = 0x15 METHOD_RECEIVER\n" +
 				"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X$Y.class", "Y", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X$Y.class", "Y", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void test018() throws Exception {
 		this.runNegativeTest(
@@ -937,7 +937,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"      target type = 0x0 CLASS_TYPE_PARAMETER\n" +
 				"      type parameter index = 0\n" +
 				"    )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void test020() throws Exception {
 		this.runNegativeTest(
@@ -1116,7 +1116,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"      #17 @Readonly(\n" +
 				"        target type = 0x14 METHOD_RETURN\n" +
 				"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void test023() throws Exception {
 		this.runConformTest(
@@ -1142,7 +1142,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"      #13 @Readonly(\n" +
 				"        target type = 0x14 METHOD_RETURN\n" +
 				"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void test024() throws Exception {
 		this.runConformTest(
@@ -1174,7 +1174,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"        target type = 0x42 EXCEPTION_PARAMETER\n" +
 				"        exception table index = 1\n" +
 				"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void test025() throws Exception {
 		this.runConformTest(
@@ -1204,7 +1204,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"        method parameter index = 0\n" +
 				"        location = [ARRAY, ARRAY]\n" +
 				"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void test026() throws Exception {
 		this.runConformTest(
@@ -1234,7 +1234,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"        method parameter index = 0\n" +
 				"        location = [ARRAY, ARRAY]\n" +
 				"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void test027() throws Exception {
 		this.runConformTest(
@@ -1262,7 +1262,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"        target type = 0x13 FIELD\n" +
 				"        location = [ARRAY]\n" +
 				"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void test028() throws Exception {
 		this.runConformTest(
@@ -1366,7 +1366,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"      type parameter index = 0\n" +
 				"    )\n" +
 				"}";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void test029() throws Exception {
 		this.runNegativeTest(
@@ -1486,7 +1486,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"    #18 @TypeAnnotation(\n" +
 				"    )\n" +
 				"}";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test030a() throws Exception {
@@ -1543,7 +1543,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"    #18 @TypeAnnotation(\n" +
 				"    )\n" +
 				"}";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test030b() throws Exception {
@@ -1621,7 +1621,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"    #18 @TypeAnnotation(\n" +
 				"    )\n" +
 				"}";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// Test that annotations in initializer code are not attached to the field.
 	public void test031() throws Exception {
@@ -1658,7 +1658,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"        offset = 5\n" +
 				"      )\n" +
 				"}";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// Test co-existence of parameter annotations and type annotations.
 	public void test032() throws Exception {
@@ -1695,7 +1695,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"      #20 @NonNull(\n" +
 				"        target type = 0x15 METHOD_RECEIVER\n" +
 				"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// Test type annotations in initializer code.
 	public void test033() throws Exception {
@@ -1821,7 +1821,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"        offset = 4\n" +
 				"      )\n" +
 				"}";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void test034() throws Exception {
 		this.runConformTest(
@@ -1884,7 +1884,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"      type parameter index = 0 type parameter bound index = 1\n" +
 				"    )\n" +
 				"}";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	// Bug 415543 - Incorrect bound index in RuntimeInvisibleTypeAnnotations attribute
@@ -2070,7 +2070,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"      type parameter index = 0 type parameter bound index = 2\n" +
 				"    )\n" +
 				"}";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void test035() throws Exception {
 		this.runConformTest(
@@ -2111,7 +2111,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"          [pc: 6, pc: 14] index: 1\n" +
 				"        location = [ARRAY]\n" +
 				"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// test that parameter index does not include explicit this parameter.
 	public void test036() throws Exception {
@@ -2143,7 +2143,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"      #18 @NonNull(\n" +
 				"        target type = 0x15 METHOD_RECEIVER\n" +
 				"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void test037() throws Exception {
 		this.runConformTest(
@@ -2186,7 +2186,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"        offset = 7\n" +
 				"      )\n" +
 				"}";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// test anonymous class, the class itself should have class_extends target ?
 	public void test038() throws Exception {
@@ -2227,7 +2227,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"        target type = 0x44 NEW\n" +
 				"        offset = 5\n" +
 				"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void test039() throws Exception {
 		this.runConformTest(
@@ -2263,7 +2263,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"        location = [TYPE_ARGUMENT(0)]\n" +
 				"      )\n" +
 				"}";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void test040() throws Exception {
 		this.runConformTest(
@@ -2296,7 +2296,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"        local variable entries:\n" +
 				"          [pc: 8, pc: 21] index: 1\n" +
 				"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void test041() throws Exception {
 		this.runConformTest(
@@ -2334,7 +2334,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"      type parameter index = 1 type parameter bound index = 1\n" +
 				"    )\n" +
 				"}";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// type path tests.
 	public void test042() throws Exception {
@@ -2392,7 +2392,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"        location = [TYPE_ARGUMENT(1), TYPE_ARGUMENT(0)]\n" +
 				"      )\n" +
 				"  \n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	// Bug 414384 - [1.8] type annotation on abbreviated inner class is not marked as inner type
@@ -2472,7 +2472,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"    [inner class info: #24 pkg/Clazz$Inner, outer class info: #1 pkg/Clazz\n" +
 				"     inner name: #26 Inner, accessflags: 1 public]\n" +
 				"}";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "pkg" + File.separator + "Clazz.class", "pkg.Clazz", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "pkg" + File.separator + "Clazz.class", "pkg.Clazz", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// More type path tests
 	public void test044() throws Exception {
@@ -2522,7 +2522,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"        location = [ARRAY, ARRAY]\n" +
 				"      )\n" +
 				"  \n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "Z", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "Z", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// More type path tests
 	public void test045() throws Exception {
@@ -2579,7 +2579,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"        location = [INNER_TYPE, INNER_TYPE, INNER_TYPE]\n" +
 				"      )\n" +
 				"  \n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "Z", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "Z", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// More type path tests
 	public void test046() throws Exception {
@@ -2663,7 +2663,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"        location = [TYPE_ARGUMENT(1), TYPE_ARGUMENT(0)]\n" +
 				"      )\n" +
 				"  \n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "Z", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "Z", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// More type path tests
 	public void test047() throws Exception {
@@ -2758,7 +2758,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 			"        location = [INNER_TYPE, INNER_TYPE, INNER_TYPE, TYPE_ARGUMENT(1)]\n" +
 			"      )\n" +
 			"  \n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "Z", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "Z", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void test048() throws Exception {
 		this.runConformTest(
@@ -2831,7 +2831,7 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"      location = [TYPE_ARGUMENT(1), TYPE_ARGUMENT(0)]\n" +
 				"    )\n" +
 				"}";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "Z", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "Z", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void test049() throws Exception {
 		this.runConformTest(
@@ -2917,6 +2917,6 @@ public class JSR308SpecSnippetTests extends AbstractRegressionTest {
 				"        location = [INNER_TYPE]\n" +
 				"      )\n" +
 				"\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "Z", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "Z", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 }

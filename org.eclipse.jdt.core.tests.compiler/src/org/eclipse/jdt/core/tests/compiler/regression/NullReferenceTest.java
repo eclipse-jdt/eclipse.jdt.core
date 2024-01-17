@@ -105,13 +105,13 @@ protected Map getCompilerOptions() {
 }
 
 protected void runNegativeNullTest(String[] testFiles, String expectedCompilerLog) {
-	runNegativeTest(testFiles, expectedCompilerLog, JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+	AbstractRegressionTest.runNegativeTest(this, testFiles, expectedCompilerLog, JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 // null analysis -- simple case for local
 public void test0001_simple_local() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			  "public class X {\n" +
 			  "  void foo() {\n" +
@@ -153,8 +153,8 @@ public void test0002_simple_field() {
 
 // null analysis -- simple case for parameter
 public void test0003_simple_parameter() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(Object o) {\n" +
@@ -173,8 +173,8 @@ public void test0003_simple_parameter() {
 
 // null analysis -- final local
 public void test0004_final_local() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo() {\n" +
@@ -213,8 +213,8 @@ public void test0005_final_local() {
 
 // null analysis -- final local
 public void test0006_final_local() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo() {\n" +
@@ -238,8 +238,8 @@ public void test0006_final_local() {
 
 // null analysis -- local with member
 public void test0007_local_with_member() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  Object m;\n" +
@@ -259,8 +259,8 @@ public void test0007_local_with_member() {
 
 // null analysis -- local with member
 public void test0008_local_with_member() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  Object m;\n" +
@@ -610,8 +610,8 @@ public void test0026_suppress_warnings() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
 		Map compilerOptions = getCompilerOptions();
 		compilerOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.WARNING);
-		this.runConformTest(
-			new String[] {
+		AbstractRegressionTest.runConformTest(
+			this, new String[] {
 				"X.java",
 				"@SuppressWarnings(\"null\")\n" +
 				"public class X {\n" +
@@ -626,8 +626,8 @@ public void test0026_suppress_warnings() {
 
 // null analysis -- embedded comparison
 public void test0027_embedded_comparison() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(Object o) {\n" +
@@ -662,8 +662,8 @@ public void test0028_field_as_initializer() {
 
 // null analysis -- field
 public void test0029_field_assignment() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  Object m;\n" +
@@ -683,8 +683,8 @@ public void test0029_field_assignment() {
 
 // null analysis -- conditional expression
 public void test0030_conditional_expression() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo() {\n" +
@@ -708,8 +708,8 @@ public void test0030_conditional_expression() {
 
 // null analysis -- conditional expression
 public void test0031_conditional_expression() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo() {\n" +
@@ -747,8 +747,8 @@ public void test0032_conditional_expression() {
 
 // null analysis -- conditional expression
 public void test0033_conditional_expression() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo() {\n" +
@@ -891,8 +891,8 @@ public void test0035_conditional_expression() {
 
 // null analysis -- conditional expression
 public void test0036_conditional_expression() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  boolean b;\n" +
@@ -913,8 +913,8 @@ public void test0036_conditional_expression() {
 // https://bugs.eclipse.org/400761: [compiler][null] null may be return as boolean without a diagnostic
 public void test0037_conditional_expression_1() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // needs autoboxing
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	boolean badFunction(int i) {\n" +
@@ -934,8 +934,8 @@ public void test0037_conditional_expression_2() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // needs autoboxing
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_SUPPRESS_OPTIONAL_ERRORS, JavaCore.ENABLED);
-	runNegativeTest(
-		true,
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -962,8 +962,8 @@ public void test0037_conditional_expression_3() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // needs autoboxing
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
-	runNegativeTest(
-		true,
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -989,8 +989,8 @@ public void test0037_conditional_expression_4() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
 	options.put(JavaCore.COMPILER_PB_UNNECESSARY_ELSE, JavaCore.IGNORE);
-	runNegativeTest(
-		true,
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -1017,8 +1017,8 @@ public void test0037_conditional_expression_4() {
 public void test0037_conditional_expression_5() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
-	runNegativeTest(
-		true,
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -1051,8 +1051,8 @@ public void test0037_autounboxing_1() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
-	runNegativeTest(
-		true,
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -1100,8 +1100,8 @@ public void test0037_autounboxing_2() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
-	runNegativeTest(
-		true,
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -1149,8 +1149,8 @@ public void test0037_autounboxing_3() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
-	runNegativeTest(
-		true,
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -1205,8 +1205,8 @@ public void test0037_autounboxing_4() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	void foo3(Integer i, boolean b) {\n" +
@@ -1250,8 +1250,8 @@ public void test0037_autounboxing_5() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
-	runNegativeTest(
-		true,
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -1307,8 +1307,8 @@ public void test0037_autounboxing_6() {
 // null analysis -- autoboxing
 public void test0040_autoboxing_compound_assignment() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"  void foo() {\n" +
@@ -1329,8 +1329,8 @@ public void test0040_autoboxing_compound_assignment() {
 // null analysis -- autoboxing
 public void test0041_autoboxing_increment_operator() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"  void foo() {\n" +
@@ -1352,8 +1352,8 @@ public void test0041_autoboxing_increment_operator() {
 // null analysis -- autoboxing
 public void test0042_autoboxing_literal() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"  void foo() {\n" +
@@ -1379,8 +1379,8 @@ public void test0042_autoboxing_literal() {
 // null analysis -- autoboxing
 public void test0043_autoboxing_literal() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"  void foo() {\n" +
@@ -1418,8 +1418,8 @@ public void test0044_autoboxing() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=165346
 public void test0045_autoboxing_operator() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"  void foo() {\n" +
@@ -1461,8 +1461,8 @@ public void test0050_array() {
 
 // null analysis -- array
 public void test0051_array() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  public static void main(String args[]) {\n" +
@@ -1509,8 +1509,8 @@ public void test0053_array() {
 
 // null analysis -- method call
 public void test0061_method_call_guard() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(Object o) {\n" +
@@ -1534,8 +1534,8 @@ public void test0061_method_call_guard() {
 
 // null analysis - method call
 public void test0062_method_call_isolation() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(Object o) {\n" +
@@ -1576,8 +1576,8 @@ public void test0063_method_call_isolation() {
 
 // null analysis - method call
 public void test0064_method_call_isolation() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(Object o) {\n" +
@@ -1619,8 +1619,8 @@ public void test0065_method_call_invocation_target() {
 
 // null analysis - method call
 public void test0066_method_call_invocation_target() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo() {\n" +
@@ -1639,8 +1639,8 @@ public void test0066_method_call_invocation_target() {
 
 // null analysis - method call
 public void test0067_method_call_invocation_target() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(Object o) {\n" +
@@ -1681,8 +1681,8 @@ public void test0068_method_call_assignment() {
 
 // null analysis -- type reference
 public void test0070_type_reference() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  public static void main(String args[]) {\n" +
@@ -1705,8 +1705,8 @@ public void test0070_type_reference() {
 }
 
 public void test0080_shortcut_boolean_expressions() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(Object o1, Object o2) {\n" +
@@ -1723,8 +1723,8 @@ public void test0080_shortcut_boolean_expressions() {
 }
 
 public void test0081_shortcut_boolean_expressions() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(Object o1, Object o2) {\n" +
@@ -1742,8 +1742,8 @@ public void test0081_shortcut_boolean_expressions() {
 
 // null analysis - shortcut boolean expression
 public void test0082_shortcut_boolean_expression() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(Object o) {\n" +
@@ -1774,8 +1774,8 @@ public void test0082_shortcut_boolean_expression() {
 
 // null analysis - shortcut boolean expression
 public void test0083_shortcut_boolean_expression() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(Object o) {\n" +
@@ -1807,8 +1807,8 @@ public void test0083_shortcut_boolean_expression() {
 // null analysis - shortcut boolean expression
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=130311
 public void test0084_shortcut_boolean_expression() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  boolean foo(Integer i1, Integer i2) {\n" +
@@ -1828,8 +1828,8 @@ public void test0084_shortcut_boolean_expression() {
 // null analysis - shortcut boolean expression
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=130311
 public void test0085_shortcut_boolean_expression() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  boolean foo(Integer i1, Integer i2) {\n" +
@@ -1936,8 +1936,8 @@ public void test0091_instanceof() {
 // null analysis -- instanceof
 // can only be null always yields false
 public void test0092_instanceof() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"class X {\n" +
 			"  boolean dummy;\n" +
@@ -1957,8 +1957,8 @@ public void test0092_instanceof() {
 
 // null analysis -- instanceof
 public void test0093_instanceof() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"class X {\n" +
 			"  void foo(Object x) {\n" +
@@ -2001,8 +2001,8 @@ public void test0094_instanceof() {
 // null analysis -- instanceof combined with conditional or
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=145202
 public void test0095_instanceof_conditional_or() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"class X {\n" +
 			"  void foo(Object x) {\n" +
@@ -2056,8 +2056,8 @@ public void test0121_strings_concatenation() {
 
 // null analysis -- strings concatenation
 public void test0122_strings_concatenation() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  String foo(String s1) {\n" +
@@ -2168,8 +2168,8 @@ public void test0127_strings_concatenation() {
 // being the accommodation for the if (constant_flag_evaluating_to_false)
 // {code...} volontary code exclusion pattern)
 public void test0300_if_else() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  public void foo() {\n" +
@@ -2211,8 +2211,8 @@ public void test0300_if_else() {
 
 // null analysis - if/else
 public void test0301_if_else() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo() {\n" +
@@ -2232,8 +2232,8 @@ public void test0301_if_else() {
 
 // null analysis - if/else
 public void test0302_if_else() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(Object o) throws Exception {\n" +
@@ -2255,8 +2255,8 @@ public void test0302_if_else() {
 
 // null analysis - if/else
 public void test0303_if_else() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(Object o) {\n" +
@@ -2278,8 +2278,8 @@ public void test0303_if_else() {
 
 // null analysis - if/else
 public void test0304_if_else() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(Object o) {\n" +
@@ -2299,8 +2299,8 @@ public void test0304_if_else() {
 
 // null analysis - if/else
 public void test0305_if_else() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(Object o) {\n" +
@@ -2321,8 +2321,8 @@ public void test0305_if_else() {
 
 // null analysis - if/else
 public void test0306_if_else() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(Object o) {\n" +
@@ -2373,8 +2373,8 @@ public void test0307_if_else() {
 
 // null analysis - if/else
 public void test0308_if_else() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  boolean b;\n" +
@@ -2396,8 +2396,8 @@ public void test0308_if_else() {
 
 // null analysis - if/else
 public void test0309_if_else() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  boolean b1, b2;\n" +
@@ -2422,8 +2422,8 @@ public void test0309_if_else() {
 
 // null analysis - if/else
 public void test0310_if_else() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  boolean b1, b2;\n" +
@@ -2469,8 +2469,8 @@ public void test0311_if_else() {
 
 // null analysis - if/else
 public void test0312_if_else() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"\n" +
@@ -2502,8 +2502,8 @@ public void test0312_if_else() {
 
 // null analysis - if/else
 public void test0313_if_else() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(Object o) {\n" +
@@ -2530,8 +2530,8 @@ public void test0313_if_else() {
 
 // null analysis - if/else
 public void test0314_if_else() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(Object o) {\n" +
@@ -2552,8 +2552,8 @@ public void test0314_if_else() {
 
 // null analysis - if/else
 public void test0315_if_else() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(Object o) {\n" +
@@ -2574,8 +2574,8 @@ public void test0315_if_else() {
 
 // null analysis - if/else
 public void test0316_if_else() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(Object o, boolean b) {\n" +
@@ -2648,8 +2648,8 @@ public void test0319_if_else_dead_branch() {
 
 // null analysis - if/else
 public void test0320_if_else() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(Object o) {\n" +
@@ -2690,8 +2690,8 @@ public void test0321_if_else() {
 
 // null analysis - if/else
 public void test0322_if_else() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(Object o, boolean b) {\n" +
@@ -2760,8 +2760,8 @@ public void test0324_if_else_nested() {
 
 // null analysis - if/else
 public void test0325_if_else_nested() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"class X {\n" +
 			"  void foo (boolean b) {\n" +
@@ -2798,8 +2798,8 @@ public void test0325_if_else_nested() {
 // limit: we cannot sync on external factors, even if this is a pattern
 // that is quite used
 public void test0326_if_else() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"class X {\n" +
 			"  void foo (boolean b) {\n" +
@@ -2823,8 +2823,8 @@ public void test0326_if_else() {
 // limit: we cannot sync on external factors, even if this is a pattern
 // that is quite used
 public void test0327_if_else() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"class X {\n" +
 			"  void foo (String s1) {\n" +
@@ -2848,8 +2848,8 @@ public void test0327_if_else() {
 
 // null analysis - if/else
 public void test0328_if_else() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(Object o, boolean b) {\n" +
@@ -2873,8 +2873,8 @@ public void test0328_if_else() {
 
 // null analysis - if/else
 public void test0329_if_else_nested() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(Object o, boolean b) {\n" +
@@ -2931,8 +2931,8 @@ public void test0331_if_else_nested() {
 
 // null analysis - if/else
 public void test0332_if_else() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(Object o, boolean b) {\n" +
@@ -2956,8 +2956,8 @@ public void test0332_if_else() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=128014
 // invalid analysis when redundant check is done
 public void test0333_if_else() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(Object o) {\n" +
@@ -2981,8 +2981,8 @@ public void test0333_if_else() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=128014
 // invalid analysis when redundant check is done - variant
 public void test0334_if_else() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(Object o) {\n" +
@@ -3042,8 +3042,8 @@ public void test0335_if_else() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=128014
 // invalid analysis when redundant check is done - variant
 public void test0336_if_else() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(Object o) {\n" +
@@ -3147,8 +3147,8 @@ public void test0338_if_else_nested() {
 
 // null analysis - if/else nested with unknown protection: unknown cannot protect
 public void test0339_if_else_nested() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(Object o, boolean b) {\n" +
@@ -3173,8 +3173,8 @@ public void test0339_if_else_nested() {
 
 // null analysis - if/else nested
 public void test0340_if_else_nested() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(Object o) {\n" +
@@ -3199,8 +3199,8 @@ public void test0340_if_else_nested() {
 
 // null analysis - if/else nested
 public void test0341_if_else_nested() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(Object o1, Object o2, boolean b) {\n" +
@@ -3222,8 +3222,8 @@ public void test0341_if_else_nested() {
 
 // null analysis - if/else nested
 public void test0342_if_else_nested() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(Object o1, Object o2, boolean b) {\n" +
@@ -3245,8 +3245,8 @@ public void test0342_if_else_nested() {
 
 // null analysis -- while
 public void test0401_while() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo() {\n" +
@@ -3266,8 +3266,8 @@ public void test0401_while() {
 
 // null analysis -- while
 public void test0402_while() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo() {\n" +
@@ -3325,8 +3325,8 @@ public void test0404_while() {
 
 // null analysis -- while
 public void test0405_while() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  boolean bar() {\n" +
@@ -3350,8 +3350,8 @@ public void test0405_while() {
 
 // null analysis -- while
 public void test0406_while() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  boolean dummy;\n" +
@@ -3371,8 +3371,8 @@ public void test0406_while() {
 
 // null analysis -- while
 public void test0407_while() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  boolean dummy;\n" +
@@ -3428,8 +3428,8 @@ public void test0408_while() {
 
 // null analysis -- while
 public void test0409_while() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  boolean dummy;\n" +
@@ -3499,8 +3499,8 @@ public void test0411_while_nested() {
 
 // null analysis -- while
 public void test0412_while_if_nested() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  boolean dummy, other;\n" +
@@ -3542,8 +3542,8 @@ public void test0413_while_unknown_field() {
 
 // null analysis -- while
 public void test0414_while_unknown_parameter() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  boolean dummy;\n" +
@@ -3586,8 +3586,8 @@ public void test0415_while_unknown_if_else() {
 
 // null analysis -- while
 public void test0416_while() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  boolean dummy;\n" +
@@ -3610,8 +3610,8 @@ public void test0416_while() {
 
 // null analysis -- while
 public void test0417_while() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  boolean dummy;\n" +
@@ -3654,8 +3654,8 @@ public void test0418_while_try() {
 
 // null analysis -- while
 public void test0419_while() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  boolean bool;\n" +
@@ -3677,8 +3677,8 @@ public void test0419_while() {
 
 // null analysis -- while
 public void test0420_while() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  boolean bool;\n" +
@@ -3721,8 +3721,8 @@ public void test0421_while() {
 
 // null analysis -- while
 public void test0422_while() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  boolean bool;\n" +
@@ -3751,8 +3751,8 @@ public void test0422_while() {
 
 // null analysis -- while
 public void test0423_while() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  boolean bool;\n" +
@@ -3804,8 +3804,8 @@ public void test0424_while_try() {
 
 // null analysis -- while
 public void test0425_while() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  boolean dummy;\n" +
@@ -3828,8 +3828,8 @@ public void test0425_while() {
 
 // null analysis -- while
 public void test0426_while() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  boolean dummy;\n" +
@@ -3855,8 +3855,8 @@ public void test0426_while() {
 
 // null analysis -- while
 public void test0427_while_return() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  boolean dummy;\n" +
@@ -3991,8 +3991,8 @@ public void test0432_while() {
 
 // null analysis - while
 public void test0433_while() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"class X {\n" +
 			"  boolean dummy;\n" +
@@ -4103,8 +4103,8 @@ public void test0437_while_exit() {
 
 // null analysis - while
 public void test0438_while() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"class X {\n" +
 			"  void foo(Object o) {\n" +
@@ -4140,8 +4140,8 @@ public void test0439_while() {
 
 // null analysis - while
 public void test0440_while() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"class X {\n" +
 			"  void foo(Object o) {\n" +
@@ -4162,8 +4162,8 @@ public void test0440_while() {
 
 // null analysis - while
 public void test0441_while() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"class X {\n" +
 			"  X bar() {\n" +
@@ -4187,8 +4187,8 @@ public void test0441_while() {
 
 // null analysis - while
 public void test0442_while() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"class X {\n" +
 			"  boolean bar() {\n" +
@@ -4260,8 +4260,8 @@ public void test0444_while_deeply_nested() {
 
 // null analysis - while
 public void test0445_while_deeply_nested() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"class X {\n" +
 			"  void foo(boolean b) {\n" +
@@ -4292,8 +4292,8 @@ public void test0445_while_deeply_nested() {
 
 // null analysis - while
 public void test0446_while() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"class X {\n" +
 			"  void foo(Object o, boolean b) {\n" +
@@ -4330,8 +4330,8 @@ public void test0447_while() {
 
 // null analysis - while
 public void test0448_while() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"class X {\n" +
 			"  void foo(boolean b[]) {\n" +
@@ -4396,8 +4396,8 @@ public void test0449_while_nested() {
 
 // null analysis - while
 public void test0450_while() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"class X {\n" +
 			"  void foo(boolean b) {\n" +
@@ -4420,8 +4420,8 @@ public void test0450_while() {
 // null analysis - while
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=133131
 public void test0451_while_nested() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"class X {\n" +
 			"  void foo(boolean b) {\n" +
@@ -4522,8 +4522,8 @@ public void test0454_while() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=133131
 // variant
 public void test0455_while_nested() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"class X {\n" +
 			"  void foo(boolean b) {\n" +
@@ -4620,8 +4620,8 @@ public void test0458_while_nested_explicit_label() {
 
 // null analysis -- while nested hits CAN_ONLY_NON_NULL
 public void test0459_while_nested() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(boolean b) {\n" +
@@ -4969,8 +4969,8 @@ public void test0500_try_finally() {
 
 // null analysis -- try/finally
 public void test0501_try_finally() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo() {\n" +
@@ -5014,8 +5014,8 @@ public void test0502_try_finally() {
 
 // null analysis -- try/finally
 public void test0503_try_finally() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(X x) {\n" +
@@ -5036,8 +5036,8 @@ public void test0503_try_finally() {
 
 // null analysis -- try/finally
 public void test0504_try_finally() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(X x) {\n" +
@@ -5087,8 +5087,8 @@ public void test0505_try_finally() {
 
 // null analysis -- try finally
 public void test0506_try_finally() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(Object o) {\n" +
@@ -5115,8 +5115,8 @@ public void test0506_try_finally() {
 
 // null analysis -- try finally
 public void test0507_try_finally() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(Object o, boolean b) {\n" +
@@ -5147,8 +5147,8 @@ public void test0507_try_finally() {
 
 // null analysis -- try finally
 public void test0508_try_finally() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(Object o) {\n" +
@@ -5172,8 +5172,8 @@ public void test0508_try_finally() {
 
 // null analysis -- try finally
 public void test0509_try_finally_embedded() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(Object o1) {\n" +
@@ -5247,8 +5247,8 @@ public void test0511_try_finally() {
 
 // null analysis -- try/finally
 public void test0512_try_finally() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			" void foo(X x) {\n" +
@@ -5431,8 +5431,8 @@ public void test0517_try_finally() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=132120
 // [compiler][null] NPE batch compiling JDT/Core from HEAD
 public void test0518_try_finally() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			" void foo() {\n" +
@@ -5566,8 +5566,8 @@ public void test0521_try_finally() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=149665
 // variant
 public void test0522_try_finally() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X\n" +
 			"{\n" +
@@ -5600,8 +5600,8 @@ public void test0522_try_finally() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=149665
 // variant
 public void test0523_try_finally() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X\n" +
 			"{\n" +
@@ -5634,8 +5634,8 @@ public void test0523_try_finally() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=149665
 // variant
 public void test0524_try_finally() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X\n" +
 			"{\n" +
@@ -5667,8 +5667,8 @@ public void test0524_try_finally() {
 // null analysis -- try/finally
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=150082
 public void _test0525_try_finally_unchecked_exception() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X\n" +
 			"{\n" +
@@ -5704,8 +5704,8 @@ public void _test0525_try_finally_unchecked_exception() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=150082
 // variant
 public void test0526_try_finally_unchecked_exception() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X\n" +
 			"{\n" +
@@ -5740,8 +5740,8 @@ public void test0526_try_finally_unchecked_exception() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=150082
 //variant
 public void test0527_try_finally_unchecked_exception() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X\n" +
 			"{\n" +
@@ -5772,8 +5772,8 @@ public void test0527_try_finally_unchecked_exception() {
 // null analysis -- try/finally
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=158000
 public void test0528_try_finally() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(X x) {\n" +
@@ -5803,8 +5803,8 @@ public void test0528_try_finally() {
 // null analysis -- try finally
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=158000
 public void test0529_try_finally() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(Object o) {\n" +
@@ -5834,8 +5834,8 @@ public void test0529_try_finally() {
 // null analysis -- try/finally
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=158000
 public void test0530_try_finally() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			" void foo(X x) {\n" +
@@ -5866,8 +5866,8 @@ public void test0530_try_finally() {
 // null analysis -- try/finally
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=158000
 public void test0531_try_finally() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			" void foo() {\n" +
@@ -5942,8 +5942,8 @@ public void test0533_try_finally_field() {
 // null analysis - try finally
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=198970
 public void _test0534_try_finally() {
-	runTest(
-		new String[] {
+	AbstractRegressionTest.runTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  public static void main(String[] args) {\n" +
@@ -6003,8 +6003,8 @@ public void test0535_try_finally() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=320170 -  [compiler] [null] Whitebox issues in null analysis
 // trigger nullbits 0111 (pot n|nn|un), don't let "definitely unknown" override previous information
 public void test0536_try_finally() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			" X bar () { return null; }\n" +
@@ -6033,8 +6033,8 @@ public void test0536_try_finally() {
 // trigger nullbits 0111 (pot n|nn|un), don't let "definitely unknown" override previous information
 // multiple variables
 public void test0537_try_finally() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			" X bar () { return null; }\n" +
@@ -6094,8 +6094,8 @@ public void test0550_try_catch() {
 
 // null analysis - try/catch
 public void test0551_try_catch() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  boolean dummy;\n" +
@@ -6150,8 +6150,8 @@ public void test0552_try_catch() {
 
 // null analysis - try/catch
 public void test0553_try_catch() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  boolean dummy, other;\n" +
@@ -6226,8 +6226,8 @@ public void test0554_try_catch() {
 
 // null analysis - try/catch
 public void test0555_try_catch() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo() {\n" +
@@ -6255,8 +6255,8 @@ public void test0555_try_catch() {
 
 // null analysis - try/catch
 public void test0556_try_catch() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo() {\n" +
@@ -6284,8 +6284,8 @@ public void test0556_try_catch() {
 
 // null analysis - try/catch
 public void test0557_try_catch() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  boolean dummy;\n" +
@@ -6313,8 +6313,8 @@ public void test0557_try_catch() {
 
 // null analysis - try/catch
 public void test0558_try_catch() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  boolean dummy;\n" +
@@ -6346,8 +6346,8 @@ public void test0558_try_catch() {
 
 // null analysis - try/catch
 public void test0559_try_catch() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  boolean dummy;\n" +
@@ -6381,8 +6381,8 @@ public void test0559_try_catch() {
 
 // null analysis - try/catch
 public void test0560_try_catch() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  Class bar(boolean b) throws ClassNotFoundException {\n" +
@@ -6419,8 +6419,8 @@ public void test0560_try_catch() {
 // null analysis - try/catch
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=130359
 public void test0561_try_catch_unchecked_exception() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo() {\n" +
@@ -6451,8 +6451,8 @@ public void test0562_try_catch_unchecked_exception() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.WARNING);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.WARNING);
-	this.runNegativeTest(
-		true,
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 			"X.java",
 			"import java.io.*;\n" +
@@ -6486,8 +6486,8 @@ public void test0562_try_catch_unchecked_exception() {
 // null analysis - try/catch
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=155117
 public void test0563_try_catch() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  public void foo(boolean b) {\n" +
@@ -6532,8 +6532,8 @@ public void test0563_try_catch() {
 public void test0564_try_catch_unchecked_exception() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.WARNING);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  public static Object foo() {\n" +
@@ -6561,8 +6561,8 @@ public void test0564_try_catch_unchecked_exception() {
 public void test0565_try_catch_unchecked_exception() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.WARNING);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  public static Object foo() {\n" +
@@ -6591,8 +6591,8 @@ public void test0565_try_catch_unchecked_exception() {
 public void test0566_try_catch_unchecked_exception() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.WARNING);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  public static Object foo(Y y) {\n" +
@@ -6830,8 +6830,8 @@ public void test0572_if_statement() {
 
 // take care for Java7 changes
 public void test0573_try_catch_unchecked_and_checked_exception() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"import java.io.IOException;\n" +
 			"public class X {\n" +
@@ -6867,8 +6867,8 @@ public void test0573_try_catch_unchecked_and_checked_exception() {
 // similar to test0573 using multi catch parameters
 public void test0574_try_multi_catch_unchecked_and_checked_exception() {
 	if (this.complianceLevel >=  ClassFileConstants.JDK1_7) {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"import java.io.IOException;\n" +
 				"public class X {\n" +
@@ -6897,8 +6897,8 @@ public void test0574_try_multi_catch_unchecked_and_checked_exception() {
 //multi catch variant of test0561_try_catch_unchecked_exception
 public void test0575_try_multi_catch_finally_unchecked_and_checked_exception() {
 	if (this.complianceLevel >=  ClassFileConstants.JDK1_7) {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"import java.io.IOException;\n" +
 				"public class X {\n" +
@@ -6927,8 +6927,8 @@ public void test0575_try_multi_catch_finally_unchecked_and_checked_exception() {
 // null test for resources inside try with resources statement
 public void test0576_try_with_resources() {
 	if (this.complianceLevel >=  ClassFileConstants.JDK1_7) {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"import java.io.FileInputStream;\n" +
 				"import java.io.IOException;\n" +
@@ -6991,8 +6991,8 @@ public void test0576_try_with_resources() {
 // null analysis - throw
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=201182
 public void test0595_throw() {
-	runTest(
-		new String[] {
+	AbstractRegressionTest.runTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  public static void main(String[] args) throws Throwable {\n" +
@@ -7023,8 +7023,8 @@ public void test0595_throw() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=201182
 // variant - potential NPE
 public void test0596_throw() {
-	runTest(
-		new String[] {
+	AbstractRegressionTest.runTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  public static void main(String[] args) throws Throwable {\n" +
@@ -7059,8 +7059,8 @@ public void test0596_throw() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=201182
 // variant - unknown
 public void test0597_throw() {
-	runTest(
-		new String[] {
+	AbstractRegressionTest.runTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo() throws Throwable {\n" +
@@ -7086,8 +7086,8 @@ public void test0597_throw() {
 
 // null analysis -- do while
 public void test0601_do_while() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo() {\n" +
@@ -7108,8 +7108,8 @@ public void test0601_do_while() {
 
 // null analysis -- do while
 public void test0602_do_while() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo() {\n" +
@@ -7130,8 +7130,8 @@ public void test0602_do_while() {
 
 // null analysis -- do while
 public void test0603_do_while() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo() {\n" +
@@ -7173,8 +7173,8 @@ public void test0604_do_while() {
 
 // null analysis -- do while
 public void test0605_do_while() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  boolean dummy;\n" +
@@ -7222,8 +7222,8 @@ public void test0606_do_while() {
 
 // null analysis -- do while
 public void test0607_do_while() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  boolean dummy;\n" +
@@ -7267,8 +7267,8 @@ public void test0608_do_while() {
 
 // null analysis -- do while
 public void test0609_do_while() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  boolean dummy;\n" +
@@ -7309,8 +7309,8 @@ public void test0610_do_while() {
 
 // null analysis - do while
 public void test0611_do_while() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"class X {\n" +
 			"  X bar() {\n" +
@@ -7386,8 +7386,8 @@ public void test0613_do_while() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=123399
 // variant
 public void _test0614_do_while() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(Object doubt) {\n" +
@@ -7412,8 +7412,8 @@ public void _test0614_do_while() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=123399
 // variant
 public void _test0615_do_while() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(Object doubt) {\n" +
@@ -7535,8 +7535,8 @@ public void test0619_do_while_infinite() {
 
 // null analysis -- for
 public void test0701_for() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo() {\n" +
@@ -7556,8 +7556,8 @@ public void test0701_for() {
 
 // null analysis -- for
 public void test0702_for() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo() {\n" +
@@ -7615,8 +7615,8 @@ public void test0704_for() {
 
 // null analysis -- for
 public void test0705_for() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  boolean bar() {\n" +
@@ -7655,8 +7655,8 @@ public void test0707_for() {
 
 // null analysis -- for
 public void test0708_for() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(Object o) {\n" +
@@ -7675,8 +7675,8 @@ public void test0708_for() {
 
 // null analysis -- for
 public void test0709_for() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(Object o) {\n" +
@@ -7694,8 +7694,8 @@ public void test0709_for() {
 
 // null analysis -- for
 public void test0710_for() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  boolean bar() {\n" +
@@ -7719,8 +7719,8 @@ public void test0710_for() {
 // null analysis -- for
 public void test0711_for() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"  void foo() {\n" +
@@ -7742,8 +7742,8 @@ public void test0711_for() {
 // null analysis -- for
 public void test0712_for() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"  void foo() {\n" +
@@ -7797,8 +7797,8 @@ public void test0714_for() {
 // null analysis -- for
 public void test0715_for() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"  void foo() {\n" +
@@ -7824,8 +7824,8 @@ public void test0715_for() {
 // null analysis -- for
 public void test0716_for() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"  void foo() {\n" +
@@ -7848,8 +7848,8 @@ public void test0716_for() {
 // null analysis -- for
 public void test0717_for() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"  void foo(boolean dummy) {\n" +
@@ -7872,8 +7872,8 @@ public void test0717_for() {
 
 // null analysis -- for
 public void test0718_for() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(boolean dummy) {\n" +
@@ -7920,8 +7920,8 @@ public void test0719_for() {
 
 // null analysis -- for
 public void test0720_for_continue_break() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			  "public class X {\n" +
 			  "  void foo() {\n" +
@@ -7965,8 +7965,8 @@ public void test0721_for() {
 
 // null analysis -- for
 public void test0722_for_return() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo (boolean b) {\n" +
@@ -8141,8 +8141,8 @@ public void test0729_for_try_catch_finally() {
 
 // null analysis - for
 public void test0730_for() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"class X {\n" +
 			"  void foo(Object o) {\n" +
@@ -8163,8 +8163,8 @@ public void test0730_for() {
 
 // null analysis - for
 public void test0731_for() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"class X {\n" +
 			"  X bar() {\n" +
@@ -8309,8 +8309,8 @@ public void test0736_for_embedded_lazy_init() {
 // null analysis - for with unknown protection: unknown cannot protect anything
 // suggested by https://bugs.eclipse.org/bugs/show_bug.cgi?id=127570
 public void test0737_for_unknown_protection() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"class X {\n" +
 			"  public boolean foo(Boolean p) {\n" +
@@ -8553,8 +8553,8 @@ public void test0746_for_try_catch() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=195638
 // variant: do not reset to null
 public void test0747_for_try_catch() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo() {\n" +
@@ -8603,8 +8603,8 @@ public void test0800_switch() {
 
 // null analysis -- switch
 public void test0801_switch() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			" int k;\n" +
@@ -8636,8 +8636,8 @@ public void test0801_switch() {
 
 // null analysis -- switch
 public void test0802_switch() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			" int k;\n" +
@@ -8661,8 +8661,8 @@ public void test0802_switch() {
 
 // null analysis -- switch
 public void test0803_switch() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			" int k;\n" +
@@ -8688,8 +8688,8 @@ public void test0803_switch() {
 
 // null analysis -- switch
 public void test0804_switch() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo (Object o, int info) {\n" +
@@ -8815,8 +8815,8 @@ public void _test0902_non_null_protection_tag() {
 
 // null analysis -- non null protection tag
 public void test0903_non_null_protection_tag() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(Object o, boolean b) {\n" +
@@ -8883,8 +8883,8 @@ public void test0903_non_null_protection_tag() {
 
 // null analysis -- non null protection tag
 public void test0905_non_null_protection_tag() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(Object o) {\n" +
@@ -8903,8 +8903,8 @@ public void test0905_non_null_protection_tag() {
 
 // null analysis -- non null protection tag
 public void test0906_non_null_protection_tag() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(Object o) {\n" +
@@ -8943,8 +8943,8 @@ public void test0950_assert() {
 // [compiler] Null reference analysis doesn't understand assertions
 public void test0951_assert() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_4) {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"  void foo(Object o) {\n" +
@@ -8966,8 +8966,8 @@ public void test0951_assert() {
 // [compiler] Null reference analysis doesn't understand assertions
 public void test0952_assert() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_4) {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"  void foo(Object o, boolean b) {\n" +
@@ -8989,8 +8989,8 @@ public void test0952_assert() {
 // [compiler] Null reference analysis doesn't understand assertions
 public void test0953_assert_combined() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_4) {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"  void foo(Object o1, Object o2) {\n" +
@@ -9023,8 +9023,8 @@ public void test0953_assert_combined() {
 // [compiler] Null reference analysis doesn't understand assertions
 public void test0954_assert_fake_reachable() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_4) {
-		runConformTest(
-			true/*flush*/,
+		AbstractRegressionTest.runConformTest(
+			this, true/*flush*/,
 			new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -9050,8 +9050,8 @@ public void test0954_assert_fake_reachable() {
 // [compiler] Null reference analysis doesn't understand assertions
 public void test0955_assert_combined() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_4) {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"  void foo(Object o) {\n" +
@@ -9078,8 +9078,8 @@ public void test0955_assert_combined() {
 // [compiler] Null reference analysis doesn't understand assertions
 public void test0956_assert_combined() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_4) {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"  void foo() {\n" +
@@ -9113,8 +9113,8 @@ public void test0956_assert_combined() {
 // but this doesn't affect the downstream info.
 public void test0957_assert() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_4) {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"  void m() {\n" +
@@ -9182,8 +9182,8 @@ public void test0957_assert() {
 // but this doesn't affect the downstream info.
 public void test0958_assert() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"import java.util.HashMap;\n" +
 				"public class X {\n" +
@@ -9220,8 +9220,8 @@ public void test0958_assert() {
 // but this doesn't affect the downstream info.
 public void test0959a_assert_loop() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_4) {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"  void m() {\n" +
@@ -9291,8 +9291,8 @@ public void test0959a_assert_loop() {
 // but this doesn't affect the downstream info.
 public void test0959b_assert_loop() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_4) {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"  void m() {\n" +
@@ -9362,8 +9362,8 @@ public void test0959b_assert_loop() {
 // but this doesn't affect the downstream info.
 public void test0960_assert_finally() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_4) {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"  void m() {\n" +
@@ -9564,8 +9564,8 @@ public void _test0952_nullable_tag() {
 
 // moved from AssignmentTest
 public void test1004() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  X foo(X x) {\n" +
@@ -9672,8 +9672,8 @@ public void test1008() {
 }
 
 public void test1009() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"import java.io.File;\n" +
 			"\n" +
@@ -9735,8 +9735,8 @@ public void test1010() {
 }
 
 public void test1011() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"\n" +
@@ -9774,8 +9774,8 @@ public void test1011() {
 }
 
 public void test1012() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  \n" +
@@ -9804,8 +9804,8 @@ public void test1012() {
 // x cannot equal this then null with no assignment in between
 // each diagnostic is locally sound though
 public void test1013() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(X x) {\n" +
@@ -9870,8 +9870,8 @@ public void test1015() {
 }
 
 public void test1016() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(X x) {\n" +
@@ -9900,8 +9900,8 @@ public void test1016() {
 }
 
 public void test1017() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(X x) {\n" +
@@ -9930,8 +9930,8 @@ public void test1017() {
 }
 
 public void test1018() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  \n" +
@@ -10052,8 +10052,8 @@ public void test1022() {
 }
 
 public void test1023() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"\n" +
@@ -10085,8 +10085,8 @@ public void test1023() {
 }
 
 public void test1024() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  \n" +
@@ -10119,8 +10119,8 @@ public void test1024() {
 }
 
 public void test1025() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  \n" +
@@ -10243,8 +10243,8 @@ public void test1029() {
 }
 
 public void test1030() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  \n" +
@@ -10275,8 +10275,8 @@ public void test1030() {
 }
 
 public void test1031() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  \n" +
@@ -10322,8 +10322,8 @@ public void test1031() {
 }
 
 public void test1032() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo() {\n" +
@@ -10350,8 +10350,8 @@ public void test1032() {
 
 // (simplified to focus on nulls)
 public void test1033() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  \n" +
@@ -10427,8 +10427,8 @@ public void test1034() {
 }
 
 public void test1036() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"\n" +
@@ -10463,8 +10463,8 @@ public void test1036() {
 public void test1050_options_all_default() {
 	try {
 		setNullRelatedOptions = false;
-		runConformTest(
-			true, // flush
+		AbstractRegressionTest.runConformTest(
+			this, true, // flush
 			new String[] {
 				"X.java",
 				  "public class X {\n" +
@@ -10508,8 +10508,8 @@ public void test1051_options_all_ignore() {
 	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.IGNORE);
 	customOptions.put(CompilerOptions.OPTION_ReportPotentialNullReference, CompilerOptions.IGNORE);
     customOptions.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.IGNORE);
-	this.runConformTest(
-			new String[] {
+	AbstractRegressionTest.runConformTest(
+			this, new String[] {
 				"X.java",
 				  "public class X {\n" +
 				  "  void foo(Object p) {\n" +
@@ -10534,8 +10534,8 @@ public void test1051_options_all_ignore() {
 // adding distinct options to control null checks in more detail
 // all options set to error
 public void test1052_options_all_error() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			  "public class X {\n" +
 			  "  void foo(Object p) {\n" +
@@ -10581,8 +10581,8 @@ public void test1053_options_mix() {
 	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportPotentialNullReference, CompilerOptions.IGNORE);
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.IGNORE);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -10626,8 +10626,8 @@ public void test1054_options_mix() {
 	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.WARNING);
 	customOptions.put(CompilerOptions.OPTION_ReportPotentialNullReference, CompilerOptions.IGNORE);
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -10676,8 +10676,8 @@ public void test1055_options_mix() {
 	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.IGNORE);
 	customOptions.put(CompilerOptions.OPTION_ReportPotentialNullReference, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -10727,8 +10727,8 @@ public void test1056_options_mix_with_SuppressWarnings() {
 		customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 		customOptions.put(CompilerOptions.OPTION_ReportPotentialNullReference, CompilerOptions.WARNING);
 		customOptions.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.WARNING);
-		runNegativeTest(
-			// test directory preparation
+		AbstractRegressionTest.runNegativeTest(
+			this, // test directory preparation
 			true /* flush output directory */,
 			new String[] { /* test files */
 				"X.java",
@@ -10769,8 +10769,8 @@ public void test1056_options_mix_with_SuppressWarnings() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=170704
 // adding distinct options to control null checks in more detail
 public void test1057_options_instanceof_is_check() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			  "public class X {\n" +
 			  "  void foo(Object p) {\n" +
@@ -10793,8 +10793,8 @@ public void test1057_options_instanceof_is_check() {
 public void test1058_options_instanceof_is_check() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.IGNORE);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			  "public class X {\n" +
 			  "  void foo(Object p) {\n" +
@@ -10817,8 +10817,8 @@ public void test1058_options_instanceof_is_check() {
 public void test1059_options_cannot_be_null_check() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.IGNORE);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			  "public class X {\n" +
 			  "  void foo(Object p) {\n" +
@@ -10939,8 +10939,8 @@ public void test1503() {
 
 // flow info low-level validation
 public void test2000_flow_info() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"\n" +
@@ -11205,8 +11205,8 @@ public void test2008_flow_info() {
 
 // null analysis -- flow info
 public void test2009_flow_info() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  Object m0, m1, m2, m3, m4,\n" +
@@ -11246,8 +11246,8 @@ public void test2009_flow_info() {
 
 // null analysis -- flow info
 public void test2010_flow_info() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  Object m00, m01, m02, m03, m04,\n" +
@@ -11288,8 +11288,8 @@ public void test2010_flow_info() {
 
 // null analysis -- flow info
 public void test2011_flow_info() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  Object m000, m001, m002, m003, m004, m005, m006, m007, m008, m009,\n" +
@@ -11333,8 +11333,8 @@ public void test2011_flow_info() {
 
 // null analysis -- flow info
 public void test2012_flow_info() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  Object m000, m001, m002, m003, m004, m005, m006, m007, m008, m009,\n" +
@@ -11378,8 +11378,8 @@ public void test2012_flow_info() {
 
 // null analysis -- flow info
 public void test2013_flow_info() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  boolean dummy;\n" +
@@ -11844,8 +11844,8 @@ public void testBug291418b() {
 // Test that a redundant null check doesn't affect the null status of
 // a variable downstream.
 public void testBug293917a() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	public void foo(){\n" +
@@ -11874,8 +11874,8 @@ public void testBug293917a() {
 // Test that a redundant null check doesn't affect the null status of
 // a variable downstream in a loop.
 public void testBug293917b() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	public void foo(){\n" +
@@ -11901,8 +11901,8 @@ public void testBug293917b() {
 // Test that a redundant null check doesn't affect the null status of
 // a variable downstream in a finally block.
 public void testBug293917c() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	public void foo(){\n" +
@@ -11934,8 +11934,8 @@ public void testBug293917c() {
 // Test that a redundant null check doesn't affect the null status of
 // a variable downstream.
 public void testBug190623() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"    public static void main(String[] args) {\n" +
@@ -12254,8 +12254,8 @@ public void testBug303448a() throws Exception {
 	options.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.IGNORE);
 	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
 	if (this.complianceLevel >= ClassFileConstants.JDK1_4) {
-		this.runConformTest(
-			new String[] {
+		AbstractRegressionTest.runConformTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"	public void foo() {\n" +
@@ -12478,8 +12478,8 @@ public void testBug303448b() throws Exception {
 	options.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.IGNORE);
 	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
 	if (this.complianceLevel >= ClassFileConstants.JDK1_4) {
-		this.runConformTest(
-			new String[] {
+		AbstractRegressionTest.runConformTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"	public static void main(String[] args) {\n" +
@@ -12508,8 +12508,8 @@ public void testBug304416() throws Exception {
 	options.put(CompilerOptions.OPTION_ReportPotentialNullReference, CompilerOptions.WARNING);
 	options.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.WARNING);
 	options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -12545,15 +12545,15 @@ public void testBug304416() throws Exception {
 		"    22  aload_2 [s2]\n" +
 		"    23  invokevirtual java.io.PrintStream.println(java.lang.String) : void [22]\n" +
 		"    26  return\n";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=305590
 // To verify that a "instanceof always yields false" warning is not elicited in the
 // case when the expression has been assigned a non null value in the instanceof check.
 public void testBug305590() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  public void foo() {\n" +
@@ -12579,8 +12579,8 @@ public void testBug305590() {
 public void testBug319201() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5)
 		return;
-	runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"  public void foo() {\n" +
@@ -12602,8 +12602,8 @@ public void testBug319201() {
 public void testBug319201a() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5)
 		return;
-	runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"  public void foo(Integer i) {\n" +
@@ -12626,8 +12626,8 @@ public void testBug319201a() {
 public void testBug319201b() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5)
 		return;
-	runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"  public void foo() {\n" +
@@ -12664,8 +12664,8 @@ public void testBug319201b() {
 public void testBug319201c() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5)
 		return;
-	runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
               "X.java",
               "class Y { public Y(boolean b1, boolean b2) {} }\n" +
               "public class X extends Y {\n" +
@@ -12795,8 +12795,8 @@ public void testBug319201d() {
 		return;
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryElse, CompilerOptions.IGNORE);
-	runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
               "X.java",
               "public class X {\n" +
               "  public void foo(boolean cond, boolean cond2) {\n" +
@@ -12871,8 +12871,8 @@ public void testBug320414() throws Exception {
 	options.put(CompilerOptions.OPTION_ReportPotentialNullReference, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	static class B {\n" +
@@ -12915,7 +12915,7 @@ public void testBug320414() throws Exception {
 		"    20  iload_2 [i]\n" +
 		"    21  invokevirtual java.io.PrintStream.println(int) : void [38]\n" +
 		"    24  return\n";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=321926
 // To verify that a "redundant null check" warning is NOT elicited for a variable assigned non-null
@@ -13359,8 +13359,8 @@ public void testBug321926l() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK, JavaCore.WARNING);
 
-	this.runTest(
-		new String[] {
+	AbstractRegressionTest.runTest(
+		this, new String[] {
 			"X.java",
 			"import java.io.IOException;\n" +
 			"public class X {\n" +
@@ -13556,8 +13556,8 @@ public void testBug321926p() {
 public void testBug321926q() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.WARNING);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"import java.io.IOException;\n" +
 			"public class X {\n" +
@@ -13589,8 +13589,8 @@ public void testBug321926q() {
 public void testBug321926r() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.IGNORE);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"import java.io.IOException;\n" +
 			"public class X {\n" +
@@ -13622,8 +13622,8 @@ public void testBug321926r() {
 public void testBug321926s() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.IGNORE);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"import java.io.IOException;\n" +
 			"public class X {\n" +
@@ -14003,8 +14003,8 @@ public void testBug317829f() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=292478 -  Report potentially null across variable assignment
 // LocalDeclaration
 public void testBug292478() {
-    this.runNegativeTest(
-            new String[] {
+    AbstractRegressionTest.runNegativeTest(
+            this, new String[] {
                 "X.java",
                 "public class X {\n" +
                 "  void foo(Object o) {\n" +
@@ -14025,8 +14025,8 @@ public void testBug292478() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=292478 -  Report potentially null across variable assignment
 // Assignment
 public void testBug292478a() {
-  this.runNegativeTest(
-          new String[] {
+  AbstractRegressionTest.runNegativeTest(
+          this, new String[] {
               "X.java",
               "public class X {\n" +
               "  void foo(Object o) {\n" +
@@ -14048,8 +14048,8 @@ public void testBug292478a() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=292478 -  Report potentially null across variable assignment
 // Assignment after definite null
 public void testBug292478b() {
-this.runNegativeTest(
-        new String[] {
+AbstractRegressionTest.runNegativeTest(
+        this, new String[] {
             "X.java",
             "public class X {\n" +
             "  void foo(Object o) {\n" +
@@ -14071,8 +14071,8 @@ this.runNegativeTest(
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=292478 -  Report potentially null across variable assignment
 // Assignment after definite null - many locals
 public void testBug292478c() {
-this.runNegativeTest(
-      new String[] {
+AbstractRegressionTest.runNegativeTest(
+      this, new String[] {
           "X.java",
           "public class X {\n" +
           "  void foo(Object o) {\n" +
@@ -14266,8 +14266,8 @@ public void testBug325229a() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
 		Map compilerOptions = getCompilerOptions();
 		compilerOptions.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.WARNING);
-		this.runConformTest(
-			new String[] {
+		AbstractRegressionTest.runConformTest(
+			this, new String[] {
 				"Test.java",
 				"public class Test {\n" +
 				"	void foo(Object a) {\n" +
@@ -14298,8 +14298,8 @@ public void testBug325229b() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
 		Map compilerOptions = getCompilerOptions();
 		compilerOptions.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.WARNING);
-		this.runConformTest(
-			new String[] {
+		AbstractRegressionTest.runConformTest(
+			this, new String[] {
 				"Test.java",
 				"public class Test {\n" +
 				"	boolean bar() {\n" +
@@ -14333,8 +14333,8 @@ public void testBug325229c() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
 		Map compilerOptions = getCompilerOptions();
 		compilerOptions.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.WARNING);
-		this.runConformTest(
-			new String[] {
+		AbstractRegressionTest.runConformTest(
+			this, new String[] {
 				"Test.java",
 				"public class Test {\n" +
 				"	boolean bar() {\n" +
@@ -14369,8 +14369,8 @@ public void testBug325229d() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
 		Map compilerOptions = getCompilerOptions();
 		compilerOptions.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.WARNING);
-		this.runConformTest(
-			new String[] {
+		AbstractRegressionTest.runConformTest(
+			this, new String[] {
 				"Test.java",
 				"public class Test {\n" +
 				"	void foo(Object a) {\n" +
@@ -14410,8 +14410,8 @@ public void testBug325342a() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
 		Map compilerOptions = getCompilerOptions();
 		compilerOptions.put(CompilerOptions.OPTION_IncludeNullInfoFromAsserts, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"Test.java",
 				"public class Test {\n" +
 				"	void foo(Object a, Object b, Object c) {\n" +
@@ -14462,8 +14462,8 @@ public void testBug325342b() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
 		Map compilerOptions = getCompilerOptions();
 		compilerOptions.put(CompilerOptions.OPTION_IncludeNullInfoFromAsserts, CompilerOptions.ENABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"Test.java",
 				"public class Test {\n" +
 				"	void foo(Object a, Object b, Object c) {\n" +
@@ -15038,8 +15038,8 @@ public void testBug332838() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_5) {
 		Map compilerOptions = getCompilerOptions();
 		compilerOptions.put(CompilerOptions.OPTION_IncludeNullInfoFromAsserts, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"Info.java",
 				"public class Info {\n" +
 				"	public void test(Info[] infos) {\n" +
@@ -15328,8 +15328,8 @@ public void testBug326950a() throws Exception {
 	options.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.WARNING);
 	options.put(CompilerOptions.OPTION_ReportPotentialNullReference, CompilerOptions.WARNING);
 	options.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.WARNING);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -15362,7 +15362,7 @@ public void testBug326950a() throws Exception {
 		"    20  ldc <String \"Dead code, but don\'t optimize me out\"> [30]\n" +
 		"    22  invokevirtual java.io.PrintStream.println(java.lang.String) : void [24]\n" +
 		"    25  return\n";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=326950
 // Code marked dead due to if(false), etc. can be optimized out
@@ -15371,8 +15371,8 @@ public void testBug326950b() throws Exception {
 	options.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.WARNING);
 	options.put(CompilerOptions.OPTION_ReportPotentialNullReference, CompilerOptions.WARNING);
 	options.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.WARNING);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -15400,7 +15400,7 @@ public void testBug326950b() throws Exception {
 		"    1  istore_1 [i]\n" +
 		"    2  iinc 1 1 [i]\n" +
 		"    5  return\n";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=326950
 // Free return should be generated for a method even if it ends with dead code
@@ -15409,8 +15409,8 @@ public void testBug326950c() throws Exception {
 	options.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.WARNING);
 	options.put(CompilerOptions.OPTION_ReportPotentialNullReference, CompilerOptions.WARNING);
 	options.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.WARNING);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	public void foo(String[] args) {\n" +
@@ -15440,7 +15440,7 @@ public void testBug326950c() throws Exception {
 		"     9  return\n" +
 		"    10  iinc 3 1 [i]\n" +
 		"    13  return\n";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=326950
 // Free return should be generated for a constructor even if it ends with dead code
@@ -15449,8 +15449,8 @@ public void testBug326950d() throws Exception {
 	options.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.WARNING);
 	options.put(CompilerOptions.OPTION_ReportPotentialNullReference, CompilerOptions.WARNING);
 	options.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.WARNING);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	X() {\n" +
@@ -15482,15 +15482,15 @@ public void testBug326950d() throws Exception {
 		"    13  return\n" +
 		"    14  iinc 2 1 [i]\n" +
 		"    17  return\n";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=339250
 // Check code gen
 public void testBug339250() throws Exception {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.WARNING);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -15889,8 +15889,8 @@ public void testBug256796() {
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnnecessaryElse, CompilerOptions.IGNORE);
 	compilerOptions.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.WARNING);
 	compilerOptions.put(CompilerOptions.OPTION_ReportDeadCodeInTrivialIfStatement, CompilerOptions.DISABLED);
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"Bug.java",
 				"public class Bug {\n" +
 				"	private static final boolean TRUE = true;\n" +
@@ -15939,8 +15939,8 @@ public void testBug256796a() {
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnnecessaryElse, CompilerOptions.IGNORE);
 	compilerOptions.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.WARNING);
 	compilerOptions.put(CompilerOptions.OPTION_ReportDeadCodeInTrivialIfStatement, CompilerOptions.ENABLED);
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"Bug.java",
 				"public class Bug {\n" +
 				"	private static final boolean TRUE = true;\n" +
@@ -16038,8 +16038,8 @@ public void testBug360328() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.ERROR);
-	runNegativeTest(
-		true, /* flushOutputDir */
+	AbstractRegressionTest.runNegativeTest(
+		this, true, /* flushOutputDir */
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -16102,8 +16102,8 @@ public void testBug360328b() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.ERROR);
-	runNegativeTest(
-		true, /* flushOutputDir */
+	AbstractRegressionTest.runNegativeTest(
+		this, true, /* flushOutputDir */
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -16173,8 +16173,8 @@ public void testBug360328c() {
 	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
-	runNegativeTest(
-		true, /* flushOutputDir */
+	AbstractRegressionTest.runNegativeTest(
+		this, true, /* flushOutputDir */
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -16243,8 +16243,8 @@ public void testBug360328d() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantNullCheck, CompilerOptions.ERROR);
-	runNegativeTest(
-		true, /* flushOutputDir */
+	AbstractRegressionTest.runNegativeTest(
+		this, true, /* flushOutputDir */
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -16422,8 +16422,8 @@ public void testBug384380_b() {
 public void testBug376263() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.ERROR);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"Test.java",
 			"public class Test {\n" +
 			"    private int x;\n" +
@@ -17477,8 +17477,8 @@ public void testBug435528_orig() {
 	runner.runNegativeTest();
 }
 public void testBug435528_notaconstant() {
-	runConformTest(
-		true/*flush*/,
+	AbstractRegressionTest.runConformTest(
+		this, true/*flush*/,
 		new String[] {
 			"Test.java",
 			"public class Test\n" +
@@ -18289,7 +18289,7 @@ public void testBug536408() {
 	runner.runNegativeTest();
 }
 public void testBug542707_1() {
-	if (!checkPreviewAllowed()) return; // switch expression
+	if (!AbstractRegressionTest.checkPreviewAllowed(this)) return; // switch expression
 	Runner runner = new Runner();
 	runner.customOptions = new HashMap<>();
 	runner.customOptions.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);

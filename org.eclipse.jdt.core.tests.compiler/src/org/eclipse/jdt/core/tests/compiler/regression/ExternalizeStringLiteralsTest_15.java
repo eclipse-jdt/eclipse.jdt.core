@@ -43,8 +43,8 @@ public void test001() {
 	customOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
 	customOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 
-	this.runNegativeTest(
-		true,
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 			"X.java",
 			"public class X\n" +
@@ -75,8 +75,8 @@ public void test002() {
 	customOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
 	customOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 
-	this.runNegativeTest(
-		true,
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 			"X.java",
 			"public class X\n" +
@@ -104,8 +104,8 @@ public void test003() {
 	customOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
 	customOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
 
-	this.runNegativeTest(
-		true,
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 			"X.java",
 			"public class X\n" +
@@ -142,8 +142,8 @@ public void test004() {
 	customOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
 	customOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
 	customOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
-	this.runNegativeTest(
-		true,
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 			"X.java",
 			"class X {\n" +
@@ -173,8 +173,8 @@ public void test005() {
 	customOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
 	customOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
 	customOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"\n" +
@@ -200,8 +200,8 @@ public void test006() {
 	customOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
 	customOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
 	customOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	@Annot({\n" +

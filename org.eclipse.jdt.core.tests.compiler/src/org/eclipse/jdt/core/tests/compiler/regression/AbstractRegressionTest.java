@@ -139,7 +139,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		ASTVisitor visitor;
 
 		protected void runConformTest() {
-			runTest(this.shouldFlushOutputDirectory,
+			AbstractRegressionTest.runTest(AbstractRegressionTest.this, this.shouldFlushOutputDirectory,
 					this.testFiles,
 					this.dependantFiles != null ? this.dependantFiles : new String[] {},
 					this.classLibraries,
@@ -164,7 +164,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		}
 
 		protected void runNegativeTest() {
-			runTest(this.shouldFlushOutputDirectory,
+			AbstractRegressionTest.runTest(AbstractRegressionTest.this, this.shouldFlushOutputDirectory,
 					this.testFiles,
 					this.dependantFiles != null ? this.dependantFiles : new String[] {},
 					this.classLibraries,
@@ -189,7 +189,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		}
 
 		protected void runWarningTest() {
-			runTest(this.shouldFlushOutputDirectory,
+			AbstractRegressionTest.runTest(AbstractRegressionTest.this, this.shouldFlushOutputDirectory,
 					this.testFiles,
 					this.dependantFiles != null ? this.dependantFiles : new String[] {},
 					this.classLibraries,
@@ -1315,19 +1315,19 @@ protected static class JavacTestOptions {
 	public AbstractRegressionTest(String name) {
 		super(name);
 	}
-	protected boolean checkPreviewAllowed() {
-		return this.complianceLevel == ClassFileConstants.getLatestJDKLevel();
+	protected static boolean checkPreviewAllowed(AbstractRegressionTest abstractRegressionTest) {
+		return abstractRegressionTest.complianceLevel == ClassFileConstants.getLatestJDKLevel();
 	}
-	protected void checkClassFile(String className, String source, String expectedOutput) throws ClassFormatException, IOException {
-		this.checkClassFile("", className, source, expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	protected static void checkClassFile(AbstractRegressionTest abstractRegressionTest, String className, String source, String expectedOutput) throws ClassFormatException, IOException {
+		AbstractRegressionTest.checkClassFile(abstractRegressionTest, "", className, source, expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
-	protected void checkClassFile(String className, String source, String expectedOutput, int mode) throws ClassFormatException, IOException {
-		this.checkClassFile("", className, source, expectedOutput, mode);
+	protected static void checkClassFile(AbstractRegressionTest abstractRegressionTest, String className, String source, String expectedOutput, int mode) throws ClassFormatException, IOException {
+		AbstractRegressionTest.checkClassFile(abstractRegressionTest, "", className, source, expectedOutput, mode);
 	}
-	protected void checkClassFile(String directoryName, String className, String disassembledClassName, String source, String expectedOutput,
+	protected static void checkClassFile(AbstractRegressionTest abstractRegressionTest, String directoryName, String className, String disassembledClassName, String source, String expectedOutput,
 			int mode, boolean suppressConsole) throws ClassFormatException, IOException
 	{
-		compileAndDeploy(source, directoryName, className, suppressConsole);
+		AbstractRegressionTest.compileAndDeploy(abstractRegressionTest, source, directoryName, className, suppressConsole);
 		try {
 			File directory = new File(EVAL_DIRECTORY, directoryName);
 			if (!directory.exists()) {
@@ -1364,16 +1364,16 @@ protected static class JavacTestOptions {
 				}
 			}
 		} finally {
-			removeTempClass(className);
+			AbstractRegressionTest.removeTempClass(className);
 		}
 	}
 
-	protected void checkClassFile(String directoryName, String className, String source, String expectedOutput, int mode) throws ClassFormatException, IOException {
-		this.checkClassFile(directoryName, className, className, source, expectedOutput, mode, false);
+	protected static void checkClassFile(AbstractRegressionTest abstractRegressionTest, String directoryName, String className, String source, String expectedOutput, int mode) throws ClassFormatException, IOException {
+		AbstractRegressionTest.checkClassFile(abstractRegressionTest, directoryName, className, className, source, expectedOutput, mode, false);
 	}
 
-	protected ClassFileReader getInternalClassFile(String directoryName, String className, String disassembledClassName, String source) throws ClassFormatException, IOException {
-		compileAndDeploy(source, directoryName, className, true);
+	protected static ClassFileReader getInternalClassFile(AbstractRegressionTest abstractRegressionTest, String directoryName, String className, String disassembledClassName, String source) throws ClassFormatException, IOException {
+		AbstractRegressionTest.compileAndDeploy(abstractRegressionTest, source, directoryName, className, true);
 		try {
 			File directory = new File(EVAL_DIRECTORY, directoryName);
 			if (!directory.exists()) {
@@ -1402,14 +1402,14 @@ protected static class JavacTestOptions {
 			}
 			return classFileReader;
 		} finally {
-			removeTempClass(className);
+			AbstractRegressionTest.removeTempClass(className);
 		}
 	}
 
-	protected void checkDisassembledClassFile(String fileName, String className, String expectedOutput) throws Exception {
-		this.checkDisassembledClassFile(fileName, className, expectedOutput, ClassFileBytesDisassembler.DETAILED);
+	protected static void checkDisassembledClassFile(AbstractRegressionTest abstractRegressionTest, String fileName, String className, String expectedOutput) throws Exception {
+		AbstractRegressionTest.checkDisassembledClassFile(fileName, className, expectedOutput, ClassFileBytesDisassembler.DETAILED);
 	}
-	protected void checkDisassembledClassFile(String fileName, String className, String expectedOutput, int mode) throws Exception {
+	protected static void checkDisassembledClassFile(String fileName, String className, String expectedOutput, int mode) throws Exception {
 		File classFile = new File(fileName);
 		if (!classFile.exists()) {
 			assertTrue(".class file doesn't exist", false);
@@ -1446,7 +1446,7 @@ protected static class JavacTestOptions {
 		}
 	}
 
-	protected void compileAndDeploy(String source, String directoryName, String className, boolean suppressConsole) {
+	protected static void compileAndDeploy(AbstractRegressionTest abstractRegressionTest, String source, String directoryName, String className, boolean suppressConsole) {
 		File directory = new File(SOURCE_DIRECTORY);
 		if (!directory.exists()) {
 			if (!directory.mkdirs()) {
@@ -1478,26 +1478,26 @@ protected static class JavacTestOptions {
 			.append(fileName)
 			.append("\" -d \"")
 			.append(EVAL_DIRECTORY);
-		String processAnnot = this.enableAPT ? "" : "-proc:none";
-		if (this.complianceLevel < ClassFileConstants.JDK1_5) {
+		String processAnnot = abstractRegressionTest.enableAPT ? "" : "-proc:none";
+		if (abstractRegressionTest.complianceLevel < ClassFileConstants.JDK1_5) {
 			buffer.append("\" -1.4 -source 1.3 -target 1.2");
-		} else if (this.complianceLevel == ClassFileConstants.JDK1_5) {
+		} else if (abstractRegressionTest.complianceLevel == ClassFileConstants.JDK1_5) {
 			buffer.append("\" -1.5");
-		} else if (this.complianceLevel == ClassFileConstants.JDK1_6) {
+		} else if (abstractRegressionTest.complianceLevel == ClassFileConstants.JDK1_6) {
 			buffer.append("\" -1.6 " + processAnnot);
-		} else if (this.complianceLevel == ClassFileConstants.JDK1_7) {
+		} else if (abstractRegressionTest.complianceLevel == ClassFileConstants.JDK1_7) {
 			buffer.append("\" -1.7 " + processAnnot);
-		} else if (this.complianceLevel == ClassFileConstants.JDK1_8) {
+		} else if (abstractRegressionTest.complianceLevel == ClassFileConstants.JDK1_8) {
 			buffer.append("\" -1.8 " + processAnnot);
-		} else if (this.complianceLevel == ClassFileConstants.JDK9) {
+		} else if (abstractRegressionTest.complianceLevel == ClassFileConstants.JDK9) {
 			buffer.append("\" -9 " + processAnnot);
-		} else if (this.complianceLevel == ClassFileConstants.JDK10) {
+		} else if (abstractRegressionTest.complianceLevel == ClassFileConstants.JDK10) {
 			buffer.append("\" -10 " + processAnnot);
 		} else {
-			int major = (int)(this.complianceLevel>>16);
+			int major = (int)(abstractRegressionTest.complianceLevel>>16);
 			buffer.append("\" -" + (major - ClassFileConstants.MAJOR_VERSION_0));
 		}
-		if (this.complianceLevel == ClassFileConstants.getLatestJDKLevel()  && this.enablePreview)
+		if (abstractRegressionTest.complianceLevel == ClassFileConstants.getLatestJDKLevel()  && abstractRegressionTest.enablePreview)
 			buffer.append(" --enable-preview ");
 		buffer
 			.append(" -preserveAllLocals -proceedOnError -nowarn -g -classpath \"")
@@ -1537,9 +1537,9 @@ protected static class JavacTestOptions {
 			if (problemLog.sameAs(alternatePlatformIndependantExpectedLogs[i]))
 				return; // OK
 		}
-		logTestTitle();
+		AbstractRegressionTest.logTestTitle(this);
 		System.out.println(Util.displayString(computedProblemLog, INDENT, SHIFT));
-		logTestFiles(false, testFiles);
+		AbstractRegressionTest.logTestFiles(this, false, testFiles);
 		if (exception == null) {
 			assertEquals("Invalid problem log ", alternatePlatformIndependantExpectedLogs[i-1], computedProblemLog);
 		}
@@ -1587,12 +1587,13 @@ protected static class JavacTestOptions {
 		}
 	}
 
-	protected void dualPrintln(String message) {
+	protected static void dualPrintln(String message) {
 		System.out.println(message);
 		javacFullLog.println(message);
 	}
-	protected void executeClass(
-			String sourceFile,
+
+	protected static void executeClass(
+			AbstractRegressionTest abstractRegressionTest, String sourceFile,
 			String expectedSuccessOutputString,
 			String[] classLib,
 			boolean shouldFlushOutputDirectory,
@@ -1605,35 +1606,35 @@ protected static class JavacTestOptions {
 		if (className.endsWith(PACKAGE_INFO_NAME)) return;
 
 		if (vmArguments != null) {
-			if (this.verifier != null) {
-				this.verifier.shutDown();
+			if (abstractRegressionTest.verifier != null) {
+				abstractRegressionTest.verifier.shutDown();
 			}
-			this.verifier = new TestVerifier(false);
-			this.createdVerifier = true;
+			abstractRegressionTest.verifier = new TestVerifier(false);
+			abstractRegressionTest.createdVerifier = true;
 		}
 		boolean passed =
-			this.verifier.verifyClassFiles(
+			abstractRegressionTest.verifier.verifyClassFiles(
 				sourceFile,
 				className,
 				expectedSuccessOutputString,
-				this.classpaths,
+				abstractRegressionTest.classpaths,
 				null,
 				vmArguments);
-		assertTrue(this.verifier.failureReason, // computed by verifyClassFiles(...) action
+		assertTrue(abstractRegressionTest.verifier.failureReason, // computed by verifyClassFiles(...) action
 				passed);
 		if (vmArguments != null) {
-			if (this.verifier != null) {
-				this.verifier.shutDown();
+			if (abstractRegressionTest.verifier != null) {
+				abstractRegressionTest.verifier.shutDown();
 			}
-			this.verifier = new TestVerifier(false);
-			this.createdVerifier = true;
+			abstractRegressionTest.verifier = new TestVerifier(false);
+			abstractRegressionTest.createdVerifier = true;
 		}
 	}
 
 	/*
 	 * Returns the references in the given .class file.
 	 */
-	protected String findReferences(String classFilePath) {
+	protected static String findReferences(String classFilePath) {
 		// check that "new Z().init()" is bound to "AbstractB.init()"
 		final StringBuilder references = new StringBuilder(10);
 		final SearchParticipant participant = new JavaSearchParticipant() {
@@ -1673,7 +1674,7 @@ protected static class JavacTestOptions {
 		return computedReferences;
 	}
 
-	protected ClassFileReader getClassFileReader(String fileName, String className) {
+	protected static ClassFileReader getClassFileReader(String fileName, String className) {
 		File classFile = new File(fileName);
 		if (!classFile.exists()) {
 			assertTrue(".class file doesn't exist", false);
@@ -1701,27 +1702,27 @@ protected static class JavacTestOptions {
 		return null;
 	}
 
-	protected INameEnvironment[] getClassLibs(boolean useDefaultClasspaths, Map<String, String> options) {
+	protected static INameEnvironment[] getClassLibs(AbstractRegressionTest abstractRegressionTest, boolean useDefaultClasspaths, Map<String, String> options) {
 		if (options == null)
-			options = getCompilerOptions();
-		String encoding = getCompilerOptions().get(CompilerOptions.OPTION_Encoding);
+			options = abstractRegressionTest.getCompilerOptions();
+		String encoding = abstractRegressionTest.getCompilerOptions().get(CompilerOptions.OPTION_Encoding);
 		if ("".equals(encoding))
 			encoding = null;
 		String release = null;
 		if (CompilerOptions.ENABLED.equals(options.get(CompilerOptions.OPTION_Release))) {
-			release = getCompilerOptions().get(CompilerOptions.OPTION_Compliance);
+			release = abstractRegressionTest.getCompilerOptions().get(CompilerOptions.OPTION_Compliance);
 		}
 		if (useDefaultClasspaths && encoding == null)
-			return DefaultJavaRuntimeEnvironment.create(this.classpaths, release);
+			return DefaultJavaRuntimeEnvironment.create(abstractRegressionTest.classpaths, release);
 		// fall back to FileSystem
 		INameEnvironment[] classLibs = new INameEnvironment[1];
-		classLibs[0] = new FileSystem(this.classpaths, new String[]{}, // ignore initial file names
+		classLibs[0] = new FileSystem(abstractRegressionTest.classpaths, new String[]{}, // ignore initial file names
 				encoding, release
 		);
 		return classLibs;
 	}
 	protected INameEnvironment[] getClassLibs(boolean useDefaultClasspaths) {
-		return getClassLibs(useDefaultClasspaths, null);
+		return AbstractRegressionTest.getClassLibs(this, useDefaultClasspaths, null);
 	}
 	@Override
 	protected Map<String, String> getCompilerOptions() {
@@ -1738,13 +1739,13 @@ protected static class JavacTestOptions {
 		defaultOptions.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.WARNING);
 		return defaultOptions;
 	}
-	protected boolean isMinimumCompliant(long compliance) {
-		Map options = getCompilerOptions();
+	protected static boolean isMinimumCompliant(AbstractRegressionTest abstractRegressionTest, long compliance) {
+		Map options = abstractRegressionTest.getCompilerOptions();
 		CompilerOptions compOptions = new CompilerOptions(options);
 		return compOptions.complianceLevel >= compliance;
 	}
 
-	protected void enableAllWarningsForIrritants(Map<String, String> options, IrritantSet irritants) {
+	protected static void enableAllWarningsForIrritants(Map<String, String> options, IrritantSet irritants) {
 		int[] bits = irritants.getBits();
 		for (int i = 0; i < bits.length; i++) {
 			int bit = bits[i];
@@ -1764,9 +1765,10 @@ protected static class JavacTestOptions {
 	protected String[] getDefaultClassPaths() {
 		return DefaultJavaRuntimeEnvironment.getDefaultClassPaths();
 	}
-	/** Get class library paths built from default class paths plus the JDT null annotations. */
-	protected String[] getLibsWithNullAnnotations(long sourceLevel) {
-		String[] defaultLibs = getDefaultClassPaths();
+	/** Get class library paths built from default class paths plus the JDT null annotations.
+	 * @param abstractRegressionTest TODO*/
+	protected static String[] getLibsWithNullAnnotations(AbstractRegressionTest abstractRegressionTest, long sourceLevel) {
+		String[] defaultLibs = abstractRegressionTest.getDefaultClassPaths();
 		int len = defaultLibs.length;
 		String[] libs = new String[len+1];
 		System.arraycopy(defaultLibs, 0, libs, 0, len);
@@ -1779,7 +1781,7 @@ protected static class JavacTestOptions {
 			libs[len] = bundleFile.getPath();
 		return libs;
 	}
-	protected IErrorHandlingPolicy getErrorHandlingPolicy() {
+	protected static IErrorHandlingPolicy getErrorHandlingPolicy() {
 		return new IErrorHandlingPolicy() {
 			public boolean stopOnFirstError() {
 				return false;
@@ -1803,12 +1805,12 @@ protected static class JavacTestOptions {
 	 */
 	protected INameEnvironment getNameEnvironment(final String[] testFiles, String[] classPaths, Map<String, String> options) {
 		this.classpaths = classPaths == null ? getDefaultClassPaths() : classPaths;
-		return new InMemoryNameEnvironment(testFiles, getClassLibs((classPaths == null), options));
+		return new InMemoryNameEnvironment(testFiles, AbstractRegressionTest.getClassLibs(this, (classPaths == null), options));
 	}
-	protected INameEnvironment getNameEnvironment(final String[] testFiles, String[] classPaths) {
-		return getNameEnvironment(testFiles, classPaths, null);
+	protected static INameEnvironment getNameEnvironment(AbstractRegressionTest abstractRegressionTest, final String[] testFiles, String[] classPaths) {
+		return abstractRegressionTest.getNameEnvironment(testFiles, classPaths, null);
 	}
-	protected IProblemFactory getProblemFactory() {
+	protected static IProblemFactory getProblemFactory() {
 		return new DefaultProblemFactory(Locale.getDefault());
 	}
 	// overridden in AbstractRegressionTests9
@@ -1826,9 +1828,9 @@ protected static class JavacTestOptions {
 		}
 	}
 
-	void logTestFiles(boolean logTitle, String[] testFiles) {
+	static void logTestFiles(AbstractRegressionTest abstractRegressionTest, boolean logTitle, String[] testFiles) {
 		if (logTitle) {
-			logTestTitle();
+			AbstractRegressionTest.logTestTitle(abstractRegressionTest);
 		}
 		for (int i = 0; i < testFiles.length; i += 2) {
 			System.out.print(testFiles[i]);
@@ -1843,15 +1845,15 @@ protected static class JavacTestOptions {
 			System.out.println("]"); //$NON-NLS-1$
 		}
 	}
-	void logTestTitle() {
-		System.out.println(getClass().getName() + '#' + getName());
+	static void logTestTitle(AbstractRegressionTest abstractRegressionTest) {
+		System.out.println(abstractRegressionTest.getClass().getName() + '#' + abstractRegressionTest.getName());
 	}
 
 	/*
 	 * Write given source test files in current output sub-directory.
 	 * Use test name for this sub-directory name (ie. test001, test002, etc...)
 	 */
-	protected void printFiles(String[] testFiles) {
+	protected static void printFiles(String[] testFiles) {
 		for (int i=0, length=testFiles.length; i<length; i++) {
 			System.out.println(testFiles[i++]);
 			String content = testFiles[i];
@@ -1872,23 +1874,23 @@ protected static class JavacTestOptions {
 				TESTS_COUNTERS.put(CURRENT_CLASS_NAME, Integer.valueOf(newCount));
 				if (newCount == 0) {
 					if (DIFF_COUNTERS[0]!=0 || DIFF_COUNTERS[1]!=0 || DIFF_COUNTERS[2]!=0) {
-						dualPrintln("===========================================================================");
-						dualPrintln("Results summary:");
+						AbstractRegressionTest.dualPrintln("===========================================================================");
+						AbstractRegressionTest.dualPrintln("Results summary:");
 					}
 					if (DIFF_COUNTERS[0]!=0)
-						dualPrintln("	- "+DIFF_COUNTERS[0]+" test(s) where Javac found errors/warnings but Eclipse did not");
+						AbstractRegressionTest.dualPrintln("	- "+DIFF_COUNTERS[0]+" test(s) where Javac found errors/warnings but Eclipse did not");
 					if (DIFF_COUNTERS[1]!=0)
-						dualPrintln("	- "+DIFF_COUNTERS[1]+" test(s) where Eclipse found errors/warnings but Javac did not");
+						AbstractRegressionTest.dualPrintln("	- "+DIFF_COUNTERS[1]+" test(s) where Eclipse found errors/warnings but Javac did not");
 					if (DIFF_COUNTERS[2]!=0)
-						dualPrintln("	- "+DIFF_COUNTERS[2]+" test(s) where Eclipse and Javac did not have same output");
+						AbstractRegressionTest.dualPrintln("	- "+DIFF_COUNTERS[2]+" test(s) where Eclipse and Javac did not have same output");
 					System.out.println("\n");
 				}
 			}
-			dualPrintln("\n\nFull results sent to " + javacFullLogFileName);
+			AbstractRegressionTest.dualPrintln("\n\nFull results sent to " + javacFullLogFileName);
 			javacFullLog.flush();
 		}
 	}
-	protected void removeTempClass(String className) {
+	protected static void removeTempClass(String className) {
 		File dir = new File(SOURCE_DIRECTORY);
 		String[] fileNames = dir.list();
 		if (fileNames != null) {
@@ -1914,8 +1916,8 @@ protected static class JavacTestOptions {
 // WORK replace null logs (no test) by empty string in most situations (more
 //      complete coverage) and see what happens
 	protected void runConformTest(String[] testFiles) {
-		runTest(
-	 		// test directory preparation
+		AbstractRegressionTest.runTest(
+	 		this, // test directory preparation
 			true /* flush output directory */,
 			testFiles /* test files */,
 			// compiler options
@@ -1938,9 +1940,9 @@ protected static class JavacTestOptions {
 
 	// WORK replace null logs (no test) by empty string in most situations (more
 	//  complete coverage) and see what happens
-	protected void runConformTest(String[] testFiles, ASTVisitor visitor) {
-		runTest(
-	 		// test directory preparation
+	protected static void runConformTest(AbstractRegressionTest abstractRegressionTest, String[] testFiles, ASTVisitor visitor) {
+		AbstractRegressionTest.runTest(
+	 		abstractRegressionTest, // test directory preparation
 			true /* flush output directory */,
 			testFiles /* test files */,
 			new String[] {},
@@ -1967,11 +1969,11 @@ protected static class JavacTestOptions {
 	}
 
 	protected void runConformTest(String[] testFiles, String expectedOutputString) {
-		runConformTest(false, JavacTestOptions.DEFAULT, testFiles, expectedOutputString);
+		AbstractRegressionTest.runConformTest(this, false, JavacTestOptions.DEFAULT, testFiles, expectedOutputString);
 	}
-	protected void runConformTest(boolean skipJavac, JavacTestOptions javacTestOptions, String[] testFiles, String expectedOutputString) {
-		runTest(
-			// test directory preparation
+	protected static void runConformTest(AbstractRegressionTest abstractRegressionTest, boolean skipJavac, JavacTestOptions javacTestOptions, String[] testFiles, String expectedOutputString) {
+		AbstractRegressionTest.runTest(
+			abstractRegressionTest, // test directory preparation
 			true /* flush output directory */,
 			testFiles /* test files */,
 			// compiler options
@@ -1992,9 +1994,9 @@ protected static class JavacTestOptions {
 			skipJavac ? JavacTestOptions.SKIP :
 				javacTestOptions != null ? javacTestOptions : JavacTestOptions.DEFAULT /* default javac test options */);
 	}
-	protected void runConformTest(String[] testFiles, Map<String, String> customOptions) {
-		runTest(
-			// test directory preparation
+	protected static void runConformTest(AbstractRegressionTest abstractRegressionTest, String[] testFiles, Map<String, String> customOptions) {
+		AbstractRegressionTest.runTest(
+			abstractRegressionTest, // test directory preparation
 			true /* flush output directory */,
 			testFiles /* test files */,
 			// compiler options
@@ -2017,9 +2019,9 @@ protected static class JavacTestOptions {
 	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions) {
 		runConformTest(testFiles, expectedOutput, customOptions, null);
 	}
-	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions, String[] vmArguments, Charset charset) {
-		runTest(
-				// test directory preparation
+	protected static void runConformTest(AbstractRegressionTest abstractRegressionTest, String[] testFiles, String expectedOutput, Map<String, String> customOptions, String[] vmArguments, Charset charset) {
+		AbstractRegressionTest.runTest(
+				abstractRegressionTest, // test directory preparation
 				true /* flush output directory */,
 				testFiles /* test files */,
 				// compiler options
@@ -2040,9 +2042,9 @@ protected static class JavacTestOptions {
 				JavacTestOptions.DEFAULT /* default javac test options */,
 				charset);
 	}
-	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions, String[] vmArguments, JavacTestOptions javacOptions) {
-		runTest(
-			// test directory preparation
+	protected static void runConformTest(AbstractRegressionTest abstractRegressionTest, String[] testFiles, String expectedOutput, Map<String, String> customOptions, String[] vmArguments, JavacTestOptions javacOptions) {
+		AbstractRegressionTest.runTest(
+			abstractRegressionTest, // test directory preparation
 			true /* flush output directory */,
 			testFiles /* test files */,
 			// compiler options
@@ -2063,8 +2065,8 @@ protected static class JavacTestOptions {
 			javacOptions);
 	}
 	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions, String[] vmArguments) {
-		runTest(
-			// test directory preparation
+		AbstractRegressionTest.runTest(
+			this, // test directory preparation
 			true /* flush output directory */,
 			testFiles /* test files */,
 			// compiler options
@@ -2084,11 +2086,11 @@ protected static class JavacTestOptions {
 			// javac options
 			JavacTestOptions.DEFAULT /* default javac test options */);
 	}
-	protected void runConformTest(
-			String[] testFiles,
+	protected static void runConformTest(
+			AbstractRegressionTest abstractRegressionTest, String[] testFiles,
 			String[] dependantFiles,
 			String expectedSuccessOutputString) {
-		runTest(
+		abstractRegressionTest.runTest(
 				true,
 				testFiles,
 				dependantFiles,
@@ -2116,8 +2118,8 @@ protected static class JavacTestOptions {
 		String[] classLibraries,
 		boolean shouldFlushOutputDirectory,
 		String[] vmArguments) {
-		runTest(
-	 		// test directory preparation
+		AbstractRegressionTest.runTest(
+	 		this, // test directory preparation
 			shouldFlushOutputDirectory /* should flush output directory */,
 			testFiles /* test files */,
 			// compiler options
@@ -2138,16 +2140,16 @@ protected static class JavacTestOptions {
 			JavacTestOptions.DEFAULT /* default javac test options */);
 	}
 
-	protected void runConformTest(
-		String[] testFiles,
+	protected static void runConformTest(
+		AbstractRegressionTest abstractRegressionTest, String[] testFiles,
 		String expectedOutputString,
 		String[] classLibraries,
 		boolean shouldFlushOutputDirectory,
 		String[] vmArguments,
 		Map<String, String> customOptions,
 		ICompilerRequestor customRequestor) {
-		runTest(
-	 		// test directory preparation
+		AbstractRegressionTest.runTest(
+	 		abstractRegressionTest, // test directory preparation
 			shouldFlushOutputDirectory /* should flush output directory */,
 			testFiles /* test files */,
 			// compiler options
@@ -2169,8 +2171,8 @@ protected static class JavacTestOptions {
 	}
 
 	// WORK good candidate for elimination (8 instances)
-	protected void runConformTest(
-		String[] testFiles,
+	protected static void runConformTest(
+		AbstractRegressionTest abstractRegressionTest, String[] testFiles,
 		String expectedSuccessOutputString,
 		String[] classLib,
 		boolean shouldFlushOutputDirectory,
@@ -2178,8 +2180,8 @@ protected static class JavacTestOptions {
 		Map customOptions,
 		ICompilerRequestor clientRequestor,
 		boolean skipJavac) {
-		runConformTest(
-				testFiles,
+		AbstractRegressionTest.runConformTest(
+				abstractRegressionTest, testFiles,
 				expectedSuccessOutputString,
 				classLib,
 				shouldFlushOutputDirectory,
@@ -2192,8 +2194,8 @@ protected static class JavacTestOptions {
 						JavacTestOptions.DEFAULT));
 	}
 
-	protected void runConformTest(
-			String[] testFiles,
+	protected static void runConformTest(
+			AbstractRegressionTest abstractRegressionTest, String[] testFiles,
 			String expectedSuccessOutputString,
 			String[] classLib,
 			boolean shouldFlushOutputDirectory,
@@ -2202,8 +2204,8 @@ protected static class JavacTestOptions {
 			ICompilerRequestor clientRequestor,
 			boolean skipJavac,
 			JavacTestOptions javacTestOptions) {
-			runTest(
-				shouldFlushOutputDirectory,
+			AbstractRegressionTest.runTest(
+				abstractRegressionTest, shouldFlushOutputDirectory,
 				testFiles,
 				classLib,
 				customOptions,
@@ -2340,7 +2342,7 @@ protected static class JavacTestOptions {
 					System.out.println(testName + " - Javac has found error(s) but Eclipse expects conform result:\n");
 					javacFullLog.println("JAVAC_MISMATCH: Javac has found error(s) but Eclipse expects conform result");
 					System.out.println(errorLogger.buffer.toString());
-					printFiles(testFiles);
+					AbstractRegressionTest.printFiles(testFiles);
 					DIFF_COUNTERS[0]++;
 				}
 				else {
@@ -2350,7 +2352,7 @@ protected static class JavacTestOptions {
 						System.out.println(testName + " - Javac has found warning(s) but Eclipse expects conform result:\n");
 						javacFullLog.println("JAVAC_MISMATCH: Javac has found warning(s) but Eclipse expects conform result");
 						System.out.println(errorLogger.buffer.toString());
-						printFiles(testFiles);
+						AbstractRegressionTest.printFiles(testFiles);
 						DIFF_COUNTERS[0]++;
 					}
 					if (expectedSuccessOutputString != null && !javacTestErrorFlag) {
@@ -2371,12 +2373,12 @@ protected static class JavacTestOptions {
 							System.out.println("----------------------------------------");
 							System.out.println(testName + " - Javac and Eclipse runtime output is not the same:");
 							javacFullLog.println("JAVAC_MISMATCH: Javac and Eclipse runtime output is not the same");
-							dualPrintln("eclipse:");
-							dualPrintln(expectedSuccessOutputString);
-							dualPrintln("javac:");
-							dualPrintln(javaOutput);
+							AbstractRegressionTest.dualPrintln("eclipse:");
+							AbstractRegressionTest.dualPrintln(expectedSuccessOutputString);
+							AbstractRegressionTest.dualPrintln("javac:");
+							AbstractRegressionTest.dualPrintln(javaOutput);
 							System.out.println("\n");
-							printFiles(testFiles); // PREMATURE consider printing files to the log as well
+							AbstractRegressionTest.printFiles(testFiles); // PREMATURE consider printing files to the log as well
 							DIFF_COUNTERS[2]++;
 						}
 					}
@@ -2388,19 +2390,19 @@ protected static class JavacTestOptions {
 					System.out.println("----------------------------------------");
 					System.out.println(testName + " - Eclipse has found error(s)/warning(s) but Javac did not find any:");
 					javacFullLog.println("JAVAC_MISMATCH: Eclipse has found error(s)/warning(s) but Javac did not find any");
-					dualPrintln("eclipse:");
-					dualPrintln(expectedProblemLog);
-					printFiles(testFiles);
+					AbstractRegressionTest.dualPrintln("eclipse:");
+					AbstractRegressionTest.dualPrintln(expectedProblemLog);
+					AbstractRegressionTest.printFiles(testFiles);
 					DIFF_COUNTERS[1]++;
 				} else if (expectedProblemLog.indexOf("ERROR") > 0 && exitValue == 0){
 					System.out.println("----------------------------------------");
 					System.out.println(testName + " - Eclipse has found error(s) but Javac only found warning(s):");
 					javacFullLog.println("JAVAC_MISMATCH: Eclipse has found error(s) but Javac only found warning(s)");
-					dualPrintln("eclipse:");
-					dualPrintln(expectedProblemLog);
+					AbstractRegressionTest.dualPrintln("eclipse:");
+					AbstractRegressionTest.dualPrintln(expectedProblemLog);
 					System.out.println("javac:");
 					System.out.println(errorLogger.buffer.toString());
-					printFiles(testFiles);
+					AbstractRegressionTest.printFiles(testFiles);
 					DIFF_COUNTERS[1]++;
 				} else {
 					// PREMATURE refine comparison
@@ -2433,7 +2435,7 @@ protected static class JavacTestOptions {
 		}
 	}
 	// WORK factorize all runJavac implementations, including overrides
-	protected boolean runJavac(String options, String[] testFileNames, String currentDirectoryPath) {
+	protected static boolean runJavac(String options, String[] testFileNames, String currentDirectoryPath) {
 		Process compileProcess = null;
 		try {
 			// Prepare command line
@@ -2497,8 +2499,8 @@ protected static class JavacTestOptions {
  * (or higher).
  */
 // WORK unify use of output, error, log, etc...
-protected void runJavac(
-		String[] testFiles,
+protected static void runJavac(
+		AbstractRegressionTest abstractRegressionTest, String[] testFiles,
 		boolean expectingCompilerErrors,
 		String expectedCompilerLog,
 		String expectedOutputString,
@@ -2527,7 +2529,7 @@ protected void runJavac(
 		newOptions = newOptions.concat(" -implicit:none");
 	}
 	if (classLibraries == null) {
-		classLibraries = this.classpaths;
+		classLibraries = abstractRegressionTest.classpaths;
 	}
 	if (classLibraries != null) {
 		List<String> filteredLibs = new ArrayList<>();
@@ -2541,11 +2543,11 @@ protected void runJavac(
 					.concat(String.join(File.pathSeparator, filteredLibs.toArray(new String[filteredLibs.size()])));
 		}
 	}
-	String testName = testName();
+	String testName = abstractRegressionTest.testName();
 	Iterator<JavacCompiler> compilers = javacCompilers.iterator();
 	while (compilers.hasNext()) {
 		JavacCompiler compiler = compilers.next();
-		if (!options.skip(compiler) && compiler.compliance == this.complianceLevel) {
+		if (!options.skip(compiler) && compiler.compliance == abstractRegressionTest.complianceLevel) {
 			// WORK this may exclude some compilers under some conditions (when
 			//      complianceLevel is not set); consider accepting the compiler
 			//      in such case and see what happens
@@ -2561,14 +2563,14 @@ protected void runJavac(
 				if (shouldFlushOutputDirectory) {
 					Util.delete(javacOutputDirectory);
 				} else {
-					deleteSourceFiles(javacOutputDirectory);
+					AbstractRegressionTest.deleteSourceFiles(javacOutputDirectory);
 				}
 				javacOutputDirectory.mkdirs();
 				// write test files
 				for (int i = 0, length = testFiles.length; i < length; ) {
 					String fileName = testFiles[i++];
 					String contents = testFiles[i++];
-					fileName = expandFileNameForJavac(fileName);
+					fileName = abstractRegressionTest.expandFileNameForJavac(fileName);
 					File file = new File(javacOutputDirectory, fileName);
 					if (fileName.lastIndexOf('/') >= 0) {
 						File dir = file.getParentFile();
@@ -2582,7 +2584,7 @@ protected void runJavac(
 				int testFilesLength = testFiles.length;
 				sourceFileNames = new String[testFilesLength / 2];
 				for (int i = 0, j = 0; i < testFilesLength; i += 2, j++) {
-					sourceFileNames[j] = expandFileNameForJavac(testFiles[i]);
+					sourceFileNames[j] = abstractRegressionTest.expandFileNameForJavac(testFiles[i]);
 				}
 
 				// compile
@@ -2662,8 +2664,8 @@ protected void runJavac(
 					//      it should have had contents, stderr is leveraged as
 					//      potentially holding indications regarding the failure
 					if (expectedErrorString != null /* null skips error test */ && mismatch == 0) {
-						err = adjustErrorOutput(stderr.toString().trim());
-						if (!errorStringMatch(expectedErrorString, err)) {
+						err = AbstractRegressionTest.adjustErrorOutput(stderr.toString().trim());
+						if (!AbstractRegressionTest.errorStringMatch(expectedErrorString, err)) {
 							mismatch = JavacTestOptions.MismatchType.ErrorOutputMismatch;
 						}
 					}
@@ -2677,12 +2679,12 @@ protected void runJavac(
 				e.printStackTrace();
 				mismatch = JavacTestOptions.MismatchType.JavaNotLaunched;
 			}
-			handleMismatch(compiler, testName, testFiles, expectedCompilerLog, expectedOutputString,
+			AbstractRegressionTest.handleMismatch(abstractRegressionTest, compiler, testName, testFiles, expectedCompilerLog, expectedOutputString,
 					expectedErrorString, compilerLog, output, err, excuse, mismatch);
 		}
 	}
 }
-private void deleteSourceFiles(File directory) {
+private static void deleteSourceFiles(File directory) {
 	try {
 		if (!directory.exists())
 			return;
@@ -2695,7 +2697,7 @@ private void deleteSourceFiles(File directory) {
 		e.printStackTrace();
 	}
 }
-private boolean errorStringMatch(String expectedErrorStringStart, String actualError) {
+private static boolean errorStringMatch(String expectedErrorStringStart, String actualError) {
 	/*
 	 * From TestVerifier.checkBuffers():
 	 * This is an opportunistic heuristic for error strings comparison:
@@ -2721,7 +2723,7 @@ private boolean errorStringMatch(String expectedErrorStringStart, String actualE
 protected String expandFileNameForJavac(String fileName) {
 	return fileName;
 }
-void handleMismatch(JavacCompiler compiler, String testName, String[] testFiles, String expectedCompilerLog,
+static void handleMismatch(AbstractRegressionTest abstractRegressionTest, JavacCompiler compiler, String testName, String[] testFiles, String expectedCompilerLog,
 		String expectedOutputString, String expectedErrorString, StringBuilder compilerLog, String output, String err,
 		JavacTestOptions.Excuse excuse, int mismatch) {
 	if (mismatch != 0) {
@@ -2729,7 +2731,7 @@ void handleMismatch(JavacCompiler compiler, String testName, String[] testFiles,
 			excuse = null;
 		} else {
 			System.err.println("----------------------------------------");
-			logTestFiles(true, testFiles);
+			AbstractRegressionTest.logTestFiles(abstractRegressionTest, true, testFiles);
 			switch (mismatch) {
 				case JavacTestOptions.MismatchType.EclipseErrorsJavacNone:
 					assertEquals(testName + " - Eclipse found error(s) but Javac did not find any",
@@ -2787,7 +2789,7 @@ void handleMismatch(JavacCompiler compiler, String testName, String[] testFiles,
 	}
 }
 
-private String adjustErrorOutput(String error) {
+private static String adjustErrorOutput(String error) {
 	// VerifyTests performs an explicit e.printStackTrace() which has slightly different format
 	// from a stack trace written directly by a dying JVM (during javac testing), adjust if needed:
 	final String excPrefix = "Exception in thread \"main\" ";
@@ -2803,7 +2805,7 @@ private String adjustErrorOutput(String error) {
 //	// compiler results
 //	"" /* expected compiler log */);
 protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
-	runNegativeTest(false/*skipJavac*/, null, testFiles, expectedCompilerLog);
+	AbstractRegressionTest.runNegativeTest(this, false/*skipJavac*/, null, testFiles, expectedCompilerLog);
 }
 //runNegativeTest(
 // skipJavac
@@ -2813,9 +2815,9 @@ protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
 //	},
 //// compiler results
 //"" /* expected compiler log */);
-protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOptions, String[] testFiles, String expectedCompilerLog) {
-	runTest(
- 		// test directory preparation
+protected static void runNegativeTest(AbstractRegressionTest abstractRegressionTest, boolean skipJavac, JavacTestOptions javacTestOptions, String[] testFiles, String expectedCompilerLog) {
+	AbstractRegressionTest.runTest(
+ 		abstractRegressionTest, // test directory preparation
 		true /* flush output directory */,
 		testFiles /* test files */,
 		// compiler options
@@ -2842,12 +2844,12 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 			javacTestOptions != null ? javacTestOptions :
 		JavacTestOptions.DEFAULT /* default javac test options */);
 }
-protected void runNegativeTest(String[] testFiles, String expectedCompilerLog, boolean performStatementRecovery) {
-	runNegativeTest(false/*skipJavac*/, null, testFiles, expectedCompilerLog, performStatementRecovery);
+protected static void runNegativeTest(AbstractRegressionTest abstractRegressionTest, String[] testFiles, String expectedCompilerLog, boolean performStatementRecovery) {
+	AbstractRegressionTest.runNegativeTest(abstractRegressionTest, false/*skipJavac*/, null, testFiles, expectedCompilerLog, performStatementRecovery);
 }
-protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOptions, String[] testFiles, String expectedCompilerLog, boolean performStatementRecovery) {
-	runTest(
- 		// test directory preparation
+protected static void runNegativeTest(AbstractRegressionTest abstractRegressionTest, boolean skipJavac, JavacTestOptions javacTestOptions, String[] testFiles, String expectedCompilerLog, boolean performStatementRecovery) {
+	AbstractRegressionTest.runTest(
+ 		abstractRegressionTest, // test directory preparation
 		true /* flush output directory */,
 		testFiles /* test files */,
 		// compiler options
@@ -2875,22 +2877,22 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 		JavacTestOptions.DEFAULT /* default javac test options */);
 }
 	// WORK potential elimination candidate (24 calls) - else clean up inline
-	protected void runNegativeTest(
-		String[] testFiles,
+	protected static void runNegativeTest(
+		AbstractRegressionTest abstractRegressionTest, String[] testFiles,
 		String expectedProblemLog,
 		String[] classLib,
 		boolean shouldFlushOutputDirectory) {
-		runNegativeTest(false, null, testFiles, expectedProblemLog, classLib, shouldFlushOutputDirectory);
+		AbstractRegressionTest.runNegativeTest(abstractRegressionTest, false, null, testFiles, expectedProblemLog, classLib, shouldFlushOutputDirectory);
 	}
-	protected void runNegativeTest(
-			boolean skipJavac,
+	protected static void runNegativeTest(
+			AbstractRegressionTest abstractRegressionTest, boolean skipJavac,
 			JavacTestOptions javacTestOptions,
 			String[] testFiles,
 			String expectedProblemLog,
 			String[] classLib,
 			boolean shouldFlushOutputDirectory) {
-			runTest(
-				shouldFlushOutputDirectory,
+			AbstractRegressionTest.runTest(
+				abstractRegressionTest, shouldFlushOutputDirectory,
 				testFiles,
 				classLib,
 				null,
@@ -2915,23 +2917,23 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 					javacTestOptions != null ? javacTestOptions :
 						JavacTestOptions.DEFAULT /* javac test options */);
 		}
-	protected void runNegativeTest(
-			String[] testFiles,
+	protected static void runNegativeTest(
+			AbstractRegressionTest abstractRegressionTest, String[] testFiles,
 			String expectedCompilerLog,
 			String[] classLibraries,
 			boolean shouldFlushOutputDirectory,
 			Map customOptions) {
-		runNegativeTest(testFiles, expectedCompilerLog, classLibraries, shouldFlushOutputDirectory, null, customOptions);
+		AbstractRegressionTest.runNegativeTest(abstractRegressionTest, testFiles, expectedCompilerLog, classLibraries, shouldFlushOutputDirectory, null, customOptions);
 	}
-	protected void runNegativeTest(
-		String[] testFiles,
+	protected static void runNegativeTest(
+		AbstractRegressionTest abstractRegressionTest, String[] testFiles,
 		String expectedCompilerLog,
 		String[] classLibraries,
 		boolean shouldFlushOutputDirectory,
 		String[] vmArguments,
 		Map customOptions) {
-		runTest(
-	 		// test directory preparation
+		AbstractRegressionTest.runTest(
+	 		abstractRegressionTest, // test directory preparation
 			shouldFlushOutputDirectory /* should flush output directory */,
 			testFiles /* test files */,
 			// compiler options
@@ -2956,16 +2958,16 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 			// javac options
 			JavacTestOptions.DEFAULT /* default javac test options */);
 	}
-	protected void runNegativeTest(
-			boolean skipJavac,
+	protected static void runNegativeTest(
+			AbstractRegressionTest abstractRegressionTest, boolean skipJavac,
 			JavacTestOptions javacTestOptions,
 			String[] testFiles,
 			String expectedCompilerLog,
 			String[] classLibraries,
 			boolean shouldFlushOutputDirectory,
 			Map customOptions) {
-			runTest(
-		 		// test directory preparation
+			AbstractRegressionTest.runTest(
+		 		abstractRegressionTest, // test directory preparation
 				shouldFlushOutputDirectory /* should flush output directory */,
 				testFiles /* test files */,
 				// compiler options
@@ -2992,27 +2994,27 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 				javacTestOptions != null ? javacTestOptions :
 				JavacTestOptions.DEFAULT /* default javac test options */);
 		}
-	protected void runNegativeTest(
-			String[] testFiles,
+	protected static void runNegativeTest(
+			AbstractRegressionTest abstractRegressionTest, String[] testFiles,
 			String expectedCompilerLog,
 			String[] classLibraries,
 			boolean shouldFlushOutputDirectory,
 			Map customOptions,
 			String expectedErrorString) {
-			runNegativeTest(testFiles, expectedCompilerLog, classLibraries,
+			AbstractRegressionTest.runNegativeTest(abstractRegressionTest, testFiles, expectedCompilerLog, classLibraries,
 					shouldFlushOutputDirectory, customOptions, expectedErrorString,
 					JavacTestOptions.DEFAULT);
 		}
-	protected void runNegativeTest(
-			String[] testFiles,
+	protected static void runNegativeTest(
+			AbstractRegressionTest abstractRegressionTest, String[] testFiles,
 			String expectedCompilerLog,
 			String[] classLibraries,
 			boolean shouldFlushOutputDirectory,
 			Map customOptions,
 			String expectedErrorString,
 			JavacTestOptions javacTestOptions) {
-			runTest(
-		 		// test directory preparation
+			AbstractRegressionTest.runTest(
+		 		abstractRegressionTest, // test directory preparation
 				shouldFlushOutputDirectory /* should flush output directory */,
 				testFiles /* test files */,
 				// compiler options
@@ -3037,8 +3039,8 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 				// javac options
 				javacTestOptions /* default javac test options */);
 		}
-	protected void runNegativeTest(
-		String[] testFiles,
+	protected static void runNegativeTest(
+		AbstractRegressionTest abstractRegressionTest, String[] testFiles,
 		String expectedProblemLog,
 		String[] classLibraries,
 		boolean shouldFlushOutputDirectory,
@@ -3046,8 +3048,8 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 		boolean generateOutput,
 		boolean showCategory,
 		boolean showWarningToken) {
-		runTest(
-			// test directory preparation
+		AbstractRegressionTest.runTest(
+			abstractRegressionTest, // test directory preparation
 			shouldFlushOutputDirectory /* should flush output directory */,
 			testFiles /* test files */,
 			// compiler options
@@ -3075,10 +3077,11 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 
 	/**
 	 * Log contains all problems (warnings+errors)
+	 * @param abstractRegressionTest TODO
 	 */
 	// WORK potential candidate for elimination (19 calls)
-	protected void runNegativeTest(
-		String[] testFiles,
+	protected static void runNegativeTest(
+		AbstractRegressionTest abstractRegressionTest, String[] testFiles,
 		String expectedCompilerLog,
 		String[] classLibraries,
 		boolean shouldFlushOutputDirectory,
@@ -3088,8 +3091,8 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 		boolean showWarningToken,
 		boolean skipJavac,
 		boolean performStatementsRecovery) {
-		runTest(
-	 		// test directory preparation
+		AbstractRegressionTest.runTest(
+	 		abstractRegressionTest, // test directory preparation
 			shouldFlushOutputDirectory /* should flush output directory */,
 			testFiles /* test files */,
 			// compiler options
@@ -3116,8 +3119,8 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 					JavacTestOptions.SKIP :
 					JavacTestOptions.DEFAULT /* javac test options */);
 	}
-	protected void runNegativeTest(
-			String[] testFiles,
+	protected static void runNegativeTest(
+			AbstractRegressionTest abstractRegressionTest, String[] testFiles,
 			String expectedCompilerLog,
 			String[] classLibraries,
 			boolean shouldFlushOutputDirectory,
@@ -3128,8 +3131,8 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 			boolean skipJavac,
 			JavacTestOptions javacOptions,
 			boolean performStatementsRecovery) {
-			runTest(
-		 		// test directory preparation
+			AbstractRegressionTest.runTest(
+		 		abstractRegressionTest, // test directory preparation
 				shouldFlushOutputDirectory /* should flush output directory */,
 				testFiles /* test files */,
 				// compiler options
@@ -3156,8 +3159,8 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 						JavacTestOptions.SKIP :
 						 javacOptions/* javac test options */);
 		}
-	protected void runTest(
-			String[] testFiles,
+	protected static void runTest(
+			AbstractRegressionTest abstractRegressionTest, String[] testFiles,
 			boolean expectingCompilerErrors,
 			String expectedCompilerLog,
 			String expectedOutputString,
@@ -3169,8 +3172,8 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 			Map customOptions,
 			ICompilerRequestor customRequestor,
 			boolean skipJavac) {
-		runTest(
-	 		// test directory preparation
+		AbstractRegressionTest.runTest(
+	 		abstractRegressionTest, // test directory preparation
 			shouldFlushOutputDirectory /* should flush output directory */,
 			testFiles /* test files */,
 			// compiler options
@@ -3195,8 +3198,8 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 	}
 
 	// WORK get this out
-	protected void runTest(
-			String[] testFiles,
+	protected static void runTest(
+			AbstractRegressionTest abstractRegressionTest, String[] testFiles,
 			boolean expectingCompilerErrors,
 			String expectedCompilerLog,
 			String expectedOutputString,
@@ -3208,8 +3211,8 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 			Map customOptions,
 			ICompilerRequestor clientRequestor,
 			JavacTestOptions javacTestOptions) {
-		runTest(
-	 		// test directory preparation
+		AbstractRegressionTest.runTest(
+	 		abstractRegressionTest, // test directory preparation
 			shouldFlushOutputDirectory /* should flush output directory */,
 			testFiles /* test files */,
 			// compiler options
@@ -3229,8 +3232,8 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 			// javac options
 			javacTestOptions /* javac test options */);
 	}
-	protected void runTest(
-			// test directory preparation
+	protected static void runTest(
+			AbstractRegressionTest abstractRegressionTest, // test directory preparation
 			boolean shouldFlushOutputDirectory,
 			String[] testFiles,
 			// compiler options
@@ -3249,7 +3252,7 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 			String expectedErrorString,
 			// javac options
 			JavacTestOptions javacTestOptions) {
-		runTest(
+		abstractRegressionTest.runTest(
 			shouldFlushOutputDirectory,
 			testFiles,
 			new String[] {},
@@ -3270,8 +3273,8 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 			javacTestOptions,
 			Charset.defaultCharset());
 	}
-	private void runTest(
-			// test directory preparation
+	private static void runTest(
+			AbstractRegressionTest abstractRegressionTest, // test directory preparation
 			boolean shouldFlushOutputDirectory,
 			String[] testFiles,
 			// compiler options
@@ -3291,7 +3294,7 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 			// javac options
 			JavacTestOptions javacTestOptions,
 			Charset charset) {
-		runTest(
+		abstractRegressionTest.runTest(
 			shouldFlushOutputDirectory,
 			testFiles,
 			new String[] {},
@@ -3312,9 +3315,10 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 			javacTestOptions,
 			charset);
 	}
-	/** Call this if the compiler randomly produces different error logs. */
-	protected void runNegativeTestMultiResult(String[] testFiles, Map options, String[] alternateCompilerErrorLogs) {
-		runTest(
+	/** Call this if the compiler randomly produces different error logs.
+	 * @param abstractRegressionTest TODO*/
+	protected static void runNegativeTestMultiResult(AbstractRegressionTest abstractRegressionTest, String[] testFiles, Map options, String[] alternateCompilerErrorLogs) {
+		abstractRegressionTest.runTest(
 			false,
 			testFiles,
 			new String[] {},
@@ -3339,8 +3343,8 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 			JavacTestOptions.DEFAULT,
 			Charset.defaultCharset());
 	}
-	private void runTest(
-			// test directory preparation
+	private static void runTest(
+			AbstractRegressionTest abstractRegressionTest, // test directory preparation
 			boolean shouldFlushOutputDirectory,
 			String[] testFiles,
 			String[] dependantFiles,
@@ -3364,7 +3368,7 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 			// javac options
 			String expectedJavacOutputString,
 			JavacTestOptions javacTestOptions) {
-		runTest( shouldFlushOutputDirectory,
+		abstractRegressionTest.runTest( shouldFlushOutputDirectory,
 				testFiles,
 				dependantFiles,
 				classLibraries,
@@ -3511,10 +3515,10 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 		Compiler batchCompiler =
 			new Compiler(
 				nameEnvironment,
-				getErrorHandlingPolicy(),
+				AbstractRegressionTest.getErrorHandlingPolicy(),
 				compilerOptions,
 				requestor,
-				getProblemFactory()) {
+				AbstractRegressionTest.getProblemFactory()) {
 				public void process(org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration unit, int i) {
 					super.process(unit, i);
 					if (visitor != null) {
@@ -3523,7 +3527,7 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 				}
 			};
 		if (this.enableAPT) {
-			batchCompiler.annotationProcessorManager = getAnnotationProcessorManager(batchCompiler);
+			batchCompiler.annotationProcessorManager = AbstractRegressionTest.getAnnotationProcessorManager(this, batchCompiler);
 		}
 		compilerOptions.produceReferenceInfo = true;
 		Throwable exception = null;
@@ -3551,12 +3555,12 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 			if (exception == null) {
 				if (expectingCompilerErrors) {
 					if (!requestor.hasErrors) {
-						logTestFiles(true, testFiles);
+						AbstractRegressionTest.logTestFiles(this, true, testFiles);
 						fail("Unexpected success");
 					}
 				} else if (requestor.hasErrors) {
 					if (!"".equals(requestor.problemLog)) {
-						logTestFiles(true, testFiles);
+						AbstractRegressionTest.logTestFiles(this, true, testFiles);
 						System.out.println("Copy-paste compiler log:");
 						System.out.println(Util.displayString(Util.convertToIndependantLineDelimiter(requestor.problemLog.toString()), INDENT, SHIFT));
 						assertEquals("Unexpected failure", "", requestor.problemLog);
@@ -3597,7 +3601,7 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 					if (execOutputString != null && execOutputString.length() > 0) {
 						System.out.println("[OUT]:"+execOutputString); //$NON-NLS-1$
 					}
-					logTestFiles(false, testFiles);
+					AbstractRegressionTest.logTestFiles(this, false, testFiles);
 					assertEquals(this.verifier.failureReason, expectedErrorString == null ? "" : expectedErrorString, execErrorString);
 					assertEquals(this.verifier.failureReason, expectedOutputString == null ? "" : expectedOutputString, execOutputString);
 				}
@@ -3614,7 +3618,7 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 		}
 		// javac part
 		if (RUN_JAVAC && javacTestOptions != JavacTestOptions.SKIP) {
-			runJavac(testFiles, expectingCompilerErrors, expectedCompilerLog,
+			AbstractRegressionTest.runJavac(this, testFiles, expectingCompilerErrors, expectedCompilerLog,
 					expectedJavacOutputString, expectedErrorString, shouldFlushOutputDirectory,
 					javacTestOptions, vmArguments, classLibraries, libsOnModulePath);
 		}
@@ -3672,9 +3676,9 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 		}
 	}
 
-	protected AbstractAnnotationProcessorManager getAnnotationProcessorManager(Compiler compiler) {
+	protected static AbstractAnnotationProcessorManager getAnnotationProcessorManager(AbstractRegressionTest abstractRegressionTest, Compiler compiler) {
 		try {
-			AbstractAnnotationProcessorManager annotationManager = new DummyAnnotationProcessingManager();
+			AbstractAnnotationProcessorManager annotationManager = abstractRegressionTest.new DummyAnnotationProcessingManager();
 			annotationManager.configure(compiler, new String[0]);
 			annotationManager.setErr(new PrintWriter(System.err));
 			annotationManager.setOut(new PrintWriter(System.out));
@@ -3692,13 +3696,13 @@ protected void runNegativeTest(boolean skipJavac, JavacTestOptions javacTestOpti
 //		JavacTestOptions.SKIP /* skip javac tests */);
 //		JavacTestOptions.DEFAULT /* default javac test options */);
 //		javacTestOptions /* javac test options */);
-public void runConformTest(
-	// test directory preparation
+public static void runConformTest(
+	AbstractRegressionTest abstractRegressionTest, // test directory preparation
 	String[] testFiles,
 	// javac options
 	JavacTestOptions javacTestOptions) {
-runTest(
-	// test directory preparation
+AbstractRegressionTest.runTest(
+	abstractRegressionTest, // test directory preparation
 	true /* flush output directory */,
 	testFiles /* test files */,
 	// compiler options
@@ -3747,8 +3751,8 @@ runTest(
 //		JavacTestOptions.SKIP /* skip javac tests */);
 //		JavacTestOptions.DEFAULT /* default javac test options */);
 //		javacTestOptions /* javac test options */);
-protected void runConformTest(
-		// test directory preparation
+protected static void runConformTest(
+		AbstractRegressionTest abstractRegressionTest, // test directory preparation
 		boolean shouldFlushOutputDirectory,
 		String[] testFiles,
 		// compiler results
@@ -3758,8 +3762,8 @@ protected void runConformTest(
 		String expectedErrorString,
 		// javac options
 		JavacTestOptions javacTestOptions) {
-	runTest(
-		// test directory preparation
+	AbstractRegressionTest.runTest(
+		abstractRegressionTest, // test directory preparation
 		shouldFlushOutputDirectory /* should flush output directory */,
 		testFiles /* test files */,
 		// compiler options
@@ -3814,8 +3818,8 @@ protected void runConformTest(
 //		JavacTestOptions.SKIP /* skip javac tests */);
 //		JavacTestOptions.DEFAULT /* default javac test options */);
 //		javacTestOptions /* javac test options */);
-protected void runConformTest(
-		// test directory preparation
+protected static void runConformTest(
+		AbstractRegressionTest abstractRegressionTest, // test directory preparation
 		boolean shouldFlushOutputDirectory,
 		String[] testFiles,
 		//compiler options
@@ -3828,8 +3832,8 @@ protected void runConformTest(
 		String expectedErrorString,
 		// javac options
 		JavacTestOptions javacTestOptions) {
-	runTest(
-		// test directory preparation
+	AbstractRegressionTest.runTest(
+		abstractRegressionTest, // test directory preparation
 		shouldFlushOutputDirectory /* should flush output directory */,
 		testFiles /* test files */,
 		// compiler options
@@ -3860,15 +3864,15 @@ protected void runConformTest(
 //		JavacTestOptions.SKIP /* skip javac tests */);
 //		JavacTestOptions.DEFAULT /* default javac test options */);
 //		javacTestOptions /* javac test options */);
-protected void runNegativeTest(
-		// test directory preparation
+protected static void runNegativeTest(
+		AbstractRegressionTest abstractRegressionTest, // test directory preparation
 		String[] testFiles,
 		// compiler results
 		String expectedCompilerLog,
 		// javac options
 		JavacTestOptions javacTestOptions) {
-	runTest(
- 		// test directory preparation
+	AbstractRegressionTest.runTest(
+ 		abstractRegressionTest, // test directory preparation
 		true /* flush output directory */,
 		testFiles /* test files */,
 		// compiler options
@@ -3899,15 +3903,15 @@ protected void runNegativeTest(
 //JavacTestOptions.SKIP /* skip javac tests */);
 //JavacTestOptions.DEFAULT /* default javac test options */);
 //javacTestOptions /* javac test options */);
-protected void runNegativeTest(
-// test directory preparation
+protected static void runNegativeTest(
+AbstractRegressionTest abstractRegressionTest, // test directory preparation
 String[] testFiles,
 String[] dependentFiles,
 // compiler results
 String expectedCompilerLog,
 // javac options
 JavacTestOptions javacTestOptions) {
-	runTest(
+	abstractRegressionTest.runTest(
 			// test directory preparation
 		true /* flush output directory */,
 		testFiles /* test files */,
@@ -3961,8 +3965,8 @@ JavacTestOptions javacTestOptions) {
 //		JavacTestOptions.SKIP /* skip javac tests */);
 //		JavacTestOptions.DEFAULT /* default javac test options */);
 //		javacTestOptions /* javac test options */);
-protected void runNegativeTest(
-		// test directory preparation
+protected static void runNegativeTest(
+		AbstractRegressionTest abstractRegressionTest, // test directory preparation
 		boolean shouldFlushOutputDirectory,
 		String[] testFiles,
 		// compiler options
@@ -3972,8 +3976,8 @@ protected void runNegativeTest(
 		String expectedCompilerLog,
 		// javac options
 		JavacTestOptions javacTestOptions) {
-	runTest(
-		// test directory preparation
+	AbstractRegressionTest.runTest(
+		abstractRegressionTest, // test directory preparation
 		shouldFlushOutputDirectory /* should flush output directory */,
 		testFiles /* test files */,
 		// compiler options
@@ -4030,8 +4034,8 @@ protected void runNegativeTest(
 //    JavacTestOptions.SKIP /* skip javac tests */);
 //    JavacTestOptions.DEFAULT /* default javac test options */);
 //    javacTestOptions /* javac test options */);
-protected void runNegativeTest(
-	// test directory preparation
+protected static void runNegativeTest(
+	AbstractRegressionTest abstractRegressionTest, // test directory preparation
 	boolean shouldFlushOutputDirectory,
 	String[] testFiles,
 	// compiler options
@@ -4044,8 +4048,8 @@ protected void runNegativeTest(
 	String expectedErrorString,
 	// javac options
 	JavacTestOptions javacTestOptions) {
-	runTest(
-		// test directory preparation
+	AbstractRegressionTest.runTest(
+		abstractRegressionTest, // test directory preparation
 		shouldFlushOutputDirectory /* should flush output directory */,
 		testFiles /* test files */,
 		// compiler options
@@ -4129,9 +4133,9 @@ protected void runNegativeTest(
 				}
 				// per class initialization
 				CURRENT_CLASS_NAME = getClass().getName();
-				dualPrintln("***************************************************************************");
+				AbstractRegressionTest.dualPrintln("***************************************************************************");
 				System.out.print("* Comparison with Sun Javac compiler for class ");
-				dualPrintln(CURRENT_CLASS_NAME.substring(CURRENT_CLASS_NAME.lastIndexOf('.')+1) +
+				AbstractRegressionTest.dualPrintln(CURRENT_CLASS_NAME.substring(CURRENT_CLASS_NAME.lastIndexOf('.')+1) +
 						" (" + TESTS_COUNTERS.get(CURRENT_CLASS_NAME) + " tests)");
 				System.out.println("***************************************************************************");
 				DIFF_COUNTERS[0] = 0;
@@ -4171,7 +4175,7 @@ protected void runNegativeTest(
 	/**
 	 * Returns the OS path to the directory that contains this plugin.
 	 */
-	protected String getCompilerTestsPluginDirectoryPath() {
+	protected static String getCompilerTestsPluginDirectoryPath() {
 		try {
 			URL platformURL = Platform.getBundle("org.eclipse.jdt.core.tests.compiler").getEntry("/");
 			return new File(FileLocator.toFileURL(platformURL).getFile()).getAbsolutePath();
@@ -4180,8 +4184,8 @@ protected void runNegativeTest(
 		}
 		return null;
 	}
-	protected Map<String, String> setPresetPreviewOptions() {
-		Map<String, String> options = getCompilerOptions();
+	protected static Map<String, String> setPresetPreviewOptions(AbstractRegressionTest abstractRegressionTest) {
+		Map<String, String> options = abstractRegressionTest.getCompilerOptions();
 		options.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.latestSupportedJavaVersion());
 		options.put(JavaCore.COMPILER_SOURCE, JavaCore.latestSupportedJavaVersion());
 		options.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.latestSupportedJavaVersion());

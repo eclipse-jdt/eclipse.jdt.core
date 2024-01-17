@@ -139,8 +139,8 @@ public class StaticImportTest extends AbstractComparableTest {
 			},
 			""
 		);
-		this.runConformTest(
-			new String[] {
+		AbstractRegressionTest.runConformTest(
+			this, new String[] {
 				"X.java",
 				"import static p.A.C;\n" +
 				"public class X { \n" +
@@ -1391,8 +1391,8 @@ public class StaticImportTest extends AbstractComparableTest {
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=126564 - variation
 	public void test037() {
-		this.runConformTest(
-			new String[] {
+		AbstractRegressionTest.runConformTest(
+			this, new String[] {
 				"X.java",
 				"import static p.A.CONSTANT_I;\n" +
 				"import static p.A.CONSTANT_B;\n" +
@@ -1537,8 +1537,8 @@ public class StaticImportTest extends AbstractComparableTest {
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=134118
 	public void test041() {
-		this.runConformTest(
-			true,
+		AbstractRegressionTest.runConformTest(
+			this, true,
 			new String[] {
 				"Test.java",
 				"import static p.I.*;\n" +
@@ -2189,8 +2189,8 @@ public class StaticImportTest extends AbstractComparableTest {
 		}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=183211 - variation
 	public void test061() {
-		runConformTest(
-			// test directory preparation
+		AbstractRegressionTest.runConformTest(
+			this, // test directory preparation
 			true /* flush output directory */,
 			new String[] { /* test files */
 				"p/X.java",
@@ -2246,8 +2246,8 @@ public class StaticImportTest extends AbstractComparableTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=183211 - variation
 	public void test063() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"p/X.java",
 				"package p;\n" +
 				"import static q.A.a;\n" +
@@ -2291,8 +2291,8 @@ public class StaticImportTest extends AbstractComparableTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=183211 - variation
 	public void test064() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"p1/X.java",
 				"package p1;\n" +
 				"import static p2.A.M;\n" +

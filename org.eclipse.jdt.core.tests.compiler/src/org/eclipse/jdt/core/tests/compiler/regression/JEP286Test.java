@@ -472,8 +472,8 @@ public void test0016_dont_capture_deep_poly_expressions() throws IOException {
 
 public void test0017_simple_variable_types() throws Exception {
 	InferredTypeVerifier typeVerifier = new InferredTypeVerifier();
-	this.runConformTest(
-			new String[] {
+	AbstractRegressionTest.runConformTest(
+			this, new String[] {
 				"X.java",
 				"import java.util.List;\n" +
 				"\n" +
@@ -502,8 +502,8 @@ public void test0017_simple_variable_types() throws Exception {
 }
 public void test0018_primitive_variable_types() throws Exception {
 	InferredTypeVerifier typeVerifier = new InferredTypeVerifier();
-	this.runConformTest(
-			new String[] {
+	AbstractRegressionTest.runConformTest(
+			this, new String[] {
 				"Y.java",
 				"class Y {\n" +
 				"    boolean[] booleanArray = { true };\n" +
@@ -554,8 +554,8 @@ public void test0018_primitive_variable_types() throws Exception {
 }
 public void test0018_project_variable_types() throws Exception {
 	InferredTypeVerifier typeVerifier = new InferredTypeVerifier();
-	this.runConformTest(
-			new String[] {
+	AbstractRegressionTest.runConformTest(
+			this, new String[] {
 				"Z.java",
 				"import java.util.Collection;\n" +
 				"import java.util.List;\n" +

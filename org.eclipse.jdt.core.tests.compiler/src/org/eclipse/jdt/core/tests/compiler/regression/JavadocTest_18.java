@@ -115,8 +115,8 @@ public void test001() {
 	if(this.complianceLevel < ClassFileConstants.JDK18) {
 		return;
 	}
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 				" /**\n"
 				+ " * {@snippet : public static void main(String... args) {\n"
@@ -146,8 +146,8 @@ public void test002() {
 	if(this.complianceLevel < ClassFileConstants.JDK18) {
 		return;
 	}
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 				" /**\n"
 				+ " * {@snippet : "
@@ -172,8 +172,8 @@ public void test003() {
 	if(this.complianceLevel < ClassFileConstants.JDK18) {
 		return;
 	}
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 				" /**\n"
 				+ " * {@snippet:\n"
@@ -218,8 +218,8 @@ public void test005() {
 	if(this.complianceLevel < ClassFileConstants.JDK18) {
 		return;
 	}
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 				" /**\n"
 				+ " * {@snippet :\n"
@@ -244,8 +244,8 @@ public void test006() {
 	if(this.complianceLevel < ClassFileConstants.JDK18) {
 		return;
 	}
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 				" /**\n"
 				+ " * {@snippet \n"
@@ -269,8 +269,8 @@ public void test007() {
 	if(this.complianceLevel < ClassFileConstants.JDK18) {
 		return;
 	}
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 				" /**\n"
 				+ " * {@snippet \n"
@@ -295,8 +295,8 @@ public void test008() {
 	if(this.complianceLevel < ClassFileConstants.JDK18) {
 		return;
 	}
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 				" /**\n"
 				+ " * {@snippet : \n"
@@ -320,8 +320,8 @@ public void test009() {
 	if(this.complianceLevel < ClassFileConstants.JDK18) {
 		return;
 	}
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 				" /**\n"
 				+ " * {@snippet : \n"
@@ -346,8 +346,8 @@ public void test010() {
 	if(this.complianceLevel < ClassFileConstants.JDK18) {
 		return;
 	}
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 				" /**\n"
 				+ " * {@snippet : \n"

@@ -46,8 +46,8 @@ public class NonFatalErrorTest extends AbstractRegressionTest {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_FatalOptionalError, CompilerOptions.DISABLED);
 		customOptions.put(CompilerOptions.OPTION_ReportUnusedImport, CompilerOptions.ERROR);
-		runNegativeTest(
-			// test directory preparation
+		AbstractRegressionTest.runNegativeTest(
+			this, // test directory preparation
 			true /* flush output directory */,
 			new String[] { /* test files */
 				"X.java",
@@ -80,8 +80,8 @@ public class NonFatalErrorTest extends AbstractRegressionTest {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_FatalOptionalError, CompilerOptions.ENABLED);
 		customOptions.put(CompilerOptions.OPTION_ReportUnusedImport, CompilerOptions.ERROR);
-		runNegativeTest(
-			// test directory preparation
+		AbstractRegressionTest.runNegativeTest(
+			this, // test directory preparation
 			true /* flush output directory */,
 			new String[] { /* test files */
 				"X.java",
@@ -115,8 +115,8 @@ public class NonFatalErrorTest extends AbstractRegressionTest {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_FatalOptionalError, CompilerOptions.DISABLED);
 		customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
-		runNegativeTest(
-			// test directory preparation
+		AbstractRegressionTest.runNegativeTest(
+			this, // test directory preparation
 			true /* flush output directory */,
 			new String[] { /* test files */
 				"X.java",
@@ -147,8 +147,8 @@ public class NonFatalErrorTest extends AbstractRegressionTest {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_FatalOptionalError, CompilerOptions.DISABLED);
 		customOptions.put(CompilerOptions.OPTION_ReportUndocumentedEmptyBlock, CompilerOptions.ERROR);
-		runNegativeTest(
-			// test directory preparation
+		AbstractRegressionTest.runNegativeTest(
+			this, // test directory preparation
 			true /* flush output directory */,
 			new String[] { /* test files */
 				"X.java",
@@ -181,8 +181,8 @@ public class NonFatalErrorTest extends AbstractRegressionTest {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_FatalOptionalError, CompilerOptions.ENABLED);
 		customOptions.put(CompilerOptions.OPTION_ReportUndocumentedEmptyBlock, CompilerOptions.ERROR);
-		runNegativeTest(
-			// test directory preparation
+		AbstractRegressionTest.runNegativeTest(
+			this, // test directory preparation
 			true /* flush output directory */,
 			new String[] { /* test files */
 				"X.java",
@@ -217,8 +217,8 @@ public class NonFatalErrorTest extends AbstractRegressionTest {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_FatalOptionalError, CompilerOptions.DISABLED);
 		customOptions.put(CompilerOptions.OPTION_ReportUndocumentedEmptyBlock, CompilerOptions.ERROR);
-		runNegativeTest(
-			// test directory preparation
+		AbstractRegressionTest.runNegativeTest(
+			this, // test directory preparation
 			true /* flush output directory */,
 			new String[] { /* test files */
 				"X.java",
@@ -279,8 +279,8 @@ public class NonFatalErrorTest extends AbstractRegressionTest {
 				CompilerOptions.ENABLED);
 		customOptions.put(CompilerOptions.OPTION_ReportUnusedWarningToken,
 				CompilerOptions.ERROR);
-		runConformTest(
-				new String[] { /* test files */
+		AbstractRegressionTest.runConformTest(
+				this, new String[] { /* test files */
 						"X.java",
 						"public class X {\n" +
 								"        @SuppressWarnings(\"unused\")\n" +
@@ -304,8 +304,8 @@ public class NonFatalErrorTest extends AbstractRegressionTest {
 	public void testImportUnresolved() {
 		Map<String,String> options = getCompilerOptions();
 		options.put(JavaCore.COMPILER_PB_UNUSED_IMPORT, JavaCore.ERROR);
-		runNegativeTest(
-			true, // flush dir
+		AbstractRegressionTest.runNegativeTest(
+			this, true, // flush dir
 			new String[] {
 				"X.java",
 				"import com.bogus.Missing;\n" +
@@ -336,8 +336,8 @@ public class NonFatalErrorTest extends AbstractRegressionTest {
 			options.put(JavaCore.COMPILER_PB_UNUSED_IMPORT, JavaCore.ERROR);
 			options.put(JavaCore.COMPILER_PB_FATAL_OPTIONAL_ERROR, JavaCore.ENABLED);
 			options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE);
-			runNegativeTest(
-					true, // flush dir
+			AbstractRegressionTest.runNegativeTest(
+					this, true, // flush dir
 					new String[] {
 							"p/Z.java",
 							"package p;\n" +
@@ -382,8 +382,8 @@ public class NonFatalErrorTest extends AbstractRegressionTest {
 		try {
 			options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE);
 
-			runNegativeTest(
-					true, // flush dir
+			AbstractRegressionTest.runNegativeTest(
+					this, true, // flush dir
 					new String[] {
 							"p/z.java",
 							"package p;\n" +
@@ -424,8 +424,8 @@ public class NonFatalErrorTest extends AbstractRegressionTest {
 		try {
 			options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE);
 
-			runNegativeTest(
-					true, // flush dir
+			AbstractRegressionTest.runNegativeTest(
+					this, true, // flush dir
 					new String[] {
 							"p/Z.java",
 							"package p;\n" +
@@ -485,8 +485,8 @@ public class NonFatalErrorTest extends AbstractRegressionTest {
 		if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // uses static imports
 		Map<String,String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE);
-		runNegativeTest(
-			true, // flush dir
+		AbstractRegressionTest.runNegativeTest(
+			this, true, // flush dir
 			new String[] {
 				"p/Z.java",
 				"package p;\n" +

@@ -76,8 +76,8 @@ public void test318020b() {
 public void test318020c() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.IGNORE);
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"   public int a;" +
@@ -110,8 +110,8 @@ public void test318020c() {
 public void test318020d() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.IGNORE);
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"   private int a;" +
@@ -143,8 +143,8 @@ public void test318020d() {
 public void test318020e() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.IGNORE);
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"   private int a;" +
@@ -173,8 +173,8 @@ public void test318020e() {
 public void test318020f() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.IGNORE);
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"   private int a;" +
@@ -205,8 +205,8 @@ public void test318020f() {
 public void test318020g() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.IGNORE);
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"   private int a;" +
@@ -290,8 +290,8 @@ public void test318020i() {
 public void test318020j() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.IGNORE);
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"   private int a;" +
@@ -320,8 +320,8 @@ public void test318020j() {
 public void test318020k() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.IGNORE);
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"   private int a;\n" +
@@ -350,8 +350,8 @@ public void test318020k() {
 public void test325567() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.IGNORE);
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"import java.io.IOException;\n" +
 				"\n" +

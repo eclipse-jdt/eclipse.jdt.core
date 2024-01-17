@@ -425,8 +425,8 @@ public class NullChecksTests extends AbstractNullAnnotationTest {
 	public void testBug465085_comment12() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.ERROR);
-		runConformTest(
-			new String[] {
+		AbstractRegressionTest.runConformTest(
+			this, new String[] {
 				"Snippet.java",
 				"import java.util.Collection;\n" +
 				"\n" +

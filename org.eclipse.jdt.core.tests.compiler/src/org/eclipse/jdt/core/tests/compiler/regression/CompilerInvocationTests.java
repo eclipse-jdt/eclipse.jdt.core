@@ -204,7 +204,7 @@ public class CompilerInvocationTests extends AbstractRegressionTest {
 		if (customOptions != null) {
 			options.putAll(customOptions);
 		}
-		this.runConformTest(testFiles, "", null /* no extra class libraries */, true /* flush output directory */,
+		AbstractRegressionTest.runConformTest(this, testFiles, "", null /* no extra class libraries */, true /* flush output directory */,
 				null, /* no VM args */
 				options, reader, true /* skip javac */);
 		String tags = taskTagsAsStrings(reader.result.tasks);

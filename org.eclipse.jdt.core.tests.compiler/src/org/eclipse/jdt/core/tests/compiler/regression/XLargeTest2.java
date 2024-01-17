@@ -114,8 +114,8 @@ public class XLargeTest2 extends AbstractRegressionTest {
 		}
 
 		// Javac can't compile such big enums
-		runConformTest(
-				true,
+		AbstractRegressionTest.runConformTest(
+				this, true,
 				JavacTestOptions.SKIP,
 				new String[] {
 						"X.java",

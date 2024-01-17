@@ -59,8 +59,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	 * Test @deprecated tag
 	 */
 	public void test001() {
-		this.runConformTest(
-			true,
+		AbstractRegressionTest.runConformTest(
+			this, true,
 			new String[] {
 				"X.java",
 				"public class X {\n"
@@ -88,8 +88,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test002() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"	/** @deprecated */\n" +
@@ -185,8 +185,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test004() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n"
 					+ "	\n"
@@ -290,8 +290,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test006() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n"
 					+ "	\n"
@@ -396,8 +396,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test008() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n"
 					+ "	\n"
@@ -487,8 +487,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test013() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n"
 					+ "	/**\n"
@@ -532,8 +532,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test015() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n"
 					+ "	/**\n"
@@ -578,8 +578,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test017() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n"
 					+ "	/**\n"
@@ -608,8 +608,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test020() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n"
 					+ "	/**\n"
@@ -638,8 +638,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test021() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n"
 					+ "	/**\n"
@@ -664,8 +664,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test022() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n"
 					+ "	/**\n"
@@ -690,8 +690,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test023() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n"
 					+ "	/**\n"
@@ -716,8 +716,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test024() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n"
 					+ "	/**\n"
@@ -738,8 +738,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test025() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n"
 					+ "	/**\n"
@@ -760,8 +760,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test026() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n"
 					+ "	/**\n"
@@ -782,8 +782,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test030() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n"
 					+ "	/**\n"
@@ -816,8 +816,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test031() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n"
 					+ "	/**\n"
@@ -842,8 +842,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test032() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n"
 					+ "	/**\n"
@@ -864,8 +864,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test033() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n"
 					+ "	/**\n"
@@ -903,8 +903,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test034() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n"
 					+ "	/**\n"
@@ -1001,8 +1001,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test037() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n"
 					+ "	/**\n"
@@ -1029,8 +1029,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test038() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"import java.util.Hashtable;\n"
 					+ "public class X {\n"
@@ -1081,8 +1081,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test051() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n"
 					+ "	/**\n"
@@ -1107,8 +1107,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test052() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n"
 					+ "	/**\n"
@@ -1133,8 +1133,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test053() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"import java.io.FileNotFoundException;\n"
 					+ "public class X {\n"
@@ -1274,8 +1274,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test060() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n"
 					+ "	/**\n"
@@ -1298,8 +1298,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test061() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n"
 					+ "	/**\n"
@@ -1329,8 +1329,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test062() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n"
 					+ "	/**\n"
@@ -1360,8 +1360,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test063() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"import java.io.FileNotFoundException;\n"
 					+ "public class X {\n"
@@ -1692,8 +1692,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test073() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n"
 					+ "	/**\n"
@@ -1713,8 +1713,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test074() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n"
 					+ "	/**\n"
@@ -1737,8 +1737,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test075() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n"
 					+ "	/**\n"
@@ -1759,8 +1759,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test076() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n"
 					+ "	/**\n"
@@ -1797,8 +1797,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	 */
 	// String references
 	public void test080() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n"
 					+ "	/**\n"
@@ -1854,8 +1854,8 @@ public class JavadocTestForMethod extends JavadocTest {
 
 	// URL Link references
 	public void test085() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n"
 					+ "	/**\n"
@@ -1971,8 +1971,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test087() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n"
 				+ "	/**\n"
@@ -2726,8 +2726,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test116() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"import java.util.Vector;\n"
 					+ "public class X {\n"
@@ -2867,8 +2867,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test117() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"import java.util.Vector;\n"
 					+ "public class X {\n"
@@ -2948,8 +2948,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test118() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"import java.util.Vector;\n"
 					+ "public class X {\n"
@@ -3070,8 +3070,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test121() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n"
 					+ "	/**\n"
@@ -3108,8 +3108,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test122() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n"
 					+ "	/**\n"
@@ -3170,8 +3170,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test123() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n"
 					+ "	/**\n"
@@ -3214,8 +3214,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test124() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n"
 					+ "	/**\n"
@@ -3264,8 +3264,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test125() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n"
 					+ "	/**\n"
@@ -3332,8 +3332,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test126() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n"
 					+ "	/**\n"
@@ -3376,8 +3376,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test127() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"import java.util.Vector;\n"
 					+ "public class X {\n"
@@ -3487,8 +3487,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test131() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n"
 					+ "	/**\n"
@@ -3525,8 +3525,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test132() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"import java.util.Vector;\n"
 					+ "public class X {\n"
@@ -3582,8 +3582,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test133() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"import java.util.Vector;\n"
 					+ "public class X {\n"
@@ -3674,8 +3674,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test136() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"test/deep/qualified/name/p/X.java",
 				"package test.deep.qualified.name.p;\n"
 					+ "public class X {\n"
@@ -3713,8 +3713,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test137() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"test/deep/qualified/name/p/X.java",
 				"package test.deep.qualified.name.p;\n"
 					+ "import java.util.Vector;\n"
@@ -3771,8 +3771,8 @@ public class JavadocTestForMethod extends JavadocTest {
 	}
 
 	public void test138() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"test/deep/qualified/name/p/X.java",
 				"package test.deep.qualified.name.p;\n"
 					+ "import java.util.Vector;\n"

@@ -278,8 +278,8 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 	}
 	// Test that deprecation of container annotation is reflected in the repeated annotation (disabled until specification clarification is available)
 	public void _test009() {
-		this.runConformTest(
-			new String[] {
+		AbstractRegressionTest.runConformTest(
+			this, new String[] {
 				"Y.java",
 				"@java.lang.annotation.Repeatable(FooContainer.class) @interface Foo { int value(); }\n" +
 				"@Deprecated @interface FooContainer { Foo[] value(); }\n" +
@@ -428,8 +428,8 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 					null,
 					false,
 					null);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"@Foo @Foo public class X { /* Problem since Foo now uses FooContainer which doesn't work anymore*/\n" +
 				"}\n"
@@ -539,8 +539,8 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 					"@java.lang.annotation.Repeatable(FooContainer.class)\n" +
 					"public @interface Foo { }\n"
 				});
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"Foo.java",
 				"@java.lang.annotation.Repeatable(FooContainer.class)\n" +
 				"public @interface Foo { } // If omitted, retention is class\n"
@@ -569,8 +569,8 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 				"@java.lang.annotation.Repeatable(FooContainer.class)\n" +
 				"public @interface Foo { }\n"
 			});
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"Foo.java",
 				"import java.lang.annotation.Retention;\n" +
 				"import java.lang.annotation.RetentionPolicy;\n" +
@@ -629,8 +629,8 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 				"public @Target({ElementType.METHOD})\n" +
 				"@interface Foo { }\n"
 			});
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"Foo.java",
 				"import java.lang.annotation.Target;\n" +
 				"import java.lang.annotation.ElementType;\n" +
@@ -699,8 +699,8 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 				"Foo.java",
 				"@interface Foo { }\n"
 			});
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"Foo.java",
 				"import java.lang.annotation.Target;\n" +
 				"import java.lang.annotation.ElementType;\n" +
@@ -1016,7 +1016,7 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 				"            )\n" +
 				"        ]\n" +
 				"    )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "repeatable" + File.separator + "package-info.class", "package-info", expectedOutout, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "repeatable" + File.separator + "package-info.class", "package-info", expectedOutout, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// 412149: [1.8][compiler] Emit repeated annotations into the designated container
 	// Test that repeated annotations show up on fields, methods, and parameters
@@ -1472,8 +1472,8 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 
 	// 419209: [1.8] Repeating container annotations should be rejected in the presence of annotation it contains
 	public void testRepeatableWithContaining1() {
-		this.runNegativeTest(
-			false /* skipJavac */,
+		AbstractRegressionTest.runNegativeTest(
+			this, false /* skipJavac */,
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 				"A.java",
@@ -1499,8 +1499,8 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 	}
 	// 419209: [1.8] Repeating container annotations should be rejected in the presence of annotation it contains
 	public void testRepeatableWithContaining2() {
-		this.runNegativeTest(
-			false /* skipJavac */,
+		AbstractRegressionTest.runNegativeTest(
+			this, false /* skipJavac */,
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 				"A.java",
@@ -1526,8 +1526,8 @@ public class RepeatableAnnotationTest extends AbstractComparableTest {
 	}
 	// 419209: [1.8] Repeating container annotations should be rejected in the presence of annotation it contains
 	public void testRepeatableWithContaining3() {
-		this.runNegativeTest(
-			false /* skipJavac */,
+		AbstractRegressionTest.runNegativeTest(
+			this, false /* skipJavac */,
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 				"A.java",

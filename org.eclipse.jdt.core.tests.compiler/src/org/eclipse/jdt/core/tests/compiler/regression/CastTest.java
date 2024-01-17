@@ -106,8 +106,8 @@ public void test001() throws Exception {
 public void test002() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -147,8 +147,8 @@ public void test002() {
 public void test003() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -184,8 +184,8 @@ public void test003() {
 public void test004() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -222,8 +222,8 @@ public void test004() {
 public void test005() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -273,8 +273,8 @@ public void test005() {
 public void _test006() { // TODO (philippe) add support to conditional expression for unnecessary cast
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -307,8 +307,8 @@ public void _test006() { // TODO (philippe) add support to conditional expressio
 public void test007() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -363,8 +363,8 @@ public void test007() {
 public void test008() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -393,8 +393,8 @@ public void test008() {
 public void test009() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -428,8 +428,8 @@ public void test009() {
 public void test010() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -463,8 +463,8 @@ public void test010() {
 public void test011() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -493,8 +493,8 @@ public void test011() {
 public void test012() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -534,8 +534,8 @@ public void test012() {
 public void test013() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -573,8 +573,8 @@ public void test013() {
 public void test014() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -599,8 +599,8 @@ public void test014() {
 public void test015() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -630,8 +630,8 @@ public void test015() {
 public void test016() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -662,8 +662,8 @@ public void test016() {
 public void test017() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	void bar() {\n" +
@@ -693,8 +693,8 @@ public void test017() {
 public void test018() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"class Y {\n" +
 			"	static Y[] foo(int[] tab) {\n" +
@@ -721,8 +721,8 @@ public void test018() {
 public void tes019() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	void bar() {\n" +
@@ -750,8 +750,8 @@ public void tes019() {
 public void test020() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	void bar() {\n" +
@@ -774,8 +774,8 @@ public void test020() {
 public void test021() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"p1/A.java",
 			"package p1;\n" +
 			"public class A {\n" +
@@ -851,8 +851,8 @@ public void test022() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.IGNORE);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -882,8 +882,8 @@ public void test022() {
 public void test023() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -917,8 +917,8 @@ public void test023() {
 public void test024() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -947,8 +947,8 @@ public void test024() {
 public void test025() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -1268,8 +1268,8 @@ public void test032() {
 public void test033() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -1444,7 +1444,7 @@ public void test035() {
 			"}\n"
 		};
 	if (this.complianceLevel < ClassFileConstants.JDK9) {
-		runNegativeTest(sources,
+		AbstractRegressionTest.runNegativeTest(this, sources,
 			"----------\n" +
 			"1. ERROR in Test231.java (at line 9)\n" +
 			"	return	(Test231i)this;\n" +
@@ -1458,8 +1458,8 @@ public void test035() {
 	}
 }
 public void test036() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -1735,8 +1735,8 @@ public void test045() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=282869
 public void test046() {
-	this.runConformTest(
-		true,
+	AbstractRegressionTest.runConformTest(
+		this, true,
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -1801,8 +1801,8 @@ public void testBug418795() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // uses autoboxing
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	void foo() {\n" +
@@ -1834,8 +1834,8 @@ public void testBug329437() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // uses autoboxing
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	public static void main(String... args) {\n" +
@@ -3185,8 +3185,8 @@ public void test441731() {
 		return;
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"interface MUIElement {}\n" +
 			"interface MUIElementContainer<T extends MUIElement> extends MUIElement{}\n" +
@@ -3276,8 +3276,8 @@ public void test461706() {
 		return;
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"Bug.java",
 			"import java.util.ArrayList;\n" +
 			"import java.util.List;\n" +
@@ -3426,8 +3426,8 @@ public void test548647() {
 		return;
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"interface MUIElement {}\n" +
 			"interface MUIElementContainer<T extends MUIElement> extends MUIElement{}\n" +
@@ -3537,8 +3537,8 @@ public void testBug561167() {
 		return;
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -3576,8 +3576,8 @@ public void testBug572534() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
 		customOptions.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
-		runNegativeTest(
-			// test directory preparation
+		AbstractRegressionTest.runNegativeTest(
+			this, // test directory preparation
 			true /* flush output directory */,
 			new String[] { /* test files */
 				"X.java",

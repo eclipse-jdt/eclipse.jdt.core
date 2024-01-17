@@ -1173,8 +1173,8 @@ public void test043() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406773, [1.8][compiler][codegen] "java.lang.IncompatibleClassChangeError" caused by attempted invocation of private constructor
 public void test044() {
-	this.runConformTest(
-			false,
+	AbstractRegressionTest.runConformTest(
+			this, false,
 			JavacHasABug.JavacBugFixed_901,
 			new String[] {
 					"X.java",
@@ -1470,8 +1470,8 @@ public void test050() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406773, [1.8][compiler][codegen] "java.lang.IncompatibleClassChangeError" caused by attempted invocation of private constructor
 public void test051() {
-	this.runConformTest(
-			false /* skipJavac*/,
+	AbstractRegressionTest.runConformTest(
+			this, false /* skipJavac*/,
 			JavacHasABug.JavacBugFixed_901,
 			new String[] {
 					"p2/B.java",
@@ -1918,8 +1918,8 @@ public void testReferenceExpressionInference2() {
 }
 
 public void testReferenceExpressionInference3a() {
-	runConformTest(
-		false /* skipJavac*/,
+	AbstractRegressionTest.runConformTest(
+		this, false /* skipJavac*/,
 		JavacTestOptions.Excuse.JavacDoesNotCompileCorrectSource,
 		new String[] {
 			"X.java",
@@ -3364,8 +3364,8 @@ public void test428261() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=428261, [1.8][compiler] Incorrect error: No enclosing instance of the type X is accessible in scope
 public void test428261a() {
-	this.runConformTest(
-			false,
+	AbstractRegressionTest.runConformTest(
+			this, false,
 			JavacHasABug.JavacBugFixed_901,
 			new String[] {
 				"X.java",
@@ -3932,8 +3932,8 @@ public void test430035c() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=430035, [1.8][compiler][codegen] Bridge methods are not generated for lambdas/method references
 public void test430035d() { // 8b131 complains of ambiguity.
-	this.runConformTest(
-			false,
+	AbstractRegressionTest.runConformTest(
+			this, false,
 			EclipseHasABug.EclipseBug510528,
 			new String[] {
 				"X.java",
@@ -3962,8 +3962,8 @@ public void test430035d() { // 8b131 complains of ambiguity.
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=430035, [1.8][compiler][codegen] Bridge methods are not generated for lambdas/method references
 public void test430035e() { // 8b131 complains of ambiguity in call.
-	this.runConformTest(
-			false,
+	AbstractRegressionTest.runConformTest(
+			this, false,
 			EclipseHasABug.EclipseBug510528,
 			new String[] {
 				"X.java",
@@ -5196,8 +5196,8 @@ public void test448802() throws Exception {
 public void test449063() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_LambdaGenericSignature, CompilerOptions.GENERATE);
-	this.runConformTest(
-		false,
+	AbstractRegressionTest.runConformTest(
+		this, false,
 		new String[] {
 			"Test.java",
 			"import java.io.Serializable;\n" +
@@ -5241,8 +5241,8 @@ public void test449063() {
 public void test449063a() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_LambdaGenericSignature, CompilerOptions.GENERATE);
-	this.runConformTest(
-		false,
+	AbstractRegressionTest.runConformTest(
+		this, false,
 		new String[] {
 			"Test.java",
 			"import java.io.Serializable;\n" +
@@ -5739,8 +5739,8 @@ public void test467825a() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=461004 Multiple spurious errors compiling FunctionalJava project
 public void test461004() {
-	this.runConformTest(
-		false /* skipJavac */,
+	AbstractRegressionTest.runConformTest(
+		this, false /* skipJavac */,
 		JavacHasABug.JavacBugFixed_901,
 		new String[] {
 			"Ice.java",
@@ -5868,8 +5868,8 @@ public void test477263() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=477263 [1.8][compiler] No enclosing instance of the type Outer is accessible in scope for method reference
 public void test477263a() {
-	this.runConformTest(
-		false,
+	AbstractRegressionTest.runConformTest(
+		this, false,
 		JavacHasABug.JavacBug8144673,
 		new String[] {
 			"X.java",

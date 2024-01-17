@@ -144,7 +144,7 @@ public void test002() {
  * 1FZ2G7R: use of non static inner class in constuctor
  */
 public void test003() {
-	String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
+	String errMessage = AbstractRegressionTest.isMinimumCompliant(this, ClassFileConstants.JDK11) ?
 			"----------\n" +
 			"1. ERROR in A.java (at line 8)\n" +
 			"	super(getRunnable(), new B().toString()); \n" +
@@ -1454,7 +1454,7 @@ public void test032() {
  * Missing implementation in the compiler compiling invalid code
  */
 public void test033() {
-	String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
+	String errMessage = AbstractRegressionTest.isMinimumCompliant(this, ClassFileConstants.JDK11) ?
 			"----------\n" +
 			"1. ERROR in p1\\A2.java (at line 20)\n" +
 			"	(new D.E(null, null, null, new F(get()) {}) {}).execute();	\n" +
@@ -1546,7 +1546,7 @@ public void test034() {
  * Missing implementation in the compiler compiling invalid code
  */
 public void test035() {
-	String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
+	String errMessage = AbstractRegressionTest.isMinimumCompliant(this, ClassFileConstants.JDK11) ?
 			"----------\n" +
 			"1. ERROR in p1\\A2.java (at line 20)\n" +
 			"	(new D.E(null, null, null, new F(get()) {})).execute();	\n" +
@@ -2766,8 +2766,8 @@ public void test070() {
 
 // test too many synthetic arguments
 public void test071() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {	\n"+
 			"	void foo(int i) {	\n"+
@@ -2966,8 +2966,8 @@ public void test075() {
 		},
 		"SUCCESS");
 
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"Y.java",
 			"public class Y {	\n" +
 			"	void foo(){	\n" +
@@ -3466,8 +3466,8 @@ public void test087() {
 			"[X$1$N]");
 		return;
 	}
-	this.runConformTest(
-		true,
+	AbstractRegressionTest.runConformTest(
+		this, true,
 		new String[] {
 			"X.java",
 			"public class X {\n"+
@@ -3711,8 +3711,8 @@ public void test097() {
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=33751
  */
 public void test098() {
-	this.runConformTest(
-		true,
+	AbstractRegressionTest.runConformTest(
+		this, true,
 		new String[] {
 			"X.java",
 			"public class X {	\n"+
@@ -3760,8 +3760,8 @@ public void test099() {
 
 	CompilerOptions options = new CompilerOptions(getCompilerOptions());
 	if (options.complianceLevel <= ClassFileConstants.JDK1_4) {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X { \n" +
 				"    public static void main(String argv[]) { \n" +
@@ -3779,8 +3779,8 @@ public void test099() {
 			false);
 		return;
 	}
-	this.runNegativeTest(
-		false,
+	AbstractRegressionTest.runNegativeTest(
+		this, false,
 		new String[] {
 			"X.java",
 			"public class X { \n" +
@@ -4858,7 +4858,7 @@ public void test125() throws Exception {
 				"  \n" +
 				"  // Method descriptor #10 (LX;Ljava/lang/String;)V\n" +
 				"  // Stack: 2, Locals: 3\n" +
-				(isMinimumCompliant(ClassFileConstants.JDK11) ? "  private " :"  ") +
+				(AbstractRegressionTest.isMinimumCompliant(this, ClassFileConstants.JDK11) ? "  private " :"  ") +
 				"X$1Local(X arg0, java.lang.String arg1);\n" +
 				"     0  aload_0 [this]\n" +
 				"     1  aload_1 [arg0]\n" +
@@ -4891,7 +4891,7 @@ public void test125() throws Exception {
 				"  Inner classes:\n" +
 				"    [inner class info: #1 X$1Local, outer class info: #0\n" +
 				"     inner name: #44 Local, accessflags: 0 default]\n" +
-				(isMinimumCompliant(ClassFileConstants.JDK11) ?
+				(AbstractRegressionTest.isMinimumCompliant(this, ClassFileConstants.JDK11) ?
 				"  Enclosing Method: #39  #41 X.foo(Ljava/lang/String;)V\n" +
 				"\n" +
 				"Nest Host: #39 X\n" : "");
@@ -5063,8 +5063,8 @@ public void test129() {
 public void test130() {
 	CompilerOptions options = new CompilerOptions(getCompilerOptions());
 	if (options.sourceLevel <= ClassFileConstants.JDK1_3) {
-    	runConformTest(
-   			true /* flush output directory */,
+    	AbstractRegressionTest.runConformTest(
+   			this, true /* flush output directory */,
     		new String[] { /* test files */
     			"X.java", //========================
     			"public class X {\n" +
@@ -5231,8 +5231,8 @@ public void test131() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=165662
 public void test132() {
-	this.runConformTest(
-		true,
+	AbstractRegressionTest.runConformTest(
+		this, true,
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -5519,7 +5519,7 @@ public void test138() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=152961 - variation
 public void test139() {
-	String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
+	String errMessage = AbstractRegressionTest.isMinimumCompliant(this, ClassFileConstants.JDK11) ?
 			"----------\n" +
 			"1. ERROR in X.java (at line 9)\n" +
 			"	class Y extends Zork {}\n" +
@@ -5574,7 +5574,7 @@ public void test140() throws Exception {
 		"  Inner classes:\n" +
 		"    [inner class info: #5 p/A$I, outer class info: #20 p/A\n" +
 		"     inner name: #22 I, accessflags: 1545 public abstract static]\n";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "p1" + File.separator + "X.class", "X", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "p1" + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=171184
 public void test141() throws Exception {
@@ -5596,7 +5596,7 @@ public void test141() throws Exception {
 		"  Inner classes:\n" +
 		"    [inner class info: #3 p/A$B, outer class info: #17 p/A\n" +
 		"     inner name: #19 B, accessflags: 9 public static]\n";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "p1" + File.separator + "X.class", "X", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "p1" + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=171184
 public void test142() throws Exception {
@@ -5627,7 +5627,7 @@ public void test142() throws Exception {
 			"    [inner class info: #16 p/A$B, outer class info: #18 p/A\n" +
 			"     inner name: #27 B, accessflags: 1 public]\n";
 	}
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "p1" + File.separator + "X.class", "X", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "p1" + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=171184
 public void test143() throws Exception {
@@ -5649,7 +5649,7 @@ public void test143() throws Exception {
 			"  Inner classes:\n" +
 			"    [inner class info: #16 A$B, outer class info: #21 A\n" +
 			"     inner name: #23 B, accessflags: 1 public]\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+		AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=171184
@@ -5671,7 +5671,7 @@ public void test144() throws Exception {
 		"  Inner classes:\n" +
 		"    [inner class info: #17 A$B, outer class info: #25 A\n" +
 		"     inner name: #27 B, accessflags: 9 public static]\n";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=171184
 public void test145() throws Exception {
@@ -5689,7 +5689,7 @@ public void test145() throws Exception {
 		"  Inner classes:\n" +
 		"    [inner class info: #19 A$B, outer class info: #21 A\n" +
 		"     inner name: #23 B, accessflags: 9 public static]\n";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=171184
 public void test146() throws Exception {
@@ -5709,7 +5709,7 @@ public void test146() throws Exception {
 		"  Inner classes:\n" +
 		"    [inner class info: #21 A$B, outer class info: #23 A\n" +
 		"     inner name: #25 B, accessflags: 9 public static]\n";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=171184
 public void test147() throws Exception {
@@ -5729,7 +5729,7 @@ public void test147() throws Exception {
 		"  Inner classes:\n" +
 		"    [inner class info: #19 A$B, outer class info: #21 A\n" +
 		"     inner name: #23 B, accessflags: 9 public static]\n";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=171184
 public void test148() throws Exception {
@@ -5748,7 +5748,7 @@ public void test148() throws Exception {
 		"  Inner classes:\n" +
 		"    [inner class info: #16 A$B, outer class info: #21 A\n" +
 		"     inner name: #23 B, accessflags: 9 public static]\n";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=171749
 public void test149() throws Exception {
@@ -5798,7 +5798,7 @@ public void test149() throws Exception {
 		"     inner name: #0, accessflags: 0 default],\n" +
 		"    [inner class info: #54 X$Foo6, outer class info: #1 X\n" +
 		"     inner name: #56 Foo6, accessflags: 9 public static]\n";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=210422
 public void test150() {
@@ -6354,7 +6354,7 @@ public void test156() throws Exception {
 		"  static synthetic void access$0(package2.C arg0);\n" +
 		"    0  aload_0 [arg0]\n" +
 		"    1  invokevirtual package2.C.outerMethod() : void";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=249107
 public void test157() throws Exception {
@@ -6392,7 +6392,7 @@ public void test157() throws Exception {
 		"  static synthetic int access$0(package2.C arg0);\n" +
 		"    0  aload_0 [arg0]\n" +
 		"    1  getfield package2.C.outerField : int";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=249107 - variation
 public void test158() throws Exception {
@@ -6432,7 +6432,7 @@ public void test158() throws Exception {
 		"    1  iload_1 [arg1]\n" +
 		"    2  putfield package2.C.outerField : int";
 
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=249107 - variation
 public void test159() throws Exception {
@@ -6470,7 +6470,7 @@ public void test159() throws Exception {
 		"  static synthetic int access$0(package2.C arg0);\n" +
 		"    0  aload_0 [arg0]\n" +
 		"    1  getfield package2.C.outerField : int";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=249107 - variation
 public void test160() throws Exception {
@@ -6509,7 +6509,7 @@ public void test160() throws Exception {
 		"    0  aload_0 [arg0]\n" +
 		"    1  iload_1 [arg1]\n" +
 		"    2  putfield package2.C.outerField : int";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=249107 - variation
 public void test161() throws Exception {
@@ -6546,7 +6546,7 @@ public void test161() throws Exception {
 		"  // Stack: 1, Locals: 0\n" +
 		"  static synthetic int access$0();\n" +
 		"    0  getstatic package2.C.outerField : int";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=249107 - variation
 public void test162() throws Exception {
@@ -6585,7 +6585,7 @@ public void test162() throws Exception {
 		"    0  iload_0 [arg0]\n" +
 		"    1  putstatic package2.C.outerField : int";
 
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=249107 - variation
 public void test163() throws Exception {
@@ -6622,7 +6622,7 @@ public void test163() throws Exception {
 		"  // Stack: 1, Locals: 0\n" +
 		"  static synthetic int access$0();\n" +
 		"    0  getstatic package2.C.outerField : int";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=249107 - variation
 public void test164() throws Exception {
@@ -6660,7 +6660,7 @@ public void test164() throws Exception {
 		"  static synthetic void access$0(int arg0);\n" +
 		"    0  iload_0 [arg0]\n" +
 		"    1  putstatic package2.C.outerField : int";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=128563 - variation
 public void test165() throws Exception {
@@ -6697,7 +6697,7 @@ public void test165() throws Exception {
 		"  // Stack: 0, Locals: 0\n" +
 		"  static synthetic void access$0();\n" +
 		"    0  invokestatic package2.C.outerMethod() : void";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "package2" + File.separator + "C.class", "C", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=249107 - variation
 public void test166() throws Exception {

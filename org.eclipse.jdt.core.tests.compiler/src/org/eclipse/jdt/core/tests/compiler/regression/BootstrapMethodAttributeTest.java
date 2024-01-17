@@ -45,7 +45,7 @@ public class BootstrapMethodAttributeTest extends AbstractRegressionTest {
 	public void test001() throws Exception {
 
 			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-			String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "TestBootstrapMethodAtt.class";
+			String path = AbstractRegressionTest.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "TestBootstrapMethodAtt.class";
 			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(path));
 			String actualOutput =
 				disassembler.disassemble(

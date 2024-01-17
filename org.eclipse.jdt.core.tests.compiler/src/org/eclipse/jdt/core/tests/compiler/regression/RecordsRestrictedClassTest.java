@@ -86,7 +86,7 @@ public class RecordsRestrictedClassTest extends AbstractRegressionTest {
 	protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
 		if (!isJRE16Plus)
 			return;
-		runNegativeTest(testFiles, expectedCompilerLog, JavacTestOptions.DEFAULT);
+		AbstractRegressionTest.runNegativeTest(this, testFiles, expectedCompilerLog, JavacTestOptions.DEFAULT);
 	}
 	protected void runWarningTest(String[] testFiles, String expectedCompilerLog) {
 		runWarningTest(testFiles, expectedCompilerLog, null);
@@ -2430,8 +2430,8 @@ public void testBug558718_001() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-	this.runNegativeTest(
-	new String[] {
+	AbstractRegressionTest.runNegativeTest(
+	this, new String[] {
 			"X.java",
 			"record R() {}\n",
 		},
@@ -2451,8 +2451,8 @@ public void testBug558718_002() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_13);
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-	this.runNegativeTest(
-	new String[] {
+	AbstractRegressionTest.runNegativeTest(
+	this, new String[] {
 			"X.java",
 			"record R() {}\n",
 		},
@@ -2472,8 +2472,8 @@ public void testBug558718_003() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_14);
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-	this.runNegativeTest(
-	new String[] {
+	AbstractRegressionTest.runNegativeTest(
+	this, new String[] {
 			"X.java",
 			"record R() {}\n",
 		},
@@ -2568,8 +2568,8 @@ public void testBug561528_004() {
 		"0");
 }
 public void testBug561528_005() {
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 					"X.java",
 					"class X {\n"+
 					"  public static void main(String[] args){\n"+
@@ -5982,8 +5982,8 @@ public void testBug564672b_001() {
 public void testBug564672b_002() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"class X extends record {\n"+
 			"  public static void main(String[] args){\n"+
@@ -6027,8 +6027,8 @@ public void testBug564672b_003() {
 public void testBug564672b_004() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"class X implements record {\n"+
 			"  public static void main(String[] args){\n"+
@@ -6074,8 +6074,8 @@ public void testBug564672b_005() {
 public void testBug564672b_006() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"class X {\n"+
 			"  class Y extends record {\n"+
@@ -6123,8 +6123,8 @@ public void testBug564672b_007() {
 public void testBug564672b_008() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"class X {\n"+
 			"  class Y implements record {\n"+
@@ -6172,8 +6172,8 @@ public void testBug564672b_009() {
 public void testBug564672b_010() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"interface Y extends record {\n"+
 			"}\n" +
@@ -6221,8 +6221,8 @@ public void testBug564672b_011() {
 public void testBug564672b_012() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"class X {\n"+
 			"  interface Y extends record {\n"+
@@ -6272,8 +6272,8 @@ public void testBug564672b_013() {
 public void testBug564672b_014() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"interface X {\n"+
 			"  class Y extends record {\n"+
@@ -6320,8 +6320,8 @@ public void testBug564672b_015() {
 public void testBug564672b_016() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"interface X {\n"+
 			"  class Y implements record {\n"+
@@ -6368,8 +6368,8 @@ public void testBug564672b_017() {
 public void testBug564672b_018() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"interface X {\n"+
 			"  interface Y extends record {\n"+
@@ -6391,8 +6391,8 @@ public void testBug564672b_018() {
 public void testBug564672b_019() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	static record a(int i, int j) {\n" +
@@ -6945,8 +6945,8 @@ public void testBug564672b_038() {
 public void testBug564672b_039() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"record Point(record x, int i) { }\n" +
 			"public class X {\n" +
@@ -7270,8 +7270,8 @@ public void testBug564672b_049() {
 public void testBug565388_001() {
 	if (this.complianceLevel < ClassFileConstants.JDK17) return;
 	Map<String, String> options = getCompilerOptionsWithPreviewIfApplicable();
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public non-sealed record X() {}\n"
 		},
@@ -7290,8 +7290,8 @@ public void testBug565388_001() {
 public void testBug565388_002() {
 	if (this.complianceLevel < ClassFileConstants.JDK17) return;
 	Map<String, String> options = getCompilerOptionsWithPreviewIfApplicable();
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public sealed record X() {}\n"
 		},
@@ -7331,8 +7331,8 @@ public void testBug565786_001() throws IOException, ClassFormatException {
 // report the warning on the record type.
 public void testBug563182_01() {
 	Map<String, String> customOptions = getCompilerOptions();
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"class X<T> {\n" +
 			"	record Point<T> (T ... args) { // 1\n" +
@@ -7356,8 +7356,8 @@ public void testBug563182_01() {
 public void testBug563182_02() {
 	getPossibleComplianceLevels();
 	Map<String, String> customOptions = getCompilerOptions();
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"class X<T> {\n" +
 			"	record Point<T> (T ... args) { // 1\n" +
@@ -7384,8 +7384,8 @@ public void testBug563182_02() {
 public void testBug563182_03() {
 	getPossibleComplianceLevels();
 	Map<String, String> customOptions = getCompilerOptions();
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"class X<T> {\n" +
 			"	record Point<T> (T ... args) { // 1\n" +
@@ -7407,8 +7407,8 @@ public void testBug563182_03() {
 //we don't report the warning on the compact canonical constructor but report on the record type
 public void testBug563182_04() {
 	Map<String, String> customOptions = getCompilerOptions();
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"class X<T> {\n" +
 			"	record Point<T> (T ... args) { // 1\n" +
@@ -7434,8 +7434,8 @@ public void testBug563182_04() {
 public void testBug563182_05() {
 	getPossibleComplianceLevels();
 	Map<String, String> customOptions = getCompilerOptions();
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"class X<T> {\n" +
 			"	record Point<T> (T ... args) { // 1\n" +
@@ -7456,8 +7456,8 @@ public void testBug563182_05() {
 //we don't report the warning on the non-canonical constructor but report on the record type
 public void testBug563182_06() {
 	Map<String, String> customOptions = getCompilerOptions();
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"class X<T> {\n" +
 			"	record Point<T> (T ... args) { // 1\n" +
@@ -7484,8 +7484,8 @@ public void testBug563182_06() {
 //we don't report the warning on the non-canonical constructor but report on the record type
 public void testBug563182_07() {
 	Map<String, String> customOptions = getCompilerOptions();
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"class X<T> {\n" +
 			"	record Point<T> (T ... args) { // 1\n" +
@@ -7548,8 +7548,8 @@ public void testBug563182_07() {
 			 "0");
 	}
 	public void testBug563186_03() {
-		runNegativeTest(
-				new String[] {
+		AbstractRegressionTest.runNegativeTest(
+				this, new String[] {
 					"X.java",
 					"public class X {\n"+
 					"  private record Point(int myInt){\n"+
@@ -7597,8 +7597,8 @@ public void testBug563182_07() {
 			 "0");
 	}
 	public void testBug565732_01() {
-		runNegativeTest(
-				new String[] {
+		AbstractRegressionTest.runNegativeTest(
+				this, new String[] {
 					"X.java",
 					"public record X {\n" +
 					"} "
@@ -7615,8 +7615,8 @@ public void testBug563182_07() {
 				getCompilerOptions());
 	}
 	public void testBug565732_02() {
-		runNegativeTest(
-				new String[] {
+		AbstractRegressionTest.runNegativeTest(
+				this, new String[] {
 					"X.java",
 					"public record X<T> {\n" +
 					"} "
@@ -7697,8 +7697,8 @@ public void testBug563182_07() {
 			 "record:");
 	}
 	public void testBug565732_07() {
-		runNegativeTest(
-				new String[] {
+		AbstractRegressionTest.runNegativeTest(
+				this, new String[] {
 					"X.java",
 					"public class X {\n" +
 					"	record R {};\n" +
@@ -7782,8 +7782,8 @@ public void testBug566063_001() {
 public void testBug566063_002() {
 	if (this.complianceLevel < ClassFileConstants.JDK17) return;
 	Map<String, String> options = getCompilerOptionsWithPreviewIfApplicable();
-	runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				"    void bar() throws Exception {\n"+
@@ -7816,8 +7816,8 @@ public void testBug566063_002() {
 public void testBug566063_003() {
 	if (this.complianceLevel < ClassFileConstants.JDK17) return;
 	Map<String, String> options = getCompilerOptionsWithPreviewIfApplicable();
-	runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				"    void bar() throws Exception {\n"+
@@ -7888,8 +7888,8 @@ public void testBug566418_001() {
 	options.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_SuppressOptionalErrors, CompilerOptions.ENABLED);
-	this.runNegativeTest(
-	new String[] {
+	AbstractRegressionTest.runNegativeTest(
+	this, new String[] {
 			"X.java",
 			"public class X {\n"+
 			" static void foo() {\n"+
@@ -8038,8 +8038,8 @@ public void testBug566554_04() {
 public void testBug567731_001() {
 	if (this.complianceLevel < ClassFileConstants.JDK17) return;
 	Map<String, String> options = getCompilerOptionsWithPreviewIfApplicable();
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  non-sealed record R() {}\n" +
@@ -8068,8 +8068,8 @@ public void testBug567731_001() {
 public void testBug567731_002() {
 	if (this.complianceLevel < ClassFileConstants.JDK17) return;
 	Map<String, String> options = getCompilerOptionsWithPreviewIfApplicable();
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  sealed record R1() {}\n" +
@@ -8096,8 +8096,8 @@ public void testBug567731_002() {
 	options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 }
 public void testBug566846_1() {
-	runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public record X;\n"
 			},
@@ -8113,8 +8113,8 @@ public void testBug566846_1() {
 			getCompilerOptions());
 }
 public void testBug566846_2() {
-	runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n"
 				+ "} \n"
@@ -8144,8 +8144,8 @@ public void testBug566846_2() {
 public void testBug561199_001() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportMissingSerialVersion, CompilerOptions.ERROR);
-	runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"R.java",
 				"record R() implements java.io.Serializable {}\n",
 				"X.java",
@@ -8163,8 +8163,8 @@ public void testBug561199_001() {
 			options);
 }
 public void testBug568922_001() {
-	runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n"+
 				" public static void main(String[] args) {\n"+
@@ -8934,8 +8934,8 @@ public void testBug572934_002() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportLocalVariableHiding, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportSpecialParameterHidingField, CompilerOptions.ENABLED);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public record X(int param) {\n" +
 			"	public X(int param) {\n" +
@@ -8963,8 +8963,8 @@ public void testBug572934_003() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportLocalVariableHiding, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportSpecialParameterHidingField, CompilerOptions.ENABLED);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public record X(int param) {\n" +
 			"	public X(int param) {\n" +
@@ -9143,8 +9143,8 @@ public void testBug577251_001() {
 public void testBug576806_001() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUndocumentedEmptyBlock, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		false /* skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+		this, false /* skipJavac */,
 		new JavacTestOptions("Xlint:empty"),
 		new String[] {
 				"X.java",
@@ -9217,8 +9217,8 @@ public void testIssue365_001() throws Exception {
  */
 public void testRecordConstructorWithExceptionGh487() throws Exception {
 	getPossibleComplianceLevels();
-	runConformTest(
-			// test directory preparation
+	AbstractRegressionTest.runConformTest(
+			this, // test directory preparation
 			true /* should flush output directory */,
 			new String[] { /* test files */
 					"X.java",
@@ -9387,8 +9387,8 @@ public void testGH1092() throws Exception {
 public void testBug576719() {
 	Map<String, String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportParameterAssignment, CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"Rational.java",
@@ -9464,8 +9464,8 @@ public void testIssue1641_001() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_17);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_17);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_17);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 		"X.java",
 		"""
 	record InterfaceInRecord() {
@@ -9504,8 +9504,8 @@ public void testIssue1641_002() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_17);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_17);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_17);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 		"X.java",
 		"""
 			record InterfaceInRecord() {
@@ -9540,8 +9540,8 @@ public void testIssue1641_003() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_17);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_17);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_17);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 		"X.java",
 		"""
 		enum InterfaceInEnum {
@@ -9577,8 +9577,8 @@ public void testIssue1641_004() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_17);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_17);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_17);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 		"X.java",
 		"""
 		enum InterfaceInEnum {
@@ -9613,8 +9613,8 @@ public void testIssue1641_005() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_17);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_17);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_17);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 		"X.java",
 		"""
 		interface I  {
@@ -9647,8 +9647,8 @@ public void testIssue1641_006() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_17);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_17);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_17);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 		"X.java",
 		"""
 		interface I  {

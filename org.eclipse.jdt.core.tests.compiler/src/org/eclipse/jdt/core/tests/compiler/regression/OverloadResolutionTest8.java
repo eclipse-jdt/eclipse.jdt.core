@@ -770,8 +770,8 @@ public void test026() {
 			"----------\n");
 }
 public void test027() { // javac bug: 8b115 complains of ambiguity here.
-	this.runConformTest(
-			false /* skipJavac */,
+	AbstractRegressionTest.runConformTest(
+			this, false /* skipJavac */,
 			JavacTestOptions.Excuse.JavacDoesNotCompileCorrectSource,
 			new String[] {
 				"X.java",
@@ -1329,8 +1329,8 @@ public void test4008712h() {
 			"----------\n");
 }
 public void test4008712i() { // javac bug: 8b115 complains of ambiguity here.
-	this.runConformTest(
-			false /* skipJavac */,
+	AbstractRegressionTest.runConformTest(
+			this, false /* skipJavac */,
 			JavacTestOptions.Excuse.JavacDoesNotCompileCorrectSource,
 			new String[] {
 				"X.java",

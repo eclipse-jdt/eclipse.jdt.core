@@ -49,7 +49,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 	 * @deprecated
 	 */
 	private void checkClassFileUsingInputStream(String directoryName, String className, String source, String expectedOutput, int mode) throws IOException {
-		compileAndDeploy(source, directoryName, className, false);
+		AbstractRegressionTest.compileAndDeploy(this, source, directoryName, className, false);
 		BufferedInputStream inputStream = null;
 		try {
 			File directory = new File(EVAL_DIRECTORY, directoryName);
@@ -76,7 +76,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 					// ignore
 				}
 			}
-			removeTempClass(className);
+			AbstractRegressionTest.removeTempClass(className);
 		}
 	}
 
@@ -104,7 +104,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 			"        [pc: 0, pc: 1] local: l index: 2 type: long\n" +
 			"        [pc: 0, pc: 1] local: args index: 4 type: java.lang.String[][][]\n" +
 			"}";
-		checkClassFile("X", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "X", source, expectedOutput);
 	}
 
 	/**
@@ -135,7 +135,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 			"    18  invokevirtual long[].clone() : java.lang.Object [22]\n" +
 			"    21  invokevirtual java.io.PrintStream.println(java.lang.Object) : void [28]\n" +
 			"    24  return\n";
-		checkClassFile("X", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "X", source, expectedOutput);
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=111420
@@ -163,7 +163,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 			"    return null;\n" +
 			"  }\n" +
 			"}";
-		checkClassFile("", "Y", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY | ClassFileBytesDisassembler.COMPACT);
+		AbstractRegressionTest.checkClassFile(this, "", "Y", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY | ClassFileBytesDisassembler.COMPACT);
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=111420
@@ -191,7 +191,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 			"    return null;\n" +
 			"  }\n" +
 			"}";
-		checkClassFile("", "Y", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
+		AbstractRegressionTest.checkClassFile(this, "", "Y", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
 	}
 
 	/**
@@ -217,7 +217,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 			"        [pc: 0, pc: 1] local: l index: 1 type: long\n" +
 			"        [pc: 0, pc: 1] local: args index: 3 type: java.lang.String[][][]\n" +
 			"}";
-		checkClassFile("X", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "X", source, expectedOutput);
 	}
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=111494
@@ -243,7 +243,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 			"  private X(int i) {\n" +
 			"  }\n" +
 			"}";
-		checkClassFile("", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
+		AbstractRegressionTest.checkClassFile(this, "", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
 	}
 
 	/**
@@ -287,7 +287,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 			"  \n" +
 			"  public abstract java.lang.String colorName();\n" +
 			"}";
-		checkClassFile("", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
+		AbstractRegressionTest.checkClassFile(this, "", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
 	}
 
 	/**
@@ -331,7 +331,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 			"  private X(int i) {\n" +
 			"  }\n" +
 			"}";
-		checkClassFile("", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
+		AbstractRegressionTest.checkClassFile(this, "", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
 	}
 
 	/**
@@ -350,7 +350,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 			"  \n" +
 			"  public abstract java.lang.String lastName() default \"Smith\";\n" +
 			"}";
-		checkClassFile("", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
+		AbstractRegressionTest.checkClassFile(this, "", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
 	}
 
 	/**
@@ -412,7 +412,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 			"      #11 value=java.lang.annotation.RetentionPolicy.RUNTIME(enum type #13.#14)\n" +
 			"    )\n" +
 			"}";
-		checkClassFile("", "X", source, expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkClassFile(this, "", "X", source, expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=203609
@@ -428,7 +428,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 			expectedOutput = "abstract synthetic interface p.package-info {\n" +
 			"}";
 		}
-		checkClassFile("p", "package-info", source, expectedOutput, ClassFileBytesDisassembler.DEFAULT);
+		AbstractRegressionTest.checkClassFile(this, "p", "package-info", source, expectedOutput, ClassFileBytesDisassembler.DEFAULT);
 	}
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=217907
@@ -469,7 +469,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 			"      #11 value=RetentionPolicy.RUNTIME(enum type #13.#14)\n" +
 			"    )\n" +
 			"}";
-		checkClassFile("", "X", source, expectedOutput, ClassFileBytesDisassembler.SYSTEM | ClassFileBytesDisassembler.COMPACT);
+		AbstractRegressionTest.checkClassFile(this, "", "X", source, expectedOutput, ClassFileBytesDisassembler.SYSTEM | ClassFileBytesDisassembler.COMPACT);
 	}
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=217907
@@ -489,7 +489,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 			"public abstract @interface X extends Annotation {\n" +
 			"\n" +
 			"}";
-		checkClassFile("", "X", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
+		AbstractRegressionTest.checkClassFile(this, "", "X", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
 	}
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=217910
@@ -507,7 +507,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 			"}";
 		String expectedOutput =
 			"  public void foo(@Deprecated @Annot(value=(int) 2) int i);";
-		checkClassFile("", "X", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
+		AbstractRegressionTest.checkClassFile(this, "", "X", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
 	}
 	/**
 	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=286405
@@ -521,7 +521,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 			"";
 		String expectedOutput =
 			"  public abstract char test2() default \'\\u0000\';";
-		checkClassFile("", "MonAnnotation", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
+		AbstractRegressionTest.checkClassFile(this, "", "MonAnnotation", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
 	}
 
 	public void testBug504031() throws Exception {
@@ -616,7 +616,7 @@ public class ClassFileReaderTest_1_5 extends AbstractRegressionTest {
 				"    )\n" +
 				"}";
 		int mode = ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT | ClassFileBytesDisassembler.SYSTEM;
-		checkClassFile("test", "AllTests", "AllTests", source, expectedOutput, mode, true/*suppress expected errors*/);
+		AbstractRegressionTest.checkClassFile(this, "test", "AllTests", "AllTests", source, expectedOutput, mode, true/*suppress expected errors*/);
 	}
 
 }

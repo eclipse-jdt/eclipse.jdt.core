@@ -109,8 +109,8 @@ public class PreviewFeatureTest extends AbstractRegressionTest9 {
 		String old = options.get(CompilerOptions.OPTION_EnablePreviews);
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		try {
-			runNegativeTest(
-					new String[] {
+			AbstractRegressionTest.runNegativeTest(
+					this, new String[] {
 							"X.java",
 							"import p.*;\n"+
 							"public class X {\n"+
@@ -151,8 +151,8 @@ public class PreviewFeatureTest extends AbstractRegressionTest9 {
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
 		String[] classLibs = getClasspathWithPreviewAPI();
 		try {
-			runNegativeTest(
-					new String[] {
+			AbstractRegressionTest.runNegativeTest(
+					this, new String[] {
 							"X.java",
 							"import p.*;\n"+
 							"@SuppressWarnings(\"preview\")\n"+
@@ -188,8 +188,8 @@ public class PreviewFeatureTest extends AbstractRegressionTest9 {
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		String[] classLibs = getClasspathWithPreviewAPI();
 		try {
-			runNegativeTest(
-					new String[] {
+			AbstractRegressionTest.runNegativeTest(
+					this, new String[] {
 							"X.java",
 							"import p.*;\n"+
 							"public class X {\n"+
@@ -224,8 +224,8 @@ public class PreviewFeatureTest extends AbstractRegressionTest9 {
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
 		String[] classLibs = getClasspathWithPreviewAPI();
 		try {
-			runNegativeTest(
-					new String[] {
+			AbstractRegressionTest.runNegativeTest(
+					this, new String[] {
 							"X.java",
 							"import p.*;\n"+
 							"@SuppressWarnings(\"preview\")\n"+

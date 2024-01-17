@@ -291,8 +291,8 @@ public void test008() {
 public void test009() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantSuperinterface,  CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -319,8 +319,8 @@ public void test009() {
 public void test010() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantSuperinterface, CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -348,8 +348,8 @@ public void test010() {
 public void test011() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantSuperinterface,  CompilerOptions.ERROR);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"public class X implements I {}\n" +
 			"class Y extends X {}\n" +
@@ -369,8 +369,8 @@ public void test011() {
 public void test012() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantSuperinterface,  CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -397,8 +397,8 @@ public void test013() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantSuperinterface,  CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -455,8 +455,8 @@ public void test013() {
 public void test014() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantSuperinterface,  CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -482,8 +482,8 @@ public void test014() {
 public void test015() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantSuperinterface,  CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -520,8 +520,8 @@ public void test015() {
 public void test016() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantSuperinterface,  CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -560,8 +560,8 @@ public void test016() {
 public void test017() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantSuperinterface,  CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -603,8 +603,8 @@ public void test017() {
 public void test018() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantSuperinterface,  CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",

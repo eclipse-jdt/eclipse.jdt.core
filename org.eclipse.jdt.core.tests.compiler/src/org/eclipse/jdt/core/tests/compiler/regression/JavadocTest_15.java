@@ -113,7 +113,7 @@ protected Map getCompilerOptions() {
 @Override
 protected INameEnvironment getNameEnvironment(final String[] testFiles, String[] classPaths, Map<String, String> options) {
 	this.classpaths = classPaths == null ? getDefaultClassPaths() : classPaths;
-	INameEnvironment[] classLibs = getClassLibs(classPaths == null, options);
+	INameEnvironment[] classLibs = AbstractRegressionTest.getClassLibs(this, classPaths == null, options);
 	for (INameEnvironment nameEnvironment : classLibs) {
 		((FileSystem) nameEnvironment).scanForModules(createParser());
 	}
@@ -123,7 +123,7 @@ Parser createParser() {
 	Map<String,String> opts = new HashMap<>();
 	opts.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_9);
 	return new Parser(
-			new ProblemReporter(getErrorHandlingPolicy(), new CompilerOptions(opts), getProblemFactory()),
+			new ProblemReporter(AbstractRegressionTest.getErrorHandlingPolicy(), new CompilerOptions(opts), AbstractRegressionTest.getProblemFactory()),
 			false);
 }
 IModule extractModuleDesc(String fileName, String fileContent) {
@@ -241,7 +241,7 @@ public void test001() {
 	String[] testFiles = new String[] {"p/I1.java", I1 ,"p/P1.java", P1};
 	String[] modFiles =  new String[] {"module-info.java", moduleInfo  };
 	populateModuleMap(modFiles);
-	this.runConformTest( testFiles, modFiles, "" );
+	AbstractRegressionTest.runConformTest( this, testFiles, modFiles, "" );
 }
 
 public void test002() {
@@ -283,7 +283,7 @@ public void test002() {
 	String[] testFiles = new String[] {"p/I1.java", I1 ,"p/P1.java", P1};
 	String[] modFiles =  new String[] {"module-info.java", moduleInfo  };
 	populateModuleMap(modFiles);
-	this.runConformTest(testFiles , modFiles, "" );
+	AbstractRegressionTest.runConformTest(this, testFiles , modFiles, "" );
 }
 
 public void test003() {
@@ -327,7 +327,7 @@ public void test003() {
 	String[] testFiles = new String[] {"p/I1.java", I1 ,"p/P1.java", P1};
 	String[] modFiles =  new String[] {"module-info.java", moduleInfo  };
 	populateModuleMap(modFiles);
-	this.runConformTest(testFiles , modFiles, "" );
+	AbstractRegressionTest.runConformTest(this, testFiles , modFiles, "" );
 }
 
 public void test004() {
@@ -370,7 +370,7 @@ public void test004() {
 	String[] testFiles = new String[] {"p/I1.java", I1 ,"p/P1.java", P1};
 	String[] modFiles =  new String[] {"module-info.java", moduleInfo  };
 	populateModuleMap(modFiles);
-	this.runConformTest(testFiles , modFiles, "" );
+	AbstractRegressionTest.runConformTest(this, testFiles , modFiles, "" );
 }
 
 public void test005() {
@@ -414,7 +414,7 @@ public void test005() {
 	String[] testFiles = new String[] {"p/I1.java", I1 ,"p/P1.java", P1};
 	String[] modFiles =  new String[] {"module-info.java", moduleInfo  };
 	populateModuleMap(modFiles);
-	this.runConformTest(testFiles , modFiles, "" );
+	AbstractRegressionTest.runConformTest(this, testFiles , modFiles, "" );
 }
 
 public void test006() {
@@ -465,7 +465,7 @@ public void test006() {
 	String[] testFiles = new String[] {"p/I1.java", I1 ,"p/P1.java", P1};
 	String[] modFiles =  new String[] {"module-info.java", moduleInfo  };
 	populateModuleMap(modFiles);
-	this.runNegativeTest(testFiles , modFiles, errorMsg,
+	AbstractRegressionTest.runNegativeTest(this, testFiles , modFiles, errorMsg,
 			            JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -509,7 +509,7 @@ public void test007() {
 	String[] testFiles = new String[] {"p/I1.java", I1 ,"p/P1.java", P1};
 	String[] modFiles =  new String[] {"module-info.java", moduleInfo  };
 	populateModuleMap(modFiles);
-	this.runConformTest(testFiles , modFiles, "" );
+	AbstractRegressionTest.runConformTest(this, testFiles , modFiles, "" );
 }
 
 public void test008() {
@@ -552,7 +552,7 @@ public void test008() {
 	String[] testFiles = new String[] {"p/I1.java", I1 ,"p/P1.java", P1};
 	String[] modFiles =  new String[] {"module-info.java", moduleInfo  };
 	populateModuleMap(modFiles);
-	this.runConformTest(testFiles , modFiles, "" );
+	AbstractRegressionTest.runConformTest(this, testFiles , modFiles, "" );
 }
 
 public void test009() {
@@ -595,7 +595,7 @@ public void test009() {
 	String[] testFiles = new String[] {"p/I1.java", I1 ,"p/P1.java", P1};
 	String[] modFiles =  new String[] {"module-info.java", moduleInfo  };
 	populateModuleMap(modFiles);
-	this.runConformTest(testFiles , modFiles, "" );
+	AbstractRegressionTest.runConformTest(this, testFiles , modFiles, "" );
 }
 
 public void test010() {
@@ -646,7 +646,7 @@ public void test010() {
 	String[] testFiles = new String[] {"p/I1.java", I1 ,"p/P1.java", P1};
 	String[] modFiles =  new String[] {"module-info.java", moduleInfo  };
 	populateModuleMap(modFiles);
-	this.runNegativeTest(testFiles , modFiles, errorMsg,
+	AbstractRegressionTest.runNegativeTest(this, testFiles , modFiles, errorMsg,
 			            JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -698,7 +698,7 @@ public void test011() {
 	String[] testFiles = new String[] {"p/I1.java", I1 ,"p/P1.java", P1};
 	String[] modFiles =  new String[] {"module-info.java", moduleInfo  };
 	populateModuleMap(modFiles);
-	this.runNegativeTest(testFiles , modFiles, errorMsg,
+	AbstractRegressionTest.runNegativeTest(this, testFiles , modFiles, errorMsg,
 			            JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
@@ -750,7 +750,7 @@ public void test012() {
 	String[] testFiles = new String[] {"p/I1.java", I1 ,"p/P1.java", P1};
 	String[] modFiles =  new String[] {"module-info.java", moduleInfo  };
 	populateModuleMap(modFiles);
-	this.runNegativeTest(testFiles , modFiles, errorMsg,
+	AbstractRegressionTest.runNegativeTest(this, testFiles , modFiles, errorMsg,
 			            JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 

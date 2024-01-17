@@ -44,8 +44,8 @@ public void test1() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_6);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-	this.runConformTest(
-			new String[] {
+	AbstractRegressionTest.runConformTest(
+			this, new String[] {
 					"Test.java",
 					"public class Test {\n" +
 					"	public interface MyInterface {\n" +

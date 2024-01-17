@@ -633,7 +633,7 @@ public void test013() throws Exception {
 public void test014() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
-	this.runNegativeTest(new String[] {
+	AbstractRegressionTest.runNegativeTest(this, new String[] {
 		"X.java",
 		"public class X {\n" +
 		"	void foo1(int i) {\n" +
@@ -676,7 +676,7 @@ public void test014() {
 public void test015() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
-	this.runNegativeTest(new String[] {
+	AbstractRegressionTest.runNegativeTest(this, new String[] {
 		"X.java",
 		"public class X {\n" +
 		"	void foo1(int i) {\n" +
@@ -719,7 +719,7 @@ public void test015() {
 public void test016() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
-	this.runNegativeTest(new String[] {
+	AbstractRegressionTest.runNegativeTest(this, new String[] {
 		"X.java",
 		"public class X {\n" +
 		"	void foo1(int i) {\n" +
@@ -748,7 +748,7 @@ public void test016() {
 public void test017() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
-	this.runNegativeTest(new String[] {
+	AbstractRegressionTest.runNegativeTest(this, new String[] {
 		"X.java",
 		"public class X {\n" +
 		"	void foo1(char previousChar) {\n" +
@@ -776,7 +776,7 @@ public void test017() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=286682
 public void test018() {
-	this.runConformTest(new String[] {
+	AbstractRegressionTest.runConformTest(this, new String[] {
 		"p/X.java",
 		"package p;\n" +
 		"public class X {\n" +
@@ -2167,8 +2167,8 @@ public void testFor356002_3() {
 public void testBug374605() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_SWITCH_MISSING_DEFAULT_CASE, JavaCore.WARNING);
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"p/X.java",
 				"package p;\n" +
 				"class X {\n" +
@@ -2546,8 +2546,8 @@ public void testBug381172() throws Exception {
 public void test383643() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_SWITCH_MISSING_DEFAULT_CASE, JavaCore.WARNING);
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 					"X.java",
 					"public class X {\n" +
 					"    void foo() {\n" +
@@ -2595,7 +2595,7 @@ public void test383643() {
 public void test387146a() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
-	this.runNegativeTest(new String[] {
+	AbstractRegressionTest.runNegativeTest(this, new String[] {
 		"X.java",
 		"public class X {\n" +
 		"	private Object someLock;\n" +
@@ -2624,7 +2624,7 @@ public void test387146a() {
 public void test387146b() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
-	this.runNegativeTest(new String[] {
+	AbstractRegressionTest.runNegativeTest(this, new String[] {
 		"X.java",
 		"public class X {\n" +
 		"	private boolean someFlag;\n" +
@@ -2707,7 +2707,7 @@ public void test410892() {
 	} else {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
-		this.runConformTest(sourceFiles, options);
+		AbstractRegressionTest.runConformTest(this, sourceFiles, options);
 	}
 }
 //JDK7: Strings in Switch.
@@ -2740,7 +2740,7 @@ public void test410892_2() {
 	} else {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
-		this.runConformTest(sourceFiles, options);
+		AbstractRegressionTest.runConformTest(this, sourceFiles, options);
 	}
 }
 //JDK7: Strings in Switch.
@@ -2774,7 +2774,7 @@ public void test410892_3() {
 	} else {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
-		this.runConformTest(sourceFiles, options);
+		AbstractRegressionTest.runConformTest(this, sourceFiles, options);
 	}
 }
 //JDK7: Strings in Switch.
@@ -2805,7 +2805,7 @@ public void test410892_4() {
 		"}",
 	};
 	if (this.complianceLevel >= JDKLevelSupportingStringSwitch) {
-		this.runNegativeTest(sourceFiles,
+		AbstractRegressionTest.runNegativeTest(this, sourceFiles,
 			errorMsg,
 			null,
 			true,
@@ -2840,7 +2840,7 @@ public void test410892_5() {
 		"}",
 	};
 	if (this.complianceLevel >= JDKLevelSupportingStringSwitch) {
-		this.runNegativeTest(sourceFiles,
+		AbstractRegressionTest.runNegativeTest(this, sourceFiles,
 			errorMsg,
 			null,
 			true,
@@ -2876,7 +2876,7 @@ public void test410892_6() {
 		"}",
 	};
 	if (this.complianceLevel >= JDKLevelSupportingStringSwitch) {
-		this.runNegativeTest(sourceFiles,
+		AbstractRegressionTest.runNegativeTest(this, sourceFiles,
 			errorMsg,
 			null,
 			true,
@@ -3218,7 +3218,7 @@ public void testBug443576_1() {
 	}
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
-	this.runNegativeTest(new String[] {
+	AbstractRegressionTest.runNegativeTest(this, new String[] {
 		"X.java",
 		"public class X {\n"
 		+ "    public enum E { A, B; }\n"
@@ -3261,7 +3261,7 @@ public void testBug443576_2() {
 	}
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
-	this.runNegativeTest(new String[] {
+	AbstractRegressionTest.runNegativeTest(this, new String[] {
 		"X.java",
 		"public class X {\n"
 		+ "    public enum E { A, B; }\n"

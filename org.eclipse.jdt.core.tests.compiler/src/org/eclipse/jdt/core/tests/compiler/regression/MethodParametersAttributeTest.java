@@ -97,7 +97,7 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 	public void test001() throws Exception {
 
 			ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-			String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "ParameterNames.class";
+			String path = AbstractRegressionTest.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "ParameterNames.class";
 			byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(path));
 			String actualOutput =
 				disassembler.disassemble(
@@ -178,7 +178,7 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 	public void test002() throws Exception {
 
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "ParameterNames$1.class";
+		String path = AbstractRegressionTest.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "ParameterNames$1.class";
 		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(path));
 		String actualOutput =
 			disassembler.disassemble(
@@ -245,7 +245,7 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 	public void test003() throws Exception {
 
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
-		String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "ParameterNames$1Local.class";
+		String path = AbstractRegressionTest.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "ParameterNames$1Local.class";
 		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(path));
 		String actualOutput =
 			disassembler.disassemble(
@@ -319,7 +319,7 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 	public void test004() throws Exception {
 
 		// Test the results of the ClassFileReader
-		String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "ParameterNames.class";
+		String path = AbstractRegressionTest.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "ParameterNames.class";
 
 		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = ClassFileReader.read(path);
 		IBinaryMethod[] methodInfos = classFileReader.getMethods();
@@ -332,7 +332,7 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 
 	public void test005() throws Exception {
 		// Test the results of the ClassFileReader where some of the paramers are synthetic and/or mandated
-		String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "ParameterNames$1Local.class";
+		String path = AbstractRegressionTest.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "ParameterNames$1Local.class";
 
 		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = ClassFileReader.read(path);
 		IBinaryMethod[] methodInfos = classFileReader.getMethods();
@@ -964,8 +964,8 @@ public class MethodParametersAttributeTest extends AbstractRegressionTest {
 		Map<String, String> compilerOptions = getCompilerOptions();
 		compilerOptions.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.DO_NOT_GENERATE);
 		compilerOptions.put(CompilerOptions.OPTION_MethodParametersAttribute, CompilerOptions.GENERATE);
-		this.runConformTest(
-			new String[] {
+		AbstractRegressionTest.runConformTest(
+			this, new String[] {
 				fileName,
 				body
 			},

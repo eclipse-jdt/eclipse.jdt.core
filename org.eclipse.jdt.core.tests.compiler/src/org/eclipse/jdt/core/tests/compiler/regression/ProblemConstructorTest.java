@@ -32,8 +32,8 @@ public static Class testClass() {
 }
 
 public void test001() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"prs/Test1.java",
 			"package prs;	\n" +
 			"import java.io.IOException;	\n" +
@@ -55,8 +55,8 @@ public void test001() {
 		true,
 		false,
 		false);
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		false /* do not flush output directory */,
 		new String[] { /* test files */
 			"prs/Test2.java",
@@ -219,7 +219,7 @@ public void test005() {
 			"	}\n" +
 			"}\n"
 			};
-	if (!isMinimumCompliant(ClassFileConstants.JDK11)) {
+	if (!AbstractRegressionTest.isMinimumCompliant(this, ClassFileConstants.JDK11)) {
 		this.runNegativeTest(testFiles,
 				"----------\n" +
 				"1. WARNING in A.java (at line 3)\n" +
@@ -234,7 +234,7 @@ public void test005() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=265142, wrong unused warning reported. Test to ensure that
 //we DO complain about the constructor of B not being used when its base class has a no-arg constructor
 public void test006() {
-	String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
+	String errMessage = AbstractRegressionTest.isMinimumCompliant(this, ClassFileConstants.JDK11) ?
 			"----------\n" +
 			"1. WARNING in A.java (at line 8)\n" +
 			"	public B () { super(\"\"); }\n" +
@@ -341,8 +341,8 @@ public void test009() {
 public void test408038a() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_6)
 		return;
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	private class Y {\n" +
@@ -373,8 +373,8 @@ public void test408038a() {
 public void test408038b() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_6)
 		return;
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	private static class Y {\n" +
@@ -405,8 +405,8 @@ public void test408038b() {
 public void test408038c() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_6)
 		return;
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"import java.io.Externalizable;\n" +
 			"import java.io.IOException;\n" +
@@ -444,8 +444,8 @@ public void test408038c() {
 public void test408038d() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_6)
 		return;
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"import java.io.Externalizable;\n" +
 			"import java.io.IOException;\n" +

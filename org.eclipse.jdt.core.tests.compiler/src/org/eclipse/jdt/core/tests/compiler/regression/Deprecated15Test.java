@@ -34,8 +34,8 @@ public static Test suite() {
 public void test001() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.WARNING);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"p/X.java",
 			"package p;\n" +
 			"/**\n" +
@@ -118,8 +118,8 @@ public void test002() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.IGNORE);
-	this.runNegativeTest(
-		true,
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 			"p/M1.java",
 			"package p;\n" +
@@ -167,8 +167,8 @@ public void test002() {
 public void test003() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"class X {\n" +
 			"  void foo() {\n" +
@@ -196,8 +196,8 @@ public void test003() {
 public void test004() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		true,
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 			"test1/E01.java",
 			"package test1;\n" +
@@ -232,8 +232,8 @@ public void test004() {
 public void test005() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		true,
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 			"p1/X.java",
 			"package p1;\n" +
@@ -276,8 +276,8 @@ public void test005() {
 public void test006() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		true,
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 			"test1/E02.java",
 			"package test1;\n" +

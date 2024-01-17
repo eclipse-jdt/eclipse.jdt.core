@@ -43,10 +43,10 @@ public class TextBlockTest extends AbstractRegressionTest {
 		return defaultOptions;
 	}
 	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions, String[] vmArguments) {
-		runConformTest(testFiles, expectedOutput, customOptions, vmArguments, new JavacTestOptions("-source 15 "));
+		AbstractRegressionTest.runConformTest(this, testFiles, expectedOutput, customOptions, vmArguments, new JavacTestOptions("-source 15 "));
 	}
 	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions) {
-		runConformTest(true, testFiles, null, expectedOutput, null, new JavacTestOptions("-source 15"));
+		AbstractRegressionTest.runConformTest(this, true, testFiles, null, expectedOutput, null, new JavacTestOptions("-source 15"));
 	}
 	protected void runConformTest(
 			// test directory preparation
@@ -63,8 +63,8 @@ public class TextBlockTest extends AbstractRegressionTest {
 			String[] vmarguments,
 			// javac options
 			JavacTestOptions javacTestOptions) {
-		runTest(
-			// test directory preparation
+		AbstractRegressionTest.runTest(
+			this, // test directory preparation
 			shouldFlushOutputDirectory /* should flush output directory */,
 			testFiles /* test files */,
 			// compiler options
@@ -682,8 +682,8 @@ public class TextBlockTest extends AbstractRegressionTest {
 				null);
 	}
 	public void test024() {
-		runConformTest(
-				true,
+		AbstractRegressionTest.runConformTest(
+				this, true,
 				new String[] {
 						"Main.java",
 						"@SuppressWarnings(\"preview\")\n" +
@@ -724,8 +724,8 @@ public class TextBlockTest extends AbstractRegressionTest {
 				JavacTestOptions.DEFAULT);
 	}
 	public void test025() {
-		runNegativeTest(
-				new String[] {
+		AbstractRegressionTest.runNegativeTest(
+				this, new String[] {
 						"X.java",
 						"public class X {\n" +
 						"		public static String textb = \"\"\"\n" +
@@ -900,8 +900,8 @@ public class TextBlockTest extends AbstractRegressionTest {
 				getCompilerOptions());
 	}
 	public void testBug551948_5() {
-		runNegativeTest(
-				new String[] {
+		AbstractRegressionTest.runNegativeTest(
+				this, new String[] {
 						"Cls2.java",
 						"@SuppressWarnings(\"preview\")\n" +
 						"public class Cls2 {\n" +
@@ -1290,8 +1290,8 @@ public class TextBlockTest extends AbstractRegressionTest {
 		copy.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_14);
 		copy.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_14);
 		copy.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		runNegativeTest(
-				new String[] {
+		AbstractRegressionTest.runNegativeTest(
+				this, new String[] {
 						"X.java",
 						"public class X {\n" +
 						"	public static String textb = \"\"\"\n" +

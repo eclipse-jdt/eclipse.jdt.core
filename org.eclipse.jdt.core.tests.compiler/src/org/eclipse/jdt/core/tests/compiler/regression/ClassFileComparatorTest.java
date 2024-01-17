@@ -121,7 +121,7 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 			compileAndDeploy(sourceA001_2, "A001_2");
 			assertTrue(!areStructurallyDifferent("A001", "A001_2", false, false));
 		} finally {
-			removeTempClass("A001");
+			AbstractRegressionTest.removeTempClass("A001");
 		}
 	}
 
@@ -146,7 +146,7 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 			compileAndDeploy(sourceA002_2, "A002_2");
 			assertTrue(areStructurallyDifferent("A002", "A002_2", false, false));
 		} finally {
-			removeTempClass("A002");
+			AbstractRegressionTest.removeTempClass("A002");
 		}
 	}
 
@@ -164,7 +164,7 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 			compileAndDeploy(sourceA003_2, "A003_2");
 			assertTrue(areStructurallyDifferent("A003", "A003_2", false, false));
 		} finally {
-			removeTempClass("A003");
+			AbstractRegressionTest.removeTempClass("A003");
 		}
 	}
 	public void test004() {
@@ -191,7 +191,7 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 			compileAndDeploy(sourceA004_2, "A004_2");
 			assertTrue(!areStructurallyDifferent("A004", "A004_2", true, true));
 		} finally {
-			removeTempClass("A004");
+			AbstractRegressionTest.removeTempClass("A004");
 		}
 	}
 	public void test005() {
@@ -215,7 +215,7 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 			compileAndDeploy(sourceA005_2, "A005_2");
 			assertTrue(areStructurallyDifferent("A005", "A005_2", true, true));
 		} finally {
-			removeTempClass("A005");
+			AbstractRegressionTest.removeTempClass("A005");
 		}
 	}
 	public void test006() {
@@ -232,7 +232,7 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 			compileAndDeploy(sourceA006_2, "A006_2");
 			assertTrue(areStructurallyDifferent("A006", "A006_2", true, true));
 		} finally {
-			removeTempClass("A006");
+			AbstractRegressionTest.removeTempClass("A006");
 		}
 	}
 
@@ -256,7 +256,7 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 			compileAndDeploy(sourceA007_2, "A007_2");
 			assertTrue(!areStructurallyDifferent("A007", "A007_2", true, true));
 		} finally {
-			removeTempClass("A007");
+			AbstractRegressionTest.removeTempClass("A007");
 		}
 	}
 	public void test008() {
@@ -279,7 +279,7 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 			compileAndDeploy(sourceA008_2, "A008_2");
 			assertTrue(!areStructurallyDifferent("A008", "A008_2", true, false));
 		} finally {
-			removeTempClass("A008");
+			AbstractRegressionTest.removeTempClass("A008");
 		}
 	}
 
@@ -308,7 +308,7 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 			compileAndDeploy(sourceA009_2, "A009_2");
 			assertTrue(areStructurallyDifferent("A009", "A009_2", true, false));
 		} finally {
-			removeTempClass("A009");
+			AbstractRegressionTest.removeTempClass("A009");
 		}
 	}
 	public void test010() {
@@ -336,7 +336,7 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 			compileAndDeploy(sourceA010_2, "A010_2");
 			assertTrue(!areStructurallyDifferent("A010", "A010_2", true, true));
 		} finally {
-			removeTempClass("A010");
+			AbstractRegressionTest.removeTempClass("A010");
 		}
 	}
 
@@ -365,7 +365,7 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 			compileAndDeploy(sourceA011_2, "A011_2");
 			assertTrue(!areStructurallyDifferent("A011", "A011_2", false, true));
 		} finally {
-			removeTempClass("A011");
+			AbstractRegressionTest.removeTempClass("A011");
 		}
 	}
 	public void test012() {
@@ -386,7 +386,7 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 			compileAndDeploy(sourceA012_2, "A012_2");
 			assertTrue(areStructurallyDifferent("A012", "A012_2", false, false));
 		} finally {
-			removeTempClass("A012");
+			AbstractRegressionTest.removeTempClass("A012");
 		}
 	}
 	public void test013() {
@@ -407,7 +407,7 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 			compileAndDeploy(sourceA013_2, "A013_2");
 			assertTrue(!areStructurallyDifferent("A013", "A013_2", false, true));
 		} finally {
-			removeTempClass("A013");
+			AbstractRegressionTest.removeTempClass("A013");
 		}
 	}
 	public void test014() {
@@ -428,7 +428,7 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 			compileAndDeploy(sourceA014_2, "A014_2");
 			assertTrue(!areStructurallyDifferent("A014", "A014_2", true, true));
 		} finally {
-			removeTempClass("A014");
+			AbstractRegressionTest.removeTempClass("A014");
 		}
 	}
 
@@ -448,7 +448,7 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 			compileAndDeploy(sourceA015, "A015");
 			assertTrue(!areStructurallyDifferent("A015$B", "A015$B", false, false));
 		} finally {
-			removeTempClass("A015");
+			AbstractRegressionTest.removeTempClass("A015");
 		}
 	}
 
@@ -468,7 +468,7 @@ public class ClassFileComparatorTest extends AbstractRegressionTest {
 			compileAndDeploy(sourceA016_2, "A016_2");
 			assertTrue(areStructurallyDifferent("A016", "A016_2", false, false));
 		} finally {
-			removeTempClass("A016");
+			AbstractRegressionTest.removeTempClass("A016");
 		}
 	}
 }

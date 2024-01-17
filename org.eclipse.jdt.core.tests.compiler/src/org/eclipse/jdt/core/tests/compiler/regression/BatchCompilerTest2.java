@@ -149,7 +149,7 @@ public void test004() throws Exception {
 					"",
 					true);
 	String expectedOutput = ".65535, super bit)";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 public void test005() throws Exception {
 	this.runConformTest(
@@ -174,7 +174,7 @@ public void test005() throws Exception {
 					"",
 					true);
 	String expectedOutput = "65535, super bit)";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 public void test006() throws Exception {
 	this.runConformTest(
@@ -199,7 +199,7 @@ public void test006() throws Exception {
 					"",
 					true);
 	String expectedOutput = "// Compiled from X.java (version 11 : 55.0, super bit)";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 public void testBug540123a() throws Exception {
 	this.runConformTest(
@@ -232,7 +232,7 @@ public void testBug540123a() throws Exception {
 					"",
 					true);
 	String expectedOutput = "invokevirtual SecurePrefsRoot.node(java.lang.String) : SecurePrefs [14]";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "SecurePrefsRoot.class", "SecurePrefsRoot", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "SecurePrefsRoot.class", "SecurePrefsRoot", expectedOutput);
 }
 public void testBug540123b() throws Exception {
 	this.runConformTest(
@@ -265,7 +265,7 @@ public void testBug540123b() throws Exception {
 					"",
 					true);
 	String expectedOutput = "invokevirtual SecurePrefsRoot.node(java.lang.String) : SecurePrefs [14]";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "SecurePrefsRoot.class", "SecurePrefsRoot", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "SecurePrefsRoot.class", "SecurePrefsRoot", expectedOutput);
 }
 public void testBug540123c() throws Exception {
 	this.runConformTest(
@@ -298,7 +298,7 @@ public void testBug540123c() throws Exception {
 					"",
 					true);
 	String expectedOutput = "invokevirtual SecurePrefsRoot.node(java.lang.String) : SecurePrefs [14]";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "SecurePrefsRoot.class", "SecurePrefsRoot", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "SecurePrefsRoot.class", "SecurePrefsRoot", expectedOutput);
 }
 public void testBug540123d() throws Exception {
 	this.runConformTest(
@@ -331,7 +331,7 @@ public void testBug540123d() throws Exception {
 					"",
 					true);
 	String expectedOutput = "invokevirtual SecurePrefsRoot.node(java.lang.String) : SecurePrefs [14]";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "SecurePrefsRoot.class", "SecurePrefsRoot", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "SecurePrefsRoot.class", "SecurePrefsRoot", expectedOutput);
 }
 public void testBug540123e() throws Exception {
 	this.runConformTest(
@@ -364,7 +364,7 @@ public void testBug540123e() throws Exception {
 					"",
 					true);
 	String expectedOutput = "invokevirtual SecurePrefs.node(java.lang.String) : SecurePrefs [14]";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "SecurePrefsRoot.class", "SecurePrefsRoot", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "SecurePrefsRoot.class", "SecurePrefsRoot", expectedOutput);
 }
 public void testBug562473() {
 	this.runConformTest(
@@ -466,6 +466,6 @@ public void testIssue147() throws Exception {
 				"",
 				true);
 	String expectedOutput = "java.lang.invoke.MethodHandle.invoke(java.lang.Object)";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 }

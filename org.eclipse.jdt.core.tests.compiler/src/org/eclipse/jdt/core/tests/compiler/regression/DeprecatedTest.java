@@ -55,7 +55,7 @@ protected void tearDown() throws Exception {
 protected INameEnvironment getNameEnvironment(final String[] testFiles, String[] classPaths, Map<String, String> options) {
 	// constructs a name environment that is able to hide a type of name 'this.invisibleType':
 	this.classpaths = classPaths == null ? getDefaultClassPaths() : classPaths;
-	return new InMemoryNameEnvironment(testFiles, getClassLibs(classPaths == null, options)) {
+	return new InMemoryNameEnvironment(testFiles, AbstractRegressionTest.getClassLibs(this, classPaths == null, options)) {
 		@Override
 		public NameEnvironmentAnswer findType(char[][] compoundTypeName) {
 			if (DeprecatedTest.this.invisibleType != null && CharOperation.equals(DeprecatedTest.this.invisibleType, compoundTypeName))
@@ -221,8 +221,8 @@ public void test004() {
 		"----------\n");
 }
 public void test005() {
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 		  "public class X {\n"
 			+ "/**\n"
@@ -241,8 +241,8 @@ public void test005() {
 		null, // special vm args
 		null,  // custom options
 		null); // custom requestor
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"A.java",
 			"public class A extends X.Y {}"
 		},
@@ -258,8 +258,8 @@ public void test005() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=40839
 public void test006() {
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	/**\n" +
@@ -278,8 +278,8 @@ public void test006() {
 		null, // special vm args
 		null,  // custom options
 		null); // custom requestor
-		runConformTest(
-			// test directory preparation
+		AbstractRegressionTest.runConformTest(
+			this, // test directory preparation
 	 		false /* do not flush output directory */,
 			new String[] { /* test files */
 				"A.java",
@@ -344,8 +344,8 @@ public void test008() {
 			"}\n",
 		},
 		"");
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"Y.java",
 			"/**\n" +
 			" * @deprecated\n" +
@@ -441,8 +441,8 @@ public void test009() {
 public void test010() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.ENABLED);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
             "X.java",
             "/**\n" +
             " * @deprecated\n" +
@@ -514,8 +514,8 @@ public void test012() {
 		CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode,
 		CompilerOptions.IGNORE);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
             "X.java",
@@ -558,8 +558,8 @@ public void test013() {
 			CompilerOptions.ERROR);
 		customOptions.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode,
 			CompilerOptions.IGNORE);
-		runNegativeTest(
-			// test directory preparation
+		AbstractRegressionTest.runNegativeTest(
+			this, // test directory preparation
 			true /* flush output directory */,
 			new String[] { /* test files */
 	            "X.java",
@@ -656,8 +656,8 @@ public void test015() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.IGNORE);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"p/M1.java",
@@ -708,8 +708,8 @@ public void test016() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.IGNORE);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"a/N1.java",
@@ -761,8 +761,8 @@ public void test017() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, CompilerOptions.ERROR);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"a/N1.java",
 			"package a;\n" +
 			"public class N1 {\n" +
@@ -794,8 +794,8 @@ public void test018() {
 	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.IGNORE);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"a/N1.java",
 			"package a;\n" +
 			"public class N1 {\n" +
@@ -814,8 +814,8 @@ public void test018() {
 		customOptions,
 		null,
 		false);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		false /* do not flush output directory */,
 		new String[] { /* test files */
 			"p/M1.java",
@@ -854,8 +854,8 @@ public void test018() {
 public void test019() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"test1/E01.java",
@@ -895,8 +895,8 @@ public void test019() {
 public void test020() {
 	Map customOptions = new HashMap();
 	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"a.b.c.d/Deprecated.java",

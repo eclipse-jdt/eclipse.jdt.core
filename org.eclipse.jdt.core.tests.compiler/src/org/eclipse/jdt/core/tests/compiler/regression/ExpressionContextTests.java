@@ -265,8 +265,8 @@ public void test008() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=399773, [1.8][compiler] Cast expression should allow for additional bounds to form intersection types
 public void test009() {
-	this.runNegativeTest(
-			false /* skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+			this, false /* skipJavac */,
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 				"X.java",
@@ -507,8 +507,8 @@ public void test017() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=399778, [1.8][compiler] Conditional operator expressions should propagate target types
 public void test018() {
-	this.runNegativeTest(
-			false /* skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+			this, false /* skipJavac */,
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 				"X.java",
@@ -531,8 +531,8 @@ public void test018() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=399778, [1.8][compiler] Conditional operator expressions should propagate target types
 public void test019() {
-	this.runNegativeTest(
-			false /* skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+			this, false /* skipJavac */,
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 				"X.java",

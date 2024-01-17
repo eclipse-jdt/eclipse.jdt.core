@@ -233,8 +233,8 @@ public void test006() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=383096, NullPointerException with a wrong lambda code snippet
 public void _test007() {
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 					"X.java",
 					"interface I {}\n" +
 					"public class X {\n" +
@@ -1542,8 +1542,8 @@ public void test043() {
 	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
 	options.put(CompilerOptions.OPTION_ReportTypeParameterHiding, CompilerOptions.IGNORE);
 
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 			"X.java",
             "import java.util.List;\n" +
 			"interface A { void foo(); }\n" +  // yes
@@ -1668,8 +1668,8 @@ public void test044() {
 	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
 	options.put(CompilerOptions.OPTION_ReportTypeParameterHiding, CompilerOptions.IGNORE);
 
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 			"X.java",
 			"import java.util.List;\n" +
 			"interface A { <T> T foo(List<T> p); }\n" +
@@ -2361,8 +2361,8 @@ public void test068() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
 public void test069() {
 	// Lambda argument hides a field.
-	this.runNegativeTest(
-			false /* skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+			this, false /* skipJavac */,
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 					"X.java",
@@ -2460,8 +2460,8 @@ public void test072() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
 public void test073() {
 	// Lambda local hides a field
-	this.runNegativeTest(
-			false /* skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+			this, false /* skipJavac */,
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 					"X.java",
@@ -2590,8 +2590,8 @@ public void test077() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
 public void test078() {
 	// Nested Lambda argument redeclares a field.
-	this.runNegativeTest(
-			false /* skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+			this, false /* skipJavac */,
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 					"X.java",
@@ -2918,8 +2918,8 @@ public void test087() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
 public void test088() {
 	// class inside lambda (!) redeclares a field.
-	this.runNegativeTest(
-			false /* skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+			this, false /* skipJavac */,
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 					"X.java",
@@ -2946,8 +2946,8 @@ public void test088() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
 public void test089() {
 	// class inside lambda redeclares outer method's argument.
-	this.runNegativeTest(
-			false /* skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+			this, false /* skipJavac */,
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 					"X.java",
@@ -2979,8 +2979,8 @@ public void test089() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
 public void test090() {
 	// class inside lambda redeclares outer method's local.
-	this.runNegativeTest(
-			false /* skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+			this, false /* skipJavac */,
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 					"X.java",
@@ -3012,8 +3012,8 @@ public void test090() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
 public void test091() {
 	// class inside lambda redeclares outer lambda's argument.
-	this.runNegativeTest(
-			false /* skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+			this, false /* skipJavac */,
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 					"X.java",
@@ -3045,8 +3045,8 @@ public void test091() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
 public void test092() {
 	// class inside lambda redeclares outer lambda's local.
-	this.runNegativeTest(
-			false /* skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+			this, false /* skipJavac */,
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 					"X.java",
@@ -3079,8 +3079,8 @@ public void test092() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
 public void test093() {
 	// local of class inside lambda redeclares a field.
-	this.runNegativeTest(
-			false /* skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+			this, false /* skipJavac */,
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 					"X.java",
@@ -3118,8 +3118,8 @@ public void test093() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
 public void test094() {
 	// local of class under lambda redeclares outer methods local.
-	this.runNegativeTest(
-			false /* skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+			this, false /* skipJavac */,
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 					"X.java",
@@ -3157,8 +3157,8 @@ public void test094() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=382727, [1.8][compiler] Lambda expression parameters and locals cannot shadow variables from context
 public void test095() {
 	// local of class under lambda redeclares outer lambda's argument & local
-	this.runNegativeTest(
-			false /* skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+			this, false /* skipJavac */,
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 					"X.java",
@@ -3363,8 +3363,8 @@ public void test400745() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=400745, [1.8][compiler] Compiler incorrectly allows shadowing of local class names.
 public void test400745a() {
 	// local type hiding scenario
-	this.runNegativeTest(
-			false /* skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+			this, false /* skipJavac */,
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 					"X.java",
@@ -4213,8 +4213,8 @@ public void test384750i() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
 public void test384750j() {
-	this.runNegativeTest(
-			false /* skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+			this, false /* skipJavac */,
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 					"X.java",
@@ -4261,8 +4261,8 @@ public void test384750k() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
 public void test384750l() {
-	this.runNegativeTest(
-			false /* skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+			this, false /* skipJavac */,
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 					"X.java",
@@ -4760,8 +4760,8 @@ public void test384750y() {
 public void test384750z() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportIndirectStaticAccess, CompilerOptions.WARNING);
-	this.runNegativeTest(
-			false /* skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+			this, false /* skipJavac */,
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 					"X.java",
@@ -4787,8 +4787,8 @@ public void test384750z() {
 public void test384750z1() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING);
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 					"X.java",
 					"interface I {\n" +
 					"	void doit();\n" +
@@ -4818,8 +4818,8 @@ public void test384750z1() {
 public void test384750z2() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedTypeArgumentsForMethodInvocation, CompilerOptions.WARNING);
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 					"X.java",
 					"interface I {\n" +
 					"	void doit();\n" +
@@ -4910,8 +4910,8 @@ public void test384750z5() {
 }
 //  https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
 public void test384750z6() {
-	this.runNegativeTest(
-			false /* skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+			this, false /* skipJavac */,
 			JavacTestOptions.DEFAULT,
 			new String[] {
 					"X.java",
@@ -4929,8 +4929,8 @@ public void test384750z6() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=384750, [1.8] Compiler should reject invalid method reference expressions
 public void test384750z7() {
-this.runNegativeTest(
-		false /* skipJavac */,
+AbstractRegressionTest.runNegativeTest(
+		this, false /* skipJavac */,
 		new JavacTestOptions("-Xlint:rawtypes"),
 		new String[] {
 				"X.java",
@@ -5214,8 +5214,8 @@ this.runNegativeTest(
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=401610, [1.8][compiler] Allow lambda/reference expressions in non-overloaded method invocation contexts
 // demonstrate that the bound problem is the only real issue in test401610e()
 public void test401610ee() {
-this.runNegativeTest(
-		false /* skipJavac */,
+AbstractRegressionTest.runNegativeTest(
+		this, false /* skipJavac */,
 		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 		new String[] {
 				"X.java",
@@ -5685,8 +5685,8 @@ public void test401845e() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401847, [1.8][compiler] Polyconditionals not accepted in method invocation contexts.
 public void test401847() {
-	this.runNegativeTest(
-			false /* skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+			this, false /* skipJavac */,
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 				"X.java",
@@ -5760,8 +5760,8 @@ public void test401847a() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=401939, [1.8][compiler] Incorrect shape analysis leads to method resolution failure .
 public void test401939() {
-	this.runNegativeTest(
-			false /* skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+			this, false /* skipJavac */,
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 				"X.java",
@@ -6011,8 +6011,8 @@ public void test402219() {
 public void test402219a() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUndocumentedEmptyBlock, CompilerOptions.ERROR);
-	this.runNegativeTest(
-			false /* skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+			this, false /* skipJavac */,
 			new JavacTestOptions("Xlint:empty"),
 			new String[] {
 				"X.java",
@@ -6560,8 +6560,8 @@ public void test406614() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=406588, [1.8][compiler][codegen] java.lang.invoke.LambdaConversionException: Incorrect number of parameters for static method newinvokespecial
 public void test406588() {
-	this.runNegativeTest(
-			false /* skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+			this, false /* skipJavac */,
 			null,
 			new String[] {
 				"X.java",
@@ -6619,8 +6619,8 @@ public void test401989() {
 		Map compilerOptions = getCompilerOptions();
 		compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
 		compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
-		this.runNegativeTest(
-			false /* skipJavac */,
+		AbstractRegressionTest.runNegativeTest(
+			this, false /* skipJavac */,
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError,
 			new String[] {
 				"X.java",
@@ -6654,7 +6654,7 @@ public void test406773() {
 		Map compilerOptions = getCompilerOptions();
 		compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
 		compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
-		String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
+		String errMessage = AbstractRegressionTest.isMinimumCompliant(this, ClassFileConstants.JDK11) ?
 				"----------\n" +
 				"1. ERROR in X.java (at line 5)\n" +
 				"	void foo() {\n" +
@@ -6673,8 +6673,8 @@ public void test406773() {
 				"	      ^^^^^^\n" +
 				"Access to enclosing constructor X(int) is emulated by a synthetic accessor method\n" +
 				"----------\n";
-		this.runNegativeTest(
-			false,
+		AbstractRegressionTest.runNegativeTest(
+			this, false,
 			JavacTestOptions.SKIP, /* skip, because we are using custom error settings here */
 			new String[] {
 					"X.java",
@@ -6726,8 +6726,8 @@ public void test406859a() {
 		Map compilerOptions = getCompilerOptions();
 		compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
 		compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 					"X.java",
 					"interface I {\n" +
 					"	int foo(int i);\n" +
@@ -6754,8 +6754,8 @@ public void test406859b() {
 		Map compilerOptions = getCompilerOptions();
 		compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
 		compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 					"X.java",
 					"interface I {\n" +
 					"	void doit (Y y);\n" +
@@ -6786,8 +6786,8 @@ public void test406859c() {
 		Map compilerOptions = getCompilerOptions();
 		compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
 		compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 					"X.java",
 					"interface I {\n" +
 					"	void doit ();\n" +
@@ -6818,8 +6818,8 @@ public void test406859d() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.WARNING);
-	this.runNegativeTest(
-		false /* skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+		this, false /* skipJavac */,
 		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 		new String[] {
 				"Y.java",
@@ -6871,8 +6871,8 @@ public void test410114() throws IOException {
 					"        }\n" +
 					"    }\n" +
 					"}\n";
-	this.runNegativeTest(
-			false /* skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+			this, false /* skipJavac */,
 			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 			new String[]{"Y.java",
 						source},
@@ -6891,8 +6891,8 @@ public void test410114() throws IOException {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=412453,
 //[1.8][compiler] Stackoverflow when compiling LazySeq
 public void test412453() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 				"X.java",
 				"import java.util.AbstractList;\n" +
 				"import java.util.Comparator;\n" +
@@ -6930,8 +6930,8 @@ public void test412453() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=412284,
 //[1.8][compiler] [1.8][compiler] Inspect all casts to/instanceof AbstractMethodDeclaration to eliminate potential CCEs
 public void test412284a() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 				"X.java",
 				"import java.io.IOException;\n" +
 				"interface I { void foo() throws IOException; }\n" +
@@ -6963,8 +6963,8 @@ public void test412284a() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=412284,
 //[1.8][compiler] [1.8][compiler] Inspect all casts to/instanceof AbstractMethodDeclaration to eliminate potential CCEs
 public void test412284b() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 				"X.java",
 				"interface I { void foo();}\n" +
 				"class X { \n" +
@@ -7005,8 +7005,8 @@ public void test412284b() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=412284,
 //[1.8][compiler] [1.8][compiler] Inspect all casts to/instanceof AbstractMethodDeclaration to eliminate potential CCEs
 public void test412284c() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 				"X.java",
 				"interface I { void foo();}\n" +
 				"class X { \n" +
@@ -7056,8 +7056,8 @@ public void test412284c() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=412650
 // [1.8][compiler]Incongruent Lambda Exception thrown
 public void test412650() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 				"X.java",
 				"interface I {\n" +
 				"	String sam();\n" +
@@ -7095,8 +7095,8 @@ public void test412650() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=409544
 // Bug 409544 - [1.8][compiler] Any local variable used but not declared in a lambda body must be definitely assigned before the lambda body.
 public void test409544() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 				"Sample.java",
 				"public class Sample{\n" +
 				"	interface Int { void setInt(int[] i); }\n" +
@@ -7122,8 +7122,8 @@ public void test409544() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=409544
 // Bug 409544 - [1.8][compiler] Any local variable used but not declared in a lambda body must be definitely assigned before the lambda body.
 public void test409544b() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"    interface Int {\n" +
@@ -7160,8 +7160,8 @@ public void test409544b() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=415844
 // Bug 415844 - [1.8][compiler] Blank final initialized in a lambda expression should not pass
 public void test415844a() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 				"Sample.java",
 				"public class Sample{\n" +
 				"	interface Int { void setInt(int i); }\n" +
@@ -7187,8 +7187,8 @@ public void test415844a() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=415844
 // Bug 415844 - [1.8][compiler] Blank final initialized in a lambda expression should not pass
 public void test415844b() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"    interface Int {\n" +
@@ -7405,8 +7405,8 @@ public void testUnderScoreParameter() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=383096, [1.8][compiler]NullPointerException with a wrong lambda code snippet.
 public void test383096() {
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 					"X.java",
 					"interface I {}\n" +
 					"class XI {\n" +
@@ -7437,8 +7437,8 @@ public void test383096() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=422516,  [1.8][compiler] NPE in ArrayReference.analyseAssignment.
 public void test422516() {
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 					"X.java",
 					"public class X {\n" +
 					"    public static void main(String[] args) throws InterruptedException {\n" +
@@ -7554,8 +7554,8 @@ public void test422489a() { // interfaces and methods order changed, triggers NP
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=422489, [1.8][compiler] NPE in CompoundAssignment.analyseCode when creating AST for java.util.stream.Collectors
 public void test422489b() { // interfaces and methods order changed, triggers NPE.
-	this.runNegativeTest(
-			false /* skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+			this, false /* skipJavac */,
 			JavacTestOptions.Excuse.JavacHasWarningsEclipseNotConfigured,
 			new String[] {
 					"X.java",
@@ -7698,8 +7698,8 @@ public void test422801a() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=405134, [1.8][code assist + compiler] compiler and code assist problem in multilevel lambda with curly bracketed body
 public void test405134a() {
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 					"X.java",
 					"interface Foo { \n" +
 					"	int run1(int s1, int s2);\n" +
@@ -7734,8 +7734,8 @@ public void test405134a() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=421927, [1.8][compiler] Bad diagnostic: Unnecessary cast from I to I for lambdas.
 public void test421927() {
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 					"X.java",
 					"interface I { \n" +
 					"	int foo();\n" +
@@ -7749,8 +7749,8 @@ public void test421927() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=421927, [1.8][compiler] Bad diagnostic: Unnecessary cast from I to I for lambdas.
 public void test421927a() {
-	this.runNegativeTest(
-			false,
+	AbstractRegressionTest.runNegativeTest(
+			this, false,
 			Excuse.EclipseHasSomeMoreWarnings,
 			new String[] {
 					"X.java",
@@ -7809,8 +7809,8 @@ public void test423429() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=423129,  [1.8][compiler] Hook up lambda expressions into statement recovery
 public void test423129() {
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 					"X.java",
 					"interface I {\n" +
 					"	String foo(Integer x);\n" +
@@ -7843,8 +7843,8 @@ public void test423129() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=423129,  [1.8][compiler] Hook up lambda expressions into statement recovery
 public void test423129b() {
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 					"X.java",
 					"import java.util.ArrayList;\n" +
 					"import java.util.Arrays;\n" +
@@ -8411,8 +8411,8 @@ public void test427207() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=425278, [1.8][compiler] Suspect error: The target type of this expression is not a well formed parameterized type due to bound(s) mismatch
 // NOTE: javac 8b127 incorrectly accepts this program due to https://bugs.openjdk.java.net/browse/JDK-8033810
 public void test425278() {
-	runNegativeTest(
-		false /*skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+		this, false /*skipJavac */,
 		JavacTestOptions.JavacHasABug.JavacBug8033810,
 		new String[] {
 			"X.java",
@@ -8637,8 +8637,8 @@ public void test428795() {
 public void test428857() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.ERROR);
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"import java.util.Arrays;\n" +
 			"import java.util.List;\n" +
@@ -8662,8 +8662,8 @@ public void test428857() {
 public void test428857a() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.ERROR);
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"import java.util.Arrays;\n" +
 			"import java.util.List;\n" +
@@ -8692,8 +8692,8 @@ public void test428857a() {
 public void test428857b() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.ERROR);
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"import java.util.Arrays;\n" +
 			"import java.util.List;\n" +
@@ -8722,8 +8722,8 @@ public void test428857b() {
 public void test428857c() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.ERROR);
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"import java.util.Arrays;\n" +
 			"import java.util.List;\n" +
@@ -8757,8 +8757,8 @@ public void test428857c() {
 public void test428857d() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.ERROR);
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"import java.util.Arrays;\n" +
 			"import java.util.List;\n" +
@@ -8792,8 +8792,8 @@ public void test428857d() {
 public void test428857e() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.ERROR);
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"import java.util.Arrays;\n" +
 			"import java.util.List;\n" +
@@ -8832,8 +8832,8 @@ public void test428857e() {
 public void test428857f() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.ERROR);
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"import java.util.Arrays;\n" +
 			"import java.util.List;\n" +
@@ -8867,8 +8867,8 @@ public void test428857f() {
 public void test428857g() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.ERROR);
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"import java.util.Arrays;\n" +
 			"import java.util.List;\n" +
@@ -9212,8 +9212,8 @@ public void test442983() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=438945, [1.8] NullPointerException InferenceContext18.checkExpression in java 8 with generics, primitives, and overloading
 public void test438945() {
-	this.runNegativeTest(
-		false /* skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+		this, false /* skipJavac */,
 		JavacTestOptions.Excuse.JavacHasWarningsEclipseNotConfigured,
 		new String[] {
 			"X.java",
@@ -9238,8 +9238,8 @@ public void test440643() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 
-	this.runNegativeTest(
-		false /* skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+		this, false /* skipJavac */,
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError,
 		new String[] {
 			"X.java",
@@ -9446,7 +9446,7 @@ public void test433458a() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=433588, [1.8][compiler] ECJ compiles an ambiguous call in the presence of an unrelated unused method.
 public void test433588() {
-	String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
+	String errMessage = AbstractRegressionTest.isMinimumCompliant(this, ClassFileConstants.JDK11) ?
 			"----------\n" +
 			"1. WARNING in X.java (at line 15)\n" +
 			"	public final @SafeVarargs void forEachOrdered(Consumer<? super T> action, Consumer<? super T>... actions) throws E {}\n" +
@@ -9533,7 +9533,7 @@ public void test433588() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=433588, [1.8][compiler] ECJ compiles an ambiguous call in the presence of an unrelated unused method.
 public void test433588a() {
-	String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
+	String errMessage = AbstractRegressionTest.isMinimumCompliant(this, ClassFileConstants.JDK11) ?
 			"----------\n" +
 			"1. ERROR in X.java (at line 29)\n" +
 			"	lines1.forEachOrdered(s -> Files.isHidden(Paths.get(s)));\n" +
@@ -9783,8 +9783,8 @@ public void test442446() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=432759,  [1.8][compiler] Some differences between Javac and ECJ regarding wildcards and static methods
 public void test432759() {
-	this.runNegativeTest(
-		false /* skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+		this, false /* skipJavac */,
 		JavacTestOptions.Excuse.JavacDoesNotCompileCorrectSource,
 		new String[] {
 			"X.java",
@@ -9985,8 +9985,8 @@ public void testBug487390b() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=458332, [1.8][compiler] only 409 method references/lambda expressions per class possible
 public void testBug458332() {
-	runConformTest(
-		false,
+	AbstractRegressionTest.runConformTest(
+		this, false,
 		null,
 		new String[] {
 			"Test.java",

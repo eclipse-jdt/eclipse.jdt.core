@@ -1212,8 +1212,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	// Access to enclosing 't' of type 'T' (not substituted from X<X> as private thus non inherited)
 	public void test0048() {
-		this.runNegativeTest(
-			// test directory preparation
+		AbstractRegressionTest.runNegativeTest(
+			this, // test directory preparation
 			new String[] { /* test files */
 				"X.java",
 				"public class X <T> {\n" +
@@ -1800,8 +1800,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// raw type: assignments
 	public void test0065() {
 		Map customOptions = getCompilerOptions();
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"import java.io.IOException;\n" +
 				"\n" +
@@ -2586,8 +2586,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 
 	public void test0086() {
 		Map customOptions = getCompilerOptions();
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X<T> {\n" +
 				"    \n" +
@@ -2634,8 +2634,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 		// check no unsafe type operation problem is issued
 		customOptions.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.ERROR);
 		customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
-		this.runConformTest(
-			new String[] {
+		AbstractRegressionTest.runConformTest(
+			this, new String[] {
 				"X.java",
 				"public class X<T> {\n" +
 				"    \n" +
@@ -2664,8 +2664,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 		// check no unsafe type operation problem is issued
 		customOptions.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.ERROR);
 		customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
-		this.runConformTest(
-			new String[] {
+		AbstractRegressionTest.runConformTest(
+			this, new String[] {
 				"X.java",
 				"public class X<T> {\n" +
 				"     AX ax = new AX();\n" +
@@ -2706,8 +2706,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 		Map customOptions = getCompilerOptions();
 		// check no unsafe type operation problem is issued
 		customOptions.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.ERROR);
-		this.runConformTest(
-			new String[] {
+		AbstractRegressionTest.runConformTest(
+			this, new String[] {
 				"X.java",
 				"public class X<T> {\n" +
 				"    T q;\n" +
@@ -2882,8 +2882,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 	public void test0098() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.ERROR);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X<T> {\n" +
 				"    \n" +
@@ -3297,8 +3297,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// unsafe assignment thru binaries
 	public void test0107() {
 		Map customOptions = getCompilerOptions();
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"import java.util.ArrayList;\n" +
 				"\n" +
@@ -3333,8 +3333,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.ERROR);
 		customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
-		this.runConformTest(
-			new String[] {
+		AbstractRegressionTest.runConformTest(
+			this, new String[] {
 				"X.java",
 			"public class X {\n" +
 			"    Class k;\n" +
@@ -3664,8 +3664,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	// test generic method
 	public void test0118a() {
-		this.runConformTest(
-			// test directory preparation
+		AbstractRegressionTest.runConformTest(
+			this, // test directory preparation
 			true /* flush output directory */,
 			new String[] { /* test files */
 				"X.java",
@@ -3748,8 +3748,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	// test generic method
 	public void test0120a() {
-		this.runConformTest(
-			// test directory preparation
+		AbstractRegressionTest.runConformTest(
+			this, // test directory preparation
 			new String[] { /* test files */
 				"X.java",
 				"public class X<E> {\n" +
@@ -5289,8 +5289,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// unsafe raw return value
 	public void test0176() {
 		Map customOptions = getCompilerOptions();
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"import java.util.*;\n" +
 				"\n" +
@@ -5328,8 +5328,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// cast to type variable allowed, can be diagnosed as unnecessary
 	public void test0177() {
 		Map options = getCompilerOptions();
-		runConformTest(
-	 		// test directory preparation
+		AbstractRegressionTest.runConformTest(
+	 		this, // test directory preparation
 			true /* flush output directory */,
 			new String[] { /* test files */
 				"X.java",
@@ -5361,8 +5361,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 		if (this.complianceLevel >= ClassFileConstants.JDK16)
 			return;
 		Map customOptions = getCompilerOptions();
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X <T> {\n" +
 				"	\n" +
@@ -5407,8 +5407,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 			return;
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.WARNING);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X <T> {\n" +
 				"	\n" +
@@ -6556,8 +6556,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69135 - unnecessary cast operation
 	public void test0217() {
 		Map customOptions = getCompilerOptions();
-		runConformTest(
-			// test directory preparation
+		AbstractRegressionTest.runConformTest(
+			this, // test directory preparation
 			true /* flush output directory */,
 			new String[] { /* test files */
 				"X.java",
@@ -6703,8 +6703,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=69251- instantiating wildcards
 	public void test0223() {
 		Map customOptions = getCompilerOptions();
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"import java.util.HashMap;\n" +
 				"import java.util.Map;\n" +
@@ -6986,8 +6986,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	// can resolve member through type variable
 	public void test0229() {
-		runConformTest(
-			true,
+		AbstractRegressionTest.runConformTest(
+			this, true,
 			new String[] {
 				"X.java",
 				" public class X <T extends XC> {\n" +
@@ -7341,8 +7341,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 	public void test0242() {
 		Map<String,String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"import java.util.HashMap;\n" +
 				"import java.util.Map;\n" +
@@ -7493,8 +7493,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// generic method of raw type
 	public void test0245() {
 		if (this.complianceLevel < ClassFileConstants.JDK1_7) {
-			this.runNegativeTest(
-					new String[] {
+			AbstractRegressionTest.runNegativeTest(
+					this, new String[] {
 						"X.java",
 						"public class X <T> { \n" +
 						"        <G> T foo(G g) {\n" +
@@ -7540,8 +7540,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 					JavacTestOptions.EclipseHasABug.EclipseBug236242);
 			return;
 		}
-		this.runNegativeTest(
-				new String[] {
+		AbstractRegressionTest.runNegativeTest(
+				this, new String[] {
 					"X.java",
 					"public class X <T> { \n" +
 					"        <G> T foo(G g) {\n" +
@@ -8772,8 +8772,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 			},
 			"SUCCESS");
 
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"C.java", //---------------------------
 				"public class C<Z,Y> {\n" +
 				"    public B<Z> test(Z zValue,B<D<Y>> yValue){ return new B<Z>(zValue,yValue); }\n" +
@@ -9799,8 +9799,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	// wildcard captures bound and variable superinterfaces
 	public void test0327() {
-		this.runConformTest(
-	 		// test directory preparation
+		AbstractRegressionTest.runConformTest(
+	 		this, // test directory preparation
 			new String[] { /* test files */
 				"X.java",
 				"public class X<T extends IFoo> {\n" +
@@ -9885,8 +9885,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	// wildcard captures bound and variable superinterfaces
 	public void test0329() {
-		this.runConformTest(
-			// test directory preparation
+		AbstractRegressionTest.runConformTest(
+			this, // test directory preparation
 			true /* flush output directory */,
 			new String[] { /* test files */
 				"X.java",
@@ -9964,8 +9964,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	// wildcard captures bound superclass and variable superclass
 	public void test0331() {
-		this.runConformTest(
-			// test directory preparation
+		AbstractRegressionTest.runConformTest(
+			this, // test directory preparation
 			true /* flush output directory */,
 			new String[] { /* test files */
 				"X.java",
@@ -10572,8 +10572,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 	// checking scenario where generic type and method share the same type parameter name
 	public void test0348() {
 		if (this.complianceLevel < ClassFileConstants.JDK1_7) {
-			this.runNegativeTest(
-				new String[] {
+			AbstractRegressionTest.runNegativeTest(
+				this, new String[] {
 					"X.java",
 					"import java.io.IOException;\n" +
 					"public abstract class X<T extends Runnable> {\n" +
@@ -10614,8 +10614,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 				JavacTestOptions.EclipseHasABug.EclipseBug236242);
 			return;
 		}
-		this.runNegativeTest(
-				new String[] {
+		AbstractRegressionTest.runNegativeTest(
+				this, new String[] {
 					"X.java",
 					"import java.io.IOException;\n" +
 					"public abstract class X<T extends Runnable> {\n" +
@@ -10923,8 +10923,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 	public void test0362() {
 		Map customOptions= getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
-		this.runConformTest(
-			new String[] {
+		AbstractRegressionTest.runConformTest(
+			this, new String[] {
 				"Test.java",
 				"import java.util.ArrayList;\n" +
 					"import java.util.List;\n" +
@@ -13050,8 +13050,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=78293
 	public void test0429c() {
-		runNegativeTest(
-			// test directory preparation
+		AbstractRegressionTest.runNegativeTest(
+			this, // test directory preparation
 			new String[] { /* test files */
 				"X4.java",
 				"class X4 <T extends Comparable<Z> & Comparable<Z>> {}\n" +
@@ -13716,8 +13716,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82159
 	public void test0446() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X<A> {\n" +
 				"  class Inner<B> { }\n" +
@@ -13846,8 +13846,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82159 - variation
 	public void test0448a() {
-		runConformTest(
-		// test directory preparation
+		AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		new String[] { /* test files */
 			"X.java",
 			"public class X<T> {\n" +
@@ -13916,8 +13916,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=82159 - variation
 	public void test0451() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X<A> {\n" +
 				"  class Inner<B> { \n" +
@@ -15334,8 +15334,8 @@ public class GenericTypeTest extends AbstractComparableTest {
 public void test0498(){
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -17384,8 +17384,8 @@ public void test0500(){
 			"----------\n");
 	}
 	public void test0547() {
-		runConformTest(
-		// test directory preparation
+		AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		new String[] { /* test files */
 			"X.java",
 			"import java.util.*;\n" +
@@ -18160,8 +18160,8 @@ X.java:4: method foo in class X cannot be applied to given types
 			"----------\n");
 	}
 	public void test0571() {
-		runConformTest(
-			// test directory preparation
+		AbstractRegressionTest.runConformTest(
+			this, // test directory preparation
 			true /* flush output directory */,
 			new String[] { /* test files */
 				"X.java",
@@ -18802,8 +18802,8 @@ X.java:6: name clash: <T#1>foo(Object) and <T#2>foo(Object) have the same erasur
 				"	    List<? extends Class<?>> classes2 = Arrays.asList(String.class, Boolean.class);\n" +
 				"}\n";
 	    if (this.complianceLevel < ClassFileConstants.JDK1_8) {
-	    	this.runNegativeTest(
-    			new String[] {
+	    	AbstractRegressionTest.runNegativeTest(
+    			this, new String[] {
     				"X.java",
     				xSource,
     			},
@@ -18817,7 +18817,7 @@ X.java:6: name clash: <T#1>foo(Object) and <T#2>foo(Object) have the same erasur
 				true,
 				options);
 	    } else {
-	    	runConformTest(new String[] { "X.java", xSource }, options);
+	    	AbstractRegressionTest.runConformTest(this, new String[] { "X.java", xSource }, options);
 	    }
 	}
 	public void test0594() {
@@ -19785,7 +19785,7 @@ public void test0617() {
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=92037
 	public void test0626() {
-		String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
+		String errMessage = AbstractRegressionTest.isMinimumCompliant(this, ClassFileConstants.JDK11) ?
 				"----------\n" +
 	    		"1. WARNING in X.java (at line 7)\n" +
 	    		"	private static class B<A> {\n" +
@@ -20053,8 +20053,8 @@ public void test0617() {
 	}
 	//https://bugs.eclipse.org/bugs/show_bug.cgi?id=92982 - variation
 	public void test0633() {
-	    runConformTest(
-    		// test directory preparation
+	    AbstractRegressionTest.runConformTest(
+    		this, // test directory preparation
     		true /* flush output directory */,
     		new String[] { /* test files */
                 "X.java",
@@ -20737,8 +20737,8 @@ public void test0617() {
 			null);
 	}
 	public void test0651() {
-	    runConformTest(
-            new String[] {
+	    AbstractRegressionTest.runConformTest(
+            this, new String[] {
                 "X.java",
 				"public class X<U> {\n" +
 				"\n" +
@@ -21708,8 +21708,8 @@ public void _test0667() {
 		"----------\n");
 }
 public void test0668() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		new String[] { /* test files */
 			"X.java",
 			"import java.util.List;\n" +
@@ -21757,8 +21757,8 @@ public void test0669() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=95021 (ensure not even a warning)
 public void test0670() {
-	runConformTest(
-		true,
+	AbstractRegressionTest.runConformTest(
+		this, true,
 		new String[] {
 			"X.java",
 			"import java.util.Map;\n" +
@@ -21954,8 +21954,8 @@ public void test0674() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=95638 - variation
 public void test0675() {
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		new String[] { /* test files */
 			"X.java",
 			"class Key<E extends Key<E>> {}\n" +
@@ -22580,8 +22580,8 @@ public void test0700() {
 public void test0701() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.IGNORE);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"import java.util.Arrays;\n" +
 			"import java.util.List;\n" +
@@ -23834,8 +23834,8 @@ public void test0736() {
 		"----------\n");
 }
 public void test0737() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		new String[] { /* test files */
 			"X.java",
 			"class Sup {\n" +
@@ -24119,8 +24119,8 @@ public void test0745() {
 public void test0746() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.IGNORE);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	void test() {\n" +
@@ -24382,8 +24382,8 @@ public void test0755() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=99999 - variation
 public void test0756() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		new String[] { /* test files */
 			"X.java",
 			"public class X<T> {\n" +
@@ -24634,8 +24634,8 @@ public void test0764() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=98379
 public void test0765() {
-	this.runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" +
@@ -25007,8 +25007,8 @@ public void test0775() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=103023
 public void test0776() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -25575,8 +25575,8 @@ public void test0790() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=104655
 public void test0791() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -25603,8 +25603,8 @@ public void test0791() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=104649
 public void test0792() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		new String[] { /* test files */
 			"X.java",
 			"public class X<E> {\n" +
@@ -25913,8 +25913,8 @@ public void test0799() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=106744
 public void test0800() {
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		new String[] { /* test files */
 			"X.java",
 			"import java.lang.reflect.Constructor;\n" +
@@ -26018,8 +26018,8 @@ public void test0802() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=101831
 public void test0803() {
-	this.runNegativeTest(
-		false /* skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+		this, false /* skipJavac */,
 		this.complianceLevel < ClassFileConstants.JDK1_8 ? null : JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 		new String[] {
 			"X.java",
@@ -26329,8 +26329,8 @@ public void test0809() {
 		"----------\n");
 }
 public void test0810() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -26416,8 +26416,8 @@ public void test0812() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=108372 - variation
 public void test0813() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -26811,8 +26811,8 @@ public void test0822() throws Exception {
 	}
 }
 public void test0823() throws Exception {
-	runConformTest(
-		true,
+	AbstractRegressionTest.runConformTest(
+		this, true,
 		new String[] {
 			"X.java",
 			"import java.io.Serializable;\n" +
@@ -26881,8 +26881,8 @@ public void test0823() throws Exception {
 	}
 }
 public void test0824() throws Exception {
-	runConformTest(
-		true,
+	AbstractRegressionTest.runConformTest(
+		this, true,
 		new String[] {
 			"X.java",
 			"import java.io.Serializable;\n" +
@@ -28068,8 +28068,8 @@ public void test0853() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=113236
 public void test0854() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -28109,8 +28109,8 @@ public void test0854() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=113218
 public void test0855() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -28172,8 +28172,8 @@ public void test0855() {
 		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
 }
 public void test0856() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -28492,8 +28492,8 @@ public void test0867() {
 public void test0868() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"import java.util.Collection;\n" +
 			"import java.util.Iterator;\n" +
@@ -29205,8 +29205,8 @@ public void test0885() {
 public void test0886() {
 	Map customOptions= getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java", // =================
@@ -29267,8 +29267,8 @@ public void test0888() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=122775 - variation
 public void test0889() {
-	this.runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"Test.java", // =================
@@ -29309,8 +29309,8 @@ public void test0889() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=122775 - variation
 public void test0890() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		new String[] { /* test files */
 			"Simple.java", // =================
 			"class A<T extends A<T>> {}\n" +
@@ -29490,8 +29490,8 @@ public void test0893() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=126177 - variation
 public void test0894() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java", // =================
@@ -29572,8 +29572,8 @@ public void test0895() {
 			"----------\n");
 }
 public void test0896() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java", // =================
@@ -29612,8 +29612,8 @@ public void test0896() {
 		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
 }
 public void test0897() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		new String[] { /* test files */
 			"Test.java", // =================
 			"interface I { }\n" +
@@ -29631,8 +29631,8 @@ public void test0897() {
 		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
 }
 public void test0898() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		new String[] { /* test files */
 			"X.java", // =================
 			"interface I1 {\n" +
@@ -29748,8 +29748,8 @@ public void test0900() {
 }
 // Object array vs Object into generic method
 public void test0901() {
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" +
@@ -29772,8 +29772,8 @@ public void test0901() {
 
 // circular references amongst generic interfaces with co-implementing classes
 public void test0902() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		new String[] { /* test files */
 			"I.java",
 			"public interface I<U extends J<? extends I<U>>> {\n" +
@@ -29818,8 +29818,8 @@ public void test0903() {
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=126914
 public void test0904() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		new String[] { /* test files */
 			"X.java",
 			"interface I<T extends J<T,U>, U extends I<T,U>> {\n" +
@@ -29841,8 +29841,8 @@ public void test0904() {
 
 // array in super bound
 public void test0905() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		new String[] { /* test files */
 			"X.java",
 			"import java.util.List;\n" +
@@ -29940,8 +29940,8 @@ public void test0907() {
 
 // check capture for conditional operator - variant
 public void test0908() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		new String[] { /* test files */
 			"X.java",
 			"public abstract class X {\n" +
@@ -30417,8 +30417,8 @@ public void test0915() {
 
 // synchronized inheritance for multiple generic types
 public void test0916() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		new String[] { /* test files */
 			"X.java",
 			"public class X<T extends X2<?>> {\n" +
@@ -30518,8 +30518,8 @@ public void test0917c() {
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=128560
 public void test0918() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		new String[] { /* test files */
 			"BasicNode.java",
 			"class BasicEdge<N extends BasicNode<E, N> & Node<E>, E extends BasicEdge<N, E> & Edge<N>>\n" +
@@ -30622,8 +30622,8 @@ public void test0920() {
 }
 // FIXME: javac8 rejects
 public void test0921() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		new String[] { /* test files */
 			"Graph.java",
 			"class Node<N extends Node<N,E>, E extends Edge<N,E>> {\n" +
@@ -30705,8 +30705,8 @@ public void test0923() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=129190
 public void test0924() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"ExtendedOuter.java",
@@ -30739,8 +30739,8 @@ public void test0924() {
 		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
 }
 public void test0925() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -30835,8 +30835,8 @@ public void test0926() {
 			"	}\n" +
 			"}\n";
 	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				xSource
 			},
@@ -31539,8 +31539,8 @@ public void test0945() {
 		"----------\n");
 }
 public void test0946() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java", //================================
@@ -31604,8 +31604,8 @@ public void test0947() {
 		"	}\n" +
 		"}\n";
 	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 			"X.java",
 			xSource,
 			},
@@ -32279,8 +32279,8 @@ public void test0961() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=134645
 public void test0962() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java", //================================
 			"public class X<T> {\n" +
 			"    public void bug() throws Exception {\n" +
@@ -32541,8 +32541,8 @@ public void test0971() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=137203
 // simulate incremental compile
 public void test0972() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"Outer.java", //================================
@@ -33030,8 +33030,8 @@ public void test0984() {
 		},
 		// runtime results
 		"" /* expected output string */);
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		false /* do not flush output directory */,
 		new String[] { /* test files */
 			"Y.java",
@@ -33053,8 +33053,8 @@ public void test0984() {
 public void test0985() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.IGNORE);
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 					"X.java", // =================
 					"import java.util.*;\n" +
 					"public class X {\n" +
@@ -33375,8 +33375,8 @@ public void test0992() {
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=142897
 public void test0993() {
-	runConformTest(
-		true,
+	AbstractRegressionTest.runConformTest(
+		this, true,
 		new String[] {
 			"X.java",//===================
 			"public class X {\n" +
@@ -33515,8 +33515,8 @@ public void test0996() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=142897 - variation
 public void test0997() {
-	runConformTest(
-		true,
+	AbstractRegressionTest.runConformTest(
+		this, true,
 		new String[] {
 			"X.java",//===================
 			"public class X implements Outer {\n" +
@@ -33861,8 +33861,8 @@ public void test1003() {
 		"");
 }
 public void test1004() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" +
@@ -33879,8 +33879,8 @@ public void test1004() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=145420
 public void test1005() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -34480,8 +34480,8 @@ public void test1018() {
 		"");
 }
 public void test1018a() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -34706,8 +34706,8 @@ public void test1023() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=151275
 public void test1024() {
-	runConformTest(
-		true,
+	AbstractRegressionTest.runConformTest(
+		this, true,
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -34753,8 +34753,8 @@ public void test1025() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=155753
 public void test1026() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		new String[] { /* test files */
 			"X.java",
 			"import java.util.LinkedHashSet;\n" +
@@ -34781,8 +34781,8 @@ public void test1026() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=155753 - variation
 public void test1027() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		new String[] { /* test files */
 			"X.java",
 			this.complianceLevel < ClassFileConstants.JDK1_7 ?
@@ -34835,8 +34835,8 @@ public void test1027() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=155753 - variation
 public void test1028() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		new String[] { /* test files */
 			"X.java",
 			"import java.util.LinkedHashSet;\n" +
@@ -34879,8 +34879,8 @@ public void test1029() {
 			"        }\n" +
 			"}";
 	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				xSource,
 			},
@@ -34971,8 +34971,8 @@ public void test1031() {
 		"----------\n");
 }
 public void test1032() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -35084,8 +35084,8 @@ public void test1033() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=158519
 // FAIL ERRMSG
 public void test1034() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"ChainedClosure.java",
 			"interface Closure<I> {\n" +
 			"    public void execute(I input);\n" +
@@ -35399,8 +35399,8 @@ public void test1037() {
 public void test1038() throws Exception {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"interface I<T> {\n" +
 			"    int CONST = A.foo();\n" +
@@ -35468,8 +35468,8 @@ public void test1038() throws Exception {
 public void test1039() throws Exception {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"interface I<T> {\n" +
 			"	Value<String> CONST = A.foo(\"[I.CONST]\");\n" +
@@ -35560,8 +35560,8 @@ public void test1039() throws Exception {
 public void test1040() throws Exception {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"interface I<T> {\n" +
 			"	Value<String> CONST = A.foo(\"[I.CONST]\");\n" +
@@ -35712,8 +35712,8 @@ public void test1042() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=159214
 public void test1043() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"A.java",
 			"class A<T extends Number, S extends T> {\n" +
 			"  T t;\n" +
@@ -36018,8 +36018,8 @@ public void test1052() {
 	options.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"public class X extends java.util.ArrayList<Integer> {\n" +
 			"	private static final long serialVersionUID = 713223190582506215L;\n" +
@@ -36067,8 +36067,8 @@ public void test1054() {
 		"	         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
 		"Type mismatch: cannot convert from Annotation to Bar\n" +
 		"----------\n";
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"import java.lang.annotation.Retention;\n" +
 			"import java.lang.annotation.RetentionPolicy;\n" +
@@ -36174,8 +36174,8 @@ public void test1057() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=141289
 public void test1058() throws Exception {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java", // =================
@@ -36274,8 +36274,8 @@ public void test1059() {
 }
 // See corresponding FIXME in TypeBinding.isTypeArgumentContainedBy(..)
 public void test1060() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		new String[] { /* test files */
 			"X.java", // =================
 			"import java.util.Collection;\n" +
@@ -36292,8 +36292,8 @@ public void test1060() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=159752
 public void test1061() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		new String[] { /* test files */
 			"predicate/Predicate.java", // =================
 			"package predicate;\n" +
@@ -36425,8 +36425,8 @@ public void test1064() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=141289 - variation
 public void test1065() throws Exception {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java", // =================
@@ -37126,8 +37126,8 @@ public void test1071() {
 public void test1072() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java", // =================
 			"import java.util.*;\n" +
 			"public class X {\n" +
@@ -37178,8 +37178,8 @@ public void test1072() {
 public void test1073() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java", // =================
 			"import java.util.*;\n" +
 			"public class X {\n" +
@@ -37238,8 +37238,8 @@ public void test1073() {
 public void test1074() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java", // =================
 			"import java.util.*;\n" +
 			"public class X {\n" +
@@ -37339,8 +37339,8 @@ public void test1075() {
 		},
 		// runtime results
 		"" /* expected output string */);
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		false /* do not flush output directory */,
 		new String[] {
 			"Y.java",
@@ -37787,8 +37787,8 @@ public void test1086() {
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=165645 - variation
 public void test1087() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		new String[] { /* test files */
 			"X.java",
 			"public class X<M> {\n" +
@@ -37952,8 +37952,8 @@ public void test1091() {
 public void test1092() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"Class_01.java",
 			"public interface Class_01<H extends Class_02<? extends Class_01>> extends\n" +
 			"		Class_09<H> {\n" +
@@ -38034,8 +38034,8 @@ public void test1092() {
 		null);
 
 	// incremental build
-	this.runConformTest(
-			new String[] {
+	AbstractRegressionTest.runConformTest(
+			this, new String[] {
 					"Class_01.java",
 					"public interface Class_01<H extends Class_02<? extends Class_01>> extends\n" +
 					"		Class_09<H> {\n" +
@@ -38053,7 +38053,7 @@ public void test1092() {
 public void test1093() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
-	this.runNegativeTest(new String[] {
+	AbstractRegressionTest.runNegativeTest(this, new String[] {
 			"X.java",
 			"public class X<T> {\n" +
 			"  X<T> foo() {\n" +
@@ -38088,8 +38088,8 @@ public void test1093() {
 public void test1094() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"Crazy.java",
 			"public interface Crazy<O extends Other, T extends O> {}",
 			"ExampleFactory.java",
@@ -38111,8 +38111,8 @@ public void test1094() {
 		null /* vm arguments*/,
 		customOptions,
 		null /* compiler requestor*/);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"ExampleFactoryImpl.java",
 			"public class ExampleFactoryImpl implements ExampleFactory {\n" +
 			"	public <O extends Other, T extends O> Crazy<O, T> createCrazy() {\n" +
@@ -38133,8 +38133,8 @@ public void test1095() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
 	customOptions.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.IGNORE);
-	runNegativeTest(
-	// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+	this, // test directory preparation
 	true /* flush output directory */,
 	new String[] { /* test files */
 		"X.java",
@@ -38172,8 +38172,8 @@ public void test1096() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
 	customOptions.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.IGNORE);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"import java.lang.reflect.Constructor;\n" +
 			"\n" +
@@ -38199,8 +38199,8 @@ public void test1096() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=168232
 public void _test1097() {
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" +
@@ -38224,7 +38224,7 @@ public void _test1097() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=152961
 public void test1098() {
-	String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
+	String errMessage = AbstractRegressionTest.isMinimumCompliant(this, ClassFileConstants.JDK11) ?
 			"----------\n" +
 			"1. ERROR in X.java (at line 9)\n" +
 			"	class Y extends Zork {}\n" +
@@ -38258,8 +38258,8 @@ public void test1098() {
 		errMessage);
 }
 public void test1099() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -38440,7 +38440,7 @@ public void test1104() {
 public void test1105() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
-	this.runNegativeTest(new String[] {
+	AbstractRegressionTest.runNegativeTest(this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -38460,8 +38460,8 @@ public void test1105() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=174766
 public void test1106() {
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		new String[] { /* test files */
 			"X.java",
 			"public class X<T> {\n" +
@@ -38527,7 +38527,7 @@ public void test1107() throws Exception {
 		"    28  checkcast java.util.Collection [38]\n" +
 		"    31  aload 4 [call]\n" +
 		"    33  " +
-		(isMinimumCompliant(ClassFileConstants.JDK11) ? "invokevirtual" : "invokespecial") +
+		(AbstractRegressionTest.isMinimumCompliant(this, ClassFileConstants.JDK11) ? "invokevirtual" : "invokespecial") +
 		" X.externLocks(java.util.Collection, java.lang.Object) : java.util.List [40]\n" +
 		"    36  astore 5\n" +
 		"    38  aload_3 [iter]\n" +
@@ -38638,8 +38638,8 @@ public void test1110() {
 public void test1111() {
 	Map settings = getCompilerOptions();
 	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"class A<T> {\n" +
 			"        public T foo(Object o) {\n" +
@@ -38671,8 +38671,8 @@ public void test1111() {
 public void test1112() {
 	Map settings = getCompilerOptions();
 	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"class A<T> {\n" +
 			"        public T foo;\n" +
@@ -38704,8 +38704,8 @@ public void test1112() {
 public void test1113() {
 	Map settings = getCompilerOptions();
 	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"class A<T> {\n" +
 			"        public T foo;\n" +
@@ -38739,8 +38739,8 @@ public void test1113() {
 public void test1114() {
 	Map settings = getCompilerOptions();
 	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"class A<T> {\n" +
 			"        public T foo;\n" +
@@ -38774,8 +38774,8 @@ public void test1114() {
 public void test1115() {
 	Map settings = getCompilerOptions();
 	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"class A<T> {\n" +
 			"        public T foo;\n" +
@@ -38844,8 +38844,8 @@ public void test1116() {
 public void test1117() throws Exception {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"interface I<T> {\n" +
 			"	Value<String> CONST = null;\n" +
@@ -38940,8 +38940,8 @@ public void test1118() {
 			"	}\n" +
 			"}\n";
 	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
-		runConformTest(
-				new String[] { "X.java", source },
+		AbstractRegressionTest.runConformTest(
+				this, new String[] { "X.java", source },
 				JavacTestOptions.EclipseHasABug.EclipseBug177715 /* javac test options */);
 	} else {
 		runNegativeTest(
@@ -39159,7 +39159,7 @@ public void test1123() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=182192
 public void test1124() {
-	String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
+	String errMessage = AbstractRegressionTest.isMinimumCompliant(this, ClassFileConstants.JDK11) ?
 			"----------\n" +
 			"1. WARNING in X.java (at line 13)\n" +
 			"	public static class InnerClassThatShowsBug extends X {\n" +
@@ -39784,8 +39784,8 @@ public void test1136() {
 			"class B<T> extends A<T> implements I {}\n" +
 			"class C<T> extends A<T> implements I {}\n";
 	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				xSource,
 			},
@@ -39804,7 +39804,7 @@ public void test1136() {
 			true,
 			options);
 	} else {
-		runConformTest(new String[] { "X.java", xSource }, options);
+		AbstractRegressionTest.runConformTest(this, new String[] { "X.java", xSource }, options);
 	}
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=154267
@@ -39962,8 +39962,8 @@ public void test1141() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=190945
 public void test1142() {
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		new String[] { /* test files */
 			"X.java",
 			"import java.util.Comparator;\n" +
@@ -40334,8 +40334,8 @@ public void test1149() {
 		"	    new<ClassNotFoundException> A();\n" +
 		"    }\n" +
 		"}\n";
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		new String[] { /* test files */
 			"A.java",
 			"public class A {\n" +
@@ -40349,8 +40349,8 @@ public void test1149() {
 		},
 		// javac options
 		JavacTestOptions.EclipseJustification.EclipseBug234815 /* javac test options */);
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		false /* do not flush output directory */,
 		new String[] { /* test files */
 			"B.java",
@@ -40834,7 +40834,7 @@ public void test1162() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=203061 - variation
 public void test1163() {
-	String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
+	String errMessage = AbstractRegressionTest.isMinimumCompliant(this, ClassFileConstants.JDK11) ?
 			"----------\n" +
 			"1. ERROR in X.java (at line 5)\n" +
 			"	Object o1 = mObj;\n" +
@@ -40896,7 +40896,7 @@ public void test1163() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=203061 - variation
 public void test1164() {
-	String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
+	String errMessage = AbstractRegressionTest.isMinimumCompliant(this, ClassFileConstants.JDK11) ?
 			"----------\n" +
 			"1. ERROR in X.java (at line 5)\n" +
 			"	Object o1 = mObj;\n" +
@@ -41297,8 +41297,8 @@ public void test1175() {
 		"----------\n");
 }
 public void test1176() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		new String[] { /* test files */
 			"X.java",
 			"public class X<T extends Foo & Bar> {\n" +
@@ -41321,8 +41321,8 @@ public void test1176() {
 		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
 }
 public void test1177() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		new String[] { /* test files */
 			"X.java",
 			"public class X<T extends Foo & Bar> {\n" +
@@ -41344,8 +41344,8 @@ public void test1177() {
 		JavacTestOptions.JavacHasABug.JavacBugFixed_6_10 /* javac test options */);
 }
 public void test1178() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		new String[] { /* test files */
 			"X.java",
 			"public class X<T extends Foo & Bar> {\n" +
@@ -41993,8 +41993,8 @@ public void test1195() {
 		"");
 }
 public void test1196() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		new String[] { /* test files */
 			"X.java",
 			"public class X<T> {\n" +
@@ -42299,8 +42299,8 @@ public void test1203a() {
 			"The method bar(String, String) of type X is not generic; it cannot be parameterized with arguments <String>\n" +
 			"----------\n");
 	} else {
-		runConformTest(
-			true,
+		AbstractRegressionTest.runConformTest(
+			this, true,
 			sources,
 			"----------\n" +
 			"1. WARNING in X.java (at line 3)\n" +
@@ -42429,8 +42429,8 @@ public void test1203c() {
 			"Unused type arguments for the non generic method d(String, Object) of type X; it should not be parameterized with arguments <String>\n" +
 			"----------\n");
 	} else {
-		runConformTest(
-			true,
+		AbstractRegressionTest.runConformTest(
+			this, true,
 			sources,
 			"----------\n" +
 			"1. WARNING in X.java (at line 4)\n" +
@@ -42510,8 +42510,8 @@ public void test1203d() {
 			"The method d(String, Object) of type X is not generic; it cannot be parameterized with arguments <String>\n" +
 			"----------\n");
 	} else {
-		runConformTest(
-			true,
+		AbstractRegressionTest.runConformTest(
+			this, true,
 			sources,
 			"----------\n" +
 			"1. WARNING in X.java (at line 4)\n" +
@@ -42809,8 +42809,8 @@ public void test1211() {
 public void test1212() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantSuperinterface,  CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -42839,8 +42839,8 @@ public void test1212() {
 public void test1213() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantSuperinterface, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X<T> implements I<T> {}\n" +
 			"class Y<T extends Z, U extends T> extends X<T> implements I<U>, J {}\n" +
@@ -42860,8 +42860,8 @@ public void test1213() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=208873
 public void test1214() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -42886,8 +42886,8 @@ public void test1214() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=208873 - variation
 public void test1215() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" +
@@ -42957,7 +42957,7 @@ public void test1216() {
 		"	           ^^^^^^^^^\n" +
 		"The type A.P is not visible\n" +
 		"----------\n" +
-		(isMinimumCompliant(ClassFileConstants.JDK11) ? "" :
+		(AbstractRegressionTest.isMinimumCompliant(this, ClassFileConstants.JDK11) ? "" :
 		"----------\n" +
 		"1. WARNING in p\\A.java (at line 18)\n" +
 		"	this.box.set(new P());\n" +
@@ -43085,8 +43085,8 @@ public void test1218() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=209779
 public void test1219() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -43284,8 +43284,8 @@ public void test1224() {
 		"");
 }
 public void test1225() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		new String[] { /* test files */
 			"X.java",
 			"import java.util.Collection;\n" +
@@ -43470,8 +43470,8 @@ public void test1230() {
 			"}\n",
 		},
 		"");
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"Z.java",
 				"public class Z {\n" +
 				"	public static void main(String[] args) {\n" +
@@ -43581,8 +43581,8 @@ public void test1233() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=215843 - variation
 public void test1234() {
-	this.runNegativeTest(
-		false /* skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+		this, false /* skipJavac */,
 		JavacTestOptions.EclipseHasABug.EclipseBug427719,
 		new String[] {
 			"X.java",
@@ -43861,8 +43861,8 @@ public void test1241() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=164665
 public void test1242() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		new String[] { /* test files */
 			"X.java",
 			"import java.util.LinkedList;\n" +
@@ -44051,8 +44051,8 @@ public void test1247() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=216558 - variation
 public void test1248() {
-	runConformTest(
- 		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+ 		this, // test directory preparation
 		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" +
@@ -45461,8 +45461,8 @@ public void test1290() {
 public void test1291() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_8)
 		return;
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 					"X.java",
 					"import java.util.ArrayList;\n" +
 					"import java.util.List;\n" +
@@ -45580,8 +45580,8 @@ public void test1294() {
 public void test1295() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.IGNORE);
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 					"X.java",
 					"class Deejay {\n" +
 					"	class Counter<T> {}\n" +
@@ -45730,8 +45730,8 @@ public void test1301() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=220361 - variation
 public void test1302() {
-	runConformTest(
-		true,
+	AbstractRegressionTest.runConformTest(
+		this, true,
 		new String[] {
 			"EMap.java",
 			"import java.util.ArrayList;\n" +
@@ -45883,8 +45883,8 @@ public void test1305() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=106744 - variation
 public void test1306() {
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		new String[] { /* test files */
 				"X.java",
 				"import java.lang.reflect.Constructor;\n" +
@@ -47209,8 +47209,8 @@ public void test1340() {
 public void test1341() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.IGNORE);
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java", // =================
 				"import java.util.*;\n" +
 				"public class X {\n" +
@@ -50092,8 +50092,8 @@ public void test1420() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=257849
 // FIXME javac8 doesn't find the error
 public void test1421() {
-	this.runNegativeTest(
-			false /* skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+			this, false /* skipJavac */,
 			this.complianceLevel < ClassFileConstants.JDK1_8 ?
 			null : JavacTestOptions.Excuse.JavacCompilesIncorrectSource,
 			new String[] {
@@ -51549,8 +51549,8 @@ public void test1459() {
 // SHOULD FAIL AT 1.8 (18.2.3): The method get(Class<W>, T) in the type Test is not applicable for the arguments (Class<Test.W_Description>, Object)
 // FIXME: javac rejects (correctly? how?), see http://mail.openjdk.java.net/pipermail/lambda-spec-experts/2013-December/000443.html
 public void test277643() {
-	this.runNegativeTest(
-		false /* skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+		this, false /* skipJavac */,
 		this.complianceLevel < ClassFileConstants.JDK1_8 ? null :
 		JavacTestOptions.EclipseHasABug.EclipseBug428061,
 		new String[] {
@@ -51648,8 +51648,8 @@ public void test280054() {
 // SHOULD FAIL AT 1.8 (18.2.3): The method get(Class<V>, Class<S>) in the type X.L is not applicable for the arguments (Class<V>, Class<X.B>)
 // FIXME: javac rejects (correctly? how?), see http://mail.openjdk.java.net/pipermail/lambda-spec-experts/2013-December/000443.html
 public void test283306() {
-	this.runNegativeTest(
-		false /* skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+		this, false /* skipJavac */,
 		this.complianceLevel < ClassFileConstants.JDK1_8 ? null :
 		JavacTestOptions.EclipseHasABug.EclipseBug428061,
 		new String[] {
@@ -52201,8 +52201,8 @@ public void test1464() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=320275
 public void _test1465() {
-	this.runConformTest(
-			new String[] {
+	AbstractRegressionTest.runConformTest(
+			this, new String[] {
 				"AbstractSubClass.java",
 				"public abstract class AbstractSubClass extends AbstractClass {}",
 			},
@@ -52439,8 +52439,8 @@ public void testBug460491() {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_7) {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.WARNING);
-		this.runConformTest(
-			new String[] {
+		AbstractRegressionTest.runConformTest(
+			this, new String[] {
 				"A.java",
 				"class A {\n" +
 				"	private static final B.C c = new B.D<Void>();\n" +
@@ -52548,8 +52548,8 @@ public void testBug541772() {
 		getCompilerOptions()
 	);
 
-	runConformTest(
-	new String[] {
+	AbstractRegressionTest.runConformTest(
+	this, new String[] {
 		"token/Token.java",
 		"package token;\n" +
 		"\n" +
@@ -52588,8 +52588,8 @@ public void testBug541772() {
 
 	Util.flushDirectoryContent(new File(OUTPUT_DIR + File.separator + "bug541772Runtime"));
 
-	runConformTest(
-	new String[] {
+	AbstractRegressionTest.runConformTest(
+	this, new String[] {
 		"pkg/Example.java",
 		"package pkg;\n" +
 		"\n" +
@@ -52628,8 +52628,8 @@ public void testBug541772_typeannotations() {
 		getCompilerOptions()
 	);
 
-	runConformTest(
-	new String[] {
+	AbstractRegressionTest.runConformTest(
+	this, new String[] {
 		"token/Ann.java",
 		"package token;\n" +
 		"import java.lang.annotation.*;\n" +
@@ -52676,8 +52676,8 @@ public void testBug541772_typeannotations() {
 
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
-	runConformTest(
-	new String[] {
+	AbstractRegressionTest.runConformTest(
+	this, new String[] {
 		"pkg/Example.java",
 		"package pkg;\n" +
 		"\n" +

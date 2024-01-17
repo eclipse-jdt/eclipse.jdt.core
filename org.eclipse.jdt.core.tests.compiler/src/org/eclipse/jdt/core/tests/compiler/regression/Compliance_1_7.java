@@ -55,7 +55,7 @@ public void test1() {
 		},
 		""); // no special vm args
 
-		String computedReferences = findReferences(OUTPUT_DIR + "/p1/Z.class");
+		String computedReferences = AbstractRegressionTest.findReferences(OUTPUT_DIR + "/p1/Z.class");
 		boolean check = computedReferences.indexOf("annotationRef/SafeVarargs") >= 0;
 		if (!check){
 			System.out.println(computedReferences);
@@ -74,7 +74,7 @@ public void test2() {
 		},
 		""); // no special vm args
 
-		String computedReferences = findReferences(OUTPUT_DIR + "/p2/Z.class");
+		String computedReferences = AbstractRegressionTest.findReferences(OUTPUT_DIR + "/p2/Z.class");
 		boolean check = computedReferences.indexOf("annotationRef/Inherited") >= 0;
 		if (!check){
 			System.out.println(computedReferences);
@@ -88,8 +88,8 @@ public void testBug390889_a() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
-	this.runConformTest(
-			new String[] {
+	AbstractRegressionTest.runConformTest(
+			this, new String[] {
 					"MyComp.java",
 					"import java.util.Comparator;\n" +
 					"public class MyComp implements Comparator {\n" +
@@ -133,8 +133,8 @@ public void testBug390889_b() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
-	this.runConformTest(
-			new String[] {
+	AbstractRegressionTest.runConformTest(
+			this, new String[] {
 					"C1.java",
 					"public class C1 implements I1 {\n" +
 					"}\n"
@@ -163,8 +163,8 @@ public void testBug390889_c() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
-	this.runConformTest(
-			new String[] {
+	AbstractRegressionTest.runConformTest(
+			this, new String[] {
 				"CI.java",
 				"public class CI implements I {\n" +
 				"	 void test(I i) {\n" +
@@ -189,8 +189,8 @@ public void testBug490988() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_7);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_7);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_7);
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"Thing.java",
 				"import java.util.Comparator;\n" +
 				"import java.util.Iterator;\n" +

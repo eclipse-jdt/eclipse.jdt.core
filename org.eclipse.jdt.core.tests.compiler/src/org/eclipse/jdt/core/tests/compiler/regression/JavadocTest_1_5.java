@@ -142,8 +142,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 	public void test006() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 					" /**\n" +
 					"  * Invalid type parameter reference\n" +
@@ -161,8 +161,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 	public void test007() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 					" /**\n" +
 					"  * Invalid type parameter reference\n" +
@@ -180,8 +180,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 	public void test008() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 					" /**\n" +
 					"  * Invalid type parameter reference\n" +
@@ -206,8 +206,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 	public void test009() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 					" /**\n" +
 					"  * Invalid type parameter reference\n" +
@@ -248,8 +248,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 	public void test011() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 					" /**\n" +
 					"  * Invalid type parameter reference\n" +
@@ -276,8 +276,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 	public void test012() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 					" /**\n" +
 					"  * Invalid type parameter reference\n" +
@@ -304,8 +304,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 	public void test013() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 					" /**\n" +
 					"  * Invalid type parameter reference\n" +
@@ -328,8 +328,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 	public void test014() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 					" /**\n" +
 					"  * Invalid type parameter reference\n" +
@@ -352,8 +352,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 	public void test015() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 					" /**\n" +
 					"  * Invalid type parameter reference\n" +
@@ -372,8 +372,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 	public void test016() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 					" /**\n" +
 					"  * Invalid type parameter reference\n" +
@@ -392,8 +392,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 	public void test017() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 					" /**\n" +
 					"  * Invalid type parameter reference\n" +
@@ -412,8 +412,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 	public void test018() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 					" /**\n" +
 					"  * Invalid type parameter reference\n" +
@@ -436,8 +436,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 	public void test019() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 					" /**\n" +
 					"  * Invalid type parameter reference\n" +
@@ -474,8 +474,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 	public void test020() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 					" /**\n" +
 					"  * Invalid type parameter reference\n" +
@@ -607,8 +607,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 	public void test026() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				" public class X {\n" +
 					"	/**\n" +
@@ -630,8 +630,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 	public void test027() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				" public class X {\n" +
 					"	/**\n" +
@@ -661,8 +661,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 	public void test028() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				" public class X {\n" +
 					"	/**\n" +
@@ -711,8 +711,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 	public void test029() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				" public class X {\n" +
 					"	/**\n" +
@@ -761,8 +761,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 	public void test031() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				" public class X {\n" +
 					"	/**\n" +
@@ -801,8 +801,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 	public void test032() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				" public class X {\n" +
 					"	/**\n" +
@@ -833,8 +833,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 	public void test033() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				" public class X {\n" +
 					"	/**\n" +
@@ -861,8 +861,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 	public void test034() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				" public class X {\n" +
 					"	/**\n" +
@@ -919,8 +919,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 	public void test035() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				" public class X {\n" +
 					"	/**\n" +
@@ -1022,8 +1022,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 	public void test038() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				" /**\n" +
 					"  * Invalid type parameter reference\n" +
@@ -1070,8 +1070,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 	public void test039() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				" /**\n" +
 					"  * Invalid type parameter reference\n" +
@@ -1136,8 +1136,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=80257"
 	 */
 	public void testBug80257() {
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"/**\n" +
 				" * @see G#G(Object)\n" +
@@ -1166,8 +1166,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 	 */
 	// FAIL ERRMSG
 	public void _testBug82514() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class ComparableUtils {\n" +
 				"   public static <T extends Comparable< ? super T>> int compareTo(final Object first, final Object firstPrime,  final Class<T> type) throws ClassCastException\n" +
@@ -1207,8 +1207,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 	 */
 	public void testBug83127a() {
 		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"Test.java",
 				"/** \n" +
 				" * @see Test#add(T) \n" +
@@ -1262,8 +1262,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 	}
 	public void testBug83127b() {
 		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"Test.java",
 				"/** \n" +
 				" * @see Sub#add(T)\n" +
@@ -1307,8 +1307,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 	}
 	public void testBug83127c() {
 		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"Test.java",
 				"/** \n" +
 				" * @see Sub#add(E) \n" +
@@ -1349,8 +1349,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 	}
 	public void testBug83127d() {
 		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"Unrelated1.java",
 				"public class Unrelated1<E extends Number> {\n" +
 				"	public Unrelated1(E e) {}\n" +
@@ -1396,8 +1396,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 	}
 	public void testBug83127e() {
 		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"Unrelated1.java",
 				"public class Unrelated1<E extends Number> {\n" +
 				"	public Unrelated1(E e) {}\n" +
@@ -1477,8 +1477,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 	}
 	public void testBug83127g() {
 		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"Unrelated1.java",
 				"public class Unrelated1<E extends Number> {\n" +
 				"	public Unrelated1(E e) {}\n" +
@@ -1525,8 +1525,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 	}
 	public void testBug83127h() {
 		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"Unrelated2.java",
 				"public interface Unrelated2<E> {\n" +
 				"	boolean add(E e);\n" +
@@ -1596,8 +1596,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 	public void testBug83393b() {
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"Test.java",
 				"public class Test {\n" +
 				"	public void foo(int a, int b) {} \n" +
@@ -1668,8 +1668,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=83804"
 	 */
 	public void testBug83804() {
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"pack/package-info.java",
 				"/**\n" +
 				" * Valid javadoc.\n" +
@@ -1737,8 +1737,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 	 */
 	public void _testBug86769() {
 		this.reportMissingJavadocComments = CompilerOptions.ERROR;
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"E.java",
 				"public enum E {\n" +
 				"	A,\n" +
@@ -1979,8 +1979,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 	}
 	public void testBug96237_Public03() {
 		this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"comment6a/def/Test.java",
 				"package comment6a.def;\n" +
 				"public class Test {\n" +
@@ -2033,8 +2033,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 	}
 	public void testBug96237_Public04() {
 		this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"comment6b/Invalid.java",
 				"package comment6b;\n" +
 				"\n" +
@@ -2072,8 +2072,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 	}
 	public void testBug96237_Public05() {
 		this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"test/a/Test.java",
 				"package test.a;\n" +
 				"/**\n" +
@@ -2102,8 +2102,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 	}
 	public void testBug96237_Public06() {
 		this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"test/b/Test.java",
 				"package test.b;\n" +
 				"/** \n" +
@@ -2150,8 +2150,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 	}
 	public void testBug96237_Public07() {
 		this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"test/c/Test.java",
 				"package test.c;\n" +
 				"/**\n" +
@@ -2215,8 +2215,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 	}
 	public void testBug96237_Public08() {
 		this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"test/d/Reference.java",
 				"package test.d;\n" +
 				"class Reference {\n" +
@@ -2266,8 +2266,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 	}
 	public void testBug96237_Private02() {
 		this.reportInvalidJavadocVisibility = CompilerOptions.PRIVATE;
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"comment6/Invalid.java",
 				"package comment6;\n" +
 				"public class Invalid {\n" +
@@ -2293,8 +2293,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 	}
 	public void testBug96237_Private03() {
 		this.reportInvalidJavadocVisibility = CompilerOptions.PRIVATE;
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"comment6a/def/Test.java",
 				"package comment6a.def;\n" +
 				"public class Test {\n" +
@@ -2347,8 +2347,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 	}
 	public void testBug96237_Private04() {
 		this.reportInvalidJavadocVisibility = CompilerOptions.PRIVATE;
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"comment6b/Invalid.java",
 				"package comment6b;\n" +
 				"\n" +
@@ -2475,8 +2475,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=101283"
 	 */
 	public void testBug101283a() {
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X<T, F> {\n" +
 				"\n" +
@@ -2514,8 +2514,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 	public void testBug101283b() {
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X<T, F> {\n" +
 				"\n" +
@@ -2553,8 +2553,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 	public void testBug101283c() {
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X<T, F> {\n" +
 				"\n" +
@@ -2592,8 +2592,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 	public void testBug101283d() {
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X<T, F> {\n" +
 				"\n" +
@@ -2633,8 +2633,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 	// Verify duplicate test case: bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=102735
 	public void testBug101283e() {
 		this.reportMissingJavadocTags = CompilerOptions.DISABLED;
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"Test.java",
 				"public interface Test<V, R extends Component<?>, C extends\n" +
 				"Test<V, R, C>> extends Control<SelectModel<V>, C>\n" +
@@ -2898,8 +2898,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 	public void testBug119857_Public01() {
 		this.reportMissingJavadocTags = CompilerOptions.DISABLED;
 		this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"pack/Test.java",
 				"package pack;\n" +
 				"public class Test {\n" +
@@ -2975,8 +2975,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 	public void testBug119857_Public03() {
 		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
 		this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"pack/Test.java",
 				"package pack;\n" +
 				"public class Test {\n" +
@@ -3115,8 +3115,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 	public void testBug87500a() {
 		this.reportMissingJavadocComments = CompilerOptions.ERROR;
 		this.reportMissingJavadocCommentsVisibility = CompilerOptions.DEFAULT;
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"A.java",
 				"enum A {\n" +
 				"	clubs,\n" +
@@ -3177,8 +3177,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
 		this.reportMissingJavadocComments = CompilerOptions.IGNORE;
 		this.reportMissingJavadocCommentsVisibility = CompilerOptions.WARNING;
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X<T> {\n" +
 			    "    /** @see T.R */\n" +
@@ -3216,8 +3216,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 	 */
 	public void testBug209936a() {
 		this.reportMissingJavadocCommentsVisibility = CompilerOptions.WARNING;
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"p/X.java",
 				"package p;\n" +
 				"public abstract class X extends Y {\n" +
@@ -3254,8 +3254,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 
 	public void testBug209936b() {
 		this.reportMissingJavadocCommentsVisibility = CompilerOptions.WARNING;
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"p/X.java",
 				"package p;\n" +
 				"public abstract class X extends Y {\n" +
@@ -3292,8 +3292,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 	public void testBug209936_GenericMemberImplicitReference() {
 		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
 		this.reportMissingJavadocCommentsVisibility = CompilerOptions.WARNING;
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"p1/A.java",
 				"package p1;\n" +
 				"public class A<R> {\n" +
@@ -3340,8 +3340,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 	public void testBug209936_GenericMemberSingleReference() {
 		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
 		this.reportMissingJavadocCommentsVisibility = CompilerOptions.WARNING;
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"p1/A.java",
 				"package p1;\n" +
 				"public class A<R> {\n" +
@@ -3392,8 +3392,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 
 	public void testBug209936_GenericMemberQualifiedSingleReference() {
 		this.reportMissingJavadocCommentsVisibility = CompilerOptions.WARNING;
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"p1/A.java",
 				"package p1;\n" +
 				"public class A<R> {\n" +
@@ -3439,8 +3439,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 
 	public void testBug209936_GenericMemberFullyQualifiedSingleReference() {
 		this.reportMissingJavadocCommentsVisibility = CompilerOptions.WARNING;
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"p1/A.java",
 				"package p1;\n" +
 				"public class A<R> {\n" +
@@ -3487,8 +3487,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 	public void testBug209936_MemberImplicitReference() {
 		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
 		this.reportMissingJavadocCommentsVisibility = CompilerOptions.WARNING;
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"p1/A.java",
 				"package p1;\n" +
 				"public class A<R> {\n" +
@@ -3535,8 +3535,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 	public void testBug209936_MemberSingleReference1(){
 		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
 		this.reportMissingJavadocCommentsVisibility = CompilerOptions.WARNING;
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"p1/A.java",
 				"package p1;\n" +
 				"public class A<R> {\n" +
@@ -3588,8 +3588,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 	public void testBug209936_MemberSingleReference2(){
 		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
 		this.reportMissingJavadocCommentsVisibility = CompilerOptions.WARNING;
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"p1/A.java",
 				"package p1;\n" +
 				"public class A<R> {\n" +
@@ -3641,8 +3641,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 	public void testBug209936_MemberSingleReference3(){
 		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
 		this.reportMissingJavadocCommentsVisibility = CompilerOptions.WARNING;
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"p1/A.java",
 				"package p1;\n" +
 				"public class A {\n" +
@@ -3694,8 +3694,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 	public void testBug209936_MemberSingleReference4(){
 		this.reportMissingJavadocTags = CompilerOptions.IGNORE;
 		this.reportMissingJavadocCommentsVisibility = CompilerOptions.WARNING;
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"p1/A.java",
 				"package p1;\n" +
 				"public class A {\n" +
@@ -3836,8 +3836,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 
 	public void testBug209936_MemberFullyQualifiedSingleReference() {
 		this.reportMissingJavadocCommentsVisibility = CompilerOptions.WARNING;
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"p1/A.java",
 				"package p1;\n" +
 				"\n" +
@@ -4166,8 +4166,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 	public void testBug322581a() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportMissingJavadocTagsMethodTypeParameters, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			true,
+		AbstractRegressionTest.runNegativeTest(
+			this, true,
 			new String[] {
 				"X.java",
 				" public class X {\n" +
@@ -4198,8 +4198,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 	public void testBug322581b() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportMissingJavadocTagsMethodTypeParameters, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			true,
+		AbstractRegressionTest.runNegativeTest(
+			this, true,
 			new String[] {
 				"ListCallable.java",
 				" import java.util.Collections;\n" +
@@ -4240,8 +4240,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 	public void testBug331872() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportMissingJavadocTagsMethodTypeParameters, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			true,
+		AbstractRegressionTest.runNegativeTest(
+			this, true,
 			new String[] {
 				"X.java",
 				"/**\n" +
@@ -4271,8 +4271,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 	public void testBug331872b() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportMissingJavadocTagsMethodTypeParameters, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			true,
+		AbstractRegressionTest.runNegativeTest(
+			this, true,
 			new String[] {
 				"X.java",
 				"/**\n" +
@@ -4302,8 +4302,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 	public void testBug331872c() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportMissingJavadocTagsMethodTypeParameters, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			true,
+		AbstractRegressionTest.runNegativeTest(
+			this, true,
 			new String[] {
 				"X.java",
 				"/**\n" +
@@ -4333,8 +4333,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 	public void testBug331872d() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportMissingJavadocTagsMethodTypeParameters, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			true,
+		AbstractRegressionTest.runNegativeTest(
+			this, true,
 			new String[] {
 				"X.java",
 				"/**\n" +

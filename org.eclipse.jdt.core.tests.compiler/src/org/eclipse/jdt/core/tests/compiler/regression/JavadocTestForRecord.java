@@ -109,7 +109,7 @@ public class JavadocTestForRecord extends JavadocTest {
 
 	@Override
 	protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
-		runNegativeTest(testFiles, expectedCompilerLog, JavacTestOptions.forReleaseWithPreview("16"));
+		AbstractRegressionTest.runNegativeTest(this, testFiles, expectedCompilerLog, JavacTestOptions.forReleaseWithPreview("16"));
 	}
 
 	@Override
@@ -146,7 +146,7 @@ public class JavadocTestForRecord extends JavadocTest {
 		if(this.complianceLevel < ClassFileConstants.JDK14) {
 			return;
 		}
-		this.runNegativeTest(new String[] { "X.java", "public record X() {\n" + "}\n" },
+		AbstractRegressionTest.runNegativeTest(this, new String[] { "X.java", "public record X() {\n" + "}\n" },
 				"----------\n" + "1. ERROR in X.java (at line 1)\n" + "	public record X() {\n" + "	              ^\n"
 						+ "Javadoc: Missing comment for public declaration\n" + "----------\n",
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
@@ -156,8 +156,8 @@ public class JavadocTestForRecord extends JavadocTest {
 		if(this.complianceLevel < ClassFileConstants.JDK14) {
 			return;
 		}
-		this.runNegativeTest(
-				new String[] { "X.java",
+		AbstractRegressionTest.runNegativeTest(
+				this, new String[] { "X.java",
 						"	/**\n" + "	 * @param radius radius of X\n" + "	 */\n" + "public record X(int radius) {\n"
 								+ "	public void foo() {\n" + "	}\n" + "}\n" },
 				"----------\n" + "1. ERROR in X.java (at line 5)\n" + "	public void foo() {\n" + "	            ^^^^^\n"
@@ -198,7 +198,7 @@ public class JavadocTestForRecord extends JavadocTest {
 		if(this.complianceLevel < ClassFileConstants.JDK14) {
 			return;
 		}
-		runNegativeTest(new String[] { "X.java",
+		AbstractRegressionTest.runNegativeTest(this, new String[] { "X.java",
 				"		/**  \n" +
 				"		 */  \n" +
 				"		public record X(int a) {\n" +
@@ -222,7 +222,7 @@ public class JavadocTestForRecord extends JavadocTest {
 		if(this.complianceLevel < ClassFileConstants.JDK14) {
 			return;
 		}
-		runNegativeTest(new String[] { "X.java",
+		AbstractRegressionTest.runNegativeTest(this, new String[] { "X.java",
 				"		/**  \n" +
 				"		 * @param a\n" +
 				"		 * @param a\n" +
@@ -248,7 +248,7 @@ public class JavadocTestForRecord extends JavadocTest {
 		if(this.complianceLevel < ClassFileConstants.JDK14) {
 			return;
 		}
-		runNegativeTest(new String[] { "X.java",
+		AbstractRegressionTest.runNegativeTest(this, new String[] { "X.java",
 				"		/**  \n" +
 				"		 * @param a\n" +
 				"		 * @param b\n" +

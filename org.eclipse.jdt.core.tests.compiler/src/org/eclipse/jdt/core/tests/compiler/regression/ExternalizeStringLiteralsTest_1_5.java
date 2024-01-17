@@ -38,8 +38,8 @@ public static Test suite() {
 public void test001() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"import static java.lang.annotation.ElementType.*;\n" +
 			"import static java.lang.annotation.RetentionPolicy.*;\n" +
@@ -65,8 +65,8 @@ public void test001() {
 public void test002() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		true,
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 			"X.java",
 			"class X {\n" +
@@ -109,8 +109,8 @@ public void test002() {
 public void test003() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		true,
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 			"X.java",
 			"class X {\n" +
@@ -153,8 +153,8 @@ public void test003() {
 public void test004() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.WARNING);
-	this.runConformTest(
-		true,
+	AbstractRegressionTest.runConformTest(
+		this, true,
 		new String[] {
 			"X.java",
 			"class X {\n" +
@@ -183,8 +183,8 @@ public void test004() {
 public void test005() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		true,
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 			"X.java",
 			"class X {\n" +
@@ -208,8 +208,8 @@ public void test005() {
 public void test006() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.WARNING);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	@SuppressWarnings(\"nls\")\n" +
@@ -230,8 +230,8 @@ public void test006() {
 public void test007() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	@Annot({\n" +

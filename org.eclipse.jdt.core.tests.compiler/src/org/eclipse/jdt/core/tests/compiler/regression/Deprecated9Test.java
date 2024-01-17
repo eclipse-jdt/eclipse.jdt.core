@@ -59,8 +59,8 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 		customOptions.put(JavaCore.COMPILER_PB_DEPRECATION, CompilerOptions.WARNING);
 		customOptions.put(JavaCore.COMPILER_PB_TERMINAL_DEPRECATION, CompilerOptions.ERROR);
 		customOptions.put(CompilerOptions.OPTION_ReportNullReference, CompilerOptions.IGNORE);
-		this.runNegativeTest(
-			true,
+		AbstractRegressionTest.runNegativeTest(
+			this, true,
 			new String[] {
 				"p/M1.java",
 				"package p;\n" +
@@ -161,8 +161,8 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 		Map<String, String> customOptions = new HashMap<>();
 		customOptions.put(JavaCore.COMPILER_PB_DEPRECATION, CompilerOptions.WARNING);
 		customOptions.put(JavaCore.COMPILER_PB_TERMINAL_DEPRECATION, CompilerOptions.ERROR);
-		this.runNegativeTest(
-			true,
+		AbstractRegressionTest.runNegativeTest(
+			this, true,
 			new String[] {
 				"test1/E01.java",
 				"package test1;\n" +
@@ -198,8 +198,8 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 		Map<String, String> customOptions = new HashMap<>();
 		customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING);
 		customOptions.put(CompilerOptions.OPTION_ReportTerminalDeprecation, CompilerOptions.ERROR);
-		this.runNegativeTest(
-			true,
+		AbstractRegressionTest.runNegativeTest(
+			this, true,
 			new String[] {
 				"p1/X.java",
 				"package p1;\n" +
@@ -242,8 +242,8 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 		Map<String, String> customOptions = new HashMap<>();
 		customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING);
 		customOptions.put(CompilerOptions.OPTION_ReportTerminalDeprecation, CompilerOptions.IGNORE);
-		this.runConformTest(
-			new String[] {
+		AbstractRegressionTest.runConformTest(
+			this, new String[] {
 				"p1/X.java",
 				"package p1;\n" +
 				"public class X {\n" +
@@ -336,8 +336,8 @@ public class Deprecated9Test extends AbstractRegressionTest9 {
 		customOptions.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.WARNING);
 		customOptions.put(CompilerOptions.OPTION_ReportTerminalDeprecation, CompilerOptions.ERROR);
 		customOptions.put(CompilerOptions.OPTION_ReportDeprecationWhenOverridingDeprecatedMethod, CompilerOptions.ENABLED);
-		this.runNegativeTest(
-			true,
+		AbstractRegressionTest.runNegativeTest(
+			this, true,
 			new String[] {
 				"p1/X.java",
 				"package p1;\n" +

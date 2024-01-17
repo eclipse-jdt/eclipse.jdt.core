@@ -397,8 +397,8 @@ public class UnderscoresInLiteralsTest extends AbstractRegressionTest {
 		customedOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_6);
 		customedOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_6);
 		customedOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_6);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"	public static void main(String[] args) {\n" +

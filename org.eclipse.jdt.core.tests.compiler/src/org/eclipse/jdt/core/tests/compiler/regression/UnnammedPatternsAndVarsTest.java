@@ -70,7 +70,7 @@ public class UnnammedPatternsAndVarsTest extends AbstractRegressionTest9 {
 	@Override
 	protected INameEnvironment getNameEnvironment(final String[] testFiles, String[] classPaths, Map<String, String> options) {
 		this.classpaths = classPaths == null ? getDefaultClassPaths() : classPaths;
-		INameEnvironment[] classLibs = getClassLibs(false, options);
+		INameEnvironment[] classLibs = AbstractRegressionTest.getClassLibs(this, false, options);
 		for (INameEnvironment nameEnvironment : classLibs) {
 			((FileSystem) nameEnvironment).scanForModules(createParser());
 		}
@@ -84,7 +84,7 @@ public class UnnammedPatternsAndVarsTest extends AbstractRegressionTest9 {
 	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions) {
 		if(!isJRE21Plus)
 			return;
-		runConformTest(testFiles, expectedOutput, customOptions, new String[] {"--enable-preview"}, JAVAC_OPTIONS);
+		AbstractRegressionTest.runConformTest(this, testFiles, expectedOutput, customOptions, new String[] {"--enable-preview"}, JAVAC_OPTIONS);
 	}
 	protected void runConformTest(
 			String[] testFiles,
@@ -92,8 +92,8 @@ public class UnnammedPatternsAndVarsTest extends AbstractRegressionTest9 {
 			String[] classLibraries,
 			boolean shouldFlushOutputDirectory,
 			String[] vmArguments) {
-			runTest(
-		 		// test directory preparation
+			AbstractRegressionTest.runTest(
+		 		this, // test directory preparation
 				shouldFlushOutputDirectory /* should flush output directory */,
 				testFiles /* test files */,
 				// compiler options

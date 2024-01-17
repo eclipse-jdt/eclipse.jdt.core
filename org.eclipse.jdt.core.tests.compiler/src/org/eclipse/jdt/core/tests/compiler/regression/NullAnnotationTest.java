@@ -134,7 +134,7 @@ protected void setUp() throws Exception {
 	if (this.complianceLevel >= ClassFileConstants.JDK1_8)
 		this.TEST_JAR_SUFFIX = "_1.8.jar";
 	if (this.LIBS == null) {
-		this.LIBS = getLibsWithNullAnnotations(this.complianceLevel);
+		this.LIBS = AbstractRegressionTest.getLibsWithNullAnnotations(this, this.complianceLevel);
 	}
 }
 
@@ -1980,8 +1980,8 @@ public void test_annotation_import_005() {
 	customOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
 	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.MayBeNull");
 	customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.MustNotBeNull");
-	runNegativeTest(
-		true/*shouldFlushOutputDirectory*/,
+	AbstractRegressionTest.runNegativeTest(
+		this, true/*shouldFlushOutputDirectory*/,
 		new String[] {
 			"org/foo/MayBeNull.java",
 			"package org.foo;\n" +
@@ -2026,8 +2026,8 @@ public void test_annotation_import_006() {
 	customOptions.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
 	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.MayBeNull");
 	customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.MustNotBeNull");
-	runNegativeTest(
-		true/*shouldFlushOutputDirectory*/,
+	AbstractRegressionTest.runNegativeTest(
+		this, true/*shouldFlushOutputDirectory*/,
 		new String[] {
 			"Lib.java",
 			"public class Lib {\n" +
@@ -2100,8 +2100,8 @@ public void _test_illegal_annotation_002() {
 
 // a null annotation is illegally used on a void method:
 public void test_illegal_annotation_003() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"import org.eclipse.jdt.annotation.*;\n" +
 			"public class X {\n" +
@@ -2182,8 +2182,8 @@ public void test_illegal_annotation_005() {
 public void test_illegal_annotation_006() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "nullAnn.Nullable");
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"p/Test.java",
 			"package p;\n" +
 			"import nullAnn.*;  // 1 \n" +
@@ -2215,8 +2215,8 @@ public void test_illegal_annotation_006() {
 // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=186342#c186
 public void test_illegal_annotation_007() {
 	Map customOptions = getCompilerOptions();
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"p/Test.java",
 			"package p;\n" +
 			"import org.eclipse.jdt.annotation.*;\n" +
@@ -5571,7 +5571,7 @@ public void test_enum_field_02() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=372011
 // Test whether @NonNullByDefault on a binary package or an enclosing type is respected from enclosed elements.
 public void testBug372011() {
-	String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "Test372011.jar";
+	String path = AbstractRegressionTest.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "Test372011.jar";
 	String[] libs = new String[this.LIBS.length + 1];
 	System.arraycopy(this.LIBS, 0, libs, 0, this.LIBS.length);
 	libs[this.LIBS.length] = path;
@@ -5624,7 +5624,7 @@ public void testBug372011() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=374129  - more tests for bug 372011
 // Test whether @NonNullByDefault on a binary package or an enclosing type is respected from enclosed elements.
 public void testBug374129() {
-	String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "Test374129"+this.TEST_JAR_SUFFIX;
+	String path = AbstractRegressionTest.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "Test374129"+this.TEST_JAR_SUFFIX;
 	/* content of Test372129.jar:
 	 	p1bin/package-info.java:
 	 		@org.eclipse.jdt.annotation.NonNullByDefault
@@ -5910,7 +5910,7 @@ public class C2 implements i2.I2 {
 // Test whether null annotations from a super interface are respected
 // Class and its super interface both read from binary
 public void testBug388281_01() {
-	String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "Test388281"+this.TEST_JAR_SUFFIX;
+	String path = AbstractRegressionTest.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "Test388281"+this.TEST_JAR_SUFFIX;
 	String[] libs = new String[this.LIBS.length + 1];
 	System.arraycopy(this.LIBS, 0, libs, 0, this.LIBS.length);
 	libs[this.LIBS.length] = path;
@@ -5947,7 +5947,7 @@ public void testBug388281_01() {
 // Test whether null annotations from a super interface are respected
 // Class from source, its supers (class + super interface) from binary
 public void testBug388281_02() {
-	String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "Test388281"+this.TEST_JAR_SUFFIX;
+	String path = AbstractRegressionTest.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "Test388281"+this.TEST_JAR_SUFFIX;
 	String[] libs = new String[this.LIBS.length + 1];
 	System.arraycopy(this.LIBS, 0, libs, 0, this.LIBS.length);
 	libs[this.LIBS.length] = path;
@@ -6009,7 +6009,7 @@ public void testBug388281_02() {
 // Test whether null annotations from a super interface trigger an error against the overriding implementation
 // Class from source, its super interface from binary
 public void testBug388281_03() {
-	String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "Test388281"+this.TEST_JAR_SUFFIX;
+	String path = AbstractRegressionTest.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "Test388281"+this.TEST_JAR_SUFFIX;
 	String[] libs = new String[this.LIBS.length + 1];
 	System.arraycopy(this.LIBS, 0, libs, 0, this.LIBS.length);
 	libs[this.LIBS.length] = path;
@@ -6109,7 +6109,7 @@ public void testBug388281_04() {
 // Class from source, its super interface from binary
 // Super interface subject to package level @NonNullByDefault
 public void testBug388281_05() {
-	String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "Test388281"+this.TEST_JAR_SUFFIX;
+	String path = AbstractRegressionTest.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "Test388281"+this.TEST_JAR_SUFFIX;
 	String[] libs = new String[this.LIBS.length + 1];
 	System.arraycopy(this.LIBS, 0, libs, 0, this.LIBS.length);
 	libs[this.LIBS.length] = path;
@@ -6162,7 +6162,7 @@ public void testBug388281_05() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=388281
 // Conflicting annotations from several indirect super interfaces must be detected
 public void testBug388281_06() {
-	String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "Test388281"+this.TEST_JAR_SUFFIX;
+	String path = AbstractRegressionTest.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "Test388281"+this.TEST_JAR_SUFFIX;
 	String[] libs = new String[this.LIBS.length + 1];
 	System.arraycopy(this.LIBS, 0, libs, 0, this.LIBS.length);
 	libs[this.LIBS.length] = path;
@@ -6268,7 +6268,7 @@ public void testBug388281_07() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=388281
 // report conflict between inheritance and default - binary types
 public void testBug388281_08() {
-	String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "Test388281"+this.TEST_JAR_SUFFIX;
+	String path = AbstractRegressionTest.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "Test388281"+this.TEST_JAR_SUFFIX;
 	String[] libs = new String[this.LIBS.length + 1];
 	System.arraycopy(this.LIBS, 0, libs, 0, this.LIBS.length);
 	libs[this.LIBS.length] = path;
@@ -6690,8 +6690,8 @@ public void testBug413460() {
 
 // missing type in constructor declaration must not cause NPE in QAE#resolveType(..)
 public void testBug415850_a() {
-	runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java", //-----------------------------------------------------------------------
 				"public class X {\n" +
 				"	void foo(X1 x1) {\n" +
@@ -6973,8 +6973,8 @@ public void testBug_415269() {
 		"");
 }
 public void testBug416267() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	void test() {\n" +
@@ -6999,8 +6999,8 @@ public void testBug416267() {
 }
 //duplicate of bug 416267
 public void testBug418843() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"TestEnum.java",
 			"public enum TestEnum {\n" +
 			"	TestEntry(1){};\n" +
@@ -7095,8 +7095,8 @@ public void testTypeAnnotationProblemNotIn17() {
 			getCompilerOptions(),
 			"");
 	else
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				source
 			},
@@ -7334,8 +7334,8 @@ public void testBug424624b() {
 		"");
 }
 public void testBug430084() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
 			"@NonNullByDefault\n" +
@@ -7814,8 +7814,8 @@ public void testBug435805() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
 	options.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
-	runNegativeTest(
-		true/*flush*/,
+	AbstractRegressionTest.runNegativeTest(
+		this, true/*flush*/,
 		new String[] {
 			"org/foo/Nullable.java",
 			"package org.foo;\n" +
@@ -8765,8 +8765,8 @@ public void testBug418236() {
 public void testBug461878() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "jakarta.annotation.Nonnull");
-	runNegativeTest(
-		true, /*flush*/
+	AbstractRegressionTest.runNegativeTest(
+		this, true, /*flush*/
 		new String[] {
 			"jakarta/annotation/Nonnull.java",
 			"package jakarta.annotation;\n" +
@@ -8873,8 +8873,8 @@ public void testMultipleAnnotations() {
 	Map options1 = new HashMap<>(getCompilerOptions());
 	options1.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo1.NonNull");
 	options1.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo1.Nullable");
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"org/foo1/Nullable.java",
 			"package org.foo1;\n" +
 			"import java.lang.annotation.*;\n" +
@@ -8904,8 +8904,8 @@ public void testMultipleAnnotations() {
 	options2.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo2.Nullable2");
 	options2.put(JavaCore.COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_NAME, "org.foo2.NoNulls2");
 	options2.put(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION, JavaCore.WARNING);
-	runConformTest(
-		false, // flush
+	AbstractRegressionTest.runConformTest(
+		this, false, // flush
 		new String[] {
 			"org/foo2/Nullable2.java",
 			"package org.foo2;\n" +
@@ -9050,8 +9050,8 @@ public void testBug489486conform() {
 }
 
 public void testBug489486negative() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"test/DurationAdapter.java",
 			"package test;\n" +
 			"\n" +
@@ -10569,7 +10569,7 @@ public void testBug542707_003() {
 		"	}\n" +
 		"}\n"
 	};
-	runner.expectedCompilerLog = checkPreviewAllowed() ?
+	runner.expectedCompilerLog = AbstractRegressionTest.checkPreviewAllowed(this) ?
 			"----------\n" +
 			"1. ERROR in X.java (at line 7)\n" +
 			"	default -> i == 3 ? maybe() : \"\";\n" +
@@ -10640,7 +10640,7 @@ public void testBug542707_005() {
 		"	}\n" +
 		"}\n"
 	};
-	runner.expectedCompilerLog = checkPreviewAllowed() ?
+	runner.expectedCompilerLog = AbstractRegressionTest.checkPreviewAllowed(this) ?
 			"----------\n" +
 			"1. ERROR in X.java (at line 5)\n" +
 			"	return switch(day) {\n" +
@@ -10677,7 +10677,7 @@ public void testBug542707_006() {
 		"	}\n" +
 		"}\n"
 	};
-	runner.expectedCompilerLog = checkPreviewAllowed() ?
+	runner.expectedCompilerLog = AbstractRegressionTest.checkPreviewAllowed(this) ?
 			"----------\n" +
 			"2. ERROR in X.java (at line 5)\n" +
 			"	return switch(day) {\n" +
@@ -10693,7 +10693,7 @@ public void testBug542707_006() {
 	runner.runNegativeTest();
 }
 public void testBug545715() {
-	if (!checkPreviewAllowed()) return; // switch expression
+	if (!AbstractRegressionTest.checkPreviewAllowed(this)) return; // switch expression
 	Map<String, String>  customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
 	customOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);

@@ -48,13 +48,13 @@ public class StringTemplateTest extends AbstractRegressionTest9 {
 		return defaultOptions;
 	}
 	protected void runConformTest(String[] testFiles, String expectedOutput) {
-		runConformTest(testFiles, expectedOutput, null, VMARGS, new JavacTestOptions("-source 21 --enable-preview"));
+		AbstractRegressionTest.runConformTest(this, testFiles, expectedOutput, null, VMARGS, new JavacTestOptions("-source 21 --enable-preview"));
 	}
 	@Override
 	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions) {
 		if(!isJRE21Plus)
 			return;
-		runConformTest(testFiles, expectedOutput, customOptions, VMARGS, JAVAC_OPTIONS);
+		AbstractRegressionTest.runConformTest(this, testFiles, expectedOutput, customOptions, VMARGS, JAVAC_OPTIONS);
 	}
 	protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
 		Map<String, String> customOptions = getCompilerOptions(true);
@@ -786,8 +786,8 @@ public class StringTemplateTest extends AbstractRegressionTest9 {
 		String old1 = options.get(CompilerOptions.OPTION_ReportUnusedLocal);
 		options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.ERROR);
 		try {
-			runNegativeTest(
-					new String[] {
+			AbstractRegressionTest.runNegativeTest(
+					this, new String[] {
 							"X.java",
 							"public class X {\n"
 							+ "  public static void main(String[] args) {\n"
@@ -816,8 +816,8 @@ public class StringTemplateTest extends AbstractRegressionTest9 {
 		String old1 = options.get(CompilerOptions.OPTION_ReportUnusedPrivateMember);
 		options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 		try {
-			runNegativeTest(
-					new String[] {
+			AbstractRegressionTest.runNegativeTest(
+					this, new String[] {
 							"X.java",
 							"public class X {\n"
 							+ "  private String abc = \"abc\"; // unused\n"
@@ -846,8 +846,8 @@ public class StringTemplateTest extends AbstractRegressionTest9 {
 		String old1 = options.get(CompilerOptions.OPTION_ReportUnusedPrivateMember);
 		options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 		try {
-			runNegativeTest(
-					new String[] {
+			AbstractRegressionTest.runNegativeTest(
+					this, new String[] {
 							"X.java",
 							"public class X {\n"
 							+ "  private String abc = \"abc\"; // unused\n"

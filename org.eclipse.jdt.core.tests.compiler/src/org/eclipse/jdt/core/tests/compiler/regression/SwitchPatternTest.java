@@ -89,7 +89,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runner.vmArguments = null;
 		runner.customOptions = getCompilerOptions();
 		runner.runNegativeTest();
-		runNegativeTest(testFiles, expectedCompilerLog, JavacTestOptions.forReleaseWithPreview(SwitchPatternTest.previewLevel));
+		AbstractRegressionTest.runNegativeTest(this, testFiles, expectedCompilerLog, JavacTestOptions.forReleaseWithPreview(SwitchPatternTest.previewLevel));
 	}
 	protected void runWarningTest(String[] testFiles, String expectedCompilerLog) {
 		runWarningTest(testFiles, expectedCompilerLog, null);
@@ -2114,8 +2114,8 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 	public void testBug574564_010() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_20);
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n"+
 				" private static void foo(Object o) {\n"+
@@ -4707,8 +4707,8 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"----------\n");
 	}
 	public void testBug578553_7() {
-		runNegativeTest(
-				false /*skipJavac */,
+		AbstractRegressionTest.runNegativeTest(
+				this, false /*skipJavac */,
 				JavacTestOptions.JavacHasABug.JavacBug8299416,
 				new String[] {
 					"X.java",

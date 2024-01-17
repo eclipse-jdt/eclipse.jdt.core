@@ -72,7 +72,7 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	}
 	@Override
 	protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
-		runNegativeTest(testFiles, expectedCompilerLog, JavacTestOptions.forReleaseWithPreview("17"));
+		AbstractRegressionTest.runNegativeTest(this, testFiles, expectedCompilerLog, JavacTestOptions.forReleaseWithPreview("17"));
 	}
 	protected void runWarningTest(String[] testFiles, String expectedCompilerLog) {
 		runWarningTest(testFiles, expectedCompilerLog, null);
@@ -1383,8 +1383,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		int len = libs.length;
 		System.arraycopy(libs, 0, libs = new String[len+1], 0, len);
 		libs[len] = lib1Path;
-		this.runNegativeTest(
-				new String[] {
+		AbstractRegressionTest.runNegativeTest(
+				this, new String[] {
 					"src/p/X.java",
 					"package p;\n" +
 					"public class X extends Y {\n" +
@@ -1670,8 +1670,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638_001() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class permits {\n"+
 				"  void foo() {\n" +
@@ -1721,8 +1721,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638_003() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				"  permits p;\n" +
@@ -1793,8 +1793,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638_005() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X<permits> {\n"+
 				"  void foo() {\n" +
@@ -1873,8 +1873,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638_008() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X extends permits {\n"+
 				"  void foo() {\n" +
@@ -1938,8 +1938,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638_010() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X implements permits {\n"+
 				"  void foo() {\n" +
@@ -2003,8 +2003,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638_012() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"interface X extends permits {\n"+
 				"  default void foo() {\n" +
@@ -2067,8 +2067,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638_014() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				"  permits foo() {\n" +
@@ -2119,8 +2119,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638_016() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				"  void foo() throws permits{\n" +
@@ -2185,8 +2185,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638_018() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X <T extends permits>{\n"+
 				"  <T> void foo(T extends permits) {\n" +
@@ -2253,8 +2253,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638_020() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"enum X {\n"+
 				"  ONE(1);\n" +
@@ -2310,8 +2310,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638_022() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				"  public static void main(String[] args) {\n" +
@@ -2363,8 +2363,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638_024() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				"  public void foo(permits this) {}\n" +
@@ -2400,8 +2400,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638_026() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				"  public void foo(permits this) {}\n" +
@@ -2444,8 +2444,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638_028() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				"  class permits {\n"+
@@ -2496,8 +2496,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638_030() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				"  public static void main(String[] args) {\n" +
@@ -2551,8 +2551,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638_032() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				"  public static void main(String[] args) {\n" +
@@ -2605,8 +2605,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638_034() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				"  public static void main(permits[] args) {\n" +
@@ -2661,8 +2661,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638_036() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				"       public static void main(String[] args) {\n"+
@@ -2722,8 +2722,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638_038() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				"       public static void main(String[] args) {\n"+
@@ -2775,8 +2775,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638_040() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"record X(permits p) {\n"+
 				"}\n",
@@ -2825,8 +2825,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638_042() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				"       public <T> X(T t) {}\n"+
@@ -2881,8 +2881,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638_044() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				"       public <T> X(T t) {}\n"+
@@ -2938,8 +2938,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638_046() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				"       public <T> void foo(T t) {}\n"+
@@ -2989,8 +2989,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638_048() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				"       public <T> void foo(T t) {}\n"+
@@ -3043,8 +3043,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638_050() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				"    public X() {\n"+
@@ -3102,8 +3102,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638_052() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				"  public X() {\n"+
@@ -3154,8 +3154,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638_054() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				" public static void main(String[] args) {\n"+
@@ -3206,8 +3206,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638_056() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				" private void foo(Object o) {\n"+
@@ -3258,8 +3258,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638_058() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				" public static void main(String[] args) {\n"+
@@ -3293,8 +3293,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638b_001() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class sealed {\n"+
 				"  void foo() {\n" +
@@ -3344,8 +3344,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638b_003() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				"  sealed p;\n" +
@@ -3416,8 +3416,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638b_005() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X<sealed> {\n"+
 				"  void foo() {\n" +
@@ -3496,8 +3496,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638b_008() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X extends sealed {\n"+
 				"  void foo() {\n" +
@@ -3561,8 +3561,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638b_010() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X implements sealed {\n"+
 				"  void foo() {\n" +
@@ -3626,8 +3626,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638b_012() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"interface X extends sealed {\n"+
 				"  default void foo() {\n" +
@@ -3690,8 +3690,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638b_014() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				"  sealed foo() {\n" +
@@ -3742,8 +3742,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638b_016() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				"  void foo() throws sealed{\n" +
@@ -3808,8 +3808,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638b_018() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X <T extends sealed>{\n"+
 				"  <T> void foo(T extends sealed) {\n" +
@@ -3876,8 +3876,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638b_020() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"enum X {\n"+
 				"  ONE(1);\n" +
@@ -3933,8 +3933,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638b_022() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				"  public static void main(String[] args) {\n" +
@@ -3986,8 +3986,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638b_024() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				"  public void foo(sealed this) {}\n" +
@@ -4023,8 +4023,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638b_026() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				"  public void foo(sealed this) {}\n" +
@@ -4067,8 +4067,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638b_028() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				"  class sealed {\n"+
@@ -4119,8 +4119,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638b_030() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				"  public static void main(String[] args) {\n" +
@@ -4174,8 +4174,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638b_032() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				"  public static void main(String[] args) {\n" +
@@ -4228,8 +4228,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638b_034() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				"  public static void main(sealed[] args) {\n" +
@@ -4284,8 +4284,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638b_036() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				"       public static void main(String[] args) {\n"+
@@ -4345,8 +4345,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638b_038() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				"       public static void main(String[] args) {\n"+
@@ -4398,8 +4398,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638b_040() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"record X(sealed p) {\n"+
 				"}\n",
@@ -4448,8 +4448,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638b_042() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				"       public <T> X(T t) {}\n"+
@@ -4504,8 +4504,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638b_044() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				"       public <T> X(T t) {}\n"+
@@ -4561,8 +4561,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638b_046() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				"       public <T> void foo(T t) {}\n"+
@@ -4612,8 +4612,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638b_048() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				"       public <T> void foo(T t) {}\n"+
@@ -4666,8 +4666,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638b_050() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				"    public X() {\n"+
@@ -4725,8 +4725,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638b_052() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				"  public X() {\n"+
@@ -4777,8 +4777,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638b_054() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				" public static void main(String[] args) {\n"+
@@ -4829,8 +4829,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638b_056() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				" private void foo(Object o) {\n"+
@@ -4881,8 +4881,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug564638b_058() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				" public static void main(String[] args) {\n"+
@@ -5067,8 +5067,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 		Map<String, String> options =getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.WARNING);
 
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public sealed class X  permits Y {" +
 				"Zork();\n" +
@@ -5096,8 +5096,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	@SuppressWarnings({ "rawtypes" })
 	public void testBug566979_001() {
 		Map options = getCompilerOptions();
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				"    public sealed void main(String[] args){ }\n"+
@@ -5118,8 +5118,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug566979_002() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				"    public sealed void main(String[] args){ }\n"+
@@ -5139,8 +5139,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	@SuppressWarnings({ "rawtypes" })
 	public void testBug566980_001() {
 		Map options = getCompilerOptions();
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				"    public permits void main(String[] args){ }\n"+
@@ -5161,8 +5161,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	public void testBug566980_002() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				"    public permits void main(String[] args){ }\n"+
@@ -5182,8 +5182,8 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 	@SuppressWarnings({ "rawtypes" })
 	public void testBug566846_001() {
 		Map options = getCompilerOptions();
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"record X;\n",
 			},

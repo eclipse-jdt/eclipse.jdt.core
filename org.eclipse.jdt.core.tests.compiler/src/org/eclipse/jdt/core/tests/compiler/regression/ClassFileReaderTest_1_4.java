@@ -69,7 +69,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"        [pc: 0, line: 9]\n" +
 			"      Local variable table:\n" +
 			"        [pc: 0, pc: 12] local: this index: 0 type: A001\n";
-		checkClassFile("A001", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A001", source, expectedOutput);
 	}
 
 	/**
@@ -98,7 +98,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"        [pc: 12, line: 5]\n" +
 			"      Local variable table:\n" +
 			"        [pc: 0, pc: 13] local: args index: 0 type: java.lang.String[]\n";
-		checkClassFile("A002", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A002", source, expectedOutput);
 	}
 
 	/**
@@ -140,7 +140,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"        [pc: 10, line: 9]\n" +
 			"      Local variable table:\n" +
 			"        [pc: 0, pc: 11] local: this index: 0 type: A003\n";
-		checkClassFile("A003", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A003", source, expectedOutput);
 	}
 
 	/**
@@ -186,7 +186,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"        [pc: 0, pc: 23] local: args index: 0 type: java.lang.String[]\n" +
 			"        [pc: 2, pc: 23] local: b index: 1 type: boolean\n" +
 			"        [pc: 5, pc: 23] local: i index: 2 type: int\n";
-		checkClassFile("A", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A", source, expectedOutput);
 	}
 
 	/**
@@ -224,7 +224,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"      Local variable table:\n" +
 			"        [pc: 0, pc: 17] local: args index: 0 type: java.lang.String[]\n" +
 			"        [pc: 3, pc: 17] local: i index: 1 type: int\n";
-		checkClassFile("A", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A", source, expectedOutput);
 	}
 
 	/**
@@ -254,7 +254,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"      Local variable table:\n" +
 			"        [pc: 0, pc: 4] local: args index: 0 type: java.lang.String[]\n" +
 			"        [pc: 3, pc: 4] local: i index: 1 type: int\n";
-		checkClassFile("A", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A", source, expectedOutput);
 	}
 
 	/**
@@ -290,7 +290,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"      Local variable table:\n" +
 			"        [pc: 0, pc: 13] local: args index: 0 type: java.lang.String[]\n" +
 			"        [pc: 2, pc: 13] local: b index: 1 type: boolean\n";
-		checkClassFile("A", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A", source, expectedOutput);
 	}
 
 	/**
@@ -320,7 +320,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"      Local variable table:\n" +
 			"        [pc: 0, pc: 3] local: args index: 0 type: java.lang.String[]\n" +
 			"        [pc: 2, pc: 3] local: b index: 1 type: boolean\n";
-		checkClassFile("A", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A", source, expectedOutput);
 	}
 
 	/**
@@ -366,7 +366,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"        [pc: 0, pc: 23] local: args index: 0 type: java.lang.String[]\n" +
 			"        [pc: 2, pc: 23] local: b index: 1 type: boolean\n" +
 			"        [pc: 5, pc: 23] local: i index: 2 type: int\n";
-		checkClassFile("A", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A", source, expectedOutput);
 	}
 
 	/**
@@ -400,7 +400,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"      Local variable table:\n" +
 			"        [pc: 0, pc: 11] local: args index: 0 type: java.lang.String[]\n" +
 			"        [pc: 3, pc: 11] local: i index: 1 type: int\n";
-		checkClassFile("A", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A", source, expectedOutput);
 	}
 
 	/**
@@ -438,7 +438,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"      Local variable table:\n" +
 			"        [pc: 0, pc: 17] local: args index: 0 type: java.lang.String[]\n" +
 			"        [pc: 3, pc: 17] local: i index: 1 type: int\n";
-		checkClassFile("A", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A", source, expectedOutput);
 	}
 
 	/**
@@ -471,7 +471,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"      Local variable table:\n" +
 			"        [pc: 0, pc: 9] local: args index: 0 type: java.lang.String[]\n" +
 			"        [pc: 2, pc: 9] local: b index: 1 type: boolean\n";
-		checkClassFile("A", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A", source, expectedOutput);
 	}
 
 	/**
@@ -507,7 +507,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"      Local variable table:\n" +
 			"        [pc: 0, pc: 13] local: args index: 0 type: java.lang.String[]\n" +
 			"        [pc: 2, pc: 13] local: b index: 1 type: boolean\n";
-		checkClassFile("A", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A", source, expectedOutput);
 	}
 
 	/**
@@ -560,7 +560,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"        [pc: 0, pc: 36] local: args index: 0 type: java.lang.String[]\n" +
 			"        [pc: 2, pc: 36] local: b index: 1 type: boolean\n" +
 			"        [pc: 5, pc: 36] local: i index: 2 type: int\n";
-		checkClassFile("A", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A", source, expectedOutput);
 	}
 
 	/**
@@ -598,7 +598,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"      Local variable table:\n" +
 			"        [pc: 0, pc: 17] local: args index: 0 type: java.lang.String[]\n" +
 			"        [pc: 3, pc: 17] local: i index: 1 type: int\n";
-		checkClassFile("A", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A", source, expectedOutput);
 	}
 
 	/**
@@ -636,7 +636,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"      Local variable table:\n" +
 			"        [pc: 0, pc: 17] local: args index: 0 type: java.lang.String[]\n" +
 			"        [pc: 3, pc: 17] local: i index: 1 type: int\n";
-		checkClassFile("A", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A", source, expectedOutput);
 	}
 
 	/**
@@ -672,7 +672,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"      Local variable table:\n" +
 			"        [pc: 0, pc: 13] local: args index: 0 type: java.lang.String[]\n" +
 			"        [pc: 2, pc: 13] local: b index: 1 type: boolean\n";
-		checkClassFile("A", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A", source, expectedOutput);
 	}
 
 	/**
@@ -708,7 +708,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"      Local variable table:\n" +
 			"        [pc: 0, pc: 13] local: args index: 0 type: java.lang.String[]\n" +
 			"        [pc: 2, pc: 13] local: b index: 1 type: boolean\n";
-		checkClassFile("A", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A", source, expectedOutput);
 	}
 
 	/**
@@ -758,7 +758,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"        [pc: 0, pc: 29] local: args index: 0 type: java.lang.String[]\n" +
 			"        [pc: 2, pc: 29] local: b index: 1 type: boolean\n" +
 			"        [pc: 5, pc: 29] local: i index: 2 type: int\n";
-		checkClassFile("A", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A", source, expectedOutput);
 	}
 
 	/**
@@ -797,7 +797,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"      Local variable table:\n" +
 			"        [pc: 0, pc: 16] local: args index: 0 type: java.lang.String[]\n" +
 			"        [pc: 3, pc: 16] local: i index: 1 type: int\n";
-		checkClassFile("A", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A", source, expectedOutput);
 	}
 
 	/**
@@ -834,7 +834,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"      Local variable table:\n" +
 			"        [pc: 0, pc: 15] local: args index: 0 type: java.lang.String[]\n" +
 			"        [pc: 3, pc: 15] local: i index: 1 type: int\n";
-		checkClassFile("A", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A", source, expectedOutput);
 	}
 
 	/**
@@ -871,7 +871,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"      Local variable table:\n" +
 			"        [pc: 0, pc: 15] local: args index: 0 type: java.lang.String[]\n" +
 			"        [pc: 3, pc: 15] local: i index: 1 type: int\n";
-		checkClassFile("A", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A", source, expectedOutput);
 	}
 
 	/**
@@ -908,7 +908,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"      Local variable table:\n" +
 			"        [pc: 0, pc: 15] local: args index: 0 type: java.lang.String[]\n" +
 			"        [pc: 3, pc: 15] local: i index: 1 type: int\n";
-		checkClassFile("A", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A", source, expectedOutput);
 	}
 
 	/**
@@ -945,7 +945,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"      Local variable table:\n" +
 			"        [pc: 0, pc: 15] local: args index: 0 type: java.lang.String[]\n" +
 			"        [pc: 3, pc: 15] local: i index: 1 type: int\n";
-		checkClassFile("A", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A", source, expectedOutput);
 	}
 
 	/**
@@ -984,7 +984,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"      Local variable table:\n" +
 			"        [pc: 0, pc: 16] local: args index: 0 type: java.lang.String[]\n" +
 			"        [pc: 3, pc: 16] local: i index: 1 type: int\n";
-		checkClassFile("A", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A", source, expectedOutput);
 	}
 
 
@@ -1022,7 +1022,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"      Local variable table:\n" +
 			"        [pc: 0, pc: 15] local: args index: 0 type: java.lang.String[]\n" +
 			"        [pc: 3, pc: 15] local: i index: 1 type: int\n";
-		checkClassFile("A", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A", source, expectedOutput);
 	}
 
 
@@ -1060,7 +1060,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"      Local variable table:\n" +
 			"        [pc: 0, pc: 15] local: args index: 0 type: java.lang.String[]\n" +
 			"        [pc: 3, pc: 15] local: i index: 1 type: int\n";
-		checkClassFile("A", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A", source, expectedOutput);
 	}
 
 	/**
@@ -1099,7 +1099,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"      Local variable table:\n" +
 			"        [pc: 0, pc: 16] local: args index: 0 type: java.lang.String[]\n" +
 			"        [pc: 3, pc: 16] local: i index: 1 type: int\n";
-		checkClassFile("A", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A", source, expectedOutput);
 	}
 
 	/**
@@ -1136,7 +1136,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"      Local variable table:\n" +
 			"        [pc: 0, pc: 15] local: args index: 0 type: java.lang.String[]\n" +
 			"        [pc: 3, pc: 15] local: i index: 1 type: int\n";
-		checkClassFile("A", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A", source, expectedOutput);
 	}
 
 
@@ -1174,7 +1174,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"      Local variable table:\n" +
 			"        [pc: 0, pc: 15] local: args index: 0 type: java.lang.String[]\n" +
 			"        [pc: 3, pc: 15] local: i index: 1 type: int\n";
-		checkClassFile("A", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A", source, expectedOutput);
 	}
 
 	/**
@@ -1213,7 +1213,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"      Local variable table:\n" +
 			"        [pc: 0, pc: 16] local: args index: 0 type: java.lang.String[]\n" +
 			"        [pc: 3, pc: 16] local: i index: 1 type: int\n";
-		checkClassFile("A", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A", source, expectedOutput);
 	}
 
 	/**
@@ -1252,7 +1252,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"      Local variable table:\n" +
 			"        [pc: 0, pc: 16] local: args index: 0 type: java.lang.String[]\n" +
 			"        [pc: 3, pc: 16] local: i index: 1 type: int\n";
-		checkClassFile("A", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A", source, expectedOutput);
 	}
 
 	/**
@@ -1306,7 +1306,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"        [pc: 0, pc: 37] local: args index: 0 type: java.lang.String[]\n" +
 			"        [pc: 2, pc: 37] local: b index: 1 type: boolean\n" +
 			"        [pc: 5, pc: 37] local: i index: 2 type: int\n";
-		checkClassFile("A", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A", source, expectedOutput);
 	}
 
 	/**
@@ -1344,7 +1344,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"      Local variable table:\n" +
 			"        [pc: 0, pc: 17] local: args index: 0 type: java.lang.String[]\n" +
 			"        [pc: 3, pc: 17] local: i index: 1 type: int\n";
-		checkClassFile("A", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A", source, expectedOutput);
 	}
 
 	/**
@@ -1374,7 +1374,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"      Local variable table:\n" +
 			"        [pc: 0, pc: 4] local: args index: 0 type: java.lang.String[]\n" +
 			"        [pc: 3, pc: 4] local: i index: 1 type: int\n";
-		checkClassFile("A", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A", source, expectedOutput);
 	}
 
 	/**
@@ -1410,7 +1410,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"      Local variable table:\n" +
 			"        [pc: 0, pc: 13] local: args index: 0 type: java.lang.String[]\n" +
 			"        [pc: 2, pc: 13] local: b index: 1 type: boolean\n";
-		checkClassFile("A", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A", source, expectedOutput);
 	}
 
 	/**
@@ -1440,7 +1440,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"      Local variable table:\n" +
 			"        [pc: 0, pc: 3] local: args index: 0 type: java.lang.String[]\n" +
 			"        [pc: 2, pc: 3] local: b index: 1 type: boolean\n";
-		checkClassFile("A", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A", source, expectedOutput);
 	}
 
 	/**
@@ -1494,7 +1494,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"        [pc: 0, pc: 37] local: args index: 0 type: java.lang.String[]\n" +
 			"        [pc: 2, pc: 37] local: b index: 1 type: boolean\n" +
 			"        [pc: 5, pc: 37] local: i index: 2 type: int\n";
-		checkClassFile("A", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A", source, expectedOutput);
 	}
 
 	/**
@@ -1528,7 +1528,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"      Local variable table:\n" +
 			"        [pc: 0, pc: 11] local: args index: 0 type: java.lang.String[]\n" +
 			"        [pc: 3, pc: 11] local: i index: 1 type: int\n";
-		checkClassFile("A", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A", source, expectedOutput);
 	}
 
 	/**
@@ -1566,7 +1566,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"      Local variable table:\n" +
 			"        [pc: 0, pc: 17] local: args index: 0 type: java.lang.String[]\n" +
 			"        [pc: 3, pc: 17] local: i index: 1 type: int\n";
-		checkClassFile("A", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A", source, expectedOutput);
 	}
 
 	/**
@@ -1599,7 +1599,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"      Local variable table:\n" +
 			"        [pc: 0, pc: 9] local: args index: 0 type: java.lang.String[]\n" +
 			"        [pc: 2, pc: 9] local: b index: 1 type: boolean\n";
-		checkClassFile("A", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A", source, expectedOutput);
 	}
 
 	/**
@@ -1635,7 +1635,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"      Local variable table:\n" +
 			"        [pc: 0, pc: 13] local: args index: 0 type: java.lang.String[]\n" +
 			"        [pc: 2, pc: 13] local: b index: 1 type: boolean\n";
-		checkClassFile("A", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A", source, expectedOutput);
 	}
 
 	/**
@@ -1689,7 +1689,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"        [pc: 0, pc: 37] local: args index: 0 type: java.lang.String[]\n" +
 			"        [pc: 2, pc: 37] local: b index: 1 type: boolean\n" +
 			"        [pc: 5, pc: 37] local: i index: 2 type: int\n";
-		checkClassFile("A", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A", source, expectedOutput);
 	}
 
 	/**
@@ -1727,7 +1727,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"      Local variable table:\n" +
 			"        [pc: 0, pc: 17] local: args index: 0 type: java.lang.String[]\n" +
 			"        [pc: 3, pc: 17] local: i index: 1 type: int\n";
-		checkClassFile("A", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A", source, expectedOutput);
 	}
 
 	/**
@@ -1765,7 +1765,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"      Local variable table:\n" +
 			"        [pc: 0, pc: 17] local: args index: 0 type: java.lang.String[]\n" +
 			"        [pc: 3, pc: 17] local: i index: 1 type: int\n";
-		checkClassFile("A", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A", source, expectedOutput);
 	}
 
 	/**
@@ -1801,7 +1801,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"      Local variable table:\n" +
 			"        [pc: 0, pc: 13] local: args index: 0 type: java.lang.String[]\n" +
 			"        [pc: 2, pc: 13] local: b index: 1 type: boolean\n";
-		checkClassFile("A", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A", source, expectedOutput);
 	}
 
 	/**
@@ -1837,7 +1837,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"      Local variable table:\n" +
 			"        [pc: 0, pc: 13] local: args index: 0 type: java.lang.String[]\n" +
 			"        [pc: 2, pc: 13] local: b index: 1 type: boolean\n";
-		checkClassFile("A", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A", source, expectedOutput);
 	}
 
 	public void test048() throws Exception {
@@ -1899,7 +1899,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"        [pc: 0, pc: 30] local: bool index: 0 type: boolean\n" +
 			"        [pc: 11, pc: 14] local: j index: 1 type: int\n" +
 			"        [pc: 23, pc: 30] local: j index: 1 type: int\n";
-		checkClassFile("A", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "A", source, expectedOutput);
 	}
 
 	public void test049() throws Exception {
@@ -1927,7 +1927,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"        [pc: 2, line: 10]\n" +
 			"      Local variable table:\n" +
 			"        [pc: 2, pc: 3] local: i index: 0 type: int\n";
-		checkClassFile("X", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "X", source, expectedOutput);
 	}
 
 	public void test050() throws Exception {
@@ -1960,7 +1960,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"        [pc: 9, line: 11]\n" +
 			"      Local variable table:\n" +
 			"        [pc: 2, pc: 10] local: i index: 0 type: int\n";
-		checkClassFile("X", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "X", source, expectedOutput);
 	}
 
 	public void test051() throws Exception {
@@ -1989,7 +1989,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"        [pc: 3, line: 11]\n" +
 			"      Local variable table:\n" +
 			"        [pc: 3, pc: 4] local: i index: 0 type: int\n";
-		checkClassFile("X", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "X", source, expectedOutput);
 	}
 
 	public void test052() throws Exception {
@@ -2021,7 +2021,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"        [pc: 10, line: 10]\n" +
 			"      Local variable table:\n" +
 			"        [pc: 3, pc: 11] local: i index: 0 type: int\n";
-		checkClassFile("X", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "X", source, expectedOutput);
 	}
 
 	public void test053() throws Exception {
@@ -2058,7 +2058,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"        [pc: 12, line: 13]\n" +
 			"      Local variable table:\n" +
 			"        [pc: 2, pc: 13] local: i index: 0 type: int\n";
-		checkClassFile("X", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "X", source, expectedOutput);
 	}
 
 	public void test054() throws Exception {
@@ -2100,7 +2100,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"        [pc: 19, line: 14]\n" +
 			"      Local variable table:\n" +
 			"        [pc: 2, pc: 20] local: i index: 0 type: int\n";
-		checkClassFile("X", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "X", source, expectedOutput);
 	}
 
 	public void test055() throws Exception {
@@ -2138,7 +2138,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"        [pc: 13, line: 14]\n" +
 			"      Local variable table:\n" +
 			"        [pc: 3, pc: 14] local: i index: 0 type: int\n";
-		checkClassFile("X", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "X", source, expectedOutput);
 	}
 
 	public void test056() throws Exception {
@@ -2179,7 +2179,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"        [pc: 20, line: 13]\n" +
 			"      Local variable table:\n" +
 			"        [pc: 3, pc: 21] local: i index: 0 type: int\n";
-		checkClassFile("X", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "X", source, expectedOutput);
 	}
 
 	public void test057() throws Exception {
@@ -2207,7 +2207,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"        [pc: 2, line: 10]\n" +
 			"      Local variable table:\n" +
 			"        [pc: 2, pc: 3] local: i index: 0 type: int\n";
-		checkClassFile("X", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "X", source, expectedOutput);
 	}
 
 	public void test058() throws Exception {
@@ -2240,7 +2240,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"        [pc: 9, line: 11]\n" +
 			"      Local variable table:\n" +
 			"        [pc: 2, pc: 10] local: i index: 0 type: int\n";
-		checkClassFile("X", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "X", source, expectedOutput);
 	}
 
 	public void test059() throws Exception {
@@ -2269,7 +2269,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"        [pc: 3, line: 11]\n" +
 			"      Local variable table:\n" +
 			"        [pc: 3, pc: 4] local: i index: 0 type: int\n";
-		checkClassFile("X", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "X", source, expectedOutput);
 	}
 
 	public void test060() throws Exception {
@@ -2301,7 +2301,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"        [pc: 10, line: 10]\n" +
 			"      Local variable table:\n" +
 			"        [pc: 3, pc: 11] local: i index: 0 type: int\n";
-		checkClassFile("X", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "X", source, expectedOutput);
 	}
 
 	public void test061() throws Exception {
@@ -2332,7 +2332,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"        [pc: 2, line: 13]\n" +
 			"      Local variable table:\n" +
 			"        [pc: 2, pc: 3] local: i index: 0 type: int\n";
-		checkClassFile("X", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "X", source, expectedOutput);
 	}
 
 	public void test062() throws Exception {
@@ -2368,7 +2368,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"        [pc: 9, line: 14]\n" +
 			"      Local variable table:\n" +
 			"        [pc: 2, pc: 10] local: i index: 0 type: int\n";
-		checkClassFile("X", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "X", source, expectedOutput);
 	}
 
 	public void test063() throws Exception {
@@ -2400,7 +2400,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"        [pc: 3, line: 14]\n" +
 			"      Local variable table:\n" +
 			"        [pc: 3, pc: 4] local: i index: 0 type: int\n";
-		checkClassFile("X", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "X", source, expectedOutput);
 	}
 
 	public void test064() throws Exception {
@@ -2435,7 +2435,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"        [pc: 10, line: 13]\n" +
 			"      Local variable table:\n" +
 			"        [pc: 3, pc: 11] local: i index: 0 type: int\n";
-		checkClassFile("X", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "X", source, expectedOutput);
 	}
 
 	public void test065() throws Exception {
@@ -2472,7 +2472,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"        [pc: 12, line: 13]\n" +
 			"      Local variable table:\n" +
 			"        [pc: 2, pc: 13] local: i index: 0 type: int\n";
-		checkClassFile("X", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "X", source, expectedOutput);
 	}
 
 	public void test066() throws Exception {
@@ -2514,7 +2514,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"        [pc: 19, line: 14]\n" +
 			"      Local variable table:\n" +
 			"        [pc: 2, pc: 20] local: i index: 0 type: int\n";
-		checkClassFile("X", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "X", source, expectedOutput);
 	}
 
 	public void test067() throws Exception {
@@ -2552,7 +2552,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"        [pc: 13, line: 14]\n" +
 			"      Local variable table:\n" +
 			"        [pc: 3, pc: 14] local: i index: 0 type: int\n";
-		checkClassFile("X", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "X", source, expectedOutput);
 	}
 
 	public void test068() throws Exception {
@@ -2593,7 +2593,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"        [pc: 20, line: 13]\n" +
 			"      Local variable table:\n" +
 			"        [pc: 3, pc: 21] local: i index: 0 type: int\n";
-		checkClassFile("X", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "X", source, expectedOutput);
 	}
 
 	/**
@@ -2614,7 +2614,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"    constant #5 utf8: \"SourceFile\"\n" +
 			"    constant #6 utf8: \"I.java\"\n" +
 			"}";
-		checkClassFile("I", source, expectedOutput);
+		AbstractRegressionTest.checkClassFile(this, "I", source, expectedOutput);
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=111219
@@ -2689,7 +2689,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"  \n" +
 			"  abstract java.lang.String foo12();\n" +
 			"}";
-		checkClassFile("p", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
+		AbstractRegressionTest.checkClassFile(this, "p", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=111219
 	public void test073() throws Exception {
@@ -2706,7 +2706,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"  X(X x) {\n" +
 			"  }\n" +
 			"}";
-		checkClassFile("", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
+		AbstractRegressionTest.checkClassFile(this, "", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=111219
 	public void test074() throws Exception {
@@ -2725,7 +2725,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"  X(X x) {\n" +
 			"  }\n" +
 			"}";
-		checkClassFile("p", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY | ClassFileBytesDisassembler.COMPACT);
+		AbstractRegressionTest.checkClassFile(this, "p", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY | ClassFileBytesDisassembler.COMPACT);
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=111219
@@ -2745,7 +2745,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"  X(X x) {\n" +
 			"  }\n" +
 			"}";
-		checkClassFile("p", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY | ClassFileBytesDisassembler.COMPACT);
+		AbstractRegressionTest.checkClassFile(this, "p", "X", source, expectedOutput, ClassFileBytesDisassembler.WORKING_COPY | ClassFileBytesDisassembler.COMPACT);
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=111219
@@ -2763,7 +2763,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 		String expectedOutput =
 			"      Exception Table:\n" +
 			"        [pc: 0, pc: 8] -> 11 when : Exception\n";
-		checkClassFile("", "X", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
+		AbstractRegressionTest.checkClassFile(this, "", "X", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=34373
@@ -2775,7 +2775,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"}";
 		String expectedOutput =
 			"private static class p.X$A {\n";
-		checkClassFile("p", "X", "X$A", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT, false);
+		AbstractRegressionTest.checkClassFile(this, "p", "X", "X$A", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT, false);
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102473
@@ -2785,7 +2785,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"	X(int i, int j) {}\n" +
 			"	void foo(String s, double d) {}\n" +
 			"}";
-		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = getInternalClassFile("", "X", "X", source);
+		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = AbstractRegressionTest.getInternalClassFile(this, "", "X", "X", source);
 		IBinaryMethod[] methodInfos = classFileReader.getMethods();
 		assertNotNull("No method infos", methodInfos);
 		int length = methodInfos.length;
@@ -2820,7 +2820,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"		}\n" +
 			"	}\n" +
 			"}";
-		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = getInternalClassFile("", "X", "X", source);
+		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = AbstractRegressionTest.getInternalClassFile(this, "", "X", "X", source);
 		IBinaryMethod[] methodInfos = classFileReader.getMethods();
 		assertNotNull("No method infos", methodInfos);
 		int length = methodInfos.length;
@@ -2856,7 +2856,7 @@ public class ClassFileReaderTest_1_4 extends AbstractRegressionTest {
 			"		}\n" +
 			"	}\n" +
 			"}";
-		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = getInternalClassFile("", "X", "X", source);
+		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = AbstractRegressionTest.getInternalClassFile(this, "", "X", "X", source);
 		IBinaryMethod[] methodInfos = classFileReader.getMethods();
 		assertNotNull("No method infos", methodInfos);
 		int length = methodInfos.length;

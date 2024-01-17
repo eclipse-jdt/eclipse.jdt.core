@@ -76,7 +76,7 @@ public void testBug522326() {
 // Should compile successfully when the compilation unit contains a split package and
 // the option 'OPTION_IgnoreUnnamedModuleForSplitPackage' is turned on.
 public void testIgnoreUnnamedModule1() {
-	String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "ignore-unnamed-module-test.jar";
+	String path = AbstractRegressionTest.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "ignore-unnamed-module-test.jar";
 	String[] defaultLibs = getDefaultClassPaths();
 	int len = defaultLibs.length;
 	String[] libs = new String[len+1];
@@ -84,8 +84,8 @@ public void testIgnoreUnnamedModule1() {
 	libs[len] = path;
 	Map<String, String> compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_IgnoreUnnamedModuleForSplitPackage, CompilerOptions.ENABLED);
-	this.runConformTest(
-			true,
+	AbstractRegressionTest.runConformTest(
+			this, true,
 			new String[] {
 				"X.java",
 				"import org.xml.sax.SAXException;\n" +
@@ -103,7 +103,7 @@ public void testIgnoreUnnamedModule1() {
 			JavacTestOptions.DEFAULT);
 }
 public void testIgnoreUnnamedModule2() {
-	String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "ignore-unnamed-module-test.jar";
+	String path = AbstractRegressionTest.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "ignore-unnamed-module-test.jar";
 	String[] defaultLibs = getDefaultClassPaths();
 	int len = defaultLibs.length;
 	String[] libs = new String[len+1];
@@ -111,8 +111,8 @@ public void testIgnoreUnnamedModule2() {
 	libs[len] = path;
 	Map<String, String> compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_IgnoreUnnamedModuleForSplitPackage, CompilerOptions.ENABLED);
-	this.runConformTest(
-			true,
+	AbstractRegressionTest.runConformTest(
+			this, true,
 			new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -129,7 +129,7 @@ public void testIgnoreUnnamedModule2() {
 			JavacTestOptions.DEFAULT);
 }
 public void testIgnoreUnnamedModule3() {
-	String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "ignore-unnamed-module-test.jar";
+	String path = AbstractRegressionTest.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "ignore-unnamed-module-test.jar";
 	String[] defaultLibs = getDefaultClassPaths();
 	int len = defaultLibs.length;
 	String[] libs = new String[len+1];
@@ -137,8 +137,8 @@ public void testIgnoreUnnamedModule3() {
 	libs[len] = path;
 	Map<String, String> compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_IgnoreUnnamedModuleForSplitPackage, CompilerOptions.ENABLED);
-	this.runConformTest(
-			true,
+	AbstractRegressionTest.runConformTest(
+			this, true,
 			new String[] {
 				"X.java",
 				"import static org.xml.sax.helpers.NamespaceSupport.XMLNS;\n" +
@@ -156,7 +156,7 @@ public void testIgnoreUnnamedModule3() {
 			JavacTestOptions.DEFAULT);
 }
 public void testIgnoreUnnamedModule4() {
-	String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "ignore-unnamed-module-test.jar";
+	String path = AbstractRegressionTest.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "ignore-unnamed-module-test.jar";
 	String[] defaultLibs = getDefaultClassPaths();
 	int len = defaultLibs.length;
 	String[] libs = new String[len+1];
@@ -164,8 +164,8 @@ public void testIgnoreUnnamedModule4() {
 	libs[len] = path;
 	Map<String, String> compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_IgnoreUnnamedModuleForSplitPackage, CompilerOptions.ENABLED);
-	this.runConformTest(
-			true,
+	AbstractRegressionTest.runConformTest(
+			this, true,
 			new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -182,7 +182,7 @@ public void testIgnoreUnnamedModule4() {
 			JavacTestOptions.DEFAULT);
 }
 public void testConflictWithUnnamedModule() {
-	String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "ignore-unnamed-module-test.jar";
+	String path = AbstractRegressionTest.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "ignore-unnamed-module-test.jar";
 	String[] defaultLibs = getDefaultClassPaths();
 	int len = defaultLibs.length;
 	String[] libs = new String[len+1];

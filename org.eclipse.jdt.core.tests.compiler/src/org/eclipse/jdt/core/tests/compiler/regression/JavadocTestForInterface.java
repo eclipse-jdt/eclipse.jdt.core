@@ -64,8 +64,8 @@ public class JavadocTestForInterface extends JavadocTest {
 	}
 
 	public void test002() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"IX.java",
 				"	/**\n"
 					+ "	 * Invalid class javadoc\n"
@@ -84,8 +84,8 @@ public class JavadocTestForInterface extends JavadocTest {
 	}
 
 	public void test003() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"IX.java",
 				"	/**\n"
 					+ "	 * Invalid class javadoc\n"
@@ -104,8 +104,8 @@ public class JavadocTestForInterface extends JavadocTest {
 	}
 
 	public void test004() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"IX.java",
 				"	/**\n"
 					+ "	 * Invalid class javadoc\n"
@@ -124,8 +124,8 @@ public class JavadocTestForInterface extends JavadocTest {
 	}
 
 	public void test005() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"IX.java",
 				"	/**\n"
 					+ "	 * Invalid class javadoc\n"
@@ -144,8 +144,8 @@ public class JavadocTestForInterface extends JavadocTest {
 	}
 
 	public void test006() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"IX.java",
 				"	/**\n"
 					+ "	 * Invalid class javadoc\n"
@@ -226,8 +226,8 @@ public class JavadocTestForInterface extends JavadocTest {
 
 	// @see tag
 	public void test010() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"IX.java",
 				"	/**\n"
 					+ "	 * Invalid string references \n"
@@ -268,8 +268,8 @@ public class JavadocTestForInterface extends JavadocTest {
 	}
 
 	public void test012() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"IX.java",
 				"	/**\n"
 					+ "	 * Invalid URL link references \n"
@@ -602,8 +602,8 @@ public class JavadocTestForInterface extends JavadocTest {
 	}
 
 	public void test041() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"IX.java",
 				"import java.util.Vector;\n"
 					+ "	/**\n"
@@ -648,8 +648,8 @@ public class JavadocTestForInterface extends JavadocTest {
 	}
 
 	public void test043() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"IX.java",
 				"	/**\n"
 					+ "	 * Invalid local methods references\n"
@@ -672,8 +672,8 @@ public class JavadocTestForInterface extends JavadocTest {
 	}
 
 	public void test044() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"IX.java",
 				"	/**\n"
 					+ "	 * Invalid local methods references\n"
@@ -973,8 +973,8 @@ public class JavadocTestForInterface extends JavadocTest {
 	 */
 	// @deprecated tag
 	public void test060() {
-		this.runConformTest(
-			true,
+		AbstractRegressionTest.runConformTest(
+			this, true,
 			new String[] {
 				"X.java",
 				"public class X {\n"
@@ -1000,8 +1000,8 @@ public class JavadocTestForInterface extends JavadocTest {
 	}
 
 	public void test061() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"IX.java",
 				"public interface IX {\n"
 					+ "	/** @deprecated */\n"
@@ -1091,8 +1091,8 @@ public class JavadocTestForInterface extends JavadocTest {
 	}
 
 	public void test063() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n"
 					+ "	\n"
@@ -1179,8 +1179,8 @@ public class JavadocTestForInterface extends JavadocTest {
 	}
 
 	public void test066() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"IX.java",
 				"public interface IX {\n"
 					+ "	/**\n"
@@ -1222,8 +1222,8 @@ public class JavadocTestForInterface extends JavadocTest {
 	}
 
 	public void test068() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"IX.java",
 				"public interface IX {\n"
 					+ "	/**\n"
@@ -1251,8 +1251,8 @@ public class JavadocTestForInterface extends JavadocTest {
 	}
 
 	public void test069() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"IX.java",
 				"public interface IX {\n"
 					+ "	/**\n"
@@ -1280,8 +1280,8 @@ public class JavadocTestForInterface extends JavadocTest {
 	}
 
 	public void test070() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"IX.java",
 				"public interface IX {\n"
 					+ "	/**\n"
@@ -1336,8 +1336,8 @@ public class JavadocTestForInterface extends JavadocTest {
 	}
 
 	public void test072() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"IX.java",
 				"public interface IX {\n"
 					+ "	/**\n"
@@ -1361,8 +1361,8 @@ public class JavadocTestForInterface extends JavadocTest {
 	}
 
 	public void test073() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"IX.java",
 				"import java.io.FileNotFoundException;\n"
 					+ "public interface IX {\n"
@@ -1466,8 +1466,8 @@ public class JavadocTestForInterface extends JavadocTest {
 	}
 
 	public void test082() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"IX.java",
 				"public interface IX {\n"
 					+ "	/**\n"
@@ -1485,8 +1485,8 @@ public class JavadocTestForInterface extends JavadocTest {
 	}
 
 	public void test083() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"IX.java",
 				"public interface IX {\n"
 					+ "	/**\n"
@@ -1507,8 +1507,8 @@ public class JavadocTestForInterface extends JavadocTest {
 	}
 
 	public void test084() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"IX.java",
 				"public interface IX {\n"
 					+ "	/**\n"
@@ -1529,8 +1529,8 @@ public class JavadocTestForInterface extends JavadocTest {
 
 	// @see tag: string
 	public void test090() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"IX.java",
 				"public interface IX {\n"
 					+ "	/**\n"
@@ -1572,8 +1572,8 @@ public class JavadocTestForInterface extends JavadocTest {
 
 	// @see tag: URL
 	public void test092() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"IX.java",
 				"public interface IX {\n"
 					+ "	/**\n"
@@ -1892,8 +1892,8 @@ public class JavadocTestForInterface extends JavadocTest {
 	}
 
 	public void test111() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"IX.java",
 				"import java.util.Vector;\n"
 					+ "public interface IX {\n"
@@ -1941,8 +1941,8 @@ public class JavadocTestForInterface extends JavadocTest {
 	}
 
 	public void test113() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"IX.java",
 				"public interface IX {\n"
 					+ "	/**\n"
@@ -1965,8 +1965,8 @@ public class JavadocTestForInterface extends JavadocTest {
 	}
 
 	public void test114() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"IX.java",
 				"public interface IX {\n"
 					+ "	/**\n"

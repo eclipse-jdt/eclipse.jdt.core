@@ -211,8 +211,8 @@ public void testLambda_05() {
 // Lambda has no descriptor (overriding method from Object), don't bail out with NPE during analysis
 public void testLambda_05a() {
 	Map customOptions = getCompilerOptions();
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"ISAM.java",
 			"import org.eclipse.jdt.annotation.*;\n" +
 			"public interface ISAM {\n" +
@@ -244,8 +244,8 @@ public void testLambda_05a() {
 public void testReferenceExpression1() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNUSED_LOCAL, JavaCore.ERROR);
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			 "I.java",
 			 "public interface I {\n" +
 			 "	public void bar();\n" +
@@ -292,8 +292,8 @@ public void testReferenceExpression1() {
 public void testReferenceExpression_null_1() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_NULL_REFERENCE, JavaCore.ERROR);
-	runNegativeTest(
-		false /*skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+		this, false /*skipJavac */,
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError,
 		new String[] {
 			 "I.java",
@@ -375,8 +375,8 @@ public void testReferenceExpression_nullAnnotation_2() {
 		"----------\n");
 }
 public void testReferenceExpression_nullAnnotation_3() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			 "I.java",
 			 "import org.eclipse.jdt.annotation.*;\n" +
 			 "public interface I {\n" +

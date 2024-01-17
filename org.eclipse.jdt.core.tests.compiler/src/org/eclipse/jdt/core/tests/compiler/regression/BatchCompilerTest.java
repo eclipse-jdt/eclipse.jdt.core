@@ -4740,7 +4740,7 @@ public void test107() throws Exception {
      "",
      true);
 	String expectedOutput = "// Compiled from X.java (version 1.1 : 45.3, super bit)";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
 //compliance 1.4 source 1.3
@@ -4758,7 +4758,7 @@ public void test108() throws Exception {
 		"",
 		true);
 	String expectedOutput = "// Compiled from X.java (version 1.2 : 46.0, super bit)";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
 //compliance 1.4 source 1.4
@@ -4776,7 +4776,7 @@ public void test109() throws Exception {
 		"",
 		true);
 	String expectedOutput = "// Compiled from X.java (version 1.4 : 48.0, super bit)";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
 //compliance 1.5 source 1.3
@@ -4794,7 +4794,7 @@ public void test110() throws Exception {
 		"",
 		true);
 	String expectedOutput = "// Compiled from X.java (version 1.4 : 48.0, super bit)";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
 //compliance 1.5 source 1.4
@@ -4812,7 +4812,7 @@ public void test111() throws Exception {
 		"",
 		true);
 	String expectedOutput = "// Compiled from X.java (version 1.4 : 48.0, super bit)";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
 //compliance 1.5 source 1.5
@@ -4830,7 +4830,7 @@ public void test112() throws Exception {
 		"",
 		true);
 	String expectedOutput = "// Compiled from X.java (version 1.5 : 49.0, super bit)";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
 //compliance 1.6 source 1.3
@@ -4848,7 +4848,7 @@ public void test113() throws Exception {
 		"",
 		true);
 	String expectedOutput = "// Compiled from X.java (version 1.4 : 48.0, super bit)";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
 //compliance 1.6 source 1.4
@@ -4866,7 +4866,7 @@ public void test114() throws Exception {
 		"",
 		true);
 	String expectedOutput = "// Compiled from X.java (version 1.4 : 48.0, super bit)";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
 //compliance 1.6 source 1.5
@@ -4884,7 +4884,7 @@ public void test115() throws Exception {
 		"",
 		true);
 	String expectedOutput = "// Compiled from X.java (version 1.6 : 50.0, super bit)";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
 //compliance 1.6 source 1.6
@@ -4902,7 +4902,7 @@ public void test116() throws Exception {
 		"",
 		true);
 	String expectedOutput = "// Compiled from X.java (version 1.6 : 50.0, super bit)";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
 //compliance 1.7 source 1.3
@@ -4920,7 +4920,7 @@ public void test117() throws Exception {
 		"",
 		true);
 	String expectedOutput = "// Compiled from X.java (version 1.4 : 48.0, super bit)";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
 //compliance 1.7 source 1.4
@@ -4938,7 +4938,7 @@ public void test118() throws Exception {
 		"",
 		true);
 	String expectedOutput = "// Compiled from X.java (version 1.4 : 48.0, super bit)";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
 //compliance 1.7 source 1.5
@@ -4956,7 +4956,7 @@ public void test119() throws Exception {
 		"",
 		true);
 	String expectedOutput = "// Compiled from X.java (version 1.6 : 50.0, super bit)";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
 //compliance 1.7 source 1.6
@@ -4974,7 +4974,7 @@ public void test120() throws Exception {
 		"",
 		true);
 	String expectedOutput = "// Compiled from X.java (version 1.6 : 50.0, super bit)";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=141830
 //compliance 1.7 source 1.7
@@ -4993,7 +4993,7 @@ public void test121() throws Exception {
 		"",
 		true);
 	String expectedOutput = "// Compiled from X.java (version 1.7 : 51.0, super bit)";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 // command line - unusual classpath (ends with ';;;', still OK)
 public void test122_classpath(){
@@ -5279,7 +5279,7 @@ public void test144() throws Exception {
 			"Annotation processing got disabled, since it requires a 1.6 compliant JVM\n",
 			true);
 		String expectedOutput = "// Compiled from X.java (version 1.6 : 50.0, super bit)";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+		AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 	}
 }
 // reporting unnecessary declaration of thrown checked exceptions
@@ -8545,7 +8545,7 @@ public void test231_sourcepath_vs_classpath() throws IOException, InterruptedExc
 					null /* log */) == 0);
 			// compile fails as well
 		}
-		assertFalse(runJavac(commonOptions, new String[] {sourceFilePath}, OUTPUT_DIR));
+		assertFalse(AbstractRegressionTest.runJavac(commonOptions, new String[] {sourceFilePath}, OUTPUT_DIR));
 	}
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=216684

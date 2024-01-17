@@ -215,7 +215,7 @@ public void test002() throws Exception {
 		"        [pc: 173, full, stack: {java.io.PrintStream, java.lang.Class}, locals: {java.lang.String[]}]\n" +
 		"        [pc: 180, full, stack: {java.io.PrintStream}, locals: {java.lang.String[]}]\n" +
 		"        [pc: 181, full, stack: {java.io.PrintStream, int}, locals: {java.lang.String[]}]\n";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 public void test003() throws Exception {
 	this.runConformTest(
@@ -265,7 +265,7 @@ public void test003() throws Exception {
 		"        [pc: 13, full, stack: {java.io.PrintStream}, locals: {java.lang.String[]}]\n" +
 		"        [pc: 14, full, stack: {java.io.PrintStream, int}, locals: {java.lang.String[]}]\n" +
 		"}";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 public void test004() {
 	this.runConformTest(

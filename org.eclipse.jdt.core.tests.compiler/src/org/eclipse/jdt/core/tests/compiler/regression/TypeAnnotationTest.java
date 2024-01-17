@@ -163,7 +163,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"      target type = 0x0 CLASS_TYPE_PARAMETER\n" +
 			"      type parameter index = 0\n" +
 			"    )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test002_classTypeParameter_reflection() throws Exception {
@@ -226,7 +226,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"      target type = 0x0 CLASS_TYPE_PARAMETER\n" +
 				"      type parameter index = 1\n" +
 				"    )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test004_classTypeParameter_reflection() throws Exception {
@@ -298,7 +298,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"      target type = 0x0 CLASS_TYPE_PARAMETER\n" +
 			"      type parameter index = 0\n" +
 			"    )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test006_classTypeParameter() throws Exception {
@@ -340,7 +340,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"      target type = 0x0 CLASS_TYPE_PARAMETER\n" +
 			"      type parameter index = 2\n" +
 			"    )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test007_methodTypeParameter() throws Exception {
@@ -384,7 +384,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        target type = 0x1 METHOD_TYPE_PARAMETER\n" +
 			"        type parameter index = 0\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test008_methodTypeParameter() throws Exception {
@@ -428,7 +428,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        target type = 0x1 METHOD_TYPE_PARAMETER\n" +
 			"        type parameter index = 1\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test009_classExtends() throws Exception {
@@ -450,7 +450,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"      target type = 0x10 CLASS_EXTENDS\n" +
 			"      type index = -1\n" +
 			"    )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test010_classExtends() throws Exception {
@@ -473,7 +473,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"      target type = 0x10 CLASS_EXTENDS\n" +
 			"      type index = -1\n" +
 			"    )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test011_classExtends_reflection() throws Exception {
@@ -572,7 +572,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"      target type = 0x10 CLASS_EXTENDS\n" +
 			"      type index = 1\n" +
 			"    )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test014_classExtends_interfaces_reflection() throws Exception {
@@ -685,7 +685,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"      type index = -1\n" +
 				"      location = [TYPE_ARGUMENT(0)]\n" +
 				"    )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test017_classExtends() throws Exception {
@@ -711,7 +711,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"      type index = 0\n" +
 				"      location = [TYPE_ARGUMENT(0)]\n" +
 				"    )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test018_classExtends() throws Exception {
@@ -738,7 +738,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"      type index = 0\n" +
 				"      location = [TYPE_ARGUMENT(1)]\n" +
 				"    )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test019_classExtends() throws Exception {
@@ -768,7 +768,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"      type index = 0\n" +
 				"      location = [TYPE_ARGUMENT(0), TYPE_ARGUMENT(0)]\n" +
 				"    )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test020_classExtends() throws Exception {
@@ -795,7 +795,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"      type index = 0\n" +
 				"      location = [TYPE_ARGUMENT(0), ARRAY]\n" +
 				"    )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test021_classExtends() throws Exception {
@@ -822,7 +822,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"      type index = 0\n" +
 				"      location = [TYPE_ARGUMENT(0)]\n" +
 				"    )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test022_classExtends() throws Exception {
@@ -849,7 +849,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"      type index = 0\n" +
 				"      location = [TYPE_ARGUMENT(0), ARRAY]\n" +
 				"    )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test023_classExtends() throws Exception {
@@ -876,7 +876,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"      type index = 0\n" +
 				"      location = [TYPE_ARGUMENT(0), ARRAY, ARRAY, ARRAY]\n" +
 				"    )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 
@@ -940,7 +940,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"      target type = 0x10 CLASS_EXTENDS\n" +
 			"      type index = 1\n" +
 			"    )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test025_classTypeParameterBound() throws Exception {
@@ -963,7 +963,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"      target type = 0x11 CLASS_TYPE_PARAMETER_BOUND\n" +
 			"      type parameter index = 0 type parameter bound index = 0\n" +
 			"    )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test026_classTypeParameterBound() throws Exception {
@@ -1005,7 +1005,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"      target type = 0x11 CLASS_TYPE_PARAMETER_BOUND\n" +
 			"      type parameter index = 0 type parameter bound index = 1\n" +
 			"    )\n" ;
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test027_classTypeParameterBound_complex() throws Exception {
@@ -1064,7 +1064,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"      target type = 0x11 CLASS_TYPE_PARAMETER_BOUND\n" +
 			"      type parameter index = 1 type parameter bound index = 1\n" +
 			"    )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test028_methodTypeParameterBound() throws Exception {
@@ -1092,7 +1092,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        target type = 0x12 METHOD_TYPE_PARAMETER_BOUND\n" +
 			"        type parameter index = 0 type parameter bound index = 0\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test029_methodTypeParameterBound() throws Exception {
@@ -1138,7 +1138,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        target type = 0x12 METHOD_TYPE_PARAMETER_BOUND\n" +
 			"        type parameter index = 0 type parameter bound index = 1\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test030_methodTypeParameterBound() throws Exception {
@@ -1182,7 +1182,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        type parameter index = 0 type parameter bound index = 0\n" +
 			"        location = [TYPE_ARGUMENT(0), ARRAY, ARRAY]\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test031_methodTypeParameterBound_complex() throws Exception {
@@ -1245,7 +1245,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        target type = 0x12 METHOD_TYPE_PARAMETER_BOUND\n" +
 			"        type parameter index = 0 type parameter bound index = 1\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test032_field() throws Exception {
@@ -1269,7 +1269,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"      #8 @A(\n" +
 			"        target type = 0x13 FIELD\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test033_field() throws Exception {
@@ -1294,7 +1294,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        target type = 0x13 FIELD\n" +
 			"        location = [TYPE_ARGUMENT(0)]\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test034_field() throws Exception {
@@ -1336,7 +1336,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        #9 value=(int) 3 (constant type)\n" +
 			"        target type = 0x13 FIELD\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test035_field() throws Exception {
@@ -1361,7 +1361,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        target type = 0x13 FIELD\n" +
 			"        location = [TYPE_ARGUMENT(1)]\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test036_field() throws Exception {
@@ -1386,7 +1386,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        target type = 0x13 FIELD\n" +
 			"        location = [TYPE_ARGUMENT(0), ARRAY, ARRAY]\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test037_field() throws Exception {
@@ -1410,7 +1410,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        target type = 0x13 FIELD\n" +
 			"        location = [TYPE_ARGUMENT(0), WILDCARD]\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test038_field() throws Exception {
@@ -1435,7 +1435,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"        target type = 0x13 FIELD\n" +
 				"        location = [INNER_TYPE]\n" +
 				"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test038a_field() throws Exception {
@@ -1481,7 +1481,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"        target type = 0x13 FIELD\n" +
 				"        location = [ARRAY]\n" +
 				"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test039_field() throws Exception {
@@ -1525,7 +1525,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        target type = 0x13 FIELD\n" +
 			"        location = [ARRAY]\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test040_field_complex() throws Exception {
@@ -1691,7 +1691,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        target type = 0x13 FIELD\n" +
 			"        location = [TYPE_ARGUMENT(1), ARRAY, ARRAY]\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test041_field() throws Exception {
@@ -1761,7 +1761,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        target type = 0x13 FIELD\n" +
 			"        location = [ARRAY, ARRAY]\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test042_methodReturnType() throws Exception {
@@ -1803,7 +1803,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        #18 value=(int) 3 (constant type)\n" +
 			"        target type = 0x14 METHOD_RETURN\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test043_methodReceiver() throws Exception {
@@ -1842,7 +1842,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        #17 value=(int) 3 (constant type)\n" +
 			"        target type = 0x15 METHOD_RECEIVER\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test044_methodReceiver() throws Exception {
@@ -1882,7 +1882,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        target type = 0x15 METHOD_RECEIVER\n" +
 			"        location = [TYPE_ARGUMENT(0)]\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 
@@ -1916,7 +1916,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        target type = 0x16 METHOD_FORMAL_PARAMETER\n" +
 			"        method parameter index = 0\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test046_methodParameter() throws Exception {
@@ -1949,7 +1949,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        target type = 0x16 METHOD_FORMAL_PARAMETER\n" +
 			"        method parameter index = 2\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test047_methodParameterArray() throws Exception {
@@ -1999,7 +1999,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        method parameter index = 0\n" +
 			"        location = [ARRAY]\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test048_throws() throws Exception {
@@ -2064,7 +2064,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        target type = 0x17 THROWS\n" +
 			"        throws index = 2\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 
@@ -2121,7 +2121,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        local variable entries:\n" +
 			"          [pc: 31, pc: 39] index: 2\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test050_codeblocks_localVariable() throws Exception {
@@ -2194,7 +2194,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"          [pc: 5, pc: 46] index: 3\n" +
 			"        location = [ARRAY, ARRAY]\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test051_codeblocks_resourceVariable() throws Exception {
@@ -2240,7 +2240,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        local variable entries:\n" +
 			"          [pc: 21, pc: 135] index: 3\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test052_codeblocks_exceptionParameter() throws Exception {
@@ -2283,7 +2283,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        target type = 0x42 EXCEPTION_PARAMETER\n" +
 			"        exception table index = 0\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test053_codeblocks_exceptionParameter() throws Exception {
@@ -2333,7 +2333,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        target type = 0x42 EXCEPTION_PARAMETER\n" +
 			"        exception table index = 0\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test054_codeblocks_exceptionParameter() throws Exception {
@@ -2379,7 +2379,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        target type = 0x42 EXCEPTION_PARAMETER\n" +
 			"        exception table index = 1\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test055_codeblocks_exceptionParameterMultiCatch() throws Exception {
@@ -2434,7 +2434,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        target type = 0x42 EXCEPTION_PARAMETER\n" +
 			"        exception table index = 2\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test056_codeblocks_instanceof() throws Exception {
@@ -2467,10 +2467,10 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        target type = 0x43 INSTANCEOF\n" +
 			"        offset = 1\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 
 		expectedOutput = "     1  instanceof java.lang.String [16]\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test057_codeblocks_new() throws Exception {
@@ -2518,7 +2518,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        target type = 0x44 NEW\n" +
 			"        offset = 8\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test058_codeblocks_new2() throws Exception {
@@ -2550,7 +2550,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        offset = 8\n" +
 			"        location = [INNER_TYPE]\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test057_codeblocks_new3_415821() throws Exception {
@@ -2573,14 +2573,14 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        target type = 0x44 NEW\n" +
 			"        offset = 0\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "C.class", "C", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "C.class", "C", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 		expectedOutput =
 			"  RuntimeVisibleTypeAnnotations: \n" +
 			"    #28 @X(\n" +
 			"      target type = 0x10 CLASS_EXTENDS\n" +
 			"      type index = -1\n" +
 			"    )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "C$1.class", "C$1", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "C$1.class", "C$1", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test057_codeblocks_new4_415821() throws Exception {
@@ -2602,14 +2602,14 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        target type = 0x44 NEW\n" +
 			"        offset = 0\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "C.class", "C", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "C.class", "C", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 		expectedOutput =
 			"  RuntimeVisibleTypeAnnotations: \n" +
 			"    #31 @X(\n" +
 			"      target type = 0x10 CLASS_EXTENDS\n" +
 			"      type index = 0\n" +
 			"    )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "C$1.class", "C$1", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "C$1.class", "C$1", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test059_codeblocks_new_newArray() throws Exception {
@@ -2657,7 +2657,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        offset = 9\n" +
 			"        location = [ARRAY]\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test060_codeblocks_new_multiNewArray() throws Exception {
@@ -2687,7 +2687,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        offset = 10\n" +
 			"        location = [ARRAY, ARRAY]\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test060a_codeblocks_new_newArrayWithInitializer() throws Exception {
@@ -2744,7 +2744,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        location = [ARRAY]\n" +
 			"      )\n" +
 			"}";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test060b_codeblocks_new_multiNewArray() throws Exception {
@@ -2801,7 +2801,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        location = [ARRAY]\n" +
 			"      )\n" +
 			"}";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test060c_codeblocks_new_multiNewArray() throws Exception {
@@ -2871,7 +2871,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        location = [ARRAY, ARRAY]\n" +
 			"      )\n" +
 			"}";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test060d_codeblocks_new_arraysWithNestedTypes() throws Exception {
@@ -2914,7 +2914,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        target type = 0x44 NEW\n" +
 			"        offset = 9\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test060e_codeblocks_new_arraysWithNestedTypes() throws Exception {
@@ -2963,7 +2963,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        offset = 10\n" +
 			"        location = [ARRAY]\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test060f_codeblocks_new_arraysWithQualifiedNestedTypes() throws Exception {
@@ -3016,7 +3016,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        offset = 10\n" +
 			"        location = [ARRAY]\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "org" + File.separator + "foo" + File.separator + "bar" + File.separator + "X.class",
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "org" + File.separator + "foo" + File.separator + "bar" + File.separator + "X.class",
 				"org.foo.bar.X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
@@ -3065,7 +3065,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        offset = 9\n" +
 			"        location = [ARRAY]\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test062_codeblocks_newArray() throws Exception {
@@ -3113,7 +3113,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        offset = 9\n" +
 			// no type path expected here
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test062_codeblocks_newArrayWithInitializer() throws Exception {
@@ -3161,7 +3161,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        offset = 9\n" +
 			// no type path expected here
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test063_codeblocks_new_instanceof() throws Exception {
@@ -3232,7 +3232,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        offset = 6\n" +
 			"        location = [ARRAY]\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 
@@ -3267,7 +3267,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        target type = 0x45 CONSTRUCTOR_REFERENCE\n" +
 			"        offset = 8\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 
@@ -3302,7 +3302,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        target type = 0x46 METHOD_REFERENCE\n" +
 			"        offset = 8\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test066_codeblocks_methodReference() throws Exception {
@@ -3355,7 +3355,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        target type = 0x46 METHOD_REFERENCE\n" +
 			"        offset = 0\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test067_codeblocks_constructorReferenceTypeArgument() throws Exception {
@@ -3391,7 +3391,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        offset = 8\n" +
 			"        type argument index = 0\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test068_codeblocks_methodReferenceTypeArgument() throws Exception {
@@ -3426,7 +3426,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        offset = 8\n" +
 			"        type argument index = 0\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test069_codeblocks_cast() throws Exception {
@@ -3462,7 +3462,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        offset = 8\n" +
 			"        type argument index = 0\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test070_codeblocks_cast_complex() throws Exception {
@@ -3537,7 +3537,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        type argument index = 0\n" +
 			"        location = [ARRAY]\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test070a_codeblocks_castWithIntersectionCast() throws Exception {
@@ -3598,7 +3598,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"        offset = 9\n" +
 				"        type argument index = 1\n" +
 				"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test070b_codeblocks_castWithIntersectionCast() throws Exception {
@@ -3658,7 +3658,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"        type argument index = 0\n" +
 				"        location = [TYPE_ARGUMENT(0)]\n" +
 				"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test070c_codeblocks_castTwiceInExpression() throws Exception {
@@ -3714,7 +3714,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"        offset = 12\n" +
 				"        type argument index = 0\n" +
 				"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test070d_codeblocks_castDoubleIntersectionCastInExpression() throws Exception {
@@ -3775,7 +3775,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"        offset = 18\n" +
 				"        type argument index = 0\n" +
 				"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test071_codeblocks_constructorInvocationTypeArgument() throws Exception {
@@ -3826,7 +3826,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        offset = 5\n" +
 			"        type argument index = 0\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test072_codeblocks_constructorInvocationTypeArgument() throws Exception {
@@ -3899,7 +3899,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        offset = 6\n" +
 			"        type argument index = 1\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void test073_codeblocks_constructorInvocationTypeArgument() throws Exception {
 		this.runConformTest(
@@ -3929,7 +3929,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        offset = 3\n" +
 			"        type argument index = 1\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test074_codeblocks_constructorInvocationTypeArgument() throws Exception {
@@ -3962,7 +3962,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        type argument index = 0\n" +
 			"        location = [TYPE_ARGUMENT(0)]\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test075_codeblocks_constructorInvocationTypeArgument() throws Exception {
@@ -3993,7 +3993,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        offset = 3\n" +
 			"        type argument index = 0\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test076_codeblocks_methodInvocationTypeArgument() throws Exception {
@@ -4063,7 +4063,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        offset = 13\n" +
 			"        type argument index = 1\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test077_codeblocks_methodInvocationTypeArgument() throws Exception {
@@ -4095,7 +4095,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        offset = 2\n" +
 			"        type argument index = 1\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test078_codeblocks_methodInvocationTypeArgument() throws Exception {
@@ -4128,7 +4128,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        type argument index = 0\n" +
 			"        location = [TYPE_ARGUMENT(0)]\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test079_codeblocks_methodInvocationTypeArgument() throws Exception {
@@ -4159,7 +4159,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        offset = 2\n" +
 			"        type argument index = 0\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 
@@ -4190,7 +4190,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        #18 value=(int) 1 (constant type)\n" +
 			"        target type = 0x14 METHOD_RETURN\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test081_multiuseAnnotations() throws Exception {
@@ -4217,7 +4217,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        #18 value=(int) 4 (constant type)\n" +
 			"        target type = 0x14 METHOD_RETURN\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	// When not annotated with any TYPE it assumes the Java7 set (i.e. not TYPE_USE/TYPE_PARAMETER)
@@ -4251,7 +4251,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        #17 value=(int) 4 (constant type)\n" +
 			"      )\n" +
 			"}";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	// as of https://bugs.openjdk.java.net/browse/JDK-8231435 no-@Target annotations are legal also in TYPE_USE/TYPE_PARAMETER position
@@ -4321,7 +4321,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"      type parameter index = 0\n" +
 				"    )\n" +
 				"}";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test100_pqtr() throws Exception { // PQTR (ParameterizedQualifiedTypeReference)
@@ -4345,7 +4345,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 					"        #11 value=(int) 2 (constant type)\n" +
 					"        target type = 0x13 FIELD\n" +
 					"      )\n";
-			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+			AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test100a_pqtr() throws Exception {
@@ -4370,7 +4370,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 					"        target type = 0x13 FIELD\n" +
 					"        location = [ARRAY]\n" +
 					"      )\n";
-			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+			AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test100b_pqtr() throws Exception {
@@ -4395,7 +4395,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 					"        target type = 0x13 FIELD\n" +
 					"        location = [ARRAY, TYPE_ARGUMENT(0)]\n" +
 					"      )\n";
-			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+			AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test100c_pqtr() throws Exception {
@@ -4419,7 +4419,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 					"        #11 value=(int) 3 (constant type)\n" +
 					"        target type = 0x13 FIELD\n" +
 					"      )\n";
-			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+			AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test100d_pqtr() throws Exception {
@@ -4458,7 +4458,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 					"        target type = 0x13 FIELD\n" +
 					"        location = [ARRAY, ARRAY, TYPE_ARGUMENT(0)]\n" +
 					"      )\n";
-			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+			AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 
@@ -4483,7 +4483,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"        #11 value=(int) 2 (constant type)\n" +
 				"        target type = 0x13 FIELD\n" +
 				"      )\n";
-			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+			AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test100f_pqtr() throws Exception {
@@ -4522,7 +4522,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"        target type = 0x13 FIELD\n" +
 				"        location = [INNER_TYPE, INNER_TYPE, INNER_TYPE]\n" +
 				"      )\n";
-			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "one" + File.separator + "two" + File.separator + "three" + File.separator + "X.class", "one.two.three.X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+			AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "one" + File.separator + "two" + File.separator + "three" + File.separator + "X.class", "one.two.three.X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test100g_pqtr() throws Exception {
@@ -4561,7 +4561,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"        target type = 0x13 FIELD\n" +
 				"        location = [ARRAY, ARRAY, INNER_TYPE, INNER_TYPE, INNER_TYPE]\n" +
 				"      )\n";
-			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "one" + File.separator + "two" + File.separator + "three" + File.separator + "X.class", "one.two.three.X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+			AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "one" + File.separator + "two" + File.separator + "three" + File.separator + "X.class", "one.two.three.X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test100h_pqtr() throws Exception {
@@ -4594,7 +4594,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"        target type = 0x13 FIELD\n" +
 				"        location = [ARRAY, ARRAY, INNER_TYPE, INNER_TYPE, INNER_TYPE]\n" +
 				"      )\n";
-			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+			AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test100i_pqtr() throws Exception {
@@ -4622,7 +4622,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"        target type = 0x13 FIELD\n" +
 				"        location = [ARRAY, ARRAY, INNER_TYPE, INNER_TYPE, INNER_TYPE, TYPE_ARGUMENT(0)]\n" +
 				"      )\n";
-			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+			AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test100j_pqtr() throws Exception {
@@ -4655,7 +4655,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"        target type = 0x13 FIELD\n" +
 				"        location = [ARRAY, ARRAY, INNER_TYPE, INNER_TYPE, INNER_TYPE, TYPE_ARGUMENT(0)]\n" +
 				"      )\n";
-			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+			AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test100k_pqtr() throws Exception {
@@ -4693,7 +4693,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"        target type = 0x13 FIELD\n" +
 				"        location = [ARRAY, ARRAY, INNER_TYPE, INNER_TYPE, INNER_TYPE, TYPE_ARGUMENT(0)]\n" +
 				"      )\n";
-			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+			AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test101a_qtr() throws Exception { // QTR (QualifiedTypeReference)
@@ -4721,7 +4721,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 					"        #9 value=(int) 2 (constant type)\n" +
 					"        target type = 0x13 FIELD\n" +
 					"      )\n";
-			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+			AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 
@@ -4746,7 +4746,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"        #9 value=(int) 2 (constant type)\n" +
 				"        target type = 0x13 FIELD\n" +
 				"      )\n";
-			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+			AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test101c_qtr() throws Exception { // QTR (QualifiedTypeReference)
@@ -4785,7 +4785,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"        target type = 0x13 FIELD\n" +
 				"        location = [INNER_TYPE, INNER_TYPE, INNER_TYPE]\n" +
 				"      )\n";
-			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "one" + File.separator + "two" + File.separator + "three" + File.separator + "X.class", "one.two.three.X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+			AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "one" + File.separator + "two" + File.separator + "three" + File.separator + "X.class", "one.two.three.X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test102a_str() throws Exception { // STR (SingleTypeReference)
@@ -4809,7 +4809,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 					"        #9 value=(int) 1 (constant type)\n" +
 					"        target type = 0x13 FIELD\n" +
 					"      )\n";
-			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+			AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test102b_str() throws Exception { // STR (SingleTypeReference)
@@ -4833,7 +4833,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 					"        #9 value=(int) 1 (constant type)\n" +
 					"        target type = 0x13 FIELD\n" +
 					"      )\n";
-			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+			AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test103a_atr() throws Exception { // ATR (ArrayTypeReference)
@@ -4858,7 +4858,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 					"        target type = 0x13 FIELD\n" +
 					"        location = [ARRAY]\n" +
 					"      )\n";
-			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+			AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test103b_atr() throws Exception { // ATR (ArrayTypeReference)
@@ -4882,7 +4882,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 					"        #9 value=(int) 2 (constant type)\n" +
 					"        target type = 0x13 FIELD\n" +
 					"      )\n";
-			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+			AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test103c_atr() throws Exception { // ATR (ArrayTypeReference)
@@ -4907,7 +4907,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 					"        target type = 0x13 FIELD\n" +
 					"        location = [ARRAY]\n" +
 					"      )\n";
-			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+			AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test103d_atr() throws Exception { // ATR (ArrayTypeReference)
@@ -4932,7 +4932,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 					"        target type = 0x13 FIELD\n" +
 					"        location = [ARRAY]\n" +
 					"      )\n";
-			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+			AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test103e_atr() throws Exception { // ATR (ArrayTypeReference)
@@ -4962,7 +4962,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 					"        target type = 0x13 FIELD\n" +
 					"        location = [ARRAY]\n" +
 					"      )\n";
-			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+			AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test104a_pstr() throws Exception { // PSTR (ParameterizedSingleTypeReference)
@@ -5001,7 +5001,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"        target type = 0x13 FIELD\n" +
 				"        location = [TYPE_ARGUMENT(2)]\n" +
 				"      )\n";
-			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+			AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test104b_pstr() throws Exception { // PSTR (ParameterizedSingleTypeReference)
@@ -5035,7 +5035,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"        target type = 0x13 FIELD\n" +
 				"        location = [ARRAY, TYPE_ARGUMENT(0)]\n" +
 				"      )\n";
-			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+			AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test105a_aqtr() throws Exception { // AQTR (ArrayQualifiedTypeReference)
@@ -5069,7 +5069,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"        target type = 0x13 FIELD\n" +
 				"        location = [ARRAY]\n" +
 				"      )\n";
-			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "one" + File.separator + "two" + File.separator + "three" + File.separator +"X.class",
+			AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "one" + File.separator + "two" + File.separator + "three" + File.separator +"X.class",
 					"one.two.three.X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
@@ -5113,7 +5113,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"        target type = 0x13 FIELD\n" +
 				"        location = [ARRAY]\n" +
 				"      )\n";
-			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "one" + File.separator + "two" + File.separator + "three" + File.separator +"X.class",
+			AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "one" + File.separator + "two" + File.separator + "three" + File.separator +"X.class",
 					"one.two.three.X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
@@ -5143,7 +5143,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"        target type = 0x13 FIELD\n" +
 				"        location = [TYPE_ARGUMENT(0), WILDCARD]\n" +
 				"      )\n";
-			checkDisassembledClassFile(OUTPUT_DIR + File.separator +"X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+			AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator +"X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test106b_wtr() throws Exception { // WTR (WildcardTypeReference)
@@ -5172,7 +5172,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"        target type = 0x13 FIELD\n" +
 				"        location = [TYPE_ARGUMENT(0), WILDCARD, ARRAY]\n" +
 				"      )\n";
-			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+			AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=409244, [1.8][compiler] Type annotations on redundant casts dropped.
 	public void testAnnotatedRedundantCast() throws Exception {
@@ -5214,7 +5214,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 							"        type argument index = 0\n" +
 							"      )\n" +
 							"}";
-			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+			AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=409244, [1.8][compiler] Type annotations on redundant casts dropped.
 	public void testAnnotatedRedundantCast2() throws Exception {
@@ -5249,7 +5249,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 							"      Local variable table:\n" +
 							"        [pc: 0, pc: 11] local: this index: 0 type: X\n" +
 							"}";
-			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+			AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test055a_codeblocks_exceptionParameterNestedType() throws Exception {
@@ -5295,7 +5295,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        location = [INNER_TYPE]\n" +
 			"      )\n" +
 			"  \n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
  	}
 
 	public void test055b_codeblocks_exceptionParameterMultiCatchNestedType() throws Exception {
@@ -5355,7 +5355,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        exception table index = 1\n" +
 			"        location = [INNER_TYPE]\n" +
  			"      )\n";
- 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+ 		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
  	}
 
 	public void test055c_codeblocks_exceptionParameterMultiCatch() throws Exception {
@@ -5408,7 +5408,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        target type = 0x42 EXCEPTION_PARAMETER\n" +
 			"        exception table index = 2\n" +
  			"      )\n";
- 		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+ 		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
  	}
 
 	public void test055d_codeblocks_exceptionParameterMultiCatch() throws Exception {
@@ -5483,7 +5483,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        target type = 0x42 EXCEPTION_PARAMETER\n" +
 			"        exception table index = 2\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test055e_codeblocks_exceptionParameterMultiCatch() throws Exception {
@@ -5558,7 +5558,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        target type = 0x42 EXCEPTION_PARAMETER\n" +
 			"        exception table index = 2\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test055f_codeblocks_exceptionParameterComplex() throws Exception {
@@ -5636,7 +5636,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			"        target type = 0x42 EXCEPTION_PARAMETER\n" +
 			"        exception table index = 5\n" +
 			"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void testBug415911() {
@@ -5780,7 +5780,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"          [pc: 6, pc: 28] index: 0\n" +
 				"        location = [ARRAY, ARRAY, ARRAY, ARRAY, TYPE_ARGUMENT(0)]\n" +
 				"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void testBug426616a() throws Exception {
@@ -5878,7 +5878,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"        location = [ARRAY, ARRAY, ARRAY]\n" +
 				"      )\n" +
 				"  \n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void testTypeVariable() {
@@ -6071,7 +6071,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 					"        target type = 0x14 METHOD_RETURN\n" +
 					"      )\n" +
 					"}";
-			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+			AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=418347,  [1.8][compiler] Type annotations dropped during code generation.
@@ -6123,7 +6123,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 					"        location = [ARRAY, ARRAY, INNER_TYPE, TYPE_ARGUMENT(0)]\n" +
 					"      )\n" +
 					"  \n";
-			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "Outer.class", "Outer", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+			AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "Outer.class", "Outer", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=418347,  [1.8][compiler] Type annotations dropped during code generation.
 	public void testPQTRArray2() throws Exception {
@@ -6191,7 +6191,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 					"        location = [ARRAY, ARRAY, INNER_TYPE, TYPE_ARGUMENT(1), INNER_TYPE]\n" +
 					"      )\n" +
 					"  \n";
-			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "Outer.class", "Outer", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+			AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "Outer.class", "Outer", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=418347,  [1.8][compiler] Type annotations dropped during code generation.
 	public void testConstructorResult() throws Exception {
@@ -6249,8 +6249,8 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 					"        location = [INNER_TYPE]\n" +
 					"      )\n" +
 					"\n";
-			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
-			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X$Y.class", "Y", expectedOutForY, ClassFileBytesDisassembler.SYSTEM);
+			AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+			AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X$Y.class", "Y", expectedOutForY, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=418347,  [1.8][compiler] Type annotations dropped during code generation.
 	public void test418347() throws Exception {
@@ -6277,7 +6277,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 					"        location = [INNER_TYPE]\n" +
 					"      )\n" +
 					"\n";
-			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+			AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=418347,  [1.8][compiler] Type annotations dropped during code generation.
 	public void test418347a() throws Exception {
@@ -6315,7 +6315,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 					"        location = [ARRAY, INNER_TYPE, INNER_TYPE]\n" +
 					"      )\n" +
 					"\n";
-			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+			AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=418347,  [1.8][compiler] Type annotations dropped during code generation.
 	public void test418347b() throws Exception {
@@ -6346,12 +6346,12 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 					"        location = [ARRAY]\n" +
 					"      )\n" +
 					"}";
-			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+			AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=419331, [1.8][compiler] Weird error on forward reference to type annotations from type parameter declarations
 	public void testForwardReference() {
-		this.runNegativeTest(
-			false /* skipJavac */,
+		AbstractRegressionTest.runNegativeTest(
+			this, false /* skipJavac */,
 			JavacTestOptions.Excuse.JavacHasWarningsEclipseNotConfigured,
 			new String[] {
 				"T.java",
@@ -6447,7 +6447,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"    #8 @T(\n" +
 				"    )\n" +
 				"}";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void testHybridTargets2() throws Exception {
 		this.runConformTest(
@@ -6542,7 +6542,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"        target type = 0x14 METHOD_RETURN\n" +
 				"      )\n" +
 				"}";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	public void testDeprecated() throws Exception {
 		this.runConformTest(
@@ -6594,7 +6594,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"        ]\n" +
 				"    )\n" +
 				"}";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=421148, [1.8][compiler] Verify error with annotated casts and unused locals.
 	public void test421148() {
@@ -6786,8 +6786,8 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		Requestor requestor = new Requestor(false, null /*no custom requestor*/, false, /* show category */ false /* show warning token*/);
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
-		Compiler compiler = new Compiler(getNameEnvironment(new String[0], null), getErrorHandlingPolicy(),
-				new CompilerOptions(customOptions), requestor, getProblemFactory());
+		Compiler compiler = new Compiler(AbstractRegressionTest.getNameEnvironment(this, new String[0], null), AbstractRegressionTest.getErrorHandlingPolicy(),
+				new CompilerOptions(customOptions), requestor, AbstractRegressionTest.getProblemFactory());
 		char [][] compoundName = new char [][] { "test1".toCharArray(), "Base".toCharArray()};
 		ReferenceBinding type = compiler.lookupEnvironment.askForType(compoundName, compiler.lookupEnvironment.UnNamedModule);
 		assertNotNull(type);
@@ -6856,8 +6856,8 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 		Requestor requestor = new Requestor(false, null /*no custom requestor*/, false, /* show category */ false /* show warning token*/);
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
-		Compiler compiler = new Compiler(getNameEnvironment(new String[0], null), getErrorHandlingPolicy(),
-				new CompilerOptions(customOptions), requestor, getProblemFactory());
+		Compiler compiler = new Compiler(AbstractRegressionTest.getNameEnvironment(this, new String[0], null), AbstractRegressionTest.getErrorHandlingPolicy(),
+				new CompilerOptions(customOptions), requestor, AbstractRegressionTest.getProblemFactory());
 		char [][] compoundName = new char [][] { "test1".toCharArray(), "Base".toCharArray()};
 		ReferenceBinding type = compiler.lookupEnvironment.askForType(compoundName, compiler.lookupEnvironment.UnNamedModule);
 		assertNotNull(type);
@@ -6925,12 +6925,12 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 			Map customOptions = getCompilerOptions();
 			customOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
 			String[] defaultClassPaths = getDefaultClassPaths();
-			String jarpath = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "bug492322-compiled-with-4.6.jar";
+			String jarpath = AbstractRegressionTest.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "bug492322-compiled-with-4.6.jar";
 			String[] paths = new String[defaultClassPaths.length + 1];
 			System.arraycopy(defaultClassPaths, 0, paths, 0, defaultClassPaths.length);
 			paths[defaultClassPaths.length] = jarpath;
-			Compiler compiler = new Compiler(getNameEnvironment(new String[0], paths), getErrorHandlingPolicy(),
-					new CompilerOptions(customOptions), requestor, getProblemFactory());
+			Compiler compiler = new Compiler(AbstractRegressionTest.getNameEnvironment(this, new String[0], paths), AbstractRegressionTest.getErrorHandlingPolicy(),
+					new CompilerOptions(customOptions), requestor, AbstractRegressionTest.getProblemFactory());
 			char [][] compoundName = new char [][] { "test1".toCharArray(), "Base".toCharArray()};
 			ReferenceBinding type = compiler.lookupEnvironment.askForType(compoundName, compiler.lookupEnvironment.UnNamedModule);
 			assertNotNull(type);
@@ -6958,7 +6958,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 
 		Requestor requestor = new Requestor(false, null, false, false);
 		Map<String, String> customOptions = getCompilerOptions(); customOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
-		Compiler compiler = new Compiler(getNameEnvironment(new String[0], null), getErrorHandlingPolicy(), new CompilerOptions(customOptions), requestor, getProblemFactory());
+		Compiler compiler = new Compiler(AbstractRegressionTest.getNameEnvironment(this, new String[0], null), AbstractRegressionTest.getErrorHandlingPolicy(), new CompilerOptions(customOptions), requestor, AbstractRegressionTest.getProblemFactory());
 
 		ReferenceBinding type = compiler.lookupEnvironment.askForType(new char[][] {"p".toCharArray(), "C".toCharArray()}, compiler.lookupEnvironment.UnNamedModule);
 		assertNotNull(type);
@@ -6989,7 +6989,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"        target type = 0x1 METHOD_TYPE_PARAMETER\n" +
 				"        type parameter index = 1\n" +
 				"      )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 
 		expectedOutput =
 				"  RuntimeVisibleTypeAnnotations: \n" +
@@ -6998,7 +6998,7 @@ public class TypeAnnotationTest extends AbstractRegressionTest {
 				"      type parameter index = 0\n" +
 				"    )\n" +
 				"}";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=568240
 	// Method's annotation attribute is compiled as annotation on return type

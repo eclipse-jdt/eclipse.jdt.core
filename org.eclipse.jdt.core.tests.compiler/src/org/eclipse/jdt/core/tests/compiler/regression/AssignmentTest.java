@@ -411,8 +411,8 @@ public void test033() {
 public void test034() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER, JavaCore.IGNORE);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public final class X \n" +
 			"{\n" +
@@ -838,8 +838,8 @@ public void test035() {
 		"----------\n");
 }
 public void test036() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"\n" +
@@ -1000,8 +1000,8 @@ public void test039() {
 public void test040() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportParameterAssignment, CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -1030,8 +1030,8 @@ public void test040() {
 public void test041() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportParameterAssignment, CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -1062,8 +1062,8 @@ public void test041() {
 public void test042() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportParameterAssignment, CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -1095,8 +1095,8 @@ public void test042() {
 public void test043() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportParameterAssignment, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  void foo(final boolean b) {\n" +
@@ -1116,8 +1116,8 @@ public void test043() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=100369
 public void test044() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	int length1 = 0;\n" +
@@ -1173,8 +1173,8 @@ public void test044() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=133351
 public void test045() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	void foo() {\n" +
@@ -1199,8 +1199,8 @@ public void test045() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=200724
 public void test046() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	public static String s;\n" +
@@ -1252,8 +1252,8 @@ public void _test048() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=200724
 // adding a package to the picture
 public void test049() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"p/X.java",
 			"package p;\n" +
 			"public class X {\n" +
@@ -1313,8 +1313,8 @@ public void test050() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=200724
 // swap lhs and rhs
 public void test051() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	public static String s;\n" +
@@ -1414,8 +1414,8 @@ public void _test054_definite_unassignment_try_catch() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=235543
 // variant
 public void test055_definite_unassignment_try_catch() {
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		new String[] { /* test files */
 			"X.java",
 			"public class X {\n" +
@@ -1448,8 +1448,8 @@ public void test055_definite_unassignment_try_catch() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=235546
 public void test056_definite_unassignment_infinite_for_loop() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -1478,8 +1478,8 @@ public void test056_definite_unassignment_infinite_for_loop() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=235546
 // variant
 public void test057_definite_unassignment_infinite_while_loop() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -1532,8 +1532,8 @@ public void test058_definite_unassignment_try_finally() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=235555
 public void test059_definite_unassignment_assign_in_for_condition() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -1921,8 +1921,8 @@ public void test064() {
 public void test065() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportComparingIdentical, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	protected boolean foo = false;\n" +
@@ -1953,8 +1953,8 @@ public void test065() {
 public void test066() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportComparingIdentical, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	public boolean test() {\n" +
@@ -1984,8 +1984,8 @@ public void test066() {
 public void test067() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportComparingIdentical, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	public boolean test() {\n" +

@@ -30,8 +30,8 @@ public static Test suite() {
 public void test412555() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		false /* skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+		this, false /* skipJavac */,
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError,
 		new String[] {
 			"X.java",
@@ -63,8 +63,8 @@ public void test412555() {
 public void testGH1370() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		false /* skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+		this, false /* skipJavac */,
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError,
 		new String[] {
 			"X.java",

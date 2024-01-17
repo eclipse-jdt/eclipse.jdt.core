@@ -149,8 +149,8 @@ public void testInlineReturn_broken1() {
 	if(this.complianceLevel < ClassFileConstants.JDK16) {
 		return;
 	}
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"""
 			public class X {
@@ -178,8 +178,8 @@ public void testInlineReturn_broken2() {
 	if(this.complianceLevel < ClassFileConstants.JDK16) {
 		return;
 	}
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 					"X.java",
 			"""
 			public class X

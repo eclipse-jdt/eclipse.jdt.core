@@ -35,7 +35,7 @@ public class MultiReleaseJarTests extends AbstractBatchCompilerTest {
 		return MultiReleaseJarTests.class;
 	}
 	public void test001() {
-		String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "multi.jar";
+		String path = AbstractRegressionTest.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "multi.jar";
 		String[] libs = new String[1];
 		libs[0] = path;
 		runNegativeTest(
@@ -64,7 +64,7 @@ public class MultiReleaseJarTests extends AbstractBatchCompilerTest {
 		   );
 	}
 	public void test002() {
-		String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "multi.jar";
+		String path = AbstractRegressionTest.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "multi.jar";
 		String[] libs = new String[1];
 		libs[0] = path;
 		runNegativeTest(
@@ -88,7 +88,7 @@ public class MultiReleaseJarTests extends AbstractBatchCompilerTest {
 		   );
 	}
 	public void test003() {
-		String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "multi.jar";
+		String path = AbstractRegressionTest.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "multi.jar";
 		String[] libs = new String[1];
 		libs[0] = path;
 		runConformTest(
@@ -107,7 +107,7 @@ public class MultiReleaseJarTests extends AbstractBatchCompilerTest {
 		   );
 	}
 	public void test004() {
-		String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "multi.jar";
+		String path = AbstractRegressionTest.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "multi.jar";
 		String[] libs = new String[1];
 		libs[0] = path;
 		runNegativeTest(
@@ -133,7 +133,7 @@ public class MultiReleaseJarTests extends AbstractBatchCompilerTest {
 	}
 	public void test005() {
 		Util.flushDirectoryContent(new File(OUTPUT_DIR));
-		String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "multi.jar";
+		String path = AbstractRegressionTest.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "multi.jar";
 		String[] libs = new String[1];
 		libs[0] = path;
 		File directory = new File(OUTPUT_DIR +  File.separator + "src" + File.separator + "MyModule" );
@@ -179,7 +179,7 @@ public class MultiReleaseJarTests extends AbstractBatchCompilerTest {
 	}
 	public void test006() {
 		if (!this.isJRE10) return;
-		String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "multi.jar";
+		String path = AbstractRegressionTest.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "multi.jar";
 		String[] libs = new String[1];
 		libs[0] = path;
 		File directory = new File(OUTPUT_DIR +  File.separator + "src" + File.separator + "MyModule" );

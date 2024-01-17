@@ -260,7 +260,7 @@ public class JavadocTestForModule extends AbstractBatchCompilerTest {
 					e.printStackTrace();
 					throw new AssertionFailedError(e.getMessage());
 				}
-				handleMismatch(javacCompiler, testName(), testFiles, javacErrorMatch,
+				AbstractRegressionTest.handleMismatch(this, javacCompiler, testName(), testFiles, javacErrorMatch,
 						"", "", log, "", "",
 						excuse, mismatch);
 				final Set<String> expectedFiles = new HashSet<>(outFiles);

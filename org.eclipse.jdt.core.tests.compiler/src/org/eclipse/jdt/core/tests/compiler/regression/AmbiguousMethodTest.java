@@ -1128,8 +1128,8 @@ X.java:4: warning: [unchecked] unchecked method invocation: method pickOne in cl
 			},
 			"truetruetruetruetruetruetruetruetruetruetruetruetruetruetruetrue"
 		);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"Y.java",
 				"public class Y extends X {\n" +
 				"	public static void ambiguousCases() {\n" +
@@ -2595,8 +2595,8 @@ public void test046() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=163590
 public void test047() {
-	this.runNegativeTest(
- 		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+ 		this, // test directory preparation
 		new String[] { /* test files */
 			"X.java",
 			"public class X<T extends I & J> {\n" +
@@ -2706,8 +2706,8 @@ public void test050() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=166355
 public void test051() {
-	this.runNegativeTest(
-		false /* skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+		this, false /* skipJavac */,
 		this.complianceLevel < ClassFileConstants.JDK1_8 ?
 				null : JavacTestOptions.EclipseHasABug.EclipseBug427719,
 		new String[] { /* test files */
@@ -2788,8 +2788,8 @@ public void test052() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=166355
 // variant
 public void test053() {
-	this.runNegativeTest(
-		false /* skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+		this, false /* skipJavac */,
 		this.complianceLevel < ClassFileConstants.JDK1_8 ?
 				null : JavacTestOptions.EclipseHasABug.EclipseBug427719,
 		new String[] { /* test files */
@@ -3506,8 +3506,8 @@ public void test073() {
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=206930
 public void test074() {
-	this.runNegativeTest(
-		false /* skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+		this, false /* skipJavac */,
 		this.complianceLevel < ClassFileConstants.JDK1_8 ?
 				null : JavacTestOptions.EclipseHasABug.EclipseBug427719,
 		new String[] {

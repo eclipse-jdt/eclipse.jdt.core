@@ -460,8 +460,8 @@ public void test013() {
 public void test014() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.WARNING);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	public static void main(String [] args) {    \n" +
@@ -548,8 +548,8 @@ public void test015() {
 public void test016() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.WARNING);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	public static void main(String [] args) {    \n" +
@@ -3262,8 +3262,8 @@ public void test052() {
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 					"    public static void main(String[] args) throws Throwable {\n" +
@@ -4186,7 +4186,7 @@ public void test380112d() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=380112
 //test380112a variant moving the Interface into a binary
 public void test380112e() {
-	String path = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "Test380112.jar";
+	String path = AbstractRegressionTest.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "Test380112.jar";
 	String[] defaultLibs = getDefaultClassPaths();
 	String[] libs = new String[defaultLibs.length + 1];
 	System.arraycopy(defaultLibs, 0, libs, 0, defaultLibs.length);
@@ -4246,8 +4246,8 @@ public void test394780() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=533187
 public void testBug533187() {
-	this.runConformTest(
-			true,
+	AbstractRegressionTest.runConformTest(
+			this, true,
 			new String[] {
 				"Stuck.java",
 				"public class Stuck {\n" +
@@ -4284,8 +4284,8 @@ public void testBug533187() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=467230
 public void testBug467230() {
-	this.runConformTest(
-			true,
+	AbstractRegressionTest.runConformTest(
+			this, true,
 			new String[] {
 				"Test.java",
 				"public class Test {\n" +
@@ -4322,8 +4322,8 @@ public void testBug467230() {
 }
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/934
 public void _testGHIssue934() {
-	this.runConformTest(
-			true,
+	AbstractRegressionTest.runConformTest(
+			this, true,
 			new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -4364,8 +4364,8 @@ public void _testGHIssue934() {
 // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1063
 // Regression in code generation for try with resources with the fix for Issue # 934
 public void testGHIssue1063() {
-	this.runConformTest(
-			true,
+	AbstractRegressionTest.runConformTest(
+			this, true,
 			new String[] {
 				"X.java",
 				"import java.io.Closeable;\n" +

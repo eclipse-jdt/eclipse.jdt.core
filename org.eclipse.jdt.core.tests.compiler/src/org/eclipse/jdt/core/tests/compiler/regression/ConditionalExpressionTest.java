@@ -516,8 +516,8 @@ public class ConditionalExpressionTest extends AbstractRegressionTest {
 			return;
 		Map<String,String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE);
-		this.runNegativeTest(
-				new String[] {
+		AbstractRegressionTest.runNegativeTest(
+				this, new String[] {
 						"X.java",
 						"import java.util.Collection;\n" +
 						"import java.util.List;\n" +

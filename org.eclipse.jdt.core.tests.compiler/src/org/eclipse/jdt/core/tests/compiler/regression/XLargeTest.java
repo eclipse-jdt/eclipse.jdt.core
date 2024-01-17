@@ -59,8 +59,8 @@ public void test368435() {
 	}
 	sourceCode.append("}\n}\n}\n");
 
-	this.runConformTest(
-			new String[] {
+	AbstractRegressionTest.runConformTest(
+			this, new String[] {
 					"X.java",
 					sourceCode.toString()
 			},
@@ -90,8 +90,8 @@ public void test368435b() {
 	}
 	sourceCode.append("}\n}\n}\n");
 
-	this.runConformTest(
-			new String[] {
+	AbstractRegressionTest.runConformTest(
+			this, new String[] {
 					"X.java",
 					sourceCode.toString()
 			},
@@ -121,8 +121,8 @@ public void test368435c() {
 	}
 	sourceCode.append("}\n}\n}\n");
 
-	this.runConformTest(
-			new String[] {
+	AbstractRegressionTest.runConformTest(
+			this, new String[] {
 					"X.java",
 					sourceCode.toString()
 			},
@@ -886,8 +886,8 @@ public void test004() {
 }
 
 public void test005() {
-	runConformTest(
-		true,
+	AbstractRegressionTest.runConformTest(
+		this, true,
 		new String[] {
 		"p/X.java",
 		"package p;\n" +
@@ -1975,7 +1975,7 @@ public void test008() {
 	options.put(CompilerOptions.OPTION_LineNumberAttribute, CompilerOptions.DO_NOT_GENERATE);
 	options.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.DO_NOT_GENERATE);
 	options.put(CompilerOptions.OPTION_SourceFileAttribute, CompilerOptions.DO_NOT_GENERATE);
-	this.runConformTest(new String[] {
+	AbstractRegressionTest.runConformTest(this, new String[] {
 		"X.java",
 		"public class X extends B implements IToken {\n" +
 		"	public X( int t, int endOffset, char [] filename, int line  ) {\n" +
@@ -2653,8 +2653,8 @@ public void test008() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=126744
 public void test009() {
-	runConformTest(
-		true,
+	AbstractRegressionTest.runConformTest(
+		this, true,
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -3721,8 +3721,8 @@ public void test010() {
 			"abcdefghijklmnopqrstuvwxy12\";\n" +
 			"    }\n" +
 			"}");
-	this.runConformTest(
-		true,
+	AbstractRegressionTest.runConformTest(
+		this, true,
 		new String[] {
 			"X.java",
 			sourceCode.toString()
@@ -3790,8 +3790,8 @@ public void test012() {
 			"abcdefghijklmnopqrstuvwxy12\");\n" +
 			"    }\n" +
 			"}");
-	this.runConformTest(
-		true,
+	AbstractRegressionTest.runConformTest(
+		this, true,
 		new String[] {
 			"X.java",
 			sourceCode.toString()
@@ -3923,8 +3923,8 @@ public void test014() {
 public void test015() {
 	Map settings = getCompilerOptions();
 	settings.put(CompilerOptions.OPTION_ShareCommonFinallyBlocks, CompilerOptions.ENABLED);
-	runConformTest(
-		true,
+	AbstractRegressionTest.runConformTest(
+		this, true,
 		new String[] {
 		"X.java",
 		"public class X {\n" +
@@ -20738,8 +20738,8 @@ public void testIssue1164a() throws ClassFormatException, IOException {
 			"abcdefgh\");\n" +
 			"    }\n" +
 			"}");
-	this.runConformTest(
-		true,
+	AbstractRegressionTest.runConformTest(
+		this, true,
 		new String[] {
 			"X.java",
 			sourceCode.toString()
@@ -20942,12 +20942,12 @@ public void testIssue1164a() throws ClassFormatException, IOException {
 			+ "     282  aload_3 [c]\n"
 			+ "     283  aload 4 [d]\n"
 			+ "     285  invokedynamic 0 makeConcatWithConstants(String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String) : String [16]\n";
-	checkClassFile("X", sourceCode.toString(), expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
+	AbstractRegressionTest.checkClassFile(this, "X", sourceCode.toString(), expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
 	expectedOutput = "  31 : # 69 invokestatic java/lang/invoke/StringConcatFactory.makeConcatWithConstants:(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;\n" +
 			"	Method arguments:\n" +
 			"		#78  ghijkpqrstuabcdef ghijkpqrstuabcdef ghijkpqrstuabcdef ghijkpqrstuabcdef ghijkpqrstuabcdef ghijkpqrstuabcdef ghijkpqrstuabcdef ghijkpqrstuabcdef ghijkpqrstuabcdef ghijkpqrstuabcdef ghijkpqrstuabcdef ghijkpqrstuabcdef ghijkpqrstuabcdef ghijkpqrstuabcdef ghijkpqrstuabcdef ghijkpqrstuabcdef ghijkpqrstuabcdef ghijkpqrstuabcdef ghijkpqrstuabcdef ghijkabcdefghabcdefgh\n" +
 			"}";
-	checkClassFile("X", sourceCode.toString(), expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
+	AbstractRegressionTest.checkClassFile(this, "X", sourceCode.toString(), expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
 }
 public void testIssue1164b() {
 	if (this.complianceLevel < ClassFileConstants.JDK9)
@@ -21013,8 +21013,8 @@ public void testIssue1164b() {
 			+ "ghijkpqrstuabcdefabcdefa ghijkpqrstuabcdefabcdefa ghijkpqrstuabcdefabcdefa ghijkpqrstuabcdefabcdefa ghijkpqrstuabcdefabcdefa "
 			+ "ghijkpqrstuabcdefabcdefa ghijkpqrstuabcdefabcdefa ghijkpqrstuabcdefabcdefa ghijkpqrstuabcdefabcdefa ghijkpqrstuabcdefabcdefa "
 			+ "ghijkpqrstuabcdefabcde ghijkabcdefghabcdefgh";
-	this.runConformTest(
-		true,
+	AbstractRegressionTest.runConformTest(
+		this, true,
 		new String[] {
 			"X.java",
 			sourceCode.toString()

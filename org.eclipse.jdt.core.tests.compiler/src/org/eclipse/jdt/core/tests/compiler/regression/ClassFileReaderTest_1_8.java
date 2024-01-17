@@ -65,7 +65,7 @@ public class ClassFileReaderTest_1_8 extends AbstractRegressionTest {
 			"        int iii() default -1;\n" +
 			"}";
 
-		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = getInternalClassFile("", "X", "X", source);
+		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = AbstractRegressionTest.getInternalClassFile(this, "", "X", "X", source);
 
 		IBinaryTypeAnnotation[] typeAnnotations = classFileReader.getTypeAnnotations();
 		assertEquals(2,typeAnnotations.length);
@@ -88,7 +88,7 @@ public class ClassFileReaderTest_1_8 extends AbstractRegressionTest {
 			"        int iii() default -1;\n" +
 			"}";
 
-		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = getInternalClassFile("", "X", "X", source);
+		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = AbstractRegressionTest.getInternalClassFile(this, "", "X", "X", source);
 
 		IBinaryTypeAnnotation[] typeAnnotations = classFileReader.getTypeAnnotations();
 		assertEquals(2,typeAnnotations.length);
@@ -113,7 +113,7 @@ public class ClassFileReaderTest_1_8 extends AbstractRegressionTest {
 			"        int value() default -1;\n" +
 			"}";
 
-		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader cfr = getInternalClassFile("", "X", "X", source);
+		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader cfr = AbstractRegressionTest.getInternalClassFile(this, "", "X", "X", source);
 
 		IBinaryMethod method = getMethod(cfr,"foo");
 		assertNotNull(method);
@@ -140,7 +140,7 @@ public class ClassFileReaderTest_1_8 extends AbstractRegressionTest {
 			"        int iii() default -1;\n" +
 			"}";
 
-		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = getInternalClassFile("", "X", "X", source);
+		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = AbstractRegressionTest.getInternalClassFile(this, "", "X", "X", source);
 
 		IBinaryTypeAnnotation[] typeAnnotations = classFileReader.getTypeAnnotations();
 		assertEquals(3,typeAnnotations.length);
@@ -166,7 +166,7 @@ public class ClassFileReaderTest_1_8 extends AbstractRegressionTest {
 			"        int iii() default -1;\n" +
 			"}";
 
-		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = getInternalClassFile("", "X", "X", source);
+		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = AbstractRegressionTest.getInternalClassFile(this, "", "X", "X", source);
 
 		IBinaryTypeAnnotation[] typeAnnotations = classFileReader.getTypeAnnotations();
 		assertEquals(3,typeAnnotations.length);
@@ -190,7 +190,7 @@ public class ClassFileReaderTest_1_8 extends AbstractRegressionTest {
 			"        int value() default -1;\n" +
 			"}";
 
-		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = getInternalClassFile("", "X", "X", source);
+		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = AbstractRegressionTest.getInternalClassFile(this, "", "X", "X", source);
 
 		IBinaryTypeAnnotation[] typeAnnotations = classFileReader.getTypeAnnotations();
 		assertEquals(4,typeAnnotations.length);
@@ -218,7 +218,7 @@ public class ClassFileReaderTest_1_8 extends AbstractRegressionTest {
 			"        int value() default -1;\n" +
 			"}";
 
-		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader cfr = getInternalClassFile("", "X", "X", source);
+		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader cfr = AbstractRegressionTest.getInternalClassFile(this, "", "X", "X", source);
 
 		IBinaryMethod method = getMethod(cfr,"foo");
 		assertNotNull(method);
@@ -250,7 +250,7 @@ public class ClassFileReaderTest_1_8 extends AbstractRegressionTest {
 			"        int value() default -1;\n" +
 			"}";
 
-		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader cfr = getInternalClassFile("", "X", "X", source);
+		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader cfr = AbstractRegressionTest.getInternalClassFile(this, "", "X", "X", source);
 
 		IBinaryField field = getField(cfr,"field3");
 		assertNotNull(field);
@@ -287,7 +287,7 @@ public class ClassFileReaderTest_1_8 extends AbstractRegressionTest {
 			"        int value() default -1;\n" +
 			"}";
 
-		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader cfr = getInternalClassFile("", "X", "X", source);
+		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader cfr = AbstractRegressionTest.getInternalClassFile(this, "", "X", "X", source);
 
 		IBinaryMethod method = getMethod(cfr,"foo");
 		assertNotNull(method);
@@ -323,7 +323,7 @@ public class ClassFileReaderTest_1_8 extends AbstractRegressionTest {
 			"        int value() default -1;\n" +
 			"}";
 
-		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader cfr = getInternalClassFile("", "X", "X", source);
+		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader cfr = AbstractRegressionTest.getInternalClassFile(this, "", "X", "X", source);
 
 		IBinaryMethod method = getMethod(cfr,"foo");
 		assertNotNull(method);
@@ -350,7 +350,7 @@ public class ClassFileReaderTest_1_8 extends AbstractRegressionTest {
 			"        int value() default -1;\n" +
 			"}";
 
-		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader cfr = getInternalClassFile("", "X", "X", source);
+		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader cfr = AbstractRegressionTest.getInternalClassFile(this, "", "X", "X", source);
 
 		IBinaryMethod method = getMethod(cfr,"foo");
 		assertNotNull(method);
@@ -378,7 +378,7 @@ public class ClassFileReaderTest_1_8 extends AbstractRegressionTest {
 			"        int value() default -1;\n" +
 			"}";
 
-		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader cfr = getInternalClassFile("", "X", "X", source);
+		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader cfr = AbstractRegressionTest.getInternalClassFile(this, "", "X", "X", source);
 
 		IBinaryMethod method = getMethod(cfr,"foo");
 		assertNotNull(method);
@@ -407,7 +407,7 @@ public class ClassFileReaderTest_1_8 extends AbstractRegressionTest {
 			"        int value() default -1;\n" +
 			"}";
 
-		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader cfr = getInternalClassFile("", "X", "X", source);
+		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader cfr = AbstractRegressionTest.getInternalClassFile(this, "", "X", "X", source);
 
 		IBinaryMethod method = getMethod(cfr,"foo");
 		assertNotNull(method);
@@ -450,7 +450,7 @@ public class ClassFileReaderTest_1_8 extends AbstractRegressionTest {
 		String[] libs = getDefaultClassPaths();
 		int len = libs.length;
 		System.arraycopy(libs, 0, libs = new String[len+1], 0, len);
-		libs[libs.length-1] = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "Test548596.jar";
+		libs[libs.length-1] = AbstractRegressionTest.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "Test548596.jar";
 
 		runConformTest(
 			new String[] {

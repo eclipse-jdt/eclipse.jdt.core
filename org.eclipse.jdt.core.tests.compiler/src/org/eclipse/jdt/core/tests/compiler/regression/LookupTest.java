@@ -657,7 +657,7 @@ public void test019() {
  * member class
  */
 public void test020() {
-	String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
+	String errMessage = AbstractRegressionTest.isMinimumCompliant(this, ClassFileConstants.JDK11) ?
 			"----------\n" +
 			"1. ERROR in p1\\A.java (at line 13)\n" +
 			"	System.out.println(foo.rating + bar.other);	\n" +
@@ -990,8 +990,8 @@ public void test030() {
 	Hashtable target1_2 = new Hashtable();
 	target1_2.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_2);
 
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"p1/A.java",
 			"package p1; \n"+
 			"public abstract class A implements I {	\n" +
@@ -1010,8 +1010,8 @@ public void test030() {
 		target1_2,  // custom options
 		null/*no custom requestor*/);
 
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"p1/C.java",
 			"package p1; \n"+
 			"public class C {	\n" +
@@ -1612,8 +1612,8 @@ public void test047() {
 }
 // 73740 - missing serialVersionUID diagnosis shouldn't trigger load of Serializable
 public void test048() {
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java", //---------------------------
 			"public class X {\n" +
 			"   public static void main(String[] args) {\n"+
@@ -1971,8 +1971,8 @@ public void test061() {
 		// ensure target is 1.1 for having default abstract methods involved
 		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_1);
 	}
-    this.runConformTest(
-        new String[] {
+    AbstractRegressionTest.runConformTest(
+        this, new String[] {
         		"X.java", // =================
     			"interface MyInterface {\n" +
     			"        public void writeToStream();\n" +
@@ -2003,8 +2003,8 @@ public void test062() {
 		// ensure target is 1.1 for having default abstract methods involved
 		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_1);
 	}
-    this.runConformTest(
-        new String[] {
+    AbstractRegressionTest.runConformTest(
+        this, new String[] {
         		"X.java", // =================
     			"interface MyInterface {\n" +
     			"        public void writeToStream();\n" +
@@ -2086,8 +2086,8 @@ public void test064() {
 		// ensure target is 1.1 for having default abstract methods involved
 		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_1);
 	}
-	this.runConformTest(
-			new String[] {
+	AbstractRegressionTest.runConformTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"	public static void main(String[] args) {\n" +
@@ -2288,8 +2288,8 @@ public void test068() {
 	CompilerOptions compOptions = new CompilerOptions(options);
 	if (compOptions.complianceLevel < ClassFileConstants.JDK1_5) return;
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
-	this.runConformTest(
-			new String[] {
+	AbstractRegressionTest.runConformTest(
+			this, new String[] {
 				"X.java",//===================
 				"public class X {\n" +
 				"    public X() {\n" +
@@ -2342,8 +2342,8 @@ public void test068a() {
 		null);
 
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"Test14.java",//===================
 			"public class Test14 {\n" +
 			"    public static void main(String[] args) {\n" +
@@ -2415,8 +2415,8 @@ public void test071() {
 			"}",
 		},
 		"");
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"Y.java",
 			"import p.*;\n" +
 			"public class Y {\n" +
@@ -3116,7 +3116,7 @@ public void test096() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id= 317212
 public void test097() {
-	String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
+	String errMessage = AbstractRegressionTest.isMinimumCompliant(this, ClassFileConstants.JDK11) ?
 			"----------\n" +
 			"1. WARNING in B.java (at line 6)\n" +
 			"	public class M {\n" +
@@ -3316,7 +3316,7 @@ public void test103() {
 	Map options = getCompilerOptions();
 	CompilerOptions compOptions = new CompilerOptions(options);
 	if (compOptions.complianceLevel < ClassFileConstants.JDK1_4) return;
-	String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
+	String errMessage = AbstractRegressionTest.isMinimumCompliant(this, ClassFileConstants.JDK11) ?
 			"----------\n" +
 			"1. WARNING in A.java (at line 2)\n" +
 			"	private int x;\n" +
@@ -3449,7 +3449,7 @@ public void test105() {
 	Map options = getCompilerOptions();
 	CompilerOptions compOptions = new CompilerOptions(options);
 	if (compOptions.complianceLevel < ClassFileConstants.JDK1_4) return;
-	String errMessage =	isMinimumCompliant(ClassFileConstants.JDK11) ?
+	String errMessage =	AbstractRegressionTest.isMinimumCompliant(this, ClassFileConstants.JDK11) ?
 			"----------\n" +
 			"1. WARNING in A.java (at line 2)\n" +
 			"	private int x;\n" +

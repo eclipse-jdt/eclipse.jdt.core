@@ -146,7 +146,7 @@ public class NullAnnotationTests9 extends AbstractNullAnnotationTest {
 	@Override
 	protected INameEnvironment getNameEnvironment(final String[] testFiles, String[] classPaths, Map<String, String> options) {
 		this.classpaths = classPaths == null ? getDefaultClassPaths() : classPaths;
-		INameEnvironment[] classLibs = getClassLibs(classPaths == null, options);
+		INameEnvironment[] classLibs = AbstractRegressionTest.getClassLibs(this, classPaths == null, options);
 		for (INameEnvironment nameEnvironment : classLibs) {
 			((FileSystem) nameEnvironment).scanForModules(createParser());
 		}
@@ -202,7 +202,7 @@ public class NullAnnotationTests9 extends AbstractNullAnnotationTest {
 		Map<String,String> opts = new HashMap<>();
 		opts.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_9);
 		return new Parser(
-				new ProblemReporter(getErrorHandlingPolicy(), new CompilerOptions(opts), getProblemFactory()),
+				new ProblemReporter(AbstractRegressionTest.getErrorHandlingPolicy(), new CompilerOptions(opts), AbstractRegressionTest.getProblemFactory()),
 				false);
 	}
 

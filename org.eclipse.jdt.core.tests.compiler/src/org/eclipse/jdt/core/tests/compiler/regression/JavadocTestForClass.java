@@ -62,8 +62,8 @@ public class JavadocTestForClass extends JavadocTest {
 	}
 
 	public void test002() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"	/**\n"
 					+ "	 * Invalid class javadoc\n"
@@ -83,8 +83,8 @@ public class JavadocTestForClass extends JavadocTest {
 	}
 
 	public void test003() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"	/**\n"
 					+ "	 * Invalid class javadoc\n"
@@ -104,8 +104,8 @@ public class JavadocTestForClass extends JavadocTest {
 	}
 
 	public void test004() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"	/**\n"
 					+ "	 * Invalid class javadoc\n"
@@ -125,8 +125,8 @@ public class JavadocTestForClass extends JavadocTest {
 	}
 
 	public void test005() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"	/**\n"
 					+ "	 * Invalid class javadoc\n"
@@ -146,8 +146,8 @@ public class JavadocTestForClass extends JavadocTest {
 	}
 
 	public void test006() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"	/**\n"
 					+ "	 * Invalid class javadoc\n"
@@ -231,8 +231,8 @@ public class JavadocTestForClass extends JavadocTest {
 	 */
 	// String references
 	public void test010() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"	/**\n"
 					+ "	 * Invalid string references \n"
@@ -288,8 +288,8 @@ public class JavadocTestForClass extends JavadocTest {
 
 	// URL Link references
 	public void test012() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"	/**\n"
 					+ "	 * Invalid URL link references \n"
@@ -633,8 +633,8 @@ public class JavadocTestForClass extends JavadocTest {
 	}
 
 	public void test041() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"import java.util.Vector;\n"
 					+ "	/**\n"
@@ -685,8 +685,8 @@ public class JavadocTestForClass extends JavadocTest {
 	}
 
 	public void test043() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"	/**\n"
 					+ "	 * Invalid local methods references\n"
@@ -705,8 +705,8 @@ public class JavadocTestForClass extends JavadocTest {
 	}
 
 	public void test044() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"	/**\n"
 					+ "	 * Invalid local methods references\n"

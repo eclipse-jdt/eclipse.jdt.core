@@ -2920,8 +2920,8 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=392119
 	public void test392119() throws Exception {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java", //-----------------------------------------------------------------------
 				"@Marker78 @Marker8 @Marker7\n" +
 				"public class X {\n" +
@@ -2959,12 +2959,12 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"    )\n" +
 				"  Attribute: MissingTypes Length: 4\n" +
 				"}";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=392119, variant with explicit class file retention.
 	public void test392119b() throws Exception {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java", //-----------------------------------------------------------------------
 				"@Marker78 @Marker8 @Marker7\n" +
 				"public class X {\n" +
@@ -3005,12 +3005,12 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"    )\n" +
 				"  Attribute: MissingTypes Length: 4\n" +
 				"}";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=392119, variant with explicit runtime retention.
 	public void test392119c() throws Exception {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java", //-----------------------------------------------------------------------
 				"@Marker78 @Marker8 @Marker7\n" +
 				"public class X {\n" +
@@ -3049,7 +3049,7 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 				"    )\n" +
 				"    #26 @Marker7(\n" +
 				"    )\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=394355
 	public void testBug394355() {
@@ -4273,8 +4273,8 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=414038, [1.8][compiler] CCE in resolveAnnotations
 	public void test414038() {
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 					"X.java",
 					"import java.lang.annotation.*;\n" +
 					"@Target(ElementType.TYPE_USE)\n" +
@@ -4293,8 +4293,8 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=421791,  [1.8][compiler] TYPE_USE annotations should be allowed on annotation type declarations
 	public void test421791() {
-		runNegativeTest(
-				new String[] {
+		AbstractRegressionTest.runNegativeTest(
+				this, new String[] {
 						"X.java",
 						"import java.lang.annotation.ElementType;\n" +
 						"import java.lang.annotation.Target;\n" +
@@ -4311,8 +4311,8 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 	public void testBug426977() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"test/X.java",
 				"package test;\n" +
 				"import java.lang.annotation.ElementType;\n" +
@@ -4341,8 +4341,8 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 	public void testBug426977a() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"test/X.java",
 				"package test;\n" +
 				"import java.lang.annotation.ElementType;\n" +
@@ -4371,8 +4371,8 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 	public void test425599() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"import java.lang.annotation.ElementType;\n" +
 				"import java.lang.annotation.Target;\n" +
@@ -4393,8 +4393,8 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 	public void test427955() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"/**\n" +
 				" * @param <K> unused\n" +
@@ -4422,8 +4422,8 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=419827,  [1.8] Annotation with TYPE_USE as target is not allowed to use container with target TYPE
 	public void test419827a() {
-		runNegativeTest(
-				new String[] {
+		AbstractRegressionTest.runNegativeTest(
+				this, new String[] {
 					"X.java",
 					"import java.lang.annotation.ElementType;\n" +
 					"import java.lang.annotation.Repeatable;\n" +
@@ -4445,8 +4445,8 @@ public class NegativeTypeAnnotationTest extends AbstractRegressionTest {
 	// Although the target of FooContainer is different from that of Foo, Foo container cannot be used in any place where
 	// Foo can't be used.
 	public void test419827b() {
-		runNegativeTest(
-				new String[] {
+		AbstractRegressionTest.runNegativeTest(
+				this, new String[] {
 					"X.java",
 					"import java.lang.annotation.ElementType;\n" +
 					"import java.lang.annotation.Repeatable;\n" +

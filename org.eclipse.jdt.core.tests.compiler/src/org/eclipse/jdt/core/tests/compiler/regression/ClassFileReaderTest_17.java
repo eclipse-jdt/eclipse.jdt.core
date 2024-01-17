@@ -52,7 +52,7 @@ public class ClassFileReaderTest_17 extends AbstractRegressionTest {
 				"final class Y extends X{}\n" +
 				"final class Z extends X{}\n";
 
-		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = getInternalClassFile("", "X", "X", source);
+		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = AbstractRegressionTest.getInternalClassFile(this, "", "X", "X", source);
 		char[][] permittedSubtypesNames = classFileReader.getPermittedSubtypeNames();
 
 		assertEquals(2, permittedSubtypesNames.length);
@@ -71,7 +71,7 @@ public class ClassFileReaderTest_17 extends AbstractRegressionTest {
 				"   }\n"+
 				"}";
 
-		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = getInternalClassFile("", "X", "X", source);
+		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = AbstractRegressionTest.getInternalClassFile(this, "", "X", "X", source);
 		char[][] permittedSubtypesNames = classFileReader.getPermittedSubtypeNames();
 
 		assertEquals(1, permittedSubtypesNames.length);
@@ -94,7 +94,7 @@ public class ClassFileReaderTest_17 extends AbstractRegressionTest {
 				"   }\n"+
 				"}";
 
-		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = getInternalClassFile("", "X.E", "X$E", source);
+		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = AbstractRegressionTest.getInternalClassFile(this, "", "X.E", "X$E", source);
 		char[][] permittedSubtypesNames = classFileReader.getPermittedSubtypeNames();
 
 		assertEquals(1, permittedSubtypesNames.length);
@@ -110,7 +110,7 @@ public class ClassFileReaderTest_17 extends AbstractRegressionTest {
 				"strictfp class X {\n"+
 				"}";
 
-		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = getInternalClassFile("", "X", "X", source);
+		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = AbstractRegressionTest.getInternalClassFile(this, "", "X", "X", source);
 
 		int modifiers = classFileReader.getModifiers();
 		assertTrue("strictfp modifier not expected", (modifiers & ClassFileConstants.AccStrictfp) == 0);
@@ -121,7 +121,7 @@ public class ClassFileReaderTest_17 extends AbstractRegressionTest {
 				"  strictfp void foo() {}\n"+
 				"}";
 
-		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = getInternalClassFile("", "X", "X", source);
+		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = AbstractRegressionTest.getInternalClassFile(this, "", "X", "X", source);
 		IBinaryMethod[] methods = classFileReader.getMethods();
 		IBinaryMethod method = methods[1];
 		int modifiers = method.getModifiers();
@@ -133,7 +133,7 @@ public class ClassFileReaderTest_17 extends AbstractRegressionTest {
 				"  void foo() {}\n"+
 				"}";
 
-		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = getInternalClassFile("", "X", "X", source);
+		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = AbstractRegressionTest.getInternalClassFile(this, "", "X", "X", source);
 		IBinaryMethod[] methods = classFileReader.getMethods();
 		IBinaryMethod method = methods[1];
 		int modifiers = method.getModifiers();
@@ -164,7 +164,7 @@ public class ClassFileReaderTest_17 extends AbstractRegressionTest {
 				+ "    void addValueChangeListener(HasValue.ValueChangeListener<? super E> listener);\n"
 				+ "}\n";
 
-		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = getInternalClassFile("", "X", "X", source);
+		org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader classFileReader = AbstractRegressionTest.getInternalClassFile(this, "", "X", "X", source);
 		IBinaryMethod[] methods = classFileReader.getMethods();
 		IBinaryMethod method = methods[3];
 		String name = new String(method.getSelector());

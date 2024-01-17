@@ -442,8 +442,8 @@ public void test0009() {
 	if(this.complianceLevel < ClassFileConstants.JDK1_5) {
 		this.runNegativeTest(testFiles, expected13ProblemLog);
 	} else {
-		runConformTest(
-			true,
+		AbstractRegressionTest.runConformTest(
+			this, true,
 			testFiles,
 			expected15ProblemLog,
 			null, null,

@@ -460,8 +460,8 @@ public void testBug424403() {
 		});
 }
 public void testBug401850a() {
-	runNegativeTest(
-		false /* skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+		this, false /* skipJavac */,
 		this.complianceLevel < ClassFileConstants.JDK1_8 ?
 		null : JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 		new String[] {
@@ -803,8 +803,8 @@ public void testBug425142_full() {
 		"----------\n");
 }
 public void testBug424195a() {
-	runNegativeTestMultiResult(
-		new String[] {
+	AbstractRegressionTest.runNegativeTestMultiResult(
+		this, new String[] {
 			"NPEOnCollector.java",
 			"import java.io.IOException;\n" +
 			"import java.nio.file.Path;\n" +
@@ -1724,8 +1724,8 @@ public void testBug426998b() {
 		});
 }
 public void testBug427164() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"NNLambda.java",
 			"import java.util.*;\n" +
 			"\n" +
@@ -2725,8 +2725,8 @@ public void testBug429430b2() {
 public void testBug429430c() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"Main.java",
 			"import java.io.*;\n" +
 			"import java.lang.annotation.*;\n" +
@@ -2890,8 +2890,8 @@ public void testBug426537c() {
 public void testBug429203() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);
-	runNegativeTest(
-		false /*skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+		this, false /*skipJavac */,
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError,
 		new String[] {
 			"DTest.java",
@@ -3381,8 +3381,8 @@ public void testBug433845() {
 		"----------\n");
 }
 public void testBug435187() {
-	runNegativeTest(
-		false /*skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+		this, false /*skipJavac */,
 		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 		new String[] {
 			"ExtractLocalLambda.java",
@@ -5166,8 +5166,8 @@ public void testBug455945() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=445231, [compiler] IllegalAccessError running Eclipse-compiled class
 // This is a bug in Oracle JREs. Workaround in ECJ: https://bugs.eclipse.org/bugs/show_bug.cgi?id=466675
 public void testBug445231() {
-	runConformTest(
-		true,
+	AbstractRegressionTest.runConformTest(
+		this, true,
 		new String[] {
 		"com/n/Bug.java",
 		"package com.n;\n" +
@@ -5809,8 +5809,8 @@ public void testBug483019() {
 		"1");
 }
 public void testBug483019a() {
-	runConformTest(
-		false /*skipJavac */,
+	AbstractRegressionTest.runConformTest(
+		this, false /*skipJavac */,
 		JavacTestOptions.Excuse.JavacHasErrorsEclipseHasNone,
 		new String[] {
 			"Test.java",
@@ -5844,8 +5844,8 @@ public void testBug484448() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.ENABLED);
 
-	runConformTest(
-			new String[] {
+	AbstractRegressionTest.runConformTest(
+			this, new String[] {
 				"test/Test.java",
 				"package test;\n" +
 				"\n" +
@@ -7335,8 +7335,8 @@ public void testBug488663() {
 		testFiles,
 		"", options);
 	} else {
-		this.runNegativeTest(
-			testFiles,
+		AbstractRegressionTest.runNegativeTest(
+			this, testFiles,
 			"----------\n" +
 			"1. ERROR in C.java (at line 3)\n" +
 			"	Comparator<String> comparator = new Comparator<String>() { //\n" +
@@ -10548,8 +10548,8 @@ public void testBug508834_comment0() {
 	public void testGH1794() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);
-		runNegativeTest(
-			false /*skipJavac */,
+		AbstractRegressionTest.runNegativeTest(
+			this, false /*skipJavac */,
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError,
 			new String[] {
 				"TypeArgumentsTest.java",
@@ -10577,8 +10577,8 @@ public void testBug508834_comment0() {
 	public void testBug576002() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);
-		runNegativeTest(
-			false /*skipJavac */,
+		AbstractRegressionTest.runNegativeTest(
+			this, false /*skipJavac */,
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError,
 			new String[] {
 				"Test.java",
@@ -10603,8 +10603,8 @@ public void testBug508834_comment0() {
 	public void testBug550864() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_ReportRedundantSpecificationOfTypeArguments, CompilerOptions.ERROR);
-		runNegativeTest(
-			false /*skipJavac */,
+		AbstractRegressionTest.runNegativeTest(
+			this, false /*skipJavac */,
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError,
 			new String[] {
 				"TypeArgBug.java",

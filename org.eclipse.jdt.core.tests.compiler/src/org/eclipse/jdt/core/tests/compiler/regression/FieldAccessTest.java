@@ -63,8 +63,8 @@ public void test001() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=149004
 public void test002() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"foo/BaseFoo.java",
 			"package foo;\n" +
 			"public class BaseFoo {\n" +
@@ -92,8 +92,8 @@ public void test002() {
 public void test003() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, CompilerOptions.IGNORE);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"foo/BaseFoo.java",
 			"package foo;\n" +
 			"class BaseFoo {\n" +
@@ -122,8 +122,8 @@ public void test003() {
 public void test004() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, CompilerOptions.IGNORE);
-	this.runNegativeTest(
-		true,
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 			"foo/BaseFoo.java",
 			"package foo;\n" +
@@ -156,8 +156,8 @@ public void test004() {
 public void test005() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnqualifiedFieldAccess, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		true,
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -181,8 +181,8 @@ public void test005() {
 public void test006() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnqualifiedFieldAccess, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		true,
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -206,8 +206,8 @@ public void test006() {
 public void test007() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	private void foo() {\n" +
@@ -236,8 +236,8 @@ public void test007() {
 public void test008() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	private void foo() {\n" +
@@ -266,8 +266,8 @@ public void test008() {
 public void test009() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	private void foo() {\n" +
@@ -296,8 +296,8 @@ public void test009() {
 public void test010() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	private void foo() {\n" +
@@ -326,8 +326,8 @@ public void test010() {
 public void test011() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	private void foo() {\n" +
@@ -356,8 +356,8 @@ public void test011() {
 public void test012() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	private void foo() {\n" +
@@ -386,8 +386,8 @@ public void test012() {
 public void test013() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X extends A {\n" +
 			"	private void foo() {\n" +
@@ -413,8 +413,8 @@ public void test013() {
 public void test014() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X extends A {\n" +
 			"	private void foo() {\n" +
@@ -440,8 +440,8 @@ public void test014() {
 public void test015() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X extends A {\n" +
 			"	private void foo() {\n" +
@@ -468,8 +468,8 @@ public void test015() {
 public void test016() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X extends A {\n" +
 			"	private void foo() {\n" +
@@ -498,8 +498,8 @@ public void test017() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportFieldHiding, CompilerOptions.WARNING);
 
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"		Zork z;\n" +
@@ -527,8 +527,8 @@ public void test018() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportFieldHiding, CompilerOptions.WARNING);
 
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"		Zork z;\n" +
@@ -567,8 +567,8 @@ public void test019() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportLocalVariableHiding, CompilerOptions.WARNING);
 
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"		Zork z;\n" +
@@ -595,8 +595,8 @@ public void test020() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportLocalVariableHiding, CompilerOptions.WARNING);
 
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"		Zork z;\n" +
@@ -633,8 +633,8 @@ public void test020() {
 public void test021() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"import java.util.ArrayList;\n" +
 			"\n" +

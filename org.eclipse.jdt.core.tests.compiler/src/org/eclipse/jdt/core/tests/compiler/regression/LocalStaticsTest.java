@@ -69,7 +69,7 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 	}
 	@Override
 	protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
-		runNegativeTest(testFiles, expectedCompilerLog, null);
+		AbstractRegressionTest.runNegativeTest(this, testFiles, expectedCompilerLog, null);
 	}
 	protected void runWarningTest(String[] testFiles, String expectedCompilerLog) {
 		runWarningTest(testFiles, expectedCompilerLog, null);
@@ -945,8 +945,8 @@ public class LocalStaticsTest extends AbstractRegressionTest {
 	public void testBug568514LocalEnums_002() {
 		Map<String, String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n"+
 				"    public void foo() {\n" +

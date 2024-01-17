@@ -81,6 +81,6 @@ public void testBatchBug565787_001() throws Exception {
 			"		#46 (Ljava/lang/Object;Ljava/lang/Object;)I\n" +
 			"		#51 X$MR.mrCompare:(Ljava/lang/String;Ljava/lang/String;)I\n" +
 			"		#52 (Ljava/lang/String;Ljava/lang/String;)I\n";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 }

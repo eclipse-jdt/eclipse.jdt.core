@@ -48,8 +48,8 @@ public class AnnotationTest_9 extends AbstractComparableTest {
             },"", null, false, null);
 	}
     public void testBug521054a() throws Exception {
-    	this.runNegativeTest(
-    		new String[] {
+    	AbstractRegressionTest.runNegativeTest(
+    		this, new String[] {
     				"X.java",
     				"public @interface X {\n" +
     				"	String value(X this);\n" +
@@ -64,8 +64,8 @@ public class AnnotationTest_9 extends AbstractComparableTest {
     		null, true);
     }
     public void testBug521054b() throws Exception {
-    	this.runNegativeTest(
-    		new String[] {
+    	AbstractRegressionTest.runNegativeTest(
+    		this, new String[] {
     				"X.java",
     				"@java.lang.annotation.Repeatable(Container.class)\n" +
     				"public @interface X {\n" +
@@ -84,8 +84,8 @@ public class AnnotationTest_9 extends AbstractComparableTest {
     		null, true);
     }
     public void testBug521054c() throws Exception {
-    	this.runNegativeTest(
-    		new String[] {
+    	AbstractRegressionTest.runNegativeTest(
+    		this, new String[] {
     				"X.java",
     				"@java.lang.annotation.Repeatable(Container.class)\n" +
     				"public @interface X {\n" +

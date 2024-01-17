@@ -183,8 +183,8 @@ public class JavadocTestMixed extends JavadocTest {
 	}
 
 	public void test010() {
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"test/X.java",
 				"package test;\n"
 					+ "public class X {\n"
@@ -208,8 +208,8 @@ public class JavadocTestMixed extends JavadocTest {
 	}
 
 	public void test011() {
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"test/X.java",
 				"package test;\n"
 					+ "/** Class javadoc comment */\n"
@@ -233,8 +233,8 @@ public class JavadocTestMixed extends JavadocTest {
 	}
 
 	public void test012() {
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"test/X.java",
 				"package test;\n"
 					+ "/** Class javadoc comment */\n"
@@ -258,8 +258,8 @@ public class JavadocTestMixed extends JavadocTest {
 	}
 
 	public void test013() {
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"test/X.java",
 				"package test;\n"
 					+ "/** Class javadoc comment */\n"
@@ -328,8 +328,8 @@ public class JavadocTestMixed extends JavadocTest {
 	}
 
 	public void test022() {
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"test/X.java",
 				"package test;\n"
 					+ "/**\n"
@@ -378,8 +378,8 @@ public class JavadocTestMixed extends JavadocTest {
 	}
 
 	public void test023() {
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"test/X.java",
 				"package test;\n"
 					+ "/**\n"
@@ -428,8 +428,8 @@ public class JavadocTestMixed extends JavadocTest {
 	}
 
 	public void test024() {
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"test/X.java",
 				"package test;\n"
 					+ "/**\n"
@@ -482,8 +482,8 @@ public class JavadocTestMixed extends JavadocTest {
 	}
 
 	public void test025() {
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"test/X.java",
 				"package test;\n"
 					+ "/**\n"
@@ -536,8 +536,8 @@ public class JavadocTestMixed extends JavadocTest {
 	}
 
 	public void test026() {
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"test/X.java",
 				"package test;\n"
 					+ "/**\n"
@@ -853,8 +853,8 @@ public class JavadocTestMixed extends JavadocTest {
 
 	public void test041() {
 		this.reportMissingJavadocComments = CompilerOptions.IGNORE;
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n" +
 					"	/**\n" +

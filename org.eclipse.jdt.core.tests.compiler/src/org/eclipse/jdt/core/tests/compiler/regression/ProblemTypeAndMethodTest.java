@@ -53,8 +53,8 @@ public static Class testClass() {
 	return ProblemTypeAndMethodTest.class;
 }
 public void test001() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"        interface Moosh { void foo(); }\n" +
@@ -93,7 +93,7 @@ public void test001() {
 		false /* do not show warning token */,
 		false  /* do not skip javac for this peculiar test */,
 		false  /* do not perform statements recovery */);
-	ClassFileReader reader = getClassFileReader(OUTPUT_DIR + File.separator  +"X$W.class", "X$W");
+	ClassFileReader reader = AbstractRegressionTest.getClassFileReader(OUTPUT_DIR + File.separator  +"X$W.class", "X$W");
 	IBinaryMethod[] methods = reader.getMethods();
 	assertEquals("Wrong size", 2, methods.length);
 	int counter = 0;
@@ -105,7 +105,7 @@ public void test001() {
 	}
 	assertEquals("Wrong number of foo method", 1, counter);
 
-	reader = getClassFileReader(OUTPUT_DIR + File.separator  +"X$Y.class", "X$Y");
+	reader = AbstractRegressionTest.getClassFileReader(OUTPUT_DIR + File.separator  +"X$Y.class", "X$Y");
 	methods = reader.getMethods();
 	assertEquals("Wrong size", 2, methods.length);
 	counter = 0;
@@ -117,7 +117,7 @@ public void test001() {
 	}
 	assertEquals("Wrong number of foo method", 1, counter);
 
-	reader = getClassFileReader(OUTPUT_DIR + File.separator  +"X$Z.class", "X$Z");
+	reader = AbstractRegressionTest.getClassFileReader(OUTPUT_DIR + File.separator  +"X$Z.class", "X$Z");
 	methods = reader.getMethods();
 	assertEquals("Wrong size", 2, methods.length);
 	counter = 0;
@@ -271,8 +271,8 @@ public void test004() {
 					"}\n",
 			},
 			"");
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 				"X.java", //-----------------------------------------------------------------------
 				"import p.OtherFoo;\n" +
 				"import q.Zork;\n" +
@@ -348,8 +348,8 @@ public void test004() {
 	// delete binary file Zork (i.e. simulate removing it from classpath for subsequent compile)
 	Util.delete(new File(OUTPUT_DIR, "q" + File.separator + "Zork.class"));
 
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 					"X.java", //-----------------------------------------------------------------------
 					"import p.OtherFoo;\n" +
 					"import q.Zork;\n" +
@@ -477,8 +477,8 @@ public void test005() {
 	// delete binary folder q1 (i.e. simulate removing it from classpath for subsequent compile)
 	Util.delete(new File(OUTPUT_DIR, "q1"));
 
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		false /* do not flush output directory */,
 		new String[] { /* test files */
 			"X.java", //-----------------------------------------------------------------------
@@ -538,8 +538,8 @@ public void test006() {
 	// delete binary folder q1 (i.e. simulate removing it from classpath for subsequent compile)
 	Util.delete(new File(OUTPUT_DIR, "q1"));
 
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		false /* do not flush output directory */,
 		new String[] { /* test files */
 			"X.java", //-----------------------------------------------------------------------
@@ -605,8 +605,8 @@ public void test007() {
 	// delete binary folder q1 (i.e. simulate removing it from classpath for subsequent compile)
 	Util.delete(new File(OUTPUT_DIR, "q1"));
 
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		false /* do not flush output directory */,
 		new String[] { /* test files */
 			"X.java", //-----------------------------------------------------------------------
@@ -672,8 +672,8 @@ public void test008() {
 	// delete binary folder q1 (i.e. simulate removing it from classpath for subsequent compile)
 	Util.delete(new File(OUTPUT_DIR, "q1"));
 
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		false /* do not flush output directory */,
 		new String[] { /* test files */
 			"X.java", //-----------------------------------------------------------------------
@@ -721,8 +721,8 @@ public void test009() {
 	// delete binary folder q1 (i.e. simulate removing it from classpath for subsequent compile)
 	Util.delete(new File(OUTPUT_DIR, "q1"));
 
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		false /* do not flush output directory */,
 		new String[] { /* test files */
 			"X.java", //-----------------------------------------------------------------------
@@ -775,8 +775,8 @@ public void test010() {
 	// delete binary folder q1 (i.e. simulate removing it from classpath for subsequent compile)
 	Util.delete(new File(OUTPUT_DIR, "q1"));
 
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		false /* do not flush output directory */,
 		new String[] { /* test files */
 			"X.java", //-----------------------------------------------------------------------
@@ -1147,8 +1147,8 @@ public void test019() {
 	// delete binary folder q1 (i.e. simulate removing it from classpath for subsequent compile)
 	Util.delete(new File(OUTPUT_DIR, "q1"));
 
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 					"X.java", //-----------------------------------------------------------------------
 					"public class X {\n" +
 					"	void foo(p.OtherFoo ofoo) {\n" + // triggers OtherFoo loading, and q1.q2 pkg creation (for unresolved binary type refs)
@@ -1195,8 +1195,8 @@ public void test020() {
 
 	// no need to delete Zork actually - any lazy reference would cause q1.q2 to be created as a package
 
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 					"X.java", //-----------------------------------------------------------------------
 					"public class X {\n" +
 					"	void foo(p.OtherFoo ofoo) {\n" + // triggers OtherFoo loading, and q1.q2 pkg creation (for unresolved binary type refs)
@@ -1275,8 +1275,8 @@ public void test022() {
 	// delete binary folder q1 (i.e. simulate removing it from classpath for subsequent compile)
 	Util.delete(new File(OUTPUT_DIR, "q1"));
 
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 					"X.java", //-----------------------------------------------------------------------
 					"public class X {\n" +
 					"	void foo(q1.q2.Missing1 m1) {\n" +
@@ -1326,8 +1326,8 @@ public void test023() {
 
 	// leave package behind
 
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 					"X.java", //-----------------------------------------------------------------------
 					"public class X {\n" +
 					"	void foo(q1.q2.Missing1 m1) {\n" +
@@ -1378,8 +1378,8 @@ public void test024() {
 	// delete binary folder q1/q2 (i.e. simulate removing it from classpath for subsequent compile)
 	Util.delete(new File(OUTPUT_DIR, "q1/q2"));
 
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 					"X.java", //-----------------------------------------------------------------------
 					"public class X {\n" +
 					"	void foo(q1.q2.Missing1 m1) {\n" +
@@ -1430,8 +1430,8 @@ public void test025() {
 	// delete binary folder q1/q2 (i.e. simulate removing it from classpath for subsequent compile)
 	Util.delete(new File(OUTPUT_DIR, "q1/q2"));
 
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 					"X.java", //-----------------------------------------------------------------------
 					"public class X {\n" +
 					"	void foo(q1.q2.Missing1 m1) {\n" +
@@ -1570,8 +1570,8 @@ public void test028() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
 public void test029() throws Exception {
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"Y.java", //-----------------------------------------------------------------------
 				"public class Y extends Z {\n" +
 				"}\n",
@@ -1607,8 +1607,8 @@ public void test029() throws Exception {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
 public void test030() {
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"Y.java", //-----------------------------------------------------------------------
 				"public class Y extends Z {\n" +
 				"}\n",
@@ -1626,8 +1626,8 @@ public void test030() {
 			false,
 			false);
 
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java", //-----------------------------------------------------------------------
 				"public class X extends Y {\n" +
 				"}\n",
@@ -1700,8 +1700,8 @@ public void test033() {
 	if (this.complianceLevel <= ClassFileConstants.JDK1_4) {
 		return;
 	}
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"Y.java", //-----------------------------------------------------------------------
 				"@Z public class Y {\n" +
 				"}\n",
@@ -1719,8 +1719,8 @@ public void test033() {
 			false,
 			false);
 
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		false /* do not flush output directory */,
 		new String[] { /* test files */
 			"X.java", //-----------------------------------------------------------------------
@@ -1765,8 +1765,8 @@ public void test034() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
 public void test035() {
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X1.java", //-----------------------------------------------------------------------
 				"public class X1 {\n" +
 				"	Zork bar() { return null; }	\n" +
@@ -1785,8 +1785,8 @@ public void test035() {
 			false,
 			false);
 
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java", //-----------------------------------------------------------------------
 				"public class X {\n" +
 				"	void foo(X1 x1) {\n" +
@@ -1837,8 +1837,8 @@ public void test036() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
 public void test037() {
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X1.java", //-----------------------------------------------------------------------
 				"public class X1 {\n" +
 				"	Object bar(Zork z) { return null; }	\n" +
@@ -1857,8 +1857,8 @@ public void test037() {
 			false,
 			false);
 
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java", //-----------------------------------------------------------------------
 				"public class X {\n" +
 				"	void foo(X1 x1) {\n" +
@@ -1909,8 +1909,8 @@ public void test038() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
 public void test039() {
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X1.java", //-----------------------------------------------------------------------
 				"public class X1 {\n" +
 				"	Object bar(Object o) throws Zork { return null; }	\n" +
@@ -1929,8 +1929,8 @@ public void test039() {
 			false,
 			false);
 
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java", //-----------------------------------------------------------------------
 				"public class X {\n" +
 				"	void foo(X1 x1) {\n" +
@@ -1981,8 +1981,8 @@ public void test040() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
 public void test041() {
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X1.java", //-----------------------------------------------------------------------
 				"public class X1 {\n" +
 				"	public X1(Zork z) {}\n" +
@@ -2001,8 +2001,8 @@ public void test041() {
 			false,
 			false);
 
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java", //-----------------------------------------------------------------------
 				"public class X {\n" +
 				"	void foo(X1 x1) {\n" +
@@ -2053,8 +2053,8 @@ public void test042() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
 public void test043() {
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X1.java", //-----------------------------------------------------------------------
 				"public class X1 {\n" +
 				"	public X1() throws Zork {}\n" +
@@ -2073,8 +2073,8 @@ public void test043() {
 			false,
 			false);
 
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java", //-----------------------------------------------------------------------
 				"public class X {\n" +
 				"	void foo(X1 x1) {\n" +
@@ -2125,8 +2125,8 @@ public void test044() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
 public void test045() {
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X1.java", //-----------------------------------------------------------------------
 				"public class X1 {\n" +
 				"	public X1(Zork z) {}\n" +
@@ -2145,8 +2145,8 @@ public void test045() {
 			false,
 			false);
 
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java", //-----------------------------------------------------------------------
 				"public class X {\n" +
 				"	void foo(X1 x1) {\n" +
@@ -2197,8 +2197,8 @@ public void test046() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
 public void test047() {
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X1.java", //-----------------------------------------------------------------------
 				"public class X1 {\n" +
 				"	public X1() throws Zork {}\n" +
@@ -2217,8 +2217,8 @@ public void test047() {
 			false,
 			false);
 
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java", //-----------------------------------------------------------------------
 				"public class X {\n" +
 				"	void foo(X1 x1) {\n" +
@@ -2269,8 +2269,8 @@ public void test048() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
 public void test049() {
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X1.java", //-----------------------------------------------------------------------
 				"public class X1 {\n" +
 				"	public X1(Zork z) {}\n" +
@@ -2289,8 +2289,8 @@ public void test049() {
 			false,
 			false);
 
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java", //-----------------------------------------------------------------------
 				"public class X extends X1 {\n" +
 				"	X(X1 x1) {\n" +
@@ -2341,8 +2341,8 @@ public void test050() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
 public void test051() {
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X1.java", //-----------------------------------------------------------------------
 				"public class X1 {\n" +
 				"	public X1() throws Zork {}\n" +
@@ -2361,8 +2361,8 @@ public void test051() {
 			false,
 			false);
 
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java", //-----------------------------------------------------------------------
 				"public class X extends X1 {\n" +
 				"	X(X1 x1) {\n" +
@@ -2582,8 +2582,8 @@ public void test054() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
 public void test055() {
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X1.java", //-----------------------------------------------------------------------
 				"public class X1 {\n" +
 				"	public X1 next;\n" +
@@ -2603,8 +2603,8 @@ public void test055() {
 			false,
 			false);
 
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java", //-----------------------------------------------------------------------
 				"public class X {\n" +
 				"	void foo(X1 x1) {\n" +
@@ -2664,8 +2664,8 @@ public void test055() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
 public void test056() {
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X1.java", //-----------------------------------------------------------------------
 				"public class X1 {\n" +
 				"	public X1 next;\n" +
@@ -2685,8 +2685,8 @@ public void test056() {
 			false,
 			false);
 
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java", //-----------------------------------------------------------------------
 				"public class X {\n" +
 				"	void bar(X1 x1) {\n" +
@@ -2746,8 +2746,8 @@ public void test056() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=196200 - variation
 public void test057() {
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X1.java", //-----------------------------------------------------------------------
 				"public class X1 {\n" +
 				"	public X1 next;\n" +
@@ -2767,8 +2767,8 @@ public void test057() {
 			false,
 			false);
 
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java", //-----------------------------------------------------------------------
 				"public class X {\n" +
 				"	void baz(X1 x1) {\n" +
@@ -4143,8 +4143,8 @@ public void test089() {
 	if (this.complianceLevel <= ClassFileConstants.JDK1_4) return;
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.ENABLED);
-	this.runConformTest(
-			new String[] {
+	AbstractRegressionTest.runConformTest(
+			this, new String[] {
 					"com/foo/bar/baz/reporting/dom/ReportExceptionBase.java", // ================
 					"package com.foo.bar.baz.reporting.dom;\n" +
 					"public class ReportExceptionBase extends Exception  {\n" +
@@ -4800,8 +4800,8 @@ public void test091()  throws Exception {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=250297
 public void test092() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"p1/p2/X.java", // =================
 			"package p1.p2;\n" +
 			"public class X {\n" +
@@ -5037,7 +5037,7 @@ public void test098() {
 			"   }\n" +
 			"}\n"
 		};
-	runner.expectedCompilerLog = isMinimumCompliant(ClassFileConstants.JDK11) ?
+	runner.expectedCompilerLog = AbstractRegressionTest.isMinimumCompliant(this, ClassFileConstants.JDK11) ?
 		"----------\n" +
 		"1. WARNING in X.java (at line 3)\n" +
 		"	public void foo(int a) {\n" +
@@ -5171,7 +5171,7 @@ public void test099() {
 		    "   }\n" +
 			"}\n"
 		};
-	runner.expectedCompilerLog = isMinimumCompliant(ClassFileConstants.JDK11) ?
+	runner.expectedCompilerLog = AbstractRegressionTest.isMinimumCompliant(this, ClassFileConstants.JDK11) ?
 		"----------\n" +
 		"1. WARNING in X.java (at line 3)\n" +
 		"	public void foo(int a) {\n" +
@@ -5281,7 +5281,7 @@ public void test099a() {
 			"   }\n" +
 			"}\n"
 		};
-	runner.expectedCompilerLog = isMinimumCompliant(ClassFileConstants.JDK11) ?
+	runner.expectedCompilerLog = AbstractRegressionTest.isMinimumCompliant(this, ClassFileConstants.JDK11) ?
 		"----------\n" +
 		"1. WARNING in X.java (at line 23)\n" +
 		"	public void foo(double a) {\n" +
@@ -5391,7 +5391,7 @@ public void test099b() {
 		    "   }\n" +
 			"}\n"
 		};
-	if (!isMinimumCompliant(ClassFileConstants.JDK11)) {
+	if (!AbstractRegressionTest.isMinimumCompliant(this, ClassFileConstants.JDK11)) {
 		runner.javacTestOptions = JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings;
 		runner.expectedCompilerLog =
 			"----------\n" +
@@ -5423,7 +5423,7 @@ public void test100() {
 			"    public class B extends A {}\n" +
 			"}"
 		};
-	if (!isMinimumCompliant(ClassFileConstants.JDK11)) {
+	if (!AbstractRegressionTest.isMinimumCompliant(this, ClassFileConstants.JDK11)) {
 
 		runner.expectedCompilerLog =
 				"----------\n" +
@@ -5452,7 +5452,7 @@ public void test101() {
 			"    public class B extends A {}\n" +
 			"}"
 		};
-	if (!isMinimumCompliant(ClassFileConstants.JDK11)) {
+	if (!AbstractRegressionTest.isMinimumCompliant(this, ClassFileConstants.JDK11)) {
 		runner.expectedCompilerLog =
 				"----------\n" +
 				"1. WARNING in X.java (at line 6)\n" +
@@ -5480,7 +5480,7 @@ public void test102() {
 			"    public class B extends A {}\n" +
 			"}"
 		};
-	runner.expectedCompilerLog = isMinimumCompliant(ClassFileConstants.JDK11) ?
+	runner.expectedCompilerLog = AbstractRegressionTest.isMinimumCompliant(this, ClassFileConstants.JDK11) ?
 		"----------\n" +
 		"1. WARNING in X.java (at line 3)\n" +
 		"	private void foo() {}\n" +
@@ -5527,7 +5527,7 @@ public void test103() {
 			"    private class B extends A {}\n" +
 			"}"
 		};
-	runner.expectedCompilerLog = isMinimumCompliant(ClassFileConstants.JDK11) ?
+	runner.expectedCompilerLog = AbstractRegressionTest.isMinimumCompliant(this, ClassFileConstants.JDK11) ?
 		"----------\n" +
 		"1. WARNING in X.java (at line 3)\n" +
 		"	public void foo() {}\n" +
@@ -5571,8 +5571,8 @@ public void test103() {
 	runner.runWarningTest();
 }
 public void test104() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"p/Bar.java", //-----------------------------------------------------------------------
 			"package p;\n" +
 			"import q.Zork;\n" +
@@ -5663,8 +5663,8 @@ public void test106() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=319425
 public void test107() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"p/OuterBogus.java", //-----------------------------------------------------------------------
 			"package p;\n" +
 			"abstract final class OuterBogus {\n" +
@@ -5716,7 +5716,7 @@ public void test107() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=321414
 public void test108() {
 	if (this.complianceLevel <= ClassFileConstants.JDK1_4) return;
-	String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
+	String errMessage = AbstractRegressionTest.isMinimumCompliant(this, ClassFileConstants.JDK11) ?
 			"----------\n" +
 			"1. WARNING in SyntheticConstructorTooManyArgs.java (at line 23)\n" +
 			"	@SuppressWarnings(\"synthetic-access\")\n" +
@@ -5981,7 +5981,7 @@ public void test110() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=321414
 public void test111() {
 	if (this.complianceLevel <= ClassFileConstants.JDK1_4) return;
-	String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
+	String errMessage = AbstractRegressionTest.isMinimumCompliant(this, ClassFileConstants.JDK11) ?
 			"----------\n" +
 			"1. WARNING in SyntheticConstructorTooManyArgs.java (at line 23)\n" +
 			"	@SuppressWarnings(\"synthetic-access\")\n" +
@@ -6997,8 +6997,8 @@ public void testBug335845a() {
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedObjectAllocation, CompilerOptions.IGNORE);
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
 	compilerOptions.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"	private class Bar {\n" +
@@ -7027,8 +7027,8 @@ public void testBug335845b() {
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedObjectAllocation, CompilerOptions.IGNORE);
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
 	compilerOptions.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"	private class Bar {\n" +
@@ -7094,8 +7094,8 @@ public void testBug335845d() {
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedObjectAllocation, CompilerOptions.IGNORE);
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
 	compilerOptions.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"	private class Bar {\n" +
@@ -7207,8 +7207,8 @@ public void testBug335845g() {
 				"}"
 		}
 	);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 				"p/Y.java",
 				"package p;\n" +
 				"public class Y extends X {\n" +
@@ -7233,8 +7233,8 @@ public void test124a() {
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
 	compilerOptions.put(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, CompilerOptions.IGNORE);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"	public void method1() {\n" + 	// don't warn
@@ -7262,8 +7262,8 @@ public void test124b() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"   public static X xField;" +
@@ -7368,8 +7368,8 @@ public void test360164() {
 	// delete binary file I (i.e. simulate removing it from classpath for subsequent compile)
 	Util.delete(new File(OUTPUT_DIR, "p" + File.separator + "I.class"));
 
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		false /* do not flush output directory */,
 		new String[] { /* test files */
 				"p/X.java",
@@ -7412,8 +7412,8 @@ public void test376550_1a() {
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"	int i = 1;\n" +
@@ -7518,8 +7518,8 @@ public void test376550_2b() {
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 				"X.java",
 				"public class X<T> {\n" +
 				"   public void upper1(){}\n" +
@@ -7548,8 +7548,8 @@ public void test376550_3a() {
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 				"X.java",
 				"public class X<T> {\n" +
 				"   public void upper1(){}\n" +
@@ -7654,8 +7654,8 @@ public void test376550_4b() {
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 				"X.java",
 				"public class X<T> {\n" +
 				"   int i1 = 1;\n" +
@@ -7763,8 +7763,8 @@ public void test376550_5b() {
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"   int i1 = 1;\n" +
@@ -7831,8 +7831,8 @@ public void test376550_6b() {
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"   int i1 = 1;\n" +
@@ -7901,8 +7901,8 @@ public void test376550_7b() {
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"   abstract class AbsUp{}\n" +
@@ -7969,8 +7969,8 @@ public void test376550_8b() {
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"   class AbsUp{ int a;}\n" +
@@ -8039,8 +8039,8 @@ public void test376550_9b() {
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"   X xup;\n" +
@@ -8111,8 +8111,8 @@ public void test376550_10b() {
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"   X xup;\n" +
@@ -8159,7 +8159,7 @@ public void test376550_11() {
 				"	}\n" +
 				"}"
 		};
-	runner.expectedCompilerLog = isMinimumCompliant(ClassFileConstants.JDK11) ?
+	runner.expectedCompilerLog = AbstractRegressionTest.isMinimumCompliant(this, ClassFileConstants.JDK11) ?
 		"----------\n" +
 		"1. WARNING in X.java (at line 6)\n" +
 		"	return new ArrayList<Object>() {\n" +
@@ -8272,8 +8272,8 @@ public void test376550_13() {
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 				"QualifiedSuper.java",
 				"public class QualifiedSuper {\n" +
 				"	class InnerS {\n" +
@@ -8306,8 +8306,8 @@ public void test379530() {
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 				"X.java",
 				"public class X<S> {\n" +
 				"   S s;\n" +
@@ -8331,8 +8331,8 @@ public void test393781() {
 	Object oldOption = compilerOptions.get(CompilerOptions.OPTION_ReportRawTypeReference);
 	compilerOptions.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
 	try {
-		this.runNegativeTest(
-				new String[] {
+		AbstractRegressionTest.runNegativeTest(
+				this, new String[] {
 						"p/X.java",
 						"public class X {\n" +
 						"   public void foo(Map map, String str) {}\n" +
@@ -8381,8 +8381,8 @@ private void runStaticWarningConformTest(String fileName, String body) {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
 	compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			fileName,
 			body
 		},
@@ -8786,7 +8786,7 @@ public void testBug542829() {
 public void testBug576735() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
 
-	String path = getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "lib576735.jar";
+	String path = AbstractRegressionTest.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "lib576735.jar";
 	String[] libs = getDefaultClassPaths();
 	int len = libs.length;
 	System.arraycopy(libs, 0, libs = new String[len+1], 0, len);

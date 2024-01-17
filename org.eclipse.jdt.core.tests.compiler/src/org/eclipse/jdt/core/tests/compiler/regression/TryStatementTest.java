@@ -749,8 +749,8 @@ public void test022() {
 public void test023() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportHiddenCatchBlock, CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -889,8 +889,8 @@ public void test026() throws Exception {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.PRESERVE);
 
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"import java.util.*;\n" +
 			"\n" +
@@ -941,8 +941,8 @@ public void test027() throws Exception {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.PRESERVE);
 
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"import java.util.*;\n" +
 			"\n" +
@@ -1091,8 +1091,8 @@ public void test030() {
 public void test031() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -2385,8 +2385,8 @@ public void test042_not_shared() throws Exception {
 	customOptions.put(CompilerOptions.OPTION_ShareCommonFinallyBlocks, CompilerOptions.DISABLED);
 	customOptions.put(CompilerOptions.OPTION_InlineJsr, CompilerOptions.ENABLED);
 
-	this.runConformTest(
-			new String[] {
+	AbstractRegressionTest.runConformTest(
+			this, new String[] {
 				"X.java",
 				" public class X {\n" +
 				" public static void main(String[] args) {\n" +
@@ -6238,8 +6238,8 @@ public void testBug387612c() {
 			"    void foo(String a1, String a2) throws E;\n" +
 			"}\n"
 		});
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"Client.java",
 			"public class Client {\n" +
 			"    void test() {\n" +

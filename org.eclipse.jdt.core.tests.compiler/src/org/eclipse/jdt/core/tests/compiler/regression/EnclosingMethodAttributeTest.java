@@ -168,7 +168,7 @@ public class EnclosingMethodAttributeTest extends AbstractComparableTest {
 			"enclosing class = class X\n" +
 			"enclosing method = public void X.test() throws java.lang.NoSuchMethodException,java.lang.IllegalAccessException,java.lang.reflect.InvocationTargetException");
 
-		INameEnvironment nameEnvironment = getNameEnvironment(new String[]{}, null);
+		INameEnvironment nameEnvironment = AbstractRegressionTest.getNameEnvironment(this, new String[]{}, null);
 		nameEnvironment.findType(new char[][] {new char[0], "X$1LocalClass".toCharArray()});
 		ClassFileBytesDisassembler disassembler = ToolFactory.createDefaultClassFileBytesDisassembler();
 		byte[] classFileBytes = org.eclipse.jdt.internal.compiler.util.Util.getFileByteContent(new File(OUTPUT_DIR + File.separator  + "X$1LocalClass.class"));
@@ -246,14 +246,14 @@ public class EnclosingMethodAttributeTest extends AbstractComparableTest {
 		CompilerOptions compilerOptions = new CompilerOptions(options);
 		compilerOptions.performMethodsFullRecovery = true;
 		compilerOptions.performStatementsRecovery = true;
-		INameEnvironment nameEnvironment = getNameEnvironment(new String[]{}, null);
+		INameEnvironment nameEnvironment = AbstractRegressionTest.getNameEnvironment(this, new String[]{}, null);
 		Compiler batchCompiler =
 			new Compiler(
 				nameEnvironment,
-				getErrorHandlingPolicy(),
+				AbstractRegressionTest.getErrorHandlingPolicy(),
 				compilerOptions,
 				requestor,
-				getProblemFactory());
+				AbstractRegressionTest.getProblemFactory());
 		ReferenceBinding binaryType = batchCompiler.lookupEnvironment.askForType(new char[][] {new char[0], "X$1".toCharArray()}, batchCompiler.lookupEnvironment.UnNamedModule);
 		assertNotNull("Should not be null", binaryType);
 	}

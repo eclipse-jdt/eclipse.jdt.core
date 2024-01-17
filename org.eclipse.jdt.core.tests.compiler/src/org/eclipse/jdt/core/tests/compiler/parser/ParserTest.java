@@ -265,8 +265,8 @@ public void _test011() {
 public void test012() {
 	Hashtable nls = new Hashtable();
 	nls.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
-	runNegativeTest(
-		true,
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -296,8 +296,8 @@ public void test012() {
 public void test013() {
 	Hashtable nls = new Hashtable();
 	nls.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
-	runNegativeTest(
-		true,
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -506,8 +506,8 @@ public void test021() {
 
 	Hashtable options = new Hashtable();
 	options.put(CompilerOptions.OPTION_MaxProblemPerUnit, "10");
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			buffer.toString()
 		},
@@ -573,8 +573,8 @@ public void test021() {
 public void test022() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportEmptyStatement, CompilerOptions.ERROR);
-	runNegativeTest(
-		true,
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 			"X.java",
 			"interface X {\n" +
@@ -596,8 +596,8 @@ public void test022() {
 public void test023() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportEmptyStatement, CompilerOptions.ERROR);
-	runNegativeTest(
-		true,
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 			"X.java",
 			"class X {\n" +
@@ -619,8 +619,8 @@ public void test023() {
 public void test024() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportEmptyStatement, CompilerOptions.ERROR);
-	runNegativeTest(
-		true,
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 			"X.java",
 			"interface X {\n" +
@@ -642,8 +642,8 @@ public void test024() {
 public void test025() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUndocumentedEmptyBlock, CompilerOptions.ERROR);
-	runNegativeTest(
-		true,
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -675,8 +675,8 @@ public void test025() {
 public void test026() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUndocumentedEmptyBlock, CompilerOptions.ERROR);
-	runNegativeTest(
-		true,
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -775,8 +775,8 @@ public void _test028() {
 			"----------\n";
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.ERROR);
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"class X {\n" +
 			"    public static void foo(String param) {\n" +

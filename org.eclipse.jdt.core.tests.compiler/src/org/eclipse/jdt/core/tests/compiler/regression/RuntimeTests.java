@@ -51,8 +51,8 @@ public static Class testClass() {
 // see https://bugs.eclipse.org/bugs/show_bug.cgi?id=217078
 // memory exhaustion - try to allocate too big an instance
 public void _test0001_memory_exhaustion() {
-	runTest(
-		new String[] { /* testFiles */
+	AbstractRegressionTest.runTest(
+		this, new String[] { /* testFiles */
 			"X.java",
 			"public class X {\n" +
 			"  public static void main(String args[]) {\n" +
@@ -145,8 +145,8 @@ public void test0500_synchronization() {
 // reflection - access to a public method of a package visible
 // class through a public extending class
 public void test0600_reflection() {
-	runConformTest(
-		true,
+	AbstractRegressionTest.runConformTest(
+		this, true,
 		new String[] {
 			"X.java",
 			"import java.lang.reflect.*;\n" +
@@ -379,8 +379,8 @@ public void test1002_partial_rebuild() {
 			"}\n",
 			},
 		"1");
-	this.runConformTest(
-		false,
+	AbstractRegressionTest.runConformTest(
+		this, false,
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -445,8 +445,8 @@ public void test1003_partial_rebuild() {
 			"}\n",
 			},
 		"1");
-	this.runConformTest(
-		false, // do not purge output directory - pick old version of Z.class
+	AbstractRegressionTest.runConformTest(
+		this, false, // do not purge output directory - pick old version of Z.class
 		new String[] {
 			"X.java",
 			"public class X {\n" +

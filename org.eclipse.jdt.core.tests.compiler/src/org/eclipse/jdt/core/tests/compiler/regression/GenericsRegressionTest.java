@@ -422,8 +422,8 @@ public void test330869() {
 public void test322817() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnavoidableGenericTypeProblems, CompilerOptions.DISABLED);
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 					"X.java",
 					"interface Adaptable {\n" +
 					"    public Object getAdapter(Class clazz);    \n" +
@@ -448,8 +448,8 @@ public void test322817() {
 public void test322817b() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnavoidableGenericTypeProblems, CompilerOptions.ENABLED);
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 					"X.java",
 					"interface Adaptable {\n" +
 					"    public Object getAdapter(Class clazz);    \n" +
@@ -479,8 +479,8 @@ public void test322817b() {
 public void test322817c() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnavoidableGenericTypeProblems, CompilerOptions.DISABLED);
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 					"X.java",
 					"interface Adaptable {\n" +
 					"    public Object getAdapter(Class<String> clazz);    \n" +
@@ -505,8 +505,8 @@ public void test322817c() {
 public void test322817d() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnavoidableGenericTypeProblems, CompilerOptions.DISABLED);
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 					"X.java",
 					"interface Adaptable {\n" +
 					"    public Object getAdapter(Class<String> clazz);    \n" +
@@ -538,8 +538,8 @@ public void test322817d() {
 public void test322817e() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnavoidableGenericTypeProblems, CompilerOptions.DISABLED);
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 					"X.java",
 					"import java.util.List;\n" +
 					"class Top {\n" +
@@ -577,8 +577,8 @@ public void test322817e() {
 public void test322817f() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnavoidableGenericTypeProblems, CompilerOptions.DISABLED);
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 					"X.java",
 					"import java.util.List;\n" +
 					"class Top {\n" +
@@ -621,8 +621,8 @@ public void test322817f() {
 public void test322817g() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnavoidableGenericTypeProblems, CompilerOptions.DISABLED);
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 					"Top.java",
 					"import java.util.List;\n" +
 					"public class Top {\n" +
@@ -702,8 +702,8 @@ public void test322817g() {
 public void test322817h() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnavoidableGenericTypeProblems, CompilerOptions.ENABLED);
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 					"Top.java",
 					"import java.util.List;\n" +
 					"public class Top {\n" +
@@ -814,8 +814,8 @@ public void test322817h() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=322817 (Default options)
 public void test322817i() {
 	Map customOptions = getCompilerOptions();
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 					"Top.java",
 					"import java.util.List;\n" +
 					"public class Top {\n" +
@@ -927,8 +927,8 @@ public void test322817i() {
 public void test322817j() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnavoidableGenericTypeProblems, CompilerOptions.DISABLED);
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 					"X.java",
 					"import java.util.List;\n" +
 					"class Top {\n" +
@@ -1007,8 +1007,8 @@ public void test322817j() {
 public void test322817k() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnavoidableGenericTypeProblems, CompilerOptions.DISABLED);
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 					"X.java",
 					"import java.util.Arrays;\n" +
 					"import java.util.Set;\n" +
@@ -1086,8 +1086,8 @@ public void test338350() {
 	};
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnavoidableGenericTypeProblems, CompilerOptions.ENABLED);
-	this.runNegativeTest(
-			testFiles,
+	AbstractRegressionTest.runNegativeTest(
+			this, testFiles,
 			"----------\n" +
 			"1. WARNING in Try.java (at line 6)\n" +
 			"	takeObj((E) Bar.getObject());\n" +
@@ -1154,8 +1154,8 @@ public void test338350() {
 			true,
 			customOptions);
 	customOptions.put(CompilerOptions.OPTION_ReportUnavoidableGenericTypeProblems, CompilerOptions.DISABLED);
-	this.runNegativeTest(
-			testFiles,
+	AbstractRegressionTest.runNegativeTest(
+			this, testFiles,
 			"----------\n" +
 			"1. WARNING in Try.java (at line 6)\n" +
 			"	takeObj((E) Bar.getObject());\n" +
@@ -1411,8 +1411,8 @@ public void test337751() {
 	compilerOptions14.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_2);
 	compilerOptions14.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
 	compilerOptions14.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"Project.java",
 			"import java.util.Map;\n" +
 			"public class Project {\n" +
@@ -1433,8 +1433,8 @@ public void test337751() {
 	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
 	compilerOptions15.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
 	compilerOptions15.put(CompilerOptions.OPTION_ReportUnavoidableGenericTypeProblems, CompilerOptions.ENABLED);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"Y.java",
 			"import java.util.Map;\n" +
 			"public class Y {\n" +
@@ -1473,8 +1473,8 @@ public void test337751a() {
 	compilerOptions14.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_2);
 	compilerOptions14.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
 	compilerOptions14.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"Project.java",
 			"import java.util.Map;\n" +
 			"public class Project {\n" +
@@ -1495,8 +1495,8 @@ public void test337751a() {
 	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
 	compilerOptions15.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
 	compilerOptions15.put(CompilerOptions.OPTION_ReportUnavoidableGenericTypeProblems, CompilerOptions.DISABLED);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"Y.java",
 			"import java.util.Map;\n" +
 			"public class Y {\n" +
@@ -1522,8 +1522,8 @@ public void test337962() {
 	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
 	compilerOptions15.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
 	compilerOptions15.put(CompilerOptions.OPTION_ReportUnavoidableGenericTypeProblems, CompilerOptions.ENABLED);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"import java.util.List;\n" +
 			"import java.util.ArrayList;\n" +
@@ -1629,8 +1629,8 @@ public void test337962b() {
 	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
 	compilerOptions15.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
 	compilerOptions15.put(CompilerOptions.OPTION_ReportUnavoidableGenericTypeProblems, CompilerOptions.DISABLED);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"import java.util.List;\n" +
 			"import java.util.ArrayList;\n" +
@@ -1706,8 +1706,8 @@ public void test338011() {
 	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
 	compilerOptions15.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
 	compilerOptions15.put(CompilerOptions.OPTION_ReportUnavoidableGenericTypeProblems, CompilerOptions.DISABLED);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"import java.util.*;\n" +
 			"public class X extends A {\n" +
@@ -1754,8 +1754,8 @@ public void test338011b() {
 	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
 	compilerOptions15.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
 	compilerOptions15.put(CompilerOptions.OPTION_ReportUnavoidableGenericTypeProblems, CompilerOptions.ENABLED);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"import java.util.*;\n" +
 			"public class X extends A {\n" +
@@ -2684,8 +2684,8 @@ public void test385780() {
 	customOptions.put(
 			CompilerOptions.OPTION_ReportUnusedTypeParameter,
 			CompilerOptions.ERROR);
-	this.runNegativeTest(
-		false /* skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+		this, false /* skipJavac */,
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError,
 		new String[] {
 			"X.java",
@@ -2837,8 +2837,8 @@ public void test397888a() {
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedParameterIncludeDocCommentReference,
 	          CompilerOptions.ENABLED);
 
-	this.runNegativeTest(
-		false /*skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+		this, false /*skipJavac */,
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError,
 		 new String[] {
  		"X.java",
@@ -2870,8 +2870,8 @@ public void test397888b() {
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedParameterIncludeDocCommentReference,
         CompilerOptions.DISABLED);
 
-	this.runNegativeTest(
-		false /* skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+		this, false /* skipJavac */,
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError,
         new String[] {
      		   "X.java",
@@ -3191,8 +3191,8 @@ public void testBug415734() {
 			"    }\n" +
 			"}\n";
 	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
-		runNegativeTest(
-			false /* skipJavac */,
+		AbstractRegressionTest.runNegativeTest(
+			this, false /* skipJavac */,
 			JavacTestOptions.EclipseHasABug.EclipseBug428061,
 			new String[] {
 				"Compile.java",
@@ -3685,8 +3685,8 @@ public void test425719b() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=427282,  Internal compiler error: java.lang.ArrayIndexOutOfBoundsException: -1 at org.eclipse.jdt.internal.compiler.ClassFile.traverse
 public void test427282() {
-	runNegativeTest(
-		false /* skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+		this, false /* skipJavac */,
 		JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 		new String[] {
 			"X.java",
@@ -3892,8 +3892,8 @@ public void test427728a() {
 public void test427736() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.ENABLED);
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"Test1.java",
 			"class Test1<K, V> {\n" +
 			" static class Node<K2, V2> {}\n" +
@@ -3935,8 +3935,8 @@ public void test426836() {
 public void test428071() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_Store_Annotations, CompilerOptions.ENABLED);
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"K1.java",
 			"import java.util.List;\n" +
 			"import java.util.Map;\n" +
@@ -4461,8 +4461,8 @@ public void testBug431581() {
 		"----------\n");
 }
 public void testBug432603() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"Test.java",
 			"import java.util.Map;\n" +
 			"import java.util.Map.Entry;\n" +
@@ -4526,8 +4526,8 @@ public void testBug432603a() {
 		});
 }
 public void testBug399527() {
-	runNegativeTest(
-		false /*skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+		this, false /*skipJavac */,
 		JavacTestOptions.Excuse.JavacCompilesIncorrectSource,
 		new String[] {
 			"TypeInferenceProblem.java",
@@ -4786,8 +4786,8 @@ public void testBug434570_comment3() {
 public void testBug434570_comment3b() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"TestWontCompile.java",
 			"import org.bug.AnnotationWithClassParameter;\n" +
 			"import org.bug.CustomHandler;\n" +
@@ -4991,8 +4991,8 @@ public void testBug434044_comment36() {
 public void testBug434793() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"Outer.java",
 			"import java.util.*;\n" +
 			"\n" +
@@ -5097,14 +5097,14 @@ public void testBug438337comment3() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=422832, Class file triggers StackOverflowError when creating type hierarchy
 public void testBug422832() {
-	String path = getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator +
+	String path = AbstractRegressionTest.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator +
 			"Bug422832ClassFile" + File.separator + "aspose.pdf.jar";
 	String[] libs = getDefaultClassPaths();
 	int len = libs.length;
 	System.arraycopy(libs, 0, libs = new String[len+1], 0, len);
 	libs[len] = path;
-	runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 					"ExampleClass.java",
 					"public class ExampleClass extends aspose.b.a.a {}\n",
 			},
@@ -5248,8 +5248,8 @@ public void test440019_c9() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=446223, [1.8][compiler] Java8 generics eclipse doesn't compile
 public void test446223() {
-		this.runNegativeTest(
-		   false /* skipJavac */,
+		AbstractRegressionTest.runNegativeTest(
+		   this, false /* skipJavac */,
 		   JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings,
 		   new String[] {
 			   "X.java",
@@ -5509,8 +5509,8 @@ public void testBug452194() {
 public void testBug454644() {
 	Map<String,String> options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE);
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"example/CollectionFactory.java",
 			"/*\n" +
 			" * Copyright 2002-2014 the original author or authors.\n" +
@@ -5870,8 +5870,8 @@ public void testBug498057() {
 			"",
 		}
 	);
-	runConformTest(
-		false,
+	AbstractRegressionTest.runConformTest(
+		this, false,
 		new String[] {
 			"scanner/ModifyMe.java",
 			"package scanner;\n" +
@@ -5923,8 +5923,8 @@ public void testBug498486() {
 				"",
 			}
 		);
-	runConformTest(
-			false,
+	AbstractRegressionTest.runConformTest(
+			this, false,
 			new String[] {
 				"i/Test.java",
 				"package i;\n" +
@@ -5979,8 +5979,8 @@ public void testBug499126() {
 			"",
 		}
 	);
-	runConformTest(
-			false,
+	AbstractRegressionTest.runConformTest(
+			this, false,
 			new String[] {
 				"Usage.java",
 				"public class Usage {\n" +
@@ -6057,8 +6057,8 @@ public void testBug469297() {
 public void testBug508799() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_RAW_TYPE_REFERENCE, JavaCore.IGNORE);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"test/A.java",
 			"package test;\n" +
 			"\n" +
@@ -6083,7 +6083,7 @@ public void testBug508799() {
 		},
 		customOptions
 	);
-	runConformTest(false,
+	AbstractRegressionTest.runConformTest(this, false,
 		new String[] {
 			"test/C.java",
 			"package test;\n" +
@@ -6208,8 +6208,8 @@ public void testBug526423() {
 public void testBug526132() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnavoidableGenericTypeProblems, CompilerOptions.DISABLED);
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"Test.java",
 			"import java.util.HashMap;\n" +
 			"import java.util.Map;\n" +
@@ -6266,8 +6266,8 @@ public void testBug526132() {
 public void testBug520482() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_UNAVOIDABLE_GENERIC_TYPE_PROBLEMS, JavaCore.DISABLED);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"test/A.java",
 			"package test;\n" +
 			"\n" +
@@ -6279,7 +6279,7 @@ public void testBug520482() {
 		},
 		customOptions
 	);
-	runNegativeTest(false,
+	AbstractRegressionTest.runNegativeTest(this, false,
 		new String[] {
 			"test/B.java",
 			"package test;\n" +
@@ -6350,8 +6350,8 @@ public void testBug532137() {
 			"",
 		}
 	);
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"subtypes/TestImpl.java",
 			"package subtypes;\n" +
 			"\n" +
@@ -6619,7 +6619,7 @@ public void testBug561544() {
 		return;
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_UNAVOIDABLE_GENERIC_TYPE_PROBLEMS, JavaCore.DISABLED);
-	runNegativeTest(false,
+	AbstractRegressionTest.runNegativeTest(this, false,
 		new String[] {
 			"com/bsbportal/music/C2193c.java",
 			"package com.bsbportal.music;\n"

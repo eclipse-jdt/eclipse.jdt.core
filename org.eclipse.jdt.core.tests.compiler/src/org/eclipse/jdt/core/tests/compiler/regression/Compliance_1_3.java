@@ -574,7 +574,7 @@ public void test021() {
 		},
 		"AbstractB.init()"); // no special vm args
 
-		String computedReferences = findReferences(OUTPUT_DIR + "/p1/Z.class");
+		String computedReferences = AbstractRegressionTest.findReferences(OUTPUT_DIR + "/p1/Z.class");
 		boolean check =
 			computedReferences.indexOf("ref/p1") >= 0
 			&& computedReferences.indexOf("ref/AbstractB") >= 0
@@ -1199,8 +1199,8 @@ public void test036() {
 public void test037() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_TaskTags, "TODO:");
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"p/X.java",
 			"package p;	\n"+
 			"public class X {\n"+
@@ -1225,8 +1225,8 @@ public void test037() {
 public void test038() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_TaskTags, "TODO:");
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"// TODO: something"
 		},
@@ -3191,8 +3191,8 @@ public void test098() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=77349
 public void test099() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"I.java",
 			"public interface I extends Cloneable {\n" +
 			"	class Inner {\n" +

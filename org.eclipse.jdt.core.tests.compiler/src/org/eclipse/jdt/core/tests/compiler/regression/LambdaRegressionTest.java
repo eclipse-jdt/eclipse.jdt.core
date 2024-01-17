@@ -128,8 +128,8 @@ public void test003() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=446317, java.lang.VerifyError: Bad type on operand stack with Lambdas and/or inner classes
 public void test004() {
-	this.runConformTest(
-		false,
+	AbstractRegressionTest.runConformTest(
+		this, false,
 		JavacHasABug.JavacThrowsAnException,
 		new String[] {
 			"Y.java",
@@ -963,8 +963,8 @@ public void testBug477888() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=472648
 // [compiler][1.8] Lambda expression referencing method with generic type has incorrect compile errors
 public void testBug472648() {
-	runNegativeTest(
-		false,
+	AbstractRegressionTest.runNegativeTest(
+		this, false,
 		JavacHasABug.JavacBugFixed_901,
 		new String [] {
 		"Test.java",

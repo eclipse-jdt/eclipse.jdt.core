@@ -291,8 +291,8 @@ public void test013() {
 		+"*8* this.bar(): Top.bar()"
 		+"*9* this.foo(): Top.foo()");
 
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		false /* do not flush output directory */,
 		new String[] { /* test files */
 			"p1/Updated.java",
@@ -569,7 +569,7 @@ public void test021() {
 		"AbstractB.init()"); // no special vm args
 
 		// check that "new Z().init()" is bound to "Z.init()"
-		String computedReferences = findReferences(OUTPUT_DIR + "/p1/Z.class");
+		String computedReferences = AbstractRegressionTest.findReferences(OUTPUT_DIR + "/p1/Z.class");
 		boolean check =
 			computedReferences.indexOf("constructorRef/Z/0") >= 0
 			&& computedReferences.indexOf("methodRef/init/0") >= 0;
@@ -1207,8 +1207,8 @@ public void test036() {
 public void test037() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_TaskTags, "TODO:");
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"p/X.java",
@@ -1243,8 +1243,8 @@ public void test037() {
 public void test038() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_TaskTags, "TODO:");
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -1837,8 +1837,8 @@ public void test054() {
 	);
 }
 public void test055() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"p/X.java",
@@ -1966,8 +1966,8 @@ public void test058() {
 }
 
 public void test059() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"p/FieldQualification.java",
@@ -2037,8 +2037,8 @@ public void test060() {
  * http://bugs.eclipse.org/bugs/show_bug.cgi?id=32342
  */
 public void test061() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"p/X.java", //======================
@@ -2616,8 +2616,8 @@ public void test075() {
  */
 public void test076() {
 	this.docSupport = true;
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"IX.java",
 			"interface IX {\n" +
 				"	public static class Problem extends Exception {}\n" +
@@ -2912,8 +2912,8 @@ public void test084() {
  * Test unused import with static
  */
 public void test085() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"A.java",
@@ -3540,8 +3540,8 @@ public void test104() {
 
 // enclosing instance - note that the behavior is different in 1.3 and 1.4
 public void test105() {
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"    static class Y { }\n" +

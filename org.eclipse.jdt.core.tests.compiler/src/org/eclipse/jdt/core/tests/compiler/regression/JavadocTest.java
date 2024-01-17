@@ -383,7 +383,7 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 			System.arraycopy(testFiles, 0, completedFiles, referencedClasses.length, testFiles.length);
 			expected = expectedDiagnosticsFromReferencedClasses + expected;
 		}
-		runNegativeTest(completedFiles, expected, javacTestOptions);
+		AbstractRegressionTest.runNegativeTest(this, completedFiles, expected, javacTestOptions);
 	}
 
 	/* (non-Javadoc)
@@ -564,7 +564,7 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 					System.out.println(testName + " - Javadoc has found error(s) but Eclipse expects conform result:\n");
 					javacFullLog.println("JAVAC_MISMATCH: Javadoc has found error(s) but Eclipse expects conform result");
 					System.out.println(errorLogger.buffer.toString());
-					printFiles(testFiles);
+					AbstractRegressionTest.printFiles(testFiles);
 					DIFF_COUNTERS[0]++;
 				}
 				else {
@@ -574,7 +574,7 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 						System.out.println(testName + " - Javadoc has found warning(s) but Eclipse expects conform result:\n");
 						javacFullLog.println("JAVAC_MISMATCH: Javadoc has found warning(s) but Eclipse expects conform result");
 						System.out.println(errorLogger.buffer.toString());
-						printFiles(testFiles);
+						AbstractRegressionTest.printFiles(testFiles);
 						DIFF_COUNTERS[0]++;
 					}
 				}
@@ -585,19 +585,19 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 					System.out.println("----------------------------------------");
 					System.out.println(testName + " - Eclipse has found error(s)/warning(s) but Javadoc did not find any:");
 					javacFullLog.println("JAVAC_MISMATCH: Eclipse has found error(s)/warning(s) but Javadoc did not find any");
-					dualPrintln("eclipse:");
-					dualPrintln(expectedProblemLog);
-					printFiles(testFiles);
+					AbstractRegressionTest.dualPrintln("eclipse:");
+					AbstractRegressionTest.dualPrintln(expectedProblemLog);
+					AbstractRegressionTest.printFiles(testFiles);
 					DIFF_COUNTERS[1]++;
 				} else if (expectedProblemLog.indexOf("ERROR") > 0 && exitValue == 0){
 					System.out.println("----------------------------------------");
 					System.out.println(testName + " - Eclipse has found error(s) but Javadoc only found warning(s):");
 					javacFullLog.println("JAVAC_MISMATCH: Eclipse has found error(s) but Javadoc only found warning(s)");
-					dualPrintln("eclipse:");
-					dualPrintln(expectedProblemLog);
+					AbstractRegressionTest.dualPrintln("eclipse:");
+					AbstractRegressionTest.dualPrintln(expectedProblemLog);
 					System.out.println("javadoc:");
 					System.out.println(errorLogger.buffer.toString());
-					printFiles(testFiles);
+					AbstractRegressionTest.printFiles(testFiles);
 					DIFF_COUNTERS[1]++;
 				} else {
 					// PREMATURE refine comparison
@@ -637,13 +637,13 @@ public abstract class JavadocTest extends AbstractRegressionTest {
 				TESTS_COUNTERS.put(CURRENT_CLASS_NAME, Integer.valueOf(newCount));
 				if (newCount == 0) {
 					if (DIFF_COUNTERS[0]!=0 || DIFF_COUNTERS[1]!=0 || DIFF_COUNTERS[2]!=0) {
-						dualPrintln("===========================================================================");
-						dualPrintln("Results summary:");
+						AbstractRegressionTest.dualPrintln("===========================================================================");
+						AbstractRegressionTest.dualPrintln("Results summary:");
 					}
 					if (DIFF_COUNTERS[0]!=0)
-						dualPrintln("	- "+DIFF_COUNTERS[0]+" test(s) where Javadoc found errors/warnings but Eclipse did not");
+						AbstractRegressionTest.dualPrintln("	- "+DIFF_COUNTERS[0]+" test(s) where Javadoc found errors/warnings but Eclipse did not");
 					if (DIFF_COUNTERS[1]!=0)
-						dualPrintln("	- "+DIFF_COUNTERS[1]+" test(s) where Eclipse found errors/warnings but Javadoc did not");
+						AbstractRegressionTest.dualPrintln("	- "+DIFF_COUNTERS[1]+" test(s) where Eclipse found errors/warnings but Javadoc did not");
 					System.out.println("\n");
 				}
 			}

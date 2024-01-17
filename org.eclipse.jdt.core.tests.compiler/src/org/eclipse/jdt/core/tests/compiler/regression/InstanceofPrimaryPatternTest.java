@@ -55,7 +55,7 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions) {
 		if(!isJRE17Plus)
 			return;
-		runConformTest(testFiles, expectedOutput, customOptions, new String[] {"--enable-preview"}, JAVAC_OPTIONS);
+		AbstractRegressionTest.runConformTest(this, testFiles, expectedOutput, customOptions, new String[] {"--enable-preview"}, JAVAC_OPTIONS);
 	}
 	protected void runNegativeTest(
 			String[] testFiles,

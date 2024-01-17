@@ -78,7 +78,7 @@ public void test1() throws Exception {
 		"    34  athrow\n" +
 		"    35  invokevirtual java.io.PrintStream.println(java.lang.Object) : void [45]\n" +
 		"    38  return\n";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 public static Class testClass() {
 	return Jsr14Test.class;

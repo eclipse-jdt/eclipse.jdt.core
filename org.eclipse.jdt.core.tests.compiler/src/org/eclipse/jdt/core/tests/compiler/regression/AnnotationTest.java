@@ -497,8 +497,8 @@ public class AnnotationTest extends AbstractComparableTest {
 
 	// check for duplicate member value pairs
 	public void test018() {
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"@interface Name {\n" +
 				"	String first();\n" +
@@ -2823,8 +2823,8 @@ public class AnnotationTest extends AbstractComparableTest {
 				"@Target({}) @interface I {}",
 			},
 			"");
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"@I public class X {}"
 			},
@@ -3444,8 +3444,8 @@ public class AnnotationTest extends AbstractComparableTest {
     		"Class is a raw type. References to generic type Class<T> should be parameterized\n" +
     		"----------\n";
 
-		this.runNegativeTest(
-				true,
+		AbstractRegressionTest.runNegativeTest(
+				this, true,
 	    		new String[] {
 						"X.java",
 						"import java.lang.annotation.Annotation;\n" +
@@ -4036,8 +4036,8 @@ public class AnnotationTest extends AbstractComparableTest {
 		for (int i = 0, ceil = warnings.length; i < ceil; i++) {
 			customOptions.put(warnings[i], CompilerOptions.WARNING);
 		}
-        this.runConformTest(
-        	true,
+        AbstractRegressionTest.runConformTest(
+        	this, true,
             new String[] {
                 "X.java",
 				"public class X {\n" +
@@ -4088,8 +4088,8 @@ public class AnnotationTest extends AbstractComparableTest {
     }
     // check @SuppressWarning support
     public void test132() {
-        this.runNegativeTest(
-            new String[] {
+        AbstractRegressionTest.runNegativeTest(
+            this, new String[] {
                 "X.java",
     			"import java.io.Serializable;\n" +
     			"import java.util.List;\n" +
@@ -4317,8 +4317,8 @@ public class AnnotationTest extends AbstractComparableTest {
 			customOptions.put(warnings[i], CompilerOptions.WARNING);
 		}
 		customOptions.put(CompilerOptions.OPTION_SuppressWarnings, CompilerOptions.DISABLED);
-        this.runNegativeTest(
-            new String[] {
+        AbstractRegressionTest.runNegativeTest(
+            this, new String[] {
                 "X.java",
     			"import java.io.Serializable;\n" +
     			"import java.util.List;\n" +
@@ -4399,9 +4399,9 @@ public class AnnotationTest extends AbstractComparableTest {
     public void test138() {
     	Map customOptions = new Hashtable();
     	customOptions.put(CompilerOptions.OPTION_ReportUnhandledWarningToken, CompilerOptions.WARNING);
-        this.runNegativeTest(
+        AbstractRegressionTest.runNegativeTest(
 
-            new String[] {
+            this, new String[] {
                 "X.java",
     			"@SuppressWarnings(\"zork\")//$NON-NLS-1$\n" +
     			"public class X {\n" +
@@ -4425,9 +4425,9 @@ public class AnnotationTest extends AbstractComparableTest {
     public void test139() {
     	Map customOptions = new Hashtable();
     	customOptions.put(CompilerOptions.OPTION_ReportUnhandledWarningToken, CompilerOptions.WARNING);
-        this.runNegativeTest(
+        AbstractRegressionTest.runNegativeTest(
 
-            new String[] {
+            this, new String[] {
                 "X.java",
     			"@SuppressWarnings({\"zork\", \"warningToken\"})//$NON-NLS-1$//$NON-NLS-2$\n" +
     			"public class X {\n" +
@@ -4467,8 +4467,8 @@ public class AnnotationTest extends AbstractComparableTest {
 			"	            ^^^^^\n" +
 			"The method foo() of type Bar must override or implement a supertype method\n" +
 			"----------\n";
-        this.runNegativeTest(
-            new String[] {
+        AbstractRegressionTest.runNegativeTest(
+            this, new String[] {
                 "X.java",
 				"public class X {\n" +
 				"  static void foo(){}\n" +
@@ -4519,8 +4519,8 @@ public class AnnotationTest extends AbstractComparableTest {
     }
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=94308
     public void test142() {
-        this.runNegativeTest(
-            new String[] {
+        AbstractRegressionTest.runNegativeTest(
+            this, new String[] {
                 "X.java",
 				"@SuppressWarnings(\"deprecation\")\n" +
 				"public class X extends p.OldStuff {\n" +
@@ -4559,8 +4559,8 @@ public class AnnotationTest extends AbstractComparableTest {
 		// admittingly, when these are errors, SuppressWarnings is not enough to
 		// filter them out *but* the deprecation level being WARNING, we get them
 		// out anyway
-	    this.runNegativeTest(
-	        new String[] {
+	    AbstractRegressionTest.runNegativeTest(
+	        this, new String[] {
 	            "X.java",
 				"@SuppressWarnings(\"deprecation\")\n" +
 				"public class X extends p.OldStuff {\n" +
@@ -4600,8 +4600,8 @@ public void test142c() {
 			CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.ERROR);
 	raiseDeprecationReduceInvalidJavadocSeverity.put(
 			CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.WARNING);
-    this.runNegativeTest(
-    	true,
+    AbstractRegressionTest.runNegativeTest(
+    	this, true,
         new String[] {
             "X.java",
 			"@SuppressWarnings(\"deprecation\")\n" +
@@ -4797,8 +4797,8 @@ public void test143() {
     public void test147() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.WARNING);
-        this.runNegativeTest(
-            new String[] {
+        AbstractRegressionTest.runNegativeTest(
+            this, new String[] {
                 "X.java",
 				"@SuppressWarnings({\"nls\"})\n" +
 				"public class X<T> {\n" +
@@ -4874,8 +4874,8 @@ public void test143() {
 
     //https://bugs.eclipse.org/bugs/show_bug.cgi?id=98091
     public void test150() {
-        this.runConformTest(
-        	true,
+        AbstractRegressionTest.runConformTest(
+        	this, true,
             new String[] {
                 "X.java",
 				"@SuppressWarnings(\"assertIdentifier\")\n" +
@@ -4894,8 +4894,8 @@ public void test143() {
     public void test151() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportAutoboxing, CompilerOptions.WARNING);
-        this.runNegativeTest(
-            new String[] {
+        AbstractRegressionTest.runNegativeTest(
+            this, new String[] {
                 "X.java",
 				"@SuppressWarnings({\"boxing\"})\n" +
 				"public class X {\n" +
@@ -4915,8 +4915,8 @@ public void test143() {
     public void test152() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportAutoboxing, CompilerOptions.WARNING);
-        this.runNegativeTest(
-            new String[] {
+        AbstractRegressionTest.runNegativeTest(
+            this, new String[] {
                 "X.java",
 				"@SuppressWarnings({\"boxing\"})\n" +
 				"public class X {\n" +
@@ -4936,8 +4936,8 @@ public void test143() {
     public void test153() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportIncompleteEnumSwitch, CompilerOptions.WARNING);
-        this.runConformTest(
-            new String[] {
+        AbstractRegressionTest.runConformTest(
+            this, new String[] {
                 "X.java",
                 "enum E { A, B, C }\n" +
 				"public class X {\n" +
@@ -4960,8 +4960,8 @@ public void test143() {
     public void test154() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportFieldHiding, CompilerOptions.WARNING);
-        this.runNegativeTest(
-            new String[] {
+        AbstractRegressionTest.runNegativeTest(
+            this, new String[] {
                 "X.java",
 				"public class X {\n" +
 				"	 static int i;\n" +
@@ -4983,8 +4983,8 @@ public void test143() {
     public void test155() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportLocalVariableHiding, CompilerOptions.WARNING);
-        this.runNegativeTest(
-            new String[] {
+        AbstractRegressionTest.runNegativeTest(
+            this, new String[] {
                 "X.java",
 				"@SuppressWarnings({\"hiding\"})\n" +
 	   			"public class X {	\n"+
@@ -5008,8 +5008,8 @@ public void test143() {
     public void test156() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportTypeParameterHiding, CompilerOptions.WARNING);
-        this.runNegativeTest(
-            new String[] {
+        AbstractRegressionTest.runNegativeTest(
+            this, new String[] {
                 "X.java",
 	   			"class T {}\n" +
 				"@SuppressWarnings({\"hiding\"})\n" +
@@ -5082,8 +5082,8 @@ public void test143() {
     public void test158() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportFinallyBlockNotCompletingNormally, CompilerOptions.WARNING);
-        this.runNegativeTest(
-            new String[] {
+        AbstractRegressionTest.runNegativeTest(
+            this, new String[] {
                 "X.java",
     			"public class X {\n" +
 				"   @SuppressWarnings({\"finally\"})\n" +
@@ -5162,8 +5162,8 @@ public void test143() {
     public void test161() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportUnqualifiedFieldAccess, CompilerOptions.WARNING);
-        this.runNegativeTest(
-            new String[] {
+        AbstractRegressionTest.runNegativeTest(
+            this, new String[] {
                 "X.java",
                 "@SuppressWarnings(\"unqualified-field-access\")\n" +
 	   			"public class X {\n" +
@@ -5183,8 +5183,8 @@ public void test143() {
     public void test162() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.WARNING);
-        this.runNegativeTest(
-            new String[] {
+        AbstractRegressionTest.runNegativeTest(
+            this, new String[] {
                 "X.java",
                 "@SuppressWarnings({\"unchecked\", \"rawtypes\"})\n" +
 				"public class X<T> {\n" +
@@ -5223,8 +5223,8 @@ public void test143() {
 		options.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.WARNING);
 		options.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.WARNING);
 		options.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownException, CompilerOptions.WARNING);
-        this.runNegativeTest(
-            new String[] {
+        AbstractRegressionTest.runNegativeTest(
+            this, new String[] {
                 "X.java",
                 "import java.io.*;\n" +
                 "@SuppressWarnings(\"unused\")\n" +
@@ -5274,12 +5274,12 @@ public void test143() {
         };
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.WARNING);
-		if (isMinimumCompliant(ClassFileConstants.JDK11)) { // no synthetic due to nestmate
+		if (AbstractRegressionTest.isMinimumCompliant(this, ClassFileConstants.JDK11)) { // no synthetic due to nestmate
 			this.runConformTest(testFiles);
 			return;
 		}
-		this.runNegativeTest(
-            testFiles,
+		AbstractRegressionTest.runNegativeTest(
+            this, testFiles,
             "",
 			null,
 			true,
@@ -5298,8 +5298,8 @@ public void test143() {
 		options.put(CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.WARNING);
 		options.put(CompilerOptions.OPTION_DocCommentSupport, CompilerOptions.ENABLED);
 		options.put(CompilerOptions.OPTION_ReportInvalidJavadocTagsVisibility, CompilerOptions.PRIVATE);
-	    this.runConformTest(
-	    	true,
+	    AbstractRegressionTest.runConformTest(
+	    	this, true,
             new String[] {
                 "X.java",
 				"/**\n" +
@@ -5650,8 +5650,8 @@ public void test143() {
     public void test169() {
     	Map customOptions = getCompilerOptions();
     	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.WARNING);
-        this.runConformTest(
-        	true,
+        AbstractRegressionTest.runConformTest(
+        	this, true,
             new String[] {
                 "X.java",
     			"@SuppressWarnings(\"serial\")\n" +
@@ -5674,8 +5674,8 @@ public void test143() {
     public void test170() {
     	Map customOptions = getCompilerOptions();
     	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.WARNING);
-        this.runConformTest(
-            new String[] {
+        AbstractRegressionTest.runConformTest(
+            this, new String[] {
                 "X.java",
     			"public class X extends Exception {\n" +
     			"   @SuppressWarnings(\"nls\")\n" +
@@ -5690,8 +5690,8 @@ public void test143() {
     public void test171() {
     	Map customOptions = getCompilerOptions();
     	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.WARNING);
-        this.runConformTest(
-        	true,
+        AbstractRegressionTest.runConformTest(
+        	this, true,
             new String[] {
                 "X.java",
     			"public class X extends Exception {\n" +
@@ -5724,8 +5724,8 @@ public void test143() {
     public void test172() {
     	Map customOptions = getCompilerOptions();
     	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.WARNING);
-        this.runConformTest(
-        	true,
+        AbstractRegressionTest.runConformTest(
+        	this, true,
         	new String[] {
                 "X.java",
     			"@SuppressWarnings(\"serial\")\n" +
@@ -5754,8 +5754,8 @@ public void test143() {
     public void test173() {
     	Map customOptions = getCompilerOptions();
     	customOptions.put(CompilerOptions.OPTION_ReportNonExternalizedStringLiteral, CompilerOptions.WARNING);
-        this.runConformTest(
-        	true,
+        AbstractRegressionTest.runConformTest(
+        	this, true,
             new String[] {
                 "X.java",
     			"@interface Annot {\n" +
@@ -5806,8 +5806,8 @@ public void test143() {
     			"   @SuppressWarnings(\"serial\")\n" +
     			"	String s2 = \"Hello2\"; \n" +
     			"}";
-		this.runConformTest(
-			true,
+		AbstractRegressionTest.runConformTest(
+			this, true,
             new String[] {
                 "X.java",
     			source
@@ -5842,8 +5842,8 @@ public void test143() {
     			"   @SuppressWarnings(\"serial\")\n" +
     			"	String s2 = \"Hello2\"; \n" +
     			"}";
-		this.runConformTest(
-			true,
+		AbstractRegressionTest.runConformTest(
+			this, true,
             new String[] {
                 "X.java",
     			source
@@ -5884,8 +5884,8 @@ public void test143() {
     			"	String s2 = \"Hello2\"; \n" +
     			"	@Annot(value=5) void foo() {}\n" +
     			"}";
-		this.runConformTest(
-			true,
+		AbstractRegressionTest.runConformTest(
+			this, true,
             new String[] {
                 "X.java",
     			source
@@ -5922,8 +5922,8 @@ public void test143() {
     }
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=111076
     public void test178() {
-        runConformTest(
-        	true,
+        AbstractRegressionTest.runConformTest(
+        	this, true,
             new String[] {
                 "X.java",
     			"import java.util.*;\n" +
@@ -5944,8 +5944,8 @@ public void test143() {
     }
     // https://bugs.eclipse.org/bugs/show_bug.cgi?id=112433
     public void test179() {
-    	this.runConformTest(
-    		true,
+    	AbstractRegressionTest.runConformTest(
+    		this, true,
     		new String[] {
     			"X.java",
     			"import static java.lang.annotation.ElementType.*;\n" +
@@ -6259,8 +6259,8 @@ public void test143() {
     }
     // partial recompile - keep a binary
 	public void test189() {
-		this.runConformTest(
-			true,
+		AbstractRegressionTest.runConformTest(
+			this, true,
 			new String[] {
 				"A1.java",
 				"@A2(@A1(m1 = \"u\"))\n" +
@@ -6279,8 +6279,8 @@ public void test143() {
 			null,
 			JavacTestOptions.DEFAULT);
 		// keep A2 binary, recompile A1 with a name change
-		this.runConformTest(
-			false, // do not flush A2.class
+		AbstractRegressionTest.runConformTest(
+			this, false, // do not flush A2.class
 			new String[] {
 				"A1.java",
 				"@A2(@A1(m1 = \"u\"))\n" +
@@ -6671,8 +6671,8 @@ public void test198() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=138443
 public void test199() {
-	this.runConformTest(
-		true,
+	AbstractRegressionTest.runConformTest(
+		this, true,
 		new String[] {
 			"X.java",
 			"@interface AttributeOverrides {\n" +
@@ -7169,8 +7169,8 @@ public void test214() {
 			"	     ^^^^^\n" +
 			"The method foo() of type I must override or implement a supertype method\n" +
 			"----------\n";
-    this.runNegativeTest(
-    	true,
+    AbstractRegressionTest.runNegativeTest(
+    	this, true,
         new String[] {
             "X.java",
 			"interface I {\n" +
@@ -7283,8 +7283,8 @@ public void test217() {
 		"	                               ^^^^^^^\n" +
 		"The method message() is undefined for the type Annotation\n" +
 		"----------\n";
-    this.runNegativeTest(
-    	true,
+    AbstractRegressionTest.runNegativeTest(
+    	this, true,
         new String[] {
             "X.java",
 			"import java.lang.annotation.Annotation;\n" +
@@ -7313,8 +7313,8 @@ public void test217() {
 }
 // extending java.lang.annotation.Annotation
 public void test218() {
-    this.runNegativeTest(
-        new String[] {
+    AbstractRegressionTest.runNegativeTest(
+        this, new String[] {
             "X.java",
 			"import java.lang.annotation.Annotation;\n" +
 			"import java.lang.reflect.Constructor;\n" +
@@ -7613,8 +7613,8 @@ public void test224() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=XXXXX
 public void test225() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n"+
 			"  public void myMethod() {\n"+
@@ -7752,9 +7752,9 @@ public void test229() {
 public void test230() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
-	enableAllWarningsForIrritants(options, IrritantSet.UNUSED);
-	this.runNegativeTest(
-		true,
+	AbstractRegressionTest.enableAllWarningsForIrritants(options, IrritantSet.UNUSED);
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -7791,9 +7791,9 @@ public void test230() {
 public void test231() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
-	enableAllWarningsForIrritants(options, IrritantSet.UNUSED);
-	this.runNegativeTest(
-		true,
+	AbstractRegressionTest.enableAllWarningsForIrritants(options, IrritantSet.UNUSED);
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -7827,8 +7827,8 @@ public void test231() {
 public void test232() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		true,
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -7981,8 +7981,8 @@ public void test238() {
 	// check that if promoted to ERROR, unhandled warning token shouldn't be suppressed by @SuppressWarnings("all")
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnhandledWarningToken, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		true,
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -8003,8 +8003,8 @@ public void test238() {
 public void test239() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportRedundantSuperinterface, CompilerOptions.WARNING);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 				"X.java",
 				"class X implements I {}\n" +
 				"@SuppressWarnings(\"unused\")\n" +
@@ -8049,8 +8049,8 @@ public void test240() {
 public void test241() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"\n" +
@@ -8132,8 +8132,8 @@ public void test243() {
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.IGNORE);
 	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"	\n" +
@@ -8156,8 +8156,8 @@ public void test244() {
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.WARNING);
 	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.WARNING);
-	this.runNegativeTest(
-		true,
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -8184,9 +8184,9 @@ public void test245() {
 	options.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.IGNORE);
 	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
 	options.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.WARNING);
-	enableAllWarningsForIrritants(options, IrritantSet.UNUSED);
-	this.runNegativeTest(
-		true,
+	AbstractRegressionTest.enableAllWarningsForIrritants(options, IrritantSet.UNUSED);
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -8219,9 +8219,9 @@ public void test245_ignored() {
 	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
 	options.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.WARNING);
 	options.put(CompilerOptions.OPTION_ReportSuppressWarningNotFullyAnalysed, CompilerOptions.IGNORE);
-	enableAllWarningsForIrritants(options, IrritantSet.UNUSED);
-	this.runNegativeTest(
-		true,
+	AbstractRegressionTest.enableAllWarningsForIrritants(options, IrritantSet.UNUSED);
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -8249,9 +8249,9 @@ public void test245_error() {
 	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
 	options.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.WARNING);
 	options.put(CompilerOptions.OPTION_ReportSuppressWarningNotFullyAnalysed, CompilerOptions.ERROR);
-	enableAllWarningsForIrritants(options, IrritantSet.UNUSED);
-	this.runNegativeTest(
-		true,
+	AbstractRegressionTest.enableAllWarningsForIrritants(options, IrritantSet.UNUSED);
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -8282,8 +8282,8 @@ public void test246() {
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.WARNING);
 	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.WARNING);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"	\n" +
@@ -8316,8 +8316,8 @@ public void test247() {
 				"}"
 			},
 			"");
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"	@TestAnnotation\n" +
@@ -8349,8 +8349,8 @@ public void test248() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=191090
 public void test249() throws Exception {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java", //-----------------------------------------------------------------------
 			"@Zork\n" +
 			"public class X {}",
@@ -8368,12 +8368,12 @@ public void test249() throws Exception {
 		false,
 		false);
 	String expectedOutput = "public class X {";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=191090
 public void test250() throws Exception {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java", //-----------------------------------------------------------------------
 			"@Deprecated\n" +
 			"@Zork\n" +
@@ -8403,12 +8403,12 @@ public void test250() throws Exception {
 		"@java.lang.Deprecated\n" +
 		"@Annot(value=(int) 1)\n" +
 		"public class X {";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=191090
 public void test251() throws Exception {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java", //-----------------------------------------------------------------------
 			"@Deprecated\n" +
 			"@Zork\n" +
@@ -8438,12 +8438,12 @@ public void test251() throws Exception {
 		"@Annot(value=(int) 1)\n" +
 		"@java.lang.Deprecated\n" +
 		"public class X {";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=191090
 public void test252() throws Exception {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java", //-----------------------------------------------------------------------
 			"public class X {\n" +
 			"	public void foo(@Deprecated @Zork @Annot(2) int i) {}\n" +
@@ -8480,12 +8480,12 @@ public void test252() throws Exception {
 		"        #18 @Annot(\n" +
 		"          #19 value=(int) 2 (constant type)\n" +
 		"        )\n";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=191090
 public void test253() throws Exception {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java", //-----------------------------------------------------------------------
 			"public class X {\n" +
 			"	public void foo(@Deprecated @Zork @Annot(2) int i) {}\n" +
@@ -8522,12 +8522,12 @@ public void test253() throws Exception {
 		"      Number of annotations for parameter 0: 1\n" +
 		"        #17 @Zork(\n" +
 		"        )\n";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=191090
 public void test254() throws Exception {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java", //-----------------------------------------------------------------------
 			"public class X {\n" +
 			"	public void foo(@Deprecated int j, @Zork @Annot(3) int i) {}\n" +
@@ -8566,12 +8566,12 @@ public void test254() throws Exception {
 		"      Number of annotations for parameter 1: 1\n" +
 		"        #17 @Zork(\n" +
 		"        )\n";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=191090
 public void test255() throws Exception {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java", //-----------------------------------------------------------------------
 			"public class X {\n" +
 			"	public void foo(@Deprecated int j, @Annot(\"\") @Deprecated int i) {}\n" +
@@ -8604,12 +8604,12 @@ public void test255() throws Exception {
 		"      Number of annotations for parameter 1: 1\n" +
 		"        #17 @java.lang.Deprecated(\n" +
 		"        )\n";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=191090
 public void test256() throws Exception {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java", //-----------------------------------------------------------------------
 			"public class X {\n" +
 			"	public void foo(@Deprecated int j, @Annot(\"\") @Deprecated int i) {}\n" +
@@ -8642,7 +8642,7 @@ public void test256() throws Exception {
 		"      Number of annotations for parameter 1: 1\n" +
 		"        #20 @java.lang.Deprecated(\n" +
 		"        )";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+	AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=216570
 public void test257() {
@@ -8781,8 +8781,8 @@ public void test260() {
 public void test261() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Process_Annotations, CompilerOptions.ENABLED);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",//=====================
 			"public class X {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -8807,8 +8807,8 @@ public void test261() {
 		null,
 		options,
 		null);
-	this.runConformTest(
-			new String[] {
+	AbstractRegressionTest.runConformTest(
+			this, new String[] {
 				"X.java",//=====================
 				"public class X {\n" +
 				"	public static void main(String[] args) {\n" +
@@ -8827,8 +8827,8 @@ public void test261() {
 public void test262() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Process_Annotations, CompilerOptions.ENABLED);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",//=====================
 			"public class X {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -8853,8 +8853,8 @@ public void test262() {
 		null,
 		options,
 		null);
-	this.runConformTest(
-			new String[] {
+	AbstractRegressionTest.runConformTest(
+			this, new String[] {
 				"X.java",//=====================
 				"public class X {\n" +
 				"	public static void main(String[] args) {\n" +
@@ -8873,8 +8873,8 @@ public void test262() {
 public void test263() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Process_Annotations, CompilerOptions.ENABLED);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",//=====================
 			"public class X {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -8899,8 +8899,8 @@ public void test263() {
 		null,
 		options,
 		null);
-	this.runConformTest(
-			new String[] {
+	AbstractRegressionTest.runConformTest(
+			this, new String[] {
 				"X.java",//=====================
 				"public class X {\n" +
 				"	public static void main(String[] args) {\n" +
@@ -9013,8 +9013,8 @@ public void test267() {
 	customOptions.put(CompilerOptions.OPTION_SuppressWarnings, CompilerOptions.ENABLED);
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
 
-	runNegativeTest(
-		true,
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 				"com/SomeTest.java",
 				"package com;\n" +
@@ -9072,8 +9072,8 @@ public void test269() {
 	for (int i = 0, ceil = warnings.length; i < ceil; i++) {
 		customOptions.put(warnings[i], CompilerOptions.WARNING);
 	}
-	this.runConformTest(
-			true,
+	AbstractRegressionTest.runConformTest(
+			this, true,
 			new String[] {
 					"X.java",
 					"@interface X {}",
@@ -9126,7 +9126,7 @@ public void test271() throws Exception {
 		"  // Stack: 0, Locals: 2\n" +
 		"  private void foo(@A java.lang.Object o);\n";
 
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator  +"X.class", "X", expectedOutput, ClassFileBytesDisassembler.DETAILED);
+	AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator  +"X.class", "X", expectedOutput, ClassFileBytesDisassembler.DETAILED);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=289516
 public void test272() throws Exception {
@@ -9137,8 +9137,8 @@ public void test272() throws Exception {
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"@interface A {}\n" +
 			"public class X {\n" +
@@ -9159,7 +9159,7 @@ public void test272() throws Exception {
 		"  // Stack: 0, Locals: 2\n" +
 		"  private void foo(@A java.lang.Object o);\n";
 
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator  +"X.class", "X", expectedOutput, ClassFileBytesDisassembler.DETAILED);
+	AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator  +"X.class", "X", expectedOutput, ClassFileBytesDisassembler.DETAILED);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=289576
 public void test273() throws Exception {
@@ -9179,7 +9179,7 @@ public void test273() throws Exception {
 		"  // Stack: 1, Locals: 2\n" +
 		"  private X(@A java.lang.Object o);\n";
 
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator  +"X.class", "X", expectedOutput, ClassFileBytesDisassembler.DETAILED);
+	AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator  +"X.class", "X", expectedOutput, ClassFileBytesDisassembler.DETAILED);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=163194
 // To check Missing override annotation error when a method implements
@@ -9211,15 +9211,15 @@ public void test274a() {
 				"	            ^^^\n" +
 				"The method m() of type B should be tagged with @Override since it actually overrides a superinterface method\n" +
 				"----------\n";
-		this.runNegativeTest(
-				true,
+		AbstractRegressionTest.runNegativeTest(
+				this, true,
 				testString,
 				null, customOptions,
 				expectedOutput,
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	} else {
-		this.runConformTest(
-				true, testString,
+		AbstractRegressionTest.runConformTest(
+				this, true, testString,
 				null,
 				customOptions,
 				null,
@@ -9256,15 +9256,15 @@ public void test274b() {
 			"	            ^^^\n" +
 			"The method m() of type Over should be tagged with @Override since it actually overrides a superinterface method\n" +
 			"----------\n";
-		this.runNegativeTest(
-				true,
+		AbstractRegressionTest.runNegativeTest(
+				this, true,
 				testString,
 				null, customOptions,
 				expectedOutput,
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	} else {
-		this.runConformTest(
-				true, testString,
+		AbstractRegressionTest.runConformTest(
+				this, true, testString,
 				null,
 				customOptions,
 				null,
@@ -9300,15 +9300,15 @@ public void test274c() {
 				"	     ^^^\n" +
 				"The method m() of type B should be tagged with @Override since it actually overrides a superinterface method\n" +
 				"----------\n";
-		this.runNegativeTest(
-				true,
+		AbstractRegressionTest.runNegativeTest(
+				this, true,
 				testString,
 				null, customOptions,
 				expectedOutput,
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	} else {
-		this.runConformTest(
-				true, testString,
+		AbstractRegressionTest.runConformTest(
+				this, true, testString,
 				null,
 				customOptions,
 				null,
@@ -9342,15 +9342,15 @@ public void test274d() {
 			"	       ^^^^^^^^^^\n" +
 			"The method toString() of type A should be tagged with @Override since it actually overrides a superinterface method\n" +
 			"----------\n";
-		this.runNegativeTest(
-				true,
+		AbstractRegressionTest.runNegativeTest(
+				this, true,
 				testString,
 				null, customOptions,
 				expectedOutput,
 				JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	} else {
-		this.runConformTest(
-				true, testString,
+		AbstractRegressionTest.runConformTest(
+				this, true, testString,
 				null,
 				customOptions,
 				null,
@@ -9363,8 +9363,8 @@ public void test275() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportDeadCodeInTrivialIfStatement, CompilerOptions.ENABLED);
 
-	runConformTest(
-		true,
+	AbstractRegressionTest.runConformTest(
+		this, true,
 		new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -9396,8 +9396,8 @@ public void test276() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportDeadCodeInTrivialIfStatement, CompilerOptions.ENABLED);
 
-	runConformTest(
-		true,
+	AbstractRegressionTest.runConformTest(
+		this, true,
 		new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -9424,8 +9424,8 @@ public void test277() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportDeadCodeInTrivialIfStatement, CompilerOptions.DISABLED);
 
-	runConformTest(
-		true,
+	AbstractRegressionTest.runConformTest(
+		this, true,
 		new String[] {
 				"X.java",
 				"public class X {\n" +
@@ -9512,8 +9512,8 @@ public void test280() {
 			"	private int i;\n" + // problem configured as warning but still suppressed
 			"}\n"
 			};
-	runConformTest(
-			testFiles,
+	AbstractRegressionTest.runConformTest(
+			this, testFiles,
 			null,
 			null,
 			true,
@@ -9541,8 +9541,8 @@ public void test281() {
 			"	            ^\n" +
 			"The value of the field A.i is not used\n" +
 			"----------\n";
-	runNegativeTest(
-			true,
+	AbstractRegressionTest.runNegativeTest(
+			this, true,
 			testFiles,
 			null,
 			customOptions,
@@ -9562,8 +9562,8 @@ public void test282() {
 			"	private Map i;\n" +
 			"}\n"
 			};
-	runConformTest(
-			testFiles,
+	AbstractRegressionTest.runConformTest(
+			this, testFiles,
 			null,
 			null,
 			true,
@@ -9590,8 +9590,8 @@ public void test283() {
 			"	             ^\n" +
 			"void is an invalid type for the variable i\n" +
 			"----------\n";
-	runNegativeTest(
-			true,
+	AbstractRegressionTest.runNegativeTest(
+			this, true,
 			testFiles,
 			null,
 			customOptions,
@@ -9623,8 +9623,8 @@ public void test284() {
 		"	                  ^^^^^^\n" +
 		"Unnecessary @SuppressWarnings(\"cast\")\n" +
 		"----------\n";
-	runNegativeTest(
-			true,
+	AbstractRegressionTest.runNegativeTest(
+			this, true,
 			testFiles,
 			null,
 			customOptions,
@@ -9656,8 +9656,8 @@ public void test285() {
 		"	                  ^^^^^^\n" +
 		"Unnecessary @SuppressWarnings(\"cast\")\n" +
 		"----------\n";
-	runNegativeTest(
-			true,
+	AbstractRegressionTest.runNegativeTest(
+			this, true,
 			testFiles,
 			null,
 			customOptions,
@@ -9674,8 +9674,8 @@ public void test286() {
 			CompilerOptions.OPTION_SuppressOptionalErrors, CompilerOptions.ENABLED);
 	raiseDeprecationReduceInvalidJavadocSeverity.put(
 			CompilerOptions.OPTION_ReportInvalidJavadoc, CompilerOptions.WARNING);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 				"X.java",
 				"@SuppressWarnings(\"deprecation\")\n" +
 				"public class X extends p.OldStuff {\n" +
@@ -9707,8 +9707,8 @@ public void test287() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_SuppressOptionalErrors, CompilerOptions.ENABLED);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 				"X.java",
 				"import java.util.ArrayList;\n" +
 				"\n" +
@@ -9737,8 +9737,8 @@ public void test288() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_SuppressOptionalErrors, CompilerOptions.ENABLED);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 				"X.java",
 				"import java.util.ArrayList;\n" +
 				"\n" +
@@ -9762,8 +9762,8 @@ public void test289() {
 	options.put(CompilerOptions.OPTION_ReportUncheckedTypeOperation, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
 	options.put(CompilerOptions.OPTION_SuppressOptionalErrors, CompilerOptions.ENABLED);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 				"X.java",
 				"import java.util.ArrayList;\n" +
 				"\n" +
@@ -9797,8 +9797,8 @@ public void test290() {
 	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_SuppressOptionalErrors, CompilerOptions.ENABLED);
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 				"X.java",
 				"import java.util.ArrayList;\n" +
 				"class X {\n" +
@@ -9825,8 +9825,8 @@ public void test291() {
 	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_SuppressOptionalErrors, CompilerOptions.ENABLED);
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 				"X.java",
 				"import java.util.ArrayList;\n" +
 				"class X {\n" +
@@ -9853,8 +9853,8 @@ public void test292() {
 	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_SuppressOptionalErrors, CompilerOptions.ENABLED);
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 				"X.java",
 				"import java.util.ArrayList;\n" +
 				"class X {\n" +
@@ -9904,8 +9904,8 @@ public void test294() {
 			"	public int foo(int i) { return 0; }\n" +
 			"}\n"
 			};
-	runConformTest(
-			testFiles,
+	AbstractRegressionTest.runConformTest(
+			this, testFiles,
 			null,
 			null,
 			true,
@@ -9931,8 +9931,8 @@ public void test295() {
 			"	public int foo(int i) { return 0; }\n" +
 			"}\n"
 			};
-	runConformTest(
-			testFiles,
+	AbstractRegressionTest.runConformTest(
+			this, testFiles,
 			null,
 			null,
 			true,
@@ -9958,8 +9958,8 @@ public void test296() {
 			"	public int foo(int i) { return 0; }\n" +
 			"}\n"
 			};
-	runConformTest(
-			testFiles,
+	AbstractRegressionTest.runConformTest(
+			this, testFiles,
 			null,
 			null,
 			true,
@@ -10324,7 +10324,7 @@ public void testBug366003e() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=365437
 public void testBug365437a() {
 	Map customOptions = getCompilerOptions();
-	enableAllWarningsForIrritants(customOptions, IrritantSet.NULL);
+	AbstractRegressionTest.enableAllWarningsForIrritants(customOptions, IrritantSet.NULL);
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	String testFiles [] = new String[] {
 			"p/A.java",
@@ -10362,8 +10362,8 @@ public void testBug365437a() {
 			"	           	             ^^^^^^\n" +
 			"The method foo3() from the type A is never used locally\n" +
 			"----------\n";
-	runNegativeTest(
-			true,
+	AbstractRegressionTest.runNegativeTest(
+			this, true,
 			testFiles,
 			null,
 			customOptions,
@@ -10418,8 +10418,8 @@ public void testBug365437b() {
 			List<String> limitModules = Arrays.asList("java.se", "java.xml.ws.annotation");
 			this.javaClassLib = new CustomFileSystem(limitModules);
 		}
-		runNegativeTest(
-				true,
+		AbstractRegressionTest.runNegativeTest(
+				this, true,
 				testFiles,
 				null,
 				customOptions,
@@ -10434,7 +10434,7 @@ public void testBug365437b() {
 public void testBug365437c() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_7) return;
 	Map customOptions = getCompilerOptions();
-	enableAllWarningsForIrritants(customOptions, IrritantSet.NULL);
+	AbstractRegressionTest.enableAllWarningsForIrritants(customOptions, IrritantSet.NULL);
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	String testFiles [] = new String[] {
 			"p/A.java",
@@ -10472,8 +10472,8 @@ public void testBug365437c() {
 			"	            	                   ^^^^^^^^^^^^^^^^^\n" +
 			"The method foo3(Object...) from the type A is never used locally\n" +
 			"----------\n";
-	runNegativeTest(
-			true,
+	AbstractRegressionTest.runNegativeTest(
+			this, true,
 			testFiles,
 			null,
 			customOptions,
@@ -10484,13 +10484,13 @@ public void testBug365437c() {
 // unused constructor
 public void testBug365437d() {
 	Map customOptions = getCompilerOptions();
-	enableAllWarningsForIrritants(customOptions, IrritantSet.NULL);
+	AbstractRegressionTest.enableAllWarningsForIrritants(customOptions, IrritantSet.NULL);
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_AnnotationBasedNullAnalysis, CompilerOptions.ENABLED);
 	customOptions.put(CompilerOptions.OPTION_NonNullByDefaultAnnotationName, "p.NonNullByDefault");
-	this.runNegativeTest(
-		true,
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 			"Example.java",
 			"class Example {\n" +
@@ -10564,13 +10564,13 @@ public void testBug365437d() {
 // unused field
 public void testBug365437e() {
 	Map customOptions = getCompilerOptions();
-	enableAllWarningsForIrritants(customOptions, IrritantSet.NULL);
+	AbstractRegressionTest.enableAllWarningsForIrritants(customOptions, IrritantSet.NULL);
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_AnnotationBasedNullAnalysis, CompilerOptions.ENABLED);
 	customOptions.put(CompilerOptions.OPTION_NonNullAnnotationName, "p.NonNull");
-	this.runNegativeTest(
-		true,
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 			"Example.java",
 			"class Example {\n" +
@@ -10637,13 +10637,13 @@ public void testBug365437e() {
 // unused type
 public void testBug365437f() {
 	Map customOptions = getCompilerOptions();
-	enableAllWarningsForIrritants(customOptions, IrritantSet.NULL);
+	AbstractRegressionTest.enableAllWarningsForIrritants(customOptions, IrritantSet.NULL);
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_AnnotationBasedNullAnalysis, CompilerOptions.ENABLED);
 	customOptions.put(CompilerOptions.OPTION_NonNullByDefaultAnnotationName, "p.NonNullByDefault");
-	this.runNegativeTest(
-		true,
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 			"Example.java",
 			"class Example {\n" +
@@ -10713,8 +10713,8 @@ public void testBug376590a() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		true,
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 			GOOGLE_INJECT_NAME,
 			GOOGLE_INJECT_CONTENT,
@@ -10742,8 +10742,8 @@ public void testBug376590b() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		true,
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 			JAVAX_INJECT_NAME,
 			JAVAX_INJECT_CONTENT,
@@ -10777,8 +10777,8 @@ public void testBug376590c() {
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_AnnotationBasedNullAnalysis, CompilerOptions.ENABLED);
 	customOptions.put(CompilerOptions.OPTION_NonNullAnnotationName, "p.NonNull");
-	this.runNegativeTest(
-		true,
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 			JAVAX_INJECT_NAME,
 			JAVAX_INJECT_CONTENT,
@@ -10902,8 +10902,8 @@ public void testBug371832() throws Exception {
 			"	       ^^^^^^^^^^^^^^\n" +
 			"The import java.util.List is never used\n" +
 			"----------\n";
-	runNegativeTest(
-			true,
+	AbstractRegressionTest.runNegativeTest(
+			this, true,
 			testFiles,
 			null,
 			customOptions,
@@ -10970,8 +10970,8 @@ public void testBug386356_2() {
 			List<String> limitModules = Arrays.asList("java.se", "java.xml.bind");
 			this.javaClassLib = new CustomFileSystem(limitModules);
 		}
-		runConformTest(
-			new String[] {
+		AbstractRegressionTest.runConformTest(
+			this, new String[] {
 				"com/ermahgerd/Ermahgerd.java",
 				"package com.ermahgerd;\n" +
 				"\n" +
@@ -11018,8 +11018,8 @@ public void test398657() throws Exception {
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"p/Annot.java",
 			"package p;\n" +
 			"public @interface Annot {\n" +
@@ -11045,7 +11045,7 @@ public void test398657() throws Exception {
 		"    [inner class info: #22 p/Annot$E, outer class info: #24 p/Annot\n" +
 		"     inner name: #26 E, accessflags: 16409 public static final]\n";
 
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator  +"X.class", "X", expectedOutput, ClassFileBytesDisassembler.DETAILED);
+	AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator  +"X.class", "X", expectedOutput, ClassFileBytesDisassembler.DETAILED);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=398657
 public void test398657_2() throws Exception {
@@ -11056,8 +11056,8 @@ public void test398657_2() throws Exception {
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"p/Y.java",
 			"package p;\n" +
 			"public class Y {\n" +
@@ -11083,7 +11083,7 @@ public void test398657_2() throws Exception {
 			"    [inner class info: #21 p/Y$Annot, outer class info: #23 p/Y\n" +
 			"     inner name: #25 Annot, accessflags: 9737 public abstract static]\n";
 
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator  +"X.class", "X", expectedOutput, ClassFileBytesDisassembler.DETAILED);
+	AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator  +"X.class", "X", expectedOutput, ClassFileBytesDisassembler.DETAILED);
 }
 // check invalid and annotations on package
 public void test384567() {
@@ -11207,8 +11207,8 @@ public void test427367() throws Exception {
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"@interface Annot1 {\n" +
 			"   Thread.State value() default Thread.State.NEW;\n" +
@@ -11257,7 +11257,7 @@ public void test427367() throws Exception {
 					"\n" +
 					"}";
 	try {
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator  +"X.class", "X", expectedOutput, ClassFileBytesDisassembler.DETAILED);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator  +"X.class", "X", expectedOutput, ClassFileBytesDisassembler.DETAILED);
 	} catch(org.eclipse.jdt.core.util.ClassFormatException cfe) {
 		fail("Error reading classfile");
 	}
@@ -11267,8 +11267,8 @@ public void test376977() throws Exception {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) {
 		return;
 	}
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"import p.Outer;\n" +
 			"@Outer(nest= {@Nested()})\n" +
@@ -11369,8 +11369,8 @@ public void test434556() throws Exception {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) {
 		return;
 	}
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"A.java",
 			"import java.lang.annotation.Retention;\n" +
 			"import java.lang.annotation.RetentionPolicy;\n" +
@@ -11412,7 +11412,7 @@ public void test434556() throws Exception {
 			"        [pc: 0, pc: 10] local: this index: 0 type: A\n" +
 			"  \n";
 	try {
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator  +"A.class", "A", expectedOutput, ClassFileBytesDisassembler.DETAILED);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator  +"A.class", "A", expectedOutput, ClassFileBytesDisassembler.DETAILED);
 	} catch(org.eclipse.jdt.core.util.ClassFormatException cfe) {
 		fail("Error reading classfile");
 	}
@@ -11435,10 +11435,10 @@ public void test433747() throws Exception {
 	};
 	if (this.complianceLevel <= ClassFileConstants.JDK1_6) {
 		this.runConformTest(src, "");
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "p/package-info.class", "", "p123456");
+		AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "p/package-info.class", "", "p123456");
 	} else {
-	this.runNegativeTest(
-			src,
+	AbstractRegressionTest.runNegativeTest(
+			this, src,
 			"----------\n" +
 			"1. ERROR in p\\package-info.java (at line 1)\n" +
 			"	@PackageAnnot(\"p123456\")\n" +
@@ -11462,8 +11462,8 @@ public void test456960() throws Exception {
 	options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
 	options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
 	options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"@Bar(String)\n" +
 			"public class X {\n" +
@@ -11506,7 +11506,7 @@ public void test456960() throws Exception {
 			"        [pc: 0, pc: 10] local: this index: 0 type: X\n" +
 			"}";
 	try {
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator  +"X.class", "X", expectedOutput, ClassFileBytesDisassembler.DETAILED);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator  +"X.class", "X", expectedOutput, ClassFileBytesDisassembler.DETAILED);
 	} catch(org.eclipse.jdt.core.util.ClassFormatException cfe) {
 		fail("Error reading classfile");
 	}
@@ -11525,7 +11525,7 @@ public void test449330() throws Exception {
 	};
 	if (this.complianceLevel <= ClassFileConstants.JDK1_6) {
 		this.runConformTest(testFiles);
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "p/package-info.class", "", "HELLO");
+		AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "p/package-info.class", "", "HELLO");
 	} else {
 		this.runNegativeTest(testFiles,
 			"----------\n" +
@@ -11551,7 +11551,7 @@ public void test449330a() throws Exception {
 	};
 	if (this.complianceLevel <= ClassFileConstants.JDK1_6) {
 		this.runConformTest(testFiles, "");
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "p/package-info.class", "", "HELLO");
+		AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "p/package-info.class", "", "HELLO");
 	} else {
 		this.runNegativeTest(testFiles,
 			"----------\n" +
@@ -11574,15 +11574,15 @@ public void test449330b() throws Exception {
 		"package p;\n"
 	};
 	this.runConformTest(testFiles, "");
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "p/package-info.class", "", "HELLO");
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "p/package-info.class", "", "HELLO");
 }
 //https://bugs.eclipse.org/386692
 public void testBug386692() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		true,
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 			SPRINGFRAMEWORK_AUTOWIRED_NAME,
 			SPRINGFRAMEWORK_AUTOWIRED_CONTENT,
@@ -11643,7 +11643,7 @@ public void testBug464977() throws Exception {
 							"}";
 	try {
 		this.enableAPT = true;
-		checkClassFile("DeprecatedClass", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
+		AbstractRegressionTest.checkClassFile(this, "DeprecatedClass", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
 	} finally {
 		this.enableAPT = apt;
 	}
@@ -11780,7 +11780,7 @@ public void test472178() throws Exception {
 			"        local variable entries:\n" +
 			"          [pc: 31, pc: 37] index: 4\n" +
 			"      )\n";
-	checkClassFile("Test", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
+	AbstractRegressionTest.checkClassFile(this, "Test", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=470665
 public void testBug470665() throws Exception {
@@ -11788,7 +11788,7 @@ public void testBug470665() throws Exception {
 		return; // Enough to run in the last two levels!
 	}
 	boolean apt = this.enableAPT;
-	String errMessage = isMinimumCompliant(ClassFileConstants.JDK11) ?
+	String errMessage = AbstractRegressionTest.isMinimumCompliant(this, ClassFileConstants.JDK11) ?
 			"----------\n" +
 			"1. ERROR in A.java (at line 10)\n" +
 			"	};\n" +
@@ -11882,8 +11882,8 @@ public void testBug506888b() throws Exception {
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportIncompleteEnumSwitch, CompilerOptions.WARNING);
 	options.put(CompilerOptions.OPTION_ReportMissingDefaultCase, CompilerOptions.IGNORE);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"	\n" +
@@ -11937,8 +11937,8 @@ public void testBug506888d() throws Exception {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.IGNORE);
 	options.put(CompilerOptions.OPTION_ReportIncompleteEnumSwitch, CompilerOptions.IGNORE);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"	\n" +
@@ -11957,8 +11957,8 @@ public void testBug506888e() throws Exception {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnusedWarningToken, CompilerOptions.IGNORE);
 	options.put(CompilerOptions.OPTION_ReportUnusedLabel, CompilerOptions.WARNING);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"	\n" +
@@ -11994,7 +11994,7 @@ public void testBug506888f() throws Exception {
 	options.put(CompilerOptions.OPTION_ReportUnusedDeclaredThrownException, CompilerOptions.IGNORE);
 	options.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
 	MyCompilerRequestor requestor = new MyCompilerRequestor();
-	runTest(new String[] {
+	AbstractRegressionTest.runTest(this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"	\n" +
@@ -12100,7 +12100,7 @@ public void testBug537593_001() {
 	for (Object option : opts)
 		options.put(option, CompilerOptions.WARNING);
 	MyCompilerRequestor requestor = new MyCompilerRequestor();
-	runTest(files,
+	AbstractRegressionTest.runTest(this, files,
 			false,
 			"",
 			"" /*expectedOutputString */,
@@ -12196,8 +12196,8 @@ public void testBug542520c() throws Exception {
 public void testBug542520d() throws Exception {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		true,
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 			JUNIT_METHODSOURCE_NAME,
 			JUNIT_METHODSOURCE_CONTENT,

@@ -76,19 +76,19 @@ void runTestsExpectingErrorsOnlyIn17(String[] testFiles, String errorsIn17, Map 
 	if (this.complianceLevel >= ClassFileConstants.JDK1_7)
 		runLeakTest(testFiles, errorsIn17, options);
 	else
-		runConformTest(testFiles, "", null, true, null, options, null);
+		AbstractRegressionTest.runConformTest(this, testFiles, "", null, true, null, options, null);
 }
 
 protected void runLeakTest(String[] testFiles, String expectedCompileError, Map options) {
-	runNegativeTest(testFiles, expectedCompileError, null, true, options, null, JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+	AbstractRegressionTest.runNegativeTest(this, testFiles, expectedCompileError, null, true, options, null, JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 protected void runLeakTest(String[] testFiles, String expectedCompileError, Map options, boolean shouldFlushOutput) {
-	runNegativeTest(testFiles, expectedCompileError, null, shouldFlushOutput, options, null, JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+	AbstractRegressionTest.runNegativeTest(this, testFiles, expectedCompileError, null, shouldFlushOutput, options, null, JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 }
 
 protected void runLeakWarningTest(String[] testFiles, String expectedCompileError, Map options) {
-	runNegativeTest(testFiles, expectedCompileError, null, true, options, null, JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
+	AbstractRegressionTest.runNegativeTest(this, testFiles, expectedCompileError, null, true, options, null, JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 }
 
 // === hooks for ResourceLeaksAnnotatedTests: ===
@@ -173,8 +173,8 @@ public void test056b() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"import java.io.File;\n" +
 			"import java.io.FileReader;\n" +
@@ -213,8 +213,8 @@ public void test056c() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.WARNING);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"import java.io.File;\n" +
 			"import java.io.FileReader;\n" +
@@ -298,7 +298,7 @@ public void test056d() {
 public void test056d_suppress() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) return; // annotations used
 	Map options = getCompilerOptions();
-	enableAllWarningsForIrritants(options, IrritantSet.RESOURCE);
+	AbstractRegressionTest.enableAllWarningsForIrritants(options, IrritantSet.RESOURCE);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.WARNING);
 	options.put(CompilerOptions.OPTION_SuppressOptionalErrors, CompilerOptions.ENABLED);
@@ -599,8 +599,8 @@ public void test056i_ignore() {
 	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.IGNORE);
 	options.put(JavaCore.COMPILER_PB_POTENTIALLY_UNCLOSED_CLOSEABLE, CompilerOptions.IGNORE);
 	options.put(JavaCore.COMPILER_PB_EXPLICITLY_CLOSED_AUTOCLOSEABLE, CompilerOptions.IGNORE);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"import java.io.File;\n" +
 			"import java.io.FileReader;\n" +
@@ -925,8 +925,8 @@ public void test056m() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"import java.io.File;\n" +
 			"import java.io.FileReader;\n" +
@@ -965,8 +965,8 @@ public void test056n() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"import java.io.File;\n" +
 			"import java.io.FileReader;\n" +
@@ -1011,8 +1011,8 @@ public void test056o() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"import java.io.File;\n" +
 			"import java.io.FileReader;\n" +
@@ -1190,8 +1190,8 @@ public void test056s() {
 	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
 	options.put(JavaCore.COMPILER_PB_POTENTIALLY_UNCLOSED_CLOSEABLE, CompilerOptions.WARNING);
 	options.put(JavaCore.COMPILER_PB_EXPLICITLY_CLOSED_AUTOCLOSEABLE, CompilerOptions.IGNORE);
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"import java.io.File;\n" +
 			"import java.io.FileReader;\n" +
@@ -1865,8 +1865,8 @@ public void test061a() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"import java.io.File;\n" +
 			"import java.io.BufferedInputStream;\n" +
@@ -1910,8 +1910,8 @@ public void test061b() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"import java.io.StringReader;\n" +
 			"import java.io.IOException;\n" +
@@ -1938,8 +1938,8 @@ public void test061c() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"import java.io.BufferedReader;\n" +
 			"import java.io.StringReader;\n" +
@@ -2022,8 +2022,8 @@ public void test061e() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"import java.io.File;\n" +
 			"import java.io.BufferedInputStream;\n" +
@@ -2073,8 +2073,8 @@ public void test061f() throws IOException {
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	URL url = FileLocator.toFileURL(FileLocator.find(Platform.getBundle("org.eclipse.jdt.core.tests.compiler"), new Path("META-INF/MANIFEST.MF"), null));
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"import java.io.InputStream;\n" +
 			"import java.io.InputStreamReader;\n" +
@@ -2121,8 +2121,8 @@ public void test061f2() throws IOException {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"import java.io.OutputStream;\n" +
 			"import java.io.FileOutputStream;\n" +
@@ -2351,8 +2351,8 @@ public void test061j() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"import java.io.InputStream;\n" +
 			"import java.io.BufferedInputStream;\n" +
@@ -2382,8 +2382,8 @@ public void test061k() throws IOException {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"import java.io.File;\n" +
 			"import java.io.FileInputStream;\n" +
@@ -2409,8 +2409,8 @@ public void test061l() throws IOException {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"import java.io.File;\n" +
 			"import java.io.FileInputStream;\n" +
@@ -2682,8 +2682,8 @@ public void test061p() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"import java.io.PrintWriter;\n" +
 			"import java.io.BufferedWriter;\n" +
@@ -2742,8 +2742,8 @@ public void test061r() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"import java.io.FileInputStream;\n" +
 			"import java.io.File;\n" +
@@ -2771,8 +2771,8 @@ public void test061s() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"import java.io.FileInputStream;\n" +
 			"import java.io.File;\n" +
@@ -2827,8 +2827,8 @@ public void test062b() throws IOException {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"import java.io.File;\n" +
 			"import java.io.FileOutputStream;\n" +
@@ -2952,8 +2952,8 @@ public void test063b() throws IOException {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"import java.io.FileInputStream;\n" +
 			"import java.io.BufferedInputStream;\n" +
@@ -3049,8 +3049,8 @@ public void test063e() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"import java.io.FileInputStream;\n" +
 			"import java.io.IOException;\n" +
@@ -3208,7 +3208,7 @@ public void _test065() {
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportMissingSerialVersion, CompilerOptions.IGNORE);
-	this.runConformTest(new String[] {
+	AbstractRegressionTest.runConformTest(this, new String[] {
 		"Test065.java",
 		"import java.io.*;\n" +
 		"class MyException extends Exception{}\n" +
@@ -3317,7 +3317,7 @@ public void _test067() {
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportMissingSerialVersion, CompilerOptions.IGNORE);
-	this.runConformTest(new String[] {
+	AbstractRegressionTest.runConformTest(this, new String[] {
 		"Test067.java",
 		"import java.io.*;\n" +
 		"public class Test067 {\n" +
@@ -3345,7 +3345,7 @@ public void test067b() {
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportMissingSerialVersion, CompilerOptions.IGNORE);
-	this.runConformTest(new String[] {
+	AbstractRegressionTest.runConformTest(this, new String[] {
 		"Test067.java",
 		"import java.io.*;\n" +
 		"public class Test067 {\n" +
@@ -3373,7 +3373,7 @@ public void test068() {
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportMissingSerialVersion, CompilerOptions.IGNORE);
-	this.runConformTest(new String[] {
+	AbstractRegressionTest.runConformTest(this, new String[] {
 		"Test068.java",
 		"import java.io.*;\n" +
 		"public class Test068 {\n" +
@@ -3410,7 +3410,7 @@ public void test069() {
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportMissingSerialVersion, CompilerOptions.IGNORE);
-	this.runConformTest(new String[] {
+	AbstractRegressionTest.runConformTest(this, new String[] {
 		"Test069.java",
 		"import java.io.*;\n" +
 		"import java.util.Collection;\n" +
@@ -3563,7 +3563,7 @@ public void test072() {
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportMissingSerialVersion, CompilerOptions.IGNORE);
-	this.runConformTest(new String[] {
+	AbstractRegressionTest.runConformTest(this, new String[] {
 		"Test072.java",
 		"import java.io.*;\n" +
 		"public class Test072 {\n" +
@@ -3602,7 +3602,7 @@ public void test073() {
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportMissingSerialVersion, CompilerOptions.IGNORE);
-	this.runConformTest(new String[] {
+	AbstractRegressionTest.runConformTest(this, new String[] {
 		"Test073.java",
 		"import java.io.*;\n" +
 		"public class Test073 {\n" +
@@ -3686,8 +3686,8 @@ public void test075() {
 public void testBug385415() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"import java.io.*;\n" +
 			"public class X {\n" +
@@ -3716,8 +3716,8 @@ public void testBug385415() {
 public void testBug361073c7() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"import java.io.*;\n" +
 			"public class X {\n" +
@@ -3754,8 +3754,8 @@ public void testBug361073c7() {
 public void _testBug386534() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"Bug.java",
 			"import java.io.FileNotFoundException;\n" +
 			"import java.io.IOException;\n" +
@@ -3807,8 +3807,8 @@ public void _testBug386534() {
 public void testBug388996() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"Bug.java",
 			"import java.io.*;\n" +
 			"public class Bug {\n" +
@@ -3849,8 +3849,8 @@ public void testBug388996() {
 public void testBug386534() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"Bug386534.java",
 			"import java.io.FileNotFoundException;\n" +
 			"import java.io.IOException;\n" +
@@ -3903,8 +3903,8 @@ public void testBug394768() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"Bug394768.java",
 			"import java.io.File;\n" +
 			"import java.io.FileInputStream;\n" +
@@ -3946,8 +3946,8 @@ public void testBug394768_1() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"Bug394768.java",
 			"import java.io.File;\n" +
 			"import java.io.FileInputStream;\n" +
@@ -4145,8 +4145,8 @@ public void testBug381445_3() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			GUAVA_CLOSEABLES_JAVA,
 			GUAVA_CLOSEABLES_CONTENT,
 			"Bug381445a.java",
@@ -4200,8 +4200,8 @@ public void testBug395977() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"WriterTest.java",
 			"import java.io.*;\n" +
 			"\n" +
@@ -4481,8 +4481,8 @@ public void testBug411098_test1() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"A.java",
 			"import java.io.*;\n" +
 			"\n" +
@@ -4561,8 +4561,8 @@ public void testBug411098_test4() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"A.java",
 			"import java.io.FileInputStream;\n" +
 			"class A {\n" +
@@ -4586,8 +4586,8 @@ public void testBug411098_test5() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"A.java",
 			"import java.io.FileInputStream;\n" +
 			"class A {\n" +
@@ -4607,8 +4607,8 @@ public void testBug411098_test6() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"A.java",
 			"import java.io.FileInputStream;\n" +
 			"class A {\n" +
@@ -4629,8 +4629,8 @@ public void testBug411098_test7() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"A.java",
 			"import java.io.*;\n" +
 			"class A {\n" +
@@ -4673,8 +4673,8 @@ public void testStream1() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"A.java",
 			"import java.util.*;\n" +
 			"import java.util.stream.Stream;\n" +
@@ -4695,8 +4695,8 @@ public void testStream1_Int() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"A.java",
 			"import java.util.stream.*;\n" +
 			"class A {\n" +
@@ -4718,8 +4718,8 @@ public void testStream1_Double_Long() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"A.java",
 			"import java.util.stream.*;\n" +
 			"class A {\n" +
@@ -4741,8 +4741,8 @@ public void testStreamEx_572707() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			STREAMEX_JAVA,
 			STREAMEX_CONTENT,
 			"Bug572707.java",
@@ -4820,8 +4820,8 @@ public void testStream4() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"A.java",
 			"import java.util.stream.Stream;\n" +
 			"import java.nio.file.*;\n" +
@@ -4842,8 +4842,8 @@ public void testBug415790_ex2() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"import java.io.*;\n" +
 			"public class X {\n" +
@@ -4871,8 +4871,8 @@ public void testBug415790_ex4() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"import java.io.*;\n" +
 			"public class X {\n" +
@@ -4953,8 +4953,8 @@ public void testBug371614_comment2() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"ResourceLeak.java",
 			"import java.io.FileInputStream;\n" +
 			"import java.io.IOException;\n" +
@@ -4998,8 +4998,8 @@ public void testBug371614_comment8() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"import java.io.*;\n" +
 			"import java.net.*;\n" +
@@ -5023,8 +5023,8 @@ public void testBug462371_orig() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"import java.io.*;\n" +
 			"interface IFile {\n" +
@@ -5112,8 +5112,8 @@ public void testBug421035() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"Test.java",
 			"import java.io.BufferedReader;\n" +
 			"import java.io.FileNotFoundException;\n" +
@@ -5139,8 +5139,8 @@ public void testBug444964() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"Bug444964.java",
 			"import java.io.*;\n" +
 			"\n" +
@@ -5171,8 +5171,8 @@ public void testBug397204() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"HostIdTest.java",
 			"import java.io.*;\n" +
 			"import java.net.InetAddress;\n" +
@@ -5232,8 +5232,8 @@ public void testBug397204_comment4() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"HostIdTest.java",
 			"import java.io.*;\n" +
 			"\n" +
@@ -5255,8 +5255,8 @@ public void testBug433510() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"Bug433510.java",
 			"import java.io.*;\n" +
 			"\n" +
@@ -5624,7 +5624,7 @@ public void testBug541705b() {
 	runner.runConformTest();
 }
 public void testBug542707_001() {
-	if (!checkPreviewAllowed()) return; // uses switch expression
+	if (!AbstractRegressionTest.checkPreviewAllowed(this)) return; // uses switch expression
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
 	options.put(JavaCore.COMPILER_PB_POTENTIALLY_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
@@ -5744,7 +5744,7 @@ public void testBug542707_002() {
 		options);
 }
 public void testBug542707_003() {
-	if (!checkPreviewAllowed()) return; // uses switch expression
+	if (!AbstractRegressionTest.checkPreviewAllowed(this)) return; // uses switch expression
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
 	options.put(JavaCore.COMPILER_PB_POTENTIALLY_UNCLOSED_CLOSEABLE, CompilerOptions.ERROR);
@@ -5960,8 +5960,8 @@ public void testBug560460() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"import java.util.*;\n" +
 			"public class X {\n" +
@@ -5977,8 +5977,8 @@ public void testBug463320_comment19() {
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"Try17.java",
 			"import java.util.zip.*;\n" +
 			"import java.io.*;\n" +
@@ -6248,8 +6248,8 @@ public void testBug519740() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"Snippet.java",
 			"class Snippet {\n" +
 			"  static void foo() throws Exception {\n" +
@@ -6270,8 +6270,8 @@ public void testBug552441() {
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"Test.java",
 			"import java.io.BufferedOutputStream;\n" +
 			"import java.io.FileOutputStream;\n" +
@@ -6333,8 +6333,8 @@ public void testBug400523() {
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
 
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"LeakWarning.java",
 			"import java.sql.Connection;\n" +
 			"import java.sql.PreparedStatement;\n" +
@@ -6384,8 +6384,8 @@ public void testBug527761() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.ERROR);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"class BAOSWrapper extends java.io.ByteArrayOutputStream {}\n" +
 			"public class X {\n" +
@@ -6411,8 +6411,8 @@ public void testBug527761_otherClose() {
 			"		baos.write(0);\n" +
 			"	}\n" +
 			"}\n";
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"BAOSWrapper.java",
 			"class BAOSWrapper<T> extends java.io.ByteArrayOutputStream {\n" +
 			"	public void close(java.util.List<?> l) {}\n" + // not relevant, param challenges treatment of unresolved types
@@ -6422,7 +6422,7 @@ public void testBug527761_otherClose() {
 		},
 		options);
 	// consume BAOSWrapper from .class:
-	runConformTest(false,
+	AbstractRegressionTest.runConformTest(this, false,
 			new String[] { "X.java", xSource },
 			"", "", "", null);
 }
@@ -6462,8 +6462,8 @@ public void testBug558759() {
 		"public class Y {\n" +
 		"	class YInner extends X<I> {}\n" +
 		"}\n";
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"I.java",
 			"import java.io.Closeable;\n" +
 			"public interface I extends Closeable {\n" +
@@ -6482,7 +6482,7 @@ public void testBug558759() {
 			ySource
 		},
 		options);
-	runConformTest(false,
+	AbstractRegressionTest.runConformTest(this, false,
 			new String[] { "Y.java", ySource },
 			"", "", "", null);
 }
@@ -6555,8 +6555,8 @@ public void testBug560671() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.WARNING);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"import java.util.Scanner;\n" +
 			"public class X {\n" +
@@ -6573,8 +6573,8 @@ public void testBug560671b() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.WARNING);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"import java.util.Scanner;\n" +
 			"public class X {\n" +
@@ -6595,8 +6595,8 @@ public void testBug561259() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportPotentiallyUnclosedCloseable, CompilerOptions.WARNING);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"import java.io.*;\n" +
 			"public class X {\n" +

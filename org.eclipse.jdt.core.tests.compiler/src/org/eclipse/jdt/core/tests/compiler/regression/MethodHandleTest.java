@@ -276,8 +276,8 @@ public class MethodHandleTest extends AbstractRegressionTest {
 	public void test009() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-		runNegativeTest(
-				// test directory preparation
+		AbstractRegressionTest.runNegativeTest(
+				this, // test directory preparation
 				true /* flush output directory */,
 				new String[] { /* test files */
 						"X.java",
@@ -312,8 +312,8 @@ public class MethodHandleTest extends AbstractRegressionTest {
 	public void test010() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
-		runNegativeTest(
-				// test directory preparation
+		AbstractRegressionTest.runNegativeTest(
+				this, // test directory preparation
 				true /* flush output directory */,
 				new String[] { /* test files */
 						"X.java",

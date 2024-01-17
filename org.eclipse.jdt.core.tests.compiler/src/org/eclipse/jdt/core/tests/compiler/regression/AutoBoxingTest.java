@@ -2530,8 +2530,8 @@ public class AutoBoxingTest extends AbstractComparableTest {
 	public void test088() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(CompilerOptions.OPTION_ReportAutoboxing, CompilerOptions.WARNING);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"	int f;\n" +
@@ -3016,8 +3016,8 @@ public class AutoBoxingTest extends AbstractComparableTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=84801
 	public void test102() {
-		runConformTest(
-			// test directory preparation
+		AbstractRegressionTest.runConformTest(
+			this, // test directory preparation
 			true /* flush output directory */,
 			new String[] { /* test files */
 				"X.java",
@@ -3158,8 +3158,8 @@ public class AutoBoxingTest extends AbstractComparableTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=95868
 	public void test104() {
-		this.runConformTest(
-			false /* skipJavac */,
+		AbstractRegressionTest.runConformTest(
+			this, false /* skipJavac */,
 			JavacTestOptions.Excuse.JavacGeneratesIncorrectCode,
 			new String[] {
 				"X.java",
@@ -3181,8 +3181,8 @@ public class AutoBoxingTest extends AbstractComparableTest {
 	}
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=101779
 public void test105() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -3225,8 +3225,8 @@ public void test105() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=101779 - variation
 public void test106() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -3259,8 +3259,8 @@ public void test106() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=101779 - variation
 public void test107() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -3293,8 +3293,8 @@ public void test107() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=101779 - variation
 public void test108() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -3359,8 +3359,8 @@ public void test110() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=105524
 public void test111() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -3585,8 +3585,8 @@ public void test117() {
 
 // Integer array and method with T extends Integer bound
 public void test118() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -3612,8 +3612,8 @@ public void test118() {
 
 // Integer as member of a parametrized class
 public void test119() {
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -4082,8 +4082,8 @@ public void test134() {
 public void test135() {
 	Map settings = getCompilerOptions();
 	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"class A<T> {\n" +
 			"        public T foo() { return null; }\n" +
@@ -4114,8 +4114,8 @@ public void test135() {
 public void test136() {
 	Map settings = getCompilerOptions();
 	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"class A<T> {\n" +
 			"        public T foo(Object o) {\n" +
@@ -4147,8 +4147,8 @@ public void test136() {
 public void test137() {
 	Map settings = getCompilerOptions();
 	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"class A<T> {\n" +
 			"        public T foo;\n" +
@@ -4180,8 +4180,8 @@ public void test137() {
 public void test138() {
 	Map settings = getCompilerOptions();
 	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"class A<T> {\n" +
 			"        public T foo;\n" +
@@ -4215,8 +4215,8 @@ public void test138() {
 public void test139() {
 	Map settings = getCompilerOptions();
 	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"class A<T> {\n" +
 			"        public T foo;\n" +
@@ -4250,8 +4250,8 @@ public void test139() {
 public void test140() {
 	Map settings = getCompilerOptions();
 	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"class A {\n" +
 			"        long foo() {\n" +
@@ -4278,8 +4278,8 @@ public void test140() {
 public void test141() {
 	Map settings = getCompilerOptions();
 	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"class A {\n" +
 			"        long foo = 0L;\n" +
@@ -4304,8 +4304,8 @@ public void test141() {
 public void test142() {
 	Map settings = getCompilerOptions();
 	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"class A {\n" +
 			"        long foo = 0L;\n" +
@@ -4332,8 +4332,8 @@ public void test142() {
 public void test143() {
 	Map settings = getCompilerOptions();
 	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"class A {\n" +
 			"        long foo = 0L;\n" +
@@ -4360,8 +4360,8 @@ public void test143() {
 public void test144() {
 	Map settings = getCompilerOptions();
 	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"class A<T> {\n" +
 			"        public T[] foo;\n" +
@@ -4395,8 +4395,8 @@ public void test144() {
 public void test145() {
 	Map settings = getCompilerOptions();
 	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"class A {\n" +
 			"        long[] foo = { 0L };\n" +
@@ -4423,8 +4423,8 @@ public void test145() {
 public void test146() {
 	Map settings = getCompilerOptions();
 	settings.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"class A<T> {\n" +
 			"        public T foo;\n" +

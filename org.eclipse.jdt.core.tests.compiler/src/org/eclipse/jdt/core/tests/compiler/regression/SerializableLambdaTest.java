@@ -858,10 +858,10 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 					new String [] { "-Ddummy" }); // Not sure, unless we force the VM to not be reused by passing dummy vm argument, the generated program aborts midway through its execution.
 		String expectedOutput =
 			"  private static synthetic void lambda$0() throws java.lang.Exception;\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 		expectedOutput =
 			"  private static synthetic int lambda$1();\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
+		AbstractRegressionTest.checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput, ClassFileBytesDisassembler.SYSTEM);
 	}
 
 	public void test021_lambdaNamesVariants() throws Exception {
@@ -1847,8 +1847,8 @@ public class SerializableLambdaTest extends AbstractRegressionTest {
 	public void testbug494487() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_LocalVariableAttribute, CompilerOptions.DO_NOT_GENERATE);
-		this.runConformTest(
-			new String[]{
+		AbstractRegressionTest.runConformTest(
+			this, new String[]{
 				"Test.java",
 				"import java.io.IOException;\n" +
 				"import java.io.Serializable;\n" +

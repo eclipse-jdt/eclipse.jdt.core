@@ -307,8 +307,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"Y.java",
 				"public class Y<T> extends X<A> { public void foo(T t) {} }\n"
 			},
@@ -338,8 +338,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"J.java",
 				"public class J<T> implements I<A> { public void foo(T t) {} }\n"
 			},
@@ -374,8 +374,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"YY.java",
 				"public class YY<T> extends X { public void foo(T t) {} }\n"
 			},
@@ -410,8 +410,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"JJ.java",
 				"public class JJ<T> implements I { public void foo(T t) {} }\n"
 			},
@@ -643,8 +643,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"J.java",
 				"class J<T> implements I<B> { public T foo() {return null;} }\n",
 				"K.java",
@@ -1473,8 +1473,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 			},
 			""
 		);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"B.java",
 				"class B extends A {\n" +
 				"	@Override void foo(java.util.Map<String, Class<?>> m) { } \n" +
@@ -1711,8 +1711,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 	public void test025e() { // 81618
-		this.runConformTest(
-			true,
+		AbstractRegressionTest.runConformTest(
+			this, true,
 			new String[] {
 				"X.java",
 				"interface X<T extends X> { T x(); }\n" +
@@ -1745,8 +1745,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		);
 	}
 	public void test025f() { // 81618
-		this.runConformTest(
-			true,
+		AbstractRegressionTest.runConformTest(
+			this, true,
 			new String[] {
 				"X.java",
 				"interface X<T extends X> { T[] x(); }\n" +
@@ -1983,8 +1983,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 		java.util.Map options = super.getCompilerOptions();
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
 
-		this.runConformTest(
-			new String[] {
+		AbstractRegressionTest.runConformTest(
+			this, new String[] {
 				"X.java",
 				"import java.io.OutputStreamWriter;\n" +
 				"import java.io.PrintWriter;\n" +
@@ -2859,8 +2859,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83902
 	public void test041() { // inherited cases for bridge methods, varargs clashes, return type conversion checks
-		runConformTest(
-			true,
+		AbstractRegressionTest.runConformTest(
+			this, true,
 			new String[] {
 				"X.java",
 				"public class X { public void foo(String... n) {} }\n" +
@@ -2881,8 +2881,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83902
 	public void test041a() { // inherited cases for bridge methods, varargs clashes, return type conversion checks
-		this.runConformTest(
-			true,
+		AbstractRegressionTest.runConformTest(
+			this, true,
 			new String[] {
 				"X.java",
 				"public class X { public void foo(String[] n) {} }\n" +
@@ -2947,8 +2947,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83902
 	public void test041d() { // inherited cases for bridge methods, varargs clashes, return type conversion checks
-		this.runConformTest(
-			true,
+		AbstractRegressionTest.runConformTest(
+			this, true,
 			new String[] {
 				"X.java",
 				"public class X { public Object foo() { return null; } }\n" +
@@ -2992,8 +2992,8 @@ public class MethodVerifyTest extends AbstractComparableTest {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=72704
 	public void test043() { // ambiguous message sends because of substitution from 2 different type variables
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X { void test(E<Integer,Integer> e) { e.id(Integer.valueOf(1)); } }\n" +
 				"abstract class C<A> { public abstract void id(A x); }\n" +
@@ -5852,8 +5852,8 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 	public void test070() {
 		Map<String,String> options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportDeprecation, CompilerOptions.IGNORE);
-		this.runConformTest(
-			true,
+		AbstractRegressionTest.runConformTest(
+			this, true,
 			new String[] {
 				"BooleanFactory.java",
 				"interface Factory<T> {\n" +
@@ -6292,8 +6292,8 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 		customOptions.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
 		customOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
 		customOptions.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
-		this.runNegativeTest(
-			true,
+		AbstractRegressionTest.runNegativeTest(
+			this, true,
 			new String[] {
 				"X.java",
 				"public abstract class X implements IAppendable {\n" +
@@ -7229,8 +7229,8 @@ X.java:7: name clash: <T#1>foo2(T#1) in X and <T#2>foo2(A) in Y have the same er
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=146383
 public void test094() {
-	this.runNegativeTest(
-		false /* skipJavac */,
+	AbstractRegressionTest.runNegativeTest(
+		this, false /* skipJavac */,
 		JavacTestOptions.Excuse.JavacCompilesIncorrectSource,
 		new String[] {
 			"X.java",//===================
@@ -7343,8 +7343,8 @@ public void test098() {
 public void test099() {
 	Map customOptions= getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"TestCharset.java",
 			"import java.nio.charset.*;\n" +
 			"public class TestCharset extends Charset {\n" +
@@ -7464,8 +7464,8 @@ public void test101() {
 public void test102() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	private interface ReturnBase {\n" +
@@ -7517,8 +7517,8 @@ public void test102() {
 public void test103() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	private interface ReturnBase {\n" +
@@ -7583,8 +7583,8 @@ public void test103() {
 public void test104() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	private interface ReturnBase {\n" +
@@ -7649,8 +7649,8 @@ public void test104() {
 public void test105() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	private interface ReturnBase {\n" +
@@ -7734,8 +7734,8 @@ public void test105() {
 public void test106() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	private interface ReturnBase {\n" +
@@ -7819,8 +7819,8 @@ public void test106() {
 public void test107() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	private interface ReturnBase {\n" +
@@ -7885,8 +7885,8 @@ public void test107() {
 public void test108() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	private interface ReturnBase {\n" +
@@ -7938,8 +7938,8 @@ public void test108() {
 public void test109() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	private interface ReturnBase {\n" +
@@ -8004,8 +8004,8 @@ public void test109() {
 public void test110() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	private interface ReturnBase {\n" +
@@ -8070,8 +8070,8 @@ public void test110() {
 public void test111() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	private interface ReturnBase {\n" +
@@ -8155,8 +8155,8 @@ public void test111() {
 public void test112() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	private interface ReturnBase {\n" +
@@ -8240,8 +8240,8 @@ public void test112() {
 public void test113() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportOverridingMethodWithoutSuperInvocation, CompilerOptions.ERROR);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"abstract class Y {\n" +
 			"  abstract void foo();\n" +
@@ -8265,8 +8265,8 @@ public void test113() {
 public void test114() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportOverridingMethodWithoutSuperInvocation, CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -8296,8 +8296,8 @@ public void test114() {
 public void test115() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportOverridingMethodWithoutSuperInvocation, CompilerOptions.ERROR);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"class Y {\n" +
 			"  void foo() {}\n" +
@@ -8321,8 +8321,8 @@ public void test115() {
 public void test116() {
    	Map options = getCompilerOptions();
    	options.put(CompilerOptions.OPTION_ReportOverridingMethodWithoutSuperInvocation, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"class Y {\n" +
 			"  Zork foo() {}\n" +
@@ -8377,8 +8377,8 @@ public void test116() {
 public void test117() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportOverridingMethodWithoutSuperInvocation, CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -8421,8 +8421,8 @@ public void test117() {
 public void test118() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportOverridingMethodWithoutSuperInvocation, CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -8456,8 +8456,8 @@ public void test118() {
 public void test119() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportOverridingMethodWithoutSuperInvocation, CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -8739,8 +8739,8 @@ public void test125() {
 //}
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=174445
 public void test127() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  enum Enum1 {\n" +
@@ -8820,8 +8820,8 @@ public void test129() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=180789
 // variant - Z<Object> is not a subtype of Z<U>, and |Z<U>| = Z, not Z<Object>
 public void test130() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"interface I<U, V> {\n" +
 			"  Z<U> foo(Object o, V v);\n" +
@@ -10105,8 +10105,8 @@ public void test168() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=243820
 public void test169() {
-	this.runNegativeTest(
-		false,
+	AbstractRegressionTest.runNegativeTest(
+		this, false,
 		new String[] {
 			"X.java",
 			"class X<T> {\n" +
@@ -10137,8 +10137,8 @@ public void test169() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=243820
 public void test169a() {
-	this.runNegativeTest(
-		false,
+	AbstractRegressionTest.runNegativeTest(
+		this, false,
 		new String[] {
 			"X.java",
 			"class X<T> {\n" +
@@ -10172,8 +10172,8 @@ public void test169a() {
 public void test170() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportMissingSynchronizedOnInheritedMethod, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		false,
+	AbstractRegressionTest.runNegativeTest(
+		this, false,
 		new String[] {
 			"X.java",
 			"class X { synchronized void foo() {} }\n" +
@@ -10194,8 +10194,8 @@ public void test170() {
 public void test171() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportMissingSynchronizedOnInheritedMethod, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		false,
+	AbstractRegressionTest.runNegativeTest(
+		this, false,
 		new String[] {
 			"X.java",
 			"public enum X {\n" +
@@ -10218,8 +10218,8 @@ public void test171() {
 public void test172() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportMissingSynchronizedOnInheritedMethod, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		false,
+	AbstractRegressionTest.runNegativeTest(
+		this, false,
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -10242,8 +10242,8 @@ public void test172() {
 public void test173() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportMissingSynchronizedOnInheritedMethod, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		false,
+	AbstractRegressionTest.runNegativeTest(
+		this, false,
 		new String[] {
 			"X.java",
 			"public class X { synchronized void foo() {} }\n" +
@@ -10286,8 +10286,8 @@ public void test174() {
 public void test175() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportMissingHashCodeMethod, CompilerOptions.WARNING);
-	this.runNegativeTest(
-		false,
+	AbstractRegressionTest.runNegativeTest(
+		this, false,
 		new String[] {
 			"A.java",
 			"class A {\n" +
@@ -10309,8 +10309,8 @@ public void test175() {
 public void test176() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportMissingHashCodeMethod, CompilerOptions.WARNING);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"A.java",
 			"class A {\n" +
 			"	@Override public boolean equals(Object o) { return true; }\n" +
@@ -10545,8 +10545,8 @@ public void test180() {
 
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=249134
 public void test181() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"I.java",
 			"interface I {\n" +
 			"	String m();\n" +
@@ -10636,8 +10636,8 @@ public void test181() {
 		false,
 		false
 	);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"B.java",
 			"class B extends A implements I {}",
 			"B2.java",
@@ -10715,8 +10715,8 @@ public void test182() {
 		"The type B2 must implement the inherited abstract method I.m() to override A2.m()\n" +
 		"----------\n"
 	);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"B.java",
 			"class B extends A implements I {}",
 			"B2.java",
@@ -10879,8 +10879,8 @@ public void test185() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=271303
 public void test186() {
-	this.runNegativeTest(
-		false,
+	AbstractRegressionTest.runNegativeTest(
+		this, false,
 		new String[] {
 			"p1/A.java",
 			"package p1;\n" +
@@ -10969,8 +10969,8 @@ public void test187() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=279836
 public void test188() {
-	this.runNegativeTest(
-		false,
+	AbstractRegressionTest.runNegativeTest(
+		this, false,
 		new String[] {
 			"Y.java",
 			"abstract class Y<T extends Number> implements I<T> {\n" +
@@ -11372,8 +11372,8 @@ public void test199() {
 		},
 		""
 	);
-	this.runConformTest(
-		false,
+	AbstractRegressionTest.runConformTest(
+		this, false,
 		new String[] {
 			"Foo.java",
 			"public class Foo {\n" +
@@ -11815,8 +11815,8 @@ public void test213() {
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
 	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
 	compilerOptions15.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"Y.java",
 			"public abstract class Y implements I<Y> {\n" +
 			"		public final Y foo(Object o, J<Y> j) {\n" +
@@ -11844,8 +11844,8 @@ public void test213() {
 	compilerOptions14.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_2);
 	compilerOptions14.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
 	compilerOptions14.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	public Object foo() {\n" +
@@ -11866,8 +11866,8 @@ public void test213a() {
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
 	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
 	compilerOptions15.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"Y.java",
 			"public abstract class Y implements I<Y> {\n" +
 			"		public final Y foo(Object o, J<Y, I<Y>> j) {\n" +
@@ -11895,8 +11895,8 @@ public void test213a() {
 	compilerOptions14.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_2);
 	compilerOptions14.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
 	compilerOptions14.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	public Object foo() {\n" +
@@ -11917,8 +11917,8 @@ public void test213b() {
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.VERSION_1_5);
 	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
 	compilerOptions15.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"ConsoleSession.java",
 			"public abstract class ConsoleSession implements ServiceFactory<Object> {\n" +
 			"	public final void ungetService(Bundle bundle, ServiceRegistration<Object> registration, Object service) {\n" +
@@ -11952,8 +11952,8 @@ public void test213b() {
 	compilerOptions14.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
 	compilerOptions14.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
 	compilerOptions14.put(JavaCore.COMPILER_PB_UNNECESSARY_TYPE_CHECK, JavaCore.IGNORE);
-	this.runConformTest(
-			new String[] {
+	AbstractRegressionTest.runConformTest(
+			this, new String[] {
 					"OSGiConsole.java",
 					"public class OSGiConsole {\n" +
 					"	OSGiConsole() {\n" +
@@ -11975,8 +11975,8 @@ public void test213c() {
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.VERSION_1_5);
 	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
 	compilerOptions15.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"ConsoleSession.java",
 			"public abstract class ConsoleSession implements ServiceFactory<ConsoleSession> {\n" +
 			"	public final void ungetService(Bundle bundle, ServiceRegistration<ConsoleSession> registration, ConsoleSession service) {\n" +
@@ -12010,8 +12010,8 @@ public void test213c() {
 	compilerOptions14.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
 	compilerOptions14.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
 	compilerOptions14.put(JavaCore.COMPILER_PB_UNNECESSARY_TYPE_CHECK, JavaCore.IGNORE);
-	this.runConformTest(
-			new String[] {
+	AbstractRegressionTest.runConformTest(
+			this, new String[] {
 					"OSGiConsole.java",
 					"public class OSGiConsole {\n" +
 					"	OSGiConsole() {\n" +
@@ -12054,8 +12054,8 @@ public void test328827() {
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_5);
 	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
 	compilerOptions15.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"Map.java",
 			"public interface Map<K,V> {}\n",
 
@@ -12078,8 +12078,8 @@ public void test328827() {
 	compilerOptions14.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_2);
 	compilerOptions14.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
 	compilerOptions14.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 				"Map.java",
 				"public interface Map {}\n",
 
@@ -12103,8 +12103,8 @@ public void test329584() {
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.VERSION_1_5);
 	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
 	compilerOptions15.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"I.java",
 			"public interface I {\n" +
 			"	void foo(Object o[], Dictionary<Object, Object> dict);\n" +
@@ -12123,8 +12123,8 @@ public void test329584() {
 	compilerOptions14.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, JavaCore.VERSION_1_2);
 	compilerOptions14.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
 	compilerOptions14.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"public class X implements I {\n" +
 			"	public void foo(Object o[], Dictionary dict) {}\n" +
@@ -12145,8 +12145,8 @@ public void test329588() {
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.VERSION_1_5);
 	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
 	compilerOptions15.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"A.java",
 			"public class A {\n" +
 			"	public O<?> foo() {\n" +
@@ -12168,8 +12168,8 @@ public void test329588() {
 	compilerOptions14.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
 	compilerOptions14.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
 	compilerOptions14.put(JavaCore.COMPILER_PB_UNNECESSARY_TYPE_CHECK, JavaCore.IGNORE);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	public void foo(A a) {\n" +
@@ -12193,8 +12193,8 @@ public void test330445() {
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.VERSION_1_5);
 	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
 	compilerOptions15.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"Y.java",
 			"import java.util.Map;\n" +
 			"public class Y {\n" +
@@ -12214,8 +12214,8 @@ public void test330445() {
 	compilerOptions14.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
 	compilerOptions14.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
 	compilerOptions14.put(JavaCore.COMPILER_PB_UNNECESSARY_TYPE_CHECK, JavaCore.IGNORE);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"import java.util.Properties;\n" +
 			"public class X {\n" +
@@ -12237,8 +12237,8 @@ public void test330435() {
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.VERSION_1_5);
 	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
 	compilerOptions15.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"A.java",
 			"public class A {\n" +
 			"	public static <T> B<T> asList(T... tab) {\n" +
@@ -12262,8 +12262,8 @@ public void test330435() {
 	compilerOptions14.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
 	compilerOptions14.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
 	compilerOptions14.put(JavaCore.COMPILER_PB_UNNECESSARY_TYPE_CHECK, JavaCore.IGNORE);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	String[] foo(Object[] args) {\n" +
@@ -12288,8 +12288,8 @@ public void test330264() {
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.VERSION_1_5);
 	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
 	compilerOptions15.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"BundleContext.java",
 			"public interface BundleContext {\n" +
 			"    <S> S getService(ServiceReference<S> reference);\n" +
@@ -12309,8 +12309,8 @@ public void test330264() {
 	compilerOptions14.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
 	compilerOptions14.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
 	compilerOptions14.put(JavaCore.COMPILER_PB_UNNECESSARY_TYPE_CHECK, JavaCore.IGNORE);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"Activator.java",
 			"public class Activator  {\n" +
 			"    public void start(BundleContext context, ServiceReference ref) {\n" +
@@ -12334,8 +12334,8 @@ public void test331446() {
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.VERSION_1_5);
 	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
 	compilerOptions15.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"Test.java",
 			"import java.util.Comparator;\n" +
 			"import java.util.List;\n" +
@@ -12372,8 +12372,8 @@ public void test331446() {
 	compilerOptions14.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
 	compilerOptions14.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
 	compilerOptions14.put(JavaCore.COMPILER_PB_UNNECESSARY_TYPE_CHECK, JavaCore.IGNORE);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"import java.util.ArrayList;\n" +
 			"import java.util.Comparator;\n" +
@@ -12404,8 +12404,8 @@ public void test331446a() {
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.VERSION_1_4);
 	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
 	compilerOptions15.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"Test.java",
 			"import java.util.Comparator;\n" +
 			"import java.util.List;\n" +
@@ -12442,8 +12442,8 @@ public void test331446a() {
 	compilerOptions14.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
 	compilerOptions14.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
 	compilerOptions14.put(JavaCore.COMPILER_PB_UNNECESSARY_TYPE_CHECK, JavaCore.IGNORE);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"import java.util.ArrayList;\n" +
 			"import java.util.Comparator;\n" +
@@ -12474,8 +12474,8 @@ public void test331446b() {
 	compilerOptions14.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.VERSION_1_4);
 	compilerOptions14.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
 	compilerOptions14.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_4);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"Project.java",
 			"class List{}\n" +
 			"public class Project {\n" +
@@ -12490,8 +12490,8 @@ public void test331446b() {
 		compilerOptions14,
 		null);
 
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"Client.java",
 			"public class Client {\n" +
 			"    Client(List l) {\n" +
@@ -12512,8 +12512,8 @@ public void test331446c() {
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.VERSION_1_5);
 	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
 	compilerOptions15.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"Project.java",
 			"class List<T> {}\n" +
 			"public class Project {\n" +
@@ -12533,8 +12533,8 @@ public void test331446c() {
 	compilerOptions14.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
 	compilerOptions14.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
 	compilerOptions14.put(JavaCore.COMPILER_PB_UNNECESSARY_TYPE_CHECK, JavaCore.IGNORE);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"Client.java",
 			"public class Client {\n" +
 			"    Client(List l) {\n" +
@@ -12555,8 +12555,8 @@ public void test331446d() {
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.VERSION_1_5);
 	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
 	compilerOptions15.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"Project.java",
 			"class List<T> {}\n" +
 			"public class Project {\n" +
@@ -12570,8 +12570,8 @@ public void test331446d() {
 		null,
 		compilerOptions15,
 		null);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"Client.java",
 			"public class Client {\n" +
 			"    Client(List l) {\n" +
@@ -12592,8 +12592,8 @@ public void test1415Mix() {
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.VERSION_1_5);
 	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
 	compilerOptions15.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"Abstract.java",
 			"abstract class Generic<T> {\n" +
 			"	abstract void foo(T t);\n" +
@@ -12613,8 +12613,8 @@ public void test1415Mix() {
 	compilerOptions14.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
 	compilerOptions14.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
 	compilerOptions14.put(JavaCore.COMPILER_PB_UNNECESSARY_TYPE_CHECK, JavaCore.IGNORE);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"Concrete.java",
 			"public class Concrete extends Abstract {\n" +
 			"}",
@@ -12635,8 +12635,8 @@ public void test1415Mix2() {
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.VERSION_1_5);
 	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
 	compilerOptions15.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"Abstract.java",
 			"abstract class Generic<T> {\n" +
 			"	abstract void foo(T t);\n" +
@@ -12656,8 +12656,8 @@ public void test1415Mix2() {
 	compilerOptions14.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
 	compilerOptions14.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
 	compilerOptions14.put(JavaCore.COMPILER_PB_UNNECESSARY_TYPE_CHECK, JavaCore.IGNORE);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 				"Concrete.java",
 				"public class Concrete extends Abstract {\n" +
 				"    void foo(String s) {}\n" +
@@ -12676,8 +12676,8 @@ public void test332744() {
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.VERSION_1_5);
 	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
 	compilerOptions15.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"EList.java",
 			"import java.util.List;\n" +
 			"public interface EList<E> extends List<E> {\n" +
@@ -12698,8 +12698,8 @@ public void test332744() {
 		compilerOptions15,
 		null);
 
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"Client.java",
 			"public class Client {\n" +
 			"    Client(FeatureMap fm) {\n" +
@@ -12720,8 +12720,8 @@ public void _test332744b() {
 	compilerOptions15.put(JavaCore.COMPILER_CODEGEN_TARGET_PLATFORM, CompilerOptions.VERSION_1_5);
 	compilerOptions15.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_5);
 	compilerOptions15.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_5);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"EList.java",
 			"import java.util.List;\n" +
 			"public interface EList<E> extends List<E> {\n" +
@@ -12747,8 +12747,8 @@ public void _test332744b() {
 	compilerOptions14.put(JavaCore.COMPILER_COMPLIANCE, JavaCore.VERSION_1_4);
 	compilerOptions14.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_3);
 	compilerOptions14.put(JavaCore.COMPILER_PB_UNNECESSARY_TYPE_CHECK, JavaCore.IGNORE);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"Client.java",
 			"public class Client {\n" +
 			"    Client(FeatureMap fm) {\n" +
@@ -12922,8 +12922,8 @@ public void test346029b() throws Exception {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=346029
 public void test346029c() throws Exception {
-	this.runNegativeTest(
-		false,
+	AbstractRegressionTest.runNegativeTest(
+		this, false,
 		new String[] {
 			"X.java",
 			"class A<T> {\n" +
@@ -12949,8 +12949,8 @@ public void test346029c() throws Exception {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=346029
 public void test346029d() throws Exception {
-	this.runNegativeTest(
-		false,
+	AbstractRegressionTest.runNegativeTest(
+		this, false,
 		new String[] {
 			"X.java",
 			"class A<T> {\n" +
@@ -12976,8 +12976,8 @@ public void test346029d() throws Exception {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=346029
 public void test346029e() throws Exception {
-	this.runNegativeTest(
-		false,
+	AbstractRegressionTest.runNegativeTest(
+		this, false,
 		new String[] {
 			"X.java",
 			"class A<T> {\n" +
@@ -14167,8 +14167,8 @@ public void testBug469454() throws Exception {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=469454, The compiler generates wrong code during inheritance
 public void testBug469454a() throws Exception {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"TestClass.java",
 			"public class TestClass {\n" +
 			"    public static class A {\n" +
@@ -14281,8 +14281,8 @@ public void testBug467776_regression() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_6) return;
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.ERROR);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"ITeam.java",
 			"public interface ITeam {\n" +
 			"        <T> T getRole(Object o, Class<T> clazz);\n" +
@@ -14336,8 +14336,8 @@ public void testBug500673() {
 		"----------\n");
 }
 public void testBug506653() {
-	runConformTest(
-		false, // flushOutputDirectory
+	AbstractRegressionTest.runConformTest(
+		this, false, // flushOutputDirectory
 		new String[] {
 			"A.java",
 			"   public class A {\n" +

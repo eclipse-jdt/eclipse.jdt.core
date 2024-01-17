@@ -90,8 +90,8 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
 		customOptions.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
-		runNegativeTest(
-			false /* skipJavac */,
+		AbstractRegressionTest.runNegativeTest(
+			this, false /* skipJavac */,
 			JavacTestOptions.Excuse.EclipseWarningConfiguredAsError,
 			new String[] {
 				CUSTOM_NULLABLE_NAME,
@@ -405,8 +405,8 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 	public void testMissingAnnotationTypes_01() {
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"	public class U {}\n" +
@@ -900,8 +900,8 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 
 	// https://bugs.eclipse.org/403457 - [1.8][compiler] NPE in WildcardBinding.signature
 	public void testBug403457_1() {
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"import java.lang.annotation.ElementType;\n" +
 				"import java.lang.annotation.Target;\n" +
@@ -935,8 +935,8 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	// https://bugs.eclipse.org/403457 - [1.8][compiler] NPE in WildcardBinding.signature
 	// variant with null annotations
 	public void testBug403457_2() {
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"// import java.util.Map;\n" +
 				"import org.eclipse.jdt.annotation.*;\n" +
@@ -2270,8 +2270,8 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 
 	// illegal / unchecked for cast & instanceof with complex type
 	public void testUnsupportedLocation04() {
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"p/X.java",
 				"package p;\n" +
 				"import org.eclipse.jdt.annotation.*;\n" +
@@ -2810,8 +2810,8 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 
 	// missing return type should not cause NPE
 	public void testBug415850_01() {
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"import org.eclipse.jdt.annotation.*;\n" +
 				"public class X {\n" +
@@ -2906,8 +2906,8 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 
 	// don't let type annotations on array dimensions spoil type compatibility
 	public void testBug415850_05() {
-		runNegativeTest(
-			new String[]{
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[]{
 				"X.java",
 				"import java.lang.annotation.Target;\n" +
 				"import static java.lang.annotation.ElementType.*;\n" +
@@ -3216,8 +3216,8 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 
 	// variant to challenge duplicate methods, though with different parameter annotations
 	public void testBug416176b() {
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"import org.eclipse.jdt.annotation.NonNull;\n" +
 				"import org.eclipse.jdt.annotation.Nullable;\n" +
@@ -4255,8 +4255,8 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=422134, [1.8] NPE in NullAnnotationMatching with inlined lambda expression used with a raw type
 	public void test422134() {
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"import java.util.ArrayList;\n" +
 				"import java.util.Collections;\n" +
@@ -4341,8 +4341,8 @@ public class NullTypeAnnotationTest extends AbstractNullAnnotationTest {
 	}
 
 public void testBug424637() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"import java.io.IOException;\n" +
 			"import java.nio.file.Files;\n" +
@@ -4730,8 +4730,8 @@ public void testTypeBounds4() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=429387, [1.8][compiler] AIOOBE in AbstractMethodDeclaration.createArgumentBindings
 public void test429387() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"import java.util.function.BiFunction;\n" +
 			"import java.util.function.Supplier;\n" +
@@ -4796,8 +4796,8 @@ public void testBug429403() {
 		"----------\n");
 }
 public void testBug430219() {
-    runNegativeTest(
-        new String[] {
+    AbstractRegressionTest.runNegativeTest(
+        this, new String[] {
             "X.java",
             "import org.eclipse.jdt.annotation.NonNullByDefault;\n" +
             "@NonNullByDefault\n" +
@@ -5505,8 +5505,8 @@ public void testDefault07_bin() {
 		"----------\n");
 }
 public void testBug431269() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"p/QField.java",
 			"package p;\n" +
 			"\n" +
@@ -7138,8 +7138,8 @@ public void testBug434582a() {
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=443467, [1.8][null]InternalError: Unexpected binding type
 public void test443467() throws Exception {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"BuildIdeMain.java",
 			"import java.nio.file.Path;\n" +
 			"import java.time.Instant;\n" +
@@ -7960,9 +7960,9 @@ public void testBug454182() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_NONNULL_BY_DEFAULT_ANNOTATION_NAME, "annot.NonNullByDefault");
 	String[] libs = this.LIBS.clone();
-	libs[libs.length-1] = this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "Test454182.jar";
-	runConformTest(
-		new String[] {
+	libs[libs.length-1] = AbstractRegressionTest.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "Test454182.jar";
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"p/package-info.java",
 			"@annot.NonNullByDefault package p;\n"
 		},
@@ -7997,8 +7997,8 @@ public void testBug443870() {
 		"");
 }
 public void testBug437072() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"import org.eclipse.jdt.annotation.*;\n" +
 			"import java.util.List;\n" +
@@ -8479,8 +8479,8 @@ public void testBug466713c() {
 }
 // variant for https://bugs.eclipse.org/bugs/show_bug.cgi?id=466713#c5
 public void testBug466713d() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"MyAnnot.java",
 			"import java.lang.annotation.*;\n" +
 			"@Retention(RetentionPolicy.CLASS)\n" +
@@ -9571,8 +9571,8 @@ public void testMultipleAnnotations1() {
 	Map options1 = new HashMap<>(getCompilerOptions());
 	options1.put(JavaCore.COMPILER_NONNULL_ANNOTATION_NAME, "org.foo.NonNull");
 	options1.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_NAME, "org.foo.Nullable");
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"org/foo/Nullable.java",
 			"package org.foo;\n" +
 			"import java.lang.annotation.*;\n" +
@@ -12585,8 +12585,8 @@ public void testBug489674() {
 	Map options = new HashMap<>(getCompilerOptions());
 	options.put(JavaCore.COMPILER_NONNULL_ANNOTATION_SECONDARY_NAMES, "org.foo.NonNull");
 	options.put(JavaCore.COMPILER_NULLABLE_ANNOTATION_SECONDARY_NAMES, "org.foo.Nullable");
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"org/foo/Nullable.java",
 			"package org.foo;\n" +
 			"import java.lang.annotation.*;\n" +
@@ -12801,8 +12801,8 @@ public void testBug496591() {
 	);
 }
 public void testBug497698() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"test/And.java",
 			"package test;\n" +
 			"\n" +
@@ -12839,8 +12839,8 @@ public void testBug497698() {
 	);
 }
 public void testBug497698raw() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"test/And.java",
 			"package test;\n" +
 			"\n" +
@@ -12883,8 +12883,8 @@ public void testBug497698raw() {
 	);
 }
 public void testBug497698nestedinraw() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"test/And.java",
 			"package test;\n" +
 			"\n" +
@@ -13379,8 +13379,8 @@ public void testBug501449() {
 	);
 }
 public void testBug502112() {
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"org/foo/Nullable.java",
 			"package org.foo;\n" +
 			"import java.lang.annotation.*;\n" +
@@ -13449,8 +13449,8 @@ public void testBug502112() {
 );
 }
 public void testBug502112b() {
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 		"org/foo/NonNull.java",
 		"package org.foo;\n" +
 		"import java.lang.annotation.*;\n" +
@@ -17984,8 +17984,8 @@ public void testBug536555() {
 	runner.runWarningTest();
 }
 public void testBug540264() {
-	runNegativeTest(
-		true,
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 			"example/Example.java",
 			"package example;\n" +
@@ -18020,7 +18020,7 @@ public void testBug540264() {
 	);
 }
 public void testBug542707_1() {
-	if (!checkPreviewAllowed()) return; // switch expression
+	if (!AbstractRegressionTest.checkPreviewAllowed(this)) return; // switch expression
 	// switch expression has a functional type with interesting type inference and various null issues:
 	Runner runner = new Runner();
 	runner.customOptions = getCompilerOptions();

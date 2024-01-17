@@ -1057,8 +1057,8 @@ public void test033() {
 	);
 }
 public void test034() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"E.java",
 			"	/**\n" +
 				"	 * Invalid javadoc\n" +
@@ -1110,8 +1110,8 @@ public void test035() {
 	);
 }
 public void test036() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"E.java",
 			"	/**\n" +
 				"	 * @see \"invalid\" no text allowed after the string\n" +
@@ -1159,8 +1159,8 @@ public void test037() {
 }
 public void test038() {
 	this.reportMissingJavadocComments = CompilerOptions.ERROR;
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"E.java",
 			"public enum E { TEST, VALID;\n" +
 			"	public void foo() {}\n" +
@@ -1191,8 +1191,8 @@ public void test038() {
 	);
 }
 public void test039() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"E.java",
 			"public enum E {\n" +
 				"	/**\n" +
@@ -1255,8 +1255,8 @@ public void test040() {
 	);
 }
 public void test041() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"E.java",
 			"public enum E {\n" +
 				"	/**\n" +
@@ -1848,8 +1848,8 @@ public void test061() {
 public void test062() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_SWITCH_MISSING_DEFAULT_CASE, JavaCore.WARNING);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public enum X {\n" +
 			"	A, B, C;\n" +
@@ -3266,8 +3266,8 @@ to refer to itself or an enum constant of the same type that is declared to
 the right of e1."
 	*/
 public void test100() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public enum X {\n" +
 			"\n" +
@@ -3471,8 +3471,8 @@ public void test105() {
 		null
 	);
 
-	executeClass(
-		"pack/X.java",
+	AbstractRegressionTest.executeClass(
+		this, "pack/X.java",
 		"Black",
 		null,
 		false,
@@ -3485,8 +3485,8 @@ public void test105() {
 public void test106() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_INCOMPLETE_ENUM_SWITCH, JavaCore.IGNORE);
-	this.runConformTest(
-			new String[] {
+	AbstractRegressionTest.runConformTest(
+			this, new String[] {
 				"pack/X.java",
 				"package pack;\n" +
 				"import static pack.Color.*;\n" +
@@ -3522,8 +3522,8 @@ public void test106() {
 		null
 	);
 
-	executeClass(
-		"pack/X.java",
+	AbstractRegressionTest.executeClass(
+		this, "pack/X.java",
 		"SUCCESS",
 		null,
 		false,
@@ -3535,8 +3535,8 @@ public void test106() {
 public void test107() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_INCOMPLETE_ENUM_SWITCH, JavaCore.IGNORE);
-	this.runConformTest(
-			new String[] {
+	AbstractRegressionTest.runConformTest(
+			this, new String[] {
 				"pack/X.java",
 				"package pack;\n" +
 				"import static pack.Color.*;\n" +
@@ -3585,8 +3585,8 @@ public void test107() {
 		null
 	);
 
-	executeClass(
-		"pack/X.java",
+	AbstractRegressionTest.executeClass(
+		this, "pack/X.java",
 		"BlackBlack",
 		null,
 		false,
@@ -3599,8 +3599,8 @@ public void test107() {
 public void test108() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_INCOMPLETE_ENUM_SWITCH, JavaCore.IGNORE);
-	this.runConformTest(
-			new String[] {
+	AbstractRegressionTest.runConformTest(
+			this, new String[] {
 				"pack/X.java",
 				"package pack;\n" +
 				"import static pack.Color.*;\n" +
@@ -3644,8 +3644,8 @@ public void test108() {
 		null
 	);
 
-	executeClass(
-		"pack/X.java",
+	AbstractRegressionTest.executeClass(
+		this, "pack/X.java",
 		"Black",
 		null,
 		false,
@@ -3658,8 +3658,8 @@ public void test108() {
 public void test109() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_INCOMPLETE_ENUM_SWITCH, JavaCore.IGNORE);
-	this.runConformTest(
-			new String[] {
+	AbstractRegressionTest.runConformTest(
+			this, new String[] {
 				"pack/X.java",
 				"package pack;\n" +
 				"import static pack.Color.*;\n" +
@@ -3706,8 +3706,8 @@ public void test109() {
 		null
 	);
 
-	executeClass(
-		"pack/X.java",
+	AbstractRegressionTest.executeClass(
+		this, "pack/X.java",
 		"SUCCESS",
 		null,
 		false,
@@ -3720,8 +3720,8 @@ public void test109() {
 public void test110() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_INCOMPLETE_ENUM_SWITCH, JavaCore.IGNORE);
-	this.runConformTest(
-			new String[] {
+	AbstractRegressionTest.runConformTest(
+			this, new String[] {
 				"pack/X.java",
 				"package pack;\n" +
 				"import static pack.Color.*;\n" +
@@ -3764,8 +3764,8 @@ public void test110() {
 		null
 	);
 
-	executeClass(
-		"pack/X.java",
+	AbstractRegressionTest.executeClass(
+		this, "pack/X.java",
 		"Black",
 		null,
 		false,
@@ -3828,8 +3828,8 @@ public void test111() {
 		null
 	);
 
-	executeClass(
-		"pack/X.java",
+	AbstractRegressionTest.executeClass(
+		this, "pack/X.java",
 		"BlackBlack",
 		null,
 		false,
@@ -3842,8 +3842,8 @@ public void test111() {
 public void test112() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_INCOMPLETE_ENUM_SWITCH, JavaCore.IGNORE);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"com/annot/Foo.java",
 			"package com.annot;\n" +
 			"\n" +
@@ -4211,8 +4211,8 @@ public void test119() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=102213
 public void test120() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public enum X {\n" +
 			"\n" +
@@ -4462,8 +4462,8 @@ public void test128() {
 	options.put(CompilerOptions.OPTION_ReportRawTypeReference, CompilerOptions.IGNORE);
 	options.put(CompilerOptions.OPTION_ReportMissingSerialVersion, CompilerOptions.IGNORE);
 
-	this.runNegativeTest(
-         new String[] {
+	AbstractRegressionTest.runNegativeTest(
+         this, new String[] {
         		 "X.java",
         		 "public class X {\n" +
         		 "	public static void main( String[] args) {\n" +
@@ -4656,8 +4656,8 @@ public void test130() {
 		null
 	);
 
-	executeClass(
-		"X.java",
+	AbstractRegressionTest.executeClass(
+		this, "X.java",
 		"12default",
 		null,
 		false,
@@ -4778,8 +4778,8 @@ public void test133() throws Exception {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=149042
 public void test134() {
-    this.runNegativeTest(
-        new String[] {
+    AbstractRegressionTest.runNegativeTest(
+        this, new String[] {
             "X.java",
 			"public enum X {\n" +
 			"    INITIAL ,\n" +
@@ -5178,8 +5178,8 @@ public void test144() {
 public void test145() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportNonStaticAccessToStatic, CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"EnumA.java",
@@ -5248,8 +5248,8 @@ public void test146() {
 public void test146b() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_SWITCH_MISSING_DEFAULT_CASE, JavaCore.WARNING);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"	enum MyEnum {\n" +
@@ -5286,8 +5286,8 @@ public void test146b() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=227502
 public void test147() {
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 					"p/X.java",
 					"package p;\n" +
 					"public class X {\n" +
@@ -5308,8 +5308,8 @@ public void test147() {
 			true, // generate output
 			false,
 			false);
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		false /* do not flush output directory */,
 		new String[] { /* test files */
 			"Y.java",
@@ -5330,8 +5330,8 @@ public void test147() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=227502 - variation
 public void test148() {
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 					"p/X.java",
 					"package p;\n" +
 					"public class X {\n" +
@@ -5357,8 +5357,8 @@ public void test148() {
 			true, // generate output
 			false,
 			false);
-	runConformTest(
-		// test directory preparation
+	AbstractRegressionTest.runConformTest(
+		this, // test directory preparation
 		false /* do not flush output directory */,
 		new String[] { /* test files */
 			"Y.java",
@@ -5519,8 +5519,8 @@ public void test152() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=228109
 public void test153() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 				"TestEnum.java",
 				"public enum TestEnum {\n" +
 				"	RED, GREEN, BLUE; \n" +
@@ -5541,8 +5541,8 @@ public void test153() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=228109 - variation
 public void test154() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 				"TestEnum2.java",
 				"public enum TestEnum2 {\n" +
 				"	; \n" +
@@ -5605,8 +5605,8 @@ public void test156() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=228109 - variation
 public void test157() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 				"Foo.java",
 				"enum Foo {\n" +
 				"	ONE, TWO, THREE;\n" +
@@ -6017,8 +6017,8 @@ public void test165() throws Exception {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=251814
 public void test166() throws Exception {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java", // =================
 			"public enum X {\n" +
 			"        ;\n" +
@@ -6076,12 +6076,12 @@ public void test166() throws Exception {
 		"        [pc: 0, pc: 10] local: this index: 0 type: X\n" +
 		"}";
 
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=251814 - variation
 public void test167() throws Exception {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java", // =================
 			"public enum X {\n" +
 			"    ;\n" +
@@ -6121,8 +6121,8 @@ public void test167() throws Exception {
 		false,
 		false);
 	// check consistency of problem when incremental compiling against X problemType
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 				"Other.java",// =================
 				"public class Other {\n" +
 				"    void foo() {\n" +
@@ -6327,8 +6327,8 @@ public void test170() {
 public void test171() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.WARNING);
-	this.runConformTest(
-		true,
+	AbstractRegressionTest.runConformTest(
+		this, true,
 		new String[] {
 			"X.java",
 			"public class X { \n" +
@@ -6357,8 +6357,8 @@ public void test171() {
 public void test172() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.WARNING);
-	this.runConformTest(
-		true,
+	AbstractRegressionTest.runConformTest(
+		this, true,
 		new String[] {
 			"X.java",
 			"public class X { \n" +
@@ -6500,8 +6500,8 @@ public void test176() {
 	);
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Process_Annotations, CompilerOptions.ENABLED);
-	this.runConformTest(
-		false,
+	AbstractRegressionTest.runConformTest(
+		this, false,
 		new String[] {
 			"Y.java",
 			"public class Y {\n" +
@@ -6547,8 +6547,8 @@ public void test177() {
 	);
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Process_Annotations, CompilerOptions.ENABLED);
-	this.runConformTest(
-		false,
+	AbstractRegressionTest.runConformTest(
+		this, false,
 		new String[] {
 			"Y.java",
 			"public class Y {\n" +
@@ -6595,8 +6595,8 @@ public void test178() {
 	);
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Process_Annotations, CompilerOptions.ENABLED);
-	this.runConformTest(
-		false,
+	AbstractRegressionTest.runConformTest(
+		this, false,
 		new String[] {
 			"Z.java",
 			"public class Z {\n" +
@@ -6643,8 +6643,8 @@ public void test179() {
 	);
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_Process_Annotations, CompilerOptions.ENABLED);
-	this.runConformTest(
-		false,
+	AbstractRegressionTest.runConformTest(
+		this, false,
 		new String[] {
 			"Z.java",
 			"public class Z {\n" +
@@ -6697,8 +6697,8 @@ public void test180() {
 	if(this.complianceLevel >= ClassFileConstants.JDK16) {
 		excuse = null;
 	}
-	this.runConformTest(
-		false,
+	AbstractRegressionTest.runConformTest(
+		this, false,
 		new String[] {
 			"X.java",
 			"import test180.Test;\n" +
@@ -6721,8 +6721,8 @@ public void test180() {
 public void test180a() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_ANNOTATION_NULL_ANALYSIS, JavaCore.ENABLED);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"p/package-info.java",
 			"@p.Annot(state=p.MyEnum.BROKEN)\n" +
 			"package p;",
@@ -6761,8 +6761,8 @@ public void test180a() {
 	if(this.complianceLevel >= ClassFileConstants.JDK16) {
 		excuse = null;
 	}
-	this.runConformTest(
-		false,
+	AbstractRegressionTest.runConformTest(
+		this, false,
 		new String[] {
 			"X.java",
 			"import test180.Test;\n" +
@@ -6809,8 +6809,8 @@ public void test182() throws Exception {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	public static void main(String argv[])   {\n" +
@@ -6850,8 +6850,8 @@ public void test183() throws Exception {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	public static void main(String argv[]) {\n" +
@@ -6890,8 +6890,8 @@ public void test184() throws Exception {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.OPTIMIZE_OUT);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	public static void main(String argv[]) {\n" +
@@ -6953,8 +6953,8 @@ public void test185() {
 public void test186() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_MISSING_ENUM_CASE_DESPITE_DEFAULT, JavaCore.ENABLED);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"Y.java",
 			"enum X {\n" +
 			"  A, B;\n" +
@@ -6990,8 +6990,8 @@ public void test187() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_MISSING_ENUM_CASE_DESPITE_DEFAULT, JavaCore.ENABLED);
 	options.put(JavaCore.COMPILER_PB_INCOMPLETE_ENUM_SWITCH, JavaCore.ERROR);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"Y.java",
 			"enum X {\n" +
 			"  A, B;\n" +
@@ -7018,8 +7018,8 @@ public void test187() {
 public void test187a() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_MISSING_ENUM_CASE_DESPITE_DEFAULT, JavaCore.ENABLED);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"Y.java",
 			"enum X {\n" +
 			"  A, B;\n" +
@@ -7055,8 +7055,8 @@ public void test187b() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_SWITCH_MISSING_DEFAULT_CASE, JavaCore.ERROR);
 	options.put(JavaCore.COMPILER_PB_SUPPRESS_OPTIONAL_ERRORS, JavaCore.ENABLED);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"Y.java",
 			"enum X {\n" +
 			"  A, B;\n" +
@@ -7081,8 +7081,8 @@ public void test187b() {
 public void test188() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_SWITCH_MISSING_DEFAULT_CASE, JavaCore.WARNING);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"Y.java",
 			"enum X {\n" +
 			"  A, B;\n" +
@@ -7117,8 +7117,8 @@ public void test188() {
 public void test189() {
 	Map options = getCompilerOptions();
 	//options.put(JavaCore.COMPILER_PB_MISSING_DEFAULT_CASE, JavaCore.WARNING);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"Y.java",
 			"enum X {\n" +
 			"  A, B;\n" +
@@ -7147,8 +7147,8 @@ public void test189() {
 public void test433060() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_REDUNDANT_TYPE_ARGUMENTS, JavaCore.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public enum X<T> {\n" +
 			"	OBJ;\n" +

@@ -558,7 +558,7 @@ public void test021() {
 		"AbstractB.init()"); // no special vm args
 
 		// check that "new Z().init()" is bound to "Z.init()"
-		String computedReferences = findReferences(OUTPUT_DIR + "/p1/Z.class");
+		String computedReferences = AbstractRegressionTest.findReferences(OUTPUT_DIR + "/p1/Z.class");
 		boolean check =
 			computedReferences.indexOf("constructorRef/Z/0") >= 0
 			&& computedReferences.indexOf("methodRef/init/0") >= 0;
@@ -1186,8 +1186,8 @@ public void test036() {
 public void test037() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_TaskTags, "TODO:");
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"p/X.java",
 			"package p;	\n"+
 			"public class X {\n"+
@@ -1214,8 +1214,8 @@ public void test037() {
 public void test038() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_TaskTags, "TODO:");
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"// TODO: something"
 		},

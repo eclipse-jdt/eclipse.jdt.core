@@ -99,7 +99,7 @@ void runTest(
 		    }
 		}
 	}
-	runTest(testFiles,
+	AbstractRegressionTest.runTest(this, testFiles,
 		expectingCompilerErrors,
 		expectedCompilerLog,
 		expectedOutputString,
@@ -1704,8 +1704,8 @@ public void test0046() {
 		return;
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n" +
 				"    int foo() {\n" +
@@ -1744,8 +1744,8 @@ public void test0046_field() {
 		return;
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n" +
 				"    private int i=1;\n" +
@@ -1783,8 +1783,8 @@ public void test0046_field_this_qualified() {
 		return;
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n" +
 				"    private int i=1;\n" +
@@ -1823,8 +1823,8 @@ public void test0046_field_qualified() {
 		return;
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n" +
 				"    private int i=1;\n" +
@@ -1863,8 +1863,8 @@ public void test0046_field_in_private_type() {
 		return;
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n" +
 				"    private class Y {\n" +
@@ -1906,8 +1906,8 @@ public void test0047() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.WARNING);
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n" +
 				"    void foo(int param1, int param2, Integer param3) {\n" +
@@ -1952,8 +1952,8 @@ public void test0048() {
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.WARNING);
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedParameterWhenImplementingAbstract, CompilerOptions.DISABLED);
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X extends A implements Y{\n" +
 				"   public void foo(int param1, int param2, Integer param3) {\n" + // implementing method, so dont warn
@@ -2017,8 +2017,8 @@ public void test0049() {
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.WARNING);
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedParameterWhenOverridingConcrete, CompilerOptions.DISABLED);
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X extends A {\n" +
 				"   public void foo(int param1, int param2, Integer param3) {\n" + // overriding method, so dont warn
@@ -2073,8 +2073,8 @@ public void test0050() {
 		return;
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"class X {\n" +
 				"    int foo() {\n" +
@@ -2115,8 +2115,8 @@ public void test0050() {
 public void test0051() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedParameter, CompilerOptions.WARNING);
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 					"X.java",
 					"class X {\n" +
 					"    X(int abc) {\n" +
@@ -2138,8 +2138,8 @@ public void test0051() {
 public void test0052() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
-	this.runConformTest(
-			new String[] {
+	AbstractRegressionTest.runConformTest(
+			this, new String[] {
 					"X.java",
 					"class X {\n" +
 					"    Y y = new Y();\n" +
@@ -2165,8 +2165,8 @@ public void test0052a() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
-	this.runConformTest(
-			new String[] {
+	AbstractRegressionTest.runConformTest(
+			this, new String[] {
 					"Outer.java",
 					"class Outer {\n" +
 					"    private class Inner1 {\n" +
@@ -2189,8 +2189,8 @@ public void test0052b() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.ERROR);
 	customOptions.put(CompilerOptions.OPTION_ReportSyntheticAccessEmulation, CompilerOptions.IGNORE);
-	this.runConformTest(
-			new String[] {
+	AbstractRegressionTest.runConformTest(
+			this, new String[] {
 					"Outer.java",
 					"class Outer {\n" +
 					"    private class Inner1 {\n" +
@@ -2211,8 +2211,8 @@ public void test0052b() {
 public void test0053() throws Exception {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"class X {\n" +
 			"    int foo() {\n" +
@@ -2238,14 +2238,14 @@ public void test0053() throws Exception {
 		"        [pc: 0, line: 5]\n" +
 		"      Local variable table:\n" +
 		"        [pc: 0, pc: 2] local: this index: 0 type: X\n";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=328519
 public void test0054() throws Exception {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.ERROR);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"class X {\n" +
 			"    int foo() {\n" +
@@ -2275,7 +2275,7 @@ public void test0054() throws Exception {
 		"      Local variable table:\n" +
 		"        [pc: 0, pc: 7] local: this index: 0 type: X\n" +
 		"        [pc: 2, pc: 7] local: i index: 1 type: int\n";
-	checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+	AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 }
 
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=329613
@@ -2285,8 +2285,8 @@ public void test0055() {
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.IGNORE);
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
 	customOptions.put(CompilerOptions.OPTION_PreserveUnusedLocal, CompilerOptions.PRESERVE);
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 					"test1/E.java",
 					"package test1;\n" +
 					"public class E {\n" +
@@ -2315,8 +2315,8 @@ public void test0055() {
 public void test0056() throws Exception {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.ERROR);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"    static int foo() {\n" +
@@ -2340,8 +2340,8 @@ public void test0056() throws Exception {
 public void test0057() throws Exception {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.IGNORE);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"    public static void main (String args[]) {\n" +
@@ -2365,8 +2365,8 @@ public void test0057() throws Exception {
 public void _test0058() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"    void foo(String m) {\n" +
@@ -2397,8 +2397,8 @@ public void test0059() throws Exception {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
 	customOptions.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.WARNING);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"    public static void main(String[] args) {\n" +
@@ -2433,8 +2433,8 @@ public void test0059() throws Exception {
 public void test0060() throws Exception {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUninternedIdentityComparison, CompilerOptions.ENABLED);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"org/eclipse/jdt/internal/compiler/lookup/X.java",
 			"package org.eclipse.jdt.internal.compiler.lookup;\n" +
 			"class TypeBinding {\n" +
@@ -2515,8 +2515,8 @@ public void test0060() throws Exception {
 public void test0061() throws Exception {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUninternedIdentityComparison, CompilerOptions.ENABLED);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"org/eclipse/nonjdt/internal/compiler/lookup/X.java",
 			"package org.eclipse.nonjdt.internal.compiler.lookup;\n" +
 			"class TypeBinding {\n" +
@@ -2571,8 +2571,8 @@ public void test0061() throws Exception {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=417803,  [internal] Build a build environment compiler to warn on TypeBinding comparisons
 public void test0062() throws Exception {
 	Map customOptions = getCompilerOptions();
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"org/eclipse/jdt/internal/compiler/lookup/X.java",
 			"package org.eclipse.jdt.internal.compiler.lookup;\n" +
 			"class TypeBinding {\n" +
@@ -2628,8 +2628,8 @@ public void test0062() throws Exception {
 public void test0063() throws Exception {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUninternedIdentityComparison, CompilerOptions.ENABLED);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"org/eclipse/jdt/core/dom/X.java",
 			"package org.eclipse.jdt.core.dom;\n" +
 			"interface ITypeBinding {\n" +
@@ -2795,8 +2795,8 @@ public void testBug410218b2() {
 		return;
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_UNLIKELY_COLLECTION_METHOD_ARGUMENT_TYPE_STRICT, JavaCore.ENABLED);
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"import java.util.*;\n" +
 			"class X {\n" +
@@ -2893,8 +2893,8 @@ public void testBug410218d() {
 		return;
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_UNLIKELY_COLLECTION_METHOD_ARGUMENT_TYPE, JavaCore.ERROR);
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"import java.util.*;\n" +
 			"interface NumberCollection extends Collection<Number> {}\n" +
@@ -2925,8 +2925,8 @@ public void testBug410218e() {
 		return;
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_UNLIKELY_COLLECTION_METHOD_ARGUMENT_TYPE, JavaCore.WARNING);
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"import java.util.*;\n" +
 			"class X {\n" +
@@ -2959,8 +2959,8 @@ public void testBug410218f() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_UNLIKELY_COLLECTION_METHOD_ARGUMENT_TYPE, JavaCore.WARNING);
 	customOptions.put(JavaCore.COMPILER_PB_UNLIKELY_EQUALS_ARGUMENT_TYPE, JavaCore.INFO);
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"test/TestUnlikely.java",
 			"package test;\n" +
 			"\n" +
@@ -3231,8 +3231,8 @@ public void testBug514956a() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_UNLIKELY_COLLECTION_METHOD_ARGUMENT_TYPE, JavaCore.WARNING);
 	customOptions.put(JavaCore.COMPILER_PB_UNNECESSARY_TYPE_CHECK, JavaCore.ERROR);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"Unlikely.java",
 			"import java.util.Map;\n" +
 			"\n" +
@@ -3250,8 +3250,8 @@ public void testBug514956b() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_UNLIKELY_EQUALS_ARGUMENT_TYPE, JavaCore.WARNING);
 	customOptions.put(JavaCore.COMPILER_PB_UNNECESSARY_TYPE_CHECK, JavaCore.ERROR);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"Unlikely.java",
 			"interface EObject {}\n" +
 			"public class Unlikely {\n" +
@@ -3266,8 +3266,8 @@ public void testBug514956c() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(JavaCore.COMPILER_PB_UNLIKELY_EQUALS_ARGUMENT_TYPE, JavaCore.WARNING);
 	customOptions.put(JavaCore.COMPILER_PB_UNNECESSARY_TYPE_CHECK, JavaCore.ERROR);
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"Unlikely.java",
 			"interface I1 {}\n" +
 			"interface I2 {}\n" +

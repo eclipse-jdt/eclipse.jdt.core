@@ -412,8 +412,8 @@ public void test014() throws Exception {
 		// check that #clone() return type is changed ONLY from -source 1.5 only (independant from compliance level)
 		optionsMap.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
 	}
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"	void foo(long[] longs) throws Exception {\n" +
@@ -510,8 +510,8 @@ public void test017() throws Exception {
 		// check that #clone() return type is changed ONLY from -source 1.5 only (independant from compliance level)
 		optionsMap.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_4);
 	}
-	this.runConformTest(
-			new String[] {
+	AbstractRegressionTest.runConformTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"	void foo(long[] longs) throws Exception {\n" +

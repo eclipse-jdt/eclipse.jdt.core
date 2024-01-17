@@ -3746,8 +3746,8 @@ public void test430035() throws IOException, ClassFormatException {
 public void test430571() throws IOException, ClassFormatException {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_MethodParametersAttribute, CompilerOptions.GENERATE);
-	this.runConformTest(
-			new String[] {
+	AbstractRegressionTest.runConformTest(
+			this, new String[] {
 				"X.java",
 				"import java.lang.annotation.ElementType;\n" +
 				"import java.lang.annotation.Target;\n" +

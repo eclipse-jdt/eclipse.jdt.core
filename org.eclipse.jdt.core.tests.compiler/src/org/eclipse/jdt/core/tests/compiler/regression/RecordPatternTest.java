@@ -67,7 +67,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	@Override
 	protected INameEnvironment getNameEnvironment(final String[] testFiles, String[] classPaths, Map<String, String> options) {
 		this.classpaths = classPaths == null ? getDefaultClassPaths() : classPaths;
-		INameEnvironment[] classLibs = getClassLibs(false, options);
+		INameEnvironment[] classLibs = AbstractRegressionTest.getClassLibs(this, false, options);
 		for (INameEnvironment nameEnvironment : classLibs) {
 			((FileSystem) nameEnvironment).scanForModules(createParser());
 		}
@@ -81,7 +81,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions) {
 		if(!isJRE21Plus)
 			return;
-		runConformTest(testFiles, expectedOutput, customOptions, new String[] {}, JAVAC_OPTIONS);
+		AbstractRegressionTest.runConformTest(this, testFiles, expectedOutput, customOptions, new String[] {}, JAVAC_OPTIONS);
 	}
 	protected void runConformTest(
 			String[] testFiles,
@@ -89,8 +89,8 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			String[] classLibraries,
 			boolean shouldFlushOutputDirectory,
 			String[] vmArguments) {
-			runTest(
-		 		// test directory preparation
+			AbstractRegressionTest.runTest(
+		 		this, // test directory preparation
 				shouldFlushOutputDirectory /* should flush output directory */,
 				testFiles /* test files */,
 				// compiler options
@@ -726,7 +726,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	}
 	// Nested record pattern with a simple (constant) 'when' clause
 	public void test22() {
-		runConformTest(new String[] {
+		AbstractRegressionTest.runConformTest(this, new String[] {
 				"X.java",
 					"public class X {\n"
 					+ "  public static void printLowerRight(Rectangle r) {\n"
@@ -888,8 +888,8 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			},
 			this.extraLibPath,
 			JavaCore.VERSION_21);
-		this.runConformTest(
-				new String[] {
+		AbstractRegressionTest.runConformTest(
+				this, new String[] {
 						"p/X.java",
 						"package p;\n"
 						+ "public class X {\n"

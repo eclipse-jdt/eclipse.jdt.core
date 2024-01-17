@@ -705,8 +705,8 @@ public class VarargsTest extends AbstractComparableTest {
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=83379
 	public void test011() {
-		runConformTest(
-			true,
+		AbstractRegressionTest.runConformTest(
+			this, true,
 			new String[] {
 				"X.java",
 				"public class X { void count(int ... values) {} }\n" +
@@ -822,8 +822,8 @@ public class VarargsTest extends AbstractComparableTest {
 		try {
 			System.setProperty("tolerateIllegalAmbiguousVarargsInvocation", "true");
 			if (this.complianceLevel >= ClassFileConstants.JDK1_7) {
-			this.runNegativeTest(
-					new String[] {
+			AbstractRegressionTest.runNegativeTest(
+					this, new String[] {
 							"X.java",
 							"public class X {\n" +
 							"	public static void main(String[] s) {\n" +
@@ -843,8 +843,8 @@ public class VarargsTest extends AbstractComparableTest {
 				"----------\n",
 				null, true, options);
 			} else {
-				this.runConformTest(
-					new String[] {
+				AbstractRegressionTest.runConformTest(
+					this, new String[] {
 							"X.java",
 							"public class X {\n" +
 							"	public static void main(String[] s) {\n" +
@@ -1302,8 +1302,8 @@ public class VarargsTest extends AbstractComparableTest {
 	}
  	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102631
 	public void test033() {
-		this.runNegativeTest(
-			false /* skipJavac */,
+		AbstractRegressionTest.runNegativeTest(
+			this, false /* skipJavac */,
 			this.complianceLevel < ClassFileConstants.JDK1_7 ?
 					JavacTestOptions.Excuse.JavacCompilesIncorrectSource : null,
 			new String[] {
@@ -1377,8 +1377,8 @@ public class VarargsTest extends AbstractComparableTest {
 		try {
 			System.setProperty("tolerateIllegalAmbiguousVarargsInvocation", "true");
 			if (this.complianceLevel >= ClassFileConstants.JDK1_7) {
-				this.runNegativeTest(
-				false /* skipJavac */,
+				AbstractRegressionTest.runNegativeTest(
+				this, false /* skipJavac */,
 				this.complianceLevel < ClassFileConstants.JDK1_7 ?
 						JavacTestOptions.Excuse.JavacCompilesIncorrectSource : null,
 				new String[] {
@@ -1407,8 +1407,8 @@ public class VarargsTest extends AbstractComparableTest {
 					"----------\n",
 					null, true, options);
 			} else {
-				this.runConformTest(
-						new String[] {
+				AbstractRegressionTest.runConformTest(
+						this, new String[] {
 							"X.java",
 							"public class X {\n" +
 							"	void a(boolean b, Object... o) {System.out.print(1);}\n" +
@@ -2241,8 +2241,8 @@ public class VarargsTest extends AbstractComparableTest {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
 		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_4);
-		this.runConformTest(
-				new String[] {
+		AbstractRegressionTest.runConformTest(
+				this, new String[] {
 					"X.java",
 					"public class X {\n" +
 					"   public static String varargMethod( Object... objects ) {\r\n" +
@@ -2280,8 +2280,8 @@ public class VarargsTest extends AbstractComparableTest {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_1_5);
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_1_5);
 		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_1_5);
-		this.runConformTest(
-				new String[] {
+		AbstractRegressionTest.runConformTest(
+				this, new String[] {
 					"UseVararg.java",
 					"public class UseVararg {\r\n" +
 					"   public static void main( String[] args ) {\n" +
@@ -2361,7 +2361,7 @@ public class VarargsTest extends AbstractComparableTest {
 			"  // Method descriptor #10 (LX;Ljava/lang/Integer;[Ljava/lang/String;Ljava/lang/Float;)V\n" +
 			"  // Stack: 3, Locals: 5\n" +
 			"  X$1(X arg0, java.lang.Integer $anonymous0, java.lang.String... $anonymous1, java.lang.Float arg3);\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X$1.class", "X$1", expectedOutput);
+		AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X$1.class", "X$1", expectedOutput);
 	}
 	//safe varargs support
 	public void test063() throws Exception {
@@ -2381,8 +2381,8 @@ public class VarargsTest extends AbstractComparableTest {
 			"");
 		Map options = getCompilerOptions();
 		options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.ERROR);
-		this.runConformTest(
-			new String[] {
+		AbstractRegressionTest.runConformTest(
+			this, new String[] {
 				"X.java",
 				"import java.util.ArrayList;\n" +
 				"import java.util.List;\n" +
@@ -2403,8 +2403,8 @@ public class VarargsTest extends AbstractComparableTest {
 		if (this.complianceLevel < ClassFileConstants.JDK1_7) return;
 		Map options = getCompilerOptions();
 		options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.ERROR);
-		this.runConformTest(
-			new String[] {
+		AbstractRegressionTest.runConformTest(
+			this, new String[] {
 				"X.java",
 				"import java.util.ArrayList;\n" +
 				"import java.util.List;\n" +
@@ -2429,8 +2429,8 @@ public class VarargsTest extends AbstractComparableTest {
 		if (this.complianceLevel < ClassFileConstants.JDK1_7) return;
 		Map options = getCompilerOptions();
 		options.put(JavaCore.COMPILER_PB_UNCHECKED_TYPE_OPERATION, JavaCore.ERROR);
-		this.runConformTest(
-			new String[] {
+		AbstractRegressionTest.runConformTest(
+			this, new String[] {
 				"X.java",
 				"import java.util.ArrayList;\n" +
 				"import java.util.List;\n" +
@@ -2455,8 +2455,8 @@ public class VarargsTest extends AbstractComparableTest {
 	public void test066() {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportMissingOverrideAnnotationForInterfaceMethodImplementation, CompilerOptions.DISABLED);
-		this.runNegativeTest(
-				new String[] {
+		AbstractRegressionTest.runNegativeTest(
+				this, new String[] {
 					"X.java",
 					"import java.util.Collection;\n" +
 					"import java.util.Iterator;\n" +
@@ -2825,8 +2825,8 @@ public class VarargsTest extends AbstractComparableTest {
 		try {
 			System.setProperty("tolerateIllegalAmbiguousVarargsInvocation", "true");
 			if (this.complianceLevel < ClassFileConstants.JDK1_7) {
-				this.runNegativeTest(
-					new String[] {
+				AbstractRegressionTest.runNegativeTest(
+					this, new String[] {
 						"X.java",
 						"public class X {\n" +
 						"        public static void foo(int ...i) {}\n" +
@@ -2845,8 +2845,8 @@ public class VarargsTest extends AbstractComparableTest {
 					"----------\n",
 					null, true, options);
 			} else {
-				this.runConformTest(
-						new String[] {
+				AbstractRegressionTest.runConformTest(
+						this, new String[] {
 							"X.java",
 							"public class X {\n" +
 							"        public static void foo(int ...i) {}\n" +
@@ -2873,8 +2873,8 @@ public class VarargsTest extends AbstractComparableTest {
 		try {
 			System.setProperty("tolerateIllegalAmbiguousVarargsInvocation", "true");
 			if (this.complianceLevel >= ClassFileConstants.JDK1_7) {
-				this.runNegativeTest(
-					false /* skipJavac */,
+				AbstractRegressionTest.runNegativeTest(
+					this, false /* skipJavac */,
 					this.complianceLevel == ClassFileConstants.JDK1_7 ?
 							JavacTestOptions.Excuse.JavacCompilesIncorrectSource : null,
 					new String[] {
@@ -2898,8 +2898,8 @@ public class VarargsTest extends AbstractComparableTest {
 					"----------\n",
 					null, true, options);
 			} else {
-				this.runConformTest(
-						new String[] {
+				AbstractRegressionTest.runConformTest(
+						this, new String[] {
 								"X.java",
 								"import java.util.Arrays;\n" +
 								"public class X {\n" +
@@ -2944,8 +2944,8 @@ public class VarargsTest extends AbstractComparableTest {
 		try {
 			System.setProperty("tolerateIllegalAmbiguousVarargsInvocation", "true");
 			if (this.complianceLevel < ClassFileConstants.JDK1_7) {
-				this.runNegativeTest(
-					new String[] {
+				AbstractRegressionTest.runNegativeTest(
+					this, new String[] {
 						"X.java",
 						"public class X {\n" +
 						"        public static <T> void foo(int ...i) {}\n" +
@@ -2964,8 +2964,8 @@ public class VarargsTest extends AbstractComparableTest {
 					"----------\n",
 					null, true, options);
 			} else {
-				this.runConformTest(
-						new String[] {
+				AbstractRegressionTest.runConformTest(
+						this, new String[] {
 							"X.java",
 							"public class X {\n" +
 							"        public static <T> void foo(int ...i) {}\n" +

@@ -6210,7 +6210,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			"  private java.lang.Object bar();\n" +
 			"     0  aload_0 [this]\n" +
 			"     1  " +
-			(isMinimumCompliant(ClassFileConstants.JDK11) ? "invokevirtual" : "invokespecial") +
+			(AbstractRegressionTest.isMinimumCompliant(this, ClassFileConstants.JDK11) ? "invokevirtual" : "invokespecial") +
 			" X.bar2() : java.lang.Object [25]\n" +
 			"     4  astore_1 [o]\n" +
 			"     5  aload_1 [o]\n" +
@@ -6230,7 +6230,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			"        [pc: 5, pc: 16] local: o index: 1 type: java.lang.Object\n" +
 			"      Stack map table: number of frames 1\n" +
 			"        [pc: 14, append: {java.lang.Object}]\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+		AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=251539
 	public void test041() throws Exception {
@@ -6278,7 +6278,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			"  private java.lang.Object bar();\n" +
 			"     0  aload_0 [this]\n" +
 			"     1  " +
-			(isMinimumCompliant(ClassFileConstants.JDK11) ? "invokevirtual" : "invokespecial") +
+			(AbstractRegressionTest.isMinimumCompliant(this, ClassFileConstants.JDK11) ? "invokevirtual" : "invokespecial") +
 			" X.bar2() : java.lang.Object [31]\n" +
 			"     4  astore_1 [o]\n" +
 			"     5  aload_1 [o]\n" +
@@ -6298,7 +6298,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			"        [pc: 5, pc: 16] local: o index: 1 type: java.lang.Object\n" +
 			"      Stack map table: number of frames 1\n" +
 			"        [pc: 14, append: {java.lang.Object}]\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+		AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=260031
 	public void test042() throws Exception {
@@ -6333,7 +6333,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			"      Stack map table: number of frames 2\n" +
 			"        [pc: 10, same_locals_1_stack_item, stack: {java.lang.Class}]\n" +
 			"        [pc: 11, full, stack: {java.lang.Class, int}, locals: {java.lang.String[]}]\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+		AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=279183
@@ -6410,7 +6410,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			"        [pc: 19, full, stack: {}, locals: {int, int, int}]\n" +
 			"        [pc: 25, same]\n" +
 			"        [pc: 34, full, stack: {}, locals: {int, _, int}]\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+		AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=279183
@@ -6481,7 +6481,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			"        [pc: 14, same]\n" +
 			"        [pc: 16, full, stack: {}, locals: {int, int, int}]\n" +
 			"        [pc: 25, full, stack: {}, locals: {int, _, int}]\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+		AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=279183
 	public void test045() throws Exception {
@@ -6537,14 +6537,14 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 			"        [pc: 0, same]\n" +
 			"        [pc: 22, append: {int}]\n" +
 			"        [pc: 30, same]\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+		AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 	}
 	// 298250
 	public void test046() {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER, JavaCore.IGNORE);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"	class E1 extends RuntimeException {\n" +
@@ -6805,8 +6805,8 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 		Map customOptions = getCompilerOptions();
 		customOptions.put(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER, JavaCore.IGNORE);
 		customOptions.put(JavaCore.COMPILER_PB_SYNTHETIC_ACCESS_EMULATION, JavaCore.IGNORE);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"	static {\n" +
@@ -7713,7 +7713,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 					"\n",
 					ClassFileBytesDisassembler.DETAILED);
 
-			String xBarCall = isMinimumCompliant(ClassFileConstants.JDK11) ?
+			String xBarCall = AbstractRegressionTest.isMinimumCompliant(this, ClassFileConstants.JDK11) ?
 					"invokevirtual X.bar() : int [18]\n" : "invokespecial X.bar() : int [18]\n";
 			String expectedOutput =
 					"  // Method descriptor #6 ()V\n" +
@@ -7836,7 +7836,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 					"\n",
 					ClassFileBytesDisassembler.DETAILED);
 
-			String xBarCall = (isMinimumCompliant(ClassFileConstants.JDK11) ?
+			String xBarCall = (AbstractRegressionTest.isMinimumCompliant(this, ClassFileConstants.JDK11) ?
 					"invokevirtual" : "invokespecial") + " X.bar() : int [28]\n";
 			String expectedOutput =
 					"  // Method descriptor #6 ()V\n" +
@@ -8261,8 +8261,8 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 		options.put(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION, JavaCore.ERROR);
 		options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.WARNING);
 		options.put(JavaCore.COMPILER_PB_SUPPRESS_OPTIONAL_ERRORS, JavaCore.ENABLED);
-		this.runConformTest(
-				new String[] {
+		AbstractRegressionTest.runConformTest(
+				this, new String[] {
 					"X2.java",
 					"import java.util.*;\n" +
 					"\n" +
@@ -8320,7 +8320,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 					"}\n",
 				},
 				"",
-				getLibsWithNullAnnotations(ClassFileConstants.JDK1_7),
+				AbstractRegressionTest.getLibsWithNullAnnotations(this, ClassFileConstants.JDK1_7),
 				true/*flush*/,
 				null/*vmArgs*/,
 				options,
@@ -8418,8 +8418,8 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 		options.put(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION, JavaCore.ERROR);
 		options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.WARNING);
 		options.put(JavaCore.COMPILER_PB_SUPPRESS_OPTIONAL_ERRORS, JavaCore.ENABLED);
-		this.runConformTest(
-				new String[] {
+		AbstractRegressionTest.runConformTest(
+				this, new String[] {
 					"X2.java",
 					"import java.util.LinkedList;\n" +
 					"\n" +
@@ -8442,7 +8442,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 					"}\n",
 				},
 				"",
-				getLibsWithNullAnnotations(ClassFileConstants.JDK1_7),
+				AbstractRegressionTest.getLibsWithNullAnnotations(this, ClassFileConstants.JDK1_7),
 				true/*flush*/,
 				null/*vmArgs*/,
 				options,
@@ -8535,8 +8535,8 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 		options.put(JavaCore.COMPILER_PB_NULL_SPECIFICATION_VIOLATION, JavaCore.ERROR);
 		options.put(JavaCore.COMPILER_PB_POTENTIAL_NULL_REFERENCE, JavaCore.WARNING);
 		options.put(JavaCore.COMPILER_PB_SUPPRESS_OPTIONAL_ERRORS, JavaCore.ENABLED);
-		this.runConformTest(
-				new String[] {
+		AbstractRegressionTest.runConformTest(
+				this, new String[] {
 					"X2.java",
 					"import java.util.LinkedList;\n" +
 					"\n" +
@@ -8559,7 +8559,7 @@ public class StackMapAttributeTest extends AbstractRegressionTest {
 					"}\n",
 				},
 				"",
-				getLibsWithNullAnnotations(ClassFileConstants.JDK1_7),
+				AbstractRegressionTest.getLibsWithNullAnnotations(this, ClassFileConstants.JDK1_7),
 				true/*flush*/,
 				null/*vmArgs*/,
 				options,

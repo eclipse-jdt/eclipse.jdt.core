@@ -270,7 +270,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 					e.printStackTrace();
 					throw new AssertionFailedError(e.getMessage());
 				}
-				handleMismatch(javacCompiler, testName(), testFiles, javacErrorMatch,
+				AbstractRegressionTest.handleMismatch(this, javacCompiler, testName(), testFiles, javacErrorMatch,
 						"", "", log, "", "",
 						excuse, mismatch);
 				final Set<String> expectedFiles = new HashSet<>(outFiles);
@@ -955,7 +955,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 	  "",
 	  true);
 		String expectedOutput = "// Compiled from X.java (version 9 : 53.0, super bit)";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+		AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 	}
 	//-source 8 -target 9
 	public void testBug495500b() throws Exception {
@@ -972,7 +972,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			"",
 			true);
 		String expectedOutput = "// Compiled from X.java (version 9 : 53.0, super bit)";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+		AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 	}
 	// compliance 9 -source 9 -target 9
 	public void testBug495500c() throws Exception {
@@ -989,7 +989,7 @@ public class ModuleCompilationTests extends AbstractBatchCompilerTest {
 			"",
 			true);
 		String expectedOutput = "// Compiled from X.java (version 9 : 53.0, super bit)";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+		AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 	}
 	/*
 	 * Test add-exports grants visibility to another module
@@ -3953,7 +3953,7 @@ public void testBug521362_emptyFile() {
 		     "",
 		     true);
 		String expectedOutput = "// Compiled from X.java (version 1.8 : 52.0, super bit)";
-			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+			AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 	}
 	public void testReleaseOption2() throws Exception {
 		if (!isJRE17Plus) return;
@@ -3970,7 +3970,7 @@ public void testBug521362_emptyFile() {
 		     "",
 		     true);
 		String expectedOutput = "// Compiled from X.java (version 10 : 54.0, super bit)";
-			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+			AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 	}
 	public void testReleaseOption3() throws Exception {
 		if (!isJRE17Plus) return;
@@ -3987,7 +3987,7 @@ public void testBug521362_emptyFile() {
 		     "",
 		     true);
 		String expectedOutput = "// Compiled from X.java (version 10 : 54.0, super bit)";
-			checkDisassembledClassFile(OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
+			AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "X.class", "X", expectedOutput);
 	}
 	public void testReleaseOption4() throws Exception {
 		this.runNegativeTest(
@@ -4675,7 +4675,7 @@ public void testBug521362_emptyFile() {
 				"  requires java.base;\n" +
 				"\n" +
 				"}";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "module-info.class", "module-info", expectedOutput);
+		AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "module-info.class", "module-info", expectedOutput);
 	}
 	public void testBug508889_002() throws Exception {
 		File outputDirectory = new File(OUTPUT_DIR);
@@ -4713,7 +4713,7 @@ public void testBug521362_emptyFile() {
 				"  exports pack1;\n" +
 				"\n" +
 				"}";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + out + File.separator + "module-info.class", "module-info", expectedOutput);
+		AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + out + File.separator + "module-info.class", "module-info", expectedOutput);
 	}
 	public void testBug508889_003() throws Exception {
 		File outputDirectory = new File(OUTPUT_DIR);
@@ -4786,7 +4786,7 @@ public void testBug521362_emptyFile() {
 				"  provides pack1.I11 with pack1.X11;\n" +
 				"\n" +
 				"}";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + out + File.separator + "module-info.class", "module-info", expectedOutput);
+		AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + out + File.separator + "module-info.class", "module-info", expectedOutput);
 	}
 	public void testBug520858() {
 		Util.flushDirectoryContent(new File(OUTPUT_DIR));
@@ -5533,7 +5533,7 @@ public void testBug521362_emptyFile() {
 				+ "}",
 			},
 	     "\"" + OUTPUT_DIR +  File.separator + "A.java\""
-	     + " -classpath " + "\"" + this.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "Test571363.jar\""
+	     + " -classpath " + "\"" + AbstractRegressionTest.getCompilerTestsPluginDirectoryPath() + File.separator + "workspace" + File.separator + "Test571363.jar\""
 	     + " --release 11 -d \"" + OUTPUT_DIR + "\"",
 	     "",
 	     "",

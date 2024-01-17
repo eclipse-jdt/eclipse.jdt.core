@@ -132,8 +132,8 @@ public abstract class AbstractNullAnnotationTest extends AbstractComparableTest 
 	}
 	/** Test expecting a null-error from ecj, none from javac. */
 	protected void runNegativeNullTest(String[] sourceFiles, String expectedCompileError, String[] libs, boolean shouldFlush, Map options) {
-		runNegativeTest(
-				sourceFiles,
+		AbstractRegressionTest.runNegativeTest(
+				this, sourceFiles,
 				expectedCompileError,
 				libs,
 				shouldFlush,
@@ -163,8 +163,8 @@ public abstract class AbstractNullAnnotationTest extends AbstractComparableTest 
 	/** Test with JDT null annotations, expecting a null-error from ecj, none from javac. */
 	void runNegativeTestWithLibs(boolean shouldFlushOutputDirectory, String[] testFiles, Map customOptions,
 			String expectedErrorLog, boolean skipJavaC) {
-		runNegativeTest(
-				shouldFlushOutputDirectory,
+		AbstractRegressionTest.runNegativeTest(
+				this, shouldFlushOutputDirectory,
 				testFiles,
 				this.LIBS,
 				customOptions,
@@ -187,8 +187,8 @@ public abstract class AbstractNullAnnotationTest extends AbstractComparableTest 
 	}
 	void runConformTestWithLibs(boolean shouldFlushOutputDirectory, String[] testFiles, Map customOptions,
 								String expectedCompilerLog, String expectedOutput) {
-		runConformTest(
-				shouldFlushOutputDirectory,
+		AbstractRegressionTest.runConformTest(
+				this, shouldFlushOutputDirectory,
 				testFiles,
 				this.LIBS,
 				customOptions,
@@ -198,8 +198,8 @@ public abstract class AbstractNullAnnotationTest extends AbstractComparableTest 
 			    JavacTestOptions.DEFAULT);
 	}
 	void runConformTestWithLibs(boolean shouldFlushOutputDirectory, String[] testFiles, Map customOptions, String expectedCompilerLog) {
-		runConformTest(
-				shouldFlushOutputDirectory,
+		AbstractRegressionTest.runConformTest(
+				this, shouldFlushOutputDirectory,
 				testFiles,
 				this.LIBS,
 				customOptions,
@@ -217,8 +217,8 @@ public abstract class AbstractNullAnnotationTest extends AbstractComparableTest 
 	void runWarningTestWithLibs(boolean shouldFlushOutputDirectory, String[] testFiles,
 				Map customOptions, String expectedCompilerLog, String expectedOutput)
 	{
-		runConformTest(
-				shouldFlushOutputDirectory,
+		AbstractRegressionTest.runConformTest(
+				this, shouldFlushOutputDirectory,
 				testFiles,
 				this.LIBS,
 				customOptions,
@@ -228,8 +228,8 @@ public abstract class AbstractNullAnnotationTest extends AbstractComparableTest 
 				JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
 	}
 	void runConformTest(String[] testFiles, Map customOptions, String expectedOutputString) {
-		runConformTest(
-				testFiles,
+		AbstractRegressionTest.runConformTest(
+				this, testFiles,
 				expectedOutputString,
 				null /*classLibraries*/,
 				true /*shouldFlushOutputDirectory*/,

@@ -89,8 +89,8 @@ public void test001() {
 public void test002() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportParameterAssignment, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"    public void test() {\n" +
@@ -115,8 +115,8 @@ public void test002() {
 public void test003() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportParameterAssignment, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"    public void test() {\n" +
@@ -141,8 +141,8 @@ public void test003() {
 public void test004() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportParameterAssignment, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"    public void test() {\n" +
@@ -167,8 +167,8 @@ public void test004() {
 public void test005() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportParameterAssignment, CompilerOptions.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"    public void test() {\n" +
@@ -194,8 +194,8 @@ public void test005() {
 public void test006() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -238,8 +238,8 @@ public void test007() {
 	if (this.complianceLevel == ClassFileConstants.JDK1_5) {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.WARNING);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"    @SuppressWarnings(\"fallthrough\")\n" +
@@ -272,8 +272,8 @@ public void test007() {
 public void test008() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -310,8 +310,8 @@ public void test008() {
 public void test009() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"    public void test(int p, boolean b) {\n" +
@@ -340,8 +340,8 @@ public void test009() {
 public void test010() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -376,8 +376,8 @@ public void test011() {
 	if (this.complianceLevel == ClassFileConstants.JDK1_5) {
 		Map options = getCompilerOptions();
 		options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.WARNING);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"public class X {\n" +
 				"    @SuppressWarnings(\"all\")\n" +
@@ -408,8 +408,8 @@ public void test011() {
 public void _test012() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"    public void test(int p) {\n" +
@@ -433,8 +433,8 @@ public void _test012() {
 public void _test013() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"    public void test(int p) {\n" +
@@ -458,8 +458,8 @@ public void _test013() {
 public void test014() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -495,8 +495,8 @@ public void test014() {
 public void test015() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -532,8 +532,8 @@ public void test015() {
 public void test016() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -569,8 +569,8 @@ public void test016() {
 public void _test017() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"    public void test(int p) {\n" +
@@ -594,8 +594,8 @@ public void _test017() {
 public void _test018() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"    public void test(int p) {\n" +
@@ -619,8 +619,8 @@ public void _test018() {
 public void test019() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportFallthroughCase, CompilerOptions.ERROR);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -691,8 +691,8 @@ public void test022() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportEmptyStatement, CompilerOptions.ERROR);
 	options.put(CompilerOptions.OPTION_ReportDeadCode, CompilerOptions.IGNORE);
-	runNegativeTest(
-		// test directory preparation
+	AbstractRegressionTest.runNegativeTest(
+		this, // test directory preparation
 		true /* flush output directory */,
 		new String[] { /* test files */
 			"X.java",
@@ -723,8 +723,8 @@ public void test022() {
 		JavacTestOptions.Excuse.EclipseWarningConfiguredAsError /* javac test options */);
 }
 public void test023() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	public static void main(String[] args) {\n" +
@@ -1422,8 +1422,8 @@ public void test045() {
 }
 // for and definite assignment
 public void test046() {
-	this.runConformTest(
-		true,
+	AbstractRegressionTest.runConformTest(
+		this, true,
 		new String[] {
 			"X.java",
 			"public abstract class X {\n" +
@@ -1467,8 +1467,8 @@ public void test047() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=200158
 // contrast this with test049
 public void test048() {
-	runTest(
-		new String[] {
+	AbstractRegressionTest.runTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  private static final boolean b = false;\n" +
@@ -1506,8 +1506,8 @@ public void test048() {
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=200158
 // variant: this one passes
 public void test049() {
-	runTest(
-		new String[] {
+	AbstractRegressionTest.runTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"  private static final boolean b = false;\n" +
@@ -2042,8 +2042,8 @@ public void test062() {
 public void test063() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedObjectAllocation, CompilerOptions.ERROR);
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"   boolean bar() { return false; } \n" +
@@ -2068,8 +2068,8 @@ public void test063() {
 public void test064() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedObjectAllocation, CompilerOptions.ERROR);
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"   boolean bar() { return false; } \n" +
@@ -2095,8 +2095,8 @@ public void test065() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedObjectAllocation, CompilerOptions.WARNING);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"   boolean bar() { return false; }\n" +
@@ -2137,8 +2137,8 @@ public void test066() {
 public void test067() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedObjectAllocation, CompilerOptions.ERROR);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"   boolean bar() { return false; }\n" +
@@ -2161,8 +2161,8 @@ public void test067() {
 public void test068() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedObjectAllocation, CompilerOptions.ERROR);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"   boolean bar() { return false; }\n" +
@@ -2184,8 +2184,8 @@ public void test068() {
 public void test069() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedObjectAllocation, CompilerOptions.ERROR);
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"   boolean bar() { return false; } \n" +
@@ -2209,8 +2209,8 @@ public void test069() {
 public void test070() {
 	Map compilerOptions = getCompilerOptions();
 	compilerOptions.put(CompilerOptions.OPTION_ReportUnusedObjectAllocation, CompilerOptions.ERROR);
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public final class X {\n" +
 			"    private X (){\n" +
@@ -2383,8 +2383,8 @@ public void testBug338234d() {
 public void testCloseable1() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.WARNING);
-	this.runNegativeTest(
-			new String[] {
+	AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"import java.io.File;\n" +
 				"import java.io.FileReader;\n" +
@@ -2411,8 +2411,8 @@ public void testCloseable1() {
 public void testCloseable2() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportUnclosedCloseable, CompilerOptions.WARNING);
-	this.runConformTest(
-			new String[] {
+	AbstractRegressionTest.runConformTest(
+			this, new String[] {
 				"X.java",
 				"import java.io.File;\n" +
 				"import java.io.FileReader;\n" +
@@ -2795,8 +2795,8 @@ public void testBug506315() {
 			"----------\n");
 }
 public void _testBug533435() {
-	this.runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"public interface X {}\n"
 		}, new ASTVisitor() {
@@ -2910,7 +2910,7 @@ public void testBug537804_comment5() {
 public void testBug548318_001() {
 	if (!checkSwitchAllowedLevel())
 		return;
-	setPresetPreviewOptions();
+	AbstractRegressionTest.setPresetPreviewOptions(this);
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 11)\n" +
@@ -2949,8 +2949,8 @@ public void testBug548318_001() {
 			"	}\n" +
 			"}\n",
 		};
-	this.runNegativeTest(
-			testFiles,
+	AbstractRegressionTest.runNegativeTest(
+			this, testFiles,
 			expectedProblemLog,
 			null,
 			true);
@@ -2959,7 +2959,7 @@ public void testBug548318_001() {
 public void testBug548318_002() {
 	if (!checkSwitchAllowedLevel())
 		return;
-	setPresetPreviewOptions();
+	AbstractRegressionTest.setPresetPreviewOptions(this);
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 5)\n" +
@@ -2998,8 +2998,8 @@ public void testBug548318_002() {
 			"	}\n" +
 			"}\n",
 		};
-	this.runNegativeTest(
-			testFiles,
+	AbstractRegressionTest.runNegativeTest(
+			this, testFiles,
 			expectedProblemLog,
 			null,
 			true);
@@ -3010,7 +3010,7 @@ public void testBug548318_002() {
 public void testBug548318_003() {
 	if (!checkSwitchAllowedLevel())
 		return;
-	setPresetPreviewOptions();
+	AbstractRegressionTest.setPresetPreviewOptions(this);
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 23)\n" +
@@ -3050,8 +3050,8 @@ public void testBug548318_003() {
 			"	}\n" +
 			"}\n",
 	};
-	this.runNegativeTest(
-			testFiles,
+	AbstractRegressionTest.runNegativeTest(
+			this, testFiles,
 			expectedProblemLog,
 			null,
 			true);
@@ -3059,7 +3059,7 @@ public void testBug548318_003() {
 public void testBug548318_004() {
 	if (!checkSwitchAllowedLevel())
 		return;
-	setPresetPreviewOptions();
+	AbstractRegressionTest.setPresetPreviewOptions(this);
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 7)\n" +
@@ -3114,8 +3114,8 @@ public void testBug548318_004() {
 			"	}\n" +
 			"}\n",
 	};
-	this.runNegativeTest(
-			testFiles,
+	AbstractRegressionTest.runNegativeTest(
+			this, testFiles,
 			expectedProblemLog,
 			null,
 			true);
@@ -3123,7 +3123,7 @@ public void testBug548318_004() {
 public void testBug548318_005() {
 	if (!checkSwitchAllowedLevel())
 		return;
-	setPresetPreviewOptions();
+	AbstractRegressionTest.setPresetPreviewOptions(this);
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 11)\n" +
@@ -3172,8 +3172,8 @@ public void testBug548318_005() {
 			"	}\n" +
 			"}\n",
 	};
-	this.runNegativeTest(
-			testFiles,
+	AbstractRegressionTest.runNegativeTest(
+			this, testFiles,
 			expectedProblemLog,
 			null,
 			true);
@@ -3189,7 +3189,7 @@ public void testBug548318_005() {
 public void testBug548318_006() {
 	if (!checkSwitchAllowedLevel())
 		return;
-	setPresetPreviewOptions();
+	AbstractRegressionTest.setPresetPreviewOptions(this);
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 22)\n" +
@@ -3228,8 +3228,8 @@ public void testBug548318_006() {
 			"	}\n" +
 			"}\n",
 	};
-	this.runNegativeTest(
-			testFiles,
+	AbstractRegressionTest.runNegativeTest(
+			this, testFiles,
 			expectedProblemLog,
 			null,
 			true);
@@ -3247,7 +3247,7 @@ public void testBug548318_006() {
 public void testBug548318_007() {
 	if (!checkSwitchAllowedLevel())
 		return;
-	setPresetPreviewOptions();
+	AbstractRegressionTest.setPresetPreviewOptions(this);
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 18)\n" +
@@ -3291,8 +3291,8 @@ public void testBug548318_007() {
 			"	}\n" +
 			"}\n",
 	};
-	this.runNegativeTest(
-			testFiles,
+	AbstractRegressionTest.runNegativeTest(
+			this, testFiles,
 			expectedProblemLog,
 			null,
 			true);
@@ -3343,8 +3343,8 @@ public void testBug548318_008() {
 			"	}\n" +
 			"}\n",
 	};
-	this.runNegativeTest(
-			testFiles,
+	AbstractRegressionTest.runNegativeTest(
+			this, testFiles,
 			expectedProblemLog,
 			null,
 			true);
@@ -3357,7 +3357,7 @@ public void testBug548318_008() {
 public void testBug548318_009() {
 	if (!checkSwitchAllowedLevel())
 		return;
-	setPresetPreviewOptions();
+	AbstractRegressionTest.setPresetPreviewOptions(this);
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 4)\n" +
@@ -3401,8 +3401,8 @@ public void testBug548318_009() {
 			"	}\n" +
 			"}\n",
 	};
-	this.runNegativeTest(
-			testFiles,
+	AbstractRegressionTest.runNegativeTest(
+			this, testFiles,
 			expectedProblemLog,
 			null,
 			true);
@@ -3416,7 +3416,7 @@ public void testBug548318_009() {
 public void testBug548318_010() {
 	if (!checkSwitchAllowedLevel())
 		return;
-	setPresetPreviewOptions();
+	AbstractRegressionTest.setPresetPreviewOptions(this);
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 22)\n" +
@@ -3455,8 +3455,8 @@ public void testBug548318_010() {
 			"	}\n" +
 			"}\n",
 	};
-	this.runNegativeTest(
-			testFiles,
+	AbstractRegressionTest.runNegativeTest(
+			this, testFiles,
 			expectedProblemLog,
 			null,
 			true);
@@ -3470,7 +3470,7 @@ public void testBug548318_010() {
 public void testBug548318_011() {
 	if (!checkSwitchAllowedLevel())
 		return;
-	setPresetPreviewOptions();
+	AbstractRegressionTest.setPresetPreviewOptions(this);
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 6)\n" +
@@ -3514,8 +3514,8 @@ public void testBug548318_011() {
 			"	}\n" +
 			"}\n",
 	};
-	this.runNegativeTest(
-			testFiles,
+	AbstractRegressionTest.runNegativeTest(
+			this, testFiles,
 			expectedProblemLog,
 			null,
 			true);
@@ -3530,7 +3530,7 @@ public void testBug548318_011() {
 public void testBug548318_012() {
 	if (!checkSwitchAllowedLevel())
 		return;
-	setPresetPreviewOptions();
+	AbstractRegressionTest.setPresetPreviewOptions(this);
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 22)\n" +
@@ -3569,8 +3569,8 @@ public void testBug548318_012() {
 			"	}\n" +
 			"}\n",
 	};
-	this.runNegativeTest(
-			testFiles,
+	AbstractRegressionTest.runNegativeTest(
+			this, testFiles,
 			expectedProblemLog,
 			null,
 			true);
@@ -3585,7 +3585,7 @@ public void testBug548318_012() {
 public void testBug548318_012b() {
 	if (!checkSwitchAllowedLevel())
 		return;
-	setPresetPreviewOptions();
+	AbstractRegressionTest.setPresetPreviewOptions(this);
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 15)\n" +
@@ -3626,8 +3626,8 @@ public void testBug548318_012b() {
 			"	}\n" +
 			"}\n",
 	};
-	this.runNegativeTest(
-			testFiles,
+	AbstractRegressionTest.runNegativeTest(
+			this, testFiles,
 			expectedProblemLog,
 			null,
 			true);
@@ -3642,7 +3642,7 @@ public void testBug548318_012b() {
 public void testBug548318_013() {
 	if (!checkSwitchAllowedLevel())
 		return;
-	setPresetPreviewOptions();
+	AbstractRegressionTest.setPresetPreviewOptions(this);
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 9)\n" +
@@ -3686,8 +3686,8 @@ public void testBug548318_013() {
 			"	}\n" +
 			"}\n",
 	};
-	this.runNegativeTest(
-			testFiles,
+	AbstractRegressionTest.runNegativeTest(
+			this, testFiles,
 			expectedProblemLog,
 			null,
 			true);
@@ -3711,7 +3711,7 @@ public void testBug548318_013() {
 public void testBug548318_014() {
 	if (!checkSwitchAllowedLevel())
 		return;
-	setPresetPreviewOptions();
+	AbstractRegressionTest.setPresetPreviewOptions(this);
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 23)\n" +
@@ -3755,8 +3755,8 @@ public void testBug548318_014() {
 			"	}\n" +
 			"}\n",
 	};
-	this.runNegativeTest(
-			testFiles,
+	AbstractRegressionTest.runNegativeTest(
+			this, testFiles,
 			expectedProblemLog,
 			null,
 			true);
@@ -3782,7 +3782,7 @@ public void testBug548318_014() {
 public void testBug548318_015() {
 	if (!checkSwitchAllowedLevel())
 		return;
-	setPresetPreviewOptions();
+	AbstractRegressionTest.setPresetPreviewOptions(this);
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 17)\n" +
@@ -3829,8 +3829,8 @@ public void testBug548318_015() {
 			"	}\n" +
 			"}\n",
 	};
-	this.runNegativeTest(
-			testFiles,
+	AbstractRegressionTest.runNegativeTest(
+			this, testFiles,
 			expectedProblemLog,
 			null,
 			true);
@@ -3844,7 +3844,7 @@ public void testBug548318_015() {
 public void testBug548318_016() {
 	if (!checkSwitchAllowedLevel())
 		return;
-	setPresetPreviewOptions();
+	AbstractRegressionTest.setPresetPreviewOptions(this);
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 14)\n" +
@@ -3879,8 +3879,8 @@ public void testBug548318_016() {
 			"	}\n" +
 			"}\n",
 	};
-	this.runNegativeTest(
-			testFiles,
+	AbstractRegressionTest.runNegativeTest(
+			this, testFiles,
 			expectedProblemLog,
 			null,
 			true);
@@ -3895,7 +3895,7 @@ public void testBug548318_016() {
 public void testBug548318_017() {
 	if (!checkSwitchAllowedLevel())
 		return;
-	setPresetPreviewOptions();
+	AbstractRegressionTest.setPresetPreviewOptions(this);
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 6)\n" +
@@ -3940,8 +3940,8 @@ public void testBug548318_017() {
 			"	}\n" +
 			"}\n",
 	};
-	this.runNegativeTest(
-			testFiles,
+	AbstractRegressionTest.runNegativeTest(
+			this, testFiles,
 			expectedProblemLog,
 			null,
 			true);
@@ -3955,7 +3955,7 @@ public void testBug548318_017() {
 public void testBug548318_018() {
 	if (!checkSwitchAllowedLevel())
 		return;
-	setPresetPreviewOptions();
+	AbstractRegressionTest.setPresetPreviewOptions(this);
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 20)\n" +
@@ -3992,8 +3992,8 @@ public void testBug548318_018() {
 			"	}\n" +
 			"}\n",
 	};
-	this.runNegativeTest(
-			testFiles,
+	AbstractRegressionTest.runNegativeTest(
+			this, testFiles,
 			expectedProblemLog,
 			null,
 			true);
@@ -4007,7 +4007,7 @@ public void testBug548318_018() {
 public void testBug548318_019() {
 	if (!checkSwitchAllowedLevel())
 		return;
-	setPresetPreviewOptions();
+	AbstractRegressionTest.setPresetPreviewOptions(this);
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 15)\n" +
@@ -4048,8 +4048,8 @@ public void testBug548318_019() {
 			"	}\n" +
 			"}\n",
 	};
-	this.runNegativeTest(
-			testFiles,
+	AbstractRegressionTest.runNegativeTest(
+			this, testFiles,
 			expectedProblemLog,
 			null,
 			true);
@@ -4062,7 +4062,7 @@ public void testBug548318_019() {
 public void testBug548318_020() {
 	if (!checkSwitchAllowedLevel())
 		return;
-	setPresetPreviewOptions();
+	AbstractRegressionTest.setPresetPreviewOptions(this);
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 19)\n" +
@@ -4098,8 +4098,8 @@ public void testBug548318_020() {
 			"	}\n" +
 			"}\n",
 	};
-	this.runNegativeTest(
-			testFiles,
+	AbstractRegressionTest.runNegativeTest(
+			this, testFiles,
 			expectedProblemLog,
 			null,
 			true);
@@ -4112,7 +4112,7 @@ public void testBug548318_020() {
 public void testBug548318_021() {
 	if (!checkSwitchAllowedLevel())
 		return;
-	setPresetPreviewOptions();
+	AbstractRegressionTest.setPresetPreviewOptions(this);
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 4)\n" +
@@ -4153,8 +4153,8 @@ public void testBug548318_021() {
 			"	}\n" +
 			"}\n",
 	};
-	this.runNegativeTest(
-			testFiles,
+	AbstractRegressionTest.runNegativeTest(
+			this, testFiles,
 			expectedProblemLog,
 			null,
 			true);
@@ -4171,7 +4171,7 @@ public void testBug548318_021() {
 public void testBug548318_022() {
 	if (!checkSwitchAllowedLevel())
 		return;
-	setPresetPreviewOptions();
+	AbstractRegressionTest.setPresetPreviewOptions(this);
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 19)\n" +
@@ -4207,8 +4207,8 @@ public void testBug548318_022() {
 			"	}\n" +
 			"}\n",
 	};
-	this.runNegativeTest(
-			testFiles,
+	AbstractRegressionTest.runNegativeTest(
+			this, testFiles,
 			expectedProblemLog,
 			null,
 			true);
@@ -4225,7 +4225,7 @@ public void testBug548318_022() {
 public void testBug548318_023() {
 	if (!checkSwitchAllowedLevel())
 		return;
-	setPresetPreviewOptions();
+	AbstractRegressionTest.setPresetPreviewOptions(this);
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 6)\n" +
@@ -4266,8 +4266,8 @@ public void testBug548318_023() {
 			"	}\n" +
 			"}\n",
 	};
-	this.runNegativeTest(
-			testFiles,
+	AbstractRegressionTest.runNegativeTest(
+			this, testFiles,
 			expectedProblemLog,
 			null,
 			true);
@@ -4284,7 +4284,7 @@ public void testBug548318_023() {
 public void testBug548318_024() {
 	if (!checkSwitchAllowedLevel())
 		return;
-	setPresetPreviewOptions();
+	AbstractRegressionTest.setPresetPreviewOptions(this);
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 9)\n" +
@@ -4325,8 +4325,8 @@ public void testBug548318_024() {
 			"	}\n" +
 			"}\n",
 	};
-	this.runNegativeTest(
-			testFiles,
+	AbstractRegressionTest.runNegativeTest(
+			this, testFiles,
 			expectedProblemLog,
 			null,
 			true);
@@ -4340,7 +4340,7 @@ public void testBug548318_024() {
 public void testBug548318_025() {
 	if (!checkSwitchAllowedLevel())
 		return;
-	setPresetPreviewOptions();
+	AbstractRegressionTest.setPresetPreviewOptions(this);
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 20)\n" +
@@ -4382,8 +4382,8 @@ public void testBug548318_025() {
 			"	}\n" +
 			"}\n",
 	};
-	this.runNegativeTest(
-			testFiles,
+	AbstractRegressionTest.runNegativeTest(
+			this, testFiles,
 			expectedProblemLog,
 			null,
 			true);
@@ -4397,7 +4397,7 @@ public void testBug548318_025() {
 public void testBug548318_026() {
 	if (!checkSwitchAllowedLevel())
 		return;
-	setPresetPreviewOptions();
+	AbstractRegressionTest.setPresetPreviewOptions(this);
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 16)\n" +
@@ -4444,8 +4444,8 @@ public void testBug548318_026() {
 			"	}\n" +
 			"}\n",
 	};
-	this.runNegativeTest(
-			testFiles,
+	AbstractRegressionTest.runNegativeTest(
+			this, testFiles,
 			expectedProblemLog,
 			null,
 			true);
@@ -4459,7 +4459,7 @@ public void testBug548318_026() {
 public void testBug548318_027() {
 	if (!checkSwitchAllowedLevel())
 		return;
-	setPresetPreviewOptions();
+	AbstractRegressionTest.setPresetPreviewOptions(this);
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 20)\n" +
@@ -4501,8 +4501,8 @@ public void testBug548318_027() {
 			"	}\n" +
 			"}\n",
 	};
-	this.runNegativeTest(
-			testFiles,
+	AbstractRegressionTest.runNegativeTest(
+			this, testFiles,
 			expectedProblemLog,
 			null,
 			true);
@@ -4516,7 +4516,7 @@ public void testBug548318_027() {
 public void testBug548318_028() {
 	if (!checkSwitchAllowedLevel())
 		return;
-	setPresetPreviewOptions();
+	AbstractRegressionTest.setPresetPreviewOptions(this);
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 7)\n" +
@@ -4563,8 +4563,8 @@ public void testBug548318_028() {
 			"	}\n" +
 			"}\n",
 	};
-	this.runNegativeTest(
-			testFiles,
+	AbstractRegressionTest.runNegativeTest(
+			this, testFiles,
 			expectedProblemLog,
 			null,
 			true);
@@ -4583,7 +4583,7 @@ public void testBug548318_028() {
 public void testBug548318_029() {
 	if (!checkSwitchAllowedLevel())
 		return;
-	setPresetPreviewOptions();
+	AbstractRegressionTest.setPresetPreviewOptions(this);
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 24)\n" +
@@ -4629,8 +4629,8 @@ public void testBug548318_029() {
 			"	}\n" +
 			"}\n",
 	};
-	this.runNegativeTest(
-			testFiles,
+	AbstractRegressionTest.runNegativeTest(
+			this, testFiles,
 			expectedProblemLog,
 			null,
 			true);
@@ -4649,7 +4649,7 @@ public void testBug548318_029() {
 public void testBug548318_030() {
 	if (!checkSwitchAllowedLevel())
 		return;
-	setPresetPreviewOptions();
+	AbstractRegressionTest.setPresetPreviewOptions(this);
 	String expectedProblemLog =
 			"----------\n" +
 			"1. ERROR in X.java (at line 20)\n" +
@@ -4700,8 +4700,8 @@ public void testBug548318_030() {
 			"	}\n" +
 			"}\n",
 	};
-	this.runNegativeTest(
-			testFiles,
+	AbstractRegressionTest.runNegativeTest(
+			this, testFiles,
 			expectedProblemLog,
 			null,
 			true);

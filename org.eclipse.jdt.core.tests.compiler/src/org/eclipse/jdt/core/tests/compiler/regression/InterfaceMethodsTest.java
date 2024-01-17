@@ -415,8 +415,8 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	public void testModifiers7() {
 		Map options = getCompilerOptions();
 		options.put(JavaCore.COMPILER_PB_UNDOCUMENTED_EMPTY_BLOCK, JavaCore.ERROR);
-		runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"I.java",
 				"public interface I {\n" +
 				"    default void foo();\n" +
@@ -1240,7 +1240,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"    0  aload_0 [this]\n" +
 				"    1  invokespecial java.util.List.spliterator() : java.util.Spliterator [17]\n" +
 				"    4  areturn\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "OrderedSet.class", "OrderedSet", expectedOutput);
+		AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "OrderedSet.class", "OrderedSet", expectedOutput);
 	}
 
 	// some illegal cases
@@ -1609,7 +1609,7 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 				"      Local variable table:\n" +
 				"        [pc: 0, pc: 19] local: args index: 0 type: java.lang.String[]\n" +
 				"        [pc: 8, pc: 19] local: c index: 1 type: C\n";
-		checkDisassembledClassFile(OUTPUT_DIR + File.separator + "C.class", "C", expectedOutput);
+		AbstractRegressionTest.checkDisassembledClassFile(this, OUTPUT_DIR + File.separator + "C.class", "C", expectedOutput);
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=399780
 	// Test invocation of static methods with different contexts - negative tests
@@ -1917,8 +1917,8 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 		Map compilerOptions = getCompilerOptions();
 		compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBeStatic, CompilerOptions.ERROR);
 		compilerOptions.put(CompilerOptions.OPTION_ReportMethodCanBePotentiallyStatic, CompilerOptions.ERROR);
-		this.runNegativeTest(
-			new String[] {
+		AbstractRegressionTest.runNegativeTest(
+			this, new String[] {
 				"X.java",
 				"interface X {\n" +
 				"	default int foo() {\n" +
@@ -2898,8 +2898,8 @@ public class InterfaceMethodsTest extends AbstractComparableTest {
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=437522, [1.8][compiler] Missing compile error in Java 8 mode for Interface.super.field access
 	// Example JLS: 15.11.2-1.
 	public void testBug437522a() throws Exception {
-		runConformTest(
-			true,
+		AbstractRegressionTest.runConformTest(
+			this, true,
 			new String[] {
 				"X.java",
 				"interface I  { int x = 0; }\n" +

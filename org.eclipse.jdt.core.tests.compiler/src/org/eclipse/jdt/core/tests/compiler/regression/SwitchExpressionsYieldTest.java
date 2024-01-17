@@ -56,7 +56,7 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 	}
 	@Override
 	protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
-		runNegativeTest(testFiles, expectedCompilerLog, JavacTestOptions.forRelease(JavaCore.VERSION_14));
+		AbstractRegressionTest.runNegativeTest(this, testFiles, expectedCompilerLog, JavacTestOptions.forRelease(JavaCore.VERSION_14));
 	}
 	protected void runWarningTest(String[] testFiles, String expectedCompilerLog) {
 		runWarningTest(testFiles, expectedCompilerLog, null);
@@ -448,8 +448,8 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 					"	^\n" +
 					"Preview features enabled at an invalid source release level "+CompilerOptions.VERSION_11+", preview can be enabled only at source level "+AbstractRegressionTest.PREVIEW_ALLOWED_LEVEL+"\n" +
 					"----------\n";
-			this.runNegativeTest(
-					testFiles,
+			AbstractRegressionTest.runNegativeTest(
+					this, testFiles,
 					expectedProblemLog,
 					null,
 					true,
@@ -3309,8 +3309,8 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	^^^^^^^\n" +
 				"Arrow in case statement supported from Java 14 onwards only\n" +
 				"----------\n";
-		this.runNegativeTest(
-				testFiles,
+		AbstractRegressionTest.runNegativeTest(
+				this, testFiles,
 				expectedProblemLog,
 				null,
 				true,
@@ -3347,8 +3347,8 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	^^^^^^^\n" +
 				"Arrow in case statement supported from Java 14 onwards only\n" +
 				"----------\n";
-		this.runNegativeTest(
-				testFiles,
+		AbstractRegressionTest.runNegativeTest(
+				this, testFiles,
 				expectedProblemLog,
 				null,
 				true,
@@ -3380,8 +3380,8 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				"	^^^^^^^^^\n" +
 				"Multi-constant case labels supported from Java 14 onwards only\n" +
 				"----------\n";
-		this.runNegativeTest(
-				testFiles,
+		AbstractRegressionTest.runNegativeTest(
+				this, testFiles,
 				expectedProblemLog,
 				null,
 				true,

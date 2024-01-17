@@ -82,8 +82,8 @@ public void test002() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=101476
 public void test003() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X implements java.io.Serializable {\n" +
 			"	private void writeObject(java.io.ObjectOutputStream stream) throws java.io.IOException {}\n" +
@@ -100,8 +100,8 @@ public void test003() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=101476
 public void test004() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X implements java.io.Serializable {\n" +
 			"	private void readObject(java.io.ObjectInputStream stream) throws java.io.IOException {}\n" +
@@ -118,8 +118,8 @@ public void test004() {
 }
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=101476
 public void test005() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X implements java.io.Serializable {\n" +
 			"}"
@@ -149,8 +149,8 @@ public void test006() {
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=116733
 //https://bugs.eclipse.org/bugs/show_bug.cgi?id=94352
 public void test007() {
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"abstract class A implements java.io.Serializable {}\n" +
 			"public class X extends A {}\n"
@@ -218,8 +218,8 @@ public void _test010() {
 public void test011() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER, JavaCore.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	private static final long serialVersionUID = 1L;\n" +
@@ -241,8 +241,8 @@ public void test012() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER, JavaCore.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X<T> {\n" +
 			"	private static final long serialVersionUID = 1L;\n" +
@@ -264,8 +264,8 @@ public void test013() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER, JavaCore.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X<T> {\n" +
 			"	private static final long serialPersistentFields = 1L;\n" +
@@ -286,8 +286,8 @@ public void test013() {
 public void test014() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER, JavaCore.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	private static final long serialPersistentFields = 1L;\n" +
@@ -309,8 +309,8 @@ public void test015() {
 	if (this.complianceLevel < ClassFileConstants.JDK1_5) return;
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER, JavaCore.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"import java.io.ObjectStreamField;\n" +
 			"public class X<T> implements java.io.Serializable {\n" +
@@ -334,8 +334,8 @@ public void test015() {
 public void test016() {
 	Map options = getCompilerOptions();
 	options.put(JavaCore.COMPILER_PB_UNUSED_PRIVATE_MEMBER, JavaCore.ERROR);
-	this.runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"import java.io.ObjectStreamField;\n" +
 			"public class X implements java.io.Serializable {\n" +

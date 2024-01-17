@@ -357,8 +357,8 @@ public void testBug45669() {
  */
 public void testBug45669a() {
 	this.reportMissingJavadocTags = CompilerOptions.ERROR;
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	/**\n" +
@@ -416,8 +416,8 @@ public void testBug45958() {
 	);
 }
 public void testBug45958a() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 		   "X.java",
 	   		"public class X {\n" +
 	   		"	int x;\n" +
@@ -441,8 +441,8 @@ public void testBug45958a() {
 	);
 }
 public void testBug45958b() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 		   "X.java",
 	   		"public class X {\n" +
 	   		"	int x;\n" +
@@ -523,8 +523,8 @@ public void testBug46901() {
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=47215">47215</a>
  */
 public void testBug47215() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"	/**\n" +
 			"	 * @see X\n" +
@@ -676,8 +676,8 @@ public void testBug47339a() {
 }
 public void testBug47339b() {
 	this.reportMissingJavadocTags = CompilerOptions.ERROR;
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"/** */\n" +
 			"public class X implements Comparable {\n" +
@@ -712,8 +712,8 @@ public void testBug47339b() {
 }
 public void testBug47339c() {
 	this.reportMissingJavadocTags = CompilerOptions.ERROR;
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"/** */\n" +
 			"public class X extends RuntimeException {\n" +
@@ -740,8 +740,8 @@ public void testBug47339c() {
  */
 public void testBug48064() {
 	this.reportMissingJavadocTags = CompilerOptions.ERROR;
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	public X(String str) {}\n" +
@@ -770,8 +770,8 @@ public void testBug48064() {
 }
 public void testBug48064a() {
 	this.reportMissingJavadocTags = CompilerOptions.ERROR;
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	public void foo(String str) {}\n" +
@@ -883,8 +883,8 @@ public void testBug45782() {
 }
 public void testBug45782a() {
 	this.reportMissingJavadocTags = CompilerOptions.ERROR;
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 				"	/**\n" +
@@ -948,8 +948,8 @@ public void testBug49260() {
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=48385">48385</a>
  */
 public void testBug48385() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"import java.util.Vector;\n" +
 				"public class X {\n" +
@@ -995,8 +995,8 @@ public void testBug48385() {
 }
 
 public void testBug48385And49620() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"import java.util.Vector;\n" +
 				"public class X {\n" +
@@ -1058,8 +1058,8 @@ public void testBug48385And49620() {
 	);
 }
 public void testBug48385a() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 				"	/**\n" +
@@ -1125,8 +1125,8 @@ public void testBug49491() {
 				"}\n" });
 }
 public void testBug49491a() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public final class X {\n" +
 				"	/**\n" +
@@ -1184,8 +1184,8 @@ public void testBug48376() {
 	 });
 }
 public void testBug48376a() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"/**\n" +
 				"	* @see <a href=\"http:/www.ibm.com\">IBM Home Page\n" +
@@ -1289,8 +1289,8 @@ public void testBug50695() {
 		 });
 }
 public void testBug50695b() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 				"	/**\n" +
@@ -1365,8 +1365,8 @@ public void testBug52216a() {
 	 });
 }
 public void testBug52216b() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"/**\n" +
 				"* @see <a href=\"http://www.ietf.org/rfc/rfc2045.txt\">RFC 2045 - Section 6.8</a>		   \n" +
@@ -1429,8 +1429,8 @@ public void testBug51529a() {
 }
 public void testBug51529b() {
 	this.docCommentSupport = CompilerOptions.DISABLED;
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"import java.util.Vector;\n" +
 			"public class X {\n" +
@@ -1521,8 +1521,8 @@ public void testBug51911c() {
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=53279">53279</a>
  */
 public void testBug53279() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 				"	/**\n" +
@@ -1542,8 +1542,8 @@ public void testBug53279() {
 	);
 }
 public void testBug53279a() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 				"	/**\n" +
@@ -1564,8 +1564,8 @@ public void testBug53279a() {
 	);
 }
 public void testBug53279b() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 				"	/**\n" +
@@ -1590,8 +1590,8 @@ public void testBug53279b() {
 	);
 }
 public void testBug53279c() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 				"	/**\n" +
@@ -1622,8 +1622,8 @@ public void testBug53279c() {
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=53290">53290</a>
  */
 public void testBug53290() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 				"	/**\n" +
@@ -1656,8 +1656,8 @@ public void testBug53290() {
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=62812">62812</a>
  */
 public void testBug62812() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"Test.java",
 			"/**\n" +
 				" * @see Object#clone())\n" +
@@ -1693,8 +1693,8 @@ public void testBug62812() {
 	);
 }
 public void testBug62812a() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"Test.java",
 			"/**\n" +
 				" * {@link Object#clone())}\n" +
@@ -2116,8 +2116,8 @@ public void testBug65180f() {
  */
 public void testBug65253() {
 	this.reportMissingJavadocTags = CompilerOptions.ERROR;
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"Test.java",
 			"/**\n" +
 				" * Comment \n" +
@@ -2218,8 +2218,8 @@ public void testBug66551c() {
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=66573">66573</a>
  */
 public void testBug66573() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"Test.java",
 			"public class Test {\n" +
 				"    /**\n" +
@@ -2262,8 +2262,8 @@ public void testBug68017conform() {
 	);
 }
 public void testBug68017negative() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 				"	/**@return*/\n" +
@@ -2304,8 +2304,8 @@ public void testBug68017negative() {
 }
 // Javadoc issue a warning on following tests
 public void testBug68017javadocWarning1() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 				"	/**\n" +
@@ -2347,8 +2347,8 @@ public void testBug68017javadocWarning2() {
 	);
 }
 public void testBug68017javadocWarning3() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 				"	/**\n" +
@@ -2404,8 +2404,8 @@ public void testBug68025conform() {
 	);
 }
 public void testBug68025negative() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 				"	public int field;\n" +
@@ -2500,8 +2500,8 @@ public void testBug68726conform2() {
 	);
 }
 public void testBug68726negative1() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 				"	/**\n" +
@@ -2588,8 +2588,8 @@ public void testBug68726negative1() {
 	);
 }
 public void testBug68726negative2() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"/**\n" +
 				"	* @see <a href=\"http:/www.ibm.com\" target=\"_top\">IBM Home Page\n" +
@@ -2671,8 +2671,8 @@ public void testBug69272classValid() {
 	);
 }
 public void testBug69272classInvalid() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 				"	/**@see Object* */\n" +
@@ -2725,8 +2725,8 @@ public void testBug69272fieldValid() {
 	);
 }
 public void testBug69272fieldInvalid() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 				"	int field;\n" +
@@ -2779,8 +2779,8 @@ public void testBug69272methodValid() {
 	);
 }
 public void testBug69272methodInvalid() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 				"	/**@see Object#wait()* */\n" +
@@ -2837,8 +2837,8 @@ public void testBug69275conform() {
 	);
 }
 public void testBug69275negative() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 				"	/**@see <a href=\"http://www.eclipse.org\">text</a>* */\n" +
@@ -2887,8 +2887,8 @@ public void testBug69302conform1() {
 	);
 }
 public void testBug69302negative1() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 				"	/**\n" +
@@ -2916,8 +2916,8 @@ public void testBug69302negative1() {
 	);
 }
 public void testBug69302negative2() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 				"	/**@see Unknown blabla <a href=\"http://www.eclipse.org\">text</a>*/\n" +
@@ -2997,7 +2997,7 @@ public void testBug70892b() {
 	if (this.complianceLevel <= ClassFileConstants.JDK1_4) {
 		runConformTest(testFiles);
 	} else {
-		runNegativeTest(testFiles,
+		AbstractRegressionTest.runNegativeTest(this, testFiles,
 			"----------\n" +
 			"1. ERROR in X.java (at line 3)\r\n" +
 			"	* {@value \"invalid\"}\r\n" +
@@ -3054,8 +3054,8 @@ public void testBug73348conform() {
 	);
 }
 public void testBug73348negative() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 				"	/**\n" +
@@ -3117,8 +3117,8 @@ public void testBug73352a() {
 	};
 	this.reportInvalidJavadoc = CompilerOptions.WARNING;
 	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
-	runConformTest(
-			true,
+	AbstractRegressionTest.runConformTest(
+			this, true,
 			units,
 			"----------\n" +
 			"1. WARNING in X.java (at line 2)\n" +
@@ -3249,8 +3249,8 @@ public void testBug73352c() {
 	};
 	this.reportInvalidJavadoc = CompilerOptions.WARNING;
 	this.reportMissingJavadocDescription = CompilerOptions.RETURN_TAG;
-	runConformTest(
-		true,
+	AbstractRegressionTest.runConformTest(
+		this, true,
 		units,
 		"----------\n" +
 		"1. WARNING in X.java (at line 9)\n" +
@@ -3305,8 +3305,8 @@ public void testBug73352d() {
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=73479">73479</a>
  */
 public void testBug73479() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 				"	/**\n" +
@@ -3374,8 +3374,8 @@ public void testBug74369() {
 	);
 }
 public void testBug74369deprecated() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"p/Y.java",
 			"package p;\n" +
 				"\n" +
@@ -3452,8 +3452,8 @@ public void testBug76324() {
 }
 // URL Link references
 public void testBug76324url() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 				"	/**\n" +
@@ -3554,8 +3554,8 @@ public void testBug76324url() {
 }
 // String references
 public void testBug76324string() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 		"X.java",
 		"public class X {\n" +
 		"	/**\n" +
@@ -3600,8 +3600,8 @@ public void testBug76324string() {
  * @see <a href="http://bugs.eclipse.org/bugs/show_bug.cgi?id=77510">77510</a>
  */
 public void testBug77510enabled() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"A.java",
 			"public class A {\n" +
 				"	/** \\u0009 @deprecated */\n" +
@@ -3659,8 +3659,8 @@ public void testBug77510enabled() {
 }
 public void testBug77510disabled() {
 	this.docCommentSupport = CompilerOptions.IGNORE;
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"A.java",
 			"public class A {\n" +
 				"	/** \\u0009 @deprecated */\n" +
@@ -3758,8 +3758,8 @@ public void testBug77260() {
 public void testBug77260nested() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, CompilerOptions.ENABLED);
-	runNegativeTest(
-		true,
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 			"X.java",
 			"/** @deprecated */\n" +
@@ -3847,8 +3847,8 @@ public void testBug77260nested_disabled() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, CompilerOptions.ENABLED);
 	options.put(CompilerOptions.OPTION_ReportInvalidJavadocTagsDeprecatedRef, CompilerOptions.DISABLED);
-	runConformTest(
-		new String[] {
+	AbstractRegressionTest.runConformTest(
+		this, new String[] {
 			"X.java",
 			"/** @deprecated */\n" +
 				"public class X {\n" +
@@ -3893,8 +3893,8 @@ public void testBug77260nested_disabled() {
  * Bug 77602: [javadoc] "Only consider members as visible as" is does not work for syntax error
  */
 public void testBug77602() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 				"  /**\n" +
@@ -3942,8 +3942,8 @@ public void testBug77602_Public() {
  */
 public void testBug78091() {
 	this.reportMissingJavadocTags = CompilerOptions.ERROR;
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 				"	/**\n" +
@@ -3984,8 +3984,8 @@ public void testBug78091() {
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=80910"
  */
 public void testBug80910() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"Test.java",
 			"public class Test {\n" +
 			"	int field;\n" +
@@ -4013,8 +4013,8 @@ public void testBug80910() {
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=82088"
  */
 public void testBug82088() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"Test.java",
 			"public class Test {\n" +
 			"	int field;\n" +
@@ -4085,8 +4085,8 @@ public void testBug83285b() {
 	);
 }
 public void testBug83285c() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"p/A.java",
 			"package p;\n" +
 			"class A {\n" +
@@ -4145,8 +4145,8 @@ public void testBug83285c() {
 public void testBug86769_Classes1() {
 	this.reportMissingJavadocComments = CompilerOptions.ERROR;
 	this.reportMissingJavadocCommentsVisibility = CompilerOptions.PROTECTED;
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"A.java",
 			"/**\n" +
 			" * Test bug 86769 \n" +
@@ -4215,8 +4215,8 @@ public void testBug86769_Classes1() {
 public void testBug86769_Classes2() {
 	this.reportMissingJavadocComments = CompilerOptions.ERROR;
 	this.reportMissingJavadocCommentsVisibility = CompilerOptions.DEFAULT;
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"B.java",
 			"/**\n" +
 			" * Test bug 86769\n" +
@@ -4318,8 +4318,8 @@ public void testBug86769_Classes2() {
 public void testBug86769_Field1() {
 	this.reportMissingJavadocComments = CompilerOptions.ERROR;
 	this.reportMissingJavadocCommentsVisibility = CompilerOptions.PUBLIC;
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"A.java",
 			"/**\n" +
 			" * Test bug 86769\n" +
@@ -4368,8 +4368,8 @@ public void testBug86769_Field1() {
 public void testBug86769_Fields2() {
 	this.reportMissingJavadocComments = CompilerOptions.ERROR;
 	this.reportMissingJavadocCommentsVisibility = CompilerOptions.PRIVATE;
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"B.java",
 			"/**\n" +
 			" * Test bug 86769\n" +
@@ -4515,8 +4515,8 @@ public void testBug86769_Fields2() {
 public void testBug86769_Metthods1() {
 	this.reportMissingJavadocComments = CompilerOptions.ERROR;
 	this.reportMissingJavadocCommentsVisibility = CompilerOptions.PUBLIC;
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"A.java",
 			"/**\n" +
 			" * Test bug 86769\n" +
@@ -4637,8 +4637,8 @@ public void testBug87404() {
  */
 public void testBug90302() {
 	this.reportMissingJavadocTags = CompilerOptions.ERROR;
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"/**\n" +
 			" * @see #foo(String)\n" +
@@ -4694,8 +4694,8 @@ public void testBug90302() {
 }
 public void testBug90302b() {
 	this.reportMissingJavadocTags = CompilerOptions.ERROR;
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"/** */\n" +
 			"public class X {\n" +
@@ -4784,7 +4784,7 @@ public void testBug103304a_public() {
 			"}\n"
 		};
 	if (this.complianceLevel <= ClassFileConstants.JDK1_4) {
-		runNegativeTest(units,
+		AbstractRegressionTest.runNegativeTest(this, units,
 			//boden\TestValid.java:8: warning - Tag @see: reference not found: ValidationException
 			"----------\n" +
 			"1. ERROR in boden\\TestValid.java (at line 4)\n" +
@@ -4845,7 +4845,7 @@ public void testBug103304a_private() {
 			"}\n"
 		};
 	if (this.complianceLevel <= ClassFileConstants.JDK1_4) {
-		runNegativeTest(units,
+		AbstractRegressionTest.runNegativeTest(this, units,
 			//boden\TestValid.java:8: warning - Tag @see: reference not found: ValidationException
 			//boden\TestValid.java:12: warning - Tag @see: reference not found: ValidationException#IAFAState.ValidationException(String, IAFAState)
 			"----------\n" +
@@ -4987,7 +4987,7 @@ public void testBug103304b() {
 	if (this.complianceLevel <= ClassFileConstants.JDK1_4) {
 		runNegativeTest(units, errors_14);
 	} else {
-		runNegativeTest(units, errors_50, JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+		AbstractRegressionTest.runNegativeTest(this, units, errors_50, JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 
 }
@@ -5023,8 +5023,8 @@ public void testBug103304c() {
 	);
 }
 public void testBug103304d() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"test/Test.java",
 			"package test;\n" +
 			"public interface Test {\n" +
@@ -5098,8 +5098,8 @@ public void testBug103304e() {
 	);
 }
 public void testBug103304f() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"implicit/Invalid.java",
 			"package implicit;\n" +
 			"public interface Invalid {\n" +
@@ -5202,7 +5202,7 @@ public void testBug125518a() {
 		"}\n"
 	};
 	this.reportInvalidJavadoc = CompilerOptions.WARNING;
-	runConformTest(true, units,
+	AbstractRegressionTest.runConformTest(this, true, units,
 			"----------\n" +
 			"1. WARNING in pkg\\X.java (at line 5)\n" +
 			"	* @see <a href=\"ccwww.xyzzy.com/rfc123.html\">invalid></\n" +
@@ -5228,7 +5228,7 @@ public void testBug125518b() {
 		"}\n"
 	};
 	this.reportInvalidJavadoc = CompilerOptions.WARNING;
-	runConformTest(true, units,
+	AbstractRegressionTest.runConformTest(this, true, units,
 			"----------\n" +
 			"1. WARNING in pkg\\X.java (at line 5)\n" +
 			"	* @see <a href=\"ccwww.xyzzy.com/rfc123.html\">invalid></a\n" +
@@ -5254,7 +5254,7 @@ public void testBug125518c() {
 		"}\n"
 	};
 	this.reportInvalidJavadoc = CompilerOptions.WARNING;
-	runConformTest(true, units,
+	AbstractRegressionTest.runConformTest(this, true, units,
 			"----------\n" +
 			"1. WARNING in pkg\\X.java (at line 5)\n" +
 			"	* @see <a href=\"ccwww.xyzzy.com/rfc123.html\">invalid></>\n" +
@@ -5280,7 +5280,7 @@ public void testBug125518d() {
 		"}\n"
 	};
 	this.reportInvalidJavadoc = CompilerOptions.WARNING;
-	runConformTest(true, units,
+	AbstractRegressionTest.runConformTest(this, true, units,
 			"----------\n" +
 			"1. WARNING in pkg\\X.java (at line 5)\n" +
 			"	* @see <a href=\"ccwww.xyzzy.com/rfc123.html\">invalid></aa>\n" +
@@ -5315,8 +5315,8 @@ public void testBug125518e() {
  */
 public void testBug125903() {
 	this.reportMissingJavadocTags = CompilerOptions.ERROR;
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"/**\n" +
 			" * {@ link java.lang.String}\n" +
@@ -5347,8 +5347,8 @@ public void testBug125903() {
 public void testBug128954() {
 	this.reportInvalidJavadoc = CompilerOptions.WARNING;
 	this.reportDeprecation = CompilerOptions.WARNING;
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java", //========================
 			"public class X {\n" +
 			"	/**\n" +
@@ -5392,8 +5392,8 @@ public void testBug128954() {
 public void testBug128954a() {
 	this.reportInvalidJavadoc = CompilerOptions.WARNING;
 	this.reportDeprecation = CompilerOptions.WARNING;
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	\n" +
@@ -5429,8 +5429,8 @@ public void testBug128954a() {
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=129241"
  */
 public void testBug129241a() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	/**\n" +
@@ -5456,8 +5456,8 @@ public void testBug129241a() {
 }
 public void testBug129241b() {
 	this.reportDeprecation = CompilerOptions.IGNORE;
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"	/**\n" +
@@ -5586,8 +5586,8 @@ public void testBug149013_Private01() {
 public void testBug149013_Public01() {
 	this.reportMissingJavadocTags = CompilerOptions.DISABLED;
 	this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"test1/X.java",
 			"package test1;\n" +
 			"public class X {\n" +
@@ -5631,8 +5631,8 @@ public void testBug149013_Public01() {
 }
 public void testBug149013_Private02() {
 	this.reportMissingJavadocTags = CompilerOptions.IGNORE;
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"test1/X.java",
 			"package test1;\n" +
 			"public class X {\n" +
@@ -5677,8 +5677,8 @@ public void testBug149013_Private02() {
 public void testBug149013_Public02() {
 	this.reportMissingJavadocTags = CompilerOptions.DISABLED;
 	this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"test1/X.java",
 			"package test1;\n" +
 			"public class X {\n" +
@@ -5722,8 +5722,8 @@ public void testBug149013_Public02() {
 }
 public void testBug149013_Private03() {
 	this.reportMissingJavadocTags = CompilerOptions.IGNORE;
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"test1/X.java",
 			"package test1;\n" +
 			"public class X {\n" +
@@ -5765,8 +5765,8 @@ public void testBug149013_Private03() {
 public void testBug149013_Public03() {
 	this.reportMissingJavadocTags = CompilerOptions.DISABLED;
 	this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"test1/X.java",
 			"package test1;\n" +
 			"public class X {\n" +
@@ -5925,7 +5925,7 @@ public void testBug153399d() {
 			"----------\n"
 		);
 	} else {
-		runNegativeTest(testFiles,
+		AbstractRegressionTest.runNegativeTest(this, testFiles,
 			"----------\n" +
 			"1. ERROR in X.java (at line 5)\n" +
 			"	* {@value Invalid}\n" +
@@ -5957,7 +5957,7 @@ public void testBug153399e() {
 			"----------\n"
 		);
 	} else {
-		runNegativeTest(testFiles,
+		AbstractRegressionTest.runNegativeTest(this, testFiles,
 			"----------\n" +
 			"1. ERROR in X.java (at line 3)\n" +
 			"	* {@value Invalid}\n" +
@@ -5974,7 +5974,7 @@ public void testBug153399e() {
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=160015"
  */
 public void testBug160015() {
-	runNegativeTest(new String[] {
+	AbstractRegressionTest.runNegativeTest(this, new String[] {
 			"Test.java",
 			"/**\n" +
 			" * @see #method(Long) Warning!\n" +
@@ -6008,8 +6008,8 @@ public void testBug160015() {
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=163659"
  */
 public void testBug163659() {
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"Test.java",
 			"/**\n" +
 			" * @see #foo(MyInterface)\n" +
@@ -6108,7 +6108,7 @@ public void testBug166365() {
 		"}\n"
 	};
 	this.reportInvalidJavadocVisibility = CompilerOptions.PUBLIC;
-	runNegativeTest(testFiles,
+	AbstractRegressionTest.runNegativeTest(this, testFiles,
 		"----------\n" +
 		"1. ERROR in X.java (at line 21)\n" +
 		"	* @return\n" +
@@ -6171,7 +6171,7 @@ public void testBug166436() {
 			"----------\n"
 		);
 	} else {
-		runNegativeTest(testFiles,
+		AbstractRegressionTest.runNegativeTest(this, testFiles,
 			"----------\n" +
 			"1. ERROR in X.java (at line 10)\n" +
 			"	* 	<li>{@value #PROTECTED_CONST}</li>\n" +
@@ -6212,7 +6212,7 @@ public void testBug168849a() {
 		"}\n"
 	};
 	this.reportInvalidJavadoc = CompilerOptions.WARNING;
-	runConformTest(true, units,
+	AbstractRegressionTest.runConformTest(this, true, units,
 			"----------\n" +
 			"1. WARNING in pkg\\X.java (at line 5)\n" +
 			"	* @see http://www.eclipse.org/\n" +
@@ -6238,7 +6238,7 @@ public void testBug168849b() {
 		"}\n"
 	};
 	this.reportInvalidJavadoc = CompilerOptions.WARNING;
-	runConformTest(true, units,
+	AbstractRegressionTest.runConformTest(this, true, units,
 			"----------\n" +
 			"1. WARNING in pkg\\X.java (at line 5)\n" +
 			"	* @see http://ftp.eclipse.org/\n" +
@@ -6264,8 +6264,8 @@ public void testBug168849c() {
 		"}\n"
 	};
 	this.reportInvalidJavadoc = CompilerOptions.WARNING;
-	runConformTest(
-			true, units,
+	AbstractRegressionTest.runConformTest(
+			this, true, units,
 			"----------\n" +
 			"1. WARNING in pkg\\X.java (at line 5)\n" +
 			"	* @see ://\n" +
@@ -6291,7 +6291,7 @@ public void testBug168849d() {
 		"}\n"
 	};
 	this.reportInvalidJavadoc = CompilerOptions.WARNING;
-	runConformTest(true, units,
+	AbstractRegressionTest.runConformTest(this, true, units,
 			"----------\n" +
 			"1. WARNING in pkg\\X.java (at line 5)\n" +
 			"	* @see http://www.eclipse.org\n" +
@@ -6353,7 +6353,7 @@ public void testBug168849g() {
 		"}\n"
 	};
 	this.reportInvalidJavadoc = CompilerOptions.WARNING;
-	runConformTest(true, units,
+	AbstractRegressionTest.runConformTest(this, true, units,
 			"----------\n" +
 			"1. WARNING in pkg\\X.java (at line 5)\n" +
 			"	* @see http:/ invalid reference\n" +
@@ -6379,7 +6379,7 @@ public void testBug168849h() {
 		"}\n"
 	};
 	this.reportInvalidJavadoc = CompilerOptions.WARNING;
-	runConformTest(true, units,
+	AbstractRegressionTest.runConformTest(this, true, units,
 			"----------\n" +
 			"1. WARNING in pkg\\X.java (at line 5)\n" +
 			"	* @see Object:/ invalid reference\n" +
@@ -6405,7 +6405,7 @@ public void testBug168849i() {
 		"}\n"
 	};
 	this.reportInvalidJavadoc = CompilerOptions.WARNING;
-	runConformTest(true, units,
+	AbstractRegressionTest.runConformTest(this, true, units,
 			"----------\n" +
 			"1. WARNING in pkg\\X.java (at line 5)\n" +
 			"	* @see http:/ invalid reference\n" +
@@ -6431,7 +6431,7 @@ public void testBug168849j() {
 		"}\n"
 	};
 	this.reportInvalidJavadoc = CompilerOptions.WARNING;
-	runConformTest(true, units,
+	AbstractRegressionTest.runConformTest(this, true, units,
 			"----------\n" +
 			"1. WARNING in pkg\\X.java (at line 5)\n" +
 			"	* @see Object:/ invalid reference\n" +
@@ -7034,7 +7034,7 @@ public void testBug176027h_public() {
 		runNegativeTest(units,error14);
 	}
 	else {
-		runNegativeTest(units,error50, JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+		AbstractRegressionTest.runNegativeTest(this, units,error50, JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 }
 
@@ -7148,7 +7148,7 @@ public void testBug176027h_private() {
 		runNegativeTest(units,error14);
 	}
 	else {
-		runNegativeTest(units,error50, JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
+		AbstractRegressionTest.runNegativeTest(this, units,error50, JavacTestOptions.Excuse.EclipseWarningConfiguredAsError);
 	}
 }
 
@@ -7179,8 +7179,8 @@ public void testBug177009a() {
 		"}\n"
 	};
 	this.reportMissingJavadocTags = CompilerOptions.WARNING;
-	runConformTest(
-			true,
+	AbstractRegressionTest.runConformTest(
+			this, true,
 			units,
 			"----------\n" +
 			"1. WARNING in pkg\\Y.java (at line 8)\n" +
@@ -7216,7 +7216,7 @@ public void testBug177009b() {
 		"}\n"
 	};
 	this.reportMissingJavadocTags = CompilerOptions.WARNING;
-	runConformTest(true, units,
+	AbstractRegressionTest.runConformTest(this, true, units,
 			"----------\n" +
 			"1. WARNING in pkg\\Y.java (at line 9)\n" +
 			"	public Y(String str, int anInt, int anotherInt) {\n" +
@@ -7234,8 +7234,8 @@ public void testBug177009b() {
 public void testBug190970a() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.WARNING);
-	this.runConformTest(
-		true,
+	AbstractRegressionTest.runConformTest(
+		this, true,
 		new String[] {
 			"X.java",
 			"public class X {\n" +
@@ -7268,8 +7268,8 @@ public void testBug190970a() {
 public void testBug190970b() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.WARNING);
-	this.runConformTest(
-		true,
+	AbstractRegressionTest.runConformTest(
+		this, true,
 		new String[] {
 			"pkg/X.java",
 			"package pkg;\n" +
@@ -7303,8 +7303,8 @@ public void testBug190970b() {
 public void testBug190970c() {
 	Map customOptions = getCompilerOptions();
 	customOptions.put(CompilerOptions.OPTION_ReportUnusedPrivateMember, CompilerOptions.WARNING);
-	runConformTest(
-		true,
+	AbstractRegressionTest.runConformTest(
+		this, true,
 	new String[] {
 		"pkg/X.java",
 		"package pkg;\n" +
@@ -7718,7 +7718,7 @@ public void testBug222902() {
 	};
 	this.reportInvalidJavadoc = CompilerOptions.WARNING;
 	this.reportMissingJavadocDescription = CompilerOptions.ALL_STANDARD_TAGS;
-	runConformTest(true, units,
+	AbstractRegressionTest.runConformTest(this, true, units,
 		"----------\n" +
 		"1. WARNING in X.java (at line 2)\n" +
 		"	* {@code}\n" +
@@ -7986,8 +7986,8 @@ public void testBug233887() {
 		"	   ^^^^^\n" +
 		"Javadoc: Unexpected tag\n" +
 		"----------\n";
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"NPETest.java",
 			"public class NPETest {\n" +
 			"	public NPETest() {\n" +
@@ -8288,8 +8288,8 @@ public void testBug258798_3() {
 // is used with classes and interfaces.
 public void testBug247037() {
 	this.reportMissingJavadocTags = CompilerOptions.ERROR;
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"/**\n" +
 			" * {@inheritDoc}\n" +              // error, cannot be applied to a class
@@ -8323,8 +8323,8 @@ public void testBug247037() {
 // field or constructor, we complain.
 public void testBug247037b() {
 	this.reportMissingJavadocTags = CompilerOptions.ERROR;
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"}\n" +
@@ -8358,8 +8358,8 @@ public void testBug247037b() {
 // block tags.
 public void testBug247037c() {
 	this.reportMissingJavadocTags = CompilerOptions.ERROR;
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"    /**\n" +
@@ -8417,8 +8417,8 @@ public void testBug247037c() {
 // a message from the compiler
 public void testBug247037d() {
 	this.reportMissingJavadocTags = CompilerOptions.ERROR;
-	runNegativeTest(
-		new String[] {
+	AbstractRegressionTest.runNegativeTest(
+		this, new String[] {
 			"X.java",
 			"public class X {\n" +
 			"}\n" +
@@ -8768,8 +8768,8 @@ public void testBug281609b() {
 public void testBug292510() {
 	Map options = getCompilerOptions();
 	options.put(CompilerOptions.OPTION_ReportDeprecationInDeprecatedCode, CompilerOptions.ENABLED);
-	runNegativeTest(
-		true,
+	AbstractRegressionTest.runNegativeTest(
+		this, true,
 		new String[] {
 			"X.java",
 			"/**  @deprecated */\n" +
@@ -8847,7 +8847,7 @@ public void testBug222188a() {
 		"     public void m() { }\n" +
 		"}\n"
 	};
-	runNegativeTest(units,
+	AbstractRegressionTest.runNegativeTest(this, units,
 		// warning - Tag @link: reference not found: Test.Inner
 		"----------\n" +
 		"1. ERROR in pack2\\X.java (at line 5)\n" +
@@ -8876,7 +8876,7 @@ public void testBug222188b() {
 		"     public void m() { }\n" +
 		"}\n"
 	};
-	runNegativeTest(units,
+	AbstractRegressionTest.runNegativeTest(this, units,
 		// warning - Tag @link: reference not found: Test.Inner
 		"----------\n" +
 		"1. ERROR in pack2\\X.java (at line 4)\n" +
@@ -8910,7 +8910,7 @@ public void testBug221539a() {
 		"	static class Inner {}\n" +
 		"}\n"
 	};
-	runNegativeTest(units,
+	AbstractRegressionTest.runNegativeTest(this, units,
 		// warning - Tag @link: reference not found: Test.Inner
 		"----------\n" +
 		"1. ERROR in p\\Test.java (at line 3)\n" +
@@ -8941,7 +8941,7 @@ public void testBug221539b() {
 		"	public static class Inner {}\n" +
 		"}\n"
 	};
-	runNegativeTest(units,
+	AbstractRegressionTest.runNegativeTest(this, units,
 		// warning - Tag @link: reference not found: Test.Inner
 		// warning - Tag @link: reference not found: Foo.Inner
 		"----------\n" +

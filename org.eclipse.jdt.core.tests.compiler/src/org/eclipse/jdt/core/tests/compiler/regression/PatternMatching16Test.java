@@ -54,7 +54,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions) {
 		if(!isJRE16Plus)
 			return;
-		runConformTest(testFiles, expectedOutput, customOptions, new String[] {"--enable-preview"}, JAVAC_OPTIONS);
+		AbstractRegressionTest.runConformTest(this, testFiles, expectedOutput, customOptions, new String[] {"--enable-preview"}, JAVAC_OPTIONS);
 	}
 	protected void runNegativeTest(
 			String[] testFiles,
@@ -76,8 +76,8 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_15);
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_15);
 		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_15);
-		runNegativeTest(
-				new String[] {
+		AbstractRegressionTest.runNegativeTest(
+				this, new String[] {
 						"X1.java",
 						"public class X1 {\n" +
 						"  public void foo(Object obj) {\n" +
@@ -106,8 +106,8 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		options.put(CompilerOptions.OPTION_Compliance, CompilerOptions.VERSION_14);
 		options.put(CompilerOptions.OPTION_Source, CompilerOptions.VERSION_14);
 		options.put(CompilerOptions.OPTION_TargetPlatform, CompilerOptions.VERSION_14);
-		runNegativeTest(
-				new String[] {
+		AbstractRegressionTest.runNegativeTest(
+				this, new String[] {
 						"X1.java",
 						"public class X1 {\n" +
 						"  public void foo(Object obj) {\n" +
@@ -1139,8 +1139,8 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	}
 	public void test022a() {
 		Map<String, String> options = getCompilerOptions(true);
-		runNegativeTest(
-				new String[] {
+		AbstractRegressionTest.runNegativeTest(
+				this, new String[] {
 						"X22a.java",
 						"@SuppressWarnings(\"preview\")\n" +
 						"public class X22a {\n" +
@@ -1177,8 +1177,8 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	}
 	public void test022b() {
 		Map<String, String> options = getCompilerOptions(true);
-		runNegativeTest(
-				new String[] {
+		AbstractRegressionTest.runNegativeTest(
+				this, new String[] {
 						"X22b.java",
 						"@SuppressWarnings(\"preview\")\n" +
 						"public class X22b {\n" +
@@ -3217,8 +3217,8 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	}
 	public void test069() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
-		runNegativeTest(
-				new String[] {
+		AbstractRegressionTest.runNegativeTest(
+				this, new String[] {
 						"X.java",
 						"@SuppressWarnings(\"preview\")\n"+
 						"class XPlus extends X {}\n"
@@ -3267,8 +3267,8 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	// Javac rejects the code on the IF itself (same as above)
 	public void test071() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
-		runNegativeTest(
-				new String[] {
+		AbstractRegressionTest.runNegativeTest(
+				this, new String[] {
 						"X.java",
 						"@SuppressWarnings(\"preview\")\n"+
 								"public class X {\n"
@@ -3295,8 +3295,8 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	// Javac rejects the code on the IF itself (same as above)
 	public void test072() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
-		runNegativeTest(
-				new String[] {
+		AbstractRegressionTest.runNegativeTest(
+				this, new String[] {
 						"X.java",
 						"@SuppressWarnings(\"preview\")\n"+
 								"public class X {\n"
@@ -3350,8 +3350,8 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	}
 	public void test074() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
-		runNegativeTest(
-				new String[] {
+		AbstractRegressionTest.runNegativeTest(
+				this, new String[] {
 						"X.java",
 						"@SuppressWarnings(\"preview\")\n"+
 								"public class X {\n"
@@ -3396,8 +3396,8 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	}
 	public void test076() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
-		runNegativeTest(
-				new String[] {
+		AbstractRegressionTest.runNegativeTest(
+				this, new String[] {
 						"X.java",
 						"@SuppressWarnings(\"preview\")\n"
 						+ "public class X {\n"
@@ -3445,8 +3445,8 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	// Test that a final pattern variable cannot be assigned again
 	public void test078() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
-		runNegativeTest(
-				new String[] {
+		AbstractRegressionTest.runNegativeTest(
+				this, new String[] {
 						"X.java",
 								"public class X {\n"
 								+ "    static void foo(Object o) {\n"
@@ -3471,8 +3471,8 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	}
 	public void test079() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
-		runNegativeTest(
-				new String[] {
+		AbstractRegressionTest.runNegativeTest(
+				this, new String[] {
 						"X.java",
 								"public class X {\n"
 								+ "    static void foo(Object o) {\n"
@@ -3517,8 +3517,8 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	}
 	public void test081() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
-		runNegativeTest(
-				new String[] {
+		AbstractRegressionTest.runNegativeTest(
+				this, new String[] {
 						"X.java",
 								"public class X<T> {\n"
 								+ "	public void foo(T o) {\n"
@@ -3600,8 +3600,8 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	}
 	public void testBug570831a() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
-		runNegativeTest(
-				new String[] {
+		AbstractRegressionTest.runNegativeTest(
+				this, new String[] {
 						"X.java",
 							"public class X {\n"
 							+ "	public static void run() {\n"
@@ -3631,8 +3631,8 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	}
 	public void testBug570831b() {
 		Map<String, String> compilerOptions = getCompilerOptions(true);
-		runNegativeTest(
-				new String[] {
+		AbstractRegressionTest.runNegativeTest(
+				this, new String[] {
 						"X.java",
 							"public class X {\n"
 							+ "	public static void run() {\n"
@@ -3867,8 +3867,8 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		if (this.complianceLevel < ClassFileConstants.JDK17)
 			return;
 		Map<String, String> compilerOptions = getCompilerOptions(true);
-		runNegativeTest(
-				new String[] {
+		AbstractRegressionTest.runNegativeTest(
+				this, new String[] {
 						"X.java",
 							"public class X {\n"
 							+ "	public void foo(Object o) {\n"
@@ -3985,7 +3985,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
     			"   #54 Test$Type,\n" +
     			"   #57 Test$Var\n" +
     			"}";
-    	checkClassFile("Test", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
+    	AbstractRegressionTest.checkClassFile(this, "Test", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
         runConformTest(
                 new String[] {
                         "Test.java",
@@ -3998,8 +3998,8 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	public void testBug578628_1() {
 		if (this.complianceLevel < ClassFileConstants.JDK18)
 			return;
-		runNegativeTest(
-				new String[] {
+		AbstractRegressionTest.runNegativeTest(
+				this, new String[] {
 						"X.java",
 							"public class X {\n"
 							+ "    public static Object str = \"a\";\n"
@@ -4194,8 +4194,8 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 		if (this.complianceLevel < ClassFileConstants.JDK21)
 			return;
 
-		runNegativeTest(
-				new String[] {
+		AbstractRegressionTest.runNegativeTest(
+				this, new String[] {
 						"X.java",
 						"""
 						public class X {
