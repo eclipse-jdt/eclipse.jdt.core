@@ -36,6 +36,7 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.RecordComponentBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 
@@ -197,7 +198,7 @@ public class RecordPattern extends TypePattern {
 				TypePattern tp = (TypePattern) p;
 				RecordComponentBinding componentBinding = components[i];
 				if (p.getType().isTypeNameVar(scope)) {
-					infuseInferredType(tp, componentBinding);
+					infuseInferredType(scope, tp, componentBinding);
 					if (tp.local.binding != null) // rewrite with the inferred type
 						tp.local.binding.type = componentBinding.type;
 				}
@@ -225,8 +226,8 @@ public class RecordPattern extends TypePattern {
 	private boolean shouldInitiateRecordTypeInference() {
 		return this.resolvedType != null && this.resolvedType.isRawType();
 	}
-	private void infuseInferredType(TypePattern tp, RecordComponentBinding componentBinding) {
-		SingleTypeReference ref = new SingleTypeReference(tp.local.type.getTypeName()[0],
+	private void infuseInferredType(Scope currentScope, TypePattern tp, RecordComponentBinding componentBinding) {
+		SingleTypeReference ref = new SingleTypeReference(componentBinding.type.sourceName(),
 				tp.local.type.sourceStart,
 				tp.local.type.sourceEnd) {
 			@Override
@@ -235,6 +236,9 @@ public class RecordPattern extends TypePattern {
 			}
 		};
 		tp.local.type = ref;
+		if (componentBinding.type != null && (componentBinding.tagBits & TagBits.HasMissingType) != 0) {
+			currentScope.problemReporter().invalidType(ref, componentBinding.type);
+		}
 	}
 	@Override
 	public boolean isAlwaysTrue() {
