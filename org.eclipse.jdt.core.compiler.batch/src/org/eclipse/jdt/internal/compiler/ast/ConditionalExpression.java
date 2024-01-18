@@ -33,7 +33,6 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.*;
 
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -469,67 +468,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 		this.valueIfTrue.addPatternVariables(scope, codeStream);
 		this.valueIfFalse.addPatternVariables(scope, codeStream);
 	}
-	@Override
-	public void collectPatternVariablesToScope(LocalVariableBinding[] variables, BlockScope scope) {
-		// Introduce preceding variables introduced into the scope if this expression is actually evaluated
-		this.condition.collectPatternVariablesToScope(variables, scope);
-		this.valueIfFalse.collectPatternVariablesToScope(variables, scope);
-		this.valueIfTrue.collectPatternVariablesToScope(variables, scope);
-		if (this.valueIfFalse.containsPatternVariable() && this.valueIfTrue.containsPatternVariable() ) {
-			LocalVariableBinding[] first = this.valueIfTrue.patternVarsWhenTrue;
-			LocalVariableBinding[] second = this.valueIfFalse.patternVarsWhenTrue;
-			if (first != null && second != null) {
-				for (LocalVariableBinding localVariableBinding : first) {
-					char[] name = localVariableBinding.name;
-					for (LocalVariableBinding localVariableBinding2 : second) {
-						if (CharOperation.equals(name, localVariableBinding2.name)) {
-							scope.problemReporter().illegalRedeclarationOfPatternVar(localVariableBinding2, localVariableBinding2.declaration);
-						}
-					}
-				}
-			}
-			first = this.valueIfTrue.patternVarsWhenFalse;
-			second = this.valueIfFalse.patternVarsWhenFalse;
-			if (first != null && second != null) {
-				for (LocalVariableBinding localVariableBinding : first) {
-					char[] name = localVariableBinding.name;
-					for (LocalVariableBinding localVariableBinding2 : second) {
-						if (CharOperation.equals(name, localVariableBinding2.name)) {
-							scope.problemReporter().illegalRedeclarationOfPatternVar(localVariableBinding2, localVariableBinding2.declaration);
-						}
-					}
-				}
-			}
-		}
 
-		if (!this.condition.containsPatternVariable()) {
-			return;
-		}
-		if (this.condition.getPatternVariable() != null) {
-			char[] name = this.condition.getPatternVariable().name;
-			LocalDeclaration localVar = this.valueIfTrue.getPatternVariable();
-			if (localVar != null && CharOperation.equals(name, localVar.name)) {
-					scope.problemReporter().illegalRedeclarationOfPatternVar(localVar.binding, localVar);
-					return;
-			}
-			localVar = this.valueIfFalse.getPatternVariable();
-			if (localVar != null && CharOperation.equals(name, localVar.name)) {
-				scope.problemReporter().illegalRedeclarationOfPatternVar(localVar.binding, localVar);
-				return;
-			}
-		}
-		this.condition.collectPatternVariablesToScope(this.patternVarsWhenTrue, scope);
-
-		variables = this.condition.getPatternVariablesWhenTrue();
-		this.valueIfTrue.addPatternVariablesWhenTrue(variables);
-		this.valueIfFalse.addPatternVariablesWhenFalse(variables);
-		this.valueIfTrue.collectPatternVariablesToScope(variables, scope);
-
-		variables = this.condition.getPatternVariablesWhenFalse();
-		this.valueIfTrue.addPatternVariablesWhenFalse(variables);
-		this.valueIfFalse.addPatternVariablesWhenTrue(variables);
-		this.valueIfFalse.collectPatternVariablesToScope(variables, scope);
-	}
 	@Override
 	public TypeBinding resolveType(BlockScope scope) {
 		// JLS3 15.25
@@ -547,19 +486,15 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 			}
 		}
 
-		collectPatternVariablesToScope(null, scope);
-		LocalVariableBinding[] patternVariablesInTrueScope = this.condition.getPatternVariablesWhenTrue();
-		LocalVariableBinding[] patternVariablesInFalseScope = this.condition.getPatternVariablesWhenFalse();
-
 		if (this.constant != Constant.NotAConstant) {
 			this.constant = Constant.NotAConstant;
 			TypeBinding conditionType = this.condition.resolveTypeExpecting(scope, TypeBinding.BOOLEAN);
 			this.condition.computeConversion(scope, TypeBinding.BOOLEAN, conditionType);
 
 			if (this.valueIfTrue instanceof CastExpression) this.valueIfTrue.bits |= DisableUnnecessaryCastCheck; // will check later on
-			this.originalValueIfTrueType = this.valueIfTrue.resolveTypeWithPatternVariablesInScope(patternVariablesInTrueScope, scope);
+			this.originalValueIfTrueType = this.valueIfTrue.resolveTypeWithPatternVariablesInScope(this.condition.getPatternVariablesWhenTrue(), scope);
 			if (this.valueIfFalse instanceof CastExpression) this.valueIfFalse.bits |= DisableUnnecessaryCastCheck; // will check later on
-			this.originalValueIfFalseType = this.valueIfFalse.resolveTypeWithPatternVariablesInScope(patternVariablesInFalseScope, scope);
+			this.originalValueIfFalseType = this.valueIfFalse.resolveTypeWithPatternVariablesInScope(this.condition.getPatternVariablesWhenFalse(), scope);
 
 			if (conditionType == null || this.originalValueIfTrueType == null || this.originalValueIfFalseType == null)
 				return null;

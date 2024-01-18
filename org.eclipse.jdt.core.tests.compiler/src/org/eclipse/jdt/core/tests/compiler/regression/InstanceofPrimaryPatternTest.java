@@ -25,7 +25,7 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "test005" };
+//		TESTS_NAMES = new String[] { "test001" };
 	}
 
 	public static Class<?> testClass() {

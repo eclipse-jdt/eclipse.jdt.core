@@ -275,13 +275,11 @@ public class WhileStatement extends Statement {
 
 	@Override
 	public void resolve(BlockScope scope) {
-		this.condition.collectPatternVariablesToScope(null, scope);
-		LocalVariableBinding[] patternVariablesInTrueScope = this.condition.getPatternVariablesWhenTrue();
 
 		TypeBinding type = this.condition.resolveTypeExpecting(scope, TypeBinding.BOOLEAN);
 		this.condition.computeConversion(scope, type, type);
 		if (this.action != null) {
-			this.action.resolveWithPatternVariablesInScope(patternVariablesInTrueScope, scope);
+			this.action.resolveWithPatternVariablesInScope(this.condition.getPatternVariablesWhenTrue(), scope);
 		}
 	}
 

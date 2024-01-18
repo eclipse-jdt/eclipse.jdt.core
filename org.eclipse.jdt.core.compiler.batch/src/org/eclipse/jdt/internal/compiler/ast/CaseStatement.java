@@ -240,7 +240,7 @@ public static class ResolvedCase {
  */
 public ResolvedCase[] resolveCase(BlockScope scope, TypeBinding switchExpressionType, SwitchStatement switchStatement) {
 	if (containsPatternVariable()) {
-		return resolveWithPatternVariablesInScope(this.patternVarsWhenTrue, scope, switchExpressionType, switchStatement);
+		return resolveWithPatternVariablesInScope(this.getPatternVariablesWhenTrue(), scope, switchExpressionType, switchStatement);
 	}
 	return resolveCasePrivate(scope, switchExpressionType, switchStatement);
 }
@@ -382,15 +382,13 @@ private void flagDuplicateDefault(BlockScope scope, SwitchStatement switchStatem
 		scope.problemReporter().illegalTotalPatternWithDefault(this);
 	}
 }
-public void collectPatternVariablesToScope(LocalVariableBinding[] variables, BlockScope scope) {
-	if (!containsPatternVariable()) {
-		return;
-	}
+@Override
+public LocalVariableBinding[] getPatternVariablesWhenTrue() {
+	LocalVariableBinding [] variables = NO_VARIABLES;
 	for (Expression e : this.constantExpressions) {
-		e.collectPatternVariablesToScope(variables, scope);
-		LocalVariableBinding[] patternVariables = e.getPatternVariablesWhenTrue();
-		addPatternVariablesWhenTrue(patternVariables);
+		LocalVariableBinding.merge(variables, e.getPatternVariablesWhenTrue());
 	}
+	return variables;
 }
 public Constant resolveConstantExpression(BlockScope scope,
 											TypeBinding caseType,

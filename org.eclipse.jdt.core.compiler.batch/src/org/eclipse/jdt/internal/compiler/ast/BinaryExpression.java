@@ -1827,16 +1827,8 @@ public StringBuilder printExpressionNoParenthesis(int indent, StringBuilder outp
 }
 
 @Override
-public void collectPatternVariablesToScope(LocalVariableBinding[] variables, BlockScope scope) {
-	this.addPatternVariablesWhenTrue(variables);
-	this.left.addPatternVariablesWhenTrue(variables);
-	this.left.collectPatternVariablesToScope(variables, scope);
-	this.right.addPatternVariablesWhenTrue(variables);
-	this.right.collectPatternVariablesToScope(variables, scope);
-}
-@Override
 public void addPatternVariables(BlockScope scope, CodeStream codeStream) {
-	this.left.addPatternVariables(scope, codeStream);
+	this.left.addPatternVariables(scope, codeStream); // Srikanth
 	this.right.addPatternVariables(scope, codeStream);
 }
 @Override
@@ -1847,19 +1839,19 @@ public boolean containsPatternVariable() {
 public TypeBinding resolveType(BlockScope scope) {
 	// keep implementation in sync with CombinedBinaryExpression#resolveType
 	// and nonRecursiveResolveTypeUpwards
-	if(this.patternVarsWhenFalse == null && this.patternVarsWhenTrue == null &&
-			this.containsPatternVariable()) {
-		// the null check is to guard against a second round of collection.
-		// This usually doesn't happen,
-		// except when we call collectPatternVariablesToScope() from here
-		this.collectPatternVariablesToScope(null, scope);
-	}
 	boolean leftIsCast, rightIsCast;
 	if ((leftIsCast = this.left instanceof CastExpression) == true) this.left.bits |= ASTNode.DisableUnnecessaryCastCheck; // will check later on
 	TypeBinding leftType = this.left.resolveType(scope);
 
 	if ((rightIsCast = this.right instanceof CastExpression) == true) this.right.bits |= ASTNode.DisableUnnecessaryCastCheck; // will check later on
-	TypeBinding rightType = this.right.resolveType(scope);
+
+	LocalVariableBinding [] patternVars = switch ((this.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT) {
+		case AND_AND -> this.left.getPatternVariablesWhenTrue();
+		case OR_OR   -> this.left.getPatternVariablesWhenFalse();
+		default      -> NO_VARIABLES;
+	};
+
+	TypeBinding rightType = this.right.resolveTypeWithPatternVariablesInScope(patternVars, scope);
 
 	// use the id of the type to navigate into the table
 	if (leftType == null || rightType == null) {

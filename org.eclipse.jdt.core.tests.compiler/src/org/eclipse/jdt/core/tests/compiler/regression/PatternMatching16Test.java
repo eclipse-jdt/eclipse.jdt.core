@@ -28,7 +28,7 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 	static {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "testBug575035" };
+//		TESTS_NAMES = new String[] { "test027" };
 	}
 
 	public static Class<?> testClass() {

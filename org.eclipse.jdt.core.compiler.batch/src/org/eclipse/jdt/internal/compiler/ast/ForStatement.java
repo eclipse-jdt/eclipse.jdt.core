@@ -416,11 +416,6 @@ public class ForStatement extends Statement {
 	public void resolve(BlockScope upperScope) {
 		LocalVariableBinding[] patternVariablesInTrueScope = NO_VARIABLES;
 
-		if (containsPatternVariable()) {
-			this.condition.collectPatternVariablesToScope(null, upperScope);
-			patternVariablesInTrueScope = this.condition.getPatternVariablesWhenTrue();
-		}
-
 		// use the scope that will hold the init declarations
 		this.scope = (this.bits & ASTNode.NeededScope) != 0 ? new BlockScope(upperScope) : upperScope;
 		if (this.initializations != null)
@@ -429,6 +424,7 @@ public class ForStatement extends Statement {
 		if (this.condition != null) {
 			TypeBinding type = this.condition.resolveTypeExpecting(this.scope, TypeBinding.BOOLEAN);
 			this.condition.computeConversion(this.scope, type, type);
+			patternVariablesInTrueScope = this.condition.getPatternVariablesWhenTrue();
 		}
 		if (this.increments != null)
 			for (int i = 0, length = this.increments.length; i < length; i++) {

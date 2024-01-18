@@ -39,13 +39,6 @@ public class GuardedPattern extends Pattern {
 		this.sourceStart = primaryPattern.sourceStart;
 		this.sourceEnd = conditionalAndExpression.sourceEnd;
 	}
-	@Override
-	public void collectPatternVariablesToScope(LocalVariableBinding[] variables, BlockScope scope) {
-		this.primaryPattern.collectPatternVariablesToScope(variables, scope);
-		addPatternVariablesWhenTrue(this.primaryPattern.getPatternVariablesWhenTrue());
-		this.condition.collectPatternVariablesToScope(getPatternVariablesWhenTrue(), scope);
-		addPatternVariablesWhenTrue(this.condition.getPatternVariablesWhenTrue());
-	}
 
 	@Override
 	public LocalDeclaration getPatternVariable() {

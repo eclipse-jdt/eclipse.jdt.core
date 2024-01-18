@@ -347,4 +347,26 @@ public class LocalVariableBinding extends VariableBinding {
 			this.uninitializedInMethod = new HashSet<>();
 		this.uninitializedInMethod.add(scope.methodScope());
 	}
+
+	public static LocalVariableBinding [] merge (LocalVariableBinding[] left, LocalVariableBinding [] right) {
+		if (left == null || left == ASTNode.NO_VARIABLES) {
+			return right == null ? ASTNode.NO_VARIABLES : right;
+		}
+		if (right == null || right == ASTNode.NO_VARIABLES) {
+			return left;
+		}
+
+		int leftCount = left.length;
+		System.arraycopy(left,
+				            0,
+				         left = new LocalVariableBinding[leftCount + right.length],
+				            0,
+				         leftCount);
+		System.arraycopy(right,
+                             0,
+                          left,
+                     leftCount,
+                  right.length);
+		return left;
+	}
 }

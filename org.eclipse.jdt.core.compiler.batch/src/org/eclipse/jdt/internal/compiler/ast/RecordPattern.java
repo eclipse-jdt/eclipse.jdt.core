@@ -67,18 +67,6 @@ public class RecordPattern extends TypePattern {
 	public TypeReference getType() {
 		return this.type;
 	}
- 	@Override
-	public void collectPatternVariablesToScope(LocalVariableBinding[] variables, BlockScope scope) {
-		if (this.resolvedType == null) {
-			this.resolveType(scope);
-		}
-		this.addPatternVariablesWhenTrue(variables);
-		super.collectPatternVariablesToScope(variables, scope);
-		for (Pattern p : this.patterns) {
-			p.collectPatternVariablesToScope(this.patternVarsWhenTrue, scope);
-			this.addPatternVariablesWhenTrue(p.patternVarsWhenTrue);
-		}
-	}
 	@Override
 	public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding expressionType, TypeBinding match, boolean isNarrowing) {
 		if (!castType.isReifiable())
@@ -89,6 +77,14 @@ public class RecordPattern extends TypePattern {
 	@Override
 	public LocalDeclaration getPatternVariable() {
 		return super.getPatternVariable();
+	}
+	@Override
+	public LocalVariableBinding[] getPatternVariablesWhenTrue() {
+		LocalVariableBinding [] variables = NO_VARIABLES;
+		for (Pattern p : this.patterns) {
+			variables = LocalVariableBinding.merge(variables, p.getPatternVariablesWhenTrue());
+		}
+		return variables;
 	}
 	@Override
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {

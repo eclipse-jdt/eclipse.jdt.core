@@ -16,7 +16,6 @@ package org.eclipse.jdt.internal.compiler.ast;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
@@ -50,29 +49,9 @@ public class TypePattern extends Pattern {
 		return this.local.type;
 	}
 	@Override
-	public void collectPatternVariablesToScope(LocalVariableBinding[] variables, BlockScope scope) {
-		if (this.resolvedType == null) {
-			this.resolveType(scope);
-		}
-		if (this.local != null && this.local.binding != null) {
-			LocalVariableBinding binding = this.local.binding;
-			if (variables != null) {
-				for (LocalVariableBinding variable : variables) {
-					if (variable == binding) continue; // Shouldn't happen
-					if (CharOperation.equals(binding.name, variable.name)) {
-						scope.problemReporter().redefineLocal(this.local);
-					}
-				}
-			}
-			if (this.patternVarsWhenTrue == null) {
-				this.patternVarsWhenTrue = new LocalVariableBinding[1];
-				this.patternVarsWhenTrue[0] = binding;
-			} else {
-				LocalVariableBinding[] vars = new LocalVariableBinding[1];
-				vars[0] = binding;
-				this.addPatternVariablesWhenTrue(vars);
-			}
-		}
+	public LocalVariableBinding[] getPatternVariablesWhenTrue() {
+		return this.local != null && this.local.binding != null ?
+						new LocalVariableBinding[] { this.local.binding } : NO_VARIABLES;
 	}
 	@Override
 	public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding expressionType, TypeBinding match, boolean isNarrowing) {
