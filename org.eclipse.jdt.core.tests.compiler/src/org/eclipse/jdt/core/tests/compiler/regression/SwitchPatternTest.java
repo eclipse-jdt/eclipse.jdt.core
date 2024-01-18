@@ -7121,6 +7121,32 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				+ "shape : 100.0\n"
 				+ "NULL");
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1853
+	// [switch][pattern] Scope of pattern binding extends illegally resulting in wrong diagnostic
+	public void testGH1853() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				public class X {
+				    public static void main(String[] args) {
+						Object o = new Object();
+						switch (o) {
+						case String s :
+							if (!(o instanceof String str))
+								throw new RuntimeException();
+						case null :
+							if (!(o instanceof String str))
+								throw new RuntimeException();
+						default:
+				            System.out.println("Default");
+						}
+					}
+				}
+				"""
+			},
+			"Default");
+	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1856
 	// [switch][record patterns] NPE: Cannot invoke "org.eclipse.jdt.internal.compiler.lookup.MethodBinding.isStatic()"
 	public void testGHI1856() {

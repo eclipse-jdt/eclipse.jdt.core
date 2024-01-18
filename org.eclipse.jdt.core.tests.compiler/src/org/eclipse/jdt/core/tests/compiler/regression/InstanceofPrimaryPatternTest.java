@@ -284,4 +284,368 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 			"OK",
 			getCompilerOptions());
 	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=577415
+	// Bug in Eclipse Pattern Matching Instanceof Variable Scope
+	public void test577415() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static void main(String[] args) {
+						Object obj = new Object();
+						if (obj instanceof Integer r) {
+						    System.out.println();
+						} else if (obj instanceof Double c) {
+						    System.out.println();
+						} else {
+						    throw new IllegalArgumentException("invalid type"); // works OK without this line
+						}
+
+						if (obj instanceof Integer r) {
+						    System.out.println();
+						} else if (obj instanceof Double c) { // Eclipse Compilation Error: Duplicate variable c
+						    System.out.println();
+						}
+						zork();
+					}
+				}
+				"""
+			},
+			"----------\n"
+			+ "1. ERROR in X.java (at line 17)\n"
+			+ "	zork();\n"
+			+ "	^^^^\n"
+			+ "The method zork() is undefined for the type X\n"
+			+ "----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=577415
+	// Bug in Eclipse Pattern Matching Instanceof Variable Scope
+	public void test577415_1() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static void main(String[] args) {
+						Object obj = new Object();
+						if (obj instanceof Double c) {
+						    System.out.println();
+						} else {
+						    throw new IllegalArgumentException("invalid type"); // works OK without this line
+						}
+
+						if (obj instanceof Integer r) {
+						    System.out.println();
+						} else if (obj instanceof Double c) { // Eclipse Compilation Error: Duplicate variable c
+						    System.out.println();
+						}
+					}
+				}
+				"""
+			},
+			"----------\n"
+			+ "1. ERROR in X.java (at line 12)\n"
+			+ "	} else if (obj instanceof Double c) { // Eclipse Compilation Error: Duplicate variable c\n"
+			+ "	                                 ^\n"
+			+ "Duplicate local variable c\n"
+			+ "----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=577415
+	// Bug in Eclipse Pattern Matching Instanceof Variable Scope
+	public void test577415_2() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static void main(String[] args) {
+						if (args != null) {
+							Object obj = new Object();
+							if (obj instanceof Integer r) {
+							    System.out.println();
+							} else if (obj instanceof Double c) {
+							    System.out.println();
+							} else {
+							    throw new IllegalArgumentException("invalid type"); // works OK without this line
+							}
+
+							if (obj instanceof Integer r) {
+							    System.out.println();
+							} else if (obj instanceof Double c) { // Eclipse Compilation Error: Duplicate variable c
+							    System.out.println();
+							}
+						}
+						zork();
+					}
+				}
+				"""
+			},
+			"----------\n"
+			+ "1. ERROR in X.java (at line 19)\n"
+			+ "	zork();\n"
+			+ "	^^^^\n"
+			+ "The method zork() is undefined for the type X\n"
+			+ "----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=577415
+	// Bug in Eclipse Pattern Matching Instanceof Variable Scope
+	public void test577415_3() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static void main(String[] args) {
+						if (args != null) {
+							Object obj = new Object();
+							if (obj instanceof Double c) {
+							    System.out.println();
+							} else {
+							    throw new IllegalArgumentException("invalid type"); // works OK without this line
+							}
+
+							if (obj instanceof Integer r) {
+							    System.out.println();
+							} else if (obj instanceof Double c) { // Eclipse Compilation Error: Duplicate variable c
+							    System.out.println();
+							}
+						}
+					}
+				}
+				"""
+			},
+			"----------\n"
+			+ "1. ERROR in X.java (at line 13)\n"
+			+ "	} else if (obj instanceof Double c) { // Eclipse Compilation Error: Duplicate variable c\n"
+			+ "	                                 ^\n"
+			+ "Duplicate local variable c\n"
+			+ "----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=577415
+	// Bug in Eclipse Pattern Matching Instanceof Variable Scope
+	public void test577415_4() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static void main(String[] args) {
+						try {
+							Object obj = new Object();
+							if (obj instanceof Double c) {
+							    System.out.println();
+							} else {
+							    throw new IllegalArgumentException("invalid type"); // works OK without this line
+							}
+
+							if (obj instanceof Integer r) {
+							    System.out.println();
+							} else if (obj instanceof Double c) { // Eclipse Compilation Error: Duplicate variable c
+							    System.out.println();
+							}
+						} catch (Exception e) {
+							Object obj = new Object();
+							if (obj instanceof Double c) {
+							    System.out.println();
+							} else {
+							    throw new IllegalArgumentException("invalid type"); // works OK without this line
+							}
+
+							if (obj instanceof Integer r) {
+							    System.out.println();
+							} else if (obj instanceof Double c) { // Eclipse Compilation Error: Duplicate variable c
+							    System.out.println();
+							}
+						} finally {
+							Object obj = new Object();
+							if (obj instanceof Double c) {
+							    System.out.println();
+							} else {
+							    throw new IllegalArgumentException("invalid type"); // works OK without this line
+							}
+
+							if (obj instanceof Integer r) {
+							    System.out.println();
+							} else if (obj instanceof Double c) { // Eclipse Compilation Error: Duplicate variable c
+							    System.out.println();
+							}
+						}
+					}
+				}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 13)\n" +
+			"	} else if (obj instanceof Double c) { // Eclipse Compilation Error: Duplicate variable c\n" +
+			"	                                 ^\n" +
+			"Duplicate local variable c\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 26)\n" +
+			"	} else if (obj instanceof Double c) { // Eclipse Compilation Error: Duplicate variable c\n" +
+			"	                                 ^\n" +
+			"Duplicate local variable c\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 39)\n" +
+			"	} else if (obj instanceof Double c) { // Eclipse Compilation Error: Duplicate variable c\n" +
+			"	                                 ^\n" +
+			"Duplicate local variable c\n" +
+			"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=577415
+	// Bug in Eclipse Pattern Matching Instanceof Variable Scope
+	public void test577415_5() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static void main(String[] args) {
+						synchronized(args) {
+							Object obj = new Object();
+							if (obj instanceof Double c) {
+							    System.out.println();
+							} else {
+							    throw new IllegalArgumentException("invalid type"); // works OK without this line
+							}
+
+							if (obj instanceof Integer r) {
+							    System.out.println();
+							} else if (obj instanceof Double c) { // Eclipse Compilation Error: Duplicate variable c
+							    System.out.println();
+							}
+						}
+					}
+				}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 13)\n" +
+			"	} else if (obj instanceof Double c) { // Eclipse Compilation Error: Duplicate variable c\n" +
+			"	                                 ^\n" +
+			"Duplicate local variable c\n" +
+			"----------\n");
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=577415
+	// Bug in Eclipse Pattern Matching Instanceof Variable Scope
+	public void test577415_6() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static void main(String[] args) {
+					    try {
+					        gain(args);
+					    } catch (IllegalArgumentException iae) {
+					        if (iae.getMessage().equals("invalid type"))
+					            System.out.println("All well");
+					    }
+					}
+					public static void gain(String[] args) {
+						Object obj = new Object();
+						if (obj instanceof Integer r) {
+						    System.out.println();
+						} else if (obj instanceof Double c) {
+						    System.out.println();
+						} else {
+						    throw new IllegalArgumentException("invalid type"); // works OK without this line
+						}
+
+						if (obj instanceof Integer r) {
+						    System.out.println();
+						} else if (obj instanceof Double c) { // Eclipse Compilation Error: Duplicate variable c
+						    System.out.println();
+						}
+					}
+				}
+				"""
+			},
+			"All well",
+			getCompilerOptions());
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=577415
+	// Bug in Eclipse Pattern Matching Instanceof Variable Scope
+	public void test577415_7() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static void main(String[] args) {
+					    try {
+					        gain(new String[] {"Hello"});
+					    } catch (IllegalArgumentException iae) {
+					        if (iae.getMessage().equals("invalid type"))
+					            System.out.println("All well");
+					    }
+					}
+					public static void gain(String[] args) {
+						switch(args[0]) {
+							case "Hello" :
+								Object obj = new Object();
+								if (obj instanceof Integer r) {
+								    System.out.println();
+								} else if (obj instanceof Double c) {
+								    System.out.println();
+								} else {
+								    throw new IllegalArgumentException("invalid type"); // works OK without this line
+								}
+
+								if (obj instanceof Integer r) {
+								    System.out.println();
+								} else if (obj instanceof Double c) { // Eclipse Compilation Error: Duplicate variable c
+								    System.out.println();
+								}
+						}
+					}
+				}
+				"""
+			},
+			"All well",
+			getCompilerOptions());
+	}
+	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=577415
+	// Bug in Eclipse Pattern Matching Instanceof Variable Scope
+	public void test577415_8() {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static void main(String[] args) {
+					    try {
+					        gain(new String[] {"Hello"});
+					    } catch (IllegalArgumentException iae) {
+					        if (iae.getMessage().equals("invalid type"))
+					            System.out.println("All well");
+					    }
+					}
+					public static void gain(String[] args) {
+						switch(args[0]) {
+							case "Hello" :
+								Object obj = new Object();
+								if (obj instanceof Double c) {
+								    System.out.println();
+								} else {
+								    throw new IllegalArgumentException("invalid type"); // works OK without this line
+								}
+
+								if (obj instanceof Integer r) {
+								    System.out.println();
+								} else if (obj instanceof Double c) { // Eclipse Compilation Error: Duplicate variable c
+								    System.out.println();
+								}
+						}
+					}
+				}
+				"""
+			},
+			"----------\n"
+			+ "1. ERROR in X.java (at line 22)\n"
+			+ "	} else if (obj instanceof Double c) { // Eclipse Compilation Error: Duplicate variable c\n"
+			+ "	                                 ^\n"
+			+ "Duplicate local variable c\n"
+			+ "----------\n");
+	}
 }

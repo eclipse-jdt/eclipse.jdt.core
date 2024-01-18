@@ -300,37 +300,30 @@ public StringBuilder printStatement(int indent, StringBuilder output) {
 	}
 	return output;
 }
-private void resolveIfStatement(BlockScope scope) {
-	TypeBinding type = this.condition.resolveTypeExpecting(scope, TypeBinding.BOOLEAN);
-	this.condition.computeConversion(scope, type, type);
-	if (this.thenStatement != null)
-		this.thenStatement.resolve(scope);
-	if (this.elseStatement != null)
-		this.elseStatement.resolve(scope);
+
+@Override
+public LocalVariableBinding[] getPatternVariablesLiveUponCompletion() {
+	if (!this.condition.containsPatternVariable() || doesNotCompleteNormally())
+		return NO_VARIABLES;
+	if (this.thenStatement != null && this.thenStatement.doesNotCompleteNormally())
+		return this.condition.getPatternVariablesWhenFalse();
+	if (this.elseStatement != null && this.elseStatement.doesNotCompleteNormally())
+		return this.condition.getPatternVariablesWhenTrue();
+	return NO_VARIABLES;
 }
 @Override
 public void resolve(BlockScope scope) {
-	if (containsPatternVariable()) {
-		this.condition.collectPatternVariablesToScope(null, scope);
-		LocalVariableBinding[] patternVariablesInTrueScope = this.condition.getPatternVariablesWhenTrue();
-		LocalVariableBinding[] patternVariablesInFalseScope = this.condition.getPatternVariablesWhenFalse();
-		TypeBinding type = this.condition.resolveTypeExpecting(scope, TypeBinding.BOOLEAN);
-		this.condition.computeConversion(scope, type, type);
+	this.condition.collectPatternVariablesToScope(null, scope);
+	LocalVariableBinding[] patternVariablesInTrueScope = this.condition.getPatternVariablesWhenTrue();
+	LocalVariableBinding[] patternVariablesInFalseScope = this.condition.getPatternVariablesWhenFalse();
+	TypeBinding type = this.condition.resolveTypeExpecting(scope, TypeBinding.BOOLEAN);
+	this.condition.computeConversion(scope, type, type);
 
-		if (this.thenStatement != null) {
-			this.thenStatement.resolveWithPatternVariablesInScope(patternVariablesInTrueScope, scope);
-		}
-		if (this.elseStatement != null) {
-			this.elseStatement.resolveWithPatternVariablesInScope(patternVariablesInFalseScope, scope);
-		}
-		if (this.thenStatement != null)
-			this.thenStatement.promotePatternVariablesIfApplicable(patternVariablesInFalseScope,
-				this.thenStatement::doesNotCompleteNormally);
-		if (this.elseStatement != null)
-			this.elseStatement.promotePatternVariablesIfApplicable(patternVariablesInTrueScope,
-					this.elseStatement::doesNotCompleteNormally);
-	} else {
-		resolveIfStatement(scope);
+	if (this.thenStatement != null) {
+		this.thenStatement.resolveWithPatternVariablesInScope(patternVariablesInTrueScope, scope);
+	}
+	if (this.elseStatement != null) {
+		this.elseStatement.resolveWithPatternVariablesInScope(patternVariablesInFalseScope, scope);
 	}
 }
 

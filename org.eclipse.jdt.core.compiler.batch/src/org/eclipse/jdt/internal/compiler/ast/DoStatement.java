@@ -225,22 +225,18 @@ public StringBuilder printStatement(int indent, StringBuilder output) {
 }
 
 @Override
+public LocalVariableBinding[] getPatternVariablesLiveUponCompletion() {
+	return this.condition.containsPatternVariable() && this.action != null && !this.action.breaksOut(null) ?
+			this.condition.getPatternVariablesWhenFalse() : NO_VARIABLES;
+}
+
+@Override
 public void resolve(BlockScope scope) {
-	if (containsPatternVariable()) {
-		this.condition.collectPatternVariablesToScope(null, scope);
-		LocalVariableBinding[] patternVariablesInFalseScope = this.condition.getPatternVariablesWhenFalse();
-		TypeBinding type = this.condition.resolveTypeExpecting(scope, TypeBinding.BOOLEAN);
-		this.condition.computeConversion(scope, type, type);
-		if (this.action != null) {
-			this.action.resolve(scope);
-			this.action.promotePatternVariablesIfApplicable(patternVariablesInFalseScope,
-					() -> !this.action.breaksOut(null));
-		}
-	} else {
-		TypeBinding type = this.condition.resolveTypeExpecting(scope, TypeBinding.BOOLEAN);
-		this.condition.computeConversion(scope, type, type);
-		if (this.action != null)
-			this.action.resolve(scope);
+	this.condition.collectPatternVariablesToScope(null, scope);
+	TypeBinding type = this.condition.resolveTypeExpecting(scope, TypeBinding.BOOLEAN);
+	this.condition.computeConversion(scope, type, type);
+	if (this.action != null) {
+		this.action.resolve(scope);
 	}
 }
 
