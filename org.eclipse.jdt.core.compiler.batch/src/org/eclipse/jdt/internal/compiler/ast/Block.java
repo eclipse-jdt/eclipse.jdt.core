@@ -126,10 +126,7 @@ public void resolve(BlockScope upperScope) {
 			this.explicitDeclarations == 0
 				? upperScope
 				: new BlockScope(upperScope, this.explicitDeclarations);
-		for (int i = 0, length = this.statements.length; i < length; i++) {
-			final Statement stmt = this.statements[i];
-			stmt.resolve(this.scope);
-		}
+		resolveStatements(this.statements, this.scope);
 	}
 }
 
@@ -140,9 +137,7 @@ public void resolveUsing(BlockScope givenScope) {
 	// this optimized resolve(...) is sent only on none empty blocks
 	this.scope = givenScope;
 	if (this.statements != null) {
-		for (int i = 0, length = this.statements.length; i < length; i++) {
-			this.statements[i].resolve(this.scope);
-		}
+		resolveStatements(this.statements, this.scope);
 	}
 }
 

@@ -41,8 +41,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import java.util.function.BooleanSupplier;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.NullAnnotationMatching.CheckMode;
@@ -124,6 +122,7 @@ public boolean continueCompletes() {
 	public static final int NOT_COMPLAINED = 0;
 	public static final int COMPLAINED_FAKE_REACHABLE = 1;
 	public static final int COMPLAINED_UNREACHABLE = 2;
+
 	LocalVariableBinding[] patternVarsWhenTrue;
 	LocalVariableBinding[] patternVarsWhenFalse;
 
@@ -491,6 +490,9 @@ public LocalVariableBinding[] getPatternVariablesWhenTrue() {
 public LocalVariableBinding[] getPatternVariablesWhenFalse() {
 	return this.patternVarsWhenFalse;
 }
+public LocalVariableBinding[] getPatternVariablesLiveUponCompletion() {
+	return NO_VARIABLES;
+}
 public void addPatternVariablesWhenTrue(LocalVariableBinding[] vars) {
 	if (vars == null || vars.length == 0) return;
 	if (this.patternVarsWhenTrue == vars) return;
@@ -518,24 +520,18 @@ private LocalVariableBinding[] addPatternVariables(LocalVariableBinding[] curren
 	}
 	return current;
 }
-public void promotePatternVariablesIfApplicable(LocalVariableBinding[] patternVariablesInScope, BooleanSupplier condition) {
-	if (patternVariablesInScope != null && condition.getAsBoolean()) {
-		for (LocalVariableBinding binding : patternVariablesInScope) {
-			binding.modifiers &= ~ExtraCompilerModifiers.AccPatternVariable;
-		}
-	}
-}
+
 public void resolveWithPatternVariablesInScope(LocalVariableBinding[] patternVariablesInScope, BlockScope scope) {
 	if (patternVariablesInScope != null) {
 		for (LocalVariableBinding binding : patternVariablesInScope) {
 			binding.modifiers &= ~ExtraCompilerModifiers.AccPatternVariable;
 		}
-		this.resolve(scope);
+	}
+	this.resolve(scope);
+	if (patternVariablesInScope != null) {
 		for (LocalVariableBinding binding : patternVariablesInScope) {
 			binding.modifiers |= ExtraCompilerModifiers.AccPatternVariable;
 		}
-	} else {
-		resolve(scope);
 	}
 }
 /**
