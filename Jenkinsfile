@@ -46,7 +46,7 @@ pipeline {
 					archiveArtifacts artifacts: '*.log,*/target/work/data/.metadata/*.log,*/tests/target/work/data/.metadata/*.log,apiAnalyzer-workspace/.metadata/*.log', allowEmptyArchive: true
 					junit '**/target/surefire-reports/*.xml'
 					discoverGitReferenceBuild referenceJob: 'eclipse.jdt.core-github/master'
-					recordIssues publishAllIssues:false, tools: [eclipse()], qualityGates: [[threshold: 1, type: 'DELTA_NORMAL', unstable: true]], minimumSeverity: 'NORMAL'
+					recordIssues publishAllIssues:false, tools: [eclipse(pattern: '**/target/compilelogs/*.xml')], qualityGates: [[threshold: 1, type: 'DELTA_NORMAL', unstable: true]], minimumSeverity: 'NORMAL'
 					recordIssues publishAllIssues:false, tools: [javaDoc()], qualityGates: [[threshold: 1, type: 'DELTA', unstable: true]]
 					recordIssues publishAllIssues:false, tools: [mavenConsole()], qualityGates: [[threshold: 1, type: 'DELTA_ERROR', unstable: true]]	
 				}
