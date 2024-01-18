@@ -227,7 +227,7 @@ public class RecordPattern extends TypePattern {
 		return this.resolvedType != null && this.resolvedType.isRawType();
 	}
 	private void infuseInferredType(Scope currentScope, TypePattern tp, RecordComponentBinding componentBinding) {
-		SingleTypeReference ref = new SingleTypeReference(componentBinding.type.sourceName(),
+		SingleTypeReference ref = new SingleTypeReference(tp.local.type.getTypeName()[0],
 				tp.local.type.sourceStart,
 				tp.local.type.sourceEnd) {
 			@Override
