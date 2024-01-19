@@ -64,6 +64,7 @@ public interface TagBits {
 	long IsEffectivelyFinal = ASTNode.Bit12; // local
 	long MultiCatchParameter = ASTNode.Bit13; // local
 	long IsResource = ASTNode.Bit14; // local
+	long IsPatternBinding = ASTNode.Bit15; // local
 
 	// have implicit null annotations been collected (inherited(?) & default)?
 	long IsNullnessKnown = ASTNode.Bit13; // method

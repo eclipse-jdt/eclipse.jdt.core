@@ -496,6 +496,32 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 			if (this.valueIfFalse instanceof CastExpression) this.valueIfFalse.bits |= DisableUnnecessaryCastCheck; // will check later on
 			this.originalValueIfFalseType = this.valueIfFalse.resolveTypeWithPatternVariablesInScope(this.condition.getPatternVariablesWhenFalse(), scope);
 
+			/*
+			 *
+			 * 6.3.1.4 Conditional Operator a ? b : c
+			 *
+			 * It is a compile-time error if any of the following conditions hold:
+				• A pattern variable is both (i) introduced by a when true and (ii) introduced by
+				c when true.
+				• A pattern variable is both (i) introduced by a when true and (ii) introduced by
+				c when false.
+				• A pattern variable is both (i) introduced by a when false and (ii) introduced by
+				b when true.
+				• A pattern variable is both (i) introduced by a when false and (ii) introduced by
+				b when false.
+				• A pattern variable is both (i) introduced by b when true and (ii) introduced by
+				c when true.
+				• A pattern variable is both (i) introduced by b when false and (ii) introduced by
+				c when false.
+			 */
+			Pattern.reportRedeclarations(scope, this.condition.getPatternVariablesWhenTrue(), this.valueIfFalse.getPatternVariablesWhenTrue());
+			Pattern.reportRedeclarations(scope, this.condition.getPatternVariablesWhenTrue(), this.valueIfFalse.getPatternVariablesWhenFalse());
+			Pattern.reportRedeclarations(scope, this.condition.getPatternVariablesWhenFalse(), this.valueIfTrue.getPatternVariablesWhenTrue());
+			Pattern.reportRedeclarations(scope, this.condition.getPatternVariablesWhenFalse(), this.valueIfTrue.getPatternVariablesWhenFalse());
+			Pattern.reportRedeclarations(scope, this.valueIfTrue.getPatternVariablesWhenTrue(), this.valueIfFalse.getPatternVariablesWhenTrue());
+			Pattern.reportRedeclarations(scope, this.valueIfTrue.getPatternVariablesWhenFalse(), this.valueIfFalse.getPatternVariablesWhenFalse());
+
+
 			if (conditionType == null || this.originalValueIfTrueType == null || this.originalValueIfFalseType == null)
 				return null;
 		} else {

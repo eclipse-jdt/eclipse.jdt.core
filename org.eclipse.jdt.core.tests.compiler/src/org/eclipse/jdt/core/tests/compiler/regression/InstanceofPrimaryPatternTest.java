@@ -348,7 +348,7 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 			+ "1. ERROR in X.java (at line 12)\n"
 			+ "	} else if (obj instanceof Double c) { // Eclipse Compilation Error: Duplicate variable c\n"
 			+ "	                                 ^\n"
-			+ "Duplicate local variable c\n"
+			+ "A pattern variable with the same name is already defined in the statement\n"
 			+ "----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=577415
@@ -419,7 +419,7 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 			+ "1. ERROR in X.java (at line 13)\n"
 			+ "	} else if (obj instanceof Double c) { // Eclipse Compilation Error: Duplicate variable c\n"
 			+ "	                                 ^\n"
-			+ "Duplicate local variable c\n"
+			+ "A pattern variable with the same name is already defined in the statement\n"
 			+ "----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=577415
@@ -479,17 +479,17 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 13)\n" +
 			"	} else if (obj instanceof Double c) { // Eclipse Compilation Error: Duplicate variable c\n" +
 			"	                                 ^\n" +
-			"Duplicate local variable c\n" +
+			"A pattern variable with the same name is already defined in the statement\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 26)\n" +
 			"	} else if (obj instanceof Double c) { // Eclipse Compilation Error: Duplicate variable c\n" +
 			"	                                 ^\n" +
-			"Duplicate local variable c\n" +
+			"A pattern variable with the same name is already defined in the statement\n" +
 			"----------\n" +
 			"3. ERROR in X.java (at line 39)\n" +
 			"	} else if (obj instanceof Double c) { // Eclipse Compilation Error: Duplicate variable c\n" +
 			"	                                 ^\n" +
-			"Duplicate local variable c\n" +
+			"A pattern variable with the same name is already defined in the statement\n" +
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=577415
@@ -523,7 +523,7 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 			"1. ERROR in X.java (at line 13)\n" +
 			"	} else if (obj instanceof Double c) { // Eclipse Compilation Error: Duplicate variable c\n" +
 			"	                                 ^\n" +
-			"Duplicate local variable c\n" +
+			"A pattern variable with the same name is already defined in the statement\n" +
 			"----------\n");
 	}
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=577415
@@ -645,7 +645,7 @@ public class InstanceofPrimaryPatternTest extends AbstractRegressionTest {
 			+ "1. ERROR in X.java (at line 22)\n"
 			+ "	} else if (obj instanceof Double c) { // Eclipse Compilation Error: Duplicate variable c\n"
 			+ "	                                 ^\n"
-			+ "Duplicate local variable c\n"
+			+ "A pattern variable with the same name is already defined in the statement\n"
 			+ "----------\n");
 	}
 }

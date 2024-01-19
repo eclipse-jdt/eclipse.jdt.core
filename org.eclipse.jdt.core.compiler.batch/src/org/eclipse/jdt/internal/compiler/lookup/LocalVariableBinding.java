@@ -66,6 +66,13 @@ public class LocalVariableBinding extends VariableBinding {
 		this.tagBits |= TagBits.IsEffectivelyFinal;
 	}
 
+	// regular local variable or pattern bindings
+	public LocalVariableBinding(LocalDeclaration declaration, TypeBinding type, int modifiers, long tagBits) {
+		this(declaration.name, type, modifiers, false);
+		this.declaration = declaration;
+		this.tagBits |= tagBits;
+	}
+
 	// regular local variable or argument
 	public LocalVariableBinding(LocalDeclaration declaration, TypeBinding type, int modifiers, boolean isArgument) {
 
@@ -311,8 +318,9 @@ public class LocalVariableBinding extends VariableBinding {
 	public boolean isCatchParameter() {
 		return false;
 	}
+	@Override
 	public boolean isPatternVariable() {
-		return ((this.modifiers & ExtraCompilerModifiers.AccPatternVariable) != 0);
+		return (this.tagBits & TagBits.IsPatternBinding) != 0;
 	}
 
 	public MethodBinding getEnclosingMethod() {

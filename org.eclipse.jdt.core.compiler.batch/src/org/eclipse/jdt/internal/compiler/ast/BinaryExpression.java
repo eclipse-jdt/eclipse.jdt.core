@@ -1853,6 +1853,37 @@ public TypeBinding resolveType(BlockScope scope) {
 
 	TypeBinding rightType = this.right.resolveTypeWithPatternVariablesInScope(patternVars, scope);
 
+	/*
+	 * 6.3.1 Scope for Pattern Variables in Expressions
+	 * 6.3.1.1 Conditional-And Operator &&
+	 *
+	 * It is a compile-time error if any of the following conditions hold:
+		• A pattern variable is both (i) introduced by a when true and (ii) introduced by
+		b when true.
+		• A pattern variable is both (i) introduced by a when false and (ii) introduced by
+		b when false.
+
+	    ...
+
+	 * 6.3.1.2 Conditional-Or Operator ||
+	 *
+	 * It is a compile-time error if any of the following conditions hold:
+		• A pattern variable is both (i) introduced by a when true and (ii) introduced by
+		b when true.
+		• A pattern variable is both (i) introduced by a when false and (ii) introduced by
+		b when false.
+	 */
+
+	// We handle only the cases NOT already diagnosed in due course to avoid double jeopardy
+	switch ((this.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT) {
+		case AND_AND -> {
+			Pattern.reportRedeclarations(scope, this.left.getPatternVariablesWhenFalse(), this.right.getPatternVariablesWhenFalse());
+		}
+		case OR_OR -> {
+			Pattern.reportRedeclarations(scope, this.left.getPatternVariablesWhenTrue(), this.right.getPatternVariablesWhenTrue());
+		}
+	}
+
 	// use the id of the type to navigate into the table
 	if (leftType == null || rightType == null) {
 		this.constant = Constant.NotAConstant;
