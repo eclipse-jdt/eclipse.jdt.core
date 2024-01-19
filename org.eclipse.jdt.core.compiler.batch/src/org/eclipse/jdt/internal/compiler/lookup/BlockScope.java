@@ -71,6 +71,8 @@ public class BlockScope extends Scope {
 	public boolean insideTypeAnnotation = false;
 	public Statement blockStatement;
 
+    private boolean reparentLocals = false;
+
 public BlockScope(BlockScope parent) {
 	this(parent, true);
 }
@@ -137,6 +139,12 @@ public final void addLocalType(TypeDeclaration localType) {
  * and checking there are not too many locals or arguments allocated.
  */
 public final void addLocalVariable(LocalVariableBinding binding) {
+	if (this.reparentLocals) {
+		BlockScope parentScope = (BlockScope) this.parent;
+		parentScope.addLocalVariable(binding);
+		this.startIndex = parentScope.localIndex;
+		return;
+	}
 	checkAndSetModifiersForVariable(binding);
 	// insert local in scope
 	if (this.localIndex == this.locals.length)
@@ -1413,6 +1421,10 @@ private boolean checkAppropriate(MethodBinding compileTimeDeclaration, MethodBin
 		return false;
 	}
 	return true;
+}
+
+public void reparentLocals(boolean reparent) {
+	this.reparentLocals = reparent;
 }
 
 }
