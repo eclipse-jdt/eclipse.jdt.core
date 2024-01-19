@@ -476,17 +476,6 @@ public LocalDeclaration[] findLocalVariableDeclarations(int position) {
 	}
 	return null;
 }
-private boolean isPatternVariableInScope(InvocationSite invocationSite, LocalVariableBinding variable) {
-	LocalVariableBinding[] patternVariablesInScope = invocationSite.getPatternVariablesWhenTrue();
-	if (patternVariablesInScope == null)
-		return false;
-	for (LocalVariableBinding v : patternVariablesInScope) {
-		if (v == variable) {
-			return true;
-		}
-	}
-	return false;
-}
 @Override
 public LocalVariableBinding findVariable(char[] variableName, InvocationSite invocationSite) {
 	int varLength = variableName.length;
@@ -497,18 +486,6 @@ public LocalVariableBinding findVariable(char[] variableName, InvocationSite inv
 		char[] localName;
 		if ((localName = local.name).length == varLength && CharOperation.equals(localName, variableName))
 			return local;
-	}
-	// Look at the pattern variables now
-	for (int i = this.localIndex-1; i >= 0; i--) { // lookup backward to reach latest additions first
-		LocalVariableBinding local = this.locals[i];
-		if ((local.modifiers & ExtraCompilerModifiers.AccPatternVariable) == 0)
-			continue;
-		char[] localName;
-		if ((localName = local.name).length != varLength || !CharOperation.equals(localName, variableName))
-			continue;
-		if (isPatternVariableInScope(invocationSite, local)) {
-			return local;
-		}
 	}
 	return null;
 }

@@ -29,6 +29,7 @@ import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
@@ -51,12 +52,6 @@ public class RecordPattern extends TypePattern {
 	public LocalVariableBinding secretCaughtThrowableVariable = null;
 	/* package */ BranchLabel guardedElseTarget;
 
-	public RecordPattern(LocalDeclaration local) {
-		super(local);
-		this.type = local.type;
-		this.sourceStart = local.sourceStart;
-		this.sourceEnd = local.sourceEnd;
-	}
 	public RecordPattern(TypeReference type, int sourceStart, int sourceEnd) {
 		super();
 		this.type = type;
@@ -144,42 +139,44 @@ public class RecordPattern extends TypePattern {
 		for (Pattern p : this.patterns) {
 			p.resolveAtType(scope, u);
 		}
-		if (this.local != null) {
-			this.resolvedType = super.resolveAtType(scope, u);
-		}
 		return this.resolvedType;
 	}
 	@Override
-	public TypeBinding resolveType(BlockScope scope, boolean isPatternVariable) {
-		if (this.resolvedType != null)
-			return this.resolvedType;
-		super.resolveType(scope, isPatternVariable);
+	public TypeBinding resolveTypeWithPatternVariablesInScope(LocalVariableBinding [] patternVariablesInScope, BlockScope scope, boolean isPatternVariable) {
+		if (patternVariablesInScope != null) {
+			for (LocalVariableBinding binding : patternVariablesInScope) {
+				binding.modifiers &= ~ExtraCompilerModifiers.AccPatternVariable;
+			}
+		}
+		try {
+			if (this.resolvedType != null)
+				return this.resolvedType;
 
-		if (this.local != null) {
-			this.resolvedType = super.resolveType(scope);
-		} else {
 			this.type.bits |= ASTNode.IgnoreRawTypeCheck;
 			this.resolvedType = this.type.resolveType(scope);
-		}
-		if (this.resolvedType == null) {
-			// Probably called during collectPatternVariablesToScope()
-			// and probably due to an error, this is unresolved.
-			return null;
-		}
-		if (!this.resolvedType.isValidBinding())
-			return this.resolvedType;
 
-		getSecretVariable(scope, this.resolvedType);
+			if (this.resolvedType == null || !this.resolvedType.isValidBinding()) {
+				return this.resolvedType;
+			}
 
-		// check whether the give type reference is a record
-		// check whether a raw type is being used in pattern types
-		// check whether the pattern signature matches that of the record declaration
-		if (!this.resolvedType.isRecord()) {
-			scope.problemReporter().unexpectedTypeinRecordPattern(this.resolvedType, this.type);
+			getSecretVariable(scope, this.resolvedType);
+
+			// check whether the give type reference is a record
+			// check whether a raw type is being used in pattern types
+			// check whether the pattern signature matches that of the record declaration
+			if (!this.resolvedType.isRecord()) {
+				scope.problemReporter().unexpectedTypeinRecordPattern(this.resolvedType, this.type);
+				return this.resolvedType;
+			}
+			setAccessorsPlusInfuseInferredType(scope);
 			return this.resolvedType;
+		} finally {
+			if (patternVariablesInScope != null) {
+				for (LocalVariableBinding binding : patternVariablesInScope) {
+					binding.modifiers |= ExtraCompilerModifiers.AccPatternVariable;
+				}
+			}
 		}
-		setAccessorsPlusInfuseInferredType(scope);
-		return this.resolvedType;
 	}
 	private void setAccessorsPlusInfuseInferredType(BlockScope scope) {
 		this.isTotalTypeNode = super.coversType(this.resolvedType);
@@ -187,6 +184,7 @@ public class RecordPattern extends TypePattern {
 		if (components.length != this.patterns.length) {
 			scope.problemReporter().recordPatternSignatureMismatch(this.resolvedType, this);
 		} else {
+			LocalVariableBinding [] livePatternVariables = NO_VARIABLES;
 			for (int i = 0; i < components.length; i++) {
 				Pattern p = this.patterns[i];
 				if (!(p instanceof TypePattern))
@@ -198,7 +196,8 @@ public class RecordPattern extends TypePattern {
 					if (tp.local.binding != null) // rewrite with the inferred type
 						tp.local.binding.type = componentBinding.type;
 				}
-				p.resolveType(scope, true);
+				p.resolveTypeWithPatternVariablesInScope(livePatternVariables, scope, true);
+				livePatternVariables = LocalVariableBinding.merge(livePatternVariables, p.getPatternVariablesWhenTrue());
 				TypeBinding expressionType = componentBinding.type;
 				if (p.isPatternTypeCompatible(expressionType, scope)) {
 					p.isTotalTypeNode = p.coversType(componentBinding.type);
