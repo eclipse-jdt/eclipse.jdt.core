@@ -1200,19 +1200,19 @@ public class SwitchStatement extends Expression {
 				for (int i = 0; i < length; i++) {
 					ResolvedCase[] constantsList;
 					final Statement statement = this.statements[i];
-					// Let's first collect the pattern variables if any
-					// so that we can resolve all statements (including case statements)
-					// with the pattern variables in scope.
-					if (statement instanceof CaseStatement) {
-						if (statement.containsPatternVariable()) {
-							CaseStatement caseStatement = (CaseStatement) statement;
+					if (statement instanceof CaseStatement caseStmt) {
+						caseNullDefaultFound = caseNullDefaultFound ? caseNullDefaultFound
+								: isCaseStmtNullDefault(caseStmt);
+						defaultFound |= caseStmt.constantExpressions == null;
+						constantsList = caseStmt.resolveCase(this.scope, expressionType, this);
+						if (caseStmt.containsPatternVariable()) {
 							if ((this.switchBits & Synthetic) == 0) {
 								// This is already done in foreach
 								// ...
 							}
 							patternVariables = statement.getPatternVariablesWhenTrue();
-							if (caseStatement.patternIndex >= 0) {
-								Expression probablePattern = caseStatement.constantExpressions[caseStatement.patternIndex];
+							if (caseStmt.patternIndex >= 0) {
+								Expression probablePattern = caseStmt.constantExpressions[caseStmt.patternIndex];
 								if (probablePattern instanceof Pattern) {
 									Pattern pattern = (Pattern) probablePattern;
 									pattern.resolveWithExpression(this.scope, this.expression);
@@ -1221,98 +1221,79 @@ public class SwitchStatement extends Expression {
 						} else {
 							patternVariables = NO_VARIABLES;
 						}
-					} else {
-						statement.resolveWithPatternVariablesInScope(patternVariables, this.scope);
-						LocalVariableBinding[] newVariables = statement.getPatternVariablesLiveUponCompletion();
-						if (newVariables != null && newVariables.length > 0) {
-							int livePatternVariableCount = patternVariables.length;
-							System.arraycopy(patternVariables,
-									                            0,
-									         patternVariables = new LocalVariableBinding[livePatternVariableCount + newVariables.length],
-									                            0,
-									         livePatternVariableCount);
-							System.arraycopy(newVariables,
-			                                        0,
-			                             patternVariables,
-			                             livePatternVariableCount,
-			                             newVariables.length);
-						}
-						continue;
-					}
-					CaseStatement caseStmt = (CaseStatement) statement;
-					caseNullDefaultFound = caseNullDefaultFound ?
-							caseNullDefaultFound : isCaseStmtNullDefault(caseStmt);
-					defaultFound |= caseStmt.constantExpressions == null;
-					constantsList = caseStmt.resolveCase(this.scope, expressionType, this);
-					if (constantsList != ResolvedCase.UnresolvedCase) {
-						for (ResolvedCase c : constantsList) {
-							Constant con = c.c;
-							if (con == Constant.NotAConstant)
-								continue;
-							this.otherConstants[counter] = c;
-							final int c1 = this.containsPatterns ? (c.intValue() == -1 ? -1 : counter) : c.intValue();
-							this.constants[counter] = c1;
-							if (counter == 0 && defaultFound) {
-								if (c.isPattern() || isCaseStmtNullOnly(caseStmt))
-								this.scope.problemReporter().patternDominatedByAnother(c.e);
-							}
-							for (int j = 0; j < counter; j++) {
-								IntPredicate check = idx -> {
-									Constant c2 = this.otherConstants[idx].c;
-									if (con.typeID() == TypeIds.T_JavaLangString) {
-										return c2.stringValue().equals(con.stringValue());
-									} else {
-										if (c2.typeID() == TypeIds.T_JavaLangString)
-											return false;
-										if (con.intValue() == c2.intValue())
-											return true;
-										return this.constants[idx] == c1;
-									}
-								};
-								TypeBinding type = c.e.resolvedType;
-								if (!type.isValidBinding())
+						if (constantsList != ResolvedCase.UnresolvedCase) {
+							for (ResolvedCase c : constantsList) {
+								Constant con = c.c;
+								if (con == Constant.NotAConstant)
 									continue;
-								if ((caseNullDefaultFound || defaultFound) && (c.isPattern() || isCaseStmtNullOnly(caseStmt))) {
-									this.scope.problemReporter().patternDominatedByAnother(c.e);
-									break;
+								this.otherConstants[counter] = c;
+							    final int c1 = this.containsPatterns ? (c.intValue() == -1 ? -1 : counter) : c.intValue();
+								this.constants[counter] = c1;
+								if (counter == 0 && defaultFound) {
+									if (c.isPattern() || isCaseStmtNullOnly(caseStmt))
+										this.scope.problemReporter().patternDominatedByAnother(c.e);
 								}
-								Pattern p1 = patterns[j];
-								if (p1 != null) {
-									if (c.isPattern()) {
-										if (p1.dominates((Pattern) c.e)) {
-											this.scope.problemReporter().patternDominatedByAnother(c.e);
+								for (int j = 0; j < counter; j++) {
+									IntPredicate check = idx -> {
+										Constant c2 = this.otherConstants[idx].c;
+										if (con.typeID() == TypeIds.T_JavaLangString) {
+											return c2.stringValue().equals(con.stringValue());
+										} else {
+											if (c2.typeID() == TypeIds.T_JavaLangString)
+												return false;
+											if (con.intValue() == c2.intValue())
+												return true;
+											return this.constants[idx] == c1;
 										}
-									} else {
-										if (type.id != TypeIds.T_null) {
-											if (type.isBaseType()) {
-												type = this.scope.environment().computeBoxingType(type);
-											}
-											if (p1.coversType(type))
-												this.scope.problemReporter().patternDominatedByAnother(c.e);
-										}
+									};
+									TypeBinding type = c.e.resolvedType;
+									if (!type.isValidBinding())
+										continue;
+									if ((caseNullDefaultFound || defaultFound) && (c.isPattern() || isCaseStmtNullOnly(caseStmt))) {
+										this.scope.problemReporter().patternDominatedByAnother(c.e);
+										break;
 									}
-								} else {
-									if (!c.isPattern() && check.test(j)) {
-										if (this.isNonTraditional) {
-											if (c.e instanceof NullLiteral && this.otherConstants[j].e instanceof NullLiteral) {
-												reportDuplicateCase(c.e, this.otherConstants[j].e, length);
+									Pattern p1 = patterns[j];
+									if (p1 != null) {
+										if (c.isPattern()) {
+											if (p1.dominates((Pattern) c.e)) {
+												this.scope.problemReporter().patternDominatedByAnother(c.e);
 											}
 										} else {
-											reportDuplicateCase(caseStmt, this.cases[caseIndex[j]], length);
+											if (type.id != TypeIds.T_null) {
+												if (type.isBaseType()) {
+													type = this.scope.environment().computeBoxingType(type);
+												}
+												if (p1.coversType(type))
+													this.scope.problemReporter().patternDominatedByAnother(c.e);
+											}
+										}
+									} else {
+										if (!c.isPattern() && check.test(j)) {
+											if (this.isNonTraditional) {
+											if (c.e instanceof NullLiteral && this.otherConstants[j].e instanceof NullLiteral) {
+													reportDuplicateCase(c.e, this.otherConstants[j].e, length);
+												}
+											} else {
+												reportDuplicateCase(caseStmt, this.cases[caseIndex[j]], length);
+											}
 										}
 									}
 								}
+								this.constMapping[counter] = counter;
+								caseIndex[counter] = caseCounter;
+								// Only the pattern expressions count for dominance check
+								if (c.e instanceof Pattern) {
+									patterns[counter] = (Pattern) c.e;
+								}
+								counter++;
 							}
-							this.constMapping[counter] = counter;
-							caseIndex[counter] = caseCounter;
-							// Only the pattern expressions count for dominance check
-							if (c.e instanceof Pattern) {
-								patterns[counter] = (Pattern) c.e;
-							}
-							counter++;
 						}
+						caseCounter++;
+					} else {
+						statement.resolveWithPatternVariablesInScope(patternVariables, this.scope);
+						patternVariables = LocalVariableBinding.merge(patternVariables, statement.getPatternVariablesLiveUponCompletion());
 					}
-					caseCounter++;
 				}
 				if (length != counter) { // resize constants array
 					System.arraycopy(this.otherConstants, 0, this.otherConstants = new ResolvedCase[counter], 0, counter);

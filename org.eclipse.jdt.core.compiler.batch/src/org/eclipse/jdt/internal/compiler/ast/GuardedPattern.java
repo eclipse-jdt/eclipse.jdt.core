@@ -46,6 +46,12 @@ public class GuardedPattern extends Pattern {
 	}
 
 	@Override
+	public LocalVariableBinding[] getPatternVariablesWhenTrue() {
+		return LocalVariableBinding.merge(this.primaryPattern.getPatternVariablesWhenTrue(),
+											this.condition.getPatternVariablesWhenTrue());
+	}
+
+	@Override
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 		flowInfo = this.primaryPattern.analyseCode(currentScope, flowContext, flowInfo);
 		this.thenInitStateIndex1 = currentScope.methodScope().recordInitializationStates(flowInfo);
@@ -125,7 +131,7 @@ public class GuardedPattern extends Pattern {
 		// The following call (as opposed to resolveType() ensures that
 		// the implicitConversion code is set properly and thus the correct
 		// unboxing calls are generated.
-		this.condition.resolveTypeExpecting(scope, TypeBinding.BOOLEAN);
+		this.condition.resolveTypeExpectingWithPatternVariablesInScope(this.primaryPattern.getPatternVariablesWhenTrue(), scope, TypeBinding.BOOLEAN);
 		Constant cst = this.condition.optimizedBooleanConstant();
 		if (cst.typeID() == TypeIds.T_boolean && cst.booleanValue() == false) {
 			scope.problemReporter().falseLiteralInGuard(this.condition);

@@ -1148,6 +1148,22 @@ public TypeBinding resolveTypeWithPatternVariablesInScope(LocalVariableBinding[]
 	return retVal;
 }
 
+public TypeBinding resolveTypeExpectingWithPatternVariablesInScope(LocalVariableBinding[] patternVariablesInScope, BlockScope scope,
+		TypeBinding expectedType) {
+	if (patternVariablesInScope != null) {
+		for (LocalVariableBinding binding : patternVariablesInScope) {
+			binding.modifiers &= ~ExtraCompilerModifiers.AccPatternVariable;
+		}
+	}
+	TypeBinding retVal = this.resolveTypeExpecting(scope, expectedType);
+	if (patternVariablesInScope != null) {
+		for (LocalVariableBinding binding : patternVariablesInScope) {
+			binding.modifiers |= ExtraCompilerModifiers.AccPatternVariable;
+		}
+	}
+	return retVal;
+}
+
 /**
  * Resolve the type of this expression in the context of a blockScope
  *
