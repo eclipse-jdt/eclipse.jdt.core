@@ -257,12 +257,12 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 			for (LocalVariableBinding local : patternVariablesInScope) {
 				local.modifiers &= ~ExtraCompilerModifiers.AccPatternVariable;
 			}
-			this.resolveType(blockScope, skipKosherCheck);
+		}
+		this.resolveType(blockScope, skipKosherCheck);
+		if (patternVariablesInScope != null) {
 			for (LocalVariableBinding local : patternVariablesInScope) {
 				local.modifiers |= ExtraCompilerModifiers.AccPatternVariable;
 			}
-		} else {
-			resolveType(blockScope, skipKosherCheck);
 		}
 	}
 

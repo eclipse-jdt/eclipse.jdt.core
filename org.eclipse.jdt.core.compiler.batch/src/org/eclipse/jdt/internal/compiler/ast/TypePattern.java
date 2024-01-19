@@ -172,7 +172,6 @@ public class TypePattern extends Pattern {
 			return this.resolvedType;
 		if (this.local != null) {
 			this.local.modifiers |= ExtraCompilerModifiers.AccPatternVariable;
-//			this.local.resolve(scope, isPatternVariable);
 
 			if (this.local.isTypeNameVar(scope) ) {
 				/* If the LocalVariableType is var then the pattern variable must appear in
@@ -203,7 +202,6 @@ public class TypePattern extends Pattern {
 				this.local.binding.useFlag = LocalVariableBinding.USED;
 				this.resolvedType = this.local.binding.type;
 			}
-//			initSecretPatternVariable(scope);
 		}
 
 		return this.resolvedType;
