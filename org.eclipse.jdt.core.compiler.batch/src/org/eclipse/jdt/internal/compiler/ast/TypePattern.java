@@ -162,7 +162,7 @@ public class TypePattern extends Pattern {
 	@Override
 	public TypeBinding resolveAtType(BlockScope scope, TypeBinding u) {
 		if (this.resolvedType == null) {
-			this.resolvedType = this.local.binding.type;
+			resolveType(scope, true);
 		}
 		return this.resolvedType;
 	}
