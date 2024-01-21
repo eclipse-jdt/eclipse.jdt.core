@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.apt.tests.annotations.readAnnotationType;
 
-import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.Set;
 
