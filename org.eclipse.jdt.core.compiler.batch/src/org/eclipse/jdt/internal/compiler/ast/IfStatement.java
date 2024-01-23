@@ -313,17 +313,14 @@ public LocalVariableBinding[] getPatternVariablesLiveUponCompletion() {
 }
 @Override
 public void resolve(BlockScope scope) {
-	this.condition.collectPatternVariablesToScope(null, scope);
-	LocalVariableBinding[] patternVariablesInTrueScope = this.condition.getPatternVariablesWhenTrue();
-	LocalVariableBinding[] patternVariablesInFalseScope = this.condition.getPatternVariablesWhenFalse();
 	TypeBinding type = this.condition.resolveTypeExpecting(scope, TypeBinding.BOOLEAN);
 	this.condition.computeConversion(scope, type, type);
 
 	if (this.thenStatement != null) {
-		this.thenStatement.resolveWithPatternVariablesInScope(patternVariablesInTrueScope, scope);
+		this.thenStatement.resolveWithPatternVariablesInScope(this.condition.getPatternVariablesWhenTrue(), scope);
 	}
 	if (this.elseStatement != null) {
-		this.elseStatement.resolveWithPatternVariablesInScope(patternVariablesInFalseScope, scope);
+		this.elseStatement.resolveWithPatternVariablesInScope(this.condition.getPatternVariablesWhenFalse(), scope);
 	}
 }
 

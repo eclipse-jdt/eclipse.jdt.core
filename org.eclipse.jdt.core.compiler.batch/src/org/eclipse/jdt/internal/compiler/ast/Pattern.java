@@ -15,12 +15,14 @@ package org.eclipse.jdt.internal.compiler.ast;
 
 import java.util.function.Supplier;
 
+import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public abstract class Pattern extends Expression {
@@ -73,6 +75,18 @@ public abstract class Pattern extends Expression {
 		this.enclosingPattern = enclosingPattern;
 		this.nestingLevel = enclosingPattern.nestingLevel+1;
 	}
+
+	public static void reportRedeclarations(Scope scope, LocalVariableBinding [] left, LocalVariableBinding [] right) {
+		if (left != null && left.length > 0 && right != null && right.length > 0) {
+			for (LocalVariableBinding leftVar : left) {
+				for (LocalVariableBinding rightVar : right) {
+					if (CharOperation.equals(leftVar.name, rightVar.name)) {
+						scope.problemReporter().illegalRedeclarationOfPatternVar(rightVar, rightVar.declaration);
+					}
+				}
+			}
+		}
+	}
 	/**
 	 * Implement the rules in the spec under 14.11.1.1 Exhaustive Switch Blocks
 	 *
@@ -86,9 +100,9 @@ public abstract class Pattern extends Expression {
 	}
 	@Override
 	public TypeBinding resolveType(BlockScope scope) {
-		return resolveType(scope, true);
+		return resolveTypeWithPatternVariablesInScope(NO_VARIABLES, scope, true);
 	}
-	public TypeBinding resolveType(BlockScope scope, boolean isPatternVariable) {
+	public TypeBinding resolveTypeWithPatternVariablesInScope(LocalVariableBinding [] variables, BlockScope scope, boolean isPatternVariable) {
 		return null;
 	}
 	public boolean isAlwaysTrue() {

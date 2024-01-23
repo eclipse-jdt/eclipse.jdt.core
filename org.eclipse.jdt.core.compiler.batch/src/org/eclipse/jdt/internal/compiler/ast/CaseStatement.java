@@ -235,15 +235,6 @@ public static class ResolvedCase {
 		return builder.toString();
 	}
 }
-/**
- * Returns the constant intValue or ordinal for enum constants. If constant is NotAConstant, then answers Float.MIN_VALUE
- */
-public ResolvedCase[] resolveCase(BlockScope scope, TypeBinding switchExpressionType, SwitchStatement switchStatement) {
-	if (containsPatternVariable()) {
-		return resolveWithPatternVariablesInScope(this.patternVarsWhenTrue, scope, switchExpressionType, switchStatement);
-	}
-	return resolveCasePrivate(scope, switchExpressionType, switchStatement);
-}
 public ResolvedCase[] resolveWithPatternVariablesInScope(LocalVariableBinding[] patternVariablesInScope,
 		BlockScope scope,
 		TypeBinding switchExpressionType,
@@ -252,14 +243,14 @@ public ResolvedCase[] resolveWithPatternVariablesInScope(LocalVariableBinding[] 
 		for (LocalVariableBinding binding : patternVariablesInScope) {
 			binding.modifiers &= ~ExtraCompilerModifiers.AccPatternVariable;
 		}
-		ResolvedCase[] cases = resolveCasePrivate(scope, switchExpressionType, switchStatement);
+	}
+	ResolvedCase[] cases = resolveCase(scope, switchExpressionType, switchStatement);
+	if (patternVariablesInScope != null) {
 		for (LocalVariableBinding binding : patternVariablesInScope) {
 			binding.modifiers |= ExtraCompilerModifiers.AccPatternVariable;
 		}
-		return cases;
-	} else {
-		return resolveCasePrivate(scope, switchExpressionType, switchStatement);
 	}
+	return cases;
 }
 private Expression getFirstValidExpression(BlockScope scope, SwitchStatement switchStatement) {
 	assert this.constantExpressions != null;
@@ -319,7 +310,10 @@ private Expression getFirstValidExpression(BlockScope scope, SwitchStatement swi
 	}
 	return ret;
 }
-private ResolvedCase[] resolveCasePrivate(BlockScope scope, TypeBinding switchExpressionType, SwitchStatement switchStatement) {
+/**
+ * Returns the constant intValue or ordinal for enum constants. If constant is NotAConstant, then answers Float.MIN_VALUE
+ */
+public ResolvedCase[] resolveCase(BlockScope scope, TypeBinding switchExpressionType, SwitchStatement switchStatement) {
 	// switchExpressionType maybe null in error case
 	scope.enclosingCase = this; // record entering in a switch case block
 	if (this.constantExpressions == null) {
@@ -382,15 +376,13 @@ private void flagDuplicateDefault(BlockScope scope, SwitchStatement switchStatem
 		scope.problemReporter().illegalTotalPatternWithDefault(this);
 	}
 }
-public void collectPatternVariablesToScope(LocalVariableBinding[] variables, BlockScope scope) {
-	if (!containsPatternVariable()) {
-		return;
-	}
+@Override
+public LocalVariableBinding[] getPatternVariablesWhenTrue() {
+	LocalVariableBinding [] variables = NO_VARIABLES;
 	for (Expression e : this.constantExpressions) {
-		e.collectPatternVariablesToScope(variables, scope);
-		LocalVariableBinding[] patternVariables = e.getPatternVariablesWhenTrue();
-		addPatternVariablesWhenTrue(patternVariables);
+		variables = LocalVariableBinding.merge(variables, e.getPatternVariablesWhenTrue());
 	}
+	return variables;
 }
 public Constant resolveConstantExpression(BlockScope scope,
 											TypeBinding caseType,

@@ -920,7 +920,6 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 		}
 	}
 	// Test that pattern variables declared in instanceof can't be used in a switch/case
-	// Error messages need to rechecked - too many - ref https://github.com/eclipse-jdt/eclipse.jdt.core/issues/777
 	public void test26() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -947,38 +946,22 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 5)\n" +
 				"	case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n" +
 				"	                                      ^\n" +
-				"Duplicate local variable x\n" +
+				"A pattern variable with the same name is already defined in the statement\n" +
 				"----------\n" +
 				"2. ERROR in X.java (at line 5)\n" +
 				"	case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n" +
 				"	                                             ^\n" +
-				"Duplicate local variable y\n" +
+				"A pattern variable with the same name is already defined in the statement\n" +
 				"----------\n" +
 				"3. ERROR in X.java (at line 5)\n" +
 				"	case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n" +
 				"	                                                       ^\n" +
-				"Duplicate local variable c\n" +
+				"A pattern variable with the same name is already defined in the statement\n" +
 				"----------\n" +
-				"4. ERROR in X.java (at line 5)\n" +
-				"	case Rectangle(ColoredPoint(Point(int x, int y), Color c),\n" +
-				"	                                                       ^\n" +
-				"Duplicate local variable c\n" +
-				"----------\n" +
-				"5. ERROR in X.java (at line 6)\n" +
+				"4. ERROR in X.java (at line 6)\n" +
 				"	ColoredPoint lr) -> {\n" +
 				"	             ^^\n" +
-				"Duplicate local variable lr\n" +
-				"----------\n" +
-				"6. ERROR in X.java (at line 6)\n" +
-				"	ColoredPoint lr) -> {\n" +
-				"	             ^^\n" +
-				"Duplicate local variable lr\n" +
-				"----------\n" +
-				"7. ERROR in X.java (at line 6)\n" +
-				"	ColoredPoint lr) -> {\n" +
-				"	             ^^\n" +
-				"Duplicate local variable lr\n" +
-				"----------\n");
+				"A pattern variable with the same name is already defined in the statement\n");
 	}
 	// Test that pattern variables declared in switch/case can't be used in an instanceof expression part of the 'when' clause
 	// not relevant anymore since named record patterns are not there - 20
@@ -1004,22 +987,22 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 4)\n" +
 				"	case Rectangle(ColoredPoint(Point(int x, int y), Color c), ColoredPoint lr) when lr instanceof ColoredPoint(Point(int x, int y), Color c) -> {\n" +
 				"	                                                                                                                      ^\n" +
-				"Duplicate local variable x\n" +
+				"A pattern variable with the same name is already defined in the statement\n" +
 				"----------\n" +
 				"2. ERROR in X.java (at line 4)\n" +
 				"	case Rectangle(ColoredPoint(Point(int x, int y), Color c), ColoredPoint lr) when lr instanceof ColoredPoint(Point(int x, int y), Color c) -> {\n" +
 				"	                                                                                                                             ^\n" +
-				"Duplicate local variable y\n" +
+				"A pattern variable with the same name is already defined in the statement\n" +
 				"----------\n" +
 				"3. ERROR in X.java (at line 4)\n" +
 				"	case Rectangle(ColoredPoint(Point(int x, int y), Color c), ColoredPoint lr) when lr instanceof ColoredPoint(Point(int x, int y), Color c) -> {\n" +
 				"	                                                                                                                                       ^\n" +
-				"Duplicate local variable c\n" +
+				"A pattern variable with the same name is already defined in the statement\n" +
 				"----------\n" +
 				"4. ERROR in X.java (at line 4)\n" +
 				"	case Rectangle(ColoredPoint(Point(int x, int y), Color c), ColoredPoint lr) when lr instanceof ColoredPoint(Point(int x, int y), Color c) -> {\n" +
 				"	                                                                                                                                       ^\n" +
-				"Duplicate local variable c\n" +
+				"A pattern variable with the same name is already defined in the statement\n" +
 				"----------\n");
 	}
 	// Test nested record patterns in 'instanceof' within a swith-case with similar record pattern
@@ -1642,22 +1625,17 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 4)\n" +
 				"	case R(Integer i1, Double i1) -> {}\n" +
 				"	                          ^^\n" +
-				"Duplicate local variable i1\n" +
+				"A pattern variable with the same name is already defined in the statement\n" +
 				"----------\n" +
 				"2. ERROR in X.java (at line 5)\n" +
 				"	case OuterR(R(Integer i1, Double i2), R(Integer i2, Double i2)) -> {}\n" +
 				"	                                                ^^\n" +
-				"Duplicate local variable i2\n" +
+				"A pattern variable with the same name is already defined in the statement\n" +
 				"----------\n" +
 				"3. ERROR in X.java (at line 5)\n" +
 				"	case OuterR(R(Integer i1, Double i2), R(Integer i2, Double i2)) -> {}\n" +
 				"	                                                           ^^\n" +
-				"Duplicate local variable i2\n" +
-				"----------\n" +
-				"4. ERROR in X.java (at line 5)\n" +
-				"	case OuterR(R(Integer i1, Double i2), R(Integer i2, Double i2)) -> {}\n" +
-				"	                                                           ^^\n" +
-				"Duplicate local variable i2\n" +
+				"A pattern variable with the same name is already defined in the statement\n" +
 				"----------\n");
 	}
 	public void testIssue690_2() {
@@ -1680,7 +1658,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 6)\n" +
 				"	if (s instanceof OuterR(R(Integer i1, Double i2), R(Integer i1, Double i4))) { \n" +
 				"	                                                            ^^\n" +
-				"Duplicate local variable i1\n" +
+				"A pattern variable with the same name is already defined in the statement\n" +
 				"----------\n");
 	}
 	public void testIssue691_1() {
@@ -2173,7 +2151,12 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"	                      ^^^\n" +
 				"Incorrect number of arguments for type X.Box<T,U>; it cannot be parameterized with arguments <String>\n" +
 				"----------\n" +
-				"3. ERROR in X.java (at line 10)\n" +
+				"3. ERROR in X.java (at line 5)\n" +
+				"	System.out.println(\"String \" + s1.getClass().toString());\n" +
+				"	                               ^^\n" +
+				"s1 cannot be resolved\n" +
+				"----------\n" +
+				"4. ERROR in X.java (at line 10)\n" +
 				"	test3(bo);\n" +
 				"	^^^^^\n" +
 				"The method test3(X.Box<X.Box<String,Integer>,X.Box<Integer,String>>) is undefined for the type X\n" +

@@ -71,6 +71,8 @@ public class BlockScope extends Scope {
 	public boolean insideTypeAnnotation = false;
 	public Statement blockStatement;
 
+    private boolean reparentLocals = false;
+
 public BlockScope(BlockScope parent) {
 	this(parent, true);
 }
@@ -137,6 +139,12 @@ public final void addLocalType(TypeDeclaration localType) {
  * and checking there are not too many locals or arguments allocated.
  */
 public final void addLocalVariable(LocalVariableBinding binding) {
+	if (this.reparentLocals) {
+		BlockScope parentScope = (BlockScope) this.parent;
+		parentScope.addLocalVariable(binding);
+		this.startIndex = parentScope.localIndex;
+		return;
+	}
 	checkAndSetModifiersForVariable(binding);
 	// insert local in scope
 	if (this.localIndex == this.locals.length)
@@ -476,17 +484,6 @@ public LocalDeclaration[] findLocalVariableDeclarations(int position) {
 	}
 	return null;
 }
-private boolean isPatternVariableInScope(InvocationSite invocationSite, LocalVariableBinding variable) {
-	LocalVariableBinding[] patternVariablesInScope = invocationSite.getPatternVariablesWhenTrue();
-	if (patternVariablesInScope == null)
-		return false;
-	for (LocalVariableBinding v : patternVariablesInScope) {
-		if (v == variable) {
-			return true;
-		}
-	}
-	return false;
-}
 @Override
 public LocalVariableBinding findVariable(char[] variableName, InvocationSite invocationSite) {
 	int varLength = variableName.length;
@@ -497,18 +494,6 @@ public LocalVariableBinding findVariable(char[] variableName, InvocationSite inv
 		char[] localName;
 		if ((localName = local.name).length == varLength && CharOperation.equals(localName, variableName))
 			return local;
-	}
-	// Look at the pattern variables now
-	for (int i = this.localIndex-1; i >= 0; i--) { // lookup backward to reach latest additions first
-		LocalVariableBinding local = this.locals[i];
-		if ((local.modifiers & ExtraCompilerModifiers.AccPatternVariable) == 0)
-			continue;
-		char[] localName;
-		if ((localName = local.name).length != varLength || !CharOperation.equals(localName, variableName))
-			continue;
-		if (isPatternVariableInScope(invocationSite, local)) {
-			return local;
-		}
 	}
 	return null;
 }
@@ -1436,6 +1421,10 @@ private boolean checkAppropriate(MethodBinding compileTimeDeclaration, MethodBin
 		return false;
 	}
 	return true;
+}
+
+public void reparentLocals(boolean reparent) {
+	this.reparentLocals = reparent;
 }
 
 }

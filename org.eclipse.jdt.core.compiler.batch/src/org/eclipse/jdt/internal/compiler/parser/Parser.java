@@ -11005,41 +11005,6 @@ protected void consumeRecordPattern() {
 	problemReporter().validateJavaFeatureSupport(JavaFeature.RECORD_PATTERNS, type.sourceStart, sourceEnd);
 	pushOnAstStack(recPattern);
 }
-protected void consumeRecordPatternWithId() {
-	int length = this.astLengthStack[this.astLengthPtr--];
-	this.astPtr -= length;
-	// Identifier
-	char[] identifierName = this.identifierStack[this.identifierPtr];
-	long namePositions = this.identifierPositionStack[this.identifierPtr];
-	LocalDeclaration local = createLocalDeclaration(identifierName, (int) (namePositions >>> 32), (int) namePositions);
-    this.identifierPtr--;
-	TypeReference type = getTypeReference(0);
-	local.declarationSourceEnd = local.declarationEnd;
-	local.type = type;
-	RecordPattern recPattern = new RecordPattern(local);
-	this.recordPatternLevel.put(this.tryNestingLevel, true); // at 21 not supported, but future-proofing
-	if (length != 0) {
-		Pattern[] patterns = new Pattern[length];
-		System.arraycopy(
-				this.astStack,
-				this.astPtr + 1,
-				patterns,
-				0,
-				length);
-		recPattern.patterns = patterns;
-		for (Pattern pattern : patterns) {
-			pattern.setEnclosingPattern(recPattern);
-		}
-	} else {
-		recPattern.patterns = ASTNode.NO_TYPE_PATTERNS;
-	}
-	this.intPtr -= 3; // 2 for '(' and ')' and one for the 0 pushed by consumeReferenceType()
-	recPattern.sourceStart = this.intStack[this.intPtr--];
-	local.modifiers =  this.intStack[this.intPtr--];
-	local.declarationSourceStart = type.sourceStart;
-	problemReporter().validateJavaFeatureSupport(JavaFeature.RECORD_PATTERNS, type.sourceStart, local.declarationEnd);
-	pushOnAstStack(recPattern);
-}
 protected void consumePatternList() {
 	// PatternList -> Pattern
 	// PatternList ::= PatternList ',' Pattern

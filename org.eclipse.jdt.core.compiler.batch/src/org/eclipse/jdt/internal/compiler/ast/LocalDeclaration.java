@@ -306,7 +306,11 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			if (localExists && (this.bits & ASTNode.ShadowsOuterLocal) != 0 && scope.isLambdaSubscope() && this.hiddenVariableDepth == 0) {
 				scope.problemReporter().lambdaRedeclaresLocal(this);
 			} else if (localExists && this.hiddenVariableDepth == 0) {
-				scope.problemReporter().redefineLocal(this);
+				if (existingVariable.isPatternVariable()) {
+					scope.problemReporter().illegalRedeclarationOfPatternVar((LocalVariableBinding) existingVariable, this);
+				} else {
+					scope.problemReporter().redefineLocal(this);
+				}
 			} else {
 				scope.problemReporter().localVariableHiding(this, existingVariable, false);
 			}
@@ -336,7 +340,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			};
 		} else {
 			// create a binding from the specified type
-			this.binding = new LocalVariableBinding(this, variableType, this.modifiers, false /*isArgument*/);
+			this.binding = new LocalVariableBinding(this, variableType, this.modifiers,
+					                   isPatternVariable ? TagBits.IsPatternBinding : 0);
 		}
 		scope.addLocalVariable(this.binding);
 		this.binding.setConstant(Constant.NotAConstant);

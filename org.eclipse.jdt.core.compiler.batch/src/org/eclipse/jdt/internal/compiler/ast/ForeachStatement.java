@@ -535,12 +535,11 @@ public class ForeachStatement extends Statement {
 		this.scope = new BlockScope(upperScope);
 		this.scope.blockStatement = this;
 		this.elementVariable.resolve(this.scope); // collection expression can see itemVariable
-		LocalVariableBinding[] patternVariablesInTrueScope = null;
+		LocalVariableBinding[] patternVariablesInTrueScope = NO_VARIABLES;
 
 		if (this.pattern != null && JavaFeature.RECORD_PATTERNS.isSupported(upperScope.compilerOptions())) {
-			this.pattern.collectPatternVariablesToScope(null, this.scope);
-			patternVariablesInTrueScope = this.pattern.getPatternVariablesWhenTrue();
 			this.pattern.resolve(this.scope);
+			patternVariablesInTrueScope = this.pattern.getPatternVariablesWhenTrue();
 		}
 		TypeBinding elementType = this.elementVariable.type.resolvedType;
 		TypeBinding collectionType = this.collection == null ? null : this.collection.resolveType(upperScope);

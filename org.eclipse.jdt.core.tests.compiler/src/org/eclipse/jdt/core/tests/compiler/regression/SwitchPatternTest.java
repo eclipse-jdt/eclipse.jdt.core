@@ -1104,7 +1104,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 5)\n" +
 				"	String s = null;\n" +
 				"	       ^\n" +
-				"Duplicate local variable s\n" +
+				"A pattern variable with the same name is already defined in the statement\n" +
 				"----------\n");
 	}
 	// Test that compiler allows local variable with same name as a
@@ -1181,7 +1181,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 5)\n" +
 				"	if (o instanceof String s1) {\n" +
 				"	                        ^^\n" +
-				"Duplicate local variable s1\n" +
+				"A pattern variable with the same name is already defined in the statement\n" +
 				"----------\n");
 	}
 	// Test that when multiple case statements declare pattern variables
@@ -3694,7 +3694,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 4)\n" +
 				"	case CharSequence c1 when (c instanceof String c1 && c1.length() > 0) -> 0;\n" +
 				"	                                               ^^\n" +
-				"Duplicate local variable c1\n" +
+				"A pattern variable with the same name is already defined in the statement\n" +
 				"----------\n");
 	}
 	// Fails with Javac as it prints Javac instead of throwing NPE

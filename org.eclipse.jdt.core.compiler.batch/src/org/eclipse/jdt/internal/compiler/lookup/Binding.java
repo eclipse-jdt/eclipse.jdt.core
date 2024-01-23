@@ -187,6 +187,9 @@ public abstract class Binding {
 	public boolean isParameter() {
 		return false;
 	}
+	public boolean isPatternVariable() {
+		return false;
+	}
 	/* API
 	* Answer the problem id associated with the receiver.
 	* NoError if the receiver is a valid binding.

@@ -157,8 +157,6 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 		copy.sourceStart = this.sourceStart;
 		copy.sourceEnd = this.sourceEnd;
 		copy.text = this.text;
-		copy.lhs.addPatternVariablesWhenTrue(this.lhs.getPatternVariablesWhenTrue());
-		copy.lhs.addPatternVariablesWhenFalse(this.lhs.getPatternVariablesWhenFalse());
 		return copy;
 	}
 

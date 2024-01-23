@@ -123,10 +123,6 @@ public boolean continueCompletes() {
 	public static final int COMPLAINED_FAKE_REACHABLE = 1;
 	public static final int COMPLAINED_UNREACHABLE = 2;
 
-	LocalVariableBinding[] patternVarsWhenTrue;
-	LocalVariableBinding[] patternVarsWhenFalse;
-
-
 /** Analysing arguments of MessageSend, ExplicitConstructorCall, AllocationExpression. */
 protected void analyseArguments(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo, MethodBinding methodBinding, Expression[] arguments)
 {
@@ -485,40 +481,13 @@ public abstract StringBuilder printStatement(int indent, StringBuilder output);
 
 public abstract void resolve(BlockScope scope);
 public LocalVariableBinding[] getPatternVariablesWhenTrue() {
-	return this.patternVarsWhenTrue;
+	return NO_VARIABLES;
 }
 public LocalVariableBinding[] getPatternVariablesWhenFalse() {
-	return this.patternVarsWhenFalse;
+	return NO_VARIABLES;
 }
 public LocalVariableBinding[] getPatternVariablesLiveUponCompletion() {
 	return NO_VARIABLES;
-}
-public void addPatternVariablesWhenTrue(LocalVariableBinding[] vars) {
-	if (vars == null || vars.length == 0) return;
-	if (this.patternVarsWhenTrue == vars) return;
-	this.patternVarsWhenTrue = addPatternVariables(this.patternVarsWhenTrue, vars);
-}
-public void addPatternVariablesWhenFalse(LocalVariableBinding[] vars) {
-	if (vars == null || vars.length == 0) return;
-	if (this.patternVarsWhenFalse == vars) return;
-	this.patternVarsWhenFalse = addPatternVariables(this.patternVarsWhenFalse, vars);
-}
-
-private LocalVariableBinding[] addPatternVariables(LocalVariableBinding[] current, LocalVariableBinding[] additions) {
-	if (additions != null && additions.length > 0) {
-		if (current == null)
-			current = new LocalVariableBinding[0];
-		nextVariable: for (LocalVariableBinding addition : additions) {
-			for (LocalVariableBinding existing : current) {
-				if (existing == addition)
-					continue nextVariable;
-			}
-			int oldLength = current.length;
-			System.arraycopy(current, 0, (current = new LocalVariableBinding[oldLength + 1]), 0, oldLength);
-			current[oldLength] = addition;
-		}
-	}
-	return current;
 }
 
 public void resolveWithPatternVariablesInScope(LocalVariableBinding[] patternVariablesInScope, BlockScope scope) {

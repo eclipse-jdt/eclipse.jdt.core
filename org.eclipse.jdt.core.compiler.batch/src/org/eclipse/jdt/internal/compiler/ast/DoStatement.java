@@ -232,7 +232,6 @@ public LocalVariableBinding[] getPatternVariablesLiveUponCompletion() {
 
 @Override
 public void resolve(BlockScope scope) {
-	this.condition.collectPatternVariablesToScope(null, scope);
 	TypeBinding type = this.condition.resolveTypeExpecting(scope, TypeBinding.BOOLEAN);
 	this.condition.computeConversion(scope, type, type);
 	if (this.action != null) {

@@ -66,6 +66,13 @@ public class LocalVariableBinding extends VariableBinding {
 		this.tagBits |= TagBits.IsEffectivelyFinal;
 	}
 
+	// regular local variable or pattern bindings
+	public LocalVariableBinding(LocalDeclaration declaration, TypeBinding type, int modifiers, long tagBits) {
+		this(declaration.name, type, modifiers, false);
+		this.declaration = declaration;
+		this.tagBits |= tagBits;
+	}
+
 	// regular local variable or argument
 	public LocalVariableBinding(LocalDeclaration declaration, TypeBinding type, int modifiers, boolean isArgument) {
 
@@ -311,8 +318,9 @@ public class LocalVariableBinding extends VariableBinding {
 	public boolean isCatchParameter() {
 		return false;
 	}
+	@Override
 	public boolean isPatternVariable() {
-		return ((this.modifiers & ExtraCompilerModifiers.AccPatternVariable) != 0);
+		return (this.tagBits & TagBits.IsPatternBinding) != 0;
 	}
 
 	public MethodBinding getEnclosingMethod() {
@@ -346,5 +354,27 @@ public class LocalVariableBinding extends VariableBinding {
 		if (this.uninitializedInMethod == null)
 			this.uninitializedInMethod = new HashSet<>();
 		this.uninitializedInMethod.add(scope.methodScope());
+	}
+
+	public static LocalVariableBinding [] merge (LocalVariableBinding[] left, LocalVariableBinding [] right) {
+		if (left == null || left == ASTNode.NO_VARIABLES) {
+			return right == null ? ASTNode.NO_VARIABLES : right;
+		}
+		if (right == null || right == ASTNode.NO_VARIABLES) {
+			return left;
+		}
+
+		int leftCount = left.length;
+		System.arraycopy(left,
+				            0,
+				         left = new LocalVariableBinding[leftCount + right.length],
+				            0,
+				         leftCount);
+		System.arraycopy(right,
+                             0,
+                          left,
+                     leftCount,
+                  right.length);
+		return left;
 	}
 }

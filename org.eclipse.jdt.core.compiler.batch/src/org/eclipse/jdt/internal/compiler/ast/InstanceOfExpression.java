@@ -280,12 +280,8 @@ public boolean resolvePatternVariable(BlockScope scope) {
 	return true;
 }
 @Override
-public void collectPatternVariablesToScope(LocalVariableBinding[] variables, BlockScope scope) {
-	this.expression.collectPatternVariablesToScope(variables, scope);
-	if (this.pattern != null) {
-		this.pattern.collectPatternVariablesToScope(variables, scope);
-		this.addPatternVariablesWhenTrue(this.pattern.patternVarsWhenTrue);
-	}
+public LocalVariableBinding[] getPatternVariablesWhenTrue() {
+	return this.pattern != null ? this.pattern.getPatternVariablesWhenTrue() : NO_VARIABLES;
 }
 @Override
 public boolean containsPatternVariable() {
@@ -311,9 +307,9 @@ private void addSecretInstanceOfPatternExpressionValue(BlockScope scope1) {
 @Override
 public TypeBinding resolveType(BlockScope scope) {
 	this.constant = Constant.NotAConstant;
+	resolvePatternVariable(scope); // Srikanth - this should happen in recursive descent automatically.
 	if (this.elementVariable != null || this.pattern != null)
 		addSecretInstanceOfPatternExpressionValue(scope);
-	resolvePatternVariable(scope);
 	TypeBinding checkedType = this.type.resolveType(scope, true /* check bounds*/);
 	if (this.expression instanceof CastExpression) {
 		((CastExpression) this.expression).setInstanceofType(checkedType); // for cast expression we need to know instanceof type to not tag unnecessary when needed

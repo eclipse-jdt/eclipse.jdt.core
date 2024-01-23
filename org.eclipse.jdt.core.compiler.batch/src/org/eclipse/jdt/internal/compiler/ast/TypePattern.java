@@ -16,7 +16,6 @@ package org.eclipse.jdt.internal.compiler.ast;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
@@ -50,29 +49,9 @@ public class TypePattern extends Pattern {
 		return this.local.type;
 	}
 	@Override
-	public void collectPatternVariablesToScope(LocalVariableBinding[] variables, BlockScope scope) {
-		if (this.resolvedType == null) {
-			this.resolveType(scope);
-		}
-		if (this.local != null && this.local.binding != null) {
-			LocalVariableBinding binding = this.local.binding;
-			if (variables != null) {
-				for (LocalVariableBinding variable : variables) {
-					if (variable == binding) continue; // Shouldn't happen
-					if (CharOperation.equals(binding.name, variable.name)) {
-						scope.problemReporter().redefineLocal(this.local);
-					}
-				}
-			}
-			if (this.patternVarsWhenTrue == null) {
-				this.patternVarsWhenTrue = new LocalVariableBinding[1];
-				this.patternVarsWhenTrue[0] = binding;
-			} else {
-				LocalVariableBinding[] vars = new LocalVariableBinding[1];
-				vars[0] = binding;
-				this.addPatternVariablesWhenTrue(vars);
-			}
-		}
+	public LocalVariableBinding[] getPatternVariablesWhenTrue() {
+		return this.local != null && this.local.binding != null ?
+						new LocalVariableBinding[] { this.local.binding } : NO_VARIABLES;
 	}
 	@Override
 	public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding expressionType, TypeBinding match, boolean isNarrowing) {
@@ -183,51 +162,65 @@ public class TypePattern extends Pattern {
 	@Override
 	public TypeBinding resolveAtType(BlockScope scope, TypeBinding u) {
 		if (this.resolvedType == null) {
-			this.resolvedType = this.local.binding.type;
+			resolveTypeWithPatternVariablesInScope(NO_VARIABLES, scope, true);
 		}
 		return this.resolvedType;
 	}
 	@Override
-	public TypeBinding resolveType(BlockScope scope, boolean isPatternVariable) {
-		if (this.resolvedType != null)
-			return this.resolvedType;
-		if (this.local != null) {
-			this.local.modifiers |= ExtraCompilerModifiers.AccPatternVariable;
-//			this.local.resolve(scope, isPatternVariable);
+	public TypeBinding resolveTypeWithPatternVariablesInScope(LocalVariableBinding [] patternVariablesInScope, BlockScope scope, boolean isPatternVariable) {
+		if (patternVariablesInScope != null) {
+			for (LocalVariableBinding binding : patternVariablesInScope) {
+				binding.modifiers &= ~ExtraCompilerModifiers.AccPatternVariable;
+			}
+		}
+		try {
 
-			if (this.local.isTypeNameVar(scope) ) {
-				/* If the LocalVariableType is var then the pattern variable must appear in
-				 *  a pattern list of a record pattern with type R. Let T be the type of the
-				 *  corresponding component field in R. The type of the pattern variable is
-				 *  the upward projection of T with respect to all synthetic type variables
-				 *  mentioned by T.*/
-				Pattern enclosingPattern = this.getEnclosingPattern();
-				if (enclosingPattern instanceof RecordPattern) {
-					ReferenceBinding recType = (ReferenceBinding) enclosingPattern.resolvedType;
-					if (recType != null) {
-						RecordComponentBinding[] components = recType.components();
-						if (components.length > this.index) {
-							RecordComponentBinding rcb = components[this.index];
-							TypeVariableBinding[] mentionedTypeVariables = findSyntheticTypeVariables(rcb.type);
-							if  (mentionedTypeVariables != null && mentionedTypeVariables.length > 0) {
-								this.local.type.resolvedType = recType.upwardsProjection(scope, mentionedTypeVariables);
-							} else {
-								this.local.type.resolvedType = rcb.type;
+			if (this.resolvedType != null)
+				return this.resolvedType;
+			if (this.local != null) {
+				this.local.modifiers |= ExtraCompilerModifiers.AccPatternVariable;
+
+				if (this.local.isTypeNameVar(scope)) {
+					/*
+					 * If the LocalVariableType is var then the pattern variable must appear in a pattern list of a
+					 * record pattern with type R. Let T be the type of the corresponding component field in R. The type
+					 * of the pattern variable is the upward projection of T with respect to all synthetic type
+					 * variables mentioned by T.
+					 */
+					Pattern enclosingPattern = this.getEnclosingPattern();
+					if (enclosingPattern instanceof RecordPattern) {
+						ReferenceBinding recType = (ReferenceBinding) enclosingPattern.resolvedType;
+						if (recType != null) {
+							RecordComponentBinding[] components = recType.components();
+							if (components.length > this.index) {
+								RecordComponentBinding rcb = components[this.index];
+								TypeVariableBinding[] mentionedTypeVariables = findSyntheticTypeVariables(rcb.type);
+								if (mentionedTypeVariables != null && mentionedTypeVariables.length > 0) {
+									this.local.type.resolvedType = recType.upwardsProjection(scope,
+											mentionedTypeVariables);
+								} else {
+									this.local.type.resolvedType = rcb.type;
+								}
 							}
 						}
 					}
 				}
+				this.local.resolve(scope, isPatternVariable);
+				if (this.local.binding != null) {
+					this.local.binding.modifiers |= ExtraCompilerModifiers.AccPatternVariable;
+					this.local.binding.useFlag = LocalVariableBinding.USED;
+					this.resolvedType = this.local.binding.type;
+				}
 			}
-			this.local.resolve(scope, isPatternVariable);
-			if (this.local.binding != null) {
-				this.local.binding.modifiers |= ExtraCompilerModifiers.AccPatternVariable;
-				this.local.binding.useFlag = LocalVariableBinding.USED;
-				this.resolvedType = this.local.binding.type;
-			}
-//			initSecretPatternVariable(scope);
-		}
 
-		return this.resolvedType;
+			return this.resolvedType;
+		} finally {
+			if (patternVariablesInScope != null) {
+				for (LocalVariableBinding binding : patternVariablesInScope) {
+					binding.modifiers |= ExtraCompilerModifiers.AccPatternVariable;
+				}
+			}
+		}
 	}
 	// Synthetics? Ref 4.10.5 also watch out for spec changes in rec pattern..
 	private TypeVariableBinding[] findSyntheticTypeVariables(TypeBinding typeBinding) {
