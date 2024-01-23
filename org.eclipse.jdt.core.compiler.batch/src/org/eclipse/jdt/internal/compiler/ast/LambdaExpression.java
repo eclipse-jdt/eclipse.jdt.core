@@ -252,17 +252,12 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		return super.kosherDescriptor(currentScope, sam, shouldChatter);
 	}
 
-	public void resolveWithPatternVariablesInScope(LocalVariableBinding[] patternVariablesInScope, BlockScope blockScope, boolean skipKosherCheck) {
-		if (patternVariablesInScope != null) {
-			for (LocalVariableBinding local : patternVariablesInScope) {
-				local.modifiers &= ~ExtraCompilerModifiers.AccPatternVariable;
-			}
-		}
-		this.resolveType(blockScope, skipKosherCheck);
-		if (patternVariablesInScope != null) {
-			for (LocalVariableBinding local : patternVariablesInScope) {
-				local.modifiers |= ExtraCompilerModifiers.AccPatternVariable;
-			}
+	public void resolveTypeWithBindings(LocalVariableBinding[] bindings, BlockScope blockScope, boolean skipKosherCheck) {
+		blockScope.include(bindings);
+		try {
+			this.resolveType(blockScope, skipKosherCheck);
+		} finally {
+			blockScope.exclude(bindings);
 		}
 	}
 

@@ -274,10 +274,10 @@ public class AND_AND_Expression extends BinaryExpression {
 	}
 
 	@Override
-	public LocalVariableBinding[] getPatternVariablesWhenTrue() {
+	public LocalVariableBinding[] bindingsWhenTrue() {
 
-		LocalVariableBinding [] leftVars =  this.left.getPatternVariablesWhenTrue();
-		LocalVariableBinding [] rightVars = this.right.getPatternVariablesWhenTrue();
+		LocalVariableBinding [] leftVars =  this.left.bindingsWhenTrue();
+		LocalVariableBinding [] rightVars = this.right.bindingsWhenTrue();
 
 		if (leftVars == NO_VARIABLES)
 			return rightVars;

@@ -407,9 +407,9 @@ public class ForStatement extends Statement {
 	}
 
 	@Override
-	public LocalVariableBinding[] getPatternVariablesLiveUponCompletion() {
+	public LocalVariableBinding[] bindingsWhenComplete() {
 		return this.condition != null && this.condition.containsPatternVariable() && this.action != null && !this.action.breaksOut(null) ?
-				this.condition.getPatternVariablesWhenFalse() : NO_VARIABLES;
+				this.condition.bindingsWhenFalse() : NO_VARIABLES;
 	}
 
 	@Override
@@ -431,15 +431,15 @@ public class ForStatement extends Statement {
 			TypeBinding type = this.condition.resolveTypeExpecting(this.scope, TypeBinding.BOOLEAN);
 			this.scope.reparentLocals(false);
 			this.condition.computeConversion(this.scope, type, type);
-			patternVariablesInTrueScope = this.condition.getPatternVariablesWhenTrue();
+			patternVariablesInTrueScope = this.condition.bindingsWhenTrue();
 		}
 		if (this.increments != null)
 			for (int i = 0, length = this.increments.length; i < length; i++) {
-				this.increments[i].resolveWithPatternVariablesInScope(patternVariablesInTrueScope, this.scope);
+				this.increments[i].resolveWithBindings(patternVariablesInTrueScope, this.scope);
 			}
 
 		if (this.action != null) {
-			this.action.resolveWithPatternVariablesInScope(patternVariablesInTrueScope, this.scope);
+			this.action.resolveWithBindings(patternVariablesInTrueScope, this.scope);
 		}
 	}
 

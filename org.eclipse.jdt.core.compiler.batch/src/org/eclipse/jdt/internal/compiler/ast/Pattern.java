@@ -100,10 +100,7 @@ public abstract class Pattern extends Expression {
 	}
 	@Override
 	public TypeBinding resolveType(BlockScope scope) {
-		return resolveTypeWithPatternVariablesInScope(NO_VARIABLES, scope, true);
-	}
-	public TypeBinding resolveTypeWithPatternVariablesInScope(LocalVariableBinding [] variables, BlockScope scope, boolean isPatternVariable) {
-		return null;
+		return resolveTypeWithBindings(NO_VARIABLES, scope);
 	}
 	public boolean isAlwaysTrue() {
 		return true;

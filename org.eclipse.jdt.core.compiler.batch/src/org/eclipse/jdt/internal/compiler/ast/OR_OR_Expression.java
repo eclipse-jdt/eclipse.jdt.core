@@ -277,10 +277,10 @@ public class OR_OR_Expression extends BinaryExpression {
 	}
 
 	@Override
-	public LocalVariableBinding[] getPatternVariablesWhenFalse() {
+	public LocalVariableBinding[] bindingsWhenFalse() {
 
-		LocalVariableBinding [] leftVars =  this.left.getPatternVariablesWhenFalse();
-		LocalVariableBinding [] rightVars = this.right.getPatternVariablesWhenFalse();
+		LocalVariableBinding [] leftVars =  this.left.bindingsWhenFalse();
+		LocalVariableBinding [] rightVars = this.right.bindingsWhenFalse();
 
 		if (leftVars == NO_VARIABLES)
 			return rightVars;

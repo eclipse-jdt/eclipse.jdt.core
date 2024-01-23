@@ -340,8 +340,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			};
 		} else {
 			// create a binding from the specified type
-			this.binding = new LocalVariableBinding(this, variableType, this.modifiers,
-					                   isPatternVariable ? TagBits.IsPatternBinding : 0);
+			this.binding = new LocalVariableBinding(this, variableType, this.modifiers, false /*isArgument*/);
 		}
 		scope.addLocalVariable(this.binding);
 		this.binding.setConstant(Constant.NotAConstant);
