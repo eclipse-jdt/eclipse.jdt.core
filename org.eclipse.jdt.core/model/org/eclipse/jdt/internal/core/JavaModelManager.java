@@ -124,7 +124,6 @@ import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IParent;
 import org.eclipse.jdt.core.IProblemRequestor;
 import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.ITypeRoot;
 import org.eclipse.jdt.core.JavaConventions;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
@@ -1258,7 +1257,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	/**
 	 * Infos cache.
 	 */
-	private JavaModelCache cache;
+	private final JavaModelCache cache = new JavaModelCache();
 
 	/*
 	 * Temporary cache of newly opened elements
@@ -2270,7 +2269,17 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	/**
 	 *  Returns the info for the element.
 	 */
-	public synchronized IElementInfo getInfo(IJavaElement element) {
+	public IElementInfo getInfo(IJavaElement element) {
+		IElementInfo info = getTemporaryCacheInfo(element);
+		if (info != null) {
+			return info;
+		}
+		synchronized (this.cache) {
+			return this.cache.getInfo(element);
+		}
+	}
+
+	private IElementInfo getTemporaryCacheInfo(IJavaElement element) {
 		HashMap<IJavaElement, IElementInfo> tempCache = this.temporaryCache.get();
 		if (tempCache != null) {
 			IElementInfo result = tempCache.get(element);
@@ -2278,14 +2287,16 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				return result;
 			}
 		}
-		return this.cache.getInfo(element);
+		return null;
 	}
 
 	/**
 	 *  Returns the existing element in the cache that is equal to the given element.
 	 */
-	public synchronized IJavaElement getExistingElement(IJavaElement element) {
-		return this.cache.getExistingElement(element);
+	public IJavaElement getExistingElement(IJavaElement element) {
+		synchronized (this.cache) {
+			return this.cache.getExistingElement(element);
+		}
 	}
 
 	public HashSet<IJavaProject> getExternalWorkingCopyProjects() {
@@ -2717,17 +2728,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	public HashMap<IJavaElement, IElementInfo> getTemporaryCache() {
 		HashMap<IJavaElement, IElementInfo> result = this.temporaryCache.get();
 		if (result == null) {
-			result = new HashMap<>() {
-				/**
-				 *
-				 */
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				public IElementInfo put(IJavaElement key, IElementInfo value) {
-					return super.put(key, value);
-				}
-			};
+			result = new HashMap<>();
 			this.temporaryCache.set(result);
 		}
 		return result;
@@ -4122,15 +4123,14 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 *  Returns the info for this element without
 	 *  disturbing the cache ordering.
 	 */
-	protected synchronized IElementInfo peekAtInfo(IJavaElement element) {
-		HashMap<IJavaElement, IElementInfo> tempCache = this.temporaryCache.get();
-		if (tempCache != null) {
-			IElementInfo result = tempCache.get(element);
-			if (result != null) {
-				return result;
-			}
+	protected IElementInfo peekAtInfo(IJavaElement element) {
+		IElementInfo info = getTemporaryCacheInfo(element);
+		if (info != null) {
+			return info;
 		}
-		return this.cache.peekAtInfo(element);
+		synchronized (this.cache) {
+			return this.cache.peekAtInfo(element);
+		}
 	}
 
 	/**
@@ -4147,48 +4147,50 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 * If forceAdd is false it just returns the existing info and if true, this element and it's children are closed and then
 	 * this particular info is added to the cache.
 	 */
-	protected synchronized IElementInfo putInfos(IJavaElement openedElement, IElementInfo newInfo, boolean forceAdd, Map<IJavaElement, IElementInfo> newElements) {
+	protected IElementInfo putInfos(IJavaElement openedElement, IElementInfo newInfo, boolean forceAdd, Map<IJavaElement, IElementInfo> newElements) {
 		// remove existing children as the are replaced with the new children contained in newElements
-		IElementInfo existingInfo = this.cache.peekAtInfo(openedElement);
-		if (existingInfo != null && !forceAdd) {
-			// If forceAdd is false, then it could mean that the particular element
-			// wasn't in cache at that point of time, but would have got added through
-			// another thread. In that case, removing the children could remove it's own
-			// children. So, we should not remove the children but return the already existing
-			// info.
-			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=372687
-			return existingInfo;
-		}
-		if (openedElement instanceof IParent) {
-			closeChildren(existingInfo);
-		}
-
-		// Need to put any JarPackageFragmentRoot in first.
-		// This is due to the way the LRU cache flushes entries.
-		// When a JarPackageFragment is flushed from the LRU cache, the entire
-		// jar is flushed by removing the JarPackageFragmentRoot and all of its
-		// children (see ElementCache.close()). If we flush the JarPackageFragment
-		// when its JarPackageFragmentRoot is not in the cache and the root is about to be
-		// added (during the 'while' loop), we will end up in an inconsistent state.
-		// Subsequent resolution against package in the jar would fail as a result.
-		// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102422
-		// (theodora)
-		for(Iterator<Entry<IJavaElement, IElementInfo>> it = newElements.entrySet().iterator(); it.hasNext(); ) {
-			Entry<IJavaElement, IElementInfo> entry = it.next();
-			IJavaElement element = entry.getKey();
-			if (element instanceof JarPackageFragmentRoot) {
-				IElementInfo info = entry.getValue();
-				it.remove();
-				this.cache.putInfo(element, info);
+		synchronized (this.cache) {
+			IElementInfo existingInfo = this.cache.peekAtInfo(openedElement);
+			if (existingInfo != null && !forceAdd) {
+				// If forceAdd is false, then it could mean that the particular element
+				// wasn't in cache at that point of time, but would have got added through
+				// another thread. In that case, removing the children could remove it's own
+				// children. So, we should not remove the children but return the already existing
+				// info.
+				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=372687
+				return existingInfo;
 			}
-		}
+			if (openedElement instanceof IParent) {
+				closeChildren(existingInfo);
+			}
 
-		Iterator<Entry<IJavaElement, IElementInfo>> iterator = newElements.entrySet().iterator();
-		while (iterator.hasNext()) {
-			Entry<IJavaElement, IElementInfo> entry = iterator.next();
-			this.cache.putInfo(entry.getKey(), entry.getValue());
+			// Need to put any JarPackageFragmentRoot in first.
+			// This is due to the way the LRU cache flushes entries.
+			// When a JarPackageFragment is flushed from the LRU cache, the entire
+			// jar is flushed by removing the JarPackageFragmentRoot and all of its
+			// children (see ElementCache.close()). If we flush the JarPackageFragment
+			// when its JarPackageFragmentRoot is not in the cache and the root is about to be
+			// added (during the 'while' loop), we will end up in an inconsistent state.
+			// Subsequent resolution against package in the jar would fail as a result.
+			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=102422
+			// (theodora)
+			for(Iterator<Entry<IJavaElement, IElementInfo>> it = newElements.entrySet().iterator(); it.hasNext(); ) {
+				Entry<IJavaElement, IElementInfo> entry = it.next();
+				IJavaElement element = entry.getKey();
+				if (element instanceof JarPackageFragmentRoot) {
+					IElementInfo info = entry.getValue();
+					it.remove();
+					this.cache.putInfo(element, info);
+				}
+			}
+
+			Iterator<Entry<IJavaElement, IElementInfo>> iterator = newElements.entrySet().iterator();
+			while (iterator.hasNext()) {
+				Entry<IJavaElement, IElementInfo> entry = iterator.next();
+				this.cache.putInfo(entry.getKey(), entry.getValue());
+			}
+			return newInfo;
 		}
-		return newInfo;
 	}
 
 	private void closeChildren(Object info) {
@@ -4214,8 +4216,10 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 * Remember the info for the jar binary type
 	 * @param info instanceof IBinaryType or {@link JavaModelCache#NON_EXISTING_JAR_TYPE_INFO}
 	 */
-	protected synchronized void putJarTypeInfo(IJavaElement type, IElementInfo info) {
-		this.cache.jarTypeCache.put(type, info);
+	protected void putJarTypeInfo(IJavaElement type, IElementInfo info) {
+		synchronized (this.cache) {
+			this.cache.jarTypeCache.put(type, info);
+		}
 	}
 
 	/**
@@ -4338,9 +4342,12 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 * from the cache.
 	 * Returns the info for the given element, or null if it was closed.
 	 */
-	public synchronized Object removeInfoAndChildren(JavaElement element) throws JavaModelException {
-		Object info = this.cache.peekAtInfo(element);
-		if (info != null) {
+	public Object removeInfoAndChildren(JavaElement element) throws JavaModelException {
+		synchronized (this.cache) {
+			Object info = this.cache.peekAtInfo(element);
+			if (info == null) {
+				return null;
+			}
 			boolean wasVerbose = false;
 			try {
 				if (JavaModelCache.VERBOSE) {
@@ -4362,11 +4369,12 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			}
 			return info;
 		}
-		return null;
 	}
 
 	void removeFromJarTypeCache(BinaryType type) {
-		this.cache.removeFromJarTypeCache(type);
+		synchronized (this.cache) {
+			this.cache.removeFromJarTypeCache(type);
+		}
 	}
 
 	public void removePerProjectInfo(JavaProject javaProject, boolean removeExtJarInfo) {
@@ -4418,8 +4426,10 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	/*
 	 * Resets the cache that holds on binary type in jar files
 	 */
-	protected synchronized void resetJarTypeCache() {
-		this.cache.resetJarTypeCache();
+	protected void resetJarTypeCache() {
+		synchronized (this.cache) {
+			this.cache.resetJarTypeCache();
+		}
 	}
 
 	public void resetClasspathListCache() {
@@ -5479,9 +5489,6 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 	public void startup() throws CoreException {
 		try {
-			// initialize Java model cache
-			this.cache = new JavaModelCache();
-
 			// request state folder creation (workaround 19885)
 			JavaCore.getPlugin().getStateLocation();
 
@@ -5752,16 +5759,16 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		}
 	}
 
-	public synchronized String cacheToString(String prefix) {
-		return this.cache.toStringFillingRation(prefix);
-	}
-
-	public ElementCache<ITypeRoot>.Stats debugNewOpenableCacheStats() {
-		return this.cache.openableCache.new Stats();
+	public String cacheToString(String prefix) {
+		synchronized (this.cache) {
+			return this.cache.toStringFillingRation(prefix);
+		}
 	}
 
 	public int getOpenableCacheSize() {
-		return this.cache.openableCache.getSpaceLimit();
+		synchronized (this.cache) {
+			return this.cache.openableCache.getSpaceLimit();
+		}
 	}
 
 	/**
