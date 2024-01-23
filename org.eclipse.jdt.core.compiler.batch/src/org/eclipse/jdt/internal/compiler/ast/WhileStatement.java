@@ -279,7 +279,7 @@ public class WhileStatement extends Statement {
 		TypeBinding type = this.condition.resolveTypeExpecting(scope, TypeBinding.BOOLEAN);
 		this.condition.computeConversion(scope, type, type);
 		if (this.action != null) {
-			this.action.resolveWithPatternVariablesInScope(this.condition.getPatternVariablesWhenTrue(), scope);
+			this.action.resolveWithBindings(this.condition.bindingsWhenTrue(), scope);
 		}
 	}
 
@@ -314,9 +314,9 @@ public class WhileStatement extends Statement {
 	}
 
 	@Override
-	public LocalVariableBinding[] getPatternVariablesLiveUponCompletion() {
+	public LocalVariableBinding[] bindingsWhenComplete() {
 		return this.condition.containsPatternVariable() && this.action != null && !this.action.breaksOut(null) ?
-								this.condition.getPatternVariablesWhenFalse() : NO_VARIABLES;
+								this.condition.bindingsWhenFalse() : NO_VARIABLES;
 	}
 
 	@Override

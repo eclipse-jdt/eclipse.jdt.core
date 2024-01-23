@@ -492,9 +492,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 			this.condition.computeConversion(scope, TypeBinding.BOOLEAN, conditionType);
 
 			if (this.valueIfTrue instanceof CastExpression) this.valueIfTrue.bits |= DisableUnnecessaryCastCheck; // will check later on
-			this.originalValueIfTrueType = this.valueIfTrue.resolveTypeWithPatternVariablesInScope(this.condition.getPatternVariablesWhenTrue(), scope);
+			this.originalValueIfTrueType = this.valueIfTrue.resolveTypeWithBindings(this.condition.bindingsWhenTrue(), scope);
 			if (this.valueIfFalse instanceof CastExpression) this.valueIfFalse.bits |= DisableUnnecessaryCastCheck; // will check later on
-			this.originalValueIfFalseType = this.valueIfFalse.resolveTypeWithPatternVariablesInScope(this.condition.getPatternVariablesWhenFalse(), scope);
+			this.originalValueIfFalseType = this.valueIfFalse.resolveTypeWithBindings(this.condition.bindingsWhenFalse(), scope);
 
 			/*
 			 *
@@ -514,12 +514,12 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 				• A pattern variable is both (i) introduced by b when false and (ii) introduced by
 				c when false.
 			 */
-			Pattern.reportRedeclarations(scope, this.condition.getPatternVariablesWhenTrue(), this.valueIfFalse.getPatternVariablesWhenTrue());
-			Pattern.reportRedeclarations(scope, this.condition.getPatternVariablesWhenTrue(), this.valueIfFalse.getPatternVariablesWhenFalse());
-			Pattern.reportRedeclarations(scope, this.condition.getPatternVariablesWhenFalse(), this.valueIfTrue.getPatternVariablesWhenTrue());
-			Pattern.reportRedeclarations(scope, this.condition.getPatternVariablesWhenFalse(), this.valueIfTrue.getPatternVariablesWhenFalse());
-			Pattern.reportRedeclarations(scope, this.valueIfTrue.getPatternVariablesWhenTrue(), this.valueIfFalse.getPatternVariablesWhenTrue());
-			Pattern.reportRedeclarations(scope, this.valueIfTrue.getPatternVariablesWhenFalse(), this.valueIfFalse.getPatternVariablesWhenFalse());
+			Pattern.reportRedeclarations(scope, this.condition.bindingsWhenTrue(), this.valueIfFalse.bindingsWhenTrue());
+			Pattern.reportRedeclarations(scope, this.condition.bindingsWhenTrue(), this.valueIfFalse.bindingsWhenFalse());
+			Pattern.reportRedeclarations(scope, this.condition.bindingsWhenFalse(), this.valueIfTrue.bindingsWhenTrue());
+			Pattern.reportRedeclarations(scope, this.condition.bindingsWhenFalse(), this.valueIfTrue.bindingsWhenFalse());
+			Pattern.reportRedeclarations(scope, this.valueIfTrue.bindingsWhenTrue(), this.valueIfFalse.bindingsWhenTrue());
+			Pattern.reportRedeclarations(scope, this.valueIfTrue.bindingsWhenFalse(), this.valueIfFalse.bindingsWhenFalse());
 
 
 			if (conditionType == null || this.originalValueIfTrueType == null || this.originalValueIfFalseType == null)

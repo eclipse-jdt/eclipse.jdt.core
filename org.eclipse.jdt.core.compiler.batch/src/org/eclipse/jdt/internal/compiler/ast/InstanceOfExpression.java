@@ -111,7 +111,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 @Override
 public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
 	if (this.elementVariable != null && this.elementVariable.binding != null) {
-		this.elementVariable.binding.modifiers &= ~ExtraCompilerModifiers.AccPatternVariable;
+		this.elementVariable.binding.modifiers &= ~ExtraCompilerModifiers.AccOutOfFlowScope;
 	}
 	addPatternVariables(currentScope, codeStream);
 
@@ -266,12 +266,12 @@ public boolean resolvePatternVariable(BlockScope scope) {
 		this.pattern.resolve(scope);
 		if (this.elementVariable == null) return false;
 		if (this.elementVariable.binding == null) {
-			this.elementVariable.modifiers |= ExtraCompilerModifiers.AccPatternVariable;
+			this.elementVariable.modifiers |= ExtraCompilerModifiers.AccOutOfFlowScope;
 			this.elementVariable.resolve(scope, true);
 			// Kludge - to remove the AccBlankFinal added by the LocalDeclaration#resolve() due to the
 			// missing initializer
 			this.elementVariable.modifiers &= ~ExtraCompilerModifiers.AccBlankFinal;
-			this.elementVariable.binding.modifiers |= ExtraCompilerModifiers.AccPatternVariable;
+			this.elementVariable.binding.modifiers |= ExtraCompilerModifiers.AccOutOfFlowScope;
 			this.elementVariable.binding.useFlag = LocalVariableBinding.USED;
 			// Why cant this be done in the constructor?
 			this.type = this.elementVariable.type;
@@ -280,8 +280,8 @@ public boolean resolvePatternVariable(BlockScope scope) {
 	return true;
 }
 @Override
-public LocalVariableBinding[] getPatternVariablesWhenTrue() {
-	return this.pattern != null ? this.pattern.getPatternVariablesWhenTrue() : NO_VARIABLES;
+public LocalVariableBinding[] bindingsWhenTrue() {
+	return this.pattern != null ? this.pattern.bindingsWhenTrue() : NO_VARIABLES;
 }
 @Override
 public boolean containsPatternVariable() {

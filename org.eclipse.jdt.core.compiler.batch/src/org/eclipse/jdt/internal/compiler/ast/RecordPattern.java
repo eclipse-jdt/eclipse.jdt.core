@@ -29,7 +29,6 @@ import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
@@ -74,10 +73,10 @@ public class RecordPattern extends TypePattern {
 		return super.getPatternVariable();
 	}
 	@Override
-	public LocalVariableBinding[] getPatternVariablesWhenTrue() {
+	public LocalVariableBinding[] bindingsWhenTrue() {
 		LocalVariableBinding [] variables = NO_VARIABLES;
 		for (Pattern p : this.patterns) {
-			variables = LocalVariableBinding.merge(variables, p.getPatternVariablesWhenTrue());
+			variables = LocalVariableBinding.merge(variables, p.bindingsWhenTrue());
 		}
 		return variables;
 	}
@@ -142,12 +141,8 @@ public class RecordPattern extends TypePattern {
 		return this.resolvedType;
 	}
 	@Override
-	public TypeBinding resolveTypeWithPatternVariablesInScope(LocalVariableBinding [] patternVariablesInScope, BlockScope scope, boolean isPatternVariable) {
-		if (patternVariablesInScope != null) {
-			for (LocalVariableBinding binding : patternVariablesInScope) {
-				binding.modifiers &= ~ExtraCompilerModifiers.AccPatternVariable;
-			}
-		}
+	public TypeBinding resolveTypeWithBindings(LocalVariableBinding [] bindings, BlockScope scope) {
+		scope.include(bindings);
 		try {
 			if (this.resolvedType != null)
 				return this.resolvedType;
@@ -171,11 +166,7 @@ public class RecordPattern extends TypePattern {
 			setAccessorsPlusInfuseInferredType(scope);
 			return this.resolvedType;
 		} finally {
-			if (patternVariablesInScope != null) {
-				for (LocalVariableBinding binding : patternVariablesInScope) {
-					binding.modifiers |= ExtraCompilerModifiers.AccPatternVariable;
-				}
-			}
+			scope.exclude(bindings);
 		}
 	}
 	private void setAccessorsPlusInfuseInferredType(BlockScope scope) {
@@ -196,8 +187,8 @@ public class RecordPattern extends TypePattern {
 					if (tp.local.binding != null) // rewrite with the inferred type
 						tp.local.binding.type = componentBinding.type;
 				}
-				p.resolveTypeWithPatternVariablesInScope(livePatternVariables, scope, true);
-				livePatternVariables = LocalVariableBinding.merge(livePatternVariables, p.getPatternVariablesWhenTrue());
+				p.resolveTypeWithBindings(livePatternVariables, scope);
+				livePatternVariables = LocalVariableBinding.merge(livePatternVariables, p.bindingsWhenTrue());
 				TypeBinding expressionType = componentBinding.type;
 				if (p.isPatternTypeCompatible(expressionType, scope)) {
 					p.isTotalTypeNode = p.coversType(componentBinding.type);

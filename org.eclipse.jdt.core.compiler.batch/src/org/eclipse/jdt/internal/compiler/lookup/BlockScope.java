@@ -461,7 +461,7 @@ public LocalDeclaration[] findLocalVariableDeclarations(int position) {
 		} else {
 			// consider variable first
 			LocalVariableBinding local = this.locals[ilocal]; // if no local at all, will be locals[ilocal]==null
-			if (local != null && (local.modifiers & ExtraCompilerModifiers.AccPatternVariable) == 0) {
+			if (local != null && (local.modifiers & ExtraCompilerModifiers.AccOutOfFlowScope) == 0) {
 				LocalDeclaration localDecl = local.declaration;
 				if (localDecl != null) {
 					if (localDecl.declarationSourceStart <= position) {
@@ -489,7 +489,7 @@ public LocalVariableBinding findVariable(char[] variableName, InvocationSite inv
 	int varLength = variableName.length;
 	for (int i = this.localIndex-1; i >= 0; i--) { // lookup backward to reach latest additions first
 		LocalVariableBinding local = this.locals[i];
-		if ((local.modifiers & ExtraCompilerModifiers.AccPatternVariable) != 0)
+		if ((local.modifiers & ExtraCompilerModifiers.AccOutOfFlowScope) != 0)
 			continue;
 		char[] localName;
 		if ((localName = local.name).length == varLength && CharOperation.equals(localName, variableName))
@@ -1425,6 +1425,24 @@ private boolean checkAppropriate(MethodBinding compileTimeDeclaration, MethodBin
 
 public void reparentLocals(boolean reparent) {
 	this.reparentLocals = reparent;
+}
+
+public void include(LocalVariableBinding[] bindings) {
+	// `this` is assumed to be populated with bindings.
+	if (bindings != null) {
+		for (LocalVariableBinding binding : bindings) {
+			binding.modifiers &= ~ExtraCompilerModifiers.AccOutOfFlowScope;
+		}
+	}
+}
+
+public void exclude(LocalVariableBinding[] bindings) {
+	// `this` is assumed to be populated with bindings.
+	if (bindings != null) {
+		for (LocalVariableBinding binding : bindings) {
+			binding.modifiers |= ExtraCompilerModifiers.AccOutOfFlowScope;
+		}
+	}
 }
 
 }

@@ -302,13 +302,13 @@ public StringBuilder printStatement(int indent, StringBuilder output) {
 }
 
 @Override
-public LocalVariableBinding[] getPatternVariablesLiveUponCompletion() {
+public LocalVariableBinding[] bindingsWhenComplete() {
 	if (!this.condition.containsPatternVariable() || doesNotCompleteNormally())
 		return NO_VARIABLES;
 	if (this.thenStatement != null && this.thenStatement.doesNotCompleteNormally())
-		return this.condition.getPatternVariablesWhenFalse();
+		return this.condition.bindingsWhenFalse();
 	if (this.elseStatement != null && this.elseStatement.doesNotCompleteNormally())
-		return this.condition.getPatternVariablesWhenTrue();
+		return this.condition.bindingsWhenTrue();
 	return NO_VARIABLES;
 }
 @Override
@@ -317,10 +317,10 @@ public void resolve(BlockScope scope) {
 	this.condition.computeConversion(scope, type, type);
 
 	if (this.thenStatement != null) {
-		this.thenStatement.resolveWithPatternVariablesInScope(this.condition.getPatternVariablesWhenTrue(), scope);
+		this.thenStatement.resolveWithBindings(this.condition.bindingsWhenTrue(), scope);
 	}
 	if (this.elseStatement != null) {
-		this.elseStatement.resolveWithPatternVariablesInScope(this.condition.getPatternVariablesWhenFalse(), scope);
+		this.elseStatement.resolveWithBindings(this.condition.bindingsWhenFalse(), scope);
 	}
 }
 

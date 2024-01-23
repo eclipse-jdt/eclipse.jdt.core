@@ -325,15 +325,15 @@ public class UnaryExpression extends OperatorExpression {
 	}
 
 	@Override
-	public LocalVariableBinding[] getPatternVariablesWhenFalse() {
+	public LocalVariableBinding[] bindingsWhenFalse() {
 		return ((this.bits & OperatorMASK) >> OperatorSHIFT) == NOT ?
-				this.expression.getPatternVariablesWhenTrue(): NO_VARIABLES;
+				this.expression.bindingsWhenTrue(): NO_VARIABLES;
 	}
 
 	@Override
-	public LocalVariableBinding[] getPatternVariablesWhenTrue() {
+	public LocalVariableBinding[] bindingsWhenTrue() {
 		return ((this.bits & OperatorMASK) >> OperatorSHIFT) == NOT ?
-				this.expression.getPatternVariablesWhenFalse(): NO_VARIABLES;
+				this.expression.bindingsWhenFalse(): NO_VARIABLES;
 	}
 
 

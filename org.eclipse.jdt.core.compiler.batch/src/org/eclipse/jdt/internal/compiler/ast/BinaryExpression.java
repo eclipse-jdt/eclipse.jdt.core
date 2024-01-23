@@ -1846,12 +1846,12 @@ public TypeBinding resolveType(BlockScope scope) {
 	if ((rightIsCast = this.right instanceof CastExpression) == true) this.right.bits |= ASTNode.DisableUnnecessaryCastCheck; // will check later on
 
 	LocalVariableBinding [] patternVars = switch ((this.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT) {
-		case AND_AND -> this.left.getPatternVariablesWhenTrue();
-		case OR_OR   -> this.left.getPatternVariablesWhenFalse();
+		case AND_AND -> this.left.bindingsWhenTrue();
+		case OR_OR   -> this.left.bindingsWhenFalse();
 		default      -> NO_VARIABLES;
 	};
 
-	TypeBinding rightType = this.right.resolveTypeWithPatternVariablesInScope(patternVars, scope);
+	TypeBinding rightType = this.right.resolveTypeWithBindings(patternVars, scope);
 
 	/*
 	 * 6.3.1 Scope for Pattern Variables in Expressions
@@ -1877,10 +1877,10 @@ public TypeBinding resolveType(BlockScope scope) {
 	// We handle only the cases NOT already diagnosed in due course to avoid double jeopardy
 	switch ((this.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT) {
 		case AND_AND -> {
-			Pattern.reportRedeclarations(scope, this.left.getPatternVariablesWhenFalse(), this.right.getPatternVariablesWhenFalse());
+			Pattern.reportRedeclarations(scope, this.left.bindingsWhenFalse(), this.right.bindingsWhenFalse());
 		}
 		case OR_OR -> {
-			Pattern.reportRedeclarations(scope, this.left.getPatternVariablesWhenTrue(), this.right.getPatternVariablesWhenTrue());
+			Pattern.reportRedeclarations(scope, this.left.bindingsWhenTrue(), this.right.bindingsWhenTrue());
 		}
 	}
 

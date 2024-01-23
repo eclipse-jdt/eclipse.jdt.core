@@ -480,27 +480,22 @@ public StringBuilder print(int indent, StringBuilder output) {
 public abstract StringBuilder printStatement(int indent, StringBuilder output);
 
 public abstract void resolve(BlockScope scope);
-public LocalVariableBinding[] getPatternVariablesWhenTrue() {
+public LocalVariableBinding[] bindingsWhenTrue() {
 	return NO_VARIABLES;
 }
-public LocalVariableBinding[] getPatternVariablesWhenFalse() {
+public LocalVariableBinding[] bindingsWhenFalse() {
 	return NO_VARIABLES;
 }
-public LocalVariableBinding[] getPatternVariablesLiveUponCompletion() {
+public LocalVariableBinding[] bindingsWhenComplete() {
 	return NO_VARIABLES;
 }
 
-public void resolveWithPatternVariablesInScope(LocalVariableBinding[] patternVariablesInScope, BlockScope scope) {
-	if (patternVariablesInScope != null) {
-		for (LocalVariableBinding binding : patternVariablesInScope) {
-			binding.modifiers &= ~ExtraCompilerModifiers.AccPatternVariable;
-		}
-	}
-	this.resolve(scope);
-	if (patternVariablesInScope != null) {
-		for (LocalVariableBinding binding : patternVariablesInScope) {
-			binding.modifiers |= ExtraCompilerModifiers.AccPatternVariable;
-		}
+public void resolveWithBindings(LocalVariableBinding[] bindings, BlockScope scope) {
+	scope.include(bindings);
+	try {
+		this.resolve(scope);
+	} finally {
+		scope.exclude(bindings);
 	}
 }
 /**

@@ -1210,7 +1210,7 @@ public class SwitchStatement extends Expression {
 								// This is already done in foreach
 								// ...
 							}
-							patternVariables = statement.getPatternVariablesWhenTrue();
+							patternVariables = statement.bindingsWhenTrue();
 							if (caseStmt.patternIndex >= 0) {
 								Expression probablePattern = caseStmt.constantExpressions[caseStmt.patternIndex];
 								if (probablePattern instanceof Pattern) {
@@ -1291,8 +1291,8 @@ public class SwitchStatement extends Expression {
 						}
 						caseCounter++;
 					} else {
-						statement.resolveWithPatternVariablesInScope(patternVariables, this.scope);
-						patternVariables = LocalVariableBinding.merge(patternVariables, statement.getPatternVariablesLiveUponCompletion());
+						statement.resolveWithBindings(patternVariables, this.scope);
+						patternVariables = LocalVariableBinding.merge(patternVariables, statement.bindingsWhenComplete());
 					}
 				}
 				if (length != counter) { // resize constants array

@@ -29,6 +29,7 @@ import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.RecordComponentBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBindingVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
@@ -49,7 +50,7 @@ public class TypePattern extends Pattern {
 		return this.local.type;
 	}
 	@Override
-	public LocalVariableBinding[] getPatternVariablesWhenTrue() {
+	public LocalVariableBinding[] bindingsWhenTrue() {
 		return this.local != null && this.local.binding != null ?
 						new LocalVariableBinding[] { this.local.binding } : NO_VARIABLES;
 	}
@@ -162,23 +163,18 @@ public class TypePattern extends Pattern {
 	@Override
 	public TypeBinding resolveAtType(BlockScope scope, TypeBinding u) {
 		if (this.resolvedType == null) {
-			resolveTypeWithPatternVariablesInScope(NO_VARIABLES, scope, true);
+			resolveTypeWithBindings(NO_VARIABLES, scope);
 		}
 		return this.resolvedType;
 	}
 	@Override
-	public TypeBinding resolveTypeWithPatternVariablesInScope(LocalVariableBinding [] patternVariablesInScope, BlockScope scope, boolean isPatternVariable) {
-		if (patternVariablesInScope != null) {
-			for (LocalVariableBinding binding : patternVariablesInScope) {
-				binding.modifiers &= ~ExtraCompilerModifiers.AccPatternVariable;
-			}
-		}
+	public TypeBinding resolveTypeWithBindings(LocalVariableBinding [] bindings, BlockScope scope) {
+		scope.include(bindings);
 		try {
-
 			if (this.resolvedType != null)
 				return this.resolvedType;
 			if (this.local != null) {
-				this.local.modifiers |= ExtraCompilerModifiers.AccPatternVariable;
+				this.local.modifiers |= ExtraCompilerModifiers.AccOutOfFlowScope;
 
 				if (this.local.isTypeNameVar(scope)) {
 					/*
@@ -205,9 +201,10 @@ public class TypePattern extends Pattern {
 						}
 					}
 				}
-				this.local.resolve(scope, isPatternVariable);
+				this.local.resolve(scope, true);
 				if (this.local.binding != null) {
-					this.local.binding.modifiers |= ExtraCompilerModifiers.AccPatternVariable;
+					this.local.binding.modifiers |= ExtraCompilerModifiers.AccOutOfFlowScope; // start out this way, will be BlockScope.include'd when definitely assigned
+					this.local.binding.tagBits |= TagBits.IsPatternBinding;
 					this.local.binding.useFlag = LocalVariableBinding.USED;
 					this.resolvedType = this.local.binding.type;
 				}
@@ -215,11 +212,7 @@ public class TypePattern extends Pattern {
 
 			return this.resolvedType;
 		} finally {
-			if (patternVariablesInScope != null) {
-				for (LocalVariableBinding binding : patternVariablesInScope) {
-					binding.modifiers |= ExtraCompilerModifiers.AccPatternVariable;
-				}
-			}
+			scope.exclude(bindings);
 		}
 	}
 	// Synthetics? Ref 4.10.5 also watch out for spec changes in rec pattern..

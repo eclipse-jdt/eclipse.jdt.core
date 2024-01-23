@@ -225,9 +225,9 @@ public StringBuilder printStatement(int indent, StringBuilder output) {
 }
 
 @Override
-public LocalVariableBinding[] getPatternVariablesLiveUponCompletion() {
+public LocalVariableBinding[] bindingsWhenComplete() {
 	return this.condition.containsPatternVariable() && this.action != null && !this.action.breaksOut(null) ?
-			this.condition.getPatternVariablesWhenFalse() : NO_VARIABLES;
+			this.condition.bindingsWhenFalse() : NO_VARIABLES;
 }
 
 @Override

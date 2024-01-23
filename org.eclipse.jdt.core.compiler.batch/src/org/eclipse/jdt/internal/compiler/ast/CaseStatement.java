@@ -29,7 +29,6 @@ import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.impl.StringConstant;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
-import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
@@ -235,23 +234,6 @@ public static class ResolvedCase {
 		return builder.toString();
 	}
 }
-public ResolvedCase[] resolveWithPatternVariablesInScope(LocalVariableBinding[] patternVariablesInScope,
-		BlockScope scope,
-		TypeBinding switchExpressionType,
-		SwitchStatement switchStatement) {
-	if (patternVariablesInScope != null) {
-		for (LocalVariableBinding binding : patternVariablesInScope) {
-			binding.modifiers &= ~ExtraCompilerModifiers.AccPatternVariable;
-		}
-	}
-	ResolvedCase[] cases = resolveCase(scope, switchExpressionType, switchStatement);
-	if (patternVariablesInScope != null) {
-		for (LocalVariableBinding binding : patternVariablesInScope) {
-			binding.modifiers |= ExtraCompilerModifiers.AccPatternVariable;
-		}
-	}
-	return cases;
-}
 private Expression getFirstValidExpression(BlockScope scope, SwitchStatement switchStatement) {
 	assert this.constantExpressions != null;
 	Expression ret = null;
@@ -357,7 +339,7 @@ public ResolvedCase[] resolveCase(BlockScope scope, TypeBinding switchExpression
 			}
 		}
 	}
-	this.resolveWithPatternVariablesInScope(this.getPatternVariablesWhenTrue(), scope);
+	this.resolveWithBindings(this.bindingsWhenTrue(), scope);
 	if (cases.size() > 0) {
 		return cases.toArray(new ResolvedCase[cases.size()]);
 	}
@@ -377,10 +359,10 @@ private void flagDuplicateDefault(BlockScope scope, SwitchStatement switchStatem
 	}
 }
 @Override
-public LocalVariableBinding[] getPatternVariablesWhenTrue() {
+public LocalVariableBinding[] bindingsWhenTrue() {
 	LocalVariableBinding [] variables = NO_VARIABLES;
 	for (Expression e : this.constantExpressions) {
-		variables = LocalVariableBinding.merge(variables, e.getPatternVariablesWhenTrue());
+		variables = LocalVariableBinding.merge(variables, e.bindingsWhenTrue());
 	}
 	return variables;
 }

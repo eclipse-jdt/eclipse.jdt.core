@@ -66,13 +66,6 @@ public class LocalVariableBinding extends VariableBinding {
 		this.tagBits |= TagBits.IsEffectivelyFinal;
 	}
 
-	// regular local variable or pattern bindings
-	public LocalVariableBinding(LocalDeclaration declaration, TypeBinding type, int modifiers, long tagBits) {
-		this(declaration.name, type, modifiers, false);
-		this.declaration = declaration;
-		this.tagBits |= tagBits;
-	}
-
 	// regular local variable or argument
 	public LocalVariableBinding(LocalDeclaration declaration, TypeBinding type, int modifiers, boolean isArgument) {
 
