@@ -37,7 +37,6 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 public class TypePattern extends Pattern {
 
 	public LocalDeclaration local;
-	Expression expression;
 	public int index = -1; // denoting position
 
 	public TypePattern(LocalDeclaration local) {
@@ -122,7 +121,7 @@ public class TypePattern extends Pattern {
 	}
 	@Override
 	public void resolveWithExpression(BlockScope scope, Expression exp) {
-		this.expression = exp;
+		//...
 	}
 	@Override
 	public void resolve(BlockScope scope) {
@@ -142,7 +141,7 @@ public class TypePattern extends Pattern {
 				scope.problemReporter().incompatiblePatternType(this, other, patternType);
 				return false;
 			}
-		} else if (!checkCastTypesCompatibility(scope, other, patternType, this.expression, true)) {
+		} else if (!checkCastTypesCompatibility(scope, other, patternType, null, true)) {
 			scope.problemReporter().incompatiblePatternType(this, other, patternType);
 			return false;
 		}

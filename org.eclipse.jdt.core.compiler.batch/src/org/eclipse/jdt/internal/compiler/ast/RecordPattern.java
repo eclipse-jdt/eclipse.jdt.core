@@ -114,7 +114,6 @@ public class RecordPattern extends TypePattern {
 	}
 	@Override
 	public void resolveWithExpression(BlockScope scope, Expression exp) {
-		this.expression = exp;
 		if (shouldInitiateRecordTypeInference()) {
 			LocalVariableBinding localVariableBinding = exp.localVariableBinding();
 			TypeBinding type1 = localVariableBinding != null && localVariableBinding.type != null ?
