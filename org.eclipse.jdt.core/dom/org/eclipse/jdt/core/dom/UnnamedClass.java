@@ -27,7 +27,7 @@ public class UnnamedClass extends AbstractUnnamedTypeDeclaration {
 	 * or null if uninitialized.
 	 * @since 3.0
 	 */
-	private static final List PROPERTY_DESCRIPTORS_2_0;
+	private static final List<Object> PROPERTY_DESCRIPTORS_2_0;
 
 	/**
 	 * A list of property descriptors (element type:
@@ -35,17 +35,17 @@ public class UnnamedClass extends AbstractUnnamedTypeDeclaration {
 	 * or null if uninitialized.
 	 * @since 3.1
 	 */
-	private static final List PROPERTY_DESCRIPTORS_3_0;
+	private static final List<Object> PROPERTY_DESCRIPTORS_3_0;
 
 	static {
-		List propertyList = new ArrayList(8);
+		List<Object> propertyList = new ArrayList<>(8);
 		createPropertyList(UnnamedClass.class, propertyList);
 		addProperty(BODY_DECLARATIONS_PROPERTY, propertyList);
 		addProperty(JAVADOC_PROPERTY, propertyList);
 		addProperty(MODIFIERS_PROPERTY, propertyList);
 		PROPERTY_DESCRIPTORS_2_0 = reapPropertyList(propertyList);
 
-		propertyList = new ArrayList(8);
+		propertyList = new ArrayList<>(8);
 		createPropertyList(UnnamedClass.class, propertyList);
 		addProperty(BODY_DECLARATIONS_PROPERTY, propertyList);
 		addProperty(JAVADOC_PROPERTY, propertyList);
