@@ -2063,9 +2063,6 @@ class ASTConverter {
 		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.TemplateExpression templateExpr) {
 			return convert(templateExpr);
 		}
-		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.StringTemplate template) {
-			return convert(template);
-		}
 		return null;
 	}
 	public StringTemplateExpression convert(org.eclipse.jdt.internal.compiler.ast.TemplateExpression expression) {
