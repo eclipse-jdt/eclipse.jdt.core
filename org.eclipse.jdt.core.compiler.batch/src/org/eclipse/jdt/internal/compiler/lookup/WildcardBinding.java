@@ -755,7 +755,8 @@ public class WildcardBinding extends ReferenceBinding {
 		}
 		haveSubstitution |= currentOtherBounds != null;
 		if (haveSubstitution) {
-			return this.environment.createWildcard(this.genericType, this.rank, currentBound, currentOtherBounds, this.boundKind);
+			WildcardBinding wildcard = this.environment.createWildcard(this.genericType, this.rank, currentBound, currentOtherBounds, this.boundKind);
+			return propagateNonConflictingNullAnnotations(wildcard);
 		}
 		return this;
 	}
@@ -1091,5 +1092,22 @@ public class WildcardBinding extends ReferenceBinding {
 	@Override
 	public boolean isNonDenotable() {
 		return true;
+	}
+
+	/** When substituting this wildcard with 'type', perhaps null tagbits on this wildcard should be propagated. */
+	TypeBinding propagateNonConflictingNullAnnotations(TypeBinding type) {
+		if (!this.environment.usesNullTypeAnnotations())
+			return type;
+		if (type instanceof InferenceVariable) {
+			// just accumulate any hints:
+			((InferenceVariable) type).nullHints |= (this.tagBits & TagBits.AnnotationNullMASK);
+			return type;
+		}
+		if ((type.tagBits & TagBits.AnnotationNullMASK) != 0)
+			return type; // already annotated
+		AnnotationBinding[] annots = this.environment.nullAnnotationsFromTagBits(this.tagBits & TagBits.AnnotationNullMASK);
+		if (annots == null)
+			return type;
+		return this.environment.createAnnotatedType(type, annots);
 	}
 }
