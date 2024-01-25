@@ -308,7 +308,8 @@ void computeLocalVariablePositions(int ilocal, int initOffset, CodeStream codeSt
 
 			// could be optimized out, but does need to preserve unread variables ?
 			if (!generateCurrentLocalVar) {
-				if (local.declaration != null && compilerOptions().preserveAllLocalVariables) {
+				if ((local.declaration != null && compilerOptions().preserveAllLocalVariables) ||
+						local.isPatternVariable()) { // too much voodoo around pattern codegen. Having warned, just treat them as used.
 					generateCurrentLocalVar = true; // force it to be preserved in the generated code
 					if (local.useFlag == LocalVariableBinding.UNUSED)
 						local.useFlag = LocalVariableBinding.USED;

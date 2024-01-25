@@ -188,7 +188,10 @@ public class RecordPattern extends TypePattern {
 						tp.local.binding.type = componentBinding.type;
 				}
 				p.resolveTypeWithBindings(livePatternVariables, scope);
-				livePatternVariables = LocalVariableBinding.merge(livePatternVariables, p.bindingsWhenTrue());
+				LocalVariableBinding[] bindings = p.bindingsWhenTrue();
+				for (LocalVariableBinding binding : bindings)
+					binding.useFlag = LocalVariableBinding.USED; // syntactically required even if untouched
+				livePatternVariables = LocalVariableBinding.merge(livePatternVariables, bindings);
 				TypeBinding expressionType = componentBinding.type;
 				if (p.isPatternTypeCompatible(expressionType, scope)) {
 					p.isTotalTypeNode = p.coversType(componentBinding.type);
