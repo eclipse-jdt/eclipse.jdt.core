@@ -123,7 +123,6 @@ $Terminals
 	RestrictedIdentifierpermits
 	BeginCaseElement
 	RestrictedIdentifierWhen
-	BeginRecordPattern
 
 --    BodyMarker
 
@@ -237,8 +236,6 @@ Goal ::= RestrictedIdentifierpermits PermittedSubclasses
 Goal ::= BeginCaseElement Pattern
 Goal ::= RestrictedIdentifierWhen Expression
 /:$readableName Goal:/
-
-Goal ::= '?' '(' RecordPattern
 
 Literal -> IntegerLiteral
 Literal -> LongLiteral
@@ -2528,21 +2525,6 @@ EnhancedForStatementHeader ::= EnhancedForStatementHeaderInit ':' Expression ')'
 /:$readableName EnhancedForStatementHeader:/
 /:$compliance 1.5:/
 
-EnhancedForStatementHeaderInitRecord ::= 'for' '(' BeginRecordPattern RecordPattern
-/.$putCase consumeEnhancedForStatementHeaderInitRecord(false); $break ./
-/:$readableName EnhancedForStatementHeaderInitRecord:/
-/:$compliance 20:/
-
-EnhancedForStatementHeaderInitRecord ::= 'for' '(' Modifiers BeginRecordPattern RecordPattern
-/.$putCase consumeEnhancedForStatementHeaderInitRecord(true); $break ./
-/:$readableName EnhancedForStatementHeaderInitRecord:/
-/:$compliance 20:/
-
-EnhancedForStatementHeader ::= EnhancedForStatementHeaderInitRecord ':' Expression ')'
-/.$putCase consumeEnhancedForStatementHeader(); $break ./
-/:$readableName EnhancedForStatementHeader:/
-/:$compliance 20:/
-
 -----------------------------------------------
 -- 1.5 features : static imports
 -----------------------------------------------
@@ -3206,3 +3188,4 @@ COLON_COLON ::= '::'
 
 $end
 -- need a carriage return after the $end
+
