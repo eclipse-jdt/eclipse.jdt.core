@@ -79,7 +79,6 @@ public class PublicScannerTest extends AbstractRegressionTest {
 		list.add(TerminalTokens.TokenNameBeginLambda);
 		list.add(TerminalTokens.TokenNameBeginRecordPattern);
 		list.add(TerminalTokens.TokenNameBeginTypeArguments);
-		list.add(TerminalTokens.TokenNameElidedSemicolonAndRightBrace);
 		SYNTHETIC_SKIP_TOKENS = Collections.unmodifiableList(list);
 
 		list = new ArrayList<>();
