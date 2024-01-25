@@ -1053,8 +1053,8 @@ public class DefaultCodeFormatterConstants {
 	public static final String FORMATTER_BRACE_POSITION_FOR_BLOCK = JavaCore.PLUGIN_ID + ".formatter.brace_position_for_block";	//$NON-NLS-1$
 	/**
 	 * <pre>
-	 * FORMATTER / Option to position the braces of a block in a case statement when the block is the first statement following
-	 *             the case
+	 * FORMATTER / Option to position the braces of a block in a switch statement/expression when the block
+	 *             is the first statement following a case with colon
 	 *     - option id:         "org.eclipse.jdt.core.formatter.brace_position_for_block_in_case"
 	 *     - possible values:   { END_OF_LINE, NEXT_LINE, NEXT_LINE_SHIFTED, NEXT_LINE_ON_WRAP }
 	 *     - default:           END_OF_LINE
@@ -1066,6 +1066,21 @@ public class DefaultCodeFormatterConstants {
 	 * @since 3.0
 	 */
 	public static final String FORMATTER_BRACE_POSITION_FOR_BLOCK_IN_CASE = JavaCore.PLUGIN_ID + ".formatter.brace_position_for_block_in_case";	//$NON-NLS-1$
+	/**
+	 * <pre>
+	 * FORMATTER / Option to position the braces of a block in a switch statement/expression when the block
+	 *             is the first statement following a case with arrow
+	 *     - option id:         "org.eclipse.jdt.core.formatter.brace_position_for_block_in_case_after_arrow"
+	 *     - possible values:   { END_OF_LINE, NEXT_LINE, NEXT_LINE_SHIFTED, NEXT_LINE_ON_WRAP }
+	 *     - default:           END_OF_LINE
+	 * </pre>
+	 * @see #END_OF_LINE
+	 * @see #NEXT_LINE
+	 * @see #NEXT_LINE_SHIFTED
+	 * @see #NEXT_LINE_ON_WRAP
+	 * @since 3.37
+	 */
+	public static final String FORMATTER_BRACE_POSITION_FOR_BLOCK_IN_CASE_AFTER_ARROW = JavaCore.PLUGIN_ID + ".formatter.brace_position_for_block_in_case_after_arrow";	//$NON-NLS-1$
 	/**
 	 * <pre>
 	 * FORMATTER / Option to position the braces of a constructor declaration

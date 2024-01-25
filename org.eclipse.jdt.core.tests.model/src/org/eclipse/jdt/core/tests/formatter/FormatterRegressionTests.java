@@ -16329,4 +16329,29 @@ public void testGH1817b() {
 		}
 		""");
 }
+
+/**
+ * https://github.com/eclipse-jdt/eclipse.jdt/issues/1473 - Java formatter setting for switch arror opening brace position
+ */
+public void testGH1473a() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_14);
+	this.formatterPrefs.brace_position_for_block_in_case = DefaultCodeFormatterConstants.NEXT_LINE;
+	this.formatterPrefs.brace_position_for_block_in_case_after_arrow = DefaultCodeFormatterConstants.END_OF_LINE;
+	String input = getCompilationUnit("Formatter", "", "testGH1473", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "testGH1473", "A_out.java").getSource());
+}
+public void testGH1473b() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_14);
+	this.formatterPrefs.brace_position_for_block_in_case = DefaultCodeFormatterConstants.END_OF_LINE;
+	this.formatterPrefs.brace_position_for_block_in_case_after_arrow = DefaultCodeFormatterConstants.NEXT_LINE;
+	String input = getCompilationUnit("Formatter", "", "testGH1473", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "testGH1473", "B_out.java").getSource());
+}
+public void testGH1473c() throws JavaModelException {
+	setComplianceLevel(CompilerOptions.VERSION_14);
+	this.formatterPrefs.brace_position_for_block_in_case = DefaultCodeFormatterConstants.NEXT_LINE_SHIFTED;
+	this.formatterPrefs.brace_position_for_block_in_case_after_arrow = DefaultCodeFormatterConstants.NEXT_LINE_SHIFTED;
+	String input = getCompilationUnit("Formatter", "", "testGH1473", "in.java").getSource();
+	formatSource(input, getCompilationUnit("Formatter", "", "testGH1473", "C_out.java").getSource());
+}
 }
