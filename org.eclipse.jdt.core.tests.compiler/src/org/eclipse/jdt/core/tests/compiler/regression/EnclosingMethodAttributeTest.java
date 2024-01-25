@@ -22,6 +22,7 @@ import org.eclipse.jdt.core.ToolFactory;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.internal.compiler.Compiler;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.INameEnvironment;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
@@ -256,5 +257,35 @@ public class EnclosingMethodAttributeTest extends AbstractComparableTest {
 				getProblemFactory());
 		ReferenceBinding binaryType = batchCompiler.lookupEnvironment.askForType(new char[][] {new char[0], "X$1".toCharArray()}, batchCompiler.lookupEnvironment.UnNamedModule);
 		assertNotNull("Should not be null", binaryType);
+	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1905
+	// ECJ writes incorrect enclosing method for doubly-nested anonymous class
+	public void testGH1905() throws Exception {
+		if (this.complianceLevel < ClassFileConstants.JDK10)
+			return;
+
+		this.runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				public class X {
+					static Object o = new Object () {};
+					public static void main(String[] args) {
+						var outer = new Object() {
+							Object inner = new Object() {
+								//
+							};
+						};
+						System.out.println(o.getClass().getEnclosingMethod());
+						System.out.println(outer.getClass().getEnclosingMethod());
+						System.out.println(outer.inner.getClass().getEnclosingMethod());
+					}
+				}
+				"""
+			},
+			"null\n" +
+			"public static void X.main(java.lang.String[])\n" +
+			"null");
 	}
 }

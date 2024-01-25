@@ -1167,6 +1167,8 @@ public abstract class Scope {
 				MethodScope methodScope = (MethodScope) scope;
 				if (methodScope.referenceContext instanceof AbstractMethodDeclaration)
 					return (MethodScope) scope;
+				if (methodScope.referenceContext instanceof TypeDeclaration)
+					return null;
 			}
 		}
 		return null; // may answer null if no method around
