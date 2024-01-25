@@ -2200,33 +2200,18 @@ class ASTConverter {
 			case AST.JLS2_INTERNAL :
 				return createFakeEmptyStatement(statement);
 			default :
-				if (statement.pattern != null) {
-					EnhancedForWithRecordPattern enhancedFor = new EnhancedForWithRecordPattern(this.ast);
-					enhancedFor.setPattern((RecordPattern) convert(statement.pattern));
-					org.eclipse.jdt.internal.compiler.ast.Expression collection = statement.collection;
-					if (collection == null) return null;
-					enhancedFor.setExpression(convert(collection));
-					final Statement action = convert(statement.originalAction);
-					if (action == null) return null;
-					enhancedFor.setBody(action);
-					int start = statement.sourceStart;
-					int end = statement.sourceEnd;
-					enhancedFor.setSourceRange(start, end - start + 1);
-					return enhancedFor;
-				} else {
-					EnhancedForStatement enhancedForStatement = new EnhancedForStatement(this.ast);
-					enhancedForStatement.setParameter(convertToSingleVariableDeclaration(statement.elementVariable));
-					org.eclipse.jdt.internal.compiler.ast.Expression collection = statement.collection;
-					if (collection == null) return null;
-					enhancedForStatement.setExpression(convert(collection));
-					final Statement action = convert(statement.action);
-					if (action == null) return null;
-					enhancedForStatement.setBody(action);
-					int start = statement.sourceStart;
-					int end = statement.sourceEnd;
-					enhancedForStatement.setSourceRange(start, end - start + 1);
-					return enhancedForStatement;
-				}
+				EnhancedForStatement enhancedForStatement = new EnhancedForStatement(this.ast);
+				enhancedForStatement.setParameter(convertToSingleVariableDeclaration(statement.elementVariable));
+				org.eclipse.jdt.internal.compiler.ast.Expression collection = statement.collection;
+				if (collection == null) return null;
+				enhancedForStatement.setExpression(convert(collection));
+				final Statement action = convert(statement.action);
+				if (action == null) return null;
+				enhancedForStatement.setBody(action);
+				int start = statement.sourceStart;
+				int end = statement.sourceEnd;
+				enhancedForStatement.setSourceRange(start, end - start + 1);
+				return enhancedForStatement;
 		}
 	}
 

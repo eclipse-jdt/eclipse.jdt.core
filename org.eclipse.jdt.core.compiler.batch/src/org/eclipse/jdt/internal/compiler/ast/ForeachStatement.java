@@ -26,9 +26,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -39,7 +36,6 @@ import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.flow.LoopingFlowContext;
 import org.eclipse.jdt.internal.compiler.flow.UnconditionalFlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
-import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -61,9 +57,7 @@ public class ForeachStatement extends Statement {
 	public LocalDeclaration elementVariable;
 	public int elementVariableImplicitWidening = -1;
 	public Expression collection;
-	public Statement originalAction;
 	public Statement action;
-	public RecordPattern pattern;
 
 	// set the kind of foreach
 	private int kind;
@@ -104,39 +98,6 @@ public class ForeachStatement extends Statement {
 		this.kind = -1;
 	}
 
-	public ForeachStatement(RecordPattern recordPattern, int start) {
-		this(new LocalDeclaration(ForeachStatement.SecretRecordPatternVariableName, 0, 0), start);
-		this.pattern = recordPattern;
-		this.elementVariable.type = this.pattern.type;
-	}
-	public void transformAction() {
-		if (this.pattern != null && this.action != null) {
-			SwitchStatement switchStatement = new SwitchStatement();
-			switchStatement.switchBits |= SwitchStatement.Synthetic;
-			switchStatement.containsPatterns = true;
-			switchStatement.containsNull = true;
-			switchStatement.expression = new SingleNameReference(this.elementVariable.name, 0);
-
-			List<Statement> stmts = new ArrayList<>();
-
-			stmts.add(new CaseStatement(this.pattern, 0, 0));
-			stmts.add(this.action);
-			stmts.add(new BreakStatement(null, 0, 0));
-
-			stmts.add(new CaseStatement(0, 0, new Expression[] { new NullLiteral(0, 0), new FakeDefaultLiteral(0, 0) }));
-
-			// TODO: Need to enable MatchException
-			AllocationExpression allocationExpression = new AllocationExpression();
-			allocationExpression.type = new SingleTypeReference("NullPointerException".toCharArray(), 0); //$NON-NLS-1$ ;
-			stmts.add(new ThrowStatement(allocationExpression, 0, 0));
-
-			switchStatement.statements = stmts.toArray(new Statement[0]);
-			switchStatement.sourceStart = this.action.sourceStart;
-			switchStatement.sourceEnd = this.action.sourceEnd;
-			this.originalAction = this.action;
-			this.action = switchStatement;
-		}
-	}
 	@Override
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 		// initialize break and continue labels
@@ -468,11 +429,7 @@ public class ForeachStatement extends Statement {
 	public StringBuilder printStatement(int indent, StringBuilder output) {
 
 		printIndent(indent, output).append("for ("); //$NON-NLS-1$
-		if (this.pattern != null) {
-			this.pattern.printExpression(0, output);
-		} else {
-			this.elementVariable.printAsExpression(0, output);
-		}
+		this.elementVariable.printAsExpression(0, output);
 		output.append(" : ");//$NON-NLS-1$
 		if (this.collection != null) {
 			this.collection.print(0, output).append(") "); //$NON-NLS-1$
@@ -536,9 +493,6 @@ public class ForeachStatement extends Statement {
 		this.scope.blockStatement = this;
 		this.elementVariable.resolve(this.scope); // collection expression can see itemVariable
 
-		if (this.pattern != null && JavaFeature.RECORD_PATTERNS.isSupported(upperScope.compilerOptions())) {
-			this.pattern.resolve(this.scope);
-		}
 		TypeBinding elementType = this.elementVariable.type.resolvedType;
 		TypeBinding collectionType = this.collection == null ? null : this.collection.resolveType(upperScope);
 
@@ -727,7 +681,7 @@ public class ForeachStatement extends Statement {
 			}
 		}
 		if (this.action != null) {
-			this.action.resolveWithBindings(this.pattern != null ? this.pattern.bindingsWhenTrue() : NO_VARIABLES, this.scope);
+			this.action.resolve(this.scope);
 		}
 	}
 

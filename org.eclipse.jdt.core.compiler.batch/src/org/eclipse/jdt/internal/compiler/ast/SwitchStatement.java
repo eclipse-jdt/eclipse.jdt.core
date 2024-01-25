@@ -92,9 +92,7 @@ public class SwitchStatement extends Expression {
 	public final static int TotalPattern = ASTNode.Bit3;
 	public final static int Exhaustive = ASTNode.Bit4;
 	public final static int Enhanced = ASTNode.Bit5;
-	// Indicates this switch statement is fabricated by the compiler, for e.g. in ForeachStatement
-	public final static int Synthetic = ASTNode.Bit6;
-	public final static int QualifiedEnum = ASTNode.Bit7;
+	public final static int QualifiedEnum = ASTNode.Bit6;
 
 	// for switch on strings
 	private static final char[] SecretStringVariableName = " switchDispatchString".toCharArray(); //$NON-NLS-1$
@@ -1206,10 +1204,6 @@ public class SwitchStatement extends Expression {
 						defaultFound |= caseStmt.constantExpressions == null;
 						constantsList = caseStmt.resolveCase(this.scope, expressionType, this);
 						if (caseStmt.containsPatternVariable()) {
-							if ((this.switchBits & Synthetic) == 0) {
-								// This is already done in foreach
-								// ...
-							}
 							patternVariables = statement.bindingsWhenTrue();
 							if (caseStmt.patternIndex >= 0) {
 								Expression probablePattern = caseStmt.constantExpressions[caseStmt.patternIndex];
