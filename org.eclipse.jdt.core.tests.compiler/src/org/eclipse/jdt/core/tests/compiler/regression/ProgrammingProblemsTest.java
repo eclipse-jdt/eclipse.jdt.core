@@ -3343,6 +3343,7 @@ public void testGH567() {
 				"					default :\n" +
 				"							break;\n" +
 				"					}" +
+				"        if (o instanceof String str) {  str.length();  }\n" + // str refenced.
 				"    }\n" +
 				"}"
 			},
