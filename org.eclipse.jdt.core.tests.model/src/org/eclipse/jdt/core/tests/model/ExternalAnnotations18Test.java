@@ -3273,4 +3273,84 @@ public class ExternalAnnotations18Test extends ModifyingResourceTests {
 				prj1.getProject().delete(true, true , null);
 		}
 	}
+
+	public void testGH1008() throws Exception {
+		myCreateJavaProject("ValueOf");
+		Map options = this.project.getOptions(true);
+		options.put(JavaCore.COMPILER_PB_NULL_UNCHECKED_CONVERSION, JavaCore.ERROR);
+		this.project.setOptions(options);
+
+		addLibraryWithExternalAnnotations(this.project, "jreext.jar", "annots", new String[] {
+				"/UnannotatedLib/java/lang/Integer.java",
+				"""
+				package java.lang;
+				public class Integer {
+					public static Integer valueOf(String s) { return null; }
+				}
+				""",
+				"/UnannotatedLib/java/util/function/Function.java",
+				"""
+				package java.util.function;
+				public interface Function<T,R> {
+					R apply(T t);
+				}
+				"""
+			}, null);
+		createFileInProject("annots/java/lang", "Integer.eea",
+				"""
+				class java/lang/Integer
+				valueOf
+				 (Ljava/lang/String;)Ljava/lang/Integer;
+				 (L1java/lang/String;)L1java/lang/Integer;
+				""");
+
+		IPackageFragment fragment = this.project.getPackageFragmentRoots()[0].createPackageFragment("test", true, null);
+		ICompilationUnit unit = fragment.createCompilationUnit("UncheckedConversionFalsePositive.java",
+				"""
+				package test;
+				import org.eclipse.jdt.annotation.Checks;
+				import org.eclipse.jdt.annotation.NonNull;
+				import org.eclipse.jdt.annotation.Nullable;
+
+				public class UncheckedConversionFalsePositive {
+
+					public static @NonNull Integer doSomething(@NonNull final String someValue) {
+						return Integer.valueOf(someValue);
+					}
+
+					Integer test() {
+						final @Nullable String nullableString = "12";
+						@Nullable Integer result;
+
+						// This first example that uses my own annotated method and not eclipse external annotations
+						// works no problem...
+						result = Checks.applyIfNonNull(nullableString, UncheckedConversionFalsePositive::doSomething);
+
+						// But now, if I do this, which relies on EEA annotations instead of my in-code annotations....
+						result = Checks.applyIfNonNull(nullableString, Integer::valueOf);
+						// Then Integer::valueOf is flagged with the following message:
+						/*
+						 * Null type safety: parameter 1 provided via method descriptor
+						 * Function<String,Integer>.apply(String) needs unchecked conversion to conform to '@NonNull
+						 * String'
+						 */
+
+						// Note that the same warning is shown on "someValue" below when using a lambda expression
+						// instead of a method reference.
+						result = Checks.applyIfNonNull(nullableString, someValue -> Integer.valueOf(someValue));
+
+						// The workaround to eliminate this warning without suppressing it is to make the
+						// generic parameters explicit with @NonNull but this is very verbose and should
+						// ideally be unnecessary...
+						result = Checks.<@NonNull String, Integer>applyIfNonNull(nullableString, Integer::valueOf);
+
+						return result;
+					}
+				}
+				""",
+				true, new NullProgressMonitor()).getWorkingCopy(new NullProgressMonitor());
+		CompilationUnit reconciled = unit.reconcile(getJLS8(), true, null, new NullProgressMonitor());
+		IProblem[] problems = reconciled.getProblems();
+		assertNoProblems(problems);
+	}
 }

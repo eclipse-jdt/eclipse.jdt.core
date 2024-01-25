@@ -1837,6 +1837,8 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 							types[i] = typeParameters[i].superclass; // assumably j.l.Object?
 						break;
 				}
+				if (types[i] != null)
+					types[i] = wildcard.propagateNonConflictingNullAnnotations(types[i]);
 			} else {
 				// If Ai is a type, then Ti = Ai.
 				types[i] = typeArgument;
