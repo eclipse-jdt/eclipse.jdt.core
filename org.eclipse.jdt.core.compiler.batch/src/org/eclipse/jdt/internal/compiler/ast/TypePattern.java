@@ -65,6 +65,7 @@ public class TypePattern extends Pattern {
 	@Override
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 		if (this.local != null) {
+			flowInfo = this.local.analyseCode(currentScope, flowContext, flowInfo);
 			FlowInfo patternInfo = flowInfo.copy();
 			patternInfo.markAsDefinitelyAssigned(this.local.binding);
 			if (!this.isTotalTypeNode) {
@@ -205,7 +206,6 @@ public class TypePattern extends Pattern {
 				if (this.local.binding != null) {
 					this.local.binding.modifiers |= ExtraCompilerModifiers.AccOutOfFlowScope; // start out this way, will be BlockScope.include'd when definitely assigned
 					this.local.binding.tagBits |= TagBits.IsPatternBinding;
-					this.local.binding.useFlag = LocalVariableBinding.USED;
 					this.resolvedType = this.local.binding.type;
 				}
 			}

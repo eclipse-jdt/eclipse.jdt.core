@@ -77,6 +77,9 @@ public FlowInfo analyseCode(
 		int nullPatternCount = 0;
 		for(int i=0; i < this.constantExpressions.length; i++) {
 			Expression e = this.constantExpressions[i];
+			for (LocalVariableBinding local : e.bindingsWhenTrue()) {
+				local.useFlag = LocalVariableBinding.USED; // these are structurally required even if not touched
+			}
 			nullPatternCount +=  e instanceof NullLiteral ? 1 : 0;
 			if (i > 0 && (e instanceof Pattern)) {
 				if (!(i == nullPatternCount && e instanceof TypePattern))
