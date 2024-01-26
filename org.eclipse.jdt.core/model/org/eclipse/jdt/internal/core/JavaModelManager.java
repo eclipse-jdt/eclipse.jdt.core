@@ -5805,22 +5805,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		} else {
 			try {
 				readOnly.set(Boolean.TRUE);
-				return JavaModelManager.getJavaModelManager().callReadOnlyUnchecked(callable);
+				return JavaModelManager.cacheZipFiles(callable);
 			} finally {
 				readOnly.set(Boolean.FALSE);
-			}
-		}
-	}
-
-	private <T, E extends Exception> T callReadOnlyUnchecked(JavaCallable<T, E> callable) throws E {
-		boolean hadTemporaryCache = hasTemporaryCache();
-		try {
-			getTemporaryCache();
-
-			return cacheZipFiles(callable);
-		} finally {
-			if (!hadTemporaryCache) {
-				resetTemporaryCache();
 			}
 		}
 	}
