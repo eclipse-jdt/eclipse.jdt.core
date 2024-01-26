@@ -14,6 +14,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.util.Arrays;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IAnnotation;
@@ -58,7 +60,11 @@ public class BinaryMethod extends BinaryMember implements IMethod {
 	protected String returnType;
 
 protected BinaryMethod(JavaElement parent, String name, String[] paramTypes) {
-	super(parent, name);
+	this(parent, name, paramTypes, 1);
+}
+
+protected BinaryMethod(JavaElement parent, String name, String[] paramTypes, int occurrenceCount) {
+	super(parent, name, occurrenceCount);
 	// Assertion disabled since bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=179011
 	// Assert.isTrue(name.indexOf('.') == -1);
 	if (paramTypes == null) {
@@ -67,11 +73,18 @@ protected BinaryMethod(JavaElement parent, String name, String[] paramTypes) {
 		this.parameterTypes= paramTypes;
 	}
 }
+
 @Override
 public boolean equals(Object o) {
-	if (!(o instanceof BinaryMethod)) return false;
-	return super.equals(o) && Util.equalArraysOrNull(getErasedParameterTypes(), ((BinaryMethod)o).getErasedParameterTypes());
+	if (!(o instanceof BinaryMethod other)) return false;
+	return super.equals(o) && Util.equalArraysOrNull(getErasedParameterTypes(), other.getErasedParameterTypes());
 }
+
+@Override
+protected int calculateHashCode() {
+	return Util.combineHashCodes(super.calculateHashCode(), Arrays.hashCode(getErasedParameterTypes()));
+}
+
 @Override
 public IAnnotation[] getAnnotations() throws JavaModelException {
 	IBinaryMethod info = (IBinaryMethod) getElementInfo();
@@ -221,9 +234,9 @@ protected void getHandleMemento(StringBuilder buff) {
 		buff.append(delimiter);
 		escapeMementoName(buff, this.parameterTypes[i]);
 	}
-	if (this.occurrenceCount > 1) {
+	if (this.getOccurrenceCount() > 1) {
 		buff.append(JEM_COUNT);
-		buff.append(this.occurrenceCount);
+		buff.append(this.getOccurrenceCount());
 	}
 }
 /*
@@ -525,9 +538,6 @@ private String [] getErasedParameterTypes() {
 	}
 	return this.erasedParamaterTypes;
 }
-private String getErasedParameterType(int index) {
-	return getErasedParameterTypes()[index];
-}
 
 @Override
 public ITypeParameter getTypeParameter(String typeParameterName) {
@@ -603,17 +613,7 @@ public String getSignature() throws JavaModelException {
 	IBinaryMethod info = (IBinaryMethod) getElementInfo();
 	return new String(info.getMethodDescriptor());
 }
-/**
- * @see org.eclipse.jdt.internal.core.JavaElement#hashCode()
- */
-@Override
-public int hashCode() {
-   int hash = super.hashCode();
-	for (int i = 0, length = this.parameterTypes.length; i < length; i++) {
-	    hash = Util.combineHashCodes(hash, getErasedParameterType(i).hashCode());
-	}
-	return hash;
-}
+
 /*
  * @see IMethod
  */
@@ -682,8 +682,7 @@ public String readableName() {
 }
 @Override
 public JavaElement resolved(Binding binding) {
-	SourceRefElement resolvedHandle = new ResolvedBinaryMethod(this.getParent(), this.name, this.parameterTypes, new String(binding.computeUniqueKey()));
-	resolvedHandle.occurrenceCount = this.occurrenceCount;
+	SourceRefElement resolvedHandle = new ResolvedBinaryMethod(this.getParent(), this.name, this.parameterTypes, new String(binding.computeUniqueKey()), this.getOccurrenceCount());
 	return resolvedHandle;
 }/*
  * @private Debugging purposes
@@ -741,9 +740,9 @@ protected void toStringName(StringBuilder buffer, int flags) {
 		}
 	}
 	buffer.append(')');
-	if (this.occurrenceCount > 1) {
+	if (this.getOccurrenceCount() > 1) {
 		buffer.append("#"); //$NON-NLS-1$
-		buffer.append(this.occurrenceCount);
+		buffer.append(this.getOccurrenceCount());
 	}
 }
 @Override

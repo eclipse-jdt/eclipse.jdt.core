@@ -69,12 +69,17 @@ public class ExternalPackageFragmentRoot extends PackageFragmentRoot {
 	public boolean equals(Object o) {
 		if (this == o)
 			return true;
-		if (o instanceof ExternalPackageFragmentRoot) {
-			ExternalPackageFragmentRoot other= (ExternalPackageFragmentRoot) o;
+		if (o instanceof ExternalPackageFragmentRoot other) {
 			return this.externalPath.equals(other.externalPath);
 		}
 		return false;
 	}
+
+	@Override
+	protected int calculateHashCode() {
+		return this.externalPath.hashCode();
+	}
+
 	@Override
 	public String getElementName() {
 		return this.externalPath.lastSegment();
@@ -104,10 +109,6 @@ public class ExternalPackageFragmentRoot extends PackageFragmentRoot {
 	@Override
 	public IResource getUnderlyingResource() throws JavaModelException {
 		return null;
-	}
-	@Override
-	public int hashCode() {
-		return this.externalPath.hashCode();
 	}
 	/**
 	 * @see IPackageFragmentRoot

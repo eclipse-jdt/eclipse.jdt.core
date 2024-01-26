@@ -29,26 +29,28 @@ public class Annotation extends SourceRefElement implements IAnnotation {
 	public static final IAnnotation[] NO_ANNOTATIONS = new IAnnotation[0];
 	public static final IMemberValuePair[] NO_MEMBER_VALUE_PAIRS = new IMemberValuePair[0];
 
-	protected String name;
+	protected final String name;
 	// require to distinguish same annotations in different member value pairs
-	protected String memberValuePairName;
+	protected final String memberValuePairName;
 
 	public Annotation(JavaElement parent, String name) {
 		this(parent, name, null);
 	}
 
 	public Annotation(JavaElement parent, String name, String memberValuePairName) {
-		super(parent);
+		this(parent, name, memberValuePairName, 1);
+	}
+
+	public Annotation(JavaElement parent, String name, String memberValuePairName, int occurrenceCount) {
+		super(parent, occurrenceCount);
 		this.name = name.intern();
 		this.memberValuePairName = memberValuePairName;
 	}
-
 	@Override
 	public boolean equals(Object o) {
-		if (!(o instanceof Annotation)) {
+		if (!(o instanceof Annotation other)) {
 			return false;
 		}
-		Annotation other = (Annotation) o;
 		if (this.memberValuePairName == null) {
 			if (other.memberValuePairName != null)
 				return false;
@@ -57,6 +59,11 @@ public class Annotation extends SourceRefElement implements IAnnotation {
 		}
 		// name equality is checked as part of the super.equals(..)
 		return super.equals(o);
+	}
+
+	@Override
+	protected int calculateHashCode() {
+		return Util.combineHashCodes(super.calculateHashCode(), (this.memberValuePairName == null) ? 0 : this.memberValuePairName.hashCode());
 	}
 
 	public IMember getDeclaringMember() {
@@ -134,15 +141,6 @@ public class Annotation extends SourceRefElement implements IAnnotation {
 	@Override
 	public IClassFile getClassFile() {
 		return getParent().getClassFile();
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + ((this.memberValuePairName == null) ? 0 : this.memberValuePairName.hashCode());
-		result = prime * result + this.name.hashCode();
-		return result;
 	}
 
 	@Override

@@ -35,6 +35,9 @@ import org.eclipse.jdt.internal.compiler.lookup.Binding;
 protected BinaryField(JavaElement parent, String name) {
 	super(parent, name);
 }
+protected BinaryField(JavaElement parent, String name, int occurrenceCount) {
+	super(parent, name, occurrenceCount);
+}
 @Override
 public boolean equals(Object o) {
 	if (!(o instanceof BinaryField)) return false;
@@ -105,8 +108,7 @@ public boolean isResolved() {
 }
 @Override
 public JavaElement resolved(Binding binding) {
-	SourceRefElement resolvedHandle = new ResolvedBinaryField(this.getParent(), this.name, new String(binding.computeUniqueKey()));
-	resolvedHandle.occurrenceCount = this.occurrenceCount;
+	SourceRefElement resolvedHandle = new ResolvedBinaryField(this.getParent(), this.name, new String(binding.computeUniqueKey()), this.getOccurrenceCount());
 	return resolvedHandle;
 }
 /*

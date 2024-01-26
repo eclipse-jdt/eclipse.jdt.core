@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -123,10 +123,12 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 * This element's parent, or <code>null</code> if this
 	 * element does not have a parent.
 	 */
-	private JavaElement parent;
+	private final JavaElement parent;
 
-	/* cached result */
-	private JavaProject project;
+	/** cached result */
+	private final JavaProject project;
+	/** cached result */
+	private int hashCode;
 
 	protected static final String[] NO_STRINGS = new String[0];
 	protected static final JavaElement[] NO_ELEMENTS = new JavaElement[0];
@@ -145,7 +147,9 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 *		Java element type constants
 	 */
 	protected JavaElement(JavaElement parent) throws IllegalArgumentException {
-		this.setParent(parent);
+		this.parent = parent;
+		// cache:
+		this.project = parent == null ? null : parent.getJavaProject();
 	}
 	/**
 	 * @see IOpenable
@@ -174,7 +178,6 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	 */
 	@Override
 	public boolean equals(Object o) {
-
 		if (this == o) return true;
 
 		// Java model parent is null
@@ -388,13 +391,6 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 		return this.parent;
 	}
 
-	protected void setParent(JavaElement parent) {
-		// invalidate caches:
-		this.project = parent==null?null:parent.getJavaProject();
-		// now the real task:
-		this.parent = parent;
-	}
-
 	@Override
 	public JavaElement getPrimaryElement() {
 		return getPrimaryElement(true);
@@ -515,15 +511,30 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	}
 
 	/**
-	 * Returns the hash code for this Java element. By default,
-	 * the hash code for an element is a combination of its name
-	 * and parent's hash code. Elements with other requirements must
-	 * override this method.
+	 * Returns the hash code for this Java element. By default, the hash code for an element is a combination of its
+	 * this{@link #getElementName()} and parent's hash code. Elements with other requirements must override
+	 * this{@link #calculateHashCode()}.
 	 */
 	@Override
-	public int hashCode() {
-		if (this.parent == null) return super.hashCode();
-		return Util.combineHashCodes(getElementName().hashCode(), this.parent.hashCode());
+	public final int hashCode() {
+		if (this.hashCode == 0) {
+			int h = calculateHashCode();
+			if (h == 0) {
+				h = 1;
+			}
+			this.hashCode = h;
+		}
+		return this.hashCode;
+	}
+
+	/** should not be needed but some implementations do have mutable member "occurrenceCount" **/
+	protected  void resetHashCode() {
+		this.hashCode = 0;
+	}
+
+	protected int calculateHashCode() {
+		return (this.parent == null) ? super.hashCode()
+				: Util.combineHashCodes(getElementName().hashCode(), this.parent.hashCode());
 	}
 	/**
 	 * Returns true if this element is an ancestor of the given element,

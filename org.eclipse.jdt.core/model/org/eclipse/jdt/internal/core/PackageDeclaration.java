@@ -21,7 +21,7 @@ import org.eclipse.jdt.core.*;
 
 public class PackageDeclaration extends SourceRefElement implements IPackageDeclaration {
 
-	String name;
+	private final String name;
 
 protected PackageDeclaration(CompilationUnit parent, String name) {
 	super(parent);

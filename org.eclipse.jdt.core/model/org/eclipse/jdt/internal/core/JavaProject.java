@@ -42,13 +42,10 @@ import java.util.stream.Collectors;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
-import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IProjectDescription;
-import org.eclipse.core.resources.IProjectNature;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -135,7 +132,7 @@ import org.xml.sax.SAXException;
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class JavaProject
 	extends Openable
-	implements IJavaProject, IProjectNature, SuffixConstants {
+	implements IJavaProject, SuffixConstants {
 
 	/**
 	 * Name of file containing project classpath
@@ -197,22 +194,13 @@ public class JavaProject
 	/**
 	 * The platform project this <code>IJavaProject</code> is based on
 	 */
-	protected IProject project;
+	protected final IProject project;
 
 	/**
 	 * Preferences listeners
 	 */
 	private IEclipsePreferences.INodeChangeListener preferencesNodeListener;
 	private IEclipsePreferences.IPreferenceChangeListener preferencesChangeListener;
-
-	/**
-	 * Constructor needed for <code>IProject.getNature()</code> and <code>IProject.addNature()</code>.
-	 *
-	 * @see #setProject(IProject)
-	 */
-	public JavaProject() {
-		super(null);
-	}
 
 	public JavaProject(IProject project, JavaModel parent) {
 		super(parent);
@@ -509,22 +497,7 @@ public class JavaProject
 		return markerMessage;
 	}
 
-	/**
-	 * Adds a builder to the build spec for the given project.
-	 */
-	protected void addToBuildSpec(String builderID) throws CoreException {
 
-		IProjectDescription description = this.project.getDescription();
-		int javaCommandIndex = getJavaCommandIndex(description.getBuildSpec());
-
-		if (javaCommandIndex == -1) {
-
-			// Add a Java command to the build spec
-			ICommand command = description.newCommand();
-			command.setBuilderName(builderID);
-			setJavaCommand(description, command);
-		}
-	}
 	/**
 	 * @see Openable
 	 */
@@ -1115,16 +1088,6 @@ public class JavaProject
 		return '.' + qName.getLocalName();
 	}
 
-	/**
-	 * Configure the project with Java nature.
-	 */
-	@Override
-	public void configure() throws CoreException {
-
-		// register Java builder
-		addToBuildSpec(JavaCore.BUILDER_ID);
-	}
-
 	/*
 	 * Returns whether the given resource is accessible through the children or the non-Java resources of this project.
 	 * Returns true if the resource is not in the project.
@@ -1388,20 +1351,6 @@ public class JavaProject
 	}
 
 	/**
-	/**
-	 * Removes the Java nature from the project.
-	 */
-	@Override
-	public void deconfigure() throws CoreException {
-
-		// deregister Java builder
-		removeFromBuildSpec(JavaCore.BUILDER_ID);
-
-		// remove .classpath file
-//		getProject().getFile(ClasspathHelper.CLASSPATH_FILENAME).delete(false, null);
-	}
-
-	/**
 	 * Returns a default class path.
 	 * This is the root of the project
 	 */
@@ -1468,16 +1417,20 @@ public class JavaProject
 	 */
 	@Override
 	public boolean equals(Object o) {
-
 		if (this == o)
 			return true;
 
-		if (!(o instanceof JavaProject))
+		if (!(o instanceof JavaProject other))
 			return false;
 
-		JavaProject other = (JavaProject) o;
 		return this.project.equals(other.getProject());
 	}
+
+	@Override
+	protected int calculateHashCode() {
+		return this.project.hashCode();
+	}
+
 
 	/**
 	 * @see IJavaProject#findElement(IPath)
@@ -2103,19 +2056,6 @@ public class JavaProject
 		return JEM_JAVAPROJECT;
 	}
 
-	/**
-	 * Find the specific Java command amongst the given build spec
-	 * and return its index or -1 if not found.
-	 */
-	private int getJavaCommandIndex(ICommand[] buildSpec) {
-
-		for (int i = 0; i < buildSpec.length; ++i) {
-			if (buildSpec[i].getBuilderName().equals(JavaCore.BUILDER_ID)) {
-				return i;
-			}
-		}
-		return -1;
-	}
 
 	/**
 	 * Convenience method that returns the specific type of info for a Java project.
@@ -2651,11 +2591,6 @@ public class JavaProject
 		return getCycleMarker() != null;
 	}
 
-	@Override
-	public int hashCode() {
-		return this.project.hashCode();
-	}
-
 	private boolean hasUTF8BOM(byte[] bytes) {
 		if (bytes.length > IContentDescription.BOM_UTF_8.length) {
 			for (int i = 0, length = IContentDescription.BOM_UTF_8.length; i < length; i++) {
@@ -3109,25 +3044,6 @@ public class JavaProject
 		return classpath[0];
 	}
 
-	/**
-	 * Removes the given builder from the build spec for the given project.
-	 */
-	protected void removeFromBuildSpec(String builderID) throws CoreException {
-
-		IProjectDescription description = this.project.getDescription();
-		ICommand[] commands = description.getBuildSpec();
-		for (int i = 0; i < commands.length; ++i) {
-			if (commands[i].getBuilderName().equals(builderID)) {
-				ICommand[] newCommands = new ICommand[commands.length - 1];
-				System.arraycopy(commands, 0, newCommands, 0, i);
-				System.arraycopy(commands, i + 1, newCommands, i, commands.length - i - 1);
-				description.setBuildSpec(newCommands);
-				this.project.setDescription(description, null);
-				return;
-			}
-		}
-	}
-
 	/*
 	 * Resets this project's caches
 	 */
@@ -3463,34 +3379,6 @@ public class JavaProject
 	}
 
 	/**
-	 * Update the Java command in the build spec (replace existing one if present,
-	 * add one first if none).
-	 */
-	private void setJavaCommand(
-		IProjectDescription description,
-		ICommand newCommand)
-		throws CoreException {
-
-		ICommand[] oldBuildSpec = description.getBuildSpec();
-		int oldJavaCommandIndex = getJavaCommandIndex(oldBuildSpec);
-		ICommand[] newCommands;
-
-		if (oldJavaCommandIndex == -1) {
-			// Add a Java build spec before other builders (1FWJK7I)
-			newCommands = new ICommand[oldBuildSpec.length + 1];
-			System.arraycopy(oldBuildSpec, 0, newCommands, 1, oldBuildSpec.length);
-			newCommands[0] = newCommand;
-		} else {
-		    oldBuildSpec[oldJavaCommandIndex] = newCommand;
-			newCommands = oldBuildSpec;
-		}
-
-		// Commit the spec change into the project
-		description.setBuildSpec(newCommands);
-		this.project.setDescription(description, null);
-	}
-
-	/**
 	 * @see org.eclipse.jdt.core.IJavaProject#setOption(java.lang.String, java.lang.String)
 	 */
 	@Override
@@ -3568,21 +3456,6 @@ public class JavaProject
 			return;
 		}
 		setRawClasspath(getRawClasspath(), path, monitor);
-	}
-
-	/**
-	 * Sets the underlying kernel project of this Java project,
-	 * and fills in its parent and name.
-	 * Called by IProject.getNature().
-	 *
-	 * @see IProjectNature#setProject(IProject)
-	 */
-	@Override
-	public void setProject(IProject project) {
-
-		this.project = project;
-		setParent(JavaModelManager.getJavaModelManager().getJavaModel());
-
 	}
 
 	/**

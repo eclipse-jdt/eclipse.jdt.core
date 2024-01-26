@@ -195,12 +195,12 @@ public class OverflowingCacheTests extends ModifyingResourceTests {
 		 */
 		public boolean isOpen;
 
-		public OverflowingTestBuffer buffer;
+		public final OverflowingTestBuffer buffer;
 
 		/**
 		 * The cache this element is stored in
 		 */
-		public ElementCache<OverflowingTestOpenable> cache;
+		public final ElementCache<OverflowingTestOpenable> cache;
 
 		/**
 		 * Constructs a new openable, with unsaved changes as specified,

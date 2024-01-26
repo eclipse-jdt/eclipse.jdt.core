@@ -18,7 +18,7 @@ import org.eclipse.jdt.core.JavaModelException;
 public class ResolvedLambdaExpression extends LambdaExpression {
 
 	private final String uniqueKey;
-	LambdaExpression unresolved;
+	private final LambdaExpression unresolved;
 
 	public ResolvedLambdaExpression(JavaElement parent, LambdaExpression unresolved, String uniqueKey) {
 		super(parent, unresolved.interphase, unresolved.sourceStart, unresolved.sourceEnd, unresolved.arrowPosition, unresolved.lambdaMethod);

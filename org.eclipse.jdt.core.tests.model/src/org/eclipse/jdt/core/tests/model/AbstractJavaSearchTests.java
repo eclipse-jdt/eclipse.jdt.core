@@ -670,7 +670,7 @@ public class AbstractJavaSearchTests extends ModifyingResourceTests implements I
 			}
 			if (isLocal && !(type instanceof LambdaExpression)) { // don't want occurrence counts for lambdas. it can be confusing at best, as not all are built.
 				this.line.append("#");
-				this.line.append(((SourceRefElement)type).occurrenceCount);
+				this.line.append(((SourceRefElement)type).getOccurrenceCount());
 			}
 		}
 		protected IJavaElement getElement(SearchMatch searchMatch) {
