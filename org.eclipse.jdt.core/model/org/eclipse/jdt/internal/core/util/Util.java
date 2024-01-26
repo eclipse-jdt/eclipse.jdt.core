@@ -2845,11 +2845,10 @@ public class Util {
 					// values are heterogeneous, value kind is thus unknown
 					memberValuePair.valueKind = IMemberValuePair.K_UNKNOWN;
 				}
-				if (value instanceof Annotation) {
-					Annotation annotation = (Annotation) value;
+				if (value instanceof Annotation annotation) {
 					for (int j = 0; j < i; j++) {
 						if (annotation.equals(values[j])) {
-							annotation.occurrenceCount++;
+							annotation.incOccurrenceCount();
 						}
 					}
 				}

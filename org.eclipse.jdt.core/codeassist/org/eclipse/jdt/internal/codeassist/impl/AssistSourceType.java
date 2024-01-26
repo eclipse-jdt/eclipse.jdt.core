@@ -16,13 +16,8 @@ package org.eclipse.jdt.internal.codeassist.impl;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.core.IAnnotation;
-import org.eclipse.jdt.core.IField;
-import org.eclipse.jdt.core.IInitializer;
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
-import org.eclipse.jdt.core.ITypeParameter;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.env.IElementInfo;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
@@ -37,7 +32,11 @@ public class AssistSourceType extends ResolvedSourceType {
 	private boolean isResolved;
 
 	public AssistSourceType(JavaElement parent, String name, Map<JavaElement, Binding> bindingCache, Map<IJavaElement, IElementInfo> infoCache) {
-		super(parent, name, null);
+		this(parent, name, bindingCache, infoCache, 1);
+	}
+
+	public AssistSourceType(JavaElement parent, String name, Map<JavaElement, Binding> bindingCache, Map<IJavaElement, IElementInfo> infoCache, int occurrenceCount) {
+		super(parent, name, null, occurrenceCount);
 		this.bindingCache = bindingCache;
 		this.infoCache = infoCache;
 	}
@@ -87,22 +86,22 @@ public class AssistSourceType extends ResolvedSourceType {
 	}
 
 	@Override
-	public IAnnotation getAnnotation(String annotationName) {
+	public AssistAnnotation getAnnotation(String annotationName) {
 		return new AssistAnnotation(this, annotationName, this.infoCache);
 	}
 
 	@Override
-	public IField getField(String fieldName) {
+	public AssistSourceField getField(String fieldName) {
 		return new AssistSourceField(this, fieldName, this.bindingCache, this.infoCache);
 	}
 
 	@Override
-	public IInitializer getInitializer(int count) {
+	public AssistInitializer getInitializer(int count) {
 		return new AssistInitializer(this, count, this.bindingCache, this.infoCache);
 	}
 
 	@Override
-	public IMethod getMethod(String selector, String[] parameterTypeSignatures) {
+	public AssistSourceMethod getMethod(String selector, String[] parameterTypeSignatures) {
 		return new AssistSourceMethod(this, selector, parameterTypeSignatures, this.bindingCache, this.infoCache);
 	}
 
@@ -112,14 +111,12 @@ public class AssistSourceType extends ResolvedSourceType {
 	}
 
 	@Override
-	public IType getType(String typeName, int count) {
-		AssistSourceType type = new AssistSourceType(this, typeName, this.bindingCache, this.infoCache);
-		type.occurrenceCount = count;
-		return type;
+	public AssistSourceType getType(String typeName, int count) {
+		return new AssistSourceType(this, typeName, this.bindingCache, this.infoCache, count);
 	}
 
 	@Override
-	public ITypeParameter getTypeParameter(String typeParameterName) {
+	public AssistTypeParameter getTypeParameter(String typeParameterName) {
 		return new AssistTypeParameter(this, typeParameterName, this.infoCache);
 	}
 }

@@ -22,10 +22,15 @@ public class TypeParameter extends SourceRefElement implements ITypeParameter {
 
 	static final ITypeParameter[] NO_TYPE_PARAMETERS = new ITypeParameter[0];
 
-	protected String name;
+	private final String name;
 
 	public TypeParameter(JavaElement parent, String name) {
 		super(parent);
+		this.name = name;
+	}
+
+	public TypeParameter(JavaElement parent, String name, int occurrenceCount) {
+		super(parent, occurrenceCount);
 		this.name = name;
 	}
 

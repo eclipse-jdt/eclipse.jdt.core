@@ -57,6 +57,9 @@ public class BinaryType extends BinaryMember implements IType, SuffixConstants {
 protected BinaryType(JavaElement parent, String name) {
 	super(parent, name);
 }
+protected BinaryType(JavaElement parent, String name, int occurrenceCount) {
+	super(parent, name, occurrenceCount);
+}
 /*
  * Remove my cached children from the Java Model
  */
@@ -421,7 +424,7 @@ public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento,
 			}
 			String[] parameters = new String[params.size()];
 			params.toArray(parameters);
-			JavaElement method = (JavaElement)getMethod(selector, parameters);
+			JavaElement method = getMethod(selector, parameters);
 			switch (token.charAt(0)) {
 				case JEM_LAMBDA_EXPRESSION:
 				case JEM_TYPE:
@@ -482,7 +485,7 @@ public String getKey(boolean forceOpen) throws JavaModelException {
 }
 
 @Override
-public IMethod getMethod(String selector, String[] parameterTypeSignatures) {
+public BinaryMethod getMethod(String selector, String[] parameterTypeSignatures) {
 	return new BinaryMethod(this, selector, parameterTypeSignatures);
 }
 
@@ -971,10 +974,8 @@ public ITypeHierarchy newTypeHierarchy(
 	return op.getResult();
 }
 @Override
-public JavaElement resolved(Binding binding) {
-	SourceRefElement resolvedHandle = new ResolvedBinaryType(this.getParent(), this.name, new String(binding.computeUniqueKey()));
-	resolvedHandle.occurrenceCount = this.occurrenceCount;
-	return resolvedHandle;
+public ResolvedBinaryType resolved(Binding binding) {
+	return new ResolvedBinaryType(this.getParent(), this.name, new String(binding.computeUniqueKey()), this.getOccurrenceCount());
 }
 /*
  * Returns the source file name as defined in the given info.

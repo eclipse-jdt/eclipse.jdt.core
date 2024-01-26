@@ -224,11 +224,11 @@ public class HandleFactory {
 					    if (member.isBinary()) {
 					        return null;
 					    } else {
-							newElement = member.getType(new String(scope.enclosingSourceType().sourceName), 1);
-							// increment occurrence count if collision is detected
-							if (newElement != null) {
-								while (!existingElements.add(newElement)) ((SourceRefElement)newElement).occurrenceCount++;
-							}
+							String name = new String(scope.enclosingSourceType().sourceName);
+							int occurrenceCount = 0;
+							do {
+								newElement = member.getType(name, ++occurrenceCount);
+							} while (!existingElements.add(newElement));
 					    }
 						break;
 				}

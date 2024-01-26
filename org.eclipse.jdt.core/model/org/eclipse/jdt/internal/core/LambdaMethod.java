@@ -68,9 +68,13 @@ public class LambdaMethod extends SourceMethod {
 
 	@Override
 	public boolean equals(Object o) {
-		if (!(o instanceof LambdaMethod)) return false;
-		LambdaMethod that = (LambdaMethod) o;
+		if (!(o instanceof LambdaMethod that)) return false;
 		return super.equals(o) && this.sourceStart == that.sourceStart;
+	}
+
+	@Override
+	protected int calculateHashCode() {
+	   return Util.combineHashCodes(super.calculateHashCode(), this.sourceStart);
 	}
 
 	@Override
@@ -120,17 +124,12 @@ public class LambdaMethod extends SourceMethod {
 	}
 
 	@Override
-	public int hashCode() {
-	   return Util.combineHashCodes(super.hashCode(), this.sourceStart);
-	}
-
-	@Override
 	public boolean isResolved() {
 		return true;  // we maintain enough information so as not to need another layer of abstraction.
 	}
 
 	@Override
-	public JavaElement resolved(Binding binding) {
+	public LambdaMethod resolved(Binding binding) {
 		return this;
 	}
 }

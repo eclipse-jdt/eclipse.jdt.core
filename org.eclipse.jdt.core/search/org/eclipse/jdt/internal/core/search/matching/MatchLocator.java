@@ -623,9 +623,9 @@ IMethod createBinaryMethodHandle(IType type, char[] methodSelector, char[][] arg
  */
 private IJavaElement createMethodHandle(IType type, String methodName, String[] parameterTypeSignatures) {
 	IMethod methodHandle = type.getMethod(methodName, parameterTypeSignatures);
-	if (methodHandle instanceof SourceMethod) {
+	if (methodHandle instanceof SourceMethod mh) {
 		while (this.methodHandles.contains(methodHandle)) {
-			((SourceMethod) methodHandle).occurrenceCount++;
+			mh.incOccurrenceCount();
 		}
 	}
 	this.methodHandles.add(methodHandle);

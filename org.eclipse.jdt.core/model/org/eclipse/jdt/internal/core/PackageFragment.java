@@ -15,6 +15,7 @@ package org.eclipse.jdt.internal.core;
 
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -63,7 +64,7 @@ public class PackageFragment extends Openable implements IPackageFragment, Suffi
 	 */
 	protected static final ICompilationUnit[] NO_COMPILATION_UNITS = new ICompilationUnit[] {};
 
-	public String[] names;
+	public final String[] names;
 
 	private final boolean isValidPackageName;
 
@@ -182,12 +183,16 @@ public void delete(boolean force, IProgressMonitor monitor) throws JavaModelExce
 @Override
 public boolean equals(Object o) {
 	if (this == o) return true;
-	if (!(o instanceof PackageFragment)) return false;
-
-	PackageFragment other = (PackageFragment) o;
+	if (!(o instanceof PackageFragment other)) return false;
 	return Util.equalArraysOrNull(this.names, other.names) &&
 			this.getParent().equals(other.getParent());
 }
+
+@Override
+protected int calculateHashCode() {
+	return Util.combineHashCodes(this.getParent().hashCode(), Arrays.hashCode(this.names));
+}
+
 @Override
 public boolean exists() {
 	// super.exist() only checks for the parent and the resource existence
@@ -444,13 +449,6 @@ public IResource getUnderlyingResource() throws JavaModelException {
 	} else {
 		return rootResource;
 	}
-}
-@Override
-public int hashCode() {
-	int hash = this.getParent().hashCode();
-	for (int i = 0, length = this.names.length; i < length; i++)
-		hash = Util.combineHashCodes(this.names[i].hashCode(), hash);
-	return hash;
 }
 /**
  * @see IParent

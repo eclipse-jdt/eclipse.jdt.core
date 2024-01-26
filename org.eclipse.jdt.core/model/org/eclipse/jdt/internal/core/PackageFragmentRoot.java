@@ -346,11 +346,15 @@ protected int determineKind(IResource underlyingResource) throws JavaModelExcept
 public boolean equals(Object o) {
 	if (this == o)
 		return true;
-	if (!(o instanceof PackageFragmentRoot))
+	if (!(o instanceof PackageFragmentRoot other))
 		return false;
-	PackageFragmentRoot other = (PackageFragmentRoot) o;
 	return resource().equals(other.resource()) &&
 			this.getParent().equals(other.getParent());
+}
+
+@Override
+protected int calculateHashCode() {
+	return Util.combineHashCodes(this.getParent().hashCode(), resource().hashCode());
 }
 
 private IClasspathEntry findSourceAttachmentRecommendation() {
@@ -768,11 +772,6 @@ public IResource getUnderlyingResource() throws JavaModelException {
 public boolean hasChildren() throws JavaModelException {
 	// a package fragment root always has the default package as a child
 	return true;
-}
-
-@Override
-public int hashCode() {
-	return resource().hashCode();
 }
 
 public boolean ignoreOptionalProblems() {

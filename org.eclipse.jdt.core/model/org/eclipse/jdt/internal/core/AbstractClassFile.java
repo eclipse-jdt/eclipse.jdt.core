@@ -43,7 +43,7 @@ import org.eclipse.jdt.internal.core.util.Util;
  */
 public abstract class AbstractClassFile extends Openable implements IClassFile, SuffixConstants  {
 
-	protected String name;
+	protected final String name;
 
 	protected AbstractClassFile(PackageFragment parent, String nameWithoutExtension) {
 		super(parent);
@@ -128,9 +128,12 @@ public abstract class AbstractClassFile extends Openable implements IClassFile, 
 	}
 	@Override
 	public boolean equals(Object o) {
-		if (!(o instanceof AbstractClassFile)) return false;
-		AbstractClassFile other = (AbstractClassFile) o;
+		if (!(o instanceof AbstractClassFile other)) return false;
 		return this.name.equals(other.name) && this.getParent().equals(other.getParent());
+	}
+	@Override
+	protected int calculateHashCode() {
+		return Util.combineHashCodes(this.name.hashCode(), this.getParent().hashCode());
 	}
 
 	/**
@@ -393,10 +396,7 @@ public abstract class AbstractClassFile extends Openable implements IClassFile, 
 	protected boolean hasBuffer() {
 		return true;
 	}
-	@Override
-	public int hashCode() {
-		return Util.combineHashCodes(this.name.hashCode(), this.getParent().hashCode());
-	}
+
 	/**
 	 * Returns true - class files are always read only.
 	 */

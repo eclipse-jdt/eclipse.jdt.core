@@ -37,6 +37,9 @@ public abstract class Member extends SourceRefElement implements IMember {
 protected Member(JavaElement parent) {
 	super(parent);
 }
+protected Member(JavaElement parent, int occurrenceCount) {
+	super(parent, occurrenceCount);
+}
 protected static boolean areSimilarMethods(
 	String name1, String[] params1,
 	String name2, String[] params2,
@@ -215,7 +218,7 @@ public IJavaElement getHandleFromMemento(String token, MementoTokenizer memento,
 				typeName = ""; //$NON-NLS-1$
 				token = null;
 			}
-			JavaElement type = (JavaElement)getType(typeName, 1);
+			JavaElement type = getType(typeName, 1);
 			if (token == null) {
 				return type.getHandleFromMemento(memento, workingCopyOwner);
 			} else {
@@ -367,13 +370,11 @@ public ISourceRange getNameRange() throws JavaModelException {
  * @see IMember
  */
 @Override
-public IType getType(String typeName, int count) {
+public SourceType getType(String typeName, int count) {
 	if (isBinary()) {
 		throw new IllegalArgumentException("Not a source member " + toStringWithAncestors()); //$NON-NLS-1$
 	} else {
-		SourceType type = new SourceType(this, typeName);
-		type.occurrenceCount = count;
-		return type;
+		return new SourceType(this, typeName, count);
 	}
 }
 /**

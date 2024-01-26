@@ -13,6 +13,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core;
 
+import java.util.Arrays;
+
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
@@ -32,7 +34,11 @@ public class SourceMethod extends NamedMember implements IMethod {
 	protected String[] parameterTypes;
 
 protected SourceMethod(JavaElement parent, String name, String[] parameterTypes) {
-	super(parent, name);
+	this(parent, name, parameterTypes, 1);
+}
+
+protected SourceMethod(JavaElement parent, String name, String[] parameterTypes, int occurrenceCount) {
+	super(parent, name, occurrenceCount);
 	// Assertion disabled since bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=179011
 	// Assert.isTrue(name.indexOf('.') == -1);
 	if (parameterTypes == null) {
@@ -52,9 +58,15 @@ protected void closing(Object info) throws JavaModelException {
 }
 @Override
 public boolean equals(Object o) {
-	if (!(o instanceof SourceMethod)) return false;
-	return super.equals(o) && Util.equalArraysOrNull(this.parameterTypes, ((SourceMethod)o).parameterTypes);
+	if (!(o instanceof SourceMethod other)) return false;
+	return super.equals(o) && Util.equalArraysOrNull(this.parameterTypes, other.parameterTypes);
 }
+
+@Override
+protected int calculateHashCode() {
+	return Util.combineHashCodes(super.calculateHashCode(), Arrays.hashCode(this.parameterTypes));
+}
+
 @Override
 public IMemberValuePair getDefaultValue() throws JavaModelException {
 	SourceMethodElementInfo sourceMethodInfo = (SourceMethodElementInfo) getElementInfo();
@@ -92,9 +104,9 @@ protected void getHandleMemento(StringBuilder buff) {
 		buff.append(delimiter);
 		escapeMementoName(buff, this.parameterTypes[i]);
 	}
-	if (this.occurrenceCount > 1) {
+	if (this.getOccurrenceCount() > 1) {
 		buff.append(JEM_COUNT);
-		buff.append(this.occurrenceCount);
+		buff.append(this.getOccurrenceCount());
 	}
 }
 /**
@@ -213,17 +225,6 @@ public String getSignature() throws JavaModelException {
 	return Signature.createMethodSignature(this.parameterTypes, Signature.createTypeSignature(info.getReturnTypeName(), false));
 }
 /**
- * @see org.eclipse.jdt.internal.core.JavaElement#hashCode()
- */
-@Override
-public int hashCode() {
-   int hash = super.hashCode();
-	for (int i = 0, length = this.parameterTypes.length; i < length; i++) {
-	    hash = Util.combineHashCodes(hash, this.parameterTypes[i].hashCode());
-	}
-	return hash;
-}
-/**
  * @see IMethod
  */
 @Override
@@ -291,9 +292,7 @@ public String readableName() {
 }
 @Override
 public JavaElement resolved(Binding binding) {
-	SourceRefElement resolvedHandle = new ResolvedSourceMethod(this.getParent(), this.name, this.parameterTypes, new String(binding.computeUniqueKey()));
-	resolvedHandle.occurrenceCount = this.occurrenceCount;
-	return resolvedHandle;
+	return new ResolvedSourceMethod(this.getParent(), this.name, this.parameterTypes, new String(binding.computeUniqueKey()), this.getOccurrenceCount());
 }
 /**
  * @private Debugging purposes
@@ -351,9 +350,9 @@ protected void toStringName(StringBuilder buffer, int flags) {
 		}
 	}
 	buffer.append(')');
-	if (this.occurrenceCount > 1) {
+	if (this.getOccurrenceCount() > 1) {
 		buffer.append("#"); //$NON-NLS-1$
-		buffer.append(this.occurrenceCount);
+		buffer.append(this.getOccurrenceCount());
 	}
 }
 }

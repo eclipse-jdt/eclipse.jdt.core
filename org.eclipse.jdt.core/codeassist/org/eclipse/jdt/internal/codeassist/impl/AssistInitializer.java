@@ -17,7 +17,6 @@ import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.env.IElementInfo;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
@@ -39,9 +38,7 @@ public class AssistInitializer extends Initializer {
 	}
 
 	@Override
-	public IType getType(String typeName, int count) {
-		AssistSourceType type = new AssistSourceType(this, typeName, this.bindingCache, this.infoCache);
-		type.occurrenceCount = count;
-		return type;
+	public AssistSourceType getType(String typeName, int count) {
+		return new AssistSourceType(this, typeName, this.bindingCache, this.infoCache, count);
 	}
 }

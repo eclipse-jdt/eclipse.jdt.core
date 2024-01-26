@@ -539,12 +539,11 @@ public void enterModule(ModuleInfo info) {
  */
 @Override
 public void enterType(TypeInfo typeInfo) {
-
 	Object parentInfo = this.infoStack.peek();
 	JavaElement parentHandle= (JavaElement) this.handleStack.peek();
-	JavaElement handle = createTypeHandle(parentHandle, typeInfo);
+	SourceType handle = createTypeHandle(parentHandle, typeInfo);
 	 //NB: occurenceCount is computed in resolveDuplicates
-	resolveDuplicates((SourceType) handle);
+	resolveDuplicates(handle);
 	this.infoStack.push(typeInfo);
 	this.handleStack.push(handle);
 
@@ -819,7 +818,7 @@ protected void resolveDuplicates(SourceRefElement handle) {
 		this.occurenceCounts.put(handle, Integer.valueOf(1));
 	else {
 		this.occurenceCounts.put(handle, Integer.valueOf(occurenceCount.intValue() + 1));
-		handle.occurrenceCount = occurenceCount.intValue() + 1;
+		handle.setOccurrenceCount(occurenceCount.intValue() + 1);
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=342393

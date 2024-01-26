@@ -29,6 +29,9 @@ public class SourceField extends NamedMember implements IField {
 protected SourceField(JavaElement parent, String name) {
 	super(parent, name);
 }
+protected SourceField(JavaElement parent, String name, int occurrenceCount) {
+	super(parent, name, occurrenceCount);
+}
 @Override
 public boolean equals(Object o) {
 	if (!(o instanceof SourceField)) return false;
@@ -153,10 +156,8 @@ public boolean isResolved() {
 	return false;
 }
 @Override
-public JavaElement resolved(Binding binding) {
-	SourceRefElement resolvedHandle = new ResolvedSourceField(this.getParent(), this.name, new String(binding.computeUniqueKey()));
-	resolvedHandle.occurrenceCount = this.occurrenceCount;
-	return resolvedHandle;
+public ResolvedSourceField resolved(Binding binding) {
+	return new ResolvedSourceField(this.getParent(), this.name, new String(binding.computeUniqueKey()), this.getOccurrenceCount());
 }
 /**
  * @private Debugging purposes
