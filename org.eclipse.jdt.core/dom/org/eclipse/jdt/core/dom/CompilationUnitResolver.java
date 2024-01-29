@@ -816,6 +816,10 @@ class CompilationUnitResolver extends Compiler {
 				CancelableNameEnvironment cancelableNameEnvironment = (CancelableNameEnvironment) environment;
 				cancelableNameEnvironment.printTimeSpent();
 			}
+			if (unit != null && unit.scope != null && unit.scope.environment != null
+				&& unit.scope.environment.unitBeingCompleted == null) {
+				unit.scope.environment.unitBeingCompleted = unit;
+			}
 			return unit;
 		} finally {
 			if (environment != null) {
