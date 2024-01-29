@@ -10,7 +10,7 @@ import junit.framework.Test;
 public class UseOfUnderscoreWithPreviewTest extends AbstractBatchCompilerTest {
 
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(UseOfUnderscoreWithPreviewTest.class, F_21);
+		return buildMinimalComplianceTestSuite(UseOfUnderscoreWithPreviewTest.class, F_22);
 	}
 
 	public UseOfUnderscoreWithPreviewTest(String name) {
@@ -20,7 +20,7 @@ public class UseOfUnderscoreWithPreviewTest extends AbstractBatchCompilerTest {
 	@Override
 	protected Map<String, String> getCompilerOptions() {
 		CompilerOptions compilerOptions = new CompilerOptions(super.getCompilerOptions());
-		if (compilerOptions.sourceLevel == ClassFileConstants.JDK21) {
+		if (compilerOptions.sourceLevel == ClassFileConstants.JDK22) {
 			compilerOptions.enablePreviewFeatures = true;
 		}
 		return compilerOptions.getMap();

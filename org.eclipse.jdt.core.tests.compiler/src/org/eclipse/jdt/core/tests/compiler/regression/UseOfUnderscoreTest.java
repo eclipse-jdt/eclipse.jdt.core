@@ -23,7 +23,7 @@ public class UseOfUnderscoreTest extends AbstractBatchCompilerTest {
 		if (options.sourceLevel < ClassFileConstants.JDK9) {
 			message = "'_' should not be used as an identifier, since it is a reserved keyword from source level 1.8 on";
 			errorLevel = "WARNING";
-		} else if (options.sourceLevel < ClassFileConstants.JDK21) {
+		} else if (options.sourceLevel < ClassFileConstants.JDK22) {
 			message = "'_' is a keyword from source level 9 onwards, cannot be used as identifier";
 			errorLevel = "ERROR";
 		} else {
@@ -56,7 +56,7 @@ public class UseOfUnderscoreTest extends AbstractBatchCompilerTest {
 		if (options.sourceLevel < ClassFileConstants.JDK9) {
 			message = "'_' should not be used as an identifier, since it is a reserved keyword from source level 1.8 on";
 			errorLevel = "WARNING";
-		} else if (options.sourceLevel < ClassFileConstants.JDK21) {
+		} else if (options.sourceLevel < ClassFileConstants.JDK22) {
 			message = "'_' is a keyword from source level 9 onwards, cannot be used as identifier";
 			errorLevel = "ERROR";
 		} else {
@@ -88,7 +88,7 @@ public class UseOfUnderscoreTest extends AbstractBatchCompilerTest {
 		if (options.sourceLevel < ClassFileConstants.JDK9) {
 			message = "'_' should not be used as an identifier, since it is a reserved keyword from source level 1.8 on";
 			errorLevel = "WARNING";
-		} else if (options.sourceLevel < ClassFileConstants.JDK21) {
+		} else if (options.sourceLevel < ClassFileConstants.JDK22) {
 			message = "'_' is a keyword from source level 9 onwards, cannot be used as identifier";
 			errorLevel = "ERROR";
 		} else {
@@ -122,7 +122,7 @@ public class UseOfUnderscoreTest extends AbstractBatchCompilerTest {
 		if (options.sourceLevel < ClassFileConstants.JDK9) {
 			message = "'_' should not be used as an identifier, since it is a reserved keyword from source level 1.8 on";
 			errorLevel = "WARNING";
-		} else if (options.sourceLevel < ClassFileConstants.JDK21) {
+		} else if (options.sourceLevel < ClassFileConstants.JDK22) {
 			message = "'_' is a keyword from source level 9 onwards, cannot be used as identifier";
 			errorLevel = "ERROR";
 		} else {
@@ -170,7 +170,7 @@ public class UseOfUnderscoreTest extends AbstractBatchCompilerTest {
 					'_' should not be used as an identifier, since it is a reserved keyword from source level 1.8 on
 					----------
 					""");
-		} else if (options.sourceLevel < ClassFileConstants.JDK21) {
+		} else if (options.sourceLevel < ClassFileConstants.JDK22) {
 			runNegativeTest(new String[] { "A.java", SOURCE_CODE },
 					"""
 					----------

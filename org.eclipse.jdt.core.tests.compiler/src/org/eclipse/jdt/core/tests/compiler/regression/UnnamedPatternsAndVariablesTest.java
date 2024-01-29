@@ -22,7 +22,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 	private static String[] JAVAC_OPTIONS = new String[] { "--enable-preview" };
 
 	public static Test suite() {
-		return buildMinimalComplianceTestSuite(UnnamedPatternsAndVariablesTest.class, F_21);
+		return buildMinimalComplianceTestSuite(UnnamedPatternsAndVariablesTest.class, F_22);
 	}
 
 	public UnnamedPatternsAndVariablesTest(String name) {
@@ -32,7 +32,7 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 	@Override
 	protected Map<String, String> getCompilerOptions() {
 		CompilerOptions compilerOptions = new CompilerOptions(super.getCompilerOptions());
-		if (compilerOptions.sourceLevel == ClassFileConstants.JDK21) {
+		if (compilerOptions.sourceLevel == ClassFileConstants.JDK22) {
 			compilerOptions.enablePreviewFeatures = true;
 		}
 		return compilerOptions.getMap();

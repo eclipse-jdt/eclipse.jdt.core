@@ -940,6 +940,7 @@ protected boolean parsingJava15Plus;
 protected boolean parsingJava17Plus;
 protected boolean parsingJava18Plus;
 protected boolean parsingJava21Plus;
+protected boolean parsingJava22Plus;
 protected boolean previewEnabled;
 protected boolean parsingJava11Plus;
 protected int unstackedAct = ERROR_ACTION;
@@ -972,6 +973,7 @@ public Parser(ProblemReporter problemReporter, boolean optimizeStringLiterals) {
 	this.parsingJava17Plus = this.options.sourceLevel >= ClassFileConstants.JDK17;
 	this.parsingJava18Plus = this.options.sourceLevel >= ClassFileConstants.JDK18;
 	this.parsingJava21Plus = this.options.sourceLevel >= ClassFileConstants.JDK21;
+	this.parsingJava22Plus = this.options.sourceLevel >= ClassFileConstants.JDK22;
 	this.previewEnabled = this.options.sourceLevel == ClassFileConstants.getLatestJDKLevel() && this.options.enablePreviewFeatures;
 	this.astLengthStack = new int[50];
 	this.expressionLengthStack = new int[30];
@@ -8499,8 +8501,8 @@ protected void consumeLambdaHeader() {
 		if (argument.isReceiver()) {
 			problemReporter().illegalThis(argument);
 		}
-		if (this.parsingJava8Plus && !(this.parsingJava21Plus && this.previewEnabled) && argument.name.length == 1 && argument.name[0] == '_') {
-			if (this.parsingJava21Plus) {
+		if (this.parsingJava8Plus && !JavaFeature.UNNAMMED_PATTERNS_AND_VARS.isSupported(this.options) && argument.name.length == 1 && argument.name[0] == '_') {
+			if (this.parsingJava22Plus) {
 				problemReporter().validateJavaFeatureSupport(JavaFeature.UNNAMMED_PATTERNS_AND_VARS, argument.sourceStart, argument.sourceEnd);
 			} else {
 				problemReporter().illegalUseOfUnderscoreAsAnIdentifier(argument.sourceStart, argument.sourceEnd, true, false); // true == lambdaParameter
@@ -13403,8 +13405,8 @@ protected void pushIdentifier(char [] identifier, long position) {
 			stackLength);
 	}
 	this.identifierLengthStack[this.identifierLengthPtr] = 1;
-	if (this.parsingJava8Plus && !(this.parsingJava21Plus && this.previewEnabled) && identifier.length == 1 && identifier[0] == '_' && !this.processingLambdaParameterList) {
-		if (this.parsingJava21Plus) {
+	if (this.parsingJava8Plus && !JavaFeature.UNNAMMED_PATTERNS_AND_VARS.isSupported(this.options) && identifier.length == 1 && identifier[0] == '_' && !this.processingLambdaParameterList) {
+		if (this.parsingJava22Plus) {
 			problemReporter().validateJavaFeatureSupport(JavaFeature.UNNAMMED_PATTERNS_AND_VARS, (int) (position >>> 32), (int) position);
 		} else {
 			problemReporter().illegalUseOfUnderscoreAsAnIdentifier((int) (position >>> 32), (int) position, this.parsingJava9Plus, false);

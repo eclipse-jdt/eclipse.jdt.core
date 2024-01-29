@@ -7371,10 +7371,10 @@ public void testIntersectionCast() {
 public void testUnderScoreParameter() {
 		String level = this.complianceLevel >= ClassFileConstants.JDK9 ? "ERROR" : "WARNING";
 		String errorMessage = this.complianceLevel >= ClassFileConstants.JDK9 ? "\'_\' is a keyword from source level 9 onwards, cannot be used as identifier\n" : "\'_\' should not be used as an identifier, since it is a reserved keyword from source level 1.8 on\n";
-		if (this.complianceLevel >= ClassFileConstants.JDK21) {
+		if (this.complianceLevel >= ClassFileConstants.JDK22) {
 			errorMessage = "Unnamed Patterns and Variables is a preview feature and disabled by default. Use --enable-preview to enable\n";
 		}
-		String otherErrorMessage = this.complianceLevel >= ClassFileConstants.JDK21 ? errorMessage : "\'_\' is a keyword from source level 9 onwards, cannot be used as identifier\n";
+		String otherErrorMessage = this.complianceLevel >= ClassFileConstants.JDK22 ? errorMessage : "\'_\' is a keyword from source level 9 onwards, cannot be used as identifier\n";
 		this.runNegativeTest(
 			new String[] {
 					"X.java",
