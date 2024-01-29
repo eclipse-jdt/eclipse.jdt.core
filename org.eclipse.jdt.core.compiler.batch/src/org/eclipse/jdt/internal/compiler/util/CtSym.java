@@ -399,7 +399,7 @@ public class CtSym {
 					char releaseCode = rel.charAt(0);
 					// If a release directory contains "system-modules" file, it is a flag
 					// that this is the *current* release
-					if (releaseCode > JAVA_11 && Files.exists(this.fs.getPath(rel, "system-modules"))) { //$NON-NLS-1$
+					if (releaseCode > JAVA_11) {
 						return true;
 					}
 				} catch (NumberFormatException e) {

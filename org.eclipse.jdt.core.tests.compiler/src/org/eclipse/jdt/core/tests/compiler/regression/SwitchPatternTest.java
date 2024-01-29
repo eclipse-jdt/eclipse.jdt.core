@@ -2783,6 +2783,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			"----------\n");
 	}
 	public void testBug575053_001() {
+		int lineNo = isJRE22Plus ? 220 : 233;
 		runConformTest(
 			new String[] {
 				"X.java",
@@ -2796,7 +2797,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"	public static void main(String[] args) {\n" +
 				"		try{\n" +
 				"		  (new X()).foo(null);\n" +
-				"		} catch(Exception e) {\n" +
+				"		} catch(NullPointerException e) {\n" +
 				"		 	System.out.println(\"Null Pointer Exception Thrown\");\n" +
 				"		}\n" +
 				"	}\n"+
