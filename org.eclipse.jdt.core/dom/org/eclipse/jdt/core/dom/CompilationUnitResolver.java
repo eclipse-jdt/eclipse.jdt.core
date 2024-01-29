@@ -1261,6 +1261,9 @@ class CompilationUnitResolver extends Compiler {
 				if (unit == null) {
 					unit = this.unitsToProcess[0]; // fall back to old behavior
 				}
+				if (this.totalUnits == 1 && this.lookupEnvironment.unitBeingCompleted == null) {
+					this.lookupEnvironment.unitBeingCompleted = unit;
+				}
 			} else {
 				// initial type binding creation
 				this.lookupEnvironment.buildTypeBindings(unit, null /*no access restriction*/);
