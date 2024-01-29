@@ -32,7 +32,6 @@ import org.eclipse.text.edits.ReplaceEdit;
  * @since 3.2
  * @noinstantiate This class is not intended to be instantiated by clients.
  */
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public final class IndentManipulation {
 
 	private IndentManipulation() {
@@ -336,13 +335,13 @@ public final class IndentManipulation {
 			throw new IllegalArgumentException();
 		}
 
-		ArrayList result= new ArrayList();
+		ArrayList<ReplaceEdit> result= new ArrayList<>();
 		try {
 			ILineTracker tracker= new DefaultLineTracker();
 			tracker.set(source);
 			int nLines= tracker.getNumberOfLines();
 			if (nLines == 1)
-				return (ReplaceEdit[])result.toArray(new ReplaceEdit[result.size()]);
+				return result.toArray(ReplaceEdit[]::new);
 			for (int i= 1; i < nLines; i++) {
 				IRegion region= tracker.getLineInformation(i);
 				int offset= region.getOffset();
@@ -358,7 +357,7 @@ public final class IndentManipulation {
 		} catch (BadLocationException cannotHappen) {
 			// can not happen
 		}
-		return (ReplaceEdit[])result.toArray(new ReplaceEdit[result.size()]);
+		return result.toArray(ReplaceEdit[]::new);
 	}
 
 	/*
@@ -410,7 +409,7 @@ public final class IndentManipulation {
 	 * @return the tab width
 	 * @exception IllegalArgumentException if the given <code>options</code> is null
 	 */
-	public static int getTabWidth(Map options) {
+	public static int getTabWidth(Map<String, String> options) {
 		if (options == null) {
 			throw new IllegalArgumentException();
 		}
@@ -426,7 +425,7 @@ public final class IndentManipulation {
 	 * @return the indent width
 	 * @exception IllegalArgumentException if the given <code>options</code> is null
 	 */
-	public static int getIndentWidth(Map options) {
+	public static int getIndentWidth(Map<String, String> options) {
 		if (options == null) {
 			throw new IllegalArgumentException();
 		}
@@ -438,9 +437,9 @@ public final class IndentManipulation {
 		return tabWidth;
 	}
 
-	private static int getIntValue(Map options, String key, int def) {
+	private static int getIntValue(Map<String, String> options, String key, int def) {
 		try {
-			return Integer.parseInt((String) options.get(key));
+			return Integer.parseInt(options.get(key));
 		} catch (NumberFormatException e) {
 			return def;
 		}

@@ -260,7 +260,7 @@ public class InternalCompletionProposal extends CompletionProposal {
 							// map source and try to find parameter names
 							if(paramNames == null) {
 								if (!packageFragmentRoot.isArchive()) this.completionEngine.openedBinaryTypes++;
-								IBinaryType info = (IBinaryType) ((BinaryType) type).getElementInfo();
+								IBinaryType info = ((BinaryType) type).getElementInfo();
 								char[] source = mapper.findSource(type, info);
 								if (source != null){
 									mapper.mapSource((NamedMember) type, source, info);
@@ -593,7 +593,7 @@ public class InternalCompletionProposal extends CompletionProposal {
 	@Override
 	public void setRelevance(int rating) {
 		if (rating <= 0) {
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("rating <=0: " + rating); //$NON-NLS-1$
 		}
 		this.relevance = rating;
 	}

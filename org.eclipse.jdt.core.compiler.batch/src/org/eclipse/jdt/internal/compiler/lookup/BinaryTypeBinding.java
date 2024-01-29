@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -477,6 +477,9 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 			// need annotations on the type before processing null annotations on members respecting any @NonNullByDefault:
 			scanTypeForNullDefaultAnnotation(binaryType, this.fPackage);
 		}
+		if (this.environment.globalOptions.isAnnotationBasedResourceAnalysisEnabled && binaryType.getAnnotations() != null) {
+			this.tagBits |= scanForOwningAnnotation(binaryType.getAnnotations());
+		}
 		ITypeAnnotationWalker walker = getTypeAnnotationWalker(binaryType.getTypeAnnotations(), Binding.NO_NULL_DEFAULT);
 		ITypeAnnotationWalker toplevelWalker = binaryType.enrichWithExternalAnnotationsFor(walker, null, this.environment);
 		this.externalAnnotationStatus = binaryType.getExternalAnnotationStatus();
@@ -656,6 +659,17 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 					}
 				}
 			}
+			if (this.environment.globalOptions.isAnnotationBasedResourceAnalysisEnabled) {
+				boolean hasAnnotatedField = false, hasMethodWithOwningParam = false;
+				if (iFields != null)
+					for (int i = 0; i < iFields.length; i++)
+						hasAnnotatedField |= scanFieldForOwningAnnotations(iFields[i], this.fields[i]);
+				if (iMethods != null)
+					for (int i = 0; i < iMethods.length; i++)
+						hasMethodWithOwningParam |= scanMethodForOwningAnnotations(iMethods[i], this.methods[i]);
+				if (hasAnnotatedField && hasMethodWithOwningParam) // detail checks inside detectWrapperResource()
+					detectWrapperResource();
+			}
 		}
 		IBinaryAnnotation[] declAnnotations = binaryType.getAnnotations();
 		if (declAnnotations != null) {
@@ -768,7 +782,7 @@ private int getNullDefaultFrom(IBinaryAnnotation[] declAnnotations) {
 	if (declAnnotations != null) {
 		for (IBinaryAnnotation annotation : declAnnotations) {
 			char[][] typeName = signature2qualifiedTypeName(annotation.getTypeName());
-			if (this.environment.getNullAnnotationBit(typeName) == TypeIds.BitNonNullByDefaultAnnotation)
+			if (this.environment.getAnalysisAnnotationBit(typeName) == TypeIds.BitNonNullByDefaultAnnotation)
 				result |= getNonNullByDefaultValue(annotation, this.environment);
 		}
 	}
@@ -1681,14 +1695,16 @@ public boolean hasTypeBit(int bit) {
 	if (!isPrototype())
 		return this.prototype.hasTypeBit(bit);
 
-	// ensure hierarchy is resolved, which will propagate bits down to us
-	boolean wasToleratingMissingTypeProcessingAnnotations = this.environment.mayTolerateMissingType;
-	this.environment.mayTolerateMissingType = true;
-	try {
-		superclass();
-		superInterfaces();
-	} finally {
-		this.environment.mayTolerateMissingType = wasToleratingMissingTypeProcessingAnnotations;
+	if ((bit & TypeIds.InheritableBits) != 0) {
+		// ensure hierarchy is resolved, which will propagate bits down to us
+		boolean wasToleratingMissingTypeProcessingAnnotations = this.environment.mayTolerateMissingType;
+		this.environment.mayTolerateMissingType = true;
+		try {
+			superclass();
+			superInterfaces();
+		} finally {
+			this.environment.mayTolerateMissingType = wasToleratingMissingTypeProcessingAnnotations;
+		}
 	}
 	return (this.typeBits & bit) != 0;
 }
@@ -2043,7 +2059,7 @@ private void scanFieldForNullAnnotation(IBinaryField field, VariableBinding fiel
 			char[] annotationTypeName = annotations[i].getTypeName();
 			if (annotationTypeName[0] != Util.C_RESOLVED)
 				continue;
-			int typeBit = this.environment.getNullAnnotationBit(signature2qualifiedTypeName(annotationTypeName));
+			int typeBit = this.environment.getAnalysisAnnotationBit(signature2qualifiedTypeName(annotationTypeName));
 			if (typeBit == TypeIds.BitNonNullAnnotation) {
 				fieldBinding.tagBits |= TagBits.AnnotationNonNull;
 				explicitNullness = true;
@@ -2101,7 +2117,7 @@ private void scanMethodForNullAnnotation(IBinaryMethod method, MethodBinding met
 			char[] annotationTypeName = annotations[i].getTypeName();
 			if (annotationTypeName[0] != Util.C_RESOLVED)
 				continue;
-			int typeBit = this.environment.getNullAnnotationBit(signature2qualifiedTypeName(annotationTypeName));
+			int typeBit = this.environment.getAnalysisAnnotationBit(signature2qualifiedTypeName(annotationTypeName));
 			if (typeBit == TypeIds.BitNonNullByDefaultAnnotation) {
 				methodDefaultNullness |= getNonNullByDefaultValue(annotations[i], this.environment);
 			} else if (typeBit == TypeIds.BitNonNullAnnotation) {
@@ -2144,11 +2160,11 @@ private void scanMethodForNullAnnotation(IBinaryMethod method, MethodBinding met
 						char[] annotationTypeName = paramAnnotations[i].getTypeName();
 						if (annotationTypeName[0] != Util.C_RESOLVED)
 							continue;
-						int typeBit = this.environment.getNullAnnotationBit(signature2qualifiedTypeName(annotationTypeName));
+						int typeBit = this.environment.getAnalysisAnnotationBit(signature2qualifiedTypeName(annotationTypeName));
 						if (typeBit == TypeIds.BitNonNullAnnotation) {
-							if (methodBinding.parameterNonNullness == null)
-								methodBinding.parameterNonNullness = new Boolean[numVisibleParams];
-							methodBinding.parameterNonNullness[j] = Boolean.TRUE;
+							if (methodBinding.parameterFlowBits == null)
+								methodBinding.parameterFlowBits = new byte[numVisibleParams];
+							methodBinding.parameterFlowBits[j] |= MethodBinding.PARAM_NONNULL;
 							if (this.environment.usesNullTypeAnnotations()) {
 								if (methodBinding.parameters[j] != null
 										&& !methodBinding.parameters[j].hasNullTypeAnnotations()) {
@@ -2159,9 +2175,9 @@ private void scanMethodForNullAnnotation(IBinaryMethod method, MethodBinding met
 							}
 							break;
 						} else if (typeBit == TypeIds.BitNullableAnnotation) {
-							if (methodBinding.parameterNonNullness == null)
-								methodBinding.parameterNonNullness = new Boolean[numVisibleParams];
-							methodBinding.parameterNonNullness[j] = Boolean.FALSE;
+							if (methodBinding.parameterFlowBits == null)
+								methodBinding.parameterFlowBits = new byte[numVisibleParams];
+							methodBinding.parameterFlowBits[j] |= MethodBinding.PARAM_NULLABLE;
 							if (this.environment.usesNullTypeAnnotations()) {
 								if (methodBinding.parameters[j] != null
 										&& !methodBinding.parameters[j].hasNullTypeAnnotations()) {
@@ -2180,7 +2196,7 @@ private void scanMethodForNullAnnotation(IBinaryMethod method, MethodBinding met
 	if (useNullTypeAnnotations && this.externalAnnotationStatus.isPotentiallyUnannotatedLib()) {
 		if (methodBinding.returnType.hasNullTypeAnnotations()
 				|| (methodBinding.tagBits & TagBits.AnnotationNullMASK) != 0
-				|| methodBinding.parameterNonNullness != null) {
+				|| methodBinding.parameterFlowBits != null) {
 			this.externalAnnotationStatus = ExternalAnnotationStatus.TYPE_IS_ANNOTATED;
 		} else {
 			for (TypeBinding parameter : parameters) {
@@ -2214,7 +2230,7 @@ private void scanTypeForNullDefaultAnnotation(IBinaryType binaryType, PackageBin
 			char[] annotationTypeName = annotations[i].getTypeName();
 			if (annotationTypeName[0] != Util.C_RESOLVED)
 				continue;
-			int typeBit = this.environment.getNullAnnotationBit(signature2qualifiedTypeName(annotationTypeName));
+			int typeBit = this.environment.getAnalysisAnnotationBit(signature2qualifiedTypeName(annotationTypeName));
 			if (typeBit == TypeIds.BitNonNullByDefaultAnnotation) {
 				// using NonNullByDefault we need to inspect the details of the value() attribute:
 				nullness |= getNonNullByDefaultValue(annotations[i], this.environment);
@@ -2292,6 +2308,90 @@ static int getNonNullByDefaultValue(IBinaryAnnotation annotation, LookupEnvironm
 		// empty argument: cancel all defaults from enclosing scopes
 		return NULL_UNSPECIFIED_BY_DEFAULT;
 	}
+}
+
+protected long scanForOwningAnnotation(IBinaryAnnotation[] annotations) {
+	if (annotations != null) {
+		for (int i = 0; i < annotations.length; i++) {
+			char[] annotationTypeName = annotations[i].getTypeName();
+			if (annotationTypeName[0] != Util.C_RESOLVED)
+				continue;
+			int typeBit = this.environment.getAnalysisAnnotationBit(signature2qualifiedTypeName(annotationTypeName));
+			switch (typeBit) {
+				case TypeIds.BitOwningAnnotation:
+					return TagBits.AnnotationOwning;
+				case TypeIds.BitNotOwningAnnotation:
+					return TagBits.AnnotationNotOwning;
+			}
+		}
+	}
+	return 0;
+}
+private boolean scanFieldForOwningAnnotations(IBinaryField field, FieldBinding fieldBinding) {
+	// currently without .eea support
+	if (!isPrototype()) throw new IllegalStateException();
+
+	long detectedBits = scanForOwningAnnotation(field.getAnnotations());
+	fieldBinding.tagBits |= detectedBits;
+	return detectedBits != 0;
+}
+
+private boolean scanMethodForOwningAnnotations(IBinaryMethod method, MethodBinding methodBinding) {
+	// minimally modelled after scanMethodForNullAnnotation, currently without .eea support
+	if (!isPrototype()) throw new IllegalStateException();
+
+	boolean sawOwningParam = false;
+	// return:
+	methodBinding.tagBits |= scanForOwningAnnotation(method.getAnnotations());
+
+	// check for "@Owning MyType this":
+	IBinaryTypeAnnotation[] methodTypeAnnotations = method.getTypeAnnotations();
+	if (methodTypeAnnotations != null) {
+		ITypeAnnotationWalker walker = new TypeAnnotationWalker(methodTypeAnnotations).toReceiver();
+		IBinaryAnnotation[] receiverTypeAnnotations = walker.getAnnotationsAtCursor(0, false);
+		if (receiverTypeAnnotations != null) {
+			for (IBinaryAnnotation binaryAnnotation : receiverTypeAnnotations) {
+				int typeBit = this.environment.getAnalysisAnnotationBit(signature2qualifiedTypeName(binaryAnnotation.getTypeName()));
+				if ((typeBit & TypeIds.BitOwningAnnotation) != 0)
+					methodBinding.extendedTagBits |= ExtendedTagBits.IsClosingMethod;
+			}
+		}
+	}
+
+	// parameters:
+	TypeBinding[] parameters = methodBinding.parameters;
+	int numVisibleParams = parameters.length;
+	int numParamAnnotations = method.getAnnotatedParametersCount();
+	if (numParamAnnotations > 0) {
+		for (int j = 0; j < numVisibleParams; j++) {
+			if (numParamAnnotations > 0) {
+				int startIndex = numParamAnnotations - numVisibleParams;
+				IBinaryAnnotation[] paramAnnotations = method.getParameterAnnotations(j+startIndex, this.fileName);
+				if (paramAnnotations != null) {
+					annotations: for (int i = 0; i < paramAnnotations.length; i++) {
+						char[] annotationTypeName = paramAnnotations[i].getTypeName();
+						if (annotationTypeName[0] != Util.C_RESOLVED)
+							continue;
+						int typeBit = this.environment.getAnalysisAnnotationBit(signature2qualifiedTypeName(annotationTypeName));
+						switch (typeBit) {
+							case TypeIds.BitOwningAnnotation:
+								if (methodBinding.parameterFlowBits == null)
+									methodBinding.parameterFlowBits = new byte[numVisibleParams];
+								methodBinding.parameterFlowBits[j] |= MethodBinding.PARAM_OWNING;
+								sawOwningParam = true;
+								break annotations;
+							case TypeIds.BitNotOwningAnnotation:
+								if (methodBinding.parameterFlowBits == null)
+									methodBinding.parameterFlowBits = new byte[numVisibleParams];
+								methodBinding.parameterFlowBits[j] |= MethodBinding.PARAM_NOTOWNING;
+								break annotations;
+						}
+					}
+				}
+			}
+		}
+	}
+	return sawOwningParam;
 }
 
 public static int evaluateTypeQualifierDefault(ReferenceBinding annotationType) {
@@ -2471,7 +2571,7 @@ public ReferenceBinding[] superInterfaces() {
 		}
 		this.typeBits |= (this.superInterfaces[i].typeBits & TypeIds.InheritableBits);
 		if ((this.typeBits & (TypeIds.BitAutoCloseable|TypeIds.BitCloseable)) != 0) // avoid the side-effects of hasTypeBit()!
-			this.typeBits |= applyCloseableInterfaceWhitelists();
+			this.typeBits |= applyCloseableInterfaceWhitelists(this.environment.globalOptions);
 	}
 	this.tagBits &= ~TagBits.HasUnresolvedSuperinterfaces;
 	return this.superInterfaces;

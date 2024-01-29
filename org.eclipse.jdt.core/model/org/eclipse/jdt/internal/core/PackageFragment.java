@@ -168,7 +168,7 @@ public ICompilationUnit createCompilationUnit(String cuName, String contents, bo
  * @see JavaElement
  */
 @Override
-protected Object createElementInfo() {
+protected PackageFragmentInfo createElementInfo() {
 	return new PackageFragmentInfo();
 }
 /**

@@ -349,6 +349,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 	public static final Argument [] NO_ARGUMENTS = new Argument [0];
 	public static final RecordComponent [] NO_RECORD_COMPONENTS = new RecordComponent [0];
 	public static final TypePattern[] NO_TYPE_PATTERNS = new TypePattern[0];
+	public static final LocalVariableBinding[] NO_VARIABLES = new LocalVariableBinding[0];
 
 	public ASTNode() {
 
@@ -717,6 +718,15 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 		if ((modifiers & ExtraCompilerModifiers.AccSealed) != 0)
 			output.append("sealed "); //$NON-NLS-1$
 		return output;
+	}
+
+	public static void resolveStatements(Statement[] statements, BlockScope scope) {
+		LocalVariableBinding [] livePatternVariables = NO_VARIABLES;
+		for (int i = 0, length = statements.length; i < length; i++) {
+			final Statement stmt = statements[i];
+			stmt.resolveWithBindings(livePatternVariables, scope);
+			livePatternVariables = LocalVariableBinding.merge(livePatternVariables, stmt.bindingsWhenComplete());
+		}
 	}
 
 	/**

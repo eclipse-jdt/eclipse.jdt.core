@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -92,15 +92,26 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		if (flowInfo.reachMode() == FlowInfo.REACHABLE && currentScope.compilerOptions().isAnnotationBasedNullAnalysisEnabled)
 			checkAgainstNullAnnotation(currentScope, flowContext, flowInfo, this.expression);
 		if (currentScope.compilerOptions().analyseResourceLeaks) {
-			FakedTrackingVariable trackingVariable = FakedTrackingVariable.getCloseTrackingVariable(this.expression, flowInfo, flowContext);
+			boolean returnWithoutOwning = false;
+			boolean useOwningAnnotations = currentScope.compilerOptions().isAnnotationBasedResourceAnalysisEnabled;
+			FakedTrackingVariable trackingVariable = FakedTrackingVariable.getCloseTrackingVariable(this.expression, flowInfo, flowContext, useOwningAnnotations);
 			if (trackingVariable != null) {
-				if (methodScope != trackingVariable.methodScope)
+				long owningTagBits = 0;
+				boolean delegatingToCaller = true;
+				if (useOwningAnnotations) {
+					owningTagBits = methodScope.referenceMethodBinding().tagBits & TagBits.AnnotationOwningMASK;
+					returnWithoutOwning = owningTagBits == 0;
+					delegatingToCaller = (owningTagBits & TagBits.AnnotationNotOwning) == 0;
+				}
+				if (methodScope != trackingVariable.methodScope && delegatingToCaller)
 					trackingVariable.markClosedInNestedMethod();
-				// by returning the method passes the responsibility to the caller:
-				flowInfo = FakedTrackingVariable.markPassedToOutside(currentScope, this.expression, flowInfo, flowContext, true);
+				if (delegatingToCaller) {
+					// by returning the method passes the responsibility to the caller:
+					flowInfo = FakedTrackingVariable.markPassedToOutside(currentScope, this.expression, flowInfo, flowContext, true);
+				}
 			}
 			// don't wait till after this statement, because then flowInfo would be DEAD_END & thus cannot serve nullStatus any more:
-			FakedTrackingVariable.cleanUpUnassigned(currentScope, this.expression, flowInfo);
+			FakedTrackingVariable.cleanUpUnassigned(currentScope, this.expression, flowInfo, returnWithoutOwning);
 		}
 	}
 	this.initStateIndex =

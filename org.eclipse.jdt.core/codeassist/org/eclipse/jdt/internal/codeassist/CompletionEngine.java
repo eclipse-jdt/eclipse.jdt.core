@@ -7305,7 +7305,7 @@ public final class CompletionEngine
 			relevance += computeRelevanceForInterestingProposal(field);
 			relevance += computeRelevanceForCaseMatching(fieldName, field.name);
 			if(boostMatches.length > 0) {
-				relevance += computeRelevanceForCaseMatching(boostMatches, field.name);
+				relevance += Math.max(0, computeRelevanceForCaseMatching(boostMatches, field.name));
 			}
 			int computeRelevanceForExpectingType = computeRelevanceForExpectingType(field.type);
 			if(this.strictMatchForExtepectedType && computeRelevanceForExpectingType <= 0) {

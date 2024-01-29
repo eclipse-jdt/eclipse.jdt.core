@@ -15,7 +15,7 @@ package org.eclipse.jdt.internal.compiler.env;
 
 import java.net.URI;
 
-public interface IBinaryModule extends IModule {
+public interface IBinaryModule extends IModule, IBinaryInfo {
 	public IBinaryAnnotation[] getAnnotations();
 
 	public long getTagBits();

@@ -14,7 +14,9 @@
 package org.eclipse.jdt.internal.compiler;
 
 import java.util.HashMap;
+import java.util.Map;
 
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.internal.compiler.ast.AbstractMethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.AbstractVariableDeclaration;
@@ -48,7 +50,6 @@ import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
  * other simpler elements (package, import) are read all at once: - accept
  * <Element>
  */
-@SuppressWarnings("rawtypes")
 public interface ISourceElementRequestor {
 
 	public static class ModuleInfo {
@@ -96,7 +97,7 @@ public interface ISourceElementRequestor {
 		public Annotation[] annotations;
 		public int extraFlags;
 		public TypeDeclaration node;
-		public HashMap childrenCategories = new HashMap();
+		public Map<IJavaElement, char[][]> childrenCategories = new HashMap<>();
 	}
 
 	public static class TypeParameterInfo {

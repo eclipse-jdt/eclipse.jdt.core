@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2023 IBM Corporation and others.
+ * Copyright (c) 2023, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -100,7 +100,7 @@ public class StringTemplate extends Expression {
 		if (this.isMultiline)
 			output.append("\"\"\n"); //$NON-NLS-1$
 		for (int i = 0; i < length; i++) {
-			char[] source = this.fragments[i].source;
+			char[] source = this.fragments[i].source();
 			for (int j = 0; j < source.length; j++) {
 				Util.appendEscapedChar(output, source[j], true);
 			}

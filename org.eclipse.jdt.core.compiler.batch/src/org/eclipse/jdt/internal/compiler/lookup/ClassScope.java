@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -1460,7 +1460,7 @@ public class ClassScope extends Scope {
 			sourceType.typeBits |= (superInterface.typeBits & TypeIds.InheritableBits);
 			// further analysis against white lists for the unlikely case we are compiling java.util.stream.Stream:
 			if ((sourceType.typeBits & (TypeIds.BitAutoCloseable|TypeIds.BitCloseable)) != 0)
-				sourceType.typeBits |= sourceType.applyCloseableInterfaceWhitelists();
+				sourceType.typeBits |= sourceType.applyCloseableInterfaceWhitelists(compilerOptions());
 			interfaceBindings[count++] = superInterface;
 		}
 		// hold onto all correctly resolved superinterfaces
@@ -1733,6 +1733,24 @@ public class ClassScope extends Scope {
 	*/
 	public TypeDeclaration referenceType() {
 		return this.referenceContext;
+	}
+
+	public final MethodBinding enclosingMethod() {
+		Scope scope = this;
+		while ((scope = scope.parent) != null) {
+			if (scope instanceof MethodScope) {
+				MethodScope methodScope = (MethodScope) scope;
+				/* 4.7.7 The EnclosingMethod Attribute: ... In particular, method_index must be zero if the current class
+				 * was immediately enclosed in source code by an instance initializer, static initializer, instance variable initializer, or
+				 * class variable initializer....
+				 */
+				if (methodScope.referenceContext instanceof TypeDeclaration)
+					return null;
+				if (methodScope.referenceContext instanceof AbstractMethodDeclaration)
+					return ((MethodScope) scope).referenceMethodBinding();
+			}
+		}
+		return null; // may answer null if no method around
 	}
 
 	@Override

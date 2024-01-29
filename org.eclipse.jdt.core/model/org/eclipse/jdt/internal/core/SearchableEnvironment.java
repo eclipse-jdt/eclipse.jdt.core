@@ -245,7 +245,7 @@ public class SearchableEnvironment
 	private NameEnvironmentAnswer createAnswer(Answer lookupAnswer, String packageName, String typeName, BinaryType binaryType) {
 		char[] moduleName = lookupAnswer.module != null ? lookupAnswer.module.getElementName().toCharArray() : null;
 		try {
-			IBinaryType iBinaryType = (IBinaryType) binaryType.getElementInfo();
+			IBinaryType iBinaryType = binaryType.getElementInfo();
 			if (iBinaryType.getExternalAnnotationStatus() == ExternalAnnotationStatus.NOT_EEA_CONFIGURED
 					&& JavaCore.ENABLED.equals(this.project.getOption(JavaCore.CORE_JAVA_BUILD_EXTERNAL_ANNOTATIONS_FROM_ALL_LOCATIONS, true)))
 			{

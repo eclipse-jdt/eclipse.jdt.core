@@ -387,10 +387,6 @@ public class SwitchExpression extends SwitchStatement implements IPolyExpression
 	}
 
 	@Override
-	public void collectPatternVariablesToScope(LocalVariableBinding[] variables, BlockScope skope) {
-		// Do nothing. This will be called later during resolveType()
-	}
-	@Override
 	public TypeBinding resolveType(BlockScope upperScope) {
 		return resolveTypeInternal(upperScope);
 	}

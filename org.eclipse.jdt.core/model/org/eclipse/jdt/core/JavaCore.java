@@ -1563,6 +1563,116 @@ public final class JavaCore extends Plugin {
 	public static final String COMPILER_PB_EXPLICITLY_CLOSED_AUTOCLOSEABLE = PLUGIN_ID + ".compiler.problem.explicitlyClosedAutoCloseable"; //$NON-NLS-1$
 
 	/**
+	 * Compiler option ID: Enable the use of specific annotations for more precise analysis of resource leaks.
+	 * <p>When enabled, the compiler will respect annotations by the names specified in {@link #COMPILER_OWNING_ANNOTATION_NAME}
+	 * and {@link #COMPILER_NOTOWNING_ANNOTATION_NAME}</p>
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.annotation.resourceanalysis"</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "enabled", "disabled" }</code></dd>
+	 * <dt>Default:</dt><dd><code>"disabled"</code></dd>
+	 * </dl>
+	 * @since 3.37
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_ANNOTATION_RESOURCE_ANALYSIS = PLUGIN_ID + ".compiler.annotation.resourceanalysis"; //$NON-NLS-1$
+
+	/**
+	 * Compiler option ID: Name of annotation type for "owned" resource values.
+	 * <p>The annotation specified here should only be used on an element of type {@link AutoCloseable} or a subtype.
+	 *  It can be used in the following locations: </p>
+	 * <dl>
+	 * <dt>Method parameter</dt><dd>Signify that the receiving method is responsible for closing any resource value passed via this argument.
+	 * 	At the caller side, passing an unclosed resource into this parameter satisfies any responsibility for this resource.</dd>
+	 * <dt>Method</dt><dd>Signify that every caller is responsible for closing any resource values received as return from this method.
+	 * 	The method itself is entitled to return unclosed resources.</dd>
+	 * <dt>Field:</dt><dd>The enclosing class should implement {@link AutoCloseable}, and its {@link AutoCloseable#close()} method
+	 * 	should close each field thusly annotated.
+	 * 	Conversely, a constructor receiving an unclosed resource may satisfy its responsibility by assigning the resource
+	 * 	to a field marked with this annotation.</dd>
+	 * </dl>
+	 * <p>This option only has an effect if the option {@link #COMPILER_ANNOTATION_RESOURCE_ANALYSIS} is enabled.</p>
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.annotation.owning"</code></dd>
+	 * <dt>Possible values:</dt><dd>A fully qualified name of an annotation declaration</dd>
+	 * <dt>Default:</dt><dd><code>"org.eclipse.jdt.annotation.Owning"</code></dd>
+	 * </dl>
+	 * @since 3.37
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_OWNING_ANNOTATION_NAME = PLUGIN_ID + ".compiler.annotation.owning"; //$NON-NLS-1$
+
+	/**
+	 * Compiler option ID: Name of annotation type for "not-owned" resource values.
+	 * 	This annotations is then inverse of {@link #COMPILER_OWNING_ANNOTATION_NAME}.
+	 * <p>The annotation specified here should only be used on an element of type {@link AutoCloseable} or a subtype.
+	 *  It can be used in the following locations: </p>
+	 * <dl>
+	 * <dt>Method parameter</dt><dd>Signify that passing a resource into this parameter does not affect the caller's responsibility
+	 * 	to close that resource. The receiving method has no obligations in this regard.</dd>
+	 * <dt>Method</dt><dd>Signify that returning a resource value from this method does not affect the responsibility to close.
+	 * 	Given that the method can not close the resource after returning, the resource should therefore be stored in a field,
+	 * 	for closing at a later point.</dd>
+	 * <dt>Field:</dt><dd>Storing a resource value in a field with this annotation does not affect responsibility to close.
+	 * 	Storing an unclosed resource does not satisfy the responsibility, reading from such field does not create
+	 * 	any responsibility.</dd>
+	 * </dl>
+	 * <p>This option only has an effect if the option {@link #COMPILER_ANNOTATION_RESOURCE_ANALYSIS} is enabled.</p>
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.annotation.notowning"</code></dd>
+	 * <dt>Possible values:</dt><dd>A fully qualified name of an annotation declaration</dd>
+	 * <dt>Default:</dt><dd><code>"org.eclipse.jdt.annotation.NotOwning"</code></dd>
+	 * </dl>
+	 * @since 3.37
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_NOTOWNING_ANNOTATION_NAME = PLUGIN_ID + ".compiler.annotation.notowning"; //$NON-NLS-1$
+
+	/**
+	 * Compiler option ID: Reporting a resource that is not managed by recommended strategies.
+	 * <p>When enabled, the compiler will issue an error or a warning or an info if a value of type {@link AutoCloseable} or subtype
+	 * 	is managed in ways that impede static analysis.</p>
+	 * <p>The following recommendations apply:</p>
+	 * <ul>
+	 * <li>Any field of a resource type should be annotated as owning ({@link #COMPILER_OWNING_ANNOTATION_NAME}).</li>
+	 * <li>Any class declaring one or more fields annotated as owning should itself implement {@link AutoCloseable}.</li>
+	 * <li>Any class implementing {@link AutoCloseable} that declares one or more owned resource fields should implement
+	 * 	{@link AutoCloseable#close()} and ensure that each owned resource field is always closed when <code>close()</code> is executed.</li>
+	 * <li>A method returning a locally owned resource should be tagged as owning ({@link #COMPILER_OWNING_ANNOTATION_NAME}).</li>
+	 * </ul>
+	 * <p>This option only has an effect if the option {@link #COMPILER_ANNOTATION_RESOURCE_ANALYSIS} is enabled.</p>
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.insufficientResourceAnalysis"</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
+	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
+	 * </dl>
+	 * @since 3.37
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_PB_RECOMMENDED_RESOURCE_MANAGEMENT = PLUGIN_ID + ".compiler.problem.insufficientResourceAnalysis"; //$NON-NLS-1$
+
+	/**
+	 * Compiler option ID: Reporting when a method override incompatibly changes the owning contract.
+	 * <p>When enabled, the compiler will issue an error or a warning or an info if a method signature is incompatible
+	 *  with an overridden method from a super type in terms of resource ownership.</p>
+	 * <p>Incompatibility occurs if:</p>
+	 * <ul>
+	 * <li>A super parameter is tagged as owning ({@link #COMPILER_OWNING_ANNOTATION_NAME}) but the corresponding
+	 *  parameter of the current method does not repeat this annotation.</li>
+	 * <li>The current method is tagged as owning (affecting the method return), but an overridden super method does not
+	 *  have this annotation.</li>
+	 * </ul>
+	 * <p>This option only has an effect if the option {@link #COMPILER_ANNOTATION_RESOURCE_ANALYSIS} is enabled.</p>
+	 * <dl>
+	 * <dt>Option id:</dt><dd><code>"org.eclipse.jdt.core.compiler.problem.incompatibleOwningContract"</code></dd>
+	 * <dt>Possible values:</dt><dd><code>{ "error", "warning", "info", "ignore" }</code></dd>
+	 * <dt>Default:</dt><dd><code>"warning"</code></dd>
+	 * </dl>
+	 * @since 3.37
+	 * @category CompilerOptionID
+	 */
+	public static final String COMPILER_PB_INCOMPATIBLE_OWNING_CONTRACT = PLUGIN_ID + ".compiler.problem.incompatibleOwningContract";  //$NON-NLS-1$
+
+	/**
 	 * Compiler option ID: Reporting a method invocation providing an argument of an unlikely type.
 	 * <p>When enabled, the compiler will issue an error or warning when certain well-known Collection methods
 	 *    that take an 'Object', like e.g. {@link Map#get(Object)}, are used with an argument type

@@ -16,6 +16,7 @@ package org.eclipse.jdt.internal.core.search;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -49,7 +50,6 @@ import org.eclipse.jdt.internal.core.util.Util;
 /**
  * A Java-specific scope for searching relative to one or more java elements.
  */
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class JavaSearchScope extends AbstractJavaSearchScope {
 
 	private HashSet<IJavaElement> elements;
@@ -57,7 +57,7 @@ public class JavaSearchScope extends AbstractJavaSearchScope {
 	/**
 	 * The paths of the resources in this search scope (or the classpath entries' paths if the resources are projects)
 	 */
-	private ArrayList projectPaths = new ArrayList(); // container paths projects
+	private ArrayList<String> projectPaths = new ArrayList<>(); // container paths projects
 	private int[] projectIndexes; // Indexes of projects in list
 	private String[] containerPaths; // path to the container (e.g. /P/src, /P/lib.jar, c:\temp\mylib.jar)
 	private String[] relativePaths; // path relative to the container (e.g. x/y/Z.class, x/y, (empty))
@@ -99,10 +99,10 @@ private void addEnclosingProjectOrJar(IPath path) {
 
 /**
  * Add java project all fragment roots to current java search scope.
- * @see #add(JavaProject, IPath, int, HashSet, HashSet, IClasspathEntry)
+ * @see #add(JavaProject, IPath, int, Set, Set, IClasspathEntry)
  */
-public void add(JavaProject project, int includeMask, HashSet projectsToBeAdded) throws JavaModelException {
-	add(project, null, includeMask, projectsToBeAdded, new HashSet(2), null);
+public void add(JavaProject project, int includeMask, Set<JavaProject>  projectsToBeAdded) throws JavaModelException {
+	add(project, null, includeMask, projectsToBeAdded, new HashSet<>(2), null);
 }
 /**
  * Add a path to current java search scope or all project fragment roots if null.
@@ -116,7 +116,7 @@ public void add(JavaProject project, int includeMask, HashSet projectsToBeAdded)
  * @param referringEntry Project raw entry in referring project classpath
  * @throws JavaModelException May happen while getting java model info
  */
-void add(JavaProject javaProject, IPath pathToAdd, int includeMask, HashSet projectsToBeAdded, HashSet visitedProjects, IClasspathEntry referringEntry) throws JavaModelException {
+void add(JavaProject javaProject, IPath pathToAdd, int includeMask, Set<JavaProject> projectsToBeAdded, Set<IProject> visitedProjects, IClasspathEntry referringEntry) throws JavaModelException {
 	IProject project = javaProject.getProject();
 	if (!project.isAccessible() || !visitedProjects.add(project)) return;
 
@@ -147,9 +147,9 @@ void add(JavaProject javaProject, IPath pathToAdd, int includeMask, HashSet proj
 		switch (entry.getEntryKind()) {
 			case IClasspathEntry.CPE_LIBRARY:
 				IClasspathEntry rawEntry = null;
-				Map rootPathToRawEntries = perProjectInfo.rootPathToRawEntries;
+				Map<IPath, IClasspathEntry> rootPathToRawEntries = perProjectInfo.rootPathToRawEntries;
 				if (rootPathToRawEntries != null) {
-					rawEntry = (IClasspathEntry) rootPathToRawEntries.get(entry.getPath());
+					rawEntry = rootPathToRawEntries.get(entry.getPath());
 				}
 				if (rawEntry == null) break;
 				rawKind: switch (rawEntry.getEntryKind()) {
@@ -230,7 +230,7 @@ public void add(IJavaElement element) throws JavaModelException {
 			// a workspace sope should be used
 			break;
 		case IJavaElement.JAVA_PROJECT:
-			add((JavaProject)element, null, includeMask, new HashSet(2), new HashSet(2), null);
+			add((JavaProject)element, null, includeMask, new HashSet<>(2), new HashSet<>(2), null);
 			break;
 		case IJavaElement.PACKAGE_FRAGMENT_ROOT:
 			root = (PackageFragmentRoot)element;
@@ -529,7 +529,7 @@ protected void initialize(int size) {
 		extraRoom++;
 	this.relativePaths = new String[extraRoom];
 	this.containerPaths = new String[extraRoom];
-	this.projectPaths = new ArrayList();
+	this.projectPaths = new ArrayList<>();
 	this.projectIndexes = new int[extraRoom];
 	this.isPkgPath = new boolean[extraRoom];
 	this.pathRestrictions = null; // null to optimize case where no access rules are used

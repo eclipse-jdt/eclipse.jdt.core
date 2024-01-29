@@ -252,17 +252,12 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 		return super.kosherDescriptor(currentScope, sam, shouldChatter);
 	}
 
-	public void resolveWithPatternVariablesInScope(LocalVariableBinding[] patternVariablesInScope, BlockScope blockScope, boolean skipKosherCheck) {
-		if (patternVariablesInScope != null) {
-			for (LocalVariableBinding local : patternVariablesInScope) {
-				local.modifiers &= ~ExtraCompilerModifiers.AccPatternVariable;
-			}
+	public void resolveTypeWithBindings(LocalVariableBinding[] bindings, BlockScope blockScope, boolean skipKosherCheck) {
+		blockScope.include(bindings);
+		try {
 			this.resolveType(blockScope, skipKosherCheck);
-			for (LocalVariableBinding local : patternVariablesInScope) {
-				local.modifiers |= ExtraCompilerModifiers.AccPatternVariable;
-			}
-		} else {
-			resolveType(blockScope, skipKosherCheck);
+		} finally {
+			blockScope.exclude(bindings);
 		}
 	}
 
@@ -600,9 +595,9 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 						this.scope,
 						FlowInfo.DEAD_END);
 
-		// nullity and mark as assigned
+		// nullity, owning and mark as assigned
 		MethodBinding methodWithParameterDeclaration = argumentsTypeElided() ? this.descriptor : this.binding;
-		AbstractMethodDeclaration.analyseArguments(currentScope.environment(), lambdaInfo, this.arguments, methodWithParameterDeclaration);
+		AbstractMethodDeclaration.analyseArguments(currentScope.environment(), lambdaInfo, flowContext, this.arguments, methodWithParameterDeclaration);
 
 		if (this.arguments != null) {
 			for (int i = 0, count = this.arguments.length; i < count; i++) {

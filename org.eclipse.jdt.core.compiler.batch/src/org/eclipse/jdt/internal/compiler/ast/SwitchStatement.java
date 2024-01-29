@@ -92,9 +92,7 @@ public class SwitchStatement extends Expression {
 	public final static int TotalPattern = ASTNode.Bit3;
 	public final static int Exhaustive = ASTNode.Bit4;
 	public final static int Enhanced = ASTNode.Bit5;
-	// Indicates this switch statement is fabricated by the compiler, for e.g. in ForeachStatement
-	public final static int Synthetic = ASTNode.Bit6;
-	public final static int QualifiedEnum = ASTNode.Bit7;
+	public final static int QualifiedEnum = ASTNode.Bit6;
 
 	// for switch on strings
 	private static final char[] SecretStringVariableName = " switchDispatchString".toCharArray(); //$NON-NLS-1$
@@ -409,6 +407,8 @@ public class SwitchStatement extends Expression {
 				new SwitchFlowContext(flowContext, this, (this.breakLabel = new BranchLabel()), true, true);
 			switchContext.isExpression = this instanceof SwitchExpression;
 
+			CompilerOptions compilerOptions = currentScope.compilerOptions();
+
 			// analyse the block by considering specially the case/default statements (need to bind them
 			// to the entry point)
 			FlowInfo caseInits = FlowInfo.DEAD_END;
@@ -467,7 +467,7 @@ public class SwitchStatement extends Expression {
 						fallThroughState = this.containsPatterns ? FALLTHROUGH : CASE;
 					} else {
 						if (!(this instanceof SwitchExpression) &&
-							currentScope.compilerOptions().complianceLevel >= ClassFileConstants.JDK14 &&
+							compilerOptions.complianceLevel >= ClassFileConstants.JDK14 &&
 							statement instanceof YieldStatement &&
 							((YieldStatement) statement).isImplicit) {
 							YieldStatement y = (YieldStatement) statement;
@@ -486,7 +486,12 @@ public class SwitchStatement extends Expression {
 						if (caseInits == FlowInfo.DEAD_END) {
 							fallThroughState = ESCAPING;
 						}
-						switchContext.expireNullCheckedFieldInfo();
+						if (compilerOptions.enableSyntacticNullAnalysisForFields) {
+							switchContext.expireNullCheckedFieldInfo();
+						}
+						if (compilerOptions.analyseResourceLeaks) {
+							FakedTrackingVariable.cleanUpUnassigned(this.scope, statement, caseInits, false);
+						}
 					}
 				}
 				completeNormallyCheck(currentScope);
@@ -1119,21 +1124,6 @@ public class SwitchStatement extends Expression {
 		return false;
 	}
 	@Override
-	public void collectPatternVariablesToScope(LocalVariableBinding[] variables, BlockScope skope) {
-		if (this.statements != null && this.containsPatterns) {
-			for (Statement stmt : this.statements) {
-				if (stmt instanceof CaseStatement) {
-					CaseStatement caseStatement = (CaseStatement) stmt;
-					if (caseStatement.constantExpressions != null) {
-						for (Expression exp : caseStatement.constantExpressions) {
-							exp.collectPatternVariablesToScope(variables, skope);
-						}
-					}
-				}
-			}
-		}
-	}
-	@Override
 	public void resolve(BlockScope upperScope) {
 		try {
 			boolean isEnumSwitch = false;
@@ -1202,111 +1192,102 @@ public class SwitchStatement extends Expression {
 				int caseCounter = 0;
 				Pattern[] patterns = new Pattern[this.nConstants];
 				int[] caseIndex = new int[this.nConstants];
-				LocalVariableBinding[] patternVariables = null;
+				LocalVariableBinding[] patternVariables = NO_VARIABLES;
 				boolean caseNullDefaultFound = false;
 				boolean defaultFound = false;
 				for (int i = 0; i < length; i++) {
 					ResolvedCase[] constantsList;
 					final Statement statement = this.statements[i];
-					// Let's first collect the pattern variables if any
-					// so that we can resolve all statements (including case statements)
-					// with the pattern variables in scope.
-					if (statement instanceof CaseStatement) {
-						if (statement.containsPatternVariable()) {
-							CaseStatement caseStatement = (CaseStatement) statement;
-							if ((this.switchBits & Synthetic) == 0) {
-								// This is already done in foreach
-								caseStatement.collectPatternVariablesToScope(this.patternVarsWhenTrue, this.scope);
-							}
-							patternVariables = statement.getPatternVariablesWhenTrue();
-							if (caseStatement.patternIndex >= 0) {
-								Expression probablePattern = caseStatement.constantExpressions[caseStatement.patternIndex];
+					if (statement instanceof CaseStatement caseStmt) {
+						caseNullDefaultFound = caseNullDefaultFound ? caseNullDefaultFound
+								: isCaseStmtNullDefault(caseStmt);
+						defaultFound |= caseStmt.constantExpressions == null;
+						constantsList = caseStmt.resolveCase(this.scope, expressionType, this);
+						if (caseStmt.containsPatternVariable()) {
+							patternVariables = statement.bindingsWhenTrue();
+							if (caseStmt.patternIndex >= 0) {
+								Expression probablePattern = caseStmt.constantExpressions[caseStmt.patternIndex];
 								if (probablePattern instanceof Pattern) {
 									Pattern pattern = (Pattern) probablePattern;
 									pattern.resolveWithExpression(this.scope, this.expression);
 								}
 							}
 						} else {
-							patternVariables = null; // Probably redundant?
+							patternVariables = NO_VARIABLES;
 						}
-					} else {
-						statement.resolveWithPatternVariablesInScope(patternVariables, this.scope);
-						continue;
-					}
-					CaseStatement caseStmt = (CaseStatement) statement;
-					caseNullDefaultFound = caseNullDefaultFound ?
-							caseNullDefaultFound : isCaseStmtNullDefault(caseStmt);
-					defaultFound |= caseStmt.constantExpressions == null;
-					constantsList = caseStmt.resolveCase(this.scope, expressionType, this);
-					if (constantsList != ResolvedCase.UnresolvedCase) {
-						for (ResolvedCase c : constantsList) {
-							Constant con = c.c;
-							if (con == Constant.NotAConstant)
-								continue;
-							this.otherConstants[counter] = c;
-							final int c1 = this.containsPatterns ? (c.intValue() == -1 ? -1 : counter) : c.intValue();
-							this.constants[counter] = c1;
-							if (counter == 0 && defaultFound) {
-								if (c.isPattern() || isCaseStmtNullOnly(caseStmt))
-								this.scope.problemReporter().patternDominatedByAnother(c.e);
-							}
-							for (int j = 0; j < counter; j++) {
-								IntPredicate check = idx -> {
-									Constant c2 = this.otherConstants[idx].c;
-									if (con.typeID() == TypeIds.T_JavaLangString) {
-										return c2.stringValue().equals(con.stringValue());
-									} else {
-										if (c2.typeID() == TypeIds.T_JavaLangString)
-											return false;
-										if (con.intValue() == c2.intValue())
-											return true;
-										return this.constants[idx] == c1;
-									}
-								};
-								TypeBinding type = c.e.resolvedType;
-								if (!type.isValidBinding())
+						if (constantsList != ResolvedCase.UnresolvedCase) {
+							for (ResolvedCase c : constantsList) {
+								Constant con = c.c;
+								if (con == Constant.NotAConstant)
 									continue;
-								if ((caseNullDefaultFound || defaultFound) && (c.isPattern() || isCaseStmtNullOnly(caseStmt))) {
-									this.scope.problemReporter().patternDominatedByAnother(c.e);
-									break;
+								this.otherConstants[counter] = c;
+							    final int c1 = this.containsPatterns ? (c.intValue() == -1 ? -1 : counter) : c.intValue();
+								this.constants[counter] = c1;
+								if (counter == 0 && defaultFound) {
+									if (c.isPattern() || isCaseStmtNullOnly(caseStmt))
+										this.scope.problemReporter().patternDominatedByAnother(c.e);
 								}
-								Pattern p1 = patterns[j];
-								if (p1 != null) {
-									if (c.isPattern()) {
-										if (p1.dominates((Pattern) c.e)) {
-											this.scope.problemReporter().patternDominatedByAnother(c.e);
+								for (int j = 0; j < counter; j++) {
+									IntPredicate check = idx -> {
+										Constant c2 = this.otherConstants[idx].c;
+										if (con.typeID() == TypeIds.T_JavaLangString) {
+											return c2.stringValue().equals(con.stringValue());
+										} else {
+											if (c2.typeID() == TypeIds.T_JavaLangString)
+												return false;
+											if (con.intValue() == c2.intValue())
+												return true;
+											return this.constants[idx] == c1;
 										}
-									} else {
-										if (type.id != TypeIds.T_null) {
-											if (type.isBaseType()) {
-												type = this.scope.environment().computeBoxingType(type);
-											}
-											if (p1.coversType(type))
-												this.scope.problemReporter().patternDominatedByAnother(c.e);
-										}
+									};
+									TypeBinding type = c.e.resolvedType;
+									if (!type.isValidBinding())
+										continue;
+									if ((caseNullDefaultFound || defaultFound) && (c.isPattern() || isCaseStmtNullOnly(caseStmt))) {
+										this.scope.problemReporter().patternDominatedByAnother(c.e);
+										break;
 									}
-								} else {
-									if (!c.isPattern() && check.test(j)) {
-										if (this.isNonTraditional) {
-											if (c.e instanceof NullLiteral && this.otherConstants[j].e instanceof NullLiteral) {
-												reportDuplicateCase(c.e, this.otherConstants[j].e, length);
+									Pattern p1 = patterns[j];
+									if (p1 != null) {
+										if (c.isPattern()) {
+											if (p1.dominates((Pattern) c.e)) {
+												this.scope.problemReporter().patternDominatedByAnother(c.e);
 											}
 										} else {
-											reportDuplicateCase(caseStmt, this.cases[caseIndex[j]], length);
+											if (type.id != TypeIds.T_null) {
+												if (type.isBaseType()) {
+													type = this.scope.environment().computeBoxingType(type);
+												}
+												if (p1.coversType(type))
+													this.scope.problemReporter().patternDominatedByAnother(c.e);
+											}
+										}
+									} else {
+										if (!c.isPattern() && check.test(j)) {
+											if (this.isNonTraditional) {
+											if (c.e instanceof NullLiteral && this.otherConstants[j].e instanceof NullLiteral) {
+													reportDuplicateCase(c.e, this.otherConstants[j].e, length);
+												}
+											} else {
+												reportDuplicateCase(caseStmt, this.cases[caseIndex[j]], length);
+											}
 										}
 									}
 								}
+								this.constMapping[counter] = counter;
+								caseIndex[counter] = caseCounter;
+								// Only the pattern expressions count for dominance check
+								if (c.e instanceof Pattern) {
+									patterns[counter] = (Pattern) c.e;
+								}
+								counter++;
 							}
-							this.constMapping[counter] = counter;
-							caseIndex[counter] = caseCounter;
-							// Only the pattern expressions count for dominance check
-							if (c.e instanceof Pattern) {
-								patterns[counter] = (Pattern) c.e;
-							}
-							counter++;
 						}
+						caseCounter++;
+					} else {
+						statement.resolveWithBindings(patternVariables, this.scope);
+						patternVariables = LocalVariableBinding.merge(patternVariables, statement.bindingsWhenComplete());
 					}
-					caseCounter++;
 				}
 				if (length != counter) { // resize constants array
 					System.arraycopy(this.otherConstants, 0, this.otherConstants = new ResolvedCase[counter], 0, counter);

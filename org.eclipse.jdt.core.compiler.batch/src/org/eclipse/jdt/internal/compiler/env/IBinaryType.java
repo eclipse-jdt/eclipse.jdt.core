@@ -23,7 +23,7 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.lookup.BinaryTypeBinding.ExternalAnnotationStatus;
 import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 
-public interface IBinaryType extends IGenericType {
+public interface IBinaryType extends IGenericType, IBinaryInfo {
 
 	char[][] NoInterface = CharOperation.NO_CHAR_CHAR;
 	IBinaryNestedType[] NoNestedType = new IBinaryNestedType[0];

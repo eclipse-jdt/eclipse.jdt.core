@@ -41,8 +41,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import java.util.function.BooleanSupplier;
-
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.NullAnnotationMatching.CheckMode;
@@ -124,9 +122,6 @@ public boolean continueCompletes() {
 	public static final int NOT_COMPLAINED = 0;
 	public static final int COMPLAINED_FAKE_REACHABLE = 1;
 	public static final int COMPLAINED_UNREACHABLE = 2;
-	LocalVariableBinding[] patternVarsWhenTrue;
-	LocalVariableBinding[] patternVarsWhenFalse;
-
 
 /** Analysing arguments of MessageSend, ExplicitConstructorCall, AllocationExpression. */
 protected void analyseArguments(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo, MethodBinding methodBinding, Expression[] arguments)
@@ -137,12 +132,12 @@ protected void analyseArguments(BlockScope currentScope, FlowContext flowContext
 		if (compilerOptions.sourceLevel >= ClassFileConstants.JDK1_7 && methodBinding.isPolymorphic())
 			return;
 		boolean considerTypeAnnotations = currentScope.environment().usesNullTypeAnnotations();
-		boolean hasJDK15NullAnnotations = methodBinding.parameterNonNullness != null;
+		boolean hasJDK15FlowAnnotations = methodBinding.parameterFlowBits != null;
 		int numParamsToCheck = methodBinding.parameters.length;
 		int varArgPos = -1;
 		TypeBinding varArgsType = null;
 		boolean passThrough = false;
-		if (considerTypeAnnotations || hasJDK15NullAnnotations) {
+		if (considerTypeAnnotations || hasJDK15FlowAnnotations) {
 			// check if varargs need special treatment:
 			if (methodBinding.isVarargs()) {
 				varArgPos = numParamsToCheck-1;
@@ -162,21 +157,21 @@ protected void analyseArguments(BlockScope currentScope, FlowContext flowContext
 		if (considerTypeAnnotations) {
 			for (int i=0; i<numParamsToCheck; i++) {
 				TypeBinding expectedType = methodBinding.parameters[i];
-				Boolean specialCaseNonNullness = hasJDK15NullAnnotations ? methodBinding.parameterNonNullness[i] : null;
+				Boolean specialCaseNonNullness = hasJDK15FlowAnnotations? methodBinding.getParameterNullness(i) : null;
 				analyseOneArgument18(currentScope, flowContext, flowInfo, expectedType, arguments[i],
 						specialCaseNonNullness, methodBinding.original().parameters[i]);
 			}
 			if (!passThrough && varArgsType instanceof ArrayBinding) {
 				TypeBinding expectedType = ((ArrayBinding) varArgsType).elementsType();
-				Boolean specialCaseNonNullness = hasJDK15NullAnnotations ? methodBinding.parameterNonNullness[varArgPos] : null;
+				Boolean specialCaseNonNullness = hasJDK15FlowAnnotations? methodBinding.getParameterNullness(varArgPos) : null;
 				for (int i = numParamsToCheck; i < arguments.length; i++) {
 					analyseOneArgument18(currentScope, flowContext, flowInfo, expectedType, arguments[i],
 							specialCaseNonNullness, methodBinding.original().parameters[varArgPos]);
 				}
 			}
-		} else if (hasJDK15NullAnnotations) {
+		} else if (hasJDK15FlowAnnotations) {
 			for (int i = 0; i < numParamsToCheck; i++) {
-				if (methodBinding.parameterNonNullness[i] == Boolean.TRUE) {
+				if ((methodBinding.parameterFlowBits[i] & MethodBinding.PARAM_NONNULL) != 0) {
 					TypeBinding expectedType = methodBinding.parameters[i];
 					Expression argument = arguments[i];
 					int nullStatus = argument.nullStatus(flowInfo, flowContext); // slight loss of precision: should also use the null info from the receiver.
@@ -485,57 +480,22 @@ public StringBuilder print(int indent, StringBuilder output) {
 public abstract StringBuilder printStatement(int indent, StringBuilder output);
 
 public abstract void resolve(BlockScope scope);
-public LocalVariableBinding[] getPatternVariablesWhenTrue() {
-	return this.patternVarsWhenTrue;
+public LocalVariableBinding[] bindingsWhenTrue() {
+	return NO_VARIABLES;
 }
-public LocalVariableBinding[] getPatternVariablesWhenFalse() {
-	return this.patternVarsWhenFalse;
+public LocalVariableBinding[] bindingsWhenFalse() {
+	return NO_VARIABLES;
 }
-public void addPatternVariablesWhenTrue(LocalVariableBinding[] vars) {
-	if (vars == null || vars.length == 0) return;
-	if (this.patternVarsWhenTrue == vars) return;
-	this.patternVarsWhenTrue = addPatternVariables(this.patternVarsWhenTrue, vars);
-}
-public void addPatternVariablesWhenFalse(LocalVariableBinding[] vars) {
-	if (vars == null || vars.length == 0) return;
-	if (this.patternVarsWhenFalse == vars) return;
-	this.patternVarsWhenFalse = addPatternVariables(this.patternVarsWhenFalse, vars);
+public LocalVariableBinding[] bindingsWhenComplete() {
+	return NO_VARIABLES;
 }
 
-private LocalVariableBinding[] addPatternVariables(LocalVariableBinding[] current, LocalVariableBinding[] additions) {
-	if (additions != null && additions.length > 0) {
-		if (current == null)
-			current = new LocalVariableBinding[0];
-		nextVariable: for (LocalVariableBinding addition : additions) {
-			for (LocalVariableBinding existing : current) {
-				if (existing == addition)
-					continue nextVariable;
-			}
-			int oldLength = current.length;
-			System.arraycopy(current, 0, (current = new LocalVariableBinding[oldLength + 1]), 0, oldLength);
-			current[oldLength] = addition;
-		}
-	}
-	return current;
-}
-public void promotePatternVariablesIfApplicable(LocalVariableBinding[] patternVariablesInScope, BooleanSupplier condition) {
-	if (patternVariablesInScope != null && condition.getAsBoolean()) {
-		for (LocalVariableBinding binding : patternVariablesInScope) {
-			binding.modifiers &= ~ExtraCompilerModifiers.AccPatternVariable;
-		}
-	}
-}
-public void resolveWithPatternVariablesInScope(LocalVariableBinding[] patternVariablesInScope, BlockScope scope) {
-	if (patternVariablesInScope != null) {
-		for (LocalVariableBinding binding : patternVariablesInScope) {
-			binding.modifiers &= ~ExtraCompilerModifiers.AccPatternVariable;
-		}
+public void resolveWithBindings(LocalVariableBinding[] bindings, BlockScope scope) {
+	scope.include(bindings);
+	try {
 		this.resolve(scope);
-		for (LocalVariableBinding binding : patternVariablesInScope) {
-			binding.modifiers |= ExtraCompilerModifiers.AccPatternVariable;
-		}
-	} else {
-		resolve(scope);
+	} finally {
+		scope.exclude(bindings);
 	}
 }
 /**

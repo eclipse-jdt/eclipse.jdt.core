@@ -40,9 +40,6 @@ public interface InvocationSite {
 	boolean receiverIsImplicitThis();
 	boolean checkingPotentialCompatibility();
 	void acceptPotentiallyCompatibleMethods(MethodBinding [] methods);
-	public default LocalVariableBinding[] getPatternVariablesWhenTrue() {
-		return null;
-	}
 
 	/** When inference for this invocationSite starts, get a fresh inference context, initialized from this site. */
 	InferenceContext18 freshInferenceContext(Scope scope);

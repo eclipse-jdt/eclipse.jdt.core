@@ -21,8 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import junit.framework.Test;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.Flags;
@@ -112,6 +110,8 @@ import org.eclipse.jdt.core.tests.model.CancelCounter;
 import org.eclipse.jdt.core.tests.model.Canceler;
 import org.eclipse.jdt.core.tests.model.ReconcilerTests;
 import org.eclipse.jdt.core.tests.util.Util;
+
+import junit.framework.Test;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ASTConverterTestAST8_2 extends ConverterTestSetup {
@@ -5298,7 +5298,7 @@ public class ASTConverterTestAST8_2 extends ConverterTestSetup {
 	}
 
 	/**
-	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=70398
+	 * https://bugs.eclipse.org/bugs/show_bug.cgi?id=76277
 	 */
 	public void test0570() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter", "src", "test0570", "A.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$

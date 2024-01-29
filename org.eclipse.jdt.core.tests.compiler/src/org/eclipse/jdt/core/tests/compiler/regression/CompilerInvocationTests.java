@@ -799,6 +799,8 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("LocalVariableIsNeverUsed", new ProblemAttributes(CategorizedProblem.CAT_UNNECESSARY_CODE));
 		expectedProblemAttributes.put("LocalVariableMayBeNull", DEPRECATED);
 		expectedProblemAttributes.put("MaskedCatch", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
+		expectedProblemAttributes.put("MandatoryCloseNotShown", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
+		expectedProblemAttributes.put("MandatoryCloseNotShownAtExit", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("MethodButWithConstructorName", new ProblemAttributes(CategorizedProblem.CAT_CODE_STYLE));
 		expectedProblemAttributes.put("MethodCanBePotentiallyStatic", new ProblemAttributes(CategorizedProblem.CAT_CODE_STYLE));
 		expectedProblemAttributes.put("MethodCanBeStatic", new ProblemAttributes(CategorizedProblem.CAT_CODE_STYLE));
@@ -887,6 +889,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("NotExportedTypeInAPI", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("ConflictingPackageFromModules", new ProblemAttributes(CategorizedProblem.CAT_MODULE));
 		expectedProblemAttributes.put("ConflictingPackageFromOtherModules", new ProblemAttributes(CategorizedProblem.CAT_MODULE));
+		expectedProblemAttributes.put("NotOwningResourceField", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("NotVisibleConstructor", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("NotVisibleConstructorInDefaultConstructor", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("NotVisibleConstructorInImplicitConstructorCall", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
@@ -918,12 +921,16 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("ObjectMustBeClass", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("OuterLocalMustBeEffectivelyFinal", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 		expectedProblemAttributes.put("OuterLocalMustBeFinal", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+		expectedProblemAttributes.put("OverrideAddingReturnOwning",  new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
+		expectedProblemAttributes.put("OverrideReducingParamterOwning",  new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("OverridingDeprecatedMethod", new ProblemAttributes(CategorizedProblem.CAT_DEPRECATION));
 		expectedProblemAttributes.put("OverridingDeprecatedSinceVersionMethod", new ProblemAttributes(CategorizedProblem.CAT_DEPRECATION));
 		expectedProblemAttributes.put("OverridingTerminallyDeprecatedMethod", new ProblemAttributes(CategorizedProblem.CAT_DEPRECATION));
 		expectedProblemAttributes.put("OverridingTerminallyDeprecatedSinceVersionMethod", new ProblemAttributes(CategorizedProblem.CAT_DEPRECATION));
 		expectedProblemAttributes.put("OverridingMethodWithoutSuperInvocation", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("OverridingNonVisibleMethod", new ProblemAttributes(CategorizedProblem.CAT_NAME_SHADOWING_CONFLICT));
+		expectedProblemAttributes.put("OwningFieldInNonResourceClass", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
+		expectedProblemAttributes.put("OwningFieldShouldImplementClose", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("PackageCollidesWithType", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("PackageDoesNotExistOrIsEmpty", new ProblemAttributes(CategorizedProblem.CAT_MODULE));
 		expectedProblemAttributes.put("PackageIsNotExpectedPackage", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
@@ -1022,6 +1029,7 @@ public void test011_problem_categories() {
 		expectedProblemAttributes.put("ServiceImplDefaultConstructorNotPublic", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("ServiceImplNotDefinedByModule", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 		expectedProblemAttributes.put("ShouldImplementHashcode", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
+		expectedProblemAttributes.put("ShouldMarkMethodAsOwning", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
 		expectedProblemAttributes.put("ShouldReturnValue", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("ShouldReturnValueHintMissingDefault", new ProblemAttributes(CategorizedProblem.CAT_MEMBER));
 		expectedProblemAttributes.put("SpecdNonNullLocalVariableComparisonYieldsFalse", new ProblemAttributes(CategorizedProblem.CAT_POTENTIAL_PROGRAMMING_PROBLEM));
@@ -1328,6 +1336,8 @@ public void test011_problem_categories() {
 	    expectedProblemAttributes.put("ClassExtendFinalRecord", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 	    expectedProblemAttributes.put("RecordErasureIncompatibilityInCanonicalConstructor", new ProblemAttributes(CategorizedProblem.CAT_TYPE));
 	    expectedProblemAttributes.put("JavadocInvalidModule", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
+	    expectedProblemAttributes.put("UnderscoreCannotBeUsedHere", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("UnnamedVariableMustHaveInitializer", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    StringBuilder failures = new StringBuilder();
 		StringBuilder correctResult = new StringBuilder(70000);
 		Field[] fields = (iProblemClass = IProblem.class).getFields();
@@ -1899,6 +1909,8 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("LocalVariableIsNeverUsed", new ProblemAttributes(JavaCore.COMPILER_PB_UNUSED_LOCAL));
 		expectedProblemAttributes.put("LocalVariableMayBeNull", SKIP);
 		expectedProblemAttributes.put("MaskedCatch", new ProblemAttributes(JavaCore.COMPILER_PB_HIDDEN_CATCH_BLOCK));
+		expectedProblemAttributes.put("MandatoryCloseNotShown", new ProblemAttributes(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE));
+		expectedProblemAttributes.put("MandatoryCloseNotShownAtExit", new ProblemAttributes(JavaCore.COMPILER_PB_UNCLOSED_CLOSEABLE));
 		expectedProblemAttributes.put("MethodButWithConstructorName", new ProblemAttributes(JavaCore.COMPILER_PB_METHOD_WITH_CONSTRUCTOR_NAME));
 		expectedProblemAttributes.put("MethodCanBePotentiallyStatic", new ProblemAttributes(JavaCore.COMPILER_PB_POTENTIALLY_MISSING_STATIC_ON_METHOD));
 		expectedProblemAttributes.put("MethodCanBeStatic", new ProblemAttributes(JavaCore.COMPILER_PB_MISSING_STATIC_ON_METHOD));
@@ -1987,6 +1999,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("NotExportedTypeInAPI", new ProblemAttributes(JavaCore.COMPILER_PB_API_LEAKS));
 		expectedProblemAttributes.put("ConflictingPackageFromModules", SKIP);
 		expectedProblemAttributes.put("ConflictingPackageFromOtherModules", SKIP);
+		expectedProblemAttributes.put("NotOwningResourceField", new ProblemAttributes(JavaCore.COMPILER_PB_RECOMMENDED_RESOURCE_MANAGEMENT));
 		expectedProblemAttributes.put("NotVisibleConstructor", SKIP);
 		expectedProblemAttributes.put("NotVisibleConstructorInDefaultConstructor", SKIP);
 		expectedProblemAttributes.put("NotVisibleConstructorInImplicitConstructorCall", SKIP);
@@ -2018,12 +2031,16 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("ObjectMustBeClass", SKIP);
 		expectedProblemAttributes.put("OuterLocalMustBeEffectivelyFinal", SKIP);
 		expectedProblemAttributes.put("OuterLocalMustBeFinal", SKIP);
+		expectedProblemAttributes.put("OverrideAddingReturnOwning",  new ProblemAttributes(JavaCore.COMPILER_PB_INCOMPATIBLE_OWNING_CONTRACT));
+		expectedProblemAttributes.put("OverrideReducingParamterOwning",  new ProblemAttributes(JavaCore.COMPILER_PB_INCOMPATIBLE_OWNING_CONTRACT));
 		expectedProblemAttributes.put("OverridingDeprecatedMethod", new ProblemAttributes(JavaCore.COMPILER_PB_DEPRECATION));
 		expectedProblemAttributes.put("OverridingDeprecatedSinceVersionMethod", new ProblemAttributes(JavaCore.COMPILER_PB_DEPRECATION));
 		expectedProblemAttributes.put("OverridingTerminallyDeprecatedMethod", new ProblemAttributes(JavaCore.COMPILER_PB_TERMINAL_DEPRECATION));
 		expectedProblemAttributes.put("OverridingTerminallyDeprecatedSinceVersionMethod", new ProblemAttributes(JavaCore.COMPILER_PB_TERMINAL_DEPRECATION));
 		expectedProblemAttributes.put("OverridingMethodWithoutSuperInvocation", new ProblemAttributes(JavaCore.COMPILER_PB_OVERRIDING_METHOD_WITHOUT_SUPER_INVOCATION));
 		expectedProblemAttributes.put("OverridingNonVisibleMethod", new ProblemAttributes(JavaCore.COMPILER_PB_OVERRIDING_PACKAGE_DEFAULT_METHOD));
+		expectedProblemAttributes.put("OwningFieldInNonResourceClass", new ProblemAttributes(JavaCore.COMPILER_PB_RECOMMENDED_RESOURCE_MANAGEMENT));
+		expectedProblemAttributes.put("OwningFieldShouldImplementClose", new ProblemAttributes(JavaCore.COMPILER_PB_RECOMMENDED_RESOURCE_MANAGEMENT));
 		expectedProblemAttributes.put("PackageCollidesWithType", SKIP);
 		expectedProblemAttributes.put("PackageDoesNotExistOrIsEmpty", SKIP);
 		expectedProblemAttributes.put("PackageIsNotExpectedPackage", SKIP);
@@ -2123,6 +2140,7 @@ public void test012_compiler_problems_tuning() {
 		expectedProblemAttributes.put("ServiceImplDefaultConstructorNotPublic", SKIP);
 		expectedProblemAttributes.put("ServiceImplNotDefinedByModule", SKIP);
 		expectedProblemAttributes.put("ShouldImplementHashcode", new ProblemAttributes(JavaCore.COMPILER_PB_MISSING_HASHCODE_METHOD));
+		expectedProblemAttributes.put("ShouldMarkMethodAsOwning", SKIP);
 		expectedProblemAttributes.put("ShouldReturnValue", SKIP);
 		expectedProblemAttributes.put("ShouldReturnValueHintMissingDefault", SKIP);
 		expectedProblemAttributes.put("SpecdNonNullLocalVariableComparisonYieldsFalse", new ProblemAttributes(JavaCore.COMPILER_PB_REDUNDANT_NULL_CHECK));
@@ -2429,6 +2447,8 @@ public void test012_compiler_problems_tuning() {
 	    expectedProblemAttributes.put("ClassExtendFinalRecord", SKIP);
 	    expectedProblemAttributes.put("RecordErasureIncompatibilityInCanonicalConstructor", SKIP);
 	    expectedProblemAttributes.put("JavadocInvalidModule", SKIP);
+	    expectedProblemAttributes.put("UnderscoreCannotBeUsedHere", SKIP);
+	    expectedProblemAttributes.put("UnnamedVariableMustHaveInitializer", SKIP);
 
 	    Map constantNamesIndex = new HashMap();
 		Field[] fields = JavaCore.class.getFields();

@@ -45,11 +45,6 @@ public class CompletionOnStringLiteral extends StringLiteral implements Completi
 		this.contentEnd = ce;
 	}
 
-	public CompletionOnStringLiteral(int s, int e, int cs, int ce) {
-		super(s,e);
-		this.contentStart = cs;
-		this.contentEnd = ce;
-	}
 	@Override
 	public TypeBinding resolveType(ClassScope scope) {
 		throw new CompletionNodeFound(this, null, scope);

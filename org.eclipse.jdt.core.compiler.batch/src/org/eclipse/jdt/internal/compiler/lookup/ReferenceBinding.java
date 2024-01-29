@@ -2163,6 +2163,11 @@ protected int applyCloseableClassWhitelists(CompilerOptions options) {
 			return TypeIds.BitWrapperCloseable;
 	}
 	if (options.analyseResourceLeaks) {
+		if (options.isAnnotationBasedResourceAnalysisEnabled) {
+			if ((this.getAnnotationTagBits() & TagBits.AnnotationNotOwning) != 0) {
+				return TypeIds.BitResourceFreeCloseable;
+			}
+		}
 		ReferenceBinding mySuper = this.superclass();
 		if (mySuper != null && mySuper.id != TypeIds.T_JavaLangObject) {
 			if (hasMethodWithNumArgs(TypeConstants.CLOSE, 0))
@@ -2187,7 +2192,7 @@ protected boolean hasMethodWithNumArgs(char[] selector, int numArgs) {
  * If a type - known to be a Closeable - is mentioned in one of our white lists
  * answer the typeBit for the white list (BitWrapperCloseable or BitResourceFreeCloseable).
  */
-protected int applyCloseableInterfaceWhitelists() {
+protected int applyCloseableInterfaceWhitelists(CompilerOptions options) {
 	switch (this.compoundName.length) {
 		case 4:
 			if (CharOperation.equals(this.compoundName[0], TypeConstants.JAVA_UTIL_STREAM[0])) {
@@ -2215,7 +2220,43 @@ protected int applyCloseableInterfaceWhitelists() {
 			}
 			break;
 	}
+	if (options.isAnnotationBasedResourceAnalysisEnabled) {
+		if ((this.getAnnotationTagBits() & TagBits.AnnotationNotOwning) != 0) {
+			return TypeIds.BitResourceFreeCloseable;
+		}
+	}
 	return 0;
+}
+
+public void detectWrapperResource() {
+	if (hasTypeBit(TypeIds.BitAutoCloseable|TypeIds.BitCloseable)
+			&& !hasTypeBit(TypeIds.BitResourceFreeCloseable|TypeIds.BitWrapperCloseable)) {
+		int numResourceFields = 0;
+		for (FieldBinding field : fields()) {
+			if (field.type != null
+					&& field.type.hasTypeBit(TypeIds.BitAutoCloseable|TypeIds.BitCloseable)
+					&& (field.tagBits & TagBits.AnnotationOwning) != 0) {
+				numResourceFields++;
+			}
+		}
+		if (numResourceFields == 1) {
+			boolean nonPrivateCtorsReceiveResource = false;
+			for (MethodBinding method : methods()) {
+				if (method.isConstructor() && !method.isPrivate() && method.parameters.length > 0) {
+					TypeBinding param = method.parameters[0];
+					if (param.hasTypeBit(TypeIds.BitAutoCloseable|TypeIds.BitCloseable) && method.ownsParameter(0)) {
+						nonPrivateCtorsReceiveResource = true;
+					} else {
+						nonPrivateCtorsReceiveResource = false;
+						break;
+					}
+				}
+			}
+			if (nonPrivateCtorsReceiveResource) {
+				this.typeBits |= TypeIds.BitWrapperCloseable;
+			}
+		}
+	}
 }
 
 protected MethodBinding [] getInterfaceAbstractContracts(Scope scope, boolean replaceWildcards, boolean filterDefaultMethods) throws InvalidBindingException {

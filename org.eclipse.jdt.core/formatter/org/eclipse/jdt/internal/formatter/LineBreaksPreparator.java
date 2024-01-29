@@ -302,12 +302,10 @@ public class LineBreaksPreparator extends ASTVisitor {
 			return true; // braces have been handled in #visit(MethodDeclaration)
 
 		String bracePosition = this.options.brace_position_for_block;
-		if (parent instanceof SwitchStatement) {
-			List<Statement> siblings = ((SwitchStatement) parent).statements();
-			int blockPosition = siblings.indexOf(node);
-			boolean isFirstInCase = blockPosition > 0 && (siblings.get(blockPosition - 1) instanceof SwitchCase);
-			if (isFirstInCase)
-				bracePosition = this.options.brace_position_for_block_in_case;
+		if (parent instanceof SwitchStatement sw) {
+			bracePosition = getBracePositionInSwitch(node, sw.statements());
+		} else if (parent instanceof SwitchExpression se) {
+			bracePosition = getBracePositionInSwitch(node, se.statements());
 		} else if (parent instanceof LambdaExpression) {
 			bracePosition = this.options.brace_position_for_lambda_body;
 		}
@@ -321,6 +319,15 @@ public class LineBreaksPreparator extends ASTVisitor {
 		}
 
 		return true;
+	}
+
+	private String getBracePositionInSwitch(Block node, List<Statement> siblings) {
+		int blockPosition = siblings.indexOf(node);
+		if (blockPosition > 0 && siblings.get(blockPosition - 1) instanceof SwitchCase switchCase) {
+			return switchCase.isSwitchLabeledRule() ? this.options.brace_position_for_block_in_case_after_arrow
+					: this.options.brace_position_for_block_in_case;
+		}
+		return this.options.brace_position_for_block;
 	}
 
 	private void blankLinesAroundBlock(ASTNode blockStatement, List<ASTNode> siblings) {

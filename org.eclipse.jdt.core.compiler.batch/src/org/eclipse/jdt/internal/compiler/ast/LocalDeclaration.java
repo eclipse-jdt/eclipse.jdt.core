@@ -47,12 +47,24 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference.AnnotationCollector;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
-import org.eclipse.jdt.internal.compiler.codegen.*;
-import org.eclipse.jdt.internal.compiler.flow.*;
-import org.eclipse.jdt.internal.compiler.lookup.*;
+import org.eclipse.jdt.internal.compiler.codegen.AnnotationContext;
+import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
+import org.eclipse.jdt.internal.compiler.flow.FlowContext;
+import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
+import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
+import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
+import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.Scope;
+import org.eclipse.jdt.internal.compiler.lookup.TagBits;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
+import org.eclipse.jdt.internal.compiler.lookup.TypeBindingVisitor;
+import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
 
 public class LocalDeclaration extends AbstractVariableDeclaration {
@@ -82,14 +94,16 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	this.initialization.checkNPEbyUnboxing(currentScope, flowContext, flowInfo);
 
 	FlowInfo preInitInfo = null;
+	CompilerOptions compilerOptions = currentScope.compilerOptions();
 	boolean shouldAnalyseResource = this.binding != null
 			&& flowInfo.reachMode() == FlowInfo.REACHABLE
-			&& currentScope.compilerOptions().analyseResourceLeaks
+			&& compilerOptions.analyseResourceLeaks
 			&& FakedTrackingVariable.isAnyCloseable(this.initialization.resolvedType);
 	if (shouldAnalyseResource) {
 		preInitInfo = flowInfo.unconditionalCopy();
 		// analysis of resource leaks needs additional context while analyzing the RHS:
-		FakedTrackingVariable.preConnectTrackerAcrossAssignment(this, this.binding, this.initialization, flowInfo);
+		FakedTrackingVariable.preConnectTrackerAcrossAssignment(this, this.binding, this.initialization, flowInfo,
+				compilerOptions.isAnnotationBasedResourceAnalysisEnabled);
 	}
 
 	flowInfo =
@@ -109,7 +123,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		this.bits &= ~FirstAssignmentToLocal;  // int i = (i = 0);
 	}
 	flowInfo.markAsDefinitelyAssigned(this.binding);
-	if (currentScope.compilerOptions().isAnnotationBasedNullAnalysisEnabled) {
+	if (compilerOptions.isAnnotationBasedNullAnalysisEnabled) {
 		nullStatus = NullAnnotationMatching.checkAssignment(currentScope, flowContext, this.binding, flowInfo, nullStatus, this.initialization, this.initialization.resolvedType);
 	}
 	if ((this.binding.type.tagBits & TagBits.IsBaseType) == 0) {
@@ -137,7 +151,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	 */
 	@Override
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
-
 		// even if not reachable, variable must be added to visible if allocated (28298)
 		if (this.binding.resolvedPosition != -1) {
 			codeStream.addVisibleLocalVariable(this.binding);
@@ -258,9 +271,12 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	public void resolve(BlockScope scope) {
 		resolve(scope, false);
 	}
-	public void resolve(BlockScope scope, boolean isPatternVariable) {
-		// prescan NNBD
+	public void resolve(BlockScope scope, boolean isPatternVariable) {		// prescan NNBD
 		handleNonNullByDefault(scope, this.annotations, this);
+
+		if (!isPatternVariable && (this.bits & ASTNode.IsForeachElementVariable) == 0 && this.initialization == null && this.isUnnamed(scope)) {
+			scope.problemReporter().unnamedVariableMustHaveInitializer(this);
+		}
 
 		TypeBinding variableType = null;
 		boolean variableTypeInferenceError = false;
@@ -299,12 +315,16 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		}
 
 		Binding existingVariable = scope.getBinding(this.name, Binding.VARIABLE, this, false /*do not resolve hidden field*/);
-		if (existingVariable != null && existingVariable.isValidBinding()){
+		if (existingVariable != null && existingVariable.isValidBinding() && !this.isUnnamed(scope)) {
 			boolean localExists = existingVariable instanceof LocalVariableBinding;
 			if (localExists && (this.bits & ASTNode.ShadowsOuterLocal) != 0 && scope.isLambdaSubscope() && this.hiddenVariableDepth == 0) {
 				scope.problemReporter().lambdaRedeclaresLocal(this);
 			} else if (localExists && this.hiddenVariableDepth == 0) {
-				scope.problemReporter().redefineLocal(this);
+				if (existingVariable.isPatternVariable()) {
+					scope.problemReporter().illegalRedeclarationOfPatternVar((LocalVariableBinding) existingVariable, this);
+				} else {
+					scope.problemReporter().redefineLocal(this);
+				}
 			} else {
 				scope.problemReporter().localVariableHiding(this, existingVariable, false);
 			}
@@ -482,7 +502,9 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				for (int i = 0; i < annotationsLength; i++)
 					this.annotations[i].traverse(visitor, scope);
 			}
-			this.type.traverse(visitor, scope);
+			if (this.type != null) {
+				this.type.traverse(visitor, scope);
+			}
 			if (this.initialization != null)
 				this.initialization.traverse(visitor, scope);
 		}

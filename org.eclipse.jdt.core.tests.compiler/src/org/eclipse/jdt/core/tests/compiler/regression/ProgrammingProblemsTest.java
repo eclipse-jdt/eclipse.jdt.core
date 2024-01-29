@@ -3322,4 +3322,44 @@ public void testBug513310() {
 		}
 	);
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/567
+// Report unused variable for variables declared in instanceof pattern
+public void testGH567() {
+	if (this.complianceLevel < ClassFileConstants.JDK21)
+		return;
+	Map customOptions = getCompilerOptions();
+	customOptions.put(CompilerOptions.OPTION_ReportUnusedLocal, CompilerOptions.WARNING);
+	this.runNegativeTest(
+			new String[] {
+				"X.java",
+				"class X {\n" +
+				"    record Point (int x, int y) {}\n" +
+				"    void foo(Object o) {\n" +
+				"        if (o instanceof String s) { int x; }\n" +
+				"        if (o instanceof Point (int xVal, int yVal)) {}\n" +  // Should not report as unused locals - structurally required
+				"        switch (o) {\n" +
+				"					case String c : \n" + // Should not report as unused local - structurally required
+				"						break;\n" +
+				"					default :\n" +
+				"							break;\n" +
+				"					}" +
+				"        if (o instanceof String str) {  str.length();  }\n" + // str refenced.
+				"    }\n" +
+				"}"
+			},
+			"----------\n"
+			+ "1. WARNING in X.java (at line 4)\n"
+			+ "	if (o instanceof String s) { int x; }\n"
+			+ "	                        ^\n"
+			+ "The value of the local variable s is not used\n"
+			+ "----------\n"
+			+ "2. WARNING in X.java (at line 4)\n"
+			+ "	if (o instanceof String s) { int x; }\n"
+			+ "	                                 ^\n"
+			+ "The value of the local variable x is not used\n"
+			+ "----------\n",
+			null/*classLibraries*/,
+			true/*shouldFlushOutputDirectory*/,
+			customOptions);
+}
 }

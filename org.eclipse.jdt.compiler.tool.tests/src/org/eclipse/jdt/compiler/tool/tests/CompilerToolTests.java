@@ -561,7 +561,7 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 		printWriter.flush();
 		printWriter.close();
 		if (!result.booleanValue()) {
-		System.err.println("Compilation failed: " + stringWriter.getBuffer().toString());
+			System.err.println("Compilation failed: " + stringWriter.getBuffer().toString());
 			assertTrue("Compilation failed ", false);
 		}
 		// check that the .class file exist for X
@@ -729,7 +729,7 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 		ByteArrayOutputStream errBuffer = new ByteArrayOutputStream();
 		PrintWriter err = new PrintWriter(errBuffer);
 		CompilerInvocationDiagnosticListener compilerInvocationDiagnosticListener = new CompilerInvocationDiagnosticListener(err);
-		CompilationTask task = compiler.getTask(null, manager, compilerInvocationDiagnosticListener, options, null, units);
+		CompilationTask task = compiler.getTask(ignoreOutput(), manager, compilerInvocationDiagnosticListener, options, null, units);
 		// check the classpath location
 		Boolean result = task.call();
 		err.flush();
@@ -848,7 +848,7 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 				super.report(diagnostic);
 			}
 		};
-		CompilationTask task = compiler.getTask(null, manager, compilerInvocationDiagnosticListener, options, null, units);
+		CompilationTask task = compiler.getTask(ignoreOutput(), manager, compilerInvocationDiagnosticListener, options, null, units);
 		// check the classpath location
 		Boolean result = task.call();
 		err.flush();
@@ -860,6 +860,10 @@ static final String[] FAKE_ZERO_ARG_OPTIONS = new String[] {
 		}
 		// check that the .class file exist for X
 		assertTrue("delete failed", inputFile.delete());
+	}
+
+	private PrintWriter ignoreOutput() {
+		return new PrintWriter(new StringWriter());
 	}
 
 	public void testCompilerOneModuleWithEclipseCompiler() {

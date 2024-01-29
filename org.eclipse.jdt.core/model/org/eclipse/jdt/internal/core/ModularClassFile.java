@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
+import org.eclipse.jdt.internal.compiler.env.IElementInfo;
 import org.eclipse.jdt.internal.compiler.env.IBinaryModule;
 import org.eclipse.jdt.internal.compiler.env.IDependent;
 import org.eclipse.jdt.internal.compiler.env.IModule;
@@ -49,7 +50,7 @@ public class ModularClassFile extends AbstractClassFile implements IModularClass
 	 * @see Signature
 	 */
 	@Override
-	protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, Map newElements, IResource underlyingResource) throws JavaModelException {
+	protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, Map<IJavaElement, IElementInfo> newElements, IResource underlyingResource) throws JavaModelException {
 		IBinaryModule moduleInfo = getBinaryModuleInfo();
 		if (moduleInfo == null) {
 			// The structure of a class file is unknown if a class file format errors occurred
@@ -253,7 +254,7 @@ public class ModularClassFile extends AbstractClassFile implements IModularClass
 	 * @see Openable
 	 */
 	@Override
-	protected IBuffer openBuffer(IProgressMonitor pm, Object info) throws JavaModelException {
+	protected IBuffer openBuffer(IProgressMonitor pm, IElementInfo info) throws JavaModelException {
 		SourceMapper mapper = getSourceMapper();
 		if (mapper != null) {
 			return mapSource(mapper);

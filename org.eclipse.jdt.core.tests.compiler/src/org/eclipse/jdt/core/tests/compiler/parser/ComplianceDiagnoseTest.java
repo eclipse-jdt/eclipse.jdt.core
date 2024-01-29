@@ -3234,6 +3234,9 @@ public void testBug399781() {
 	};
 	String usLevel = this.complianceLevel < ClassFileConstants.JDK9 ? "WARNING" : "ERROR";
 	String errorMessage = this.complianceLevel < ClassFileConstants.JDK9 ? "\'_\' should not be used as an identifier, since it is a reserved keyword from source level 1.8 on\n" : "\'_\' is a keyword from source level 9 onwards, cannot be used as identifier\n";
+	if (this.complianceLevel >= ClassFileConstants.JDK21) {
+		errorMessage = "Unnamed Patterns and Variables is a preview feature and disabled by default. Use --enable-preview to enable\n";
+	}
 	String expectedProblemLog =
 			"----------\n" +
 			"1. " + usLevel +" in X.java (at line 2)\n" +

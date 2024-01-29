@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -34,14 +34,14 @@ public class IrritantSet {
 	// Reserve two high bits for selecting the right bit pattern
 	public final static int GROUP_MASK = ASTNode.Bit32 | ASTNode.Bit31 | ASTNode.Bit30;
 	public final static int GROUP_SHIFT = 29;
-	public final static int GROUP_MAX = 3; // can be increased up to 8
+	public final static int GROUP_MAX = 4; // can be increased up to 8
 
 	// Group prefix for irritants
 	public final static int GROUP0 = 0 << GROUP_SHIFT;
 	public final static int GROUP1 = 1 << GROUP_SHIFT;
 	public final static int GROUP2 = 2 << GROUP_SHIFT;
+	public final static int GROUP3 = 3 << GROUP_SHIFT;
 	// reveal subsequent groups as needed
-	// public final static int GROUP3 = 3 << GROUP_SHIFT;
 	// public final static int GROUP4 = 4 << GROUP_SHIFT;
 	// public final static int GROUP5 = 5 << GROUP_SHIFT;
 	// public final static int GROUP6 = 6 << GROUP_SHIFT;
@@ -138,7 +138,9 @@ public class IrritantSet {
 				|CompilerOptions.UsingTerminallyDeprecatedAPI
 				|CompilerOptions.APILeak
 				|CompilerOptions.UnstableAutoModuleName
-				|CompilerOptions.PreviewFeatureUsed);
+				|CompilerOptions.PreviewFeatureUsed)
+			.set(CompilerOptions.InsufficientResourceManagement
+				|CompilerOptions.IncompatibleOwningContract);
 		// default errors IF AnnotationBasedNullAnalysis is enabled:
 		COMPILER_DEFAULT_ERRORS.set(
 				CompilerOptions.NullSpecViolation

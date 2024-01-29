@@ -51,7 +51,6 @@ import org.eclipse.jdt.internal.compiler.lookup.BaseTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
-import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
@@ -789,36 +788,6 @@ public void addPatternVariables(BlockScope scope, CodeStream codeStream) {
 public LocalDeclaration getPatternVariable() {
 	return null;
 }
-public void collectPatternVariablesToScope(LocalVariableBinding[] variables, BlockScope scope) {
-	new ASTVisitor() {
-		LocalVariableBinding[] patternVariablesInScope;
-		@Override
-		public boolean visit(Argument argument, BlockScope skope) {
-			// Most likely to be a lambda parameter
-			argument.addPatternVariablesWhenTrue(this.patternVariablesInScope);
-			return true;
-		}
-		@Override
-		public boolean visit(
-				QualifiedNameReference nameReference,
-				BlockScope skope) {
-			nameReference.addPatternVariablesWhenTrue(this.patternVariablesInScope);
-			return true;
-		}
-		@Override
-		public boolean visit(
-				SingleNameReference nameReference,
-				BlockScope skope) {
-			nameReference.addPatternVariablesWhenTrue(this.patternVariablesInScope);
-			return true;
-		}
-
-		public void propagatePatternVariablesInScope(LocalVariableBinding[] vars, BlockScope skope) {
-			this.patternVariablesInScope = vars;
-			Expression.this.traverse(this, skope);
-		}
-	}.propagatePatternVariablesInScope(variables, scope);
-}
 
 /**
  * Default generation of a boolean value
@@ -1163,19 +1132,22 @@ public TypeBinding resolveExpressionType(BlockScope scope) {
 	return resolveType(scope);
 }
 
-public TypeBinding resolveTypeWithPatternVariablesInScope(LocalVariableBinding[] patternVariablesInScope, BlockScope scope) {
-	if (patternVariablesInScope != null) {
-		for (LocalVariableBinding binding : patternVariablesInScope) {
-			binding.modifiers &= ~ExtraCompilerModifiers.AccPatternVariable;
-		}
+public TypeBinding resolveTypeWithBindings(LocalVariableBinding[] bindings, BlockScope scope) {
+	scope.include(bindings);
+	try {
+		return this.resolveType(scope);
+	} finally {
+		scope.exclude(bindings);
 	}
-	TypeBinding retVal = this.resolveType(scope);
-	if (patternVariablesInScope != null) {
-		for (LocalVariableBinding binding : patternVariablesInScope) {
-			binding.modifiers |= ExtraCompilerModifiers.AccPatternVariable;
-		}
+}
+
+public TypeBinding resolveTypeExpectingWithBindings(LocalVariableBinding[] bindings, BlockScope scope, TypeBinding expectedType) {
+	scope.include(bindings);
+	try {
+		return this.resolveTypeExpecting(scope, expectedType);
+	} finally {
+		scope.exclude(bindings);
 	}
-	return retVal;
 }
 
 /**

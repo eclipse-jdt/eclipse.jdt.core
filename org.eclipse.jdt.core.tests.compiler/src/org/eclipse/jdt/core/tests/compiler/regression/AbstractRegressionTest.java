@@ -1373,7 +1373,7 @@ protected static class JavacTestOptions {
 	}
 
 	protected ClassFileReader getInternalClassFile(String directoryName, String className, String disassembledClassName, String source) throws ClassFormatException, IOException {
-		compileAndDeploy(source, directoryName, className, false);
+		compileAndDeploy(source, directoryName, className, true);
 		try {
 			File directory = new File(EVAL_DIRECTORY, directoryName);
 			if (!directory.exists()) {
@@ -4067,6 +4067,7 @@ protected void runNegativeTest(
 }
 	@Override
 	protected void setUp() throws Exception {
+		System.out.println(this.getClass().getName()+'.'+ getName());
 		super.setUp();
 		if (this.verifier == null) {
 			this.verifier = new TestVerifier(true);

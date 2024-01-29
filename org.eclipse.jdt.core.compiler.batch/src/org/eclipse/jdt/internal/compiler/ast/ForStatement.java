@@ -407,33 +407,39 @@ public class ForStatement extends Statement {
 	}
 
 	@Override
-	public void resolve(BlockScope upperScope) {
-		LocalVariableBinding[] patternVariablesInTrueScope = null;
-		LocalVariableBinding[] patternVariablesInFalseScope = null;
+	public LocalVariableBinding[] bindingsWhenComplete() {
+		return this.condition != null && this.condition.containsPatternVariable() && this.action != null && !this.action.breaksOut(null) ?
+				this.condition.bindingsWhenFalse() : NO_VARIABLES;
+	}
 
-		if (containsPatternVariable()) {
-			this.condition.collectPatternVariablesToScope(null, upperScope);
-			patternVariablesInTrueScope = this.condition.getPatternVariablesWhenTrue();
-			patternVariablesInFalseScope = this.condition.getPatternVariablesWhenFalse();
-		}
+	@Override
+	public void resolve(BlockScope upperScope) {
+		LocalVariableBinding[] patternVariablesInTrueScope = NO_VARIABLES;
+
 		// use the scope that will hold the init declarations
 		this.scope = (this.bits & ASTNode.NeededScope) != 0 ? new BlockScope(upperScope) : upperScope;
 		if (this.initializations != null)
 			for (int i = 0, length = this.initializations.length; i < length; i++)
 				this.initializations[i].resolve(this.scope);
 		if (this.condition != null) {
+			if ((this.bits & ASTNode.NeededScope) != 0) {
+				// We have created a new scope for for-inits and the condition has to be resolved in that scope.
+				// but any pattern variables introduced by the condition may have to survive the for's scope and
+				// so should be "promoted" to the parent scope
+				this.scope.reparentLocals(true);
+			}
 			TypeBinding type = this.condition.resolveTypeExpecting(this.scope, TypeBinding.BOOLEAN);
+			this.scope.reparentLocals(false);
 			this.condition.computeConversion(this.scope, type, type);
+			patternVariablesInTrueScope = this.condition.bindingsWhenTrue();
 		}
 		if (this.increments != null)
 			for (int i = 0, length = this.increments.length; i < length; i++) {
-				this.increments[i].resolveWithPatternVariablesInScope(patternVariablesInTrueScope, this.scope);
+				this.increments[i].resolveWithBindings(patternVariablesInTrueScope, this.scope);
 			}
 
 		if (this.action != null) {
-			this.action.resolveWithPatternVariablesInScope(patternVariablesInTrueScope, this.scope);
-			this.action.promotePatternVariablesIfApplicable(patternVariablesInFalseScope,
-					() -> !this.action.breaksOut(null));
+			this.action.resolveWithBindings(patternVariablesInTrueScope, this.scope);
 		}
 	}
 

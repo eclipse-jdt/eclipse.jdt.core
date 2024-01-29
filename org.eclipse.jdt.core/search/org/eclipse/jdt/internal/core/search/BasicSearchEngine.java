@@ -45,7 +45,6 @@ import org.eclipse.jdt.internal.core.util.Messages;
  * for detailed comment), now uses basic engine functionalities.
  * Note that search basic engine does not implement deprecated functionalities...
  */
-@SuppressWarnings({ "rawtypes", "unchecked" })
 public class BasicSearchEngine {
 
 	/*
@@ -154,11 +153,11 @@ public class BasicSearchEngine {
 	 * @see SearchEngine#createJavaSearchScope(boolean, IJavaElement[], int) for detailed comment.
 	 */
 	public static IJavaSearchScope createJavaSearchScope(boolean excludeTestCode, IJavaElement[] elements, int includeMask) {
-		HashSet projectsToBeAdded = new HashSet(2);
+		Set<JavaProject> projectsToBeAdded = new HashSet<>(2);
 		for (int i = 0, length = elements.length; i < length; i++) {
 			IJavaElement element = elements[i];
-			if (element instanceof JavaProject) {
-				projectsToBeAdded.add(element);
+			if (element instanceof JavaProject p) {
+				projectsToBeAdded.add(p);
 			}
 		}
 		JavaSearchScope scope = new JavaSearchScope(excludeTestCode);
@@ -374,7 +373,7 @@ public class BasicSearchEngine {
 				if (copies == null) {
 					copies = this.workingCopies;
 				} else {
-					HashMap pathToCUs = new HashMap();
+					Map<IPath, ICompilationUnit> pathToCUs = new HashMap<>();
 					for (int i = 0, length = copies.length; i < length; i++) {
 						ICompilationUnit unit = copies[i];
 						pathToCUs.put(unit.getPath(), unit);
@@ -664,7 +663,7 @@ public class BasicSearchEngine {
 					validatedTypeMatchRule);
 
 			// Get working copy path(s). Store in a single string in case of only one to optimize comparison in requestor
-			final HashSet workingCopyPaths = new HashSet();
+			final Set<String> workingCopyPaths = new HashSet<>();
 			String workingCopyPath = null;
 			ICompilationUnit[] copies = getWorkingCopies();
 			final int copiesLength = copies == null ? 0 : copies.length;
@@ -1008,7 +1007,7 @@ public class BasicSearchEngine {
 			final MethodDeclarationPattern pattern = new MethodDeclarationPattern(qualifier, methodName, methodMatchRule);
 
 			// Get working copy path(s). Store in a single string in case of only one to optimize comparison in requestor
-			final HashSet workingCopyPaths = new HashSet();
+			Set<String> workingCopyPaths = new HashSet<>();
 			String workingCopyPath = null;
 			ICompilationUnit[] copies = getWorkingCopies();
 			final int copiesLength = copies == null ? 0 : copies.length;
@@ -1278,7 +1277,7 @@ public class BasicSearchEngine {
 			final MethodDeclarationPattern pattern = new MethodDeclarationPattern(packageName, declaringQualification, declaringSimpleName, methodName, methodMatchRule);
 
 			// Get working copy path(s). Store in a single string in case of only one to optimize comparison in requestor
-			final HashSet workingCopyPaths = new HashSet();
+			Set<String> workingCopyPaths = new HashSet<>();
 			String workingCopyPath = null;
 			ICompilationUnit[] copies = getWorkingCopies();
 			final int copiesLength = copies == null ? 0 : copies.length;
@@ -1634,7 +1633,7 @@ public class BasicSearchEngine {
 			final TypeDeclarationPattern pattern = new SecondaryTypeDeclarationPattern();
 
 			// Get working copy path(s). Store in a single string in case of only one to optimize comparison in requestor
-			final HashSet workingCopyPaths = new HashSet();
+			Set<String> workingCopyPaths = new HashSet<>();
 			String workingCopyPath = null;
 			ICompilationUnit[] copies = getWorkingCopies();
 			final int copiesLength = copies == null ? 0 : copies.length;
@@ -1845,7 +1844,7 @@ public class BasicSearchEngine {
 					validatedTypeMatchRule);
 
 			// Get working copy path(s). Store in a single string in case of only one to optimize comparison in requestor
-			final HashSet workingCopyPaths = new HashSet();
+			Set<String> workingCopyPaths = new HashSet<>();
 			String workingCopyPath = null;
 			ICompilationUnit[] copies = getWorkingCopies();
 			final int copiesLength = copies == null ? 0 : copies.length;
@@ -2097,7 +2096,7 @@ public class BasicSearchEngine {
 			final MultiTypeDeclarationPattern pattern = new MultiTypeDeclarationPattern(qualifications, typeNames, typeSuffix, matchRule);
 
 			// Get working copy path(s). Store in a single string in case of only one to optimize comparison in requestor
-			final HashSet workingCopyPaths = new HashSet();
+			Set<String> workingCopyPaths = new HashSet<>();
 			String workingCopyPath = null;
 			ICompilationUnit[] copies = getWorkingCopies();
 			final int copiesLength = copies == null ? 0 : copies.length;

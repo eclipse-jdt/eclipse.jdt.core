@@ -16,23 +16,25 @@ package org.eclipse.jdt.internal.codeassist.impl;
 import java.util.Map;
 
 import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.internal.compiler.env.IElementInfo;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.core.Initializer;
 import org.eclipse.jdt.internal.core.JavaElement;
 
-@SuppressWarnings("rawtypes")
 public class AssistInitializer extends Initializer {
-	private final Map bindingCache;
-	private final Map infoCache;
-	public AssistInitializer(JavaElement parent, int count, Map bindingCache, Map infoCache) {
+	private final Map<JavaElement, Binding> bindingCache;
+	private final Map<IJavaElement, IElementInfo> infoCache;
+	public AssistInitializer(JavaElement parent, int count, Map<JavaElement, Binding> bindingCache, Map<IJavaElement, IElementInfo> infoCache) {
 		super(parent, count);
 		this.bindingCache = bindingCache;
 		this.infoCache = infoCache;
 	}
 
 	@Override
-	public Object getElementInfo(IProgressMonitor monitor) throws JavaModelException {
+	public IElementInfo getElementInfo(IProgressMonitor monitor) throws JavaModelException {
 		return this.infoCache.get(this);
 	}
 

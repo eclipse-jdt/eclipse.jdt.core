@@ -1108,7 +1108,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 5)\n" +
 				"	String s = null;\n" +
 				"	       ^\n" +
-				"Duplicate local variable s\n" +
+				"A pattern variable with the same name is already defined in the statement\n" +
 				"----------\n");
 	}
 	// Test that compiler allows local variable with same name as a
@@ -1185,7 +1185,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 5)\n" +
 				"	if (o instanceof String s1) {\n" +
 				"	                        ^^\n" +
-				"Duplicate local variable s1\n" +
+				"A pattern variable with the same name is already defined in the statement\n" +
 				"----------\n");
 	}
 	// Test that when multiple case statements declare pattern variables
@@ -3692,7 +3692,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"1. ERROR in X.java (at line 4)\n" +
 				"	case CharSequence c1 when (c instanceof String c1 && c1.length() > 0) -> 0;\n" +
 				"	                                               ^^\n" +
-				"Duplicate local variable c1\n" +
+				"A pattern variable with the same name is already defined in the statement\n" +
 				"----------\n");
 	}
 	// Fails with Javac as it prints Javac instead of throwing NPE
@@ -7118,5 +7118,120 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				+ "Large Triangle : 200.0\n"
 				+ "shape : 100.0\n"
 				+ "NULL");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1853
+	// [switch][pattern] Scope of pattern binding extends illegally resulting in wrong diagnostic
+	public void testGH1853() {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				public class X {
+				    public static void main(String[] args) {
+						Object o = new Object();
+						switch (o) {
+						case String s :
+							if (!(o instanceof String str))
+								throw new RuntimeException();
+						case null :
+							if (!(o instanceof String str))
+								throw new RuntimeException();
+						default:
+				            System.out.println("Default");
+						}
+					}
+				}
+				"""
+			},
+			"Default");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1856
+	// [switch][record patterns] NPE: Cannot invoke "org.eclipse.jdt.internal.compiler.lookup.MethodBinding.isStatic()"
+	public void testGHI1856() {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"""
+					public class X {
+
+						public class Data {
+						    String name;
+						}
+
+						record WrapperRec(ExhaustiveSwitch.Data data) {}
+
+
+						public static void main(String[] args) {
+						    switch (new Object()) {
+						        case WrapperRec(var data) when data.name.isEmpty() -> { }
+						        default -> {}
+						    }
+						}
+					}
+					""",
+				},
+				"----------\n"
+				+ "1. ERROR in X.java (at line 1)\n"
+				+ "	public class X {\n"
+				+ "	^\n"
+				+ "Data cannot be resolved to a type\n"
+				+ "----------\n"
+				+ "2. ERROR in X.java (at line 7)\n"
+				+ "	record WrapperRec(ExhaustiveSwitch.Data data) {}\n"
+				+ "	                  ^^^^^^^^^^^^^^^^\n"
+				+ "ExhaustiveSwitch cannot be resolved to a type\n"
+				+ "----------\n"
+				+ "3. ERROR in X.java (at line 12)\n"
+				+ "	case WrapperRec(var data) when data.name.isEmpty() -> { }\n"
+				+ "	                ^^^\n"
+				+ "Data cannot be resolved to a type\n"
+				+ "----------\n");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1856
+	// [switch][record patterns] NPE: Cannot invoke "org.eclipse.jdt.internal.compiler.lookup.MethodBinding.isStatic()"
+	public void testGHI1856_2() {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"""
+					public class X {
+
+						public class Data {
+						    String name;
+						}
+
+						record WrapperRec(ExhaustiveSwitch.Data data) {}
+
+
+						public static void main(String[] args) {
+						    switch (new Object()) {
+						        case WrapperRec(ExhaustiveSwitch.Data data) when data.name.isEmpty() -> { }
+						        default -> {}
+						    }
+						}
+					}
+					""",
+				},
+				"----------\n"
+				+ "1. ERROR in X.java (at line 1)\n"
+				+ "	public class X {\n"
+				+ "	^\n"
+				+ "Data cannot be resolved to a type\n"
+				+ "----------\n"
+				+ "2. ERROR in X.java (at line 7)\n"
+				+ "	record WrapperRec(ExhaustiveSwitch.Data data) {}\n"
+				+ "	                  ^^^^^^^^^^^^^^^^\n"
+				+ "ExhaustiveSwitch cannot be resolved to a type\n"
+				+ "----------\n"
+				+ "3. ERROR in X.java (at line 12)\n"
+				+ "	case WrapperRec(ExhaustiveSwitch.Data data) when data.name.isEmpty() -> { }\n"
+				+ "	                ^^^^^^^^^^^^^^^^\n"
+				+ "ExhaustiveSwitch cannot be resolved to a type\n"
+				+ "----------\n"
+				+ "4. ERROR in X.java (at line 12)\n"
+				+ "	case WrapperRec(ExhaustiveSwitch.Data data) when data.name.isEmpty() -> { }\n"
+				+ "	                ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
+				+ "Record component with type Data is not compatible with type ExhaustiveSwitch.Data\n"
+				+ "----------\n");
 	}
 }

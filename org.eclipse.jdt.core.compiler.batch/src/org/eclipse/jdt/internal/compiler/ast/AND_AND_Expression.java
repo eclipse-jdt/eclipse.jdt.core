@@ -272,25 +272,22 @@ public class AND_AND_Expression extends BinaryExpression {
 			codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.mergedInitStateIndex);
 		}
 	}
+
 	@Override
-	public void collectPatternVariablesToScope(LocalVariableBinding[] variables, BlockScope scope) {
-		this.addPatternVariablesWhenTrue(variables);
-		// If upper level already supplied positive new vars for us, also make those available to the left expr
-		this.left.addPatternVariablesWhenTrue(this.patternVarsWhenTrue);
+	public LocalVariableBinding[] bindingsWhenTrue() {
 
-		this.left.collectPatternVariablesToScope(this.patternVarsWhenTrue, scope);
+		LocalVariableBinding [] leftVars =  this.left.bindingsWhenTrue();
+		LocalVariableBinding [] rightVars = this.right.bindingsWhenTrue();
 
-		variables = this.left.getPatternVariablesWhenTrue();
-		this.addPatternVariablesWhenTrue(variables);
-		this.right.addPatternVariablesWhenTrue(variables);
+		if (leftVars == NO_VARIABLES)
+			return rightVars;
 
-		variables = this.left.getPatternVariablesWhenFalse();
-		this.right.addPatternVariablesWhenFalse(variables);
+		if (rightVars == NO_VARIABLES)
+			return leftVars;
 
-		this.right.collectPatternVariablesToScope(this.patternVarsWhenTrue, scope);
-		variables = this.right.getPatternVariablesWhenTrue();
-		this.addPatternVariablesWhenTrue(variables);
+		return LocalVariableBinding.merge(leftVars, rightVars);
 	}
+
 	@Override
 	public boolean isCompactableOperation() {
 		return false;

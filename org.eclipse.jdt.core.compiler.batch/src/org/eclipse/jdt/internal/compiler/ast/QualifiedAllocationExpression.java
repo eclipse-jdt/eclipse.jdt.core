@@ -130,8 +130,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			for (int i = 0, count = this.arguments.length; i < count; i++) {
 				flowInfo = this.arguments[i].analyseCode(currentScope, flowContext, flowInfo);
 				if (analyseResources && !hasResourceWrapperType) { // allocation of wrapped closeables is analyzed specially
-					// if argument is an AutoCloseable insert info that it *may* be closed (by the target method, i.e.)
-					flowInfo = FakedTrackingVariable.markPassedToOutside(currentScope, this.arguments[i], flowInfo, flowContext, false);
+					flowInfo = handleResourcePassedToInvocation(currentScope, this.binding, this.arguments[i], i, flowContext, flowInfo);
 				}
 				this.arguments[i].checkNPEbyUnboxing(currentScope, flowContext, flowInfo);
 			}
@@ -160,7 +159,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 
 		// after having analysed exceptions above start tracking newly allocated resource:
 		if (currentScope.compilerOptions().analyseResourceLeaks && FakedTrackingVariable.isAnyCloseable(this.resolvedType)) {
-			FakedTrackingVariable.analyseCloseableAllocation(currentScope, flowInfo, this);
+			FakedTrackingVariable.analyseCloseableAllocation(currentScope, flowInfo, flowContext, this);
 		}
 
 		manageEnclosingInstanceAccessIfNecessary(currentScope, flowInfo);

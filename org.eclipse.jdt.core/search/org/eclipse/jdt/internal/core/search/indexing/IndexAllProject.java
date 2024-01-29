@@ -18,6 +18,7 @@ import static org.eclipse.jdt.internal.core.JavaModelManager.trace;
 import java.io.IOException;
 import java.net.URI;
 import java.util.HashSet;
+import java.util.Set;
 
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.resources.IFile;
@@ -39,7 +40,6 @@ import org.eclipse.jdt.internal.core.index.Index;
 import org.eclipse.jdt.internal.core.search.processing.JobManager;
 import org.eclipse.jdt.internal.core.util.Util;
 
-@SuppressWarnings({"rawtypes", "unchecked"})
 public class IndexAllProject extends IndexRequest {
 	IProject project;
 
@@ -126,7 +126,7 @@ public class IndexAllProject extends IndexRequest {
 				if (sourceFolder != null) {
 
 					// collect output locations if source is project (see http://bugs.eclipse.org/bugs/show_bug.cgi?id=32041)
-					final HashSet outputs = new HashSet();
+					final Set<IPath> outputs = new HashSet<>();
 					if (sourceFolder.getType() == IResource.PROJECT) {
 						// Do not create marker while getting output location (see bug 41859)
 						outputs.add(javaProject.getOutputLocation());

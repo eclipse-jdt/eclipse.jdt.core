@@ -49,6 +49,7 @@ import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.CatchParameterBinding;
+import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
@@ -175,6 +176,25 @@ public void recordNullCheckedFieldReference(Reference reference, int timeToLive)
 		this.nullCheckedFieldReferences[len] = reference;
 		this.timesToLiveForNullCheckInfo[len] = timeToLive;
 	}
+}
+
+public FieldBinding[] nullCheckedFields() {
+	if (this.nullCheckedFieldReferences == null)
+		return Binding.NO_FIELDS;
+	int len = this.nullCheckedFieldReferences.length;
+	// insert into first empty slot:
+	int count = 0;
+	for (int i=0; i<len; i++) {
+		if (this.nullCheckedFieldReferences[i] != null)
+			count++;
+	}
+	FieldBinding[] result = new FieldBinding[count];
+	count = 0;
+	for (int i=0; i<len; i++) {
+		if (this.nullCheckedFieldReferences[i] != null)
+			result[count++] = this.nullCheckedFieldReferences[i].fieldBinding();
+	}
+	return result;
 }
 
 /** If a null checked field has been recorded recently, increase its time to live. */

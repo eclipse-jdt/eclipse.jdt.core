@@ -543,13 +543,13 @@ public MethodBinding createDefaultConstructorWithBinding(MethodBinding inherited
 			sourceType); //declaringClass
 	constructor.binding.tagBits |= (inheritedConstructorBinding.tagBits & TagBits.HasMissingType);
 	constructor.binding.modifiers |= ExtraCompilerModifiers.AccIsDefaultConstructor;
-	if (inheritedConstructorBinding.parameterNonNullness != null // this implies that annotation based null analysis is enabled
+	if (inheritedConstructorBinding.parameterFlowBits != null // this implies that annotation based null/resource analysis is enabled
 			&& argumentsLength > 0)
 	{
-		// copy nullness info from inherited constructor to the new constructor:
-		int len = inheritedConstructorBinding.parameterNonNullness.length;
-		System.arraycopy(inheritedConstructorBinding.parameterNonNullness, 0,
-				constructor.binding.parameterNonNullness = new Boolean[len], 0, len);
+		// copy flowbits from inherited constructor to the new constructor:
+		int len = inheritedConstructorBinding.parameterFlowBits.length;
+		System.arraycopy(inheritedConstructorBinding.parameterFlowBits, 0,
+				constructor.binding.parameterFlowBits = new byte[len], 0, len);
 	}
 	// TODO(stephan): do argument types already carry sufficient info about type annotations?
 
@@ -859,6 +859,10 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 		}
 	}
 
+	boolean useOwningAnnotations = this.scope.compilerOptions().isAnnotationBasedResourceAnalysisEnabled;
+	boolean isCloseable = this.binding.hasTypeBit(TypeIds.BitAutoCloseable|TypeIds.BitCloseable);
+	FieldDeclaration fieldNeedingClose = null;
+
 	// for local classes we use the flowContext as our parent, but never use an initialization context for this purpose
 	// see Bug 360328 - [compiler][null] detect null problems in nested code (local class inside a loop)
 	FlowContext parentContext = (flowContext instanceof InitializationFlowContext) ? null : flowContext;
@@ -901,6 +905,9 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 				if (nonStaticFieldInfo == FlowInfo.DEAD_END) {
 					this.initializerScope.problemReporter().initializerMustCompleteNormally(field);
 					nonStaticFieldInfo = FlowInfo.initial(this.maxFieldCount).setReachMode(FlowInfo.UNREACHABLE_OR_DEAD);
+				}
+				if (fieldNeedingClose == null && useOwningAnnotations && isCloseable && (field.binding.tagBits & TagBits.AnnotationOwning) != 0) {
+					fieldNeedingClose = field;
 				}
 			}
 		}
@@ -955,8 +962,14 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 				}
 				// pass down the parentContext (NOT an initializer context, see above):
 				((MethodDeclaration)method).analyseCode(this.scope, parentContext, flowInfo.copy());
+				if (fieldNeedingClose != null && CharOperation.equals(TypeConstants.CLOSE, method.selector) && method.arguments == null) {
+					fieldNeedingClose = null;
+				}
 			}
 		}
+	}
+	if (fieldNeedingClose != null) {
+		this.scope.problemReporter().missingImplementationOfClose(fieldNeedingClose);
 	}
 	// enable enum support ?
 	if (this.binding.isEnum() && !this.binding.isAnonymousType()) {
@@ -999,7 +1012,7 @@ private void addJUnitMethodSourceValues(SimpleSetOfCharArray junitMethodSourceVa
 
 private char[] getValueAsChars(Expression value) {
 	if (value instanceof StringLiteral) { // e.g. "someMethod"
-		return ((StringLiteral) value).source;
+		return ((StringLiteral) value).source();
 	} else if (value.constant instanceof StringConstant) { // e.g. SOME_CONSTANT + "value"
 		return ((StringConstant) value.constant).stringValue().toCharArray();
 	}
@@ -1910,6 +1923,9 @@ public void updateSupertypesWithAnnotations(Map<ReferenceBinding,ReferenceBindin
 		for (TypeDeclaration memberTypesDecl : this.memberTypes) {
 			memberTypesDecl.updateSupertypesWithAnnotations(updates);
 		}
+	}
+	if (this.scope.compilerOptions().isAnnotationBasedResourceAnalysisEnabled) {
+		this.binding.detectWrapperResource(); // needs field an methods built
 	}
 }
 

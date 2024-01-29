@@ -1336,10 +1336,10 @@ class ASTConverter {
 				&& ((expression.left.bits & org.eclipse.jdt.internal.compiler.ast.ASTNode.ParenthesizedMASK) == 0)
 				&& (OperatorIds.PLUS == expressionOperatorID)) {
 			StringLiteralConcatenation literal = (StringLiteralConcatenation) expression.left;
-			final org.eclipse.jdt.internal.compiler.ast.Expression[] stringLiterals = literal.literals;
+			final org.eclipse.jdt.internal.compiler.ast.Expression[] stringLiterals = literal.getLiterals();
 			infixExpression.setLeftOperand(convert(stringLiterals[0]));
 			infixExpression.setRightOperand(convert(stringLiterals[1]));
-			for (int i = 2; i < literal.counter; i++) {
+			for (int i = 2; i < stringLiterals.length; i++) {
 				infixExpression.extendedOperands().add(convert(stringLiterals[i]));
 			}
 			infixExpression.extendedOperands().add(convert(expression.right));
@@ -2063,9 +2063,6 @@ class ASTConverter {
 		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.TemplateExpression templateExpr) {
 			return convert(templateExpr);
 		}
-		if (expression instanceof org.eclipse.jdt.internal.compiler.ast.StringTemplate template) {
-			return convert(template);
-		}
 		return null;
 	}
 	public StringTemplateExpression convert(org.eclipse.jdt.internal.compiler.ast.TemplateExpression expression) {
@@ -2087,7 +2084,7 @@ class ASTConverter {
 		if (this.resolveBindings) {
 			this.recordNodes(literal, expression);
 		}
-		literal.internalSetEscapedValue(new String(expression.source));
+		literal.internalSetEscapedValue(new String(expression.source()));
 		literal.setSourceRange(expression.sourceStart, expression.sourceEnd - expression.sourceStart + 1);
 		return literal;
 	}
@@ -2203,33 +2200,18 @@ class ASTConverter {
 			case AST.JLS2_INTERNAL :
 				return createFakeEmptyStatement(statement);
 			default :
-				if (statement.pattern != null) {
-					EnhancedForWithRecordPattern enhancedFor = new EnhancedForWithRecordPattern(this.ast);
-					enhancedFor.setPattern((RecordPattern) convert(statement.pattern));
-					org.eclipse.jdt.internal.compiler.ast.Expression collection = statement.collection;
-					if (collection == null) return null;
-					enhancedFor.setExpression(convert(collection));
-					final Statement action = convert(statement.originalAction);
-					if (action == null) return null;
-					enhancedFor.setBody(action);
-					int start = statement.sourceStart;
-					int end = statement.sourceEnd;
-					enhancedFor.setSourceRange(start, end - start + 1);
-					return enhancedFor;
-				} else {
-					EnhancedForStatement enhancedForStatement = new EnhancedForStatement(this.ast);
-					enhancedForStatement.setParameter(convertToSingleVariableDeclaration(statement.elementVariable));
-					org.eclipse.jdt.internal.compiler.ast.Expression collection = statement.collection;
-					if (collection == null) return null;
-					enhancedForStatement.setExpression(convert(collection));
-					final Statement action = convert(statement.action);
-					if (action == null) return null;
-					enhancedForStatement.setBody(action);
-					int start = statement.sourceStart;
-					int end = statement.sourceEnd;
-					enhancedForStatement.setSourceRange(start, end - start + 1);
-					return enhancedForStatement;
-				}
+				EnhancedForStatement enhancedForStatement = new EnhancedForStatement(this.ast);
+				enhancedForStatement.setParameter(convertToSingleVariableDeclaration(statement.elementVariable));
+				org.eclipse.jdt.internal.compiler.ast.Expression collection = statement.collection;
+				if (collection == null) return null;
+				enhancedForStatement.setExpression(convert(collection));
+				final Statement action = convert(statement.action);
+				if (action == null) return null;
+				enhancedForStatement.setBody(action);
+				int start = statement.sourceStart;
+				int end = statement.sourceEnd;
+				enhancedForStatement.setSourceRange(start, end - start + 1);
+				return enhancedForStatement;
 		}
 	}
 
@@ -2719,10 +2701,10 @@ class ASTConverter {
 		expression.computeConstant();
 		final InfixExpression infixExpression = new InfixExpression(this.ast);
 		infixExpression.setOperator(InfixExpression.Operator.PLUS);
-		org.eclipse.jdt.internal.compiler.ast.Expression[] stringLiterals = expression.literals;
+		org.eclipse.jdt.internal.compiler.ast.Expression[] stringLiterals = expression.getLiterals();
 		infixExpression.setLeftOperand(convert(stringLiterals[0]));
 		infixExpression.setRightOperand(convert(stringLiterals[1]));
-		for (int i = 2; i < expression.counter; i++) {
+		for (int i = 2; i < stringLiterals.length; i++) {
 			infixExpression.extendedOperands().add(convert(stringLiterals[i]));
 		}
 		if (this.resolveBindings) {

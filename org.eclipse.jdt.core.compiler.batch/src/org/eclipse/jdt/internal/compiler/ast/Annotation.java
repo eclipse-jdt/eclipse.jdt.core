@@ -428,14 +428,23 @@ public abstract class Annotation extends Expression {
 				tagBits |= TagBits.AnnotationPolymorphicSignature;
 				break;
 		}
-		if (annotationType.hasNullBit(TypeIds.BitNullableAnnotation)) {
-			tagBits |= TagBits.AnnotationNullable;
-		} else if (annotationType.hasNullBit(TypeIds.BitNonNullAnnotation)) {
-			tagBits |= TagBits.AnnotationNonNull;
-		} else if (annotationType.hasNullBit(TypeIds.BitNonNullByDefaultAnnotation)) {
-			tagBits |= determineNonNullByDefaultTagBits(annotationType, valueAttribute);
+		CompilerOptions compilerOptions = scope.compilerOptions();
+		if (compilerOptions.isAnnotationBasedNullAnalysisEnabled) {
+			if (annotationType.hasNullBit(TypeIds.BitNullableAnnotation)) {
+				tagBits |= TagBits.AnnotationNullable;
+			} else if (annotationType.hasNullBit(TypeIds.BitNonNullAnnotation)) {
+				tagBits |= TagBits.AnnotationNonNull;
+			} else if (annotationType.hasNullBit(TypeIds.BitNonNullByDefaultAnnotation)) {
+				tagBits |= determineNonNullByDefaultTagBits(annotationType, valueAttribute);
+			}
 		}
-
+		if (compilerOptions.isAnnotationBasedResourceAnalysisEnabled) {
+			if (annotationType.hasTypeBit(TypeIds.BitOwningAnnotation)) {
+				tagBits |= TagBits.AnnotationOwning;
+			} else if (annotationType.hasTypeBit(TypeIds.BitNotOwningAnnotation)) {
+				tagBits |= TagBits.AnnotationNotOwning;
+			}
+		}
 		return tagBits;
 	}
 

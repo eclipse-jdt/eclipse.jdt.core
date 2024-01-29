@@ -186,6 +186,7 @@ public class DefaultCodeFormatterOptions {
 	public String brace_position_for_array_initializer;
 	public String brace_position_for_block;
 	public String brace_position_for_block_in_case;
+	public String brace_position_for_block_in_case_after_arrow;
 	public String brace_position_for_constructor_declaration;
 	public String brace_position_for_enum_constant;
 	public String brace_position_for_enum_declaration;
@@ -637,6 +638,7 @@ public class DefaultCodeFormatterOptions {
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_ARRAY_INITIALIZER, this.brace_position_for_array_initializer);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_BLOCK, this.brace_position_for_block);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_BLOCK_IN_CASE, this.brace_position_for_block_in_case);
+		options.put(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_BLOCK_IN_CASE_AFTER_ARROW, this.brace_position_for_block_in_case_after_arrow);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_CONSTRUCTOR_DECLARATION, this.brace_position_for_constructor_declaration);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_ENUM_CONSTANT, this.brace_position_for_enum_constant);
 		options.put(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_ENUM_DECLARATION, this.brace_position_for_enum_declaration);
@@ -1326,6 +1328,8 @@ public class DefaultCodeFormatterOptions {
 				this.brace_position_for_block_in_case = DefaultCodeFormatterConstants.END_OF_LINE;
 			}
 		}
+		setString(settings, DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_BLOCK_IN_CASE_AFTER_ARROW, BRACE_POSITION_VALUES,
+				v -> this.brace_position_for_block_in_case_after_arrow = v);
 		final Object bracePositionForConstructorDeclarationOption = settings.get(DefaultCodeFormatterConstants.FORMATTER_BRACE_POSITION_FOR_CONSTRUCTOR_DECLARATION);
 		if (bracePositionForConstructorDeclarationOption != null) {
 			try {
@@ -3035,6 +3039,7 @@ public class DefaultCodeFormatterOptions {
 		this.brace_position_for_array_initializer = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.brace_position_for_block = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.brace_position_for_block_in_case = DefaultCodeFormatterConstants.END_OF_LINE;
+		this.brace_position_for_block_in_case_after_arrow = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.brace_position_for_constructor_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.brace_position_for_enum_constant = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.brace_position_for_enum_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
@@ -3439,6 +3444,7 @@ public class DefaultCodeFormatterOptions {
 		this.brace_position_for_array_initializer = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.brace_position_for_block = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.brace_position_for_block_in_case = DefaultCodeFormatterConstants.END_OF_LINE;
+		this.brace_position_for_block_in_case_after_arrow = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.brace_position_for_constructor_declaration = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.brace_position_for_enum_constant = DefaultCodeFormatterConstants.END_OF_LINE;
 		this.brace_position_for_enum_declaration = DefaultCodeFormatterConstants.END_OF_LINE;

@@ -68,25 +68,38 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 
 	FlowInfo preInitInfo = null;
 	CompilerOptions compilerOptions = currentScope.compilerOptions();
-	boolean shouldAnalyseResource = local != null
-			&& flowInfo.reachMode() == FlowInfo.REACHABLE
+	boolean shouldAnalyseResource = false;
+	if (flowInfo.reachMode() == FlowInfo.REACHABLE
 			&& compilerOptions.analyseResourceLeaks
 			&& (FakedTrackingVariable.isAnyCloseable(this.expression.resolvedType)
-					|| this.expression.resolvedType == TypeBinding.NULL);
-	if (shouldAnalyseResource) {
+					|| this.expression.resolvedType == TypeBinding.NULL))
+	{
+		shouldAnalyseResource = local != null
+				|| ((this.lhs.bits & Binding.FIELD) != 0 & compilerOptions.isAnnotationBasedResourceAnalysisEnabled);
+	}
+
+	if (shouldAnalyseResource && local != null) {
 		preInitInfo = flowInfo.unconditionalCopy();
-		// analysis of resource leaks needs additional context while analyzing the RHS:
-		FakedTrackingVariable.preConnectTrackerAcrossAssignment(this, local, this.expression, flowInfo);
+		// analysis of resource leaks needs additional context while analyzing the RHS of assignment to local:
+		FakedTrackingVariable.preConnectTrackerAcrossAssignment(this, local, this.expression, flowInfo, compilerOptions.isAnnotationBasedResourceAnalysisEnabled);
 	}
 
 	flowInfo = ((Reference) this.lhs)
 		.analyseAssignment(currentScope, flowContext, flowInfo, this, false)
 		.unconditionalInits();
 
-	if (shouldAnalyseResource)
-		FakedTrackingVariable.handleResourceAssignment(currentScope, preInitInfo, flowInfo, flowContext, this, this.expression, local);
-	else
+	if (shouldAnalyseResource) {
+		if (local != null) {
+			// assignment to local
+			FakedTrackingVariable.handleResourceAssignment(currentScope, preInitInfo, flowInfo, flowContext, this, this.expression, local);
+		} else {
+			// assignment to field
+			FakedTrackingVariable.handleResourceFieldAssignment(currentScope, flowInfo, flowContext, this, this.expression);
+			FakedTrackingVariable.cleanUpAfterAssignment(currentScope, this.lhs.bits, this.expression);
+		}
+	} else {
 		FakedTrackingVariable.cleanUpAfterAssignment(currentScope, this.lhs.bits, this.expression);
+	}
 
 	int nullStatus = this.expression.nullStatus(flowInfo, flowContext);
 	if (local != null && (local.type.tagBits & TagBits.IsBaseType) == 0) {

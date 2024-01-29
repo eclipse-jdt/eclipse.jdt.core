@@ -56,5 +56,5 @@ public interface ExtraCompilerModifiers { // modifier constant
 	final int AccOverriding = ASTNode.Bit29; // record fact a method overrides another one
 	final int AccImplementing = ASTNode.Bit30; // record fact a method implements another one (it is concrete and overrides an abstract one)
 	final int AccGenericSignature = ASTNode.Bit31; // record fact a type/method/field involves generics in its signature (and need special signature attr)
-	final int AccPatternVariable = ASTNode.Bit29;
+	final int AccOutOfFlowScope = ASTNode.Bit29;
 }

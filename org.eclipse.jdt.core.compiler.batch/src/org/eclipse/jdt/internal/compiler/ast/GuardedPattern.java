@@ -39,17 +39,16 @@ public class GuardedPattern extends Pattern {
 		this.sourceStart = primaryPattern.sourceStart;
 		this.sourceEnd = conditionalAndExpression.sourceEnd;
 	}
-	@Override
-	public void collectPatternVariablesToScope(LocalVariableBinding[] variables, BlockScope scope) {
-		this.primaryPattern.collectPatternVariablesToScope(variables, scope);
-		addPatternVariablesWhenTrue(this.primaryPattern.getPatternVariablesWhenTrue());
-		this.condition.collectPatternVariablesToScope(getPatternVariablesWhenTrue(), scope);
-		addPatternVariablesWhenTrue(this.condition.getPatternVariablesWhenTrue());
-	}
 
 	@Override
 	public LocalDeclaration getPatternVariable() {
 		return this.primaryPattern.getPatternVariable();
+	}
+
+	@Override
+	public LocalVariableBinding[] bindingsWhenTrue() {
+		return LocalVariableBinding.merge(this.primaryPattern.bindingsWhenTrue(),
+											this.condition.bindingsWhenTrue());
 	}
 
 	@Override
@@ -132,7 +131,7 @@ public class GuardedPattern extends Pattern {
 		// The following call (as opposed to resolveType() ensures that
 		// the implicitConversion code is set properly and thus the correct
 		// unboxing calls are generated.
-		this.condition.resolveTypeExpecting(scope, TypeBinding.BOOLEAN);
+		this.condition.resolveTypeExpectingWithBindings(this.primaryPattern.bindingsWhenTrue(), scope, TypeBinding.BOOLEAN);
 		Constant cst = this.condition.optimizedBooleanConstant();
 		if (cst.typeID() == TypeIds.T_boolean && cst.booleanValue() == false) {
 			scope.problemReporter().falseLiteralInGuard(this.condition);

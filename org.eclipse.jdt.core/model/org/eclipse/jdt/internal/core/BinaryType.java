@@ -27,6 +27,7 @@ import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.env.IElementInfo;
 import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
@@ -181,7 +182,7 @@ public IMethod[] findMethods(IMethod method) {
 }
 @Override
 public IAnnotation[] getAnnotations() throws JavaModelException {
-	IBinaryType info = (IBinaryType) getElementInfo();
+	IBinaryType info = getElementInfo();
 	IBinaryAnnotation[] binaryAnnotations = info.getAnnotations();
 	return getAnnotations(binaryAnnotations, info.getTagBits());
 }
@@ -236,7 +237,7 @@ public IType getDeclaringType() {
 	IClassFile classFile = getClassFile();
 	if (classFile.isOpen()) {
 		try {
-			char[] enclosingTypeName = ((IBinaryType) getElementInfo()).getEnclosingTypeName();
+			char[] enclosingTypeName = getElementInfo().getEnclosingTypeName();
 			if (enclosingTypeName == null) {
 				return null;
 			}
@@ -281,9 +282,9 @@ public IType getDeclaringType() {
 	}
 }
 @Override
-public Object getElementInfo(IProgressMonitor monitor) throws JavaModelException {
+public IElementInfo getElementInfo(IProgressMonitor monitor) throws JavaModelException {
 	JavaModelManager manager = JavaModelManager.getJavaModelManager();
-	Object info = manager.getInfo(this);
+	IElementInfo info = manager.getInfo(this);
 	if (info != null && info != JavaModelCache.NON_EXISTING_JAR_TYPE_INFO) return info;
 	return openWhenClosed(createElementInfo(), false, monitor);
 }
@@ -350,7 +351,7 @@ public IField getRecordComponent(String compName) {
 }
 @Override
 public int getFlags() throws JavaModelException {
-	IBinaryType info = (IBinaryType) getElementInfo();
+	IBinaryType info = getElementInfo();
 	return info.getModifiers() & ~ClassFileConstants.AccSuper;
 }
 
@@ -519,7 +520,7 @@ public IPackageFragment getPackageFragment() {
  */
 @Override
 public String getSuperclassTypeSignature() throws JavaModelException {
-	IBinaryType info = (IBinaryType) getElementInfo();
+	IBinaryType info = getElementInfo();
 	char[] genericSignature = info.getGenericSignature();
 	if (genericSignature != null) {
 		int signatureLength = genericSignature.length;
@@ -555,7 +556,7 @@ public String getSuperclassTypeSignature() throws JavaModelException {
 public String getSourceFileName(IBinaryType info) {
 	if (info == null) {
 		try {
-			info = (IBinaryType) getElementInfo();
+			info = getElementInfo();
 		} catch (JavaModelException e) {
 			// default to using the outer most declaring type name
 			IType type = this;
@@ -572,7 +573,7 @@ public String getSourceFileName(IBinaryType info) {
 
 @Override
 public String getSuperclassName() throws JavaModelException {
-	IBinaryType info = (IBinaryType) getElementInfo();
+	IBinaryType info = getElementInfo();
 	char[] superclassName = info.getSuperclassName();
 	if (superclassName == null) {
 		return null;
@@ -582,7 +583,7 @@ public String getSuperclassName() throws JavaModelException {
 
 @Override
 public String[] getSuperInterfaceNames() throws JavaModelException {
-	IBinaryType info = (IBinaryType) getElementInfo();
+	IBinaryType info = getElementInfo();
 	char[][] names= info.getInterfaceNames();
 	int length;
 	if (names == null || (length = names.length) == 0) {
@@ -597,7 +598,7 @@ public String[] getSuperInterfaceNames() throws JavaModelException {
 }
 @Override
 public String[] getPermittedSubtypeNames() throws JavaModelException {
-	IBinaryType info = (IBinaryType) getElementInfo();
+	IBinaryType info = getElementInfo();
 	char[][] names= info.getPermittedSubtypeNames();
 	int length;
 	if (names == null || (length = names.length) == 0) {
@@ -617,7 +618,7 @@ public String[] getPermittedSubtypeNames() throws JavaModelException {
  */
 @Override
 public String[] getSuperInterfaceTypeSignatures() throws JavaModelException {
-	IBinaryType info = (IBinaryType) getElementInfo();
+	IBinaryType info = getElementInfo();
 	char[] genericSignature = info.getGenericSignature();
 	if (genericSignature != null) {
 		ArrayList interfaces = new ArrayList();
@@ -684,7 +685,7 @@ public ITypeParameter[] getTypeParameters() throws JavaModelException {
  */
 @Override
 public String[] getTypeParameterSignatures() throws JavaModelException {
-	IBinaryType info = (IBinaryType) getElementInfo();
+	IBinaryType info = getElementInfo();
 	char[] genericSignature = info.getGenericSignature();
 	if (genericSignature == null)
 		return CharOperation.NO_STRINGS;
@@ -734,13 +735,13 @@ public IType[] getTypes() throws JavaModelException {
 
 @Override
 public boolean isAnonymous() throws JavaModelException {
-	IBinaryType info = (IBinaryType) getElementInfo();
+	IBinaryType info = getElementInfo();
 	return info.isAnonymous();
 }
 
 @Override
 public boolean isClass() throws JavaModelException {
-	IBinaryType info = (IBinaryType) getElementInfo();
+	IBinaryType info = getElementInfo();
 	return TypeDeclaration.kind(info.getModifiers()) == TypeDeclaration.CLASS_DECL;
 
 }
@@ -751,7 +752,7 @@ public boolean isClass() throws JavaModelException {
  */
 @Override
 public boolean isEnum() throws JavaModelException {
-	IBinaryType info = (IBinaryType) getElementInfo();
+	IBinaryType info = getElementInfo();
 	return TypeDeclaration.kind(info.getModifiers()) == TypeDeclaration.ENUM_DECL;
 }
 
@@ -761,7 +762,7 @@ public boolean isEnum() throws JavaModelException {
  */
 @Override
 public boolean isRecord() throws JavaModelException {
-	IBinaryType info = (IBinaryType) getElementInfo();
+	IBinaryType info = getElementInfo();
 	return TypeDeclaration.kind(info.getModifiers()) == TypeDeclaration.RECORD_DECL;
 }
 /**
@@ -770,14 +771,14 @@ public boolean isRecord() throws JavaModelException {
  */
 @Override
 public boolean isSealed() throws JavaModelException {
-	IBinaryType info = (IBinaryType) getElementInfo();
+	IBinaryType info = getElementInfo();
 	char[][] names = info.getPermittedSubtypeNames();
 	return (names != null && names.length > 0);
 }
 
 @Override
 public boolean isInterface() throws JavaModelException {
-	IBinaryType info = (IBinaryType) getElementInfo();
+	IBinaryType info = getElementInfo();
 	switch (TypeDeclaration.kind(info.getModifiers())) {
 		case TypeDeclaration.INTERFACE_DECL:
 		case TypeDeclaration.ANNOTATION_TYPE_DECL: // annotation is interface too
@@ -791,19 +792,19 @@ public boolean isInterface() throws JavaModelException {
  */
 @Override
 public boolean isAnnotation() throws JavaModelException {
-	IBinaryType info = (IBinaryType) getElementInfo();
+	IBinaryType info = getElementInfo();
 	return TypeDeclaration.kind(info.getModifiers()) == TypeDeclaration.ANNOTATION_TYPE_DECL;
 }
 
 @Override
 public boolean isLocal() throws JavaModelException {
-	IBinaryType info = (IBinaryType) getElementInfo();
+	IBinaryType info = getElementInfo();
 	return info.isLocal();
 }
 
 @Override
 public boolean isMember() throws JavaModelException {
-	IBinaryType info = (IBinaryType) getElementInfo();
+	IBinaryType info = getElementInfo();
 	return info.isMember();
 }
 
@@ -1147,5 +1148,9 @@ private static boolean isComplianceJava11OrHigher(IJavaProject javaProject) {
 		return false;
 	}
 	return CompilerOptions.versionToJdkLevel(javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true)) >= ClassFileConstants.JDK11;
+}
+@Override
+public IBinaryType getElementInfo() throws JavaModelException {
+	return (IBinaryType) super.getElementInfo();
 }
 }

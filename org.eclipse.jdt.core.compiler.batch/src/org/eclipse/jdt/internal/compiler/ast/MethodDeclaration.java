@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2022 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -45,12 +45,14 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
+import org.eclipse.jdt.internal.compiler.lookup.FieldBinding;
 import org.eclipse.jdt.internal.compiler.lookup.LocalTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MemberTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
+import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.problem.AbortMethod;
@@ -114,8 +116,8 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 					this.scope,
 					FlowInfo.DEAD_END);
 
-			// nullity and mark as assigned
-			analyseArguments(classScope.environment(), flowInfo, this.arguments, this.binding);
+			// nullity, owning and mark as assigned
+			analyseArguments(classScope.environment(), flowInfo, flowContext, this.arguments, this.binding);
 
 			BiPredicate<TypeBinding, ReferenceBinding> condition = (argType, declClass) -> {
 				ReferenceBinding enclosingType = argType.enclosingType();
@@ -144,9 +146,26 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 				// method of a non-static member type can't be static.
 				this.bits &= ~ASTNode.CanBeStatic;
 			}
+			CompilerOptions compilerOptions = this.scope.compilerOptions();
+			if (compilerOptions.isAnnotationBasedResourceAnalysisEnabled
+					&& this.binding.isClosingMethod())
+			{
+				// implementation of AutoCloseable.close() should close all @Owning fields, create the obligation now:
+				ReferenceBinding currentClass = this.binding.declaringClass;
+				while (currentClass != null) {
+					for (FieldBinding fieldBinding : currentClass.fields()) {
+						if (!fieldBinding.isStatic()
+								&& fieldBinding.type.hasTypeBit(TypeIds.BitAutoCloseable|TypeIds.BitCloseable)
+								&& (fieldBinding.tagBits & TagBits.AnnotationOwning) != 0) {
+							fieldBinding.closeTracker = new FakedTrackingVariable(fieldBinding, this.scope, this,
+									flowInfo, flowContext, FlowInfo.NULL, true);
+						}
+					}
+					currentClass = currentClass.superclass();
+				}
+			}
 			// propagate to statements
 			if (this.statements != null) {
-				CompilerOptions compilerOptions = this.scope.compilerOptions();
 				boolean enableSyntacticNullAnalysisForFields = compilerOptions.enableSyntacticNullAnalysisForFields;
 				int complaintLevel = (flowInfo.reachMode() & FlowInfo.UNREACHABLE) == 0 ? Statement.NOT_COMPLAINED : Statement.COMPLAINED_FAKE_REACHABLE;
 				for (int i = 0, count = this.statements.length; i < count; i++) {
@@ -158,7 +177,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 						methodContext.expireNullCheckedFieldInfo();
 					}
 					if (compilerOptions.analyseResourceLeaks) {
-						FakedTrackingVariable.cleanUpUnassigned(this.scope, stat, flowInfo);
+						FakedTrackingVariable.cleanUpUnassigned(this.scope, stat, flowInfo, false);
 					}
 				}
 			} else {

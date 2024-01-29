@@ -107,8 +107,7 @@ public class ExplicitConstructorCall extends Statement implements Invocation {
 							.analyseCode(currentScope, flowContext, flowInfo)
 							.unconditionalInits();
 					if (analyseResources) {
-						// if argument is an AutoCloseable insert info that it *may* be closed (by the target constructor, i.e.)
-						flowInfo = FakedTrackingVariable.markPassedToOutside(currentScope, this.arguments[i], flowInfo, flowContext, false);
+						flowInfo = handleResourcePassedToInvocation(currentScope, this.binding, this.arguments[i], i, flowContext, flowInfo);
 					}
 					this.arguments[i].checkNPEbyUnboxing(currentScope, flowContext, flowInfo);
 				}

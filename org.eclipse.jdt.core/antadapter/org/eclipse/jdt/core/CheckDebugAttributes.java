@@ -40,7 +40,6 @@ import org.eclipse.jdt.internal.antadapter.AntAdapterMessages;
  * This is not intended to be subclassed by users.
  * @since 2.0
  */
-@SuppressWarnings("rawtypes")
 public final class CheckDebugAttributes extends Task {
 
 	private String file;
@@ -61,8 +60,8 @@ public final class CheckDebugAttributes extends Task {
 				hasDebugAttributes = checkClassFile(classFileReader);
 			} else {
 				try (ZipFile jarFile = new ZipFile(this.file)) {
-					for (Enumeration entries = jarFile.entries(); !hasDebugAttributes && entries.hasMoreElements(); ) {
-						ZipEntry entry = (ZipEntry) entries.nextElement();
+					for (Enumeration<? extends ZipEntry> entries = jarFile.entries(); !hasDebugAttributes && entries.hasMoreElements(); ) {
+						ZipEntry entry = entries.nextElement();
 						if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(entry.getName())) {
 							IClassFileReader classFileReader = ToolFactory.createDefaultClassFileReader(this.file, entry.getName(), IClassFileReader.ALL);
 							hasDebugAttributes = checkClassFile(classFileReader);

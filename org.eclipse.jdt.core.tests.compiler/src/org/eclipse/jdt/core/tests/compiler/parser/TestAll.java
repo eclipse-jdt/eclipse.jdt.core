@@ -54,7 +54,7 @@ public TestAll(String testName) {
 
 public static TestSuite getTestSuite(boolean addComplianceDiagnoseTest) {
 	ArrayList testClasses = new ArrayList();
-
+	testClasses.add(StringLiteralTest.class);
 	/* completion tests */
 	testClasses.addAll(RunCompletionParserTests.TEST_CLASSES);
 

@@ -111,7 +111,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 @Override
 public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
 	if (this.elementVariable != null && this.elementVariable.binding != null) {
-		this.elementVariable.binding.modifiers &= ~ExtraCompilerModifiers.AccPatternVariable;
+		this.elementVariable.binding.modifiers &= ~ExtraCompilerModifiers.AccOutOfFlowScope;
 	}
 	addPatternVariables(currentScope, codeStream);
 
@@ -266,13 +266,12 @@ public boolean resolvePatternVariable(BlockScope scope) {
 		this.pattern.resolve(scope);
 		if (this.elementVariable == null) return false;
 		if (this.elementVariable.binding == null) {
-			this.elementVariable.modifiers |= ExtraCompilerModifiers.AccPatternVariable;
+			this.elementVariable.modifiers |= ExtraCompilerModifiers.AccOutOfFlowScope;
 			this.elementVariable.resolve(scope, true);
 			// Kludge - to remove the AccBlankFinal added by the LocalDeclaration#resolve() due to the
 			// missing initializer
 			this.elementVariable.modifiers &= ~ExtraCompilerModifiers.AccBlankFinal;
-			this.elementVariable.binding.modifiers |= ExtraCompilerModifiers.AccPatternVariable;
-			this.elementVariable.binding.useFlag = LocalVariableBinding.USED;
+			this.elementVariable.binding.modifiers |= ExtraCompilerModifiers.AccOutOfFlowScope;
 			// Why cant this be done in the constructor?
 			this.type = this.elementVariable.type;
 		}
@@ -280,12 +279,8 @@ public boolean resolvePatternVariable(BlockScope scope) {
 	return true;
 }
 @Override
-public void collectPatternVariablesToScope(LocalVariableBinding[] variables, BlockScope scope) {
-	this.expression.collectPatternVariablesToScope(variables, scope);
-	if (this.pattern != null) {
-		this.pattern.collectPatternVariablesToScope(variables, scope);
-		this.addPatternVariablesWhenTrue(this.pattern.patternVarsWhenTrue);
-	}
+public LocalVariableBinding[] bindingsWhenTrue() {
+	return this.pattern != null ? this.pattern.bindingsWhenTrue() : NO_VARIABLES;
 }
 @Override
 public boolean containsPatternVariable() {
@@ -311,9 +306,9 @@ private void addSecretInstanceOfPatternExpressionValue(BlockScope scope1) {
 @Override
 public TypeBinding resolveType(BlockScope scope) {
 	this.constant = Constant.NotAConstant;
+	resolvePatternVariable(scope); // Srikanth - this should happen in recursive descent automatically.
 	if (this.elementVariable != null || this.pattern != null)
 		addSecretInstanceOfPatternExpressionValue(scope);
-	resolvePatternVariable(scope);
 	TypeBinding checkedType = this.type.resolveType(scope, true /* check bounds*/);
 	if (this.expression instanceof CastExpression) {
 		((CastExpression) this.expression).setInstanceofType(checkedType); // for cast expression we need to know instanceof type to not tag unnecessary when needed

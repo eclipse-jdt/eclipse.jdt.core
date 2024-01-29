@@ -208,7 +208,7 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 	 * Returns a new element info for this element.
 	 */
 	@Override
-	protected Object createElementInfo() {
+	protected JarPackageFragmentRootInfo createElementInfo() {
 		return new JarPackageFragmentRootInfo();
 	}
 	/**

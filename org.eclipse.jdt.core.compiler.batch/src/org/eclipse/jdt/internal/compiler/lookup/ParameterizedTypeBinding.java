@@ -1533,7 +1533,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	    		for (int i = this.superInterfaces.length; --i >= 0;) {
 	    			this.typeBits |= (this.superInterfaces[i].typeBits & TypeIds.InheritableBits);
 	    			if ((this.typeBits & (TypeIds.BitAutoCloseable|TypeIds.BitCloseable)) != 0) // avoid the side-effects of hasTypeBit()!
-	    				this.typeBits |= applyCloseableInterfaceWhitelists();
+	    				this.typeBits |= applyCloseableInterfaceWhitelists(this.environment.globalOptions);
 	    		}
     		}
 	    }
@@ -1837,6 +1837,8 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 							types[i] = typeParameters[i].superclass; // assumably j.l.Object?
 						break;
 				}
+				if (types[i] != null)
+					types[i] = wildcard.propagateNonConflictingNullAnnotations(types[i]);
 			} else {
 				// If Ai is a type, then Ti = Ai.
 				types[i] = typeArgument;
