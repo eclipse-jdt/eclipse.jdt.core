@@ -116,6 +116,10 @@ public class Argument extends LocalDeclaration {
 		return null;
 	}
 	public TypeBinding bind(MethodScope scope, TypeBinding typeBinding, boolean used) {
+		if (this.isUnnamed(scope) && !scope.isLambdaScope()) {
+			scope.problemReporter().illegalUseOfUnderscoreAsAnIdentifier(this.sourceStart, this.sourceEnd, scope.compilerOptions().sourceLevel > ClassFileConstants.JDK1_8, true);
+		}
+
 		TypeBinding newTypeBinding = createBinding(scope, typeBinding); // basically a no-op if createBinding() was called before
 
 		// record the resolved type into the type reference
@@ -123,12 +127,14 @@ public class Argument extends LocalDeclaration {
 		if (existingVariable != null && existingVariable.isValidBinding()){
 			final boolean localExists = existingVariable instanceof LocalVariableBinding;
 			if (localExists && this.hiddenVariableDepth == 0) {
-				if ((this.bits & ASTNode.ShadowsOuterLocal) != 0 && scope.isLambdaSubscope()) {
-					scope.problemReporter().lambdaRedeclaresArgument(this);
-				} else if (scope.referenceContext instanceof CompactConstructorDeclaration) {
-					// skip error reporting - hidden params - already reported in record components
-				} else {
-					scope.problemReporter().redefineArgument(this);
+				if (!this.isUnnamed(scope)) {
+					if ((this.bits & ASTNode.ShadowsOuterLocal) != 0 && scope.isLambdaSubscope()) {
+						scope.problemReporter().lambdaRedeclaresArgument(this);
+					} else if (scope.referenceContext instanceof CompactConstructorDeclaration) {
+						// skip error reporting - hidden params - already reported in record components
+					} else {
+						scope.problemReporter().redefineArgument(this);
+					}
 				}
 			} else {
 				boolean isSpecialArgument = false;
@@ -234,7 +240,7 @@ public class Argument extends LocalDeclaration {
 			}
 		}
 		Binding existingVariable = scope.getBinding(this.name, Binding.VARIABLE, this, false /*do not resolve hidden field*/);
-		if (existingVariable != null && existingVariable.isValidBinding()){
+		if (existingVariable != null && existingVariable.isValidBinding() && !isUnnamed(scope)) {
 			if (existingVariable instanceof LocalVariableBinding && this.hiddenVariableDepth == 0) {
 				scope.problemReporter().redefineArgument(this);
 			} else {

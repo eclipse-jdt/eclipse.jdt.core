@@ -161,6 +161,7 @@ public static Test suite() {
 	since_1_8.add(Unicode18Test.class);
 	since_1_8.add(LambdaShapeTests.class);
 	since_1_8.add(StringConcatTest.class);
+	since_1_8.add(UseOfUnderscoreTest.class);
 
 	ArrayList since_9 = new ArrayList();
 	since_9.add(Unicode9Test.class);
@@ -235,7 +236,8 @@ public static Test suite() {
 	 ArrayList since_21 = new ArrayList();
 	 since_21.add(SwitchPatternTest.class);
 	 since_21.add(RecordPatternTest.class);
-//	 since_21.add(UnnammedPatternsAndVarsTest.class); Enable after implementation.
+	since_21.add(UnnamedPatternsAndVariablesTest.class);
+	since_21.add(UseOfUnderscoreWithPreviewTest.class);
 	 since_21.add(NullAnnotationTests21.class);
 	 since_21.add(StringTemplateTest.class);
 	 since_21.add(BatchCompilerTest_21.class);

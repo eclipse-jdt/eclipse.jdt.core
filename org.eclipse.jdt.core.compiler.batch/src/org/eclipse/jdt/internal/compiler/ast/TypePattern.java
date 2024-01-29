@@ -38,7 +38,6 @@ public class TypePattern extends Pattern {
 
 	public LocalDeclaration local;
 	Expression expression;
-	public int index = -1; // denoting position
 
 	public TypePattern(LocalDeclaration local) {
 		this.local = local;
@@ -51,7 +50,7 @@ public class TypePattern extends Pattern {
 	}
 	@Override
 	public LocalVariableBinding[] bindingsWhenTrue() {
-		return this.local != null && this.local.binding != null ?
+		return this.local != null && this.local.binding != null && !this.local.isUnnamed(this.local.binding.declaringScope) ?
 						new LocalVariableBinding[] { this.local.binding } : NO_VARIABLES;
 	}
 	@Override

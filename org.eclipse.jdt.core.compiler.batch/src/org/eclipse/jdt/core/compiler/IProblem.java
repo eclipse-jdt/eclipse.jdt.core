@@ -2581,4 +2581,15 @@ void setSourceStart(int sourceStart);
 	 * @since 3.35
 	 */
 	int SyntheticAccessorNotEnclosingMethod = MethodRelated + 1990;
+
+	/**
+	 * @since 3.37
+	 * @noreference preview feature
+	 */
+	int UnderscoreCannotBeUsedHere = PreviewRelated + 2000;
+	/**
+	 * @since 3.37
+	 * @noreference preview feature
+	 */
+	int UnnamedVariableMustHaveInitializer = PreviewRelated + 2001;
 }

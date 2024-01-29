@@ -182,7 +182,7 @@ public class RecordPattern extends TypePattern {
 					continue;
 				TypePattern tp = (TypePattern) p;
 				RecordComponentBinding componentBinding = components[i];
-				if (p.getType().isTypeNameVar(scope)) {
+				if (p.getType() == null || p.getType().isTypeNameVar(scope)) {
 					infuseInferredType(scope, tp, componentBinding);
 					if (tp.local.binding != null) // rewrite with the inferred type
 						tp.local.binding.type = componentBinding.type;
@@ -216,14 +216,26 @@ public class RecordPattern extends TypePattern {
 		return this.resolvedType != null && this.resolvedType.isRawType();
 	}
 	private void infuseInferredType(Scope currentScope, TypePattern tp, RecordComponentBinding componentBinding) {
-		SingleTypeReference ref = new SingleTypeReference(tp.local.type.getTypeName()[0],
-				tp.local.type.sourceStart,
-				tp.local.type.sourceEnd) {
-			@Override
-			public TypeBinding resolveType(BlockScope scope, boolean checkBounds) {
-				return componentBinding.type;
-			}
-		};
+		SingleTypeReference ref;
+		if (tp.local.type == null) {
+			ref = new SingleTypeReference("var".toCharArray(), //$NON-NLS-1$
+					tp.local.sourceStart,
+					tp.local.sourceEnd) {
+				@Override
+				public TypeBinding resolveType(BlockScope scope, boolean checkBounds) {
+					return componentBinding.type;
+				}
+			};
+		} else {
+			ref = new SingleTypeReference(tp.local.type.getTypeName()[0],
+					tp.local.type.sourceStart,
+					tp.local.type.sourceEnd) {
+				@Override
+				public TypeBinding resolveType(BlockScope scope, boolean checkBounds) {
+					return componentBinding.type;
+				}
+			};
+		}
 		tp.local.type = ref;
 		if (componentBinding.type != null && (componentBinding.tagBits & TagBits.HasMissingType) != 0) {
 			currentScope.problemReporter().invalidType(ref, componentBinding.type);
