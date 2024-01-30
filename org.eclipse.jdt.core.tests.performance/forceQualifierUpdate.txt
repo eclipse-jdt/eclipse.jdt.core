@@ -4,3 +4,4 @@ Bug 561237 - [comparator] Comparator errors I20200318-1800
 Bug 574551 - Comparator errors in Y20210629-0800
 https://github.com/eclipse-platform/eclipse.platform.releng.aggregator/issues/1184
 https://github.com/eclipse-platform/eclipse.platform.releng.aggregator/issues/1659
+https://github.com/eclipse-platform/eclipse.platform.releng.aggregator/issues/1757
