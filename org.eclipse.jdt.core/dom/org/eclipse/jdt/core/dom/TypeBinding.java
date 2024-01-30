@@ -17,6 +17,7 @@
 
 package org.eclipse.jdt.core.dom;
 
+import org.eclipse.core.runtime.OperationCanceledException;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -855,6 +856,8 @@ class TypeBinding implements ITypeBinding {
 		ReferenceBinding superclass = null;
 		try {
 			superclass = ((ReferenceBinding)this.binding).superclass();
+		} catch (OperationCanceledException e) {
+			throw e; // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1925
 		} catch (RuntimeException e) {
 			/* in case a method cannot be resolvable due to missing jars on the classpath
 			 * see https://bugs.eclipse.org/bugs/show_bug.cgi?id=57871
