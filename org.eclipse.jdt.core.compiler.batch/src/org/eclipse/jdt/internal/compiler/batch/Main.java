@@ -72,6 +72,7 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.function.Function;
+import java.util.stream.IntStream;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -3362,9 +3363,13 @@ public CompilationUnit[] getCompilationUnits() {
 	String defaultEncoding = this.options.get(CompilerOptions.OPTION_Encoding);
 	if (Util.EMPTY_STRING.equals(defaultEncoding))
 		defaultEncoding = null;
-
+	// sort index by file names so we have a consistent order of compiling / handling them
+	// this is important as the order can influence the way for example lamda numbers are generated
+	int[] orderedIndex = IntStream.range(0, fileCount).boxed().sorted((i1, i2) -> {
+		return this.filenames[i1].compareTo(this.filenames[i2]);
+	}).mapToInt(i -> i).toArray();
 	for (int round = 0; round < 2; round++) {
-		for (int i = 0; i < fileCount; i++) {
+		for (int i : orderedIndex) {
 			char[] charName = this.filenames[i].toCharArray();
 			boolean isModuleInfo = CharOperation.endsWith(charName, TypeConstants.MODULE_INFO_FILE_NAME);
 			if (isModuleInfo == (round==0)) { // 1st round: modules, 2nd round others (to ensure populating pathToModCU well in time)
