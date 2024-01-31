@@ -152,14 +152,6 @@
             </message_arguments>
         </filter>
     </resource>
-    <resource path="dom/org/eclipse/jdt/core/dom/Name.java" type="org.eclipse.jdt.core.dom.Name">
-        <filter id="576725006">
-            <message_arguments>
-                <message_argument value="IDocElement"/>
-                <message_argument value="Name"/>
-            </message_arguments>
-        </filter>
-    </resource>
     <resource path="dom/org/eclipse/jdt/core/dom/PackageDeclaration.java" type="org.eclipse.jdt.core.dom.PackageDeclaration">
         <filter id="576778288">
             <message_arguments>
@@ -238,27 +230,11 @@
             </message_arguments>
         </filter>
     </resource>
-    <resource path="model/org/eclipse/jdt/core/jdom/DOMFactory.java" type="org.eclipse.jdt.core.jdom.DOMFactory">
-        <filter id="576725006">
-            <message_arguments>
-                <message_argument value="IDOMFactory"/>
-                <message_argument value="DOMFactory"/>
-            </message_arguments>
-        </filter>
-    </resource>
     <resource path="model/org/eclipse/jdt/core/util/ByteCodeVisitorAdapter.java" type="org.eclipse.jdt.core.util.ByteCodeVisitorAdapter">
         <filter id="576725006">
             <message_arguments>
                 <message_argument value="IBytecodeVisitor"/>
                 <message_argument value="ByteCodeVisitorAdapter"/>
-            </message_arguments>
-        </filter>
-    </resource>
-    <resource path="model/org/eclipse/jdt/core/util/OpcodeStringValues.java" type="org.eclipse.jdt.core.util.OpcodeStringValues">
-        <filter id="576725006">
-            <message_arguments>
-                <message_argument value="IOpcodeMnemonics"/>
-                <message_argument value="OpcodeStringValues"/>
             </message_arguments>
         </filter>
     </resource>
