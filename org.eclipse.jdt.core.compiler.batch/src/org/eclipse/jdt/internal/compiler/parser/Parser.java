@@ -14308,6 +14308,9 @@ public int automatonState() {
 	return this.stack[this.stateStackTop];
 }
 public boolean automatonWillShift(int token, int lastAction) {
+	if (lastAction == ERROR_ACTION) {
+		return false;
+	}
 	int stackTop = this.stateStackTop;        // local copy of stack pointer
 	int stackTopState = this.stack[stackTop]; // single cell non write through "alternate stack" - the automaton's stack pointer either stays fixed during this manoeuvre or monotonically decreases.
 	int highWaterMark = stackTop;
