@@ -220,27 +220,7 @@ public String findRecommendedLineSeparator() throws JavaModelException {
 protected void generateInfos(IElementInfo info, Map<IJavaElement, IElementInfo> newElements, IProgressMonitor monitor) throws JavaModelException {
 
 	if (JavaModelCache.VERBOSE){
-		String element;
-		switch (getElementType()) {
-			case JAVA_PROJECT:
-				element = "project"; //$NON-NLS-1$
-				break;
-			case PACKAGE_FRAGMENT_ROOT:
-				element = "root"; //$NON-NLS-1$
-				break;
-			case PACKAGE_FRAGMENT:
-				element = "package"; //$NON-NLS-1$
-				break;
-			case CLASS_FILE:
-				element = "class file"; //$NON-NLS-1$
-				break;
-			case COMPILATION_UNIT:
-				element = "compilation unit"; //$NON-NLS-1$
-				break;
-			default:
-				element = "element"; //$NON-NLS-1$
-		}
-		JavaModelManager.trace(Thread.currentThread() +" OPENING " + element + " " + this.toStringWithAncestors()); //$NON-NLS-1$//$NON-NLS-2$
+		JavaModelManager.trace(Thread.currentThread() +" OPENING " + JavaModelCache.getCacheType(this) + " " + this.toStringWithAncestors()); //$NON-NLS-1$//$NON-NLS-2$
 	}
 
 	// open its ancestors if needed
