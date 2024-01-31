@@ -389,7 +389,8 @@ public class Compiler implements ITypeRequestor, ProblemSeverities {
 		int maxUnits = sourceUnits.length;
 		this.totalUnits = 0;
 		this.unitsToProcess = new CompilationUnitDeclaration[maxUnits];
-
+		//compare by name to get a deterministic order of processing independent of initial array order given
+		Arrays.sort(sourceUnits, Comparator.comparing(ICompilationUnit::getFileName, Arrays::compare));
 		internalBeginToCompile(sourceUnits, maxUnits);
 	}
 
