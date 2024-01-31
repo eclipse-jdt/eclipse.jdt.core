@@ -4680,7 +4680,13 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		if (node.getAST().isPreviewEnabled()) {
 			int pos = rewriteRequiredNode(node, StringTemplateExpression.TEMPLATE_PROCESSOR);
 			pos = rewriteRequiredNode(node, StringTemplateExpression.FIRST_STRING_FRAGMENT);
-			rewriteNodeList(node, StringTemplateExpression.STRING_TEMPLATE_COMPONENTS, pos, "", "", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			rewriteNodeList(
+					node,
+					StringTemplateExpression.STRING_TEMPLATE_COMPONENTS,
+					node.components().isEmpty() ? pos -1 : pos,//Sometimes, the pos  returns false values even when the stringTemplateExpression has no stringTemplateComponent
+					"", //$NON-NLS-1$
+					"", //$NON-NLS-1$
+					""); //$NON-NLS-1$
 		}
 		return false;
 	}
