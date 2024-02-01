@@ -372,7 +372,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 		if (environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
 			// mark X[]::new and X[]::clone as returning 'X @NonNull' (don't wait (cf. markNonNull()), because we're called as late as codeGen):
 	    	if (environment.usesNullTypeAnnotations())
-	    		this.returnType = environment.createAnnotatedType(this.returnType, new AnnotationBinding[]{ environment.getNonNullAnnotation() });
+	    		this.returnType = environment.createNonNullAnnotatedType(this.returnType);
 	    	else
 	    		this.tagBits |= TagBits.AnnotationNonNull;
 	    }
@@ -686,7 +686,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 				if (environment.usesNullTypeAnnotations()) {
 					TypeBinding elementType = ((ArrayBinding)method.returnType).leafComponentType();
 					AnnotationBinding nonNullAnnotation = environment.getNonNullAnnotation();
-					elementType = environment.createAnnotatedType(elementType, new AnnotationBinding[]{ environment.getNonNullAnnotation() });
+					elementType = environment.createNonNullAnnotatedType(elementType);
 					method.returnType = environment.createArrayType(elementType, 1, new AnnotationBinding[]{ nonNullAnnotation, null });
 				} else {
 					method.tagBits |= TagBits.AnnotationNonNull;
@@ -694,7 +694,7 @@ public class SyntheticMethodBinding extends MethodBinding {
 				return;
 			case EnumValueOf:
 				if (environment.usesNullTypeAnnotations()) {
-					method.returnType = environment.createAnnotatedType(method.returnType, new AnnotationBinding[]{ environment.getNonNullAnnotation() });
+					method.returnType = environment.createNonNullAnnotatedType(method.returnType);
 				} else {
 					method.tagBits |= TagBits.AnnotationNonNull;
 				}

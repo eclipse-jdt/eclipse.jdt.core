@@ -316,14 +316,14 @@ public class ParameterizedMethodBinding extends MethodBinding {
 		LookupEnvironment environment = scope.environment();
 		TypeBinding rawType = environment.convertToRawType(receiverType.erasure(), false /*do not force conversion of enclosing types*/);
 		if (environment.usesNullTypeAnnotations())
-			rawType = environment.createAnnotatedType(rawType, new AnnotationBinding[] { environment.getNonNullAnnotation() });
+			rawType = environment.createNonNullAnnotatedType(rawType);
 		method.returnType = environment.createParameterizedType(
 			genericClassType,
 			new TypeBinding[] {  environment.createWildcard(genericClassType, 0, rawType, null /*no extra bound*/, Wildcard.EXTENDS) },
 			null);
 		if (environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
 			if (environment.usesNullTypeAnnotations())
-				method.returnType = environment.createAnnotatedType(method.returnType, new AnnotationBinding[] { environment.getNonNullAnnotation() });
+				method.returnType = environment.createNonNullAnnotatedType(method.returnType);
 			else
 				method.tagBits |= TagBits.AnnotationNonNull;
 		}

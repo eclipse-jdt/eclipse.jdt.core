@@ -263,7 +263,7 @@ public void fillInDefaultNonNullness(FieldDeclaration sourceField, Scope scope) 
 		if (!this.type.acceptsNonNullDefault())
 			return;
 		if ( (this.type.tagBits & TagBits.AnnotationNullMASK) == 0) {
-			this.type = environment.createAnnotatedType(this.type, new AnnotationBinding[]{environment.getNonNullAnnotation()});
+			this.type = environment.createNonNullAnnotatedType(this.type);
 		} else if ((this.type.tagBits & TagBits.AnnotationNonNull) != 0) {
 			scope.problemReporter().nullAnnotationIsRedundant(sourceField);
 		}
