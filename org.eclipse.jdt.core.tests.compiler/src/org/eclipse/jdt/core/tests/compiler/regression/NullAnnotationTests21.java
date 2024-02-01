@@ -976,4 +976,25 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 		runner.classLibraries = this.LIBS;
 		runner.runConformTest();
 	}
+
+	public void testGH1760() {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+			"X.java",
+			"""
+			import org.eclipse.jdt.annotation.*;
+			import java.util.*;
+			import java.util.stream.*;
+			public class X {
+				List<@NonNull String> filter(List<@Nullable String> input) {
+					return input.stream()
+								.filter(Objects::nonNull)
+								.collect(Collectors.toList());
+				}
+			}
+			"""
+		};
+		runner.classLibraries = this.LIBS;
+		runner.runConformTest();
+	}
 }

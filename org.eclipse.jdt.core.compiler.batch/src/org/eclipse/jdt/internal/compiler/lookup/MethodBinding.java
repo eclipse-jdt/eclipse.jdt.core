@@ -1520,5 +1520,13 @@ public void verifyOverrideCompatibility(MethodBinding inheritedMethod, ClassScop
 			scope.problemReporter().overrideAddingReturnOwning(sourceMethod);
 	}
 }
+public boolean isWellknownMethod(char[][] compoundClassName, char[] wellKnownSelector) {
+	return CharOperation.equals(this.declaringClass.compoundName, compoundClassName)
+			&& CharOperation.equals(this.selector, wellKnownSelector);
+}
+public boolean isWellknownMethod(int typeId, char[] wellKnownSelector) {
+	return this.declaringClass.id == typeId
+			&& CharOperation.equals(this.selector, wellKnownSelector);
+}
 }
 
