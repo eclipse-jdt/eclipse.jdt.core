@@ -9324,9 +9324,12 @@ public void unsafeReturnTypeOverride(MethodBinding currentMethod, MethodBinding 
 	int start = type.sourceStart();
 	int end = type.sourceEnd();
 	if (TypeBinding.equalsEquals(currentMethod.declaringClass, type)) {
-		ASTNode location = ((MethodDeclaration) currentMethod.sourceMethod()).returnType;
-		start = location.sourceStart();
-		end = location.sourceEnd();
+		MethodDeclaration md = (MethodDeclaration) currentMethod.sourceMethod();
+		if (md != null) { // synthetics have no source method, don't npe
+			ASTNode location = md.returnType;
+			start = location.sourceStart();
+			end = location.sourceEnd();
+		}
 	}
 	this.handle(
 			IProblem.UnsafeReturnTypeOverride,
