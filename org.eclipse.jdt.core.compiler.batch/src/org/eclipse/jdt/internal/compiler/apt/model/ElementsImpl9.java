@@ -274,6 +274,8 @@ public class ElementsImpl9 extends ElementsImpl {
 		}
 		return null;
 	}
+
+	@SuppressWarnings("resource") // fileManager is not created, must not be closed
 	private JavaFileObject getSourceJavaFileObject(ReferenceContext referenceContext) {
 		JavaFileManager fileManager = this._env.getFileManager();
 		if (fileManager instanceof EclipseFileManager) {

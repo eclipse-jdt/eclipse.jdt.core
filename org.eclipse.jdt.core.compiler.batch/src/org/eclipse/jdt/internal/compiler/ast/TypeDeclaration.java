@@ -1526,7 +1526,8 @@ public void resolve() {
 		} else if (!sourceType.isLocalType()) {
 			// Set javadoc visibility
 			int visibility = sourceType.modifiers & ExtraCompilerModifiers.AccVisibilityMASK;
-			try (ProblemReporter reporter = this.scope.problemReporter()) {
+			ProblemReporter reporter = this.scope.problemReporter();
+			try {
 				int severity = reporter.computeSeverity(IProblem.JavadocMissing);
 				if (severity != ProblemSeverities.Ignore) {
 					if (this.enclosingType != null) {
@@ -1535,6 +1536,8 @@ public void resolve() {
 					int javadocModifiers = (this.binding.modifiers & ~ExtraCompilerModifiers.AccVisibilityMASK) | visibility;
 					reporter.javadocMissing(this.sourceStart, this.sourceEnd, severity, javadocModifiers);
 				}
+			} finally {
+				reporter.close();
 			}
 		}
 		updateNestHost();

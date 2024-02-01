@@ -433,6 +433,7 @@ private static String convertPathSeparators(String path) {
 		? path.replace('\\', '/')
 		 : path.replace('/', '\\');
 }
+@SuppressWarnings("resource") // don't close classpathEntry.zipFile, which we don't own
 private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeName, boolean asBinaryOnly, /*NonNull*/char[] moduleName) {
 	NameEnvironmentAnswer answer = internalFindClass(qualifiedTypeName, typeName, asBinaryOnly, moduleName);
 	if (this.annotationsFromClasspath && answer != null && answer.getBinaryType() instanceof ClassFileReader) {
@@ -441,7 +442,7 @@ private NameEnvironmentAnswer findClass(String qualifiedTypeName, char[] typeNam
 			if (classpathEntry.hasAnnotationFileFor(qualifiedTypeName)) {
 				// in case of 'this.annotationsFromClasspath' we indeed search for .eea entries inside the main zipFile of the entry:
 				ZipFile zip = classpathEntry instanceof ClasspathJar ? ((ClasspathJar) classpathEntry).zipFile : null;
-				boolean shouldClose = false; // don't close classpathEntry.zipFile, which we don't own
+				boolean shouldClose = false;
 				try {
 					if (zip == null) {
 						zip = ExternalAnnotationDecorator.getAnnotationZipFile(classpathEntry.getPath(), null);

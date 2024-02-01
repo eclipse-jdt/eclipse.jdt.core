@@ -766,8 +766,8 @@ public class EclipseCompilerImpl extends Main {
 		if (Files.notExists(Paths.get(javaHome.getAbsolutePath(), RELEASE_FILE))) {
 			return version;
 		}
-		try (Stream<String> lines = Files.lines(Paths.get(javaHome.getAbsolutePath(), RELEASE_FILE), Charset.defaultCharset()).filter(s -> s.contains(JAVA_VERSION))) {
-			Optional<String> hasVersion = lines.findFirst();
+		try (Stream<String> lines = Files.lines(Paths.get(javaHome.getAbsolutePath(), RELEASE_FILE), Charset.defaultCharset())) {
+			Optional<String> hasVersion = lines.filter(s -> s.contains(JAVA_VERSION)).findFirst();
 			if (hasVersion.isPresent()) {
 				String line = hasVersion.get();
 				version = line.substring(14, line.length() - 1); // length of JAVA_VERSION + 2 in JAVA_VERSION="9"
