@@ -218,7 +218,7 @@ import org.eclipse.jdt.internal.compiler.util.Messages;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 /** See contract of {@link #close()}. */
-public class ProblemReporter extends ProblemHandler implements AutoCloseable {
+public class ProblemReporter extends ProblemHandler {
 
 	public ReferenceContext referenceContext;
 	private Scanner positionScanner;
@@ -4853,7 +4853,7 @@ public void invalidParenthesizedExpression(ASTNode reference) {
 		reference.sourceEnd);
 }
 public void invalidType(ASTNode location, TypeBinding type) {
-	try (this) { // ensure clean-up despite the many exits without calling handle(..)
+	try { // ensure clean-up despite the many exits without calling handle(..)
 		if (type instanceof ReferenceBinding) {
 			if (isRecoveredName(((ReferenceBinding)type).compoundName)) return;
 		}
@@ -4978,6 +4978,8 @@ public void invalidType(ASTNode location, TypeBinding type) {
 			new String[] {new String(type.leafComponentType().shortReadableName())},
 			start,
 			end);
+	} finally {
+		close();
 	}
 }
 public void invalidTypeForCollection(Expression expression) {
@@ -9755,8 +9757,10 @@ private boolean validateRestrictedKeywords(char[] name, int start, int end, bool
 }
 public boolean validateRestrictedKeywords(char[] name, ASTNode node) {
 	// ensure clean-up because inner method is not guaranteed to invoke handle(..)
-	try (this) {
+	try {
 		return validateRestrictedKeywords(name, node.sourceStart, node.sourceEnd, false);
+	} finally {
+		close();
 	}
 }
 //Returns true if the problem is handled and reported (only errors considered and not warnings)
@@ -12530,7 +12534,7 @@ public boolean scheduleProblemForContext(Runnable problemComputation) {
 	if (this.referenceContext != null) {
 		CompilationResult result = this.referenceContext.compilationResult();
 		if (result != null) {
-			try (this) {
+			try {
 				ReferenceContext capturedContext = this.referenceContext;
 				result.scheduleProblem(() -> {
 					ReferenceContext save = this.referenceContext;
@@ -12541,6 +12545,8 @@ public boolean scheduleProblemForContext(Runnable problemComputation) {
 						this.referenceContext = save;
 					}
 				});
+			} finally {
+				close();
 			}
 			return true;
 		}
@@ -12558,7 +12564,6 @@ public boolean scheduleProblemForContext(Runnable problemComputation) {
  * <li>wrap their body in {@code try(this) { ... }}.
  * </ul></ul>
  */
-@Override
 public void close() {
 	this.referenceContext = null;
 }

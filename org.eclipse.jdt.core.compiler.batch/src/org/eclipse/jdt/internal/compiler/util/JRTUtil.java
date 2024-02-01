@@ -43,6 +43,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileReader;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFormatException;
@@ -194,6 +195,7 @@ public class JRTUtil {
 		}
 	}
 
+	@SuppressWarnings("resource") // getFs() does not transfer ownership
 	public static CtSym getCtSym(Path jdkHome) throws IOException {
 		CtSym ctSym;
 		try {
@@ -594,9 +596,10 @@ class JrtFileSystem {
 			return false;
 		// iterate files:
 		try {
-			return Files.list(packagePath)
-				.anyMatch(filePath -> filePath.toString().endsWith(SuffixConstants.SUFFIX_STRING_class)
-										|| filePath.toString().endsWith(SuffixConstants.SUFFIX_STRING_CLASS));
+			try (Stream<Path> list = Files.list(packagePath)) {
+				return list.anyMatch(filePath -> filePath.toString().endsWith(SuffixConstants.SUFFIX_STRING_class)
+						|| filePath.toString().endsWith(SuffixConstants.SUFFIX_STRING_CLASS));
+			}
 		} catch (IOException e) {
 			return false;
 		}
