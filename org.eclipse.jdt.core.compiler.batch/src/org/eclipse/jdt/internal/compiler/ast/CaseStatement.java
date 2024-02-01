@@ -316,6 +316,9 @@ public ResolvedCase[] resolveCase(BlockScope scope, TypeBinding switchExpression
 		((SingleNameReference) constExpr).setActualReceiverType((ReferenceBinding)switchExpressionType);
 	}
 
+	constExpr.setExpressionContext(ExpressionContext.INSTANCEOF_CONTEXT);
+	constExpr.setExpectedType(switchExpressionType);
+
 	TypeBinding caseType = constExpr.resolveType(scope);
 	if (caseType == null || switchExpressionType == null) return ResolvedCase.UnresolvedCase;
 	// tag constant name with enum type for privileged access to its members

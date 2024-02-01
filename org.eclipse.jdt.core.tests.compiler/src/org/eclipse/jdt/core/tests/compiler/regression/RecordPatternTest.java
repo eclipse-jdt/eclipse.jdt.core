@@ -2067,12 +2067,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"	                      ^^^\n" +
 				"Incorrect number of arguments for type X.Box<T,U>; it cannot be parameterized with arguments <String>\n" +
 				"----------\n" +
-				"3. ERROR in X.java (at line 5)\n" +
-				"	System.out.println(\"String \" + s1.getClass().toString());\n" +
-				"	                               ^^\n" +
-				"s1 cannot be resolved\n" +
-				"----------\n" +
-				"4. ERROR in X.java (at line 10)\n" +
+				"3. ERROR in X.java (at line 10)\n" +
 				"	test3(bo);\n" +
 				"	^^^^^\n" +
 				"The method test3(X.Box<X.Box<String,Integer>,X.Box<Integer,String>>) is undefined for the type X\n" +

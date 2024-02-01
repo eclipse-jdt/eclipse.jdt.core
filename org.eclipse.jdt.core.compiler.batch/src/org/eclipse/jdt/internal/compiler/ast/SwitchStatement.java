@@ -1209,7 +1209,9 @@ public class SwitchStatement extends Expression {
 								Expression probablePattern = caseStmt.constantExpressions[caseStmt.patternIndex];
 								if (probablePattern instanceof Pattern) {
 									Pattern pattern = (Pattern) probablePattern;
-									pattern.resolveWithExpression(this.scope, this.expression);
+									pattern.setExpressionContext(ExpressionContext.INSTANCEOF_CONTEXT); // implicit instanceof
+									pattern.setExpectedType(this.expression.resolvedType);
+									pattern.resolveType(this.scope);
 								}
 							}
 						} else {

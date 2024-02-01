@@ -261,23 +261,6 @@ public void addPatternVariables(BlockScope currentScope, CodeStream codeStream) 
 		codeStream.addVisibleLocalVariable(this.elementVariable.binding);
 	}
 }
-public boolean resolvePatternVariable(BlockScope scope) {
-	if (this.pattern != null) {
-		this.pattern.resolve(scope);
-		if (this.elementVariable == null) return false;
-		if (this.elementVariable.binding == null) {
-			this.elementVariable.modifiers |= ExtraCompilerModifiers.AccOutOfFlowScope;
-			this.elementVariable.resolve(scope, true);
-			// Kludge - to remove the AccBlankFinal added by the LocalDeclaration#resolve() due to the
-			// missing initializer
-			this.elementVariable.modifiers &= ~ExtraCompilerModifiers.AccBlankFinal;
-			this.elementVariable.binding.modifiers |= ExtraCompilerModifiers.AccOutOfFlowScope;
-			// Why cant this be done in the constructor?
-			this.type = this.elementVariable.type;
-		}
-	}
-	return true;
-}
 @Override
 public LocalVariableBinding[] bindingsWhenTrue() {
 	return this.pattern != null ? this.pattern.bindingsWhenTrue() : NO_VARIABLES;
@@ -306,17 +289,19 @@ private void addSecretInstanceOfPatternExpressionValue(BlockScope scope1) {
 @Override
 public TypeBinding resolveType(BlockScope scope) {
 	this.constant = Constant.NotAConstant;
-	resolvePatternVariable(scope); // Srikanth - this should happen in recursive descent automatically.
-	if (this.elementVariable != null || this.pattern != null)
-		addSecretInstanceOfPatternExpressionValue(scope);
+
 	TypeBinding checkedType = this.type.resolveType(scope, true /* check bounds*/);
 	if (this.expression instanceof CastExpression) {
 		((CastExpression) this.expression).setInstanceofType(checkedType); // for cast expression we need to know instanceof type to not tag unnecessary when needed
 	}
 	TypeBinding expressionType = this.expression.resolveType(scope);
 	if (this.pattern != null) {
-		this.pattern.resolveWithExpression(scope, this.expression);
+		this.pattern.setExpressionContext(ExpressionContext.INSTANCEOF_CONTEXT);
+		this.pattern.setExpectedType(this.expression.resolvedType);
+		this.pattern.resolveType(scope);
 	}
+	if (this.elementVariable != null || this.pattern != null)
+		addSecretInstanceOfPatternExpressionValue(scope);
 	if (expressionType != null && checkedType != null && this.type.hasNullTypeAnnotation(AnnotationPosition.ANY)) {
 		// don't complain if the entire operation is redundant anyway
 		if (!expressionType.isCompatibleWith(checkedType) || NullAnnotationMatching.analyse(checkedType, expressionType, -1).isAnyMismatch())

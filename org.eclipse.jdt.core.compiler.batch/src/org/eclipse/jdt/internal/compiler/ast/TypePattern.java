@@ -37,7 +37,6 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 public class TypePattern extends Pattern {
 
 	public LocalDeclaration local;
-	Expression expression;
 
 	public TypePattern(LocalDeclaration local) {
 		this.local = local;
@@ -120,10 +119,7 @@ public class TypePattern extends Pattern {
 	public LocalDeclaration getPatternVariable() {
 		return this.local;
 	}
-	@Override
-	public void resolveWithExpression(BlockScope scope, Expression exp) {
-		this.expression = exp;
-	}
+
 	@Override
 	public void resolve(BlockScope scope) {
 		this.resolveType(scope);
@@ -142,7 +138,7 @@ public class TypePattern extends Pattern {
 				scope.problemReporter().incompatiblePatternType(this, other, patternType);
 				return false;
 			}
-		} else if (!checkCastTypesCompatibility(scope, other, patternType, this.expression, true)) {
+		} else if (!checkCastTypesCompatibility(scope, other, patternType, null, true)) {
 			scope.problemReporter().incompatiblePatternType(this, other, patternType);
 			return false;
 		}
@@ -167,6 +163,7 @@ public class TypePattern extends Pattern {
 		}
 		return this.resolvedType;
 	}
+
 	@Override
 	public TypeBinding resolveTypeWithBindings(LocalVariableBinding [] bindings, BlockScope scope) {
 		scope.include(bindings);
@@ -174,6 +171,7 @@ public class TypePattern extends Pattern {
 			if (this.resolvedType != null)
 				return this.resolvedType;
 			if (this.local != null) {
+
 				this.local.modifiers |= ExtraCompilerModifiers.AccOutOfFlowScope;
 
 				if (this.local.isTypeNameVar(scope)) {
@@ -228,35 +226,17 @@ public class TypePattern extends Pattern {
 		if (mentioned.isEmpty()) return null;
 		return mentioned.toArray(new TypeVariableBinding[mentioned.size()]);
 	}
-	protected void getSecretVariable(BlockScope scope, TypeBinding type) {
-		if (this.secretPatternVariable != null)
-			return;
-		this.secretPatternVariable = getSecretVariable(scope,
-				SECRET_PATTERN_VARIABLE_NAME, this.nestingLevel,
-				type);
-	}
 
-	private LocalVariableBinding getSecretVariable(BlockScope scope, String name, int nestingLevel1, TypeBinding type) {
-		return TypePattern.getNewLocalVariableBinding(scope,
-				(name + nestingLevel1).toCharArray(),
-				type);
-	}
-	private static LocalVariableBinding getNewLocalVariableBinding(BlockScope scope, char[] name,
-			TypeBinding type) {
-		LocalVariableBinding l =
-				new LocalVariableBinding(
-					name,
-					type,
-					ClassFileConstants.AccDefault,
-					false);
-		l.setConstant(Constant.NotAConstant);
-		l.useFlag = LocalVariableBinding.USED;
-		scope.addLocalVariable(l);
-//		int delta =  ((TypeBinding.equalsEquals(type, TypeBinding.LONG)) ||
-//				(TypeBinding.equalsEquals(type, TypeBinding.DOUBLE))) ?
-//				2 : 1;
-		l.resolvedPosition = scope.localIndex;
-		return l;
+	protected void createSecretVariable(BlockScope scope, TypeBinding type) {
+		if (this.secretPatternVariable == null) {
+			LocalVariableBinding l = new LocalVariableBinding(
+					(SECRET_PATTERN_VARIABLE_NAME + this.nestingLevel).toCharArray(), type,
+					ClassFileConstants.AccDefault, false);
+			l.setConstant(Constant.NotAConstant);
+			l.useFlag = LocalVariableBinding.USED;
+			scope.addLocalVariable(l);
+			this.secretPatternVariable = l;
+		}
 	}
 
 	@Override

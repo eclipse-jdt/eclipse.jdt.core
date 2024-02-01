@@ -298,38 +298,39 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 				}
 			}
 		} else {
-			variableType = this.type.resolveType(scope, true /* check bounds*/);
+			variableType = this.type == null ? null : this.type.resolveType(scope, true /* check bounds*/);
 		}
 
-		this.bits |= (this.type.bits & ASTNode.HasTypeAnnotations);
-		checkModifiers();
-		if (variableType != null) {
-			if (variableType == TypeBinding.VOID) {
-				scope.problemReporter().variableTypeCannotBeVoid(this);
-				return;
+		if (this.type != null) {
+			this.bits |= (this.type.bits & ASTNode.HasTypeAnnotations);
+			checkModifiers();
+			if (variableType != null) {
+				if (variableType == TypeBinding.VOID) {
+					scope.problemReporter().variableTypeCannotBeVoid(this);
+					return;
+				}
+				if (variableType.isArrayType() && ((ArrayBinding) variableType).leafComponentType == TypeBinding.VOID) {
+					scope.problemReporter().variableTypeCannotBeVoidArray(this);
+					return;
+				}
 			}
-			if (variableType.isArrayType() && ((ArrayBinding) variableType).leafComponentType == TypeBinding.VOID) {
-				scope.problemReporter().variableTypeCannotBeVoidArray(this);
-				return;
-			}
-		}
 
 		Binding existingVariable = scope.getBinding(this.name, Binding.VARIABLE, this, false /*do not resolve hidden field*/);
-		if (existingVariable != null && existingVariable.isValidBinding() && !this.isUnnamed(scope)) {
-			boolean localExists = existingVariable instanceof LocalVariableBinding;
+			if (existingVariable != null && existingVariable.isValidBinding() && !this.isUnnamed(scope)) {
+				boolean localExists = existingVariable instanceof LocalVariableBinding;
 			if (localExists && (this.bits & ASTNode.ShadowsOuterLocal) != 0 && scope.isLambdaSubscope() && this.hiddenVariableDepth == 0) {
-				scope.problemReporter().lambdaRedeclaresLocal(this);
-			} else if (localExists && this.hiddenVariableDepth == 0) {
-				if (existingVariable.isPatternVariable()) {
+					scope.problemReporter().lambdaRedeclaresLocal(this);
+				} else if (localExists && this.hiddenVariableDepth == 0) {
+					if (existingVariable.isPatternVariable()) {
 					scope.problemReporter().illegalRedeclarationOfPatternVar((LocalVariableBinding) existingVariable, this);
+					} else {
+						scope.problemReporter().redefineLocal(this);
+					}
 				} else {
-					scope.problemReporter().redefineLocal(this);
+					scope.problemReporter().localVariableHiding(this, existingVariable, false);
 				}
-			} else {
-				scope.problemReporter().localVariableHiding(this, existingVariable, false);
 			}
 		}
-
 		if ((this.modifiers & ClassFileConstants.AccFinal)!= 0 && this.initialization == null) {
 			this.modifiers |= ExtraCompilerModifiers.AccBlankFinal;
 		}
