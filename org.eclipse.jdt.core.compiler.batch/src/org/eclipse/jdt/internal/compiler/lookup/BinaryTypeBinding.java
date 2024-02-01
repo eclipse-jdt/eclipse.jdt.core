@@ -2038,8 +2038,7 @@ private void scanFieldForNullAnnotation(IBinaryField field, VariableBinding fiel
 				if (nullDefaultFromField == Binding.NO_NULL_DEFAULT
 						? hasNonNullDefaultForType(fieldType, DefaultLocationField, -1)
 						: (nullDefaultFromField & DefaultLocationField) != 0) {
-					fieldBinding.type = this.environment.createAnnotatedType(fieldType,
-							new AnnotationBinding[] { this.environment.getNonNullAnnotation() });
+					fieldBinding.type = this.environment.createNonNullAnnotatedType(fieldType);
 				}
 		}
 		return; // not using fieldBinding.tagBits when we have type annotations.
@@ -2124,8 +2123,7 @@ private void scanMethodForNullAnnotation(IBinaryMethod method, MethodBinding met
 				methodBinding.tagBits |= TagBits.AnnotationNonNull;
 				if (this.environment.usesNullTypeAnnotations()) {
 					if (methodBinding.returnType != null && !methodBinding.returnType.hasNullTypeAnnotations()) {
-						methodBinding.returnType = this.environment.createAnnotatedType(methodBinding.returnType,
-								new AnnotationBinding[] { this.environment.getNonNullAnnotation() });
+						methodBinding.returnType = this.environment.createNonNullAnnotatedType(methodBinding.returnType);
 					}
 				}
 			} else if (typeBit == TypeIds.BitNullableAnnotation) {

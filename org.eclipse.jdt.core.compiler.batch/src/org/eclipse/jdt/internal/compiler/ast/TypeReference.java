@@ -52,13 +52,11 @@ import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
-import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ArrayBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
-import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReasons;
 import org.eclipse.jdt.internal.compiler.lookup.ProblemReferenceBinding;
@@ -749,9 +747,7 @@ protected void resolveAnnotations(Scope scope, int location) {
 			if (location == Binding.DefaultLocationTypeBound && this.resolvedType.id == TypeIds.T_JavaLangObject) {
 				scope.problemReporter().implicitObjectBoundNoNullDefault(this);
 			} else {
-				LookupEnvironment environment = scope.environment();
-				AnnotationBinding[] annots = new AnnotationBinding[]{environment.getNonNullAnnotation()};
-				this.resolvedType = environment.createAnnotatedType(this.resolvedType, annots);
+				this.resolvedType = scope.environment().createNonNullAnnotatedType(this.resolvedType);
 			}
 		} else if (nullTagBits == TagBits.AnnotationNonNull) {
 			if (location != Binding.DefaultLocationParameter) { // parameters are handled in MethodBinding.fillInDefaultNonNullness18()

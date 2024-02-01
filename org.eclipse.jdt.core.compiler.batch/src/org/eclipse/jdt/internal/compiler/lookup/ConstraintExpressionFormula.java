@@ -340,6 +340,8 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 			TypeBinding rPrime = compileTimeDecl.isConstructor() ? compileTimeDecl.declaringClass : compileTimeDecl.returnType.capture(inferenceContext.scope, reference.sourceStart(), reference.sourceEnd());
 			if (rPrime.id == TypeIds.T_void)
 				return FALSE;
+			if (compileTimeDecl.isConstructor() && inferenceContext.environment.usesNullTypeAnnotations())
+				rPrime = inferenceContext.environment.createNonNullAnnotatedType(rPrime);
 			return ConstraintTypeFormula.create(rPrime, r, COMPATIBLE, this.isSoft);
 		}
 	}

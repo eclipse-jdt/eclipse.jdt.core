@@ -529,7 +529,7 @@ public TypeBinding resolveType(BlockScope scope) {
 				for (int i = 0; i < this.typeArguments.length; i++)
 					this.typeArguments[i].checkNullConstraints(scope, (ParameterizedGenericMethodBinding) this.binding, typeVariables, i);
 			}
-			this.resolvedType = scope.environment().createAnnotatedType(this.resolvedType, new AnnotationBinding[] {scope.environment().getNonNullAnnotation()});
+			this.resolvedType = scope.environment().createNonNullAnnotatedType(this.resolvedType);
 		}
 	}
 	if (compilerOptions.sourceLevel >= ClassFileConstants.JDK1_8 &&

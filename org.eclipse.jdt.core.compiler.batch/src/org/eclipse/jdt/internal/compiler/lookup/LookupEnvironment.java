@@ -1431,6 +1431,11 @@ public TypeBinding createAnnotatedType(TypeBinding type, AnnotationBinding[] new
 	return this.typeSystem.getAnnotatedType(type, new AnnotationBinding [][] { newbies });
 }
 
+// convenience:
+public TypeBinding createNonNullAnnotatedType(TypeBinding type) {
+	return createAnnotatedType(type, new AnnotationBinding[] { getNonNullAnnotation() } );
+}
+
 public RawTypeBinding createRawType(ReferenceBinding genericType, ReferenceBinding enclosingType) {
 	AnnotationBinding[] annotations = genericType.typeAnnotations;
 	if (annotations != Binding.NO_ANNOTATIONS)

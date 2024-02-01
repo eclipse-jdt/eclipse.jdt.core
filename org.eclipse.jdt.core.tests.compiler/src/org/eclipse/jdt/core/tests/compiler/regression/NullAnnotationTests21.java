@@ -945,4 +945,35 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 		runner.classLibraries = this.LIBS;
 		runner.runConformTest();
 	}
+	public void testGH1009() {
+		Runner runner = new Runner();
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportAnnotatedTypeArgumentToUnannotated, CompilerOptions.ERROR);
+		runner.customOptions = options;
+		runner.testFiles = new String[] {
+			"UnsafeNullTypeConversionFalsePositive.java",
+			"""
+			import java.util.ArrayList;
+			import java.util.List;
+			import java.util.stream.Collectors;
+
+			import org.eclipse.jdt.annotation.NonNull;
+
+			public class UnsafeNullTypeConversionFalsePositive {
+
+				public static void main(final String[] args) {
+					final List<@NonNull StringBuffer> someList = new ArrayList<>();
+					List<@NonNull String> results;
+					// was buggy:
+					results = someList.stream().map(String::new).collect(Collectors.toList());
+					// was OK:
+					results = someList.stream().map(buff -> new String(buff)).collect(Collectors.toList());
+					results = someList.stream().<@NonNull String>map(String::new).collect(Collectors.toList());
+				}
+			}
+			"""
+		};
+		runner.classLibraries = this.LIBS;
+		runner.runConformTest();
+	}
 }

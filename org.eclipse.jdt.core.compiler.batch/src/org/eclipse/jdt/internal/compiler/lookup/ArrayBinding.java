@@ -562,7 +562,7 @@ public MethodBinding getCloneMethod(final MethodBinding originalMethod) {
 	method.returnType = this.environment.globalOptions.sourceLevel >= ClassFileConstants.JDK1_5 ? this : originalMethod.returnType;
 	if (this.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled) {
 		if (this.environment.usesNullTypeAnnotations())
-			method.returnType = this.environment.createAnnotatedType(method.returnType, new AnnotationBinding[] { this.environment.getNonNullAnnotation() });
+			method.returnType = this.environment.createNonNullAnnotatedType(method.returnType);
 		else
 			method.tagBits |= TagBits.AnnotationNonNull;
 	}

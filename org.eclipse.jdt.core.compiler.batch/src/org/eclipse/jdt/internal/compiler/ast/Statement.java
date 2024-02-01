@@ -222,7 +222,7 @@ void internalAnalyseOneArgument18(BlockScope currentScope, FlowContext flowConte
 		if (!expectedType.hasNullTypeAnnotations() && expectedNonNullness == Boolean.TRUE) {
 			// improve problem rendering when using a declaration annotation in a 1.8 setting
 			LookupEnvironment env = currentScope.environment();
-			expectedType = env.createAnnotatedType(expectedType, new AnnotationBinding[] {env.getNonNullAnnotation()});
+			expectedType = env.createNonNullAnnotatedType(expectedType);
 		}
 		flowContext.recordNullityMismatch(currentScope, argument, argument.resolvedType, expectedType, flowInfo, nullStatus, annotationStatus);
 	}

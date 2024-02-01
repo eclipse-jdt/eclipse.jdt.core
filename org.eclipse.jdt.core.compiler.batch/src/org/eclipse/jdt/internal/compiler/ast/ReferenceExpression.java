@@ -908,8 +908,7 @@ public class ReferenceExpression extends FunctionalExpression implements IPolyEx
 
 	        		TypeBinding descriptorParameter = this.descriptor.parameters[0];
 	    			if((descriptorParameter.tagBits & TagBits.AnnotationNullable) != 0) { // Note: normal dereferencing of 'unchecked' values is not reported, either
-		    			final TypeBinding receiver = scope.environment().createAnnotatedType(this.binding.declaringClass,
-								new AnnotationBinding[] { scope.environment().getNonNullAnnotation() });
+		    			final TypeBinding receiver = scope.environment().createNonNullAnnotatedType(this.binding.declaringClass);
     					scope.problemReporter().referenceExpressionArgumentNullityMismatch(this, receiver, descriptorParameter, this.descriptor, -1, NullAnnotationMatching.NULL_ANNOTATIONS_MISMATCH);
 	    			}
 	        	}
