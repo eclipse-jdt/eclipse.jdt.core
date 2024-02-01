@@ -989,6 +989,7 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 				"""
 					public class SwitchIf {
 							final String name = "test";
+							boolean namedFlag;
 							enum Type { A }
 							private void foo(Type input) {
 								switch (input) {
@@ -1005,8 +1006,10 @@ public class CompletionTests14 extends AbstractJavaModelCompletionTests {
 		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
 		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
 		assertResults(
-				"name[FIELD_REF]{name, LSwitchIf;, Ljava.lang.String;, null, null, name, null, [144, 147], "
-						+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}",
+				"name[FIELD_REF]{name, LSwitchIf;, Ljava.lang.String;, null, null, name, null, [165, 168], "
+						+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED) + "}\n" +
+				"namedFlag[FIELD_REF]{namedFlag, LSwitchIf;, Z, null, null, namedFlag, null, [165, 168], "
+						+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE + R_UNQUALIFIED + R_NON_RESTRICTED + R_EXACT_EXPECTED_TYPE)+"}",
 				requestor.getResults());
 	}
 
