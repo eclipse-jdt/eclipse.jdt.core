@@ -61,6 +61,7 @@ import org.eclipse.jdt.internal.compiler.batch.CompilationUnit;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem;
 import org.eclipse.jdt.internal.compiler.batch.FileSystem.Classpath;
 import org.eclipse.jdt.internal.compiler.batch.Main;
+import org.eclipse.jdt.internal.compiler.batch.SourceInfo;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
@@ -174,11 +175,12 @@ public class EclipseCompilerImpl extends Main {
 							throw new IllegalArgumentException(this.bind("unit.missing", name)); //$NON-NLS-1$
 					}
 
+					SourceInfo sourceInfo = getSourceInfo(i);
 					CompilationUnit cu = new CompilationUnit(null,
 							name,
 							null,
-							this.destinationPaths[i],
-							shouldIgnoreOptionalProblems(this.ignoreOptionalProblemsFromFolders, name.toCharArray()), this.modNames[i]) {
+							sourceInfo.destinationPath(),
+							shouldIgnoreOptionalProblems(this.ignoreOptionalProblemsFromFolders, name.toCharArray()), sourceInfo.moduleName()) {
 
 							@Override
 							public char[] getContents() {
@@ -200,6 +202,7 @@ public class EclipseCompilerImpl extends Main {
 		units.toArray(result);
 		return result;
 	}
+
 	/*
 	 *  Low-level API performing the actual compilation
 	 */
