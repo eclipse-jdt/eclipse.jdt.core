@@ -71,7 +71,6 @@ import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.function.Function;
-import java.util.stream.IntStream;
 
 import org.eclipse.jdt.core.compiler.CategorizedProblem;
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -1442,6 +1441,8 @@ public class Main implements ProblemSeverities, SuffixConstants {
 
 	public static final String NONE = "none"; //$NON-NLS-1$
 
+	private SourceInfo[] sourceInfos;
+
 /**
  * @deprecated - use {@link BatchCompiler#compile(String, PrintWriter, PrintWriter, CompilationProgress)} instead
  * 						  e.g. BatchCompiler.compile(commandLine, new PrintWriter(System.out), new PrintWriter(System.err), null);
@@ -1735,6 +1736,21 @@ private boolean checkVMVersion(long minimalSupportedVersion) {
 	}
 	return ClassFileConstants.getComplianceLevelForJavaVersion(majorVersion) >=minimalSupportedVersion;
 }
+
+protected SourceInfo getSourceInfo(int index) {
+	if (this.sourceInfos == null) {
+		return new SourceInfo(index, getOrNull(this.filenames, index), getOrNull(this.encodings, index), getOrNull(this.modNames, index), getOrNull(this.destinationPaths, index));
+	}
+	return this.sourceInfos[index];
+}
+
+private String getOrNull(String[] arr, int i) {
+	if (arr == null) {
+		return null;
+	}
+	return arr[i];
+}
+
 /*
  *  Low-level API performing the actual compilation
  */
@@ -1742,6 +1758,16 @@ public boolean compile(String[] argv) {
 	// decode command line arguments
 	try {
 		configure(argv);
+		// sort array by file names so we have a consistent order of compiling / handling them
+		// this is important as the order can influence the way for example lamda numbers are generated
+		if (this.filenames != null) {
+			SourceInfo[] info = new SourceInfo[this.filenames.length];
+			for (int i = 0; i < info.length; i++) {
+				info[i] = getSourceInfo(i);
+			}
+			Arrays.sort(info, Comparator.comparing(SourceInfo::filename));
+			this.sourceInfos = info;
+		}
 		if (this.progress != null)
 			this.progress.begin(this.filenames == null ? 0 : this.filenames.length * this.maxRepetition);
 		if (this.proceed) {
@@ -3357,23 +3383,19 @@ public CompilationUnit[] getCompilationUnits() {
 	String defaultEncoding = this.options.get(CompilerOptions.OPTION_Encoding);
 	if (Util.EMPTY_STRING.equals(defaultEncoding))
 		defaultEncoding = null;
-	// sort index by file names so we have a consistent order of compiling / handling them
-	// this is important as the order can influence the way for example lamda numbers are generated
-	int[] orderedIndex = IntStream.range(0, fileCount).boxed().sorted((i1, i2) -> {
-		return this.filenames[i1].compareTo(this.filenames[i2]);
-	}).mapToInt(i -> i).toArray();
 	for (int round = 0; round < 2; round++) {
-		for (int i : orderedIndex) {
-			char[] charName = this.filenames[i].toCharArray();
+		for (int unit = 0; unit < units.length; unit++) {
+			SourceInfo info = getSourceInfo(unit);
+			char[] charName = info.filename().toCharArray();
 			boolean isModuleInfo = CharOperation.endsWith(charName, TypeConstants.MODULE_INFO_FILE_NAME);
 			if (isModuleInfo == (round==0)) { // 1st round: modules, 2nd round others (to ensure populating pathToModCU well in time)
 				if (knownFileNames.get(charName) != null)
-					throw new IllegalArgumentException(this.bind("unit.more", this.filenames[i])); //$NON-NLS-1$
+					throw new IllegalArgumentException(this.bind("unit.more", info.filename())); //$NON-NLS-1$
 				knownFileNames.put(charName, charName);
-				File file = new File(this.filenames[i]);
+				File file = new File(info.filename());
 				if (!file.exists())
-					throw new IllegalArgumentException(this.bind("unit.missing", this.filenames[i])); //$NON-NLS-1$
-				String encoding = this.encodings[i];
+					throw new IllegalArgumentException(this.bind("unit.missing", info.filename())); //$NON-NLS-1$
+				String encoding = info.encoding();
 				if (encoding == null)
 					encoding = defaultEncoding;
 				String fileName;
@@ -3381,7 +3403,7 @@ public CompilationUnit[] getCompilationUnits() {
 					fileName = file.getCanonicalPath();
 				} catch (IOException e) {
 					// if we got exception during canonicalization, fall back to the name that was specified
-					fileName = this.filenames[i];
+					fileName = info.filename();
 				}
 				Function<String,String> annotationPathProvider = null;
 				if (this.annotationsFromClasspath) {
@@ -3402,9 +3424,9 @@ public CompilationUnit[] getCompilationUnits() {
 						return null;
 					};
 				}
-				units[i] = new CompilationUnit(null, fileName, encoding, this.destinationPaths[i],
+				units[unit] = new CompilationUnit(null, fileName, encoding, info.destinationPath(),
 						shouldIgnoreOptionalProblems(this.ignoreOptionalProblemsFromFolders, fileName.toCharArray()),
-						this.modNames[i], annotationPathProvider);
+						info.moduleName(), annotationPathProvider);
 			}
 		}
 	}
@@ -3578,50 +3600,66 @@ protected ArrayList<FileSystem.Classpath> handleModuleSourcepath(String arg) {
 					String moduleName = mod == null ? null : new String(mod.name());
 					for(int j = 0; j < this.filenames.length; j++) {
 						Path filePath;
+						SourceInfo info = getSourceInfo(j);
+						int idx = info.index();
 						try {
 							// Get canonical path just as the classpath location is stored with the same.
 							// To avoid mismatch of /USER_JAY and /USE~1 in windows systems.
-							filePath = new File(this.filenames[j]).getCanonicalFile().toPath();
+							filePath = new File(info.filename()).getCanonicalFile().toPath();
 							if (filePath.startsWith(modLocation)) {
-								this.modNames[j] = moduleName;
-								this.destinationPaths[j] = destPath;
+								this.modNames[idx] = moduleName;
+								this.destinationPaths[idx] = destPath;
+								if (this.sourceInfos != null) {
+									this.sourceInfos [idx] = new SourceInfo(idx, info.filename(), info.encoding(), moduleName, destPath);
+								}
 							}
 						} catch (IOException e) {
 							// Files doesn't exist and perhaps doesn't belong in a module, move on to other files
 							// Use empty module name to distinguish from missing module case
-							this.modNames[j] = ""; //$NON-NLS-1$
+							this.modNames[idx] = ""; //$NON-NLS-1$
+							if (this.sourceInfos != null) {
+								this.sourceInfos[idx] = new SourceInfo(idx, info.filename(), info.encoding(), "", info.destinationPath()); //$NON-NLS-1$
+							}
 						}
 					}
 				}
 			}
 		}
 		for(int j = 0; j < this.filenames.length; j++) {
-			if (this.modNames[j] == null) {
-				throw new IllegalArgumentException(this.bind("configure.notOnModuleSourcePath", new String[] {this.filenames[j]})); //$NON-NLS-1$
+			SourceInfo info = getSourceInfo(j);
+			if (info.moduleName() == null) {
+				throw new IllegalArgumentException(this.bind("configure.notOnModuleSourcePath", new String[] {info.filename()})); //$NON-NLS-1$
 			}
 		}
 	}
 	return result;
 }
+
 private void handleSingleModuleCompilation() {
 	if (this.filenames == null) {
 		return;
 	}
 	IModule singleMod = null;
-	for (String filename : this.filenames) {
-		IModule mod = extractModuleDesc(filename);
+	for (int i = 0; i < this.filenames.length; i++) {
+		SourceInfo info = getSourceInfo(i);
+		IModule mod = extractModuleDesc(info.filename());
 		if (mod != null) {
 			if (singleMod == null) {
 				singleMod = mod;
 			} else {
-				addPendingErrors(this.bind("configure.duplicateModuleInfo", filename)); //$NON-NLS-1$
+				addPendingErrors(this.bind("configure.duplicateModuleInfo", info.filename())); //$NON-NLS-1$
 			}
 		}
 	}
 	if (singleMod != null) {
 		String moduleName = new String(singleMod.name());
 		for (int i = 0; i < this.modNames.length; i++) {
-			this.modNames[i] = moduleName;
+			SourceInfo info = getSourceInfo(i);
+			int idx = info.index();
+			this.modNames[idx] = moduleName;
+			if (this.sourceInfos != null) {
+				this.sourceInfos[idx] = new SourceInfo(idx, info.filename(), info.encoding(), moduleName, info.destinationPath());
+			}
 		}
 		this.module = singleMod;
 	}
