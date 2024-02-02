@@ -197,10 +197,6 @@ public class GuardedPattern extends Pattern {
 		this.primaryPattern.resumeVariables(codeStream, scope);
 	}
 	@Override
-	public void resolveWithExpression(BlockScope scope, Expression expression) {
-		this.primaryPattern.resolveWithExpression(scope, expression);
-	}
-	@Override
 	protected boolean isPatternTypeCompatible(TypeBinding other, BlockScope scope) {
 		return this.primaryPattern.isPatternTypeCompatible(other, scope);
 	}

@@ -132,7 +132,6 @@ public abstract class Pattern extends Expression {
 	public TypeReference getType() {
 		return null;
 	}
-	public abstract void resolveWithExpression(BlockScope scope, Expression expression);
 
 	public void setTargetSupplier(Supplier<BranchLabel> targetSupplier) {
 		// default implementation does nothing

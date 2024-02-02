@@ -37,7 +37,6 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 public class TypePattern extends Pattern {
 
 	public LocalDeclaration local;
-	Expression expression;
 
 	public TypePattern(LocalDeclaration local) {
 		this.local = local;
@@ -120,10 +119,7 @@ public class TypePattern extends Pattern {
 	public LocalDeclaration getPatternVariable() {
 		return this.local;
 	}
-	@Override
-	public void resolveWithExpression(BlockScope scope, Expression exp) {
-		this.expression = exp;
-	}
+
 	@Override
 	public void resolve(BlockScope scope) {
 		this.resolveType(scope);
@@ -142,7 +138,7 @@ public class TypePattern extends Pattern {
 				scope.problemReporter().incompatiblePatternType(this, other, patternType);
 				return false;
 			}
-		} else if (!checkCastTypesCompatibility(scope, other, patternType, this.expression, true)) {
+		} else if (!checkCastTypesCompatibility(scope, other, patternType, null, true)) {
 			scope.problemReporter().incompatiblePatternType(this, other, patternType);
 			return false;
 		}
@@ -167,6 +163,7 @@ public class TypePattern extends Pattern {
 		}
 		return this.resolvedType;
 	}
+
 	@Override
 	public TypeBinding resolveTypeWithBindings(LocalVariableBinding [] bindings, BlockScope scope) {
 		scope.include(bindings);
@@ -174,9 +171,9 @@ public class TypePattern extends Pattern {
 			if (this.resolvedType != null)
 				return this.resolvedType;
 			if (this.local != null) {
-				this.local.modifiers |= ExtraCompilerModifiers.AccOutOfFlowScope;
 
-				if (this.local.isTypeNameVar(scope)) {
+				this.local.modifiers |= ExtraCompilerModifiers.AccOutOfFlowScope;
+				if (this.local.type == null || this.local.type.isTypeNameVar(scope)) {
 					/*
 					 * If the LocalVariableType is var then the pattern variable must appear in a pattern list of a
 					 * record pattern with type R. Let T be the type of the corresponding component field in R. The type
@@ -195,7 +192,9 @@ public class TypePattern extends Pattern {
 									this.local.type.resolvedType = recType.upwardsProjection(scope,
 											mentionedTypeVariables);
 								} else {
-									this.local.type.resolvedType = rcb.type;
+									if (this.local.type != null)
+										this.local.type.resolvedType = rcb.type;
+									this.resolvedType = rcb.type;
 								}
 							}
 						}
@@ -205,7 +204,8 @@ public class TypePattern extends Pattern {
 				if (this.local.binding != null) {
 					this.local.binding.modifiers |= ExtraCompilerModifiers.AccOutOfFlowScope; // start out this way, will be BlockScope.include'd when definitely assigned
 					this.local.binding.tagBits |= TagBits.IsPatternBinding;
-					this.resolvedType = this.local.binding.type;
+					if (this.local.type != null)
+						this.resolvedType = this.local.binding.type;
 				}
 			}
 
@@ -228,35 +228,17 @@ public class TypePattern extends Pattern {
 		if (mentioned.isEmpty()) return null;
 		return mentioned.toArray(new TypeVariableBinding[mentioned.size()]);
 	}
-	protected void getSecretVariable(BlockScope scope, TypeBinding type) {
-		if (this.secretPatternVariable != null)
-			return;
-		this.secretPatternVariable = getSecretVariable(scope,
-				SECRET_PATTERN_VARIABLE_NAME, this.nestingLevel,
-				type);
-	}
 
-	private LocalVariableBinding getSecretVariable(BlockScope scope, String name, int nestingLevel1, TypeBinding type) {
-		return TypePattern.getNewLocalVariableBinding(scope,
-				(name + nestingLevel1).toCharArray(),
-				type);
-	}
-	private static LocalVariableBinding getNewLocalVariableBinding(BlockScope scope, char[] name,
-			TypeBinding type) {
-		LocalVariableBinding l =
-				new LocalVariableBinding(
-					name,
-					type,
-					ClassFileConstants.AccDefault,
-					false);
-		l.setConstant(Constant.NotAConstant);
-		l.useFlag = LocalVariableBinding.USED;
-		scope.addLocalVariable(l);
-//		int delta =  ((TypeBinding.equalsEquals(type, TypeBinding.LONG)) ||
-//				(TypeBinding.equalsEquals(type, TypeBinding.DOUBLE))) ?
-//				2 : 1;
-		l.resolvedPosition = scope.localIndex;
-		return l;
+	protected void createSecretVariable(BlockScope scope, TypeBinding type) {
+		if (this.secretPatternVariable == null) {
+			LocalVariableBinding l = new LocalVariableBinding(
+					(SECRET_PATTERN_VARIABLE_NAME + this.nestingLevel).toCharArray(), type,
+					ClassFileConstants.AccDefault, false);
+			l.setConstant(Constant.NotAConstant);
+			l.useFlag = LocalVariableBinding.USED;
+			scope.addLocalVariable(l);
+			this.secretPatternVariable = l;
+		}
 	}
 
 	@Override
