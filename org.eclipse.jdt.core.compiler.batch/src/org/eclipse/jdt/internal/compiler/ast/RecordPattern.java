@@ -143,11 +143,32 @@ public class RecordPattern extends TypePattern {
 
 	@Override
 	public TypeBinding resolveType(BlockScope scope) {
+
 		if (this.resolvedType != null)
 			return this.resolvedType;
 
 		this.type.bits |= ASTNode.IgnoreRawTypeCheck;
 		this.resolvedType = this.type.resolveType(scope);
+
+		if (!this.resolvedType.isRecord()) {
+			scope.problemReporter().unexpectedTypeinRecordPattern(this.resolvedType, this.type);
+			return this.resolvedType;
+		}
+		if (this.resolvedType.components().length != this.patterns.length) {
+			scope.problemReporter().recordPatternSignatureMismatch(this.resolvedType, this);
+			return this.resolvedType;
+		}
+		if (this.resolvedType.isRawType()) {
+			TypeBinding expressionType = expectedType();
+			if (expressionType instanceof ReferenceBinding) {
+				ReferenceBinding binding = inferRecordParameterization(scope, (ReferenceBinding) expressionType);
+				if (binding == null || !binding.isValidBinding()) {
+					scope.problemReporter().cannotInferRecordPatternTypes(this);
+				    return this.resolvedType = null;
+				}
+				this.resolvedType = binding;
+			}
+		}
 
 		LocalVariableBinding [] bindings = NO_VARIABLES;
 		for (Pattern p : this.patterns) {
@@ -165,38 +186,15 @@ public class RecordPattern extends TypePattern {
 
 		createSecretVariable(scope, this.resolvedType);
 
-		// check whether the give type reference is a record
-		// check whether a raw type is being used in pattern types
-		// check whether the pattern signature matches that of the record declaration
-		if (!this.resolvedType.isRecord()) {
-			scope.problemReporter().unexpectedTypeinRecordPattern(this.resolvedType, this.type);
-			return this.resolvedType;
-		}
-		if (this.resolvedType.isRawType()) {
-			TypeBinding expressionType = expectedType();
-			if (expressionType instanceof ReferenceBinding) {
-				ReferenceBinding binding = inferRecordParameterization(scope, (ReferenceBinding) expressionType);
-				if (binding == null || !binding.isValidBinding()) {
-					scope.problemReporter().cannotInferRecordPatternTypes(this);
-				    return this.resolvedType = null;
-				}
-				this.resolvedType = binding;
-			}
-		}
 		setAccessorsPlusInfuseInferredType(scope);
 		return this.resolvedType;
 	}
 	private void setAccessorsPlusInfuseInferredType(BlockScope scope) {
 		this.isTotalTypeNode = super.coversType(this.resolvedType);
 		RecordComponentBinding[] components = this.resolvedType.capture(scope, this.sourceStart, this.sourceEnd).components();
-		if (components.length != this.patterns.length) {
-			scope.problemReporter().recordPatternSignatureMismatch(this.resolvedType, this);
-		} else {
-			for (int i = 0; i < components.length; i++) {
-				Pattern p = this.patterns[i];
-				if (!(p instanceof TypePattern))
-					continue;
-				TypePattern tp = (TypePattern) p;
+		for (int i = 0; i < components.length; i++) {
+			Pattern p = this.patterns[i];
+			if (p instanceof TypePattern tp) {
 				RecordComponentBinding componentBinding = components[i];
 				if (p.getType() == null || p.getType().isTypeNameVar(scope)) {
 					infuseInferredType(scope, tp, componentBinding);
@@ -235,7 +233,6 @@ public class RecordPattern extends TypePattern {
 					tp.local.type.sourceEnd);
 		}
 		tp.local.type = ref;
-		tp.resolvedType = tp.local.type.resolvedType = componentBinding.type;
 		if (componentBinding.type != null && (componentBinding.tagBits & TagBits.HasMissingType) != 0) {
 			currentScope.problemReporter().invalidType(ref, componentBinding.type);
 		}

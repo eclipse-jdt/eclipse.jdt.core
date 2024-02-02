@@ -173,8 +173,7 @@ public class TypePattern extends Pattern {
 			if (this.local != null) {
 
 				this.local.modifiers |= ExtraCompilerModifiers.AccOutOfFlowScope;
-
-				if (this.local.isTypeNameVar(scope)) {
+				if (this.local.type == null || this.local.type.isTypeNameVar(scope)) {
 					/*
 					 * If the LocalVariableType is var then the pattern variable must appear in a pattern list of a
 					 * record pattern with type R. Let T be the type of the corresponding component field in R. The type
@@ -193,7 +192,9 @@ public class TypePattern extends Pattern {
 									this.local.type.resolvedType = recType.upwardsProjection(scope,
 											mentionedTypeVariables);
 								} else {
-									this.local.type.resolvedType = rcb.type;
+									if (this.local.type != null)
+										this.local.type.resolvedType = rcb.type;
+									this.resolvedType = rcb.type;
 								}
 							}
 						}
@@ -203,7 +204,8 @@ public class TypePattern extends Pattern {
 				if (this.local.binding != null) {
 					this.local.binding.modifiers |= ExtraCompilerModifiers.AccOutOfFlowScope; // start out this way, will be BlockScope.include'd when definitely assigned
 					this.local.binding.tagBits |= TagBits.IsPatternBinding;
-					this.resolvedType = this.local.binding.type;
+					if (this.local.type != null)
+						this.resolvedType = this.local.binding.type;
 				}
 			}
 

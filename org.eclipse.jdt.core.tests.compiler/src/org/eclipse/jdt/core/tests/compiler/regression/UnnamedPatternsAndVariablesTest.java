@@ -25,6 +25,10 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 		return buildMinimalComplianceTestSuite(UnnamedPatternsAndVariablesTest.class, F_21);
 	}
 
+	static {
+		//	TESTS_NAMES = new String [] { "testInstanceOfPatternMatchingWithMixedPatterns" };
+	}
+
 	public UnnamedPatternsAndVariablesTest(String name) {
 		super(name);
 	}
