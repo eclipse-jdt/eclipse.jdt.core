@@ -22,7 +22,6 @@ import java.util.zip.ZipFile;
 
 import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.jdt.core.IJarEntryResource;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
@@ -53,8 +52,7 @@ public class JarEntryFile  extends JarEntryResource {
 		IPackageFragmentRoot root = getPackageFragmentRoot();
 		if (Util.isJrt(root.getPath().toOSString())) {
 			try {
-				IPath rootPath = root.getPath();
-				Object target = JavaModel.getTarget(rootPath, false);
+				Object target = JavaModel.getTarget(root, false);
 				if (target != null && target instanceof File) {
 					return JRTUtil.getContentFromJrt((File) target, getEntryName(), root.getElementName());
 				}

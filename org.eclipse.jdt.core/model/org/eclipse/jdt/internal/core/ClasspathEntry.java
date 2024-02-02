@@ -1575,7 +1575,7 @@ public class ClasspathEntry implements IClasspathEntry {
 	@Override
 	public String toString() {
 		StringBuilder buffer = new StringBuilder();
-		Object target = JavaModel.getTarget(getPath(), true);
+		Object target = JavaModel.getTarget(this, true);
 		if (target instanceof File)
 			buffer.append(getPath().toOSString());
 		else
@@ -1998,7 +1998,7 @@ public class ClasspathEntry implements IClasspathEntry {
 					break;
 
 				case IClasspathEntry.CPE_LIBRARY:
-					Object target = JavaModel.getTarget(path, false/*don't check resource existence*/);
+					Object target = JavaModel.getTarget(resolvedEntry, false/*don't check resource existence*/);
 					hasLibFolder |= target instanceof IContainer;
 					if ((index = Util.indexOfMatchingPath(path, outputLocations, outputCount)) != -1){
 						allowNestingInOutputLocations[index] = true;
@@ -2028,15 +2028,15 @@ public class ClasspathEntry implements IClasspathEntry {
 
 			// allow nesting source entries in each other as long as the outer entry excludes the inner one
 			if (kind == IClasspathEntry.CPE_SOURCE
-					|| (kind == IClasspathEntry.CPE_LIBRARY && (JavaModel.getTarget(entryPath, false/*don't check existence*/) instanceof IContainer))) {
+					|| (kind == IClasspathEntry.CPE_LIBRARY && (JavaModel.getTarget(entry, false/*don't check existence*/) instanceof IContainer))) {
 				for (IClasspathEntry otherEntry : classpath) {
 					if (otherEntry == null) continue;
 					int otherKind = otherEntry.getEntryKind();
-					IPath otherPath = otherEntry.getPath();
 					if (entry != otherEntry
 						&& (otherKind == IClasspathEntry.CPE_SOURCE
 								|| (otherKind == IClasspathEntry.CPE_LIBRARY
-										&& (JavaModel.getTarget(otherPath, false/*don't check existence*/) instanceof IContainer)))) {
+										&& (JavaModel.getTarget(otherEntry, false/*don't check existence*/) instanceof IContainer)))) {
+						IPath otherPath = otherEntry.getPath();
 						char[][] inclusionPatterns, exclusionPatterns;
 						if (otherPath.isPrefixOf(entryPath)
 								&& !otherPath.equals(entryPath)
@@ -2214,9 +2214,9 @@ public class ClasspathEntry implements IClasspathEntry {
 		return status;
 	}
 
-	private static IJavaModelStatus validateClasspathEntry(IJavaProject project, IClasspathEntry entry, IClasspathContainer entryContainer, boolean checkSourceAttachment, boolean referredByContainer){
+	private static IJavaModelStatus validateClasspathEntry(IJavaProject project, final IClasspathEntry entry, IClasspathContainer entryContainer, boolean checkSourceAttachment, boolean referredByContainer){
 
-		IPath path = entry.getPath();
+		final IPath path = entry.getPath();
 
 		// Build some common strings for status message
 		String projectName = project.getElementName();
@@ -2301,19 +2301,20 @@ public class ClasspathEntry implements IClasspathEntry {
 			// variable entry check
 			case IClasspathEntry.CPE_VARIABLE :
 				if (path.segmentCount() >= 1){
+					IClasspathEntry resolved;
 					try {
-						entry = JavaCore.getResolvedClasspathEntry(entry);
+						resolved = JavaCore.getResolvedClasspathEntry(entry);
 					} catch (AssertionFailedException e) {
 						// Catch the assertion failure and throw java model exception instead
 						// see bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=55992
 						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_PATH, e.getMessage());
 					}
-					if (entry == null){
+					if (resolved == null){
 						return new JavaModelStatus(IJavaModelStatusConstants.CP_VARIABLE_PATH_UNBOUND, project, path);
 					}
 
 					// get validation status
-					IJavaModelStatus status = validateClasspathEntry(project, entry, null, checkSourceAttachment, false/*not referred by container*/);
+					IJavaModelStatus status = validateClasspathEntry(project, resolved, null, checkSourceAttachment, false/*not referred by container*/);
 					if (!status.isOK()) return status;
 
 					// return deprecation status if any
@@ -2329,7 +2330,7 @@ public class ClasspathEntry implements IClasspathEntry {
 
 			// library entry check
 			case IClasspathEntry.CPE_LIBRARY :
-				path = ClasspathEntry.resolveDotDot(project.getProject().getLocation(), path);
+				IPath resolvedPath = ClasspathEntry.resolveDotDot(project.getProject().getLocation(), path);
 
 				// do not validate entries from Class-Path: in manifest
 				// (these entries are considered optional since the user cannot act on them)
@@ -2343,7 +2344,7 @@ public class ClasspathEntry implements IClasspathEntry {
 						containerInfo = Messages.bind(Messages.classpath_containerInfo, new String[] {entryContainer.getDescription()});
 					}
 				}
-				IJavaModelStatus status = validateLibraryEntry(path, project, containerInfo, checkSourceAttachment ? entry.getSourceAttachmentPath() : null, entryPathMsg, ((ClasspathEntry) entry).isOptional());
+				IJavaModelStatus status = validateLibraryEntry(resolvedPath, project, containerInfo, checkSourceAttachment ? entry.getSourceAttachmentPath() : null, entryPathMsg, ((ClasspathEntry) entry).isOptional());
 				if (!status.isOK())
 					return status;
 				break;
@@ -2394,7 +2395,7 @@ public class ClasspathEntry implements IClasspathEntry {
 				}
 				if (path.isAbsolute() && !path.isEmpty()) {
 					IPath projectPath= project.getProject().getFullPath();
-					if (!projectPath.isPrefixOf(path) || JavaModel.getTarget(path, true) == null){
+					if (!projectPath.isPrefixOf(path) || JavaModel.getTarget(entry, true) == null){
 						return new JavaModelStatus(IJavaModelStatusConstants.INVALID_CLASSPATH, Messages.bind(Messages.classpath_unboundSourceFolder, new String[] {entryPathMsg, projectName}));
 					}
 				} else {

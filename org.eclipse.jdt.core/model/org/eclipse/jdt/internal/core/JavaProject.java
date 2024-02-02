@@ -723,7 +723,7 @@ public class JavaProject
 			case IClasspathEntry.CPE_SOURCE :
 
 				if (projectPath.isPrefixOf(entryPath)){
-					Object target = JavaModel.getTarget(entryPath, true/*check existency*/);
+					Object target = JavaModel.getTarget(resolvedEntry, true/*check existency*/);
 					if (target == null) return;
 
 					if (target instanceof IFolder || target instanceof IProject){
@@ -736,7 +736,7 @@ public class JavaProject
 			case IClasspathEntry.CPE_LIBRARY :
 				if (referringEntry != null  && !resolvedEntry.isExported())
 					return;
-				Object target = JavaModel.getTarget(entryPath, true/*check existency*/);
+				Object target = JavaModel.getTarget(resolvedEntry, true/*check existency*/);
 				if (target == null)
 					return;
 

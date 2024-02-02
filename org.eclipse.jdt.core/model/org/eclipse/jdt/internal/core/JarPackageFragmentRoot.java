@@ -120,7 +120,7 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 			// always create the default package
 			rawPackageInfo.put(CharOperation.NO_STRINGS, new ArrayList[] { EMPTY_LIST, EMPTY_LIST });
 
-			Object file = JavaModel.getTarget(getPath(), true);
+			Object file = JavaModel.getTarget(this, true);
 			long classLevel = Util.getJdkLevel(file);
 			String projectCompliance = this.getJavaProject().getOption(JavaCore.COMPILER_COMPLIANCE, true);
 			long projectLevel = CompilerOptions.versionToJdkLevel(projectCompliance);

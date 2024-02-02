@@ -158,7 +158,7 @@ void add(JavaProject javaProject, IPath pathToAdd, int includeMask, Set<JavaProj
 						if ((includeMask & APPLICATION_LIBRARIES) != 0) {
 							IPath path = entry.getPath();
 							if (pathToAdd == null || pathToAdd.equals(path)) {
-								Object target = JavaModel.getTarget(path, false/*don't check existence*/);
+								Object target = JavaModel.getTarget(entry, false/*don't check existence*/);
 								if (target instanceof IFolder) // case of an external folder
 									path = ((IFolder) target).getFullPath();
 								String pathToString = path.getDevice() == null ? path.toString() : path.toOSString();
@@ -183,7 +183,7 @@ void add(JavaProject javaProject, IPath pathToAdd, int includeMask, Set<JavaProj
 						}
 						IPath path = entry.getPath();
 						if (pathToAdd == null || pathToAdd.equals(path)) {
-							Object target = JavaModel.getTarget(path, false/*don't check existence*/);
+							Object target = JavaModel.getTarget(entry, false/*don't check existence*/);
 							if (target instanceof IFolder) // case of an external folder
 								path = ((IFolder) target).getFullPath();
 							String pathToString = path.getDevice() == null ? path.toString() : path.toOSString();
