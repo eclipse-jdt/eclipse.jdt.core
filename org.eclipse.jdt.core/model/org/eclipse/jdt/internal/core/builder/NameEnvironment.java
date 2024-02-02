@@ -139,7 +139,7 @@ private void computeClasspathLocations(
 		}
 		ClasspathEntry entry = (ClasspathEntry) classpathEntries[i];
 		IPath path = entry.getPath();
-		Object target = JavaModel.getTarget(path, true);
+		Object target = JavaModel.getTarget(entry, true);
 		IPath externalAnnotationPath = entry.getExternalAnnotationPath(javaProject.getProject(), true);
 		if (target == null) continue nextEntry;
 		boolean isOnModulePath = isOnModulePath(entry);
@@ -208,7 +208,7 @@ private void computeClasspathLocations(
 						IPath srcExtAnnotPath = (externalAnnotationPath != null)
 							? externalAnnotationPath
 							: prereqEntry.getExternalAnnotationPath(javaProject.getProject(), true);
-						Object prereqTarget = JavaModel.getTarget(prereqEntry.getPath(), true);
+						Object prereqTarget = JavaModel.getTarget(prereqEntry, true);
 						if (!(prereqTarget instanceof IContainer)) continue nextPrereqEntry;
 						if (srcExtAnnotPath == null) {
 							// search in other sources contributing to the same binary location (that other loc will be skipped below, due to seen.contains()):

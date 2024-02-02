@@ -611,7 +611,7 @@ public class SourceMapper
 				manager.closeZipFile(zip); // handle null case
 			}
 		} else {
-			Object target = JavaModel.getTarget(root.getPath(), true);
+			Object target = JavaModel.getTarget(root, true);
 			if (target instanceof IResource) {
 				IResource resource = (IResource) target;
 				if (resource instanceof IContainer) {

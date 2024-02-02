@@ -284,7 +284,7 @@ private ClasspathLocation mapToClassPathLocation(JavaModelManager manager, Packa
 					ClasspathLocation.forJrtSystem(path.toOSString(), rawClasspathEntry.getAccessRuleSet(), null, compliance) :
 					ClasspathLocation.forLibrary(manager.getZipFile(path), rawClasspathEntry.getAccessRuleSet(), rawClasspathEntry.isModular(), compliance) ;
 		} else {
-			Object target = JavaModel.getTarget(path, true);
+			Object target = JavaModel.getTarget(root, true);
 			if (target != null) {
 				if (root.getKind() == IPackageFragmentRoot.K_SOURCE) {
 					cp = new ClasspathSourceDirectory((IContainer)target, root.fullExclusionPatternChars(), root.fullInclusionPatternChars());

@@ -337,6 +337,15 @@ public static Object getTarget(IPath path, boolean checkResourceExistence) {
 		return target;
 	return getExternalTarget(path, checkResourceExistence);
 }
+/** Return same as calling {@link #getTarget(IPath, boolean)} for {@link IClasspathEntry#getPath()} */
+public static Object getTarget(IClasspathEntry entry, boolean checkResourceExistence) {
+	return getTarget(entry.getPath(), checkResourceExistence);
+}
+/** Return same as calling {@link #getTarget(IPath, boolean)} for {@link IPackageFragmentRoot#getPath()} */
+public static Object getTarget(IPackageFragmentRoot root, boolean checkResourceExistence) {
+	return getTarget(root.getPath(), checkResourceExistence);
+}
+
 
 /**
  * Helper method - returns the {@link IResource} corresponding to the provided {@link IPath},

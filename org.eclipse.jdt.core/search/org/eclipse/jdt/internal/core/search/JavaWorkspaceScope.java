@@ -18,7 +18,6 @@ import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
@@ -100,10 +99,6 @@ public IPath[] enclosingProjectsAndJars() {
 			for (int j = 0, eLength = entries.length; j < eLength; j++) {
 				IClasspathEntry entry = entries[j];
 				if (entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
-					IPath path = entry.getPath();
-					Object target = JavaModel.getTarget(path, false/*don't check existence*/);
-					if (target instanceof IFolder) // case of an external folder
-						path = ((IFolder) target).getFullPath();
 					paths.add(entry.getPath());
 				}
 			}
