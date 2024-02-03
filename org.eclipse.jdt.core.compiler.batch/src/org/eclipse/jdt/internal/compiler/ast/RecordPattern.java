@@ -114,22 +114,6 @@ public class RecordPattern extends TypePattern {
 		}
 		return true;
 	}
-	@Override
-	public TypeBinding resolveAtType(BlockScope scope, TypeBinding u) {
-		for (Pattern p : this.patterns) {
-			p.resolveAtType(scope, u);
-		}
-		return this.resolvedType;
-	}
-	@Override
-	public TypeBinding resolveTypeWithBindings(LocalVariableBinding[] bindings, BlockScope scope) {
-		scope.include(bindings);
-		try {
-			return resolveType(scope);
-		} finally {
-			scope.exclude(bindings);
-		}
-	}
 
 	@Override
 	public void setExpectedType(TypeBinding expectedType) {
@@ -156,7 +140,7 @@ public class RecordPattern extends TypePattern {
 		}
 		if (this.resolvedType.components().length != this.patterns.length) {
 			scope.problemReporter().recordPatternSignatureMismatch(this.resolvedType, this);
-			return this.resolvedType;
+			return this.resolvedType = null;
 		}
 		if (this.resolvedType.isRawType()) {
 			TypeBinding expressionType = expectedType();

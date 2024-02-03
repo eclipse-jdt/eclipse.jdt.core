@@ -514,12 +514,12 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext,
 				• A pattern variable is both (i) introduced by b when false and (ii) introduced by
 				c when false.
 			 */
-			Pattern.reportRedeclarations(scope, this.condition.bindingsWhenTrue(), this.valueIfFalse.bindingsWhenTrue());
-			Pattern.reportRedeclarations(scope, this.condition.bindingsWhenTrue(), this.valueIfFalse.bindingsWhenFalse());
-			Pattern.reportRedeclarations(scope, this.condition.bindingsWhenFalse(), this.valueIfTrue.bindingsWhenTrue());
-			Pattern.reportRedeclarations(scope, this.condition.bindingsWhenFalse(), this.valueIfTrue.bindingsWhenFalse());
-			Pattern.reportRedeclarations(scope, this.valueIfTrue.bindingsWhenTrue(), this.valueIfFalse.bindingsWhenTrue());
-			Pattern.reportRedeclarations(scope, this.valueIfTrue.bindingsWhenFalse(), this.valueIfFalse.bindingsWhenFalse());
+			scope.reportClashingDeclarations(this.condition.bindingsWhenTrue(), this.valueIfFalse.bindingsWhenTrue());
+			scope.reportClashingDeclarations(this.condition.bindingsWhenTrue(), this.valueIfFalse.bindingsWhenFalse());
+			scope.reportClashingDeclarations(this.condition.bindingsWhenFalse(), this.valueIfTrue.bindingsWhenTrue());
+			scope.reportClashingDeclarations(this.condition.bindingsWhenFalse(), this.valueIfTrue.bindingsWhenFalse());
+			scope.reportClashingDeclarations(this.valueIfTrue.bindingsWhenTrue(), this.valueIfFalse.bindingsWhenTrue());
+			scope.reportClashingDeclarations(this.valueIfTrue.bindingsWhenFalse(), this.valueIfFalse.bindingsWhenFalse());
 
 
 			if (conditionType == null || this.originalValueIfTrueType == null || this.originalValueIfFalseType == null)

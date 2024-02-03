@@ -106,15 +106,6 @@ public class GuardedPattern extends Pattern {
 	public boolean coversType(TypeBinding type) {
 		return this.primaryPattern.coversType(type) && isAlwaysTrue();
 	}
-	@Override
-	public Pattern primary() {
-		return this.primaryPattern;
-	}
-
-	@Override
-	public void resolve(BlockScope scope) {
-		this.resolveType(scope);
-	}
 
 	@Override
 	public boolean dominates(Pattern p) {
@@ -158,16 +149,6 @@ public class GuardedPattern extends Pattern {
 			}
 		}, scope);
 		return this.resolvedType = this.primaryPattern.resolvedType;
-	}
-
-	@Override
-	public TypeBinding resolveAtType(BlockScope scope, TypeBinding u) {
-		if (this.resolvedType == null || this.primaryPattern == null)
-			return null;
-		if (this.primaryPattern.coversType(u))
-			return this.primaryPattern.resolveAtType(scope, u);
-
-		return this.resolvedType; //else leave the pattern untouched for now.
 	}
 
 	@Override

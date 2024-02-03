@@ -1877,10 +1877,10 @@ public TypeBinding resolveType(BlockScope scope) {
 	// We handle only the cases NOT already diagnosed in due course to avoid double jeopardy
 	switch ((this.bits & ASTNode.OperatorMASK) >> ASTNode.OperatorSHIFT) {
 		case AND_AND -> {
-			Pattern.reportRedeclarations(scope, this.left.bindingsWhenFalse(), this.right.bindingsWhenFalse());
+			scope.reportClashingDeclarations(this.left.bindingsWhenFalse(), this.right.bindingsWhenFalse());
 		}
 		case OR_OR -> {
-			Pattern.reportRedeclarations(scope, this.left.bindingsWhenTrue(), this.right.bindingsWhenTrue());
+			scope.reportClashingDeclarations(this.left.bindingsWhenTrue(), this.right.bindingsWhenTrue());
 		}
 	}
 
