@@ -36,7 +36,6 @@ import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.RecordComponentBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
-import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 
@@ -69,10 +68,6 @@ public class RecordPattern extends TypePattern {
 			return CastExpression.checkUnsafeCast(this, scope, castType, expressionType, match, isNarrowing);
 		else
 			return super.checkUnsafeCast(scope, castType, expressionType, match, isNarrowing);
-	}
-	@Override
-	public LocalDeclaration getPatternVariable() {
-		return super.getPatternVariable();
 	}
 	@Override
 	public LocalVariableBinding[] bindingsWhenTrue() {
@@ -170,32 +165,28 @@ public class RecordPattern extends TypePattern {
 
 		createSecretVariable(scope, this.resolvedType);
 
-		setAccessorsPlusInfuseInferredType(scope);
-		return this.resolvedType;
-	}
-	private void setAccessorsPlusInfuseInferredType(BlockScope scope) {
 		this.isTotalTypeNode = super.coversType(this.resolvedType);
 		RecordComponentBinding[] components = this.resolvedType.capture(scope, this.sourceStart, this.sourceEnd).components();
 		for (int i = 0; i < components.length; i++) {
-			Pattern p = this.patterns[i];
-			if (p instanceof TypePattern tp) {
+			Pattern p1 = this.patterns[i];
+			if (p1 instanceof TypePattern tp) {
 				RecordComponentBinding componentBinding = components[i];
-				if (p.getType() == null || p.getType().isTypeNameVar(scope)) {
-					infuseInferredType(scope, tp, componentBinding);
+				if (p1.getType() == null || p1.getType().isTypeNameVar(scope)) {
 					if (tp.local.binding != null) // rewrite with the inferred type
 						tp.local.binding.type = componentBinding.type;
 				}
 				TypeBinding expressionType = componentBinding.type;
-				if (p.isPatternTypeCompatible(expressionType, scope)) {
-					p.isTotalTypeNode = p.coversType(componentBinding.type);
+				if (p1.isPatternTypeCompatible(expressionType, scope)) {
+					p1.isTotalTypeNode = p1.coversType(componentBinding.type);
 					MethodBinding[] methods = this.resolvedType.getMethods(componentBinding.name);
 					if (methods != null && methods.length > 0) {
-						p.accessorMethod = methods[0];
+						p1.accessorMethod = methods[0];
 					}
 				}
-				this.isTotalTypeNode &= p.isTotalTypeNode;
+				this.isTotalTypeNode &= p1.isTotalTypeNode;
 			}
 		}
+		return this.resolvedType;
 	}
 	private ReferenceBinding inferRecordParameterization(BlockScope scope, ReferenceBinding proposedMatchingType) {
 		InferenceContext18 freshInferenceContext = new InferenceContext18(scope);
@@ -203,22 +194,6 @@ public class RecordPattern extends TypePattern {
 			return freshInferenceContext.inferRecordPatternParameterization(this, scope, proposedMatchingType);
 		} finally {
 			freshInferenceContext.cleanUp();
-		}
-	}
-	private void infuseInferredType(Scope currentScope, TypePattern tp, RecordComponentBinding componentBinding) {
-		SingleTypeReference ref;
-		if (tp.local.type == null) {
-			ref = new SingleTypeReference("var".toCharArray(), //$NON-NLS-1$
-					tp.local.sourceStart,
-					tp.local.sourceEnd);
-		} else {
-			ref = new SingleTypeReference(tp.local.type.getTypeName()[0],
-					tp.local.type.sourceStart,
-					tp.local.type.sourceEnd);
-		}
-		tp.local.type = ref;
-		if (componentBinding.type != null && (componentBinding.tagBits & TagBits.HasMissingType) != 0) {
-			currentScope.problemReporter().invalidType(ref, componentBinding.type);
 		}
 	}
 	@Override
@@ -391,13 +366,11 @@ public class RecordPattern extends TypePattern {
 	}
 	@Override
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
-		for (Pattern p : this.patterns) {
+		for (Pattern p : this.patterns) { // Srikanth, looks suspect
 			visitor.visit(p, scope);
 		}
 		if (visitor.visit(this, scope)) {
-			if (this.local != null)
-				this.local.traverse(visitor, scope);
-			else if (this.type != null) {
+			if (this.type != null) {
 				this.type.traverse(visitor, scope);
 			}
 			for (Pattern p : this.patterns) {
@@ -417,8 +390,6 @@ public class RecordPattern extends TypePattern {
 			}
 		}
 		output.append(')');
-		if (this.local != null)
-			output.append(' ').append(this.local.name);
 		return output;
 	}
 }

@@ -173,6 +173,9 @@ public class TypePattern extends Pattern {
 					RecordComponentBinding[] components = recType.components();
 					if (components.length > this.index) {
 						RecordComponentBinding rcb = components[this.index];
+						if (rcb.type != null && (rcb.tagBits & TagBits.HasMissingType) != 0) {
+							scope.problemReporter().invalidType(this, rcb.type);
+						}
 						TypeVariableBinding[] mentionedTypeVariables = findSyntheticTypeVariables(rcb.type);
 						if (mentionedTypeVariables != null && mentionedTypeVariables.length > 0) {
 							this.local.type.resolvedType = recType.upwardsProjection(scope,
