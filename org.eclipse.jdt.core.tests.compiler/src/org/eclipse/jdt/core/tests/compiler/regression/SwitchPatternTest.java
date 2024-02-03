@@ -7185,7 +7185,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				+ "----------\n"
 				+ "3. ERROR in X.java (at line 12)\n"
 				+ "	case WrapperRec(var data) when data.name.isEmpty() -> { }\n"
-				+ "	                ^^^\n"
+				+ "	                ^^^^^^^^\n"
 				+ "Data cannot be resolved to a type\n"
 				+ "----------\n");
 	}

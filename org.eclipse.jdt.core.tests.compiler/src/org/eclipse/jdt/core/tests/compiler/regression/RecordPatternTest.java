@@ -3394,12 +3394,17 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				}
 				"""
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 7)\n" +
-				"	case R() -> 0;\n" +
-				"	     ^^^\n" +
-				"Record pattern should match the signature of the record declaration\n" +
-				"----------\n");
+				"----------\n"
+				+ "1. ERROR in X.java (at line 6)\n"
+				+ "	return switch (r) {\n"
+				+ "	               ^\n"
+				+ "A switch expression should have a default case\n"
+				+ "----------\n"
+				+ "2. ERROR in X.java (at line 7)\n"
+				+ "	case R() -> 0;\n"
+				+ "	     ^^^\n"
+				+ "Record pattern should match the signature of the record declaration\n"
+				+ "----------\n");
 	}
 	public void testIssue1732_02() {
 		runNegativeTest(
@@ -3418,12 +3423,17 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				}
 				"""
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 7)\n" +
-				"	case R(int x) -> 0;\n" +
-				"	     ^^^^^^^^\n" +
-				"Record pattern should match the signature of the record declaration\n" +
-				"----------\n");
+				"----------\n"
+				+ "1. ERROR in X.java (at line 6)\n"
+				+ "	return switch (r) {\n"
+				+ "	               ^\n"
+				+ "A switch expression should have a default case\n"
+				+ "----------\n"
+				+ "2. ERROR in X.java (at line 7)\n"
+				+ "	case R(int x) -> 0;\n"
+				+ "	     ^^^^^^^^\n"
+				+ "Record pattern should match the signature of the record declaration\n"
+				+ "----------\n");
 	}
 	public void testIssue1732_03() {
 		runNegativeTest(
@@ -3442,12 +3452,17 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				}
 				"""
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 7)\n" +
-				"	case R(int x, int y, int z) -> 0;\n" +
-				"	     ^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Record pattern should match the signature of the record declaration\n" +
-				"----------\n");
+				"----------\n"
+				+ "1. ERROR in X.java (at line 6)\n"
+				+ "	return switch (r) {\n"
+				+ "	               ^\n"
+				+ "A switch expression should have a default case\n"
+				+ "----------\n"
+				+ "2. ERROR in X.java (at line 7)\n"
+				+ "	case R(int x, int y, int z) -> 0;\n"
+				+ "	     ^^^^^^^^^^^^^^^^^^^^^^\n"
+				+ "Record pattern should match the signature of the record declaration\n"
+				+ "----------\n");
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1788
 	// Inference issue between the diamond syntax and pattern matching (switch on objects)
