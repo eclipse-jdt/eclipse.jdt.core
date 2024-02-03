@@ -49,8 +49,8 @@ public class TypePattern extends Pattern {
 	}
 	@Override
 	public LocalVariableBinding[] bindingsWhenTrue() {
-		return this.local != null && this.local.binding != null && !this.local.isUnnamed(this.local.binding.declaringScope) ?
-						new LocalVariableBinding[] { this.local.binding } : NO_VARIABLES;
+		return (this.local.binding == null || this.local.isUnnamed(this.local.binding.declaringScope)) ?
+							NO_VARIABLES : new LocalVariableBinding[] { this.local.binding };
 	}
 	@Override
 	public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding expressionType, TypeBinding match, boolean isNarrowing) {
@@ -62,38 +62,33 @@ public class TypePattern extends Pattern {
 
 	@Override
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
-		if (this.local != null) {
-			flowInfo = this.local.analyseCode(currentScope, flowContext, flowInfo);
-			FlowInfo patternInfo = flowInfo.copy();
-			patternInfo.markAsDefinitelyAssigned(this.local.binding);
-			if (!this.isTotalTypeNode) {
-				// non-total type patterns create a nonnull local:
-				patternInfo.markAsDefinitelyNonNull(this.local.binding);
-			} else {
-				// total type patterns inherit the nullness of the value being switched over, unless ...
-				if (flowContext.associatedNode instanceof SwitchStatement) {
-					SwitchStatement swStmt = (SwitchStatement) flowContext.associatedNode;
-					int nullStatus = swStmt.containsNull
-							? FlowInfo.NON_NULL // ... null is handled in a separate case
-							: swStmt.expression.nullStatus(patternInfo, flowContext);
-					patternInfo.markNullStatus(this.local.binding, nullStatus);
-				}
+		flowInfo = this.local.analyseCode(currentScope, flowContext, flowInfo);
+		FlowInfo patternInfo = flowInfo.copy();
+		patternInfo.markAsDefinitelyAssigned(this.local.binding);
+		if (!this.isTotalTypeNode) {
+			// non-total type patterns create a nonnull local:
+			patternInfo.markAsDefinitelyNonNull(this.local.binding);
+		} else {
+			// total type patterns inherit the nullness of the value being switched over, unless ...
+			if (flowContext.associatedNode instanceof SwitchStatement) {
+				SwitchStatement swStmt = (SwitchStatement) flowContext.associatedNode;
+				int nullStatus = swStmt.containsNull
+						? FlowInfo.NON_NULL // ... null is handled in a separate case
+						: swStmt.expression.nullStatus(patternInfo, flowContext);
+				patternInfo.markNullStatus(this.local.binding, nullStatus);
 			}
-			return patternInfo;
 		}
-		return flowInfo;
+		return patternInfo;
 	}
 	@Override
 	public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel) {
-		if (this.local != null) {
-			LocalVariableBinding localBinding = this.local.binding;
-			if (!this.isTotalTypeNode) {
-				codeStream.checkcast(localBinding.type);
-			}
-			this.local.generateCode(currentScope, codeStream);
-			codeStream.store(localBinding, false);
-			localBinding.recordInitializationStartPC(codeStream.position);
+		LocalVariableBinding localBinding = this.local.binding;
+		if (!this.isTotalTypeNode) {
+			codeStream.checkcast(localBinding.type);
 		}
+		this.local.generateCode(currentScope, codeStream);
+		codeStream.store(localBinding, false);
+		localBinding.recordInitializationStartPC(codeStream.position);
 	}
 	public void initializePatternVariables(BlockScope currentScope, CodeStream codeStream) {
 		codeStream.addVariable(this.secretPatternVariable);
@@ -101,15 +96,13 @@ public class TypePattern extends Pattern {
 	}
 	@Override
 	protected void generatePatternVariable(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel) {
-		if (this.local != null) {
-			codeStream.load(this.secretPatternVariable);
-			LocalVariableBinding localBinding = this.local.binding;
-			if (!this.isTotalTypeNode)
-				codeStream.checkcast(localBinding.type);
-			this.local.generateCode(currentScope, codeStream);
-			codeStream.store(localBinding, false);
-			localBinding.recordInitializationStartPC(codeStream.position);
-		}
+		codeStream.load(this.secretPatternVariable);
+		LocalVariableBinding localBinding = this.local.binding;
+		if (!this.isTotalTypeNode)
+			codeStream.checkcast(localBinding.type);
+		this.local.generateCode(currentScope, codeStream);
+		codeStream.store(localBinding, false);
+		localBinding.recordInitializationStartPC(codeStream.position);
 	}
 	@Override
 	public void wrapupGeneration(CodeStream codeStream) {
@@ -153,10 +146,6 @@ public class TypePattern extends Pattern {
 	public TypeBinding resolveType(BlockScope scope) {
 		if (this.resolvedType != null)
 			return this.resolvedType; // Srikanth, fix reentry
-
-		if (this.local == null) {
-			throw new AssertionError("null local type pattern"); //$NON-NLS-1$
-		}
 
 		this.local.modifiers |= ExtraCompilerModifiers.AccOutOfFlowScope;
 		if (this.local.type == null || this.local.type.isTypeNameVar(scope)) {
@@ -229,14 +218,13 @@ public class TypePattern extends Pattern {
 	@Override
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		if (visitor.visit(this, scope)) {
-			if (this.local != null)
-				this.local.traverse(visitor, scope);
+			this.local.traverse(visitor, scope);
 		}
 		visitor.endVisit(this, scope);
 	}
 
 	@Override
 	public StringBuilder printExpression(int indent, StringBuilder output) {
-		return this.local != null ? this.local.printAsExpression(indent, output) : output;
+		return this.local.printAsExpression(indent, output);
 	}
 }

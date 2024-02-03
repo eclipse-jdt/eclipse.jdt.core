@@ -47,13 +47,12 @@ public class RecordPattern extends TypePattern {
 	public TypeReference type;
 	int thenInitStateIndex1 = -1;
 	int thenInitStateIndex2 = -1;
-	public LocalVariableBinding secretCaughtThrowableVariable = null;
+
 	/* package */ BranchLabel guardedElseTarget;
 
 	private TypeBinding expectedType; // for record pattern type inference
 
 	public RecordPattern(TypeReference type, int sourceStart, int sourceEnd) {
-		super();
 		this.type = type;
 		this.sourceStart = sourceStart;
 		this.sourceEnd = sourceEnd;
@@ -80,7 +79,6 @@ public class RecordPattern extends TypePattern {
 	@Override
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 		this.thenInitStateIndex1 = currentScope.methodScope().recordInitializationStates(flowInfo);
-		flowInfo = super.analyseCode(currentScope, flowContext, flowInfo);
 		for (Pattern p : this.patterns) {
 			 flowInfo = p.analyseCode(currentScope, flowContext, flowInfo);
 		}
@@ -281,7 +279,6 @@ public class RecordPattern extends TypePattern {
 			}
 		}
 		addExceptionToBlockScope(currentScope, codeStream, labels);
-		super.generatePatternVariable(currentScope, codeStream, trueLabel, falseLabel);
 	}
 
 	List<LocalVariableBinding> getDeepPatternVariables(BlockScope blockScope) {
@@ -366,9 +363,6 @@ public class RecordPattern extends TypePattern {
 	}
 	@Override
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
-		for (Pattern p : this.patterns) { // Srikanth, looks suspect
-			visitor.visit(p, scope);
-		}
 		if (visitor.visit(this, scope)) {
 			if (this.type != null) {
 				this.type.traverse(visitor, scope);
