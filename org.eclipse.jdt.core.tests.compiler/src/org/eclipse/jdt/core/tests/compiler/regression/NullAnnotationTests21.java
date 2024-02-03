@@ -997,4 +997,42 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 		runner.classLibraries = this.LIBS;
 		runner.runConformTest();
 	}
+
+	public void testGH1964() {
+		Runner runner = new Runner();
+		runner.customOptions = getCompilerOptions();
+		runner.customOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		runner.customOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		runner.vmArguments = new String[] {"--enable-preview"};
+		runner.testFiles = new String[] {
+			"JDK21TestingMain.java",
+			"""
+			import static java.util.FormatProcessor.FMT;
+			import static java.lang.StringTemplate.RAW;
+
+			public final class JDK21TestingMain
+			{
+			  public static void main(final String[] args)
+			  {
+			    final int fourtyTwo = 42;
+			    final String str = FMT."\\{fourtyTwo}";
+
+			    final int x=1;
+			    final int y=2;
+			    final StringTemplate st = RAW."\\{x} + \\{y} = \\{x + y}";
+
+			    final var x1 = STR."Hello World";
+			    final var x2 = FMT."Hello World";
+			    final var x3 = RAW."Hello World";
+
+			    System.out.println(STR."Hello World");
+
+			    System.out.println();
+			  }
+			}
+			"""
+		};
+		runner.classLibraries = this.LIBS;
+		runner.runConformTest();
+	}
 }
