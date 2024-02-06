@@ -257,8 +257,8 @@ public StringBuilder printExpressionNoParenthesis(int indent, StringBuilder outp
 
 @Override
 public void addPatternVariables(BlockScope currentScope, CodeStream codeStream) {
-	if (this.elementVariable != null) {
-		codeStream.addVisibleLocalVariable(this.elementVariable.binding);
+	for (LocalVariableBinding local: bindingsWhenTrue()) {
+		codeStream.addVisibleLocalVariable(local);
 	}
 }
 @Override
