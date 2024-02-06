@@ -3329,6 +3329,33 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"An enhanced switch statement should be exhaustive; a default label expected\n" +
 				"----------\n");
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1792
+	// [Patterns][records] Error in JDT Core during AST creation: info cannot be null
+	public void testGH1792() {
+		runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+				    private record R(Object o) {}
+				    static void f(R [] rs) {
+				        int i = 0;
+				        while (rs[i++] instanceof R(String o)) {
+				            System.out.println(o);
+				        }
+				    }
+				    public static void main(String [] args) {
+				    	R [] rs = { new R("So"), new R("far"), new R("so"), new R("good!"), null };
+				    	f(rs);
+				    }
+				}
+				"""
+				},
+				"So\n" +
+				"far\n" +
+				"so\n" +
+				"good!");
+	}
 	public void testIssue1336_1() {
 		runConformTest(
 				new String[] {
