@@ -59,8 +59,6 @@ public class TryStatement extends SubRoutineStatement {
 	public Block finallyBlock;
 	BlockScope scope;
 
-	public LocalVariableBinding recPatCatchVar = null;
-
 	public UnconditionalFlowInfo subRoutineInits;
 	ReferenceBinding[] caughtExceptionTypes;
 	boolean[] catchExits;
@@ -96,8 +94,7 @@ public class TryStatement extends SubRoutineStatement {
 	private int[] caughtExceptionsCatchBlocks;
 
 	public SwitchExpression enclosingSwitchExpression = null;
-	public boolean addPatternAccessorException = false;
-	public int nestingLevel = -1;
+
 @Override
 public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 
@@ -559,6 +556,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	}
 	// generate the try block
 	try {
+		codeStream.pushPatternAccessTrapScope(this.tryBlock.scope);
 		this.declaredExceptionLabels = exceptionLabels;
 		int resourceCount = this.resources.length;
 		if (resourceCount > 0) {
@@ -590,13 +588,8 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 				}
 			}
 		}
-		if (this.addPatternAccessorException)
-			codeStream.addPatternCatchExceptionInfo(this.tryBlock.scope, this.recPatCatchVar);
 
 		this.tryBlock.generateCode(this.scope, codeStream);
-
-		if (this.addPatternAccessorException)
-			codeStream.removePatternCatchExceptionInfo(this.tryBlock.scope, true);
 
 		if (resourceCount > 0) {
 			for (int i = resourceCount; i >= 0; i--) {
@@ -681,8 +674,11 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		// natural exit may require subroutine invocation (if finally != null)
 		BranchLabel naturalExitLabel = new BranchLabel(codeStream);
 		BranchLabel postCatchesFinallyLabel = null;
-		for (int i = 0; i < maxCatches; i++) {
-			exceptionLabels[i].placeEnd();
+		boolean patternAccessorsMayThrow = codeStream.patternAccessorsMayThrow(this.tryBlock.scope);
+		if (!patternAccessorsMayThrow) {
+			for (int i = 0; i < maxCatches; i++) {
+				exceptionLabels[i].placeEnd();
+			}
 		}
 		if ((this.bits & ASTNode.IsTryBlockExiting) == 0) {
 			int position = codeStream.position;
@@ -707,8 +703,15 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 					codeStream.goto_(this.subRoutineStartLabel);
 					break;
 			}
+
 			codeStream.recordPositionsFrom(position, this.tryBlock.sourceEnd);
 			//goto is tagged as part of the try block
+		}
+		codeStream.handleRecordAccessorExceptions(this.tryBlock.scope);
+		if (patternAccessorsMayThrow) {
+			for (int i = 0; i < maxCatches; i++) {
+				exceptionLabels[i].placeEnd();
+			}
 		}
 		/* generate sequence of handler, all starting by storing the TOS (exception
 		thrown) into their own catch variables, the one specified in the source
@@ -1222,7 +1225,6 @@ public void resolve(BlockScope upperScope) {
 			finallyScope.shiftScopes[0] = tryScope;
 		}
 	}
-	this.recPatCatchVar = RecordPattern.getRecPatternCatchVar(this.nestingLevel, this.scope);
 	this.tryBlock.resolveUsing(tryScope);
 
 	// arguments type are checked against JavaLangThrowable in resolveForCatch(..)
