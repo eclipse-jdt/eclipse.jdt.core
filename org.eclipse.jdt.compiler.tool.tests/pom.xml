@@ -34,11 +34,9 @@
             <!-- Use this form for Tycho 23 or greater -->
             <log>xml</log>
             <logDirectory>${project.build.directory}/compilelogs</logDirectory>
-            <showWarnings>true</showWarnings>
             <excludeResources>
               <exclude>**/package.html</exclude>
             </excludeResources>
-            <useProjectSettings>false</useProjectSettings>
           </configuration>
         </plugin>
     </plugins>
