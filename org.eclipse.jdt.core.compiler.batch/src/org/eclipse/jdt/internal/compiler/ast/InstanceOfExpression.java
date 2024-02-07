@@ -113,7 +113,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	this.expression.generateCode(currentScope, codeStream, true);
 	if (this.secretExpressionValue != null) {
 		codeStream.store(this.secretExpressionValue, true);
-		codeStream.addVariable(this.secretExpressionValue); // off by 1, but shouldn't matter
+		codeStream.addVariable(this.secretExpressionValue);
 	}
 	codeStream.instance_of(this.type, this.type.resolvedType);
 	if (this.elementVariable != null) {
@@ -156,7 +156,7 @@ public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStr
 	this.expression.generateCode(currentScope, codeStream, true);
 	if (this.secretExpressionValue != null) {
 		codeStream.store(this.secretExpressionValue, true);
-		codeStream.addVariable(this.secretExpressionValue); // off by 1, but shouldn't matter
+		codeStream.addVariable(this.secretExpressionValue);
 	}
 
 	BranchLabel nextSibling = falseLabel != null ? falseLabel : new BranchLabel(codeStream);
@@ -245,26 +245,20 @@ public TypeBinding resolveType(BlockScope scope) {
 		this.pattern.setExpectedType(this.expression.resolvedType);
 		this.pattern.resolveType(scope);
 
-		switch (this.expression.bits & ASTNode.RestrictiveFlagMASK) {
-
-			case Binding.FIELD:
-			case Binding.LOCAL:
-				// side effect free reevaluation possible, avoid wasting local slots.
-				break;
-			default:
-				// reevaluation may double jeopardize as side effects may recur, compute once and cache
-				LocalVariableBinding local =
-						new LocalVariableBinding(
-							InstanceOfExpression.SECRET_EXPRESSION_VALUE,
-							TypeBinding.wellKnownType(scope, T_JavaLangObject), // good enough, no need for sharper type.
-							ClassFileConstants.AccDefault,
-							false);
-				local.setConstant(Constant.NotAConstant);
-				local.useFlag = LocalVariableBinding.USED;
-				scope.addLocalVariable(local);
-				this.secretExpressionValue = local;
-				if (expressionType != TypeBinding.NULL)
-					this.secretExpressionValue.type = expressionType;
+		if ((this.expression.bits & ASTNode.RestrictiveFlagMASK) != Binding.LOCAL) {
+			// reevaluation may double jeopardize as side effects may recur, compute once and cache
+			LocalVariableBinding local =
+					new LocalVariableBinding(
+						InstanceOfExpression.SECRET_EXPRESSION_VALUE,
+						TypeBinding.wellKnownType(scope, T_JavaLangObject), // good enough, no need for sharper type.
+						ClassFileConstants.AccDefault,
+						false);
+			local.setConstant(Constant.NotAConstant);
+			local.useFlag = LocalVariableBinding.USED;
+			scope.addLocalVariable(local);
+			this.secretExpressionValue = local;
+			if (expressionType != TypeBinding.NULL)
+				this.secretExpressionValue.type = expressionType;
 		}
 	}
 	if (expressionType != null && checkedType != null && this.type.hasNullTypeAnnotation(AnnotationPosition.ANY)) {

@@ -4506,6 +4506,46 @@ public class PatternMatching16Test extends AbstractRegressionTest {
                 },
                 "",
                 options);
+    }
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1406
+	// [Patterns] Bizarre code generation for type test patterns
+    public void testGH1406_2() throws ClassFormatException, IOException {
+        Map<String, String> options = getCompilerOptions(false);
+    	String source =
+    			"""
+    			public class X {
+				    Object o = "Helo";
+				    public void foo() {
+				        if (o instanceof String s) {
+
+				        }
+				    }
+
+				    public static void main(String [] args) {
+				        new X().foo();
+				    }
+				}
+    			""";
+    	String expectedOutput =
+    			 "  public void foo();\n" +
+				 "     0  aload_0 [this]\n" +
+				 "     1  getfield X.o : Object [14]\n" +
+				 "     4  dup\n" +
+				 "     5  astore_2\n" +
+				 "     6  instanceof String [21]\n" +
+				 "     9  ifeq 17\n" +
+				 "    12  aload_2\n" +
+				 "    13  checkcast String [21]\n" +
+				 "    16  astore_1\n" +
+				 "    17  return\n";
+    	checkClassFile("X", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
+        runConformTest(
+                new String[] {
+                        "X.java",
+                        source,
+                },
+                "",
+                options);
 
     }
 }
