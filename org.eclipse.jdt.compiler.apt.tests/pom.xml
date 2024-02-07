@@ -25,6 +25,7 @@
   <properties>
   	<testSuite>${project.artifactId}</testSuite>
   	<testClass>org.eclipse.jdt.compiler.apt.tests.AllTests</testClass>
+  	<defaultSigning-excludeInnerJars>true</defaultSigning-excludeInnerJars>
   </properties>
 
 </project>
