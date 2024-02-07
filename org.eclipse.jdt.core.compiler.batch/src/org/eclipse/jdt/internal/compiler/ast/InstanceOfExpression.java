@@ -39,9 +39,9 @@ public class InstanceOfExpression extends OperatorExpression {
 	public TypeReference type;
 	public LocalDeclaration elementVariable;
 	public Pattern pattern;
-	static final char[] SECRET_INSTANCEOF_PATTERN_EXPRESSION_VALUE = " instanceOfPatternExpressionValue".toCharArray(); //$NON-NLS-1$
+	static final char[] SECRET_EXPRESSION_VALUE = " secretExpressionValue".toCharArray(); //$NON-NLS-1$
 
-	public LocalVariableBinding secretInstanceOfPatternExpressionValue = null;
+	private LocalVariableBinding secretExpressionValue = null;
 
 public InstanceOfExpression(Expression expression, TypeReference type) {
 	this.expression = expression;
@@ -86,13 +86,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	if (initsWhenTrue == null) {
 		flowInfo = this.expression.analyseCode(currentScope, flowContext, flowInfo).
 				unconditionalInits();
-		if (this.elementVariable != null) {
-			initsWhenTrue = flowInfo.copy();
-		}
-	}
-	if (this.elementVariable != null) {
-		initsWhenTrue.markAsDefinitelyAssigned(this.elementVariable.binding);
-		initsWhenTrue.markAsDefinitelyNonNull(this.elementVariable.binding);
 	}
 	if (this.pattern != null) {
 		FlowInfo patternFlow = this.pattern.analyseCode(currentScope, flowContext, (initsWhenTrue == null) ? flowInfo : initsWhenTrue);
@@ -117,20 +110,22 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 
 	int pc = codeStream.position;
 
-	if (this.elementVariable != null) {
-		addAssignment(currentScope, codeStream, this.secretInstanceOfPatternExpressionValue);
-		codeStream.load(this.secretInstanceOfPatternExpressionValue);
-	} else {
-		this.expression.generateCode(currentScope, codeStream, true);
+	this.expression.generateCode(currentScope, codeStream, true);
+	if (this.secretExpressionValue != null) {
+		codeStream.store(this.secretExpressionValue, true);
+		codeStream.addVariable(this.secretExpressionValue);
 	}
-
 	codeStream.instance_of(this.type, this.type.resolvedType);
 	if (this.elementVariable != null) {
 		BranchLabel actionLabel = new BranchLabel(codeStream);
 		codeStream.dup();
 		codeStream.ifeq(actionLabel);
-		codeStream.load(this.secretInstanceOfPatternExpressionValue);
-		codeStream.removeVariable(this.secretInstanceOfPatternExpressionValue);
+		if (this.secretExpressionValue != null) {
+			codeStream.load(this.secretExpressionValue);
+			codeStream.removeVariable(this.secretExpressionValue);
+		} else {
+			this.expression.generateCode(currentScope, codeStream, true);
+		}
 		codeStream.checkcast(this.type, this.type.resolvedType, codeStream.position);
 		this.elementVariable.binding.recordInitializationStartPC(codeStream.position);
 		codeStream.store(this.elementVariable.binding, false);
@@ -154,99 +149,62 @@ public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStr
 		super.generateOptimizedBoolean(currentScope, codeStream, trueLabel, falseLabel, valueRequired);
 		return;
 	}
-	Constant cst = optimizedBooleanConstant();
 	addPatternVariables(currentScope, codeStream);
 
 	int pc = codeStream.position;
 
-	addAssignment(currentScope, codeStream, this.secretInstanceOfPatternExpressionValue);
-	codeStream.load(this.secretInstanceOfPatternExpressionValue);
+	this.expression.generateCode(currentScope, codeStream, true);
+	if (this.secretExpressionValue != null) {
+		codeStream.store(this.secretExpressionValue, true);
+		codeStream.addVariable(this.secretExpressionValue);
+	}
 
 	BranchLabel nextSibling = falseLabel != null ? falseLabel : new BranchLabel(codeStream);
 	codeStream.instance_of(this.type, this.type.resolvedType);
 	codeStream.ifeq(nextSibling);
-	codeStream.load(this.secretInstanceOfPatternExpressionValue);
+	if (this.secretExpressionValue != null) {
+		codeStream.load(this.secretExpressionValue);
+	} else {
+		this.expression.generateCode(currentScope, codeStream, true);
+	}
+
 	if (this.pattern instanceof RecordPattern) {
 		this.pattern.generateOptimizedBoolean(currentScope, codeStream, trueLabel, nextSibling);
-		codeStream.load(this.secretInstanceOfPatternExpressionValue);
-		codeStream.checkcast(this.type, this.type.resolvedType, codeStream.position);
 	} else {
 		codeStream.checkcast(this.type, this.type.resolvedType, codeStream.position);
-		codeStream.dup();
 		codeStream.store(this.elementVariable.binding, false);
 	}
 
-	codeStream.load(this.secretInstanceOfPatternExpressionValue);
-	codeStream.removeVariable(this.secretInstanceOfPatternExpressionValue);
-	codeStream.checkcast(this.type, this.type.resolvedType, codeStream.position);
+	if (this.secretExpressionValue != null) {
+		codeStream.removeVariable(this.secretExpressionValue);
+	}
 
-	if (valueRequired && cst == Constant.NotAConstant) {
+	if (valueRequired) {
 		codeStream.generateImplicitConversion(this.implicitConversion);
 	} else {
 		codeStream.pop();
 	}
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
 
-
-	if ((cst != Constant.NotAConstant) && (cst.typeID() == TypeIds.T_boolean)) {
-		pc = codeStream.position;
-		if (cst.booleanValue() == true) {
-			// constant == true
-			if (valueRequired) {
-				if (falseLabel == null) {
-					// implicit falling through the FALSE case
-					if (trueLabel != null) {
-						codeStream.goto_(trueLabel);
-					}
-				}
+	int position = codeStream.position;
+	if (valueRequired) {
+		if (falseLabel == null) {
+			if (trueLabel != null) {
+				// Implicit falling through the FALSE case
+				codeStream.goto_(trueLabel);
 			}
 		} else {
-			if (valueRequired) {
-				if (falseLabel != null) {
-					// implicit falling through the TRUE case
-					if (trueLabel == null) {
-						codeStream.goto_(falseLabel);
-					}
-				}
-			}
-		}
-		codeStream.recordPositionsFrom(pc, this.sourceStart);
-	} else  {
-		// branching
-		int position = codeStream.position;
-		if (valueRequired) {
-			if (falseLabel == null) {
-				if (trueLabel != null) {
-					// Implicit falling through the FALSE case
-					codeStream.pop2();
-					codeStream.goto_(trueLabel);
-				}
+			if (trueLabel == null) {
+				// Implicit falling through the TRUE case
 			} else {
-				if (trueLabel == null) {
-					// Implicit falling through the TRUE case
-					codeStream.pop2();
-				} else {
-					// No implicit fall through TRUE/FALSE --> should never occur
-				}
+				// No implicit fall through TRUE/FALSE --> should never occur
 			}
 		}
-		codeStream.recordPositionsFrom(position, this.sourceEnd);
 	}
+	codeStream.recordPositionsFrom(position, this.sourceEnd);
+
 	if (nextSibling != falseLabel)
 		nextSibling.place();
-}
-
-private void addAssignment(BlockScope currentScope, CodeStream codeStream, LocalVariableBinding local) {
-	assert local != null;
-	SingleNameReference lhs = new SingleNameReference(local.name, 0);
-	lhs.binding = local;
-	lhs.bits &= ~ASTNode.RestrictiveFlagMASK; // clear bits
-	lhs.bits |= Binding.LOCAL;
-	lhs.bits |= ASTNode.IsSecretYieldValueUsage;
-	((LocalVariableBinding) lhs.binding).markReferenced(); // TODO : Can be skipped?
-	Assignment assignment = new Assignment(lhs, this.expression, 0);
-	assignment.generateCode(currentScope, codeStream);
-	codeStream.addVariable(this.secretInstanceOfPatternExpressionValue);
 }
 
 @Override
@@ -273,19 +231,6 @@ public boolean containsPatternVariable() {
 public LocalDeclaration getPatternVariable() {
 	return this.elementVariable;
 }
-private void addSecretInstanceOfPatternExpressionValue(BlockScope scope1) {
-	LocalVariableBinding local =
-			new LocalVariableBinding(
-				InstanceOfExpression.SECRET_INSTANCEOF_PATTERN_EXPRESSION_VALUE,
-				TypeBinding.wellKnownType(scope1, T_JavaLangObject),
-				ClassFileConstants.AccDefault,
-				false);
-	local.setConstant(Constant.NotAConstant);
-	local.useFlag = LocalVariableBinding.USED;
-	scope1.addLocalVariable(local);
-	this.secretInstanceOfPatternExpressionValue = local;
-}
-
 @Override
 public TypeBinding resolveType(BlockScope scope) {
 	this.constant = Constant.NotAConstant;
@@ -299,19 +244,31 @@ public TypeBinding resolveType(BlockScope scope) {
 		this.pattern.setExpressionContext(ExpressionContext.INSTANCEOF_CONTEXT);
 		this.pattern.setExpectedType(this.expression.resolvedType);
 		this.pattern.resolveType(scope);
+
+		if ((this.expression.bits & ASTNode.RestrictiveFlagMASK) != Binding.LOCAL) {
+			// reevaluation may double jeopardize as side effects may recur, compute once and cache
+			LocalVariableBinding local =
+					new LocalVariableBinding(
+						InstanceOfExpression.SECRET_EXPRESSION_VALUE,
+						TypeBinding.wellKnownType(scope, T_JavaLangObject), // good enough, no need for sharper type.
+						ClassFileConstants.AccDefault,
+						false);
+			local.setConstant(Constant.NotAConstant);
+			local.useFlag = LocalVariableBinding.USED;
+			scope.addLocalVariable(local);
+			this.secretExpressionValue = local;
+			if (expressionType != TypeBinding.NULL)
+				this.secretExpressionValue.type = expressionType;
+		}
 	}
-	if (this.elementVariable != null || this.pattern != null)
-		addSecretInstanceOfPatternExpressionValue(scope);
 	if (expressionType != null && checkedType != null && this.type.hasNullTypeAnnotation(AnnotationPosition.ANY)) {
 		// don't complain if the entire operation is redundant anyway
 		if (!expressionType.isCompatibleWith(checkedType) || NullAnnotationMatching.analyse(checkedType, expressionType, -1).isAnyMismatch())
 			scope.problemReporter().nullAnnotationUnsupportedLocation(this.type);
 	}
+
 	if (expressionType == null || checkedType == null)
 		return null;
-
-	if (this.secretInstanceOfPatternExpressionValue != null && expressionType != TypeBinding.NULL)
-		this.secretInstanceOfPatternExpressionValue.type = expressionType;
 
 	if (!checkedType.isReifiable()) {
 		CompilerOptions options = scope.compilerOptions();
@@ -334,6 +291,7 @@ public TypeBinding resolveType(BlockScope scope) {
 			scope.problemReporter().notCompatibleTypesError(this, expressionType, checkedType);
 		}
 	}
+
 	return this.resolvedType = TypeBinding.BOOLEAN;
 }
 @Override
