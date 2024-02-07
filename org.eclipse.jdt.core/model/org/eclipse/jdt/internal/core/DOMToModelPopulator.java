@@ -311,8 +311,12 @@ class DOMToModelPopulator extends ASTVisitor {
 		info.arguments = ((List<SingleVariableDeclaration>)method.parameters()).stream()
 			.map(this::toLocalVariable)
 			.toArray(LocalVariable[]::new);
-		if (method.getAST().apiLevel() > 2 && method.getReturnType2() != null) {
-			info.setReturnType(method.getReturnType2().toString().toCharArray());
+		if (method.getAST().apiLevel() > 2) {
+			if (method.getReturnType2() != null) {
+				info.setReturnType(method.getReturnType2().toString().toCharArray());
+			} else {
+				info.setReturnType("void".toCharArray()); //$NON-NLS-1$
+			}
 		}
 		info.setSourceRangeStart(method.getStartPosition());
 		info.setSourceRangeEnd(method.getStartPosition() + method.getLength() - 1);
