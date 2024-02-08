@@ -18,6 +18,7 @@ package org.eclipse.jdt.core.tests.util;
 import org.eclipse.jdt.core.compiler.batch.BatchCompiler;
 import org.eclipse.jdt.core.tests.runtime.*;
 import java.io.*;
+import java.lang.ref.Cleaner;
 import java.net.*;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -33,14 +34,16 @@ import java.util.stream.Stream;
 public class TestVerifier {
 	public String failureReason;
 
-	boolean reuseVM = true;
-	String[] classpathCache;
-	private final Map<ClassPath, LocalVirtualMachine> vmByClassPath= new HashMap<>();
+	private final boolean reuseVM;
+	private String[] classpathCache;
 	private StringBuilder outputBuffer;
 	private StringBuilder errorBuffer;
-	private final Map<ClassPath, Socket> socketByClassPath= new HashMap<>();
+	private final VmCleaner managedVMs= new VmCleaner();
+	private static final Cleaner cleaner= Cleaner.create();
+
 public TestVerifier(boolean reuseVM) {
 	this.reuseVM = reuseVM;
+	cleaner.register(this, this.managedVMs);
 }
 static class ClassPath {
 	private String[] classpath;
@@ -147,10 +150,44 @@ public void execute(String className, String[] classpaths, String[] programArgum
 
 	launchAndRun(className, classpaths, programArguments, vmArguments);
 }
-@Override
-protected void finalize() throws Throwable {
-	shutDown();
+
+private static class VmCleaner implements Runnable{
+	private final Map<ClassPath, LocalVirtualMachine> vmByClassPath = new HashMap<>();
+	private final Map<ClassPath, Socket> socketByClassPath = new HashMap<>();
+
+	@Override
+	public void run() {
+		// Close the socket first so that the OS resource has a chance to be freed.
+		for (Socket socket : this.socketByClassPath.values()) {
+			try {
+				socket.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		this.socketByClassPath.clear();
+		// Wait for the vm to shut down by itself for 2 seconds. If not succesfull,
+		// force the shut down.
+		for (LocalVirtualMachine vm : this.vmByClassPath.values()) {
+			try {
+				long n0 = System.nanoTime();
+				while (vm.isRunning() && (System.nanoTime() - n0 < 2_000_000_000L)) {// 2 sec
+					try {
+						Thread.sleep(1);
+					} catch (InterruptedException e) {
+					}
+				}
+				if (vm.isRunning()) {
+					vm.shutDown();
+				}
+			} catch (TargetException e) {
+				e.printStackTrace();
+			}
+		}
+		this.vmByClassPath.clear();
+	}
 }
+
 public String getExecutionOutput(){
 	StringBuilder ob = getOutputBuffer();
 	synchronized (ob) {
@@ -411,13 +448,13 @@ return Arrays.stream(classPath)
 
 private void launchAndRun(String className, String[] classpaths, String[] programArguments, String[] vmArguments) {
 	// we won't reuse the vm, shut the existing one if running
-	for (LocalVirtualMachine vm : this.vmByClassPath.values()) {
+	for (LocalVirtualMachine vm : this.managedVMs.vmByClassPath.values()) {
 		try {
 			vm.shutDown();
 		} catch (TargetException e) {
 		}
 	}
-	this.vmByClassPath.clear();
+	this.managedVMs.vmByClassPath.clear();
 	this.classpathCache = null;
 
 	// launch a new one
@@ -438,7 +475,7 @@ private void launchAndRun(String className, String[] classpaths, String[] progra
 	Thread errorThread;
 	try {
 		LocalVirtualMachine vm  = launcher.launch();
-		this.vmByClassPath.put(new ClassPath(classpaths), vm);
+		this.managedVMs.vmByClassPath.put(new ClassPath(classpaths), vm);
 		InputStream input = vm.getInputStream();
 		outputThread = new Thread(() -> transferTo(input, this::getOutputBuffer), "stdOutReader");
 		InputStream errorStream = vm.getErrorStream();
@@ -479,7 +516,7 @@ private static void transferTo(InputStream stream, Supplier<StringBuilder> b) {
 
 private void launchVerifyTestsIfNeeded(String[] classpaths, String[] vmArguments) {
 	// determine if we can reuse the vm
-	LocalVirtualMachine vm = this.vmByClassPath.get(new ClassPath(classpaths));
+	LocalVirtualMachine vm = this.managedVMs.vmByClassPath.get(new ClassPath(classpaths));
 	if (vm != null && vm.isRunning() && this.classpathCache != null) {
 		return;
 	}
@@ -520,7 +557,7 @@ private void launchVerifyTestsIfNeeded(String[] classpaths, String[] vmArguments
 		launcher.setProgramArguments(new String[] {Integer.toString(portNumber)});
 		try {
 			vm = launcher.launch();
-			this.vmByClassPath.put(new ClassPath(classpaths), vm);
+			this.managedVMs.vmByClassPath.put(new ClassPath(classpaths), vm);
 			InputStream input = vm.getInputStream();
 			Thread outputThread = new Thread(() -> transferTo(input, this::getOutputBuffer), "stdOutReader");
 			InputStream errorStream = vm.getErrorStream();
@@ -538,7 +575,7 @@ private void launchVerifyTestsIfNeeded(String[] classpaths, String[] vmArguments
 		do {
 			try {
 				socket=server.accept();
-				this.socketByClassPath.put(new ClassPath(classpaths), socket);
+				this.managedVMs.socketByClassPath.put(new ClassPath(classpaths), socket);
 				socket.setTcpNoDelay(true);
 				break;
 			} catch (UnknownHostException e) {
@@ -562,7 +599,7 @@ private void launchVerifyTestsIfNeeded(String[] classpaths, String[] vmArguments
  * Return whether no exception was thrown while running the class.
  */
 private boolean loadAndRun(String className, String[] classPath) {
-	Socket socket = this.socketByClassPath.get(new ClassPath(classPath));
+	Socket socket = this.managedVMs.socketByClassPath.get(new ClassPath(classPath));
 	if (socket != null) {
 		try {
 			DataOutputStream out = new DataOutputStream(socket.getOutputStream());
@@ -588,35 +625,11 @@ private boolean loadAndRun(String className, String[] classPath) {
 	}
 	return true;
 }
+
 public void shutDown() {
-	// Close the socket first so that the OS resource has a chance to be freed.
-	for (Socket socket: this.socketByClassPath.values()) {
-		try {
-			socket.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	this.socketByClassPath.clear();
-	// Wait for the vm to shut down by itself for 2 seconds. If not succesfull, force the shut down.
-	for (LocalVirtualMachine vm : this.vmByClassPath.values()) {
-		try {
-			long n0 = System.nanoTime();
-			while (vm.isRunning() && (System.nanoTime() - n0 < 2_000_000_000L)) {// 2 sec
-				try {
-					Thread.sleep(1);
-				} catch (InterruptedException e) {
-				}
-			}
-			if (vm.isRunning()) {
-				vm.shutDown();
-			}
-		} catch (TargetException e) {
-			e.printStackTrace();
-		}
-	}
-	this.vmByClassPath.clear();
+	this.managedVMs.run();
 }
+
 /**
  * Verify that the class files created for the given test file can be loaded by
  * a virtual machine.
