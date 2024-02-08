@@ -47,7 +47,7 @@ public String[] getCommandLine() {
 
 	// debug mode
 	if (this.debugPort != -1) {
-		commandLine.add("-Xdebug");
+		addXdebug(commandLine);
 		commandLine.add("-Xnoagent");
 		// commandLine.add("-Djava.compiler=NONE");
 		commandLine.add(
@@ -55,7 +55,7 @@ public String[] getCommandLine() {
 			this.debugPort +
 			",server=y,suspend=n");
 	} else {
-		commandLine.add("-Xdebug");
+		addXdebug(commandLine);
 	}
 
 	// regular classpath
