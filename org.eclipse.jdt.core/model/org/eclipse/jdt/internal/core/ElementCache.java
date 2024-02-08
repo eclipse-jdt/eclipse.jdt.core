@@ -23,18 +23,21 @@ import org.eclipse.jdt.core.JavaModelException;
 public class ElementCache<K extends IJavaElement & IOpenable> extends OverflowingLRUCache<K, JavaElementInfo> {
 
 	IJavaElement spaceLimitParent = null;
+	private final int initialSpaceLimit;
 
 /**
  * Constructs a new element cache of the given size.
  */
 public ElementCache(int size) {
 	super(size);
+	this.initialSpaceLimit = size;
 }
 /**
  * Constructs a new element cache of the given size.
  */
 public ElementCache(int size, int overflow) {
 	super(size, overflow);
+	this.initialSpaceLimit = size;
 }
 /**
  * Returns true if the element is successfully closed and
@@ -89,9 +92,9 @@ protected ElementCache<K> newInstance(int size, int newOverflow) {
  * If the given parent was the one that increased the space limit, reset
  * the space limit to the given default value.
  */
-protected void resetSpaceLimit(int defaultLimit, IJavaElement parent) {
+protected void resetSpaceLimit(IJavaElement parent) {
 	if (parent.equals(this.spaceLimitParent)) {
-		setSpaceLimit(defaultLimit);
+		setSpaceLimit(this.initialSpaceLimit);
 		this.spaceLimitParent = null;
 	}
 }

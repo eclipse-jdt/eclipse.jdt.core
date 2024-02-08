@@ -119,7 +119,7 @@ public class ClassLiteralAccess extends Expression {
 				boxedType = scope.boxing(this.targetType);
 			}
 			if (environment.usesNullTypeAnnotations())
-				boxedType = environment.createAnnotatedType(boxedType, new AnnotationBinding[] { environment.getNonNullAnnotation() });
+				boxedType = environment.createNonNullAnnotatedType(boxedType);
 			this.resolvedType = environment.createParameterizedType(classType, new TypeBinding[]{ boxedType }, null/*not a member*/);
 		} else {
 			this.resolvedType = classType;

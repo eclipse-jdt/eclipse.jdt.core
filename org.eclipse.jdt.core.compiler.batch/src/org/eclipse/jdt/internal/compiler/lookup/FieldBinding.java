@@ -247,11 +247,15 @@ public Constant constant(Scope scope) {
 	if (this.constant != null)
 		return this.constant;
 	ProblemReporter problemReporter = scope.problemReporter();
-	IErrorHandlingPolicy suspendedPolicy = problemReporter.suspendTempErrorHandlingPolicy();
-	try (problemReporter) {
-		return constant();
+	try {
+		IErrorHandlingPolicy suspendedPolicy = problemReporter.suspendTempErrorHandlingPolicy();
+		try {
+			return constant();
+		} finally {
+			problemReporter.resumeTempErrorHandlingPolicy(suspendedPolicy);
+		}
 	} finally {
-		problemReporter.resumeTempErrorHandlingPolicy(suspendedPolicy);
+		problemReporter.close();
 	}
 }
 
@@ -263,7 +267,7 @@ public void fillInDefaultNonNullness(FieldDeclaration sourceField, Scope scope) 
 		if (!this.type.acceptsNonNullDefault())
 			return;
 		if ( (this.type.tagBits & TagBits.AnnotationNullMASK) == 0) {
-			this.type = environment.createAnnotatedType(this.type, new AnnotationBinding[]{environment.getNonNullAnnotation()});
+			this.type = environment.createNonNullAnnotatedType(this.type);
 		} else if ((this.type.tagBits & TagBits.AnnotationNonNull) != 0) {
 			scope.problemReporter().nullAnnotationIsRedundant(sourceField);
 		}

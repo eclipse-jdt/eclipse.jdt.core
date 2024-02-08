@@ -24,7 +24,6 @@
 
   <properties>
     <defaultSigning-excludeInnerJars>true</defaultSigning-excludeInnerJars>
-    <code.ignoredWarnings>-warn:+fieldHiding,-unavoidableGenericProblems</code.ignoredWarnings>
   </properties>
 
   <build>
@@ -72,9 +71,6 @@
   <profiles>
     <profile>
       <id>build-individual-bundles</id>
-	  <properties>
-		<code.ignoredWarnings>-warn:+fieldHiding,-unavoidableGenericProblems,-discouraged</code.ignoredWarnings>
-	  </properties>
     </profile>
 	<profile>
 		<id>test-on-javase-17</id>

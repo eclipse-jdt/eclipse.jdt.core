@@ -3945,47 +3945,43 @@ public class PatternMatching16Test extends AbstractRegressionTest {
     			"     0  ldc <String \"OK: \"> [16]\n" +
     			"     2  astore_1 [y]\n" +
     			"     3  ldc <String \"local\"> [18]\n" +
-    			"     5  astore_3\n" +
-    			"     6  aload_3\n" +
+    			"     5  dup\n" +
+    			"     6  astore_3\n" +
     			"     7  instanceof String [20]\n" +
-    			"    10  ifeq 42\n" +
+    			"    10  ifeq 36\n" +
     			"    13  aload_3\n" +
     			"    14  checkcast String [20]\n" +
-    			"    17  dup\n" +
-    			"    18  astore_2\n" +
-    			"    19  aload_3\n" +
-    			"    20  checkcast String [20]\n" +
-    			"    23  pop2\n" +
-    			"    24  getstatic System.out : PrintStream [22]\n" +
-    			"    27  new StringBuilder [28]\n" +
-    			"    30  dup\n" +
-    			"    31  aload_1 [y]\n" +
-    			"    32  invokespecial StringBuilder(String) [30]\n" +
-    			"    35  aload_2 [x]\n" +
-    			"    36  invokevirtual StringBuilder.append(String) : StringBuilder [33]\n" +
-    			"    39  invokevirtual PrintStream.println(Object) : void [37]\n" +
-    			"    42  return\n" +
+    			"    17  astore_2 [x]\n" +
+    		    "    18  getstatic System.out : PrintStream [22]\n" +
+    		    "    21  new StringBuilder [28]\n" +
+    		    "    24  dup\n" +
+    		    "    25  aload_1 [y]\n" +
+    		    "    26  invokespecial StringBuilder(String) [30]\n" +
+    		    "    29  aload_2 [x]\n" +
+    		    "    30  invokevirtual StringBuilder.append(String) : StringBuilder [33]\n" +
+    		    "    33  invokevirtual PrintStream.println(Object) : void [37]\n" +
+    		    "    36  return\n" +
     			"      Line numbers:\n" +
     			"        [pc: 0, line: 13]\n" +
     			"        [pc: 3, line: 14]\n" +
-    			"        [pc: 24, line: 15]\n" +
-    			"        [pc: 42, line: 17]\n" +
+    			"        [pc: 18, line: 15]\n" +
+    			"        [pc: 36, line: 17]\n" +
     			"      Local variable table:\n" +
-    			"        [pc: 0, pc: 43] local: args index: 0 type: String[]\n" +
-    			"        [pc: 3, pc: 43] local: y index: 1 type: String\n" +
-    			"        [pc: 24, pc: 42] local: x index: 2 type: String\n" +
+    			"        [pc: 0, pc: 37] local: args index: 0 type: String[]\n" +
+    			"        [pc: 3, pc: 37] local: y index: 1 type: String\n" +
+    			"        [pc: 18, pc: 36] local: x index: 2 type: String\n" +
     			"      Stack map table: number of frames 1\n" +
-    			"        [pc: 42, append: {String}]\n" +
+    			"        [pc: 36, append: {String}]\n" +
     			"    RuntimeVisibleTypeAnnotations: \n" +
     			"      #50 @Type(\n" +
     			"        target type = 0x40 LOCAL_VARIABLE\n" +
     			"        local variable entries:\n" +
-    			"          [pc: 3, pc: 43] index: 1\n" +
+    			"          [pc: 3, pc: 37] index: 1\n" +
     			"      )\n" +
     			"      #50 @Type(\n" +
     			"        target type = 0x40 LOCAL_VARIABLE\n" +
     			"        local variable entries:\n" +
-    			"          [pc: 24, pc: 42] index: 2\n" +
+    			"          [pc: 18, pc: 36] index: 2\n" +
     			"      )\n" +
     			"\n" +
     			"  Inner classes:\n" +
@@ -4476,4 +4472,80 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"A pattern variable with the same name is already defined in the statement\n" +
 				"----------\n");
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1406
+	// [Patterns] Bizarre code generation for type test patterns
+    public void testGH1406() throws ClassFormatException, IOException {
+        Map<String, String> options = getCompilerOptions(false);
+    	String source =
+    			"""
+    			public class X {
+					public static void main(String[] args) {
+						Object o = null;
+						if (o instanceof String x) {
+
+						}
+					}
+				}
+    			""";
+    	String expectedOutput =
+    			"  public static void main(String[] args);\n"
+    			+ "     0  aconst_null\n"
+    			+ "     1  astore_1 [o]\n"
+    			+ "     2  aload_1 [o]\n"
+    			+ "     3  instanceof String [16]\n"
+    			+ "     6  ifeq 14\n"
+    			+ "     9  aload_1 [o]\n"
+    			+ "    10  checkcast String [16]\n"
+    			+ "    13  astore_2\n"
+    			+ "    14  return\n";
+    	checkClassFile("X", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
+        runConformTest(
+                new String[] {
+                        "X.java",
+                        source,
+                },
+                "",
+                options);
+    }
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1406
+	// [Patterns] Bizarre code generation for type test patterns
+    public void testGH1406_2() throws ClassFormatException, IOException {
+        Map<String, String> options = getCompilerOptions(false);
+    	String source =
+    			"""
+    			public class X {
+				    Object o = "Helo";
+				    public void foo() {
+				        if (o instanceof String s) {
+
+				        }
+				    }
+
+				    public static void main(String [] args) {
+				        new X().foo();
+				    }
+				}
+    			""";
+    	String expectedOutput =
+    			 "  public void foo();\n" +
+				 "     0  aload_0 [this]\n" +
+				 "     1  getfield X.o : Object [14]\n" +
+				 "     4  dup\n" +
+				 "     5  astore_2\n" +
+				 "     6  instanceof String [21]\n" +
+				 "     9  ifeq 17\n" +
+				 "    12  aload_2\n" +
+				 "    13  checkcast String [21]\n" +
+				 "    16  astore_1\n" +
+				 "    17  return\n";
+    	checkClassFile("X", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
+        runConformTest(
+                new String[] {
+                        "X.java",
+                        source,
+                },
+                "",
+                options);
+
+    }
 }

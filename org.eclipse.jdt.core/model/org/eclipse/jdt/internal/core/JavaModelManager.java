@@ -375,6 +375,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	private static final String COMPILER_DEBUG = JavaCore.PLUGIN_ID + "/debug/compiler" ; //$NON-NLS-1$
 	private static final String JAVAMODEL_CLASSPATH = JavaCore.PLUGIN_ID + "/debug/javamodel/classpath" ; //$NON-NLS-1$
 	private static final String JAVAMODEL_DEBUG = JavaCore.PLUGIN_ID + "/debug/javamodel" ; //$NON-NLS-1$
+	private static final String JAVAMODEL_STDOUT = JavaCore.PLUGIN_ID + "/debug/traceToStdOut" ; //$NON-NLS-1$
 	private static final String JAVAMODEL_INVALID_ARCHIVES = JavaCore.PLUGIN_ID + "/debug/javamodel/invalid_archives" ; //$NON-NLS-1$
 	private static final String JAVAMODELCACHE_DEBUG = JavaCore.PLUGIN_ID + "/debug/javamodel/cache" ; //$NON-NLS-1$
 	private static final String JAVAMODELCACHE_INSERTIONS_DEBUG = JavaCore.PLUGIN_ID + "/debug/javamodel/insertions" ; //$NON-NLS-1$
@@ -1717,6 +1718,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 
 	// The amount of time from when an invalid archive is first sensed until that state is considered stale.
 	private static long INVALID_ARCHIVE_TTL_MILLISECONDS = 2 * 60 * 1000;
+	private static boolean TRACE_TO_STDOUT;
 
 	private static class InvalidArchiveInfo {
 		/**
@@ -1995,6 +1997,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 				JavaModelManager.DEBUG_CLASSPATH = debug && options.getBooleanOption(JAVAMODEL_CLASSPATH, false);
 				JavaModelManager.DEBUG_INVALID_ARCHIVES = debug && options.getBooleanOption(JAVAMODEL_INVALID_ARCHIVES, false);
 				JavaModelManager.VERBOSE = debug && options.getBooleanOption(JAVAMODEL_DEBUG, false);
+				JavaModelManager.TRACE_TO_STDOUT = debug && options.getBooleanOption(JAVAMODEL_STDOUT, false);
 				JavaModelCache.VERBOSE = debug && options.getBooleanOption(JAVAMODELCACHE_DEBUG, false);
 				JavaModelCache.DEBUG_CACHE_INSERTIONS = debug && options.getBooleanOption(JAVAMODELCACHE_INSERTIONS_DEBUG, false);
 				JavaModelOperation.POST_ACTION_VERBOSE = debug && options.getBooleanOption(POST_ACTION_DEBUG, false);
@@ -4344,7 +4347,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 			boolean wasVerbose = false;
 			try {
 				if (JavaModelCache.VERBOSE) {
-					String elementType = JavaModelCache.getElementType(element);
+					String elementType = JavaModelCache.getCacheType(element);
 					trace(Thread.currentThread() + " CLOSING "+ elementType + " " + element.toStringWithAncestors());  //$NON-NLS-1$//$NON-NLS-2$
 					wasVerbose = true;
 					JavaModelCache.VERBOSE = false;
@@ -4784,7 +4787,11 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	}
 
 	public static void trace(String msg) {
-		DEBUG_TRACE.trace(null, msg);
+		if (TRACE_TO_STDOUT) {
+			System.out.println(msg);
+		} else {
+			DEBUG_TRACE.trace(null, msg);
+		}
 	}
 
 	public static void trace(String msg, Exception e) {
@@ -5805,22 +5812,9 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		} else {
 			try {
 				readOnly.set(Boolean.TRUE);
-				return JavaModelManager.getJavaModelManager().callReadOnlyUnchecked(callable);
+				return JavaModelManager.cacheZipFiles(callable);
 			} finally {
 				readOnly.set(Boolean.FALSE);
-			}
-		}
-	}
-
-	private <T, E extends Exception> T callReadOnlyUnchecked(JavaCallable<T, E> callable) throws E {
-		boolean hadTemporaryCache = hasTemporaryCache();
-		try {
-			getTemporaryCache();
-
-			return cacheZipFiles(callable);
-		} finally {
-			if (!hadTemporaryCache) {
-				resetTemporaryCache();
 			}
 		}
 	}

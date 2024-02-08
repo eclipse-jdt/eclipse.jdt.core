@@ -316,6 +316,9 @@ public ResolvedCase[] resolveCase(BlockScope scope, TypeBinding switchExpression
 		((SingleNameReference) constExpr).setActualReceiverType((ReferenceBinding)switchExpressionType);
 	}
 
+	constExpr.setExpressionContext(ExpressionContext.INSTANCEOF_CONTEXT);
+	constExpr.setExpectedType(switchExpressionType);
+
 	TypeBinding caseType = constExpr.resolveType(scope);
 	if (caseType == null || switchExpressionType == null) return ResolvedCase.UnresolvedCase;
 	// tag constant name with enum type for privileged access to its members
@@ -364,8 +367,10 @@ private void flagDuplicateDefault(BlockScope scope, SwitchStatement switchStatem
 @Override
 public LocalVariableBinding[] bindingsWhenTrue() {
 	LocalVariableBinding [] variables = NO_VARIABLES;
-	for (Expression e : this.constantExpressions) {
-		variables = LocalVariableBinding.merge(variables, e.bindingsWhenTrue());
+	if (this.constantExpressions != null) {
+		for (Expression e : this.constantExpressions) {
+			variables = LocalVariableBinding.merge(variables, e.bindingsWhenTrue());
+		}
 	}
 	return variables;
 }
@@ -452,7 +457,9 @@ private Constant resolveConstantExpression(BlockScope scope,
 		if (e.resolvedType != null) {
 			// 14.30.2 at compile-time we "resolve" the pattern with respect to the (compile-time) type
 			// of the expression being pattern matched
-			TypeBinding pb = e.resolveAtType(scope, switchStatement.expression.resolvedType);
+			e.setExpressionContext(ExpressionContext.INSTANCEOF_CONTEXT);
+			e.setExpectedType(switchStatement.expression.resolvedType);
+			TypeBinding pb = e.resolveType(scope);
 			if (pb != null) switchStatement.caseLabelElementTypes.add(pb);
 			TypeBinding expressionType = switchStatement.expression.resolvedType;
 			// The following code is copied from InstanceOfExpression#resolve()

@@ -236,8 +236,7 @@ public final class Messages {
 		final String[] variants = buildVariants(bundleName);
 		// search the dirs in reverse order so the cascading defaults is set correctly
 		for (int i = variants.length; --i >= 0;) {
-			try (InputStream input = (loader == null) ? ClassLoader.getSystemResourceAsStream(variants[i])
-					: loader.getResourceAsStream(variants[i])) {
+			try (InputStream input = createInputStream(loader, variants[i])) {
 				if (input == null) {
 					continue;
 				}
@@ -247,5 +246,10 @@ public final class Messages {
 				// ignore
 			}
 		}
+	}
+
+	private static InputStream createInputStream(final ClassLoader loader, String variant) {
+		return (loader == null) ? ClassLoader.getSystemResourceAsStream(variant)
+				: loader.getResourceAsStream(variant);
 	}
 }

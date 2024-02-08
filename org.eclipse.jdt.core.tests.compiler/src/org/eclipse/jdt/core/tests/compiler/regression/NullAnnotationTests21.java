@@ -945,4 +945,94 @@ public class NullAnnotationTests21 extends AbstractNullAnnotationTest {
 		runner.classLibraries = this.LIBS;
 		runner.runConformTest();
 	}
+	public void testGH1009() {
+		Runner runner = new Runner();
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportAnnotatedTypeArgumentToUnannotated, CompilerOptions.ERROR);
+		runner.customOptions = options;
+		runner.testFiles = new String[] {
+			"UnsafeNullTypeConversionFalsePositive.java",
+			"""
+			import java.util.ArrayList;
+			import java.util.List;
+			import java.util.stream.Collectors;
+
+			import org.eclipse.jdt.annotation.NonNull;
+
+			public class UnsafeNullTypeConversionFalsePositive {
+
+				public static void main(final String[] args) {
+					final List<@NonNull StringBuffer> someList = new ArrayList<>();
+					List<@NonNull String> results;
+					// was buggy:
+					results = someList.stream().map(String::new).collect(Collectors.toList());
+					// was OK:
+					results = someList.stream().map(buff -> new String(buff)).collect(Collectors.toList());
+					results = someList.stream().<@NonNull String>map(String::new).collect(Collectors.toList());
+				}
+			}
+			"""
+		};
+		runner.classLibraries = this.LIBS;
+		runner.runConformTest();
+	}
+
+	public void testGH1760() {
+		Runner runner = new Runner();
+		runner.testFiles = new String[] {
+			"X.java",
+			"""
+			import org.eclipse.jdt.annotation.*;
+			import java.util.*;
+			import java.util.stream.*;
+			public class X {
+				List<@NonNull String> filter(List<@Nullable String> input) {
+					return input.stream()
+								.filter(Objects::nonNull)
+								.collect(Collectors.toList());
+				}
+			}
+			"""
+		};
+		runner.classLibraries = this.LIBS;
+		runner.runConformTest();
+	}
+
+	public void testGH1964() {
+		Runner runner = new Runner();
+		runner.customOptions = getCompilerOptions();
+		runner.customOptions.put(CompilerOptions.OPTION_EnablePreviews, CompilerOptions.ENABLED);
+		runner.customOptions.put(CompilerOptions.OPTION_ReportPreviewFeatures, CompilerOptions.IGNORE);
+		runner.vmArguments = new String[] {"--enable-preview"};
+		runner.testFiles = new String[] {
+			"JDK21TestingMain.java",
+			"""
+			import static java.util.FormatProcessor.FMT;
+			import static java.lang.StringTemplate.RAW;
+
+			public final class JDK21TestingMain
+			{
+			  public static void main(final String[] args)
+			  {
+			    final int fourtyTwo = 42;
+			    final String str = FMT."\\{fourtyTwo}";
+
+			    final int x=1;
+			    final int y=2;
+			    final StringTemplate st = RAW."\\{x} + \\{y} = \\{x + y}";
+
+			    final var x1 = STR."Hello World";
+			    final var x2 = FMT."Hello World";
+			    final var x3 = RAW."Hello World";
+
+			    System.out.println(STR."Hello World");
+
+			    System.out.println();
+			  }
+			}
+			"""
+		};
+		runner.classLibraries = this.LIBS;
+		runner.runConformTest();
+	}
 }

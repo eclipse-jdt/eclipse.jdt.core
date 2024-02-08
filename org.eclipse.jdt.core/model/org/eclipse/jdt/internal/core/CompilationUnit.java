@@ -46,17 +46,10 @@ import org.eclipse.text.edits.UndoEdit;
  * @see ICompilationUnit
  */
 public class CompilationUnit extends Openable implements ICompilationUnit, org.eclipse.jdt.internal.compiler.env.ICompilationUnit, SuffixConstants {
-	/**
-	 * Internal synonym for deprecated constant AST.JSL2
-	 * to alleviate deprecation warnings.
-	 * @deprecated
-	 */
-	/*package*/ static final int JLS2_INTERNAL = AST.JLS2;
-
 	private static final IImportDeclaration[] NO_IMPORTS = new IImportDeclaration[0];
 
-	protected String name;
-	public WorkingCopyOwner owner;
+	protected final String name;
+	public final WorkingCopyOwner owner;
 
 /**
  * Constructs a handle to a compilation unit with the given name in the
@@ -520,14 +513,13 @@ public void discardWorkingCopy() throws JavaModelException {
  */
 @Override
 public boolean equals(Object obj) {
-	if (!(obj instanceof CompilationUnit)) return false;
-	CompilationUnit other = (CompilationUnit)obj;
+	if (!(obj instanceof CompilationUnit other)) return false;
 	return this.owner.equals(other.owner) && super.equals(obj);
 }
 
 @Override
-public int hashCode() {
-	return Util.combineHashCodes(super.hashCode(), this.owner.hashCode());
+protected int calculateHashCode() {
+	return Util.combineHashCodes(super.calculateHashCode(), this.owner.hashCode());
 }
 
 /**
@@ -568,12 +560,12 @@ public IJavaElement[] findElements(IJavaElement element) {
 					case IJavaElement.FIELD:
 					case IJavaElement.INITIALIZER:
 					case IJavaElement.METHOD:
-						currentElement =  ((IMember)currentElement).getType(child.getElementName(), child.occurrenceCount);
+						currentElement =  ((IMember)currentElement).getType(child.getElementName(), child.getOccurrenceCount());
 						break;
 				}
 				break;
 			case IJavaElement.INITIALIZER:
-				currentElement = ((IType)currentElement).getInitializer(child.occurrenceCount);
+				currentElement = ((IType)currentElement).getInitializer(child.getOccurrenceCount());
 				break;
 			case IJavaElement.FIELD:
 				currentElement = ((IType)currentElement).getField(child.getElementName());

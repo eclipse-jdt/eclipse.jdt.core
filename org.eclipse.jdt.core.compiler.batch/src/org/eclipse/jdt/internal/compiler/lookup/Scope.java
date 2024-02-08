@@ -3051,6 +3051,13 @@ public abstract class Scope {
 		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_STRINGBUILDER);
 		return unitScope.environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_STRINGBUILDER, this);
 	}
+
+	public TypeBinding getJavaLangStringTemplate() {
+		CompilationUnitScope unitScope = compilationUnitScope();
+		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_STRINGTEMPLATE);
+		return unitScope.environment.getResolvedJavaBaseType(TypeConstants.JAVA_LANG_STRINGTEMPLATE, this);
+	}
+
 	public final ReferenceBinding getJavaLangStringTemplateProcessor() {
 		CompilationUnitScope unitScope = compilationUnitScope();
 		unitScope.recordQualifiedReference(TypeConstants.JAVA_LANG_STRINGTEMPLATE_PROCESSOR);

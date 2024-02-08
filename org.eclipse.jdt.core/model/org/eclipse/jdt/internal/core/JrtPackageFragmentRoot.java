@@ -44,7 +44,7 @@ import org.eclipse.jdt.internal.core.util.Util;
  */
 public class JrtPackageFragmentRoot extends JarPackageFragmentRoot implements IModulePathEntry {
 
-	String moduleName;
+	protected final String moduleName;
 
 	public static final ThreadLocal<Boolean> workingOnOldClasspath = new ThreadLocal<>();
 
@@ -113,13 +113,20 @@ public class JrtPackageFragmentRoot extends JarPackageFragmentRoot implements IM
 	public boolean equals(Object o) {
 		if (this == o)
 			return true;
-		if (o instanceof JrtPackageFragmentRoot) {
-			JrtPackageFragmentRoot other= (JrtPackageFragmentRoot) o;
+		if (o instanceof JrtPackageFragmentRoot other) {
 			return this.moduleName.equals(other.moduleName) &&
 					this.jarPath.equals(other.jarPath) &&
 					Arrays.equals(this.extraAttributes, other.extraAttributes);
 		}
 		return false;
+	}
+	@Override
+	protected int calculateHashCode() {
+		int hash = 31;
+		hash = Util.combineHashCodes(hash, this.jarPath.hashCode());
+		hash = Util.combineHashCodes(hash, this.moduleName.hashCode());
+		hash = Util.combineHashCodes(hash, Arrays.hashCode(this.extraAttributes));
+		return hash;
 	}
 	@Override
 	public String getElementName() {
@@ -129,14 +136,6 @@ public class JrtPackageFragmentRoot extends JarPackageFragmentRoot implements IM
 	public PackageFragment getPackageFragment(String[] pkgName) {
 		// NOTE: Do we need a different kind of package fragment?
 		return new JarPackageFragment(this, pkgName);
-	}
-	@Override
-	public int hashCode() {
-		int hash = 31;
-		hash = Util.combineHashCodes(hash, this.jarPath.hashCode());
-		hash = Util.combineHashCodes(hash, this.moduleName.hashCode());
-		hash = Util.combineHashCodes(hash, Arrays.hashCode(this.extraAttributes));
-		return hash;
 	}
 	@Override
 	protected void toStringInfo(int tab, StringBuilder buffer, Object info, boolean showResolvedInfo) {

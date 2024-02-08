@@ -351,7 +351,7 @@ public class DefaultCodeFormatter extends CodeFormatter {
 	}
 
 	private ICompilationUnit createDummyModuleInfoCompilationUnit() {
-		JavaProject dummyProject = new JavaProject() {
+		JavaProject dummyProject = new JavaProject(null, null) {
 			@Override
 			public Map<String, String> getOptions(boolean inheritJavaCoreOptions) {
 				return new HashMap<>();

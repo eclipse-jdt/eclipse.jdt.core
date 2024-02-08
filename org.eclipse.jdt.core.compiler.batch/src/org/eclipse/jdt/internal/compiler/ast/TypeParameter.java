@@ -154,9 +154,8 @@ public class TypeParameter extends AbstractVariableDeclaration {
 							if ((this.binding.tagBits & TagBits.AnnotationNonNull) != 0)
 								scope.problemReporter().nullAnnotationIsRedundant(this);
 						} else { // no explicit type annos, add the default:
-							AnnotationBinding[] annots = new AnnotationBinding[] { environment.getNonNullAnnotation() };
 							TypeVariableBinding previousBinding = this.binding;
-							this.binding = (TypeVariableBinding) environment.createAnnotatedType(this.binding, annots);
+							this.binding = (TypeVariableBinding) environment.createNonNullAnnotatedType(this.binding);
 
 							if (scope instanceof MethodScope) {
 								/*

@@ -68,10 +68,12 @@ private void generateAnnotationInfo(JavaElement parent, Map<IJavaElement, IEleme
 }
 private void generateAnnotationInfo(JavaElement parent, char[] parameterName, Map<IJavaElement, IElementInfo> newElements, IBinaryAnnotation annotationInfo, String memberValuePairName) {
 	char[] typeName = org.eclipse.jdt.core.Signature.toCharArray(CharOperation.replaceOnCopy(annotationInfo.getTypeName(), '/', '.'));
-	Annotation annotation = new Annotation(parent, new String(typeName), memberValuePairName);
-	while (newElements.containsKey(annotation)) {
-		annotation.occurrenceCount++;
-	}
+	int occurrenceCount = 0;
+	Annotation annotation;
+	do {
+		annotation = new Annotation(parent, new String(typeName), memberValuePairName, ++occurrenceCount);
+	} while (newElements.containsKey(annotation));
+
 	newElements.put(annotation, annotationInfo);
 	IBinaryElementValuePair[] pairs = annotationInfo.getElementValuePairs();
 	for (int i = 0, length = pairs.length; i < length; i++) {
@@ -287,14 +289,15 @@ private void generateMethodInfos(IType type, IBinaryType typeInfo, Map<IJavaElem
 		for (int j= 0; j < pNames.length; j++) {
 			pNames[j]= manager.intern(new String(parameterTypes[j]));
 		}
-		BinaryMethod method = new BinaryMethod((JavaElement)type, selector, pNames);
-		childrenHandles.add(method);
-
+		int occurrenceCount = 0;
+		BinaryMethod method;
 		// ensure that 2 binary methods with the same signature but with different return types have different occurrence counts.
 		// (case of bridge methods in 1.5)
-		while (newElements.containsKey(method))
-			method.occurrenceCount++;
+		do {
+			method = new BinaryMethod((JavaElement) type, selector, pNames, ++occurrenceCount);
+		} while (newElements.containsKey(method));
 
+		childrenHandles.add(method);
 		newElements.put(method, methodInfo);
 
 		int max = pNames.length;
@@ -360,17 +363,17 @@ private void generateTypeParameterInfos(BinaryMember parent, char[] signature, M
 		for (int j = 0; j < boundLength; j++) {
 			typeParameterBounds[j] = Signature.toCharArray(typeParameterBoundSignatures[j]);
 		}
-		TypeParameter typeParameter = new TypeParameter(parent, new String(typeParameterName));
+		int occurrenceCount = 0;
+		TypeParameter typeParameter;
+		do {
+			typeParameter = new TypeParameter(parent, new String(typeParameterName), ++occurrenceCount);
+			// ensure that 2 binary methods with the same signature but with different return types have different occurence counts.
+			// (case of bridge methods in 1.5)
+		} while (newElements.containsKey(typeParameter));
 		TypeParameterElementInfo info = new TypeParameterElementInfo();
 		info.bounds = typeParameterBounds;
 		info.boundsSignatures = typeParameterBoundSignatures;
 		typeParameterHandles.add(typeParameter);
-
-		// ensure that 2 binary methods with the same signature but with different return types have different occurence counts.
-		// (case of bridge methods in 1.5)
-		while (newElements.containsKey(typeParameter))
-			typeParameter.occurrenceCount++;
-
 		newElements.put(typeParameter, info);
 	}
 }

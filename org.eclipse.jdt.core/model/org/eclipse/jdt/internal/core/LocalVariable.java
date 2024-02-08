@@ -43,10 +43,10 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 
 	public static final ILocalVariable[] NO_LOCAL_VARIABLES = new ILocalVariable[0];
 
-	String name;
-	public int declarationSourceStart, declarationSourceEnd;
-	public int nameStart, nameEnd;
-	String typeSignature;
+	private final String name;
+	public final int declarationSourceStart, declarationSourceEnd;
+	public final int nameStart, nameEnd;
+	private final String typeSignature;
 	public IAnnotation[] annotations;
 	private final int flags;
 	private final boolean isParameter;
@@ -113,14 +113,18 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 
 	@Override
 	public boolean equals(Object o) {
-		if (!(o instanceof LocalVariable)) return false;
-		LocalVariable other = (LocalVariable)o;
+		if (!(o instanceof LocalVariable other)) return false;
 		return
 			this.declarationSourceStart == other.declarationSourceStart
 			&& this.declarationSourceEnd == other.declarationSourceEnd
 			&& this.nameStart == other.nameStart
 			&& this.nameEnd == other.nameEnd
 			&& super.equals(o);
+	}
+
+	@Override
+	protected int calculateHashCode() {
+		return Util.combineHashCodes(this.getParent().hashCode(), this.nameStart);
 	}
 
 	@Override
@@ -302,9 +306,9 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 		buff.append(this.flags);
 		buff.append(JEM_COUNT);
 		buff.append(this.isParameter);
-		if (this.occurrenceCount > 1) {
+		if (this.getOccurrenceCount() > 1) {
 			buff.append(JEM_COUNT);
-			buff.append(this.occurrenceCount);
+			buff.append(this.getOccurrenceCount());
 		}
 	}
 
@@ -472,11 +476,6 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 	@Override
 	public IResource getUnderlyingResource() throws JavaModelException {
 		return this.getParent().getUnderlyingResource();
-	}
-
-	@Override
-	public int hashCode() {
-		return Util.combineHashCodes(this.getParent().hashCode(), this.nameStart);
 	}
 
 	/**

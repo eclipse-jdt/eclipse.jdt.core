@@ -2067,12 +2067,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"	                      ^^^\n" +
 				"Incorrect number of arguments for type X.Box<T,U>; it cannot be parameterized with arguments <String>\n" +
 				"----------\n" +
-				"3. ERROR in X.java (at line 5)\n" +
-				"	System.out.println(\"String \" + s1.getClass().toString());\n" +
-				"	                               ^^\n" +
-				"s1 cannot be resolved\n" +
-				"----------\n" +
-				"4. ERROR in X.java (at line 10)\n" +
+				"3. ERROR in X.java (at line 10)\n" +
 				"	test3(bo);\n" +
 				"	^^^^^\n" +
 				"The method test3(X.Box<X.Box<String,Integer>,X.Box<Integer,String>>) is undefined for the type X\n" +
@@ -3334,6 +3329,33 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"An enhanced switch statement should be exhaustive; a default label expected\n" +
 				"----------\n");
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1792
+	// [Patterns][records] Error in JDT Core during AST creation: info cannot be null
+	public void testGH1792() {
+		runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+				    private record R(Object o) {}
+				    static void f(R [] rs) {
+				        int i = 0;
+				        while (rs[i++] instanceof R(String o)) {
+				            System.out.println(o);
+				        }
+				    }
+				    public static void main(String [] args) {
+				    	R [] rs = { new R("So"), new R("far"), new R("so"), new R("good!"), null };
+				    	f(rs);
+				    }
+				}
+				"""
+				},
+				"So\n" +
+				"far\n" +
+				"so\n" +
+				"good!");
+	}
 	public void testIssue1336_1() {
 		runConformTest(
 				new String[] {
@@ -3399,12 +3421,17 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				}
 				"""
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 7)\n" +
-				"	case R() -> 0;\n" +
-				"	     ^^^\n" +
-				"Record pattern should match the signature of the record declaration\n" +
-				"----------\n");
+				"----------\n"
+				+ "1. ERROR in X.java (at line 6)\n"
+				+ "	return switch (r) {\n"
+				+ "	               ^\n"
+				+ "A switch expression should have a default case\n"
+				+ "----------\n"
+				+ "2. ERROR in X.java (at line 7)\n"
+				+ "	case R() -> 0;\n"
+				+ "	     ^^^\n"
+				+ "Record pattern should match the signature of the record declaration\n"
+				+ "----------\n");
 	}
 	public void testIssue1732_02() {
 		runNegativeTest(
@@ -3423,12 +3450,17 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				}
 				"""
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 7)\n" +
-				"	case R(int x) -> 0;\n" +
-				"	     ^^^^^^^^\n" +
-				"Record pattern should match the signature of the record declaration\n" +
-				"----------\n");
+				"----------\n"
+				+ "1. ERROR in X.java (at line 6)\n"
+				+ "	return switch (r) {\n"
+				+ "	               ^\n"
+				+ "A switch expression should have a default case\n"
+				+ "----------\n"
+				+ "2. ERROR in X.java (at line 7)\n"
+				+ "	case R(int x) -> 0;\n"
+				+ "	     ^^^^^^^^\n"
+				+ "Record pattern should match the signature of the record declaration\n"
+				+ "----------\n");
 	}
 	public void testIssue1732_03() {
 		runNegativeTest(
@@ -3447,12 +3479,17 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				}
 				"""
 				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 7)\n" +
-				"	case R(int x, int y, int z) -> 0;\n" +
-				"	     ^^^^^^^^^^^^^^^^^^^^^^\n" +
-				"Record pattern should match the signature of the record declaration\n" +
-				"----------\n");
+				"----------\n"
+				+ "1. ERROR in X.java (at line 6)\n"
+				+ "	return switch (r) {\n"
+				+ "	               ^\n"
+				+ "A switch expression should have a default case\n"
+				+ "----------\n"
+				+ "2. ERROR in X.java (at line 7)\n"
+				+ "	case R(int x, int y, int z) -> 0;\n"
+				+ "	     ^^^^^^^^^^^^^^^^^^^^^^\n"
+				+ "Record pattern should match the signature of the record declaration\n"
+				+ "----------\n");
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1788
 	// Inference issue between the diamond syntax and pattern matching (switch on objects)

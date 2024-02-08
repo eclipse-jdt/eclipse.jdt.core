@@ -9707,4 +9707,29 @@ public void testGH1806() {
 			},
 		"true");
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1939
+// [records] Class MethodBinding has a NullPointerException
+public void testGH1939() {
+	runConformTest(
+			new String[] {
+					"X.java",
+					"""
+					public class X {
+
+					    interface Foo {}
+
+					    interface A {
+					        <T extends Foo> Class<T> clazz() ;
+					    }
+
+					    record AA<T extends Foo>( Class<T> clazz ) implements A {}
+
+					    public static void main(String [] args) {
+					        System.out.println("OK!");
+					    }
+					}
+					"""
+			},
+		"OK!");
+}
 }

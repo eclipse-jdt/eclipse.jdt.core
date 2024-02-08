@@ -35,7 +35,7 @@ import org.eclipse.jdt.internal.core.util.Util;
  */
 public class ClassFileWorkingCopy extends CompilationUnit {
 
-	public AbstractClassFile classFile;
+	public final AbstractClassFile classFile;
 
 public ClassFileWorkingCopy(AbstractClassFile classFile, WorkingCopyOwner owner) {
 	super((PackageFragment) classFile.getParent(), sourceFileName(classFile), owner);

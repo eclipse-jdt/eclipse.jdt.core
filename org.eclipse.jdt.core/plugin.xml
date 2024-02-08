@@ -88,7 +88,7 @@
 	id="javanature"
 	name="%javaNatureName">
 	<runtime>
-		<run class="org.eclipse.jdt.internal.core.JavaProject">
+		<run class="org.eclipse.jdt.internal.core.JavaNature">
 		</run>
 	</runtime>
 </extension>

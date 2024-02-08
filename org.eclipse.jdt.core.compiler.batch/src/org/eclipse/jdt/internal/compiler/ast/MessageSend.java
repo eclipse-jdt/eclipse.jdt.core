@@ -94,10 +94,12 @@ import org.eclipse.jdt.internal.compiler.lookup.ImplicitNullAnnotationVerifier;
 import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18;
 import org.eclipse.jdt.internal.compiler.lookup.InferenceVariable;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
+import org.eclipse.jdt.internal.compiler.lookup.LookupEnvironment;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MissingTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedGenericMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ParameterizedMethodBinding;
+import org.eclipse.jdt.internal.compiler.lookup.ParameterizedTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PolyParameterizedGenericMethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PolyTypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.PolymorphicMethodBinding;
@@ -1053,6 +1055,9 @@ public TypeBinding resolveType(BlockScope scope) {
 			returnType = returnType.capture(scope, this.sourceStart, this.sourceEnd);
 		}
 	}
+	if (scope.environment().usesNullTypeAnnotations()) {
+		returnType = handleNullnessCodePatterns(scope, returnType);
+	}
 	this.resolvedType = returnType;
 	if (this.receiver.isSuper() && compilerOptions.getSeverity(CompilerOptions.OverridingMethodWithoutSuperInvocation) != ProblemSeverities.Ignore) {
 		final ReferenceContext referenceContext = scope.methodScope().referenceContext;
@@ -1076,6 +1081,33 @@ public TypeBinding resolveType(BlockScope scope) {
 	return (this.resolvedType.tagBits & TagBits.HasMissingType) == 0
 				? this.resolvedType
 				: null;
+}
+
+protected TypeBinding handleNullnessCodePatterns(BlockScope scope, TypeBinding returnType) {
+	// j.u.s.Stream.filter() may modify nullness of stream elements:
+	if (this.binding.isWellknownMethod(TypeConstants.JAVA_UTIL_STREAM__STREAM, TypeConstants.FILTER)
+			&& returnType instanceof ParameterizedTypeBinding)
+	{
+		ParameterizedTypeBinding parameterizedType = (ParameterizedTypeBinding) returnType;
+		// filtering on Objects::nonNull?
+		if (this.arguments != null && this.arguments.length == 1) {
+			if (this.arguments[0] instanceof ReferenceExpression) {
+				MethodBinding argumentBinding = ((ReferenceExpression) this.arguments[0]).binding;
+				if (argumentBinding.isWellknownMethod(TypeIds.T_JavaUtilObjects, TypeConstants.NON_NULL))
+				{
+					// code pattern detected, now update the return type:
+					if (parameterizedType.arguments.length == 1) {
+						LookupEnvironment environment = scope.environment();
+						TypeBinding updatedTypeArgument = parameterizedType.arguments[0].withoutToplevelNullAnnotation();
+						updatedTypeArgument = environment.createNonNullAnnotatedType(updatedTypeArgument);
+						return environment.createParameterizedType(
+								parameterizedType.genericType(), new TypeBinding[] { updatedTypeArgument }, parameterizedType.enclosingType());
+					}
+				}
+			}
+		}
+	}
+	return returnType;
 }
 
 protected TypeBinding findMethodBinding(BlockScope scope) {

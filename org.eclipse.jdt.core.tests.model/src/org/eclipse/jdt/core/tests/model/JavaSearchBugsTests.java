@@ -3528,7 +3528,7 @@ public void testBug94389() throws CoreException {
 		// Verify that all matches have correct occurence count
 		int size = collector.matches.size();
 		for (int i=0; i<size; i++) {
-			assertEquals("Invalid foo method occurence count (m="+(m+1)+")", i+1, ((SourceMethod) methods[i]).occurrenceCount);
+			assertEquals("Invalid foo method occurence count (m="+(m+1)+")", i+1, ((SourceMethod) methods[i]).getOccurrenceCount());
 		}
 	}
 }

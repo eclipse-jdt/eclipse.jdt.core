@@ -66,6 +66,20 @@ public enum ExpressionContext {
 		}
 	},
 
+	/** Instanceof context: potential poly-expressions are: None
+	   Context induced by: InstanceOfExpression.
+	*/
+	INSTANCEOF_CONTEXT {
+		@Override
+		public String toString() {
+			return "instanceof context"; //$NON-NLS-1$
+		}
+		@Override
+		public boolean definesTargetType() {
+			return false;
+		}
+	},
+
 	/** Vanilla context (string, numeric): potential poly-expressions are: NONE. This is the nonpoly context in which
 	   expressions get evaluated, unless they feature in one of the above contexts.
 	*/

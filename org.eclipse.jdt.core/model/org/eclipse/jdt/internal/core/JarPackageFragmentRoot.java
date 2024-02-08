@@ -229,13 +229,17 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 	public boolean equals(Object o) {
 		if (this == o)
 			return true;
-		if (o instanceof JarPackageFragmentRoot) {
-			JarPackageFragmentRoot other= (JarPackageFragmentRoot) o;
-			return this.jarPath.equals(other.jarPath)
-					&& Arrays.equals(this.extraAttributes, other.extraAttributes);
+		if (o instanceof JarPackageFragmentRoot other) {
+			return this.jarPath.equals(other.jarPath) && Arrays.equals(this.extraAttributes, other.extraAttributes);
 		}
 		return false;
 	}
+
+	@Override
+	protected int calculateHashCode() {
+		return this.jarPath.hashCode() + Arrays.hashCode(this.extraAttributes);
+	}
+
 	@Override
 	public String getElementName() {
 		return this.jarPath.lastSegment();
@@ -338,10 +342,6 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 		} else {
 			return super.getUnderlyingResource();
 		}
-	}
-	@Override
-	public int hashCode() {
-		return this.jarPath.hashCode() + Arrays.hashCode(this.extraAttributes);
 	}
 	protected void initRawPackageInfo(HashtableOfArrayToObject rawPackageInfo, String entryName, boolean isDirectory, String compliance) {
 		int lastSeparator;

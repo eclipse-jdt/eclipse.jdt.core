@@ -49,7 +49,6 @@ import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
-import org.eclipse.jdt.internal.compiler.lookup.AnnotationBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
@@ -312,7 +311,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 							this.typeArguments[i].checkNullConstraints(scope, (ParameterizedGenericMethodBinding) this.binding, typeVariables, i);
 					}
 					if (this.resolvedType.isValidBinding()) {
-						this.resolvedType = scope.environment().createAnnotatedType(this.resolvedType, new AnnotationBinding[] {scope.environment().getNonNullAnnotation()});
+						this.resolvedType = scope.environment().createNonNullAnnotatedType(this.resolvedType);
 					}
 				}
 			}

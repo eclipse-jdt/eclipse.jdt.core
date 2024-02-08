@@ -66,7 +66,7 @@ public class ASTNodeFinder {
 		if (typeDecl == null) return null;
 		FieldDeclaration[] fields = typeDecl.fields;
 		if (fields != null) {
-			int occurenceCount = ((SourceRefElement)initializerHandle).occurrenceCount;
+			int occurenceCount = ((SourceRefElement)initializerHandle).getOccurrenceCount();
 			for (int i = 0, length = fields.length; i < length; i++) {
 				FieldDeclaration field = fields[i];
 				if (field instanceof Initializer && --occurenceCount == 0) {
@@ -117,7 +117,7 @@ public class ASTNodeFinder {
 	public TypeDeclaration findType(IType typeHandle) {
 		IJavaElement parent = typeHandle.getParent();
 		final char[] typeName = typeHandle.getElementName().toCharArray();
-		final int occurenceCount = ((SourceType)typeHandle).occurrenceCount;
+		final int occurenceCount = ((SourceType)typeHandle).getOccurrenceCount();
 		final boolean findAnonymous = typeName.length == 0;
 		class Visitor extends ASTVisitor {
 			TypeDeclaration result;

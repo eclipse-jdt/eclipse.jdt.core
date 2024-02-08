@@ -691,7 +691,8 @@ public abstract class AbstractMethodDeclaration
 			// Set javadoc visibility
 			int javadocVisibility = this.binding.modifiers & ExtraCompilerModifiers.AccVisibilityMASK;
 			ClassScope classScope = this.scope.classScope();
-			try (ProblemReporter reporter = this.scope.problemReporter()) {
+			ProblemReporter reporter = this.scope.problemReporter();
+			try {
 				int severity = reporter.computeSeverity(IProblem.JavadocMissing);
 				if (severity != ProblemSeverities.Ignore) {
 					if (classScope != null) {
@@ -700,6 +701,8 @@ public abstract class AbstractMethodDeclaration
 					int javadocModifiers = (this.binding.modifiers & ~ExtraCompilerModifiers.AccVisibilityMASK) | javadocVisibility;
 					reporter.javadocMissing(this.sourceStart, this.sourceEnd, severity, javadocModifiers);
 				}
+			} finally {
+				reporter.close();
 			}
 		}
 	}

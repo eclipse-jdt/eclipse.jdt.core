@@ -1428,7 +1428,17 @@ private boolean checkAppropriate(MethodBinding compileTimeDeclaration, MethodBin
 public void reparentLocals(boolean reparent) {
 	this.reparentLocals = reparent;
 }
-
+public void reportClashingDeclarations(LocalVariableBinding [] left, LocalVariableBinding [] right) {
+	if (left != null && left.length > 0 && right != null && right.length > 0) {
+		for (LocalVariableBinding leftVar : left) {
+			for (LocalVariableBinding rightVar : right) {
+				if (CharOperation.equals(leftVar.name, rightVar.name)) {
+					problemReporter().illegalRedeclarationOfPatternVar(rightVar, rightVar.declaration);
+				}
+			}
+		}
+	}
+}
 public void include(LocalVariableBinding[] bindings) {
 	// `this` is assumed to be populated with bindings.
 	if (bindings != null) {

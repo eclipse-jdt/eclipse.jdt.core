@@ -99,13 +99,11 @@ private void acceptBinaryMethod(
 	try {
 		if(!isConstructor || ((JavaElement)method).getClassFile().getBuffer() == null) {
 			if (uniqueKey != null) {
-				ResolvedBinaryMethod resolvedMethod = new ResolvedBinaryMethod(
+				method = new ResolvedBinaryMethod(
 						(JavaElement)method.getParent(),
 						method.getElementName(),
 						method.getParameterTypes(),
-						new String(uniqueKey));
-				resolvedMethod.occurrenceCount = method.getOccurrenceCount();
-				method = resolvedMethod;
+						new String(uniqueKey), method.getOccurrenceCount());
 			}
 
 			addElement(method);
@@ -116,13 +114,11 @@ private void acceptBinaryMethod(
 			ISourceRange range = method.getSourceRange();
 			if (range.getOffset() != -1 && range.getLength() != 0 ) {
 				if (uniqueKey != null) {
-					ResolvedBinaryMethod resolvedMethod = new ResolvedBinaryMethod(
+					method = new ResolvedBinaryMethod(
 							(JavaElement)method.getParent(),
 							method.getElementName(),
 							method.getParameterTypes(),
-							new String(uniqueKey));
-					resolvedMethod.occurrenceCount = method.getOccurrenceCount();
-					method = resolvedMethod;
+							new String(uniqueKey), method.getOccurrenceCount());
 				}
 				addElement(method);
 				if(SelectionEngine.DEBUG){
@@ -207,13 +203,9 @@ public void acceptType(char[] packageName, char[] typeName, int modifiers, boole
 		if(type != null ) {
 			String key = uniqueKey == null ? type.getKey() : new String(uniqueKey);
 			if(type.isBinary()) {
-				ResolvedBinaryType resolvedType = new ResolvedBinaryType((JavaElement)type.getParent(), type.getElementName(), key);
-				resolvedType.occurrenceCount = type.getOccurrenceCount();
-				type = resolvedType;
+				type = new ResolvedBinaryType((JavaElement)type.getParent(), type.getElementName(), key, type.getOccurrenceCount());
 			} else {
-				ResolvedSourceType resolvedType = new ResolvedSourceType((JavaElement)type.getParent(), type.getElementName(), key);
-				resolvedType.occurrenceCount = type.getOccurrenceCount();
-				type = resolvedType;
+				type = new ResolvedSourceType((JavaElement)type.getParent(), type.getElementName(), key, type.getOccurrenceCount());
 			}
 		}
 	}
@@ -231,13 +223,9 @@ public void acceptType(char[] packageName, char[] typeName, int modifiers, boole
 public void acceptType(IType type) {
 	String key = type.getKey();
 	if(type.isBinary()) {
-		ResolvedBinaryType resolvedType = new ResolvedBinaryType((JavaElement)type.getParent(), type.getElementName(), key);
-		resolvedType.occurrenceCount = type.getOccurrenceCount();
-		type = resolvedType;
+		type = new ResolvedBinaryType((JavaElement)type.getParent(), type.getElementName(), key, type.getOccurrenceCount());
 	} else {
-		ResolvedSourceType resolvedType = new ResolvedSourceType((JavaElement)type.getParent(), type.getElementName(), key);
-		resolvedType.occurrenceCount = type.getOccurrenceCount();
-		type = resolvedType;
+		type = new ResolvedSourceType((JavaElement)type.getParent(), type.getElementName(), key, type.getOccurrenceCount());
 	}
 
 	addElement(type);
@@ -296,19 +284,15 @@ public void acceptField(char[] declaringTypePackageName, char[] declaringTypeNam
 			if (field.exists()) {
 				if (uniqueKey != null) {
 					if(field.isBinary()) {
-						ResolvedBinaryField resolvedField = new ResolvedBinaryField(
+						field = new ResolvedBinaryField(
 								(JavaElement)field.getParent(),
 								field.getElementName(),
-								new String(uniqueKey));
-						resolvedField.occurrenceCount = field.getOccurrenceCount();
-						field = resolvedField;
+								new String(uniqueKey), field.getOccurrenceCount());
 					} else {
-						ResolvedSourceField resolvedField = new ResolvedSourceField(
+						field = new ResolvedSourceField(
 								(JavaElement)field.getParent(),
 								field.getElementName(),
-								new String(uniqueKey));
-						resolvedField.occurrenceCount = field.getOccurrenceCount();
-						field = resolvedField;
+								new String(uniqueKey), field.getOccurrenceCount());
 					}
 				}
 				addElement(field);
@@ -334,19 +318,15 @@ public void acceptLocalField(FieldBinding fieldBinding) {
 		if (field.exists()) {
 			char[] uniqueKey = fieldBinding.computeUniqueKey();
 			if(field.isBinary()) {
-				ResolvedBinaryField resolvedField = new ResolvedBinaryField(
+				field = new ResolvedBinaryField(
 						(JavaElement)field.getParent(),
 						field.getElementName(),
-						new String(uniqueKey));
-				resolvedField.occurrenceCount = field.getOccurrenceCount();
-				field = resolvedField;
+						new String(uniqueKey), field.getOccurrenceCount());
 			} else {
-				ResolvedSourceField resolvedField = new ResolvedSourceField(
+				field = new ResolvedSourceField(
 						(JavaElement)field.getParent(),
 						field.getElementName(),
-						new String(uniqueKey));
-				resolvedField.occurrenceCount = field.getOccurrenceCount();
-				field = resolvedField;
+						new String(uniqueKey), field.getOccurrenceCount());
 			}
 			addElement(field);
 			if(SelectionEngine.DEBUG){
@@ -363,21 +343,17 @@ public void acceptLocalMethod(MethodBinding methodBinding) {
 
 			char[] uniqueKey = methodBinding.computeUniqueKey();
 			if(method.isBinary()) {
-				ResolvedBinaryMethod resolvedRes = new ResolvedBinaryMethod(
+				res = new ResolvedBinaryMethod(
 						(JavaElement)res.getParent(),
 						method.getElementName(),
 						method.getParameterTypes(),
-						new String(uniqueKey));
-				resolvedRes.occurrenceCount = method.getOccurrenceCount();
-				res = resolvedRes;
+						new String(uniqueKey), method.getOccurrenceCount());
 			} else {
-				ResolvedSourceMethod resolvedRes = new ResolvedSourceMethod(
+				res = new ResolvedSourceMethod(
 						(JavaElement)res.getParent(),
 						method.getElementName(),
 						method.getParameterTypes(),
-						new String(uniqueKey));
-				resolvedRes.occurrenceCount = method.getOccurrenceCount();
-				res = resolvedRes;
+						new String(uniqueKey), method.getOccurrenceCount());
 			}
 			addElement(res);
 			if(SelectionEngine.DEBUG){
@@ -611,13 +587,11 @@ protected void acceptSourceMethod(
 					&& methods[i].getParameterTypes().length == parameterTypeNames.length) {
 				IMethod method = methods[i];
 				if (uniqueKey != null) {
-					ResolvedSourceMethod resolvedMethod = new ResolvedSourceMethod(
+					method = new ResolvedSourceMethod(
 						(JavaElement)method.getParent(),
 						method.getElementName(),
 						method.getParameterTypes(),
-						new String(uniqueKey));
-					resolvedMethod.occurrenceCount = method.getOccurrenceCount();
-					method = resolvedMethod;
+						new String(uniqueKey), method.getOccurrenceCount());
 				}
 				addElement(method);
 			}

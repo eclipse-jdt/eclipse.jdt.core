@@ -577,7 +577,7 @@ protected void fillInDefaultNonNullness18(AbstractMethodDeclaration sourceMethod
 			if (existing == 0L) {
 				added = true;
 				if (!parameter.isBaseType()) {
-					this.parameters[i] = env.createAnnotatedType(parameter, new AnnotationBinding[]{env.getNonNullAnnotation()});
+					this.parameters[i] = env.createNonNullAnnotatedType(parameter);
 					if (sourceMethod != null)
 						sourceMethod.arguments[i].binding.type = this.parameters[i];
 				}
@@ -1519,6 +1519,14 @@ public void verifyOverrideCompatibility(MethodBinding inheritedMethod, ClassScop
 		if ((inheritedMethod.tagBits & TagBits.AnnotationOwning) == 0)
 			scope.problemReporter().overrideAddingReturnOwning(sourceMethod);
 	}
+}
+public boolean isWellknownMethod(char[][] compoundClassName, char[] wellKnownSelector) {
+	return CharOperation.equals(this.declaringClass.compoundName, compoundClassName)
+			&& CharOperation.equals(this.selector, wellKnownSelector);
+}
+public boolean isWellknownMethod(int typeId, char[] wellKnownSelector) {
+	return this.declaringClass.id == typeId
+			&& CharOperation.equals(this.selector, wellKnownSelector);
 }
 }
 

@@ -1203,18 +1203,7 @@ public class SwitchStatement extends Expression {
 								: isCaseStmtNullDefault(caseStmt);
 						defaultFound |= caseStmt.constantExpressions == null;
 						constantsList = caseStmt.resolveCase(this.scope, expressionType, this);
-						if (caseStmt.containsPatternVariable()) {
-							patternVariables = statement.bindingsWhenTrue();
-							if (caseStmt.patternIndex >= 0) {
-								Expression probablePattern = caseStmt.constantExpressions[caseStmt.patternIndex];
-								if (probablePattern instanceof Pattern) {
-									Pattern pattern = (Pattern) probablePattern;
-									pattern.resolveWithExpression(this.scope, this.expression);
-								}
-							}
-						} else {
-							patternVariables = NO_VARIABLES;
-						}
+						patternVariables = statement.bindingsWhenTrue();
 						if (constantsList != ResolvedCase.UnresolvedCase) {
 							for (ResolvedCase c : constantsList) {
 								Constant con = c.c;

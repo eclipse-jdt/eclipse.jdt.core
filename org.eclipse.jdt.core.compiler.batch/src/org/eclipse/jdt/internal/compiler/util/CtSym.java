@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
 
 /**
  * Abstraction to the ct.sym file access (see https://openjdk.java.net/jeps/247). The ct.sym file is required to
@@ -122,6 +123,7 @@ public class CtSym {
 		init();
 	}
 
+	@SuppressWarnings("resource") // FileSystem must not be closed
 	private void init() throws IOException {
 		boolean exists = Files.exists(this.ctSymFile);
 		if (!exists) {
@@ -334,8 +336,8 @@ public class CtSym {
 			List<Path> roots = releaseRoots(releaseCode);
 			Map<String, Path> allReleaseFiles = new HashMap<>(4999);
 			for (Path start : roots) {
-				try {
-					Files.walk(start).filter(Files::isRegularFile).forEach(p -> {
+				try (Stream<Path> fileStream=Files.walk(start)) {
+					fileStream.filter(Files::isRegularFile).forEach(p -> {
 						if (isJRE12Plus()) {
 							// Don't use module name as part of the key
 							String binaryNameWithoutModule = p.subpath(2, p.getNameCount()).toString();

@@ -17,6 +17,7 @@ import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
@@ -52,6 +53,13 @@ public class StringTemplate extends Expression {
 			exp.resolveType(scope);
 		}
 	}
+
+	@Override
+	public TypeBinding resolveType(BlockScope scope) {
+		this.constant = Constant.NotAConstant;
+		return this.resolvedType = scope.getJavaLangStringTemplate();
+	}
+
 	private void generateNewTemplateBootstrap(CodeStream codeStream) {
 		int index = codeStream.classFile.recordBootstrapMethod(this);
 		// Kludge, see if this can be moved to CodeStream

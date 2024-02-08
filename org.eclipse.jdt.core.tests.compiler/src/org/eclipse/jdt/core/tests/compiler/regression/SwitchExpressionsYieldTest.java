@@ -6757,4 +6757,45 @@ public class SwitchExpressionsYieldTest extends AbstractRegressionTest {
 				+ "BLAH\n"
 				+ "Done");
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/377
+	// [switch-expression] Invalid compiler error with switch expression
+	public void testGH377() {
+		if (this.complianceLevel < ClassFileConstants.JDK16)
+			return;
+		this.runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+
+				  enum TestEnum {
+				    A, B;
+				  }
+
+				  @SuppressWarnings("unused")
+				  private int switcher(final TestEnum e) throws Exception {
+				    return switch (e) {
+				      case A -> 0;
+				      case B -> {
+				        try {
+				          yield 1;
+				        } finally {
+				          throwingFn();
+				        }
+				      }
+				    };
+				  }
+
+				  private void throwingFn() throws Exception {}
+
+				  public static void main(String [] args) throws Exception {
+					  System.out.println("Switcher :" + new X().switcher(TestEnum.A));
+					  System.out.println("Switcher :" + new X().switcher(TestEnum.B));
+				  }
+			    }
+				"""
+				},
+				"Switcher :0\n"
+				+ "Switcher :1");
+	}
 }

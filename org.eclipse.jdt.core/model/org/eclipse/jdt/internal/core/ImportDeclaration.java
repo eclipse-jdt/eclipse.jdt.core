@@ -23,7 +23,7 @@ import org.eclipse.jdt.core.*;
 
 public class ImportDeclaration extends SourceRefElement implements IImportDeclaration {
 
-	protected String name;
+	protected final String name;
 	protected boolean isOnDemand;
 
 /**
@@ -72,9 +72,9 @@ public int getFlags() throws JavaModelException {
 protected void getHandleMemento(StringBuilder buff) {
 	getParent().getHandleMemento(buff);
 	escapeMementoName(buff, getElementName());
-	if (this.occurrenceCount > 1) {
+	if (this.getOccurrenceCount() > 1) {
 		buff.append(JEM_COUNT);
-		buff.append(this.occurrenceCount);
+		buff.append(this.getOccurrenceCount());
 	}
 }
 /**

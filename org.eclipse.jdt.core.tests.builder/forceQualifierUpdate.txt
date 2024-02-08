@@ -2,3 +2,4 @@
 Bug 480835 - Failures in build due to changes not being picked up by tests
 https://github.com/eclipse-platform/eclipse.platform.releng.aggregator/issues/1184
 https://github.com/eclipse-platform/eclipse.platform.releng.aggregator/issues/1659
+https://github.com/eclipse-platform/eclipse.platform.releng.aggregator/issues/1781

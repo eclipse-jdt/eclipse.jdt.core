@@ -13,16 +13,12 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import java.util.function.Supplier;
-
-import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public abstract class Pattern extends Expression {
@@ -31,8 +27,6 @@ public abstract class Pattern extends Expression {
 	static final String SECRET_PATTERN_VARIABLE_NAME = " secretPatternVariable"; //$NON-NLS-1$
 
 	public LocalVariableBinding secretPatternVariable = null;
-
-	public Boolean containsTypeElidedPatternVar = null;
 
 	private Pattern enclosingPattern;
 	protected MethodBinding accessorMethod;
@@ -60,7 +54,6 @@ public abstract class Pattern extends Expression {
 
 		PatternVariablesVisitor pvv = new PatternVariablesVisitor();
 		this.traverse(pvv, (BlockScope) null);
-		this.containsTypeElidedPatternVar = pvv.typeElidedVar;
 		return pvv.hasPatternVar;
 	}
 
@@ -78,18 +71,6 @@ public abstract class Pattern extends Expression {
 		this.enclosingPattern = enclosingPattern;
 		this.nestingLevel = enclosingPattern.nestingLevel+1;
 	}
-
-	public static void reportRedeclarations(Scope scope, LocalVariableBinding [] left, LocalVariableBinding [] right) {
-		if (left != null && left.length > 0 && right != null && right.length > 0) {
-			for (LocalVariableBinding leftVar : left) {
-				for (LocalVariableBinding rightVar : right) {
-					if (CharOperation.equals(leftVar.name, rightVar.name)) {
-						scope.problemReporter().illegalRedeclarationOfPatternVar(rightVar, rightVar.declaration);
-					}
-				}
-			}
-		}
-	}
 	/**
 	 * Implement the rules in the spec under 14.11.1.1 Exhaustive Switch Blocks
 	 *
@@ -97,13 +78,6 @@ public abstract class Pattern extends Expression {
 	 */
 	public boolean coversType(TypeBinding type) {
 		return false;
-	}
-	public TypeBinding resolveAtType(BlockScope scope, TypeBinding type) {
-		return null;
-	}
-	@Override
-	public TypeBinding resolveType(BlockScope scope) {
-		return resolveTypeWithBindings(NO_VARIABLES, scope);
 	}
 	public boolean isAlwaysTrue() {
 		return true;
@@ -132,18 +106,10 @@ public abstract class Pattern extends Expression {
 	public TypeReference getType() {
 		return null;
 	}
-	public abstract void resolveWithExpression(BlockScope scope, Expression expression);
 
-	public void setTargetSupplier(Supplier<BranchLabel> targetSupplier) {
-		// default implementation does nothing
-	}
 	protected abstract boolean isPatternTypeCompatible(TypeBinding other, BlockScope scope);
 
 	public abstract boolean dominates(Pattern p);
-
-	public Pattern primary() {
-		return this;
-	}
 
 	@Override
 	public StringBuilder print(int indent, StringBuilder output) {

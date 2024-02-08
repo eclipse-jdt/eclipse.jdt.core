@@ -50,6 +50,9 @@ private static final IField[] NO_FIELDS = new IField[0];
 protected SourceType(JavaElement parent, String name) {
 	super(parent, name);
 }
+protected SourceType(JavaElement parent, String name, int occurrenceCount) {
+	super(parent, name, occurrenceCount);
+}
 @Override
 protected void closing(Object info) throws JavaModelException {
 	super.closing(info);
@@ -530,7 +533,7 @@ public JavaElement getPrimaryElement(boolean checkOwner) {
 		case IJavaElement.FIELD:
 		case IJavaElement.INITIALIZER:
 		case IJavaElement.METHOD:
-			return (JavaElement)((IMember)primaryParent).getType(this.name, this.occurrenceCount);
+			return (JavaElement)((IMember)primaryParent).getType(this.name, this.getOccurrenceCount());
 	}
 	return this;
 }
@@ -951,8 +954,7 @@ public ITypeHierarchy newTypeHierarchy(
 }
 @Override
 public JavaElement resolved(Binding binding) {
-	ResolvedSourceType resolvedHandle = new ResolvedSourceType(this.getParent(), this.name, new String(binding.computeUniqueKey()));
-	resolvedHandle.occurrenceCount = this.occurrenceCount;
+	ResolvedSourceType resolvedHandle = new ResolvedSourceType(this.getParent(), this.name, new String(binding.computeUniqueKey()), this.getOccurrenceCount());
 	resolvedHandle.localOccurrenceCount = this.localOccurrenceCount;
 	return resolvedHandle;
 }
@@ -965,7 +967,7 @@ protected void toStringInfo(int tab, StringBuilder buffer, Object info, boolean 
 	if (info == null) {
 		if (isAnonymous()) {
 			buffer.append("<anonymous #"); //$NON-NLS-1$
-			buffer.append(this.occurrenceCount);
+			buffer.append(this.getOccurrenceCount());
 			buffer.append(">"); //$NON-NLS-1$
 		} else {
 			toStringName(buffer);
@@ -974,7 +976,7 @@ protected void toStringInfo(int tab, StringBuilder buffer, Object info, boolean 
 	} else if (info == NO_INFO) {
 		if (isAnonymous()) {
 			buffer.append("<anonymous #"); //$NON-NLS-1$
-			buffer.append(this.occurrenceCount);
+			buffer.append(this.getOccurrenceCount());
 			buffer.append(">"); //$NON-NLS-1$
 		} else {
 			toStringName(buffer);
@@ -997,7 +999,7 @@ protected void toStringInfo(int tab, StringBuilder buffer, Object info, boolean 
 			}
 			if (isAnonymous()) {
 				buffer.append("<anonymous #"); //$NON-NLS-1$
-				buffer.append(this.occurrenceCount);
+				buffer.append(this.getOccurrenceCount());
 				buffer.append(">"); //$NON-NLS-1$
 			} else {
 				toStringName(buffer);

@@ -35,11 +35,11 @@ import org.eclipse.jdt.internal.core.util.Util;
  */
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class Buffer implements IBuffer {
-	protected IFile file;
+	protected final IFile file;
 	protected int flags;
 	protected char[] contents;
 	protected ListenerList<IBufferChangedListener> changeListeners;
-	protected IOpenable owner;
+	protected final IOpenable owner;
 	protected int gapStart = -1;
 	protected int gapEnd = -1;
 

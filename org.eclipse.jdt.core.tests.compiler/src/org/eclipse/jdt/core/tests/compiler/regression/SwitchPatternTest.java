@@ -7183,7 +7183,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				+ "----------\n"
 				+ "3. ERROR in X.java (at line 12)\n"
 				+ "	case WrapperRec(var data) when data.name.isEmpty() -> { }\n"
-				+ "	                ^^^\n"
+				+ "	                ^^^^^^^^\n"
 				+ "Data cannot be resolved to a type\n"
 				+ "----------\n");
 	}
@@ -7232,6 +7232,36 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				+ "	case WrapperRec(ExhaustiveSwitch.Data data) when data.name.isEmpty() -> { }\n"
 				+ "	                ^^^^^^^^^^^^^^^^^^^^^^^^^^\n"
 				+ "Record component with type Data is not compatible with type ExhaustiveSwitch.Data\n"
+				+ "----------\n");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1955
+	// [Patterns] Redesign resolution of patterns to follow natural visitation
+	public void testGH1955() {
+		this.runNegativeTest(
+				new String[] {
+					"X.java",
+					"""
+					sealed interface I<T> {}
+					record R<T extends A<B>>(T t) implements I<T> {}
+					public class X {
+					    @SuppressWarnings("rawtypes")
+						public static <T extends I> int foo(T t) {
+					        return switch(t) {
+					            case R(A<? extends B> p) -> 0;
+					            case R(var varp) -> 1;
+					        };
+					    }
+					}
+					class A<T> {}
+					abstract class B {}
+					class C extends B {}
+					""",
+				},
+				"----------\n"
+				+ "1. ERROR in X.java (at line 8)\n"
+				+ "	case R(var varp) -> 1;\n"
+				+ "	     ^^^^^^^^^^^\n"
+				+ "This case label is dominated by one of the preceding case labels\n"
 				+ "----------\n");
 	}
 }

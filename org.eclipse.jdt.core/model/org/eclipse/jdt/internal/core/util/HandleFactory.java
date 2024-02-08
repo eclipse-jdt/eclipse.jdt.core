@@ -13,8 +13,10 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.core.util;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Objects;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -87,18 +89,14 @@ public class HandleFactory {
 		if ((separatorIndex= resourcePath.indexOf(IJavaSearchScope.JAR_FILE_ENTRY_SEPARATOR)) > -1) {
 			// path to a class file inside a jar
 			// Optimization: cache package fragment root handle and package handles
-			int rootPathLength;
-			PackageFragmentRoot root = null;
-			if (this.lastPkgFragmentRootPath == null
-					|| (rootPathLength = this.lastPkgFragmentRootPath.length()) != resourcePath.length()
-					|| !resourcePath.regionMatches(0, this.lastPkgFragmentRootPath, 0, rootPathLength)) {
-				String jarPath= resourcePath.substring(0, separatorIndex);
-				root= getJarPkgFragmentRoot(resourcePath, separatorIndex, jarPath, scope);
+			String jarPath = resourcePath.substring(0, separatorIndex);
+			if (!Objects.equals(this.lastPkgFragmentRootPath, jarPath)) {
+				PackageFragmentRoot root = getJarPkgFragmentRoot(resourcePath, separatorIndex, jarPath, scope);
 				if (root == null)
 					return null; // match is outside classpath
-				this.lastPkgFragmentRootPath= jarPath;
-				this.lastPkgFragmentRoot= root;
-				this.packageHandles= new HashtableOfArrayToObject(5);
+				this.lastPkgFragmentRootPath = jarPath;
+				this.lastPkgFragmentRoot = root;
+				this.packageHandles = new HashtableOfArrayToObject(5);
 			}
 			// create handle
 			String module = null;
@@ -109,13 +107,12 @@ public class HandleFactory {
 			}
 			String classFilePath= resourcePath.substring(separatorIndex + 1);
 			if (classFilePath.endsWith(TypeConstants.AUTOMATIC_MODULE_NAME))
-				return root;
+				return this.lastPkgFragmentRoot;
 			String[] simpleNames = new Path(classFilePath).segments();
 			String[] pkgName;
 			int length = simpleNames.length-1;
 			if (length > 0) {
-				pkgName = new String[length];
-				System.arraycopy(simpleNames, 0, pkgName, 0, length);
+				pkgName = Arrays.copyOf(simpleNames, length);
 			} else {
 				pkgName = CharOperation.NO_STRINGS;
 			}
@@ -224,11 +221,11 @@ public class HandleFactory {
 					    if (member.isBinary()) {
 					        return null;
 					    } else {
-							newElement = member.getType(new String(scope.enclosingSourceType().sourceName), 1);
-							// increment occurrence count if collision is detected
-							if (newElement != null) {
-								while (!existingElements.add(newElement)) ((SourceRefElement)newElement).occurrenceCount++;
-							}
+							String name = new String(scope.enclosingSourceType().sourceName);
+							int occurrenceCount = 0;
+							do {
+								newElement = member.getType(name, ++occurrenceCount);
+							} while (!existingElements.add(newElement));
 					    }
 						break;
 				}

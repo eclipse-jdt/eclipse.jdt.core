@@ -39,6 +39,9 @@ public abstract class BinaryMember extends NamedMember {
 protected BinaryMember(JavaElement parent, String name) {
 	super(parent, name);
 }
+protected BinaryMember(JavaElement parent, String name, int occurrenceCount) {
+	super(parent, name, occurrenceCount);
+}
 /*
  * @see ISourceManipulation
  */
