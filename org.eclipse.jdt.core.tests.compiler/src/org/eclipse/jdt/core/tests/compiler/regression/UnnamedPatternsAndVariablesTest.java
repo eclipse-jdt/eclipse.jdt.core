@@ -43,6 +43,8 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 	}
 
 	public void runConformTest(String[] files, String expectedOutput) {
+		if(!isJRE22Plus)
+			return;
 		super.runConformTest(files, expectedOutput, null, JAVAC_OPTIONS);
 	}
 

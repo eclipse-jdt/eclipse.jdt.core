@@ -26,6 +26,11 @@ public class UseOfUnderscoreWithPreviewTest extends AbstractBatchCompilerTest {
 		return compilerOptions.getMap();
 	}
 
+	protected void runNegativeTest(String[] testFiles, String expectedCompilerLog) {
+		if(!isJRE22Plus)
+			return;
+		runNegativeTest(false/*skipJavac*/, null, testFiles, expectedCompilerLog);
+	}
 	public void testReportsUnderscoreInstanceMemberAsError() {
 		String message = "As of release 21, '_' is only allowed to declare unnamed patterns, local variables, exception parameters or lambda parameters";
 		String errorLevel = "ERROR";
@@ -112,6 +117,8 @@ public class UseOfUnderscoreWithPreviewTest extends AbstractBatchCompilerTest {
 	}
 
 	public void testReportsUnderscoreLocalVariableAsErrorUnicodeEscape() {
+		if(!isJRE22Plus)
+			return;
 		runConformTest(new String[] { "A.java",
 				"""
 				public class A {

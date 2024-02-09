@@ -52,11 +52,11 @@ public class StringTemplateTest extends AbstractRegressionTest9 {
 		return defaultOptions;
 	}
 	protected void runConformTest(String[] testFiles, String expectedOutput) {
-		runConformTest(testFiles, expectedOutput, null, VMARGS, new JavacTestOptions("-source 21 --enable-preview"));
+		runConformTest(testFiles, expectedOutput, null, VMARGS, new JavacTestOptions("-source 22 --enable-preview"));
 	}
 	@Override
 	protected void runConformTest(String[] testFiles, String expectedOutput, Map<String, String> customOptions) {
-		if(!isJRE21Plus)
+		if(!isJRE22Plus)
 			return;
 		runConformTest(testFiles, expectedOutput, customOptions, VMARGS, JAVAC_OPTIONS);
 	}
