@@ -1,0 +1,58 @@
+name: Continuous Integration with DOM/Javac
+concurrency: 
+    group: ${{ github.workflow }}-${{ github.ref }}-dom
+    cancel-in-progress: true
+
+on:
+  push:
+    branches: [ 'dom-based-operations', 'dom-with-javac' ]
+  pull_request:
+    branches: [ 'dom-based-operations', 'dom-with-javac' ]
+
+jobs:
+  event_file:
+    name: "Upload Event File"
+    runs-on: ubuntu-latest
+    steps:
+    - name: Upload
+      uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3
+      with:
+        name: Event File
+        path: ${{ github.event_path }}
+  build-dom-javac:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
+        fetch-depth: 0
+    - name: Enable DOM-first and Javac
+      run: sed -i 's$</argLine>$ -DCompilationUnit.DOM_BASED_OPERATIONS=true -DSourceIndexer.DOM_BASED_INDEXER=false -DICompilationUnitResolver=org.eclipse.jdt.core.dom.JavacCompilationUnitResolver -DAbstractImageBuilder.compiler=org.eclipse.jdt.internal.javac.JavacCompiler_</argLine>$g' */pom.xml
+    - name: Set up JDKs ☕
+      uses: actions/setup-java@v3
+      with:
+        java-version: |
+          8
+          17
+          20
+        mvn-toolchain-id: |
+          JavaSE-1.8
+          JavaSE-17
+          JavaSE-20
+        distribution: 'temurin'
+    - name: Set up Maven
+      uses: stCarolas/setup-maven@07fbbe97d97ef44336b7382563d66743297e442f # v4.5
+      with:
+        maven-version: 3.9.3
+    - name: Build with Maven 🏗️
+      run: |
+        mvn clean install --batch-mode -f org.eclipse.jdt.core.compiler.batch -DlocalEcjVersion=99.99
+        mvn -U clean verify --batch-mode --fail-at-end -Ptest-on-javase-20 -Pbree-libs -Papi-check -Djava.io.tmpdir=$WORKSPACE/tmp -Dproject.build.sourceEncoding=UTF-8 -Dtycho.surefire.argLine="--add-modules ALL-SYSTEM -Dcompliance=1.8,11,17,20 -Djdt.performance.asserts=disabled" -Dcbi-ecj-version=99.99
+    - name: Upload Test Results for Linux
+      if: always()
+      uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3
+      with:
+        name: test-results-linux-dom-javac
+        if-no-files-found: warn
+        path: |
+          ${{ github.workspace }}/**/target/surefire-reports/*.xml
