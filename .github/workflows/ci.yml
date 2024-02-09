@@ -30,7 +30,7 @@ jobs:
         java-version: |
           8
           17
-          20
+          21
         mvn-toolchain-id: |
           JavaSE-1.8
           JavaSE-17
