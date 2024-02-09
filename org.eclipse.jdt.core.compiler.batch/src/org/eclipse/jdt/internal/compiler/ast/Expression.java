@@ -1267,7 +1267,7 @@ public boolean forcedToBeRaw(ReferenceContext referenceContext) {
 /**
  * Returns an object which can be used to identify identical JSR sequence targets
  * (see TryStatement subroutine codegen)
- * or <code>null</null> if not reusable
+ * or <code>null</code> if not reusable
  */
 public Object reusableJSRTarget() {
 	if (this.constant != Constant.NotAConstant && (this.implicitConversion & TypeIds.BOXING) == 0) {

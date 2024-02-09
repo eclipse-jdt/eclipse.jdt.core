@@ -160,8 +160,8 @@ public class CaptureBinding extends TypeVariableBinding {
 	}
 
 	/**
-	 * Initialize capture bounds using substituted supertypes
-	 * e.g. given X<U, V extends X<U, V>>,     capture(X<E,?>) = X<E,capture>, where capture extends X<E,capture>
+	 * Initialize capture bounds using substituted supertypes e.g. given
+	 * {@code X<U, V extends X<U, V>>, capture(X<E,?>) = X<E,capture>,} where {@code capture extends X<E,capture>}
 	 */
 	public void initializeBounds(Scope scope, ParameterizedTypeBinding capturedParameterizedType) {
 		boolean is18plus = scope.compilerOptions().complianceLevel >= ClassFileConstants.JDK1_8;

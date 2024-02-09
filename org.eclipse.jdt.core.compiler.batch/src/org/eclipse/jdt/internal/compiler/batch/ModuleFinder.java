@@ -153,7 +153,7 @@ public class ModuleFinder {
 	 * command line option (--add-reads). The result is a String[] with two
 	 * element, first being the source module and second being the target module.
 	 * The expected format is:
-	 *  --add-reads <source-module>=<target-module>
+	 * {@code --add-reads <source-module>=<target-module>}
 	 * @return a String[] with source and target module of the "reads" clause.
 	 */
 	protected static String[] extractAddonRead(String option) {

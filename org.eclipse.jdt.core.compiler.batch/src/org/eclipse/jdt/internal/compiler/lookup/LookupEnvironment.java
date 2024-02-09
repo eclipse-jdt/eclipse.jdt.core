@@ -819,7 +819,7 @@ private PackageBinding computePackageFrom(char[][] constantPoolName, boolean isM
 
 /**
  * Convert a given source type into a parameterized form if generic.
- * generic X<E> --> param X<E>
+ * generic {@code @X<E> --> param X<E>}
  */
 public ReferenceBinding convertToParameterizedType(ReferenceBinding originalType) {
 	if (originalType != null) {

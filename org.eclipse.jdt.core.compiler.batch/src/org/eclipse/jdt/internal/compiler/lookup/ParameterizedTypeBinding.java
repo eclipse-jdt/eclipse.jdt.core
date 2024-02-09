@@ -253,11 +253,13 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 
 	/**
 	 * Collect the substitutes into a map for certain type variables inside the receiver type
-	 * e.g.   Collection<T>.collectSubstitutes(Collection<List<X>>, Map), will populate Map with: T --> List<X>
+	 * e.g. {@code Collection<T>.collectSubstitutes(Collection<List<X>>, Map)} will populate Map with: {@code T --> List<X>}
 	 * Constraints:
+	 * <pre>{@code
 	 *   A << F   corresponds to:   F.collectSubstitutes(..., A, ..., CONSTRAINT_EXTENDS (1))
-	 *   A = F   corresponds to:      F.collectSubstitutes(..., A, ..., CONSTRAINT_EQUAL (0))
+	 *   A = F    corresponds to:   F.collectSubstitutes(..., A, ..., CONSTRAINT_EQUAL (0))
 	 *   A >> F   corresponds to:   F.collectSubstitutes(..., A, ..., CONSTRAINT_SUPER (2))
+	 * }</pre>
 	 */
 	@Override
 	public void collectSubstitutes(Scope scope, TypeBinding actualType, InferenceContext inferenceContext, int constraint) {
@@ -645,9 +647,10 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		return this.type;
 	}
 
-	/**
+	/**<pre>{@code
 	 * Ltype<param1 ... paramN>;
 	 * LY<TT;>;
+	 * }</pre>
 	 */
 	@Override
 	public char[] genericTypeSignature() {

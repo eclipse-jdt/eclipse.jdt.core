@@ -71,7 +71,7 @@ public class MethodBinding extends Binding {
 
 	public int defaultNullness; // for null *type* annotations
 
-	/** Store flow-related information from declaration annotations (nullness & owning) (incl. applicable default). */
+	/** Store flow-related information from declaration annotations (nullness and owning) (incl. applicable default). */
 	public byte[] parameterFlowBits;
 	// bit constant per each cell of the above:
 	public static byte PARAM_NONNULL = 1;
@@ -612,12 +612,12 @@ public MethodBinding findOriginalInheritedMethod(MethodBinding inheritedMethod) 
 }
 
 /**
- * <pre>
+ * <pre>{@code
  *<typeParam1 ... typeParamM>(param1 ... paramN)returnType thrownException1 ... thrownExceptionP
  * T foo(T t) throws X<T>   --->   (TT;)TT;LX<TT;>;
  * void bar(X<T> t)   -->   (LX<TT;>;)V
  * <T> void bar(X<T> t)   -->  <T:Ljava.lang.Object;>(LX<TT;>;)V
- * </pre>
+ * }</pre>
  */
 public char[] genericSignature() {
 	if ((this.modifiers & ExtraCompilerModifiers.AccGenericSignature) == 0) return null;
@@ -992,7 +992,7 @@ public MethodBinding original() {
 }
 
 /**
- * Strips one level of parameterization, so if both class & method are parameterized,
+ * Strips one level of parameterization, so if both class and method are parameterized,
  * leave the class parameters in place.
  */
 public MethodBinding shallowOriginal() {
@@ -1449,10 +1449,11 @@ public void updateTypeVariableBinding(TypeVariableBinding previousBinding, TypeV
  * Definition reproduced here. <br/><br/>
  *
  * A method is signature polymorphic if all of the following are true:
+ * <ul>
  *  <li> It is declared in the java.lang.invoke.MethodHandle class or the java.lang.invoke.VarHandle class. </li>
  *  <li> It has a single variable arity parameter (§8.4.1) whose declared type is Object[]. </li>
  *  <li> It is native. </li>
- * <br/>
+ * </ul>
  * @return true if the method has Polymorphic Signature
  */
 public boolean hasPolymorphicSignature(Scope scope) {

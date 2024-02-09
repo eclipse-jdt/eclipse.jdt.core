@@ -75,7 +75,7 @@ import java.util.stream.Stream;
  * </ol>
  * <p>
  *
- * Searching a file for a given release in ct.sym means finding & traversing all possible release related directories
+ * Searching a file for a given release in ct.sym means finding and traversing all possible release related directories
  * and searching for matching path.
  */
 public class CtSym {

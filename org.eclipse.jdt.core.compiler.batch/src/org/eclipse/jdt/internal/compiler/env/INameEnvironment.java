@@ -22,10 +22,9 @@ package org.eclipse.jdt.internal.compiler.env;
  * In JLS diction a name environment implements a "host system", with
  * these responsibilities:
  * <ul>
- * <li>Determine which packages and compilation units are "observable" (JLS 7.3 & 7.4.3)</li>
+ * <li>Determine which packages and compilation units are "observable" (JLS 7.3 and 7.4.3)</li>
  * <li>Determine to which module a given compilation unit / package is associated (JLS 7.3)</li>
  * </ul>
- * </p>
  * <p>
  * Note: This internal interface has been implemented illegally by the
  * org.apache.jasper.glassfish bundle from Orbit, see
@@ -50,7 +49,7 @@ public interface INameEnvironment {
 
 	NameEnvironmentAnswer findType(char[][] compoundTypeName);
 	/**
-	 * Find a type named <typeName> in the package <packageName>.
+	 * Find a type named {@code <typeName>} in the package {@code <packageName>}.
 	 * Answer the binary form of the type if it is known to be consistent.
 	 * Otherwise, answer the compilation unit which defines the type
 	 * or null if the type does not exist.

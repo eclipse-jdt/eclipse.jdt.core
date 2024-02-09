@@ -18,7 +18,7 @@ public interface IGenericType extends IDependent {
 /**
  * Answer an int whose bits are set according the access constants
  * defined by the VM spec.
- * NOTE 1: We have added AccDeprecated & AccSynthetic.
+ * NOTE 1: We have added AccDeprecated and AccSynthetic.
  * NOTE 2: If the receiver represents a member type, the modifiers are extracted from its inner class attributes.
  */
 int getModifiers();

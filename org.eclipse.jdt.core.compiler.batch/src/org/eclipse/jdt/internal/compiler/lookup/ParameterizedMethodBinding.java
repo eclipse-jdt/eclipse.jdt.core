@@ -300,7 +300,7 @@ public class ParameterizedMethodBinding extends MethodBinding {
 	}
 
 	/**
-	 * The type of x.getClass() is substituted from 'Class<? extends Object>' into: 'Class<? extends raw(X)>
+	 * The type of x.getClass() is substituted from {@code 'Class<? extends Object>'} into: {@code 'Class<? extends raw(X)>}
 	 */
 	public static ParameterizedMethodBinding instantiateGetClass(TypeBinding receiverType, MethodBinding originalMethod, Scope scope) {
 		ParameterizedMethodBinding method = new ParameterizedMethodBinding();
