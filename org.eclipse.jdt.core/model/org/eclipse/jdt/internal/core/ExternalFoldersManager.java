@@ -159,7 +159,7 @@ public class ExternalFoldersManager {
 		// Test if this an absolute path in local file system (not the workspace path)
 		File externalFolder = externalPath.toFile();
 		if (Files.isRegularFile(externalFolder.toPath())) {
-			manager.addExternalFile(externalPath);
+			manager.addExternalFile(externalPath, true);
 			return false;
 		}
 		if (Files.isDirectory(externalFolder.toPath())) {

@@ -60,6 +60,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinWorkerThread;
+import java.util.stream.Collectors;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
@@ -1744,10 +1745,10 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	private final Map<IPath, InvalidArchiveInfo> invalidArchives = new HashMap<>();
 
 	/*
-	 * A set of IPaths for files that are known to be external to the workspace.
+	 * Paths that are known to exists or not exists on the FileSystem (unrelated to the eclipse workspace).
 	 * Need not be referenced by the classpath.
 	 */
-	private Set<IPath> externalFiles;
+	private Map<IPath, Boolean> externalFiles;
 
 	/*
 	 * A set of IPaths for files that do not exist on the file system but are assumed to be
@@ -1891,7 +1892,11 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		if (Platform.isRunning()) {
 			this.indexManager = new IndexManager();
 			this.nonChainingJars = loadClasspathListCache(NON_CHAINING_JARS_CACHE);
-			this.externalFiles = loadClasspathListCache(EXTERNAL_FILES_CACHE);
+			Set<IPath> external = loadClasspathListCache(EXTERNAL_FILES_CACHE);
+			this.externalFiles= new ConcurrentHashMap<>();
+			for (IPath p: external) {
+				this.externalFiles.put(p, Boolean.TRUE);
+			}
 			this.assumedExternalFiles = loadClasspathListCache(ASSUMED_EXTERNAL_FILES_CACHE);
 			String includeContainerReferencedLib = System.getProperty(RESOLVE_REFERENCED_LIBRARIES_FOR_CONTAINERS);
 			this.resolveReferencedLibrariesForContainers = TRUE.equalsIgnoreCase(includeContainerReferencedLib);
@@ -1924,13 +1929,13 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 * Adds a path to the external files cache. It is the responsibility of callers to
 	 * determine the file's existence, as determined by  {@link File#isFile()}.
 	 */
-	public void addExternalFile(IPath path) {
+	public void addExternalFile(IPath path, boolean exits) {
 		// unlikely to be null
 		if (this.externalFiles == null) {
-			this.externalFiles = Collections.synchronizedSet(new HashSet<IPath>());
+			this.externalFiles = new ConcurrentHashMap<>();
 		}
 		if(this.externalFiles != null) {
-			this.externalFiles.add(path);
+			this.externalFiles.put(path, Boolean.valueOf(exits));
 		}
 	}
 
@@ -3589,9 +3594,17 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 * and is a file, as determined by the return value of {@link File#isFile()}.
 	 */
 	public boolean isExternalFile(IPath path) {
-		return this.externalFiles != null && this.externalFiles.contains(path);
+		if (this.externalFiles == null)
+			return false;
+		Boolean exists = this.externalFiles.get(path);
+		return exists == null ? false : exists.booleanValue();
 	}
-
+	public boolean knownToNotExistOnFileSystem(IPath path) {
+		if (this.externalFiles == null)
+			return false;
+		Boolean exists = this.externalFiles.get(path);
+		return exists == null ? false : !exists.booleanValue();
+	}
 	/**
 	 * Removes the cached state of a single entry in the externalFiles cache.
 	 */
@@ -3688,7 +3701,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		if (cacheName == NON_CHAINING_JARS_CACHE)
 			return getNonChainingJarsCache();
 		else if (cacheName == EXTERNAL_FILES_CACHE)
-			return this.externalFiles;
+			return this.externalFiles.entrySet().stream().filter(e->e.getValue()).map(e->e.getKey()).collect(Collectors.toSet());
 		else if (cacheName == ASSUMED_EXTERNAL_FILES_CACHE)
 			return this.assumedExternalFiles;
 		else
