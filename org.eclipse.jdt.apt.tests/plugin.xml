@@ -88,5 +88,13 @@
 	      <factory class="org.eclipse.jdt.apt.tests.annotations.annotationvalue.AnnotationValueProcessorFactory"/>
 	   </factories>
    </extension>
+    <extension
+         point="org.eclipse.jdt.core.classpathVariableInitializer">
+      <classpathVariableInitializer
+            class="org.eclipse.jdt.apt.tests.EclipseHomeInitializer"
+            readOnly="true"
+            variable="TEST_ECLIPSE_HOME">
+      </classpathVariableInitializer>
+   </extension>
 
 </plugin>
