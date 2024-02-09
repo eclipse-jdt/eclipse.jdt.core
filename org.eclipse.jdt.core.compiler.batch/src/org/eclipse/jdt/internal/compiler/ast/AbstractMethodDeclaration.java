@@ -80,8 +80,6 @@ public abstract class AbstractMethodDeclaration
 	public int bodyEnd = -1;
 	public CompilationResult compilationResult;
 	public boolean containsSwitchWithTry = false;
-	public boolean addPatternAccessorException = false;
-	public LocalVariableBinding recPatCatchVar = null;
 
 	AbstractMethodDeclaration(CompilationResult compilationResult){
 		this.compilationResult = compilationResult;
@@ -385,17 +383,11 @@ public abstract class AbstractMethodDeclaration
 					argBinding.recordInitializationStartPC(0);
 				}
 			}
+			codeStream.pushPatternAccessTrapScope(this.scope);
 			if (this.statements != null) {
-				if (this.addPatternAccessorException)
-					codeStream.addPatternCatchExceptionInfo(this.scope, this.recPatCatchVar);
-
 				for (Statement stmt : this.statements) {
 					stmt.generateCode(this.scope, codeStream);
 				}
-
-				if (this.addPatternAccessorException)
-					codeStream.removePatternCatchExceptionInfo(this.scope, ((this.bits & ASTNode.NeedFreeReturn) != 0));
-
 			}
 			// if a problem got reported during code gen, then trigger problem method creation
 			if (this.ignoreFurtherInvestigation) {
@@ -404,6 +396,9 @@ public abstract class AbstractMethodDeclaration
 			if ((this.bits & ASTNode.NeedFreeReturn) != 0) {
 				codeStream.return_();
 			}
+			// See https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1796#issuecomment-1933458054
+			codeStream.exitUserScope(this.scope, lvb -> !lvb.isParameter());
+			codeStream.handleRecordAccessorExceptions(this.scope);
 			// local variable attributes
 			codeStream.exitUserScope(this.scope);
 			codeStream.recordPositionsFrom(0, this.declarationSourceEnd);
@@ -711,7 +706,6 @@ public abstract class AbstractMethodDeclaration
 
 		if (this.statements != null) {
 			resolveStatements(this.statements, this.scope);
- 			this.recPatCatchVar = RecordPattern.getRecPatternCatchVar(0, this.scope);
 		} else if ((this.bits & UndocumentedEmptyBlock) != 0) {
 			if (!this.isConstructor() || this.arguments != null) { // https://bugs.eclipse.org/bugs/show_bug.cgi?id=319626
 				this.scope.problemReporter().undocumentedEmptyBlock(this.bodyStart-1, this.bodyEnd+1);

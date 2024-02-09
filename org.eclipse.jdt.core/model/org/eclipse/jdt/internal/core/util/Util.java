@@ -34,6 +34,7 @@ import org.eclipse.jdt.core.*;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ArrayType;
+import org.eclipse.jdt.core.dom.NameQualifiedType;
 import org.eclipse.jdt.core.dom.ParameterizedType;
 import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.QualifiedType;
@@ -1319,6 +1320,10 @@ public class Util {
 					buffer.append(" super "); //$NON-NLS-1$
 				}
 				getFullyQualifiedName(bound, buffer);
+				break;
+			case ASTNode.NAME_QUALIFIED_TYPE:
+				NameQualifiedType nameQualifiedType = (NameQualifiedType)type;
+				buffer.append(nameQualifiedType.getQualifier().toString() + '.' + nameQualifiedType.getName().toString()); 
 				break;
 		}
 	}

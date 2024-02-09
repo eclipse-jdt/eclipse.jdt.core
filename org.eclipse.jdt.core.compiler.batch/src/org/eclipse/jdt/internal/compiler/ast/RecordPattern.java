@@ -17,27 +17,21 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Predicate;
-
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.ExceptionLabel;
 import org.eclipse.jdt.internal.compiler.codegen.Opcodes;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
-import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.InferenceContext18;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
-import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.RecordComponentBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 
 public class RecordPattern extends TypePattern {
 
@@ -217,21 +211,6 @@ public class RecordPattern extends TypePattern {
 		}
 		return true;
 	}
-	public static LocalVariableBinding getRecPatternCatchVar(int level, BlockScope parentScope) {
-		if (level < 0)
-			return null;
-		String secret_name = RecordPattern.SECRET_RECORD_PATTERN_THROWABLE_VARIABLE_NAME + level;
-		LocalVariableBinding l =
-				new LocalVariableBinding(
-					secret_name.toCharArray(),
-					TypeBinding.wellKnownType(parentScope, TypeIds.T_JavaLangThrowable),
-					ClassFileConstants.AccDefault,
-					false);
-		l.setConstant(Constant.NotAConstant);
-		l.useFlag = LocalVariableBinding.USED;
-		new BlockScope(parentScope).addLocalVariable(l);
-		return l;
-	}
 	@Override
 	public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel) {
 //		codeStream.checkcast(this.resolvedType);
@@ -253,7 +232,6 @@ public class RecordPattern extends TypePattern {
 
 				ExceptionLabel exceptionLabel = new ExceptionLabel(codeStream,TypeBinding.wellKnownType(currentScope, T_JavaLangThrowable));
 				exceptionLabel.placeStart();
-				generateArguments(p.accessorMethod, null, currentScope, codeStream);
 				codeStream.invoke(Opcodes.OPC_invokevirtual, p.accessorMethod.original(), this.resolvedType, null);
 				exceptionLabel.placeEnd();
 				labels.add(exceptionLabel);
@@ -278,7 +256,16 @@ public class RecordPattern extends TypePattern {
 				p.generateOptimizedBoolean(currentScope, codeStream, trueLabel, falseLabel);
 			}
 		}
-		addExceptionToBlockScope(currentScope, codeStream, labels);
+		if (labels.size() > 0) {
+			BlockScope trapScope = codeStream.accessorExceptionTrapScopes.peek();
+			List<ExceptionLabel> eLabels = codeStream.patternAccessorMap.get(trapScope);
+			if (eLabels == null || eLabels.isEmpty()) {
+				eLabels = labels;
+			} else {
+				eLabels.addAll(labels);
+			}
+			codeStream.patternAccessorMap.put(trapScope, eLabels);
+		}
 	}
 
 	List<LocalVariableBinding> getDeepPatternVariables(BlockScope blockScope) {
@@ -318,28 +305,6 @@ public class RecordPattern extends TypePattern {
 			return;
 		for (LocalVariableBinding v : vars) {
 			v.recordInitializationStartPC(position);
-		}
-	}
-	private void addExceptionToBlockScope(BlockScope currentScope, CodeStream codeStream, List<ExceptionLabel> labels) {
-		if (currentScope == null || labels == null || labels.isEmpty())
-			return;
-		Predicate<Scope> pred = codeStream.patternCatchStack.isEmpty() ?
-			 MethodScope.class::isInstance :
-				 s -> s == codeStream.patternCatchStack.firstElement();
-
-		Scope scope = currentScope;
-		while (scope != null) {
-			if (pred.test(scope)) {
-				List<ExceptionLabel> eLabels = codeStream.patternAccessorMap.get(scope);
-				if (eLabels == null || eLabels.isEmpty()) {
-					eLabels = labels;
-				} else {
-					eLabels.addAll(labels);
-				}
-				codeStream.patternAccessorMap.put((BlockScope) scope, eLabels);
-				break;
-			}
-			scope = scope.parent;
 		}
 	}
 	@Override

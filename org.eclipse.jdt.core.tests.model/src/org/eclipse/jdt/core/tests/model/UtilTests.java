@@ -18,6 +18,8 @@ import java.util.List;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.NameQualifiedType;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaModelStatus;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -106,4 +108,11 @@ public class UtilTests extends AbstractJavaModelTests {
 			stopLogListening();
 		}
 	}
+
+	public void testTypeSignature() {
+		AST ast = AST.newAST(AST.getJLSLatest(), false);
+		NameQualifiedType type = ast.newNameQualifiedType(ast.newName("qualifier"), ast.newSimpleName("id"));
+		assertEquals("Qqualifier.id;", Util.getSignature(type));
+	}
+
 }

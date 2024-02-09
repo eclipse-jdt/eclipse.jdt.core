@@ -433,7 +433,6 @@ public void test007(){
 		"[reading    java/lang/String.class]\n" +
 		"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" +
 		"[reading    java/util/List.class]\n" +
-		"[reading    java/lang/Throwable.class]\n" +
 		"[writing    X.class - #1]\n" +
 		"[completed  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" +
 		"[1 unit compiled]\n" +
@@ -566,7 +565,6 @@ public void test010(){
 		"[reading    java/lang/String.class]\n" +
 		"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" +
 		"[reading    java/util/List.class]\n" +
-		"[reading    java/lang/Throwable.class]\n" +
 		"[writing    X.class - #1]\n" +
 		"[completed  ---OUTPUT_DIR_PLACEHOLDER---/X.java - #1/1]\n" +
 		"[1 unit compiled]\n" +
@@ -8400,7 +8398,6 @@ public void test230_sourcepath_vs_classpath() throws IOException, InterruptedExc
 		"[reading    java/lang/System.class]\n" +
 		"[reading    java/io/PrintStream.class]\n" +
 		"[reading    X.class]\n" +
-		"[reading    java/lang/Throwable.class]\n" +
 		"[writing    Y.class - #1]\n" +
 		"[completed  ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/1]\n" +
 		"[1 unit compiled]\n" +
@@ -8429,7 +8426,6 @@ public void test230_sourcepath_vs_classpath() throws IOException, InterruptedExc
 			"[reading    java/lang/System.class]\n" +
 			"[reading    java/io/PrintStream.class]\n" +
 			"[parsing    ---OUTPUT_DIR_PLACEHOLDER---/src2/X.java - #2/2]\n" +
-			"[reading    java/lang/Throwable.class]\n" +
 			"[writing    Y.class - #1]\n" +
 			"[completed  ---OUTPUT_DIR_PLACEHOLDER---/Y.java - #1/2]\n" +
 			"[analyzing  ---OUTPUT_DIR_PLACEHOLDER---/src2/X.java - #2/2]\n" +
