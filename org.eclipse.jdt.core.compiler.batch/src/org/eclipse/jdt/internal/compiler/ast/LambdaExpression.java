@@ -1329,6 +1329,7 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 				argBinding.recordInitializationStartPC(0);
 			}
 		}
+		codeStream.pushPatternAccessTrapScope(this.scope);
 		if (this.body instanceof Block) {
 			this.body.generateCode(this.scope, codeStream);
 			if ((this.bits & ASTNode.NeedFreeReturn) != 0) {
@@ -1343,6 +1344,9 @@ public class LambdaExpression extends FunctionalExpression implements IPolyExpre
 				codeStream.generateReturnBytecode(expression);
 			}
 		}
+		// See https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1796#issuecomment-1933458054
+		codeStream.exitUserScope(this.scope, lvb -> !lvb.isParameter());
+		codeStream.handleRecordAccessorExceptions(this.scope);
 		// local variable attributes
 		codeStream.exitUserScope(this.scope);
 		codeStream.recordPositionsFrom(0, this.sourceEnd); // WAS declarationSourceEnd.

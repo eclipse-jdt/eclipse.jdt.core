@@ -424,6 +424,7 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 		MethodScope initializerScope = declaringType.initializerScope;
 		initializerScope.computeLocalVariablePositions(argSlotSize, codeStream); // offset by the argument size (since not linked to method scope)
 
+		codeStream.pushPatternAccessTrapScope(this.scope);
 		boolean needFieldInitializations = this.constructorCall == null || this.constructorCall.accessMode != ExplicitConstructorCall.This;
 
 		// post 1.4 target level, synthetic initializations occur prior to explicit constructor call
@@ -454,16 +455,9 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 		}
 		// generate statements
 		if (this.statements != null) {
-			if (this.addPatternAccessorException)
-				codeStream.addPatternCatchExceptionInfo(this.scope, this.recPatCatchVar);
-
 			for (int i = 0, max = this.statements.length; i < max; i++) {
 				this.statements[i].generateCode(this.scope, codeStream);
 			}
-
-			if (this.addPatternAccessorException)
-				codeStream.removePatternCatchExceptionInfo(this.scope, ((this.bits & ASTNode.NeedFreeReturn) != 0));
-
 		}
 		// if a problem got reported during code gen, then trigger problem method creation
 		if (this.ignoreFurtherInvestigation) {
@@ -472,6 +466,9 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 		if ((this.bits & ASTNode.NeedFreeReturn) != 0) {
 			codeStream.return_();
 		}
+		// See https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1796#issuecomment-1933458054
+		codeStream.exitUserScope(this.scope, lvb -> !lvb.isParameter());
+		codeStream.handleRecordAccessorExceptions(this.scope);
 		// local variable attributes
 		codeStream.exitUserScope(this.scope);
 		codeStream.recordPositionsFrom(0, this.bodyEnd > 0 ? this.bodyEnd : this.sourceStart);
