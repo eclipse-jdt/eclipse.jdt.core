@@ -164,6 +164,7 @@ public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStr
 	codeStream.ifeq(nextSibling);
 	if (this.secretExpressionValue != null) {
 		codeStream.load(this.secretExpressionValue);
+		codeStream.removeVariable(this.secretExpressionValue);
 	} else {
 		this.expression.generateCode(currentScope, codeStream, true);
 	}
@@ -173,10 +174,6 @@ public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStr
 	} else {
 		codeStream.checkcast(this.type, this.type.resolvedType, codeStream.position);
 		codeStream.store(this.elementVariable.binding, false);
-	}
-
-	if (this.secretExpressionValue != null) {
-		codeStream.removeVariable(this.secretExpressionValue);
 	}
 
 	if (valueRequired) {
