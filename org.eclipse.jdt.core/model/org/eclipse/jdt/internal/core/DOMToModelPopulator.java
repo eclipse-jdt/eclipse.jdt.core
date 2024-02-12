@@ -61,6 +61,7 @@ import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.StringLiteral;
+import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeLiteral;
 import org.eclipse.jdt.core.dom.UsesDirective;
@@ -103,15 +104,35 @@ class DOMToModelPopulator extends ASTVisitor {
 			IAnnotation[] newAnnotations = Arrays.copyOf(annotable.annotations, annotable.annotations.length + 1);
 			newAnnotations[newAnnotations.length - 1] = annotation;
 			annotable.annotations = newAnnotations;
-		} else if (parentInfo instanceof OpenableElementInfo openable) {
-			openable.addChild(childElement);
-		} else if (parentInfo instanceof SourceTypeElementInfo type) {
-			type.children = Arrays.copyOf(type.children, type.children.length + 1);
-			type.children[type.children.length - 1] = childElement;
-		} else if (parentInfo instanceof ImportContainerInfo importContainer && childElement instanceof org.eclipse.jdt.internal.core.ImportDeclaration importDecl) {
+			return;
+		}
+		if (childElement instanceof TypeParameter typeParam) {
+			if (parentInfo instanceof SourceTypeElementInfo type) {
+				type.typeParameters = Arrays.copyOf(type.typeParameters, type.typeParameters.length + 1);
+				type.typeParameters[type.typeParameters.length - 1] = typeParam;
+				return;
+			}
+			if (parentInfo instanceof SourceMethodElementInfo method) {
+				method.typeParameters = Arrays.copyOf(method.typeParameters, method.typeParameters.length + 1);
+				method.typeParameters[method.typeParameters.length - 1] = typeParam;
+				return;
+			}
+		}
+		if (parentInfo instanceof ImportContainerInfo importContainer && childElement instanceof org.eclipse.jdt.internal.core.ImportDeclaration importDecl) {
 			IJavaElement[] newImports = Arrays.copyOf(importContainer.getChildren(), importContainer.getChildren().length + 1);
 			newImports[newImports.length - 1] = importDecl;
 			importContainer.children = newImports;
+			return;
+		}
+		// if nothing more specialized, add as child
+		if (parentInfo instanceof SourceTypeElementInfo type) {
+			type.children = Arrays.copyOf(type.children, type.children.length + 1);
+			type.children[type.children.length - 1] = childElement;
+			return;
+		}
+		if (parentInfo instanceof OpenableElementInfo openable) {
+			openable.addChild(childElement);
+			return;
 		}
 	}
 
@@ -383,14 +404,19 @@ class DOMToModelPopulator extends ASTVisitor {
 	}
 
 	@Override
-	public boolean visit(org.eclipse.jdt.core.dom.TypeParameter typeParam) {
-		TypeParameter newElement = new TypeParameter(this.elements.peek(), typeParam.getName().getFullyQualifiedName());
+	public boolean visit(org.eclipse.jdt.core.dom.TypeParameter node) {
+		TypeParameter newElement = new TypeParameter(this.elements.peek(), node.getName().getFullyQualifiedName());
 		this.elements.push(newElement);
 		addAsChild(this.infos.peek(), newElement);
 		TypeParameterElementInfo info = new TypeParameterElementInfo();
-		info.setSourceRangeStart(typeParam.getStartPosition());
-		info.setSourceRangeEnd(typeParam.getStartPosition() + typeParam.getLength());
+		info.setSourceRangeStart(node.getStartPosition());
+		info.setSourceRangeEnd(node.getStartPosition() + node.getLength());
+		info.nameStart = node.getName().getStartPosition();
+		info.nameEnd = node.getName().getStartPosition() + node.getName().getLength() - 1;
+		info.bounds = ((List<Type>)node.typeBounds()).stream().map(Type::toString).map(String::toCharArray).toArray(char[][]::new);
+		info.boundsSignatures = ((List<Type>)node.typeBounds()).stream().map(Type::toString).map(String::toCharArray).toArray(char[][]::new);
 		this.infos.push(info);
+		this.toPopulate.put(newElement, info);
 		return true;
 	}
 	@Override
