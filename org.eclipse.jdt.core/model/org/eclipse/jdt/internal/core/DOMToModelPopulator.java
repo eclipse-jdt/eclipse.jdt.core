@@ -754,23 +754,25 @@ class DOMToModelPopulator extends ASTVisitor {
 		if (this.alternativeDeprecated != null) {
 			return this.alternativeDeprecated;
 		}
-		try {
-			IJavaElement[] importElements = this.importContainer.getChildren();
-			for (IJavaElement child : importElements) {
-				IImportDeclaration importDeclaration = (IImportDeclaration) child;
-				// It's possible that the user has imported
-				// an annotation called "Deprecated" using a wildcard import
-				// that replaces "java.lang.Deprecated"
-				// However, it's very costly and complex to check if they've done this,
-				// so I haven't bothered.
-				if (!importDeclaration.isOnDemand()
-						&& importDeclaration.getElementName().endsWith("Deprecated")) { //$NON-NLS-1$
-					this.alternativeDeprecated = true;
-					return this.alternativeDeprecated;
+		if (this.importContainer != null) {
+			try {
+				IJavaElement[] importElements = this.importContainer.getChildren();
+				for (IJavaElement child : importElements) {
+					IImportDeclaration importDeclaration = (IImportDeclaration) child;
+					// It's possible that the user has imported
+					// an annotation called "Deprecated" using a wildcard import
+					// that replaces "java.lang.Deprecated"
+					// However, it's very costly and complex to check if they've done this,
+					// so I haven't bothered.
+					if (!importDeclaration.isOnDemand()
+							&& importDeclaration.getElementName().endsWith("Deprecated")) { //$NON-NLS-1$
+						this.alternativeDeprecated = true;
+						return this.alternativeDeprecated;
+					}
 				}
+			} catch (JavaModelException e) {
+				// do nothing
 			}
-		} catch (JavaModelException e) {
-			// do nothing
 		}
 		this.alternativeDeprecated = false;
 		return this.alternativeDeprecated;
