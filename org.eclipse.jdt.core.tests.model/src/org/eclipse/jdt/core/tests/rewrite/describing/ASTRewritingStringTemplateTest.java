@@ -775,7 +775,6 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 		buf.append("public class X {\n");
 		buf.append("  void foo(Object o) {\n");
 		buf.append("    String name = \"Jay\";\n");
-		//buf.append("    String s = STR.\"\"\"\n\"Hello \\{name} \n\"\"\"\";\n");
 		buf.append("    String s = STR.\"\"\"\nHello \\{name} \n\"\"\";\n");
 		buf.append("  }\n");
 		buf.append("}\n");
@@ -804,15 +803,7 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 			component.setStringFragment(fragment);
 			component.setEmbeddedExpression(name);
 
-//			StringTemplateComponent component1 = ast.newStringTemplateComponent();
-//			SimpleName name1 = ast.newSimpleName("xyz");
-//			StringFragment fragment1 = ast.newStringFragment();
-//			fragment1.setEscapedValue(" is xyz.");
-//			component1.setStringFragment(fragment1);
-//			component1.setEmbeddedExpression(name1);
-
 			rewrite.getListRewrite(templateExp, StringTemplateExpression.STRING_TEMPLATE_COMPONENTS).insertLast(component, null);
-			//rewrite.getListRewrite(templateExp, StringTemplateExpression.STRING_TEMPLATE_COMPONENTS).insertLast(component1, null);
 			rewrite.set(templateExp,  StringTemplateExpression.MULTI_LINE, Boolean.FALSE, null);
 		}
 

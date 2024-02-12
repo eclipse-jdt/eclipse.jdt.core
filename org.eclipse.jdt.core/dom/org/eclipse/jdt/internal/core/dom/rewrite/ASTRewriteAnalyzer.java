@@ -667,7 +667,6 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 						}
 							doTextInsert(
 									(parent instanceof StringTemplateExpression && ((StringTemplateExpression) parent).isMultiline()) ? currPos-4 : currPos,
-									//currPos,
 									node,
 									getNodeIndent(i),
 									true,
