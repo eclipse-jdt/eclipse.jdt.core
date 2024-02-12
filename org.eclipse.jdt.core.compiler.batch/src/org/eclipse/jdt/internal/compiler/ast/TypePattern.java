@@ -39,16 +39,17 @@ public class TypePattern extends Pattern {
 	public TypePattern(LocalDeclaration local) {
 		this.local = local;
 	}
-	protected TypePattern() {
-	}
+
 	@Override
 	public TypeReference getType() {
 		return this.local.type;
 	}
+
 	@Override
 	public LocalVariableBinding[] bindingsWhenTrue() {
 		return this.local.binding == null ? NO_VARIABLES : new LocalVariableBinding[] { this.local.binding };
 	}
+
 	@Override
 	public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding expressionType, TypeBinding match, boolean isNarrowing) {
 		if (!castType.isReifiable())
@@ -77,16 +78,15 @@ public class TypePattern extends Pattern {
 		}
 		return patternInfo;
 	}
+
 	@Override
 	public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel) {
-		LocalVariableBinding localBinding = this.local.binding;
 		if (!this.isTotalTypeNode) {
-			codeStream.checkcast(localBinding.type);
+			codeStream.checkcast(this.local.binding.type);
 		}
 		this.local.generateCode(currentScope, codeStream);
-		codeStream.store(localBinding, false);
-		localBinding.recordInitializationStartPC(codeStream.position);
 	}
+
 	@Override
 	public LocalDeclaration getPatternVariable() {
 		return this.local;
@@ -98,6 +98,7 @@ public class TypePattern extends Pattern {
 			return false;
 		return (type.isSubtypeOf(this.resolvedType, false));
 	}
+
 	@Override
 	protected boolean isPatternTypeCompatible(TypeBinding other, BlockScope scope) {
 		TypeBinding patternType = this.resolvedType;
@@ -114,6 +115,7 @@ public class TypePattern extends Pattern {
 		}
 		return true;
 	}
+
 	@Override
 	public boolean dominates(Pattern p) {
 		if (p.resolvedType == null || this.resolvedType == null)
@@ -167,6 +169,7 @@ public class TypePattern extends Pattern {
 
 		return this.resolvedType;
 	}
+
 	// Synthetics? Ref 4.10.5 also watch out for spec changes in rec pattern..
 	private TypeVariableBinding[] findSyntheticTypeVariables(TypeBinding typeBinding) {
 		final Set<TypeVariableBinding> mentioned = new HashSet<>();
