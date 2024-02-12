@@ -192,9 +192,6 @@ public class WhileStatement extends Statement {
 		if ((this.bits & IsReachable) == 0) {
 			return;
 		}
-		if (containsPatternVariable()) {
-			this.condition.addPatternVariables(currentScope, codeStream);
-		}
 		int pc = codeStream.position;
 		Constant cst = this.condition.optimizedBooleanConstant();
 		boolean isConditionOptimizedFalse = cst != Constant.NotAConstant && cst.booleanValue() == false;
@@ -210,9 +207,13 @@ public class WhileStatement extends Statement {
 		}
 
 		this.breakLabel.initialize(codeStream);
-
+		boolean conditionInjectsBindings = this.condition.bindingsWhenTrue().length > 0;
 		// generate condition
-		if (this.continueLabel == null) {
+		if (this.continueLabel == null || conditionInjectsBindings) {
+			if (this.continueLabel != null) {
+				this.continueLabel.initialize(codeStream);
+				this.continueLabel.place();
+			}
 			// no need to reverse condition
 			if (this.condition.constant == Constant.NotAConstant) {
 				this.condition.generateOptimizedBoolean(
@@ -243,6 +244,9 @@ public class WhileStatement extends Statement {
 				codeStream.addDefinitelyAssignedVariables(
 					currentScope,
 					this.condIfTrueInitStateIndex);
+				codeStream.removeNotDefinitelyAssignedVariables(
+						currentScope,
+						this.condIfTrueInitStateIndex);
 			}
 			actionLabel.place();
 			this.action.generateCode(currentScope, codeStream);
@@ -254,14 +258,18 @@ public class WhileStatement extends Statement {
 			actionLabel.place();
 		}
 		// output condition and branch back to the beginning of the repeated action
-		if (this.continueLabel != null) {
-			this.continueLabel.place();
-			this.condition.generateOptimizedBoolean(
-				currentScope,
-				codeStream,
-				actionLabel,
-				null,
-				true);
+		if (this.continueLabel != null || conditionInjectsBindings) {
+			if (conditionInjectsBindings) {
+				codeStream.goto_(this.continueLabel);
+			} else {
+				this.continueLabel.place();
+				this.condition.generateOptimizedBoolean(
+					currentScope,
+					codeStream,
+					actionLabel,
+					null,
+					true);
+			}
 		}
 
 		// May loose some local variable initializations : affecting the local variable attributes

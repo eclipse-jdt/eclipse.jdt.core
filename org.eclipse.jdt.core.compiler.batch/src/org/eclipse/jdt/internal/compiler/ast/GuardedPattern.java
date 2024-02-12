@@ -97,11 +97,13 @@ public class GuardedPattern extends Pattern {
 		PatternsCollector patCollector =  new PatternsCollector(guardedElseTarget);
 		this.condition.traverse(patCollector, currentScope);
 	}
+
 	@Override
 	public boolean isAlwaysTrue() {
 		Constant cst = this.condition.optimizedBooleanConstant();
 		return cst != Constant.NotAConstant && cst.booleanValue() == true;
 	}
+
 	@Override
 	public boolean coversType(TypeBinding type) {
 		return this.primaryPattern.coversType(type) && isAlwaysTrue();
@@ -167,16 +169,19 @@ public class GuardedPattern extends Pattern {
 		}
 		visitor.endVisit(this, scope);
 	}
+
 	@Override
 	public void suspendVariables(CodeStream codeStream, BlockScope scope) {
 		codeStream.removeNotDefinitelyAssignedVariables(scope, this.thenInitStateIndex1);
 		this.primaryPattern.suspendVariables(codeStream, scope);
 	}
+
 	@Override
 	public void resumeVariables(CodeStream codeStream, BlockScope scope) {
 		codeStream.addDefinitelyAssignedVariables(scope, this.thenInitStateIndex2);
 		this.primaryPattern.resumeVariables(codeStream, scope);
 	}
+
 	@Override
 	protected boolean isPatternTypeCompatible(TypeBinding other, BlockScope scope) {
 		return this.primaryPattern.isPatternTypeCompatible(other, scope);

@@ -1826,11 +1826,6 @@ public StringBuilder printExpressionNoParenthesis(int indent, StringBuilder outp
 }
 
 @Override
-public void addPatternVariables(BlockScope scope, CodeStream codeStream) {
-	this.left.addPatternVariables(scope, codeStream); // Srikanth
-	this.right.addPatternVariables(scope, codeStream);
-}
-@Override
 public boolean containsPatternVariable() {
 	return this.left.containsPatternVariable() || this.right.containsPatternVariable();
 }
