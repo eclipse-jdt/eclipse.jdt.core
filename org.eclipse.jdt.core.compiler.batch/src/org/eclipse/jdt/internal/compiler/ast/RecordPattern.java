@@ -43,14 +43,17 @@ public class RecordPattern extends TypePattern {
 	private TypeBinding expectedType; // for record pattern type inference
 
 	public RecordPattern(TypeReference type, int sourceStart, int sourceEnd) {
+		super(null); // no local declaration with record patterns
 		this.type = type;
 		this.sourceStart = sourceStart;
 		this.sourceEnd = sourceEnd;
 	}
+
 	@Override
 	public TypeReference getType() {
 		return this.type;
 	}
+
 	@Override
 	public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding expressionType, TypeBinding match, boolean isNarrowing) {
 		if (!castType.isReifiable())
@@ -58,6 +61,7 @@ public class RecordPattern extends TypePattern {
 		else
 			return super.checkUnsafeCast(scope, castType, expressionType, match, isNarrowing);
 	}
+
 	@Override
 	public LocalVariableBinding[] bindingsWhenTrue() {
 		LocalVariableBinding [] variables = NO_VARIABLES;
@@ -66,6 +70,7 @@ public class RecordPattern extends TypePattern {
 		}
 		return variables;
 	}
+
 	@Override
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 		this.thenInitStateIndex1 = currentScope.methodScope().recordInitializationStates(flowInfo);
@@ -76,6 +81,7 @@ public class RecordPattern extends TypePattern {
 		this.thenInitStateIndex2 = currentScope.methodScope().recordInitializationStates(flowInfo);
 		return flowInfo;
 	}
+
 	@Override
 	public boolean coversType(TypeBinding t) {
 		if (TypeBinding.equalsEquals(t, this.resolvedType)) {
@@ -173,6 +179,7 @@ public class RecordPattern extends TypePattern {
 		}
 		return this.resolvedType;
 	}
+
 	private ReferenceBinding inferRecordParameterization(BlockScope scope, ReferenceBinding proposedMatchingType) {
 		InferenceContext18 freshInferenceContext = new InferenceContext18(scope);
 		try {
@@ -181,10 +188,12 @@ public class RecordPattern extends TypePattern {
 			freshInferenceContext.cleanUp();
 		}
 	}
+
 	@Override
 	public boolean isAlwaysTrue() {
 		return false;
 	}
+
 	@Override
 	public boolean dominates(Pattern p) {
 		if (!this.resolvedType.isValidBinding())
@@ -282,10 +291,12 @@ public class RecordPattern extends TypePattern {
 	public void suspendVariables(CodeStream codeStream, BlockScope scope) {
 		codeStream.removeNotDefinitelyAssignedVariables(scope, this.thenInitStateIndex1);
 	}
+
 	@Override
 	public void resumeVariables(CodeStream codeStream, BlockScope scope) {
 		codeStream.addDefinitelyAssignedVariables(scope, this.thenInitStateIndex2);
 	}
+
 	@Override
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		if (visitor.visit(this, scope)) {

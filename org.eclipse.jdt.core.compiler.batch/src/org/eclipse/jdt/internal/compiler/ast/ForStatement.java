@@ -270,10 +270,8 @@ public class ForStatement extends Statement {
 				this.initializations[i].generateCode(this.scope, codeStream);
 			}
 		}
-		if (containsPatternVariable()) {
-			this.condition.addPatternVariables(currentScope, codeStream);
-		}
 		Constant cst = this.condition == null ? null : this.condition.optimizedBooleanConstant();
+		boolean conditionInjectsBindings = this.condition != null ? this.condition.bindingsWhenTrue().length > 0 : false;
 		boolean isConditionOptimizedFalse = cst != null && (cst != Constant.NotAConstant && cst.booleanValue() == false);
 		if (isConditionOptimizedFalse) {
 			this.condition.generateCode(this.scope, codeStream, false);
@@ -294,7 +292,10 @@ public class ForStatement extends Statement {
 		actionLabel.tagBits |= BranchLabel.USED;
 		BranchLabel conditionLabel = new BranchLabel(codeStream);
 		this.breakLabel.initialize(codeStream);
-		if (this.continueLabel == null) {
+		if (this.continueLabel == null || conditionInjectsBindings) {
+			if (this.continueLabel != null) {
+				this.continueLabel.initialize(codeStream);
+			}
 			conditionLabel.place();
 			if ((this.condition != null) && (this.condition.constant == Constant.NotAConstant)) {
 				this.condition.generateOptimizedBoolean(this.scope, codeStream, null, this.breakLabel, true);
@@ -320,6 +321,9 @@ public class ForStatement extends Statement {
 				codeStream.addDefinitelyAssignedVariables(
 					currentScope,
 					this.condIfTrueInitStateIndex);
+				codeStream.removeNotDefinitelyAssignedVariables(
+						currentScope,
+						this.condIfTrueInitStateIndex);
 			}
 			actionLabel.place();
 			this.action.generateCode(this.scope, codeStream);
@@ -344,12 +348,16 @@ public class ForStatement extends Statement {
 			if (this.preCondInitStateIndex != -1) {
 				codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.preCondInitStateIndex);
 			}
-			// generate the condition
-			conditionLabel.place();
-			if ((this.condition != null) && (this.condition.constant == Constant.NotAConstant)) {
-				this.condition.generateOptimizedBoolean(this.scope, codeStream, actionLabel, null, true);
+			// generate the condition or loop back to condition if it was flattened ahead of body
+			if (conditionInjectsBindings) {
+				codeStream.goto_(conditionLabel);
 			} else {
-				codeStream.goto_(actionLabel);
+				conditionLabel.place();
+				if ((this.condition != null) && (this.condition.constant == Constant.NotAConstant)) {
+					this.condition.generateOptimizedBoolean(this.scope, codeStream, actionLabel, null, true);
+				} else {
+					codeStream.goto_(actionLabel);
+				}
 			}
 
 		} else {
