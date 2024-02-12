@@ -24,7 +24,7 @@ public abstract class Pattern extends Expression {
 
 	/* package */ boolean isTotalTypeNode = false;
 
-	private RecordPattern enclosingPattern;
+	private Pattern enclosingPattern;
 	protected MethodBinding accessorMethod;
 	/* package */ BranchLabel elseTarget;
 	/* package */ BranchLabel thenTarget;
@@ -53,7 +53,7 @@ public abstract class Pattern extends Expression {
 	/**
 	 * @return the enclosingPattern
 	 */
-	public RecordPattern getEnclosingPattern() {
+	public Pattern getEnclosingPattern() {
 		return this.enclosingPattern;
 	}
 

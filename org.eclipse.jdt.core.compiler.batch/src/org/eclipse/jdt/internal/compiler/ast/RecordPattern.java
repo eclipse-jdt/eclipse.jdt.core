@@ -246,7 +246,7 @@ public class RecordPattern extends TypePattern {
 					if (current.index != outer.patterns.length - 1)
 						pops++;
 					current = outer;
-					outer = outer.getEnclosingPattern();
+					outer = outer.getEnclosingPattern() instanceof RecordPattern rp ? rp : null;
 				}
 				while (pops > 1) {
 					codeStream.pop2();
