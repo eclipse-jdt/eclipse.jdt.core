@@ -1719,6 +1719,30 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"Syntax error on token \"r\", delete this token\n" +
 				"----------\n");
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2004
+	// [Patterns] ECJ generates suspect code for switching over patterns
+	public void testIssue2004() {
+		runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				record A() {}
+					record R<T>(T t) {}
+					public class X {
+					    private static boolean foo(R<? super A> r) {
+					       return switch(r) {
+					            case R(var x) -> true;
+					            default -> false;
+					       };
+					    }
+					    public static void main(String argv[]) {
+					       System.out.println(foo(new R<A>(null)));
+					    }
+				}
+				"""
+				},
+				"true");
+	}
 	public void testRecordPatternTypeInference_001() {
 		runNegativeTest(new String[] {
 			"X.java",

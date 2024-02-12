@@ -125,6 +125,15 @@ public class RecordPattern extends TypePattern {
 			scope.problemReporter().recordPatternSignatureMismatch(this.resolvedType, this);
 			return this.resolvedType = null;
 		}
+
+		LocalVariableBinding [] bindings = NO_VARIABLES;
+		for (Pattern p : this.patterns) {
+			p.resolveTypeWithBindings(bindings, scope);
+			bindings = LocalVariableBinding.merge(bindings, p.bindingsWhenTrue());
+		}
+		for (LocalVariableBinding binding : bindings)
+			binding.useFlag = LocalVariableBinding.USED; // syntactically required even if untouched
+
 		if (this.resolvedType.isRawType()) {
 			TypeBinding expressionType = expectedType();
 			if (expressionType instanceof ReferenceBinding) {
@@ -136,14 +145,6 @@ public class RecordPattern extends TypePattern {
 				this.resolvedType = binding;
 			}
 		}
-
-		LocalVariableBinding [] bindings = NO_VARIABLES;
-		for (Pattern p : this.patterns) {
-			p.resolveTypeWithBindings(bindings, scope);
-			bindings = LocalVariableBinding.merge(bindings, p.bindingsWhenTrue());
-		}
-		for (LocalVariableBinding binding : bindings)
-			binding.useFlag = LocalVariableBinding.USED; // syntactically required even if untouched
 
 		if (this.resolvedType == null || !this.resolvedType.isValidBinding()) {
 			return this.resolvedType;
