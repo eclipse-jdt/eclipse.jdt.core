@@ -32,7 +32,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 /**
  * Implementation of a TypeMirror.  TypeMirror represents a type, including
  * types that have no declaration, such as primitives (int, boolean) and
- * types that are specializations of declarations (List<String>).
+ * types that are specializations of declarations {@code (List<String>)}.
  */
 public class TypeMirrorImpl implements TypeMirror {
 

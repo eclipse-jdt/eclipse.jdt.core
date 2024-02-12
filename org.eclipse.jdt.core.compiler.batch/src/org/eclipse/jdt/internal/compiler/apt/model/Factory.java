@@ -443,7 +443,7 @@ public class Factory {
 
 	/**
 	 * Get a type mirror object representing the specified primitive type kind.
-	 * @throw IllegalArgumentException if a non-primitive TypeKind is requested
+	 * @throws IllegalArgumentException if a non-primitive TypeKind is requested
 	 */
 	public PrimitiveTypeImpl getPrimitiveType(TypeKind kind)
 	{

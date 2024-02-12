@@ -269,9 +269,9 @@ public class ExecutableElementImpl extends ElementImpl implements
 	 * the inherited C.f() override A.f().  If B.f() were private, for instance, then in the context
 	 * of C it would still not override A.f().
 	 *
+     * <p>see jls3 8.4.8 Inheritance, Overriding, and Hiding
+     * <p>see jls3 9.4.1 Inheritance and Overriding
 	 * @see javax.lang.model.util.Elements#overrides(ExecutableElement, ExecutableElement, TypeElement)
-     * @jls3 8.4.8 Inheritance, Overriding, and Hiding
-     * @jls3 9.4.1 Inheritance and Overriding
 	 */
 	public boolean overrides(ExecutableElement overridden, TypeElement type)
 	{

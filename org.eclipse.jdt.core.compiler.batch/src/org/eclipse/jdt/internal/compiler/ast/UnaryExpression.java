@@ -182,7 +182,7 @@ public class UnaryExpression extends OperatorExpression {
 
 	/**
 	 * Boolean operator code generation
-	 *	Optimized operations are: &&, ||, <, <=, >, >=, &, |, ^
+	 *	Optimized operations are: {@code &&, ||, <, <=, >, >=, &, |, ^ }
 	 */
 	@Override
 	public void generateOptimizedBoolean(

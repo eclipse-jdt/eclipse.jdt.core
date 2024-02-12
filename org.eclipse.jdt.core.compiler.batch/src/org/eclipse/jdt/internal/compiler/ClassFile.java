@@ -4627,7 +4627,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 	 * That method generates the method info header of a clinit:
 	 * The header consists in:
 	 * - the access flags (always default access + static)
-	 * - the name index of the method name (always <clinit>) inside the constant pool
+	 * - the name index of the method name (always {@code <clinit>}) inside the constant pool
 	 * - the descriptor index of the signature (always ()V) of the method inside the constant pool.
 	 */
 	public void generateMethodInfoHeaderForClinit() {

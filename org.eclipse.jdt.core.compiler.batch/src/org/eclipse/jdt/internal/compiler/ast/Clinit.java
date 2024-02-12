@@ -102,7 +102,7 @@ public class Clinit extends AbstractMethodDeclaration {
 	}
 
 	/**
-	 * Bytecode generation for a <clinit> method
+	 * Bytecode generation for a {@code <clinit>} method
 	 *
 	 * @param classScope org.eclipse.jdt.internal.compiler.lookup.ClassScope
 	 * @param classFile org.eclipse.jdt.internal.compiler.codegen.ClassFile

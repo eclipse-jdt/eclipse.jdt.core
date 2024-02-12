@@ -339,11 +339,13 @@ public class TypeVariableBinding extends ReferenceBinding {
 	}
 	/**
 	 * Collect the substitutes into a map for certain type variables inside the receiver type
-	 * e.g.   Collection<T>.collectSubstitutes(Collection<List<X>>, Map), will populate Map with: T --> List<X>
+	 * e.g. {@code Collection<T>.collectSubstitutes(Collection<List<X>>, Map)} will populate Map with: {@code T --> List<X>}
+	 * <pre>{@code
 	 * Constraints:
 	 *   A << F   corresponds to:   F.collectSubstitutes(..., A, ..., CONSTRAINT_EXTENDS (1))
-	 *   A = F   corresponds to:      F.collectSubstitutes(..., A, ..., CONSTRAINT_EQUAL (0))
+	 *   A = F    corresponds to:   F.collectSubstitutes(..., A, ..., CONSTRAINT_EQUAL (0))
 	 *   A >> F   corresponds to:   F.collectSubstitutes(..., A, ..., CONSTRAINT_SUPER (2))
+	 * }</pre>
 	 */
 	@Override
 	public void collectSubstitutes(Scope scope, TypeBinding actualType, InferenceContext inferenceContext, int constraint) {
@@ -469,9 +471,10 @@ public class TypeVariableBinding extends ReferenceBinding {
 	    }
 	    return this.superclass; // java/lang/Object
 	}
-	/**
+	/**<pre>{@code
 	 * T::Ljava/util/Map;:Ljava/io/Serializable;
 	 * T:LY<TT;>
+	 * }</pre>
 	 */
 	public char[] genericSignature() {
 	    StringBuilder sig = new StringBuilder(10);
@@ -489,9 +492,10 @@ public class TypeVariableBinding extends ReferenceBinding {
 		sig.getChars(0, sigLength, genericSignature, 0);
 		return genericSignature;
 	}
-	/**
+	/**<pre>{@code
 	 * T::Ljava/util/Map;:Ljava/io/Serializable;
 	 * T:LY<TT;>
+	 * }</pre>
 	 */
 	@Override
 	public char[] genericTypeSignature() {
@@ -562,9 +566,8 @@ public class TypeVariableBinding extends ReferenceBinding {
 	}
 
 	/**
-	 * Returns true if the 2 variables are playing exact same role: they have
-	 * the same bounds, providing one is substituted with the other: <T1 extends
-	 * List<T1>> is interchangeable with <T2 extends List<T2>>.
+	 * Returns true if the 2 variables are playing exact same role: they have the same bounds, providing one is
+	 * substituted with the other: {@code <T1 extends List<T1>>} is interchangeable with {@code <T2 extends List<T2>>}.
 	 */
 	public boolean isInterchangeableWith(TypeVariableBinding otherVariable, Substitution substitute) {
 		if (TypeBinding.equalsEquals(this, otherVariable))

@@ -43,7 +43,6 @@ import java.lang.annotation.Target;
  * <li>Nullness cannot be determined, because other program elements are involved for which
  *     null annotations are lacking.</li>
  * </ol>
- * </p>
  * @since 1.0
  */
 @Documented

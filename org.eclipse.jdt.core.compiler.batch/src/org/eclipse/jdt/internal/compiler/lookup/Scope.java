@@ -175,7 +175,7 @@ public abstract class Scope {
 
 	/**
 	 * Returns a type where either all variables or specific ones got discarded.
-	 * e.g. List<E> (discarding <E extends Enum<E>) will return:  List<? extends Enum<?>>
+	 * e.g. {@code List<E> (discarding <E extends Enum<E>)} will return: {@code List<? extends Enum<?>>}
 	 */
 	public static TypeBinding convertEliminatingTypeVariables(TypeBinding originalType, ReferenceBinding genericType, int rank, Set eliminatedVariables) {
 		if ((originalType.tagBits & TagBits.HasTypeVariable) != 0) {
@@ -4178,7 +4178,7 @@ public abstract class Scope {
 	// 15.12.2
 	/**
 	 * Returns VoidBinding if types have no intersection (e.g. 2 unrelated interfaces), or null if
-	 * no common supertype (e.g. List<String> and List<Exception>), or the intersection type if possible
+	 * no common supertype (e.g. {@code List<String>} and {@code List<Exception>}), or the intersection type if possible
 	 */
 	public TypeBinding lowerUpperBound(TypeBinding[] types) {
 		int typeLength = types.length;

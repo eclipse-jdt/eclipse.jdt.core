@@ -166,7 +166,7 @@ public static void checkNeedForEnclosingInstanceCast(BlockScope scope, Expressio
 }
 
 /**
- * Only complain for identity cast, since other type of casts may be useful: e.g.  ~((~(long) 0) << 32)  is different from: ~((~0) << 32)
+ * Only complain for identity cast, since other type of casts may be useful: e.g. {@code ~((~(long) 0) << 32)}  is different from: {@code ~((~0) << 32)}
  */
 public static void checkNeedForArgumentCast(BlockScope scope, int operator, int operatorSignature, Expression expression, int expressionTypeId) {
 	if (scope.compilerOptions().getSeverity(CompilerOptions.UnnecessaryTypeCheck) == ProblemSeverities.Ignore) return;

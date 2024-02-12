@@ -12561,7 +12561,7 @@ public boolean scheduleProblemForContext(Runnable problemComputation) {
  * <li>individual methods should ensure that {@link #referenceContext} is reset to {@code null} afterwards. This may
  * happen in two ways:
  * <ul><li>by calling any of the {@code handle(..)} methods on all paths, or failing that
- * <li>wrap their body in {@code try(this) { ... }}.
+ * <li>wrap their body in {@code try { ... } finally {problemReporter.close();}}.
  * </ul></ul>
  */
 public void close() {

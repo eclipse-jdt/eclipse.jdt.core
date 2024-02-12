@@ -27,8 +27,8 @@ import org.eclipse.jdt.core.compiler.CharOperation;
 
 /**
  * Denote a raw type, i.e. a generic type referenced without any type arguments.
- * e.g. X<T extends Exception> can be used a raw type 'X', in which case it
- * 	will behave as X<Exception>
+ * e.g. {@code X<T extends Exception>} can be used a raw type 'X', in which case it
+ * 	will behave as {@code X<Exception>}
  */
 public class RawTypeBinding extends ParameterizedTypeBinding {
 
@@ -145,9 +145,10 @@ public class RawTypeBinding extends ParameterizedTypeBinding {
 		buffer.append("#RAW"); //$NON-NLS-1$
 		return buffer.toString();
 	}
-	/**
+	/**<pre>{@code
 	 * Ltype<param1 ... paramN>;
 	 * LY<TT;>;
+	 * }</pre>
 	 */
 	@Override
 	public char[] genericTypeSignature() {

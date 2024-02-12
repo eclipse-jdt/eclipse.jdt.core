@@ -32,7 +32,7 @@ public class InferenceSubstitution extends Scope.Substitutor implements Substitu
 		this(context.environment, context.inferenceVariables, context.currentInvocation);
 	}
 
-	/** Answer a substitution that is able to substitute into inference variables of several inference contexts (outer & inner) */
+	/** Answer a substitution that is able to substitute into inference variables of several inference contexts (outer and inner) */
 	public InferenceSubstitution addContext(InferenceContext18 otherContext) {
 		InferenceSubstitution subst = new InferenceSubstitution(this.environment, null, null) {
 

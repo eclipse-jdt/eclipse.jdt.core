@@ -24,7 +24,7 @@ import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 
-//dedicated treatment for the &&
+/** dedicated treatment for the {@code &&} */
 public class AND_AND_Expression extends BinaryExpression {
 
 	int rightInitStateIndex = -1;
@@ -187,7 +187,7 @@ public class AND_AND_Expression extends BinaryExpression {
 	}
 
 	/**
-	 * Boolean operator code generation Optimized operations are: &&
+	 * Boolean operator code generation Optimized operations are: {@code &&}
 	 */
 	@Override
 	public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel, boolean valueRequired) {
