@@ -35,7 +35,7 @@ import junit.framework.Test;
 public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 
 	static {
-		TESTS_NAMES = new String[] {"test006"};
+		TESTS_NAMES = new String[] {"test007_c"};
 	}
 
 	public ASTRewritingStringTemplateTest(String name, int apiLevel) {
@@ -83,6 +83,7 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 		MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
 		Block block= methodDecl.getBody();
 		List blockStatements = block.statements();
+		//add component to first fragment
 		assertEquals("Incorrect number of statements", 1, blockStatements.size());
 		{
 			VariableDeclarationFragment varFragment = ast.newVariableDeclarationFragment();
@@ -499,6 +500,7 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 
 		assertEqualString(preview, buf.toString());
 	}
+	//SINGLE LINE to MULTI LINE with Component
 	@SuppressWarnings({ "rawtypes", "deprecation" })
 	public void test006_a() throws Exception {
 		if (this.apiLevel != 21) {
@@ -548,6 +550,7 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 	}
 
 	@SuppressWarnings({ "rawtypes", "deprecation" })
+	//SINGLE LINE to MULTI LINE without Component
 	public void test006_b() throws Exception {
 		if (this.apiLevel != 21) {
 			System.err.println("Test "+getName()+" requires a JRE 21");
@@ -594,7 +597,76 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 
 		assertEqualString(preview, buf.toString());
 	}
+
 	@SuppressWarnings({ "rawtypes", "deprecation" })
+	//SINGLE LINE to MULTI LINE with Multiple Components
+	public void test006_c() throws Exception {
+		if (this.apiLevel != 21) {
+			System.err.println("Test "+getName()+" requires a JRE 21");
+			return;
+		}
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuilder buf= new StringBuilder();
+		buf.append("package test1;\n");
+		buf.append("public class X {\n");
+		buf.append("  void foo(Object o) {\n");
+		buf.append("    String name = \"Jay\";\n");
+		buf.append("    String s = STR.\"Hello \\{name} \";\n");
+		buf.append("  }\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		AST ast= astRoot.getAST();
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		TypeDeclaration type= findTypeDeclaration(astRoot, "X");
+		MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+		Block block= methodDecl.getBody();
+		List blockStatements = block.statements();
+		assertEquals("Incorrect number of statements", 2, blockStatements.size());
+		{
+			VariableDeclarationStatement varStmt = (VariableDeclarationStatement) blockStatements.get(1);
+			assertEquals("Incorrect number of fragents", 1, varStmt.fragments().size());
+			VariableDeclarationFragment varFragment = (VariableDeclarationFragment) varStmt.fragments().get(0);
+			StringTemplateExpression templateExp = (StringTemplateExpression) varFragment.getInitializer();
+
+			StringTemplateComponent component = ast.newStringTemplateComponent();
+			SimpleName name = ast.newSimpleName("os");
+			StringFragment fragment = ast.newStringFragment();
+			fragment.setEscapedValue(" is your OS. ");
+			component.setStringFragment(fragment);
+			component.setEmbeddedExpression(name);
+
+			StringTemplateComponent component1 = ast.newStringTemplateComponent();
+			SimpleName name1 = ast.newSimpleName("xyz");
+			StringFragment fragment1 = ast.newStringFragment();
+			fragment1.setEscapedValue(" is xyz.");
+			component1.setStringFragment(fragment1);
+			component1.setEmbeddedExpression(name1);
+
+			rewrite.getListRewrite(templateExp, StringTemplateExpression.STRING_TEMPLATE_COMPONENTS).insertLast(component, null);
+			rewrite.getListRewrite(templateExp, StringTemplateExpression.STRING_TEMPLATE_COMPONENTS).insertLast(component1, null);
+			rewrite.set(templateExp,  StringTemplateExpression.MULTI_LINE, Boolean.TRUE, null);
+		}
+
+		String preview = evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuilder();
+		buf.append("package test1;\n");
+		buf.append("public class X {\n");
+		buf.append("  void foo(Object o) {\n");
+		buf.append("    String name = \"Jay\";\n");
+		buf.append("    String s = STR.\"\"\"\nHello \\{name} \\{os} is your OS. \\{xyz} is xyz.\n\"\"\";\n");
+		buf.append("  }\n");
+		buf.append("}\n");
+
+		assertEqualString(preview, buf.toString());
+	}
+
+	@SuppressWarnings({ "rawtypes", "deprecation" })
+	//MULTI LINE to SINGLE LINE -> with Component
 	public void test007_a() throws Exception {
 		if (this.apiLevel != 21) {
 			System.err.println("Test "+getName()+" requires a JRE 21");
@@ -606,7 +678,7 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 		buf.append("public class X {\n");
 		buf.append("  void foo(Object o) {\n");
 		buf.append("    String name = \"Jay\";\n");
-		buf.append("    String s = STR.\"\"\"\nHello \\{name}!\n\"\"\";\n");
+		buf.append("    String s = STR.\"\"\"\nHello \\{name}\n\"\"\";\n");
 		buf.append("  }\n");
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
@@ -635,14 +707,14 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 		buf.append("public class X {\n");
 		buf.append("  void foo(Object o) {\n");
 		buf.append("    String name = \"Jay\";\n");
-		buf.append("    String s = STR.\"Hello \\{name}!\";\n");
+		buf.append("    String s = STR.\"Hello \\{name}\";\n");
 		buf.append("  }\n");
 		buf.append("}\n");
 
 		assertEqualString(preview, buf.toString());
 	}
-
 	@SuppressWarnings({ "rawtypes", "deprecation" })
+	//MULTI LINE to SINGLE LINE -> without Component
 	public void test007_b() throws Exception {
 		if (this.apiLevel != 21) {
 			System.err.println("Test "+getName()+" requires a JRE 21");
@@ -684,6 +756,74 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 		buf.append("  void foo(Object o) {\n");
 		buf.append("    String name = \"Jay\";\n");
 		buf.append("    String s = STR.\"Hello!\";\n");
+		buf.append("  }\n");
+		buf.append("}\n");
+
+		assertEqualString(preview, buf.toString());
+	}
+
+	@SuppressWarnings({ "rawtypes", "deprecation" })
+	//MULTI LINE to SINGLE LINE -> with multiple Component
+	public void test007_c() throws Exception {
+		if (this.apiLevel != 21) {
+			System.err.println("Test "+getName()+" requires a JRE 21");
+			return;
+		}
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuilder buf= new StringBuilder();
+		buf.append("package test1;\n");
+		buf.append("public class X {\n");
+		buf.append("  void foo(Object o) {\n");
+		buf.append("    String name = \"Jay\";\n");
+		//buf.append("    String s = STR.\"\"\"\n\"Hello \\{name} \n\"\"\"\";\n");
+		buf.append("    String s = STR.\"\"\"\nHello \\{name} \n\"\"\";\n");
+		buf.append("  }\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+		AST ast= astRoot.getAST();
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		TypeDeclaration type= findTypeDeclaration(astRoot, "X");
+		MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+		Block block= methodDecl.getBody();
+		List blockStatements = block.statements();
+		assertEquals("Incorrect number of statements", 2, blockStatements.size());
+		{
+			VariableDeclarationStatement varStmt = (VariableDeclarationStatement) blockStatements.get(1);
+			assertEquals("Incorrect number of fragents", 1, varStmt.fragments().size());
+			VariableDeclarationFragment varFragment = (VariableDeclarationFragment) varStmt.fragments().get(0);
+			StringTemplateExpression templateExp = (StringTemplateExpression) varFragment.getInitializer();
+
+			StringTemplateComponent component = ast.newStringTemplateComponent();
+			SimpleName name = ast.newSimpleName("os");
+			StringFragment fragment = ast.newStringFragment();
+			fragment.setEscapedValue(" is your OS. ");
+			component.setStringFragment(fragment);
+			component.setEmbeddedExpression(name);
+
+//			StringTemplateComponent component1 = ast.newStringTemplateComponent();
+//			SimpleName name1 = ast.newSimpleName("xyz");
+//			StringFragment fragment1 = ast.newStringFragment();
+//			fragment1.setEscapedValue(" is xyz.");
+//			component1.setStringFragment(fragment1);
+//			component1.setEmbeddedExpression(name1);
+
+			rewrite.getListRewrite(templateExp, StringTemplateExpression.STRING_TEMPLATE_COMPONENTS).insertLast(component, null);
+			//rewrite.getListRewrite(templateExp, StringTemplateExpression.STRING_TEMPLATE_COMPONENTS).insertLast(component1, null);
+			rewrite.set(templateExp,  StringTemplateExpression.MULTI_LINE, Boolean.FALSE, null);
+		}
+
+		String preview = evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuilder();
+		buf.append("package test1;\n");
+		buf.append("public class X {\n");
+		buf.append("  void foo(Object o) {\n");
+		buf.append("    String name = \"Jay\";\n");
+		buf.append("    String s = STR.\"Hello \\{name} \\{os} is your OS. \";\n");
 		buf.append("  }\n");
 		buf.append("}\n");
 
