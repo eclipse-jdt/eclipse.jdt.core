@@ -139,6 +139,12 @@ class DOMToModelPopulator extends ASTVisitor {
 			openable.addChild(childElement);
 			return;
 		}
+		if (parentInfo instanceof SourceMethodWithChildrenInfo method) {
+			IJavaElement[] newElements = Arrays.copyOf(method.children, method.children.length + 1);
+			newElements[newElements.length - 1] = childElement;
+			method.children = newElements;
+			return;
+		}
 	}
 
 	@Override
@@ -385,7 +391,7 @@ class DOMToModelPopulator extends ASTVisitor {
 				.toArray(String[]::new));
 		this.elements.push(newElement);
 		addAsChild(this.infos.peek(), newElement);
-		SourceMethodInfo info = new SourceMethodInfo();
+		SourceMethodInfo info = new SourceMethodWithChildrenInfo(new IJavaElement[0]);
 		info.setArgumentNames(((List<SingleVariableDeclaration>)method.parameters()).stream().map(param -> param.getName().toString().toCharArray()).toArray(char[][]::new));
 		info.arguments = ((List<SingleVariableDeclaration>)method.parameters()).stream()
 			.map(this::toLocalVariable)
