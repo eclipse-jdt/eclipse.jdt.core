@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Stack;
+import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.ILog;
 import org.eclipse.jdt.core.IAnnotation;
@@ -30,12 +31,14 @@ import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.AbstractTagElement;
 import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
 import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
 import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.BooleanLiteral;
 import org.eclipse.jdt.core.dom.CharacterLiteral;
+import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
 import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.ExportsDirective;
 import org.eclipse.jdt.core.dom.Expression;
@@ -62,6 +65,7 @@ import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.StringLiteral;
 import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.TagElement;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeLiteral;
 import org.eclipse.jdt.core.dom.UsesDirective;
@@ -88,6 +92,7 @@ class DOMToModelPopulator extends ASTVisitor {
 	private final Set<String> currentTypeParameters = new HashSet<>();
 	private final CompilationUnitElementInfo unitInfo;
 	private ImportContainer importContainer;
+	private ImportContainerInfo importContainerInfo;
 	private final CompilationUnit root;
 	private Boolean alternativeDeprecated = null;
 
@@ -166,15 +171,15 @@ class DOMToModelPopulator extends ASTVisitor {
 	public boolean visit(ImportDeclaration node) {
 		if (this.importContainer == null) {
 			this.importContainer = this.root.getImportContainer();
-			ImportContainerInfo importContainerInfo = new ImportContainerInfo();
+			this.importContainerInfo = new ImportContainerInfo();
 			JavaElementInfo parentInfo = this.infos.peek();
 			addAsChild(parentInfo, this.importContainer);
-			this.toPopulate.put(this.importContainer, importContainerInfo);
+			this.toPopulate.put(this.importContainer, this.importContainerInfo);
 		}
 		org.eclipse.jdt.internal.core.ImportDeclaration newElement = new org.eclipse.jdt.internal.core.ImportDeclaration(this.importContainer, node.getName().toString(), node.isOnDemand());
 		this.elements.push(newElement);
-		addAsChild(this.infos.peek(), newElement);
-		AnnotatableInfo newInfo = new AnnotatableInfo();
+		addAsChild(this.importContainerInfo, newElement);
+		ImportDeclarationElementInfo newInfo = new ImportDeclarationElementInfo();
 		newInfo.setSourceRangeStart(node.getStartPosition());
 		newInfo.setSourceRangeEnd(node.getStartPosition() + node.getLength() - 1);
 		newInfo.setNameSourceStart(node.getName().getStartPosition());
@@ -203,6 +208,17 @@ class DOMToModelPopulator extends ASTVisitor {
 		addAsChild(this.infos.peek(), newElement);
 		SourceTypeElementInfo newInfo = new SourceTypeElementInfo();
 		boolean isDeprecated = isNodeDeprecated(node);
+		char[][] categories = getCategories(node);
+		newInfo.addCategories(newElement, categories);
+		JavaElementInfo toPopulateCategories = this.infos.peek();
+		while (toPopulateCategories != null) {
+			if (toPopulateCategories instanceof SourceTypeElementInfo parentTypeInfo) {
+				parentTypeInfo.addCategories(newElement, categories);
+				toPopulateCategories = (JavaElementInfo)parentTypeInfo.getEnclosingType();
+			} else {
+				break;
+			}
+		}
 		newInfo.setSourceRangeStart(node.getStartPosition());
 		newInfo.setSourceRangeEnd(node.getStartPosition() + node.getLength() - 1);
 		newInfo.setFlags(node.getModifiers() | (isDeprecated ? ClassFileConstants.AccDeprecated : 0));
@@ -234,6 +250,17 @@ class DOMToModelPopulator extends ASTVisitor {
 		SourceTypeElementInfo newInfo = new SourceTypeElementInfo();
 		newInfo.setSourceRangeStart(node.getStartPosition());
 		newInfo.setSourceRangeEnd(node.getStartPosition() + node.getLength() - 1);
+		char[][] categories = getCategories(node);
+		newInfo.addCategories(newElement, categories);
+		JavaElementInfo toPopulateCategories = this.infos.peek();
+		while (toPopulateCategories != null) {
+			if (toPopulateCategories instanceof SourceTypeElementInfo parentTypeInfo) {
+				parentTypeInfo.addCategories(newElement, categories);
+				toPopulateCategories = (JavaElementInfo)parentTypeInfo.getEnclosingType();
+			} else {
+				break;
+			}
+		}
 		boolean isDeprecated = isNodeDeprecated(node);
 		newInfo.setFlags(node.getModifiers() | (isDeprecated ? ClassFileConstants.AccDeprecated : 0));
 		newInfo.setHandle(newElement);
@@ -258,6 +285,17 @@ class DOMToModelPopulator extends ASTVisitor {
 		SourceTypeElementInfo newInfo = new SourceTypeElementInfo();
 		newInfo.setSourceRangeStart(node.getStartPosition());
 		newInfo.setSourceRangeEnd(node.getStartPosition() + node.getLength() - 1);
+		char[][] categories = getCategories(node);
+		newInfo.addCategories(newElement, categories);
+		JavaElementInfo toPopulateCategories = this.infos.peek();
+		while (toPopulateCategories != null) {
+			if (toPopulateCategories instanceof SourceTypeElementInfo parentTypeInfo) {
+				parentTypeInfo.addCategories(newElement, categories);
+				toPopulateCategories = (JavaElementInfo)parentTypeInfo.getEnclosingType();
+			} else {
+				break;
+			}
+		}
 		boolean isDeprecated = isNodeDeprecated(node);
 		newInfo.setFlags(node.getModifiers() | (isDeprecated ? ClassFileConstants.AccDeprecated : 0));
 		newInfo.setHandle(newElement);
@@ -273,27 +311,28 @@ class DOMToModelPopulator extends ASTVisitor {
 		this.infos.pop();
 	}
 
-//	@Override
-//	public boolean visit(EnumConstantDeclaration node) {
-//		SourceField newElement = new SourceField(this.elements.peek(), node.getName().toString());
-//		this.elements.push(newElement);
-//		addAsChild(this.infos.peek(), newElement);
-//		SourceFieldElementInfo info = new SourceFieldElementInfo();
-//		info.setSourceRangeStart(node.getStartPosition());
-//		info.setSourceRangeEnd(node.getStartPosition() + node.getLength() - 1);
-//		info.setFlags(node.getFlags());
-//		info.setNameSourceStart(node.getName().getStartPosition());
-//		info.setNameSourceEnd(node.getName().getStartPosition() + node.getName().getLength() - 1);
-//		// TODO populate info
-//		this.infos.push(info);
-//		this.toPopulate.put(newElement, info);
-//		return true;
-//	}
-//	@Override
-//	public void endVisit(EnumConstantDeclaration decl) {
-//		this.elements.pop();
-//		this.infos.pop();
-//	}
+	@Override
+	public boolean visit(EnumConstantDeclaration node) {
+		SourceField newElement = new SourceField(this.elements.peek(), node.getName().toString());
+		this.elements.push(newElement);
+		addAsChild(this.infos.peek(), newElement);
+		SourceFieldElementInfo info = new SourceFieldElementInfo();
+		info.setSourceRangeStart(node.getStartPosition());
+		info.setSourceRangeEnd(node.getStartPosition() + node.getLength() - 1);
+		boolean isDeprecated = isNodeDeprecated(node);
+		info.setFlags(node.getModifiers() | ClassFileConstants.AccEnum | (isDeprecated ? ClassFileConstants.AccDeprecated : 0));
+		info.setNameSourceStart(node.getName().getStartPosition());
+		info.setNameSourceEnd(node.getName().getStartPosition() + node.getName().getLength() - 1);
+		// TODO populate info
+		this.infos.push(info);
+		this.toPopulate.put(newElement, info);
+		return true;
+	}
+	@Override
+	public void endVisit(EnumConstantDeclaration decl) {
+		this.elements.pop();
+		this.infos.pop();
+	}
 
 	@Override
 	public boolean visit(RecordDeclaration node) {
@@ -303,6 +342,17 @@ class DOMToModelPopulator extends ASTVisitor {
 		SourceTypeElementInfo newInfo = new SourceTypeElementInfo();
 		newInfo.setSourceRangeStart(node.getStartPosition());
 		newInfo.setSourceRangeEnd(node.getStartPosition() + node.getLength() - 1);
+		char[][] categories = getCategories(node);
+		newInfo.addCategories(newElement, categories);
+		JavaElementInfo toPopulateCategories = this.infos.peek();
+		while (toPopulateCategories != null) {
+			if (toPopulateCategories instanceof SourceTypeElementInfo parentTypeInfo) {
+				parentTypeInfo.addCategories(newElement, categories);
+				toPopulateCategories = (JavaElementInfo)parentTypeInfo.getEnclosingType();
+			} else {
+				break;
+			}
+		}
 		boolean isDeprecated = isNodeDeprecated(node);
 		newInfo.setFlags(node.getModifiers() | (isDeprecated ? ClassFileConstants.AccDeprecated : 0));
 		newInfo.setHandle(newElement);
@@ -347,6 +397,9 @@ class DOMToModelPopulator extends ASTVisitor {
 				info.setReturnType("void".toCharArray()); //$NON-NLS-1$
 			}
 		}
+		if (this.infos.peek() instanceof SourceTypeElementInfo parentInfo) {
+			parentInfo.addCategories(newElement, getCategories(method));
+		}
 		info.setSourceRangeStart(method.getStartPosition());
 		info.setSourceRangeEnd(method.getStartPosition() + method.getLength() - 1);
 		boolean isDeprecated = isNodeDeprecated(method);
@@ -381,6 +434,7 @@ class DOMToModelPopulator extends ASTVisitor {
 		info.setReturnType(method.getType().toString().toCharArray());
 		info.setSourceRangeStart(method.getStartPosition());
 		info.setSourceRangeEnd(method.getStartPosition() + method.getLength() - 1);
+		((SourceTypeElementInfo)this.infos.peek()).addCategories(newElement, getCategories(method));
 		boolean isDeprecated = isNodeDeprecated(method);
 		info.setFlags(method.getModifiers() | (isDeprecated ? ClassFileConstants.AccDeprecated : 0));
 		info.setNameSourceStart(method.getName().getStartPosition());
@@ -534,15 +588,24 @@ class DOMToModelPopulator extends ASTVisitor {
 				value = token.substring(0, token.length() - 1);
 			}
 			if (value instanceof String valueString) {
-				value = switch (type) {
-					case IMemberValuePair.K_INT -> Integer.parseInt(valueString);
-					case IMemberValuePair.K_LONG -> Long.parseLong(valueString);
-					case IMemberValuePair.K_SHORT -> Short.parseShort(valueString);
-					case IMemberValuePair.K_BYTE -> Byte.parseByte(valueString);
-					case IMemberValuePair.K_FLOAT -> Float.parseFloat(valueString);
-					case IMemberValuePair.K_DOUBLE -> Double.parseDouble(valueString);
-					default -> throw new IllegalArgumentException("Type not (yet?) supported"); //$NON-NLS-1$
-				};
+				// I tried using `yield`, but this caused ECJ to throw an AIOOB, preventing compilation
+				switch (type) {
+					case IMemberValuePair.K_INT: {
+						try {
+							value =  Integer.parseInt(valueString);
+						} catch (NumberFormatException e) {
+							type = IMemberValuePair.K_LONG;
+							value = Long.parseLong(valueString);
+						}
+						break;
+					}
+					case IMemberValuePair.K_LONG: value = Long.parseLong(valueString); break;
+					case IMemberValuePair.K_SHORT: value = Short.parseShort(valueString); break;
+					case IMemberValuePair.K_BYTE: value = Byte.parseByte(valueString); break;
+					case IMemberValuePair.K_FLOAT: value = Float.parseFloat(valueString); break;
+					case IMemberValuePair.K_DOUBLE: value = Double.parseDouble(valueString); break;
+					default: throw new IllegalArgumentException("Type not (yet?) supported"); //$NON-NLS-1$
+				}
 			}
 			return new SimpleEntry<>(value, type);
 		}
@@ -620,16 +683,21 @@ class DOMToModelPopulator extends ASTVisitor {
 
 	@Override
 	public boolean visit(FieldDeclaration field) {
-		JavaElementInfo parent = this.infos.peek();
+		JavaElementInfo parentInfo = this.infos.peek();
+		JavaElement parentElement = this.elements.peek();
 		boolean isDeprecated = isNodeDeprecated(field);
+		char[][] categories = getCategories(field);
 		for (VariableDeclarationFragment fragment : (Collection<VariableDeclarationFragment>) field.fragments()) {
-			SourceField newElement = new SourceField(this.elements.peek(), fragment.getName().toString());
+			SourceField newElement = new SourceField(parentElement, fragment.getName().toString());
 			this.elements.push(newElement);
-			addAsChild(parent, newElement);
+			addAsChild(parentInfo, newElement);
 			SourceFieldElementInfo info = new SourceFieldElementInfo();
 			info.setTypeName(field.getType().toString().toCharArray());
 			info.setSourceRangeStart(field.getStartPosition());
 			info.setSourceRangeEnd(field.getStartPosition() + field.getLength() - 1);
+			if (parentInfo instanceof SourceTypeElementInfo parentTypeInfo) {
+				parentTypeInfo.addCategories(newElement, categories);
+			}
 			info.setFlags(field.getModifiers() | (isDeprecated ? ClassFileConstants.AccDeprecated : 0));
 			info.setNameSourceStart(fragment.getName().getStartPosition());
 			info.setNameSourceEnd(fragment.getName().getStartPosition() + fragment.getName().getLength() - 1);
@@ -759,6 +827,18 @@ class DOMToModelPopulator extends ASTVisitor {
 		return res;
 	}
 	private boolean isNodeDeprecated(BodyDeclaration node) {
+		if (node.getJavadoc() != null) {
+			boolean javadocDeprecated = node.getJavadoc().tags().stream() //
+					.anyMatch(tag -> {
+						return TagElement.TAG_DEPRECATED.equals(((AbstractTagElement)tag).getTagName());
+					});
+			if (javadocDeprecated) {
+				return true;
+			}
+		}
+		if (node.getAST().apiLevel() <= 2) {
+			return false;
+		}
 		return ((List<ASTNode>)node.modifiers()).stream() //
 				.anyMatch(modifier -> {
 					if (!isAnnotation(modifier)) {
@@ -802,5 +882,27 @@ class DOMToModelPopulator extends ASTVisitor {
 		}
 		this.alternativeDeprecated = false;
 		return this.alternativeDeprecated;
+	}
+	private char[][] getCategories(BodyDeclaration decl) {
+		if (decl.getJavadoc() != null) {
+			return ((List<AbstractTagElement>)decl.getJavadoc().tags()).stream() //
+					.filter(tag -> "@category".equals(tag.getTagName()) && ((List<ASTNode>)tag.fragments()).size() > 0) //$NON-NLS-1$
+					.map(tag -> ((List<ASTNode>)tag.fragments()).get(0)) //
+					.map(fragment -> {
+						String fragmentString = fragment.toString();
+						/**
+						 * I think this is a bug in JDT, but I am replicating the behaviour.
+						 *
+						 * @see CompilationUnitTests.testGetCategories13()
+						 */
+						int firstAsterix = fragmentString.indexOf('*');
+						return fragmentString.substring(0, firstAsterix != -1 ? firstAsterix : fragmentString.length());
+					}) //
+					.flatMap(fragment -> (Stream<String>)Stream.of(fragment.split("\\s+"))) // //$NON-NLS-1$
+					.filter(category -> category.length() > 0) //
+					.map(category -> (category).toCharArray()) //
+					.toArray(char[][]::new);
+		}
+		return new char[0][0];
 	}
 }

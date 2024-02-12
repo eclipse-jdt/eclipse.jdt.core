@@ -178,7 +178,11 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 			newAST.accept(new DOMToModelPopulator(newElements, this, unitInfo));
 			// unitInfo.setModule();
 			// unitInfo.setSourceLength(newSourceLength);
-			unitInfo.setIsStructureKnown(true);
+			boolean structureKnown = true;
+			for (IProblem problem : newAST.getProblems()) {
+				structureKnown &= (IProblem.Syntax & problem.getID()) == 0;
+			}
+			unitInfo.setIsStructureKnown(structureKnown);
 		}
 	} else {
 		CompilationUnitStructureRequestor requestor = new CompilationUnitStructureRequestor(this, unitInfo, newElements);
