@@ -181,13 +181,4 @@ public class GuardedPattern extends Pattern {
 	protected boolean isPatternTypeCompatible(TypeBinding other, BlockScope scope) {
 		return this.primaryPattern.isPatternTypeCompatible(other, scope);
 	}
-	@Override
-	public void wrapupGeneration(CodeStream codeStream) {
-		this.primaryPattern.wrapupGeneration(codeStream);
-	}
-	@Override
-	protected void generatePatternVariable(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel,
-			BranchLabel falseLabel) {
-		this.primaryPattern.generatePatternVariable(currentScope, codeStream, trueLabel, falseLabel);
-	}
 }

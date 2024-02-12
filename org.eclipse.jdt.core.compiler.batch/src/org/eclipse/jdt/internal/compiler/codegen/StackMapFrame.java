@@ -71,20 +71,6 @@ public class StackMapFrame {
 		return FULL_FRAME;
 	}
 
-	public void addLocal(int resolvedPosition, VerificationTypeInfo info) {
-		if (this.locals == null) {
-			this.locals = new VerificationTypeInfo[resolvedPosition + 1];
-			this.locals[resolvedPosition] = info;
-		} else {
-			final int length = this.locals.length;
-			if (resolvedPosition >= length) {
-				System.arraycopy(this.locals, 0, this.locals = new VerificationTypeInfo[resolvedPosition + 1], 0,
-						length);
-			}
-			this.locals[resolvedPosition] = info;
-		}
-	}
-
 	public void addStackItem(VerificationTypeInfo info) {
 		if (info == null) {
 			throw new IllegalArgumentException("info cannot be null"); //$NON-NLS-1$

@@ -1814,7 +1814,6 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			},
 				"I\'m a box of java.lang.String");
 	}
-	// TODO : STACK VERIFICATION ERROR
 	public void testRecordPatternTypeInference_004() {
 		runConformTest(new String[] {
 			"X.java",
@@ -4036,5 +4035,41 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"""
 				},
 				"ExceptionInInitializerError caused by java.lang.MatchException");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/300
+	// Revisit code generation for record patterns
+	public void testIssue300() {
+		runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+
+					record Outer(Middle m1, Middle m2) {
+
+					}
+
+					record Middle (Inner i1, Inner i2) {
+
+					}
+
+					record Inner(String s, Long l, int k) {
+
+					}
+
+					public static void main(String[] args) {
+						Outer o = new Outer(new Middle(new Inner("Hello", 11L, 22), new Inner(" World", 22L, 44)), new Middle(new Inner(" How is", 33L, 66), new Inner(" life?", 44L, 88)));
+						if (o instanceof Outer(Middle(Inner(String s1, Long l1, int i1), Inner(String s2, Long l2, int i2)), Middle(Inner(String s3, Long l3, int i3), Inner(String s4, Long l4, int i4)))) {
+							System.out.println(s1 + s2 + s3 + s4);
+							System.out.println(l1 + l2 + l3 + l4);
+							System.out.println(i1 + i2 + i3 + i4);
+						}
+					}
+				}
+				"""
+				},
+				"Hello World How is life?\n"
+				+ "110\n"
+				+ "220");
 	}
 }

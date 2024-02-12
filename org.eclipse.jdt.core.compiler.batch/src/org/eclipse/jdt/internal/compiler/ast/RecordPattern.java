@@ -14,9 +14,7 @@
 package org.eclipse.jdt.internal.compiler.ast;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
@@ -34,8 +32,6 @@ import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class RecordPattern extends TypePattern {
-
-	public static final String SECRET_RECORD_PATTERN_THROWABLE_VARIABLE_NAME = " secretRecordPatternThrowableVariable"; //$NON-NLS-1$;
 
 	public Pattern[] patterns;
 	public TypeReference type;
@@ -144,8 +140,6 @@ public class RecordPattern extends TypePattern {
 		LocalVariableBinding [] bindings = NO_VARIABLES;
 		for (Pattern p : this.patterns) {
 			p.resolveTypeWithBindings(bindings, scope);
-			if (p instanceof TypePattern tp)
-				tp.createSecretVariable(scope, p.resolvedType);
 			bindings = LocalVariableBinding.merge(bindings, p.bindingsWhenTrue());
 		}
 		for (LocalVariableBinding binding : bindings)
@@ -154,8 +148,6 @@ public class RecordPattern extends TypePattern {
 		if (this.resolvedType == null || !this.resolvedType.isValidBinding()) {
 			return this.resolvedType;
 		}
-
-		createSecretVariable(scope, this.resolvedType);
 
 		this.isTotalTypeNode = super.coversType(this.resolvedType);
 		RecordComponentBinding[] components = this.resolvedType.capture(scope, this.sourceStart, this.sourceEnd).components();
@@ -211,51 +203,64 @@ public class RecordPattern extends TypePattern {
 		}
 		return true;
 	}
+
 	@Override
 	public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel) {
-//		codeStream.checkcast(this.resolvedType);
-		initializePatternVariables(currentScope, codeStream);
-		generatePatternVariable(currentScope, codeStream, trueLabel, falseLabel);
-		wrapupGeneration(codeStream);
-		if (this.thenInitStateIndex2 != -1) {
-			codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.thenInitStateIndex2);
-			codeStream.addDefinitelyAssignedVariables(currentScope, this.thenInitStateIndex2);
-		}
-	}
-	@Override
-	protected void generatePatternVariable(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel) {
+
+		/* JVM Stack on entry - [expression] // && expression instanceof this.resolvedType
+		   JVM stack on exit with successful pattern match or failed match -> []
+		   Notation: 'R' : record pattern, 'C': component
+		 */
+		codeStream.checkcast(this.resolvedType); // [R]
 		List<ExceptionLabel> labels = new ArrayList<>();
-		for (Pattern p : this.patterns) {
-			if (p.accessorMethod != null) {
-				codeStream.load(this.secretPatternVariable);
-				codeStream.checkcast(this.resolvedType);
+		for (int i = 0, length = this.patterns.length; i < length; i++) {
+			Pattern p = this.patterns[i];
+			/* For all but the last component, dup the record instance to use
+			   as receiver for accessor invocation. The last component uses the
+			   original record instance as receiver - leaving the stack drained.
+			 */
+			boolean lastComponent = i == length - 1;
+			if (!lastComponent)
+				codeStream.dup(); //  lastComponent ? [R] : [R, R]
+			ExceptionLabel exceptionLabel = new ExceptionLabel(codeStream,
+					TypeBinding.wellKnownType(currentScope, T_JavaLangThrowable));
+			exceptionLabel.placeStart();
+			codeStream.invoke(Opcodes.OPC_invokevirtual, p.accessorMethod.original(), this.resolvedType, null);
+			// lastComponent ? [C] : [R, C]
+			exceptionLabel.placeEnd();
+			labels.add(exceptionLabel);
 
-				ExceptionLabel exceptionLabel = new ExceptionLabel(codeStream,TypeBinding.wellKnownType(currentScope, T_JavaLangThrowable));
-				exceptionLabel.placeStart();
-				codeStream.invoke(Opcodes.OPC_invokevirtual, p.accessorMethod.original(), this.resolvedType, null);
-				exceptionLabel.placeEnd();
-				labels.add(exceptionLabel);
-
-				if (TypeBinding.notEquals(p.accessorMethod.original().returnType.erasure(),
-						p.accessorMethod.returnType.erasure()))
-					codeStream.checkcast(p.accessorMethod.returnType);
-				if (p instanceof RecordPattern || !p.isTotalTypeNode) {
-					((TypePattern)p).createSecretVariable(currentScope, p.resolvedType); // Looks suspect - Srikanth
-					((TypePattern)p).initializePatternVariables(currentScope, codeStream);
-					codeStream.load(p.secretPatternVariable);
-					codeStream.instance_of(p.resolvedType);
-					BranchLabel target = falseLabel != null ? falseLabel : new BranchLabel(codeStream);
-					List<LocalVariableBinding> deepPatternVars = getDeepPatternVariables(currentScope);
-					recordEndPCDeepPatternVars(deepPatternVars, codeStream.position);
-					codeStream.ifeq(target);
-					recordStartPCDeepPatternVars(deepPatternVars, codeStream.position);
-					p.secretPatternVariable.recordInitializationStartPC(codeStream.position);
-					codeStream.load(p.secretPatternVariable);
-					codeStream.removeVariable(p.secretPatternVariable);
+			if (TypeBinding.notEquals(p.accessorMethod.original().returnType.erasure(),
+					p.accessorMethod.returnType.erasure()))
+				codeStream.checkcast(p.accessorMethod.returnType); // lastComponent ? [C] : [R, C]
+			if (p instanceof RecordPattern || !p.isTotalTypeNode) {
+				codeStream.dup(); // lastComponent ? [C, C] : [R, C, C]
+				codeStream.instance_of(p.resolvedType); // lastComponent ? [C, boolean] : [R, C, boolean]
+				BranchLabel target = falseLabel != null ? falseLabel : new BranchLabel(codeStream);
+				BranchLabel innerTruthLabel = new BranchLabel(codeStream);
+				codeStream.ifne(innerTruthLabel); // lastComponent ? [C] : [R, C]
+				int pops = 1; // Not going to store into the component pattern binding, so need to pop, the duped value.
+				Pattern current = p;
+				RecordPattern outer = this;
+				while (outer != null) {
+					if (current.index != outer.patterns.length - 1)
+						pops++;
+					current = outer;
+					outer = outer.getEnclosingPattern() instanceof RecordPattern rp ? rp : null;
 				}
-				p.generateOptimizedBoolean(currentScope, codeStream, trueLabel, falseLabel);
+				while (pops > 1) {
+					codeStream.pop2();
+					pops -= 2;
+				}
+				if (pops > 0)
+					codeStream.pop();
+
+				codeStream.goto_(target);
+				innerTruthLabel.place();
 			}
+			p.generateOptimizedBoolean(currentScope, codeStream, trueLabel, falseLabel);
 		}
+
 		if (labels.size() > 0) {
 			BlockScope trapScope = codeStream.accessorExceptionTrapScopes.peek();
 			List<ExceptionLabel> eLabels = codeStream.patternAccessorMap.get(trapScope);
@@ -266,58 +271,12 @@ public class RecordPattern extends TypePattern {
 			}
 			codeStream.patternAccessorMap.put(trapScope, eLabels);
 		}
+		if (this.thenInitStateIndex2 != -1) {
+			codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.thenInitStateIndex2);
+			codeStream.addDefinitelyAssignedVariables(currentScope, this.thenInitStateIndex2);
+		}
 	}
 
-	List<LocalVariableBinding> getDeepPatternVariables(BlockScope blockScope) {
-		class PatternVariableCollector extends ASTVisitor {
-			Set<LocalVariableBinding> deepPatternVariables = new HashSet<>();
-			@Override
-			public boolean visit(Pattern pattern, BlockScope blockScope1) {
-				if (pattern.secretPatternVariable != null)
-					this.deepPatternVariables.add(pattern.secretPatternVariable);
-				return true;
-			}
-			@Override
-			public boolean visit(TypePattern typePattern, BlockScope blockScope1) {
-				if (typePattern.secretPatternVariable != null)
-					this.deepPatternVariables.add(typePattern.secretPatternVariable);
-				LocalVariableBinding local1 = typePattern.local != null ? typePattern.local.binding : null;
-				if (local1 != null && local1.initializationCount > 0)
-					this.deepPatternVariables.add(typePattern.local.binding);
-				return true;
-			}
-		}
-		PatternVariableCollector pvc = new PatternVariableCollector();
-		traverse(pvc, blockScope);
-		pvc.deepPatternVariables.add(this.secretPatternVariable);
-		return new ArrayList<>(pvc.deepPatternVariables);
-	}
-	private void recordEndPCDeepPatternVars(List<LocalVariableBinding> vars, int position) {
-		if (vars == null)
-			return;
-		for (LocalVariableBinding v : vars) {
-			if (v.initializationCount > 0)
-				v.recordInitializationEndPC(position);
-		}
-	}
-	private void recordStartPCDeepPatternVars(List<LocalVariableBinding> vars, int position) {
-		if (vars == null)
-			return;
-		for (LocalVariableBinding v : vars) {
-			v.recordInitializationStartPC(position);
-		}
-	}
-	@Override
-	public void initializePatternVariables(BlockScope currentScope, CodeStream codeStream) {
-		super.initializePatternVariables(currentScope, codeStream);
-	}
-	@Override
-	public void wrapupGeneration(CodeStream codeStream) {
-		for (Pattern p : this.patterns) {
-			p.wrapupGeneration(codeStream);
-		}
-		super.wrapupGeneration(codeStream);
-	}
 	@Override
 	public void suspendVariables(CodeStream codeStream, BlockScope scope) {
 		codeStream.removeNotDefinitelyAssignedVariables(scope, this.thenInitStateIndex1);

@@ -17,12 +17,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
-import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
-import org.eclipse.jdt.internal.compiler.impl.Constant;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
@@ -89,24 +87,6 @@ public class TypePattern extends Pattern {
 		this.local.generateCode(currentScope, codeStream);
 		codeStream.store(localBinding, false);
 		localBinding.recordInitializationStartPC(codeStream.position);
-	}
-	public void initializePatternVariables(BlockScope currentScope, CodeStream codeStream) {
-		codeStream.addVariable(this.secretPatternVariable);
-		codeStream.store(this.secretPatternVariable, false);
-	}
-	@Override
-	protected void generatePatternVariable(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel) {
-		codeStream.load(this.secretPatternVariable);
-		LocalVariableBinding localBinding = this.local.binding;
-		if (!this.isTotalTypeNode)
-			codeStream.checkcast(localBinding.type);
-		this.local.generateCode(currentScope, codeStream);
-		codeStream.store(localBinding, false);
-		localBinding.recordInitializationStartPC(codeStream.position);
-	}
-	@Override
-	public void wrapupGeneration(CodeStream codeStream) {
-		codeStream.removeVariable(this.secretPatternVariable);
 	}
 	@Override
 	public LocalDeclaration getPatternVariable() {
@@ -201,18 +181,6 @@ public class TypePattern extends Pattern {
 		}, typeBinding);
 		if (mentioned.isEmpty()) return null;
 		return mentioned.toArray(new TypeVariableBinding[mentioned.size()]);
-	}
-
-	protected void createSecretVariable(BlockScope scope, TypeBinding type) {
-		if (this.secretPatternVariable == null) {
-			LocalVariableBinding l = new LocalVariableBinding(
-					(SECRET_PATTERN_VARIABLE_NAME + this.nestingLevel).toCharArray(), type,
-					ClassFileConstants.AccDefault, false);
-			l.setConstant(Constant.NotAConstant);
-			l.useFlag = LocalVariableBinding.USED;
-			scope.addLocalVariable(l);
-			this.secretPatternVariable = l;
-		}
 	}
 
 	@Override
