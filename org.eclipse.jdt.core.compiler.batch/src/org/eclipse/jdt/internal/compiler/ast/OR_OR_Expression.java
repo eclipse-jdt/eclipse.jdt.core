@@ -144,6 +144,7 @@ public class OR_OR_Expression extends BinaryExpression {
 			}
 			if (this.rightInitStateIndex != -1) {
 				codeStream.addDefinitelyAssignedVariables(currentScope, this.rightInitStateIndex);
+				codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.rightInitStateIndex);
 			}
 			if (rightIsConst) {
 				this.right.generateCode(currentScope, codeStream, false);
@@ -238,6 +239,7 @@ public class OR_OR_Expression extends BinaryExpression {
 					}
 					if (this.rightInitStateIndex != -1) {
 						codeStream.addDefinitelyAssignedVariables(currentScope, this.rightInitStateIndex);
+						codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.rightInitStateIndex);
 					}
 					this.right.generateOptimizedBoolean(currentScope, codeStream, trueLabel, null, valueRequired && !rightIsConst);
 					if (valueRequired && rightIsTrue) {
@@ -256,8 +258,8 @@ public class OR_OR_Expression extends BinaryExpression {
 						break generateOperands; // no need to generate right operand
 					}
 					if (this.rightInitStateIndex != -1) {
-						codeStream
-								.addDefinitelyAssignedVariables(currentScope, this.rightInitStateIndex);
+						codeStream.addDefinitelyAssignedVariables(currentScope, this.rightInitStateIndex);
+						codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.rightInitStateIndex);
 					}
 					this.right.generateOptimizedBoolean(currentScope, codeStream, null, falseLabel, valueRequired && !rightIsConst);
 					int pc = codeStream.position;

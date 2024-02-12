@@ -63,6 +63,7 @@ public abstract class Pattern extends Expression {
 	public void setEnclosingPattern(RecordPattern enclosingPattern) {
 		this.enclosingPattern = enclosingPattern;
 	}
+
 	/**
 	 * Implement the rules in the spec under 14.11.1.1 Exhaustive Switch Blocks
 	 *
@@ -71,9 +72,11 @@ public abstract class Pattern extends Expression {
 	public boolean coversType(TypeBinding type) {
 		return false;
 	}
+
 	public boolean isAlwaysTrue() {
 		return true;
 	}
+
 	@Override
 	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		setTargets(codeStream);
@@ -85,12 +88,15 @@ public abstract class Pattern extends Expression {
 		if (this.thenTarget == null)
 			this.thenTarget = new BranchLabel(codeStream);
 	}
+
 	public void suspendVariables(CodeStream codeStream, BlockScope scope) {
 		// nothing by default
 	}
+
 	public void resumeVariables(CodeStream codeStream, BlockScope scope) {
 		// nothing by default
 	}
+
 	public abstract void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel);
 
 	public TypeReference getType() {

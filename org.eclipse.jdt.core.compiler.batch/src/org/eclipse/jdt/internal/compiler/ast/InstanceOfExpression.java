@@ -106,7 +106,6 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	if (this.elementVariable != null && this.elementVariable.binding != null) {
 		this.elementVariable.binding.modifiers &= ~ExtraCompilerModifiers.AccOutOfFlowScope;
 	}
-	addPatternVariables(currentScope, codeStream);
 
 	int pc = codeStream.position;
 
@@ -152,12 +151,10 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel, boolean valueRequired) {
 	// a label valued to nil means: by default we fall through the case...
 	// both nil means we leave the value on the stack
-
 	if (this.elementVariable == null && this.pattern == null) {
 		super.generateOptimizedBoolean(currentScope, codeStream, trueLabel, falseLabel, valueRequired);
 		return;
 	}
-	addPatternVariables(currentScope, codeStream);
 
 	int pc = codeStream.position;
 
@@ -177,12 +174,7 @@ public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStr
 		this.expression.generateCode(currentScope, codeStream, true);
 	}
 
-	if (this.pattern instanceof RecordPattern) {
-		this.pattern.generateOptimizedBoolean(currentScope, codeStream, trueLabel, nextSibling);
-	} else {
-		codeStream.checkcast(this.type, this.type.resolvedType, codeStream.position);
-		codeStream.store(this.elementVariable.binding, false);
-	}
+	this.pattern.generateOptimizedBoolean(currentScope, codeStream, trueLabel, nextSibling);
 
 	if (valueRequired) {
 		codeStream.generateImplicitConversion(this.implicitConversion);
@@ -216,13 +208,6 @@ public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStr
 public StringBuilder printExpressionNoParenthesis(int indent, StringBuilder output) {
 	this.expression.printExpression(indent, output).append(" instanceof "); //$NON-NLS-1$
 	return this.pattern == null ? this.type.print(0, output) : this.pattern.printExpression(0, output);
-}
-
-@Override
-public void addPatternVariables(BlockScope currentScope, CodeStream codeStream) {
-	for (LocalVariableBinding local: bindingsWhenTrue()) {
-		codeStream.addVisibleLocalVariable(local);
-	}
 }
 @Override
 public LocalVariableBinding[] bindingsWhenTrue() {

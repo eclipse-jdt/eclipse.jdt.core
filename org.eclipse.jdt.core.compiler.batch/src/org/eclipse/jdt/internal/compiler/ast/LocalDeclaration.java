@@ -89,6 +89,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 		this.bits |= ASTNode.IsLocalDeclarationReachable; // only set if actually reached
 	}
 	if (this.initialization == null) {
+		if (this.binding != null && this.binding.isPatternVariable())
+			this.bits |= FirstAssignmentToLocal;
 		return flowInfo;
 	}
 	this.initialization.checkNPEbyUnboxing(currentScope, flowContext, flowInfo);
@@ -162,22 +164,24 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 
 		// something to initialize?
 		generateInit: {
-			if (this.initialization == null)
+			if (this.initialization == null && !this.binding.isPatternVariable())
 				break generateInit;
-			// forget initializing unused or final locals set to constant value (final ones are inlined)
-			if (this.binding.resolvedPosition < 0) {
-				if (this.initialization.constant != Constant.NotAConstant)
+			if (this.initialization != null) {
+				// forget initializing unused or final locals set to constant value (final ones are inlined)
+				if (this.binding.resolvedPosition < 0) {
+					if (this.initialization.constant != Constant.NotAConstant)
+						break generateInit;
+					// if binding unused generate then discard the value
+					this.initialization.generateCode(currentScope, codeStream, false);
 					break generateInit;
-				// if binding unused generate then discard the value
-				this.initialization.generateCode(currentScope, codeStream, false);
-				break generateInit;
-			}
-			this.initialization.generateCode(currentScope, codeStream, true);
-			// 26903, need extra cast to store null in array local var
-			if (this.binding.type.isArrayType()
-				&& ((this.initialization instanceof CastExpression)	// arrayLoc = (type[])null
-						&& (((CastExpression)this.initialization).innermostCastedExpression().resolvedType == TypeBinding.NULL))){
-				codeStream.checkcast(this.binding.type);
+				}
+				this.initialization.generateCode(currentScope, codeStream, true);
+				// 26903, need extra cast to store null in array local var
+				if (this.binding.type.isArrayType()
+					&& ((this.initialization instanceof CastExpression)	// arrayLoc = (type[])null
+							&& (((CastExpression)this.initialization).innermostCastedExpression().resolvedType == TypeBinding.NULL))){
+						codeStream.checkcast(this.binding.type);
+				}
 			}
 			codeStream.store(this.binding, false);
 			if ((this.bits & ASTNode.FirstAssignmentToLocal) != 0) {
