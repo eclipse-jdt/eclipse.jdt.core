@@ -35,7 +35,7 @@ import junit.framework.Test;
 public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 
 	static {
-		TESTS_NAMES = new String[] {"test007_c"};
+		//TESTS_NAMES = new String[] {"test007_c"};
 	}
 
 	public ASTRewritingStringTemplateTest(String name, int apiLevel) {
