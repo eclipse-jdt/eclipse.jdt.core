@@ -36,10 +36,12 @@ import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.AbstractTagElement;
 import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
 import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
+import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
 import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.BooleanLiteral;
 import org.eclipse.jdt.core.dom.CharacterLiteral;
+import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
 import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.ExportsDirective;
@@ -63,11 +65,12 @@ import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.RecordDeclaration;
 import org.eclipse.jdt.core.dom.RequiresDirective;
 import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.StringLiteral;
-import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TagElement;
+import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeLiteral;
 import org.eclipse.jdt.core.dom.UsesDirective;
@@ -570,6 +573,65 @@ class DOMToModelPopulator extends ASTVisitor {
 	public void endVisit(SingleMemberAnnotation decl) {
 		this.elements.pop();
 		this.infos.pop();
+	}
+
+	@Override
+	public boolean visit(AnonymousClassDeclaration decl) {
+		if (decl.getParent() instanceof ClassInstanceCreation constructorInvocation) {
+			if (constructorInvocation.getAST().apiLevel() > 2) {
+				((List<SimpleType>)constructorInvocation.typeArguments())
+				.stream()
+				.map(SimpleType::getName)
+				.map(Name::getFullyQualifiedName)
+				.forEach(this.currentTypeParameters::add);
+			}
+			SourceType newElement = new SourceType(this.elements.peek(), ""); //$NON-NLS-1$
+			this.elements.push(newElement);
+			addAsChild(this.infos.peek(), newElement);
+			SourceTypeElementInfo newInfo = new SourceTypeElementInfo() {
+				@Override
+				public boolean isAnonymousMember() {
+					return true;
+				}
+			};
+			JavaElementInfo toPopulateCategories = this.infos.peek();
+			while (toPopulateCategories != null) {
+				if (toPopulateCategories instanceof SourceTypeElementInfo parentTypeInfo) {
+					toPopulateCategories = (JavaElementInfo)parentTypeInfo.getEnclosingType();
+				} else {
+					break;
+				}
+			}
+
+			newInfo.setSourceRangeEnd(decl.getStartPosition() + decl.getLength() - 1);
+			newInfo.setHandle(newElement);
+			if (constructorInvocation.getAST().apiLevel() > 2) {
+				newInfo.setNameSourceStart(constructorInvocation.getType().getStartPosition());
+				newInfo.setSourceRangeStart(constructorInvocation.getType().getStartPosition());
+				newInfo.setNameSourceEnd(constructorInvocation.getType().getStartPosition() + constructorInvocation.getType().getLength() - 1);
+			} else {
+				newInfo.setNameSourceStart(constructorInvocation.getName().getStartPosition());
+				newInfo.setSourceRangeStart(constructorInvocation.getName().getStartPosition());
+				newInfo.setNameSourceEnd(constructorInvocation.getName().getStartPosition() + constructorInvocation.getName().getLength() - 1);
+			}
+			this.infos.push(newInfo);
+			this.toPopulate.put(newElement, newInfo);
+		}
+		return true;
+	}
+	@Override
+	public void endVisit(AnonymousClassDeclaration decl) {
+		if (decl.getParent() instanceof ClassInstanceCreation constructorInvocation) {
+			this.elements.pop();
+			this.infos.pop();
+			if (constructorInvocation.getAST().apiLevel() > 2) {
+				((List<SimpleType>)constructorInvocation.typeArguments())
+				.stream()
+				.map(SimpleType::getName)
+				.map(Name::getFullyQualifiedName)
+				.forEach(this.currentTypeParameters::remove);
+			}
+		}
 	}
 
 	public Entry<Object, Integer> memberValue(Expression dom) {
