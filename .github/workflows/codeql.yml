@@ -1,0 +1,13 @@
+name: CodeQL call
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  schedule:
+    - cron: '15 8 * * 1'
+
+jobs:
+  callCodeQLworkflow:
+    uses: eclipse-platform/eclipse.platform.releng.aggregator/.github/workflows/codeQLworkflow.yml@master
