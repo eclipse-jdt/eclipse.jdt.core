@@ -22,6 +22,7 @@ import java.util.Stack;
 import java.util.stream.Stream;
 
 import org.eclipse.core.runtime.ILog;
+import org.eclipse.jdt.core.Flags;
 import org.eclipse.jdt.core.IAnnotation;
 import org.eclipse.jdt.core.IImportDeclaration;
 import org.eclipse.jdt.core.IJavaElement;
@@ -29,6 +30,7 @@ import org.eclipse.jdt.core.IMemberValuePair;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
+import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.AbstractTagElement;
@@ -406,10 +408,15 @@ class DOMToModelPopulator extends ASTVisitor {
 		if (this.infos.peek() instanceof SourceTypeElementInfo parentInfo) {
 			parentInfo.addCategories(newElement, getCategories(method));
 		}
+		if (method.getAST().apiLevel() >= AST.JLS8) {
+			info.setExceptionTypeNames(((List<Type>)method.thrownExceptionTypes()).stream().map(Type::toString).map(String::toCharArray).toArray(char[][]::new));
+		}
 		info.setSourceRangeStart(method.getStartPosition());
 		info.setSourceRangeEnd(method.getStartPosition() + method.getLength() - 1);
 		boolean isDeprecated = isNodeDeprecated(method);
-		info.setFlags(method.getModifiers() | (isDeprecated ? ClassFileConstants.AccDeprecated : 0));
+		info.setFlags(method.getModifiers()
+			| (isDeprecated ? ClassFileConstants.AccDeprecated : 0)
+			| (((List<SingleVariableDeclaration>)method.parameters()).stream().anyMatch(decl -> decl.isVarargs()) ? Flags.AccVarargs : 0));
 		info.setNameSourceStart(method.getName().getStartPosition());
 		info.setNameSourceEnd(method.getName().getStartPosition() + method.getName().getLength() - 1);
 		this.infos.push(info);
