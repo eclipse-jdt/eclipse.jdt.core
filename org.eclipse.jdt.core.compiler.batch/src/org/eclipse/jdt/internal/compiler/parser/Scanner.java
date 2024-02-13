@@ -3082,7 +3082,8 @@ public int scanIdentifierOrKeyword() {
 		//only one char....
 		if ((length = this.currentPosition - this.startPosition) == 1) {
 			if (this.source[this.startPosition] == '_') {
-				return TokenNameUNDERSCORE;
+				return JavaFeature.UNNAMMED_PATTERNS_AND_VARS.isSupported(this.sourceLevel, this.previewEnabled) ?
+											TokenNameUNDERSCORE : TokenNameIdentifier;
 			}
 			return TokenNameIdentifier;
 		}
@@ -3091,7 +3092,8 @@ public int scanIdentifierOrKeyword() {
 	} else {
 		if ((length = this.withoutUnicodePtr) == 1) {
 			if (this.withoutUnicodeBuffer[0] == '_') {
-				return TokenNameUNDERSCORE;
+				return JavaFeature.UNNAMMED_PATTERNS_AND_VARS.isSupported(this.sourceLevel, this.previewEnabled) ?
+						TokenNameUNDERSCORE : TokenNameIdentifier;
 			}
 			return TokenNameIdentifier;
 		}

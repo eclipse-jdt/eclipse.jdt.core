@@ -3649,4 +3649,105 @@ public void testBug531714_002() {
 		expectedProblemLog
 	);
 }
+// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2008
+// Support for identifier '_' for old compile source/target versions
+public void testIssue2008() {
+	String[] testFiles = new String[] {
+		"X.java",
+		"public class X {\n" +
+		"	public X(){\n" +
+        "	}\n" +
+		"   void _() {\n" +
+		"       _();\n" +
+		"   }\n" +
+		"       public static void main(String [] args) {\n" +
+		"           System.out.println(\"OK\");\n" +
+		"       }\n" +
+		"   class _ {\n" +
+		"   }\n" +
+		"}\n"
+	};
+
+	String expectedProblemLogUpto1_7 = "";
+	String expected1_8ProblemLog = """
+			----------
+			1. WARNING in X.java (at line 4)
+				void _() {
+				     ^
+			'_' should not be used as an identifier, since it is a reserved keyword from source level 1.8 on
+			----------
+			2. WARNING in X.java (at line 5)
+				_();
+				^
+			'_' should not be used as an identifier, since it is a reserved keyword from source level 1.8 on
+			----------
+			3. WARNING in X.java (at line 10)
+				class _ {
+				      ^
+			'_' should not be used as an identifier, since it is a reserved keyword from source level 1.8 on
+			----------
+			""";
+	String expected9to20ProblemLog = """
+			----------
+			1. ERROR in X.java (at line 4)
+				void _() {
+				     ^
+			'_' is a keyword from source level 9 onwards, cannot be used as identifier
+			----------
+			2. ERROR in X.java (at line 5)
+				_();
+				^
+			'_' is a keyword from source level 9 onwards, cannot be used as identifier
+			----------
+			3. ERROR in X.java (at line 10)
+				class _ {
+				      ^
+			'_' is a keyword from source level 9 onwards, cannot be used as identifier
+			----------
+			""";
+
+	String expected21ProblemLog = """
+			----------
+			1. ERROR in X.java (at line 4)
+				void _() {
+				     ^
+			Unnamed Patterns and Variables is a preview feature and disabled by default. Use --enable-preview to enable
+			----------
+			2. ERROR in X.java (at line 5)
+				_();
+				^
+			Unnamed Patterns and Variables is a preview feature and disabled by default. Use --enable-preview to enable
+			----------
+			3. ERROR in X.java (at line 10)
+				class _ {
+				      ^
+			Unnamed Patterns and Variables is a preview feature and disabled by default. Use --enable-preview to enable
+			----------
+			""";
+
+
+	if (this.complianceLevel < ClassFileConstants.JDK1_8) {
+		runConformTest(
+			true,
+			testFiles,
+			expectedProblemLogUpto1_7,
+			"OK", null,
+			JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
+	} else if(this.complianceLevel == ClassFileConstants.JDK1_8) {
+		runConformTest(
+				true,
+				testFiles,
+				expected1_8ProblemLog,
+				"OK", null,
+				JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
+	} else if(this.complianceLevel < ClassFileConstants.JDK21) {
+		runNegativeTest(
+				testFiles,
+				expected9to20ProblemLog);
+	} else {
+		runNegativeTest(
+				testFiles,
+				expected21ProblemLog);
+	}
+}
 }
