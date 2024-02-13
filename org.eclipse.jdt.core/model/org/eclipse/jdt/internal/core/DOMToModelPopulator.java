@@ -227,9 +227,21 @@ class DOMToModelPopulator extends ASTVisitor {
 				break;
 			}
 		}
+		if (node.getAST().apiLevel() > 2) {
+			newInfo.setSuperInterfaceNames(((List<Type>)node.superInterfaceTypes()).stream().map(Type::toString).map(String::toCharArray).toArray(char[][]::new));
+		}
+		if (node.getSuperclassType() != null) {
+			newInfo.setSuperclassName(node.getSuperclassType().toString().toCharArray());
+		}
+		if (node.getAST().apiLevel() >= AST.JLS17) {
+			newInfo.setPermittedSubtypeNames(((List<Type>)node.permittedTypes()).stream().map(Type::toString).map(String::toCharArray).toArray(char[][]::new));
+		}
 		newInfo.setSourceRangeStart(node.getStartPosition());
 		newInfo.setSourceRangeEnd(node.getStartPosition() + node.getLength() - 1);
-		newInfo.setFlags(node.getModifiers() | (isDeprecated ? ClassFileConstants.AccDeprecated : 0));
+		newInfo.setFlags(node.getModifiers()
+			| (isDeprecated ? ClassFileConstants.AccDeprecated : 0)
+			| (node.isInterface() ? Flags.AccInterface : 0));
+			
 		newInfo.setHandle(newElement);
 		newInfo.setNameSourceStart(node.getName().getStartPosition());
 		newInfo.setNameSourceEnd(node.getName().getStartPosition() + node.getName().getLength() - 1);
@@ -321,10 +333,12 @@ class DOMToModelPopulator extends ASTVisitor {
 
 	@Override
 	public boolean visit(EnumConstantDeclaration node) {
+		IJavaElement parent = this.elements.peek();
 		SourceField newElement = new SourceField(this.elements.peek(), node.getName().toString());
 		this.elements.push(newElement);
 		addAsChild(this.infos.peek(), newElement);
 		SourceFieldElementInfo info = new SourceFieldElementInfo();
+		info.setTypeName(parent.getElementName().toCharArray());
 		info.setSourceRangeStart(node.getStartPosition());
 		info.setSourceRangeEnd(node.getStartPosition() + node.getLength() - 1);
 		boolean isDeprecated = isNodeDeprecated(node);
@@ -362,7 +376,7 @@ class DOMToModelPopulator extends ASTVisitor {
 			}
 		}
 		boolean isDeprecated = isNodeDeprecated(node);
-		newInfo.setFlags(node.getModifiers() | (isDeprecated ? ClassFileConstants.AccDeprecated : 0));
+		newInfo.setFlags(node.getModifiers() | Flags.AccRecord | (isDeprecated ? ClassFileConstants.AccDeprecated : 0));
 		newInfo.setHandle(newElement);
 		newInfo.setNameSourceStart(node.getName().getStartPosition());
 		newInfo.setNameSourceEnd(node.getName().getStartPosition() + node.getName().getLength() - 1);
