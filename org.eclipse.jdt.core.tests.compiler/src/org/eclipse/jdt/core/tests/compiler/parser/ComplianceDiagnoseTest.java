@@ -3706,7 +3706,7 @@ public void testIssue2008() {
 			----------
 			""";
 
-	String expected21ProblemLog = """
+	String expected22ProblemLog = """
 			----------
 			1. ERROR in X.java (at line 4)
 				void _() {
@@ -3740,14 +3740,14 @@ public void testIssue2008() {
 				expected1_8ProblemLog,
 				"OK", null,
 				JavacTestOptions.Excuse.EclipseHasSomeMoreWarnings);
-	} else if(this.complianceLevel < ClassFileConstants.JDK21) {
+	} else if(this.complianceLevel < ClassFileConstants.JDK22) {
 		runNegativeTest(
 				testFiles,
 				expected9to20ProblemLog);
 	} else {
 		runNegativeTest(
 				testFiles,
-				expected21ProblemLog);
+				expected22ProblemLog);
 	}
 }
 }
