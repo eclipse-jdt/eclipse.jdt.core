@@ -280,8 +280,9 @@ public void fillInDefaultNonNullness(FieldDeclaration sourceField, Scope scope) 
 	}
 }
 
-/**
+/** <pre>{@code
  * X<T> t   -->  LX<TT;>;
+ * }</pre>
  */
 public char[] genericSignature() {
     if ((this.modifiers & ExtraCompilerModifiers.AccGenericSignature) == 0) return null;

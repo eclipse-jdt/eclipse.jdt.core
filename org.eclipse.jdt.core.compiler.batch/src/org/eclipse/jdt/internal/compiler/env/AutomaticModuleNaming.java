@@ -15,6 +15,7 @@ package org.eclipse.jdt.internal.compiler.env;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.module.ModuleFinder;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 
@@ -23,9 +24,7 @@ public class AutomaticModuleNaming {
 	private static final String AUTOMATIC_MODULE_NAME = "Automatic-Module-Name"; //$NON-NLS-1$
 
 	/**
-	 * Determine the automatic module name of a given jar as specified in {@link <a href=
-	 * "http://download.java.net/java/jdk9/docs/api/java/lang/module/ModuleFinder.html#of-java.nio.file.Path...-">
-	 * ModuleFinder.of</a>}
+	 * Determine the automatic module name of a given jar as specified in {@link ModuleFinder#of(java.nio.file.Path...)}
 	 */
 	public static char[] determineAutomaticModuleName(final String jarFileName) {
 		// "If the JAR file has the attribute "Automatic-Module-Name" in its main manifest then its value is the
@@ -46,9 +45,7 @@ public class AutomaticModuleNaming {
 	}
 
 	/**
-	 * Determine the automatic module name of a given jar or project as specified in {@link <a href=
-	 * "http://download.java.net/java/jdk9/docs/api/java/lang/module/ModuleFinder.html#of-java.nio.file.Path...-">
-	 * ModuleFinder.of</a>}
+	 * Determine the automatic module name of a given jar or project as specified in {@link ModuleFinder#of(java.nio.file.Path...)}
 	 * @param fileName names either a jar file or a java project in the workspace
 	 * @param isFile <code>true</code> indicates that fileName denotes a file, <code>false</code> must be used for projects
 	 * @param manifest representation of the META-INF/MANIFEST.MF entry within the given source (jar or project), or <code>null</code>
@@ -82,8 +79,7 @@ public class AutomaticModuleNaming {
 
 	/**
 	 * Determine the automatic module name if no "Automatic-Module-Name" was found in the Manifest, as specified in
-	 * {@link <a href=
-	 * "http://download.java.net/java/jdk9/docs/api/java/lang/module/ModuleFinder.html#of-java.nio.file.Path...-">ModuleFinder.of</a>}
+	 * {@link ModuleFinder#of(java.nio.file.Path...)}
 	 *
 	 * @param name
 	 *            the filename (or directory name)

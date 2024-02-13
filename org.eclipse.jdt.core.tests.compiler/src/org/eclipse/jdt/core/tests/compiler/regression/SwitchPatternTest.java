@@ -35,6 +35,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 //		TESTS_NUMBERS = new int [] { 40 };
 //		TESTS_RANGE = new int[] { 1, -1 };
 //		TESTS_NAMES = new String[] { "testBug575053_002"};
+//		TESTS_NAMES = new String[] { "testBug575571_1"};
 	}
 
 	private static String previewLevel = "21";
@@ -108,7 +109,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 		runner.testFiles = testFiles;
 		runner.expectedCompilerLog = expectedCompilerLog;
 		runner.customOptions = customOptions;
-		runner.vmArguments = new String[] {""};
+		runner.vmArguments = new String[] {};
 		runner.runWarningTest();
 	}
 
@@ -3750,32 +3751,30 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				},
 				"");
 	}
-	// Test we do report illegal fall-through to pattern
-	public void testBug575051_3() {
-		runNegativeTest(
-				new String[] {
-						"X.java",
-						"public class X {\n" +
-								"	public void foo(Object o) {\n" +
-								"		switch (o) {\n" +
-								"		  default : \n" +
-								"		  case String s :\n" +
-								"			  System.out.println();\n" +
-								"			  break;\n" +
-								"		}\n" +
-								"	}\n" +
-								"	public static void main(String[] args) {\n" +
-								"		  (new X()).foo(null);\n" +
-								"	}\n" +
-								"}",
-				},
-				"----------\n" +
-				"1. ERROR in X.java (at line 5)\n" +
-				"	case String s :\n" +
-				"	     ^^^^^^^^\n" +
-				"This case label is dominated by one of the preceding case labels\n" +
-				"----------\n",
-				"");
+	public void testBug575571_1() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportMissingDefaultCase, CompilerOptions.WARNING);
+		runWarningTest(
+		new String[] {
+		"X.java",
+		"public class X {\n" +
+		"       public void foo(Color o) {\n" +
+		"               switch (o) {\n" +
+		"                 case Blue:\n" +
+		"                       break;\n" +
+		"               }\n" +
+		"       }\n" +
+		"       public static void main(String[] args) {}\n" +
+		"}\n" +
+		"enum Color {   Blue;  }\n",
+		},
+		"----------\n" +
+		"1. WARNING in X.java (at line 3)\n" +
+		"	switch (o) {\n" +
+		"	        ^\n" +
+		"The switch over the enum type Color should have a default case\n" +
+		"----------\n",
+		options);
 	}
 	public void testBug575571_2() {
 		runNegativeTest(

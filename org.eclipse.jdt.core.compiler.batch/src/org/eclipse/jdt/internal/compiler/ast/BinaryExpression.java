@@ -596,8 +596,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 }
 
 /**
- * Boolean operator code generation
- *	Optimized operations are: <, <=, >, >=, &, |, ^
+ * Boolean operator code generation. Optimized operations are: {@code <, <=, >, >=, &, |, ^}
  */
 @Override
 public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel, boolean valueRequired) {
@@ -893,7 +892,7 @@ public void generateOptimizedGreaterThanOrEqual(BlockScope currentScope, CodeStr
 }
 
 /**
- * Boolean generation for <
+ * Boolean generation for {@code <}
  */
 public void generateOptimizedLessThan(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel, boolean valueRequired) {
 	int promotedTypeID = (this.left.implicitConversion & TypeIds.IMPLICIT_CONVERSION_MASK) >> 4;
@@ -997,7 +996,7 @@ public void generateOptimizedLessThan(BlockScope currentScope, CodeStream codeSt
 }
 
 /**
- * Boolean generation for <=
+ * Boolean generation for {@code <=}
  */
 public void generateOptimizedLessThanOrEqual(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel, boolean valueRequired) {
 	int promotedTypeID = (this.left.implicitConversion & TypeIds.IMPLICIT_CONVERSION_MASK) >> 4;
@@ -1105,7 +1104,7 @@ public void generateOptimizedLessThanOrEqual(BlockScope currentScope, CodeStream
 }
 
 /**
- * Boolean generation for &
+ * Boolean generation for {@code &}
  */
 public void generateLogicalAnd(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
 	Constant condConst;
@@ -1255,7 +1254,7 @@ public void generateLogicalXor(BlockScope currentScope,	CodeStream codeStream, b
 }
 
 /**
- * Boolean generation for &
+ * Boolean generation for {@code &}
  */
 public void generateOptimizedLogicalAnd(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel, boolean valueRequired) {
 	Constant condConst;

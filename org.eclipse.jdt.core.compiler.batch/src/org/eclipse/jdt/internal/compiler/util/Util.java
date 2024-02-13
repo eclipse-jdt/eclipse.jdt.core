@@ -1418,7 +1418,7 @@ public class Util implements SuffixConstants {
 	 * <pre>
 	 * TypeBoundSignature:
 	 *     <b>[-+]</b> TypeSignature <b>;</b>
-	 *     <b>*</b></b>
+	 *     <b>*</b>
 	 * </pre>
 	 *
 	 * @param string the signature string

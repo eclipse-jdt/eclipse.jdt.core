@@ -409,13 +409,14 @@ static private boolean isExternalFile(IPath path) {
 	if (JavaModelManager.getJavaModelManager().isExternalFile(path)) {
 		return true;
 	}
+	if (JavaModelManager.getJavaModelManager().knownToNotExistOnFileSystem(path)) {
+		return false;
+	}
 	if (JavaModelManager.ZIP_ACCESS_VERBOSE) {
 		JavaModelManager.trace("(" + Thread.currentThread() + ") [JavaModel.isExternalFile(...)] Checking existence of " + path.toString()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	boolean isFile = path.toFile().isFile();
-	if (isFile) {
-		JavaModelManager.getJavaModelManager().addExternalFile(path);
-	}
+	JavaModelManager.getJavaModelManager().addExternalFile(path, isFile);
 	return isFile;
 }
 

@@ -4627,7 +4627,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 	 * That method generates the method info header of a clinit:
 	 * The header consists in:
 	 * - the access flags (always default access + static)
-	 * - the name index of the method name (always <clinit>) inside the constant pool
+	 * - the name index of the method name (always {@code <clinit>}) inside the constant pool
 	 * - the descriptor index of the signature (always ()V) of the method inside the constant pool.
 	 */
 	public void generateMethodInfoHeaderForClinit() {
@@ -6582,7 +6582,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 	}
 
 	private TypeBinding getTypeBinding(char[] typeConstantPoolName, Scope scope, boolean checkcast) {
-		if (typeConstantPoolName.length == 1) {
+		if (typeConstantPoolName.length == 1 && !checkcast) {
 			// base type
 			switch(typeConstantPoolName[0]) {
 				case 'Z':
@@ -6880,6 +6880,7 @@ public class ClassFile implements TypeConstants, TypeIds {
 				}
 			}
 			byte opcode = (byte) u1At(bytecodes, 0, pc);
+			inspectFrame(currentPC, frame);
 			switch (opcode) {
 				case Opcodes.OPC_nop:
 					pc++;
@@ -7861,6 +7862,10 @@ public class ClassFile implements TypeConstants, TypeIds {
 			}
 		}
 		return filterFakeFrames(realJumpTarget, frames, codeLength);
+	}
+
+	private void inspectFrame(int currentPC, StackMapFrame frame) {
+		// Plant a breakpoint at the call site to conveniently hover.
 	}
 
 	private StackMapFrame createNewFrame(int currentPC, StackMapFrame frame, boolean isClinit, MethodBinding methodBinding) {

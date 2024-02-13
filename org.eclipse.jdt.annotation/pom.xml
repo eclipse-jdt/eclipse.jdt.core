@@ -26,7 +26,6 @@
 		  <groupId>org.eclipse.tycho</groupId>
 		  <artifactId>tycho-compiler-plugin</artifactId>
 		  <configuration>
-		    <useProjectSettings>true</useProjectSettings>
             <compilerArgs>
               <args>-annotationpath</args>
               <args>${project.basedir}/JREannotations</args>

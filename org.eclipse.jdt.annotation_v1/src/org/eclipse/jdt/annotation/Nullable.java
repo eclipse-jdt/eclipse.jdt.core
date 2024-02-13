@@ -34,7 +34,6 @@ import java.lang.annotation.Target;
  * <li>Binding a <code>null</code> value to the entity is legal.</li>
  * <li>Dereferencing the entity is unsafe, i.e., a <code>NullPointerException</code> can occur at runtime.</li>
  * </ul>
- * </p>
  * @since 1.0
  */
 @Documented

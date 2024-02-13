@@ -52,7 +52,7 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 
 	/** Name of the unnamed module. */
 	public static final char[] UNNAMED = "".toCharArray(); //$NON-NLS-1$
-	/** Name to represent unnamed modules in --add-exports & --add-reads options. */
+	/** Name to represent unnamed modules in --add-exports and --add-reads options. */
 	public static final char[] ALL_UNNAMED = "ALL-UNNAMED".toCharArray(); //$NON-NLS-1$
 	/** Module name for package/type lookup that doesn't care about modules. */
 	public static final char[] ANY = "".toCharArray(); //$NON-NLS-1$

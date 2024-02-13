@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
@@ -125,8 +126,7 @@ public class CodeStream {
 	public int lastSwitchCumulativeSyntheticVars = 0;
 
 	public Map<BlockScope, List<ExceptionLabel>> patternAccessorMap = new HashMap<>();
-	public Stack<BlockScope> patternCatchStack = new Stack<>();
-	public Map<BlockScope, LocalVariableBinding> scopeToCatchVar = new HashMap<>();
+	public Stack<BlockScope> accessorExceptionTrapScopes = new Stack<>();
 
 public CodeStream(ClassFile givenClassFile) {
 	this.targetLevel = givenClassFile.targetJDK;
@@ -1262,7 +1262,7 @@ public void dup2_x2() {
 	this.bCodeStream[this.classFileOffset++] = Opcodes.OPC_dup2_x2;
 }
 
-public void exitUserScope(BlockScope currentScope) {
+public void exitUserScope(BlockScope currentScope, Predicate<LocalVariableBinding> condition) {
 	// mark all the scope's locals as losing their definite assignment
 	if ((this.generateAttributes & (ClassFileConstants.ATTR_VARS
 			| ClassFileConstants.ATTR_STACK_MAP_TABLE
@@ -1271,7 +1271,7 @@ public void exitUserScope(BlockScope currentScope) {
 	int index = this.visibleLocalsCount - 1;
 	while (index >= 0) {
 		LocalVariableBinding visibleLocal = this.visibleLocals[index];
-		if (visibleLocal == null || visibleLocal.declaringScope != currentScope) {
+		if (visibleLocal == null || visibleLocal.declaringScope != currentScope || !condition.test(visibleLocal)) {
 			// left currentScope
 			index--;
 			continue;
@@ -1285,26 +1285,8 @@ public void exitUserScope(BlockScope currentScope) {
 	}
 }
 
-public void exitUserScope(BlockScope currentScope, LocalVariableBinding binding) {
-	// mark all the scope's locals as losing their definite assignment
-	if ((this.generateAttributes & (ClassFileConstants.ATTR_VARS
-			| ClassFileConstants.ATTR_STACK_MAP_TABLE
-			| ClassFileConstants.ATTR_STACK_MAP)) == 0)
-		return;
-	int index = this.visibleLocalsCount - 1;
-	while (index >= 0) {
-		LocalVariableBinding visibleLocal = this.visibleLocals[index];
-		if (visibleLocal == null || visibleLocal.declaringScope != currentScope || visibleLocal == binding) {
-			// left currentScope
-			index--;
-			continue;
-		}
-		// there may be some preserved locals never initialized
-		if (visibleLocal.initializationCount > 0) {
-			visibleLocal.recordInitializationEndPC(this.position);
-		}
-		this.visibleLocals[index--] = null; // this variable is no longer visible afterwards
-	}
+public void exitUserScope(BlockScope currentScope) {
+	exitUserScope(currentScope, lvb->true);
 }
 
 public void f2d() {
@@ -4612,8 +4594,7 @@ public void init(ClassFile targetClassFile) {
 	this.clearTypeBindingStack();
 	this.lastSwitchCumulativeSyntheticVars = 0;
 	this.patternAccessorMap.clear();
-	this.patternCatchStack.clear();
-	this.scopeToCatchVar.clear();
+	this.accessorExceptionTrapScopes.clear();
 }
 
 /**
@@ -7826,70 +7807,47 @@ public void clearTypeBindingStack() {
 		return;
 	this.switchSaveTypeBindings.clear();
 }
-public void addPatternCatchExceptionInfo(BlockScope key, LocalVariableBinding catchVar) {
-	this.patternCatchStack.push(key);
-	this.scopeToCatchVar.put(key, catchVar);
+
+/**
+ * Stack the scope responsible for any pattern access exceptions not trapped by subscopes.
+ * Not all scopes bear responsibility: only method scopes (including clinit, init, lambdas)
+ * and try block scopes need to trap component pattern accessor exceptions and install
+ * handlers that throw a MatchException.
+ *
+ * @param scope some scope where the buck should stop for all pattern access exceptions underneath
+ */
+public void pushPatternAccessTrapScope(BlockScope scope) {
+	this.accessorExceptionTrapScopes.push(scope);
 }
-public void removePatternCatchExceptionInfo(BlockScope key, boolean addTargetGoto) {
-	this.addPatternAccessorExceptionHandler(key, addTargetGoto);
-	this.patternCatchStack.pop();
-	this.scopeToCatchVar.remove(key);
+
+/**
+ * Should the reference context associated with the scope handle pattern access exceptions ?
+ * @param scope
+ * @return true if pattern accesses do occur underneath, false otherwise
+ */
+public boolean patternAccessorsMayThrow(BlockScope scope) {
+	List<ExceptionLabel> patternExceptionLabels = this.patternAccessorMap.get(scope);
+	return patternExceptionLabels != null && patternExceptionLabels.size() > 0;
 }
-public void addPatternAccessorExceptionHandler(BlockScope scope, boolean addTarget) {
+
+public void handleRecordAccessorExceptions(BlockScope scope) {
+
+	this.accessorExceptionTrapScopes.pop();
+
 	List<ExceptionLabel> patternExceptionLabels = this.patternAccessorMap.get(scope);
 	if (patternExceptionLabels == null || patternExceptionLabels.isEmpty())
 		return;
 
-	BranchLabel target = null;
-	if (addTarget) {
-		target = new BranchLabel(this);
-		goto_(target);
-	}
-	List<LocalVariableBinding> localsToReinit = new ArrayList<>();
-	if (scope instanceof MethodScope) {
-		LocalVariableBinding[] locals1 = scope.locals;
-		int numLocals = scope.localIndex;
-		int pos = this.position;
-		for (int i = 0; i < numLocals; ++i) {
-			LocalVariableBinding local = locals1[i];
-			if (local.initializationCount == 0)
-				continue;
-			if (local.initializationPCs[((local.initializationCount - 1) << 1) + 1] == -1) {
-				locals1[i].recordInitializationEndPC(pos);
-				localsToReinit.add(local);
-			}
-		}
-	} else {
-		this.exitUserScope(scope);
-	}
 	pushExceptionOnStack(TypeBinding.wellKnownType(scope, TypeIds.T_JavaLangThrowable));
 	patternExceptionLabels.forEach(ExceptionLabel::place);
 
-	LocalVariableBinding catchVar = this.scopeToCatchVar.get(scope);
-
-	if (catchVar == null)
-		return;
-
- 	store(catchVar, false);
-	record(catchVar);
-	catchVar.recordInitializationStartPC(this.position);
-	newJavaLangMatchException();
-	dup();
-	load(catchVar);
-	invokeThrowableToString();
-
-	load(catchVar);
-	removeVariable(catchVar);
-	invokeJavaLangMatchExceptionConstructor();
+	newJavaLangMatchException(); // [Throwable, MatchException]
+	dup_x1();                    // [MatchException, Throwable, MatchException]
+	swap();                      // [MatchException, MatchException, Throwable]
+	dup();                       // [MatchException, MatchException, Throwable, Throwable]
+	invokeThrowableToString();   // [MatchException, MatchException, Throwable, String]
+	swap();                      // [MatchException, MatchException, String, Throwable]
+	invokeJavaLangMatchExceptionConstructor(); // [MatchException]
 	athrow();
-	if (target != null) {
-		target.place();
-	}
-	if (scope instanceof MethodScope && localsToReinit.size() > 0) {
-		for (LocalVariableBinding local : localsToReinit) {
-			int pos = this.position;
-			local.recordInitializationStartPC(pos);
-		}
-	}
 }
 }

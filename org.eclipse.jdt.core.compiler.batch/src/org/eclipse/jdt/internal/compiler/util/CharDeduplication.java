@@ -17,7 +17,6 @@ package org.eclipse.jdt.internal.compiler.util;
 
 import java.lang.ref.SoftReference;
 import java.util.Arrays;
-import java.util.function.Supplier;
 
 public class CharDeduplication {
 
@@ -35,31 +34,17 @@ public class CharDeduplication {
 	/** number of entries to linear search affects performance but decreases collisions - does not affect memory */
 	public static final int SEARCH_SIZE = 8; // a power of 2, has to be smaller then TABLE_SIZE
 
-	/** avoid OOME by additional CharDeduplication memory **/
-	static final class CacheReference<T> {
-		private SoftReference<T> reference;
-		private final Supplier<? extends T> supplier;
-
-		CacheReference(Supplier<? extends T> supplier) {
-			this.supplier = supplier;
-			this.reference = new SoftReference<>(supplier.get());
-		}
-
-		T get() {
-			T referent = this.reference.get();
-			if (referent == null) {
-				referent = this.supplier.get();
-				this.reference = new SoftReference<>(referent);
-			}
-			return referent;
-		}
-	}
-
-	private final static ThreadLocal<CacheReference<CharDeduplication>> mutableCache = ThreadLocal.withInitial(()->new CacheReference<>(CharDeduplication::new));
+	private final static ThreadLocal<SoftReference<CharDeduplication>> mutableCache = ThreadLocal
+			.withInitial(() -> new SoftReference<>(new CharDeduplication()));
 
 	/** @return an instance that is *not* thread safe. To be used in a single thread only. **/
 	public static CharDeduplication getThreadLocalInstance() {
-		return mutableCache.get().get();
+		CharDeduplication local = mutableCache.get().get();
+		if (local == null) {
+			local = new CharDeduplication();
+			mutableCache.set(new SoftReference<>(local));
+		}
+		return local;
 	}
 
 	// ----- mutable non-static part (not thread safe!): ----

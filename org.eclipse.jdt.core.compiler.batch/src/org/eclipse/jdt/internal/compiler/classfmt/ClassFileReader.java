@@ -200,11 +200,12 @@ public static ClassFileReader read(String fileName, boolean fullyInitialize) thr
 }
 
 /**
+ * hint: Use {@link #ClassFileReader(URI, byte[], char[])} where an annotation processor might be in the picture
+ *
  * @param classFileBytes Actual bytes of a .class file
  * @param fileName	Actual name of the file that contains the bytes, can be null
  *
  * @exception ClassFormatException
- * @Deprecated Use {@link #ClassFileReader(URI, byte[], char[])} where an annotation processor might be in the picture
  */
 public ClassFileReader(byte classFileBytes[], char[] fileName) throws ClassFormatException {
 	this(classFileBytes, fileName, false);
@@ -224,6 +225,8 @@ public ClassFileReader(URI path, byte classFileBytes[], char[] fileName) throws 
 }
 
 /**
+ * hint: Use {@link #ClassFileReader(URI, byte[], char[])} where an annotation processor might be in the picture
+ *
  * @param classFileBytes byte[]
  * 		Actual bytes of a .class file
  *
@@ -233,7 +236,6 @@ public ClassFileReader(URI path, byte classFileBytes[], char[] fileName) throws 
  * @param fullyInitialize boolean
  * 		Flag to fully initialize the new object
  * @exception ClassFormatException
- * @Deprecated Use {@link #ClassFileReader(URI, byte[], char[])} where an annotation processor might be in the picture
  */
 public ClassFileReader(byte[] classFileBytes, char[] fileName, boolean fullyInitialize) throws ClassFormatException {
 	// This method looks ugly but is actually quite simple, the constantPool is constructed
@@ -575,7 +577,7 @@ public ExternalAnnotationStatus getExternalAnnotationStatus() {
 /**
  * Conditionally add external annotations to the mix.
  * If 'member' is given it must be either of IBinaryField or IBinaryMethod, in which case we're seeking annotations for that member.
- * Otherwise we're seeking annotations for top-level elements of a type (type parameters & super types).
+ * Otherwise we're seeking annotations for top-level elements of a type (type parameters and super types).
  */
 @Override
 public ITypeAnnotationWalker enrichWithExternalAnnotationsFor(ITypeAnnotationWalker walker, Object member, LookupEnvironment environment) {
@@ -966,7 +968,7 @@ public long getTagBits() {
 
 /**
  * Answer the major/minor version defined in this class file according to the VM spec.
- * as a long: (major<<16)+minor
+ * as a long:  {@code (major<<16)+minor}
  * @return the major/minor version found
  */
 public long getVersion() {

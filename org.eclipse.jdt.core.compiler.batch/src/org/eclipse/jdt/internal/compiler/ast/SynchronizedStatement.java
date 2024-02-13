@@ -131,7 +131,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 		this.block.generateCode(this.scope, codeStream);
 		if (this.scope != currentScope) {
 			// close all locals defined in the synchronized block except the secret local
-			codeStream.exitUserScope(this.scope, this.synchroVariable);
+			codeStream.exitUserScope(this.scope, lvb -> lvb != this.synchroVariable);
 		}
 
 		BranchLabel endLabel = new BranchLabel(codeStream);

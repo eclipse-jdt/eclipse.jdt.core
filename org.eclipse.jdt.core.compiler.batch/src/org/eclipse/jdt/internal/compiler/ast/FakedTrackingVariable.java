@@ -1041,7 +1041,7 @@ public class FakedTrackingVariable extends LocalDeclaration {
 	}
 
 	/**
-	 * Unassigned closeables are not visible beyond their enclosing statement, immediately report & remove after each statement.
+	 * Unassigned closeables are not visible beyond their enclosing statement, immediately report and remove after each statement.
 	 * @param returnMissingOwning at a return statement this signals {@code true} when the enclosing method lacks an {@code @Owning} annotation.
 	 */
 	public static void cleanUpUnassigned(BlockScope scope, ASTNode location, FlowInfo flowInfo, boolean returnMissingOwning) {

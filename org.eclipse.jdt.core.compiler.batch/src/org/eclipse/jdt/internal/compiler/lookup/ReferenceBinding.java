@@ -169,11 +169,11 @@ public static FieldBinding binarySearch(char[] name, FieldBinding[] sortedFields
 }
 
 /**
- * Returns a combined range value representing: (start + (end<<32)), where start is the index of the first matching method
+ * Returns a combined range value representing: {@code (start + (end<<32))}, where start is the index of the first matching method
  * (remember methods are sorted alphabetically on selectors), and end is the index of last contiguous methods with same
  * selector.
  * -1 means no method got found
- * @return (start + (end<<32)) or -1 if no method found
+ * @return {@code (start + (end<<32))} or -1 if no method found
  */
 public static long binarySearch(char[] selector, MethodBinding[] sortedMethods) {
 	if (sortedMethods == null)
@@ -984,8 +984,9 @@ public void computeId(LookupEnvironment environment) {
 	environment.getUnannotatedType(this);
 }
 
-/**
- * p.X<T extends Y & I, U extends Y> {} -> Lp/X<TT;TU;>;
+/**{@code 
+ * p.X<T extends Y & I, U extends Y> -> Lp/X<TT;TU;>; 
+ * }
  */
 @Override
 public char[] computeUniqueKey(boolean isLeaf) {
@@ -1211,7 +1212,7 @@ final int identityHashCode() {
 
 /**
  * Returns true if the two types have an incompatible common supertype,
- * e.g. List<String> and List<Integer>
+ * e.g. {@code List<String>} and {@code List<Integer>}
  */
 public boolean hasIncompatibleSuperType(ReferenceBinding otherType) {
 
@@ -1750,7 +1751,7 @@ public boolean isThrowable() {
 
 /**
  * JLS 11.5 ensures that Throwable, Exception, RuntimeException and Error are directly connected.
- * (Throwable<- Exception <- RumtimeException, Throwable <- Error). Thus no need to check #isCompatibleWith
+ * {@code (Throwable<- Exception <- RumtimeException, Throwable <- Error)}. Thus no need to check #isCompatibleWith
  * but rather check in type IDs so as to avoid some eager class loading for JCL writers.
  * When 'includeSupertype' is true, answers true if the given type can be a supertype of some unchecked exception
  * type (i.e. Throwable or Exception).
@@ -1823,7 +1824,7 @@ public final ReferenceBinding outermostEnclosingType() {
 /**
  * Answer the source name for the type.
  * In the case of member types, as the qualified name from its top level type.
- * For example, for a member type N defined inside M & A: "A.M.N".
+ * For example, for a member type N defined inside {@code M & A: "A.M.N"}.
  */
 @Override
 public char[] qualifiedSourceName() {

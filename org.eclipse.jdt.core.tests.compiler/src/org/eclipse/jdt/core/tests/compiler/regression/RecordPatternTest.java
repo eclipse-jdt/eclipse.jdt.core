@@ -1661,6 +1661,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"A pattern variable with the same name is already defined in the statement\n" +
 				"----------\n");
 	}
+
 	public void testIssue691_1() {
 		runNegativeTest(new String[] {
 				"X.java",
@@ -1718,6 +1719,30 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"Syntax error on token \"r\", delete this token\n" +
 				"----------\n");
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2004
+	// [Patterns] ECJ generates suspect code for switching over patterns
+	public void testIssue2004() {
+		runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				record A() {}
+					record R<T>(T t) {}
+					public class X {
+					    private static boolean foo(R<? super A> r) {
+					       return switch(r) {
+					            case R(var x) -> true;
+					            default -> false;
+					       };
+					    }
+					    public static void main(String argv[]) {
+					       System.out.println(foo(new R<A>(null)));
+					    }
+				}
+				"""
+				},
+				"true");
+	}
 	public void testRecordPatternTypeInference_001() {
 		runNegativeTest(new String[] {
 			"X.java",
@@ -1745,6 +1770,31 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"	^^^^^^\n" +
 			"This method requires a body instead of a semicolon\n" +
 			"----------\n");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1796
+	// [Patterns] Record Patterns can cause VerifyError
+	public void testGH1796() {
+		runConformTest(new String[] {
+			"X.java",
+			"""
+			public record X(int i) {
+
+			  public static void main(String[] args) {
+			    new Printer().print(new X(42), new StringBuilder());
+			  }
+
+			  static final class Printer {
+
+			    private void print(X e, StringBuilder buffer) {
+			      if (e instanceof X(int i)) {
+			          System.out.println(i);
+			      }
+			    }
+			  }
+			}
+			"""
+			},
+			"42");
 	}
 	public void testRecordPatternTypeInference_002() {
 		runConformTest(new String[] {
@@ -1788,7 +1838,6 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			},
 				"I\'m a box of java.lang.String");
 	}
-	// TODO : STACK VERIFICATION ERROR
 	public void testRecordPatternTypeInference_004() {
 		runConformTest(new String[] {
 			"X.java",
@@ -2099,6 +2148,37 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"            if (o instanceof R(int x)) {\n"+
 				"                ret = 100;\n"+
 				"            }\n"+
+				"        } catch (MatchException e) {\n"+
+				"            ret += 100;\n"+
+				"        }\n"+
+				"          return ret;\n"+
+				"    } \n"+
+				"    public static void main(String argv[]) { \n"+
+				"        System.out.println(X.foo(new R(0))); \n"+
+				"    } \n"+
+				"}"
+				},
+				"99");
+	}
+	public void testRecordPatternMatchException_001_1() {
+		runConformTest(new String[] {
+				"X.java",
+				"public class X  {\n"+
+				"\n"+
+				"    public record R(int x) {\n"+
+				"        public int x() {\n"+
+				"         return x < 10 ? 10/x : x;\n"+
+				"        }\n"+
+				"    }\n"+
+				"\n"+
+				"    @SuppressWarnings(\"preview\")\n"+
+				" private static int foo(Object o) {\n"+
+				"        int ret = -1;\n"+
+				"        try {\n"+
+				"            if (o instanceof R(int x)) {\n"+
+				"                ret = 100;\n"+
+				"            }\n"+
+				"            return 10;\n" +
 				"        } catch (MatchException e) {\n"+
 				"            ret += 100;\n"+
 				"        }\n"+
@@ -3639,5 +3719,381 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"s = DataY\n" +
 				"s = switch on null\n" +
 				"s = default threw exception");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1796
+	// [Patterns] Record Patterns can cause VerifyError
+	public void testGH1796_full() {
+		runConformTest(
+				new String[] {
+				"com/acme/Reproducer.java",
+				"""
+				package com.acme;
+
+				import java.util.Objects;
+
+				import com.acme.Reproducer.Expression.ConstantExpression;
+				import com.acme.Reproducer.Expression.PlusExpression;
+				import com.acme.Reproducer.Expression.TimesExpression;
+
+				public class Reproducer {
+
+				  public static void main(String[] args) {
+				    SExpressionPrinter printer = new SExpressionPrinter21Record();
+				    Expression twoPlusThree = new PlusExpression(new ConstantExpression(2), new ConstantExpression(3));
+				    System.out.println(printer.print(twoPlusThree));
+				  }
+
+				  interface SExpressionPrinter {
+
+				    String print(Expression e);
+
+				  }
+
+				  static final class SExpressionPrinter21Record implements SExpressionPrinter {
+
+				    @Override
+				    public String print(Expression e) {
+				      Objects.requireNonNull(e);
+				      StringBuilder buffer = new StringBuilder();
+				      printTo(e, buffer);
+				      return buffer.toString();
+				    }
+
+				    private void printTo(Expression e, StringBuilder buffer) {
+				      if (e instanceof ConstantExpression(int i)) {
+				        buffer.append(i);
+				      } else {
+				        buffer.append('(');
+				        if (e instanceof PlusExpression(Expression a, Expression b)) {
+				          buffer.append("+ ");
+				          printTo(a, buffer);
+				          buffer.append(' ');
+				          printTo(b, buffer);
+				        }
+				        if (e instanceof TimesExpression(Expression a, Expression b)) {
+				          buffer.append("* ");
+				          printTo(a, buffer);
+				          buffer.append(' ');
+				          printTo(b, buffer);
+				        }
+				        buffer.append(')');
+				      }
+				    }
+				  }
+
+				  sealed interface Expression {
+
+				    int evaluate();
+
+				    record ConstantExpression(int i) implements Expression {
+
+				      @Override
+				      public int evaluate() {
+				        return i;
+				      }
+
+				    }
+
+				    record PlusExpression(Expression a, Expression b) implements Expression {
+
+				      @Override
+				      public int evaluate() {
+				        return Math.addExact(a.evaluate(), b.evaluate());
+				      }
+
+				    }
+
+				    record TimesExpression(Expression a, Expression b) implements Expression {
+
+				      @Override
+				      public int evaluate() {
+				        return Math.multiplyExact(a.evaluate(), b.evaluate());
+				      }
+
+				    }
+
+				  }
+
+				}
+				"""
+				},
+				"(+ 2 3)");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1796
+	// [Patterns] Record Patterns can cause VerifyError
+	public void testGH1796_reporter_reduced() {
+		runConformTest(
+				new String[] {
+				"com/acme/Reproducer.java",
+				"""
+				package com.acme;
+
+				import com.acme.Reproducer.Expression.ConstantExpression;
+
+				public class Reproducer {
+
+				  public static void main(String[] args) {
+				    SExpressionPrinter printer = new SExpressionPrinter();
+				    Expression constant = new ConstantExpression(2);
+				    System.out.println(printer.print(constant));
+				  }
+
+				  static final class SExpressionPrinter {
+
+				    public String print(Expression e) {
+				      StringBuilder buffer = new StringBuilder();
+				      printTo(e, buffer);
+				      return buffer.toString();
+				    }
+
+				    private void printTo(Expression e, StringBuilder buffer) {
+				      if (e instanceof ConstantExpression(int i)) {
+				        buffer.append(i);
+				      }
+				    }
+				  }
+
+				  sealed interface Expression {
+
+				    record ConstantExpression(int i) implements Expression {
+
+				    }
+
+				  }
+
+				}
+				"""
+				},
+				"2");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1977
+	// [Patterns][records] ECJ generated code fails to raise MatchException properly
+	public void testGH1977_method() {
+		runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+
+					record R(int x) {
+						public int x() {
+							return 100 / this.x;
+						}
+					}
+
+					public static void main(String[] args) {
+						try {
+							if (new R(0) instanceof R(int i)) {
+							}
+						} catch (Throwable t) {
+							System.out.println("Caught: " + t.getClass().getName());
+						}
+						if (new R(10) instanceof R(int i)) {
+
+						}
+					}
+				}
+				"""
+				},
+				"Caught: java.lang.MatchException");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1977
+	// [Patterns][records] ECJ generated code fails to raise MatchException properly
+	public void testGH1977_instance_initializer() {
+		runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+
+					{
+						if (new R(0) instanceof R(int i)) {
+
+						}
+					}
+
+					record R(int x) {
+						public int x() {
+							return 100 / this.x;
+						}
+					}
+
+					public static void main(String[] args) {
+						try {
+							new X();
+						} catch (MatchException me) {
+							System.out.println("Caught MatchException");
+						}
+					}
+				}
+				"""
+				},
+				"Caught MatchException");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1977
+	// [Patterns][records] ECJ generated code fails to raise MatchException properly
+	// Fails due to https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1985
+	public void _testGH1977_instance_field() {
+		runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+
+					boolean b = new R(0) instanceof R(int i);
+
+					record R(int x) {
+						public int x() {
+							return 100 / this.x;
+						}
+					}
+
+					public static void main(String[] args) {
+						try {
+							new X();
+						} catch (MatchException me) {
+							System.out.println("Caught MatchException");
+						}
+					}
+				}
+				"""
+				},
+				"Caught MatchException");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1977
+	// [Patterns][records] ECJ generated code fails to raise MatchException properly
+	public void testGH1977_constructor() {
+		runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+
+					X() {
+						if (new R(0) instanceof R(int i)) {
+
+						}
+					}
+
+					record R(int x) {
+						public int x() {
+							return 100 / this.x;
+						}
+					}
+
+					public static void main(String[] args) {
+						try {
+							new X();
+						} catch (MatchException me) {
+							System.out.println("Caught MatchException");
+						}
+					}
+				}
+				"""
+				},
+				"Caught MatchException");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1977
+	// [Patterns][records] ECJ generated code fails to raise MatchException properly
+	public void testGH1977_static_initializer() {
+		runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+
+					class Y {
+						static {
+							if (new R(0) instanceof R(int i)) {
+
+							}
+						}
+					}
+
+					record R(int x) {
+						public int x() {
+							return 100 / this.x;
+						}
+					}
+
+					public static void main(String[] args) {
+						try {
+							new X().new Y();
+						} catch (ExceptionInInitializerError me) {
+							System.out.println("ExceptionInInitializerError caused by " + me.getCause().getClass().getName());
+						}
+					}
+				}
+				"""
+				},
+				"ExceptionInInitializerError caused by java.lang.MatchException");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1977
+	// [Patterns][records] ECJ generated code fails to raise MatchException properly
+	// Fails due to https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1985
+	public void _testGH1977_static_field() {
+		runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+
+					class Y {
+						static boolean b = new R(0) instanceof R(int i);
+					}
+
+					record R(int x) {
+						public int x() {
+							return 100 / this.x;
+						}
+					}
+
+					public static void main(String[] args) {
+						try {
+							new X().new Y();
+						} catch (ExceptionInInitializerError me) {
+							System.out.println("ExceptionInInitializerError caused by " + me.getCause().getClass().getName());
+						}
+					}
+				}
+				"""
+				},
+				"ExceptionInInitializerError caused by java.lang.MatchException");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/300
+	// Revisit code generation for record patterns
+	public void testIssue300() {
+		runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+
+					record Outer(Middle m1, Middle m2) {
+
+					}
+
+					record Middle (Inner i1, Inner i2) {
+
+					}
+
+					record Inner(String s, Long l, int k) {
+
+					}
+
+					public static void main(String[] args) {
+						Outer o = new Outer(new Middle(new Inner("Hello", 11L, 22), new Inner(" World", 22L, 44)), new Middle(new Inner(" How is", 33L, 66), new Inner(" life?", 44L, 88)));
+						if (o instanceof Outer(Middle(Inner(String s1, Long l1, int i1), Inner(String s2, Long l2, int i2)), Middle(Inner(String s3, Long l3, int i3), Inner(String s4, Long l4, int i4)))) {
+							System.out.println(s1 + s2 + s3 + s4);
+							System.out.println(l1 + l2 + l3 + l4);
+							System.out.println(i1 + i2 + i3 + i4);
+						}
+					}
+				}
+				"""
+				},
+				"Hello World How is life?\n"
+				+ "110\n"
+				+ "220");
 	}
 }

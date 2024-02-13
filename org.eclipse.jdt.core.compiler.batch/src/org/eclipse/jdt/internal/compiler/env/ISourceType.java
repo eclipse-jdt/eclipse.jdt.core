@@ -66,7 +66,7 @@ ISourceType[] getMemberTypes();
 /**
  * Answer the receiver's methods.
  *
- * NOTE: Multiple methods with the same name & parameter types can exist in the result.
+ * NOTE: Multiple methods with the same name and parameter types can exist in the result.
  */
 ISourceMethod[] getMethods();
 

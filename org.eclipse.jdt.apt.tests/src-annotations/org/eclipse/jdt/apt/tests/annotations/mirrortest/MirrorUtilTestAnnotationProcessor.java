@@ -67,9 +67,9 @@ public class MirrorUtilTestAnnotationProcessor extends BaseProcessor
 		"%NOSUCH/VARNAME%",
 		"%ROOT%/someOtherProject/foo/nonexistent.txt",
 			// expected-translation
-		"%ECLIPSE_HOME%",
-		"%ECLIPSE_HOME%/plugins",
-		"%ECLIPSE_HOME%/configuration/config.ini",
+		"%TEST_ECLIPSE_HOME%",
+		"%TEST_ECLIPSE_HOME%/plugins",
+		"%TEST_ECLIPSE_HOME%/configuration/config.ini",
 		"%ROOT%/org.eclipse.jdt.apt.tests.MirrorUtilTestsProject",
 		"%ROOT%/org.eclipse.jdt.apt.tests.MirrorUtilTestsProject/.classpath",
 		"%PROJECT.DIR%/.classpath"

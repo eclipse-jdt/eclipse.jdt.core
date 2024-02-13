@@ -75,7 +75,7 @@ import org.eclipse.jdt.internal.compiler.util.Sorting;
  *  <li>18.2.2 Type Compatibility Constraints ff. {@link ConstraintTypeFormula#reduce(InferenceContext18)}.</li>
  *  </ul></li>
  * <li>18.3 <b>Incorporation</b>: {@link BoundSet#incorporate(InferenceContext18)}; during inference new constraints
- * 	are accepted via {@link BoundSet#reduceOneConstraint(InferenceContext18, ConstraintFormula)} (combining 18.2 & 18.3)</li>
+ * 	are accepted via {@link BoundSet#reduceOneConstraint(InferenceContext18, ConstraintFormula)} (combining 18.2 and 18.3)</li>
  * <li>18.4 <b>Resolution</b>: {@link #resolve(InferenceVariable[])}.
  * </ul>
  * Some of the above operations accumulate their results into {@link #currentBounds}, whereas
@@ -92,7 +92,7 @@ import org.eclipse.jdt.internal.compiler.util.Sorting;
  * <dt>18.5.2 Invocation Type Inference</dt>
  * <dd>{@link InferenceContext18#inferInvocationType(TypeBinding, InvocationSite, MethodBinding)}. After a
  * 	most specific method has been picked, and given a target type determine the final generic instantiation.
- *  As long as a target type is still unavailable this phase keeps getting deferred.</br>
+ *  As long as a target type is still unavailable this phase keeps getting deferred.<br>
  *  Different wrappers exist for the convenience of different callers.</dd>
  * <dt>18.5.3 Functional Interface Parameterization Inference</dt>
  * <dd>Controlled from {@link LambdaExpression#resolveType(BlockScope)}.</dd>
@@ -102,7 +102,7 @@ import org.eclipse.jdt.internal.compiler.util.Sorting;
  * For 18.5.1 and 18.5.2 high-level control is implemented in
  *  {@link ParameterizedGenericMethodBinding#computeCompatibleMethod(MethodBinding, TypeBinding[], Scope, InvocationSite)}.
  * <h2>Inference Lifecycle</h2>
- * <li>Decision whether or not an invocation is a <b>variable-arity</b> invocation is made by first attempting
+ * <ul><li>Decision whether or not an invocation is a <b>variable-arity</b> invocation is made by first attempting
  * 		to solve 18.5.1 in mode {@link #CHECK_LOOSE}. Only if that fails, another attempt is made in mode {@link #CHECK_VARARG}.
  * 		Which of these two attempts was successful is stored in {@link #inferenceKind}.
  * 		This field must be consulted whenever arguments of an invocation should be further processed.

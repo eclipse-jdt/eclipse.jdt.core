@@ -548,7 +548,7 @@ public class CompilerOptions {
 	/** When checking for unlikely argument types of of Map.get() et al, perform strict analysis against the expected type */
 	public boolean reportUnlikelyCollectionMethodArgumentTypeStrict;
 
-	/** Should the compiler tolerate illegal ambiguous varargs invocation in compliance < 1.7
+	/** Should the compiler tolerate illegal ambiguous varargs invocation in {@code compliance < 1.7}
 	 * to be bug compatible with javac? (bug 383780) */
 	public static boolean tolerateIllegalAmbiguousVarargsInvocation;
 	{

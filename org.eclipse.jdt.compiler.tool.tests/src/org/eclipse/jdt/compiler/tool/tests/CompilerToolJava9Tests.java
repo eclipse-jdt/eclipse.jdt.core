@@ -1113,7 +1113,7 @@ public class CompilerToolJava9Tests extends TestCase {
 	 *
 	 * @param src
 	 *            the full path to the resource location.
-	 * @param destFolder
+	 * @param dest
 	 *            the full path to the destination location.
 	 */
 	public static void copyResource(File src, File dest) throws IOException {
@@ -1173,7 +1173,7 @@ public class CompilerToolJava9Tests extends TestCase {
 	 * named "CVS" will be ignored.
 	 * @param resourceFolderName the name of the source folder, relative to
 	 * <code>[plugin-root]/resources</code>
-	 * @param the absolute path of the destination folder
+	 * @param destFolder the absolute path of the destination folder
 	 */
 	public static void copyResources(String resourceFolderName, File destFolder) throws IOException {
 		File resDir = new File(getPluginDirectoryPath(), RESOURCES_DIR);

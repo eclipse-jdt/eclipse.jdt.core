@@ -60,12 +60,13 @@ char[][] getExceptionTypeNames();
 char[] getGenericSignature();
 
 /**
- * Answer the receiver's method descriptor which describes the parameter &
+ * Answer the receiver's method descriptor which describes the parameter and
  * return types as specified in section 4.4.3 of the Java 2 VM spec.
  *
- * For example:
+ * For example: <pre>
  *   - int foo(String) is (Ljava/lang/String;)I
  *   - Object[] foo(int) is (I)[Ljava/lang/Object;
+ * </pre>
  */
 char[] getMethodDescriptor();
 
@@ -86,7 +87,7 @@ int getAnnotatedParametersCount();
 /**
  * Answer the name of the method.
  *
- * For a constructor, answer <init> & <clinit> for a clinit method.
+ * For a constructor, answer {@code <init> & <clinit>} for a clinit method.
  */
 char[] getSelector();
 

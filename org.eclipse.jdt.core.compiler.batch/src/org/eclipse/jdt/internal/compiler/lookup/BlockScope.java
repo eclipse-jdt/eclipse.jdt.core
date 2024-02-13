@@ -1279,20 +1279,11 @@ protected Scope findLastRelevantSubScope() {
 	Scope lastSubScope = null;
 	while (lastIdx >= 0) {
 		lastSubScope = this.subscopes[lastIdx];
-		if (lastSubScope instanceof BlockScope blockSub && !blockSub.isSecretScope())
+		if (lastSubScope instanceof BlockScope)
 			break;
 		lastIdx--;
 	}
 	return lastSubScope;
-}
-
-private boolean isSecretScope() {
-	if (this.locals != null && this.locals.length > 0) {
-		LocalVariableBinding local = this.locals[0];
-		if (local != null && CharOperation.prefixEquals(RecordPattern.SECRET_RECORD_PATTERN_THROWABLE_VARIABLE_NAME.toCharArray(), local.name))
-			return true;
-	}
-	return false;
 }
 
 private void reportResourceLeak(FakedTrackingVariable trackingVar, ASTNode location, int nullStatus, boolean reportImmediately) {

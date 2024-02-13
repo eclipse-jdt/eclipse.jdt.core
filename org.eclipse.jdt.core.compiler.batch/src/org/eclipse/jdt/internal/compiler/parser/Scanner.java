@@ -2567,8 +2567,7 @@ public final boolean jumpOverUnicodeWhiteSpace() throws InvalidInputException {
 }
 
 public boolean isInModuleDeclaration() {
-	return this.fakeInModule || this.insideModuleInfo ||
-			(this.activeParser != null ? this.activeParser.isParsingModuleDeclaration() : false);
+	return this.fakeInModule || this.insideModuleInfo;
 }
 protected boolean areRestrictedModuleKeywordsActive() {
 	return this.scanContext != null && this.scanContext != ScanContext.INACTIVE;
@@ -2887,7 +2886,7 @@ private ScanContext getScanContext(int begin) {
 	CompilerOptions options = new CompilerOptions();
 	options.complianceLevel = this.complianceLevel;
 	options.sourceLevel = this.sourceLevel;
-	ScanContextDetector parser = new ScanContextDetector(options);
+	ModuleScanContextDetector parser = new ModuleScanContextDetector(options);
 	return parser.getScanContext(this.source, begin - 1);
 }
 protected final void scanEscapeCharacter() throws InvalidInputException {
@@ -3083,7 +3082,8 @@ public int scanIdentifierOrKeyword() {
 		//only one char....
 		if ((length = this.currentPosition - this.startPosition) == 1) {
 			if (this.source[this.startPosition] == '_') {
-				return TokenNameUNDERSCORE;
+				return JavaFeature.UNNAMMED_PATTERNS_AND_VARS.isSupported(this.sourceLevel, this.previewEnabled) ?
+											TokenNameUNDERSCORE : TokenNameIdentifier;
 			}
 			return TokenNameIdentifier;
 		}
@@ -3092,7 +3092,8 @@ public int scanIdentifierOrKeyword() {
 	} else {
 		if ((length = this.withoutUnicodePtr) == 1) {
 			if (this.withoutUnicodeBuffer[0] == '_') {
-				return TokenNameUNDERSCORE;
+				return JavaFeature.UNNAMMED_PATTERNS_AND_VARS.isSupported(this.sourceLevel, this.previewEnabled) ?
+						TokenNameUNDERSCORE : TokenNameIdentifier;
 			}
 			return TokenNameIdentifier;
 		}
@@ -4825,8 +4826,8 @@ private static class VanguardParser extends Parser {
 	}
 }
 
-private class ScanContextDetector extends VanguardParser {
-	ScanContextDetector(CompilerOptions options) {
+private class ModuleScanContextDetector extends VanguardParser {
+	ModuleScanContextDetector(CompilerOptions options) {
 		super(new ProblemReporter(
 					DefaultErrorHandlingPolicies.ignoreAllProblems(),
 					options,
@@ -4862,12 +4863,12 @@ private class ScanContextDetector extends VanguardParser {
 
 	@Override
 	public boolean isParsingModuleDeclaration() {
-		return true;
+		return true; // for Modules only
 	}
 
 	public ScanContext getScanContext(char[] src, int begin) {
 		this.scanner.setSource(src);
-		this.scanner.resetTo(0, begin);
+		this.scanner.resetTo(0, begin, true);
 		goForCompilationUnit();
 		Goal goal = new Goal(TokenNamePLUS_PLUS, null, 0) {
 			@Override
