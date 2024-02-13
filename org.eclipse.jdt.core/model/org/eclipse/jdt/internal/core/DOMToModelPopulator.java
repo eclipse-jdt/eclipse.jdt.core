@@ -285,7 +285,7 @@ class DOMToModelPopulator extends ASTVisitor {
 			}
 		}
 		boolean isDeprecated = isNodeDeprecated(node);
-		newInfo.setFlags(node.getModifiers() | (isDeprecated ? ClassFileConstants.AccDeprecated : 0));
+		newInfo.setFlags(node.getModifiers() | ClassFileConstants.AccInterface|Flags.AccAnnotation | (isDeprecated ? ClassFileConstants.AccDeprecated : 0));
 		newInfo.setHandle(newElement);
 		newInfo.setNameSourceStart(node.getName().getStartPosition());
 		newInfo.setNameSourceEnd(node.getName().getStartPosition() + node.getName().getLength() - 1);
@@ -320,7 +320,7 @@ class DOMToModelPopulator extends ASTVisitor {
 			}
 		}
 		boolean isDeprecated = isNodeDeprecated(node);
-		newInfo.setFlags(node.getModifiers() | (isDeprecated ? ClassFileConstants.AccDeprecated : 0));
+		newInfo.setFlags(node.getModifiers() | Flags.AccEnum | (isDeprecated ? ClassFileConstants.AccDeprecated : 0));
 		newInfo.setHandle(newElement);
 		newInfo.setNameSourceStart(node.getName().getStartPosition());
 		newInfo.setNameSourceEnd(node.getName().getStartPosition() + node.getName().getLength() - 1);
