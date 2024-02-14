@@ -116,22 +116,30 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 		codeStream.addVariable(this.secretExpressionValue);
 	}
 	codeStream.instance_of(this.type, this.type.resolvedType);
-	if (this.elementVariable != null) {
-		BranchLabel actionLabel = new BranchLabel(codeStream);
-		codeStream.dup();
-		codeStream.ifeq(actionLabel);
+	if (this.pattern != null) {
+		BranchLabel falseLabel = new BranchLabel(codeStream);
+		BranchLabel trueLabel = new BranchLabel(codeStream);
+		BranchLabel continueLabel = new BranchLabel(codeStream);
+		codeStream.ifeq(falseLabel);
+
 		if (this.secretExpressionValue != null) {
 			codeStream.load(this.secretExpressionValue);
 			codeStream.removeVariable(this.secretExpressionValue);
 		} else {
 			this.expression.generateCode(currentScope, codeStream, true);
 		}
-		codeStream.checkcast(this.type, this.type.resolvedType, codeStream.position);
-		this.elementVariable.binding.recordInitializationStartPC(codeStream.position);
-		codeStream.store(this.elementVariable.binding, false);
-		codeStream.removeVariable(this.elementVariable.binding);
-		codeStream.recordPositionsFrom(codeStream.position, this.sourceEnd);
-		actionLabel.place();
+		this.pattern.generateOptimizedBoolean(currentScope, codeStream, trueLabel, falseLabel);
+
+		trueLabel.place();
+		codeStream.iconst_1();
+		codeStream.goto_(continueLabel);
+		falseLabel.place();
+		for (LocalVariableBinding binding : this.pattern.bindingsWhenTrue()) {
+			binding.recordInitializationEndPC(codeStream.position);
+		}
+		codeStream.iconst_0();
+		continueLabel.place();
+
 	}
 	if (valueRequired) {
 		codeStream.generateImplicitConversion(this.implicitConversion);

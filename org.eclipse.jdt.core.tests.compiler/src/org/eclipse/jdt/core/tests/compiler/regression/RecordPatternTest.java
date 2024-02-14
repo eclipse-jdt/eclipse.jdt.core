@@ -4096,6 +4096,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				+ "110\n"
 				+ "220");
 	}
+
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1804
 	// Revisit code generation for record patterns
 	public void testIssue1804() {
@@ -4128,5 +4129,262 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"""
 				},
 				"true");
+	}
+	public void testIssue1804_0() {
+		runConformTest(new String[] { "X.java", """
+				public class X {
+					record Paper(int color) {}
+					record Box<T>(T a) {}
+					public static void main(String[] args) {
+						Box<?> b = new Box<>(null);
+						boolean res = b instanceof Box(Paper a);
+						if (res) {
+							System.out.println("res is true");
+						} else {
+							System.out.println("res is false");
+						}
+					}
+				}
+				""" }, "res is false");
+	}
+	public void testIssue1804_1() {
+		runConformTest(new String[] { "X.java", """
+				public class X {
+					record Paper(int color) {}
+					record Box<T>(T a) {}
+					public static void main(String[] args) {
+						Box<?> b = new Box<>(new Paper(0));
+						boolean res = b instanceof Box(Paper a);
+						if (res) {
+							System.out.println("res is true");
+						} else {
+							System.out.println("res is false");
+						}
+					}
+				}
+				""" }, "res is true");
+	}
+	public void testIssue1804_2() {
+		runConformTest(new String[] { "X.java", """
+				public class X {
+					record Paper(int color) {}
+					record Box<T>(T a) {}
+					public static void main(String[] args) {
+						Box<?> b = new Box<>(new Paper(0));
+						boolean res = b instanceof Box(Paper a) && a == null;
+						if (res) {
+							System.out.println("res is true");
+						} else {
+							System.out.println("res is false");
+						}
+					}
+				}
+				""" }, "res is false");
+	}
+	public void testIssue1804_3() {
+		runConformTest(new String[] { "X.java", """
+				public class X {
+					record Paper(int color) {}
+					record Box<T>(T a) {}
+					public static void main(String[] args) {
+						Box b = new Box<>(null);
+						System.out.println(b instanceof Box(Paper a));
+						System.out.println(b instanceof Box(Object a));
+					}
+				}
+				""" }, "false\ntrue");
+	}
+	public void testIssue1804_4() {
+		runConformTest(new String[] { "X.java", """
+				public class X {
+					record Paper(int color) {}
+					record Box<T>(T a) {}
+					public static void main(String argv[]) {
+						foo(null, null);
+					}
+					public static void foo(String abc, String def) {
+						Box<?> p = new Box<>(new Paper(0));
+						boolean b = false;
+						switch (p) {
+							case Box(Paper a) -> {
+								b = true;
+								break;
+							}
+							default -> {
+								b = false;
+								break;
+							}
+						}
+						System.out.println(b);
+					}
+				}
+				""" }, "true");
+	}
+	public void testIssue1804_5() {
+		runConformTest(new String[] { "X.java", """
+				public class X {
+					record Paper(int color) {}
+					record Box<T>(T a) {}
+					public static void main(String argv[]) {
+						foo(null, null);
+					}
+					public static void foo(String abc, String def) {
+						Box<?> p = new Box<>(null);
+						boolean b = false;
+						switch (p) {
+							case Box(Paper a) -> {
+								b = true;
+								break;
+							}
+							default -> {
+								b = false;
+								break;
+							}
+						}
+						System.out.println(b);
+					}
+				}
+				""" }, "false");
+	}
+	public void testIssue1804_6() {
+		runConformTest(new String[] { "X.java", """
+				public class X {
+					record Paper(int color) {}
+					record Box<T>(T a, T b) {}
+					public static void main(String argv[]) {
+						foo(null, null);
+					}
+					public static void foo(String abc, String def) {
+						Box<?> p = new Box<>(new Paper(0), new Paper(1));
+						boolean c = false;
+						switch (p) {
+							case Box(Paper a, Paper b) -> {
+								System.out.println(a.color);
+								System.out.println(b.color);
+								c = true;
+								break;
+							}
+							default -> {
+								c = false;
+								break;
+							}
+						}
+						System.out.println(c);
+					}
+				}
+				""" }, "0\n1\ntrue");
+	}
+	public void testIssue1804_7() {
+		runConformTest(new String[] { "X.java", """
+				public class X {
+					record Paper(int color) {}
+					record Box<T>(T a) {}
+					public static void main(String[] args) {
+						Box<?> b = new Box<>(new Paper(0));
+						boolean res = b instanceof Box box;
+						if (res) {
+							System.out.println("res is true");
+						} else {
+							System.out.println("res is false");
+						}
+					}
+				}
+				""" }, "res is true");
+	}
+	public void testIssue1804_8() {
+		runConformTest(new String[] { "X.java", """
+				public class X {
+					record Paper(int color) {}
+					record Box<T>(T a) {}
+					public static void main(String[] args) {
+						Box<?> b = new Box<>(new Paper(0));
+						boolean res = b instanceof Box(Paper paper) && paper.color != 0;
+						if (res) {
+							System.out.println("res is true");
+						} else {
+							System.out.println("res is false");
+						}
+					}
+				}
+				""" }, "res is false");
+	}
+	public void testIssue1804_9() {
+		runConformTest(new String[] { "X.java", """
+				public class X {
+					record Paper(int color) {}
+					record Box<T>(T a) {}
+					public static void main(String[] args) {
+						boolean res = new Box<>(new Paper(0)) instanceof Box(Paper(int c));
+						if (res) {
+							System.out.println("res is true");
+						} else {
+							System.out.println("res is false");
+						}
+					}
+				}
+				""" }, "res is true");
+	}
+	public void testIssue1804_10() {
+		runConformTest(new String[] { "X.java", """
+				public class X {
+					record Paper(int color) {}
+					record Box<T>(T a) {}
+					public static void main(String[] args) {
+						boolean res = new Box<>(new Paper(0)) instanceof Box(Paper(int c)) && c == 0;
+						if (res) {
+							System.out.println("res is true");
+						} else {
+							System.out.println("res is false");
+						}
+					}
+				}
+				""" }, "res is true");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1985
+	// [Patterns][records] ECJ fails to generate code to deconstruct record in pattern
+	public void testIssue1985() {
+		runConformTest(new String[] { "X.java", """
+				public class X {
+
+					record R(int x) {
+						public int x() {
+							return 100 / this.x;
+						}
+					}
+
+					public static void main(String[] args) {
+						try {
+							boolean b = new R(0) instanceof R(int i);
+						} catch (Throwable t) {
+							System.out.println(t.getClass().getName());
+						}
+					}
+				}
+				""" },
+				"java.lang.MatchException");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1985
+	// [Patterns][records] ECJ fails to generate code to deconstruct record in pattern
+	public void testIssue1985_2() {
+		runConformTest(new String[] { "X.java", """
+				public class X {
+
+					boolean b = new R(0) instanceof R(int i);
+					record R(int x) {
+						public int x() {
+							return 100 / this.x;
+						}
+					}
+
+					public static void main(String[] args) {
+				            try {
+				        	new X();
+				            } catch (Throwable t) {
+				        	System.out.println(t.getClass().getName());
+				            }
+					}
+				}
+				""" },
+				"java.lang.MatchException");
 	}
 }
