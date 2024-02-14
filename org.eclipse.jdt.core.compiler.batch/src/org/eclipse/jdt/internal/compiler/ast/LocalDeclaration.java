@@ -361,6 +361,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			// create a binding from the specified type
 			this.binding = new LocalVariableBinding(this, variableType, this.modifiers, false /*isArgument*/);
 		}
+		if (isPatternVariable)
+			this.binding.tagBits |= TagBits.IsPatternBinding;
 		scope.addLocalVariable(this.binding);
 		this.binding.setConstant(Constant.NotAConstant);
 		// allow to recursivelly target the binding....
