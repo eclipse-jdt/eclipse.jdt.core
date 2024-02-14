@@ -4340,4 +4340,51 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				}
 				""" }, "res is true");
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1985
+	// [Patterns][records] ECJ fails to generate code to deconstruct record in pattern
+	public void testIssue1985() {
+		runConformTest(new String[] { "X.java", """
+				public class X {
+
+					record R(int x) {
+						public int x() {
+							return 100 / this.x;
+						}
+					}
+
+					public static void main(String[] args) {
+						try {
+							boolean b = new R(0) instanceof R(int i);
+						} catch (Throwable t) {
+							System.out.println(t.getClass().getName());
+						}
+					}
+				}
+				""" },
+				"java.lang.MatchException");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1985
+	// [Patterns][records] ECJ fails to generate code to deconstruct record in pattern
+	public void testIssue1985_2() {
+		runConformTest(new String[] { "X.java", """
+				public class X {
+
+					boolean b = new R(0) instanceof R(int i);
+					record R(int x) {
+						public int x() {
+							return 100 / this.x;
+						}
+					}
+
+					public static void main(String[] args) {
+				            try {
+				        	new X();
+				            } catch (Throwable t) {
+				        	System.out.println(t.getClass().getName());
+				            }
+					}
+				}
+				""" },
+				"java.lang.MatchException");
+	}
 }

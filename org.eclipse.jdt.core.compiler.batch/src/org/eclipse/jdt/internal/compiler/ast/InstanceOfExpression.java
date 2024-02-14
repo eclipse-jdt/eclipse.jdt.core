@@ -130,13 +130,13 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 		}
 		this.pattern.generateOptimizedBoolean(currentScope, codeStream, trueLabel, falseLabel);
 
-		for (LocalVariableBinding patternVariableBinding : this.pattern.bindingsWhenTrue()) {
-			codeStream.removeVariable(patternVariableBinding);
-		}
 		trueLabel.place();
 		codeStream.iconst_1();
 		codeStream.goto_(continueLabel);
 		falseLabel.place();
+		for (LocalVariableBinding patternVariableBinding : this.pattern.bindingsWhenTrue()) {
+			codeStream.removeVariable(patternVariableBinding);
+		}
 		codeStream.iconst_0();
 		continueLabel.place();
 
