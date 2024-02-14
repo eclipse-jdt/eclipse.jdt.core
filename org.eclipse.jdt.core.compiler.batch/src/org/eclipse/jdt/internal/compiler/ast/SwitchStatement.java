@@ -988,7 +988,10 @@ public class SwitchStatement extends Expression {
 			Pattern pattern = (Pattern) caseStatement.constantExpressions[caseStatement.patternIndex];
 			pattern.elseTarget.place();
 			if (!pattern.isAlwaysTrue()) {
-				// at the trampoline here, pattern bindings are not definitely assigned.
+				/* We are generating a "thunk"/"trampoline" of sorts now, that flow analysis has no clue about.
+				   We need to manage the live variables manually. Pattern bindings are not definitely
+				   assigned here as we are in the else region.
+			    */
 				final LocalVariableBinding[] bindingsWhenTrue = pattern.bindingsWhenTrue();
 				Stream.of(bindingsWhenTrue).forEach(v->v.recordInitializationEndPC(codeStream.position));
 				codeStream.loadInt(this.nullProcessed ? caseIndex - 1 : caseIndex);
