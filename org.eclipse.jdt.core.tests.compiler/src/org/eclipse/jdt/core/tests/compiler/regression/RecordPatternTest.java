@@ -4096,4 +4096,37 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				+ "110\n"
 				+ "220");
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1804
+	// Revisit code generation for record patterns
+	public void testIssue1804() {
+		runConformTest(
+				new String[] {
+				"X.java",
+				"""
+				public class X {
+					record Paper(int color) {}
+					record Box<T>(T a) {}
+					public static void main(String argv[]) {
+						foo(null, null);
+					}
+					public static void foo(String abc, String def) {
+						Box<?> p = new Box<>(new Paper(0));
+						boolean b = false;
+						switch (p) {
+							case Box(Paper a) -> {
+								b = true;
+								break;
+							}
+							default -> {
+								b = false;
+								break;
+							}
+						}
+						System.out.println(b);
+					}
+				}
+				"""
+				},
+				"true");
+	}
 }
