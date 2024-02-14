@@ -233,7 +233,7 @@ class DOMToModelPopulator extends ASTVisitor {
 		if (node.getAST().apiLevel() > 2) {
 			newInfo.setSuperInterfaceNames(((List<Type>)node.superInterfaceTypes()).stream().map(Type::toString).map(String::toCharArray).toArray(char[][]::new));
 		}
-		if (node.getSuperclassType() != null) {
+		if (node.getAST().apiLevel() > 2 && node.getSuperclassType() != null) {
 			newInfo.setSuperclassName(node.getSuperclassType().toString().toCharArray());
 		}
 		if (node.getAST().apiLevel() >= AST.JLS17) {
@@ -244,7 +244,7 @@ class DOMToModelPopulator extends ASTVisitor {
 		newInfo.setFlags(node.getModifiers()
 			| (isDeprecated ? ClassFileConstants.AccDeprecated : 0)
 			| (node.isInterface() ? Flags.AccInterface : 0));
-			
+
 		newInfo.setHandle(newElement);
 		newInfo.setNameSourceStart(node.getName().getStartPosition());
 		newInfo.setNameSourceEnd(node.getName().getStartPosition() + node.getName().getLength() - 1);
