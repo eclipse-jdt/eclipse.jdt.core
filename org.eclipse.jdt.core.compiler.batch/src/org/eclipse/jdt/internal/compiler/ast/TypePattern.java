@@ -68,8 +68,7 @@ public class TypePattern extends Pattern {
 			patternInfo.markAsDefinitelyNonNull(this.local.binding);
 		} else {
 			// total type patterns inherit the nullness of the value being switched over, unless ...
-			if (flowContext.associatedNode instanceof SwitchStatement) {
-				SwitchStatement swStmt = (SwitchStatement) flowContext.associatedNode;
+			if (flowContext.associatedNode instanceof SwitchStatement swStmt) {
 				int nullStatus = swStmt.containsNull
 						? FlowInfo.NON_NULL // ... null is handled in a separate case
 						: swStmt.expression.nullStatus(patternInfo, flowContext);
@@ -129,6 +128,7 @@ public class TypePattern extends Pattern {
 			return this.resolvedType; // Srikanth, fix reentry
 
 		this.local.modifiers |= ExtraCompilerModifiers.AccOutOfFlowScope;
+		Pattern enclosingPattern = this.getEnclosingPattern();
 		if (this.local.type == null || this.local.type.isTypeNameVar(scope)) {
 			/*
 			 * If the LocalVariableType is var then the pattern variable must appear in a pattern list of a
@@ -136,7 +136,6 @@ public class TypePattern extends Pattern {
 			 * of the pattern variable is the upward projection of T with respect to all synthetic type
 			 * variables mentioned by T.
 			 */
-			Pattern enclosingPattern = this.getEnclosingPattern();
 			if (enclosingPattern instanceof RecordPattern) {
 				ReferenceBinding recType = (ReferenceBinding) enclosingPattern.resolvedType;
 				if (recType != null) {
@@ -163,6 +162,8 @@ public class TypePattern extends Pattern {
 		if (this.local.binding != null) {
 			this.local.binding.modifiers |= ExtraCompilerModifiers.AccOutOfFlowScope; // start out this way, will be BlockScope.include'd when definitely assigned
 			this.local.binding.tagBits |= TagBits.IsPatternBinding;
+			if (enclosingPattern != null)
+				this.local.binding.useFlag = LocalVariableBinding.USED; // syntactically required even if untouched
 			if (this.local.type != null)
 				this.resolvedType = this.local.binding.type;
 		}

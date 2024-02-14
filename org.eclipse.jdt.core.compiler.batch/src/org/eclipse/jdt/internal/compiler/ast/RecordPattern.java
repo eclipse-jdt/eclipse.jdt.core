@@ -35,8 +35,6 @@ public class RecordPattern extends TypePattern {
 
 	public Pattern[] patterns;
 	public TypeReference type;
-	int thenInitStateIndex1 = -1;
-	int thenInitStateIndex2 = -1;
 
 	/* package */ BranchLabel guardedElseTarget;
 
@@ -73,12 +71,10 @@ public class RecordPattern extends TypePattern {
 
 	@Override
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
-		this.thenInitStateIndex1 = currentScope.methodScope().recordInitializationStates(flowInfo);
 		for (Pattern p : this.patterns) {
 			 flowInfo = p.analyseCode(currentScope, flowContext, flowInfo);
 		}
 		flowInfo = flowInfo.safeInitsWhenTrue(); // TODO: is this really needed?
-		this.thenInitStateIndex2 = currentScope.methodScope().recordInitializationStates(flowInfo);
 		return flowInfo;
 	}
 
@@ -137,8 +133,6 @@ public class RecordPattern extends TypePattern {
 			p.resolveTypeWithBindings(bindings, scope);
 			bindings = LocalVariableBinding.merge(bindings, p.bindingsWhenTrue());
 		}
-		for (LocalVariableBinding binding : bindings)
-			binding.useFlag = LocalVariableBinding.USED; // syntactically required even if untouched
 
 		if (this.resolvedType.isRawType()) {
 			TypeBinding expressionType = expectedType();
@@ -201,8 +195,7 @@ public class RecordPattern extends TypePattern {
 		if (!super.coversType(p.resolvedType)) {
 			return false;
 		}
-		if (p instanceof RecordPattern) {
-			RecordPattern rp = (RecordPattern) p;
+		if (p instanceof RecordPattern rp) {
 			if (this.patterns.length != rp.patterns.length)
 				return false;
 			for(int i = 0; i < this.patterns.length; i++) {
@@ -280,10 +273,6 @@ public class RecordPattern extends TypePattern {
 				eLabels.addAll(labels);
 			}
 			codeStream.patternAccessorMap.put(trapScope, eLabels);
-		}
-		if (this.thenInitStateIndex2 != -1) {
-			codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.thenInitStateIndex2);
-			codeStream.addDefinitelyAssignedVariables(currentScope, this.thenInitStateIndex2);
 		}
 	}
 
