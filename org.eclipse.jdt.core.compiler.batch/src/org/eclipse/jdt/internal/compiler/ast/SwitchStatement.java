@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.IntPredicate;
+import java.util.stream.Stream;
+
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.CaseStatement.ResolvedCase;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -985,15 +987,16 @@ public class SwitchStatement extends Expression {
 				) {
 			Pattern pattern = (Pattern) caseStatement.constantExpressions[caseStatement.patternIndex];
 			pattern.elseTarget.place();
-			pattern.suspendVariables(codeStream, this.scope);
-			caseIndex = this.nullProcessed ? caseIndex - 1 : caseIndex;
 			if (!pattern.isAlwaysTrue()) {
-				codeStream.loadInt(caseIndex);
+				// at the trampoline here, pattern bindings are not definitely assigned.
+				final LocalVariableBinding[] bindingsWhenTrue = pattern.bindingsWhenTrue();
+				Stream.of(bindingsWhenTrue).forEach(v->v.recordInitializationEndPC(codeStream.position));
+				codeStream.loadInt(this.nullProcessed ? caseIndex - 1 : caseIndex);
 				codeStream.store(this.restartIndexLocal, false);
 				codeStream.goto_(this.switchPatternRestartTarget);
+				Stream.of(bindingsWhenTrue).forEach(v->v.recordInitializationStartPC(codeStream.position));
 			}
 			pattern.thenTarget.place();
-			pattern.resumeVariables(codeStream, this.scope);
 		} else if (this.containsNull && caseStatement != null) {
 			this.nullProcessed |= caseStatement.patternIndex == -1;
 		}

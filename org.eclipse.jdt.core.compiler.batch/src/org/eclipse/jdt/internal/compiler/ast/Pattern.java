@@ -89,14 +89,6 @@ public abstract class Pattern extends Expression {
 			this.thenTarget = new BranchLabel(codeStream);
 	}
 
-	public void suspendVariables(CodeStream codeStream, BlockScope scope) {
-		// nothing by default
-	}
-
-	public void resumeVariables(CodeStream codeStream, BlockScope scope) {
-		// nothing by default
-	}
-
 	public abstract void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel);
 
 	public TypeReference getType() {
