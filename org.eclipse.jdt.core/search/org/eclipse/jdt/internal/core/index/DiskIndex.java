@@ -18,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.regex.Pattern;
 
+import org.eclipse.core.runtime.ILog;
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.search.*;
 import org.eclipse.jdt.internal.core.util.*;
@@ -623,21 +624,28 @@ private synchronized String[] readAllDocumentNames() throws IOException {
 	if (this.numberOfChunks <= 0)
 		return CharOperation.NO_STRINGS;
 
-	InputStream stream = this.indexLocation.getInputStream();
-	try (stream) {
-		int offset = this.chunkOffsets[0];
-		stream.skip(offset);
-		this.streamBuffer = new byte[BUFFER_READ_SIZE];
-		this.bufferIndex = 0;
-		this.bufferEnd = stream.read(this.streamBuffer, 0, this.streamBuffer.length);
-		int lastIndex = this.numberOfChunks - 1;
-		String[] docNames = new String[lastIndex * CHUNK_SIZE + this.sizeOfLastChunk];
-		for (int i = 0; i < this.numberOfChunks; i++)
-			readChunk(docNames, stream, i * CHUNK_SIZE, i < lastIndex ? CHUNK_SIZE : this.sizeOfLastChunk);
-		return docNames;
-	} finally {
-		this.indexLocation.close();
-		this.streamBuffer = null;
+	try {
+		try (InputStream stream = this.indexLocation.getInputStream();) {
+			int offset = this.chunkOffsets[0];
+			stream.skip(offset);
+			this.streamBuffer = new byte[BUFFER_READ_SIZE];
+			this.bufferIndex = 0;
+			this.bufferEnd = stream.read(this.streamBuffer, 0, this.streamBuffer.length);
+			int lastIndex = this.numberOfChunks - 1;
+			String[] docNames = new String[lastIndex * CHUNK_SIZE + this.sizeOfLastChunk];
+			for (int i = 0; i < this.numberOfChunks; i++)
+				readChunk(docNames, stream, i * CHUNK_SIZE, i < lastIndex ? CHUNK_SIZE : this.sizeOfLastChunk);
+			return docNames;
+		} finally {
+			this.indexLocation.close();
+			this.streamBuffer = null;
+		}
+	} catch (UTFDataFormatException ue) {
+		ILog.get().warn("Java Index broken - will be automatically deleted to repair: " + this.indexLocation, ue); //$NON-NLS-1$
+		// index is broken. automatically delete it
+		// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/460
+		this.indexLocation.delete();
+		return CharOperation.NO_STRINGS;
 	}
 }
 private synchronized HashtableOfObject readCategoryTable(char[] categoryName, boolean readDocNumbers) throws IOException {
@@ -667,51 +675,60 @@ private synchronized HashtableOfObject readCategoryTable(char[] categoryName, bo
 	int count = 0;
 	int firstOffset = -1;
 	this.streamBuffer = new byte[BUFFER_READ_SIZE];
-	try (InputStream stream = this.indexLocation.getInputStream()) {
-		stream.skip(offset);
-		this.bufferIndex = 0;
-		this.bufferEnd = stream.read(this.streamBuffer, 0, this.streamBuffer.length);
-		int size = readStreamInt(stream);
-		try {
-			categoryTable = new HashtableOfObject(size);
-		} catch (NegativeArraySizeException | OutOfMemoryError e) {
-			String message = "Failed to read index data from " + this.indexLocation + " at offset " + offset //$NON-NLS-1$ //$NON-NLS-2$
-					+ " and size " + size; //$NON-NLS-1$
-			throw new IOException(message, e);
-		}
-		int largeArraySize = 256;
-		for (int i = 0; i < size; i++) {
-			char[] word = readStreamChars(stream);
-			int arrayOffset = readStreamInt(stream);
-			// if arrayOffset is:
-			//		<= 0 then the array size == 1 with the value -> -arrayOffset
-			//		> 1 & < 256 then the size of the array is > 1 & < 256, the document array follows immediately
-			//		256 if the array size >= 256 followed by another int which is the offset to the array (written prior to the table)
-			if (arrayOffset <= 0) {
-				categoryTable.putUnsafely(word, new int[] {-arrayOffset}); // store 1 element array by negating documentNumber
-			} else if (arrayOffset < largeArraySize) {
-				categoryTable.putUnsafely(word, readStreamDocumentArray(stream, arrayOffset)); // read in-lined array providing size
-			} else {
-				arrayOffset = readStreamInt(stream); // read actual offset
-				if (readDocNumbers) {
-					if (matchingWords == null)
-						matchingWords = new char[size][];
-					if (count == 0)
-						firstOffset = arrayOffset;
-					matchingWords[count++] = word;
-				}
-				categoryTable.putUnsafely(word, Integer.valueOf(arrayOffset)); // offset to array in the file
+	try {
+		try (InputStream stream = this.indexLocation.getInputStream()) {
+			stream.skip(offset);
+			this.bufferIndex = 0;
+			this.bufferEnd = stream.read(this.streamBuffer, 0, this.streamBuffer.length);
+			int size = readStreamInt(stream);
+			try {
+				categoryTable = new HashtableOfObject(size);
+			} catch (NegativeArraySizeException | OutOfMemoryError e) {
+				String message = "Failed to read index data from " + this.indexLocation + " at offset " + offset //$NON-NLS-1$ //$NON-NLS-2$
+						+ " and size " + size; //$NON-NLS-1$
+				UTFDataFormatException ue = new UTFDataFormatException(message);
+				ue.initCause(e);
+				throw ue;
 			}
+			int largeArraySize = 256;
+			for (int i = 0; i < size; i++) {
+				char[] word = readStreamChars(stream);
+				int arrayOffset = readStreamInt(stream);
+				// if arrayOffset is:
+				//		<= 0 then the array size == 1 with the value -> -arrayOffset
+				//		> 1 & < 256 then the size of the array is > 1 & < 256, the document array follows immediately
+				//		256 if the array size >= 256 followed by another int which is the offset to the array (written prior to the table)
+				if (arrayOffset <= 0) {
+					categoryTable.putUnsafely(word, new int[] {-arrayOffset}); // store 1 element array by negating documentNumber
+				} else if (arrayOffset < largeArraySize) {
+					categoryTable.putUnsafely(word, readStreamDocumentArray(stream, arrayOffset)); // read in-lined array providing size
+				} else {
+					arrayOffset = readStreamInt(stream); // read actual offset
+					if (readDocNumbers) {
+						if (matchingWords == null)
+							matchingWords = new char[size][];
+						if (count == 0)
+							firstOffset = arrayOffset;
+						matchingWords[count++] = word;
+					}
+					categoryTable.putUnsafely(word, Integer.valueOf(arrayOffset)); // offset to array in the file
+				}
+			}
+			this.categoryTables.put(INTERNED_CATEGORY_NAMES.get(categoryName), categoryTable);
+			// cache the table as long as its not too big
+			// in practice, some tables can be greater than 500K when they contain more than 10K elements
+			this.cachedCategoryName = categoryTable.elementSize < 20000 ? categoryName : null;
+		} catch (IOException ioe) {
+			this.streamBuffer = null;
+			throw ioe;
+		} finally {
+			this.indexLocation.close();
 		}
-		this.categoryTables.put(INTERNED_CATEGORY_NAMES.get(categoryName), categoryTable);
-		// cache the table as long as its not too big
-		// in practice, some tables can be greater than 500K when they contain more than 10K elements
-		this.cachedCategoryName = categoryTable.elementSize < 20000 ? categoryName : null;
-	} catch (IOException ioe) {
-		this.streamBuffer = null;
-		throw ioe;
-	} finally {
-		this.indexLocation.close();
+	} catch (UTFDataFormatException ue) {
+		ILog.get().warn("Java Index broken - will be automatically deleted to repair: " + this.indexLocation, ue); //$NON-NLS-1$
+		// index is broken. automatically delete it
+		// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/460
+		this.indexLocation.delete();
 	}
 
 	if (matchingWords != null && count > 0) {
