@@ -127,7 +127,6 @@ public class TypePattern extends Pattern {
 		if (this.resolvedType != null)
 			return this.resolvedType; // Srikanth, fix reentry
 
-		this.local.modifiers |= ExtraCompilerModifiers.AccOutOfFlowScope;
 		Pattern enclosingPattern = this.getEnclosingPattern();
 		if (this.local.type == null || this.local.type.isTypeNameVar(scope)) {
 			/*
@@ -161,7 +160,6 @@ public class TypePattern extends Pattern {
 		this.local.resolve(scope, true);
 		if (this.local.binding != null) {
 			this.local.binding.modifiers |= ExtraCompilerModifiers.AccOutOfFlowScope; // start out this way, will be BlockScope.include'd when definitely assigned
-			this.local.binding.tagBits |= TagBits.IsPatternBinding;
 			if (enclosingPattern != null)
 				this.local.binding.useFlag = LocalVariableBinding.USED; // syntactically required even if untouched
 			if (this.local.type != null)
