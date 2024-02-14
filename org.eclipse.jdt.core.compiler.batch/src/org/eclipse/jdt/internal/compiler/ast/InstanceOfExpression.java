@@ -134,8 +134,8 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 		codeStream.iconst_1();
 		codeStream.goto_(continueLabel);
 		falseLabel.place();
-		for (LocalVariableBinding patternVariableBinding : this.pattern.bindingsWhenTrue()) {
-			codeStream.removeVariable(patternVariableBinding);
+		for (LocalVariableBinding binding : this.pattern.bindingsWhenTrue()) {
+			binding.recordInitializationEndPC(codeStream.position);
 		}
 		codeStream.iconst_0();
 		continueLabel.place();
