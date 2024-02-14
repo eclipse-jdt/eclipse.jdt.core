@@ -103,9 +103,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 */
 @Override
 public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
-	if (this.elementVariable != null && this.elementVariable.binding != null) {
-		this.elementVariable.binding.modifiers &= ~ExtraCompilerModifiers.AccOutOfFlowScope;
-	}
 
 	int pc = codeStream.position;
 
@@ -240,7 +237,7 @@ public TypeBinding resolveType(BlockScope scope) {
 			LocalVariableBinding local =
 					new LocalVariableBinding(
 						InstanceOfExpression.SECRET_EXPRESSION_VALUE,
-						TypeBinding.wellKnownType(scope, T_JavaLangObject), // good enough, no need for sharper type.
+						TypeBinding.wellKnownType(scope, T_JavaLangObject),
 						ClassFileConstants.AccDefault,
 						false);
 			local.setConstant(Constant.NotAConstant);
