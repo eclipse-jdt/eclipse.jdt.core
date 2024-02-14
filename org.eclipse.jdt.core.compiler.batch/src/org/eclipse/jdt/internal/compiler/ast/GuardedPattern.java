@@ -171,18 +171,6 @@ public class GuardedPattern extends Pattern {
 	}
 
 	@Override
-	public void suspendVariables(CodeStream codeStream, BlockScope scope) {
-		codeStream.removeNotDefinitelyAssignedVariables(scope, this.thenInitStateIndex1);
-		this.primaryPattern.suspendVariables(codeStream, scope);
-	}
-
-	@Override
-	public void resumeVariables(CodeStream codeStream, BlockScope scope) {
-		codeStream.addDefinitelyAssignedVariables(scope, this.thenInitStateIndex2);
-		this.primaryPattern.resumeVariables(codeStream, scope);
-	}
-
-	@Override
 	protected boolean isPatternTypeCompatible(TypeBinding other, BlockScope scope) {
 		return this.primaryPattern.isPatternTypeCompatible(other, scope);
 	}

@@ -288,16 +288,6 @@ public class RecordPattern extends TypePattern {
 	}
 
 	@Override
-	public void suspendVariables(CodeStream codeStream, BlockScope scope) {
-		codeStream.removeNotDefinitelyAssignedVariables(scope, this.thenInitStateIndex1);
-	}
-
-	@Override
-	public void resumeVariables(CodeStream codeStream, BlockScope scope) {
-		codeStream.addDefinitelyAssignedVariables(scope, this.thenInitStateIndex2);
-	}
-
-	@Override
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		if (visitor.visit(this, scope)) {
 			if (this.type != null) {
