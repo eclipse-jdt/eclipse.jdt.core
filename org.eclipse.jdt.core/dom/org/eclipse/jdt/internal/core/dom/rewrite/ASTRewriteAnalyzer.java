@@ -604,8 +604,8 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 				int offset) {
 			this.startPos= offset;
 			this.list= getEvent(parent, property).getChildren();
-
 			int total= this.list.length;
+
 			if (total == 0) {
 				return this.startPos;
 			}
@@ -665,8 +665,13 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 						if (separatorState == EXISTING) {
 							updateIndent(prevMark, currPos, i, editGroup);
 						}
-
-						doTextInsert(currPos, node, getNodeIndent(i), true, editGroup); // insert node
+							doTextInsert(
+									(parent instanceof StringTemplateExpression && ((StringTemplateExpression) parent).isMultiline()) ? currPos-4 : currPos,
+									//currPos,
+									node,
+									getNodeIndent(i),
+									true,
+									editGroup);
 
 						separatorState= NEW;
 						if (i != lastNonDelete) {
@@ -913,6 +918,42 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		return pos;
 	}
 
+	private void rewriteStringTemplateNode(StringTemplateExpression node, int pos) {
+		RewriteEvent event= getEvent(node, StringTemplateExpression.MULTI_LINE);
+
+		if (event != null) {
+			switch (event.getChangeKind()) {
+				case RewriteEvent.REPLACED: {
+					boolean originalNode= ((Boolean) event.getOriginalValue()).booleanValue();
+					boolean newValue= ((Boolean) event.getNewValue()).booleanValue();
+
+					int pos1 = rewriteRequiredNode(node, StringTemplateExpression.TEMPLATE_PROCESSOR);
+					int pos2 = rewriteRequiredNode(node, StringTemplateExpression.STRING_TEMPLATE_COMPONENTS);
+
+					if(newValue && !originalNode) {// SINGLE LINE to MULTI LINE
+						if(pos2 == 0 ) { // without component
+							doTextReplace(pos1 +1, 1, "\"\"\"\n", getEditGroup(event)); //$NON-NLS-1$
+							doTextReplace(pos -1, 1, "\n\"\"\"", getEditGroup(event)); //$NON-NLS-1$
+						} else { // with Component
+							doTextReplace(pos1 +1, 1, "\"\"\"\n", getEditGroup(event)); //$NON-NLS-1$
+							doTextReplace(pos2, 1, "\n\"\"\"", getEditGroup(event)); //$NON-NLS-1$
+						}
+
+					} else if(!newValue && originalNode) {// MULTI LINE to SINGLE LINE
+						if(pos2 == 0) { // without Component
+							doTextReplace(pos1 +1, 4, "\"", getEditGroup(event)); //$NON-NLS-1$
+							doTextReplace(pos-4, 4, "\"", getEditGroup(event)); //$NON-NLS-1$
+						} else { // with Component
+							doTextReplace(pos1 +1, 4, "\"", getEditGroup(event)); //$NON-NLS-1$
+							doTextReplace(pos2-4, 4, "\"", getEditGroup(event)); //$NON-NLS-1$
+						}
+					}
+					break;
+				}
+			}
+		}
+	}
+
 
 	/*
 	 * endpos can be -1 -> use the end pos of the body
@@ -1100,6 +1141,8 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		}
 		return pos;
 	}
+
+	//private int rewriteStringTemplate()
 
 	class ParagraphListRewriter extends ListRewriter {
 
@@ -1423,8 +1466,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	 * Next token is a right parenthesis. Returns the offset after the parenthesis. For incomplete code, return the start offset.
 	 */
 	private int getPosAfterRightParenthesis(int pos) {
-		try {
-			return getPosAfterToken(pos, TerminalTokens.TokenNameRPAREN);
+		try {			return getPosAfterToken(pos, TerminalTokens.TokenNameRPAREN);
 		} catch (IllegalArgumentException e) {
 			return pos;
 		}
@@ -1519,7 +1561,6 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			doTextInsert(insertOffset, insertStr, editGroup);
 		}
 	}
-
 	private boolean needsNewLineForLineComment(ASTNode node, String formatted, int offset) {
 		if (!this.lineCommentEndOffsets.isEndOfLineComment(getExtendedEnd(node), this.content)) {
 			return false;
@@ -4677,11 +4718,20 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		if (!hasChildrenChanges(node)) {
 			return doVisitUnchangedChildren(node);
 		}
+		int pos = rewriteRequiredNode(node, StringTemplateExpression.FIRST_STRING_FRAGMENT);
+
 		if (node.getAST().isPreviewEnabled()) {
-			int pos = rewriteRequiredNode(node, StringTemplateExpression.TEMPLATE_PROCESSOR);
-			pos = rewriteRequiredNode(node, StringTemplateExpression.FIRST_STRING_FRAGMENT);
-			rewriteNodeList(node, StringTemplateExpression.STRING_TEMPLATE_COMPONENTS, pos, "", "", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			rewriteNodeList(
+					node,
+					StringTemplateExpression.STRING_TEMPLATE_COMPONENTS,
+					//StringTemplateExpression.MULTI_LINE,
+					node.components().isEmpty() ? pos -1 : pos,//Sometimes, the pos  returns false values even when the stringTemplateExpression has no stringTemplateComponent
+					"", //$NON-NLS-1$
+					"", //$NON-NLS-1$
+					""); //$NON-NLS-1$
+				rewriteStringTemplateNode(node, pos);//handles SINGLE LINE to MULTI LINE and vice versa
 		}
+
 		return false;
 	}
 	@Override
