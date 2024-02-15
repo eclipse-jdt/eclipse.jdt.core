@@ -393,6 +393,31 @@ class DOMToModelPopulator extends ASTVisitor {
 		this.infos.pop();
 	}
 
+	@Override
+	public boolean visit(SingleVariableDeclaration node) {
+		if (node.getParent() instanceof RecordDeclaration) {
+			SourceField newElement = new SourceField(this.elements.peek(), node.getName().toString());
+			this.elements.push(newElement);
+			addAsChild(this.infos.peek(), newElement);
+			SourceFieldElementInfo newInfo = new SourceFieldElementInfo();
+			newInfo.setSourceRangeStart(node.getStartPosition());
+			newInfo.setSourceRangeEnd(node.getStartPosition() + node.getLength() - 1);
+			newInfo.setNameSourceStart(node.getName().getStartPosition());
+			newInfo.setNameSourceEnd(node.getName().getStartPosition() + node.getName().getLength() - 1);
+			newInfo.setTypeName(node.getType().toString().toCharArray());
+			newInfo.isRecordComponent = true;
+			this.infos.push(newInfo);
+			this.toPopulate.put(newElement, newInfo);
+		}
+		return true;
+	}
+	@Override
+	public void endVisit(SingleVariableDeclaration decl) {
+		if (decl.getParent() instanceof RecordDeclaration recordDecl) {
+			this.elements.pop();
+			this.infos.pop();
+		}
+	}
 
 	@Override
 	public boolean visit(MethodDeclaration method) {
@@ -403,18 +428,25 @@ class DOMToModelPopulator extends ASTVisitor {
 				.map(Name::getFullyQualifiedName)
 				.forEach(this.currentTypeParameters::add);
 		}
+		List<SingleVariableDeclaration> parameters = method.parameters();
+		if (method.getAST().apiLevel() >= AST.JLS16
+			&& method.isCompactConstructor()
+			&& (parameters == null || parameters.isEmpty())
+			&& method.getParent() instanceof RecordDeclaration parentRecord) {
+			parameters = parentRecord.recordComponents();
+		}
 		SourceMethod newElement = new SourceMethod(this.elements.peek(),
 			method.getName().getIdentifier(),
-			((List<SingleVariableDeclaration>)method.parameters()).stream()
+			parameters.stream()
 				.map(this::createSignature)
 				.toArray(String[]::new));
 		this.elements.push(newElement);
 		addAsChild(this.infos.peek(), newElement);
-		SourceMethodInfo info = new SourceMethodWithChildrenInfo(new IJavaElement[0]);
-		info.setArgumentNames(((List<SingleVariableDeclaration>)method.parameters()).stream().map(param -> param.getName().toString().toCharArray()).toArray(char[][]::new));
-		info.arguments = ((List<SingleVariableDeclaration>)method.parameters()).stream()
-			.map(this::toLocalVariable)
-			.toArray(LocalVariable[]::new);
+		SourceMethodElementInfo info = method.isConstructor() ?
+			new SourceConstructorInfo() :
+			new SourceMethodWithChildrenInfo(new IJavaElement[0]);
+		info.setArgumentNames(parameters.stream().map(param -> param.getName().toString().toCharArray()).toArray(char[][]::new));
+		info.arguments = parameters.stream().map(this::toLocalVariable).toArray(LocalVariable[]::new);
 		if (method.getAST().apiLevel() > 2) {
 			if (method.getReturnType2() != null) {
 				info.setReturnType(method.getReturnType2().toString().toCharArray());
@@ -436,6 +468,7 @@ class DOMToModelPopulator extends ASTVisitor {
 			| (((List<SingleVariableDeclaration>)method.parameters()).stream().anyMatch(decl -> decl.isVarargs()) ? Flags.AccVarargs : 0));
 		info.setNameSourceStart(method.getName().getStartPosition());
 		info.setNameSourceEnd(method.getName().getStartPosition() + method.getName().getLength() - 1);
+		info.isCanonicalConstructor = method.isConstructor();
 		this.infos.push(info);
 		this.toPopulate.put(newElement, info);
 		return true;
