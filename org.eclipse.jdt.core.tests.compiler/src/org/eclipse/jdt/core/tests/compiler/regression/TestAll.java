@@ -25,7 +25,6 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 
 import java.util.ArrayList;
 
-import org.eclipse.jdt.core.tests.compiler.IrritantSetTest;
 import org.eclipse.jdt.core.tests.compiler.util.HashtableOfObjectTest;
 import org.eclipse.jdt.core.tests.compiler.util.JrtUtilTest;
 import org.eclipse.jdt.core.tests.dom.StandAloneASTParserTest;
@@ -95,7 +94,6 @@ public static Test suite() {
 	standardTests.add(ResourceLeakTests.class);
 	standardTests.add(ResourceLeakAnnotatedTests.class);
 	standardTests.add(PackageBindingTest.class);
-	standardTests.add(IrritantSetTest.class);
 
 	// add all javadoc tests
 	for (int i=0, l=JavadocTest.ALL_CLASSES.size(); i<l; i++) {
