@@ -47,8 +47,7 @@ public class TypePattern extends Pattern {
 	}
 	@Override
 	public LocalVariableBinding[] bindingsWhenTrue() {
-		return (this.local.binding == null || this.local.isUnnamed(this.local.binding.declaringScope)) ?
-							NO_VARIABLES : new LocalVariableBinding[] { this.local.binding };
+		return this.local.binding == null ? NO_VARIABLES : new LocalVariableBinding[] { this.local.binding };
 	}
 	@Override
 	public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding expressionType, TypeBinding match, boolean isNarrowing) {
