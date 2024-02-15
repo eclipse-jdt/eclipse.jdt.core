@@ -691,4 +691,67 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
 				----------
 				""");
 	}
+
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2024
+	// [Patterns][Unnamed] VerifyError with unnamed pattern variable in instanceof
+	public void testIssue2024() {
+		runConformTest(new String[] {
+				"X.java",
+				"""
+				record A(){}
+				record R<T>(T t) {}
+				public class X {
+				    private static boolean foo(R<A> r) {
+				        return r instanceof R(var _);
+				    }
+				    public static void main(String argv[]) {
+				        System.out.println(foo(new R<A>(new A())) ? "Pass" : "Fail");
+				    }
+				}
+				"""
+			},
+			"Pass");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2024
+	// [Patterns][Unnamed] VerifyError with unnamed pattern variable in instanceof
+	public void testIssue2024_2() {
+		runConformTest(new String[] {
+				"X.java",
+				"""
+				record A(){}
+				record R<T>(T t) {}
+				public class X {
+				    private static boolean foo(R<? extends A> r) {
+				        return r instanceof R(var _);
+				    }
+				    public static void main(String argv[]) {
+				        System.out.println(foo(new R<A>(new A())) ? "Pass" : "Fail");
+				    }
+				}
+				"""
+			},
+			"Pass");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2024
+	// [Patterns][Unnamed] VerifyError with unnamed pattern variable in instanceof
+	public void testIssue2024_3() {
+		runConformTest(new String[] {
+				"X.java",
+				"""
+				interface I {}
+				record A() implements I {}
+				record R<T>(T t) {}
+
+				public class X {
+				    private static boolean foo(R<? extends I> r) {
+				        return r instanceof R(var _);
+				    }
+				    public static void main(String argv[]) {
+				        System.out.println(foo(new R<A>(new A())) ? "Pass" : "Fail");
+				    }
+				}
+				"""
+			},
+			"Pass");
+	}
 }
