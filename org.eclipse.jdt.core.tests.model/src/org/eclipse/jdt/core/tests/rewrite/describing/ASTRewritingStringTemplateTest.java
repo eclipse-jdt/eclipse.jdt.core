@@ -35,7 +35,7 @@ import junit.framework.Test;
 public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 
 	static {
-		//TESTS_NAMES = new String[] {"test007_c"};
+		TESTS_NAMES = new String[] {"test008"};
 	}
 
 	public ASTRewritingStringTemplateTest(String name, int apiLevel) {
@@ -815,6 +815,125 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 		buf.append("  void foo(Object o) {\n");
 		buf.append("    String name = \"Jay\";\n");
 		buf.append("    String s = STR.\"Hello \\{name} \\{os} is your OS. \";\n");
+		buf.append("  }\n");
+		buf.append("}\n");
+
+		assertEqualString(preview, buf.toString());
+	}
+	@SuppressWarnings({ "rawtypes", "deprecation" })
+	//Modify the FIRST FRAGMENT(Initially empty value)
+	//First Fragment EMPTY STRING to value
+	public void _test008() throws Exception {
+		if (this.apiLevel != 21) {
+			System.err.println("Test "+getName()+" requires a JRE 21");
+			return;
+		}
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuilder buf= new StringBuilder();
+		buf.append("package test1;\n");
+		buf.append("public class X {\n");
+		buf.append("  void foo(Object o) {\n");
+		buf.append("    String name = \"Jay\";\n");
+		buf.append("    String s = STR.\"\";\n");
+		buf.append("  }\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		TypeDeclaration type= findTypeDeclaration(astRoot, "X");
+		MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+		Block block= methodDecl.getBody();
+		List blockStatements = block.statements();
+		assertEquals("Incorrect number of statements", 2, blockStatements.size());
+		{
+			VariableDeclarationStatement varStmt = (VariableDeclarationStatement) blockStatements.get(1);
+			assertEquals("Incorrect number of fragents", 1, varStmt.fragments().size());
+			VariableDeclarationFragment varFragment = (VariableDeclarationFragment) varStmt.fragments().get(0);
+			StringTemplateExpression templateExp = (StringTemplateExpression) varFragment.getInitializer();
+			StringFragment literal = astRoot.getAST().newStringFragment();
+			literal.setEscapedValue("Hey there ");
+			rewrite.set(templateExp,  StringTemplateExpression.FIRST_STRING_FRAGMENT, literal, null);
+		}
+
+		String preview = evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuilder();
+		buf.append("package test1;\n");
+		buf.append("public class X {\n");
+		buf.append("  void foo(Object o) {\n");
+		buf.append("    String name = \"Jay\";\n");
+		buf.append("    String s = STR.\"Hey there \";\n");
+		buf.append("  }\n");
+		buf.append("}\n");
+
+		assertEqualString(preview, buf.toString());
+	}
+	@SuppressWarnings({ "rawtypes", "deprecation" })
+	//Using RAW Template Processor
+	public void test009() throws Exception {
+		if (this.apiLevel != 21) {
+			System.err.println("Test "+getName()+" requires a JRE 21");
+			return;
+		}
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuilder buf= new StringBuilder();
+		buf.append("package test1;\n");
+		buf.append("public class X {\n");
+		buf.append("  void foo(Object o) {\n");
+		buf.append("    String name = \"Jay\";\n");
+		buf.append("  }\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+		AST ast= astRoot.getAST();
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		TypeDeclaration type= findTypeDeclaration(astRoot, "X");
+		MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+		Block block= methodDecl.getBody();
+		List blockStatements = block.statements();
+		//add component to first fragment
+		assertEquals("Incorrect number of statements", 1, blockStatements.size());
+		{
+			VariableDeclarationFragment varFragment = ast.newVariableDeclarationFragment();
+			varFragment.setName(ast.newSimpleName("s")); //$NON-NLS-1$
+			StringTemplateExpression templateExp = ast.newStringTemplateExpression();
+			List<StringTemplateComponent> components = templateExp.components();
+			StringFragment fragment = ast.newStringFragment();
+			templateExp.setIsMultiline(false);
+			fragment.setEscapedValue("Hello ");
+			templateExp.setFirstFragment(fragment);
+
+			StringTemplateComponent component = ast.newStringTemplateComponent();
+			SimpleName name = ast.newSimpleName("name");
+			fragment = ast.newStringFragment();
+			fragment.setEscapedValue("!");
+			component.setEmbeddedExpression(name);
+			component.setStringFragment(fragment);
+			components.add(component);
+
+			templateExp.setProcessor(ast.newSimpleName("RAW"));
+			varFragment.setInitializer(templateExp);
+			templateExp.toString();
+			VariableDeclarationStatement varDec = ast.newVariableDeclarationStatement(varFragment);
+			varDec.setType(ast.newSimpleType(ast.newSimpleName("String")));//$NON-NLS-1$
+			rewrite.getListRewrite(block, Block.STATEMENTS_PROPERTY).insertLast(varDec, null);
+		}
+
+		String preview = evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuilder();
+		buf.append("package test1;\n");
+		buf.append("public class X {\n");
+		buf.append("  void foo(Object o) {\n");
+		buf.append("    String name = \"Jay\";\n");
+		buf.append("    String s = RAW.\"Hello \\{name}!\";\n");
 		buf.append("  }\n");
 		buf.append("}\n");
 
