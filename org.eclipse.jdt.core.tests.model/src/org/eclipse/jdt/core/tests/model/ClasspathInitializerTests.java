@@ -1376,7 +1376,7 @@ public void testVariableInitializer11() throws CoreException {
 }
 
 /**
- * @bug 138599: [model][classpath] Need a way to mark a classpath variable as deprecated
+ * bug 138599: [model][classpath] Need a way to mark a classpath variable as deprecated
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=138599"
  */
 public void testVariableInitializerDeprecated() throws CoreException, IOException {
@@ -1433,7 +1433,7 @@ public void testVariableInitializerUnboundAndDeprecated() throws CoreException {
 }
 
 /**
- * @bug 156226: [model][classpath] Allow classpath variable to be marked as non modifiable
+ * bug 156226: [model][classpath] Allow classpath variable to be marked as non modifiable
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=156226"
  */
 public void testVariableInitializerReadOnly() throws CoreException, IOException {
@@ -1494,7 +1494,7 @@ public void testVariableInitializerDeprecatedAndReadOnly() throws CoreException,
 }
 
 /**
- * @bug 172207: [model] Marker for deprecated classpath variable should always have WARNING severity
+ * bug 172207: [model] Marker for deprecated classpath variable should always have WARNING severity
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=172207"
  */
 public void testVariableInitializerBug172207() throws CoreException, IOException {
@@ -1537,8 +1537,8 @@ public void testVariableInitializerBug172207() throws CoreException, IOException
 }
 
 /**
- * @bug 186113: [model] classpath variable deprecation messages not initialized when called
- * @test	a) Verify that deprecation message can be get through {@link JavaCore#getClasspathVariableDeprecationMessage(String)}
+ * bug 186113: [model] classpath variable deprecation messages not initialized when called
+ * test	a) Verify that deprecation message can be get through {@link JavaCore#getClasspathVariableDeprecationMessage(String)}
  * 	even if the variable initializer was not called before
  * 			b) Verify that message is not stored in cache when variable is not initialized (othwerise we could not free it up...)
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=186113"
@@ -1555,8 +1555,8 @@ public void testVariableInitializerBug186113b() throws CoreException {
 }
 
 /**
- * @bug 200449: [model] classpath variable deprecation messages not initialized when called
- * @test	a) Verify that deprecation message is well stored in cache when variable is iniatialized
+ * bug 200449: [model] classpath variable deprecation messages not initialized when called
+ * test	a) Verify that deprecation message is well stored in cache when variable is iniatialized
  * 			b) Verify that deprecation message is well removed in cache when variable is removed
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=200449"
  */

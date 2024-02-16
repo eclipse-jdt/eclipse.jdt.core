@@ -3385,7 +3385,7 @@ public abstract class AbstractJavaModelTests extends SuiteOfTestCases {
 	}
 
 	/**
-	 * Check locally for the required JCL files, <jclName>.jar and <jclName>src.zip.
+	 * Check locally for the required JCL files, {@code <jclName>.jar} and {@code <jclName>src.zip}.
 	 * If not available, copy from the project resources.
 	 */
 	public void setupExternalJCL(String jclName) throws IOException {

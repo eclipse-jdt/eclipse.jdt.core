@@ -809,8 +809,8 @@ public void testBug151189_Project() throws CoreException {
 }
 
 /**
- * @bug 163072: [search] method reference reports wrong potential matches
- * @test Ensure that there's no potential match while searching in two projects having 1.4 and 1.5 compliances
+ * bug 163072: [search] method reference reports wrong potential matches
+ * test Ensure that there's no potential match while searching in two projects having 1.4 and 1.5 compliances
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=163072"
  */
 public void testBug163072() throws CoreException {
@@ -881,8 +881,8 @@ public void testBug163072() throws CoreException {
 }
 
 /**
- * @bug 167743: [search] Open Type Dialog cannot find types from projects migrated from 3.2.1 workspace
- * @test Ensure that types are found even in default package fragment root
+ * bug 167743: [search] Open Type Dialog cannot find types from projects migrated from 3.2.1 workspace
+ * test Ensure that types are found even in default package fragment root
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=167743"
  */
 public void testBug167743() throws CoreException {
@@ -935,8 +935,8 @@ public void testBug167743() throws CoreException {
 }
 
 /**
- * @bug 176831: [search] No search results due to malformed search scope
- * @test Verify that type are found in rt.jar even if it's added as a library on the classpath
+ * bug 176831: [search] No search results due to malformed search scope
+ * test Verify that type are found in rt.jar even if it's added as a library on the classpath
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=176831"
  */
 public void testBug176831() throws CoreException {
@@ -997,8 +997,8 @@ public void testBug176831b() throws CoreException {
 }
 
 /**
- * @bug 195228: [search] Invalid path in open type dialog
- * @test Verify that correct types are found even with project and source folders in the classpath
+ * bug 195228: [search] Invalid path in open type dialog
+ * test Verify that correct types are found even with project and source folders in the classpath
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=195228"
  */
 public void testBug195228() throws CoreException {
@@ -1071,8 +1071,8 @@ public void testBug195228() throws CoreException {
 }
 
 /**
- * @bug 199392: [search] Type Dialog Error 'Items filtering ... Reason: Class file name must end with .class'
- * @test Ensure that types are found even in project which name ends either with ".jar" or ".zip"
+ * bug 199392: [search] Type Dialog Error 'Items filtering ... Reason: Class file name must end with .class'
+ * test Ensure that types are found even in project which name ends either with ".jar" or ".zip"
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=199392"
  */
 public void testBug199392_Jar() throws CoreException {
@@ -1225,8 +1225,8 @@ public void testBug199392_Zip_SamePartCount() throws CoreException {
 }
 
 /**
- * @bug 210689: [search] Import references not found on working copies not written on disk
- * @test Ensure that import references are found when searching on working copies not written on disk
+ * bug 210689: [search] Import references not found on working copies not written on disk
+ * test Ensure that import references are found when searching on working copies not written on disk
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=210689"
  */
 public void testBug210689() throws CoreException {
@@ -1294,8 +1294,8 @@ public void testBug210689() throws CoreException {
 }
 
 /**
- * @bug 229128: JDT Search finding matches in working copies that are not part of scope
- * @test Ensure that an annotation reference is not found in a working copy if outside the scope
+ * bug 229128: JDT Search finding matches in working copies that are not part of scope
+ * test Ensure that an annotation reference is not found in a working copy if outside the scope
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=229128"
  */
 public void testBug229128() throws CoreException {
@@ -1352,8 +1352,8 @@ public void testBug229128() throws CoreException {
 }
 
 /**
- * @bug 229951: StackOverflowError during JavaSearchScope.add for large workspace
- * @test Ensure that no StackOverFlowError occurs when searching in a project referencing a cycle
+ * bug 229951: StackOverflowError during JavaSearchScope.add for large workspace
+ * test Ensure that no StackOverFlowError occurs when searching in a project referencing a cycle
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=229951"
  */
 public void testBug229951a() throws Exception {
@@ -1399,8 +1399,8 @@ public void testBug229951a() throws Exception {
 }
 
 /**
- * @bug 229951: StackOverflowError during JavaSearchScope.add for large workspace
- * @test Ensure that no StackOverFlowError occurs when creating a search scope on a project referencing a cycle
+ * bug 229951: StackOverflowError during JavaSearchScope.add for large workspace
+ * test Ensure that no StackOverFlowError occurs when creating a search scope on a project referencing a cycle
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=229951"
  */
 public void testBug229951b() throws Exception {
@@ -1446,8 +1446,8 @@ public void testBug229951b() throws Exception {
 }
 
 /**
- * @bug 250454: [search] Cannot find method references between projects
- * @test Ensure that search does not find illegal references with given projects setup
+ * bug 250454: [search] Cannot find method references between projects
+ * test Ensure that search does not find illegal references with given projects setup
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=250454"
  */
 public void testBug250454() throws CoreException {

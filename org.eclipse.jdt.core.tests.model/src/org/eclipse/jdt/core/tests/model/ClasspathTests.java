@@ -1955,8 +1955,8 @@ public void testClasspathValidation27() throws CoreException {
 	}
 }
 /**
- * @bug 159325: Any idea why ClasspathEntry checks for string object reference instead of equals
- * @test Ensure that validation is correctly done even for other strings than JavaCore constants...
+ * bug 159325: Any idea why ClasspathEntry checks for string object reference instead of equals
+ * test Ensure that validation is correctly done even for other strings than JavaCore constants...
  * 	Note that it's needed to change JavaCore options as "ignore" is the default value and set option
  * 	to this value on java project will just remove it instead of putting another string object...
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=159325"
@@ -5956,8 +5956,8 @@ public void testRemoveDuplicates() throws CoreException {
 	}
 }
 /**
- * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=170197"
  * Make sure null references don't make their way into ClasspathEntry's state
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=170197"
  */
 public void testForceNullArgumentsToEmptySet() throws CoreException {
 	IClasspathEntry e =	JavaCore.newContainerEntry(new Path("JRE_CONTAINER"), null, null, false);
@@ -5968,8 +5968,8 @@ public void testForceNullArgumentsToEmptySet() throws CoreException {
 }
 
 /**
- * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=170197"
  * Make sure null references don't make their way into ClasspathEntry's state
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=170197"
  */
 public void testForceNullArgumentsToEmptySet2() throws CoreException {
 	IClasspathEntry e = JavaCore.newLibraryEntry(new Path("/P0/JUNK"), new Path("/P0/SBlah"), new Path("/P0"), null, null, false);
@@ -5980,8 +5980,8 @@ public void testForceNullArgumentsToEmptySet2() throws CoreException {
 }
 
 /**
- * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=170197"
  * Make sure null references don't make their way into ClasspathEntry's state
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=170197"
  */
 public void testForceNullArgumentsToEmptySet3() throws CoreException {
 	IClasspathEntry e = JavaCore.newProjectEntry(new Path("/P2"), null, false, null, false);
@@ -5992,8 +5992,8 @@ public void testForceNullArgumentsToEmptySet3() throws CoreException {
 }
 
 /**
- * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=170197"
  * Make sure null references don't make their way into ClasspathEntry's state
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=170197"
  */
 public void testForceNullArgumentsToEmptySet4() throws CoreException {
 	IClasspathEntry e = JavaCore.newSourceEntry(new Path("/P"), null, null, null, null);
@@ -6004,8 +6004,8 @@ public void testForceNullArgumentsToEmptySet4() throws CoreException {
 }
 
 /**
- * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=170197"
  * Make sure null references don't make their way into ClasspathEntry's state
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=170197"
  */
 public void testForceNullArgumentsToEmptySet5() throws CoreException {
 	IClasspathEntry e = JavaCore.newVariableEntry(new Path("JCL_LIB"), new Path("JCL_SRC"), null, null, null, false);
@@ -6088,8 +6088,8 @@ public void testBug276373() throws Exception {
 	}
 }
 /**
- * @bug 248661:Axis2: Missing required libraries in Axis 2 WS Client Projects
- * @test that a variable classpath entry that is mappped to a folder/jar with external path (but still
+ * bug 248661:Axis2: Missing required libraries in Axis 2 WS Client Projects
+ * test that a variable classpath entry that is mappped to a folder/jar with external path (but still
  * inside the project folder) can be validated using both system absolute path and relative path.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=248661"
@@ -6121,7 +6121,7 @@ public void testBug248661() throws Exception {
 	}
 }
 /**
- * @bug 300136:classpathentry OPTIONAL attribute not honored for var entries
+ * bug 300136:classpathentry OPTIONAL attribute not honored for var entries
  *
  * Test that classpath entries (CPE_LIB, CPE_CONTAINER and CPE_VARIABLE) that are marked as optional
  * in the .classpath file are not reported for errors.
@@ -6225,7 +6225,7 @@ public void testBug300136a() throws Exception {
 	}
 }
 /**
- * @bug 294360:Duplicate entries in Classpath Resolution when importing dependencies from parent project
+ * bug 294360:Duplicate entries in Classpath Resolution when importing dependencies from parent project
  * Test that duplicate entries are not added to the resolved classpath
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=294360"
@@ -6271,7 +6271,7 @@ public void testBug294360a() throws Exception {
 	}
 }
 /**
- * @bug 252431:New API is needed to better identify referenced jars in the Class-Path: entry
+ * bug 252431:New API is needed to better identify referenced jars in the Class-Path: entry
  * Test that 1) referenced libraries are added to the resolved classpath in the right order
  * 			 2) referenced libraries are added to the appropriate referencing library in the correct order
  * 			 3) referenced libraries and top-level libraries retain the source attachment and source attachment root path
@@ -6584,7 +6584,7 @@ public void testBug252341c() throws Exception {
 	}
 }
 /**
- * @bug 304081:IJavaProject#isOnClasspath(IJavaElement) returns false for type from referenced JAR
+ * bug 304081:IJavaProject#isOnClasspath(IJavaElement) returns false for type from referenced JAR
  * When the JAR, which a variable classpath entry resolves to, references other JAR via
  * MANIFEST, test that {@link IJavaProject#isOnClasspath(IJavaElement)} returns true
  * for the referenced classpath entries.
@@ -6674,7 +6674,7 @@ public void testBug304081a() throws Exception {
 	}
 }
 /**
- * @bug 302949: FUP of 302949
+ * bug 302949: FUP of 302949
  * Test that
  * 1) non-chaining jars are cached during classpath resolution and can be retrieved later on
  * 2) A full save (after resetting the non chaining jars cache) caches the non-chaining jars information
@@ -6735,7 +6735,7 @@ public void testBug305122() throws Exception {
 	}
 }
 /**
- * @bug 308150: JAR with invalid Class-Path entry in MANIFEST.MF crashes the project
+ * bug 308150: JAR with invalid Class-Path entry in MANIFEST.MF crashes the project
  * Test that an invalid referenced library entry in the Class-Path of the MANIFEST doesn't
  * create any exceptions and is NOT added to the resolved classpath.
  *
@@ -6768,7 +6768,7 @@ public void testBug308150() throws Exception {
 	}
 }
 /**
- * @bug 305037: missing story for attributes of referenced JARs in classpath containers
+ * bug 305037: missing story for attributes of referenced JARs in classpath containers
  * Test that attributes set on referenced libraries of variable entries via MANIFEST are persisted
  * and can be retrieved
  *
@@ -6820,7 +6820,7 @@ public void testBug305037() throws Exception {
 	}
 }
 /**
- * @bug 313965: Breaking change in classpath container API
+ * bug 313965: Breaking change in classpath container API
  * Test that when the resolveReferencedLibrariesForContainers system property is set to true, the referenced libraries
  * for JARs from containers are resolved.
  *
@@ -6862,7 +6862,7 @@ public void testBug313965() throws Exception {
 	}
 }
 /**
- * @bug 313965: Breaking change in classpath container API
+ * bug 313965: Breaking change in classpath container API
  * Test that when the resolveReferencedLibrariesForContainers system property is set to false (or default),
  * the referenced libraries for JARs from containers are NOT resolved or added to the project's classpath.
  *
@@ -6915,7 +6915,7 @@ public void testBug321170() throws Exception {
 	}
 }
 /**
- * @bug 229042: [buildpath] could create build path error in case of invalid external JAR format
+ * bug 229042: [buildpath] could create build path error in case of invalid external JAR format
  *
  * Test that an invalid archive (JAR) creates a buildpath error
  *
@@ -6950,7 +6950,7 @@ public void testBug229042() throws Exception {
 	}
 }
 /**
- * @bug 274737: Relative Classpath entries should not be resolved relative to the workspace
+ * bug 274737: Relative Classpath entries should not be resolved relative to the workspace
  *
  * Test that for an external project, relative paths are resolve relative to the project location.
  *
@@ -6998,7 +6998,7 @@ public void testBug274737() throws Exception {
 }
 
 /**
- * @bug 338006: IJavaProject#getPackageFragmentRoots() should return roots in order
+ * bug 338006: IJavaProject#getPackageFragmentRoots() should return roots in order
  *
  * Test whether the {@link IJavaProject#getPackageFragmentRoots()} returns the package fragment
  * roots in the same order as defined by the .classpath even when the elements are added in a
@@ -7079,7 +7079,7 @@ public void testBug357425() throws Exception {
 	}
 }
 /**
- * @bug287164: Report build path error if source folder has other source folder as output folder
+ * bug287164: Report build path error if source folder has other source folder as output folder
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=287164"
  */
@@ -7146,7 +7146,7 @@ public void testBug287164() throws CoreException {
 }
 
 /**
- * @bug220928: [buildpath] Should be able to ignore warnings from certain source folders
+ * bug220928: [buildpath] Should be able to ignore warnings from certain source folders
  *
  * Verify that adding the {@link IClasspathAttribute#IGNORE_OPTIONAL_PROBLEMS} attribute is
  * correctly reflected by the {@link ClasspathEntry#ignoreOptionalProblems()} method.
@@ -7169,7 +7169,7 @@ public void testBug220928a() throws CoreException {
 }
 
 /**
- * @bug220928: [buildpath] Should be able to ignore warnings from certain source folders
+ * bug220928: [buildpath] Should be able to ignore warnings from certain source folders
  *
  * Verify that value of the {@link IClasspathAttribute#IGNORE_OPTIONAL_PROBLEMS} attribute is
  * correctly saved on workspace save.
@@ -7262,7 +7262,7 @@ public void testBug396299() throws Exception {
 	}
 }
 /**
- * @bug 411423: JavaProject.resolveClasspath is spending more than 90% time on ExternalFoldersManager.isExternalFolderPath
+ * bug 411423: JavaProject.resolveClasspath is spending more than 90% time on ExternalFoldersManager.isExternalFolderPath
  * Tests that
  * 1) External file paths are cached during classpath resolution and can be retrieved later on
  * 2) A full save (after resetting the external files cache) caches the external files information

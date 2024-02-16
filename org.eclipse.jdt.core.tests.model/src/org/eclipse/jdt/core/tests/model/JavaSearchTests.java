@@ -21,15 +21,43 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 
-import junit.framework.Test;
-
-import org.eclipse.core.resources.*;
-import org.eclipse.core.runtime.*;
-import org.eclipse.jdt.core.*;
-import org.eclipse.jdt.core.search.*;
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IClassFile;
+import org.eclipse.jdt.core.IClasspathEntry;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IField;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.ILocalVariable;
+import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IOrdinaryClassFile;
+import org.eclipse.jdt.core.IPackageDeclaration;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IPackageFragmentRoot;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.ITypeParameter;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.search.IJavaSearchConstants;
+import org.eclipse.jdt.core.search.IJavaSearchScope;
+import org.eclipse.jdt.core.search.LocalVariableDeclarationMatch;
+import org.eclipse.jdt.core.search.SearchEngine;
+import org.eclipse.jdt.core.search.SearchMatch;
+import org.eclipse.jdt.core.search.SearchParticipant;
+import org.eclipse.jdt.core.search.SearchPattern;
+import org.eclipse.jdt.core.search.SearchRequestor;
+import org.eclipse.jdt.core.search.TypeNameRequestor;
 import org.eclipse.jdt.core.tests.util.Util;
 import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.JavaModelStatus;
+
+import junit.framework.Test;
 
 /**
  * Tests the Java search engine where results are JavaElements and source positions.
@@ -1238,8 +1266,8 @@ public void testLocalVariableDeclaration2() throws CoreException {
 		this.resultCollector);
 }
 /**
- * @bug 207257: [search] SearchEngine returns incorrectly typed SearchMatch when searching for local variable declarations
- * @test The accepted match should be a {@link LocalVariableDeclarationMatch}
+ * bug 207257: [search] SearchEngine returns incorrectly typed SearchMatch when searching for local variable declarations
+ * test The accepted match should be a {@link LocalVariableDeclarationMatch}
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=207257"
  */
 public void testLocalVariableDeclaration_Bug207257() throws CoreException {
@@ -4142,8 +4170,8 @@ public void testStaticImportPackage02() throws CoreException {
 }
 
 /**
- * @test Bug 110060: [plan][search] Add support for Camel Case search pattern
- * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=110060"
+ * test Bug 110060: [plan][search] Add support for Camel Case search pattern
+ * see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=110060"
  *
  * These tests are not really duplicates of {@link JavaSearchBugsTests} ones
  * as they also test camel case in indexes...
@@ -4441,8 +4469,8 @@ public void testCamelCaseTypePattern13_CamelCaseSamePartCount() throws CoreExcep
 }
 
 /**
- * @bug 160323: [search] TypeNameMatch: support hashCode/equals
- * @test Ensure that match equals and hashCode methods return same values than those of stored {@link IType}.
+ * bug 160323: [search] TypeNameMatch: support hashCode/equals
+ * test Ensure that match equals and hashCode methods return same values than those of stored {@link IType}.
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=160323"
  */
 public void testBug160323() throws CoreException {

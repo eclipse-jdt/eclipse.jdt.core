@@ -9767,8 +9767,8 @@ public class ASTConverter15JLS8Test extends ConverterTestSetup {
 	}
 
 	/**
-	 * @bug 187430: Unresolved types surfacing through DOM AST for annotation default values
-	 * @test That the qualified name of the default value does not contain any '$' character
+	 * bug187430: Unresolved types surfacing through DOM AST for annotation default values
+	 * test That the qualified name of the default value does not contain any '$' character
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=187430"
 	 */
 	public void testBug187430() throws JavaModelException {

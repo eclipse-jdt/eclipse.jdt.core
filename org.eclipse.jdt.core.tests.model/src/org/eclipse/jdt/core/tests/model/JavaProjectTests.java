@@ -1771,8 +1771,8 @@ public void testPackageFragmentRootRawEntry2() throws CoreException, IOException
 	}
 }
 /**
- * @bug 162104: NPE in PackageExplorerContentProvider.getPackageFragmentRoots()
- * @test That a JME is thrown when a classpath entry is no longer on the classpath
+ * bug 162104: NPE in PackageExplorerContentProvider.getPackageFragmentRoots()
+ * test That a JME is thrown when a classpath entry is no longer on the classpath
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=162104"
  */
 public void testPackageFragmentRootRawEntry3() throws CoreException, IOException {
@@ -2399,7 +2399,7 @@ public void testJdkLevelRoot() throws JavaModelException {
  * Test User Library preference. External jar file referenced in library entry does not exist.
  * It does not need to as we only test the preference value...
  *
- * @test bug 88719: UserLibrary.serialize /createFromString need support for access restriction / attributes
+ * test bug 88719: UserLibrary.serialize /createFromString need support for access restriction / attributes
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=88719"
  */
 public void testUserLibrary() throws JavaModelException {
@@ -2468,7 +2468,7 @@ public void testUserLibrary() throws JavaModelException {
 }
 
 /**
- * @bug 148859: [model][delta] Package Explorer only shows default package after import
+ * bug 148859: [model][delta] Package Explorer only shows default package after import
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=148859"
  */
 public void testBug148859() throws CoreException {
@@ -2496,8 +2496,8 @@ public void testBug148859() throws CoreException {
 }
 
 /**
- * @bug 183923: [prefs] NPE in JavaProject#setOptions
- * @test Verify that no NPE occurs when options is set on an invalid project
+ * bug 183923: [prefs] NPE in JavaProject#setOptions
+ * test Verify that no NPE occurs when options is set on an invalid project
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=183923"
  */
 public void testBug183923() throws CoreException, IOException {
@@ -2608,8 +2608,8 @@ public void testBug360317() throws IOException, CoreException {
 	}
 }
 /**
- * @bug 347386: Cannot delete package from java project (two source and output folders)
- * @test Verify that when source folders are set specific output location, deleted packge fragments
+ * bug 347386: Cannot delete package from java project (two source and output folders)
+ * test Verify that when source folders are set specific output location, deleted packge fragments
  * 		are not recreated as part of output generation.
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=347386"
  */
@@ -2651,8 +2651,8 @@ public void testBug347386() throws CoreException {
 	}
 }
 /**
- * @bug 351697: java.lang.ClassCastException
- * @test Verify that ClassCastException is not thrown when a .class file is copied to a wrong source package.
+ * bug 351697: java.lang.ClassCastException
+ * test Verify that ClassCastException is not thrown when a .class file is copied to a wrong source package.
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=351697"
  */
 public void testBug351697() throws Exception {

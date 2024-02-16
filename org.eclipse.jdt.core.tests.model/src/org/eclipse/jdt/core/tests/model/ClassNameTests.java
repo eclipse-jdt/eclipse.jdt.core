@@ -1192,8 +1192,8 @@ public void testFindSecondaryType_Unknown03() throws JavaModelException, CoreExc
 }
 
 /**
- * @bug 152841: [model] IJavaProject.findType(name, monitor) doesn't find secondary type
- * @test Ensure that secondary type is found just after having created the compilation unit
+ * bug 152841: [model] IJavaProject.findType(name, monitor) doesn't find secondary type
+ * test Ensure that secondary type is found just after having created the compilation unit
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=152841"
  */
 public void testBug152841() throws Exception{
@@ -1260,8 +1260,8 @@ public void testBug152841() throws Exception{
 }
 
 /**
- * @bug 302455: java.lang.ClassCastException in secondary types removal
- * @test Ensure that no invalid entries are put in the secondary types caches
+ * bug 302455: java.lang.ClassCastException in secondary types removal
+ * test Ensure that no invalid entries are put in the secondary types caches
  * 		when a file extension spec is removed from the workspace as the CCE
  * 		does no longer occur...
  * 		Also verify that secondary types from the removed file extension are not
@@ -1303,8 +1303,8 @@ public void testBug302455() throws CoreException, InterruptedException {
 }
 
 /**
- * @bug 306477: Indexer(?) fails to recognise enum as a type
- * @test Ensure that enum secondary type are well indexed
+ * bug 306477: Indexer(?) fails to recognise enum as a type
+ * test Ensure that enum secondary type are well indexed
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=306477"
  */
 public void testBug306477() throws Exception {

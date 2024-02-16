@@ -973,8 +973,8 @@ public class JavaDocTestCase extends MultiLineTestCase {
 	}
 
 	/**
-	 * @bug 228652: [formatter] New line inserted while formatting a region of a compilation unit.
-	 * @test Insure that no new line is inserted before the formatted region
+	 * bug228652: [formatter] New line inserted while formatting a region of a compilation unit.
+	 * test Insure that no new line is inserted before the formatted region
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=228652"
 	 */
 	public void testBug228652() {
