@@ -99,7 +99,8 @@ public abstract class Pattern extends Expression {
 		return null;
 	}
 
-	protected abstract boolean isPatternTypeCompatible(TypeBinding other, BlockScope scope);
+	// 14.30.3 Properties of Patterns: A pattern p is said to be applicable at a type T if ...
+	protected abstract boolean isApplicable(TypeBinding other, BlockScope scope);
 
 	public abstract boolean dominates(Pattern p);
 

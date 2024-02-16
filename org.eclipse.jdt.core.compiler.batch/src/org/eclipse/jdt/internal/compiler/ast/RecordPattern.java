@@ -161,7 +161,7 @@ public class RecordPattern extends TypePattern {
 						tp.local.binding.type = componentBinding.type;
 				}
 				TypeBinding expressionType = componentBinding.type;
-				if (p1.isPatternTypeCompatible(expressionType, scope)) {
+				if (p1.isApplicable(expressionType, scope)) {
 					p1.isTotalTypeNode = p1.coversType(componentBinding.type);
 					MethodBinding[] methods = this.resolvedType.getMethods(componentBinding.name);
 					if (methods != null && methods.length > 0) {

@@ -128,10 +128,15 @@ public class TypePattern extends Pattern {
 	}
 
 	@Override
-	protected boolean isPatternTypeCompatible(TypeBinding other, BlockScope scope) {
+	protected boolean isApplicable(TypeBinding other, BlockScope scope) {
 		TypeBinding patternType = this.resolvedType;
 		if (patternType == null) // ill resolved pattern
 			return false;
+		// 14.30.3 Properties of Patterns doesn't allow boxing nor unboxing, primitive widening/narrowing.
+		if (patternType.isBaseType() != other.isBaseType()) {
+			scope.problemReporter().incompatiblePatternType(this, other, patternType);
+			return false;
+		}
 		if (patternType.isBaseType()) {
 			if (!TypeBinding.equalsEquals(other, patternType)) {
 				scope.problemReporter().incompatiblePatternType(this, other, patternType);

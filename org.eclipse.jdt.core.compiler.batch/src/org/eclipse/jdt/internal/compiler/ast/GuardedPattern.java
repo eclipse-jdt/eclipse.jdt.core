@@ -171,7 +171,7 @@ public class GuardedPattern extends Pattern {
 	}
 
 	@Override
-	protected boolean isPatternTypeCompatible(TypeBinding other, BlockScope scope) {
-		return this.primaryPattern.isPatternTypeCompatible(other, scope);
+	protected boolean isApplicable(TypeBinding other, BlockScope scope) {
+		return this.primaryPattern.isApplicable(other, scope);
 	}
 }
