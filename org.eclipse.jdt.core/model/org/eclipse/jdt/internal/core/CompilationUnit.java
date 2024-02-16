@@ -19,6 +19,8 @@ package org.eclipse.jdt.internal.core;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
+
 import org.eclipse.core.resources.*;
 import org.eclipse.core.runtime.*;
 import org.eclipse.jdt.core.*;
@@ -154,6 +156,7 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 	}
 
 	CompilationUnit source = cloneCachingContents();
+	Map<String, CategorizedProblem[]> problems = info instanceof ASTHolderCUInfo astHolder ? astHolder.problems : null;
 	if (DOM_BASED_OPERATIONS) {
 		ASTParser astParser = ASTParser.newParser(info instanceof ASTHolderCUInfo astHolder && astHolder.astLevel > 0 ? astHolder.astLevel : AST.getJLSLatest());
 		astParser.setWorkingCopyOwner(getOwner());
@@ -164,14 +167,20 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 		astParser.setBindingsRecovery((reconcileFlags & ICompilationUnit.ENABLE_BINDINGS_RECOVERY) != 0);
 		astParser.setCompilerOptions(options);
 		if (astParser.createAST(pm) instanceof org.eclipse.jdt.core.dom.CompilationUnit newAST) {
-			if (perWorkingCopyInfo != null) {
-				try {
-					perWorkingCopyInfo.beginReporting();
-					for (IProblem problem : newAST.getProblems()) {
-						perWorkingCopyInfo.acceptProblem(problem);
+			if (computeProblems) {
+				if (perWorkingCopyInfo != null && problems == null) {
+					try {
+						perWorkingCopyInfo.beginReporting();
+						for (IProblem problem : newAST.getProblems()) {
+							perWorkingCopyInfo.acceptProblem(problem);
+						}
+					} finally {
+						perWorkingCopyInfo.endReporting();
 					}
-				} finally {
-					perWorkingCopyInfo.endReporting();
+				} else if (newAST.getProblems().length > 0) {
+					problems.put(IJavaModelMarker.JAVA_MODEL_PROBLEM_MARKER, Stream.of(newAST.getProblems()).filter(CategorizedProblem.class::isInstance)
+						.map(CategorizedProblem.class::cast)
+						.toArray(CategorizedProblem[]::new));
 				}
 			}
 			if (info instanceof ASTHolderCUInfo astHolder) {
@@ -188,7 +197,6 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 		}
 	} else {
 		CompilationUnitStructureRequestor requestor = new CompilationUnitStructureRequestor(this, unitInfo, newElements);
-		Map<String, CategorizedProblem[]> problems = info instanceof ASTHolderCUInfo astHolder ? astHolder.problems : null;
 		IProblemFactory problemFactory = new DefaultProblemFactory();
 		SourceElementParser parser = new SourceElementParser(
 			requestor,
