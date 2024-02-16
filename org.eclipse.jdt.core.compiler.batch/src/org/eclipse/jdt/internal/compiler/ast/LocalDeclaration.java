@@ -90,7 +90,8 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	}
 	if (this.initialization == null) {
 		if (this.binding != null && this.binding.isPatternVariable())
-			this.bits |= FirstAssignmentToLocal;
+			if (!this.binding.declaration.isUnnamed(currentScope))
+				this.bits |= FirstAssignmentToLocal;
 		return flowInfo;
 	}
 	this.initialization.checkNPEbyUnboxing(currentScope, flowContext, flowInfo);

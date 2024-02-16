@@ -146,20 +146,21 @@ public final void addLocalVariable(LocalVariableBinding binding) {
 		return;
 	}
 	checkAndSetModifiersForVariable(binding);
-	// insert local in scope
-	if (this.localIndex == this.locals.length)
-		System.arraycopy(
-			this.locals,
-			0,
-			(this.locals = new LocalVariableBinding[this.localIndex * 2]),
-			0,
-			this.localIndex);
-	this.locals[this.localIndex++] = binding;
+	// insert local in scope, skipping unnamed pattern variables.
+	if (!binding.isPatternVariable() || !binding.declaration.isUnnamed(this)) {
+		if (this.localIndex == this.locals.length)
+			System.arraycopy(
+				this.locals,
+				0,
+				(this.locals = new LocalVariableBinding[this.localIndex * 2]),
+				0,
+				this.localIndex);
+		this.locals[this.localIndex++] = binding;
+		binding.id = outerMostMethodScope().analysisIndex++; // share the outermost method scope analysisIndex
+	}
 
 	// update local variable binding
 	binding.declaringScope = this;
-	binding.id = outerMostMethodScope().analysisIndex++;
-	// share the outermost method scope analysisIndex
 }
 
 public void addSubscope(Scope childScope) {
