@@ -74,7 +74,7 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 
 	/**
 	 * Reflects the extra attributes of the classpath entry declaring this root.
-	 * Caution, this field is used in hashCode() & equals() to avoid overzealous sharing.
+	 * Caution, this field is used in {@link #hashCode()} and {@link #equals(Object)} to avoid overzealous sharing.
 	 * Can be null, if lookup via the corresponding classpath entry failed.
 	 */
 	final protected IClasspathAttribute[] extraAttributes;

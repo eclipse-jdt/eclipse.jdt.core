@@ -28,16 +28,13 @@ import org.eclipse.jdt.internal.core.dom.util.DOMASTUtil;
  * fine for generating debug print strings.
  * <p>
  * Example usage:
- * <code>
- * <pre>
+ * <pre>{@code
  *    NaiveASTFlattener p = new NaiveASTFlattener();
  *    node.accept(p);
  *    String result = p.getResult();
- * </pre>
- * </code>
+ * }</pre>
  * Call the <code>reset</code> method to clear the previous result before reusing an
  * existing instance.
- * </p>
  *
  * @since 2.0
  */

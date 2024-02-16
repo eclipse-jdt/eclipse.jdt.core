@@ -92,7 +92,7 @@ public class Util {
 	public interface Comparable {
 		/**
 		 * Returns 0 if this and c are equal, >0 if this is greater than c,
-		 * or <0 if this is less than c.
+		 * or {@code <0} if this is less than c.
 		 */
 		int compareTo(Comparable c);
 	}
@@ -100,7 +100,7 @@ public class Util {
 	public interface Comparer {
 		/**
 		 * Returns 0 if a and b are equal, >0 if a is greater than b,
-		 * or <0 if a is less than b.
+		 * or {@code <0} if a is less than b.
 		 */
 		int compare(Object a, Object b);
 	}
@@ -234,9 +234,9 @@ public class Util {
 
 	/**
 	 * Compares two byte arrays.
-	 * Returns <0 if a byte in a is less than the corresponding byte in b, or if a is shorter, or if a is null.
-	 * Returns >0 if a byte in a is greater than the corresponding byte in b, or if a is longer, or if b is null.
-	 * Returns 0 if they are equal or both null.
+	 * Returns {@code <0} if a byte in a is less than the corresponding byte in b, or if a is shorter, or if a is null.
+	 * Returns {@code >0} if a byte in a is greater than the corresponding byte in b, or if a is longer, or if b is null.
+	 * Returns {@code 0} if they are equal or both null.
 	 */
 	public static int compare(byte[] a, byte[] b) {
 		if (a == b)
@@ -714,7 +714,7 @@ public class Util {
 	/**
 	 * Finds the first line separator used by the given text.
 	 *
-	 * @return </code>"\n"</code> or </code>"\r"</code> or  </code>"\r\n"</code>,
+	 * @return <code>"\n"</code> or <code>"\r"</code> or  <code>"\r\n"</code>,
 	 *			or <code>null</code> if none found
 	 */
 	public static String findLineSeparator(char[] text) {
@@ -861,8 +861,8 @@ public class Util {
 	 * Get the jdk level of this root.
 	 * The value can be:
 	 * <ul>
-	 * <li>major<<16 + minor : see predefined constants on ClassFileConstants </li>
-	 * <li><code>0</null> if the root is a source package fragment root or if a Java model exception occured</li>
+	 * <li>{@code major<<16 + minor} : see predefined constants on ClassFileConstants </li>
+	 * <li>{@code 0} if the root is a source package fragment root or if a Java model exception occured</li>
 	 * </ul>
 	 * Returns the jdk level
 	 */
@@ -1728,7 +1728,7 @@ public class Util {
 	 * <li> it must include the <code>".class"</code> suffix
 	 * <li> its prefix must be a valid identifier
 	 * </ul>
-	 * </p>
+	 *
 	 * @param name the name of a .class file
 	 * @param sourceLevel the source level
 	 * @param complianceLevel the compliance level
@@ -1749,7 +1749,7 @@ public class Util {
 	 * <li> it must include the <code>".java"</code> suffix
 	 * <li> its prefix must be a valid identifier
 	 * </ul>
-	 * </p>
+	 *
 	 * @param name the name of a compilation unit
 	 * @param sourceLevel the source level
 	 * @param complianceLevel the compliance level
@@ -2789,13 +2789,16 @@ public class Util {
 	 * Get all type arguments from an array of signatures.
 	 *
 	 * Example:
+	 * <pre>{@code
 	 * 	For following type X<Y<Z>,V<W>,U>.A<B> signatures is:
 	 * 	[
 	 * 		['L','X','<','L','Y','<','L','Z',';'>',';','L','V','<','L','W',';'>',';','L','U',';',>',';'],
 	 * 		['L','A','<','L','B',';','>',';']
 	 * 	]
-	 * 	@see #splitTypeLevelsSignature(String)
+	 * }</pre>
+	 * 	see {@link #splitTypeLevelsSignature(String)}
 	 * 	Then, this method returns:
+	 * <pre>{@code
 	 * 	[
 	 * 		[
 	 * 			['L','Y','<','L','Z',';'>',';'],
@@ -2806,6 +2809,7 @@ public class Util {
 	 * 			['L','B',';']
 	 * 		]
 	 * 	]
+	 * }</pre>
 	 *
 	 * @param typeSignatures Array of signatures (one per each type levels)
 	 * @throws IllegalArgumentException If one of provided signature is malformed
@@ -2944,13 +2948,16 @@ public class Util {
 	 * Split signatures of all levels  from a type unique key.
 	 *
 	 * Example:
+	 * <pre>{@code
 	 * 	For following type X<Y<Z>,V<W>,U>.A<B>, unique key is:
 	 * 	"LX<LY<LZ;>;LV<LW;>;LU;>.LA<LB;>;"
+	 * }</pre>
 	 *
 	 * 	The return splitted signatures array is:
-	 * 	[
+	 * <pre>{@code
 	 * 		['L','X','<','L','Y','<','L','Z',';'>',';','L','V','<','L','W',';'>',';','L','U','>',';'],
 	 * 		['L','A','<','L','B',';','>',';']
+	 * }</pre>
 	 *
 	 * @param typeSignature ParameterizedSourceType type signature
 	 * @return char[][] Array of signatures for each level of given unique key

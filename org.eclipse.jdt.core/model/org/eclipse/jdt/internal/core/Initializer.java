@@ -90,7 +90,7 @@ public JavaElement getPrimaryElement(boolean checkOwner) {
 	return (JavaElement) ((IType) primaryParent).getInitializer(this.getOccurrenceCount());
 }
 /**
- * @private Debugging purposes
+ * for debugging only
  */
 @Override
 protected void toStringInfo(int tab, StringBuilder buffer, Object info, boolean showResolvedInfo) {

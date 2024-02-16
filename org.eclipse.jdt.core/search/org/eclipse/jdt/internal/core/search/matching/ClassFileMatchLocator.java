@@ -42,7 +42,7 @@ private static final char[] JAVA_LANG_ANNOTATION_ELEMENTTYPE = CharOperation.con
 
 /**
  * Convert binary name internally used in class files to binary name as specified by jls-13.1.
- * <p/>
+ * <p>
  * Examples:
  * <ul>
  * <li>"java/lang/String" -> "java.lang.String",</li>

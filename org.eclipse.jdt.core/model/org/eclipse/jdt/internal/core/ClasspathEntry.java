@@ -150,13 +150,13 @@ public class ClasspathEntry implements IClasspathEntry {
 	 *		path to the corresponding project resource.</li>
 	 *  <li>A variable entry (<code>CPE_VARIABLE</code>) - the first segment of the path
 	 *      is the name of a classpath variable. If this classpath variable
-	 *		is bound to the path <it>P</it>, the path of the corresponding classpath entry
-	 *		is computed by appending to <it>P</it> the segments of the returned
+	 *		is bound to the path <code>P</code>, the path of the corresponding classpath entry
+	 *		is computed by appending to <code>P</code> the segments of the returned
 	 *		path without the variable.</li>
 	 *  <li> A container entry (<code>CPE_CONTAINER</code>) - the first segment of the path is denoting
 	 *     the unique container identifier (for which a <code>ClasspathContainerInitializer</code> could be
 	 * 	registered), and the remaining segments are used as additional hints for resolving the container entry to
-	 * 	an actual <code>IClasspathContainer</code>.</li>
+	 * 	an actual <code>IClasspathContainer</code>.</li></ul>
 	 */
 	public final IPath path;
 
@@ -1839,7 +1839,7 @@ public class ClasspathEntry implements IClasspathEntry {
 	 *  <p>
 	 *  This validation is intended to anticipate classpath issues prior to assigning it to a project. In particular, it will automatically
 	 *  be performed during the classpath setting operation (if validation fails, the classpath setting will not complete).
-	 *  <p>
+	 *
 	 * @param javaProject the given java project
 	 * @param rawClasspath a given classpath
 	 * @param projectOutputLocation a given output location

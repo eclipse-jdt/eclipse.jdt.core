@@ -688,7 +688,7 @@ public JavaElement resolved(Binding binding) {
 	SourceRefElement resolvedHandle = new ResolvedBinaryMethod(this.getParent(), this.name, this.parameterTypes, DeduplicationUtil.toString(binding.computeUniqueKey()), this.getOccurrenceCount());
 	return resolvedHandle;
 }/*
- * @private Debugging purposes
+ * for debugging only
  */
 @Override
 protected void toStringInfo(int tab, StringBuilder buffer, Object info, boolean showResolvedInfo) {

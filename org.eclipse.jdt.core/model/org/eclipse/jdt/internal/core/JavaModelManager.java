@@ -5003,7 +5003,7 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 	 * 		</ul>
 	 * </ul>
 	 * Hashtable was used to protect callers from possible concurrent access.
-	 * </p>
+	 * <p>
 	 * Note, if indexing is not finished and caller does
 	 * not wait for the end of indexing, returned map is the current secondary
 	 * types cache content which may be invalid...

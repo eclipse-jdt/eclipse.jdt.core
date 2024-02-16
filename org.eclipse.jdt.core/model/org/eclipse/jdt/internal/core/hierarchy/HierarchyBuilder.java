@@ -137,8 +137,8 @@ public abstract class HierarchyBuilder {
 		}
 	}
 	/**
-	 * Connect the supplied type to its superclass & superinterfaces.
-	 * The superclass & superinterfaces are the identical binary or source types as
+	 * Connect the supplied type to its superclass and superinterfaces.
+	 * The superclass and superinterfaces are the identical binary or source types as
 	 * supplied by the name environment.
 	 */
 	public void connect(

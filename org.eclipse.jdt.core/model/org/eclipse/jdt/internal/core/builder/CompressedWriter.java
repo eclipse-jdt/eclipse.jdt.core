@@ -94,7 +94,7 @@ public class CompressedWriter {
 	}
 
 	/**
-	 * Write a number v which must be 0 <= v <range. Otherwise IllegalArgumentException is thrown. Encodes only as many
+	 * Write a number v which must be {@code 0 <= v < range}. Otherwise IllegalArgumentException is thrown. Encodes only as many
 	 * bytes as needed. I.e. skipping the high bytes.
 	 *
 	 * @param v
