@@ -10357,7 +10357,7 @@ protected void consumeTypePattern() {
 	type.annotations = null;
 	local.type = type;
 
-	TypePattern aTypePattern = new TypePattern(local);
+	TypePattern aTypePattern = TypePattern.createTypePattern(local);
 	aTypePattern.sourceStart = this.intStack[this.intPtr--];
 	local.modifiers =  this.intStack[this.intPtr--];
 	local.declarationSourceStart = type.sourceStart;
@@ -10379,7 +10379,7 @@ protected void consumeUnnamedPattern() {
 	this.identifierPtr--;
 	this.identifierLengthPtr--;
 
-	TypePattern aUnnamedPattern = new TypePattern(local);
+	TypePattern aUnnamedPattern = TypePattern.createTypePattern(local);
 	aUnnamedPattern.sourceStart = local.sourceStart;
 	aUnnamedPattern.sourceEnd = local.sourceEnd;
 

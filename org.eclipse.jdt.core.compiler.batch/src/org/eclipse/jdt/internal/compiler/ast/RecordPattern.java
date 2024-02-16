@@ -237,12 +237,13 @@ public class RecordPattern extends TypePattern {
 					p.accessorMethod.returnType.erasure()))
 				codeStream.checkcast(p.accessorMethod.returnType); // lastComponent ? [C] : [R, C]
 			if (p instanceof RecordPattern || !p.isTotalTypeNode) {
-				codeStream.dup(); // lastComponent ? [C, C] : [R, C, C]
-				codeStream.instance_of(p.resolvedType); // lastComponent ? [C, boolean] : [R, C, boolean]
+				if (!p.isUnnamed())
+					codeStream.dup(); // lastComponent ? named ? ([C, C] : [R, C, C]) : ([C] : [R, C])
+				codeStream.instance_of(p.resolvedType); // lastComponent ? named ? ([C, boolean] : [R, C, boolean]) : ([boolean] : [R, boolean])
 				BranchLabel target = falseLabel != null ? falseLabel : new BranchLabel(codeStream);
 				BranchLabel innerTruthLabel = new BranchLabel(codeStream);
-				codeStream.ifne(innerTruthLabel); // lastComponent ? [C] : [R, C]
-				int pops = 1; // Not going to store into the component pattern binding, so need to pop, the duped value.
+				codeStream.ifne(innerTruthLabel); // lastComponent ? named ? ([C] : [R, C]) : ([] : [R])
+				int pops = p.isUnnamed() ? 0 : 1; // Not going to store into the component pattern binding, so need to pop, the duped value.
 				Pattern current = p;
 				RecordPattern outer = this;
 				while (outer != null) {

@@ -40,6 +40,18 @@ public class TypePattern extends Pattern {
 		this.local = local;
 	}
 
+	public static TypePattern createTypePattern(LocalDeclaration lokal) {
+		if (lokal.name.length == 1 && lokal.name[0] == '_') {
+			return new TypePattern(lokal) {
+				@Override
+				public boolean isUnnamed() {
+					return true;
+				}
+			};
+		}
+		return new TypePattern(lokal);
+	}
+
 	@Override
 	public TypeReference getType() {
 		return this.local.type;
@@ -47,7 +59,7 @@ public class TypePattern extends Pattern {
 
 	@Override
 	public LocalVariableBinding[] bindingsWhenTrue() {
-		return this.local.binding == null ? NO_VARIABLES : new LocalVariableBinding[] { this.local.binding };
+		return this.isUnnamed() || this.local.binding == null ? NO_VARIABLES : new LocalVariableBinding[] { this.local.binding };
 	}
 
 	@Override
@@ -62,6 +74,10 @@ public class TypePattern extends Pattern {
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 		flowInfo = this.local.analyseCode(currentScope, flowContext, flowInfo);
 		FlowInfo patternInfo = flowInfo.copy();
+
+		if (this.isUnnamed())
+			return patternInfo; // exclude anonymous blokes from flow analysis.
+
 		patternInfo.markAsDefinitelyAssigned(this.local.binding);
 		if (!this.isTotalTypeNode) {
 			// non-total type patterns create a nonnull local:
@@ -80,10 +96,23 @@ public class TypePattern extends Pattern {
 
 	@Override
 	public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel) {
-		if (!this.isTotalTypeNode) {
-			codeStream.checkcast(this.local.binding.type);
+		if (isUnnamed()) {
+			if (this.isTotalTypeNode) {
+				switch (this.local.binding.type.id) {
+					case T_long :
+					case T_double :
+						codeStream.pop2();
+						break;
+					default :
+						codeStream.pop();
+				}
+			} // else we don't value on stack.
+		} else {
+			if (!this.isTotalTypeNode) {
+				codeStream.checkcast(this.local.binding.type);
+			}
+			this.local.generateCode(currentScope, codeStream);
 		}
-		this.local.generateCode(currentScope, codeStream);
 	}
 
 	@Override
