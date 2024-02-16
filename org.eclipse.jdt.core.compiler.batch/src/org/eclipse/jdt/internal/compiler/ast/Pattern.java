@@ -64,6 +64,10 @@ public abstract class Pattern extends Expression {
 		this.enclosingPattern = enclosingPattern;
 	}
 
+	public boolean isUnnamed() {
+		return false;
+	}
+
 	/**
 	 * Implement the rules in the spec under 14.11.1.1 Exhaustive Switch Blocks
 	 *
