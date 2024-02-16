@@ -4387,4 +4387,45 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				""" },
 				"java.lang.MatchException");
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2001
+	// [Patterns][records] ECJ fails to reject incompatible pattern types.
+	public void testIssue2001() {
+		runNegativeTest(new String[] { "X.java",
+				"""
+				public class X {
+					record R1(Long color) {}
+					record R2(short color) {}
+
+					public static void main(String[] args) {
+						Object o = new R1(10L);
+						if (o instanceof R1(long d)) {
+							System.out.println(d);
+						}
+						if (o instanceof R2(Short d)) {
+							System.out.println(d);
+						}
+						if (o instanceof R2(int d)) {
+							System.out.println(d);
+						}
+					}
+				}
+				"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 7)\n" +
+				"	if (o instanceof R1(long d)) {\n" +
+				"	                    ^^^^^^\n" +
+				"Record component with type Long is not compatible with type long\n" +
+				"----------\n" +
+				"2. ERROR in X.java (at line 10)\n" +
+				"	if (o instanceof R2(Short d)) {\n" +
+				"	                    ^^^^^^^\n" +
+				"Record component with type short is not compatible with type java.lang.Short\n" +
+				"----------\n" +
+				"3. ERROR in X.java (at line 13)\n" +
+				"	if (o instanceof R2(int d)) {\n" +
+				"	                    ^^^^^\n" +
+				"Record component with type short is not compatible with type int\n" +
+				"----------\n");
+	}
 }
