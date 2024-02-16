@@ -126,14 +126,6 @@ public class RecordPattern extends TypePattern {
 			return this.resolvedType = null;
 		}
 
-		LocalVariableBinding [] bindings = NO_VARIABLES;
-		for (Pattern p : this.patterns) {
-			p.resolveTypeWithBindings(bindings, scope);
-			bindings = LocalVariableBinding.merge(bindings, p.bindingsWhenTrue());
-		}
-		for (LocalVariableBinding binding : bindings)
-			binding.useFlag = LocalVariableBinding.USED; // syntactically required even if untouched
-
 		if (this.resolvedType.isRawType()) {
 			TypeBinding expressionType = expectedType();
 			if (expressionType instanceof ReferenceBinding) {
@@ -142,9 +134,17 @@ public class RecordPattern extends TypePattern {
 					scope.problemReporter().cannotInferRecordPatternTypes(this);
 				    return this.resolvedType = null;
 				}
-				this.resolvedType = binding;
+				this.resolvedType = binding.capture(scope, this.sourceStart, this.sourceEnd);
 			}
 		}
+
+		LocalVariableBinding [] bindings = NO_VARIABLES;
+		for (Pattern p : this.patterns) {
+			p.resolveTypeWithBindings(bindings, scope);
+			bindings = LocalVariableBinding.merge(bindings, p.bindingsWhenTrue());
+		}
+		for (LocalVariableBinding binding : bindings)
+			binding.useFlag = LocalVariableBinding.USED; // syntactically required even if untouched
 
 		if (this.resolvedType == null || !this.resolvedType.isValidBinding()) {
 			return this.resolvedType;
@@ -187,22 +187,32 @@ public class RecordPattern extends TypePattern {
 	}
 	@Override
 	public boolean dominates(Pattern p) {
-		if (!this.resolvedType.isValidBinding())
+		/* 14.30.3: A record pattern with type R and pattern list L dominates another record pattern
+		   with type S and pattern list M if (i) R and S name the same record class, and (ii)
+		   every component pattern, if any, in L dominates the corresponding component
+		   pattern in M.
+		*/
+		if (this.resolvedType == null || !this.resolvedType.isValidBinding() || p.resolvedType == null || !p.resolvedType.isValidBinding())
 			return false;
-		if (!super.coversType(p.resolvedType)) {
+
+		if (TypeBinding.notEquals(this.resolvedType.erasure(), p.resolvedType.erasure()))
 			return false;
-		}
+
+		if (!this.resolvedType.erasure().isRecord())
+			return false;
+
 		if (p instanceof RecordPattern) {
 			RecordPattern rp = (RecordPattern) p;
 			if (this.patterns.length != rp.patterns.length)
 				return false;
-			for(int i = 0; i < this.patterns.length; i++) {
+			for(int i = 0, length = this.patterns.length; i < length; i++) {
 				if (!this.patterns[i].dominates(rp.patterns[i])) {
 					return false;
 				}
 			}
+			return true;
 		}
-		return true;
+		return false;
 	}
 
 	@Override

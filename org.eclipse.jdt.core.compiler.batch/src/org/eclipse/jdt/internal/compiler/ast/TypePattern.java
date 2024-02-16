@@ -145,14 +145,10 @@ public class TypePattern extends Pattern {
 							scope.problemReporter().invalidType(this, rcb.type);
 						}
 						TypeVariableBinding[] mentionedTypeVariables = findSyntheticTypeVariables(rcb.type);
-						if (mentionedTypeVariables != null && mentionedTypeVariables.length > 0) {
-							this.local.type.resolvedType = recType.upwardsProjection(scope,
-									mentionedTypeVariables);
-						} else {
-							if (this.local.type != null)
-								this.local.type.resolvedType = rcb.type;
-							this.resolvedType = rcb.type;
-						}
+						this.resolvedType = mentionedTypeVariables != null && mentionedTypeVariables.length > 0 ?
+													rcb.type.upwardsProjection(scope, mentionedTypeVariables) : rcb.type;
+						if (this.local.type != null)
+							this.local.type.resolvedType = this.resolvedType;
 					}
 				}
 			}
