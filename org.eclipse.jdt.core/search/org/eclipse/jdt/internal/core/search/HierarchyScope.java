@@ -94,12 +94,11 @@ public class HierarchyScope extends AbstractSearchScope implements SuffixConstan
 		// resource path
 		IPackageFragmentRoot root = (IPackageFragmentRoot)type.getPackageFragment().getParent();
 		if (root.isArchive()) {
-			IPath jarPath = root.getPath();
-			Object target = JavaModel.getTarget(jarPath, true);
+			Object target = JavaModel.getTarget(root, true);
 			String zipFileName;
 			if (target instanceof IFile) {
 				// internal jar
-				zipFileName = jarPath.toString();
+				zipFileName = root.getPath().toString();
 			} else if (target instanceof File) {
 				// external jar
 				zipFileName = ((File)target).getPath();
@@ -161,7 +160,7 @@ public class HierarchyScope extends AbstractSearchScope implements SuffixConstan
 				// type in a jar
 				JarPackageFragmentRoot jar = (JarPackageFragmentRoot) root;
 				IPath jarPath = jar.getPath();
-				Object target = JavaModel.getTarget(jarPath, true);
+				Object target = JavaModel.getTarget(jar, true);
 				String zipFileName;
 				if (target instanceof IFile) {
 					// internal jar

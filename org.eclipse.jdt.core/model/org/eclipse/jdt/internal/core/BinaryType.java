@@ -170,7 +170,12 @@ public IType createType(String contents, IJavaElement sibling, boolean force, IP
 }
 @Override
 public boolean equals(Object o) {
-	if (!(o instanceof BinaryType)) return false;
+	if (o == this) {
+		return true;
+	}
+	if (!(o instanceof BinaryType)) {
+		return false;
+	}
 	return super.equals(o);
 }
 

@@ -1016,7 +1016,7 @@ public class DeltaProcessor {
 			boolean deltaContainsModifiedJar = false;
 			for (int j = 0; j < entries.length; j++){
 				if (entries[j].getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
-					IPath entryPath = entries[j].getPath();
+					final IPath entryPath = entries[j].getPath();
 
 					if (!archivePathsToRefresh.contains(entryPath)) continue; // not supposed to be refreshed
 
@@ -1027,7 +1027,7 @@ public class DeltaProcessor {
 						this.manager.clearExternalFileState(entryPath);
 
 						// compute shared status
-						Object targetLibrary = JavaModel.getTarget(entryPath, true);
+						Object targetLibrary = JavaModel.getTarget(entries[j], true);
 
 						if (targetLibrary == null){ // missing JAR
 							if (this.state.getExternalLibTimeStamps().remove(entryPath) != null /* file was known*/

@@ -138,9 +138,7 @@ public void build(boolean computeSubtypes) {
 		if (computeSubtypes) {
 			// Note by construction there always is a focus type here
 			IType focusType = getType();
-			boolean focusIsObject = focusType.getElementName().equals(new String(IIndexConstants.OBJECT));
-			int amountOfWorkForSubtypes = focusIsObject ? 5 : 80; // percentage of work needed to get possible subtypes
-			SubMonitor possibleSubtypesMonitor = this.hierarchy.progressMonitor.split(amountOfWorkForSubtypes);
+			SubMonitor possibleSubtypesMonitor = this.hierarchy.progressMonitor.split(1);
 			HashSet localTypes = new HashSet(10); // contains the paths that have potential subtypes that are local/anonymous types
 			String[] allPossibleSubtypes;
 			if (((Member)focusType).getOuterMostLocalContext() == null) {
@@ -151,7 +149,7 @@ public void build(boolean computeSubtypes) {
 				allPossibleSubtypes = CharOperation.NO_STRINGS;
 			}
 			if (allPossibleSubtypes != null) {
-				SubMonitor buildMonitor = this.hierarchy.progressMonitor.split(100 - amountOfWorkForSubtypes);
+				SubMonitor buildMonitor = this.hierarchy.progressMonitor.split(99);
 				this.hierarchy.initialize(allPossibleSubtypes.length);
 				buildFromPotentialSubtypes(allPossibleSubtypes, localTypes, buildMonitor);
 			}
@@ -297,7 +295,7 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes, HashSet l
 		length++;
 	}
 
-	subMonitor.split(5);
+	subMonitor.split(1); // time for sorting:
 	/*
 	 * Sort in alphabetical order so that potential subtypes are grouped per project
 	 */
@@ -305,12 +303,11 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes, HashSet l
 
 	ArrayList potentialSubtypes = new ArrayList();
 	try {
-		SubMonitor loopMonitor = subMonitor.split(95);
+		SubMonitor loopMonitor = SubMonitor.convert(subMonitor.split(95), length);
 		// create element infos for subtypes
 		HandleFactory factory = new HandleFactory();
 		IJavaProject currentProject = null;
 		for (int i = 0; i < length; i++) {
-			loopMonitor.setWorkRemaining(length - i + 1);
 			IJavaProject nextProject = null;
 			try {
 				String resourcePath = allPotentialSubTypes[i];
@@ -331,13 +328,14 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes, HashSet l
 				}
 
 				IJavaProject project = handle.getJavaProject();
+				SubMonitor split = loopMonitor.split(1);
 				if (currentProject == null) {
 					currentProject = project;
 					potentialSubtypes = new ArrayList(5);
 				} else if (!currentProject.equals(project)) {
 					nextProject = project;
 					// build current project
-					buildForProject((JavaProject)currentProject, potentialSubtypes, workingCopies, localTypes, loopMonitor.split(1));
+					buildForProject((JavaProject)currentProject, potentialSubtypes, workingCopies, localTypes, split);
 					potentialSubtypes = new ArrayList(5);
 				}
 
@@ -351,7 +349,6 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes, HashSet l
 			}
 		}
 
-		loopMonitor.setWorkRemaining(2);
 		// build last project
 		try {
 			if (currentProject == null) {
@@ -363,12 +360,10 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes, HashSet l
 					potentialSubtypes.add(focusType.getCompilationUnit());
 				}
 			}
-			buildForProject((JavaProject)currentProject, potentialSubtypes, workingCopies, localTypes, loopMonitor.split(1));
+			buildForProject((JavaProject)currentProject, potentialSubtypes, workingCopies, localTypes, subMonitor.split(1));
 		} catch (JavaModelException e) {
 			// ignore
 		}
-
-		loopMonitor.setWorkRemaining(1);
 
 		// Compute hierarchy of focus type if not already done (case of a type with potential subtypes that are not real subtypes)
 		if (!this.hierarchy.contains(focusType)) {
@@ -380,7 +375,7 @@ private void buildFromPotentialSubtypes(String[] allPotentialSubTypes, HashSet l
 				} else {
 					potentialSubtypes.add(focusType.getCompilationUnit());
 				}
-				buildForProject((JavaProject)currentProject, potentialSubtypes, workingCopies, localTypes, loopMonitor.split(1));
+				buildForProject((JavaProject)currentProject, potentialSubtypes, workingCopies, localTypes, subMonitor.split(1));
 			} catch (JavaModelException e) {
 				// ignore
 			}

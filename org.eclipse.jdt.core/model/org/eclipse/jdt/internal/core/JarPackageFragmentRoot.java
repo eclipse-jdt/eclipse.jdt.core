@@ -120,7 +120,7 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 			// always create the default package
 			rawPackageInfo.put(CharOperation.NO_STRINGS, new ArrayList[] { EMPTY_LIST, EMPTY_LIST });
 
-			Object file = JavaModel.getTarget(getPath(), true);
+			Object file = JavaModel.getTarget(this, true);
 			long classLevel = Util.getJdkLevel(file);
 			String projectCompliance = this.getJavaProject().getOption(JavaCore.COMPILER_COMPLIANCE, true);
 			long projectLevel = CompilerOptions.versionToJdkLevel(projectCompliance);
@@ -151,6 +151,9 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 				for (Enumeration<? extends ZipEntry> e= jar.entries(); e.hasMoreElements();) {
 					ZipEntry member= e.nextElement();
 					String name = member.getName();
+					if (name.contains("..")) { //$NON-NLS-1$
+						throw new IllegalArgumentException("Bad zip entry: "+name+" in "+jar.getName()); //$NON-NLS-1$ //$NON-NLS-2$
+					}
 					if (this.multiVersion && name.length() > (length + 2) && name.startsWith(version)) {
 						int end = name.indexOf('/', length);
 						if (end >= name.length()) continue;
