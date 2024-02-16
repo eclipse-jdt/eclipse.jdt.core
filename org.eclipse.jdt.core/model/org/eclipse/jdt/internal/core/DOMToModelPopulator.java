@@ -820,10 +820,10 @@ class DOMToModelPopulator extends ASTVisitor {
 		return new LocalVariable(this.elements.peek(),
 				parameter.getName().getIdentifier(),
 				parameter.getStartPosition(),
-				parameter.getStartPosition() + parameter.getLength(),
+				parameter.getStartPosition() + parameter.getLength() - 1,
 				parameter.getName().getStartPosition(),
-				parameter.getName().getStartPosition() + parameter.getName().getLength(),
-				parameter.getType().toString(),
+				parameter.getName().getStartPosition() + parameter.getName().getLength() - 1,
+				Util.getSignature(parameter.getType()),
 				null, // TODO
 				parameter.getFlags(),
 				parameter.getParent() instanceof MethodDeclaration);
