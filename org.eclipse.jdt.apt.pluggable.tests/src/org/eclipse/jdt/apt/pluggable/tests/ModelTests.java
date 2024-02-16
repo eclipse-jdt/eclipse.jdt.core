@@ -95,7 +95,7 @@ public class ModelTests extends TestBase
 	/**
 	 * Test whether problems with severity Info are flagged accordingly.
 	 *
-	 * @see https://bugs.eclipse.org/bugs/show_bug.cgi?id=83548
+	 * see https://bugs.eclipse.org/bugs/show_bug.cgi?id=83548
 	 */
 	public void testInfoProblems() throws Throwable {
 		ProcessorTestStatus.reset();

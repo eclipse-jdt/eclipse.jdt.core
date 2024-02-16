@@ -156,7 +156,8 @@ public final class FileSystemUtil
     /**
      * Stores a string into an Eclipse file in UTF8 format.  The file
      * will be created if it does not already exist.
-     * @throws IOException, CoreException
+     * @throws IOException
+     * @throws CoreException
      */
     public static void writeStringToIFile(IFile file, String contents) throws IOException, CoreException {
     	byte[] data = contents.getBytes("UTF8"); //$NON-NLS-1$
