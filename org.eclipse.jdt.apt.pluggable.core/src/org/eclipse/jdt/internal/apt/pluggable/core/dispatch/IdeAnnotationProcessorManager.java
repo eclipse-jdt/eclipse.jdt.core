@@ -54,10 +54,6 @@ public class IdeAnnotationProcessorManager extends BaseAnnotationProcessorManage
 	 * Initialize the processor manager for a particular project.  It is an error
 	 * to initialize a manager more than once.
 	 *
-	 * @param abstractImageBuilder must be an instanceof AbstractImageBuilder.
-	 * (But it can't be prototyped that way because the abstract base class must
-	 * compile without Eclipse platform code.)
-	 *
 	 * @param javaProject must be an instanceof IJavaProject.  (But it can't be
 	 * prototyped that way because the abstract base class must compile without
 	 * Eclipse platform code.)
@@ -126,7 +122,7 @@ public class IdeAnnotationProcessorManager extends BaseAnnotationProcessorManage
 	 * then we can avoid doing the work of walking the ASTs to search for annotations.  We still
 	 * need to clean up no-longer-generated files when the factory path is changed, but the best
 	 * way to do that is to force a clean build.
-	 * @see BaseAnnotationProcessorManager#processAnnotations(CompilationUnitDeclaration[], boolean)
+	 * @see BaseAnnotationProcessorManager#processAnnotations(CompilationUnitDeclaration[], ReferenceBinding[], boolean)
 	 */
 	@Override
 	public void processAnnotations(CompilationUnitDeclaration[] units, ReferenceBinding[] referenceBindings, boolean isLastRound) {
