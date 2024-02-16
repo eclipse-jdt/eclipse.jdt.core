@@ -16,9 +16,6 @@ package org.eclipse.jdt.core.tests.dom;
 import java.io.IOException;
 import java.util.List;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaProject;
@@ -27,6 +24,9 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.internal.core.dom.rewrite.ASTRewriteFlattener;
 import org.eclipse.jdt.internal.core.dom.rewrite.RewriteEventStore;
+
+import junit.framework.Test;
+import junit.framework.TestSuite;
 
 /**
  * Test suite to verify that DOM/AST bugs are fixed.
@@ -56,7 +56,7 @@ public static Test suite() {
 }
 
 /**
- * @bug 130778: Invalid annotation elements cause no annotation to be in the AST
+ * bug 130778: Invalid annotation elements cause no annotation to be in the AST
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=130778"
  */
 public void testBug130778a() throws JavaModelException {

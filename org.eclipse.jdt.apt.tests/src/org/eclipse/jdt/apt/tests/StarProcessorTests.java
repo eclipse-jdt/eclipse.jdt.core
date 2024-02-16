@@ -93,7 +93,7 @@ public class StarProcessorTests extends APTTestBase
 	}
 
 	/**
-	 *  Regresses Buzilla 103745 & 95661
+	 *  Regresses Buzilla 103745 and 95661
 	 */
 
 	public void testGeneratedFileInBuilder_ProjectRootAsSourceDir() throws Exception

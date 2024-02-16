@@ -1545,7 +1545,7 @@ public void test0039() {
 			"----------\n");
 }
 /**
- * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=281776"
+ * see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=281776"
  * We now tolerate comparison of float and double entities against
  * themselves as a legitimate idiom for NaN checking.
  */

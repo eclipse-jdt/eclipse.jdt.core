@@ -2017,8 +2017,8 @@ public void testRegion5() throws Exception {
 	}
 }
 /**
- * @bug 150289: [hierarchy] NPE in hierarchy builder when region is empy
- * @test Ensure that no NPE is thrown when IRegion has no associated project
+ * bug 150289: [hierarchy] NPE in hierarchy builder when region is empy
+ * test Ensure that no NPE is thrown when IRegion has no associated project
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=150289"
  */
 public void testRegion_Bug150289() throws JavaModelException {
@@ -2359,8 +2359,8 @@ public void testVisibility2() throws JavaModelException {
 }
 
 /**
- * @bug 186781: StackOverflowError while computing launch button tooltip
- * @test Verify that StackOverflowException does no longer occur with the given test case
+ * bug 186781: StackOverflowError while computing launch button tooltip
+ * test Verify that StackOverflowException does no longer occur with the given test case
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=186781"
  */
 public void testBug186781() throws JavaModelException {
@@ -2377,8 +2377,8 @@ public void testBug186781() throws JavaModelException {
 }
 
 /**
- * @bug 215841: [search] Opening Type Hierarchy extremely slow
- * @test Ensure that the non-existing library referenced through a linked resource
+ * bug 215841: [search] Opening Type Hierarchy extremely slow
+ * test Ensure that the non-existing library referenced through a linked resource
  * 	is not indexed on each search request while building the hierarchy
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=215841"
  */
@@ -2420,8 +2420,8 @@ public void testBug215841() throws JavaModelException, CoreException, Interrupte
 	}
 }
 /**
- * @bug 254738: NPE in HierarchyResolver.setFocusType
- * @test that a nested method/anonymous sub type is included in the hierarchy when the number of annotations > 10
+ * bug 254738: NPE in HierarchyResolver.setFocusType
+ * test that a nested method/anonymous sub type is included in the hierarchy when the number of annotations > 10
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=254738"
  */
 public void testBug254738() throws CoreException {
@@ -2473,8 +2473,8 @@ public void testBug254738() throws CoreException {
 	}
 }
 /**
- * @bug 288698: Can't create type hierarchy for abstract types when they have inline descendants and *.class* in project name
- * @test Ensure that ".class" as a substring of a path name is not interpreted as the ".class" suffix.
+ * bug 288698: Can't create type hierarchy for abstract types when they have inline descendants and *.class* in project name
+ * test Ensure that ".class" as a substring of a path name is not interpreted as the ".class" suffix.
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=288698"
  */
 public void testBug288698() throws JavaModelException {
@@ -2490,8 +2490,8 @@ public void testBug288698() throws JavaModelException {
 		hierarchy);
 }
 /**
- * @bug  329663:[type hierarchy] Interfaces duplicated in type hierarchy on two packages from multiple projects
- * @test that when two selected regions contains the same interface, it's not reported twice in the hierarchy.
+ * bug  329663:[type hierarchy] Interfaces duplicated in type hierarchy on two packages from multiple projects
+ * test that when two selected regions contains the same interface, it's not reported twice in the hierarchy.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=329663"
  */
@@ -2534,8 +2534,8 @@ public void _testBug329663() throws JavaModelException, CoreException {
 	}
 }
 /**
- * @bug  329663:[type hierarchy] Interfaces duplicated in type hierarchy on two packages from multiple projects
- * @test that when two selected regions contains interfaces with same name but different, they are reported individually
+ * bug  329663:[type hierarchy] Interfaces duplicated in type hierarchy on two packages from multiple projects
+ * test that when two selected regions contains interfaces with same name but different, they are reported individually
  * in the hierarchy.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=329663"
@@ -3366,8 +3366,8 @@ public void testBug559210() throws CoreException {
 	}
 }
 /**
- * @bug 457813: StackOverflowError while computing launch button tooltip
- * @test Verify that StackOverflowException does no longer occur with the given test case
+ * bug 457813: StackOverflowError while computing launch button tooltip
+ * test Verify that StackOverflowException does no longer occur with the given test case
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=457813"
  */
 public void testBug457813() throws CoreException {
@@ -3674,7 +3674,7 @@ public void testIndexQualificationBinaryNestedSubTypes_SearchForNestedSuperType(
 }
 
 /**
- * @bug GitHub 269: Wrong type hierarchy computed for types with cyclic static imports.
+ * bug GitHub 269: Wrong type hierarchy computed for types with cyclic static imports.
  * @see "https://github.com/eclipse-jdt/eclipse.jdt.core/issues/269"
  */
 public void testBugGh269() throws Exception {

@@ -13684,7 +13684,7 @@ public void testCompletionWithUnboxing() throws JavaModelException {
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=84720
  * Additional tests for bug 84720
  *
- * @see https://bugs.eclipse.org/bugs/show_bug.cgi?id=273991 also
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=273991 also"
  */
 public void testCompletionWithUnboxing_1() throws JavaModelException {
 	this.workingCopies = new ICompilationUnit[3];

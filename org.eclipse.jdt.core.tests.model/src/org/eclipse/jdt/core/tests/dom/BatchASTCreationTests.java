@@ -16,8 +16,6 @@ package org.eclipse.jdt.core.tests.dom;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import junit.framework.Test;
-
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jdt.core.BindingKey;
 import org.eclipse.jdt.core.ICompilationUnit;
@@ -38,6 +36,8 @@ import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.tests.util.Util;
+
+import junit.framework.Test;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class BatchASTCreationTests extends AbstractASTTests {
@@ -1766,8 +1766,8 @@ public void test073() throws CoreException, IOException {
 }
 
 /**
- * @bug 155003: [model] Missing exception types / wrong signature?
- * @test Ensure that thrown exceptions are added in method unique key (not in signature)
+ * bug 155003: [model] Missing exception types / wrong signature?
+ * test Ensure that thrown exceptions are added in method unique key (not in signature)
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=155003"
  */
 public void test074_Bug155003() throws CoreException {
@@ -1843,8 +1843,8 @@ public void test076_Bug155003() throws CoreException {
 }
 
 /**
- * @bug 163647: [model] Thrown exceptions are not found in method binding key which have a capture as declaring class
- * @test Ensure that thrown exceptions are added in method unique key (not in signature)
+ * bug 163647: [model] Thrown exceptions are not found in method binding key which have a capture as declaring class
+ * test Ensure that thrown exceptions are added in method unique key (not in signature)
  * 			even when declaring class is a capture
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=163647"
  */

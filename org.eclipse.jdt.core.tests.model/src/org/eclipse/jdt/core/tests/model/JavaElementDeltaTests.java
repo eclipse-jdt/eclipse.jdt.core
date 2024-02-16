@@ -3192,8 +3192,8 @@ public void testChangeExternalJar() throws CoreException {
 	}
 }
 /**
- * @bug 455882: AIOOB in JavaElementDelta.addAffectedChild
- * @test Verify that AIOOB is not thrown when childIndex is used.
+ * bug 455882: AIOOB in JavaElementDelta.addAffectedChild
+ * test Verify that AIOOB is not thrown when childIndex is used.
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=455882"
  */
 public void testBug455882() {

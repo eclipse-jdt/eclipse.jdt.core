@@ -999,7 +999,7 @@ public void test24() {
 	);
 }
 /**
- * Complete after dot, before a number .<|>12
+ * Complete after dot, before a number {@code .<|>12}
  */
 public void test25() {
 	this.runTestCheckMethodParse(

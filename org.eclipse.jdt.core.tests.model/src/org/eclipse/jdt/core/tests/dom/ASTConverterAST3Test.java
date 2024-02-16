@@ -493,7 +493,7 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 	}
 
 	/**
-	 * i &= 2 ==> ExpressionStatement(Assignment)
+	 * {@code i &= 2} ==> ExpressionStatement(Assignment)
 	 */
 	public void test0020() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0020", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -565,7 +565,7 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 	}
 
 	/**
-	 * i <<= 2; ==> ExpressionStatement(Assignment)
+	 * {@code i <<= 2;} ==> ExpressionStatement(Assignment)
 	 */
 	public void test0024() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0024", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -1331,7 +1331,7 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 	}
 
 	/**
-	 * BinaryExpression (&) ==> InfixExpression
+	 * BinaryExpression {@code (&)} ==> InfixExpression
 	 */
 	public void test0063() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0063", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -1379,7 +1379,7 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 	}
 
 	/**
-	 * BinaryExpression (<) ==> InfixExpression
+	 * BinaryExpression {@code (<)} ==> InfixExpression
 	 */
 	public void test0065() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0065", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
@@ -1403,7 +1403,7 @@ public class ASTConverterAST3Test extends ConverterTestSetup {
 	}
 
 	/**
-	 * BinaryExpression (<=) ==> InfixExpression
+	 * BinaryExpression {@code (<=)} ==> InfixExpression
 	 */
 	public void test0066() throws JavaModelException {
 		ICompilationUnit sourceUnit = getCompilationUnit("Converter" , "src", "test0066", "Test.java"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$

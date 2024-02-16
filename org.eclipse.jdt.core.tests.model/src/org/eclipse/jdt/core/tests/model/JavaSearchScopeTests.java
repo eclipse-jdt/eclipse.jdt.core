@@ -989,10 +989,11 @@ public void testBug101777() throws CoreException {
 
 /**
  * Bug 119203: Search doesn't work with imported plugin
- * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=119203"
- * WARNING: Fix for this bug has been disabled due to bad regression
  *
  * Bug 127048: [search] References to Java element 'CorrectionEngine' not found
+
+ * WARNING: Fix for this bug has been disabled due to bad regression
+ * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=119203"
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=127048"
  */
 public void testBug119203() throws CoreException {
@@ -1022,8 +1023,8 @@ public void testBug119203() throws CoreException {
 	}
 }
 /**
- * @bug 179199: [search] Open type throws NPE during Items filtering
- * @test Ensure that NPE does no longer happen when output location is also set as class folder in a project build path
+ * bug 179199: [search] Open type throws NPE during Items filtering
+ * test Ensure that NPE does no longer happen when output location is also set as class folder in a project build path
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=179199"
  */
 public void testBug179199() throws CoreException {
@@ -1080,8 +1081,8 @@ public void testBug179199() throws CoreException {
 	}
 }
 /**
- * @bug 250211: [search] Organize Imports Hangs
- * @test Ensure that JavaSearchScope creation does not take too much time.<br>
+ * bug 250211: [search] Organize Imports Hangs
+ * test Ensure that JavaSearchScope creation does not take too much time.<br>
  * Note that this test does not make any assertion, it just creates several projects
  * with a huge dependency tree and create a scope on all of them.<br>
  * If the bug was back again, then this test would never finish!

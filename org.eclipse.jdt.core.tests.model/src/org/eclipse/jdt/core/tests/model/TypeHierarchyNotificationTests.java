@@ -1374,7 +1374,7 @@ public void testOwner() throws CoreException {
 	}
 }
 /**
- * @bug 316654: ITypeHierarchyChangedListener receive spurious callbacks
+ * bug 316654: ITypeHierarchyChangedListener receive spurious callbacks
  *
  * Test that a non-Java resource added to a folder package fragment root doesn't
  * result in a type hierarchy changed event.

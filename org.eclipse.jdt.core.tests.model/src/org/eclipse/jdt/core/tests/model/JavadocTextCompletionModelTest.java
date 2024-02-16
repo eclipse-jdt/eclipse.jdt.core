@@ -45,7 +45,7 @@ protected void setUp() throws Exception {
 }
 
 /**
- * @tests  Tests for tag names completion
+ * tests  Tests for tag names completion
  */
 public void test001() throws JavaModelException {
 	String source =
@@ -221,7 +221,7 @@ public void test011() throws JavaModelException {
 }
 
 /**
- * @tests  Tests for types completion
+ * tests  Tests for types completion
  */
 public void test020() throws JavaModelException {
 	String source =
@@ -382,7 +382,7 @@ public void test028() throws JavaModelException {
 }
 
 /**
- * @tests  Tests for fields completion
+ * tests  Tests for fields completion
  */
 public void test030() throws JavaModelException {
 	String source =
@@ -541,7 +541,7 @@ public void test038() throws JavaModelException {
 }
 
 /**
- * @tests  Tests for methods completion
+ * tests  Tests for methods completion
  */
 public void test040() throws JavaModelException {
 	String source =
@@ -926,7 +926,7 @@ public void test059() throws JavaModelException {
 }
 
 /**
- * @tests  Tests for constructors completion
+ * tests  Tests for constructors completion
  */
 public void test070() throws JavaModelException {
 	String source =

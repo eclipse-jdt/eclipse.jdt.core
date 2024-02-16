@@ -17,15 +17,34 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import junit.framework.Test;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRunnable;
-import org.eclipse.core.runtime.*;
-import org.eclipse.jdt.core.*;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.OperationCanceledException;
+import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IBuffer;
+import org.eclipse.jdt.core.IClassFile;
+import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IField;
+import org.eclipse.jdt.core.IImportContainer;
+import org.eclipse.jdt.core.IImportDeclaration;
+import org.eclipse.jdt.core.IJavaElement;
+import org.eclipse.jdt.core.IJavaModelStatusConstants;
+import org.eclipse.jdt.core.IMethod;
+import org.eclipse.jdt.core.IOpenable;
+import org.eclipse.jdt.core.IPackageDeclaration;
+import org.eclipse.jdt.core.IPackageFragment;
+import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.internal.core.util.Util;
 import org.eclipse.team.core.RepositoryProvider;
+
+import junit.framework.Test;
 
 
 public class WorkingCopyTests extends ModifyingResourceTests {
@@ -292,6 +311,7 @@ public void testDelete2Fields() throws CoreException {
  * <li>closing the package of the compilation unit does not close the copy</li>
  * <li>ensures that working copies are unique
  * <li>ensures committing changes from working copies
+ * </ul>
  */
 public void testGeneral() throws JavaModelException, CoreException {
 
@@ -701,6 +721,7 @@ public void testNonExistingCU() throws JavaModelException {
  * <li>ensures that the copy cannot be renamed</li>
  * <li>ensures that the copy cannot be moved to the same location as the primary cu</li>
  * <li>ensures that the copy can be copied to a different location as the primary cu</li>
+ * </ul>
  */
 public void testOperations() throws JavaModelException {
 	// rename working copy

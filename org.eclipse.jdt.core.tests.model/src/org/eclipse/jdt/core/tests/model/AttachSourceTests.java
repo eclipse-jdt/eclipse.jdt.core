@@ -20,8 +20,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Hashtable;
 
-import junit.framework.Test;
-
 import org.eclipse.core.filesystem.URIUtil;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -64,6 +62,8 @@ import org.eclipse.jdt.internal.core.JarPackageFragmentRoot;
 import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.util.Util;
+
+import junit.framework.Test;
 
 /**
  * TO DO:
@@ -1653,7 +1653,7 @@ public void testRootPath13() throws JavaModelException {
 	attachSource(root, null, null); // detach source
 }
 /**
- * @test bug 153133: [model] toggle breakpoint in constructor creates a class load breakpoint
+ * bug 153133: [model] toggle breakpoint in constructor creates a class load breakpoint
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=153133"
  */
 public void testBug153133() throws JavaModelException {

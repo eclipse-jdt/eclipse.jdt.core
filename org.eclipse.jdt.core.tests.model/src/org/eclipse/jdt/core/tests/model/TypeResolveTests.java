@@ -745,7 +745,7 @@ public void testParamAnnotations9() throws CoreException, IOException {
 	}
 }
 /**
- * @bug 342393: Anonymous class' occurrence count is incorrect when two methods in a class have the same name.
+ * bug 342393: Anonymous class' occurrence count is incorrect when two methods in a class have the same name.
  *
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=342393"
  */

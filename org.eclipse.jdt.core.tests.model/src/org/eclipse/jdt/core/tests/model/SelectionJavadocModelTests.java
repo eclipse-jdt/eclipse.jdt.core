@@ -922,8 +922,8 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 	}
 
 	/**
-	 * @bug 165701: [model] No hint for ambiguous javadoc
-	 * @test Ensure that no exception is thrown while selecting method in javadoc comment
+	 * bug165701: [model] No hint for ambiguous javadoc
+	 * test Ensure that no exception is thrown while selecting method in javadoc comment
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=165701"
 	 */
 	public void testBug165701() throws JavaModelException {
@@ -945,8 +945,8 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 	}
 
 	/**
-	 * @bug 165794: [model] No hint for ambiguous javadoc
-	 * @test Ensure that no exception is thrown while selecting method in javadoc comment
+	 * bug165794: [model] No hint for ambiguous javadoc
+	 * test Ensure that no exception is thrown while selecting method in javadoc comment
 	 * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=165794"
 	 */
 	public void testBug165794() throws JavaModelException {
@@ -1029,7 +1029,7 @@ public class SelectionJavadocModelTests extends AbstractJavaModelTests {
 	}
 
 	/**
-	 * @bug 191322: [javadoc] @see or @link reference to method without signature fails to resolve to base class method
+	 * bug191322: [javadoc] @see or @link reference to method without signature fails to resolve to base class method
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=191322"
 	 */
 	public void testBug191322a() throws CoreException {

@@ -594,7 +594,7 @@ public static String displayString(String inputString){
  * This method doesn't convert \r\n to \n.
  * <p>
  * Example of use:
- * <o>
+ * <ol>
  * <li>
  * <pre>
  * input string = "abc\ndef\tghi",
@@ -620,7 +620,6 @@ public static String displayString(String inputString){
  * </pre>
  * </li>
  * </ol>
- * </p>
  *
  * @param inputString the given input string
  * @param indent number of tabs are added at the begining of each line.
