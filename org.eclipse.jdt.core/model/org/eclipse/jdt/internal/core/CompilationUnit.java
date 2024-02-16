@@ -153,10 +153,11 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 		openBuffer(pm, unitInfo); // open buffer independently from the info, since we are building the info
 	}
 
+	CompilationUnit source = cloneCachingContents();
 	if (DOM_BASED_OPERATIONS) {
 		ASTParser astParser = ASTParser.newParser(info instanceof ASTHolderCUInfo astHolder && astHolder.astLevel > 0 ? astHolder.astLevel : AST.getJLSLatest());
 		astParser.setWorkingCopyOwner(getOwner());
-		astParser.setSource(this);
+		astParser.setSource(source);
 		astParser.setProject(getJavaProject());
 		astParser.setStatementsRecovery((reconcileFlags & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0);
 		astParser.setResolveBindings(resolveBindings);
@@ -205,7 +206,6 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 
 		// compute other problems if needed
 		CompilationUnitDeclaration compilationUnitDeclaration = null;
-		CompilationUnit source = cloneCachingContents();
 		try {
 			if (computeProblems) {
 				if (problems == null) {
