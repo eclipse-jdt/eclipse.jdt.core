@@ -27,7 +27,6 @@ import org.osgi.framework.BundleException;
 /**
  * Wraps original {@code CodeFormatterApplication} for better error diagnostic message if user does not specify workspace location.
  *
- * @author Jonah Graham <jonah@kichwacoders.com>
  * @since 1.0
  * @noinstantiate This class is not intended to be instantiated by clients.
  * @noextend This class is not intended to be subclassed by clients.

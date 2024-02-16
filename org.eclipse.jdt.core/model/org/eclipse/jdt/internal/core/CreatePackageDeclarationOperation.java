@@ -96,6 +96,7 @@ public String getMainTaskName(){
  * <li> if no imports, before the first type
  * <li> if no type - first thing in the CU
  * <li>
+ * </ul>
  */
 @Override
 protected void initializeDefaultPosition() {

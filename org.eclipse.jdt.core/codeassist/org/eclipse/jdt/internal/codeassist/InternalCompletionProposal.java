@@ -655,7 +655,6 @@ public class InternalCompletionProposal extends CompletionProposal {
 	 * of the method or constructor being proposed</li>
 	 * </ul>
 	 * For other kinds of completion proposals, this method returns <code>null</code>.
-	 * </p>
 	 *
 	 * @return the binding corresponding to this proposal (if available), or <code>null</code> if none
 	 */

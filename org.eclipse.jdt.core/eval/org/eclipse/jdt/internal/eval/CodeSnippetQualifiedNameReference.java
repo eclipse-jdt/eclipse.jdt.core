@@ -542,7 +542,7 @@ public TypeBinding getOtherFieldBindings(BlockScope scope) {
 }
 
 /**
- * index is <0 to denote write access emulation
+ * index is {@code <0} to denote write access emulation
  */
 @Override
 public void manageSyntheticAccessIfNecessary(BlockScope currentScope, FieldBinding fieldBinding, int index, FlowInfo flowInfo) {

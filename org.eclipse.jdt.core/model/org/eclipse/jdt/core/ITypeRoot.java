@@ -20,9 +20,9 @@ import org.eclipse.core.runtime.IProgressMonitor;
  * Represents an entire Java type root (either an <code>ICompilationUnit</code>
  * or an <code>IClassFile</code>).
  *
- * @see ICompilationUnit Note that methods {@link #findPrimaryType()} and {@link #getElementAt(int)}
+ * <p>See {@link ICompilationUnit} Note that methods {@link #findPrimaryType()} and {@link #getElementAt(int)}
  * 	were already implemented in this interface respectively since version 3.0 and version 1.0.
- * @see IClassFile Note that method {@link #getWorkingCopy(WorkingCopyOwner, IProgressMonitor)}
+ * <p>See {@link IClassFile} Note that method {@link #getWorkingCopy(WorkingCopyOwner, IProgressMonitor)}
  * 	was already implemented in this interface since version 3.0.
  * @since 3.3
  * @noimplement This interface is not intended to be implemented by clients.

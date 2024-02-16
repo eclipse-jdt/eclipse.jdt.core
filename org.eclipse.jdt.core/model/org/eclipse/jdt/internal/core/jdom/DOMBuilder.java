@@ -313,9 +313,9 @@ public IDOMType createType(char[] sourceCode) {
  * @param parameterNames - a list of the names of the parameters
  * @param parametersEnd - a source position corresponding to the last character of the
  *		parameter list
- * @extendedReturnTypeDimensionCount - the array dimension count as supplied on the
+ * @param extendedReturnTypeDimensionCount - the array dimension count as supplied on the
  *		end of the parameter list (for instance, 'public int foo()[] {}')
- * @extendedReturnTypeDimensionEnd - a source position corresponding to the last character
+ * @param extendedReturnTypeDimensionEnd - a source position corresponding to the last character
  *		of the extended return type dimension
  * @param exceptionTypes - a list of the exception types
  * @param exceptionTypeStarts - a list of source positions corresponding to the first

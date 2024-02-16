@@ -788,7 +788,7 @@ public ITypeHierarchy loadTypeHierachy(InputStream input, IProgressMonitor monit
  * <li>IType#newTypeHierarchy(IJavaProject, WorkingCopyOwner, IProgressMonitor)</li>
  * <li>IType#newTypeHierarchy(IProgressMonitor)</li>
  * <li>IType#newTypeHierarchy(WorkingCopyOwner, IProgressMonitor)</li>
- * </u>
+ * </ul>
  *
  * @param input stream where hierarchy will be read
  * @param monitor the given progress monitor
@@ -959,7 +959,7 @@ public JavaElement resolved(Binding binding) {
 	return resolvedHandle;
 }
 /**
- * @private Debugging purposes
+ * for debugging only
  */
 @Override
 protected void toStringInfo(int tab, StringBuilder buffer, Object info, boolean showResolvedInfo) {

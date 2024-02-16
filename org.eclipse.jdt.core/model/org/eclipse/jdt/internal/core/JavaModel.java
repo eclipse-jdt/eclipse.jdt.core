@@ -308,7 +308,7 @@ protected void runOperation(MultiOperation op, IJavaElement[] elements, IJavaEle
 	op.runOperation(monitor);
 }
 /**
- * @private Debugging purposes
+ * for debugging only
  */
 @Override
 protected void toStringInfo(int tab, StringBuilder buffer, Object info, boolean showResolvedInfo) {
