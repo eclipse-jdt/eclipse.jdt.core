@@ -42,6 +42,7 @@ import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.BooleanLiteral;
 import org.eclipse.jdt.core.dom.CharacterLiteral;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
+import org.eclipse.jdt.core.dom.Comment;
 import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
 import org.eclipse.jdt.core.dom.EnumDeclaration;
 import org.eclipse.jdt.core.dom.ExportsDirective;
@@ -194,7 +195,28 @@ class DOMToModelPopulator extends ASTVisitor {
 		newInfo.setSourceRangeStart(node.getStartPosition());
 		newInfo.setSourceRangeEnd(node.getStartPosition() + node.getLength() - 1);
 		newInfo.setNameSourceStart(node.getName().getStartPosition());
-		newInfo.setNameSourceEnd(node.getName().getStartPosition() + node.getName().getLength() - 1);
+		int nameSourceEnd = node.getName().getStartPosition() + node.getName().getLength() - 1;
+		if (node.isOnDemand()) {
+			nameSourceEnd = node.getStartPosition() + node.getLength() - 1;
+			char[] contents = this.root.getContents();
+			List<Comment> comments = domUnit(node).getCommentList();
+			boolean changed = false;
+			do {
+				while (contents[nameSourceEnd] == ';' || Character.isWhitespace(contents[nameSourceEnd])) {
+					nameSourceEnd--;
+					changed = true;
+				}
+				final int currentEnd = nameSourceEnd;
+				int newEnd = comments.stream()
+					.filter(comment -> comment.getStartPosition() <= currentEnd && comment.getStartPosition() + comment.getLength() >= currentEnd)
+					.findAny()
+					.map(comment -> comment.getStartPosition() - 1)
+					.orElse(currentEnd);
+				changed = (currentEnd != newEnd);
+				nameSourceEnd = newEnd;
+			} while (changed);
+		}
+		newInfo.setNameSourceEnd(nameSourceEnd);
 		this.infos.push(newInfo);
 		this.toPopulate.put(newElement, newInfo);
 		return true;
@@ -527,7 +549,7 @@ class DOMToModelPopulator extends ASTVisitor {
 		addAsChild(this.infos.peek(), newElement);
 		TypeParameterElementInfo info = new TypeParameterElementInfo();
 		info.setSourceRangeStart(node.getStartPosition());
-		info.setSourceRangeEnd(node.getStartPosition() + node.getLength());
+		info.setSourceRangeEnd(node.getStartPosition() + node.getLength() - 1);
 		info.nameStart = node.getName().getStartPosition();
 		info.nameEnd = node.getName().getStartPosition() + node.getName().getLength() - 1;
 		info.bounds = ((List<Type>)node.typeBounds()).stream().map(Type::toString).map(String::toCharArray).toArray(char[][]::new);
@@ -577,6 +599,8 @@ class DOMToModelPopulator extends ASTVisitor {
 		AnnotationInfo newInfo = new AnnotationInfo();
 		newInfo.setSourceRangeStart(node.getStartPosition());
 		newInfo.setSourceRangeEnd(node.getStartPosition() + node.getLength() - 1);
+		newInfo.nameStart = node.getTypeName().getStartPosition();
+		newInfo.nameEnd = node.getTypeName().getStartPosition() + node.getTypeName().getLength() - 1;
 		newInfo.members = new IMemberValuePair[0];
 		this.infos.push(newInfo);
 		this.toPopulate.put(newElement, newInfo);
@@ -596,6 +620,8 @@ class DOMToModelPopulator extends ASTVisitor {
 		AnnotationInfo newInfo = new AnnotationInfo();
 		newInfo.setSourceRangeStart(node.getStartPosition());
 		newInfo.setSourceRangeEnd(node.getStartPosition() + node.getLength() - 1);
+		newInfo.nameStart = node.getTypeName().getStartPosition();
+		newInfo.nameEnd = node.getTypeName().getStartPosition() + node.getTypeName().getLength() - 1;
 		Entry<Object, Integer> value = memberValue(node.getValue());
 		newInfo.members = new IMemberValuePair[] { new org.eclipse.jdt.internal.core.MemberValuePair("value", value.getKey(), value.getValue()) }; //$NON-NLS-1$
 		this.infos.push(newInfo);
@@ -640,7 +666,7 @@ class DOMToModelPopulator extends ASTVisitor {
 			newInfo.setHandle(newElement);
 			if (constructorInvocation.getAST().apiLevel() > 2) {
 				newInfo.setNameSourceStart(constructorInvocation.getType().getStartPosition());
-				newInfo.setSourceRangeStart(constructorInvocation.getType().getStartPosition());
+				newInfo.setSourceRangeStart(constructorInvocation.getStartPosition());
 				newInfo.setNameSourceEnd(constructorInvocation.getType().getStartPosition() + constructorInvocation.getType().getLength() - 1);
 			} else {
 				newInfo.setNameSourceStart(constructorInvocation.getName().getStartPosition());
@@ -823,6 +849,12 @@ class DOMToModelPopulator extends ASTVisitor {
 			info.setFlags(field.getModifiers() | (isDeprecated ? ClassFileConstants.AccDeprecated : 0));
 			info.setNameSourceStart(fragment.getName().getStartPosition());
 			info.setNameSourceEnd(fragment.getName().getStartPosition() + fragment.getName().getLength() - 1);
+			Expression initializer = fragment.getInitializer();
+			if (((field.getParent() instanceof TypeDeclaration type && type.isInterface())
+					|| Flags.isFinal(field.getModifiers()))
+			 	&& initializer != null && initializer.getStartPosition() >= 0) {
+				info.initializationSource = Arrays.copyOfRange(this.root.getContents(), initializer.getStartPosition(), initializer.getStartPosition() + initializer.getLength());
+			}
 			// TODO populate info
 			this.infos.push(info);
 			this.toPopulate.put(newElement, info);
@@ -1026,5 +1058,12 @@ class DOMToModelPopulator extends ASTVisitor {
 					.toArray(char[][]::new);
 		}
 		return new char[0][0];
+	}
+
+	private static org.eclipse.jdt.core.dom.CompilationUnit domUnit(ASTNode node) {
+		while (node != null && !(node instanceof org.eclipse.jdt.core.dom.CompilationUnit)) {
+			node = node.getParent();
+		}
+		return (org.eclipse.jdt.core.dom.CompilationUnit)node;
 	}
 }
