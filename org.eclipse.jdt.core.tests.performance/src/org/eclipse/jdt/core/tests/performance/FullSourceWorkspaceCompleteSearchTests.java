@@ -217,10 +217,10 @@ protected void cleanCategoryTableCache(boolean type, JavaSearchResultCollector r
 /**
  * Performance tests for search types in workspace:
  * <ul>
- * <li>declarations using string pattern</i>
- * <li>references using string pattern</i>
- * <li>delcarations using java element pattern</i>
- * <li>references using java element pattern</i>
+ * <li>declarations using string pattern</li>
+ * <li>references using string pattern</li>
+ * <li>delcarations using java element pattern</li>
+ * <li>references using java element pattern</li>
  * </ul>
  */
 public void testSearchStringTypeDeclarations() throws CoreException {
@@ -335,10 +335,10 @@ public void testSearchJavaElementTypeReferences() throws CoreException {
 /**
  * Performance tests for search fields in workspace:
  * <ul>
- * <li>declarations using string pattern</i>
- * <li>references using string pattern</i>
- * <li>delcarations using java element pattern</i>
- * <li>references using java element pattern</i>
+ * <li>declarations using string pattern</li>
+ * <li>references using string pattern</li>
+ * <li>delcarations using java element pattern</li>
+ * <li>references using java element pattern</li>
  * </ul>
  */
 public void testSearchStringFieldDeclarations() throws CoreException {
@@ -467,10 +467,10 @@ public void testSearchJavaElementFieldReferences() throws CoreException {
 /**
  * Performance tests for search methods in workspace:
  * <ul>
- * <li>declarations using string pattern</i>
- * <li>references using string pattern</i>
- * <li>delcarations using java element pattern</i>
- * <li>references using java element pattern</i>
+ * <li>declarations using string pattern</li>
+ * <li>references using string pattern</li>
+ * <li>delcarations using java element pattern</li>
+ * <li>references using java element pattern</li>
  * </ul>
  */
 public void testSearchStringMethodDeclarations() throws CoreException {
@@ -599,10 +599,10 @@ public void testSearchJavaElementMethodReferences() throws CoreException {
 /**
  * Performance tests for search constructors in workspace:
  * <ul>
- * <li>declarations using string pattern</i>
- * <li>references using string pattern</i>
- * <li>delcarations using java element pattern</i>
- * <li>references using java element pattern</i>
+ * <li>declarations using string pattern</li>
+ * <li>references using string pattern</li>
+ * <li>delcarations using java element pattern</li>
+ * <li>references using java element pattern</li>
  * </ul>
  */
 public void testSearchStringConstructorDeclarations() throws CoreException {

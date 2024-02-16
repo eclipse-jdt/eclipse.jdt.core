@@ -1311,7 +1311,7 @@ public void test0041() throws JavaModelException {
 		"/Completion/src3/test/X.java",
 		"package test;\n" +
 		"public class X {\n" +
-		"  @TestAnnot(value=\"\")\n" +
+		" * testAnnot(value=\"\")\n" +
 		"  public int field = 0;\n" +
 		"}");
 
@@ -1346,7 +1346,7 @@ public void test0042() throws JavaModelException {
 		"/Completion/src3/test/X.java",
 		"package test;\n" +
 		"public class X {\n" +
-		"  @TestAnnot(\"\")\n" +
+		" * testAnnot(\"\")\n" +
 		"  public int field = 0;\n" +
 		"}");
 

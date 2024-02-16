@@ -621,7 +621,7 @@ public void testBug100393b() throws CoreException, BackingStoreException {
 }
 
 /**
- * @bug 125360: IJavaProject#setOption() doesn't work if same option as default
+ * bug 125360: IJavaProject#setOption() doesn't work if same option as default
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=125360"
  */
 public void testBug125360() throws CoreException, BackingStoreException {
@@ -642,7 +642,7 @@ public void testBug125360() throws CoreException, BackingStoreException {
 }
 
 /**
- * @bug 131707: Cannot add classpath variables when starting with -pluginCustomization option
+ * bug 131707: Cannot add classpath variables when starting with -pluginCustomization option
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=131707"
  */
 public void testBug131707() throws CoreException {
@@ -667,8 +667,8 @@ public void testBug131707() throws CoreException {
 }
 
 /**
- * @bug 152562: [prefs] IJavaProject.setOption(..., null) does not work
- * @test Verify that setting an option to null removes it from project preferences
+ * bug 152562: [prefs] IJavaProject.setOption(..., null) does not work
+ * test Verify that setting an option to null removes it from project preferences
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=152562"
  */
 public void testBug152562() throws CoreException {
@@ -690,8 +690,8 @@ public void testBug152562() throws CoreException {
 }
 
 /**
- * @bug 152578: [prefs] IJavaProject.setOption(Object,Object) wrongly removes key when value is equals to JavaCore one
- * @test Verify that setting an option to workspace value does not remove it from project preferences
+ * bug 152578: [prefs] IJavaProject.setOption(Object,Object) wrongly removes key when value is equals to JavaCore one
+ * test Verify that setting an option to workspace value does not remove it from project preferences
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=152578"
  */
 public void testBug152578() throws CoreException {
@@ -717,8 +717,8 @@ public void testBug152578() throws CoreException {
 }
 
 /**
- * @bug 324987: [formatter] API compatibility problem with Annotation Newline options
- * @test Verify that a deprecated option is well preserved when a client use it
+ * bug 324987: [formatter] API compatibility problem with Annotation Newline options
+ * test Verify that a deprecated option is well preserved when a client use it
  * 		through the IJavaProject.setOption(String, String) API
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=324987"
  * @deprecated As using deprecated constants
@@ -743,8 +743,8 @@ public void testBug324987_Project01() throws CoreException {
 	}
 }
 /**
- * @bug 324987: [formatter] API compatibility problem with Annotation Newline options
- * @test Verify that a new option beats the deprecated option when a client sets both
+ * bug 324987: [formatter] API compatibility problem with Annotation Newline options
+ * test Verify that a new option beats the deprecated option when a client sets both
  * 		through the IJavaProject#setOptions(Map) API
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=324987"
  * @deprecated As using deprecated constants
@@ -771,8 +771,8 @@ public void testBug324987_Project02() throws CoreException {
 	}
 }
 /**
- * @bug 346010 - [model] strange initialization dependency in OptionTests
- * @test Verify that unfortunate order of map entries doesn't spoil intended semantics.
+ * bug 346010 - [model] strange initialization dependency in OptionTests
+ * test Verify that unfortunate order of map entries doesn't spoil intended semantics.
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=346010"
  * @deprecated As using deprecated constants
  */
@@ -829,8 +829,8 @@ public void testBug346010() throws CoreException {
 }
 
 /**
- * @bug 324987: [formatter] API compatibility problem with Annotation Newline options
- * @test Verify that a deprecated option is well preserved when read through
+ * bug 324987: [formatter] API compatibility problem with Annotation Newline options
+ * test Verify that a deprecated option is well preserved when read through
  * 		the IEclipsePreferences (i.e. simulate reading project preferences of a project
  * 		coming from an older workspace)
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=324987"
@@ -857,8 +857,8 @@ public void testBug324987_Project03() throws CoreException {
 	}
 }
 /**
- * @bug 324987: [formatter] API compatibility problem with Annotation Newline options
- * @test Verify that a new option beats the deprecated option when a client sets both
+ * bug 324987: [formatter] API compatibility problem with Annotation Newline options
+ * test Verify that a new option beats the deprecated option when a client sets both
  * 		through the JavaCore.setOptions(Hashtable) API
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=324987"
  * @deprecated As using deprecated constants
@@ -884,8 +884,8 @@ public void testBug324987_Workspace01() throws CoreException {
 	}
 }
 /**
- * @bug 324987: [formatter] API compatibility problem with Annotation Newline options
- * @test Verify that a deprecated option is well preserved when read through
+ * bug 324987: [formatter] API compatibility problem with Annotation Newline options
+ * test Verify that a deprecated option is well preserved when read through
  * 		the IEclipsePreferences (i.e. simulate reading an older workspace)
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=324987"
  * @deprecated As using deprecated constants
@@ -911,8 +911,8 @@ public void testBug324987_Workspace02() throws CoreException {
 	}
 }
 /**
- * @bug 324987: [formatter] API compatibility problem with Annotation Newline options
- * @test Verify that a deprecated option is well preserved when a client use it
+ * bug 324987: [formatter] API compatibility problem with Annotation Newline options
+ * test Verify that a deprecated option is well preserved when a client use it
  * 		through the JavaCore.setOptions(Hashtable) API
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=324987"
  * @deprecated As using deprecated constants
@@ -938,8 +938,8 @@ public void testBug324987_Workspace03() throws CoreException {
 	}
 }
 /**
- * @bug 324987: [formatter] API compatibility problem with Annotation Newline options
- * @test Verify that a deprecated option is well preserved when read through
+ * bug 324987: [formatter] API compatibility problem with Annotation Newline options
+ * test Verify that a deprecated option is well preserved when read through
  * 		the IEclipsePreferences (i.e. simulate reading an older workspace)
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=324987"
  * @deprecated As using deprecated constants

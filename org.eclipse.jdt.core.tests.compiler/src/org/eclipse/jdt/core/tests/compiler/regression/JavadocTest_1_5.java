@@ -3949,8 +3949,8 @@ public class JavadocTest_1_5 extends JavadocTest {
 		);
 	}
 	/**
-	 * @bug 286918:[javadoc] Compiler should warn when @see and @link tag references in package-info.java don't have fully qualified names
-	 * @test that in a package-info.java file
+	 * bug 286918:[javadoc] Compiler should warn when @see and @link tag references in package-info.java don't have fully qualified names
+	 * test that in a package-info.java file
 	 * 				1. References to valid packages are ACCEPTED without any warnings or errors
 	 * 				2. References to valid Java elements (including the ones in the same package) without qualified names are REPORTED as errors
 	 * 				3. References to valid Java elements with qualified names are ACCEPTED
@@ -4030,7 +4030,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 
 	/**
 	 * Additional tests for "https://bugs.eclipse.org/bugs/show_bug.cgi?id=286918"
-	 * @test that in a non package-info.java file
+	 * test that in a non package-info.java file
 	 * 				2. References without qualified names to valid Java elements in the same package are ACCEPTED
 	 * 	 			2. References without qualified names to valid Java elements in other packages are REPORTED
 	 * 				3. References with qualified names to valid Java elements are accepted
@@ -4105,7 +4105,7 @@ public class JavadocTest_1_5 extends JavadocTest {
 	}
 	/**
 	 * Additional tests for "https://bugs.eclipse.org/bugs/show_bug.cgi?id=284333"
-	 * @test that in a non package-info.java file
+	 * test that in a non package-info.java file
 	 * 	 			2. References without qualified names to imported Java elements in other packages are ACCEPTED
 	 * 				3. References with qualified names to valid Java elements are ACCEPTED
 	 */

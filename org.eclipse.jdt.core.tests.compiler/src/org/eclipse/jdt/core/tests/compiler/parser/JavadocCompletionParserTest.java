@@ -248,7 +248,7 @@ protected void verifyAllTagsCompletion() {
 }
 
 /**
- * @tests Test completions for javadoc tag names
+ * tests Test completions for javadoc tag names
  */
 public void test001() {
 	String source = "package javadoc;\n" +
@@ -347,7 +347,7 @@ public void test007() {
 	verifyAllTagsCompletion();
 }
 /**
- * @bug [javadoc][assist] @linkplain no longer proposed when 1.4 compliance is used
+ * bug [javadoc][assist] @linkplain no longer proposed when 1.4 compliance is used
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=123096"
  */
 public void test008() {
@@ -363,8 +363,8 @@ public void test008() {
 }
 
 /**
- * @tests Tests to verify completion node flags
- * @bug 113506: [javadoc][assist] No tag proposals when there is a prefix on a line
+ * tests Tests to verify completion node flags
+ * bug 113506: [javadoc][assist] No tag proposals when there is a prefix on a line
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=113506"
  */
 public void test010() {
@@ -450,7 +450,7 @@ public void test015() {
 }
 
 /**
- * @test Bug 113469: CompletionOnJavadocTag token is not correct
+ * test Bug 113469: CompletionOnJavadocTag token is not correct
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=113649"
  */
 public void test020() {
@@ -537,7 +537,7 @@ public void test024() {
 }
 
 /**
- * @test Bug 114091: [assist][javadoc] eternal loop
+ * test Bug 114091: [assist][javadoc] eternal loop
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=114091"
  */
 public void test025() {

@@ -1020,7 +1020,7 @@ public void test071() throws JavaModelException {
 }
 
 /**
- * @tests Tests for camel case completion
+ * tests Tests for camel case completion
  */
 public void test080() throws JavaModelException {
 	this.oldOptions = JavaCore.getOptions();

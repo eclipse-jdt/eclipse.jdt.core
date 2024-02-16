@@ -508,7 +508,7 @@ public void testHtmlUl12() throws JavaModelException {
 }
 
 /**
- * @test Test formatter one line comment
+ * test Test formatter one line comment
  */
 public void testLines() throws JavaModelException {
 	formatUnit("lines", "X01.java");

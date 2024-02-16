@@ -881,7 +881,7 @@ public class SelectionJavadocTest extends AbstractSelectionTest {
 	}
 
 	/**
-	 * @bug 192449: [javadoc][assist] SelectionJavadocParser should not report problems
+	 * bug 192449: [javadoc][assist] SelectionJavadocParser should not report problems
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=192449"
 	 */
 	public void test26() {

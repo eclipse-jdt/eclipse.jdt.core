@@ -1451,7 +1451,7 @@ public void testBug51529b() {
 }
 
 /**
- * @bug 51911: [Javadoc] @see method w/out ()
+ * bug 51911: [Javadoc] @see method w/out ()
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=51911"
  */
 // Conform since bug https://bugs.eclipse.org/bugs/show_bug.cgi?id=191322 has been fixed
@@ -1945,7 +1945,7 @@ public void testBug65174d() {
 }
 
 /**
- * @bug 65180: Spurious "Javadoc: xxx cannot be resolved or is not a field" error with inner classes
+ * bug 65180: Spurious "Javadoc: xxx cannot be resolved or is not a field" error with inner classes
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=65180"
  */
  // Conform since bug "http://bugs.eclipse.org/bugs/show_bug.cgi?id=191322" has been fixed
@@ -2107,8 +2107,8 @@ public void testBug65180f() {
 }
 
 /**
- * @bug 65253: [Javadoc] @@tag is wrongly parsed as @tag
- * @test Verify that @@return is not interpreted as a return tag<br>
+ * bug 65253: [Javadoc] @@tag is wrongly parsed as @tag
+ * test Verify that @@return is not interpreted as a return tag<br>
  * 	Note that since fix for bug 237742, the '@' in a tag name does no longer
  * 	flag it as invalid...
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=65253"
@@ -2942,8 +2942,8 @@ public void testBug69302negative2() {
 }
 
 /**
- * @bug 70892: [1.5][Javadoc] Compiler should parse reference for inline tag @value
- * @test Ensure that reference in tag 'value' is only verified when source level >= 1.5
+ * bug 70892: [1.5][Javadoc] Compiler should parse reference for inline tag @value
+ * test Ensure that reference in tag 'value' is only verified when source level >= 1.5
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=70892"
  */
 public void testBug70892a() {
@@ -3086,7 +3086,7 @@ public void testBug73348negative() {
 }
 
 /**
- * @bug 73352: [Javadoc] Missing description should be warned for all tags
+ * bug 73352: [Javadoc] Missing description should be warned for all tags
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=73352"
  */
 public void testBug73352a() {
@@ -5184,7 +5184,7 @@ public void testBug116464() {
 }
 
 /**
- * @bug 125518: [javadoc] Embedding html in a link placed in a @see JavaDoc tag causes a warning
+ * bug 125518: [javadoc] Embedding html in a link placed in a @see JavaDoc tag causes a warning
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=125518"
  */
 public void testBug125518a() {
@@ -5807,8 +5807,8 @@ public void testBug149013_Public03() {
 }
 
 /**
- * @bug 153399: [javadoc] JDT Core should warn if the @value tag is not used correctly
- * @test Ensure that 'value' tag is well warned when not used correctly
+ * bug 153399: [javadoc] JDT Core should warn if the @value tag is not used correctly
+ * test Ensure that 'value' tag is well warned when not used correctly
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=153399"
  */
 public void testBug153399a() {
@@ -5970,7 +5970,7 @@ public void testBug153399e() {
 }
 
 /**
- * @bug 160015: [1.5][javadoc] Missing warning on autoboxing compatible methods
+ * bug 160015: [1.5][javadoc] Missing warning on autoboxing compatible methods
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=160015"
  */
 public void testBug160015() {
@@ -6003,8 +6003,8 @@ public void testBug160015() {
 }
 
 /**
- * @bug 163659: [javadoc] Compiler should warn when method parameters are not identical
- * @test Ensure that a warning is raised when method parameter types are not identical
+ * bug 163659: [javadoc] Compiler should warn when method parameters are not identical
+ * test Ensure that a warning is raised when method parameter types are not identical
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=163659"
  */
 public void testBug163659() {
@@ -6033,8 +6033,8 @@ public void testBug163659() {
 }
 
 /**
- * @bug 165794: [javadoc] Should not report ambiguous on method with parameterized types as parameters
- * @test Ensure that no warning are raised when ambiguous parameterized methods are present in javadoc comments
+ * bug 165794: [javadoc] Should not report ambiguous on method with parameterized types as parameters
+ * test Ensure that no warning are raised when ambiguous parameterized methods are present in javadoc comments
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=165794"
  */
 public void _testBug165794() {
@@ -6073,8 +6073,8 @@ public void _testBug165794() {
 	runConformTest(testFiles);
 }
 /**
- * @bug 166365: [javadoc] severity level of malformed javadoc comments did not work properly
- * @test Ensure that no warning is raised when visibility is lower than the javadoc option one
+ * bug 166365: [javadoc] severity level of malformed javadoc comments did not work properly
+ * test Ensure that no warning is raised when visibility is lower than the javadoc option one
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=166365"
  */
 public void testBug166365() {
@@ -6120,8 +6120,8 @@ public void testBug166365() {
 }
 
 /**
- * @bug 166436: [javadoc] Potentially wrong javadoc warning for unexpected duplicate tag value
- * @test Ensure that no duplicate warning is raised for value tag
+ * bug 166436: [javadoc] Potentially wrong javadoc warning for unexpected duplicate tag value
+ * test Ensure that no duplicate warning is raised for value tag
  * @see "http://bugs.eclipse.org/bugs/show_bug.cgi?id=166436"
  */
 public void testBug166436() {
@@ -6194,7 +6194,7 @@ public void testBug166436() {
 }
 
 /**
- * @bug 168849: [javadoc] Javadoc warning on @see reference in class level docs.
+ * bug 168849: [javadoc] Javadoc warning on @see reference in class level docs.
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=168849"
  */
 public void testBug168849a() {
@@ -6443,8 +6443,8 @@ public void testBug168849j() {
 }
 
 /**
- * @bug 170637: [javadoc] incorrect warning about missing parameter javadoc when using many links
- * @test Verify that javadoc parser is not blown-up when there's a lot of inline tags
+ * bug 170637: [javadoc] incorrect warning about missing parameter javadoc when using many links
+ * test Verify that javadoc parser is not blown-up when there's a lot of inline tags
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=170637"
  */
 public void testBug170637() {
@@ -7153,7 +7153,7 @@ public void testBug176027h_private() {
 }
 
 /**
- * @bug 177009: [javadoc] Missing Javadoc tag not reported
+ * bug 177009: [javadoc] Missing Javadoc tag not reported
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=177009"
  */
 public void testBug177009a() {
@@ -7228,7 +7228,7 @@ public void testBug177009b() {
 }
 
 /**
- * @bug 190970: [javadoc] "field never read locally" analysis should not consider javadoc
+ * bug 190970: [javadoc] "field never read locally" analysis should not consider javadoc
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=190970"
  */
 public void testBug190970a() {
@@ -7337,7 +7337,7 @@ public void testBug190970c() {
 
 //	static { TESTS_PREFIX = "testBug191322"; }
 /**
- * @bug 191322: [javadoc] @see or @link reference to method without signature fails to resolve to base class method
+ * bug 191322: [javadoc] @see or @link reference to method without signature fails to resolve to base class method
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=191322"
  */
 public void testBug191322() {
@@ -7518,7 +7518,7 @@ public void testBug191322i() {
 }
 
 /**
- * @bug 195374: [javadoc] Missing Javadoc warning for required qualification for inner types at 1.4 level
+ * bug 195374: [javadoc] Missing Javadoc warning for required qualification for inner types at 1.4 level
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=195374"
  */
 public void testBug195374() {
@@ -7557,8 +7557,8 @@ public void testBug195374() {
 }
 
 /**
- * @bug 207765: [javadoc] Javadoc warning on @see reference could be improved
- * @test Ensure we have different message depending on tag value
+ * bug 207765: [javadoc] Javadoc warning on @see reference could be improved
+ * test Ensure we have different message depending on tag value
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=207765"
  */
 public void testBug207765() {
@@ -7592,7 +7592,7 @@ public void testBug207765() {
 }
 
 /**
- * @bug 222900: [Javadoc] Missing description is warned if valid description is on a new line
+ * bug 222900: [Javadoc] Missing description is warned if valid description is on a new line
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=222900"
  */
 public void testBug222900a() {
@@ -7681,7 +7681,7 @@ public void testBug222900c() {
 }
 
 /**
- * @bug 222902: [Javadoc] Missing description should not be warned in some cases
+ * bug 222902: [Javadoc] Missing description should not be warned in some cases
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=222902"
  */
 public void testBug222902() {
@@ -7791,7 +7791,7 @@ public void testBug222902() {
 }
 
 /**
- * @bug 227730: [Javadoc] Missing description should not be warned for @inheritDoc
+ * bug 227730: [Javadoc] Missing description should not be warned for @inheritDoc
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=227730"
  */
 public void testBug227730a() {
@@ -7833,8 +7833,8 @@ public void testBug227730b() {
 }
 
 /**
- * @bug 233187: [javadoc] partially qualified inner types  should be warned
- * @test verify that partial inner class qualification are warned as javadoc tools does
+ * bug 233187: [javadoc] partially qualified inner types  should be warned
+ * test verify that partial inner class qualification are warned as javadoc tools does
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=233187"
  */
 public void testBug233187a() {
@@ -7967,8 +7967,8 @@ public void testBug233187c() {
 }
 
 /**
- * @bug 233887: Build of Eclipse project stop by NullPointerException and will not continue on Eclipse version later than 3.4M7
- * @test Ensure that no NPE is raised when a 1.5 param tag syntax is incorrectly used on a fiel with an initializer
+ * bug 233887: Build of Eclipse project stop by NullPointerException and will not continue on Eclipse version later than 3.4M7
+ * test Ensure that no NPE is raised when a 1.5 param tag syntax is incorrectly used on a fiel with an initializer
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=233887"
  */
 public void testBug233887() {
@@ -8005,8 +8005,8 @@ public void testBug233887() {
 }
 
 /**
- * @bug 237937: [javadoc] Wrong "Javadoc: Malformed link reference" if href label contains //
- * @test Ensure that no warning is raised when href label contains '//'
+ * bug 237937: [javadoc] Wrong "Javadoc: Malformed link reference" if href label contains //
+ * test Ensure that no warning is raised when href label contains '//'
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=237937"
  */
 public void testBug237937() {
@@ -8023,8 +8023,8 @@ public void testBug237937() {
 }
 
 /**
- * @bug 246712: [javadoc] Unexpected warning about missing parameter doc in case of @inheritDoc
- * @test Ensure inline tag are considered as description
+ * bug 246712: [javadoc] Unexpected warning about missing parameter doc in case of @inheritDoc
+ * test Ensure inline tag are considered as description
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=246712"
  */
 public void testBug246712() {
@@ -8116,8 +8116,8 @@ public void testBug246715() {
 }
 
 /**
- * @bug 254825: [javadoc] compile error when referencing outer param from inner class javadoc
- * @test Ensure that local variable reference does not imply missing compiler implementation error
+ * bug 254825: [javadoc] compile error when referencing outer param from inner class javadoc
+ * test Ensure that local variable reference does not imply missing compiler implementation error
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=254825"
  */
 public void testBug254825() {
@@ -8161,8 +8161,8 @@ public void testBug254825b() {
 
 
 /**
- * @bug 258798: [1.5][compiler] Return type should be erased after unchecked conversion during inference
- * @test Fix for this bug had side effects while reporting missing tags in javadoc comments.<br>
+ * bug 258798: [1.5][compiler] Return type should be erased after unchecked conversion during inference
+ * test Fix for this bug had side effects while reporting missing tags in javadoc comments.<br>
  * Following tests have been written to verify that noticed issues have been solved:
  * <ol>
  * <li>missing tags should be reported even when the method/constructor has
@@ -8453,8 +8453,8 @@ public void testBug247037d() {
 	);
 }
 /**
- * @bug 267833:[javadoc] Custom tags should not be allowed for inline tags
- * @test Ensure that a warning is raised when customs tags are used as inline tags
+ * bug 267833:[javadoc] Custom tags should not be allowed for inline tags
+ * test Ensure that a warning is raised when customs tags are used as inline tags
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=267833"
  */
 public void testBug267833() {
@@ -8471,7 +8471,7 @@ public void testBug267833() {
 }
 /**
  * Additional test for bug 267833
- * @test Ensure that the JavadocTagConstants.JAVADOC_TAG_TYPE array is up to date with the other arrays, such as
+ * test Ensure that the JavadocTagConstants.JAVADOC_TAG_TYPE array is up to date with the other arrays, such as
  *  JavadocTagConstants.TAG_NAMES, JavadocTagConstants.INLINE_TAGS and JavadocTagConstants.BLOCK_TAGS
  */
 public void testBug267833_2() {
@@ -8517,7 +8517,7 @@ public void testBug267833_2() {
 }
 /**
  * Additional test for bug 267833
- * @test Ensure that a warning is raised when block tags are used as inline tags.
+ * test Ensure that a warning is raised when block tags are used as inline tags.
  */
 public void testBug267833_3() {
 	if(this.complianceLevel >= ClassFileConstants.JDK16) {
@@ -8712,7 +8712,7 @@ public void testBug267833_3a() {
 }
 
 /**
- * @bug 281609: [javadoc] "Javadoc: Invalid reference" warning for @link to Java package
+ * bug 281609: [javadoc] "Javadoc: Invalid reference" warning for @link to Java package
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=281609"
  */
 public void testBug281609a() {
@@ -8825,7 +8825,7 @@ public void testBug316782() {
 		});
 }
 /**
- * @bug 222188: [javadoc] Incorrect usage of inner type not reported
+ * bug 222188: [javadoc] Incorrect usage of inner type not reported
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=222188"
  */
 public void testBug222188a() {
@@ -8889,7 +8889,7 @@ public void testBug222188b() {
 }
 
 /**
- * @bug 221539: [javadoc] doesn't detect non visible inner class
+ * bug 221539: [javadoc] doesn't detect non visible inner class
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=221539"
  */
 public void testBug221539a() {
@@ -9013,7 +9013,7 @@ public void testBug382606() {
 }
 
 /**
- * @bug 206345: [javadoc] compiler should not interpret contents of {@literal}
+ * bug 206345: [javadoc] compiler should not interpret contents of {@literal}
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=206345"
  */
 public void testBug206345a() {

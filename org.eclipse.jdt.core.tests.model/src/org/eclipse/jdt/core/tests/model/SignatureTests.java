@@ -563,8 +563,8 @@ public void testGetThrownExceptionTypes() {
 
 }
 /**
- * @bug 155003: [model] Missing exception types / wrong signature?
- * @test Ensure that thrown exceptions are well decoded when added at the end of the signature
+ * bug 155003: [model] Missing exception types / wrong signature?
+ * test Ensure that thrown exceptions are well decoded when added at the end of the signature
  * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=155003"
  */
 public void testGetThrownExceptions_Bug155003() throws JavaModelException {

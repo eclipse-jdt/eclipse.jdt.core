@@ -192,7 +192,7 @@ public abstract class FullSourceWorkspaceTests extends TestCase {
 	 * Count of measures done for all tests.
 	 * <b>
 	 * Default value is 10 but can be modified using system property "measures".
-	 * <b>
+	 * <p>
 	 * For example, "-Dmeasures=1" will make all performance test suites to run
 	 * only 1 iteration for each test.
 	 */

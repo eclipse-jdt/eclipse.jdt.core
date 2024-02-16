@@ -150,8 +150,8 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 	}
 
 	/**
-	 * @bug 123836: [1.5][search] for references to overriding method with bound type variable is not polymorphic
-	 * @test Search for references to an overridden method with bound variables should yield.
+	 * bug123836: [1.5][search] for references to overriding method with bound type variable is not polymorphic
+	 * test Search for references to an overridden method with bound variables should yield.
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=123836"
 	 */
 	public void testBug123836a() throws CoreException {
@@ -501,8 +501,8 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		}
 	}
 	/**
-	 * @bug 297825: [search] Rename refactoring doesn't update enclosing type
-	 * @test Search for references for enclosing type's subclass should return a match.
+	 * bug297825: [search] Rename refactoring doesn't update enclosing type
+	 * test Search for references for enclosing type's subclass should return a match.
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=297825"
 	 */
 	public void testBug297825a() throws CoreException {
@@ -543,8 +543,8 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		}
 	}
 	/**
-	 * @bug 297825: [search] Rename refactoring doesn't update enclosing type
-	 * @test Verify there is no AIOOB when searching for references for a type.
+	 * bug297825: [search] Rename refactoring doesn't update enclosing type
+	 * test Verify there is no AIOOB when searching for references for a type.
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=297825"
 	 */
 	public void testBug297825b() throws CoreException {
@@ -581,8 +581,8 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		}
 	}
 	/**
-	 * @bug 297825: [search] Rename refactoring doesn't update enclosing type
-	 * @test Search for references for the top level type Foo should report no match. "new _Foo.Bar.Foo()" refers to a different type.
+	 * bug297825: [search] Rename refactoring doesn't update enclosing type
+	 * test Search for references for the top level type Foo should report no match. "new _Foo.Bar.Foo()" refers to a different type.
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=297825"
 	 */
 	public void testBug297825c() throws CoreException {
@@ -625,8 +625,8 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		}
 	}
 	/**
-	 * @bug 297825: [search] Rename refactoring doesn't update enclosing type
-	 * @test Search for references for enclosing type's subclass should return a match. The inner type is parameterized.
+	 * bug297825: [search] Rename refactoring doesn't update enclosing type
+	 * test Search for references for enclosing type's subclass should return a match. The inner type is parameterized.
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=297825"
 	 */
 	public void testBug297825d() throws CoreException {
@@ -667,8 +667,8 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		}
 	}
 	/**
-	 * @bug 342393: Anonymous class' occurrence count is incorrect when two methods in a class have the same name.
-	 * @test Search for Enumerators with anonymous types
+	 * bug342393: Anonymous class' occurrence count is incorrect when two methods in a class have the same name.
+	 * test Search for Enumerators with anonymous types
 	 *
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=342393"
 	 */
@@ -694,8 +694,8 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 	}
 
 	/**
-	 * @bug 376673: DBCS4.2 Can not rename the class names when DBCS (Surrogate e.g. U+20B9F) is in it
-	 * @test Search for DBCS type should report the match
+	 * bug376673: DBCS4.2 Can not rename the class names when DBCS (Surrogate e.g. U+20B9F) is in it
+	 * test Search for DBCS type should report the match
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=376673"
 	 */
 	public void testBug376673a() throws CoreException {
@@ -864,8 +864,8 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 	}
 	}
 	/**
-	 * @bug 357547: [search] Search for method references is returning methods as overridden even if the superclass's method is only package-visible
-	 * @test Search for a non-overridden method because of package visibility should not be found
+	 * bug357547: [search] Search for method references is returning methods as overridden even if the superclass's method is only package-visible
+	 * test Search for a non-overridden method because of package visibility should not be found
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=357547"
 	 */
 	public void testBug357547a() throws CoreException {
@@ -1191,8 +1191,8 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		}
 	}
 	/**
-	 * @bug 375971: [search] Not finding method references with generics
-	 * @test TODO
+	 * bug375971: [search] Not finding method references with generics
+	 * test TODO
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=375971"
 	 */
 	public void testBug375971a() throws CoreException {
@@ -1766,7 +1766,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 		}
 	}
 	/**
-	 * @bug 423409: [search] Search shows references to fields as potential matches
+	 * bug423409: [search] Search shows references to fields as potential matches
 	 * @see "https://bugs.eclipse.org/bugs/show_bug.cgi?id=423409"
 	 */
 	public void testBug423409() throws CoreException, JavaModelException {
@@ -2981,7 +2981,7 @@ public class JavaSearchBugsTests2 extends AbstractJavaSearchTests {
 	}
 
 	/**
-	 * <br>For the following scenario, no call hierarchy is found:</br>
+	 * For the following scenario, no call hierarchy is found:<br>
 	 * A nested private class implements a public nested interface.
 	 * The overridden method from the interface also has an argument of the interface type.
 	 * No call hierarchy is found for the overridden method, when searching from within the nested class.

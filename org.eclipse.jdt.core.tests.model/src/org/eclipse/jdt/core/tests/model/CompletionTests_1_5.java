@@ -2472,7 +2472,7 @@ public void test0089() throws JavaModelException {
 			"  String foo1();\n" +
 			"}\n" +
 			"class Test2 {\n" +
-			"  @TestAnnotation(foo)\n" +
+			" * testAnnotation(foo)\n" +
 			"  void bar(){}\n" +
 			"}");
 
@@ -2495,7 +2495,7 @@ public void test0090() throws JavaModelException {
 			"  String foo1();\n" +
 			"}\n" +
 			"class Test2 {\n" +
-			"  @TestAnnotation(foo)\n" +
+			" * testAnnotation(foo)\n" +
 			"  int var;\n" +
 			"}");
 
@@ -2519,7 +2519,7 @@ public void test0091() throws JavaModelException {
 			"}\n" +
 			"class Test2 {\n" +
 			"  void bar(){\n" +
-			"    @TestAnnotation(foo)\n" +
+			" * testAnnotation(foo)\n" +
 			"    int var;\n" +
 			"  }\n" +
 			"}");
@@ -2543,7 +2543,7 @@ public void test0092() throws JavaModelException {
 			"  String foo1();\n" +
 			"}\n" +
 			"class Test2 {\n" +
-			"  void bar(int var1, @TestAnnotation(foo) int var2){\n" +
+			" * testAnnotation(foo) int var2){\n" +
 			"  }\n" +
 			"}");
 
@@ -2566,7 +2566,7 @@ public void test0093() throws JavaModelException {
 			"  String foo1();\n" +
 			"}\n" +
 			"class Test2 {\n" +
-			"  @TestAnnotation(foo)\n" +
+			" * testAnnotation(foo)\n" +
 			"  Test2(){\n" +
 			"  }\n" +
 			"}");
@@ -2612,7 +2612,7 @@ public void test0095() throws JavaModelException {
 			"  String foo1();\n" +
 			"}\n" +
 			"class Test2 {\n" +
-			"  @TestAnnotation(foo\n" +
+			" * testAnnotation(foo\n" +
 			"  void bar(){}\n" +
 			"}");
 
@@ -2635,7 +2635,7 @@ public void test0096() throws JavaModelException {
 			"  String foo1();\n" +
 			"}\n" +
 			"class Test2 {\n" +
-			"  @TestAnnotation(foo\n" +
+			" * testAnnotation(foo\n" +
 			"  int var;\n" +
 			"}");
 
@@ -2659,7 +2659,7 @@ public void test0097() throws JavaModelException {
 			"}\n" +
 			"class Test2 {\n" +
 			"  void bar(){\n" +
-			"    @TestAnnotation(foo\n" +
+			" * testAnnotation(foo\n" +
 			"    int var;\n" +
 			"  }\n" +
 			"}");
@@ -2683,7 +2683,7 @@ public void test0098() throws JavaModelException {
 			"  String foo1();\n" +
 			"}\n" +
 			"class Test2 {\n" +
-			"  void bar(int var1, @TestAnnotation(foo int var2){\n" +
+			" * testAnnotation(foo int var2){\n" +
 			"  }\n" +
 			"}");
 
@@ -2706,7 +2706,7 @@ public void test0099() throws JavaModelException {
 			"  String foo1();\n" +
 			"}\n" +
 			"class Test2 {\n" +
-			"  @TestAnnotation(foo\n" +
+			" * testAnnotation(foo\n" +
 			"  Test2(){\n" +
 			"  }\n" +
 			"}");
@@ -2752,7 +2752,7 @@ public void test0101() throws JavaModelException {
 			"  String foo1();\n" +
 			"}\n" +
 			"class Test2 {\n" +
-			"  @TestAnnotation(foo=\"\")\n" +
+			" * testAnnotation(foo=\"\")\n" +
 			"  void bar(){}\n" +
 			"}");
 
@@ -2775,7 +2775,7 @@ public void test0102() throws JavaModelException {
 			"  String foo1();\n" +
 			"}\n" +
 			"class Test2 {\n" +
-			"  @TestAnnotation(foo=\"\")\n" +
+			" * testAnnotation(foo=\"\")\n" +
 			"  int var;\n" +
 			"}");
 
@@ -2799,7 +2799,7 @@ public void test0103() throws JavaModelException {
 			"}\n" +
 			"class Test2 {\n" +
 			"  void bar(){\n" +
-			"    @TestAnnotation(foo=\"\")\n" +
+			" * testAnnotation(foo=\"\")\n" +
 			"    int var;\n" +
 			"  }\n" +
 			"}");
@@ -2823,7 +2823,7 @@ public void test0104() throws JavaModelException {
 			"  String foo1();\n" +
 			"}\n" +
 			"class Test2 {\n" +
-			"  void bar(int var1, @TestAnnotation(foo=\"\") int var2){\n" +
+			" * testAnnotation(foo=\"\") int var2){\n" +
 			"  }\n" +
 			"}");
 
@@ -2846,7 +2846,7 @@ public void test0105() throws JavaModelException {
 			"  String foo1();\n" +
 			"}\n" +
 			"class Test2 {\n" +
-			"  @TestAnnotation(foo=\"\")\n" +
+			" * testAnnotation(foo=\"\")\n" +
 			"  Test2(){\n" +
 			"  }\n" +
 			"}");
@@ -2892,7 +2892,7 @@ public void test0107() throws JavaModelException {
 			"  String foo1();\n" +
 			"}\n" +
 			"class Test2 {\n" +
-			"  @TestAnnotation(foo=\"\"\n" +
+			" * testAnnotation(foo=\"\"\n" +
 			"  void bar(){}\n" +
 			"}");
 
@@ -2915,7 +2915,7 @@ public void test0108() throws JavaModelException {
 			"  String foo1();\n" +
 			"}\n" +
 			"class Test2 {\n" +
-			"  @TestAnnotation(foo=\"\"\n" +
+			" * testAnnotation(foo=\"\"\n" +
 			"  int var;\n" +
 			"}");
 
@@ -2939,7 +2939,7 @@ public void test0109() throws JavaModelException {
 			"}\n" +
 			"class Test2 {\n" +
 			"  void bar(){\n" +
-			"    @TestAnnotation(foo=\"\"\n" +
+			" * testAnnotation(foo=\"\"\n" +
 			"    int var;\n" +
 			"  }\n" +
 			"}");
@@ -2963,7 +2963,7 @@ public void test0110() throws JavaModelException {
 			"  String foo1();\n" +
 			"}\n" +
 			"class Test2 {\n" +
-			"  void bar(int var1, @TestAnnotation(foo=\"\" int var2){\n" +
+			" * testAnnotation(foo=\"\" int var2){\n" +
 			"  }\n" +
 			"}");
 
@@ -2986,7 +2986,7 @@ public void test0111() throws JavaModelException {
 			"  String foo1();\n" +
 			"}\n" +
 			"class Test2 {\n" +
-			"  @TestAnnotation(foo=\"\"\n" +
+			" * testAnnotation(foo=\"\"\n" +
 			"  Test2(){\n" +
 			"  }\n" +
 			"}");
@@ -3034,7 +3034,7 @@ public void test0113() throws JavaModelException {
 			"  String foo2();\n" +
 			"}\n" +
 			"class Test2 {\n" +
-			"  @TestAnnotation(foo1=\"\", foo)\n" +
+			" * testAnnotation(foo1=\"\", foo)\n" +
 			"  void bar(){}\n" +
 			"}");
 
@@ -3058,7 +3058,7 @@ public void test0114() throws JavaModelException {
 			"  String foo2();\n" +
 			"}\n" +
 			"class Test2 {\n" +
-			"  @TestAnnotation(foo1=\"\", foo)\n" +
+			" * testAnnotation(foo1=\"\", foo)\n" +
 			"  int var;\n" +
 			"}");
 
@@ -3083,7 +3083,7 @@ public void test0115() throws JavaModelException {
 			"}\n" +
 			"class Test2 {\n" +
 			"  void bar(){\n" +
-			"    @TestAnnotation(foo1=\"\", foo)\n" +
+			" * testAnnotation(foo1=\"\", foo)\n" +
 			"    int var;\n" +
 			"  }\n" +
 			"}");
@@ -3108,7 +3108,7 @@ public void test0116() throws JavaModelException {
 			"  String foo2();\n" +
 			"}\n" +
 			"class Test2 {\n" +
-			"  void bar(int var1, @TestAnnotation(foo1=\"\", foo) int var2){\n" +
+			" * testAnnotation(foo1=\"\", foo) int var2){\n" +
 			"  }\n" +
 			"}");
 
@@ -3132,7 +3132,7 @@ public void test0117() throws JavaModelException {
 			"  String foo2();\n" +
 			"}\n" +
 			"class Test2 {\n" +
-			"  @TestAnnotation(foo1=\"\", foo)\n" +
+			" * testAnnotation(foo1=\"\", foo)\n" +
 			"  Test2(){\n" +
 			"  }\n" +
 			"}");
@@ -3180,7 +3180,7 @@ public void test0119() throws JavaModelException {
 			"  String foo2();\n" +
 			"}\n" +
 			"class Test2 {\n" +
-			"  @TestAnnotation(foo1=\"\", foo\n" +
+			" * testAnnotation(foo1=\"\", foo\n" +
 			"  void bar(){}\n" +
 			"}");
 
@@ -3204,7 +3204,7 @@ public void test0120() throws JavaModelException {
 			"  String foo2();\n" +
 			"}\n" +
 			"class Test2 {\n" +
-			"  @TestAnnotation(foo1=\"\", foo\n" +
+			" * testAnnotation(foo1=\"\", foo\n" +
 			"  int var;\n" +
 			"}");
 
@@ -3229,7 +3229,7 @@ public void test0121() throws JavaModelException {
 			"}\n" +
 			"class Test2 {\n" +
 			"  void bar(){\n" +
-			"    @TestAnnotation(foo1=\"\", foo\n" +
+			" * testAnnotation(foo1=\"\", foo\n" +
 			"    int var;\n" +
 			"  }\n" +
 			"}");
@@ -3254,7 +3254,7 @@ public void test0122() throws JavaModelException {
 			"  String foo2();\n" +
 			"}\n" +
 			"class Test2 {\n" +
-			"  void bar(int var1, @TestAnnotation(foo1=\"\", foo int var2){\n" +
+			" * testAnnotation(foo1=\"\", foo int var2){\n" +
 			"  }\n" +
 			"}");
 
@@ -3278,7 +3278,7 @@ public void test0123() throws JavaModelException {
 			"  String foo2();\n" +
 			"}\n" +
 			"class Test2 {\n" +
-			"  @TestAnnotation(foo1=\"\", foo\n" +
+			" * testAnnotation(foo1=\"\", foo\n" +
 			"  Test2(){\n" +
 			"  }\n" +
 			"}");
@@ -3326,7 +3326,7 @@ public void test0125() throws JavaModelException {
 			"  String foo2();\n" +
 			"}\n" +
 			"class Test2 {\n" +
-			"  @TestAnnotation(foo1=\"\", foo=\"\")\n" +
+			" * testAnnotation(foo1=\"\", foo=\"\")\n" +
 			"  void bar(){}\n" +
 			"}");
 
@@ -3350,7 +3350,7 @@ public void test0126() throws JavaModelException {
 			"  String foo2();\n" +
 			"}\n" +
 			"class Test2 {\n" +
-			"  @TestAnnotation(foo1=\"\", foo=\"\")\n" +
+			" * testAnnotation(foo1=\"\", foo=\"\")\n" +
 			"  int var;\n" +
 			"}");
 
@@ -3375,7 +3375,7 @@ public void test0127() throws JavaModelException {
 			"}\n" +
 			"class Test2 {\n" +
 			"  void bar(){\n" +
-			"    @TestAnnotation(foo1=\"\", foo=\"\")\n" +
+			" * testAnnotation(foo1=\"\", foo=\"\")\n" +
 			"    int var;\n" +
 			"  }\n" +
 			"}");
@@ -3400,7 +3400,7 @@ public void test0128() throws JavaModelException {
 			"  String foo2();\n" +
 			"}\n" +
 			"class Test2 {\n" +
-			"  void bar(int var1, @TestAnnotation(foo1=\"\", foo=\"\") int var2){\n" +
+			" * testAnnotation(foo1=\"\", foo=\"\") int var2){\n" +
 			"  }\n" +
 			"}");
 
@@ -3424,7 +3424,7 @@ public void test0129() throws JavaModelException {
 			"  String foo2();\n" +
 			"}\n" +
 			"class Test2 {\n" +
-			"  @TestAnnotation(foo1=\"\", foo=\"\")\n" +
+			" * testAnnotation(foo1=\"\", foo=\"\")\n" +
 			"  Test2(){\n" +
 			"  }\n" +
 			"}");
@@ -3472,7 +3472,7 @@ public void test0131() throws JavaModelException {
 			"  String foo2();\n" +
 			"}\n" +
 			"class Test2 {\n" +
-			"  @TestAnnotation(foo1=\"\", foo=\"\"\n" +
+			" * testAnnotation(foo1=\"\", foo=\"\"\n" +
 			"  void bar(){}\n" +
 			"}");
 
@@ -3496,7 +3496,7 @@ public void test0132() throws JavaModelException {
 			"  String foo2();\n" +
 			"}\n" +
 			"class Test2 {\n" +
-			"  @TestAnnotation(foo1=\"\", foo=\"\"\n" +
+			" * testAnnotation(foo1=\"\", foo=\"\"\n" +
 			"  int var;\n" +
 			"}");
 
@@ -3521,7 +3521,7 @@ public void test0133() throws JavaModelException {
 			"}\n" +
 			"class Test2 {\n" +
 			"  void bar(){\n" +
-			"    @TestAnnotation(foo1=\"\", foo=\"\"\n" +
+			" * testAnnotation(foo1=\"\", foo=\"\"\n" +
 			"    int var;\n" +
 			"  }\n" +
 			"}");
@@ -3546,7 +3546,7 @@ public void test0134() throws JavaModelException {
 			"  String foo2();\n" +
 			"}\n" +
 			"class Test2 {\n" +
-			"  void bar(int var1, @TestAnnotation(foo1=\"\", foo=\"\" int var2){\n" +
+			" * testAnnotation(foo1=\"\", foo=\"\" int var2){\n" +
 			"  }\n" +
 			"}");
 
@@ -3570,7 +3570,7 @@ public void test0135() throws JavaModelException {
 			"  String foo2();\n" +
 			"}\n" +
 			"class Test2 {\n" +
-			"  @TestAnnotation(foo1=\"\", foo=\"\"\n" +
+			" * testAnnotation(foo1=\"\", foo=\"\"\n" +
 			"  Test2(){\n" +
 			"  }\n" +
 			"}",

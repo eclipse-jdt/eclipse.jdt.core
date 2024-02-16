@@ -2014,7 +2014,7 @@ public class ASTRewritingTypeDeclTest extends ASTRewritingTest {
 			"public class E {\n" +
 			"    @Marker\n"+
 			"    public int i;\n" +
-			"    @test1.Marker\n" +
+			" * test1.Marker\n" +
 			"    public F f;\n" +
 			"}\n" +
 			"class F {}\n" +

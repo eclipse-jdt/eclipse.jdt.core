@@ -600,7 +600,7 @@ public class AttachedJavadocTests extends ModifyingResourceTests {
 		}
 	}
 	/**
-	 * @bug 304394: IJavaElement#getAttachedJavadoc(IProgressMonitor) should support referenced entries
+	 * bug304394: IJavaElement#getAttachedJavadoc(IProgressMonitor) should support referenced entries
 	 * Test that javadoc is picked up from the referenced classpath entry when the javadoc location is added
 	 * to that entry
 	 *

@@ -159,7 +159,7 @@ public String[] getClassPath() {
 /**
  * Returns the command line which will be used to launch the VM.
  * The segments are in the following order:
- * <p><ul>
+ * <ul>
  * <li> VM path,
  * <li> VM arguments,
  * <li> the class path,
@@ -252,7 +252,7 @@ public String getTargetAddress() {
 }
 /**
  * Returns the VM-specific arguments. This does not include:
- * <p><ul>
+ * <ul>
  * <li>the VM path
  * <li>the class path or the boot class path
  * <li>the program class or program arguments
@@ -458,7 +458,7 @@ public void setProgramClass(String programClass) {
 }
 /**
  * Sets the VM-specific arguments. This does not include:
- * <p><ul>
+ * <ul>
  * <li>the VM path
  * <li>the class path or the boot class path
  * <li>the program class or program arguments
