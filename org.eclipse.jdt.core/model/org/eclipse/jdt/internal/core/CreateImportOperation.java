@@ -134,6 +134,7 @@ public String getMainTaskName(){
  * <li> if no imports, before the first type
  * <li> if no type, after the package statement
  * <li> and if no package statement - first thing in the CU
+ * </ul>
  */
 @Override
 protected void initializeDefaultPosition() {

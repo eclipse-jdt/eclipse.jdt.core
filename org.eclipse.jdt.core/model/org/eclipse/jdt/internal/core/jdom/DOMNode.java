@@ -480,7 +480,7 @@ private DOMNode cloneSharingDocument(char[] document, int rootOffset) {
 }
 /**
  * Sets this node's fragmented flag and all ancestor fragmented flags
- * to <code>true<code>. This happens when an attribute of this node or a descendant
+ * to <code>true</code>. This happens when an attribute of this node or a descendant
  * node has been altered. When a node is fragmented, its contents must
  * be generated from its attributes and original "form" rather than
  * from the original contents in the document.

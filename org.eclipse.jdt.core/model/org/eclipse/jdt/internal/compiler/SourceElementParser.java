@@ -44,7 +44,7 @@ import org.eclipse.jdt.internal.core.util.Messages;
  * - methods
  *
  * If reference information is requested, then all source constructs are
- * investigated and type, field & method references are provided as well.
+ * investigated and type, field and method references are provided as well.
  *
  * Any (parsing) problem encountered is also provided.
  */

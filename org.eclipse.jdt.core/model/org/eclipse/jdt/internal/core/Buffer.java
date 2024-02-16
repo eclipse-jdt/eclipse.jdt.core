@@ -302,7 +302,7 @@ public synchronized void removeBufferChangedListener(IBufferChangedListener list
 	}
 }
 /**
- * Replaces <code>length</code> characters starting from <code>position</code> with <code>text<code>.
+ * Replaces <code>length</code> characters starting from <code>position</code> with <code>text</code>.
  * After that operation, the gap is placed at the end of the
  * inserted <code>text</code>.
  */
@@ -339,7 +339,7 @@ public void replace(int position, int length, char[] text) {
 	}
 }
 /**
- * Replaces <code>length</code> characters starting from <code>position</code> with <code>text<code>.
+ * Replaces <code>length</code> characters starting from <code>position</code> with <code>text</code>.
  * After that operation, the gap is placed at the end of the
  * inserted <code>text</code>.
  */
