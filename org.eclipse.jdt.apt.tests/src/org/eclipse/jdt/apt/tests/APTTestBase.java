@@ -301,8 +301,8 @@ public abstract class APTTestBase extends BuilderTests{
 	/**
 	 * Verifies that the given element has specifics problems and
 	 * only the given problems.
-	 * @see Tests#expectingOnlySpecificProblemsFor(IPath, Problem[]), and
-	 * @see Tests#expectingSpecificProblemsFor(IPath, Problem[], boolean).
+	 * @see Tests#expectingOnlySpecificProblemsFor(IPath, Problem[])
+	 * @see Tests#expectingSpecificProblemsFor(IPath, Problem[], boolean)
 	 * Unfortunately this variant isn't implemented there.
 	 */
 	protected void expectingOnlySpecificProblemsFor(IPath root, ExpectedProblem[] expectedProblems) {
