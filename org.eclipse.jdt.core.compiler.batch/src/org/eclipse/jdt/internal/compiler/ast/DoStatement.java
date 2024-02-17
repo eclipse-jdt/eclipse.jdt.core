@@ -226,8 +226,7 @@ public StringBuilder printStatement(int indent, StringBuilder output) {
 
 @Override
 public LocalVariableBinding[] bindingsWhenComplete() {
-	return this.condition.containsPatternVariable() && this.action != null && !this.action.breaksOut(null) ?
-			this.condition.bindingsWhenFalse() : NO_VARIABLES;
+	return this.action != null && !this.action.breaksOut(null) ? this.condition.bindingsWhenFalse() : NO_VARIABLES;
 }
 
 @Override
@@ -239,10 +238,6 @@ public void resolve(BlockScope scope) {
 	}
 }
 
-@Override
-public boolean containsPatternVariable() {
-	return this.condition.containsPatternVariable();
-}
 @Override
 public void traverse(ASTVisitor visitor, BlockScope scope) {
 	if (visitor.visit(this, scope)) {

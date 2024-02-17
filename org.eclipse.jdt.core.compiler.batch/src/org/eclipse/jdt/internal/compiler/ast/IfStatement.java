@@ -294,7 +294,7 @@ public StringBuilder printStatement(int indent, StringBuilder output) {
 
 @Override
 public LocalVariableBinding[] bindingsWhenComplete() {
-	if (!this.condition.containsPatternVariable() || doesNotCompleteNormally())
+	if (doesNotCompleteNormally())
 		return NO_VARIABLES;
 	if (this.thenStatement != null && this.thenStatement.doesNotCompleteNormally())
 		return this.condition.bindingsWhenFalse();
@@ -313,11 +313,6 @@ public void resolve(BlockScope scope) {
 	if (this.elseStatement != null) {
 		this.elseStatement.resolveWithBindings(this.condition.bindingsWhenFalse(), scope);
 	}
-}
-
-@Override
-public boolean containsPatternVariable() {
-	return this.condition.containsPatternVariable();
 }
 
 @Override

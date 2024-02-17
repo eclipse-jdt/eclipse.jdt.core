@@ -855,7 +855,6 @@ public class SwitchStatement extends Expression {
 							codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.preSwitchInitStateIndex);
 						}
 						caseStatement = (CaseStatement) statement;
-						patternCaseExitPreviousCaseScope(codeStream, caseIndex);
 						caseIndex++;
 						typeSwitchIndex += caseStatement.constantExpressions.length;
 					} else {
@@ -973,14 +972,7 @@ public class SwitchStatement extends Expression {
 			codeStream.removeVariable(this.restartIndexLocal);
 		}
 	}
-	private void patternCaseExitPreviousCaseScope(CodeStream codeStream, int caseIndex) {
-		if (caseIndex > 0) {
-			CaseStatement caseStatement = this.cases[caseIndex];
-			if (caseStatement.containsPatternVariable()) {
-				caseStatement.patternCaseRemovePatternLocals(codeStream);
-			}
-		}
-	}
+
 	private void generateCodePatternCaseEpilogue(CodeStream codeStream, int caseIndex, CaseStatement caseStatement) {
 		if (this.switchPatternRestartTarget != null && caseStatement != null
 				&& caseStatement.patternIndex != -1 // for null

@@ -1826,10 +1826,6 @@ public StringBuilder printExpressionNoParenthesis(int indent, StringBuilder outp
 }
 
 @Override
-public boolean containsPatternVariable() {
-	return this.left.containsPatternVariable() || this.right.containsPatternVariable();
-}
-@Override
 public TypeBinding resolveType(BlockScope scope) {
 	// keep implementation in sync with CombinedBinaryExpression#resolveType
 	// and nonRecursiveResolveTypeUpwards

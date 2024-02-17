@@ -13,9 +13,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
@@ -29,7 +26,6 @@ import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TypeBindingVisitor;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 
 public class TypePattern extends Pattern {
@@ -116,11 +112,6 @@ public class TypePattern extends Pattern {
 	}
 
 	@Override
-	public LocalDeclaration getPatternVariable() {
-		return this.local;
-	}
-
-	@Override
 	public boolean coversType(TypeBinding type) {
 		if (type == null || this.resolvedType == null)
 			return false;
@@ -178,7 +169,7 @@ public class TypePattern extends Pattern {
 						if (rcb.type != null && (rcb.tagBits & TagBits.HasMissingType) != 0) {
 							scope.problemReporter().invalidType(this, rcb.type);
 						}
-						TypeVariableBinding[] mentionedTypeVariables = findSyntheticTypeVariables(rcb.type);
+						TypeVariableBinding[] mentionedTypeVariables = rcb.type != null ? rcb.type.syntheticTypeVariablesMentioned() : null;
 						if (mentionedTypeVariables != null && mentionedTypeVariables.length > 0) {
 							this.local.type.resolvedType = recType.upwardsProjection(scope,
 									mentionedTypeVariables);
@@ -201,21 +192,6 @@ public class TypePattern extends Pattern {
 		}
 
 		return this.resolvedType;
-	}
-
-	// Synthetics? Ref 4.10.5 also watch out for spec changes in rec pattern..
-	private TypeVariableBinding[] findSyntheticTypeVariables(TypeBinding typeBinding) {
-		final Set<TypeVariableBinding> mentioned = new HashSet<>();
-		TypeBindingVisitor.visit(new TypeBindingVisitor() {
-			@Override
-			public boolean visit(TypeVariableBinding typeVariable) {
-				if (typeVariable.isCapture())
-					mentioned.add(typeVariable);
-				return super.visit(typeVariable);
-			}
-		}, typeBinding);
-		if (mentioned.isEmpty()) return null;
-		return mentioned.toArray(new TypeVariableBinding[mentioned.size()]);
 	}
 
 	@Override
