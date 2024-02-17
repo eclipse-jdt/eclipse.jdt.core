@@ -116,11 +116,6 @@ public class TypePattern extends Pattern {
 	}
 
 	@Override
-	public LocalDeclaration getPatternVariable() {
-		return this.local;
-	}
-
-	@Override
 	public boolean coversType(TypeBinding type) {
 		if (type == null || this.resolvedType == null)
 			return false;

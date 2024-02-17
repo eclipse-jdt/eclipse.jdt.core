@@ -27,6 +27,7 @@ import org.eclipse.jdt.core.tests.compiler.regression.UnnamedPatternsAndVariable
 import org.eclipse.jdt.core.tests.dom.ASTConverter_GuardedPattern_Test;
 import org.eclipse.jdt.core.tests.dom.ASTConverter_RecordPattern_Test;
 import org.eclipse.jdt.core.tests.dom.ConverterTestSetup;
+import org.eclipse.jdt.core.tests.model.ResolveTests12To15;
 import org.eclipse.jdt.core.tests.rewrite.describing.ASTRewritingInstanceOfPatternExpressionTest;
 import org.eclipse.jdt.core.tests.rewrite.describing.ASTRewritingRecordPatternTest;
 import org.eclipse.jdt.core.tests.rewrite.describing.ASTRewritingSwitchPatternTest;
@@ -56,6 +57,7 @@ public class RunVariousPatternsTests extends TestCase {
 				ASTRewritingRecordPatternTest.class,
 				ASTRewritingInstanceOfPatternExpressionTest.class,
 				ASTRewritingSwitchPatternTest.class,
+				ResolveTests12To15.class,
 		};
 	}
 

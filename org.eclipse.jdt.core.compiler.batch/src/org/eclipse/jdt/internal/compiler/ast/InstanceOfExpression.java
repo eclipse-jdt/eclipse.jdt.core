@@ -37,7 +37,6 @@ public class InstanceOfExpression extends OperatorExpression {
 
 	public Expression expression;
 	public TypeReference type;
-	public LocalDeclaration elementVariable;
 	public Pattern pattern;
 	static final char[] SECRET_EXPRESSION_VALUE = " secretExpressionValue".toCharArray(); //$NON-NLS-1$
 
@@ -54,7 +53,6 @@ public InstanceOfExpression(Expression expression, TypeReference type) {
 public InstanceOfExpression(Expression expression, Pattern pattern) {
 	this.expression = expression;
 	this.pattern = pattern;
-	this.elementVariable = pattern.getPatternVariable();
 	this.type = pattern.getType();
 	this.type.bits |= IgnoreRawTypeCheck;
 	this.bits |= INSTANCEOF << OperatorSHIFT;
@@ -220,14 +218,7 @@ public StringBuilder printExpressionNoParenthesis(int indent, StringBuilder outp
 public LocalVariableBinding[] bindingsWhenTrue() {
 	return this.pattern != null ? this.pattern.bindingsWhenTrue() : NO_VARIABLES;
 }
-@Override
-public boolean containsPatternVariable() {
-	return this.elementVariable != null || this.pattern != null;
-}
-@Override
-public LocalDeclaration getPatternVariable() {
-	return this.elementVariable;
-}
+
 @Override
 public TypeBinding resolveType(BlockScope scope) {
 	this.constant = Constant.NotAConstant;

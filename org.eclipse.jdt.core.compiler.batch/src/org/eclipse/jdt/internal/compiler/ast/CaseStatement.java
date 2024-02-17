@@ -118,22 +118,6 @@ private FlowInfo analyseConstantExpression(
 }
 
 @Override
-public boolean containsPatternVariable() {
-	if (this.patternIndex == -1
-			|| this.constantExpressions.length <= this.patternIndex
-			|| !(this.constantExpressions[this.patternIndex] instanceof Pattern)) {
-		return false;
-	}
-	for (int i = 0, l = this.constantExpressions.length; i < l; ++i) {
-		if (this.constantExpressions[i] instanceof Pattern) {
-			Pattern pattern = (Pattern) this.constantExpressions[i];
-			if (pattern.containsPatternVariable())
-				return true;
-		}
-	}
-	return false;
-}
-@Override
 public StringBuilder printStatement(int tab, StringBuilder output) {
 	printIndent(tab, output);
 	if (this.constantExpressions == null) {
@@ -505,21 +489,6 @@ private Constant resolveConstantExpression(BlockScope scope,
  	return constant;
 }
 
-/* package */ void patternCaseRemovePatternLocals(CodeStream codeStream) {
-	for (Expression e : this.constantExpressions) {
-		if (e instanceof Pattern) {
-			e.traverse(new ASTVisitor() {
-				@Override
-				public boolean visit(TypePattern typePattern, BlockScope scope) {
-					LocalDeclaration local = typePattern.getPatternVariable();
-					if (local != null && local.binding != null)
-						codeStream.removeVariable(local.binding);
-					return false; // No deeper than this on this node
-				}
-			}, (BlockScope) null);
-		}
-	}
-}
 @Override
 public void traverse(ASTVisitor visitor, 	BlockScope blockScope) {
 	if (visitor.visit(this, blockScope)) {
@@ -532,15 +501,4 @@ public void traverse(ASTVisitor visitor, 	BlockScope blockScope) {
 	}
 	visitor.endVisit(this, blockScope);
 }
-/**
- * @noreference This method is not intended to be referenced by clients.
- * To be used in SelectionParser/AssistParser only if containsPatternVariable is positive
- * @return local declaration in the type pattern if any else null
- */
-public LocalDeclaration getLocalDeclaration() {
-	Expression cexp = this.constantExpressions[this.patternIndex];
-	LocalDeclaration patternVariableIntroduced = cexp.getPatternVariable();
-	return patternVariableIntroduced;
-}
-
 }

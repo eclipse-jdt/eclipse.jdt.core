@@ -36,8 +36,6 @@ public class RecordPattern extends TypePattern {
 	public Pattern[] patterns;
 	public TypeReference type;
 
-	/* package */ BranchLabel guardedElseTarget;
-
 	private TypeBinding expectedType; // for record pattern type inference
 
 	public RecordPattern(TypeReference type, int sourceStart, int sourceEnd) {
