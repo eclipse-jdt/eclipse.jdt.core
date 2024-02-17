@@ -4428,4 +4428,49 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"Record component with type short is not compatible with type int\n" +
 				"----------\n");
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1999
+	// [Patterns][records] Instanceof with record deconstruction patterns should never be flagged as unnecessary
+	public void testIssue1999() {
+		Map<String, String> options = getCompilerOptions();
+		options.put(CompilerOptions.OPTION_ReportUnnecessaryTypeCheck, CompilerOptions.ERROR);
+		runNegativeTest(new String[] {
+				"X.java",
+				"""
+				interface I {
+				}
+
+				final class A implements I {
+				}
+
+				final class B implements I {
+				}
+
+				record R(I x, I y) {
+				}
+
+				public class X {
+					public static boolean foo(R r) {
+						if (r instanceof R(A a1, A a2))  // don't warn here.
+							return true;
+						A a = null;
+						if (a instanceof A) {} // warn here
+						if (a instanceof A a1) {} // don't warn here
+						return false;
+					}
+
+					public static void main(String argv[]) {
+						System.out.println(X.foo(new R(new A(), new A())));
+						System.out.println(X.foo(new R(new A(), new B())));
+					}
+				}
+				"""
+				},
+				"----------\n" +
+				"1. ERROR in X.java (at line 18)\n" +
+				"	if (a instanceof A) {} // warn here\n" +
+				"	    ^^^^^^^^^^^^^^\n" +
+				"The expression of type A is already an instance of type A\n" +
+				"----------\n",
+				null, true, options);
+	}
 }
