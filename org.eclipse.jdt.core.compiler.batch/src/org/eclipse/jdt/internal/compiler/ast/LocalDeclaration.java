@@ -42,10 +42,7 @@ package org.eclipse.jdt.internal.compiler.ast;
 import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.ASSIGNMENT_CONTEXT;
 import static org.eclipse.jdt.internal.compiler.ast.ExpressionContext.VANILLA_CONTEXT;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference.AnnotationCollector;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -63,8 +60,6 @@ import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
-import org.eclipse.jdt.internal.compiler.lookup.TypeBindingVisitor;
-import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
 
 public class LocalDeclaration extends AbstractVariableDeclaration {
@@ -223,7 +218,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	}
 	public TypeBinding patchType(TypeBinding newType) {
 		// Perform upwards projection on type wrt mentioned type variables
-		TypeBinding[] mentionedTypeVariables= findCapturedTypeVariables(newType);
+		TypeBinding[] mentionedTypeVariables= newType != null ? newType.syntheticTypeVariablesMentioned() : null;
 		if (mentionedTypeVariables != null && mentionedTypeVariables.length > 0) {
 			newType = newType.upwardsProjection(this.binding.declaringScope, mentionedTypeVariables);
 		}
@@ -233,20 +228,6 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			this.binding.markInitialized();
 		}
 		return this.type.resolvedType;
-	}
-
-	private TypeVariableBinding[] findCapturedTypeVariables(TypeBinding typeBinding) {
-		final Set<TypeVariableBinding> mentioned = new HashSet<>();
-		TypeBindingVisitor.visit(new TypeBindingVisitor() {
-			@Override
-			public boolean visit(TypeVariableBinding typeVariable) {
-				if (typeVariable.isCapture())
-					mentioned.add(typeVariable);
-				return super.visit(typeVariable);
-			}
-		}, typeBinding);
-		if (mentioned.isEmpty()) return null;
-		return mentioned.toArray(new TypeVariableBinding[mentioned.size()]);
 	}
 
 	private static Expression findPolyExpression(Expression e) {

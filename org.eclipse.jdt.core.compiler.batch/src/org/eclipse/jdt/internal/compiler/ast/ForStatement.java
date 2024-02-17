@@ -416,7 +416,7 @@ public class ForStatement extends Statement {
 
 	@Override
 	public LocalVariableBinding[] bindingsWhenComplete() {
-		return this.condition != null && this.condition.containsPatternVariable() && this.action != null && !this.action.breaksOut(null) ?
+		return this.condition != null && this.action != null && !this.action.breaksOut(null) ?
 				this.condition.bindingsWhenFalse() : NO_VARIABLES;
 	}
 
@@ -449,11 +449,6 @@ public class ForStatement extends Statement {
 		if (this.action != null) {
 			this.action.resolveWithBindings(patternVariablesInTrueScope, this.scope);
 		}
-	}
-
-	@Override
-	public boolean containsPatternVariable() {
-		return this.condition != null && this.condition.containsPatternVariable();
 	}
 
 	@Override

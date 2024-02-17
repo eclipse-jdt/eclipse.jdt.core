@@ -37,10 +37,9 @@ public class InstanceOfExpression extends OperatorExpression {
 
 	public Expression expression;
 	public TypeReference type;
-	public LocalDeclaration elementVariable;
 	public Pattern pattern;
-	static final char[] SECRET_EXPRESSION_VALUE = " secretExpressionValue".toCharArray(); //$NON-NLS-1$
 
+	private static final char[] SECRET_EXPRESSION_VALUE = " secretExpressionValue".toCharArray(); //$NON-NLS-1$
 	private LocalVariableBinding secretExpressionValue = null;
 
 public InstanceOfExpression(Expression expression, TypeReference type) {
@@ -51,10 +50,10 @@ public InstanceOfExpression(Expression expression, TypeReference type) {
 	this.sourceStart = expression.sourceStart;
 	this.sourceEnd = type.sourceEnd;
 }
+
 public InstanceOfExpression(Expression expression, Pattern pattern) {
 	this.expression = expression;
 	this.pattern = pattern;
-	this.elementVariable = pattern.getPatternVariable();
 	this.type = pattern.getType();
 	this.type.bits |= IgnoreRawTypeCheck;
 	this.bits |= INSTANCEOF << OperatorSHIFT;
@@ -94,13 +93,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 	return (initsWhenTrue == null) ? flowInfo :
 			FlowInfo.conditional(initsWhenTrue, flowInfo.copy());
 }
-/**
- * Code generation for instanceOfExpression
- *
- * @param currentScope org.eclipse.jdt.internal.compiler.lookup.BlockScope
- * @param codeStream org.eclipse.jdt.internal.compiler.codegen.CodeStream
- * @param valueRequired boolean
-*/
+
 @Override
 public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean valueRequired) {
 
@@ -216,18 +209,12 @@ public StringBuilder printExpressionNoParenthesis(int indent, StringBuilder outp
 	this.expression.printExpression(indent, output).append(" instanceof "); //$NON-NLS-1$
 	return this.pattern == null ? this.type.print(0, output) : this.pattern.printExpression(0, output);
 }
+
 @Override
 public LocalVariableBinding[] bindingsWhenTrue() {
 	return this.pattern != null ? this.pattern.bindingsWhenTrue() : NO_VARIABLES;
 }
-@Override
-public boolean containsPatternVariable() {
-	return this.elementVariable != null || this.pattern != null;
-}
-@Override
-public LocalDeclaration getPatternVariable() {
-	return this.elementVariable;
-}
+
 @Override
 public TypeBinding resolveType(BlockScope scope) {
 	this.constant = Constant.NotAConstant;
@@ -291,6 +278,7 @@ public TypeBinding resolveType(BlockScope scope) {
 
 	return this.resolvedType = TypeBinding.BOOLEAN;
 }
+
 @Override
 public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding expressionType, TypeBinding match, boolean isNarrowing) {
 	if (!castType.isReifiable())
@@ -298,9 +286,6 @@ public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding ex
 	else
 		return super.checkUnsafeCast(scope, castType, expressionType, match, isNarrowing);
 }
-/**
- * @see org.eclipse.jdt.internal.compiler.ast.Expression#tagAsUnnecessaryCast(Scope,TypeBinding)
- */
 
 @Override
 public void tagAsUnnecessaryCast(Scope scope, TypeBinding castType) {

@@ -38,6 +38,7 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.lookup;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -506,6 +507,20 @@ public TypeBinding findSuperTypeOriginatingFrom(TypeBinding otherType) {
 			break;
 	}
 	return null;
+}
+
+public TypeVariableBinding[] syntheticTypeVariablesMentioned() {
+	final Set<TypeVariableBinding> mentioned = new HashSet<>();
+	TypeBindingVisitor.visit(new TypeBindingVisitor() {
+		@Override
+		public boolean visit(TypeVariableBinding typeVariable) {
+			if (typeVariable.isCapture())
+				mentioned.add(typeVariable);
+			return super.visit(typeVariable);
+		}
+	}, this);
+	if (mentioned.isEmpty()) return null;
+	return mentioned.toArray(new TypeVariableBinding[mentioned.size()]);
 }
 
 /**
