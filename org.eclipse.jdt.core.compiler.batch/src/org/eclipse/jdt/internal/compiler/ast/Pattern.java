@@ -13,7 +13,6 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
-import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
@@ -30,25 +29,6 @@ public abstract class Pattern extends Expression {
 	/* package */ BranchLabel thenTarget;
 
 	public int index = -1; // index of this in enclosing record pattern, or -1 for top level patterns
-
-	@Override
-	public boolean containsPatternVariable() {
-		class PatternVariablesVisitor extends ASTVisitor {
-			public boolean hasPatternVar = false;
-			public boolean typeElidedVar =  false;
-
-			@Override
-			public boolean visit(TypePattern typePattern, BlockScope blockScope) {
-				 this.hasPatternVar = typePattern.local != null;
-				 this.typeElidedVar |= typePattern.getType() == null || typePattern.getType().isTypeNameVar(blockScope);
-				 return !(this.hasPatternVar && this.typeElidedVar);
-			}
- 		}
-
-		PatternVariablesVisitor pvv = new PatternVariablesVisitor();
-		this.traverse(pvv, (BlockScope) null);
-		return pvv.hasPatternVar;
-	}
 
 	/**
 	 * @return the enclosingPattern

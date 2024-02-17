@@ -28,15 +28,12 @@ import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.MethodBinding;
 import org.eclipse.jdt.internal.compiler.lookup.RecordComponentBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
-import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public class RecordPattern extends TypePattern {
 
 	public Pattern[] patterns;
 	public TypeReference type;
-
-	/* package */ BranchLabel guardedElseTarget;
 
 	private TypeBinding expectedType; // for record pattern type inference
 
@@ -50,14 +47,6 @@ public class RecordPattern extends TypePattern {
 	@Override
 	public TypeReference getType() {
 		return this.type;
-	}
-
-	@Override
-	public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding expressionType, TypeBinding match, boolean isNarrowing) {
-		if (!castType.isReifiable())
-			return CastExpression.checkUnsafeCast(this, scope, castType, expressionType, match, isNarrowing);
-		else
-			return super.checkUnsafeCast(scope, castType, expressionType, match, isNarrowing);
 	}
 
 	@Override
@@ -280,9 +269,7 @@ public class RecordPattern extends TypePattern {
 	@Override
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		if (visitor.visit(this, scope)) {
-			if (this.type != null) {
-				this.type.traverse(visitor, scope);
-			}
+			this.type.traverse(visitor, scope);
 			for (Pattern p : this.patterns) {
 				p.traverse(visitor, scope);
 			}
@@ -293,11 +280,9 @@ public class RecordPattern extends TypePattern {
 	@Override
 	public StringBuilder printExpression(int indent, StringBuilder output) {
 		output.append(this.type).append('(');
-		if (this.patterns != null) {
-			for (int i = 0; i < this.patterns.length; i++) {
-				if (i > 0) output.append(", "); //$NON-NLS-1$
-				this.patterns[i].print(0, output);
-			}
+		for (int i = 0; i < this.patterns.length; i++) {
+			if (i > 0) output.append(", "); //$NON-NLS-1$
+			this.patterns[i].print(0, output);
 		}
 		output.append(')');
 		return output;

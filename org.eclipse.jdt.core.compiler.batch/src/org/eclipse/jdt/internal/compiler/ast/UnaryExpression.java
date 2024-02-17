@@ -315,14 +315,6 @@ public class UnaryExpression extends OperatorExpression {
 		}
 		return this.resolvedType;
 	}
-	@Override
-	public boolean containsPatternVariable() {
-		return this.expression.containsPatternVariable();
-	}
-	@Override
-	public LocalDeclaration getPatternVariable() {
-		return this.expression.getPatternVariable();
-	}
 
 	@Override
 	public LocalVariableBinding[] bindingsWhenFalse() {

@@ -292,11 +292,6 @@ public class WhileStatement extends Statement {
 	}
 
 	@Override
-	public boolean containsPatternVariable() {
-		return this.condition.containsPatternVariable();
-	}
-
-	@Override
 	public StringBuilder printStatement(int tab, StringBuilder output) {
 
 		printIndent(tab, output).append("while ("); //$NON-NLS-1$
@@ -323,8 +318,7 @@ public class WhileStatement extends Statement {
 
 	@Override
 	public LocalVariableBinding[] bindingsWhenComplete() {
-		return this.condition.containsPatternVariable() && this.action != null && !this.action.breaksOut(null) ?
-								this.condition.bindingsWhenFalse() : NO_VARIABLES;
+		return this.action != null && !this.action.breaksOut(null) ? this.condition.bindingsWhenFalse() : NO_VARIABLES;
 	}
 
 	@Override

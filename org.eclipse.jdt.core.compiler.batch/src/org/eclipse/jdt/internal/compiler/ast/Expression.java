@@ -783,10 +783,6 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 	}
 }
 
-public LocalDeclaration getPatternVariable() {
-	return null;
-}
-
 /**
  * Default generation of a boolean value
  */
