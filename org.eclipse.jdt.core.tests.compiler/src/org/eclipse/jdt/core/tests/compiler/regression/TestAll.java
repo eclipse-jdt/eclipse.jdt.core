@@ -92,7 +92,6 @@ public static Test suite() {
 	standardTests.add(ManifestAnalyzerTest.class);
 	standardTests.add(InitializationTests.class);
 	standardTests.add(ResourceLeakTests.class);
-	standardTests.add(ResourceLeakAnnotatedTests.class);
 	standardTests.add(PackageBindingTest.class);
 
 	// add all javadoc tests
@@ -137,6 +136,8 @@ public static Test suite() {
 	since_1_7.add(PolymorphicSignatureTest.class);
 	since_1_7.add(Compliance_1_7.class);
 	since_1_7.add(MethodHandleTest.class);
+	since_1_7.add(ResourceLeakAnnotatedTests.class);
+
 
 	ArrayList since_1_8 = new ArrayList();
 	since_1_8.add(NegativeTypeAnnotationTest.class);

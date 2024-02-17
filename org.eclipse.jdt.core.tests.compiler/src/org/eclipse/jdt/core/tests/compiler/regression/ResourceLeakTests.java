@@ -7036,6 +7036,8 @@ public void testBug499037_010_since_9() {
 		options);
 }
 public void testGH1762() {
+	if (this.complianceLevel < ClassFileConstants.JDK1_7)
+		return; // uses t-w-r
 	runLeakTest(
 		new String[] {
 			"X.java",
