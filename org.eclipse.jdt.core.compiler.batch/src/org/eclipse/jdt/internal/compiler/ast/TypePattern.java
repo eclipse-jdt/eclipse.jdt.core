@@ -91,7 +91,7 @@ public class TypePattern extends Pattern {
 	}
 
 	@Override
-	public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel) {
+	public void generateCode(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel) {
 		if (isUnnamed()) {
 			if (this.isTotalTypeNode) {
 				switch (this.local.binding.type.id) {

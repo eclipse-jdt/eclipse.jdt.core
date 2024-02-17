@@ -978,7 +978,8 @@ public class SwitchStatement extends Expression {
 				&& caseStatement.patternIndex != -1 // for null
 				) {
 			Pattern pattern = (Pattern) caseStatement.constantExpressions[caseStatement.patternIndex];
-			pattern.elseTarget.place();
+			if (caseStatement.falseLabel != null)
+				caseStatement.falseLabel.place();
 			if (!pattern.isAlwaysTrue()) {
 				/* We are generating a "thunk"/"trampoline" of sorts now, that flow analysis has no clue about.
 				   We need to manage the live variables manually. Pattern bindings are not definitely
@@ -991,7 +992,8 @@ public class SwitchStatement extends Expression {
 				codeStream.goto_(this.switchPatternRestartTarget);
 				Stream.of(bindingsWhenTrue).forEach(v->v.recordInitializationStartPC(codeStream.position));
 			}
-			pattern.thenTarget.place();
+			if (caseStatement.trueLabel != null)
+				caseStatement.trueLabel.place();
 		} else if (this.containsNull && caseStatement != null) {
 			this.nullProcessed |= caseStatement.patternIndex == -1;
 		}

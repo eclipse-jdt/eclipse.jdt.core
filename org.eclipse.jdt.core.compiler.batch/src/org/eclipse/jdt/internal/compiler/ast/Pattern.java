@@ -25,8 +25,6 @@ public abstract class Pattern extends Expression {
 
 	private Pattern enclosingPattern;
 	protected MethodBinding accessorMethod;
-	/* package */ BranchLabel elseTarget;
-	/* package */ BranchLabel thenTarget;
 
 	public int index = -1; // index of this in enclosing record pattern, or -1 for top level patterns
 
@@ -61,19 +59,7 @@ public abstract class Pattern extends Expression {
 		return true;
 	}
 
-	@Override
-	public void generateCode(BlockScope currentScope, CodeStream codeStream) {
-		setTargets(codeStream);
-		generateOptimizedBoolean(currentScope, codeStream, this.thenTarget, this.elseTarget);
-	}
-	/* package */ void setTargets(CodeStream codeStream) {
-		if (this.elseTarget == null)
-			this.elseTarget = new BranchLabel(codeStream);
-		if (this.thenTarget == null)
-			this.thenTarget = new BranchLabel(codeStream);
-	}
-
-	public abstract void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel);
+	public abstract void generateCode(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel);
 
 	public TypeReference getType() {
 		return null;
