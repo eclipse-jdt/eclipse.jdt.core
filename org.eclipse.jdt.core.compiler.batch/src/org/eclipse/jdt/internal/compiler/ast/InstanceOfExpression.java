@@ -304,6 +304,9 @@ public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding ex
 
 @Override
 public void tagAsUnnecessaryCast(Scope scope, TypeBinding castType) {
+	// record deconstruction and binding type pattern variable are legitimate operations.
+	if (this.pattern != null)
+		return;
 	// null is not instanceof Type, recognize direct scenario
 	if (this.expression.resolvedType != TypeBinding.NULL)
 		scope.problemReporter().unnecessaryInstanceof(this, castType);
