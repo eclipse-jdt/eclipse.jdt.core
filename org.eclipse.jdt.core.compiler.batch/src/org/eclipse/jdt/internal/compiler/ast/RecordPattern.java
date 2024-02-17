@@ -174,7 +174,7 @@ public class RecordPattern extends TypePattern {
 
 	@Override
 	public boolean isAlwaysTrue() {
-		return false;
+		return this.patterns.length == 0;
 	}
 
 	@Override
@@ -197,15 +197,20 @@ public class RecordPattern extends TypePattern {
 	}
 
 	@Override
-	public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel) {
+	public void generateCode(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel) {
 
+		int length = this.patterns.length;
 		/* JVM Stack on entry - [expression] // && expression instanceof this.resolvedType
 		   JVM stack on exit with successful pattern match or failed match -> []
 		   Notation: 'R' : record pattern, 'C': component
 		 */
+		if (length == 0) {
+			codeStream.pop();
+			return;
+		}
 		codeStream.checkcast(this.resolvedType); // [R]
 		List<ExceptionLabel> labels = new ArrayList<>();
-		for (int i = 0, length = this.patterns.length; i < length; i++) {
+		for (int i = 0; i < length; i++) {
 			Pattern p = this.patterns[i];
 			/* For all but the last component, dup the record instance to use
 			   as receiver for accessor invocation. The last component uses the
@@ -229,7 +234,6 @@ public class RecordPattern extends TypePattern {
 				if (!p.isUnnamed())
 					codeStream.dup(); // lastComponent ? named ? ([C, C] : [R, C, C]) : ([C] : [R, C])
 				codeStream.instance_of(p.resolvedType); // lastComponent ? named ? ([C, boolean] : [R, C, boolean]) : ([boolean] : [R, boolean])
-				BranchLabel target = falseLabel != null ? falseLabel : new BranchLabel(codeStream);
 				BranchLabel innerTruthLabel = new BranchLabel(codeStream);
 				codeStream.ifne(innerTruthLabel); // lastComponent ? named ? ([C] : [R, C]) : ([] : [R])
 				int pops = p.isUnnamed() ? 0 : 1; // Not going to store into the component pattern binding, so need to pop, the duped value.
@@ -248,10 +252,10 @@ public class RecordPattern extends TypePattern {
 				if (pops > 0)
 					codeStream.pop();
 
-				codeStream.goto_(target);
+				codeStream.goto_(falseLabel);
 				innerTruthLabel.place();
 			}
-			p.generateOptimizedBoolean(currentScope, codeStream, trueLabel, falseLabel);
+			p.generateCode(currentScope, codeStream, trueLabel, falseLabel);
 		}
 
 		if (labels.size() > 0) {
