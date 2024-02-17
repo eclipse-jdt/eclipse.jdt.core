@@ -41,6 +41,11 @@ public class CaseStatement extends Statement {
 	static final int CASE_PATTERN  = 2;
 
 	public BranchLabel targetLabel;
+
+	// labels for guarded patterns
+	public BranchLabel falseLabel;
+	public BranchLabel trueLabel;
+
 	public Expression[] constantExpressions; // case with multiple expressions
 	public BranchLabel[] targetLabels; // for multiple expressions
 	public boolean isExpr = false;
@@ -158,15 +163,15 @@ private void casePatternExpressionGenerateCode(BlockScope currentScope, CodeStre
 	if (this.patternIndex != -1) {
 		Pattern pattern = ((Pattern) this.constantExpressions[this.patternIndex]);
 		if (containsPatternVariable()) {
+			this.trueLabel = new BranchLabel(codeStream);
+			this.falseLabel = new BranchLabel(codeStream);
 			LocalVariableBinding local = currentScope.findVariable(SwitchStatement.SecretPatternVariableName, null);
 			codeStream.load(local);
-			pattern.generateCode(currentScope, codeStream);
-		} else {
-			pattern.setTargets(codeStream);
+			pattern.generateCode(currentScope, codeStream, this.trueLabel, this.falseLabel);
+			// Srikanth, check this goto.
+			if (!(pattern instanceof GuardedPattern))
+				codeStream.goto_(this.trueLabel);
 		}
-
-		if (!(pattern instanceof GuardedPattern))
-			codeStream.goto_(pattern.thenTarget);
 	}
 }
 

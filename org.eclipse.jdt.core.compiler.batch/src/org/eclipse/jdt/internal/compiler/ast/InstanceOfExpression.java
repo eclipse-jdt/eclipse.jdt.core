@@ -174,7 +174,7 @@ public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStr
 		} else {
 			this.expression.generateCode(currentScope, codeStream, true);
 		}
-		this.pattern.generateOptimizedBoolean(currentScope, codeStream, trueLabel, internalFalseLabel);
+		this.pattern.generateCode(currentScope, codeStream, trueLabel, internalFalseLabel);
 	}
 
 	if (shouldPop) {

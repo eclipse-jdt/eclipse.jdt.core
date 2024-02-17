@@ -7264,4 +7264,62 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				+ "This case label is dominated by one of the preceding case labels\n"
 				+ "----------\n");
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/773
+	// [20][pattern switch] unnecessary code generated
+	public void testIssue773() throws Exception {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				public class X {
+					public static void main(String[] args) {
+						Object o = null;
+						foo(new R());
+					}
+					@SuppressWarnings("preview")
+					public static void foo(Object o) {
+						switch (o) {
+						    case R():                         // Multiple case labels!
+						        System.out.println("R Only");
+						    case S():                         // Multiple case labels!
+						        System.out.println("Either S or an R");
+						        break;
+						    default:
+						}
+					}
+				}
+
+				record R() {}
+				record S() {}
+				"""
+			},
+		 "R Only\n" +
+		 "Either S or an R");
+		String expectedOutput =
+				"  // Method descriptor #22 (Ljava/lang/Object;)V\n" +
+				"  // Stack: 2, Locals: 3\n" +
+				"  public static void foo(java.lang.Object o);\n" +
+				"     0  aload_0 [o]\n" +
+				"     1  dup\n" +
+				"     2  invokestatic java.util.Objects.requireNonNull(java.lang.Object) : java.lang.Object [27]\n" +
+				"     5  pop\n" +
+				"     6  astore_1\n" +
+				"     7  iconst_0\n" +
+				"     8  istore_2\n" +
+				"     9  aload_1\n" +
+				"    10  iload_2\n" +
+				"    11  invokedynamic 0 typeSwitch(java.lang.Object, int) : int [33]\n" +
+				"    16  tableswitch default: 56\n" +
+				"          case 0: 40\n" +
+				"          case 1: 48\n" +
+				"    40  getstatic java.lang.System.out : java.io.PrintStream [37]\n" +
+				"    43  ldc <String \"R Only\"> [43]\n" +
+				"    45  invokevirtual java.io.PrintStream.println(java.lang.String) : void [45]\n" +
+				"    48  getstatic java.lang.System.out : java.io.PrintStream [37]\n" +
+				"    51  ldc <String \"Either S or an R\"> [51]\n" +
+				"    53  invokevirtual java.io.PrintStream.println(java.lang.String) : void [45]\n" +
+				"    56  return\n";
+
+		SwitchPatternTest.verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
+	}
 }

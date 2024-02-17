@@ -55,15 +55,13 @@ public class GuardedPattern extends Pattern {
 	}
 
 	@Override
-	public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel) {
-		this.thenTarget = new BranchLabel(codeStream);
-		this.elseTarget = new BranchLabel(codeStream);
-		this.primaryPattern.generateOptimizedBoolean(currentScope, codeStream, this.thenTarget, this.elseTarget);
+	public void generateCode(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel) {
+		this.primaryPattern.generateCode(currentScope, codeStream, trueLabel, falseLabel);
 		Constant cst =  this.condition.optimizedBooleanConstant();
 		this.condition.generateOptimizedBoolean(
 				currentScope,
 				codeStream,
-				this.thenTarget,
+				trueLabel,
 				null,
 				cst == Constant.NotAConstant);
 	}
