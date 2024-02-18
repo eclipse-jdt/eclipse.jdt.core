@@ -30,7 +30,7 @@ import org.eclipse.jdt.internal.compiler.lookup.RecordComponentBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
-public class RecordPattern extends TypePattern {
+public class RecordPattern extends Pattern {
 
 	public Pattern[] patterns;
 	public TypeReference type;
@@ -38,7 +38,6 @@ public class RecordPattern extends TypePattern {
 	private TypeBinding expectedType; // for record pattern type inference
 
 	public RecordPattern(TypeReference type, int sourceStart, int sourceEnd) {
-		super(null); // no local declaration with record patterns
 		this.type = type;
 		this.sourceStart = sourceStart;
 		this.sourceEnd = sourceEnd;
@@ -143,22 +142,22 @@ public class RecordPattern extends TypePattern {
 		RecordComponentBinding[] components = this.resolvedType.capture(scope, this.sourceStart, this.sourceEnd).components();
 		for (int i = 0; i < components.length; i++) {
 			Pattern p1 = this.patterns[i];
+			RecordComponentBinding componentBinding = components[i];
 			if (p1 instanceof TypePattern tp) {
-				RecordComponentBinding componentBinding = components[i];
-				if (p1.getType() == null || p1.getType().isTypeNameVar(scope)) {
+				if (tp.getType() == null || tp.getType().isTypeNameVar(scope)) {
 					if (tp.local.binding != null) // rewrite with the inferred type
 						tp.local.binding.type = componentBinding.type;
 				}
-				TypeBinding expressionType = componentBinding.type;
-				if (p1.isApplicable(expressionType, scope)) {
-					p1.isTotalTypeNode = p1.coversType(componentBinding.type);
-					MethodBinding[] methods = this.resolvedType.getMethods(componentBinding.name);
-					if (methods != null && methods.length > 0) {
-						p1.accessorMethod = methods[0];
-					}
-				}
-				this.isTotalTypeNode &= p1.isTotalTypeNode;
 			}
+			TypeBinding expressionType = componentBinding.type;
+			if (p1.isApplicable(expressionType, scope)) {
+				p1.isTotalTypeNode = p1.coversType(componentBinding.type);
+				MethodBinding[] methods = this.resolvedType.getMethods(componentBinding.name);
+				if (methods != null && methods.length > 0) {
+					p1.accessorMethod = methods[0];
+				}
+			}
+			this.isTotalTypeNode &= p1.isTotalTypeNode;
 		}
 		return this.resolvedType;
 	}

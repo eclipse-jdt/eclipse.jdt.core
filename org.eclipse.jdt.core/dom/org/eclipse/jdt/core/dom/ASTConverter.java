@@ -2285,12 +2285,7 @@ class ASTConverter {
 		int startPosition = pattern.sourceStart;
 		int sourceEnd= pattern.sourceEnd;
 		recordPattern.setSourceRange(startPosition, sourceEnd - startPosition + 1);
-		if (pattern.local != null) {
-			recordPattern.setPatternType(convertType(pattern.local.type));
-			SimpleName patternName = new SimpleName(this.ast);
-			patternName.internalSetIdentifier(new String(pattern.local.name));
-			patternName.setSourceRange(pattern.local.nameSourceStart(), pattern.local.nameSourceEnd() - pattern.local.nameSourceStart() + 1);
-		} else if (pattern.type != null) {
+		if (pattern.type != null) {
 			recordPattern.setPatternType(convertType(pattern.type));
 		}
 		List<Pattern> patterns = recordPattern.patterns();
