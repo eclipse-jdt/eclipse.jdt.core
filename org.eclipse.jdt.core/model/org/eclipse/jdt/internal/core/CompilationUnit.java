@@ -165,6 +165,7 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 		astParser.setStatementsRecovery((reconcileFlags & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0);
 		astParser.setResolveBindings(resolveBindings);
 		astParser.setBindingsRecovery((reconcileFlags & ICompilationUnit.ENABLE_BINDINGS_RECOVERY) != 0);
+		astParser.setIgnoreMethodBodies((reconcileFlags & ICompilationUnit.IGNORE_METHOD_BODIES) != 0);
 		astParser.setCompilerOptions(options);
 		if (astParser.createAST(pm) instanceof org.eclipse.jdt.core.dom.CompilationUnit newAST) {
 			if (computeProblems) {
