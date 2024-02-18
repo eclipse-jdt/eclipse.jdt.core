@@ -683,4 +683,26 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 				requestor.getResults());
 
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/92
+	// [Patterns] Suggest identifier completion for obj instanceof Dog
+	public void testIssue92() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[1];
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/Dog.java",
+				"public class Dog {\n" +
+				"	public static void main(String[] args) {\n" +
+				"		Object o = null;\n" +
+				"		if (o instanceof Dog )\n" +
+				"	}\n" +
+				"}\n");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true);
+		requestor.allowAllRequiredProposals();
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "Dog ";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults("dog[VARIABLE_DECLARATION]{dog, null, LDog;, dog, null, 48}",
+				requestor.getResults());
+
+	}
 }
