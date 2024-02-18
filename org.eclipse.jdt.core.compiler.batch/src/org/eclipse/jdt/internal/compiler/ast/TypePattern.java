@@ -23,7 +23,6 @@ import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.RecordComponentBinding;
 import org.eclipse.jdt.internal.compiler.lookup.ReferenceBinding;
-import org.eclipse.jdt.internal.compiler.lookup.Scope;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
@@ -56,14 +55,6 @@ public class TypePattern extends Pattern {
 	@Override
 	public LocalVariableBinding[] bindingsWhenTrue() {
 		return this.isUnnamed() || this.local.binding == null ? NO_VARIABLES : new LocalVariableBinding[] { this.local.binding };
-	}
-
-	@Override
-	public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding expressionType, TypeBinding match, boolean isNarrowing) {
-		if (!castType.isReifiable())
-			return CastExpression.checkUnsafeCast(this, scope, castType, expressionType, match, isNarrowing);
-		else
-			return super.checkUnsafeCast(scope, castType, expressionType, match, isNarrowing);
 	}
 
 	@Override
@@ -109,35 +100,6 @@ public class TypePattern extends Pattern {
 			}
 			this.local.generateCode(currentScope, codeStream);
 		}
-	}
-
-	@Override
-	public boolean coversType(TypeBinding type) {
-		if (type == null || this.resolvedType == null)
-			return false;
-		return (type.isSubtypeOf(this.resolvedType, false));
-	}
-
-	@Override
-	protected boolean isApplicable(TypeBinding other, BlockScope scope) {
-		TypeBinding patternType = this.resolvedType;
-		if (patternType == null) // ill resolved pattern
-			return false;
-		// 14.30.3 Properties of Patterns doesn't allow boxing nor unboxing, primitive widening/narrowing.
-		if (patternType.isBaseType() != other.isBaseType()) {
-			scope.problemReporter().incompatiblePatternType(this, other, patternType);
-			return false;
-		}
-		if (patternType.isBaseType()) {
-			if (!TypeBinding.equalsEquals(other, patternType)) {
-				scope.problemReporter().incompatiblePatternType(this, other, patternType);
-				return false;
-			}
-		} else if (!checkCastTypesCompatibility(scope, other, patternType, null, true)) {
-			scope.problemReporter().incompatiblePatternType(this, other, patternType);
-			return false;
-		}
-		return true;
 	}
 
 	@Override

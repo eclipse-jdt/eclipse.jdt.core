@@ -48,7 +48,6 @@ import org.eclipse.jdt.internal.compiler.ast.MethodDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ModuleDeclaration;
 import org.eclipse.jdt.internal.compiler.ast.ModuleReference;
 import org.eclipse.jdt.internal.compiler.ast.NameReference;
-import org.eclipse.jdt.internal.compiler.ast.RecordPattern;
 import org.eclipse.jdt.internal.compiler.ast.RequiresStatement;
 import org.eclipse.jdt.internal.compiler.ast.Statement;
 import org.eclipse.jdt.internal.compiler.ast.SuperReference;
@@ -373,16 +372,6 @@ public RecoveredElement buildInitialRecoveryState(){
 						// and leaves it in the astStack
 						final List<LocalDeclaration> locals = new ArrayList<>();
 						node.traverse(new ASTVisitor() {
-							@SuppressWarnings("synthetic-access")
-							@Override
-							public boolean visit(RecordPattern pattern, BlockScope scope) {
-								LocalDeclaration local = pattern.local;
-								if (local == null)
-									return true;
-								locals.add(local);
-								AssistParser.this.lastCheckPoint = local.declarationSourceEnd + 1;
-								return true;
-							}
 							@SuppressWarnings("synthetic-access")
 							@Override
 							public boolean visit(TypePattern pattern, BlockScope scope) {
