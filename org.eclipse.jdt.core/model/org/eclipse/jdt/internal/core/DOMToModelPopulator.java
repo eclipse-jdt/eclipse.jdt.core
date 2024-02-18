@@ -487,7 +487,7 @@ class DOMToModelPopulator extends ASTVisitor {
 		boolean isDeprecated = isNodeDeprecated(method);
 		info.setFlags(method.getModifiers()
 			| (isDeprecated ? ClassFileConstants.AccDeprecated : 0)
-			| (((List<SingleVariableDeclaration>)method.parameters()).stream().anyMatch(decl -> decl.isVarargs()) ? Flags.AccVarargs : 0));
+			| ((method.getAST().apiLevel() > AST.JLS2 && ((List<SingleVariableDeclaration>)method.parameters()).stream().anyMatch(SingleVariableDeclaration::isVarargs)) ? Flags.AccVarargs : 0));
 		info.setNameSourceStart(method.getName().getStartPosition());
 		info.setNameSourceEnd(method.getName().getStartPosition() + method.getName().getLength() - 1);
 		info.isCanonicalConstructor = method.isConstructor();
@@ -873,7 +873,7 @@ class DOMToModelPopulator extends ASTVisitor {
 	private String createSignature(SingleVariableDeclaration decl) {
 		String initialSignature = Util.getSignature(decl.getType());
 		int extraDimensions = decl.getExtraDimensions();
-		if (decl.isVarargs()) {
+		if (decl.getAST().apiLevel() > AST.JLS2 && decl.isVarargs()) {
 			extraDimensions++;
 		}
 		return Signature.createArraySignature(initialSignature, extraDimensions);

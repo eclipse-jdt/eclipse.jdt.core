@@ -190,7 +190,7 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 				}
 				Map<String, String> options = workingCopy.getJavaProject().getOptions(true);
 				if (CompilationUnit.DOM_BASED_OPERATIONS) {
-					ASTParser parser = ASTParser.newParser(this.astLevel >= 0 ? this.astLevel : AST.getJLSLatest());
+					ASTParser parser = ASTParser.newParser(this.astLevel > 0 ? this.astLevel : AST.getJLSLatest());
 					parser.setResolveBindings(this.resolveBindings || (this.reconcileFlags & ICompilationUnit.FORCE_PROBLEM_DETECTION) != 0);
 					parser.setCompilerOptions(options);
 					parser.setSource(source);
