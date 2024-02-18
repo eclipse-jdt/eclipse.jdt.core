@@ -294,35 +294,26 @@ public ResolvedCase[] resolveCase(BlockScope scope, TypeBinding switchExpression
 		flagDuplicateDefault(scope, switchStatement, this);
 		return ResolvedCase.UnresolvedCase;
 	}
-	Expression constExpr = getFirstValidExpression(scope, switchStatement);
-	if (constExpr == null) {
+	if (getFirstValidExpression(scope, switchStatement) == null) {
 		return ResolvedCase.UnresolvedCase;
 	}
 
-	// add into the collection of cases of the associated switch statement
 	switchStatement.cases[switchStatement.caseCount++] = this;
-	if (switchExpressionType != null && switchExpressionType.isEnum() && (constExpr instanceof SingleNameReference)) {
-		((SingleNameReference) constExpr).setActualReceiverType((ReferenceBinding)switchExpressionType);
-	}
-
-	constExpr.setExpressionContext(ExpressionContext.INSTANCEOF_CONTEXT);
-	constExpr.setExpectedType(switchExpressionType);
-
-	TypeBinding caseType = constExpr.resolveType(scope);
-	if (caseType == null || switchExpressionType == null) return ResolvedCase.UnresolvedCase;
-	// tag constant name with enum type for privileged access to its members
 
 	List<ResolvedCase> cases = new ArrayList<>();
 	for (Expression e : this.constantExpressions) {
-		if (e != constExpr) {
-			if (switchExpressionType.isEnum() && (e instanceof SingleNameReference)) {
-				((SingleNameReference) e).setActualReceiverType((ReferenceBinding)switchExpressionType);
-			} else if (e instanceof FakeDefaultLiteral) {
-				continue; // already processed
-			}
-			caseType = e.resolveType(scope);
+		// tag constant name with enum type for privileged access to its members
+		if (switchExpressionType != null && switchExpressionType.isEnum() && (e instanceof SingleNameReference)) {
+			((SingleNameReference) e).setActualReceiverType((ReferenceBinding)switchExpressionType);
+		} else if (e instanceof FakeDefaultLiteral) {
+			continue; // already processed
 		}
-		if (caseType == null)
+		e.setExpressionContext(ExpressionContext.INSTANCEOF_CONTEXT);
+		e.setExpectedType(switchExpressionType);
+
+		TypeBinding	caseType = e.resolveType(scope);
+
+		if (caseType == null || switchExpressionType == null)
 			return ResolvedCase.UnresolvedCase;
 		 // Avoid further resolution and secondary errors
 		if (caseType.isValidBinding()) {
@@ -439,57 +430,52 @@ private Constant resolveConstantExpression(BlockScope scope,
 		SwitchStatement switchStatement,
 		Pattern e) {
 	Constant constant = Constant.NotAConstant;
-	TypeBinding type = e.resolveType(scope);
+
+	TypeBinding type = e.resolvedType;
+
 	if (type != null) {
 		constant = IntConstant.fromValue(switchStatement.constantIndex);
 		switchStatement.caseLabelElements.add(e);
-		if (e.resolvedType != null) {
-			// 14.30.2 at compile-time we "resolve" the pattern with respect to the (compile-time) type
-			// of the expression being pattern matched
-			e.setExpressionContext(ExpressionContext.INSTANCEOF_CONTEXT);
-			e.setExpectedType(switchStatement.expression.resolvedType);
-			TypeBinding pb = e.resolveType(scope);
-			if (pb != null) switchStatement.caseLabelElementTypes.add(pb);
-			TypeBinding expressionType = switchStatement.expression.resolvedType;
-			// The following code is copied from InstanceOfExpression#resolve()
-			// But there are enough differences to warrant a copy
-			if (!pb.isReifiable()) {
-				if (expressionType != TypeBinding.NULL && !(e instanceof RecordPattern)) {
-					boolean isLegal = e.checkCastTypesCompatibility(scope, pb, expressionType, e, false);
-					if (!isLegal || (e.bits & ASTNode.UnsafeCast) != 0) {
-						scope.problemReporter().unsafeCastInInstanceof(e, pb, expressionType);
-					}
-				}
-			} else if (pb.isValidBinding()) {
-				// if not a valid binding, an error has already been reported for unresolved type
-				if (pb.isPrimitiveType()) {
-					scope.problemReporter().unexpectedTypeinSwitchPattern(pb, e);
-					return Constant.NotAConstant;
-				}
-				if (pb.isBaseType()
-						|| !e.checkCastTypesCompatibility(scope, pb, expressionType, null, false)) {
-					scope.problemReporter().typeMismatchError(expressionType, pb, e, null);
-					return Constant.NotAConstant;
+
+		switchStatement.caseLabelElementTypes.add(type);
+		TypeBinding expressionType = switchStatement.expression.resolvedType;
+		// The following code is copied from InstanceOfExpression#resolve()
+		// But there are enough differences to warrant a copy
+		if (!type.isReifiable()) {
+			if (expressionType != TypeBinding.NULL && !(e instanceof RecordPattern)) {
+				boolean isLegal = e.checkCastTypesCompatibility(scope, type, expressionType, e, false);
+				if (!isLegal || (e.bits & ASTNode.UnsafeCast) != 0) {
+					scope.problemReporter().unsafeCastInInstanceof(e, type, expressionType);
 				}
 			}
-			if (e.coversType(expressionType)) {
-				if ((switchStatement.switchBits & SwitchStatement.TotalPattern) != 0) {
-					scope.problemReporter().duplicateTotalPattern(e);
-					return IntConstant.fromValue(-1);
-				}
-				switchStatement.switchBits |= SwitchStatement.Exhaustive;
-				if (e.isAlwaysTrue()) {
-					switchStatement.switchBits |= SwitchStatement.TotalPattern;
-					if (switchStatement.defaultCase != null && !(e instanceof RecordPattern))
-						scope.problemReporter().illegalTotalPatternWithDefault(this);
-					switchStatement.totalPattern = e;
-				}
-				e.isTotalTypeNode = true;
-				if (switchStatement.nullCase == null)
-					constant = IntConstant.fromValue(-1);
+		} else if (type.isValidBinding()) {
+			// if not a valid binding, an error has already been reported for unresolved type
+			if (type.isPrimitiveType()) {
+				scope.problemReporter().unexpectedTypeinSwitchPattern(type, e);
+				return Constant.NotAConstant;
+			}
+			if (type.isBaseType()
+					|| !e.checkCastTypesCompatibility(scope, type, expressionType, null, false)) {
+				scope.problemReporter().typeMismatchError(expressionType, type, e, null);
+				return Constant.NotAConstant;
 			}
 		}
-
+		if (e.coversType(expressionType)) {
+			if ((switchStatement.switchBits & SwitchStatement.TotalPattern) != 0) {
+				scope.problemReporter().duplicateTotalPattern(e);
+				return IntConstant.fromValue(-1);
+			}
+			switchStatement.switchBits |= SwitchStatement.Exhaustive;
+			if (e.isAlwaysTrue()) {
+				switchStatement.switchBits |= SwitchStatement.TotalPattern;
+				if (switchStatement.defaultCase != null && !(e instanceof RecordPattern))
+					scope.problemReporter().illegalTotalPatternWithDefault(this);
+				switchStatement.totalPattern = e;
+			}
+			e.isTotalTypeNode = true;
+			if (switchStatement.nullCase == null)
+				constant = IntConstant.fromValue(-1);
+		}
 	}
  	return constant;
 }
