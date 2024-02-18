@@ -112,7 +112,7 @@ public class TypePattern extends Pattern {
 	@Override
 	public TypeBinding resolveType(BlockScope scope) {
 		if (this.resolvedType != null)
-			return this.resolvedType; // Srikanth, fix reentry
+			return this.resolvedType;
 
 		Pattern enclosingPattern = this.getEnclosingPattern();
 		if (this.local.type == null || this.local.type.isTypeNameVar(scope)) {
