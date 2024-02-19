@@ -1244,21 +1244,18 @@ InstanceofExpression ::= InstanceofExpression InstanceofRHS
 
 InstanceofRHS -> InstanceofClassic
 InstanceofRHS -> InstanceofPattern
-/.$putCase consumeInstanceOfRHS(); $break ./
-/:$readableName Expression:/
+/:$readableName InstanceofRHS:/
 
 InstanceofClassic ::= 'instanceof' Modifiersopt Type
 /.$putCase consumeInstanceOfClassic(); $break ./
 /:$readableName InstanceofClassic:/
 
-InstanceofPattern ::=  'instanceof' Pattern
-/.$putCase consumeInstanceofPattern(); $break ./
+InstanceofPattern -> 'instanceof' Pattern
 /:$readableName InstanceofPattern:/
 
 
 Pattern -> TypePattern
 Pattern -> RecordPattern
-/.$putCase consumePattern(); $break ./
 /:$readableName Pattern:/
 
 TypePattern ::= Modifiersopt Type 'Identifier'
@@ -1616,8 +1613,7 @@ CaseLabelElement ::=  CaseLabelElementPattern Guard
 /.$putCase consumeCaseLabelElement(CaseLabelKind.CASE_PATTERN); $break ./
 /:$readableName CaseLabelElement:/
 
-CaseLabelElementPattern ::= BeginCaseElement Pattern
-/.$putCase consumeCaseLabelElementPattern(); $break ./
+CaseLabelElementPattern -> BeginCaseElement Pattern
 /:$readableName CaseLabelElementPattern:/
 
 Guard ::= RestrictedIdentifierWhen Expression
