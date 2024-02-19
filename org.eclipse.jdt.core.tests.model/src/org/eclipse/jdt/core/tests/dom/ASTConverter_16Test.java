@@ -585,6 +585,8 @@ public class ASTConverter_16Test extends ConverterTestSetup {
 		checkSourceRange(expression, "o instanceof String s", contents);
 		assertEquals("Not an instanceof expression", ASTNode.PATTERN_INSTANCEOF_EXPRESSION, expression.getNodeType());
 		PatternInstanceofExpression instanceofExpression = (PatternInstanceofExpression) expression;
+		ITypeBinding typeBinding = instanceofExpression.resolveTypeBinding();
+		assertEquals("boolean", typeBinding.toString());
 		SingleVariableDeclaration var = instanceofExpression.getRightOperand();
 		checkSourceRange(var, "String s", contents);
 	}

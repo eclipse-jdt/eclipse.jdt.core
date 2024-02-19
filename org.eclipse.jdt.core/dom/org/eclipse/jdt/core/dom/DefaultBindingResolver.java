@@ -742,6 +742,7 @@ class DefaultBindingResolver extends BindingResolver {
 				case ASTNode.TYPE_LITERAL :
 				case ASTNode.INFIX_EXPRESSION :
 				case ASTNode.INSTANCEOF_EXPRESSION :
+				case ASTNode.PATTERN_INSTANCEOF_EXPRESSION:
 				case ASTNode.LAMBDA_EXPRESSION:
 				case ASTNode.CREATION_REFERENCE:
 				case ASTNode.EXPRESSION_METHOD_REFERENCE:
@@ -764,6 +765,7 @@ class DefaultBindingResolver extends BindingResolver {
 						return this.getTypeBinding(compilerExpression.resolvedType);
 					}
 					break;
+
 				case ASTNode.TEXT_BLOCK :
 				case ASTNode.STRING_LITERAL :
 					if (this.scope != null) {
