@@ -32,6 +32,7 @@ import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.MethodReference;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NodeFinder;
 import org.eclipse.jdt.core.dom.Type;
@@ -472,6 +473,12 @@ static IBinding resolveBinding(ASTNode node) {
 			return res;
 		}
 		return resolveBinding(aName.getParent());
+	}
+	if (node instanceof org.eclipse.jdt.core.dom.LambdaExpression lambda) {
+		return lambda.resolveMethodBinding();
+	}
+	if (node instanceof MethodReference methodRef) {
+		return methodRef.resolveMethodBinding();
 	}
 	if (node instanceof org.eclipse.jdt.core.dom.TypeParameter typeParameter) {
 		return typeParameter.resolveBinding();
