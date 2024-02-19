@@ -4596,20 +4596,9 @@ protected void consumeTypeReferenceWithModifiersAndAnnotations() {
 //	exp.modifiers = this.intStack[this.intPtr--];
 	//the scanner is on the next token already....
 }
-protected void consumeInstanceOfRHS() {
-	// do nothing
-}
 protected void consumeInstanceOfClassic() {
 	consumeTypeReferenceWithModifiersAndAnnotations();
 	pushOnAstLengthStack(0); // signal no pattern
-}
-protected void consumeInstanceofPattern() {
-	// Only if we are not inside a block
-	if (this.realBlockPtr != -1)
-		blockReal();
-}
-protected void consumePattern() {
- // TODO - check if parenthesis to be used for source position adjustment
 }
 protected void consumeInstanceOfExpressionWithName() {
 	// RelationalExpression_NotName ::= Name instanceof ReferenceType
@@ -7229,17 +7218,8 @@ protected void consumeRule(int act) {
     case 355 : if (DEBUG) { System.out.println("InstanceofExpression ::= InstanceofExpression..."); }  //$NON-NLS-1$
 		    consumeInstanceOfExpression(); 			break;
 
-    case 357 : if (DEBUG) { System.out.println("InstanceofRHS -> InstanceofPattern"); }  //$NON-NLS-1$
-		    consumeInstanceOfRHS(); 			break;
-
     case 358 : if (DEBUG) { System.out.println("InstanceofClassic ::= instanceof Modifiersopt Type"); }  //$NON-NLS-1$
 		    consumeInstanceOfClassic(); 			break;
-
-    case 359 : if (DEBUG) { System.out.println("InstanceofPattern ::= instanceof Pattern"); }  //$NON-NLS-1$
-		    consumeInstanceofPattern(); 			break;
-
-    case 361 : if (DEBUG) { System.out.println("Pattern -> RecordPattern"); }  //$NON-NLS-1$
-		    consumePattern(); 			break;
 
     case 362 : if (DEBUG) { System.out.println("TypePattern ::= Modifiersopt Type Identifier"); }  //$NON-NLS-1$
 		    consumeTypePattern(); 			break;
@@ -7417,9 +7397,6 @@ protected void consumeRule(int act) {
 
     case 483 : if (DEBUG) { System.out.println("CaseLabelElement ::= CaseLabelElementPattern Guard"); }  //$NON-NLS-1$
 		    consumeCaseLabelElement(CaseLabelKind.CASE_PATTERN); 			break;
-
-    case 484 : if (DEBUG) { System.out.println("CaseLabelElementPattern ::= BeginCaseElement Pattern"); }  //$NON-NLS-1$
-		    consumeCaseLabelElementPattern(); 			break;
 
     case 485 : if (DEBUG) { System.out.println("Guard ::= RestrictedIdentifierWhen Expression"); }  //$NON-NLS-1$
 		    consumeGuard(); 			break;
@@ -9650,9 +9627,6 @@ protected void consumeCaseLabelElement(CaseLabelKind kind) {
 		default : break;
 	}
 	this.scanner.multiCaseLabelComma = this.currentToken == TerminalTokens.TokenNameCOMMA;
-}
-protected void consumeCaseLabelElementPattern() {
-	// Todo: check if anything to be done for patterns
 }
 protected void consumeCaseLabelElements() {
 	concatExpressionLists();
