@@ -3436,6 +3436,7 @@ public void test429738() throws CoreException {
 
 	IJavaElement[] elements = this.workingCopies[0].codeSelect(start, length);
 	ILocalVariable local = (ILocalVariable) elements[0];
+	assertTrue(local.getParent() instanceof LambdaMethod);
 	search(local, DECLARATIONS, EXACT_RULE);
 	assertSearchResults(
 			"src/b400905/X.java int b400905.X.f1:<lambda #1>.foo(int).x [x] EXACT_MATCH");
@@ -3466,6 +3467,7 @@ public void test429738a() throws CoreException {
 	assertSearchResults(
 			"src/b400905/X.java int b400905.X.f2:<lambda #1>.foo(int).x [x] EXACT_MATCH");
 }
+
 // https://bugs.eclipse.org/bugs/show_bug.cgi?id=429836, [1.8][search] Search implementors in workspace does not show lambda expressions.
 public void testBug429836() throws CoreException {
 	this.workingCopies = new ICompilationUnit[1];

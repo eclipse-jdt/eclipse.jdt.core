@@ -30,6 +30,7 @@ import org.eclipse.jdt.internal.compiler.lookup.RecordComponentBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
 import org.eclipse.jdt.internal.core.JavaElement;
+import org.eclipse.jdt.internal.core.LambdaFactory;
 import org.eclipse.jdt.internal.core.LocalVariable;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -275,9 +276,8 @@ class VariableBinding implements IVariableBinding {
 		final LocalVariableBinding localVariableBinding = (LocalVariableBinding) this.binding;
 		if (declaringMethod == null) {
 			ReferenceContext referenceContext = localVariableBinding.declaringScope.referenceContext();
-			if (referenceContext instanceof TypeDeclaration){
+			if (referenceContext instanceof TypeDeclaration typeDeclaration){
 				// Local variable is declared inside an initializer
-				TypeDeclaration typeDeclaration = (TypeDeclaration) referenceContext;
 				JavaElement typeHandle = null;
 				typeHandle = Util.getUnresolvedJavaElement(
 					typeDeclaration.binding,
@@ -286,6 +286,11 @@ class VariableBinding implements IVariableBinding {
 				parent = Util.getUnresolvedJavaElement(sourceStart, sourceEnd, typeHandle);
 			} else {
 				return null;
+			}
+		} else if (localVar.getParent() instanceof LambdaExpression lambda) {
+			ReferenceContext referenceContext = localVariableBinding.declaringScope.referenceContext();
+			if (referenceContext instanceof org.eclipse.jdt.internal.compiler.ast.LambdaExpression compilerLambda) {
+				parent = (JavaElement)LambdaFactory.createLambdaExpression(enclosingBinding(lambda), compilerLambda).getMethod();
 			}
 		} else {
 			parent = (JavaElement) declaringMethod.getJavaElement();
@@ -302,6 +307,21 @@ class VariableBinding implements IVariableBinding {
 				localVariableBinding.declaration.annotations,
 				modifiers,
 				(localVariableBinding.tagBits & TagBits.IsArgument) != 0);
+	}
+
+	private JavaElement enclosingBinding(LambdaExpression lambda) {
+		ASTNode node = lambda.getParent();
+		while (node != null) {
+			if (node instanceof MethodDeclaration decl) {
+				return (JavaElement)decl.resolveBinding().getJavaElement();
+			} else if (node instanceof org.eclipse.jdt.core.dom.TypeDeclaration decl) {
+				return (JavaElement)decl.resolveBinding().getJavaElement();
+			} else if (node instanceof VariableDeclaration variable) {
+				return (JavaElement)variable.resolveBinding().getJavaElement();
+			}
+			node = node.getParent();
+		}
+		return null;
 	}
 
 	@Override

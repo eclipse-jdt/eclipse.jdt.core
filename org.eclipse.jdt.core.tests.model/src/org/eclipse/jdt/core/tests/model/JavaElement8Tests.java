@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
+import org.eclipse.jdt.core.ILocalVariable;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IPackageFragment;
 import org.eclipse.jdt.core.IPackageFragmentRoot;
@@ -34,9 +35,13 @@ import org.eclipse.jdt.core.ITypeHierarchy;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
+import org.eclipse.jdt.core.dom.IVariableBinding;
+import org.eclipse.jdt.core.dom.NodeFinder;
+import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.tests.util.AbstractCompilerTest;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.core.LambdaExpression;
@@ -668,5 +673,44 @@ public class JavaElement8Tests extends AbstractJavaModelTests {
 		} finally {
 			deleteProject(projectName);
 		}
+	}
+	
+	// Inspired from JavaSearchBugs8Tests#test429738
+	public void testVariableToLambdaToBindingToModel() throws CoreException {
+		String projectName = "testVariableToLambdaToBindingToModel";
+		try {
+			IJavaProject project = createJavaProject(projectName, new String[] {"src"}, new String[] {"JCL18_LIB"}, "bin", "1.8");
+			project.open(null);
+			String fileContent ="""
+				@FunctionalInterface
+				interface Foo {
+					int foo(int x);
+				}
+				public class X {
+					// Select 'x' in lambda body and press Ctrl+G.
+					Foo f1= x -> /* here*/ x; //[1]
+					Foo f2= (int x) -> x; //[2]
+				}
+			""";
+			String fileName = "/" + projectName + "/src/X.java";
+			IFile file = createFile(fileName, fileContent);
+			ICompilationUnit unit = getCompilationUnit(file.getFullPath().toString());
+			String selection = "/* here*/ x";
+			int start = fileContent.indexOf(selection) + selection.length() - 1; // keep only `x`
+			int length = 1;
+			assertEquals("x", fileContent.substring(start, start + length));
+			ASTParser parser = ASTParser.newParser(AST.getJLSLatest());
+			parser.setSource(unit);
+			parser.setProject(unit.getJavaProject());
+			parser.setResolveBindings(true);
+			CompilationUnit dom = (CompilationUnit)parser.createAST(null);
+			SimpleName name = (SimpleName)new NodeFinder(dom, start, length).getCoveredNode();
+			IVariableBinding binding = (IVariableBinding)name.resolveBinding();
+			ILocalVariable local = (ILocalVariable)binding.getJavaElement();
+			IJavaElement parent = local.getParent();
+			assertTrue(parent + " should be a LambdaMethod", local.getParent() instanceof LambdaMethod);
+		} finally {
+			deleteProject(projectName);
+		} 
 	}
 }
