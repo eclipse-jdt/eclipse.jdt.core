@@ -4548,4 +4548,33 @@ public class PatternMatching16Test extends AbstractRegressionTest {
                 options);
 
     }
+	// Test for regression caused by fix for https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1889
+	public void testIssue1889() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+							static public Object a0 = "a";
+
+							public static void main(String argv[]) {
+								String res = "";
+								Object ax = a0;
+
+								if ( (! (ax instanceof String a)) && (ax instanceof String a) ) {
+									res += "t" + a; // after then
+								} else {
+									res += "e" + ""; // after else
+								}
+								if (!res.equals("e")) {
+									System.out.println("Got: " + res + ", expected: e");
+								} else {
+									System.out.println("OK!");
+								}
+							}
+						}
+						""",
+				},
+				"OK!");
+	}
 }
