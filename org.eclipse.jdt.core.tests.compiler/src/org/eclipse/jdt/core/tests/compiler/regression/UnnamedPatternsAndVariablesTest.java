@@ -1171,4 +1171,32 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
                  },
                  "Y is of class: class X");
      }
+ 	// Test for regression caused by fix for https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2020
+ 	public void testIssue1889_2() {
+ 		runConformTest(
+ 				new String[] {
+ 						"X.java",
+ 						"""
+ 						public class X {
+ 							public Object a0 = new Boolean(false);
+
+ 							public boolean testMethod() {
+ 								Object ax = a0;
+ 								boolean res = false;
+
+ 								if (ax instanceof Boolean _) {
+ 									res = true;
+ 								}
+ 								return res;
+ 							}
+
+ 							public static void main(String argv[]) {
+ 								X c = new X();
+ 								System.out.println(c.testMethod());
+ 							}
+ 						}
+ 						""",
+ 				},
+ 				"true");
+ 	}
 }
