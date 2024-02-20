@@ -84,7 +84,7 @@ public class TypePattern extends Pattern {
 	@Override
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel) {
 		if (isUnnamed()) {
-			if (this.isTotalTypeNode) {
+			if (this.getEnclosingPattern() == null || this.isTotalTypeNode) {
 				switch (this.local.binding.type.id) {
 					case T_long :
 					case T_double :
