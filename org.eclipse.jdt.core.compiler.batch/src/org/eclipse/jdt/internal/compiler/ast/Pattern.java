@@ -58,6 +58,11 @@ public abstract class Pattern extends Expression {
 		return (type.isSubtypeOf(this.resolvedType, false));
 	}
 
+	// Given a non-null instance of appropriate type, would the pattern always match ?
+	public boolean matchFailurePossible() {
+		return false;
+	}
+
 	public boolean isAlwaysTrue() {
 		return true;
 	}

@@ -7275,6 +7275,7 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 					public static void main(String[] args) {
 						Object o = null;
 						foo(new R());
+						foo(new S());
 					}
 					@SuppressWarnings("preview")
 					public static void foo(Object o) {
@@ -7294,32 +7295,214 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 				"""
 			},
 		 "R Only\n" +
+		 "Either S or an R\n" +
 		 "Either S or an R");
+
 		String expectedOutput =
 				"  // Method descriptor #22 (Ljava/lang/Object;)V\n" +
 				"  // Stack: 2, Locals: 3\n" +
 				"  public static void foo(java.lang.Object o);\n" +
 				"     0  aload_0 [o]\n" +
 				"     1  dup\n" +
-				"     2  invokestatic java.util.Objects.requireNonNull(java.lang.Object) : java.lang.Object [27]\n" +
+				"     2  invokestatic java.util.Objects.requireNonNull(java.lang.Object) : java.lang.Object [30]\n" +
 				"     5  pop\n" +
 				"     6  astore_1\n" +
 				"     7  iconst_0\n" +
 				"     8  istore_2\n" +
 				"     9  aload_1\n" +
 				"    10  iload_2\n" +
-				"    11  invokedynamic 0 typeSwitch(java.lang.Object, int) : int [33]\n" +
+				"    11  invokedynamic 0 typeSwitch(java.lang.Object, int) : int [36]\n" +
 				"    16  tableswitch default: 56\n" +
 				"          case 0: 40\n" +
 				"          case 1: 48\n" +
-				"    40  getstatic java.lang.System.out : java.io.PrintStream [37]\n" +
-				"    43  ldc <String \"R Only\"> [43]\n" +
-				"    45  invokevirtual java.io.PrintStream.println(java.lang.String) : void [45]\n" +
-				"    48  getstatic java.lang.System.out : java.io.PrintStream [37]\n" +
-				"    51  ldc <String \"Either S or an R\"> [51]\n" +
-				"    53  invokevirtual java.io.PrintStream.println(java.lang.String) : void [45]\n" +
+				"    40  getstatic java.lang.System.out : java.io.PrintStream [40]\n" +
+				"    43  ldc <String \"R Only\"> [46]\n" +
+				"    45  invokevirtual java.io.PrintStream.println(java.lang.String) : void [48]\n" +
+				"    48  getstatic java.lang.System.out : java.io.PrintStream [40]\n" +
+				"    51  ldc <String \"Either S or an R\"> [54]\n" +
+				"    53  invokevirtual java.io.PrintStream.println(java.lang.String) : void [48]\n" +
 				"    56  return\n";
 
 		SwitchPatternTest.verifyClassFile(expectedOutput, "X.class", ClassFileBytesDisassembler.SYSTEM);
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/773
+	// [20][pattern switch] unnecessary code generated
+	public void testIssue773_2() throws Exception {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				interface I {}
+
+				record R (I i, I  j) {}
+
+				class A implements I {}
+				class B implements I {}
+
+				public class X {
+
+					static int swtch(Object o) {
+						return switch (o) {
+							case R(A a1, A a2) -> 1;
+							case R(B b1, B b2) -> 2;
+							case Object obj -> 3;
+						};
+					}
+					public static void main(String argv[]) {
+						Object o = new R(new A(), new A());
+						System.out.print(swtch(o));
+						o = new R(new B(), new B());
+						System.out.print(swtch(o));
+						o = new R(new I() {}, new I() {});
+						System.out.println(swtch(o));
+					}
+				}
+				"""
+			},
+		 "123");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/773
+	// [20][pattern switch] unnecessary code generated
+	public void testIssue773_3() throws Exception {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				interface I {}
+
+				record R (I i, I  j) {}
+
+				class A implements I {}
+				class B implements I {}
+
+				public class X {
+
+					static int swtch(Object o) {
+						return switch (o) {
+							case R(A a1, A a2) when o == null -> 1;
+							case R(B b1, B b2) when o == null -> 2;
+							case Object obj -> 3;
+						};
+					}
+					public static void main(String argv[]) {
+						Object o = new R(new A(), new A());
+						System.out.print(swtch(o));
+						o = new R(new B(), new B());
+						System.out.print(swtch(o));
+						o = new R(new I() {}, new I() {});
+						System.out.println(swtch(o));
+					}
+				}
+				"""
+			},
+		 "333");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/773
+	// [20][pattern switch] unnecessary code generated
+	public void testIssue773_4() throws Exception {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				interface I {}
+
+				record R (I i, I  j) {}
+
+				class A implements I {}
+				class B implements I {}
+
+				public class X {
+
+					static int swtch(Object o) {
+						return switch (o) {
+							case R(A a1, A a2) when o != null -> 1;
+							case R(B b1, B b2) when o != null -> 2;
+							case Object obj -> 3;
+						};
+					}
+					public static void main(String argv[]) {
+						Object o = new R(new A(), new A());
+						System.out.print(swtch(o));
+						o = new R(new B(), new B());
+						System.out.print(swtch(o));
+						o = new R(new I() {}, new I() {});
+						System.out.println(swtch(o));
+					}
+				}
+				"""
+			},
+		 "123");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/773
+	// [20][pattern switch] unnecessary code generated
+	public void testIssue773_5() throws Exception {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				interface I {}
+
+				record R (I i, I  j) {}
+
+				class A implements I {}
+				class B implements I {}
+
+				public class X {
+
+					static int swtch(Object o) {
+						return switch (o) {
+							case R(A a1, A a2) when o != null -> 1;
+							case R(B b1, B b2) when o == null -> 2;
+							case Object obj -> 3;
+						};
+					}
+					public static void main(String argv[]) {
+						Object o = new R(new A(), new A());
+						System.out.print(swtch(o));
+						o = new R(new B(), new B());
+						System.out.print(swtch(o));
+						o = new R(new I() {}, new I() {});
+						System.out.println(swtch(o));
+					}
+				}
+				"""
+			},
+		 "133");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/773
+	// [20][pattern switch] unnecessary code generated
+	public void testIssue773_6() throws Exception {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				public class X {
+				   record CoffeeBreak() {}
+				       public int recharge(CoffeeBreak c) {
+				           int energyLevel = 0;
+				           switch (c) {
+				               case CoffeeBreak( ) -> {
+				                   energyLevel = 3;
+				               }
+				               default->{
+				                   energyLevel = -3;
+				               }
+				           }
+				           return energyLevel;
+				       }
+				       public static void main(String argv[]) {
+				           X t = new X();
+				           CoffeeBreak c = new CoffeeBreak();
+				           if (t.recharge(c) == 3) {
+				        	   System.out.println("OK!");
+				           } else {
+				        	   System.out.println("!OK!");
+				           }
+				       }
+				}
+				"""
+			},
+		 "OK!");
+	}
+
 }

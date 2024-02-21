@@ -172,8 +172,13 @@ public class RecordPattern extends Pattern {
 	}
 
 	@Override
+	public boolean matchFailurePossible() {
+		return this.patterns.length != 0; // if no deconstruction is involved, no failure is possible.
+	}
+
+	@Override
 	public boolean isAlwaysTrue() {
-		return this.patterns.length == 0;
+		return false;
 	}
 
 	@Override
