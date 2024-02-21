@@ -980,7 +980,7 @@ public class SwitchStatement extends Expression {
 			Pattern pattern = (Pattern) caseStatement.constantExpressions[caseStatement.patternIndex];
 			if (caseStatement.falseLabel != null)
 				caseStatement.falseLabel.place();
-			if (!pattern.isAlwaysTrue()) {
+			if (pattern.matchFailurePossible()) {
 				/* We are generating a "thunk"/"trampoline" of sorts now, that flow analysis has no clue about.
 				   We need to manage the live variables manually. Pattern bindings are not definitely
 				   assigned here as we are in the else region.
