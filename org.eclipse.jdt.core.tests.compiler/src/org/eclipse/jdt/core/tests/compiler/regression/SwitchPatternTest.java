@@ -7504,5 +7504,76 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			},
 		 "OK!");
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2053
+	// ECJ rejects guarded pattern in switch as being dominated by prior cases
+	public void testIssue2053() throws Exception {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				interface I {}
 
+				record R (I i, I  j) {}
+
+				class A implements I {}
+				class B implements I {}
+
+				public class X {
+
+					static int swtch(Object o) {
+						return switch (o) {
+							case R(A a1, A a2) when true -> 1;
+							case R(B b1, B b2) when o != null -> 2;
+							case Object obj -> 3;
+						};
+					}
+					public static void main(String argv[]) {
+						Object o = new R(new A(), new A());
+						System.out.print(swtch(o));
+						o = new R(new B(), new B());
+						System.out.print(swtch(o));
+						o = new R(new I() {}, new I() {});
+						System.out.println(swtch(o));
+					}
+				}
+				"""
+			},
+		 "123");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2053
+	// ECJ rejects guarded pattern in switch as being dominated by prior cases
+	public void testIssue2053_2() throws Exception {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				interface I {}
+
+				record R (I i, I  j) {}
+
+				class A implements I {}
+				class B implements I {}
+
+				public class X {
+
+					static int swtch(Object o) {
+						return switch (o) {
+							case R(A a1, A a2) when true -> 1;
+							case R(B b1, B b2) when o == null -> 2;
+							case Object obj -> 3;
+						};
+					}
+					public static void main(String argv[]) {
+						Object o = new R(new A(), new A());
+						System.out.print(swtch(o));
+						o = new R(new B(), new B());
+						System.out.print(swtch(o));
+						o = new R(new I() {}, new I() {});
+						System.out.println(swtch(o));
+					}
+				}
+				"""
+			},
+		 "133");
+	}
 }
