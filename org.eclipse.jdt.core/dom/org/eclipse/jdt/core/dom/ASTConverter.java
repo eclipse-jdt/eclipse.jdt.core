@@ -1534,7 +1534,7 @@ class ASTConverter {
 			int problemLength = unit.compilationResult.problemCount;
 			if (problemLength != 0) {
 				CategorizedProblem[] resizedProblems = null;
-				final CategorizedProblem[] problems = unit.compilationResult.getProblems();
+				final CategorizedProblem[] problems = unit.compilationResult.getCUProblems();
 				final int realProblemLength=problems.length;
 				if (realProblemLength == problemLength) {
 					resizedProblems = problems;
