@@ -164,7 +164,7 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 		astParser.setSource(source);
 		astParser.setProject(getJavaProject());
 		astParser.setStatementsRecovery((reconcileFlags & ICompilationUnit.ENABLE_STATEMENTS_RECOVERY) != 0);
-		astParser.setResolveBindings(resolveBindings);
+		astParser.setResolveBindings(computeProblems || resolveBindings);
 		astParser.setBindingsRecovery((reconcileFlags & ICompilationUnit.ENABLE_BINDINGS_RECOVERY) != 0);
 		astParser.setIgnoreMethodBodies((reconcileFlags & ICompilationUnit.IGNORE_METHOD_BODIES) != 0);
 		astParser.setCompilerOptions(options);
