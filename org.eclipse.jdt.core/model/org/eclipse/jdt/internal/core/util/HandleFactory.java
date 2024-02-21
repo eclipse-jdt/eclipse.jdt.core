@@ -155,7 +155,7 @@ public class HandleFactory {
 				pkgFragment= this.lastPkgFragmentRoot.getPackageFragment(pkgName);
 				this.packageHandles.put(pkgName, pkgFragment);
 			}
-			String simpleName= simpleNames[length];
+			String simpleName= DeduplicationUtil.intern(simpleNames[length]);
 			if (org.eclipse.jdt.internal.core.util.Util.isJavaLikeFileName(simpleName)) {
 				ICompilationUnit unit= pkgFragment.getCompilationUnit(simpleName);
 				return (Openable) unit;
@@ -209,10 +209,10 @@ public class HandleFactory {
 				IJavaElement parentElement = createElement(scope.parent, elementPosition, unit, existingElements, knownScopes);
 				switch (parentElement.getElementType()) {
 					case IJavaElement.COMPILATION_UNIT :
-						newElement = ((ICompilationUnit)parentElement).getType(new String(scope.enclosingSourceType().sourceName));
+						newElement = ((ICompilationUnit)parentElement).getType(DeduplicationUtil.toString(scope.enclosingSourceType().sourceName));
 						break;
 					case IJavaElement.TYPE :
-						newElement = ((IType)parentElement).getType(new String(scope.enclosingSourceType().sourceName));
+						newElement = ((IType)parentElement).getType(DeduplicationUtil.toString(scope.enclosingSourceType().sourceName));
 						break;
 					case IJavaElement.FIELD :
 					case IJavaElement.INITIALIZER :
@@ -221,7 +221,7 @@ public class HandleFactory {
 					    if (member.isBinary()) {
 					        return null;
 					    } else {
-							String name = new String(scope.enclosingSourceType().sourceName);
+							String name = DeduplicationUtil.toString(scope.enclosingSourceType().sourceName);
 							int occurrenceCount = 0;
 							do {
 								newElement = member.getType(name, ++occurrenceCount);
@@ -259,7 +259,7 @@ public class HandleFactory {
 							switch (field.getKind()) {
 								case AbstractVariableDeclaration.FIELD :
 								case AbstractVariableDeclaration.ENUM_CONSTANT :
-									newElement = parentType.getField(new String(field.name));
+									newElement = parentType.getField(DeduplicationUtil.toString(field.name));
 									break;
 								case AbstractVariableDeclaration.INITIALIZER :
 									newElement = parentType.getInitializer(occurenceCount);
@@ -273,7 +273,7 @@ public class HandleFactory {
 				} else {
 					// method element
 					AbstractMethodDeclaration method = methodScope.referenceMethod();
-					newElement = parentType.getMethod(new String(method.selector), Util.typeParameterSignatures(method));
+					newElement = parentType.getMethod(DeduplicationUtil.toString(method.selector), Util.typeParameterSignatures(method));
 					if (newElement != null) {
 						knownScopes.put(scope, newElement);
 					}

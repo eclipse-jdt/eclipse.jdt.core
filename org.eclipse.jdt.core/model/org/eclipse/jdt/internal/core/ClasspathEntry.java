@@ -73,6 +73,7 @@ import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.util.ManifestAnalyzer;
 import org.eclipse.jdt.internal.core.index.DiskIndex;
+import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
 import org.w3c.dom.DOMException;
@@ -157,7 +158,7 @@ public class ClasspathEntry implements IClasspathEntry {
 	 * 	registered), and the remaining segments are used as additional hints for resolving the container entry to
 	 * 	an actual <code>IClasspathContainer</code>.</li>
 	 */
-	public IPath path;
+	public final IPath path;
 
 	/**
 	 * Patterns allowing to include/exclude portions of the resource tree denoted by this entry path.
@@ -311,17 +312,16 @@ public class ClasspathEntry implements IClasspathEntry {
 			System.arraycopy(accessRules, 0, rules, 0, length);
 			byte classpathEntryType;
 			String classpathEntryName;
-			JavaModelManager manager = JavaModelManager.getJavaModelManager();
 			if (this.entryKind == CPE_PROJECT || this.entryKind == CPE_SOURCE) { // can be remote source entry when reconciling
 				classpathEntryType = AccessRestriction.PROJECT;
-				classpathEntryName = manager.intern(getPath().segment(0));
+				classpathEntryName = DeduplicationUtil.intern(getPath().segment(0));
 			} else {
 				classpathEntryType = AccessRestriction.LIBRARY;
 				Object target = JavaModel.getWorkspaceTarget(path);
 				if (target == null) {
-					classpathEntryName = manager.intern(path.toOSString());
+					classpathEntryName = DeduplicationUtil.intern(path.toOSString());
 				} else {
-					classpathEntryName = manager.intern(path.makeRelative().toString());
+					classpathEntryName = DeduplicationUtil.intern(path.makeRelative().toString());
 				}
 			}
 			this.accessRuleSet = new AccessRuleSet(rules, classpathEntryType, classpathEntryName);

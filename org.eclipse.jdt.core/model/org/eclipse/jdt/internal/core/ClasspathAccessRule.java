@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IAccessRule;
 import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.internal.compiler.env.AccessRule;
+import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
 
 public class ClasspathAccessRule extends AccessRule implements IAccessRule {
 
@@ -30,7 +31,7 @@ public class ClasspathAccessRule extends AccessRule implements IAccessRule {
 	}
 
 	public ClasspathAccessRule(char[] pattern, int problemId) {
-		super(JavaModelManager.getJavaModelManager().intern(pattern), problemId);
+		super(DeduplicationUtil.intern(pattern), problemId);
 	}
 
 	private static int toProblemId(int kind) {

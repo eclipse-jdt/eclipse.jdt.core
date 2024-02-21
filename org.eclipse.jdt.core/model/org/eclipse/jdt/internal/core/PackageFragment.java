@@ -45,6 +45,7 @@ import org.eclipse.jdt.core.WorkingCopyOwner;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.JavaModelManager.PerProjectInfo;
+import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -97,7 +98,7 @@ protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, 
 						&& !Util.isExcluded(child, inclusionPatterns, exclusionPatterns)) {
 					IJavaElement childElement;
 					if (kind == IPackageFragmentRoot.K_SOURCE && Util.isValidCompilationUnitName(child.getName(), sourceLevel, complianceLevel)) {
-						childElement = new CompilationUnit(this, child.getName(), DefaultWorkingCopyOwner.PRIMARY);
+						childElement = new CompilationUnit(this, DeduplicationUtil.intern(child.getName()), DefaultWorkingCopyOwner.PRIMARY);
 						vChildren.add(childElement);
 					} else if (kind == IPackageFragmentRoot.K_BINARY && Util.isValidClassFileName(child.getName(), sourceLevel, complianceLevel)) {
 						childElement = getClassFile(child.getName());
@@ -218,7 +219,7 @@ public IOrdinaryClassFile getOrdinaryClassFile(String classFileName) {
 	int length = classFileName.length() - 6;
 	char[] nameWithoutExtension = new char[length];
 	classFileName.getChars(0, length, nameWithoutExtension, 0);
-	return new ClassFile(this, new String(nameWithoutExtension));
+	return new ClassFile(this, DeduplicationUtil.toString(nameWithoutExtension));
 }
 /**
  * @see IPackageFragment#getClassFile(String)

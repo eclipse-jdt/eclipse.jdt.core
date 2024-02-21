@@ -30,6 +30,7 @@ import org.eclipse.jdt.internal.compiler.env.IRecordComponent;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
 
 /**
  * Element info for <code>ClassFile</code> handles.
@@ -165,14 +166,13 @@ private void generateFieldInfos(IType type, IBinaryType typeInfo, Map<IJavaEleme
 	if (fields == null) {
 		return;
 	}
-	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	for (int i = 0, fieldCount = fields.length; i < fieldCount; i++) {
 		IBinaryField fieldInfo = fields[i];
 		// If the type is a record and this is an instance field, it can only be a record component
 		// Filter out
 		if (typeInfo.isRecord() && (fieldInfo.getModifiers() & ClassFileConstants.AccStatic) == 0)
 			continue;
-		BinaryField field = new BinaryField((JavaElement)type, manager.intern(new String(fieldInfo.getName())));
+		BinaryField field = new BinaryField((JavaElement)type, DeduplicationUtil.toString(fieldInfo.getName()));
 		newElements.put(field, fieldInfo);
 		childrenHandles.add(field);
 		generateAnnotationsInfos(field, fieldInfo.getAnnotations(), fieldInfo.getTagBits(), newElements);
@@ -188,10 +188,9 @@ private void generateRecordComponentInfos(IType type, IBinaryType typeInfo, Map<
 	if (components == null) {
 		return;
 	}
-	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	for (int i = 0, fieldCount = components.length; i < fieldCount; i++) {
 		IRecordComponent componentInfo = components[i];
-		BinaryField component = new BinaryField((JavaElement)type, manager.intern(new String(componentInfo.getName()))) {
+		BinaryField component = new BinaryField((JavaElement)type, DeduplicationUtil.toString(componentInfo.getName())) {
 			@Override
 			public boolean isRecordComponent() throws JavaModelException {
 				return true;
@@ -217,7 +216,7 @@ private void generateInnerClassHandles(IType type, IBinaryType typeInfo, ArrayLi
 		for (int i = 0, typeCount = innerTypes.length; i < typeCount; i++) {
 			IBinaryNestedType binaryType = innerTypes[i];
 			IClassFile parentClassFile= pkg.getClassFile(new String(ClassFile.unqualifiedName(binaryType.getName())) + SUFFIX_STRING_class);
-			BinaryType innerType = new BinaryType((JavaElement) parentClassFile, ClassFile.simpleName(binaryType.getName()));
+			BinaryType innerType = new BinaryType((JavaElement) parentClassFile, DeduplicationUtil.intern(ClassFile.simpleName(binaryType.getName())));
 			childrenHandles.add(innerType);
 		}
 	}
@@ -284,10 +283,9 @@ private void generateMethodInfos(IType type, IBinaryType typeInfo, Map<IJavaElem
 			paramNames[j]= pNames[j].toCharArray();
 		}
 		char[][] parameterTypes = ClassFile.translatedNames(paramNames);
-		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		selector =  manager.intern(selector);
+		selector =  DeduplicationUtil.intern(selector);
 		for (int j= 0; j < pNames.length; j++) {
-			pNames[j]= manager.intern(new String(parameterTypes[j]));
+			pNames[j]= DeduplicationUtil.toString(parameterTypes[j]);
 		}
 		int occurrenceCount = 0;
 		BinaryMethod method;
@@ -326,7 +324,7 @@ private void generateMethodInfos(IType type, IBinaryType typeInfo, Map<IJavaElem
 			if (parameterAnnotations != null) {
 				LocalVariable localVariable = new LocalVariable(
 						method,
-						new String(argumentNames[j]),
+						DeduplicationUtil.toString(argumentNames[j]),
 						0,
 						-1,
 						0,

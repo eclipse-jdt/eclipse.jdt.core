@@ -130,7 +130,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	/** cached result */
 	private int hashCode;
 
-	protected static final String[] NO_STRINGS = new String[0];
+	public static final String[] NO_STRINGS = new String[0];
 	protected static final JavaElement[] NO_ELEMENTS = new JavaElement[0];
 	protected static final Object NO_INFO = new Object();
 

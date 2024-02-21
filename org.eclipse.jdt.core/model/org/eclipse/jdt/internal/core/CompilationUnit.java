@@ -33,6 +33,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
 import org.eclipse.jdt.internal.compiler.problem.DefaultProblemFactory;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
+import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -587,7 +588,7 @@ public IJavaElement[] findElements(IJavaElement element) {
  */
 @Override
 public IType findPrimaryType() {
-	String typeName = Util.getNameWithoutJavaLikeExtension(getElementName());
+	String typeName = DeduplicationUtil.intern(Util.getNameWithoutJavaLikeExtension(getElementName()));
 	IType primaryType= getType(typeName);
 	if (primaryType.exists()) {
 		return primaryType;

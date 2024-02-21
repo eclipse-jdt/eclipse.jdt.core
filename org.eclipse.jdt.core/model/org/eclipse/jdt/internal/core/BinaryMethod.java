@@ -36,6 +36,7 @@ import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.core.JavaModelManager.PerProjectInfo;
+import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -48,7 +49,7 @@ public class BinaryMethod extends BinaryMember implements IMethod {
 	 * to perform equality test. <code>CharOperation.NO_STRINGS</code> indicates no
 	 * parameters. Note that the parameter type signatures are expected to be dot-based.
 	 */
-	protected String[] parameterTypes;
+	protected final String[] parameterTypes;
 	protected String [] erasedParamaterTypes; // lazily initialized via call to getErasedParameterTypes
 
 	/**
@@ -124,7 +125,7 @@ public ILocalVariable[] getParameters() throws JavaModelException {
 		if (i < startIndex) {
 			LocalVariable localVariable = new LocalVariable(
 					this,
-					new String(argumentNames[i]),
+					DeduplicationUtil.toString(argumentNames[i]),
 					0,
 					-1,
 					0,
@@ -531,10 +532,12 @@ private String [] getErasedParameterTypes() {
 		boolean erasureNeeded = false;
 		for (int i = 0; i < paramCount; i++) {
 			String parameterType = this.parameterTypes[i];
-			if ((erasedTypes[i] = Signature.getTypeErasure(parameterType)) != parameterType)
+			if ((erasedTypes[i] = Signature.getTypeErasure(parameterType)) != parameterType) {
 				erasureNeeded = true;
+			}
 		}
-		this.erasedParamaterTypes = erasureNeeded ? erasedTypes : this.parameterTypes;
+		this.erasedParamaterTypes = erasureNeeded ? DeduplicationUtil.intern(erasedTypes) : this.parameterTypes;
+
 	}
 	return this.erasedParamaterTypes;
 }
@@ -682,7 +685,7 @@ public String readableName() {
 }
 @Override
 public JavaElement resolved(Binding binding) {
-	SourceRefElement resolvedHandle = new ResolvedBinaryMethod(this.getParent(), this.name, this.parameterTypes, new String(binding.computeUniqueKey()), this.getOccurrenceCount());
+	SourceRefElement resolvedHandle = new ResolvedBinaryMethod(this.getParent(), this.name, this.parameterTypes, DeduplicationUtil.toString(binding.computeUniqueKey()), this.getOccurrenceCount());
 	return resolvedHandle;
 }/*
  * @private Debugging purposes

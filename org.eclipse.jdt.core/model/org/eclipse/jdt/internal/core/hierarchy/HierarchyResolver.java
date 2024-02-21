@@ -67,6 +67,7 @@ import org.eclipse.jdt.internal.compiler.problem.ProblemReporter;
 import org.eclipse.jdt.internal.compiler.util.Messages;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.util.ASTNodeFinder;
+import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
 import org.eclipse.jdt.internal.core.util.HandleFactory;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
@@ -504,7 +505,7 @@ private void rememberAllTypes(CompilationUnitDeclaration parsedUnit, org.eclipse
 	if (types != null) {
 		for (int i = 0, length = types.length; i < length; i++) {
 			TypeDeclaration type = types[i];
-			rememberWithMemberTypes(type, cu.getType(new String(type.name)));
+			rememberWithMemberTypes(type, cu.getType(DeduplicationUtil.toString(type.name)));
 		}
 	}
 	if (!includeLocalTypes || (parsedUnit.localTypes.isEmpty() && parsedUnit.functionalExpressions == null))
@@ -539,7 +540,7 @@ private void rememberWithMemberTypes(TypeDeclaration typeDecl, IType typeHandle)
 	if (memberTypes != null) {
 		for (int i = 0, length = memberTypes.length; i < length; i++) {
 			TypeDeclaration memberType = memberTypes[i];
-			rememberWithMemberTypes(memberType, typeHandle.getType(new String(memberType.name)));
+			rememberWithMemberTypes(memberType, typeHandle.getType(DeduplicationUtil.toString(memberType.name)));
 		}
 	}
 }

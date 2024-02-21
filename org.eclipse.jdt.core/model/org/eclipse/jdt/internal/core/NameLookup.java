@@ -48,6 +48,7 @@ import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObjectToInt;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.AbstractModule.AutoModule;
+import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
 import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -1096,7 +1097,7 @@ public class NameLookup implements SuffixConstants {
 		while (dot != -1) {
 			int start = dot+1;
 			dot = name.indexOf('.', start);
-			String typeName = name.substring(start, dot == -1 ? name.length() : dot);
+			String typeName = DeduplicationUtil.intern(name.substring(start, dot == -1 ? name.length() : dot));
 			type = type.getType(typeName);
 		}
 		return type;
@@ -1446,7 +1447,7 @@ public class NameLookup implements SuffixConstants {
 			// look in model
 			switch (packageFlavor) {
 				case IPackageFragmentRoot.K_BINARY :
-					matchName= matchName.replace('.', '$');
+					matchName= DeduplicationUtil.intern(matchName.replace('.', '$'));
 					seekTypesInBinaryPackage(matchName, pkg, partialMatch, acceptFlags, requestor);
 					break;
 				case IPackageFragmentRoot.K_SOURCE :
@@ -1471,6 +1472,7 @@ public class NameLookup implements SuffixConstants {
 	 * Performs type search in a binary package.
 	 */
 	protected void seekTypesInBinaryPackage(String name, IPackageFragment pkg, boolean partialMatch, int acceptFlags, IJavaElementRequestor requestor) {
+		name= DeduplicationUtil.intern(name);
 		long start = -1;
 		if (VERBOSE)
 			start = System.currentTimeMillis();
@@ -1537,7 +1539,8 @@ public class NameLookup implements SuffixConstants {
 			String topLevelTypeName,
 			int acceptFlags,
 			IJavaElementRequestor requestor) {
-
+		name= DeduplicationUtil.intern(name);
+		topLevelTypeName= DeduplicationUtil.intern(topLevelTypeName);
 		long start = -1;
 		if (VERBOSE)
 			start = System.currentTimeMillis();

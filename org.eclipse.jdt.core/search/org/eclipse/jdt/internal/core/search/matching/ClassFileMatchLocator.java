@@ -23,6 +23,7 @@ import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.core.BinaryType;
 import org.eclipse.jdt.internal.core.*;
 import org.eclipse.jdt.internal.core.search.indexing.IIndexConstants;
+import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
 
 public class ClassFileMatchLocator implements IIndexConstants {
 
@@ -351,13 +352,14 @@ public void locateMatches(MatchLocator locator, ClassFile classFile, IBinaryType
 			} else {
 				name = method.getSelector();
 			}
-			String selector = new String(name);
+			String selector = DeduplicationUtil.toString(name);
 			char[] methodSignature = binaryMethodSignatures == null ? null : binaryMethodSignatures[i];
 			if (methodSignature == null) {
 				methodSignature = method.getGenericSignature();
 				if (methodSignature == null) methodSignature = method.getMethodDescriptor();
 			}
-			String[] parameterTypes = CharOperation.toStrings(Signature.getParameterTypes(convertClassFileFormat(methodSignature)));
+			String[] parameterTypes =  DeduplicationUtil.intern(CharOperation.toStrings(Signature.getParameterTypes(convertClassFileFormat(methodSignature))));
+
 			IMethod methodHandle = binaryType.getMethod(selector, parameterTypes);
 			methodHandle = new ResolvedBinaryMethod(binaryType, selector, parameterTypes, methodHandle.getKey());
 			locator.reportBinaryMemberDeclaration(null, methodHandle, null, info, accuracy);

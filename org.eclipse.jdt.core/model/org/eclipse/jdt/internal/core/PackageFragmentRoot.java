@@ -26,6 +26,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.env.AutomaticModuleNaming;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
+import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Messages;
 import org.eclipse.jdt.internal.core.util.Util;
@@ -251,7 +252,6 @@ protected void computeFolderChildren(IContainer folder, boolean isIncluded, Stri
 			String sourceLevel = otherJavaProject.getOption(JavaCore.COMPILER_SOURCE, true);
 			String complianceLevel = otherJavaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true);
 			JavaProject javaProject = getJavaProject();
-			JavaModelManager manager = JavaModelManager.getJavaModelManager();
 			for (int i = 0; i < length; i++) {
 				IResource member = members[i];
 				String memberName = member.getName();
@@ -264,7 +264,7 @@ protected void computeFolderChildren(IContainer folder, boolean isIncluded, Stri
 			    		if (Util.isValidFolderNameForPackage(memberName, sourceLevel, complianceLevel)) {
 			    			// eliminate binary output only if nested inside direct subfolders
 			    			if (javaProject.contains(member)) {
-			    				String[] newNames = Util.arrayConcat(pkgName, manager.intern(memberName));
+			    				String[] newNames = Util.arrayConcat(pkgName, DeduplicationUtil.intern(memberName));
 			    				boolean isMemberIncluded = !Util.isExcluded(member, inclusionPatterns, exclusionPatterns);
 			    				computeFolderChildren((IFolder) member, isMemberIncluded, newNames, vChildren, inclusionPatterns, exclusionPatterns);
 			    			}

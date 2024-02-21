@@ -22,6 +22,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.core.*;
+import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
 import org.eclipse.jdt.internal.core.util.Util;
 
 public class PossibleMatch implements ICompilationUnit {
@@ -131,7 +132,7 @@ private char[] getQualifiedName() {
 		// get main type name
 		char[] mainTypeName = Util.getNameWithoutJavaLikeExtension(fileName).toCharArray();
 		CompilationUnit cu = (CompilationUnit) this.openable;
-		return cu.getType(new String(mainTypeName)).getFullyQualifiedName().toCharArray();
+		return cu.getType(DeduplicationUtil.toString(mainTypeName)).getFullyQualifiedName().toCharArray();
 	} else if (this.openable instanceof ClassFile) {
 		String fileName = getSourceFileName();
 		if (fileName == NO_SOURCE_FILE_NAME)

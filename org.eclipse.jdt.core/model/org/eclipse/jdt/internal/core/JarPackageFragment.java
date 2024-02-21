@@ -29,6 +29,7 @@ import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaModelStatusConstants;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
+import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -79,7 +80,7 @@ private IJavaElement[] computeChildren(ArrayList namesWithoutExtension) {
 		if (TypeConstants.MODULE_INFO_NAME_STRING.equals(nameWithoutExtension))
 			children[i] = new ModularClassFile(this);
 		else
-			children[i] = new ClassFile(this, nameWithoutExtension);
+			children[i] = new ClassFile(this, DeduplicationUtil.intern(nameWithoutExtension));
 	}
 	return children;
 }
