@@ -2544,7 +2544,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			"PASS");
 	}
 	public void testIssue1224_6() {
-		runNegativeTest(new String[] {
+		runConformTest(new String[] {
 			"X.java",
 			"record Record(String s){}\n"
 			+ "public class X {\n"
@@ -2563,12 +2563,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			+ "	}\n"
 			+ "}"
 			},
-				"----------\n" +
-				"1. ERROR in X.java (at line 7)\n" +
-				"	default -> {}        }\n" +
-				"	^^^^^^^\n" +
-				"Switch case cannot have both unconditional pattern and default label\n" +
-				"----------\n");
+				"PASS");
 	}
 	public void testIssue1224_7() {
 		runConformTest(new String[] {

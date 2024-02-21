@@ -57,13 +57,12 @@ public class GuardedPattern extends Pattern {
 	@Override
 	public void generateCode(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel) {
 		this.primaryPattern.generateCode(currentScope, codeStream, trueLabel, falseLabel);
-		Constant cst =  this.condition.optimizedBooleanConstant();
 		this.condition.generateOptimizedBoolean(
 				currentScope,
 				codeStream,
 				trueLabel,
 				null,
-				cst == Constant.NotAConstant);
+				true);
 	}
 
 	@Override
@@ -73,8 +72,11 @@ public class GuardedPattern extends Pattern {
 
 	@Override
 	public boolean isAlwaysTrue() {
-		Constant cst = this.condition.optimizedBooleanConstant();
-		return cst != Constant.NotAConstant && cst.booleanValue() == true;
+		if (this.primaryPattern.isAlwaysTrue()) {
+			Constant cst = this.condition.optimizedBooleanConstant();
+			return cst != Constant.NotAConstant && cst.booleanValue() == true;
+		}
+		return false;
 	}
 
 	@Override
