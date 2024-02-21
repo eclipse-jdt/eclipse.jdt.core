@@ -53,6 +53,7 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeVariableBinding;
 import org.eclipse.jdt.internal.core.NameLookup.Answer;
+import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
 import org.eclipse.jdt.internal.core.util.HandleFactory;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -444,7 +445,7 @@ public void acceptLocalVariable(LocalVariableBinding binding, org.eclipse.jdt.in
 		}
 		localVar = new LocalVariable(
 				(JavaElement)parent,
-				new String(local.name),
+				DeduplicationUtil.toString(local.name),
 				local.declarationSourceStart,
 				local.declarationSourceEnd,
 				local.sourceStart,

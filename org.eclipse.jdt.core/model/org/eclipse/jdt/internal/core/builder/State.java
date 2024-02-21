@@ -56,6 +56,7 @@ import org.eclipse.jdt.internal.compiler.env.IUpdatableModule.UpdateKind;
 import org.eclipse.jdt.internal.compiler.util.SimpleLookupTable;
 import org.eclipse.jdt.internal.compiler.util.Util;
 import org.eclipse.jdt.internal.core.JavaModelManager;
+import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class State {
@@ -489,7 +490,7 @@ private static AccessRuleSet readRestriction(CompressedReader in) throws IOExcep
 		int problemId = in.readIntWithHint(PROBLEM_IDS);
 		accessRules[i] = manager.getAccessRuleForProblemId(pattern, problemId);
 	}
-	return new AccessRuleSet(accessRules, in.readByte(), manager.intern(in.readStringUsingDictionary()));
+	return new AccessRuleSet(accessRules, in.readByte(), DeduplicationUtil.intern(in.readStringUsingDictionary()));
 }
 
 void tagAsNoopBuild() {

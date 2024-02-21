@@ -22,6 +22,7 @@ import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.compiler.env.*;
 import org.eclipse.jdt.internal.compiler.impl.*;
 import org.eclipse.jdt.internal.compiler.lookup.TagBits;
+import org.eclipse.jdt.internal.compiler.util.CharDeduplication;
 import org.eclipse.jdt.internal.compiler.util.Util;
 
 public class AnnotationInfo extends ClassFileStruct implements IBinaryAnnotation {
@@ -57,7 +58,7 @@ AnnotationInfo(byte[] classFileBytes, int[] contantPoolOffsets, int offset, bool
 private void decodeAnnotation() {
 	this.readOffset = 0;
 	int utf8Offset = this.constantPoolOffsets[u2At(0)] - this.structOffset;
-	this.typename = utf8At(utf8Offset + 3, u2At(utf8Offset + 1));
+	this.typename = CharDeduplication.intern(utf8At(utf8Offset + 3, u2At(utf8Offset + 1)));
 	int numberOfPairs = u2At(2);
 	// u2 type_index + u2 num_member_value_pair
 	this.readOffset += 4;

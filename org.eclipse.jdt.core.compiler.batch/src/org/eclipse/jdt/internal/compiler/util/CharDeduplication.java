@@ -64,6 +64,10 @@ public class CharDeduplication {
 		Arrays.fill(this.circularBufferPointer, 0);
 	}
 
+	public static char[] intern(char[] source) {
+		return getThreadLocalInstance().sharedCopyOfRange(source, 0, source.length);
+	}
+
 	/**
 	 * like Arrays.copyOfRange(source, from, to) but returns a cached instance of the former result if
 	 * available

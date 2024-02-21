@@ -55,12 +55,12 @@ import org.eclipse.jdt.internal.core.ImportContainer;
 import org.eclipse.jdt.internal.core.ImportDeclaration;
 import org.eclipse.jdt.internal.core.Initializer;
 import org.eclipse.jdt.internal.core.JavaElement;
-import org.eclipse.jdt.internal.core.JavaModelManager;
 import org.eclipse.jdt.internal.core.PackageDeclaration;
 import org.eclipse.jdt.internal.core.SourceField;
 import org.eclipse.jdt.internal.core.SourceMethod;
 import org.eclipse.jdt.internal.core.SourceType;
 import org.eclipse.jdt.internal.core.TypeParameter;
+import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
 
 public class CompletionUnitStructureRequestor extends CompilationUnitStructureRequestor {
 	private final ASTNode assistNode;
@@ -93,7 +93,7 @@ public class CompletionUnitStructureRequestor extends CompilationUnitStructureRe
 
 	@Override
 	protected SourceField createField(JavaElement parent, FieldInfo fieldInfo) {
-		String fieldName = JavaModelManager.getJavaModelManager().intern(new String(fieldInfo.name));
+		String fieldName = DeduplicationUtil.toString(fieldInfo.name);
 		AssistSourceField field = new AssistSourceField(parent, fieldName, this.bindingCache, this.newElements);
 		FieldDeclaration decl = (FieldDeclaration) (fieldInfo.node);
 		if (decl.binding != null) {
@@ -106,7 +106,7 @@ public class CompletionUnitStructureRequestor extends CompilationUnitStructureRe
 	}
 	@Override
 	protected SourceField createRecordComponent(JavaElement parent, FieldInfo compInfo) {
-		String compName = JavaModelManager.getJavaModelManager().intern(new String(compInfo.name));
+		String compName = DeduplicationUtil.toString(compInfo.name);
 		SourceField comp = new AssistSourceField(parent, compName, this.bindingCache, this.newElements) {
 			@Override
 			public boolean isRecordComponent() throws JavaModelException {
@@ -140,7 +140,7 @@ public class CompletionUnitStructureRequestor extends CompilationUnitStructureRe
 
 	@Override
 	protected SourceMethod createMethodHandle(JavaElement parent, MethodInfo methodInfo) {
-		String selector = JavaModelManager.getJavaModelManager().intern(new String(methodInfo.name));
+		String selector = DeduplicationUtil.toString(methodInfo.name);
 		String[] parameterTypeSigs = convertTypeNamesToSigs(methodInfo.parameterTypes);
 		AssistSourceMethod method = new AssistSourceMethod(parent, selector, parameterTypeSigs, this.bindingCache, this.newElements);
 		if (methodInfo.node.binding != null) {

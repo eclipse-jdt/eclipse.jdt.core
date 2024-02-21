@@ -59,6 +59,7 @@ import org.eclipse.jdt.internal.core.search.IRestrictedAccessConstructorRequesto
 import org.eclipse.jdt.internal.core.search.IRestrictedAccessTypeRequestor;
 import org.eclipse.jdt.internal.core.search.indexing.IndexManager;
 import org.eclipse.jdt.internal.core.search.processing.IJob;
+import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
 import org.eclipse.jdt.internal.core.util.Util;
 
 /**
@@ -526,7 +527,7 @@ private void findPackagesFromRequires(char[] prefix, boolean isMatchAllPrefix, I
 		System.arraycopy(compoundTypeName, 0, packageName, 0, lengthM1);
 
 		return find(
-			new String(compoundTypeName[lengthM1]),
+			DeduplicationUtil.toString(compoundTypeName[lengthM1]),
 			CharOperation.toString(packageName),
 			moduleLocations);
 	}
@@ -541,8 +542,8 @@ private void findPackagesFromRequires(char[] prefix, boolean isMatchAllPrefix, I
 		boolean isNamedStrategy = LookupStrategy.get(moduleName) == LookupStrategy.Named;
 		IPackageFragmentRoot[] moduleLocations = isNamedStrategy ? findModuleContext(moduleName) : null;
 		return find(
-			new String(name),
-			packageName == null || packageName.length == 0 ? null : CharOperation.toString(packageName),
+				DeduplicationUtil.toString(name),
+				packageName == null || packageName.length == 0 ? null : CharOperation.toString(packageName),
 			moduleLocations);
 	}
 

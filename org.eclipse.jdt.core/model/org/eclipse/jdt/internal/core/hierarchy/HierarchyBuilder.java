@@ -42,6 +42,7 @@ import org.eclipse.jdt.internal.core.ResolvedBinaryType;
 import org.eclipse.jdt.internal.core.SearchableEnvironment;
 import org.eclipse.jdt.internal.core.SourceTypeElementInfo;
 import org.eclipse.jdt.internal.core.nd.java.model.BinaryTypeFactory;
+import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
 import org.eclipse.jdt.internal.core.util.ResourceCompilationUnit;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -222,7 +223,8 @@ public abstract class HierarchyBuilder {
 				classFile = (ClassFile) handle.getParent();
 				this.infoToHandle.put(genericType, classFile);
 			}
-			return new ResolvedBinaryType(classFile, classFile.getTypeName(), new String(binding.computeUniqueKey()));
+			return new ResolvedBinaryType(classFile, classFile.getTypeName(),
+					DeduplicationUtil.toString(binding.computeUniqueKey()));
 		} else if (genericType instanceof SourceTypeElementInfo) {
 			IType handle = ((SourceTypeElementInfo) genericType).getHandle();
 			return (IType) ((JavaElement) handle).resolved(binding);

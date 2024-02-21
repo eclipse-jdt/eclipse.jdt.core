@@ -42,6 +42,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.core.JavaModelManager.PerProjectInfo;
+import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
 import org.eclipse.jdt.internal.core.util.HashtableOfArrayToObject;
 import org.eclipse.jdt.internal.core.util.Util;
 
@@ -366,12 +367,11 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 			if (existing != null) break;
 			existingLength--;
 		}
-		JavaModelManager manager = JavaModelManager.getJavaModelManager();
 		for (int i = existingLength; i < length; i++) {
 			// sourceLevel must be null because we know nothing about it based on a jar file
 			if (Util.isValidFolderNameForPackage(pkgName[i], null, compliance)) {
 				System.arraycopy(existing, 0, existing = new String[i+1], 0, i);
-				existing[i] = manager.intern(pkgName[i]);
+				existing[i] = DeduplicationUtil.intern(pkgName[i]);
 				rawPackageInfo.put(existing, new ArrayList[] { EMPTY_LIST, EMPTY_LIST });
 			} else {
 				// non-Java resource folder

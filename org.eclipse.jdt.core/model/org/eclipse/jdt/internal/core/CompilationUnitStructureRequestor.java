@@ -51,6 +51,7 @@ import org.eclipse.jdt.internal.compiler.env.IElementInfo;
 import org.eclipse.jdt.internal.compiler.parser.Parser;
 import org.eclipse.jdt.internal.compiler.parser.RecoveryScanner;
 import org.eclipse.jdt.internal.compiler.util.HashtableOfObject;
+import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
 import org.eclipse.jdt.internal.core.util.ReferenceInfoAdapter;
 import org.eclipse.jdt.internal.core.util.Util;
 /**
@@ -161,7 +162,7 @@ public void acceptImport(int declarationStart, int declarationEnd, int nameSourc
 		this.newElements.put(this.importContainer, this.importContainerInfo);
 	}
 
-	String elementName = JavaModelManager.getJavaModelManager().intern(new String(CharOperation.concatWith(tokens, '.')));
+	String elementName = DeduplicationUtil.toString(CharOperation.concatWith(tokens, '.'));
 	ImportDeclaration handle = createImportDeclaration(this.importContainer, elementName, onDemand);
 	resolveDuplicates(handle);
 
@@ -197,7 +198,7 @@ public void acceptPackage(ImportReference importReference) {
 
 		if (parentHandle.getElementType() == IJavaElement.COMPILATION_UNIT) {
 			char[] name = CharOperation.concatWith(importReference.getImportName(), '.');
-			handle = createPackageDeclaration(parentHandle, new String(name));
+			handle = createPackageDeclaration(parentHandle, DeduplicationUtil.toString(name));
 		}
 		else {
 			Assert.isTrue(false); // Should not happen
@@ -236,11 +237,11 @@ protected Annotation createAnnotation(JavaElement parent, String name) {
 	return new Annotation(parent, name);
 }
 protected SourceField createField(JavaElement parent, FieldInfo fieldInfo) {
-	String fieldName = JavaModelManager.getJavaModelManager().intern(new String(fieldInfo.name));
+	String fieldName = DeduplicationUtil.toString(fieldInfo.name);
 	return new SourceField(parent, fieldName);
 }
 protected SourceField createRecordComponent(JavaElement parent, FieldInfo compInfo) {
-	String name = JavaModelManager.getJavaModelManager().intern(new String(compInfo.name));
+	String name = DeduplicationUtil.toString(compInfo.name);
 	SourceField field = new SourceField(parent, name) {
 		@Override
 		public boolean isRecordComponent() throws JavaModelException {
@@ -259,7 +260,7 @@ protected Initializer createInitializer(JavaElement parent) {
 	return new Initializer(parent, 1);
 }
 protected SourceMethod createMethodHandle(JavaElement parent, MethodInfo methodInfo) {
-	String selector = JavaModelManager.getJavaModelManager().intern(new String(methodInfo.name));
+	String selector = DeduplicationUtil.toString(methodInfo.name);
 	String[] parameterTypeSigs = convertTypeNamesToSigs(methodInfo.parameterTypes);
 	return new SourceMethod(parent, selector, parameterTypeSigs);
 }
@@ -267,11 +268,11 @@ protected PackageDeclaration createPackageDeclaration(JavaElement parent, String
 	return new PackageDeclaration((CompilationUnit) parent, name);
 }
 protected SourceType createTypeHandle(JavaElement parent, TypeInfo typeInfo) {
-	String nameString= new String(typeInfo.name);
+	String nameString= DeduplicationUtil.toString(typeInfo.name);
 	return new SourceType(parent, nameString);
 }
 protected SourceModule createModuleHandle(JavaElement parent, ModuleInfo modInfo) {
-	String nameString= new String(modInfo.moduleName);
+	String nameString= DeduplicationUtil.toString(modInfo.moduleName);
 	return new org.eclipse.jdt.internal.core.SourceModule(parent, nameString);
 }
 protected TypeParameter createTypeParameter(JavaElement parent, String name) {
@@ -287,12 +288,11 @@ protected static String[] convertTypeNamesToSigs(char[][] typeNames) {
 	int n = typeNames.length;
 	if (n == 0)
 		return CharOperation.NO_STRINGS;
-	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	String[] typeSigs = new String[n];
 	for (int i = 0; i < n; ++i) {
-		typeSigs[i] = manager.intern(Signature.createTypeSignature(typeNames[i], false));
+		typeSigs[i] = Signature.createTypeSignature(typeNames[i], false);
 	}
-	return typeSigs;
+	return DeduplicationUtil.intern(typeSigs);
 }
 protected IAnnotation acceptAnnotation(org.eclipse.jdt.internal.compiler.ast.Annotation annotation, AnnotatableInfo parentInfo, JavaElement parentHandle) {
 	String nameString = new String(CharOperation.concatWith(annotation.type.getTypeName(), '.'));
@@ -446,17 +446,16 @@ private SourceMethodElementInfo createMethodInfo(MethodInfo methodInfo, SourceMe
 	info.setNameSourceStart(methodInfo.nameSourceStart);
 	info.setNameSourceEnd(methodInfo.nameSourceEnd);
 	info.setFlags(flags);
-	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	char[][] parameterNames = methodInfo.parameterNames;
 	for (int i = 0, length = parameterNames.length; i < length; i++)
-		parameterNames[i] = manager.intern(parameterNames[i]);
+		parameterNames[i] = DeduplicationUtil.intern(parameterNames[i]);
 	info.setArgumentNames(parameterNames);
 	char[] returnType = methodInfo.returnType == null ? new char[]{'v', 'o','i', 'd'} : methodInfo.returnType;
-	info.setReturnType(manager.intern(returnType));
+	info.setReturnType(DeduplicationUtil.intern(returnType));
 	char[][] exceptionTypes = methodInfo.exceptionTypes;
 	info.setExceptionTypeNames(exceptionTypes);
 	for (int i = 0, length = exceptionTypes.length; i < length; i++)
-		exceptionTypes[i] = manager.intern(exceptionTypes[i]);
+		exceptionTypes[i] = DeduplicationUtil.intern(exceptionTypes[i]);
 	this.newElements.put(handle, info);
 
 	if (methodInfo.typeParameters != null) {
@@ -495,10 +494,10 @@ private LocalVariable[] acceptMethodParameters(Argument[] arguments, JavaElement
 		localVarInfo.setNameSourceStart(argument.sourceStart);
 		localVarInfo.setNameSourceEnd(argument.sourceEnd);
 
-		String paramTypeSig = JavaModelManager.getJavaModelManager().intern(Signature.createTypeSignature(methodInfo.parameterTypes[i], false));
+		String paramTypeSig = DeduplicationUtil.intern(Signature.createTypeSignature(methodInfo.parameterTypes[i], false));
 		result[i] = new LocalVariable(
 				methodHandle,
-				new String(argument.name),
+				DeduplicationUtil.toString(argument.name),
 				argument.declarationSourceStart,
 				argument.declarationSourceEnd,
 				argument.sourceStart,
@@ -585,16 +584,15 @@ private SourceTypeElementInfo createTypeInfo(TypeInfo typeInfo, SourceType handl
 	info.setFlags(typeInfo.modifiers);
 	info.setNameSourceStart(typeInfo.nameSourceStart);
 	info.setNameSourceEnd(typeInfo.nameSourceEnd);
-	JavaModelManager manager = JavaModelManager.getJavaModelManager();
 	char[] superclass = typeInfo.superclass;
-	info.setSuperclassName(superclass == null ? null : manager.intern(superclass));
+	info.setSuperclassName(superclass == null ? null : DeduplicationUtil.intern(superclass));
 	char[][] typeNames = typeInfo.superinterfaces;
 	for (int i = 0, length = typeNames == null ? 0 : typeNames.length; i < length; i++)
-		typeNames[i] = manager.intern(typeNames[i]);
+		typeNames[i] = DeduplicationUtil.intern(typeNames[i]);
 	info.setSuperInterfaceNames(typeNames);
 	typeNames = typeInfo.permittedSubtypes;
 	for (int i = 0, length = typeNames == null ? 0 : typeNames.length; i < length; i++)
-		typeNames[i] = manager.intern(typeNames[i]);
+		typeNames[i] = DeduplicationUtil.intern(typeNames[i]);
 	info.setPermittedSubtypeNames(typeNames);
 	info.addCategories(handle, typeInfo.categories);
 	this.newElements.put(handle, info);
@@ -694,7 +692,7 @@ public void exitField(int initializationStart, int declarationEnd, int declarati
 	info.setNameSourceEnd(fieldInfo.nameSourceEnd);
 	info.setSourceRangeStart(fieldInfo.declarationStart);
 	info.setFlags(fieldInfo.modifiers);
-	char[] typeName = JavaModelManager.getJavaModelManager().intern(fieldInfo.type);
+	char[] typeName = DeduplicationUtil.intern(fieldInfo.type);
 	info.setTypeName(typeName);
 	info.isRecordComponent = fieldInfo.isRecordComponent;
 	this.newElements.put(handle, info);

@@ -3488,14 +3488,6 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		((IEclipsePreferences) this.preferencesLookup[PREF_DEFAULT].parent()).addNodeChangeListener(this.defaultNodeListener);
 	}
 
-	public char[] intern(char[] array) {
-		return DeduplicationUtil.intern(array);
-	}
-
-	public String intern(String s) {
-		return DeduplicationUtil.intern(s);
-	}
-
 	void touchProjectsAsync(final IProject[] projectsToTouch) throws JavaModelException {
 		for (IProject iProject : projectsToTouch) {
 			this.touchQueue.add(iProject);
@@ -5166,10 +5158,10 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 		IRestrictedAccessTypeRequestor nameRequestor = new IRestrictedAccessTypeRequestor() {
 			@Override
 			public void acceptType(int modifiers, char[] packageName, char[] simpleTypeName, char[][] enclosingTypeNames, String path, AccessRestriction access) {
-				String key = packageName==null ? "" : new String(packageName); //$NON-NLS-1$
+				String key = packageName==null ? "" : DeduplicationUtil.toString(packageName); //$NON-NLS-1$
 				Map<String, String> types = secondaryTypesSearch.get(key);
 				if (types == null) types = new HashMap<>(3);
-				types.put(new String(simpleTypeName), path);
+				types.put(DeduplicationUtil.toString(simpleTypeName), path);
 				secondaryTypesSearch.put(key, types);
 			}
 		};

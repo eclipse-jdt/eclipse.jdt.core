@@ -15,6 +15,8 @@
 
 package org.eclipse.jdt.internal.core.util;
 
+import org.eclipse.jdt.internal.core.JavaElement;
+
 /** Utility to provide deduplication by best effort. **/
 public final class DeduplicationUtil {
 	private DeduplicationUtil() {
@@ -37,12 +39,33 @@ public final class DeduplicationUtil {
 		}
 	}
 
+	public static String toString(char[] array) {
+		synchronized (stringSymbols) {
+			return stringSymbols.add(new String(array));
+		}
+	}
+
 	/*
 	 * Used as a replacement for String#intern() that could prevent garbage collection of strings on some VMs.
 	 */
 	public static String intern(String s) {
+		if (s == null) {
+			return null;
+		}
 		synchronized (stringSymbols) {
 			return stringSymbols.add(s);
+		}
+	}
+
+	public static String[] intern(String[] a) {
+		if (a.length == 0) {
+			return JavaElement.NO_STRINGS;
+		}
+		synchronized (stringSymbols) {
+			for (int j = 0; j < a.length; j++) {
+				a[j] = a[j] == null ? null : stringSymbols.add(a[j]);
+			}
+			return a;
 		}
 	}
 }

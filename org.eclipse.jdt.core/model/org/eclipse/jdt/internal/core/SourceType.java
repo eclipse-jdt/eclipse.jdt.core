@@ -26,6 +26,7 @@ import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
+import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
 import org.eclipse.jdt.internal.core.util.Messages;
 
@@ -954,7 +955,8 @@ public ITypeHierarchy newTypeHierarchy(
 }
 @Override
 public JavaElement resolved(Binding binding) {
-	ResolvedSourceType resolvedHandle = new ResolvedSourceType(this.getParent(), this.name, new String(binding.computeUniqueKey()), this.getOccurrenceCount());
+	ResolvedSourceType resolvedHandle = new ResolvedSourceType(this.getParent(), this.name,
+			DeduplicationUtil.toString(binding.computeUniqueKey()), this.getOccurrenceCount());
 	resolvedHandle.localOccurrenceCount = this.localOccurrenceCount;
 	return resolvedHandle;
 }
