@@ -24,6 +24,8 @@
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import java.util.stream.Stream;
+
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.ast.TypeReference.AnnotationPosition;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
@@ -120,9 +122,7 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 		   so, we need to manage the live variables manually. Pattern bindings are not definitely
 		   assigned here as we are in instanceof false region.
 	    */
-		for (LocalVariableBinding binding : this.pattern.bindingsWhenTrue()) {
-			binding.recordInitializationEndPC(codeStream.position);
-		}
+		Stream.of(bindingsWhenTrue()).forEach(v->v.recordInitializationEndPC(codeStream.position));
 
 		if (valueRequired)
 			codeStream.iconst_0();
@@ -187,7 +187,8 @@ public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStr
 	if (valueRequired) {
 		if (falseLabel == null) {
 			if (trueLabel != null) {
-				// Implicit falling through the FALSE case
+				// Implicit falling through the FALSE case, any bindings defined when true cease to be live
+				Stream.of(bindingsWhenTrue()).forEach(v->v.recordInitializationEndPC(codeStream.position));
 				codeStream.goto_(trueLabel);
 			}
 		} else {
