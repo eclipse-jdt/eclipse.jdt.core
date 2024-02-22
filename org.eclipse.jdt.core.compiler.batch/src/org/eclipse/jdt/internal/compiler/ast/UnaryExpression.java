@@ -27,6 +27,7 @@ public class UnaryExpression extends OperatorExpression {
 
 	public Expression expression;
 	public Constant optimizedBooleanConstant;
+	private int trueInitStateIndex = -1;
 
 	public UnaryExpression(Expression expression, int operator) {
 		this.expression = expression;
@@ -44,6 +45,7 @@ public class UnaryExpression extends OperatorExpression {
 				analyseCode(currentScope, flowContext, flowInfo).
 				asNegatedCondition();
 			flowContext.tagBits ^= FlowContext.INSIDE_NEGATION;
+			this.trueInitStateIndex = currentScope.methodScope().recordInitializationStates(flowInfo.initsWhenTrue());
 		} else {
 			flowInfo = this.expression.
 				analyseCode(currentScope, flowContext, flowInfo);
@@ -102,6 +104,9 @@ public class UnaryExpression extends OperatorExpression {
 							(falseLabel = new BranchLabel(codeStream)),
 							valueRequired);
 						if (valueRequired) {
+							if (this.trueInitStateIndex != -1) {
+								codeStream.removeNotDefinitelyAssignedVariables(currentScope, this.trueInitStateIndex);
+							}
 							codeStream.iconst_0();
 							if (falseLabel.forwardReferenceCount() > 0) {
 								codeStream.goto_(endifLabel = new BranchLabel(codeStream));
