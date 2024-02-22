@@ -604,6 +604,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 				int offset) {
 			this.startPos= offset;
 			this.list= getEvent(parent, property).getChildren();
+
 			int total= this.list.length;
 
 			if (total == 0) {
@@ -1142,8 +1143,6 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 		return pos;
 	}
 
-	//private int rewriteStringTemplate()
-
 	class ParagraphListRewriter extends ListRewriter {
 
 		public final static int DEFAULT_SPACING= 1;
@@ -1466,7 +1465,8 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	 * Next token is a right parenthesis. Returns the offset after the parenthesis. For incomplete code, return the start offset.
 	 */
 	private int getPosAfterRightParenthesis(int pos) {
-		try {			return getPosAfterToken(pos, TerminalTokens.TokenNameRPAREN);
+		try {
+				return getPosAfterToken(pos, TerminalTokens.TokenNameRPAREN);
 		} catch (IllegalArgumentException e) {
 			return pos;
 		}
