@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -6082,7 +6082,7 @@ public void test102() {
 		""";
 
 	String expectedDietUnitToString = """
-final class <unnamed_class$<12454 - handling toplevel anonymous>> {
+final class handlingtoplevelanonymoustest102 {
   public class Hello {
     private static int x;
     private String blah;
@@ -6099,7 +6099,7 @@ final class <unnamed_class$<12454 - handling toplevel anonymous>> {
     public void foo() {
     }
   }
-  <unnamed_class$<12454 - handling toplevel anonymous>>() {
+  handlingtoplevelanonymoustest102() {
   }
   void ___eval() {
   }
@@ -6107,7 +6107,7 @@ final class <unnamed_class$<12454 - handling toplevel anonymous>> {
 """;
 
 	String expectedDietPlusBodyUnitToString = """
-final class <unnamed_class$<12454 - handling toplevel anonymous>> {
+final class handlingtoplevelanonymoustest102 {
   public class Hello {
     private static int x;
     private String blah;
@@ -6126,7 +6126,7 @@ final class <unnamed_class$<12454 - handling toplevel anonymous>> {
     public void foo() {
     }
   }
-  <unnamed_class$<12454 - handling toplevel anonymous>>() {
+  handlingtoplevelanonymoustest102() {
     super();
   }
   void ___eval() {
@@ -6150,7 +6150,7 @@ final class <unnamed_class$<12454 - handling toplevel anonymous>> {
 """;
 
 	String expectedFullUnitToString = """
-final class <unnamed_class$<12454 - handling toplevel anonymous>> {
+final class handlingtoplevelanonymoustest102 {
   public class Hello {
     private static int x;
     private String blah;
@@ -6169,7 +6169,7 @@ final class <unnamed_class$<12454 - handling toplevel anonymous>> {
     public void foo() {
     }
   }
-  <unnamed_class$<12454 - handling toplevel anonymous>>() {
+  handlingtoplevelanonymoustest102() {
   }
   void ___eval() {
     new Runnable() {
@@ -6193,7 +6193,7 @@ final class <unnamed_class$<12454 - handling toplevel anonymous>> {
 
 	String expectedCompletionDietUnitToString = expectedDietUnitToString;
 
-	String testName = "<12454 - handling toplevel anonymous>";
+	String testName = "handlingtoplevelanonymoustest102";
 	checkParse(
 		s.toCharArray(),
 		expectedDietUnitToString,

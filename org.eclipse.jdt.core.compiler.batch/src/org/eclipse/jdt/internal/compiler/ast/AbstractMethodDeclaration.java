@@ -513,6 +513,10 @@ public abstract class AbstractMethodDeclaration
 		return (this.modifiers & ClassFileConstants.AccStatic) != 0;
 	}
 
+	public boolean isCandidateMain() {
+		return false;
+	}
+
 	/**
 	 * Fill up the method body with statement
 	 */

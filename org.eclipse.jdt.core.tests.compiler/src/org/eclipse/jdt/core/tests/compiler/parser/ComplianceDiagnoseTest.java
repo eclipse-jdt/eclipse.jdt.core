@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2021 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -122,12 +122,13 @@ public void runComplianceParserTest(
 		String expected13ProblemLog,
 		String expected14ProblemLog,
 		String expected15ProblemLog,
+		String below16ProblemLog,
 		String expected16ProblemLog,
 		String expected17ProblemLog,
 		String expected18ProblemLog,
 		String expected19ProblemLog,
 		String expected20ProblemLog,
-		String expected21ProblemLog
+		String expected22ProblemLog
 		){
 		if (this.complianceLevel == ClassFileConstants.JDK1_3) {
 			this.runNegativeTest(testFiles, expected1_3ProblemLog);
@@ -166,7 +167,7 @@ public void runComplianceParserTest(
 		} else if(this.complianceLevel == ClassFileConstants.JDK20) {
 			this.runNegativeTest(testFiles, expected20ProblemLog);
 		} else {
-			this.runNegativeTest(testFiles, expected21ProblemLog);
+			this.runNegativeTest(testFiles, expected22ProblemLog);
 		}
 	}
 public void test0001() {
@@ -2002,7 +2003,6 @@ public void test0041() {
 		expected15ProblemLog
 	);
 }
-//TODO:  Enable after Bug 552769  is fixed
 public void test0042() {
 	String[] testFiles = new String[] {
 		"X.java",
@@ -2031,63 +2031,54 @@ public void test0042() {
 		"}\n"
 	};
 
-	String expected16ProblemLog = """
-			----------
-			1. ERROR in X.java (at line 1)
-				void ___eval() {
-				^
-			The preview feature Unnamed Classes and Instance Main Methods is only available with source level 21 and above
-			----------
-			2. ERROR in X.java (at line 4)
-				return blah;
-				       ^^^^
-			blah cannot be resolved to a variable
-			----------
-			""";
-
-	String expected1_3ProblemLog = expected16ProblemLog + """
-			3. ERROR in X.java (at line 14)
-				public static void main(String[] args) {
-				                   ^^^^^^^^^^^^^^^^^^^
-			The method main cannot be declared static; static methods can only be declared in a static or top level type
-			----------
-			""";
-
-	String expected21ProblemLog = """
+	String problemLog = (this.complianceLevel >= ClassFileConstants.JDK22) ?
+			"""
 			----------
 			1. ERROR in X.java (at line 1)
 				void ___eval() {
 				^
 			Unnamed Classes and Instance Main Methods is a preview feature and disabled by default. Use --enable-preview to enable
 			----------
-			2. ERROR in X.java (at line 4)
+			2. ERROR in X.java (at line 1)
+				void ___eval() {
+				^
+			Implicitly declared class must have a candidate main method
+			----------
+			3. ERROR in X.java (at line 4)
+				return blah;
+				       ^^^^
+			blah cannot be resolved to a variable
+			----------
+			""" :
+			"""
+			----------
+			1. ERROR in X.java (at line 1)
+				void ___eval() {
+				^
+			The preview feature Unnamed Classes and Instance Main Methods is only available with source level 22 and above
+			----------
+			2. ERROR in X.java (at line 1)
+				void ___eval() {
+				^
+			Implicitly declared class must have a candidate main method
+			----------
+			3. ERROR in X.java (at line 4)
 				return blah;
 				       ^^^^
 			blah cannot be resolved to a variable
 			----------
 			""";
-	runComplianceParserTest(
-		testFiles,
-		expected1_3ProblemLog,
-		expected1_3ProblemLog,
-		expected1_3ProblemLog,
-		expected1_3ProblemLog,
-		expected1_3ProblemLog,
-		expected1_3ProblemLog,
-		expected1_3ProblemLog,
-		expected1_3ProblemLog,
-		expected1_3ProblemLog,
-		expected1_3ProblemLog,
-		expected1_3ProblemLog,
-		expected1_3ProblemLog,
-		expected1_3ProblemLog,
-		expected16ProblemLog,
-		expected16ProblemLog,
-		expected16ProblemLog,
-		expected16ProblemLog,
-		expected16ProblemLog,
-		expected21ProblemLog
-	);
+
+	if (this.complianceLevel < ClassFileConstants.JDK16) {
+		problemLog += """
+			4. ERROR in X.java (at line 14)
+				public static void main(String[] args) {
+				                   ^^^^^^^^^^^^^^^^^^^
+			The method main cannot be declared static; static methods can only be declared in a static or top level type
+			----------
+			""";
+	}
+	runNegativeTest(testFiles, problemLog);
 }
 /*
  * https://bugs.eclipse.org/bugs/show_bug.cgi?id=72942

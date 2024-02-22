@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -112,24 +112,24 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 	protected class Runner {
 		boolean shouldFlushOutputDirectory = true;
 		// input:
-		String[] testFiles;
-		String[] dependantFiles;
-		String[] classLibraries;
-		boolean  libsOnModulePath;
+		public String[] testFiles;
+		public String[] dependantFiles;
+		public String[] classLibraries;
+		public boolean  libsOnModulePath;
 		// control compilation:
-		Map<String,String> customOptions;
+		public Map<String,String> customOptions;
 		boolean performStatementsRecovery;
 		boolean generateOutput;
 		ICompilerRequestor customRequestor;
 		// compiler result:
-		String expectedCompilerLog;
+		public String expectedCompilerLog;
 		String[] alternateCompilerLogs;
 		boolean showCategory;
 		boolean showWarningToken;
 		// javac:
 		boolean skipJavac;
 		public String expectedJavacOutputString;
-		JavacTestOptions javacTestOptions;
+		public JavacTestOptions javacTestOptions;
 		// execution:
 		boolean forceExecution;
 		String[] vmArguments;
@@ -137,6 +137,10 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 		String expectedErrorString;
 
 		ASTVisitor visitor;
+
+		public Runner() {
+			// TODO Auto-generated constructor stub
+		}
 
 		protected void runConformTest() {
 			runTest(this.shouldFlushOutputDirectory,
@@ -163,7 +167,7 @@ public abstract class AbstractRegressionTest extends AbstractCompilerTest implem
 					this.skipJavac ? JavacTestOptions.SKIP : this.javacTestOptions);
 		}
 
-		protected void runNegativeTest() {
+		public void runNegativeTest() {
 			runTest(this.shouldFlushOutputDirectory,
 					this.testFiles,
 					this.dependantFiles != null ? this.dependantFiles : new String[] {},

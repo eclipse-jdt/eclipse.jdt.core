@@ -70,9 +70,9 @@ import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.MethodScope;
 import org.eclipse.jdt.internal.compiler.lookup.TypeConstants;
 import org.eclipse.jdt.internal.compiler.lookup.TypeIds;
+import org.eclipse.jdt.internal.compiler.parser.Scanner.EmbeddedExpression;
 import org.eclipse.jdt.internal.compiler.parser.Scanner.IStringTemplateComponent;
 import org.eclipse.jdt.internal.compiler.parser.Scanner.TextFragment;
-import org.eclipse.jdt.internal.compiler.parser.Scanner.EmbeddedExpression;
 import org.eclipse.jdt.internal.compiler.parser.diagnose.DiagnoseParser;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilation;
 import org.eclipse.jdt.internal.compiler.problem.AbortCompilationUnit;
@@ -4870,21 +4870,22 @@ protected void consumeInternalCompilationUnitWithPotentialUnnamedClass() {
 			}
 		}
 		if (!methods.isEmpty() || !fields.isEmpty()) {
-			problemReporter().validateJavaFeatureSupport(JavaFeature.UNNAMMED_CLASSES_AND_INSTANCE_MAIN_METHODS, 0, 0);
-			UnnamedClass unnamedClass = new UnnamedClass(this.compilationUnit.compilationResult);
-			unnamedClass.methods = methods.toArray(AbstractMethodDeclaration[]::new);
-			unnamedClass.createDefaultConstructor(false, true);
-			unnamedClass.fields = fields.toArray(FieldDeclaration[]::new);
-			unnamedClass.memberTypes = types.toArray(TypeDeclaration[]::new);
+			problemReporter().validateJavaFeatureSupport(JavaFeature.IMPLICIT_CLASSES_AND_INSTANCE_MAIN_METHODS, 0, 0);
+			ImplicitTypeDeclaration implicitClass = new ImplicitTypeDeclaration(this.compilationUnit.compilationResult);
+			implicitClass.methods = methods.toArray(AbstractMethodDeclaration[]::new);
+			implicitClass.createDefaultConstructor(false, true);
+			implicitClass.fields = fields.toArray(FieldDeclaration[]::new);
+			implicitClass.memberTypes = types.toArray(TypeDeclaration[]::new);
 
-			unnamedClass.declarationSourceStart = sourceStart;
-			unnamedClass.declarationSourceEnd = this.scanner.eofPosition - 1;
-			unnamedClass.bodyStart = sourceStart;
-			unnamedClass.bodyEnd = this.scanner.eofPosition - 1;
-			unnamedClass.sourceStart = sourceStart;
-			unnamedClass.sourceEnd = this.scanner.eofPosition - 1;
-			types.forEach(type -> type.enclosingType = unnamedClass);
-			this.compilationUnit.types =  new TypeDeclaration[] { unnamedClass };
+			implicitClass.declarationSourceStart = sourceStart;
+			implicitClass.declarationSourceEnd = this.scanner.eofPosition - 1;
+			implicitClass.bodyStart = sourceStart;
+			implicitClass.bodyEnd = this.scanner.eofPosition - 1;
+			implicitClass.sourceStart = sourceStart;
+			implicitClass.sourceEnd = this.scanner.eofPosition - 1;
+			types.forEach(type -> type.enclosingType = implicitClass);
+			this.compilationUnit.types =  new TypeDeclaration[] { implicitClass };
+			implicitClass.addClinit();
 		} else if (types.size() > 0) {
 			// add types to compilation unit
 			this.compilationUnit.types = types.toArray(TypeDeclaration[]::new);

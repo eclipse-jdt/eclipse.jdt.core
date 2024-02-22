@@ -1813,7 +1813,9 @@ public final boolean isViewedAsDeprecated() {
 	}
 	return false;
 }
-
+public boolean isImplicitType() {
+	return false;
+}
 /**
  * Returns the member types of this type sorted by simple name.
  */

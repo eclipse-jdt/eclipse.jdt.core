@@ -449,7 +449,7 @@ ModuleDeclaration ::= ModuleHeader ModuleBody
 /:$compliance 9:/
 /.$putCase consumeModuleDeclaration(); $break ./
 
--- JEP 445: unnamed class, this may capture type declarations without unnamed class, this case is fixed/reduced upon completioon of parsing
+-- JEP 445: unnamed class, this may capture type declarations without unnamed class, this case is fixed/reduced upon completion of parsing
 InternalCompilationUnit ::= UnnamedClassBodyDeclarations
 /.$putCase consumeInternalCompilationUnitWithPotentialUnnamedClass(); $break ./
 InternalCompilationUnit ::= ImportDeclarations ReduceImports UnnamedClassBodyDeclarations

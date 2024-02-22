@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2020, 2023 IBM Corporation and others.
+ * Copyright (c) 2020, 2024 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -5187,17 +5187,22 @@ public class SealedTypesTests extends AbstractRegressionTest9 {
 				"X.java",
 				"record X;\n",
 			},
-			"----------\n"
-			+ "1. ERROR in X.java (at line 1)\n"
-			+ "	record X;\n"
-			+ "	^\n"
-			+ "The preview feature Unnamed Classes and Instance Main Methods is only available with source level 21 and above\n"
-			+ "----------\n"
-			+ "2. ERROR in X.java (at line 1)\n"
-			+ "	record X;\n"
-			+ "	^^^^^^\n"
-			+ "'record' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n"
-			+ "----------\n",
+			"----------\n" +
+			"1. ERROR in X.java (at line 1)\n" +
+			"	record X;\n" +
+			"	^\n" +
+			"The preview feature Unnamed Classes and Instance Main Methods is only available with source level 22 and above\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 1)\n" +
+			"	record X;\n" +
+			"	^^^^^^\n" +
+			"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 1)\n" +
+			"	record X;\n" +
+			"	^\n" +
+			"Implicitly declared class must have a candidate main method\n" +
+			"----------\n",
 			null,
 			true,
 			options

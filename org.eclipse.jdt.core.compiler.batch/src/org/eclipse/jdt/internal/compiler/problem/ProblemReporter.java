@@ -12552,6 +12552,13 @@ public void errorReturnInPrologue(Statement stmt) {
 		stmt.sourceStart,
 		stmt.sourceEnd);
 }
+public void implicitClassMissingMainMethod(TypeDeclaration typeDeclaration) {
+	this.handle(IProblem.ImplicitClassMissingMainMethod,
+			NoArgument,
+			NoArgument,
+			typeDeclaration.sourceStart,
+			typeDeclaration.sourceStart);
+}
 public boolean scheduleProblemForContext(Runnable problemComputation) {
 	if (this.referenceContext != null) {
 		CompilationResult result = this.referenceContext.compilationResult();

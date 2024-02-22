@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -2724,42 +2724,56 @@ public void test078() {
 // TODO: Enable after Bug 552769 is fixed
 public void test079() {
 
-	String expectedErrorLog = "----------\n"
-			+ "1. ERROR in Hello.java (at line 1)\n"
-			+ "	void ___eval() {\n"
-			+ "	^\n"
-			+ "The preview feature Unnamed Classes and Instance Main Methods is only available with source level 21 and above\n"
-			+ "----------\n"
-			+ "2. ERROR in Hello.java (at line 4)\n"
-			+ "	return blah;\n"
-			+ "	       ^^^^\n"
-			+ "blah cannot be resolved to a variable\n"
-			+ "----------\n";
+	String problemLog = (this.complianceLevel >= ClassFileConstants.JDK22) ?
+			"""
+			----------
+			1. ERROR in X.java (at line 1)
+				void ___eval() {
+				^
+			Unnamed Classes and Instance Main Methods is a preview feature and disabled by default. Use --enable-preview to enable
+			----------
+			2. ERROR in X.java (at line 1)
+				void ___eval() {
+				^
+			Implicitly declared class must have a candidate main method
+			----------
+			3. ERROR in X.java (at line 4)
+				return blah;
+				       ^^^^
+			blah cannot be resolved to a variable
+			----------
+			""" :
+			"""
+			----------
+			1. ERROR in X.java (at line 1)
+				void ___eval() {
+				^
+			The preview feature Unnamed Classes and Instance Main Methods is only available with source level 22 and above
+			----------
+			2. ERROR in X.java (at line 1)
+				void ___eval() {
+				^
+			Implicitly declared class must have a candidate main method
+			----------
+			3. ERROR in X.java (at line 4)
+				return blah;
+				       ^^^^
+			blah cannot be resolved to a variable
+			----------
+			""";
+
 	if (this.complianceLevel < ClassFileConstants.JDK16) {
-		expectedErrorLog += "3. ERROR in Hello.java (at line 14)\n"
-			+ "	public static void main(String[] args) {\n"
-			+ "	                   ^^^^^^^^^^^^^^^^^^^\n"
-			+ "The method main cannot be declared static; static methods can only be declared in a static or top level type\n"
-			+ "----------\n";
-	}
-	if (this.complianceLevel == ClassFileConstants.JDK21) {
-		expectedErrorLog = """
-				----------
-				1. ERROR in Hello.java (at line 1)
-					void ___eval() {
-					^
-				Unnamed Classes and Instance Main Methods is a preview feature and disabled by default. Use --enable-preview to enable
-				----------
-				2. ERROR in Hello.java (at line 4)
-					return blah;
-					       ^^^^
-				blah cannot be resolved to a variable
-				----------
-				""";
+		problemLog += """
+			4. ERROR in X.java (at line 14)
+				public static void main(String[] args) {
+				                   ^^^^^^^^^^^^^^^^^^^
+			The method main cannot be declared static; static methods can only be declared in a static or top level type
+			----------
+			""";
 	}
 	this.runNegativeTest(
 		new String[] {
-			"Hello.java",
+			"X.java",
 			"void ___eval() {\n" +
 			"	new Runnable() {\n" +
 			"		int ___run() throws Throwable {\n" +
@@ -2784,7 +2798,7 @@ public void test079() {
 			"	}\n" +
 			"}\n"
 		},
-		expectedErrorLog
+		problemLog
 	);
 }
 /*
