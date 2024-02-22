@@ -279,8 +279,7 @@ public final class ASTRewriteFormatter {
 			}
 		} else if (node instanceof BodyDeclaration) {
 			code= CodeFormatter.K_CLASS_BODY_DECLARATIONS;
-		}
-		else {
+		} else {
 			switch (node.getNodeType()) {
 				case ASTNode.ARRAY_TYPE:
 				case ASTNode.PARAMETERIZED_TYPE:
