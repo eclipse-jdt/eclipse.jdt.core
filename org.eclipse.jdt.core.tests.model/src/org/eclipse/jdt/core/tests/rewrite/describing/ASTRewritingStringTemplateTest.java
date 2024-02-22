@@ -57,12 +57,8 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 		}
 	}
 	// Insert a newly created string template expression
-	@SuppressWarnings({ "rawtypes", "deprecation" })
-	public void test001() throws Exception {
-		if (this.apiLevel != 22) {
-			System.err.println("Test "+getName()+" requires a JRE 22");
-			return;
-		}
+	@SuppressWarnings({ "rawtypes" })
+	public void test0001() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
@@ -165,12 +161,8 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 	// Rewrite the first fragment
-	@SuppressWarnings({ "rawtypes", "deprecation" })
-	public void test002() throws Exception {
-		if (this.apiLevel != 21) {
-			System.err.println("Test "+getName()+" requires a JRE 21");
-			return;
-		}
+	@SuppressWarnings({ "rawtypes" })
+	public void test0002() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
@@ -217,12 +209,8 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 	// replace the first fragment and remove the only string fragment component
-	@SuppressWarnings({ "rawtypes", "deprecation" })
-	public void test003() throws Exception {
-		if (this.apiLevel != 21) {
-			System.err.println("Test "+getName()+" requires a JRE 21");
-			return;
-		}
+	@SuppressWarnings({ "rawtypes" })
+	public void test0003() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
@@ -270,12 +258,8 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 	// Replace just the embedded expression in an existing template component
-	@SuppressWarnings({ "rawtypes", "deprecation" })
-	public void test004() throws Exception {
-		if (this.apiLevel != 21) {
-			System.err.println("Test "+getName()+" requires a JRE 21");
-			return;
-		}
+	@SuppressWarnings({ "rawtypes" })
+	public void test0004() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
@@ -326,12 +310,8 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 	// Replace an existing template component
-	@SuppressWarnings({ "rawtypes", "deprecation" })
-	public void test005() throws Exception {
-		if (this.apiLevel != 21) {
-			System.err.println("Test "+getName()+" requires a JRE 21");
-			return;
-		}
+	@SuppressWarnings({ "rawtypes" })
+	public void test0005() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
@@ -385,12 +365,8 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 
-	@SuppressWarnings({ "rawtypes", "deprecation" })
-	public void test005_a() throws Exception {
-		if (this.apiLevel != 21) {
-			System.err.println("Test "+getName()+" requires a JRE 21");
-			return;
-		}
+	@SuppressWarnings({ "rawtypes" })
+	public void test0005_a() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
@@ -444,12 +420,8 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 	//modify the first_fragment with no component
-	@SuppressWarnings({ "rawtypes", "deprecation" })
-	public void test005_b() throws Exception {
-		if (this.apiLevel != 21) {
-			System.err.println("Test "+getName()+" requires a JRE 21");
-			return;
-		}
+	@SuppressWarnings({ "rawtypes" })
+	public void test0005_b() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
@@ -501,12 +473,8 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 	//SINGLE LINE to MULTI LINE with Component
-	@SuppressWarnings({ "rawtypes", "deprecation" })
-	public void test006_a() throws Exception {
-		if (this.apiLevel != 21) {
-			System.err.println("Test "+getName()+" requires a JRE 21");
-			return;
-		}
+	@SuppressWarnings({ "rawtypes" })
+	public void test0006_a() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
@@ -549,13 +517,9 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 
-	@SuppressWarnings({ "rawtypes", "deprecation" })
+	@SuppressWarnings({ "rawtypes" })
 	//SINGLE LINE to MULTI LINE without Component
-	public void test006_b() throws Exception {
-		if (this.apiLevel != 21) {
-			System.err.println("Test "+getName()+" requires a JRE 21");
-			return;
-		}
+	public void test0006_b() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
@@ -598,13 +562,9 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 
-	@SuppressWarnings({ "rawtypes", "deprecation" })
+	@SuppressWarnings({ "rawtypes" })
 	//SINGLE LINE to MULTI LINE with Multiple Components
-	public void test006_c() throws Exception {
-		if (this.apiLevel != 21) {
-			System.err.println("Test "+getName()+" requires a JRE 21");
-			return;
-		}
+	public void test0006_c() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
@@ -665,13 +625,9 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 
-	@SuppressWarnings({ "rawtypes", "deprecation" })
+	@SuppressWarnings({ "rawtypes" })
 	//MULTI LINE to SINGLE LINE -> with Component
-	public void test007_a() throws Exception {
-		if (this.apiLevel != 21) {
-			System.err.println("Test "+getName()+" requires a JRE 21");
-			return;
-		}
+	public void test0007_a() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
@@ -713,13 +669,9 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 
 		assertEqualString(preview, buf.toString());
 	}
-	@SuppressWarnings({ "rawtypes", "deprecation" })
+	@SuppressWarnings({ "rawtypes" })
 	//MULTI LINE to SINGLE LINE -> without Component
-	public void test007_b() throws Exception {
-		if (this.apiLevel != 21) {
-			System.err.println("Test "+getName()+" requires a JRE 21");
-			return;
-		}
+	public void test0007_b() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
@@ -762,13 +714,9 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 		assertEqualString(preview, buf.toString());
 	}
 
-	@SuppressWarnings({ "rawtypes", "deprecation" })
+	@SuppressWarnings({ "rawtypes" })
 	//MULTI LINE to SINGLE LINE -> with multiple Component
-	public void test007_c() throws Exception {
-		if (this.apiLevel != 21) {
-			System.err.println("Test "+getName()+" requires a JRE 21");
-			return;
-		}
+	public void test0007_c() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
@@ -804,15 +752,7 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 			component.setStringFragment(fragment);
 			component.setEmbeddedExpression(name);
 
-//			StringTemplateComponent component1 = ast.newStringTemplateComponent();
-//			SimpleName name1 = ast.newSimpleName("xyz");
-//			StringFragment fragment1 = ast.newStringFragment();
-//			fragment1.setEscapedValue(" is xyz.");
-//			component1.setStringFragment(fragment1);
-//			component1.setEmbeddedExpression(name1);
-
 			rewrite.getListRewrite(templateExp, StringTemplateExpression.STRING_TEMPLATE_COMPONENTS).insertLast(component, null);
-			//rewrite.getListRewrite(templateExp, StringTemplateExpression.STRING_TEMPLATE_COMPONENTS).insertLast(component1, null);
 			rewrite.set(templateExp,  StringTemplateExpression.MULTI_LINE, Boolean.FALSE, null);
 		}
 
@@ -829,21 +769,16 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 
 		assertEqualString(preview, buf.toString());
 	}
-	@SuppressWarnings({ "rawtypes", "deprecation" })
-	//Modify the FIRST FRAGMENT(Initially empty value)
-	//First Fragment EMPTY STRING to value
-	public void _test008() throws Exception {
-		if (this.apiLevel != 21) {
-			System.err.println("Test "+getName()+" requires a JRE 21");
-			return;
-		}
+	@SuppressWarnings({ "rawtypes" })
+	//Modify the FIRST FRAGMENT without a component -> SINGLE LINE
+	public void _test0008() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
 		buf.append("public class X {\n");
 		buf.append("  void foo(Object o) {\n");
 		buf.append("    String name = \"Jay\";\n");
-		buf.append("    String s = STR.\"\";\n");
+		buf.append("    String s = STR.\"hello \\{name}\";\n");
 		buf.append("  }\n");
 		buf.append("}\n");
 		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
@@ -863,7 +798,53 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 			VariableDeclarationFragment varFragment = (VariableDeclarationFragment) varStmt.fragments().get(0);
 			StringTemplateExpression templateExp = (StringTemplateExpression) varFragment.getInitializer();
 			StringFragment literal = astRoot.getAST().newStringFragment();
-			literal.setEscapedValue("Hey there ");
+			literal.setEscapedValue("world ");
+			rewrite.set(templateExp, StringTemplateExpression.FIRST_STRING_FRAGMENT, literal, null);
+		}
+
+		String preview = evaluateRewrite(cu, rewrite);
+
+		buf= new StringBuilder();
+		buf.append("package test1;\n");
+		buf.append("public class X {\n");
+		buf.append("  void foo(Object o) {\n");
+		buf.append("    String name = \"Jay\";\n");
+		buf.append("    String s = STR.\"world \\{name}\";\n");
+		buf.append("  }\n");
+		buf.append("}\n");
+
+		assertEqualString(preview, buf.toString());
+	}
+	@SuppressWarnings({ "rawtypes" })
+	//Modify the FIRST FRAGMENT without a component -> MULTI LINE
+	public void _test0009() throws Exception {
+		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
+		StringBuilder buf= new StringBuilder();
+		buf.append("package test1;\n");
+		buf.append("public class X {\n");
+		buf.append("  void foo(Object o) {\n");
+		buf.append("    String name = \"Jay\";\n");
+		buf.append("    String s = STR.\"\"\"\nHello \n\"\"\";\n");
+		buf.append("  }\n");
+		buf.append("}\n");
+		ICompilationUnit cu= pack1.createCompilationUnit("X.java", buf.toString(), false, null);
+
+		CompilationUnit astRoot= createAST(cu);
+		ASTRewrite rewrite= ASTRewrite.create(astRoot.getAST());
+
+		assertTrue("Parse errors", (astRoot.getFlags() & ASTNode.MALFORMED) == 0);
+		TypeDeclaration type= findTypeDeclaration(astRoot, "X");
+		MethodDeclaration methodDecl= findMethodDeclaration(type, "foo");
+		Block block= methodDecl.getBody();
+		List blockStatements = block.statements();
+		assertEquals("Incorrect number of statements", 2, blockStatements.size());
+		{
+			VariableDeclarationStatement varStmt = (VariableDeclarationStatement) blockStatements.get(1);
+			assertEquals("Incorrect number of fragents", 1, varStmt.fragments().size());
+			VariableDeclarationFragment varFragment = (VariableDeclarationFragment) varStmt.fragments().get(0);
+			StringTemplateExpression templateExp = (StringTemplateExpression) varFragment.getInitializer();
+			StringFragment literal = astRoot.getAST().newStringFragment();
+			literal.setEscapedValue("world ");
 			rewrite.set(templateExp,  StringTemplateExpression.FIRST_STRING_FRAGMENT, literal, null);
 		}
 
@@ -874,19 +855,15 @@ public class ASTRewritingStringTemplateTest extends ASTRewritingTest {
 		buf.append("public class X {\n");
 		buf.append("  void foo(Object o) {\n");
 		buf.append("    String name = \"Jay\";\n");
-		buf.append("    String s = STR.\"Hey there \";\n");
+		buf.append("    String s = STR.\"\"\"\nworld \n\"\"\";\n");
 		buf.append("  }\n");
 		buf.append("}\n");
 
 		assertEqualString(preview, buf.toString());
 	}
-	@SuppressWarnings({ "rawtypes", "deprecation" })
+	@SuppressWarnings({ "rawtypes" })
 	//Using RAW Template Processor
-	public void test009() throws Exception {
-		if (this.apiLevel != 21) {
-			System.err.println("Test "+getName()+" requires a JRE 21");
-			return;
-		}
+	public void test0010() throws Exception {
 		IPackageFragment pack1= this.sourceFolder.createPackageFragment("test1", false, null);
 		StringBuilder buf= new StringBuilder();
 		buf.append("package test1;\n");
