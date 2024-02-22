@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2023 Red Hat, Inc. and others.
+ * Copyright (c) 2023, 2024 Red Hat, Inc. and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -13,18 +13,20 @@ package org.eclipse.jdt.internal.compiler.ast;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
+import java.util.stream.Stream;
 
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
+import org.eclipse.jdt.internal.compiler.lookup.CompilationUnitScope;
 
 /**
- * Represents an unnamed class as defined in JEP 445
+ * Represents an unnamed class as defined in JEP 463
  */
-public class UnnamedClass extends TypeDeclaration {
+public class ImplicitTypeDeclaration extends TypeDeclaration {
 
-	private static String NAME_TEMPLATE = "<unnamed_class${0}>"; //$NON-NLS-1$
+	private static String NAME_TEMPLATE = "{0}"; //$NON-NLS-1$
 
-	public UnnamedClass(CompilationResult result) {
+	public ImplicitTypeDeclaration(CompilationResult result) {
 		super(result);
 		this.modifiers = ClassFileConstants.AccDefault | ClassFileConstants.AccFinal;
 
@@ -40,5 +42,16 @@ public class UnnamedClass extends TypeDeclaration {
 		String nameString = MessageFormat.format(NAME_TEMPLATE, classSuffix);
 		this.name = nameString.toCharArray();
 	}
-
+	@Override
+	public boolean isImplicitType() {
+		return true;
+	}
+	@Override
+	public void resolve(CompilationUnitScope upperScope) {
+		super.resolve(upperScope);
+		boolean anyMatch = Stream.of(this.methods).anyMatch(m -> m.isCandidateMain());
+		if (!anyMatch) {
+			upperScope.problemReporter().implicitClassMissingMainMethod(this);
+		}
+	}
 }

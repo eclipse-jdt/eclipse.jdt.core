@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2020 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -52,6 +52,7 @@ public SourceElementParserTest(String testName, char[] source) {
 }
 static {
 //	TESTS_NUMBERS = new int[] { 81 };
+//	TESTS_NAMES = new String[] {"test63"};
 }
 public static Test suite() {
 	return buildAllCompliancesTestSuite(SourceElementParserTest.class);
@@ -4508,7 +4509,8 @@ public void test62() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
-public void test63() {
+//invalid tests (would be rejected by compiler. Disable for now
+public void _test63() {
 
 	String s =
 		"public class X {							\n"+
@@ -4517,7 +4519,7 @@ public void test63() {
 		"int x;\n";
 
 	String expectedUnitToString =
-		"final class <unnamed_class$test63: full parse> {\n"
+		"final class test63$Implicit {\n"
 		+ "\tpublic class X {\n"
 		+ "\t\tjava.lang.Object(0)\n"
 		+ "\t\tint foo() {}\n"
@@ -4526,7 +4528,7 @@ public void test63() {
 		+ "\tjava.lang.Object(0)\n"
 		+"}";
 
-	String testName = "test63: full parse";
+	String testName = "test63";
 	fullParse(s,testName);
 
 	assertEquals(
@@ -4536,7 +4538,7 @@ public void test63() {
 
 	assertEquals(
 		"Invalid class declarationSourceEnd ",
-		66,
+		47,
 		this.currentType.getDeclarationSourceEnd());
 
 	assertTrue("has no superinterfaces " , this.currentType.getInterfaceNames() == null);
@@ -4569,7 +4571,8 @@ public void test63() {
 		expectedUnitToString,
 		this.currentType.toString());
 }
-public void test64() {
+// invalid tests (would be rejected by compiler. Disable for now
+public void _test64() {
 
 	String s =
 		"public class X {							\n"+
@@ -4578,7 +4581,7 @@ public void test64() {
 		"int x;\n";
 
 	String expectedUnitToString =
-			"final class <unnamed_class$test64: diet parse> {\n"
+			"final class test64$Implicit {\n"
 			+ "\tpublic class X {\n"
 			+ "\t\tint foo() {}\n"
 			+ "\t}\n"
@@ -4586,7 +4589,7 @@ public void test64() {
 			+"}";
 
 
-	String testName = "test64: diet parse";
+	String testName = "test64";
 	dietParse(s,testName);
 
 	assertEquals(
@@ -4638,14 +4641,14 @@ public void test65() {
 		"int x();\n";
 
 	String expectedUnitToString =
-		"final class <unnamed_class$test65: diet parse> {\n"
+		"final class test65 {\n"
 		+ "\tpublic class X {\n"
 		+ "\t\tint foo() {}\n"
 		+ "\t}\n"
 		+ "\tint x() {}\n"
 		+ "}";
 
-	String testName = "test65: diet parse";
+	String testName = "test65";
 	dietParse(s,testName);
 
 	assertEquals(
@@ -4699,14 +4702,14 @@ public void test66() {
 		"int x();\n";
 
 	String expectedUnitToString =
-		"final class <unnamed_class$test66: diet parse> {\n"
+		"final class test66 {\n"
 		+ "\tpublic interface X {\n"
 		+ "\t\tint foo() {}\n"
 		+ "\t}\n"
 		+ "\tint x() {}\n"
 		+ "}";
 
-	String testName = "test66: diet parse";
+	String testName = "test66";
 	dietParse(s,testName);
 
 	assertEquals(

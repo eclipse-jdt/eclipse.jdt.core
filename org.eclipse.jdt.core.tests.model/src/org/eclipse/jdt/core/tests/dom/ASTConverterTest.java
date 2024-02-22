@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2019 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7698,8 +7698,8 @@ public class ASTConverterTest extends ConverterTestSetup {
 		assertNotNull("No result", result); //$NON-NLS-1$
 		assertTrue("Not a compilation unit", result instanceof CompilationUnit); //$NON-NLS-1$
 		CompilationUnit compilationUnit = (CompilationUnit) result;
-		assertEquals("Wrong size", 3, compilationUnit.getMessages().length); //$NON-NLS-1$
-		assertEquals("Wrong size", 3, compilationUnit.getProblems().length); //$NON-NLS-1$
+		assertEquals("Wrong size", 4, compilationUnit.getMessages().length); //$NON-NLS-1$
+		assertEquals("Wrong size", 4, compilationUnit.getProblems().length); //$NON-NLS-1$
 	}
 
 	/**

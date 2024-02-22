@@ -450,7 +450,7 @@ public void testBinaryInWrongPackage() throws CoreException {
 		);
 		getProject("P").build(IncrementalProjectBuilder.FULL_BUILD, null);
 		waitForAutoBuild();
-		getFile("/P/bin/p/<unnamed_class$X>.class").copy(new Path("/P/lib/X.class"), false, null);
+		getFile("/P/bin/p/X.class").copy(new Path("/P/lib/X.class"), false, null);
 		ITypeHierarchy hierarchy = getClassFile("P", "/P/lib", "", "X.class").getType().newSupertypeHierarchy(null);
 		assertHierarchyEquals(
 			"Focus: X [in X.class [in <default> [in lib [in P]]]]\n" +
@@ -3388,11 +3388,11 @@ public void testBug457813() throws CoreException {
 				"public class X extends aspose.b.a.a {\n" +
 				"}"
 			);
-		IType type = getCompilationUnit("P", "src", "hierarchy", "X.java").getType("<unnamed_class$X>");
+		IType type = getCompilationUnit("P", "src", "hierarchy", "X.java").getType("X");
 		assertTrue("Type should exist!", type.exists());
 		ITypeHierarchy hierarchy = type.newTypeHierarchy(null); // when bug occurred a stack overflow happened here...
 		assertHierarchyEquals(
-				"Focus: <unnamed_class$X> [in X.java [in hierarchy [in src [in P]]]]\n" +
+				"Focus: X [in X.java [in hierarchy [in src [in P]]]]\n" +
 				"Super types:\n" +
 				"  Object [in Object.class [in java.lang [in "+ getExternalJCLPathString() + "]]]\n" +
 				"Sub types:\n",

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2019, 2023 IBM Corporation and others.
+ * Copyright (c) 2019, 2024 IBM Corporation and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8105,9 +8105,14 @@ public void testBug566846_1() {
 			"1. ERROR in X.java (at line 1)\n" +
 			"	public record X;\n" +
 			"	^\n" +
-			"The preview feature Unnamed Classes and Instance Main Methods is only available with source level 21 and above\n" +
+			"The preview feature Unnamed Classes and Instance Main Methods is only available with source level 22 and above\n" +
 			"----------\n" +
 			"2. ERROR in X.java (at line 1)\n" +
+			"	public record X;\n" +
+			"	^\n" +
+			"Implicitly declared class must have a candidate main method\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 1)\n" +
 			"	public record X;\n" +
 			"	       ^^^^^^\n" +
 			"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
@@ -8129,9 +8134,14 @@ public void testBug566846_2() {
 			"1. ERROR in X.java (at line 1)\n" +
 			"	public class X {\n" +
 			"	^\n" +
-			"The preview feature Unnamed Classes and Instance Main Methods is only available with source level 21 and above\n" +
+			"The preview feature Unnamed Classes and Instance Main Methods is only available with source level 22 and above\n" +
 			"----------\n" +
-			"2. ERROR in X.java (at line 3)\n" +
+			"2. ERROR in X.java (at line 1)\n" +
+			"	public class X {\n" +
+			"	^\n" +
+			"Implicitly declared class must have a candidate main method\n" +
+			"----------\n" +
+			"3. ERROR in X.java (at line 3)\n" +
 			"	record R1;\n" +
 			"	^^^^^^\n" +
 			"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
@@ -8636,12 +8646,17 @@ public void testBug571765_001() {
 			"1. ERROR in module-info.java (at line 1)\n" +
 			"	public record R() {}\n" +
 			"	^\n" +
-			"The preview feature Unnamed Classes and Instance Main Methods is only available with source level 21 and above\n" +
+			"The preview feature Unnamed Classes and Instance Main Methods is only available with source level 22 and above\n" +
 			"----------\n" +
 			"2. ERROR in module-info.java (at line 1)\n" +
 			"	public record R() {}\n" +
+			"	^\n" +
+			"Implicitly declared class must have a candidate main method\n" +
+			"----------\n" +
+			"3. ERROR in module-info.java (at line 1)\n" +
+			"	public record R() {}\n" +
 			"	       ^^^^^^\n" +
-			"'record' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
+			"\'record\' is not a valid type name; it is a restricted identifier and not allowed as a type identifier in Java 16\n" +
 			"----------\n");
 }
 public void testBug571905_01() throws Exception {

@@ -223,7 +223,7 @@ class ASTConverter {
 	}
 
 	protected void buildBodyDeclarations(
-			org.eclipse.jdt.internal.compiler.ast.UnnamedClass unnamedClass,
+			org.eclipse.jdt.internal.compiler.ast.ImplicitTypeDeclaration unnamedClass,
 			UnnamedClass newUnnamedClass,
 			boolean isInterface) {
 		// add body declaration in the lexical order
@@ -3480,7 +3480,7 @@ class ASTConverter {
 				return null;
 			}
 			return convertToRecordDeclaration(typeDeclaration);
-		} else if (typeDeclaration instanceof org.eclipse.jdt.internal.compiler.ast.UnnamedClass unnamedClass) {
+		} else if (typeDeclaration instanceof org.eclipse.jdt.internal.compiler.ast.ImplicitTypeDeclaration unnamedClass) {
 			return convertToUnnamedClass(unnamedClass);
 		}
 		checkCanceled();
@@ -3561,7 +3561,7 @@ class ASTConverter {
 		return typeDecl;
 	}
 
-	private ASTNode convertToUnnamedClass(org.eclipse.jdt.internal.compiler.ast.UnnamedClass unnamedClass) {
+	private ASTNode convertToUnnamedClass(org.eclipse.jdt.internal.compiler.ast.ImplicitTypeDeclaration unnamedClass) {
 		UnnamedClass typeDecl = new UnnamedClass(this.ast);
 		ASTNode oldReferenceContext = this.referenceContext;
 		this.referenceContext = typeDecl;
