@@ -6245,12 +6245,12 @@ public void testBug388281_07() {
 		"1. ERROR in p2\\Sub.java (at line 6)\n" +
 		"	public Object m(Object arg) { // (a)+(b) conflict at arg and return\n" +
 		"	       ^^^^^^\n" +
-		"The default \'@NonNull\' conflicts with the inherited \'@Nullable\' annotation in the overridden method from Super \n" +
+		"The default \'@NonNull\' conflicts with the inherited \'@Nullable\' annotation in the overridden method from Super\n" +
 		"----------\n" +
 		"2. ERROR in p2\\Sub.java (at line 6)\n" +
 		"	public Object m(Object arg) { // (a)+(b) conflict at arg and return\n" +
 		"	                       ^^^\n" +
-		"The default \'@NonNull\' conflicts with the inherited \'@Nullable\' annotation in the overridden method from Super \n" +
+		"The default \'@NonNull\' conflicts with the inherited \'@Nullable\' annotation in the overridden method from Super\n" +
 		"----------\n" +
 		"3. ERROR in p2\\Sub.java (at line 7)\n" +
 		"	System.out.println(arg.toString()); // (1)\n" +
@@ -6303,12 +6303,12 @@ public void testBug388281_08() {
 		"1. ERROR in ctest\\Ctest.java (at line 8)\n" +
 		"	public String m2(Object a2) { // (a) conflict at return\n" +
 		"	       ^^^^^^\n" +
-		"The default \'@NonNull\' conflicts with the inherited \'@Nullable\' annotation in the overridden method from I \n" +
+		"The default \'@NonNull\' conflicts with the inherited \'@Nullable\' annotation in the overridden method from I\n" +
 		"----------\n" +
 		"2. ERROR in ctest\\Ctest.java (at line 11)\n" +
 		"	public String m1(Object o1, Object o2) { // (b) conflict at o1\n" +
 		"	                        ^^\n" +
-		"The default \'@NonNull\' conflicts with the inherited \'@Nullable\' annotation in the overridden method from II \n" +
+		"The default \'@NonNull\' conflicts with the inherited \'@Nullable\' annotation in the overridden method from II\n" +
 		"----------\n" +
 		"3. ERROR in ctest\\Ctest.java (at line 12)\n" +
 		"	System.out.println(o1.toString()); // (1) inherited @Nullable\n" +
