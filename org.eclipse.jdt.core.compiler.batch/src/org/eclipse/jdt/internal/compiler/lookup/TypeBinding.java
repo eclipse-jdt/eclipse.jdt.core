@@ -519,7 +519,7 @@ public TypeVariableBinding[] syntheticTypeVariablesMentioned() {
 			return super.visit(typeVariable);
 		}
 	}, this);
-	if (mentioned.isEmpty()) return null;
+	if (mentioned.isEmpty()) return NO_TYPE_VARIABLES;
 	return mentioned.toArray(new TypeVariableBinding[mentioned.size()]);
 }
 

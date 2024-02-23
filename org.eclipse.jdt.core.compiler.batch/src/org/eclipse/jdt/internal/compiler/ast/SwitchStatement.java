@@ -1481,7 +1481,8 @@ public class SwitchStatement extends Expression {
 				continue;
 			}
 			for (TypeBinding type : listedTypes) {
-				if (pt.isCompatibleWith(type)) {
+				// permits specifies classes, not parameterizations
+				if (pt.erasure().isCompatibleWith(type.erasure())) {
 					--pendingTypes;
 					break;
 				}

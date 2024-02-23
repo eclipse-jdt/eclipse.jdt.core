@@ -1199,4 +1199,26 @@ public class UnnamedPatternsAndVariablesTest extends AbstractBatchCompilerTest {
  				},
  				"true");
  	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2007
+	// [Patterns][Unnamed] VerifyError with unnamed pattern variable in instanceof
+	public void testIssue2007() {
+		runConformTest(new String[] {
+				"X.java",
+				"""
+				record I<J> (int x) {}
+				record O<T> (I<T> i) {}
+				public class X<T> {
+				    public static void main(String argv[]) {
+				    	Object o = null;
+				    	if (o instanceof O(_)) {
+				    		System.out.println("Fail");
+				    	} else {
+					    	System.out.println("Pass");
+				    	}
+				    }
+				}
+				"""
+			},
+			"Pass");
+	}
 }
