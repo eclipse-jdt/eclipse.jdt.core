@@ -29,6 +29,8 @@ public abstract class Pattern extends Expression {
 
 	public int index = -1; // index of this in enclosing record pattern, or -1 for top level patterns
 
+	public boolean isEffectivelyUnguarded = true; // no guard or guard is compile time constant true.
+
 	/**
 	 * @return the enclosingPattern
 	 */
@@ -53,6 +55,8 @@ public abstract class Pattern extends Expression {
 	 * @return whether pattern covers the given type or not
 	 */
 	public boolean coversType(TypeBinding type) {
+		if (!isEffectivelyUnguarded())
+			return false;
 		if (type == null || this.resolvedType == null)
 			return false;
 		return (type.isSubtypeOf(this.resolvedType, false));
@@ -63,11 +67,11 @@ public abstract class Pattern extends Expression {
 		return false;
 	}
 
-	public boolean isAlwaysTrue() {
-		return true;
+	public boolean isUnconditional(TypeBinding t) {
+		return isEffectivelyUnguarded() && coversType(t);
 	}
 
-	public abstract void generateCode(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel);
+	public abstract void generateCode(BlockScope currentScope, CodeStream codeStream, BranchLabel patternMatchLabel, BranchLabel matchFailLabel);
 
 	@Override
 	public boolean checkUnsafeCast(Scope scope, TypeBinding castType, TypeBinding expressionType, TypeBinding match, boolean isNarrowing) {
@@ -108,5 +112,19 @@ public abstract class Pattern extends Expression {
 	@Override
 	public StringBuilder print(int indent, StringBuilder output) {
 		return this.printExpression(indent, output);
+	}
+
+	public Pattern[] getAlternatives() {
+		return new Pattern [] { this };
+	}
+
+	public abstract void setIsEitherOrPattern(); // if set, is one of multiple (case label) patterns and so pattern variables can't be named.
+
+	public boolean isEffectivelyUnguarded() {
+		return this.isEffectivelyUnguarded;
+	}
+
+	public void setIsEffectivelyGuarded() {
+		this.isEffectivelyUnguarded = false;
 	}
 }

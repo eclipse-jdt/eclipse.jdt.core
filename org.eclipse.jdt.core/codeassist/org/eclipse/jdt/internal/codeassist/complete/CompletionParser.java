@@ -1183,7 +1183,7 @@ private void buildMoreCompletionContext(Expression expression) {
 								length);
 						}
 					}
-					CaseStatement caseStatement = new CaseStatement(expression, expression.sourceStart, expression.sourceEnd);
+					CaseStatement caseStatement = new CaseStatement(new Expression[] { expression }, expression.sourceStart, expression.sourceEnd);
 					if(switchStatement.statements == null) {
 						switchStatement.statements = new Statement[]{caseStatement};
 					} else {

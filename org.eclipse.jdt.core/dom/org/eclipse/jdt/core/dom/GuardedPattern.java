@@ -80,7 +80,7 @@ public class GuardedPattern extends Pattern{
 	 * The expression; <code>null</code> for none; lazily initialized (but
 	 * does <b>not</b> default to none).
 	 */
-	private Expression conditonalExpression = null;
+	private Expression conditionalExpression = null;
 
 
 
@@ -156,7 +156,7 @@ public class GuardedPattern extends Pattern{
 		return
 				memSize()
 			+ (this.pattern == null ? 0 : getPattern().treeSize())
-			+ (this.conditonalExpression == null ? 0 : getExpression().treeSize());
+			+ (this.conditionalExpression == null ? 0 : getExpression().treeSize());
 	}
 
 	/**
@@ -199,17 +199,17 @@ public class GuardedPattern extends Pattern{
 	 */
 	public Expression getExpression() {
 		supportedOnlyIn21();
-		if (this.conditonalExpression == null) {
+		if (this.conditionalExpression == null) {
 			//lazy init must be thread-safe for readers
 			synchronized (this) {
-				if (this.conditonalExpression == null) {
+				if (this.conditionalExpression == null) {
 					preLazyInit();
-					this.conditonalExpression = this.ast.newNullLiteral();
+					this.conditionalExpression = this.ast.newNullLiteral();
 					postLazyInit(this.pattern, EXPRESSION_PROPERTY);
 				}
 			}
 		}
-		return this.conditonalExpression;
+		return this.conditionalExpression;
 	}
 
 	/**
@@ -251,9 +251,9 @@ public class GuardedPattern extends Pattern{
 	 */
 	public void setExpression(Expression expression) {
 		supportedOnlyIn21();
-		ASTNode oldChild = this.conditonalExpression;
+		ASTNode oldChild = this.conditionalExpression;
 		preReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
-		this.conditonalExpression = expression;
+		this.conditionalExpression = expression;
 		postReplaceChild(oldChild, expression, EXPRESSION_PROPERTY);
 	}
 

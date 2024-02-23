@@ -1943,8 +1943,7 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 			},
 			"true");
 	}
-	// TODO: failing
-	public void _testRecordPatternTypeInference_009() {
+	public void testRecordPatternTypeInference_009() {
 		runNegativeTest(new String[] {
 				"X.java",
 				"interface I {\n" +
@@ -1964,15 +1963,10 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"}"
 				},
 				"----------\n" +
-				"1. WARNING in X.java (at line 10)\n" +
-				"	if (p instanceof R(String a)) {\n" +
-				"	                 ^^^^^^^^^^^\n" +
-				"You are using a preview language feature that may or may not be supported in a future release\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 10)\n" +
+				"1. ERROR in X.java (at line 7)\n" +
 				"	if (p instanceof R(String a)) {\n" +
 				"	                   ^^^^^^^^\n" +
-				"Pattern of type ? extends I is not compatible with type java.lang.String\n" +
+				"Record component with type capture#2-of ? extends I is not compatible with type java.lang.String\n" +
 				"----------\n");
 	}
 	public void testRecordPatternTypeInference_010() {
@@ -3927,8 +3921,8 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1977
 	// [Patterns][records] ECJ generated code fails to raise MatchException properly
-	// Fails due to https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1985
-	public void _testGH1977_instance_field() {
+	// javac reports ArithmeticException but that looks wrong
+	public void testGH1977_instance_field() {
 		runConformTest(
 				new String[] {
 				"X.java",
@@ -4025,8 +4019,8 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 	}
 	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1977
 	// [Patterns][records] ECJ generated code fails to raise MatchException properly
-	// Fails due to https://github.com/eclipse-jdt/eclipse.jdt.core/issues/1985
-	public void _testGH1977_static_field() {
+	// javac reports ExceptionInInitializerError caused by java.lang.ArithmeticException but that looks wrong
+	public void testGH1977_static_field() {
 		runConformTest(
 				new String[] {
 				"X.java",
@@ -4551,5 +4545,27 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				}
 				""" },
 				"false");
+	}
+
+	public void testIllegalFallThrough() {
+		runNegativeTest(new String[] { "X.java", """
+				public class X {
+					record Point (int x, int y) {}
+
+				  static void foo(Object o) {
+				    switch (o) {
+				      case Integer i_1: System.out.println("Integer");
+				      case Point(int a, int b) : System.out.println("String");
+				      default: System.out.println("Object");
+				    }
+				  }
+				}
+				""" },
+				"----------\n" +
+				"1. ERROR in X.java (at line 7)\n" +
+				"	case Point(int a, int b) : System.out.println(\"String\");\n" +
+				"	^^^^^^^^^^^^^^^^^^^^^^^^\n" +
+				"Illegal fall-through to a pattern\n" +
+				"----------\n");
 	}
 }

@@ -24,7 +24,7 @@ import java.util.Hashtable;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import junit.framework.Test;
+
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceDescription;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -49,6 +49,8 @@ import org.eclipse.jdt.internal.formatter.DefaultCodeFormatterOptions.Alignment;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.Region;
 import org.eclipse.text.edits.TextEdit;
+
+import junit.framework.Test;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class FormatterRegressionTests extends AbstractJavaModelTests {
@@ -15961,10 +15963,52 @@ public void testBug573949() {
 		"}\n" +
 		"}";
 	formatSource(source,
+			"public class X {\n" +
+			"	private static void foo(Object o) {\n" +
+			"		switch (o) {\n" +
+			"		case Integer t, String:\n" +
+			"			System.out.println(\"Error should be flagged for Integer and String\");\n" +
+			"		default:\n" +
+			"			System.out.println(\"Object\");\n" +
+			"		}\n" +
+			"	}\n" +
+			"\n" +
+			"	static void testTriangle(Shape s) {\n" +
+			"		switch (s) {\n" +
+			"		case Triangle t when t.calculateArea() > 100 -> System.out.println(\"Large triangle\");\n" +
+			"		default -> System.out.println(\"A shape, possibly a small triangle\");\n" +
+			"		}\n" +
+			"	}\n" +
+			"}"
+		);
+}
+
+public void testBug573949_0() {
+	setComplianceLevel(CompilerOptions.VERSION_21);
+	this.formatterOptions.put(JavaCore.COMPILER_PB_ENABLE_PREVIEW_FEATURES, JavaCore.ENABLED);
+	String source =
+		"public class X {\n" +
+		" private static void foo(Object o) {\n" +
+		"   switch (o) {\n" +
+		"     case Integer t, String s : System.out.println(\"Error should be flagged for Integer and String\");\n" +
+		"     default : System.out.println(\"Object\");\n" +
+		"   }\n" +
+		" }\n" +
+		"\n" +
+		"static void testTriangle(Shape s) {\n" +
+		"    switch (s) {\n" +
+		"        case Triangle t when t.calculateArea() > 100 ->\n" +
+		"            System.out.println(\"Large triangle\");\n" +
+		"        default ->\n" +
+		"            System.out.println(\"A shape, possibly a small triangle\");\n" +
+		"    }\n" +
+		"}\n" +
+		"}";
+	formatSource(source,
 		"public class X {\n" +
 		"	private static void foo(Object o) {\n" +
 		"		switch (o) {\n" +
-		"		case Integer t, String:\n" +
+		"		case Integer t, String s:\n" +
 		"			System.out.println(\"Error should be flagged for Integer and String\");\n" +
 		"		default:\n" +
 		"			System.out.println(\"Object\");\n" +

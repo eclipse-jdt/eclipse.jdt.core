@@ -507,13 +507,17 @@ public TypeBinding resolveExpressionType(BlockScope scope) {
 }
 
 public boolean containsPatternVariable() {
+	return containsPatternVariable(false);
+}
+
+public boolean containsPatternVariable(boolean includeUnnamedOnes) {
 	return new ASTVisitor() {
 
 		public boolean declaresVariable = false;
 
 		@Override
 		public boolean visit(TypePattern typePattern, BlockScope blockScope) {
-			 if (typePattern.local != null)
+			 if (typePattern.local != null && (includeUnnamedOnes || (typePattern.local.name.length != 1 || typePattern.local.name[0] != '_')))
 				 this.declaresVariable = true;
 			 return !this.declaresVariable;
 		}

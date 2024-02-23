@@ -1404,8 +1404,7 @@ class ASTConverter {
 			}
 		} else {
 			org.eclipse.jdt.internal.compiler.ast.Expression[] constantExpressions = statement.constantExpressions;
-			org.eclipse.jdt.internal.compiler.ast.Expression constantExpression =
-					constantExpressions != null && constantExpressions.length > 0 ? constantExpressions[0] : null;
+			org.eclipse.jdt.internal.compiler.ast.Expression constantExpression = constantExpressions.length > 0 ? constantExpressions[0] : null;
 			if (constantExpression == null) {
 				internalSetExpression(switchCase, null);
 			} else {
@@ -2273,7 +2272,7 @@ class ASTConverter {
 		int startPosition = pattern.sourceStart;
 		int sourceEnd = pattern.sourceEnd;
 		guardedPattern.setSourceRange(startPosition, sourceEnd - startPosition + 1);
-		guardedPattern.setRestrictedIdentifierStartPosition(pattern.restrictedIdentifierStart);
+		guardedPattern.setRestrictedIdentifierStartPosition(pattern.whenSourceStart);
 		return guardedPattern;
 	}
 
