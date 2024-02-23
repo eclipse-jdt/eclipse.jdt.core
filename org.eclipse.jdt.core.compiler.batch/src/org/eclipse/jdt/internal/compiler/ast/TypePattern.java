@@ -18,6 +18,7 @@ import org.eclipse.jdt.internal.compiler.codegen.BranchLabel;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
+import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
@@ -116,13 +117,8 @@ public class TypePattern extends Pattern {
 
 		Pattern enclosingPattern = this.getEnclosingPattern();
 		if (this.local.type == null || this.local.type.isTypeNameVar(scope)) {
-			/*
-			 * If the LocalVariableType is var then the pattern variable must appear in a pattern list of a
-			 * record pattern with type R. Let T be the type of the corresponding component field in R. The type
-			 * of the pattern variable is the upward projection of T with respect to all synthetic type
-			 * variables mentioned by T.
-			 */
 			if (enclosingPattern instanceof RecordPattern) {
+				// 14.30.1: The type of a pattern variable declared in a nested type pattern is determined as follows ...
 				ReferenceBinding recType = (ReferenceBinding) enclosingPattern.resolvedType;
 				if (recType != null) {
 					RecordComponentBinding[] components = recType.components();
@@ -131,15 +127,10 @@ public class TypePattern extends Pattern {
 						if (rcb.type != null && (rcb.tagBits & TagBits.HasMissingType) != 0) {
 							scope.problemReporter().invalidType(this, rcb.type);
 						}
-						TypeVariableBinding[] mentionedTypeVariables = rcb.type != null ? rcb.type.syntheticTypeVariablesMentioned() : null;
-						if (mentionedTypeVariables != null && mentionedTypeVariables.length > 0) {
-							this.local.type.resolvedType = recType.upwardsProjection(scope,
-									mentionedTypeVariables);
-						} else {
-							if (this.local.type != null)
-								this.local.type.resolvedType = rcb.type;
-							this.resolvedType = rcb.type;
-						}
+						TypeVariableBinding[] mentionedTypeVariables = rcb.type != null ? rcb.type.syntheticTypeVariablesMentioned() : Binding.NO_TYPE_VARIABLES;
+						this.resolvedType = mentionedTypeVariables.length > 0 ? rcb.type.upwardsProjection(scope, mentionedTypeVariables) : rcb.type;
+						if (this.local.type != null)
+							this.local.type.resolvedType = this.resolvedType;
 					}
 				}
 			}

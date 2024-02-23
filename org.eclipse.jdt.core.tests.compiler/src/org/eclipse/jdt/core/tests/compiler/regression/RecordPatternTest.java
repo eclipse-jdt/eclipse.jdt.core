@@ -4468,4 +4468,88 @@ public class RecordPatternTest extends AbstractRegressionTest9 {
 				"----------\n",
 				null, true, options);
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2007
+	public void testIssue2007() {
+		runConformTest(new String[] { "X.java", """
+				record R<T>(T t) {}
+				public class X<T> {
+				    public boolean foo(R<T> r) {
+				        return (r instanceof R<?>(X x));
+				    }
+				    public static void main(String argv[]) {
+				    	System.out.println(new X<>().foo(new R<>(new X())));
+				    }
+				}
+				""" },
+				"true");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2007
+	public void testIssue2007_2() {
+		runConformTest(new String[] { "X.java", """
+				record R<T>(T t) {}
+				public class X<T> {
+				    public boolean foo(R<T> r) {
+				         return (r instanceof R<? extends T>(X x));
+				    }
+				    public static void main(String argv[]) {
+				    	System.out.println(new X<>().foo(new R<>(new X())));
+				    }
+				}
+				""" },
+				"true");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2007
+	public void testIssue2007_3() {
+		runConformTest(new String[] { "X.java", """
+				record R<T>(T t) {}
+				public class X<T> {
+				    public boolean foo(R<T> r) {
+				    	return switch (r) {
+				    		case R<?>(X x) -> true;
+				    		default -> false;
+				    	};
+				    }
+				    public static void main(String argv[]) {
+				    	System.out.println(new X<>().foo(new R<>(new X())));
+				    }
+				}
+				""" },
+				"true");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2007
+	public void testIssue2007_4() {
+		runConformTest(new String[] { "X.java", """
+				record R<T>(T t) {}
+				public class X<T> {
+				    public boolean foo(R<T> r) {
+				    	return switch (r) {
+				    		case R<? extends T>(X x) -> true;
+				    		default -> false;
+				    	};
+				    }
+				    public static void main(String argv[]) {
+				    	System.out.println(new X<>().foo(new R<>(new X())));
+				    }
+				}
+				""" },
+				"true");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2007
+	public void testIssue2007_5() {
+		runConformTest(new String[] { "X.java", """
+				record R<T>(T t) {}
+				public class X<T> {
+				    public boolean foo(R<T> r) {
+				    	return switch (r) {
+				    		case R<? extends T>(Integer i) -> true;
+				    		default -> false;
+				    	};
+				    }
+				    public static void main(String argv[]) {
+				    	System.out.println(new X<>().foo(new R<>(new X())));
+				    }
+				}
+				""" },
+				"false");
+	}
 }
