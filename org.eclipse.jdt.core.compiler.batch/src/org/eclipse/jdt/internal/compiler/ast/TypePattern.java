@@ -32,6 +32,8 @@ public class TypePattern extends Pattern {
 
 	public LocalDeclaration local;
 
+	private boolean isEitherOrPattern = false;
+
 	public TypePattern(LocalDeclaration local) {
 		this.local = local;
 	}
@@ -51,6 +53,11 @@ public class TypePattern extends Pattern {
 	@Override
 	public TypeReference getType() {
 		return this.local.type;
+	}
+
+	@Override
+	public void setIsEitherOrPattern() {
+		this.isEitherOrPattern = true;
 	}
 
 	@Override
@@ -83,7 +90,7 @@ public class TypePattern extends Pattern {
 	}
 
 	@Override
-	public void generateCode(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel) {
+	public void generateCode(BlockScope currentScope, CodeStream codeStream, BranchLabel patternMatchLabel, BranchLabel matchFailLabel) {
 		if (isUnnamed()) {
 			if (this.getEnclosingPattern() == null || this.isTotalTypeNode) {
 				switch (this.local.binding.type.id) {
@@ -105,9 +112,12 @@ public class TypePattern extends Pattern {
 
 	@Override
 	public boolean dominates(Pattern p) {
-		if (p.resolvedType == null || this.resolvedType == null)
-			return false;
-		return p.resolvedType.erasure().isSubtypeOf(this.resolvedType.erasure(), false);
+		if (isEffectivelyUnguarded()) {
+			if (p.resolvedType == null || this.resolvedType == null)
+				return false;
+			return p.resolvedType.erasure().isSubtypeOf(this.resolvedType.erasure(), false);
+		}
+		return false;
 	}
 
 	@Override
@@ -142,6 +152,10 @@ public class TypePattern extends Pattern {
 				this.local.binding.useFlag = LocalVariableBinding.USED; // syntactically required even if untouched
 			if (this.local.type != null)
 				this.resolvedType = this.local.binding.type;
+		}
+
+		if (this.isEitherOrPattern && !this.isUnnamed()) {
+			scope.problemReporter().namedPatternVariablesDisallowedHere(this.local);
 		}
 
 		return this.resolvedType;

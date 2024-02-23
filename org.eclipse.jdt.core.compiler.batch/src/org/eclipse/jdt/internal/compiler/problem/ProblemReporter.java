@@ -12418,6 +12418,14 @@ public void illegalFallthroughFromAPattern(Statement statement) {
 		statement.sourceStart,
 		statement.sourceEnd);
 	}
+public void namedPatternVariablesDisallowedHere(LocalDeclaration variableDeclaration) {
+	this.handle(
+		IProblem.NamedPatternVariablesDisallowedHere,
+		NoArgument,
+		NoArgument,
+		variableDeclaration.sourceStart,
+		variableDeclaration.sourceEnd);
+}
 public void illegalCaseConstantCombination(Expression element) {
 	this.handle(
 			IProblem.ConstantWithPatternIncompatible,

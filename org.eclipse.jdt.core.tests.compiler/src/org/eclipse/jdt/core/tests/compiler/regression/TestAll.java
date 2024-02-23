@@ -236,6 +236,7 @@ public static Test suite() {
 	 // add 21 specific test here (check duplicates)
 	 ArrayList since_21 = new ArrayList();
 	 since_21.add(SwitchPatternTest.class);
+	 since_21.add(SwitchPatternTest21.class);
 	 since_21.add(RecordPatternTest.class);
 	since_21.add(UnnamedPatternsAndVariablesTest.class);
 	since_21.add(UseOfUnderscoreWithPreviewTest.class);

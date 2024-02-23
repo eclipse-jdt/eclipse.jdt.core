@@ -49,6 +49,13 @@ public class RecordPattern extends Pattern {
 	}
 
 	@Override
+	public void setIsEitherOrPattern() {
+		for (Pattern p : this.patterns) {
+			p.setIsEitherOrPattern();
+		}
+	}
+
+	@Override
 	public LocalVariableBinding[] bindingsWhenTrue() {
 		LocalVariableBinding [] variables = NO_VARIABLES;
 		for (Pattern p : this.patterns) {
@@ -68,6 +75,10 @@ public class RecordPattern extends Pattern {
 
 	@Override
 	public boolean coversType(TypeBinding t) {
+
+		if (!isEffectivelyUnguarded())
+			return false;
+
 		if (TypeBinding.equalsEquals(t, this.resolvedType)) {
 			// return the already computed value
 			return this.isTotalTypeNode;
@@ -177,7 +188,7 @@ public class RecordPattern extends Pattern {
 	}
 
 	@Override
-	public boolean isAlwaysTrue() {
+	public boolean isUnconditional(TypeBinding t) {
 		return false;
 	}
 
@@ -188,6 +199,9 @@ public class RecordPattern extends Pattern {
 		   every component pattern, if any, in L dominates the corresponding component
 		   pattern in M.
 		*/
+		if (!isEffectivelyUnguarded())
+			return false;
+
 		if (this.resolvedType == null || !this.resolvedType.isValidBinding() || p.resolvedType == null || !p.resolvedType.isValidBinding())
 			return false;
 
@@ -212,7 +226,7 @@ public class RecordPattern extends Pattern {
 	}
 
 	@Override
-	public void generateCode(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel) {
+	public void generateCode(BlockScope currentScope, CodeStream codeStream, BranchLabel patternMatchLabel, BranchLabel matchFailLabel) {
 
 		int length = this.patterns.length;
 		/* JVM Stack on entry - [expression] // && expression instanceof this.resolvedType
@@ -267,10 +281,10 @@ public class RecordPattern extends Pattern {
 				if (pops > 0)
 					codeStream.pop();
 
-				codeStream.goto_(falseLabel);
+				codeStream.goto_(matchFailLabel);
 				innerTruthLabel.place();
 			}
-			p.generateCode(currentScope, codeStream, trueLabel, falseLabel);
+			p.generateCode(currentScope, codeStream, patternMatchLabel, matchFailLabel);
 		}
 
 		if (labels.size() > 0) {

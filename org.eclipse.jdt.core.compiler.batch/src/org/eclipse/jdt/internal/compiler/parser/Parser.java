@@ -50,6 +50,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
 import org.eclipse.jdt.core.compiler.InvalidInputException;
@@ -2208,30 +2209,20 @@ protected void consumeBlockStatements() {
 	concatNodeLists();
 }
 protected void consumeCaseLabel() {
-//	// SwitchLabel ::= 'case' ConstantExpression ':'
-//	this.expressionLengthPtr--;
-//	Expression expression = this.expressionStack[this.expressionPtr--];
-//	CaseStatement caseStatement = new CaseStatement(expression, expression.sourceEnd, this.intStack[this.intPtr--]);
-//	// Look for $fall-through$ tag in leading comment for case statement
-//	if (hasLeadingTagComment(FALL_THROUGH_TAG, caseStatement.sourceStart)) {
-//		caseStatement.bits |= ASTNode.DocumentedFallthrough;
-//	}
-//	pushOnAstStack(caseStatement);
-	Expression[] constantExpressions = null;
+	// SwitchLabel ::= SwitchLabelCaseLhs ':'  (where SwitchLabelCaseLhs ::= 'case' CaseLabelElements)
+	Expression[] labelExpressions = null;
 	int length = 0;
 	if ((length = this.expressionLengthStack[this.expressionLengthPtr--]) != 0) {
 		this.expressionPtr -= length;
 		System.arraycopy(
 			this.expressionStack,
 			this.expressionPtr + 1,
-			constantExpressions = new Expression[length],
+			labelExpressions = new Expression[length],
 			0,
 			length);
-	} else {
-		// TODO : ERROR
 	}
-	CaseStatement caseStatement = new CaseStatement(constantExpressions[length - 1].sourceEnd, this.intStack[this.intPtr--], constantExpressions);
-	if (constantExpressions.length > 1) {
+	CaseStatement caseStatement = new CaseStatement(labelExpressions, this.intStack[this.intPtr--], labelExpressions[length - 1].sourceEnd);
+	if (labelExpressions.length > 1) {
 		if (!this.parsingJava14Plus) {
 			problemReporter().multiConstantCaseLabelsNotSupported(caseStatement);
 		}
@@ -2241,7 +2232,6 @@ protected void consumeCaseLabel() {
 		caseStatement.bits |= ASTNode.DocumentedFallthrough;
 	}
 	this.scanner.caseStartPosition =  resetCaseStartAndPopPrev(this.switchNestingLevel);
-
 	pushOnAstStack(caseStatement);
 }
 private int resetCaseStartAndPopPrev(int nestingLevel) {
@@ -3190,7 +3180,10 @@ protected void consumeCreateInitializer() {
 }
 protected void consumeDefaultLabel() {
 	// SwitchLabel ::= 'default' ':'
-	CaseStatement defaultStatement = new CaseStatement(null, this.intStack[this.intPtr--], this.intStack[this.intPtr--]);
+	int sourceEnd = this.intStack[this.intPtr--];
+	int sourceStart = this.intStack[this.intPtr--];
+
+	CaseStatement defaultStatement = new CaseStatement(Expression.NO_EXPRESSIONS, sourceStart, sourceEnd);
 	// Look for $fall-through$ and $CASES-OMITTED$ tags in leading comment for case statement
 	if (hasLeadingTagComment(FALL_THROUGH_TAG, defaultStatement.sourceStart)) {
 		defaultStatement.bits |= ASTNode.DocumentedFallthrough;
@@ -9630,6 +9623,27 @@ protected void consumeCaseLabelElement(CaseLabelKind kind) {
 }
 protected void consumeCaseLabelElements() {
 	concatExpressionLists();
+	boolean thisLabelIsPattern = this.expressionStack[this.expressionPtr] instanceof Pattern;
+	boolean lastLabelIsPattern = this.expressionStack[this.expressionPtr - 1] instanceof Pattern;
+	if (thisLabelIsPattern != lastLabelIsPattern || (thisLabelIsPattern && !JavaFeature.UNNAMMED_PATTERNS_AND_VARS.isSupported(this.options.sourceLevel, this.previewEnabled))) {
+		problemReporter().illegalCaseConstantCombination(this.expressionStack[this.expressionPtr]);
+	}
+	if (thisLabelIsPattern && lastLabelIsPattern) {
+		Pattern lastPattern = (Pattern) this.expressionStack[this.expressionPtr - 1];
+		Pattern thisPattern = (Pattern) this.expressionStack[this.expressionPtr];
+		if (lastPattern instanceof GuardedPattern gp) {
+			problemReporter().parseErrorMisplacedConstruct(gp.whenSourceStart, gp.sourceEnd);
+		}
+		// current pattern can't have alternatives, but getAlternatives() is useful to strip the guard (which will be attached to the combined pattern below
+		Pattern[] patterns = Stream.concat(Arrays.stream(lastPattern.getAlternatives()), Arrays.stream(thisPattern.getAlternatives())).toArray(Pattern[]::new);
+		Pattern combinedPattern = new EitherOrMultiPattern(patterns);
+		if (thisPattern instanceof GuardedPattern gp) {
+			combinedPattern = new GuardedPattern(combinedPattern, gp.condition);
+			((GuardedPattern)combinedPattern).whenSourceStart = gp.whenSourceStart;
+		}
+		this.expressionStack[--this.expressionPtr] = combinedPattern;
+		this.expressionLengthStack[this.expressionLengthPtr]--;
+	}
 }
 protected void consumeSwitchLabeledRules() {
 	concatNodeLists();
@@ -10308,7 +10322,7 @@ protected void consumeGuard() {
 	Expression expr = this.expressionStack[this.expressionPtr--];
 	this.expressionLengthPtr--;
 	GuardedPattern gPattern = new GuardedPattern(pattern, expr);
-	gPattern.restrictedIdentifierStart = this.intStack[this.intPtr--];
+	gPattern.whenSourceStart = this.intStack[this.intPtr--];
 	pushOnAstStack(gPattern);
 }
 protected void consumeTypePattern() {

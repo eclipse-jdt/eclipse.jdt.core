@@ -29,13 +29,13 @@ public class GuardedPattern extends Pattern {
 
 	public Pattern primaryPattern;
 	public Expression condition;
-	public int restrictedIdentifierStart = -1; // used only for 'when' restricted keyword.
+	public int whenSourceStart = -1;
 
-	public GuardedPattern(Pattern primaryPattern, Expression conditionalAndExpression) {
+	public GuardedPattern(Pattern primaryPattern, Expression condition) {
 		this.primaryPattern = primaryPattern;
-		this.condition = conditionalAndExpression;
+		this.condition = condition;
 		this.sourceStart = primaryPattern.sourceStart;
-		this.sourceEnd = conditionalAndExpression.sourceEnd;
+		this.sourceEnd = condition.sourceEnd;
 	}
 
 	@Override
@@ -55,40 +55,47 @@ public class GuardedPattern extends Pattern {
 	}
 
 	@Override
-	public void generateCode(BlockScope currentScope, CodeStream codeStream, BranchLabel trueLabel, BranchLabel falseLabel) {
-		this.primaryPattern.generateCode(currentScope, codeStream, trueLabel, falseLabel);
-		this.condition.generateOptimizedBoolean(
-				currentScope,
-				codeStream,
-				trueLabel,
-				null,
-				true);
+	public void generateCode(BlockScope currentScope, CodeStream codeStream, BranchLabel patternMatchLabel, BranchLabel matchFailLabel) {
+		BranchLabel guardCheckLabel = new BranchLabel(codeStream);
+		this.primaryPattern.generateCode(currentScope, codeStream, guardCheckLabel, matchFailLabel);
+		guardCheckLabel.place();
+		this.condition.generateOptimizedBoolean(currentScope, codeStream, null, matchFailLabel, true);
 	}
 
 	@Override
 	public boolean matchFailurePossible() {
-		return !isAlwaysTrue() || this.primaryPattern.matchFailurePossible();
+		return !isEffectivelyUnguarded() || this.primaryPattern.matchFailurePossible();
 	}
 
 	@Override
-	public boolean isAlwaysTrue() {
-		if (this.primaryPattern.isAlwaysTrue()) {
-			Constant cst = this.condition.optimizedBooleanConstant();
-			return cst != Constant.NotAConstant && cst.booleanValue() == true;
-		}
-		return false;
+	public boolean isUnconditional(TypeBinding t) {
+		return isEffectivelyUnguarded() && this.primaryPattern.isUnconditional(t);
+	}
+
+	@Override
+	public boolean isEffectivelyUnguarded() {
+		Constant cst = this.condition.optimizedBooleanConstant();
+		return cst != null && cst != Constant.NotAConstant && cst.booleanValue() == true;
+	}
+
+	@Override
+	public void setIsEitherOrPattern() {
+		this.primaryPattern.setIsEitherOrPattern();
 	}
 
 	@Override
 	public boolean coversType(TypeBinding type) {
-		return this.primaryPattern.coversType(type) && isAlwaysTrue();
+		return isEffectivelyUnguarded() && this.primaryPattern.coversType(type);
 	}
 
 	@Override
 	public boolean dominates(Pattern p) {
-		if (isAlwaysTrue())
-			return this.primaryPattern.dominates(p);
-		return false;
+		return isEffectivelyUnguarded() && this.primaryPattern.dominates(p);
+	}
+
+	@Override
+	public Pattern[] getAlternatives() {
+		return this.primaryPattern.getAlternatives();
 	}
 
 	@Override
@@ -102,6 +109,10 @@ public class GuardedPattern extends Pattern {
 		if (cst.typeID() == TypeIds.T_boolean && cst.booleanValue() == false) {
 			scope.problemReporter().falseLiteralInGuard(this.condition);
 		}
+
+		if (!isEffectivelyUnguarded())
+			this.primaryPattern.setIsEffectivelyGuarded();
+
 		this.condition.traverse(new ASTVisitor() {
 			@Override
 			public boolean visit(
