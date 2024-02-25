@@ -40,6 +40,7 @@ import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.*;
 import org.eclipse.jdt.internal.compiler.flow.*;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
+import org.eclipse.jdt.internal.compiler.impl.JavaFeature;
 import org.eclipse.jdt.internal.compiler.lookup.*;
 import org.eclipse.jdt.internal.compiler.parser.*;
 import org.eclipse.jdt.internal.compiler.problem.*;
@@ -51,6 +52,10 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 	public ExplicitConstructorCall constructorCall;
 
 	public TypeParameter[] typeParameters;
+
+	public Statement[] prologue;
+	public ExplicitConstructorCall postPrologueConstructorCall;
+	public Statement[] epilogue;
 
 public ConstructorDeclaration(CompilationResult compilationResult){
 	super(compilationResult);
@@ -165,7 +170,8 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 					}
 				}
 			}
-			flowInfo = this.constructorCall.analyseCode(this.scope, constructorContext, flowInfo);
+			if (this.postPrologueConstructorCall == null)
+				flowInfo = this.constructorCall.analyseCode(this.scope, constructorContext, flowInfo);
 		}
 
 		// reuse the reachMode from non static field info
@@ -435,7 +441,7 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 			codeStream.recordPositionsFrom(0, this.bodyStart > 0 ? this.bodyStart : this.sourceStart);
 		}
 		// generate constructor call
-		if (this.constructorCall != null) {
+		if (this.constructorCall != null && this.postPrologueConstructorCall == null) {
 			this.constructorCall.generateCode(this.scope, codeStream);
 		}
 		// generate field initialization - only if not invoking another constructor call of the same class
@@ -599,7 +605,7 @@ public void parseStatements(Parser parser, CompilationUnitDeclaration unit) {
 @Override
 public StringBuilder printBody(int indent, StringBuilder output) {
 	output.append(" {"); //$NON-NLS-1$
-	if (this.constructorCall != null) {
+	if (this.constructorCall != null && this.postPrologueConstructorCall == null) {
 		output.append('\n');
 		this.constructorCall.printStatement(indent, output);
 	}
@@ -666,9 +672,23 @@ public void resolveStatements() {
 				this.constructorCall.accessMode != ExplicitConstructorCall.This) {
 			this.scope.problemReporter().recordMissingExplicitConstructorCallInNonCanonicalConstructor(this);
 			this.constructorCall = null;
-		}
-		else {
-			this.constructorCall.resolve(this.scope);
+		} else {
+			if (JavaFeature.STATEMENTS_BEFORE_SUPER.isSupported(
+					this.scope.compilerOptions().sourceLevel,
+					this.scope.compilerOptions().enablePreviewFeatures)) {
+				bucketizeOnExpCons();
+				if (this.postPrologueConstructorCall != null) {
+					if (this.prologue.length > 0) {
+						this.postPrologueConstructorCall.firstStatement = false;
+					}
+					this.constructorCall = this.postPrologueConstructorCall;
+					this.scope.problemReporter().validateJavaFeatureSupport(JavaFeature.STATEMENTS_BEFORE_SUPER,
+							this.postPrologueConstructorCall.sourceStart,
+							this.postPrologueConstructorCall.sourceEnd);
+				}
+			}
+			if (this.postPrologueConstructorCall == null)
+				this.constructorCall.resolve(this.scope);
 		}
 	}
 	if ((this.modifiers & ExtraCompilerModifiers.AccSemicolonBody) != 0) {
@@ -677,6 +697,80 @@ public void resolveStatements() {
 	super.resolveStatements();
 }
 
+private void bucketizeOnExpCons() {
+	// vanilla implementation for now
+
+	int eci = -1;
+	int len = this.statements != null ? this.statements.length : 0;
+	if (len == 0 || this.postPrologueConstructorCall != null)
+		return;
+
+	for (int i = 0; i < len; ++i) {
+		Statement stmt = this.statements[i];
+		if (stmt instanceof ExplicitConstructorCall ecc) {
+			eci = i;
+			this.postPrologueConstructorCall = ecc;
+			break;
+		}
+	}
+
+	if (eci > -1) {
+		int sz = eci;
+		this.prologue = new Statement[sz];
+		for (int i = 0; i < eci; ++i)
+			this.prologue[i] = this.statements[i];
+	}
+
+	markPreConstructorContext(this.statements, eci);
+
+	int start = eci + 1;
+	this.epilogue = new Statement[len - start];
+	for (int i = start, j = 0; i < len; ++i, ++j) {
+		this.epilogue[j] = this.statements[i];
+	}
+}
+
+/**
+ * TODO: Update the link with the latest always until it becomes standard
+ * https://cr.openjdk.org/~gbierman/jep447/jep447-20230927/specs/statements-before-super-jls.html#jls-8.8.7.1
+ * Sec 8.8.7.1
+ * An expression occurs in the pre-construction context of a class C if both of the following are true:
+ * The innermost method declaration, field declaration, constructor declaration, instance initializer,
+ * or static initializer which encloses the expression is a constructor c of class C; and
+ * The expression appears in the prologue or is enclosed in the explicit constructor invocation of the
+ * constructor c.
+ * @param stmts list of statements in the constructor
+ * @param eci index in statements upto and including the constructor call
+ */
+private void markPreConstructorContext(Statement[] stmts, int eci) {
+
+	class MarkAllExpressionsPreConVisitor extends GenericAstVisitor {
+
+		@Override
+		protected boolean visitNode(ASTNode node) {
+			if (node instanceof Statement stmt) {
+				stmt.inPreConstructorContext = true;
+			}
+			return true;
+		}
+		@Override
+		public boolean visit(ReturnStatement returnStatement, BlockScope scope1) {
+			scope1.problemReporter().errorReturnInPrologue(returnStatement);
+			return visitNode(returnStatement);
+		}
+		@Override
+		public boolean visit(TypeDeclaration memberTypeDeclaration, ClassScope scope1) {
+			if ((memberTypeDeclaration.bits & ASTNode.IsAnonymousType) == 0) {
+				memberTypeDeclaration.enclosingType = null;
+			}
+			return visitNode(memberTypeDeclaration);
+		}
+	}
+
+	for (int i = 0; i <= eci; ++i) {
+		stmts[i].traverse(new MarkAllExpressionsPreConVisitor(), this.scope);
+	}
+}
 @Override
 public void traverse(ASTVisitor visitor, ClassScope classScope) {
 	if (visitor.visit(this, classScope)) {
@@ -704,7 +798,7 @@ public void traverse(ASTVisitor visitor, ClassScope classScope) {
 			for (int i = 0; i < thrownExceptionsLength; i++)
 				this.thrownExceptions[i].traverse(visitor, this.scope);
 		}
-		if (this.constructorCall != null)
+		if (this.constructorCall != null && this.postPrologueConstructorCall == null)
 			this.constructorCall.traverse(visitor, this.scope);
 		if (this.statements != null) {
 			int statementsLength = this.statements.length;

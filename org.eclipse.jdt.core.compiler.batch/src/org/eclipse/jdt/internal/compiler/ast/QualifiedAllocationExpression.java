@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Stephan Herrmann - Contributions for
@@ -198,7 +202,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 			codeStream.generateInlinedValue(this.enumConstant.binding.id);
 		}
 		// handling innerclass instance allocation - enclosing instance arguments
-		if (allocatedType.isNestedType()) {
+		if (allocatedType.isNestedType() && !this.inPreConstructorContext) {
 			codeStream.generateSyntheticEnclosingInstanceValues(
 				currentScope,
 				allocatedType,
@@ -320,6 +324,7 @@ public class QualifiedAllocationExpression extends AllocationExpression {
 				this.resolvedType = scope.environment().createAnnotatedType(this.resolvedType, this.binding.getTypeAnnotations());
 			}
 		}
+		checkPreConstructorContext(scope);
 		return result;
 	}
 

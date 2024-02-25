@@ -2592,4 +2592,17 @@ void setSourceStart(int sourceStart);
 	 * @noreference preview feature
 	 */
 	int UnnamedVariableMustHaveInitializer = PreviewRelated + 2001;
+
+	/**
+	 * @since 3.37
+	 * @noreference preview feature
+	 */
+	int ExpressionInPreConstructorContext = PreviewRelated + 2022;
+
+	/**
+	 * @since 3.37
+	 * @noreference preview feature
+	 */
+	int DisallowedStatementInPrologue = PreviewRelated + 2023;
+
 }

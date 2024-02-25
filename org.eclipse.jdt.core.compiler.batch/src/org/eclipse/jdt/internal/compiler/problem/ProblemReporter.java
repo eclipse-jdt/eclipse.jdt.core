@@ -8,6 +8,10 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *     Benjamin Muskalla - Contribution for bug 239066
@@ -12529,6 +12533,24 @@ public void unnamedVariableMustHaveInitializer(LocalDeclaration variableDeclarat
 			NoArgument,
 			variableDeclaration.sourceStart,
 			variableDeclaration.sourceEnd);
+}
+public void errorExpressionInPreConstructorContext(Expression expr) {
+	String[] arguments = new String[] {expr.toString()};
+	this.handle(
+		IProblem.ExpressionInPreConstructorContext,
+		arguments,
+		arguments,
+		expr.sourceStart,
+		expr.sourceEnd);
+}
+public void errorReturnInPrologue(Statement stmt) {
+	String[] arguments = new String[] {stmt.toString()};
+	this.handle(
+		IProblem.DisallowedStatementInPrologue,
+		arguments,
+		arguments,
+		stmt.sourceStart,
+		stmt.sourceEnd);
 }
 public boolean scheduleProblemForContext(Runnable problemComputation) {
 	if (this.referenceContext != null) {
