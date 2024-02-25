@@ -31,7 +31,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 1 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "test012" };
+//		TESTS_NAMES = new String[] { "test001" };
 	}
 	private String extraLibPath;
 	public static Class<?> testClass() {
@@ -138,7 +138,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		runner.expectedJavacOutputString = javacLog;
 		runner.runNegativeTest();
 	}
-	public void test001a() {
+	public void test001() {
 		runNegativeTest(new String[] {
 			"X.java",
 				"""
@@ -174,33 +174,6 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"The method Zork() is undefined for the type X\n" +
 			"----------\n");
 	}
-	public void test001() {
-		runConformTest(new String[] {
-			"X.java",
-				"""
-					class Y {
-						public int v;
-						Y(int v) {
-							this.v = v;
-						}
-					}
-					@SuppressWarnings("preview")
-					public class X extends Y {
-
-					    public X(int value) {
-					        if (value <= 0)
-					            throw new IllegalArgumentException("non-positive value");
-					        super(value);
-					    }
-					    public static void main(String[] args) {
-							X x = new X(100);
-							System.out.println(x.v);
-						}
-					}
-				"""
-			},
-			"100");
-	}
 	public void test002() {
 		runConformTest(new String[] {
 			"X.java",
@@ -229,6 +202,33 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"100");
 	}
 	public void test003() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+					class Y {
+						public int v;
+						Y(int v) {
+							this.v = v;
+						}
+					}
+					@SuppressWarnings("preview")
+					public class X extends Y {
+
+					    public X(int value) {
+					        if (value <= 0)
+					            throw new IllegalArgumentException("non-positive value");
+					        super(value);
+					    }
+					    public static void main(String[] args) {
+							X x = new X(100);
+							System.out.println(x.v);
+						}
+					}
+				"""
+			},
+			"100");
+	}
+	public void test004() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -266,7 +266,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"100\n" +
 			"1");
 	}
-	public void test004() {
+	public void test005() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -301,7 +301,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"1");
 	}
 	// any unqualified this expression is disallowed in a pre-construction context:
-	public void test005() {
+	public void test006() {
 		runNegativeTest(new String[] {
 				"X.java",
 				"""
@@ -340,7 +340,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	}
 	// any field access, method invocation, or method reference
 	// qualified by super is disallowed in a pre-construction context:
-	public void test006() {
+	public void test007() {
 		runNegativeTest(new String[] {
 			"X.java",
 				"""
@@ -369,7 +369,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		);
 	}
 	// an illegal access does not need to contain a this or super keyword:
-	public void test007() {
+	public void test008() {
 		runNegativeTest(new String[] {
 			"X.java",
 				"""
@@ -402,7 +402,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	}
 	//an expression involving this does not refer to the current instance but,
 	// rather, to the enclosing instance of an inner class:
-	public void test008() {
+	public void test009() {
 		runNegativeTest(new String[] {
 			"X.java",
 				"""
@@ -436,7 +436,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	 * Inner (which, in this case, has the type Outer), not the instance of Inner
 	 * that is being constructed
 	 */
-	public void test009() {
+	public void test010() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -462,7 +462,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	 * with an enclosing instance of Outer, but the instance of Outer that would be provided is
 	 * still under construction and therefore inaccessible.
 	 */
-	public void test010() {
+	public void test011() {
 		runNegativeTest(new String[] {
 			"X.java",
 				"""
@@ -491,7 +491,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	 * anonymous classes cannot have the newly created object as the implicit enclosing
 	 * instance
 	 */
-	public void test011() {
+	public void test012() {
 		runNegativeTest(new String[] {
 			"X.java",
 				"""
@@ -525,7 +525,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	 * an interface instead of a class, then it would have no enclosing instance and
 	 * hence there would be no compile-time error.
 	 */
-	public void test012() {
+	public void test013() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -548,7 +548,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	 * an interface instead of a class, then it would have no enclosing instance and
 	 * hence there would be no compile-time error.
 	 */
-	public void test012a() {
+	public void test014() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -571,7 +571,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	 * an interface instead of a class, then it would have no enclosing instance and
 	 * hence there would be no compile-time error.
 	 */
-	public void test012b() {
+	public void test015() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -592,7 +592,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	/* Here the enclosing instance of the class instance creation expression is not
 	 * the newly created U object but, rather, the lexically enclosing O instance.
 	 */
-	public void test013() {
+	public void test016() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -616,7 +616,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	 * if it does not include an expression (i.e. return; is allowed,
 	 * but return e; is not).
 	 */
-	public void test014() {
+	public void test017() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -643,7 +643,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	/* It is a compile-time error if a return statement that includes an expression
 	 *  appears in the epilogue of a constructor body.
 	 */
-	public void test015() {
+	public void test018() {
 		runNegativeTest(new String[] {
 			"X.java",
 				"""
@@ -674,7 +674,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	}
 	/* It is a compile-time error if a return statement appears in the prologue of a constructor body.
 	 */
-	public void test016() {
+	public void test019() {
 		runNegativeTest(new String[] {
 			"X.java",
 				"""
@@ -710,7 +710,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	}
 	/* It is a compile-time error if a return statement appears in the prologue of a constructor body.
 	 */
-	public void test017() {
+	public void test020() {
 		runNegativeTest(new String[] {
 			"X.java",
 				"""
@@ -744,7 +744,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	}
 	/* Throwing an exception in a prologue of a constructor body is permitted.
 	 */
-	public void test018() {
+	public void test021() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -771,7 +771,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	}
 	/* Throwing an exception in a prologue of a constructor body is permitted.
 	 */
-	public void test019() {
+	public void test022() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -802,7 +802,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	/* Unlike in a static context, code in a pre-construction context may refer to the type
 	 * of the instance under construction, as long as it does not access the instance itself:
 	 */
-	public void test020() {
+	public void test023() {
 		runConformTest(new String[] {
 			"X.java",
 				"""
@@ -826,9 +826,51 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			},
 			"hello");
 	}
+	public void test024() {
+		runNegativeTest(new String[] {
+			"X.java",
+				"""
+					class A{
+					    public int i;
+					    A(int i) {
+					        this.i = i;
+					    }
+					}
+
+					public class X{
+					    A a = new A(0);
+					    public boolean b;
+					    X(int i) {
+					    	int j = a.i;
+					    	this.b = j == 0;
+					        super();
+					    }
+					    public static void main(String[] argv) {
+					    	System.out.println(new X(0).b);
+					    }
+					}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 12)\n" +
+			"	int j = a.i;\n" +
+			"	        ^^^\n" +
+			"Cannot use a.i in a pre-construction context\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 13)\n" +
+			"	this.b = j == 0;\n" +
+			"	^^^^\n" +
+			"Cannot use this in a pre-construction context\n" +
+			"----------\n" +
+			"3. WARNING in X.java (at line 14)\n" +
+			"	super();\n" +
+			"	^^^^^^^^\n" +
+			"You are using a preview language feature that may or may not be supported in a future release\n" +
+			"----------\n");
+	}
 	/* Its an error of this is used in super(this) - no change for this error
 	 */
-	public void test021() {
+	public void test025() {
 		runNegativeTest(new String[] {
 			"X.java",
 				"""
@@ -857,7 +899,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	/**
 	 *
 	 */
-	public void test022() {
+	public void test026() {
 		runNegativeTest(new String[] {
 			"X.java",
 				"""
