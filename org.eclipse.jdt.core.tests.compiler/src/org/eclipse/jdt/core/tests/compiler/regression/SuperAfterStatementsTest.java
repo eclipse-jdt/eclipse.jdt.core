@@ -31,7 +31,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 1 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "test001" };
+//		TESTS_NAMES = new String[] { "test029" };
 	}
 	private String extraLibPath;
 	public static Class<?> testClass() {
@@ -932,6 +932,119 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"2. WARNING in X.java (at line 9)\n" +
 			"	this(i, 0);\n" +
 			"	^^^^^^^^^^^\n" +
+			"You are using a preview language feature that may or may not be supported in a future release\n" +
+			"----------\n");
+	}
+	public void test027() {
+		runNegativeTest(new String[] {
+			"X.java",
+				"""
+					class A{
+					    public int i;
+					    A(int i) {
+					        this.i = i;
+					    }
+						public int getI() { return this.i; }
+					}
+
+					public class X{
+					    A a = new A(0);
+					    public boolean b;
+					    X(int i) {
+					    	int j = a.getI();
+					    	this.b = j == 0;
+					        super();
+					    }
+					    public static void main(String[] argv) {
+					    	System.out.println(new X(0).b);
+					    }
+					}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 13)\n" +
+			"	int j = a.getI();\n" +
+			"	        ^\n" +
+			"Cannot use a in a pre-construction context\n" +
+			"----------\n" +
+			"2. ERROR in X.java (at line 14)\n" +
+			"	this.b = j == 0;\n" +
+			"	^^^^\n" +
+			"Cannot use this in a pre-construction context\n" +
+			"----------\n" +
+			"3. WARNING in X.java (at line 15)\n" +
+			"	super();\n" +
+			"	^^^^^^^^\n" +
+			"You are using a preview language feature that may or may not be supported in a future release\n" +
+			"----------\n");
+	}
+	public void test028() {
+		runNegativeTest(new String[] {
+			"X.java",
+				"""
+					interface I {
+					    default int getI() { return 0; }
+					}
+					interface J extends I {}
+					public class X implements J {
+						int i;
+					    X() {
+					        int j = J.super.getI();
+					        super();
+					    }
+					    X(int i) {
+					    	this.i = i;
+					    }
+					    public static void main(String argv[]) {
+					    	System.out.println(new X(0).getI() == 0);
+					    }
+					}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 8)\n" +
+			"	int j = J.super.getI();\n" +
+			"	        ^^^^^^^\n" +
+			"Cannot use J.super in a pre-construction context\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 9)\n" +
+			"	super();\n" +
+			"	^^^^^^^^\n" +
+			"You are using a preview language feature that may or may not be supported in a future release\n" +
+			"----------\n");
+	}
+	public void test029() {
+		runNegativeTest(new String[] {
+			"X.java",
+				"""
+					interface I {
+					    default int getI() { return 0; }
+					}
+					interface J extends I {}
+					public class X implements J {
+						int i;
+					    X() {
+					        int j = J.super.getI();
+					        this(j);
+					    }
+					    X(int i) {
+					    	this.i = i;
+					    }
+					    public static void main(String argv[]) {
+					    	System.out.println(new X(0).getI() == 0);
+					    }
+					}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 8)\n" +
+			"	int j = J.super.getI();\n" +
+			"	        ^^^^^^^\n" +
+			"Cannot use J.super in a pre-construction context\n" +
+			"----------\n" +
+			"2. WARNING in X.java (at line 9)\n" +
+			"	this(j);\n" +
+			"	^^^^^^^^\n" +
 			"You are using a preview language feature that may or may not be supported in a future release\n" +
 			"----------\n");
 	}
