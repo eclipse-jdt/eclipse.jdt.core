@@ -31,7 +31,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 1 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "test029" };
+//		TESTS_NAMES = new String[] { "test030" };
 	}
 	private String extraLibPath;
 	public static Class<?> testClass() {
@@ -1047,5 +1047,27 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"	^^^^^^^^\n" +
 			"You are using a preview language feature that may or may not be supported in a future release\n" +
 			"----------\n");
+	}
+	public void test030() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+					public class X {
+					    int v = 0;
+					    public boolean foo() {
+					        class Inner {
+					            int getV() {
+					                return v;
+					            }
+					        }
+					        return new Inner(){}.getV() == v;
+					    }
+					    public static void main(String args[]) {
+					    	System.out.println(new X().foo());
+					    }
+					}
+				"""
+			},
+			"true");
 	}
 }
