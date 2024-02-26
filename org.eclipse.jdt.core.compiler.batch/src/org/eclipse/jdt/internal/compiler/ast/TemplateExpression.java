@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2023 IBM Corporation and others.
+ * Copyright (c) 2023, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -8,11 +8,16 @@
  *
  * SPDX-License-Identifier: EPL-2.0
  *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 package org.eclipse.jdt.internal.compiler.ast;
 
+import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
@@ -75,6 +80,16 @@ public class TemplateExpression extends Expression {
 		codeStream.checkcast(this.invocation.binding.returnType);
 		if (!valueRequired) {
 			codeStream.pop();
+		}
+	}
+	@Override
+	public void traverse(ASTVisitor visitor, BlockScope scope) {
+		if (visitor.visit(this, scope)) {
+			this.template.traverse(visitor, scope);
+			if (this.processor != null)
+				this.processor.traverse(visitor, scope);
+			if (this.invocation != null)
+				this.invocation.traverse(visitor, scope);
 		}
 	}
 }
