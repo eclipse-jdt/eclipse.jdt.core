@@ -31,7 +31,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 1 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "test031" };
+//		TESTS_NAMES = new String[] { "test032" };
 	}
 	private String extraLibPath;
 	public static Class<?> testClass() {
@@ -1111,5 +1111,31 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 				"The method Zork() is undefined for the type X\n" +
 				"----------\n"
 			);
+	}
+	public void test032() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+				abstract class Y {
+					public abstract int getI();
+				}
+				public class X {
+					public int i;
+				    X() {
+				         new Y() {
+				            public int getI() {
+				                return 0;
+				            }
+				        }.getI();
+				        super();
+				    }
+				   public static void main(String argv[]) {
+					   System.out.println(new X().i);
+				    }
+				}
+			"""
+			},
+			"0"
+		);
 	}
 }

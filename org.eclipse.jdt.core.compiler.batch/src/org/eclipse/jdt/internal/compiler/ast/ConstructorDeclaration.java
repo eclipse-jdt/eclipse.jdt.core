@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2023 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -357,6 +357,8 @@ public void generateCode(ClassScope classScope, ClassFile classFile) {
 
 public void generateSyntheticFieldInitializationsIfNecessary(MethodScope methodScope, CodeStream codeStream, ReferenceBinding declaringClass) {
 	if (!declaringClass.isNestedType()) return;
+
+	if (declaringClass.isInPreconstructorContext()) return;
 
 	NestedTypeBinding nestedType = (NestedTypeBinding) declaringClass;
 
@@ -758,16 +760,9 @@ private void markPreConstructorContext(Statement[] stmts, int eci) {
 			return true;
 		}
 		@Override
-		public boolean visit(ReturnStatement returnStatement, BlockScope scope1) {
-			scope1.problemReporter().errorReturnInPrologue(returnStatement);
-			return visitNode(returnStatement);
-		}
-		@Override
-		public boolean visit(TypeDeclaration memberTypeDeclaration, ClassScope scope1) {
-			if ((memberTypeDeclaration.bits & ASTNode.IsAnonymousType) == 0) {
-				memberTypeDeclaration.enclosingType = null;
-			}
-			return visitNode(memberTypeDeclaration);
+		public boolean visit(TypeDeclaration typeDeclaration, BlockScope skope) {
+			typeDeclaration.inPreConstructorContext = true;
+			return false;
 		}
 	}
 
