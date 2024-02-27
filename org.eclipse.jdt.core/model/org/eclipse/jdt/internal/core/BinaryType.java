@@ -32,6 +32,7 @@ import org.eclipse.jdt.internal.compiler.env.IBinaryAnnotation;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.compiler.impl.CompilerOptions;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.compiler.util.SuffixConstants;
 import org.eclipse.jdt.internal.core.JavaModelManager.PerProjectInfo;
 import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
@@ -1159,5 +1160,9 @@ private static boolean isComplianceJava11OrHigher(IJavaProject javaProject) {
 @Override
 public IBinaryType getElementInfo() throws JavaModelException {
 	return (IBinaryType) super.getElementInfo();
+}
+@Override
+public boolean isImplicitlyDeclared() throws JavaModelException {
+	return (this.getFlags() & ExtraCompilerModifiers.AccUnnamed) != 0;
 }
 }

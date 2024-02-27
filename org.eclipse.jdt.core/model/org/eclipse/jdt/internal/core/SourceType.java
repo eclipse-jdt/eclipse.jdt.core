@@ -25,6 +25,7 @@ import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.internal.codeassist.CompletionEngine;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
 import org.eclipse.jdt.internal.compiler.lookup.Binding;
+import org.eclipse.jdt.internal.compiler.lookup.ExtraCompilerModifiers;
 import org.eclipse.jdt.internal.core.hierarchy.TypeHierarchy;
 import org.eclipse.jdt.internal.core.util.DeduplicationUtil;
 import org.eclipse.jdt.internal.core.util.MementoTokenizer;
@@ -1014,5 +1015,9 @@ protected void toStringInfo(int tab, StringBuilder buffer, Object info, boolean 
 @Override
 public boolean isLambda() {
 	return false;
+}
+@Override
+public boolean isImplicitlyDeclared() throws JavaModelException {
+	return (this.getFlags() & ExtraCompilerModifiers.AccUnnamed) != 0;
 }
 }
