@@ -1100,6 +1100,15 @@ public abstract class ASTNode {
 	public static final int STRING_TEMPLATE_COMPONENT = 117;
 
 	/**
+	 * Node type constant indicating a node of type
+	 * <code>EitherOrMultiPattern</code>.
+	 * @since 3.37
+	 * @noreference This field is not intended to be referenced by clients.
+	 */
+	public static final int EitherOr_MultiPattern = 118;
+
+
+	/**
 	 * Returns the node class for the corresponding node type.
 	 *
 	 * @param nodeType AST node type
@@ -1345,6 +1354,8 @@ public abstract class ASTNode {
 				return StringFragment.class;
 			case STRING_TEMPLATE_COMPONENT :
 				return StringTemplateComponent.class;
+			case EitherOr_MultiPattern:
+				return EitherOrMultiPattern.class;
 		}
 		throw new IllegalArgumentException();
 	}

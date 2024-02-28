@@ -74,6 +74,7 @@ public class DOMASTUtil {
 			case ASTNode.STRING_FRAGMENT:
 			case ASTNode.STRING_TEMPLATE_COMPONENT:
 			case ASTNode.STRING_TEMPLATE_EXPRESSION:
+			case ASTNode.EitherOr_MultiPattern:
 				return apiLevel >= AST.JLS21 && previewEnabled;
 		}
 		return false;
@@ -185,13 +186,19 @@ public class DOMASTUtil {
 		return isNodeTypeSupportedinAST(ast, ASTNode.TYPE_PATTERN);
 	}
 
+	public static boolean isEitherOrMultiPatternSupported(AST ast) {
+		return isNodeTypeSupportedinAST(ast, ASTNode.EitherOr_MultiPattern);
+	}
+
 	public static boolean isPatternSupported(int apiLevel, boolean previewEnabled) {
 		return isNodeTypeSupportedinAST(apiLevel, previewEnabled, ASTNode.TYPE_PATTERN);
 	}
 	public static boolean isStringTemplateSupported(int apiLevel, boolean previewEnabled) {
 		return isNodeTypeSupportedinAST(apiLevel, previewEnabled, ASTNode.STRING_TEMPLATE_EXPRESSION);
 	}
-
+	public static boolean isEitherOrMultiPatternSupported(int apiLevel, boolean previewEnabled) {
+		return isNodeTypeSupportedinAST(apiLevel, previewEnabled, ASTNode.EitherOr_MultiPattern);
+	}
 	public static boolean isJavaDocCodeSnippetSupported(int apiLevel) {
 		return isNodeTypeSupportedinAST(apiLevel, true, ASTNode.TAG_PROPERTY);
 	}
