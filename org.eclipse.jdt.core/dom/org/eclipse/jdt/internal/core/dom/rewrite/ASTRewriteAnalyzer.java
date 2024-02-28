@@ -935,28 +935,32 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 					boolean originalNode= ((Boolean) event.getOriginalValue()).booleanValue();
 					boolean newValue= ((Boolean) event.getNewValue()).booleanValue();
 
-					int pos1 = rewriteRequiredNode(node, StringTemplateExpression.TEMPLATE_PROCESSOR);
-					int pos2 = rewriteRequiredNode(node, StringTemplateExpression.STRING_TEMPLATE_COMPONENTS);
+					int pos1= rewriteRequiredNode(node, StringTemplateExpression.TEMPLATE_PROCESSOR);
+					int pos2= rewriteRequiredNode(node, StringTemplateExpression.STRING_TEMPLATE_COMPONENTS);
+
+					int pos1ShiftOne= pos1 + 1;
+					int pos2ShiftFour= pos2 - 4;
+					int posShiftOne= pos - 1;
+					int posShiftFour= pos - 4;
 
 					if(newValue && !originalNode) {// SINGLE LINE to MULTI LINE
 						String multiLineStart= "\n\"\"\""; //$NON-NLS-1$
 						String multiLineEnd= "\"\"\"\n"; //$NON-NLS-1$
 						if(pos2 == 0 ) { // without component
-							doTextReplace(pos1 +1, 1, multiLineEnd, getEditGroup(event));
-							doTextReplace(pos -1, 1, multiLineStart, getEditGroup(event));
+							doTextReplace(pos1ShiftOne, 1, multiLineEnd, getEditGroup(event));
+							doTextReplace(posShiftOne, 1, multiLineStart, getEditGroup(event));
 						} else { // with Component
-							doTextReplace(pos1 +1, 1, multiLineEnd, getEditGroup(event));
+							doTextReplace(pos1ShiftOne, 1, multiLineEnd, getEditGroup(event));
 							doTextReplace(pos2, 1, multiLineStart, getEditGroup(event));
 						}
-
 					} else if(!newValue && originalNode) {// MULTI LINE to SINGLE LINE
 						String singleLine= "\""; //$NON-NLS-1$
 						if(pos2 == 0) { // without Component
-							doTextReplace(pos1 +1, 4, singleLine, getEditGroup(event));
-							doTextReplace(pos-4, 4, singleLine, getEditGroup(event));
+							doTextReplace(pos1ShiftOne, 4, singleLine, getEditGroup(event));
+							doTextReplace(posShiftFour, 4, singleLine, getEditGroup(event));
 						} else { // with Component
-							doTextReplace(pos1 +1, 4, singleLine, getEditGroup(event));
-							doTextReplace(pos2-4, 4, singleLine, getEditGroup(event));
+							doTextReplace(pos1ShiftOne, 4, singleLine, getEditGroup(event));
+							doTextReplace(pos2ShiftFour, 4, singleLine, getEditGroup(event));
 						}
 					}
 					break;
@@ -4861,10 +4865,11 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 
 			}
 			else {
+				int posRewrite = node.components().isEmpty() ? pos -1 : pos;
 				rewriteNodeList(
 						node,
 						property,
-						node.components().isEmpty() ? pos -1 : pos,//Sometimes, the pos  returns false values even when the stringTemplateExpression has no stringTemplateComponent
+						posRewrite,
 						"", //$NON-NLS-1$
 						"", //$NON-NLS-1$
 						""); //$NON-NLS-1$
