@@ -16008,7 +16008,7 @@ public void testBug573949_0() {
 		"public class X {\n" +
 		"	private static void foo(Object o) {\n" +
 		"		switch (o) {\n" +
-		"		case Integer t, String s:\n" +
+		"		case Integer t,String s:\n" +
 		"			System.out.println(\"Error should be flagged for Integer and String\");\n" +
 		"		default:\n" +
 		"			System.out.println(\"Object\");\n" +

@@ -2294,6 +2294,21 @@ class ASTConverter {
 		return recordPattern;
 	}
 
+	public Pattern convert(org.eclipse.jdt.internal.compiler.ast.EitherOrMultiPattern pattern) {
+		EitherOrMultiPattern eitherOrPattern = new EitherOrMultiPattern(this.ast);
+		if (this.resolveBindings) {
+			recordNodes(eitherOrPattern, pattern);
+		}
+		int startPosition = pattern.sourceStart;
+		int sourceEnd= pattern.sourceEnd;
+		eitherOrPattern.setSourceRange(startPosition, sourceEnd - startPosition + 1);
+		List<Pattern> patterns = eitherOrPattern.patterns();
+		for (org.eclipse.jdt.internal.compiler.ast.Pattern alternative : pattern.getAlternatives()) {
+			patterns.add(convert(alternative));
+		}
+		return eitherOrPattern;
+	}
+
 	public IfStatement convert(org.eclipse.jdt.internal.compiler.ast.IfStatement statement) {
 		IfStatement ifStatement = new IfStatement(this.ast);
 		ifStatement.setSourceRange(statement.sourceStart, statement.sourceEnd - statement.sourceStart + 1);
@@ -2852,6 +2867,9 @@ class ASTConverter {
 			}
 			if (pattern instanceof org.eclipse.jdt.internal.compiler.ast.RecordPattern) {
 				return convert((org.eclipse.jdt.internal.compiler.ast.RecordPattern) pattern);
+			}
+			if (pattern instanceof org.eclipse.jdt.internal.compiler.ast.EitherOrMultiPattern) {
+				return convert((org.eclipse.jdt.internal.compiler.ast.EitherOrMultiPattern) pattern);
 			}
 			if (pattern instanceof org.eclipse.jdt.internal.compiler.ast.GuardedPattern) {
 				return convert((org.eclipse.jdt.internal.compiler.ast.GuardedPattern) pattern);

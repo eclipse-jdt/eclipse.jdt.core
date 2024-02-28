@@ -2833,6 +2833,18 @@ public final class AST {
 		RecordPattern result = new RecordPattern(this);
 		return result;
 	}
+
+	/**
+	 * Creates and returns a new unparented `either or multi-pattern` node
+	 *
+	 * @return a new unparented `either or multi-pattern` node
+	 * @since 3.37
+	 */
+	public EitherOrMultiPattern newEitherOrMultiPattern() {
+		EitherOrMultiPattern result = new EitherOrMultiPattern(this);
+		return result;
+	}
+
 	/**
 	 * Creates and returns a new unparented requires directive
 	 * node for an unspecified, but legal, name;

@@ -321,6 +321,10 @@ class DefaultASTVisitor extends ASTVisitor {
 		endVisitNode(node);
 	}
 	@Override
+	public void endVisit(EitherOrMultiPattern node) {
+		endVisitNode(node);
+	}
+	@Override
 	public void endVisit(ReturnStatement node) {
 		endVisitNode(node);
 	}
@@ -762,6 +766,10 @@ class DefaultASTVisitor extends ASTVisitor {
 	}
 	@Override
 	public boolean visit(RecordPattern node) {
+		return visitNode(node);
+	}
+	@Override
+	public boolean visit(EitherOrMultiPattern node) {
 		return visitNode(node);
 	}
 	@Override
