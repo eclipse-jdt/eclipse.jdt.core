@@ -1304,7 +1304,10 @@ public class Util {
 				buffer.append(((PrimitiveType) type).getPrimitiveTypeCode().toString());
 				break;
 			case ASTNode.QUALIFIED_TYPE:
-				buffer.append(((QualifiedType) type).getName().getFullyQualifiedName());
+				QualifiedType qualifiedType = (QualifiedType)type;
+				getFullyQualifiedName(qualifiedType.getQualifier(), buffer);
+				buffer.append("."); //$NON-NLS-1$
+				buffer.append(qualifiedType.getName().getFullyQualifiedName());
 				break;
 			case ASTNode.SIMPLE_TYPE:
 				buffer.append(((SimpleType) type).getName().getFullyQualifiedName());
@@ -1323,7 +1326,7 @@ public class Util {
 				break;
 			case ASTNode.NAME_QUALIFIED_TYPE:
 				NameQualifiedType nameQualifiedType = (NameQualifiedType)type;
-				buffer.append(nameQualifiedType.getQualifier().toString() + '.' + nameQualifiedType.getName().toString()); 
+				buffer.append(nameQualifiedType.getQualifier().toString() + '.' + nameQualifiedType.getName().toString());
 				break;
 		}
 	}
