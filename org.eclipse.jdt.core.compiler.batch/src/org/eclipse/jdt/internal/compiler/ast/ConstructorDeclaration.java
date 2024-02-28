@@ -57,9 +57,7 @@ public class ConstructorDeclaration extends AbstractMethodDeclaration {
 
 	public TypeParameter[] typeParameters;
 
-	public Statement[] prologue;
 	public ExplicitConstructorCall postPrologueConstructorCall;
-	public Statement[] epilogue;
 
 public ConstructorDeclaration(CompilationResult compilationResult){
 	super(compilationResult);
@@ -174,7 +172,7 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 					}
 				}
 			}
-			if (this.postPrologueConstructorCall == null)
+			if (useConstrucorCall())
 				flowInfo = this.constructorCall.analyseCode(this.scope, constructorContext, flowInfo);
 		}
 
@@ -447,7 +445,7 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 			codeStream.recordPositionsFrom(0, this.bodyStart > 0 ? this.bodyStart : this.sourceStart);
 		}
 		// generate constructor call
-		if (this.constructorCall != null && this.postPrologueConstructorCall == null) {
+		if (useConstrucorCall()) {
 			this.constructorCall.generateCode(this.scope, codeStream);
 		}
 		// generate field initialization - only if not invoking another constructor call of the same class
@@ -497,6 +495,10 @@ private void internalGenerateCode(ClassScope classScope, ClassFile classFile) {
 		}
 	}
 	classFile.completeMethodInfo(this.binding, methodAttributeOffset, attributeNumber);
+}
+private boolean useConstrucorCall() {
+	return this.constructorCall != null
+			&& (this.postPrologueConstructorCall == null || this.postPrologueConstructorCall.firstStatement);
 }
 
 @Override
@@ -611,7 +613,7 @@ public void parseStatements(Parser parser, CompilationUnitDeclaration unit) {
 @Override
 public StringBuilder printBody(int indent, StringBuilder output) {
 	output.append(" {"); //$NON-NLS-1$
-	if (this.constructorCall != null && this.postPrologueConstructorCall == null) {
+	if (useConstrucorCall()) {
 		output.append('\n');
 		this.constructorCall.printStatement(indent, output);
 	}
@@ -679,21 +681,8 @@ public void resolveStatements() {
 			this.scope.problemReporter().recordMissingExplicitConstructorCallInNonCanonicalConstructor(this);
 			this.constructorCall = null;
 		} else {
-			if (JavaFeature.STATEMENTS_BEFORE_SUPER.isSupported(
-					this.scope.compilerOptions().sourceLevel,
-					this.scope.compilerOptions().enablePreviewFeatures)) {
-				bucketizeOnExpCons();
-				if (this.postPrologueConstructorCall != null) {
-					if (this.prologue.length > 0) {
-						this.postPrologueConstructorCall.firstStatement = false;
-					}
-					this.constructorCall = this.postPrologueConstructorCall;
-					this.scope.problemReporter().validateJavaFeatureSupport(JavaFeature.STATEMENTS_BEFORE_SUPER,
-							this.postPrologueConstructorCall.sourceStart,
-							this.postPrologueConstructorCall.sourceEnd);
-				}
-			}
-			if (this.postPrologueConstructorCall == null)
+			partitionConstructorStatements();
+			if (useConstrucorCall())
 				this.constructorCall.resolve(this.scope);
 		}
 	}
@@ -703,37 +692,39 @@ public void resolveStatements() {
 	super.resolveStatements();
 }
 
-private void bucketizeOnExpCons() {
-	// vanilla implementation for now
+private void partitionConstructorStatements() {
 
-	int eci = -1;
-	int len = this.statements != null ? this.statements.length : 0;
-	if (len == 0 || this.postPrologueConstructorCall != null)
+
+	if (!(JavaFeature.STATEMENTS_BEFORE_SUPER.isSupported(
+			this.scope.compilerOptions().sourceLevel,
+			this.scope.compilerOptions().enablePreviewFeatures)))
 		return;
 
-	for (int i = 0; i < len; ++i) {
+	if (!this.constructorCall.isImplicitSuper()) {
+		this.postPrologueConstructorCall = this.constructorCall;
+		this.postPrologueConstructorCall.firstStatement = true;
+		return;
+	}
+
+	if (this.statements == null)
+		return;
+
+	int postPrologueExplicitConstructorIndex = -1;
+	for (int i = 0, len = this.statements.length; i < len; ++i) {
 		Statement stmt = this.statements[i];
-		if (stmt instanceof ExplicitConstructorCall ecc) {
-			eci = i;
-			this.postPrologueConstructorCall = ecc;
+		if (stmt instanceof ExplicitConstructorCall explicitContructorCall) {
+			this.postPrologueConstructorCall = explicitContructorCall;
+			this.postPrologueConstructorCall.firstStatement = false;
+			this.scope.problemReporter().validateJavaFeatureSupport(JavaFeature.STATEMENTS_BEFORE_SUPER,
+					this.postPrologueConstructorCall.sourceStart,
+					this.postPrologueConstructorCall.sourceEnd);
+			this.constructorCall = this.postPrologueConstructorCall; //ignore implicitsuper
+			postPrologueExplicitConstructorIndex = i;
 			break;
 		}
 	}
 
-	if (eci > -1) {
-		int sz = eci;
-		this.prologue = new Statement[sz];
-		for (int i = 0; i < eci; ++i)
-			this.prologue[i] = this.statements[i];
-	}
-
-	markPreConstructorContext(this.statements, eci);
-
-	int start = eci + 1;
-	this.epilogue = new Statement[len - start];
-	for (int i = start, j = 0; i < len; ++i, ++j) {
-		this.epilogue[j] = this.statements[i];
-	}
+	markPreConstructorContext(this.statements, postPrologueExplicitConstructorIndex);
 }
 
 /**
@@ -746,9 +737,9 @@ private void bucketizeOnExpCons() {
  * The expression appears in the prologue or is enclosed in the explicit constructor invocation of the
  * constructor c.
  * @param stmts list of statements in the constructor
- * @param eci index in statements upto and including the constructor call
+ * @param prologueLength index in statements upto and including the constructor call
  */
-private void markPreConstructorContext(Statement[] stmts, int eci) {
+private void markPreConstructorContext(Statement[] stmts, int prologueLength) {
 
 	class MarkAllExpressionsPreConVisitor extends GenericAstVisitor {
 
@@ -765,8 +756,7 @@ private void markPreConstructorContext(Statement[] stmts, int eci) {
 			return false;
 		}
 	}
-
-	for (int i = 0; i <= eci; ++i) {
+	for (int i = 0; i <= prologueLength; ++i) {
 		stmts[i].traverse(new MarkAllExpressionsPreConVisitor(), this.scope);
 	}
 }
@@ -797,7 +787,7 @@ public void traverse(ASTVisitor visitor, ClassScope classScope) {
 			for (int i = 0; i < thrownExceptionsLength; i++)
 				this.thrownExceptions[i].traverse(visitor, this.scope);
 		}
-		if (this.constructorCall != null && this.postPrologueConstructorCall == null)
+		if (useConstrucorCall())
 			this.constructorCall.traverse(visitor, this.scope);
 		if (this.statements != null) {
 			int statementsLength = this.statements.length;

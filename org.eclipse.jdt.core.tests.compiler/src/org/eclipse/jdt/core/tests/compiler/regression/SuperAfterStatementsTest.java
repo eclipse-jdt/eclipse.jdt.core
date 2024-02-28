@@ -1138,4 +1138,134 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 			"0"
 		);
 	}
+	public void test033() {
+		runNegativeTest(new String[] {
+			"X.java",
+				"""
+					class Y {
+						public Y() {}
+						public Y(int i){}
+					}
+					class X extends Y {
+						public boolean b;;
+						public X(int i){}
+					    	public X (boolean b) {
+					          super();
+					          this(0);
+					          this.b = b;
+					    }
+					    public static void main(String argv[]) {
+					        System.out.println(new X(true).b);
+					    }
+					}
+				"""
+			},
+		"----------\n" +
+		"1. ERROR in X.java (at line 10)\n" +
+		"	this(0);\n" +
+		"	^^^^^^^^\n" +
+		"Constructor call must be the first statement in a constructor\n" +
+		"----------\n"
+			);
+	}
+	public void test034() {
+		runNegativeTest(new String[] {
+			"X.java",
+				"""
+					class Y {
+						public Y(int i){}
+					}
+					class X extends Y {
+						public boolean b;;
+						public X(int i){}
+					    	public X (boolean b) {
+					          super();
+					          this(0);
+					          this.b = b;
+					    }
+					    public static void main(String argv[]) {
+					        System.out.println(new X(true).b);
+					    }
+					}
+				"""
+			},
+		"----------\n" +
+		"1. ERROR in X.java (at line 6)\n" +
+		"	public X(int i){}\n" +
+		"	       ^^^^^^^^\n" +
+		"Implicit super constructor Y() is undefined. Must explicitly invoke another constructor\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 8)\n" +
+		"	super();\n" +
+		"	^^^^^^^^\n" +
+		"The constructor Y() is undefined\n" +
+		"----------\n" +
+		"3. ERROR in X.java (at line 9)\n" +
+		"	this(0);\n" +
+		"	^^^^^^^^\n" +
+		"Constructor call must be the first statement in a constructor\n" +
+		"----------\n"
+			);
+	}
+	public void test035() {
+		runNegativeTest(new String[] {
+			"X.java",
+				"""
+					class Y {
+						public Y(int i){}
+					}
+					class X extends Y {
+						public boolean b;;
+						public X(int i){ super(i);}
+					    	public X (boolean b) {
+					          super();
+					          this(0);
+					          this.b = b;
+					    }
+					    public static void main(String argv[]) {
+					        System.out.println(new X(true).b);
+					    }
+					}
+				"""
+			},
+		"----------\n" +
+		"1. ERROR in X.java (at line 8)\n" +
+		"	super();\n" +
+		"	^^^^^^^^\n" +
+		"The constructor Y() is undefined\n" +
+		"----------\n" +
+		"2. ERROR in X.java (at line 9)\n" +
+		"	this(0);\n" +
+		"	^^^^^^^^\n" +
+		"Constructor call must be the first statement in a constructor\n" +
+		"----------\n"
+			);
+	}
+	public void test036() {
+		runNegativeTest(new String[] {
+			"X.java",
+				"""
+					class Y { }
+					class X extends Y {
+					        public boolean b;;
+					        public X(){}
+					        public X (boolean b) {
+					          super();
+					          this();
+					          this.b = b;
+					    }
+					    public static void main(String argv[]) {
+					        System.out.println(new X(true).b);
+					    }
+					}
+				"""
+			},
+		"----------\n" +
+		"1. ERROR in X.java (at line 7)\n" +
+		"	this();\n" +
+		"	^^^^^^^\n" +
+		"Constructor call must be the first statement in a constructor\n" +
+		"----------\n"
+			);
+	}
 }
