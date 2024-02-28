@@ -674,12 +674,7 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 						if (separatorState == EXISTING) {
 							updateIndent(prevMark, currPos, i, editGroup);
 						}
-							doTextInsert(
-									currPos,
-									node,
-									getNodeIndent(i),
-									true,
-									editGroup);
+						doTextInsert(currPos, node, getNodeIndent(i), true, editGroup); // insert node
 
 						separatorState= NEW;
 						if (i != lastNonDelete) {
