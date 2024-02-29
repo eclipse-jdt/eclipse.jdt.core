@@ -7707,4 +7707,117 @@ public class SwitchPatternTest extends AbstractRegressionTest9 {
 			},
 		 "133");
 	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2077
+	// [Patterns] Incorrect complaint about non-final variable reference from guard expression
+	public void testIssue2077() throws Exception {
+		runConformTest(
+			new String[] {
+				"X.java",
+				"""
+				public class X {
+				    public static void main(String [] args) {
+				        new X().foo("Hello ", 1);
+				    }
+				    public void foo(Object obj, int x) {
+				        int y = 10;
+				        y = 20;
+				        y = 30;
+				        switch (obj) {
+				         case String s when switch (x) {
+				                    case 1 -> { int y1 = 10; y1 = 30; yield y1!=20; }
+				                    default -> { yield false; }
+				                }
+				                 -> {
+				                    System.out.println(s + "OK");
+				                    if (y == 0)
+				                    	System.out.println(s + "OK");
+				                 }
+
+				         default -> {}
+				        }
+				    }
+				}
+				"""
+			},
+		 "Hello OK");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2077
+	// [Patterns] Incorrect complaint about non-final variable reference from guard expression
+	public void testIssue2077_2() throws Exception {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				public class X {
+				    public static void main(String [] args) {
+				        new X().foo("Hello ", 1);
+				    }
+				    public void foo(Object obj, int x) {
+				        int y = 10;
+				        y = 20;
+				        y = 30;
+				        switch (obj) {
+				         case String s when switch (x) {
+				                    case 1 -> { int y1 = 10; y1 = 30; yield 30 != y1; }
+				                    default -> { yield false; }
+				                } && y != 0
+				                 -> {
+				                    System.out.println(s + "OK");
+				                    if (y == 0)
+				                    	System.out.println(s + "OK");
+				                 }
+
+				         default -> {}
+				        }
+				    }
+				}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 13)\r\n" +
+			"	} && y != 0\r\n" +
+			"	     ^\n" +
+			"Local variable y referenced from a guard must be final or effectively final\n" +
+			"----------\n");
+	}
+	// https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2077
+	// [Patterns] Incorrect complaint about non-final variable reference from guard expression
+	public void testIssue2077_3() throws Exception {
+		runNegativeTest(
+			new String[] {
+				"X.java",
+				"""
+				public class X {
+				    public static void main(String [] args) {
+				        new X().foo("Hello ", 1);
+				    }
+				    public void foo(Object obj, int x) {
+				        int y = 10;
+				        y = 20;
+				        y = 30;
+				        switch (obj) {
+				         case String s when switch (x) {
+				                    case 1 -> { int y1 = 10; y1 = 30; yield y != y1; }
+				                    default -> { yield false; }
+				                } && y != 0
+				                 -> {
+				                    System.out.println(s + "OK");
+				                    if (y == 0)
+				                    	System.out.println(s + "OK");
+				                 }
+
+				         default -> {}
+				        }
+				    }
+				}
+				"""
+			},
+			"----------\n" +
+			"1. ERROR in X.java (at line 11)\r\n" +
+			"	case 1 -> { int y1 = 10; y1 = 30; yield y != y1; }\r\n" +
+			"	                                        ^\n" +
+			"Local variable y referenced from a guard must be final or effectively final\n" +
+			"----------\n");
+		    // We throw AbortMethod after first error, so second error doesn't surface
+	}
 }

@@ -119,6 +119,7 @@ public abstract class Scope {
 	public final CompilationUnitScope compilationUnitScope;
 	private Map<String, Supplier<ReferenceBinding>> commonTypeBindings = null;
 
+
 	private static class NullDefaultRange {
 		final int start, end;
 		int value;
@@ -2035,6 +2036,10 @@ public abstract class Scope {
 		return null;
 	}
 
+	public boolean resolvingGuardExpression() {
+		return false;
+	}
+
 	/* API
 	 *
 	 *	Answer the binding that corresponds to the argument name.
@@ -2075,6 +2080,7 @@ public abstract class Scope {
 				int depth = 0;
 				int foundDepth = 0;
 				boolean shouldTrackOuterLocals = false;
+				boolean resolvingGuardExpression = false;
 				ReferenceBinding foundActualReceiverType = null;
 				done : while (true) { // done when a COMPILATION_UNIT_SCOPE is found
 					switch (scope.kind) {
@@ -2086,6 +2092,8 @@ public abstract class Scope {
 
 							//$FALL-THROUGH$ could duplicate the code below to save a cast - questionable optimization
 						case BLOCK_SCOPE :
+							if (!resolvingGuardExpression)
+								resolvingGuardExpression = scope.resolvingGuardExpression();
 							LocalVariableBinding variableBinding = scope.findVariable(name, invocationSite);
 							// looks in this scope only
 							if (variableBinding != null) {
@@ -2106,6 +2114,8 @@ public abstract class Scope {
 										variableDeclaration.bits |= ASTNode.ShadowsOuterLocal;
 									}
 								}
+								if (resolvingGuardExpression && invocationSite instanceof NameReference nameReference)
+									nameReference.bits |= ASTNode.IsUsedInPatternGuard;
 								return variableBinding;
 							}
 							break;
