@@ -46,11 +46,8 @@ public class GuardedPattern extends Pattern {
 	@Override
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
 		flowInfo = this.primaryPattern.analyseCode(currentScope, flowContext, flowInfo);
-		currentScope.methodScope().recordInitializationStates(flowInfo);
 		FlowInfo mergedFlow = this.condition.analyseCode(currentScope, flowContext, flowInfo);
-		mergedFlow = mergedFlow.safeInitsWhenTrue();
-		currentScope.methodScope().recordInitializationStates(mergedFlow);
-		return mergedFlow;
+		return mergedFlow.safeInitsWhenTrue();
 	}
 
 	@Override
@@ -63,16 +60,16 @@ public class GuardedPattern extends Pattern {
 
 	@Override
 	public boolean matchFailurePossible() {
-		return !isEffectivelyUnguarded() || this.primaryPattern.matchFailurePossible();
+		return !isUnguarded() || this.primaryPattern.matchFailurePossible();
 	}
 
 	@Override
 	public boolean isUnconditional(TypeBinding t) {
-		return isEffectivelyUnguarded() && this.primaryPattern.isUnconditional(t);
+		return isUnguarded() && this.primaryPattern.isUnconditional(t);
 	}
 
 	@Override
-	public boolean isEffectivelyUnguarded() {
+	public boolean isUnguarded() {
 		Constant cst = this.condition.optimizedBooleanConstant();
 		return cst != null && cst != Constant.NotAConstant && cst.booleanValue() == true;
 	}
@@ -84,12 +81,12 @@ public class GuardedPattern extends Pattern {
 
 	@Override
 	public boolean coversType(TypeBinding type) {
-		return isEffectivelyUnguarded() && this.primaryPattern.coversType(type);
+		return isUnguarded() && this.primaryPattern.coversType(type);
 	}
 
 	@Override
 	public boolean dominates(Pattern p) {
-		return isEffectivelyUnguarded() && this.primaryPattern.dominates(p);
+		return isUnguarded() && this.primaryPattern.dominates(p);
 	}
 
 	@Override
@@ -113,8 +110,8 @@ public class GuardedPattern extends Pattern {
 			scope.problemReporter().falseLiteralInGuard(this.condition);
 		}
 
-		if (!isEffectivelyUnguarded())
-			this.primaryPattern.setIsEffectivelyGuarded();
+		if (!isUnguarded())
+			this.primaryPattern.setIsGuarded();
 
 		return this.resolvedType = this.primaryPattern.resolvedType;
 	}

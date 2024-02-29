@@ -112,12 +112,11 @@ public class TypePattern extends Pattern {
 
 	@Override
 	public boolean dominates(Pattern p) {
-		if (isEffectivelyUnguarded()) {
-			if (p.resolvedType == null || this.resolvedType == null)
-				return false;
-			return p.resolvedType.erasure().isSubtypeOf(this.resolvedType.erasure(), false);
-		}
-		return false;
+		if (!isUnguarded())
+			return false;
+		if (p.resolvedType == null || this.resolvedType == null)
+			return false;
+		return p.resolvedType.erasure().isSubtypeOf(this.resolvedType.erasure(), false);
 	}
 
 	@Override

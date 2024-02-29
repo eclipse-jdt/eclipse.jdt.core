@@ -4766,4 +4766,50 @@ public class PatternMatching16Test extends AbstractRegressionTest {
 				"true\n"
 				+ "true");
 	}
+	public void testWhileLoop() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+							void foo(Object o) {
+								while (o instanceof String s) {
+									System.out.println("while");
+									return;
+								}
+								System.out.println("!while");
+							}
+							public static void main(String [] args) {
+							    new X().foo("");
+							     new X().foo(null);
+							}
+						}
+						""",
+				},
+				"while\n"
+				+ "!while");
+	}
+	public void testForLoop() {
+		runConformTest(
+				new String[] {
+						"X.java",
+						"""
+						public class X {
+							void foo(Object o) {
+								for(; (o instanceof String s);) {
+									System.out.println("for");
+									return;
+								}
+								System.out.println("!for");
+							}
+							public static void main(String [] args) {
+							    new X().foo("");
+							     new X().foo(null);
+							}
+						}
+						""",
+				},
+				"for\n"
+				+ "!for");
+	}
 }

@@ -48,9 +48,9 @@ public class EitherOrMultiPattern extends Pattern {
 	}
 
 	@Override
-	public void setIsEffectivelyGuarded() {
+	public void setIsGuarded() {
 		for (int i = 0; i < this.patternsCount; i++)
-			this.patterns[i].setIsEffectivelyGuarded();
+			this.patterns[i].setIsGuarded();
 	}
 
 	@Override
@@ -66,7 +66,7 @@ public class EitherOrMultiPattern extends Pattern {
 
 	@Override
 	public boolean matchFailurePossible() {
-		if (!isEffectivelyUnguarded())
+		if (!isUnguarded())
 			return true;
 		for (Pattern p : this.patterns) {
 			if (p.matchFailurePossible())
@@ -99,7 +99,7 @@ public class EitherOrMultiPattern extends Pattern {
 
 	@Override
 	public boolean dominates(Pattern p) {
-		if (!isEffectivelyUnguarded())
+		if (!isUnguarded())
 			return false;
 		for (Pattern thiz : this.patterns) {
 			if (thiz.dominates(p))
@@ -110,7 +110,7 @@ public class EitherOrMultiPattern extends Pattern {
 
 	@Override
 	public boolean coversType(TypeBinding type) {
-		if (!isEffectivelyUnguarded())
+		if (!isUnguarded())
 			return false;
 		for (Pattern p : this.patterns) {
 			if (p.coversType(type))
