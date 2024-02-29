@@ -82,7 +82,6 @@ public abstract class Expression extends Statement {
 
 	public static Expression [] NO_EXPRESSIONS = new Expression[0];
 
-
 public static final boolean isConstantValueRepresentable(Constant constant, int constantTypeID, int targetTypeID) {
 	//true if there is no loss of precision while casting.
 	// constantTypeID == constant.typeID

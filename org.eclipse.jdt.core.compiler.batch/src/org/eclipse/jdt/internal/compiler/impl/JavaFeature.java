@@ -81,6 +81,10 @@ public enum JavaFeature {
 			Messages.bind(Messages.string_templates),
 			new char[][] {},
 			true),
+	STATEMENTS_BEFORE_SUPER(ClassFileConstants.JDK22,
+			Messages.bind(Messages.statements_before_super),
+			new char[][] {},
+			true),
     ;
 
 	final long compliance;

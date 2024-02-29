@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2006, 2023 IBM Corporation and others.
+ * Copyright (c) 2006, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -7,6 +7,10 @@
  * https://www.eclipse.org/legal/epl-2.0/
  *
  * SPDX-License-Identifier: EPL-2.0
+ *
+ * This is an implementation of an early-draft specification developed under the Java
+ * Community Process (JCP) and is made available for testing and evaluation purposes
+ * only. The code is not compatible with any specification of the JCP.
  *
  * Contributors:
  *     IBM Corporation - initial API and implementation
@@ -1338,6 +1342,8 @@ public void test011_problem_categories() {
 	    expectedProblemAttributes.put("JavadocInvalidModule", new ProblemAttributes(CategorizedProblem.CAT_INTERNAL));
 	    expectedProblemAttributes.put("UnderscoreCannotBeUsedHere", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    expectedProblemAttributes.put("UnnamedVariableMustHaveInitializer", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("ExpressionInPreConstructorContext", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
+	    expectedProblemAttributes.put("DisallowedStatementInPrologue", new ProblemAttributes(CategorizedProblem.CAT_PREVIEW_RELATED));
 	    StringBuilder failures = new StringBuilder();
 		StringBuilder correctResult = new StringBuilder(70000);
 		Field[] fields = (iProblemClass = IProblem.class).getFields();
@@ -2449,6 +2455,8 @@ public void test012_compiler_problems_tuning() {
 	    expectedProblemAttributes.put("JavadocInvalidModule", SKIP);
 	    expectedProblemAttributes.put("UnderscoreCannotBeUsedHere", SKIP);
 	    expectedProblemAttributes.put("UnnamedVariableMustHaveInitializer", SKIP);
+	    expectedProblemAttributes.put("ExpressionInPreConstructorContext",  SKIP);
+	    expectedProblemAttributes.put("DisallowedStatementInPrologue",  SKIP);
 
 	    Map constantNamesIndex = new HashMap();
 		Field[] fields = JavaCore.class.getFields();
