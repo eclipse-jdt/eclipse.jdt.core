@@ -260,7 +260,8 @@ public class WhileStatement extends Statement {
 		// output condition and branch back to the beginning of the repeated action
 		if (this.continueLabel != null || conditionInjectsBindings) {
 			if (conditionInjectsBindings) {
-				codeStream.goto_(this.continueLabel);
+				if (this.continueLabel != null)
+					codeStream.goto_(this.continueLabel);
 			} else {
 				this.continueLabel.place();
 				this.condition.generateOptimizedBoolean(

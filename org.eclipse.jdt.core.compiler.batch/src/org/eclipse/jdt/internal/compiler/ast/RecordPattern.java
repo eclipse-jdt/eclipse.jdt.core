@@ -69,18 +69,16 @@ public class RecordPattern extends Pattern {
 		for (Pattern p : this.patterns) {
 			 flowInfo = p.analyseCode(currentScope, flowContext, flowInfo);
 		}
-		flowInfo = flowInfo.safeInitsWhenTrue(); // TODO: is this really needed?
 		return flowInfo;
 	}
 
 	@Override
 	public boolean coversType(TypeBinding t) {
 
-		if (!isEffectivelyUnguarded())
+		if (!isUnguarded())
 			return false;
 
 		if (TypeBinding.equalsEquals(t, this.resolvedType)) {
-			// return the already computed value
 			return this.isTotalTypeNode;
 		}
 		if (!t.isRecord())
@@ -199,7 +197,7 @@ public class RecordPattern extends Pattern {
 		   every component pattern, if any, in L dominates the corresponding component
 		   pattern in M.
 		*/
-		if (!isEffectivelyUnguarded())
+		if (!isUnguarded())
 			return false;
 
 		if (this.resolvedType == null || !this.resolvedType.isValidBinding() || p.resolvedType == null || !p.resolvedType.isValidBinding())

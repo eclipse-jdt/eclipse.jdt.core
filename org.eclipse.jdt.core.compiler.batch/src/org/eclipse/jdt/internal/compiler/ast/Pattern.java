@@ -22,25 +22,20 @@ import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
 
 public abstract class Pattern extends Expression {
 
-	/* package */ boolean isTotalTypeNode = false;
+	boolean isTotalTypeNode = false;
 
 	private Pattern enclosingPattern;
+
 	protected MethodBinding accessorMethod;
 
 	public int index = -1; // index of this in enclosing record pattern, or -1 for top level patterns
 
-	public boolean isEffectivelyUnguarded = true; // no guard or guard is compile time constant true.
+	public boolean isUnguarded = true; // no guard or guard is compile time constant true.
 
-	/**
-	 * @return the enclosingPattern
-	 */
 	public Pattern getEnclosingPattern() {
 		return this.enclosingPattern;
 	}
 
-	/**
-	 * @param enclosingPattern the enclosingPattern to set
-	 */
 	public void setEnclosingPattern(RecordPattern enclosingPattern) {
 		this.enclosingPattern = enclosingPattern;
 	}
@@ -55,20 +50,20 @@ public abstract class Pattern extends Expression {
 	 * @return whether pattern covers the given type or not
 	 */
 	public boolean coversType(TypeBinding type) {
-		if (!isEffectivelyUnguarded())
+		if (!isUnguarded())
 			return false;
 		if (type == null || this.resolvedType == null)
 			return false;
 		return (type.isSubtypeOf(this.resolvedType, false));
 	}
 
-	// Given a non-null instance of appropriate type, would the pattern always match ?
+	// Given a non-null instance of same type, would the pattern always match ?
 	public boolean matchFailurePossible() {
 		return false;
 	}
 
 	public boolean isUnconditional(TypeBinding t) {
-		return isEffectivelyUnguarded() && coversType(t);
+		return isUnguarded() && coversType(t);
 	}
 
 	public abstract void generateCode(BlockScope currentScope, CodeStream codeStream, BranchLabel patternMatchLabel, BranchLabel matchFailLabel);
@@ -120,11 +115,11 @@ public abstract class Pattern extends Expression {
 
 	public abstract void setIsEitherOrPattern(); // if set, is one of multiple (case label) patterns and so pattern variables can't be named.
 
-	public boolean isEffectivelyUnguarded() {
-		return this.isEffectivelyUnguarded;
+	public boolean isUnguarded() {
+		return this.isUnguarded;
 	}
 
-	public void setIsEffectivelyGuarded() {
-		this.isEffectivelyUnguarded = false;
+	public void setIsGuarded() {
+		this.isUnguarded = false;
 	}
 }
