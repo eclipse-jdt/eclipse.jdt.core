@@ -19,7 +19,6 @@ import org.eclipse.jdt.internal.compiler.codegen.CodeStream;
 import org.eclipse.jdt.internal.compiler.flow.FlowContext;
 import org.eclipse.jdt.internal.compiler.flow.FlowInfo;
 import org.eclipse.jdt.internal.compiler.impl.Constant;
-import org.eclipse.jdt.internal.compiler.lookup.Binding;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.LocalVariableBinding;
 import org.eclipse.jdt.internal.compiler.lookup.TypeBinding;
@@ -103,8 +102,12 @@ public class GuardedPattern extends Pattern {
 		if (this.resolvedType != null || this.primaryPattern == null)
 			return this.resolvedType;
 		this.resolvedType = this.primaryPattern.resolveType(scope);
-
-		this.condition.resolveTypeExpectingWithBindings(this.primaryPattern.bindingsWhenTrue(), scope, TypeBinding.BOOLEAN);
+		try {
+			scope.resolvingGuardExpression = true; // as guards cannot nest in the same scope, no save & restore called for
+			this.condition.resolveTypeExpectingWithBindings(this.primaryPattern.bindingsWhenTrue(), scope, TypeBinding.BOOLEAN);
+		} finally {
+			scope.resolvingGuardExpression = false;
+		}
 		Constant cst = this.condition.optimizedBooleanConstant();
 		if (cst.typeID() == TypeIds.T_boolean && cst.booleanValue() == false) {
 			scope.problemReporter().falseLiteralInGuard(this.condition);
@@ -113,27 +116,6 @@ public class GuardedPattern extends Pattern {
 		if (!isEffectivelyUnguarded())
 			this.primaryPattern.setIsEffectivelyGuarded();
 
-		this.condition.traverse(new ASTVisitor() {
-			@Override
-			public boolean visit(
-					SingleNameReference ref,
-					BlockScope skope) {
-				LocalVariableBinding local = ref.localVariableBinding();
-				if (local != null) {
-					ref.bits |= ASTNode.IsUsedInPatternGuard;
-				}
-				return false;
-			}
-			@Override
-			public boolean visit(
-					QualifiedNameReference ref,
-					BlockScope skope) {
-				if ((ref.bits & ASTNode.RestrictiveFlagMASK) == Binding.LOCAL) {
-					ref.bits |= ASTNode.IsUsedInPatternGuard;
-				}
-				return false;
-			}
-		}, scope);
 		return this.resolvedType = this.primaryPattern.resolvedType;
 	}
 

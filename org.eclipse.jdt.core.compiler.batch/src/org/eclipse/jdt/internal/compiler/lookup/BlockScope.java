@@ -70,6 +70,7 @@ public class BlockScope extends Scope {
 	// annotation support
 	public boolean insideTypeAnnotation = false;
 	public Statement blockStatement;
+	public boolean resolvingGuardExpression = false;
 
     private boolean reparentLocals = false;
 
@@ -1431,6 +1432,12 @@ public void reportClashingDeclarations(LocalVariableBinding [] left, LocalVariab
 		}
 	}
 }
+
+@Override
+public boolean resolvingGuardExpression() {
+	return this.resolvingGuardExpression;
+}
+
 public void include(LocalVariableBinding[] bindings) {
 	// `this` is assumed to be populated with bindings.
 	if (bindings != null) {
