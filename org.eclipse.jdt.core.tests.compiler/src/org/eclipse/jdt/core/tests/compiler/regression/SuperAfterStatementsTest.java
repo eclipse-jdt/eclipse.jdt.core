@@ -31,7 +31,7 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 	static {
 //		TESTS_NUMBERS = new int [] { 1 };
 //		TESTS_RANGE = new int[] { 1, -1 };
-//		TESTS_NAMES = new String[] { "test032" };
+//		TESTS_NAMES = new String[] { "test037" };
 	}
 	private String extraLibPath;
 	public static Class<?> testClass() {
@@ -1267,5 +1267,38 @@ public class SuperAfterStatementsTest extends AbstractRegressionTest9 {
 		"Constructor call must be the first statement in a constructor\n" +
 		"----------\n"
 			);
+	}
+	public void test037() {
+		runConformTest(new String[] {
+			"X.java",
+				"""
+					interface I {
+					    void foo();
+					}
+					public class X {
+					    public static boolean b;
+					    static class Y { boolean b = true;}
+					    X() {}
+					    X(boolean b) {
+					        I l = () -> {
+					            X.b = new Y() {
+					                public boolean b() {
+					                    return this.b;
+					                }
+					            }.b();
+					        };
+					        l.foo();
+					        super();
+					    }
+
+					    public static void main(String argv[]) {
+					    	new X(true);
+					        System.out.println(X.b);
+					    }
+					}
+      			"""
+			},
+			"true"
+		);
 	}
 }
