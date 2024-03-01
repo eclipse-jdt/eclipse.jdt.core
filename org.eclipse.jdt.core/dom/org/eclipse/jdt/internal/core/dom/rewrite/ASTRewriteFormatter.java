@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2022 IBM Corporation and others.
+ * Copyright (c) 2000, 2024 IBM Corporation and others.
  *
  * This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License 2.0
@@ -29,6 +29,7 @@ import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.Statement;
+import org.eclipse.jdt.core.dom.StringFragment;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.formatter.IndentManipulation;
@@ -266,17 +267,11 @@ public final class ASTRewriteFormatter {
 			if (node instanceof Annotation) {
 				suffix= "\nclass A {}"; //$NON-NLS-1$
 				code= CodeFormatter.K_COMPILATION_UNIT;
-<<<<<<< Upstream, based on branch 'BETA_JAVA22' of https://github.com/eclipse-jdt/eclipse.jdt.core.git
 			} else if (node instanceof StringFragment) {
 //				prefix= "\""; //$NON-NLS-1$
 //				suffix= "\""; //$NON-NLS-1$
 				code= CodeFormatter.K_EXPRESSION;
-		} else {
-=======
-			} else {
->>>>>>> b6465cd Code modification
-				code= CodeFormatter.K_EXPRESSION;
-			}
+		}
 		} else if (node instanceof BodyDeclaration) {
 			code= CodeFormatter.K_CLASS_BODY_DECLARATIONS;
 		} else {
