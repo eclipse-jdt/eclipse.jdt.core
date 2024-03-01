@@ -29,7 +29,6 @@ import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.BodyDeclaration;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.Statement;
-import org.eclipse.jdt.core.dom.StringFragment;
 import org.eclipse.jdt.core.formatter.CodeFormatter;
 import org.eclipse.jdt.core.formatter.DefaultCodeFormatterConstants;
 import org.eclipse.jdt.core.formatter.IndentManipulation;
@@ -267,11 +266,9 @@ public final class ASTRewriteFormatter {
 			if (node instanceof Annotation) {
 				suffix= "\nclass A {}"; //$NON-NLS-1$
 				code= CodeFormatter.K_COMPILATION_UNIT;
-			} else if (node instanceof StringFragment) {
-//				prefix= "\""; //$NON-NLS-1$
-//				suffix= "\""; //$NON-NLS-1$
+			} else {
 				code= CodeFormatter.K_EXPRESSION;
-		}
+			}
 		} else if (node instanceof BodyDeclaration) {
 			code= CodeFormatter.K_CLASS_BODY_DECLARATIONS;
 		} else {
