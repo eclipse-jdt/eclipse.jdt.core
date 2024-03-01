@@ -614,7 +614,6 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 			this.list= getEvent(parent, property).getChildren();
 
 			int total= this.list.length;
-
 			if (total == 0) {
 				return this.startPos;
 			}
