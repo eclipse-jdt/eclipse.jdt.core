@@ -112,7 +112,6 @@ public class ASTRewritingTest extends AbstractJavaModelTests {
 	/** @deprecated using deprecated code */
 	private final static int JLS21_INTERNAL = AST.JLS21;
 
-	@SuppressWarnings("unused")
 	private final static int JLS22_INTERNAL = AST.JLS22;
 
 	private final static int[] JLS_LEVELS = { JLS2_INTERNAL, JLS3_INTERNAL, JLS4_INTERNAL, JLS8_INTERNAL, JLS9_INTERNAL,
