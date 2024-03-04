@@ -29,8 +29,6 @@ import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Map;
 
-import junit.framework.Test;
-
 import org.eclipse.core.filesystem.URIUtil;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -80,6 +78,8 @@ import org.eclipse.jdt.internal.core.JavaProject;
 import org.eclipse.jdt.internal.core.UserLibraryClasspathContainer;
 import org.eclipse.jdt.internal.core.builder.State;
 import org.eclipse.team.core.RepositoryProvider;
+
+import junit.framework.Test;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class ClasspathTests extends ModifyingResourceTests {
@@ -3502,6 +3502,7 @@ public void testExtraLibraries06() throws Exception {
 public void testExtraLibraries07() throws Exception {
 	try {
 		IJavaProject p = createJavaProject("P");
+		createExternalFile("lib2.jar", "");
 		addExternalLibrary(p, getExternalResourcePath("lib1.jar"), new String[0],
 			new String[] {
 				"META-INF/MANIFEST.MF",
@@ -3509,7 +3510,6 @@ public void testExtraLibraries07() throws Exception {
 				"Class-Path: lib2.jar\n",
 			},
 			JavaCore.VERSION_1_4);
-		createExternalFile("lib2.jar", "");
 		assertClasspathEquals(
 			p.getResolvedClasspath(true),
 			"/P[CPE_SOURCE][K_SOURCE][isExported:false]\n" +
