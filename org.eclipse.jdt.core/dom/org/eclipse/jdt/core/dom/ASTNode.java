@@ -1102,7 +1102,7 @@ public abstract class ASTNode {
 	/**
 	 * Node type constant indicating a node of type
 	 * <code>EitherOrMultiPattern</code>.
-	 * @since 3.37
+	 * @since 3.38
 	 * @noreference This field is not intended to be referenced by clients.
 	 */
 	public static final int EitherOr_MultiPattern = 118;

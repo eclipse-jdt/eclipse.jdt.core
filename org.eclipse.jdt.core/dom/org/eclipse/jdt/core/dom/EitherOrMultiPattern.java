@@ -28,7 +28,7 @@ import org.eclipse.jdt.internal.core.dom.util.DOMASTUtil;
  * }
  * </pre>
  *
- * @since 3.37
+ * @since 3.38
  * @noinstantiate This class is not intended to be instantiated by clients.
  * @noreference This class is not intended to be referenced by clients.
  */
