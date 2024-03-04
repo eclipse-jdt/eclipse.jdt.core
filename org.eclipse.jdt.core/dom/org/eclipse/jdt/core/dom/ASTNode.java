@@ -1100,6 +1100,13 @@ public abstract class ASTNode {
 	public static final int STRING_TEMPLATE_COMPONENT = 117;
 
 	/**
+	 * @see UnnamedClass
+	 * @since 3.37
+	 * @noreference This field is not intended to be referenced by clients.
+	 */
+	public static final int UNNAMED_CLASS = 118;
+
+	/**
 	 * Returns the node class for the corresponding node type.
 	 *
 	 * @param nodeType AST node type
@@ -1345,6 +1352,8 @@ public abstract class ASTNode {
 				return StringFragment.class;
 			case STRING_TEMPLATE_COMPONENT :
 				return StringTemplateComponent.class;
+			case UNNAMED_CLASS :
+				return UnnamedClass.class;
 		}
 		throw new IllegalArgumentException();
 	}
@@ -2076,7 +2085,7 @@ public abstract class ASTNode {
 	 * @since 3.0
 	 */
 	List internalGetChildListProperty(ChildListPropertyDescriptor property) {
-		throw new RuntimeException("Node does not have this property");  //$NON-NLS-1$
+		throw new RuntimeException("Node does not have this property" + property.toString());  //$NON-NLS-1$
 	}
 
 	/**

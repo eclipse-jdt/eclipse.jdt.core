@@ -2595,25 +2595,24 @@ public void test079() {
 			"	}\n" +
 			"}\n"
 		},
-		"----------\n" +
-		"1. ERROR in Hello.java (at line 1)\n" +
-		"	void ___eval() {\n" +
-		"	^^^^^^^^^^^^^^\n" +
-		"Syntax error on tokens, delete these tokens\n" +
-		"----------\n" +
-		"2. ERROR in Hello.java (at line 2)\n" +
-		"	new Runnable() {\n" +
-		"		int ___run() throws Throwable {\n" +
-		"			return blah;\n" +
-		"		}\n" +
-		"		private String blarg;\n" +
-		"		public void run() {\n" +
-		"		}\n" +
-		"	};\n" +
-		"}\n" +
-		"	^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n" +
-		"Syntax error on tokens, delete these tokens\n" +
-		"----------\n"
+		"""
+		----------
+		1. ERROR in Hello.java (at line 1)
+			void ___eval() {
+			^
+		The preview feature Unnamed Classes and Instance Main Methods is only available with source level 21 and above
+		----------
+		2. ERROR in Hello.java (at line 4)
+			return blah;
+			       ^^^^
+		blah cannot be resolved to a variable
+		----------
+		3. ERROR in Hello.java (at line 14)
+			public static void main(String[] args) {
+			                   ^^^^^^^^^^^^^^^^^^^
+		The method main cannot be declared static; static methods can only be declared in a static or top level type
+		----------
+		"""
 	);
 }
 /*

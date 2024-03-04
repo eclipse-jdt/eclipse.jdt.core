@@ -4517,11 +4517,14 @@ public void test63() {
 		"int x;\n";
 
 	String expectedUnitToString =
-		"public class X {\n"
+		"final class <unnamed_class$test63: full parse> {\n"
+		+ "\tpublic class X {\n"
+		+ "\t\tjava.lang.Object(0)\n"
+		+ "\t\tint foo() {}\n"
+		+ "\t}\n"
 		+ "\tint x;\n"
 		+ "\tjava.lang.Object(0)\n"
-		+ "\tint foo() {}\n"
-		+ "}";
+		+"}";
 
 	String testName = "test63: full parse";
 	fullParse(s,testName);
@@ -4545,7 +4548,14 @@ public void test63() {
 	assertEquals("Invalid declaration source start for field x", 60, fields[0].getDeclarationSourceStart());
 	assertEquals("Invalid declaration source end for field x", 65, fields[0].getDeclarationSourceEnd());
 
-	SourceMethod[] methods = this.currentType.getMethods();
+	SourceType[] types = this.currentType.getMemberTypes();
+	assertTrue("invalid member types", types != null);
+	assertEquals("has one member type", 1, types.length);
+
+	assertEquals("Invalid member type declaration start", 0, types[0].getDeclarationSourceStart());
+	assertEquals("Invalid member type declaration start", 47, types[0].getDeclarationSourceEnd());
+
+	SourceMethod[] methods = this.currentType.getMemberTypes()[0].getMethods();
 	assertTrue(" invalid methods ", methods != null);
 	assertEquals("has one method", 1, methods.length);
 
@@ -4553,9 +4563,6 @@ public void test63() {
 	assertEquals("Invalid declaration source end for method foo", 37, methods[0].getDeclarationSourceEnd());
 
 	assertEquals(" Invalid actual name for method foo", "foo", methods[0].getActualName());
-
-	SourceType[] members = this.currentType.getMemberTypes();
-	assertTrue(" invalid members ", members == null);
 
 	assertEquals(
 		"Invalid source " + testName,
@@ -4571,10 +4578,13 @@ public void test64() {
 		"int x;\n";
 
 	String expectedUnitToString =
-		"public class X {\n"
-		+ "\tint x;\n"
-		+ "\tint foo() {}\n"
-		+ "}";
+			"final class <unnamed_class$test64: diet parse> {\n"
+			+ "\tpublic class X {\n"
+			+ "\t\tint foo() {}\n"
+			+ "\t}\n"
+			+ "\tint x;\n"
+			+"}";
+
 
 	String testName = "test64: diet parse";
 	dietParse(s,testName);
@@ -4598,7 +4608,14 @@ public void test64() {
 	assertEquals("Invalid declaration source start for field x", 60, fields[0].getDeclarationSourceStart());
 	assertEquals("Invalid declaration source end for field x", 65, fields[0].getDeclarationSourceEnd());
 
-	SourceMethod[] methods = this.currentType.getMethods();
+	SourceType[] types = this.currentType.getMemberTypes();
+	assertTrue("invalid member types", types != null);
+	assertEquals("has one member type", 1, types.length);
+
+	assertEquals("Invalid member type declaration start", 0, types[0].getDeclarationSourceStart());
+	assertEquals("Invalid member type declaration start", 47, types[0].getDeclarationSourceEnd());
+
+	SourceMethod[] methods = this.currentType.getMemberTypes()[0].getMethods();
 	assertTrue(" invalid methods ", methods != null);
 	assertEquals("has one method", 1, methods.length);
 
@@ -4606,9 +4623,6 @@ public void test64() {
 	assertEquals("Invalid declaration source end for method foo", 37, methods[0].getDeclarationSourceEnd());
 
 	assertEquals(" Invalid actual name for method foo", "foo", methods[0].getActualName());
-
-	SourceType[] members = this.currentType.getMemberTypes();
-	assertTrue(" invalid members ", members == null);
 
 	assertEquals(
 		"Invalid source " + testName,
@@ -4624,9 +4638,10 @@ public void test65() {
 		"int x();\n";
 
 	String expectedUnitToString =
-		"public class X {\n"
-		+ "\t{}\n"
-		+ "\tint foo() {}\n"
+		"final class <unnamed_class$test65: diet parse> {\n"
+		+ "\tpublic class X {\n"
+		+ "\t\tint foo() {}\n"
+		+ "\t}\n"
 		+ "\tint x() {}\n"
 		+ "}";
 
@@ -4646,28 +4661,29 @@ public void test65() {
 	assertTrue("has no superinterfaces " , this.currentType.getInterfaceNames() == null);
 
 	SourceField[] fields = this.currentType.getFields();
-	assertTrue(" invalid fields ", fields != null);
-	assertEquals(" invalid fields length ", 1, fields.length);
-
-	assertEquals("Invalid declaration source start for initializer", 47, fields[0].getDeclarationSourceStart());
-	assertEquals("Invalid declaration source end for initializer", 47, fields[0].getDeclarationSourceEnd());
+	assertTrue(" invalid fields ", fields == null);
 
 	SourceMethod[] methods = this.currentType.getMethods();
 	assertTrue(" invalid methods ", methods != null);
-	assertEquals("has two methods", 2, methods.length);
+	assertEquals("has one method", 1, methods.length);
 
-	assertEquals("Invalid declaration source start for method foo", 27, methods[0].getDeclarationSourceStart());
-	assertEquals("Invalid declaration source end for method foo", 37, methods[0].getDeclarationSourceEnd());
+	assertEquals("Invalid declaration source start for method x", 60, methods[0].getDeclarationSourceStart());
+	assertEquals("Invalid declaration source end for method x", 67, methods[0].getDeclarationSourceEnd());
 
-	assertEquals("Invalid declaration source start for method x", 60, methods[1].getDeclarationSourceStart());
-	assertEquals("Invalid declaration source end for method x", 67, methods[1].getDeclarationSourceEnd());
-
-	assertEquals(" Invalid actual name for method foo", "foo", methods[0].getActualName());
-
-	assertEquals(" Invalid actual name for method x", "x", methods[1].getActualName());
+	assertEquals(" Invalid actual name for method x", "x", methods[0].getActualName());
 
 	SourceType[] members = this.currentType.getMemberTypes();
-	assertTrue(" invalid members ", members == null);
+	assertTrue(" invalid members ", members != null);
+	assertEquals(" has one member type ", 1, members.length);
+
+	SourceMethod[] memberMethods = members[0].getMethods();
+	assertTrue(" invalid member methods ", memberMethods != null);
+	assertEquals(" has one member method ", 1, memberMethods.length);
+
+	assertEquals("Invalid declaration source start for method foo", 27, memberMethods[0].getDeclarationSourceStart());
+	assertEquals("Invalid declaration source end for method foo", 37, memberMethods[0].getDeclarationSourceEnd());
+
+	assertEquals(" Invalid actual name for method foo", "foo", memberMethods[0].getActualName());
 
 	assertEquals(
 		"Invalid source " + testName,
@@ -4683,8 +4699,10 @@ public void test66() {
 		"int x();\n";
 
 	String expectedUnitToString =
-		"public interface X {\n"
-		+ "\tint foo() {}\n"
+		"final class <unnamed_class$test66: diet parse> {\n"
+		+ "\tpublic interface X {\n"
+		+ "\t\tint foo() {}\n"
+		+ "\t}\n"
 		+ "\tint x() {}\n"
 		+ "}";
 
@@ -4708,20 +4726,25 @@ public void test66() {
 
 	SourceMethod[] methods = this.currentType.getMethods();
 	assertTrue(" invalid methods ", methods != null);
-	assertEquals("has two methods", 2, methods.length);
+	assertEquals("has one method", 1, methods.length);
 
-	assertEquals("Invalid declaration source start for method foo", 30, methods[0].getDeclarationSourceStart());
-	assertEquals("Invalid declaration source end for method foo", 41, methods[0].getDeclarationSourceEnd());
+	assertEquals("Invalid declaration source start for method x", 64, methods[0].getDeclarationSourceStart());
+	assertEquals("Invalid declaration source end for method x", 71, methods[0].getDeclarationSourceEnd());
 
-	assertEquals("Invalid declaration source start for method x", 64, methods[1].getDeclarationSourceStart());
-	assertEquals("Invalid declaration source end for method x", 71, methods[1].getDeclarationSourceEnd());
-
-	assertEquals(" Invalid actual name for method foo", "foo", methods[0].getActualName());
-
-	assertEquals(" Invalid actual name for method x", "x", methods[1].getActualName());
+	assertEquals(" Invalid actual name for method x", "x", methods[0].getActualName());
 
 	SourceType[] members = this.currentType.getMemberTypes();
-	assertTrue(" invalid members ", members == null);
+	assertTrue(" invalid members ", members != null);
+	assertEquals(" has 1 member type ", 1, members.length);
+
+	SourceMethod[] memberMethods = members[0].getMethods();
+	assertTrue("invalid member type methods", memberMethods != null);
+	assertEquals("member type has one method", 1, memberMethods.length);
+
+	assertEquals("Invalid declaration source start for method foo", 30, memberMethods[0].getDeclarationSourceStart());
+	assertEquals("Invalid declaration source end for method foo", 41, memberMethods[0].getDeclarationSourceEnd());
+
+	assertEquals(" Invalid actual name for method foo", "foo", memberMethods[0].getActualName());
 
 	assertEquals(
 		"Invalid source " + testName,

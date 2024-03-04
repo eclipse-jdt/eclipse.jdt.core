@@ -3825,28 +3825,30 @@ public void testBug521362_emptyFile() {
 		runNegativeModuleTest(files,
 				buffer,
 				"",
-				"----------\n" +
-				"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 1)\n" +
-				"	module mod.one { \n" +
-				"	^^^^^^\n" +
-				"Syntax error on token \"module\", package expected\n" +
-				"----------\n" +
-				"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 1)\n" +
-				"	module mod.one { \n" +
-				"	^^^^^^^^^^^^^^\n" +
-				"Syntax error on token(s), misplaced construct(s)\n" +
-				"----------\n" +
-				"3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 2)\n" +
-				"	requires java.sql;\n" +
-				"	             ^\n" +
-				"Syntax error on token \".\", , expected\n" +
-				"----------\n" +
-				"4. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 3)\n" +
-				"	}\n" +
-				"	^\n" +
-				"Syntax error on token \"}\", delete this token\n" +
-				"----------\n" +
-				"4 problems (4 errors)\n",
+				"""
+				----------
+				1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 1)
+					module mod.one {\s
+					^^^^^^
+				Syntax error on token(s), misplaced construct(s)
+				----------
+				2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 1)
+					module mod.one {\s
+					^^^^^^^^^^^^^^
+				Syntax error on token(s), misplaced construct(s)
+				----------
+				3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 2)
+					requires java.sql;
+					             ^
+				Syntax error on token ".", , expected
+				----------
+				4. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/src/mod.one/module-info.java (at line 3)
+					}
+					^
+				Syntax error on token "}", delete this token
+				----------
+				4 problems (4 errors)
+				""",
 				false,
 				"modules are not supported");
 	}
@@ -4223,24 +4225,30 @@ public void testBug521362_emptyFile() {
 				"module-info.java",
 				"module mod.one { \n" +
 				"}"
-	        },
+			},
 			" --release 8 \"" + OUTPUT_DIR +  File.separator + "module-info.java\" ",
-	        "",
-	        "----------\n" +
-    		"1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/module-info.java (at line 1)\n" +
-    		"	module mod.one { \n" +
-    		"	^^^^^^\n" +
-    		"Syntax error on token \"module\", package expected\n" +
-    		"----------\n" +
-    		"2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/module-info.java (at line 1)\n" +
-    		"	module mod.one { \n" +
-    		"}\n" +
-    		"	               ^^^^\n" +
-    		"Syntax error on tokens, delete these tokens\n" +
-    		"----------\n" +
-    		"2 problems (2 errors)\n",
-	        true,
-	        /*not tested with javac*/"");
+			"",
+			"""
+			----------
+			1. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/module-info.java (at line 1)
+				module mod.one {\s
+				^^^^^^
+			Syntax error on token(s), misplaced construct(s)
+			----------
+			2. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/module-info.java (at line 1)
+				module mod.one {\s
+				           ^^^
+			Syntax error, insert "Identifier (" to complete MethodHeaderName
+			----------
+			3. ERROR in ---OUTPUT_DIR_PLACEHOLDER---/module-info.java (at line 1)
+				module mod.one {\s
+				           ^^^
+			Syntax error, insert ")" to complete MethodDeclaration
+			----------
+			3 problems (3 errors)
+			""",
+			true,
+			/*not tested with javac*/"");
 	}
 	// Test from https://bugs.eclipse.org/bugs/show_bug.cgi?id=526997
 	public void testReleaseOption15() {

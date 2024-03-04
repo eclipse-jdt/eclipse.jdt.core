@@ -692,37 +692,44 @@ public class JavadocTest_1_4 extends JavadocTest {
 					"  */\n" +
 					" public class X<T, U, V extend Exception> {}"
 			},
-			"----------\n" +
-				"1. ERROR in X.java (at line 3)\n" +
-				"	* @param <T> Type parameter 2\n" +
-				"	         ^^^\n" +
-				"Javadoc: Invalid param tag name\n" +
-				"----------\n" +
-				"2. ERROR in X.java (at line 4)\n" +
-				"	* @param <V> Type parameter 2\n" +
-				"	         ^^^\n" +
-				"Javadoc: Invalid param tag name\n" +
-				"----------\n" +
-				"3. ERROR in X.java (at line 5)\n" +
-				"	* @param <U> Type parameter 1\n" +
-				"	         ^^^\n" +
-				"Javadoc: Invalid param tag name\n" +
-				"----------\n" +
-				"4. ERROR in X.java (at line 7)\n" +
-				"	public class X<T, U, V extend Exception> {}\n" +
-				"	              ^^^^^^\n" +
-				"Syntax error on tokens, delete these tokens\n" +
-				"----------\n" +
-				"5. ERROR in X.java (at line 7)\n" +
-				"	public class X<T, U, V extend Exception> {}\n" +
-				"	                   ^\n" +
-				"Syntax error, insert \"ClassBody\" to complete CompilationUnit\n" +
-				"----------\n" +
-				"6. ERROR in X.java (at line 7)\n" +
-				"	public class X<T, U, V extend Exception> {}\n" +
-				"	                       ^^^^^^\n" +
-				"extend cannot be resolved to a type\n" +
-				"----------\n"
+			"""
+			----------
+			1. ERROR in X.java (at line 3)
+				* @param <T> Type parameter 2
+				         ^^^
+			Javadoc: Invalid param tag name
+			----------
+			2. ERROR in X.java (at line 4)
+				* @param <V> Type parameter 2
+				         ^^^
+			Javadoc: Invalid param tag name
+			----------
+			3. ERROR in X.java (at line 5)
+				* @param <U> Type parameter 1
+				         ^^^
+			Javadoc: Invalid param tag name
+			----------
+			4. ERROR in X.java (at line 7)
+				public class X<T, U, V extend Exception> {}
+				^^^^^^^^^^^^^^^^^^^^^^
+			Syntax error on token(s), misplaced construct(s)
+			----------
+			5. ERROR in X.java (at line 7)
+				public class X<T, U, V extend Exception> {}
+				                       ^^^^^^
+			extend cannot be resolved to a type
+			----------
+			6. ERROR in X.java (at line 7)
+				public class X<T, U, V extend Exception> {}
+				                                       ^
+			Syntax error on token ">", = expected
+			----------
+			7. ERROR in X.java (at line 7)
+				public class X<T, U, V extend Exception> {}
+				                                          ^
+			Syntax error, insert ";" to complete CompilationUnit
+			----------
+			"""
 		);
 	}
 
