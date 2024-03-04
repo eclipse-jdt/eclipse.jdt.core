@@ -683,4 +683,34 @@ public class CompletionTests17 extends AbstractJavaModelCompletionTests {
 				requestor.getResults());
 
 	}
+
+	public void testGH1301_CompletionOnSwitchCaseWhenUsingString_ExpectVisibleCompletions() throws JavaModelException {
+		this.workingCopies = new ICompilationUnit[3];
+		this.workingCopies[1] = getWorkingCopy(
+				"/Completion/src/Values.java",
+				"public class Values {\n"
+						+ "	pubic static final String ONE = \"one\";"
+						+ "}\n");
+		this.workingCopies[0] = getWorkingCopy(
+				"/Completion/src/SwitchCase.java",
+				"public class SwitchCase {\n"
+						+ "public String foo(String v) {\n"
+						+ " 	return switch(v) { \n"
+						+ " 		case V\n"
+					+ " 		};\n"
+						+ "}\n"
+						+ "}\n");
+		CompletionTestsRequestor2 requestor = new CompletionTestsRequestor2(true, true, true, false);
+		String str = this.workingCopies[0].getSource();
+		String completeBehind = "case V";
+		int cursorLocation = str.lastIndexOf(completeBehind) + completeBehind.length();
+		this.workingCopies[0].codeComplete(cursorLocation, requestor, this.wcOwner);
+		assertResults(
+				"Values[TYPE_REF]{Values, , LValues;, null, null, null, null, [86, 87], "
+						+ (R_DEFAULT + R_RESOLVED + R_INTERESTING + R_CASE
+								+ R_UNQUALIFIED + R_NON_RESTRICTED)
+						+ "}",
+				requestor.getResults());
+	}
+
 }

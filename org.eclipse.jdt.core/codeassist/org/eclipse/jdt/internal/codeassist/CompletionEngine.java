@@ -3955,7 +3955,8 @@ public final class CompletionEngine
 			isSwitchEnumOrType = resolvedType.isEnum();
 			if(!isSwitchEnumOrType) {
 				if( this.compilerOptions.complianceLevel >= ClassFileConstants.JDK17)
-					isSwitchEnumOrType = resolvedType.isClass() || resolvedType.isInterface() || resolvedType.isRecord();
+					isSwitchEnumOrType = (resolvedType.id != TypeIds.T_JavaLangString)
+							&& (resolvedType.isClass() || resolvedType.isInterface() || resolvedType.isRecord());
 			}
 
 		}
