@@ -394,12 +394,9 @@ public static Object getExternalTarget(IPath path, boolean checkResourceExistenc
  * Helper method - returns whether an object is a file (i.e., it returns <code>true</code>
  * to {@link File#isFile()}.
  */
-public static boolean isFile(Object target) {
-	if (target instanceof File) {
-		IPath path = Path.fromOSString(((File) target).getPath());
-		return isExternalFile(path);
-	}
-	return false;
+public static boolean isFile(File target) {
+	IPath path = Path.fromOSString(target.getPath());
+	return isExternalFile(path);
 }
 
 public static boolean isJimage(File file) {
@@ -433,8 +430,8 @@ static private boolean isExternalFile(IPath path) {
  * Helper method - returns the {@link File} item if <code>target</code> is a file (i.e., the target
  * returns <code>true</code> to {@link File#isFile()}. Otherwise returns <code>null</code>.
  */
-public static File getFile(Object target) {
-	return isFile(target) ? (File) target : null;
+public static File getFile(File target) {
+	return isFile(target) ? target : null;
 }
 
 @Override

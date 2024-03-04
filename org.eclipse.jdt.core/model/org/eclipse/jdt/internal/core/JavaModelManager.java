@@ -2843,8 +2843,8 @@ public class JavaModelManager implements ISaveParticipant, IContentTypeChangeLis
 							entry.isExported());
 			}
 		}
-		if (target instanceof File) {
-			File externalFile = JavaModel.getFile(target);
+		if (target instanceof File tf) {
+			File externalFile = JavaModel.getFile(tf);
 			if (externalFile != null) {
 				// external binary archive
 				return JavaCore.newLibraryEntry(
