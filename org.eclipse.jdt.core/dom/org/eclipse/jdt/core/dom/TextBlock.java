@@ -24,7 +24,7 @@ import org.eclipse.jdt.internal.compiler.parser.ScannerHelper;
 import org.eclipse.jdt.internal.compiler.parser.TerminalTokens;
 
 /**
- * TextBolck  AST node type.
+ * TextBlock  AST node type.
  *
  * These are block of String literal nodes.
  *
