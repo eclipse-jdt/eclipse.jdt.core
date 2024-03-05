@@ -5280,8 +5280,8 @@ private boolean isRecoveredName(char[] simpleName) {
 
 private boolean isRecoveredName(char[][] qualifiedName) {
 	if(qualifiedName == null) return false;
-	for (char[] element : qualifiedName) {
-		if(element == RecoveryScanner.FAKE_IDENTIFIER) return true;
+	for (char[] segment : qualifiedName) {
+		if(segment == RecoveryScanner.FAKE_IDENTIFIER) return true;
 	}
 	return false;
 }

@@ -628,9 +628,9 @@ public class WildcardBinding extends ReferenceBinding {
 			if (this.superclass != null && this.superclass.hasTypeBit(~TypeIds.BitUninitialized))
 				this.typeBits |= (this.superclass.typeBits & TypeIds.InheritableBits);
 			if (this.superInterfaces != null)
-				for (ReferenceBinding element : this.superInterfaces)
-					if (element.hasTypeBit(~TypeIds.BitUninitialized))
-						this.typeBits |= (element.typeBits & TypeIds.InheritableBits);
+				for (ReferenceBinding superInterface : this.superInterfaces)
+					if (superInterface.hasTypeBit(~TypeIds.BitUninitialized))
+						this.typeBits |= (superInterface.typeBits & TypeIds.InheritableBits);
 		}
 		return (this.typeBits & bit) != 0;
 	}
@@ -719,8 +719,8 @@ public class WildcardBinding extends ReferenceBinding {
 			if (this.superclass != null && !this.superclass.isProperType(admitCapture18))
 				return false;
 			if (this.superInterfaces != null)
-				for (ReferenceBinding element : this.superInterfaces)
-					if (!element.isProperType(admitCapture18))
+				for (ReferenceBinding superInterface : this.superInterfaces)
+					if (!superInterface.isProperType(admitCapture18))
 						return false;
 			return true;
 		} finally {

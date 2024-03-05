@@ -970,8 +970,8 @@ public void storeDependencyInfo() {
 			recordSuperTypeReference(superclass);
 		ReferenceBinding[] interfaces = type.superInterfaces();
 		if (interfaces != null)
-			for (ReferenceBinding element : interfaces)
-				recordSuperTypeReference(element);
+			for (ReferenceBinding binding : interfaces)
+				recordSuperTypeReference(binding);
 	}
 
 	for (ReferenceBindingSetWrapper wrapper : this.referencedTypes) {

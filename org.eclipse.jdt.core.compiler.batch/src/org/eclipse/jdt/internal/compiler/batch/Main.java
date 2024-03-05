@@ -3256,8 +3256,7 @@ private void initializeWarnings(String propertiesFile) {
 		e.printStackTrace();
 		throw new IllegalArgumentException(this.bind("configure.ioexceptionwarningspropertiesfile", propertiesFile)); //$NON-NLS-1$
 	}
-	for (Object element : properties.entrySet()) {
-		Map.Entry entry = (Map.Entry) element;
+	for (Map.Entry entry : properties.entrySet()) {
 		final String key = entry.getKey().toString();
 		if (key.startsWith("org.eclipse.jdt.core.compiler.")) { //$NON-NLS-1$
 			this.options.put(key, entry.getValue().toString());
@@ -3727,10 +3726,10 @@ protected ArrayList<FileSystem.Classpath> handleEndorseddirs(ArrayList<String> e
 			for (int i = 0, max = endorsedDirsJars.length; i < max; i++) {
 				File[] current = endorsedDirsJars[i];
 				if (current != null) {
-					for (File element : current) {
+					for (File file : current) {
 						FileSystem.Classpath classpath =
 							FileSystem.getClasspath(
-									element.getAbsolutePath(),
+									file.getAbsolutePath(),
 									null, null, this.options, this.releaseVersion);
 						if (classpath != null) {
 							result.add(classpath);
@@ -3788,10 +3787,10 @@ protected ArrayList<FileSystem.Classpath> handleExtdirs(ArrayList<String> extdir
 			for (int i = 0, max = extdirsJars.length; i < max; i++) {
 				File[] current = extdirsJars[i];
 				if (current != null) {
-					for (File element : current) {
+					for (File file : current) {
 						FileSystem.Classpath classpath =
 							FileSystem.getClasspath(
-									element.getAbsolutePath(),
+									file.getAbsolutePath(),
 									null, null, this.options, this.releaseVersion);
 						if (classpath != null) {
 							result.add(classpath);

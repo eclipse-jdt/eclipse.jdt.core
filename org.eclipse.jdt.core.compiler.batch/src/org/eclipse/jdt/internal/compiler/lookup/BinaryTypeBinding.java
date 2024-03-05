@@ -366,9 +366,9 @@ public FieldBinding[] availableFields() {
 	}
 	FieldBinding[] availableFields = new FieldBinding[this.fields.length];
 	int count = 0;
-	for (FieldBinding field2 : this.fields) {
+	for (FieldBinding field : this.fields) {
 		try {
-			availableFields[count] = resolveTypeFor(field2);
+			availableFields[count] = resolveTypeFor(field);
 			count++;
 		} catch (AbortCompilation a){
 			// silent abort
@@ -427,9 +427,9 @@ public MethodBinding[] availableMethods() {
 	}
 	MethodBinding[] availableMethods = new MethodBinding[this.methods.length];
 	int count = 0;
-	for (MethodBinding method2 : this.methods) {
+	for (MethodBinding method : this.methods) {
 		try {
-			availableMethods[count] = resolveTypesFor(method2);
+			availableMethods[count] = resolveTypesFor(method);
 			count++;
 		} catch (AbortCompilation a){
 			// silent abort
@@ -615,14 +615,12 @@ void cachePartsFrom(IBinaryType binaryType, boolean needFieldsAndMethods) {
 			IBinaryMethod[] iMethods = createMethods(binaryType.getMethods(), binaryType, sourceLevel, missingTypeNames);
 			boolean isViewedAsDeprecated = isViewedAsDeprecated();
 			if (isViewedAsDeprecated) {
-				for (FieldBinding field2 : this.fields) {
-					FieldBinding field = field2;
+				for (FieldBinding field : this.fields) {
 					if (!field.isDeprecated()) {
 						field.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
 					}
 				}
-				for (MethodBinding method2 : this.methods) {
-					MethodBinding method = method2;
+				for (MethodBinding method : this.methods) {
 					if (!method.isDeprecated()) {
 						method.modifiers |= ExtraCompilerModifiers.AccDeprecatedImplicitly;
 					}
@@ -2674,8 +2672,8 @@ public String toString() {
 	if (this.fields != null) {
 		if (this.fields != Binding.NO_FIELDS) {
 			buffer.append("\n/*   fields   */"); //$NON-NLS-1$
-			for (FieldBinding field2 : this.fields)
-				buffer.append((field2 != null) ? "\n" + field2.toString() : "\nNULL FIELD"); //$NON-NLS-1$ //$NON-NLS-2$
+			for (FieldBinding field : this.fields)
+				buffer.append((field != null) ? "\n" + field.toString() : "\nNULL FIELD"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	} else {
 		buffer.append("NULL FIELDS"); //$NON-NLS-1$
@@ -2684,8 +2682,8 @@ public String toString() {
 	if (this.methods != null) {
 		if (this.methods != Binding.NO_METHODS) {
 			buffer.append("\n/*   methods   */"); //$NON-NLS-1$
-			for (MethodBinding method2 : this.methods)
-				buffer.append((method2 != null) ? "\n" + method2.toString() : "\nNULL METHOD"); //$NON-NLS-1$ //$NON-NLS-2$
+			for (MethodBinding method : this.methods)
+				buffer.append((method != null) ? "\n" + method.toString() : "\nNULL METHOD"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	} else {
 		buffer.append("NULL METHODS"); //$NON-NLS-1$

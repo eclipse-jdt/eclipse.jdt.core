@@ -417,9 +417,9 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 			}
 			Annotation [][] annotationsOnDimensions = getAnnotationsOnDimensions(true);
 			if (annotationsOnDimensions != null) {
-				for (Annotation[] annotations2 : annotationsOnDimensions) {
-					if (annotations2 != null) {
-						for (Annotation annotation : annotations2) {
+				for (Annotation[] annotationsOnDimension : annotationsOnDimensions) {
+					if (annotationsOnDimension != null) {
+						for (Annotation annotation : annotationsOnDimension) {
 							annotation.traverse(visitor, scope);
 						}
 					}
@@ -443,8 +443,8 @@ public class ParameterizedSingleTypeReference extends ArrayTypeReference {
 			}
 			Annotation [][] annotationsOnDimensions = getAnnotationsOnDimensions(true);
 			if (annotationsOnDimensions != null) {
-				for (Annotation[] annotations2 : annotationsOnDimensions) {
-					for (Annotation annotation : annotations2) {
+				for (Annotation[] annotationsOnDimension : annotationsOnDimensions) {
+					for (Annotation annotation : annotationsOnDimension) {
 						annotation.traverse(visitor, scope);
 					}
 				}

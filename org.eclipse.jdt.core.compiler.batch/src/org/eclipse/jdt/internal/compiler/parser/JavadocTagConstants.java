@@ -203,9 +203,9 @@ public interface JavadocTagConstants {
 		for( int i = 0; i < ret.length; i++ ) {
 			ret[i] = new char[][] {};
 		}
-		for (LevelTags element : input) {
-			int nextLevel = element.level - ClassFileConstants.MAJOR_VERSION_0;
-			ret[nextLevel] = element.tags;
+		for (LevelTags tag : input) {
+			int nextLevel = tag.level - ClassFileConstants.MAJOR_VERSION_0;
+			ret[nextLevel] = tag.tags;
 		}
 		return ret;
 	}

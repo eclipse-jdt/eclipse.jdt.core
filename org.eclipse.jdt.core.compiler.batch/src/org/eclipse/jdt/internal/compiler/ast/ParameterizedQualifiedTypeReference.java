@@ -482,17 +482,17 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 			}
 			Annotation [][] annotationsOnDimensions = getAnnotationsOnDimensions(true);
 			if (annotationsOnDimensions != null) {
-				for (Annotation[] annotations2 : annotationsOnDimensions) {
-					for (int j = 0, max2 = annotations2 == null ? 0 : annotations2.length; j < max2; j++) {
-						Annotation annotation = annotations2[j];
+				for (Annotation[] annotationsOnDimension : annotationsOnDimensions) {
+					for (int j = 0, max2 = annotationsOnDimension == null ? 0 : annotationsOnDimension.length; j < max2; j++) {
+						Annotation annotation = annotationsOnDimension[j];
 						annotation.traverse(visitor, scope);
 					}
 				}
 			}
 			for (TypeReference[] typeArgument : this.typeArguments) {
 				if (typeArgument != null) {
-					for (int j = 0, max2 = typeArgument.length; j < max2; j++) {
-						typeArgument[j].traverse(visitor, scope);
+					for (TypeReference typeReference : typeArgument) {
+						typeReference.traverse(visitor, scope);
 					}
 				}
 			}
@@ -513,17 +513,17 @@ public class ParameterizedQualifiedTypeReference extends ArrayQualifiedTypeRefer
 			}
 			Annotation [][] annotationsOnDimensions = getAnnotationsOnDimensions(true);
 			if (annotationsOnDimensions != null) {
-				for (Annotation[] annotations2 : annotationsOnDimensions) {
-					for (int j = 0, max2 = annotations2 == null ? 0 : annotations2.length; j < max2; j++) {
-						Annotation annotation = annotations2[j];
+				for (Annotation[] annotationsOnDimension : annotationsOnDimensions) {
+					for (int j = 0, max2 = annotationsOnDimension == null ? 0 : annotationsOnDimension.length; j < max2; j++) {
+						Annotation annotation = annotationsOnDimension[j];
 						annotation.traverse(visitor, scope);
 					}
 				}
 			}
 			for (TypeReference[] typeArgument : this.typeArguments) {
 				if (typeArgument != null) {
-					for (int j = 0, max2 = typeArgument.length; j < max2; j++) {
-						typeArgument[j].traverse(visitor, scope);
+					for (TypeReference argument : typeArgument) {
+						argument.traverse(visitor, scope);
 					}
 				}
 			}

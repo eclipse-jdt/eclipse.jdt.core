@@ -56,8 +56,8 @@ public class Sorting {
 		o = sortSuper(superclass, input, output, o);
 
 		ReferenceBinding[] superInterfaces = input[i].superInterfaces();
-		for (ReferenceBinding element : superInterfaces) {
-			o = sortSuper(element, input, output, o);
+		for (ReferenceBinding superInterface : superInterfaces) {
+			o = sortSuper(superInterface, input, output, o);
 		}
 
 		// done with supers, now input[i] can safely be transferred:

@@ -274,9 +274,9 @@ public class NullAnnotationMatching {
 					}
 					TypeBinding[] superInterfaces = requiredType.superInterfaces();
 					if (superInterfaces != null) {
-						for (TypeBinding element : superInterfaces) {
-							if (element.hasNullTypeAnnotations() || substitution != null) { // annotations may enter when substituting a nested type variable
-								NullAnnotationMatching status = analyse(element, providedType, null, substitution, nullStatus, providedExpression, CheckMode.BOUND_SUPER_CHECK);
+						for (TypeBinding superInterface : superInterfaces) {
+							if (superInterface.hasNullTypeAnnotations() || substitution != null) { // annotations may enter when substituting a nested type variable
+								NullAnnotationMatching status = analyse(superInterface, providedType, null, substitution, nullStatus, providedExpression, CheckMode.BOUND_SUPER_CHECK);
 								severity = severity.max(status.severity);
 								if (severity == Severity.MISMATCH)
 									return new NullAnnotationMatching(true, severity, nullStatus, superTypeHint);

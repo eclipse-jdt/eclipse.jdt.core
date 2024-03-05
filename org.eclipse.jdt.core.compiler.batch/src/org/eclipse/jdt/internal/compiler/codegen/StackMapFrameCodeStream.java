@@ -295,16 +295,10 @@ public class StackMapFrameCodeStream extends CodeStream {
 		int size = exceptionMarkerSet.size();
 		ExceptionMarker[] markers = new ExceptionMarker[size];
 		int n = 0;
-		for (Object element : exceptionMarkerSet) {
-			markers[n++] = (ExceptionMarker) element;
+		for (Object marker : exceptionMarkerSet) {
+			markers[n++] = (ExceptionMarker) marker;
 		}
 		Arrays.sort(markers);
-//  System.out.print('[');
-//  for (int n = 0; n < size; n++) {
-//  	if (n != 0) System.out.print(',');
-//  	System.out.print(positions[n]);
-//  }
-//  System.out.println(']');
 		return markers;
 	}
 
@@ -313,16 +307,10 @@ public class StackMapFrameCodeStream extends CodeStream {
 		int size = set.size();
 		int[] positions = new int[size];
 		int n = 0;
-		for (Object element : set) {
-			positions[n++] = ((Integer) element).intValue();
+		for (Object pos : set) {
+			positions[n++] = ((Integer) pos).intValue();
 		}
 		Arrays.sort(positions);
-//  System.out.print('[');
-//  for (int n = 0; n < size; n++) {
-//  	if (n != 0) System.out.print(',');
-//  	System.out.print(positions[n]);
-//  }
-//  System.out.println(']');
 		return positions;
 	}
 

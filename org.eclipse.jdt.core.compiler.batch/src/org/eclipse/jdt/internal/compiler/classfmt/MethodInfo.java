@@ -208,8 +208,8 @@ static AnnotationInfo[][] decodeParamAnnotations(int offset, boolean runtimeVisi
 					allParamAnnotations = new AnnotationInfo[numberOfParameters][];
 				AnnotationInfo[] annos = decodeAnnotations(readOffset, runtimeVisible, numberOfAnnotations, methodInfo);
 				allParamAnnotations[i] = annos;
-				for (AnnotationInfo element : annos)
-					readOffset += element.readOffset;
+				for (AnnotationInfo info : annos)
+					readOffset += info.readOffset;
 			}
 		}
 	}

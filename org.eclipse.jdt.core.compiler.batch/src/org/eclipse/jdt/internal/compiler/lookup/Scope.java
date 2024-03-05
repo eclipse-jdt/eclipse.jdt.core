@@ -135,8 +135,8 @@ public abstract class Scope {
 		}
 
 		boolean contains(Annotation annotation) {
-			for (Annotation annotation2 : this.annotations) {
-				if (annotation2 == annotation)
+			for (Annotation a : this.annotations) {
+				if (a == annotation)
 					return true;
 			}
 			return false;
@@ -1262,8 +1262,8 @@ public abstract class Scope {
 				if (compatibleMethod != null) {
 					if (compatibleMethod.isValidBinding()) {
 						if (concreteMatches != null) {
-							for (MethodBinding element : concreteMatches) {
-								if (methodVerifier.areMethodsCompatible(element, compatibleMethod))
+							for (MethodBinding concreteMatch : concreteMatches) {
+								if (methodVerifier.areMethodsCompatible(concreteMatch, compatibleMethod))
 									continue; // can skip this method since concreteMatch overrides it
 							}
 						}
@@ -4071,8 +4071,8 @@ public abstract class Scope {
 
 		// infer proper parameterized type from invocations
 		TypeBinding[] bestArguments = new TypeBinding[argLength];
-		for (TypeBinding invocation2 : invocations) {
-			TypeBinding invocation = invocation2.leafComponentType();
+		for (TypeBinding binding : invocations) {
+			TypeBinding invocation = binding.leafComponentType();
 			switch (invocation.kind()) {
 				case Binding.GENERIC_TYPE :
 					TypeVariableBinding[] invocationVariables = invocation.typeVariables();
@@ -4433,8 +4433,8 @@ public abstract class Scope {
 		int superLength = typesToVisit.size();
 		TypeBinding[] erasedSuperTypes = new TypeBinding[superLength];
 		int rank = 0;
-		for (Object element : typesToVisit) {
-			TypeBinding type = (TypeBinding)element;
+		for (Object typeToVisit : typesToVisit) {
+			TypeBinding type = (TypeBinding)typeToVisit;
 			leafType = type.leafComponentType();
 			erasedSuperTypes[rank++] = (leafType.isTypeVariable() || leafType.isWildcard() /*&& !leafType.isCapture()*/) ? type : type.erasure();
 		}

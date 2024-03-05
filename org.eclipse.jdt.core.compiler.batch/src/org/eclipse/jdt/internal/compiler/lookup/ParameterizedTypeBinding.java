@@ -1645,8 +1645,8 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			if (this.fields != null) {
 				if (this.fields != Binding.NO_FIELDS) {
 					buffer.append("\n/*   fields   */"); //$NON-NLS-1$
-					for (FieldBinding field2 : this.fields)
-						buffer.append('\n').append((field2 != null) ? field2.toString() : "NULL FIELD"); //$NON-NLS-1$
+					for (FieldBinding field : this.fields)
+						buffer.append('\n').append((field != null) ? field.toString() : "NULL FIELD"); //$NON-NLS-1$
 				}
 			} else {
 				buffer.append("NULL FIELDS"); //$NON-NLS-1$
@@ -1655,8 +1655,8 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			if (this.methods != null) {
 				if (this.methods != Binding.NO_METHODS) {
 					buffer.append("\n/*   methods   */"); //$NON-NLS-1$
-					for (MethodBinding method2 : this.methods)
-						buffer.append('\n').append((method2 != null) ? method2.toString() : "NULL METHOD"); //$NON-NLS-1$
+					for (MethodBinding method : this.methods)
+						buffer.append('\n').append((method != null) ? method.toString() : "NULL METHOD"); //$NON-NLS-1$
 				}
 			} else {
 				buffer.append("NULL METHODS"); //$NON-NLS-1$
@@ -1765,8 +1765,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		}
 		ReferenceBinding substitutedDeclaringType = (ReferenceBinding) declaringType.findSuperTypeOriginatingFrom(theAbstractMethod.declaringClass);
 		MethodBinding [] choices = substitutedDeclaringType.getMethods(theAbstractMethod.selector);
-		for (MethodBinding element : choices) {
-			MethodBinding method = element;
+		for (MethodBinding method : choices) {
 			if (!method.isAbstract() || method.redeclaresPublicObjectMethod(scope)) continue; // (re)skip statics, defaults, public object methods ...
 			if (method.problemId() == ProblemReasons.ContradictoryNullAnnotations)
 				method = ((ProblemMethodBinding) method).closestMatch;

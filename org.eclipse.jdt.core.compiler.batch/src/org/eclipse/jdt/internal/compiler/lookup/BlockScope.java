@@ -1399,8 +1399,8 @@ public void checkAppropriateMethodAgainstSupers(char[] selector, MethodBinding c
 	if (checkAppropriate(compileTimeMethod, otherMethod, site)) {
 		ReferenceBinding[] superInterfaces = enclosingType.superInterfaces();
 		if (superInterfaces != null) {
-			for (ReferenceBinding element : superInterfaces) {
-				otherMethod = getMethod(element, selector, parameters, site);
+			for (ReferenceBinding superInterface : superInterfaces) {
+				otherMethod = getMethod(superInterface, selector, parameters, site);
 				if (!checkAppropriate(compileTimeMethod, otherMethod, site))
 					break;
 			}

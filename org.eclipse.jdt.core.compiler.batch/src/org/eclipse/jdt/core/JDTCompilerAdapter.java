@@ -244,9 +244,8 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 		 */
 		if (this.attributes.getNowarn()) {
 			// disable all warnings
-			Object[] entries = this.customDefaultOptions.entrySet().toArray();
-			for (Object entry2 : entries) {
-				Map.Entry entry = (Map.Entry) entry2;
+			for (Object o : this.customDefaultOptions.entrySet()) {
+				Map.Entry entry = (Map.Entry) o;
 				if (!(entry.getKey() instanceof String))
 					continue;
 				if (!(entry.getValue() instanceof String))
@@ -550,8 +549,8 @@ public class JDTCompilerAdapter extends DefaultCompilerAdapter {
 			Arrays.sort(encodedDirs, comparator);
 		}
 
-		for (File element : this.compileList) {
-			String arg = element.getAbsolutePath();
+		for (File file : this.compileList) {
+			String arg = file.getAbsolutePath();
 			boolean encoded = false;
 			if (encodedFiles != null) {
 				//check for file level custom encoding

@@ -109,8 +109,8 @@ public class StringTemplate extends Expression {
 			output.append("\"\"\n"); //$NON-NLS-1$
 		for (int i = 0; i < length; i++) {
 			char[] source = this.fragments[i].source();
-			for (char element : source) {
-				Util.appendEscapedChar(output, element, true);
+			for (char c : source) {
+				Util.appendEscapedChar(output, c, true);
 			}
 			if (i + 1 < length) {
 				output.append("\\{"); //$NON-NLS-1$

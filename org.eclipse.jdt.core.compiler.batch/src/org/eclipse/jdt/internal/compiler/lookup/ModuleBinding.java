@@ -798,23 +798,23 @@ public class ModuleBinding extends Binding implements IUpdatableModule {
 		}
 		if (this.uses != null && this.uses.length > 0) {
 			buffer.append("\n/*    uses    /*\n"); //$NON-NLS-1$
-			for (TypeBinding element : this.uses) {
+			for (TypeBinding binding : this.uses) {
 				buffer.append("\n\t"); //$NON-NLS-1$
-				buffer.append(element.debugName());
+				buffer.append(binding.debugName());
 			}
 		} else {
 			buffer.append("\nNo Uses"); //$NON-NLS-1$
 		}
 		if (this.services != null && this.services.length > 0) {
 			buffer.append("\n/*    Services    */\n"); //$NON-NLS-1$
-			for (TypeBinding element : this.services) {
+			for (TypeBinding binding : this.services) {
 				buffer.append("\n\t"); //$NON-NLS-1$
 				buffer.append("provides "); //$NON-NLS-1$
-				buffer.append(element.debugName());
+				buffer.append(binding.debugName());
 				buffer.append(" with "); //$NON-NLS-1$
-				if (this.implementations != null && this.implementations.containsKey(element)) {
+				if (this.implementations != null && this.implementations.containsKey(binding)) {
 					String sep = ""; //$NON-NLS-1$
-					for (TypeBinding impl : this.implementations.get(element)) {
+					for (TypeBinding impl : this.implementations.get(binding)) {
 						buffer.append(sep).append(impl.debugName());
 						sep = ", "; //$NON-NLS-1$
 					}

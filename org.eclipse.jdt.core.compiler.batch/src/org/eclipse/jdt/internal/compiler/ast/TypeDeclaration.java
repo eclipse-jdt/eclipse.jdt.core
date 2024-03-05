@@ -617,9 +617,8 @@ public AbstractMethodDeclaration declarationOf(MethodBinding methodBinding) {
  */
 public RecordComponent declarationOf(RecordComponentBinding recordComponentBinding) {
 	if (recordComponentBinding != null && this.recordComponents != null) {
-		for (RecordComponent recordComponent2 : this.recordComponents) {
-			RecordComponent recordComponent;
-			if ((recordComponent = recordComponent2).binding == recordComponentBinding)
+		for (RecordComponent recordComponent : this.recordComponents) {
+			if (recordComponent.binding == recordComponentBinding)
 				return recordComponent;
 		}
 	}
@@ -869,8 +868,7 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 	FlowInfo nonStaticFieldInfo = flowInfo.unconditionalFieldLessCopy();
 	FlowInfo staticFieldInfo = flowInfo.unconditionalFieldLessCopy();
 	if (this.fields != null) {
-		for (FieldDeclaration field2 : this.fields) {
-			FieldDeclaration field = field2;
+		for (FieldDeclaration field : this.fields) {
 			if (field.isStatic()) {
 				if ((staticFieldInfo.tagBits & FlowInfo.UNREACHABLE_OR_DEAD) != 0)
 					field.bits &= ~ASTNode.IsReachable;
@@ -938,8 +936,7 @@ private void internalAnalyseCode(FlowContext flowContext, FlowInfo flowInfo) {
 		UnconditionalFlowInfo outerInfo = flowInfo.unconditionalFieldLessCopy();
 		FlowInfo constructorInfo = nonStaticFieldInfo.unconditionalInits().discardNonFieldInitializations().addInitializationsFrom(outerInfo);
 		SimpleSetOfCharArray jUnitMethodSourceValues = getJUnitMethodSourceValues();
-		for (AbstractMethodDeclaration method2 : this.methods) {
-			AbstractMethodDeclaration method = method2;
+		for (AbstractMethodDeclaration method : this.methods) {
 			if (method.ignoreFurtherInvestigation)
 				continue;
 			if (method.isInitializationMethod()) {
@@ -1492,9 +1489,9 @@ public void resolve() {
 					} else if (enumConstantsWithoutBody != null) {
 						for (final AbstractMethodDeclaration methodDeclaration : this.methods) {
 							if (methodDeclaration.isAbstract() && methodDeclaration.binding != null) {
-								for (FieldDeclaration element : enumConstantsWithoutBody)
-									if (element != null)
-										this.scope.problemReporter().enumConstantMustImplementAbstractMethod(methodDeclaration, element);
+								for (FieldDeclaration decl : enumConstantsWithoutBody)
+									if (decl != null)
+										this.scope.problemReporter().enumConstantMustImplementAbstractMethod(methodDeclaration, decl);
 							}
 						}
 					}

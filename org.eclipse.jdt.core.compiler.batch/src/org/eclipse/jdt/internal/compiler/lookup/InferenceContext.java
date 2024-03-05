@@ -106,7 +106,7 @@ public String toString() {
 		for (int j = TypeConstants.CONSTRAINT_EQUAL; j <= TypeConstants.CONSTRAINT_SUPER; j++) {
 			TypeBinding[] constraintCollected = collected[j];
 			if (constraintCollected != null) {
-				for (TypeBinding element : constraintCollected) {
+				for (TypeBinding binding : constraintCollected) {
 					buffer.append("\n\t\t").append(this.genericMethod.typeVariables[i].sourceName); //$NON-NLS-1$
 					switch (j) {
 						case TypeConstants.CONSTRAINT_EQUAL :
@@ -119,8 +119,8 @@ public String toString() {
 							buffer.append(">:"); //$NON-NLS-1$
 							break;
 					}
-					if (element != null) {
-						buffer.append(element.shortReadableName());
+					if (binding != null) {
+						buffer.append(binding.shortReadableName());
 					}
 				}
 			}

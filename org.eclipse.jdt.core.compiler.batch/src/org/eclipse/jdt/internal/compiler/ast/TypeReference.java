@@ -449,8 +449,8 @@ public void getAllAnnotationContexts(int targetType, int info, List<AnnotationCo
 	if (annotationsOnDimensions != null) {
 		for (Annotation[] annotationsOnDimension : annotationsOnDimensions) {
 			if (annotationsOnDimension != null) {
-				for (Annotation element : annotationsOnDimension) {
-					element.traverse(collector, (BlockScope) null);
+				for (Annotation annotation : annotationsOnDimension) {
+					annotation.traverse(collector, (BlockScope) null);
 				}
 			}
 		}
@@ -835,8 +835,8 @@ public boolean hasNullTypeAnnotation(AnnotationPosition position) {
 }
 public static boolean containsNullAnnotation(Annotation[] annotations) {
 	if (annotations != null) {
-		for (Annotation annotation2 : annotations) {
-			if (annotation2 != null && (annotation2.hasNullBit(TypeIds.BitNonNullAnnotation|TypeIds.BitNullableAnnotation)))
+		for (Annotation annotation : annotations) {
+			if (annotation != null && (annotation.hasNullBit(TypeIds.BitNonNullAnnotation|TypeIds.BitNullableAnnotation)))
 				return true;
 		}
 	}

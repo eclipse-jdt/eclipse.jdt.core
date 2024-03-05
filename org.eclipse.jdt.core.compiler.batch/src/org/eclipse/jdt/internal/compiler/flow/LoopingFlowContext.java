@@ -774,8 +774,8 @@ public void recordUsingNullReference(Scope scope, LocalVariableBinding local,
 	 */
 	public void simulateThrowAfterLoopBack(FlowInfo flowInfo) {
 		if (this.escapingExceptionCatchSites != null) {
-			for (Object element : this.escapingExceptionCatchSites) {
-				((EscapingExceptionCatchSite) element).simulateThrowAfterLoopBack(flowInfo);
+			for (Object site : this.escapingExceptionCatchSites) {
+				((EscapingExceptionCatchSite) site).simulateThrowAfterLoopBack(flowInfo);
 			}
 			this.escapingExceptionCatchSites = null; // don't care for it anymore.
 		}

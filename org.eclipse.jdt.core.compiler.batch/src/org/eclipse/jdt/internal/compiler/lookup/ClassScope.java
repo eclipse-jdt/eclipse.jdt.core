@@ -1601,8 +1601,7 @@ public class ClassScope extends Scope {
 
 			ReferenceBinding[] itsInterfaces = superType.superInterfaces();
 			if (itsInterfaces != null && itsInterfaces != Binding.NO_SUPERINTERFACES) {
-				for (ReferenceBinding element : itsInterfaces) {
-					ReferenceBinding anInterface = element;
+				for (ReferenceBinding anInterface : itsInterfaces) {
 					if (TypeBinding.equalsEquals(sourceType, anInterface)) {
 						problemReporter().hierarchyCircularity(sourceType, superType, reference);
 						sourceType.tagBits |= TagBits.HierarchyHasProblems;
@@ -1640,8 +1639,7 @@ public class ClassScope extends Scope {
 				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=319885 Don't cry foul prematurely.
 				// Check the edges traversed to see if there really is a cycle.
 				char [] referredName = ref.getLastToken();
-				for (Object element : environment().typesBeingConnected) {
-					SourceTypeBinding type = (SourceTypeBinding) element;
+				for (SourceTypeBinding type : environment().typesBeingConnected) {
 					if (CharOperation.equals(referredName, type.sourceName())) {
 						problemReporter().hierarchyCircularity(sourceType, superType, reference);
 						sourceType.tagBits |= TagBits.HierarchyHasProblems;

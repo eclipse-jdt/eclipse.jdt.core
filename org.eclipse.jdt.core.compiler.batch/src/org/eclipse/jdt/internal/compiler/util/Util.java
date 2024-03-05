@@ -604,8 +604,8 @@ public class Util implements SuffixConstants {
 			return 0;
 		}
 		int result = 1;
-		for (Object element : array) {
-			result = prime * result + (element == null ? 0 : element.hashCode());
+		for (Object o : array) {
+			result = prime * result + (o == null ? 0 : o.hashCode());
 		}
 		return result;
 	}
@@ -1116,8 +1116,8 @@ public class Util implements SuffixConstants {
 				if (systemLibrariesJars != null) {
 					for (File[] current : systemLibrariesJars) {
 						if (current != null) {
-							for (File element : current) {
-								filePaths.add(element.getAbsolutePath());
+							for (File file : current) {
+								filePaths.add(file.getAbsolutePath());
 							}
 						}
 					}

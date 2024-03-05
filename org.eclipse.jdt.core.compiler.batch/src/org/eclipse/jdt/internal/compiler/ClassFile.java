@@ -437,8 +437,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 				this.missingTypes = superclass.collectMissingTypes(this.missingTypes);
 			}
 			ReferenceBinding[] superInterfaces = this.referenceBinding.superInterfaces();
-			for (ReferenceBinding element : superInterfaces) {
-				this.missingTypes = element.collectMissingTypes(this.missingTypes);
+			for (ReferenceBinding superInterface : superInterfaces) {
+				this.missingTypes = superInterface.collectMissingTypes(this.missingTypes);
 			}
 			attributesNumber += generateHierarchyInconsistentAttribute();
 		}
@@ -3747,8 +3747,8 @@ public class ClassFile implements TypeConstants, TypeIds {
 				int markerInterfaceCountIndex =  this.constantPool.literalIndex(markerInterfaces.length);
 				this.contents[localContentsOffset++] = (byte)(markerInterfaceCountIndex>>8);
 				this.contents[localContentsOffset++] = (byte)(markerInterfaceCountIndex);
-				for (TypeBinding element : markerInterfaces) {
-					int classTypeIndex = this.constantPool.literalIndexForType(element);
+				for (TypeBinding markerInterface : markerInterfaces) {
+					int classTypeIndex = this.constantPool.literalIndexForType(markerInterface);
 					this.contents[localContentsOffset++] = (byte)(classTypeIndex>>8);
 					this.contents[localContentsOffset++] = (byte)(classTypeIndex);
 				}
@@ -4863,9 +4863,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 			Argument argument = arguments[i];
 			Annotation[] annotations = argument.annotations;
 			if (annotations != null) {
-				for (Annotation annotation2 : annotations) {
+				for (Annotation a : annotations) {
 					Annotation annotation;
-					if ((annotation = annotation2.getPersistibleAnnotation()) == null) continue; // already packaged into container.
+					if ((annotation = a.getPersistibleAnnotation()) == null) continue; // already packaged into container.
 					long annotationMask = annotation.resolvedType != null ? annotation.resolvedType.getAnnotationTagBits() & TagBits.AnnotationTargetMASK : 0;
 					if (annotationMask != 0 && (annotationMask & TagBits.AnnotationForParameter) == 0) continue;
 					if (annotation.isRuntimeInvisible()) {
@@ -4909,9 +4909,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 					if (numberOfInvisibleAnnotations != 0) {
 						Argument argument = arguments[i];
 						Annotation[] annotations = argument.annotations;
-						for (Annotation annotation2 : annotations) {
+						for (Annotation a : annotations) {
 							Annotation annotation;
-							if ((annotation = annotation2.getPersistibleAnnotation()) == null) continue; // already packaged into container.
+							if ((annotation = a.getPersistibleAnnotation()) == null) continue; // already packaged into container.
 							long annotationMask = annotation.resolvedType != null ? annotation.resolvedType.getAnnotationTagBits() & TagBits.AnnotationTargetMASK : 0;
 							if (annotationMask != 0 && (annotationMask & TagBits.AnnotationForParameter) == 0) continue;
 							if (annotation.isRuntimeInvisible()) {
@@ -4970,9 +4970,9 @@ public class ClassFile implements TypeConstants, TypeIds {
 					if (numberOfVisibleAnnotations != 0) {
 						Argument argument = arguments[i];
 						Annotation[] annotations = argument.annotations;
-						for (Annotation annotation2 : annotations) {
+						for (Annotation a : annotations) {
 							Annotation annotation;
-							if ((annotation = annotation2.getPersistibleAnnotation()) == null) continue; // already packaged into container.
+							if ((annotation = a.getPersistibleAnnotation()) == null) continue; // already packaged into container.
 							long annotationMask = annotation.resolvedType != null ? annotation.resolvedType.getAnnotationTagBits() & TagBits.AnnotationTargetMASK : 0;
 							if (annotationMask != 0 && (annotationMask & TagBits.AnnotationForParameter) == 0) continue;
 							if (annotation.isRuntimeVisible()) {

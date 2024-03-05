@@ -584,8 +584,8 @@ void computeInheritedMethods(ReferenceBinding superclass, ReferenceBinding[] sup
 			} else {
 				MethodBinding[] nonVisible = (MethodBinding[]) nonVisibleDefaultMethods.get(inheritedMethod.selector);
 				if (nonVisible != null && inheritedMethod.isAbstract())
-					for (MethodBinding element : nonVisible)
-						if (areMethodsCompatible(element, inheritedMethod))
+					for (MethodBinding binding : nonVisible)
+						if (areMethodsCompatible(binding, inheritedMethod))
 							continue nextMethod;
 				if (nonVisible == null) {
 					nonVisible = new MethodBinding[] {inheritedMethod};
@@ -932,8 +932,8 @@ static boolean hasGenericParameter(MethodBinding method) {
 
 	// may be only the return type that is generic, need to check parameters
 	TypeBinding[] params = method.parameters;
-	for (TypeBinding param2 : params) {
-		TypeBinding param = param2.leafComponentType();
+	for (TypeBinding binding : params) {
+		TypeBinding param = binding.leafComponentType();
 		if (param instanceof ReferenceBinding) {
 			int modifiers = ((ReferenceBinding) param).modifiers;
 			if ((modifiers & ExtraCompilerModifiers.AccGenericSignature) != 0)

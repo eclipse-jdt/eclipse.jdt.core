@@ -1984,8 +1984,8 @@ public static final boolean contains(char[] characters, char[] array) {
  * @since 3.14
  */
 public static boolean containsEqual(char[][] array, char[] sequence) {
-	for (char[] element : array) {
-		if (equals(element, sequence))
+	for (char[] c : array) {
+		if (equals(c, sequence))
 			return true;
 	}
 	return false;
@@ -3354,8 +3354,8 @@ public static final boolean pathMatch(
  */
 public static final int occurencesOf(char toBeFound, char[] array) {
 	int count = 0;
-	for (char element : array)
-		if (toBeFound == element)
+	for (char c : array)
+		if (toBeFound == c)
 			count++;
 	return count;
 }
