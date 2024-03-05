@@ -991,9 +991,9 @@ public final boolean isDuplicateLocalVariable(char[] name) {
 public int maxShiftedOffset() {
 	int max = -1;
 	if (this.shiftScopes != null){
-		for (int i = 0, length = this.shiftScopes.length; i < length; i++){
-			if (this.shiftScopes[i] != null) {
-				int subMaxOffset = this.shiftScopes[i].maxOffset;
+		for (BlockScope shiftScope : this.shiftScopes) {
+			if (shiftScope != null) {
+				int subMaxOffset = shiftScope.maxOffset;
 				if (subMaxOffset > max) max = subMaxOffset;
 			}
 		}
@@ -1049,8 +1049,7 @@ public void propagateInnerEmulation(ReferenceBinding targetType, boolean isEnclo
 
 	SyntheticArgumentBinding[] syntheticArguments;
 	if ((syntheticArguments = targetType.syntheticOuterLocalVariables()) != null) {
-		for (int i = 0, max = syntheticArguments.length; i < max; i++) {
-			SyntheticArgumentBinding syntheticArg = syntheticArguments[i];
+		for (SyntheticArgumentBinding syntheticArg : syntheticArguments) {
 			// need to filter out the one that could match a supplied enclosing instance
 			if (!(isEnclosingInstanceSupplied
 				&& (TypeBinding.equalsEquals(syntheticArg.type, targetType.enclosingType())))) {
@@ -1400,8 +1399,8 @@ public void checkAppropriateMethodAgainstSupers(char[] selector, MethodBinding c
 	if (checkAppropriate(compileTimeMethod, otherMethod, site)) {
 		ReferenceBinding[] superInterfaces = enclosingType.superInterfaces();
 		if (superInterfaces != null) {
-			for (int i = 0; i < superInterfaces.length; i++) {
-				otherMethod = getMethod(superInterfaces[i], selector, parameters, site);
+			for (ReferenceBinding element : superInterfaces) {
+				otherMethod = getMethod(element, selector, parameters, site);
 				if (!checkAppropriate(compileTimeMethod, otherMethod, site))
 					break;
 			}

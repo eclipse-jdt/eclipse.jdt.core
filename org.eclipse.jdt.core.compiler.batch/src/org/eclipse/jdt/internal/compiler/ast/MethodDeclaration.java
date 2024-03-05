@@ -100,8 +100,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 			// https://bugs.eclipse.org/bugs/show_bug.cgi?id=385780
 			if (this.typeParameters != null &&
 					!this.scope.referenceCompilationUnit().compilationResult.hasSyntaxError) {
-				for (int i = 0, length = this.typeParameters.length; i < length; ++i) {
-					TypeParameter typeParameter = this.typeParameters[i];
+				for (TypeParameter typeParameter : this.typeParameters) {
 					if ((typeParameter.binding.modifiers  & ExtraCompilerModifiers.AccLocallyUsed) == 0) {
 						this.scope.problemReporter().unusedTypeParameter(typeParameter);
 					}
@@ -168,8 +167,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 			if (this.statements != null) {
 				boolean enableSyntacticNullAnalysisForFields = compilerOptions.enableSyntacticNullAnalysisForFields;
 				int complaintLevel = (flowInfo.reachMode() & FlowInfo.UNREACHABLE) == 0 ? Statement.NOT_COMPLAINED : Statement.COMPLAINED_FAKE_REACHABLE;
-				for (int i = 0, count = this.statements.length; i < count; i++) {
-					Statement stat = this.statements[i];
+				for (Statement stat : this.statements) {
 					if ((complaintLevel = stat.complainIfUnreachable(flowInfo, this.scope, complaintLevel, true)) < Statement.COMPLAINED_UNREACHABLE) {
 						flowInfo = stat.analyseCode(this.scope, methodContext, flowInfo);
 					}
@@ -219,8 +217,7 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 	@Override
 	public void getAllAnnotationContexts(int targetType, List allAnnotationContexts) {
 		AnnotationCollector collector = new AnnotationCollector(this.returnType, targetType, allAnnotationContexts);
-		for (int i = 0, max = this.annotations.length; i < max; i++) {
-			Annotation annotation = this.annotations[i];
+		for (Annotation annotation : this.annotations) {
 			annotation.traverse(collector, (BlockScope) null);
 		}
 	}
@@ -311,11 +308,10 @@ public class MethodDeclaration extends AbstractMethodDeclaration {
 			returnsUndeclTypeVar = true;
 		}
 		if (this.typeParameters != null) {
-			for (int i = 0, length = this.typeParameters.length; i < length; i++) {
-				TypeParameter typeParameter = this.typeParameters[i];
+			for (TypeParameter typeParameter : this.typeParameters) {
 				this.bits |= (typeParameter.bits & ASTNode.HasTypeAnnotations);
 				// typeParameter is already resolved from Scope#connectTypeVariables()
-				if (returnsUndeclTypeVar && TypeBinding.equalsEquals(this.typeParameters[i].binding, this.returnType.resolvedType)) {
+				if (returnsUndeclTypeVar && TypeBinding.equalsEquals(typeParameter.binding, this.returnType.resolvedType)) {
 					returnsUndeclTypeVar = false;
 				}
 			}

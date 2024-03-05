@@ -277,8 +277,8 @@ public String toString() {
 		s += this.message;
 	} else {
 		if (this.arguments != null)
-			for (int i = 0; i < this.arguments.length; i++)
-				s += " " + this.arguments[i]; //$NON-NLS-1$
+			for (String argument : this.arguments)
+				s += " " + argument; //$NON-NLS-1$
 	}
 	return s;
 }

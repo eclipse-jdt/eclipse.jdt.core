@@ -102,8 +102,8 @@ public CompilationUnitScope(CompilationUnitDeclaration unit, CompilerOptions com
 	// client still needs to assign #environment
 }
 void buildFieldsAndMethods() {
-	for (int i = 0, length = this.topLevelTypes.length; i < length; i++)
-		this.topLevelTypes[i].scope.buildFieldsAndMethods();
+	for (SourceTypeBinding topLevelType : this.topLevelTypes)
+		topLevelType.scope.buildFieldsAndMethods();
 }
 void buildTypeBindings(AccessRestriction accessRestriction) {
 	this.topLevelTypes = new SourceTypeBinding[0]; // want it initialized if the package cannot be resolved
@@ -210,8 +210,7 @@ void checkAndSetImports() {
 	// package resolving may require all modules to be known
 	TypeDeclaration[] types = this.referenceContext.types;
 	if (types != null) {
-		for (int i = 0; i < types.length; i++) {
-			TypeDeclaration typeDecl = types[i];
+		for (TypeDeclaration typeDecl : types) {
 			if (this.fPackage != this.environment.defaultPackage && this.fPackage.getPackage(typeDecl.name, module()) != null) {
 				// if a package exists, it must be a valid package - cannot be a NotFound problem package
 				// this is now a warning since a package does not really 'exist' until it contains a type, see JLS v2, 7.4.3
@@ -321,8 +320,8 @@ private int resolveImports(int numberOfStatements, ImportBinding[] resolvedImpor
 void checkParameterizedTypes() {
 	if (compilerOptions().sourceLevel < ClassFileConstants.JDK1_5) return;
 
-	for (int i = 0, length = this.topLevelTypes.length; i < length; i++) {
-		ClassScope scope = this.topLevelTypes[i].scope;
+	for (SourceTypeBinding topLevelType : this.topLevelTypes) {
+		ClassScope scope = topLevelType.scope;
 		scope.checkParameterizedTypeBounds();
 		scope.checkParameterizedSuperTypeCollisions();
 	}
@@ -406,27 +405,26 @@ public char[] computeConstantPoolName(LocalTypeBinding localType) {
 }
 
 void connectTypeHierarchy() {
-	for (int i = 0, length = this.topLevelTypes.length; i < length; i++)
-		this.topLevelTypes[i].scope.connectTypeHierarchy();
+	for (SourceTypeBinding topLevelType : this.topLevelTypes)
+		topLevelType.scope.connectTypeHierarchy();
 }
 void integrateAnnotationsInHierarchy() {
 	// Only now that all hierarchy information is built we're ready for ...
 	// ... integrating annotations
 	try {
 		this.environment.suppressImportErrors = true;
-		for (int i = 0, length = this.topLevelTypes.length; i < length; i++)
-			this.topLevelTypes[i].scope.referenceType().updateSupertypesWithAnnotations(Collections.emptyMap());
+		for (SourceTypeBinding topLevelType : this.topLevelTypes)
+			topLevelType.scope.referenceType().updateSupertypesWithAnnotations(Collections.emptyMap());
 	} finally {
 		this.environment.suppressImportErrors = false;
 	}
 	// ... checking on permitted types
 	connectPermittedTypes();
-	for (int i = 0, length = this.topLevelTypes.length; i < length; i++)
-		this.topLevelTypes[i].scope.connectImplicitPermittedTypes();
+	for (SourceTypeBinding topLevelType : this.topLevelTypes)
+		topLevelType.scope.connectImplicitPermittedTypes();
 }
 private void connectPermittedTypes() {
-	for (int i = 0, length = this.topLevelTypes.length; i < length; i++) {
-		SourceTypeBinding sourceType = this.topLevelTypes[i];
+	for (SourceTypeBinding sourceType : this.topLevelTypes) {
 		sourceType.scope.connectPermittedTypes();
 	}
 }
@@ -450,8 +448,8 @@ void faultInImports() {
 	for (int i = 0; i < numberOfStatements; i++) {
 		if ((this.referenceContext.imports[i].bits & ASTNode.OnDemand) == 0) {
 			typesBySimpleNames = new HashtableOfType(this.topLevelTypes.length + numberOfStatements);
-			for (int j = 0, length = this.topLevelTypes.length; j < length; j++)
-				typesBySimpleNames.put(this.topLevelTypes[j].sourceName, this.topLevelTypes[j]);
+			for (SourceTypeBinding topLevelType : this.topLevelTypes)
+				typesBySimpleNames.put(topLevelType.sourceName, topLevelType);
 			break;
 		}
 	}
@@ -604,8 +602,8 @@ public void faultInTypes() {
 		this.referenceContext.currentPackage.checkPackageConflict(this);
 	}
 
-	for (int i = 0, length = this.topLevelTypes.length; i < length; i++)
-		this.topLevelTypes[i].faultInTypesForFieldsAndMethods();
+	for (SourceTypeBinding topLevelType : this.topLevelTypes)
+		topLevelType.faultInTypesForFieldsAndMethods();
 }
 // this API is for code assist purpose
 public Binding findImport(char[][] compoundName, boolean findStaticImports, boolean onDemand) {
@@ -929,10 +927,10 @@ void recordTypeReferences(TypeBinding[] types) {
 	if (this.referencedTypes == null) return; // not recording dependencies
 	if (types == null || types.length == 0) return;
 
-	for (int i = 0, max = types.length; i < max; i++) {
+	for (TypeBinding type : types) {
 		// No need to record supertypes of method arguments & thrown exceptions, just the compoundName
 		// If a field/method is retrieved from such a type then a separate call does the job
-		ReferenceBinding actualType = typeToRecord(types[i]);
+		ReferenceBinding actualType = typeToRecord(type);
 		if (actualType != null)
 			this.referencedTypes.add(new ReferenceBindingSetWrapper(actualType));
 	}
@@ -972,8 +970,8 @@ public void storeDependencyInfo() {
 			recordSuperTypeReference(superclass);
 		ReferenceBinding[] interfaces = type.superInterfaces();
 		if (interfaces != null)
-			for (int j = 0, length = interfaces.length; j < length; j++)
-				recordSuperTypeReference(interfaces[j]);
+			for (ReferenceBinding element : interfaces)
+				recordSuperTypeReference(element);
 	}
 
 	for (ReferenceBindingSetWrapper wrapper : this.referencedTypes) {
@@ -1029,8 +1027,8 @@ private ReferenceBinding typeToRecord(TypeBinding type) {
 	return refType;
 }
 public void verifyMethods(MethodVerifier verifier) {
-	for (int i = 0, length = this.topLevelTypes.length; i < length; i++)
-		this.topLevelTypes[i].verifyMethods(verifier);
+	for (SourceTypeBinding topLevelType : this.topLevelTypes)
+		topLevelType.verifyMethods(verifier);
 }
 private void recordImportBinding(ImportBinding bindingToAdd) {
 	if (this.tempImports.length == this.importPtr) {
@@ -1120,8 +1118,8 @@ private int checkAndRecordImportBinding(
 				return -1;
 			}
 			// either the type collides with a top level type or another imported type
-			for (int j = 0, length = this.topLevelTypes.length; j < length; j++) {
-				if (CharOperation.equals(this.topLevelTypes[j].sourceName, existingType.sourceName)) {
+			for (SourceTypeBinding topLevelType : this.topLevelTypes) {
+				if (CharOperation.equals(topLevelType.sourceName, existingType.sourceName)) {
 					problemReporter().conflictingImport(importReference);
 					return -1;
 				}

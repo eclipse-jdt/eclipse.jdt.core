@@ -1423,13 +1423,13 @@ private void initialize() throws ClassFormatException {
 			this.methods[i].initialize();
 		}
 		if (this.innerInfos != null) {
-			for (int i = 0, max = this.innerInfos.length; i < max; i++) {
-				this.innerInfos[i].initialize();
+			for (InnerClassInfo element : this.innerInfos) {
+				element.initialize();
 			}
 		}
 		if (this.annotations != null) {
-			for (int i = 0, max = this.annotations.length; i < max; i++) {
-				this.annotations[i].initialize();
+			for (AnnotationInfo annotation : this.annotations) {
+				annotation.initialize();
 			}
 		}
 		this.getEnclosingMethod();

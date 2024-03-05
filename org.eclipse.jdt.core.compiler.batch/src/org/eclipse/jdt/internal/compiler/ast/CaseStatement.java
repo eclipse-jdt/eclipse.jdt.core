@@ -141,8 +141,8 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream) {
 	}
 	int pc = codeStream.position;
 	if (this.targetLabels != null) {
-		for (int i = 0, l = this.targetLabels.length; i < l; ++i) {
-			this.targetLabels[i].place();
+		for (BranchLabel targetLabel2 : this.targetLabels) {
+			targetLabel2.place();
 		}
 	}
 	if (this.targetLabel != null)

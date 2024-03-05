@@ -73,9 +73,9 @@ public class ConstraintExceptionFormula extends ConstraintFormula {
 		TypeBinding[] thrown = sam.thrownExceptions;
 		InferenceVariable[] e = new InferenceVariable[thrown.length];
 		int n = 0;
-		for (int i = 0; i < thrown.length; i++)
-			if (!thrown[i].isProperType(true))
-				e[n++] = (InferenceVariable) thrown[i]; // thrown[i] is not a proper type, since it's an exception it must be an inferenceVariable, right?
+		for (TypeBinding element : thrown)
+			if (!element.isProperType(true))
+				e[n++] = (InferenceVariable) element; // thrown[i] is not a proper type, since it's an exception it must be an inferenceVariable, right?
 
 		/* If throw specification does not encode any type parameters, there are no constraints to be gleaned/gathered from the throw sites.
 		   See also that thrown exceptions are not allowed to influence compatibility and overload resolution.
@@ -103,8 +103,8 @@ public class ConstraintExceptionFormula extends ConstraintFormula {
 		actual: for (int i = 0; i < m; i++) {
 			if (ePrime[i].isUncheckedException(false))
 				continue;
-			for (int j = 0; j < thrown.length; j++)
-				if (thrown[j].isProperType(true) && ePrime[i].isCompatibleWith(thrown[j]))
+			for (TypeBinding element : thrown)
+				if (element.isProperType(true) && ePrime[i].isCompatibleWith(element))
 					continue actual;
 			for (int j = 0; j < n; j++)
 				result.add(ConstraintTypeFormula.create(ePrime[i], e[j], SUBTYPE));

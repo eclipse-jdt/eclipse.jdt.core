@@ -722,8 +722,7 @@ public abstract class ASTNode implements TypeConstants, TypeIds {
 
 	public static void resolveStatements(Statement[] statements, BlockScope scope) {
 		LocalVariableBinding [] livePatternVariables = NO_VARIABLES;
-		for (int i = 0, length = statements.length; i < length; i++) {
-			final Statement stmt = statements[i];
+		for (final Statement stmt : statements) {
 			stmt.resolveWithBindings(livePatternVariables, scope);
 			livePatternVariables = LocalVariableBinding.merge(livePatternVariables, stmt.bindingsWhenComplete());
 		}

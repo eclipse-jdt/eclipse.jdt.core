@@ -434,8 +434,8 @@ public void generateArguments(MethodBinding binding, Expression[] arguments, Blo
 			codeStream.newArray(codeGenVarArgsType); // create a mono-dimensional array
 		}
 	} else if (arguments != null) { // standard generation for method arguments
-		for (int i = 0, max = arguments.length; i < max; i++)
-			arguments[i].generateCode(currentScope, codeStream, true);
+		for (Expression argument : arguments)
+			argument.generateCode(currentScope, codeStream, true);
 	}
 }
 

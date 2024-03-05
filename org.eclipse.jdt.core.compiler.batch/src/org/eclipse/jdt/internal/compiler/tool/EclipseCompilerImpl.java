@@ -32,7 +32,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -415,9 +414,7 @@ public class EclipseCompilerImpl extends Main {
 				outputLocation = new File(currentDestinationPath);
 				outputLocation.mkdirs();
 			}
-			for (int i = 0, fileCount = classFiles.length; i < fileCount; i++) {
-				// retrieve the key and the corresponding classfile
-				ClassFile classFile = classFiles[i];
+			for (ClassFile classFile : classFiles) {
 				char[] filename = classFile.fileName();
 				int length = filename.length;
 				char[] relativeName = new char[length + 6];
@@ -800,84 +797,83 @@ public class EclipseCompilerImpl extends Main {
 	@Override
 	protected void loggingExtraProblems() {
 		super.loggingExtraProblems();
-		for (@SuppressWarnings("rawtypes")
-			Iterator iterator = this.extraProblems.iterator(); iterator.hasNext(); ) {
-			final CategorizedProblem problem = (CategorizedProblem) iterator.next();
-			if (this.diagnosticListener != null && !isIgnored(problem)) {
-				Diagnostic<JavaFileObject> diagnostic = new Diagnostic<>() {
-					@Override
-					public String getCode() {
-						return null;
+		for (Object element : this.extraProblems) {
+		final CategorizedProblem problem = (CategorizedProblem) element;
+		if (this.diagnosticListener != null && !isIgnored(problem)) {
+			Diagnostic<JavaFileObject> diagnostic = new Diagnostic<>() {
+				@Override
+				public String getCode() {
+					return null;
+				}
+				@Override
+				public long getColumnNumber() {
+					if (problem instanceof DefaultProblem) {
+						return ((DefaultProblem) problem).column;
 					}
-					@Override
-					public long getColumnNumber() {
-						if (problem instanceof DefaultProblem) {
-							return ((DefaultProblem) problem).column;
-						}
-						return Diagnostic.NOPOS;
+					return Diagnostic.NOPOS;
+				}
+				@Override
+				public long getEndPosition() {
+					if (problem instanceof DefaultProblem) {
+						return ((DefaultProblem) problem).getSourceEnd();
 					}
-					@Override
-					public long getEndPosition() {
-						if (problem instanceof DefaultProblem) {
-							return ((DefaultProblem) problem).getSourceEnd();
-						}
-						return Diagnostic.NOPOS;
+					return Diagnostic.NOPOS;
+				}
+				@Override
+				public Kind getKind() {
+					if (problem.isError()) {
+						return Diagnostic.Kind.ERROR;
 					}
-					@Override
-					public Kind getKind() {
-						if (problem.isError()) {
-							return Diagnostic.Kind.ERROR;
-						}
-						if (problem.isWarning()) {
-							return Diagnostic.Kind.WARNING;
-						} else if (problem instanceof DefaultProblem && ((DefaultProblem) problem).isInfo()) {
-							return Diagnostic.Kind.NOTE;
-						}
-						return Diagnostic.Kind.OTHER;
+					if (problem.isWarning()) {
+						return Diagnostic.Kind.WARNING;
+					} else if (problem instanceof DefaultProblem && ((DefaultProblem) problem).isInfo()) {
+						return Diagnostic.Kind.NOTE;
 					}
-					@Override
-					public long getLineNumber() {
-						if (problem instanceof DefaultProblem) {
-							return ((DefaultProblem) problem).getSourceLineNumber();
-						}
-						return Diagnostic.NOPOS;
+					return Diagnostic.Kind.OTHER;
+				}
+				@Override
+				public long getLineNumber() {
+					if (problem instanceof DefaultProblem) {
+						return ((DefaultProblem) problem).getSourceLineNumber();
 					}
-					@Override
-					public String getMessage(Locale locale) {
-						return problem.getMessage();
+					return Diagnostic.NOPOS;
+				}
+				@Override
+				public String getMessage(Locale locale) {
+					return problem.getMessage();
+				}
+				@Override
+				public long getPosition() {
+					if (problem instanceof DefaultProblem) {
+						return ((DefaultProblem) problem).getSourceStart();
 					}
-					@Override
-					public long getPosition() {
-						if (problem instanceof DefaultProblem) {
-							return ((DefaultProblem) problem).getSourceStart();
-						}
-						return Diagnostic.NOPOS;
-					}
-					@Override
-					public JavaFileObject getSource() {
-						if (problem instanceof DefaultProblem) {
-							char[] originatingName = ((DefaultProblem) problem).getOriginatingFileName();
-							if (originatingName == null) {
-								return null;
-							}
-							File f = new File(new String(originatingName));
-							if (f.exists()) {
-								Charset charset = (EclipseCompilerImpl.this.fileManager instanceof EclipseFileManager) ?
-														((EclipseFileManager) EclipseCompilerImpl.this.fileManager).charset : Charset.defaultCharset();
-								return new EclipseFileObject(null, f.toURI(), JavaFileObject.Kind.SOURCE, charset);
-							}
+					return Diagnostic.NOPOS;
+				}
+				@Override
+				public JavaFileObject getSource() {
+					if (problem instanceof DefaultProblem) {
+						char[] originatingName = ((DefaultProblem) problem).getOriginatingFileName();
+						if (originatingName == null) {
 							return null;
 						}
+						File f = new File(new String(originatingName));
+						if (f.exists()) {
+							Charset charset = (EclipseCompilerImpl.this.fileManager instanceof EclipseFileManager) ?
+													((EclipseFileManager) EclipseCompilerImpl.this.fileManager).charset : Charset.defaultCharset();
+							return new EclipseFileObject(null, f.toURI(), JavaFileObject.Kind.SOURCE, charset);
+						}
 						return null;
 					}
-					@Override
-					public long getStartPosition() {
-						return getPosition();
-					}
-				};
-				this.diagnosticListener.report(diagnostic);
-			}
+					return null;
+				}
+				@Override
+				public long getStartPosition() {
+					return getPosition();
+				}
+			};
+			this.diagnosticListener.report(diagnostic);
 		}
+}
 	}
 	class Jsr199ProblemWrapper extends DefaultProblem {
 

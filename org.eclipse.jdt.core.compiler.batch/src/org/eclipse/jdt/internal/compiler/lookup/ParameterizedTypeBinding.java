@@ -88,10 +88,10 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		if (type instanceof UnresolvedReferenceBinding)
 			((UnresolvedReferenceBinding) type).addWrapper(this, environment);
 		if (arguments != null) {
-			for (int i = 0, l = arguments.length; i < l; i++) {
-				if (arguments[i] instanceof UnresolvedReferenceBinding)
-					((UnresolvedReferenceBinding) arguments[i]).addWrapper(this, environment);
-				if (arguments[i].hasNullTypeAnnotations())
+			for (TypeBinding argument : arguments) {
+				if (argument instanceof UnresolvedReferenceBinding)
+					((UnresolvedReferenceBinding) argument).addWrapper(this, environment);
+				if (argument.hasNullTypeAnnotations())
 					this.tagBits |= TagBits.HasNullTypeAnnotation;
 			}
 		}
@@ -243,8 +243,8 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			}
 			missingTypes = genericType().collectMissingTypes(missingTypes);
 			if (this.arguments != null) {
-				for (int i = 0, max = this.arguments.length; i < max; i++) {
-					missingTypes = this.arguments[i].collectMissingTypes(missingTypes);
+				for (TypeBinding argument : this.arguments) {
+					missingTypes = argument.collectMissingTypes(missingTypes);
 				}
 			}
 		}
@@ -394,9 +394,8 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		ReferenceBinding captureSourceType = null;
 		if (this.arguments != null) {
 		    sig.append('<');
-		    for (int i = 0, length = this.arguments.length; i < length; i++) {
-		    	TypeBinding typeBinding = this.arguments[i];
-		        sig.append(typeBinding.computeUniqueKey(false/*not a leaf*/));
+		    for (TypeBinding typeBinding : this.arguments) {
+		    	sig.append(typeBinding.computeUniqueKey(false/*not a leaf*/));
 		        if (typeBinding instanceof CaptureBinding)
 		        	captureSourceType = ((CaptureBinding) typeBinding).sourceType;
 		    }
@@ -675,8 +674,8 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		    	}
 				if (this.arguments != null) {
 				    sig.append('<');
-				    for (int i = 0, length = this.arguments.length; i < length; i++) {
-				        sig.append(this.arguments[i].genericTypeSignature());
+				    for (TypeBinding argument : this.arguments) {
+				        sig.append(argument.genericTypeSignature());
 				    }
 				    sig.append('>');
 				}
@@ -963,8 +962,7 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		}
 		if (someArguments != null) {
 			this.arguments = someArguments;
-			for (int i = 0, length = someArguments.length; i < length; i++) {
-				TypeBinding someArgument = someArguments[i];
+			for (TypeBinding someArgument : someArguments) {
 				switch (someArgument.kind()) {
 					case Binding.WILDCARD_TYPE :
 						this.tagBits |= TagBits.HasDirectWildcard;
@@ -1067,8 +1065,8 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 	@Override
 	public boolean isProperType(boolean admitCapture18) {
 		if (this.arguments != null) {
-			for (int i = 0; i < this.arguments.length; i++)
-				if (!this.arguments[i].isProperType(admitCapture18))
+			for (TypeBinding argument : this.arguments)
+				if (!argument.isProperType(admitCapture18))
 					return false;
 		}
 		return super.isProperType(admitCapture18);
@@ -1647,8 +1645,8 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			if (this.fields != null) {
 				if (this.fields != Binding.NO_FIELDS) {
 					buffer.append("\n/*   fields   */"); //$NON-NLS-1$
-					for (int i = 0, length = this.fields.length; i < length; i++)
-					    buffer.append('\n').append((this.fields[i] != null) ? this.fields[i].toString() : "NULL FIELD"); //$NON-NLS-1$
+					for (FieldBinding field2 : this.fields)
+						buffer.append('\n').append((field2 != null) ? field2.toString() : "NULL FIELD"); //$NON-NLS-1$
 				}
 			} else {
 				buffer.append("NULL FIELDS"); //$NON-NLS-1$
@@ -1657,8 +1655,8 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 			if (this.methods != null) {
 				if (this.methods != Binding.NO_METHODS) {
 					buffer.append("\n/*   methods   */"); //$NON-NLS-1$
-					for (int i = 0, length = this.methods.length; i < length; i++)
-						buffer.append('\n').append((this.methods[i] != null) ? this.methods[i].toString() : "NULL METHOD"); //$NON-NLS-1$
+					for (MethodBinding method2 : this.methods)
+						buffer.append('\n').append((method2 != null) ? method2.toString() : "NULL METHOD"); //$NON-NLS-1$
 				}
 			} else {
 				buffer.append("NULL METHODS"); //$NON-NLS-1$
@@ -1767,8 +1765,8 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 		}
 		ReferenceBinding substitutedDeclaringType = (ReferenceBinding) declaringType.findSuperTypeOriginatingFrom(theAbstractMethod.declaringClass);
 		MethodBinding [] choices = substitutedDeclaringType.getMethods(theAbstractMethod.selector);
-		for (int i = 0, length = choices.length; i < length; i++) {
-			MethodBinding method = choices[i];
+		for (MethodBinding element : choices) {
+			MethodBinding method = element;
 			if (!method.isAbstract() || method.redeclaresPublicObjectMethod(scope)) continue; // (re)skip statics, defaults, public object methods ...
 			if (method.problemId() == ProblemReasons.ContradictoryNullAnnotations)
 				method = ((ProblemMethodBinding) method).closestMatch;
@@ -1806,13 +1804,13 @@ public class ParameterizedTypeBinding extends ReferenceBinding implements Substi
 						// Ui
 						allBounds[idx++] = wildcard.bound;
 						if (otherUBounds != null)
-							for (int j = 0; j < otherUBounds.length; j++)
-								allBounds[idx++] = otherUBounds[j];
+							for (TypeBinding otherUBound : otherUBounds)
+								allBounds[idx++] = otherUBound;
 						// Bi
 						if (typeParameters[i].firstBound != null)
 							allBounds[idx++] = typeParameters[i].firstBound;
-						for (int j = 0; j < otherBBounds.length; j++)
-							allBounds[idx++] = otherBBounds[j];
+						for (TypeBinding otherBBound : otherBBounds)
+							allBounds[idx++] = otherBBound;
 						TypeBinding[] glb = Scope.greaterLowerBound(allBounds, null, this.environment);
 						if (glb == null || glb.length == 0) {
 							return null;

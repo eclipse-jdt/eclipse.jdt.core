@@ -43,9 +43,9 @@ public class ArrayAllocationExpression extends Expression {
 
 	@Override
 	public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, FlowInfo flowInfo) {
-		for (int i = 0, max = this.dimensions.length; i < max; i++) {
+		for (Expression dimension : this.dimensions) {
 			Expression dim;
-			if ((dim = this.dimensions[i]) != null) {
+			if ((dim = dimension) != null) {
 				flowInfo = dim.analyseCode(currentScope, flowContext, flowInfo);
 				dim.checkNPEbyUnboxing(currentScope, flowContext, flowInfo);
 			}
@@ -72,9 +72,9 @@ public class ArrayAllocationExpression extends Expression {
 		}
 
 		int explicitDimCount = 0;
-		for (int i = 0, max = this.dimensions.length; i < max; i++) {
+		for (Expression dimension : this.dimensions) {
 			Expression dimExpression;
-			if ((dimExpression = this.dimensions[i]) == null) break; // implicit dim, no further explict after this point
+			if ((dimExpression = dimension) == null) break; // implicit dim, no further explict after this point
 			dimExpression.generateCode(currentScope, codeStream, true);
 			explicitDimCount++;
 		}

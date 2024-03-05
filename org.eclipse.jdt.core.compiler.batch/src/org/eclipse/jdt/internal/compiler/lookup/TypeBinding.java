@@ -499,8 +499,8 @@ public TypeBinding findSuperTypeOriginatingFrom(TypeBinding otherType) {
 		case Binding.INTERSECTION_TYPE18:
 			IntersectionTypeBinding18 itb18 = (IntersectionTypeBinding18) this;
 			ReferenceBinding[] intersectingTypes = itb18.getIntersectingTypes();
-			for (int i = 0, length = intersectingTypes.length; i < length; i++) {
-				TypeBinding superType = intersectingTypes[i].findSuperTypeOriginatingFrom(otherType);
+			for (ReferenceBinding intersectingType : intersectingTypes) {
+				TypeBinding superType = intersectingType.findSuperTypeOriginatingFrom(otherType);
 				if (superType != null)
 					return superType;
 			}
@@ -563,8 +563,7 @@ public TypeBinding getErasureCompatibleType(TypeBinding declaringClass) {
 			if (variable.superclass != null && variable.superclass.findSuperTypeOriginatingFrom(declaringClass) != null) {
 				return variable.superclass.getErasureCompatibleType(declaringClass);
 			}
-			for (int i = 0, otherLength = variable.superInterfaces.length; i < otherLength; i++) {
-				ReferenceBinding superInterface = variable.superInterfaces[i];
+			for (ReferenceBinding superInterface : variable.superInterfaces) {
 				if (superInterface.findSuperTypeOriginatingFrom(declaringClass) != null) {
 					return superInterface.getErasureCompatibleType(declaringClass);
 				}
@@ -578,8 +577,7 @@ public TypeBinding getErasureCompatibleType(TypeBinding declaringClass) {
 			if (intersection.superclass != null && intersection.superclass.findSuperTypeOriginatingFrom(declaringClass) != null) {
 				return intersection.superclass.getErasureCompatibleType(declaringClass);
 			}
-			for (int i = 0, otherLength = intersection.superInterfaces.length; i < otherLength; i++) {
-				ReferenceBinding superInterface = intersection.superInterfaces[i];
+			for (ReferenceBinding superInterface : intersection.superInterfaces) {
 				if (superInterface.findSuperTypeOriginatingFrom(declaringClass) != null) {
 					return superInterface.getErasureCompatibleType(declaringClass);
 				}
@@ -1349,8 +1347,8 @@ public boolean isTypeArgumentContainedBy(TypeBinding otherType) {
 				case Wildcard.EXTENDS:
 					if (otherBound instanceof IntersectionTypeBinding18) {
 						TypeBinding [] intersectingTypes = ((IntersectionTypeBinding18) otherBound).intersectingTypes;
-						for (int i = 0, length = intersectingTypes.length; i < length; i++)
-							if (TypeBinding.equalsEquals(intersectingTypes[i], this))
+						for (TypeBinding intersectingType : intersectingTypes)
+							if (TypeBinding.equalsEquals(intersectingType, this))
 								return true;
 					}
 					if (TypeBinding.equalsEquals(otherBound, this))
@@ -1367,8 +1365,8 @@ public boolean isTypeArgumentContainedBy(TypeBinding otherType) {
 				case Wildcard.SUPER:
 					if (otherBound instanceof IntersectionTypeBinding18) {
 						TypeBinding [] intersectingTypes = ((IntersectionTypeBinding18) otherBound).intersectingTypes;
-						for (int i = 0, length = intersectingTypes.length; i < length; i++)
-							if (TypeBinding.equalsEquals(intersectingTypes[i], this))
+						for (TypeBinding intersectingType : intersectingTypes)
+							if (TypeBinding.equalsEquals(intersectingType, this))
 								return true;
 					}
 					if (TypeBinding.equalsEquals(otherBound, this))
@@ -1617,8 +1615,7 @@ public void setTypeAnnotations(AnnotationBinding[] annotations, boolean evalNull
 		return;
 	this.typeAnnotations = annotations;
 	if (evalNullAnnotations) {
-		for (int i = 0, length = annotations.length; i < length; i++) {
-			AnnotationBinding annotation = annotations[i];
+		for (AnnotationBinding annotation : annotations) {
 			if (annotation != null) {
 				if (annotation.type.hasNullBit(TypeIds.BitNullableAnnotation))
 					this.tagBits |= TagBits.AnnotationNullable | TagBits.HasNullTypeAnnotation;

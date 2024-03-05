@@ -167,8 +167,7 @@ public FlowInfo analyseCode(BlockScope currentScope, FlowContext flowContext, Fl
 			}
 		} else if (this.arguments != null && this.arguments.length > 0 && FakedTrackingVariable.isAnyCloseable(this.arguments[0].resolvedType)) {
 			// Helper.closeMethod(closeable, ..)
-			for (int i=0; i<TypeConstants.closeMethods.length; i++) {
-				CloseMethodRecord record = TypeConstants.closeMethods[i];
+			for (CloseMethodRecord record : TypeConstants.closeMethods) {
 				if (CharOperation.equals(record.selector, this.selector)
 						&& CharOperation.equals(record.typeName, this.binding.declaringClass.compoundName))
 				{
@@ -838,8 +837,8 @@ public TypeBinding resolveType(BlockScope scope) {
 			}
 			if (this.argumentsHaveErrors) {
 				if (this.arguments != null) { // still attempt to resolve arguments
-					for (int i = 0, max = this.arguments.length; i < max; i++) {
-						this.arguments[i].resolveType(scope);
+					for (Expression argument : this.arguments) {
+						argument.resolveType(scope);
 					}
 				}
 				return null;
@@ -1268,8 +1267,8 @@ public void traverse(ASTVisitor visitor, BlockScope blockScope) {
 	if (visitor.visit(this, blockScope)) {
 		this.receiver.traverse(visitor, blockScope);
 		if (this.typeArguments != null) {
-			for (int i = 0, typeArgumentsLength = this.typeArguments.length; i < typeArgumentsLength; i++) {
-				this.typeArguments[i].traverse(visitor, blockScope);
+			for (TypeReference typeArgument : this.typeArguments) {
+				typeArgument.traverse(visitor, blockScope);
 			}
 		}
 		if (this.arguments != null) {

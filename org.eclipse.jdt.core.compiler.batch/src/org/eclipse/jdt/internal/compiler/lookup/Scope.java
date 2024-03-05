@@ -480,9 +480,9 @@ public abstract class Scope {
 	static <T extends TypeBinding> T[] filterValidTypes(T[] allTypes, Function<Integer,T[]> ctor) {
 		T[] valid = ctor.apply(allTypes.length);
 		int count = 0;
-		for (int i = 0; i < allTypes.length; i++) {
-			if (allTypes[i].isValidBinding())
-				valid[count++] = allTypes[i];
+		for (T type : allTypes) {
+			if (type.isValidBinding())
+				valid[count++] = type;
 		}
 		if (count == allTypes.length)
 			return allTypes;
@@ -1262,8 +1262,8 @@ public abstract class Scope {
 				if (compatibleMethod != null) {
 					if (compatibleMethod.isValidBinding()) {
 						if (concreteMatches != null) {
-							for (int j = 0, length = concreteMatches.length; j < length; j++) {
-								if (methodVerifier.areMethodsCompatible(concreteMatches[j], compatibleMethod))
+							for (MethodBinding element : concreteMatches) {
+								if (methodVerifier.areMethodsCompatible(element, compatibleMethod))
 									continue; // can skip this method since concreteMatch overrides it
 							}
 						}
@@ -1730,8 +1730,7 @@ public abstract class Scope {
 					if (currentMethods.length == currentLength) {
 						found.addAll(currentMethods);
 					} else {
-						for (int i = 0, max = currentMethods.length; i < max; i++) {
-							MethodBinding currentMethod = currentMethods[i];
+						for (MethodBinding currentMethod : currentMethods) {
 							if (currentMethod != null)
 								found.add(currentMethod);
 						}
@@ -1987,8 +1986,7 @@ public abstract class Scope {
 				MethodBinding[] currentMethods = currentType.getMethods(selector);
 				if (currentMethods.length > 0) {
 					int foundSize = found.size;
-					next : for (int c = 0, l = currentMethods.length; c < l; c++) {
-						MethodBinding current = currentMethods[c];
+					next : for (MethodBinding current : currentMethods) {
 						if (!current.canBeSeenBy(receiverType, invocationSite, this)) continue next;
 
 						if (foundSize > 0) {
@@ -2232,8 +2230,7 @@ public abstract class Scope {
 					ImportBinding[] imports = unitScope.imports;
 					if (imports != null) {
 						// check single static imports
-						for (int i = 0, length = imports.length; i < length; i++) {
-							ImportBinding importBinding = imports[i];
+						for (ImportBinding importBinding : imports) {
 							if (importBinding.isStatic() && !importBinding.onDemand) {
 								if (CharOperation.equals(importBinding.getSimpleName(), name)) {
 									if (unitScope.resolveSingleImport(importBinding, Binding.TYPE | Binding.FIELD | Binding.METHOD) != null && importBinding.resolvedImport instanceof FieldBinding) {
@@ -2260,8 +2257,7 @@ public abstract class Scope {
 						// check on demand imports
 						boolean foundInImport = false;
 						ReferenceBinding sourceCodeReceiver = null;
-						for (int i = 0, length = imports.length; i < length; i++) {
-							ImportBinding importBinding = imports[i];
+						for (ImportBinding importBinding : imports) {
 							if (importBinding.isStatic() && importBinding.onDemand) {
 								Binding resolvedImport = importBinding.resolvedImport;
 								if (resolvedImport instanceof ReferenceBinding) {
@@ -2351,8 +2347,7 @@ public abstract class Scope {
 
 		for (int i = 0, typesLength = typePlusSupertypes.length; i < typesLength; i++) {
 			MethodBinding[] methods = i == 0 ? type.getMethods(selector) : new MethodBinding [] { getExactMethod(receiverType, typePlusSupertypes[i], selector, invocationSite, candidate) };
-			for (int j = 0, length = methods.length; j < length; j++) {
-				MethodBinding currentMethod = methods[j];
+			for (MethodBinding currentMethod : methods) {
 				if (currentMethod == null || candidate == currentMethod)
 					continue;
 				if (i == 0 && (!currentMethod.canBeSeenBy(receiverType, invocationSite, this) || currentMethod.isSynthetic() || currentMethod.isBridge()))
@@ -2432,8 +2427,7 @@ public abstract class Scope {
 		unitScope.recordTypeReference(receiverType);
 		MethodBinding[] methods = receiverType.getMethods(TypeConstants.INIT);
 		final TypeBinding[] genericTypeArguments = invocationSite.genericTypeArguments();
-		for (int i = 0, length = methods.length; i < length; i++) {
-			MethodBinding constructor = methods[i];
+		for (MethodBinding constructor : methods) {
 			if (!constructor.canBeSeenBy(invocationSite, this))
 				continue;
 			if (constructor.isVarargs())
@@ -2494,8 +2488,8 @@ public abstract class Scope {
 			MethodBinding[] compatible = new MethodBinding[methods.length];
 			int compatibleIndex = 0;
 			MethodBinding problemMethod = null;
-			for (int i = 0, length = methods.length; i < length; i++) {
-				MethodBinding compatibleMethod = computeCompatibleMethod(methods[i], argumentTypes, invocationSite);
+			for (MethodBinding method : methods) {
+				MethodBinding compatibleMethod = computeCompatibleMethod(method, argumentTypes, invocationSite);
 				if (compatibleMethod != null) {
 					if (compatibleMethod.isValidBinding())
 						compatible[compatibleIndex++] = compatibleMethod;
@@ -2749,8 +2743,7 @@ public abstract class Scope {
 			if (imports != null) {
 				ObjectVector visible = null;
 				boolean skipOnDemand = false; // set to true when matched static import of method name so stop looking for on demand methods
-				for (int i = 0, length = imports.length; i < length; i++) {
-					ImportBinding importBinding = imports[i];
+				for (ImportBinding importBinding : imports) {
 					if (importBinding.isStatic()) {
 						Binding resolvedImport = importBinding.resolvedImport;
 						MethodBinding possible = null;
@@ -3545,8 +3538,7 @@ public abstract class Scope {
 		if ((mask & Binding.TYPE) != 0) {
 			ImportBinding[] imports = unitScope.imports;
 			if (imports != null && typeOrPackageCache == null) { // walk single type imports since faultInImports() has not run yet
-				nextImport : for (int i = 0, length = imports.length; i < length; i++) {
-					ImportBinding importBinding = imports[i];
+				nextImport : for (ImportBinding importBinding : imports) {
 					if (!importBinding.onDemand) {
 						if (CharOperation.equals(importBinding.getSimpleName(), name)) {
 							Binding resolvedImport = unitScope.resolveSingleImport(importBinding, Binding.TYPE);
@@ -3583,8 +3575,7 @@ public abstract class Scope {
 			if (imports != null) {
 				boolean foundInImport = false;
 				ReferenceBinding type = null;
-				for (int i = 0, length = imports.length; i < length; i++) {
-					ImportBinding someImport = imports[i];
+				for (ImportBinding someImport : imports) {
 					if (someImport.onDemand) {
 						Binding resolvedImport = someImport.resolvedImport;
 						ReferenceBinding temp = null;
@@ -3748,8 +3739,7 @@ public abstract class Scope {
 		invocations.clear();
 		TypeBinding[] mecs = minimalErasedCandidates(new TypeBinding[] {one, two}, invocations);
 		if (mecs != null) {
-			nextCandidate: for (int k = 0, max = mecs.length; k < max; k++) {
-				TypeBinding mec = mecs[k];
+			nextCandidate: for (TypeBinding mec : mecs) {
 				if (mec == null) continue nextCandidate;
 				Object value = invocations.get(mec);
 				if (value instanceof TypeBinding[]) {
@@ -4006,8 +3996,7 @@ public abstract class Scope {
 		ReferenceBinding currentType = method.declaringClass.superclass();
 		while (currentType != null) {
 			MethodBinding[] currentMethods = currentType.getMethods(method.selector);
-			for (int i = 0, l = currentMethods.length; i < l; i++) {
-				MethodBinding currentMethod = currentMethods[i];
+			for (MethodBinding currentMethod : currentMethods) {
 				if (currentMethod != null && currentMethod.original().typeVariables != Binding.NO_TYPE_VARIABLES)
 					if (verifier.doesMethodOverride(method, currentMethod))
 						return true;
@@ -4082,8 +4071,8 @@ public abstract class Scope {
 
 		// infer proper parameterized type from invocations
 		TypeBinding[] bestArguments = new TypeBinding[argLength];
-		for (int i = 0, length = invocations.length; i < length; i++) {
-			TypeBinding invocation = invocations[i].leafComponentType();
+		for (TypeBinding invocation2 : invocations) {
+			TypeBinding invocation = invocation2.leafComponentType();
 			switch (invocation.kind()) {
 				case Binding.GENERIC_TYPE :
 					TypeVariableBinding[] invocationVariables = invocation.typeVariables();
@@ -4416,8 +4405,7 @@ public abstract class Scope {
 			// inject super interfaces prior to superclass
 			ReferenceBinding[] itsInterfaces = currentType.superInterfaces();
 			if (itsInterfaces != null) { // can be null during code assist operations that use LookupEnvironment.completeTypeBindings(parsedUnit, buildFieldsAndMethods)
-				for (int j = 0, count = itsInterfaces.length; j < count; j++) {
-					TypeBinding itsInterface = itsInterfaces[j];
+				for (ReferenceBinding itsInterface : itsInterfaces) {
 					TypeBinding superType = dim == 0 ? itsInterface : (TypeBinding)environment().createArrayType(itsInterface, dim); // recreate array if needed
 					if (!typesToVisit.contains(superType)) {
 						typesToVisit.add(superType);
@@ -4445,8 +4433,8 @@ public abstract class Scope {
 		int superLength = typesToVisit.size();
 		TypeBinding[] erasedSuperTypes = new TypeBinding[superLength];
 		int rank = 0;
-		for (Iterator iter = typesToVisit.iterator(); iter.hasNext();) {
-			TypeBinding type = (TypeBinding)iter.next();
+		for (Object element : typesToVisit) {
+			TypeBinding type = (TypeBinding)element;
 			leafType = type.leafComponentType();
 			erasedSuperTypes[rank++] = (leafType.isTypeVariable() || leafType.isWildcard() /*&& !leafType.isCapture()*/) ? type : type.erasure();
 		}
@@ -4881,9 +4869,9 @@ public abstract class Scope {
 						} else {
 							// must find inherited method with the same substituted variables
 							MethodBinding[] superMethods = ((ReferenceBinding) superType).getMethods(original.selector, argumentTypes.length);
-							for (int m = 0, l = superMethods.length; m < l; m++) {
-								if (superMethods[m].original() == original) {
-									original = superMethods[m];
+							for (MethodBinding superMethod : superMethods) {
+								if (superMethod.original() == original) {
+									original = superMethod;
 									break;
 								}
 							}
@@ -4894,9 +4882,9 @@ public abstract class Scope {
 						} else {
 							// must find inherited method with the same substituted variables
 							MethodBinding[] superMethods = ((ReferenceBinding) superType).getMethods(original2.selector, argumentTypes.length);
-							for (int m = 0, l = superMethods.length; m < l; m++) {
-								if (superMethods[m].original() == original2) {
-									original2 = superMethods[m];
+							for (MethodBinding superMethod : superMethods) {
+								if (superMethod.original() == original2) {
+									original2 = superMethod;
 									break;
 								}
 							}
@@ -5298,8 +5286,7 @@ public abstract class Scope {
 		MethodBinding[] methods = typeToSearch.getMethods(TypeConstants.INIT, argumentTypes.length);
 		MethodBinding [] staticFactories = new MethodBinding[methods.length];
 		int sfi = 0;
-		for (int i = 0, length = methods.length; i < length; i++) {
-			MethodBinding method = methods[i];
+		for (MethodBinding method : methods) {
 			if (!method.canBeSeenBy(allocationSite, this))
 				continue;
 

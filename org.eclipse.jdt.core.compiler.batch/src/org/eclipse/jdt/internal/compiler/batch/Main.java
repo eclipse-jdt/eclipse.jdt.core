@@ -61,7 +61,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -199,8 +198,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 			try {
 				Class<?> c = IProblem.class;
 				Field[] fields = c.getFields();
-				for (int i = 0, max = fields.length; i < max; i++) {
-					Field field = fields[i];
+				for (Field field : fields) {
 					if (field.getType().equals(Integer.TYPE)) {
 						Integer value = (Integer) field.get(null);
 						int key2 = value.intValue() & IProblem.IgnoreCategoriesMask;
@@ -758,8 +756,7 @@ public class Main implements ProblemSeverities, SuffixConstants {
 					}
 				});
 				HashMap<String, Object> parameters = new HashMap<>();
-				for (int i = 0, max = entries.length; i < max; i++) {
-					Map.Entry<String, String> entry = entries[i];
+				for (Entry<String, String> entry : entries) {
 					String key = entry.getKey();
 					parameters.put(Logger.KEY, key);
 					parameters.put(Logger.VALUE, entry.getValue());
@@ -1581,10 +1578,8 @@ protected void addNewEntry(ArrayList<FileSystem.Classpath> paths, String current
 	if (rulesSpecsSize != 0) {
 		AccessRule[] accessRules = new AccessRule[currentRuleSpecs.size()];
 		boolean rulesOK = true;
-		Iterator<String> i = currentRuleSpecs.iterator();
 		int j = 0;
-		while (i.hasNext()) {
-			String ruleSpec = i.next();
+		for (String ruleSpec : currentRuleSpecs) {
 			char key = ruleSpec.charAt(0);
 			String pattern = ruleSpec.substring(1);
 			if (pattern.length() > 0) {
@@ -3080,8 +3075,7 @@ public void configure(String[] argv) {
 				getAllEncodings(specifiedEncodings)));
 	}
 	if (this.pendingErrors != null) {
-		for (Iterator<String> iterator = this.pendingErrors.iterator(); iterator.hasNext(); ) {
-			String message = iterator.next();
+		for (String message : this.pendingErrors) {
 			this.logger.logPendingError(message);
 		}
 		this.pendingErrors = null;
@@ -3262,8 +3256,8 @@ private void initializeWarnings(String propertiesFile) {
 		e.printStackTrace();
 		throw new IllegalArgumentException(this.bind("configure.ioexceptionwarningspropertiesfile", propertiesFile)); //$NON-NLS-1$
 	}
-	for(Iterator iterator = properties.entrySet().iterator(); iterator.hasNext(); ) {
-		Map.Entry entry = (Map.Entry) iterator.next();
+	for (Object element : properties.entrySet()) {
+		Map.Entry entry = (Map.Entry) element;
 		final String key = entry.getKey().toString();
 		if (key.startsWith("org.eclipse.jdt.core.compiler.")) { //$NON-NLS-1$
 			this.options.put(key, entry.getValue().toString());
@@ -3294,8 +3288,7 @@ protected void enableAll(int severity) {
 			break;
 	}
 	Map.Entry<String, String>[] entries = this.options.entrySet().toArray(new Map.Entry[this.options.size()]);
-	for (int i = 0, max = entries.length; i < max; i++) {
-		Map.Entry<String, String> entry = entries[i];
+	for (Entry<String, String> entry : entries) {
 		if (entry.getValue().equals(CompilerOptions.IGNORE)) {
 			this.options.put(entry.getKey(), newValue);
 		}
@@ -3571,8 +3564,8 @@ protected ArrayList<FileSystem.Classpath> handleModuleSourcepath(String arg) {
 		}
 		String[] paths = new String[modulePaths.size()];
 		modulePaths.toArray(paths);
-		for (int i = 0; i < paths.length; i++) {
-			File dir = new File(paths[i]);
+		for (String path : paths) {
+			File dir = new File(path);
 			if (dir.isDirectory()) {
 				// 1. Create FileSystem.Classpath for each module
 				// 2. Iterator each module in case of directory for source files and add to this.fileNames
@@ -3734,10 +3727,10 @@ protected ArrayList<FileSystem.Classpath> handleEndorseddirs(ArrayList<String> e
 			for (int i = 0, max = endorsedDirsJars.length; i < max; i++) {
 				File[] current = endorsedDirsJars[i];
 				if (current != null) {
-					for (int j = 0, max2 = current.length; j < max2; j++) {
+					for (File element : current) {
 						FileSystem.Classpath classpath =
 							FileSystem.getClasspath(
-									current[j].getAbsolutePath(),
+									element.getAbsolutePath(),
 									null, null, this.options, this.releaseVersion);
 						if (classpath != null) {
 							result.add(classpath);
@@ -3795,10 +3788,10 @@ protected ArrayList<FileSystem.Classpath> handleExtdirs(ArrayList<String> extdir
 			for (int i = 0, max = extdirsJars.length; i < max; i++) {
 				File[] current = extdirsJars[i];
 				if (current != null) {
-					for (int j = 0, max2 = current.length; j < max2; j++) {
+					for (File element : current) {
 						FileSystem.Classpath classpath =
 							FileSystem.getClasspath(
-									current[j].getAbsolutePath(),
+									element.getAbsolutePath(),
 									null, null, this.options, this.releaseVersion);
 						if (classpath != null) {
 							result.add(classpath);
@@ -4601,8 +4594,7 @@ protected void initialize(PrintWriter outWriter, PrintWriter errWriter, boolean 
 	if (customDefaultOptions != null) {
 		this.didSpecifySource = customDefaultOptions.get(CompilerOptions.OPTION_Source) != null;
 		this.didSpecifyTarget = customDefaultOptions.get(CompilerOptions.OPTION_TargetPlatform) != null;
-		for (Iterator<Map.Entry<String, String>> iter = customDefaultOptions.entrySet().iterator(); iter.hasNext();) {
-			Map.Entry<String, String> entry = iter.next();
+		for (Entry<String, String> entry : customDefaultOptions.entrySet()) {
 			this.options.put(entry.getKey(), entry.getValue());
 		}
 	} else {
@@ -4667,9 +4659,7 @@ public void outputClassFiles(CompilationResult unitResult) {
 			generateClasspathStructure = true;
 		} // else leave currentDestinationPath null
 		if (currentDestinationPath != null) {
-			for (int i = 0, fileCount = classFiles.length; i < fileCount; i++) {
-				// retrieve the key and the corresponding classfile
-				ClassFile classFile = classFiles[i];
+			for (ClassFile classFile : classFiles) {
 				char[] filename = classFile.fileName();
 				int length = filename.length;
 				char[] relativeName = new char[length + 6];
@@ -5294,8 +5284,7 @@ public final static boolean shouldIgnoreOptionalProblems(char[][] folderNames, c
 	if (folderNames == null || fileName == null) {
 		return false;
 	}
-	for (int i = 0, max = folderNames.length; i < max; i++) {
-		char[] folderName = folderNames[i];
+	for (char[] folderName : folderNames) {
 		if (isParentOf(folderName, fileName)) {
 			return true;
 		}

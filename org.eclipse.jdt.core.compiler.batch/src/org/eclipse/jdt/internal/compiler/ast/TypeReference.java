@@ -447,11 +447,10 @@ public void getAllAnnotationContexts(int targetType, int info, List<AnnotationCo
 	AnnotationCollector collector = new AnnotationCollector(this, targetType, info, allAnnotationContexts, annotationsOnDimensions, dimensions);
 	this.traverse(collector, (BlockScope) null);
 	if (annotationsOnDimensions != null) {
-		for (int i = 0, max = annotationsOnDimensions.length; i < max; i++) {
-			Annotation[] annotationsOnDimension = annotationsOnDimensions[i];
+		for (Annotation[] annotationsOnDimension : annotationsOnDimensions) {
 			if (annotationsOnDimension != null) {
-				for (int j = 0, max2 = annotationsOnDimension.length; j< max2; j++) {
-					annotationsOnDimension[j].traverse(collector, (BlockScope) null);
+				for (Annotation element : annotationsOnDimension) {
+					element.traverse(collector, (BlockScope) null);
 				}
 			}
 		}
@@ -785,8 +784,7 @@ public int getAnnotatableLevels() {
 /** Check all typeArguments for illegal null annotations on base types. */
 protected void checkIllegalNullAnnotations(Scope scope, TypeReference[] typeArguments) {
 	if (scope.environment().usesNullTypeAnnotations() && typeArguments != null) {
-		for (int i = 0; i < typeArguments.length; i++) {
-			TypeReference arg = typeArguments[i];
+		for (TypeReference arg : typeArguments) {
 			if (arg.resolvedType != null)
 				arg.checkIllegalNullAnnotation(scope);
 		}
@@ -813,9 +811,9 @@ public Annotation findAnnotation(long nullTagBits) {
 		Annotation[] innerAnnotations = this.annotations[this.annotations.length-1];
 		if (innerAnnotations != null) {
 			int annBit = nullTagBits == TagBits.AnnotationNonNull ? TypeIds.BitNonNullAnnotation : TypeIds.BitNullableAnnotation;
-			for (int i = 0; i < innerAnnotations.length; i++) {
-				if (innerAnnotations[i] != null && innerAnnotations[i].hasNullBit(annBit))
-					return innerAnnotations[i];
+			for (Annotation innerAnnotation : innerAnnotations) {
+				if (innerAnnotation != null && innerAnnotation.hasNullBit(annBit))
+					return innerAnnotation;
 			}
 		}
 	}
@@ -837,8 +835,8 @@ public boolean hasNullTypeAnnotation(AnnotationPosition position) {
 }
 public static boolean containsNullAnnotation(Annotation[] annotations) {
 	if (annotations != null) {
-		for (int i = 0; i < annotations.length; i++) {
-			if (annotations[i] != null && (annotations[i].hasNullBit(TypeIds.BitNonNullAnnotation|TypeIds.BitNullableAnnotation)))
+		for (Annotation annotation2 : annotations) {
+			if (annotation2 != null && (annotation2.hasNullBit(TypeIds.BitNonNullAnnotation|TypeIds.BitNullableAnnotation)))
 				return true;
 		}
 	}

@@ -27,15 +27,15 @@ public IBinaryTypeAnnotation[] getTypeAnnotations() {
 }
 @Override
 protected void initialize() {
-	for (int i = 0, max = this.typeAnnotations.length; i < max; i++)
-		this.typeAnnotations[i].initialize();
+	for (TypeAnnotationInfo typeAnnotation : this.typeAnnotations)
+		typeAnnotation.initialize();
 	super.initialize();
 }
 @Override
 protected void reset() {
 	if (this.typeAnnotations != null)
-		for (int i = 0, max = this.typeAnnotations.length; i < max; i++)
-			this.typeAnnotations[i].reset();
+		for (TypeAnnotationInfo typeAnnotation : this.typeAnnotations)
+			typeAnnotation.reset();
 	super.reset();
 }
 @Override
@@ -44,8 +44,8 @@ public String toString() {
 	if (this.typeAnnotations != null) {
 		buffer.append('\n');
 		buffer.append("type annotations:"); //$NON-NLS-1$
-		for (int i = 0; i < this.typeAnnotations.length; i++) {
-			buffer.append(this.typeAnnotations[i]);
+		for (TypeAnnotationInfo typeAnnotation : this.typeAnnotations) {
+			buffer.append(typeAnnotation);
 			buffer.append('\n');
 		}
 	}

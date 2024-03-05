@@ -81,8 +81,7 @@ public class AnnotatableTypeSystem extends TypeSystem {
 		}
 		ArrayBinding nakedType = null;
 		TypeBinding[] derivedTypes = getDerivedTypes(leafType);
-		for (int i = 0, length = derivedTypes.length; i < length; i++) {
-			TypeBinding derivedType = derivedTypes[i];
+		for (TypeBinding derivedType : derivedTypes) {
 			if (derivedType == null) break;
 			if (!derivedType.isArrayType() || derivedType.dimensions() != dimensions || derivedType.leafComponentType() != leafType) //$IDENTITY-COMPARISON$
 				continue;
@@ -152,8 +151,7 @@ public class AnnotatableTypeSystem extends TypeSystem {
 
 		RawTypeBinding nakedType = null;
 		TypeBinding[] derivedTypes = getDerivedTypes(genericType);
-		for (int i = 0, length = derivedTypes.length; i < length; i++) {
-			TypeBinding derivedType = derivedTypes[i];
+		for (TypeBinding derivedType : derivedTypes) {
 			if (derivedType == null)
 				break;
 			if (!derivedType.isRawType() || derivedType.actualType() != genericType || derivedType.enclosingType() != enclosingType) //$IDENTITY-COMPARISON$
@@ -192,8 +190,7 @@ public class AnnotatableTypeSystem extends TypeSystem {
 		WildcardBinding nakedType = null;
 		boolean useDerivedTypesOfBound = bound instanceof TypeVariableBinding || (bound instanceof ParameterizedTypeBinding && !(bound instanceof RawTypeBinding)) ;
 		TypeBinding[] derivedTypes = getDerivedTypes(useDerivedTypesOfBound ? bound : genericType);
-		for (int i = 0, length = derivedTypes.length; i < length; i++) {
-			TypeBinding derivedType = derivedTypes[i];
+		for (TypeBinding derivedType : derivedTypes) {
 			if (derivedType == null)
 				break;
 			if (!derivedType.isWildcard() || derivedType.actualType() != genericType || derivedType.rank() != rank) //$IDENTITY-COMPARISON$
@@ -303,8 +300,7 @@ public class AnnotatableTypeSystem extends TypeSystem {
 		}
 		TypeBinding nakedType = null;
 		TypeBinding[] derivedTypes = getDerivedTypes(type);
-		for (int i = 0, length = derivedTypes.length; i < length; i++) {
-			TypeBinding derivedType = derivedTypes[i];
+		for (TypeBinding derivedType : derivedTypes) {
 			if (derivedType == null) break;
 
 			if (derivedType.enclosingType() != enclosingType || !Util.effectivelyEqual(derivedType.typeArguments(), type.typeArguments())) //$IDENTITY-COMPARISON$

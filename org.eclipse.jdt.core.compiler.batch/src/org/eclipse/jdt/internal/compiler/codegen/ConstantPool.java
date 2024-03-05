@@ -427,8 +427,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 			}
 			this.currentOffset += 2;
 			length = 0;
-			for (int i = 0; i < utf8Constant.length; i++) {
-				char current = utf8Constant[i];
+			for (char current : utf8Constant) {
 				if ((current >= 0x0001) && (current <= 0x007F)) {
 					// we only need one byte: ASCII table
 					writeU1(current);
@@ -1064,8 +1063,7 @@ public class ConstantPool implements ClassFileConstants, TypeIds {
 				}
 				this.currentOffset += 2;
 				length = 0;
-				for (int i = 0; i < stringCharArray.length; i++) {
-					char current = stringCharArray[i];
+				for (char current : stringCharArray) {
 					if ((current >= 0x0001) && (current <= 0x007F)) {
 						// we only need one byte: ASCII table
 						length++;

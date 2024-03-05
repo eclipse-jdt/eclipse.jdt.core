@@ -215,8 +215,7 @@ private Hashtable<String, String> getSecondaryTypes(String qualifiedPackageName)
 	File[] listFiles = dir.isDirectory() ? dir.listFiles() : null;
 	if (listFiles == null) return packageEntry;
 
-	for (int i = 0, l = listFiles.length; i < l; ++i) {
-		File f = listFiles[i];
+	for (File f : listFiles) {
 		if (f.isDirectory()) continue;
 		String s = f.getAbsolutePath();
 		if (s == null) continue;
@@ -234,8 +233,7 @@ private Hashtable<String, String> getSecondaryTypes(String qualifiedPackageName)
 		CompilationUnitDeclaration unit = parser.parse(cu, compilationResult);
 		org.eclipse.jdt.internal.compiler.ast.TypeDeclaration[] types = unit != null ? unit.types : null;
 		if (types == null) continue;
-		for (int j = 0, k = types.length; j < k; j++) {
-			TypeDeclaration type = types[j];
+		for (TypeDeclaration type : types) {
 			char[] name = type.isSecondary() ? type.name : null;  // add only secondary types
 			if (name != null)
 				packageEntry.put(new String(name), s);
