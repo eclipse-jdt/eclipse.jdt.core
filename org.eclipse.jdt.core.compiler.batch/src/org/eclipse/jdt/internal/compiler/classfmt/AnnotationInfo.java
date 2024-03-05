@@ -90,8 +90,7 @@ private void sanitizePairs(ElementValuePairInfo[] oldPairs) {
 	if (oldPairs != null) {
 		ElementValuePairInfo[] newPairs = new ElementValuePairInfo[oldPairs.length];
 		int count = 0;
-		for (int i = 0; i < oldPairs.length; i++) {
-			ElementValuePairInfo evpInfo = oldPairs[i];
+		for (ElementValuePairInfo evpInfo : oldPairs) {
 			if (evpInfo != null)
 				newPairs[count++] = evpInfo;
 		}

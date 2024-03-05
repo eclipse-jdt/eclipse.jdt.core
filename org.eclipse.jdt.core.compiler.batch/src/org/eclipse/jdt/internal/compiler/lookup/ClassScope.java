@@ -35,7 +35,6 @@ package org.eclipse.jdt.internal.compiler.lookup;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -83,8 +82,8 @@ public class ClassScope extends Scope {
 		if ((inheritedBits & TypeIds.BitWrapperCloseable) != 0) {
 			AbstractMethodDeclaration[] methods = this.referenceContext.methods;
 			if (methods != null) {
-				for (int i=0; i<methods.length; i++) {
-					if (CharOperation.equals(TypeConstants.CLOSE, methods[i].selector) && methods[i].arguments == null) {
+				for (AbstractMethodDeclaration method : methods) {
+					if (CharOperation.equals(TypeConstants.CLOSE, method.selector) && method.arguments == null) {
 						inheritedBits &= TypeIds.InheritableBits;
 						break;
 					}
@@ -305,8 +304,8 @@ public class ClassScope extends Scope {
 			 ((MemberTypeBinding) sourceType).checkSyntheticArgsAndFields();
 
 		ReferenceBinding[] memberTypes = sourceType.memberTypes;
-		for (int i = 0, length = memberTypes.length; i < length; i++)
-			 ((SourceTypeBinding) memberTypes[i]).scope.buildFieldsAndMethods();
+		for (ReferenceBinding memberType : memberTypes)
+			((SourceTypeBinding) memberType).scope.buildFieldsAndMethods();
 	}
 
 	private LocalTypeBinding buildLocalType(SourceTypeBinding enclosingType, PackageBinding packageBinding) {
@@ -1031,8 +1030,7 @@ public class ClassScope extends Scope {
 			TypeReference[] boundRefs = typeParameter.bounds;
 			if (boundRefs != null) {
 				boolean checkSuperclass = TypeBinding.equalsEquals(typeVariable.firstBound, typeVariable.superclass);
-				for (int j = 0, boundLength = boundRefs.length; j < boundLength; j++) {
-					TypeReference typeRef = boundRefs[j];
+				for (TypeReference typeRef : boundRefs) {
 					TypeBinding superType = typeRef.resolvedType;
 					if (superType == null || !superType.isValidBinding()) continue;
 
@@ -1050,8 +1048,8 @@ public class ClassScope extends Scope {
 
 		ReferenceBinding[] memberTypes = this.referenceContext.binding.memberTypes;
 		if (memberTypes != null && memberTypes != Binding.NO_MEMBER_TYPES)
-			for (int i = 0, size = memberTypes.length; i < size; i++)
-				 ((SourceTypeBinding) memberTypes[i]).scope.checkParameterizedSuperTypeCollisions();
+			for (ReferenceBinding memberType : memberTypes)
+				((SourceTypeBinding) memberType).scope.checkParameterizedSuperTypeCollisions();
 	}
 
 	private void checkForInheritedMemberTypes(SourceTypeBinding sourceType) {
@@ -1131,16 +1129,16 @@ public class ClassScope extends Scope {
 
 		ReferenceBinding[] memberTypes = this.referenceContext.binding.memberTypes;
 		if (memberTypes != null && memberTypes != Binding.NO_MEMBER_TYPES)
-			for (int i = 0, size = memberTypes.length; i < size; i++)
-				 ((SourceTypeBinding) memberTypes[i]).scope.checkParameterizedTypeBounds();
+			for (ReferenceBinding memberType : memberTypes)
+				((SourceTypeBinding) memberType).scope.checkParameterizedTypeBounds();
 	}
 
 	private void connectMemberTypes() {
 		SourceTypeBinding sourceType = this.referenceContext.binding;
 		ReferenceBinding[] memberTypes = sourceType.memberTypes;
 		if (memberTypes != null && memberTypes != Binding.NO_MEMBER_TYPES) {
-			for (int i = 0, size = memberTypes.length; i < size; i++)
-				 ((SourceTypeBinding) memberTypes[i]).scope.connectTypeHierarchy();
+			for (ReferenceBinding memberType : memberTypes)
+				((SourceTypeBinding) memberType).scope.connectTypeHierarchy();
 		}
 	}
 	/*
@@ -1287,8 +1285,8 @@ public class ClassScope extends Scope {
 		}
 		ReferenceBinding[] memberTypes = sourceType.memberTypes;
 		if (memberTypes != null && memberTypes != Binding.NO_MEMBER_TYPES) {
-			for (int i = 0, size = memberTypes.length; i < size; i++)
-				 ((SourceTypeBinding) memberTypes[i]).scope.connectImplicitPermittedTypes();
+			for (ReferenceBinding memberType : memberTypes)
+				((SourceTypeBinding) memberType).scope.connectImplicitPermittedTypes();
 		}
 	}
 	/**
@@ -1351,8 +1349,8 @@ public class ClassScope extends Scope {
 		}
 		ReferenceBinding[] memberTypes = sourceType.memberTypes;
 		if (memberTypes != null && memberTypes != Binding.NO_MEMBER_TYPES) {
-			for (int j = 0, size = memberTypes.length; j < size; j++)
-				 ((SourceTypeBinding) memberTypes[j]).scope.connectPermittedTypes();
+			for (ReferenceBinding memberType : memberTypes)
+				((SourceTypeBinding) memberType).scope.connectPermittedTypes();
 		}
 	}
 
@@ -1603,8 +1601,8 @@ public class ClassScope extends Scope {
 
 			ReferenceBinding[] itsInterfaces = superType.superInterfaces();
 			if (itsInterfaces != null && itsInterfaces != Binding.NO_SUPERINTERFACES) {
-				for (int i = 0, length = itsInterfaces.length; i < length; i++) {
-					ReferenceBinding anInterface = itsInterfaces[i];
+				for (ReferenceBinding element : itsInterfaces) {
+					ReferenceBinding anInterface = element;
 					if (TypeBinding.equalsEquals(sourceType, anInterface)) {
 						problemReporter().hierarchyCircularity(sourceType, superType, reference);
 						sourceType.tagBits |= TagBits.HierarchyHasProblems;
@@ -1642,8 +1640,8 @@ public class ClassScope extends Scope {
 				// https://bugs.eclipse.org/bugs/show_bug.cgi?id=319885 Don't cry foul prematurely.
 				// Check the edges traversed to see if there really is a cycle.
 				char [] referredName = ref.getLastToken();
-				for (Iterator iter = environment().typesBeingConnected.iterator(); iter.hasNext();) {
-					SourceTypeBinding type = (SourceTypeBinding) iter.next();
+				for (Object element : environment().typesBeingConnected) {
+					SourceTypeBinding type = (SourceTypeBinding) element;
 					if (CharOperation.equals(referredName, type.sourceName())) {
 						problemReporter().hierarchyCircularity(sourceType, superType, reference);
 						sourceType.tagBits |= TagBits.HierarchyHasProblems;

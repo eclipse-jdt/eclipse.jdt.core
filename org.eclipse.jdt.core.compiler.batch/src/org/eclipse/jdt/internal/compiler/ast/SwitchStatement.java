@@ -676,8 +676,7 @@ public class SwitchStatement extends Expression {
 			// generate the switch block statements
 			int caseIndex = 0;
 			if (this.statements != null) {
-				for (int i = 0, maxCases = this.statements.length; i < maxCases; i++) {
-					Statement statement = this.statements[i];
+				for (Statement statement : this.statements) {
 					if ((caseIndex < this.caseCount) && (statement == this.cases[caseIndex])) { // statements[i] is a case
 						this.scope.enclosingCase = this.cases[caseIndex]; // record entering in a switch case block
 						if (this.preSwitchInitStateIndex != -1) {
@@ -845,8 +844,7 @@ public class SwitchStatement extends Expression {
 			int caseIndex = 0;
 			int typeSwitchIndex = 0;
 			if (this.statements != null) {
-				for (int i = 0, maxCases = this.statements.length; i < maxCases; i++) {
-					Statement statement = this.statements[i];
+				for (Statement statement : this.statements) {
 					CaseStatement caseStatement = null;
 					if ((caseIndex < constantCount) && (statement == this.cases[caseIndex])) { // statements[i] is a case
 						this.scope.enclosingCase = this.cases[caseIndex]; // record entering in a switch case block
@@ -1047,12 +1045,12 @@ public class SwitchStatement extends Expression {
 		printIndent(indent, output).append("switch ("); //$NON-NLS-1$
 		this.expression.printExpression(0, output).append(") {"); //$NON-NLS-1$
 		if (this.statements != null) {
-			for (int i = 0; i < this.statements.length; i++) {
+			for (Statement statement : this.statements) {
 				output.append('\n');
-				if (this.statements[i] instanceof CaseStatement) {
-					this.statements[i].printStatement(indent, output);
+				if (statement instanceof CaseStatement) {
+					statement.printStatement(indent, output);
 				} else {
-					this.statements[i].printStatement(indent+2, output);
+					statement.printStatement(indent+2, output);
 				}
 			}
 		}
@@ -1062,8 +1060,7 @@ public class SwitchStatement extends Expression {
 
 	private int getNConstants() {
 		int n = 0;
-		for (int i = 0, l = this.statements.length; i < l; ++i) {
-			final Statement statement = this.statements[i];
+		for (final Statement statement : this.statements) {
 			if (statement instanceof CaseStatement)  {
 				Expression[] exprs = ((CaseStatement) statement).peeledLabelExpressions();
 				int count = 0;
@@ -1376,8 +1373,8 @@ public class SwitchStatement extends Expression {
 		}
 		if (ref.isRecord()) {
 			boolean isRecordPattern = false;
-			for (int i = 0; i < this.caseLabelElements.size(); ++i) {
-				if (this.caseLabelElements.get(i) instanceof RecordPattern) {
+			for (Pattern element : this.caseLabelElements) {
+				if (element instanceof RecordPattern) {
 					isRecordPattern = true;
 					break;
 				}
@@ -1427,8 +1424,8 @@ public class SwitchStatement extends Expression {
 		}
 		// non-zero components
 		RNode head = new RNode(ref);
-		for (int i = 0; i < this.caseLabelElements.size(); ++i) {
-			head.addPattern(this.caseLabelElements.get(i));
+		for (Pattern element : this.caseLabelElements) {
+			head.addPattern(element);
 		}
 		CoverageCheckerVisitor ccv = new CoverageCheckerVisitor();
 		head.traverse(ccv);
@@ -1632,8 +1629,8 @@ public class SwitchStatement extends Expression {
 	public boolean doesNotCompleteNormally() {
 		if (this.statements == null || this.statements.length == 0)
 			return false;
-		for (int i = 0, length = this.statements.length; i < length; i++) {
-			if (this.statements[i].breaksOut(null))
+		for (Statement statement : this.statements) {
+			if (statement.breaksOut(null))
 				return false;
 		}
 		return this.statements[this.statements.length - 1].doesNotCompleteNormally();
@@ -1643,8 +1640,8 @@ public class SwitchStatement extends Expression {
 	public boolean completesByContinue() {
 		if (this.statements == null || this.statements.length == 0)
 			return false;
-		for (int i = 0, length = this.statements.length; i < length; i++) {
-			if (this.statements[i].completesByContinue())
+		for (Statement statement : this.statements) {
+			if (statement.completesByContinue())
 				return true;
 		}
 		return false;
@@ -1659,8 +1656,8 @@ public class SwitchStatement extends Expression {
 				return true; // last statement as well as last switch label after blocks if exists.
 			if (this.totalPattern == null && this.defaultCase == null)
 				return true;
-			for (int i = 0, length = this.statements.length; i < length; i++) {
-				if (this.statements[i].breaksOut(null))
+			for (Statement statement : this.statements) {
+				if (statement.breaksOut(null))
 					return true;
 			}
 		} else {
@@ -1692,8 +1689,8 @@ public class SwitchStatement extends Expression {
 	public boolean continueCompletes() {
 		if (this.statements == null || this.statements.length == 0)
 			return false;
-		for (int i = 0, length = this.statements.length; i < length; i++) {
-			if (this.statements[i].continueCompletes())
+		for (Statement statement : this.statements) {
+			if (statement.continueCompletes())
 				return true;
 		}
 		return false;

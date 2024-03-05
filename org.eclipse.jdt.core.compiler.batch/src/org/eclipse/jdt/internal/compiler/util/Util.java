@@ -604,8 +604,8 @@ public class Util implements SuffixConstants {
 			return 0;
 		}
 		int result = 1;
-		for (int index = 0; index < array.length; index++) {
-			result = prime * result + (array[index] == null ? 0 : array[index].hashCode());
+		for (Object element : array) {
+			result = prime * result + (element == null ? 0 : element.hashCode());
 		}
 		return result;
 	}
@@ -753,8 +753,8 @@ public class Util implements SuffixConstants {
 			path = CharOperation.concat(path, new char[] {'*'}, '/');
 		}
 		if (exclusionPatterns != null) {
-			for (int i = 0, length = exclusionPatterns.length; i < length; i++) {
-				if (CharOperation.pathMatch(exclusionPatterns[i], path, true, '/')) {
+			for (char[] exclusionPattern : exclusionPatterns) {
+				if (CharOperation.pathMatch(exclusionPattern, path, true, '/')) {
 					return true;
 				}
 			}
@@ -973,8 +973,7 @@ public class Util implements SuffixConstants {
 			}
 			TypeBinding[] arguments = parameterizedTypeBinding.arguments;
 			if (arguments != null) {
-				for (int j = 0, max2 = arguments.length; j < max2; j++) {
-					TypeBinding argument = arguments[j];
+				for (TypeBinding argument : arguments) {
 					if (argument.isWildcard()) {
 						WildcardBinding wildcardBinding = (WildcardBinding) argument;
 						TypeBinding bound = wildcardBinding.bound;
@@ -989,8 +988,7 @@ public class Util implements SuffixConstants {
 						}
 						ReferenceBinding[] superInterfaces = wildcardBinding.superInterfaces();
 						if (superInterfaces != null) {
-							for (int k = 0, max3 =  superInterfaces.length; k < max3; k++) {
-								ReferenceBinding superInterface = superInterfaces[k];
+							for (ReferenceBinding superInterface : superInterfaces) {
 								if ((superInterface.tagBits & TagBits.ContainsNestedTypeReferences) != 0) {
 									recordNestedType(classFile, superInterface);
 								}
@@ -1010,8 +1008,7 @@ public class Util implements SuffixConstants {
 			}
 			TypeBinding[] upperBounds = typeVariableBinding.otherUpperBounds();
 			if (upperBounds != null) {
-				for (int k = 0, max3 =  upperBounds.length; k < max3; k++) {
-					TypeBinding otherUpperBound = upperBounds[k];
+				for (TypeBinding otherUpperBound : upperBounds) {
 					if ((otherUpperBound.tagBits & TagBits.ContainsNestedTypeReferences) != 0) {
 						recordNestedType(classFile, otherUpperBound);
 					}
@@ -1117,11 +1114,10 @@ public class Util implements SuffixConstants {
 				}
 				File[][] systemLibrariesJars = Main.getLibrariesFiles(directoriesToCheck);
 				if (systemLibrariesJars != null) {
-					for (int i = 0, max = systemLibrariesJars.length; i < max; i++) {
-						File[] current = systemLibrariesJars[i];
+					for (File[] current : systemLibrariesJars) {
 						if (current != null) {
-							for (int j = 0, max2 = current.length; j < max2; j++) {
-								filePaths.add(current[j].getAbsolutePath());
+							for (File element : current) {
+								filePaths.add(element.getAbsolutePath());
 							}
 						}
 					}

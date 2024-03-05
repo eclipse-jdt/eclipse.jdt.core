@@ -323,8 +323,8 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 
 	if (castType.isIntersectionType18()) {
 		ReferenceBinding [] intersectingTypes = castType.getIntersectingTypes();
-		for (int i = 0, length = intersectingTypes.length; i < length; i++) {
-			if (!checkCastTypesCompatibility(scope, intersectingTypes[i], expressionType, expression, useAutoBoxing))
+		for (ReferenceBinding intersectingType : intersectingTypes) {
+			if (!checkCastTypesCompatibility(scope, intersectingType, expressionType, expression, useAutoBoxing))
 				return false;
 		}
 		return true;
@@ -418,8 +418,8 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 			return checkCastTypesCompatibility(scope, castType, bound, expression, useAutoBoxing);
 		case Binding.INTERSECTION_TYPE18:
 			ReferenceBinding [] intersectingTypes = expressionType.getIntersectingTypes();
-			for (int i = 0, length = intersectingTypes.length; i < length; i++) {
-				if (checkCastTypesCompatibility(scope, castType, intersectingTypes[i], expression, useAutoBoxing))
+			for (ReferenceBinding intersectingType : intersectingTypes) {
+				if (checkCastTypesCompatibility(scope, castType, intersectingType, expression, useAutoBoxing))
 					return true;
 			}
 			return false;
@@ -481,11 +481,11 @@ public final boolean checkCastTypesCompatibility(Scope scope, TypeBinding castTy
 								MethodBinding[] castTypeMethods = getAllOriginalInheritedMethods((ReferenceBinding) castType);
 								MethodBinding[] expressionTypeMethods = getAllOriginalInheritedMethods((ReferenceBinding) expressionType);
 								int exprMethodsLength = expressionTypeMethods.length;
-								for (int i = 0, castMethodsLength = castTypeMethods.length; i < castMethodsLength; i++) {
+								for (MethodBinding castTypeMethod : castTypeMethods) {
 									for (int j = 0; j < exprMethodsLength; j++) {
-										if ((TypeBinding.notEquals(castTypeMethods[i].returnType, expressionTypeMethods[j].returnType))
-												&& (CharOperation.equals(castTypeMethods[i].selector, expressionTypeMethods[j].selector))
-												&& castTypeMethods[i].areParametersEqual(expressionTypeMethods[j])) {
+										if ((TypeBinding.notEquals(castTypeMethod.returnType, expressionTypeMethods[j].returnType))
+												&& (CharOperation.equals(castTypeMethod.selector, expressionTypeMethods[j].selector))
+												&& castTypeMethod.areParametersEqual(expressionTypeMethods[j])) {
 											return false;
 
 										}
@@ -952,12 +952,12 @@ private MethodBinding[] getAllOriginalInheritedMethods(ReferenceBinding binding)
 private void getAllInheritedMethods0(ReferenceBinding binding, ArrayList<MethodBinding> collector) {
 	if (!binding.isInterface()) return;
 	MethodBinding[] methodBindings = binding.methods();
-	for (int i = 0, max = methodBindings.length; i < max; i++) {
-		collector.add(methodBindings[i]);
+	for (MethodBinding methodBinding : methodBindings) {
+		collector.add(methodBinding);
 	}
 	ReferenceBinding[] superInterfaces = binding.superInterfaces();
-	for (int i = 0, max = superInterfaces.length; i < max; i++) {
-		getAllInheritedMethods0(superInterfaces[i], collector);
+	for (ReferenceBinding element : superInterfaces) {
+		getAllInheritedMethods0(element, collector);
 	}
 }
 

@@ -167,11 +167,9 @@ public class ArrayTypeReference extends SingleTypeReference {
 				}
 			}
 			if (this.annotationsOnDimensions != null) {
-				for (int i = 0, max = this.annotationsOnDimensions.length; i < max; i++) {
-					Annotation[] annotations2 = this.annotationsOnDimensions[i];
+				for (Annotation[] annotations2 : this.annotationsOnDimensions) {
 					if (annotations2 != null) {
-						for (int j = 0, max2 = annotations2.length; j < max2; j++) {
-							Annotation annotation = annotations2[j];
+						for (Annotation annotation : annotations2) {
 							annotation.traverse(visitor, scope);
 						}
 					}
@@ -191,11 +189,9 @@ public class ArrayTypeReference extends SingleTypeReference {
 				}
 			}
 			if (this.annotationsOnDimensions != null) {
-				for (int i = 0, max = this.annotationsOnDimensions.length; i < max; i++) {
-					Annotation[] annotations2 = this.annotationsOnDimensions[i];
+				for (Annotation[] annotations2 : this.annotationsOnDimensions) {
 					if (annotations2 != null) {
-						for (int j = 0, max2 = annotations2.length; j < max2; j++) {
-							Annotation annotation = annotations2[j];
+						for (Annotation annotation : annotations2) {
 							annotation.traverse(visitor, scope);
 						}
 					}
@@ -295,8 +291,7 @@ public class ArrayTypeReference extends SingleTypeReference {
 				if (this.resolvedType != null && !this.resolvedType.hasNullTypeAnnotations())
 					return false; // shortcut
 				if (this.annotationsOnDimensions != null) {
-					for (int i = 0; i < this.annotationsOnDimensions.length; i++) {
-						Annotation[] innerAnnotations = this.annotationsOnDimensions[i];
+					for (Annotation[] innerAnnotations : this.annotationsOnDimensions) {
 						if (containsNullAnnotation(innerAnnotations))
 							return true;
 					}

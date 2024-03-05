@@ -478,8 +478,8 @@ public char[] computeGenericTypeSignature(TypeVariableBinding[] typeVariables) {
 	    sig.append(';');
 	} else {
 	    sig.append('<');
-	    for (int i = 0, length = typeVariables.length; i < length; i++) {
-	        sig.append(typeVariables[i].genericTypeSignature());
+	    for (TypeVariableBinding typeVariable : typeVariables) {
+	        sig.append(typeVariable.genericTypeSignature());
 	    }
 	    sig.append(">;"); //$NON-NLS-1$
 	}
@@ -1026,16 +1026,16 @@ public boolean detectAnnotationCycle() {
 	this.tagBits |= TagBits.BeginAnnotationCheck;
 	MethodBinding[] currentMethods = methods();
 	boolean inCycle = false; // check each method before failing
-	for (int i = 0, l = currentMethods.length; i < l; i++) {
-		TypeBinding returnType = currentMethods[i].returnType.leafComponentType().erasure();
+	for (MethodBinding currentMethod : currentMethods) {
+		TypeBinding returnType = currentMethod.returnType.leafComponentType().erasure();
 		if (TypeBinding.equalsEquals(this, returnType)) {
 			if (this instanceof SourceTypeBinding) {
-				MethodDeclaration decl = (MethodDeclaration) currentMethods[i].sourceMethod();
+				MethodDeclaration decl = (MethodDeclaration) currentMethod.sourceMethod();
 				((SourceTypeBinding) this).scope.problemReporter().annotationCircularity(this, this, decl != null ? decl.returnType : null);
 			}
 		} else if (returnType.isAnnotationType() && ((ReferenceBinding) returnType).detectAnnotationCycle()) {
 			if (this instanceof SourceTypeBinding) {
-				MethodDeclaration decl = (MethodDeclaration) currentMethods[i].sourceMethod();
+				MethodDeclaration decl = (MethodDeclaration) currentMethod.sourceMethod();
 				((SourceTypeBinding) this).scope.problemReporter().annotationCircularity(this, returnType, decl != null ? decl.returnType : null);
 			}
 			inCycle = true;
@@ -1058,8 +1058,8 @@ public final ReferenceBinding enclosingTypeAt(int relativeDepth) {
 public int enumConstantCount() {
 	int count = 0;
 	FieldBinding[] fields = fields();
-	for (int i = 0, length = fields.length; i < length; i++) {
-		if ((fields[i].modifiers & ClassFileConstants.AccEnum) != 0) count++;
+	for (FieldBinding field2 : fields) {
+		if ((field2.modifiers & ClassFileConstants.AccEnum) != 0) count++;
 	}
 	return count;
 }
@@ -1601,8 +1601,8 @@ protected boolean isSubTypeOfRTL(TypeBinding other) {
 	if (other instanceof ReferenceBinding) {
 		TypeBinding[] intersecting = ((ReferenceBinding) other).getIntersectingTypes();
 		if (intersecting != null) {
-			for (int i = 0; i < intersecting.length; i++) {
-				if (!isSubtypeOf(intersecting[i], false))
+			for (TypeBinding element : intersecting) {
+				if (!isSubtypeOf(element, false))
 					return false;
 			}
 			return true;
@@ -2272,9 +2272,9 @@ protected MethodBinding [] getInterfaceAbstractContracts(Scope scope, boolean re
 	int contractsLength = 0;
 
 	ReferenceBinding [] superInterfaces = superInterfaces();
-	for (int i = 0, length = superInterfaces.length; i < length; i++) {
+	for (ReferenceBinding element : superInterfaces) {
 		// filterDefaultMethods=false => keep default methods needed to filter out any abstract methods they may override:
-		MethodBinding [] superInterfaceContracts = superInterfaces[i].getInterfaceAbstractContracts(scope, replaceWildcards, false);
+		MethodBinding [] superInterfaceContracts = element.getInterfaceAbstractContracts(scope, replaceWildcards, false);
 		final int superInterfaceContractsLength = superInterfaceContracts == null  ? 0 : superInterfaceContracts.length;
 		if (superInterfaceContractsLength == 0) continue;
 		if (contractsLength < contractsCount + superInterfaceContractsLength) {
@@ -2371,8 +2371,7 @@ public MethodBinding getSingleAbstractMethod(Scope scope, boolean replaceWildcar
 			return this.singleAbstractMethod[index] = samProblemBinding;
 		int contractParameterLength = 0;
 		char [] contractSelector = null;
-		for (int i = 0, length = methods.length; i < length; i++) {
-			MethodBinding method = methods[i];
+		for (MethodBinding method : methods) {
 			if (method == null) continue;
 			if (contractSelector == null) {
 				contractSelector = method.selector;

@@ -38,8 +38,8 @@ public class IntersectionCastTypeReference extends TypeReference {
 		this.sourceStart = typeReferences[0].sourceStart;
 		int length = typeReferences.length;
 		this.sourceEnd = typeReferences[length - 1].sourceEnd;
-		for (int i = 0, max = typeReferences.length; i < max; i++) {
-			if ((typeReferences[i].bits & ASTNode.HasTypeAnnotations) != 0) {
+		for (TypeReference element : typeReferences) {
+			if ((element.bits & ASTNode.HasTypeAnnotations) != 0) {
 				this.bits |= ASTNode.HasTypeAnnotations;
 				break;
 			}

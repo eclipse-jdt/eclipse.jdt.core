@@ -317,8 +317,7 @@ public String toString() {
 public void updateInnerEmulationDependents() {
 	if (!isPrototype()) throw new IllegalStateException();
 	if (this.dependents != null) {
-		for (int i = 0; i < this.dependents.length; i++) {
-			InnerEmulationDependency dependency = this.dependents[i];
+		for (InnerEmulationDependency dependency : this.dependents) {
 			// System.out.println("Updating " + new String(this.readableName()) + " --> " + new String(dependency.scope.enclosingType().readableName()));
 			dependency.scope.propagateInnerEmulation(this, dependency.wasEnclosingInstanceSupplied);
 		}

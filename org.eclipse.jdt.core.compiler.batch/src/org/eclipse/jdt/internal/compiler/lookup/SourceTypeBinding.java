@@ -1103,8 +1103,8 @@ private void checkAnnotationsInType() {
 		this.tagBits |= (enclosingType.tagBits & TagBits.AnnotationTerminallyDeprecated);
 	}
 
-	for (int i = 0, length = this.memberTypes.length; i < length; i++)
-		((SourceTypeBinding) this.memberTypes[i]).checkAnnotationsInType();
+	for (ReferenceBinding memberType : this.memberTypes)
+		((SourceTypeBinding) memberType).checkAnnotationsInType();
 }
 
 void faultInTypesForFieldsAndMethods() {
@@ -1206,8 +1206,8 @@ private void checkPermitsInType() {
 			}
 		}
 	}
-	for (int i = 0, length = this.memberTypes.length; i < length; i++)
-		((SourceTypeBinding) this.memberTypes[i]).checkPermitsInType();
+	for (ReferenceBinding memberType : this.memberTypes)
+		((SourceTypeBinding) memberType).checkPermitsInType();
 
 	if (this.scope.referenceContext.permittedTypes == null) {
 		// Ignore implicitly permitted case
@@ -1518,8 +1518,8 @@ private void internalFaultInTypeForFieldsAndMethods() {
 	fields();
 	methods();
 
-	for (int i = 0, length = this.memberTypes.length; i < length; i++)
-		((SourceTypeBinding) this.memberTypes[i]).internalFaultInTypeForFieldsAndMethods();
+	for (ReferenceBinding memberType : this.memberTypes)
+		((SourceTypeBinding) memberType).internalFaultInTypeForFieldsAndMethods();
 }
 // NOTE: the type of each field of a source type is resolved when needed
 @Override
@@ -1601,8 +1601,8 @@ public char[] genericSignature() {
 	if (this.typeVariables != Binding.NO_TYPE_VARIABLES) {
 	    sig = new StringBuilder(10);
 	    sig.append('<');
-	    for (int i = 0, length = this.typeVariables.length; i < length; i++)
-	        sig.append(this.typeVariables[i].genericSignature());
+	    for (TypeVariableBinding typeVariable : this.typeVariables)
+			sig.append(typeVariable.genericSignature());
 	    sig.append('>');
 	} else {
 	    // could still need a signature if any of supertypes is parameterized
@@ -1618,8 +1618,8 @@ public char[] genericSignature() {
 		sig.append(this.superclass.genericTypeSignature());
 	else // interface scenario only (as Object cannot be generic) - 65953
 		sig.append(this.scope.getJavaLangObject().genericTypeSignature());
-    for (int i = 0, length = this.superInterfaces.length; i < length; i++)
-        sig.append(this.superInterfaces[i].genericTypeSignature());
+    for (ReferenceBinding element : this.superInterfaces)
+		sig.append(element.genericTypeSignature());
 	return sig.toString().toCharArray();
 }
 
@@ -1865,8 +1865,7 @@ public FieldBinding getField(char[] fieldName, boolean needResolve) {
 				} else {
 					FieldBinding[] newFields = new FieldBinding[newSize];
 					int index = 0;
-					for (int i = 0, length = this.fields.length; i < length; i++) {
-						FieldBinding f = this.fields[i];
+					for (FieldBinding f : this.fields) {
 						if (f == field) continue;
 						newFields[index++] = f;
 					}
@@ -1905,8 +1904,7 @@ public RecordComponentBinding getComponent(char[] componentName, boolean needRes
 				} else {
 					RecordComponentBinding[] newComponents = new RecordComponentBinding[newSize];
 					int index = 0;
-					for (int i = 0, length = this.components.length; i < length; i++) {
-						RecordComponentBinding rcb = this.components[i];
+					for (RecordComponentBinding rcb : this.components) {
 						if (rcb == component) continue;
 						newComponents[index++] = rcb;
 					}
@@ -2546,8 +2544,7 @@ public MethodBinding[] methods() {
 		this.tagBits |= TagBits.AreMethodsComplete;
 		if (this.isRecordDeclaration) {
 			/* https://github.com/eclipse-jdt/eclipse.jdt.core/issues/365 */
-			for (int i = 0; i < this.methods.length; i++) {
-				MethodBinding method = this.methods[i];
+			for (MethodBinding method : this.methods) {
 				if ((method.tagBits & TagBits.AnnotationSafeVarargs) == 0 && method.sourceMethod() != null) {
 					checkAndFlagHeapPollution(method, method.sourceMethod());
 				}
@@ -2793,8 +2790,8 @@ private MethodBinding resolveTypesWithSuspendedTempErrorHandlingPolicy(MethodBin
 	if (typeParameters != null) {
 		methodDecl.scope.connectTypeVariables(typeParameters, true);
 		// Perform deferred bound checks for type variables (only done after type variable hierarchy is connected)
-		for (int i = 0, paramLength = typeParameters.length; i < paramLength; i++)
-			typeParameters[i].checkBounds(methodDecl.scope);
+		for (TypeParameter typeParameter : typeParameters)
+			typeParameter.checkBounds(methodDecl.scope);
 	}
 	TypeReference[] exceptionTypes = methodDecl.thrownExceptions;
 	if (exceptionTypes != null) {
@@ -3056,11 +3053,11 @@ public void evaluateNullAnnotations() {
 
 	if ((this.tagBits & TagBits.AnnotationNullMASK) != 0) {
 		Annotation[] annotations = this.scope.referenceContext.annotations;
-		for (int i = 0; i < annotations.length; i++) {
-			ReferenceBinding annotationType = annotations[i].getCompilerAnnotation().getAnnotationType();
+		for (Annotation annotation : annotations) {
+			ReferenceBinding annotationType = annotation.getCompilerAnnotation().getAnnotationType();
 			if (annotationType != null) {
 				if (annotationType.hasNullBit(TypeIds.BitNonNullAnnotation|TypeIds.BitNullableAnnotation)) {
-					this.scope.problemReporter().nullAnnotationUnsupportedLocation(annotations[i]);
+					this.scope.problemReporter().nullAnnotationUnsupportedLocation(annotation);
 					this.tagBits &= ~TagBits.AnnotationNullMASK;
 				}
 			}
@@ -3377,12 +3374,12 @@ public SyntheticMethodBinding[] syntheticMethods() {
 	Iterator methodArrayIterator = this.synthetics[SourceTypeBinding.METHOD_EMUL].values().iterator();
 	while (methodArrayIterator.hasNext()) {
 		SyntheticMethodBinding[] methodAccessors = (SyntheticMethodBinding[]) methodArrayIterator.next();
-		for (int i = 0, max = methodAccessors.length; i < max; i++) {
-			if (methodAccessors[i] != null) {
+		for (SyntheticMethodBinding methodAccessor : methodAccessors) {
+			if (methodAccessor != null) {
 				if (index+1 > bindings.length) {
 					System.arraycopy(bindings, 0, (bindings = new SyntheticMethodBinding[index + 1]), 0, index);
 				}
-				bindings[index++] = methodAccessors[i];
+				bindings[index++] = methodAccessor;
 			}
 		}
 	}
@@ -3496,8 +3493,8 @@ public String toString() {
 	if (this.fields != null) {
 		if (this.fields != Binding.NO_FIELDS) {
 			buffer.append("\n/*   fields   */"); //$NON-NLS-1$
-			for (int i = 0, length = this.fields.length; i < length; i++)
-			    buffer.append('\n').append((this.fields[i] != null) ? this.fields[i].toString() : "NULL FIELD"); //$NON-NLS-1$
+			for (FieldBinding field2 : this.fields)
+				buffer.append('\n').append((field2 != null) ? field2.toString() : "NULL FIELD"); //$NON-NLS-1$
 		}
 	} else {
 		buffer.append("NULL FIELDS"); //$NON-NLS-1$
@@ -3506,8 +3503,8 @@ public String toString() {
 	if (this.methods != null) {
 		if (this.methods != Binding.NO_METHODS) {
 			buffer.append("\n/*   methods   */"); //$NON-NLS-1$
-			for (int i = 0, length = this.methods.length; i < length; i++)
-				buffer.append('\n').append((this.methods[i] != null) ? this.methods[i].toString() : "NULL METHOD"); //$NON-NLS-1$
+			for (MethodBinding method2 : this.methods)
+				buffer.append('\n').append((method2 != null) ? method2.toString() : "NULL METHOD"); //$NON-NLS-1$
 		}
 	} else {
 		buffer.append("NULL METHODS"); //$NON-NLS-1$
@@ -3516,8 +3513,8 @@ public String toString() {
 	if (this.memberTypes != null) {
 		if (this.memberTypes != Binding.NO_MEMBER_TYPES) {
 			buffer.append("\n/*   members   */"); //$NON-NLS-1$
-			for (int i = 0, length = this.memberTypes.length; i < length; i++)
-				buffer.append('\n').append((this.memberTypes[i] != null) ? this.memberTypes[i].toString() : "NULL TYPE"); //$NON-NLS-1$
+			for (ReferenceBinding memberType : this.memberTypes)
+				buffer.append('\n').append((memberType != null) ? memberType.toString() : "NULL TYPE"); //$NON-NLS-1$
 		}
 	} else {
 		buffer.append("NULL MEMBER TYPES"); //$NON-NLS-1$

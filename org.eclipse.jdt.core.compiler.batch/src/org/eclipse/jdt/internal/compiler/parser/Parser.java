@@ -42,7 +42,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -57,7 +56,6 @@ import org.eclipse.jdt.core.compiler.InvalidInputException;
 import org.eclipse.jdt.internal.compiler.ASTVisitor;
 import org.eclipse.jdt.internal.compiler.CompilationResult;
 import org.eclipse.jdt.internal.compiler.ast.*;
-import org.eclipse.jdt.internal.compiler.ast.StringTemplate;
 import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 import org.eclipse.jdt.internal.compiler.codegen.ConstantPool;
 import org.eclipse.jdt.internal.compiler.env.ICompilationUnit;
@@ -192,8 +190,8 @@ public class Parser implements TerminalTokens, ParserBasicInformation, Conflicte
 	}
 	private final static void buildFile(String filename, List listToDump) {
 		try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
-	    	for (Iterator iterator = listToDump.iterator(); iterator.hasNext(); ) {
-	    		writer.write(String.valueOf(iterator.next()));
+	    	for (Object element : listToDump) {
+	    		writer.write(String.valueOf(element));
 	    	}
 	    	writer.flush();
 		} catch(IOException e) {
@@ -480,8 +478,8 @@ public class Parser implements TerminalTokens, ParserBasicInformation, Conflicte
 					terminalNames[t++] = st.nextToken();
 				}
 
-				for (int j = 0; j < terminalNames.length; j++) {
-					int symbol = getSymbol(terminalNames[j], newName, newReverse);
+				for (String terminalName : terminalNames) {
+					int symbol = getSymbol(terminalName, newName, newReverse);
 					if(symbol > -1) {
 						length = newRecoveyTemplates.length;
 						if(length == newRecoveyTemplatesPtr + 1) {
@@ -2618,8 +2616,8 @@ protected void consumeClassHeaderImplements() {
 		0,
 		length);
 	TypeReference[] superinterfaces = typeDecl.superInterfaces;
-	for (int i = 0, max = superinterfaces.length; i < max; i++) {
-		TypeReference typeReference = superinterfaces[i];
+	for (TypeReference element : superinterfaces) {
+		TypeReference typeReference = element;
 		typeDecl.bits |= (typeReference.bits & ASTNode.HasTypeAnnotations);
 		typeReference.bits |= ASTNode.IsSuperType;
 	}
@@ -4684,8 +4682,8 @@ protected void consumeInterfaceHeaderExtends() {
 		0,
 		length);
 	TypeReference[] superinterfaces = typeDecl.superInterfaces;
-	for (int i = 0, max = superinterfaces.length; i < max; i++) {
-		TypeReference typeReference = superinterfaces[i];
+	for (TypeReference element : superinterfaces) {
+		TypeReference typeReference = element;
 		typeDecl.bits |= (typeReference.bits & ASTNode.HasTypeAnnotations);
 		typeReference.bits |= ASTNode.IsSuperType;
 	}
@@ -4777,8 +4775,7 @@ private void populatePermittedTypes() {
 		0,
 		length);
 	TypeReference[] permittedTypes = typeDecl.permittedTypes;
-	for (int i = 0, max = permittedTypes.length; i < max; i++) {
-		TypeReference typeReference = permittedTypes[i];
+	for (TypeReference typeReference : permittedTypes) {
 		typeDecl.bits |= (typeReference.bits & ASTNode.HasTypeAnnotations); // TODO: Confirm with spec
 //		typeReference.bits |= ASTNode.IsSuperType; // TODO: Check equivalent required
 	}
@@ -5452,8 +5449,8 @@ protected void consumeMethodHeaderRightParen() {
 					md.arguments = new Argument[length],
 					0,
 					length);
-			for (int i = 0, max = md.arguments.length; i < max; i++) {
-				if ((md.arguments[i].bits & ASTNode.HasTypeAnnotations) != 0) {
+			for (Argument argument : md.arguments) {
+				if ((argument.bits & ASTNode.HasTypeAnnotations) != 0) {
 					md.bits |= ASTNode.HasTypeAnnotations;
 					break;
 				}
@@ -9256,8 +9253,7 @@ protected void consumeStatementTry(boolean withFinally, boolean hasResources) {
 			problemReporter().autoManagedResourcesNotBelow17(stmts);
 		}
 		if (this.options.sourceLevel < ClassFileConstants.JDK9) {
-			for (int i = 0, l = stmts.length; i < l; ++i) {
-				Statement stmt = stmts[i];
+			for (Statement stmt : stmts) {
 				if (stmt instanceof FieldReference || stmt instanceof NameReference) {
 					problemReporter().autoManagedVariableResourcesNotBelow9((Expression) stmt);
 				}
@@ -10228,8 +10224,8 @@ protected void consumeTypeParameter1WithExtendsAndBounds() {
 	typeParameter.bits |= (superType.bits & ASTNode.HasTypeAnnotations);
 	superType.bits |= ASTNode.IsSuperType;
 	typeParameter.bounds = bounds;
-	for (int i = 0, max = bounds.length; i < max; i++) {
-		TypeReference bound = bounds[i];
+	for (TypeReference bound2 : bounds) {
+		TypeReference bound = bound2;
 		bound.bits |= ASTNode.IsSuperType;
 		typeParameter.bits |= (bound.bits & ASTNode.HasTypeAnnotations);
 	}
@@ -10311,8 +10307,8 @@ protected void consumeTypeParameterWithExtendsAndBounds() {
 	superType.bits |= ASTNode.IsSuperType;
 	typeParameter.bounds = bounds;
 	typeParameter.declarationSourceEnd = bounds[additionalBoundsLength - 1].sourceEnd;
-	for (int i = 0, max = bounds.length; i < max; i++) {
-		TypeReference bound = bounds[i];
+	for (TypeReference bound2 : bounds) {
+		TypeReference bound = bound2;
 		bound.bits |= ASTNode.IsSuperType;
 		typeParameter.bits |= (bound.bits & ASTNode.HasTypeAnnotations);
 	}
@@ -11131,8 +11127,7 @@ private void checkForRecordMemberErrors(TypeDeclaration typeDecl, int nCreatedFi
 		}
 	}
 	if (typeDecl.methods != null) {
-		for (int i = 0; i < typeDecl.methods.length; i++) {
-			AbstractMethodDeclaration method = typeDecl.methods[i];
+		for (AbstractMethodDeclaration method : typeDecl.methods) {
 			if ((method.modifiers & ClassFileConstants.AccNative) != 0) {
 				problemReporter().recordIllegalNativeModifierInRecord(method);
 			}
@@ -11641,8 +11636,8 @@ public void getMethodBodies(CompilationUnitDeclaration unit) {
 		this.javadocParser.scanner.setSource(contents);
 	}
 	if (unit.types != null) {
-		for (int i = 0, length = unit.types.length; i < length; i++)
-			unit.types[i].parseMethods(this, unit);
+		for (TypeDeclaration type : unit.types)
+			type.parseMethods(this, unit);
 	}
 
 	// tag unit has having read bodies
@@ -13120,9 +13115,7 @@ private ASTNode[] parseBodyDeclarations(char[] source, int offset, int length, C
 	}
 	boolean containsInitializers = false;
 	TypeDeclaration typeDeclaration = null;
-	for (int i = 0, max = result.length; i < max; i++) {
-		// parse each class or record body declaration
-		ASTNode node = result[i];
+	for (ASTNode node : result) {
 		if (node instanceof TypeDeclaration type) {
 			type.parseMethods(this, unit);
 		} else if (node instanceof AbstractMethodDeclaration method) {
@@ -13153,8 +13146,8 @@ private ASTNode[] parseBodyDeclarations(char[] source, int offset, int length, C
 	}
 	if (containsInitializers) {
 		FieldDeclaration[] fieldDeclarations = typeDeclaration.fields;
-		for (int i = 0, max = fieldDeclarations.length; i < max; i++) {
-			Initializer initializer = (Initializer) fieldDeclarations[i];
+		for (FieldDeclaration fieldDeclaration : fieldDeclarations) {
+			Initializer initializer = (Initializer) fieldDeclaration;
 			initializer.parseStatements(this, typeDeclaration , unit);
 			if (((initializer.bits & ASTNode.HasSyntaxErrors) != 0) && (!this.options.performMethodsFullRecovery && !this.options.performStatementsRecovery)) {
 				return null;
@@ -13859,16 +13852,15 @@ protected void reportSyntaxErrors(boolean isDietParse, int oldFirstToken) {
 }
 private void reportSyntaxErrorsForSkippedMethod(TypeDeclaration[] types){
 	if(types != null) {
-		for (int i = 0; i < types.length; i++) {
-			TypeDeclaration[] memberTypes = types[i].memberTypes;
+		for (TypeDeclaration type : types) {
+			TypeDeclaration[] memberTypes = type.memberTypes;
 			if(memberTypes != null) {
 				reportSyntaxErrorsForSkippedMethod(memberTypes);
 			}
 
-			AbstractMethodDeclaration[] methods = types[i].methods;
+			AbstractMethodDeclaration[] methods = type.methods;
 			if(methods != null) {
-				for (int j = 0; j < methods.length; j++) {
-					AbstractMethodDeclaration method = methods[j];
+				for (AbstractMethodDeclaration method : methods) {
 					if((method.bits & ASTNode.ErrorInSignature) != 0) {
 						if(method.isAnnotationMethod()) {
 							DiagnoseParser diagnoseParser = new DiagnoseParser(this, TokenNameQUESTION, method.declarationSourceStart, method.declarationSourceEnd, this.options);
@@ -13882,7 +13874,7 @@ private void reportSyntaxErrorsForSkippedMethod(TypeDeclaration[] types){
 				}
 			}
 
-			FieldDeclaration[] fields = types[i].fields;
+			FieldDeclaration[] fields = type.fields;
 			if (fields != null) {
 				int length = fields.length;
 				for (int j = 0; j < length; j++) {

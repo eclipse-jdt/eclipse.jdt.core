@@ -182,8 +182,8 @@ class ConstraintExpressionFormula extends ConstraintFormula {
 				if (parameters.length != lambda.arguments().length)
 					return FALSE;
 				if (lambda.argumentsTypeElided())
-					for (int i = 0; i < parameters.length; i++)
-						if (!parameters[i].isProperType(true))
+					for (TypeBinding parameter : parameters)
+						if (!parameter.isProperType(true))
 							return FALSE;
 				lambda = lambda.resolveExpressionExpecting(t, inferenceContext.scope, inferenceContext);
 				if (lambda == null)

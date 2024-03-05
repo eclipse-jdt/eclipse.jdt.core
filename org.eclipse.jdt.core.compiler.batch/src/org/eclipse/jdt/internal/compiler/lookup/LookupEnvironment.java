@@ -50,6 +50,7 @@ import java.util.Set;
 import java.util.function.Function;
 
 import org.eclipse.jdt.core.compiler.CharOperation;
+import org.eclipse.jdt.internal.compiler.ClassFile;
 import org.eclipse.jdt.internal.compiler.ClassFilePool;
 import org.eclipse.jdt.internal.compiler.ast.ASTNode;
 import org.eclipse.jdt.internal.compiler.ast.CompilationUnitDeclaration;
@@ -1407,22 +1408,22 @@ public TypeBinding createAnnotatedType(TypeBinding type, AnnotationBinding[] new
 		long tagBitsSeen = 0;
 		AnnotationBinding[] filtered = new AnnotationBinding[newbies.length];
 		int count = 0;
-		for (int i = 0; i < newbies.length; i++) {
-			if (newbies[i] == null) {
+		for (AnnotationBinding element : newbies) {
+			if (element == null) {
 				filtered[count++] = null;
 				// reset tagBitsSeen for next array dimension
 				tagBitsSeen = 0;
 				continue;
 			}
 			long tagBits = 0;
-			if (newbies[i].type.hasNullBit(TypeIds.BitNonNullAnnotation)) {
+			if (element.type.hasNullBit(TypeIds.BitNonNullAnnotation)) {
 				tagBits = TagBits.AnnotationNonNull;
-			} else if (newbies[i].type.hasNullBit(TypeIds.BitNullableAnnotation)) {
+			} else if (element.type.hasNullBit(TypeIds.BitNullableAnnotation)) {
 				tagBits = TagBits.AnnotationNullable;
 			}
 			if ((tagBitsSeen & tagBits) == 0) {
 				tagBitsSeen |= tagBits;
-				filtered[count++] = newbies[i];
+				filtered[count++] = element;
 			}
 		}
 		if (count < newbies.length)
@@ -1907,8 +1908,8 @@ ReferenceBinding getTypeFromConstantPoolName(char[] signature, int start, int en
 	char[][] compoundName = CharOperation.splitOn('/', signature, start, end);
 	boolean wasMissingType = false;
 	if (missingTypeNames != null) {
-		for (int i = 0, max = missingTypeNames.length; i < max; i++) {
-			if (CharOperation.equals(compoundName, missingTypeNames[i])) {
+		for (char[][] missingTypeName : missingTypeNames) {
+			if (CharOperation.equals(compoundName, missingTypeName)) {
 				wasMissingType = true;
 				break;
 			}
@@ -2057,8 +2058,8 @@ boolean qualifiedNameMatchesSignature(char[][] name, char[] signature) {
 	int s = 1; // skip 'L'
 	for (int i = 0; i < name.length; i++) {
 		char[] n = name[i];
-		for (int j = 0; j < n.length; j++)
-			if (n[j] != signature[s++])
+		for (char element : n)
+			if (element != signature[s++])
 				return false;
 		if (signature[s] == ';' && i == name.length-1)
 			return true;
@@ -2250,8 +2251,8 @@ public MethodVerifier newMethodVerifier() {
 }
 
 public void releaseClassFiles(org.eclipse.jdt.internal.compiler.ClassFile[] classFiles) {
-	for (int i = 0, fileCount = classFiles.length; i < fileCount; i++)
-		this.classFilePool.release(classFiles[i]);
+	for (ClassFile classFile : classFiles)
+		this.classFilePool.release(classFile);
 }
 
 public void reset() {
@@ -2335,8 +2336,7 @@ public AnnotationBinding[] filterNullTypeAnnotations(AnnotationBinding[] typeAnn
 		return typeAnnotations;
 	AnnotationBinding[] filtered = new AnnotationBinding[typeAnnotations.length];
 	int count = 0;
-	for (int i = 0; i < typeAnnotations.length; i++) {
-		AnnotationBinding typeAnnotation = typeAnnotations[i];
+	for (AnnotationBinding typeAnnotation : typeAnnotations) {
 		if (typeAnnotation == null) {
 			count++; // sentinel in annotation sequence for array dimensions
 		} else {
@@ -2355,8 +2355,7 @@ public AnnotationBinding[] filterNullTypeAnnotations(AnnotationBinding[] typeAnn
 public boolean containsNullTypeAnnotation(IBinaryAnnotation[] typeAnnotations) {
 	if (typeAnnotations.length == 0)
 		return false;
-	for (int i = 0; i < typeAnnotations.length; i++) {
-		IBinaryAnnotation typeAnnotation = typeAnnotations[i];
+	for (IBinaryAnnotation typeAnnotation : typeAnnotations) {
 		char[] typeName = typeAnnotation.getTypeName();
 		// typeName must be "Lfoo/X;"
 		if (typeName == null || typeName.length < 3 || typeName[0] != 'L') continue;
@@ -2369,8 +2368,7 @@ public boolean containsNullTypeAnnotation(IBinaryAnnotation[] typeAnnotations) {
 public boolean containsNullTypeAnnotation(AnnotationBinding[] typeAnnotations) {
 	if (typeAnnotations.length == 0)
 		return false;
-	for (int i = 0; i < typeAnnotations.length; i++) {
-		AnnotationBinding typeAnnotation = typeAnnotations[i];
+	for (AnnotationBinding typeAnnotation : typeAnnotations) {
 		if (typeAnnotation.type.hasNullBit(TypeIds.BitNonNullAnnotation|TypeIds.BitNullableAnnotation))
 			return true;
 	}

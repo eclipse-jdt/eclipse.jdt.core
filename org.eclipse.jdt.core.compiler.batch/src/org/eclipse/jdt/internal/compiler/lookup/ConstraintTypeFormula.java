@@ -316,8 +316,8 @@ class ConstraintTypeFormula extends ConstraintFormula {
 				if (subCandidate.kind() == Binding.INTERSECTION_TYPE) {
 					ReferenceBinding[] intersectingTypes = subCandidate.getIntersectingTypes();
 					if (intersectingTypes != null)
-						for (int i = 0; i < intersectingTypes.length; i++)
-							if (TypeBinding.equalsEquals(intersectingTypes[i], superCandidate))
+						for (ReferenceBinding intersectingType : intersectingTypes)
+							if (TypeBinding.equalsEquals(intersectingType, superCandidate))
 								return true;
 				}
 				WildcardBinding variable = (WildcardBinding) superCandidate;
@@ -329,8 +329,8 @@ class ConstraintTypeFormula extends ConstraintFormula {
 				if (subCandidate.kind() == Binding.INTERSECTION_TYPE) {
 					ReferenceBinding[] intersectingTypes = subCandidate.getIntersectingTypes();
 					if (intersectingTypes != null)
-						for (int i = 0; i < intersectingTypes.length; i++)
-							if (TypeBinding.equalsEquals(intersectingTypes[i], superCandidate))
+						for (ReferenceBinding intersectingType : intersectingTypes)
+							if (TypeBinding.equalsEquals(intersectingType, superCandidate))
 								return true;
 				}
 				if (superCandidate instanceof CaptureBinding) {
@@ -368,9 +368,9 @@ class ConstraintTypeFormula extends ConstraintFormula {
 			result = (ArrayBinding) firstBound;
 			numArrayBounds++;
 		}
-		for (int i = 0; i < otherUpperBounds.length; i++) {
-			if (otherUpperBounds[i].isArrayType()) {
-				result = (ArrayBinding) otherUpperBounds[i];
+		for (TypeBinding otherUpperBound : otherUpperBounds) {
+			if (otherUpperBound.isArrayType()) {
+				result = (ArrayBinding) otherUpperBound;
 				numArrayBounds++;
 			}
 		}
@@ -411,9 +411,8 @@ class ConstraintTypeFormula extends ConstraintFormula {
 	@Override
 	public boolean applySubstitution(BoundSet solutionSet, InferenceVariable[] variables) {
 		super.applySubstitution(solutionSet, variables);
-		for (int i=0; i<variables.length; i++) {
-			InferenceVariable variable = variables[i];
-			TypeBinding instantiation = solutionSet.getInstantiation(variables[i], null);
+		for (InferenceVariable variable : variables) {
+			TypeBinding instantiation = solutionSet.getInstantiation(variable, null);
 			if (instantiation == null)
 				return false;
 			this.left = this.left.substituteInferenceVariable(variable, instantiation);
