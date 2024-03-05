@@ -213,8 +213,8 @@ public abstract class Annotation extends Expression {
 					.append("search location for ") //$NON-NLS-1$
 					.append(this.searchedAnnotation)
 					.append("\ncurrent type_path entries : "); //$NON-NLS-1$
-				for (Object element : this.typePathEntries) {
-					int[] typePathEntry = (int[]) element;
+				for (Object entry : this.typePathEntries) {
+					int[] typePathEntry = (int[]) entry;
 					buffer
 						.append('(')
 						.append(typePathEntry[0])
@@ -838,18 +838,18 @@ public abstract class Annotation extends Expression {
 					ArrayInitializer initializer = (ArrayInitializer) value;
 					Expression[] inits = initializer.expressions;
 					if (inits != null) {
-						for (Expression init2 : inits) {
-							Constant cst = init2.constant;
+						for (Expression init : inits) {
+							Constant cst = init.constant;
 							if (cst != Constant.NotAConstant && cst.typeID() == T_JavaLangString) {
 								IrritantSet irritants = CompilerOptions.warningTokenToIrritants(cst.stringValue());
 								if (irritants != null) {
 									if (suppressWarningIrritants == null) {
 										suppressWarningIrritants = new IrritantSet(irritants);
 									} else if (suppressWarningIrritants.set(irritants) == null) {
-											scope.problemReporter().unusedWarningToken(init2);
+											scope.problemReporter().unusedWarningToken(init);
 									}
 								} else {
-									scope.problemReporter().unhandledWarningToken(init2);
+									scope.problemReporter().unhandledWarningToken(init);
 								}
 							}
 						}

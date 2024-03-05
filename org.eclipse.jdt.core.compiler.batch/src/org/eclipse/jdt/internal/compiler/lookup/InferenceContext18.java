@@ -909,8 +909,8 @@ public class InferenceContext18 {
 					return null;							// bullet 4
 					// each element of the intersection is a superinterface of I, or a parameterization of a superinterface of I.
 				}
-				for (TypeBinding element : elements)
-					if (siSubI(element, funcI))
+				for (TypeBinding binding : elements)
+					if (siSubI(binding, funcI))
 						return null;						// bullet 5
 						// some element of the intersection is a subinterface of I, or a parameterization of a subinterface of I.
 			}

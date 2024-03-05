@@ -956,8 +956,8 @@ private void getAllInheritedMethods0(ReferenceBinding binding, ArrayList<MethodB
 		collector.add(methodBinding);
 	}
 	ReferenceBinding[] superInterfaces = binding.superInterfaces();
-	for (ReferenceBinding element : superInterfaces) {
-		getAllInheritedMethods0(element, collector);
+	for (ReferenceBinding superInterface : superInterfaces) {
+		getAllInheritedMethods0(superInterface, collector);
 	}
 }
 

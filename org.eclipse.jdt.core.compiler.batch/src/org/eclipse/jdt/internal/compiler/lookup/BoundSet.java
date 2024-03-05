@@ -283,16 +283,16 @@ class BoundSet {
 			// TODO(optimization): may want to collect all nullHints in the ThreeSets, which, however,
 			// needs a reference TypeBound->ThreeSets to propagate the bits as they are added.
 			if (this.sameBounds != null) {
-				for (TypeBound element : this.sameBounds)
-					nullHints |= element.nullHints;
+				for (TypeBound bound : this.sameBounds)
+					nullHints |= bound.nullHints;
 			}
 			if (this.superBounds != null) {
-				for (TypeBound element : this.superBounds)
-					nullHints |= element.nullHints;
+				for (TypeBound bound : this.superBounds)
+					nullHints |= bound.nullHints;
 			}
 			if (this.subBounds != null) {
-				for (TypeBound element : this.subBounds)
-					nullHints |= element.nullHints;
+				for (TypeBound bound : this.subBounds)
+					nullHints |= bound.nullHints;
 			}
 			if (nullHints == TagBits.AnnotationNullMASK) // on contradiction remove null type annotations
 				return type.withoutToplevelNullAnnotation();
@@ -537,57 +537,55 @@ class BoundSet {
 		boolean analyzeNull = context.environment.globalOptions.isAnnotationBasedNullAnalysisEnabled;
 		ConstraintTypeFormula [] mostRecentFormulas = new ConstraintTypeFormula[4]; // poor man's cache to toss out duplicates, in pathological cases there are a good quarter million of them.
 		// check each pair, in each way.
-		for (TypeBound element : first) {
-			TypeBound boundI = element;
-			for (TypeBound element2 : next) {
-				TypeBound boundJ = element2;
-				if (boundI == boundJ)
+		for (TypeBound bound1 : first) {
+			for (TypeBound bound2 : next) {
+				if (bound1 == bound2)
 					continue;
 				int iteration = 1;
 				do {
 					ConstraintTypeFormula newConstraint = null;
 					boolean deriveTypeArgumentConstraints = false;
 					if (iteration == 2) {
-						TypeBound boundX = boundI;
-						boundI = boundJ;
-						boundJ = boundX;
+						TypeBound boundX = bound1;
+						bound1 = bound2;
+						bound2 = boundX;
 					}
-					switch (boundI.relation) {
+					switch (bound1.relation) {
 						case ReductionResult.SAME:
-							switch (boundJ.relation) {
+							switch (bound2.relation) {
 								case ReductionResult.SAME:
-									newConstraint = combineSameSame(boundI, boundJ, first, next);
+									newConstraint = combineSameSame(bound1, bound2, first, next);
 									break;
 								case ReductionResult.SUBTYPE:
 								case ReductionResult.SUPERTYPE:
-									newConstraint = combineSameSubSuper(boundI, boundJ, first, next);
+									newConstraint = combineSameSubSuper(bound1, bound2, first, next);
 									break;
 							}
 							break;
 						case ReductionResult.SUBTYPE:
-							switch (boundJ.relation) {
+							switch (bound2.relation) {
 								case ReductionResult.SAME:
-									newConstraint = combineSameSubSuper(boundJ, boundI, first, next);
+									newConstraint = combineSameSubSuper(bound2, bound1, first, next);
 									break;
 								case ReductionResult.SUPERTYPE:
-									newConstraint = combineSuperAndSub(boundJ, boundI);
+									newConstraint = combineSuperAndSub(bound2, bound1);
 									break;
 								case ReductionResult.SUBTYPE:
-									newConstraint = combineEqualSupers(boundI, boundJ);
-									deriveTypeArgumentConstraints = TypeBinding.equalsEquals(boundI.left, boundJ.left);
+									newConstraint = combineEqualSupers(bound1, bound2);
+									deriveTypeArgumentConstraints = TypeBinding.equalsEquals(bound1.left, bound2.left);
 									break;
 							}
 							break;
 						case ReductionResult.SUPERTYPE:
-							switch (boundJ.relation) {
+							switch (bound2.relation) {
 								case ReductionResult.SAME:
-									newConstraint = combineSameSubSuper(boundJ, boundI, first, next);
+									newConstraint = combineSameSubSuper(bound2, bound1, first, next);
 									break;
 								case ReductionResult.SUBTYPE:
-									newConstraint = combineSuperAndSub(boundI, boundJ);
+									newConstraint = combineSuperAndSub(bound1, bound2);
 									break;
 								case ReductionResult.SUPERTYPE:
-									newConstraint = combineEqualSupers(boundI, boundJ);
+									newConstraint = combineEqualSupers(bound1, bound2);
 									break;
 							}
 					}
@@ -614,16 +612,16 @@ class BoundSet {
 							// record all null tagBits as hints for the final inference solution.
 							long nullHints = (newConstraint.left.tagBits | newConstraint.right.tagBits) & TagBits.AnnotationNullMASK;
 							if (nullHints != 0) {
-								if (TypeBinding.equalsEquals(boundI.left, boundJ.left)
-										|| (boundI.relation == ReductionResult.SAME	&& TypeBinding.equalsEquals(boundI.right, boundJ.left))
-										|| (boundJ.relation == ReductionResult.SAME	&& TypeBinding.equalsEquals(boundI.left, boundJ.right))) {
-									boundI.nullHints |= nullHints;
-									boundJ.nullHints |= nullHints;
+								if (TypeBinding.equalsEquals(bound1.left, bound2.left)
+										|| (bound1.relation == ReductionResult.SAME	&& TypeBinding.equalsEquals(bound1.right, bound2.left))
+										|| (bound2.relation == ReductionResult.SAME	&& TypeBinding.equalsEquals(bound1.left, bound2.right))) {
+									bound1.nullHints |= nullHints;
+									bound2.nullHints |= nullHints;
 								}
 							}
 						}
 					}
-					ConstraintFormula[] typeArgumentConstraints = deriveTypeArgumentConstraints ? deriveTypeArgumentConstraints(boundI, boundJ) : null;
+					ConstraintFormula[] typeArgumentConstraints = deriveTypeArgumentConstraints ? deriveTypeArgumentConstraints(bound1, bound2) : null;
 					if (typeArgumentConstraints != null) {
 						for (ConstraintFormula typeArgumentConstraint : typeArgumentConstraints) {
 							if (!reduceOneConstraint(context, typeArgumentConstraint))
@@ -631,9 +629,9 @@ class BoundSet {
 						}
 					}
 					if (iteration == 2) {
-						TypeBound boundX = boundI;
-						boundI = boundJ;
-						boundJ = boundX;
+						TypeBound boundX = bound1;
+						bound1 = bound2;
+						bound2 = boundX;
 					}
 				} while (first != next && ++iteration <= 2);
 			}
@@ -991,10 +989,9 @@ class BoundSet {
 			if (result instanceof ConstraintFormula) {
 				if (!reduceOneConstraint(context, (ConstraintFormula) result))
 					return false;
-			} else if (result instanceof ConstraintFormula[]) {
-				ConstraintFormula[] resultArray = (ConstraintFormula[]) result;
-				for (ConstraintFormula element : resultArray)
-					if (!reduceOneConstraint(context, element))
+			} else if (result instanceof ConstraintFormula[] resultArray) {
+				for (ConstraintFormula formula : resultArray)
+					if (!reduceOneConstraint(context, formula))
 						return false;
 			} else {
 				addBound((TypeBound)result, context.environment);
@@ -1137,13 +1134,13 @@ class BoundSet {
 	public String toString() {
 		StringBuilder buf = new StringBuilder("Type Bounds:\n"); //$NON-NLS-1$
 		TypeBound[] flattened = flatten();
-		for (TypeBound element : flattened) {
-			buf.append('\t').append(element.toString()).append('\n');
+		for (TypeBound bound : flattened) {
+			buf.append('\t').append(bound.toString()).append('\n');
 		}
 		buf.append("Capture Bounds:\n"); //$NON-NLS-1$
-		for (Entry<ParameterizedTypeBinding, ParameterizedTypeBinding> capt : this.captures.entrySet()) {
-			String lhs = String.valueOf(((TypeBinding)capt.getKey()).shortReadableName());
-			String rhs = String.valueOf(((TypeBinding)capt.getValue()).shortReadableName());
+		for (Entry<ParameterizedTypeBinding, ParameterizedTypeBinding> entry : this.captures.entrySet()) {
+			String lhs = String.valueOf(((TypeBinding)entry.getKey()).shortReadableName());
+			String rhs = String.valueOf(((TypeBinding)entry.getValue()).shortReadableName());
 			buf.append('\t').append(lhs).append(" = capt(").append(rhs).append(")\n"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return buf.toString();
@@ -1252,8 +1249,8 @@ class BoundSet {
 			return result;
 		ReferenceBinding[] superInterfaces = s.superInterfaces();
 		if (superInterfaces != null) {
-			for (ReferenceBinding element : superInterfaces) {
-				result = superTypesWithCommonGenericType(element, t);
+			for (ReferenceBinding superInterface : superInterfaces) {
+				result = superTypesWithCommonGenericType(superInterface, t);
 				if (result != null)
 					return result;
 			}

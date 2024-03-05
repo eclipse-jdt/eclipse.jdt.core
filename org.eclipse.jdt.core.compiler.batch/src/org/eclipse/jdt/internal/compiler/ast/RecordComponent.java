@@ -95,8 +95,8 @@ public class RecordComponent extends AbstractVariableDeclaration {
 		resolveAnnotations(scope, this.annotations, this.binding);
 		// Check if this declaration should now have the type annotations bit set
 		if (this.annotations != null) {
-			for (Annotation annotation2 : this.annotations) {
-				TypeBinding resolvedAnnotationType = annotation2.resolvedType;
+			for (Annotation annotation : this.annotations) {
+				TypeBinding resolvedAnnotationType = annotation.resolvedType;
 				if (resolvedAnnotationType != null && (resolvedAnnotationType.getAnnotationTagBits() & TagBits.AnnotationForTypeUse) != 0) {
 					this.bits |= ASTNode.HasTypeAnnotations;
 					// also update the accessor's return type:

@@ -180,9 +180,9 @@ public class Javadoc extends ASTNode {
 	public StringBuilder print(int indent, StringBuilder output) {
 		printIndent(indent, output).append("/**\n"); //$NON-NLS-1$
 		if (this.paramReferences != null) {
-			for (JavadocSingleNameReference element : this.paramReferences) {
+			for (JavadocSingleNameReference reference : this.paramReferences) {
 				printIndent(indent + 1, output).append(" * @param "); //$NON-NLS-1$
-				element.print(indent, output).append('\n');
+				reference.print(indent, output).append('\n');
 			}
 		}
 		if (this.paramTypeParameters != null) {
@@ -196,15 +196,15 @@ public class Javadoc extends ASTNode {
 			this.returnStatement.print(indent, output).append('\n');
 		}
 		if (this.exceptionReferences != null) {
-			for (TypeReference element : this.exceptionReferences) {
+			for (TypeReference reference : this.exceptionReferences) {
 				printIndent(indent + 1, output).append(" * @throws "); //$NON-NLS-1$
-				element.print(indent, output).append('\n');
+				reference.print(indent, output).append('\n');
 			}
 		}
 		if (this.seeReferences != null) {
-			for (Expression element : this.seeReferences) {
+			for (Expression reference : this.seeReferences) {
 				printIndent(indent + 1, output).append(" * @see "); //$NON-NLS-1$
-				element.print(indent, output).append('\n');
+				reference.print(indent, output).append('\n');
 			}
 		}
 		printIndent(indent, output).append(" */\n"); //$NON-NLS-1$
@@ -1217,8 +1217,8 @@ public class Javadoc extends ASTNode {
 	public void traverse(ASTVisitor visitor, BlockScope scope) {
 		if (visitor.visit(this, scope)) {
 			if (this.paramReferences != null) {
-				for (JavadocSingleNameReference element : this.paramReferences) {
-					element.traverse(visitor, scope);
+				for (JavadocSingleNameReference paramReference : this.paramReferences) {
+					paramReference.traverse(visitor, scope);
 				}
 			}
 			if (this.paramTypeParameters != null) {
@@ -1230,13 +1230,13 @@ public class Javadoc extends ASTNode {
 				this.returnStatement.traverse(visitor, scope);
 			}
 			if (this.exceptionReferences != null) {
-				for (TypeReference element : this.exceptionReferences) {
-					element.traverse(visitor, scope);
+				for (TypeReference exceptionReference : this.exceptionReferences) {
+					exceptionReference.traverse(visitor, scope);
 				}
 			}
 			if (this.seeReferences != null) {
-				for (Expression element : this.seeReferences) {
-					element.traverse(visitor, scope);
+				for (Expression seeReference : this.seeReferences) {
+					seeReference.traverse(visitor, scope);
 				}
 			}
 		}
@@ -1245,8 +1245,8 @@ public class Javadoc extends ASTNode {
 	public void traverse(ASTVisitor visitor, ClassScope scope) {
 		if (visitor.visit(this, scope)) {
 			if (this.paramReferences != null) {
-				for (JavadocSingleNameReference element : this.paramReferences) {
-					element.traverse(visitor, scope);
+				for (JavadocSingleNameReference paramReference : this.paramReferences) {
+					paramReference.traverse(visitor, scope);
 				}
 			}
 			if (this.paramTypeParameters != null) {
@@ -1258,13 +1258,13 @@ public class Javadoc extends ASTNode {
 				this.returnStatement.traverse(visitor, scope);
 			}
 			if (this.exceptionReferences != null) {
-				for (TypeReference element : this.exceptionReferences) {
-					element.traverse(visitor, scope);
+				for (TypeReference exceptionReference : this.exceptionReferences) {
+					exceptionReference.traverse(visitor, scope);
 				}
 			}
 			if (this.seeReferences != null) {
-				for (Expression element : this.seeReferences) {
-					element.traverse(visitor, scope);
+				for (Expression seeReference : this.seeReferences) {
+					seeReference.traverse(visitor, scope);
 				}
 			}
 		}

@@ -126,8 +126,8 @@ public int size() {
 public String toString() {
 	String s = ""; //$NON-NLS-1$
 	ReferenceBinding type;
-	for (ReferenceBinding element : this.valueTable)
-		if ((type = element) != null)
+	for (ReferenceBinding binding : this.valueTable)
+		if ((type = binding) != null)
 			s += type.toString() + "\n"; //$NON-NLS-1$
 	return s;
 }

@@ -984,8 +984,8 @@ public void computeId(LookupEnvironment environment) {
 	environment.getUnannotatedType(this);
 }
 
-/**{@code 
- * p.X<T extends Y & I, U extends Y> -> Lp/X<TT;TU;>; 
+/**{@code
+ * p.X<T extends Y & I, U extends Y> -> Lp/X<TT;TU;>;
  * }
  */
 @Override
@@ -1058,8 +1058,8 @@ public final ReferenceBinding enclosingTypeAt(int relativeDepth) {
 public int enumConstantCount() {
 	int count = 0;
 	FieldBinding[] fields = fields();
-	for (FieldBinding field2 : fields) {
-		if ((field2.modifiers & ClassFileConstants.AccEnum) != 0) count++;
+	for (FieldBinding field : fields) {
+		if ((field.modifiers & ClassFileConstants.AccEnum) != 0) count++;
 	}
 	return count;
 }
@@ -1601,8 +1601,8 @@ protected boolean isSubTypeOfRTL(TypeBinding other) {
 	if (other instanceof ReferenceBinding) {
 		TypeBinding[] intersecting = ((ReferenceBinding) other).getIntersectingTypes();
 		if (intersecting != null) {
-			for (TypeBinding element : intersecting) {
-				if (!isSubtypeOf(element, false))
+			for (TypeBinding binding : intersecting) {
+				if (!isSubtypeOf(binding, false))
 					return false;
 			}
 			return true;
@@ -2272,9 +2272,9 @@ protected MethodBinding [] getInterfaceAbstractContracts(Scope scope, boolean re
 	int contractsLength = 0;
 
 	ReferenceBinding [] superInterfaces = superInterfaces();
-	for (ReferenceBinding element : superInterfaces) {
+	for (ReferenceBinding superInterface : superInterfaces) {
 		// filterDefaultMethods=false => keep default methods needed to filter out any abstract methods they may override:
-		MethodBinding [] superInterfaceContracts = element.getInterfaceAbstractContracts(scope, replaceWildcards, false);
+		MethodBinding [] superInterfaceContracts = superInterface.getInterfaceAbstractContracts(scope, replaceWildcards, false);
 		final int superInterfaceContractsLength = superInterfaceContracts == null  ? 0 : superInterfaceContracts.length;
 		if (superInterfaceContractsLength == 0) continue;
 		if (contractsLength < contractsCount + superInterfaceContractsLength) {

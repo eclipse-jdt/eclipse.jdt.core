@@ -67,8 +67,8 @@ public class BasicModule implements ISourceModule {
 		ModuleReference[] imp = ref.targets;
 		if (imp != null) {
 			exp.exportedTo = new char[imp.length][];
-			for (ModuleReference element : imp) {
-				exp.exportedTo = element.tokens;
+			for (ModuleReference reference : imp) {
+				exp.exportedTo = reference.tokens;
 			}
 		}
 		return exp;
@@ -88,8 +88,8 @@ public class BasicModule implements ISourceModule {
 		ModuleReference[] imp = ref.targets;
 		if (imp != null) {
 			exp.exportedTo = new char[imp.length][];
-			for (ModuleReference element : imp) {
-				exp.exportedTo = element.tokens;
+			for (ModuleReference reference : imp) {
+				exp.exportedTo = reference.tokens;
 			}
 		}
 		return exp;

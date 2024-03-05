@@ -1423,8 +1423,8 @@ private void initialize() throws ClassFormatException {
 			this.methods[i].initialize();
 		}
 		if (this.innerInfos != null) {
-			for (InnerClassInfo element : this.innerInfos) {
-				element.initialize();
+			for (InnerClassInfo info : this.innerInfos) {
+				info.initialize();
 			}
 		}
 		if (this.annotations != null) {

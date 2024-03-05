@@ -120,11 +120,11 @@ public class BinaryModuleBinding extends ModuleBinding {
 		this.requiresTransitive = new ModuleBinding[requiresReferences.length];
 		int count = 0;
 		int transitiveCount = 0;
-		for (IModuleReference element : requiresReferences) {
-			ModuleBinding requiredModule = this.environment.getModule(element.name());
+		for (IModuleReference ref : requiresReferences) {
+			ModuleBinding requiredModule = this.environment.getModule(ref.name());
 			if (requiredModule != null) {
 				this.requires[count++] = requiredModule;
-				if (element.isTransitive())
+				if (ref.isTransitive())
 					this.requiresTransitive[transitiveCount++] = requiredModule;
 			}
 			// TODO(SHMOD): handle null case

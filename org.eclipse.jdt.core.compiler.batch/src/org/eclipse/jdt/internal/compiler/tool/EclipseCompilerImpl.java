@@ -797,8 +797,7 @@ public class EclipseCompilerImpl extends Main {
 	@Override
 	protected void loggingExtraProblems() {
 		super.loggingExtraProblems();
-		for (Object element : this.extraProblems) {
-		final CategorizedProblem problem = (CategorizedProblem) element;
+		for (CategorizedProblem problem : this.extraProblems) {
 		if (this.diagnosticListener != null && !isIgnored(problem)) {
 			Diagnostic<JavaFileObject> diagnostic = new Diagnostic<>() {
 				@Override

@@ -162,8 +162,8 @@ public class RoundEnvImpl implements RoundEnvironment
 				result.add(this._factory.newElement(type));
 			}
 		}
-		for (ReferenceBinding element : type.memberTypes()) {
-			addAnnotatedElements(anno, element, result);
+		for (ReferenceBinding binding : type.memberTypes()) {
+			addAnnotatedElements(anno, binding, result);
 		}
 	}
 

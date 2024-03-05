@@ -133,8 +133,8 @@ public void analyseCode() {
 		return;
 	try {
 		if (this.types != null) {
-			for (TypeDeclaration type2 : this.types) {
-				type2.analyseCode(this.scope);
+			for (TypeDeclaration t : this.types) {
+				t.analyseCode(this.scope);
 			}
 		}
 		if (this.moduleDeclaration != null) {
@@ -154,8 +154,8 @@ public void analyseCode() {
  */
 public void cleanUp() {
 	if (this.types != null) {
-		for (TypeDeclaration type2 : this.types) {
-			cleanUp(type2);
+		for (TypeDeclaration t : this.types) {
+			cleanUp(t);
 		}
 		for (LocalTypeBinding localType : this.localTypes.values()) {
 			// null out the type's scope backpointers
@@ -172,9 +172,8 @@ public void cleanUp() {
 	this.compilationResult.recoveryScannerData = null; // recovery is already done
 
 	ClassFile[] classFiles = this.compilationResult.getClassFiles();
-	for (ClassFile classFile2 : classFiles) {
+	for (ClassFile classFile : classFiles) {
 		// clear the classFile back pointer to the bindings
-		ClassFile classFile = classFile2;
 		// null out the classfile backpointer to a type binding
 		classFile.referenceBinding = null;
 		classFile.innerClassesBindings = null;
@@ -234,8 +233,8 @@ public void createPackageInfoType() {
  * e.g. if we're looking for X.A.B then a type name would be {X, A, B}
  */
 public TypeDeclaration declarationOfType(char[][] typeName) {
-	for (TypeDeclaration type2 : this.types) {
-		TypeDeclaration typeDecl = type2.declarationOfType(typeName);
+	for (TypeDeclaration t : this.types) {
+		TypeDeclaration typeDecl = t.declarationOfType(typeName);
 		if (typeDecl != null) {
 			return typeDecl;
 		}
@@ -409,8 +408,8 @@ public void generateCode() {
 	}
 	try {
 		if (this.types != null) {
-			for (TypeDeclaration type2 : this.types)
-				type2.generateCode(this.scope);
+			for (TypeDeclaration t : this.types)
+				t.generateCode(this.scope);
 		}
 		if (this.moduleDeclaration != null) {
 			this.moduleDeclaration.generateCode();
@@ -503,8 +502,8 @@ public StringBuilder print(int indent, StringBuilder output) {
 	if (this.moduleDeclaration != null) {
 		this.moduleDeclaration.print(indent, output).append("\n"); //$NON-NLS-1$
 	} else if (this.types != null) {
-		for (TypeDeclaration type2 : this.types) {
-			type2.print(indent, output).append("\n"); //$NON-NLS-1$
+		for (TypeDeclaration t : this.types) {
+			t.print(indent, output).append("\n"); //$NON-NLS-1$
 		}
 	}
 	return output;

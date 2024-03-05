@@ -425,8 +425,8 @@ public List<TypeBinding> collectMissingTypes(List<TypeBinding> missingTypes) {
 		for (TypeVariableBinding variable : this.typeVariables) {
 			missingTypes = variable.superclass().collectMissingTypes(missingTypes);
 			ReferenceBinding[] interfaces = variable.superInterfaces();
-			for (ReferenceBinding element : interfaces) {
-				missingTypes = element.collectMissingTypes(missingTypes);
+			for (ReferenceBinding binding : interfaces) {
+				missingTypes = binding.collectMissingTypes(missingTypes);
 			}
 		}
 	}

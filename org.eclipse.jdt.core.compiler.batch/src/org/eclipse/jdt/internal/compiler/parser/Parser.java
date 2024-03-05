@@ -190,8 +190,8 @@ public class Parser implements TerminalTokens, ParserBasicInformation, Conflicte
 	}
 	private final static void buildFile(String filename, List listToDump) {
 		try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
-	    	for (Object element : listToDump) {
-	    		writer.write(String.valueOf(element));
+	    	for (Object o : listToDump) {
+	    		writer.write(String.valueOf(o));
 	    	}
 	    	writer.flush();
 		} catch(IOException e) {
@@ -2616,8 +2616,8 @@ protected void consumeClassHeaderImplements() {
 		0,
 		length);
 	TypeReference[] superinterfaces = typeDecl.superInterfaces;
-	for (TypeReference element : superinterfaces) {
-		TypeReference typeReference = element;
+	for (TypeReference superinterface : superinterfaces) {
+		TypeReference typeReference = superinterface;
 		typeDecl.bits |= (typeReference.bits & ASTNode.HasTypeAnnotations);
 		typeReference.bits |= ASTNode.IsSuperType;
 	}
@@ -4682,8 +4682,8 @@ protected void consumeInterfaceHeaderExtends() {
 		0,
 		length);
 	TypeReference[] superinterfaces = typeDecl.superInterfaces;
-	for (TypeReference element : superinterfaces) {
-		TypeReference typeReference = element;
+	for (TypeReference superinterface : superinterfaces) {
+		TypeReference typeReference = superinterface;
 		typeDecl.bits |= (typeReference.bits & ASTNode.HasTypeAnnotations);
 		typeReference.bits |= ASTNode.IsSuperType;
 	}

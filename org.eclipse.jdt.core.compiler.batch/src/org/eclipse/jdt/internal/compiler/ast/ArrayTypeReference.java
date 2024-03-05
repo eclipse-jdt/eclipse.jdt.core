@@ -167,9 +167,9 @@ public class ArrayTypeReference extends SingleTypeReference {
 				}
 			}
 			if (this.annotationsOnDimensions != null) {
-				for (Annotation[] annotations2 : this.annotationsOnDimensions) {
-					if (annotations2 != null) {
-						for (Annotation annotation : annotations2) {
+				for (Annotation[] annotationsOnDimension : this.annotationsOnDimensions) {
+					if (annotationsOnDimension != null) {
+						for (Annotation annotation : annotationsOnDimension) {
 							annotation.traverse(visitor, scope);
 						}
 					}
@@ -189,9 +189,9 @@ public class ArrayTypeReference extends SingleTypeReference {
 				}
 			}
 			if (this.annotationsOnDimensions != null) {
-				for (Annotation[] annotations2 : this.annotationsOnDimensions) {
-					if (annotations2 != null) {
-						for (Annotation annotation : annotations2) {
+				for (Annotation[] annotationsOnDimension : this.annotationsOnDimensions) {
+					if (annotationsOnDimension != null) {
+						for (Annotation annotation : annotationsOnDimension) {
 							annotation.traverse(visitor, scope);
 						}
 					}

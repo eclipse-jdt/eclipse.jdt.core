@@ -1618,8 +1618,8 @@ public char[] genericSignature() {
 		sig.append(this.superclass.genericTypeSignature());
 	else // interface scenario only (as Object cannot be generic) - 65953
 		sig.append(this.scope.getJavaLangObject().genericTypeSignature());
-    for (ReferenceBinding element : this.superInterfaces)
-		sig.append(element.genericTypeSignature());
+    for (ReferenceBinding superInterface : this.superInterfaces)
+		sig.append(superInterface.genericTypeSignature());
 	return sig.toString().toCharArray();
 }
 
@@ -3493,8 +3493,8 @@ public String toString() {
 	if (this.fields != null) {
 		if (this.fields != Binding.NO_FIELDS) {
 			buffer.append("\n/*   fields   */"); //$NON-NLS-1$
-			for (FieldBinding field2 : this.fields)
-				buffer.append('\n').append((field2 != null) ? field2.toString() : "NULL FIELD"); //$NON-NLS-1$
+			for (FieldBinding field : this.fields)
+				buffer.append('\n').append((field != null) ? field.toString() : "NULL FIELD"); //$NON-NLS-1$
 		}
 	} else {
 		buffer.append("NULL FIELDS"); //$NON-NLS-1$
@@ -3503,8 +3503,8 @@ public String toString() {
 	if (this.methods != null) {
 		if (this.methods != Binding.NO_METHODS) {
 			buffer.append("\n/*   methods   */"); //$NON-NLS-1$
-			for (MethodBinding method2 : this.methods)
-				buffer.append('\n').append((method2 != null) ? method2.toString() : "NULL METHOD"); //$NON-NLS-1$
+			for (MethodBinding method : this.methods)
+				buffer.append('\n').append((method != null) ? method.toString() : "NULL METHOD"); //$NON-NLS-1$
 		}
 	} else {
 		buffer.append("NULL METHODS"); //$NON-NLS-1$

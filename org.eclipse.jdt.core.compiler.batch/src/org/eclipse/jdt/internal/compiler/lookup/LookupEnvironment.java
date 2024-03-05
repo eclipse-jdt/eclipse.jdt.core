@@ -1408,22 +1408,22 @@ public TypeBinding createAnnotatedType(TypeBinding type, AnnotationBinding[] new
 		long tagBitsSeen = 0;
 		AnnotationBinding[] filtered = new AnnotationBinding[newbies.length];
 		int count = 0;
-		for (AnnotationBinding element : newbies) {
-			if (element == null) {
+		for (AnnotationBinding newbie : newbies) {
+			if (newbie == null) {
 				filtered[count++] = null;
 				// reset tagBitsSeen for next array dimension
 				tagBitsSeen = 0;
 				continue;
 			}
 			long tagBits = 0;
-			if (element.type.hasNullBit(TypeIds.BitNonNullAnnotation)) {
+			if (newbie.type.hasNullBit(TypeIds.BitNonNullAnnotation)) {
 				tagBits = TagBits.AnnotationNonNull;
-			} else if (element.type.hasNullBit(TypeIds.BitNullableAnnotation)) {
+			} else if (newbie.type.hasNullBit(TypeIds.BitNullableAnnotation)) {
 				tagBits = TagBits.AnnotationNullable;
 			}
 			if ((tagBitsSeen & tagBits) == 0) {
 				tagBitsSeen |= tagBits;
-				filtered[count++] = element;
+				filtered[count++] = newbie;
 			}
 		}
 		if (count < newbies.length)
@@ -2058,8 +2058,8 @@ boolean qualifiedNameMatchesSignature(char[][] name, char[] signature) {
 	int s = 1; // skip 'L'
 	for (int i = 0; i < name.length; i++) {
 		char[] n = name[i];
-		for (char element : n)
-			if (element != signature[s++])
+		for (char c : n)
+			if (c != signature[s++])
 				return false;
 		if (signature[s] == ';' && i == name.length-1)
 			return true;

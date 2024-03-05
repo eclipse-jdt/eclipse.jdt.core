@@ -157,9 +157,8 @@ public void analyseCode(ClassScope classScope, InitializationFlowContext initial
 			// set since they are supposed to be set inside other local constructor
 			if (this.constructorCall.accessMode == ExplicitConstructorCall.This) {
 				FieldBinding[] fields = this.binding.declaringClass.fields();
-				for (FieldBinding field2 : fields) {
-					FieldBinding field;
-					if (!(field = field2).isStatic()) {
+				for (FieldBinding field : fields) {
+					if (!field.isStatic()) {
 						flowInfo.markAsDefinitelyAssigned(field);
 					}
 				}
@@ -349,9 +348,8 @@ public void generateSyntheticFieldInitializationsIfNecessary(MethodScope methodS
 
 	SyntheticArgumentBinding[] syntheticArgs = nestedType.syntheticEnclosingInstances();
 	if (syntheticArgs != null) {
-		for (SyntheticArgumentBinding syntheticArg2 : syntheticArgs) {
-			SyntheticArgumentBinding syntheticArg;
-			if ((syntheticArg = syntheticArg2).matchingField != null) {
+		for (SyntheticArgumentBinding syntheticArg : syntheticArgs) {
+			if (syntheticArg.matchingField != null) {
 				codeStream.aload_0();
 				codeStream.load(syntheticArg);
 				codeStream.fieldAccess(Opcodes.OPC_putfield, syntheticArg.matchingField, null /* default declaringClass */);
@@ -360,9 +358,8 @@ public void generateSyntheticFieldInitializationsIfNecessary(MethodScope methodS
 	}
 	syntheticArgs = nestedType.syntheticOuterLocalVariables();
 	if (syntheticArgs != null) {
-		for (SyntheticArgumentBinding syntheticArg2 : syntheticArgs) {
-			SyntheticArgumentBinding syntheticArg;
-			if ((syntheticArg = syntheticArg2).matchingField != null) {
+		for (SyntheticArgumentBinding syntheticArg : syntheticArgs) {
+			if (syntheticArg.matchingField != null) {
 				codeStream.aload_0();
 				codeStream.load(syntheticArg);
 				codeStream.fieldAccess(Opcodes.OPC_putfield, syntheticArg.matchingField, null /* default declaringClass */);
