@@ -128,6 +128,8 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 			codeStream.iconst_0();
 
 		continueLabel.place();
+	} else if (!valueRequired) {
+		codeStream.pop();
 	}
 	codeStream.recordPositionsFrom(codeStream.position, this.sourceEnd);
 }
@@ -146,7 +148,6 @@ public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStr
 	*/
 
 	int pc = codeStream.position;
-	boolean optimize = trueLabel != null || falseLabel != null;
 
 	this.expression.generateCode(currentScope, codeStream, true);
 	if (this.secretExpressionValue != null) {
@@ -154,20 +155,11 @@ public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStr
 		codeStream.addVariable(this.secretExpressionValue);
 	}
 
-	BranchLabel internalFalseLabel = falseLabel != null ? falseLabel : new BranchLabel(codeStream);
+	BranchLabel internalFalseLabel = falseLabel != null ? falseLabel : this.pattern != null ? new BranchLabel(codeStream) : null;
 	codeStream.instance_of(this.type, this.type.resolvedType);
 
-	boolean shouldPop;
-	if (optimize) {
-		codeStream.ifeq(internalFalseLabel);
-		shouldPop = false; /* drained already by ifeq */
-	}
-	else {
-		assert this.pattern == null;
-		shouldPop = !valueRequired;
-	}
-
 	if (this.pattern != null) {
+		codeStream.ifeq(internalFalseLabel);
 		if (this.secretExpressionValue != null) {
 			codeStream.load(this.secretExpressionValue);
 			codeStream.removeVariable(this.secretExpressionValue);
@@ -175,25 +167,30 @@ public void generateOptimizedBoolean(BlockScope currentScope, CodeStream codeStr
 			this.expression.generateCode(currentScope, codeStream, true);
 		}
 		this.pattern.generateCode(currentScope, codeStream, trueLabel, internalFalseLabel);
-	}
-
-	if (shouldPop) {
+	} else if (!valueRequired) {
 		codeStream.pop();
 	}
 
 	codeStream.recordPositionsFrom(pc, this.sourceStart);
 
 	int position = codeStream.position;
+
 	if (valueRequired) {
 		if (falseLabel == null) {
 			if (trueLabel != null) {
-				// Implicit falling through the FALSE case, any bindings defined when true cease to be live
-				Stream.of(bindingsWhenTrue()).forEach(v->v.recordInitializationEndPC(codeStream.position));
-				codeStream.goto_(trueLabel);
+				if (this.pattern != null) {
+					// Implicit falling through the FALSE case, any bindings defined when true cease to be live
+					Stream.of(bindingsWhenTrue()).forEach(v->v.recordInitializationEndPC(codeStream.position));
+					codeStream.goto_(trueLabel);
+				} else {
+					codeStream.ifne(trueLabel);
+				}
 			}
 		} else {
 			if (trueLabel == null) {
 				// Implicit falling through the TRUE case
+				if (this.pattern == null)
+					codeStream.ifeq(falseLabel);
 			} else {
 				// No implicit fall through TRUE/FALSE --> classic instanceof code generation called from generateCode above
 			}

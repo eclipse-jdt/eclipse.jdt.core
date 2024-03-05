@@ -19,6 +19,7 @@ import java.lang.reflect.Method;
 
 import org.eclipse.jdt.core.tests.compiler.parser.ComplianceDiagnoseTest;
 import org.eclipse.jdt.core.tests.compiler.parser.PatternMatchingSelectionTest;
+import org.eclipse.jdt.core.tests.compiler.regression.InstanceofExpressionTest;
 import org.eclipse.jdt.core.tests.compiler.regression.InstanceofPrimaryPatternTest;
 import org.eclipse.jdt.core.tests.compiler.regression.NullAnnotationTests21;
 import org.eclipse.jdt.core.tests.compiler.regression.PatternMatching16Test;
@@ -68,6 +69,7 @@ public class RunVariousPatternsTests extends TestCase {
 				CompletionTestsForRecordPattern.class,
 				NullAnnotationTests21.class,
 				ComplianceDiagnoseTest.class,
+				InstanceofExpressionTest.class,
 		};
 	}
 
