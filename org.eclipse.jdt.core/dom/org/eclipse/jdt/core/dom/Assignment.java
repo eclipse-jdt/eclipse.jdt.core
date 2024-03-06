@@ -146,8 +146,8 @@ public class Assignment extends Expression {
 					RIGHT_SHIFT_SIGNED_ASSIGN,
 					RIGHT_SHIFT_UNSIGNED_ASSIGN
 				};
-			for (Operator op2 : ops) {
-				CODES.put(op2.toString(), op2);
+			for (Operator o : ops) {
+				CODES.put(o.toString(), o);
 			}
 		}
 	}

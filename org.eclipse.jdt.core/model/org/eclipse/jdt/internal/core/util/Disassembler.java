@@ -550,9 +550,9 @@ public class Disassembler extends ClassFileBytesDisassembler {
 			case IAnnotationComponentValue.ARRAY_TAG:
 				buffer.append(Messages.disassembler_annotationarrayvaluestart);
 				final IAnnotationComponentValue[] annotationComponentValues = annotationComponentValue.getAnnotationComponentValues();
-				for (IAnnotationComponentValue annotationComponentValue2 : annotationComponentValues) {
+				for (IAnnotationComponentValue acv : annotationComponentValues) {
 					writeNewLine(buffer, lineSeparator, tabNumber + 1);
-					disassemble(annotationComponentValue2, buffer, lineSeparator, tabNumber + 1, mode);
+					disassemble(acv, buffer, lineSeparator, tabNumber + 1, mode);
 				}
 				writeNewLine(buffer, lineSeparator, tabNumber + 1);
 				buffer.append(Messages.disassembler_annotationarrayvalueend);
@@ -1277,25 +1277,25 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		IRequiresInfo[] requiresInfo = moduleAttribute.getRequiresInfo();
 		if (requiresInfo.length > 0) {
 			writeNewLine(buffer, lineSeparator, 0);
-			for (IRequiresInfo element : requiresInfo) {
+			for (IRequiresInfo info : requiresInfo) {
 				writeNewLine(buffer, lineSeparator, tabNumber);
-				disassemble(element, buffer, lineSeparator, tabNumber);
+				disassemble(info, buffer, lineSeparator, tabNumber);
 			}
 		}
 		IPackageVisibilityInfo[] exportInfos = moduleAttribute.getExportsInfo();
 		if (exportInfos.length > 0) {
 			writeNewLine(buffer, lineSeparator, 0);
-			for (IPackageVisibilityInfo element : exportInfos) {
+			for (IPackageVisibilityInfo info : exportInfos) {
 				writeNewLine(buffer, lineSeparator, tabNumber);
-				disassemble(element, buffer, lineSeparator, tabNumber, true);
+				disassemble(info, buffer, lineSeparator, tabNumber, true);
 			}
 		}
 		IPackageVisibilityInfo[] opensInfos = moduleAttribute.getOpensInfo();
 		if (opensInfos.length > 0) {
 			writeNewLine(buffer, lineSeparator, 0);
-			for (IPackageVisibilityInfo element : opensInfos) {
+			for (IPackageVisibilityInfo info : opensInfos) {
 				writeNewLine(buffer, lineSeparator, tabNumber);
-				disassemble(element, buffer, lineSeparator, tabNumber, false);
+				disassemble(info, buffer, lineSeparator, tabNumber, false);
 			}
 		}
 		char[][] usesNames = moduleAttribute.getUsesClassNames();
@@ -1309,9 +1309,9 @@ public class Disassembler extends ClassFileBytesDisassembler {
 		IProvidesInfo[] providesInfos = moduleAttribute.getProvidesInfo();
 		if (providesInfos.length > 0) {
 			writeNewLine(buffer, lineSeparator, 0);
-			for (IProvidesInfo element : providesInfos) {
+			for (IProvidesInfo info : providesInfos) {
 				writeNewLine(buffer, lineSeparator, tabNumber);
-				disassemble(element, buffer, lineSeparator, tabNumber);
+				disassemble(info, buffer, lineSeparator, tabNumber);
 			}
 		}
 	}

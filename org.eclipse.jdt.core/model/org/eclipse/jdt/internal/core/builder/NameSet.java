@@ -61,9 +61,8 @@ private void rehash() {
 @Override
 public String toString() {
 	String s = ""; //$NON-NLS-1$
-	char[] name;
-	for (char[] name2 : this.names)
-		if ((name = name2) != null)
+	for (char[] name : this.names)
+		if (name != null)
 			s += new String(name) + "\n"; //$NON-NLS-1$
 	return s;
 }

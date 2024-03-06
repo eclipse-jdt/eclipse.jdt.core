@@ -181,8 +181,8 @@ public class ThrownExceptionFinder extends ASTVisitor {
 			if (catchArguments[i].type instanceof UnionTypeReference) {
 				UnionTypeReference unionTypeReference = (UnionTypeReference) catchArguments[i].type;
 				TypeBinding caughtException;
-				for (TypeReference element : unionTypeReference.typeReferences) {
-					caughtException = element.resolvedType;
+				for (TypeReference ref : unionTypeReference.typeReferences) {
+					caughtException = ref.resolvedType;
 					if ((caughtException instanceof ReferenceBinding) && caughtException.isValidBinding()) {	// might be null when its the completion node
 						if (recordUncheckedCaughtExceptions) {
 							// is in outermost try-catch. Remove all caught exceptions, unchecked or checked
@@ -218,8 +218,8 @@ public class ThrownExceptionFinder extends ASTVisitor {
 
 	private void removeCaughtException(ReferenceBinding caughtException) {
 		Object[] exceptions = this.thrownExceptions.values;
-		for (Object exception2 : exceptions) {
-			ReferenceBinding exception = (ReferenceBinding)exception2;
+		for (Object e : exceptions) {
+			ReferenceBinding exception = (ReferenceBinding)e;
 			if (exception != null) {
 				if (TypeBinding.equalsEquals(exception, caughtException)) {
 					this.thrownExceptions.remove(exception);

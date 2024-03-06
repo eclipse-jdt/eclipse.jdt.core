@@ -189,8 +189,8 @@ public class KeyToSignature extends BindingKeyParser {
 			this.signature.append(CharOperation.subarray(parameter, 0, genericStart));
 			char[][] parameters = Signature.getTypeArguments(parameter);
 			this.signature.append(Signature.C_GENERIC_START);
-			for (char[] parameter2 : parameters)
-				substitute(parameter2, typeParameterSigs, typeParametersLength);
+			for (char[] p : parameters)
+				substitute(p, typeParameterSigs, typeParametersLength);
 			this.signature.append(Signature.C_GENERIC_END);
 			this.signature.append(Signature.C_SEMICOLON);
 		} else {

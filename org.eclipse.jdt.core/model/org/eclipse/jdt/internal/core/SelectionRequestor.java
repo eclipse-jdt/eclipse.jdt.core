@@ -158,8 +158,8 @@ protected void acceptBinaryMethod(
 		if (typeParameterNames != null && typeParameterNames.length != 0) {
 			IMethod[] methods = type.findMethods(method);
 			if (methods != null && methods.length > 1) {
-				for (IMethod method2 : methods) {
-					if (areTypeParametersCompatible(method2, typeParameterNames, typeParameterBoundNames)) {
+				for (IMethod m : methods) {
+					if (areTypeParametersCompatible(m, typeParameterNames, typeParameterBoundNames)) {
 						acceptBinaryMethod(type, method, uniqueKey, isConstructor);
 					}
 				}
@@ -582,10 +582,10 @@ protected void acceptSourceMethod(
 	IMethod[] methods = null;
 	try {
 		methods = type.getMethods();
-		for (IMethod method2 : methods) {
-			if (method2.getElementName().equals(name)
-					&& method2.getParameterTypes().length == parameterTypeNames.length) {
-				IMethod method = method2;
+		for (IMethod m : methods) {
+			if (m.getElementName().equals(name)
+					&& m.getParameterTypes().length == parameterTypeNames.length) {
+				IMethod method = m;
 				if (uniqueKey != null) {
 					method = new ResolvedSourceMethod(
 						(JavaElement)method.getParent(),
@@ -966,9 +966,9 @@ protected IType resolveType(char[] packageName, char[] typeName, int acceptFlags
 				} catch (JavaModelException e) {
 					return null;
 				}
-				for (IType type2 : allTypes) {
-					if (type2.getTypeQualifiedName().equals(tName)) {
-						return type2;
+				for (IType t : allTypes) {
+					if (t.getTypeQualifiedName().equals(tName)) {
+						return t;
 					}
 				}
 			}
@@ -1046,9 +1046,9 @@ protected IType resolveTypeByLocation(char[] packageName, char[] typeName, int a
 				} catch (JavaModelException e) {
 					return null;
 				}
-				for (IType type2 : allTypes) {
-					if (type2.getTypeQualifiedName().equals(tName)) {
-						return type2;
+				for (IType t : allTypes) {
+					if (t.getTypeQualifiedName().equals(tName)) {
+						return t;
 					}
 				}
 			}

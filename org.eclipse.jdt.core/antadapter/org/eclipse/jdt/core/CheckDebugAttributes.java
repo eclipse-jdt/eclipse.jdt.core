@@ -81,8 +81,8 @@ public final class CheckDebugAttributes extends Task {
 
 	private boolean checkClassFile(IClassFileReader classFileReader) {
 		IMethodInfo[] methodInfos = classFileReader.getMethodInfos();
-		for (IMethodInfo element : methodInfos) {
-			ICodeAttribute codeAttribute = element.getCodeAttribute();
+		for (IMethodInfo methodInfo : methodInfos) {
+			ICodeAttribute codeAttribute = methodInfo.getCodeAttribute();
 			if (codeAttribute != null && codeAttribute.getLineNumberAttribute() != null) {
 				return true;
 			}

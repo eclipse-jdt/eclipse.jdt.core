@@ -119,14 +119,14 @@ void addTrustedMatch(ASTNode node, Integer level) {
 }
 protected boolean hasPossibleNodes(int start, int end) {
 	Object[] nodes = this.possibleMatchingNodesSet.values;
-	for (Object node2 : nodes) {
-		ASTNode node = (ASTNode) node2;
+	for (Object n : nodes) {
+		ASTNode node = (ASTNode) n;
 		if (node != null && start <= node.sourceStart && node.sourceEnd <= end)
 			return true;
 	}
 	nodes = this.matchingNodes.keyTable;
-	for (Object node2 : nodes) {
-		ASTNode node = (ASTNode) node2;
+	for (Object n : nodes) {
+		ASTNode node = (ASTNode) n;
 		if (node != null && start <= node.sourceStart && node.sourceEnd <= end)
 			return true;
 	}
@@ -138,8 +138,8 @@ protected boolean hasPossibleNodes(int start, int end) {
 protected ASTNode[] matchingNodes(int start, int end) {
 	List<ASTNode> nodes = null;
 	Object[] keyTable = this.matchingNodes.keyTable;
-	for (Object element : keyTable) {
-		ASTNode node = (ASTNode) element;
+	for (Object o : keyTable) {
+		ASTNode node = (ASTNode) o;
 		if (node != null && start <= node.sourceStart && node.sourceEnd <= end) {
 			if (nodes == null) nodes = new ArrayList<>();
 			nodes.add(node);
@@ -202,8 +202,8 @@ public String toString() {
 
 	result.append("\nPossible matches:"); //$NON-NLS-1$
 	Object[] nodes = this.possibleMatchingNodesSet.values;
-	for (Object node2 : nodes) {
-		ASTNode node = (ASTNode) node2;
+	for (Object n : nodes) {
+		ASTNode node = (ASTNode) n;
 		if (node == null) continue;
 		result.append("\nPOSSIBLE_MATCH: "); //$NON-NLS-1$
 		node.print(0, result);

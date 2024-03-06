@@ -110,8 +110,8 @@ public class ToolFactory {
 			IExtensionPoint extension = Platform.getExtensionRegistry().getExtensionPoint(JavaCore.PLUGIN_ID, JavaModelManager.FORMATTER_EXTPOINT_ID);
 			if (extension != null) {
 				IExtension[] extensions =  extension.getExtensions();
-				for (IExtension extension2 : extensions) {
-					IConfigurationElement [] configElements = extension2.getConfigurationElements();
+				for (IExtension ext : extensions) {
+					IConfigurationElement [] configElements = ext.getConfigurationElements();
 					for (IConfigurationElement configElement : configElements) {
 						try {
 							Object execExt = configElement.createExecutableExtension("class"); //$NON-NLS-1$
@@ -191,8 +191,8 @@ public class ToolFactory {
 					JavaCore.JAVA_FORMATTER_EXTENSION_POINT_ID);
 			if (extension != null) {
 				IExtension[] extensions = extension.getExtensions();
-				for (IExtension extension2 : extensions) {
-					IConfigurationElement[] configElements = extension2.getConfigurationElements();
+				for (IExtension ext : extensions) {
+					IConfigurationElement[] configElements = ext.getConfigurationElements();
 					for (IConfigurationElement configElement : configElements) {
 						String initializerID = configElement.getAttribute("id"); //$NON-NLS-1$
 						if (initializerID != null && initializerID.equals(formatterId)) {

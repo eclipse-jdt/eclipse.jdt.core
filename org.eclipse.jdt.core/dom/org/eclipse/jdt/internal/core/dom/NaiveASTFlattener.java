@@ -271,8 +271,8 @@ public class NaiveASTFlattener extends ASTVisitor {
 	}
 
 	private void visitAnnotationsList(List annotations) {
-		for (Object annotation2 : annotations) {
-			Annotation annotation = (Annotation) annotation2;
+		for (Object a : annotations) {
+			Annotation annotation = (Annotation) a;
 			annotation.accept(this);
 			this.buffer.append(' ');
 		}

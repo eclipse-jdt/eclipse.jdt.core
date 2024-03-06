@@ -442,8 +442,8 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 
 	private int doVisitList(List list, int offset) {
 		int endPos= offset;
-		for (Object element : list) {
-			ASTNode curr= ((ASTNode) element);
+		for (Object o : list) {
+			ASTNode curr= ((ASTNode) o);
 			endPos= doVisit(curr);
 		}
 		return endPos;
@@ -463,8 +463,8 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 	}
 
 	private void voidVisitList(List list) {
-		for (Object element : list) {
-			doVisit(((ASTNode) element));
+		for (Object o : list) {
+			doVisit(((ASTNode) o));
 		}
 	}
 
@@ -1151,8 +1151,8 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 
 			ASTNode last= null;
 			ASTNode secondLast= null;
-			for (RewriteEvent element : this.list) {
-				ASTNode elem= (ASTNode) element.getOriginalValue();
+			for (RewriteEvent event : this.list) {
+				ASTNode elem= (ASTNode) event.getOriginalValue();
 				if (elem != null) {
 					if (last != null) {
 						if (elem.getNodeType() == nextKind && last.getNodeType() == currKind) {
@@ -3213,8 +3213,8 @@ public final class ASTRewriteAnalyzer extends ASTVisitor {
 
 		List events = this.eventStore.getChangedPropertieEvents(node);
 
-		for (Object event2 : events) {
-			RewriteEvent event = (RewriteEvent) event2;
+		for (Object e : events) {
+			RewriteEvent event = (RewriteEvent) e;
 			if (event.getChangeKind() == RewriteEvent.REPLACED && event.getOriginalValue() instanceof ASTNode) {
 				if (this.beforeRequiredSpaceIndex  == getExtendedOffset((ASTNode) event.getOriginalValue())) {
 					doTextInsert(this.beforeRequiredSpaceIndex , String.valueOf(' '), getEditGroup(event));

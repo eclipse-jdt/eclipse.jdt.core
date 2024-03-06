@@ -388,8 +388,8 @@ private void matchAnnotations(SearchPattern pattern, MatchLocator locator, Class
 			break;
 		case OR_PATTERN:
 			SearchPattern[] patterns = ((OrPattern) pattern).patterns;
-			for (SearchPattern pattern2 : patterns) {
-				matchAnnotations(pattern2, locator, classFile, binaryType);
+			for (SearchPattern p : patterns) {
+				matchAnnotations(p, locator, classFile, binaryType);
 			}
 			// $FALL-THROUGH$ - fall through default to return
 		default:
@@ -458,8 +458,8 @@ boolean matchBinary(SearchPattern pattern, Object binaryInfo, IBinaryType enclos
 			return matchTypeDeclaration((TypeDeclarationPattern) pattern, binaryInfo, enclosingBinaryType);
 		case OR_PATTERN :
 			SearchPattern[] patterns = ((OrPattern) pattern).patterns;
-			for (SearchPattern pattern2 : patterns)
-				if (matchBinary(pattern2, binaryInfo, enclosingBinaryType)) return true;
+			for (SearchPattern p : patterns)
+				if (matchBinary(p, binaryInfo, enclosingBinaryType)) return true;
 	}
 	return false;
 }
@@ -530,8 +530,8 @@ boolean matchSuperTypeReference(SuperTypeReferencePattern pattern, Object binary
 	if (pattern.superRefKind != SuperTypeReferencePattern.ONLY_SUPER_CLASSES) {
 		char[][] superInterfaces = type.getInterfaceNames();
 		if (superInterfaces != null) {
-			for (char[] element : superInterfaces) {
-				char[] superInterfaceName = convertClassFileFormat(element);
+			for (char[] superInterface : superInterfaces) {
+				char[] superInterfaceName = convertClassFileFormat(superInterface);
 				if (checkTypeName(pattern.superSimpleName, pattern.superQualification, superInterfaceName, pattern.isCaseSensitive(), pattern.isCamelCase()))
 					return true;
 			}

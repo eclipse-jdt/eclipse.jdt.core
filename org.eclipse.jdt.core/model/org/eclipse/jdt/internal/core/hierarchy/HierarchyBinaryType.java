@@ -131,8 +131,8 @@ public char[] getGenericSignature() {
 		else
 			buffer.append(Signature.createTypeSignature(this.superclass, true/*resolved*/));
 		if (this.superInterfaces != null)
-			for (char[] element : this.superInterfaces)
-				buffer.append(Signature.createTypeSignature(element, true/*resolved*/));
+			for (char[] superInterface : this.superInterfaces)
+				buffer.append(Signature.createTypeSignature(superInterface, true/*resolved*/));
 		this.genericSignature = buffer.toString().toCharArray();
 		CharOperation.replace(this.genericSignature, '.', '/');
 	}

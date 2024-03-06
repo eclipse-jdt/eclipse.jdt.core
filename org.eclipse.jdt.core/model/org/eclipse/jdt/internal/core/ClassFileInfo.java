@@ -414,8 +414,8 @@ void removeBinaryChildren() throws JavaModelException {
 	}
 	if (this.typeParameters != null) {
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		for (ITypeParameter typeParameter2 : this.typeParameters) {
-			TypeParameter typeParameter = (TypeParameter) typeParameter2;
+		for (ITypeParameter p : this.typeParameters) {
+			TypeParameter typeParameter = (TypeParameter) p;
 			manager.removeInfoAndChildren(typeParameter);
 		}
 		this.typeParameters = TypeParameter.NO_TYPE_PARAMETERS;

@@ -74,8 +74,8 @@ public void acceptConstructorReference(char[] typeName, int argCount, int source
 	int lastDot = CharOperation.lastIndexOf('.', typeName);
 	if (lastDot != -1) {
 		char[][] qualification = CharOperation.splitOn('.', CharOperation.subarray(typeName, 0, lastDot));
-		for (char[] element : qualification) {
-			this.indexer.addNameReference(element);
+		for (char[] name : qualification) {
+			this.indexer.addNameReference(name);
 		}
 	}
 }

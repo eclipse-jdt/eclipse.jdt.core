@@ -392,8 +392,8 @@ public class Util {
 		if (array == null || array.length == 0) return name;
 		if (name == null || name.length() == 0) return concatWith(array, separator);
 		StringBuilder buffer = new StringBuilder();
-		for (String element : array) {
-			buffer.append(element);
+		for (String s : array) {
+			buffer.append(s);
 			buffer.append(separator);
 		}
 		buffer.append(name);
@@ -834,8 +834,8 @@ public class Util {
 			for (IContentType contentType : contentTypes) {
 				if (contentType.isKindOf(javaContentType)) { // note that javaContentType.isKindOf(javaContentType) == true
 					String[] fileExtension = contentType.getFileSpecs(IContentType.FILE_EXTENSION_SPEC);
-					for (String element : fileExtension) {
-						fileExtensions.add(element);
+					for (String extension : fileExtension) {
+						fileExtensions.add(extension);
 					}
 				}
 			}
@@ -2461,8 +2461,8 @@ public class Util {
 	public static String toString(char[][] c, char[] d) {
 		if (c == null) return new String(d);
 		StringBuilder sb = new StringBuilder();
-		for (char[] element : c) {
-			sb.append(element);
+		for (char[] n : c) {
+			sb.append(n);
 			sb.append('.');
 		}
 		sb.append(d);

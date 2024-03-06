@@ -278,8 +278,8 @@ public synchronized void cleanUpIndexes() {
 	IJavaSearchScope scope = BasicSearchEngine.createWorkspaceScope();
 	PatternSearchJob job = new PatternSearchJob(null, SearchEngine.getDefaultSearchParticipant(), scope, null);
 	Index[] selectedIndexes = job.getIndexes(null);
-	for (Index element : selectedIndexes) {
-		IndexLocation IndexLocation = element.getIndexLocation();
+	for (Index selectedIndex : selectedIndexes) {
+		IndexLocation IndexLocation = selectedIndex.getIndexLocation();
 		knownPaths.add(IndexLocation);
 	}
 
@@ -287,8 +287,8 @@ public synchronized void cleanUpIndexes() {
 		Object[] keys = this.indexStates.keyTable;
 		IndexLocation[] locations = new IndexLocation[this.indexStates.elementSize];
 		int count = 0;
-		for (Object key2 : keys) {
-			IndexLocation key = (IndexLocation) key2;
+		for (Object o : keys) {
+			IndexLocation key = (IndexLocation) o;
 			if (key != null && !knownPaths.includes(key))
 				locations[count++] = key;
 		}
@@ -1049,8 +1049,8 @@ public void removeIndexFamily(IPath path) {
 	List<IPath> toRemove = null;
 	synchronized (this) {
 		Object[] containerPaths = this.indexLocations.keyTable;
-		for (Object containerPath2 : containerPaths) {
-			IPath containerPath = (IPath) containerPath2;
+		for (Object o : containerPaths) {
+			IPath containerPath = (IPath) o;
 			if (containerPath == null)
 				continue;
 			if (path.isPrefixOf(containerPath)) {
@@ -1061,8 +1061,8 @@ public void removeIndexFamily(IPath path) {
 		}
 	}
 	if (toRemove != null)
-		for (IPath element : toRemove)
-			removeIndex(element);
+		for (IPath p : toRemove)
+			removeIndex(p);
 }
 /**
  * Remove the content of the given source folder from the index.
@@ -1172,8 +1172,8 @@ public void saveIndexes() {
 	List<Index> toSave = new ArrayList<>();
 	synchronized(this) {
 		Object[] valueTable = this.indexes.valueTable;
-		for (Object element : valueTable) {
-			Index index = (Index) element;
+		for (Object i : valueTable) {
+			Index index = (Index) i;
 			if (index != null)
 				toSave.add(index);
 		}
@@ -1309,8 +1309,8 @@ public synchronized String toString() {
 	buffer.append("In-memory indexes:\n"); //$NON-NLS-1$
 	int count = 0;
 	Object[] valueTable = this.indexes.valueTable;
-	for (Object element : valueTable) {
-		Index index = (Index) element;
+	for (Object i : valueTable) {
+		Index index = (Index) i;
 		if (index != null)
 			buffer.append(++count).append(" - ").append(index.toString()).append('\n'); //$NON-NLS-1$
 	}

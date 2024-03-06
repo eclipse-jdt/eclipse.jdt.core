@@ -451,8 +451,8 @@ public final class RewriteEventStore {
 	public PropertyLocation getPropertyLocation(Object value, int kind) {
 		for (Object element : this.eventLookup.values()) {
 			List events= (List) element;
-			for (Object event2 : events) {
-				EventHolder holder= (EventHolder) event2;
+			for (Object e : events) {
+				EventHolder holder= (EventHolder) e;
 				RewriteEvent event= holder.event;
 				if (isNodeInEvent(event, value, kind)) {
 					return new PropertyLocation(holder.parent, holder.childProperty);
@@ -719,8 +719,8 @@ public final class RewriteEventStore {
 			Map.Entry entry= (Map.Entry) element;
 			Set placeholders= new HashSet(); // collect all placeholders
 			List rangeInfos= (List) entry.getValue(); // list of CopySourceRange
-			for (Object element2 : rangeInfos) {
-				placeholders.add(((NodeRangeInfo) element2).getInternalPlaceholder());
+			for (Object e : rangeInfos) {
+				placeholders.add(((NodeRangeInfo) e).getInternalPlaceholder());
 			}
 
 			PropertyLocation loc= (PropertyLocation) entry.getKey();

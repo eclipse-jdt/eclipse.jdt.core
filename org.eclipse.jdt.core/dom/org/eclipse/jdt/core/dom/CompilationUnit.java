@@ -1142,8 +1142,8 @@ public class CompilationUnit extends ASTNode {
 		size += this.types.listSize();
 		// include disconnected comments
 		if (this.optionalCommentList != null) {
-			for (Object element : this.optionalCommentList) {
-				Comment comment = (Comment) element;
+			for (Object o : this.optionalCommentList) {
+				Comment comment = (Comment) o;
 				if (comment != null && comment.getParent() == null) {
 					size += comment.treeSize();
 				}

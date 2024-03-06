@@ -3973,8 +3973,8 @@ public final class JavaCore extends Plugin {
 		IExtensionPoint extension = Platform.getExtensionRegistry().getExtensionPoint(JavaCore.PLUGIN_ID, JavaModelManager.CPCONTAINER_INITIALIZER_EXTPOINT_ID);
 		if (extension != null) {
 			IExtension[] extensions =  extension.getExtensions();
-			for (IExtension extension2 : extensions) {
-				IConfigurationElement [] configElements = extension2.getConfigurationElements();
+			for (IExtension ext : extensions) {
+				IConfigurationElement [] configElements = ext.getConfigurationElements();
 				for (IConfigurationElement configurationElement : configElements) {
 					String initializerID = configurationElement.getAttribute("id"); //$NON-NLS-1$
 					if (initializerID != null && initializerID.equals(containerID)){
@@ -4134,8 +4134,8 @@ public final class JavaCore extends Plugin {
 		IExtensionPoint extension = Platform.getExtensionRegistry().getExtensionPoint(JavaCore.PLUGIN_ID, JavaModelManager.CPVARIABLE_INITIALIZER_EXTPOINT_ID);
 		if (extension != null) {
 			IExtension[] extensions =  extension.getExtensions();
-			for (IExtension extension2 : extensions) {
-				IConfigurationElement [] configElements = extension2.getConfigurationElements();
+			for (IExtension ext : extensions) {
+				IConfigurationElement [] configElements = ext.getConfigurationElements();
 				for (IConfigurationElement configElement : configElements) {
 					String varAttribute = configElement.getAttribute("variable"); //$NON-NLS-1$
 					if (variableName.equals(varAttribute)) {
@@ -4168,8 +4168,8 @@ public final class JavaCore extends Plugin {
 		IExtensionPoint extension = Platform.getExtensionRegistry().getExtensionPoint(JavaCore.PLUGIN_ID, JavaModelManager.CPVARIABLE_INITIALIZER_EXTPOINT_ID);
 		if (extension != null) {
 			IExtension[] extensions =  extension.getExtensions();
-			for (IExtension extension2 : extensions) {
-				IConfigurationElement [] configElements = extension2.getConfigurationElements();
+			for (IExtension ext : extensions) {
+				IConfigurationElement [] configElements = ext.getConfigurationElements();
 				for (IConfigurationElement configElement : configElements) {
 					try {
 						String varAttribute = configElement.getAttribute("variable"); //$NON-NLS-1$

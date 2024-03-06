@@ -2389,9 +2389,9 @@ protected int fallBackToSpringForward(Statement unused) {
 			ignoreNextClosingBrace(); // having ungotten it, recoveryTokenCheck will see this again.
 	}
 	// OK, next token is no good to resume "in place", attempt some local repair.
-	for (int element : RECOVERY_TOKENS) {
-		if (automatonWillShift(element, automatonState)) {
-			this.currentToken = element;
+	for (int token : RECOVERY_TOKENS) {
+		if (automatonWillShift(token, automatonState)) {
+			this.currentToken = token;
 			return RESUME;
 		}
 	}

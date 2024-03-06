@@ -95,8 +95,8 @@ public static int canSeeFocus(SearchPattern pattern, IPath projectOrJarPath) {
 		// it can see the focus only if it is on the classpath of a project that can see the focus
 		int result = PROJECT_CAN_NOT_SEE_FOCUS;
 		IJavaProject[] allProjects = model.getJavaProjects();
-		for (IJavaProject project2 : allProjects) {
-			JavaProject otherProject = (JavaProject) project2;
+		for (IJavaProject p : allProjects) {
+			JavaProject otherProject = (JavaProject) p;
 			IClasspathEntry entry = otherProject.getClasspathEntryFor(projectOrJarPath);
 			if (entry != null && entry.getEntryKind() == IClasspathEntry.CPE_LIBRARY) {
 				int canSeeFocus = canSeeFocus(focuses, otherProject, null);

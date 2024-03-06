@@ -5254,9 +5254,9 @@ public final class CompletionEngine
 				this.uninterestingBindingsFilter |= SUBTYPE;
 				// super-types also need to be discouraged if we're in a union type (bug 350652)
 				Argument[] args = ((TryStatement)parent).catchArguments;
-				for (Argument arg4 : args) {
-					if (arg4.type instanceof UnionTypeReference) {
-						CompletionNodeDetector detector = new CompletionNodeDetector(astNode, arg4);
+				for (Argument arg : args) {
+					if (arg.type instanceof UnionTypeReference) {
+						CompletionNodeDetector detector = new CompletionNodeDetector(astNode, arg);
 						if (detector.containsCompletionNode()) {
 							this.uninterestingBindingsFilter |= SUPERTYPE;
 							break;
@@ -9136,31 +9136,31 @@ public final class CompletionEngine
 	private void findKeywords(char[] keyword, char[][] choices, boolean staticFieldsAndMethodOnly, boolean ignorePackageKeyword) {
 		if(choices == null || choices.length == 0) return;
 		int length = keyword.length;
-		for (char[] element : choices)
-			if (length <= element.length && (CharOperation.prefixEquals(keyword, element, false /* ignore case */)
-					|| (this.options.substringMatch && CharOperation.substringMatch(keyword, element)))) {
-				if (ignorePackageKeyword && CharOperation.equals(element, Keywords.PACKAGE))
+		for (char[] choice : choices)
+			if (length <= choice.length && (CharOperation.prefixEquals(keyword, choice, false /* ignore case */)
+					|| (this.options.substringMatch && CharOperation.substringMatch(keyword, choice)))) {
+				if (ignorePackageKeyword && CharOperation.equals(choice, Keywords.PACKAGE))
 					continue;
 				int relevance = computeBaseRelevance();
 				relevance += computeRelevanceForResolution();
 				relevance += computeRelevanceForInterestingProposal();
-				relevance += computeRelevanceForCaseMatching(keyword, element);
+				relevance += computeRelevanceForCaseMatching(keyword, choice);
 				relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for keywords
 				relevance += computeRelevanceForFinalInIOE();
 				if (staticFieldsAndMethodOnly && this.insideQualifiedReference) relevance += R_NON_INHERITED;
 
-				if(CharOperation.equals(element, Keywords.TRUE) || CharOperation.equals(element, Keywords.FALSE)) {
+				if(CharOperation.equals(choice, Keywords.TRUE) || CharOperation.equals(choice, Keywords.FALSE)) {
 					relevance += computeRelevanceForExpectingType(TypeBinding.BOOLEAN);
 					relevance += computeRelevanceForQualification(false);
 				}
-				if (CharOperation.equals(element, Keywords.NEW)) {
+				if (CharOperation.equals(choice, Keywords.NEW)) {
 					relevance += computeRelevanceForConstructor();
 				}
 				this.noProposal = false;
 				if(!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
 					InternalCompletionProposal proposal =  createProposal(CompletionProposal.KEYWORD, this.actualCompletionPosition);
-					proposal.setName(element);
-					proposal.setCompletion(element);
+					proposal.setName(choice);
+					proposal.setCompletion(choice);
 					proposal.setReplaceRange((this.startPosition < 0) ? 0 : this.startPosition - this.offset, this.endPosition - this.offset);
 					proposal.setTokenRange((this.tokenStart < 0) ? 0 : this.tokenStart - this.offset, this.tokenEnd - this.offset);
 					proposal.setRelevance(relevance);
@@ -9281,21 +9281,21 @@ public final class CompletionEngine
 		if(choices == null || choices.length == 0) return;
 
 		int length = label.length;
-		for (char[] element : choices) {
-			if (length <= element.length
-				&& CharOperation.prefixEquals(label, element, false /* ignore case */
+		for (char[] choice : choices) {
+			if (length <= choice.length
+				&& CharOperation.prefixEquals(label, choice, false /* ignore case */
 			)){
 				int relevance = computeBaseRelevance();
 				relevance += computeRelevanceForResolution();
 				relevance += computeRelevanceForInterestingProposal();
-				relevance += computeRelevanceForCaseMatching(label, element);
+				relevance += computeRelevanceForCaseMatching(label, choice);
 				relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for keywors
 
 				this.noProposal = false;
 				if(!this.requestor.isIgnored(CompletionProposal.LABEL_REF)) {
 					InternalCompletionProposal proposal =  createProposal(CompletionProposal.LABEL_REF, this.actualCompletionPosition);
-					proposal.setName(element);
-					proposal.setCompletion(element);
+					proposal.setName(choice);
+					proposal.setCompletion(choice);
 					proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
 					proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 					proposal.setRelevance(relevance);
@@ -11594,14 +11594,14 @@ public final class CompletionEngine
 
 		if(this.expectedTypesPtr != 0 || TypeBinding.notEquals(this.expectedTypes[0], TypeBinding.BOOLEAN)) return;
 
-		for (char[] element : choices) {
-			if (CharOperation.equals(element, Keywords.TRUE) ||
-					CharOperation.equals(element, Keywords.FALSE)
+		for (char[] choice : choices) {
+			if (CharOperation.equals(choice, Keywords.TRUE) ||
+					CharOperation.equals(choice, Keywords.FALSE)
 			){
 				int relevance = computeBaseRelevance();
 				relevance += computeRelevanceForResolution();
 				relevance += computeRelevanceForInterestingProposal();
-				relevance += computeRelevanceForCaseMatching(CharOperation.NO_CHAR, element);
+				relevance += computeRelevanceForCaseMatching(CharOperation.NO_CHAR, choice);
 				relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for keywors
 				relevance += computeRelevanceForExpectingType(TypeBinding.BOOLEAN);
 				relevance += computeRelevanceForQualification(false);
@@ -11610,8 +11610,8 @@ public final class CompletionEngine
 				this.noProposal = false;
 				if(!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
 					InternalCompletionProposal proposal =  createProposal(CompletionProposal.KEYWORD, this.actualCompletionPosition);
-					proposal.setName(element);
-					proposal.setCompletion(element);
+					proposal.setName(choice);
+					proposal.setCompletion(choice);
 					proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
 					proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 					proposal.setRelevance(relevance);

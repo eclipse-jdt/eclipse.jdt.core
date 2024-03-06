@@ -128,8 +128,8 @@ public void checkComment() {
 		// Search for pattern locator matches in javadoc comment parameters @param tags
 		JavadocSingleNameReference[] paramReferences = this.javadoc.paramReferences;
 		if (paramReferences != null) {
-			for (JavadocSingleNameReference element : paramReferences) {
-				this.patternLocator.match(element, this.nodeSet);
+			for (JavadocSingleNameReference paramReference : paramReferences) {
+				this.patternLocator.match(paramReference, this.nodeSet);
 			}
 		}
 
@@ -183,8 +183,8 @@ public void checkComment() {
 						this.patternLocator.match(typeRef, this.nodeSet);
 					}
 					if (messageSend.arguments != null) {
-						for (Expression argument2 : messageSend.arguments) {
-							JavadocArgumentExpression argument = (JavadocArgumentExpression) argument2;
+						for (Expression arg : messageSend.arguments) {
+							JavadocArgumentExpression argument = (JavadocArgumentExpression) arg;
 							if (argument.argument != null && argument.argument.type != null) {
 								this.patternLocator.match(argument.argument.type, this.nodeSet);
 							}
@@ -197,9 +197,9 @@ public void checkComment() {
 						this.patternLocator.match(constructor.type, this.nodeSet);
 					}
 					if (constructor.arguments != null) {
-						for (Expression argument2 : constructor.arguments) {
-							this.patternLocator.match(argument2, this.nodeSet);
-							JavadocArgumentExpression argument = (JavadocArgumentExpression) argument2;
+						for (Expression arg : constructor.arguments) {
+							this.patternLocator.match(arg, this.nodeSet);
+							JavadocArgumentExpression argument = (JavadocArgumentExpression) arg;
 							if (argument.argument != null && argument.argument.type != null) {
 								this.patternLocator.match(argument.argument.type, this.nodeSet);
 							}
@@ -253,8 +253,8 @@ protected void consumeCastExpressionLL1WithBounds() {
 	if ((this.patternFineGrain & IJavaSearchConstants.CAST_TYPE_REFERENCE) != 0) {
 		CastExpression castExpression = (CastExpression) this.expressionStack[this.expressionPtr];
 		TypeReference[] typeReferences = ((IntersectionCastTypeReference) castExpression.type).typeReferences;
-		for (TypeReference element : typeReferences)
-			this.patternLocator.match(element, this.nodeSet);
+		for (TypeReference typeReference : typeReferences)
+			this.patternLocator.match(typeReference, this.nodeSet);
 	}
 }
 @Override

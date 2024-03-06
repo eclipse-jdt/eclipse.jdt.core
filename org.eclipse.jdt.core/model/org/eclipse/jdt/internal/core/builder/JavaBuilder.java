@@ -824,8 +824,8 @@ private void printLocations(ClasspathLocation[] newLocations, ClasspathLocation[
 
 private void recordNewState(State state) {
 	Object[] keyTable = this.binaryLocationsPerProject.keyTable;
-	for (Object element : keyTable) {
-		IProject prereqProject = (IProject) element;
+	for (Object proj : keyTable) {
+		IProject prereqProject = (IProject) proj;
 		if (prereqProject != null && prereqProject != this.currentProject)
 			state.recordStructuralDependency(prereqProject, getLastState(prereqProject));
 	}

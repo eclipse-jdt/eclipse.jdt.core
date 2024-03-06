@@ -379,8 +379,8 @@ private IClasspathEntry findSourceAttachmentRecommendation() {
 		// iterate over all projects
 		IJavaModel model = getJavaModel();
 		IJavaProject[] jProjects = model.getJavaProjects();
-		for (IJavaProject jProject2 : jProjects) {
-			JavaProject jProject = (JavaProject) jProject2;
+		for (IJavaProject p : jProjects) {
+			JavaProject jProject = (JavaProject) p;
 			if (jProject == parentProject) continue; // already done
 			try {
 				entry = jProject.getClasspathEntryFor(rootPath);

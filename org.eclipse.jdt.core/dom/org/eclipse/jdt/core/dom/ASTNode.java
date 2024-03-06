@@ -1760,8 +1760,8 @@ public abstract class ASTNode {
 				// there are no cursors to worry about
 				return;
 			}
-			for (Object element : this.cursors) {
-				Cursor c = (Cursor) element;
+			for (Object cursor : this.cursors) {
+				Cursor c = (Cursor) cursor;
 				c.update(index, delta);
 			}
 		}
@@ -1796,8 +1796,8 @@ public abstract class ASTNode {
 		 */
 		int listSize() {
 			int result = memSize();
-			for (Object element : this) {
-				ASTNode child = (ASTNode) element;
+			for (Object o : this) {
+				ASTNode child = (ASTNode) o;
 				result += child.treeSize();
 			}
 			return result;

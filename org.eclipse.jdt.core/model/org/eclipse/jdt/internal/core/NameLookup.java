@@ -462,8 +462,8 @@ public class NameLookup implements SuffixConstants {
 				return findCompilationUnit(pkgName, cuName, (PackageFragmentRoot) value);
 			} else {
 				IPackageFragmentRoot[] roots = (IPackageFragmentRoot[]) value;
-				for (IPackageFragmentRoot root2 : roots) {
-					PackageFragmentRoot root= (PackageFragmentRoot) root2;
+				for (IPackageFragmentRoot r : roots) {
+					PackageFragmentRoot root= (PackageFragmentRoot) r;
 					ICompilationUnit cu = findCompilationUnit(pkgName, cuName, root);
 					if (cu != null)
 						return cu;
@@ -559,8 +559,8 @@ public class NameLookup implements SuffixConstants {
 								return  ((PackageFragmentRoot) root).getPackageFragment(CharOperation.NO_STRINGS);
 							else {
 								IPackageFragmentRoot[] roots = (IPackageFragmentRoot[]) defaultPkgRoot;
-								for (IPackageFragmentRoot root2 : roots) {
-									if (root2.equals(root)) {
+								for (IPackageFragmentRoot r : roots) {
+									if (r.equals(root)) {
 										return  ((PackageFragmentRoot) root).getPackageFragment(CharOperation.NO_STRINGS);
 									}
 								}
@@ -637,8 +637,8 @@ public class NameLookup implements SuffixConstants {
 							}
 						} else {
 							IPackageFragmentRoot[] roots = (IPackageFragmentRoot[]) value;
-							for (IPackageFragmentRoot root2 : roots) {
-								PackageFragmentRoot root = (PackageFragmentRoot) root2;
+							for (IPackageFragmentRoot r : roots) {
+								PackageFragmentRoot root = (PackageFragmentRoot) r;
 								IPackageFragment pkg = root.getPackageFragment(pkgName);
 								if (oneFragment == null) {
 									oneFragment = new IPackageFragment[] {pkg};
@@ -1269,10 +1269,10 @@ public class NameLookup implements SuffixConstants {
 		} else {
 			IPackageFragmentRoot[] roots = (IPackageFragmentRoot[]) value;
 			if (roots != null) {
-				for (IPackageFragmentRoot root2 : roots) {
+				for (IPackageFragmentRoot r : roots) {
 					if (requestor.isCanceled())
 						return;
-					PackageFragmentRoot root = (PackageFragmentRoot) root2;
+					PackageFragmentRoot root = (PackageFragmentRoot) r;
 					if (moduleMatches(root, moduleContext))
 						requestor.acceptPackageFragment(root.getPackageFragment(pkgName));
 				}
@@ -1313,10 +1313,10 @@ public class NameLookup implements SuffixConstants {
 							requestor.acceptPackageFragment(root.getPackageFragment(pkgName));
 						} else {
 							IPackageFragmentRoot[] roots = (IPackageFragmentRoot[]) value;
-							for (IPackageFragmentRoot root2 : roots) {
+							for (IPackageFragmentRoot r : roots) {
 								if (requestor.isCanceled())
 									return;
-								PackageFragmentRoot root = (PackageFragmentRoot) root2;
+								PackageFragmentRoot root = (PackageFragmentRoot) r;
 								requestor.acceptPackageFragment(root.getPackageFragment(pkgName));
 							}
 						}
@@ -1334,10 +1334,10 @@ public class NameLookup implements SuffixConstants {
 					} else {
 						IPackageFragmentRoot[] roots = (IPackageFragmentRoot[]) value;
 						if (roots != null) {
-							for (IPackageFragmentRoot root2 : roots) {
+							for (IPackageFragmentRoot r : roots) {
 								if (requestor.isCanceled())
 									return;
-								PackageFragmentRoot root = (PackageFragmentRoot) root2;
+								PackageFragmentRoot root = (PackageFragmentRoot) r;
 								requestor.acceptPackageFragment(root.getPackageFragment(pkgName));
 							}
 						}

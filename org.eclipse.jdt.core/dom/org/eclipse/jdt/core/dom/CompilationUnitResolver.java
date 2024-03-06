@@ -1376,8 +1376,8 @@ class CompilationUnitResolver extends Compiler {
 			return false; // must process at least this many units before checking to see if all are done
 
 		Object[] sources = this.requestedSources.valueTable;
-		for (Object element : sources)
-			if (element != null) return false;
+		for (Object source : sources)
+			if (source != null) return false;
 		Object[] keys = this.requestedKeys.valueTable;
 		for (Object key : keys)
 			if (key != null) return false;

@@ -566,8 +566,8 @@ public class JavaProject
 
 		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 		boolean isInitialProject = referringEntry == null;
-		for (IClasspathEntry element : resolvedClasspath) {
-			ClasspathEntry entry = (ClasspathEntry) element;
+		for (IClasspathEntry cpe : resolvedClasspath) {
+			ClasspathEntry entry = (ClasspathEntry) cpe;
 			if (excludeTestCode && entry.isTest()) {
 				continue;
 			}
@@ -1070,9 +1070,9 @@ public class JavaProject
 		if (referringEntry == null){
 			rootIDs.add(rootID());
 		}
-		for (IClasspathEntry element : resolvedClasspath) {
+		for (IClasspathEntry cpe : resolvedClasspath) {
 			computePackageFragmentRoots(
-				element,
+				cpe,
 				accumulatedRoots,
 				rootIDs,
 				referringEntry,
@@ -1378,8 +1378,8 @@ public class JavaProject
 		XMLWriter xmlWriter = new XMLWriter(writer, this, true/*print XML version*/);
 
 		xmlWriter.startTag(ClasspathEntry.TAG_CLASSPATH, indent);
-		for (IClasspathEntry element : classpath) {
-			((ClasspathEntry)element).elementEncode(xmlWriter, this.project.getFullPath(), indent, true, unknownElements, false);
+		for (IClasspathEntry cpe : classpath) {
+			((ClasspathEntry)cpe).elementEncode(xmlWriter, this.project.getFullPath(), indent, true, unknownElements, false);
 		}
 
 		if (outputLocation != null) {
@@ -1582,8 +1582,8 @@ public class JavaProject
 	public IPackageFragmentRoot[] findPackageFragmentRoots(IClasspathEntry entry) {
 		try {
 			IClasspathEntry[] classpath = getRawClasspath();
-			for (IClasspathEntry element : classpath) {
-				if (element.equals(entry)) { // entry may need to be resolved
+			for (IClasspathEntry cpe : classpath) {
+				if (cpe.equals(entry)) { // entry may need to be resolved
 					return
 						computePackageFragmentRoots(
 							resolveClasspath(new IClasspathEntry[] {entry}),
@@ -2684,8 +2684,8 @@ public class JavaProject
 			return false; // Perhaps, not a Java project
 		}
 
-		for (IClasspathEntry element2 : resolvedClasspath) {
-			if (isOnClasspathEntry(elementPath, isFolderPath, isPackageFragmentRoot, element2))
+		for (IClasspathEntry cpe : resolvedClasspath) {
+			if (isOnClasspathEntry(elementPath, isFolderPath, isPackageFragmentRoot, cpe))
 				return true;
 		}
 

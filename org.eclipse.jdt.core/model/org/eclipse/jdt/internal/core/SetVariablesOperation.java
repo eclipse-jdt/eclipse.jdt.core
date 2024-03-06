@@ -96,8 +96,10 @@ public class SetVariablesOperation extends ChangeClasspathOperation {
 				return;
 
 			IJavaProject[] projects = model.getJavaProjects();
-			nextProject : for (IJavaProject project2 : projects) {
-				JavaProject project = (JavaProject) project2;
+
+			nextProject:
+			for (IJavaProject p : projects) {
+				JavaProject project = (JavaProject) p;
 
 				// check to see if any of the modified variables is present on the classpath
 				IClasspathEntry[] classpath = project.getRawClasspath();

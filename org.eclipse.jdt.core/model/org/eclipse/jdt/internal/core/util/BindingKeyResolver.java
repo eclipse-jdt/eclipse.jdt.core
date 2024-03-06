@@ -410,8 +410,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 		if (this.typeBinding == null)
 			return;
 		MethodBinding[] methods = ((ReferenceBinding) this.typeBinding).availableMethods(); // resilience
-	 	for (MethodBinding method2 : methods) {
-			MethodBinding method = method2;
+	 	for (MethodBinding method : methods) {
 			if (CharOperation.equals(selector, method.selector) || (selector.length == 0 && method.isConstructor())) {
 				char[] methodSignature = method.genericSignature();
 				if (methodSignature == null)

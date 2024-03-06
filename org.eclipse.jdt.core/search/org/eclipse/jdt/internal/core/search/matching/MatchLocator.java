@@ -748,8 +748,8 @@ protected boolean createHierarchyResolver(IType focusType, PossibleMatch[] possi
 	// cache focus type if not a possible match
 	char[][] compoundName = CharOperation.splitOn('.', focusType.getFullyQualifiedName().toCharArray());
 	boolean isPossibleMatch = false;
-	for (PossibleMatch element : possibleMatches) {
-		if (CharOperation.equals(element.compoundName, compoundName)) {
+	for (PossibleMatch possibleMatch : possibleMatches) {
+		if (CharOperation.equals(possibleMatch.compoundName, compoundName)) {
 			isPossibleMatch = true;
 			break;
 		}
@@ -1613,8 +1613,8 @@ protected void locatePackageDeclarations(SearchPattern searchPattern, SearchPart
 	}
 	if (searchPattern instanceof OrPattern) {
 		SearchPattern[] patterns = ((OrPattern) searchPattern).patterns;
-		for (SearchPattern pattern2 : patterns) {
-			locatePackageDeclarations(pattern2, participant, projects);
+		for (SearchPattern p : patterns) {
+			locatePackageDeclarations(p, participant, projects);
 		}
 	} else if (searchPattern instanceof PackageDeclarationPattern) {
 		IJavaElement focus = searchPattern.focus;
@@ -1782,8 +1782,8 @@ public FieldReferenceMatch newFieldReferenceMatch(
 			char[] lastToken = tokens[tokens.length-1];
 			if (this.pattern instanceof OrPattern) {
 				SearchPattern[] patterns = ((OrPattern) this.pattern).patterns;
-				for (SearchPattern pattern2 : patterns) {
-					if (!this.patternLocator.matchesName(((VariablePattern)pattern2).name, lastToken)) {
+				for (SearchPattern p : patterns) {
+					if (!this.patternLocator.matchesName(((VariablePattern)p).name, lastToken)) {
 			        	isWriteAccess = false;
 			        	isReadAccess = true;
 					}
@@ -1821,8 +1821,8 @@ public SearchMatch newLocalVariableReferenceMatch(
 			char[] lastToken = tokens[tokens.length-1];
 			if (this.pattern instanceof OrPattern) {
 				SearchPattern[] patterns = ((OrPattern) this.pattern).patterns;
-				for (SearchPattern pattern2 : patterns) {
-					if (!this.patternLocator.matchesName(((VariablePattern)pattern2).name, lastToken)) {
+				for (SearchPattern p : patterns) {
+					if (!this.patternLocator.matchesName(((VariablePattern)p).name, lastToken)) {
 			        	isWriteAccess = false;
 			        	isReadAccess = true;
 					}
@@ -2072,8 +2072,7 @@ protected void purgeMethodStatements(TypeDeclaration type, boolean checkEachMeth
 	AbstractMethodDeclaration[] methods = type.methods;
 	if (methods != null) {
 		if (checkEachMethod) {
-			for (AbstractMethodDeclaration method2 : methods) {
-				AbstractMethodDeclaration method = method2;
+			for (AbstractMethodDeclaration method : methods) {
 				if (!this.currentPossibleMatch.nodeSet.hasPossibleNodes(method.declarationSourceStart, method.declarationSourceEnd)) {
 					if (this.sourceStartOfMethodToRetain != method.declarationSourceStart || this.sourceEndOfMethodToRetain != method.declarationSourceEnd) { // approximate, but no big deal
 						method.statements = null;
@@ -2082,8 +2081,7 @@ protected void purgeMethodStatements(TypeDeclaration type, boolean checkEachMeth
 				}
 			}
 		} else {
-			for (AbstractMethodDeclaration method2 : methods) {
-				AbstractMethodDeclaration method = method2;
+			for (AbstractMethodDeclaration method : methods) {
 				if (this.sourceStartOfMethodToRetain != method.declarationSourceStart || this.sourceEndOfMethodToRetain != method.declarationSourceEnd) { // approximate, but no big deal
 					method.statements = null;
 					method.javadoc = null;
@@ -2785,8 +2783,8 @@ protected void reportMatching(CompilationUnitDeclaration unit, boolean mustResol
 		this.unitScope= unit.scope.compilationUnitScope();
 		// move the possible matching nodes that exactly match the search pattern to the matching nodes set
 		Object[] nodes = nodeSet.possibleMatchingNodesSet.values;
-		for (Object node2 : nodes) {
-			ASTNode node = (ASTNode) node2;
+		for (Object o : nodes) {
+			ASTNode node = (ASTNode) o;
 			if (node == null) continue;
 			if (node instanceof ImportReference) {
 				// special case for import refs: they don't know their binding
