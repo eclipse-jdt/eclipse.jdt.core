@@ -18,7 +18,6 @@ package org.eclipse.jdt.internal.core;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.jdt.core.IBuffer;
@@ -192,8 +191,8 @@ public class SortElementsOperation extends JavaModelOperation {
 			public boolean visit(org.eclipse.jdt.core.dom.CompilationUnit compilationUnit) {
 				List types = compilationUnit.types();
 				boolean contains_malformed_nodes = false;
-				for (Iterator iter = types.iterator(); iter.hasNext();) {
-					AbstractTypeDeclaration typeDeclaration = (AbstractTypeDeclaration) iter.next();
+				for (Object type : types) {
+					AbstractTypeDeclaration typeDeclaration = (AbstractTypeDeclaration) type;
 					typeDeclaration.setProperty(CompilationUnitSorter.RELATIVE_ORDER, Integer.valueOf(typeDeclaration.getStartPosition()));
 					contains_malformed_nodes |= isMalformed(typeDeclaration);
 				}
@@ -204,8 +203,8 @@ public class SortElementsOperation extends JavaModelOperation {
 			public boolean visit(AnnotationTypeDeclaration annotationTypeDeclaration) {
 				List bodyDeclarations = annotationTypeDeclaration.bodyDeclarations();
 				boolean contains_malformed_nodes = false;
-				for (Iterator iter = bodyDeclarations.iterator(); iter.hasNext();) {
-					BodyDeclaration bodyDeclaration = (BodyDeclaration) iter.next();
+				for (Object bodyDeclaration2 : bodyDeclarations) {
+					BodyDeclaration bodyDeclaration = (BodyDeclaration) bodyDeclaration2;
 					bodyDeclaration.setProperty(CompilationUnitSorter.RELATIVE_ORDER, Integer.valueOf(bodyDeclaration.getStartPosition()));
 					contains_malformed_nodes |= isMalformed(bodyDeclaration);
 				}
@@ -217,8 +216,8 @@ public class SortElementsOperation extends JavaModelOperation {
 			public boolean visit(AnonymousClassDeclaration anonymousClassDeclaration) {
 				List bodyDeclarations = anonymousClassDeclaration.bodyDeclarations();
 				boolean contains_malformed_nodes = false;
-				for (Iterator iter = bodyDeclarations.iterator(); iter.hasNext();) {
-					BodyDeclaration bodyDeclaration = (BodyDeclaration) iter.next();
+				for (Object bodyDeclaration2 : bodyDeclarations) {
+					BodyDeclaration bodyDeclaration = (BodyDeclaration) bodyDeclaration2;
 					bodyDeclaration.setProperty(CompilationUnitSorter.RELATIVE_ORDER, Integer.valueOf(bodyDeclaration.getStartPosition()));
 					contains_malformed_nodes |= isMalformed(bodyDeclaration);
 				}
@@ -230,8 +229,8 @@ public class SortElementsOperation extends JavaModelOperation {
 			public boolean visit(TypeDeclaration typeDeclaration) {
 				List bodyDeclarations = typeDeclaration.bodyDeclarations();
 				boolean contains_malformed_nodes = false;
-				for (Iterator iter = bodyDeclarations.iterator(); iter.hasNext();) {
-					BodyDeclaration bodyDeclaration = (BodyDeclaration) iter.next();
+				for (Object bodyDeclaration2 : bodyDeclarations) {
+					BodyDeclaration bodyDeclaration = (BodyDeclaration) bodyDeclaration2;
 					bodyDeclaration.setProperty(CompilationUnitSorter.RELATIVE_ORDER, Integer.valueOf(bodyDeclaration.getStartPosition()));
 					contains_malformed_nodes |= isMalformed(bodyDeclaration);
 				}
@@ -243,14 +242,14 @@ public class SortElementsOperation extends JavaModelOperation {
 			public boolean visit(EnumDeclaration enumDeclaration) {
 				List bodyDeclarations = enumDeclaration.bodyDeclarations();
 				boolean contains_malformed_nodes = false;
-				for (Iterator iter = bodyDeclarations.iterator(); iter.hasNext();) {
-					BodyDeclaration bodyDeclaration = (BodyDeclaration) iter.next();
+				for (Object bodyDeclaration2 : bodyDeclarations) {
+					BodyDeclaration bodyDeclaration = (BodyDeclaration) bodyDeclaration2;
 					bodyDeclaration.setProperty(CompilationUnitSorter.RELATIVE_ORDER, Integer.valueOf(bodyDeclaration.getStartPosition()));
 					contains_malformed_nodes |= isMalformed(bodyDeclaration);
 				}
 				List enumConstants = enumDeclaration.enumConstants();
-				for (Iterator iter = enumConstants.iterator(); iter.hasNext();) {
-					EnumConstantDeclaration enumConstantDeclaration = (EnumConstantDeclaration) iter.next();
+				for (Object enumConstant : enumConstants) {
+					EnumConstantDeclaration enumConstantDeclaration = (EnumConstantDeclaration) enumConstant;
 					enumConstantDeclaration.setProperty(CompilationUnitSorter.RELATIVE_ORDER, Integer.valueOf(enumConstantDeclaration.getStartPosition()));
 					contains_malformed_nodes |= isMalformed(enumConstantDeclaration);
 				}
@@ -369,8 +368,7 @@ public class SortElementsOperation extends JavaModelOperation {
 		}
 		TextEdit[] children= parent.getChildren();
 		// First dive down to find the right parent.
-		for (int i= 0; i < children.length; i++) {
-			TextEdit child= children[i];
+		for (TextEdit child : children) {
 			if (covers(child, edit)) {
 				insert(child, edit);
 				return;

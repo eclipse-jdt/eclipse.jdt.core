@@ -231,9 +231,9 @@ protected void getHandleMemento(StringBuilder buff) {
 	char delimiter = getHandleMementoDelimiter();
 	buff.append(delimiter);
 	escapeMementoName(buff, getElementName());
-	for (int i = 0; i < this.parameterTypes.length; i++) {
+	for (String parameterType : this.parameterTypes) {
 		buff.append(delimiter);
-		escapeMementoName(buff, this.parameterTypes[i]);
+		escapeMementoName(buff, parameterType);
 	}
 	if (this.getOccurrenceCount() > 1) {
 		buff.append(JEM_COUNT);

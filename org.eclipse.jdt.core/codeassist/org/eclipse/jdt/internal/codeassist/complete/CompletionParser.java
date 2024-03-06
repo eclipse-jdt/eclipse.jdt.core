@@ -5150,8 +5150,8 @@ public TypeReference createQualifiedAssistTypeReference(char[][] previousIdentif
 @Override
 public TypeReference createParameterizedQualifiedAssistTypeReference(char[][] previousIdentifiers, TypeReference[][] typeArguments, char[] assistName, TypeReference[] assistTypeArguments, long[] positions) {
 	boolean isParameterized = false;
-	for (int i = 0; i < typeArguments.length; i++) {
-		if(typeArguments[i] != null) {
+	for (TypeReference[] typeArgument : typeArguments) {
+		if(typeArgument != null) {
 			isParameterized = true;
 			break;
 		}
@@ -5473,8 +5473,8 @@ protected TypeReference getTypeReferenceForGenericType(int dim,	int identifierLe
 		if (identifierLength == 1 && numberOfIdentifiers == 1) {
 			ParameterizedSingleTypeReference singleRef = (ParameterizedSingleTypeReference) ref;
 			TypeReference[] typeArguments = singleRef.typeArguments;
-			for (int i = 0; i < typeArguments.length; i++) {
-				if(typeArguments[i] == this.assistNode) {
+			for (TypeReference typeArgument : typeArguments) {
+				if(typeArgument == this.assistNode) {
 					this.assistNodeParent = ref;
 					return ref;
 				}
@@ -5482,10 +5482,10 @@ protected TypeReference getTypeReferenceForGenericType(int dim,	int identifierLe
 		} else {
 			ParameterizedQualifiedTypeReference qualifiedRef = (ParameterizedQualifiedTypeReference) ref;
 			TypeReference[][] typeArguments = qualifiedRef.typeArguments;
-			for (int i = 0; i < typeArguments.length; i++) {
-				if(typeArguments[i] != null) {
-					for (int j = 0; j < typeArguments[i].length; j++) {
-						if(typeArguments[i][j] == this.assistNode) {
+			for (TypeReference[] typeArgument : typeArguments) {
+				if(typeArgument != null) {
+					for (int j = 0; j < typeArgument.length; j++) {
+						if(typeArgument[j] == this.assistNode) {
 							this.assistNodeParent = ref;
 							return ref;
 						}

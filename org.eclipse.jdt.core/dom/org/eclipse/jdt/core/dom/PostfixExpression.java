@@ -87,8 +87,8 @@ public class PostfixExpression extends Expression {
 					INCREMENT,
 					DECREMENT,
 				};
-			for (int i = 0; i < ops.length; i++) {
-				CODES.put(ops[i].toString(), ops[i]);
+			for (Operator op : ops) {
+				CODES.put(op.toString(), op);
 			}
 		}
 

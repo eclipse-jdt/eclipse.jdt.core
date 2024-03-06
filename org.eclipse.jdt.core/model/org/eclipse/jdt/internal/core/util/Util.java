@@ -392,8 +392,8 @@ public class Util {
 		if (array == null || array.length == 0) return name;
 		if (name == null || name.length() == 0) return concatWith(array, separator);
 		StringBuilder buffer = new StringBuilder();
-		for (int i = 0, length = array.length; i < length; i++) {
-			buffer.append(array[i]);
+		for (String element : array) {
+			buffer.append(element);
 			buffer.append(separator);
 		}
 		buffer.append(name);
@@ -627,8 +627,7 @@ public class Util {
 			}
 		}
 		char[][] javaLikeExtensions = getJavaLikeExtensions();
-		suffixes: for (int i = 0, length = javaLikeExtensions.length; i < length; i++) {
-			char[] suffix = javaLikeExtensions[i];
+		suffixes: for (char[] suffix : javaLikeExtensions) {
 			int extensionStart = stringLength+1;
 			if (extensionStart + suffix.length != fileNameLength) continue;
 			if (fileName.charAt(stringLength) != '.') continue;
@@ -697,8 +696,7 @@ public class Util {
 	private static IFile findFirstClassFile(IFolder folder) {
 		try {
 			IResource[] members = folder.members();
-			for (int i = 0, max = members.length; i < max; i++) {
-				IResource member = members[i];
+			for (IResource member : members) {
 				if (member.getType() == IResource.FOLDER) {
 					return findFirstClassFile((IFolder)member);
 				} else if (org.eclipse.jdt.internal.compiler.util.Util.isClassFileName(member.getName())) {
@@ -737,9 +735,9 @@ public class Util {
 
 	public static IClassFileAttribute getAttribute(IClassFileReader classFileReader, char[] attributeName) {
 		IClassFileAttribute[] attributes = classFileReader.getAttributes();
-		for (int i = 0, max = attributes.length; i < max; i++) {
-			if (CharOperation.equals(attributes[i].getAttributeName(), attributeName)) {
-				return attributes[i];
+		for (IClassFileAttribute attribute : attributes) {
+			if (CharOperation.equals(attribute.getAttributeName(), attributeName)) {
+				return attribute;
 			}
 		}
 		return null;
@@ -747,9 +745,9 @@ public class Util {
 
 	public static IClassFileAttribute getAttribute(ICodeAttribute codeAttribute, char[] attributeName) {
 		IClassFileAttribute[] attributes = codeAttribute.getAttributes();
-		for (int i = 0, max = attributes.length; i < max; i++) {
-			if (CharOperation.equals(attributes[i].getAttributeName(), attributeName)) {
-				return attributes[i];
+		for (IClassFileAttribute attribute : attributes) {
+			if (CharOperation.equals(attribute.getAttributeName(), attributeName)) {
+				return attribute;
 			}
 		}
 		return null;
@@ -757,18 +755,18 @@ public class Util {
 
 	public static IClassFileAttribute getAttribute(IFieldInfo fieldInfo, char[] attributeName) {
 		IClassFileAttribute[] attributes = fieldInfo.getAttributes();
-		for (int i = 0, max = attributes.length; i < max; i++) {
-			if (CharOperation.equals(attributes[i].getAttributeName(), attributeName)) {
-				return attributes[i];
+		for (IClassFileAttribute attribute : attributes) {
+			if (CharOperation.equals(attribute.getAttributeName(), attributeName)) {
+				return attribute;
 			}
 		}
 		return null;
 	}
 	public static IClassFileAttribute getAttribute(IComponentInfo componentInfo, char[] attributeName) {
 		IClassFileAttribute[] attributes = componentInfo.getAttributes();
-		for (int i = 0, max = attributes.length; i < max; i++) {
-			if (CharOperation.equals(attributes[i].getAttributeName(), attributeName)) {
-				return attributes[i];
+		for (IClassFileAttribute attribute : attributes) {
+			if (CharOperation.equals(attribute.getAttributeName(), attributeName)) {
+				return attribute;
 			}
 		}
 		return null;
@@ -776,9 +774,9 @@ public class Util {
 
 	public static IClassFileAttribute getAttribute(IMethodInfo methodInfo, char[] attributeName) {
 		IClassFileAttribute[] attributes = methodInfo.getAttributes();
-		for (int i = 0, max = attributes.length; i < max; i++) {
-			if (CharOperation.equals(attributes[i].getAttributeName(), attributeName)) {
-				return attributes[i];
+		for (IClassFileAttribute attribute : attributes) {
+			if (CharOperation.equals(attribute.getAttributeName(), attributeName)) {
+				return attribute;
 			}
 		}
 		return null;
@@ -833,11 +831,11 @@ public class Util {
 			HashSet fileExtensions = new HashSet();
 			// content types derived from java content type should be included (https://bugs.eclipse.org/bugs/show_bug.cgi?id=121715)
 			IContentType[] contentTypes = Platform.getContentTypeManager().getAllContentTypes();
-			for (int i = 0, length = contentTypes.length; i < length; i++) {
-				if (contentTypes[i].isKindOf(javaContentType)) { // note that javaContentType.isKindOf(javaContentType) == true
-					String[] fileExtension = contentTypes[i].getFileSpecs(IContentType.FILE_EXTENSION_SPEC);
-					for (int j = 0, length2 = fileExtension.length; j < length2; j++) {
-						fileExtensions.add(fileExtension[j]);
+			for (IContentType contentType : contentTypes) {
+				if (contentType.isKindOf(javaContentType)) { // note that javaContentType.isKindOf(javaContentType) == true
+					String[] fileExtension = contentType.getFileSpecs(IContentType.FILE_EXTENSION_SPEC);
+					for (String element : fileExtension) {
+						fileExtensions.add(element);
 					}
 				}
 			}
@@ -1374,8 +1372,7 @@ public class Util {
 			if (!(type instanceof IType))
 				return null;
 			IInitializer[] initializers = ((IType) type).getInitializers();
-			for (int i = 0; i < initializers.length; i++) {
-				IInitializer initializer = initializers[i];
+			for (IInitializer initializer : initializers) {
 				ISourceRange sourceRange = initializer.getSourceRange();
 				if (sourceRange != null) {
 					int initializerStart = sourceRange.getOffset();
@@ -1596,8 +1593,7 @@ public class Util {
 	public static int indexOfJavaLikeExtension(String fileName) {
 		int fileNameLength = fileName.length();
 		char[][] javaLikeExtensions = getJavaLikeExtensions();
-		extensions: for (int i = 0, length = javaLikeExtensions.length; i < length; i++) {
-			char[] extension = javaLikeExtensions[i];
+		extensions: for (char[] extension : javaLikeExtensions) {
 			int extensionLength = extension.length;
 			int extensionStart = fileNameLength - extensionLength;
 			int dotIndex = extensionStart - 1;
@@ -2465,8 +2461,8 @@ public class Util {
 	public static String toString(char[][] c, char[] d) {
 		if (c == null) return new String(d);
 		StringBuilder sb = new StringBuilder();
-		for (int i = 0, max = c.length; i < max; ++i) {
-			sb.append(c[i]);
+		for (char[] element : c) {
+			sb.append(element);
 			sb.append('.');
 		}
 		sb.append(d);
@@ -2770,8 +2766,7 @@ public class Util {
 		if (fileName == null) return false;
 		int fileNameLength = fileName.length;
 		char[][] javaLikeExtensions = getJavaLikeExtensions();
-		extensions: for (int i = 0, length = javaLikeExtensions.length; i < length; i++) {
-			char[] extension = javaLikeExtensions[i];
+		extensions: for (char[] extension : javaLikeExtensions) {
 			int extensionLength = extension.length;
 			int extensionStart = fileNameLength - extensionLength;
 			if (extensionStart-1 < 0) continue;

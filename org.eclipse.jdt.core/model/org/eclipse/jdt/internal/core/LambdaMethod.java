@@ -103,8 +103,8 @@ public class LambdaMethod extends SourceMethod {
 		appendEscapedDelimiter(buff, JEM_STRING);
 		escapeMementoName(buff, this.key);
 		ILocalVariable[] arguments = this.elementInfo.arguments;
-		for (int i = 0, length = arguments.length; i < length; i++) {
-			LocalVariable local = (LocalVariable) arguments[i];
+		for (ILocalVariable argument : arguments) {
+			LocalVariable local = (LocalVariable) argument;
 			local.getHandleMemento(buff, false);
 		}
 	}

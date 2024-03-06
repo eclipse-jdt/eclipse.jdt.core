@@ -112,8 +112,7 @@ public class DeleteElementsOperation extends MultiOperation {
 	protected void groupElements() throws JavaModelException {
 		this.childrenToRemove = new HashMap(1);
 		int uniqueCUs = 0;
-		for (int i = 0, length = this.elementsToProcess.length; i < length; i++) {
-			IJavaElement e = this.elementsToProcess[i];
+		for (IJavaElement e : this.elementsToProcess) {
 			ICompilationUnit cu = getCompilationUnitFor(e);
 			if (cu == null) {
 				throw new JavaModelException(new JavaModelStatus(IJavaModelStatusConstants.READ_ONLY, e));
@@ -148,8 +147,7 @@ public class DeleteElementsOperation extends MultiOperation {
 
 		JavaElementDelta delta = new JavaElementDelta(cu);
 		IJavaElement[] cuElements = ((IRegion) this.childrenToRemove.get(cu)).getElements();
-		for (int i = 0, length = cuElements.length; i < length; i++) {
-			IJavaElement e = cuElements[i];
+		for (IJavaElement e : cuElements) {
 			if (e.exists()) {
 				deleteElement(e, cu);
 				delta.removed(e);
@@ -185,8 +183,7 @@ public class DeleteElementsOperation extends MultiOperation {
 	@Override
 	protected void verify(IJavaElement element) throws JavaModelException {
 		IJavaElement[] children = ((IRegion) this.childrenToRemove.get(element)).getElements();
-		for (int i = 0; i < children.length; i++) {
-			IJavaElement child = children[i];
+		for (IJavaElement child : children) {
 			if (child.getCorrespondingResource() != null)
 				error(IJavaModelStatusConstants.INVALID_ELEMENT_TYPES, child);
 

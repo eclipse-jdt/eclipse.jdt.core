@@ -445,8 +445,8 @@ public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaMo
 	public int getSeverity() {
 		if (this.children == NO_CHILDREN) return super.getSeverity();
 		int severity = -1;
-		for (int i = 0, max = this.children.length; i < max; i++) {
-			int childrenSeverity = this.children[i].getSeverity();
+		for (IStatus child : this.children) {
+			int childrenSeverity = child.getSeverity();
 			if (childrenSeverity > severity) {
 				severity = childrenSeverity;
 			}
@@ -491,8 +491,8 @@ public class JavaModelStatus extends Status implements IJavaModelStatus, IJavaMo
 		if (! isMultiStatus()) {
 			return matches(this, mask);
 		} else {
-			for (int i = 0, max = this.children.length; i < max; i++) {
-				if (matches((JavaModelStatus) this.children[i], mask))
+			for (IStatus child : this.children) {
+				if (matches((JavaModelStatus) child, mask))
 					return true;
 			}
 			return false;

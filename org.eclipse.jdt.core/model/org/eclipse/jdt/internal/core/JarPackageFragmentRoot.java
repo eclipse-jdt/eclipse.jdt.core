@@ -174,8 +174,8 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 			// and cache the entry names in the rawPackageInfo table
 			children = new IJavaElement[rawPackageInfo.size()];
 			int index = 0;
-			for (int i = 0, length = rawPackageInfo.keyTable.length; i < length; i++) {
-				String[] pkgName = (String[]) rawPackageInfo.keyTable[i];
+			for (Object[] element : rawPackageInfo.keyTable) {
+				String[] pkgName = (String[]) element;
 				if (pkgName == null) continue;
 				children[index++] = getPackageFragment(pkgName);
 			}
@@ -201,8 +201,8 @@ public class JarPackageFragmentRoot extends PackageFragmentRoot {
 		// and cache the entry names in the rawPackageInfo table
 		children = new IJavaElement[rawPackageInfo.size()];
 		int index = 0;
-		for (int i = 0, length = rawPackageInfo.keyTable.length; i < length; i++) {
-			String[] pkgName = (String[]) rawPackageInfo.keyTable[i];
+		for (Object[] element : rawPackageInfo.keyTable) {
+			String[] pkgName = (String[]) element;
 			if (pkgName == null) continue;
 			children[index++] = getPackageFragment(pkgName);
 		}

@@ -118,25 +118,23 @@ SimpleSet addDocumentNames(String substring, MemoryIndex memoryIndex) throws IOE
 	SimpleSet results = new SimpleSet(docNames.length);
 	if (substring == null) {
 		if (memoryIndex == null) {
-			for (int i = 0, l = docNames.length; i < l; i++)
-				results.add(docNames[i]);
+			for (String docName : docNames)
+				results.add(docName);
 		} else {
 			SimpleLookupTable docsToRefs = memoryIndex.docsToReferences;
-			for (int i = 0, l = docNames.length; i < l; i++) {
-				String docName = docNames[i];
+			for (String docName : docNames) {
 				if (!docsToRefs.containsKey(docName))
 					results.add(docName);
 			}
 		}
 	} else {
 		if (memoryIndex == null) {
-			for (int i = 0, l = docNames.length; i < l; i++)
-				if (docNames[i].startsWith(substring, 0))
-					results.add(docNames[i]);
+			for (String docName : docNames)
+				if (docName.startsWith(substring, 0))
+					results.add(docName);
 		} else {
 			SimpleLookupTable docsToRefs = memoryIndex.docsToReferences;
-			for (int i = 0, l = docNames.length; i < l; i++) {
-				String docName = docNames[i];
+			for (String docName : docNames) {
 				if (docName.startsWith(substring, 0) && !docsToRefs.containsKey(docName))
 					results.add(docName);
 			}
@@ -158,8 +156,8 @@ private HashtableOfObject addQueryResult(HashtableOfObject results, char[] word,
 		SimpleLookupTable docsToRefs = memoryIndex.docsToReferences;
 		if (result == null) result = new EntryResult(word, null);
 		int[] docNumbers = readDocumentNumbers(docs);
-		for (int i = 0, l = docNumbers.length; i < l; i++) {
-			String docName = readDocumentName(docNumbers[i]);
+		for (int docNumber : docNumbers) {
+			String docName = readDocumentName(docNumber);
 			if (!docsToRefs.containsKey(docName))
 				result.addDocumentName(docName);
 		}
@@ -178,8 +176,8 @@ HashtableOfObject addQueryResults(char[][] categories, char[] key, int matchRule
 	// first category table or if the first category tables doesn't have any results.
 	boolean prevResults = false;
 	if (key == null) {
-		for (int i = 0, l = categories.length; i < l; i++) {
-			HashtableOfObject wordsToDocNumbers = readCategoryTable(categories[i], true); // cache if key is null since its a definite match
+		for (char[] element : categories) {
+			HashtableOfObject wordsToDocNumbers = readCategoryTable(element, true); // cache if key is null since its a definite match
 			if (wordsToDocNumbers != null) {
 				char[][] words = wordsToDocNumbers.keyTable;
 				Object[] values = wordsToDocNumbers.valueTable;
@@ -196,8 +194,8 @@ HashtableOfObject addQueryResults(char[][] categories, char[] key, int matchRule
 	} else {
 		switch (matchRule) {
 			case SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE:
-				for (int i = 0, l = categories.length; i < l; i++) {
-					HashtableOfObject wordsToDocNumbers = readCategoryTable(categories[i], false);
+				for (char[] element : categories) {
+					HashtableOfObject wordsToDocNumbers = readCategoryTable(element, false);
 					Object value;
 					if (wordsToDocNumbers != null && (value = wordsToDocNumbers.get(key)) != null)
 						results = addQueryResult(results, key, value, memoryIndex, prevResults);
@@ -205,8 +203,8 @@ HashtableOfObject addQueryResults(char[][] categories, char[] key, int matchRule
 				}
 				break;
 			case SearchPattern.R_PREFIX_MATCH | SearchPattern.R_CASE_SENSITIVE:
-				for (int i = 0, l = categories.length; i < l; i++) {
-					HashtableOfObject wordsToDocNumbers = readCategoryTable(categories[i], false);
+				for (char[] element : categories) {
+					HashtableOfObject wordsToDocNumbers = readCategoryTable(element, false);
 					if (wordsToDocNumbers != null) {
 						char[][] words = wordsToDocNumbers.keyTable;
 						Object[] values = wordsToDocNumbers.valueTable;
@@ -221,8 +219,8 @@ HashtableOfObject addQueryResults(char[][] categories, char[] key, int matchRule
 				break;
 			case SearchPattern.R_REGEXP_MATCH:
 				Pattern pattern = Pattern.compile(new String(key));
-				for (int i = 0, l = categories.length; i < l; i++) {
-					HashtableOfObject wordsToDocNumbers = readCategoryTable(categories[i], false);
+				for (char[] element : categories) {
+					HashtableOfObject wordsToDocNumbers = readCategoryTable(element, false);
 					if (wordsToDocNumbers != null) {
 						char[][] words = wordsToDocNumbers.keyTable;
 						Object[] values = wordsToDocNumbers.valueTable;
@@ -236,8 +234,8 @@ HashtableOfObject addQueryResults(char[][] categories, char[] key, int matchRule
 				}
 				break;
 			default:
-				for (int i = 0, l = categories.length; i < l; i++) {
-					HashtableOfObject wordsToDocNumbers = readCategoryTable(categories[i], false);
+				for (char[] element : categories) {
+					HashtableOfObject wordsToDocNumbers = readCategoryTable(element, false);
 					if (wordsToDocNumbers != null) {
 						char[][] words = wordsToDocNumbers.keyTable;
 						Object[] values = wordsToDocNumbers.valueTable;
@@ -290,9 +288,9 @@ private String[] computeDocumentNames(String[] onDiskNames, int[] positions, Sim
 		String[] newDocNames = new String[indexedDocuments.elementSize];
 		int count = 0;
 		Object[] added = indexedDocuments.keyTable;
-		for (int i = 0, l = added.length; i < l; i++)
-			if (added[i] != null)
-				newDocNames[count++] = (String) added[i];
+		for (Object element : added)
+			if (element != null)
+				newDocNames[count++] = (String) element;
 		Util.sort(newDocNames);
 		for (int i = 0, l = newDocNames.length; i < l; i++)
 			indexedDocuments.put(newDocNames[i], Integer.valueOf(i));
@@ -333,9 +331,9 @@ private String[] computeDocumentNames(String[] onDiskNames, int[] positions, Sim
 			if (positions[i] >= RE_INDEXED)
 				newDocNames[count++] = onDiskNames[i]; // keep each unchanged document
 		Object[] added = indexedDocuments.keyTable;
-		for (int i = 0, l = added.length; i < l; i++)
-			if (added[i] != null)
-				newDocNames[count++] = (String) added[i]; // add each new document
+		for (Object element : added)
+			if (element != null)
+				newDocNames[count++] = (String) element; // add each new document
 		Util.sort(newDocNames);
 		for (int i = 0, l = newDocNames.length; i < l; i++)
 			if (indexedDocuments.containsKey(newDocNames[i]))
@@ -377,8 +375,7 @@ private void copyQueryResults(HashtableOfObject categoryToWords, int newPosition
 				this.categoryTables.put(categoryName, wordsToDocs = new HashtableOfObject(wordSet.elementSize));
 
 			char[][] words = wordSet.words;
-			for (int j = 0, m = words.length; j < m; j++) {
-				char[] word = words[j];
+			for (char[] word : words) {
 				if (word != null) {
 					Object o = wordsToDocs.get(word);
 					if (o == null) {
@@ -464,16 +461,15 @@ private void initializeFrom(DiskIndex diskIndex, File newIndexFile) throws IOExc
 private void mergeCategories(DiskIndex onDisk, int[] positions, FileOutputStream stream) throws IOException {
 	// at this point, this.categoryTables contains the names -> wordsToDocs added in copyQueryResults()
 	char[][] oldNames = onDisk.categoryOffsets.keyTable;
-	for (int i = 0, l = oldNames.length; i < l; i++) {
-		char[] oldName = oldNames[i];
+	for (char[] oldName : oldNames) {
 		if (oldName != null && !this.categoryTables.containsKey(oldName))
 			this.categoryTables.put(oldName, null);
 	}
 
 	char[][] categoryNames = this.categoryTables.keyTable;
-	for (int i = 0, l = categoryNames.length; i < l; i++)
-		if (categoryNames[i] != null)
-			mergeCategory(categoryNames[i], onDisk, positions, stream);
+	for (char[] categoryName : categoryNames)
+		if (categoryName != null)
+			mergeCategory(categoryName, onDisk, positions, stream);
 	this.categoryTables = null;
 }
 private void mergeCategory(char[] categoryName, DiskIndex onDisk, int[] positions, FileOutputStream stream) throws IOException {

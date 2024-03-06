@@ -103,8 +103,8 @@ protected AbstractImageBuilder(JavaBuilder javaBuilder, boolean buildStarting, S
 		this.problemSourceFiles = new LinkedHashSet(3);
 
 		if (this.javaBuilder.participants != null) {
-			for (int i = 0, l = this.javaBuilder.participants.length; i < l; i++) {
-				if (this.javaBuilder.participants[i].isAnnotationProcessor()) {
+			for (CompilationParticipant participant : this.javaBuilder.participants) {
+				if (participant.isAnnotationProcessor()) {
 					// initialize this set so the builder knows to gather CUs that define Annotation types
 					// each Annotation processor participant is then asked to process these files AFTER
 					// the compile loop. The normal dependency loop will then recompile all affected types
@@ -242,8 +242,7 @@ protected void acceptSecondaryType(ClassFile classFile) {
 	// noop
 }
 protected void addAllSourceFiles(final LinkedHashSet<SourceFile> sourceFiles) throws CoreException {
-	for (int i = 0, l = this.sourceLocations.length; i < l; i++) {
-		final ClasspathMultiDirectory sourceLocation = this.sourceLocations[i];
+	for (final ClasspathMultiDirectory sourceLocation : this.sourceLocations) {
 		final char[][] exclusionPatterns = sourceLocation.exclusionPatterns;
 		final char[][] inclusionPatterns = sourceLocation.inclusionPatterns;
 		final boolean isAlsoProject = sourceLocation.sourceFolder.equals(this.javaBuilder.currentProject);
@@ -475,9 +474,9 @@ protected SourceFile findSourceFile(IFile file, boolean mustExist) {
 	ClasspathMultiDirectory md = null;
 	if (this.sourceLocations.length > 0) {
 		IPath sourceFileFullPath = file.getFullPath();
-		for (int j = 0, m = this.sourceLocations.length; j < m; j++) {
-			if (this.sourceLocations[j].sourceFolder.getFullPath().isPrefixOf(sourceFileFullPath)) {
-				md = this.sourceLocations[j];
+		for (ClasspathMultiDirectory sourceLocation : this.sourceLocations) {
+			if (sourceLocation.sourceFolder.getFullPath().isPrefixOf(sourceFileFullPath)) {
+				md = sourceLocation;
 				if (md.exclusionPatterns == null && md.inclusionPatterns == null)
 					break;
 				if (!Util.isExcluded(file, md.inclusionPatterns, md.exclusionPatterns))
@@ -496,8 +495,8 @@ protected void finishedWith(String sourceLocator, CompilationResult result, char
 
 	char[][] simpleRefs = result.simpleNameReferences;
 	// for each duplicate type p1.p2.A, add the type name A (package was already added)
-	next : for (int i = 0, l = duplicateTypeNames.size(); i < l; i++) {
-		char[][] compoundName = (char[][]) duplicateTypeNames.get(i);
+	next : for (Object duplicateTypeName : duplicateTypeNames) {
+		char[][] compoundName = (char[][]) duplicateTypeName;
 		char[] typeName = compoundName[compoundName.length - 1];
 		int sLength = simpleRefs.length;
 		for (int j = 0; j < sLength; j++)
@@ -545,9 +544,9 @@ protected boolean isExcludedFromProject(IPath childPath) throws JavaModelExcepti
 	// answer whether the folder should be ignored when walking the project as a source folder
 	if (childPath.segmentCount() > 2) return false; // is a subfolder of a package
 
-	for (int j = 0, k = this.sourceLocations.length; j < k; j++) {
-		if (childPath.equals(this.sourceLocations[j].binaryFolder.getFullPath())) return true;
-		if (childPath.equals(this.sourceLocations[j].sourceFolder.getFullPath())) return true;
+	for (ClasspathMultiDirectory sourceLocation : this.sourceLocations) {
+		if (childPath.equals(sourceLocation.binaryFolder.getFullPath())) return true;
+		if (childPath.equals(sourceLocation.sourceFolder.getFullPath())) return true;
 	}
 	// skip default output folder which may not be used by any source folder
 	return childPath.equals(this.javaBuilder.javaProject.getOutputLocation());
@@ -605,8 +604,8 @@ protected CompilationParticipantResult[] notifyParticipants(SourceFile[] unitsAb
 	// TODO (kent) do we expect to have more than one participant?
 	// and if so should we pass the generated files from the each processor to the others to process?
 	// and what happens if some participants do not expect to be called with only a few files, after seeing 'all' the files?
-	for (int i = 0, l = this.javaBuilder.participants.length; i < l; i++)
-		this.javaBuilder.participants[i].buildStarting(results, this instanceof BatchImageBuilder);
+	for (CompilationParticipant participant : this.javaBuilder.participants)
+		participant.buildStarting(results, this instanceof BatchImageBuilder);
 
 	SimpleSet uniqueFiles = null;
 	CompilationParticipantResult[] toAdd = null;
@@ -668,9 +667,9 @@ protected void processAnnotations(CompilationParticipantResult[] results) {
 	}
 
 	// even if no files have annotations, must still tell every annotation processor in case the file used to have them
-	for (int i = 0, l = this.javaBuilder.participants.length; i < l; i++)
-		if (this.javaBuilder.participants[i].isAnnotationProcessor())
-			this.javaBuilder.participants[i].processAnnotations(results);
+	for (CompilationParticipant participant : this.javaBuilder.participants)
+		if (participant.isAnnotationProcessor())
+			participant.processAnnotations(results);
 	processAnnotationResults(results);
 }
 
@@ -718,8 +717,7 @@ protected void storeProblemsFor(SourceFile sourceFile, CategorizedProblem[] prob
 	if (!this.keepStoringProblemMarkers) return; // only want the one error recorded on this source file
 
 	HashSet managedMarkerTypes = JavaModelManager.getJavaModelManager().compilationParticipants.managedMarkerTypes();
-	problems: for (int i = 0, l = problems.length; i < l; i++) {
-		CategorizedProblem problem = problems[i];
+	problems: for (CategorizedProblem problem : problems) {
 		int id = problem.getID();
 		// we may use a different resource for certain problems such as IProblem.MissingNonNullByDefaultAnnotationOnPackage
 		// but at the start of the next problem we should reset it to the source file's resource
@@ -840,8 +838,7 @@ protected void storeTasksFor(SourceFile sourceFile, CategorizedProblem[] tasks) 
 	if (sourceFile == null || tasks == null || tasks.length == 0) return;
 
 	IResource resource = sourceFile.resource;
-	for (int i = 0, l = tasks.length; i < l; i++) {
-		CategorizedProblem task = tasks[i];
+	for (CategorizedProblem task : tasks) {
 		if (task.getID() == IProblem.Task) {
 			Integer priority = P_NORMAL;
 			String compilerPriority = task.getArguments()[2];

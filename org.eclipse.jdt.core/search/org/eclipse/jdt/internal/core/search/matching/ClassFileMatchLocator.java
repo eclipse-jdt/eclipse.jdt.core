@@ -106,8 +106,7 @@ private  boolean checkAnnotation(IBinaryAnnotation annotation, TypeReferencePatt
 	}
 	IBinaryElementValuePair[] valuePairs = annotation.getElementValuePairs();
 	if (valuePairs != null) {
-		for (int j=0, vpLength=valuePairs.length; j<vpLength; j++) {
-			IBinaryElementValuePair valuePair = valuePairs[j];
+		for (IBinaryElementValuePair valuePair : valuePairs) {
 			Object pairValue = valuePair.getValue();
 			if (pairValue instanceof IBinaryAnnotation) {
 				if (checkAnnotation((IBinaryAnnotation) pairValue, pattern)) {
@@ -120,8 +119,7 @@ private  boolean checkAnnotation(IBinaryAnnotation annotation, TypeReferencePatt
 }
 private boolean checkAnnotations(TypeReferencePattern pattern, IBinaryAnnotation[] annotations, long tagBits) {
 	if (annotations != null) {
-		for (int a=0, length=annotations.length; a<length; a++) {
-			IBinaryAnnotation annotation = annotations[a];
+		for (IBinaryAnnotation annotation : annotations) {
 			if (checkAnnotation(annotation, pattern)) {
 				return true;
 			}
@@ -390,8 +388,8 @@ private void matchAnnotations(SearchPattern pattern, MatchLocator locator, Class
 			break;
 		case OR_PATTERN:
 			SearchPattern[] patterns = ((OrPattern) pattern).patterns;
-			for (int i = 0, length = patterns.length; i < length; i++) {
-				matchAnnotations(patterns[i], locator, classFile, binaryType);
+			for (SearchPattern pattern2 : patterns) {
+				matchAnnotations(pattern2, locator, classFile, binaryType);
 			}
 			// $FALL-THROUGH$ - fall through default to return
 		default:
@@ -414,8 +412,7 @@ private void matchAnnotations(SearchPattern pattern, MatchLocator locator, Class
 	// Look for references in methods annotations
 	IBinaryMethod[] methods = binaryType.getMethods();
 	if (methods != null) {
-		for (int i = 0, max = methods.length; i < max; i++) {
-			IBinaryMethod method = methods[i];
+		for (IBinaryMethod method : methods) {
 			if (checkAnnotations(typeReferencePattern, method.getAnnotations(), method.getTagBits())) {
 					binaryTypeBinding = locator.cacheBinaryType(classFileBinaryType, binaryType);
 					IMethod methodHandle = classFileBinaryType.getMethod(
@@ -432,8 +429,7 @@ private void matchAnnotations(SearchPattern pattern, MatchLocator locator, Class
 	// Look for references in fields annotations
 	IBinaryField[] fields = binaryType.getFields();
 	if (fields != null) {
-		for (int i = 0, max = fields.length; i < max; i++) {
-			IBinaryField field = fields[i];
+		for (IBinaryField field : fields) {
 			if (checkAnnotations(typeReferencePattern, field.getAnnotations(), field.getTagBits())) {
 					IField fieldHandle = classFileBinaryType.getField(new String(field.getName()));
 					TypeReferenceMatch match = new TypeReferenceMatch(fieldHandle, SearchMatch.A_ACCURATE, -1, 0, false, locator.getParticipant(), locator.currentPossibleMatch.resource);
@@ -462,8 +458,8 @@ boolean matchBinary(SearchPattern pattern, Object binaryInfo, IBinaryType enclos
 			return matchTypeDeclaration((TypeDeclarationPattern) pattern, binaryInfo, enclosingBinaryType);
 		case OR_PATTERN :
 			SearchPattern[] patterns = ((OrPattern) pattern).patterns;
-			for (int i = 0, length = patterns.length; i < length; i++)
-				if (matchBinary(patterns[i], binaryInfo, enclosingBinaryType)) return true;
+			for (SearchPattern pattern2 : patterns)
+				if (matchBinary(pattern2, binaryInfo, enclosingBinaryType)) return true;
 	}
 	return false;
 }
@@ -534,8 +530,8 @@ boolean matchSuperTypeReference(SuperTypeReferencePattern pattern, Object binary
 	if (pattern.superRefKind != SuperTypeReferencePattern.ONLY_SUPER_CLASSES) {
 		char[][] superInterfaces = type.getInterfaceNames();
 		if (superInterfaces != null) {
-			for (int i = 0, max = superInterfaces.length; i < max; i++) {
-				char[] superInterfaceName = convertClassFileFormat(superInterfaces[i]);
+			for (char[] element : superInterfaces) {
+				char[] superInterfaceName = convertClassFileFormat(element);
 				if (checkTypeName(pattern.superSimpleName, pattern.superQualification, superInterfaceName, pattern.isCaseSensitive(), pattern.isCamelCase()))
 					return true;
 			}

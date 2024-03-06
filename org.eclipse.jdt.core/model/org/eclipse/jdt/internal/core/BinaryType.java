@@ -219,8 +219,8 @@ public IJavaElement[] getChildrenForCategory(String category) throws JavaModelEx
 				IJavaElement child = children[i];
 				String[] cats = (String[]) categories.get(child);
 				if (cats != null) {
-					for (int j = 0, length2 = cats.length; j < length2; j++) {
-						if (cats[j].equals(category)) {
+					for (String cat : cats) {
+						if (cat.equals(category)) {
 							result[index++] = child;
 							break;
 						}

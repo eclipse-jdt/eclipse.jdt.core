@@ -162,8 +162,7 @@ Compiler getCompiler(ICompilerRequestor compilerRequestor) {
 	VariablesInfo installedVars = this.context.installedVars;
 	if (installedVars != null) {
 		ClassFile[] classFiles = installedVars.classFiles;
-		for (int i = 0; i < classFiles.length; i++) {
-			ClassFile classFile = classFiles[i];
+		for (ClassFile classFile : classFiles) {
 			IBinaryType binary = null;
 			try {
 				binary = new ClassFileReader(classFile.getBytes(), null);
@@ -204,9 +203,9 @@ protected char[] getSource() {
 
 	// import declarations
 	char[][] imports = this.context.imports;
-	for (int i = 0; i < imports.length; i++) {
+	for (char[] import1 : imports) {
 		buffer.append("import "); //$NON-NLS-1$
-		buffer.append(imports[i]);
+		buffer.append(import1);
 		buffer.append(';').append(this.context.lineSeparator);
 		lineNumberOffset++;
 	}
@@ -297,8 +296,7 @@ protected char[] getSource() {
 private int numberOfCRs(char[] source) {
 	int numberOfCRs = 0;
 	boolean lastWasCR = false;
-	for (int i = 0; i < source.length; i++) {
-		char currentChar = source[i];
+	for (char currentChar : source) {
 		switch(currentChar){
 			case '\r' :
 				lastWasCR = true;

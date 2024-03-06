@@ -154,8 +154,8 @@ public boolean hasErrors() {
 	if (this.problems == null) {
 		return false;
 	} else {
-		for (int i = 0; i < this.problems.length; i++) {
-			if (this.problems[i].isError()) {
+		for (CategorizedProblem problem : this.problems) {
+			if (problem.isError()) {
 				return true;
 			}
 		}
@@ -181,8 +181,8 @@ public boolean hasWarnings() {
 	if (this.problems == null) {
 		return false;
 	} else {
-		for (int i = 0; i < this.problems.length; i++) {
-			if (this.problems[i].isWarning()) {
+		for (CategorizedProblem problem : this.problems) {
+			if (problem.isWarning()) {
 				return true;
 			}
 		}
@@ -218,8 +218,8 @@ public String toString() {
 	buffer.append("\n"); //$NON-NLS-1$
 	if (hasProblems()) {
 		buffer.append("Problems:\n"); //$NON-NLS-1$
-		for (int i = 0; i < this.problems.length; i++) {
-			buffer.append(this.problems[i].toString());
+		for (CategorizedProblem problem : this.problems) {
+			buffer.append(problem.toString());
 		}
 	} else {
 		if (hasValue()) {

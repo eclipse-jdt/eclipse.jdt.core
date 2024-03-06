@@ -408,8 +408,8 @@ public char[][] listPackages() {
 		return null;
 	char[][] result = new char[this.knownPackageNames.elementSize][];
 	int count = 0;
-	for (int i=0; i<this.knownPackageNames.values.length; i++) {
-		String string = (String) this.knownPackageNames.values[i];
+	for (Object value : this.knownPackageNames.values) {
+		String string = (String) value;
 		if (string != null &&!string.isEmpty()) {
 			result[count++] = string.replace('/', '.').toCharArray();
 		}

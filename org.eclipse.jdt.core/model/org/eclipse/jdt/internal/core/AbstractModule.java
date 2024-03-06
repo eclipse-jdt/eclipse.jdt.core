@@ -140,8 +140,7 @@ public interface AbstractModule extends IModuleDescription {
 	default String[] getUsedServiceNames() throws JavaModelException {
 		ArrayList<String> results = new ArrayList<>();
 		char[][] services = getUsedServices();
-		for (int i = 0; i < services.length; ++i) {
-			char[] service = services[i];
+		for (char[] service : services) {
 			results.add(new String(service));
 		}
 		return results.toArray(String[]::new);
@@ -173,20 +172,20 @@ public interface AbstractModule extends IModuleDescription {
 		buffer.append(getElementName()).append(' ');
 		buffer.append('{').append(lineDelimiter);
 		if (exports != null) {
-			for(int i = 0; i < exports.length; i++) {
+			for (IPackageExport export : exports) {
 				buffer.append("\texports "); //$NON-NLS-1$
-				buffer.append(exports[i].toString());
+				buffer.append(export.toString());
 				buffer.append(lineDelimiter);
 			}
 		}
 		buffer.append(lineDelimiter);
 		if (requires != null) {
-			for(int i = 0; i < requires.length; i++) {
+			for (IModuleReference require : requires) {
 				buffer.append("\trequires "); //$NON-NLS-1$
-				if (requires[i].isTransitive()) {
+				if (require.isTransitive()) {
 					buffer.append(" public "); //$NON-NLS-1$
 				}
-				buffer.append(requires[i].name());
+				buffer.append(require.name());
 				buffer.append(';').append(lineDelimiter);
 			}
 		}

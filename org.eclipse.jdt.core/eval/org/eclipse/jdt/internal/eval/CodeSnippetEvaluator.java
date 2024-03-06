@@ -146,10 +146,10 @@ Compiler getCompiler(ICompilerRequestor compilerRequestor) {
 		VariablesInfo installedVars = this.context.installedVars;
 		if (installedVars != null) {
 			ClassFile[] globalClassFiles = installedVars.classFiles;
-			for (int i = 0; i < globalClassFiles.length; i++) {
+			for (ClassFile globalClassFile : globalClassFiles) {
 				ClassFileReader binaryType = null;
 				try {
-					binaryType = new ClassFileReader(globalClassFiles[i].getBytes(), null);
+					binaryType = new ClassFileReader(globalClassFile.getBytes(), null);
 				} catch (ClassFormatException e) {
 					if (JavaModelManager.VERBOSE) {
 						JavaModelManager.trace("", e); //$NON-NLS-1$

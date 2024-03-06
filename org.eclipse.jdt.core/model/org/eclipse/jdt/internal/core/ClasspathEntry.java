@@ -672,8 +672,7 @@ public class ClasspathEntry implements IClasspathEntry {
 
 	void encodeExtraAttributes(XMLWriter writer, boolean indent, boolean newLine) {
 		writer.startTag(TAG_ATTRIBUTES, indent);
-		for (int i = 0; i < this.extraAttributes.length; i++) {
-			IClasspathAttribute attribute = this.extraAttributes[i];
+		for (IClasspathAttribute attribute : this.extraAttributes) {
 			HashMap parameters = new HashMap();
 	    	parameters.put(TAG_ATTRIBUTE_NAME, attribute.getName());
 			parameters.put(TAG_ATTRIBUTE_VALUE, attribute.getValue());
@@ -686,8 +685,8 @@ public class ClasspathEntry implements IClasspathEntry {
 
 		writer.startTag(TAG_ACCESS_RULES, indent);
 		AccessRule[] rules = getAccessRuleSet().getAccessRules();
-		for (int i = 0, length = rules.length; i < length; i++) {
-			encodeAccessRule(rules[i], writer, indent, newLine);
+		for (AccessRule rule : rules) {
+			encodeAccessRule(rule, writer, indent, newLine);
 		}
 		writer.endTag(TAG_ACCESS_RULES, indent, true/*insert new line*/);
 	}
@@ -716,8 +715,8 @@ public class ClasspathEntry implements IClasspathEntry {
 	}
 
 	private void encodeUnknownChildren(XMLWriter writer, boolean indent, boolean newLine, ArrayList unknownChildren) {
-		for (int i = 0, length = unknownChildren.size(); i < length; i++) {
-			String child = (String) unknownChildren.get(i);
+		for (Object unknownChild : unknownChildren) {
+			String child = (String) unknownChild;
 			writer.printString(child, indent, false/*don't insert new line*/);
 		}
 	}
@@ -1420,8 +1419,8 @@ public class ClasspathEntry implements IClasspathEntry {
 	private static void invalidExternalAnnotationPath(IProject project) {
 		try {
 			IMarker[] markers = project.findMarkers(IJavaModelMarker.BUILDPATH_PROBLEM_MARKER, false, IResource.DEPTH_ZERO);
-			for (int i = 0, l = markers.length; i < l; i++) {
-				if (markers[i].getAttribute(IMarker.SEVERITY, -1) == IMarker.SEVERITY_ERROR)
+			for (IMarker marker : markers) {
+				if (marker.getAttribute(IMarker.SEVERITY, -1) == IMarker.SEVERITY_ERROR)
 					return; // one marker is enough
 			}
 		} catch (CoreException ce) {
@@ -1457,8 +1456,7 @@ public class ClasspathEntry implements IClasspathEntry {
 
 	public static String getExtraAttribute(IClasspathEntry entry, String attributeName) {
 		IClasspathAttribute[] extraAttributes = entry.getExtraAttributes();
-		for (int i = 0, length = extraAttributes.length; i < length; i++) {
-			IClasspathAttribute attribute = extraAttributes[i];
+		for (IClasspathAttribute attribute : extraAttributes) {
 			if (attributeName.equals(attribute.getName())) {
 				return attribute.getValue();
 			}
@@ -1488,8 +1486,7 @@ public class ClasspathEntry implements IClasspathEntry {
 	}
 
 	public boolean isOptional() {
-		for (int i = 0, length = this.extraAttributes.length; i < length; i++) {
-			IClasspathAttribute attribute = this.extraAttributes[i];
+		for (IClasspathAttribute attribute : this.extraAttributes) {
 			if (IClasspathAttribute.OPTIONAL.equals(attribute.getName()) && "true".equals(attribute.getValue())) //$NON-NLS-1$
 				return true;
 		}
@@ -1500,8 +1497,7 @@ public class ClasspathEntry implements IClasspathEntry {
 	}
 
 	public String getSourceAttachmentEncoding() {
-		for (int i = 0, length = this.extraAttributes.length; i < length; i++) {
-			IClasspathAttribute attribute = this.extraAttributes[i];
+		for (IClasspathAttribute attribute : this.extraAttributes) {
 			if (IClasspathAttribute.SOURCE_ATTACHMENT_ENCODING.equals(attribute.getName()))
 				return attribute.getValue();
 		}
@@ -1791,8 +1787,7 @@ public class ClasspathEntry implements IClasspathEntry {
 				return null;
 		}
 		if (this.extraAttributes == null) return null;
-		for (int i= 0; i < this.extraAttributes.length; i++) {
-			IClasspathAttribute attrib= this.extraAttributes[i];
+		for (IClasspathAttribute attrib : this.extraAttributes) {
 			if (IClasspathAttribute.INDEX_LOCATION_ATTRIBUTE_NAME.equals(attrib.getName())) {
 				String value = attrib.getValue();
 				try {
@@ -1807,8 +1802,7 @@ public class ClasspathEntry implements IClasspathEntry {
 
 	public boolean ignoreOptionalProblems() {
 		if (this.entryKind == IClasspathEntry.CPE_SOURCE) {
-			for (int i = 0; i < this.extraAttributes.length; i++) {
-				IClasspathAttribute attrib = this.extraAttributes[i];
+			for (IClasspathAttribute attrib : this.extraAttributes) {
 				if (IClasspathAttribute.IGNORE_OPTIONAL_PROBLEMS.equals(attrib.getName())) {
 					return "true".equals(attrib.getValue()); //$NON-NLS-1$
 				}
@@ -2275,8 +2269,7 @@ public class ClasspathEntry implements IClasspathEntry {
 						}
 						IClasspathEntry[] containerEntries = container.getClasspathEntries();
 						if (containerEntries != null){
-							for (int i = 0, length = containerEntries.length; i < length; i++){
-								IClasspathEntry containerEntry = containerEntries[i];
+							for (IClasspathEntry containerEntry : containerEntries) {
 								int kind = containerEntry == null ? 0 : containerEntry.getEntryKind();
 								if (containerEntry == null
 									|| kind == IClasspathEntry.CPE_SOURCE
@@ -2584,8 +2577,7 @@ public class ClasspathEntry implements IClasspathEntry {
 	 */
 	public static boolean isModular(IClasspathEntry classpathEntry) {
 		IClasspathAttribute[] extraAttributes = classpathEntry.getExtraAttributes();
-		for (int i = 0, length = extraAttributes.length; i < length; i++) {
-			IClasspathAttribute attribute = extraAttributes[i];
+		for (IClasspathAttribute attribute : extraAttributes) {
 			if (IClasspathAttribute.MODULE.equals(attribute.getName()) && "true".equals(attribute.getValue())) //$NON-NLS-1$
 				return true;
 		}

@@ -689,9 +689,9 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 	protected void toStringChildren(int tab, StringBuilder buffer, Object info) {
 		if (info == null || !(info instanceof JavaElementInfo)) return;
 		IJavaElement[] children = ((JavaElementInfo)info).getChildren();
-		for (int i = 0; i < children.length; i++) {
+		for (IJavaElement child : children) {
 			buffer.append("\n"); //$NON-NLS-1$
-			((JavaElement)children[i]).toString(tab + 1, buffer);
+			((JavaElement)child).toString(tab + 1, buffer);
 		}
 	}
 	/**
@@ -761,8 +761,7 @@ public abstract class JavaElement extends PlatformObject implements IJavaElement
 		}
 
 		IClasspathAttribute[] extraAttributes= entry.getExtraAttributes();
-		for (int i= 0; i < extraAttributes.length; i++) {
-			IClasspathAttribute attrib= extraAttributes[i];
+		for (IClasspathAttribute attrib : extraAttributes) {
 			if (IClasspathAttribute.JAVADOC_LOCATION_ATTRIBUTE_NAME.equals(attrib.getName())) {
 				String value = attrib.getValue();
 				try {

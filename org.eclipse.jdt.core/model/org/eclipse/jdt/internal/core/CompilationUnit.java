@@ -172,11 +172,10 @@ protected boolean buildStructure(OpenableElementInfo info, final IProgressMonito
 				compilationUnitDeclaration = CompilationUnitProblemFinder.process(source, parser, this.owner, problems, createAST, reconcileFlags, pm);
 				try {
 					perWorkingCopyInfo.beginReporting();
-					for (Iterator<CategorizedProblem[]> iteraror = problems.values().iterator(); iteraror.hasNext();) {
-						CategorizedProblem[] categorizedProblems = iteraror.next();
+					for (CategorizedProblem[] categorizedProblems : problems.values()) {
 						if (categorizedProblems == null) continue;
-						for (int i = 0, length = categorizedProblems.length; i < length; i++) {
-							perWorkingCopyInfo.acceptProblem(categorizedProblems[i]);
+						for (CategorizedProblem categorizedProblem : categorizedProblems) {
+							perWorkingCopyInfo.acceptProblem(categorizedProblem);
 						}
 					}
 				} finally {

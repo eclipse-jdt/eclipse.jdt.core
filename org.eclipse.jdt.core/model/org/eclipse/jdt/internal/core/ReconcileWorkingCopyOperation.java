@@ -14,7 +14,6 @@
 package org.eclipse.jdt.internal.core;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.core.runtime.ISafeRunnable;
@@ -128,11 +127,9 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 	private void reportProblems(CompilationUnit workingCopy, IProblemRequestor problemRequestor) {
 		try {
 			problemRequestor.beginReporting();
-			for (Iterator<CategorizedProblem[]> iteraror = this.problems.values().iterator(); iteraror.hasNext();) {
-				CategorizedProblem[] categorizedProblems = iteraror.next();
+			for (CategorizedProblem[] categorizedProblems : this.problems.values()) {
 				if (categorizedProblems == null) continue;
-				for (int i = 0, length = categorizedProblems.length; i < length; i++) {
-					CategorizedProblem problem = categorizedProblems[i];
+				for (CategorizedProblem problem : categorizedProblems) {
 					if (JavaModelManager.VERBOSE){
 						JavaModelManager.trace("PROBLEM FOUND while reconciling : " + problem.getMessage());//$NON-NLS-1$
 					}
@@ -238,8 +235,7 @@ public class ReconcileWorkingCopyOperation extends JavaModelOperation {
 		if (participants == null) return;
 
 		final ReconcileContext context = new ReconcileContext(this, workingCopy);
-		for (int i = 0, length = participants.length; i < length; i++) {
-			final CompilationParticipant participant = participants[i];
+		for (final CompilationParticipant participant : participants) {
 			SafeRunner.run(new ISafeRunnable() {
 				@Override
 				public void handleException(Throwable exception) {

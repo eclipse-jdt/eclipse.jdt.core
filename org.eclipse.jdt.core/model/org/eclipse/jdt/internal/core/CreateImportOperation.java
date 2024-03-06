@@ -152,9 +152,9 @@ protected void initializeDefaultPosition() {
 		}
 		IJavaElement[] children = cu.getChildren();
 		//look for the package declaration
-		for (int i = 0; i < children.length; i++) {
-			if (children[i].getElementType() == IJavaElement.PACKAGE_DECLARATION) {
-				createAfter(children[i]);
+		for (IJavaElement child : children) {
+			if (child.getElementType() == IJavaElement.PACKAGE_DECLARATION) {
+				createAfter(child);
 				return;
 			}
 		}

@@ -155,8 +155,8 @@ public class InfixExpression extends Expression {
 					CONDITIONAL_OR,
 					CONDITIONAL_AND,
 				};
-			for (int i = 0; i < ops.length; i++) {
-				CODES.put(ops[i].toString(), ops[i]);
+			for (Operator op : ops) {
+				CODES.put(op.toString(), op);
 			}
 		}
 

@@ -87,8 +87,7 @@ public class BinaryTypeConverter extends TypeConverter {
 		ImportReference[] imports = new ImportReference[typeNamesLength];
 		char[][][] set = this.typeNames.set;
 		int index = 0;
-		for (int i = 0, length = set.length; i < length; i++) {
-			char[][] typeName = set[i];
+		for (char[][] typeName : set) {
 			if (typeName != null) {
 				imports[index++] = new ImportReference(typeName, new long[typeName.length]/*dummy positions*/, false/*not on demand*/, 0);
 			}
