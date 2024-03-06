@@ -4592,6 +4592,11 @@ protected void consumeInstanceOfClassic() {
 	consumeTypeReferenceWithModifiersAndAnnotations();
 	pushOnAstLengthStack(0); // signal no pattern
 }
+protected void consumeInstanceofPattern() {
+	// Only if we are not inside a block
+	if (this.realBlockPtr != -1)
+		blockReal();
+}
 protected void consumeInstanceOfExpressionWithName() {
 	// RelationalExpression_NotName ::= Name instanceof ReferenceType
 	//optimize the push/pop
@@ -7211,6 +7216,9 @@ protected void consumeRule(int act) {
 
     case 358 : if (DEBUG) { System.out.println("InstanceofClassic ::= instanceof Modifiersopt Type"); }  //$NON-NLS-1$
 		    consumeInstanceOfClassic(); 			break;
+
+    case 359 : if (DEBUG) { System.out.println("InstanceofPattern ::= instanceof Pattern"); }  //$NON-NLS-1$
+		    consumeInstanceofPattern(); 			break;
 
     case 362 : if (DEBUG) { System.out.println("TypePattern ::= Modifiersopt Type Identifier"); }  //$NON-NLS-1$
 		    consumeTypePattern(); 			break;
