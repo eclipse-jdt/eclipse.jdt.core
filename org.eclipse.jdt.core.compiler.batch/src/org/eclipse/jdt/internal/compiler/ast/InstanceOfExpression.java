@@ -128,9 +128,14 @@ public void generateCode(BlockScope currentScope, CodeStream codeStream, boolean
 			codeStream.iconst_0();
 
 		continueLabel.place();
-	} else if (!valueRequired) {
-		codeStream.pop();
 	}
+
+	if (valueRequired) {
+		codeStream.generateImplicitConversion(this.implicitConversion);
+	} else if (this.pattern == null) {
+		codeStream.pop(); // in the pattern case, if (!valueRequired), we have nothing on the stack to pop
+	}
+
 	codeStream.recordPositionsFrom(codeStream.position, this.sourceEnd);
 }
 
