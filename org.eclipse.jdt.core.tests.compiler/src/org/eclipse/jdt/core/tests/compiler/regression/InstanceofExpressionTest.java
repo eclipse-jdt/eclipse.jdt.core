@@ -18,6 +18,7 @@ package org.eclipse.jdt.core.tests.compiler.regression;
 import java.io.IOException;
 import org.eclipse.jdt.core.util.ClassFileBytesDisassembler;
 import org.eclipse.jdt.core.util.ClassFormatException;
+import org.eclipse.jdt.internal.compiler.classfmt.ClassFileConstants;
 
 import junit.framework.Test;
 
@@ -34,6 +35,10 @@ public class InstanceofExpressionTest extends AbstractRegressionTest {
 
 	public static Class testClass() {
 		return InstanceofExpressionTest.class;
+	}
+
+	static {
+	//	TESTS_NAMES = new String [] { "testIssue2101" };
 	}
 
 	// https://bugs.eclipse.org/bugs/show_bug.cgi?id=341828
@@ -624,5 +629,115 @@ public class InstanceofExpressionTest extends AbstractRegressionTest {
                   },
                   "Done!");
       	checkClassFile("X", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
-      }
+    }
+    // https://github.com/eclipse-jdt/eclipse.jdt.core/issues/2101
+    // [Patterns] Secret local variable slots appear to be reaped later than they should be
+    public void testIssue2101() throws ClassFormatException, IOException {
+    	if (this.complianceLevel < ClassFileConstants.JDK16)
+    		return;
+
+      	String source =
+      			"""
+				public class X {
+
+					Object type;
+
+					public void setParent(String parent) {
+						if (type != null) {
+							if (type instanceof String ctype) {
+								String comp = ctype;
+								if (comp != null) {
+									System.out.println();
+								}
+							}
+						}
+
+						String[] atts = null;
+						for (String attribute : atts) {
+							System.out.println();
+						}
+					}
+
+					public static void main(String [] args) {
+					    System.out.println("Done!");
+					}
+
+					X() {}
+
+				}
+  				""";
+
+      	String expectedOutput =
+      			"  // Method descriptor #8 (Ljava/lang/String;)V\n" +
+				"  // Stack: 2, Locals: 7\n" +
+				"  public void setParent(String parent);\n" +
+				"     0  aload_0 [this]\n" +
+				"     1  getfield X.type : Object [10]\n" +
+				"     4  ifnull 38\n" +
+				"     7  aload_0 [this]\n" +
+				"     8  getfield X.type : Object [10]\n" +
+				"    11  dup\n" +
+				"    12  astore_3\n" +
+				"    13  instanceof String [12]\n" +
+				"    16  ifeq 38\n" +
+				"    19  aload_3\n" +
+				"    20  checkcast String [12]\n" +
+				"    23  astore_2 [ctype]\n" +
+				"    24  aload_2 [ctype]\n" +
+				"    25  astore 4 [comp]\n" +
+				"    27  aload 4 [comp]\n" +
+				"    29  ifnull 38\n" +
+				"    32  getstatic System.out : PrintStream [14]\n" +
+				"    35  invokevirtual PrintStream.println() : void [20]\n" +
+				"    38  aconst_null\n" +
+				"    39  astore_2 [atts]\n" +
+				"    40  aload_2 [atts]\n" +
+				"    41  dup\n" +
+				"    42  astore 6\n" +
+				"    44  arraylength\n" +
+				"    45  istore 5\n" +
+				"    47  iconst_0\n" +
+				"    48  istore 4\n" +
+				"    50  goto 68\n" +
+				"    53  aload 6\n" +
+				"    55  iload 4\n" +
+				"    57  aaload\n" +
+				"    58  astore_3 [attribute]\n" +
+				"    59  getstatic System.out : PrintStream [14]\n" +
+				"    62  invokevirtual PrintStream.println() : void [20]\n" +
+				"    65  iinc 4 1\n" +
+				"    68  iload 4\n" +
+				"    70  iload 5\n" +
+				"    72  if_icmplt 53\n" +
+				"    75  return\n" +
+				"      Line numbers:\n" +
+				"        [pc: 0, line: 6]\n" +
+				"        [pc: 7, line: 7]\n" +
+				"        [pc: 24, line: 8]\n" +
+				"        [pc: 27, line: 9]\n" +
+				"        [pc: 32, line: 10]\n" +
+				"        [pc: 38, line: 15]\n" +
+				"        [pc: 40, line: 16]\n" +
+				"        [pc: 59, line: 17]\n" +
+				"        [pc: 65, line: 16]\n" +
+				"        [pc: 75, line: 19]\n" +
+				"      Local variable table:\n" +
+				"        [pc: 0, pc: 76] local: this index: 0 type: X\n" +
+				"        [pc: 0, pc: 76] local: parent index: 1 type: String\n" +
+				"        [pc: 24, pc: 38] local: ctype index: 2 type: String\n" +
+				"        [pc: 27, pc: 38] local: comp index: 4 type: String\n" +
+				"        [pc: 40, pc: 76] local: atts index: 2 type: String[]\n" +
+				"        [pc: 59, pc: 65] local: attribute index: 3 type: String\n" +
+				"      Stack map table: number of frames 3\n" +
+				"        [pc: 38, same]\n" +
+				"        [pc: 53, full, stack: {}, locals: {X, String, String[], _, int, int, String[]}]\n" +
+				"        [pc: 68, same]\n";
+      	runConformTest(
+                  new String[] {
+                          "X.java",
+                          source,
+                  },
+                  "Done!");
+      	checkClassFile("X", source, expectedOutput, ClassFileBytesDisassembler.DETAILED | ClassFileBytesDisassembler.COMPACT);
+    }
 }
