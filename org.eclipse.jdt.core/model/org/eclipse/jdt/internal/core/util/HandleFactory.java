@@ -355,9 +355,9 @@ public class HandleFactory {
 		IPath jarPath,
 		Object target,
 		IJavaProject[] projects) {
-		for (int i= 0, projectCount= projects.length; i < projectCount; i++) {
+		for (IJavaProject project : projects) {
 			try {
-				JavaProject javaProject= (JavaProject)projects[i];
+				JavaProject javaProject= (JavaProject)project;
 				IClasspathEntry classpathEnty = javaProject.getClasspathEntryFor(jarPath);
 				if (classpathEnty != null) {
 					if (target instanceof IFile) {
@@ -382,15 +382,14 @@ public class HandleFactory {
 
 		IPath path= new Path(pathString);
 		IProject[] projects= ResourcesPlugin.getWorkspace().getRoot().getProjects();
-		for (int i= 0, max= projects.length; i < max; i++) {
+		for (IProject project : projects) {
 			try {
-				IProject project = projects[i];
 				if (!project.isAccessible()
 					|| !project.hasNature(JavaCore.NATURE_ID)) continue;
 				IJavaProject javaProject= this.javaModel.getJavaProject(project);
 				IPackageFragmentRoot[] roots= javaProject.getPackageFragmentRoots();
-				for (int j= 0, rootCount= roots.length; j < rootCount; j++) {
-					PackageFragmentRoot root= (PackageFragmentRoot)roots[j];
+				for (IPackageFragmentRoot root2 : roots) {
+					PackageFragmentRoot root= (PackageFragmentRoot)root2;
 					if (root.internalPath().isPrefixOf(path) && !Util.isExcluded(path, root.fullInclusionPatternChars(), root.fullExclusionPatternChars(), false)) {
 						return root;
 					}

@@ -114,8 +114,7 @@ protected boolean buildStructure(OpenableElementInfo info, IProgressMonitor pm, 
 	if (kind == IPackageFragmentRoot.K_SOURCE) {
 		// add primary compilation units
 		ICompilationUnit[] primaryCompilationUnits = getCompilationUnits(DefaultWorkingCopyOwner.PRIMARY);
-		for (int i = 0, length = primaryCompilationUnits.length; i < length; i++) {
-			ICompilationUnit primary = primaryCompilationUnits[i];
+		for (ICompilationUnit primary : primaryCompilationUnits) {
 			vChildren.add(primary);
 		}
 	}
@@ -402,8 +401,7 @@ public IPath getPath() {
 		return root.getPath();
 	} else {
 		IPath path = root.getPath();
-		for (int i = 0, length = this.names.length; i < length; i++) {
-			String name = this.names[i];
+		for (String name : this.names) {
 			path = path.append(name);
 		}
 		return path;
@@ -439,8 +437,8 @@ public IResource getUnderlyingResource() throws JavaModelException {
 	if (rootResource.getType() == IResource.FOLDER || rootResource.getType() == IResource.PROJECT) {
 		IContainer folder = (IContainer) rootResource;
 		String[] segs = this.names;
-		for (int i = 0; i < segs.length; ++i) {
-			IResource child = folder.findMember(segs[i]);
+		for (String seg : segs) {
+			IResource child = folder.findMember(seg);
 			if (child == null || child.getType() != IResource.FOLDER) {
 				throw newNotPresentException();
 			}
@@ -465,8 +463,8 @@ public boolean hasChildren() throws JavaModelException {
 public boolean hasSubpackages() throws JavaModelException {
 	IJavaElement[] packages= ((IPackageFragmentRoot)getParent()).getChildren();
 	int namesLength = this.names.length;
-	nextPackage: for (int i= 0, length = packages.length; i < length; i++) {
-		String[] otherNames = ((PackageFragment) packages[i]).names;
+	nextPackage: for (IJavaElement package1 : packages) {
+		String[] otherNames = ((PackageFragment) package1).names;
 		if (otherNames.length <= namesLength) continue nextPackage;
 		for (int j = 0; j < namesLength; j++)
 			if (!this.names[j].equals(otherNames[j]))
@@ -482,8 +480,8 @@ protected boolean internalIsValidPackageName() {
 	IJavaProject javaProject = JavaCore.create(resource().getProject());
 	String sourceLevel = javaProject.getOption(JavaCore.COMPILER_SOURCE, true);
 	String complianceLevel = javaProject.getOption(JavaCore.COMPILER_COMPLIANCE, true);
-	for (int i = 0, length = this.names.length; i < length; i++) {
-		if (!Util.isValidFolderNameForPackage(this.names[i], sourceLevel, complianceLevel))
+	for (String name : this.names) {
+		if (!Util.isValidFolderNameForPackage(name, sourceLevel, complianceLevel))
 			return false;
 	}
 	return true;

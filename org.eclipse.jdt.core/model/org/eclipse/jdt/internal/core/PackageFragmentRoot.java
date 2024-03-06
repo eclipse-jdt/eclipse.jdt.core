@@ -379,8 +379,8 @@ private IClasspathEntry findSourceAttachmentRecommendation() {
 		// iterate over all projects
 		IJavaModel model = getJavaModel();
 		IJavaProject[] jProjects = model.getJavaProjects();
-		for (int i = 0, max = jProjects.length; i < max; i++){
-			JavaProject jProject = (JavaProject) jProjects[i];
+		for (IJavaProject jProject2 : jProjects) {
+			JavaProject jProject = (JavaProject) jProject2;
 			if (jProject == parentProject) continue; // already done
 			try {
 				entry = jProject.getClasspathEntryFor(rootPath);
@@ -906,12 +906,12 @@ public IModuleDescription getModuleDescription() {
 private IModuleDescription getSourceModuleDescription() {
 	try {
 		IJavaElement[] pkgs = getChildren();
-		for (int j = 0, length = pkgs.length; j < length; j++) {
+		for (IJavaElement pkg : pkgs) {
 			// only look in the default package
-			if (pkgs[j].getElementName().length() == 0) {
+			if (pkg.getElementName().length() == 0) {
 				OpenableElementInfo info = null;
 				if (getKind() == IPackageFragmentRoot.K_SOURCE) {
-					ICompilationUnit unit = ((PackageFragment) pkgs[j])
+					ICompilationUnit unit = ((PackageFragment) pkg)
 							.getCompilationUnit(TypeConstants.MODULE_INFO_FILE_NAME_STRING);
 					if (unit instanceof CompilationUnit && unit.exists()) {
 						info = (CompilationUnitElementInfo) ((CompilationUnit) unit)
@@ -920,7 +920,7 @@ private IModuleDescription getSourceModuleDescription() {
 							return info.getModule();
 					}
 				} else {
-					IModularClassFile classFile = ((IPackageFragment)pkgs[j]).getModularClassFile();
+					IModularClassFile classFile = ((IPackageFragment)pkg).getModularClassFile();
 					if (classFile.exists()) {
 						return classFile.getModule();
 					}

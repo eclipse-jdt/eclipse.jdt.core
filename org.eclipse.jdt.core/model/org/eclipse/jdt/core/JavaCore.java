@@ -3599,8 +3599,7 @@ public final class JavaCore extends Plugin {
 			IContainer container,
 			int rootPathSegmentCounts,
 			ArrayList collector) {
-		for (int i = 0, max = nonJavaResources.length; i < max; i++) {
-			Object nonJavaResource = nonJavaResources[i];
+		for (Object nonJavaResource : nonJavaResources) {
 			if (nonJavaResource instanceof IFile) {
 				IFile file = (IFile) nonJavaResource;
 				IPath path = file.getFullPath().removeFirstSegments(rootPathSegmentCounts);
@@ -3974,10 +3973,9 @@ public final class JavaCore extends Plugin {
 		IExtensionPoint extension = Platform.getExtensionRegistry().getExtensionPoint(JavaCore.PLUGIN_ID, JavaModelManager.CPCONTAINER_INITIALIZER_EXTPOINT_ID);
 		if (extension != null) {
 			IExtension[] extensions =  extension.getExtensions();
-			for(int i = 0; i < extensions.length; i++){
-				IConfigurationElement [] configElements = extensions[i].getConfigurationElements();
-				for(int j = 0; j < configElements.length; j++){
-					IConfigurationElement configurationElement = configElements[j];
+			for (IExtension extension2 : extensions) {
+				IConfigurationElement [] configElements = extension2.getConfigurationElements();
+				for (IConfigurationElement configurationElement : configElements) {
 					String initializerID = configurationElement.getAttribute("id"); //$NON-NLS-1$
 					if (initializerID != null && initializerID.equals(containerID)){
 						if (JavaModelManager.CP_RESOLVE_VERBOSE_ADVANCED)
@@ -4136,10 +4134,9 @@ public final class JavaCore extends Plugin {
 		IExtensionPoint extension = Platform.getExtensionRegistry().getExtensionPoint(JavaCore.PLUGIN_ID, JavaModelManager.CPVARIABLE_INITIALIZER_EXTPOINT_ID);
 		if (extension != null) {
 			IExtension[] extensions =  extension.getExtensions();
-			for(int i = 0; i < extensions.length; i++){
-				IConfigurationElement [] configElements = extensions[i].getConfigurationElements();
-				for(int j = 0; j < configElements.length; j++){
-					IConfigurationElement configElement = configElements[j];
+			for (IExtension extension2 : extensions) {
+				IConfigurationElement [] configElements = extension2.getConfigurationElements();
+				for (IConfigurationElement configElement : configElements) {
 					String varAttribute = configElement.getAttribute("variable"); //$NON-NLS-1$
 					if (variableName.equals(varAttribute)) {
 						String deprecatedAttribute = configElement.getAttribute("deprecated"); //$NON-NLS-1$
@@ -4171,10 +4168,9 @@ public final class JavaCore extends Plugin {
 		IExtensionPoint extension = Platform.getExtensionRegistry().getExtensionPoint(JavaCore.PLUGIN_ID, JavaModelManager.CPVARIABLE_INITIALIZER_EXTPOINT_ID);
 		if (extension != null) {
 			IExtension[] extensions =  extension.getExtensions();
-			for(int i = 0; i < extensions.length; i++){
-				IConfigurationElement [] configElements = extensions[i].getConfigurationElements();
-				for(int j = 0; j < configElements.length; j++){
-					IConfigurationElement configElement = configElements[j];
+			for (IExtension extension2 : extensions) {
+				IConfigurationElement [] configElements = extension2.getConfigurationElements();
+				for (IConfigurationElement configElement : configElements) {
 					try {
 						String varAttribute = configElement.getAttribute("variable"); //$NON-NLS-1$
 						if (variable.equals(varAttribute)) {
@@ -4305,9 +4301,7 @@ public final class JavaCore extends Plugin {
 		IJavaElement[] elements = region.getElements();
 		HashMap projectsStates = new HashMap();
 		ArrayList collector = new ArrayList();
-		for (int i = 0, max = elements.length; i < max; i++) {
-			// collect all the java project
-			IJavaElement element = elements[i];
+		for (IJavaElement element : elements) {
 			IJavaProject javaProject = element.getJavaProject();
 			IProject project = javaProject.getProject();
 			State state = null;
@@ -4330,12 +4324,12 @@ public final class JavaCore extends Plugin {
 				}
 				if (roots == null) continue;
 				IRegion region2 = JavaCore.newRegion();
-				for (int j = 0; j < roots.length; j++) {
-					region2.add(roots[j]);
+				for (IPackageFragmentRoot root : roots) {
+					region2.add(root);
 				}
 				IResource[] res = getGeneratedResources(region2, includesNonJavaResources);
-				for (int j = 0, max2 = res.length; j < max2; j++) {
-					collector.add(res[j]);
+				for (IResource re : res) {
+					collector.add(re);
 				}
 				continue;
 			}
@@ -4381,8 +4375,8 @@ public final class JavaCore extends Plugin {
 						// ignore
 					}
 					if (compilationUnits == null) continue;
-					for (int j = 0, max2 = compilationUnits.length; j < max2; j++) {
-						getGeneratedResource(compilationUnits[j], container, state, rootPathSegmentCounts, collector);
+					for (ICompilationUnit compilationUnit : compilationUnits) {
+						getGeneratedResource(compilationUnit, container, state, rootPathSegmentCounts, collector);
 					}
 					if (includesNonJavaResources) {
 						// retrieve all non-java resources from the output location using the package fragment path
@@ -4408,8 +4402,8 @@ public final class JavaCore extends Plugin {
 						// ignore
 					}
 					if (children == null) continue;
-					for (int j = 0, max2 = children.length; j < max2; j++) {
-						fragment = (IPackageFragment) children[j];
+					for (IJavaElement child : children) {
+						fragment = (IPackageFragment) child;
 						ICompilationUnit[] units = null;
 						try {
 							units = fragment.getCompilationUnits();
@@ -4417,8 +4411,8 @@ public final class JavaCore extends Plugin {
 							// ignore
 						}
 						if (units == null) continue;
-						for (int n = 0, max3 = units.length; n < max3; n++) {
-							getGeneratedResource(units[n], container, state, rootPathSegmentCounts, collector);
+						for (ICompilationUnit unit2 : units) {
+							getGeneratedResource(unit2, container, state, rootPathSegmentCounts, collector);
 						}
 						if (includesNonJavaResources) {
 							// retrieve all non-java resources from the output location using the package fragment path
@@ -4454,8 +4448,8 @@ public final class JavaCore extends Plugin {
 		char[][] typeNames = state.getDefinedTypeNamesFor(resource.getProjectRelativePath().toString());
 		if (typeNames != null) {
 			IPath path = unit.getPath().removeFirstSegments(rootPathSegmentCounts).removeLastSegments(1);
-			for (int j = 0, max2 = typeNames.length; j < max2; j++) {
-				IPath localPath = path.append(new String(typeNames[j]) + ".class"); //$NON-NLS-1$
+			for (char[] typeName : typeNames) {
+				IPath localPath = path.append(new String(typeName) + ".class"); //$NON-NLS-1$
 				IResource member = container.findMember(localPath);
 				if (member != null && member.exists()) {
 					collector.add(member);
@@ -4747,8 +4741,8 @@ public final class JavaCore extends Plugin {
 		final IJavaProject[] projects = manager.getJavaModel().getJavaProjects();
 		HashSet visitedPaths = new HashSet();
 		ExternalFoldersManager externalFoldersManager = JavaModelManager.getExternalManager();
-		for (int i = 0, length = projects.length; i < length; i++) {
-			JavaProject javaProject = (JavaProject) projects[i];
+		for (IJavaProject project : projects) {
+			JavaProject javaProject = (JavaProject) project;
 			IClasspathEntry[] classpath;
 			try {
 				classpath = javaProject.getResolvedClasspath();
@@ -4757,8 +4751,7 @@ public final class JavaCore extends Plugin {
 				continue;
 			}
 			if (classpath != null) {
-				for (int j = 0, length2 = classpath.length; j < length2; j++) {
-					IClasspathEntry entry = classpath[j];
+				for (IClasspathEntry entry : classpath) {
 					if (entry.getSourceAttachmentPath() != null) {
 						IPath entryPath = entry.getPath();
 						if (visitedPaths.add(entryPath)) {
@@ -4826,8 +4819,7 @@ public final class JavaCore extends Plugin {
 			IWorkspaceRunnable runnable = new IWorkspaceRunnable() {
 				@Override
 				public void run(IProgressMonitor progressMonitor2) throws CoreException {
-					for (int i = 0, length = projects.length; i < length; i++) {
-						IJavaProject project = projects[i];
+					for (IJavaProject project : projects) {
 						try {
 							if (JavaBuilder.DEBUG) {
 								trace("Touching " + project.getElementName()); //$NON-NLS-1$

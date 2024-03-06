@@ -78,8 +78,8 @@ protected int matchReference(Reference node, MatchingNodeSet nodeSet, boolean wr
 				if (matchesName(this.pattern.name, tokens[tokens.length-1]))
 					return nodeSet.addMatch(node, POSSIBLE_MATCH);
 			} else {
-				for (int i = 0, max = tokens.length; i < max; i++)
-					if (matchesName(this.pattern.name, tokens[i]))
+				for (char[] token : tokens)
+					if (matchesName(this.pattern.name, token))
 						return nodeSet.addMatch(node, POSSIBLE_MATCH);
 			}
 		}

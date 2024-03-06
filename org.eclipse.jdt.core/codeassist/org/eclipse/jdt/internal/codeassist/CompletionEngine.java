@@ -2172,8 +2172,8 @@ public final class CompletionEngine
 					}
 					RequiresStatement[] moduleRefs = this.moduleDeclaration.requires;
 					if (moduleRefs != null) {
-						for (int i = 0, l = moduleRefs.length; i < l; ++i) {
-							ModuleReference reference = moduleRefs[i].module;
+						for (RequiresStatement moduleRef : moduleRefs) {
+							ModuleReference reference = moduleRef.module;
 							if (reference instanceof CompletionOnModuleReference) {
 								contextAccepted = true;
 								buildContext(reference, null, parsedUnit, null, null);
@@ -2188,8 +2188,7 @@ public final class CompletionEngine
 					try {
 						UsesStatement[] uses = this.moduleDeclaration.uses;
 						if (uses != null) {
-							for (int i = 0, l = uses.length; i < l; ++i) {
-								UsesStatement usesStatement = uses[i];
+							for (UsesStatement usesStatement : uses) {
 								TypeReference usesReference = usesStatement.serviceInterface;
 								if (usesReference instanceof CompletionOnUsesSingleTypeReference ||
 										usesReference instanceof CompletionOnUsesQualifiedTypeReference) {
@@ -2209,8 +2208,7 @@ public final class CompletionEngine
 								return;
 							}
 							TypeReference[] implementations = providesStmt.implementations;
-							for (int j = 0, k = implementations.length; j < k; ++j) {
-								TypeReference implementation = implementations[j];
+							for (TypeReference implementation : implementations) {
 								if (implementation instanceof CompletionOnProvidesImplementationsSingleTypeReference ||
 										implementation instanceof CompletionOnProvidesImplementationsQualifiedTypeReference) {
 									this.skipDefaultPackage = true;
@@ -2260,8 +2258,7 @@ public final class CompletionEngine
 
 				ImportReference[] imports = parsedUnit.imports;
 				if (imports != null) {
-					for (int i = 0, length = imports.length; i < length; i++) {
-						ImportReference importReference = imports[i];
+					for (ImportReference importReference : imports) {
 						if (importReference instanceof CompletionOnImportReference) {
 							this.lookupEnvironment.buildTypeBindings(parsedUnit, null /*no access restriction*/);
 							if ((this.unitScope = parsedUnit.scope) != null) {
@@ -2469,8 +2466,7 @@ public final class CompletionEngine
 			CompilationUnitDeclaration parsedUnit, PackageVisibilityStatement[] pvsStmts) {
 		try {
 			this.skipDefaultPackage = true;
-			for (int i = 0, l = pvsStmts.length; i < l; ++i) {
-				PackageVisibilityStatement pvs = pvsStmts[i];
+			for (PackageVisibilityStatement pvs : pvsStmts) {
 				if (pvs instanceof CompletionOnKeywordModuleInfo) { // dummy pvs statement
 					contextAccepted = true;
 					processModuleKeywordCompletion(parsedUnit, pvs, (CompletionOnKeyword) pvs);
@@ -2488,8 +2484,7 @@ public final class CompletionEngine
 				ModuleReference[] targets = pvs.targets;
 				if (targets == null) continue;
 				HashSet<String> skipSet = new HashSet<>();
-				for (int j = 0, lj = targets.length; j < lj; j++) {
-					ModuleReference target = targets[j];
+				for (ModuleReference target : targets) {
 					if (target == null) break;
 					if (target instanceof CompletionOnModuleReference) {
 						buildContext(target, null, parsedUnit, null, null);
@@ -3057,9 +3052,9 @@ public final class CompletionEngine
 			LocalVariableBinding[] locals = ((BlockScope)scope).locals;
 			char[][] discouragedNames = new char[locals.length][];
 			int localCount = 0;
-			for(int i = 0 ; i < locals.length ; i++){
-				if (locals[i] != null) {
-					discouragedNames[localCount++] = locals[i].name;
+			for (LocalVariableBinding local : locals) {
+				if (local != null) {
+					discouragedNames[localCount++] = local.name;
 				}
 			}
 
@@ -4630,20 +4625,20 @@ public final class CompletionEngine
 				ReferenceBinding[] alreadyCaughtExceptions = thrownExceptionFinder.getAlreadyCaughtExceptions();
 				ReferenceBinding[] discouragedExceptions = thrownExceptionFinder.getDiscouragedExceptions();
 				if (bindings != null && bindings.length > 0) {
-					for (int i = 0; i < bindings.length; i++) {
-						addExpectedType(bindings[i], scope);
+					for (ReferenceBinding binding : bindings) {
+						addExpectedType(binding, scope);
 					}
 					this.expectedTypesFilter = SUPERTYPE;
 				}
 				if (alreadyCaughtExceptions != null && alreadyCaughtExceptions.length > 0) {
-					for (int i = 0; i < alreadyCaughtExceptions.length; i++) {
-						addForbiddenBindings(alreadyCaughtExceptions[i]);
-						this.knownTypes.put(CharOperation.concat(alreadyCaughtExceptions[i].qualifiedPackageName(), alreadyCaughtExceptions[i].qualifiedSourceName(), '.'), KNOWN_TYPE_WITH_KNOWN_CONSTRUCTORS);
+					for (ReferenceBinding alreadyCaughtException : alreadyCaughtExceptions) {
+						addForbiddenBindings(alreadyCaughtException);
+						this.knownTypes.put(CharOperation.concat(alreadyCaughtException.qualifiedPackageName(), alreadyCaughtException.qualifiedSourceName(), '.'), KNOWN_TYPE_WITH_KNOWN_CONSTRUCTORS);
 					}
 				}
 				if (discouragedExceptions != null && discouragedExceptions.length > 0) {
-					for (int i = 0; i < discouragedExceptions.length; i++) {
-						addUninterestingBindings(discouragedExceptions[i]);
+					for (ReferenceBinding discouragedException : discouragedExceptions) {
+						addUninterestingBindings(discouragedException);
 						// do not insert into known types. We do need these types to come from
 						// searchAllTypes(..) albeit with lower relevance
 					}
@@ -4688,8 +4683,8 @@ public final class CompletionEngine
 				if (methodDecl != null && methodDecl.binding != null) {
 					ReferenceBinding[] exceptions = methodDecl.binding.thrownExceptions;
 					if (exceptions != null) {
-						for (int i = 0; i < exceptions.length; i++) {
-							addExpectedType(exceptions[i], scope);
+						for (ReferenceBinding exception : exceptions) {
+							addExpectedType(exception, scope);
 						}
 					}
 				}
@@ -4712,9 +4707,7 @@ public final class CompletionEngine
 			return;
 
 		MethodBinding[] methods = binding.availableMethods();
-		nextMethod : for (int i = 0; i < methods.length; i++) {
-			MethodBinding method = methods[i];
-
+		nextMethod : for (MethodBinding method : methods) {
 			if (!method.isConstructor()) continue nextMethod;
 
 			if (method.isSynthetic()) continue nextMethod;
@@ -4753,9 +4746,7 @@ public final class CompletionEngine
 			return;
 
 		MethodBinding[] methods = binding.availableMethods();
-		nextMethod : for (int i = 0; i < methods.length; i++) {
-			MethodBinding method = methods[i];
-
+		nextMethod : for (MethodBinding method : methods) {
 			if (method.isSynthetic()) continue nextMethod;
 
 			if (method.isDefaultAbstract())	continue nextMethod;
@@ -4929,8 +4920,8 @@ public final class CompletionEngine
 
 	int computeRelevanceForCaseMatching(char[][] tokens, char[] proposalName) {
 		int finalRelevance = 0;
-		for (int i = 0; i < tokens.length; i++) {
-			int relevance = computeRelevanceForCaseMatching(tokens[i], proposalName);
+		for (char[] token : tokens) {
+			int relevance = computeRelevanceForCaseMatching(token, proposalName);
 			if (relevance > finalRelevance) {
 				finalRelevance = relevance;
 			}
@@ -5263,9 +5254,9 @@ public final class CompletionEngine
 				this.uninterestingBindingsFilter |= SUBTYPE;
 				// super-types also need to be discouraged if we're in a union type (bug 350652)
 				Argument[] args = ((TryStatement)parent).catchArguments;
-				for (int i = 0; i < args.length; i++) {
-					if (args[i].type instanceof UnionTypeReference) {
-						CompletionNodeDetector detector = new CompletionNodeDetector(astNode, args[i]);
+				for (Argument arg4 : args) {
+					if (arg4.type instanceof UnionTypeReference) {
+						CompletionNodeDetector detector = new CompletionNodeDetector(astNode, arg4);
 						if (detector.containsCompletionNode()) {
 							this.uninterestingBindingsFilter |= SUPERTYPE;
 							break;
@@ -5685,9 +5676,7 @@ public final class CompletionEngine
 	}
 	private void findAnnotationAttributes(char[] token, MemberValuePair[] attributesFound, ReferenceBinding annotation) {
 		MethodBinding[] methods = annotation.availableMethods();
-		nextAttribute: for (int i = 0; i < methods.length; i++) {
-			MethodBinding method = methods[i];
-
+		nextAttribute: for (MethodBinding method : methods) {
 			if(isFailedMatch(token, method.selector)) continue nextAttribute;
 
 			int length = attributesFound == null ? 0 : attributesFound.length;
@@ -6509,9 +6498,7 @@ public final class CompletionEngine
 					TypeDeclaration typeDeclaration = refBinding.scope.referenceContext;
 					AbstractMethodDeclaration[] methods = typeDeclaration.methods;
 
-					next : for (int i = 0; i < methods.length; i++) {
-						AbstractMethodDeclaration method = methods[i];
-
+					next : for (AbstractMethodDeclaration method : methods) {
 						if (!method.isConstructor()) continue next;
 
 						Argument[] arguments = method.arguments;
@@ -6602,8 +6589,7 @@ public final class CompletionEngine
 
 					TypeParameter[] classTypeParameters = typeDeclaration.typeParameters;
 					if(classTypeParameters != null) {
-						for (int i = 0; i < classTypeParameters.length; i++) {
-							TypeParameter typeParameter = classTypeParameters[i];
+						for (TypeParameter typeParameter : classTypeParameters) {
 							if(excludedNameCount == excludedNames.length) {
 								System.arraycopy(excludedNames, 0, excludedNames = new char[excludedNameCount * 2][], 0, excludedNameCount);
 							}
@@ -6616,8 +6602,7 @@ public final class CompletionEngine
 					if(methodScope.referenceContext instanceof AbstractMethodDeclaration) {
 						TypeParameter[] methodTypeParameters = ((AbstractMethodDeclaration)methodScope.referenceContext).typeParameters();
 						if(methodTypeParameters != null) {
-							for (int i = 0; i < methodTypeParameters.length; i++) {
-								TypeParameter typeParameter = methodTypeParameters[i];
+							for (TypeParameter typeParameter : methodTypeParameters) {
 								if(excludedNameCount == excludedNames.length) {
 									System.arraycopy(excludedNames, 0, excludedNames = new char[excludedNameCount * 2][], 0, excludedNameCount);
 								}
@@ -8113,8 +8098,7 @@ public final class CompletionEngine
 		ImportBinding[] favoriteBindings = getFavoriteReferenceBindings(invocationScope);
 
 		if (favoriteBindings != null && favoriteBindings.length > 0) {
-			for (int i = 0; i < favoriteBindings.length; i++) {
-				ImportBinding favoriteBinding = favoriteBindings[i];
+			for (ImportBinding favoriteBinding : favoriteBindings) {
 				switch (favoriteBinding.resolvedImport.kind()) {
 					case Binding.FIELD:
 						FieldBinding fieldBinding = (FieldBinding) favoriteBinding.resolvedImport;
@@ -8356,8 +8340,7 @@ public final class CompletionEngine
 			boolean proposeMethod) {
 		// search in static import
 		ImportBinding[] importBindings = scope.compilationUnitScope().imports;
-		for (int i = 0; i < importBindings.length; i++) {
-			ImportBinding importBinding = importBindings[i];
+		for (ImportBinding importBinding : importBindings) {
 			if(importBinding.isValidBinding() && importBinding.isStatic()) {
 				Binding binding = importBinding.resolvedImport;
 				if(binding != null && binding.isValidBinding()) {
@@ -9153,31 +9136,31 @@ public final class CompletionEngine
 	private void findKeywords(char[] keyword, char[][] choices, boolean staticFieldsAndMethodOnly, boolean ignorePackageKeyword) {
 		if(choices == null || choices.length == 0) return;
 		int length = keyword.length;
-		for (int i = 0; i < choices.length; i++)
-			if (length <= choices[i].length && (CharOperation.prefixEquals(keyword, choices[i], false /* ignore case */)
-					|| (this.options.substringMatch && CharOperation.substringMatch(keyword, choices[i])))) {
-				if (ignorePackageKeyword && CharOperation.equals(choices[i], Keywords.PACKAGE))
+		for (char[] element : choices)
+			if (length <= element.length && (CharOperation.prefixEquals(keyword, element, false /* ignore case */)
+					|| (this.options.substringMatch && CharOperation.substringMatch(keyword, element)))) {
+				if (ignorePackageKeyword && CharOperation.equals(element, Keywords.PACKAGE))
 					continue;
 				int relevance = computeBaseRelevance();
 				relevance += computeRelevanceForResolution();
 				relevance += computeRelevanceForInterestingProposal();
-				relevance += computeRelevanceForCaseMatching(keyword, choices[i]);
+				relevance += computeRelevanceForCaseMatching(keyword, element);
 				relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for keywords
 				relevance += computeRelevanceForFinalInIOE();
 				if (staticFieldsAndMethodOnly && this.insideQualifiedReference) relevance += R_NON_INHERITED;
 
-				if(CharOperation.equals(choices[i], Keywords.TRUE) || CharOperation.equals(choices[i], Keywords.FALSE)) {
+				if(CharOperation.equals(element, Keywords.TRUE) || CharOperation.equals(element, Keywords.FALSE)) {
 					relevance += computeRelevanceForExpectingType(TypeBinding.BOOLEAN);
 					relevance += computeRelevanceForQualification(false);
 				}
-				if (CharOperation.equals(choices[i], Keywords.NEW)) {
+				if (CharOperation.equals(element, Keywords.NEW)) {
 					relevance += computeRelevanceForConstructor();
 				}
 				this.noProposal = false;
 				if(!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
 					InternalCompletionProposal proposal =  createProposal(CompletionProposal.KEYWORD, this.actualCompletionPosition);
-					proposal.setName(choices[i]);
-					proposal.setCompletion(choices[i]);
+					proposal.setName(element);
+					proposal.setCompletion(element);
 					proposal.setReplaceRange((this.startPosition < 0) ? 0 : this.startPosition - this.offset, this.endPosition - this.offset);
 					proposal.setTokenRange((this.tokenStart < 0) ? 0 : this.tokenStart - this.offset, this.tokenEnd - this.offset);
 					proposal.setRelevance(relevance);
@@ -9298,21 +9281,21 @@ public final class CompletionEngine
 		if(choices == null || choices.length == 0) return;
 
 		int length = label.length;
-		for (int i = 0; i < choices.length; i++) {
-			if (length <= choices[i].length
-				&& CharOperation.prefixEquals(label, choices[i], false /* ignore case */
+		for (char[] element : choices) {
+			if (length <= element.length
+				&& CharOperation.prefixEquals(label, element, false /* ignore case */
 			)){
 				int relevance = computeBaseRelevance();
 				relevance += computeRelevanceForResolution();
 				relevance += computeRelevanceForInterestingProposal();
-				relevance += computeRelevanceForCaseMatching(label, choices[i]);
+				relevance += computeRelevanceForCaseMatching(label, element);
 				relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for keywors
 
 				this.noProposal = false;
 				if(!this.requestor.isIgnored(CompletionProposal.LABEL_REF)) {
 					InternalCompletionProposal proposal =  createProposal(CompletionProposal.LABEL_REF, this.actualCompletionPosition);
-					proposal.setName(choices[i]);
-					proposal.setCompletion(choices[i]);
+					proposal.setName(element);
+					proposal.setCompletion(element);
 					proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
 					proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 					proposal.setRelevance(relevance);
@@ -9593,9 +9576,9 @@ public final class CompletionEngine
 			ReferenceBinding superTypeWithSameErasure = (ReferenceBinding)receiverType.findSuperTypeOriginatingFrom(method.declaringClass);
 			if (TypeBinding.notEquals(method.declaringClass, superTypeWithSameErasure)) {
 				MethodBinding[] otherMethods = superTypeWithSameErasure.getMethods(method.selector);
-				for (int i = 0; i < otherMethods.length; i++) {
-					if(otherMethods[i].original() == method.original()) {
-						method = otherMethods[i];
+				for (MethodBinding otherMethod : otherMethods) {
+					if(otherMethod.original() == method.original()) {
+						method = otherMethod;
 					}
 				}
 			}
@@ -9992,9 +9975,9 @@ public final class CompletionEngine
 				ReferenceBinding superTypeWithSameErasure = (ReferenceBinding)receiverType.findSuperTypeOriginatingFrom(method.declaringClass);
 				if (TypeBinding.notEquals(method.declaringClass, superTypeWithSameErasure)) {
 					MethodBinding[] otherMethods = superTypeWithSameErasure.getMethods(method.selector);
-					for (int i = 0; i < otherMethods.length; i++) {
-						if(otherMethods[i].original() == method.original()) {
-							method = otherMethods[i];
+					for (MethodBinding otherMethod : otherMethods) {
+						if(otherMethod.original() == method.original()) {
+							method = otherMethod;
 						}
 					}
 				}
@@ -10608,11 +10591,11 @@ public final class CompletionEngine
 
 		if(proposeAllMemberTypes) {
 			ReferenceBinding[] memberTypes = receiverType.memberTypes();
-			for (int i = 0; i < memberTypes.length; i++) {
-				if(TypeBinding.notEquals(memberTypes[i], typeToIgnore)) {
+			for (ReferenceBinding memberType : memberTypes) {
+				if(TypeBinding.notEquals(memberType, typeToIgnore)) {
 					findSubMemberTypes(
 						typeName,
-						memberTypes[i],
+						memberType,
 						scope,
 						typeInvocation,
 						staticOnly,
@@ -10943,15 +10926,15 @@ public final class CompletionEngine
 
 		MethodBinding[] receiverTypeMethods = receiverType.availableMethods();
 		if (receiverTypeMethods != null){
-			for (int i = 0; i < receiverTypeMethods.length; i++) {
-				if (receiverType.isRecord() && receiverTypeMethods[i] instanceof SyntheticMethodBinding smb) {
+			for (MethodBinding receiverTypeMethod : receiverTypeMethods) {
+				if (receiverType.isRecord() && receiverTypeMethod instanceof SyntheticMethodBinding smb) {
 					if (CharOperation.equals(smb.selector, TypeConstants.EQUALS) ||
 							CharOperation.equals(smb.selector, TypeConstants.HASHCODE) ||
 							CharOperation.equals(smb.selector, TypeConstants.TOSTRING))
 					continue; // allow proposals to override compiler supplied implementations.
 				}
-				if(!receiverTypeMethods[i].isDefaultAbstract()) {
-					methodsFound.add(receiverTypeMethods[i]);
+				if(!receiverTypeMethod.isDefaultAbstract()) {
+					methodsFound.add(receiverTypeMethod);
 				}
 			}
 		}
@@ -11586,17 +11569,17 @@ public final class CompletionEngine
 				false);
 
 		ReferenceBinding[] memberTypes = receiverType.memberTypes();
-		next : for (int i = 0; i < memberTypes.length; i++) {
+		next : for (ReferenceBinding memberType : memberTypes) {
 			if (this.options.checkVisibility) {
-				if (typeInvocation != null && !memberTypes[i].canBeSeenBy(receiverType, typeInvocation)) {
+				if (typeInvocation != null && !memberType.canBeSeenBy(receiverType, typeInvocation)) {
 					continue next;
-				} else if(typeInvocation == null && !memberTypes[i].canBeSeenBy(this.unitScope.fPackage)) {
+				} else if(typeInvocation == null && !memberType.canBeSeenBy(this.unitScope.fPackage)) {
 					continue next;
 				}
 			}
 			findSubMemberTypes(
 				typeName,
-				memberTypes[i],
+				memberType,
 				scope,
 				typeInvocation,
 				staticOnly,
@@ -11611,14 +11594,14 @@ public final class CompletionEngine
 
 		if(this.expectedTypesPtr != 0 || TypeBinding.notEquals(this.expectedTypes[0], TypeBinding.BOOLEAN)) return;
 
-		for (int i = 0; i < choices.length; i++) {
-			if (CharOperation.equals(choices[i], Keywords.TRUE) ||
-					CharOperation.equals(choices[i], Keywords.FALSE)
+		for (char[] element : choices) {
+			if (CharOperation.equals(element, Keywords.TRUE) ||
+					CharOperation.equals(element, Keywords.FALSE)
 			){
 				int relevance = computeBaseRelevance();
 				relevance += computeRelevanceForResolution();
 				relevance += computeRelevanceForInterestingProposal();
-				relevance += computeRelevanceForCaseMatching(CharOperation.NO_CHAR, choices[i]);
+				relevance += computeRelevanceForCaseMatching(CharOperation.NO_CHAR, element);
 				relevance += computeRelevanceForRestrictions(IAccessRule.K_ACCESSIBLE); // no access restriction for keywors
 				relevance += computeRelevanceForExpectingType(TypeBinding.BOOLEAN);
 				relevance += computeRelevanceForQualification(false);
@@ -11627,8 +11610,8 @@ public final class CompletionEngine
 				this.noProposal = false;
 				if(!this.requestor.isIgnored(CompletionProposal.KEYWORD)) {
 					InternalCompletionProposal proposal =  createProposal(CompletionProposal.KEYWORD, this.actualCompletionPosition);
-					proposal.setName(choices[i]);
-					proposal.setCompletion(choices[i]);
+					proposal.setName(element);
+					proposal.setCompletion(element);
 					proposal.setReplaceRange(this.startPosition - this.offset, this.endPosition - this.offset);
 					proposal.setTokenRange(this.tokenStart - this.offset, this.tokenEnd - this.offset);
 					proposal.setRelevance(relevance);
@@ -11666,10 +11649,8 @@ public final class CompletionEngine
 					return;
 			}
 			if(typeParameters != null) {
-				for (int i = 0; i < typeParameters.length; i++) {
+				for (TypeParameter typeParameter : typeParameters) {
 					int typeLength = token.length;
-					TypeParameter typeParameter = typeParameters[i];
-
 					if(typeParameter.binding == null) continue;
 
 					if (typeLength > typeParameter.name.length) continue;
@@ -11755,11 +11736,9 @@ public final class CompletionEngine
 			int typeLength = token.length;
 			SourceTypeBinding[] types = this.unitScope.topLevelTypes;
 
-			next : for (int i = 0, length = types.length; i < length; i++) {
+			next : for (SourceTypeBinding sourceType : types) {
 
 				checkCancel();
-
-				SourceTypeBinding sourceType = types[i];
 
 				if(isForbidden(sourceType)) continue next;
 
@@ -12145,11 +12124,9 @@ public final class CompletionEngine
 			int typeLength = qualifiedName.length;
 			SourceTypeBinding[] types = this.unitScope.topLevelTypes;
 
-			for (int i = 0, length = types.length; i < length; i++) {
+			for (SourceTypeBinding sourceType : types) {
 
 				checkCancel();
-
-				SourceTypeBinding sourceType = types[i];
 
 				if (isForbidden(sourceType)) continue;
 				if (this.assistNodeIsClass && sourceType.isInterface()) continue;
@@ -12483,8 +12460,7 @@ public final class CompletionEngine
 
 	private void findTypesFromImports(char[] token, Scope scope, boolean proposeType, ObjectVector typesFound) {
 		ImportBinding[] importBindings = scope.compilationUnitScope().imports;
-		next : for (int i = 0; i < importBindings.length; i++) {
-			ImportBinding importBinding = importBindings[i];
+		next : for (ImportBinding importBinding : importBindings) {
 			if(importBinding.isValidBinding()) {
 				Binding binding = importBinding.resolvedImport;
 				if(binding != null && binding.isValidBinding()) {
@@ -12610,8 +12586,7 @@ public final class CompletionEngine
 	private void findTypesFromStaticImports(char[] token, Scope scope, boolean proposeAllMemberTypes, ObjectVector typesFound) {
 		ImportBinding[] importBindings = scope.compilationUnitScope().imports;
 		if (importBindings == null) return;
-		for (int i = 0; i < importBindings.length; i++) {
-			ImportBinding importBinding = importBindings[i];
+		for (ImportBinding importBinding : importBindings) {
 			if(importBinding.isValidBinding() && importBinding.isStatic()) {
 				Binding binding = importBinding.resolvedImport;
 				if(binding != null && binding.isValidBinding()) {
@@ -13574,8 +13549,8 @@ public final class CompletionEngine
 				TypeVariableBinding[] typeVariables = referenceBinding.typeVariables();
 				if (typeVariables != Binding.NO_TYPE_VARIABLES) {
 				    sig.append(Signature.C_GENERIC_START);
-				    for (int i = 0, length = typeVariables.length; i < length; i++) {
-				        sig.append(typeVariables[i].genericTypeSignature());
+				    for (TypeVariableBinding typeVariable : typeVariables) {
+				        sig.append(typeVariable.genericTypeSignature());
 				    }
 				    sig.append(Signature.C_GENERIC_END);
 				}
@@ -13593,8 +13568,8 @@ public final class CompletionEngine
 				TypeVariableBinding[] typeVariables = referenceBinding.typeVariables();
 				if (typeVariables != Binding.NO_TYPE_VARIABLES) {
 				    sig.append(Signature.C_GENERIC_START);
-				    for (int i = 0, length = typeVariables.length; i < length; i++) {
-				        sig.append(typeVariables[i].genericTypeSignature());
+				    for (TypeVariableBinding typeVariable : typeVariables) {
+				        sig.append(typeVariable.genericTypeSignature());
 				    }
 				    sig.append(Signature.C_GENERIC_END);
 				}
@@ -13606,8 +13581,8 @@ public final class CompletionEngine
 					TypeVariableBinding[] typeVariables = referenceBinding.typeVariables();
 					if (typeVariables != Binding.NO_TYPE_VARIABLES) {
 					    sig.append(Signature.C_GENERIC_START);
-					    for (int i = 0, length = typeVariables.length; i < length; i++) {
-					        sig.append(typeVariables[i].genericTypeSignature());
+					    for (TypeVariableBinding typeVariable : typeVariables) {
+					        sig.append(typeVariable.genericTypeSignature());
 					    }
 					    sig.append(Signature.C_GENERIC_END);
 					}
@@ -13635,9 +13610,7 @@ public final class CompletionEngine
 		ImportBinding[] resolvedImports = new ImportBinding[favoriteReferences.length];
 
 		int count = 0;
-		next : for (int i = 0; i < favoriteReferences.length; i++) {
-			String favoriteReference = favoriteReferences[i];
-
+		next : for (String favoriteReference : favoriteReferences) {
 			int length;
 			if (favoriteReference == null || (length = favoriteReference.length()) == 0) continue next;
 
@@ -13851,8 +13824,8 @@ public final class CompletionEngine
 		}
 
 		char[][] names = CharOperation.splitOn('.', packageName);
-		for (int i = 0, length = names.length; i < length; i++) {
-			if (!Util.isValidFolderNameForPackage(new String(names[i]), this.sourceLevel, this.complianceLevel)) {
+		for (char[] name : names) {
+			if (!Util.isValidFolderNameForPackage(new String(name), this.sourceLevel, this.complianceLevel)) {
 				this.invalidPackageNames.add(packageName);
 				return false;
 			}
@@ -13946,10 +13919,10 @@ public final class CompletionEngine
 			while (currentType != null) {
 				ReferenceBinding[] memberTypes = currentType.memberTypes();
 				if(memberTypes != null) {
-					for (int i = 0; i < memberTypes.length; i++) {
-						if (CharOperation.equals(memberTypes[i].sourceName, type.sourceName()) &&
-								memberTypes[i].canBeSeenBy(scope)) {
-							return TypeBinding.notEquals(memberTypes[i], type);
+					for (ReferenceBinding memberType : memberTypes) {
+						if (CharOperation.equals(memberType.sourceName, type.sourceName()) &&
+								memberType.canBeSeenBy(scope)) {
+							return TypeBinding.notEquals(memberType, type);
 						}
 					}
 				}
@@ -14111,9 +14084,9 @@ public final class CompletionEngine
 		if(proposals != null) {
 			printDebugTab(tab, buffer);
 			buffer.append("\tRequiredProposals[");//$NON-NLS-1$
-			for (int i = 0; i < proposals.length; i++) {
+			for (CompletionProposal proposal2 : proposals) {
 				buffer.append("\n"); //$NON-NLS-1$
-				printDebug(proposals[i], tab + 2, buffer);
+				printDebug(proposal2, tab + 2, buffer);
 			}
 			printDebugTab(tab, buffer);
 			buffer.append("\n\t]\n"); //$NON-NLS-1$
@@ -14639,8 +14612,8 @@ public final class CompletionEngine
 	private char[] substituteMethodTypeParameterName(char firstName, char startChar, char endChar, char[][] excludedNames, char[][] otherParameterNames) {
 		char name = firstName;
 		next : while (true) {
-			for (int i = 0 ; i < excludedNames.length ; i++){
-				if(excludedNames[i].length == 1 && ScannerHelper.toLowerCase(excludedNames[i][0]) == ScannerHelper.toLowerCase(name)) {
+			for (char[] excludedName : excludedNames) {
+				if(excludedName.length == 1 && ScannerHelper.toLowerCase(excludedName[0]) == ScannerHelper.toLowerCase(name)) {
 					name++;
 					if(name > endChar)
 						name = startChar;
@@ -14650,8 +14623,8 @@ public final class CompletionEngine
 				}
 			}
 
-			for (int i = 0; i < otherParameterNames.length; i++) {
-				if(otherParameterNames[i].length == 1 && ScannerHelper.toLowerCase(otherParameterNames[i][0]) == ScannerHelper.toLowerCase(name)) {
+			for (char[] otherParameterName : otherParameterNames) {
+				if(otherParameterName.length == 1 && ScannerHelper.toLowerCase(otherParameterName[0]) == ScannerHelper.toLowerCase(name)) {
 					name++;
 					if(name > endChar)
 						name = startChar;
@@ -14669,14 +14642,14 @@ public final class CompletionEngine
 		char[] name = firstName;
 		int count = 2;
 		next : while(true) {
-			for(int k = 0 ; k < excludedNames.length ; k++){
-				if(CharOperation.equals(name, excludedNames[k], false)) {
+			for (char[] excludedName : excludedNames) {
+				if(CharOperation.equals(name, excludedName, false)) {
 					name = CharOperation.concat(firstName, String.valueOf(count++).toCharArray());
 					continue next;
 				}
 			}
-			for (int i = 0; i < otherParameterNames.length; i++) {
-				if(CharOperation.equals(name, otherParameterNames[i], false)) {
+			for (char[] otherParameterName : otherParameterNames) {
+				if(CharOperation.equals(name, otherParameterName, false)) {
 					name = CharOperation.concat(firstName, String.valueOf(count++).toCharArray());
 					continue next;
 				}
@@ -14699,8 +14672,7 @@ public final class CompletionEngine
 			TypeVariableBinding typeVariableBinding = typeVariables[i];
 			char[] methodParameterName = typeVariableBinding.sourceName;
 
-			for (int j = 0; j < excludedNames.length; j++) {
-				char[] typeParameterName = excludedNames[j];
+			for (char[] typeParameterName : excludedNames) {
 				if(CharOperation.equals(typeParameterName, methodParameterName, false)) {
 					char[] substitution;
 					if(methodParameterName.length == 1) {

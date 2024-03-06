@@ -377,8 +377,7 @@ public class CommentsPreparator extends ASTVisitor {
 			fragments = Arrays.asList(commentToken);
 		}
 		ArrayList<Token> result = new ArrayList<>();
-		for (int i = 0; i < fragments.size(); i++) {
-			Token token = fragments.get(i);
+		for (Token token : fragments) {
 			if (token.hasNLSTag()) {
 				if (ScannerHelper.isWhitespace(this.tm.charAt(token.originalStart - 1)))
 					token.spaceBefore();

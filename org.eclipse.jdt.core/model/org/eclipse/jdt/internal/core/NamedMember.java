@@ -131,8 +131,8 @@ public abstract class NamedMember extends Member {
 		// parameters
 		key.append('(');
 		String[] parameters = method.getParameterTypes();
-		for (int i = 0, length = parameters.length; i < length; i++)
-			key.append(parameters[i].replace('.', '/'));
+		for (String parameter : parameters)
+			key.append(parameter.replace('.', '/'));
 		key.append(')');
 
 		// return type

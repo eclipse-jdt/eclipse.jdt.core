@@ -23,6 +23,7 @@ import org.eclipse.jdt.internal.compiler.ast.MessageSend;
 import org.eclipse.jdt.internal.compiler.ast.ThrowStatement;
 import org.eclipse.jdt.internal.compiler.ast.TryStatement;
 import org.eclipse.jdt.internal.compiler.ast.TypeDeclaration;
+import org.eclipse.jdt.internal.compiler.ast.TypeReference;
 import org.eclipse.jdt.internal.compiler.ast.UnionTypeReference;
 import org.eclipse.jdt.internal.compiler.lookup.BlockScope;
 import org.eclipse.jdt.internal.compiler.lookup.ClassScope;
@@ -159,9 +160,9 @@ public class ThrownExceptionFinder extends ASTVisitor {
 		this.thrownExceptions = (SimpleSet)this.exceptionsStack.pop();
 
 		Object[] values = exceptionSet.values;
-		for (int i = 0; i < values.length; i++) {
-			if (values[i] != null) {
-				this.thrownExceptions.add(values[i]);
+		for (Object value : values) {
+			if (value != null) {
+				this.thrownExceptions.add(value);
 			}
 		}
 
@@ -180,8 +181,8 @@ public class ThrownExceptionFinder extends ASTVisitor {
 			if (catchArguments[i].type instanceof UnionTypeReference) {
 				UnionTypeReference unionTypeReference = (UnionTypeReference) catchArguments[i].type;
 				TypeBinding caughtException;
-				for (int j = 0; j < unionTypeReference.typeReferences.length; j++) {
-					caughtException = unionTypeReference.typeReferences[j].resolvedType;
+				for (TypeReference element : unionTypeReference.typeReferences) {
+					caughtException = element.resolvedType;
 					if ((caughtException instanceof ReferenceBinding) && caughtException.isValidBinding()) {	// might be null when its the completion node
 						if (recordUncheckedCaughtExceptions) {
 							// is in outermost try-catch. Remove all caught exceptions, unchecked or checked
@@ -217,8 +218,8 @@ public class ThrownExceptionFinder extends ASTVisitor {
 
 	private void removeCaughtException(ReferenceBinding caughtException) {
 		Object[] exceptions = this.thrownExceptions.values;
-		for (int i = 0; i < exceptions.length; i++) {
-			ReferenceBinding exception = (ReferenceBinding)exceptions[i];
+		for (Object exception2 : exceptions) {
+			ReferenceBinding exception = (ReferenceBinding)exception2;
 			if (exception != null) {
 				if (TypeBinding.equalsEquals(exception, caughtException)) {
 					this.thrownExceptions.remove(exception);

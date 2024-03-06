@@ -1634,8 +1634,8 @@ protected TypeReference getAssistTypeReferenceForGenericType(int dim, int identi
 		System.arraycopy(typeArguments, 0, typeArguments = new TypeReference[realLength][], 0, realLength);
 
 		boolean isParameterized = false;
-		for (int i = 0; i < typeArguments.length; i++) {
-			if(typeArguments[i] != null) {
+		for (TypeReference[] typeArgument : typeArguments) {
+			if(typeArgument != null) {
 				isParameterized = true;
 				break;
 			}
@@ -2389,9 +2389,9 @@ protected int fallBackToSpringForward(Statement unused) {
 			ignoreNextClosingBrace(); // having ungotten it, recoveryTokenCheck will see this again.
 	}
 	// OK, next token is no good to resume "in place", attempt some local repair.
-	for (int i = 0, length = RECOVERY_TOKENS.length; i < length; i++) {
-		if (automatonWillShift(RECOVERY_TOKENS[i], automatonState)) {
-			this.currentToken = RECOVERY_TOKENS[i];
+	for (int element : RECOVERY_TOKENS) {
+		if (automatonWillShift(element, automatonState)) {
+			this.currentToken = element;
 			return RESUME;
 		}
 	}

@@ -165,9 +165,9 @@ public abstract class HierarchyBuilder {
 				trace(" <None>"); //$NON-NLS-1$
 			} else {
 				trace(""); //$NON-NLS-1$
-				for (int i = 0, length = superinterfaceHandles.length; i < length; i++) {
-					if (superinterfaceHandles[i] == null) continue;
-					trace("    " + ((JavaElement) superinterfaceHandles[i]).toStringWithAncestors()); //$NON-NLS-1$
+				for (IType superinterfaceHandle : superinterfaceHandles) {
+					if (superinterfaceHandle == null) continue;
+					trace("    " + ((JavaElement) superinterfaceHandle).toStringWithAncestors()); //$NON-NLS-1$
 				}
 			}
 		}

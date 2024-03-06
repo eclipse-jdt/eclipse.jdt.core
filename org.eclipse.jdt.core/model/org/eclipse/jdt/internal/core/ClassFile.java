@@ -154,8 +154,7 @@ public boolean existsUsingJarTypeCache() {
 		if (parentInfo != null) {
 			// if parent is open, this class file must be in its children
 			IJavaElement[] children = parentInfo.getChildren();
-			for (int i = 0, length = children.length; i < length; i++) {
-				IJavaElement child = children[i];
+			for (IJavaElement child : children) {
 				if (child instanceof ClassFile && this.name.equals(((ClassFile) child).name))
 					return true;
 			}

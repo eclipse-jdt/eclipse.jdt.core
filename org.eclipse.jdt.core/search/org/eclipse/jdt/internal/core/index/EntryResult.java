@@ -59,8 +59,8 @@ public String[] getDocumentNames(Index index) throws java.io.IOException {
 		for (int i = 0; i < length; i++) {
 			Object offset = this.documentTables[i];
 			int[] numbers = index.diskIndex.readDocumentNumbers(offset);
-			for (int j = 0, k = numbers.length; j < k; j++)
-				addDocumentName(index.diskIndex.readDocumentName(numbers[j]));
+			for (int number : numbers)
+				addDocumentName(index.diskIndex.readDocumentName(number));
 		}
 	}
 
@@ -70,9 +70,9 @@ public String[] getDocumentNames(Index index) throws java.io.IOException {
 	String[] names = new String[this.documentNames.elementSize];
 	int count = 0;
 	Object[] values = this.documentNames.values;
-	for (int i = 0, l = values.length; i < l; i++)
-		if (values[i] != null)
-			names[count++] = (String) values[i];
+	for (Object value : values)
+		if (value != null)
+			names[count++] = (String) value;
 	return names;
 }
 public boolean isEmpty() {

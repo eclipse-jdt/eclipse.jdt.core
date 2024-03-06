@@ -185,8 +185,8 @@ public int hashCode() {
 	if (this.compoundName == null) return super.hashCode();
 
 	int hashCode = 0;
-	for (int i = 0, length = this.compoundName.length; i < length; i++)
-		hashCode += CharOperation.hashCode(this.compoundName[i]);
+	for (char[] element : this.compoundName)
+		hashCode += CharOperation.hashCode(element);
 	return hashCode;
 }
 @Override

@@ -15,7 +15,6 @@ package org.eclipse.jdt.internal.core;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -215,8 +214,7 @@ public void acceptPackage(ImportReference importReference) {
 		this.newElements.put(handle, info);
 
 		if (importReference.annotations != null) {
-			for (int i = 0, length = importReference.annotations.length; i < length; i++) {
-				org.eclipse.jdt.internal.compiler.ast.Annotation annotation = importReference.annotations[i];
+			for (org.eclipse.jdt.internal.compiler.ast.Annotation annotation : importReference.annotations) {
 				acceptAnnotation(annotation, info, handle);
 			}
 		}
@@ -459,8 +457,7 @@ private SourceMethodElementInfo createMethodInfo(MethodInfo methodInfo, SourceMe
 	this.newElements.put(handle, info);
 
 	if (methodInfo.typeParameters != null) {
-		for (int i = 0, length = methodInfo.typeParameters.length; i < length; i++) {
-			TypeParameterInfo typeParameterInfo = methodInfo.typeParameters[i];
+		for (TypeParameterInfo typeParameterInfo : methodInfo.typeParameters) {
 			acceptTypeParameter(typeParameterInfo, info);
 		}
 	}
@@ -511,8 +508,7 @@ private LocalVariable[] acceptMethodParameters(Argument[] arguments, JavaElement
 		this.handleStack.push(result[i]);
 		if (argument.annotations != null) {
 			paramAnnotations[i] = new Annotation[argument.annotations.length];
-			for (int  j = 0; j < argument.annotations.length; j++ ) {
-				org.eclipse.jdt.internal.compiler.ast.Annotation annotation = argument.annotations[j];
+			for (org.eclipse.jdt.internal.compiler.ast.Annotation annotation : argument.annotations) {
 				acceptAnnotation(annotation, localVarInfo, result[i]);
 			}
 		}
@@ -598,8 +594,7 @@ private SourceTypeElementInfo createTypeInfo(TypeInfo typeInfo, SourceType handl
 	this.newElements.put(handle, info);
 
 	if (typeInfo.typeParameters != null) {
-		for (int i = 0, length = typeInfo.typeParameters.length; i < length; i++) {
-			TypeParameterInfo typeParameterInfo = typeInfo.typeParameters[i];
+		for (TypeParameterInfo typeParameterInfo : typeInfo.typeParameters) {
 			acceptTypeParameter(typeParameterInfo, info);
 		}
 	}
@@ -612,9 +607,7 @@ private SourceTypeElementInfo createTypeInfo(TypeInfo typeInfo, SourceType handl
 		}
 	}
 	if (typeInfo.childrenCategories != null) {
-		Iterator<Entry<IJavaElement, char[][]>> iterator = typeInfo.childrenCategories.entrySet().iterator();
-		while (iterator.hasNext()) {
-			Entry<IJavaElement, char[][]> entry = iterator.next();
+		for (Entry<IJavaElement, char[][]> entry : typeInfo.childrenCategories.entrySet()) {
 			info.addCategories(entry.getKey(), entry.getValue());
 		}
 

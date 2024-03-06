@@ -252,10 +252,10 @@ public class ASTParser {
 				}
 			}
 			if (this.classpaths != null) {
-				for (int i = 0, max = this.classpaths.length; i < max; i++) {
+				for (String classpath : this.classpaths) {
 					main.processPathEntries(
 							Main.DEFAULT_SIZE_CLASSPATH,
-							allClasspaths, this.classpaths[i], null, false, false);
+							allClasspaths, classpath, null, false, false);
 				}
 			}
 			ArrayList pendingErrors = main.pendingErrors;

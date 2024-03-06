@@ -1760,8 +1760,8 @@ public abstract class ASTNode {
 				// there are no cursors to worry about
 				return;
 			}
-			for (Iterator it = this.cursors.iterator(); it.hasNext(); ) {
-				Cursor c = (Cursor) it.next();
+			for (Object element : this.cursors) {
+				Cursor c = (Cursor) element;
 				c.update(index, delta);
 			}
 		}
@@ -1796,8 +1796,8 @@ public abstract class ASTNode {
 		 */
 		int listSize() {
 			int result = memSize();
-			for (Iterator it = iterator(); it.hasNext(); ) {
-				ASTNode child = (ASTNode) it.next();
+			for (Object element : this) {
+				ASTNode child = (ASTNode) element;
 				result += child.treeSize();
 			}
 			return result;
@@ -3228,8 +3228,8 @@ public abstract class ASTNode {
 	 */
 	public static List copySubtrees(AST target, List nodes) {
 		List result = new ArrayList(nodes.size());
-		for (Iterator it = nodes.iterator(); it.hasNext(); ) {
-			ASTNode oldNode = (ASTNode) it.next();
+		for (Object node : nodes) {
+			ASTNode oldNode = (ASTNode) node;
 			ASTNode newNode = oldNode.clone(target);
 			result.add(newNode);
 		}

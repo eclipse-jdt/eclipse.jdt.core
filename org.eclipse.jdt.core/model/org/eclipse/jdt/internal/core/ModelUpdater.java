@@ -235,8 +235,7 @@ public class ModelUpdater {
 		}
 		if (processChildren) {
 			IJavaElementDelta[] children = delta.getAffectedChildren();
-			for (int i = 0; i < children.length; i++) {
-				IJavaElementDelta childDelta = children[i];
+			for (IJavaElementDelta childDelta : children) {
 				traverseDelta(childDelta, root, project);
 			}
 		}

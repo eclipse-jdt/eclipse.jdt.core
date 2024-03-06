@@ -121,8 +121,8 @@ public int resolveLevel(Binding binding) {
 
 	if (this.pattern.superRefKind != SuperTypeReferencePattern.ONLY_SUPER_CLASSES) {
 		ReferenceBinding[] superInterfaces = type.superInterfaces();
-		for (int i = 0, max = superInterfaces.length; i < max; i++) {
-			int newLevel = resolveLevelForType(this.pattern.superSimpleName, this.pattern.superQualification, superInterfaces[i]);
+		for (ReferenceBinding element : superInterfaces) {
+			int newLevel = resolveLevelForType(this.pattern.superSimpleName, this.pattern.superQualification, element);
 			if (newLevel > level) {
 				if (newLevel == ACCURATE_MATCH) return ACCURATE_MATCH;
 				level = newLevel;

@@ -238,8 +238,7 @@ public class CopyPackageFragmentRootOperation extends JavaModelOperation {
 					IClasspathEntry[] destClasspath = destProject.getRawClasspath();
 					boolean foundSibling = false;
 					boolean foundExistingEntry = false;
-					for (int i = 0, length = destClasspath.length; i < length; i++) {
-						IClasspathEntry entry = destClasspath[i];
+					for (IClasspathEntry entry : destClasspath) {
 						if (entry.equals(this.sibling)) {
 							foundSibling = true;
 							break;

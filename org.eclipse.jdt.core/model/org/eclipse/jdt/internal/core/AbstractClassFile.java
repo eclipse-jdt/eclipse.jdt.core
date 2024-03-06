@@ -150,8 +150,8 @@ public abstract class AbstractClassFile extends Openable implements IClassFile, 
 		if (elt instanceof IParent) {
 			try {
 				IJavaElement[] children = ((IParent) elt).getChildren();
-				for (int i = 0; i < children.length; i++) {
-					IJavaElement match = findElement(children[i], position, mapper);
+				for (IJavaElement child : children) {
+					IJavaElement match = findElement(child, position, mapper);
 					if (match != null) {
 						return match;
 					}
@@ -292,9 +292,9 @@ public abstract class AbstractClassFile extends Openable implements IClassFile, 
 			int start = -1;
 			int end = Integer.MAX_VALUE;
 			IJavaElement[] children = fragment.getChildren();
-			for (int i = 0; i < children.length; i++) {
-				if (children[i] instanceof IOrdinaryClassFile) {
-					IOrdinaryClassFile classFile = (IOrdinaryClassFile) children[i];
+			for (IJavaElement child : children) {
+				if (child instanceof IOrdinaryClassFile) {
+					IOrdinaryClassFile classFile = (IOrdinaryClassFile) child;
 					String childName = classFile.getElementName();
 
 					int childIndex = childName.indexOf('$');

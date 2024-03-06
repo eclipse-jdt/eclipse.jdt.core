@@ -236,18 +236,18 @@ public class CompletionUnitStructureRequestor extends CompilationUnitStructureRe
 			ParameterizedSingleTypeReference parameterizedReference = (ParameterizedSingleTypeReference) reference;
 			TypeReference[] typeArguments = parameterizedReference.typeArguments;
 			if (typeArguments != null) {
-				for (int i = 0; i < typeArguments.length; i++) {
-					if (hasEmptyName(typeArguments[i], assistNode)) return true;
+				for (TypeReference typeArgument : typeArguments) {
+					if (hasEmptyName(typeArgument, assistNode)) return true;
 				}
 			}
 		} else if (reference instanceof ParameterizedQualifiedTypeReference) {
 			ParameterizedQualifiedTypeReference parameterizedReference = (ParameterizedQualifiedTypeReference) reference;
 			TypeReference[][] typeArguments = parameterizedReference.typeArguments;
 			if (typeArguments != null) {
-				for (int i = 0; i < typeArguments.length; i++) {
-					if (typeArguments[i] != null) {
-						for (int j = 0; j < typeArguments[i].length; j++) {
-							if (hasEmptyName(typeArguments[i][j], assistNode)) return true;
+				for (TypeReference[] typeArgument : typeArguments) {
+					if (typeArgument != null) {
+						for (int j = 0; j < typeArgument.length; j++) {
+							if (hasEmptyName(typeArgument[j], assistNode)) return true;
 						}
 					}
 				}

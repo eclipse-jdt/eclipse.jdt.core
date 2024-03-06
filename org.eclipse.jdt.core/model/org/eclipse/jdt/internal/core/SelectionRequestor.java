@@ -158,8 +158,8 @@ protected void acceptBinaryMethod(
 		if (typeParameterNames != null && typeParameterNames.length != 0) {
 			IMethod[] methods = type.findMethods(method);
 			if (methods != null && methods.length > 1) {
-				for (int i = 0; i < methods.length; i++) {
-					if (areTypeParametersCompatible(methods[i], typeParameterNames, typeParameterBoundNames)) {
+				for (IMethod method2 : methods) {
+					if (areTypeParametersCompatible(method2, typeParameterNames, typeParameterBoundNames)) {
 						acceptBinaryMethod(type, method, uniqueKey, isConstructor);
 					}
 				}
@@ -261,13 +261,12 @@ public void acceptField(char[] declaringTypePackageName, char[] declaringTypeNam
 						System.arraycopy(comps, 0, fields, f.length, comps.length);
 					}
 				}
-				for (int i = 0; i < fields.length; i++) {
-					IField field = fields[i];
+				for (IField field : fields) {
 					ISourceRange range = field.getNameRange();
 					if(range.getOffset() <= start
 							&& range.getOffset() + range.getLength() >= end
 							&& field.getElementName().equals(new String(name))) {
-						addElement(fields[i]);
+						addElement(field);
 						if(SelectionEngine.DEBUG){
 							trace("SELECTION - accept field(" + field.toString() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 						}
@@ -556,10 +555,10 @@ public void acceptMethod(
 public void acceptPackage(char[] packageName) {
 	IPackageFragment[] pkgs = this.nameLookup.findPackageFragments(new String(packageName), false);
 	if (pkgs != null) {
-		for (int i = 0, length = pkgs.length; i < length; i++) {
-			addElement(pkgs[i]);
+		for (IPackageFragment pkg : pkgs) {
+			addElement(pkg);
 			if(SelectionEngine.DEBUG){
-				trace("SELECTION - accept package(" + pkgs[i].toString() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
+				trace("SELECTION - accept package(" + pkg.toString() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		}
 	}
@@ -583,10 +582,10 @@ protected void acceptSourceMethod(
 	IMethod[] methods = null;
 	try {
 		methods = type.getMethods();
-		for (int i = 0; i < methods.length; i++) {
-			if (methods[i].getElementName().equals(name)
-					&& methods[i].getParameterTypes().length == parameterTypeNames.length) {
-				IMethod method = methods[i];
+		for (IMethod method2 : methods) {
+			if (method2.getElementName().equals(name)
+					&& method2.getParameterTypes().length == parameterTypeNames.length) {
+				IMethod method = method2;
 				if (uniqueKey != null) {
 					method = new ResolvedSourceMethod(
 						(JavaElement)method.getParent(),
@@ -678,12 +677,12 @@ protected void acceptMethodDeclaration(IType type, char[] selector, int start, i
 	IMethod[] methods = null;
 	try {
 		methods = type.getMethods();
-		for (int i = 0; i < methods.length; i++) {
-			ISourceRange range = methods[i].getNameRange();
+		for (IMethod method : methods) {
+			ISourceRange range = method.getNameRange();
 			if(range.getOffset() <= start
 					&& range.getOffset() + range.getLength() >= end
-					&& methods[i].getElementName().equals(name)) {
-				addElement(methods[i]);
+					&& method.getElementName().equals(name)) {
+				addElement(method);
 				if(SelectionEngine.DEBUG){
 					trace("SELECTION - accept method(" + this.elements[0].toString() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 				}
@@ -967,9 +966,9 @@ protected IType resolveType(char[] packageName, char[] typeName, int acceptFlags
 				} catch (JavaModelException e) {
 					return null;
 				}
-				for (int i= 0; i < allTypes.length; i++) {
-					if (allTypes[i].getTypeQualifiedName().equals(tName)) {
-						return allTypes[i];
+				for (IType type2 : allTypes) {
+					if (type2.getTypeQualifiedName().equals(tName)) {
+						return type2;
 					}
 				}
 			}
@@ -1047,9 +1046,9 @@ protected IType resolveTypeByLocation(char[] packageName, char[] typeName, int a
 				} catch (JavaModelException e) {
 					return null;
 				}
-				for (int i= 0; i < allTypes.length; i++) {
-					if (allTypes[i].getTypeQualifiedName().equals(tName)) {
-						return allTypes[i];
+				for (IType type2 : allTypes) {
+					if (type2.getTypeQualifiedName().equals(tName)) {
+						return type2;
 					}
 				}
 			}

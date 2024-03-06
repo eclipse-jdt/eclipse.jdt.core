@@ -59,8 +59,8 @@ protected void closing(Object info) throws JavaModelException {
 	super.closing(info);
 	SourceTypeElementInfo elementInfo = (SourceTypeElementInfo) info;
 	ITypeParameter[] typeParameters = elementInfo.typeParameters;
-	for (int i = 0, length = typeParameters.length; i < length; i++) {
-		((TypeParameter) typeParameters[i]).close();
+	for (ITypeParameter typeParameter : typeParameters) {
+		((TypeParameter) typeParameter).close();
 	}
 }
 /**
@@ -236,8 +236,8 @@ public IJavaElement[] getChildrenForCategory(String category) throws JavaModelEx
 		IJavaElement child = children[i];
 		String[] elementCategories = (String[]) categories.get(child);
 		if (elementCategories != null)
-			for (int j = 0, length2 = elementCategories.length; j < length2; j++) {
-				if (elementCategories[j].equals(category))
+			for (String element : elementCategories) {
+				if (element.equals(category))
 					result[index++] = child;
 			}
 	}

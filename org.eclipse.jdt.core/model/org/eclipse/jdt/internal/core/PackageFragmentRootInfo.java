@@ -171,8 +171,7 @@ boolean ignoreOptionalProblems(PackageFragmentRoot packageFragmentRoot) throws J
 	return this.ignoreOptionalProblems;
 }
 private static boolean isClasspathEntry(IPath path, IClasspathEntry[] resolvedClasspath) {
-	for (int i = 0, length = resolvedClasspath.length; i < length; i++) {
-		IClasspathEntry entry = resolvedClasspath[i];
+	for (IClasspathEntry entry : resolvedClasspath) {
 		if (entry.getPath().equals(path)) {
 			return true;
 		}

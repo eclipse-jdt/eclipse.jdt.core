@@ -26,7 +26,6 @@ import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -617,8 +616,7 @@ public class SourceMapper
 				if (resource instanceof IContainer) {
 					try {
 						IResource[] members = ((IContainer) resource).members();
-						for (int i = 0, max = members.length; i < max; i++) {
-							IResource member = members[i];
+						for (IResource member : members) {
 							String resourceName = member.getName();
 							if (member.getType() == IResource.FOLDER) {
 								if (sourceLevel == null) {
@@ -683,8 +681,8 @@ public class SourceMapper
 		}
 		int size = tempRoots.size();
 		if (this.rootPaths != null) {
-			for (Iterator iterator = this.rootPaths.iterator(); iterator.hasNext(); ) {
-				tempRoots.add(new Path((String) iterator.next()));
+			for (Object element : this.rootPaths) {
+				tempRoots.add(new Path((String) element));
 			}
 			this.rootPaths.clear();
 		} else {
@@ -703,8 +701,8 @@ public class SourceMapper
 					}
 				});
 			}
-			for (Iterator iter = sortedRoots.iterator(); iter.hasNext();) {
-				IPath path = (IPath) iter.next();
+			for (Object sortedRoot : sortedRoots) {
+				IPath path = (IPath) sortedRoot;
 				this.rootPaths.add(path.toString());
 			}
 		}
@@ -713,8 +711,8 @@ public class SourceMapper
 			trace("Spent " + (System.currentTimeMillis() - time) + "ms"); //$NON-NLS-1$ //$NON-NLS-2$
 			trace("Found " + size + " root paths");	//$NON-NLS-1$ //$NON-NLS-2$
 			int i = 0;
-			for (Iterator iterator = this.rootPaths.iterator(); iterator.hasNext();) {
-				trace("root[" + i + "]=" + ((String) iterator.next()));//$NON-NLS-1$ //$NON-NLS-2$
+			for (Object element : this.rootPaths) {
+				trace("root[" + i + "]=" + ((String) element));//$NON-NLS-1$ //$NON-NLS-2$
 				i++;
 			}
 		}
@@ -841,8 +839,7 @@ public class SourceMapper
 
 		// type parameters
 		if (typeInfo.typeParameters != null) {
-			for (int i = 0, length = typeInfo.typeParameters.length; i < length; i++) {
-				TypeParameterInfo typeParameterInfo = typeInfo.typeParameters[i];
+			for (TypeParameterInfo typeParameterInfo : typeInfo.typeParameters) {
 				ITypeParameter typeParameter = currentType.getTypeParameter(new String(typeParameterInfo.name));
 				setSourceRange(
 					typeParameter,
@@ -983,8 +980,7 @@ public class SourceMapper
 
 			// type parameters
 			if (methodInfo.typeParameters != null) {
-				for (int i = 0, length = methodInfo.typeParameters.length; i < length; i++) {
-					TypeParameterInfo typeParameterInfo = methodInfo.typeParameters[i];
+				for (TypeParameterInfo typeParameterInfo : methodInfo.typeParameters) {
 					ITypeParameter typeParameter = method.getTypeParameter(new String(typeParameterInfo.name));
 					setSourceRange(
 						typeParameter,
@@ -998,8 +994,7 @@ public class SourceMapper
 			}
 			// parameters infos
 			if (methodInfo.parameterInfos != null) {
-				for (int i = 0, length = methodInfo.parameterInfos.length; i < length; i++) {
-					ParameterInfo parameterInfo = methodInfo.parameterInfos[i];
+				for (ParameterInfo parameterInfo : methodInfo.parameterInfos) {
 					LocalVariableElementKey key = new LocalVariableElementKey(method, DeduplicationUtil.toString(parameterInfo.name));
 					SourceRange[] allRanges = new SourceRange[] {
 						new SourceRange(
@@ -1175,8 +1170,8 @@ public class SourceMapper
 				if (!(typeOrModule.getAncestor(IJavaElement.PACKAGE_FRAGMENT_ROOT) instanceof JrtPackageFragmentRoot)) {
 					computeAllRootPaths(typeOrModule);
 					if (this.rootPaths != null) {
-						loop: for (Iterator iterator = this.rootPaths.iterator(); iterator.hasNext(); ) {
-							String currentRootPath = (String) iterator.next();
+						loop: for (Object element : this.rootPaths) {
+							String currentRootPath = (String) element;
 							if (!currentRootPath.equals(this.rootPath)) {
 								source = getSourceForRootPath(currentRootPath, name);
 								if (source != null) {

@@ -185,8 +185,7 @@ public void checkComment() {
 		// Report reference info in javadoc comment @throws/@exception tags
 		TypeReference[] thrownExceptions = this.javadoc.exceptionReferences;
 		if (thrownExceptions != null) {
-			for (int i = 0, max=thrownExceptions.length; i < max; i++) {
-				TypeReference typeRef = thrownExceptions[i];
+			for (TypeReference typeRef : thrownExceptions) {
 				if (typeRef instanceof JavadocSingleTypeReference) {
 					JavadocSingleTypeReference singleRef = (JavadocSingleTypeReference) typeRef;
 					this.requestor.acceptTypeReference(singleRef.token, singleRef.sourceStart);
@@ -200,8 +199,7 @@ public void checkComment() {
 		// Report reference info in javadoc comment @see tags
 		Expression[] references = this.javadoc.seeReferences;
 		if (references != null) {
-			for (int i = 0, max=references.length; i < max; i++) {
-				Expression reference = references[i];
+			for (Expression reference : references) {
 				acceptJavadocTypeReference(reference);
 				if (reference instanceof JavadocFieldReference) {
 					JavadocFieldReference fieldRef = (JavadocFieldReference) reference;
@@ -804,8 +802,7 @@ protected void consumeUsesStatement() {
 protected void consumeWithClause() {
 	super.consumeWithClause();
 	ProvidesStatement service = (ProvidesStatement) this.astStack[this.astPtr];
-		for (int i = 0; i < service.implementations.length; i++) {
-			TypeReference ref = service.implementations[i];
+		for (TypeReference ref : service.implementations) {
 			this.requestor.acceptTypeReference(ref.getTypeName(), ref.sourceStart, ref.sourceEnd);
 		}
 }

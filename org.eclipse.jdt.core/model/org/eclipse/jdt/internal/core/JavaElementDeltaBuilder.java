@@ -239,8 +239,7 @@ private void findChangesInPositioning(IJavaElement element, int depth) {
 }
 private void findAnnotationChanges(IAnnotation[] oldAnnotations, IAnnotation[] newAnnotations, IJavaElement parent) {
 	ArrayList annotationDeltas = null;
-	for (int i = 0, length = newAnnotations.length; i < length; i++) {
-		IAnnotation newAnnotation = newAnnotations[i];
+	for (IAnnotation newAnnotation : newAnnotations) {
 		Object oldInfo = this.annotationInfos.remove(newAnnotation);
 		if (oldInfo == null) {
 			JavaElementDelta annotationDelta = new JavaElementDelta(newAnnotation);
@@ -263,8 +262,7 @@ private void findAnnotationChanges(IAnnotation[] oldAnnotations, IAnnotation[] n
 			}
 		}
 	}
-	for (int i = 0, length = oldAnnotations.length; i < length; i++) {
-		IAnnotation oldAnnotation = oldAnnotations[i];
+	for (IAnnotation oldAnnotation : oldAnnotations) {
 		if (this.annotationInfos.remove(oldAnnotation) != null) {
 			JavaElementDelta annotationDelta = new JavaElementDelta(oldAnnotation);
 			annotationDelta.removed();
@@ -342,9 +340,7 @@ private void findCategoryChange(Map<IJavaElement, String[]> oldCategoriesMap, Ma
 			}
 		}
 	} else if (newCategoriesMap != null) {
-		Iterator elements = newCategoriesMap.keySet().iterator();
-		while (elements.hasNext()) {
-			IJavaElement element = (IJavaElement) elements.next();
+		for (IJavaElement element : newCategoriesMap.keySet()) {
 			this.delta.changed(element, IJavaElementDelta.F_CATEGORIES); // all categories for this element were removed
 		}
 	}
@@ -430,8 +426,8 @@ private void recordElementInfo(IJavaElement element, JavaModel model, int depth)
 		IJavaElement[] children = info.getChildren();
 		if (children != null) {
 			insertPositions(children, false);
-			for(int i = 0, length = children.length; i < length; i++)
-				recordElementInfo(children[i], model, depth + 1);
+			for (IJavaElement child : children)
+				recordElementInfo(child, model, depth + 1);
 		}
 	}
 	IAnnotation[] annotations = null;
@@ -441,8 +437,8 @@ private void recordElementInfo(IJavaElement element, JavaModel model, int depth)
 		if (this.annotationInfos == null)
 			this.annotationInfos = new HashMap();
 		JavaModelManager manager = JavaModelManager.getJavaModelManager();
-		for (int i = 0, length = annotations.length; i < length; i++) {
-			this.annotationInfos.put(annotations[i], manager.getInfo(annotations[i]));
+		for (IAnnotation annotation : annotations) {
+			this.annotationInfos.put(annotation, manager.getInfo(annotation));
 		}
 	}
 }
@@ -461,8 +457,8 @@ private void recordNewPositions(IJavaElement newElement, int depth) {
 		IJavaElement[] children = info.getChildren();
 		if (children != null) {
 			insertPositions(children, true);
-			for(int i = 0, length = children.length; i < length; i++) {
-				recordNewPositions(children[i], depth + 1);
+			for (IJavaElement child : children) {
+				recordNewPositions(child, depth + 1);
 			}
 		}
 	}
@@ -503,8 +499,8 @@ private void trimDelta(JavaElementDelta elementDelta) {
 		elementDelta.clearAffectedChildren();
 	} else {
 		IJavaElementDelta[] children = elementDelta.getAffectedChildren();
-		for(int i = 0, length = children.length; i < length; i++) {
-			trimDelta((JavaElementDelta)children[i]);
+		for (IJavaElementDelta child : children) {
+			trimDelta((JavaElementDelta)child);
 		}
 	}
 }

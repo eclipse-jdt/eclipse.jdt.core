@@ -421,8 +421,7 @@ public class InternalNamingConventions {
 		char[] withoutPrefixName = name;
 		if (prefixes != null) {
 			int bestLength = 0;
-			for (int i= 0; i < prefixes.length; i++) {
-				char[] prefix = prefixes[i];
+			for (char[] prefix : prefixes) {
 				if (CharOperation.prefixEquals(prefix, name)) {
 					int currLen = prefix.length;
 					boolean lastCharIsLetter = ScannerHelper.isLetter(prefix[currLen - 1]);
@@ -440,8 +439,7 @@ public class InternalNamingConventions {
 		char[] withoutSuffixName = withoutPrefixName;
 		if(suffixes != null) {
 			int bestLength = 0;
-			for (int i = 0; i < suffixes.length; i++) {
-				char[] suffix = suffixes[i];
+			for (char[] suffix : suffixes) {
 				if(CharOperation.endsWith(withoutPrefixName, suffix)) {
 					int currLen = suffix.length;
 					if(bestLength < currLen && withoutPrefixName.length != currLen) {
@@ -462,9 +460,7 @@ public class InternalNamingConventions {
 		if (prefixes != null) {
 			int bestLength = 0;
 			int nameLength = name.length;
-			for (int i= 0; i < prefixes.length; i++) {
-				char[] prefix = prefixes[i];
-
+			for (char[] prefix : prefixes) {
 				int prefixLength = prefix.length;
 				if(prefixLength <= nameLength) {
 					if(CharOperation.prefixEquals(prefix, name, false)) {

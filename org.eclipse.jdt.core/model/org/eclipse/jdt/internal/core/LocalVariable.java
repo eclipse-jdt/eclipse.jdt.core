@@ -139,8 +139,7 @@ public class LocalVariable extends SourceRefElement implements ILocalVariable {
 
 	@Override
 	public IAnnotation getAnnotation(String annotationName) {
-		for (int i = 0, length = this.annotations.length; i < length; i++) {
-			IAnnotation annotation = this.annotations[i];
+		for (IAnnotation annotation : this.annotations) {
 			if (annotation.getElementName().equals(annotationName))
 				return annotation;
 		}

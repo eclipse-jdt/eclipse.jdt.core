@@ -179,8 +179,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 		} else {
 			return;
 		}
-		for (int i = 0, length = annotationBindings.length; i < length; i++) {
-			AnnotationBinding binding = annotationBindings[i];
+		for (AnnotationBinding binding : annotationBindings) {
 			if (binding.getAnnotationType() == annotationType) {
 				this.annotationBinding = binding;
 				break;
@@ -225,8 +224,8 @@ public class BindingKeyResolver extends BindingKeyParser {
 					case Binding.PARAMETERIZED_TYPE:
 						TypeBinding[] arguments = ((ParameterizedTypeBinding) binding).arguments;
 						if (arguments == null) return false;
-						for (int i = 0, length = arguments.length; i < length; i++) {
-							if (checkType(arguments[i]))
+						for (TypeBinding argument : arguments) {
+							if (checkType(argument))
 								return true;
 						}
 						break;
@@ -237,8 +236,8 @@ public class BindingKeyResolver extends BindingKeyParser {
 							return true;
 						TypeBinding[] otherBounds = ((WildcardBinding) binding).otherBounds;
 						// per construction, otherBounds is never null
-						for (int i = 0, length = otherBounds.length; i < length; i++) {
-							if (checkType(otherBounds[i]))
+						for (TypeBinding otherBound : otherBounds) {
+							if (checkType(otherBound))
 								return true;
 						}
 						break;
@@ -324,8 +323,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 		if (this.typeBinding == null)
 			return;
 		FieldBinding[] fields = ((ReferenceBinding) this.typeBinding).availableFields(); // resilience
-	 	for (int i = 0, length = fields.length; i < length; i++) {
-			FieldBinding field = fields[i];
+	 	for (FieldBinding field : fields) {
 			if (CharOperation.equals(fieldName, field.name)) {
 				this.typeBinding = null;
 				this.compilerBinding = field;
@@ -412,8 +410,8 @@ public class BindingKeyResolver extends BindingKeyParser {
 		if (this.typeBinding == null)
 			return;
 		MethodBinding[] methods = ((ReferenceBinding) this.typeBinding).availableMethods(); // resilience
-	 	for (int i = 0, methodLength = methods.length; i < methodLength; i++) {
-			MethodBinding method = methods[i];
+	 	for (MethodBinding method2 : methods) {
+			MethodBinding method = method2;
 			if (CharOperation.equals(selector, method.selector) || (selector.length == 0 && method.isConstructor())) {
 				char[] methodSignature = method.genericSignature();
 				if (methodSignature == null)
@@ -613,8 +611,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 	 	} else {
 	 		return;
 	 	}
-	 	for (int i = 0, length = typeVariableBindings.length; i < length; i++) {
-			TypeVariableBinding typeVariableBinding = typeVariableBindings[i];
+	 	for (TypeVariableBinding typeVariableBinding : typeVariableBindings) {
 			if (CharOperation.equals(typeVariableName, typeVariableBinding.sourceName())) {
 				this.typeBinding = typeVariableBinding;
 				return;
@@ -762,8 +759,7 @@ public class BindingKeyResolver extends BindingKeyParser {
 				(this.parsedUnit == null ? null : this.parsedUnit.types) :
 				this.typeDeclaration.memberTypes;
 		if (typeDeclarations == null) return null;
-		for (int i = 0, length = typeDeclarations.length; i < length; i++) {
-			TypeDeclaration declaration = typeDeclarations[i];
+		for (TypeDeclaration declaration : typeDeclarations) {
 			if (CharOperation.equals(simpleTypeName, declaration.name)) {
 				this.typeDeclaration = declaration;
 				return declaration.binding;
